@@ -1,56 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
+#pragma warning disable CS0169
 #pragma warning disable CS0649
-namespace Il2CppDumper
+namespace Il2CppDumper.v23._64bit
 {
-    public class Il2CppCodeRegistration
+    class Il2CppCodeRegistration
     {
-        public uint methodPointersCount;
-        public uint methodPointers;
-        public uint delegateWrappersFromNativeToManagedCount;
-        public uint delegateWrappersFromNativeToManaged; // note the double indirection to handle different calling conventions
-        public uint delegateWrappersFromManagedToNativeCount;
-        public uint delegateWrappersFromManagedToNative;
-        public uint marshalingFunctionsCount;
-        public uint marshalingFunctions;
-        public uint ccwMarshalingFunctionsCount;
-        public uint ccwMarshalingFunctions;
-        public uint genericMethodPointersCount;
-        public uint genericMethodPointers;
-        public uint invokerPointersCount;
-        public uint invokerPointers;
-        public int customAttributeCount;
-        public uint customAttributeGenerators;
-        public int guidCount;
-        public uint guids; // Il2CppGuid
+        public ulong methodPointersCount;
+        public ulong methodPointers;
+        public ulong reversePInvokeWrapperCount;
+        public ulong reversePInvokeWrappers;
+        public ulong genericMethodPointersCount;
+        public ulong genericMethodPointers;
+        public ulong invokerPointersCount;
+        public ulong invokerPointers;
+        public long customAttributeCount;
+        public ulong customAttributeGenerators;
+        public ulong unresolvedVirtualCallCount;
+        public ulong unresolvedVirtualCallPointers;
+        public ulong interopDataCount;
+        public ulong interopData;
     }
 
     class Il2CppMetadataRegistration
     {
-        public int genericClassesCount;
-        public uint genericClasses;
-        public int genericInstsCount;
-        public uint genericInsts;
-        public int genericMethodTableCount;
-        public uint genericMethodTable; // Il2CppGenericMethodFunctionsDefinitions
-        public int typesCount;
-        public uint types;
-        public int methodSpecsCount;
-        public uint methodSpecs;
+        public long genericClassesCount;
+        public ulong genericClasses;
+        public long genericInstsCount;
+        public ulong genericInsts;
+        public long genericMethodTableCount;
+        public ulong genericMethodTable;
+        public long typesCount;
+        public ulong types;
+        public long methodSpecsCount;
+        public ulong methodSpecs;
 
-        public int fieldOffsetsCount;
-        public uint fieldOffsets;
+        public long fieldOffsetsCount;
+        public ulong fieldOffsets;
 
-        public int typeDefinitionsSizesCount;
-        public uint typeDefinitionsSizes;
-        public uint metadataUsagesCount;
-        public uint metadataUsages;
+        public long typeDefinitionsSizesCount;
+        public ulong typeDefinitionsSizes;
+        public ulong metadataUsagesCount;
+        public ulong metadataUsages;
     }
 
-    public enum Il2CppTypeEnum
+    enum Il2CppTypeEnum
     {
         IL2CPP_TYPE_END = 0x00,       /* End of List */
         IL2CPP_TYPE_VOID = 0x01,
@@ -92,9 +88,9 @@ namespace Il2CppDumper
         IL2CPP_TYPE_ENUM = 0x55        /* an enumeration */
     }
 
-    public class Il2CppType
+    class Il2CppType
     {
-        public uint datapoint;
+        public ulong datapoint;
         public Anonymous data { get; set; }
         public uint bits;
         public uint attrs { get; set; }
@@ -120,46 +116,45 @@ namespace Il2CppDumper
 
         public class Anonymous
         {
-            public uint dummy;
-            public int klassIndex => (int)dummy;
+            public ulong dummy;
+            public long klassIndex => (long)dummy;
 
-            public uint type => dummy;
-            public uint array => dummy;
+            public ulong type => dummy;
+            public ulong array => dummy;
 
-            public int genericParameterIndex => (int)dummy;
-            public uint generic_class => dummy;
+            public long genericParameterIndex => (long)dummy;
+            public ulong generic_class => dummy;
         }
     }
 
-    public class Il2CppGenericClass
+    class Il2CppGenericClass
     {
-        public int typeDefinitionIndex;    /* the generic type definition */
+        public long typeDefinitionIndex;    /* the generic type definition */
         public Il2CppGenericContext context;   /* a context that contains the type instantiation doesn't contain any method instantiation */
-        public uint cached_class; /* if present, the Il2CppClass corresponding to the instantiation.  */
+        public ulong cached_class;  /* if present, the Il2CppClass corresponding to the instantiation.  */
     }
 
-    public class Il2CppGenericContext
+    class Il2CppGenericContext
     {
         /* The instantiation corresponding to the class generic parameters */
-        public uint class_inst;
+        public ulong class_inst;
         /* The instantiation corresponding to the method generic parameters */
-        public uint method_inst;
+        public ulong method_inst;
     }
 
-
-    public class Il2CppGenericInst
+    class Il2CppGenericInst
     {
-        public uint type_argc;
-        public uint type_argv;
+        public ulong type_argc;
+        public ulong type_argv;
     }
 
-    public class Il2CppArrayType
+    class Il2CppArrayType
     {
-        public uint etype;
+        public ulong etype;
         public byte rank;
         public byte numsizes;
         public byte numlobounds;
-        public uint sizes;
-        public uint lobounds;
+        public ulong sizes;
+        public ulong lobounds;
     }
 }

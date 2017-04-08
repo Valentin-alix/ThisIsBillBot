@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+#pragma warning disable CS0169
 #pragma warning disable CS0649
-namespace Il2CppDumper
+namespace Il2CppDumper.v23
 {
     class Il2CppGlobalMetadataHeader
     {
@@ -67,6 +68,12 @@ namespace Il2CppDumper
         public int attributesInfoCount;
         public int attributeTypesOffset; // TypeIndex
         public int attributeTypesCount;
+        public int unresolvedVirtualCallParameterTypesOffset; // TypeIndex
+        public int unresolvedVirtualCallParameterTypesCount;
+        public int unresolvedVirtualCallParameterRangesOffset; // Il2CppRange
+        public int unresolvedVirtualCallParameterRangesCount;
+        public int windowsRuntimeTypeNamesOffset; // Il2CppWindowsRuntimeTypeNamePair
+        public int windowsRuntimeTypeNamesSize;
     }
 
     class Il2CppImageDefinition
@@ -81,7 +88,7 @@ namespace Il2CppDumper
         public uint token;
     }
 
-    public class Il2CppTypeDefinition
+    class Il2CppTypeDefinition
     {
         public int nameIndex;
         public int namespaceIndex;
@@ -97,11 +104,6 @@ namespace Il2CppDumper
         public int rgctxCount;
 
         public int genericContainerIndex;
-
-        public int delegateWrapperFromManagedToNativeIndex;
-        public int marshalingFunctionsIndex;
-        public int ccwFunctionIndex;
-        public int guidIndex;
 
         public uint flags;
 
@@ -129,13 +131,13 @@ namespace Il2CppDumper
         // 03 - has_finalize;
         // 04 - has_cctor;
         // 05 - is_blittable;
-        // 06 - is_import;
+        // 06 - is_import_or_windows_runtime;
         // 07-10 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128)
         public uint bitfield;
         public uint token;
     }
 
-    public class Il2CppMethodDefinition
+    class Il2CppMethodDefinition
     {
         public int nameIndex;
         public int declaringType;
@@ -145,7 +147,7 @@ namespace Il2CppDumper
         public int genericContainerIndex;
         public int methodIndex;
         public int invokerIndex;
-        public int delegateWrapperIndex;
+        public int reversePInvokeWrapperIndex;
         public int rgctxStartIndex;
         public int rgctxCount;
         public uint token;
@@ -155,7 +157,7 @@ namespace Il2CppDumper
         public ushort parameterCount;
     }
 
-    public class Il2CppParameterDefinition
+    class Il2CppParameterDefinition
     {
         public int nameIndex;
         public uint token;
@@ -163,7 +165,7 @@ namespace Il2CppDumper
         public int typeIndex;
     }
 
-    public class Il2CppFieldDefinition
+    class Il2CppFieldDefinition
     {
         public int nameIndex;
         public int typeIndex;
@@ -171,14 +173,14 @@ namespace Il2CppDumper
         public uint token;
     }
 
-    public class Il2CppFieldDefaultValue
+    class Il2CppFieldDefaultValue
     {
         public int fieldIndex;
         public int typeIndex;
         public int dataIndex;
     }
 
-    public class Il2CppPropertyDefinition
+    class Il2CppPropertyDefinition
     {
         public int nameIndex;
         public int get;
@@ -188,7 +190,7 @@ namespace Il2CppDumper
         public uint token;
     }
 
-    public class Il2CppCustomAttributeTypeRange
+    class Il2CppCustomAttributeTypeRange
     {
         public int start;
         public int count;

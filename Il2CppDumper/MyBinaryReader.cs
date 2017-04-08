@@ -9,7 +9,7 @@ namespace Il2CppDumper
     {
         public MyBinaryReader(Stream stream) : base(stream) { }
 
-        public long Position
+        public dynamic Position
         {
             get
             {
@@ -17,13 +17,13 @@ namespace Il2CppDumper
             }
             set
             {
-                BaseStream.Position = value;
+                BaseStream.Position = (long)value;
             }
         }
 
-        public T ReadClass<T>(long addr) where T : new()
+        public T ReadClass<T>(dynamic addr) where T : new()
         {
-            BaseStream.Position = addr;
+            Position = addr;
             return ReadClass<T>();
         }
 
@@ -40,6 +40,14 @@ namespace Il2CppDumper
                 {
                     return (T)(object)ReadUInt32();
                 }
+                else if (type == typeof(long))
+                {
+                    return (T)(object)ReadInt64();
+                }
+                else if (type == typeof(ulong))
+                {
+                    return (T)(object)ReadUInt64();
+                }
                 else
                 {
                     return default(T);
@@ -47,7 +55,7 @@ namespace Il2CppDumper
             }
             else
             {
-                T t = new T();
+                var t = new T();
                 foreach (var i in t.GetType().GetFields())
                 {
                     if (i.FieldType == typeof(int))
@@ -70,6 +78,14 @@ namespace Il2CppDumper
                     {
                         i.SetValue(t, ReadByte());
                     }
+                    else if (i.FieldType == typeof(long))
+                    {
+                        i.SetValue(t, ReadInt64());
+                    }
+                    else if (i.FieldType == typeof(ulong))
+                    {
+                        i.SetValue(t, ReadUInt64());
+                    }
                     else
                     {
                         var mi = GetType().GetMethod("ReadClass", Type.EmptyTypes);
@@ -82,50 +98,21 @@ namespace Il2CppDumper
             }
         }
 
-        public T[] ReadClassArray<T>(long addr, int count) where T : new()
+        public T[] ReadClassArray<T>(dynamic addr, long count) where T : new()
         {
-            BaseStream.Position = addr;
-            var type = typeof(T);
-            if (type.IsPrimitive)
+            Position = addr;
+            var t = new T[count];
+            for (var i = 0; i < count; i++)
             {
-                if (type == typeof(int))
-                {
-                    int[] t = new int[count];
-                    for (int i = 0; i < count; i++)
-                    {
-                        t[i] = ReadInt32();
-                    }
-                    return t as T[];
-                }
-                else if (type == typeof(uint))
-                {
-                    uint[] t = new uint[count];
-                    for (int i = 0; i < count; i++)
-                    {
-                        t[i] = ReadUInt32();
-                    }
-                    return t as T[];
-                }
-                else
-                {
-                    return null;
-                }
+                t[i] = ReadClass<T>();
             }
-            else
-            {
-                T[] t = new T[count];
-                for (int i = 0; i < count; i++)
-                {
-                    t[i] = ReadClass<T>();
-                }
-                return t;
-            }
+            return t;
         }
 
-        public string ReadStringToNull(long addr)
+        public string ReadStringToNull(dynamic addr)
         {
-            BaseStream.Position = addr;
-            List<byte> bytes = new List<byte>();
+            Position = addr;
+            var bytes = new List<byte>();
             byte b;
             while ((b = ReadByte()) != 0)
                 bytes.Add(b);

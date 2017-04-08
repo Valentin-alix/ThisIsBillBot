@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 
-namespace Il2CppDumper
+namespace Il2CppDumper.v23
 {
     abstract class Il2Cpp : MyBinaryReader
     {
