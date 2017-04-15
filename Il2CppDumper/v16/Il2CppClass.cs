@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-#pragma warning disable CS0649
-namespace Il2CppDumper
+
+namespace Il2CppDumper.v16
 {
     public class Il2CppCodeRegistration
     {
@@ -16,38 +13,34 @@ namespace Il2CppDumper
         public uint delegateWrappersFromManagedToNative;
         public uint marshalingFunctionsCount;
         public uint marshalingFunctions;
-        public uint ccwMarshalingFunctionsCount;
-        public uint ccwMarshalingFunctions;
         public uint genericMethodPointersCount;
         public uint genericMethodPointers;
         public uint invokerPointersCount;
         public uint invokerPointers;
         public int customAttributeCount;
         public uint customAttributeGenerators;
-        public int guidCount;
-        public uint guids; // Il2CppGuid
     }
 
-    class Il2CppMetadataRegistration
+    public class Il2CppMetadataRegistration
     {
         public int genericClassesCount;
         public uint genericClasses;
         public int genericInstsCount;
         public uint genericInsts;
         public int genericMethodTableCount;
-        public uint genericMethodTable; // Il2CppGenericMethodFunctionsDefinitions
+        public uint genericMethodTable;
         public int typesCount;
         public uint types;
         public int methodSpecsCount;
         public uint methodSpecs;
+        public int methodReferencesCount;
+        public uint methodReferences;
 
         public int fieldOffsetsCount;
         public uint fieldOffsets;
 
         public int typeDefinitionsSizesCount;
         public uint typeDefinitionsSizes;
-        public uint metadataUsagesCount;
-        public uint metadataUsages;
     }
 
     public enum Il2CppTypeEnum
@@ -95,7 +88,7 @@ namespace Il2CppDumper
     public class Il2CppType
     {
         public uint datapoint;
-        public Anonymous data { get; set; }
+        public Union data { get; set; }
         public uint bits;
         public uint attrs { get; set; }
         public Il2CppTypeEnum type { get; set; }
@@ -115,17 +108,15 @@ namespace Il2CppDumper
             num_mods = Convert.ToUInt32(str.Substring(2, 6), 2);
             byref = Convert.ToUInt32(str.Substring(1, 1), 2);
             pinned = Convert.ToUInt32(str.Substring(0, 1), 2);
-            data = new Anonymous() { dummy = datapoint };
+            data = new Union { dummy = datapoint };
         }
 
-        public class Anonymous
+        public class Union
         {
             public uint dummy;
             public int klassIndex => (int)dummy;
-
             public uint type => dummy;
             public uint array => dummy;
-
             public int genericParameterIndex => (int)dummy;
             public uint generic_class => dummy;
         }
@@ -145,7 +136,6 @@ namespace Il2CppDumper
         /* The instantiation corresponding to the method generic parameters */
         public uint method_inst;
     }
-
 
     public class Il2CppGenericInst
     {

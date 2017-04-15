@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Il2CppDumper.v23
+namespace Il2CppDumper.v22
 {
     public class Il2CppGlobalMetadataHeader
     {
@@ -71,8 +71,6 @@ namespace Il2CppDumper.v23
         public int unresolvedVirtualCallParameterTypesCount;
         public int unresolvedVirtualCallParameterRangesOffset; // Il2CppRange
         public int unresolvedVirtualCallParameterRangesCount;
-        public int windowsRuntimeTypeNamesOffset; // Il2CppWindowsRuntimeTypeNamePair
-        public int windowsRuntimeTypeNamesSize;
     }
 
     public class Il2CppImageDefinition
@@ -103,6 +101,11 @@ namespace Il2CppDumper.v23
         public int rgctxCount;
 
         public int genericContainerIndex;
+
+        public int reversePInvokeWrapperIndex;
+        public int marshalingFunctionsIndex;
+        public int ccwFunctionIndex;
+        public int guidIndex;
 
         public uint flags;
 

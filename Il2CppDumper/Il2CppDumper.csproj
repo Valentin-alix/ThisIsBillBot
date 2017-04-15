@@ -34,6 +34,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -42,39 +43,47 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="64bit\Dump.cs" />
-    <Compile Include="64bit\Il2Cpp.cs" />
-    <Compile Include="64bit\Il2CppClass.cs" />
-    <Compile Include="64bit\Macho.cs" />
-    <Compile Include="64bit\MachoClass.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="Elf.cs" />
+    <Compile Include="Il2CppGeneric.cs" />
+    <Compile Include="Il2CppGenericClass.cs" />
+    <Compile Include="Macho.cs" />
+    <Compile Include="MetadataGeneric.cs" />
+    <Compile Include="MetadataGenericClass.cs" />
+    <Compile Include="MyCopy.cs" />
+    <Compile Include="v16\64bit\Il2CppClass.cs" />
+    <Compile Include="v20\64bit\Il2CppClass.cs" />
+    <Compile Include="v21\64bit\Il2CppClass.cs" />
     <Compile Include="ArmHelper.cs" />
     <Compile Include="DefineConstants.cs" />
-    <Compile Include="Elf.cs" />
     <Compile Include="ElfClass.cs" />
-    <Compile Include="Il2Cpp.cs" />
-    <Compile Include="Il2CppClass.cs" />
-    <Compile Include="Macho.cs" />
+    <Compile Include="v21\Il2CppClass.cs" />
     <Compile Include="MachoClass.cs" />
     <Compile Include="MachoFat.cs" />
-    <Compile Include="Metadata.cs" />
-    <Compile Include="MetadataClass.cs" />
+    <Compile Include="v21\MetadataClass.cs" />
     <Compile Include="MyBinaryReader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="v23\64bit\Dump.cs" />
-    <Compile Include="v23\64bit\Il2Cpp.cs" />
+    <Compile Include="v16\Il2CppClass.cs" />
+    <Compile Include="v16\MetadataClass.cs" />
+    <Compile Include="v20\Il2CppClass.cs" />
+    <Compile Include="v20\MetadataClass.cs" />
+    <Compile Include="v22\64bit\Il2CppClass.cs" />
+    <Compile Include="v22\Il2CppClass.cs" />
+    <Compile Include="v22\MetadataClass.cs" />
     <Compile Include="v23\64bit\Il2CppClass.cs" />
-    <Compile Include="v23\64bit\Macho.cs" />
-    <Compile Include="v23\64bit\MachoClass.cs" />
-    <Compile Include="v23\Dump.cs" />
-    <Compile Include="v23\Elf.cs" />
-    <Compile Include="v23\Il2Cpp.cs" />
+    <Compile Include="Macho64.cs" />
     <Compile Include="v23\Il2CppClass.cs" />
-    <Compile Include="v23\Macho.cs" />
-    <Compile Include="v23\Metadata.cs" />
     <Compile Include="v23\MetadataClass.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ida">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

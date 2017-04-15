@@ -1,26 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Il2CppDumper.v23
+namespace Il2CppDumper.v21
 {
     public class Il2CppCodeRegistration
     {
         public uint methodPointersCount;
         public uint methodPointers;
-        public uint reversePInvokeWrapperCount;
-        public uint reversePInvokeWrappers;
+        public uint delegateWrappersFromNativeToManagedCount;
+        public uint delegateWrappersFromNativeToManaged; // note the double indirection to handle different calling conventions
+        public uint delegateWrappersFromManagedToNativeCount;
+        public uint delegateWrappersFromManagedToNative;
+        public uint marshalingFunctionsCount;
+        public uint marshalingFunctions;
+        public uint ccwMarshalingFunctionsCount;
+        public uint ccwMarshalingFunctions;
         public uint genericMethodPointersCount;
         public uint genericMethodPointers;
         public uint invokerPointersCount;
         public uint invokerPointers;
         public int customAttributeCount;
         public uint customAttributeGenerators;
-        public uint unresolvedVirtualCallCount;
-        public uint unresolvedVirtualCallPointers;
-        public uint interopDataCount;
-        public uint interopData;
+        public int guidCount;
+        public uint guids; // Il2CppGuid
     }
 
     public class Il2CppMetadataRegistration
@@ -30,7 +35,7 @@ namespace Il2CppDumper.v23
         public int genericInstsCount;
         public uint genericInsts;
         public int genericMethodTableCount;
-        public uint genericMethodTable;
+        public uint genericMethodTable; // Il2CppGenericMethodFunctionsDefinitions
         public int typesCount;
         public uint types;
         public int methodSpecsCount;
@@ -128,7 +133,7 @@ namespace Il2CppDumper.v23
     {
         public int typeDefinitionIndex;    /* the generic type definition */
         public Il2CppGenericContext context;   /* a context that contains the type instantiation doesn't contain any method instantiation */
-        public uint cached_class;  /* if present, the Il2CppClass corresponding to the instantiation.  */
+        public uint cached_class; /* if present, the Il2CppClass corresponding to the instantiation.  */
     }
 
     public class Il2CppGenericContext

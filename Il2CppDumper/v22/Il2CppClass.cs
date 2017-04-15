@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Il2CppDumper.v23
+namespace Il2CppDumper.v22
 {
     public class Il2CppCodeRegistration
     {
@@ -11,16 +12,22 @@ namespace Il2CppDumper.v23
         public uint methodPointers;
         public uint reversePInvokeWrapperCount;
         public uint reversePInvokeWrappers;
+        public uint delegateWrappersFromManagedToNativeCount;
+        public uint delegateWrappersFromManagedToNative;
+        public uint marshalingFunctionsCount;
+        public uint marshalingFunctions;
+        public uint ccwMarshalingFunctionsCount;
+        public uint ccwMarshalingFunctions;
         public uint genericMethodPointersCount;
         public uint genericMethodPointers;
         public uint invokerPointersCount;
         public uint invokerPointers;
         public int customAttributeCount;
         public uint customAttributeGenerators;
+        public int guidCount;
+        public uint guids;
         public uint unresolvedVirtualCallCount;
         public uint unresolvedVirtualCallPointers;
-        public uint interopDataCount;
-        public uint interopData;
     }
 
     public class Il2CppMetadataRegistration
@@ -128,7 +135,7 @@ namespace Il2CppDumper.v23
     {
         public int typeDefinitionIndex;    /* the generic type definition */
         public Il2CppGenericContext context;   /* a context that contains the type instantiation doesn't contain any method instantiation */
-        public uint cached_class;  /* if present, the Il2CppClass corresponding to the instantiation.  */
+        public uint cached_class; /* if present, the Il2CppClass corresponding to the instantiation.  */
     }
 
     public class Il2CppGenericContext

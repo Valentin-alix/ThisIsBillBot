@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-#pragma warning disable CS0649
-namespace Il2CppDumper
+
+namespace Il2CppDumper.v21
 {
-    class Il2CppGlobalMetadataHeader
+    public class Il2CppGlobalMetadataHeader
     {
         public uint sanity;
         public int version;
@@ -61,7 +61,7 @@ namespace Il2CppDumper
         public int metadataUsagePairsCount;
         public int fieldRefsOffset; // Il2CppFieldRef
         public int fieldRefsCount;
-        public int referencedAssembliesOffset; // int
+        public int referencedAssembliesOffset; // int32_t
         public int referencedAssembliesCount;
         public int attributesInfoOffset; // Il2CppCustomAttributeTypeRange
         public int attributesInfoCount;
@@ -69,7 +69,7 @@ namespace Il2CppDumper
         public int attributeTypesCount;
     }
 
-    class Il2CppImageDefinition
+    public class Il2CppImageDefinition
     {
         public int nameIndex;
         public int assemblyIndex;
@@ -192,5 +192,23 @@ namespace Il2CppDumper
     {
         public int start;
         public int count;
+    }
+
+    public class Il2CppMetadataUsageList
+    {
+        public uint start;
+        public uint count;
+    }
+
+    public class Il2CppMetadataUsagePair
+    {
+        public uint destinationIndex;
+        public uint encodedSourceIndex;
+    }
+
+    public class Il2CppStringLiteral
+    {
+        public uint length;
+        public int dataIndex;
     }
 }
