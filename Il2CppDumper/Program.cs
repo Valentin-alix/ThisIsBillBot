@@ -59,11 +59,11 @@ namespace Il2CppDumper
                                 if (key.KeyChar == '2')
                                 {
                                     if (isElf)
-                                        il2cpp = new Elf(new MemoryStream(il2cppfile), metadata.version);
+                                        il2cpp = new Elf(new MemoryStream(il2cppfile), metadata.version, metadata.maxmetadataUsages);
                                     else if (is64bit)
-                                        il2cpp = new Macho64(new MemoryStream(il2cppfile), metadata.version);
+                                        il2cpp = new Macho64(new MemoryStream(il2cppfile), metadata.version, metadata.maxmetadataUsages);
                                     else
-                                        il2cpp = new Macho(new MemoryStream(il2cppfile), metadata.version);
+                                        il2cpp = new Macho(new MemoryStream(il2cppfile), metadata.version, metadata.maxmetadataUsages);
                                     if (!il2cpp.Search())
                                     {
                                         throw new Exception("ERROR: Unable to process file automatically, try to use manual mode.");
@@ -76,11 +76,11 @@ namespace Il2CppDumper
                                     Console.Write("Input MetadataRegistration(R1): ");
                                     var metadataRegistration = Convert.ToUInt64(Console.ReadLine(), 16);
                                     if (isElf)
-                                        il2cpp = new Elf(new MemoryStream(il2cppfile), codeRegistration, metadataRegistration, metadata.version);
+                                        il2cpp = new Elf(new MemoryStream(il2cppfile), codeRegistration, metadataRegistration, metadata.version, metadata.maxmetadataUsages);
                                     else if (is64bit)
-                                        il2cpp = new Macho64(new MemoryStream(il2cppfile), codeRegistration, metadataRegistration, metadata.version);
+                                        il2cpp = new Macho64(new MemoryStream(il2cppfile), codeRegistration, metadataRegistration, metadata.version, metadata.maxmetadataUsages);
                                     else
-                                        il2cpp = new Macho(new MemoryStream(il2cppfile), codeRegistration, metadataRegistration, metadata.version);
+                                        il2cpp = new Macho(new MemoryStream(il2cppfile), codeRegistration, metadataRegistration, metadata.version, metadata.maxmetadataUsages);
                                 }
                                 else
                                 {
@@ -91,13 +91,6 @@ namespace Il2CppDumper
                                 //Script
                                 var scriptwriter = new StreamWriter(new FileStream("script.py", FileMode.Create));
                                 scriptwriter.WriteLine(File.ReadAllText("ida"));
-                                if (metadata.version > 16)
-                                {
-                                    foreach (var i in DumpString())
-                                    {
-                                        scriptwriter.WriteLine($"SetString(0x{il2cpp.metadataUsages[i.Key]:x}, '{ToUnicodeString(i.Value)}')");
-                                    }
-                                }
                                 //
                                 //dump_image();
                                 for (var imageIndex = 0; imageIndex < metadata.uiImageCount; imageIndex++)
@@ -185,7 +178,8 @@ namespace Il2CppDumper
                                                                 multi = metadata.ReadSByte();
                                                                 break;
                                                             case Il2CppTypeEnum.IL2CPP_TYPE_CHAR:
-                                                                multi = metadata.ReadChar();
+                                                                //multi = metadata.ReadChar();
+                                                                multi = BitConverter.ToChar(metadata.ReadBytes(2), 0);
                                                                 break;
                                                             case Il2CppTypeEnum.IL2CPP_TYPE_U2:
                                                                 multi = metadata.ReadUInt16();
@@ -362,6 +356,15 @@ namespace Il2CppDumper
                                         writer.Write("*/\n}\n");
                                     }
                                 }
+                                //Script
+                                if (metadata.version > 16)
+                                {
+                                    foreach (var i in metadata.stringLiteralsdic)
+                                    {
+                                        scriptwriter.WriteLine($"SetString(0x{il2cpp.metadataUsages[i.Key]:x}, '{ToUnicodeString(i.Value)}')");
+                                    }
+                                }
+                                //
                                 writer.Close();
                                 scriptwriter.Close();
                                 Console.WriteLine("Done !");
@@ -434,36 +437,6 @@ namespace Il2CppDumper
                 sb.AppendFormat("{0}[{1}] // {2:x}\n", padding, get_type_name(il2cpp.types[typeIndex]), il2cpp.customAttributeGenerators[index]);
             }
             return sb.ToString();
-        }
-
-        private static SortedDictionary<uint, string> DumpString()
-        {
-            var dic = new SortedDictionary<uint, string>();
-            foreach (var metadataUsageList in metadata.metadataUsageLists)
-            {
-                for (int i = 0; i < metadataUsageList.count; i++)
-                {
-                    var offset = metadataUsageList.start + i;
-                    var metadataUsagePairs = metadata.metadataUsagePairs[offset];
-                    var usage = GetEncodedIndexType(metadataUsagePairs.encodedSourceIndex);
-                    var decodedIndex = GetDecodedMethodIndex(metadataUsagePairs.encodedSourceIndex);
-                    if (usage == 5) //kIl2CppMetadataUsageStringLiteral
-                    {
-                        dic[metadataUsagePairs.destinationIndex] = metadata.GetStringLiteralFromIndex(decodedIndex);
-                    }
-                }
-            }
-            return dic;
-        }
-
-        private static uint GetEncodedIndexType(uint index)
-        {
-            return ((index & 0xE0000000) >> 29);
-        }
-
-        private static uint GetDecodedMethodIndex(uint index)
-        {
-            return index & 0x1FFFFFFFU;
         }
 
         private static string ToUnicodeString(string str)
