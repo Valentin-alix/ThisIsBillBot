@@ -10,9 +10,10 @@ namespace Il2CppDumper
 {
     class Program
     {
-        static MetadataGeneric metadata;
-        static Il2CppGeneric il2cpp;
+        private static MetadataGeneric metadata;
+        private static Il2CppGeneric il2cpp;
         private static Config config;
+        private static Dictionary<Il2CppMethodDefinition, string> methodModifiers = new Dictionary<Il2CppMethodDefinition, string>();
 
         [STAThread]
         static void Main(string[] args)
@@ -42,10 +43,21 @@ namespace Il2CppDumper
                                 goto case 0xFEEDFACE;
                             case 0xCAFEBABE://FAT header
                             case 0xBEBAFECA:
-                                Console.WriteLine("WARNING: fat macho will only dump the first object file.");
-                                var fat = new MachoFat(new MemoryStream(il2cppfile));
-                                il2cppfile = fat.GetFirstMacho();
-                                var magic = fat.GetFirstMachoMagic();
+                                var machofat = new MachoFat(new MemoryStream(il2cppfile));
+                                Console.Write("Select platform: ");
+                                for (var i = 0; i < machofat.fats.Length; i++)
+                                {
+                                    var fat = machofat.fats[i];
+                                    if (fat.magic == 0xFEEDFACF)//64-bit mach object file
+                                        Console.Write($"{i + 1}.64bit ");
+                                    else
+                                        Console.Write($"{i + 1}.32bit ");
+                                }
+                                Console.WriteLine();
+                                var key = Console.ReadKey(true);
+                                var index = int.Parse(key.KeyChar.ToString()) - 1;
+                                var magic = machofat.fats[index].magic;
+                                il2cppfile = machofat.GetMacho(index);
                                 if (magic == 0xFEEDFACF)// 64-bit mach object file
                                     goto case 0xFEEDFACF;
                                 else
@@ -54,8 +66,8 @@ namespace Il2CppDumper
                                 is64bit = true;
                                 goto case 0xFEEDFACE;
                             case 0xFEEDFACE:// 32-bit mach object file
-                                Console.WriteLine("Select Mode: 1. Manual 2.Auto");
-                                var key = Console.ReadKey(true);
+                                Console.WriteLine("Select Mode: 1.Manual 2.Auto");
+                                key = Console.ReadKey(true);
                                 if (key.KeyChar == '2')
                                 {
                                     if (isElf)
@@ -97,47 +109,72 @@ namespace Il2CppDumper
                                 Console.WriteLine("Dumping...");
                                 //Script
                                 var scriptwriter = new StreamWriter(new FileStream("script.py", FileMode.Create));
-                                scriptwriter.WriteLine(File.ReadAllText("ida"));
+                                scriptwriter.WriteLine(Resource1.ida);
                                 //
-                                //dump_image();
+                                //dump image;
                                 for (var imageIndex = 0; imageIndex < metadata.uiImageCount; imageIndex++)
                                 {
                                     var imageDef = metadata.imageDefs[imageIndex];
-                                    writer.Write(
-                                        $"// Image {imageIndex}: {metadata.GetString(imageDef.nameIndex)} - {imageDef.typeStart}\n");
+                                    writer.Write($"// Image {imageIndex}: {metadata.GetString(imageDef.nameIndex)} - {imageDef.typeStart}\n");
                                 }
+                                //dump type;
                                 for (var idx = 0; idx < metadata.uiNumTypes; ++idx)
                                 {
                                     try
                                     {
-                                        //dump_class(i);
                                         var typeDef = metadata.typeDefs[idx];
-                                        writer.Write($"\n// Namespace: {metadata.GetString(typeDef.namespaceIndex)}\n");
-                                        writer.Write(GetCustomAttribute(typeDef.customAttributeIndex));
-                                        if ((typeDef.flags & TYPE_ATTRIBUTE_SERIALIZABLE) != 0)
-                                            writer.Write("[Serializable]\n");
-                                        if ((typeDef.flags & TYPE_ATTRIBUTE_VISIBILITY_MASK) == TYPE_ATTRIBUTE_PUBLIC)
-                                            writer.Write("public ");
-                                        else if ((typeDef.flags & TYPE_ATTRIBUTE_VISIBILITY_MASK) ==
-                                                 TYPE_ATTRIBUTE_NOT_PUBLIC)
-                                            writer.Write("internal ");
-                                        if ((typeDef.flags & TYPE_ATTRIBUTE_ABSTRACT) != 0)
-                                            writer.Write("abstract ");
-                                        if ((typeDef.flags & TYPE_ATTRIBUTE_SEALED) != 0)
-                                            writer.Write("sealed ");
-                                        if ((typeDef.flags & TYPE_ATTRIBUTE_INTERFACE) != 0)
-                                            writer.Write("interface ");
-                                        else
-                                            writer.Write("class ");
-                                        writer.Write($"{metadata.GetString(typeDef.nameIndex)}");
+                                        var isStruct = false;
+                                        var extends = new List<string>();
                                         if (typeDef.parentIndex >= 0)
                                         {
                                             var parent = il2cpp.types[typeDef.parentIndex];
                                             var parentname = get_type_name(parent);
-                                            if (parentname != "object")
-                                                writer.Write($" : {parentname}");
+                                            if (parentname == "ValueType")
+                                                isStruct = true;
+                                            else if (parentname != "object")
+                                                extends.Add(parentname);
                                         }
+                                        //implementedInterfaces
+                                        if (typeDef.interfaces_count > 0)
+                                        {
+                                            for (int i = 0; i < typeDef.interfaces_count; i++)
+                                            {
+                                                var @interface = il2cpp.types[metadata.interfaceIndices[typeDef.interfacesStart + i]];
+                                                extends.Add(get_type_name(@interface));
+                                            }
+                                        }
+                                        writer.Write($"\n// Namespace: {metadata.GetString(typeDef.namespaceIndex)}\n");
+                                        writer.Write(GetCustomAttribute(typeDef.customAttributeIndex));
+                                        if (config.dumpattribute && (typeDef.flags & TYPE_ATTRIBUTE_SERIALIZABLE) != 0)
+                                            writer.Write("[Serializable]\n");
+                                        var visibility = typeDef.flags & TYPE_ATTRIBUTE_VISIBILITY_MASK;
+                                        if (visibility == TYPE_ATTRIBUTE_PUBLIC || visibility == TYPE_ATTRIBUTE_NESTED_PUBLIC)
+                                            writer.Write("public ");
+                                        else if (visibility == TYPE_ATTRIBUTE_NOT_PUBLIC || visibility == TYPE_ATTRIBUTE_NESTED_FAM_AND_ASSEM || visibility == TYPE_ATTRIBUTE_NESTED_ASSEMBLY)
+                                            writer.Write("internal ");
+                                        else if (visibility == TYPE_ATTRIBUTE_NESTED_PRIVATE)
+                                            writer.Write("private ");
+                                        else if (visibility == TYPE_ATTRIBUTE_NESTED_FAMILY)
+                                            writer.Write("protected ");
+                                        else if (visibility == TYPE_ATTRIBUTE_NESTED_FAM_OR_ASSEM)
+                                            writer.Write("protected internal ");
+                                        if ((typeDef.flags & TYPE_ATTRIBUTE_ABSTRACT) != 0 && (typeDef.flags & TYPE_ATTRIBUTE_SEALED) != 0)
+                                            writer.Write("static ");
+                                        else if ((typeDef.flags & TYPE_ATTRIBUTE_INTERFACE) == 0 && (typeDef.flags & TYPE_ATTRIBUTE_ABSTRACT) != 0)
+                                            writer.Write("abstract ");
+                                        else if (!isStruct && (typeDef.flags & TYPE_ATTRIBUTE_SEALED) != 0)
+                                            writer.Write("sealed ");
+                                        if ((typeDef.flags & TYPE_ATTRIBUTE_INTERFACE) != 0)
+                                            writer.Write("interface ");
+                                        else if (isStruct)
+                                            writer.Write("struct ");
+                                        else
+                                            writer.Write("class ");
+                                        writer.Write($"{metadata.GetString(typeDef.nameIndex)}");
+                                        if (extends.Count > 0)
+                                            writer.Write($" : {string.Join(", ", extends)}");
                                         writer.Write($" // TypeDefIndex: {idx}\n{{\n");
+                                        //dump field
                                         if (config.dumpfield && typeDef.field_count > 0)
                                         {
                                             writer.Write("\t// Fields\n");
@@ -150,21 +187,29 @@ namespace Il2CppDumper
                                                 var pDefault = metadata.GetFieldDefaultFromIndex(i);
                                                 writer.Write(GetCustomAttribute(pField.customAttributeIndex, "\t"));
                                                 writer.Write("\t");
-                                                if ((pType.attrs & FIELD_ATTRIBUTE_FIELD_ACCESS_MASK) ==
-                                                    FIELD_ATTRIBUTE_PRIVATE)
+                                                var access = pType.attrs & FIELD_ATTRIBUTE_FIELD_ACCESS_MASK;
+                                                if (access == FIELD_ATTRIBUTE_PRIVATE)
                                                     writer.Write("private ");
-                                                else if ((pType.attrs & FIELD_ATTRIBUTE_FIELD_ACCESS_MASK) ==
-                                                         FIELD_ATTRIBUTE_PUBLIC)
+                                                else if (access == FIELD_ATTRIBUTE_PUBLIC)
                                                     writer.Write("public ");
-                                                else if ((pType.attrs & FIELD_ATTRIBUTE_FIELD_ACCESS_MASK) ==
-                                                         FIELD_ATTRIBUTE_FAMILY)
+                                                else if (access == FIELD_ATTRIBUTE_FAMILY)
                                                     writer.Write("protected ");
-                                                if ((pType.attrs & FIELD_ATTRIBUTE_STATIC) != 0)
-                                                    writer.Write("static ");
-                                                if ((pType.attrs & FIELD_ATTRIBUTE_INIT_ONLY) != 0)
-                                                    writer.Write("readonly ");
-                                                writer.Write(
-                                                    $"{get_type_name(pType)} {metadata.GetString(pField.nameIndex)}");
+                                                else if (access == FIELD_ATTRIBUTE_ASSEMBLY || access == FIELD_ATTRIBUTE_FAM_AND_ASSEM)
+                                                    writer.Write("internal ");
+                                                else if (access == FIELD_ATTRIBUTE_FAM_OR_ASSEM)
+                                                    writer.Write("protected internal ");
+                                                if ((pType.attrs & FIELD_ATTRIBUTE_LITERAL) != 0)
+                                                {
+                                                    writer.Write("const ");
+                                                }
+                                                else
+                                                {
+                                                    if ((pType.attrs & FIELD_ATTRIBUTE_STATIC) != 0)
+                                                        writer.Write("static ");
+                                                    if ((pType.attrs & FIELD_ATTRIBUTE_INIT_ONLY) != 0)
+                                                        writer.Write("readonly ");
+                                                }
+                                                writer.Write($"{get_type_name(pType)} {metadata.GetString(pField.nameIndex)}");
                                                 if (pDefault != null && pDefault.dataIndex != -1)
                                                 {
                                                     var pointer = metadata.GetDefaultValueFromIndex(pDefault.dataIndex);
@@ -223,14 +268,13 @@ namespace Il2CppDumper
                                                             writer.Write($" = {multi}");
                                                     }
                                                 }
-                                                writer.Write("; // 0x{0:x}\n",
-                                                    il2cpp.GetFieldOffsetFromIndex(idx, i - typeDef.fieldStart, i));
+                                                writer.Write("; // 0x{0:x}\n", il2cpp.GetFieldOffsetFromIndex(idx, i - typeDef.fieldStart, i));
                                             }
                                             writer.Write("\n");
                                         }
+                                        //dump property
                                         if (config.dumpproperty && typeDef.property_count > 0)
                                         {
-                                            //dump_property(i);
                                             writer.Write("\t// Properties\n");
                                             var propertyEnd = typeDef.propertyStart + typeDef.property_count;
                                             for (var i = typeDef.propertyStart; i < propertyEnd; ++i)
@@ -240,50 +284,18 @@ namespace Il2CppDumper
                                                 writer.Write("\t");
                                                 if (propertydef.get >= 0)
                                                 {
-                                                    var methodDef =
-                                                        metadata.methodDefs[typeDef.methodStart + propertydef.get];
+                                                    var methodDef = metadata.methodDefs[typeDef.methodStart + propertydef.get];
+                                                    writer.Write(GetModifiers(methodDef));
                                                     var pReturnType = il2cpp.types[methodDef.returnType];
-                                                    if ((methodDef.flags & METHOD_ATTRIBUTE_MEMBER_ACCESS_MASK) ==
-                                                        METHOD_ATTRIBUTE_PRIVATE)
-                                                        writer.Write("private ");
-                                                    else if ((methodDef.flags & METHOD_ATTRIBUTE_MEMBER_ACCESS_MASK) ==
-                                                             METHOD_ATTRIBUTE_PUBLIC)
-                                                        writer.Write("public ");
-                                                    else if ((methodDef.flags & METHOD_ATTRIBUTE_MEMBER_ACCESS_MASK) ==
-                                                             METHOD_ATTRIBUTE_FAMILY)
-                                                        writer.Write("protected ");
-                                                    if ((methodDef.flags & METHOD_ATTRIBUTE_ABSTRACT) != 0)
-                                                        writer.Write("abstract ");
-                                                    else if ((methodDef.flags & METHOD_ATTRIBUTE_VIRTUAL) != 0)
-                                                        writer.Write("virtual ");
-                                                    if ((methodDef.flags & METHOD_ATTRIBUTE_STATIC) != 0)
-                                                        writer.Write("static ");
-                                                    writer.Write(
-                                                        $"{get_type_name(pReturnType)} {metadata.GetString(propertydef.nameIndex)} {{ ");
+                                                    writer.Write($"{get_type_name(pReturnType)} {metadata.GetString(propertydef.nameIndex)} {{ ");
                                                 }
                                                 else if (propertydef.set > 0)
                                                 {
-                                                    var methodDef =
-                                                        metadata.methodDefs[typeDef.methodStart + propertydef.set];
-                                                    if ((methodDef.flags & METHOD_ATTRIBUTE_MEMBER_ACCESS_MASK) ==
-                                                        METHOD_ATTRIBUTE_PRIVATE)
-                                                        writer.Write("private ");
-                                                    else if ((methodDef.flags & METHOD_ATTRIBUTE_MEMBER_ACCESS_MASK) ==
-                                                             METHOD_ATTRIBUTE_PUBLIC)
-                                                        writer.Write("public ");
-                                                    else if ((methodDef.flags & METHOD_ATTRIBUTE_MEMBER_ACCESS_MASK) ==
-                                                             METHOD_ATTRIBUTE_FAMILY)
-                                                        writer.Write("protected ");
-                                                    if ((methodDef.flags & METHOD_ATTRIBUTE_ABSTRACT) != 0)
-                                                        writer.Write("abstract ");
-                                                    else if ((methodDef.flags & METHOD_ATTRIBUTE_VIRTUAL) != 0)
-                                                        writer.Write("virtual ");
-                                                    if ((methodDef.flags & METHOD_ATTRIBUTE_STATIC) != 0)
-                                                        writer.Write("static ");
+                                                    var methodDef = metadata.methodDefs[typeDef.methodStart + propertydef.set];
+                                                    writer.Write(GetModifiers(methodDef));
                                                     var pParam = metadata.parameterDefs[methodDef.parameterStart];
                                                     var pType = il2cpp.types[pParam.typeIndex];
-                                                    writer.Write(
-                                                        $"{get_type_name(pType)} {metadata.GetString(propertydef.nameIndex)} {{ ");
+                                                    writer.Write($"{get_type_name(pType)} {metadata.GetString(propertydef.nameIndex)} {{ ");
                                                 }
                                                 if (propertydef.get >= 0)
                                                     writer.Write("get; ");
@@ -294,34 +306,19 @@ namespace Il2CppDumper
                                             }
                                             writer.Write("\n");
                                         }
+                                        //dump method
                                         if (config.dumpmethod && typeDef.method_count > 0)
                                         {
                                             writer.Write("\t// Methods\n");
                                             var methodEnd = typeDef.methodStart + typeDef.method_count;
                                             for (var i = typeDef.methodStart; i < methodEnd; ++i)
                                             {
-                                                //dump_method(i);
                                                 var methodDef = metadata.methodDefs[i];
                                                 writer.Write(GetCustomAttribute(methodDef.customAttributeIndex, "\t"));
                                                 writer.Write("\t");
+                                                writer.Write(GetModifiers(methodDef));
                                                 var pReturnType = il2cpp.types[methodDef.returnType];
-                                                if ((methodDef.flags & METHOD_ATTRIBUTE_MEMBER_ACCESS_MASK) ==
-                                                    METHOD_ATTRIBUTE_PRIVATE)
-                                                    writer.Write("private ");
-                                                else if ((methodDef.flags & METHOD_ATTRIBUTE_MEMBER_ACCESS_MASK) ==
-                                                         METHOD_ATTRIBUTE_PUBLIC)
-                                                    writer.Write("public ");
-                                                else if ((methodDef.flags & METHOD_ATTRIBUTE_MEMBER_ACCESS_MASK) ==
-                                                         METHOD_ATTRIBUTE_FAMILY)
-                                                    writer.Write("protected ");
-                                                if ((methodDef.flags & METHOD_ATTRIBUTE_ABSTRACT) != 0)
-                                                    writer.Write("abstract ");
-                                                else if ((methodDef.flags & METHOD_ATTRIBUTE_VIRTUAL) != 0)
-                                                    writer.Write("virtual ");
-                                                if ((methodDef.flags & METHOD_ATTRIBUTE_STATIC) != 0)
-                                                    writer.Write("static ");
-                                                writer.Write(
-                                                    $"{get_type_name(pReturnType)} {metadata.GetString(methodDef.nameIndex)}(");
+                                                writer.Write($"{get_type_name(pReturnType)} {metadata.GetString(methodDef.nameIndex)}(");
                                                 for (var j = 0; j < methodDef.parameterCount; ++j)
                                                 {
                                                     var pParam = metadata.parameterDefs[methodDef.parameterStart + j];
@@ -460,6 +457,48 @@ namespace Il2CppDumper
                 }
             }
             return strResult.ToString();
+        }
+
+        private static string GetModifiers(Il2CppMethodDefinition methodDef)
+        {
+            var str = "";
+            if (methodModifiers.TryGetValue(methodDef, out str))
+                return str;
+            var access = methodDef.flags & METHOD_ATTRIBUTE_MEMBER_ACCESS_MASK;
+            if (access == METHOD_ATTRIBUTE_PRIVATE)
+                str += "private ";
+            else if (access == METHOD_ATTRIBUTE_PUBLIC)
+                str += "public ";
+            else if (access == METHOD_ATTRIBUTE_FAMILY)
+                str += "protected ";
+            else if (access == METHOD_ATTRIBUTE_ASSEM || access == METHOD_ATTRIBUTE_FAM_AND_ASSEM)
+                str += "internal ";
+            else if (access == METHOD_ATTRIBUTE_FAM_OR_ASSEM)
+                str += "protected internal ";
+            if ((methodDef.flags & METHOD_ATTRIBUTE_STATIC) != 0)
+                str += "static ";
+            if ((methodDef.flags & METHOD_ATTRIBUTE_ABSTRACT) != 0)
+            {
+                str += "abstract ";
+                if ((methodDef.flags & METHOD_ATTRIBUTE_VTABLE_LAYOUT_MASK) == METHOD_ATTRIBUTE_REUSE_SLOT)
+                    str += "override ";
+            }
+            else if ((methodDef.flags & METHOD_ATTRIBUTE_FINAL) != 0)
+            {
+                if ((methodDef.flags & METHOD_ATTRIBUTE_VTABLE_LAYOUT_MASK) == METHOD_ATTRIBUTE_REUSE_SLOT)
+                    str += "sealed override ";
+            }
+            else if ((methodDef.flags & METHOD_ATTRIBUTE_VIRTUAL) != 0)
+            {
+                if ((methodDef.flags & METHOD_ATTRIBUTE_VTABLE_LAYOUT_MASK) == METHOD_ATTRIBUTE_NEW_SLOT)
+                    str += "virtual ";
+                else
+                    str += "override ";
+            }
+            if ((methodDef.flags & METHOD_ATTRIBUTE_PINVOKE_IMPL) != 0)
+                str += "extern ";
+            methodModifiers.Add(methodDef, str);
+            return str;
         }
     }
 }
