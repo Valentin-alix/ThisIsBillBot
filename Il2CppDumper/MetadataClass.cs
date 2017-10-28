@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Il2CppDumper.v21
+namespace Il2CppDumper
 {
     public class Il2CppGlobalMetadataHeader
     {
@@ -55,18 +55,46 @@ namespace Il2CppDumper.v21
         public int imagesCount;
         public int assembliesOffset; // Il2CppAssemblyDefinition
         public int assembliesCount;
+        [Version(Min = 20)]
         public int metadataUsageListsOffset; // Il2CppMetadataUsageList
+        [Version(Min = 20)]
         public int metadataUsageListsCount;
+        [Version(Min = 20)]
         public int metadataUsagePairsOffset; // Il2CppMetadataUsagePair
+        [Version(Min = 20)]
         public int metadataUsagePairsCount;
+        [Version(Min = 20)]
         public int fieldRefsOffset; // Il2CppFieldRef
+        [Version(Min = 20)]
         public int fieldRefsCount;
+        [Version(Min = 20)]
         public int referencedAssembliesOffset; // int32_t
+        [Version(Min = 20)]
         public int referencedAssembliesCount;
+        [Version(Min = 21)]
         public int attributesInfoOffset; // Il2CppCustomAttributeTypeRange
+        [Version(Min = 21)]
         public int attributesInfoCount;
+        [Version(Min = 21)]
         public int attributeTypesOffset; // TypeIndex
+        [Version(Min = 21)]
         public int attributeTypesCount;
+        [Version(Min = 22)]
+        public int unresolvedVirtualCallParameterTypesOffset; // TypeIndex
+        [Version(Min = 22)]
+        public int unresolvedVirtualCallParameterTypesCount;
+        [Version(Min = 22)]
+        public int unresolvedVirtualCallParameterRangesOffset; // Il2CppRange
+        [Version(Min = 22)]
+        public int unresolvedVirtualCallParameterRangesCount;
+        [Version(Min = 23)]
+        public int windowsRuntimeTypeNamesOffset; // Il2CppWindowsRuntimeTypeNamePair
+        [Version(Min = 23)]
+        public int windowsRuntimeTypeNamesSize;
+        [Version(Min = 24)]
+        public int exportedTypeDefinitionsOffset; // TypeDefinitionIndex
+        [Version(Min = 24)]
+        public int exportedTypeDefinitionsCount;
     }
 
     public class Il2CppImageDefinition
@@ -77,7 +105,13 @@ namespace Il2CppDumper.v21
         public int typeStart;
         public uint typeCount;
 
+        [Version(Min = 24)]
+        public int exportedTypeStart;
+        [Version(Min = 24)]
+        public uint exportedTypeCount;
+
         public int entryPointIndex;
+        [Version(Min = 20)]
         public uint token;
     }
 
@@ -98,9 +132,13 @@ namespace Il2CppDumper.v21
 
         public int genericContainerIndex;
 
+        [Version(Max = 22)]
         public int delegateWrapperFromManagedToNativeIndex;
+        [Version(Max = 22)]
         public int marshalingFunctionsIndex;
+        [Version(Min = 21, Max = 22)]
         public int ccwFunctionIndex;
+        [Version(Min = 21, Max = 22)]
         public int guidIndex;
 
         public uint flags;
@@ -129,9 +167,10 @@ namespace Il2CppDumper.v21
         // 03 - has_finalize;
         // 04 - has_cctor;
         // 05 - is_blittable;
-        // 06 - is_import;
+        // 06 - is_import_or_windows_runtime;
         // 07-10 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128)
         public uint bitfield;
+        [Version(Min = 20)]
         public uint token;
     }
 
@@ -168,6 +207,7 @@ namespace Il2CppDumper.v21
         public int nameIndex;
         public int typeIndex;
         public int customAttributeIndex;
+        [Version(Min = 20)]
         public uint token;
     }
 
@@ -185,6 +225,7 @@ namespace Il2CppDumper.v21
         public int set;
         public uint attrs;
         public int customAttributeIndex;
+        [Version(Min = 20)]
         public uint token;
     }
 

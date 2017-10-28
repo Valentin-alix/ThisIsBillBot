@@ -6,19 +6,20 @@ using System.Text;
 
 namespace Il2CppDumper
 {
-    class Elf : Il2CppGeneric
+    class Elf : Il2Cpp
     {
         private elf_header elf_header;
         private program_header_table[] program_table_element;
         private static byte[] ARMFeatureBytes = { 0x1c, 0x0, 0x9f, 0xe5, 0x1c, 0x10, 0x9f, 0xe5, 0x1c, 0x20, 0x9f, 0xe5 };
-        private static byte[] X86FeatureBytes = { 0x55, 0x89, 0xE5, 0x53, 0x83, 0xE4, 0xF0, 0x83, 0xEC, 0x20, 0xE8, 0x00, 0x00, 0x00, 0x00, 0x5B };
-
+        private static byte[] X86FeatureBytes1 = { 0x8D, 0x83 };//lea eax, X
+        private static byte[] X86FeatureBytes2 = { 0x89, 0x44, 0x24, 0x04, 0x8D, 0x83 };//mov [esp+4], eax and lea eax, X
+        public Dictionary<string, elf_32_shdr> sectionWithName;
 
         public Elf(Stream stream, int version, long maxmetadataUsages) : base(stream)
         {
             this.version = version;
             this.maxmetadataUsages = maxmetadataUsages;
-            @namespace = "Il2CppDumper.v" + version + ".";
+            readas32bit = true;
             if (version < 21)
                 Search = Searchv20;
             else
@@ -49,6 +50,7 @@ namespace Il2CppDumper
             elf_header.e_shnum = ReadUInt16();
             elf_header.e_shtrndx = ReadUInt16();
             program_table_element = ReadClassArray<program_header_table>(elf_header.e_phoff, elf_header.e_phnum);
+            GetSectionWithName();
         }
 
         public Elf(Stream stream, ulong codeRegistration, ulong metadataRegistration, int version, long maxmetadataUsages) : this(stream, version, maxmetadataUsages)
@@ -56,7 +58,30 @@ namespace Il2CppDumper
             Init(codeRegistration, metadataRegistration);
         }
 
-        protected override dynamic MapVATR(dynamic uiAddr)
+        private void GetSectionWithName()
+        {
+            try
+            {
+                var section_name_block_off = (int)elf_header.e_shoff + (elf_header.e_shentsize * elf_header.e_shtrndx);
+                Position = section_name_block_off + 2 * 4 + 4 + 4;
+                section_name_block_off = ReadInt32();
+                var sectionWithNametmp = new Dictionary<string, elf_32_shdr>();
+                var sectionstmp = new List<elf_32_shdr>();
+                for (int i = 0; i < elf_header.e_shnum; i++)
+                {
+                    var section = ReadClass<elf_32_shdr>((int)elf_header.e_shoff + (elf_header.e_shentsize * i));
+                    sectionWithNametmp.Add(ReadStringToNull(section_name_block_off + section.sh_name), section);
+                    sectionstmp.Add(section);
+                }
+                sectionWithName = sectionWithNametmp;
+            }
+            catch
+            {
+                Console.WriteLine("ERROR: Unable to get section.");
+            }
+        }
+
+        public override dynamic MapVATR(dynamic uiAddr)
         {
             var program_header_table = program_table_element.First(x => uiAddr >= x.p_vaddr && uiAddr <= (x.p_vaddr + x.p_memsz));
             return uiAddr - (program_header_table.p_vaddr - program_header_table.p_offset);
@@ -64,7 +89,8 @@ namespace Il2CppDumper
 
         private bool Searchv20()
         {
-            throw new NotSupportedException("未完工");
+            Console.WriteLine("ERROR: Auto mode not support this version.");
+            return false;
         }
 
         private bool Searchv21()
@@ -129,21 +155,36 @@ namespace Il2CppDumper
                         }
                         else if (elf_header.e_machine == 0x3)
                         {
-                            var buff = ReadBytes(16);
-                            if (X86FeatureBytes.SequenceEqual(buff))
+                            Position = i + 22;
+                            var buff = ReadBytes(2);
+                            if (X86FeatureBytes1.SequenceEqual(buff))
                             {
-                                Position = i + 0x18;
-                                var subaddr = ReadUInt32() + _GLOBAL_OFFSET_TABLE_;
-                                Position = subaddr + 0x2C;
-                                var codeRegistration = ReadUInt32() + _GLOBAL_OFFSET_TABLE_;
-                                Console.WriteLine("CodeRegistration : {0:x}", codeRegistration);
-                                Position = subaddr + 0x22;
-                                var ptr = ReadUInt32() + _GLOBAL_OFFSET_TABLE_;
-                                Position = MapVATR(ptr);
-                                var metadataRegistration = ReadUInt32();
-                                Console.WriteLine("MetadataRegistration : {0:x}", metadataRegistration);
-                                Init(codeRegistration, metadataRegistration);
-                                return true;
+                                Position = i + 28;
+                                buff = ReadBytes(6);
+                                if (X86FeatureBytes2.SequenceEqual(buff))
+                                {
+                                    Position = i + 0x18;
+                                    var subaddr = ReadUInt32() + _GLOBAL_OFFSET_TABLE_;
+                                    Position = subaddr + 0x2C;
+                                    var codeRegistration = ReadUInt32() + _GLOBAL_OFFSET_TABLE_;
+                                    Console.WriteLine("CodeRegistration : {0:x}", codeRegistration);
+                                    Position = subaddr + 0x20;
+                                    var temp = ReadUInt16();
+                                    uint metadataRegistration;
+                                    if (temp == 0x838D)//lea
+                                    {
+                                        metadataRegistration = ReadUInt32() + _GLOBAL_OFFSET_TABLE_;
+                                    }
+                                    else//mov
+                                    {
+                                        var ptr = ReadUInt32() + _GLOBAL_OFFSET_TABLE_;
+                                        Position = MapVATR(ptr);
+                                        metadataRegistration = ReadUInt32();
+                                    }
+                                    Console.WriteLine("MetadataRegistration : {0:x}", metadataRegistration);
+                                    Init(codeRegistration, metadataRegistration);
+                                    return true;
+                                }
                             }
                         }
                         else
@@ -158,6 +199,136 @@ namespace Il2CppDumper
                 Console.WriteLine("ERROR: Unable to get GOT form PT_DYNAMIC.");
             }
             return false;
+        }
+
+        public override bool AdvancedSearch(int methodCount)
+        {
+            if (sectionWithName != null)
+            {
+                if (sectionWithName.ContainsKey(".data.rel.ro") && sectionWithName.ContainsKey(".text") && sectionWithName.ContainsKey(".bss"))
+                {
+                    var datarelro = sectionWithName[".data.rel.ro"];
+                    var text = sectionWithName[".text"];
+                    var bss = sectionWithName[".bss"];
+                    elf_32_shdr datarelrolocal = null;
+                    if (sectionWithName.ContainsKey(".data.rel.ro.local"))
+                        datarelrolocal = sectionWithName[".data.rel.ro.local"];
+                    uint codeRegistration = 0;
+                    uint metadataRegistration = 0;
+                    var pmethodPointers = FindPointersAsc(methodCount, datarelro, text);
+                    if (pmethodPointers == 0 && datarelrolocal != null)
+                        pmethodPointers = FindPointersAsc(methodCount, datarelrolocal, text);
+                    if (pmethodPointers != 0)
+                    {
+                        codeRegistration = FindReference(pmethodPointers, datarelro);
+                        if (codeRegistration == 0 && datarelrolocal != null)
+                            codeRegistration = FindReference(pmethodPointers, datarelrolocal);
+                        if (codeRegistration == 0)
+                        {
+                            pmethodPointers = FindPointersDesc(methodCount, datarelro, text);
+                            if (pmethodPointers == 0 && datarelrolocal != null)
+                                pmethodPointers = FindPointersDesc(methodCount, datarelrolocal, text);
+                            if (pmethodPointers != 0)
+                            {
+                                codeRegistration = FindReference(pmethodPointers, datarelro);
+                                if (codeRegistration == 0 && datarelrolocal != null)
+                                    codeRegistration = FindReference(pmethodPointers, datarelrolocal);
+                            }
+                        }
+                    }
+                    var pmetadataUsages = FindPointersAsc(maxmetadataUsages, datarelro, bss);
+                    if (pmetadataUsages == 0 && datarelrolocal != null)
+                        pmetadataUsages = FindPointersAsc(maxmetadataUsages, datarelrolocal, bss);
+                    if (pmetadataUsages != 0)
+                    {
+                        metadataRegistration = FindReference(pmetadataUsages, datarelro);
+                        if (metadataRegistration == 0 && datarelrolocal != null)
+                            metadataRegistration = FindReference(pmetadataUsages, datarelrolocal);
+                        if (metadataRegistration == 0)
+                        {
+                            pmetadataUsages = FindPointersDesc(maxmetadataUsages, datarelro, bss);
+                            if (pmetadataUsages == 0 && datarelrolocal != null)
+                                pmetadataUsages = FindPointersDesc(maxmetadataUsages, datarelrolocal, bss);
+                            if (pmetadataUsages != 0)
+                            {
+                                metadataRegistration = FindReference(pmetadataUsages, datarelro);
+                                if (metadataRegistration == 0 && datarelrolocal != null)
+                                    metadataRegistration = FindReference(pmetadataUsages, datarelrolocal);
+                            }
+                        }
+                    }
+                    if (codeRegistration != 0 && metadataRegistration != 0)
+                    {
+                        codeRegistration -= 8u;
+                        metadataRegistration -= 64u;
+                        Console.WriteLine("CodeRegistration : {0:x}", codeRegistration);
+                        Console.WriteLine("MetadataRegistration : {0:x}", metadataRegistration);
+                        Init(codeRegistration, metadataRegistration);
+                        return true;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ERROR: The necessary section is missing.");
+                }
+            }
+            return false;
+        }
+
+        private uint FindPointersAsc(long readCount, elf_32_shdr search, elf_32_shdr range)
+        {
+            var add = 0;
+            var searchend = search.sh_offset + search.sh_size;
+            var rangeend = range.sh_addr + range.sh_size;
+            while (search.sh_offset + add < searchend)
+            {
+                var temp = ReadClassArray<int>(search.sh_offset + add, readCount);
+                var r = Array.FindLastIndex(temp, x => x < range.sh_addr || x > rangeend);
+                if (r != -1)
+                {
+                    add += ++r * 4;
+                }
+                else
+                {
+                    return search.sh_addr + (uint)add;//MapRATV
+                }
+            }
+            return 0;
+        }
+
+        private uint FindPointersDesc(long readCount, elf_32_shdr search, elf_32_shdr range)
+        {
+            var add = 0;
+            var searchend = search.sh_offset + search.sh_size;
+            var rangeend = range.sh_addr + range.sh_size;
+            while (searchend + add > search.sh_offset)
+            {
+                var temp = ReadClassArray<int>(searchend + add - 4 * readCount, readCount);
+                var r = Array.FindIndex(temp, x => x < range.sh_addr || x > rangeend);
+                if (r != -1)
+                {
+                    add -= (int)((readCount - r) * 4);
+                }
+                else
+                {
+                    return (uint)(search.sh_addr + search.sh_size + add - 4 * readCount);//MapRATV
+                }
+            }
+            return 0;
+        }
+
+        private uint FindReference(uint pointer, elf_32_shdr search)
+        {
+            var searchend = search.sh_offset + search.sh_size;
+            Position = search.sh_offset;
+            while (Position < searchend)
+            {
+                if (ReadUInt32() == pointer)
+                {
+                    return (uint)Position - search.sh_offset + search.sh_addr;//MapRATV
+                }
+            }
+            return 0;
         }
     }
 }
