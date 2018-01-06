@@ -5,11 +5,13 @@ using System.Linq;
 
 namespace Il2CppDumper
 {
-    abstract class Il2Cpp : MyBinaryReader
+    public abstract class Il2Cpp : MyBinaryReader
     {
         private Il2CppMetadataRegistration pMetadataRegistration;
         private Il2CppCodeRegistration pCodeRegistration;
         public ulong[] methodPointers;
+        public ulong[] genericMethodPointers;
+        public ulong[] invokerPointers;
         public ulong[] customAttributeGenerators;
         protected long[] fieldOffsets;
         public Il2CppType[] types;
@@ -19,8 +21,8 @@ namespace Il2CppDumper
         protected long maxmetadataUsages;
 
         public Func<bool> Search;
-
         public abstract bool AdvancedSearch(int methodCount);
+        public abstract bool PlusSearch(int methodCount, int typeDefinitionsCount);
 
         public abstract dynamic MapVATR(dynamic uiAddr);
 
@@ -31,6 +33,8 @@ namespace Il2CppDumper
             pCodeRegistration = MapVATR<Il2CppCodeRegistration>(codeRegistration);
             pMetadataRegistration = MapVATR<Il2CppMetadataRegistration>(metadataRegistration);
             methodPointers = Array.ConvertAll(MapVATR<uint>(pCodeRegistration.methodPointers, (long)pCodeRegistration.methodPointersCount), x => (ulong)x);
+            genericMethodPointers = Array.ConvertAll(MapVATR<uint>(pCodeRegistration.genericMethodPointers, (long)pCodeRegistration.genericMethodPointersCount), x => (ulong)x);
+            invokerPointers = Array.ConvertAll(MapVATR<uint>(pCodeRegistration.invokerPointers, (long)pCodeRegistration.invokerPointersCount), x => (ulong)x);
             customAttributeGenerators = Array.ConvertAll(MapVATR<uint>(pCodeRegistration.customAttributeGenerators, pCodeRegistration.customAttributeCount), x => (ulong)x);
             fieldOffsets = Array.ConvertAll(MapVATR<int>(pMetadataRegistration.fieldOffsets, pMetadataRegistration.fieldOffsetsCount), x => (long)x);
             //TODO 在21版本中存在两种FieldOffset，通过判断前5个数值是否为0确认是指针还是int
@@ -52,6 +56,8 @@ namespace Il2CppDumper
             pCodeRegistration = MapVATR<Il2CppCodeRegistration>(codeRegistration);
             pMetadataRegistration = MapVATR<Il2CppMetadataRegistration>(metadataRegistration);
             methodPointers = MapVATR<ulong>(pCodeRegistration.methodPointers, (long)pCodeRegistration.methodPointersCount);
+            genericMethodPointers = MapVATR<ulong>(pCodeRegistration.genericMethodPointers, (long)pCodeRegistration.genericMethodPointersCount);
+            invokerPointers = MapVATR<ulong>(pCodeRegistration.invokerPointers, (long)pCodeRegistration.invokerPointersCount);
             customAttributeGenerators = MapVATR<ulong>(pCodeRegistration.customAttributeGenerators, pCodeRegistration.customAttributeCount);
             fieldOffsets = MapVATR<long>(pMetadataRegistration.fieldOffsets, pMetadataRegistration.fieldOffsetsCount);
             //TODO 在21版本中存在两种FieldOffset，通过判断前5个数值是否为0确认是指针还是int

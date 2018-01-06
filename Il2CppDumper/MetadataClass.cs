@@ -252,4 +252,34 @@ namespace Il2CppDumper
         public uint length;
         public int dataIndex;
     }
+
+    public class Il2CppParameterDefaultValue
+    {
+        public int parameterIndex;
+        public int typeIndex;
+        public int dataIndex;
+    }
+
+    public class Il2CppEventDefinition
+    {
+        public int nameIndex;
+        public int typeIndex;
+        public int add;
+        public int remove;
+        public int raise;
+        public int customAttributeIndex;
+        [Version(Min = 20)]
+        public uint token;
+    }
+
+    public class Il2CppGenericContainer
+    {
+        /* index of the generic type definition or the generic method definition corresponding to this container */
+        public int ownerIndex; // either index into Il2CppClass metadata array or Il2CppMethodDefinition array
+        public int type_argc;
+        /* If true, we're a generic method, otherwise a generic type definition. */
+        public int is_method;
+        /* Our type parameters. */
+        public int genericParameterStart;
+    }
 }

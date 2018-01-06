@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Il2CppDumper
 {
-    class Metadata : MyBinaryReader
+    public sealed class Metadata : MyBinaryReader
     {
         private Il2CppGlobalMetadataHeader pMetadataHdr;
         public int uiImageCount;
@@ -17,16 +17,19 @@ namespace Il2CppDumper
         public Il2CppParameterDefinition[] parameterDefs;
         public Il2CppFieldDefinition[] fieldDefs;
         private Il2CppFieldDefaultValue[] fieldDefaultValues;
+        private Il2CppParameterDefaultValue[] parameterDefaultValues;
         public Il2CppPropertyDefinition[] propertyDefs;
         public Il2CppCustomAttributeTypeRange[] attributesInfos;
         private Il2CppStringLiteral[] stringLiterals;
-        public Il2CppMetadataUsageList[] metadataUsageLists;
-        public Il2CppMetadataUsagePair[] metadataUsagePairs;
+        private Il2CppMetadataUsageList[] metadataUsageLists;
+        private Il2CppMetadataUsagePair[] metadataUsagePairs;
         public int[] attributeTypes;
         public int[] interfaceIndices;
         public SortedDictionary<uint, string> stringLiteralsdic;
         public long maxmetadataUsages;
-
+        public int[] nestedTypeIndices;
+        public Il2CppEventDefinition[] eventDefs;
+        public Il2CppGenericContainer[] genericContainers;
 
         public Metadata(Stream stream) : base(stream)
         {
@@ -52,20 +55,28 @@ namespace Il2CppDumper
             uiImageCount = pMetadataHdr.imagesCount / MySizeOf(typeof(Il2CppImageDefinition));
             uiNumTypes = pMetadataHdr.typeDefinitionsCount / MySizeOf(typeof(Il2CppTypeDefinition));
             imageDefs = ReadClassArray<Il2CppImageDefinition>(pMetadataHdr.imagesOffset, uiImageCount);
-            //TypeDefinition
+            //GetTypeDefinitionFromIndex
             typeDefs = ReadClassArray<Il2CppTypeDefinition>(pMetadataHdr.typeDefinitionsOffset, uiNumTypes);
-            //MethodDefinition
+            //GetMethodDefinitionFromIndex
             methodDefs = ReadClassArray<Il2CppMethodDefinition>(pMetadataHdr.methodsOffset, pMetadataHdr.methodsCount / MySizeOf(typeof(Il2CppMethodDefinition)));
-            //ParameterDefinition
+            //GetParameterDefinitionFromIndex
             parameterDefs = ReadClassArray<Il2CppParameterDefinition>(pMetadataHdr.parametersOffset, pMetadataHdr.parametersCount / MySizeOf(typeof(Il2CppParameterDefinition)));
-            //FieldDefinition
+            //GetFieldDefinitionFromIndex
             fieldDefs = ReadClassArray<Il2CppFieldDefinition>(pMetadataHdr.fieldsOffset, pMetadataHdr.fieldsCount / MySizeOf(typeof(Il2CppFieldDefinition)));
             //FieldDefaultValue
             fieldDefaultValues = ReadClassArray<Il2CppFieldDefaultValue>(pMetadataHdr.fieldDefaultValuesOffset, pMetadataHdr.fieldDefaultValuesCount / MySizeOf(typeof(Il2CppFieldDefaultValue)));
-            //PropertyDefinition
+            //ParameterDefaultValue
+            parameterDefaultValues = ReadClassArray<Il2CppParameterDefaultValue>(pMetadataHdr.parameterDefaultValuesOffset, pMetadataHdr.parameterDefaultValuesCount / MySizeOf(typeof(Il2CppParameterDefaultValue)));
+            //GetPropertyDefinitionFromIndex
             propertyDefs = ReadClassArray<Il2CppPropertyDefinition>(pMetadataHdr.propertiesOffset, pMetadataHdr.propertiesCount / MySizeOf(typeof(Il2CppPropertyDefinition)));
             //GetInterfaceFromIndex
             interfaceIndices = ReadClassArray<int>(pMetadataHdr.interfacesOffset, pMetadataHdr.interfacesCount / 4);
+            //GetNestedTypeFromIndex
+            nestedTypeIndices = ReadClassArray<int>(pMetadataHdr.nestedTypesOffset, pMetadataHdr.nestedTypesCount / 4);
+            //GetEventDefinitionFromIndex
+            eventDefs = ReadClassArray<Il2CppEventDefinition>(pMetadataHdr.eventsOffset, pMetadataHdr.eventsCount / MySizeOf(typeof(Il2CppEventDefinition)));
+            //GetGenericContainerFromIndex
+            genericContainers = ReadClassArray<Il2CppGenericContainer>(pMetadataHdr.genericContainersOffset, pMetadataHdr.genericContainersCount / MySizeOf(typeof(Il2CppGenericContainer)));
             if (version > 16)
             {
                 //Il2CppStringLiteral
@@ -85,19 +96,24 @@ namespace Il2CppDumper
             }
         }
 
-        public Il2CppFieldDefaultValue GetFieldDefaultFromIndex(int idx)
+        public Il2CppFieldDefaultValue GetFieldDefaultValueFromIndex(int index)
         {
-            return fieldDefaultValues.FirstOrDefault(x => x.fieldIndex == idx);
+            return fieldDefaultValues.FirstOrDefault(x => x.fieldIndex == index);
         }
 
-        public int GetDefaultValueFromIndex(int idx)
+        public Il2CppParameterDefaultValue GetParameterDefaultValueFromIndex(int index)
         {
-            return pMetadataHdr.fieldAndParameterDefaultValueDataOffset + idx;
+            return parameterDefaultValues.FirstOrDefault(x => x.parameterIndex == index);
         }
 
-        public string GetString(int idx)
+        public int GetDefaultValueFromIndex(int index)
         {
-            return ReadStringToNull(pMetadataHdr.stringOffset + idx);
+            return pMetadataHdr.fieldAndParameterDefaultValueDataOffset + index;
+        }
+
+        public string GetStringFromIndex(int index)
+        {
+            return ReadStringToNull(pMetadataHdr.stringOffset + index);
         }
 
         private string GetStringLiteralFromIndex(uint index)
