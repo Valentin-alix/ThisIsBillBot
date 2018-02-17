@@ -18,7 +18,7 @@ namespace Il2CppDumper
         {
             this.version = version;
             this.maxmetadataUsages = maxmetadataUsages;
-            readas32bit = true;
+            readAs32Bit = true;
             if (version < 21)
                 Search = Searchv16;
             else
@@ -56,18 +56,13 @@ namespace Il2CppDumper
             }
         }
 
-        public Macho(Stream stream, ulong codeRegistration, ulong metadataRegistration, int version, long maxmetadataUsages) : this(stream, version, maxmetadataUsages)
-        {
-            Init(codeRegistration, metadataRegistration);
-        }
-
         public override dynamic MapVATR(dynamic uiAddr)
         {
             var section = sections.First(x => uiAddr >= x.address && uiAddr <= x.end);
             return uiAddr - (section.address - section.offset);
         }
 
-        protected override void Init(ulong codeRegistration, ulong metadataRegistration)
+        public override void Init(ulong codeRegistration, ulong metadataRegistration)
         {
             base.Init(codeRegistration, metadataRegistration);
             methodPointers = methodPointers.Select(x => x - 1).ToArray();

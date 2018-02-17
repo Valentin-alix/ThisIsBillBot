@@ -22,7 +22,7 @@ namespace Il2CppDumper
         {
             this.version = version;
             this.maxmetadataUsages = maxmetadataUsages;
-            readas32bit = true;
+            readAs32Bit = true;
             if (version < 21)
                 Search = Searchv20;
             else
@@ -41,6 +41,8 @@ namespace Il2CppDumper
             elf_header.e_pad = ReadBytes(7);
             elf_header.e_type = ReadUInt16();
             elf_header.e_machine = ReadUInt16();
+            if (elf_header.e_machine != 0x28 && elf_header.e_machine != 0x3)
+                throw new Exception("ERROR: Unsupported machines.");
             elf_header.e_version = ReadUInt32();
             elf_header.e_entry = ReadUInt32();
             elf_header.e_phoff = ReadUInt32();
@@ -53,13 +55,9 @@ namespace Il2CppDumper
             elf_header.e_shnum = ReadUInt16();
             elf_header.e_shtrndx = ReadUInt16();
             program_table_element = ReadClassArray<Elf32_Phdr>(elf_header.e_phoff, elf_header.e_phnum);
+            //TODO 使用program table获取.dynsym(DT_SYMTAB), .dynstr(DT_STRTAB, DT_STRSZ), .rel.dyn(DT_REL, DT_RELSZ)
             GetSectionWithName();
             RelocationProcessing();
-        }
-
-        public Elf(Stream stream, ulong codeRegistration, ulong metadataRegistration, int version, long maxmetadataUsages) : this(stream, version, maxmetadataUsages)
-        {
-            Init(codeRegistration, metadataRegistration);
         }
 
         private void GetSectionWithName()
@@ -134,7 +132,7 @@ namespace Il2CppDumper
                     if (i > 0)
                     {
                         Position = i;
-                        if (elf_header.e_machine == 0x28)
+                        if (elf_header.e_machine == 0x28) //ARM
                         {
                             var buff = ReadBytes(12);
                             if (ARMFeatureBytes.SequenceEqual(buff))
@@ -153,7 +151,7 @@ namespace Il2CppDumper
                                 return true;
                             }
                         }
-                        else if (elf_header.e_machine == 0x3)
+                        else if (elf_header.e_machine == 0x3) //x86
                         {
                             Position = i + 22;
                             var buff = ReadBytes(2);
@@ -333,6 +331,7 @@ namespace Il2CppDumper
                 var rel_dynend = rel_dyn.sh_offset + rel_dyn.sh_size;
                 Position = rel_dyn.sh_offset;
                 var writer = new BinaryWriter(BaseStream);
+                var isx86 = elf_header.e_machine == 0x3;
                 while (Position < rel_dynend)
                 {
                     var offset = ReadUInt32();
@@ -340,7 +339,8 @@ namespace Il2CppDumper
                     var index = ReadByte() | (ReadByte() << 8) | (ReadByte() << 16);
                     switch (type)
                     {
-                        case 2:
+                        case 1 when isx86: //R_386_32
+                        case 2 when !isx86: //R_ARM_ABS32
                             {
                                 var position = Position;
                                 var dynamic_symbol = dynamic_symbol_table[index];
@@ -349,7 +349,8 @@ namespace Il2CppDumper
                                 Position = position;
                                 break;
                             }
-                        case 21:
+                        case 6 when isx86: //R_386_GLOB_DAT
+                        case 21 when !isx86: //R_ARM_GLOB_DAT
                             {
                                 var position = Position;
                                 var dynamic_symbol = dynamic_symbol_table[index];
