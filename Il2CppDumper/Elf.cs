@@ -14,7 +14,6 @@ namespace Il2CppDumper
         private static byte[] X86FeatureBytes1 = { 0x8D, 0x83 };//lea eax, X
         private static byte[] X86FeatureBytes2 = { 0x89, 0x44, 0x24, 0x04, 0x8D, 0x83 };//mov [esp+4], eax and lea eax, X
         private Dictionary<string, Elf32_Shdr> sectionWithName = new Dictionary<string, Elf32_Shdr>();
-        private List<Elf32_Shdr> sectionLists = new List<Elf32_Shdr>();
         private uint codeRegistration;
         private uint metadataRegistration;
 
@@ -28,17 +27,17 @@ namespace Il2CppDumper
             else
                 Search = Searchv21;
             elf_header = new Elf32_Ehdr();
-            elf_header.m_dwFormat = ReadUInt32();
-            elf_header.m_arch = ReadByte();
-            if (elf_header.m_arch == 2)//64
+            elf_header.ei_mag = ReadUInt32();
+            elf_header.ei_class = ReadByte();
+            if (elf_header.ei_class == 2)//64
             {
                 throw new Exception("ERROR: 64 bit not supported.");
             }
-            elf_header.m_endian = ReadByte();
-            elf_header.m_version = ReadByte();
-            elf_header.m_osabi = ReadByte();
-            elf_header.m_osabi_ver = ReadByte();
-            elf_header.e_pad = ReadBytes(7);
+            elf_header.ei_data = ReadByte();
+            elf_header.ei_version = ReadByte();
+            elf_header.ei_osabi = ReadByte();
+            elf_header.ei_abiversion = ReadByte();
+            elf_header.ei_pad = ReadBytes(7);
             elf_header.e_type = ReadUInt16();
             elf_header.e_machine = ReadUInt16();
             if (elf_header.e_machine != 0x28 && elf_header.e_machine != 0x3)
@@ -55,7 +54,6 @@ namespace Il2CppDumper
             elf_header.e_shnum = ReadUInt16();
             elf_header.e_shtrndx = ReadUInt16();
             program_table_element = ReadClassArray<Elf32_Phdr>(elf_header.e_phoff, elf_header.e_phnum);
-            //TODO 使用program table获取.dynsym(DT_SYMTAB), .dynstr(DT_STRTAB, DT_STRSZ), .rel.dyn(DT_REL, DT_RELSZ)
             GetSectionWithName();
             RelocationProcessing();
         }
@@ -71,7 +69,6 @@ namespace Il2CppDumper
                 {
                     var section = ReadClass<Elf32_Shdr>((int)elf_header.e_shoff + (elf_header.e_shentsize * i));
                     sectionWithName.Add(ReadStringToNull(section_name_block_off + section.sh_name), section);
-                    sectionLists.Add(section);
                 }
             }
             catch
@@ -321,11 +318,11 @@ namespace Il2CppDumper
 
         private void RelocationProcessing()
         {
-            if (sectionWithName.ContainsKey(".dynsym") && sectionWithName.ContainsKey(".rel.dyn"))
+            if (sectionWithName.ContainsKey(".dynsym") && sectionWithName.ContainsKey(".dynstr") && sectionWithName.ContainsKey(".rel.dyn"))
             {
                 Console.WriteLine("Applying relocations...");
                 var dynsym = sectionWithName[".dynsym"];
-                var symbol_name_block_off = sectionLists[(int)dynsym.sh_link].sh_offset;
+                var symbol_name_block_off = sectionWithName[".dynstr"].sh_offset;
                 var rel_dyn = sectionWithName[".rel.dyn"];
                 var dynamic_symbol_table = ReadClassArray<Elf32_Sym>(dynsym.sh_offset, dynsym.sh_size / 16);
                 var rel_dynend = rel_dyn.sh_offset + rel_dyn.sh_size;
@@ -345,7 +342,7 @@ namespace Il2CppDumper
                                 var position = Position;
                                 var dynamic_symbol = dynamic_symbol_table[index];
                                 writer.BaseStream.Position = offset;
-                                writer.Write(dynamic_symbol.sym_value);
+                                writer.Write(dynamic_symbol.st_value);
                                 Position = position;
                                 break;
                             }
@@ -354,14 +351,14 @@ namespace Il2CppDumper
                             {
                                 var position = Position;
                                 var dynamic_symbol = dynamic_symbol_table[index];
-                                var name = ReadStringToNull(symbol_name_block_off + dynamic_symbol.sym_name);
+                                var name = ReadStringToNull(symbol_name_block_off + dynamic_symbol.st_name);
                                 switch (name)
                                 {
                                     case "g_CodeRegistration":
-                                        codeRegistration = dynamic_symbol.sym_value;
+                                        codeRegistration = dynamic_symbol.st_value;
                                         break;
                                     case "g_MetadataRegistration":
-                                        metadataRegistration = dynamic_symbol.sym_value;
+                                        metadataRegistration = dynamic_symbol.st_value;
                                         break;
                                 }
                                 Position = position;
@@ -446,7 +443,7 @@ namespace Il2CppDumper
                     }
                     catch
                     {
-
+                        // ignored
                     }
                 }
             }
@@ -491,7 +488,7 @@ namespace Il2CppDumper
                     }
                     catch
                     {
-
+                        // ignored
                     }
                 }
             }
