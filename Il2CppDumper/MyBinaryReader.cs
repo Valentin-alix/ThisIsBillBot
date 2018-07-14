@@ -9,7 +9,7 @@ namespace Il2CppDumper
     public class MyBinaryReader : BinaryReader
     {
         public int version;
-        protected bool readAs32Bit;
+        protected bool is32Bit;
         private MethodInfo readClass;
 
 
@@ -33,11 +33,11 @@ namespace Il2CppDumper
                     return ReadUInt16();
                 case "Byte":
                     return ReadByte();
-                case "Int64" when readAs32Bit:
+                case "Int64" when is32Bit:
                     return ReadInt32();
                 case "Int64":
                     return ReadInt64();
-                case "UInt64" when readAs32Bit:
+                case "UInt64" when is32Bit:
                     return ReadUInt32();
                 case "UInt64":
                     return ReadUInt64();
@@ -92,15 +92,20 @@ namespace Il2CppDumper
             }
         }
 
-        public T[] ReadClassArray<T>(dynamic addr, long count) where T : new()
+        public T[] ReadClassArray<T>(long count) where T : new()
         {
-            Position = addr;
             var t = new T[count];
             for (var i = 0; i < count; i++)
             {
                 t[i] = ReadClass<T>();
             }
             return t;
+        }
+
+        public T[] ReadClassArray<T>(dynamic addr, long count) where T : new()
+        {
+            Position = addr;
+            return ReadClassArray<T>(count);
         }
 
         public string ReadStringToNull(dynamic addr)
