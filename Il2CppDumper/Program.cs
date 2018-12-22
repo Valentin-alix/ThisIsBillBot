@@ -217,7 +217,10 @@ namespace Il2CppDumper
                                 writer.Write($"{typeName}");
                                 if (extends.Count > 0)
                                     writer.Write($" : {string.Join(", ", extends)}");
-                                writer.Write($" // TypeDefIndex: {idx}\n{{\n");
+                                if (config.DumpTypeDefIndex)
+                                    writer.Write($" // TypeDefIndex: {idx}\n{{\n");
+                                else
+                                    writer.Write("\n{\n");
                                 //dump field
                                 if (config.DumpField && typeDef.field_count > 0)
                                 {
@@ -396,25 +399,32 @@ namespace Il2CppDumper
                                             parameterStrs.Add(parameterStr);
                                         }
                                         writer.Write(string.Join(", ", parameterStrs));
-                                        ulong methodPointer;
-                                        if (methodDef.methodIndex >= 0)
+                                        if (config.DumpMethodOffset)
                                         {
-                                            methodPointer = il2cpp.methodPointers[methodDef.methodIndex];
+                                            ulong methodPointer;
+                                            if (methodDef.methodIndex >= 0)
+                                            {
+                                                methodPointer = il2cpp.methodPointers[methodDef.methodIndex];
+                                            }
+                                            else
+                                            {
+                                                il2cpp.genericMethoddDictionary.TryGetValue(i, out methodPointer);
+                                            }
+                                            if (methodPointer > 0)
+                                            {
+                                                writer.Write("); // 0x{0:X}\n", methodPointer);
+                                                //Script - method
+                                                var name = ToEscapedString(HandleSpecialCharacters(typeName + "$$" + methodName));
+                                                scriptwriter.WriteLine($"SetMethod(0x{methodPointer:X}, '{name}')");
+                                            }
+                                            else
+                                            {
+                                                writer.Write("); // -1\n");
+                                            }
                                         }
                                         else
                                         {
-                                            il2cpp.genericMethoddDictionary.TryGetValue(i, out methodPointer);
-                                        }
-                                        if (methodPointer > 0)
-                                        {
-                                            writer.Write("); // 0x{0:X}\n", methodPointer);
-                                            //Script - method
-                                            var name = ToEscapedString(Regex.Replace(typeName, @"`\d", "") + "$$" + methodName);
-                                            scriptwriter.WriteLine($"SetMethod(0x{methodPointer:X}, '{name}')");
-                                        }
-                                        else
-                                        {
-                                            writer.Write("); // -1\n");
+                                            writer.Write("); \n");
                                         }
                                     }
                                 }
@@ -604,6 +614,15 @@ namespace Il2CppDumper
             if ((methodDef.flags & METHOD_ATTRIBUTE_PINVOKE_IMPL) != 0)
                 str += "extern ";
             methodModifiers.Add(methodDef, str);
+            return str;
+        }
+
+        private static string HandleSpecialCharacters(string str)
+        {
+            str = Regex.Replace(str, @"`\d", "");
+            str = str.Replace("<", "_");
+            str = str.Replace(">", "_");
+            str = str.Replace(",", "_");
             return str;
         }
 
