@@ -31,13 +31,16 @@ namespace Il2CppDumper
         public Il2CppEventDefinition[] eventDefs;
         public Il2CppGenericContainer[] genericContainers;
 
-        public Metadata(Stream stream) : base(stream)
+        public Metadata(Stream stream, float version) : base(stream)
         {
-            var sanity = ReadUInt32();
-            if (sanity != 0xFAB11BAF)
+            this.version = version;
+            //pMetadataHdr
+            pMetadataHdr = ReadClass<Il2CppGlobalMetadataHeader>();
+            if (pMetadataHdr.sanity != 0xFAB11BAF)
+            {
                 throw new Exception("ERROR: Metadata file supplied is not valid metadata file.");
-            version = ReadInt32();
-            switch (version)
+            }
+            switch (pMetadataHdr.version)
             {
                 case 16:
                 case 19:
@@ -50,8 +53,6 @@ namespace Il2CppDumper
                 default:
                     throw new Exception($"ERROR: Metadata file supplied is not a supported version[{version}].");
             }
-            //pMetadataHdr
-            pMetadataHdr = ReadClass<Il2CppGlobalMetadataHeader>(0);
             //ImageDefinition
             uiImageCount = pMetadataHdr.imagesCount / MySizeOf(typeof(Il2CppImageDefinition));
             uiNumTypes = pMetadataHdr.typeDefinitionsCount / MySizeOf(typeof(Il2CppTypeDefinition));
@@ -115,6 +116,26 @@ namespace Il2CppDumper
         public string GetStringFromIndex(int index)
         {
             return ReadStringToNull(pMetadataHdr.stringOffset + index);
+        }
+
+        public int GetCustomAttributeIndex(Il2CppImageDefinition imageDef, int customAttributeIndex, uint token)
+        {
+            if (version > 24)
+            {
+                var end = imageDef.customAttributeStart + imageDef.customAttributeCount;
+                for (int i = imageDef.customAttributeStart; i < end; i++)
+                {
+                    if (attributeTypeRanges[i].token == token)
+                    {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+            else
+            {
+                return customAttributeIndex;
+            }
         }
 
         private string GetStringLiteralFromIndex(uint index)

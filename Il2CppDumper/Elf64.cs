@@ -12,7 +12,7 @@ namespace Il2CppDumper
         private Elf64_Phdr[] program_table_element;
         private Dictionary<string, Elf64_Shdr> sectionWithName = new Dictionary<string, Elf64_Shdr>();
 
-        public Elf64(Stream stream, int version, long maxMetadataUsages) : base(stream, version, maxMetadataUsages)
+        public Elf64(Stream stream, float version, long maxMetadataUsages) : base(stream, version, maxMetadataUsages)
         {
             elf_header = new Elf64_Ehdr();
             elf_header.ei_mag = ReadUInt32();
@@ -102,7 +102,7 @@ namespace Il2CppDumper
             }
             else
             {
-                Console.WriteLine("WARNING: The necessary section is missing.");
+                Console.WriteLine("ERROR: This file has been protected.");
 
                 var plusSearch = new PlusSearch(this, methodCount, typeDefinitionsCount, maxMetadataUsages);
                 var dataList = new List<Elf64_Phdr>();

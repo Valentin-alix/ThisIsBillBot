@@ -31,8 +31,25 @@ namespace Il2CppDumper
                 {
                     try
                     {
+                        var metadataBytes = File.ReadAllBytes(ofd.FileName);
+                        var sanity = BitConverter.ToUInt32(metadataBytes, 0);
+                        if (sanity != 0xFAB11BAF)
+                        {
+                            throw new Exception("ERROR: Metadata file supplied is not valid metadata file.");
+                        }
+                        var metadataVersion = (float)BitConverter.ToInt32(metadataBytes, 4);
+                        if (metadataVersion == 24)
+                        {
+                            Console.WriteLine("Is the Unity version greater than or equal to 2018.3?");
+                            Console.WriteLine("1.Yes 2.No");
+                            var key = Console.ReadKey(true);
+                            if (key.KeyChar == '1')
+                            {
+                                metadataVersion = 24.1f;
+                            }
+                        }
                         Console.WriteLine("Initializing metadata...");
-                        metadata = new Metadata(new MemoryStream(File.ReadAllBytes(ofd.FileName)));
+                        metadata = new Metadata(new MemoryStream(metadataBytes), metadataVersion);
                         Console.Clear();
                         //判断il2cpp的magic
                         var il2cppMagic = BitConverter.ToUInt32(il2cppfile, 0);
@@ -149,6 +166,7 @@ namespace Il2CppDumper
                         {
                             try
                             {
+                                var imageDef = metadata.imageDefs.First(x => idx >= x.typeStart && idx < x.typeStart + x.typeCount);
                                 var typeDef = metadata.typeDefs[idx];
                                 var isStruct = false;
                                 var isEnum = false;
@@ -174,7 +192,7 @@ namespace Il2CppDumper
                                     }
                                 }
                                 writer.Write($"\n// Namespace: {metadata.GetStringFromIndex(typeDef.namespaceIndex)}\n");
-                                writer.Write(GetCustomAttribute(typeDef.customAttributeIndex));
+                                writer.Write(GetCustomAttribute(imageDef, typeDef.customAttributeIndex, typeDef.token));
                                 if (config.DumpAttribute && (typeDef.flags & TYPE_ATTRIBUTE_SERIALIZABLE) != 0)
                                     writer.Write("[Serializable]\n");
                                 var visibility = typeDef.flags & TYPE_ATTRIBUTE_VISIBILITY_MASK;
@@ -232,7 +250,7 @@ namespace Il2CppDumper
                                         var fieldDef = metadata.fieldDefs[i];
                                         var fieldType = il2cpp.types[fieldDef.typeIndex];
                                         var fieldDefault = metadata.GetFieldDefaultValueFromIndex(i);
-                                        writer.Write(GetCustomAttribute(fieldDef.customAttributeIndex, "\t"));
+                                        writer.Write(GetCustomAttribute(imageDef, fieldDef.customAttributeIndex, fieldDef.token, "\t"));
                                         writer.Write("\t");
                                         var access = fieldType.attrs & FIELD_ATTRIBUTE_FIELD_ACCESS_MASK;
                                         switch (access)
@@ -343,7 +361,7 @@ namespace Il2CppDumper
                                     for (var i = typeDef.propertyStart; i < propertyEnd; ++i)
                                     {
                                         var propertyDef = metadata.propertyDefs[i];
-                                        writer.Write(GetCustomAttribute(propertyDef.customAttributeIndex, "\t"));
+                                        writer.Write(GetCustomAttribute(imageDef, propertyDef.customAttributeIndex, propertyDef.token, "\t"));
                                         writer.Write("\t");
                                         if (propertyDef.get >= 0)
                                         {
@@ -377,7 +395,7 @@ namespace Il2CppDumper
                                     for (var i = typeDef.methodStart; i < methodEnd; ++i)
                                     {
                                         var methodDef = metadata.methodDefs[i];
-                                        writer.Write(GetCustomAttribute(methodDef.customAttributeIndex, "\t"));
+                                        writer.Write(GetCustomAttribute(imageDef, methodDef.customAttributeIndex, methodDef.token, "\t"));
                                         writer.Write("\t");
                                         writer.Write(GetModifiers(methodDef));
                                         var methodReturnType = il2cpp.types[methodDef.returnType];
@@ -412,7 +430,7 @@ namespace Il2CppDumper
                                             }
                                             if (methodPointer > 0)
                                             {
-                                                writer.Write("); // 0x{0:X}\n", methodPointer);
+                                                writer.Write("); // RVA: 0x{0:X} Offset: 0x{1:X}\n", methodPointer, il2cpp.MapVATR(methodPointer));
                                                 //Script - method
                                                 var name = ToEscapedString(HandleSpecialCharacters(typeName + "$$" + methodName));
                                                 scriptwriter.WriteLine($"SetMethod(0x{methodPointer:X}, '{name}')");
@@ -553,18 +571,26 @@ namespace Il2CppDumper
             return ret;
         }
 
-        private static string GetCustomAttribute(int index, string padding = "")
+        private static string GetCustomAttribute(Il2CppImageDefinition image, int customAttributeIndex, uint token, string padding = "")
         {
             if (!config.DumpAttribute || il2cpp.version < 21)
-                return "";
-            var attributeTypeRange = metadata.attributeTypeRanges[index];
-            var sb = new StringBuilder();
-            for (var i = 0; i < attributeTypeRange.count; i++)
+                return string.Empty;
+            var index = metadata.GetCustomAttributeIndex(image, customAttributeIndex, token);
+            if (index >= 0)
             {
-                var typeIndex = metadata.attributeTypes[attributeTypeRange.start + i];
-                sb.AppendFormat("{0}[{1}] // 0x{2:X}\n", padding, GetTypeName(il2cpp.types[typeIndex]), il2cpp.customAttributeGenerators[index]);
+                var attributeTypeRange = metadata.attributeTypeRanges[index];
+                var sb = new StringBuilder();
+                for (var i = 0; i < attributeTypeRange.count; i++)
+                {
+                    var typeIndex = metadata.attributeTypes[attributeTypeRange.start + i];
+                    sb.AppendFormat("{0}[{1}] // 0x{2:X}\n", padding, GetTypeName(il2cpp.types[typeIndex]), il2cpp.customAttributeGenerators[index]);
+                }
+                return sb.ToString();
             }
-            return sb.ToString();
+            else
+            {
+                return string.Empty;
+            }
         }
 
         private static string GetModifiers(Il2CppMethodDefinition methodDef)
