@@ -339,6 +339,23 @@ namespace Il2CppDumper
             }
         }
 
+        public void SetPointerRangeSecond(uint dumpAddr, params Elf32_Phdr[] sections)
+        {
+            pointerRange2.Clear();
+            foreach (var section in sections)
+            {
+                if (section != null)
+                {
+                    pointerRange2.Add(new Section
+                    {
+                        start = section.p_vaddr + dumpAddr,
+                        end = section.p_vaddr + dumpAddr + section.p_memsz,
+                        address = section.p_vaddr
+                    });
+                }
+            }
+        }
+
         public void SetPointerRangeSecond(params Elf64_Phdr[] sections)
         {
             pointerRange2.Clear();
@@ -385,7 +402,7 @@ namespace Il2CppDumper
                     {
                         try
                         {
-                            var pointer = il2Cpp.MapVATR(il2Cpp.ReadUInt32());
+                            uint pointer = il2Cpp.MapVATR(il2Cpp.ReadUInt32());
                             if (CheckPointerRangeFirst(pointer))
                             {
                                 var sign = il2Cpp.Position;
@@ -420,7 +437,7 @@ namespace Il2CppDumper
                     {
                         try
                         {
-                            var pointer = il2Cpp.MapVATR(il2Cpp.ReadUInt64());
+                            ulong pointer = il2Cpp.MapVATR(il2Cpp.ReadUInt64());
                             if (CheckPointerRangeFirst(pointer))
                             {
                                 var sign = il2Cpp.Position;
@@ -457,7 +474,7 @@ namespace Il2CppDumper
                         {
                             var sign = il2Cpp.Position;
                             il2Cpp.Position += 8;
-                            var pointer = il2Cpp.MapVATR(il2Cpp.ReadUInt32());
+                            uint pointer = il2Cpp.MapVATR(il2Cpp.ReadUInt32());
                             if (CheckPointerRangeFirst(pointer))
                             {
                                 var pointers = il2Cpp.ReadClassArray<uint>(pointer, maxMetadataUsages);
@@ -493,7 +510,7 @@ namespace Il2CppDumper
                         {
                             var sign = il2Cpp.Position;
                             il2Cpp.Position += 16;
-                            var pointer = il2Cpp.MapVATR(il2Cpp.ReadUInt64());
+                            ulong pointer = il2Cpp.MapVATR(il2Cpp.ReadUInt64());
                             if (CheckPointerRangeFirst(pointer))
                             {
                                 var pointers = il2Cpp.ReadClassArray<ulong>(pointer, maxMetadataUsages);
