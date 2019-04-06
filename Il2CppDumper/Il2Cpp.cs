@@ -18,7 +18,7 @@ namespace Il2CppDumper
         private Dictionary<ulong, Il2CppType> typesdic = new Dictionary<ulong, Il2CppType>();
         public ulong[] metadataUsages;
         private Il2CppGenericMethodFunctionsDefinitions[] genericMethodTable;
-        private Il2CppMethodSpec[] methodSpecs;
+        public Il2CppMethodSpec[] methodSpecs;
         public Dictionary<int, ulong> genericMethoddDictionary;
         private bool isNew21;
         protected long maxMetadataUsages;
@@ -130,14 +130,14 @@ namespace Il2CppDumper
             return fieldOffsets[fieldIndex];
         }
 
-        public T[] MapVATR<T>(dynamic uiAddr, long count) where T : new()
+        public T[] MapVATR<T>(dynamic addr, long count) where T : new()
         {
-            return ReadClassArray<T>(MapVATR(uiAddr), count);
+            return ReadClassArray<T>(MapVATR(addr), count);
         }
 
-        public T MapVATR<T>(dynamic uiAddr) where T : new()
+        public T MapVATR<T>(dynamic addr) where T : new()
         {
-            return ReadClass<T>(MapVATR(uiAddr));
+            return ReadClass<T>(MapVATR(addr));
         }
 
         public Il2CppType GetIl2CppType(ulong pointer)
