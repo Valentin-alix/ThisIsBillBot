@@ -38,7 +38,7 @@ namespace Il2CppDumper
                     {
                         start = section.offset,
                         end = section.offset + section.size,
-                        address = section.address
+                        address = section.addr
                     });
                 }
             }
@@ -54,39 +54,7 @@ namespace Il2CppDumper
                     {
                         start = section.offset,
                         end = section.offset + section.size,
-                        address = section.address
-                    });
-                }
-            }
-        }
-
-        public void SetSearch(params Elf32_Shdr[] sections)
-        {
-            foreach (var section in sections)
-            {
-                if (section != null)
-                {
-                    search.Add(new Section
-                    {
-                        start = section.sh_offset,
-                        end = section.sh_offset + section.sh_size,
-                        address = section.sh_addr
-                    });
-                }
-            }
-        }
-
-        public void SetSearch(params Elf64_Shdr[] sections)
-        {
-            foreach (var section in sections)
-            {
-                if (section != null)
-                {
-                    search.Add(new Section
-                    {
-                        start = section.sh_offset,
-                        end = section.sh_offset + section.sh_size,
-                        address = section.sh_addr
+                        address = section.addr
                     });
                 }
             }
@@ -166,7 +134,7 @@ namespace Il2CppDumper
                     {
                         start = section.offset,
                         end = section.offset + section.size,
-                        address = section.address
+                        address = section.addr
                     });
                 }
             }
@@ -182,39 +150,7 @@ namespace Il2CppDumper
                     {
                         start = section.offset,
                         end = section.offset + section.size,
-                        address = section.address
-                    });
-                }
-            }
-        }
-
-        public void SetPointerRangeFirst(params Elf32_Shdr[] sections)
-        {
-            foreach (var section in sections)
-            {
-                if (section != null)
-                {
-                    pointerRange1.Add(new Section
-                    {
-                        start = section.sh_offset,
-                        end = section.sh_offset + section.sh_size,
-                        address = section.sh_addr
-                    });
-                }
-            }
-        }
-
-        public void SetPointerRangeFirst(params Elf64_Shdr[] sections)
-        {
-            foreach (var section in sections)
-            {
-                if (section != null)
-                {
-                    pointerRange1.Add(new Section
-                    {
-                        start = section.sh_offset,
-                        end = section.sh_offset + section.sh_size,
-                        address = section.sh_addr
+                        address = section.addr
                     });
                 }
             }
@@ -293,9 +229,9 @@ namespace Il2CppDumper
                 {
                     pointerRange2.Add(new Section
                     {
-                        start = section.address,
-                        end = section.address + section.size,
-                        address = section.address
+                        start = section.addr,
+                        end = section.addr + section.size,
+                        address = section.addr
                     });
                 }
             }
@@ -310,43 +246,9 @@ namespace Il2CppDumper
                 {
                     pointerRange2.Add(new Section
                     {
-                        start = section.address,
-                        end = section.address + section.size,
-                        address = section.address
-                    });
-                }
-            }
-        }
-
-        public void SetPointerRangeSecond(params Elf32_Shdr[] sections)
-        {
-            pointerRange2.Clear();
-            foreach (var section in sections)
-            {
-                if (section != null)
-                {
-                    pointerRange2.Add(new Section
-                    {
-                        start = section.sh_addr,
-                        end = section.sh_addr + section.sh_size,
-                        address = section.sh_addr
-                    });
-                }
-            }
-        }
-
-        public void SetPointerRangeSecond(params Elf64_Shdr[] sections)
-        {
-            pointerRange2.Clear();
-            foreach (var section in sections)
-            {
-                if (section != null)
-                {
-                    pointerRange2.Add(new Section
-                    {
-                        start = section.sh_addr,
-                        end = section.sh_addr + section.sh_size,
-                        address = section.sh_addr
+                        start = section.addr,
+                        end = section.addr + section.size,
+                        address = section.addr
                     });
                 }
             }

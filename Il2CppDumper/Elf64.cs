@@ -84,7 +84,7 @@ namespace Il2CppDumper
             var plusSearch = new PlusSearch(this, methodCount, typeDefinitionsCount, maxMetadataUsages);
             var dataList = new List<Elf64_Phdr>();
             var execList = new List<Elf64_Phdr>();
-            foreach (var phdr in program_table)
+            foreach (var phdr in program_table.Where(x => x.p_type == 1u))
             {
                 if (phdr.p_memsz != 0ul)
                 {
@@ -112,14 +112,7 @@ namespace Il2CppDumper
             var codeRegistration = plusSearch.FindCodeRegistration64Bit();
             plusSearch.SetPointerRangeSecond(data);
             var metadataRegistration = plusSearch.FindMetadataRegistration64Bit();
-            if (codeRegistration != 0 && metadataRegistration != 0)
-            {
-                Console.WriteLine("CodeRegistration : {0:x}", codeRegistration);
-                Console.WriteLine("MetadataRegistration : {0:x}", metadataRegistration);
-                Init(codeRegistration, metadataRegistration);
-                return true;
-            }
-            return false;
+            return AutoInit(codeRegistration, metadataRegistration);
         }
 
         public override bool SymbolSearch()
