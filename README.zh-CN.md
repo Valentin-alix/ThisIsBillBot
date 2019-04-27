@@ -4,10 +4,13 @@
 基础逻辑代码来源于[Il2CppDumper](https://github.com/Jumboperson/Il2CppDumper)  
 
 ## 功能
-* 支持ELF, ELF64, Mach-O和PE格式
+* 支持ELF, ELF64, Mach-O, PE和NSO格式
 * 支持Metadata版本16, 19~24
 * 导出包括types, fields, properties, methods, attributes
-* 自动生成IDA脚本(重命名methodName，添加stringLiteral注释和MakeFunction)
+* 自动生成IDA脚本
+  * 重命名函数
+  * 重命名并注释Metadata
+  * MakeFunction完善IDA分析
 * 生成DummyDll
 
 ## 使用说明
@@ -17,11 +20,15 @@
 #### Manual
 你需要手动输入`CodeRegistration`和`MetadataRegistration`的指针地址，一般需要依靠反汇编工具来获取地址
 #### Auto
-原理是通过函数的特征字节找到`il2cpp_codegen_register`函数并获取传入`il2cpp::vm::MetadataCache::Register`中的参数1（`CodeRegistration`）和参数2（`MetadataRegistration`）。不过由于不同编译器优化差异，很多情况下无法正常工作。
-#### Auto(Advanced)
-支持Metadata 20及以后的版本，在16版本下只能获取到`CodeRegistration`地址，利用指针特征进行搜索，通用性比Auto强。
+通过函数的特征字节找到`il2cpp_codegen_register`函数并获取传入`il2cpp::vm::MetadataCache::Register`中的参数1（`CodeRegistration`）和参数2（`MetadataRegistration`）。由于不同编译器优化差异，很多情况下无法正常工作。
 #### Auto(Plus) - **优先使用此模式**
-支持Metadata 20及以后的版本，在16版本下只能获取到`CodeRegistration`地址，以metadata的数据作为依据，指针特征作为判读条件进行搜索，对于某些文件处理的比Auto(Advanced)好。
+以metadata的数据作为依据，指针特征作为判读条件进行搜索。
+
+支持Metadata版本20~2018.3
+
+在16版本下只能获取到`CodeRegistration`地址
+
+在2019.1版本下只能获取到`MetadataRegistration`地址
 #### Auto(Symbol)
 目前只支持ELF，使用自带的符号进行处理。
 
@@ -46,10 +53,7 @@
 
 ## 常见问题
 #### `ERROR: Metadata file supplied is not valid metadata file.`  
-你所选择的global-metadata.dat不是一个有效的metadata文件，通常是因为游戏加密了global-metadata.dat文件。关于解密的问题最好去相关破解论坛寻求帮助，请不要在issues提问！  
+global-metadata.dat不是一个有效的metadata文件，通常是因为游戏加密了global-metadata.dat文件。关于解密的问题最好去相关破解论坛寻求帮助，请不要在issues提问！  
 
 #### `ERROR: Can't use this mode to process file, try another mode.`  
-当所有自动模式都无法工作时，你可以打开一个新的issue，并上传文件，我会尝试解决
-
-#### `WARNING: Version 16 can only get CodeRegistration` 
-利用得到的CodeRegistration指针地址去得到MetadataRegistration的指针地址，然后使用Manual模式处理文件
+当所有自动模式都无法工作时，确认可执行文件未加壳或受保护后，你可以打开一个新的issue，并上传文件，我会尝试解决

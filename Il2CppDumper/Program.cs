@@ -16,6 +16,7 @@ namespace Il2CppDumper
         private static Il2Cpp il2cpp;
         private static Config config = new JavaScriptSerializer().Deserialize<Config>(File.ReadAllText(Application.StartupPath + Path.DirectorySeparatorChar + @"config.json"));
         private static Dictionary<Il2CppMethodDefinition, string> methodModifiers = new Dictionary<Il2CppMethodDefinition, string>();
+        private static Dictionary<Il2CppTypeDefinition, int> typeDefImageIndices = new Dictionary<Il2CppTypeDefinition, int>();
 
         static void ShowHelp(string programName)
         {
@@ -101,19 +102,35 @@ namespace Il2CppDumper
             {
                 throw new Exception("ERROR: Metadata file supplied is not valid metadata file.");
             }
-            var metadataVersion = (float)BitConverter.ToInt32(metadataBytes, 4);
+            float fixedMetadataVersion;
+            var metadataVersion = BitConverter.ToInt32(metadataBytes, 4);
             if (metadataVersion == 24)
             {
-                Console.WriteLine("Is the Unity version greater than or equal to 2018.3?");
-                Console.WriteLine("1.Yes 2.No");
-                var key = Console.ReadKey(true);
-                if (key.KeyChar == '1')
+                Console.WriteLine("Input Unity version (Just enter the first two numbers eg. 5.6, 2017.1): ");
+                var str = Console.ReadLine();
+                if (string.IsNullOrEmpty(str) || !str.Contains("."))
+                    throw new Exception("You must enter the correct Unity version number");
+                var strs = Array.ConvertAll(str.Split('.'), int.Parse);
+                var unityVersion = new Version(strs[0], strs[1]);
+                if (unityVersion >= Unity20191)
                 {
-                    metadataVersion = 24.1f;
+                    fixedMetadataVersion = 24.2f;
+                }
+                else if (unityVersion >= Unity20183)
+                {
+                    fixedMetadataVersion = 24.1f;
+                }
+                else
+                {
+                    fixedMetadataVersion = metadataVersion;
                 }
             }
+            else
+            {
+                fixedMetadataVersion = metadataVersion;
+            }
             Console.WriteLine("Initializing metadata...");
-            metadata = new Metadata(new MemoryStream(metadataBytes), metadataVersion);
+            metadata = new Metadata(new MemoryStream(metadataBytes), fixedMetadataVersion);
             //判断il2cpp的magic
             var il2cppMagic = BitConverter.ToUInt32(il2cppBytes, 0);
             var isElf = false;
@@ -163,7 +180,7 @@ namespace Il2CppDumper
                     break;
             }
 
-            Console.WriteLine("Select Mode: 1.Manual 2.Auto 3.Auto(Advanced) 4.Auto(Plus) 5.Auto(Symbol)");
+            Console.WriteLine("Select Mode: 1.Manual 2.Auto 3.Auto(Plus) 4.Auto(Symbol)");
             var modeKey = Console.ReadKey(true);
             var version = config.ForceIl2CppVersion ? config.ForceVersion : metadata.version;
             Console.WriteLine("Initializing il2cpp file...");
@@ -207,13 +224,10 @@ namespace Il2CppDumper
                     case '2': //Auto
                         flag = il2cpp.Search();
                         break;
-                    case '3': //Auto(Advanced)
-                        flag = il2cpp.AdvancedSearch(metadata.methodDefs.Count(x => x.methodIndex >= 0));
-                        break;
-                    case '4': //Auto(Plus)
+                    case '3': //Auto(Plus)
                         flag = il2cpp.PlusSearch(metadata.methodDefs.Count(x => x.methodIndex >= 0), metadata.typeDefs.Length);
                         break;
-                    case '5': //Auto(Symbol)
+                    case '4': //Auto(Symbol)
                         flag = il2cpp.SymbolSearch();
                         break;
                     default:
@@ -242,14 +256,16 @@ namespace Il2CppDumper
                 writer.Write($"// Image {imageIndex}: {metadata.GetStringFromIndex(imageDef.nameIndex)} - {imageDef.typeStart}\n");
             }
             //dump type
-            foreach (var imageDef in metadata.imageDefs)
+            for (var imageIndex = 0; imageIndex < metadata.imageDefs.Length; imageIndex++)
             {
                 try
                 {
+                    var imageDef = metadata.imageDefs[imageIndex];
                     var typeEnd = imageDef.typeStart + imageDef.typeCount;
                     for (int idx = imageDef.typeStart; idx < typeEnd; idx++)
                     {
                         var typeDef = metadata.typeDefs[idx];
+                        typeDefImageIndices.Add(typeDef, imageIndex);
                         var isStruct = false;
                         var isEnum = false;
                         var extends = new List<string>();
@@ -503,15 +519,7 @@ namespace Il2CppDumper
                                 writer.Write(string.Join(", ", parameterStrs));
                                 if (config.DumpMethodOffset)
                                 {
-                                    ulong methodPointer;
-                                    if (methodDef.methodIndex >= 0)
-                                    {
-                                        methodPointer = il2cpp.methodPointers[methodDef.methodIndex];
-                                    }
-                                    else
-                                    {
-                                        il2cpp.genericMethoddDictionary.TryGetValue(i, out methodPointer);
-                                    }
+                                    var methodPointer = il2cpp.GetMethodPointer(methodDef.methodIndex, i, imageIndex, methodDef.token);
                                     if (methodPointer > 0)
                                     {
                                         writer.Write("); // RVA: 0x{0:X} Offset: 0x{1:X}\n", methodPointer, il2cpp.MapVATR(methodPointer));
@@ -565,19 +573,13 @@ namespace Il2CppDumper
                 foreach (var i in metadata.metadataUsageDic[3]) //kIl2CppMetadataUsageMethodDef
                 {
                     var methodDef = metadata.methodDefs[i.Key];
-                    var typeName = GetTypeName(metadata.typeDefs[methodDef.declaringType]);
+                    var typeDef = metadata.typeDefs[methodDef.declaringType];
+                    var typeName = GetTypeName(typeDef);
                     var methodName = typeName + "." + metadata.GetStringFromIndex(methodDef.nameIndex) + "()";
                     var legalName = "Method$" + HandleSpecialCharacters(methodName);
                     scriptwriter.WriteLine($"SetName(0x{il2cpp.metadataUsages[i.Key]:X}, '{legalName}')");
-                    ulong methodPointer;
-                    if (methodDef.methodIndex >= 0)
-                    {
-                        methodPointer = il2cpp.methodPointers[methodDef.methodIndex];
-                    }
-                    else
-                    {
-                        il2cpp.genericMethoddDictionary.TryGetValue((int)i.Key, out methodPointer);
-                    }
+                    var imageIndex = typeDefImageIndices[typeDef];
+                    var methodPointer = il2cpp.GetMethodPointer(methodDef.methodIndex, (int)i.Key, imageIndex, methodDef.token);
                     scriptwriter.WriteLine($"idc.MakeComm(0x{il2cpp.metadataUsages[i.Key]:X}, r'0x{methodPointer:X}')");
                 }
                 foreach (var i in metadata.metadataUsageDic[4]) //kIl2CppMetadataUsageFieldInfo
@@ -599,19 +601,13 @@ namespace Il2CppDumper
                 {
                     var methodSpec = il2cpp.methodSpecs[i.Value];
                     var methodDef = metadata.methodDefs[methodSpec.methodDefinitionIndex];
-                    var typeName = GetTypeName(metadata.typeDefs[methodDef.declaringType]);
+                    var typeDef = metadata.typeDefs[methodDef.declaringType];
+                    var typeName = GetTypeName(typeDef);
                     var methodName = typeName + "." + metadata.GetStringFromIndex(methodDef.nameIndex) + "()";
                     var legalName = "Method$" + HandleSpecialCharacters(methodName);
                     scriptwriter.WriteLine($"SetName(0x{il2cpp.metadataUsages[i.Key]:X}, '{legalName}')");
-                    ulong methodPointer;
-                    if (methodDef.methodIndex >= 0)
-                    {
-                        methodPointer = il2cpp.methodPointers[methodDef.methodIndex];
-                    }
-                    else
-                    {
-                        il2cpp.genericMethoddDictionary.TryGetValue(methodSpec.methodDefinitionIndex, out methodPointer);
-                    }
+                    var imageIndex = typeDefImageIndices[typeDef];
+                    var methodPointer = il2cpp.GetMethodPointer(methodDef.methodIndex, methodSpec.methodDefinitionIndex, imageIndex, methodDef.token);
                     scriptwriter.WriteLine($"idc.MakeComm(0x{il2cpp.metadataUsages[i.Key]:X}, r'0x{methodPointer:X}')");
                 }
                 scriptwriter.WriteLine("print('Set MetadataUsage done')");
@@ -619,7 +615,19 @@ namespace Il2CppDumper
             //Script - MakeFunction
             if (config.MakeFunction)
             {
-                var orderedPointers = il2cpp.methodPointers.ToList();
+                List<ulong> orderedPointers;
+                if (il2cpp.version >= 24.2f)
+                {
+                    orderedPointers = new List<ulong>();
+                    foreach (var methodPointers in il2cpp.codeGenModuleMethodPointers)
+                    {
+                        orderedPointers.AddRange(methodPointers);
+                    }
+                }
+                else
+                {
+                    orderedPointers = il2cpp.methodPointers.ToList();
+                }
                 orderedPointers.AddRange(il2cpp.genericMethodPointers.Where(x => x > 0));
                 orderedPointers.AddRange(il2cpp.invokerPointers);
                 orderedPointers.AddRange(il2cpp.customAttributeGenerators);
