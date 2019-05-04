@@ -106,23 +106,28 @@ namespace Il2CppDumper
             var metadataVersion = BitConverter.ToInt32(metadataBytes, 4);
             if (metadataVersion == 24)
             {
-                Console.WriteLine("Input Unity version (Just enter the first two numbers eg. 5.6, 2017.1): ");
+                Console.WriteLine("Input Unity version (Just enter the first two numbers eg. *.*, ****.*): ");
                 var str = Console.ReadLine();
-                if (string.IsNullOrEmpty(str) || !str.Contains("."))
+                try
+                {
+                    var strs = Array.ConvertAll(str.Split('.'), int.Parse);
+                    var unityVersion = new Version(strs[0], strs[1]);
+                    if (unityVersion >= Unity20191)
+                    {
+                        fixedMetadataVersion = 24.2f;
+                    }
+                    else if (unityVersion >= Unity20183)
+                    {
+                        fixedMetadataVersion = 24.1f;
+                    }
+                    else
+                    {
+                        fixedMetadataVersion = metadataVersion;
+                    }
+                }
+                catch
+                {
                     throw new Exception("You must enter the correct Unity version number");
-                var strs = Array.ConvertAll(str.Split('.'), int.Parse);
-                var unityVersion = new Version(strs[0], strs[1]);
-                if (unityVersion >= Unity20191)
-                {
-                    fixedMetadataVersion = 24.2f;
-                }
-                else if (unityVersion >= Unity20183)
-                {
-                    fixedMetadataVersion = 24.1f;
-                }
-                else
-                {
-                    fixedMetadataVersion = metadataVersion;
                 }
             }
             else
@@ -572,14 +577,14 @@ namespace Il2CppDumper
                 }
                 foreach (var i in metadata.metadataUsageDic[3]) //kIl2CppMetadataUsageMethodDef
                 {
-                    var methodDef = metadata.methodDefs[i.Key];
+                    var methodDef = metadata.methodDefs[i.Value];
                     var typeDef = metadata.typeDefs[methodDef.declaringType];
                     var typeName = GetTypeName(typeDef);
                     var methodName = typeName + "." + metadata.GetStringFromIndex(methodDef.nameIndex) + "()";
                     var legalName = "Method$" + HandleSpecialCharacters(methodName);
                     scriptwriter.WriteLine($"SetName(0x{il2cpp.metadataUsages[i.Key]:X}, '{legalName}')");
                     var imageIndex = typeDefImageIndices[typeDef];
-                    var methodPointer = il2cpp.GetMethodPointer(methodDef.methodIndex, (int)i.Key, imageIndex, methodDef.token);
+                    var methodPointer = il2cpp.GetMethodPointer(methodDef.methodIndex, (int)i.Value, imageIndex, methodDef.token);
                     scriptwriter.WriteLine($"idc.MakeComm(0x{il2cpp.metadataUsages[i.Key]:X}, r'0x{methodPointer:X}')");
                 }
                 foreach (var i in metadata.metadataUsageDic[4]) //kIl2CppMetadataUsageFieldInfo
@@ -603,7 +608,21 @@ namespace Il2CppDumper
                     var methodDef = metadata.methodDefs[methodSpec.methodDefinitionIndex];
                     var typeDef = metadata.typeDefs[methodDef.declaringType];
                     var typeName = GetTypeName(typeDef);
+                    // Class of the method is generic
+                    if (methodSpec.classIndexIndex != -1)
+                    {
+                        var classInst = il2cpp.genericInsts[methodSpec.classIndexIndex];
+                        typeName += GetGenericTypeParams(classInst);
+                    }
+
                     var methodName = typeName + "." + metadata.GetStringFromIndex(methodDef.nameIndex) + "()";
+                    // Method itself is generic
+                    if (methodSpec.methodIndexIndex != -1)
+                    {
+                        var methodInst = il2cpp.genericInsts[methodSpec.methodIndexIndex];
+                        methodName += GetGenericTypeParams(methodInst);
+                    }
+
                     var legalName = "Method$" + HandleSpecialCharacters(methodName);
                     scriptwriter.WriteLine($"SetName(0x{il2cpp.metadataUsages[i.Key]:X}, '{legalName}')");
                     var imageIndex = typeDefImageIndices[typeDef];
@@ -690,15 +709,8 @@ namespace Il2CppDumper
                         var generic_class = il2cpp.MapVATR<Il2CppGenericClass>(type.data.generic_class);
                         var typeDef = metadata.typeDefs[generic_class.typeDefinitionIndex];
                         ret = metadata.GetStringFromIndex(typeDef.nameIndex);
-                        var typeNames = new List<string>();
                         var genericInst = il2cpp.MapVATR<Il2CppGenericInst>(generic_class.context.class_inst);
-                        var pointers = il2cpp.GetPointers(genericInst.type_argv, (long)genericInst.type_argc);
-                        for (uint i = 0; i < genericInst.type_argc; ++i)
-                        {
-                            var oriType = il2cpp.GetIl2CppType(pointers[i]);
-                            typeNames.Add(GetTypeName(oriType));
-                        }
-                        ret += $"<{string.Join(", ", typeNames)}>";
+                        ret += GetGenericTypeParams(genericInst);
                         break;
                     }
                 case Il2CppTypeEnum.IL2CPP_TYPE_ARRAY:
@@ -737,6 +749,18 @@ namespace Il2CppDumper
             }
             ret += metadata.GetStringFromIndex(typeDef.nameIndex);
             return ret;
+        }
+
+        private static string GetGenericTypeParams(Il2CppGenericInst genericInst)
+        {
+            var typeNames = new List<string>();
+            var pointers = il2cpp.GetPointers(genericInst.type_argv, (long)genericInst.type_argc);
+            for (uint i = 0; i < genericInst.type_argc; ++i)
+            {
+                var oriType = il2cpp.GetIl2CppType(pointers[i]);
+                typeNames.Add(GetTypeName(oriType));
+            }
+            return $"<{string.Join(", ", typeNames)}>";
         }
 
         private static string GetCustomAttribute(Il2CppImageDefinition image, int customAttributeIndex, uint token, string padding = "")
