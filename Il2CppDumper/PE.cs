@@ -63,6 +63,7 @@ namespace Il2CppDumper
             return addr - (section.VirtualAddress - section.PointerToRawData);
         }
 
+        [Obsolete]
         public override bool Search()
         {
             return false;
@@ -99,6 +100,11 @@ namespace Il2CppDumper
         public override bool SymbolSearch()
         {
             return false;
+        }
+
+        public override ulong FixPointer(ulong pointer)
+        {
+            return pointer - imageBase;
         }
     }
 }

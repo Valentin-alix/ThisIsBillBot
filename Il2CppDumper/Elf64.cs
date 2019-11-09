@@ -14,6 +14,7 @@ namespace Il2CppDumper
         private Elf64_Sym[] dynamic_symbol_table;
         private Dictionary<string, Elf64_Shdr> sectionWithName = new Dictionary<string, Elf64_Shdr>();
         private bool isDumped;
+        private ulong dumpAddr;
 
         public Elf64(Stream stream, float version, long maxMetadataUsages) : base(stream, version, maxMetadataUsages)
         {
@@ -44,7 +45,7 @@ namespace Il2CppDumper
                 Console.WriteLine("Detected this may be a dump file. If not, it must be protected.");
                 isDumped = true;
                 Console.WriteLine("Input dump address:");
-                var dumpAddr = Convert.ToUInt64(Console.ReadLine(), 16);
+                dumpAddr = Convert.ToUInt64(Console.ReadLine(), 16);
                 foreach (var phdr in program_table)
                 {
                     phdr.p_offset = phdr.p_vaddr;
@@ -57,6 +58,10 @@ namespace Il2CppDumper
             if (!isDumped)
             {
                 RelocationProcessing();
+                if (CheckProtection())
+                {
+                    Console.WriteLine("ERROR: This file is protected.");
+                }
             }
         }
 
@@ -86,6 +91,7 @@ namespace Il2CppDumper
             return uiAddr - (program_header_table.p_vaddr - program_header_table.p_offset);
         }
 
+        [Obsolete]
         public override bool Search()
         {
             return false;
@@ -93,10 +99,6 @@ namespace Il2CppDumper
 
         public override bool PlusSearch(int methodCount, int typeDefinitionsCount)
         {
-            if (!isDumped && (!sectionWithName.ContainsKey(".data.rel.ro") || !sectionWithName.ContainsKey(".text") || !sectionWithName.ContainsKey(".bss")))
-            {
-                Console.WriteLine("ERROR: This file has been protected.");
-            }
             var dataList = new List<Elf64_Phdr>();
             var execList = new List<Elf64_Phdr>();
             foreach (var phdr in program_table.Where(x => x.p_type == 1u))
@@ -201,6 +203,39 @@ namespace Il2CppDumper
             {
                 // ignored
             }
+        }
+
+        private bool CheckProtection()
+        {
+            //简单的加壳检测，检测是否含有init function或者JNI_OnLoad
+            //.init_proc
+            if (dynamic_table.FirstOrDefault(x => x.d_tag == DT_INIT) != null)
+            {
+                Console.WriteLine("WARNING: find .init_proc");
+                return true;
+            }
+            //JNI_OnLoad
+            ulong dynstrOffset = MapVATR(dynamic_table.First(x => x.d_tag == DT_STRTAB).d_un);
+            foreach (var dynamic_symbol in dynamic_symbol_table)
+            {
+                var name = ReadStringToNull(dynstrOffset + dynamic_symbol.st_name);
+                switch (name)
+                {
+                    case "JNI_OnLoad":
+                        Console.WriteLine("WARNING: find JNI_OnLoad");
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public override ulong FixPointer(ulong pointer)
+        {
+            if (isDumped)
+            {
+                return pointer - dumpAddr;
+            }
+            return pointer;
         }
     }
 }

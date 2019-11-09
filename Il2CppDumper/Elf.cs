@@ -14,24 +14,15 @@ namespace Il2CppDumper
         private Elf32_Sym[] dynamic_symbol_table;
         private Dictionary<string, Elf32_Shdr> sectionWithName = new Dictionary<string, Elf32_Shdr>();
         private bool isDumped;
+        private uint dumpAddr;
 
-        //默认编译器
         /*
-         * LDR R1, [R1,R2]
-         * ADD R0, R12, R2
-         * ADD R2, R3, R2
-         */
-        private static readonly byte[] ARMFeatureBytesv21 = { 0x02, 0x10, 0x91, 0xE7, 0x02, 0x00, 0x8C, 0xE0, 0x02, 0x20, 0x83, 0xE0 };
-        /*
-         * LDR R1, [PC,R1]
-         * ADD R0, PC, R0
-         * ADD R2, PC, R2
-         */
-        private static readonly byte[] ARMFeatureBytesv24 = { 0x01, 0x10, 0x9F, 0xE7, 0x00, 0x00, 0x8F, 0xE0, 0x02, 0x20, 0x8F, 0xE0 };
-        //TODO
-        private static readonly byte[] X86FeatureBytesv21 = { 0x02, 0x10, 0x91, 0xE7, 0x02, 0x00, 0x8C, 0xE0, 0x02, 0x20, 0x83, 0xE0 };
-        //TODO
-        private static readonly byte[] X86FeatureBytesv24 = { 0x01, 0x10, 0x9F, 0xE7, 0x00, 0x00, 0x8F, 0xE0, 0x02, 0x20, 0x8F, 0xE0 };
+        * LDR R1, [X]
+        * ADD R0, X, X
+        * ADD R2, X, X
+        */
+        private static readonly string ARMFeatureBytes = "? 0x10 ? 0xE7 ? 0x00 ? 0xE0 ? 0x20 ? 0xE0";
+        private static readonly string X86FeatureBytes = "? 0x10 ? 0xE7 ? 0x00 ? 0xE0 ? 0x20 ? 0xE0";
 
         public Elf(Stream stream, float version, long maxMetadataUsages) : base(stream, version, maxMetadataUsages)
         {
@@ -65,7 +56,7 @@ namespace Il2CppDumper
                 Console.WriteLine("Detected this may be a dump file. If not, it must be protected.");
                 isDumped = true;
                 Console.WriteLine("Input dump address:");
-                var dumpAddr = Convert.ToUInt32(Console.ReadLine(), 16);
+                dumpAddr = Convert.ToUInt32(Console.ReadLine(), 16);
                 foreach (var phdr in program_table)
                 {
                     phdr.p_offset = phdr.p_vaddr;
@@ -78,6 +69,10 @@ namespace Il2CppDumper
             if (!isDumped)
             {
                 RelocationProcessing();
+                if (CheckProtection())
+                {
+                    Console.WriteLine("ERROR: This file is protected.");
+                }
             }
         }
 
@@ -107,25 +102,18 @@ namespace Il2CppDumper
             return uiAddr - (program_header_table.p_vaddr - program_header_table.p_offset);
         }
 
+        [Obsolete]
         public override bool Search()
         {
             var _GLOBAL_OFFSET_TABLE_ = dynamic_table.First(x => x.d_tag == DT_PLTGOT).d_un;
             var execs = program_table.Where(x => x.p_type == 1u && (x.p_flags & 1) == 1).ToArray();
             var resultList = new List<int>();
-            byte[] featureBytes = null;
-            if (version < 24f)
-            {
-                featureBytes = elf_header.e_machine == 40 ? ARMFeatureBytesv21 : X86FeatureBytesv21;
-            }
-            else if (version >= 24f)
-            {
-                featureBytes = elf_header.e_machine == 40 ? ARMFeatureBytesv24 : X86FeatureBytesv24;
-            }
+            var featureBytes = elf_header.e_machine == 40 ? ARMFeatureBytes : X86FeatureBytes;
             foreach (var exec in execs)
             {
                 Position = exec.p_offset;
                 var buff = ReadBytes((int)exec.p_filesz);
-                resultList.AddRange(buff.IndicesOf(featureBytes));
+                resultList.AddRange(buff.Search(featureBytes));
             }
             if (resultList.Count == 1)
             {
@@ -164,10 +152,6 @@ namespace Il2CppDumper
 
         public override bool PlusSearch(int methodCount, int typeDefinitionsCount)
         {
-            if (!isDumped && (!sectionWithName.ContainsKey(".data.rel.ro") || !sectionWithName.ContainsKey(".text") || !sectionWithName.ContainsKey(".bss")))
-            {
-                Console.WriteLine("ERROR: This file has been protected.");
-            }
             var dataList = new List<Elf32_Phdr>();
             var execList = new List<Elf32_Phdr>();
             foreach (var phdr in program_table.Where(x => x.p_type == 1u))
@@ -268,6 +252,39 @@ namespace Il2CppDumper
             {
                 // ignored
             }
+        }
+
+        private bool CheckProtection()
+        {
+            //简单的加壳检测，检测是否含有init function或者JNI_OnLoad
+            //.init_proc
+            if (dynamic_table.FirstOrDefault(x => x.d_tag == DT_INIT) != null)
+            {
+                Console.WriteLine("WARNING: find .init_proc");
+                return true;
+            }
+            //JNI_OnLoad
+            uint dynstrOffset = MapVATR(dynamic_table.First(x => x.d_tag == DT_STRTAB).d_un);
+            foreach (var dynamic_symbol in dynamic_symbol_table)
+            {
+                var name = ReadStringToNull(dynstrOffset + dynamic_symbol.st_name);
+                switch (name)
+                {
+                    case "JNI_OnLoad":
+                        Console.WriteLine("WARNING: find JNI_OnLoad");
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public override ulong FixPointer(ulong pointer)
+        {
+            if (isDumped)
+            {
+                return pointer - dumpAddr;
+            }
+            return pointer;
         }
     }
 }
