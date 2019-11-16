@@ -80,12 +80,12 @@ namespace Il2CppDumper
         {
             try
             {
-                var section_name_off = (int)elf_header.e_shoff + (elf_header.e_shentsize * elf_header.e_shtrndx);
-                Position = section_name_off + 2 * 4 + 4 + 4;//2 * sizeof(Elf32_Word) + sizeof(Elf32_Xword) + sizeof(Elf32_Addr)
-                var section_name_block_off = ReadInt32();
-                for (int i = 0; i < elf_header.e_shnum; i++)
+                var section_name_off = elf_header.e_shoff + elf_header.e_shentsize * elf_header.e_shtrndx;
+                Position = (uint)section_name_off + 2 * 4 + 4 + 4;//2 * sizeof(Elf32_Word) + sizeof(Elf32_Xword) + sizeof(Elf32_Addr)
+                var section_name_block_off = ReadUInt32();
+                for (uint i = 0; i < elf_header.e_shnum; i++)
                 {
-                    var section = ReadClass<Elf32_Shdr>((int)elf_header.e_shoff + (elf_header.e_shentsize * i));
+                    var section = ReadClass<Elf32_Shdr>(elf_header.e_shoff + elf_header.e_shentsize * i);
                     sectionWithName.Add(ReadStringToNull(section_name_block_off + section.sh_name), section);
                 }
             }
@@ -96,13 +96,12 @@ namespace Il2CppDumper
             return true;
         }
 
-        public override dynamic MapVATR(dynamic uiAddr)
+        public override ulong MapVATR(ulong uiAddr)
         {
-            var program_header_table = program_table.First(x => uiAddr >= x.p_vaddr && uiAddr <= (x.p_vaddr + x.p_memsz));
+            var program_header_table = program_table.First(x => uiAddr >= x.p_vaddr && uiAddr <= x.p_vaddr + x.p_memsz);
             return uiAddr - (program_header_table.p_vaddr - program_header_table.p_offset);
         }
 
-        [Obsolete]
         public override bool Search()
         {
             var _GLOBAL_OFFSET_TABLE_ = dynamic_table.First(x => x.d_tag == DT_PLTGOT).d_un;
@@ -138,10 +137,10 @@ namespace Il2CppDumper
                     {
                         var result = (uint)resultList[0];
                         Position = result + 0x14;
-                        codeRegistration = ReadUInt32() + result + 0xcu;
+                        codeRegistration = ReadUInt32() + result + 0xcu + dumpAddr;
                         Position = result + 0x10;
                         var ptr = ReadUInt32() + result + 0x8;
-                        Position = MapVATR(ptr);
+                        Position = MapVATR(ptr + dumpAddr);
                         metadataRegistration = ReadUInt32();
                     }
                 }
@@ -189,7 +188,7 @@ namespace Il2CppDumper
         {
             uint codeRegistration = 0;
             uint metadataRegistration = 0;
-            uint dynstrOffset = MapVATR(dynamic_table.First(x => x.d_tag == DT_STRTAB).d_un);
+            var dynstrOffset = MapVATR(dynamic_table.First(x => x.d_tag == DT_STRTAB).d_un);
             foreach (var dynamic_symbol in dynamic_symbol_table)
             {
                 var name = ReadStringToNull(dynstrOffset + dynamic_symbol.st_name);
@@ -221,12 +220,12 @@ namespace Il2CppDumper
             Console.WriteLine("Applying relocations...");
             try
             {
-                uint dynsymOffset = MapVATR(dynamic_table.First(x => x.d_tag == DT_SYMTAB).d_un);
-                uint dynstrOffset = MapVATR(dynamic_table.First(x => x.d_tag == DT_STRTAB).d_un);
+                var dynsymOffset = MapVATR(dynamic_table.First(x => x.d_tag == DT_SYMTAB).d_un);
+                var dynstrOffset = MapVATR(dynamic_table.First(x => x.d_tag == DT_STRTAB).d_un);
                 var dynsymSize = dynstrOffset - dynsymOffset;
-                uint reldynOffset = MapVATR(dynamic_table.First(x => x.d_tag == DT_REL).d_un);
+                var reldynOffset = MapVATR(dynamic_table.First(x => x.d_tag == DT_REL).d_un);
                 var reldynSize = dynamic_table.First(x => x.d_tag == DT_RELSZ).d_un;
-                dynamic_symbol_table = ReadClassArray<Elf32_Sym>(dynsymOffset, dynsymSize / 16);
+                dynamic_symbol_table = ReadClassArray<Elf32_Sym>(dynsymOffset, (long)dynsymSize / 16);
                 var rel_table = ReadClassArray<Elf32_Rel>(reldynOffset, reldynSize / 8);
                 var writer = new BinaryWriter(BaseStream);
                 var isx86 = elf_header.e_machine == 0x3;
@@ -264,7 +263,7 @@ namespace Il2CppDumper
                 return true;
             }
             //JNI_OnLoad
-            uint dynstrOffset = MapVATR(dynamic_table.First(x => x.d_tag == DT_STRTAB).d_un);
+            var dynstrOffset = MapVATR(dynamic_table.First(x => x.d_tag == DT_STRTAB).d_un);
             foreach (var dynamic_symbol in dynamic_symbol_table)
             {
                 var name = ReadStringToNull(dynstrOffset + dynamic_symbol.st_name);

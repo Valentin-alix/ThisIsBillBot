@@ -30,6 +30,7 @@ namespace Il2CppDumper
         public Il2CppGenericContainer[] genericContainers;
         public Il2CppFieldRef[] fieldRefs;
         public Il2CppGenericParameter[] genericParameters;
+        public int[] constraintIndices;
 
         public Metadata(Stream stream, float version) : base(stream)
         {
@@ -65,6 +66,7 @@ namespace Il2CppDumper
             eventDefs = ReadMetadataClassArray<Il2CppEventDefinition>(metadataHeader.eventsOffset, metadataHeader.eventsCount);
             genericContainers = ReadMetadataClassArray<Il2CppGenericContainer>(metadataHeader.genericContainersOffset, metadataHeader.genericContainersCount);
             genericParameters = ReadMetadataClassArray<Il2CppGenericParameter>(metadataHeader.genericParametersOffset, metadataHeader.genericParametersCount);
+            constraintIndices = ReadClassArray<int>(metadataHeader.genericParameterConstraintsOffset, metadataHeader.genericParameterConstraintsCount / 4);
             if (version > 16)
             {
                 stringLiterals = ReadMetadataClassArray<Il2CppStringLiteral>(metadataHeader.stringLiteralOffset, metadataHeader.stringLiteralCount);
@@ -82,7 +84,7 @@ namespace Il2CppDumper
             }
         }
 
-        private T[] ReadMetadataClassArray<T>(int addr, int count) where T : new()
+        private T[] ReadMetadataClassArray<T>(uint addr, int count) where T : new()
         {
             return ReadClassArray<T>(addr, count / MySizeOf(typeof(T)));
         }
@@ -97,12 +99,12 @@ namespace Il2CppDumper
             return parameterDefaultValues.FirstOrDefault(x => x.parameterIndex == index);
         }
 
-        public int GetDefaultValueFromIndex(int index)
+        public uint GetDefaultValueFromIndex(int index)
         {
-            return metadataHeader.fieldAndParameterDefaultValueDataOffset + index;
+            return (uint)(metadataHeader.fieldAndParameterDefaultValueDataOffset + index);
         }
 
-        public string GetStringFromIndex(int index)
+        public string GetStringFromIndex(uint index)
         {
             return ReadStringToNull(metadataHeader.stringOffset + index);
         }
@@ -130,7 +132,7 @@ namespace Il2CppDumper
         public string GetStringLiteralFromIndex(uint index)
         {
             var stringLiteral = stringLiterals[index];
-            Position = metadataHeader.stringLiteralDataOffset + stringLiteral.dataIndex;
+            Position = (uint)(metadataHeader.stringLiteralDataOffset + stringLiteral.dataIndex);
             return Encoding.UTF8.GetString(ReadBytes((int)stringLiteral.length));
         }
 
