@@ -13,23 +13,6 @@ namespace Il2CppDumper
         private Il2Cpp il2Cpp;
         private Dictionary<Il2CppMethodDefinition, string> methodModifiers = new Dictionary<Il2CppMethodDefinition, string>();
 
-        public float Version => il2Cpp.version;
-        public Il2CppImageDefinition[] Images => metadata.imageDefs;
-        public Il2CppTypeDefinition[] Types => metadata.typeDefs;
-        public Il2CppMethodDefinition[] Methods => metadata.methodDefs;
-        public Il2CppParameterDefinition[] Parameters => metadata.parameterDefs;
-        public Il2CppFieldDefinition[] Fields => metadata.fieldDefs;
-        public Il2CppPropertyDefinition[] Properties => metadata.propertyDefs;
-        public Il2CppEventDefinition[] Events => metadata.eventDefs;
-        public Il2CppGenericContainer[] GenericContainers => metadata.genericContainers;
-        public Il2CppGenericParameter[] GenericParameters => metadata.genericParameters;
-        public Il2CppFieldRef[] FieldRefs => metadata.fieldRefs;
-        public Dictionary<uint, SortedDictionary<uint, uint>> MetadataUsageDic => metadata.metadataUsageDic;
-        public Il2CppType[] il2CppTypes => il2Cpp.types;
-        public ulong[] MetadataUsages => il2Cpp.metadataUsages;
-        public Il2CppGenericInst[] GenericInsts => il2Cpp.genericInsts;
-        public Il2CppMethodSpec[] MethodSpecs => il2Cpp.methodSpecs;
-
         public Il2CppDecompiler(Metadata metadata, Il2Cpp il2Cpp)
         {
             this.metadata = metadata;
@@ -176,68 +159,26 @@ namespace Il2CppDumper
                                 writer.Write($"{GetTypeName(fieldType)} {metadata.GetStringFromIndex(fieldDef.nameIndex)}");
                                 if (fieldDefaultValue != null && fieldDefaultValue.dataIndex != -1)
                                 {
-                                    var pointer = metadata.GetDefaultValueFromIndex(fieldDefaultValue.dataIndex);
-                                    var fieldDefaultValueType = il2Cpp.types[fieldDefaultValue.typeIndex];
-                                    metadata.Position = pointer;
-                                    object val = null;
-                                    switch (fieldDefaultValueType.type)
+                                    if (TryGetDefaultValue(fieldDefaultValue.typeIndex, fieldDefaultValue.dataIndex, out var value))
                                     {
-                                        case Il2CppTypeEnum.IL2CPP_TYPE_BOOLEAN:
-                                            val = metadata.ReadBoolean();
-                                            break;
-                                        case Il2CppTypeEnum.IL2CPP_TYPE_U1:
-                                            val = metadata.ReadByte();
-                                            break;
-                                        case Il2CppTypeEnum.IL2CPP_TYPE_I1:
-                                            val = metadata.ReadSByte();
-                                            break;
-                                        case Il2CppTypeEnum.IL2CPP_TYPE_CHAR:
-                                            val = BitConverter.ToChar(metadata.ReadBytes(2), 0);
-                                            break;
-                                        case Il2CppTypeEnum.IL2CPP_TYPE_U2:
-                                            val = metadata.ReadUInt16();
-                                            break;
-                                        case Il2CppTypeEnum.IL2CPP_TYPE_I2:
-                                            val = metadata.ReadInt16();
-                                            break;
-                                        case Il2CppTypeEnum.IL2CPP_TYPE_U4:
-                                            val = metadata.ReadUInt32();
-                                            break;
-                                        case Il2CppTypeEnum.IL2CPP_TYPE_I4:
-                                            val = metadata.ReadInt32();
-                                            break;
-                                        case Il2CppTypeEnum.IL2CPP_TYPE_U8:
-                                            val = metadata.ReadUInt64();
-                                            break;
-                                        case Il2CppTypeEnum.IL2CPP_TYPE_I8:
-                                            val = metadata.ReadInt64();
-                                            break;
-                                        case Il2CppTypeEnum.IL2CPP_TYPE_R4:
-                                            val = metadata.ReadSingle();
-                                            break;
-                                        case Il2CppTypeEnum.IL2CPP_TYPE_R8:
-                                            val = metadata.ReadDouble();
-                                            break;
-                                        case Il2CppTypeEnum.IL2CPP_TYPE_STRING:
-                                            var len = metadata.ReadInt32();
-                                            val = Encoding.UTF8.GetString(metadata.ReadBytes(len));
-                                            break;
-                                        default:
-                                            writer.Write($" /*Metadata offset 0x{pointer:X}*/");
-                                            break;
+                                        writer.Write($" = ");
+                                        if (value is string str)
+                                        {
+                                            writer.Write($"\"{str.ToEscapedString()}\"");
+                                        }
+                                        else if (value is char c)
+                                        {
+                                            var v = (int)c;
+                                            writer.Write($"'\\x{v:x}'");
+                                        }
+                                        else if (value != null)
+                                        {
+                                            writer.Write($"{value}");
+                                        }
                                     }
-                                    if (val is string str)
+                                    else
                                     {
-                                        writer.Write($" = \"{ToEscapedString(str)}\"");
-                                    }
-                                    else if (val is char c)
-                                    {
-                                        var v = (int)c;
-                                        writer.Write($" = '\\x{v:x}'");
-                                    }
-                                    else if (val != null)
-                                    {
-                                        writer.Write($" = {val}");
+                                        writer.Write($" /*Metadata offset 0x{value:X}*/");
                                     }
                                 }
                                 if (config.DumpFieldOffset)
@@ -341,19 +282,26 @@ namespace Il2CppDumper
                                     var parameterDefault = metadata.GetParameterDefaultValueFromIndex(methodDef.parameterStart + j);
                                     if (parameterDefault != null && parameterDefault.dataIndex != -1)
                                     {
-                                        var value = GetDefaultValue(parameterDefault.typeIndex, parameterDefault.dataIndex);
-                                        if (value is string str)
+                                        if (TryGetDefaultValue(parameterDefault.typeIndex, parameterDefault.dataIndex, out var value))
                                         {
-                                            parameterStr += $" = \"{ToEscapedString(str)}\"";
+                                            parameterStr += " = ";
+                                            if (value is string str)
+                                            {
+                                                parameterStr += $"\"{str.ToEscapedString()}\"";
+                                            }
+                                            else if (value is char c)
+                                            {
+                                                var v = (int)c;
+                                                parameterStr += $"'\\x{v:x}'";
+                                            }
+                                            else if (value != null)
+                                            {
+                                                parameterStr += $"{value}";
+                                            }
                                         }
-                                        else if (value is char c)
+                                        else
                                         {
-                                            var v = (int)c;
-                                            parameterStr += $" = '\\x{v:x}'";
-                                        }
-                                        else if (value != null)
-                                        {
-                                            parameterStr += $" = {value}";
+                                            parameterStr += $" /*Metadata offset 0x{value:X}*/";
                                         }
                                     }
                                     parameterStrs.Add(parameterStr);
@@ -393,7 +341,7 @@ namespace Il2CppDumper
             writer.Close();
         }
 
-        public string GetTypeName(Il2CppType type, bool fullName = false)
+        public string GetTypeName(Il2CppType type)
         {
             string ret;
             switch (type.type)
@@ -402,16 +350,7 @@ namespace Il2CppDumper
                 case Il2CppTypeEnum.IL2CPP_TYPE_VALUETYPE:
                     {
                         var typeDef = metadata.typeDefs[type.data.klassIndex];
-                        ret = string.Empty;
-                        if (fullName)
-                        {
-                            ret = metadata.GetStringFromIndex(typeDef.namespaceIndex);
-                            if (ret != string.Empty)
-                            {
-                                ret += ".";
-                            }
-                        }
-                        ret += GetTypeName(typeDef);
+                        ret = GetTypeName(typeDef);
                         break;
                     }
                 case Il2CppTypeEnum.IL2CPP_TYPE_GENERICINST:
@@ -547,131 +486,58 @@ namespace Il2CppDumper
             return str;
         }
 
-        private object GetDefaultValue(int typeIndex, int dataIndex)
+        private bool TryGetDefaultValue(int typeIndex, int dataIndex, out object value)
         {
             var pointer = metadata.GetDefaultValueFromIndex(dataIndex);
             var defaultValueType = il2Cpp.types[typeIndex];
             metadata.Position = pointer;
+            value = null;
             switch (defaultValueType.type)
             {
                 case Il2CppTypeEnum.IL2CPP_TYPE_BOOLEAN:
-                    return metadata.ReadBoolean();
+                    value = metadata.ReadBoolean();
+                    return true;
                 case Il2CppTypeEnum.IL2CPP_TYPE_U1:
-                    return metadata.ReadByte();
+                    value = metadata.ReadByte();
+                    return true;
                 case Il2CppTypeEnum.IL2CPP_TYPE_I1:
-                    return metadata.ReadSByte();
+                    value = metadata.ReadSByte();
+                    return true;
                 case Il2CppTypeEnum.IL2CPP_TYPE_CHAR:
-                    return BitConverter.ToChar(metadata.ReadBytes(2), 0);
+                    value = BitConverter.ToChar(metadata.ReadBytes(2), 0);
+                    return true;
                 case Il2CppTypeEnum.IL2CPP_TYPE_U2:
-                    return metadata.ReadUInt16();
+                    value = metadata.ReadUInt16();
+                    return true;
                 case Il2CppTypeEnum.IL2CPP_TYPE_I2:
-                    return metadata.ReadInt16();
+                    value = metadata.ReadInt16();
+                    return true;
                 case Il2CppTypeEnum.IL2CPP_TYPE_U4:
-                    return metadata.ReadUInt32();
+                    value = metadata.ReadUInt32();
+                    return true;
                 case Il2CppTypeEnum.IL2CPP_TYPE_I4:
-                    return metadata.ReadInt32();
+                    value = metadata.ReadInt32();
+                    return true;
                 case Il2CppTypeEnum.IL2CPP_TYPE_U8:
-                    return metadata.ReadUInt64();
+                    value = metadata.ReadUInt64();
+                    return true;
                 case Il2CppTypeEnum.IL2CPP_TYPE_I8:
-                    return metadata.ReadInt64();
+                    value = metadata.ReadInt64();
+                    return true;
                 case Il2CppTypeEnum.IL2CPP_TYPE_R4:
-                    return metadata.ReadSingle();
+                    value = metadata.ReadSingle();
+                    return true;
                 case Il2CppTypeEnum.IL2CPP_TYPE_R8:
-                    return metadata.ReadDouble();
+                    value = metadata.ReadDouble();
+                    return true;
                 case Il2CppTypeEnum.IL2CPP_TYPE_STRING:
                     var len = metadata.ReadInt32();
-                    return Encoding.UTF8.GetString(metadata.ReadBytes(len));
+                    value = Encoding.UTF8.GetString(metadata.ReadBytes(len));
+                    return true;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    value = pointer;
+                    return false;
             }
         }
-
-        public string ToEscapedString(string s)
-        {
-            var re = new StringBuilder(s.Length);
-            foreach (var c in s)
-            {
-                switch (c)
-                {
-                    case '\'':
-                        re.Append(@"\'");
-                        break;
-                    case '"':
-                        re.Append(@"\""");
-                        break;
-                    case '\t':
-                        re.Append(@"\t");
-                        break;
-                    case '\n':
-                        re.Append(@"\n");
-                        break;
-                    case '\r':
-                        re.Append(@"\r");
-                        break;
-                    case '\f':
-                        re.Append(@"\f");
-                        break;
-                    case '\b':
-                        re.Append(@"\b");
-                        break;
-                    case '\\':
-                        re.Append(@"\\");
-                        break;
-                    case '\0':
-                        re.Append(@"\0");
-                        break;
-                    case '\u0085':
-                        re.Append(@"\u0085");
-                        break;
-                    case '\u2028':
-                        re.Append(@"\u2028");
-                        break;
-                    case '\u2029':
-                        re.Append(@"\u2029");
-                        break;
-                    default:
-                        re.Append(c);
-                        break;
-                }
-            }
-            return re.ToString();
-        }
-
-        public List<ulong> GenerateOrderedPointers()
-        {
-            List<ulong> orderedPointers;
-            if (il2Cpp.version >= 24.2f)
-            {
-                orderedPointers = new List<ulong>();
-                foreach (var methodPointers in il2Cpp.codeGenModuleMethodPointers)
-                {
-                    orderedPointers.AddRange(methodPointers);
-                }
-            }
-            else
-            {
-                orderedPointers = il2Cpp.methodPointers.ToList();
-            }
-            orderedPointers.AddRange(il2Cpp.genericMethodPointers);
-            orderedPointers.AddRange(il2Cpp.invokerPointers);
-            orderedPointers.AddRange(il2Cpp.customAttributeGenerators);
-            if (il2Cpp.version >= 22)
-            {
-                orderedPointers.AddRange(il2Cpp.reversePInvokeWrappers);
-                orderedPointers.AddRange(il2Cpp.unresolvedVirtualCallPointers);
-            }
-            //TODO interopData内也包含函数
-            orderedPointers = orderedPointers.Distinct().OrderBy(x => x).ToList();
-            orderedPointers.Remove(0);
-            return orderedPointers;
-        }
-
-        //TODO
-        public string GetStringFromIndex(uint index) => metadata.GetStringFromIndex(index);
-        public string GetStringLiteralFromIndex(uint index) => metadata.GetStringLiteralFromIndex(index);
-        public bool IsPE => il2Cpp is PE;
-        public ulong GetMethodPointer(int methodIndex, int methodDefinitionIndex, int imageIndex, uint methodToken)
-            => il2Cpp.GetMethodPointer(methodIndex, methodDefinitionIndex, imageIndex, methodToken);
-        public ulong FixPointer(ulong pointer) => il2Cpp.FixPointer(pointer);
     }
 }
