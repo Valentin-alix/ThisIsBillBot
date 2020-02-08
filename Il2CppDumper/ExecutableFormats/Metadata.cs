@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Il2CppDumper
 {
-    public sealed class Metadata : MyBinaryReader
+    public sealed class Metadata : BinaryStream
     {
         private Il2CppGlobalMetadataHeader metadataHeader;
         public Il2CppImageDefinition[] imageDefs;
@@ -31,6 +31,7 @@ namespace Il2CppDumper
         public Il2CppFieldRef[] fieldRefs;
         public Il2CppGenericParameter[] genericParameters;
         public int[] constraintIndices;
+        private Dictionary<uint, string> stringCache = new Dictionary<uint, string>();
 
         public Metadata(Stream stream, float version) : base(stream)
         {
@@ -106,7 +107,12 @@ namespace Il2CppDumper
 
         public string GetStringFromIndex(uint index)
         {
-            return ReadStringToNull(metadataHeader.stringOffset + index);
+            if (!stringCache.TryGetValue(index, out var result))
+            {
+                result = ReadStringToNull(metadataHeader.stringOffset + index);
+                stringCache.Add(index, result);
+            }
+            return result;
         }
 
         public int GetCustomAttributeIndex(Il2CppImageDefinition imageDef, int customAttributeIndex, uint token)

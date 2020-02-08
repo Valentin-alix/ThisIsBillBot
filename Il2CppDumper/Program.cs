@@ -1,17 +1,17 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Newtonsoft.Json;
-using static Il2CppDumper.DefineConstants;
 
 namespace Il2CppDumper
 {
     class Program
     {
         private static Config config;
+        private static readonly Version Unity20183 = new Version(2018, 3);
+        private static readonly Version Unity20191 = new Version(2019, 1);
 
         [STAThread]
         static void Main(string[] args)
@@ -196,26 +196,27 @@ namespace Il2CppDumper
 
             var version = config.ForceIl2CppVersion ? config.ForceVersion : metadata.version;
             Console.WriteLine("Initializing il2cpp file...");
+            var il2CppMemory = new MemoryStream(il2cppBytes);
             if (isNSO)
             {
-                var nso = new NSO(new MemoryStream(il2cppBytes), version, metadata.maxMetadataUsages);
+                var nso = new NSO(il2CppMemory, version, metadata.maxMetadataUsages);
                 il2Cpp = nso.UnCompress();
             }
             else if (isPE)
             {
-                il2Cpp = new PE(new MemoryStream(il2cppBytes), version, metadata.maxMetadataUsages);
+                il2Cpp = new PE(il2CppMemory, version, metadata.maxMetadataUsages);
             }
             else if (isElf)
             {
                 if (is64bit)
-                    il2Cpp = new Elf64(new MemoryStream(il2cppBytes), version, metadata.maxMetadataUsages);
+                    il2Cpp = new Elf64(il2CppMemory, version, metadata.maxMetadataUsages);
                 else
-                    il2Cpp = new Elf(new MemoryStream(il2cppBytes), version, metadata.maxMetadataUsages);
+                    il2Cpp = new Elf(il2CppMemory, version, metadata.maxMetadataUsages);
             }
             else if (is64bit)
-                il2Cpp = new Macho64(new MemoryStream(il2cppBytes), version, metadata.maxMetadataUsages);
+                il2Cpp = new Macho64(il2CppMemory, version, metadata.maxMetadataUsages);
             else
-                il2Cpp = new Macho(new MemoryStream(il2cppBytes), version, metadata.maxMetadataUsages);
+                il2Cpp = new Macho(il2CppMemory, version, metadata.maxMetadataUsages);
 
             if (mode == 0)
             {
@@ -266,31 +267,17 @@ namespace Il2CppDumper
         private static void Dump(Metadata metadata, Il2Cpp il2Cpp)
         {
             Console.WriteLine("Dumping...");
-            var writer = new StreamWriter(new FileStream("dump.cs", FileMode.Create), new UTF8Encoding(false));
             var decompiler = new Il2CppDecompiler(metadata, il2Cpp);
-            decompiler.Decompile(writer, config);
+            decompiler.Decompile(config);
             Console.WriteLine("Done!");
             Console.WriteLine("Generate script...");
-            var scriptwriter = new StreamWriter(new FileStream("script.py", FileMode.Create), new UTF8Encoding(false));
             var scriptGenerator = new ScriptGenerator(metadata, il2Cpp);
-            scriptGenerator.WriteScript(scriptwriter, config);
+            scriptGenerator.WriteScript(config);
             Console.WriteLine("Done!");
             if (config.DummyDll)
             {
                 Console.WriteLine("Generate dummy dll...");
-                if (Directory.Exists("DummyDll"))
-                    Directory.Delete("DummyDll", true);
-                Directory.CreateDirectory("DummyDll");
-                Directory.SetCurrentDirectory("DummyDll");
-                var dummy = new DummyAssemblyGenerator(metadata, il2Cpp);
-                foreach (var assembly in dummy.Assemblies)
-                {
-                    using (var stream = new MemoryStream())
-                    {
-                        assembly.Write(stream);
-                        File.WriteAllBytes(assembly.MainModule.Name, stream.ToArray());
-                    }
-                }
+                DummyAssemblyExporter.Export(metadata, il2Cpp);
                 Console.WriteLine("Done!");
             }
         }
