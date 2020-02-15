@@ -22,7 +22,7 @@ namespace Il2CppDumper
             this.maxMetadataUsages = maxMetadataUsages;
         }
 
-        public void SetSection(SearchSectionType type, params Elf32_Phdr[] sections)
+        public void SetSection(SearchSectionType type, Elf32_Phdr[] sections)
         {
             var secs = new List<SearchSection>();
             foreach (var section in sections)
@@ -41,7 +41,7 @@ namespace Il2CppDumper
             SetSection(type, secs);
         }
 
-        public void SetSection(SearchSectionType type, params Elf64_Phdr[] sections)
+        public void SetSection(SearchSectionType type, Elf64_Phdr[] sections)
         {
             var secs = new List<SearchSection>();
             foreach (var section in sections)
@@ -60,7 +60,7 @@ namespace Il2CppDumper
             SetSection(type, secs);
         }
 
-        public void SetSection(SearchSectionType type, params MachoSection[] sections)
+        public void SetSection(SearchSectionType type, MachoSection[] sections)
         {
             var secs = new List<SearchSection>();
             foreach (var section in sections)
@@ -79,7 +79,7 @@ namespace Il2CppDumper
             SetSection(type, secs);
         }
 
-        public void SetSection(SearchSectionType type, params MachoSection64Bit[] sections)
+        public void SetSection(SearchSectionType type, MachoSection64Bit[] sections)
         {
             var secs = new List<SearchSection>();
             foreach (var section in sections)
@@ -98,7 +98,7 @@ namespace Il2CppDumper
             SetSection(type, secs);
         }
 
-        public void SetSection(SearchSectionType type, ulong imageBase, params SectionHeader[] sections)
+        public void SetSection(SearchSectionType type, ulong imageBase, SectionHeader[] sections)
         {
             var secs = new List<SearchSection>();
             foreach (var section in sections)
@@ -117,22 +117,16 @@ namespace Il2CppDumper
             SetSection(type, secs);
         }
 
-        public void SetSection(SearchSectionType type, params NSOSegmentHeader[] sections)
+        public void SetSection(SearchSectionType type, NSOSegmentHeader section)
         {
             var secs = new List<SearchSection>();
-            foreach (var section in sections)
+            secs.Add(new SearchSection
             {
-                if (section != null)
-                {
-                    secs.Add(new SearchSection
-                    {
-                        offset = section.FileOffset,
-                        offsetEnd = section.FileOffset + section.DecompressedSize,
-                        address = section.MemoryOffset,
-                        addressEnd = section.MemoryOffset + section.DecompressedSize
-                    });
-                }
-            }
+                offset = section.FileOffset,
+                offsetEnd = section.FileOffset + section.DecompressedSize,
+                address = section.MemoryOffset,
+                addressEnd = section.MemoryOffset + section.DecompressedSize
+            });
             SetSection(type, secs);
         }
 
@@ -154,15 +148,15 @@ namespace Il2CppDumper
 
         public ulong FindCodeRegistration()
         {
-            if (il2Cpp.is32Bit)
+            if (il2Cpp.Is32Bit)
             {
-                if (il2Cpp.version >= 24.2)
+                if (il2Cpp.Version >= 24.2)
                 {
                     return FindCodeRegistration32Bit2019();
                 }
                 return FindCodeRegistration32Bit();
             }
-            if (il2Cpp.version >= 24.2)
+            if (il2Cpp.Version >= 24.2)
             {
                 return FindCodeRegistration64Bit2019();
             }
@@ -171,7 +165,7 @@ namespace Il2CppDumper
 
         public ulong FindMetadataRegistration()
         {
-            if (il2Cpp.is32Bit)
+            if (il2Cpp.Is32Bit)
             {
                 return FindMetadataRegistration32Bit();
             }
@@ -379,7 +373,12 @@ namespace Il2CppDumper
                                                     var offset3 = il2Cpp.Position;
                                                     if (il2Cpp.ReadUInt32() == va3)
                                                     {
-                                                        return offset3 - dataSec3.offset + dataSec3.address - 52ul;
+                                                        var offset4 = offset3 - dataSec3.offset + dataSec3.address;
+                                                        if (il2Cpp.Version > 24.2f)
+                                                        {
+                                                            return offset4 - 60ul;
+                                                        }
+                                                        return offset4 - 52ul;
                                                     }
                                                 }
                                             }
@@ -433,7 +432,12 @@ namespace Il2CppDumper
                                                     var offset3 = il2Cpp.Position;
                                                     if (il2Cpp.ReadUInt64() == va3)
                                                     {
-                                                        return offset3 - dataSec3.offset + dataSec3.address - 104ul;
+                                                        var offset4 = offset3 - dataSec3.offset + dataSec3.address;
+                                                        if (il2Cpp.Version > 24.2f)
+                                                        {
+                                                            return offset4 - 120ul;
+                                                        }
+                                                        return offset4 - 104ul;
                                                     }
                                                 }
                                             }

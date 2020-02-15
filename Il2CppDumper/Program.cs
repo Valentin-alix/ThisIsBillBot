@@ -12,6 +12,7 @@ namespace Il2CppDumper
         private static Config config;
         private static readonly Version Unity20183 = new Version(2018, 3);
         private static readonly Version Unity20191 = new Version(2019, 1);
+        private static readonly Version Unity20201 = new Version(2020, 1);
 
         [STAThread]
         static void Main(string[] args)
@@ -106,9 +107,9 @@ namespace Il2CppDumper
             var sanity = BitConverter.ToUInt32(metadataBytes, 0);
             if (sanity != 0xFAB11BAF)
             {
-                throw new Exception("ERROR: Metadata file supplied is not valid metadata file.");
+                throw new InvalidDataException("ERROR: Metadata file supplied is not valid metadata file.");
             }
-            float fixedMetadataVersion;
+            float fixedVersion;
             var metadataVersion = BitConverter.ToInt32(metadataBytes, 4);
             if (metadataVersion == 24)
             {
@@ -121,30 +122,34 @@ namespace Il2CppDumper
                 {
                     var versionSplit = Array.ConvertAll(Regex.Replace(stringVersion, @"\D", ".").Split(new[] { "." }, StringSplitOptions.RemoveEmptyEntries), int.Parse);
                     var unityVersion = new Version(versionSplit[0], versionSplit[1]);
-                    if (unityVersion >= Unity20191)
+                    if (unityVersion >= Unity20201)
                     {
-                        fixedMetadataVersion = 24.2f;
+                        fixedVersion = 24.3f;
+                    }
+                    else if (unityVersion >= Unity20191)
+                    {
+                        fixedVersion = 24.2f;
                     }
                     else if (unityVersion >= Unity20183)
                     {
-                        fixedMetadataVersion = 24.1f;
+                        fixedVersion = 24.1f;
                     }
                     else
                     {
-                        fixedMetadataVersion = metadataVersion;
+                        fixedVersion = metadataVersion;
                     }
                 }
                 catch
                 {
-                    throw new Exception("You must enter the correct Unity version number");
+                    throw new InvalidDataException("You must enter the correct Unity version number");
                 }
             }
             else
             {
-                fixedMetadataVersion = metadataVersion;
+                fixedVersion = metadataVersion;
             }
             Console.WriteLine("Initializing metadata...");
-            metadata = new Metadata(new MemoryStream(metadataBytes), fixedMetadataVersion);
+            metadata = new Metadata(new MemoryStream(metadataBytes), fixedVersion);
             //判断il2cpp的magic
             var il2cppMagic = BitConverter.ToUInt32(il2cppBytes, 0);
             var isElf = false;
@@ -154,7 +159,7 @@ namespace Il2CppDumper
             switch (il2cppMagic)
             {
                 default:
-                    throw new Exception("ERROR: il2cpp file not supported.");
+                    throw new NotSupportedException("ERROR: il2cpp file not supported.");
                 case 0x304F534E:
                     isNSO = true;
                     is64bit = true;
@@ -194,7 +199,7 @@ namespace Il2CppDumper
                     break;
             }
 
-            var version = config.ForceIl2CppVersion ? config.ForceVersion : metadata.version;
+            var version = config.ForceIl2CppVersion ? config.ForceVersion : metadata.Version;
             Console.WriteLine("Initializing il2cpp file...");
             var il2CppMemory = new MemoryStream(il2cppBytes);
             if (isNSO)
@@ -255,11 +260,16 @@ namespace Il2CppDumper
                         return false;
                 }
                 if (!flag)
-                    throw new Exception();
+                {
+                    Console.WriteLine("ERROR: Can't use this mode to process file, try another mode.");
+                    return false;
+                }
             }
-            catch
+            catch (Exception e)
             {
-                throw new Exception("ERROR: Can't use this mode to process file, try another mode.");
+                Console.WriteLine(e);
+                Console.WriteLine("ERROR: An error occurred while processing.");
+                return false;
             }
             return true;
         }
@@ -267,11 +277,12 @@ namespace Il2CppDumper
         private static void Dump(Metadata metadata, Il2Cpp il2Cpp)
         {
             Console.WriteLine("Dumping...");
-            var decompiler = new Il2CppDecompiler(metadata, il2Cpp);
+            var executor = new Il2CppExecutor(metadata, il2Cpp);
+            var decompiler = new Il2CppDecompiler(executor);
             decompiler.Decompile(config);
             Console.WriteLine("Done!");
             Console.WriteLine("Generate script...");
-            var scriptGenerator = new ScriptGenerator(metadata, il2Cpp);
+            var scriptGenerator = new ScriptGenerator(executor);
             scriptGenerator.WriteScript(config);
             Console.WriteLine("Done!");
             if (config.DummyDll)

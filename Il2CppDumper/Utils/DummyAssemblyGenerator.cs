@@ -136,7 +136,7 @@ namespace Il2CppDumper
                             }
                         }
                         //fieldOffset
-                        var fieldOffset = il2Cpp.GetFieldOffsetFromIndex(index, i - typeDef.fieldStart, i);
+                        var fieldOffset = il2Cpp.GetFieldOffsetFromIndex(index, i - typeDef.fieldStart, i, typeDefinition.IsValueType);
                         if (fieldOffset >= 0)
                         {
                             var customAttribute = new CustomAttribute(typeDefinition.Module.ImportReference(fieldOffsetAttribute));
@@ -155,11 +155,29 @@ namespace Il2CppDumper
                         methodDefinition.ImplAttributes = (MethodImplAttributes)methodDef.iflags;
                         typeDefinition.Methods.Add(methodDefinition);
                         var methodReturnType = il2Cpp.types[methodDef.returnType];
-                        methodDefinition.ReturnType = GetTypeReferenceWithByRef(methodDefinition, methodReturnType);
+                        var returnType = GetTypeReferenceWithByRef(methodDefinition, methodReturnType);
+                        methodDefinition.ReturnType = returnType;
                         if (methodDefinition.HasBody && typeDefinition.BaseType?.FullName != "System.MulticastDelegate")
                         {
                             var ilprocessor = methodDefinition.Body.GetILProcessor();
-                            ilprocessor.Append(ilprocessor.Create(OpCodes.Nop));
+                            if (returnType.FullName == "System.Void")
+                            {
+                                ilprocessor.Append(ilprocessor.Create(OpCodes.Ret));
+                            }
+                            else if (returnType.IsValueType)
+                            {
+                                var variable = new VariableDefinition(returnType);
+                                methodDefinition.Body.Variables.Add(variable);
+                                ilprocessor.Append(ilprocessor.Create(OpCodes.Ldloca_S, variable));
+                                ilprocessor.Append(ilprocessor.Create(OpCodes.Initobj, returnType));
+                                ilprocessor.Append(ilprocessor.Create(OpCodes.Ldloc_0));
+                                ilprocessor.Append(ilprocessor.Create(OpCodes.Ret));
+                            }
+                            else
+                            {
+                                ilprocessor.Append(ilprocessor.Create(OpCodes.Ldnull));
+                                ilprocessor.Append(ilprocessor.Create(OpCodes.Ret));
+                            }
                         }
                         methodDefinitionDic.Add(i, methodDefinition);
                         //method parameter
@@ -215,6 +233,11 @@ namespace Il2CppDumper
                             var offset = new CustomAttributeNamedArgument("Offset", new CustomAttributeArgument(stringType, $"0x{il2Cpp.MapVATR(methodPointer):X}"));
                             customAttribute.Fields.Add(rva);
                             customAttribute.Fields.Add(offset);
+                            if (methodDef.slot != ushort.MaxValue)
+                            {
+                                var slot = new CustomAttributeNamedArgument("Slot", new CustomAttributeArgument(stringType, methodDef.slot.ToString()));
+                                customAttribute.Fields.Add(slot);
+                            }
                             methodDefinition.CustomAttributes.Add(customAttribute);
                         }
                     }
@@ -290,7 +313,7 @@ namespace Il2CppDumper
                 }
             }
             //第三遍，添加CustomAttribute
-            if (il2Cpp.version > 20)
+            if (il2Cpp.Version > 20)
             {
                 PrepareCustomAttribute();
                 foreach (var imageDef in metadata.imageDefs)

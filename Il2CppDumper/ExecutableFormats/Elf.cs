@@ -13,6 +13,7 @@ namespace Il2CppDumper
         private Elf32_Dyn[] dynamicSection;
         private Elf32_Sym[] symbolTable;
         private Elf32_Shdr[] sectionTable;
+        private Elf32_Phdr pt_dynamic;
         private bool isDumped;
         private uint dumpAddr;
 
@@ -26,7 +27,7 @@ namespace Il2CppDumper
 
         public Elf(Stream stream, float version, long maxMetadataUsages) : base(stream, version, maxMetadataUsages)
         {
-            is32Bit = true;
+            Is32Bit = true;
             elfHeader = ReadClass<Elf32_Ehdr>();
             programSegment = ReadClassArray<Elf32_Phdr>(elfHeader.e_phoff, elfHeader.e_phnum);
             try
@@ -39,22 +40,21 @@ namespace Il2CppDumper
                 isDumped = true;
                 Console.WriteLine("Input dump address:");
                 dumpAddr = Convert.ToUInt32(Console.ReadLine(), 16);
-                foreach (var phdr in programSegment)
-                {
-                    phdr.p_offset = phdr.p_vaddr;
-                    phdr.p_filesz = phdr.p_memsz;
-                    phdr.p_vaddr += dumpAddr;
-                }
+                FixedProgramSegment();
             }
-            var pt_dynamic = programSegment.First(x => x.p_type == PT_DYNAMIC);
+            pt_dynamic = programSegment.First(x => x.p_type == PT_DYNAMIC);
             dynamicSection = ReadClassArray<Elf32_Dyn>(pt_dynamic.p_offset, pt_dynamic.p_filesz / 8u);
+            if (isDumped)
+            {
+                FixedDynamicSection();
+            }
             ReadSymbol();
             if (!isDumped)
             {
                 RelocationProcessing();
                 if (CheckProtection())
                 {
-                    Console.WriteLine("ERROR: This file is protected.");
+                    Console.WriteLine("ERROR: This file may be protected.");
                 }
             }
         }
@@ -89,7 +89,7 @@ namespace Il2CppDumper
                 uint codeRegistration = 0;
                 uint metadataRegistration = 0;
                 var result = (uint)resultList[0];
-                if (version < 24f)
+                if (Version < 24f)
                 {
                     if (elfHeader.e_machine == EM_ARM)
                     {
@@ -101,7 +101,7 @@ namespace Il2CppDumper
                         metadataRegistration = ReadUInt32();
                     }
                 }
-                else if (version >= 24f)
+                else if (Version >= 24f)
                 {
                     if (elfHeader.e_machine == EM_ARM)
                     {
@@ -185,10 +185,17 @@ namespace Il2CppDumper
 
         private void ReadSymbol()
         {
-            var dynsymOffset = MapVATR(dynamicSection.First(x => x.d_tag == DT_SYMTAB).d_un);
-            var dynstrOffset = MapVATR(dynamicSection.First(x => x.d_tag == DT_STRTAB).d_un);
-            var dynsymSize = dynstrOffset - dynsymOffset;
-            symbolTable = ReadClassArray<Elf32_Sym>(dynsymOffset, (long)dynsymSize / 16);
+            try
+            {
+                var dynsymOffset = MapVATR(dynamicSection.First(x => x.d_tag == DT_SYMTAB).d_un);
+                var dynstrOffset = MapVATR(dynamicSection.First(x => x.d_tag == DT_STRTAB).d_un);
+                var dynsymSize = dynstrOffset - dynsymOffset;
+                symbolTable = ReadClassArray<Elf32_Sym>(dynsymOffset, (long)dynsymSize / 16);
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         private void RelocationProcessing()
@@ -226,7 +233,7 @@ namespace Il2CppDumper
         private bool CheckProtection()
         {
             //.init_proc
-            if (dynamicSection.FirstOrDefault(x => x.d_tag == DT_INIT) != null)
+            if (dynamicSection.Any(x => x.d_tag == DT_INIT))
             {
                 Console.WriteLine("WARNING: find .init_proc");
                 return true;
@@ -243,7 +250,7 @@ namespace Il2CppDumper
                         return true;
                 }
             }
-            if (sectionTable.Any(x => x.sh_type == SHT_LOUSER))
+            if (sectionTable != null && sectionTable.Any(x => x.sh_type == SHT_LOUSER))
             {
                 Console.WriteLine("WARNING: find SHT_LOUSER section");
                 return true;
@@ -258,6 +265,48 @@ namespace Il2CppDumper
                 return pointer - dumpAddr;
             }
             return pointer;
+        }
+
+        private void FixedProgramSegment()
+        {
+            for (uint i = 0; i < programSegment.Length; i++)
+            {
+                Position = elfHeader.e_phoff + i * 32u + 4u;
+                var phdr = programSegment[i];
+                phdr.p_offset = phdr.p_vaddr;
+                Write(phdr.p_offset);
+                phdr.p_vaddr += dumpAddr;
+                Write(phdr.p_vaddr);
+                Position += 4;
+                phdr.p_filesz = phdr.p_memsz;
+                Write(phdr.p_filesz);
+            }
+        }
+
+        private void FixedDynamicSection()
+        {
+            for (uint i = 0; i < dynamicSection.Length; i++)
+            {
+                Position = pt_dynamic.p_offset + i * 8 + 4;
+                var dyn = dynamicSection[i];
+                switch (dyn.d_tag)
+                {
+                    case DT_PLTGOT:
+                    case DT_HASH:
+                    case DT_STRTAB:
+                    case DT_SYMTAB:
+                    case DT_RELA:
+                    case DT_INIT:
+                    case DT_FINI:
+                    case DT_REL:
+                    case DT_JMPREL:
+                    case DT_INIT_ARRAY:
+                    case DT_FINI_ARRAY:
+                        dyn.d_un += dumpAddr;
+                        Write(dyn.d_un);
+                        break;
+                }
+            }
         }
     }
 }
