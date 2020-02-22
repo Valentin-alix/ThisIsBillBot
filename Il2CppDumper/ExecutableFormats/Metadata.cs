@@ -33,26 +33,35 @@ namespace Il2CppDumper
         public int[] constraintIndices;
         private Dictionary<uint, string> stringCache = new Dictionary<uint, string>();
 
-        public Metadata(Stream stream, float version) : base(stream)
+        public Metadata(Stream stream) : base(stream)
         {
-            this.Version = version;
-            metadataHeader = ReadClass<Il2CppGlobalMetadataHeader>();
-            if (metadataHeader.sanity != 0xFAB11BAF)
+            var sanity = ReadUInt32();
+            if (sanity != 0xFAB11BAF)
             {
                 throw new InvalidDataException("ERROR: Metadata file supplied is not valid metadata file.");
             }
-            switch (metadataHeader.version)
+            var version = ReadInt32();
+            if (version < 16 || version > 24)
             {
-                case 16:
-                case 19:
-                case 20:
-                case 21:
-                case 22:
-                case 23:
-                case 24:
-                    break;
-                default:
-                    throw new NotSupportedException($"ERROR: Metadata file supplied is not a supported version[{version}].");
+                throw new NotSupportedException($"ERROR: Metadata file supplied is not a supported version[{version}].");
+            }
+            Version = version;
+            metadataHeader = ReadClass<Il2CppGlobalMetadataHeader>(0);
+            if (version == 24)
+            {
+                if (metadataHeader.stringLiteralOffset == 264)
+                {
+                    Version = 24.2f;
+                    metadataHeader = ReadClass<Il2CppGlobalMetadataHeader>(0);
+                }
+                else
+                {
+                    imageDefs = ReadMetadataClassArray<Il2CppImageDefinition>(metadataHeader.imagesOffset, metadataHeader.imagesCount);
+                    if (imageDefs.Any(x => x.token != 1))
+                    {
+                        Version = 24.1f;
+                    }
+                }
             }
             imageDefs = ReadMetadataClassArray<Il2CppImageDefinition>(metadataHeader.imagesOffset, metadataHeader.imagesCount);
             typeDefs = ReadMetadataClassArray<Il2CppTypeDefinition>(metadataHeader.typeDefinitionsOffset, metadataHeader.typeDefinitionsCount);
@@ -68,7 +77,7 @@ namespace Il2CppDumper
             genericContainers = ReadMetadataClassArray<Il2CppGenericContainer>(metadataHeader.genericContainersOffset, metadataHeader.genericContainersCount);
             genericParameters = ReadMetadataClassArray<Il2CppGenericParameter>(metadataHeader.genericParametersOffset, metadataHeader.genericParametersCount);
             constraintIndices = ReadClassArray<int>(metadataHeader.genericParameterConstraintsOffset, metadataHeader.genericParameterConstraintsCount / 4);
-            if (version > 16)
+            if (Version > 16)
             {
                 stringLiterals = ReadMetadataClassArray<Il2CppStringLiteral>(metadataHeader.stringLiteralOffset, metadataHeader.stringLiteralCount);
                 metadataUsageLists = ReadMetadataClassArray<Il2CppMetadataUsageList>(metadataHeader.metadataUsageListsOffset, metadataHeader.metadataUsageListsCount);
@@ -78,7 +87,7 @@ namespace Il2CppDumper
 
                 fieldRefs = ReadMetadataClassArray<Il2CppFieldRef>(metadataHeader.fieldRefsOffset, metadataHeader.fieldRefsCount);
             }
-            if (version > 20)
+            if (Version > 20)
             {
                 attributeTypeRanges = ReadMetadataClassArray<Il2CppCustomAttributeTypeRange>(metadataHeader.attributesInfoOffset, metadataHeader.attributesInfoCount);
                 attributeTypes = ReadClassArray<int>(metadataHeader.attributeTypesOffset, metadataHeader.attributeTypesCount / 4);

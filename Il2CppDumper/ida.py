@@ -1,32 +1,27 @@
 # -*- coding: utf-8 -*-
 import json
 
-functionManager = currentProgram.getFunctionManager()
-baseAddress = currentProgram.getImageBase()
-USER_DEFINED = ghidra.program.model.symbol.SourceType.USER_DEFINED
+imageBase = idaapi.get_imagebase()
 
 def get_addr(addr):
-	return baseAddress.add(addr)
+	return imageBase + addr
 
 def set_name(addr, name):
-	name = name.replace(' ', '-')
-	createLabel(addr, name, True, USER_DEFINED)
+	ret = idc.set_name(addr, name, SN_NOWARN | SN_NOCHECK)
+	if ret == 0:
+		new_name = name + '_' + str(addr)
+		ret = idc.set_name(addr, new_name, SN_NOWARN | SN_NOCHECK)
 
 def make_function(start, end):
-	next_func_start = getFunctionAfter(start).getEntryPoint()
-	if next_func_start < end:
-		end = next_func_start
-	body = createAddressSet()
-	body.addRange(start, end.subtract(1))
-	functionManager.deleteAddressRange(start, end.subtract(1), getMonitor())
-	func = getFunctionAt(start)
-	if func is None:
-		functionManager.createFunction(None, start, body, USER_DEFINED)
-	else:
-		func.setBody(body)
+	next_func = idc.get_next_func(start)
+	if next_func < end:
+		end = next_func
+	if idc.get_func_attr(start, FUNCATTR_START) == start:
+		ida_funcs.del_func(start)
+	ida_funcs.add_func(start, end)
 
-f = askFile("script.json from Il2cppdumper", "Open")
-data = json.loads(open(f.absolutePath, 'rb').read().decode('utf-8'))
+path = idaapi.ask_file(False, '*.json', 'script.json from Il2cppdumper')
+data = json.loads(open(path, 'rb').read().decode('utf-8'))
 scriptMethods = data["ScriptMethod"]
 for scriptMethod in scriptMethods:
 	addr = get_addr(scriptMethod["Address"])
@@ -38,22 +33,23 @@ for scriptString in scriptStrings:
 	addr = get_addr(scriptString["Address"])
 	value = scriptString["Value"].encode("utf-8")
 	name = "StringLiteral_" + str(index)
-	createLabel(addr, name, True, USER_DEFINED)
-	setEOLComment(addr, value)
+	idc.set_name(addr, name, SN_NOWARN)
+	idc.set_cmt(addr, value, 1)
 	index += 1
 scriptMetadatas = data["ScriptMetadata"]
 for scriptMetadata in scriptMetadatas:
 	addr = get_addr(scriptMetadata["Address"])
 	name = scriptMetadata["Name"].encode("utf-8")
 	set_name(addr, name)
-	setEOLComment(addr, name)
+	idc.set_cmt(addr, name, 1)
 scriptMetadataMethods = data["ScriptMetadataMethod"]
 for scriptMetadataMethod in scriptMetadataMethods:
 	addr = get_addr(scriptMetadataMethod["Address"])
 	name = scriptMetadataMethod["Name"].encode("utf-8")
 	methodAddr = get_addr(scriptMetadataMethod["MethodAddress"])
 	set_name(addr, name)
-	setEOLComment(addr, name)
+	idc.set_cmt(addr, name, 1)
+	idc.set_cmt(addr, '{0:X}'.format(methodAddr), 0)
 addresses = data["Addresses"]
 for index in range(len(addresses) - 1):
 	start = get_addr(addresses[index])
