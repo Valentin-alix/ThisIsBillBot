@@ -55,8 +55,10 @@
     <Compile Include="Extensions\BoyerMooreHorspool.cs" />
     <Compile Include="Extensions\HexExtensions.cs" />
     <Compile Include="Outputs\DummyAssemblyExporter.cs" />
+    <Compile Include="Outputs\HeaderConstants.cs" />
     <Compile Include="Outputs\Il2CppDecompiler.cs" />
     <Compile Include="Outputs\ScriptJson.cs" />
+    <Compile Include="Outputs\StructInfo.cs" />
     <Compile Include="Utils\Il2CppDummyDll.cs" />
     <Compile Include="Outputs\Il2CppConstants.cs" />
     <Compile Include="IO\Lz4DecoderStream.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="ExecutableFormats\NSOClass.cs" />
     <Compile Include="Outputs\ScriptGenerator.cs" />
     <Compile Include="Utils\Il2CppExecutor.cs" />
+    <Compile Include="Utils\ReadCache.cs" />
     <Compile Include="Utils\SearchSection.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Attributes\VersionAttribute.cs" />
@@ -97,6 +100,9 @@
     <None Include="ida.py">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="ida_with_struct.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +112,11 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties config_1json__JsonSchema="" />
+    </VisualStudio>
+  </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

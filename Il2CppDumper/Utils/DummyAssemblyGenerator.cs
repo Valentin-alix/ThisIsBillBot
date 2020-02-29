@@ -128,8 +128,7 @@ namespace Il2CppDumper
                         typeDefinition.Fields.Add(fieldDefinition);
                         fieldDefinitionDic.Add(i, fieldDefinition);
                         //fieldDefault
-                        var fieldDefault = metadata.GetFieldDefaultValueFromIndex(i);
-                        if (fieldDefault != null && fieldDefault.dataIndex != -1)
+                        if (metadata.GetFieldDefaultValueFromIndex(i, out var fieldDefault) && fieldDefault.dataIndex != -1)
                         {
                             if (TryGetDefaultValue(fieldDefault.typeIndex, fieldDefault.dataIndex, out var value))
                             {
@@ -199,8 +198,7 @@ namespace Il2CppDumper
                             methodDefinition.Parameters.Add(parameterDefinition);
                             parameterDefinitionDic.Add(methodDef.parameterStart + j, parameterDefinition);
                             //ParameterDefault
-                            var parameterDefault = metadata.GetParameterDefaultValueFromIndex(methodDef.parameterStart + j);
-                            if (parameterDefault != null && parameterDefault.dataIndex != -1)
+                            if (metadata.GetParameterDefaultValueFromIndex(methodDef.parameterStart + j, out var parameterDefault) && parameterDefault.dataIndex != -1)
                             {
                                 if (TryGetDefaultValue(parameterDefault.typeIndex, parameterDefault.dataIndex, out var value))
                                 {
@@ -246,8 +244,10 @@ namespace Il2CppDumper
                             var fixedMethodPointer = il2Cpp.GetRVA(methodPointer);
                             var rva = new CustomAttributeNamedArgument("RVA", new CustomAttributeArgument(stringType, $"0x{fixedMethodPointer:X}"));
                             var offset = new CustomAttributeNamedArgument("Offset", new CustomAttributeArgument(stringType, $"0x{il2Cpp.MapVATR(methodPointer):X}"));
+                            var va = new CustomAttributeNamedArgument("VA", new CustomAttributeArgument(stringType, $"0x{methodPointer:X}"));
                             customAttribute.Fields.Add(rva);
                             customAttribute.Fields.Add(offset);
+                            customAttribute.Fields.Add(va);
                             if (methodDef.slot != ushort.MaxValue)
                             {
                                 var slot = new CustomAttributeNamedArgument("Slot", new CustomAttributeArgument(stringType, methodDef.slot.ToString()));
