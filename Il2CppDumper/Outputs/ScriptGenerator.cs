@@ -25,7 +25,7 @@ namespace Il2CppDumper
         private StringBuilder arrayClassPreHeader = new StringBuilder();
         private StringBuilder arrayClassHeader = new StringBuilder();
         private static HashSet<string> keyword = new HashSet<string>(StringComparer.Ordinal)
-        { "klass", "monitor", "register", "_cs", "auto", "friend", "template", "near", "far", "flat", "default" };
+        { "klass", "monitor", "register", "_cs", "auto", "friend", "template", "near", "far", "flat", "default", "_ds", "interrupt" };
 
         public ScriptGenerator(Il2CppExecutor il2CppExecutor)
         {
@@ -224,8 +224,10 @@ namespace Il2CppDumper
                 orderedPointers.AddRange(il2Cpp.customAttributeGenerators);
                 if (il2Cpp.Version >= 22)
                 {
-                    orderedPointers.AddRange(il2Cpp.reversePInvokeWrappers);
-                    orderedPointers.AddRange(il2Cpp.unresolvedVirtualCallPointers);
+                    if (il2Cpp.reversePInvokeWrappers != null)
+                        orderedPointers.AddRange(il2Cpp.reversePInvokeWrappers);
+                    if (il2Cpp.unresolvedVirtualCallPointers != null)
+                        orderedPointers.AddRange(il2Cpp.unresolvedVirtualCallPointers);
                 }
                 //TODO interopData内也包含函数
                 orderedPointers = orderedPointers.Distinct().OrderBy(x => x).ToList();
@@ -303,8 +305,6 @@ namespace Il2CppDumper
                     sb.Append(HeaderConstants.HeaderV22);
                     break;
                 case 23f:
-                    sb.Append(HeaderConstants.HeaderV240);
-                    break;
                 case 24f:
                     sb.Append(HeaderConstants.HeaderV240);
                     break;
@@ -312,6 +312,7 @@ namespace Il2CppDumper
                     sb.Append(HeaderConstants.HeaderV241);
                     break;
                 case 24.2f:
+                case 24.3f:
                     sb.Append(HeaderConstants.HeaderV242);
                     break;
                 //TODO
@@ -807,20 +808,13 @@ namespace Il2CppDumper
                 case Il2CppTypeEnum.IL2CPP_TYPE_VALUETYPE:
                     {
                         var typeDef = metadata.typeDefs[il2CppType.data.klassIndex];
-                        if (!typeDef.IsEnum)
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                        return !typeDef.IsEnum;
                     }
                 case Il2CppTypeEnum.IL2CPP_TYPE_GENERICINST:
                     {
                         var genericClass = il2Cpp.MapVATR<Il2CppGenericClass>(il2CppType.data.generic_class);
                         var typeDef = metadata.typeDefs[genericClass.typeDefinitionIndex];
-                        return typeDef.IsValueType;
+                        return typeDef.IsValueType && !typeDef.IsEnum;
                     }
                 case Il2CppTypeEnum.IL2CPP_TYPE_VAR:
                     {

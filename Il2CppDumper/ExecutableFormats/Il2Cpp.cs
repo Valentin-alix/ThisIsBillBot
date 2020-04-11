@@ -55,6 +55,19 @@ namespace Il2CppDumper
         {
             pCodeRegistration = MapVATR<Il2CppCodeRegistration>(codeRegistration);
             pMetadataRegistration = MapVATR<Il2CppMetadataRegistration>(metadataRegistration);
+            if (Version == 24.2f)
+            {
+                genericMethodTable = MapVATR<Il2CppGenericMethodFunctionsDefinitions>(pMetadataRegistration.genericMethodTable, pMetadataRegistration.genericMethodTableCount);
+                var genericMethodPointersCount = genericMethodTable.Max(x => x.indices.methodIndex) + 1;
+                if (pCodeRegistration.reversePInvokeWrapperCount == genericMethodPointersCount)
+                {
+                    Version = 24.3f;
+                    codeRegistration -= Is32Bit ? 8u : 16u;
+                    Console.WriteLine($"Change il2cpp version to: {Version}");
+                    Console.WriteLine("Actual CodeRegistration : {0:x}", codeRegistration);
+                    pCodeRegistration = MapVATR<Il2CppCodeRegistration>(codeRegistration);
+                }
+            }
             genericMethodPointers = MapVATR<ulong>(pCodeRegistration.genericMethodPointers, pCodeRegistration.genericMethodPointersCount);
             invokerPointers = MapVATR<ulong>(pCodeRegistration.invokerPointers, pCodeRegistration.invokerPointersCount);
             customAttributeGenerators = MapVATR<ulong>(pCodeRegistration.customAttributeGenerators, pCodeRegistration.customAttributeCount);
@@ -64,8 +77,10 @@ namespace Il2CppDumper
             }
             if (Version >= 22)
             {
-                reversePInvokeWrappers = MapVATR<ulong>(pCodeRegistration.reversePInvokeWrappers, pCodeRegistration.reversePInvokeWrapperCount);
-                unresolvedVirtualCallPointers = MapVATR<ulong>(pCodeRegistration.unresolvedVirtualCallPointers, pCodeRegistration.unresolvedVirtualCallCount);
+                if (pCodeRegistration.reversePInvokeWrapperCount != 0)
+                    reversePInvokeWrappers = MapVATR<ulong>(pCodeRegistration.reversePInvokeWrappers, pCodeRegistration.reversePInvokeWrapperCount);
+                if (pCodeRegistration.unresolvedVirtualCallCount != 0)
+                    unresolvedVirtualCallPointers = MapVATR<ulong>(pCodeRegistration.unresolvedVirtualCallPointers, pCodeRegistration.unresolvedVirtualCallCount);
             }
             genericInsts = Array.ConvertAll(MapVATR<ulong>(pMetadataRegistration.genericInsts, pMetadataRegistration.genericInstsCount), x => MapVATR<Il2CppGenericInst>(x));
             fieldOffsetsArePointers = Version > 21;
@@ -144,7 +159,6 @@ namespace Il2CppDumper
 
         public int GetFieldOffsetFromIndex(int typeIndex, int fieldIndexInType, int fieldIndex, bool isValueType, bool isStatic)
         {
-            //TODO 计算泛型类的偏移
             try
             {
                 var offset = -1;
