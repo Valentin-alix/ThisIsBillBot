@@ -22,7 +22,7 @@ namespace Il2CppDumper
         private Il2CppGenericMethodFunctionsDefinitions[] genericMethodTable;
         public Il2CppGenericInst[] genericInsts;
         public Il2CppMethodSpec[] methodSpecs;
-        private Dictionary<int, ulong> genericMethoddDictionary;
+        public Dictionary<int, List<(Il2CppMethodSpec, ulong)>> genericMethoddDictionary = new Dictionary<int, List<(Il2CppMethodSpec, ulong)>>();
         private bool fieldOffsetsArePointers;
         protected long maxMetadataUsages;
         private Il2CppCodeGenModule[] codeGenModules;
@@ -33,7 +33,9 @@ namespace Il2CppDumper
         public abstract bool PlusSearch(int methodCount, int typeDefinitionsCount);
         public abstract bool SymbolSearch();
 
-        protected Il2Cpp(Stream stream, float version, long maxMetadataUsages) : base(stream)
+        protected Il2Cpp(Stream stream) : base(stream) { }
+
+        public void SetProperties(float version, long maxMetadataUsages)
         {
             Version = version;
             this.maxMetadataUsages = maxMetadataUsages;
@@ -45,6 +47,20 @@ namespace Il2CppDumper
             Console.WriteLine("MetadataRegistration : {0:x}", metadataRegistration);
             if (codeRegistration != 0 && metadataRegistration != 0)
             {
+                if (Version == 24.2f)
+                {
+                    pCodeRegistration = MapVATR<Il2CppCodeRegistration>(codeRegistration);
+                    pMetadataRegistration = MapVATR<Il2CppMetadataRegistration>(metadataRegistration);
+                    genericMethodTable = MapVATR<Il2CppGenericMethodFunctionsDefinitions>(pMetadataRegistration.genericMethodTable, pMetadataRegistration.genericMethodTableCount);
+                    var genericMethodPointersCount = genericMethodTable.Max(x => x.indices.methodIndex) + 1;
+                    if (pCodeRegistration.reversePInvokeWrapperCount == genericMethodPointersCount)
+                    {
+                        Version = 24.3f;
+                        codeRegistration -= Is32Bit ? 8u : 16u;
+                        Console.WriteLine($"Change il2cpp version to: {Version}");
+                        Console.WriteLine("Actual CodeRegistration : {0:x}", codeRegistration);
+                    }
+                }
                 Init(codeRegistration, metadataRegistration);
                 return true;
             }
@@ -54,20 +70,16 @@ namespace Il2CppDumper
         public virtual void Init(ulong codeRegistration, ulong metadataRegistration)
         {
             pCodeRegistration = MapVATR<Il2CppCodeRegistration>(codeRegistration);
-            pMetadataRegistration = MapVATR<Il2CppMetadataRegistration>(metadataRegistration);
             if (Version == 24.2f)
             {
-                genericMethodTable = MapVATR<Il2CppGenericMethodFunctionsDefinitions>(pMetadataRegistration.genericMethodTable, pMetadataRegistration.genericMethodTableCount);
-                var genericMethodPointersCount = genericMethodTable.Max(x => x.indices.methodIndex) + 1;
-                if (pCodeRegistration.reversePInvokeWrapperCount == genericMethodPointersCount)
+                if (pCodeRegistration.codeGenModules == 0) //TODO
                 {
                     Version = 24.3f;
-                    codeRegistration -= Is32Bit ? 8u : 16u;
                     Console.WriteLine($"Change il2cpp version to: {Version}");
-                    Console.WriteLine("Actual CodeRegistration : {0:x}", codeRegistration);
                     pCodeRegistration = MapVATR<Il2CppCodeRegistration>(codeRegistration);
                 }
             }
+            pMetadataRegistration = MapVATR<Il2CppMetadataRegistration>(metadataRegistration);
             genericMethodPointers = MapVATR<ulong>(pCodeRegistration.genericMethodPointers, pCodeRegistration.genericMethodPointersCount);
             invokerPointers = MapVATR<ulong>(pCodeRegistration.invokerPointers, pCodeRegistration.invokerPointersCount);
             customAttributeGenerators = MapVATR<ulong>(pCodeRegistration.customAttributeGenerators, pCodeRegistration.customAttributeCount);
@@ -131,25 +143,22 @@ namespace Il2CppDumper
             }
             genericMethodTable = MapVATR<Il2CppGenericMethodFunctionsDefinitions>(pMetadataRegistration.genericMethodTable, pMetadataRegistration.genericMethodTableCount);
             methodSpecs = MapVATR<Il2CppMethodSpec>(pMetadataRegistration.methodSpecs, pMetadataRegistration.methodSpecsCount);
-            genericMethoddDictionary = new Dictionary<int, ulong>(genericMethodTable.Length);
             foreach (var table in genericMethodTable)
             {
-                var index = methodSpecs[table.genericMethodIndex].methodDefinitionIndex;
-                if (!genericMethoddDictionary.ContainsKey(index))
+                var methodSpec = methodSpecs[table.genericMethodIndex];
+                var methodDefinitionIndex = methodSpec.methodDefinitionIndex;
+                if (!genericMethoddDictionary.TryGetValue(methodDefinitionIndex, out var tuple))
                 {
-                    genericMethoddDictionary.Add(index, genericMethodPointers[table.indices.methodIndex]);
+                    tuple = new List<(Il2CppMethodSpec, ulong)>();
+                    genericMethoddDictionary.Add(methodDefinitionIndex, tuple);
                 }
+                tuple.Add((methodSpec, genericMethodPointers[table.indices.methodIndex]));
             }
         }
 
         public T MapVATR<T>(ulong addr) where T : new()
         {
-            if (!ReadClassCache<T>.TryGetValue(addr, out var value))
-            {
-                value = ReadClass<T>(MapVATR(addr));
-                ReadClassCache<T>.Add(addr, value);
-            }
-            return value;
+            return ReadClass<T>(MapVATR(addr));
         }
 
         public T[] MapVATR<T>(ulong addr, long count) where T : new()
@@ -202,30 +211,24 @@ namespace Il2CppDumper
             return typeDic[pointer];
         }
 
-        public ulong GetMethodPointer(int methodIndex, int methodDefinitionIndex, int imageIndex, uint methodToken)
+        public ulong GetMethodPointer(Il2CppMethodDefinition methodDef, int imageIndex)
         {
             if (Version >= 24.2f)
             {
-                if (genericMethoddDictionary.TryGetValue(methodDefinitionIndex, out var methodPointer))
-                {
-                    return methodPointer;
-                }
-                else
-                {
-                    var ptrs = codeGenModuleMethodPointers[imageIndex];
-                    var methodPointerIndex = methodToken & 0x00FFFFFFu;
-                    return ptrs[methodPointerIndex - 1];
-                }
+                var methodToken = methodDef.token;
+                var ptrs = codeGenModuleMethodPointers[imageIndex];
+                var methodPointerIndex = methodToken & 0x00FFFFFFu;
+                return ptrs[methodPointerIndex - 1];
             }
             else
             {
+                var methodIndex = methodDef.methodIndex;
                 if (methodIndex >= 0)
                 {
                     return methodPointers[methodIndex];
                 }
-                genericMethoddDictionary.TryGetValue(methodDefinitionIndex, out var methodPointer);
-                return methodPointer;
             }
+            return 0;
         }
 
         public virtual ulong GetRVA(ulong pointer)
