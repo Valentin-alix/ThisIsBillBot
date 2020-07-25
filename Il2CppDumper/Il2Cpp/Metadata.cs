@@ -229,6 +229,10 @@ namespace Il2CppDumper
                     var e = fieldType.GetField("value__").FieldType;
                     size += GetPrimitiveTypeSize(e.Name);
                 }
+                else
+                {
+                    size += MySizeOf(fieldType);
+                }
             }
             return size;
 
@@ -246,6 +250,17 @@ namespace Il2CppDumper
                         return 0;
                 }
             }
+        }
+
+        public string ReadString(int numChars)
+        {
+            var start = Position;
+            // UTF8 takes up to 4 bytes per character
+            var str = Encoding.UTF8.GetString(ReadBytes(numChars * 4)).Substring(0, numChars);
+            // make our position what it would have been if we'd known the exact number of bytes needed.
+            Position = start;
+            ReadBytes(Encoding.UTF8.GetByteCount(str));
+            return str;
         }
     }
 }
