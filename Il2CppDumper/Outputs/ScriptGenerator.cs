@@ -26,7 +26,8 @@ namespace Il2CppDumper
         private StringBuilder arrayClassHeader = new StringBuilder();
         private StringBuilder methodInfoHeader = new StringBuilder();
         private static HashSet<string> keyword = new HashSet<string>(StringComparer.Ordinal)
-        { "klass", "monitor", "register", "_cs", "auto", "friend", "template", "near", "far", "flat", "default", "_ds", "interrupt", "inline", "unsigned", "signed"};
+        { "klass", "monitor", "register", "_cs", "auto", "friend", "template", "near", "far", "flat", "default", "_ds", "interrupt", "inline",
+            "unsigned", "signed", "asm", "if", "case", "break", "continue", "do", "new"};
 
         public ScriptGenerator(Il2CppExecutor il2CppExecutor)
         {
@@ -560,6 +561,7 @@ namespace Il2CppDumper
             if (typeDef.field_count > 0)
             {
                 var fieldEnd = typeDef.fieldStart + typeDef.field_count;
+                var cache = new HashSet<string>(StringComparer.Ordinal);
                 for (var i = typeDef.fieldStart; i < fieldEnd; ++i)
                 {
                     var fieldDef = metadata.fieldDefs[i];
@@ -571,6 +573,10 @@ namespace Il2CppDumper
                     var structFieldInfo = new StructFieldInfo();
                     structFieldInfo.FieldTypeName = ParseType(fieldType, context);
                     var fieldName = FixName(metadata.GetStringFromIndex(fieldDef.nameIndex));
+                    if (!cache.Add(fieldName))
+                    {
+                        fieldName = $"_{i - typeDef.fieldStart}_{fieldName}";
+                    }
                     structFieldInfo.FieldName = fieldName;
                     structFieldInfo.IsValueType = IsValueType(fieldType, context);
                     structFieldInfo.IsCustomType = IsCustomType(fieldType, context);
