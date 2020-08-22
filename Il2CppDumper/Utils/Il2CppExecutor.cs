@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Il2CppDumper
 {
@@ -28,11 +29,28 @@ namespace Il2CppDumper
             {25,"UIntPtr"},
             {28,"object"},
         };
+        public ulong[] customAttributeGenerators;
 
         public Il2CppExecutor(Metadata metadata, Il2Cpp il2Cpp)
         {
             this.metadata = metadata;
             this.il2Cpp = il2Cpp;
+
+            if (il2Cpp.Version >= 27)
+            {
+                customAttributeGenerators = new ulong[metadata.imageDefs.Sum(x => x.customAttributeCount)];
+                foreach (var imageDef in metadata.imageDefs)
+                {
+                    var imageDefName = metadata.GetStringFromIndex(imageDef.nameIndex);
+                    var codeGenModule = il2Cpp.codeGenModules[imageDefName];
+                    var pointers = il2Cpp.ReadClassArray<ulong>(il2Cpp.MapVATR(codeGenModule.customAttributeCacheGenerator), imageDef.customAttributeCount);
+                    pointers.CopyTo(customAttributeGenerators, imageDef.customAttributeStart);
+                }
+            }
+            else
+            {
+                customAttributeGenerators = il2Cpp.customAttributeGenerators;
+            }
         }
 
         public string GetTypeName(Il2CppType il2CppType, bool addNamespace, bool is_nested)
@@ -58,7 +76,7 @@ namespace Il2CppDumper
                 case Il2CppTypeEnum.IL2CPP_TYPE_VAR:
                 case Il2CppTypeEnum.IL2CPP_TYPE_MVAR:
                     {
-                        var param = metadata.genericParameters[il2CppType.data.genericParameterIndex];
+                        var param = GetGenericParameteFromIl2CppType(il2CppType);
                         return metadata.GetStringFromIndex(param.nameIndex);
                     }
                 case Il2CppTypeEnum.IL2CPP_TYPE_CLASS:
@@ -71,11 +89,11 @@ namespace Il2CppDumper
                         if (il2CppType.type == Il2CppTypeEnum.IL2CPP_TYPE_GENERICINST)
                         {
                             genericClass = il2Cpp.MapVATR<Il2CppGenericClass>(il2CppType.data.generic_class);
-                            typeDef = metadata.typeDefs[genericClass.typeDefinitionIndex];
+                            typeDef = GetGenericClassTypeDefinition(genericClass);
                         }
                         else
                         {
-                            typeDef = metadata.typeDefs[il2CppType.data.klassIndex];
+                            typeDef = GetTypeDefinitionFromIl2CppType(il2CppType);
                         }
                         if (typeDef.declaringTypeIndex != -1)
                         {
@@ -213,12 +231,12 @@ namespace Il2CppDumper
             return new Il2CppGenericContext { class_inst = classInstPointer, method_inst = methodInstPointer };
         }
 
-        public Il2CppRGCTXDefinition[] GetTypeRGCTXDefinition(Il2CppTypeDefinition typeDef, int imageIndex)
+        public Il2CppRGCTXDefinition[] GetTypeRGCTXDefinition(string imageName, Il2CppTypeDefinition typeDef)
         {
             Il2CppRGCTXDefinition[] collection = null;
             if (il2Cpp.Version >= 24.2f)
             {
-                il2Cpp.rgctxsDictionary[imageIndex].TryGetValue(typeDef.token, out collection);
+                il2Cpp.rgctxsDictionary[imageName].TryGetValue(typeDef.token, out collection);
             }
             else
             {
@@ -229,6 +247,48 @@ namespace Il2CppDumper
                 }
             }
             return collection;
+        }
+
+        public Il2CppTypeDefinition GetGenericClassTypeDefinition(Il2CppGenericClass genericClass)
+        {
+            if (il2Cpp.Version >= 27)
+            {
+                var il2CppType = il2Cpp.GetIl2CppType(genericClass.type);
+                return GetTypeDefinitionFromIl2CppType(il2CppType);
+            }
+            if (genericClass.typeDefinitionIndex == 4294967295 || genericClass.typeDefinitionIndex == -1)
+            {
+                return null;
+            }
+            return metadata.typeDefs[genericClass.typeDefinitionIndex];
+        }
+
+        public Il2CppTypeDefinition GetTypeDefinitionFromIl2CppType(Il2CppType il2CppType)
+        {
+            if (il2Cpp.Version >= 27 && il2Cpp is ElfBase elf && elf.IsDumped)
+            {
+                var offset = il2CppType.data.typeHandle - metadata.Address - metadata.header.typeDefinitionsOffset;
+                var index = offset / (ulong)metadata.SizeOf(typeof(Il2CppTypeDefinition));
+                return metadata.typeDefs[index];
+            }
+            else
+            {
+                return metadata.typeDefs[il2CppType.data.klassIndex];
+            }
+        }
+
+        public Il2CppGenericParameter GetGenericParameteFromIl2CppType(Il2CppType il2CppType)
+        {
+            if (il2Cpp.Version >= 27 && il2Cpp is ElfBase elf && elf.IsDumped)
+            {
+                var offset = il2CppType.data.genericParameterHandle - metadata.Address - metadata.header.genericParametersOffset;
+                var index = offset / (ulong)metadata.SizeOf(typeof(Il2CppGenericParameter));
+                return metadata.genericParameters[index];
+            }
+            else
+            {
+                return metadata.genericParameters[il2CppType.data.genericParameterIndex];
+            }
         }
     }
 }

@@ -32,7 +32,9 @@ namespace Il2CppDumper
         public ulong genericMethodPointers;
         public long invokerPointersCount;
         public ulong invokerPointers;
+        [Version(Max = 24.3f)]
         public long customAttributeCount;
+        [Version(Max = 24.3f)]
         public ulong customAttributeGenerators;
         [Version(Min = 21, Max = 22)]
         public long guidCount;
@@ -155,6 +157,10 @@ namespace Il2CppDumper
             /// </summary>
             public long klassIndex => (long)dummy;
             /// <summary>
+            /// for VALUETYPE and CLASS at runtime
+            /// </summary>
+            public ulong typeHandle => dummy;
+            /// <summary>
             /// for PTR and SZARRAY
             /// </summary>
             public ulong type => dummy;
@@ -167,6 +173,10 @@ namespace Il2CppDumper
             /// </summary>
             public long genericParameterIndex => (long)dummy;
             /// <summary>
+            /// for VAR and MVAR at runtime
+            /// </summary>
+            public ulong genericParameterHandle => dummy;
+            /// <summary>
             /// for GENERICINST
             /// </summary>
             public ulong generic_class => dummy;
@@ -175,7 +185,10 @@ namespace Il2CppDumper
 
     public class Il2CppGenericClass
     {
+        [Version(Max = 24.3f)]
         public long typeDefinitionIndex;    /* the generic type definition */
+        [Version(Min = 27)]
+        public ulong type;        /* the generic type definition */
         public Il2CppGenericContext context;   /* a context that contains the type instantiation doesn't contain any method instantiation */
         public ulong cached_class; /* if present, the Il2CppClass corresponding to the instantiation.  */
     }
@@ -236,6 +249,16 @@ namespace Il2CppDumper
         public long rgctxsCount;
         public ulong rgctxs;
         public ulong debuggerMetadata;
+        [Version(Min = 27)]
+        public ulong customAttributeCacheGenerator;
+        [Version(Min = 27)]
+        public ulong moduleInitializer;
+        [Version(Min = 27)]
+        public ulong staticConstructorTypeIndices;
+        [Version(Min = 27)]
+        public ulong metadataRegistration; // Per-assembly mode only
+        [Version(Min = 27)]
+        public ulong codeRegistaration; // Per-assembly mode only
     }
 
     public class Il2CppRange
