@@ -79,7 +79,17 @@ namespace Il2CppDumper
         public override ulong MapVATR(ulong addr)
         {
             var phdr = programSegment.First(x => addr >= x.p_vaddr && addr <= x.p_vaddr + x.p_memsz);
-            return addr - (phdr.p_vaddr - phdr.p_offset);
+            return addr - phdr.p_vaddr + phdr.p_offset;
+        }
+
+        public override ulong MapRTVA(ulong addr)
+        {
+            var phdr = programSegment.FirstOrDefault(x => addr >= x.p_offset && addr <= x.p_offset + x.p_filesz);
+            if (phdr == null)
+            {
+                return 0;
+            }
+            return addr - phdr.p_offset + phdr.p_vaddr;
         }
 
         public override bool Search()
@@ -106,7 +116,7 @@ namespace Il2CppDumper
                 uint codeRegistration = 0;
                 uint metadataRegistration = 0;
                 var result = (uint)resultList[0];
-                if (Version < 24f)
+                if (Version < 24)
                 {
                     if (elfHeader.e_machine == EM_ARM)
                     {
@@ -118,7 +128,7 @@ namespace Il2CppDumper
                         metadataRegistration = ReadUInt32();
                     }
                 }
-                else if (Version >= 24f)
+                else if (Version >= 24)
                 {
                     if (elfHeader.e_machine == EM_ARM)
                     {

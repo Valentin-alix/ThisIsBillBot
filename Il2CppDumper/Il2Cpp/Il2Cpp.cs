@@ -31,14 +31,15 @@ namespace Il2CppDumper
         public Dictionary<string, ulong[]> codeGenModuleMethodPointers;
         public Dictionary<string, Dictionary<uint, Il2CppRGCTXDefinition[]>> rgctxsDictionary;
 
-        public abstract ulong MapVATR(ulong uiAddr);
+        public abstract ulong MapVATR(ulong addr);
+        public abstract ulong MapRTVA(ulong addr);
         public abstract bool Search();
         public abstract bool PlusSearch(int methodCount, int typeDefinitionsCount, int imageCount);
         public abstract bool SymbolSearch();
 
         protected Il2Cpp(Stream stream) : base(stream) { }
 
-        public void SetProperties(float version, long maxMetadataUsages)
+        public void SetProperties(double version, long maxMetadataUsages)
         {
             Version = version;
             this.maxMetadataUsages = maxMetadataUsages;
@@ -48,12 +49,12 @@ namespace Il2CppDumper
         {
             if (codeRegistration != 0 && metadataRegistration != 0)
             {
-                if (Version == 24.2f)
+                if (Version == 24.2)
                 {
                     pCodeRegistration = MapVATR<Il2CppCodeRegistration>(codeRegistration);
                     if (pCodeRegistration.reversePInvokeWrapperCount > 0x30000) //TODO
                     {
-                        Version = 24.4f;
+                        Version = 24.4;
                         codeRegistration -= PointerSize * 3;
                         Console.WriteLine($"Change il2cpp version to: {Version}");
                     }
@@ -64,7 +65,7 @@ namespace Il2CppDumper
                         var genericMethodPointersCount = genericMethodTable.Max(x => x.indices.methodIndex) + 1;
                         if (pCodeRegistration.reversePInvokeWrapperCount == genericMethodPointersCount)
                         {
-                            Version = 24.3f;
+                            Version = 24.3;
                             codeRegistration -= Is32Bit ? 8u : 16u;
                             Console.WriteLine($"Change il2cpp version to: {Version}");
                         }
@@ -83,22 +84,22 @@ namespace Il2CppDumper
         public virtual void Init(ulong codeRegistration, ulong metadataRegistration)
         {
             pCodeRegistration = MapVATR<Il2CppCodeRegistration>(codeRegistration);
-            if (Version == 27f)
+            if (Version == 27)
             {
                 if (pCodeRegistration.reversePInvokeWrapperCount > 0x30000) //TODO
                 {
-                    Version = 27.1f;
+                    Version = 27.1;
                     codeRegistration -= PointerSize;
                     Console.WriteLine($"Change il2cpp version to: {Version}");
                     Console.WriteLine("CodeRegistration : {0:x}", codeRegistration);
                     pCodeRegistration = MapVATR<Il2CppCodeRegistration>(codeRegistration);
                 }
             }
-            if (Version == 24.2f)
+            if (Version == 24.2)
             {
                 if (pCodeRegistration.reversePInvokeWrapperCount > 0x30000) //TODO
                 {
-                    Version = 24.4f;
+                    Version = 24.4;
                     codeRegistration -= PointerSize * 3;
                     Console.WriteLine($"Change il2cpp version to: {Version}");
                     Console.WriteLine("CodeRegistration : {0:x}", codeRegistration);
@@ -108,7 +109,7 @@ namespace Il2CppDumper
                 {
                     if (pCodeRegistration.codeGenModules == 0) //TODO
                     {
-                        Version = 24.3f;
+                        Version = 24.3;
                         Console.WriteLine($"Change il2cpp version to: {Version}");
                         pCodeRegistration = MapVATR<Il2CppCodeRegistration>(codeRegistration);
                     }
@@ -156,7 +157,7 @@ namespace Il2CppDumper
                 types[i].Init();
                 typeDic.Add(pTypes[i], types[i]);
             }
-            if (Version >= 24.2f)
+            if (Version >= 24.2)
             {
                 var pCodeGenModules = MapVATR<ulong>(pCodeRegistration.codeGenModules, pCodeRegistration.codeGenModulesCount);
                 codeGenModules = new Dictionary<string, Il2CppCodeGenModule>(pCodeGenModules.Length, StringComparer.Ordinal);
@@ -270,7 +271,7 @@ namespace Il2CppDumper
 
         public ulong GetMethodPointer(string imageName, Il2CppMethodDefinition methodDef)
         {
-            if (Version >= 24.2f)
+            if (Version >= 24.2)
             {
                 var methodToken = methodDef.token;
                 var ptrs = codeGenModuleMethodPointers[imageName];
