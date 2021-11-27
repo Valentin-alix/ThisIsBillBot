@@ -150,36 +150,9 @@ namespace Il2CppDumper
 
         public override bool PlusSearch(int methodCount, int typeDefinitionsCount, int imageCount)
         {
-            var dataList = new List<Elf32_Phdr>();
-            var execList = new List<Elf32_Phdr>();
-            foreach (var phdr in programSegment)
-            {
-                if (phdr.p_memsz != 0ul)
-                {
-                    switch (phdr.p_flags)
-                    {
-                        case 1u: //PF_X
-                        case 3u:
-                        case 5u:
-                        case 7u:
-                            execList.Add(phdr);
-                            break;
-                        case 2u: //PF_W && PF_R
-                        case 4u:
-                        case 6u:
-                            dataList.Add(phdr);
-                            break;
-                    }
-                }
-            }
-            var data = dataList.ToArray();
-            var exec = execList.ToArray();
-            var plusSearch = new PlusSearch(this, methodCount, typeDefinitionsCount, maxMetadataUsages, imageCount);
-            plusSearch.SetSection(SearchSectionType.Exec, exec);
-            plusSearch.SetSection(SearchSectionType.Data, data);
-            plusSearch.SetSection(SearchSectionType.Bss, data);
-            var codeRegistration = plusSearch.FindCodeRegistration();
-            var metadataRegistration = plusSearch.FindMetadataRegistration();
+            var sectionHelper = GetSectionHelper(methodCount, typeDefinitionsCount, imageCount);
+            var codeRegistration = sectionHelper.FindCodeRegistration();
+            var metadataRegistration = sectionHelper.FindMetadataRegistration();
             return AutoPlusInit(codeRegistration, metadataRegistration);
         }
 
@@ -217,10 +190,48 @@ namespace Il2CppDumper
         {
             try
             {
+                var symbolCount = 0u;
+                var hash = dynamicSection.FirstOrDefault(x => x.d_tag == DT_HASH);
+                if (hash != null)
+                {
+                    var addr = MapVATR(hash.d_un);
+                    Position = addr;
+                    var nbucket = ReadUInt32();
+                    var nchain = ReadUInt32();
+                    symbolCount = nchain;
+                }
+                else
+                {
+                    hash = dynamicSection.First(x => x.d_tag == DT_GNU_HASH);
+                    var addr = MapVATR(hash.d_un);
+                    Position = addr;
+                    var nbuckets = ReadUInt32();
+                    var symoffset = ReadUInt32();
+                    var bloom_size = ReadUInt32();
+                    var bloom_shift = ReadUInt32();
+                    var buckets_address = addr + 16 + (4 * bloom_size);
+                    var buckets = ReadClassArray<uint>(buckets_address, nbuckets);
+                    var last_symbol = buckets.Max();
+                    if (last_symbol < symoffset)
+                    {
+                        symbolCount = symoffset;
+                    }
+                    else
+                    {
+                        var chains_base_address = buckets_address + 4 * nbuckets;
+                        Position = chains_base_address + (last_symbol - symoffset) * 4;
+                        while (true)
+                        {
+                            var chain_entry = ReadUInt32();
+                            ++last_symbol;
+                            if ((chain_entry & 1) != 0)
+                                break;
+                        }
+                        symbolCount = last_symbol;
+                    }
+                }
                 var dynsymOffset = MapVATR(dynamicSection.First(x => x.d_tag == DT_SYMTAB).d_un);
-                var dynstrOffset = MapVATR(dynamicSection.First(x => x.d_tag == DT_STRTAB).d_un);
-                var dynsymSize = dynstrOffset - dynsymOffset;
-                symbolTable = ReadClassArray<Elf32_Sym>(dynsymOffset, (long)dynsymSize / 16);
+                symbolTable = ReadClassArray<Elf32_Sym>(dynsymOffset, symbolCount);
             }
             catch
             {
@@ -337,6 +348,39 @@ namespace Il2CppDumper
                         break;
                 }
             }
+        }
+
+        public override SectionHelper GetSectionHelper(int methodCount, int typeDefinitionsCount, int imageCount)
+        {
+            var dataList = new List<Elf32_Phdr>();
+            var execList = new List<Elf32_Phdr>();
+            foreach (var phdr in programSegment)
+            {
+                if (phdr.p_memsz != 0ul)
+                {
+                    switch (phdr.p_flags)
+                    {
+                        case 1u: //PF_X
+                        case 3u:
+                        case 5u:
+                        case 7u:
+                            execList.Add(phdr);
+                            break;
+                        case 2u: //PF_W && PF_R
+                        case 4u:
+                        case 6u:
+                            dataList.Add(phdr);
+                            break;
+                    }
+                }
+            }
+            var data = dataList.ToArray();
+            var exec = execList.ToArray();
+            var sectionHelper = new SectionHelper(this, methodCount, typeDefinitionsCount, maxMetadataUsages, imageCount);
+            sectionHelper.SetSection(SearchSectionType.Exec, exec);
+            sectionHelper.SetSection(SearchSectionType.Data, data);
+            sectionHelper.SetSection(SearchSectionType.Bss, data);
+            return sectionHelper;
         }
     }
 }

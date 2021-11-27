@@ -4,18 +4,18 @@ using System.Linq;
 
 namespace Il2CppDumper
 {
-    public class PlusSearch
+    public class SectionHelper
     {
         private Il2Cpp il2Cpp;
         private int methodCount;
         private int typeDefinitionsCount;
         private long maxMetadataUsages;
         private int imageCount;
-        private List<SearchSection> exec;
-        private List<SearchSection> data;
-        private List<SearchSection> bss;
+        public List<SearchSection> exec;
+        public List<SearchSection> data;
+        public List<SearchSection> bss;
 
-        public PlusSearch(Il2Cpp il2Cpp, int methodCount, int typeDefinitionsCount, long maxMetadataUsages, int imageCount)
+        public SectionHelper(Il2Cpp il2Cpp, int methodCount, int typeDefinitionsCount, long maxMetadataUsages, int imageCount)
         {
             this.il2Cpp = il2Cpp;
             this.methodCount = methodCount;
@@ -255,7 +255,7 @@ namespace Il2CppDumper
             foreach (var section in data)
             {
                 il2Cpp.Position = section.offset;
-                while (il2Cpp.Position < section.offsetEnd)
+                while (il2Cpp.Position < section.offsetEnd - il2Cpp.PointerSize)
                 {
                     var addr = il2Cpp.Position;
                     if (il2Cpp.ReadIntPtr() == typeDefinitionsCount)
@@ -333,12 +333,26 @@ namespace Il2CppDumper
                         va = FindReference(va);
                         if (va != 0ul)
                         {
-                            for (int i = 0; i < imageCount; i++)
+                            if (il2Cpp.Version >= 27)
                             {
-                                var va2 = FindReference(va - (ulong)i * il2Cpp.PointerSize);
-                                if (va2 != 0ul)
+                                for (int i = imageCount; i >= 0; i--)
                                 {
-                                    return va2 - il2Cpp.PointerSize * 13;
+                                    var va2 = FindReference(va - (ulong)i * il2Cpp.PointerSize);
+                                    if (va2 != 0ul)
+                                    {
+                                        return va2 - il2Cpp.PointerSize * 13;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                for (int i = 0; i < imageCount; i++)
+                                {
+                                    var va2 = FindReference(va - (ulong)i * il2Cpp.PointerSize);
+                                    if (va2 != 0ul)
+                                    {
+                                        return va2 - il2Cpp.PointerSize * 13;
+                                    }
                                 }
                             }
                         }
@@ -353,7 +367,7 @@ namespace Il2CppDumper
             foreach (var dataSec in data)
             {
                 il2Cpp.Position = dataSec.offset;
-                while (il2Cpp.Position < dataSec.offsetEnd)
+                while (il2Cpp.Position < dataSec.offsetEnd - il2Cpp.PointerSize)
                 {
                     var offset = il2Cpp.Position;
                     if (il2Cpp.ReadUIntPtr() == addr)
