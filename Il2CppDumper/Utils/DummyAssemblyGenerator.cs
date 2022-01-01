@@ -90,60 +90,68 @@ namespace Il2CppDumper
                     }
                 }
             }
-            for (var index = 0; index < metadata.typeDefs.Length; ++index)
+            foreach (var imageDef in metadata.imageDefs)
             {
-                var typeDef = metadata.typeDefs[index];
-                var typeDefinition = typeDefinitionDic[typeDef];
-
-                //nestedtype
-                for (int i = 0; i < typeDef.nested_type_count; i++)
+                var typeEnd = imageDef.typeStart + imageDef.typeCount;
+                for (var index = imageDef.typeStart; index < typeEnd; ++index)
                 {
-                    var nestedIndex = metadata.nestedTypeIndices[typeDef.nestedTypesStart + i];
-                    var nestedTypeDef = metadata.typeDefs[nestedIndex];
-                    var nestedTypeDefinition = typeDefinitionDic[nestedTypeDef];
-                    typeDefinition.NestedTypes.Add(nestedTypeDefinition);
+                    var typeDef = metadata.typeDefs[index];
+                    var typeDefinition = typeDefinitionDic[typeDef];
+
+                    //nestedtype
+                    for (int i = 0; i < typeDef.nested_type_count; i++)
+                    {
+                        var nestedIndex = metadata.nestedTypeIndices[typeDef.nestedTypesStart + i];
+                        var nestedTypeDef = metadata.typeDefs[nestedIndex];
+                        var nestedTypeDefinition = typeDefinitionDic[nestedTypeDef];
+                        typeDefinition.NestedTypes.Add(nestedTypeDefinition);
+                    }
                 }
             }
             //提前处理
-            for (var index = 0; index < metadata.typeDefs.Length; ++index)
+            foreach (var imageDef in metadata.imageDefs)
             {
-                var typeDef = metadata.typeDefs[index];
-                var typeDefinition = typeDefinitionDic[typeDef];
-
-                if (addToken)
+                var typeEnd = imageDef.typeStart + imageDef.typeCount;
+                for (var index = imageDef.typeStart; index < typeEnd; ++index)
                 {
-                    var customTokenAttribute = new CustomAttribute(typeDefinition.Module.ImportReference(tokenAttribute));
-                    customTokenAttribute.Fields.Add(new CustomAttributeNamedArgument("Token", new CustomAttributeArgument(stringType, $"0x{typeDef.token:X}")));
-                    typeDefinition.CustomAttributes.Add(customTokenAttribute);
-                }
+                    var typeDef = metadata.typeDefs[index];
+                    var typeDefinition = typeDefinitionDic[typeDef];
 
-                //genericParameter
-                if (typeDef.genericContainerIndex >= 0)
-                {
-                    var genericContainer = metadata.genericContainers[typeDef.genericContainerIndex];
-                    for (int i = 0; i < genericContainer.type_argc; i++)
+                    if (addToken)
                     {
-                        var genericParameterIndex = genericContainer.genericParameterStart + i;
-                        var param = metadata.genericParameters[genericParameterIndex];
-                        var genericParameter = CreateGenericParameter(param, typeDefinition);
-                        typeDefinition.GenericParameters.Add(genericParameter);
+                        var customTokenAttribute = new CustomAttribute(typeDefinition.Module.ImportReference(tokenAttribute));
+                        customTokenAttribute.Fields.Add(new CustomAttributeNamedArgument("Token", new CustomAttributeArgument(stringType, $"0x{typeDef.token:X}")));
+                        typeDefinition.CustomAttributes.Add(customTokenAttribute);
                     }
-                }
 
-                //parent
-                if (typeDef.parentIndex >= 0)
-                {
-                    var parentType = il2Cpp.types[typeDef.parentIndex];
-                    var parentTypeRef = GetTypeReference(typeDefinition, parentType);
-                    typeDefinition.BaseType = parentTypeRef;
-                }
+                    //genericParameter
+                    if (typeDef.genericContainerIndex >= 0)
+                    {
+                        var genericContainer = metadata.genericContainers[typeDef.genericContainerIndex];
+                        for (int i = 0; i < genericContainer.type_argc; i++)
+                        {
+                            var genericParameterIndex = genericContainer.genericParameterStart + i;
+                            var param = metadata.genericParameters[genericParameterIndex];
+                            var genericParameter = CreateGenericParameter(param, typeDefinition);
+                            typeDefinition.GenericParameters.Add(genericParameter);
+                        }
+                    }
 
-                //interfaces
-                for (int i = 0; i < typeDef.interfaces_count; i++)
-                {
-                    var interfaceType = il2Cpp.types[metadata.interfaceIndices[typeDef.interfacesStart + i]];
-                    var interfaceTypeRef = GetTypeReference(typeDefinition, interfaceType);
-                    typeDefinition.Interfaces.Add(new InterfaceImplementation(interfaceTypeRef));
+                    //parent
+                    if (typeDef.parentIndex >= 0)
+                    {
+                        var parentType = il2Cpp.types[typeDef.parentIndex];
+                        var parentTypeRef = GetTypeReference(typeDefinition, parentType);
+                        typeDefinition.BaseType = parentTypeRef;
+                    }
+
+                    //interfaces
+                    for (int i = 0; i < typeDef.interfaces_count; i++)
+                    {
+                        var interfaceType = il2Cpp.types[metadata.interfaceIndices[typeDef.interfacesStart + i]];
+                        var interfaceTypeRef = GetTypeReference(typeDefinition, interfaceType);
+                        typeDefinition.Interfaces.Add(new InterfaceImplementation(interfaceTypeRef));
+                    }
                 }
             }
             //处理field, method, property等等
@@ -551,67 +559,74 @@ namespace Il2CppDumper
             var attributeIndex = metadata.GetCustomAttributeIndex(imageDef, customAttributeIndex, token);
             if (attributeIndex >= 0)
             {
-                if (il2Cpp.Version < 29)
+                try
                 {
-                    var attributeTypeRange = metadata.attributeTypeRanges[attributeIndex];
-                    for (int i = 0; i < attributeTypeRange.count; i++)
+                    if (il2Cpp.Version < 29)
                     {
-                        var attributeTypeIndex = metadata.attributeTypes[attributeTypeRange.start + i];
-                        var attributeType = il2Cpp.types[attributeTypeIndex];
-                        var typeDef = executor.GetTypeDefinitionFromIl2CppType(attributeType);
-                        var typeDefinition = typeDefinitionDic[typeDef];
-                        if (!TryRestoreCustomAttribute(typeDefinition, moduleDefinition, customAttributes))
+                        var attributeTypeRange = metadata.attributeTypeRanges[attributeIndex];
+                        for (int i = 0; i < attributeTypeRange.count; i++)
                         {
-                            var methodPointer = executor.customAttributeGenerators[attributeIndex];
-                            var fixedMethodPointer = il2Cpp.GetRVA(methodPointer);
-                            var customAttribute = new CustomAttribute(moduleDefinition.ImportReference(attributeAttribute));
-                            var name = new CustomAttributeNamedArgument("Name", new CustomAttributeArgument(stringType, typeDefinition.Name));
-                            var rva = new CustomAttributeNamedArgument("RVA", new CustomAttributeArgument(stringType, $"0x{fixedMethodPointer:X}"));
-                            var offset = new CustomAttributeNamedArgument("Offset", new CustomAttributeArgument(stringType, $"0x{il2Cpp.MapVATR(methodPointer):X}"));
-                            customAttribute.Fields.Add(name);
-                            customAttribute.Fields.Add(rva);
-                            customAttribute.Fields.Add(offset);
-                            customAttributes.Add(customAttribute);
+                            var attributeTypeIndex = metadata.attributeTypes[attributeTypeRange.start + i];
+                            var attributeType = il2Cpp.types[attributeTypeIndex];
+                            var typeDef = executor.GetTypeDefinitionFromIl2CppType(attributeType);
+                            var typeDefinition = typeDefinitionDic[typeDef];
+                            if (!TryRestoreCustomAttribute(typeDefinition, moduleDefinition, customAttributes))
+                            {
+                                var methodPointer = executor.customAttributeGenerators[attributeIndex];
+                                var fixedMethodPointer = il2Cpp.GetRVA(methodPointer);
+                                var customAttribute = new CustomAttribute(moduleDefinition.ImportReference(attributeAttribute));
+                                var name = new CustomAttributeNamedArgument("Name", new CustomAttributeArgument(stringType, typeDefinition.Name));
+                                var rva = new CustomAttributeNamedArgument("RVA", new CustomAttributeArgument(stringType, $"0x{fixedMethodPointer:X}"));
+                                var offset = new CustomAttributeNamedArgument("Offset", new CustomAttributeArgument(stringType, $"0x{il2Cpp.MapVATR(methodPointer):X}"));
+                                customAttribute.Fields.Add(name);
+                                customAttribute.Fields.Add(rva);
+                                customAttribute.Fields.Add(offset);
+                                customAttributes.Add(customAttribute);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var startRange = metadata.attributeDataRanges[attributeIndex];
+                        var endRange = metadata.attributeDataRanges[attributeIndex + 1];
+                        metadata.Position = metadata.header.attributeDataOffset + startRange.startOffset;
+                        var buff = metadata.ReadBytes((int)(endRange.startOffset - startRange.startOffset));
+                        var reader = new CustomAttributeDataReader(executor, buff);
+                        if (reader.Count != 0)
+                        {
+                            for (var i = 0; i < reader.Count; i++)
+                            {
+                                var visitor = reader.VisitCustomAttributeData();
+                                var methodDefinition = methodDefinitionDic[visitor.CtorIndex];
+                                var customAttribute = new CustomAttribute(moduleDefinition.ImportReference(methodDefinition));
+                                foreach (var argument in visitor.Arguments)
+                                {
+                                    var parameterDefinition = methodDefinition.Parameters[argument.Index];
+                                    var customAttributeArgument = CreateCustomAttributeArgument(parameterDefinition.ParameterType, argument.Value, methodDefinition);
+                                    customAttribute.ConstructorArguments.Add(customAttributeArgument);
+                                }
+                                foreach (var field in visitor.Fields)
+                                {
+                                    var fieldDefinition = fieldDefinitionDic[field.Index];
+                                    var customAttributeArgument = CreateCustomAttributeArgument(fieldDefinition.FieldType, field.Value, fieldDefinition);
+                                    var customAttributeNamedArgument = new CustomAttributeNamedArgument(fieldDefinition.Name, customAttributeArgument);
+                                    customAttribute.Fields.Add(customAttributeNamedArgument);
+                                }
+                                foreach (var property in visitor.Properties)
+                                {
+                                    var propertyDefinition = propertyDefinitionDic[property.Index];
+                                    var customAttributeArgument = CreateCustomAttributeArgument(propertyDefinition.PropertyType, property.Value, propertyDefinition);
+                                    var customAttributeNamedArgument = new CustomAttributeNamedArgument(propertyDefinition.Name, customAttributeArgument);
+                                    customAttribute.Properties.Add(customAttributeNamedArgument);
+                                }
+                                customAttributes.Add(customAttribute);
+                            }
                         }
                     }
                 }
-                else
+                catch
                 {
-                    var startRange = metadata.attributeDataRanges[attributeIndex];
-                    var endRange = metadata.attributeDataRanges[attributeIndex + 1];
-                    metadata.Position = metadata.header.attributeDataOffset + startRange.startOffset;
-                    var buff = metadata.ReadBytes((int)(endRange.startOffset - startRange.startOffset));
-                    var reader = new CustomAttributeDataReader(executor, buff);
-                    if (reader.Count != 0)
-                    {
-                        for (var i = 0; i < reader.Count; i++)
-                        {
-                            var visitor = reader.VisitCustomAttributeData();
-                            var methodDefinition = methodDefinitionDic[visitor.CtorIndex];
-                            var customAttribute = new CustomAttribute(moduleDefinition.ImportReference(methodDefinition));
-                            foreach (var argument in visitor.Arguments)
-                            {
-                                var parameterDefinition = methodDefinition.Parameters[argument.Index];
-                                var customAttributeArgument = CreateCustomAttributeArgument(parameterDefinition.ParameterType, argument.Value, methodDefinition);
-                                customAttribute.ConstructorArguments.Add(customAttributeArgument);
-                            }
-                            foreach (var field in visitor.Fields)
-                            {
-                                var fieldDefinition = fieldDefinitionDic[field.Index];
-                                var customAttributeArgument = CreateCustomAttributeArgument(fieldDefinition.FieldType, field.Value, fieldDefinition);
-                                var customAttributeNamedArgument = new CustomAttributeNamedArgument(fieldDefinition.Name, customAttributeArgument);
-                                customAttribute.Fields.Add(customAttributeNamedArgument);
-                            }
-                            foreach (var property in visitor.Properties)
-                            {
-                                var propertyDefinition = propertyDefinitionDic[property.Index];
-                                var customAttributeArgument = CreateCustomAttributeArgument(propertyDefinition.PropertyType, property.Value, propertyDefinition);
-                                var customAttributeNamedArgument = new CustomAttributeNamedArgument(propertyDefinition.Name, customAttributeArgument);
-                                customAttribute.Properties.Add(customAttributeNamedArgument);
-                            }
-                            customAttributes.Add(customAttribute);
-                        }
-                    }
+                    Console.WriteLine($"ERROR: Error while restoring attributeIndex {attributeIndex}");
                 }
             }
         }
@@ -651,7 +666,11 @@ namespace Il2CppDumper
         private CustomAttributeArgument CreateCustomAttributeArgument(TypeReference typeReference, BlobValue blobValue, MemberReference memberReference)
         {
             var val = blobValue.Value;
-            if (typeReference.FullName == "System.Object")
+            if (val == null)
+            {
+                return new CustomAttributeArgument(typeReference, val);
+            }
+            else if (typeReference.FullName == "System.Object")
             {
                 val = new CustomAttributeArgument(GetBlobValueTypeReference(blobValue, memberReference), val);
             }
