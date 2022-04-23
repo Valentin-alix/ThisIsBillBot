@@ -60,11 +60,13 @@ namespace Il2CppDumper
                 address = Length,
                 addressEnd = long.MaxValue //hack
             };
-            var sectionHelper = new SectionHelper(this, methodCount, typeDefinitionsCount, maxMetadataUsages, imageCount);
+            var sectionHelper = new SectionHelper(this, methodCount, typeDefinitionsCount, metadataUsagesCount, imageCount);
             sectionHelper.SetSection(SearchSectionType.Exec, exec);
             sectionHelper.SetSection(SearchSectionType.Data, data);
             sectionHelper.SetSection(SearchSectionType.Bss, bss);
             return sectionHelper;
         }
+
+        public override bool CheckDump() => false;
     }
 }
