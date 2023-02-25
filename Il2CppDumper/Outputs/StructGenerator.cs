@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using static Il2CppDumper.Il2CppConstants;
 
@@ -372,9 +372,10 @@ namespace Il2CppDumper
                 value = x.Value,
                 address = $"0x{x.Address:X}"
             }).ToArray();
-            File.WriteAllText(outputDir + "stringliteral.json", JsonConvert.SerializeObject(stringLiterals, Formatting.Indented), new UTF8Encoding(false));
+            var jsonOptions = new JsonSerializerOptions() { WriteIndented = true, IncludeFields = true };
+            File.WriteAllText(outputDir + "stringliteral.json", JsonSerializer.Serialize(stringLiterals, jsonOptions), new UTF8Encoding(false));
             //写入文件
-            File.WriteAllText(outputDir + "script.json", JsonConvert.SerializeObject(json, Formatting.Indented));
+            File.WriteAllText(outputDir + "script.json", JsonSerializer.Serialize(json, jsonOptions));
             //il2cpp.h
             for (int i = 0; i < genericClassList.Count; i++)
             {
@@ -656,6 +657,11 @@ namespace Il2CppDumper
                         if (context != null)
                         {
                             var genericParameter = executor.GetGenericParameteFromIl2CppType(il2CppType);
+                            //https://github.com/Perfare/Il2CppDumper/issues/687
+                            if (context.method_inst == 0 && context.class_inst != 0)
+                            {
+                                goto case Il2CppTypeEnum.IL2CPP_TYPE_VAR;
+                            }
                             var genericInst = il2Cpp.MapVATR<Il2CppGenericInst>(context.method_inst);
                             var pointers = il2Cpp.MapVATR<ulong>(genericInst.type_argv, genericInst.type_argc);
                             var pointer = pointers[genericParameter.num];
