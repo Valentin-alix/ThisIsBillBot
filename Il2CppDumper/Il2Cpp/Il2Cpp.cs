@@ -17,14 +17,14 @@ namespace Il2CppDumper
         public ulong[] unresolvedVirtualCallPointers;
         private ulong[] fieldOffsets;
         public Il2CppType[] types;
-        private Dictionary<ulong, Il2CppType> typeDic = new Dictionary<ulong, Il2CppType>();
+        private readonly Dictionary<ulong, Il2CppType> typeDic = new();
         public ulong[] metadataUsages;
         private Il2CppGenericMethodFunctionsDefinitions[] genericMethodTable;
         public ulong[] genericInstPointers;
         public Il2CppGenericInst[] genericInsts;
         public Il2CppMethodSpec[] methodSpecs;
-        public Dictionary<int, List<Il2CppMethodSpec>> methodDefinitionMethodSpecs = new Dictionary<int, List<Il2CppMethodSpec>>();
-        public Dictionary<Il2CppMethodSpec, ulong> methodSpecGenericMethodPointers = new Dictionary<Il2CppMethodSpec, ulong>();
+        public Dictionary<int, List<Il2CppMethodSpec>> methodDefinitionMethodSpecs = new();
+        public Dictionary<Il2CppMethodSpec, ulong> methodSpecGenericMethodPointers = new();
         private bool fieldOffsetsArePointers;
         protected long metadataUsagesCount;
         public Dictionary<string, Il2CppCodeGenModule> codeGenModules;
@@ -56,6 +56,18 @@ namespace Il2CppDumper
                 if (Version >= 24.2)
                 {
                     pCodeRegistration = MapVATR<Il2CppCodeRegistration>(codeRegistration);
+                    if (Version == 31)
+                    {
+                        if (pCodeRegistration.genericMethodPointersCount > limit)
+                        {
+                            codeRegistration -= PointerSize * 2;
+                        }
+                        else
+                        {
+                            Version = 29;
+                            Console.WriteLine($"Change il2cpp version to: {Version}");
+                        }
+                    }
                     if (Version == 29)
                     {
                         if (pCodeRegistration.genericMethodPointersCount > limit)
