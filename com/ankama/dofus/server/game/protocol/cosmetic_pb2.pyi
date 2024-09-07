@@ -1,0 +1,319 @@
+from com.ankama.dofus.server.game.protocol import common_pb2 as _common_pb2
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+
+DESCRIPTOR: _descriptor.FileDescriptor
+
+class ObjectSlot(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    AMULET: _ClassVar[ObjectSlot]
+    RING_LEFT: _ClassVar[ObjectSlot]
+    RING_RIGHT: _ClassVar[ObjectSlot]
+    BELT: _ClassVar[ObjectSlot]
+    BOOTS: _ClassVar[ObjectSlot]
+    PETMOUNT: _ClassVar[ObjectSlot]
+    DRAGOTURKEY: _ClassVar[ObjectSlot]
+    RHINEETLE: _ClassVar[ObjectSlot]
+    SEEMYOOL: _ClassVar[ObjectSlot]
+    CAPE: _ClassVar[ObjectSlot]
+    HAT: _ClassVar[ObjectSlot]
+    PET: _ClassVar[ObjectSlot]
+    SHIELD: _ClassVar[ObjectSlot]
+    BOW: _ClassVar[ObjectSlot]
+    WAND: _ClassVar[ObjectSlot]
+    STAFF: _ClassVar[ObjectSlot]
+    DAGGER: _ClassVar[ObjectSlot]
+    SCYTHE: _ClassVar[ObjectSlot]
+    AXE: _ClassVar[ObjectSlot]
+    LANCE: _ClassVar[ObjectSlot]
+    HAMMER: _ClassVar[ObjectSlot]
+    SHOVEL: _ClassVar[ObjectSlot]
+    SWORD: _ClassVar[ObjectSlot]
+    DISGUISE: _ClassVar[ObjectSlot]
+    WINGS: _ClassVar[ObjectSlot]
+    SHOULDERS: _ClassVar[ObjectSlot]
+AMULET: ObjectSlot
+RING_LEFT: ObjectSlot
+RING_RIGHT: ObjectSlot
+BELT: ObjectSlot
+BOOTS: ObjectSlot
+PETMOUNT: ObjectSlot
+DRAGOTURKEY: ObjectSlot
+RHINEETLE: ObjectSlot
+SEEMYOOL: ObjectSlot
+CAPE: ObjectSlot
+HAT: ObjectSlot
+PET: ObjectSlot
+SHIELD: ObjectSlot
+BOW: ObjectSlot
+WAND: ObjectSlot
+STAFF: ObjectSlot
+DAGGER: ObjectSlot
+SCYTHE: ObjectSlot
+AXE: ObjectSlot
+LANCE: ObjectSlot
+HAMMER: ObjectSlot
+SHOVEL: ObjectSlot
+SWORD: ObjectSlot
+DISGUISE: ObjectSlot
+WINGS: ObjectSlot
+SHOULDERS: ObjectSlot
+
+class CosmeticInventoryLoadedEvent(_message.Message):
+    __slots__ = ("objects",)
+    OBJECTS_FIELD_NUMBER: _ClassVar[int]
+    objects: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectItem]
+    def __init__(self, objects: _Optional[_Iterable[_Union[_common_pb2.ObjectItem, _Mapping]]] = ...) -> None: ...
+
+class CosmeticInventoryAddObjectRequest(_message.Message):
+    __slots__ = ("uid",)
+    UID_FIELD_NUMBER: _ClassVar[int]
+    uid: int
+    def __init__(self, uid: _Optional[int] = ...) -> None: ...
+
+class CosmeticInventoryAddObjectResponse(_message.Message):
+    __slots__ = ("result",)
+    class Result(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+        __slots__ = ()
+        ERROR: _ClassVar[CosmeticInventoryAddObjectResponse.Result]
+        DUPLICATE: _ClassVar[CosmeticInventoryAddObjectResponse.Result]
+        SUCCESS: _ClassVar[CosmeticInventoryAddObjectResponse.Result]
+    ERROR: CosmeticInventoryAddObjectResponse.Result
+    DUPLICATE: CosmeticInventoryAddObjectResponse.Result
+    SUCCESS: CosmeticInventoryAddObjectResponse.Result
+    RESULT_FIELD_NUMBER: _ClassVar[int]
+    result: CosmeticInventoryAddObjectResponse.Result
+    def __init__(self, result: _Optional[_Union[CosmeticInventoryAddObjectResponse.Result, str]] = ...) -> None: ...
+
+class CosmeticInventoryPopObjectRequest(_message.Message):
+    __slots__ = ("gid",)
+    GID_FIELD_NUMBER: _ClassVar[int]
+    gid: int
+    def __init__(self, gid: _Optional[int] = ...) -> None: ...
+
+class CosmeticInventoryPopObjectResponse(_message.Message):
+    __slots__ = ("success",)
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    def __init__(self, success: bool = ...) -> None: ...
+
+class CosmeticInventoryAddedEvent(_message.Message):
+    __slots__ = ("object",)
+    OBJECT_FIELD_NUMBER: _ClassVar[int]
+    object: _common_pb2.ObjectItem
+    def __init__(self, object: _Optional[_Union[_common_pb2.ObjectItem, _Mapping]] = ...) -> None: ...
+
+class CosmeticInventoryLivingObjectFeedRequest(_message.Message):
+    __slots__ = ("gid", "food_object_uid")
+    GID_FIELD_NUMBER: _ClassVar[int]
+    FOOD_OBJECT_UID_FIELD_NUMBER: _ClassVar[int]
+    gid: int
+    food_object_uid: int
+    def __init__(self, gid: _Optional[int] = ..., food_object_uid: _Optional[int] = ...) -> None: ...
+
+class CosmeticInventoryLivingObjectFeedResponse(_message.Message):
+    __slots__ = ("success", "living_object_fed")
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    LIVING_OBJECT_FED_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    living_object_fed: _common_pb2.ObjectItem
+    def __init__(self, success: bool = ..., living_object_fed: _Optional[_Union[_common_pb2.ObjectItem, _Mapping]] = ...) -> None: ...
+
+class OutfitEquipAuraRequest(_message.Message):
+    __slots__ = ("emote_id",)
+    EMOTE_ID_FIELD_NUMBER: _ClassVar[int]
+    emote_id: int
+    def __init__(self, emote_id: _Optional[int] = ...) -> None: ...
+
+class OutfitEquipAuraResponse(_message.Message):
+    __slots__ = ("success",)
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    def __init__(self, success: bool = ...) -> None: ...
+
+class OutfitAuraChangedEvent(_message.Message):
+    __slots__ = ("emote_id",)
+    EMOTE_ID_FIELD_NUMBER: _ClassVar[int]
+    emote_id: int
+    def __init__(self, emote_id: _Optional[int] = ...) -> None: ...
+
+class OutfitEquipTitleRequest(_message.Message):
+    __slots__ = ("title_id",)
+    TITLE_ID_FIELD_NUMBER: _ClassVar[int]
+    title_id: int
+    def __init__(self, title_id: _Optional[int] = ...) -> None: ...
+
+class OutfitEquipTitleResponse(_message.Message):
+    __slots__ = ("success",)
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    def __init__(self, success: bool = ...) -> None: ...
+
+class OutfitEquipOrnamentRequest(_message.Message):
+    __slots__ = ("ornament_id",)
+    ORNAMENT_ID_FIELD_NUMBER: _ClassVar[int]
+    ornament_id: int
+    def __init__(self, ornament_id: _Optional[int] = ...) -> None: ...
+
+class OutfitEquipOrnamentResponse(_message.Message):
+    __slots__ = ("success",)
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    def __init__(self, success: bool = ...) -> None: ...
+
+class OutfitEquipObjectRequest(_message.Message):
+    __slots__ = ("gid", "slot", "skin_id")
+    GID_FIELD_NUMBER: _ClassVar[int]
+    SLOT_FIELD_NUMBER: _ClassVar[int]
+    SKIN_ID_FIELD_NUMBER: _ClassVar[int]
+    gid: int
+    slot: ObjectSlot
+    skin_id: int
+    def __init__(self, gid: _Optional[int] = ..., slot: _Optional[_Union[ObjectSlot, str]] = ..., skin_id: _Optional[int] = ...) -> None: ...
+
+class OutfitEquipObjectResponse(_message.Message):
+    __slots__ = ("success",)
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    def __init__(self, success: bool = ...) -> None: ...
+
+class OutfitEquipObjectBestSlotRequest(_message.Message):
+    __slots__ = ("gid", "skin_id")
+    GID_FIELD_NUMBER: _ClassVar[int]
+    SKIN_ID_FIELD_NUMBER: _ClassVar[int]
+    gid: int
+    skin_id: int
+    def __init__(self, gid: _Optional[int] = ..., skin_id: _Optional[int] = ...) -> None: ...
+
+class OutfitEquipObjectBestSlotResponse(_message.Message):
+    __slots__ = ("success", "slot")
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    SLOT_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    slot: ObjectSlot
+    def __init__(self, success: bool = ..., slot: _Optional[_Union[ObjectSlot, str]] = ...) -> None: ...
+
+class OutfitUpdateRequest(_message.Message):
+    __slots__ = ("outfit_uuid", "name", "pictogram_id", "favorite")
+    OUTFIT_UUID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    PICTOGRAM_ID_FIELD_NUMBER: _ClassVar[int]
+    FAVORITE_FIELD_NUMBER: _ClassVar[int]
+    outfit_uuid: str
+    name: str
+    pictogram_id: int
+    favorite: bool
+    def __init__(self, outfit_uuid: _Optional[str] = ..., name: _Optional[str] = ..., pictogram_id: _Optional[int] = ..., favorite: bool = ...) -> None: ...
+
+class OutfitUpdateResponse(_message.Message):
+    __slots__ = ("success",)
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    def __init__(self, success: bool = ...) -> None: ...
+
+class OutfitCreateEmptyRequest(_message.Message):
+    __slots__ = ("name", "pictogram_id")
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    PICTOGRAM_ID_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    pictogram_id: int
+    def __init__(self, name: _Optional[str] = ..., pictogram_id: _Optional[int] = ...) -> None: ...
+
+class OutfitDuplicateRequest(_message.Message):
+    __slots__ = ("outfit_uuid", "name", "pictogram_id")
+    OUTFIT_UUID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    PICTOGRAM_ID_FIELD_NUMBER: _ClassVar[int]
+    outfit_uuid: str
+    name: str
+    pictogram_id: int
+    def __init__(self, outfit_uuid: _Optional[str] = ..., name: _Optional[str] = ..., pictogram_id: _Optional[int] = ...) -> None: ...
+
+class OutfitCreationResponse(_message.Message):
+    __slots__ = ("success", "outfit_created")
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    OUTFIT_CREATED_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    outfit_created: Outfit
+    def __init__(self, success: bool = ..., outfit_created: _Optional[_Union[Outfit, _Mapping]] = ...) -> None: ...
+
+class OutfitRemoveRequest(_message.Message):
+    __slots__ = ("outfit_uuid",)
+    OUTFIT_UUID_FIELD_NUMBER: _ClassVar[int]
+    outfit_uuid: str
+    def __init__(self, outfit_uuid: _Optional[str] = ...) -> None: ...
+
+class OutfitRemoveResponse(_message.Message):
+    __slots__ = ("success",)
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    def __init__(self, success: bool = ...) -> None: ...
+
+class OutfitEquipRequest(_message.Message):
+    __slots__ = ("outfit_uuid",)
+    OUTFIT_UUID_FIELD_NUMBER: _ClassVar[int]
+    outfit_uuid: str
+    def __init__(self, outfit_uuid: _Optional[str] = ...) -> None: ...
+
+class OutfitEquipResponse(_message.Message):
+    __slots__ = ("success",)
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    def __init__(self, success: bool = ...) -> None: ...
+
+class OutfitsLoadedEvent(_message.Message):
+    __slots__ = ("current", "outfits")
+    CURRENT_FIELD_NUMBER: _ClassVar[int]
+    OUTFITS_FIELD_NUMBER: _ClassVar[int]
+    current: Outfit
+    outfits: _containers.RepeatedCompositeFieldContainer[Outfit]
+    def __init__(self, current: _Optional[_Union[Outfit, _Mapping]] = ..., outfits: _Optional[_Iterable[_Union[Outfit, _Mapping]]] = ...) -> None: ...
+
+class OutfitEntityLookChangedEvent(_message.Message):
+    __slots__ = ("outfit_uuid", "entity_look")
+    OUTFIT_UUID_FIELD_NUMBER: _ClassVar[int]
+    ENTITY_LOOK_FIELD_NUMBER: _ClassVar[int]
+    outfit_uuid: str
+    entity_look: _common_pb2.EntityLook
+    def __init__(self, outfit_uuid: _Optional[str] = ..., entity_look: _Optional[_Union[_common_pb2.EntityLook, _Mapping]] = ...) -> None: ...
+
+class Outfit(_message.Message):
+    __slots__ = ("uuid", "name", "pictogram_id", "objects", "aura_emote_id", "ornament_id", "title_id", "entity_look", "favorite", "last_modified")
+    class ObjectsEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: Outfit.SkinOutfit
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[Outfit.SkinOutfit, _Mapping]] = ...) -> None: ...
+    class SkinOutfit(_message.Message):
+        __slots__ = ("gid", "skin")
+        GID_FIELD_NUMBER: _ClassVar[int]
+        SKIN_FIELD_NUMBER: _ClassVar[int]
+        gid: int
+        skin: int
+        def __init__(self, gid: _Optional[int] = ..., skin: _Optional[int] = ...) -> None: ...
+    UUID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    PICTOGRAM_ID_FIELD_NUMBER: _ClassVar[int]
+    OBJECTS_FIELD_NUMBER: _ClassVar[int]
+    AURA_EMOTE_ID_FIELD_NUMBER: _ClassVar[int]
+    ORNAMENT_ID_FIELD_NUMBER: _ClassVar[int]
+    TITLE_ID_FIELD_NUMBER: _ClassVar[int]
+    ENTITY_LOOK_FIELD_NUMBER: _ClassVar[int]
+    FAVORITE_FIELD_NUMBER: _ClassVar[int]
+    LAST_MODIFIED_FIELD_NUMBER: _ClassVar[int]
+    uuid: str
+    name: str
+    pictogram_id: int
+    objects: _containers.RepeatedCompositeFieldContainer[Outfit.ObjectsEntry]
+    aura_emote_id: int
+    ornament_id: int
+    title_id: int
+    entity_look: _common_pb2.EntityLook
+    favorite: bool
+    last_modified: str
+    def __init__(self, uuid: _Optional[str] = ..., name: _Optional[str] = ..., pictogram_id: _Optional[int] = ..., objects: _Optional[_Iterable[_Union[Outfit.ObjectsEntry, _Mapping]]] = ..., aura_emote_id: _Optional[int] = ..., ornament_id: _Optional[int] = ..., title_id: _Optional[int] = ..., entity_look: _Optional[_Union[_common_pb2.EntityLook, _Mapping]] = ..., favorite: bool = ..., last_modified: _Optional[str] = ...) -> None: ...

@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "dofusunity"
+version = "0.1.0"
+description = ""
+authors = ["Valentin Alix <valentin-alix.850@outlook.fr>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4"
+pydantic = "2.8.2"
+scapy = "^2.5.0"
+psutil = "^6.0.0"
+protobuf = "5.28"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
