@@ -158,12 +158,10 @@ class MountEquippedErrorEvent(_message.Message):
     def __init__(self, error: _Optional[_Union[MountEquippedErrorEvent.MountEquippedError, str]] = ...) -> None: ...
 
 class MountRidingEvent(_message.Message):
-    __slots__ = ("is_riding", "is_auto_pilot")
+    __slots__ = ("is_riding",)
     IS_RIDING_FIELD_NUMBER: _ClassVar[int]
-    IS_AUTO_PILOT_FIELD_NUMBER: _ClassVar[int]
     is_riding: bool
-    is_auto_pilot: bool
-    def __init__(self, is_riding: bool = ..., is_auto_pilot: bool = ...) -> None: ...
+    def __init__(self, is_riding: bool = ...) -> None: ...
 
 class MountEmoteIconUsedEvent(_message.Message):
     __slots__ = ("mount_id", "reaction")

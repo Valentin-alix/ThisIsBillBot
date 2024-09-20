@@ -21,8 +21,7 @@ class DescriptorMessage(BaseModel):
 
     def get_content(self, package: str, imported_files: list[str]) -> tuple[str, str]:
         top_content: str = ""
-        content: str = ""
-        content += f"message {self.name}" + "{\n"
+        msg_content: str = f"message {self.name}" + "{\n"
         one_of_contents: OrderedDict[str, str] = OrderedDict()
 
         for one_of_decl in self.oneofDecl:
@@ -33,10 +32,10 @@ class DescriptorMessage(BaseModel):
                 package, imported_files
             )
             top_content += sub_top_content
-            content += sub_content
+            msg_content += sub_content
 
         for enum_type in self.enumType:
-            content += enum_type.get_content()
+            msg_content += enum_type.get_content()
 
         for field in self.field:
             protoc_import_content = field.get_import(package)
@@ -56,14 +55,14 @@ class DescriptorMessage(BaseModel):
             ):
                 one_of_contents[related_one_of_declr] += field_content
             else:
-                content += field_content
+                msg_content += field_content
 
         for one_of_decl in self.oneofDecl:
             if one_of_decl.name[0] == "_":
                 continue
             one_of_contents[one_of_decl.name] += "}\n"
-            content += one_of_contents[one_of_decl.name]
+            msg_content += one_of_contents[one_of_decl.name]
 
-        content += "}\n"
+        msg_content += "}\n"
 
-        return top_content, content
+        return top_content, msg_content

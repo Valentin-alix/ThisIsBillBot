@@ -1,25 +1,70 @@
-import asyncio
-import socket
+import select
+from dataclasses import dataclass
 from socket import socket as Socket
-from typing import Callable
+
+from src.protocol import decode_varint_size
 
 
-async def start_proxy_server(
-    on_mitm_connection: Callable, host_port: int, target_address: tuple[str, int]
-):
-    async def on_connection(client_socket: Socket):
-        print(f"received connection from {client_socket.getpeername()}")
-        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.connect(target_address)
-        print(f"connect to {server_socket.getpeername()}")
-        await on_mitm_connection(client_socket, server_socket)
+@dataclass
+class Proxy:
+    client_socket: Socket
+    server_socket: Socket
 
-    proxy_socket = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
-    proxy_socket.bind(("localhost", host_port))
-    proxy_socket.listen(5)
-    proxy_socket.setblocking(False)
+    def __post_init__(self):
+        self.opposite_connection = {
+            self.client_socket: self.server_socket,
+            self.server_socket: self.client_socket,
+        }
+        self.connections = [self.client_socket, self.server_socket]
+        self.buffers: dict[Socket, bytes] = {
+            self.client_socket: bytes(),
+            self.server_socket: bytes(),
+        }
 
-    while True:
-        loop = asyncio.get_running_loop()
-        client_socket, _ = await loop.sock_accept(proxy_socket)
-        await on_connection(client_socket)
+    def loop(self):
+        conns = self.connections
+        active = True
+        try:
+            while active:
+                rlist, wlist, xlist = select.select(conns, [], conns)
+                if xlist or not rlist:
+                    break
+                for r in rlist:
+                    data = r.recv(8192)
+                    if not data:
+                        active = False
+                        break
+                    self.handle(data, origin=r)
+        finally:
+            for con in conns:
+                print(f"closing {con.getpeername()}")
+                con.close()
+
+    def handle(self, data: bytes, origin: Socket):
+        self.buffers[origin] += data
+
+        while True:
+            if len(self.buffers[origin]) == 0:
+                break
+            size, pos = decode_varint_size(self.buffers[origin])
+            if size == 0 or len(self.buffers[origin]) < pos + size:
+                break
+
+            msg_datas = self.buffers[origin][: pos + size]
+            msg_content_datas = self.buffers[origin][pos : pos + size]
+
+            msg_datas = self.handle_msg(msg_content_datas, msg_datas)
+
+            self.buffers[origin] = self.buffers[origin][pos + size :]
+
+            # send msg_datas to origin target
+            self.opposite_connection[origin].sendall(msg_datas)
+
+    def handle_msg(self, msg_content_datas: bytes, msg_datas: bytes) -> bytes:
+        return msg_datas
+
+    def send_to_client(self, data: bytes):
+        self.client_socket.sendall(data)
+
+    def send_to_server(self, data: bytes):
+        self.server_socket.sendall(data)

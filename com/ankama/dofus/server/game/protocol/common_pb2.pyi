@@ -196,6 +196,7 @@ class Team(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     TEAM_CHALLENGER: _ClassVar[Team]
     TEAM_DEFENDER: _ClassVar[Team]
     TEAM_SPECTATOR: _ClassVar[Team]
+    TEAM_NEUTRAL: _ClassVar[Team]
 
 class ShortcutBar(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -475,6 +476,7 @@ VISIBLE: FightInvisibilityState
 TEAM_CHALLENGER: Team
 TEAM_DEFENDER: Team
 TEAM_SPECTATOR: Team
+TEAM_NEUTRAL: Team
 GENERAL_SHORTCUT_BAR: ShortcutBar
 SPELL_SHORTCUT_BAR: ShortcutBar
 CHARACTER: PresetType
@@ -2471,6 +2473,19 @@ class ObjectItem(_message.Message):
 
 class ObjectEffect(_message.Message):
     __slots__ = ("action", "value_string", "value_int", "min_max", "dice", "date", "duration_minute", "creature_family", "monster_count", "mount")
+    class DofusDate(_message.Message):
+        __slots__ = ("year", "month", "day", "hour", "minute")
+        YEAR_FIELD_NUMBER: _ClassVar[int]
+        MONTH_FIELD_NUMBER: _ClassVar[int]
+        DAY_FIELD_NUMBER: _ClassVar[int]
+        HOUR_FIELD_NUMBER: _ClassVar[int]
+        MINUTE_FIELD_NUMBER: _ClassVar[int]
+        year: int
+        month: int
+        day: int
+        hour: int
+        minute: int
+        def __init__(self, year: _Optional[int] = ..., month: _Optional[int] = ..., day: _Optional[int] = ..., hour: _Optional[int] = ..., minute: _Optional[int] = ...) -> None: ...
     class ObjectEffectMinMaxValue(_message.Message):
         __slots__ = ("min", "max")
         MIN_FIELD_NUMBER: _ClassVar[int]
@@ -2540,12 +2555,12 @@ class ObjectEffect(_message.Message):
     value_int: int
     min_max: ObjectEffect.ObjectEffectMinMaxValue
     dice: ObjectEffect.ObjectEffectDiceValue
-    date: str
+    date: ObjectEffect.DofusDate
     duration_minute: int
     creature_family: int
     monster_count: ObjectEffect.MonsterCount
     mount: ObjectEffect.ObjectEffectMountValue
-    def __init__(self, action: _Optional[int] = ..., value_string: _Optional[str] = ..., value_int: _Optional[int] = ..., min_max: _Optional[_Union[ObjectEffect.ObjectEffectMinMaxValue, _Mapping]] = ..., dice: _Optional[_Union[ObjectEffect.ObjectEffectDiceValue, _Mapping]] = ..., date: _Optional[str] = ..., duration_minute: _Optional[int] = ..., creature_family: _Optional[int] = ..., monster_count: _Optional[_Union[ObjectEffect.MonsterCount, _Mapping]] = ..., mount: _Optional[_Union[ObjectEffect.ObjectEffectMountValue, _Mapping]] = ...) -> None: ...
+    def __init__(self, action: _Optional[int] = ..., value_string: _Optional[str] = ..., value_int: _Optional[int] = ..., min_max: _Optional[_Union[ObjectEffect.ObjectEffectMinMaxValue, _Mapping]] = ..., dice: _Optional[_Union[ObjectEffect.ObjectEffectDiceValue, _Mapping]] = ..., date: _Optional[_Union[ObjectEffect.DofusDate, _Mapping]] = ..., duration_minute: _Optional[int] = ..., creature_family: _Optional[int] = ..., monster_count: _Optional[_Union[ObjectEffect.MonsterCount, _Mapping]] = ..., mount: _Optional[_Union[ObjectEffect.ObjectEffectMountValue, _Mapping]] = ...) -> None: ...
 
 class ObjectInRolePlay(_message.Message):
     __slots__ = ("cell_id", "object_gid", "with_look", "paddock_item")

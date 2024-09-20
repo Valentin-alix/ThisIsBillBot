@@ -1,0 +1,21 @@
+syntax = "proto3";
+package com.ankama.dofus.server.game.protocol.dialog;
+import "com/ankama/dofus/server/game/protocol/common.proto";
+message DialogLeaveRequest{
+}
+message DialogLeaveEvent{
+	.com.ankama.dofus.server.game.protocol.common.DialogType dialog_type = 1;
+}
+message ChangeAppearanceDialogStart{
+enum AppearanceType{
+	BODY = 0;
+	FACE = 1;
+	COLORS = 2;
+}
+	.com.ankama.dofus.server.game.protocol.dialog.ChangeAppearanceDialogStart.AppearanceType type = 1;
+}
+message ChangeAppearanceDialogLeave{
+}
+message ChangeAppearanceDialogResult{
+	bool success = 1;
+}

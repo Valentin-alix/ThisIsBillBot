@@ -1,13 +1,7 @@
 import unittest
 
-from google.protobuf.any_pb2 import Any
-from google.protobuf.json_format import MessageToJson
-
-from com.ankama.dofus.server.game.protocol.character.management_pb2 import (
-    CharacterSelectionRequest,
-)
 from com.ankama.dofus.server.game.protocol.connection_pb2 import IdentificationRequest
-from com.ankama.dofus.server.game.protocol_pb2 import Message, Request
+from com.ankama.dofus.server.game.protocol_pb2 import Message
 
 
 class TestSniffer(unittest.TestCase):
@@ -25,15 +19,3 @@ class TestSniffer(unittest.TestCase):
             req_msg = IdentificationRequest()
             msg.request.content.Unpack(req_msg)
             print(req_msg.ticket_key)
-
-    def test_write_read_game_msg(self):
-        char_sel_req_msg = CharacterSelectionRequest(character_id=1)
-        any_msg = Any()
-        any_msg.Pack(char_sel_req_msg, type_url_prefix="type.ankama.com")
-        request = Request(uid=1, content=any_msg)
-        complete_msg = Message(request=request)
-        serialized_msg = complete_msg.SerializeToString()
-
-        received_msg = Message()
-        received_msg.ParseFromString(serialized_msg)
-        print(MessageToJson(received_msg))

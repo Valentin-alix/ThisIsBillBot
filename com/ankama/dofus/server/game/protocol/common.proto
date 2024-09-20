@@ -172,6 +172,7 @@ enum Team{
 	TEAM_CHALLENGER = 0;
 	TEAM_DEFENDER = 1;
 	TEAM_SPECTATOR = 2;
+	TEAM_NEUTRAL = 3;
 }
 enum ShortcutBar{
 	GENERAL_SHORTCUT_BAR = 0;
@@ -1348,6 +1349,13 @@ message ObjectItem{
 	repeated .com.ankama.dofus.server.game.protocol.common.ObjectEffect effects = 4;
 }
 message ObjectEffect{
+message DofusDate{
+	int32 year = 1;
+	int32 month = 2;
+	int32 day = 3;
+	int32 hour = 4;
+	int32 minute = 5;
+}
 message ObjectEffectMinMaxValue{
 	int32 min = 1;
 	int32 max = 2;
@@ -1383,7 +1391,7 @@ oneof effect{
 	int32 value_int = 3;
 	.com.ankama.dofus.server.game.protocol.common.ObjectEffect.ObjectEffectMinMaxValue min_max = 4;
 	.com.ankama.dofus.server.game.protocol.common.ObjectEffect.ObjectEffectDiceValue dice = 5;
-	string date = 6;
+	.com.ankama.dofus.server.game.protocol.common.ObjectEffect.DofusDate date = 6;
 	int64 duration_minute = 7;
 	int32 creature_family = 8;
 	.com.ankama.dofus.server.game.protocol.common.ObjectEffect.MonsterCount monster_count = 9;

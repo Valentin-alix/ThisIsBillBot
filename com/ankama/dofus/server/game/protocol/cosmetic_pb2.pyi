@@ -196,6 +196,18 @@ class OutfitEquipObjectBestSlotResponse(_message.Message):
     slot: ObjectSlot
     def __init__(self, success: bool = ..., slot: _Optional[_Union[ObjectSlot, str]] = ...) -> None: ...
 
+class OutfitEquipFaceRequest(_message.Message):
+    __slots__ = ("face_id",)
+    FACE_ID_FIELD_NUMBER: _ClassVar[int]
+    face_id: int
+    def __init__(self, face_id: _Optional[int] = ...) -> None: ...
+
+class OutfitEquipFaceResponse(_message.Message):
+    __slots__ = ("success",)
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    def __init__(self, success: bool = ...) -> None: ...
+
 class OutfitUpdateRequest(_message.Message):
     __slots__ = ("outfit_uuid", "name", "pictogram_id", "favorite")
     OUTFIT_UUID_FIELD_NUMBER: _ClassVar[int]
@@ -215,12 +227,14 @@ class OutfitUpdateResponse(_message.Message):
     def __init__(self, success: bool = ...) -> None: ...
 
 class OutfitCreateEmptyRequest(_message.Message):
-    __slots__ = ("name", "pictogram_id")
+    __slots__ = ("name", "pictogram_id", "face_id")
     NAME_FIELD_NUMBER: _ClassVar[int]
     PICTOGRAM_ID_FIELD_NUMBER: _ClassVar[int]
+    FACE_ID_FIELD_NUMBER: _ClassVar[int]
     name: str
     pictogram_id: int
-    def __init__(self, name: _Optional[str] = ..., pictogram_id: _Optional[int] = ...) -> None: ...
+    face_id: int
+    def __init__(self, name: _Optional[str] = ..., pictogram_id: _Optional[int] = ..., face_id: _Optional[int] = ...) -> None: ...
 
 class OutfitDuplicateRequest(_message.Message):
     __slots__ = ("outfit_uuid", "name", "pictogram_id")
@@ -281,7 +295,7 @@ class OutfitEntityLookChangedEvent(_message.Message):
     def __init__(self, outfit_uuid: _Optional[str] = ..., entity_look: _Optional[_Union[_common_pb2.EntityLook, _Mapping]] = ...) -> None: ...
 
 class Outfit(_message.Message):
-    __slots__ = ("uuid", "name", "pictogram_id", "objects", "aura_emote_id", "ornament_id", "title_id", "entity_look", "favorite", "last_modified")
+    __slots__ = ("uuid", "name", "pictogram_id", "objects", "aura_emote_id", "ornament_id", "title_id", "entity_look", "favorite", "last_modified", "face_id")
     class ObjectsEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -306,6 +320,7 @@ class Outfit(_message.Message):
     ENTITY_LOOK_FIELD_NUMBER: _ClassVar[int]
     FAVORITE_FIELD_NUMBER: _ClassVar[int]
     LAST_MODIFIED_FIELD_NUMBER: _ClassVar[int]
+    FACE_ID_FIELD_NUMBER: _ClassVar[int]
     uuid: str
     name: str
     pictogram_id: int
@@ -316,4 +331,5 @@ class Outfit(_message.Message):
     entity_look: _common_pb2.EntityLook
     favorite: bool
     last_modified: str
-    def __init__(self, uuid: _Optional[str] = ..., name: _Optional[str] = ..., pictogram_id: _Optional[int] = ..., objects: _Optional[_Iterable[_Union[Outfit.ObjectsEntry, _Mapping]]] = ..., aura_emote_id: _Optional[int] = ..., ornament_id: _Optional[int] = ..., title_id: _Optional[int] = ..., entity_look: _Optional[_Union[_common_pb2.EntityLook, _Mapping]] = ..., favorite: bool = ..., last_modified: _Optional[str] = ...) -> None: ...
+    face_id: int
+    def __init__(self, uuid: _Optional[str] = ..., name: _Optional[str] = ..., pictogram_id: _Optional[int] = ..., objects: _Optional[_Iterable[_Union[Outfit.ObjectsEntry, _Mapping]]] = ..., aura_emote_id: _Optional[int] = ..., ornament_id: _Optional[int] = ..., title_id: _Optional[int] = ..., entity_look: _Optional[_Union[_common_pb2.EntityLook, _Mapping]] = ..., favorite: bool = ..., last_modified: _Optional[str] = ..., face_id: _Optional[int] = ...) -> None: ...

@@ -81,7 +81,6 @@ enum MountEquippedError{
 }
 message MountRidingEvent{
 	bool is_riding = 1;
-	bool is_auto_pilot = 2;
 }
 message MountEmoteIconUsedEvent{
 	int32 mount_id = 1;

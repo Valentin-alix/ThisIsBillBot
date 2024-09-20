@@ -97,6 +97,12 @@ message OutfitEquipObjectBestSlotResponse{
 	bool success = 1;
 	optional .com.ankama.dofus.server.game.protocol.cosmetic.ObjectSlot slot = 2;
 }
+message OutfitEquipFaceRequest{
+	int32 face_id = 1;
+}
+message OutfitEquipFaceResponse{
+	bool success = 1;
+}
 message OutfitUpdateRequest{
 	string outfit_uuid = 1;
 	string name = 2;
@@ -109,6 +115,7 @@ message OutfitUpdateResponse{
 message OutfitCreateEmptyRequest{
 	string name = 1;
 	int32 pictogram_id = 2;
+	int32 face_id = 3;
 }
 message OutfitDuplicateRequest{
 	string outfit_uuid = 1;
@@ -158,4 +165,5 @@ message SkinOutfit{
 	optional .com.ankama.dofus.server.game.protocol.common.EntityLook entity_look = 8;
 	bool favorite = 9;
 	string last_modified = 10;
+	int32 face_id = 11;
 }

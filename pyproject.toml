@@ -6,11 +6,15 @@ authors = ["Valentin Alix <valentin-alix.850@outlook.fr>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<4"
+python = ">=3.12,<4"
 pydantic = "2.8.2"
 scapy = "^2.5.0"
 psutil = "^6.0.0"
 protobuf = "5.28"
+pyqt5-qt5 = "5.15.2"
+pyqt5 = "5.15.10"
+pyqt-fluent-widgets = {extras = ["full"], version = "^1.6.3"}
+pyqt5-stubs = "^5.15.6.0"
 
 
 [build-system]
