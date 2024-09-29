@@ -1,32 +1,38 @@
-import importlib
-import os
-import sys
-from inspect import isclass
+import random
+from time import sleep
+import numpy as np
+
+from src.consts import RANGE_WAIT
 
 
-def import_all_classes_from_folder(folder_path: str):
-    """useful to load proto msg type in memory
+def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 2) -> float:
+    if mini == 0:
+        return 0
 
-    Args:
-        folder_path (str): root folder
-    """
-    sys.path.append(folder_path)
+    def pick_decreasing_random_in_range(mini: float, maxi: float) -> list[float]:
+        steps: list[float] = [round(time, 3) for time in np.arange(mini, maxi, 0.05)]
+        numbers = random.choices(steps, [1 / (step**coeff) for step in steps], k=1)
+        return numbers
 
-    for root, dirs, files in os.walk(folder_path):
-        for filename in files:
-            if filename.endswith(".py") and not filename.startswith("__"):
-                module_name = filename[:-3]
+    wait_time = pick_decreasing_random_in_range(mini, maxi)[0]
+    return random.uniform(wait_time, wait_time * 1.05)
 
-                relative_module_path = os.path.relpath(root, folder_path).replace(
-                    os.sep, "."
-                )
-                if relative_module_path == ".":
-                    full_module_name = module_name
-                else:
-                    full_module_name = f"{relative_module_path}.{module_name}"
 
-                module = importlib.import_module(full_module_name)
-                for attribute_name in dir(module):
-                    attribute = getattr(module, attribute_name)
-                    if isclass(attribute):
-                        globals()[attribute_name] = attribute
+def wait(
+    range: tuple[float, float] = RANGE_WAIT, is_weighted: bool = True, coeff: int = 2
+):
+    if is_weighted:
+        wait_time = pick_random_weighted_time(*range, coeff)
+    else:
+        wait_time = random.uniform(*range)
+
+    sleep(wait_time)
+
+
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]

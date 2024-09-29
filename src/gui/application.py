@@ -9,9 +9,12 @@ from PyQt5.QtWidgets import (
 )
 from qfluentwidgets import Theme, setTheme, setThemeColor
 
+from src.interfaces.models.bot import Bot
+
+
 sys.path.append(str(Path(__file__).parent.parent.parent))
+
 from src.gui.main_window import MainWindow
-from src.gui.signals.msg_signals import MessageSignals
 
 
 class Application(QApplication):
@@ -23,10 +26,10 @@ class Application(QApplication):
         self.setApplicationName(self.TITLE)
 
 
-def launch_gui(msg_signals: MessageSignals):
+def launch_gui(account_by_id: dict[int, Bot]):
     app = Application(sys.argv)
-    main_window = MainWindow(msg_signals, app.TITLE)
+    main_window = MainWindow(account_by_id, app.TITLE)
     main_window.show()
-    setTheme(Theme.LIGHT)
+    setTheme(Theme.DARK)
     setThemeColor(Qt.GlobalColor.yellow)
     app.exec()

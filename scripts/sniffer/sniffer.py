@@ -4,20 +4,24 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from threading import Thread
 
+from PyQt5.QtCore import Qt
+from qfluentwidgets import Theme, setTheme, setThemeColor
 from scapy.all import sniff
 from scapy.layers.inet import IP
 from scapy.layers.inet6 import IPv6
 from scapy.packet import Packet, Raw
 
+
 sys.path.append(str(Path(__file__).parent.parent.parent))
-
-
+from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
+from src.gui.pages.sniffer.sniffer import SnifferWidget
+from src.signals.message_signals import MessageInfoSignals
 from com.ankama.dofus.server.connection.protocol_pb2 import Message as ConnectionMessage
 from com.ankama.dofus.server.game.protocol_pb2 import Message as GameMessage
 from src.consts import CONNECTION_SERVERS_IPS, FILTER_DOFUS
-from src.gui.application import launch_gui
-from src.gui.signals.msg_signals import MessageSignals
-from src.protocol import (
+from src.gui.application import Application
+
+from src.protocol.protocol import (
     decode_msg,
     decode_varint_size,
     get_conn_msg_info,
@@ -30,7 +34,7 @@ class Sniffer:
     buffers: defaultdict[tuple[str, str], bytes] = field(
         init=False, default_factory=lambda: defaultdict(bytes)
     )
-    msg_signals: MessageSignals
+    msg_info_signals: MessageInfoSignals
 
     def launch_sniffer(self):
         print("Starting sniffer")
@@ -73,19 +77,27 @@ class Sniffer:
     def handle_connection_message(self, content: bytes):
         msg = ConnectionMessage()
         decode_msg(msg, content)
-        self.msg_signals.received_msg_info.emit(get_conn_msg_info(msg))
+        msg_infos, _ = get_conn_msg_info(msg)
+        self.msg_info_signals.message_info.emit(msg_infos)
 
     def handle_game_message(self, content: bytes):
         msg = GameMessage()
         decode_msg(msg, content)
-        self.msg_signals.received_msg_info.emit(get_game_msg_info(msg))
+        msg_infos, _ = get_game_msg_info(msg)
+        self.msg_info_signals.message_info.emit(msg_infos)
 
 
 def main():
-    msg_signals = MessageSignals()
+    app = Application(sys.argv)
+    msg_signals = MessageInfoSignals()
     sniffer = Sniffer(msg_signals)
     Thread(target=sniffer.launch_sniffer, daemon=True).start()
-    launch_gui(msg_signals)
+    sniffer_widget = SnifferWidget(msg_signals)
+    sniffer_widget.resize(BASE_WIDTH, BASE_HEIGHT)
+    sniffer_widget.show()
+    setTheme(Theme.DARK)
+    setThemeColor(Qt.GlobalColor.yellow)
+    app.exec()
 
 
 if __name__ == "__main__":

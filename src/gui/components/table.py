@@ -15,24 +15,27 @@ class SearchType(Enum):
 @dataclass
 class ColumnInfo:
     name: str
+    is_hidden: bool = False
     search_type: SearchType | None = field(default=SearchType.CONTAINS)
     get_texts_func: Callable[[QWidget], list[str]] | None = field(default=None)
 
 
 class BaseTableWidget(SingleDirectionScrollArea):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, with_searchable_row: bool = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.with_searchable_row = with_searchable_row
 
         self.table = TableWidget(parent=self)
-        self.table.setWordWrap(True)
         self.table.scrollDelagate.verticalSmoothScroll.setSmoothMode(
             SmoothMode.NO_SMOOTH
         )
-        self.table.setRowCount(1)
+        if with_searchable_row:
+            self.table.setRowCount(1)
 
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table.verticalHeader().hide()
 
+        self.enableTransparentBackground()
         self.setWidget(self.table)
         self.setWidgetResizable(True)
 
@@ -45,6 +48,11 @@ class BaseTableWidget(SingleDirectionScrollArea):
         self.table.setColumnCount(len(columns_infos))
 
         for index, col_info in enumerate(columns_infos):
+            self.table.setColumnHidden(index, col_info.is_hidden)
+
+            if not self.with_searchable_row:
+                continue
+
             if not col_info.search_type:
                 self.col_header_edit.append(None)
                 continue

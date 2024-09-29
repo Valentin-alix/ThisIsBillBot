@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Valentin Alix <valentin-alix.850@outlook.fr>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.12,<4"
@@ -15,6 +16,11 @@ pyqt5-qt5 = "5.15.2"
 pyqt5 = "5.15.10"
 pyqt-fluent-widgets = {extras = ["full"], version = "^1.6.3"}
 pyqt5-stubs = "^5.15.6.0"
+ankama-launcher-emulator = {git = "https://github.com/Valentin-alix/AnkamaLauncherEmulator"}
+blinker = "^1.8.2"
+icecream = "^2.1.3"
+datamodel-code-generator = "^0.26.1"
+orjson = "^3.10.7"
 
 
 [build-system]

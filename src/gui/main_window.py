@@ -1,27 +1,30 @@
 from qfluentwidgets import FluentIcon, FluentWindow
 
-from src.gui.pages.sniffer.sniffer_widget import SnifferWidget
-from src.gui.signals.msg_signals import MessageSignals
+from src.gui.account_widget import AccountWidget
+from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
+from src.interfaces.models.bot import Bot
 
 
 class MainWindow(FluentWindow):
-    BASE_WIDTH: int = 1280
-    BASE_HEIGHT: int = 720
-
     def __init__(
-        self, msg_signals: MessageSignals, title: str, *args, **kwargs
+        self,
+        account_by_id: dict[int, Bot],
+        title: str,
+        *args,
+        **kwargs,
     ) -> None:
         super().__init__(*args, **kwargs)
         self.title = title
 
         self.init_window()
-        self.init_nagivation(msg_signals)
+
+        for account in account_by_id.values():
+            self.add_account(account)
 
     def init_window(self):
         self.setWindowTitle(self.title)
-        self.resize(self.BASE_WIDTH, self.BASE_HEIGHT)
+        self.resize(BASE_WIDTH, BASE_HEIGHT)
 
-    def init_nagivation(self, msg_signals: MessageSignals):
-        self.sniffer_interface = SnifferWidget(msg_signals)
-        self.sniffer_interface.setObjectName("sniffer")
-        self.addSubInterface(self.sniffer_interface, FluentIcon.SEARCH, "Sniffer")
+    def add_account(self, account: Bot):
+        bot = AccountWidget(account)
+        self.addSubInterface(bot, FluentIcon.PEOPLE, account.account_nickname)

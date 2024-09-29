@@ -2,7 +2,7 @@ import select
 from dataclasses import dataclass
 from socket import socket as Socket
 
-from src.protocol import decode_varint_size
+from src.protocol.protocol import decode_varint_size
 
 
 @dataclass
