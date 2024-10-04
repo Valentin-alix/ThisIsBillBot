@@ -15,10 +15,10 @@ class DynamicTreeWidget(TreeWidget):
         self.expandAll()
 
     def _deep_tree_from_message_dict(
-        self,
-        values: Any,
-        parent: QTreeWidgetItem | None = None,
-        base_qtree: TreeWidget | None = None,
+            self,
+            values: Any,
+            parent: QTreeWidgetItem | None = None,
+            base_qtree: TreeWidget | None = None,
     ):
         if not isinstance(values, dict):
             widget_item = QTreeWidgetItem([f"{values}"])
@@ -31,8 +31,8 @@ class DynamicTreeWidget(TreeWidget):
                     self._deep_tree_from_message_dict(value, widget_item)
                 elif isinstance(value, list):
                     widget_item = QTreeWidgetItem([f"{key}"])
-                    for _value in value:
-                        self._deep_tree_from_message_dict(_value, widget_item)
+                    for index, _value in enumerate(value):
+                        self._deep_tree_from_message_dict({index: _value}, widget_item)
                 else:
                     widget_item = QTreeWidgetItem([f"{key} = {value}"])
                 if parent is not None:

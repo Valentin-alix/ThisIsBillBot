@@ -307,9 +307,9 @@ class ContactLevelUpEvent(_message.Message):
     def __init__(self, name: _Optional[str] = ..., character_id: _Optional[int] = ..., level: _Optional[int] = ...) -> None: ...
 
 class FriendInformation(_message.Message):
-    __slots__ = ("account_id", "account_tag", "state", "duration_since_last_connection_hours", "achievement_points", "league_id", "ladder_position", "online_information")
+    __slots__ = ("account_id", "account_tag", "state", "duration_since_last_connection_hours", "league_id", "online_information")
     class FriendOnlineInformation(_message.Message):
-        __slots__ = ("character_id", "character_name", "character_level", "alignment", "breed_id", "gender", "mood_smiley_id", "haven_bag_shared", "status", "guild")
+        __slots__ = ("character_id", "character_name", "character_level", "alignment", "breed_id", "gender", "mood_smiley_id", "haven_bag_shared", "status", "guild", "alliance", "achievement_points", "ladder_position")
         CHARACTER_ID_FIELD_NUMBER: _ClassVar[int]
         CHARACTER_NAME_FIELD_NUMBER: _ClassVar[int]
         CHARACTER_LEVEL_FIELD_NUMBER: _ClassVar[int]
@@ -320,6 +320,9 @@ class FriendInformation(_message.Message):
         HAVEN_BAG_SHARED_FIELD_NUMBER: _ClassVar[int]
         STATUS_FIELD_NUMBER: _ClassVar[int]
         GUILD_FIELD_NUMBER: _ClassVar[int]
+        ALLIANCE_FIELD_NUMBER: _ClassVar[int]
+        ACHIEVEMENT_POINTS_FIELD_NUMBER: _ClassVar[int]
+        LADDER_POSITION_FIELD_NUMBER: _ClassVar[int]
         character_id: int
         character_name: str
         character_level: int
@@ -330,24 +333,23 @@ class FriendInformation(_message.Message):
         haven_bag_shared: bool
         status: _common_pb2.CharacterStatus
         guild: _common_pb2.GuildInformation
-        def __init__(self, character_id: _Optional[int] = ..., character_name: _Optional[str] = ..., character_level: _Optional[int] = ..., alignment: _Optional[_Union[_common_pb2.Alignment, str]] = ..., breed_id: _Optional[int] = ..., gender: _Optional[_Union[_common_pb2.Gender, str]] = ..., mood_smiley_id: _Optional[int] = ..., haven_bag_shared: bool = ..., status: _Optional[_Union[_common_pb2.CharacterStatus, _Mapping]] = ..., guild: _Optional[_Union[_common_pb2.GuildInformation, _Mapping]] = ...) -> None: ...
+        alliance: _common_pb2.AllianceInformation
+        achievement_points: int
+        ladder_position: int
+        def __init__(self, character_id: _Optional[int] = ..., character_name: _Optional[str] = ..., character_level: _Optional[int] = ..., alignment: _Optional[_Union[_common_pb2.Alignment, str]] = ..., breed_id: _Optional[int] = ..., gender: _Optional[_Union[_common_pb2.Gender, str]] = ..., mood_smiley_id: _Optional[int] = ..., haven_bag_shared: bool = ..., status: _Optional[_Union[_common_pb2.CharacterStatus, _Mapping]] = ..., guild: _Optional[_Union[_common_pb2.GuildInformation, _Mapping]] = ..., alliance: _Optional[_Union[_common_pb2.AllianceInformation, _Mapping]] = ..., achievement_points: _Optional[int] = ..., ladder_position: _Optional[int] = ...) -> None: ...
     ACCOUNT_ID_FIELD_NUMBER: _ClassVar[int]
     ACCOUNT_TAG_FIELD_NUMBER: _ClassVar[int]
     STATE_FIELD_NUMBER: _ClassVar[int]
     DURATION_SINCE_LAST_CONNECTION_HOURS_FIELD_NUMBER: _ClassVar[int]
-    ACHIEVEMENT_POINTS_FIELD_NUMBER: _ClassVar[int]
     LEAGUE_ID_FIELD_NUMBER: _ClassVar[int]
-    LADDER_POSITION_FIELD_NUMBER: _ClassVar[int]
     ONLINE_INFORMATION_FIELD_NUMBER: _ClassVar[int]
     account_id: int
     account_tag: _common_pb2.AccountTag
     state: _common_pb2.CharacterState
     duration_since_last_connection_hours: int
-    achievement_points: int
     league_id: int
-    ladder_position: int
     online_information: FriendInformation.FriendOnlineInformation
-    def __init__(self, account_id: _Optional[int] = ..., account_tag: _Optional[_Union[_common_pb2.AccountTag, _Mapping]] = ..., state: _Optional[_Union[_common_pb2.CharacterState, str]] = ..., duration_since_last_connection_hours: _Optional[int] = ..., achievement_points: _Optional[int] = ..., league_id: _Optional[int] = ..., ladder_position: _Optional[int] = ..., online_information: _Optional[_Union[FriendInformation.FriendOnlineInformation, _Mapping]] = ...) -> None: ...
+    def __init__(self, account_id: _Optional[int] = ..., account_tag: _Optional[_Union[_common_pb2.AccountTag, _Mapping]] = ..., state: _Optional[_Union[_common_pb2.CharacterState, str]] = ..., duration_since_last_connection_hours: _Optional[int] = ..., league_id: _Optional[int] = ..., online_information: _Optional[_Union[FriendInformation.FriendOnlineInformation, _Mapping]] = ...) -> None: ...
 
 class AcquaintanceInformation(_message.Message):
     __slots__ = ("account_id", "account_tag", "state", "online")

@@ -1,6 +1,9 @@
-import select
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from socket import socket as Socket
+from threading import Lock
+
+import select
+from blinker import Signal
 
 from src.protocol.protocol import decode_varint_size
 
@@ -9,6 +12,8 @@ from src.protocol.protocol import decode_varint_size
 class Proxy:
     client_socket: Socket
     server_socket: Socket
+    closed_signal: Signal = field(init=False, default_factory=lambda: Signal())
+    _send_lock: Lock = field(init=False, default_factory=Lock)
 
     def __post_init__(self):
         self.opposite_connection = {
@@ -39,6 +44,7 @@ class Proxy:
             for con in conns:
                 print(f"closing {con.getpeername()}")
                 con.close()
+            self.closed_signal.send()
 
     def handle(self, data: bytes, origin: Socket):
         self.buffers[origin] += data
@@ -53,18 +59,28 @@ class Proxy:
             msg_datas = self.buffers[origin][: pos + size]
             msg_content_datas = self.buffers[origin][pos : pos + size]
 
-            msg_datas = self.handle_msg(msg_content_datas, msg_datas)
+            msg_datas = self.alter_msg_datas(msg_content_datas, msg_datas)
 
             self.buffers[origin] = self.buffers[origin][pos + size :]
 
             # send msg_datas to origin target
-            self.opposite_connection[origin].sendall(msg_datas)
+            with self._send_lock:
+                self.opposite_connection[origin].sendall(msg_datas)
 
-    def handle_msg(self, msg_content_datas: bytes, msg_datas: bytes) -> bytes:
+            self.on_sent_msg_datas(msg_datas)
+
+    def alter_msg_datas(self, msg_content_datas: bytes, msg_datas: bytes) -> bytes:
         return msg_datas
 
+    def on_sent_msg_datas(self, msg_datas: bytes) -> None:
+        ...
+
     def send_to_client(self, data: bytes):
-        self.client_socket.sendall(data)
+        with self._send_lock:
+            self.client_socket.sendall(data)
+        self.on_sent_msg_datas(data)
 
     def send_to_server(self, data: bytes):
-        self.server_socket.sendall(data)
+        with self._send_lock:
+            self.server_socket.sendall(data)
+        self.on_sent_msg_datas(data)

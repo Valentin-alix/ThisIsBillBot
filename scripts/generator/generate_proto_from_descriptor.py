@@ -12,10 +12,10 @@ from scripts.generator.models.descriptor import (
 from src.consts import PROTO_ROOT_PATH
 
 
-def generate_proto_files(input_descriptor_folder: str, output_folder: str):
+def generate_proto_files_from_descriptor(input_folder: str, output_folder: str):
     shutil.rmtree(PROTO_ROOT_PATH, ignore_errors=True)
-    for filename in os.listdir(input_descriptor_folder):
-        with open(os.path.join(input_descriptor_folder, filename), "r") as file:
+    for filename in os.listdir(input_folder):
+        with open(os.path.join(input_folder, filename), "r") as file:
             descriptor = Descriptor.model_validate(json.load(file))
 
         if descriptor.package is None:
@@ -34,4 +34,6 @@ def generate_proto_files(input_descriptor_folder: str, output_folder: str):
 
 
 if __name__ == "__main__":
-    generate_proto_files(DESCRIPTOR_FOLDER, str(Path(PROTO_ROOT_PATH).parent))
+    generate_proto_files_from_descriptor(
+        DESCRIPTOR_FOLDER, str(Path(PROTO_ROOT_PATH).parent)
+    )

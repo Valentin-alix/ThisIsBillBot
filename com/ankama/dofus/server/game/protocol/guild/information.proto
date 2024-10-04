@@ -110,6 +110,7 @@ message GuildInvitedEvent{
 message GuildInvitationStateRecruiterEvent{
 	string recruited_name = 1;
 	.com.ankama.dofus.server.game.protocol.common.SocialGroupInvitationState invitation_state = 2;
+	int32 recruited_id = 3;
 }
 message GuildInvitationStateRecruitedEvent{
 	.com.ankama.dofus.server.game.protocol.common.SocialGroupInvitationState invitation_state = 1;

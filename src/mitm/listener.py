@@ -6,7 +6,6 @@ from socket import AF_INET6
 from socket import socket as Socket
 from threading import Thread
 
-
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from src.interfaces.models.bot import Bot
 from src.consts import CONNECTION_SERVERS_IPS
@@ -33,6 +32,7 @@ class Listener:
                 daemon=True,
             ).start()
 
+        bridge: Proxy
         if server_socket.getpeername()[0] in CONNECTION_SERVERS_IPS:
             bridge = ConnectionProxy(
                 account_infos=self.account_by_id,

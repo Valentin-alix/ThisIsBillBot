@@ -9,3 +9,4 @@ class MessageInfo:
     msg_json: dict
     msg_name: str
     sub_msg_name: str
+    raw_content: bytes

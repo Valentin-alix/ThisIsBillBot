@@ -216,12 +216,14 @@ class GuildInvitedEvent(_message.Message):
     def __init__(self, recruiter_name: _Optional[str] = ..., guild_information: _Optional[_Union[_common_pb2.GuildInformation, _Mapping]] = ...) -> None: ...
 
 class GuildInvitationStateRecruiterEvent(_message.Message):
-    __slots__ = ("recruited_name", "invitation_state")
+    __slots__ = ("recruited_name", "invitation_state", "recruited_id")
     RECRUITED_NAME_FIELD_NUMBER: _ClassVar[int]
     INVITATION_STATE_FIELD_NUMBER: _ClassVar[int]
+    RECRUITED_ID_FIELD_NUMBER: _ClassVar[int]
     recruited_name: str
     invitation_state: _common_pb2.SocialGroupInvitationState
-    def __init__(self, recruited_name: _Optional[str] = ..., invitation_state: _Optional[_Union[_common_pb2.SocialGroupInvitationState, str]] = ...) -> None: ...
+    recruited_id: int
+    def __init__(self, recruited_name: _Optional[str] = ..., invitation_state: _Optional[_Union[_common_pb2.SocialGroupInvitationState, str]] = ..., recruited_id: _Optional[int] = ...) -> None: ...
 
 class GuildInvitationStateRecruitedEvent(_message.Message):
     __slots__ = ("invitation_state",)

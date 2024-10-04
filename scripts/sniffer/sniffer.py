@@ -11,7 +11,6 @@ from scapy.layers.inet import IP
 from scapy.layers.inet6 import IPv6
 from scapy.packet import Packet, Raw
 
-
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
 from src.gui.pages.sniffer.sniffer import SnifferWidget
@@ -77,13 +76,13 @@ class Sniffer:
     def handle_connection_message(self, content: bytes):
         msg = ConnectionMessage()
         decode_msg(msg, content)
-        msg_infos, _ = get_conn_msg_info(msg)
+        msg_infos, _ = get_conn_msg_info(msg, content)
         self.msg_info_signals.message_info.emit(msg_infos)
 
     def handle_game_message(self, content: bytes):
         msg = GameMessage()
         decode_msg(msg, content)
-        msg_infos, _ = get_game_msg_info(msg)
+        msg_infos, _ = get_game_msg_info(msg, content)
         self.msg_info_signals.message_info.emit(msg_infos)
 
 

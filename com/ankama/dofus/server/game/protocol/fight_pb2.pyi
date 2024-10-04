@@ -84,14 +84,16 @@ class FightTurnListEvent(_message.Message):
     def __init__(self, ids: _Optional[_Iterable[int]] = ..., slain: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class FightTurnEvent(_message.Message):
-    __slots__ = ("character_id", "wait_time", "remaining_time")
+    __slots__ = ("character_id", "base_time", "extra_time", "remaining_time")
     CHARACTER_ID_FIELD_NUMBER: _ClassVar[int]
-    WAIT_TIME_FIELD_NUMBER: _ClassVar[int]
+    BASE_TIME_FIELD_NUMBER: _ClassVar[int]
+    EXTRA_TIME_FIELD_NUMBER: _ClassVar[int]
     REMAINING_TIME_FIELD_NUMBER: _ClassVar[int]
     character_id: int
-    wait_time: int
+    base_time: int
+    extra_time: int
     remaining_time: int
-    def __init__(self, character_id: _Optional[int] = ..., wait_time: _Optional[int] = ..., remaining_time: _Optional[int] = ...) -> None: ...
+    def __init__(self, character_id: _Optional[int] = ..., base_time: _Optional[int] = ..., extra_time: _Optional[int] = ..., remaining_time: _Optional[int] = ...) -> None: ...
 
 class FightNewWaveEvent(_message.Message):
     __slots__ = ("wave_id", "team", "turn_left_before_next_wave")

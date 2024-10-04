@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n2com/ankama/dofus/server/game/protocol/choice.proto\x12,com.ankama.dofus.server.game.protocol.choice\"&\n\x06\x43hoice\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08position\x18\x02 \x01(\x05\"<\n\x0bVotedChoice\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08position\x18\x02 \x01(\x05\x12\x0f\n\x07players\x18\x03 \x03(\x03\"s\n\x14\x43hoiceSelectionEvent\x12\x14\n\x0cselection_id\x18\x01 \x01(\x05\x12\x45\n\x07\x63hoices\x18\x02 \x03(\x0b\x32\x34.com.ankama.dofus.server.game.protocol.choice.Choice\"\'\n\x13\x43hoiceSelectedEvent\x12\x10\n\x08position\x18\x01 \x01(\x05\")\n\x15\x43hoiceSelectedRequest\x12\x10\n\x08position\x18\x01 \x01(\x05\"\x85\x01\n!CurrentGlobalChoiceSelectionEvent\x12\x14\n\x0cselection_id\x18\x01 \x01(\x05\x12J\n\x07\x63hoices\x18\x02 \x03(\x0b\x32\x39.com.ankama.dofus.server.game.protocol.choice.VotedChoice\"y\n\x1aGlobalChoiceSelectionEvent\x12\x14\n\x0cselection_id\x18\x01 \x01(\x05\x12\x45\n\x07\x63hoices\x18\x02 \x03(\x0b\x32\x34.com.ankama.dofus.server.game.protocol.choice.Choice\"/\n\x1bGlobalChoiceSelectedRequest\x12\x10\n\x08position\x18\x01 \x01(\x05\"C\n\x15GlobalChoiceVoteEvent\x12\x11\n\tplayer_id\x18\x01 \x01(\x03\x12\x17\n\x0f\x63hoice_position\x18\x02 \x01(\x05\"-\n\x19GlobalChoiceSelectedEvent\x12\x10\n\x08position\x18\x01 \x01(\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n2com/ankama/dofus/server/game/protocol/choice.proto\x12,com.ankama.dofus.server.game.protocol.choice\"&\n\x06\x43hoice\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08position\x18\x02 \x01(\x05\"<\n\x0bVotedChoice\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08position\x18\x02 \x01(\x05\x12\x0f\n\x07players\x18\x03 \x03(\x03\"s\n\x14\x43hoiceSelectionEvent\x12\x14\n\x0cselection_id\x18\x01 \x01(\x05\x12\x45\n\x07\x63hoices\x18\x02 \x03(\x0b\x32\x34.com.ankama.dofus.server.game.protocol.choice.Choice\"\x94\x01\n\x19\x46ightChoiceSelectionEvent\x12\x14\n\x0cselection_id\x18\x01 \x01(\x05\x12\x1a\n\x12target_protocol_id\x18\x02 \x01(\x03\x12\x45\n\x07\x63hoices\x18\x03 \x03(\x0b\x32\x34.com.ankama.dofus.server.game.protocol.choice.Choice\"\'\n\x13\x43hoiceSelectedEvent\x12\x10\n\x08position\x18\x01 \x01(\x05\")\n\x15\x43hoiceSelectedRequest\x12\x10\n\x08position\x18\x01 \x01(\x05\"\x85\x01\n!CurrentGlobalChoiceSelectionEvent\x12\x14\n\x0cselection_id\x18\x01 \x01(\x05\x12J\n\x07\x63hoices\x18\x02 \x03(\x0b\x32\x39.com.ankama.dofus.server.game.protocol.choice.VotedChoice\"y\n\x1aGlobalChoiceSelectionEvent\x12\x14\n\x0cselection_id\x18\x01 \x01(\x05\x12\x45\n\x07\x63hoices\x18\x02 \x03(\x0b\x32\x34.com.ankama.dofus.server.game.protocol.choice.Choice\"/\n\x1bGlobalChoiceSelectedRequest\x12\x10\n\x08position\x18\x01 \x01(\x05\"C\n\x15GlobalChoiceVoteEvent\x12\x11\n\tplayer_id\x18\x01 \x01(\x03\x12\x17\n\x0f\x63hoice_position\x18\x02 \x01(\x05\"-\n\x19GlobalChoiceSelectedEvent\x12\x10\n\x08position\x18\x01 \x01(\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -37,18 +37,20 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_VOTEDCHOICE']._serialized_end=200
   _globals['_CHOICESELECTIONEVENT']._serialized_start=202
   _globals['_CHOICESELECTIONEVENT']._serialized_end=317
-  _globals['_CHOICESELECTEDEVENT']._serialized_start=319
-  _globals['_CHOICESELECTEDEVENT']._serialized_end=358
-  _globals['_CHOICESELECTEDREQUEST']._serialized_start=360
-  _globals['_CHOICESELECTEDREQUEST']._serialized_end=401
-  _globals['_CURRENTGLOBALCHOICESELECTIONEVENT']._serialized_start=404
-  _globals['_CURRENTGLOBALCHOICESELECTIONEVENT']._serialized_end=537
-  _globals['_GLOBALCHOICESELECTIONEVENT']._serialized_start=539
-  _globals['_GLOBALCHOICESELECTIONEVENT']._serialized_end=660
-  _globals['_GLOBALCHOICESELECTEDREQUEST']._serialized_start=662
-  _globals['_GLOBALCHOICESELECTEDREQUEST']._serialized_end=709
-  _globals['_GLOBALCHOICEVOTEEVENT']._serialized_start=711
-  _globals['_GLOBALCHOICEVOTEEVENT']._serialized_end=778
-  _globals['_GLOBALCHOICESELECTEDEVENT']._serialized_start=780
-  _globals['_GLOBALCHOICESELECTEDEVENT']._serialized_end=825
+  _globals['_FIGHTCHOICESELECTIONEVENT']._serialized_start=320
+  _globals['_FIGHTCHOICESELECTIONEVENT']._serialized_end=468
+  _globals['_CHOICESELECTEDEVENT']._serialized_start=470
+  _globals['_CHOICESELECTEDEVENT']._serialized_end=509
+  _globals['_CHOICESELECTEDREQUEST']._serialized_start=511
+  _globals['_CHOICESELECTEDREQUEST']._serialized_end=552
+  _globals['_CURRENTGLOBALCHOICESELECTIONEVENT']._serialized_start=555
+  _globals['_CURRENTGLOBALCHOICESELECTIONEVENT']._serialized_end=688
+  _globals['_GLOBALCHOICESELECTIONEVENT']._serialized_start=690
+  _globals['_GLOBALCHOICESELECTIONEVENT']._serialized_end=811
+  _globals['_GLOBALCHOICESELECTEDREQUEST']._serialized_start=813
+  _globals['_GLOBALCHOICESELECTEDREQUEST']._serialized_end=860
+  _globals['_GLOBALCHOICEVOTEEVENT']._serialized_start=862
+  _globals['_GLOBALCHOICEVOTEEVENT']._serialized_end=929
+  _globals['_GLOBALCHOICESELECTEDEVENT']._serialized_start=931
+  _globals['_GLOBALCHOICESELECTEDEVENT']._serialized_end=976
 # @@protoc_insertion_point(module_scope)

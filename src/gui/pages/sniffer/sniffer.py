@@ -4,6 +4,7 @@ from qfluentwidgets import PivotItem
 
 from src.gui.pages.sniffer.message_detail import MessageDetailWidget
 from src.gui.pages.sniffer.message_table import MessageTable
+from src.interfaces.models.message_info import MessageInfo
 from src.signals.message_signals import MessageInfoSignals
 
 
@@ -14,7 +15,7 @@ class SnifferWidget(PivotItem):
         self.setLayout(self.m_layout)
 
         self.msg_table = MessageTable(message_info_signals)
-        self.msg_table.table.cellClicked.connect(self.on_click_msg)
+        self.msg_table.table_content.table.cellClicked.connect(self.on_click_msg)
 
         self.msg_detail = MessageDetailWidget()
         self.msg_detail.hide()
@@ -28,10 +29,10 @@ class SnifferWidget(PivotItem):
 
     @pyqtSlot(int)
     def on_click_msg(self, row: int):
-        if (msg_item := self.msg_table.table.item(row, 4)) is None:
+        if (msg_item := self.msg_table.table_content.table.item(row, 4)) is None:
             return
-        msg_json: dict = msg_item.data(Qt.UserRole)
-        self.msg_detail.set_content(msg_json)
+        msg_infos: MessageInfo = msg_item.data(Qt.UserRole)
+        self.msg_detail.set_content(msg_infos.msg_json, msg_infos.raw_content)
         self.msg_detail.show()
 
     @pyqtSlot()

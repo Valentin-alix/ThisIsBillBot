@@ -177,16 +177,17 @@ message FriendOnlineInformation{
 	int32 mood_smiley_id = 7;
 	bool haven_bag_shared = 8;
 	.com.ankama.dofus.server.game.protocol.common.CharacterStatus status = 9;
-	optional .com.ankama.dofus.server.game.protocol.common.GuildInformation guild = 10;
+	.com.ankama.dofus.server.game.protocol.common.GuildInformation guild = 10;
+	.com.ankama.dofus.server.game.protocol.common.AllianceInformation alliance = 11;
+	int32 achievement_points = 12;
+	int32 ladder_position = 13;
 }
 	int64 account_id = 1;
 	.com.ankama.dofus.server.game.protocol.common.AccountTag account_tag = 2;
 	.com.ankama.dofus.server.game.protocol.common.CharacterState state = 3;
-	optional int64 duration_since_last_connection_hours = 4;
-	optional int32 achievement_points = 5;
-	optional int32 league_id = 6;
-	optional int32 ladder_position = 7;
-	optional .com.ankama.dofus.server.game.protocol.contact.FriendInformation.FriendOnlineInformation online_information = 8;
+	int64 duration_since_last_connection_hours = 4;
+	int32 league_id = 5;
+	optional .com.ankama.dofus.server.game.protocol.contact.FriendInformation.FriendOnlineInformation online_information = 6;
 }
 message AcquaintanceInformation{
 message OnlineInformation{

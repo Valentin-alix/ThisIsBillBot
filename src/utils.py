@@ -1,5 +1,6 @@
 import random
 from time import sleep
+
 import numpy as np
 
 from src.consts import RANGE_WAIT
@@ -9,22 +10,20 @@ def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 2) -> flo
     if mini == 0:
         return 0
 
-    def pick_decreasing_random_in_range(mini: float, maxi: float) -> list[float]:
-        steps: list[float] = [round(time, 3) for time in np.arange(mini, maxi, 0.05)]
-        numbers = random.choices(steps, [1 / (step**coeff) for step in steps], k=1)
-        return numbers
-
-    wait_time = pick_decreasing_random_in_range(mini, maxi)[0]
+    steps: list[float] = [round(time, 3) for time in np.arange(mini, maxi, 0.05)]
+    wait_time = random.choices(steps, [1 / (step**coeff) for step in steps], k=1)[0]
     return random.uniform(wait_time, wait_time * 1.05)
 
 
 def wait(
-    range: tuple[float, float] = RANGE_WAIT, is_weighted: bool = True, coeff: int = 2
+    range_time: tuple[float, float] = RANGE_WAIT,
+    is_weighted: bool = True,
+    coeff: int = 2,
 ):
     if is_weighted:
-        wait_time = pick_random_weighted_time(*range, coeff)
+        wait_time = pick_random_weighted_time(*range_time, coeff)
     else:
-        wait_time = random.uniform(*range)
+        wait_time = random.uniform(*range_time)
 
     sleep(wait_time)
 

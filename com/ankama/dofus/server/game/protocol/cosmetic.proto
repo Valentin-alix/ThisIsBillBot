@@ -103,6 +103,12 @@ message OutfitEquipFaceRequest{
 message OutfitEquipFaceResponse{
 	bool success = 1;
 }
+message OutfitEquipColorsRequest{
+	.com.ankama.dofus.server.game.protocol.cosmetic.ColorPalette color_palette = 1;
+}
+message OutfitEquipColorsResponse{
+	bool success = 1;
+}
 message OutfitUpdateRequest{
 	string outfit_uuid = 1;
 	string name = 2;
@@ -116,6 +122,7 @@ message OutfitCreateEmptyRequest{
 	string name = 1;
 	int32 pictogram_id = 2;
 	int32 face_id = 3;
+	.com.ankama.dofus.server.game.protocol.cosmetic.ColorPalette color_palette = 4;
 }
 message OutfitDuplicateRequest{
 	string outfit_uuid = 1;
@@ -166,4 +173,5 @@ message SkinOutfit{
 	bool favorite = 9;
 	string last_modified = 10;
 	int32 face_id = 11;
+	.com.ankama.dofus.server.game.protocol.cosmetic.ColorPalette color_palette = 12;
 }

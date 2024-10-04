@@ -283,14 +283,14 @@ class ExchangeBidHouseTypeRequest(_message.Message):
     def __init__(self, type_id: _Optional[int] = ..., follow: bool = ...) -> None: ...
 
 class ExchangeBidHouseBuyRequest(_message.Message):
-    __slots__ = ("object_uid", "quantity", "price")
-    OBJECT_UID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("bid_item_uid", "quantity", "price")
+    BID_ITEM_UID_FIELD_NUMBER: _ClassVar[int]
     QUANTITY_FIELD_NUMBER: _ClassVar[int]
     PRICE_FIELD_NUMBER: _ClassVar[int]
-    object_uid: int
+    bid_item_uid: int
     quantity: int
     price: int
-    def __init__(self, object_uid: _Optional[int] = ..., quantity: _Optional[int] = ..., price: _Optional[int] = ...) -> None: ...
+    def __init__(self, bid_item_uid: _Optional[int] = ..., quantity: _Optional[int] = ..., price: _Optional[int] = ...) -> None: ...
 
 class ExchangeBidHousePriceRequest(_message.Message):
     __slots__ = ("object_gid",)
@@ -331,20 +331,20 @@ class ExchangeObjectsAddedEvent(_message.Message):
     def __init__(self, remote: bool = ..., objects: _Optional[_Iterable[_Union[_common_pb2.ObjectItemInventory, _Mapping]]] = ..., fm_power: _Optional[float] = ...) -> None: ...
 
 class ExchangeObjectRemovedEvent(_message.Message):
-    __slots__ = ("remote", "object_uid")
+    __slots__ = ("remote", "bid_item_uid")
     REMOTE_FIELD_NUMBER: _ClassVar[int]
-    OBJECT_UID_FIELD_NUMBER: _ClassVar[int]
+    BID_ITEM_UID_FIELD_NUMBER: _ClassVar[int]
     remote: bool
-    object_uid: int
-    def __init__(self, remote: bool = ..., object_uid: _Optional[int] = ...) -> None: ...
+    bid_item_uid: int
+    def __init__(self, remote: bool = ..., bid_item_uid: _Optional[int] = ...) -> None: ...
 
 class ExchangeObjectsRemovedEvent(_message.Message):
-    __slots__ = ("remote", "objects_uid")
+    __slots__ = ("remote", "bid_items_uid")
     REMOTE_FIELD_NUMBER: _ClassVar[int]
-    OBJECTS_UID_FIELD_NUMBER: _ClassVar[int]
+    BID_ITEMS_UID_FIELD_NUMBER: _ClassVar[int]
     remote: bool
-    objects_uid: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, remote: bool = ..., objects_uid: _Optional[_Iterable[int]] = ...) -> None: ...
+    bid_items_uid: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, remote: bool = ..., bid_items_uid: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ExchangeObjectsModifiedEvent(_message.Message):
     __slots__ = ("remote", "objects")
@@ -455,22 +455,22 @@ class ExchangeStartedWithMultiTabStorageEvent(_message.Message):
     def __init__(self, exchange_type: _Optional[_Union[_common_pb2.ExchangeType, str]] = ..., storage_max_slot: _Optional[int] = ..., tab_number: _Optional[int] = ...) -> None: ...
 
 class ExchangeBidHouseBuyResultEvent(_message.Message):
-    __slots__ = ("object_uid", "bought")
-    OBJECT_UID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("bid_item_uid", "bought")
+    BID_ITEM_UID_FIELD_NUMBER: _ClassVar[int]
     BOUGHT_FIELD_NUMBER: _ClassVar[int]
-    object_uid: int
+    bid_item_uid: int
     bought: bool
-    def __init__(self, object_uid: _Optional[int] = ..., bought: bool = ...) -> None: ...
+    def __init__(self, bid_item_uid: _Optional[int] = ..., bought: bool = ...) -> None: ...
 
 class ExchangeBidHouseItemAddedEvent(_message.Message):
     __slots__ = ("item", "price", "unsold_delay")
     ITEM_FIELD_NUMBER: _ClassVar[int]
     PRICE_FIELD_NUMBER: _ClassVar[int]
     UNSOLD_DELAY_FIELD_NUMBER: _ClassVar[int]
-    item: _common_pb2.ObjectItem
+    item: BidItem
     price: int
     unsold_delay: int
-    def __init__(self, item: _Optional[_Union[_common_pb2.ObjectItem, _Mapping]] = ..., price: _Optional[int] = ..., unsold_delay: _Optional[int] = ...) -> None: ...
+    def __init__(self, item: _Optional[_Union[BidItem, _Mapping]] = ..., price: _Optional[int] = ..., unsold_delay: _Optional[int] = ...) -> None: ...
 
 class ExchangeBidHouseItemRemovedEvent(_message.Message):
     __slots__ = ("sell_id",)
@@ -491,42 +491,42 @@ class ExchangeBidHouseGenericItemRemovedEvent(_message.Message):
     def __init__(self, object_gid: _Optional[int] = ...) -> None: ...
 
 class ExchangeBidHouseInListAddedEvent(_message.Message):
-    __slots__ = ("object_uid", "object_gid", "object_type", "effects", "prices")
-    OBJECT_UID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("bid_item_uid", "object_gid", "object_type", "effects", "prices")
+    BID_ITEM_UID_FIELD_NUMBER: _ClassVar[int]
     OBJECT_GID_FIELD_NUMBER: _ClassVar[int]
     OBJECT_TYPE_FIELD_NUMBER: _ClassVar[int]
     EFFECTS_FIELD_NUMBER: _ClassVar[int]
     PRICES_FIELD_NUMBER: _ClassVar[int]
-    object_uid: int
+    bid_item_uid: int
     object_gid: int
     object_type: int
     effects: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectEffect]
     prices: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, object_uid: _Optional[int] = ..., object_gid: _Optional[int] = ..., object_type: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ..., prices: _Optional[_Iterable[int]] = ...) -> None: ...
+    def __init__(self, bid_item_uid: _Optional[int] = ..., object_gid: _Optional[int] = ..., object_type: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ..., prices: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ExchangeBidHouseInListUpdatedEvent(_message.Message):
-    __slots__ = ("object_uid", "object_gid", "object_type", "effects", "prices")
-    OBJECT_UID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("bid_item_uid", "object_gid", "object_type", "effects", "prices")
+    BID_ITEM_UID_FIELD_NUMBER: _ClassVar[int]
     OBJECT_GID_FIELD_NUMBER: _ClassVar[int]
     OBJECT_TYPE_FIELD_NUMBER: _ClassVar[int]
     EFFECTS_FIELD_NUMBER: _ClassVar[int]
     PRICES_FIELD_NUMBER: _ClassVar[int]
-    object_uid: int
+    bid_item_uid: int
     object_gid: int
     object_type: int
     effects: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectEffect]
     prices: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, object_uid: _Optional[int] = ..., object_gid: _Optional[int] = ..., object_type: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ..., prices: _Optional[_Iterable[int]] = ...) -> None: ...
+    def __init__(self, bid_item_uid: _Optional[int] = ..., object_gid: _Optional[int] = ..., object_type: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ..., prices: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ExchangeBidHouseInListRemovedEvent(_message.Message):
-    __slots__ = ("object_uid", "object_gid", "object_type")
-    OBJECT_UID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("bid_item_uid", "object_gid", "object_type")
+    BID_ITEM_UID_FIELD_NUMBER: _ClassVar[int]
     OBJECT_GID_FIELD_NUMBER: _ClassVar[int]
     OBJECT_TYPE_FIELD_NUMBER: _ClassVar[int]
-    object_uid: int
+    bid_item_uid: int
     object_gid: int
     object_type: int
-    def __init__(self, object_uid: _Optional[int] = ..., object_gid: _Optional[int] = ..., object_type: _Optional[int] = ...) -> None: ...
+    def __init__(self, bid_item_uid: _Optional[int] = ..., object_gid: _Optional[int] = ..., object_type: _Optional[int] = ...) -> None: ...
 
 class ExchangeBidHouseUnsoldItemsEvent(_message.Message):
     __slots__ = ("objects",)
@@ -694,21 +694,33 @@ class ExchangeTaxCollectorShopStartedEvent(_message.Message):
     def __init__(self, objects: _Optional[_Iterable[_Union[_common_pb2.ObjectItemInventory, _Mapping]]] = ..., kamas: _Optional[int] = ...) -> None: ...
 
 class ExchangeBidSellerStartedEvent(_message.Message):
-    __slots__ = ("selling_conditions", "objects")
-    class ObjectItemToSelInBid(_message.Message):
-        __slots__ = ("object", "price", "unsold_delay")
-        OBJECT_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("selling_conditions", "items")
+    class ItemToSellInBid(_message.Message):
+        __slots__ = ("item", "price", "unsold_delay")
+        ITEM_FIELD_NUMBER: _ClassVar[int]
         PRICE_FIELD_NUMBER: _ClassVar[int]
         UNSOLD_DELAY_FIELD_NUMBER: _ClassVar[int]
-        object: _common_pb2.ObjectItem
+        item: BidItem
         price: int
         unsold_delay: int
-        def __init__(self, object: _Optional[_Union[_common_pb2.ObjectItem, _Mapping]] = ..., price: _Optional[int] = ..., unsold_delay: _Optional[int] = ...) -> None: ...
+        def __init__(self, item: _Optional[_Union[BidItem, _Mapping]] = ..., price: _Optional[int] = ..., unsold_delay: _Optional[int] = ...) -> None: ...
     SELLING_CONDITIONS_FIELD_NUMBER: _ClassVar[int]
-    OBJECTS_FIELD_NUMBER: _ClassVar[int]
+    ITEMS_FIELD_NUMBER: _ClassVar[int]
     selling_conditions: SellingConditions
-    objects: _containers.RepeatedCompositeFieldContainer[ExchangeBidSellerStartedEvent.ObjectItemToSelInBid]
-    def __init__(self, selling_conditions: _Optional[_Union[SellingConditions, _Mapping]] = ..., objects: _Optional[_Iterable[_Union[ExchangeBidSellerStartedEvent.ObjectItemToSelInBid, _Mapping]]] = ...) -> None: ...
+    items: _containers.RepeatedCompositeFieldContainer[ExchangeBidSellerStartedEvent.ItemToSellInBid]
+    def __init__(self, selling_conditions: _Optional[_Union[SellingConditions, _Mapping]] = ..., items: _Optional[_Iterable[_Union[ExchangeBidSellerStartedEvent.ItemToSellInBid, _Mapping]]] = ...) -> None: ...
+
+class BidItem(_message.Message):
+    __slots__ = ("uid", "quantity", "gid", "effects")
+    UID_FIELD_NUMBER: _ClassVar[int]
+    QUANTITY_FIELD_NUMBER: _ClassVar[int]
+    GID_FIELD_NUMBER: _ClassVar[int]
+    EFFECTS_FIELD_NUMBER: _ClassVar[int]
+    uid: int
+    quantity: int
+    gid: int
+    effects: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectEffect]
+    def __init__(self, uid: _Optional[int] = ..., quantity: _Optional[int] = ..., gid: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ...) -> None: ...
 
 class ExchangeBidBuyerStartedEvent(_message.Message):
     __slots__ = ("selling_conditions",)
@@ -744,18 +756,18 @@ class ExchangeTypesExchangerDescriptionForUserEvent(_message.Message):
 class ExchangeTypesItemsExchangerDescriptionForUserEvent(_message.Message):
     __slots__ = ("object_gid", "object_type", "item_descriptions")
     class BidExchangerObject(_message.Message):
-        __slots__ = ("object_uid", "object_gid", "object_type", "effects", "prices")
-        OBJECT_UID_FIELD_NUMBER: _ClassVar[int]
-        OBJECT_GID_FIELD_NUMBER: _ClassVar[int]
-        OBJECT_TYPE_FIELD_NUMBER: _ClassVar[int]
+        __slots__ = ("uid", "gid", "type", "effects", "prices")
+        UID_FIELD_NUMBER: _ClassVar[int]
+        GID_FIELD_NUMBER: _ClassVar[int]
+        TYPE_FIELD_NUMBER: _ClassVar[int]
         EFFECTS_FIELD_NUMBER: _ClassVar[int]
         PRICES_FIELD_NUMBER: _ClassVar[int]
-        object_uid: int
-        object_gid: int
-        object_type: int
+        uid: int
+        gid: int
+        type: int
         effects: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectEffect]
         prices: _containers.RepeatedScalarFieldContainer[int]
-        def __init__(self, object_uid: _Optional[int] = ..., object_gid: _Optional[int] = ..., object_type: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ..., prices: _Optional[_Iterable[int]] = ...) -> None: ...
+        def __init__(self, uid: _Optional[int] = ..., gid: _Optional[int] = ..., type: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ..., prices: _Optional[_Iterable[int]] = ...) -> None: ...
     OBJECT_GID_FIELD_NUMBER: _ClassVar[int]
     OBJECT_TYPE_FIELD_NUMBER: _ClassVar[int]
     ITEM_DESCRIPTIONS_FIELD_NUMBER: _ClassVar[int]

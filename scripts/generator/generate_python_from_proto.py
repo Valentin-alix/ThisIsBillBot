@@ -6,22 +6,20 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 from src.consts import PROTO_ROOT_PATH
 
 
-def generate_python_from_protoc(input_folder: str):
+def generate_python_from_protoc(input_folder: str, output_folder: str):
     file_paths: list[str] = []
-    for dir, _, files in os.walk(input_folder):
+    for directory, _, files in os.walk(input_folder):
         for file in files:
             if not file.endswith(".proto"):
                 continue
-            file_path = os.path.join(dir, file)
+            file_path = os.path.join(directory, file)
             file_paths.append(file_path)
 
-    # Workaround to protoc multiple files without having the command line is too large error
-    CHUNK_SIZE = 50
-    for group_index in range(0, len(file_paths), CHUNK_SIZE):
+    for file_path in file_paths:
         os.system(
-            f"protoc --proto_path={Path(PROTO_ROOT_PATH).parent} --python_out=. {" ".join(file_paths[group_index : group_index + CHUNK_SIZE])} --pyi_out=."
+            f"protoc --proto_path={Path(PROTO_ROOT_PATH).parent} --python_out={output_folder} {file_path} --pyi_out={output_folder}"
         )
 
 
 if __name__ == "__main__":
-    generate_python_from_protoc(PROTO_ROOT_PATH)
+    generate_python_from_protoc(PROTO_ROOT_PATH, str(Path(PROTO_ROOT_PATH).parent))

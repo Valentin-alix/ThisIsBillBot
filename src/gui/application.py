@@ -11,7 +11,6 @@ from qfluentwidgets import Theme, setTheme, setThemeColor
 
 from src.interfaces.models.bot import Bot
 
-
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from src.gui.main_window import MainWindow

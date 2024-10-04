@@ -31,6 +31,16 @@ class ChoiceSelectionEvent(_message.Message):
     choices: _containers.RepeatedCompositeFieldContainer[Choice]
     def __init__(self, selection_id: _Optional[int] = ..., choices: _Optional[_Iterable[_Union[Choice, _Mapping]]] = ...) -> None: ...
 
+class FightChoiceSelectionEvent(_message.Message):
+    __slots__ = ("selection_id", "target_protocol_id", "choices")
+    SELECTION_ID_FIELD_NUMBER: _ClassVar[int]
+    TARGET_PROTOCOL_ID_FIELD_NUMBER: _ClassVar[int]
+    CHOICES_FIELD_NUMBER: _ClassVar[int]
+    selection_id: int
+    target_protocol_id: int
+    choices: _containers.RepeatedCompositeFieldContainer[Choice]
+    def __init__(self, selection_id: _Optional[int] = ..., target_protocol_id: _Optional[int] = ..., choices: _Optional[_Iterable[_Union[Choice, _Mapping]]] = ...) -> None: ...
+
 class ChoiceSelectedEvent(_message.Message):
     __slots__ = ("position",)
     POSITION_FIELD_NUMBER: _ClassVar[int]

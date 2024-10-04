@@ -1,23 +1,86 @@
-from dataclasses import dataclass, field
 import os
-from src.consts import DOFUS_DATA_PATH, USEFUL_DATAS_JSON
-from src.interfaces.dicts.gen_datas.ItemsRoot import Data as ItemsRootData
-import orjson
+from dataclasses import dataclass
+from functools import cached_property
 
+import msgspec.json
+
+from resources.gen.gen_datas import (
+    ItemsRoot,
+    MapPositionsRoot,
+    SkillsRoot,
+    QuestsRoot,
+    QuestObjectivesRoot,
+)
+from resources.gen.gen_datas import JobsRoot
+from src.consts import DOFUS_FOLDER
 from src.utils import Singleton
 
 
-@dataclass
+@dataclass(frozen=True)
 class DataReader(metaclass=Singleton):
-    item_by_id: dict[int, ItemsRootData] = field(init=False, default_factory=lambda: {})
-
-    def __post_init__(self) -> None:
+    @cached_property
+    def item_by_id(self) -> dict[int, ItemsRoot.Data]:
         with open(
-            os.path.join(DOFUS_DATA_PATH, USEFUL_DATAS_JSON["Items"]), "rb"
+            os.path.join(DOFUS_FOLDER, ItemsRoot.ItemsModel.FILE_PATH), "rb"
         ) as file:
-            data = orjson.loads(file.read())
-        self.item_by_id = {
-            ref_id["data"]["id"]: ref_id["data"]
-            for ref_id in data["references"]["RefIds"]
-            if "id" in ref_id["data"]
+            data = msgspec.json.decode(file.read(), type=ItemsRoot.ItemsModel)
+        return {
+            ref_id.data.id: ref_id.data
+            for ref_id in data.references.RefIds
+            if ref_id.data.id
         }
+
+    @cached_property
+    def job_by_id(self) -> dict[int, JobsRoot.Data]:
+        with open(
+            os.path.join(DOFUS_FOLDER, JobsRoot.JobsModel.FILE_PATH), "rb"
+        ) as file:
+            data = msgspec.json.decode(file.read(), type=JobsRoot.JobsModel)
+        return {ref_id.data.id: ref_id.data for ref_id in data.references.RefIds}
+
+    @cached_property
+    def map_pos_by_map_id(self) -> dict[int, MapPositionsRoot.Data]:
+        with open(
+            os.path.join(DOFUS_FOLDER, MapPositionsRoot.MapPositionsModel.FILE_PATH),
+            "rb",
+        ) as file:
+            data = msgspec.json.decode(
+                file.read(), type=MapPositionsRoot.MapPositionsModel
+            )
+        return {ref_id.data.id: ref_id.data for ref_id in data.references.RefIds}
+
+    @cached_property
+    def skill_by_id(self) -> dict[int, SkillsRoot.Data]:
+        with open(
+            os.path.join(DOFUS_FOLDER, SkillsRoot.SkillsModel.FILE_PATH), "rb"
+        ) as file:
+            data = msgspec.json.decode(file.read(), type=SkillsRoot.SkillsModel)
+        return {ref_id.data.id: ref_id.data for ref_id in data.references.RefIds}
+
+    @cached_property
+    def quest_by_id(self) -> dict[int, QuestsRoot.Data]:
+        with open(
+            os.path.join(DOFUS_FOLDER, QuestsRoot.QuestsModel.FILE_PATH), "rb"
+        ) as file:
+            data = msgspec.json.decode(file.read(), type=QuestsRoot.QuestsModel)
+        return {ref_id.data.id: ref_id.data for ref_id in data.references.RefIds}
+
+    @cached_property
+    def quest_objective_by_id(self) -> dict[int, QuestObjectivesRoot.Data]:
+        with open(
+            os.path.join(
+                DOFUS_FOLDER, QuestObjectivesRoot.QuestObjectivesModel.FILE_PATH
+            ),
+            "rb",
+        ) as file:
+            data = msgspec.json.decode(
+                file.read(), type=QuestObjectivesRoot.QuestObjectivesModel
+            )
+        return {ref_id.data.id: ref_id.data for ref_id in data.references.RefIds}
+
+
+if __name__ == "__main__":
+    related_skill_data = next(iter(DataReader().job_by_id.values()))
+    print(related_skill_data)
+    # temp = related_skill_data
+    # print(BinTextParser().i18n_name_by_id[temp])
