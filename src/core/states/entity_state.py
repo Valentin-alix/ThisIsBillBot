@@ -1,16 +1,9 @@
 from dataclasses import dataclass, field
 
-from com.ankama.dofus.server.game.protocol.common_pb2 import ActorPositionInformation
-from com.ankama.dofus.server.game.protocol.gamemap_pb2 import (
-    MapObstacle,
-)
 from src.core.states.state import State
-
-
-@dataclass
-class Entity[T]:
-    cell_id: int
-    entity: T
+from db_dofus_unity.protos.game.common_pb2 import ActorPositionInformation
+from db_dofus_unity.protos.game.gamemap_pb2 import MapObstacle
+from src.interfaces.models.entity import Entity
 
 
 @dataclass

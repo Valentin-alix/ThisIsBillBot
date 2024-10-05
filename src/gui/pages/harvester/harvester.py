@@ -1,8 +1,14 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
-from qfluentwidgets import PivotItem, FluentIcon, TransparentToolButton
+from qfluentwidgets import (
+    PivotItem,
+    FluentIcon,
+    TransparentToolButton,
+    SingleDirectionScrollArea,
+    SmoothMode,
+)
 
-from src.gui.components.player_info_widget import PlayerInfoWidget
+from src.gui.components.player_info.player_info_widget import PlayerInfoWidget
 from src.signals.harvester_signals import HarvesterSignals
 from src.signals.player_signals import StatePropertySignals
 
@@ -43,7 +49,15 @@ class HarvesterWidget(PivotItem):
 
         self.layout().addWidget(top_widget)
 
-        self.layout().addWidget(PlayerInfoWidget(self.player_property_signals))
+        scroll_area_info = SingleDirectionScrollArea()
+        player_info_widget = PlayerInfoWidget(self.player_property_signals)
+
+        scroll_area_info.setSmoothMode(SmoothMode.NO_SMOOTH)
+        scroll_area_info.setWidgetResizable(True)
+        scroll_area_info.setWidget(player_info_widget)
+        scroll_area_info.enableTransparentBackground()
+
+        self.layout().addWidget(scroll_area_info)
 
     def on_play(self):
         self.stop_btn.show()

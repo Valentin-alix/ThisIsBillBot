@@ -4,9 +4,9 @@ from dataclasses import dataclass
 import msgspec
 from cachetools import cached
 
-from resources.gen.gen_maps import MapsRoot
-from src.consts import DOFUS_MAP_PATH
-from src.utils import Singleton
+from db_dofus_unity.consts import DOFUS_MAP_PATH
+from db_dofus_unity.gen.gen_maps import MapsRoot
+from src.interfaces.metaclasses.singleton import Singleton
 
 
 @dataclass(frozen=True)

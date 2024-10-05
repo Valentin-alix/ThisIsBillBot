@@ -1,18 +1,15 @@
 import dataclasses
 from dataclasses import dataclass
 
-from com.ankama.dofus.server.game.protocol.inventory_pb2 import (
-    InventoryWeightEvent,
-    InventoryContentEvent,
-)
 from src.core.states.state import State
+from db_dofus_unity.protos.game.common_pb2 import ObjectItemInventory
 
 
 @dataclass
 class InventoryState(State):
-    inventory_weight: InventoryWeightEvent = dataclasses.field(
-        init=False, default_factory=InventoryWeightEvent
+    inventory_weight: int = dataclasses.field(init=False, default=0)
+    weight_max: int = dataclasses.field(init=False, default=1)
+    objects: list[ObjectItemInventory] = dataclasses.field(
+        init=False, default_factory=lambda: []
     )
-    inventory_content: InventoryContentEvent = dataclasses.field(
-        init=False, default_factory=InventoryContentEvent
-    )
+    kamas: int = dataclasses.field(init=False, default=0)

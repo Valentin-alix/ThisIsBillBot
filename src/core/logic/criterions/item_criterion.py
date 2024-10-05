@@ -2,16 +2,19 @@ from dataclasses import dataclass, field
 
 from src.core.logic.criterions.interface_item_criterion import IItemCriterion
 from src.core.logic.criterions.item_criterion_operator import ItemCriterionOperator
-from src.core.logic.stats.stat_id import StatIds
 from src.core.states.entity_state import EntityState
+from src.core.states.inventory_state import InventoryState
+from src.core.states.map_state import MapState
+from src.core.states.objective_state import ObjectiveState
 from src.core.states.player_state import PlayerState
+from src.interfaces.enums.stat_id import StatIds
 
 
 @dataclass
 class ItemCriterion(IItemCriterion):
     criterion: str
 
-    item_operator: ItemCriterionOperator | None = field(init=False, default=None)
+    item_operator: ItemCriterionOperator = field(init=False)
     criterion_ref: str = field(init=False, default="")
     criterion_value: int = field(init=False, default=0)
     criterion_value_text: str = field(init=False, default="")
@@ -20,10 +23,18 @@ class ItemCriterion(IItemCriterion):
         self.get_infos()
 
     def is_respected(
-        self, player_state: PlayerState, entity_state: EntityState
+        self,
+        player_state: PlayerState,
+        map_state: MapState,
+        quest_state: ObjectiveState,
+        entity_state: EntityState,
+        inventory_state: InventoryState,
     ) -> bool:
         return self.item_operator.compare(
-            self.get_criterion(player_state, entity_state), self.criterion_value
+            self.get_criterion(
+                player_state, map_state, quest_state, entity_state, inventory_state
+            ),
+            self.criterion_value,
         )
 
     def get_infos(self) -> None:
@@ -44,91 +55,112 @@ class ItemCriterion(IItemCriterion):
             break
 
     def get_criterion(
-        self, player_state: PlayerState, entity_state: EntityState
+        self,
+        player_state: PlayerState,
+        map_state: MapState,
+        quest_state: ObjectiveState,
+        entity_state: EntityState,
+        inventory_state: InventoryState,
     ) -> int:
         criterion: int = 0
 
-        stats: list = []
-
-        if stats is None:
+        if len(player_state.detail_stat_value_by_id.keys()) == 0:
             return 0
 
         elif self.criterion_ref == "Ca":
-            criterion = stats.getStatBaseValue(StatIds.AGILITY)
+            criterion = player_state.detail_stat_value_by_id[StatIds.AGILITY].base
 
         elif self.criterion_ref == "CA":
-            criterion = stats.getStatTotalValue(StatIds.AGILITY)
+            related_state = player_state.detail_stat_value_by_id[StatIds.AGILITY]
+            criterion = related_state.base + related_state.additional
 
         elif self.criterion_ref == "Cc":
-            criterion = stats.getStatBaseValue(StatIds.CHANCE)
+            criterion = player_state.detail_stat_value_by_id[StatIds.CHANCE].base
 
         elif self.criterion_ref == "CC":
-            criterion = stats.getStatTotalValue(StatIds.CHANCE)
+            related_state = player_state.detail_stat_value_by_id[StatIds.CHANCE]
+            criterion = related_state.base + related_state.additional
 
         elif self.criterion_ref == "Ce":
-            criterion = stats.getStatBaseValue(StatIds.ENERGY_POINTS)
+            criterion = player_state.detail_stat_value_by_id[StatIds.ENERGY_POINTS].base
 
         elif self.criterion_ref == "CE":
-            criterion = stats.getStatTotalValue(StatIds.MAX_ENERGY_POINTS)
+            related_state = player_state.detail_stat_value_by_id[
+                StatIds.MAX_ENERGY_POINTS
+            ]
+            criterion = related_state.base + related_state.additional
 
         elif self.criterion_ref == "CH":
-            criterion = stats.getStatTotalValue(StatIds.HONOUR_POINTS)
+            related_state = player_state.detail_stat_value_by_id[StatIds.HONOUR_POINTS]
+            criterion = related_state.base + related_state.additional
 
         elif self.criterion_ref == "Ci":
-            criterion = stats.getStatBaseValue(StatIds.INTELLIGENCE)
+            criterion = player_state.detail_stat_value_by_id[StatIds.INTELLIGENCE].base
 
         elif self.criterion_ref == "CI":
-            criterion = stats.getStatTotalValue(StatIds.INTELLIGENCE)
-
-        elif self.criterion_ref == "CL":
-            criterion = stats.getHealthPoints()
+            related_state = player_state.detail_stat_value_by_id[StatIds.INTELLIGENCE]
+            criterion = related_state.base + related_state.additional
 
         elif self.criterion_ref == "CM":
-            criterion = stats.getStatTotalValue(StatIds.MOVEMENT_POINTS)
+            related_state = player_state.detail_stat_value_by_id[
+                StatIds.MOVEMENT_POINTS
+            ]
+            criterion = related_state.base + related_state.additional
 
         elif self.criterion_ref == "CP":
-            criterion = stats.getStatTotalValue(StatIds.ACTION_POINTS)
-
+            related_state = player_state.detail_stat_value_by_id[StatIds.ACTION_POINTS]
+            criterion = related_state.base + related_state.additional
         elif self.criterion_ref == "Cs":
-            criterion = stats.getStatBaseValue(StatIds.STRENGTH)
+            criterion = player_state.detail_stat_value_by_id[StatIds.STRENGTH].base
 
         elif self.criterion_ref == "CS":
-            criterion = stats.getStatTotalValue(StatIds.STRENGTH)
+            related_state = player_state.detail_stat_value_by_id[StatIds.STRENGTH]
+            criterion = related_state.base + related_state.additional
 
         elif self.criterion_ref == "Cv":
-            criterion = stats.getStatBaseValue(StatIds.VITALITY)
+            criterion = player_state.detail_stat_value_by_id[StatIds.VITALITY].base
 
         elif self.criterion_ref == "CV":
-            criterion = stats.getStatTotalValue(StatIds.VITALITY)
+            related_state = player_state.detail_stat_value_by_id[StatIds.VITALITY]
+            criterion = related_state.base + related_state.additional
 
         elif self.criterion_ref == "Cw":
-            criterion = stats.getStatBaseValue(StatIds.WISDOM)
+            criterion = player_state.detail_stat_value_by_id[StatIds.WISDOM].base
 
         elif self.criterion_ref == "CW":
-            criterion = stats.getStatTotalValue(StatIds.WISDOM)
+            related_state = player_state.detail_stat_value_by_id[StatIds.WISDOM]
+            criterion = related_state.base + related_state.additional
 
         elif self.criterion_ref == "Ct":
-            criterion = stats.getStatTotalValue(StatIds.TACKLE_EVADE)
+            related_state = player_state.detail_stat_value_by_id[StatIds.TACKLE_EVADE]
+            criterion = related_state.base + related_state.additional
 
         elif self.criterion_ref == "CT":
-            criterion = stats.getStatTotalValue(StatIds.TACKLE_BLOCK)
+            related_state = player_state.detail_stat_value_by_id[StatIds.TACKLE_BLOCK]
+            criterion = related_state.base + related_state.additional
 
         elif self.criterion_ref == "ca":
-            criterion = stats.getStatAdditionalValue(StatIds.AGILITY)
+            criterion = player_state.detail_stat_value_by_id[StatIds.AGILITY].additional
 
         elif self.criterion_ref == "cc":
-            criterion = stats.getStatAdditionalValue(StatIds.CHANCE)
+            criterion = player_state.detail_stat_value_by_id[StatIds.CHANCE].additional
 
         elif self.criterion_ref == "ci":
-            criterion = stats.getStatAdditionalValue(StatIds.INTELLIGENCE)
+            criterion = player_state.detail_stat_value_by_id[
+                StatIds.INTELLIGENCE
+            ].additional
 
         elif self.criterion_ref == "cs":
-            criterion = stats.getStatAdditionalValue(StatIds.STRENGTH)
+            criterion = player_state.detail_stat_value_by_id[
+                StatIds.STRENGTH
+            ].additional
 
         elif self.criterion_ref == "cv":
-            criterion = stats.getStatAdditionalValue(StatIds.VITALITY)
+            criterion = player_state.detail_stat_value_by_id[
+                StatIds.VITALITY
+            ].additional
 
         elif self.criterion_ref == "cw":
-            criterion = stats.getStatAdditionalValue(StatIds.WISDOM)
+            criterion = player_state.detail_stat_value_by_id[StatIds.WISDOM].additional
 
         return criterion

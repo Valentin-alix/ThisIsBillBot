@@ -1,4 +1,4 @@
-from src.core.logic.jobs.job_name import JobName
+from src.interfaces.enums.job_name import JobName
 
 HARVESTER_JOB_NAMES: list[JobName] = [
     JobName.MINER,
@@ -6,4 +6,5 @@ HARVESTER_JOB_NAMES: list[JobName] = [
     JobName.PEASANT,
     JobName.FISHERMAN,
     JobName.ALCHEMIST,
+    JobName.BASE,
 ]

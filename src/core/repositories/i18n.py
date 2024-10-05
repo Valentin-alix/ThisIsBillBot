@@ -1,8 +1,9 @@
+import json
 import struct
 from dataclasses import dataclass, field
 
-from src.consts import I18N_PATH
-from src.utils import Singleton
+from db_dofus_unity.consts import I18N_PATH
+from src.interfaces.metaclasses.singleton import Singleton
 
 
 class BinaryReader:
@@ -84,6 +85,8 @@ class I18N(metaclass=Singleton):
 
 
 if __name__ == "__main__":
-    # nameText
-    print(I18N().name_by_id[1])
-    # "ui.social.guildRightsCollectMy"
+    with open("i18n.json", "w+") as file:
+        json.dump(I18N().name_by_id, file, indent=2)
+
+    # for skill in DataReader().skill_names_by_id.values():
+    #     icecream.ic(I18N().name_by_id[skill.nameId])

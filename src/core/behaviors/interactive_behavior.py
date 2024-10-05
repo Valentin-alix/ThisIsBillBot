@@ -1,41 +1,44 @@
 from dataclasses import dataclass
+from functools import partial
 
-from com.ankama.dofus.server.game.protocol.gamemap_pb2 import MapMovementConfirmRequest
-from com.ankama.dofus.server.game.protocol.interactive.element_pb2 import (
+from db_dofus_unity.protos.game.interactive_element_pb2 import (
     InteractiveUseRequest,
+    InteractiveUsedEvent,
 )
-from src.core.behaviors.map_behavior import MapBehavior
+from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
 from src.core.logic.grid.path_finding.movement_path import MovementPath
 from src.core.states.player_state import PlayerState
-from src.signals.message_events import MessageEvents
 
 
 @dataclass
-class InteractiveBehavior:
-    map_behavior: MapBehavior
+class InteractiveBehavior(Behavior):
+    map_behavior: MapMoveBehavior
     player_state: PlayerState
-    msg_event: MessageEvents
 
-    def move_and_use_interactive(
-        self, move_path: MovementPath, element_id: int, skill_instance_uid: int
+    def run(
+        self,
+        move_path: MovementPath,
+        element_id: int,
+        skill_instance_uid: int,
     ):
-        def on_moved(_, message: MapMovementConfirmRequest):
-            self.msg_event.received_game_msg.disconnect(
-                on_moved, MapMovementConfirmRequest
-            )
-            self._use_interactive(
-                element_id=element_id, skill_instance_uid=skill_instance_uid
-            )
-
-        if self.player_state.map_point.map_point == move_path.end.cell_id:
+        self.event_manager.on(
+            InteractiveUsedEvent,
+            partial(self.on_interactive_used_event, element_id=element_id),
+            originator=self,
+        )
+        if self.player_state.map_point.cell_id == move_path.end.cell_id:
             self._use_interactive(
                 element_id=element_id, skill_instance_uid=skill_instance_uid
             )
         else:
-            self.msg_event.received_game_msg.connect(
-                on_moved, MapMovementConfirmRequest, weak=False
+            self.map_behavior.start(
+                callback=lambda: self._use_interactive(
+                    element_id=element_id, skill_instance_uid=skill_instance_uid
+                ),
+                parent=self,
+                move_path=move_path,
             )
-            self.map_behavior.send_move_path(move_path)
 
     def _use_interactive(self, element_id: int, skill_instance_uid: int):
         request = InteractiveUseRequest(
@@ -43,4 +46,8 @@ class InteractiveBehavior:
             skill_instance_uid=skill_instance_uid,
             specific_instance_id=0,
         )
-        self.msg_event.send_game_msg.send(request)
+        self.event_manager.send(request)
+
+    def on_interactive_used_event(self, msg: InteractiveUsedEvent, element_id: int):
+        if msg.element_id == element_id:
+            self.finish()

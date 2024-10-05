@@ -1,9 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
-
-from google.protobuf.message import Message
-from google.protobuf.text_format import MessageToString
 
 from src.signals.player_signals import StatePropertySignals
 
@@ -14,11 +12,9 @@ class State(ABC):
 
     def __setattr__(self, key: str, value: Any):
         if "state_property_signals" in self.__dict__:
-            if isinstance(value, Message):
-                self.state_property_signals.property_set_by_class.emit(
-                    self.__class__.__name__, key, MessageToString(value)
-                )
-            else:
+            if isinstance(value, (int, float, str, bool, datetime)):
+                if isinstance(value, datetime):
+                    value = value.isoformat()
                 self.state_property_signals.property_set_by_class.emit(
                     self.__class__.__name__, key, str(value)
                 )

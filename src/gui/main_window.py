@@ -1,33 +1,36 @@
-from PyQt5.QtGui import QColor
-from qfluentwidgets import FluentIcon, FluentWindow
+import os.path
 
+from PyQt5.QtCore import QSize
+from PyQt5.QtGui import QColor, QIcon
+from qfluentwidgets import FluentIcon, FluentWindow, SplashScreen
+
+from src.bot import Bot
+from src.consts import RESOURCE_FOLDER
 from src.gui.components.account_widget import AccountWidget
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
-from src.interfaces.models.bot import Bot
 
 
 class MainWindow(FluentWindow):
     def __init__(
         self,
-        account_by_id: dict[int, Bot],
         title: str,
         *args,
         **kwargs,
     ) -> None:
         super().__init__(*args, **kwargs)
         self.title = title
+        self.setWindowTitle(self.title)
+        self.resize(BASE_WIDTH, BASE_HEIGHT)
+        self.setWindowIcon(QIcon(os.path.join(RESOURCE_FOLDER, "logo.png")))
+        self.splashScreen = SplashScreen(self.windowIcon(), self)
+        self.splashScreen.setIconSize(QSize(102, 102))
 
         self.disconnected_icon = FluentIcon.PEOPLE.icon(color=QColor(255, 0, 0))
         self.connected_icon = FluentIcon.PEOPLE.icon(color=QColor(0, 255, 0))
 
-        self.init_window()
-
+    def init_accounts(self, account_by_id: dict[int, Bot]):
         for account in account_by_id.values():
             self.add_account(account)
-
-    def init_window(self):
-        self.setWindowTitle(self.title)
-        self.resize(BASE_WIDTH, BASE_HEIGHT)
 
     def add_account(self, account: Bot):
         login = account.account["apikey"]["login"]

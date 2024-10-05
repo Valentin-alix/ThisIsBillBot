@@ -11,6 +11,7 @@ from src.core.logic.grid.path_finding.path_element import PathElement
 from src.core.repositories.data_reader import DataReader
 from src.core.repositories.map_reader import MapReader
 from src.core.states.entity_state import EntityState
+from src.core.states.interactive_state import InteractiveState
 from src.core.states.map_state import MapState
 from src.core.states.player_state import PlayerState
 from src.signals.player_signals import StatePropertySignals
@@ -34,14 +35,14 @@ class Pathfinding:
     )
     open_list: list[tuple[float, int]] = field(init=False, default_factory=lambda: [])
 
-    def get_near_path_to_interactive(
+    def get_near_path_to_reachable_interactive(
         self, element_id: int, skill_id: int
     ) -> MovementPath | None:
         skill_range = DataReader().skill_by_id[skill_id].range
 
         cell_id_element = (
             MapReader()
-            .get_ref_data_by_element_id(self.map_state.map.map_id)[element_id]
+            .get_ref_data_by_element_id(self.map_state.map_id)[element_id]
             .cellId
         )
         mp_element = MapPoint.from_cell_id(cell_id_element)
@@ -49,12 +50,6 @@ class Pathfinding:
         move_path = self.find_path(self.player_state.map_point, mp_element)
         if move_path.end.point.distance_to_point(mp_element.point) > skill_range:
             return None
-
-        if skill_range == 1:
-            for path in reversed(move_path.path.copy()):
-                if path.step.point.distance_to_point(mp_element.point) > skill_range:
-                    break
-                move_path.end = move_path.path.pop().step
 
         return move_path
 
@@ -222,7 +217,7 @@ class Pathfinding:
             + (HV_COST if y == parent_y or x == parent_x else DIAG_COST) * point_weight
         )
         if allow_thought_entity:
-            cell_on_end_column = x + y == start.point.y + end.point.y
+            cell_on_end_column = x + y == end.point.y + end.point.y
             cell_on_start_column = x + y == start.point.x + start.point.y
             cell_on_end_line = x - y == end.point.x - end.point.y
             cell_on_start_line = x - y == start.point.x - start.point.y
@@ -260,8 +255,8 @@ class Pathfinding:
         if cell_id == end.cell_id:
             return 1
         point_weight: float
-        speed = self.data_map_provider.get_cell_data(cell_id)["speed"]
-        entity_on_cell = self.is_entity_on_cell_by_id.get(cell_id)
+        speed = self.data_map_provider.get_cell_data(cell_id).speed
+        entity_on_cell = self.is_entity_on_cell_by_id.get(cell_id, False)
         if allow_trough_entity:
             if entity_on_cell:
                 point_weight = 20
@@ -431,19 +426,23 @@ class Pathfinding:
 
 
 if __name__ == "__main__":
-    map_id = 190579712
-    start = MapPoint.from_cell_id(341)
-    end = MapPoint.from_cell_id(91)
+    map_id = 189530634
+    start = MapPoint.from_cell_id(326)
+    end = MapPoint.from_cell_id(205)
 
     is_in_fight = False
 
     state_property_signals = StatePropertySignals()
     map_state = MapState(state_property_signals=state_property_signals)
     entity_state = EntityState(state_property_signals=state_property_signals)
+    interactive_state = InteractiveState(state_property_signals=state_property_signals)
     player_state = PlayerState(
-        map_state=map_state, state_property_signals=StatePropertySignals()
+        map_state=map_state,
+        state_property_signals=StatePropertySignals(),
+        entity_state=entity_state,
+        interactive_state=interactive_state,
     )
-    map_state.map.map_id = map_id
+    map_state.map_id = map_id
 
     data_map_provider = DataMapProvider(
         entity_state=entity_state, player_state=player_state, map_state=map_state

@@ -3,7 +3,9 @@ from dataclasses import dataclass, field
 from src.core.logic.criterions.interface_item_criterion import IItemCriterion
 from src.core.logic.criterions.item_criterion_factory import ItemCriterionFactory
 from src.core.states.entity_state import EntityState
+from src.core.states.inventory_state import InventoryState
 from src.core.states.map_state import MapState
+from src.core.states.objective_state import ObjectiveState
 from src.core.states.player_state import PlayerState
 from src.signals.player_signals import StatePropertySignals
 
@@ -42,7 +44,6 @@ class GroupItemCriterion(IItemCriterion):
                 position += 1
 
             elif char in ["&", "|"] and not stack:
-
                 self.operators.append(char)
                 position += 1
 
@@ -73,22 +74,33 @@ class GroupItemCriterion(IItemCriterion):
         return len(self.criterion)
 
     def is_respected(
-        self, player_state: PlayerState, entity_state: EntityState
+        self,
+        player_state: PlayerState,
+        map_state: MapState,
+        quest_state: ObjectiveState,
+        entity_state: EntityState,
+        inventory_state: InventoryState,
     ) -> bool:
         if len(self.items_criterion) == 0:
             return True
 
         if len(self.items_criterion) == 1:
-            return self.items_criterion[0].is_respected(player_state, entity_state)
+            return self.items_criterion[0].is_respected(
+                player_state, map_state, quest_state, entity_state, inventory_state
+            )
 
         if len(self.operators) > 0 and self.operators[0] == "|":
             for criterion in self.items_criterion:
-                if criterion.is_respected(player_state, entity_state):
+                if criterion.is_respected(
+                    player_state, map_state, quest_state, entity_state, inventory_state
+                ):
                     return True
             return False
 
         for criterion in self.items_criterion:
-            if not criterion.is_respected(player_state, entity_state):
+            if not criterion.is_respected(
+                player_state, map_state, quest_state, entity_state, inventory_state
+            ):
                 return False
 
         return True
@@ -100,7 +112,9 @@ if __name__ == "__main__":
     map_state = MapState(state_property_signals=state_property_signals)
     entity_state = EntityState(state_property_signals=state_property_signals)
     player_state = PlayerState(
-        map_state=map_state, state_property_signals=StatePropertySignals()
+        map_state=map_state,
+        state_property_signals=StatePropertySignals(),
+        entity_state=entity_state,
     )
     print(cr)
     print(cr.is_respected(player_state, entity_state))

@@ -1,11 +1,11 @@
 import binascii
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColorConstants, QPalette, QColor
-from PyQt5.QtWidgets import QVBoxLayout, QWidget, QTextEdit
-from qfluentwidgets import FluentIcon, TransparentToolButton, FluentThemeColor
+from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from qfluentwidgets import FluentIcon, TransparentToolButton, TextEdit
+from qfluentwidgets import SmoothMode
 
-from src.gui.components.tree import DynamicTreeWidget
+from src.gui.components.dynamic_tree_widget import DynamicTreeWidget
 
 
 class MessageDetailWidget(QWidget):
@@ -18,16 +18,14 @@ class MessageDetailWidget(QWidget):
         self.layout().addWidget(self.quit_btn)
 
         self.dynamic_tree = DynamicTreeWidget()
+
+        self.dynamic_tree.scrollDelagate.verticalSmoothScroll.setSmoothMode(
+            SmoothMode.NO_SMOOTH
+        )
         self.layout().addWidget(self.dynamic_tree)
 
-        background_color = FluentThemeColor.GRAY_DARK
-        text_color = QColorConstants.White
-        self.raw_content_label = QTextEdit()
-        palette = self.raw_content_label.palette()
-        palette.setColor(QPalette.Base, QColor(background_color.value))
-        palette.setColor(QPalette.Text, QColor(text_color))
-        self.raw_content_label.setPalette(palette)
-        self.raw_content_label.setFixedHeight(100)
+        self.raw_content_label = TextEdit()
+        self.raw_content_label.setFixedHeight(75)
         self.raw_content_label.setReadOnly(True)
         self.layout().addWidget(self.raw_content_label)
 

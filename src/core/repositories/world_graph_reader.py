@@ -6,9 +6,9 @@ import icecream
 import msgspec
 from tqdm import tqdm
 
-from resources.gen.gen_standalone import WorldGraphRoot
-from src.consts import DOFUS_FOLDER
-from src.utils import Singleton
+from db_dofus_unity.consts import DOFUS_PATH
+from db_dofus_unity.gen.gen_standalone import WorldGraphRoot
+from src.interfaces.metaclasses.singleton import Singleton
 
 DataEdge = WorldGraphRoot.ArrayItem2
 Edge = WorldGraphRoot.ArrayItem3 | WorldGraphRoot.ArrayItem6
@@ -24,17 +24,19 @@ class WorldGraphReader(metaclass=Singleton):
             zip(self.datas.m_edges.m_keys.Array, self.datas.m_edges.m_values.Array)
         )
 
-    def get_edge_by_src_dst_vertex_uid(self, src_uid: int, dst_uid: int) -> Edge:
-        data_edge = self.get_data_edge_by_src_vertex_uid()[src_uid]
-        return dict(zip(data_edge.m_keys.Array, data_edge.m_values.Array))[dst_uid]
+    def get_edge_by_src_and_dst_vertex(self, src: Vertex, dst: Vertex) -> Edge:
+        data_edge = self.get_data_edge_by_src_vertex_uid()[src.m_uid]
+        return dict(zip(data_edge.m_keys.Array, data_edge.m_values.Array))[dst.m_uid]
 
-    def get_outgoing_edges_by_src_uid(self, src_uid: int) -> list[Edge]:
-        related_data: WorldGraphRoot.ArrayItem5 = dict(
+    def get_outgoing_edges_from_vertex(self, vertex: Vertex) -> list[Edge]:
+        related_data: WorldGraphRoot.ArrayItem5 | None = dict(
             zip(
                 self.datas.m_outgoingEdges.m_keys.Array,
                 self.datas.m_outgoingEdges.m_values.Array,
             )
-        )[src_uid]
+        ).get(vertex.m_uid)
+        if related_data is None:
+            return []
         return related_data.m_edgeList.Array
 
     def get_vertices_by_map_id(self) -> dict[int, Vertice]:
@@ -44,17 +46,19 @@ class WorldGraphReader(metaclass=Singleton):
             )
         )
 
-    def get_vertex(self, map_id: int, map_rp_zone_id: int) -> Vertex:
-        related_vertice = self.get_vertices_by_map_id()[map_id]
+    def get_vertex(self, map_id: int, map_rp_zone_id: int) -> Vertex | None:
+        related_vertice = self.get_vertices_by_map_id().get(map_id)
+        if related_vertice is None:
+            return None
 
-        related_vertex_key = related_vertice.m_keys.Array.index(map_rp_zone_id)
-        related_vertex = related_vertice.m_values.Array[related_vertex_key]
-        return related_vertex
+        return dict(zip(related_vertice.m_keys.Array, related_vertice.m_values.Array))[
+            map_rp_zone_id
+        ]
 
     @cached_property
     def datas(self) -> WorldGraphRoot.WorldGraphModel:
         with open(
-            os.path.join(DOFUS_FOLDER, WorldGraphRoot.WorldGraphModel.FILE_PATH), "rb"
+            os.path.join(DOFUS_PATH, WorldGraphRoot.WorldGraphModel.FILE_PATH), "rb"
         ) as file:
             data = msgspec.json.decode(file.read(), type=WorldGraphRoot.WorldGraphModel)
         return data
@@ -62,12 +66,12 @@ class WorldGraphReader(metaclass=Singleton):
 
 if __name__ == "__main__":
     datas = WorldGraphReader().datas
-    all_criterions: set[str] = set()
+    all_criteria: set[str] = set()
     for data_edge in tqdm(
         WorldGraphReader().get_data_edge_by_src_vertex_uid().values()
     ):
         for elem in data_edge.m_values.Array:
             for sub_elem in elem.m_transitions.Array:
-                all_criterions.add(sub_elem.m_criterion)
+                all_criteria.add(sub_elem.m_criterion)
 
-    icecream.ic(all_criterions)
+    icecream.ic(all_criteria)

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from com.ankama.dofus.server.game.protocol.gamemap_pb2 import MapObstacle
+from db_dofus_unity.protos.game.gamemap_pb2 import MapObstacle
 from src.core.logic.grid.map_point import MapPoint
 from src.core.logic.grid.map_tools import MapTools
 from src.core.repositories.map_reader import MapReader
@@ -19,7 +19,7 @@ class DataMapProvider:
 
     def get_cell_data(self, cell_id: int):
         cell_data = (
-            MapReader().map_by_id(self.map_state.map.map_id).cellsData.Array[cell_id]
+            MapReader().map_by_id(self.map_state.map_id).cellsData.Array[cell_id]
         )
         return cell_data
 
@@ -28,9 +28,13 @@ class DataMapProvider:
         cell_array: dict[int, bool],
         allow_through_entity: bool,
     ):
-        if not allow_through_entity:
-            for cell_id, actor in self.entity_state.entities_actors_by_id.items():
-                cell_array[cell_id] = True
+        if allow_through_entity:
+            return cell_array
+
+        for cell_id, actor in self.entity_state.entities_actors_by_id.items():
+            cell_array[cell_id] = True
+
+        return cell_array
 
     def can_mov(
         self,
@@ -44,33 +48,34 @@ class DataMapProvider:
         if not MapPoint.is_in_map(x, y):
             return False
 
-        data_map = MapReader().map_by_id(self.map_state.map.map_id)
+        data_map = MapReader().map_by_id(self.map_state.map_id)
         cell_id = MapTools.get_cell_id_by_coord(x, y)
         cell_data = data_map.cellsData.Array[cell_id]
 
-        mov = bool(cell_data.mov) and (
-            not self.player_state.is_in_fight or not cell_data.nonWalkableDuringFight
+        mov = bool(cell_data.mov) and not (
+            self.player_state.is_in_fight and cell_data.nonWalkableDuringFight
         )
-        if mov and previous_cell_id != -1 and previous_cell_id != cell_id:
+        if not mov:
+            return False
+
+        if previous_cell_id != -1 and previous_cell_id != cell_id:
             previous_cell_data = data_map.cellsData.Array[previous_cell_id]
             dif = abs(abs(cell_data.floor - abs(previous_cell_data.floor)))
-            if (
-                previous_cell_data.moveZone != cell_data.moveZone
-                and dif > 0
-                or previous_cell_data.moveZone == cell_data.moveZone
+            if (previous_cell_data.moveZone != cell_data.moveZone and dif > 0) or (
+                previous_cell_data.moveZone == cell_data.moveZone
                 and cell_data.moveZone == 0
                 and dif > TOLERANCE_ELEVATION
             ):
-                mov = False
-        if not allow_through_entity and cell_id != end_cell_id:
+                return False
+
+        if not allow_through_entity and not end_cell_id == cell_id:
             for entity_obstacle in self.entity_state.entities_obstacles:
-                if entity_obstacle.cell_id == cell_id and (
-                    entity_obstacle.entity.state == MapObstacle.OBSTACLE_CLOSED
-                    or avoid_obstacle
-                ):
+                if not entity_obstacle.cell_id == cell_id:
+                    continue
+                if not entity_obstacle.entity.state == MapObstacle.OBSTACLE_OPENED:
                     return False
 
-        return mov
+        return True
 
     def get_point_weight(
         self,
@@ -115,9 +120,9 @@ class DataMapProvider:
 
         return weight
 
-    def is_change_zone(self, cell1: int, cell2: int) -> bool:
-        cell_1_data = self.get_cell_data(cell1)
-        cell_2_data = self.get_cell_data(cell2)
+    def is_change_zone(self, cell_id_1: int, cell_id_2: int) -> bool:
+        cell_1_data = self.get_cell_data(cell_id_1)
+        cell_2_data = self.get_cell_data(cell_id_2)
         dif: int = abs(abs(cell_1_data.floor) - abs(cell_2_data.floor))
         return cell_1_data.moveZone != cell_2_data.moveZone and dif == 0
 

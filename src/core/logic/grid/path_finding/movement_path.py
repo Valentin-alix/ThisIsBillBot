@@ -195,3 +195,10 @@ class MovementPath:
         key = cell_id
         key |= direction.value << 12
         return key
+
+
+if __name__ == "__main__":
+    key_cell = 16832
+    dir = MovementPath.get_direction_by_key(key_cell)
+    cell_id = MovementPath.get_cell_id_by_key(key_cell)
+    print(cell_id, dir)

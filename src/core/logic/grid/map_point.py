@@ -163,3 +163,48 @@ class MapPoint:
     @staticmethod
     def is_in_map(x: int, y: int) -> bool:
         return 0 <= x + y < MAP_WIDTH * 2 and 0 <= x - y < MAP_HEIGHT * 2
+
+    def allows_map_change_to_direction(self, map_id: int, direction: DirectionsEnum):
+
+        map_change_data = (
+            MapReader().get_cell_data_by_cell_id(map_id, self.cell_id).mapChangeData
+        )
+
+        if direction == DirectionsEnum.RIGHT:
+            return (
+                bool(map_change_data & 1)
+                or (
+                    (self.cell_id + 1) % (MAP_WIDTH * 2) == 0
+                    and bool(map_change_data & 2)
+                )
+                or (
+                    (self.cell_id + 1) % (MAP_WIDTH * 2) == 0
+                    and bool(map_change_data & 128)
+                )
+            )
+        elif direction == DirectionsEnum.LEFT:
+            return (
+                (self.point.x == -self.point.y and bool(map_change_data & 8))
+                or bool(map_change_data & 16)
+                or (self.point.x == -self.point.y and bool(map_change_data & 32))
+            )
+        elif direction == DirectionsEnum.UP:
+            return (
+                (self.cell_id < MAP_WIDTH and bool(map_change_data & 32))
+                or bool(map_change_data & 64)
+                or (self.cell_id < MAP_WIDTH and bool(map_change_data & 128))
+            )
+        elif direction == DirectionsEnum.DOWN:
+            return (
+                (
+                    self.cell_id >= MAP_COUNT_CELL - MAP_WIDTH
+                    and bool(map_change_data & 2)
+                )
+                or bool(map_change_data & 4)
+                or (
+                    self.cell_id >= MAP_COUNT_CELL - MAP_WIDTH
+                    and bool(map_change_data & 8)
+                )
+            )
+
+        return False

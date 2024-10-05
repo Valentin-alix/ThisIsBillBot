@@ -1,10 +1,11 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtGui import QStandardItem
+from PyQt5.QtWidgets import QHeaderView
 from qfluentwidgets import TableView, TableWidget
 
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
-from src.interfaces.models.message_info import MessageInfo
+from src.interfaces.models.message import MessageInfo
 from src.signals.message_signals import MessageInfoSignals
 
 
@@ -13,35 +14,45 @@ class MessageTable(BaseTableWidget):
         super().__init__()
         self.msg_info_signals = msg_info_signals
         columns: list[ColumnInfo] = [
-            ColumnInfo(name="Message"),
+            ColumnInfo(name="Heure"),
             ColumnInfo(name="Serveur"),
             ColumnInfo(name="Type"),
-            ColumnInfo(name="Heure"),
-            ColumnInfo(name="Message détaillé", is_hidden=True),
+            ColumnInfo(name="Message"),
         ]
-        self.set_columns(columns)
+        self.table.set_columns(columns)
 
-        self.table_content.table.setEditTriggers(TableWidget.NoEditTriggers)
-        self.table_content.table.setSelectionBehavior(TableView.SelectRows)
-        self.msg_info_signals.message_info.connect(self.add_row)
+        self.table.horizontalHeader().setMinimumSectionSize(80)
+
+        self.table.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.ResizeToContents
+        )
+        self.table.horizontalHeader().setSectionResizeMode(
+            1, QHeaderView.ResizeToContents
+        )
+        self.table.horizontalHeader().setSectionResizeMode(
+            2, QHeaderView.ResizeToContents
+        )
+        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.Stretch)
+
+        self.table.setEditTriggers(TableWidget.NoEditTriggers)
+        self.table.setSelectionBehavior(TableView.SelectRows)
+        self.msg_info_signals.msg_info.connect(self.add_row)
 
     def add_row(self, msg_info: MessageInfo):
-        index = self.table_content.table.rowCount()
-        self.table_content.table.setRowCount(index + 1)
+        model = self.table.item_model
 
-        self.table_content.table.setItem(
-            index,
-            3,
-            QTableWidgetItem(msg_info.received_time.strftime("%H:%M:%S")),
-        )
-        self.table_content.table.setItem(
-            index, 1, QTableWidgetItem(msg_info.server_type)
-        )
-        self.table_content.table.setItem(index, 2, QTableWidgetItem(msg_info.msg_name))
-        self.table_content.table.setItem(
-            index, 0, QTableWidgetItem(msg_info.sub_msg_name)
-        )
+        date_field = QStandardItem(msg_info.received_time.strftime("%H:%M:%S"))
+        server_type_field = QStandardItem(msg_info.server_type)
+        msg_name_field = QStandardItem(msg_info.msg_name)
+        sub_msg_name_field = QStandardItem(msg_info.sub_msg_name)
+        sub_msg_name_field.setData(msg_info, Qt.UserRole)
 
-        table_widget_item = QTableWidgetItem()
-        table_widget_item.setData(Qt.UserRole, msg_info)
-        self.table_content.table.setItem(index, 4, table_widget_item)
+        model.appendRow(
+            QStandardItem(field)
+            for field in (
+                date_field,
+                server_type_field,
+                msg_name_field,
+                sub_msg_name_field,
+            )
+        )

@@ -15,7 +15,7 @@ class Proxy:
     closed_signal: Signal = field(init=False, default_factory=lambda: Signal())
     _send_lock: Lock = field(init=False, default_factory=Lock)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.opposite_connection = {
             self.client_socket: self.server_socket,
             self.server_socket: self.client_socket,
@@ -57,11 +57,11 @@ class Proxy:
                 break
 
             msg_datas = self.buffers[origin][: pos + size]
-            msg_content_datas = self.buffers[origin][pos : pos + size]
+            msg_content_datas = self.buffers[origin][pos: pos + size]
 
             msg_datas = self.alter_msg_datas(msg_content_datas, msg_datas)
 
-            self.buffers[origin] = self.buffers[origin][pos + size :]
+            self.buffers[origin] = self.buffers[origin][pos + size:]
 
             # send msg_datas to origin target
             with self._send_lock:
