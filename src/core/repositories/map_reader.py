@@ -1,11 +1,11 @@
 import os
 from dataclasses import dataclass
-from functools import cache
 
 import msgspec
 
 from db_dofus_unity.consts import DOFUS_MAP_PATH
 from db_dofus_unity.gen.gen_maps import MapsRoot
+from src.common.cache import cache
 from src.interfaces.metaclasses.singleton import Singleton
 
 

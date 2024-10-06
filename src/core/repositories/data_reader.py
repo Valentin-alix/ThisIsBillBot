@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 from dataclasses import dataclass
 from functools import cached_property
 
@@ -14,18 +15,14 @@ from db_dofus_unity.gen.gen_datas import (
     QuestObjectivesRoot,
     SubAreasRoot,
     SkillNamesRoot,
+    SpellLevelsRoot,
+    WaypointsRoot,
 )
 from src.interfaces.metaclasses.singleton import Singleton
 
 
 @dataclass(frozen=True)
 class DataReader(metaclass=Singleton):
-
-    def load_cached_properties(self):
-        for attr in dir(self):
-            if isinstance(getattr(self.__class__, attr, None), cached_property):
-                getattr(self, attr)
-
     @cached_property
     def item_by_id(self) -> dict[int, ItemsRoot.Data]:
         with open(os.path.join(DOFUS_PATH, ItemsRoot.Model.FILE_PATH), "rb") as file:
@@ -61,6 +58,15 @@ class DataReader(metaclass=Singleton):
         return {ref_id.data.id: ref_id.data for ref_id in data.references.RefIds}
 
     @cached_property
+    def waypoint_by_id(self) -> dict[int, WaypointsRoot.Data]:
+        with open(
+            os.path.join(DOFUS_PATH, WaypointsRoot.Model.FILE_PATH),
+            "rb",
+        ) as file:
+            data = msgspec.json.decode(file.read(), type=WaypointsRoot.Model)
+        return {ref_id.data.id: ref_id.data for ref_id in data.references.RefIds}
+
+    @cached_property
     def skill_by_id(self) -> dict[int, SkillsRoot.Data]:
         with open(os.path.join(DOFUS_PATH, SkillsRoot.Model.FILE_PATH), "rb") as file:
             data = msgspec.json.decode(file.read(), type=SkillsRoot.Model)
@@ -89,9 +95,28 @@ class DataReader(metaclass=Singleton):
             data = msgspec.json.decode(file.read(), type=QuestObjectivesRoot.Model)
         return {ref_id.data.id: ref_id.data for ref_id in data.references.RefIds}
 
+    @cached_property
+    def spell_lvl_by_spell_id(self) -> dict[int, list[SpellLevelsRoot.Data]]:
+        with open(
+            os.path.join(DOFUS_PATH, SpellLevelsRoot.Model.FILE_PATH),
+            "rb",
+        ) as file:
+            data = msgspec.json.decode(file.read(), type=SpellLevelsRoot.Model)
+
+        spell_levels_by_spell_id: dict[int, list[SpellLevelsRoot.Data]] = defaultdict(
+            list
+        )
+        for ref_id in data.references.RefIds:
+            spell_levels_by_spell_id[ref_id.data.spellId].append(ref_id.data)
+            spell_levels_by_spell_id[ref_id.data.spellId].sort(
+                key=lambda spell_lvl: spell_lvl.minPlayerLevel
+            )
+
+        return spell_levels_by_spell_id
+
 
 if __name__ == "__main__":
-    related_skill_data = DataReader().skill_by_id[184]
+    related_skill_data = DataReader().map_pos_by_map_id[153879813]
     print(related_skill_data)
     # temp = related_skill_data
     # print(BinTextParser().i18n_name_by_id[temp])

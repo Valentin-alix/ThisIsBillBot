@@ -20,7 +20,7 @@ def log_caller(func):
 
 def read_profile_file():
     profile = pstats.Stats(
-        os.path.join(Path(__file__).parent.parent.parent, "resources", "benchmark.out")
+        os.path.join(Path(__file__).parent.parent.parent, "benchmark.pstats")
     )
     profile.sort_stats("cumulative")
     profile.print_stats(50)

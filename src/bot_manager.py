@@ -6,15 +6,21 @@ from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApi
 
 from src.bot import Bot
 from src.core.behaviors.bank.unload_in_bank_behavior import UnloadInBankBehavior
-from src.core.behaviors.farms.collect_behavior import CollectBehavior
 from src.core.behaviors.farms.fighter_behavior import FighterBehavior
-from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
+from src.core.behaviors.farms.harvest.collect_behavior import CollectBehavior
+from src.core.behaviors.farms.harvest.harvester_behavior import HarvesterBehavior
+from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
+from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
 from src.core.behaviors.fight.fight_placement_behavior import FightPlacementBehavior
+from src.core.behaviors.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip_behavior import AutoTripBehavior
+from src.core.behaviors.movements.auto_trip_world_behavior import AutoTripWorldBehavior
+from src.core.behaviors.movements.auto_trip_zaap_behavior import AutoTripZaapBehavior
 from src.core.behaviors.movements.map_change_behavior import MapChangeBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
+from src.core.behaviors.movements.waypoint_behavior import WaypointBehavior
 from src.core.behaviors.npc_dialog_behavior import NpcDialogBehavior
 from src.core.frames.entity_frame import EntityFrame
 from src.core.frames.fight_frame import FightFrame
@@ -35,9 +41,10 @@ from src.core.states.objective_state import ObjectiveState
 from src.core.states.player_state import PlayerState
 from src.event_manager import EventManager
 from src.interfaces.metaclasses.singleton import Singleton
+from src.signals.grid_signals import GridSignals
 from src.signals.harvester_signals import HarvesterSignals
 from src.signals.message_signals import MessageInfoSignals
-from src.signals.player_signals import PlayerSignals, StatePropertySignals
+from src.signals.player_signals import GameInfoSignals
 
 
 @dataclass
@@ -69,29 +76,24 @@ class BotManager(metaclass=Singleton):
 
             # signal
             harvester_signals = HarvesterSignals()
-            player_signals = PlayerSignals()
-            state_property_signals = StatePropertySignals()
+            game_info_signals = GameInfoSignals()
             msg_info_signals = MessageInfoSignals()
+            grid_signals = GridSignals()
 
             # state
-            entity_state = EntityState(state_property_signals=state_property_signals)
-            interactive_state = InteractiveState(
-                state_property_signals=state_property_signals
-            )
-            inventory_state = InventoryState(
-                state_property_signals=state_property_signals
-            )
-            map_state = MapState(state_property_signals=state_property_signals)
-            fight_state = FightState(state_property_signals=state_property_signals)
+            entity_state = EntityState(grid_signals=grid_signals)
+            interactive_state = InteractiveState(grid_signals=grid_signals)
+            inventory_state = InventoryState(game_info_signals=game_info_signals)
+            map_state = MapState(grid_signals=grid_signals)
+            fight_state = FightState(game_info_signals=game_info_signals)
 
             player_state = PlayerState(
-                state_property_signals=state_property_signals,
+                game_info_signals=game_info_signals,
                 map_state=map_state,
                 interactive_state=interactive_state,
                 entity_state=entity_state,
-                fight_state=fight_state,
             )
-            quest_state = ObjectiveState(state_property_signals=state_property_signals)
+            objective_state = ObjectiveState()
 
             # logic
             data_map_provider = DataMapProvider(
@@ -110,7 +112,7 @@ class BotManager(metaclass=Singleton):
                 path_finding=path_finding,
                 player_state=player_state,
                 map_state=map_state,
-                quest_state=quest_state,
+                quest_state=objective_state,
                 entity_state=entity_state,
                 inventory_state=inventory_state,
             )
@@ -130,15 +132,17 @@ class BotManager(metaclass=Singleton):
             map_frame = MapFrame(event_manager=event_manager, map_state=map_state)
             player_frame = PlayerFrame(
                 event_manager=event_manager,
-                player_signals=player_signals,
+                game_info_signals=game_info_signals,
                 player_state=player_state,
                 entity_state=entity_state,
             )
             quest_frame = ObjectiveFrame(
-                event_manager=event_manager, objective_state=quest_state
+                event_manager=event_manager, objective_state=objective_state
             )
             fight_frame = FightFrame(
-                event_manager=event_manager, fight_state=fight_state
+                event_manager=event_manager,
+                fight_state=fight_state,
+                player_state=player_state,
             )
 
             # behavior
@@ -149,6 +153,7 @@ class BotManager(metaclass=Singleton):
                 path_finding=path_finding,
                 map_state=map_state,
                 fight_state=fight_state,
+                inventory_state=inventory_state,
             )
             interactive_behavior = InteractiveBehavior(
                 player_state=player_state,
@@ -164,59 +169,111 @@ class BotManager(metaclass=Singleton):
                 player_state=player_state,
                 world_path_finder=world_path_finder,
             )
-            collect_behavior = CollectBehavior(
+            npc_dialog_behavior = NpcDialogBehavior(event_manager=event_manager)
+            waypoint_behavior = WaypointBehavior(
                 event_manager=event_manager,
-                path_finding=path_finding,
                 interactive_behavior=interactive_behavior,
                 interactive_state=interactive_state,
                 player_state=player_state,
-                inventory_state=inventory_state,
             )
-            npc_dialog_behavior = NpcDialogBehavior(
-                event_manager=event_manager, auto_trip_behavior=auto_trip_behavior
+            auto_trip_zaap_behavior = AutoTripZaapBehavior(
+                auto_trip_behavior=auto_trip_behavior,
+                event_manager=event_manager,
+                map_state=map_state,
+                player_state=player_state,
+                waypoint_behavior=waypoint_behavior,
             )
+            auto_trip_world_behavior = AutoTripWorldBehavior(
+                event_manager=event_manager,
+                map_state=map_state,
+                npc_dialog_behavior=npc_dialog_behavior,
+                auto_trip_zaap_behavior=auto_trip_zaap_behavior,
+            )
+
+            collect_behavior = CollectBehavior(
+                event_manager=event_manager, interactive_behavior=interactive_behavior
+            )
+
             unload_in_bank_behavior = UnloadInBankBehavior(
-                event_manager=event_manager, npc_dialog_behavior=npc_dialog_behavior
+                event_manager=event_manager,
+                npc_dialog_behavior=npc_dialog_behavior,
+                auto_trip_world_behavior=auto_trip_world_behavior,
+            )
+
+            fight_movement_behavior = FightMovementBehavior(
+                entity_state=entity_state,
+                map_move_behavior=map_move_behavior,
+                player_state=player_state,
+                fight_state=fight_state,
+                event_manager=event_manager,
+                path_finding=path_finding,
             )
             fight_placement_behavior = FightPlacementBehavior(
                 fight_state=fight_state,
                 player_state=player_state,
                 event_manager=event_manager,
                 entity_state=entity_state,
+                fight_movement_behavior=fight_movement_behavior,
+            )
+            fight_spell_behavior = FightSpellBehavior(
+                event_manager=event_manager,
+                fight_state=fight_state,
+                player_state=player_state,
+                entity_state=entity_state,
+                map_state=map_state,
             )
             fight_behavior = FightBehavior(
                 event_manager=event_manager,
                 fight_state=fight_state,
                 player_state=player_state,
                 fight_placement_behavior=fight_placement_behavior,
+                path_finding=path_finding,
+                map_move_behavior=map_move_behavior,
+                entity_state=entity_state,
+                map_state=map_state,
+                fight_movement_behavior=fight_movement_behavior,
+                fight_spell_behavior=fight_spell_behavior,
+            )
+            random_farm_behavior = RandomFarmBehavior(
+                event_manager=event_manager,
+                entity_state=entity_state,
+                inventory_state=inventory_state,
+                player_state=player_state,
+                map_state=map_state,
+                objective_state=objective_state,
+                auto_trip_world_behavior=auto_trip_world_behavior,
+                auto_trip_behavior=auto_trip_behavior,
             )
 
             # module
             harvester = HarvesterBehavior(
                 event_manager=event_manager,
-                auto_trip_behavior=auto_trip_behavior,
                 collect_behavior=collect_behavior,
                 path_finding=path_finding,
                 player_state=player_state,
                 inventory_state=inventory_state,
                 map_state=map_state,
-                objective_state=quest_state,
-                entity_state=entity_state,
-                interactive_state=interactive_state,
                 unload_in_bank_behavior=unload_in_bank_behavior,
+                random_farm_behavior=random_farm_behavior,
             )
             fighter_behavior = FighterBehavior(
                 event_manager=event_manager,
                 fight_behavior=fight_behavior,
                 entity_state=entity_state,
                 map_move_behavior=map_move_behavior,
+                map_state=map_state,
+                player_state=player_state,
+                path_finding=path_finding,
+                random_farm_behavior=random_farm_behavior,
+                inventory_state=inventory_state,
+                unload_in_bank_behavior=unload_in_bank_behavior,
             )
 
             bot_by_account_id[account_id] = Bot(
                 account=account,
-                player_signals=player_signals,
+                grid_signals=grid_signals,
+                game_info_signals=game_info_signals,
                 harvester_signals=harvester_signals,
-                player_property_signals=state_property_signals,
                 msg_info_signals=msg_info_signals,
                 event_manager=event_manager,
                 harvester_behavior=harvester,

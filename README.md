@@ -8,3 +8,9 @@ Config proxy :
 Mitm :
 - `poetry run python __main__.py`
 
+
+Profiling :
+`gprof2dot -f pstats benchmark.pstats | dot -Tpng -o benchmark_output.png`
+
+
+![harvest](./docs/harvest.gif)

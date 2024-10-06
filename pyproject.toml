@@ -18,10 +18,11 @@ ankama-launcher-emulator = { git = "https://github.com/Valentin-alix/AnkamaLaunc
 orjson = "^3.10.7"
 cachetools = "^5.5.0"
 msgspec = "^0.18.6"
-coloredlogs = "^15.0.1"
 protobuf = "5.28.3"
 sortedcontainers = "^2.4.0"
 line-profiler-pycharm = "^1.2.0"
+mypy = "^1.13.0"
+mypy-extensions = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 icecream = ">2"
@@ -29,7 +30,8 @@ pyqt5-stubs = "^5.15.6.0"
 types-cachetools = "^5.5.0.20240820"
 tqdm = "^4.66.5"
 black = "^24.10.0"
-mypy = "^1.13.0"
+coloredlogs = "^15.0.1"
+gprof2dot = "^2024.6.6"
 
 [build-system]
 requires = ["poetry-core"]

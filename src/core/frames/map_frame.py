@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from db_dofus_unity.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
     FightMapInformationEvent,
+    MapCurrentEvent,
 )
 from src.core.frames.frame import Frame
 from src.core.states.map_state import MapState
@@ -20,6 +21,10 @@ class MapFrame(Frame):
         )
 
         self.event_manager.on(
+            MapCurrentEvent, self.on_map_current_event, originator=self
+        )
+
+        self.event_manager.on(
             FightMapInformationEvent,
             callback=self.on_fight_map_information_event,
             originator=self,
@@ -29,7 +34,9 @@ class MapFrame(Frame):
         self, message: MapComplementaryInformationEvent
     ):
         self.map_state.map_id = message.map_id
-        self.map_state.subarea_id = message.subarea_id
 
     def on_fight_map_information_event(self, msg: FightMapInformationEvent):
+        self.map_state.map_id = msg.map_id
+
+    def on_map_current_event(self, msg: MapCurrentEvent):
         self.map_state.map_id = msg.map_id

@@ -1,12 +1,9 @@
 from dataclasses import dataclass
 
-from line_profiler_pycharm import profile
-
 from db_dofus_unity.protos.game.gamemap_pb2 import MapObstacle
 from src.core.logic.grid.consts import MAP_WIDTH, MAP_COUNT_CELL
-from src.core.logic.grid.directions import DirectionsEnum, DIRECTIONS
+from src.core.logic.grid.directions import DirectionsEnum
 from src.core.logic.grid.map_point import MapPoint
-from src.core.logic.grid.map_tools import MapTools
 from src.core.repositories.map_reader import MapReader
 from src.core.states.entity_state import EntityState
 from src.core.states.fight_state import FightState
@@ -33,18 +30,14 @@ class DataMapProvider:
     def cell_allows_map_change(self, cell_id) -> bool:
         return self.get_cell_data(cell_id).mapChangeData != 0
 
-    @profile
     def can_mov_to_mp(
         self,
         map_point: MapPoint,
         previous_cell_id: int | None = None,
-        end: MapPoint | None = None,
+        ends: set[MapPoint] | None = None,
         allow_through_entity: bool = True,
         avoid_obstacle: bool = True,
     ):
-        if not map_point.point.is_in_map():
-            return False
-
         cell_data = self.get_cell_data(map_point.cell_id)
         mov = bool(cell_data.mov) and not (
             self.fight_state.in_fight and cell_data.nonWalkableDuringFight
@@ -64,10 +57,10 @@ class DataMapProvider:
 
         if (
             not allow_through_entity
-            and not (end and map_point.cell_id == end.cell_id)
+            and not (ends and map_point in ends)
             and avoid_obstacle
         ):
-            related_obstacle = self.entity_state.map_obstacle_by_cell_id.get(
+            related_obstacle = self.entity_state.obstacle_on_cell_id.get(
                 map_point.cell_id
             )
             if (
@@ -91,21 +84,21 @@ class DataMapProvider:
             else:
                 weight += 11 + abs(speed)
 
-            if self.entity_state.is_entity_actor_on_cell_id(mp.cell_id):
-                weight = 20
+            # if self.entity_state.is_entity_actor_on_cell_id(mp.cell_id) and !entity["allowMovementThrough"] :
+            #     weight = 20
         else:
             if self.entity_state.is_entity_actor_on_cell_id(mp.cell_id):
                 weight += 0.3
 
             coords: list[tuple[int, int]] = [
-                (mp.point.x + 1, mp.point.y),
-                (mp.point.x, mp.point.y + 1),
-                (mp.point.x - 1, mp.point.y),
-                (mp.point.x, mp.point.y - 1),
+                (mp.x + 1, mp.y),
+                (mp.x, mp.y + 1),
+                (mp.x - 1, mp.y),
+                (mp.x, mp.y - 1),
             ]
             for coord_x, coord_y in coords:
                 if self.entity_state.is_entity_actor_on_cell_id(
-                    MapTools.get_cell_id_by_coord(coord_x, coord_y)
+                    MapPoint.from_coords(coord_x, coord_y).cell_id
                 ):
                     weight += 0.3
 
@@ -134,7 +127,7 @@ class DataMapProvider:
             forbidden_cells_id = set()
 
         min_weight_mp: tuple[MapPoint, int] | None = None
-        for curr_orientation in DIRECTIONS:
+        for curr_orientation in DirectionsEnum:
             near_mp = map_point.get_nearest_mp_in_direction(curr_orientation)
             if near_mp is None:
                 continue
@@ -192,11 +185,9 @@ class DataMapProvider:
                 )
             case DirectionsEnum.LEFT:
                 return (
-                    (mp.point.x == -mp.point.y and bool(cell_data.mapChangeData & 8))
+                    (mp.x == -mp.y and bool(cell_data.mapChangeData & 8))
                     or bool(cell_data.mapChangeData & 16)
-                    or (
-                        mp.point.x == -mp.point.y and bool(cell_data.mapChangeData & 32)
-                    )
+                    or (mp.x == -mp.y and bool(cell_data.mapChangeData & 32))
                 )
             case DirectionsEnum.UP:
                 return (
@@ -239,9 +230,9 @@ class DataMapProvider:
             )
         elif direction == DirectionsEnum.LEFT:
             return (
-                (mp.point.x == -mp.point.y and bool(map_change_data & 8))
+                (mp.x == -mp.y and bool(map_change_data & 8))
                 or bool(map_change_data & 16)
-                or (mp.point.x == -mp.point.y and bool(map_change_data & 32))
+                or (mp.x == -mp.y and bool(map_change_data & 32))
             )
         elif direction == DirectionsEnum.UP:
             return (

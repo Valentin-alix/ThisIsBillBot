@@ -5,9 +5,10 @@ from qfluentwidgets import SubtitleLabel
 class GroupBox(QFrame):
     def __init__(self, title: str):
         super().__init__()
-        self.setFrameStyle(QFrame.Box | QFrame.Raised)
 
         layout = QVBoxLayout()
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
 
         title_label = SubtitleLabel(text=title)
         layout.addWidget(title_label)

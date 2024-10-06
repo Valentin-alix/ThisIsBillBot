@@ -20,7 +20,7 @@ class GameProxy(Proxy):
         self.bot.event_manager.on_send_callback = self.send_msg
 
     def on_close(self):
-        self.bot.player_signals.disconnected.emit()
+        self.bot.game_info_signals.disconnected.emit()
 
     def alter_msg_datas(self, msg_content_datas: bytes, msg_datas: bytes) -> bytes:
         return msg_datas

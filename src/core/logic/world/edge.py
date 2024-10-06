@@ -7,6 +7,8 @@ from src.core.states.map_state import MapState
 from src.core.states.objective_state import ObjectiveState
 from src.core.states.player_state import PlayerState
 
+FORBIDDEN_TRANSITION_IDS: set[int] = set()
+
 
 def edge_has_valid_transitions(
     edge: Edge,
@@ -18,6 +20,8 @@ def edge_has_valid_transitions(
 ) -> bool:
     valid: bool = False
     for transition in edge.m_transitions.Array:
+        if transition.m_id in FORBIDDEN_TRANSITION_IDS:
+            continue
         valid = True
         if len(transition.m_criterion) == 0:
             continue

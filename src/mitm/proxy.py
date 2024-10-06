@@ -47,7 +47,7 @@ class Proxy:
                 case WorkerAction.SEND_SERVER:
                     self.send_to_server(data)
 
-    def loop(self):
+    def loop(self) -> None:
         conns = self.connections
         active = True
         try:
@@ -56,7 +56,7 @@ class Proxy:
                 if xlist or not rlist:
                     break
                 for r in rlist:
-                    data = r.recv(8192)
+                    data: bytes = r.recv(8192)
                     if not data:
                         active = False
                         break
@@ -66,7 +66,7 @@ class Proxy:
                 print(f"closing {con.getpeername()}")
                 con.close()
 
-    def handle(self, data: bytes, origin: Socket):
+    def handle(self, data: bytes, origin: Socket) -> None:
         self.buffers[origin] += data
 
         while True:

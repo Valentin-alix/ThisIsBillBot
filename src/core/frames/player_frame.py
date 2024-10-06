@@ -8,17 +8,19 @@ from db_dofus_unity.protos.game.character_management_pb2 import (
 )
 from db_dofus_unity.protos.game.character_pb2 import CharacterCharacteristicsEvent
 from db_dofus_unity.protos.game.connection_pb2 import ReloginTokenEvent
+from db_dofus_unity.protos.game.fight_pb2 import FightRefreshCharacterStatsEvent
 from db_dofus_unity.protos.game.job_pb2 import JobExperiencesUpdateEvent
 from db_dofus_unity.protos.game.server_pb2 import ServerSettingsEvent
+from db_dofus_unity.protos.game.teleportation_pb2 import ZaapKnownListEvent
 from src.core.frames.frame import Frame
 from src.core.states.entity_state import EntityState
 from src.core.states.player_state import PlayerState
-from src.signals.player_signals import PlayerSignals
+from src.signals.player_signals import GameInfoSignals
 
 
 @dataclass
 class PlayerFrame(Frame):
-    player_signals: PlayerSignals
+    game_info_signals: GameInfoSignals
     player_state: PlayerState
     entity_state: EntityState
 
@@ -58,6 +60,14 @@ class PlayerFrame(Frame):
             self.on_account_information_update_event,
             originator=self,
         )
+        self.event_manager.on(
+            FightRefreshCharacterStatsEvent,
+            self.on_fight_refresh_character_stats_event,
+            originator=self,
+        )
+        self.event_manager.on(
+            ZaapKnownListEvent, self.on_zaap_known_list_event, originator=self
+        )
 
     def on_identification_response(self, message: IdentificationResponse):
         if message.HasField("success"):
@@ -91,23 +101,32 @@ class PlayerFrame(Frame):
                     message.success.character.character_remodeling_information.breed_id
                 )
 
-            self.player_signals.connected.emit()
+            self.game_info_signals.connected.emit()
 
     def on_re_login_event(self, message: ReloginTokenEvent):
         self.player_state.character_id = 0
-        self.player_signals.disconnected.emit()
+        self.game_info_signals.disconnected.emit()
 
     def on_character_characteristics_event(
         self, message: CharacterCharacteristicsEvent
     ):
         for stat in message.stats.characteristics:
-            if not stat.HasField("detailed"):
-                continue
-            self.player_state.detail_stat_value_by_id[stat.characteristic_id] = (
-                stat.detailed
-            )
+            self.player_state.characteristic_by_id[stat.characteristic_id] = stat
 
     def on_account_information_update_event(self, msg: AccountInformationUpdateEvent):
         self.player_state.subscription_end_date = datetime.fromtimestamp(
             msg.subscription_end_date
         )
+
+    def on_fight_refresh_character_stats_event(
+        self, msg: FightRefreshCharacterStatsEvent
+    ):
+        if self.player_state.character_id != msg.fighter_id:
+            return
+        for characteristic in msg.stats.characteristics:
+            self.player_state.characteristic_by_id[characteristic.characteristic_id] = (
+                characteristic
+            )
+
+    def on_zaap_known_list_event(self, msg: ZaapKnownListEvent):
+        self.player_state.waypoint_ids = list(msg.destinations)

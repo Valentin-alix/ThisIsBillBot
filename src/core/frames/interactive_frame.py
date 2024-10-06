@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 
-from db_dofus_unity.protos.game.gamemap_pb2 import MapComplementaryInformationEvent
+from db_dofus_unity.protos.game.gamemap_pb2 import (
+    MapComplementaryInformationEvent,
+    MapCurrentEvent,
+)
 from db_dofus_unity.protos.game.interactive_element_pb2 import (
     InteractiveMapUpdateEvent,
     InteractiveElementUpdatedEvent,
@@ -39,6 +42,9 @@ class InteractiveFrame(Frame):
             self.on_stated_element_updated_event,
             originator=self,
         )
+        self.event_manager.on(
+            MapCurrentEvent, self.on_map_current_event, originator=self
+        )
 
     def on_map_complementary_information_event(
         self, message: MapComplementaryInformationEvent
@@ -46,9 +52,7 @@ class InteractiveFrame(Frame):
         self.interactive_state.interactive_element_by_id = {
             element.element_id: element for element in message.interactive_elements
         }
-        self.interactive_state.stated_element_by_id = {
-            element.element_id: element for element in message.stated_elements
-        }
+        self.interactive_state.set_stated_elements(message.stated_elements)
 
     def on_interactive_map_update_event(self, msg: InteractiveMapUpdateEvent):
         self.interactive_state.interactive_element_by_id = {
@@ -61,11 +65,10 @@ class InteractiveFrame(Frame):
         ] = msg.interactive_element
 
     def on_stated_map_update_event(self, msg: StatedMapUpdateEvent):
-        self.interactive_state.stated_element_by_id = {
-            element.element_id: element for element in msg.stated_elements
-        }
+        self.interactive_state.set_stated_elements(msg.stated_elements)
 
     def on_stated_element_updated_event(self, msg: StatedElementUpdatedEvent):
-        self.interactive_state.stated_element_by_id[msg.stated_element.element_id] = (
-            msg.stated_element
-        )
+        self.interactive_state.set_stated_element(msg.stated_element)
+
+    def on_map_current_event(self, msg: MapCurrentEvent):
+        self.interactive_state.clear_stated_elements()

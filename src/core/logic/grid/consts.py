@@ -7,3 +7,7 @@ MIN_X_COORD: int = 0
 MAX_X_COORD: int = 33
 MIN_Y_COORD: int = -19
 MAX_Y_COORD: int = 13
+CELL_WIDTH: int = 86
+CELL_HALF_WIDTH: int = 43
+CELL_HEIGHT: int = 43
+CELL_HALF_HEIGHT: float = 21.5

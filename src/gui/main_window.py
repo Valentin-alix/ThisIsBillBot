@@ -37,15 +37,16 @@ class MainWindow(FluentWindow):
         account_widget = AccountWidget(
             login,
             account.msg_info_signals,
-            account.player_property_signals,
+            account.game_info_signals,
             account.harvester_signals,
+            account.grid_signals,
         )
         navigation_widget = self.addSubInterface(
             account_widget, self.disconnected_icon, login
         )
-        account.player_signals.connected.connect(
+        account.game_info_signals.connected.connect(
             lambda: navigation_widget.setIcon(self.connected_icon)
         )
-        account.player_signals.disconnected.connect(
+        account.game_info_signals.disconnected.connect(
             lambda: navigation_widget.setIcon(self.disconnected_icon)
         )

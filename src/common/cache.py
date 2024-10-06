@@ -1,12 +1,8 @@
-from functools import cache, wraps
-from typing import Callable, TypeVar
-
-T = TypeVar("T")
+import functools
+import inspect
 
 
-def typed_cache(func: Callable[..., T]) -> Callable[..., T]:
-    @wraps(func)
-    def wrapper(*args, **kwargs) -> T:
-        return cache(func)(*args, **kwargs)
-
+def cache(func):
+    wrapper = functools.cache(func)
+    wrapper.__signature__ = inspect.signature(func)
     return wrapper

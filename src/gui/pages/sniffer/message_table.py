@@ -39,7 +39,7 @@ class MessageTable(BaseTableWidget):
     def add_row(self, msg_info: MessageInfo):
         model = self.table.item_model
 
-        date_field = QStandardItem(msg_info.received_time.strftime("%H:%M:%S"))
+        date_field = QStandardItem(msg_info.received_time.strftime("%H:%M:%S.%f"))
         server_type_field = QStandardItem(msg_info.server_type)
         msg_name_field = QStandardItem(msg_info.msg_name)
         sub_msg_name_field = QStandardItem(msg_info.sub_msg_name)

@@ -1,5 +1,7 @@
 from enum import IntEnum
 
+from src.common.cache import cache
+
 
 class DirectionsEnum(IntEnum):
     RIGHT = 0
@@ -10,7 +12,6 @@ class DirectionsEnum(IntEnum):
     UP_LEFT = 5
     UP = 6
     UP_RIGHT = 7
-    UNDEFINED = -1
 
     @classmethod
     def is_orthogonal(cls, direction: "DirectionsEnum") -> bool:
@@ -25,10 +26,7 @@ class DirectionsEnum(IntEnum):
         return DirectionsEnum(direction ^ 4)
 
     @classmethod
-    def is_valid(cls, direction: "DirectionsEnum") -> bool:
-        return direction is not DirectionsEnum.UNDEFINED
-
-    @classmethod
+    @cache
     def get_distance(
         cls,
         current_orientation: "DirectionsEnum",
@@ -38,8 +36,3 @@ class DirectionsEnum(IntEnum):
             abs(target_orientation - current_orientation),
             abs(8 - target_orientation + current_orientation),
         )
-
-
-DIRECTIONS: list[DirectionsEnum] = [
-    direction for direction in DirectionsEnum if DirectionsEnum.is_valid(direction)
-]

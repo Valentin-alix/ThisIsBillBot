@@ -5,7 +5,7 @@ from db_dofus_unity.protos.game.interactive_element_pb2 import (
     InteractiveUseRequest,
     InteractiveUsedEvent,
 )
-from src.core.behaviors.behavior import Behavior, EndCode
+from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
 from src.core.logic.grid.path_finding.movement_path import MovementPath
 from src.core.states.player_state import PlayerState
@@ -28,13 +28,13 @@ class InteractiveBehavior(Behavior):
             originator=self,
         )
         if self.player_state.map_point.cell_id == move_path.end.cell_id:
-            self._use_interactive(
+            self.use_interactive(
                 element_id=element_id, skill_instance_uid=skill_instance_uid
             )
         else:
             self.map_behavior.start(
                 callback=partial(
-                    self.on_map_moved,
+                    self.on_map_behavior_finish,
                     element_id=element_id,
                     skill_instance_uid=skill_instance_uid,
                 ),
@@ -42,11 +42,13 @@ class InteractiveBehavior(Behavior):
                 move_path=move_path,
             )
 
-    def on_map_moved(self, code: EndCode, element_id: int, skill_instance_uid: int):
-        if code == code.SUCCESS:
-            self._use_interactive(element_id, skill_instance_uid)
+    def on_map_behavior_finish(
+        self, error_code: str | None, element_id: int, skill_instance_uid: int
+    ):
+        if not error_code:
+            self.use_interactive(element_id, skill_instance_uid)
 
-    def _use_interactive(self, element_id: int, skill_instance_uid: int):
+    def use_interactive(self, element_id: int, skill_instance_uid: int):
         request = InteractiveUseRequest(
             element_id=element_id,
             skill_instance_uid=skill_instance_uid,

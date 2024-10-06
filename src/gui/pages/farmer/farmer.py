@@ -8,24 +8,28 @@ from qfluentwidgets import (
     SmoothMode,
 )
 
+from src.gui.components.grid_widget import GridView
 from src.gui.components.player_info.player_info_widget import PlayerInfoWidget
+from src.signals.grid_signals import GridSignals
 from src.signals.harvester_signals import HarvesterSignals
-from src.signals.player_signals import StatePropertySignals
+from src.signals.player_signals import GameInfoSignals
 
 
-class HarvesterWidget(PivotItem):
+class FarmerWidget(PivotItem):
     play_btn: TransparentToolButton
     stop_btn: TransparentToolButton
 
     def __init__(
         self,
-        player_property_signals: StatePropertySignals,
+        grid_signals: GridSignals,
+        game_info_signals: GameInfoSignals,
         harvester_signals: HarvesterSignals,
         *args,
         **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.player_property_signals = player_property_signals
+        self.grid_signals = grid_signals
+        self.game_info_signals = game_info_signals
         self.harvester_signals = harvester_signals
 
         v_layout = QVBoxLayout()
@@ -50,11 +54,19 @@ class HarvesterWidget(PivotItem):
         self.layout().addWidget(top_widget)
 
         scroll_area_info = SingleDirectionScrollArea()
-        player_info_widget = PlayerInfoWidget(self.player_property_signals)
+
+        content_widget = QWidget()
+        content_widget.setLayout(QHBoxLayout())
+
+        grid_view = GridView(self.grid_signals)
+        content_widget.layout().addWidget(grid_view)
+
+        player_info_widget = PlayerInfoWidget(self.grid_signals, self.game_info_signals)
+        content_widget.layout().addWidget(player_info_widget)
 
         scroll_area_info.setSmoothMode(SmoothMode.NO_SMOOTH)
         scroll_area_info.setWidgetResizable(True)
-        scroll_area_info.setWidget(player_info_widget)
+        scroll_area_info.setWidget(content_widget)
         scroll_area_info.enableTransparentBackground()
 
         self.layout().addWidget(scroll_area_info)

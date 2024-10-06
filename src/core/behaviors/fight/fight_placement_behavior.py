@@ -5,7 +5,6 @@ from db_dofus_unity.protos.game.challenge_pb2 import (
     ChallengeReadyRequest,
     ChallengeSelectionRequest,
 )
-from db_dofus_unity.protos.game.common_pb2 import SpawnInformation, Team
 from db_dofus_unity.protos.game.context_pb2 import EntitiesDispositionEvent
 from db_dofus_unity.protos.game.fight_preparation_pb2 import (
     FightPlacementPositionRequest,
@@ -13,7 +12,9 @@ from db_dofus_unity.protos.game.fight_preparation_pb2 import (
     FightStartEvent,
 )
 from src.common.logger import Logger
+from src.consts import SMALL_RANGE
 from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
 from src.core.logic.grid.map_point import MapPoint
 from src.core.states.entity_state import EntityState
 from src.core.states.fight_state import FightState
@@ -25,6 +26,7 @@ class FightPlacementBehavior(Behavior):
     player_state: PlayerState
     fight_state: FightState
     entity_state: EntityState
+    fight_movement_behavior: FightMovementBehavior
 
     def run(self):
         self.event_manager.on(
@@ -36,7 +38,8 @@ class FightPlacementBehavior(Behavior):
             FightStartEvent, lambda _: self.finish(), originator=self, once=True
         )
 
-        near_possible_cell_id = self.choose_near_placement_position()
+        near_possible_cell_id = self.choose_near_placement_cell_id()
+        Logger().info(f"found near cell id to enemy : {near_possible_cell_id}")
         if self.player_state.map_point.cell_id != near_possible_cell_id:
             Logger().info(f"Moving to {near_possible_cell_id}")
             self.event_manager.on(
@@ -60,7 +63,7 @@ class FightPlacementBehavior(Behavior):
 
     def on_challenge_selection_request(self, msg: ChallengeSelectionRequest):
         request = FightReadyRequest(is_ready=True)
-        self.event_manager.send(request)
+        self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(request))
 
     def on_entity_disposition_event(
         self, msg: EntitiesDispositionEvent, requested_cell_id: int
@@ -71,36 +74,28 @@ class FightPlacementBehavior(Behavior):
             self.event_manager.clear_listener_by_origin_and_type(
                 EntitiesDispositionEvent, self
             )
-            self.on_position_near_enemy()
+            return self.run_timer(SMALL_RANGE, self.on_position_near_enemy)
 
-    def choose_near_placement_position(self) -> int:
+    def choose_near_placement_cell_id(self) -> int:
         min_dist_possible_cell_id: tuple[int, float] | None = None
 
         for possible_cell_id in self.fight_state.fight_placement_possible_positions:
             mp_point_possible_cell = MapPoint.from_cell_id(possible_cell_id)
-            min_dist_cell_id: tuple[int, float] | None = None
-
-            for actor in self.fight_state.actor_by_id.values():
-                spawn_information: SpawnInformation = (
-                    actor.actor_information.fighter.spawn_information
+            near_enemy_with_dist = (
+                self.fight_movement_behavior.find_near_enemy_with_dist(
+                    mp_point_possible_cell
                 )
-                if not spawn_information.team == Team.TEAM_DEFENDER:
-                    continue
-
-                dist = mp_point_possible_cell.distance_to_cell_id(
-                    spawn_information.position.disposition.cell_id
-                )
-                if min_dist_cell_id is None or min_dist_cell_id[1] > dist:
-                    min_dist_cell_id = (
-                        spawn_information.position.disposition.cell_id,
-                        dist,
-                    )
-            if min_dist_cell_id is not None and (
+            )
+            if near_enemy_with_dist is None:
+                continue
+            _, _, cost_path = near_enemy_with_dist
+            if (
                 min_dist_possible_cell_id is None
-                or min_dist_possible_cell_id[1] > min_dist_cell_id[1]
+                or cost_path < min_dist_possible_cell_id[1]
             ):
-                min_dist_possible_cell_id = (possible_cell_id, min_dist_cell_id[1])
+                min_dist_possible_cell_id = (possible_cell_id, cost_path)
 
         if min_dist_possible_cell_id is None:
-            raise ValueError("no possible cell id ?")
+            raise ValueError("no possible cell id at choosing near placement ?")
+
         return min_dist_possible_cell_id[0]

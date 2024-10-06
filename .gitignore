@@ -9,6 +9,9 @@ __pycache__/
 *.pclprof
 resources/datas/*.json
 
+benchmark.pstats
+benchmark_output.png
+
 .idea
 
 # C extensions

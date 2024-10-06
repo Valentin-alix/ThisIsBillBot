@@ -1,26 +1,24 @@
 from dataclasses import dataclass
 
+from db_dofus_unity.protos.game.common_pb2 import Team
 from db_dofus_unity.protos.game.context_pb2 import (
     ContextCreationEvent,
-    EntitiesDispositionEvent,
 )
 from db_dofus_unity.protos.game.fight_pb2 import (
     FightEndEvent,
-    FightSynchronizeEvent,
-    FightFighterShowEvent,
-    FightFighterRefreshEvent,
 )
 from db_dofus_unity.protos.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
+    FightStartingEvent,
 )
-from db_dofus_unity.protos.game.game_action_pb2 import GameActionFightEvent
-from db_dofus_unity.protos.game.gamemap_pb2 import MapMovementEvent
 from src.core.frames.frame import Frame
 from src.core.states.fight_state import FightState
+from src.core.states.player_state import PlayerState
 
 
 @dataclass
 class FightFrame(Frame):
+    player_state: PlayerState
     fight_state: FightState
 
     def __post_init__(self):
@@ -40,26 +38,7 @@ class FightFrame(Frame):
             originator=self,
         )
         self.event_manager.on(
-            FightSynchronizeEvent, self.on_fight_synchronize_event, originator=self
-        )
-        self.event_manager.on(
-            FightFighterShowEvent, self.on_fight_fighter_show_event, originator=self
-        )
-        self.event_manager.on(
-            FightFighterRefreshEvent,
-            self.on_fight_fighter_refresh_event,
-            originator=self,
-        )
-        self.event_manager.on(
-            MapMovementEvent, self.on_map_movement_event, originator=self
-        )
-        self.event_manager.on(
-            EntitiesDispositionEvent,
-            self.on_entities_disposition_event,
-            originator=self,
-        )
-        self.event_manager.on(
-            GameActionFightEvent, self.on_game_action_fight_event, originator=self
+            FightStartingEvent, self.on_fight_starting_event, originator=self
         )
 
     def on_fight_placement_position_request(
@@ -76,37 +55,8 @@ class FightFrame(Frame):
     def on_fight_end_event(self, message: FightEndEvent):
         self.fight_state.in_fight = False
 
-    def on_fight_synchronize_event(self, msg: FightSynchronizeEvent):
-        self.fight_state.actor_by_id = {actor.actor_id: actor for actor in msg.fighters}
-
-    def on_fight_fighter_show_event(self, msg: FightFighterShowEvent):
-        self.fight_state.actor_by_id[msg.information.actor_id] = msg.information
-
-    def on_fight_fighter_refresh_event(self, msg: FightFighterRefreshEvent):
-        self.fight_state.actor_by_id[msg.information.actor_id] = msg.information
-
-    def on_map_movement_event(self, msg: MapMovementEvent):
-        if not self.fight_state.in_fight:
-            return
-        if len(msg.cells) > 0:
-            self.fight_state.actor_by_id[msg.character_id].disposition.cell_id = (
-                msg.cells[-1]
-            )
-        self.fight_state.actor_by_id[msg.character_id].disposition.direction = (
-            msg.direction
-        )
-
-    def on_entities_disposition_event(self, msg: EntitiesDispositionEvent):
-        for disposition in msg.dispositions:
-            if disposition.entity_id not in self.fight_state.actor_by_id:
-                continue
-            self.fight_state.actor_by_id[disposition.entity_id].disposition.cell_id = (
-                disposition.cell_id
-            )
-            self.fight_state.actor_by_id[
-                disposition.entity_id
-            ].disposition.direction = disposition.direction
-
-    def on_game_action_fight_event(self, msg: GameActionFightEvent):
-        if msg.HasField("death"):
-            self.fight_state.actor_by_id.pop(msg.death.target_id)
+    def on_fight_starting_event(self, message: FightStartingEvent):
+        if message.attacker_id != self.player_state.character_id:
+            self.fight_state.team = Team.TEAM_DEFENDER
+        else:
+            self.fight_state.team = Team.TEAM_CHALLENGER

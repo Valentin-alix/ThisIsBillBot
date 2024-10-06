@@ -52,8 +52,8 @@ class BinaryReader:
 
 @dataclass(frozen=True)
 class I18N(metaclass=Singleton):
-    name_by_id: dict[int, str] = field(init=False, default_factory=lambda: {})
-    id_by_name: dict[str, int] = field(init=False, default_factory=lambda: {})
+    name_by_id: dict[int, str] = field(init=False, default_factory=dict)
+    id_by_name: dict[str, int] = field(init=False, default_factory=dict)
 
     def __post_init__(self):
         self.parse(I18N_PATH)

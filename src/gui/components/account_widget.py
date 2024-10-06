@@ -1,11 +1,12 @@
 from PyQt5.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import SegmentedWidget
 
-from src.gui.pages.harvester.harvester import HarvesterWidget
+from src.gui.pages.farmer.farmer import FarmerWidget
 from src.gui.pages.sniffer.sniffer import SnifferWidget
+from src.signals.grid_signals import GridSignals
 from src.signals.harvester_signals import HarvesterSignals
 from src.signals.message_signals import MessageInfoSignals
-from src.signals.player_signals import StatePropertySignals
+from src.signals.player_signals import GameInfoSignals
 
 
 class AccountWidget(QWidget):
@@ -13,8 +14,9 @@ class AccountWidget(QWidget):
         self,
         login: str,
         msg_info_signals: MessageInfoSignals,
-        player_property_signals: StatePropertySignals,
+        game_infos_signals: GameInfoSignals,
         harvester_signals: HarvesterSignals,
+        grid_signals: GridSignals,
     ):
         super().__init__()
         self.login = login
@@ -38,9 +40,9 @@ class AccountWidget(QWidget):
         )
         pivot.setCurrentItem(sniffer_route)
 
-        # harvester
-        harvester_interface = HarvesterWidget(
-            player_property_signals, harvester_signals
+        # farmer
+        harvester_interface = FarmerWidget(
+            grid_signals, game_infos_signals, harvester_signals
         )
         stacked_widget.addWidget(harvester_interface)
         sniffer_route = f"{login}_harvester"

@@ -3,11 +3,12 @@ from heapq import heappush, heappop
 from typing import cast
 
 from db_dofus_unity.gen.gen_datas import MapPositionsRoot
+from src.common.logger import Logger
 from src.core.logic.grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.core.logic.world.edge import edge_has_valid_transitions
-from src.core.logic.world.map import Map
 from src.core.logic.world.node import Node
+from src.core.repositories.data_reader import DataReader
 from src.core.repositories.world_graph_reader import Vertex, Edge, WorldGraphReader
 from src.core.states.entity_state import EntityState
 from src.core.states.inventory_state import InventoryState
@@ -40,22 +41,30 @@ class AStar:
     iterations: int = field(default=0, init=False)
 
     def __post_init__(self) -> None:
+
         self.dst_map_pos: list[MapPositionsRoot.Data] = [
-            Map(vertex.m_mapId).position for vertex in self.dst_vertexes
+            DataReader().map_pos_by_map_id[vertex.m_mapId]
+            for vertex in self.dst_vertexes
         ]
-        self.dst_map_id: list[int] = [vertex.m_mapId for vertex in self.dst_vertexes]
+        self.dst_map_id: set[int] = {vertex.m_mapId for vertex in self.dst_vertexes}
 
     def search(self) -> list[Edge] | None:
         if self.src_vertex in self.dst_vertexes:
             return []
-        node = Node(Map(self.src_vertex.m_mapId).position, self.src_vertex, 0, 0)
+        node = Node(
+            DataReader().map_pos_by_map_id[self.src_vertex.m_mapId],
+            self.src_vertex,
+            0,
+            0,
+        )
         heappush(self.open_list, (0, id(node), node))
         return self.compute()
 
     def compute(self) -> list[Edge] | None:
         while self.open_list:
             if self.iterations > MAX_ITERATION:
-                raise Exception("Too many iterations")
+                Logger().warning("Too many iterations")
+                return None
             self.iterations += 1
             _, _, current = heappop(self.open_list)
             if current.closed:
@@ -80,16 +89,14 @@ class AStar:
                 if existing is not None and current.cost + 1 < existing.cost:
                     continue
 
-                edge_map = Map(edge.m_to.m_mapId)
-                if edge_map is None:
-                    continue
+                edge_map_pos = DataReader().map_pos_by_map_id[edge.m_to.m_mapId]
                 cost_to_target = min(
-                    abs(edge_map.position.posX - dst_map_pos.posX)
-                    + abs(edge_map.position.posY - dst_map_pos.posY)
+                    abs(edge_map_pos.posX - dst_map_pos.posX)
+                    + abs(edge_map_pos.posY - dst_map_pos.posY)
                     for dst_map_pos in self.dst_map_pos
                 )
                 node = Node(
-                    edge_map.position,
+                    edge_map_pos,
                     cast(Vertex, edge.m_to),
                     current.cost + 1,
                     cost_to_target,
@@ -110,8 +117,8 @@ class AStar:
                 if not transition.m_cellId:
                     continue
                 mp_candidate = MapPoint.from_cell_id(transition.m_cellId)
-                move_path = self.path_finding.find_path(mp, [mp_candidate])
-                if move_path.end.distance_to_cell_id(mp_candidate.cell_id) <= 2:
+                move_path = self.path_finding.find_path(mp, {mp_candidate})
+                if move_path.end.distance_to_map_point(mp_candidate) <= 2:
                     return mp_candidate.cell_id
         return None
 

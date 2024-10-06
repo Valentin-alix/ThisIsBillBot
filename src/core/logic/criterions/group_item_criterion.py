@@ -12,7 +12,7 @@ from src.core.states.inventory_state import InventoryState
 from src.core.states.map_state import MapState
 from src.core.states.objective_state import ObjectiveState
 from src.core.states.player_state import PlayerState
-from src.signals.player_signals import StatePropertySignals
+from src.signals.player_signals import GameInfoSignals
 
 
 @dataclass
@@ -121,15 +121,15 @@ if __name__ == "__main__":
             for sub_elem in elem.m_transitions.Array:
                 all_criteria.add(sub_elem.m_criterion)
 
-    state_property_signals = StatePropertySignals()
+    game_info_signals = GameInfoSignals()
 
-    map_state = MapState(state_property_signals=state_property_signals)
-    quest_state = ObjectiveState(state_property_signals=state_property_signals)
-    entity_state = EntityState(state_property_signals=state_property_signals)
-    inventory_state = InventoryState(state_property_signals=state_property_signals)
-    interactive_state = InteractiveState(state_property_signals=state_property_signals)
+    map_state = MapState()
+    quest_state = ObjectiveState()
+    entity_state = EntityState()
+    inventory_state = InventoryState(game_info_signals=game_info_signals)
+    interactive_state = InteractiveState()
     player_state = PlayerState(
-        state_property_signals=state_property_signals,
+        game_info_signals=game_info_signals,
         entity_state=entity_state,
         map_state=map_state,
         interactive_state=interactive_state,

@@ -1,16 +1,67 @@
 import math
 from dataclasses import dataclass
+from functools import cached_property
 from typing import Any
 
-from src.core.logic.grid.consts import MAP_WIDTH
+from src.common.cache import cache
+from src.core.logic.grid.consts import MAP_WIDTH, MAP_HEIGHT, CELL_WIDTH, CELL_HEIGHT
 from src.core.logic.grid.directions import DirectionsEnum
-from src.core.logic.grid.point import Point
+
+
+def get_map_point_by_cell_id_and_by_coord() -> (
+    tuple[dict[int, "MapPoint"], dict[tuple[int, int], "MapPoint"]]
+):
+    map_point_by_id: dict[int, MapPoint] = {}
+    map_point_by_coord: dict[tuple[int, int], MapPoint] = {}
+    start_x: int = 0
+    start_y: int = 0
+    cell_index: int = 0
+
+    pixel_x: float
+    pixel_y: float
+    for row in range(MAP_HEIGHT):
+        for col in range(MAP_WIDTH):
+            pixel_x = col * CELL_WIDTH
+            pixel_y = row * CELL_HEIGHT
+
+            x, y = start_x + col, start_y + col
+            map_point = MapPoint(
+                x=x, y=y, pixel_coord=(pixel_x, pixel_y), cell_id=cell_index
+            )
+            map_point_by_id[cell_index] = map_point
+            map_point_by_coord[(x, y)] = map_point
+            cell_index += 1
+
+        start_x += 1
+
+        for col in range(MAP_WIDTH):
+            pixel_x = (col + 0.5) * CELL_WIDTH
+            pixel_y = (row + 0.5) * CELL_HEIGHT
+            x, y = start_x + col, start_y + col
+            map_point = MapPoint(
+                x=x, y=y, pixel_coord=(pixel_x, pixel_y), cell_id=cell_index
+            )
+            map_point_by_id[cell_index] = map_point
+            map_point_by_coord[(x, y)] = map_point
+            cell_index += 1
+
+        start_y -= 1
+
+    return map_point_by_id, map_point_by_coord
 
 
 @dataclass(frozen=True)
 class MapPoint:
     cell_id: int
-    point: Point
+    x: int
+    y: int
+    pixel_coord: tuple[float, float]
+
+    def __str__(self):
+        return f"cell_id={self.cell_id} x={self.x} y={self.y}"
+
+    def __repr__(self):
+        return self.__str__()
 
     def __eq__(self, other: Any):
         if type(other) is not MapPoint:
@@ -21,23 +72,41 @@ class MapPoint:
         return self.cell_id.__hash__()
 
     @staticmethod
-    def from_cell_id(cell_id: int) -> "MapPoint":
-        return MapPoint(cell_id, Point.from_cell_id(cell_id))
+    def from_coords(x: int, y: int) -> "MapPoint":
+        return MAP_POINT_BY_COORD[(x, y)]
 
     @staticmethod
-    def from_coords(x: int, y: int) -> "MapPoint":
-        cell_id = (x - y) * MAP_WIDTH + y + (x - y) // 2
-        map_point = MapPoint(cell_id, Point(x, y))
-        return map_point
+    def from_cell_id(cell_id: int) -> "MapPoint":
+        return MAP_POINT_BY_CELL_ID[cell_id]
 
-    def distance_to_cell_id(self, cell_id: int) -> float:
-        return self.point.distance_to_point(Point.from_cell_id(cell_id))
+    @cached_property
+    def side_map_points(self) -> list["MapPoint"]:
+        """get the four point next to this point (not in diag)"""
+        side_map_points: list[MapPoint] = []
+        coords = [
+            (self.x + 1, self.y),
+            (self.x, self.y + 1),
+            (self.x - 1, self.y),
+            (self.x, self.y - 1),
+        ]
+        for coord in coords:
+            if coord not in MAP_POINT_BY_COORD:
+                continue
+            side_map_points.append(self.from_coords(*coord))
+        return side_map_points
+
+    @cache
+    def distance_to_map_point(self, map_point: "MapPoint") -> float:
+        return abs(self.x - map_point.x) + abs(self.y - map_point.y)
+
+    def is_diagonal_move(self, map_point: "MapPoint") -> bool:
+        return not (self.y == map_point.y or self.x == map_point.x)
 
     def advanced_orientation_to(self, target: "MapPoint", four_dir: bool = True) -> int:
         if target is None:
             return 0
-        xdiff = target.point.x - self.point.x
-        ydiff = target.point.y - self.point.y
+        xdiff = target.x - self.x
+        ydiff = target.y - self.y
         dir_count = 4 if four_dir else 8
         angle = dir_count * math.degrees(math.atan2(ydiff, xdiff)) / 360
         angle = round(angle) % dir_count + 1
@@ -49,23 +118,28 @@ class MapPoint:
     ) -> "MapPoint | None":
         match direction:
             case DirectionsEnum.RIGHT:
-                mp = MapPoint.from_coords(self.point.x + 1, self.point.y + 1)
+                mp = MapPoint.from_coords(self.x + 1, self.y + 1)
             case DirectionsEnum.DOWN_RIGHT:
-                mp = MapPoint.from_coords(self.point.x + 1, self.point.y)
+                mp = MapPoint.from_coords(self.x + 1, self.y)
             case DirectionsEnum.DOWN:
-                mp = MapPoint.from_coords(self.point.x + 1, self.point.y - 1)
+                mp = MapPoint.from_coords(self.x + 1, self.y - 1)
             case DirectionsEnum.DOWN_LEFT:
-                mp = MapPoint.from_coords(self.point.x, self.point.y - 1)
+                mp = MapPoint.from_coords(self.x, self.y - 1)
             case DirectionsEnum.LEFT:
-                mp = MapPoint.from_coords(self.point.x - 1, self.point.y - 1)
+                mp = MapPoint.from_coords(self.x - 1, self.y - 1)
             case DirectionsEnum.UP_LEFT:
-                mp = MapPoint.from_coords(self.point.x - 1, self.point.y)
+                mp = MapPoint.from_coords(self.x - 1, self.y)
             case DirectionsEnum.UP:
-                mp = MapPoint.from_coords(self.point.x - 1, self.point.y + 1)
+                mp = MapPoint.from_coords(self.x - 1, self.y + 1)
             case DirectionsEnum.UP_RIGHT:
-                mp = MapPoint.from_coords(self.point.x, self.point.y + 1)
+                mp = MapPoint.from_coords(self.x, self.y + 1)
             case _:
                 raise ValueError(f"invalid orientation : {direction}")
-        if mp.point.is_in_map():
-            return mp
-        return None
+        return mp
+
+
+MAP_POINT_BY_CELL_ID, MAP_POINT_BY_COORD = get_map_point_by_cell_id_and_by_coord()
+
+
+if __name__ == "__main__":
+    ...

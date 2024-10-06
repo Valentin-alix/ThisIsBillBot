@@ -1,6 +1,8 @@
 import random
 from dataclasses import dataclass
 
+import icecream
+
 from src.core.logic.grid.directions import DirectionsEnum
 from src.core.logic.grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_element import PathElement
@@ -113,7 +115,7 @@ class MovementPath:
         )
 
     def get_key_cells(self) -> list[int]:
-        curr_orientation: DirectionsEnum = DirectionsEnum.UNDEFINED
+        curr_orientation: DirectionsEnum | None = None
         key_cells: list[int] = []
 
         for index, cell_path in enumerate(self.path):
@@ -124,6 +126,9 @@ class MovementPath:
                     )
                 )
                 curr_orientation = cell_path.orientation
+
+        if curr_orientation is None:
+            raise ValueError("Can't determine end orientation is path is empty")
 
         key_cells.append(
             MovementPath.get_key_by_cell_and_direction(
@@ -192,7 +197,13 @@ class MovementPath:
 
 
 if __name__ == "__main__":
-    key_cell = 25047
-    dir = MovementPath.get_direction_by_key(key_cell)
-    cell_id = MovementPath.get_cell_id_by_key(key_cell)
-    print(cell_id, dir)
+    print(MapPoint.from_cell_id(340))
+    key_cells = [24742]
+    for key_cell in key_cells:
+        icecream.ic(DirectionsEnum(MovementPath.get_direction_by_key(key_cell)))
+        icecream.ic(MovementPath.get_cell_id_by_key(key_cell))
+
+    key_cells = [24742]
+    for key_cell in key_cells:
+        icecream.ic(DirectionsEnum(MovementPath.get_direction_by_key(key_cell)))
+        icecream.ic(MovementPath.get_cell_id_by_key(key_cell))
