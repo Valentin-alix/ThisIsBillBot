@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 
 from db_dofus_unity.protos.game.achievement_pb2 import AchievementsEvent
-from db_dofus_unity.protos.game.quest_pb2 import QuestsEvent
+from db_dofus_unity.protos.game.quest_pb2 import QuestsEvent, QuestStepInformationEvent
 from src.core.frames.frame import Frame
 from src.core.states.objective_state import ObjectiveState
-from src.interfaces.enums.priority import PriorityEnum
 
 
 @dataclass
@@ -12,15 +11,16 @@ class ObjectiveFrame(Frame):
     objective_state: ObjectiveState
 
     def __post_init__(self):
-        self.event_manager.on(
-            QuestsEvent,
-            self.on_quest_event,
-            priority=PriorityEnum.MAX,
-        )
+        self.event_manager.on(QuestsEvent, self.on_quest_event, originator=self)
         self.event_manager.on(
             AchievementsEvent,
             self.on_achievements_event,
-            priority=PriorityEnum.MAX,
+            originator=self,
+        )
+        self.event_manager.on(
+            QuestStepInformationEvent,
+            self.on_quest_step_information_event,
+            originator=self,
         )
 
     def on_quest_event(self, message: QuestsEvent):
@@ -38,3 +38,8 @@ class ObjectiveFrame(Frame):
             achievement.achievement_id: achievement
             for achievement in message.achieved_achievements
         }
+
+    def on_quest_step_information_event(self, msg: QuestStepInformationEvent):
+        self.objective_state.active_quest_by_id[msg.information.quest_id] = (
+            msg.information
+        )

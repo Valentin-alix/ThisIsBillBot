@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from functools import partial
 
 from db_dofus_unity.protos.game.interactive_element_pb2 import (
-    InteractiveElementUpdatedEvent,
+    StatedElementUpdatedEvent,
 )
 from src.common.logger import Logger
 from src.core.behaviors.behavior import Behavior
@@ -26,10 +26,10 @@ class CollectBehavior(Behavior):
     def run(self, move_path: MovementPath, collectable: Collectable) -> bool:
         Logger().info(f"Collecting at {move_path.end.point}")
         self.event_manager.on(
-            InteractiveElementUpdatedEvent,
+            StatedElementUpdatedEvent,
             partial(
                 self.interactive_updated,
-                element_id=collectable.interactive_element.interactive_element.element_id,
+                element_id=collectable.interactive_element.element_id,
             ),
             originator=self,
         )
@@ -37,16 +37,14 @@ class CollectBehavior(Behavior):
             callback=None,
             parent=self,
             move_path=move_path,
-            element_id=collectable.interactive_element.interactive_element.element_id,
+            element_id=collectable.interactive_element.element_id,
             skill_instance_uid=collectable.skill.skill_instance_uid,
         )
         return True
 
-    def interactive_updated(
-        self, message: InteractiveElementUpdatedEvent, element_id: int
-    ):
+    def interactive_updated(self, msg: StatedElementUpdatedEvent, element_id: int):
         if (
-            message.interactive_element.element_id == element_id
-            and self.interactive_state.interactive_elements_by_id[element_id].state == 1
+            msg.stated_element.element_id == element_id
+            and msg.stated_element.state == 1
         ):
             self.finish()

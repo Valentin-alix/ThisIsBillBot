@@ -1,11 +1,10 @@
 import random
 from dataclasses import dataclass, field
-from threading import Timer
 from typing import Callable
 
 from db_dofus_unity.protos.connection.login_message_pb2 import LoginMessage, Request
 from src.bot import Bot
-from src.mitm.proxy import Proxy
+from src.mitm.proxy import Proxy, WorkerAction
 from src.protocol.protocol import (
     encode_msg,
     get_conn_msg_info,
@@ -18,10 +17,6 @@ class ConnectionProxy(Proxy):
     bot_infos: dict[int, Bot]
     on_game_connection_callback: Callable[[int, tuple[str, int], Bot], None]
     current_bot: Bot | None = field(init=False, default=None)
-    _timers: list[Timer] = field(init=False, default_factory=lambda: [])
-
-    def __post_init__(self):
-        super().__post_init__()
 
     def alter_msg_datas(self, msg_content_datas: bytes, msg_datas: bytes) -> bytes:
         msg = LoginMessage()
@@ -67,15 +62,6 @@ class ConnectionProxy(Proxy):
         if msg is not None:
             self.current_bot.event_manager.process_msg(msg)
 
-    def send_msg(self, msg: Request, wait: float | None = None):
+    def send_msg(self, msg: Request):
         conn_msg = LoginMessage(request=msg)
-
-        def _send_msg():
-            self.send_to_server(encode_msg(conn_msg))
-
-        if wait is not None:
-            timer = Timer(wait, _send_msg)
-            self._timers.append(timer)
-            timer.start()
-        else:
-            _send_msg()
+        self.queue_worker_item.put((WorkerAction.SEND_SERVER, encode_msg(conn_msg)))

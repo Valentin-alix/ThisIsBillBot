@@ -2,17 +2,17 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from db_dofus_unity.protos.connection.login_message_pb2 import IdentificationResponse
-from db_dofus_unity.protos.game.character_management_pb2 import CharacterSelectionEvent
+from db_dofus_unity.protos.game.account_pb2 import AccountInformationUpdateEvent
+from db_dofus_unity.protos.game.character_management_pb2 import (
+    CharacterSelectionEvent,
+)
 from db_dofus_unity.protos.game.character_pb2 import CharacterCharacteristicsEvent
 from db_dofus_unity.protos.game.connection_pb2 import ReloginTokenEvent
-from db_dofus_unity.protos.game.context_pb2 import ContextCreationEvent
-from db_dofus_unity.protos.game.fight_pb2 import FightEndEvent
 from db_dofus_unity.protos.game.job_pb2 import JobExperiencesUpdateEvent
 from db_dofus_unity.protos.game.server_pb2 import ServerSettingsEvent
 from src.core.frames.frame import Frame
 from src.core.states.entity_state import EntityState
 from src.core.states.player_state import PlayerState
-from src.interfaces.enums.priority import PriorityEnum
 from src.signals.player_signals import PlayerSignals
 
 
@@ -26,42 +26,37 @@ class PlayerFrame(Frame):
         self.event_manager.on(
             ServerSettingsEvent,
             self.on_server_settings_event,
-            priority=PriorityEnum.MAX,
+            originator=self,
         )
         self.event_manager.on(
             JobExperiencesUpdateEvent,
             self.on_job_experiences_update_event,
-            priority=PriorityEnum.MAX,
+            originator=self,
         )
         self.event_manager.on(
             CharacterSelectionEvent,
             self.on_character_selection_event,
-            priority=PriorityEnum.MAX,
+            originator=self,
         )
         self.event_manager.on(
             ReloginTokenEvent,
             self.on_re_login_event,
-            priority=PriorityEnum.MAX,
-        )
-        self.event_manager.on(
-            ContextCreationEvent,
-            self.on_context_creation_event,
-            priority=PriorityEnum.MAX,
-        )
-        self.event_manager.on(
-            FightEndEvent,
-            self.on_fight_end_event,
-            priority=PriorityEnum.MAX,
+            originator=self,
         )
         self.event_manager.on(
             CharacterCharacteristicsEvent,
             self.on_character_characteristics_event,
-            priority=PriorityEnum.MAX,
+            originator=self,
         )
         self.event_manager.on(
             IdentificationResponse,
             self.on_identification_response,
-            priority=PriorityEnum.MAX,
+            originator=self,
+        )
+        self.event_manager.on(
+            AccountInformationUpdateEvent,
+            self.on_account_information_update_event,
+            originator=self,
         )
 
     def on_identification_response(self, message: IdentificationResponse):
@@ -74,24 +69,33 @@ class PlayerFrame(Frame):
         self.player_state.game_type = message.game_type
 
     def on_job_experiences_update_event(self, message: JobExperiencesUpdateEvent):
-        for job_xp in message.experiences:
-            self.player_state.jobs_lvl_by_id[job_xp.job_id] = job_xp.job_level
+        self.player_state.jobs_lvl_by_id = {
+            job_xp.job_id: job_xp.job_level for job_xp in message.experiences
+        }
 
     def on_character_selection_event(self, message: CharacterSelectionEvent):
         if message.HasField("success"):
             self.player_state.character_id = message.success.character.id
+            if message.success.character.HasField("character_basic_information"):
+                self.player_state.level = (
+                    message.success.character.character_basic_information.level
+                )
+                if message.success.character.character_basic_information.HasField(
+                    "character_look"
+                ):
+                    self.player_state.breed_id = (
+                        message.success.character.character_basic_information.character_look.breed_id
+                    )
+            elif message.success.character.HasField("character_remodeling_information"):
+                self.player_state.breed_id = (
+                    message.success.character.character_remodeling_information.breed_id
+                )
+
             self.player_signals.connected.emit()
 
     def on_re_login_event(self, message: ReloginTokenEvent):
         self.player_state.character_id = 0
         self.player_signals.disconnected.emit()
-
-    def on_context_creation_event(self, message: ContextCreationEvent):
-        if message.context == ContextCreationEvent.GameContext.FIGHT:
-            self.player_state.is_in_fight = True
-
-    def on_fight_end_event(self, message: FightEndEvent):
-        self.player_state.is_in_fight = False
 
     def on_character_characteristics_event(
         self, message: CharacterCharacteristicsEvent
@@ -102,3 +106,8 @@ class PlayerFrame(Frame):
             self.player_state.detail_stat_value_by_id[stat.characteristic_id] = (
                 stat.detailed
             )
+
+    def on_account_information_update_event(self, msg: AccountInformationUpdateEvent):
+        self.player_state.subscription_end_date = datetime.fromtimestamp(
+            msg.subscription_end_date
+        )

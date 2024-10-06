@@ -10,4 +10,4 @@ class Map:
 
     @property
     def position(self) -> MapPositionsRoot.Data:
-        return DataReader().map_pos_by_map_id.get(self.map_id)
+        return DataReader().map_pos_by_map_id[self.map_id]

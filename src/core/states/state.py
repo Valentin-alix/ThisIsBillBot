@@ -14,8 +14,10 @@ class State(ABC):
         if "state_property_signals" in self.__dict__:
             if isinstance(value, (int, float, str, bool, datetime)):
                 if isinstance(value, datetime):
-                    value = value.isoformat()
+                    readable_value = value.isoformat()
+                else:
+                    readable_value = str(value)
                 self.state_property_signals.property_set_by_class.emit(
-                    self.__class__.__name__, key, str(value)
+                    self.__class__.__name__, key, readable_value
                 )
         return super().__setattr__(key, value)

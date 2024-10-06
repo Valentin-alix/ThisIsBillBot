@@ -1,14 +1,15 @@
 import math
 
-from src.core.logic.grid.map_direction import MapDirection
+import icecream
 
-MAP_GRID_WIDTH: int = 14
-MAP_GRID_HEIGHT: int = 20
-MAP_COUNT_CELL = MAP_GRID_WIDTH * MAP_GRID_HEIGHT * 2
-MIN_X_COORD: int = 0
-MAX_X_COORD: int = 33
-MIN_Y_COORD: int = -19
-MAX_Y_COORD: int = 13
+from src.core.logic.grid.consts import (
+    MAP_GRID_WIDTH,
+    MAP_GRID_HEIGHT,
+    MAP_COUNT_CELL,
+    MIN_Y_COORD,
+    MAX_Y_COORD,
+)
+from src.core.logic.grid.directions import DirectionsEnum
 
 
 class MapTools:
@@ -61,60 +62,7 @@ class MapTools:
         return math.floor(abs(y3 - y1) + abs(y4 - y2))
 
     @staticmethod
-    def get_look_direction4_exact_by_coord(
-        param1: int, param2: int, param3: int, param4: int
-    ) -> int:
-        if not MapTools.is_valid_coord(param1, param2) or not MapTools.is_valid_coord(
-            param3, param4
-        ):
-            return -1
-        _loc5_ = param3 - param1
-        _loc6_ = param4 - param2
-        if _loc6_ == 0:
-            if _loc5_ < 0:
-                return 5
-            return 1
-        if _loc5_ == 0:
-            if _loc6_ < 0:
-                return 3
-            return 7
-        return -1
-
-    @staticmethod
-    def get_look_direction4_diag_exact_by_coord(
-        param1: int, param2: int, param3: int, param4: int
-    ) -> int:
-        if not MapTools.is_valid_coord(param1, param2) or not MapTools.is_valid_coord(
-            param3, param4
-        ):
-            return -1
-        _loc5_ = param3 - param1
-        _loc6_ = param4 - param2
-        if _loc5_ == -_loc6_:
-            if _loc5_ < 0:
-                return 6
-            return 2
-        if _loc5_ == _loc6_:
-            if _loc5_ < 0:
-                return 4
-            return 0
-        return -1
-
-    @staticmethod
-    def get_look_direction8_exact_by_coord(
-        param1: int, param2: int, param3: int, param4: int
-    ) -> int:
-        _loc5_: int = MapTools.get_look_direction4_exact_by_coord(
-            param1, param2, param3, param4
-        )
-        if not MapDirection.is_valid_direction(_loc5_):
-            _loc5_ = MapTools.get_look_direction4_diag_exact_by_coord(
-                param1, param2, param3, param4
-            )
-        return _loc5_
-
-    @staticmethod
-    def get_look_direction8_exact(cell_id: int, dst_cell_id: int) -> int:
+    def get_look_direction8_exact(cell_id: int, dst_cell_id: int) -> DirectionsEnum:
         _loc3_: int = math.floor(cell_id / MAP_GRID_WIDTH)
         _loc4_: int = math.floor((_loc3_ + 1) / 2)
         _loc5_ = cell_id - _loc3_ * MAP_GRID_WIDTH
@@ -129,8 +77,64 @@ class MapTools:
         _loc14_: int = math.floor((_loc13_ + 1) / 2)
         _loc15_ = _loc13_ - _loc14_
         _loc16_ = dst_cell_id - _loc13_ * MAP_GRID_WIDTH
-        return int(
-            MapTools.get_look_direction8_exact_by_coord(
-                _loc4_ + _loc5_, _loc9_ - _loc8_, _loc11_ + _loc12_, _loc16_ - _loc15_
-            )
+        return MapTools.get_look_direction8_exact_by_coord(
+            _loc4_ + _loc5_, _loc9_ - _loc8_, _loc11_ + _loc12_, _loc16_ - _loc15_
         )
+
+    @staticmethod
+    def get_look_direction8_exact_by_coord(
+        param1: int, param2: int, param3: int, param4: int
+    ) -> DirectionsEnum:
+        _loc5_ = MapTools.get_look_direction4_exact_by_coord(
+            param1, param2, param3, param4
+        )
+        if not DirectionsEnum.is_valid(_loc5_):
+            _loc5_ = MapTools.get_look_direction4_diag_exact_by_coord(
+                param1, param2, param3, param4
+            )
+
+        return _loc5_
+
+    @staticmethod
+    def get_look_direction4_exact_by_coord(
+        param1: int, param2: int, param3: int, param4: int
+    ) -> DirectionsEnum:
+        if not MapTools.is_valid_coord(param1, param2) or not MapTools.is_valid_coord(
+            param3, param4
+        ):
+            return DirectionsEnum(-1)
+        _loc5_ = param3 - param1
+        _loc6_ = param4 - param2
+        if _loc6_ == 0:
+            if _loc5_ < 0:
+                return DirectionsEnum(5)
+            return DirectionsEnum(1)
+        if _loc5_ == 0:
+            if _loc6_ < 0:
+                return DirectionsEnum(3)
+            return DirectionsEnum(7)
+        return DirectionsEnum(-1)
+
+    @staticmethod
+    def get_look_direction4_diag_exact_by_coord(
+        param1: int, param2: int, param3: int, param4: int
+    ) -> DirectionsEnum:
+        if not MapTools.is_valid_coord(param1, param2) or not MapTools.is_valid_coord(
+            param3, param4
+        ):
+            return DirectionsEnum(-1)
+        _loc5_ = param3 - param1
+        _loc6_ = param4 - param2
+        if _loc5_ == -_loc6_:
+            if _loc5_ < 0:
+                return DirectionsEnum(6)
+            return DirectionsEnum(2)
+        if _loc5_ == _loc6_:
+            if _loc5_ < 0:
+                return DirectionsEnum(4)
+            return DirectionsEnum(0)
+        return DirectionsEnum(-1)
+
+
+if __name__ == "__main__":
+    icecream.ic(MapTools.get_look_direction8_exact(499, 471))

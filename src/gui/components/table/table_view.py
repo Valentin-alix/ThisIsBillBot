@@ -35,8 +35,11 @@ class CustomTableView(TableView):
 
     def set_columns(self, columns_infos: list[ColumnInfo]) -> None:
         self.item_model.setColumnCount(len(columns_infos))
-        self.proxy_model.set_columns(columns_infos)
+        self.proxy_model.set_filter_infos([col.filter_info for col in columns_infos])
         self.header.set_columns(columns_infos)
+        for index, col_info in enumerate(columns_infos):
+            if col_info.is_hidden:
+                self.hideColumn(index)
         self.columns_infos = columns_infos
 
     def filter_rows(self, header_filters: list[str]) -> None:

@@ -1,12 +1,14 @@
 from dataclasses import dataclass
 
 from db_dofus_unity.protos.game.gamemap_pb2 import MapComplementaryInformationEvent
-from db_dofus_unity.protos.game.interactive_element_pb2 import StatedElementUpdatedEvent
-from src.common.logger import Logger
+from db_dofus_unity.protos.game.interactive_element_pb2 import (
+    InteractiveMapUpdateEvent,
+    InteractiveElementUpdatedEvent,
+    StatedMapUpdateEvent,
+    StatedElementUpdatedEvent,
+)
 from src.core.frames.frame import Frame
 from src.core.states.interactive_state import InteractiveState
-from src.interfaces.enums.priority import PriorityEnum
-from src.interfaces.models.interactive import InteractiveElementInfo
 
 
 @dataclass
@@ -17,37 +19,53 @@ class InteractiveFrame(Frame):
         self.event_manager.on(
             MapComplementaryInformationEvent,
             self.on_map_complementary_information_event,
-            priority=PriorityEnum.MAX,
+            originator=self,
+        )
+        self.event_manager.on(
+            InteractiveMapUpdateEvent,
+            self.on_interactive_map_update_event,
+            originator=self,
+        )
+        self.event_manager.on(
+            InteractiveElementUpdatedEvent,
+            self.on_interactive_element_updated_event,
+            originator=self,
+        )
+        self.event_manager.on(
+            StatedMapUpdateEvent, self.on_stated_map_update_event, originator=self
         )
         self.event_manager.on(
             StatedElementUpdatedEvent,
             self.on_stated_element_updated_event,
-            priority=PriorityEnum.MAX,
+            originator=self,
         )
 
     def on_map_complementary_information_event(
         self, message: MapComplementaryInformationEvent
     ):
-        interactive_elements_by_id: dict[int, InteractiveElementInfo] = {}
-        for interactive_element in message.interactive_elements:
-            interactive_elements_by_id[interactive_element.element_id] = (
-                InteractiveElementInfo(state=1, interactive_element=interactive_element)
-            )
+        self.interactive_state.interactive_element_by_id = {
+            element.element_id: element for element in message.interactive_elements
+        }
+        self.interactive_state.stated_element_by_id = {
+            element.element_id: element for element in message.stated_elements
+        }
 
-        for stated_element in message.stated_elements:
-            interactive_elements_by_id[stated_element.element_id].state = (
-                stated_element.state
-            )
-        self.interactive_state.interactive_elements_by_id = interactive_elements_by_id
+    def on_interactive_map_update_event(self, msg: InteractiveMapUpdateEvent):
+        self.interactive_state.interactive_element_by_id = {
+            element.element_id: element for element in msg.interactive_elements
+        }
 
-    def on_stated_element_updated_event(self, message: StatedElementUpdatedEvent):
-        related_element = self.interactive_state.interactive_elements_by_id.get(
-            message.stated_element.element_id
+    def on_interactive_element_updated_event(self, msg: InteractiveElementUpdatedEvent):
+        self.interactive_state.interactive_element_by_id[
+            msg.interactive_element.element_id
+        ] = msg.interactive_element
+
+    def on_stated_map_update_event(self, msg: StatedMapUpdateEvent):
+        self.interactive_state.stated_element_by_id = {
+            element.element_id: element for element in msg.stated_elements
+        }
+
+    def on_stated_element_updated_event(self, msg: StatedElementUpdatedEvent):
+        self.interactive_state.stated_element_by_id[msg.stated_element.element_id] = (
+            msg.stated_element
         )
-        if related_element is not None:
-            related_element.state = message.stated_element.state
-        else:
-            Logger().warning(
-                f"state element with element id {message.stated_element.element_id} not found in registered "
-                f"interactive element"
-            )

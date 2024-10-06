@@ -1,8 +1,13 @@
 from dataclasses import dataclass, field
 
+from tqdm import tqdm
+
+from src.core.logic.criterions.consts import CRITERION_WHITE_LIST
 from src.core.logic.criterions.interface_item_criterion import IItemCriterion
 from src.core.logic.criterions.item_criterion_factory import ItemCriterionFactory
+from src.core.repositories.world_graph_reader import WorldGraphReader
 from src.core.states.entity_state import EntityState
+from src.core.states.interactive_state import InteractiveState
 from src.core.states.inventory_state import InventoryState
 from src.core.states.map_state import MapState
 from src.core.states.objective_state import ObjectiveState
@@ -107,15 +112,43 @@ class GroupItemCriterion(IItemCriterion):
 
 
 if __name__ == "__main__":
-    cr = GroupItemCriterion("((Qa=1477&Qo>8270)|Qf=1477|(Qo>15659&Qo<15663))")
+    datas = WorldGraphReader().datas
+    all_criteria: set[str] = set()
+    for data_edge in tqdm(
+        WorldGraphReader().get_data_edge_by_src_vertex_uid().values()
+    ):
+        for elem in data_edge.m_values.Array:
+            for sub_elem in elem.m_transitions.Array:
+                all_criteria.add(sub_elem.m_criterion)
+
     state_property_signals = StatePropertySignals()
+
     map_state = MapState(state_property_signals=state_property_signals)
+    quest_state = ObjectiveState(state_property_signals=state_property_signals)
     entity_state = EntityState(state_property_signals=state_property_signals)
+    inventory_state = InventoryState(state_property_signals=state_property_signals)
+    interactive_state = InteractiveState(state_property_signals=state_property_signals)
     player_state = PlayerState(
-        map_state=map_state,
-        state_property_signals=StatePropertySignals(),
+        state_property_signals=state_property_signals,
         entity_state=entity_state,
+        map_state=map_state,
+        interactive_state=interactive_state,
     )
-    print(cr)
-    print(cr.is_respected(player_state, entity_state))
-    print("number of criterias ", len(cr.items_criterion))
+
+    for criteria in all_criteria:
+        if len(criteria) == 0:
+            continue
+        if (
+            "&" not in criteria
+            and "|" not in criteria
+            and criteria[0:2] in CRITERION_WHITE_LIST
+        ):
+            continue
+        criterion = GroupItemCriterion(criteria)
+        criterion.is_respected(
+            player_state,
+            map_state=map_state,
+            quest_state=quest_state,
+            entity_state=entity_state,
+            inventory_state=inventory_state,
+        )

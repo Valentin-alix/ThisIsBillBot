@@ -6,18 +6,17 @@ from qfluentwidgets import TableView, TableWidget
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
 from src.interfaces.models.message import MessageInfo
-from src.signals.message_signals import MessageInfoSignals
 
 
 class MessageTable(BaseTableWidget):
-    def __init__(self, msg_info_signals: MessageInfoSignals) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.msg_info_signals = msg_info_signals
         columns: list[ColumnInfo] = [
             ColumnInfo(name="Heure"),
             ColumnInfo(name="Serveur"),
             ColumnInfo(name="Type"),
             ColumnInfo(name="Message"),
+            ColumnInfo(name="Contenu", is_hidden=True),
         ]
         self.table.set_columns(columns)
 
@@ -36,7 +35,6 @@ class MessageTable(BaseTableWidget):
 
         self.table.setEditTriggers(TableWidget.NoEditTriggers)
         self.table.setSelectionBehavior(TableView.SelectRows)
-        self.msg_info_signals.msg_info.connect(self.add_row)
 
     def add_row(self, msg_info: MessageInfo):
         model = self.table.item_model
@@ -45,7 +43,8 @@ class MessageTable(BaseTableWidget):
         server_type_field = QStandardItem(msg_info.server_type)
         msg_name_field = QStandardItem(msg_info.msg_name)
         sub_msg_name_field = QStandardItem(msg_info.sub_msg_name)
-        sub_msg_name_field.setData(msg_info, Qt.UserRole)
+        content_msg_field = QStandardItem(str(msg_info))
+        content_msg_field.setData(msg_info, Qt.UserRole)
 
         model.appendRow(
             QStandardItem(field)
@@ -54,5 +53,6 @@ class MessageTable(BaseTableWidget):
                 server_type_field,
                 msg_name_field,
                 sub_msg_name_field,
+                content_msg_field,
             )
         )

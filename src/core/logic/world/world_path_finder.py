@@ -1,17 +1,18 @@
 from dataclasses import dataclass
 
+from src.common.debugger import timeit
 from src.core.logic.grid.data_map_provider import DataMapProvider
 from src.core.logic.grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.core.logic.world.astar import AStar
 from src.core.repositories.world_graph_reader import WorldGraphReader, Edge
 from src.core.states.entity_state import EntityState
+from src.core.states.fight_state import FightState
 from src.core.states.interactive_state import InteractiveState
 from src.core.states.inventory_state import InventoryState
 from src.core.states.map_state import MapState
 from src.core.states.objective_state import ObjectiveState
 from src.core.states.player_state import PlayerState
-from src.interfaces.models.entity import Entity
 from src.signals.player_signals import StatePropertySignals
 
 
@@ -24,6 +25,7 @@ class WorldPathFinder:
     entity_state: EntityState
     inventory_state: InventoryState
 
+    @timeit
     def find_path(
         self, dst_map_id: int, linked_zone: int | None = None
     ) -> list[Edge] | None:
@@ -63,13 +65,13 @@ if __name__ == "__main__":
     interactive_state = InteractiveState(state_property_signals=state_property_signals)
     map_state = MapState(state_property_signals=state_property_signals)
     entity_state = EntityState(state_property_signals=state_property_signals)
-
-    entity_state.entities_actors_by_id[0] = Entity(cell_id=356, entity=None)
+    fight_state = FightState(state_property_signals=state_property_signals)
     player_state = PlayerState(
         map_state=map_state,
         state_property_signals=StatePropertySignals(),
         entity_state=entity_state,
         interactive_state=interactive_state,
+        fight_state=fight_state,
     )
     quest_state = ObjectiveState(state_property_signals=StatePropertySignals())
     inventory_state = InventoryState(state_property_signals=StatePropertySignals())
@@ -77,12 +79,16 @@ if __name__ == "__main__":
     map_state.map_id = map_id
 
     data_map_provider = DataMapProvider(
-        entity_state=entity_state, player_state=player_state, map_state=map_state
+        entity_state=entity_state,
+        player_state=player_state,
+        map_state=map_state,
+        fight_state=fight_state,
     )
     path_finding = Pathfinding(
         data_map_provider=data_map_provider,
         player_state=player_state,
         map_state=map_state,
+        entity_state=entity_state,
     )
     auto_trip = WorldPathFinder(
         path_finding=path_finding,

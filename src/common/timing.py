@@ -1,12 +1,9 @@
 import random
-from time import sleep
 
 import numpy as np
 
-from src.consts import RANGE_WAIT
 
-
-def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 2) -> float:
+def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 1.5) -> float:
     if mini == 0:
         return 0
 
@@ -15,8 +12,8 @@ def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 2) -> flo
     return random.uniform(wait_time, wait_time * 1.05)
 
 
-def wait(
-    range_time: tuple[float, float] = RANGE_WAIT,
+def get_random_range(
+    range_time: tuple[float, float],
     is_weighted: bool = True,
     coeff: int = 2,
 ):
@@ -25,4 +22,4 @@ def wait(
     else:
         wait_time = random.uniform(*range_time)
 
-    sleep(wait_time)
+    return wait_time

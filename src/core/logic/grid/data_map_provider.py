@@ -1,10 +1,15 @@
 from dataclasses import dataclass
 
+from line_profiler_pycharm import profile
+
 from db_dofus_unity.protos.game.gamemap_pb2 import MapObstacle
+from src.core.logic.grid.consts import MAP_WIDTH, MAP_COUNT_CELL
+from src.core.logic.grid.directions import DirectionsEnum, DIRECTIONS
 from src.core.logic.grid.map_point import MapPoint
 from src.core.logic.grid.map_tools import MapTools
 from src.core.repositories.map_reader import MapReader
 from src.core.states.entity_state import EntityState
+from src.core.states.fight_state import FightState
 from src.core.states.map_state import MapState
 from src.core.states.player_state import PlayerState
 
@@ -15,51 +20,40 @@ TOLERANCE_ELEVATION: int = 11
 class DataMapProvider:
     entity_state: EntityState
     player_state: PlayerState
+    fight_state: FightState
     map_state: MapState
 
+    @property
+    def map_data(self):
+        return MapReader().map_by_id(self.map_state.map_id)
+
     def get_cell_data(self, cell_id: int):
-        cell_data = (
-            MapReader().map_by_id(self.map_state.map_id).cellsData.Array[cell_id]
-        )
-        return cell_data
+        return self.map_data.cellsData.Array[cell_id]
 
-    def fill_entity_on_cell_array(
+    def cell_allows_map_change(self, cell_id) -> bool:
+        return self.get_cell_data(cell_id).mapChangeData != 0
+
+    @profile
+    def can_mov_to_mp(
         self,
-        cell_array: dict[int, bool],
-        allow_through_entity: bool,
-    ):
-        if allow_through_entity:
-            return cell_array
-
-        for cell_id, actor in self.entity_state.entities_actors_by_id.items():
-            cell_array[cell_id] = True
-
-        return cell_array
-
-    def can_mov(
-        self,
-        x: int,
-        y: int,
+        map_point: MapPoint,
+        previous_cell_id: int | None = None,
+        end: MapPoint | None = None,
         allow_through_entity: bool = True,
-        previous_cell_id: int = -1,
-        end_cell_id: int = -1,
         avoid_obstacle: bool = True,
     ):
-        if not MapPoint.is_in_map(x, y):
+        if not map_point.point.is_in_map():
             return False
 
-        data_map = MapReader().map_by_id(self.map_state.map_id)
-        cell_id = MapTools.get_cell_id_by_coord(x, y)
-        cell_data = data_map.cellsData.Array[cell_id]
-
+        cell_data = self.get_cell_data(map_point.cell_id)
         mov = bool(cell_data.mov) and not (
-            self.player_state.is_in_fight and cell_data.nonWalkableDuringFight
+            self.fight_state.in_fight and cell_data.nonWalkableDuringFight
         )
         if not mov:
             return False
 
-        if previous_cell_id != -1 and previous_cell_id != cell_id:
-            previous_cell_data = data_map.cellsData.Array[previous_cell_id]
+        if previous_cell_id is not None and previous_cell_id != map_point.cell_id:
+            previous_cell_data = self.get_cell_data(previous_cell_id)
             dif = abs(abs(cell_data.floor - abs(previous_cell_data.floor)))
             if (previous_cell_data.moveZone != cell_data.moveZone and dif > 0) or (
                 previous_cell_data.moveZone == cell_data.moveZone
@@ -68,142 +62,201 @@ class DataMapProvider:
             ):
                 return False
 
-        if not allow_through_entity and not end_cell_id == cell_id:
-            for entity_obstacle in self.entity_state.entities_obstacles:
-                if not entity_obstacle.cell_id == cell_id:
-                    continue
-                if not entity_obstacle.entity.state == MapObstacle.OBSTACLE_OPENED:
-                    return False
+        if (
+            not allow_through_entity
+            and not (end and map_point.cell_id == end.cell_id)
+            and avoid_obstacle
+        ):
+            related_obstacle = self.entity_state.map_obstacle_by_cell_id.get(
+                map_point.cell_id
+            )
+            if (
+                related_obstacle
+                and not related_obstacle.state == MapObstacle.OBSTACLE_OPENED
+            ):
+                return False
 
         return True
 
     def get_point_weight(
         self,
-        x: int,
-        y: int,
+        mp: MapPoint,
         allow_trough_entity: bool = True,
     ) -> float:
         weight: float = 1
-        cell_id: int = MapTools.get_cell_id_by_coord(x, y)
-        speed: int = self.get_cell_data(cell_id).speed
+        speed: int = self.get_cell_data(mp.cell_id).speed
         if allow_trough_entity:
             if speed >= 0:
                 weight += 5 - speed
             else:
                 weight += 11 + abs(speed)
 
-            if self.entity_state.get_entity_actor_on_cell_id(cell_id) is not None:
+            if self.entity_state.is_entity_actor_on_cell_id(mp.cell_id):
                 weight = 20
         else:
-            if self.entity_state.get_entity_actor_on_cell_id(cell_id) is not None:
+            if self.entity_state.is_entity_actor_on_cell_id(mp.cell_id):
                 weight += 0.3
 
-            if self.entity_state.get_entity_actor_on_cell_id(
-                MapTools.get_cell_id_by_coord(x + 1, y)
-            ):
-                weight += 0.3
-
-            if self.entity_state.get_entity_actor_on_cell_id(
-                MapTools.get_cell_id_by_coord(x, y + 1)
-            ):
-                weight += 0.3
-
-            if self.entity_state.get_entity_actor_on_cell_id(
-                MapTools.get_cell_id_by_coord(x - 1, y)
-            ):
-                weight += 0.3
-
-            if self.entity_state.get_entity_actor_on_cell_id(
-                MapTools.get_cell_id_by_coord(x, y - 1)
-            ):
-                weight += 0.3
+            coords: list[tuple[int, int]] = [
+                (mp.point.x + 1, mp.point.y),
+                (mp.point.x, mp.point.y + 1),
+                (mp.point.x - 1, mp.point.y),
+                (mp.point.x, mp.point.y - 1),
+            ]
+            for coord_x, coord_y in coords:
+                if self.entity_state.is_entity_actor_on_cell_id(
+                    MapTools.get_cell_id_by_coord(coord_x, coord_y)
+                ):
+                    weight += 0.3
 
         return weight
 
-    def is_change_zone(self, cell_id_1: int, cell_id_2: int) -> bool:
+    def is_changing_zone(self, cell_id_1: int, cell_id_2: int) -> bool:
         cell_1_data = self.get_cell_data(cell_id_1)
         cell_2_data = self.get_cell_data(cell_id_2)
         dif: int = abs(abs(cell_1_data.floor) - abs(cell_2_data.floor))
         return cell_1_data.moveZone != cell_2_data.moveZone and dif == 0
 
-    def is_change_map(self, cell_id: int) -> bool:
+    def is_changing_map(self, cell_id: int) -> bool:
         cell_1_data = self.get_cell_data(cell_id)
         return cell_1_data.mapChangeData != 0
 
-    def get_nearest_free_cell_in_direction(
+    def get_nearest_free_cell(
         self,
         map_point: MapPoint,
-        orientation: int,
+        orientation: DirectionsEnum,
         allow_itself: bool = True,
         allow_though_entity: bool = True,
         ignore_speed: bool = False,
-        forbidden_cells_id: list[int] | None = None,
+        forbidden_cells_id: set[int] | None = None,
     ) -> MapPoint | None:
         if forbidden_cells_id is None:
-            forbidden_cells_id = []
-        cells: list[MapPoint | None] = 8 * [None]
-        weights: list[int] = list[int](8 * [-1])
-        orientation_dist = [
-            MapPoint.get_orientations_distance(i, orientation) for i in range(8)
-        ]
-        for curr_orientation in range(8):
-            mp = map_point.get_nearest_mp_in_direction(curr_orientation)
-            cells[curr_orientation] = mp
-            if mp is None:
-                weights[curr_orientation] = -1
-                continue
-            speed: int = self.get_cell_data(mp.cell_id).speed
-            if mp.cell_id not in forbidden_cells_id:
-                if self.can_mov(
-                    mp.point.x, mp.point.y, allow_though_entity, map_point.cell_id
-                ):
-                    weights[curr_orientation] = orientation_dist[curr_orientation] + (
-                        (5 - speed if speed >= 0 else 11 + abs(speed))
-                        if not ignore_speed
-                        else 0
-                    )
-                else:
-                    forbidden_cells_id.append(mp.cell_id)
-                    weights[curr_orientation] = -1
-            else:
-                if self.can_mov(
-                    mp.point.x, mp.point.y, allow_though_entity, map_point.cell_id
-                ):
-                    weights[curr_orientation] = (
-                        100
-                        + orientation_dist[curr_orientation]
-                        + (
-                            (5 - speed if speed >= 0 else 11 + abs(speed))
-                            if not ignore_speed
-                            else 0
-                        )
-                    )
-                else:
-                    weights[curr_orientation] = -1
+            forbidden_cells_id = set()
 
-        min_weight_orientation: int = -1
-        min_weight: int = 10000
-        for curr_orientation in range(8):
-            if (
-                weights[curr_orientation] != -1
-                and weights[curr_orientation] < min_weight
-                and cells[curr_orientation] is not None
-            ):
-                min_weight = weights[curr_orientation]
-                min_weight_orientation = curr_orientation
-        if min_weight_orientation != -1:
-            mp = cells[min_weight_orientation]
-        else:
-            mp = None
+        min_weight_mp: tuple[MapPoint, int] | None = None
+        for curr_orientation in DIRECTIONS:
+            near_mp = map_point.get_nearest_mp_in_direction(curr_orientation)
+            if near_mp is None:
+                continue
+
+            curr_orientation_dist = DirectionsEnum.get_distance(
+                curr_orientation, orientation
+            )
+            speed: int = self.get_cell_data(near_mp.cell_id).speed
+            mp_can_move = self.can_mov_to_mp(
+                near_mp, map_point.cell_id, allow_through_entity=allow_though_entity
+            )
+            if not mp_can_move:
+                forbidden_cells_id.add(near_mp.cell_id)
+                continue
+
+            curr_weight_orientation = curr_orientation_dist + (
+                (5 - speed if speed >= 0 else 11 + abs(speed))
+                if not ignore_speed
+                else 0
+            )
+            if near_mp.cell_id in forbidden_cells_id:
+                curr_weight_orientation += 100
+
+            if min_weight_mp is None or curr_weight_orientation < min_weight_mp[1]:
+                min_weight_mp = (near_mp, curr_weight_orientation)
+
         if (
-            mp is None
+            min_weight_mp is None
             and allow_itself
-            and self.can_mov(
-                map_point.point.x,
-                map_point.point.y,
-                allow_though_entity,
+            and self.can_mov_to_mp(
+                map_point,
                 map_point.cell_id,
+                allow_through_entity=allow_though_entity,
             )
         ):
             return map_point
-        return mp
+        return min_weight_mp[0] if min_weight_mp is not None else None
+
+    def does_allows_map_change_to_direction(
+        self, mp: MapPoint, direction: DirectionsEnum
+    ) -> bool:
+        cell_data = self.get_cell_data(mp.cell_id)
+        match direction:
+            case DirectionsEnum.RIGHT:
+                return (
+                    bool(cell_data.mapChangeData & 1)
+                    or (
+                        (mp.cell_id + 1) % (MAP_WIDTH * 2) == 0
+                        and bool(cell_data.mapChangeData & 2)
+                    )
+                    or (
+                        (mp.cell_id + 1) % (MAP_WIDTH * 2) == 0
+                        and bool(cell_data.mapChangeData & 128)
+                    )
+                )
+            case DirectionsEnum.LEFT:
+                return (
+                    (mp.point.x == -mp.point.y and bool(cell_data.mapChangeData & 8))
+                    or bool(cell_data.mapChangeData & 16)
+                    or (
+                        mp.point.x == -mp.point.y and bool(cell_data.mapChangeData & 32)
+                    )
+                )
+            case DirectionsEnum.UP:
+                return (
+                    (mp.cell_id < MAP_WIDTH and bool(cell_data.mapChangeData & 32))
+                    or bool(cell_data.mapChangeData & 64)
+                    or (mp.cell_id < MAP_WIDTH and bool(cell_data.mapChangeData & 128))
+                )
+            case DirectionsEnum.DOWN:
+                return (
+                    (
+                        mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH
+                        and bool(cell_data.mapChangeData & 2)
+                    )
+                    or bool(cell_data.mapChangeData & 4)
+                    or (
+                        mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH
+                        and bool(cell_data.mapChangeData & 8)
+                    )
+                )
+            case _:
+                return False
+
+    def allows_map_change_to_direction(self, mp: MapPoint, direction: DirectionsEnum):
+        map_change_data = (
+            MapReader()
+            .get_cell_data_by_cell_id(self.map_state.map_id, mp.cell_id)
+            .mapChangeData
+        )
+        if direction == DirectionsEnum.RIGHT:
+            return (
+                bool(map_change_data & 1)
+                or (
+                    (mp.cell_id + 1) % (MAP_WIDTH * 2) == 0
+                    and bool(map_change_data & 2)
+                )
+                or (
+                    (mp.cell_id + 1) % (MAP_WIDTH * 2) == 0
+                    and bool(map_change_data & 128)
+                )
+            )
+        elif direction == DirectionsEnum.LEFT:
+            return (
+                (mp.point.x == -mp.point.y and bool(map_change_data & 8))
+                or bool(map_change_data & 16)
+                or (mp.point.x == -mp.point.y and bool(map_change_data & 32))
+            )
+        elif direction == DirectionsEnum.UP:
+            return (
+                (mp.cell_id < MAP_WIDTH and bool(map_change_data & 32))
+                or bool(map_change_data & 64)
+                or (mp.cell_id < MAP_WIDTH and bool(map_change_data & 128))
+            )
+        elif direction == DirectionsEnum.DOWN:
+            return (
+                (mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH and bool(map_change_data & 2))
+                or bool(map_change_data & 4)
+                or (
+                    mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH
+                    and bool(map_change_data & 8)
+                )
+            )
+
+        return False

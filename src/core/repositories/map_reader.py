@@ -1,8 +1,8 @@
 import os
 from dataclasses import dataclass
+from functools import cache
 
 import msgspec
-from cachetools import cached
 
 from db_dofus_unity.consts import DOFUS_MAP_PATH
 from db_dofus_unity.gen.gen_maps import MapsRoot
@@ -11,13 +11,13 @@ from src.interfaces.metaclasses.singleton import Singleton
 
 @dataclass(frozen=True)
 class MapReader(metaclass=Singleton):
-    @cached({})
-    def map_by_id(self, map_id: int) -> MapsRoot.MapsModel:
+    @cache
+    def map_by_id(self, map_id: int) -> MapsRoot.Model:
         with open(os.path.join(DOFUS_MAP_PATH, f"map_{map_id}.json"), "rb") as file:
-            map_data = msgspec.json.decode(file.read(), type=MapsRoot.MapsModel)
+            map_data = msgspec.json.decode(file.read(), type=MapsRoot.Model)
         return map_data
 
-    @cached({})
+    @cache
     def get_ref_data_by_element_id(self, map_id: int):
         return {
             ref_id_data.data.m_interactionId: ref_id_data.data
@@ -25,7 +25,7 @@ class MapReader(metaclass=Singleton):
             if ref_id_data.data.m_interactionId
         }
 
-    @cached({})
+    @cache
     def get_ref_cell_data_by_cell_id(self, map_id: int):
         return {
             ref_id_data.data.cellId: ref_id_data.data

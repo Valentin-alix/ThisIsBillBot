@@ -1,5 +1,4 @@
-from dataclasses import dataclass, field
-from threading import Timer
+from dataclasses import dataclass
 
 from google.protobuf.any_pb2 import Any
 from google.protobuf.message import Message
@@ -7,7 +6,7 @@ from google.protobuf.message import Message
 from db_dofus_unity.protos.game.game_message_pb2 import GameMessage, Request
 from src.bot import Bot
 from src.consts import TYPE_URL_PREFIX
-from src.mitm.proxy import Proxy
+from src.mitm.proxy import Proxy, WorkerAction
 from src.protocol.protocol import encode_msg, MAPPING_GAME_PROTO_TO_OBF
 from src.protocol.protocol import get_game_msg_info, decode_varint_size
 
@@ -15,7 +14,6 @@ from src.protocol.protocol import get_game_msg_info, decode_varint_size
 @dataclass
 class GameProxy(Proxy):
     bot: Bot
-    _timers: list[Timer] = field(init=False, default_factory=lambda: [])
 
     def __post_init__(self):
         super().__post_init__()
@@ -35,7 +33,7 @@ class GameProxy(Proxy):
         if msg is not None:
             self.bot.event_manager.process_msg(msg)
 
-    def send_msg(self, msg: Message, wait: float | None = None):
+    def send_msg(self, msg: Message):
         any_msg = Any()
         any_msg.Pack(msg, type_url_prefix=TYPE_URL_PREFIX)
         any_msg.type_url = (
@@ -43,13 +41,4 @@ class GameProxy(Proxy):
             + MAPPING_GAME_PROTO_TO_OBF[any_msg.type_url.replace(TYPE_URL_PREFIX, "")]
         )
         msg = GameMessage(request=Request(uid=-1, content=any_msg))
-
-        def _send_msg():
-            self.send_to_server(encode_msg(msg))
-
-        if wait is not None:
-            timer = Timer(wait, _send_msg)
-            self._timers.append(timer)
-            timer.start()
-        else:
-            _send_msg()
+        self.queue_worker_item.put((WorkerAction.SEND_SERVER, encode_msg(msg)))

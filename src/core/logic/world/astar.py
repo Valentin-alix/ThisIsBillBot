@@ -1,10 +1,11 @@
 from dataclasses import dataclass, field
 from heapq import heappush, heappop
+from typing import cast
 
 from db_dofus_unity.gen.gen_datas import MapPositionsRoot
-from src.core.logic.criterions.group_item_criterion import GroupItemCriterion
 from src.core.logic.grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
+from src.core.logic.world.edge import edge_has_valid_transitions
 from src.core.logic.world.map import Map
 from src.core.logic.world.node import Node
 from src.core.repositories.world_graph_reader import Vertex, Edge, WorldGraphReader
@@ -38,7 +39,7 @@ class AStar:
     )
     iterations: int = field(default=0, init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.dst_map_pos: list[MapPositionsRoot.Data] = [
             Map(vertex.m_mapId).position for vertex in self.dst_vertexes
         ]
@@ -66,7 +67,14 @@ class AStar:
 
             edges = WorldGraphReader().get_outgoing_edges_from_vertex(current.vertex)
             for edge in edges:
-                if not self.edge_has_valid_transitions(edge):
+                if not edge_has_valid_transitions(
+                    edge,
+                    map_state=self.map_state,
+                    inventory_state=self.inventory_state,
+                    quest_state=self.quest_state,
+                    entity_state=self.entity_state,
+                    player_state=self.player_state,
+                ):
                     continue
                 existing = self.open_node_by_vertex_uid.get(edge.m_to.m_uid)
                 if existing is not None and current.cost + 1 < existing.cost:
@@ -82,7 +90,7 @@ class AStar:
                 )
                 node = Node(
                     edge_map.position,
-                    edge.m_to,
+                    cast(Vertex, edge.m_to),
                     current.cost + 1,
                     cost_to_target,
                     parent=current,
@@ -94,7 +102,7 @@ class AStar:
 
     def find_dst_cell(self, edge: Edge, mp: MapPoint) -> int | None:
         for reverse_edge in WorldGraphReader().get_outgoing_edges_from_vertex(
-            edge.m_to
+            cast(Vertex, edge.m_to)
         ):
             if not reverse_edge.m_to == edge.m_from:
                 continue
@@ -102,43 +110,10 @@ class AStar:
                 if not transition.m_cellId:
                     continue
                 mp_candidate = MapPoint.from_cell_id(transition.m_cellId)
-                move_path = self.path_finding.find_path(mp, mp_candidate)
+                move_path = self.path_finding.find_path(mp, [mp_candidate])
                 if move_path.end.distance_to_cell_id(mp_candidate.cell_id) <= 2:
                     return mp_candidate.cell_id
         return None
-
-    def edge_has_valid_transitions(self, edge: Edge) -> bool:
-        criterion_white_list: list = [
-            "Ad",
-            "DM",
-            "MI",
-            "Mk",
-            "Oc",
-            "Pc",
-            "QF",
-            "Qo",
-            "Qs",
-            "Sv",
-        ]
-        for transition in edge.m_transitions.Array:
-            if len(transition.m_criterion) == 0:
-                continue
-            if (
-                "&" not in transition.m_criterion
-                and "|" not in transition.m_criterion
-                and transition.m_criterion[0:2] in criterion_white_list
-            ):
-                return False
-            criterion = GroupItemCriterion(transition.m_criterion)
-            if not criterion.is_respected(
-                self.player_state,
-                map_state=self.map_state,
-                quest_state=self.quest_state,
-                entity_state=self.entity_state,
-                inventory_state=self.inventory_state,
-            ):
-                return False
-        return True
 
     def build_path(self, node: Node) -> list[Edge]:
         result: list[Edge] = []

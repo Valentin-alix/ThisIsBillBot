@@ -7,7 +7,6 @@ from src.core.states.inventory_state import InventoryState
 from src.core.states.map_state import MapState
 from src.core.states.objective_state import ObjectiveState
 from src.core.states.player_state import PlayerState
-from src.signals.player_signals import StatePropertySignals
 
 
 @dataclass
@@ -36,5 +35,3 @@ class QuestItemCriterion(ItemCriterion):
 
 if __name__ == "__main__":
     temp = QuestItemCriterion(criterion="Qf=1477")
-
-    print(temp.is_respected(PlayerState(StatePropertySignals())))

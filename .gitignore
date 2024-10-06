@@ -6,7 +6,7 @@ package-lock.json
 __pycache__/
 *.py[cod]
 *$py.class
-
+*.pclprof
 resources/datas/*.json
 
 .idea

@@ -1,6 +1,7 @@
 import datetime
 import json
 import traceback
+from typing import cast
 
 from google.protobuf import descriptor_pool
 from google.protobuf.descriptor import Descriptor
@@ -163,5 +164,5 @@ if __name__ == "__main__":
     msg_info, msg = get_game_msg_info(content)
     print(msg_info)
     print(MessageToJson(msg))
-    msg: MapComplementaryInformationEvent
+    msg = cast(MapComplementaryInformationEvent, msg)
     print(msg.map_id)

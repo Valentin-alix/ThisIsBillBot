@@ -18,6 +18,9 @@ class SubscribeItemCriterion(ItemCriterion):
         entity_state: EntityState,
         inventory_state: InventoryState,
     ) -> int:
-        if datetime.now() < player_state.subscription_end_date:
+        if (
+            datetime.now(player_state.subscription_end_date.tzinfo)
+            < player_state.subscription_end_date
+        ):
             return 1
         return 0

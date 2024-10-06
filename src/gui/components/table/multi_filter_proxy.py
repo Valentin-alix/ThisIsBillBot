@@ -1,16 +1,21 @@
 from PyQt5.QtCore import QSortFilterProxyModel, QModelIndex
 
-from src.gui.components.table.column_info import ColumnInfo, SearchType
+from src.gui.components.table.column_info import SearchType, FilterInfo
 
 
 class MultiColumnFilterProxyModel(QSortFilterProxyModel):
     def __init__(self) -> None:
         super().__init__()
-        self.column_infos: list[ColumnInfo] = []
+        self.filter_infos: list[FilterInfo | None] = []
         self.header_filters: list[str] = []
 
-    def set_columns(self, column_infos: list[ColumnInfo]):
-        self.column_infos = column_infos
+    def set_filter_infos(self, filter_infos: list[FilterInfo | None]):
+        self.filter_infos.clear()
+        for filter_info in filter_infos:
+            self.add_filter_info(filter_info)
+
+    def add_filter_info(self, filter_info: FilterInfo | None):
+        self.filter_infos.append(filter_info)
 
     def set_filters(self, header_filters: list[str]) -> None:
         self.header_filters = header_filters
@@ -18,14 +23,16 @@ class MultiColumnFilterProxyModel(QSortFilterProxyModel):
 
     def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex):
         for col_index, filter_string in enumerate(self.header_filters):
-            col_info = self.column_infos[col_index]
+            filter_info = self.filter_infos[col_index]
+            if not filter_info:
+                continue
             text: str = (
                 self.sourceModel().index(source_row, col_index, source_parent).data()
             )
-            if col_info.search_type == SearchType.CONTAINS:
+            if filter_info.search_type == SearchType.CONTAINS:
                 if filter_string.lower() not in text.lower():
                     return False
-            if col_info.search_type == SearchType.EXACT:
+            if filter_info.search_type == SearchType.EXACT:
                 if not filter_string == text:
                     return False
         return True

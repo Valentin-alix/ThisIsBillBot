@@ -4,13 +4,22 @@ from src.core.logic.criterions.item_criterion import ItemCriterion
 from src.core.logic.criterions.items_criterion.achievement_item_criterion import (
     AchievementItemCriterion,
 )
+from src.core.logic.criterions.items_criterion.always_valid_item_criterion import (
+    AlwaysValidItemCriterion,
+)
 
 from src.core.logic.criterions.items_criterion.area_item_criterion import (
     AreaItemCriterion,
 )
+from src.core.logic.criterions.items_criterion.breed_item_criterion import (
+    BreedItemCriterion,
+)
 
 from src.core.logic.criterions.items_criterion.day_item_criterion import (
     DayItemCriterion,
+)
+from src.core.logic.criterions.items_criterion.job_item_criterion import (
+    JobItemCriterion,
 )
 
 from src.core.logic.criterions.items_criterion.level_item_criterion import (
@@ -18,6 +27,9 @@ from src.core.logic.criterions.items_criterion.level_item_criterion import (
 )
 from src.core.logic.criterions.items_criterion.map_characters_item_criterion import (
     MapCharactersItemCriterion,
+)
+from src.core.logic.criterions.items_criterion.map_item_criterion import (
+    MapItemCriterion,
 )
 
 from src.core.logic.criterions.items_criterion.month_item_criterion import (
@@ -51,7 +63,7 @@ class ItemCriterionFactory:
     def create(criterion: str) -> IItemCriterion | None:
         type_criterion = criterion[0:2]
 
-        item_criterion: IItemCriterion
+        item_criterion: IItemCriterion | None = None
 
         if type_criterion in [
             "Ca",
@@ -107,10 +119,13 @@ class ItemCriterionFactory:
             item_criterion = MonthItemCriterion(criterion)
         elif type_criterion == "Sc":
             item_criterion = StaticCriterionItemCriterion(criterion)
-        elif type_criterion in ["PU"]:
-            # is always respected
-            item_criterion = StaticCriterionItemCriterion(criterion)
-        else:
-            raise ValueError(f"Invalid type criterion : {type_criterion}")
+        elif type_criterion in ["PJ", "Pj"]:
+            item_criterion = JobItemCriterion(criterion)
+        elif type_criterion == "Pm":
+            item_criterion = MapItemCriterion(criterion)
+        elif type_criterion == "PG":
+            item_criterion = BreedItemCriterion(criterion)
+        elif type_criterion in ["PU", "BI"]:
+            item_criterion = AlwaysValidItemCriterion(criterion)
 
         return item_criterion

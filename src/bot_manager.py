@@ -5,12 +5,19 @@ from ankama_launcher_emulator.decrypter.crypto_helper import CryptoHelper
 from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
 
 from src.bot import Bot
-from src.core.behaviors.collect_behavior import CollectBehavior
+from src.core.behaviors.bank.unload_in_bank_behavior import UnloadInBankBehavior
+from src.core.behaviors.farms.collect_behavior import CollectBehavior
+from src.core.behaviors.farms.fighter_behavior import FighterBehavior
+from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
+from src.core.behaviors.fight.fight_behavior import FightBehavior
+from src.core.behaviors.fight.fight_placement_behavior import FightPlacementBehavior
 from src.core.behaviors.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip_behavior import AutoTripBehavior
 from src.core.behaviors.movements.map_change_behavior import MapChangeBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
+from src.core.behaviors.npc_dialog_behavior import NpcDialogBehavior
 from src.core.frames.entity_frame import EntityFrame
+from src.core.frames.fight_frame import FightFrame
 from src.core.frames.interactive_frame import InteractiveFrame
 from src.core.frames.inventory_frame import InventoryFrame
 from src.core.frames.map_frame import MapFrame
@@ -19,8 +26,8 @@ from src.core.frames.player_frame import PlayerFrame
 from src.core.logic.grid.data_map_provider import DataMapProvider
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.core.logic.world.world_path_finder import WorldPathFinder
-from src.core.modules.harvester import Harvester
 from src.core.states.entity_state import EntityState
+from src.core.states.fight_state import FightState
 from src.core.states.interactive_state import InteractiveState
 from src.core.states.inventory_state import InventoryState
 from src.core.states.map_state import MapState
@@ -75,11 +82,14 @@ class BotManager(metaclass=Singleton):
                 state_property_signals=state_property_signals
             )
             map_state = MapState(state_property_signals=state_property_signals)
+            fight_state = FightState(state_property_signals=state_property_signals)
+
             player_state = PlayerState(
                 state_property_signals=state_property_signals,
                 map_state=map_state,
                 interactive_state=interactive_state,
                 entity_state=entity_state,
+                fight_state=fight_state,
             )
             quest_state = ObjectiveState(state_property_signals=state_property_signals)
 
@@ -88,11 +98,13 @@ class BotManager(metaclass=Singleton):
                 entity_state=entity_state,
                 player_state=player_state,
                 map_state=map_state,
+                fight_state=fight_state,
             )
             path_finding = Pathfinding(
                 data_map_provider=data_map_provider,
                 player_state=player_state,
                 map_state=map_state,
+                entity_state=entity_state,
             )
             world_path_finder = WorldPathFinder(
                 path_finding=path_finding,
@@ -105,7 +117,9 @@ class BotManager(metaclass=Singleton):
 
             # frames
             entity_frame = EntityFrame(
-                event_manager=event_manager, entity_state=entity_state
+                event_manager=event_manager,
+                entity_state=entity_state,
+                fight_state=fight_state,
             )
             interactive_frame = InteractiveFrame(
                 event_manager=event_manager, interactive_state=interactive_state
@@ -113,11 +127,7 @@ class BotManager(metaclass=Singleton):
             inventory_frame = InventoryFrame(
                 event_manager=event_manager, inventory_state=inventory_state
             )
-            map_frame = MapFrame(
-                event_manager=event_manager,
-                map_state=map_state,
-                entity_state=entity_state,
-            )
+            map_frame = MapFrame(event_manager=event_manager, map_state=map_state)
             player_frame = PlayerFrame(
                 event_manager=event_manager,
                 player_signals=player_signals,
@@ -127,23 +137,27 @@ class BotManager(metaclass=Singleton):
             quest_frame = ObjectiveFrame(
                 event_manager=event_manager, objective_state=quest_state
             )
+            fight_frame = FightFrame(
+                event_manager=event_manager, fight_state=fight_state
+            )
 
             # behavior
             map_change_behavior = MapChangeBehavior(event_manager=event_manager)
-            map_behavior = MapMoveBehavior(
+            map_move_behavior = MapMoveBehavior(
                 event_manager=event_manager,
                 player_state=player_state,
                 path_finding=path_finding,
                 map_state=map_state,
+                fight_state=fight_state,
             )
             interactive_behavior = InteractiveBehavior(
                 player_state=player_state,
                 event_manager=event_manager,
-                map_behavior=map_behavior,
+                map_behavior=map_move_behavior,
             )
-            world_behavior = AutoTripBehavior(
+            auto_trip_behavior = AutoTripBehavior(
                 event_manager=event_manager,
-                map_move_behavior=map_behavior,
+                map_move_behavior=map_move_behavior,
                 map_change_behavior=map_change_behavior,
                 interactive_behavior=interactive_behavior,
                 interactive_state=interactive_state,
@@ -158,16 +172,44 @@ class BotManager(metaclass=Singleton):
                 player_state=player_state,
                 inventory_state=inventory_state,
             )
+            npc_dialog_behavior = NpcDialogBehavior(
+                event_manager=event_manager, auto_trip_behavior=auto_trip_behavior
+            )
+            unload_in_bank_behavior = UnloadInBankBehavior(
+                event_manager=event_manager, npc_dialog_behavior=npc_dialog_behavior
+            )
+            fight_placement_behavior = FightPlacementBehavior(
+                fight_state=fight_state,
+                player_state=player_state,
+                event_manager=event_manager,
+                entity_state=entity_state,
+            )
+            fight_behavior = FightBehavior(
+                event_manager=event_manager,
+                fight_state=fight_state,
+                player_state=player_state,
+                fight_placement_behavior=fight_placement_behavior,
+            )
 
             # module
-            harvester = Harvester(
-                harvester_signals=harvester_signals,
-                auto_trip_behavior=world_behavior,
+            harvester = HarvesterBehavior(
+                event_manager=event_manager,
+                auto_trip_behavior=auto_trip_behavior,
                 collect_behavior=collect_behavior,
                 path_finding=path_finding,
-                interactive_state=interactive_state,
                 player_state=player_state,
                 inventory_state=inventory_state,
+                map_state=map_state,
+                objective_state=quest_state,
+                entity_state=entity_state,
+                interactive_state=interactive_state,
+                unload_in_bank_behavior=unload_in_bank_behavior,
+            )
+            fighter_behavior = FighterBehavior(
+                event_manager=event_manager,
+                fight_behavior=fight_behavior,
+                entity_state=entity_state,
+                map_move_behavior=map_move_behavior,
             )
 
             bot_by_account_id[account_id] = Bot(
@@ -177,7 +219,7 @@ class BotManager(metaclass=Singleton):
                 player_property_signals=state_property_signals,
                 msg_info_signals=msg_info_signals,
                 event_manager=event_manager,
-                harvester=harvester,
+                harvester_behavior=harvester,
                 frames=[
                     quest_frame,
                     map_frame,
@@ -185,6 +227,8 @@ class BotManager(metaclass=Singleton):
                     entity_frame,
                     inventory_frame,
                     interactive_frame,
+                    fight_frame,
                 ],
+                fighter_behavior=fighter_behavior,
             )
         return bot_by_account_id

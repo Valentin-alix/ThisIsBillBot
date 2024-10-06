@@ -8,6 +8,12 @@ class SearchType(Enum):
 
 
 @dataclass
+class FilterInfo:
+    search_type: SearchType = field(default=SearchType.CONTAINS)
+
+
+@dataclass
 class ColumnInfo:
     name: str
-    search_type: SearchType | None = field(default=SearchType.CONTAINS)
+    is_hidden: bool = False
+    filter_info: FilterInfo | None = field(default_factory=FilterInfo)

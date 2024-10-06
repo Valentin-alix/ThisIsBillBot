@@ -47,7 +47,7 @@ class BinaryReader:
         length = self.read_varint()
         value = self.read_bytes(length)
         self.offset = before
-        return value.decode("utf-8")
+        return value.decode()
 
 
 @dataclass(frozen=True)

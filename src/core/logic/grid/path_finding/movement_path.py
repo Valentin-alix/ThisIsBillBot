@@ -66,11 +66,10 @@ class MovementPath:
                 MOUNT_WALK_VERTICAL_DIAG_DURATION_MEAN,
                 MOUNT_WALK_VERTICAL_DIAG_DURATION_VAR,
             )
-        else:
-            return random.gauss(
-                WALK_VERTICAL_DIAG_DURATION_MEAN,
-                WALK_VERTICAL_DIAG_DURATION_VAR,
-            )
+        return random.gauss(
+            WALK_VERTICAL_DIAG_DURATION_MEAN,
+            WALK_VERTICAL_DIAG_DURATION_VAR,
+        )
 
     @staticmethod
     def walk_linear_duration(is_riding: bool):
@@ -79,8 +78,7 @@ class MovementPath:
                 MOUNT_WALK_LINEAR_DURATION_MEAN,
                 MOUNT_WALK_LINEAR_DURATION_VAR,
             )
-        else:
-            return random.gauss(WALK_LINEAR_DURATION_MEAN, WALK_LINEAR_DURATION_VAR)
+        return random.gauss(WALK_LINEAR_DURATION_MEAN, WALK_LINEAR_DURATION_VAR)
 
     @staticmethod
     def run_horizontal_diag_duration(is_riding: bool):
@@ -89,11 +87,10 @@ class MovementPath:
                 MOUNT_RUN_HORIZONTAL_DIAG_DURATION_MEAN,
                 MOUNT_RUN_HORIZONTAL_DIAG_DURATION_VAR,
             )
-        else:
-            return random.gauss(
-                RUN_HORIZONTAL_DIAG_DURATION_MEAN,
-                RUN_HORIZONTAL_DIAG_DURATION_VAR,
-            )
+        return random.gauss(
+            RUN_HORIZONTAL_DIAG_DURATION_MEAN,
+            RUN_HORIZONTAL_DIAG_DURATION_VAR,
+        )
 
     @staticmethod
     def run_vertical_diag_duration(is_riding: bool):
@@ -102,38 +99,35 @@ class MovementPath:
                 MOUNT_RUN_VERTICAL_DIAG_DURATION_MEAN,
                 MOUNT_RUN_VERTICAL_DIAG_DURATION_VAR,
             )
-        else:
-            return random.gauss(
-                RUN_VERTICAL_DIAG_DURATION_MEAN,
-                RUN_VERTICAL_DIAG_DURATION_VAR,
-            )
+        return random.gauss(
+            RUN_VERTICAL_DIAG_DURATION_MEAN,
+            RUN_VERTICAL_DIAG_DURATION_VAR,
+        )
 
     @staticmethod
     def run_linear_duration(is_riding: bool):
         if is_riding:
             return random.gauss(RUN_LINEAR_DURATION_MEAN, RUN_LINEAR_DURATION_VAR)
-        else:
-            return random.gauss(
-                MOUNT_RUN_LINEAR_DURATION_MEAN, MOUNT_RUN_LINEAR_DURATION_VAR
-            )
+        return random.gauss(
+            MOUNT_RUN_LINEAR_DURATION_MEAN, MOUNT_RUN_LINEAR_DURATION_VAR
+        )
 
     def get_key_cells(self) -> list[int]:
-        orientation: DirectionsEnum = DirectionsEnum.UNDEFINED
+        curr_orientation: DirectionsEnum = DirectionsEnum.UNDEFINED
         key_cells: list[int] = []
+
         for index, cell_path in enumerate(self.path):
-            if DirectionsEnum(cell_path.orientation) != orientation:
+            if cell_path.orientation != curr_orientation:
                 key_cells.append(
                     MovementPath.get_key_by_cell_and_direction(
-                        cell_path.step.cell_id,
-                        DirectionsEnum(cell_path.orientation),
+                        cell_path.step.cell_id, cell_path.orientation
                     )
                 )
-                orientation = DirectionsEnum(cell_path.orientation)
+                curr_orientation = cell_path.orientation
 
         key_cells.append(
             MovementPath.get_key_by_cell_and_direction(
-                self.end.cell_id,
-                DirectionsEnum(orientation),
+                self.end.cell_id, curr_orientation
             )
         )
 
@@ -153,16 +147,16 @@ class MovementPath:
 
         can_run = weight_coeff < 1.0 and len(self.path) > 2
         if not can_run:
-            if orientation.value % 2 == 0:
-                if orientation.value % 4 == 0:
+            if orientation % 2 == 0:
+                if orientation % 4 == 0:
                     return MovementPath.walk_horizontal_diag_duration(is_riding)
                 else:
                     return MovementPath.walk_vertical_diag_duration(is_riding)
             else:
                 return MovementPath.walk_linear_duration(is_riding)
         else:
-            if orientation.value % 2 == 0:
-                if orientation.value % 4 == 0:
+            if orientation % 2 == 0:
+                if orientation % 4 == 0:
                     return MovementPath.run_horizontal_diag_duration(is_riding)
                 else:
                     return MovementPath.run_vertical_diag_duration(is_riding)
@@ -177,28 +171,28 @@ class MovementPath:
                 is_riding,
                 inventory_weight,
                 inventory_weight_max,
-                DirectionsEnum(path.orientation),
+                path.orientation,
             )
             for path in self.path
         )
 
     @staticmethod
-    def get_cell_id_by_key(key: int):
+    def get_cell_id_by_key(key: int) -> int:
         return key & 0x3FF
 
     @staticmethod
-    def get_direction_by_key(key: int):
+    def get_direction_by_key(key: int) -> DirectionsEnum:
         return DirectionsEnum((key >> 12) & 7)
 
     @staticmethod
-    def get_key_by_cell_and_direction(cell_id: int, direction: DirectionsEnum):
+    def get_key_by_cell_and_direction(cell_id: int, direction: DirectionsEnum) -> int:
         key = cell_id
-        key |= direction.value << 12
+        key |= direction << 12
         return key
 
 
 if __name__ == "__main__":
-    key_cell = 16832
+    key_cell = 25047
     dir = MovementPath.get_direction_by_key(key_cell)
     cell_id = MovementPath.get_cell_id_by_key(key_cell)
     print(cell_id, dir)

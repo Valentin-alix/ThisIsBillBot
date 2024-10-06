@@ -16,7 +16,7 @@ class MapCharactersItemCriterion(ItemCriterion):
         inventory_state: InventoryState,
     ) -> int:
         nb_characters: int = 0
-        for actor_info in entity_state.entities_actors_by_id.values():
-            if actor_info.entity.actor_id > 0:
+        for actor_id in entity_state.actor_by_id.keys():
+            if actor_id > 0:
                 nb_characters += 1
         return nb_characters

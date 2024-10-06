@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 from db_dofus_unity.protos.game.gamemap_pb2 import MapComplementaryInformationEvent
 from src.common.logger import Logger
-from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.behavior import Behavior, EndCode
 from src.core.behaviors.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.map_change_behavior import MapChangeBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
@@ -51,12 +51,16 @@ class AutoTripBehavior(Behavior):
             MapPoint.from_cell_id(transition.m_cellId),
         )
         if transition_type == TransitionTypeEnum.INTERACTIVE:
-            interactive_element = self.interactive_state.interactive_elements_by_id[
+            interactive_element = self.interactive_state.interactive_element_by_id.get(
                 transition.m_id
-            ]
+            )
+            if interactive_element is None:
+                Logger().warning(f"Interactive not found : {transition.m_id}")
+                return self.finish(EndCode.ERROR)
+
             related_skill_uid = next(
                 skill.skill_instance_uid
-                for skill in interactive_element.interactive_element.enabled_skills
+                for skill in interactive_element.enabled_skills
                 if skill.skill_id == transition.m_skillId
             )
             self.event_manager.on(
@@ -69,7 +73,7 @@ class AutoTripBehavior(Behavior):
                 callback=None,
                 parent=self,
                 move_path=move_path,
-                element_id=interactive_element.interactive_element.element_id,
+                element_id=interactive_element.element_id,
                 skill_instance_uid=related_skill_uid,
             )
 
@@ -84,8 +88,8 @@ class AutoTripBehavior(Behavior):
                 )
             )
             self.map_move_behavior.start(
-                callback=lambda: self.map_change_behavior.start(
-                    callback=self.process_edge,
+                callback=lambda _: self.map_change_behavior.start(
+                    callback=lambda _: self.process_edge(),
                     parent=self,
                     map_id=edge.m_transitions.Array[0].m_transitionMapId,
                 ),
@@ -94,8 +98,8 @@ class AutoTripBehavior(Behavior):
             )
         elif transition_type == TransitionTypeEnum.MAP_ACTION:
             self.map_move_behavior.start(
-                callback=lambda: self.map_change_behavior.start(
-                    callback=self.process_edge,
+                callback=lambda _: self.map_change_behavior.start(
+                    callback=lambda _: self.process_edge(),
                     parent=self,
                     map_id=edge.m_transitions.Array[0].m_transitionMapId,
                 ),
@@ -104,3 +108,4 @@ class AutoTripBehavior(Behavior):
             )
         else:
             Logger().warning(f"Unknown transition : {transition_type}")
+            return self.finish(EndCode.ERROR)
