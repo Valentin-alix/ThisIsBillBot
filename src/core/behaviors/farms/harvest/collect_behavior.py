@@ -1,22 +1,104 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from enum import StrEnum, auto
 from functools import partial
 
-from db_dofus_unity.protos.game.interactive_element_pb2 import (
+from protos.game.context_pb2 import ContextCreationEvent
+from protos.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
-from src.common.logger import Logger
+from src.const import ON_NEW_MAP_BEFORE_ACTION, BASE_RANGE
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.interactive_behavior import InteractiveBehavior
+from src.core.behaviors.interactive_behavior import (
+    InteractiveBehavior,
+    InteractiveError,
+)
+from src.core.logic.grid.data_map_provider import DataMapProvider
 from src.core.logic.grid.path_finding.movement_path import MovementPath
+from src.core.logic.grid.path_finding.path_finding import Pathfinding
+from src.exceptions import UnhandledErrorCodeException
 from src.interfaces.models.collectable import Collectable
+
+
+class CollectError(StrEnum):
+    FULL_PODS = auto()
+    WAS_ATTACKED = auto()
 
 
 @dataclass
 class CollectBehavior(Behavior):
-    interactive_behavior: InteractiveBehavior
+    """collect all collectables in current map"""
 
-    def run(self, move_path: MovementPath, collectable: Collectable) -> bool:
-        Logger().info(f"Collecting at {move_path.end}")
+    interactive_behavior: InteractiveBehavior
+    path_finding: Pathfinding
+    data_map_provider: DataMapProvider
+
+    is_first_action: bool = field(init=False, default=False)
+
+    excluded_element_ids: set[int] = field(init=False, default_factory=set)
+
+    def run(self) -> None:
+        self.excluded_element_ids.clear()
+        self.is_first_action = True
+        self.event_manager.on(
+            ContextCreationEvent, self.on_context_creation_event, originator=self
+        )
+        self.collect_map()
+
+    def on_context_creation_event(self, msg: ContextCreationEvent):
+        if msg.context == ContextCreationEvent.GameContext.FIGHT:
+            return self.finish(CollectError.WAS_ATTACKED)
+
+    def on_fight_behavior_finished(self, error_code: str | None):
+        if error_code is not None:
+            raise UnhandledErrorCodeException(error_code)
+        self.collect_map()
+
+    def collect_map(self):
+        if self.game_state.inventory.is_full_pods:
+            return self.finish(CollectError.FULL_PODS)
+
+        if self.game_state.fight.in_fight:
+            return self.logger.info(f"player is in fight, skipping collect map")
+
+        collectables = self.game_state.player.get_farmable_collectables(
+            self.excluded_element_ids
+        )
+        if len(collectables) == 0:
+            return self.finish()
+
+        collectable_info = self.get_near_collectable(collectables)
+        if collectable_info is None:
+            return self.finish()
+
+        move_path, collectable = collectable_info
+        if self.is_first_action:
+            self.is_first_action = False
+            self.run_timer(
+                ON_NEW_MAP_BEFORE_ACTION, lambda: self.collect(move_path, collectable)
+            )
+        else:
+            self.collect(move_path, collectable)
+
+    def collect(self, move_path: MovementPath, collectable: Collectable):
+        self.logger.info(f"Collecting at {move_path.end}")
+        self.interactive_behavior.start(
+            callback=partial(
+                self.on_interactive_behavior_finished, collectable=collectable
+            ),
+            parent=self,
+            move_path=move_path,
+            element_id=collectable.interactive_element.element_id,
+            skill_instance_uid=collectable.skill.skill_instance_uid,
+        )
+
+    def on_interactive_behavior_finished(
+        self, error_code: str | None, collectable: Collectable
+    ):
+        if error_code is InteractiveError.USE_ERROR:
+            self.excluded_element_ids.add(collectable.interactive_element.element_id)
+            self.logger.error("Interactive use error, trying to recollect on map.")
+            return self.run_timer(BASE_RANGE, self.collect_map)
+
         self.event_manager.on(
             StatedElementUpdatedEvent,
             partial(
@@ -25,18 +107,38 @@ class CollectBehavior(Behavior):
             ),
             originator=self,
         )
-        self.interactive_behavior.start(
-            callback=None,
-            parent=self,
-            move_path=move_path,
-            element_id=collectable.interactive_element.element_id,
-            skill_instance_uid=collectable.skill.skill_instance_uid,
-        )
-        return True
 
     def interactive_updated(self, msg: StatedElementUpdatedEvent, element_id: int):
         if (
             msg.stated_element.element_id == element_id
             and msg.stated_element.state == 1
         ):
-            self.finish()
+            self.collect_map()
+
+    def get_near_collectable(
+        self,
+        collectables: list[Collectable],
+    ) -> tuple[MovementPath, Collectable] | None:
+        near_coll_info: tuple[MovementPath, Collectable, float] | None = None
+        for collectable in collectables:
+            coll_move_path = self.path_finding.get_interactive_near_path(
+                self.game_state.player.map_point,
+                collectable.mp,
+                skill_ids=[collectable.skill.skill_id],
+            )
+            if coll_move_path is None:
+                continue
+            coll_cost = coll_move_path.get_total_duration(
+                self.game_state.player.is_riding,
+                self.game_state.inventory.inventory_weight,
+                self.game_state.inventory.weight_max,
+            )
+            if near_coll_info is None or near_coll_info[2] > coll_cost:
+                near_coll_info = (coll_move_path, collectable, coll_cost)
+                if coll_cost == 0:
+                    break
+
+        if near_coll_info is None:
+            return None
+
+        return near_coll_info[0], near_coll_info[1]

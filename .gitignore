@@ -8,7 +8,7 @@ __pycache__/
 *$py.class
 *.pclprof
 resources/datas/*.json
-
+tools/mapping_flags/resources/*
 benchmark.pstats
 benchmark_output.png
 

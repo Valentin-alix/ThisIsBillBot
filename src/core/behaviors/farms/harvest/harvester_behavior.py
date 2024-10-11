@@ -1,103 +1,171 @@
-from collections import defaultdict
 from dataclasses import dataclass, field
 
-from src.consts import ON_NEW_MAP_BEFORE_ACTION
-from src.core.behaviors.bank.unload_in_bank_behavior import UnloadInBankBehavior
+from protos.game.inventory_pb2 import (
+    ObjectUseRequest,
+    ObjectUseMultipleRequest,
+    ObjectDeletedEvent,
+)
+from protos.game.job_pb2 import JobExperiencesUpdateEvent
+from src.const import FAKE_INFINITY_VALUE
+from src.core.behaviors.bank.unload_behavior import UnloadBehavior
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.farms.harvest.collect_behavior import CollectBehavior
+from src.core.behaviors.farms.harvest.collect_behavior import (
+    CollectBehavior,
+    CollectError,
+)
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
-from src.core.logic.grid.map_point import MapPoint
-from src.core.logic.grid.path_finding.movement_path import MovementPath
-from src.core.logic.grid.path_finding.path_finding import Pathfinding
-from src.core.repositories.data_reader import DataReader
-from src.core.states.inventory_state import InventoryState
-from src.core.states.map_state import MapState
-from src.core.states.player_state import PlayerState
-from src.interfaces.models.collectable import Collectable
+from src.core.behaviors.fight.fight_behavior import FightBehavior
+from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
+    AutoTripSmartBehavior,
+)
+from src.core.behaviors.movements.edge_behavior import EdgeError
+from src.core.data_center.data_reader import DataReader
+from src.core.logic.farmer.collectables import add_collectable_map_checked
+from src.core.logic.farmer.jobs import HARVESTER_JOB_IDS
+from src.core.logic.farmer.weight_collectables import (
+    get_additional_weight_by_map_id,
+    get_map_ids_to_explore,
+)
+from src.core.logic.world.world_path_finder import WorldPathFinder
+from src.exceptions import UnhandledErrorCodeException
+from src.interfaces.enums.priority import PriorityEnum
 
 
 @dataclass
 class HarvesterBehavior(Behavior):
+    """random harvest in zone"""
+
+    auto_trip_smart_behavior: AutoTripSmartBehavior
+    world_path_finder: WorldPathFinder
     random_farm_behavior: RandomFarmBehavior
     collect_behavior: CollectBehavior
-    unload_in_bank_behavior: UnloadInBankBehavior
-    path_finding: Pathfinding
-    player_state: PlayerState
-    inventory_state: InventoryState
-    map_state: MapState
+    fight_behavior: FightBehavior
+    unload_behavior: UnloadBehavior
 
-    _map_ids: set[int] = field(init=False, default_factory=set)
+    map_ids_to_explore: set[int] = field(init=False, default_factory=set)
 
-    def run(self):
-        """random harvest in current sub area"""
-        curr_sub_area = DataReader().map_pos_by_map_id[self.map_state.map_id].subAreaId
-        self._map_ids = set(DataReader().sub_area_by_id[curr_sub_area].mapIds.Array)
-        self.collect_map()
-
-    def on_new_map(self):
-        self.run_timer(ON_NEW_MAP_BEFORE_ACTION, self.collect_map)
-
-    def collect_map(self):
-        if self.inventory_state.is_full_pods:
-            return self.unload_in_bank_behavior.start(
-                parent=self, callback=self.on_unloaded_bank
-            )
-
-        collectables = self.player_state.get_farmable_collectables()
-        if len(collectables) == 0:
-            return self.random_farm_behavior.start(
-                callback=lambda _: self.on_new_map(), parent=self, map_ids=self._map_ids
-            )
-
-        collectable_info = self.get_near_collectable(collectables)
-        if collectable_info is None:
-            return self.random_farm_behavior.start(
-                callback=lambda _: self.on_new_map(), parent=self, map_ids=self._map_ids
-            )
-
-        move_path, collectable = collectable_info
-        self.collect_behavior.start(
-            callback=self.on_collected,
-            parent=self,
-            move_path=move_path,
-            collectable=collectable,
+    def run(self, area_id: int | None, sub_area_id: int | None):
+        self.random_farm_behavior.init_random_farm(area_id, sub_area_id)
+        self.map_ids_to_explore = get_map_ids_to_explore(
+            self.random_farm_behavior.map_ids
+        )
+        self.refresh_weight_map_ids()
+        self.event_manager.on(
+            JobExperiencesUpdateEvent,
+            self.on_job_experiences_update_event,
+            originator=self,
+            priority=PriorityEnum.MAX,
         )
 
-    def on_unloaded_bank(self, error_code: str | None):
-        if error_code is not None:
-            return
+        if self.game_state.inventory.is_full_pods:
+            return self.on_full_pods()
+
         self.on_new_map()
 
-    def on_collected(self, error_code: str | None):
-        if error_code is not None:
-            return
-        self.collect_map()
-
-    def get_near_collectable(
-        self,
-        collectables: list[Collectable],
-    ) -> tuple[MovementPath, Collectable] | None:
-
-        collectable_by_mp: dict[MapPoint, list[Collectable]] = defaultdict(list)
-
-        for collectable in collectables:
-            collectable_mp = MapPoint.from_cell_id(
-                collectable.get_cell_id(self.map_state.map_id)
+    def refresh_weight_map_ids(self):
+        self.random_farm_behavior.additional_weight_by_map_id = (
+            get_additional_weight_by_map_id(
+                self.random_farm_behavior.map_ids,
+                self.game_state.player.jobs_lvl_by_id,
             )
-            collectable_by_mp[collectable_mp].append(collectable)
-            for map_point in collectable_mp.side_map_points:
-                collectable_by_mp[map_point].append(collectable)
-
-        move_path = self.path_finding.find_path(
-            start=self.player_state.map_point,
-            ends=set(collectable_by_mp.keys()),
         )
-        for collectable in collectable_by_mp.get(move_path.end, []):
-            mp_element = MapPoint.from_cell_id(
-                collectable.get_cell_id(self.map_state.map_id)
+        for map_id in self.map_ids_to_explore:
+            self.random_farm_behavior.additional_weight_by_map_id[map_id] = (
+                FAKE_INFINITY_VALUE
             )
-            skill_range = DataReader().skill_by_id[collectable.skill.skill_id].range
-            if move_path.end.distance_to_map_point(mp_element) <= skill_range:
-                return move_path, collectable
 
-        return None
+    def on_unload_behavior_finished(self, error_code: str | None):
+        if error_code is not None:
+            raise UnhandledErrorCodeException(error_code)
+        self.on_new_map()
+
+    def run_next_step(self):
+        self.random_farm_behavior.start(
+            callback=self.on_random_farm_behavior_finished, parent=self
+        )
+
+    def on_random_farm_behavior_finished(self, error_code: str | None):
+        if error_code is not None:
+            if error_code is EdgeError.INVALID_TRANSITION:
+                return self.run_next_step()
+            elif error_code is EdgeError.WAS_ATTACKED:
+                return self.on_attacked()
+            raise UnhandledErrorCodeException(error_code)
+        if self.game_state.map.map_id in self.map_ids_to_explore:
+            self.map_ids_to_explore.remove(self.game_state.map.map_id)
+            add_collectable_map_checked(self.game_state.map.map_id)
+            self.refresh_weight_map_ids()
+        self.on_new_map()
+
+    def on_attacked(self):
+        self.fight_behavior.start(callback=self.on_fight_behavior_finished, parent=self)
+
+    def on_fight_behavior_finished(self, error_code: str | None):
+        if error_code is not None:
+            raise UnhandledErrorCodeException(error_code)
+        self.on_fight_end()
+
+    def on_fight_end(self):
+        for object in self.game_state.inventory.objects_by_uid.values():
+            type_item = DataReader().item_by_id[object.item.gid].typeId
+            if type_item == 100:
+                # sac de ressource
+                if object.item.quantity > 1:
+                    req = ObjectUseMultipleRequest(
+                        object_uid=object.item.uid, quantity=object.item.quantity
+                    )
+                else:
+                    req = ObjectUseRequest(object_uid=object.item.uid)
+
+                self.event_manager.on(
+                    ObjectDeletedEvent,
+                    lambda _: self.on_fight_end(),
+                    originator=self,
+                    once=True,
+                )
+                self.run_timer((0.1, 0.3), lambda: self.event_manager.send(req))
+                break
+        else:
+            self.on_new_map()
+
+    def on_new_map(self):
+        if self.game_state.map.map_id in self.random_farm_behavior.map_ids:
+            self.collect_behavior.start(
+                callback=self.on_collect_behavior_finished, parent=self
+            )
+        else:
+            self.run_next_step()
+
+    def on_collect_behavior_finished(self, error_code: str | None):
+        if error_code == CollectError.FULL_PODS:
+            return self.on_full_pods()
+        elif error_code is CollectError.WAS_ATTACKED:
+            return self.on_attacked()
+        elif error_code is not None:
+            raise UnhandledErrorCodeException(error_code)
+        self.run_next_step()
+
+    def on_full_pods(self):
+        if self.game_state.player.level < 10:
+            self.logger.warning(
+                f"Player can't unload because he is level {self.game_state.player.level}"
+            )
+            return self.finish()
+
+        return self.unload_behavior.start(
+            parent=self, callback=self.on_unload_behavior_finished
+        )
+
+    def on_job_experiences_update_event(self, msg: JobExperiencesUpdateEvent):
+        if len(self.map_ids_to_explore) != 0:
+            return
+
+        if any(
+            job_xp.job_level % 10 == 0
+            and self.game_state.player.jobs_lvl_by_id.get(job_xp.job_id, 1)
+            != job_xp.job_level
+            and job_xp.job_id in HARVESTER_JOB_IDS
+            for job_xp in msg.experiences
+        ):
+            # interesting lvl up, let's recalculate weight
+            self.refresh_weight_map_ids()

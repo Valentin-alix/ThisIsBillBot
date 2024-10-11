@@ -4,6 +4,7 @@ import pstats
 import time
 from functools import wraps
 from pathlib import Path
+from typing import TypeVar, Callable
 
 
 def log_caller(func):
@@ -26,7 +27,10 @@ def read_profile_file():
     profile.print_stats(50)
 
 
-def timeit(func):
+T = TypeVar("T", bound=Callable)
+
+
+def timeit(func: T):
     @wraps(func)
     def timeit_wrapper(*args, **kwargs):
         start_time = time.perf_counter()

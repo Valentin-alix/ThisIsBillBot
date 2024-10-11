@@ -1,0 +1,41 @@
+from dataclasses import dataclass
+
+from src.core.logic.grid.directions import DirectionsEnum
+from src.core.logic.grid.map_point import MapPoint, MAP_POINT_BY_COORD
+from src.core.logic.zones.zone import Zone
+
+
+@dataclass
+class ZRectangle(Zone):
+    min_radius: int
+    alternative_size: int
+    size: int
+    is_diagonal_free: bool
+
+    def __post_init__(self):
+        self.width = self.alternative_size
+        self.height = self.size if self.size != 0 else self.width
+
+    def get_mps(self, mp: MapPoint, direction: DirectionsEnum) -> set[MapPoint]:
+        mps: set[MapPoint] = set()
+
+        coords: list[tuple[int, int]] = []
+
+        if self.width == 0 or self.height == 0:
+            if self.min_radius == 0 and not self.is_diagonal_free:
+                mps.add(mp)
+            return mps
+
+        for i in range(mp.x - self.width, mp.x + self.width + 1):
+            for j in range(mp.y - self.height, mp.y + self.height + 1):
+                if not abs(mp.x - i) + abs(mp.y - j) >= self.min_radius:
+                    continue
+                if self.is_diagonal_free and abs(mp.x - i) == abs(mp.y - j):
+                    continue
+                coords.append((i, j))
+
+        for coord in coords:
+            if coord in MAP_POINT_BY_COORD:
+                mps.add(MapPoint.from_coords(*coord))
+
+        return mps

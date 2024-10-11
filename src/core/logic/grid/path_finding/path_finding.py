@@ -8,25 +8,24 @@ import icecream
 from PyQt5.QtWidgets import QApplication
 from sortedcontainers import SortedSet
 
-from src.common.debugger import timeit
 from src.common.logger import Logger
+from src.core.data_center.data_reader import DataReader
+from src.core.logic.entities.entities import is_entity_actor_on_cell_id
 from src.core.logic.grid.data_map_provider import DataMapProvider
+from src.core.logic.grid.directions import DirectionsEnum
 from src.core.logic.grid.map_point import MapPoint, MAP_POINT_BY_COORD
 from src.core.logic.grid.map_tools import MapTools
 from src.core.logic.grid.path_finding.movement_path import MovementPath
 from src.core.logic.grid.path_finding.node_map_point import NodeMapPoint
 from src.core.logic.grid.path_finding.path_element import PathElement
-from src.core.repositories.data_reader import DataReader
-from src.core.repositories.map_reader import MapReader
-from src.core.states.entity_state import EntityState
-from src.core.states.fight_state import FightState
-from src.core.states.interactive_state import InteractiveState
-from src.core.states.map_state import MapState
-from src.core.states.player_state import PlayerState
-from src.gui.components.grid_widget import GridView
+from src.core.states.game_state import GameState
+from src.core.states.state_factory import StateFactory
+from src.gui.components.graphics.grid_widget import GridView
+from src.interfaces.enums.skill_enum import SkillEnum
 from src.signals.grid_signals import GridSignals
-from src.signals.path_finding_signals import PathFindingSignals
+from src.signals.log_signals import LogSignals
 from src.signals.player_signals import GameInfoSignals
+from src.signals.world_signals import MapSignals
 
 HV_COST: int = 10
 DIAG_COST: int = 15
@@ -38,43 +37,68 @@ DEBUG_WAIT_TIME: float = 0.01
 @dataclass
 class Pathfinding:
     data_map_provider: DataMapProvider
-    player_state: PlayerState
-    map_state: MapState
-    entity_state: EntityState
+    game_state: GameState
+    logger: Logger
+    debug_signals: MapSignals | None = None
 
-    path_finding_signals: PathFindingSignals | None = None
     allow_diag: bool = field(init=False, default=True)
     allow_trough_entity: bool = field(init=False, default=True)
     avoid_obstacles: bool = field(init=False, default=True)
     heuristic_scale: int = field(init=False, default=HEURISTIC_SCALE)
-
     node_by_coord: dict[tuple[int, int], NodeMapPoint] = field(
         init=False, default_factory=dict
     )
     open_list: SortedSet[NodeMapPoint] = field(init=False, default_factory=SortedSet)
     is_coord_closed: set[tuple[int, int]] = field(init=False, default_factory=set)
 
-    def find_path_to_interactive(
-        self, element_id: int, skill_id: int
+    def get_interactive_near_path(
+        self,
+        player_mp: MapPoint,
+        element_mp: MapPoint,
+        skill_ids: list[int],
     ) -> MovementPath | None:
-        skill_range = DataReader().skill_by_id[skill_id].range
-        cell_id_element = (
-            MapReader()
-            .get_ref_data_by_element_id(self.map_state.map_id)[element_id]
-            .cellId
+        """get near path for using interactive element"""
+        self.logger.info(
+            f"from {player_mp} to {element_mp} at map id {self.game_state.map.map_id} with element : {skill_ids}"
         )
+        minimal_range = 63
+        for skill_id in skill_ids:
+            skill_data = DataReader().skill_by_id[skill_id]
+            if skill_data.range < minimal_range:
+                minimal_range = skill_data.range
 
-        mp_element = MapPoint.from_cell_id(cell_id_element)
-        ends = {mp_element}
-        ends |= {map_point for end in ends for map_point in end.side_map_points}
+        near_mps: set[MapPoint] = set()
 
-        move_path = self.find_path(self.player_state.map_point, ends)
-        if move_path.end.distance_to_map_point(mp_element) > skill_range:
+        if SkillEnum.EXIT in skill_ids:
+            near_mps = element_mp.side_map_points
+            path_to_element = self.find_path(start=player_mp, ends=near_mps)
+            if path_to_element.end in near_mps:
+                return path_to_element
+
+        if minimal_range > 0:
+            for direction in DirectionsEnum:
+                mp_direction = self.data_map_provider.get_nearest_free_cell(
+                    element_mp, direction
+                )
+                if mp_direction is not None:
+                    near_mps.add(mp_direction)
+        if len(near_mps) == 0:
+            near_mps = {element_mp}
+
+        path_to_element = self.find_path(start=player_mp, ends=near_mps)
+        if path_to_element.end.distance_to_map_point(element_mp) - 1 > minimal_range:
             return None
 
-        return move_path
+        end_path_mp = (
+            path_to_element.path[-1].step
+            if len(path_to_element.path) > 0
+            else player_mp
+        )
+        if not self.data_map_provider.can_reach_mp(end_path_mp, element_mp):
+            return None
 
-    @timeit
+        return path_to_element
+
     def find_path(
         self,
         start: MapPoint,
@@ -84,12 +108,10 @@ class Pathfinding:
         avoid_obstacles: bool = True,
         heuristic_scale: int = HEURISTIC_SCALE,
     ) -> MovementPath:
-        Logger().info(
-            f"finding path from {start} to :{ends} at map {self.map_state.map_id}"
-        )
-        if self.path_finding_signals:
-            self.path_finding_signals.start_cell.emit(start)
-            self.path_finding_signals.end_cells.emit(ends)
+        if self.debug_signals:
+            self.debug_signals.white_cell.emit(start)
+            self.debug_signals.red_cells.emit(ends)
+
         self.allow_diag = allow_diag
         self.allow_trough_entity = allow_trough_entity
         self.avoid_obstacles = avoid_obstacles
@@ -114,13 +136,15 @@ class Pathfinding:
         while self.open_list:
             curr_node = self.open_list.pop(0)
             curr_node.in_open_set = False
-            if self.path_finding_signals and curr_node.mp is not start:
-                self.path_finding_signals.treated_cell.emit(curr_node.mp)
+            if self.debug_signals and curr_node.mp is not start:
+                self.debug_signals.green_cell.emit(curr_node.mp)
                 sleep(DEBUG_WAIT_TIME)
             if self.is_goal_reached(curr_node, ends):
                 return self.build_path(start, curr_node)
+
             self.is_coord_closed.add((curr_node.mp.x, curr_node.mp.y))
-            for node in self.get_neighbors(curr_node.mp, ends):
+            for node in self.get_neighbors(curr_node.mp):
+
                 cost_to_node = (
                     self.get_move_cost(node.mp, curr_node.mp, start, ends)
                     + curr_node.cost_to_node
@@ -162,9 +186,7 @@ class Pathfinding:
     def is_cell_on_ends_line(self, map_point: MapPoint, ends: set[MapPoint]) -> bool:
         return any(map_point.x - map_point.y == end.x - end.y for end in ends)
 
-    def get_neighbors(
-        self, parent_mp: MapPoint, ends: set[MapPoint]
-    ) -> Iterator[NodeMapPoint]:
+    def get_neighbors(self, parent_mp: MapPoint) -> Iterator[NodeMapPoint]:
         for y in range(parent_mp.y - 1, parent_mp.y + 2):
             for x in range(parent_mp.x - 1, parent_mp.x + 2):
                 if (x, y) in self.is_coord_closed or (x, y) not in MAP_POINT_BY_COORD:
@@ -174,22 +196,18 @@ class Pathfinding:
                     yield node
                     continue
                 if (y == parent_mp.y or x == parent_mp.x or self.allow_diag) and (
-                    self.is_neighbor(
-                        (mp := MapPoint.from_coords(x, y)), parent_mp, ends
-                    )
+                    self.is_neighbor((mp := MapPoint.from_coords(x, y)), parent_mp)
                 ):
                     yield NodeMapPoint(mp=mp)
 
-    def is_neighbor(
-        self, mp: MapPoint, parent_mp: MapPoint, ends: set[MapPoint]
-    ) -> bool:
+    def is_neighbor(self, mp: MapPoint, parent_mp: MapPoint) -> bool:
         can_move_to_parent = self.data_map_provider.can_mov_to_mp(
             mp,
             parent_mp.cell_id,
-            ends,
             allow_through_entity=self.allow_trough_entity,
             avoid_obstacle=self.avoid_obstacles,
         )
+
         return can_move_to_parent and (
             (parent_mp.x, mp.y) in MAP_POINT_BY_COORD
             and self.data_map_provider.can_mov_to_mp(
@@ -257,7 +275,10 @@ class Pathfinding:
             return 1
 
         point_weight: float
-        entity_on_cell = self.entity_state.is_entity_actor_on_cell_id(mp.cell_id)
+
+        entity_on_cell = is_entity_actor_on_cell_id(
+            self.game_state.entity.actors_on_mp, mp.cell_id
+        )
         if self.allow_trough_entity:
             speed = self.data_map_provider.get_cell_data(mp.cell_id).speed
             if entity_on_cell:
@@ -271,7 +292,9 @@ class Pathfinding:
             if entity_on_cell:
                 point_weight += 0.3
             for side_map_point in mp.side_map_points:
-                if self.entity_state.is_entity_actor_on_cell_id(side_map_point.cell_id):
+                if is_entity_actor_on_cell_id(
+                    self.game_state.entity.actors_on_mp, side_map_point.cell_id
+                ):
                     point_weight += 0.3
 
         return point_weight
@@ -279,7 +302,6 @@ class Pathfinding:
     def build_path(self, start: MapPoint, closest_node: NodeMapPoint):
         path: list[PathElement] = []
 
-        ends = {closest_node.mp}
         cursor: NodeMapPoint | None = closest_node
 
         while cursor and cursor.mp.cell_id != start.cell_id:
@@ -298,7 +320,6 @@ class Pathfinding:
                     if self.data_map_provider.can_mov_to_mp(
                         cursor.mp,
                         grand_parent.mp.cell_id,
-                        ends,
                         allow_through_entity=self.allow_trough_entity,
                         avoid_obstacle=self.avoid_obstacles,
                     ):
@@ -322,7 +343,6 @@ class Pathfinding:
                         self.data_map_provider.can_mov_to_mp(
                             inter_mp,
                             cursor.mp.cell_id,
-                            ends,
                             allow_through_entity=self.allow_trough_entity,
                             avoid_obstacle=self.avoid_obstacles,
                         )
@@ -377,7 +397,6 @@ class Pathfinding:
                         and self.data_map_provider.can_mov_to_mp(
                             MapPoint.from_coords(cursor.mp.x, parent.mp.y),
                             cursor.mp.cell_id,
-                            ends,
                             allow_through_entity=self.allow_trough_entity,
                             avoid_obstacle=self.avoid_obstacles,
                         )
@@ -395,7 +414,6 @@ class Pathfinding:
                         and self.data_map_provider.can_mov_to_mp(
                             MapPoint.from_coords(parent.mp.x, cursor.mp.y),
                             cursor.mp.cell_id,
-                            ends,
                             allow_through_entity=self.allow_trough_entity,
                             avoid_obstacle=self.avoid_obstacles,
                         )
@@ -420,59 +438,48 @@ class Pathfinding:
 
 if __name__ == "__main__":
     grid_signals = GridSignals()
-    path_finding_signals = PathFindingSignals()
+    debug_signals = MapSignals()
     game_info_signals = GameInfoSignals()
+    log_signals = LogSignals()
+    logger = Logger(log_signals)
 
-    map_state = MapState(grid_signals=grid_signals)
-    entity_state = EntityState(grid_signals=grid_signals)
-    interactive_state = InteractiveState(grid_signals=grid_signals)
-    fight_state = FightState(game_info_signals=game_info_signals)
-    player_state = PlayerState(
-        map_state=map_state,
-        game_info_signals=game_info_signals,
-        entity_state=entity_state,
-        interactive_state=interactive_state,
+    game_state = StateFactory.create_game_state(
+        game_info_signals, grid_signals, logger=logger
     )
-
-    data_map_provider = DataMapProvider(
-        entity_state=entity_state,
-        player_state=player_state,
-        map_state=map_state,
-        fight_state=fight_state,
-    )
+    data_map_provider = DataMapProvider(game_state=game_state)
     path_finding = Pathfinding(
-        entity_state=entity_state,
         data_map_provider=data_map_provider,
-        player_state=player_state,
-        map_state=map_state,
-        # path_finding_signals=path_finding_signals,
+        debug_signals=debug_signals,
+        game_state=game_state,
+        logger=logger,
     )
 
-    map_state.map_id = 154010373
-    start = MapPoint.from_cell_id(506)
+    game_state.map.map_id = 192413702
+    start = MapPoint.from_cell_id(469)
+    end = MapPoint.from_cell_id(380)
 
-    ends = {MapPoint.from_cell_id(88), MapPoint.from_cell_id(121)}
-    ends |= {mp for mp in ends for mp in mp.side_map_points}
-
-    # [28946, 20741, 28918, 28905]
-    # should be 28946 20727 20713
-    # + check fight
     application = QApplication(sys.argv)
-    widget = GridView(
-        grid_signals=grid_signals, path_finding_signals=path_finding_signals
-    )
-    widget.on_new_map_id(map_state.map_id)
+    widget = GridView(grid_signals=grid_signals, debug_signals=debug_signals)
+    widget.on_new_map_id(game_state.map.map_id)
     widget.show()
+
+    debug_signals.white_cell.emit(start)
+    debug_signals.red_cells.emit({end})
+
+    # near_path = path_finding.get_interactive_near_path(
+    #     player_mp=start,
+    #     element_mp=end,
+    #     skill_ids=[184],
+    # )
+    # print(near_path)
 
     def _find_path():
         move_path = path_finding.find_path(
             start,
-            ends,
-            allow_trough_entity=False,
-            allow_diag=False,
-            heuristic_scale=10,
+            {end},
+            heuristic_scale=1,
         )
-        icecream.ic(move_path.path, move_path.end)
+        icecream.ic(move_path)
         key_cells = move_path.get_key_cells()
         print(key_cells)
 

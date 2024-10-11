@@ -5,7 +5,7 @@ from socket import socket as Socket
 from threading import Thread
 
 from src.bot import Bot
-from src.consts import CONNECTION_SERVERS_IPS
+from src.const import CONNECTION_SERVERS_IPS
 from src.mitm.connection_proxy import ConnectionProxy
 from src.mitm.game_proxy import GameProxy
 from src.mitm.proxy import Proxy
@@ -38,6 +38,7 @@ class ProxyListener:
                 server_socket=server_socket,
             )
         else:
+            print(server_socket.getpeername())
             bridge = GameProxy(
                 bot=self.account_by_port[client_socket.getsockname()[1]],
                 client_socket=client_socket,

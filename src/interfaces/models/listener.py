@@ -1,10 +1,9 @@
 from dataclasses import dataclass, field
 from threading import Timer
-from typing import Callable, TypeVar, Type
+from typing import Callable, Type, TypeVar
 
 from google.protobuf.message import Message
 
-from src.common.logger import Logger
 from src.interfaces.enums.priority import PriorityEnum
 
 T = TypeVar("T", bound=Message)
@@ -18,7 +17,7 @@ class Listener:
     once: bool = field(default=False)
     priority: int = field(default=PriorityEnum.NORMAL)
     timeout: float | None = None
-    on_timeout: Callable | None = None
+    on_timeout: Callable[[], None] | None = None
 
     _deleted: bool = field(init=False, default=False)
     _timeout_timer: Timer | None = field(init=False, default=None)
@@ -37,7 +36,8 @@ class Listener:
             self._timeout_timer.start()
 
     def on_timeout_callback(self):
-        Logger().info(f"Sending on timeout callback : {self.on_timeout.__name__}")
+        if self.on_timeout is None:
+            raise ValueError("timeout timer is set but no timeout callback provided")
         self.on_timeout()
 
     def delete(self):

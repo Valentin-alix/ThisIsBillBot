@@ -5,18 +5,21 @@ from typing import Callable
 
 from src.common.logger import Logger
 from src.common.timing import get_random_range
+from src.core.states.game_state import GameState
 from src.event_manager import EventManager
 
 
 @dataclass
 class Behavior(ABC):
     event_manager: EventManager
+    game_state: GameState
+    logger: Logger
     callback: Callable[[str | None], None] | None = field(init=False, default=None)
     parent: "Behavior|None" = field(init=False, default=None)
 
-    _is_running: Event = field(init=False, default_factory=Event)
-    _children: "list[Behavior]" = field(init=False, default_factory=list)
-    _timers: list[Timer] = field(init=False, default_factory=list)
+    is_running: Event = field(init=False, default_factory=Event)
+    children: "list[Behavior]" = field(init=False, default_factory=list)
+    timers: list[Timer] = field(init=False, default_factory=list)
 
     @abstractmethod
     def run(self, *args, **kwargs) -> None: ...
@@ -28,51 +31,66 @@ class Behavior(ABC):
         *args,
         **kwargs,
     ) -> None:
-        Logger().info(f"starting : {self.__class__}")
-        if parent and not parent._is_running.is_set():
-            raise ValueError(
-                f"starting behavior {self.__class__} but parent {parent.__class__} is not running"
+        self.logger.info(f"starting : {self.__class__}")
+        if parent and not parent.is_running.is_set():
+            return self.logger.error(
+                f"behavior {self.__class__} parent {parent.__class__} is not running"
             )
-        if self._is_running.is_set():
-            raise ValueError(
-                f"starting behavior {self.__class__} but it is already running"
-            )
+        if self.is_running.is_set():
+            return self.logger.error(f"behavior {self.__class__} is already running")
         self.parent = parent
         if self.parent:
-            self.parent._children.append(self)
-        self._is_running.set()
+            self.parent.children.append(self)
+        self.is_running.set()
         self.callback = callback
         self.run(*args, **kwargs)
 
-    def run_timer(self, range_time: tuple[float, float], func: Callable) -> None:
-        wait_time = get_random_range(range_time)
-        Logger().info(f"Waiting for {wait_time} before executing function")
-        timer = Timer(wait_time, func)
-        self._timers.append(timer)
+    def run_timer(
+        self, range_time: tuple[float, float] | float, func: Callable[[], None]
+    ) -> None:
+        if isinstance(range_time, float):
+            wait_time = range_time
+        else:
+            wait_time = get_random_range(range_time)
+        self.logger.info(f"Waiting for {wait_time} before executing function")
+        timer = Timer(wait_time, lambda: self.run_timed_func(func))
+        self.timers.append(timer)
         timer.start()
 
-    def stop(self) -> None:
-        if not self._is_running.is_set():
-            raise ValueError(f"stopped but behavior {self.__class__} is not running ")
+    def run_timed_func(self, func: Callable[[], None]):
+        with self.event_manager.lock:
+            if self.is_running.is_set():
+                return func()
+        self.logger.info(
+            f"behavior {self.__class__} is not running anymore, don't run timed function"
+        )
 
-        while self._children:
-            child = self._children.pop()
+    def stop(self) -> None:
+        if not self.is_running.is_set():
+            return self.logger.error(
+                f"stopped but behavior {self.__class__} is not running "
+            )
+        self.is_running.clear()
+
+        for timer in self.timers:
+            timer.cancel()
+        self.timers.clear()
+
+        self.event_manager.clear_listener_by_origin(self)
+        self.event_manager.clear_modifier_by_origin(self)
+
+        if self.parent and self in self.parent.children:
+            self.parent.children.remove(self)
+
+        self.logger.info(f"Stopped {self.__class__}")
+
+        while self.children:
+            child = self.children.pop()
             child.stop()
 
-        for timer in self._timers:
-            timer.cancel()
-        self._timers.clear()
-
-        self._is_running.clear()
-        if self.parent and self in self.parent._children:
-            self.parent._children.remove(self)
-
-        Logger().info(f"Stopped {self.__class__}")
-        self.event_manager.clear_listener_by_origin(self)
-
     def finish(self, error_code: str | None = None) -> None:
-        if error_code:
-            Logger().warning(
+        if error_code is not None:
+            self.logger.warning(
                 f"Stopping {self.__class__} with error code : {error_code}"
             )
         self.stop()

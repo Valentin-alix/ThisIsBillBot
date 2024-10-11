@@ -1,8 +1,8 @@
 import dataclasses
 from dataclasses import dataclass
 
-from db_dofus_unity.protos.game.achievement_pb2 import AchievedAchievement
-from db_dofus_unity.protos.game.quest_pb2 import QuestActive, QuestsEvent
+from protos.game.achievement_pb2 import AchievedAchievement
+from protos.game.quest_pb2 import QuestActive, QuestsEvent
 from src.core.states.state import State
 
 

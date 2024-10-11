@@ -1,71 +1,90 @@
+import sys
 from dataclasses import dataclass
 
-from db_dofus_unity.protos.game.gamemap_pb2 import MapObstacle
+from PyQt5.QtWidgets import QApplication
+
+from protos.game.common_pb2 import (
+    ActorPositionInformation,
+    EntityDisposition,
+    InteractiveElement,
+)
+from protos.game.gamemap_pb2 import MapObstacle
+from src.core.data_center.map_reader import MapReader
+from src.core.logic.entities.entities import is_entity_actor_on_cell_id
 from src.core.logic.grid.consts import MAP_WIDTH, MAP_COUNT_CELL
 from src.core.logic.grid.directions import DirectionsEnum
 from src.core.logic.grid.map_point import MapPoint
-from src.core.repositories.map_reader import MapReader
-from src.core.states.entity_state import EntityState
-from src.core.states.fight_state import FightState
-from src.core.states.map_state import MapState
-from src.core.states.player_state import PlayerState
+from src.core.states.game_state import GameState
+from src.core.states.state_factory import StateFactory
+from src.gui.components.graphics.grid_widget import GridView
+from src.signals.grid_signals import GridSignals
+from src.signals.player_signals import GameInfoSignals
+from src.signals.world_signals import MapSignals
 
 TOLERANCE_ELEVATION: int = 11
 
 
 @dataclass
 class DataMapProvider:
-    entity_state: EntityState
-    player_state: PlayerState
-    fight_state: FightState
-    map_state: MapState
+    game_state: GameState
 
     @property
     def map_data(self):
-        return MapReader().map_by_id(self.map_state.map_id)
+        return MapReader().map_by_id(self.game_state.map.map_id)
 
     def get_cell_data(self, cell_id: int):
-        return self.map_data.cellsData.Array[cell_id]
+        return self.map_data.mapData.cellsData[cell_id]
 
-    def cell_allows_map_change(self, cell_id) -> bool:
-        return self.get_cell_data(cell_id).mapChangeData != 0
+    def can_reach_mp(self, from_mp: MapPoint, to_mp: MapPoint) -> bool:
+        """check if mps are on same level"""
+        from_mp_data = MapReader().get_cell_data_by_cell_id(
+            self.game_state.map.map_id, from_mp.cell_id
+        )
+        to_mp_data = MapReader().get_cell_data_by_cell_id(
+            self.game_state.map.map_id, to_mp.cell_id
+        )
+        dif_floor = abs(from_mp_data.floor - to_mp_data.floor)
+        if (to_mp_data.moveZone != from_mp_data.moveZone and dif_floor > 0) or (
+            to_mp_data.moveZone == from_mp_data.moveZone
+            and from_mp_data.moveZone == 0
+            and dif_floor > TOLERANCE_ELEVATION
+        ):
+            return False
+        return True
 
     def can_mov_to_mp(
         self,
         map_point: MapPoint,
         previous_cell_id: int | None = None,
-        ends: set[MapPoint] | None = None,
         allow_through_entity: bool = True,
         avoid_obstacle: bool = True,
     ):
         cell_data = self.get_cell_data(map_point.cell_id)
         mov = bool(cell_data.mov) and not (
-            self.fight_state.in_fight and cell_data.nonWalkableDuringFight
+            self.game_state.fight.in_fight and cell_data.nonWalkableDuringFight
         )
         if not mov:
             return False
 
         if previous_cell_id is not None and previous_cell_id != map_point.cell_id:
-            previous_cell_data = self.get_cell_data(previous_cell_id)
-            dif = abs(abs(cell_data.floor - abs(previous_cell_data.floor)))
-            if (previous_cell_data.moveZone != cell_data.moveZone and dif > 0) or (
-                previous_cell_data.moveZone == cell_data.moveZone
-                and cell_data.moveZone == 0
-                and dif > TOLERANCE_ELEVATION
+            if not self.can_reach_mp(
+                MapPoint.from_cell_id(previous_cell_id), map_point
             ):
                 return False
 
-        if (
-            not allow_through_entity
-            and not (ends and map_point in ends)
-            and avoid_obstacle
-        ):
-            related_obstacle = self.entity_state.obstacle_on_cell_id.get(
+        if avoid_obstacle:
+            related_obstacle = self.game_state.entity.obstacle_on_cell_id.get(
                 map_point.cell_id
             )
             if (
                 related_obstacle
                 and not related_obstacle.state == MapObstacle.OBSTACLE_OPENED
+            ):
+                return False
+
+        if not allow_through_entity:
+            if is_entity_actor_on_cell_id(
+                self.game_state.entity.actors_on_mp, map_point.cell_id
             ):
                 return False
 
@@ -84,10 +103,10 @@ class DataMapProvider:
             else:
                 weight += 11 + abs(speed)
 
-            # if self.entity_state.is_entity_actor_on_cell_id(mp.cell_id) and !entity["allowMovementThrough"] :
-            #     weight = 20
         else:
-            if self.entity_state.is_entity_actor_on_cell_id(mp.cell_id):
+            if is_entity_actor_on_cell_id(
+                self.game_state.entity.actors_on_mp, mp.cell_id
+            ):
                 weight += 0.3
 
             coords: list[tuple[int, int]] = [
@@ -97,8 +116,9 @@ class DataMapProvider:
                 (mp.x, mp.y - 1),
             ]
             for coord_x, coord_y in coords:
-                if self.entity_state.is_entity_actor_on_cell_id(
-                    MapPoint.from_coords(coord_x, coord_y).cell_id
+                if is_entity_actor_on_cell_id(
+                    self.game_state.entity.actors_on_mp,
+                    MapPoint.from_coords(coord_x, coord_y).cell_id,
                 ):
                     weight += 0.3
 
@@ -121,10 +141,10 @@ class DataMapProvider:
         allow_itself: bool = True,
         allow_though_entity: bool = True,
         ignore_speed: bool = False,
-        forbidden_cells_id: set[int] | None = None,
+        forbidden_mps: set[MapPoint] | None = None,
     ) -> MapPoint | None:
-        if forbidden_cells_id is None:
-            forbidden_cells_id = set()
+        if forbidden_mps is None:
+            forbidden_mps = set()
 
         min_weight_mp: tuple[MapPoint, int] | None = None
         for curr_orientation in DirectionsEnum:
@@ -137,10 +157,12 @@ class DataMapProvider:
             )
             speed: int = self.get_cell_data(near_mp.cell_id).speed
             mp_can_move = self.can_mov_to_mp(
-                near_mp, map_point.cell_id, allow_through_entity=allow_though_entity
+                near_mp,
+                map_point.cell_id,
+                allow_through_entity=allow_though_entity,
             )
             if not mp_can_move:
-                forbidden_cells_id.add(near_mp.cell_id)
+                forbidden_mps.add(near_mp)
                 continue
 
             curr_weight_orientation = curr_orientation_dist + (
@@ -148,7 +170,7 @@ class DataMapProvider:
                 if not ignore_speed
                 else 0
             )
-            if near_mp.cell_id in forbidden_cells_id:
+            if near_mp in forbidden_mps:
                 curr_weight_orientation += 100
 
             if min_weight_mp is None or curr_weight_orientation < min_weight_mp[1]:
@@ -211,11 +233,7 @@ class DataMapProvider:
                 return False
 
     def allows_map_change_to_direction(self, mp: MapPoint, direction: DirectionsEnum):
-        map_change_data = (
-            MapReader()
-            .get_cell_data_by_cell_id(self.map_state.map_id, mp.cell_id)
-            .mapChangeData
-        )
+        map_change_data = self.get_cell_data(mp.cell_id).mapChangeData
         if direction == DirectionsEnum.RIGHT:
             return (
                 bool(map_change_data & 1)
@@ -251,3 +269,32 @@ class DataMapProvider:
             )
 
         return False
+
+
+if __name__ == "__main__":
+    grid_signals = GridSignals()
+    debug_signals = MapSignals()
+    game_info_signals = GameInfoSignals()
+    game_state = StateFactory.create_game_state(game_info_signals, grid_signals)
+    data_map_provider = DataMapProvider(game_state=game_state)
+    application = QApplication(sys.argv)
+    widget = GridView(grid_signals=grid_signals, debug_signals=debug_signals)
+
+    game_state.player.character_id = 1
+    game_state.entity.set_actor(
+        ActorPositionInformation(
+            actor_id=1, disposition=EntityDisposition(entity_id=1, cell_id=401)
+        )
+    )
+    map_id = 192413702
+    player_mp = MapPoint.from_cell_id(428)
+    element_mp = MapPoint.from_cell_id(380)
+    element = InteractiveElement(
+        enabled_skills=[InteractiveElement.InteractiveElementSkill(skill_id=184)]
+    )
+
+    widget.on_new_map_id(map_id)
+    debug_signals.white_cell.emit(element_mp)
+    widget.show()
+
+    application.exec()

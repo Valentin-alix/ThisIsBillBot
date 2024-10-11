@@ -1,0 +1,50 @@
+from dataclasses import dataclass
+
+from models.datas.map_positions_root import MapPositionsRootItem
+from src.core.data_center.data_reader import DataReader
+from src.core.logic.world.map_position import get_dist_to_maps
+from src.interfaces.enums.area_enum import AreaEnum
+
+
+@dataclass
+class WaypointInfoNode:
+    map_id: int
+    map_position: MapPositionsRootItem
+    dist_to_target: float
+
+
+ADDITIONAL_WEIGHT_WAYPOINT = 4
+
+
+def get_near_waypoint(
+    available_waypoint_map_ids: list[int],
+    dist_player_to_ends: float,
+    ends_pos: list[MapPositionsRootItem],
+    check_owned: bool,
+):
+    near_waypoint: WaypointInfoNode | None = None
+
+    for waypoint in DataReader().waypoint_by_id.values():
+        if waypoint.activated == 0:
+            continue
+        if check_owned and waypoint.mapId not in available_waypoint_map_ids:
+            continue
+        map_waypoint_pos = DataReader().map_pos_by_map_id[waypoint.mapId]
+        if (
+            DataReader().sub_area_by_id[map_waypoint_pos.subAreaId].areaId
+            == AreaEnum.INCARNAM
+        ):
+            continue
+
+        dist_waypoint = get_dist_to_maps(map_waypoint_pos, ends_pos)
+        if (dist_waypoint + ADDITIONAL_WEIGHT_WAYPOINT) >= dist_player_to_ends:
+            continue
+
+        if near_waypoint is None or near_waypoint.dist_to_target > dist_waypoint:
+            near_waypoint = WaypointInfoNode(
+                map_id=waypoint.mapId,
+                map_position=map_waypoint_pos,
+                dist_to_target=dist_waypoint,
+            )
+
+    return near_waypoint

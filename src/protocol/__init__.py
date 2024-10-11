@@ -1,0 +1,4 @@
+from consts import PROTO_ROOT_PATH
+from src.common.registry import import_and_get_all_msg_from_folder
+
+import_and_get_all_msg_from_folder(PROTO_ROOT_PATH)

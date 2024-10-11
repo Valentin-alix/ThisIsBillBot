@@ -4,4 +4,4 @@ from src.interfaces.models.message import MessageInfo
 
 
 class MessageInfoSignals(QObject):
-    msg_info = pyqtSignal(MessageInfo)
+    msg_info = pyqtSignal(MessageInfo, bool)

@@ -1,5 +1,6 @@
 import math
 
+from models.maps import Transform
 from src.common.cache import cache
 from src.core.logic.grid.consts import (
     MAP_GRID_WIDTH,
@@ -64,14 +65,14 @@ class MapTools:
     def get_look_direction4_exact_by_coord(
         x_1: int, y_1: int, x_2: int, y_2: int
     ) -> DirectionsEnum | None:
-        _loc5_ = x_2 - x_1
-        _loc6_ = y_2 - y_1
-        if _loc6_ == 0:
-            if _loc5_ < 0:
+        diff_x = x_2 - x_1
+        diff_y = y_2 - y_1
+        if diff_y == 0:
+            if diff_x < 0:
                 return DirectionsEnum(5)
             return DirectionsEnum(1)
-        if _loc5_ == 0:
-            if _loc6_ < 0:
+        if diff_x == 0:
+            if diff_y < 0:
                 return DirectionsEnum(3)
             return DirectionsEnum(7)
         return None
@@ -80,14 +81,14 @@ class MapTools:
     def get_look_direction4_diag_exact_by_coord(
         x_1: int, y_1: int, x_2: int, y_2: int
     ) -> DirectionsEnum | None:
-        _loc5_ = x_2 - x_1
-        _loc6_ = y_2 - y_1
-        if _loc5_ == -_loc6_:
-            if _loc5_ < 0:
+        diff_x = x_2 - x_1
+        diff_y = y_2 - y_1
+        if diff_x == -diff_y:
+            if diff_x < 0:
                 return DirectionsEnum(6)
             return DirectionsEnum(2)
-        if _loc5_ == _loc6_:
-            if _loc5_ < 0:
+        if diff_x == diff_y:
+            if diff_x < 0:
                 return DirectionsEnum(4)
             return DirectionsEnum(0)
         return None
@@ -140,6 +141,15 @@ class MapTools:
             result.append(related_mp)
 
         return result
+
+    @staticmethod
+    def is_transform_outside_map(transform: Transform) -> bool:
+        m31 = transform.m31
+        m32 = transform.m32
+        if abs(m31) > 623 or abs(m32) > 431:
+            # it is outside map
+            return True
+        return False
 
 
 if __name__ == "__main__":

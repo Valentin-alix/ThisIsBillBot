@@ -1,4 +1,5 @@
 import binascii
+from typing import Any
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
@@ -29,6 +30,6 @@ class MessageDetailWidget(QWidget):
         self.raw_content_label.setReadOnly(True)
         self.layout().addWidget(self.raw_content_label)
 
-    def set_content(self, msg_json: dict, raw_content: bytes):
+    def set_content(self, msg_json: dict[str, Any], raw_content: bytes):
         self.dynamic_tree.set_content(msg_json)
-        self.raw_content_label.setText(binascii.hexlify(raw_content).decode("utf-8"))
+        self.raw_content_label.setText(binascii.hexlify(raw_content).decode())

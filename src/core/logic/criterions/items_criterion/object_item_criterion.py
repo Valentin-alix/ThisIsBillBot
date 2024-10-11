@@ -1,10 +1,6 @@
 from src.core.logic.criterions.item_criterion import ItemCriterion
 from src.core.logic.criterions.item_criterion_operator import ItemCriterionOperator
-from src.core.states.entity_state import EntityState
-from src.core.states.inventory_state import InventoryState
-from src.core.states.map_state import MapState
-from src.core.states.objective_state import ObjectiveState
-from src.core.states.player_state import PlayerState
+from src.core.states.game_state import GameState
 
 
 class ObjectItemCriterion(ItemCriterion):
@@ -22,17 +18,10 @@ class ObjectItemCriterion(ItemCriterion):
             ):
                 self._criterion_value_quantity = -1
 
-    def is_respected(
-        self,
-        player_state: PlayerState,
-        map_state: MapState,
-        quest_state: ObjectiveState,
-        entity_state: EntityState,
-        inventory_state: InventoryState,
-    ) -> bool:
+    def is_respected(self, game_state: GameState) -> bool:
 
         item_quantity: int = 0
-        for _object in inventory_state.objects:
+        for _object in game_state.inventory.objects_by_uid.values():
             if _object.item.gid == self.criterion_value:
                 item_quantity = _object.item.quantity
                 break

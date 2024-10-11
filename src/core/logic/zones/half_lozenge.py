@@ -1,0 +1,43 @@
+from dataclasses import dataclass
+
+from src.core.logic.grid.directions import DirectionsEnum
+from src.core.logic.grid.map_point import MapPoint, MAP_POINT_BY_COORD
+from src.core.logic.zones.zone import Zone
+
+
+@dataclass
+class HalfLozenge(Zone):
+    alternative_size: int
+    size: int
+
+    def __post_init__(self):
+        self.min_radius = self.alternative_size
+        self.radius = self.size
+
+    def get_mps(self, mp: MapPoint, direction: DirectionsEnum) -> set[MapPoint]:
+        mps: set[MapPoint] = set()
+
+        if self.min_radius == 0:
+            mps.add(mp)
+
+        coords: list[tuple[int, int]] = []
+        for i in range(1, self.radius + 1):
+            match direction:
+                case DirectionsEnum.UP_LEFT:
+                    coords.append((mp.x + i, mp.y + i))
+                    coords.append((mp.x + i, mp.y - i))
+                case DirectionsEnum.UP_RIGHT:
+                    coords.append((mp.x - i, mp.y - i))
+                    coords.append((mp.x + i, mp.y - i))
+                case DirectionsEnum.DOWN_RIGHT:
+                    coords.append((mp.x - i, mp.y + i))
+                    coords.append((mp.x - i, mp.y - i))
+                case DirectionsEnum.DOWN_LEFT:
+                    coords.append((mp.x - i, mp.y + i))
+                    coords.append((mp.x + i, mp.y + i))
+
+        for coord in coords:
+            if coord in MAP_POINT_BY_COORD:
+                mps.add(MapPoint.from_coords(*coord))
+
+        return mps

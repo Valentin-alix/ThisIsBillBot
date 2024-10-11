@@ -4,7 +4,7 @@ from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table_view import CustomTableView
 
 
-class BaseTableWidget(SingleDirectionScrollArea):
+class BaseTableWidget(SingleDirectionScrollArea):  # type: ignore
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 

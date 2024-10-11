@@ -1,9 +1,5 @@
 from src.core.logic.criterions.item_criterion import ItemCriterion
-from src.core.states.entity_state import EntityState
-from src.core.states.inventory_state import InventoryState
-from src.core.states.map_state import MapState
-from src.core.states.objective_state import ObjectiveState
-from src.core.states.player_state import PlayerState
+from src.core.states.game_state import GameState
 
 
 class JobItemCriterion(ItemCriterion):
@@ -39,24 +35,19 @@ class JobItemCriterion(ItemCriterion):
             self.job_id = int(self.criterion_value)
             self.job_lvl = -1
 
-    def is_respected(
-        self,
-        player_state: PlayerState,
-        map_state: MapState,
-        quest_state: ObjectiveState,
-        entity_state: EntityState,
-        inventory_state: InventoryState,
-    ) -> bool:
+    def is_respected(self, game_state: GameState) -> bool:
         if self.jobs_count > 0:
             if self.job_id is None:
                 known_job_count = 0
-                for player_job_lvl in player_state.jobs_lvl_by_id.values():
+                for player_job_lvl in game_state.player.jobs_lvl_by_id.values():
                     if self.job_lvl == -1 or player_job_lvl > self.job_lvl:
                         known_job_count += 1
                     if known_job_count >= self.jobs_count:
                         return True
             else:
-                related_player_job_lvl = player_state.jobs_lvl_by_id.get(self.job_id)
+                related_player_job_lvl = game_state.player.jobs_lvl_by_id.get(
+                    self.job_id
+                )
                 if related_player_job_lvl is None:
                     return False
                 if self.job_lvl == -1 or related_player_job_lvl > self.job_lvl:

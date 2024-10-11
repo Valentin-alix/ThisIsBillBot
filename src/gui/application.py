@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
     QApplication,
 )
 
-from src.consts import RESOURCE_FOLDER
+from src.const import RESOURCE_FOLDER
 
 
 class Application(QApplication):

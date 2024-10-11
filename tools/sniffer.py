@@ -10,15 +10,15 @@ from scapy.layers.inet import IP
 from scapy.layers.inet6 import IPv6
 from scapy.packet import Packet, Raw
 
-from src.consts import CONNECTION_SERVERS_IPS, FILTER_DOFUS
+from src.const import CONNECTION_SERVERS_IPS, FILTER_DOFUS
 from src.gui.application import Application
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
 from src.gui.pages.sniffer.sniffer import SnifferWidget
 from src.protocol.protocol import (
     decode_varint_size,
-    get_conn_msg_info,
-    get_game_msg_info,
 )
+from src.protocol.protocol_connection import get_conn_msg_info
+from src.protocol.protocol_game import get_game_msg_info
 from src.signals.message_signals import MessageInfoSignals
 
 
@@ -72,11 +72,11 @@ class Sniffer:
 
     def handle_connection_message(self, content: bytes):
         msg_infos, _ = get_conn_msg_info(content)
-        self.msg_info_signals.msg_info.emit(msg_infos)
+        self.msg_info_signals.msg_info.emit(msg_infos, False)
 
     def handle_game_message(self, content: bytes):
         msg_infos, _ = get_game_msg_info(content)
-        self.msg_info_signals.msg_info.emit(msg_infos)
+        self.msg_info_signals.msg_info.emit(msg_infos, True)
 
 
 def main():

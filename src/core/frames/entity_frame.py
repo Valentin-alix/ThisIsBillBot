@@ -1,32 +1,31 @@
 from dataclasses import dataclass
 from typing import cast
 
-from db_dofus_unity.protos.game.common_pb2 import SpawnInformation
-from db_dofus_unity.protos.game.context_pb2 import (
+from protos.game.common_pb2 import SpawnInformation, ActorPositionInformation
+from protos.game.context_pb2 import (
     ContextRemoveElementEvent,
     EntitiesDispositionEvent,
 )
-from db_dofus_unity.protos.game.fight_pb2 import (
+from protos.game.fight_pb2 import (
     FightFighterRefreshEvent,
     FightSynchronizeEvent,
     FightFighterShowEvent,
 )
-from db_dofus_unity.protos.game.game_action_pb2 import GameActionFightEvent
-from db_dofus_unity.protos.game.gamemap_pb2 import (
+from protos.game.game_action_pb2 import GameActionFightEvent
+from protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
     MapMovementEvent,
     GameRolePlayShowActorsEvent,
-    MapCurrentEvent,
+    MapTeleportOnSameEvent,
+    MapMovementRefusedEvent,
+    MapMovementConfirmRequest,
 )
 from src.core.frames.frame import Frame
-from src.core.states.entity_state import EntityState
-from src.core.states.fight_state import FightState
+from src.core.logic.grid.map_point import MapPoint
 
 
 @dataclass
 class EntityFrame(Frame):
-    entity_state: EntityState
-    fight_state: FightState
 
     def __post_init__(self):
         self.event_manager.on(
@@ -69,57 +68,127 @@ class EntityFrame(Frame):
             originator=self,
         )
         self.event_manager.on(
-            MapCurrentEvent, self.on_map_current_event, originator=self
+            MapTeleportOnSameEvent, self.on_map_teleport_on_same_event, originator=self
+        )
+        self.event_manager.on(
+            MapMovementRefusedEvent, self.on_map_movement_refused_event, originator=self
         )
 
     def on_map_complementary_info_event(
         self, message: MapComplementaryInformationEvent
     ):
-        self.entity_state.set_map_obstacles(message.obstacles)
-        self.entity_state.set_actors(message.actors)
+        self.game_state.entity.set_map_obstacles(message.obstacles)
+        self.game_state.entity.set_actors(message.actors)
 
     def on_map_movement_event(self, message: MapMovementEvent):
-        self.entity_state.update_actor_disposition(
+        # if message.character_id != self.game_state.player.character_id:
+        self.game_state.entity.update_actor_disposition(
             message.character_id, message.direction, message.cells[-1]
         )
+        # else:
+        #     self.event_manager.on(
+        #         MapMovementConfirmRequest,
+        #         lambda _: self.game_state.entity.update_actor_disposition(
+        #             message.character_id, message.direction, message.cells[-1]
+        #         ),
+        #         originator=self,
+        #         once=True,
+        #         timeout=30,
+        #         on_timeout=lambda: self.event_manager.clear_listener_by_origin_and_type(
+        #             MapMovementConfirmRequest, self
+        #         ),
+        #     )
 
     def on_game_role_play_show_actors_event(self, message: GameRolePlayShowActorsEvent):
         for actor in message.actors:
-            self.entity_state.set_actor(actor)
+            self.game_state.entity.set_actor(actor)
 
     def on_context_remove_element_event(self, message: ContextRemoveElementEvent):
-        if message.element_id in self.entity_state.actor_by_id:
-            self.entity_state.remove_actor(message.element_id)
+        if message.element_id in self.game_state.entity.actor_by_id:
+            self.game_state.entity.remove_actor(message.element_id)
 
     def on_entities_disposition_event(self, msg: EntitiesDispositionEvent):
         for disposition in msg.dispositions:
-            self.entity_state.update_actor_disposition(
+            self.game_state.entity.update_actor_disposition(
                 disposition.entity_id, disposition.direction, disposition.cell_id
             )
 
     def on_game_action_fight_event(self, msg: GameActionFightEvent):
         if msg.HasField("death"):
-            self.entity_state.remove_actor(msg.death.target_id)
+            self.game_state.entity.remove_actor(msg.death.target_id)
         elif msg.HasField("summons") and msg.summons.HasField(
             "summons_by_context_information"
         ):
+            related_team = self.game_state.entity.actor_by_id[
+                msg.source_id
+            ].actor_information.fighter.spawn_information.team
             for summon in msg.summons.summons_by_context_information.summons:
                 summon = cast(
                     GameActionFightEvent.Summons.SummonsByContextInformation, summon
                 )
                 for sub_summon in summon.summons:
                     sub_summon = cast(SpawnInformation, sub_summon)
-                    self.entity_state.set_actor(sub_summon.position)
+                    related_actor_information = ActorPositionInformation.ActorInformation(
+                        fighter=ActorPositionInformation.ActorInformation.FightFighterInformation(
+                            spawn_information=SpawnInformation(team=related_team)
+                        )
+                    )
+                    sub_summon.position.actor_information.CopyFrom(
+                        related_actor_information
+                    )
+                    self.game_state.entity.set_actor(sub_summon.position, True)
+        elif msg.HasField("slide"):
+            direction = self.game_state.entity.actor_by_id[
+                msg.slide.target_id
+            ].disposition.direction
+            self.game_state.entity.update_actor_disposition(
+                msg.slide.target_id, direction=direction, cell_id=msg.slide.end_cell
+            )
+        elif msg.HasField("exchange_positions"):
+            target_direction = self.game_state.entity.actor_by_id[
+                msg.exchange_positions.target_id
+            ].disposition.direction
+            caster_direction = self.game_state.entity.actor_by_id[
+                msg.source_id
+            ].disposition.direction
+
+            self.game_state.entity.update_actor_disposition(
+                msg.exchange_positions.target_id,
+                direction=target_direction,
+                cell_id=msg.exchange_positions.target_cell_id,
+            )
+            self.game_state.entity.update_actor_disposition(
+                msg.source_id,
+                direction=caster_direction,
+                cell_id=msg.exchange_positions.caster_cell_id,
+            )
 
     def on_fight_fighter_refresh_event(self, msg: FightFighterRefreshEvent):
-        self.entity_state.set_actor(msg.information)
+        self.game_state.entity.set_actor(msg.information)
 
     def on_fight_synchronize_event(self, msg: FightSynchronizeEvent):
-        self.entity_state.set_actors(msg.fighters)
+        self.game_state.entity.set_actors(msg.fighters)
 
     def on_fight_fighter_show_event(self, msg: FightFighterShowEvent):
-        self.entity_state.set_actor(msg.information)
+        self.game_state.entity.set_actor(msg.information)
 
-    def on_map_current_event(self, msg: MapCurrentEvent):
-        self.entity_state.clear_actors()
-        self.entity_state.clear_obstacles()
+    def on_map_teleport_on_same_event(self, msg: MapTeleportOnSameEvent):
+        old_direction = self.game_state.entity.actor_by_id[
+            msg.player_id
+        ].disposition.direction
+        self.game_state.entity.update_actor_disposition(
+            msg.player_id, direction=old_direction, cell_id=msg.cell_id
+        )
+
+    def on_map_movement_refused_event(self, msg: MapMovementRefusedEvent):
+        self.event_manager.clear_listener_by_origin_and_type(
+            MapMovementConfirmRequest, self
+        )
+        direction = self.game_state.entity.actor_by_id[
+            self.game_state.player.character_id
+        ].disposition.direction
+        self.game_state.entity.update_actor_disposition(
+            self.game_state.player.character_id,
+            direction=direction,
+            cell_id=MapPoint.from_coords(msg.cell_x, msg.cell_y).cell_id,
+        )

@@ -1,34 +1,43 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QStackedWidget
 from qfluentwidgets import (
     PivotItem,
     FluentIcon,
     TransparentToolButton,
-    SingleDirectionScrollArea,
-    SmoothMode,
+    ComboBox,
+    SegmentedWidget,
 )
 
-from src.gui.components.grid_widget import GridView
-from src.gui.components.player_info.player_info_widget import PlayerInfoWidget
+from src.core.data_center.data_reader import DataReader
+from src.core.data_center.i18n import I18N
+from src.gui.pages.farmer.map_tab import MapTab
+from src.gui.pages.farmer.world_tab import WorldTab
+from src.interfaces.enums.farm_action_enum import FarmActionEnum
 from src.signals.grid_signals import GridSignals
-from src.signals.harvester_signals import HarvesterSignals
+from src.signals.harvester_signals import FarmActionSignals
 from src.signals.player_signals import GameInfoSignals
+from src.signals.world_signals import WorldSignals
 
 
 class FarmerWidget(PivotItem):
     play_btn: TransparentToolButton
     stop_btn: TransparentToolButton
+    type_action_combo: ComboBox
+    area_farm_combo: ComboBox
+    sub_area_farm_combo: ComboBox
 
     def __init__(
         self,
         grid_signals: GridSignals,
         game_info_signals: GameInfoSignals,
-        harvester_signals: HarvesterSignals,
+        world_signals: WorldSignals,
+        harvester_signals: FarmActionSignals,
         *args,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.grid_signals = grid_signals
+        self.world_signals = world_signals
         self.game_info_signals = game_info_signals
         self.harvester_signals = harvester_signals
 
@@ -36,9 +45,10 @@ class FarmerWidget(PivotItem):
         v_layout.setAlignment(Qt.AlignTop)
         self.setLayout(v_layout)
 
+        self.init_top_content()
         self.init_content()
 
-    def init_content(self):
+    def init_top_content(self) -> None:
         top_widget = QWidget()
         top_widget.setLayout(QHBoxLayout())
 
@@ -47,34 +57,86 @@ class FarmerWidget(PivotItem):
         top_widget.layout().addWidget(self.play_btn)
 
         self.stop_btn = TransparentToolButton(FluentIcon.PAUSE)
+        self.game_info_signals.disconnected.connect(self.on_stop)
         self.stop_btn.clicked.connect(self.on_stop)
         top_widget.layout().addWidget(self.stop_btn)
         self.stop_btn.hide()
 
+        self.type_action_combo = ComboBox()
+        for farm_action in FarmActionEnum:
+            self.type_action_combo.addItem(farm_action)
+        self.type_action_combo.setCurrentText(FarmActionEnum.FIGHTER)
+        top_widget.layout().addWidget(self.type_action_combo)
+
+        self.sub_area_farm_combo = ComboBox()
+
+        self.area_farm_combo = ComboBox()
+        self.area_farm_combo.addItem("")
+        self.area_farm_combo.currentIndexChanged.connect(self.on_area_selected)
+
+        for area in sorted(
+            DataReader().area_by_id.values(),
+            key=lambda area: I18N.name_by_id[area.nameId],
+        ):
+            self.area_farm_combo.addItem(I18N.name_by_id[area.nameId], userData=area.id)
+
+        top_widget.layout().addWidget(self.area_farm_combo)
+
+        top_widget.layout().addWidget(self.sub_area_farm_combo)
+
         self.layout().addWidget(top_widget)
 
-        scroll_area_info = SingleDirectionScrollArea()
+    def on_area_selected(self):
+        current_area_id = self.area_farm_combo.currentData()
+        self.sub_area_farm_combo.clear()
+        if current_area_id is None:
+            return
+        self.sub_area_farm_combo.addItem("")
+        for sub_area in sorted(
+            DataReader().sub_area_by_id.values(),
+            key=lambda subarea: I18N.name_by_id[subarea.nameId],
+        ):
+            if sub_area.areaId != current_area_id:
+                continue
+            self.sub_area_farm_combo.addItem(
+                I18N.name_by_id[sub_area.nameId], userData=sub_area.id
+            )
 
-        content_widget = QWidget()
-        content_widget.setLayout(QHBoxLayout())
+    def init_content(self):
+        pivot = SegmentedWidget()
+        self.layout().addWidget(pivot)
+        stacked_widget = QStackedWidget(self)
+        self.layout().addWidget(stacked_widget)
 
-        grid_view = GridView(self.grid_signals)
-        content_widget.layout().addWidget(grid_view)
+        map_tab = MapTab(
+            grid_signals=self.grid_signals, game_info_signals=self.game_info_signals
+        )
+        stacked_widget.addWidget(map_tab)
+        map_route = f"{self.objectName()}_map_tab"
+        pivot.addItem(
+            routeKey=map_route,
+            text="Map",
+            onClick=lambda: stacked_widget.setCurrentWidget(map_tab),
+        )
+        pivot.setCurrentItem(map_route)
 
-        player_info_widget = PlayerInfoWidget(self.grid_signals, self.game_info_signals)
-        content_widget.layout().addWidget(player_info_widget)
-
-        scroll_area_info.setSmoothMode(SmoothMode.NO_SMOOTH)
-        scroll_area_info.setWidgetResizable(True)
-        scroll_area_info.setWidget(content_widget)
-        scroll_area_info.enableTransparentBackground()
-
-        self.layout().addWidget(scroll_area_info)
+        world_tab = WorldTab(world_signals=self.world_signals)
+        stacked_widget.addWidget(world_tab)
+        world_route = f"{self.objectName()}_world_tab"
+        pivot.addItem(
+            routeKey=world_route,
+            text="Monde",
+            onClick=lambda: stacked_widget.setCurrentWidget(world_tab),
+        )
 
     def on_play(self):
         self.stop_btn.show()
         self.play_btn.hide()
-        self.harvester_signals.play.emit()
+        area_id = self.area_farm_combo.currentData()
+        sub_area_id = self.sub_area_farm_combo.currentData()
+        self.harvester_signals.play.emit(
+            FarmActionEnum(self.type_action_combo.currentText()), area_id, sub_area_id
+        )
 
     def on_stop(self):
         self.play_btn.show()

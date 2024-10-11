@@ -10,7 +10,7 @@ from src.interfaces.models.message import MessageInfo
 from src.signals.message_signals import MessageInfoSignals
 
 
-class SnifferWidget(PivotItem):
+class SnifferWidget(PivotItem):  # type: ignore
     msg_table: MessageTable
     msg_detail: MessageDetailWidget
     play_btn: PrimaryPushButton
@@ -83,10 +83,10 @@ class SnifferWidget(PivotItem):
 
         self.v_layout.setStretch(2, 1)
 
-    @pyqtSlot(MessageInfo)
-    def on_receive_msg_info(self, msg_info: MessageInfo):
+    @pyqtSlot(MessageInfo, bool)
+    def on_receive_msg_info(self, msg_info: MessageInfo, was_send_from_proxy: bool):
         if self.is_playing:
-            self.msg_table.add_row(msg_info)
+            self.msg_table.add_row(msg_info, was_send_from_proxy)
 
     @pyqtSlot()
     def on_play(self):
@@ -102,7 +102,7 @@ class SnifferWidget(PivotItem):
 
     @pyqtSlot()
     def on_reset(self):
-        self.msg_table.table.model().removeRows(
+        self.msg_table.table.item_model.remove_rows(
             0, self.msg_table.table.model().rowCount()
         )
 
@@ -110,8 +110,9 @@ class SnifferWidget(PivotItem):
     def on_click_msg(self, model_index: QModelIndex):
         source_index = self.msg_table.table.proxy_model.mapToSource(model_index)
         model = self.msg_table.table.item_model
-        msg_item = model.item(source_index.row(), 4)
-        msg_infos: MessageInfo = msg_item.data(Qt.UserRole)
+        msg_infos: MessageInfo = model.data(
+            model.index(source_index.row(), 4), Qt.UserRole
+        )
         self.msg_detail.set_content(msg_infos.msg_json, msg_infos.raw_content)
         self.msg_detail.show()
 

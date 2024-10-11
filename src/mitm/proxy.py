@@ -19,9 +19,11 @@ class WorkerAction(Enum):
 class Proxy:
     client_socket: Socket
     server_socket: Socket
-    queue_worker_item: Queue[tuple[WorkerAction, bytes]] = field(
+    queue_worker_item: Queue[tuple[WorkerAction, bytes, bool]] = field(
         init=False, default_factory=Queue
     )
+
+    def on_close(self) -> None: ...
 
     def __post_init__(self) -> None:
         self.opposite_connection = {
@@ -38,10 +40,10 @@ class Proxy:
 
     def run_worker(self):
         while True:
-            action, data = self.queue_worker_item.get()
+            action, data, was_send_from_proxy = self.queue_worker_item.get()
             match action:
                 case WorkerAction.RECEIVED:
-                    self.on_sent_msg_datas(data)
+                    self.on_sent_msg_datas(data, was_send_from_proxy)
                 case WorkerAction.SEND_CLIENT:
                     self.send_to_client(data)
                 case WorkerAction.SEND_SERVER:
@@ -53,6 +55,9 @@ class Proxy:
         try:
             while active:
                 rlist, wlist, xlist = select.select(conns, [], conns)
+                if xlist:
+                    for error in xlist:
+                        print(f"error socket : {error}")
                 if xlist or not rlist:
                     break
                 for r in rlist:
@@ -61,10 +66,13 @@ class Proxy:
                         active = False
                         break
                     self.handle(data, origin=r)
+        except ConnectionResetError as err:
+            print(err)
         finally:
             for con in conns:
                 print(f"closing {con.getpeername()}")
                 con.close()
+            self.on_close()
 
     def handle(self, data: bytes, origin: Socket) -> None:
         self.buffers[origin] += data
@@ -72,34 +80,44 @@ class Proxy:
         while True:
             if len(self.buffers[origin]) == 0:
                 break
-            size, pos = decode_varint_size(self.buffers[origin])
+            try:
+                size, pos = decode_varint_size(self.buffers[origin])
+            except IndexError:
+                break
             if size == 0 or len(self.buffers[origin]) < pos + size:
                 break
 
             msg_datas = self.buffers[origin][: pos + size]
             msg_content_datas = self.buffers[origin][pos : pos + size]
 
-            msg_datas = self.alter_msg_datas(msg_content_datas, msg_datas)
+            msg_datas_altered = self.alter_msg_datas(msg_content_datas, msg_datas)
 
             self.buffers[origin] = self.buffers[origin][pos + size :]
 
-            # send msg_datas to origin target
-            with self.locks[self.opposite_connection[origin]]:
-                self.opposite_connection[origin].sendall(msg_datas)
+            if msg_datas_altered is not None:
+                # send msg_datas to origin target
+                with self.locks[self.opposite_connection[origin]]:
+                    self.opposite_connection[origin].sendall(msg_datas_altered)
 
-            self.queue_worker_item.put((WorkerAction.RECEIVED, msg_datas))
+                self.queue_worker_item.put(
+                    (WorkerAction.RECEIVED, msg_datas_altered, False)
+                )
 
-    def alter_msg_datas(self, msg_content_datas: bytes, msg_datas: bytes) -> bytes:
+    def alter_msg_datas(
+        self, msg_content_datas: bytes, msg_datas: bytes
+    ) -> bytes | None:
         return msg_datas
 
-    def on_sent_msg_datas(self, msg_datas: bytes) -> None: ...
+    def on_sent_msg_datas(
+        self, msg_datas: bytes, was_send_from_proxy: bool
+    ) -> None: ...
 
     def send_to_client(self, data: bytes):
         with self.locks[self.client_socket]:
             self.client_socket.sendall(data)
-        self.queue_worker_item.put((WorkerAction.RECEIVED, data))
+        self.queue_worker_item.put((WorkerAction.RECEIVED, data, True))
 
     def send_to_server(self, data: bytes):
         with self.locks[self.server_socket]:
             self.server_socket.sendall(data)
-        self.queue_worker_item.put((WorkerAction.RECEIVED, data))
+        self.queue_worker_item.put((WorkerAction.RECEIVED, data, True))

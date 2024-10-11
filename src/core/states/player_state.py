@@ -2,18 +2,22 @@ import dataclasses
 from dataclasses import dataclass
 from datetime import datetime
 
-from db_dofus_unity.protos.game.common_pb2 import (
+from models.world_graph import Vertice
+from protos.game.character_pb2 import CharacterLifeStatusEvent
+from protos.game.common_pb2 import (
     ServerType,
     CharacterCharacteristic,
+    GuildInformation,
 )
+from src.core.data_center.data_reader import DataReader
+from src.core.data_center.world_graph_reader import WorldGraphReader
 from src.core.logic.grid.map_point import MapPoint
-from src.core.repositories.data_reader import DataReader
-from src.core.repositories.map_reader import MapReader
-from src.core.repositories.world_graph_reader import WorldGraphReader, Vertex
+from src.core.logic.world.linked_zone import get_linked_zone_rp
 from src.core.states.entity_state import EntityState
 from src.core.states.interactive_state import InteractiveState
 from src.core.states.map_state import MapState
 from src.core.states.state import State
+from src.interfaces.enums.characteristic_enum import CharacteristicEnum
 from src.interfaces.models.collectable import Collectable
 from src.signals.player_signals import GameInfoSignals
 
@@ -25,24 +29,57 @@ class PlayerState(State):
     entity_state: EntityState
     interactive_state: InteractiveState
 
+    life_state: CharacterLifeStatusEvent.LifeStatus = dataclasses.field(
+        init=False, default=CharacterLifeStatusEvent.LifeStatus.ALIVE_AND_KICKING
+    )
+    guild_information: GuildInformation | None = dataclasses.field(
+        init=False, default=None
+    )
+    guild_rank_id: int = dataclasses.field(init=False, default=0)
+    life_point: int = dataclasses.field(init=False, default=0)
+    max_life_point: int = dataclasses.field(init=False, default=1)
     _breed_id: int = dataclasses.field(init=False, default=0)
     _level: int = dataclasses.field(init=False, default=1)
     _subscription_end_date: datetime = dataclasses.field(
         init=False, default_factory=lambda: datetime(1975, 1, 1)
     )
     _character_id: int = dataclasses.field(init=False, default=0)
+    _character_name: str = dataclasses.field(init=False, default_factory=str)
 
     game_type: ServerType = dataclasses.field(init=False, default=ServerType.UNDEFINED)
     characteristic_by_id: dict[int, CharacterCharacteristic] = dataclasses.field(
         init=False, default_factory=dict
     )
-    waypoint_ids: list[int] = dataclasses.field(init=False, default_factory=list)
+    waypoint_map_ids: list[int] = dataclasses.field(init=False, default_factory=list)
     jobs_lvl_by_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict)
     is_riding: bool = dataclasses.field(init=False, default=False)
 
-    def get_stat_usable_by_id(self, stat_id: int) -> int:
-        stat = self.characteristic_by_id[stat_id].usable
-        return stat.base - stat.used
+    def get_stat_by_id(self, characteristic: CharacteristicEnum) -> int:
+        stat = self.characteristic_by_id[characteristic]
+        if stat.HasField("detailed"):
+            return (
+                stat.detailed.base
+                + stat.detailed.additional
+                + stat.detailed.objects_and_mount_bonus
+                + stat.detailed.alignment_gift_bonus
+                + stat.detailed.context_modification
+                + stat.detailed.temporary
+            )
+        elif stat.HasField("usable"):
+            return (
+                stat.usable.base
+                + stat.usable.context_modification
+                + stat.usable.additional
+                + stat.usable.objects_and_mount_bonus
+            )
+        elif stat.HasField("value"):
+            return stat.value.total
+
+        return 0
+
+    @property
+    def life_percentage(self):
+        return self.life_point / self.max_life_point
 
     @property
     def breed_id(self):
@@ -78,6 +115,17 @@ class PlayerState(State):
     @character_id.setter
     def character_id(self, value: int):
         self._character_id = value
+        self.game_info_signals.character_id.emit(value)
+
+    @property
+    def character_name(self):
+        return self._character_name
+
+    @character_name.setter
+    def character_name(self, value: str):
+        self._character_name = value
+        self.logger.title = value
+        self.game_info_signals.character_name.emit(value)
 
     @property
     def is_sub(self) -> bool:
@@ -96,10 +144,16 @@ class PlayerState(State):
             self.entity_state.actor_by_id[self.character_id].disposition.cell_id
         )
 
-    def get_farmable_collectables(self) -> list[Collectable]:
+    def get_farmable_collectables(
+        self, excluded_element_ids: set[int] | None = None
+    ) -> list[Collectable]:
         farmable_collectables: list[Collectable] = []
         for stated_element in self.interactive_state.stated_element_by_id.values():
-            if stated_element.state != 0:
+            if (
+                stated_element.state != 0
+                or excluded_element_ids is not None
+                and stated_element.element_id in excluded_element_ids
+            ):
                 continue
             related_interactive = self.interactive_state.interactive_element_by_id.get(
                 stated_element.element_id
@@ -112,9 +166,10 @@ class PlayerState(State):
                 continue
             skill = related_interactive.enabled_skills[0]
             data_skill = DataReader().skill_by_id[skill.skill_id]
-            if data_skill.gatheredRessourceItem == -1:
+            if data_skill.gatheredRessourceItem in [-1, 0]:
                 continue
             collectable = Collectable(
+                map_id=self.map_state.map_id,
                 interactive_element=related_interactive,
                 skill=skill,
                 resource_item_id=data_skill.gatheredRessourceItem,
@@ -127,26 +182,16 @@ class PlayerState(State):
         return farmable_collectables
 
     @property
-    def curr_vertex(self) -> Vertex:
-        vertex = WorldGraphReader().get_vertex(
+    def curr_vertex(self) -> Vertice:
+        vertice = WorldGraphReader().get_vertex(
             self.map_state.map_id, self.linked_zone_rp
         )
-        if vertex is not None:
-            return vertex
-
-        potential_vertices = WorldGraphReader().get_vertices_by_map_id[
-            self.map_state.map_id
-        ]
-
-        for vertice in potential_vertices.m_values.Array:
-            if vertice.m_zoneId == self.linked_zone_rp:
-                return vertice
-
-        return potential_vertices.m_values.Array[1]
+        if vertice is None:
+            raise ValueError(
+                f"no vertice for map {self.map_state.map_id} at {self.map_point}"
+            )
+        return vertice
 
     @property
     def linked_zone_rp(self) -> int:
-        cell_data = MapReader().get_cell_data_by_cell_id(
-            self.map_state.map_id, self.map_point.cell_id
-        )
-        return (cell_data.linkedZone & 240) >> 4
+        return get_linked_zone_rp(self.map_state.map_id, self.map_point.cell_id)

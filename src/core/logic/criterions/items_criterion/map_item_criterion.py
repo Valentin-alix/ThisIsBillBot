@@ -1,18 +1,7 @@
 from src.core.logic.criterions.item_criterion import ItemCriterion
-from src.core.states.entity_state import EntityState
-from src.core.states.inventory_state import InventoryState
-from src.core.states.map_state import MapState
-from src.core.states.objective_state import ObjectiveState
-from src.core.states.player_state import PlayerState
+from src.core.states.game_state import GameState
 
 
 class MapItemCriterion(ItemCriterion):
-    def get_criterion(
-        self,
-        player_state: PlayerState,
-        map_state: MapState,
-        quest_state: ObjectiveState,
-        entity_state: EntityState,
-        inventory_state: InventoryState,
-    ) -> int:
-        return map_state.map_id
+    def get_criterion(self, game_state: GameState) -> int:
+        return game_state.map.map_id

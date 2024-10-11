@@ -1,4 +1,4 @@
-CRITERION_WHITE_LIST: list = [
+CRITERION_WHITE_LIST: list[str] = [
     "Ad",
     "DM",
     "MI",

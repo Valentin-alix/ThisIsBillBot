@@ -5,7 +5,7 @@ from PyQt5.QtGui import QColor, QIcon
 from qfluentwidgets import FluentIcon, FluentWindow, SplashScreen
 
 from src.bot import Bot
-from src.consts import RESOURCE_FOLDER
+from src.const import RESOURCE_FOLDER
 from src.gui.components.account_widget import AccountWidget
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
 
@@ -38,15 +38,23 @@ class MainWindow(FluentWindow):
             login,
             account.msg_info_signals,
             account.game_info_signals,
-            account.harvester_signals,
+            account.farm_action_signals,
             account.grid_signals,
+            account.world_signals,
+            account.log_signals,
         )
         navigation_widget = self.addSubInterface(
             account_widget, self.disconnected_icon, login
+        )
+        account.game_info_signals.character_name.connect(
+            lambda name: navigation_widget.setText(name)
         )
         account.game_info_signals.connected.connect(
             lambda: navigation_widget.setIcon(self.connected_icon)
         )
         account.game_info_signals.disconnected.connect(
             lambda: navigation_widget.setIcon(self.disconnected_icon)
+        )
+        account.game_info_signals.disconnected.connect(
+            lambda: navigation_widget.setText(login)
         )

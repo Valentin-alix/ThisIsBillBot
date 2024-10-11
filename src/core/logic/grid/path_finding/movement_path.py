@@ -1,4 +1,5 @@
 import random
+import sys
 from dataclasses import dataclass
 
 import icecream
@@ -171,15 +172,28 @@ class MovementPath:
     def get_total_duration(
         self, is_riding: bool, inventory_weight: int, inventory_weight_max: int
     ) -> float:
-        return sum(
-            self.get_step_duration(
+        if len(self.path) == 0:
+            return 0
+
+        total_duration: float = 0
+        curr_orientation: DirectionsEnum = self.path[0].orientation
+        for step in self.path[1:]:
+            total_duration += self.get_step_duration(
                 is_riding,
                 inventory_weight,
                 inventory_weight_max,
-                path.orientation,
+                curr_orientation,
             )
-            for path in self.path
+            curr_orientation = step.orientation
+
+        # add last path duration
+        total_duration += self.get_step_duration(
+            is_riding,
+            inventory_weight,
+            inventory_weight_max,
+            curr_orientation,
         )
+        return total_duration
 
     @staticmethod
     def get_cell_id_by_key(key: int) -> int:
@@ -197,13 +211,29 @@ class MovementPath:
 
 
 if __name__ == "__main__":
-    print(MapPoint.from_cell_id(340))
-    key_cells = [24742]
+    # print(MapPoint.from_cell_id(340))
+    key_cells = [538, 62, 48]
     for key_cell in key_cells:
         icecream.ic(DirectionsEnum(MovementPath.get_direction_by_key(key_cell)))
         icecream.ic(MovementPath.get_cell_id_by_key(key_cell))
 
-    key_cells = [24742]
-    for key_cell in key_cells:
-        icecream.ic(DirectionsEnum(MovementPath.get_direction_by_key(key_cell)))
-        icecream.ic(MovementPath.get_cell_id_by_key(key_cell))
+    sys.exit()
+
+    movz_path = MovementPath(
+        start=MapPoint.from_cell_id(402),
+        path=[
+            PathElement(step=MapPoint.from_cell_id(402), orientation=DirectionsEnum.UP),
+            PathElement(step=MapPoint.from_cell_id(430), orientation=DirectionsEnum.UP),
+            PathElement(
+                step=MapPoint.from_cell_id(444), orientation=DirectionsEnum.LEFT
+            ),
+            PathElement(step=MapPoint.from_cell_id(459), orientation=DirectionsEnum.UP),
+        ],
+        end=MapPoint.from_cell_id(459),
+    )
+    print(movz_path.get_total_duration(False, 0, 1))
+
+    # key_cells = [24742]
+    # for key_cell in key_cells:
+    #     icecream.ic(DirectionsEnum(MovementPath.get_direction_by_key(key_cell)))
+    #     icecream.ic(MovementPath.get_cell_id_by_key(key_cell))

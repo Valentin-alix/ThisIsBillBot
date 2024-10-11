@@ -2,12 +2,8 @@ from dataclasses import dataclass, field
 
 from src.core.logic.criterions.interface_item_criterion import IItemCriterion
 from src.core.logic.criterions.item_criterion_operator import ItemCriterionOperator
-from src.core.states.entity_state import EntityState
-from src.core.states.inventory_state import InventoryState
-from src.core.states.map_state import MapState
-from src.core.states.objective_state import ObjectiveState
-from src.core.states.player_state import PlayerState
-from src.interfaces.enums.stat_id import StatIds
+from src.core.states.game_state import GameState
+from src.interfaces.enums.characteristic_enum import CharacteristicEnum
 
 
 @dataclass
@@ -22,18 +18,9 @@ class ItemCriterion(IItemCriterion):
     def __post_init__(self):
         self.get_infos()
 
-    def is_respected(
-        self,
-        player_state: PlayerState,
-        map_state: MapState,
-        quest_state: ObjectiveState,
-        entity_state: EntityState,
-        inventory_state: InventoryState,
-    ) -> bool:
+    def is_respected(self, game_state: GameState) -> bool:
         return self.item_operator.compare(
-            self.get_criterion(
-                player_state, map_state, quest_state, entity_state, inventory_state
-            ),
+            self.get_criterion(game_state),
             self.criterion_value,
         )
 
@@ -54,123 +41,146 @@ class ItemCriterion(IItemCriterion):
             self.criterion_value_text = parts[1]
             break
 
-    def get_criterion(
-        self,
-        player_state: PlayerState,
-        map_state: MapState,
-        quest_state: ObjectiveState,
-        entity_state: EntityState,
-        inventory_state: InventoryState,
-    ) -> int:
+    def get_criterion(self, game_state: GameState) -> int:
         criterion: int = 0
 
-        if len(player_state.characteristic_by_id.keys()) == 0:
+        if len(game_state.player.characteristic_by_id.keys()) == 0:
             return 0
 
         elif self.criterion_ref == "Ca":
-            criterion = player_state.characteristic_by_id[StatIds.AGILITY].detailed.base
+            criterion = game_state.player.characteristic_by_id[
+                CharacteristicEnum.AGILITY
+            ].detailed.base
 
         elif self.criterion_ref == "CA":
-            related_state = player_state.characteristic_by_id[StatIds.AGILITY]
+            related_state = game_state.player.characteristic_by_id[
+                CharacteristicEnum.AGILITY
+            ]
             criterion = related_state.detailed.base + related_state.detailed.additional
 
         elif self.criterion_ref == "Cc":
-            criterion = player_state.characteristic_by_id[StatIds.CHANCE].detailed.base
+            criterion = game_state.player.characteristic_by_id[
+                CharacteristicEnum.CHANCE
+            ].detailed.base
 
         elif self.criterion_ref == "CC":
-            related_state = player_state.characteristic_by_id[StatIds.CHANCE]
+            related_state = game_state.player.characteristic_by_id[
+                CharacteristicEnum.CHANCE
+            ]
             criterion = related_state.detailed.base + related_state.detailed.additional
 
         elif self.criterion_ref == "Ce":
-            criterion = player_state.characteristic_by_id[
-                StatIds.ENERGY_POINTS
+            criterion = game_state.player.characteristic_by_id[
+                CharacteristicEnum.ENERGY_POINTS
             ].detailed.base
 
         elif self.criterion_ref == "CE":
-            related_state = player_state.characteristic_by_id[StatIds.MAX_ENERGY_POINTS]
+            related_state = game_state.player.characteristic_by_id[
+                CharacteristicEnum.MAX_ENERGY_POINTS
+            ]
             criterion = related_state.detailed.base + related_state.detailed.additional
 
         elif self.criterion_ref == "CH":
-            related_state = player_state.characteristic_by_id[StatIds.HONOUR_POINTS]
+            related_state = game_state.player.characteristic_by_id[
+                CharacteristicEnum.HONOUR_POINTS
+            ]
             criterion = related_state.detailed.base + related_state.detailed.additional
 
         elif self.criterion_ref == "Ci":
-            criterion = player_state.characteristic_by_id[
-                StatIds.INTELLIGENCE
+            criterion = game_state.player.characteristic_by_id[
+                CharacteristicEnum.INTELLIGENCE
             ].detailed.base
 
         elif self.criterion_ref == "CI":
-            related_state = player_state.characteristic_by_id[StatIds.INTELLIGENCE]
+            related_state = game_state.player.characteristic_by_id[
+                CharacteristicEnum.INTELLIGENCE
+            ]
             criterion = related_state.detailed.base + related_state.detailed.additional
 
         elif self.criterion_ref == "CM":
-            related_state = player_state.characteristic_by_id[StatIds.MOVEMENT_POINTS]
+            related_state = game_state.player.characteristic_by_id[
+                CharacteristicEnum.MOVEMENT_POINTS
+            ]
             criterion = related_state.detailed.base + related_state.detailed.additional
 
         elif self.criterion_ref == "CP":
-            related_state = player_state.characteristic_by_id[StatIds.ACTION_POINTS]
+            related_state = game_state.player.characteristic_by_id[
+                CharacteristicEnum.ACTION_POINTS
+            ]
             criterion = related_state.detailed.base + related_state.detailed.additional
         elif self.criterion_ref == "Cs":
-            criterion = player_state.characteristic_by_id[
-                StatIds.STRENGTH
+            criterion = game_state.player.characteristic_by_id[
+                CharacteristicEnum.STRENGTH
             ].detailed.base
 
         elif self.criterion_ref == "CS":
-            related_state = player_state.characteristic_by_id[StatIds.STRENGTH]
+            related_state = game_state.player.characteristic_by_id[
+                CharacteristicEnum.STRENGTH
+            ]
             criterion = related_state.detailed.base + related_state.detailed.additional
 
         elif self.criterion_ref == "Cv":
-            criterion = player_state.characteristic_by_id[
-                StatIds.VITALITY
+            criterion = game_state.player.characteristic_by_id[
+                CharacteristicEnum.VITALITY
             ].detailed.base
 
         elif self.criterion_ref == "CV":
-            related_state = player_state.characteristic_by_id[StatIds.VITALITY]
+            related_state = game_state.player.characteristic_by_id[
+                CharacteristicEnum.VITALITY
+            ]
             criterion = related_state.detailed.base + related_state.detailed.additional
 
         elif self.criterion_ref == "Cw":
-            criterion = player_state.characteristic_by_id[StatIds.WISDOM].detailed.base
+            criterion = game_state.player.characteristic_by_id[
+                CharacteristicEnum.WISDOM
+            ].detailed.base
 
         elif self.criterion_ref == "CW":
-            related_state = player_state.characteristic_by_id[StatIds.WISDOM]
+            related_state = game_state.player.characteristic_by_id[
+                CharacteristicEnum.WISDOM
+            ]
             criterion = related_state.detailed.base + related_state.detailed.additional
 
         elif self.criterion_ref == "Ct":
-            related_state = player_state.characteristic_by_id[StatIds.TACKLE_EVADE]
+            related_state = game_state.player.characteristic_by_id[
+                CharacteristicEnum.TACKLE_EVADE
+            ]
             criterion = related_state.detailed.base + related_state.detailed.additional
 
         elif self.criterion_ref == "CT":
-            related_state = player_state.characteristic_by_id[StatIds.TACKLE_BLOCK]
+            related_state = game_state.player.characteristic_by_id[
+                CharacteristicEnum.TACKLE_BLOCK
+            ]
             criterion = related_state.detailed.base + related_state.detailed.additional
 
         elif self.criterion_ref == "ca":
-            criterion = player_state.characteristic_by_id[
-                StatIds.AGILITY
+            criterion = game_state.player.characteristic_by_id[
+                CharacteristicEnum.AGILITY
             ].detailed.additional
 
         elif self.criterion_ref == "cc":
-            criterion = player_state.characteristic_by_id[
-                StatIds.CHANCE
+            criterion = game_state.player.characteristic_by_id[
+                CharacteristicEnum.CHANCE
             ].detailed.additional
 
         elif self.criterion_ref == "ci":
-            criterion = player_state.characteristic_by_id[
-                StatIds.INTELLIGENCE
+            criterion = game_state.player.characteristic_by_id[
+                CharacteristicEnum.INTELLIGENCE
             ].detailed.additional
 
         elif self.criterion_ref == "cs":
-            criterion = player_state.characteristic_by_id[
-                StatIds.STRENGTH
+            criterion = game_state.player.characteristic_by_id[
+                CharacteristicEnum.STRENGTH
             ].detailed.additional
 
         elif self.criterion_ref == "cv":
-            criterion = player_state.characteristic_by_id[
-                StatIds.VITALITY
+            criterion = game_state.player.characteristic_by_id[
+                CharacteristicEnum.VITALITY
             ].detailed.additional
 
         elif self.criterion_ref == "cw":
-            criterion = player_state.characteristic_by_id[
-                StatIds.WISDOM
+            criterion = game_state.player.characteristic_by_id[
+                CharacteristicEnum.WISDOM
             ].detailed.additional
 
         return criterion

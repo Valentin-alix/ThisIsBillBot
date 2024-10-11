@@ -1,16 +1,22 @@
 from dataclasses import dataclass
 
-from db_dofus_unity.protos.game.inventory_pb2 import (
+from protos.game.character_pb2 import CharacterCharacteristicsEvent
+from protos.game.inventory_pb2 import (
     InventoryWeightEvent,
     InventoryContentEvent,
+    KamasUpdateEvent,
+    ObjectAddedEvent,
+    ObjectQuantityEvent,
+    ObjectDeletedEvent,
+    ObjectsDeletedEvent,
+    ObjectsAddedEvent,
+    ObjectsQuantityEvent,
 )
 from src.core.frames.frame import Frame
-from src.core.states.inventory_state import InventoryState
 
 
 @dataclass
 class InventoryFrame(Frame):
-    inventory_state: InventoryState
 
     def __post_init__(self):
         self.event_manager.on(
@@ -21,10 +27,70 @@ class InventoryFrame(Frame):
         self.event_manager.on(
             InventoryContentEvent, self.on_inventory_content_event, originator=self
         )
+        self.event_manager.on(
+            CharacterCharacteristicsEvent,
+            self.on_character_characteristics_event,
+            originator=self,
+        )
+        self.event_manager.on(
+            ObjectsDeletedEvent, self.on_objects_deleted_event, originator=self
+        )
+        self.event_manager.on(
+            ObjectDeletedEvent, self.on_object_deleted_event, originator=self
+        )
+        self.event_manager.on(
+            ObjectQuantityEvent, self.on_object_quantity_event, originator=self
+        )
+        self.event_manager.on(
+            ObjectsQuantityEvent, self.on_objects_quantity_event, originator=self
+        )
+        self.event_manager.on(
+            ObjectAddedEvent, self.on_object_added_event, originator=self
+        )
+        self.event_manager.on(
+            ObjectsAddedEvent, self.on_objects_added_event, originator=self
+        )
+        self.event_manager.on(
+            KamasUpdateEvent, self.on_kamas_update_event, originator=self
+        )
 
     def on_inventory_weight_event(self, message: InventoryWeightEvent):
-        self.inventory_state.inventory_weight = message.inventory_weight
-        self.inventory_state.weight_max = message.weight_max
+        self.game_state.inventory.inventory_weight = message.inventory_weight
+        self.game_state.inventory.weight_max = message.weight_max
 
     def on_inventory_content_event(self, msg: InventoryContentEvent):
-        self.inventory_state.objects = msg.objects
+        self.game_state.inventory.objects_by_uid = {
+            object.item.uid: object for object in msg.objects
+        }
+        self.game_state.inventory.kamas = msg.kamas
+
+    def on_object_added_event(self, msg: ObjectAddedEvent):
+        self.game_state.inventory.objects_by_uid[msg.object.item.uid] = msg.object
+
+    def on_objects_added_event(self, msg: ObjectsAddedEvent):
+        for object in msg.objects:
+            self.game_state.inventory.objects_by_uid[object.item.uid] = object
+
+    def on_object_quantity_event(self, msg: ObjectQuantityEvent):
+        self.game_state.inventory.objects_by_uid[
+            msg.object.object_uid
+        ].item.quantity = msg.object.quantity
+
+    def on_objects_quantity_event(self, msg: ObjectsQuantityEvent):
+        for object in msg.object:
+            self.game_state.inventory.objects_by_uid[
+                object.object_uid
+            ].item.quantity = object.quantity
+
+    def on_object_deleted_event(self, msg: ObjectDeletedEvent):
+        del self.game_state.inventory.objects_by_uid[msg.object_uid]
+
+    def on_objects_deleted_event(self, msg: ObjectsDeletedEvent):
+        for object_uid in msg.objects_uid:
+            del self.game_state.inventory.objects_by_uid[object_uid]
+
+    def on_character_characteristics_event(self, msg: CharacterCharacteristicsEvent):
+        self.game_state.inventory.kamas = msg.stats.kamas
+
+    def on_kamas_update_event(self, msg: KamasUpdateEvent):
+        self.game_state.inventory.kamas = msg.quantity

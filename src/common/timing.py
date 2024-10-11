@@ -13,9 +13,7 @@ def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 3) -> flo
 
 
 def get_random_range(
-    range_time: tuple[float, float],
-    is_weighted: bool = True,
-    coeff: int = 2,
+    range_time: tuple[float, float], is_weighted: bool = True, coeff: float = 3
 ):
     if is_weighted:
         wait_time = pick_random_weighted_time(*range_time, coeff)
