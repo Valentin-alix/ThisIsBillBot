@@ -2,11 +2,15 @@ from src.common.logger import Logger
 from src.core.states.entity_state import EntityState
 from src.core.states.fight_state import FightState
 from src.core.states.game_state import GameState
+from src.core.states.guild_chest_state import GuildChestState
 from src.core.states.interactive_state import InteractiveState
 from src.core.states.inventory_state import InventoryState
 from src.core.states.map_state import MapState
 from src.core.states.objective_state import ObjectiveState
+from src.core.states.party_state import PartyState
 from src.core.states.player_state import PlayerState
+from src.core.states.sale_hotel_state import SaleHotelState
+from src.core.states.server_state import ServerState
 from src.signals.grid_signals import GridSignals
 from src.signals.player_signals import GameInfoSignals
 
@@ -35,8 +39,12 @@ class StateFactory:
             player_state=player_state,
             logger=logger,
         )
+        party_state = PartyState(logger=logger)
 
         objective_state = ObjectiveState(logger=logger)
+        sale_hotel_state = SaleHotelState(logger=logger)
+        guild_chest_state = GuildChestState(logger=logger)
+        server_state = ServerState(logger=logger)
 
         game_state = GameState(
             entity=entity_state,
@@ -46,5 +54,9 @@ class StateFactory:
             map=map_state,
             player=player_state,
             objective=objective_state,
+            party=party_state,
+            guild_chest=guild_chest_state,
+            sale_hotel=sale_hotel_state,
+            server=server_state,
         )
         return game_state

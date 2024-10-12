@@ -6,6 +6,8 @@ from threading import Thread
 from PyQt5.QtCore import Qt
 from qfluentwidgets import Theme, setTheme, setThemeColor
 
+from src.signals.shared_farm_signals import SharedFarmSignals
+
 sys.path.append(os.path.join(Path(__file__).parent, "D3Database"))
 
 from src.bot_manager import BotManager
@@ -17,10 +19,13 @@ from src.mitm.proxy_listener import ProxyListener
 
 def main() -> None:
     app = Application(sys.argv)
-    main_window = MainWindow(app.TITLE)
+    shared_farm_signals = SharedFarmSignals()
+    main_window = MainWindow(app.TITLE, shared_farm_signals)
     main_window.show()
+    setTheme(Theme.DARK)
+    setThemeColor(Qt.GlobalColor.yellow)
 
-    bot_manager = BotManager()
+    bot_manager = BotManager(shared_farm_signals)
     listener = ProxyListener(bot_manager.bot_by_account_id)
     Thread(
         target=lambda: listener.start_listener(
@@ -31,8 +36,6 @@ def main() -> None:
     main_window.init_accounts(bot_manager.bot_by_account_id)
     main_window.splashScreen.finish()
 
-    setTheme(Theme.DARK)
-    setThemeColor(Qt.GlobalColor.yellow)
     app.exec()
 
 

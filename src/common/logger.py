@@ -1,21 +1,32 @@
 import logging
+import os.path
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from typing import Any
 
 from src.interfaces.enums.log_level import LogLevel
 from src.signals.log_signals import LogSignals
 
+LOG_FOLDER = os.path.join(Path(__file__).parent.parent.parent, "resources", "logs")
+
 
 class Logger(logging.Logger):
-    def __init__(self, log_signals: LogSignals, title: str | None = None) -> None:
-        super().__init__(name=title if title else "root")
+    def __init__(self, log_signals: LogSignals, title: str = "root") -> None:
+        super().__init__(name=title)
         self.title = title
         self.log_signals = log_signals
-        self.setLevel(logging.ERROR)
+        self.setLevel(logging.DEBUG)
+
+        file_handler = RotatingFileHandler(
+            f"{os.path.join(LOG_FOLDER, title)}.log", maxBytes=1_000_000, backupCount=1
+        )
+        file_handler.setLevel(logging.DEBUG)
+        file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        file_handler.setFormatter(file_formatter)
+        self.addHandler(file_handler)
 
     def _get_log_msg(self, msg: Any) -> str:
-        if not self.title:
-            return msg
-        return f"{self.title}: {msg}"
+        return msg
 
     def debug(self, msg: Any, *args, **kwargs):
         self.log_signals.log_emitted.emit(LogLevel.DEBUG, msg)

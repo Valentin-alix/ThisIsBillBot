@@ -29,7 +29,11 @@ class AstarWorld(Astar[Vertice]):
     def get_neighbors(self, vertice: Vertice) -> Iterator[Vertice]:
         if self.world_signals:
             map_data = DataReader().map_pos_by_map_id[vertice.m_mapId]
-            self.world_signals.color_pos.emit(map_data, (0, 255, 0))
+            if (
+                map_data.posX != self.game_state.map.map_pos.posX
+                or map_data.posY != self.game_state.map.map_pos.posY
+            ):
+                self.world_signals.color_pos.emit(map_data, (0, 255, 0))
         for edge in iter_valid_outgoing_edges(vertice, game_state=self.game_state):
             yield edge.m_to
 

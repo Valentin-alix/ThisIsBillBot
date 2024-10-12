@@ -1,7 +1,11 @@
 from dataclasses import dataclass
 from typing import cast
 
-from protos.game.common_pb2 import SpawnInformation, ActorPositionInformation
+from protos.game.common_pb2 import (
+    SpawnInformation,
+    ActorPositionInformation,
+    Direction,
+)
 from protos.game.context_pb2 import (
     ContextRemoveElementEvent,
     EntitiesDispositionEvent,
@@ -18,8 +22,8 @@ from protos.game.gamemap_pb2 import (
     GameRolePlayShowActorsEvent,
     MapTeleportOnSameEvent,
     MapMovementRefusedEvent,
-    MapMovementConfirmRequest,
 )
+from protos.game.map_confirm_response_pb2 import MapMovementConfirmResponse
 from src.core.frames.frame import Frame
 from src.core.logic.grid.map_point import MapPoint
 
@@ -81,23 +85,9 @@ class EntityFrame(Frame):
         self.game_state.entity.set_actors(message.actors)
 
     def on_map_movement_event(self, message: MapMovementEvent):
-        # if message.character_id != self.game_state.player.character_id:
         self.game_state.entity.update_actor_disposition(
             message.character_id, message.direction, message.cells[-1]
         )
-        # else:
-        #     self.event_manager.on(
-        #         MapMovementConfirmRequest,
-        #         lambda _: self.game_state.entity.update_actor_disposition(
-        #             message.character_id, message.direction, message.cells[-1]
-        #         ),
-        #         originator=self,
-        #         once=True,
-        #         timeout=30,
-        #         on_timeout=lambda: self.event_manager.clear_listener_by_origin_and_type(
-        #             MapMovementConfirmRequest, self
-        #         ),
-        #     )
 
     def on_game_role_play_show_actors_event(self, message: GameRolePlayShowActorsEvent):
         for actor in message.actors:
@@ -162,6 +152,18 @@ class EntityFrame(Frame):
                 direction=caster_direction,
                 cell_id=msg.exchange_positions.caster_cell_id,
             )
+        elif msg.HasField("teleport_on_same_map"):
+            if msg.teleport_on_same_map.target_id in self.game_state.entity.actor_by_id:
+                target_direction = self.game_state.entity.actor_by_id[
+                    msg.teleport_on_same_map.target_id
+                ].disposition.direction
+            else:
+                target_direction = Direction.DIRECTION_EAST
+            self.game_state.entity.update_actor_disposition(
+                cell_id=msg.teleport_on_same_map.cell,
+                direction=target_direction,
+                actor_id=msg.teleport_on_same_map.target_id,
+            )
 
     def on_fight_fighter_refresh_event(self, msg: FightFighterRefreshEvent):
         self.game_state.entity.set_actor(msg.information)
@@ -173,20 +175,27 @@ class EntityFrame(Frame):
         self.game_state.entity.set_actor(msg.information)
 
     def on_map_teleport_on_same_event(self, msg: MapTeleportOnSameEvent):
-        old_direction = self.game_state.entity.actor_by_id[
-            msg.player_id
-        ].disposition.direction
+        if msg.player_id in self.game_state.entity.actor_by_id:
+            old_direction = self.game_state.entity.actor_by_id[
+                msg.player_id
+            ].disposition.direction
+        else:
+            old_direction = Direction.DIRECTION_EAST
         self.game_state.entity.update_actor_disposition(
             msg.player_id, direction=old_direction, cell_id=msg.cell_id
         )
 
     def on_map_movement_refused_event(self, msg: MapMovementRefusedEvent):
         self.event_manager.clear_listener_by_origin_and_type(
-            MapMovementConfirmRequest, self
+            MapMovementConfirmResponse, self
         )
-        direction = self.game_state.entity.actor_by_id[
-            self.game_state.player.character_id
-        ].disposition.direction
+        if self.game_state.player.character_id in self.game_state.entity.actor_by_id:
+            direction = self.game_state.entity.actor_by_id[
+                self.game_state.player.character_id
+            ].disposition.direction
+        else:
+            direction = Direction.DIRECTION_EAST
+
         self.game_state.entity.update_actor_disposition(
             self.game_state.player.character_id,
             direction=direction,

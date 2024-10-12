@@ -15,16 +15,14 @@ from protos.game.fight_pb2 import FightRefreshCharacterStatsEvent
 from protos.game.game_action_pb2 import GameActionFightEvent
 from protos.game.guild_member_pb2 import GuildMembershipEvent
 from protos.game.job_pb2 import JobExperiencesUpdateEvent
+from protos.game.multi_account_pb2 import PartyLeaveEvent
 from protos.game.server_pb2 import ServerSettingsEvent
 from protos.game.teleportation_pb2 import ZaapKnownListEvent
 from src.core.frames.frame import Frame
-from src.signals.player_signals import GameInfoSignals
 
 
 @dataclass
 class PlayerFrame(Frame):
-    game_info_signals: GameInfoSignals
-
     def __post_init__(self):
         self.event_manager.on(
             ServerSettingsEvent,
@@ -78,6 +76,15 @@ class PlayerFrame(Frame):
         self.event_manager.on(
             GuildMembershipEvent, self.on_guild_member_ship_event, originator=self
         )
+
+        self.game_info_signals.connected.connect(self.on_connected)
+        self.game_info_signals.disconnected.connect(self.on_disconnected)
+
+    def on_connected(self):
+        self.game_state.player.is_connected = True
+
+    def on_disconnected(self):
+        self.game_state.player.is_connected = False
 
     def on_update_life_points_event(self, msg: UpdateLifePointsEvent):
         self.game_state.player.life_point = msg.life_points
@@ -160,6 +167,7 @@ class PlayerFrame(Frame):
     def on_guild_member_ship_event(self, msg: GuildMembershipEvent):
         self.game_state.player.guild_information = msg.guild_information
         self.game_state.player.guild_rank_id = msg.rank_id
+
 
 
 if __name__ == "__main__":

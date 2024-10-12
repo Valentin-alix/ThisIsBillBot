@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from PyQt5.QtWidgets import QApplication
 
-from models.datas.spell_levels_root import SpellLevelsRoot, SpellLevelsRootItem
+from models.datas.spell_levels_root import SpellLevelsRoot, SpellLevelsRootItem, Effect
 from protos.game.common_pb2 import (
     SpellModifierType,
     ActorPositionInformation,
@@ -25,6 +25,7 @@ from src.core.logic.fight.spell import (
     get_spell_max_cast_per_turn,
     does_spell_need_taken_cell,
     get_spell_max_cast_per_target,
+    does_spell_need_test_los,
 )
 from src.core.logic.fight.spell_zone import get_zone_mps
 from src.core.logic.grid.data_map_provider import DataMapProvider
@@ -45,42 +46,15 @@ from src.signals.world_signals import MapSignals
 class Attacker:
     game_state: GameState
     fight_reachable_cells: FightReachableCells
+    damage_calculator: DamageCalculator
     path_finding: Pathfinding
     logger: Logger
 
-    def find_best_attack_from_mp(
-        self,
-    ) -> tuple[MapPoint, SpellLevelsRootItem, MapPoint] | None:
-        """get the attack that do the most damage with less ap"""
-        best_attack: (
-            tuple[float, int, MapPoint, SpellLevelsRoot.Data, MapPoint] | None
-        ) = None
-
-        entities_id_by_mp: dict[MapPoint, int] = {
-            MapPoint.from_cell_id(actor.disposition.cell_id): actor.actor_id
-            for actor in self.game_state.entity.actor_by_id.values()
-        }
-        enemies_mp = {
-            MapPoint.from_cell_id(enemy.disposition.cell_id)
-            for enemy in self.game_state.entity.get_enemies(self.game_state.fight.team)
-        }
-        entities_mp: set[MapPoint] = set(entities_id_by_mp.keys())
-        movable_mps = self.fight_reachable_cells.search(
-            enemies_mp=enemies_mp, entities_mp=entities_mp
-        )
-        movable_mps[self.game_state.player.map_point] = (
-            self.game_state.player.get_stat_by_id(CharacteristicEnum.MOVEMENT_POINTS)
-        )
-        health_percentage = self.game_state.player.life_percentage
+    def get_valid_spells_for_turn(self) -> list[tuple[SpellLevelsRootItem, Effect]]:
         primary_spells = get_primary_spells(
             self.game_state.fight.spells, self.game_state.fight.primary_elem
         )
-
-        self.logger.info(
-            f"find from mp {self.game_state.player.map_point} with entities {entities_id_by_mp} and enemies "
-            f"mp : {enemies_mp}"
-        )
-
+        valid_spell_levels: list[tuple[SpellLevelsRootItem, Effect]] = []
         for spell_lvl, effect in primary_spells:
             spell_ap_cost = get_ap_cost_spell(
                 spell_lvl,
@@ -92,20 +66,79 @@ class Attacker:
                 CharacteristicEnum.ACTION_POINTS
             ):
                 continue
+            if (
+                spell_lvl.initialCooldown != 0
+                and spell_lvl.initialCooldown > self.game_state.fight.fight_turn
+            ):
+                continue
 
-            count_casted_by_target_id = (
-                self.game_state.fight.count_casted_by_target_by_spell_id.get(
-                    spell_lvl.spellId
+            last_triggered_turn = (
+                self.game_state.fight.last_triggered_turn_by_spell_id.get(
+                    spell_lvl.spellId, None
                 )
             )
-            if count_casted_by_target_id is not None and get_spell_max_cast_per_turn(
+            if (
+                spell_lvl.globalCooldown != 0
+                and last_triggered_turn is not None
+                and self.game_state.fight.fight_turn - last_triggered_turn
+                < spell_lvl.globalCooldown
+            ):
+                continue
+
+            max_cast_per_turn = get_spell_max_cast_per_turn(
                 spell_lvl,
                 self.game_state.fight.modifier_by_type_and_spell_id.get(
                     (spell_lvl.spellId, SpellModifierType.MAX_CAST_PER_TURN)
                 ),
-            ) <= sum(count_casted_by_target_id.values()):
+            )
+            count_casted_by_target_by_spell_id = (
+                self.game_state.fight.count_casted_by_target_by_spell_id.get(
+                    spell_lvl.spellId
+                )
+            )
+            if (
+                count_casted_by_target_by_spell_id is not None
+                and max_cast_per_turn != 0
+                and max_cast_per_turn
+                <= sum(count_casted_by_target_by_spell_id.values())
+            ):
                 continue
+            valid_spell_levels.append((spell_lvl, effect))
+        return valid_spell_levels
 
+    def find_best_attack_from_mp(
+        self,
+    ) -> tuple[MapPoint, SpellLevelsRootItem, MapPoint] | None:
+        """get the attack that do the most damage with less ap"""
+        best_attack: (
+            tuple[float, int, MapPoint, SpellLevelsRoot.Data, MapPoint] | None
+        ) = None
+
+        entities_by_mp: dict[MapPoint, ActorPositionInformation] = {
+            MapPoint.from_cell_id(actor.disposition.cell_id): actor
+            for actor in self.game_state.entity.actor_by_id.values()
+        }
+        enemies_mp = {
+            MapPoint.from_cell_id(enemy.disposition.cell_id)
+            for enemy in self.game_state.entity.get_enemies(self.game_state.fight.team)
+        }
+        entities_mp: set[MapPoint] = set(entities_by_mp.keys())
+        allies_mp: set[MapPoint] = {
+            ally_mp for ally_mp in entities_mp if ally_mp not in enemies_mp
+        }
+        movable_mps = self.fight_reachable_cells.search(
+            enemies_mp=enemies_mp, entities_mp=entities_mp
+        )
+        movable_mps[self.game_state.player.map_point] = (
+            self.game_state.player.get_stat_by_id(CharacteristicEnum.MOVEMENT_POINTS)
+        )
+        health_percentage = self.game_state.player.life_percentage
+        self.logger.info(
+            f"find from mp {self.game_state.player.map_point} with entities {entities_by_mp} and enemies "
+            f"mp : {enemies_mp}"
+        )
+        valid_spells_for_turn = self.get_valid_spells_for_turn()
+        for spell_lvl, effect in valid_spells_for_turn:
             data_effect = DataReader().effect_by_id[effect.effectId]
             description_effect = I18N.name_by_id[data_effect.descriptionId]
 
@@ -142,24 +175,33 @@ class Attacker:
                     if not targetable_mp_data.mov or not targetable_mp_data.los:
                         continue
 
+                    max_cast_per_target = get_spell_max_cast_per_target(
+                        spell_lvl,
+                        self.game_state.fight.modifier_by_type_and_spell_id.get(
+                            (
+                                spell_lvl.spellId,
+                                SpellModifierType.MAX_CAST_PER_TARGET,
+                            )
+                        ),
+                    )
+                    count_casted_by_target_id = (
+                        self.game_state.fight.count_casted_by_target_by_spell_id.get(
+                            spell_lvl.spellId
+                        )
+                    )
+                    entity_target = entities_by_mp.get(targetable_mp)
                     if (
                         count_casted_by_target_id is not None
-                        and get_spell_max_cast_per_target(
-                            spell_lvl,
-                            self.game_state.fight.modifier_by_type_and_spell_id.get(
-                                (
-                                    spell_lvl.spellId,
-                                    SpellModifierType.MAX_CAST_PER_TARGET,
-                                )
-                            ),
-                        )
-                        <= count_casted_by_target_id.get(
-                            entities_id_by_mp.get(targetable_mp, 0), 0
-                        )
+                        and entity_target is not None
+                        and max_cast_per_target != 0
+                        and max_cast_per_target
+                        <= count_casted_by_target_id.get(entity_target.actor_id, 0)
                     ):
                         continue
 
-                    if not LosDetector.los_between(
+                    if does_spell_need_test_los(
+                        spell_lvl
+                    ) and not LosDetector.los_between(
                         map_id=self.game_state.map.map_id,
                         taken_mps=entities_mp,
                         start=movable_mp,
@@ -172,19 +214,61 @@ class Attacker:
                         mp=targetable_mp, direction=direction
                     )
 
-                    total_weight_spell: float = 0
-                    base_weight_spell = (
-                        DamageCalculator.get_damage_effect(effect) / spell_ap_cost
+                    spell_ap_cost = get_ap_cost_spell(
+                        spell_lvl,
+                        self.game_state.fight.modifier_by_type_and_spell_id.get(
+                            (spell_lvl.spellId, SpellModifierType.AP_COST)
+                        ),
                     )
-                    if "vol" in description_effect:
-                        base_weight_spell /= health_percentage
 
+                    enemy_dmg: int = 0
+                    enemy_dmg_summoned: int = 0
                     for enemy_mp in enemies_mp:
                         if enemy_mp not in impact_mps:
                             continue
-                        total_weight_spell += base_weight_spell / (
-                            2 if enemy_mp in self.game_state.entity.summoned_mps else 1
+                        enemy_entity = entities_by_mp[enemy_mp]
+                        if not (
+                            enemy_entity.HasField("actor_information")
+                            and enemy_entity.actor_information.HasField("fighter")
+                            and enemy_entity.actor_information.fighter.HasField(
+                                "ai_fighter"
+                            )
+                        ):
+                            continue
+                        monster_info = (
+                            enemy_entity.actor_information.fighter.ai_fighter.monster_fighter_information
                         )
+                        monster_id, monster_grade = (
+                            monster_info.monster_gid,
+                            monster_info.creature_grade,
+                        )
+                        monster = DataReader().monsters_by_id[monster_id]
+                        monster_grade = monster.grades[monster_grade - 1]
+                        dmg = self.damage_calculator.get_damage_effect(
+                            effect, monster_grade
+                        )
+                        dmg -= targetable_mp.distance_to_map_point(enemy_mp) * 0.1
+                        if enemy_mp in self.game_state.entity.summoned_mps:
+                            enemy_dmg_summoned += dmg
+                        else:
+                            enemy_dmg += dmg
+
+                    ally_count_hit: int = 0
+                    ally_summoned_count_hit: int = 0
+                    for ally_mp in allies_mp:
+                        if ally_mp not in impact_mps:
+                            continue
+                        if ally_mp not in self.game_state.entity.summoned_mps:
+                            ally_count_hit += 1
+                        else:
+                            ally_summoned_count_hit += 1
+
+                    dmg_weight = (enemy_dmg + enemy_dmg_summoned / 4) / (
+                        (1 + ally_count_hit / 2 + ally_summoned_count_hit / 8)
+                    )
+                    total_weight_spell = dmg_weight / spell_ap_cost
+                    if "vol" in description_effect:
+                        total_weight_spell /= health_percentage
 
                     if best_attack is not None and total_weight_spell < best_attack[0]:
                         continue

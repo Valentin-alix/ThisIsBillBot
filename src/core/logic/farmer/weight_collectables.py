@@ -1,55 +1,60 @@
-import sys
-from datetime import datetime
-from time import perf_counter
+import math
 
-from PyQt5.QtWidgets import QApplication
-
-from src.const import MIN_DATE
+from protos.game.common_pb2 import ObjectItemInventory
+from src.core.behaviors.storage.consts import USEFUL_INGREDIENT_IDS
 from src.core.data_center.data_reader import DataReader
-from src.core.data_center.i18n import I18N
 from src.core.data_center.map_reader import MapReader
 from src.core.logic.farmer.collectables import (
     get_gfx_to_item_and_job,
     get_collectable_map_checked,
 )
 from src.core.logic.grid.map_tools import MapTools
-from src.gui.pages.farmer.world_tab import WorldTab
 from src.interfaces.enums.job_enum import JobEnum
 from src.signals.world_signals import WorldSignals
 
 WEIGHT_BY_JOB: dict[JobEnum, float] = {
-    JobEnum.MINER: 100,
+    JobEnum.MINER: 50,
     JobEnum.WOODCUTTER: 30,
     JobEnum.ALCHEMIST: 10,
-    JobEnum.PEASANT: 1,
-    JobEnum.FISHERMAN: 1,
+    JobEnum.PEASANT: 10,
+    JobEnum.FISHERMAN: 10,
     JobEnum.BASE: 1,
 }
 
 
-def get_additional_weight_by_map_id(
-    map_ids: set[int], player_job_lvl_by_id: dict[int, int]
-) -> dict[int, float]:
-    additional_weight_by_map_id: dict[int, float] = {}
-    gfx_to_item_and_job = get_gfx_to_item_and_job()
-    for map_id in map_ids:
-        weight_map: float = 1
-        for ref_id in MapReader().map_by_id(map_id).references:
-            if ref_id.transform is None:
-                continue
-            if MapTools.is_transform_outside_map(ref_id.transform):
-                continue
-            info = gfx_to_item_and_job.get(ref_id.gfxId)
-            if info is None:
-                continue
-            item_id, job_id = info
-            item = DataReader().item_by_id[item_id]
-            if item.level > player_job_lvl_by_id.get(job_id, 1):
-                continue
-            weight_map += WEIGHT_BY_JOB[job_id] * item.level
-        additional_weight_by_map_id[map_id] = weight_map
-
-    return additional_weight_by_map_id
+def get_map_id_collectable_weight(
+    map_id: int,
+    gfx_to_item_and_job: dict[int, tuple[int, JobEnum]],
+    player_job_lvl_by_id: dict[int, int],
+    storage_by_gid: dict[int, ObjectItemInventory],
+) -> float:
+    weight_map: float = 0
+    for ref_id in MapReader().map_by_id(map_id).references:
+        if ref_id.transform is None:
+            continue
+        if MapTools.is_transform_outside_map(ref_id.transform):
+            continue
+        info = gfx_to_item_and_job.get(ref_id.gfxId)
+        if info is None:
+            continue
+        item_id, job_id = info
+        item = DataReader().item_by_id[item_id]
+        job_lvl = player_job_lvl_by_id.get(job_id, 1)
+        if item.level > job_lvl:
+            continue
+        weight_item = (
+            WEIGHT_BY_JOB[job_id]
+            * item.level
+            * (3 if item.id in USEFUL_INGREDIENT_IDS else 1)
+            / (
+                max(math.log(storage_by_gid[item.id].item.quantity / 1000), 0.1)
+                if item.id in storage_by_gid and storage_by_gid.get(item.id, 0) != 0
+                else 0.1
+            )
+        )
+        weight_item *= ((201 - job_lvl) / 2) if job_id != JobEnum.BASE else 1
+        weight_map += weight_item
+    return weight_map
 
 
 def get_map_ids_to_explore(map_ids: set[int]) -> set[int]:
@@ -64,7 +69,7 @@ def get_map_ids_to_explore(map_ids: set[int]) -> set[int]:
         sub_area = DataReader().map_pos_by_map_id[map_id].subAreaId
         harvestable_items_sub_area = DataReader().sub_area_by_id[sub_area].harvestables
         for item in harvestable_items_sub_area:
-            if item not in item_knows:
+            if item not in item_knows and item in DataReader().gathered_item_ids:
                 map_ids_to_check.add(map_id)
                 break
 
@@ -72,6 +77,8 @@ def get_map_ids_to_explore(map_ids: set[int]) -> set[int]:
 
 
 def draw_weight_on_map(weight_by_map_id: dict[int, float], world_signals: WorldSignals):
+    if len(weight_by_map_id) == 0:
+        return
     max_weight = max(weight_by_map_id.values())
     world_signals.reset_weight.emit()
     for map_id, weight in weight_by_map_id.items():
@@ -80,50 +87,36 @@ def draw_weight_on_map(weight_by_map_id: dict[int, float], world_signals: WorldS
         world_signals.color_pos.emit(map_data, (255, 255 - weight_color, 0))
 
 
-def temp_weight(
-    last_visited_by_map_id: dict[int, datetime],
-    additional_weight_by_map_id: dict[int, float],
-    map_id: int,
-) -> float:
-    last_visited = last_visited_by_map_id.get(map_id, MIN_DATE)
-    return (
-        min((datetime.now() - last_visited).total_seconds(), 1800) / 5
-    ) * additional_weight_by_map_id.get(map_id, 1)
-
-
 if __name__ == "__main__":
-    world_signals = WorldSignals()
+    map_id = 54171949
+    area_id = (
+        DataReader()
+        .sub_area_by_id[DataReader().map_pos_by_map_id[map_id].subAreaId]
+        .areaId
+    )
 
-    application = QApplication(sys.argv)
+    map_ids: set[int] = set()
+    for sub_area_id in DataReader().sub_areas_by_area_id[area_id]:
+        if DataReader().sub_area_by_id[sub_area_id].level > 95:
+            continue
+        map_ids |= set(DataReader().sub_area_by_id[sub_area_id].mapIds)
 
-    widget = WorldTab(world_signals)
-    widget.show()
+    map_ids_to_explore = get_map_ids_to_explore(map_ids)
 
-    sub_area_id = DataReader().map_pos_by_map_id[190842370].subAreaId
-    sub_area = DataReader().sub_area_by_id[sub_area_id]
-    print(I18N().name_by_id[sub_area.nameId])
-
-    map_ids = sub_area.mapIds
-
-    world_signals.curr_map_pos.emit(DataReader().map_pos_by_map_id[190842370])
-
-    add_weight = get_additional_weight_by_map_id(set(map_ids), {})
-
-    before = perf_counter()
-    weight_by_map_id: dict[int, float] = {}
-    for map_id in map_ids:
-        weight_by_map_id[map_id] = temp_weight(
-            last_visited_by_map_id={},
-            additional_weight_by_map_id=add_weight,
-            map_id=map_id,
-        )
-    draw_weight_on_map(weight_by_map_id, world_signals)
-    print(perf_counter() - before)
-
-    # def temp():
-    #     world_signals.curr_map_pos.emit(DataReader().map_pos_by_coord[(-3, -10)][0])
-    #
-    # timer = Timer(5, temp)
-    # timer.start()
-
-    application.exec()
+    additional_weight_by_map_id = get_additional_weight_by_map_id(
+        map_ids,
+        {
+            JobEnum.PEASANT: 58,
+            JobEnum.WOODCUTTER: 200,
+            JobEnum.FISHERMAN: 200,
+            JobEnum.ALCHEMIST: 200,
+            JobEnum.MINER: 25,
+        },
+        {},
+    )
+    max_value = max(additional_weight_by_map_id.values())
+    for map_id in map_ids_to_explore:
+        # print(map_id)
+        additional_weight_by_map_id[map_id] = max_value
+    print(additional_weight_by_map_id)
+    # print(additional_weight_by_map_id)

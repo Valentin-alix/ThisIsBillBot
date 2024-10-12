@@ -1,9 +1,6 @@
-import sys
-
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QApplication
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from qfluentwidgets import SingleDirectionScrollArea, SmoothMode
 
-from src.core.data_center.data_reader import DataReader
 from src.gui.components.graphics.map_world_widget import MapWorldView
 from src.signals.world_signals import WorldSignals
 
@@ -27,17 +24,3 @@ class WorldTab(QWidget):
         self.layout().addWidget(scroll_area_info)
 
 
-if __name__ == "__main__":
-    application = QApplication(sys.argv)
-    world_signals = WorldSignals()
-    widget = WorldTab(world_signals)
-    widget.resize(700, 700)
-
-    coords = [(5, 5), (1, 6), (2, 8)]
-    for coord in coords:
-        world_signals.color_pos.emit(
-            DataReader().map_pos_by_coord[coord][0], (0, 255, 0)
-        )
-    world_signals.curr_map_pos.emit(DataReader().map_pos_by_coord[(4, 4)][0])
-    widget.show()
-    application.exec()

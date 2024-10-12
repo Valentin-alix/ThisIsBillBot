@@ -9,6 +9,7 @@ from protos.game.common_pb2 import (
     SpellModifierType,
     ChallengeMod,
 )
+from src.core.logic.fight.effect import get_effect_elem_by_stat
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State
 from src.interfaces.enums.characteristic_enum import CharacteristicEnum
@@ -35,6 +36,9 @@ class FightState(State):
     ] = dataclasses.field(init=False, default_factory=dict)
     count_casted_by_target_by_spell_id: dict[int, dict[int, int]] = dataclasses.field(
         default_factory=lambda: defaultdict(lambda: defaultdict(int)), init=False
+    )
+    last_triggered_turn_by_spell_id: dict[int, int] = dataclasses.field(
+        default_factory=dict, init=False
     )
     state_ids: set[int] = dataclasses.field(init=False, default_factory=set)
     _in_fight: bool = dataclasses.field(init=False, default=False)
@@ -81,14 +85,4 @@ class FightState(State):
     @property
     def primary_elem(self) -> EffectElement:
         primary_stat = self.primary_stat
-        match primary_stat:
-            case CharacteristicEnum.CHANCE:
-                return EffectElement.CHANCE
-            case CharacteristicEnum.STRENGTH:
-                return EffectElement.STRENGTH
-            case CharacteristicEnum.INTELLIGENCE:
-                return EffectElement.INTELLIGENCE
-            case CharacteristicEnum.AGILITY:
-                return EffectElement.AGILITY
-            case _:
-                raise ValueError(f"Unknown primary stat : {primary_stat} for elem")
+        return get_effect_elem_by_stat(primary_stat)

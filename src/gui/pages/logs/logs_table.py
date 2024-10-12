@@ -3,8 +3,9 @@ from datetime import datetime
 from PyQt5.QtCore import pyqtSlot, QModelIndex, Qt
 from PyQt5.QtGui import QStandardItem
 from PyQt5.QtWidgets import QHeaderView
-from qfluentwidgets import TableWidget, MessageBox
+from qfluentwidgets import TableWidget
 
+from src.gui.components.custom_message_box import CustomMessageBox
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
 from src.interfaces.enums.log_level import LogLevel
@@ -42,5 +43,5 @@ class LogsTable(BaseTableWidget):
         time_text = model.data(model.index(source_index.row(), 0), Qt.DisplayRole)
         type_lvl = model.data(model.index(source_index.row(), 1), Qt.DisplayRole)
         msg_text = model.data(model.index(source_index.row(), 2), Qt.DisplayRole)
-        dialog = MessageBox(f"Log {type_lvl} à {time_text}", msg_text, self)
+        dialog = CustomMessageBox(f"Log {type_lvl} à {time_text}", msg_text, self)
         dialog.exec()

@@ -6,19 +6,22 @@ from qfluentwidgets import FluentIcon, FluentWindow, SplashScreen
 
 from src.bot import Bot
 from src.const import RESOURCE_FOLDER
-from src.gui.components.account_widget import AccountWidget
+from src.gui.account_frame import AccountFrame
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
+from src.signals.shared_farm_signals import SharedFarmSignals
 
 
 class MainWindow(FluentWindow):
     def __init__(
         self,
         title: str,
+        shared_farm_signals: SharedFarmSignals,
         *args,
         **kwargs,
     ) -> None:
         super().__init__(*args, **kwargs)
         self.title = title
+        self.shared_farm_signals = shared_farm_signals
         self.setWindowTitle(self.title)
         self.resize(BASE_WIDTH, BASE_HEIGHT)
         self.setWindowIcon(QIcon(os.path.join(RESOURCE_FOLDER, "logo.png")))
@@ -29,19 +32,22 @@ class MainWindow(FluentWindow):
         self.connected_icon = FluentIcon.PEOPLE.icon(color=QColor(0, 255, 0))
 
     def init_accounts(self, account_by_id: dict[int, Bot]):
-        for account in account_by_id.values():
-            self.add_account(account)
+        for account_id, account in account_by_id.items():
+            self.add_account(account_id, account)
 
-    def add_account(self, account: Bot):
+    def add_account(self, account_id: int, account: Bot):
         login = account.account["apikey"]["login"]
-        account_widget = AccountWidget(
+        account_widget = AccountFrame(
             login,
+            account_id,
+            account.logger,
             account.msg_info_signals,
             account.game_info_signals,
-            account.farm_action_signals,
+            account.bot_signals,
             account.grid_signals,
             account.world_signals,
             account.log_signals,
+            self.shared_farm_signals,
         )
         navigation_widget = self.addSubInterface(
             account_widget, self.disconnected_icon, login

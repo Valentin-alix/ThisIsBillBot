@@ -10,14 +10,7 @@ from protos.game.npc_pb2 import (
 from src.const import ON_NEW_MAP_BEFORE_ACTION, BETWEEN_REPLY
 from src.core.behaviors.behavior import Behavior
 from src.exceptions import UnexpectedStateException
-
-
-@dataclass
-class NpcInfo:
-    npc_action_id: int
-    npc_id: int
-    npc_map_id: int
-    reply_ids: list[int]
+from src.interfaces.models.npc_info import NpcInfo
 
 
 @dataclass

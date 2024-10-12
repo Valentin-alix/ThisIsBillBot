@@ -7,71 +7,36 @@ from protos.game.exchange_pb2 import (
     ExchangeLeaveEvent,
 )
 from protos.game.inventory_pb2 import (
-    StorageInventoryContentEvent,
     InventoryWeightEvent,
 )
 from src.const import ON_OPENED_INVENTORY, BEFORE_CLOSING_INVENTORY
-from src.core.behaviors.bank.consts import ASTRUB_BANK_MAP, BONTA_BANK_MAP
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
-from src.core.behaviors.npc_dialog_behavior import NpcDialogBehavior, NpcInfo
+from src.core.behaviors.npc_dialog_behavior import NpcDialogBehavior
+from src.core.behaviors.storage.consts import USEFUL_UNLOAD
+from src.core.behaviors.storage.enter_bank_chest_behavior import EnterBankChestBehavior
 from src.exceptions import UnhandledErrorCodeException, UnexpectedStateException
-
-ASTRUB_BANK_NPC_INFO = NpcInfo(
-    npc_action_id=3, npc_id=-20001, npc_map_id=ASTRUB_BANK_MAP, reply_ids=[64361]
-)
-BONTA_BANK_NPC_INFO = NpcInfo(
-    npc_action_id=3, npc_id=-20000, npc_map_id=BONTA_BANK_MAP, reply_ids=[63535]
-)
-
-BANKS_NPC_INFOS = [ASTRUB_BANK_NPC_INFO, BONTA_BANK_NPC_INFO]
-
-USEFUL_UNLOAD = 0.25
 
 
 @dataclass
 class UnloadInBankBehavior(Behavior):
     npc_dialog_behavior: NpcDialogBehavior
     auto_trip_world_behavior: AutoTripSmartBehavior
+    enter_bank_chest_behavior: EnterBankChestBehavior
 
     def run(self):
         if self.game_state.inventory.pod_percentage < USEFUL_UNLOAD:
             return self.finish()
 
-        self.auto_trip_world_behavior.start(
-            callback=self.on_bank_map,
-            parent=self,
-            map_ids={bank.npc_map_id for bank in BANKS_NPC_INFOS},
+        self.enter_bank_chest_behavior.start(
+            callback=self.on_enter_bank_chest_behavior, parent=self
         )
 
-    def on_bank_map(self, error_code: str | None):
+    def on_enter_bank_chest_behavior(self, error_code: str | None):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
-
-        self.npc_dialog_behavior.start(
-            callback=self.on_npc_dialog_behavior_finished,
-            parent=self,
-            npc_info=next(
-                bank
-                for bank in BANKS_NPC_INFOS
-                if bank.npc_map_id == self.game_state.map.map_id
-            ),
-        )
-
-    def on_npc_dialog_behavior_finished(self, error_code: str | None):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
-
-        self.event_manager.on(
-            StorageInventoryContentEvent,
-            self.on_storage_inventory_content_event,
-            originator=self,
-            once=True,
-        )
-
-    def on_storage_inventory_content_event(self, msg: StorageInventoryContentEvent):
         self.event_manager.on(
             InventoryWeightEvent,
             callback=self.on_inventory_weight_event,

@@ -21,6 +21,9 @@ class FightPreparationBehavior(Behavior):
     fight_challenge_behavior: FightChallengeBehavior
 
     def run(self):
+        self.event_manager.on(
+            FightStartEvent, lambda _: self.finish(), originator=self, once=True
+        )
         self.fight_challenge_behavior.start(
             callback=self.on_fight_challenge_behavior_finished, parent=self
         )
@@ -29,25 +32,38 @@ class FightPreparationBehavior(Behavior):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
 
+        self.position_player()
+
+    def position_player(self):
         near_possible_cell_id = self.get_near_placement_cell_id()
         self.logger.info(f"found near cell id to enemy : {near_possible_cell_id}")
         if self.game_state.player.map_point.cell_id != near_possible_cell_id:
             self.logger.info(f"Moving to {near_possible_cell_id}")
-            self.event_manager.on(
-                EntitiesDispositionEvent,
-                partial(
-                    self.on_entity_disposition_event,
-                    requested_cell_id=near_possible_cell_id,
-                ),
-                originator=self,
+            self.run_timer(
+                (0.3, 0.6),
+                partial(self.send_fight_placement_position, near_possible_cell_id),
             )
-            request = FightPlacementPositionRequest(
-                cell_id=near_possible_cell_id,
-                entity_id=self.game_state.player.character_id,
-            )
-            self.run_timer(ON_PLAYER_MOVED, lambda: self.event_manager.send(request))
         else:
             self.on_player_placement_done()
+
+    def send_fight_placement_position(self, cell_id: int):
+        if self.game_state.entity.is_entity_actor_on_cell_id(cell_id):
+            self.logger.info("Cell id is occupied, try an other cell.")
+            return self.position_player()
+
+        self.event_manager.on(
+            EntitiesDispositionEvent,
+            partial(
+                self.on_entity_disposition_event,
+                requested_cell_id=cell_id,
+            ),
+            originator=self,
+        )
+        request = FightPlacementPositionRequest(
+            cell_id=cell_id,
+            entity_id=self.game_state.player.character_id,
+        )
+        self.event_manager.send(request)
 
     def on_entity_disposition_event(
         self, msg: EntitiesDispositionEvent, requested_cell_id: int
@@ -61,9 +77,6 @@ class FightPreparationBehavior(Behavior):
             return self.run_timer(ON_PLAYER_MOVED, self.on_player_placement_done)
 
     def on_player_placement_done(self):
-        self.event_manager.on(
-            FightStartEvent, lambda _: self.finish(), originator=self, once=True
-        )
         request = FightReadyRequest(is_ready=True)
         self.run_timer(ON_CHALLENGE, lambda: self.event_manager.send(request))
 
@@ -73,6 +86,8 @@ class FightPreparationBehavior(Behavior):
         for (
             possible_cell_id
         ) in self.game_state.fight.fight_placement_possible_positions:
+            if self.game_state.entity.is_entity_actor_on_cell_id(possible_cell_id):
+                continue
             mp_point_possible_cell = MapPoint.from_cell_id(possible_cell_id)
             near_enemy_with_dist = (
                 self.fight_movement_behavior.find_near_enemy_with_dist(

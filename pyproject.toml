@@ -25,12 +25,12 @@ pywin32-stubs = "^1.0.7"
 pynput = "^1.7.7"
 icecream = "^2.1.3"
 pyinstaller = "^6.11.1"
+black = {extras = ["d"], version = "^24.10.0"}
 
 [tool.poetry.group.dev.dependencies]
 pyqt5-stubs = "^5.15.6.0"
 types-cachetools = "^5.5.0.20240820"
 tqdm = "^4.66.5"
-black = "^24.10.0"
 gprof2dot = "^2024.6.6"
 line-profiler-pycharm = "^1.2.0"
 mypy = "^1.13.0"

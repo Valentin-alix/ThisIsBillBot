@@ -1,10 +1,8 @@
 import sys
 from dataclasses import dataclass, field
-from threading import Thread
 from time import sleep
 from typing import Iterator
 
-import icecream
 from PyQt5.QtWidgets import QApplication
 from sortedcontainers import SortedSet
 
@@ -144,7 +142,6 @@ class Pathfinding:
 
             self.is_coord_closed.add((curr_node.mp.x, curr_node.mp.y))
             for node in self.get_neighbors(curr_node.mp):
-
                 cost_to_node = (
                     self.get_move_cost(node.mp, curr_node.mp, start, ends)
                     + curr_node.cost_to_node
@@ -454,9 +451,9 @@ if __name__ == "__main__":
         logger=logger,
     )
 
-    game_state.map.map_id = 192413702
-    start = MapPoint.from_cell_id(469)
-    end = MapPoint.from_cell_id(380)
+    game_state.map.map_id = 88083215
+    start = MapPoint.from_cell_id(360)
+    end = MapPoint.from_cell_id(275)
 
     application = QApplication(sys.argv)
     widget = GridView(grid_signals=grid_signals, debug_signals=debug_signals)
@@ -466,24 +463,24 @@ if __name__ == "__main__":
     debug_signals.white_cell.emit(start)
     debug_signals.red_cells.emit({end})
 
-    # near_path = path_finding.get_interactive_near_path(
-    #     player_mp=start,
-    #     element_mp=end,
-    #     skill_ids=[184],
-    # )
-    # print(near_path)
+    near_path = path_finding.get_interactive_near_path(
+        player_mp=start,
+        element_mp=end,
+        skill_ids=[184],
+    )
+    print(near_path)
 
-    def _find_path():
-        move_path = path_finding.find_path(
-            start,
-            {end},
-            heuristic_scale=1,
-        )
-        icecream.ic(move_path)
-        key_cells = move_path.get_key_cells()
-        print(key_cells)
-
-    thread = Thread(target=_find_path, daemon=True)
-    thread.start()
+    # def _find_path():
+    #     move_path = path_finding.find_path(
+    #         start,
+    #         {end},
+    #         heuristic_scale=1,
+    #     )
+    #     icecream.ic(move_path)
+    #     key_cells = move_path.get_key_cells()
+    #     print(key_cells)
+    #
+    # thread = Thread(target=_find_path, daemon=True)
+    # thread.start()
 
     application.exec()

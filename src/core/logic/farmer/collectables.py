@@ -18,7 +18,13 @@ COLLECTABLE_MAP_CHECKED_PATH = os.path.join(
 )
 
 
+GFX_TO_ITEM_AND_JOB: dict[int, tuple[int, JobEnum]] | None = None
+COLLECTABLE_MAP_CHECKED: set[int] | None = None
+
+
 def get_gfx_to_item_and_job() -> dict[int, tuple[int, JobEnum]]:
+    if GFX_TO_ITEM_AND_JOB is not None:
+        return GFX_TO_ITEM_AND_JOB
     with open(GFX_TO_ITEM_PATH, "rb+") as file:
         content = msgspec.json.decode(file.read(), type=dict[int, tuple[int, JobEnum]])
     return content
@@ -41,6 +47,8 @@ def add_item_and_job_by_gfx_array(
 
 
 def get_collectable_map_checked() -> set[int]:
+    if COLLECTABLE_MAP_CHECKED is not None:
+        return COLLECTABLE_MAP_CHECKED
     with open(COLLECTABLE_MAP_CHECKED_PATH, "rb+") as file:
         content = msgspec.json.decode(file.read(), type=set[int])
     return content

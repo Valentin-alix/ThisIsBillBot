@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 
-def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 3) -> float:
+def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 5) -> float:
     if mini == 0:
         return 0
 
@@ -13,7 +13,7 @@ def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 3) -> flo
 
 
 def get_random_range(
-    range_time: tuple[float, float], is_weighted: bool = True, coeff: float = 3
+    range_time: tuple[float, float], is_weighted: bool = True, coeff: float = 5
 ):
     if is_weighted:
         wait_time = pick_random_weighted_time(*range_time, coeff)

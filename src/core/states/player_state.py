@@ -17,7 +17,6 @@ from src.core.states.entity_state import EntityState
 from src.core.states.interactive_state import InteractiveState
 from src.core.states.map_state import MapState
 from src.core.states.state import State
-from src.interfaces.enums.characteristic_enum import CharacteristicEnum
 from src.interfaces.models.collectable import Collectable
 from src.signals.player_signals import GameInfoSignals
 
@@ -29,6 +28,7 @@ class PlayerState(State):
     entity_state: EntityState
     interactive_state: InteractiveState
 
+    is_connected: bool = dataclasses.field(init=False, default=False)
     life_state: CharacterLifeStatusEvent.LifeStatus = dataclasses.field(
         init=False, default=CharacterLifeStatusEvent.LifeStatus.ALIVE_AND_KICKING
     )
@@ -53,9 +53,12 @@ class PlayerState(State):
     waypoint_map_ids: list[int] = dataclasses.field(init=False, default_factory=list)
     jobs_lvl_by_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict)
     is_riding: bool = dataclasses.field(init=False, default=False)
+    server_id: int = dataclasses.field(init=False, default=0)
 
-    def get_stat_by_id(self, characteristic: CharacteristicEnum) -> int:
-        stat = self.characteristic_by_id[characteristic]
+    def get_stat_by_id(self, characteristic: int) -> int:
+        stat = self.characteristic_by_id.get(characteristic)
+        if stat is None:
+            return 0
         if stat.HasField("detailed"):
             return (
                 stat.detailed.base

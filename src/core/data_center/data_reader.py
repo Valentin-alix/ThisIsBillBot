@@ -6,7 +6,6 @@ from functools import cached_property
 from typing import Any
 
 import msgspec.json
-from icecream import icecream
 
 from D3Database.consts import D3_DATA
 from models.datas.areas_root import AreasRoot, AreasRootItem
@@ -16,26 +15,31 @@ from models.datas.characteristic_root import (
     CharacteristicsRootItem,
 )
 from models.datas.effects_root import EffectsRootItem, EffectsRoot
+from models.datas.item_type_root import ItemsTypeRoot
 from models.datas.items_root import ItemsRoot, ItemsRootItem
 from models.datas.jobs_root import JobsRoot, JobsRootItem
 from models.datas.map_positions_root import MapPositionsRoot, MapPositionsRootItem
+from models.datas.monsters_root import MonsterItem, MonstersRoot
 from models.datas.quest_objectives_root import (
     QuestObjectivesRoot,
     QuestObjectivesRootItem,
 )
 from models.datas.quests_root import QuestsRoot, QuestsRootItem
+from models.datas.recipe_root import RecipeItem, RecipeRoot
 from models.datas.skills_root import SkillsRoot, SkillsRootItem
 from models.datas.spell_levels_root import SpellLevelsRoot, SpellLevelsRootItem
 from models.datas.spell_variants_root import SpellVariantsRoot
 from models.datas.spells_root import SpellsRoot, SpellsRootItem
 from models.datas.sub_areas_root import SubAreasRoot, SubAreasRootItem
 from models.datas.waypoints_root import WaypointsRoot, WaypointsRootItem
-from src.core.data_center.i18n import I18N
+from src.interfaces.enums.job_enum import HARVESTER_JOB_IDS
 from src.interfaces.metaclasses.singleton import Singleton
 
 FILEPATH_BY_MODEL: dict[Any, str] = {
     AreasRoot: "AreasRoot.json",
     ItemsRoot: "ItemsRoot.json",
+    ItemsTypeRoot: "ItemTypesRoot.json",
+    RecipeRoot: "RecipesRoot.json",
     JobsRoot: "JobsRoot.json",
     MapPositionsRoot: "MapPositionsRoot.json",
     QuestObjectivesRoot: "QuestObjectivesRoot.json",
@@ -49,6 +53,7 @@ FILEPATH_BY_MODEL: dict[Any, str] = {
     EffectsRoot: "EffectsRoot.json",
     CharacteristicsRoot: "CharacteristicsRoot.json",
     CharacteristicCategoriesRoot: "CharacteristicCategoriesRoot.json",
+    MonstersRoot: "MonstersRoot.json",
 }
 
 
@@ -59,6 +64,16 @@ class DataReader(metaclass=Singleton):
         with open(os.path.join(D3_DATA, FILEPATH_BY_MODEL[ItemsRoot]), "rb") as file:
             data = msgspec.json.decode(zlib.decompress(file.read()), type=ItemsRoot)
         return {item.id: item for item in data if item.id is not None}
+
+    @cached_property
+    def recipes(self) -> list[RecipeItem]:
+        with open(os.path.join(D3_DATA, FILEPATH_BY_MODEL[RecipeRoot]), "rb") as file:
+            data = msgspec.json.decode(zlib.decompress(file.read()), type=RecipeRoot)
+        return data
+
+    @cached_property
+    def recipe_by_result_id(self) -> dict[int, RecipeItem]:
+        return {recipe.resultId: recipe for recipe in self.recipes}
 
     @cached_property
     def job_by_id(self) -> dict[int, JobsRootItem]:
@@ -105,13 +120,27 @@ class DataReader(metaclass=Singleton):
         return {area.id: area for area in data}
 
     @cached_property
-    def map_ids_by_area_id(self) -> dict[int, set[int]]:
-        _map_ids: dict[int, set[int]] = defaultdict(set)
+    def sub_areas_by_area_id(self) -> dict[int, set[int]]:
+        sub_area_ids_by_area_id_dict: dict[int, set[int]] = defaultdict(set)
         for sub_area in DataReader().sub_area_by_id.values():
-            _map_ids[sub_area.areaId] |= set(
-                DataReader().sub_area_by_id[sub_area.id].mapIds
-            )
-        return _map_ids
+            sub_area_ids_by_area_id_dict[sub_area.areaId].add(sub_area.id)
+        return sub_area_ids_by_area_id_dict
+
+    @cached_property
+    def monsters_by_id(self) -> dict[int, MonsterItem]:
+        with open(
+            os.path.join(D3_DATA, FILEPATH_BY_MODEL[MonstersRoot]),
+            "rb",
+        ) as file:
+            data = msgspec.json.decode(zlib.decompress(file.read()), type=MonstersRoot)
+        return {monster.id: monster for monster in data}
+
+    @cached_property
+    def monsters_by_race(self) -> dict[int, list[MonsterItem]]:
+        monsters_by_race_dict: defaultdict[int, list[MonsterItem]] = defaultdict(list)
+        for monster in DataReader().monsters_by_id.values():
+            monsters_by_race_dict[monster.race].append(monster)
+        return monsters_by_race_dict
 
     @cached_property
     def waypoint_by_id(self) -> dict[int, WaypointsRootItem]:
@@ -127,6 +156,15 @@ class DataReader(metaclass=Singleton):
         with open(os.path.join(D3_DATA, FILEPATH_BY_MODEL[SkillsRoot]), "rb") as file:
             data = msgspec.json.decode(zlib.decompress(file.read()), type=SkillsRoot)
         return {skill.id: skill for skill in data}
+
+    @cached_property
+    def gathered_item_ids(self) -> set[int]:
+        return {
+            skill.gatheredRessourceItem
+            for skill in self.skill_by_id.values()
+            if skill.parentJobId in HARVESTER_JOB_IDS
+            and skill.gatheredRessourceItem not in [-1, 0]
+        }
 
     @cached_property
     def quest_by_id(self) -> dict[int, QuestsRootItem]:
@@ -208,17 +246,20 @@ class DataReader(metaclass=Singleton):
 
 
 if __name__ == "__main__":
-    spell_id = 12728
 
-    DataReader().item_by_id
+    goujon = DataReader().item_by_id[1782]
+    goujon_kiye = DataReader().item_by_id[1790]
 
-    spell = DataReader().spell_by_id[spell_id]
-    spell_lvl = DataReader().spell_lvl_by_spell_id[spell_id][0]
-    for effect in spell_lvl.effects:
-        data_effect = DataReader().effect_by_id[effect.effectId]
-        # char = DataReader().characteristic_by_id[data_effect.characteristic]
-        icecream.ic(effect)
-        icecream.ic(data_effect)
-        print(I18N.name_by_id[data_effect.descriptionId])
-        # icecream.ic(char)
-    print(I18N.name_by_id[spell.nameId])
+    poisson_chaton = DataReader().item_by_id[603]
+
+    print(DataReader().gathered_item_ids)
+    # spell = DataReader().spell_by_id[spell_id]
+    # spell_lvl = DataReader().spell_lvl_by_spell_id[spell_id][0]
+    # for effect in spell_lvl.effects:
+    #     data_effect = DataReader().effect_by_id[effect.effectId]
+    #     # char = DataReader().characteristic_by_id[data_effect.characteristic]
+    #     icecream.ic(effect)
+    #     icecream.ic(data_effect)
+    #     print(I18N.name_by_id[data_effect.descriptionId])
+    #     # icecream.ic(char)
+    # print(I18N.name_by_id[spell.nameId])

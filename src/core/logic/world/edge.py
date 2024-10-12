@@ -6,13 +6,24 @@ from src.core.data_center.world_graph_reader import WorldGraphReader
 from src.core.logic.criterions.consts import CRITERION_WHITE_LIST
 from src.core.logic.criterions.group_item_criterion import GroupItemCriterion
 from src.core.states.game_state import GameState
-from src.core.states.state_factory import StateFactory
-from src.signals.grid_signals import GridSignals
-from src.signals.player_signals import GameInfoSignals
 from src.signals.world_signals import WorldSignals
 
 FORBIDDEN_EDGE_TRANSITION: set[tuple[int, int, Transition]] = set()
-FORBIDDEN_MAP_IDS: set[int] = {202899464, 193331717, 193331716}
+FORBIDDEN_MAP_IDS: set[int] = {
+    202899464,
+    193331717,
+    193331716,
+    166725120,
+    121766912,
+    121767936,
+    88082698,
+    121767936,
+    88083210,
+    205260292,
+    206047751,
+    206046725,
+    123470339,
+}
 
 
 def get_valid_transition(
@@ -72,23 +83,10 @@ def draw_edge_path(world_signals: WorldSignals, edges: list[Edge]):
 
 
 if __name__ == "__main__":
-    edge = Edge(
-        m_from=Vertice(m_mapId=190842883, m_zoneId=1, m_uid=3261),
-        m_to=Vertice(m_mapId=193463296, m_zoneId=1, m_uid=5432),
-        m_transitions=[
-            Transition(
-                m_type=32,
-                m_direction=255,
-                m_skillId=184,
-                m_criterion="Qo>13924",
-                m_transitionMapId=193463296,
-                m_cellId=294,
-                m_id=516133,
-            )
-        ],
-    )
-    game_info_signals = GameInfoSignals()
-    grid_signals = GridSignals()
-    game_state = StateFactory.create_game_state(game_info_signals, grid_signals)
-    temp = edge_has_valid_transition(edge, game_state)
-    print(temp)
+    vertice = next(iter(WorldGraphReader().get_vertexes(217059328)))
+
+    edges = WorldGraphReader().get_outgoing_edges_from_vertex(vertice)
+
+    for edge in edges:
+        if edge.m_to.m_mapId == 212600322:
+            print(edge)

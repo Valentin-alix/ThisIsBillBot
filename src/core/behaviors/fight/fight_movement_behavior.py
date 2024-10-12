@@ -43,6 +43,9 @@ class FightMovementBehavior(Behavior):
             CharacteristicEnum.MOVEMENT_POINTS
         )
 
+        if pm < 0:
+            return self.finish()
+
         if len(move_path.path) > pm:
             move_path.end = move_path.path[pm].step
             move_path.path = move_path.path[:pm]
@@ -105,6 +108,8 @@ class FightMovementBehavior(Behavior):
             MapPoint.from_cell_id(enemy.disposition.cell_id)
             for enemy in self.game_state.entity.get_enemies(self.game_state.fight.team)
         }
+
+        self.logger.info(f"enemies mp : {enemies_mp}")
 
         reachable_mps = self.fight_reachable_cells.search(enemies_mp, entities_mp)
         if len(reachable_mps) == 0:

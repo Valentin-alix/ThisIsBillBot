@@ -12,9 +12,7 @@ def map_spell_level():
         os.path.join(Path(__file__).parent, "resources", "SpellLevels.json")
     ) as file:
         old_datas = json.load(file)
-    old_value_by_spell_lvl_id = {
-        data["id"]: data["needTakenCell"] for data in old_datas
-    }
+    old_value_by_spell_lvl_id = {data["id"]: data["castTestLos"] for data in old_datas}
 
     count_flags_verified: dict[int, int] = defaultdict(int)
     for spell_levels in DataReader().spell_lvl_by_spell_id.values():
@@ -28,7 +26,7 @@ def map_spell_level():
                 # ]
                 count_flags_verified[spell_lvl.m_flags] += 1
 
-    valids = [flag for flag, count in count_flags_verified.items() if count > 9]
+    valids = [flag for flag, count in count_flags_verified.items() if count > 15]
     print(valids)
     res = reduce(lambda previous, flag: previous & flag, valids)
     print(res)

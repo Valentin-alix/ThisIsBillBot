@@ -1,5 +1,3 @@
-import icecream
-
 from models.datas.spell_levels_root import SpellLevelsRootItem, Effect
 from protos.game.common_pb2 import SpellModifier
 from protos.game.spell_pb2 import SpellItem
@@ -86,6 +84,12 @@ def does_spell_need_taken_cell(spell_lvl: SpellLevelsRootItem) -> bool:
     return False
 
 
+def does_spell_need_test_los(spell_lvl: SpellLevelsRootItem) -> bool:
+    if (spell_lvl.m_flags & 4) != 0:
+        return True
+    return False
+
+
 def get_possible_mp_spell(
     origin: MapPoint,
     spell_lvl: SpellLevelsRootItem,
@@ -146,13 +150,16 @@ if __name__ == "__main__":
     # 14307 → alcoshu
     # 12794 → vague à lame
     # 12808 → eau-de-vie
-    spell_id = 12746
+    # 13088 -> représaille
+    spell_id = 13063
 
     spell = DataReader().spell_by_id[spell_id]
     spell_lvl = DataReader().spell_lvl_by_spell_id[spell_id][0]
-    icecream.ic(get_max_range_spell(3, spell_lvl, None))
-
-    temp = get_possible_mp_spell(
-        MapPoint.from_cell_id(270), spell_lvl, 3, None, None, None
-    )
+    temp = get_spell_max_cast_per_target(spell_lvl, None)
     print(temp)
+    # icecream.ic(get_max_range_spell(3, spell_lvl, None))
+
+    # temp = get_possible_mp_spell(
+    #     MapPoint.from_cell_id(270), spell_lvl, 3, None, None, None
+    # )
+    # print(temp)

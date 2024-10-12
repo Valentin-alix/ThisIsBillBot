@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from time import perf_counter
 
 from google.protobuf.any_pb2 import Any
 from google.protobuf.message import Message
@@ -75,3 +76,15 @@ class GameProxy(Proxy):
         )
         msg = GameMessage(request=Request(uid=-1, content=any_msg))
         self.queue_worker_item.put((WorkerAction.SEND_SERVER, encode_msg(msg), True))
+
+    def send_to_server(self, data: bytes):
+        self.bot.game_state.server.latest_sent = perf_counter()
+        return super().send_to_server(data)
+
+    def send_to_client(self, data: bytes):
+        if self.bot.game_state.server.latest_sent is not None:
+            self.bot.game_state.server.latency_buffer.append(
+                perf_counter() - self.bot.game_state.server.latest_sent
+            )
+            self.bot.game_state.server.latest_sent = None
+        return super().send_to_client(data)

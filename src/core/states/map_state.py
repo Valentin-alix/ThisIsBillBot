@@ -11,6 +11,8 @@ from src.signals.grid_signals import GridSignals
 class MapState(State):
     grid_signals: GridSignals
     phoenix_map_id: int = dataclasses.field(init=False, default=0)
+    is_in_haven_bag: bool = dataclasses.field(init=False, default=False)
+    is_in_map_transition: bool = dataclasses.field(init=False, default=False)
     _map_id: int = dataclasses.field(init=False, default=0)
 
     @property

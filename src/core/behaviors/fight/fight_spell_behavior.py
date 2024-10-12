@@ -1,10 +1,8 @@
 from dataclasses import dataclass
-from functools import partial
 
 from protos.game.fight_pb2 import FightEndEvent
 from protos.game.game_action_pb2 import (
     GameActionFightCastRequest,
-    GameActionAcknowledgementRequest,
     SequenceEndEvent,
     SequenceType,
 )
@@ -35,23 +33,6 @@ class FightSpellBehavior(Behavior):
             msg.sequence_type == SequenceType.SPELL
             and msg.author_id == self.game_state.player.character_id
         ):
-            self.event_manager.clear_listener_by_origin_and_type(SequenceEndEvent, self)
-            self.event_manager.on(
-                GameActionAcknowledgementRequest,
-                partial(
-                    self.on_game_action_acknowledgement_request,
-                    target_action_id=msg.action_id,
-                ),
-                originator=self,
-            )
-
-    def on_game_action_acknowledgement_request(
-        self, msg: GameActionAcknowledgementRequest, target_action_id: int
-    ):
-        if msg.action_id == target_action_id:
-            self.event_manager.clear_listener_by_origin_and_type(
-                GameActionAcknowledgementRequest, self
-            )
             self.finish()
 
 

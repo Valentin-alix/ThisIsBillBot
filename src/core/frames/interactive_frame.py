@@ -17,8 +17,7 @@ from src.core.logic.farmer.collectables import (
     add_collectable_map_checked,
     get_collectable_map_checked,
 )
-from src.core.logic.farmer.jobs import HARVESTER_JOB_IDS
-from src.interfaces.enums.job_enum import JobEnum
+from src.interfaces.enums.job_enum import JobEnum, HARVESTER_JOB_IDS
 
 
 @dataclass

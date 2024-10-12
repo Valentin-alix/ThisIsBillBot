@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from protos.game.common_pb2 import InteractiveElement
 from src.core.data_center.data_reader import DataReader
 from src.core.data_center.map_reader import MapReader
-from src.core.logic.farmer.jobs import HARVESTER_JOB_IDS
 from src.core.logic.grid.map_point import MapPoint
+from src.interfaces.enums.job_enum import HARVESTER_JOB_IDS
 
 
 @dataclass

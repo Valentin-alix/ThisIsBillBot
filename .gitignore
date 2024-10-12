@@ -1,3 +1,4 @@
+*.log.*
 .venv
 poetry.lock
 node_modules

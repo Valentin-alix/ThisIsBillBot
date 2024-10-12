@@ -10,7 +10,7 @@ from models.world_graph import Vertice
 from src.core.data_center.data_reader import DataReader
 from src.core.data_center.world_graph_reader import WorldGraphReader
 from src.core.logic.grid.map_point import MapPoint
-from src.core.logic.world.astar_world import AstarWorld
+from src.core.logic.world.astar_vertice import AstarWorld
 from src.core.logic.world.edge import (
     iter_valid_outgoing_edges,
 )

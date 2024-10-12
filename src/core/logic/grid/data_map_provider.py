@@ -44,10 +44,16 @@ class DataMapProvider:
             self.game_state.map.map_id, to_mp.cell_id
         )
         dif_floor = abs(from_mp_data.floor - to_mp_data.floor)
-        if (to_mp_data.moveZone != from_mp_data.moveZone and dif_floor > 0) or (
-            to_mp_data.moveZone == from_mp_data.moveZone
-            and from_mp_data.moveZone == 0
-            and dif_floor > TOLERANCE_ELEVATION
+
+        if MapReader().is_map_using_new_movement_system(
+            self.game_state.map.map_id
+        ) and (
+            (to_mp_data.moveZone != from_mp_data.moveZone and dif_floor > 0)
+            or (
+                to_mp_data.moveZone == from_mp_data.moveZone
+                and from_mp_data.moveZone == 0
+                and dif_floor > TOLERANCE_ELEVATION
+            )
         ):
             return False
         return True

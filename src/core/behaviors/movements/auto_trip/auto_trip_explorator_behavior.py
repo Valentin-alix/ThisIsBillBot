@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from functools import partial
 
 from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripErrorCode
 from src.core.behaviors.movements.auto_trip.auto_trip_zaap_behavior import (
     AutoTripZaapBehavior,
 )
@@ -18,8 +19,9 @@ class AutoTripExploratorBehavior(Behavior):
     auto_trip_zaap_behavior: AutoTripZaapBehavior
 
     def run(self, map_ids: set[int]) -> None:
-        if not self.game_state.player.is_sub or True:
+        if not self.game_state.player.is_sub:
             return self.on_explored_near_zaap(map_ids=map_ids)
+
         ends_pos = [DataReader().map_pos_by_map_id[map_id] for map_id in map_ids]
         dist_player_to_ends = get_dist_to_maps(self.game_state.map.map_pos, ends_pos)
         # discover near waypoint & go dst
@@ -46,7 +48,9 @@ class AutoTripExploratorBehavior(Behavior):
     def on_auto_trip_zaap_behavior_finished(
         self, error_code: str | None, map_ids: set[int]
     ):
-        if error_code is not None:
+        if error_code is AutoTripErrorCode.PATH_NOT_FOUND:
+            return self.on_explored_near_zaap(map_ids)
+        elif error_code is not None:
             raise UnhandledErrorCodeException(error_code)
         self.on_explored_near_zaap(map_ids)
 

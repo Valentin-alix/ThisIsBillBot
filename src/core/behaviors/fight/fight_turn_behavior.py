@@ -5,7 +5,6 @@ from typing import Callable
 from protos.game.fight_pb2 import (
     FightIsTurnReadyEvent,
     FightTurnReadyRequest,
-    FightTurnFinishRequest,
     FightTurnEndEvent,
 )
 from src.const import (
@@ -34,11 +33,6 @@ class FightTurnBehavior(Behavior):
 
     def run(self) -> None:
         self.did_attack = False
-        self.event_manager.before(
-            FightTurnFinishRequest,
-            self.before_fight_turn_finish_request,
-            originator=self,
-        )
         self.event_manager.on(
             FightTurnEndEvent, lambda _: self.finish(), originator=self
         )
@@ -109,13 +103,3 @@ class FightTurnBehavior(Behavior):
     def pass_turn(self):
         req = FightTurnReadyRequest()
         self.event_manager.send(req)
-
-    def before_fight_turn_finish_request(
-        self, msg: FightTurnFinishRequest
-    ) -> FightTurnFinishRequest | None:
-        if msg.is_active is False:
-            self.logger.info(
-                f"Intercepting afk pass turn message, don't send this message."
-            )
-            return None
-        return msg

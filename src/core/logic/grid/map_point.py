@@ -190,7 +190,7 @@ MAP_POINT_BY_CELL_ID, MAP_POINT_BY_COORD = get_map_point_by_cell_id_and_by_coord
 
 
 if __name__ == "__main__":
-    print(MapPoint.from_coords(15, -2))
+    print(MapPoint.from_coords(12, -4))
     # cells = [484, 485, 513, 512]
     # for cell in cells:
     #     print(MapPoint.from_cell_id(cell))

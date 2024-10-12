@@ -21,6 +21,18 @@ class MapReader(metaclass=Singleton):
         return map_data
 
     @cache
+    def is_map_using_new_movement_system(self, map_id: int) -> bool:
+        map = self.map_by_id(map_id)
+        move_zone: int | None = None
+        for cell_data in map.mapData.cellsData:
+            if move_zone is None:
+                move_zone = cell_data.moveZone
+                continue
+            if move_zone != cell_data.moveZone:
+                return True
+        return False
+
+    @cache
     def get_ref_data_by_element_id(self, map_id: int) -> dict[int, MapReference]:
         return {
             ref.m_interactionId: ref

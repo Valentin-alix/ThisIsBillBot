@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (
 )
 
 from models.datas.map_positions_root import MapPositionsRootItem
-from src.gui.components.graphics.graphic_text import GraphicText, TEXT_SIZE
+from src.gui.components.graphics.graphic_text import TEXT_SIZE, GraphicText
 from src.interfaces.custom_type import RGBColor, Coord
 from src.signals.world_signals import WorldSignals
 
@@ -82,9 +82,12 @@ class CurrMapInfo:
 
 
 class MapWorldView(QGraphicsView):
-    def __init__(self, world_signals: WorldSignals | None = None) -> None:
+    def __init__(
+        self, world_signals: WorldSignals | None = None, debug: bool = False
+    ) -> None:
         super().__init__()
         self.is_curr_map_visible: bool = False
+        self.debug = debug
         self.world_signals = world_signals
         self.curr_map_info: CurrMapInfo | None = None
         self.line_items: list[QGraphicsLineItem] = []
@@ -138,10 +141,11 @@ class MapWorldView(QGraphicsView):
             self.square_by_coord[coord] = square
             self.scene.addItem(square)
 
-            text = GraphicText(text=f"{coord[0]},{coord[1]}")
-            text.setPos(x, y)
-            text.setZValue(2)
-            self.scene.addItem(text)
+            if self.debug:
+                text = GraphicText(text=f"{coord[0]},{coord[1]}")
+                text.setPos(x, y)
+                text.setZValue(2)
+                self.scene.addItem(text)
 
         return self.square_by_coord[coord]
 

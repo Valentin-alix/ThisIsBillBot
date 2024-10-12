@@ -1,14 +1,16 @@
 from dataclasses import dataclass, field
 from enum import StrEnum, auto
+from functools import partial
 
 from models.world_graph import Edge
+from protos.game.gamemap_pb2 import MapComplementaryInformationEvent
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.edge_behavior import EdgeBehavior, EdgeError
+from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.logic.world.edge import (
     draw_edge_path,
 )
 from src.core.logic.world.world_path_finder import WorldPathFinder
-from src.exceptions import UnhandledErrorCodeException
 from src.signals.world_signals import WorldSignals
 
 
@@ -35,6 +37,9 @@ class AutoTripBehavior(Behavior):
                 self.game_state.player.curr_vertex, map_ids
             )
             if path is None:
+                self.logger.warning(
+                    f"Path not found from {self.game_state.player.curr_vertex} to {map_ids}"
+                )
                 return self.finish(AutoTripErrorCode.PATH_NOT_FOUND)
             if len(path) == 0:
                 return self.finish()
@@ -43,6 +48,8 @@ class AutoTripBehavior(Behavior):
         else:
             if edge_path is None:
                 raise ValueError("no edge path provided")
+            if len(edge_path) == 0:
+                return self.finish()
             self.target_map_ids = {edge_path[-1].m_to.m_mapId}
             self.auto_trip_edges = edge_path
             draw_edge_path(self.world_signals, self.auto_trip_edges)
@@ -59,8 +66,26 @@ class AutoTripBehavior(Behavior):
         )
 
     def on_edge_behavior_finished(self, error_code: str | None):
-        if error_code is EdgeError.INVALID_TRANSITION:
+        if error_code is EdgeError.NO_VALID_TRANSITION:
             return self.run(map_ids=self.target_map_ids)
-        elif error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+        elif (
+            error_code is not None and error_code is not MapMoveError.UNEXPECTED_NEW_MAP
+        ):
+            return self.finish(error_code)
+
+        self.event_manager.on(
+            MapComplementaryInformationEvent,
+            partial(
+                self.on_map_complementary_information_event_after_edge,
+                error_code=error_code,
+            ),
+            originator=self,
+            once=True,
+        )
+
+    def on_map_complementary_information_event_after_edge(
+        self, msg: MapComplementaryInformationEvent, error_code: str | None
+    ):
+        if error_code is not None:
+            return self.finish(error_code)
         self.process_edge()

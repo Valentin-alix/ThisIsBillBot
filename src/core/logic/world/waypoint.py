@@ -13,12 +13,12 @@ class WaypointInfoNode:
     dist_to_target: float
 
 
-ADDITIONAL_WEIGHT_WAYPOINT = 4
+ADDITIONAL_WEIGHT_WAYPOINT = 2
 
 
 def get_near_waypoint(
     available_waypoint_map_ids: list[int],
-    dist_player_to_ends: float,
+    dist_player_to_ends: float | None,
     ends_pos: list[MapPositionsRootItem],
     check_owned: bool,
 ):
@@ -37,7 +37,10 @@ def get_near_waypoint(
             continue
 
         dist_waypoint = get_dist_to_maps(map_waypoint_pos, ends_pos)
-        if (dist_waypoint + ADDITIONAL_WEIGHT_WAYPOINT) >= dist_player_to_ends:
+        if (
+            dist_player_to_ends is not None
+            and (dist_waypoint + ADDITIONAL_WEIGHT_WAYPOINT) >= dist_player_to_ends
+        ):
             continue
 
         if near_waypoint is None or near_waypoint.dist_to_target > dist_waypoint:

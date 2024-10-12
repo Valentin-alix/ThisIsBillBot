@@ -26,6 +26,7 @@ class EventManager:
     logger: Logger
 
     def clear_listener_by_origin(self, originator: object) -> None:
+        self.logger.info(f"Clear listener by origin : {originator.__class__}")
         with self.lock:
             listeners_to_remove: list[Listener] = []
 
@@ -42,9 +43,11 @@ class EventManager:
     def clear_listener_by_origin_and_type(
         self, msg_type: Type[Message], originator: object
     ) -> None:
+        self.logger.info(
+            f"Clear listener by origin: {originator.__class__} and type : {msg_type}"
+        )
         with self.lock:
             listeners_to_remove: list[Listener] = []
-
             for listener in self.listeners_by_type_msg[msg_type]:
                 if listener.originator == originator:
                     listeners_to_remove.append(listener)
@@ -71,10 +74,12 @@ class EventManager:
                     related_listeners.remove(listener)
 
     def alter_msg(self, msg: Message) -> tuple[Message | None, bool]:
-        modifier = self.modifier_by_type_msg.get(msg.__class__, None)
-        if modifier is None:
-            return msg, False
-        return modifier.callback(msg), True
+        with self.lock:
+            modifier = self.modifier_by_type_msg.get(msg.__class__, None)
+            if modifier is None:
+                return msg, False
+            self.logger.info(f"Altering msg : {msg.__class__.__name__}")
+            return modifier.callback(msg), True
 
     def before(
         self,
@@ -82,21 +87,53 @@ class EventManager:
         callback: Callable[[T], T | None],
         originator: object,
     ) -> None:
-        self.modifier_by_type_msg[msg_type] = Modifier(
-            callback=callback, originator=originator
-        )
+        with self.lock:
+            self.logger.info(
+                f"Add callback before msg : {msg_type} for originator {originator.__class__}"
+            )
+            if msg_type in self.modifier_by_type_msg:
+                self.logger.error(
+                    f"{msg_type} already in modifier when using before from originator {originator}, override..."
+                )
+            self.modifier_by_type_msg[msg_type] = Modifier(
+                callback=callback, originator=originator
+            )
 
     def prevent(self, msg_type: Type[T], originator: object):
-        self.modifier_by_type_msg[msg_type] = Modifier(
-            callback=lambda _: None, originator=originator
-        )
+        with self.lock:
+            self.logger.info(
+                f"Add prevent msg : {msg_type} for originator {originator.__class__}"
+            )
+            if msg_type in self.modifier_by_type_msg:
+                self.logger.error(
+                    f"{msg_type} already in modifier when using prevent from originator {originator}, override..."
+                )
+            self.modifier_by_type_msg[msg_type] = Modifier(
+                callback=self.empty_callback, originator=originator
+            )
+
+    def empty_callback(self, msg: Message) -> None:
+        return None
 
     def clear_modifier_by_origin(self, originator: object) -> None:
-        self.modifier_by_type_msg = {
-            type_msg: modifier
-            for type_msg, modifier in self.modifier_by_type_msg.items()
-            if modifier.originator != originator
-        }
+        self.logger.info(f"Clear modifiers for originator {originator.__class__}")
+        with self.lock:
+            self.modifier_by_type_msg = {
+                type_msg: modifier
+                for type_msg, modifier in self.modifier_by_type_msg.items()
+                if modifier.originator != originator
+            }
+
+    def clear_modifier_by_origin_and_type(
+        self, msg_type: Type[T], originator: object
+    ) -> None:
+        self.logger.info(
+            f"Clear modifier type : {msg_type} for originator {originator.__class__}"
+        )
+        with self.lock:
+            modifier = self.modifier_by_type_msg.get(msg_type, None)
+            if modifier and modifier.originator == originator:
+                del self.modifier_by_type_msg[msg_type]
 
     def on(
         self,
@@ -108,24 +145,29 @@ class EventManager:
         timeout: float | None = None,
         on_timeout: Callable[[], None] | None = None,
     ) -> None:
-        if priority is None:
-            priority = getattr(originator, "priority", PriorityEnum.NORMAL)
-        self.listeners_by_type_msg[msg_type].append(
-            Listener(
-                msg_type=msg_type,
-                callback=callback,
-                once=once,
-                originator=originator,
-                priority=priority,
-                timeout=timeout,
-                on_timeout=on_timeout,
-            )
+        self.logger.info(
+            f"Adding on callback for msg {msg_type} and originator {originator.__class__}"
         )
+        with self.lock:
+            if priority is None:
+                priority = getattr(originator, "priority", PriorityEnum.NORMAL)
+            self.listeners_by_type_msg[msg_type].append(
+                Listener(
+                    msg_type=msg_type,
+                    callback=callback,
+                    once=once,
+                    originator=originator,
+                    priority=priority,
+                    timeout=timeout,
+                    on_timeout=on_timeout,
+                )
+            )
 
     def send(self, msg: Message) -> None:
         self.logger.info(f"Sending {msg.__class__}")
-        if self.on_send_callback is None:
-            raise AttributeError(
-                f"sending msg {msg.__class__} but on_send_callback is not defined !"
-            )
-        self.on_send_callback(msg)
+        with self.lock:
+            if self.on_send_callback is None:
+                raise AttributeError(
+                    f"sending msg {msg.__class__} but on_send_callback is not defined !"
+                )
+            self.on_send_callback(msg)

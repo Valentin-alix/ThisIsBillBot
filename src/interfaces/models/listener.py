@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import field, dataclass
 from threading import Timer
 from typing import Callable, Type, TypeVar
 

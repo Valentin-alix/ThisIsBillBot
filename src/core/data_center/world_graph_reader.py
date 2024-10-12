@@ -22,18 +22,14 @@ class WorldGraphReader(metaclass=Singleton):
             return []
         return outgoing_edges.m_edgeList
 
-    def get_vertex(self, map_id: int, linked_zone: int | None) -> Vertice | None:
+    def get_vertex(self, map_id: int, linked_zone: int) -> Vertice | None:
         vertices_on_map = self.datas.m_vertices.get(map_id)
         if vertices_on_map is None:
             return None
-        if linked_zone:
-            vertices_on_zone = vertices_on_map.get(linked_zone, None)
-            if vertices_on_zone is not None:
-                return vertices_on_zone
-        potential_vertices = list(vertices_on_map.values())
-        if len(potential_vertices) > 0:
-            return potential_vertices[0]
-        return None
+        return vertices_on_map.get(linked_zone, None)
+
+    def get_vertexes(self, map_id: int) -> set[Vertice]:
+        return set(self.datas.m_vertices.get(map_id, {}).values())
 
     @cached_property
     def datas(self) -> WorldGraphData:

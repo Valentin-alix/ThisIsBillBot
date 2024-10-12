@@ -5,6 +5,7 @@ from protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
     MapTeleportOnSameEvent,
 )
+from src.const import ON_NEW_MAP_BEFORE_ACTION
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripBehavior
@@ -31,7 +32,7 @@ class ReviveBehavior(Behavior):
         ):
             return self.finish()
 
-        self.run_timer((1, 5), self.free_soul)
+        self.run_timer(ON_NEW_MAP_BEFORE_ACTION, self.free_soul)
 
     def free_soul(self):
         self.event_manager.on(
@@ -61,11 +62,11 @@ class ReviveBehavior(Behavior):
         self.go_to_phenix_and_revive()
 
     def go_to_phenix_and_revive(self):
-        dst_vertice = WorldGraphReader().get_vertex(
-            self.game_state.map.phoenix_map_id, 1
+        dst_vertexes = WorldGraphReader().get_vertexes(
+            self.game_state.map.phoenix_map_id
         )
         path_to_phoenix_map = self.astar_no_interactive.find_path(
-            self.game_state.player.curr_vertex, {dst_vertice}
+            self.game_state.player.curr_vertex, dst_vertexes
         )
         if path_to_phoenix_map is None:
             raise UnexpectedStateException(

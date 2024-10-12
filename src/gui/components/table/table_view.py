@@ -25,7 +25,7 @@ class CustomTableModel(QAbstractTableModel):
         data: list[list[QStandardItem]] | None = None,
         column_count: int = 0,
         parent=None,
-        max_row_count: int = 1500,
+        max_row_count: int = 5000,
     ):
         super().__init__(parent)
         self.signals = CustomTableModelSignal()

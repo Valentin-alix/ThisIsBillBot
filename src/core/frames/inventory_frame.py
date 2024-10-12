@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from protos.game.character_pb2 import CharacterCharacteristicsEvent
+from protos.game.dialog_pb2 import DialogLeaveRequest
 from protos.game.inventory_pb2 import (
     InventoryWeightEvent,
     InventoryContentEvent,
@@ -53,6 +54,9 @@ class InventoryFrame(Frame):
         self.event_manager.on(
             KamasUpdateEvent, self.on_kamas_update_event, originator=self
         )
+        self.event_manager.before(
+            DialogLeaveRequest, self.before_dialog_leave_request, originator=self
+        )
 
     def on_inventory_weight_event(self, message: InventoryWeightEvent):
         self.game_state.inventory.inventory_weight = message.inventory_weight
@@ -94,3 +98,8 @@ class InventoryFrame(Frame):
 
     def on_kamas_update_event(self, msg: KamasUpdateEvent):
         self.game_state.inventory.kamas = msg.quantity
+
+    def before_dialog_leave_request(self, msg: DialogLeaveRequest):
+        if self.is_playing_event.is_set():
+            return None
+        return msg

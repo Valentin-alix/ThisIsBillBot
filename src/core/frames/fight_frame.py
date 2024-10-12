@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 from protos.game.challenge_pb2 import ChallengeModSelectRequest
 from protos.game.character_pb2 import CharacterCharacteristicsEvent
-from protos.game.common_pb2 import Team
 from protos.game.context_pb2 import (
     ContextCreationEvent,
 )
@@ -10,6 +9,8 @@ from protos.game.fight_pb2 import (
     FightEndEvent,
     FightJoinRunningEvent,
     FightNewRoundEvent,
+    FightTurnFinishRequest,
+    FightTurnReadyRequest,
 )
 from protos.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
@@ -17,7 +18,6 @@ from protos.game.fight_preparation_pb2 import (
     FightTeamUpdateEvent,
 )
 from protos.game.game_action_pb2 import GameActionFightEvent
-from protos.game.gamemap_pb2 import FightMapInformationEvent
 from protos.game.spell_pb2 import (
     SpellsEvent,
     SpellVariantActivationEvent,
@@ -86,12 +86,14 @@ class FightFrame(Frame):
             ChallengeModSelectRequest,
             self.on_challenge_mod_select_request,
             originator=self,
-            once=True,
         )
-        self.event_manager.on(
-            FightMapInformationEvent,
-            self.on_fight_map_information_event,
+        self.event_manager.before(
+            FightTurnFinishRequest,
+            self.before_fight_turn_finish_request,
             originator=self,
+        )
+        self.event_manager.before(
+            FightTurnReadyRequest, self.before_fight_turn_ready_request, originator=self
         )
 
     def on_fight_placement_position_request(
@@ -111,11 +113,8 @@ class FightFrame(Frame):
 
     def on_fight_starting_event(self, message: FightStartingEvent):
         self.game_state.fight.count_casted_by_target_by_spell_id.clear()
+        self.game_state.fight.last_triggered_turn_by_spell_id.clear()
         self.game_state.fight.modifier_by_type_and_spell_id.clear()
-        if message.attacker_id != self.game_state.player.character_id:
-            self.game_state.fight.team = Team.TEAM_DEFENDER
-        else:
-            self.game_state.fight.team = Team.TEAM_CHALLENGER
 
     def on_spells_event(self, message: SpellsEvent):
         self.game_state.fight.spells = message.human_spells
@@ -135,6 +134,7 @@ class FightFrame(Frame):
 
     def on_fight_join_running_event(self, message: FightJoinRunningEvent):
         self.game_state.fight.count_casted_by_target_by_spell_id.clear()
+        self.game_state.fight.last_triggered_turn_by_spell_id.clear()
         self.game_state.fight.fight_turn = message.game_turn
 
     def on_fight_new_round_event(self, message: FightNewRoundEvent):
@@ -142,14 +142,16 @@ class FightFrame(Frame):
         self.game_state.fight.fight_turn = message.round_number
 
     def on_game_action_fight_event(self, message: GameActionFightEvent):
-        if (
-            message.HasField("targeted_ability")
-            and message.source_id == self.game_state.player.character_id
-            and message.targeted_ability.HasField("spell_cast")
+        if message.HasField("targeted_ability") and message.targeted_ability.HasField(
+            "spell_cast"
         ):
-            self.game_state.fight.count_casted_by_target_by_spell_id[
+            if message.source_id == self.game_state.player.character_id:
+                self.game_state.fight.count_casted_by_target_by_spell_id[
+                    message.targeted_ability.spell_cast.spell_id
+                ][message.targeted_ability.target_id] += 1
+            self.game_state.fight.last_triggered_turn_by_spell_id[
                 message.targeted_ability.spell_cast.spell_id
-            ][message.targeted_ability.target_id] += 1
+            ] = self.game_state.fight.fight_turn
 
         if message.HasField("removable_effect"):
             effect = message.removable_effect.effect
@@ -179,11 +181,27 @@ class FightFrame(Frame):
             ] = spell_modifier
 
     def on_fight_team_update_event(self, message: FightTeamUpdateEvent):
-        if message.team.team == self.game_state.fight.team:
+        if message.team.leader_id == self.game_state.player.character_id:
+            self.game_state.fight.team = message.team.team
             self.game_state.fight.leader_id = message.team.leader_id
+            return
+        for team_member in message.team.team_members.team_members:
+            if team_member.member_id == self.game_state.player.character_id:
+                self.game_state.fight.team = message.team.team
+                self.game_state.fight.leader_id = message.team.leader_id
+                break
 
     def on_challenge_mod_select_request(self, msg: ChallengeModSelectRequest):
         self.game_state.fight.challenge_mod = msg.challenge_mod
 
-    def on_fight_map_information_event(self, msg: FightMapInformationEvent):
-        self.game_state.fight.is_map_fight_initialized = True
+    def before_fight_turn_finish_request(
+        self, msg: FightTurnFinishRequest
+    ) -> FightTurnFinishRequest | None:
+        if self.is_playing_event.is_set() and msg.is_active is False:
+            return None
+        return msg
+
+    def before_fight_turn_ready_request(self, msg: FightTurnReadyRequest):
+        if self.is_playing_event.is_set():
+            return None
+        return msg
