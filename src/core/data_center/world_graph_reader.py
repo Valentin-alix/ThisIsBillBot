@@ -38,11 +38,3 @@ class WorldGraphReader(metaclass=Singleton):
                 zlib.decompress(file.read()), type=WorldGraphData
             )
         return data
-
-
-if __name__ == "__main__":
-    v1 = WorldGraphReader().get_vertex(193331715, 1)
-    v2 = WorldGraphReader().get_vertex(193331716, 2)
-    e3 = WorldGraphReader().get_outgoing_edges_from_vertex(v1)
-    edge = WorldGraphReader().get_edge_by_src_and_dst_vertex(v1, v2)
-    print(e3)

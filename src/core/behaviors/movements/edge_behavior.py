@@ -15,11 +15,13 @@ from src.core.behaviors.movements.map_change_behavior import (
     MapChangeError,
 )
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
+from src.core.data_center.map_reader import MapReader
 from src.core.logic.grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.core.logic.world.edge import (
     get_valid_transition,
     FORBIDDEN_EDGE_TRANSITION,
+    EXCLUDED_ELEMENT_IDS,
 )
 from src.exceptions import UnhandledErrorCodeException
 from src.interfaces.enums.transition_type import TransitionTypeEnum
@@ -37,6 +39,14 @@ class EdgeBehavior(Behavior):
     path_finding: Pathfinding
 
     def run(self, edge: Edge) -> None:
+        with self.event_manager.lock:
+            self.clear_behavior()
+            self.event_manager.on(
+                MapCurrentEvent,
+                partial(self.on_map_current_event, expected_map_id=edge.m_to.m_mapId),
+                originator=self,
+                once=True,
+            )
         self.logger.info(f"Go to edge: {edge}")
         if edge.m_to.m_mapId == self.game_state.map.map_id:
             return self.finish()
@@ -48,15 +58,6 @@ class EdgeBehavior(Behavior):
         transition = get_valid_transition(edge, edge.m_transitions, self.game_state)
         if transition is None:
             return self.finish(EdgeError.NO_VALID_TRANSITION)
-
-        with self.event_manager.lock:
-            self.event_manager.clear_listener_by_origin(self)
-            self.event_manager.on(
-                MapCurrentEvent,
-                partial(self.on_map_current_event, expected_map_id=edge.m_to.m_mapId),
-                originator=self,
-                once=True,
-            )
 
         transition_type = transition.m_type
         self.logger.info(f"using transition {transition}")
@@ -70,6 +71,7 @@ class EdgeBehavior(Behavior):
         elif transition_type == TransitionTypeEnum.MAP_ACTION:
             self.use_map_action_transition(edge, transition)
         else:
+            print(f"invalid transition type : {transition_type}")
             self.handle_invalid_transition(edge, transition)
             self.run(edge)
 
@@ -80,12 +82,28 @@ class EdgeBehavior(Behavior):
         return self.finish(error_code)
 
     def use_interactive_transition(self, edge: Edge, transition: Transition):
-        interactive_element = self.game_state.interactive.interactive_element_by_id.get(
-            transition.m_id
+        target_element = (
+            self.game_state.interactive.interactive_element_by_id.get(transition.m_id)
+            if transition.m_id not in EXCLUDED_ELEMENT_IDS
+            else None
         )
-        if interactive_element is None:
-            self.logger.warning(
-                f"Interactive not found : {transition.m_id}, recalculating path"
+        if target_element is None:
+            for elem in self.game_state.interactive.interactive_element_by_id.values():
+                if elem.element_id in EXCLUDED_ELEMENT_IDS:
+                    continue
+                elem_data = MapReader().get_ref_data_by_element_id(edge.m_from.m_mapId)[
+                    elem.element_id
+                ]
+                if elem_data.cellId == transition.m_cellId and any(
+                    skill.skill_id == transition.m_skillId
+                    for skill in elem.enabled_skills
+                ):
+                    target_element = elem
+                    break
+
+        if target_element is None:
+            print(
+                f"Did not found any potential valid interactive at {transition.m_cellId} for skill {transition.m_skillId}, recalculating path"
             )
             self.handle_invalid_transition(edge, transition)
             return self.run(edge)
@@ -93,16 +111,14 @@ class EdgeBehavior(Behavior):
         related_skill = next(
             (
                 skill
-                for skill in interactive_element.enabled_skills
+                for skill in target_element.enabled_skills
                 if skill.skill_id == transition.m_skillId
             ),
             None,
         )
         if related_skill is None:
-            self.logger.warning(
-                f"related skill uid not found : {interactive_element}, recalculating path"
-            )
-            self.handle_invalid_transition(edge, transition)
+            EXCLUDED_ELEMENT_IDS.add(target_element.element_id)
+            self.logger.warning(f"related skill uid not found : {target_element}")
             return self.run(edge)
 
         move_path_interactive = self.path_finding.get_interactive_near_path(
@@ -111,40 +127,53 @@ class EdgeBehavior(Behavior):
             skill_ids=[related_skill.skill_id],
         )
         if move_path_interactive is None:
+            EXCLUDED_ELEMENT_IDS.add(target_element.element_id)
             self.logger.warning(
                 f"no path found to interactive on {transition.m_cellId} at map {self.game_state.map.map_id} with "
-                f"element {interactive_element.element_id}"
+                f"element {target_element.element_id}"
             )
-            self.handle_invalid_transition(edge, transition)
             return self.run(edge)
 
         self.event_manager.on(
             MapCurrentEvent,
             callback=lambda _: None,
             originator=self,
-            timeout=10,
-            on_timeout=lambda: self.on_timeout_map_after_interactive(edge, transition),
+            timeout=20,
+            on_timeout=lambda: self.on_timeout_map_after_interactive(
+                edge, target_element.element_id
+            ),
         )
         self.interactive_behavior.start(
             callback=partial(
-                self.on_interactive_behavior_finished, edge=edge, transition=transition
+                self.on_interactive_behavior_finished,
+                edge=edge,
+                transition=transition,
+                element_id=target_element.element_id,
             ),
             parent=self,
             move_path=move_path_interactive,
-            element_id=interactive_element.element_id,
+            element_id=target_element.element_id,
             skill_instance_uid=related_skill.skill_instance_uid,
         )
 
-    def on_timeout_map_after_interactive(self, edge: Edge, transition: Transition):
-        self.handle_invalid_transition(edge, transition)
+    def on_timeout_map_after_interactive(self, edge: Edge, element_id: int):
+        EXCLUDED_ELEMENT_IDS.add(element_id)
         self.run(edge)
 
     def on_interactive_behavior_finished(
-        self, error_code: str | None, edge: Edge, transition: Transition
+        self,
+        error_code: str | None,
+        edge: Edge,
+        transition: Transition,
+        element_id: int,
     ):
         if error_code is not None:
-            if error_code in [MapMoveError.REFUSED, InteractiveError.USE_ERROR]:
+            if error_code == MapMoveError.REFUSED:
+                print("map move refused after interactive")
                 self.handle_invalid_transition(edge, transition)
+                return self.run_timer(BASE_RANGE, lambda: self.run(edge))
+            elif error_code == InteractiveError.USE_ERROR:
+                EXCLUDED_ELEMENT_IDS.add(element_id)
                 return self.run_timer(BASE_RANGE, lambda: self.run(edge))
             elif error_code in [
                 MapMoveError.CANCELED_MOVEMENT,
@@ -159,7 +188,7 @@ class EdgeBehavior(Behavior):
             {MapPoint.from_cell_id(transition.m_cellId)},
         )
         if move_path.end.cell_id != transition.m_cellId:
-            self.logger.info(
+            print(
                 f"move path : {move_path} not ending at transition {transition}, invalid."
             )
             self.handle_invalid_transition(edge, transition)
@@ -186,6 +215,7 @@ class EdgeBehavior(Behavior):
                 self.logger.warning("Retry edge")
                 return self.run_timer(BASE_RANGE, lambda: self.run(edge))
             elif error_code is MapMoveError.REFUSED:
+                print("map move refused")
                 self.handle_invalid_transition(edge, transition)
                 return self.run_timer(BASE_RANGE, lambda: self.run(edge))
             raise UnhandledErrorCodeException(error_code)
@@ -196,7 +226,7 @@ class EdgeBehavior(Behavior):
             {MapPoint.from_cell_id(transition.m_cellId)},
         )
         if move_path.end.cell_id != transition.m_cellId:
-            self.logger.info(
+            print(
                 f"move path : {move_path} not ending at transition {transition}, invalid."
             )
             self.handle_invalid_transition(edge, transition)
@@ -228,6 +258,7 @@ class EdgeBehavior(Behavior):
                 self.logger.warning("Canceled or invalid starting point, retry edge")
                 return self.run_timer(BASE_RANGE, lambda: self.run(edge))
             elif error_code is MapMoveError.REFUSED:
+                print("refused map move")
                 self.handle_invalid_transition(edge, transition)
                 return self.run_timer(BASE_RANGE, lambda: self.run(edge))
 
@@ -248,10 +279,12 @@ class EdgeBehavior(Behavior):
         if error_code is MapMoveError.INVALID_STARTING_POINT:
             return self.run_timer(BASE_RANGE, lambda: self.run(edge))
         elif error_code is MapMoveError.REFUSED:
+            print("refused map change")
             self.handle_invalid_transition(edge, transition)
             return self.run_timer(BASE_RANGE, lambda: self.run(edge))
         elif error_code is not None:
             raise UnhandledErrorCodeException(error_code)
 
     def handle_invalid_transition(self, edge: Edge, transition: Transition):
+        print(f"Forbidden edge : {edge} with transition : {transition}")
         FORBIDDEN_EDGE_TRANSITION.add((edge.m_from.m_uid, edge.m_to.m_uid, transition))

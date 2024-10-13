@@ -1,4 +1,5 @@
 from src.common.logger import Logger
+
 from src.core.states.entity_state import EntityState
 from src.core.states.fight_state import FightState
 from src.core.states.game_state import GameState

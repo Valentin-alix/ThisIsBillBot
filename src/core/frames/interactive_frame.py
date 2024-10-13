@@ -24,6 +24,9 @@ from src.interfaces.enums.job_enum import JobEnum, HARVESTER_JOB_IDS
 class InteractiveFrame(Frame):
 
     def __post_init__(self):
+        self.game_info_signals.disconnected.connect(
+            self.game_state.interactive.clear_state
+        )
         self.event_manager.on(
             MapComplementaryInformationEvent,
             self.on_map_complementary_information_event,

@@ -18,8 +18,9 @@ from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.logic.fight.attack import Attacker
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
+from src.interfaces.enums.breed import Breed
 
-RUNAWAY_BREED: set[int] = {9}
+RUNAWAY_BREED: set[int] = {Breed.CRA}
 
 
 @dataclass

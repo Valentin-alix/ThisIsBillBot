@@ -9,20 +9,21 @@ from src.core.states.game_state import GameState
 from src.signals.world_signals import WorldSignals
 
 FORBIDDEN_EDGE_TRANSITION: set[tuple[int, int, Transition]] = set()
+EXCLUDED_ELEMENT_IDS: set[int] = set()
 FORBIDDEN_MAP_IDS: set[int] = {
-    202899464,
-    193331717,
-    193331716,
-    166725120,
-    121766912,
-    121767936,
-    88082698,
-    121767936,
-    88083210,
-    205260292,
-    206047751,
-    206046725,
-    123470339,
+    # 202899464,
+    # 193331717,
+    # 193331716,
+    # 166725120,
+    # 121766912,
+    # 121767936,
+    # 88082698,
+    # 121767936,
+    # 88083210,
+    # 205260292,
+    # 206047751,
+    # 206046725,
+    # 123470339,
 }
 
 
@@ -69,6 +70,12 @@ def iter_valid_outgoing_edges(
     for edge in edges:
         if edge.m_to.m_mapId in FORBIDDEN_MAP_IDS:
             continue
+        sub_area_id = DataReader().map_pos_by_map_id[edge.m_to.m_mapId].subAreaId
+        if (
+            not game_state.player.is_sub
+            and DataReader().sub_area_by_id[sub_area_id].basicAccountAllowed == 0
+        ):
+            continue
         if not edge_has_valid_transition(edge, game_state):
             continue
         yield edge
@@ -82,10 +89,17 @@ def draw_edge_path(world_signals: WorldSignals, edges: list[Edge]):
         world_signals.arrow_pos.emit(start_map_pos, end_map_pos)
 
 
+# Passage vers berceau d'alma, donc peux pas
+# Forbidden edge : Edge(m_from=Vertice(m_mapId=54162757, m_zoneId=1, m_uid=1795), m_to=Vertice(m_mapId=57016832, m_zoneId=1, m_uid=6791), m_transitions=[Transition(m_type=3
+# 2, m_direction=255, m_skillId=184, m_criterion='', m_transitionMapId=57016832, m_cellId=132, m_id=456644)]) with transition : Transition(m_type=32, m_direction=255, m_ski
+# llId=184, m_criterion='', m_transitionMapId=57016832, m_cellId=132, m_id=456644)
 if __name__ == "__main__":
     vertice = next(iter(WorldGraphReader().get_vertexes(217059328)))
 
     edges = WorldGraphReader().get_outgoing_edges_from_vertex(vertice)
+
+    map_data = DataReader().map_pos_by_map_id[54162757]
+    print(map_data.posX, map_data.posY)
 
     for edge in edges:
         if edge.m_to.m_mapId == 212600322:

@@ -7,8 +7,6 @@ from protos.game.game_action_pb2 import (
     SequenceType,
 )
 from src.core.behaviors.behavior import Behavior
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.i18n import I18N
 from src.core.logic.grid.map_point import MapPoint
 
 
@@ -34,13 +32,3 @@ class FightSpellBehavior(Behavior):
             and msg.author_id == self.game_state.player.character_id
         ):
             self.finish()
-
-
-if __name__ == "__main__":
-    spell_id = 12794
-
-    spell = DataReader().spell_by_id[spell_id]
-    print(I18N().name_by_id[spell.nameId])
-    spell_lvl = DataReader().spell_lvl_by_spell_id[spell_id][0]
-
-    print(spell_lvl)

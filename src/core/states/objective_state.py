@@ -17,3 +17,8 @@ class ObjectiveState(State):
     finished_achievement_by_id: dict[int, AchievedAchievement] = dataclasses.field(
         init=False, default_factory=dict
     )
+
+    def clear_state(self):
+        self.active_quest_by_id.clear()
+        self.finished_quest_by_id.clear()
+        self.finished_achievement_by_id.clear()

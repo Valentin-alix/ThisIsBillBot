@@ -55,6 +55,7 @@ class FighterBehavior(Behavior, ABC):
         self.create_group(area_id, sub_area_id)
 
     def create_group(self, area_id: int | None, sub_area_id: int | None):
+        self.logger.info(f"party members : {self.game_state.party.party_member_by_id}")
         for mule_state in self.mule_states:
             if (
                 mule_state.player.character_id
@@ -68,7 +69,7 @@ class FighterBehavior(Behavior, ABC):
                 SMALL_RANGE,
                 partial(self.invite_mule, name=mule_state.player.character_name),
             )
-        self.logger.info(f"Waiting for all mule to accept group invitation")
+        self.logger.info("Waiting for all mule to accept group invitation")
         self.ready_barrier.on_ready(
             callback=lambda: self.on_created_group(area_id, sub_area_id),
             originator=self,
@@ -87,10 +88,20 @@ class FighterBehavior(Behavior, ABC):
         )
 
     def on_created_group(self, area_id: int | None, sub_area_id: int | None):
+        self.shared_subjects.full_pods.connect(
+            self.on_full_pods_signal, originator=self
+        )
         self.random_farm_behavior.init_random_farm(
             area_id, sub_area_id, self.get_additional_weight_by_map_id
         )
         self.on_new_map()
+
+    def on_full_pods_signal(self):
+        if self.unload_behavior.is_running.is_set():
+            return
+        self.unload_behavior.start(
+            parent=self, callback=self.on_unload_behavior_finished
+        )
 
     def on_new_map(self):
         if self.game_state.map.map_id in self.random_farm_behavior.map_ids:
@@ -152,12 +163,17 @@ class FighterBehavior(Behavior, ABC):
             callback=self.on_context_creation_event,
             originator=self,
             once=True,
+            timeout=10,
+            on_timeout=self.attack_enemy,
         )
         request = AttackMonsterRequest(monster_group_id=group_actor_id)
         self.event_manager.send(request)
 
     def on_context_creation_event(self, msg: ContextCreationEvent):
         if msg.context == ContextCreationEvent.GameContext.FIGHT:
+            self.event_manager.clear_listener_by_origin_and_type(
+                ContextCreationEvent, self
+            )
             self.fight_behavior.start(
                 callback=self.on_fight_behavior_finish,
                 parent=self,
@@ -167,12 +183,8 @@ class FighterBehavior(Behavior, ABC):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
         if self.game_state.inventory.is_full_pods:
-            self.shared_subjects.full_pods.emit()
-            return self.unload_behavior.start(
-                parent=self, callback=self.on_unload_behavior_finished
-            )
-        else:
-            self.ready_barrier.on_ready(callback=self.on_new_map, originator=self)
+            return self.shared_subjects.full_pods.emit()
+        self.ready_barrier.on_ready(callback=self.on_new_map, originator=self)
 
     def on_unload_behavior_finished(self, error_code: str | None):
         if error_code is not None:

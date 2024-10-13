@@ -9,8 +9,16 @@ from protos.game.common_pb2 import (
 )
 from protos.game.gamemap_pb2 import MapObstacle
 from src.core.logic.grid.map_point import MapPoint
+from src.core.logic.stats.characteristic import get_stat_by_id
 from src.core.states.state import State
+from src.interfaces.enums.characteristic_enum import CharacteristicEnum
 from src.signals.grid_signals import GridSignals
+
+
+@dataclass
+class FightActor:
+    life_point: int
+    is_summoned: bool
 
 
 class ActorByIdDict(dict[int, ActorPositionInformation]):
@@ -69,11 +77,15 @@ class EntityState(State):
     actor_by_id: dict[int, ActorPositionInformation] = field(
         init=False, default_factory=dict
     )
-    summoned_mps: set[MapPoint] = field(init=False, default_factory=set)
+    actor_fight_by_id: dict[int, FightActor] = field(init=False, default_factory=dict)
 
     def __post_init__(self):
         self.obstacle_on_cell_id = ObstacleByCellIdDict(grid_signals=self.grid_signals)
         self.actors_on_mp = ActorByMpDict(grid_signals=self.grid_signals)
+
+    def clear_state(self):
+        self.actor_by_id.clear()
+        self.actor_fight_by_id.clear()
 
     def set_map_obstacles(self, map_obstacles: Iterable[MapObstacle]):
         self.clear_obstacles()
@@ -109,8 +121,19 @@ class EntityState(State):
         self.actors_on_mp[MapPoint.from_cell_id(actor.disposition.cell_id)][
             actor.actor_id
         ] = actor
-        if is_summoned:
-            self.summoned_mps.add(MapPoint.from_cell_id(actor.disposition.cell_id))
+        if actor.actor_information.HasField("fighter"):
+            target_max_health = get_stat_by_id(
+                next(
+                    (
+                        char
+                        for char in actor.actor_information.fighter.stats.characteristics
+                        if char.characteristic_id == CharacteristicEnum.LIFE_POINTS
+                    )
+                )
+            )
+            self.actor_fight_by_id[actor.actor_id] = FightActor(
+                life_point=target_max_health, is_summoned=is_summoned
+            )
 
     def update_actor_disposition(self, actor_id: int, direction: int, cell_id: int):
         related_actor = self.actor_by_id.get(actor_id)
@@ -137,11 +160,10 @@ class EntityState(State):
 
     def remove_actor(self, actor_id: int):
         actor = self.actor_by_id.pop(actor_id)
+        self.actor_fight_by_id.pop(actor_id, None)
         del self.actors_on_mp[MapPoint.from_cell_id(actor.disposition.cell_id)][
             actor_id
         ]
-        if actor_id in self.summoned_mps:
-            self.summoned_mps.remove(MapPoint.from_cell_id(actor.disposition.cell_id))
 
     def is_entity_actor_on_cell_id(self, cell_id: int) -> bool:
         actors_on_mp = self.actors_on_mp.get(MapPoint.from_cell_id(cell_id))
@@ -152,6 +174,13 @@ class EntityState(State):
             actor
             for actor in self.actor_by_id.values()
             if actor.actor_information.fighter.spawn_information.team != team
+        ]
+
+    def get_allies(self, team: Team) -> list[ActorPositionInformation]:
+        return [
+            actor
+            for actor in self.actor_by_id.values()
+            if actor.actor_information.fighter.spawn_information.team == team
         ]
 
     def get_monster_groups(

@@ -1,8 +1,9 @@
 from models.datas.spell_levels_root import SpellLevelsRootItem, Effect
 from protos.game.common_pb2 import SpellModifier
-from protos.game.spell_pb2 import SpellItem
+from protos.game.common_pb2 import (
+    SpellItem,
+)
 from src.core.data_center.data_reader import DataReader
-from src.core.logic.fight.effect import is_primary_attack_elem
 from src.core.logic.grid.map_point import MapPoint
 from src.core.logic.zones.cross import Cross
 from src.core.logic.zones.lozenge import Lozenge
@@ -120,10 +121,11 @@ def get_possible_mp_spell(
     return possible_mps
 
 
-def get_primary_spells(
-    spells: list[SpellItem], primary_elem: EffectElement
+def get_damage_spells(
+    spells: list[SpellItem], primary_elem: EffectElement, secondary_elem: EffectElement
 ) -> list[tuple[SpellLevelsRootItem, Effect]]:
     spell_levels: list[tuple[SpellLevelsRootItem, Effect]] = []
+    count_secondary_spell_lvl: int = 0
     for spell in spells:
         if not spell.spell_id:
             continue
@@ -137,7 +139,16 @@ def get_primary_spells(
         ):
             continue
         for effect in spell_lvl.effects:
-            if is_primary_attack_elem(effect, primary_elem):
+            data_effect = DataReader().effect_by_id[effect.effectId]
+            if data_effect.characteristicOperator != "":
+                continue
+            if effect.effectElement == primary_elem:
+                spell_levels.append((spell_lvl, effect))
+                break
+            elif (
+                effect.effectElement == secondary_elem and count_secondary_spell_lvl < 2
+            ):
+                count_secondary_spell_lvl += 1
                 spell_levels.append((spell_lvl, effect))
                 break
 

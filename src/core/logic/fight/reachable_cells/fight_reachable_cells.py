@@ -1,7 +1,5 @@
-import sys
 from dataclasses import dataclass, field
-
-from PyQt5.QtWidgets import QApplication
+from typing import Iterable
 
 from src.core.data_center.map_reader import MapReader
 from src.core.logic.fight.reachable_cells.reachable_mp_node import (
@@ -9,9 +7,7 @@ from src.core.logic.fight.reachable_cells.reachable_mp_node import (
 )
 from src.core.logic.grid.map_point import MapPoint
 from src.core.states.game_state import GameState
-from src.gui.components.graphics.grid_widget import GridView
 from src.interfaces.enums.characteristic_enum import CharacteristicEnum
-from src.signals.grid_signals import GridSignals
 from src.signals.world_signals import MapSignals
 
 
@@ -27,7 +23,7 @@ class FightReachableCells:
     open_node: set[ReachableMpNode] = field(init=False, default_factory=set)
 
     def search(
-        self, enemies_mp: set[MapPoint], entities_mp: set[MapPoint]
+        self, enemies_mp: set[MapPoint], entities_mp: Iterable[MapPoint]
     ) -> dict[MapPoint, int]:
         self.open_node.clear()
         self.node_by_mp.clear()
@@ -36,7 +32,7 @@ class FightReachableCells:
         self.open_node.add(
             ReachableMpNode(
                 mp=self.game_state.player.map_point,
-                best_remaining_pm_no_tackle=self.game_state.player.get_stat_by_id(
+                best_remaining_pm_no_tackle=self.game_state.player.get_player_stat_by_id(
                     CharacteristicEnum.MOVEMENT_POINTS
                 ),
             )
@@ -57,7 +53,10 @@ class FightReachableCells:
         return self.reachable_cost_by_mp
 
     def mark_node(
-        self, mp: MapPoint, remaining_not_tackled_pm: int, entities_mp: set[MapPoint]
+        self,
+        mp: MapPoint,
+        remaining_not_tackled_pm: int,
+        entities_mp: Iterable[MapPoint],
     ) -> None:
         node = self.node_by_mp.get(mp)
         if node is None:
@@ -84,37 +83,3 @@ class FightReachableCells:
             self.reachable_cost_by_mp[mp] = remaining_not_tackled_pm
             if node not in self.open_node:
                 self.open_node.add(node)
-
-
-if __name__ == "__main__":
-    grid_signals = GridSignals()
-    debug_signals = MapSignals()
-
-    map_id = 153880321
-    player_mp = MapPoint.from_cell_id(497)
-    enemies_mp = {
-        MapPoint.from_cell_id(457),
-        MapPoint.from_cell_id(442),
-        MapPoint.from_cell_id(469),
-    }
-
-    application = QApplication(sys.argv)
-    widget = GridView(grid_signals=grid_signals, debug_signals=debug_signals)
-    widget.on_new_map_id(map_id)
-
-    debug_signals.white_cell.emit(player_mp)
-    debug_signals.red_cells.emit(enemies_mp)
-
-    fight_reachable_cells = FightReachableCells(
-        map_id=map_id,
-        from_mp=player_mp,
-        pm=3,
-        debug_signals=debug_signals,
-        enemies_mp=enemies_mp,
-        entities_mp=enemies_mp | {player_mp},
-    )
-    fight_reachable_cells.search()
-
-    widget.show()
-
-    application.exec()

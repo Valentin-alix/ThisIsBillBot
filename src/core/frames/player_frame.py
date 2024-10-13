@@ -13,17 +13,22 @@ from protos.game.character_pb2 import (
 )
 from protos.game.fight_pb2 import FightRefreshCharacterStatsEvent
 from protos.game.game_action_pb2 import GameActionFightEvent
+from protos.game.gamemap_pb2 import (
+    MapComplementaryInformationEvent,
+    FightMapInformationEvent,
+)
 from protos.game.guild_member_pb2 import GuildMembershipEvent
 from protos.game.job_pb2 import JobExperiencesUpdateEvent
-from protos.game.multi_account_pb2 import PartyLeaveEvent
 from protos.game.server_pb2 import ServerSettingsEvent
 from protos.game.teleportation_pb2 import ZaapKnownListEvent
 from src.core.frames.frame import Frame
+from src.interfaces.enums.characteristic_enum import CharacteristicEnum
 
 
 @dataclass
 class PlayerFrame(Frame):
     def __post_init__(self):
+        self.game_info_signals.disconnected.connect(self.game_state.player.clear_state)
         self.event_manager.on(
             ServerSettingsEvent,
             self.on_server_settings_event,
@@ -79,12 +84,35 @@ class PlayerFrame(Frame):
 
         self.game_info_signals.connected.connect(self.on_connected)
         self.game_info_signals.disconnected.connect(self.on_disconnected)
+        self.game_info_signals.is_ready_to_play.connect(
+            self.game_state.player.is_ready_to_play_event.set
+        )
 
     def on_connected(self):
-        self.game_state.player.is_connected = True
+        def on_map_init_after_connected():
+            self.game_info_signals.is_ready_to_play.emit()
+            self.event_manager.clear_listener_by_origin_and_type(
+                MapComplementaryInformationEvent, self
+            )
+            self.event_manager.clear_listener_by_origin_and_type(
+                FightMapInformationEvent, self
+            )
+
+        self.event_manager.on(
+            MapComplementaryInformationEvent,
+            lambda _: on_map_init_after_connected(),
+            originator=self,
+            once=True,
+        )
+        self.event_manager.on(
+            FightMapInformationEvent,
+            lambda _: on_map_init_after_connected(),
+            originator=self,
+            once=True,
+        )
 
     def on_disconnected(self):
-        self.game_state.player.is_connected = False
+        self.game_state.player.is_ready_to_play_event.clear()
 
     def on_update_life_points_event(self, msg: UpdateLifePointsEvent):
         self.game_state.player.life_point = msg.life_points
@@ -142,6 +170,14 @@ class PlayerFrame(Frame):
     ):
         for stat in message.stats.characteristics:
             self.game_state.player.characteristic_by_id[stat.characteristic_id] = stat
+        if self.game_state.player.max_life_point == 1:
+            self.game_state.player.max_life_point = (
+                self.game_state.player.get_player_stat_by_id(
+                    CharacteristicEnum.LIFE_POINTS
+                )
+            )
+        if self.game_state.player.life_point == 1:
+            self.game_state.player.life_point = self.game_state.player.max_life_point
 
     def on_account_information_update_event(self, msg: AccountInformationUpdateEvent):
         self.game_state.player.subscription_end_date = datetime.fromtimestamp(
@@ -157,6 +193,14 @@ class PlayerFrame(Frame):
             self.game_state.player.characteristic_by_id[
                 characteristic.characteristic_id
             ] = characteristic
+        if self.game_state.player.max_life_point == 1:
+            self.game_state.player.max_life_point = (
+                self.game_state.player.get_player_stat_by_id(
+                    CharacteristicEnum.LIFE_POINTS
+                )
+            )
+        if self.game_state.player.life_point == 1:
+            self.game_state.player.life_point = self.game_state.player.max_life_point
 
     def on_zaap_known_list_event(self, msg: ZaapKnownListEvent):
         self.game_state.player.waypoint_map_ids = list(msg.destinations)
@@ -167,9 +211,3 @@ class PlayerFrame(Frame):
     def on_guild_member_ship_event(self, msg: GuildMembershipEvent):
         self.game_state.player.guild_information = msg.guild_information
         self.game_state.player.guild_rank_id = msg.rank_id
-
-
-
-if __name__ == "__main__":
-    temp = datetime.fromtimestamp(1734209975000 / 1000)
-    print(temp)

@@ -16,6 +16,9 @@ from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 @dataclass
 class GuildChestFrame(Frame):
     def __post_init__(self):
+        self.game_info_signals.disconnected.connect(
+            self.game_state.guild_chest.clear_state
+        )
         self.event_manager.on(
             ExchangeStartedWithMultiTabStorageEvent,
             self.on_exchange_started_with_multi_tab_storage_event,
@@ -76,7 +79,7 @@ class GuildChestFrame(Frame):
             None,
         )
         if not related_gid:
-            return self.logger.info(f"Did not found related git in chest, skip.")
+            return self.logger.info("Did not found related git in chest, skip.")
 
         CHEST_OBJECT_BY_GID_BY_TAB[self.game_state.guild_chest.tab_number].pop(
             related_gid

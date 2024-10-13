@@ -1,10 +1,4 @@
-import sys
-
-from PyQt5.QtWidgets import QApplication
-
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.i18n import I18N
-from src.core.logic.fight.spell import get_possible_mp_spell
+from src.common.cache import cache
 from src.core.logic.grid.map_point import MapPoint
 from src.core.logic.zones.cone import Cone
 from src.core.logic.zones.cross import Cross
@@ -15,18 +9,10 @@ from src.core.logic.zones.lozenge import Lozenge
 from src.core.logic.zones.rectangle import Rectangle
 from src.core.logic.zones.square import Square
 from src.core.logic.zones.zone import Zone
-from src.core.states.entity_state import EntityState
-from src.core.states.fight_state import FightState
-from src.core.states.interactive_state import InteractiveState
-from src.core.states.map_state import MapState
-from src.core.states.player_state import PlayerState
-from src.gui.components.graphics.grid_widget import GridView
 from src.interfaces.enums.spell_shape_enum import SpellShapeEnum
-from src.signals.grid_signals import GridSignals
-from src.signals.player_signals import GameInfoSignals
-from src.signals.world_signals import MapSignals
 
 
+@cache
 def get_zone_mps(
     shape: SpellShapeEnum,
     size: int,
@@ -110,67 +96,3 @@ def get_zone_mps(
             return Fork(size=size)
 
     return Cross(shape=shape, alternative_size=0, size=0)
-
-
-if __name__ == "__main__":
-
-    grid_signals = GridSignals()
-    debug_signals = MapSignals()
-    game_info_signals = GameInfoSignals()
-
-    map_state = MapState(grid_signals=grid_signals)
-    entity_state = EntityState(grid_signals=grid_signals)
-    interactive_state = InteractiveState(grid_signals=grid_signals)
-    player_state = PlayerState(
-        game_info_signals=game_info_signals,
-        interactive_state=interactive_state,
-        entity_state=entity_state,
-        map_state=map_state,
-    )
-    fight_state = FightState(
-        game_info_signals=game_info_signals, player_state=player_state
-    )
-    player_state = PlayerState(
-        map_state=map_state,
-        game_info_signals=game_info_signals,
-        entity_state=entity_state,
-        interactive_state=interactive_state,
-    )
-
-    map_state.map_id = 154010373
-    start = MapPoint.from_cell_id(270)
-    end = MapPoint.from_cell_id(452)
-
-    application = QApplication(sys.argv)
-    widget = GridView(grid_signals=grid_signals, debug_signals=debug_signals)
-    widget.on_new_map_id(map_state.map_id)
-
-    spell_id = 12746
-
-    spell = DataReader().spell_by_id[spell_id]
-    print(I18N().name_by_id[spell.nameId])
-    spell_level = DataReader().spell_lvl_by_spell_id[spell_id][0]
-    print(spell_level)
-
-    # direction = start.orientation_to(end)
-    # for effect in spell_level.effects:
-    #     zone_desc = effect.zoneDescr
-    #     zone = get_zone_mps(
-    #         shape=SpellShapeEnum(zone_desc.shape),
-    #         alternative_size=zone_desc.param2,
-    #         size=zone_desc.param1,
-    #         caster_mp=start,
-    #         stop_at_target=bool(zone_desc.isStopAtTarget),
-    #     )
-    #     for mp in zone.get_mps(mp=end, direction=direction):
-    #         debug_signals.green_cell.emit(mp)
-    #     break
-
-    for mp in get_possible_mp_spell(
-        MapPoint.from_cell_id(270), spell_level, 3, None, None, None
-    ):
-        debug_signals.green_cell.emit(mp)
-
-    widget.show()
-
-    application.exec()

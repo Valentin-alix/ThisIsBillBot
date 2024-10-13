@@ -13,8 +13,8 @@ from src.interfaces.enums.job_enum import JobEnum
 from src.signals.world_signals import WorldSignals
 
 WEIGHT_BY_JOB: dict[JobEnum, float] = {
-    JobEnum.MINER: 50,
-    JobEnum.WOODCUTTER: 30,
+    JobEnum.MINER: 10,
+    JobEnum.WOODCUTTER: 10,
     JobEnum.ALCHEMIST: 10,
     JobEnum.PEASANT: 10,
     JobEnum.FISHERMAN: 10,

@@ -24,7 +24,6 @@ class FightMovementBehavior(Behavior):
     def run(
         self, move_path: MovementPath | None = None, run_away: bool = False
     ) -> None:
-
         if move_path is None:
             if run_away:
                 move_path = self.find_safest_path()
@@ -39,7 +38,7 @@ class FightMovementBehavior(Behavior):
 
                 move_path = near_enemy_info[1]
 
-        pm: int = self.game_state.player.get_stat_by_id(
+        pm: int = self.game_state.player.get_player_stat_by_id(
             CharacteristicEnum.MOVEMENT_POINTS
         )
 
@@ -97,7 +96,7 @@ class FightMovementBehavior(Behavior):
         return related_enemies[0], move_path, cost_path
 
     def find_safest_path(self) -> MovementPath | None:
-        self.logger.info(f"Finding safest path")
+        self.logger.info("Finding safest path")
 
         entities_mp: set[MapPoint] = {
             mp
@@ -117,7 +116,7 @@ class FightMovementBehavior(Behavior):
 
         mp_with_safest_coeff = max(
             (
-                [
+                (
                     reachable_mp,
                     sum(
                         [
@@ -125,7 +124,7 @@ class FightMovementBehavior(Behavior):
                             for enemy_mp in enemies_mp
                         ]
                     ),
-                ]
+                )
                 for reachable_mp in reachable_mps
             ),
             key=lambda elem: elem[1],

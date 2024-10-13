@@ -18,7 +18,7 @@ from src.gui.utils.run_in_background import Worker
 from src.signals.bot_signals import BotSignals
 from src.signals.grid_signals import GridSignals
 from src.signals.player_signals import GameInfoSignals
-from src.signals.shared_farm_signals import SharedFarmSignals
+from src.signals.shared_farm_signals import SharedSignals
 from src.signals.world_signals import WorldSignals
 
 
@@ -43,8 +43,8 @@ class FarmerWidget(PivotItem):
         grid_signals: GridSignals,
         game_info_signals: GameInfoSignals,
         world_signals: WorldSignals,
-        farm_signals: BotSignals,
-        shared_farm_signals: SharedFarmSignals,
+        bot_signals: BotSignals,
+        shared_signals: SharedSignals,
         *args,
         **kwargs,
     ):
@@ -53,8 +53,8 @@ class FarmerWidget(PivotItem):
         self.grid_signals = grid_signals
         self.world_signals = world_signals
         self.game_info_signals = game_info_signals
-        self.farm_signals = farm_signals
-        self.shared_farm_signals = shared_farm_signals
+        self.farm_signals = bot_signals
+        self.shared_farm_signals = shared_signals
 
         v_layout = QVBoxLayout()
         v_layout.setAlignment(Qt.AlignTop)
@@ -73,7 +73,6 @@ class FarmerWidget(PivotItem):
         top_widget.layout().addWidget(self.play_btn)
 
         self.stop_btn = TransparentToolButton(FluentIcon.PAUSE)
-        self.game_info_signals.disconnected.connect(self.on_click_stop)
         self.stop_btn.clicked.connect(self.on_click_stop)
         self.farm_signals.stop.connect(self.on_stop)
         top_widget.layout().addWidget(self.stop_btn)

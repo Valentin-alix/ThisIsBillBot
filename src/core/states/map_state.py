@@ -15,6 +15,12 @@ class MapState(State):
     is_in_map_transition: bool = dataclasses.field(init=False, default=False)
     _map_id: int = dataclasses.field(init=False, default=0)
 
+    def clear_state(self):
+        self.phoenix_map_id = 0
+        self.is_in_haven_bag = False
+        self.is_in_map_transition = False
+        self._map_id = 0
+
     @property
     def map_id(self) -> int:
         return self._map_id

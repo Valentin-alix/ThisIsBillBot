@@ -16,6 +16,12 @@ class InventoryState(State):
         init=False, default_factory=dict
     )
 
+    def clear_state(self):
+        self.inventory_weight = 0
+        self.weight_max = 1
+        self.kamas = 0
+        self.objects_by_uid.clear()
+
     @property
     def pod_percentage(self):
         return self.inventory_weight / self.weight_max

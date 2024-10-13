@@ -1,19 +1,25 @@
 from dataclasses import dataclass
 
+from src.common.cache import cache
 from src.core.logic.grid.directions import DirectionsEnum
 from src.core.logic.grid.map_point import MapPoint, MAP_POINT_BY_COORD
 from src.core.logic.zones.zone import Zone
 
 
-@dataclass
+@dataclass(frozen=True)
 class HalfLozenge(Zone):
     alternative_size: int
     size: int
 
-    def __post_init__(self):
-        self.min_radius = self.alternative_size
-        self.radius = self.size
+    @property
+    def min_radius(self):
+        return self.alternative_size
 
+    @property
+    def radius(self):
+        return self.size
+
+    @cache
     def get_mps(self, mp: MapPoint, direction: DirectionsEnum) -> set[MapPoint]:
         mps: set[MapPoint] = set()
 

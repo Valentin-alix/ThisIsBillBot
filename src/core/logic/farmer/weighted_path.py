@@ -1,3 +1,4 @@
+import random
 import sys
 from dataclasses import dataclass
 from time import perf_counter
@@ -8,6 +9,7 @@ from PyQt5.QtWidgets import QApplication
 from models.world_graph import Vertice, Edge
 from src.common.logger import Logger
 from src.core.data_center.data_reader import DataReader
+from src.core.data_center.i18n import I18N
 from src.core.data_center.world_graph_reader import WorldGraphReader
 from src.core.logic.farmer.collectables import get_gfx_to_item_and_job
 from src.core.logic.farmer.weight_collectables import (
@@ -27,8 +29,6 @@ from src.signals.log_signals import LogSignals
 from src.signals.player_signals import GameInfoSignals
 from src.signals.world_signals import WorldSignals
 
-DEPTH = 30
-
 
 @dataclass
 class WeightedPath:
@@ -46,40 +46,91 @@ class WeightedPath:
             )
         return weight_by_map_id[edge.m_to.m_mapId]
 
+    def monte_carlo_path(
+        self,
+        start_vertex: Vertice,
+        get_weight_by_map_id_func: Callable[[int], float],
+        weight_by_map_id: dict[int, float],
+        depth: int = 50,
+        iterations: int = 1000,
+    ):
+        # heuristic, randomized weighted path
+        best_weight: float = 0
+        best_path: list[Edge] = []
+
+        for _ in range(iterations):
+            current_vertex = start_vertex
+            visited_map_ids: list[int] = [current_vertex.m_mapId]
+            total_weight: float = 0
+            path: list[Edge] = []
+
+            for _ in range(depth):
+                edge_neighbors = [
+                    neighbor
+                    for neighbor in iter_valid_outgoing_edges(
+                        current_vertex, self.game_state
+                    )
+                ]
+                if not edge_neighbors:
+                    break
+                next_edge: Edge = random.choice(edge_neighbors)
+
+                if next_edge.m_to.m_mapId in visited_map_ids:
+                    continue
+
+                weight = self.get_weight_edge(
+                    next_edge,
+                    weight_by_map_id=weight_by_map_id,
+                    get_weight_by_map_id_func=get_weight_by_map_id_func,
+                )
+
+                path.append(next_edge)
+                visited_map_ids.insert(0, next_edge.m_to.m_mapId)
+                total_weight += weight
+                current_vertex = next_edge.m_to
+
+            if total_weight > best_weight:
+                best_weight = total_weight
+                best_path = path
+
+        return best_path, best_weight
+
     def get_best_path(
         self,
         vertice: Vertice,
-        visited_map_ids: set[int],
+        visited_map_ids: frozenset[int],
         get_weight_by_map_id_func: Callable[[int], float],
         weight_by_map_id: dict[int, float],
         current_path: list[Edge],
-        memo: dict[tuple[Vertice, int], float],
+        memo: dict[tuple[Vertice, int, frozenset[int]], float],
         curr_weight: float = 0,
-        depth_remaining: int = DEPTH,
+        depth_remaining: int = 10,
     ) -> tuple[list[Edge], float]:
         if depth_remaining == 0:
             return current_path, curr_weight
 
-        if (vertice, depth_remaining) in memo:
-            memo_weight = memo[(vertice, depth_remaining)]
+        state = (vertice, depth_remaining, visited_map_ids)
+        if state in memo:
+            memo_weight = memo[state]
             return current_path, memo_weight
 
-        visited_map_ids.add(vertice.m_mapId)
         max_weight = curr_weight
         best_path = current_path
 
         for edge in iter_valid_outgoing_edges(vertice, game_state=self.game_state):
             if edge.m_to.m_mapId in visited_map_ids:
                 continue
-
-            child_curr_path = current_path[::]
-            child_curr_path.append(edge)
             weight = self.get_weight_edge(
                 edge, get_weight_by_map_id_func, weight_by_map_id
             )
+            if weight is None:
+                continue
+
+            child_curr_path = current_path[::]
+            child_curr_path.append(edge)
             child_path, child_weight = self.get_best_path(
                 edge.m_to,
-                visited_map_ids.copy(),
+                visited_map_ids | {edge.m_to.m_mapId},
                 get_weight_by_map_id_func,
                 weight_by_map_id,
                 current_path=child_curr_path,
@@ -91,7 +142,7 @@ class WeightedPath:
                 max_weight = child_weight
                 best_path = child_path
 
-        memo[(vertice, depth_remaining)] = max_weight
+        memo[state] = max_weight
 
         return best_path, max_weight
 
@@ -104,9 +155,9 @@ if __name__ == "__main__":
     )
     world_signals = WorldSignals()
 
-    start_map_id = 157704
-    data_map = DataReader().map_pos_by_map_id[start_map_id]
+    start_map_id = 142089739
     start_mp = MapPoint.from_cell_id(340)
+    start_data_map = DataReader().map_pos_by_map_id[start_map_id]
     linked_zone = get_linked_zone_rp(map_id=start_map_id, cell_id=start_mp.cell_id)
     vertex = WorldGraphReader().get_vertex(start_map_id, linked_zone)
 
@@ -117,9 +168,11 @@ if __name__ == "__main__":
     widget.show()
 
     map_ids: set[int] = set()
-    for sub_area_id in DataReader().sub_areas_by_area_id[
-        DataReader().sub_area_by_id[data_map.subAreaId].areaId
-    ]:
+    area = DataReader().area_by_id[
+        DataReader().sub_area_by_id[start_data_map.subAreaId].areaId
+    ]
+    print(I18N.name_by_id[area.nameId])
+    for sub_area_id in DataReader().sub_areas_by_area_id[area.id]:
         map_ids |= set(DataReader().sub_area_by_id[sub_area_id].mapIds)
 
     add_weight = {}
@@ -132,22 +185,24 @@ if __name__ == "__main__":
 
     max_weight = max(add_weight.values())
 
-    def get_weight(map_id: int):
-        map_data = DataReader().map_pos_by_map_id[map_id]
+    def get_weight(map_id: int) -> float:
         weight = add_weight.get(map_id, -1)
+        map_data = DataReader().map_pos_by_map_id[map_id]
         weight_color = int(255 * (weight / max_weight))
         world_signals.color_pos.emit(map_data, (255, 255 - weight_color, 0))
         return weight
 
+    print(len(map_ids))
+
     before = perf_counter()
-    path, weight = weighted_path.get_best_path(
-        vertex, set(), get_weight, {}, [], {}, depth_remaining=30
-    )
-    print(len(path))
-    print(weight)
+    # path, weight = weighted_path.get_best_path(
+    #     vertex, frozenset(), get_weight, {}, [], {}, depth_remaining=11
+    # )
+    path, weight = weighted_path.monte_carlo_path(vertex, get_weight, {})
+    print(weight, len(path))
     print(perf_counter() - before)
     path_map_ids = [edge.m_to.m_mapId for edge in path]
-    print(len(path_map_ids) - len(set(path_map_ids)))
+    # print(TEMP)
     draw_edge_path(world_signals, path)
     # path = weighted_path.dfs_dynamic_max_weight(vertex, 100, {}, add_weight)
 

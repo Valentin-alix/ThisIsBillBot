@@ -46,8 +46,3 @@ class MapReader(metaclass=Singleton):
 
     def get_cell_data_by_cell_id(self, map_id: int, cell_id: int) -> CellData:
         return self.map_by_id(map_id).mapData.cellsData[cell_id]
-
-
-if __name__ == "__main__":
-    temp = MapReader().get_cell_data_by_cell_id(203688196, 517)
-    print(temp)

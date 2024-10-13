@@ -1,12 +1,12 @@
 import sys
 from dataclasses import dataclass, field
+from logging import Logger
 from time import sleep
 from typing import Iterator
 
 from PyQt5.QtWidgets import QApplication
 from sortedcontainers import SortedSet
 
-from src.common.logger import Logger
 from src.core.data_center.data_reader import DataReader
 from src.core.logic.entities.entities import is_entity_actor_on_cell_id
 from src.core.logic.grid.data_map_provider import DataMapProvider

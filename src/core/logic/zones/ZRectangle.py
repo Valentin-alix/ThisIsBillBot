@@ -1,21 +1,27 @@
 from dataclasses import dataclass
 
+from src.common.cache import cache
 from src.core.logic.grid.directions import DirectionsEnum
 from src.core.logic.grid.map_point import MapPoint, MAP_POINT_BY_COORD
 from src.core.logic.zones.zone import Zone
 
 
-@dataclass
+@dataclass(frozen=True)
 class ZRectangle(Zone):
     min_radius: int
     alternative_size: int
     size: int
     is_diagonal_free: bool
 
-    def __post_init__(self):
-        self.width = self.alternative_size
-        self.height = self.size if self.size != 0 else self.width
+    @property
+    def width(self):
+        return self.alternative_size
 
+    @property
+    def height(self):
+        return self.size if self.size != 0 else self.width
+
+    @cache
     def get_mps(self, mp: MapPoint, direction: DirectionsEnum) -> set[MapPoint]:
         mps: set[MapPoint] = set()
 

@@ -14,30 +14,30 @@ class DamageCalculator:
 
     def get_damage_effect(self, effect: Effect, monster_grade: MonsterGrade) -> int:
         related_stat = get_stat_by_effect_elem(effect.effectElement)
-        stat_char = self.game_state.player.get_stat_by_id(related_stat)
+        stat_char = self.game_state.player.get_player_stat_by_id(related_stat)
         power = 0
-        fixed_damage = self.game_state.player.get_stat_by_id(
+        fixed_damage = self.game_state.player.get_player_stat_by_id(
             CharacteristicEnum.ALL_DAMAGES_BONUS
         )
         match related_stat:
             case CharacteristicEnum.CHANCE:
                 resistance_stat_percent = monster_grade.waterResistance
-                fixed_damage_stat = self.game_state.player.get_stat_by_id(
+                fixed_damage_stat = self.game_state.player.get_player_stat_by_id(
                     CharacteristicEnum.WATER_DAMAGE_BONUS
                 )
             case CharacteristicEnum.AGILITY:
                 resistance_stat_percent = monster_grade.airResistance
-                fixed_damage_stat = self.game_state.player.get_stat_by_id(
+                fixed_damage_stat = self.game_state.player.get_player_stat_by_id(
                     CharacteristicEnum.AIR_DAMAGE_BONUS
                 )
             case CharacteristicEnum.STRENGTH:
                 resistance_stat_percent = monster_grade.airResistance
-                fixed_damage_stat = self.game_state.player.get_stat_by_id(
+                fixed_damage_stat = self.game_state.player.get_player_stat_by_id(
                     CharacteristicEnum.EARTH_DAMAGE_BONUS
                 )
             case CharacteristicEnum.INTELLIGENCE:
                 resistance_stat_percent = monster_grade.fireResistance
-                fixed_damage_stat = self.game_state.player.get_stat_by_id(
+                fixed_damage_stat = self.game_state.player.get_player_stat_by_id(
                     CharacteristicEnum.FIRE_DAMAGE_BONUS
                 )
             case _:

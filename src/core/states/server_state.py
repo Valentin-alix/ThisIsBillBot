@@ -10,6 +10,11 @@ class ServerState(State):
     latency_buffer: list[float] = field(init=False, default_factory=list)
     latest_sent: float | None = field(init=False, default=None)
 
+    def clear_state(self):
+        self.sequence_number = 0
+        self.latency_buffer.clear()
+        self.latest_sent = None
+
     @property
     def latency_average(self) -> int:
         if len(self.latency_buffer) == 0:

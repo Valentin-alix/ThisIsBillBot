@@ -6,11 +6,12 @@ from google.protobuf.message import Message
 
 from src.interfaces.enums.priority import PriorityEnum
 
+
 T = TypeVar("T", bound=Message)
 
 
 @dataclass
-class Listener:
+class Listener[T]:
     msg_type: Type[T]
     callback: Callable[[T], None]
     originator: object
@@ -25,7 +26,7 @@ class Listener:
     def __post_init__(self):
         if self.timeout and self.on_timeout is not None:
             if self.on_timeout is None:
-                raise ValueError(f"timeout is defined but not function on_timeout !")
+                raise ValueError("timeout is defined but not function on_timeout !")
             if self._deleted:
                 raise ValueError(
                     "listener was going to use timeout callback but it is deleted !"

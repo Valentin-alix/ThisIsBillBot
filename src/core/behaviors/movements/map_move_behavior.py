@@ -104,7 +104,6 @@ class MapMoveBehavior(Behavior):
     def on_map_movement_event(self, msg: MapMovementEvent, move_path: MovementPath):
         if self.game_state.player.character_id == msg.character_id:
             with self.event_manager.lock:
-
                 self.event_manager.clear_listener_by_origin_and_type(
                     MapMovementEvent, self
                 )
@@ -114,31 +113,20 @@ class MapMoveBehavior(Behavior):
                 self.game_state.inventory.inventory_weight,
                 self.game_state.inventory.weight_max,
             )
-            error_code: str | None = None
+            error_code: str | None
             if move_path.end.cell_id != msg.cells[-1]:
                 error_code = MapMoveError.CANCELED_MOVEMENT
                 if self.game_state.fight.in_fight:
                     return self.finish(error_code)
+            else:
+                error_code = None
             self.event_manager.on(
-                MapMovementConfirmRequest,
-                callback=partial(
-                    self.on_map_movement_confirm_request, error_code=error_code
-                ),
+                MapMovementConfirmResponse,
+                callback=lambda _: self.finish(error_code),
                 originator=self,
                 once=True,
-                timeout=duration,
-                on_timeout=self.send_map_movement_confirm,
             )
-
-    def on_map_movement_confirm_request(
-        self, msg: MapMovementConfirmRequest, error_code: str | None
-    ):
-        self.event_manager.on(
-            MapMovementConfirmResponse,
-            callback=lambda _: self.finish(error_code),
-            originator=self,
-            once=True,
-        )
+            self.run_timer(duration, self.send_map_movement_confirm)
 
     def send_map_movement_confirm(self):
         req = MapMovementConfirmRequest()

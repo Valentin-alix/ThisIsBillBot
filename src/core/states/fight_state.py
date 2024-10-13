@@ -27,6 +27,7 @@ class FightState(State):
     fight_placement_possible_positions: list[int] = field(
         default_factory=list, init=False
     )
+    is_our_turn: bool = field(default=False, init=False)
     challenge_mod: ChallengeMod = field(
         init=False, default=ChallengeMod.CHALLENGE_CHOICE
     )
@@ -44,6 +45,20 @@ class FightState(State):
     _in_fight: bool = dataclasses.field(init=False, default=False)
     _team: Team = dataclasses.field(init=False, default=Team.TEAM_NEUTRAL)
     _fight_turn: int = dataclasses.field(init=False, default=0)
+
+    def clear_state(self):
+        self.is_map_fight_initialized = False
+        self.fight_placement_possible_positions.clear()
+        self.is_our_turn = False
+        self.challenge_mod = ChallengeMod.CHALLENGE_CHOICE
+        self.spells.clear()
+        self.modifier_by_type_and_spell_id.clear()
+        self.count_casted_by_target_by_spell_id.clear()
+        self.last_triggered_turn_by_spell_id.clear()
+        self.state_ids.clear()
+        self.in_fight = False
+        self.team = Team.TEAM_NEUTRAL
+        self.fight_turn = 0
 
     @property
     def team(self):
@@ -73,16 +88,21 @@ class FightState(State):
         self.game_info_signals.in_fight.emit(self._in_fight)
 
     @property
-    def primary_stat(self) -> int:
+    def ordered_stat(self) -> list[CharacteristicEnum]:
         dmg_stats = [
             CharacteristicEnum.AGILITY,
             CharacteristicEnum.STRENGTH,
             CharacteristicEnum.INTELLIGENCE,
             CharacteristicEnum.CHANCE,
         ]
-        return max(dmg_stats, key=self.player_state.get_stat_by_id)
+        return list(
+            sorted(dmg_stats, key=self.player_state.get_player_stat_by_id, reverse=True)
+        )
 
     @property
-    def primary_elem(self) -> EffectElement:
-        primary_stat = self.primary_stat
-        return get_effect_elem_by_stat(primary_stat)
+    def primary_and_second_elem(self) -> tuple[EffectElement, EffectElement]:
+        ordered_stats = self.ordered_stat
+        return (
+            get_effect_elem_by_stat(ordered_stats[0]),
+            get_effect_elem_by_stat(ordered_stats[1]),
+        )

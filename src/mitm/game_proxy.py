@@ -50,9 +50,9 @@ class GameProxy(Proxy):
             + MAPPING_GAME_PROTO_TO_OBF[any_msg.type_url.replace(TYPE_URL_PREFIX, "")]
         )
         msg_content.content.CopyFrom(any_msg)
-        if msg_content.__class__ == Request:
+        if isinstance(msg_content, Request):
             full_msg = GameMessage(request=msg_content)
-        elif msg_content.__class__ == Response:
+        elif isinstance(msg_content, Response):
             full_msg = GameMessage(response=msg_content)
         else:
             full_msg = GameMessage(event=msg_content)

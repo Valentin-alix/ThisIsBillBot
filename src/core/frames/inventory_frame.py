@@ -20,6 +20,9 @@ from src.core.frames.frame import Frame
 class InventoryFrame(Frame):
 
     def __post_init__(self):
+        self.game_info_signals.disconnected.connect(
+            self.game_state.inventory.clear_state
+        )
         self.event_manager.on(
             InventoryWeightEvent,
             self.on_inventory_weight_event,

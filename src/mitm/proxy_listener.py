@@ -1,10 +1,12 @@
 import socket
 from dataclasses import dataclass, field
+from functools import partial
 from socket import AF_INET6
 from socket import socket as Socket
 from threading import Thread
 
 from src.bot import Bot
+from src.common.process import get_pid_by_local_and_remote_port
 from src.const import CONNECTION_SERVERS_IPS
 from src.mitm.connection_proxy import ConnectionProxy
 from src.mitm.game_proxy import GameProxy
@@ -18,12 +20,12 @@ class ProxyListener:
     proxies: list[Proxy] = field(default_factory=lambda: [], init=False)
 
     def on_mitm_connection_callback(
-        self, client_socket: Socket, server_socket: Socket
+        self, client_socket: Socket, server_socket: Socket, host_port: int
     ) -> None:
         def on_game_connection_callback(
-            host_port: int, target_address: tuple[str, int], account: Bot
+            host_port: int, target_address: tuple[str, int], bot: Bot
         ) -> None:
-            self.account_by_port[host_port] = account
+            self.account_by_port[host_port] = bot
             Thread(
                 target=lambda: self.start_listener(host_port, target_address),
                 daemon=True,
@@ -31,14 +33,25 @@ class ProxyListener:
 
         bridge: Proxy
         if server_socket.getpeername()[0] in CONNECTION_SERVERS_IPS:
+            local_port = client_socket.getpeername()[1]
+            related_pid = get_pid_by_local_and_remote_port(
+                local_port=local_port, remote_port=host_port
+            )
+            if related_pid is None:
+                return print("Did not found related pid")
+
+            related_bot = next(
+                bot for bot in self.account_by_id.values() if bot.pid == related_pid
+            )
             bridge = ConnectionProxy(
-                bot_infos=self.account_by_id,
-                on_game_connection_callback=on_game_connection_callback,
+                bot=related_bot,
+                on_game_connection_callback=partial(
+                    on_game_connection_callback, bot=related_bot
+                ),
                 client_socket=client_socket,
                 server_socket=server_socket,
             )
         else:
-            print(server_socket.getpeername())
             bridge = GameProxy(
                 bot=self.account_by_port[client_socket.getsockname()[1]],
                 client_socket=client_socket,
@@ -52,12 +65,12 @@ class ProxyListener:
     def start_listener(
         self, host_port: int, target_address: tuple[str, int], forever: bool = False
     ):
-        def on_connection(client_socket: Socket):
+        def on_connection(client_socket: Socket, host_port: int):
             print(f"received connection from {client_socket.getpeername()}")
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             server_socket.connect(target_address)
             print(f"connect to {server_socket.getpeername()}")
-            self.on_mitm_connection_callback(client_socket, server_socket)
+            self.on_mitm_connection_callback(client_socket, server_socket, host_port)
 
         proxy_socket = socket.create_server(
             address=("::", host_port),
@@ -69,6 +82,6 @@ class ProxyListener:
         while True:
             print(f"listening on {host_port} at localhost for target {target_address}")
             client_socket, _ = proxy_socket.accept()
-            on_connection(client_socket)
+            on_connection(client_socket, host_port)
             if not forever:
                 break

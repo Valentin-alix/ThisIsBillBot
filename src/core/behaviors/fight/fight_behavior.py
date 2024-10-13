@@ -33,7 +33,6 @@ class FightBehavior(Behavior):
             originator=self,
             once=True,
         )
-
         if self.game_state.fight.is_map_fight_initialized:
             self.on_fight_map_initialized()
         else:
@@ -44,9 +43,17 @@ class FightBehavior(Behavior):
             )
 
     def on_fight_map_initialized(self):
-        self.fight_preparation_behavior.start(
-            callback=self.on_fight_preparation_behavior_finish, parent=self
+        self.event_manager.on(
+            FightTurnStartPlayingEvent,
+            lambda _: self.run_timer(ON_PLAYER_TURN, self.on_player_turn),
+            originator=self,
         )
+        if self.game_state.fight.is_our_turn:
+            self.on_player_turn()
+        elif len(self.game_state.fight.fight_placement_possible_positions) != 0:
+            self.fight_preparation_behavior.start(
+                callback=self.on_fight_preparation_behavior_finish, parent=self
+            )
 
     def on_map_complementary_information_event(
         self, msg: MapComplementaryInformationEvent
@@ -61,12 +68,6 @@ class FightBehavior(Behavior):
     def on_fight_preparation_behavior_finish(self, error_code: str | None):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
-
-        self.event_manager.on(
-            FightTurnStartPlayingEvent,
-            lambda _: self.run_timer(ON_PLAYER_TURN, self.on_player_turn),
-            originator=self,
-        )
 
     def on_player_turn(self):
         self.fight_turn_behavior.start(callback=None, parent=self)

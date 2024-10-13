@@ -48,6 +48,10 @@ class InteractiveState(State):
     def __post_init__(self) -> None:
         self.stated_element_by_cell_id = StatedElementByCellIdDict(self.grid_signals)
 
+    def clear_state(self):
+        self.clear_stated_elements()
+        self.interactive_element_by_id.clear()
+
     def clear_stated_elements(self) -> None:
         for stated_element in list(self.stated_element_by_id.values()):
             del self.stated_element_by_id[stated_element.element_id]

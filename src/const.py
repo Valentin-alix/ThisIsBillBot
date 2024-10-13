@@ -9,9 +9,9 @@ CONNECTION_SERVERS_IPS: list[str] = socket.gethostbyname_ex(DOFUS_CONNECTION_URL
 TYPE_URL_PREFIX = "type.ankama.com/"
 
 RESOURCE_FOLDER = os.path.join(Path(__file__).parent.parent, "resources")
+MITM_CONFIG_URL = os.path.join(RESOURCE_FOLDER, "config.json")
 
-
-MIN_DATE: datetime = datetime.datetime(datetime.MINYEAR, 1, 1)
+MIN_DATE = datetime.datetime(datetime.MINYEAR, 1, 1)
 
 FAKE_INFINITY_VALUE = 99999
 

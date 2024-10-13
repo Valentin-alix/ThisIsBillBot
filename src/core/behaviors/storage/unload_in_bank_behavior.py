@@ -42,7 +42,7 @@ class UnloadInBankBehavior(Behavior):
             callback=self.on_inventory_weight_event,
             originator=self,
             once=True,
-            timeout=5,
+            timeout=20,
             on_timeout=self.leave_all_dialogs,
         )
         request = ExchangeObjectTransferAllFromInventoryRequest()

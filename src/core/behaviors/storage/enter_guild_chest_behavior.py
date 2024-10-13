@@ -30,7 +30,11 @@ class EnterGuildChestBehavior(Behavior):
         if (
             not self.game_state.player.is_sub
             or self.game_state.player.guild_rank_id
-            not in [GuildRankEnum.LEADER, GuildRankEnum.OFFICER]
+            not in [
+                GuildRankEnum.LEADER,
+                GuildRankEnum.OFFICER,
+                GuildRankEnum.INITIATED,
+            ]
         ):
             return self.finish(
                 error_code=EnterGuildChestError.DOES_NOT_RESPECT_CONDITION

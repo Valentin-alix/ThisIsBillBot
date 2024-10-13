@@ -1,13 +1,9 @@
 from models.datas.spell_levels_root import Effect
+from protos.game.common_pb2 import ActorPositionInformation, Team
 from src.core.data_center.data_reader import DataReader
+from src.core.data_center.i18n import I18N
 from src.interfaces.enums.characteristic_enum import CharacteristicEnum
 from src.interfaces.enums.effect_element import EffectElement
-
-
-def is_primary_attack_elem(effect: Effect, primary_elem: EffectElement):
-    if effect.effectElement == primary_elem:
-        data_effect = DataReader().effect_by_id[effect.effectId]
-        return data_effect.characteristicOperator == ""
 
 
 def get_effect_elem_by_stat(stat_id: int):
@@ -36,3 +32,57 @@ def get_stat_by_effect_elem(elem: int):
             return CharacteristicEnum.AGILITY
         case _:
             raise ValueError(f"Unknown elem : {elem} for stat")
+
+
+def get_life_point_malus(life_point: int, spell_id: int, effect: Effect) -> int:
+    data_effect = DataReader().effect_by_id[effect.effectId]
+    description_spell = I18N.name_by_id[
+        DataReader().spell_by_id[spell_id].descriptionId
+    ]
+    if not (
+        data_effect.characteristicOperator == "-"
+        and data_effect.characteristic == CharacteristicEnum.LIFE_POINTS
+        and "vie du lanceur" in description_spell.lower()
+    ):
+        return 0
+    if data_effect.isInPercent:
+        return life_point * effect.diceNum // 100
+    return life_point - effect.diceNum
+
+
+def is_included_by_mask(
+    caster_id: int,
+    caster_team: Team,
+    masks: list[str],
+    target_actor: ActorPositionInformation,
+    is_summoned_target: bool,
+):
+    if target_actor.actor_id == caster_id:
+        if any(char in masks for char in ("c", "C", "a")):
+            return True
+
+    is_same_team = (
+        caster_team == target_actor.actor_information.fighter.spawn_information.team
+    )
+
+    conditions = {
+        "A": lambda: not is_same_team,
+        "D": lambda: not is_same_team,
+        "H": lambda: not is_same_team and not is_summoned_target,
+        "I": lambda: not is_same_team and is_summoned_target,
+        "J": lambda: not is_same_team and is_summoned_target,
+        "L": lambda: not is_same_team and not is_summoned_target,
+        "M": lambda: not is_same_team and not is_summoned_target,
+        "S": lambda: not is_same_team and is_summoned_target,
+        "d": lambda: is_same_team,
+        "h": lambda: is_same_team and not is_summoned_target,
+        "i": lambda: is_same_team and is_summoned_target,
+        "j": lambda: is_same_team and is_summoned_target,
+        "l": lambda: is_same_team and not is_summoned_target,
+        "m": lambda: is_same_team and not is_summoned_target,
+        "s": lambda: is_same_team and is_summoned_target,
+        "g": lambda: is_same_team,
+        "a": lambda: is_same_team,
+    }
+
+    return any(conditions.get(mask, lambda: False)() for mask in masks)

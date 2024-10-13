@@ -21,7 +21,7 @@ class EventManager:
     listeners_by_type_msg: defaultdict[Type[Message], list[Listener]] = field(
         init=False, default_factory=lambda: defaultdict(list)
     )
-    on_send_callback: Callable[[Message], None] | None = field(init=False, default=None)
+    on_send_callback: Callable[[Any], None] | None = field(init=False, default=None)
     lock: RLock = field(init=False, default_factory=RLock)
     logger: Logger
 
@@ -99,7 +99,7 @@ class EventManager:
                 callback=callback, originator=originator
             )
 
-    def prevent(self, msg_type: Type[T], originator: object):
+    def prevent(self, msg_type: Type[Message], originator: object):
         with self.lock:
             self.logger.info(
                 f"Add prevent msg : {msg_type} for originator {originator.__class__}"
@@ -125,7 +125,7 @@ class EventManager:
             }
 
     def clear_modifier_by_origin_and_type(
-        self, msg_type: Type[T], originator: object
+        self, msg_type: Type[Message], originator: object
     ) -> None:
         self.logger.info(
             f"Clear modifier type : {msg_type} for originator {originator.__class__}"
@@ -141,9 +141,9 @@ class EventManager:
         callback: Callable[[T], Any],
         originator: object,
         once: bool = False,
-        priority: PriorityEnum | None = None,
+        priority: PriorityEnum = PriorityEnum.NORMAL,
         timeout: float | None = None,
-        on_timeout: Callable[[], None] | None = None,
+        on_timeout: Callable[[], Any] | None = None,
     ) -> None:
         self.logger.info(
             f"Adding on callback for msg {msg_type} and originator {originator.__class__}"

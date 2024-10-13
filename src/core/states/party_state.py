@@ -6,5 +6,9 @@ from src.core.states.state import State
 
 @dataclass
 class PartyState(State):
-    party_id:int|None = field(init=False, default=None)
+    party_id: int | None = field(init=False, default=None)
     party_member_by_id: dict[int, Character] = field(init=False, default_factory=dict)
+
+    def clear_state(self):
+        self.party_id = None
+        self.party_member_by_id.clear()

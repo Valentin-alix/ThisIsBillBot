@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Any
 
+import icecream
 import msgspec.json
 
 from D3Database.consts import D3_DATA
@@ -28,10 +29,11 @@ from models.datas.quests_root import QuestsRoot, QuestsRootItem
 from models.datas.recipe_root import RecipeItem, RecipeRoot
 from models.datas.skills_root import SkillsRoot, SkillsRootItem
 from models.datas.spell_levels_root import SpellLevelsRoot, SpellLevelsRootItem
-from models.datas.spell_variants_root import SpellVariantsRoot
+from models.datas.spell_variants_root import SpellVariantsRoot, SpellVariantsRootItem
 from models.datas.spells_root import SpellsRoot, SpellsRootItem
 from models.datas.sub_areas_root import SubAreasRoot, SubAreasRootItem
 from models.datas.waypoints_root import WaypointsRoot, WaypointsRootItem
+from src.core.data_center.i18n import I18N
 from src.interfaces.enums.job_enum import HARVESTER_JOB_IDS
 from src.interfaces.metaclasses.singleton import Singleton
 
@@ -206,14 +208,26 @@ class DataReader(metaclass=Singleton):
         return {characteristic.id: characteristic for characteristic in data}
 
     @cached_property
-    def spell_opposite_variant_by_spell_id(self) -> dict[int, int]:
+    def spell_variants(self) -> SpellVariantsRoot:
         with open(
             os.path.join(D3_DATA, FILEPATH_BY_MODEL[SpellVariantsRoot]), "rb"
         ) as file:
-            data = msgspec.json.decode(
+            return msgspec.json.decode(
                 zlib.decompress(file.read()), type=SpellVariantsRoot
             )
 
+    @cached_property
+    def spell_variant_by_breed_id(self) -> dict[int, list[SpellVariantsRootItem]]:
+        _spell_variant_by_breed_id: dict[int, list[SpellVariantsRootItem]] = (
+            defaultdict(list)
+        )
+        for spell_variant in self.spell_variants:
+            _spell_variant_by_breed_id[spell_variant.breedId].append(spell_variant)
+        return _spell_variant_by_breed_id
+
+    @cached_property
+    def spell_opposite_variant_by_spell_id(self) -> dict[int, int]:
+        data = self.spell_variants
         spell_opposite_variant: dict[int, int] = {}
         for spell_variant in data:
             first_spell_id = spell_variant.spellIds[0]
@@ -246,20 +260,12 @@ class DataReader(metaclass=Singleton):
 
 
 if __name__ == "__main__":
-
-    goujon = DataReader().item_by_id[1782]
-    goujon_kiye = DataReader().item_by_id[1790]
-
-    poisson_chaton = DataReader().item_by_id[603]
-
-    print(DataReader().gathered_item_ids)
-    # spell = DataReader().spell_by_id[spell_id]
-    # spell_lvl = DataReader().spell_lvl_by_spell_id[spell_id][0]
-    # for effect in spell_lvl.effects:
-    #     data_effect = DataReader().effect_by_id[effect.effectId]
-    #     # char = DataReader().characteristic_by_id[data_effect.characteristic]
-    #     icecream.ic(effect)
-    #     icecream.ic(data_effect)
-    #     print(I18N.name_by_id[data_effect.descriptionId])
-    #     # icecream.ic(char)
-    # print(I18N.name_by_id[spell.nameId])
+    spell_id = 12724
+    spell = DataReader().spell_by_id[spell_id]
+    spell_lvl = DataReader().spell_lvl_by_spell_id[spell_id][0]
+    for effect in spell_lvl.effects:
+        data_effect = DataReader().effect_by_id[effect.effectId]
+        icecream.ic(effect)
+        print(I18N.name_by_id[data_effect.descriptionId])
+        # icecream.ic(char)
+    print(I18N.name_by_id[spell.nameId])

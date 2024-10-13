@@ -11,6 +11,11 @@ from protos.game.fight_pb2 import (
     FightNewRoundEvent,
     FightTurnFinishRequest,
     FightTurnReadyRequest,
+    FightFighterShowEvent,
+    FightTurnEndEvent,
+    FightIsTurnReadyEvent,
+    FightTurnStartPlayingEvent,
+    FightTurnEvent,
 )
 from protos.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
@@ -33,6 +38,7 @@ from src.core.frames.frame import Frame
 class FightFrame(Frame):
 
     def __post_init__(self):
+        self.game_info_signals.disconnected.connect(self.game_state.fight.clear_state)
         self.event_manager.on(
             FightPlacementPossiblePositionsEvent,
             self.on_fight_placement_position_request,
@@ -95,17 +101,29 @@ class FightFrame(Frame):
         self.event_manager.before(
             FightTurnReadyRequest, self.before_fight_turn_ready_request, originator=self
         )
+        self.event_manager.on(
+            FightFighterShowEvent, self.on_fight_fighter_show_event, originator=self
+        )
+        self.event_manager.on(
+            FightTurnEndEvent, self.on_fight_turn_end_event, originator=self
+        )
+        self.event_manager.on(
+            FightIsTurnReadyEvent, self.on_fight_is_turn_ready_event, originator=self
+        )
+        self.event_manager.on(FightTurnEvent, self.on_fight_turn_event, originator=self)
 
     def on_fight_placement_position_request(
         self, msg: FightPlacementPossiblePositionsEvent
     ):
-        self.game_state.fight.fight_placement_possible_positions = (
+        self.game_state.fight.fight_placement_possible_positions = list(
             msg.starting_positions.challengers_positions
         )
 
     def on_context_creation_event(self, message: ContextCreationEvent):
         if message.context == ContextCreationEvent.GameContext.FIGHT:
             self.game_state.fight.in_fight = True
+        else:
+            self.game_state.fight.in_fight = False
 
     def on_fight_end_event(self, message: FightEndEvent):
         self.game_state.fight.in_fight = False
@@ -115,9 +133,10 @@ class FightFrame(Frame):
         self.game_state.fight.count_casted_by_target_by_spell_id.clear()
         self.game_state.fight.last_triggered_turn_by_spell_id.clear()
         self.game_state.fight.modifier_by_type_and_spell_id.clear()
+        self.game_state.fight.fight_placement_possible_positions.clear()
 
     def on_spells_event(self, message: SpellsEvent):
-        self.game_state.fight.spells = message.human_spells
+        self.game_state.fight.spells = list(message.human_spells)
 
     def on_spell_variant_activation_event(self, message: SpellVariantActivationEvent):
         opposite_spell_id = DataReader().spell_opposite_variant_by_spell_id[
@@ -205,3 +224,21 @@ class FightFrame(Frame):
         if self.is_playing_event.is_set():
             return None
         return msg
+
+    def on_fight_fighter_show_event(self, msg: FightFighterShowEvent):
+        if msg.information.actor_id == self.game_state.player.character_id:
+            self.game_state.fight.team = (
+                msg.information.actor_information.fighter.spawn_information.team
+            )
+
+    def on_fight_turn_start_playing_event(self, msg: FightTurnStartPlayingEvent):
+        self.game_state.fight.is_our_turn = True
+
+    def on_fight_turn_end_event(self, msg: FightTurnEndEvent):
+        self.game_state.fight.is_our_turn = False
+
+    def on_fight_is_turn_ready_event(self, msg: FightIsTurnReadyEvent):
+        self.game_state.fight.is_our_turn = False
+
+    def on_fight_turn_event(self, msg: FightTurnEvent):
+        self.game_state.fight.is_our_turn = True

@@ -16,15 +16,13 @@ from src.core.behaviors.farms.harvest.collect_behavior import (
 )
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
-from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
-    AutoTripSmartBehavior,
-)
 from src.core.behaviors.movements.edge_behavior import EdgeError
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
 from src.core.behaviors.storage.consts import USEFUL_UNLOAD
+from src.core.behaviors.storage.enter_guild_chest_behavior import EnterGuildChestError
 from src.core.behaviors.storage.unload_behavior import UnloadBehavior
 from src.core.data_center.data_reader import DataReader
 from src.core.logic.farmer.collectables import (
@@ -35,7 +33,6 @@ from src.core.logic.farmer.weight_collectables import (
     get_map_ids_to_explore,
     get_map_id_collectable_weight,
 )
-from src.core.logic.world.world_path_finder import WorldPathFinder
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 from src.exceptions import UnhandledErrorCodeException
 from src.interfaces.enums.job_enum import HARVESTER_JOB_IDS
@@ -46,8 +43,6 @@ from src.interfaces.enums.priority import PriorityEnum
 class HarvesterBehavior(Behavior):
     """random harvest in zone"""
 
-    auto_trip_smart_behavior: AutoTripSmartBehavior
-    world_path_finder: WorldPathFinder
     random_farm_behavior: RandomFarmBehavior
     collect_behavior: CollectBehavior
     fight_behavior: FightBehavior
@@ -109,7 +104,7 @@ class HarvesterBehavior(Behavior):
                 return self.run_next_step()
             raise UnhandledErrorCodeException(error_code)
         if self.game_state.map.map_id in self.map_ids_to_explore:
-            self.logger.info(f"New map explored adding to map checked")
+            self.logger.info("New map explored adding to map checked")
             self.map_ids_to_explore.remove(self.game_state.map.map_id)
             add_collectable_map_checked(self.game_state.map.map_id)
             self.random_farm_behavior.additional_weight_by_map_id.pop(
@@ -140,6 +135,8 @@ class HarvesterBehavior(Behavior):
             self.random_farm_behavior.stop()
         if self.unload_behavior.is_running.is_set():
             self.unload_behavior.stop()
+        if self.sale_hotel_prices_behavior.is_running.is_set():
+            self.sale_hotel_prices_behavior.stop()
         if self.collect_behavior.is_running.is_set():
             self.collect_behavior.stop()
         self.fight_behavior.start(callback=self.on_fight_behavior_finished, parent=self)
@@ -147,9 +144,9 @@ class HarvesterBehavior(Behavior):
     def on_fight_behavior_finished(self, error_code: str | None):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
-        self.on_fight_end()
+        self.purge_inventory()
 
-    def on_fight_end(self):
+    def purge_inventory(self):
         for object in self.game_state.inventory.objects_by_uid.values():
             # clear inventory from resource bag
             type_item = DataReader().item_by_id[object.item.gid].typeId
@@ -164,16 +161,17 @@ class HarvesterBehavior(Behavior):
 
                 self.event_manager.on(
                     ObjectDeletedEvent,
-                    lambda _: self.on_fight_end(),
+                    lambda _: self.purge_inventory(),
                     originator=self,
                     once=True,
                 )
-                self.run_timer((0.1, 0.3), lambda: self.event_manager.send(req))
-                break
-        else:
-            if self.game_state.inventory.is_full_pods:
-                return self.on_full_pods()
-            self.on_new_map()
+                return self.run_timer((0.1, 0.3), lambda: self.event_manager.send(req))
+        self.on_fight_end_after_purge()
+
+    def on_fight_end_after_purge(self):
+        if self.game_state.inventory.is_full_pods:
+            return self.on_full_pods()
+        self.on_new_map()
 
     def on_full_pods(self):
         if self.game_state.player.level < 10:
@@ -183,7 +181,7 @@ class HarvesterBehavior(Behavior):
             return self.finish()
         if (
             datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
-            > timedelta(hours=4)
+            > timedelta(hours=1, minutes=30)
         ):
             self.logger.info("Let's update prices in sale hotel")
             self.sale_hotel_prices_behavior.start(
@@ -195,7 +193,10 @@ class HarvesterBehavior(Behavior):
             )
 
     def on_sale_hotel_prices_behavior_finished(self, error_code: str | None):
-        if error_code is not None:
+        if (
+            error_code is not None
+            and error_code is not EnterGuildChestError.DOES_NOT_RESPECT_CONDITION
+        ):
             raise UnhandledErrorCodeException(error_code)
         if self.game_state.inventory.pod_percentage < USEFUL_UNLOAD:
             return self.on_new_map()

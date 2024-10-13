@@ -8,20 +8,20 @@ from src.bot import Bot
 from src.const import RESOURCE_FOLDER
 from src.gui.account_frame import AccountFrame
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
-from src.signals.shared_farm_signals import SharedFarmSignals
+from src.signals.shared_farm_signals import SharedSignals
 
 
 class MainWindow(FluentWindow):
     def __init__(
         self,
         title: str,
-        shared_farm_signals: SharedFarmSignals,
+        shared_signals: SharedSignals,
         *args,
         **kwargs,
     ) -> None:
         super().__init__(*args, **kwargs)
         self.title = title
-        self.shared_farm_signals = shared_farm_signals
+        self.shared_signals = shared_signals
         self.setWindowTitle(self.title)
         self.resize(BASE_WIDTH, BASE_HEIGHT)
         self.setWindowIcon(QIcon(os.path.join(RESOURCE_FOLDER, "logo.png")))
@@ -47,20 +47,14 @@ class MainWindow(FluentWindow):
             account.grid_signals,
             account.world_signals,
             account.log_signals,
-            self.shared_farm_signals,
+            self.shared_signals,
         )
         navigation_widget = self.addSubInterface(
             account_widget, self.disconnected_icon, login
         )
-        account.game_info_signals.character_name.connect(
-            lambda name: navigation_widget.setText(name)
-        )
-        account.game_info_signals.connected.connect(
+        account.game_info_signals.is_ready_to_play.connect(
             lambda: navigation_widget.setIcon(self.connected_icon)
         )
         account.game_info_signals.disconnected.connect(
             lambda: navigation_widget.setIcon(self.disconnected_icon)
-        )
-        account.game_info_signals.disconnected.connect(
-            lambda: navigation_widget.setText(login)
         )

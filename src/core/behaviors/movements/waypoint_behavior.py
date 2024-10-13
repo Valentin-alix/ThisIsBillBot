@@ -65,10 +65,7 @@ class WaypointBehavior(Behavior):
             raise UnhandledErrorCodeException(error_code)
         self.on_map_allowing_havre_sac(map_id)
 
-    def on_map_allowing_havre_sac(self, map_id: int, retry: int = 3):
-        if retry == 0:
-            raise UnexpectedStateException("Can't use havre sac ?")
-
+    def on_map_allowing_havre_sac(self, map_id: int):
         self.event_manager.clear_listener_by_origin_and_type(
             HavenBagFurnitureEvent, self
         )
@@ -77,8 +74,6 @@ class WaypointBehavior(Behavior):
             callback=partial(self.on_entered_havre_sac, map_id=map_id),
             originator=self,
             once=True,
-            timeout=10,
-            on_timeout=lambda: self.on_map_allowing_havre_sac(map_id, retry - 1),
         )
         req = HavenBagEnterRequest(owner=self.game_state.player.character_id)
         self.event_manager.send(req)

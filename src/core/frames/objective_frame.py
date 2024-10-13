@@ -9,6 +9,9 @@ from src.core.frames.frame import Frame
 class ObjectiveFrame(Frame):
 
     def __post_init__(self):
+        self.game_info_signals.disconnected.connect(
+            self.game_state.objective.clear_state
+        )
         self.event_manager.on(QuestsEvent, self.on_quest_event, originator=self)
         self.event_manager.on(
             AchievementsEvent,

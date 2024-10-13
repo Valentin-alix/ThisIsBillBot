@@ -124,6 +124,7 @@ class MapPoint:
 
         return DirectionsEnum(int(angle))
 
+    @cache
     def orientation_to(self, mp: "MapPoint") -> DirectionsEnum:
         if self.x == mp.x and self.y == mp.y:
             return DirectionsEnum.DOWN_RIGHT

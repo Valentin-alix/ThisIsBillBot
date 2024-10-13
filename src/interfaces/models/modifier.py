@@ -7,6 +7,6 @@ T = TypeVar("T", bound=Message)
 
 
 @dataclass
-class Modifier:
+class Modifier[T]:
     callback: Callable[[T], T | None]
     originator: object

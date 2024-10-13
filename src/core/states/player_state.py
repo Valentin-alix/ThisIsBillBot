@@ -1,6 +1,7 @@
 import dataclasses
 from dataclasses import dataclass
 from datetime import datetime
+from threading import Event
 
 from models.world_graph import Vertice
 from protos.game.character_pb2 import CharacterLifeStatusEvent
@@ -12,6 +13,7 @@ from protos.game.common_pb2 import (
 from src.core.data_center.data_reader import DataReader
 from src.core.data_center.world_graph_reader import WorldGraphReader
 from src.core.logic.grid.map_point import MapPoint
+from src.core.logic.stats.characteristic import get_stat_by_id
 from src.core.logic.world.linked_zone import get_linked_zone_rp
 from src.core.states.entity_state import EntityState
 from src.core.states.interactive_state import InteractiveState
@@ -28,7 +30,7 @@ class PlayerState(State):
     entity_state: EntityState
     interactive_state: InteractiveState
 
-    is_connected: bool = dataclasses.field(init=False, default=False)
+    is_ready_to_play_event: Event = dataclasses.field(init=False, default_factory=Event)
     life_state: CharacterLifeStatusEvent.LifeStatus = dataclasses.field(
         init=False, default=CharacterLifeStatusEvent.LifeStatus.ALIVE_AND_KICKING
     )
@@ -36,7 +38,7 @@ class PlayerState(State):
         init=False, default=None
     )
     guild_rank_id: int = dataclasses.field(init=False, default=0)
-    life_point: int = dataclasses.field(init=False, default=0)
+    life_point: int = dataclasses.field(init=False, default=1)
     max_life_point: int = dataclasses.field(init=False, default=1)
     _breed_id: int = dataclasses.field(init=False, default=0)
     _level: int = dataclasses.field(init=False, default=1)
@@ -55,30 +57,26 @@ class PlayerState(State):
     is_riding: bool = dataclasses.field(init=False, default=False)
     server_id: int = dataclasses.field(init=False, default=0)
 
-    def get_stat_by_id(self, characteristic: int) -> int:
-        stat = self.characteristic_by_id.get(characteristic)
-        if stat is None:
-            return 0
-        if stat.HasField("detailed"):
-            return (
-                stat.detailed.base
-                + stat.detailed.additional
-                + stat.detailed.objects_and_mount_bonus
-                + stat.detailed.alignment_gift_bonus
-                + stat.detailed.context_modification
-                + stat.detailed.temporary
-            )
-        elif stat.HasField("usable"):
-            return (
-                stat.usable.base
-                + stat.usable.context_modification
-                + stat.usable.additional
-                + stat.usable.objects_and_mount_bonus
-            )
-        elif stat.HasField("value"):
-            return stat.value.total
+    def clear_state(self):
+        self.is_ready_to_play_event.clear()
+        self.life_state = CharacterLifeStatusEvent.LifeStatus.ALIVE_AND_KICKING
+        self.guild_information = None
+        self.guild_rank_id = 0
+        self.life_point = 1
+        self.max_life_point = 1
+        self.breed_id = 0
+        self.level = 1
+        self.subscription_end_date = datetime(1975, 1, 1)
+        self.character_id = 0
+        self.character_name = ""
+        self.game_type = ServerType.UNDEFINED
+        self.characteristic_by_id.clear()
+        self.waypoint_map_ids.clear()
+        self.jobs_lvl_by_id.clear()
+        self.is_riding = False
 
-        return 0
+    def get_player_stat_by_id(self, characteristic: int) -> int:
+        return get_stat_by_id(self.characteristic_by_id.get(characteristic))
 
     @property
     def life_percentage(self):
@@ -190,9 +188,12 @@ class PlayerState(State):
             self.map_state.map_id, self.linked_zone_rp
         )
         if vertice is None:
-            raise ValueError(
-                f"no vertice for map {self.map_state.map_id} at {self.map_point}"
-            )
+            potential_vertices = WorldGraphReader().get_vertexes(self.map_state.map_id)
+            if len(potential_vertices) == 0:
+                raise ValueError(
+                    f"no vertice for map {self.map_state.map_id} at {self.map_point}"
+                )
+            vertice = next(iter(potential_vertices))
         return vertice
 
     @property

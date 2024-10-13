@@ -26,12 +26,19 @@ from protos.game.gamemap_pb2 import (
 from protos.game.map_confirm_response_pb2 import MapMovementConfirmResponse
 from src.core.frames.frame import Frame
 from src.core.logic.grid.map_point import MapPoint
+from src.interfaces.aliases import (
+    AIFighter,
+    MonsterFighter,
+    NamedFighterInformation,
+    EntityFighterInformation,
+)
 
 
 @dataclass
 class EntityFrame(Frame):
 
     def __post_init__(self):
+        self.game_info_signals.disconnected.connect(self.game_state.entity.clear_state)
         self.event_manager.on(
             MapComplementaryInformationEvent,
             self.on_map_complementary_info_event,
@@ -114,19 +121,47 @@ class EntityFrame(Frame):
             ].actor_information.fighter.spawn_information.team
             for summon in msg.summons.summons_by_context_information.summons:
                 summon = cast(
-                    GameActionFightEvent.Summons.SummonsByContextInformation, summon
+                    GameActionFightEvent.Summons.SummonsByContextInformation.SummonContextInformation,
+                    summon,
                 )
-                for sub_summon in summon.summons:
-                    sub_summon = cast(SpawnInformation, sub_summon)
-                    related_actor_information = ActorPositionInformation.ActorInformation(
-                        fighter=ActorPositionInformation.ActorInformation.FightFighterInformation(
-                            spawn_information=SpawnInformation(team=related_team)
+
+                entity_info = {}
+                if summon.spawn_information.HasField("monster"):
+                    entity_info["ai_fighter"] = AIFighter(
+                        monster_fighter_information=MonsterFighter(
+                            monster_gid=summon.spawn_information.monster.monster_gid,
+                            creature_grade=summon.spawn_information.monster.grade,
                         )
                     )
-                    sub_summon.position.actor_information.CopyFrom(
-                        related_actor_information
+                elif summon.spawn_information.HasField("character"):
+                    entity_info["named_fighter"] = NamedFighterInformation(
+                        name=summon.spawn_information.character.name
                     )
-                    self.game_state.entity.set_actor(sub_summon.position, True)
+                elif summon.spawn_information.HasField("companion"):
+                    entity_info["entity_fighter"] = EntityFighterInformation(
+                        entity_model_id=summon.spawn_information.companion.model_id,
+                        master_id=summon.spawn_information.companion.owner_id,
+                        level=summon.spawn_information.companion.level,
+                    )
+                for sub_summon in summon.summons:
+                    related_actor_pos_information = ActorPositionInformation(
+                        actor_information=ActorPositionInformation.ActorInformation(
+                            fighter=ActorPositionInformation.ActorInformation.FightFighterInformation(
+                                spawn_information=SpawnInformation(
+                                    team=related_team,
+                                    alive=sub_summon.alive,
+                                    position=sub_summon.position,
+                                ),
+                                **entity_info,
+                                stats=summon.characteristics,
+                            )
+                        ),
+                        actor_id=sub_summon.position.actor_id,
+                        disposition=sub_summon.position.disposition,
+                    )
+                    self.game_state.entity.set_actor(
+                        related_actor_pos_information, True
+                    )
         elif msg.HasField("slide"):
             direction = self.game_state.entity.actor_by_id[
                 msg.slide.target_id
@@ -164,12 +199,24 @@ class EntityFrame(Frame):
                 direction=target_direction,
                 actor_id=msg.teleport_on_same_map.target_id,
             )
+        elif msg.HasField("life_points_gain"):
+            self.game_state.entity.actor_fight_by_id[
+                msg.life_points_gain.target_id
+            ].life_point += msg.life_points_gain.delta
+        elif msg.HasField("life_points_lost"):
+            self.game_state.entity.actor_fight_by_id[
+                msg.life_points_lost.target_id
+            ].life_point -= msg.life_points_lost.loss
 
     def on_fight_fighter_refresh_event(self, msg: FightFighterRefreshEvent):
         self.game_state.entity.set_actor(msg.information)
 
     def on_fight_synchronize_event(self, msg: FightSynchronizeEvent):
-        self.game_state.entity.set_actors(msg.fighters)
+        for actor in msg.fighters:
+            if not actor.actor_information.fighter.spawn_information.alive:
+                self.game_state.entity.remove_actor(actor.actor_id)
+            else:
+                self.game_state.entity.set_actors(msg.fighters)
 
     def on_fight_fighter_show_event(self, msg: FightFighterShowEvent):
         self.game_state.entity.set_actor(msg.information)

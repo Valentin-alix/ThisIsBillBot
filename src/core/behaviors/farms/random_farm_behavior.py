@@ -52,7 +52,9 @@ class RandomFarmBehavior(Behavior):
         self.world_signals.reset_weight.emit()
         self.map_ids = self.get_map_ids(area_id, sub_area_id)
 
-    def run(self):
+    def run(
+        self,
+    ):
         if (
             (self.edge_path is None or len(self.edge_path) == 0)
             and self.game_state.map.map_id not in self.map_ids
@@ -136,18 +138,14 @@ class RandomFarmBehavior(Behavior):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
         LAST_VISITED_BY_MAP_ID[self.game_state.map.map_id] = datetime.now()
-        self.shared_subjects.leader_target_map_id.emit(self.game_state.map.map_id)
         self.finish(error_code)
 
     def get_next_weighted_path(self) -> list[Edge] | None:
         cached_weight_by_map_id: dict[int, float] = {}
-        path = self.weighted_path.get_best_path(
+        path = self.weighted_path.monte_carlo_path(
             self.game_state.player.curr_vertex,
-            visited_map_ids=set(),
             get_weight_by_map_id_func=self.get_weight_map_id,
             weight_by_map_id=cached_weight_by_map_id,
-            memo={},
-            current_path=[],
         )[0]
         draw_weight_on_map(cached_weight_by_map_id, self.world_signals)
         if len(path) == 0:

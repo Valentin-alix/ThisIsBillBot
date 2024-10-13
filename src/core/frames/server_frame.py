@@ -1,7 +1,11 @@
 from dataclasses import field, dataclass
 from threading import Timer
 
-from protos.connection.login_message_pb2 import SelectServerRequest
+from protos.connection.login_message_pb2 import Request
+from protos.connection.login_message_pb2 import (
+    SelectServerRequest,
+    IdentificationResponse,
+)
 from protos.game.basic_pb2 import (
     SequenceNumberEvent,
     SequenceNumberRequest,
@@ -9,7 +13,7 @@ from protos.game.basic_pb2 import (
     BasicLatencyStatsRequest,
 )
 from protos.game.character_management_pb2 import CharacterSelectionEvent
-from protos.game.connection_pb2 import PingRequest, ReloginTokenEvent
+from protos.game.connection_pb2 import PingRequest
 from src.core.frames.frame import Frame
 
 INTERVAL_HANDSHAKE = 20
@@ -21,9 +25,6 @@ class ServerFrame(Frame):
 
     def __post_init__(self):
         self.game_info_signals.disconnected.connect(self.on_disconnected)
-        self.event_manager.on(
-            ReloginTokenEvent, lambda _: self.on_disconnected(), originator=self
-        )
         self.event_manager.on(
             CharacterSelectionEvent, self.on_character_selection_event, originator=self
         )
@@ -44,11 +45,15 @@ class ServerFrame(Frame):
         self.event_manager.on(
             BasicLatencyStatsEvent, self.on_basic_latency_stats_event, originator=self
         )
+        self.event_manager.on(
+            IdentificationResponse, self.on_identification_response, originator=self
+        )
 
     def on_disconnected(self):
         if self._timer_handshake is not None:
             self._timer_handshake.cancel()
             self._timer_handshake = None
+        self.game_state.server.clear_state()
 
     def on_character_selection_event(self, msg: CharacterSelectionEvent):
         self._timer_handshake = Timer(
@@ -89,3 +94,25 @@ class ServerFrame(Frame):
             latency_average = self.game_state.server.latency_average
             req = BasicLatencyStatsRequest(latency=latency_average)
             self.event_manager.send(req)
+
+    def on_identification_response(self, msg: IdentificationResponse):
+        return
+
+        def on_timeout_select_server_request():
+            if self.game_state.player.server_id != 0 and self.is_playing_event.is_set():
+                self.logger.info("Manual select server, player is probably in fight")
+                req = Request(
+                    selectServer=SelectServerRequest(
+                        server=self.game_state.player.server_id
+                    )
+                )
+                self.event_manager.send(req)
+
+        self.event_manager.on(
+            SelectServerRequest,
+            callback=lambda _: _,
+            originator=self,
+            once=True,
+            timeout=5,
+            on_timeout=on_timeout_select_server_request,
+        )

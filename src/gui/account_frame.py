@@ -11,7 +11,7 @@ from src.signals.grid_signals import GridSignals
 from src.signals.log_signals import LogSignals
 from src.signals.message_signals import MessageInfoSignals
 from src.signals.player_signals import GameInfoSignals
-from src.signals.shared_farm_signals import SharedFarmSignals
+from src.signals.shared_farm_signals import SharedSignals
 from src.signals.world_signals import WorldSignals
 
 
@@ -27,7 +27,7 @@ class AccountFrame(QWidget):
         grid_signals: GridSignals,
         world_signals: WorldSignals,
         log_signals: LogSignals,
-        shared_farm_signals: SharedFarmSignals,
+        shared_signals: SharedSignals,
     ):
         super().__init__()
         self.login = login
@@ -58,7 +58,7 @@ class AccountFrame(QWidget):
             game_infos_signals,
             world_signals,
             farm_signals,
-            shared_farm_signals=shared_farm_signals,
+            shared_signals=shared_signals,
         )
         stacked_widget.addWidget(harvester_interface)
         sniffer_route = f"{login}_harvester"

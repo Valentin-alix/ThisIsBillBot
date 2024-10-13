@@ -1,17 +1,20 @@
 from dataclasses import dataclass
 
+from src.common.cache import cache
 from src.core.logic.grid.directions import DirectionsEnum
 from src.core.logic.grid.map_point import MapPoint, MAP_POINT_BY_COORD
 from src.core.logic.zones.zone import Zone
 
 
-@dataclass
+@dataclass(frozen=True)
 class Fork(Zone):
     size: int
 
-    def __post_init__(self):
-        self.length = self.size + 1
+    @property
+    def length(self):
+        return self.size + 1
 
+    @cache
     def get_mps(self, mp: MapPoint, direction: DirectionsEnum) -> set[MapPoint]:
         mps: set[MapPoint] = set()
         sign: int = (

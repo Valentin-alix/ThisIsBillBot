@@ -31,11 +31,14 @@ class MuleFighterBehavior(Behavior):
 
     def run(self, leader_id: int, ready_barrier: SubjectBarrier) -> None:
         self.ready_barrier = ready_barrier
-        self.event_manager.on(
-            PartyInvitationEvent,
-            partial(self.on_party_invitation_event, target_leader_id=leader_id),
-            originator=self,
-        )
+        if leader_id in self.game_state.party.party_member_by_id:
+            self.on_party_joined()
+        else:
+            self.event_manager.on(
+                PartyInvitationEvent,
+                partial(self.on_party_invitation_event, target_leader_id=leader_id),
+                originator=self,
+            )
 
     def on_party_invitation_event(
         self, msg: PartyInvitationEvent, target_leader_id: int
@@ -48,16 +51,19 @@ class MuleFighterBehavior(Behavior):
                 f"Got party invitation but {msg.to_player_id} !=  {self.game_state.player.character_id} or {msg.from_player_id} != {target_leader_id}"
             )
 
+        self.event_manager.clear_listener_by_origin_and_type(PartyInvitationEvent, self)
+
         self.event_manager.on(
             PartyJoinEvent,
-            partial(self.on_party_join_event),
+            lambda _: self.on_party_joined(),
             originator=self,
+            once=True,
         )
 
         req = PartyInvitationAcceptRequest(party_id=msg.party_id)
         self.event_manager.send(req)
 
-    def on_party_join_event(self, msg: PartyJoinEvent):
+    def on_party_joined(self):
         self.event_manager.on(
             FightAutoJoinActivationResponse,
             partial(self.on_fight_auto_join_activation_response),
@@ -103,10 +109,7 @@ class MuleFighterBehavior(Behavior):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
         if self.game_state.inventory.is_full_pods:
-            self.shared_subjects.full_pods.emit()
-            return self.unload_behavior.start(
-                parent=self, callback=self.on_unload_behavior_finished
-            )
+            return self.shared_subjects.full_pods.emit()
         self.ready_barrier.on_ready(originator=self)
 
     def on_new_target_map_id(self, map_id: int):
@@ -125,7 +128,7 @@ class MuleFighterBehavior(Behavior):
     def on_auto_trip_smart_behavior(self, error_code: str | None):
         self.logger.info("Mule has arrived !")
         if error_code is AutoTripErrorCode.PATH_NOT_FOUND:
-            self.logger.info(f"Mule is lost ?")
+            self.logger.info("Mule is lost ?")
             return self.finish()
         elif error_code is not None:
             raise UnhandledErrorCodeException(error_code)

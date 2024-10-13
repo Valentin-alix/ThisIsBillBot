@@ -6,6 +6,7 @@ from protos.game.fight_preparation_pb2 import (
     FightPlacementPositionRequest,
     FightReadyRequest,
     FightStartEvent,
+    FightPlacementSwapPositionsOfferEvent,
 )
 from src.const import ON_CHALLENGE, ON_PLAYER_MOVED
 from src.core.behaviors.behavior import Behavior
@@ -48,6 +49,8 @@ class FightPreparationBehavior(Behavior):
 
     def send_fight_placement_position(self, cell_id: int):
         if self.game_state.entity.is_entity_actor_on_cell_id(cell_id):
+            if cell_id == self.game_state.player.map_point.cell_id:
+                return self.on_player_placement_done()
             self.logger.info("Cell id is occupied, try an other cell.")
             return self.position_player()
 
@@ -57,6 +60,11 @@ class FightPreparationBehavior(Behavior):
                 self.on_entity_disposition_event,
                 requested_cell_id=cell_id,
             ),
+            originator=self,
+        )
+        self.event_manager.on(
+            FightPlacementSwapPositionsOfferEvent,
+            callback=self.on_fight_placement_swap_positions_offer_event,
             originator=self,
         )
         request = FightPlacementPositionRequest(
@@ -74,7 +82,26 @@ class FightPreparationBehavior(Behavior):
             self.event_manager.clear_listener_by_origin_and_type(
                 EntitiesDispositionEvent, self
             )
+            self.event_manager.clear_listener_by_origin_and_type(
+                FightPlacementSwapPositionsOfferEvent, self
+            )
+            if disposition.entity_id != self.game_state.player.character_id:
+                return self.position_player()
             return self.run_timer(ON_PLAYER_MOVED, self.on_player_placement_done)
+
+    def on_fight_placement_swap_positions_offer_event(
+        self, msg: FightPlacementSwapPositionsOfferEvent
+    ):
+        if msg.requester_id != self.game_state.player.character_id:
+            return
+        self.logger.info("A player is already on this cell, take an other mp")
+        self.event_manager.clear_listener_by_origin_and_type(
+            EntitiesDispositionEvent, self
+        )
+        self.event_manager.clear_listener_by_origin_and_type(
+            FightPlacementSwapPositionsOfferEvent, self
+        )
+        self.position_player()
 
     def on_player_placement_done(self):
         request = FightReadyRequest(is_ready=True)
@@ -86,7 +113,10 @@ class FightPreparationBehavior(Behavior):
         for (
             possible_cell_id
         ) in self.game_state.fight.fight_placement_possible_positions:
-            if self.game_state.entity.is_entity_actor_on_cell_id(possible_cell_id):
+            if (
+                self.game_state.player.map_point.cell_id != possible_cell_id
+                and self.game_state.entity.is_entity_actor_on_cell_id(possible_cell_id)
+            ):
                 continue
             mp_point_possible_cell = MapPoint.from_cell_id(possible_cell_id)
             near_enemy_with_dist = (

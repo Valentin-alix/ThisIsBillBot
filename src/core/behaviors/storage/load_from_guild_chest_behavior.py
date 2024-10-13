@@ -12,6 +12,7 @@ from src.core.behaviors.storage.enter_guild_chest_behavior import (
 )
 from src.core.behaviors.storage.unload_behavior import UnloadBehavior
 from src.core.data_center.data_reader import DataReader
+from src.core.data_center.i18n import I18N
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 from src.exceptions import UnhandledErrorCodeException
 
@@ -20,6 +21,13 @@ from src.exceptions import UnhandledErrorCodeException
 class LoadItemInfo:
     item_gid: int
     remaining_quantity: int
+
+    def __str__(self):
+        name = I18N.name_by_id[DataReader().item_by_id[self.item_gid].nameId]
+        return f"{name} : {self.remaining_quantity}"
+
+    def __repr__(self):
+        return self.__str__()
 
 
 @dataclass
@@ -61,12 +69,18 @@ class LoadFromGuildChestBehavior(Behavior):
         self, error_code: str | None, load_items_infos: list[LoadItemInfo]
     ):
         if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+            return self.finish(error_code=error_code, load_items_infos=load_items_infos)
         self.load_item(load_items_infos)
 
     def load_item(self, load_items_infos: list[LoadItemInfo]):
         if len(load_items_infos) == 0:
-            return self.finish(load_items_infos=load_items_infos)
+            self.event_manager.on(
+                ExchangeLeaveEvent,
+                callback=lambda _: self.finish(load_items_infos=load_items_infos),
+                originator=self,
+                once=True,
+            )
+            return self.leave_all_dialogs()
 
         load_item_info = load_items_infos[0]
         related_item = CHEST_OBJECT_BY_GID_BY_TAB[

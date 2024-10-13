@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 from PyQt5.QtWidgets import QApplication
 
+from src.common.cache import cache
 from src.core.logic.grid.directions import DirectionsEnum
 from src.core.logic.grid.map_point import MapPoint, MAP_POINT_BY_COORD
 from src.core.logic.zones.zone import Zone
@@ -18,7 +19,7 @@ from src.signals.player_signals import GameInfoSignals
 from src.signals.world_signals import MapSignals
 
 
-@dataclass
+@dataclass(frozen=True)
 class Cross(Zone):
     shape: SpellShapeEnum | None
     alternative_size: int
@@ -26,14 +27,23 @@ class Cross(Zone):
     is_diagonal: bool = False
     is_all_directions: bool = False
 
-    def __post_init__(self):
-        self.min_radius = self.alternative_size
-        self.radius = self.size
-        self.is_only_perpendicular = (
-            self.shape == SpellShapeEnum.T or self.shape == SpellShapeEnum.minus
-        )
-        self.is_diagonal = self.is_all_directions and self.is_diagonal
+    @property
+    def min_radius(self):
+        return self.alternative_size
 
+    @property
+    def radius(self):
+        return self.size
+
+    @property
+    def is_only_perpendicular(self):
+        return self.shape == SpellShapeEnum.T or self.shape == SpellShapeEnum.minus
+
+    @property
+    def is_diag_all_direction(self):
+        return self.is_diagonal and self.is_all_directions
+
+    @cache
     def get_mps(self, mp: MapPoint, direction: DirectionsEnum | None) -> set[MapPoint]:
         mps: set[MapPoint] = set()
         if self.min_radius == 0:
@@ -63,7 +73,7 @@ class Cross(Zone):
             if radius < self.min_radius:
                 continue
 
-            if not self.is_diagonal:
+            if not self.is_diag_all_direction:
                 if DirectionsEnum.DOWN_RIGHT not in disabled_directions:
                     coords.append((mp.x + radius, mp.y))
                 if DirectionsEnum.UP_LEFT not in disabled_directions:
@@ -73,7 +83,7 @@ class Cross(Zone):
                 if DirectionsEnum.DOWN_LEFT not in disabled_directions:
                     coords.append((mp.x, mp.y - radius))
 
-            if self.is_diagonal or self.is_all_directions:
+            if self.is_diag_all_direction or self.is_all_directions:
                 if DirectionsEnum.DOWN not in disabled_directions:
                     coords.append((mp.x + radius, mp.y - radius))
                 if DirectionsEnum.UP not in disabled_directions:

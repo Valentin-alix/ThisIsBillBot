@@ -60,7 +60,7 @@ class CraftPage(QWidget):
     @pyqtSlot()
     def on_click_play(self):
         recipes = self.craft_table.recipes
-        self.farm_signals.play_craft.emit(recipes)
+        self.farm_signals.play_crafter.emit(recipes)
 
     @pyqtSlot()
     def on_click_stop(self):
