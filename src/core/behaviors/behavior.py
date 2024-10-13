@@ -74,7 +74,7 @@ class Behavior(ABC):
         with self.event_manager.lock:
             if not self.is_running.is_set():
                 return self.logger.warning(
-                    f"behavior {self.__class__} is not running anymore, don't stop"
+                    f"behavior {self.__class__} with parent {self.parent.__class__ if self.parent else None} is not running anymore, don't stop"
                 )
             self.logger.info(f"Stopping {self.__class__}")
             self.is_running.clear()

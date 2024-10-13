@@ -5,7 +5,7 @@ from typing import Callable
 from d3_mapping.resources.protos.game.fight_pb2 import (
     FightIsTurnReadyEvent,
     FightTurnEndEvent,
-    FightTurnReadyRequest,
+    FightTurnFinishRequest,
 )
 
 from src.const import (
@@ -92,6 +92,7 @@ class FightTurnBehavior(Behavior):
             # cell is probably taken by invisible enemy
             return self.finish()
         elif error_code is not None:
+            return self.finish()
             raise UnhandledErrorCodeException(error_code)
 
         self.run_timer(ON_PLAYER_MOVED, callback)
@@ -103,5 +104,5 @@ class FightTurnBehavior(Behavior):
         self.run_timer(ON_PLAYED_SPELL, self.find_and_do_attack)
 
     def pass_turn(self):
-        req = FightTurnReadyRequest()
+        req = FightTurnFinishRequest()
         self.event_manager.send(req)

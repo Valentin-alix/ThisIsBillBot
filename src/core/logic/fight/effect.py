@@ -63,7 +63,6 @@ def is_included_by_mask(
     caster_team: Team,
     masks: list[str],
     target_actor: ActorPositionInformation,
-    is_summoned_target: bool,
 ):
     if target_actor.actor_id == caster_id:
         if any(char in masks for char in ("c", "C", "a")):
@@ -72,6 +71,8 @@ def is_included_by_mask(
     is_same_team = (
         caster_team == target_actor.actor_information.fighter.spawn_information.team
     )
+
+    is_summoned_target = False
 
     conditions = {
         "A": lambda: not is_same_team,

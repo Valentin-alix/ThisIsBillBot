@@ -6,6 +6,9 @@ from pathlib import Path
 from google.protobuf.message import Message
 
 from d3_mapping.resources.protos.game.challenge_pb2 import ChallengeModSelectRequest
+from d3_mapping.resources.protos.game.character_management_pb2 import (
+    CharacterSelectionEvent,
+)
 from d3_mapping.resources.protos.game.character_pb2 import (
     CharacterCharacteristicsEvent,
     CharacterLifeStatusEvent,
@@ -15,15 +18,25 @@ from d3_mapping.resources.protos.game.context_pb2 import (
     ContextRemoveElementEvent,
     EntitiesDispositionEvent,
 )
-from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
+from d3_mapping.resources.protos.game.dialog_pb2 import (
+    DialogLeaveEvent,
+    DialogLeaveRequest,
+)
 from d3_mapping.resources.protos.game.exchange_pb2 import (
+    ExchangeBidHouseItemAddedEvent,
+    ExchangeBidHouseItemRemovedEvent,
+    ExchangeBidHouseSearchRequest,
+    ExchangeBidPriceEvent,
+    ExchangeBidSellerStartedEvent,
     ExchangeStartedWithMultiTabStorageEvent,
+    ObjectAveragePricesEvent,
 )
 from d3_mapping.resources.protos.game.fight_pb2 import (
     FightEndEvent,
+    FightFighterRefreshEvent,
     FightFighterShowEvent,
     FightIsTurnReadyEvent,
-    FightNewRoundEvent,
+    FightRefreshCharacterStatsEvent,
     FightSynchronizeEvent,
     FightTurnEndEvent,
     FightTurnEvent,
@@ -33,22 +46,34 @@ from d3_mapping.resources.protos.game.fight_pb2 import (
 from d3_mapping.resources.protos.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
     FightStartingEvent,
-    FightTeamUpdateEvent,
 )
-from d3_mapping.resources.protos.game.game_action_pb2 import GameActionFightEvent
+from d3_mapping.resources.protos.game.game_action_pb2 import (
+    GameActionAcknowledgementRequest,
+    GameActionFightEvent,
+    SequenceEndEvent,
+)
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
     FightMapInformationEvent,
     GameRolePlayShowActorsEvent,
+    MapChangeRequest,
     MapComplementaryInformationEvent,
     MapCurrentEvent,
     MapMovementConfirmRequest,
+    MapMovementConfirmResponse,
     MapMovementEvent,
     MapMovementRefusedEvent,
     MapTeleportOnSameEvent,
 )
+from d3_mapping.resources.protos.game.haven_bag_pb2 import (
+    HavenBagEnterRequest,
+    HavenBagFurnitureEvent,
+)
 from d3_mapping.resources.protos.game.interactive_element_pb2 import (
     InteractiveElementUpdatedEvent,
     InteractiveMapUpdateEvent,
+    InteractiveUseErrorEvent,
+    InteractiveUseRequest,
+    InteractiveUsedEvent,
     StatedElementUpdatedEvent,
     StatedMapUpdateEvent,
 )
@@ -62,10 +87,10 @@ from d3_mapping.resources.protos.game.inventory_pb2 import (
     ObjectsDeletedEvent,
     ObjectsQuantityEvent,
 )
-from d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
 from d3_mapping.resources.protos.game.spell_pb2 import (
     SpellsEvent,
 )
+from d3_mapping.resources.protos.game.teleportation_pb2 import ZaapKnownListEvent
 
 DEBUG = True
 
@@ -82,7 +107,7 @@ MIN_DATE = datetime.datetime(datetime.MINYEAR, 1, 1)
 FAKE_INFINITY_VALUE = 99999
 
 # Waiting times timing
-VERY_SMALL_RANGE = (0.1, 0.3)
+VERY_SMALL_RANGE = (0.2, 0.4)
 SMALL_RANGE = (0.3, 1)
 BASE_RANGE = (0.5, 1.5)
 ON_NEW_MAP_BEFORE_ACTION = (0.5, 4.5)
@@ -102,48 +127,66 @@ ON_CHALLENGE = VERY_SMALL_RANGE
 BETWEEN_REPLY = BASE_RANGE
 
 
+# below msgs are needed msg
 NEEDED_MSG_MAPPING: list[type[Message]] = [
-    MapComplementaryInformationEvent,
-    MapMovementConfirmRequest,
-    MapCurrentEvent,
-    MapMovementEvent,
-    MapTeleportOnSameEvent,
-    MapMovementRefusedEvent,
-    ContextRemoveElementEvent,
-    ContextCreationEvent,
-    GameRolePlayShowActorsEvent,
-    EntitiesDispositionEvent,
-    InteractiveMapUpdateEvent,
-    InteractiveElementUpdatedEvent,
-    StatedMapUpdateEvent,
-    StatedElementUpdatedEvent,
-    GameActionFightEvent,
-    FightTeamUpdateEvent,
-    FightSynchronizeEvent,
-    FightFighterShowEvent,
-    FightPlacementPossiblePositionsEvent,
-    FightEndEvent,
-    FightStartingEvent,
-    FightNewRoundEvent,
-    FightIsTurnReadyEvent,
-    FightTurnEvent,
-    FightTurnReadyRequest,
-    FightTurnFinishRequest,
-    FightTurnEndEvent,
-    FightMapInformationEvent,
     ChallengeModSelectRequest,
-    SpellsEvent,
     CharacterCharacteristicsEvent,
-    CharacterLifeStatusEvent,
+    CharacterLifeStatusEvent,  # for phenix
+    CharacterSelectionEvent,
+    ContextCreationEvent,
+    ContextRemoveElementEvent,
+    DialogLeaveEvent,
+    DialogLeaveRequest,
+    EntitiesDispositionEvent,
+    ExchangeBidHouseItemAddedEvent,
+    ExchangeBidHouseItemRemovedEvent,
+    ExchangeBidHouseSearchRequest,
+    ExchangeBidPriceEvent,
+    ExchangeBidSellerStartedEvent,
     ExchangeStartedWithMultiTabStorageEvent,
-    InventoryWeightEvent,
+    FightEndEvent,
+    FightFighterRefreshEvent,
+    FightFighterShowEvent,
+    FightIsTurnReadyEvent,
+    FightMapInformationEvent,
+    FightPlacementPossiblePositionsEvent,
+    FightRefreshCharacterStatsEvent,
+    FightStartingEvent,
+    FightSynchronizeEvent,
+    FightTurnEndEvent,
+    FightTurnEvent,
+    FightTurnFinishRequest,
+    FightTurnReadyRequest,
+    GameActionAcknowledgementRequest,
+    GameActionFightEvent,
+    GameRolePlayShowActorsEvent,
+    HavenBagEnterRequest,
+    HavenBagFurnitureEvent,
+    InteractiveElementUpdatedEvent,
+    InteractiveMapUpdateEvent,
+    InteractiveUseErrorEvent,
+    InteractiveUsedEvent,
+    InteractiveUseRequest,
     InventoryContentEvent,
-    ObjectsDeletedEvent,
+    InventoryWeightEvent,
+    MapChangeRequest,
+    MapComplementaryInformationEvent,
+    MapCurrentEvent,
+    MapMovementConfirmRequest,
+    MapMovementConfirmResponse,
+    MapMovementEvent,
+    MapMovementRefusedEvent,
+    MapTeleportOnSameEvent,
+    ObjectAddedEvent,
+    ObjectAveragePricesEvent,
     ObjectDeletedEvent,
     ObjectQuantityEvent,
-    ObjectsQuantityEvent,
-    ObjectAddedEvent,
     ObjectsAddedEvent,
-    DialogLeaveRequest,
-    JobExperiencesUpdateEvent,
+    ObjectsDeletedEvent,
+    ObjectsQuantityEvent,
+    SequenceEndEvent,
+    SpellsEvent,
+    StatedElementUpdatedEvent,
+    StatedMapUpdateEvent,
+    ZaapKnownListEvent,
 ]

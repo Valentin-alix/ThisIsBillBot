@@ -19,7 +19,6 @@ def get_max_range_spell(
     else:
         range = spell_lvl.range
 
-    # [580, 596, 581, 585]
     if (spell_lvl.m_flags & 64) != 0:
         return range + stat_po
 

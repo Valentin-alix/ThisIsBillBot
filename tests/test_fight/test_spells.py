@@ -1,4 +1,5 @@
 from data_center.data_reader import DataReader
+from data_center.i18n import I18N
 from src.core.logic.fight.effect import (
     get_life_point_percent_malus,
     get_effect_shield_level_bonus,
@@ -12,6 +13,11 @@ class TestSpells(GameStateFixture):
         spell_lvl = DataReader().spell_lvl_by_spell_id[spell_id][0]
         life_point_malus = get_life_point_percent_malus(1000, spell_lvl.effects[0])
         assert life_point_malus == 100
+
+    def test_los_spell(self):
+        spell_id = 12728
+        spell_data = DataReader().spell_by_id[spell_id]
+        print(I18N.name_by_id[spell_data.nameId])
 
     def test_bonus_shield(self):
         level = 100

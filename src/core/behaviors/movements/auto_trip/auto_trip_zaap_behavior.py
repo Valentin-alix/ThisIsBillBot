@@ -35,6 +35,7 @@ class AutoTripZaapBehavior(Behavior):
             or self.game_state.player.level < 10
             or DataReader().sub_area_by_id[self.game_state.map.sub_area_id].areaId
             == AreaEnum.INCARNAM
+            or self.game_state.inventory.kamas < 10_000
         ):
             self.logger.info("Can't use zaap, walk to dst")
             return self.auto_trip_behavior.start(

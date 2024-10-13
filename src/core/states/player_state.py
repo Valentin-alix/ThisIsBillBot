@@ -45,7 +45,6 @@ class PlayerState(State):
     )
     waypoint_map_ids: list[int] = dataclasses.field(init=False, default_factory=list)
     jobs_lvl_by_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict)
-    server_id: int = dataclasses.field(init=False, default=0)
 
     def clear_state(self):
         self.is_ready_to_play_event.clear()

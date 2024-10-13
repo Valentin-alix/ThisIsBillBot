@@ -57,7 +57,9 @@ class FightMovementBehavior(Behavior):
     def find_near_enemy_with_dist(
         self, start: MapPoint
     ) -> tuple[ActorPositionInformation, MovementPath, float] | None:
-        enemies = self.game_state.entity.get_enemies()
+        enemies = self.game_state.entity.get_enemies(
+            self.game_state.player.character_id
+        )
         if len(enemies) == 0:
             return None
 
@@ -106,7 +108,9 @@ class FightMovementBehavior(Behavior):
         }
         enemies_mp = {
             MapPoint.from_cell_id(enemy.disposition.cell_id)
-            for enemy in self.game_state.entity.get_enemies()
+            for enemy in self.game_state.entity.get_enemies(
+                self.game_state.player.character_id
+            )
         }
 
         self.logger.info(f"enemies mp : {enemies_mp}")

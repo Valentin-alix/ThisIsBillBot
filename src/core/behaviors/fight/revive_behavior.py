@@ -94,6 +94,7 @@ class ReviveBehavior(Behavior):
         ref_data = MapReader().get_ref_data_by_element_id(self.game_state.map.map_id)[
             phoenix_element.element_id
         ]
+        assert ref_data.cellId is not None
         move_path = self.path_finding.get_interactive_near_path(
             self.game_state.player.map_point,
             MapPoint.from_cell_id(ref_data.cellId),

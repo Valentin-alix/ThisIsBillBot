@@ -9,6 +9,8 @@ CHEST_OBJECT_BY_GID_BY_TAB: dict[int, dict[int, ObjectItemInventory]] = {}
 @dataclasses.dataclass
 class GuildChestState(State):
     tab_number: int = dataclasses.field(init=False, default=1)
+    tabs: list[int] = dataclasses.field(init=False, default_factory=list)
 
     def clear_state(self):
         self.tab_number = 1
+        self.tabs.clear()

@@ -9,6 +9,10 @@ from src.signals.player_signals import GameInfoSignals
 @dataclass
 class InventoryState(State):
     game_info_signals: GameInfoSignals
+    kamas: int = dataclasses.field(init=False, default=0)
+    bank_object_by_gid: dict[int, ObjectItemInventory] = dataclasses.field(
+        init=False, default_factory=dict
+    )
     _inventory_weight: int = dataclasses.field(init=False, default=0)
     _weight_max: int = dataclasses.field(init=False, default=1)
     objects_by_uid: dict[int, ObjectItemInventory] = dataclasses.field(
@@ -18,6 +22,7 @@ class InventoryState(State):
     def clear_state(self):
         self.inventory_weight = 0
         self.weight_max = 1
+        self.kamas = 0
         self.objects_by_uid.clear()
 
     @property

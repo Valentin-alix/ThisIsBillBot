@@ -39,18 +39,10 @@ def main() -> None:
 
     for bot in bot_manager.bot_by_account_id.values():
         ...
-        # if bot.account["apikey"]["login"] == "ezrealeu44700_1@outlook.com":
-        #     bot.bot_signals.play_harvester.emit(8, None)
-        # elif bot.account["apikey"]["login"] == "ezrealeu44700_2@outlook.com":
-        #     bot.bot_signals.play_harvester.emit(48, None)
-        # elif bot.account["apikey"]["login"] == "ezrealeu44700_3@outlook.com":
-        #     bot.bot_signals.play_harvester.emit(46, None)
-        # elif bot.account["apikey"]["login"] == "ezrealeu44700_4@outlook.com":
-        #     bot.bot_signals.play_harvester.emit(78, None)
-        # elif bot.account["apikey"]["login"] == "ezrealeu44700_1+s1@outlook.com":
-        #     bot.bot_signals.play_harvester.emit(28, None)
-        # elif bot.account["apikey"]["login"] == "ezrealeu44700_1+s2@outlook.com":
-        #     bot.bot_signals.play_harvester.emit(0, None)
+        # elif bot.account["apikey"]["login"] == "ezrealeu44700_2+s7@outlook.com":
+        #     bot.bot_signals.play_harvester.emit(18, None)
+        # elif bot.account["apikey"]["login"] == "ezrealeu44700_2+s8@outlook.com":
+        #     bot.bot_signals.play_harvester.emit(18, None)
 
     app.exec()
 

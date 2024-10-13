@@ -35,7 +35,6 @@ from grid.directions import DirectionsEnum
 from grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.core.states.game_state import GameState
-from src.interfaces.aliases import MonsterFighter
 from src.interfaces.enums.characteristic_enum import CharacteristicEnum
 from src.interfaces.enums.effect_element import TypeEffect
 from src.interfaces.enums.spell_shape_enum import SpellShapeEnum
@@ -69,12 +68,7 @@ class Attacker:
             if spell_lvl.initialCooldown != 0:
                 continue
 
-            last_triggered_turn = (
-                self.game_state.fight.last_triggered_turn_by_spell_id.get(
-                    spell_lvl.spellId, None
-                )
-            )
-            if spell_lvl.globalCooldown != 0 and last_triggered_turn is not None:
+            if spell_lvl.globalCooldown != 0:
                 continue
 
             max_cast_per_turn = get_spell_max_cast_per_turn(
@@ -83,16 +77,13 @@ class Attacker:
                     (spell_lvl.spellId, SpellModifierType.MAX_CAST_PER_TURN)
                 ),
             )
-            count_casted_by_target_by_spell_id = (
-                self.game_state.fight.count_casted_by_target_by_spell_id.get(
-                    spell_lvl.spellId
-                )
+            count_casted = self.game_state.fight.count_casted_by_spell_id.get(
+                spell_lvl.spellId
             )
             if (
-                count_casted_by_target_by_spell_id is not None
+                count_casted is not None
                 and max_cast_per_turn != 0
-                and max_cast_per_turn
-                <= sum(count_casted_by_target_by_spell_id.values())
+                and max_cast_per_turn <= count_casted
             ):
                 continue
             valid_spell_levels.append((spell_lvl, effect))
@@ -111,7 +102,9 @@ class Attacker:
             if actor.disposition.cell_id != -1
         }
         entities_mp = set(entities_id_by_mp)
-        enemies = self.game_state.entity.get_enemies()
+        enemies = self.game_state.entity.get_enemies(
+            self.game_state.player.character_id
+        )
         enemies_mp = {
             MapPoint.from_cell_id(enemy.disposition.cell_id) for enemy in enemies
         }
@@ -247,17 +240,15 @@ class Attacker:
                 )
             ),
         )
-        count_casted_by_target_id = (
-            self.game_state.fight.count_casted_by_target_by_spell_id.get(
-                spell_lvl.spellId
-            )
+        count_casted = self.game_state.fight.count_casted_by_spell_id.get(
+            spell_lvl.spellId
         )
         entity_id = entities_id_by_mp.get(mp)
         if (
-            count_casted_by_target_id is not None
+            count_casted is not None
             and entity_id is not None
             and max_cast_per_target != 0
-            and max_cast_per_target <= count_casted_by_target_id.get(entity_id, 0)
+            and max_cast_per_target <= count_casted
         ):
             return False
 
@@ -319,7 +310,7 @@ class Attacker:
 
         dmg_weight_spell *= (bonus) / malus
 
-        return dmg_weight_spell
+        return dmg_weight_spell / spell_ap_cost
 
     def get_weight_dmg_and_life_thieft_effect(
         self,
@@ -329,33 +320,18 @@ class Attacker:
         enemies: list[ActorPositionInformation],
         description_effect: str,
     ) -> tuple[float, float]:
-        enemy_killed: int = 0
-        enemy_dmg_weight: float = 0
         enemy_total_dmg: float = 0
-        enemy_dmg_summoned_weight: float = 0
         for enemy in enemies:
             enemy_mp = MapPoint.from_cell_id(enemy.disposition.cell_id)
             if enemy_mp not in impact_mps:
                 continue
-            actor_fight = self.game_state.entity.actor_fight_by_id[enemy.actor_id]
             if not is_included_by_mask(
                 caster_id=self.game_state.player.character_id,
                 caster_team=Team.TEAM_DEFENDER,
                 masks=effect.targetMask.split(","),
                 target_actor=enemy,
-                is_summoned_target=actor_fight.is_summoned,
             ):
                 continue
-            monster_info: MonsterFighter = (
-                enemy.actor_information.fighter.ai_fighter.monster_fighter_information
-            )
-            monster_id, monster_grade = (
-                monster_info.monster_gid,
-                monster_info.creature_grade,
-            )
-            monster = DataReader().monsters_by_id[monster_id]
-            monster_grade = monster.grades[monster_grade - 1]
-
             decrease_by_dist_percent = (
                 min(
                     effect.zoneDescr.damageDecreaseStepPercent
@@ -364,30 +340,14 @@ class Attacker:
                 )
                 / 100
             )
-            dmg: float = self.damage_calculator.get_damage_effect(
-                effect, monster_grade
-            ) * (1 - decrease_by_dist_percent)
+            dmg: float = self.damage_calculator.get_damage_effect(effect) * (
+                1 - decrease_by_dist_percent
+            )
             enemy_total_dmg += dmg
-            if actor_fight.life_point - dmg <= 0:
-                enemy_killed += 1
-            if actor_fight.is_summoned:
-                enemy_dmg_summoned_weight += dmg / (
-                    actor_fight.life_point / monster_grade.lifePoints
-                )
-            else:
-                enemy_dmg_weight += dmg / (
-                    actor_fight.life_point / monster_grade.lifePoints
-                )
-
-        NEGATIVE_COEFF_SUMMONED = 4
-
-        dmg_weight = (
-            enemy_dmg_weight + enemy_dmg_summoned_weight / NEGATIVE_COEFF_SUMMONED
-        ) * (1 + enemy_killed)
 
         if "vol" in description_effect:
             thieft_life: float = enemy_total_dmg
         else:
             thieft_life = 0
 
-        return dmg_weight, thieft_life
+        return enemy_total_dmg, thieft_life

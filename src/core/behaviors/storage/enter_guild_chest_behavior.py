@@ -2,9 +2,8 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from typing import cast
 
-from d3_mapping.resources.protos.game.guild_chest_pb2 import (
-    GuildChestCurrentListenersAddEvent,
-)
+from d3_mapping.resources.protos.game.inventory_pb2 import StorageInventoryContentEvent
+from src.const import VERY_SMALL_RANGE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
@@ -71,13 +70,11 @@ class EnterGuildChestBehavior(Behavior):
             raise UnhandledErrorCodeException(error_code)
 
         self.event_manager.on(
-            GuildChestCurrentListenersAddEvent,
-            self.on_guild_chest_current_listeners_add_event,
+            StorageInventoryContentEvent,
+            self.on_storage_inventory_content_event,
             originator=self,
             once=True,
         )
 
-    def on_guild_chest_current_listeners_add_event(
-        self, msg: GuildChestCurrentListenersAddEvent
-    ):
-        self.finish()
+    def on_storage_inventory_content_event(self, msg: StorageInventoryContentEvent):
+        self.run_timer(VERY_SMALL_RANGE, self.finish)

@@ -1,9 +1,6 @@
 from dataclasses import dataclass, field
 from threading import Timer
 
-from d3_mapping.resources.protos.connection.login_message_pb2 import (
-    SelectServerRequest,
-)
 from d3_mapping.resources.protos.game.character_management_pb2 import (
     CharacterSelectionEvent,
 )
@@ -22,9 +19,6 @@ class ServerFrame(Frame):
         self.game_info_signals.disconnected.connect(self.on_disconnected)
         self.event_manager.on(
             CharacterSelectionEvent, self.on_character_selection_event, originator=self
-        )
-        self.event_manager.on(
-            SelectServerRequest, self.on_select_server_request, originator=self
         )
 
     def on_disconnected(self):
@@ -46,6 +40,3 @@ class ServerFrame(Frame):
             interval=INTERVAL_HANDSHAKE, function=self.handle_handshake
         )
         self._timer_handshake.start()
-
-    def on_select_server_request(self, msg: SelectServerRequest):
-        self.game_state.player.server_id = msg.server

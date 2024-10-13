@@ -23,6 +23,8 @@ pywin32 = "^308"
 pywin32-stubs = "^1.0.7"
 mypy = "^1.15.0"
 proto-schema-parser = "^1.4.8"
+frida = "^16.7.3"
+frida-tools = "^13.6.1"
 
 [tool.poetry.group.dev.dependencies]
 pyqt5-stubs = "^5.15.6.0"

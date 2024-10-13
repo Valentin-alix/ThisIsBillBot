@@ -8,7 +8,6 @@ from d3_mapping.resources.protos.game.gamemap_pb2 import (
 )
 from d3_mapping.resources.protos.game.haven_bag_pb2 import (
     HavenBagEnterRequest,
-    HavenBagFurnitureEvent,
 )
 from d3_mapping.resources.protos.game.teleportation_pb2 import (
     TeleportRequest,
@@ -72,10 +71,10 @@ class WaypointBehavior(Behavior):
 
     def on_map_allowing_havre_sac(self, map_id: int):
         self.event_manager.clear_listener_by_origin_and_type(
-            HavenBagFurnitureEvent, self
+            MapComplementaryInformationEvent, self
         )
         self.event_manager.on(
-            HavenBagFurnitureEvent,
+            MapComplementaryInformationEvent,
             callback=partial(self.on_entered_havre_sac, map_id=map_id),
             originator=self,
             once=True,
@@ -83,7 +82,7 @@ class WaypointBehavior(Behavior):
         req = HavenBagEnterRequest(owner=self.game_state.player.character_id)
         self.event_manager.send(req)
 
-    def on_entered_havre_sac(self, msg: HavenBagFurnitureEvent, map_id: int):
+    def on_entered_havre_sac(self, msg: MapComplementaryInformationEvent, map_id: int):
         self.go_and_use_waypoint(map_id)
 
     def go_and_use_waypoint(self, map_id: int):

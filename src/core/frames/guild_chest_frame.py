@@ -5,6 +5,7 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeLeaveEvent,
 )
 from d3_mapping.resources.protos.game.inventory_pb2 import (
+    MultiTabStorageEvent,
     StorageInventoryContentEvent,
     StorageObjectUpdateEvent,
     StorageObjectRemovedEvent,
@@ -24,6 +25,12 @@ class GuildChestFrame(Frame):
             self.on_exchange_started_with_multi_tab_storage_event,
             originator=self,
         )
+        self.event_manager.on(
+            MultiTabStorageEvent, self.on_multi_tab_storage_event, originator=self
+        )
+
+    def on_multi_tab_storage_event(self, msg: MultiTabStorageEvent):
+        self.game_state.guild_chest.tabs = [tab.tab_number for tab in msg.tabs]
 
     def on_exchange_started_with_multi_tab_storage_event(
         self, msg: ExchangeStartedWithMultiTabStorageEvent
@@ -79,7 +86,7 @@ class GuildChestFrame(Frame):
             None,
         )
         if not related_gid:
-            return self.logger.info("Did not found related git in chest, skip.")
+            return self.logger.info("Did not found related gid in chest, skip.")
 
         CHEST_OBJECT_BY_GID_BY_TAB[self.game_state.guild_chest.tab_number].pop(
             related_gid
@@ -91,4 +98,7 @@ class GuildChestFrame(Frame):
         )
         self.event_manager.clear_listener_by_origin_and_type(
             StorageObjectUpdateEvent, self
+        )
+        self.event_manager.clear_listener_by_origin_and_type(
+            StorageInventoryContentEvent, self
         )

@@ -33,11 +33,8 @@ class FightState(State):
     modifier_by_type_and_spell_id: dict[
         tuple[int, SpellModifierType], SpellModifier
     ] = dataclasses.field(init=False, default_factory=dict)
-    count_casted_by_target_by_spell_id: dict[int, dict[int, int]] = dataclasses.field(
-        default_factory=lambda: defaultdict(lambda: defaultdict(int)), init=False
-    )
-    last_triggered_turn_by_spell_id: dict[int, int] = dataclasses.field(
-        default_factory=dict, init=False
+    count_casted_by_spell_id: dict[int, int] = dataclasses.field(
+        default_factory=lambda: defaultdict(int), init=False
     )
     _in_fight: bool = dataclasses.field(init=False, default=False)
     _fight_turn: int = dataclasses.field(init=False, default=0)
@@ -49,8 +46,7 @@ class FightState(State):
         self.challenge_mod = ChallengeMod.CHALLENGE_CHOICE
         self.spells.clear()
         self.modifier_by_type_and_spell_id.clear()
-        self.count_casted_by_target_by_spell_id.clear()
-        self.last_triggered_turn_by_spell_id.clear()
+        self.count_casted_by_spell_id.clear()
         self.in_fight = False
 
     @property

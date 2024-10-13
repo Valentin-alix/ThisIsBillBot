@@ -18,6 +18,7 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeObjectMovePricedRequest,
 )
 from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
+from data_center.data_reader import DataReader
 from src.const import VERY_SMALL_RANGE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
@@ -27,6 +28,8 @@ from src.core.behaviors.storage.consts import (
     GATHERER_ITEM_GIDS,
     GATHERER_ITEM_TABS,
 )
+from src.core.behaviors.storage.enter_guild_chest_behavior import EnterGuildChestError
+from src.core.behaviors.storage.load_from_bank_behavior import LoadFromBankBehavior
 from src.core.behaviors.storage.load_from_guild_chest_behavior import (
     LoadFromGuildChestBehavior,
     LoadItemInfo,
@@ -42,15 +45,22 @@ from src.exceptions import UnhandledErrorCodeException, UnexpectedStateException
 class SaleHotelPricesBehavior(Behavior):
     enter_sale_hotel_sell_behavior: EnterSaleHotelSellBehavior
     load_from_guild_chest_behavior: LoadFromGuildChestBehavior
+    load_from_bank_behavior: LoadFromBankBehavior
 
     def run(self) -> None:
         self.game_state.sale_hotel.last_time_updated_prices = datetime.datetime.now()
 
+        if self.game_state.inventory.kamas < 10_000:
+            return self.finish()
+
         gatherer_object_tab = CHEST_OBJECT_BY_GID_BY_TAB.get(GATHERER_ITEM_TABS)
-        item_gids_to_sell = [item_gid for item_gid in GATHERER_ITEM_GIDS]
-        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid_by_server()[
-            self.game_state.player.server_id
+        item_gids_to_sell = [
+            item_gid
+            for item_gid in GATHERER_ITEM_GIDS
+            if self.game_state.player.is_sub
+            or (DataReader().item_by_id[item_gid].level or 200) <= 60
         ]
+        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
 
         item_gids_to_sell.sort(
             key=lambda item_gid: random.random()
@@ -63,10 +73,7 @@ class SaleHotelPricesBehavior(Behavior):
         # get sum quantity of item already in sale hotel by gid
         item_sell_quantity_by_gid: dict[int, int] = defaultdict(int)
         for quantity_by_uid in (
-            SaleHotelController()
-            .get_hdv_by_uid_by_player_by_server()
-            .get(self.game_state.player.server_id, {})
-            .values()
+            SaleHotelController().get_hdv_by_uid_by_player().values()
         ):
             for gid, quantity in quantity_by_uid.values():
                 item_sell_quantity_by_gid[gid] += quantity
@@ -76,7 +83,7 @@ class SaleHotelPricesBehavior(Behavior):
             load_item_info = LoadItemInfo(
                 item_gid=item_gid,
                 remaining_quantity=max(
-                    4000 - item_sell_quantity_by_gid.get(item_gid, 0), 0
+                    7000 - item_sell_quantity_by_gid.get(item_gid, 0), 0
                 ),
             )
             load_items_infos.append(load_item_info)
@@ -98,8 +105,33 @@ class SaleHotelPricesBehavior(Behavior):
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
     ):
+        if error_code is EnterGuildChestError.DOES_NOT_RESPECT_CONDITION:
+            return self.load_from_bank_behavior.start(
+                load_items_infos=load_items_infos,
+                parent=self,
+                callback=partial(
+                    self.on_loaded_from_bank_behavior_finished,
+                    load_items_infos=load_items_infos,
+                    item_ids_to_sell=item_ids_to_sell,
+                ),
+            )
+        elif error_code is not None:
+            return self.finish(error_code)
+        self.on_loaded_finished(load_items_infos, item_ids_to_sell)
+
+    def on_loaded_from_bank_behavior_finished(
+        self,
+        error_code: str | None,
+        load_items_infos: list[LoadItemInfo],
+        item_ids_to_sell: list[int],
+    ):
         if error_code is not None:
             return self.finish(error_code)
+        self.on_loaded_finished(load_items_infos, item_ids_to_sell)
+
+    def on_loaded_finished(
+        self, load_items_infos: list[LoadItemInfo], item_ids_to_sell: list[int]
+    ):
         self.enter_sale_hotel_sell_behavior.start(
             callback=partial(
                 self.on_enter_sale_hotel_sell_behavior_finished,
@@ -280,8 +312,7 @@ class SaleHotelPricesBehavior(Behavior):
             raise UnexpectedStateException("we should have bid seller infos")
         count_item_in_sale = len(
             SaleHotelController()
-            .get_hdv_by_uid_by_player_by_server()
-            .get(self.game_state.player.server_id, {})
+            .get_hdv_by_uid_by_player()
             .get(self.game_state.player.character_id, {})
         )
         self.logger.info(
@@ -404,8 +435,7 @@ class SaleHotelPricesBehavior(Behavior):
             if (
                 item.item.uid
                 not in SaleHotelController()
-                .get_hdv_by_uid_by_player_by_server()
-                .get(self.game_state.player.server_id, {})
+                .get_hdv_by_uid_by_player()
                 .get(self.game_state.player.character_id, {})
             ):
                 self.logger.info(

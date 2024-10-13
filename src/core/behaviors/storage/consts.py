@@ -45,6 +45,7 @@ GATHERER_ITEM_GIDS: set[int] = {
     harvestable
     for sub_area in DataReader().sub_area_by_id.values()
     for harvestable in sub_area.harvestables
+    if harvestable in DataReader().item_by_id
 } | {
     311  # water
 }

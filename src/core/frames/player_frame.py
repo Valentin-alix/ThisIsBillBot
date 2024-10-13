@@ -4,7 +4,6 @@ from datetime import datetime
 from d3_mapping.resources.protos.connection.login_message_pb2 import (
     IdentificationResponse,
 )
-from d3_mapping.resources.protos.game.account_pb2 import AccountInformationUpdateEvent
 from d3_mapping.resources.protos.game.character_management_pb2 import (
     CharacterSelectionEvent,
 )
@@ -45,11 +44,6 @@ class PlayerFrame(Frame):
         self.event_manager.on(
             IdentificationResponse,
             self.on_identification_response,
-            originator=self,
-        )
-        self.event_manager.on(
-            AccountInformationUpdateEvent,
-            self.on_account_information_update_event,
             originator=self,
         )
         self.event_manager.on(
@@ -133,11 +127,6 @@ class PlayerFrame(Frame):
     ):
         for stat in message.stats.characteristics:
             self.game_state.player.characteristic_by_id[stat.characteristic_id] = stat
-
-    def on_account_information_update_event(self, msg: AccountInformationUpdateEvent):
-        self.game_state.player.subscription_end_date = datetime.fromtimestamp(
-            msg.subscription_end_date / 1000
-        )
 
     def on_fight_refresh_character_stats_event(
         self, msg: FightRefreshCharacterStatsEvent

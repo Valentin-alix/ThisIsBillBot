@@ -9,10 +9,10 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
 )
 from d3_mapping.resources.protos.game.guild_chest_pb2 import (
     GuildChestTabSelectRequest,
-    GuildChestCurrentListenersAddEvent,
 )
 from d3_mapping.resources.protos.game.inventory_pb2 import (
     InventoryWeightEvent,
+    StorageInventoryContentEvent,
 )
 from src.const import BASE_RANGE, SMALL_RANGE
 from src.core.behaviors.behavior import Behavior
@@ -68,6 +68,11 @@ class UnloadInGuildChestBehavior(Behavior):
             return self.finish()
         elif error_code is not None:
             raise UnhandledErrorCodeException(error_code)
+        self.object_to_unload_on_tab = [
+            (tab, objects)
+            for tab, objects in self.object_to_unload_on_tab
+            if tab in self.game_state.guild_chest.tabs
+        ]
         self.run_timer(BASE_RANGE, self.unload_tab)
 
     def unload_tab(self):
@@ -76,9 +81,9 @@ class UnloadInGuildChestBehavior(Behavior):
         tab, object_to_unloads = self.object_to_unload_on_tab.pop()
         if tab != self.game_state.guild_chest.tab_number:
             self.event_manager.on(
-                GuildChestCurrentListenersAddEvent,
+                StorageInventoryContentEvent,
                 partial(
-                    self.on_guild_chest_current_listeners_add_event,
+                    self.on_storage_inventory_content_event,
                     object_to_unloads=object_to_unloads,
                 ),
                 once=True,
@@ -92,12 +97,12 @@ class UnloadInGuildChestBehavior(Behavior):
             )
         self.unload_object(object_to_unloads)
 
-    def on_guild_chest_current_listeners_add_event(
+    def on_storage_inventory_content_event(
         self,
-        msg: GuildChestCurrentListenersAddEvent,
+        msg: StorageInventoryContentEvent,
         object_to_unloads: list[ObjectItemInventory],
     ):
-        self.unload_object(object_to_unloads)
+        self.run_timer(SMALL_RANGE, lambda: self.unload_object(object_to_unloads))
 
     def unload_object(self, object_to_unloads: list[ObjectItemInventory]):
         self.logger.info(f"Unloading objects : {object_to_unloads}")

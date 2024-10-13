@@ -18,7 +18,9 @@ from d3_mapping.resources.protos.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
     FightStartingEvent,
 )
-from d3_mapping.resources.protos.game.game_action_pb2 import GameActionFightEvent
+from d3_mapping.resources.protos.game.game_action_pb2 import (
+    GameActionFightCastRequest,
+)
 from d3_mapping.resources.protos.game.spell_pb2 import (
     SpellsEvent,
 )
@@ -49,7 +51,9 @@ class FightFrame(Frame):
         )
         self.event_manager.on(SpellsEvent, self.on_spells_event, originator=self)
         self.event_manager.on(
-            GameActionFightEvent, self.on_game_action_fight_event, originator=self
+            GameActionFightCastRequest,
+            self.on_game_action_fight_cast_request,
+            originator=self,
         )
         self.event_manager.on(
             CharacterCharacteristicsEvent,
@@ -95,22 +99,15 @@ class FightFrame(Frame):
         self.game_state.fight.is_map_fight_initialized = False
 
     def on_fight_starting_event(self, message: FightStartingEvent):
-        self.game_state.fight.count_casted_by_target_by_spell_id.clear()
-        self.game_state.fight.last_triggered_turn_by_spell_id.clear()
+        self.game_state.fight.count_casted_by_spell_id.clear()
         self.game_state.fight.modifier_by_type_and_spell_id.clear()
         self.game_state.fight.fight_placement_possible_positions.clear()
 
     def on_spells_event(self, message: SpellsEvent):
         self.game_state.fight.spells = list(message.human_spells)
 
-    def on_game_action_fight_event(self, message: GameActionFightEvent):
-        if message.HasField("targeted_ability") and message.targeted_ability.HasField(
-            "spell_cast"
-        ):
-            if message.source_id == self.game_state.player.character_id:
-                self.game_state.fight.count_casted_by_target_by_spell_id[
-                    message.targeted_ability.spell_cast.spell_id
-                ][message.targeted_ability.target_id] += 1
+    def on_game_action_fight_cast_request(self, message: GameActionFightCastRequest):
+        self.game_state.fight.count_casted_by_spell_id[message.spell_id] += 1
 
     def on_character_characteristics_event(
         self, message: CharacterCharacteristicsEvent
@@ -146,5 +143,5 @@ class FightFrame(Frame):
         self.game_state.fight.is_our_turn = False
 
     def on_fight_turn_event(self, msg: FightTurnEvent):
-        self.game_state.fight.count_casted_by_target_by_spell_id.clear()
+        self.game_state.fight.count_casted_by_spell_id.clear()
         self.game_state.fight.is_our_turn = True

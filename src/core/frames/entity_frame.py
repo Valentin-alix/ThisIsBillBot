@@ -198,14 +198,6 @@ class EntityFrame(Frame):
                 direction=target_direction,
                 actor_id=msg.teleport_on_same_map.target_id,
             )
-        elif msg.HasField("life_points_gain"):
-            self.game_state.entity.actor_fight_by_id[
-                msg.life_points_gain.target_id
-            ].life_point += msg.life_points_gain.delta
-        elif msg.HasField("life_points_lost"):
-            self.game_state.entity.actor_fight_by_id[
-                msg.life_points_lost.target_id
-            ].life_point -= msg.life_points_lost.loss
 
     def on_fight_fighter_refresh_event(self, msg: FightFighterRefreshEvent):
         self.game_state.entity.update_actor_disposition(

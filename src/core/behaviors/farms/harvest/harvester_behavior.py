@@ -79,9 +79,7 @@ class HarvesterBehavior(Behavior):
             for objects in CHEST_OBJECT_BY_GID_BY_TAB.values()
             for object in objects.values()
         }
-        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid_by_server()[
-            self.game_state.player.server_id
-        ]
+        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
         weight = get_map_id_collectable_weight(
             map_id,
             gfx_to_item_and_job,

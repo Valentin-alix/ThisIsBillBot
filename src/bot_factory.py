@@ -43,6 +43,7 @@ from src.core.behaviors.storage.enter_bank_chest_behavior import EnterBankChestB
 from src.core.behaviors.storage.enter_guild_chest_behavior import (
     EnterGuildChestBehavior,
 )
+from src.core.behaviors.storage.load_from_bank_behavior import LoadFromBankBehavior
 from src.core.behaviors.storage.load_from_guild_chest_behavior import (
     LoadFromGuildChestBehavior,
 )
@@ -396,10 +397,18 @@ class BotFactory:
             game_state=game_state,
             enter_guild_chest_behavior=enter_guild_chest_behavior,
         )
+        load_from_bank_behavior = LoadFromBankBehavior(
+            event_manager=event_manager,
+            logger=logger,
+            unload_behavior=unload_behavior,
+            game_state=game_state,
+            enter_bank_behavior=enter_bank_chest_behavior,
+        )
         sale_hotel_prices_behavior = SaleHotelPricesBehavior(
             event_manager=event_manager,
             game_state=game_state,
             logger=logger,
+            load_from_bank_behavior=load_from_bank_behavior,
             enter_sale_hotel_sell_behavior=enter_sale_hotel_sell_behavior,
             load_from_guild_chest_behavior=load_from_guild_chest_behavior,
         )

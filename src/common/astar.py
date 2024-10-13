@@ -165,11 +165,11 @@ def find_path(
     """A non-class version of the path finding algorithm"""
 
     class FindPath(Astar):
-        def get_dist(self, node: U, other_node: set[U]) -> float:
-            return distance_between_func(node, other_node)
+        def get_dist(self, current: U, ends: set[U]) -> float:
+            return distance_between_func(current, ends)
 
-        def get_neighbors(self, node: U) -> Iterator[U]:
-            return get_neighbors_func(node)
+        def get_neighbors(self, data: U) -> Iterator[U]:
+            return get_neighbors_func(data)
 
         def is_goal_reached(self, current: U, ends: set[U]) -> bool:
             return is_goal_reached_func(current, ends)

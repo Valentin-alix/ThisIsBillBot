@@ -6,13 +6,13 @@ from d3_mapping.resources.protos.game.fight_preparation_pb2 import (
     FightPlacementPositionRequest,
     FightReadyRequest,
     FightStartEvent,
-    FightPlacementSwapPositionsOfferEvent,
 )
+from grid.map_point import MapPoint
+
 from src.const import ON_CHALLENGE, ON_PLAYER_MOVED
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_challenge_behavior import FightChallengeBehavior
 from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
-from grid.map_point import MapPoint
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -62,11 +62,6 @@ class FightPreparationBehavior(Behavior):
             ),
             originator=self,
         )
-        self.event_manager.on(
-            FightPlacementSwapPositionsOfferEvent,
-            callback=self.on_fight_placement_swap_positions_offer_event,
-            originator=self,
-        )
         request = FightPlacementPositionRequest(
             cell_id=cell_id,
             entity_id=self.game_state.player.character_id,
@@ -82,26 +77,9 @@ class FightPreparationBehavior(Behavior):
             self.event_manager.clear_listener_by_origin_and_type(
                 EntitiesDispositionEvent, self
             )
-            self.event_manager.clear_listener_by_origin_and_type(
-                FightPlacementSwapPositionsOfferEvent, self
-            )
             if disposition.entity_id != self.game_state.player.character_id:
                 return self.position_player()
             return self.run_timer(ON_PLAYER_MOVED, self.on_player_placement_done)
-
-    def on_fight_placement_swap_positions_offer_event(
-        self, msg: FightPlacementSwapPositionsOfferEvent
-    ):
-        if msg.requester_id != self.game_state.player.character_id:
-            return
-        self.logger.info("A player is already on this cell, take an other mp")
-        self.event_manager.clear_listener_by_origin_and_type(
-            EntitiesDispositionEvent, self
-        )
-        self.event_manager.clear_listener_by_origin_and_type(
-            FightPlacementSwapPositionsOfferEvent, self
-        )
-        self.position_player()
 
     def on_player_placement_done(self):
         request = FightReadyRequest(is_ready=True)
