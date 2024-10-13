@@ -8,7 +8,7 @@ from protos.game.common_pb2 import (
     Team,
 )
 from protos.game.gamemap_pb2 import MapObstacle
-from src.core.logic.grid.map_point import MapPoint
+from src.core.logic.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 from src.core.logic.stats.characteristic import get_stat_by_id
 from src.core.states.state import State
 from src.interfaces.enums.characteristic_enum import CharacteristicEnum
@@ -22,7 +22,6 @@ class FightActor:
 
 
 class ActorByIdDict(dict[int, ActorPositionInformation]):
-
     def __init__(self, map_point: MapPoint, grid_signals: GridSignals):
         self.map_point = map_point
         self.grid_signals = grid_signals
@@ -48,6 +47,10 @@ class ActorByMpDict(dict[MapPoint, ActorByIdDict]):
         value = ActorByIdDict(map_point=key, grid_signals=self.grid_signals)
         self.__setitem__(key, value)
         return value
+
+    def is_entity_actor_on_cell_id(self, cell_id: int) -> bool:
+        actors_on_mp = self.get(MapPoint.from_cell_id(cell_id))
+        return actors_on_mp is not None and len(actors_on_mp) > 0
 
 
 class ObstacleByCellIdDict(dict[int, MapObstacle]):
@@ -114,13 +117,15 @@ class EntityState(State):
     def set_actor(self, actor: ActorPositionInformation, is_summoned: bool = False):
         old_actor = self.actor_by_id.get(actor.actor_id)
         if old_actor:
-            del self.actors_on_mp[MapPoint.from_cell_id(old_actor.disposition.cell_id)][
-                actor.actor_id
-            ]
+            if old_actor.disposition.cell_id in MAP_POINT_BY_CELL_ID:
+                del self.actors_on_mp[
+                    MapPoint.from_cell_id(old_actor.disposition.cell_id)
+                ][actor.actor_id]
         self.actor_by_id[actor.actor_id] = actor
-        self.actors_on_mp[MapPoint.from_cell_id(actor.disposition.cell_id)][
-            actor.actor_id
-        ] = actor
+        if actor.disposition.cell_id in MAP_POINT_BY_CELL_ID:
+            self.actors_on_mp[MapPoint.from_cell_id(actor.disposition.cell_id)][
+                actor.actor_id
+            ] = actor
         if actor.actor_information.HasField("fighter"):
             target_max_health = get_stat_by_id(
                 next(
@@ -148,15 +153,17 @@ class EntityState(State):
             )
             self.actor_by_id[actor_id] = related_actor
         else:
-            del self.actors_on_mp[
-                MapPoint.from_cell_id(related_actor.disposition.cell_id)
-            ][related_actor.actor_id]
+            if related_actor.disposition.cell_id in MAP_POINT_BY_CELL_ID:
+                del self.actors_on_mp[
+                    MapPoint.from_cell_id(related_actor.disposition.cell_id)
+                ][related_actor.actor_id]
             related_actor.disposition.cell_id = cell_id
-            related_actor.disposition.direction = direction
+            related_actor.disposition.direction = cast(Direction, direction)
 
-        self.actors_on_mp[MapPoint.from_cell_id(related_actor.disposition.cell_id)][
-            related_actor.actor_id
-        ] = related_actor
+        if related_actor.disposition.cell_id in MAP_POINT_BY_CELL_ID:
+            self.actors_on_mp[MapPoint.from_cell_id(related_actor.disposition.cell_id)][
+                related_actor.actor_id
+            ] = related_actor
 
     def remove_actor(self, actor_id: int):
         actor = self.actor_by_id.pop(actor_id)
@@ -165,15 +172,12 @@ class EntityState(State):
             actor_id
         ]
 
-    def is_entity_actor_on_cell_id(self, cell_id: int) -> bool:
-        actors_on_mp = self.actors_on_mp.get(MapPoint.from_cell_id(cell_id))
-        return actors_on_mp is not None and len(actors_on_mp) > 0
-
     def get_enemies(self, team: Team) -> list[ActorPositionInformation]:
         return [
             actor
             for actor in self.actor_by_id.values()
             if actor.actor_information.fighter.spawn_information.team != team
+            and actor.disposition.cell_id != -1
         ]
 
     def get_allies(self, team: Team) -> list[ActorPositionInformation]:
@@ -181,6 +185,7 @@ class EntityState(State):
             actor
             for actor in self.actor_by_id.values()
             if actor.actor_information.fighter.spawn_information.team == team
+            and actor.disposition.cell_id != -1
         ]
 
     def get_monster_groups(

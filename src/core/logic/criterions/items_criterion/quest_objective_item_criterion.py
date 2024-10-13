@@ -29,8 +29,3 @@ class QuestObjectiveItemCriterion(ItemCriterion):
                 return self.criterion_value in game_state.objective.finished_quest_by_id
 
         return False
-
-
-if __name__ == "__main__":
-    temp = QuestObjectiveItemCriterion(criterion="Qo>12050")
-    print(temp.is_respected)

@@ -48,7 +48,7 @@ class FightPreparationBehavior(Behavior):
             self.on_player_placement_done()
 
     def send_fight_placement_position(self, cell_id: int):
-        if self.game_state.entity.is_entity_actor_on_cell_id(cell_id):
+        if self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(cell_id):
             if cell_id == self.game_state.player.map_point.cell_id:
                 return self.on_player_placement_done()
             self.logger.info("Cell id is occupied, try an other cell.")
@@ -115,7 +115,9 @@ class FightPreparationBehavior(Behavior):
         ) in self.game_state.fight.fight_placement_possible_positions:
             if (
                 self.game_state.player.map_point.cell_id != possible_cell_id
-                and self.game_state.entity.is_entity_actor_on_cell_id(possible_cell_id)
+                and self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(
+                    possible_cell_id
+                )
             ):
                 continue
             mp_point_possible_cell = MapPoint.from_cell_id(possible_cell_id)

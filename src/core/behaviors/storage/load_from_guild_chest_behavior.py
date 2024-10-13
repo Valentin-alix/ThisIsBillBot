@@ -23,7 +23,8 @@ class LoadItemInfo:
     remaining_quantity: int
 
     def __str__(self):
-        name = I18N.name_by_id[DataReader().item_by_id[self.item_gid].nameId]
+        name_id = DataReader().item_by_id[self.item_gid].nameId
+        name = I18N.name_by_id[name_id] if name_id is not None else ""
         return f"{name} : {self.remaining_quantity}"
 
     def __repr__(self):
@@ -87,11 +88,12 @@ class LoadFromGuildChestBehavior(Behavior):
             self.game_state.guild_chest.tab_number
         ].get(load_item_info.item_gid, None)
         if related_item is None:
-            quantity_to_unload = 0
-        else:
-            quantity_to_unload = min(
-                load_item_info.remaining_quantity, related_item.item.quantity
-            )
+            load_items_infos.remove(load_item_info)
+            return self.on_item_loaded(load_items_infos)
+
+        quantity_to_unload = min(
+            load_item_info.remaining_quantity, related_item.item.quantity
+        )
         if quantity_to_unload == 0:
             load_items_infos.remove(load_item_info)
             return self.on_item_loaded(load_items_infos)
@@ -99,7 +101,7 @@ class LoadFromGuildChestBehavior(Behavior):
         portable_quantity = (
             self.game_state.inventory.weight_max
             - self.game_state.inventory.inventory_weight
-        ) // DataReader().item_by_id[load_item_info.item_gid].realWeight
+        ) // (DataReader().item_by_id[load_item_info.item_gid].realWeight or 0)
         if portable_quantity == 0:
             self.event_manager.on(
                 ExchangeLeaveEvent,

@@ -1,14 +1,9 @@
 import dataclasses
 import datetime
 
-from protos.game.exchange_pb2 import SellingConditions, ExchangeBidSellerStartedEvent
+
+from protos.game.exchange_pb2 import SellingConditions
 from src.core.states.state import State
-
-BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID: dict[
-    int, dict[int, ExchangeBidSellerStartedEvent.ItemToSellInBid]
-] = {}
-
-AVERAGE_PRICE_BY_GID: dict[int, float] = {}
 
 
 @dataclasses.dataclass

@@ -24,11 +24,9 @@ from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
 from src.core.behaviors.storage.consts import USEFUL_UNLOAD
 from src.core.behaviors.storage.enter_guild_chest_behavior import EnterGuildChestError
 from src.core.behaviors.storage.unload_behavior import UnloadBehavior
+from src.core.controller.gfx_mapping import GfxMappingController
+from src.core.controller.sale_hotel import SaleHotelController
 from src.core.data_center.data_reader import DataReader
-from src.core.logic.farmer.collectables import (
-    add_collectable_map_checked,
-    get_gfx_to_item_and_job,
-)
 from src.core.logic.farmer.weight_collectables import (
     get_map_ids_to_explore,
     get_map_id_collectable_weight,
@@ -75,18 +73,21 @@ class HarvesterBehavior(Behavior):
     def get_additional_weight_by_map_id(self, map_id: int):
         if map_id in self.map_ids_to_explore:
             return FAKE_INFINITY_VALUE
-
-        gfx_to_item_and_job = get_gfx_to_item_and_job()
+        gfx_to_item_and_job = GfxMappingController().get_item_job_by_gfx()
         storage_by_gid = {
             object.item.gid: object
             for objects in CHEST_OBJECT_BY_GID_BY_TAB.values()
             for object in objects.values()
         }
+        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid_by_server()[
+            self.game_state.player.server_id
+        ]
         weight = get_map_id_collectable_weight(
             map_id,
             gfx_to_item_and_job,
             self.game_state.player.jobs_lvl_by_id,
             storage_by_gid,
+            avg_price_by_gid,
         )
         return weight
 
@@ -106,7 +107,7 @@ class HarvesterBehavior(Behavior):
         if self.game_state.map.map_id in self.map_ids_to_explore:
             self.logger.info("New map explored adding to map checked")
             self.map_ids_to_explore.remove(self.game_state.map.map_id)
-            add_collectable_map_checked(self.game_state.map.map_id)
+            GfxMappingController().add_map_id_checked(self.game_state.map.map_id)
             self.random_farm_behavior.additional_weight_by_map_id.pop(
                 self.game_state.map.map_id, None
             )

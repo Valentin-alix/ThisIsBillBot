@@ -9,20 +9,15 @@ from protos.game.interactive_element_pb2 import (
     StatedMapUpdateEvent,
     StatedElementUpdatedEvent,
 )
+from src.core.controller.gfx_mapping import GfxMappingController
 from src.core.data_center.data_reader import DataReader
 from src.core.data_center.map_reader import MapReader
 from src.core.frames.frame import Frame
-from src.core.logic.farmer.collectables import (
-    add_item_and_job_by_gfx_array,
-    add_collectable_map_checked,
-    get_collectable_map_checked,
-)
 from src.interfaces.enums.job_enum import JobEnum, HARVESTER_JOB_IDS
 
 
 @dataclass
 class InteractiveFrame(Frame):
-
     def __post_init__(self):
         self.game_info_signals.disconnected.connect(
             self.game_state.interactive.clear_state
@@ -60,7 +55,7 @@ class InteractiveFrame(Frame):
         self.game_state.interactive.set_stated_elements(message.stated_elements)
 
         map_id = message.map_id
-        if map_id in get_collectable_map_checked():
+        if map_id in GfxMappingController().get_map_ids_checked():
             return
 
         item_and_job_by_gfx_array: list[tuple[int, int, JobEnum]] = []
@@ -79,6 +74,8 @@ class InteractiveFrame(Frame):
                     .get_ref_data_by_element_id(map_id)[interactive_element.element_id]
                     .gfxId
                 )
+                if gfx_id is None:
+                    continue
                 item_and_job_by_gfx_array.append(
                     (
                         gfx_id,
@@ -86,8 +83,8 @@ class InteractiveFrame(Frame):
                         JobEnum(data_skill.parentJobId),
                     )
                 )
-        add_item_and_job_by_gfx_array(item_and_job_by_gfx_array)
-        add_collectable_map_checked(message.map_id)
+        GfxMappingController().add_multiple_item_job_by_gfx(item_and_job_by_gfx_array)
+        GfxMappingController().add_map_id_checked(message.map_id)
 
     def on_interactive_map_update_event(self, msg: InteractiveMapUpdateEvent):
         self.game_state.interactive.interactive_element_by_id = {

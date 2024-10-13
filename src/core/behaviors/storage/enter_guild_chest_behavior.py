@@ -48,7 +48,7 @@ class EnterGuildChestBehavior(Behavior):
 
     def on_bank_map(self, error_code: str | None):
         if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+            return self.logger.error(error_code)
 
         chest_interactive = next(
             element

@@ -59,25 +59,14 @@ class BotManager:
         bot.stop_running_behaviors()
         bot.bot_signals.play.emit()
         if mule_bots is None:
-            mule_bots = [
-                other_bot
-                for other_account_id, other_bot in self.bot_by_account_id.items()
-                if other_bot.game_state.player.is_ready_to_play_event.is_set()
-                and other_account_id != account_id
-                and other_bot.game_state.player.server_id
-                == bot.game_state.player.server_id
-                and not (
-                    other_bot.harvester_behavior.is_running.is_set()
-                    or other_bot.fighter_behavior.is_running.is_set()
-                    or other_bot.mule_fighter_behavior.is_running.is_set()
-                )
-            ]
+            mule_bots = []
         bot.fighter_behavior.ready_barrier.set_target(len(mule_bots) + 1)
         bot.logger.info(f"Starting fighter with {len(mule_bots)} mules")
 
         self.safe_stop_bots(mule_bots)
 
         for mule in mule_bots:
+            mule.bot_signals.play_mule.emit(area_id, sub_area_id)
             mule.play_action(
                 lambda: mule.mule_fighter_behavior.start(
                     callback=partial(

@@ -36,9 +36,8 @@ class RecipeTable(BaseTableWidget):
         return self.widget_item_by_recipe.keys()
 
     def add_recipe(self, recipe: RecipeItem) -> None:
-        recipe_widget_item = QStandardItem(
-            I18N.name_by_id[DataReader().item_by_id[recipe.resultId].nameId]
-        )
+        name_id = DataReader().item_by_id[recipe.resultId].nameId
+        recipe_widget_item = QStandardItem(I18N.name_by_id[name_id] if name_id else "")
         recipe_widget_item.setData(recipe, role=Qt.UserRole)
         self.widget_item_by_recipe[recipe] = recipe_widget_item
 
@@ -55,7 +54,7 @@ class RecipeTable(BaseTableWidget):
     def on_click_recipe(self, model_index: QModelIndex):
         source_index = self.table.proxy_model.mapToSource(model_index)
         model = self.table.item_model
-        recipe: RecipeItem = model.data(model.index(source_index.row(), 0), Qt.UserRole)
+        recipe: RecipeItem = model.data(model.index(source_index.row(), 0), Qt.UserRole)  # type: ignore
         model.remove_rows(source_index.row(), 1)
         self.on_remove_recipe(recipe)
 

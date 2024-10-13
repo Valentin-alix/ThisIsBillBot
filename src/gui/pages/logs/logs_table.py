@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import cast
 
 from PyQt5.QtCore import pyqtSlot, QModelIndex, Qt
 from PyQt5.QtGui import QStandardItem
@@ -42,6 +43,8 @@ class LogsTable(BaseTableWidget):
         model = self.table.item_model
         time_text = model.data(model.index(source_index.row(), 0), Qt.DisplayRole)
         type_lvl = model.data(model.index(source_index.row(), 1), Qt.DisplayRole)
-        msg_text = model.data(model.index(source_index.row(), 2), Qt.DisplayRole)
+        msg_text = cast(
+            str, model.data(model.index(source_index.row(), 2), Qt.DisplayRole)
+        )
         dialog = CustomMessageBox(f"Log {type_lvl} à {time_text}", msg_text, self)
         dialog.exec()

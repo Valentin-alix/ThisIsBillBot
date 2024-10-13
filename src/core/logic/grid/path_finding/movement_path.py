@@ -143,18 +143,3 @@ class MovementPath:
         key = cell_id
         key |= direction << 12
         return key
-
-
-if __name__ == "__main__":
-    # print(MapPoint.from_cell_id(340))
-    key_cells = [295, 28968, 28901]
-    key_cells = [295, 4395, 343, 29016, 330, 29003, 24880, 24852]
-    for key in key_cells:
-        print(
-            MovementPath.get_direction_by_key(key).name,
-            MovementPath.get_cell_id_by_key(key),
-        )
-    # path = MovementPath.get_path_elements_from_cells([452, 438])
-    # print(4.713 - 4.213)
-    # duration = MovementPath.get_total_duration(path, False, 0, 1)
-    # print(duration)

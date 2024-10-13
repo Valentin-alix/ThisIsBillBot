@@ -36,7 +36,6 @@ from src.interfaces.aliases import (
 
 @dataclass
 class EntityFrame(Frame):
-
     def __post_init__(self):
         self.game_info_signals.disconnected.connect(self.game_state.entity.clear_state)
         self.event_manager.on(
@@ -209,7 +208,11 @@ class EntityFrame(Frame):
             ].life_point -= msg.life_points_lost.loss
 
     def on_fight_fighter_refresh_event(self, msg: FightFighterRefreshEvent):
-        self.game_state.entity.set_actor(msg.information)
+        self.game_state.entity.update_actor_disposition(
+            msg.information.actor_id,
+            msg.information.disposition.direction,
+            msg.information.disposition.cell_id,
+        )
 
     def on_fight_synchronize_event(self, msg: FightSynchronizeEvent):
         for actor in msg.fighters:

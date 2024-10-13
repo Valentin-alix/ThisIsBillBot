@@ -10,7 +10,6 @@ from src.core.logic.grid.map_point import MapPoint, MAP_POINT_BY_COORD
 
 
 class MapTools:
-
     @staticmethod
     @cache
     def get_distance(cell_1_id: int, cell_2_id: int) -> int:
@@ -150,12 +149,3 @@ class MapTools:
             # it is outside map
             return True
         return False
-
-
-if __name__ == "__main__":
-    # icecream.ic(MapTools.get_look_direction8_exact(499, 471))
-    start = MapPoint.from_coords(14, 1)
-    end = MapPoint.from_coords(18, 2)
-    print(start.distance_to_map_point(end))
-
-    print(MapTools.get_distance(start.cell_id, end.cell_id))

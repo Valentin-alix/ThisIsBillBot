@@ -15,6 +15,7 @@ from src.interfaces.enums.priority import PriorityEnum
 
 class MapChangeError(StrEnum):
     UNEXPECTED_NEW_MAP = auto()
+    TIMEOUT = auto()
 
 
 @dataclass
@@ -25,6 +26,8 @@ class MapChangeBehavior(Behavior):
             partial(self.on_map_current_event, expected_map_id=expected_map_id),
             originator=self,
             once=True,
+            timeout=10,
+            on_timeout=lambda: self.finish(MapChangeError.TIMEOUT),
         )
         self.event_manager.on(
             MapMovementRefusedEvent,

@@ -1,4 +1,5 @@
 import unittest
+from protos.game.spell_pb2 import SpellItem
 from src.common.logger import Logger
 from typing import Iterable
 
@@ -11,7 +12,6 @@ from protos.game.common_pb2 import (
     CharacterCharacteristicValue,
     Team,
     SpawnInformation,
-    SpellItem,
 )
 from src.core.data_center.data_reader import DataReader
 from src.core.logic.fight.attack import Attacker
@@ -21,6 +21,8 @@ from src.core.logic.fight.reachable_cells.fight_reachable_cells import (
 )
 from src.core.logic.grid.data_map_provider import DataMapProvider
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
+from src.core.logic.world.astar_vertice import AstarWorld
+from src.core.logic.world.world_path_finder import WorldPathFinder
 from src.core.states.state_factory import StateFactory
 from src.interfaces.aliases import (
     FightFighterInformation,
@@ -33,6 +35,7 @@ from src.interfaces.enums.characteristic_enum import CharacteristicEnum
 from src.signals.grid_signals import GridSignals
 from src.signals.log_signals import LogSignals
 from src.signals.player_signals import GameInfoSignals
+from src.signals.world_signals import WorldSignals
 
 
 class GameStateFixture(unittest.TestCase):
@@ -40,6 +43,7 @@ class GameStateFixture(unittest.TestCase):
         self.game_info_signals = GameInfoSignals()
         self.grid_signals = GridSignals()
         self.log_signals = LogSignals()
+        self.world_signals = WorldSignals()
         self.logger = Logger(log_signals=LogSignals())
         self.game_state = StateFactory.create_game_state(
             game_info_signals=self.game_info_signals,
@@ -60,6 +64,14 @@ class GameStateFixture(unittest.TestCase):
             damage_calculator=self.damage_calculator,
             path_finding=self.pathfinding,
             fight_reachable_cells=self.fight_reachable_cells,
+        )
+        astar_world = AstarWorld(
+            game_state=self.game_state, world_signals=self.world_signals
+        )
+        self.world_path_finder = WorldPathFinder(
+            path_finding=self.pathfinding,
+            game_state=self.game_state,
+            astar_world=astar_world,
         )
 
     def set_game_state(

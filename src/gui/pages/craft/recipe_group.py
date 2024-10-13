@@ -16,4 +16,5 @@ class RecipeGroup(GroupList[RecipeItem]):
 
     @override
     def get_name_item(self, item: RecipeItem) -> str:
-        return I18N.name_by_id[DataReader().item_by_id[item.resultId].nameId]
+        name_id = DataReader().item_by_id[item.resultId].nameId
+        return I18N.name_by_id[name_id] if name_id else ""

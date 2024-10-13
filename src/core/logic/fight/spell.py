@@ -1,8 +1,7 @@
 from models.datas.spell_levels_root import SpellLevelsRootItem, Effect
 from protos.game.common_pb2 import SpellModifier
-from protos.game.common_pb2 import (
-    SpellItem,
-)
+
+from protos.game.spell_pb2 import SpellItem
 from src.core.data_center.data_reader import DataReader
 from src.core.logic.grid.map_point import MapPoint
 from src.core.logic.zones.cross import Cross
@@ -153,24 +152,3 @@ def get_damage_spells(
                 break
 
     return spell_levels
-
-
-if __name__ == "__main__":
-    # 12815 → distillation
-    # 12791 → ethylo
-    # 14307 → alcoshu
-    # 12794 → vague à lame
-    # 12808 → eau-de-vie
-    # 13088 -> représaille
-    spell_id = 13063
-
-    spell = DataReader().spell_by_id[spell_id]
-    spell_lvl = DataReader().spell_lvl_by_spell_id[spell_id][0]
-    temp = get_spell_max_cast_per_target(spell_lvl, None)
-    print(temp)
-    # icecream.ic(get_max_range_spell(3, spell_lvl, None))
-
-    # temp = get_possible_mp_spell(
-    #     MapPoint.from_cell_id(270), spell_lvl, 3, None, None, None
-    # )
-    # print(temp)

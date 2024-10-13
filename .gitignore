@@ -1,6 +1,5 @@
 *.log.*
 .venv
-poetry.lock
 node_modules
 package-lock.json
 # Byte-compiled / optimized / DLL files
@@ -12,6 +11,7 @@ resources/datas/*.json
 tools/mapping_flags/resources/*
 benchmark.pstats
 benchmark_output.png
+.ruff_cache
 
 .idea
 

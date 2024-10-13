@@ -69,10 +69,13 @@ class Proxy:
         except ConnectionResetError as err:
             print(err)
         finally:
-            for con in conns:
-                print(f"closing {con.getpeername()}")
-                con.close()
-            self.on_close()
+            self.close()
+
+    def close(self):
+        for con in self.connections:
+            print(f"closing {con.getpeername()}")
+            con.close()
+        self.on_close()
 
     def handle(self, data: bytes, origin: Socket) -> None:
         self.buffers[origin] += data

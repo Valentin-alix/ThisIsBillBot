@@ -62,7 +62,7 @@ class Bot:
     _current_bot_action_func: Callable[..., Any] | None = None
 
     def __str__(self):
-        return self.game_state.player.character_name
+        return self.account["apikey"]["login"]
 
     def __repr__(self):
         return self.__str__()

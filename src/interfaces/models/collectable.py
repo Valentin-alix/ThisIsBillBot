@@ -30,4 +30,6 @@ class Collectable:
             ]
             .cellId
         )
+        if cell_id is None:
+            raise ValueError("Player can't stand on a cell that have no id !")
         return MapPoint.from_cell_id(cell_id)

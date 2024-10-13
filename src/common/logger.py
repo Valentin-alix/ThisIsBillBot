@@ -3,7 +3,6 @@ import os.path
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any
-
 from src.interfaces.enums.log_level import LogLevel
 from src.signals.log_signals import LogSignals
 
@@ -18,7 +17,9 @@ class Logger(logging.Logger):
         self.setLevel(logging.DEBUG)
 
         file_handler = RotatingFileHandler(
-            f"{os.path.join(LOG_FOLDER, title)}.log", maxBytes=1_000_000, backupCount=1
+            f"{os.path.join(LOG_FOLDER, title)}.log",
+            maxBytes=10_000_000,
+            backupCount=1,
         )
         file_handler.setLevel(logging.DEBUG)
         file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -29,26 +30,31 @@ class Logger(logging.Logger):
         return msg
 
     def debug(self, msg: Any, *args, **kwargs):
-        self.log_signals.log_emitted.emit(LogLevel.DEBUG, msg)
-        msg = self._get_log_msg(msg)
-        super().debug(msg, *args, **kwargs)
+        if self.level <= logging.DEBUG:
+            self.log_signals.log_emitted.emit(LogLevel.DEBUG, msg)
+            msg = self._get_log_msg(msg)
+            super().debug(msg, *args, **kwargs)
 
     def info(self, msg: Any, *args, **kwargs):
-        self.log_signals.log_emitted.emit(LogLevel.INFO, msg)
-        msg = self._get_log_msg(msg)
-        super().info(msg, *args, **kwargs)
+        if self.level <= logging.INFO:
+            self.log_signals.log_emitted.emit(LogLevel.INFO, msg)
+            msg = self._get_log_msg(msg)
+            super().info(msg, *args, **kwargs)
 
     def warning(self, msg: Any, *args, **kwargs):
-        self.log_signals.log_emitted.emit(LogLevel.WARNING, msg)
-        msg = self._get_log_msg(msg)
-        super().warning(msg, *args, **kwargs)
+        if self.level <= logging.WARNING:
+            self.log_signals.log_emitted.emit(LogLevel.WARNING, msg)
+            msg = self._get_log_msg(msg)
+            super().warning(msg, *args, **kwargs)
 
     def error(self, msg: Any, *args, **kwargs):
-        self.log_signals.log_emitted.emit(LogLevel.ERROR, msg)
-        msg = self._get_log_msg(msg)
-        super().error(msg, *args, **kwargs)
+        if self.level <= logging.ERROR:
+            self.log_signals.log_emitted.emit(LogLevel.ERROR, msg)
+            msg = self._get_log_msg(msg)
+            super().error(msg, *args, **kwargs)
 
     def critical(self, msg: Any, *args, **kwargs):
-        self.log_signals.log_emitted.emit(LogLevel.CRITICAL, msg)
-        msg = self._get_log_msg(msg)
-        super().critical(msg, *args, **kwargs)
+        if self.level <= logging.CRITICAL:
+            self.log_signals.log_emitted.emit(LogLevel.CRITICAL, msg)
+            msg = self._get_log_msg(msg)
+            super().critical(msg, *args, **kwargs)

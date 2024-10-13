@@ -112,7 +112,7 @@ class SnifferWidget(PivotItem):  # type: ignore
         model = self.msg_table.table.item_model
         msg_infos: MessageInfo = model.data(
             model.index(source_index.row(), 4), Qt.UserRole
-        )
+        )  # type: ignore
         self.msg_detail.set_content(msg_infos.msg_json, msg_infos.raw_content)
         self.msg_detail.show()
 

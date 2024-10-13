@@ -42,7 +42,11 @@ class MapReader(metaclass=Singleton):
 
     @cache
     def get_ref_cell_data_by_cell_id(self, map_id: int) -> dict[int, MapReference]:
-        return {ref.cellId: ref for ref in self.map_by_id(map_id).references}
+        return {
+            ref.cellId: ref
+            for ref in self.map_by_id(map_id).references
+            if ref.cellId is not None
+        }
 
     def get_cell_data_by_cell_id(self, map_id: int, cell_id: int) -> CellData:
         return self.map_by_id(map_id).mapData.cellsData[cell_id]

@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
-from time import sleep
 from typing import Callable
 
 from models.world_graph import Edge
@@ -19,7 +18,6 @@ from src.core.logic.farmer.weight_collectables import (
 )
 from src.core.logic.farmer.weighted_path import WeightedPath
 from src.core.logic.world.edge import draw_edge_path
-from src.exceptions import UnhandledErrorCodeException
 from src.signals.world_signals import WorldSignals
 
 LAST_VISITED_BY_MAP_ID: dict[int, datetime] = {}
@@ -136,7 +134,7 @@ class RandomFarmBehavior(Behavior):
 
     def on_auto_trip_world_behavior_finished(self, error_code: str | None):
         if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+            return self.logger.error(error_code)
         LAST_VISITED_BY_MAP_ID[self.game_state.map.map_id] = datetime.now()
         self.finish(error_code)
 
@@ -166,10 +164,3 @@ class RandomFarmBehavior(Behavior):
         return (min((datetime.now() - last_visited).total_seconds(), 1800) ** 2) * (
             1 + additional_weight_map
         )
-
-
-if __name__ == "__main__":
-    last_visited = MIN_DATE
-    sleep(1)
-    temp = (datetime.now() - last_visited).total_seconds()
-    print(temp)

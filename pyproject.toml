@@ -15,18 +15,12 @@ pyqt5-qt5 = "5.15.2"
 pyqt5 = "5.15.10"
 pyqt-fluent-widgets = { extras = ["full"], version = "^1.6.3" }
 ankama-launcher-emulator = { git = "https://github.com/Valentin-alix/AnkamaLauncherEmulator" }
-orjson = "^3.10.7"
 cachetools = "^5.5.0"
 msgspec = "^0.18.6"
 protobuf = "5.28.3"
 sortedcontainers = "^2.4.0"
 pywin32 = "^308"
 pywin32-stubs = "^1.0.7"
-pynput = "^1.7.7"
-icecream = "^2.1.3"
-pyinstaller = "^6.11.1"
-opencv-python = "^4.11.0.86"
-ruff = "^0.9.4"
 
 [tool.poetry.group.dev.dependencies]
 pyqt5-stubs = "^5.15.6.0"
@@ -34,6 +28,9 @@ types-cachetools = "^5.5.0.20240820"
 tqdm = "^4.66.5"
 gprof2dot = "^2024.6.6"
 line-profiler-pycharm = "^1.2.0"
+icecream = "^2.1.3"
+pyinstaller = "^6.11.1"
+ruff = "^0.9.4"
 
 [tool.pylint]
 disable = [

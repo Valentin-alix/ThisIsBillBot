@@ -42,6 +42,13 @@ class ConnectionProxy(Proxy):
             msg.response.selectServer.success.host = "localhost"
             msg.response.selectServer.success.ports[0] = new_port
             msg_datas = encode_msg(msg)
+        elif msg.response.HasField(
+            "identification"
+        ) and msg.response.identification.HasField("success"):
+            msg.response.identification.success.ClearField(
+                "fight_reconnection_server_id"
+            )
+            msg_datas = encode_msg(msg)
 
         return msg_datas
 

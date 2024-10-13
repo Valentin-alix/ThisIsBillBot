@@ -128,7 +128,7 @@ class CraftBehavior(Behavior):
             .get_ref_data_by_element_id(self.game_state.map.map_id)[
                 related_element.element_id
             ]
-            .cellId
+            .cellId  # type: ignore
         )
         move_path = self.pathfinding.find_path(
             self.game_state.player.map_point, {element_mp}

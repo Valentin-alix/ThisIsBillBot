@@ -36,7 +36,6 @@ from src.core.frames.frame import Frame
 
 @dataclass
 class FightFrame(Frame):
-
     def __post_init__(self):
         self.game_info_signals.disconnected.connect(self.game_state.fight.clear_state)
         self.event_manager.on(
@@ -139,6 +138,8 @@ class FightFrame(Frame):
         self.game_state.fight.spells = list(message.human_spells)
 
     def on_spell_variant_activation_event(self, message: SpellVariantActivationEvent):
+        if message.spell_id == 0:
+            return
         opposite_spell_id = DataReader().spell_opposite_variant_by_spell_id[
             message.spell_id
         ]
@@ -186,9 +187,9 @@ class FightFrame(Frame):
         ] = message.modifier
 
     def on_remove_spell_modifier_event(self, message: RemoveSpellModifierEvent):
-        del self.game_state.fight.modifier_by_type_and_spell_id[
-            (message.spell_id, message.modifier_type)
-        ]
+        self.game_state.fight.modifier_by_type_and_spell_id.pop(
+            (message.spell_id, message.modifier_type), None
+        )
 
     def on_character_characteristics_event(
         self, message: CharacterCharacteristicsEvent

@@ -1,8 +1,8 @@
 import datetime
-import random
 from collections import defaultdict
 from dataclasses import dataclass
 from functools import partial
+import random
 from typing import Iterable
 
 from protos.game.common_pb2 import ObjectItem
@@ -24,20 +24,17 @@ from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
 )
 from src.core.behaviors.storage.consts import (
-    GATHERER_ITEM_IDS,
-    USEFUL_INGREDIENT_IDS,
+    GATHERER_ITEM_GIDS,
     GATHERER_ITEM_TABS,
 )
 from src.core.behaviors.storage.load_from_guild_chest_behavior import (
     LoadFromGuildChestBehavior,
     LoadItemInfo,
 )
-from src.core.logic.prices.price import get_price_for_sale_hotel, QuantityIndex
+from src.core.controller.sale_hotel import SaleHotelController
+from src.core.logic.farmer.weight_item import get_weight_item_for_sale_hotel
+from src.core.logic.sale_hotel.price import get_price_for_sale_hotel, QuantityIndex
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
-from src.core.states.sale_hotel_state import (
-    BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID,
-    AVERAGE_PRICE_BY_GID,
-)
 from src.exceptions import UnhandledErrorCodeException, UnexpectedStateException
 
 
@@ -50,44 +47,35 @@ class SaleHotelPricesBehavior(Behavior):
         self.game_state.sale_hotel.last_time_updated_prices = datetime.datetime.now()
 
         gatherer_object_tab = CHEST_OBJECT_BY_GID_BY_TAB.get(GATHERER_ITEM_TABS)
-        item_ids_to_sell = [
-            item_id
-            for item_id in GATHERER_ITEM_IDS
-            if item_id not in USEFUL_INGREDIENT_IDS
+        item_gids_to_sell = [item_gid for item_gid in GATHERER_ITEM_GIDS]
+        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid_by_server()[
+            self.game_state.player.server_id
         ]
-        if gatherer_object_tab is not None:
-            item_ids_to_sell.sort(
-                key=lambda item_id: (
-                    random.random()
-                    * related_object.item.quantity
-                    * AVERAGE_PRICE_BY_GID.get(related_object.item.gid, 1000)
-                    if (related_object := gatherer_object_tab.get(item_id))
-                    else 0
-                ),
-                reverse=True,
-            )
-        else:
-            item_ids_to_sell.sort(
-                key=lambda item_id: (
-                    random.random() * AVERAGE_PRICE_BY_GID.get(item_id, 1000)
-                ),
-                reverse=True,
-            )
+
+        item_gids_to_sell.sort(
+            key=lambda item_gid: random.random()
+            * get_weight_item_for_sale_hotel(
+                item_gid, avg_price_by_gid, gatherer_object_tab
+            ),
+            reverse=True,
+        )
 
         # get sum quantity of item already in sale hotel by gid
         item_sell_quantity_by_gid: dict[int, int] = defaultdict(int)
-        for bid_seller_item in BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID.values():
-            for seller_item in bid_seller_item.values():
-                item_sell_quantity_by_gid[
-                    seller_item.item.gid
-                ] += seller_item.item.quantity
+        for quantity_by_uid in (
+            SaleHotelController()
+            .get_bid_seller_gid_quantity_by_uid_by_player_id()
+            .values()
+        ):
+            for gid, quantity in quantity_by_uid.values():
+                item_sell_quantity_by_gid[gid] += quantity
 
         load_items_infos: list[LoadItemInfo] = []
-        for item_gid in item_ids_to_sell:
+        for item_gid in item_gids_to_sell:
             load_item_info = LoadItemInfo(
                 item_gid=item_gid,
                 remaining_quantity=max(
-                    5000 - item_sell_quantity_by_gid.get(item_gid, 0), 0
+                    2000 - item_sell_quantity_by_gid.get(item_gid, 0), 0
                 ),
             )
             load_items_infos.append(load_item_info)
@@ -97,7 +85,7 @@ class SaleHotelPricesBehavior(Behavior):
         self.load_from_guild_chest_behavior.start(
             callback=partial(
                 self.on_load_from_guild_chest_behavior_finished,
-                item_ids_to_sell=item_ids_to_sell,
+                item_ids_to_sell=item_gids_to_sell,
             ),
             parent=self,
             load_items_infos=load_items_infos,
@@ -290,7 +278,9 @@ class SaleHotelPricesBehavior(Behavior):
         if self.game_state.sale_hotel.bid_seller_condition is None:
             raise UnexpectedStateException("we should have bid seller infos")
         count_item_in_sale = len(
-            BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID[self.game_state.player.character_id]
+            SaleHotelController().get_bid_seller_gid_quantity_by_uid_by_player_id()[
+                self.game_state.player.character_id
+            ]
         )
         self.logger.info(
             f"item in sale : {count_item_in_sale}, max item possible in sale : {self.game_state.sale_hotel.bid_seller_condition.max_item_per_account}"
@@ -342,7 +332,6 @@ class SaleHotelPricesBehavior(Behavior):
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
     ):
-
         self.logger.info("Successfully created price, move on to next item quantity")
         self.sell_item(
             item=item,
@@ -412,7 +401,7 @@ class SaleHotelPricesBehavior(Behavior):
                 continue
             if (
                 item.item.uid
-                not in BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID[
+                not in SaleHotelController().get_bid_seller_gid_quantity_by_uid_by_player_id()[
                     self.game_state.player.character_id
                 ]
             ):

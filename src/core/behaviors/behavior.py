@@ -55,10 +55,10 @@ class Behavior(ABC):
     def run_timer(
         self, range_time: tuple[float, float] | float, func: Callable[[], None]
     ) -> None:
-        if isinstance(range_time, float):
-            wait_time = range_time
-        else:
+        if isinstance(range_time, tuple):
             wait_time = get_random_range(range_time)
+        else:
+            wait_time = range_time
         self.logger.info(f"Waiting for {wait_time} before executing function")
         timer = Timer(wait_time, lambda: self.run_timed_func(func))
         self.timers.append(timer)

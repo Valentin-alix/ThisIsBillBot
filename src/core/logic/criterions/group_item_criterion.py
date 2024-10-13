@@ -2,17 +2,7 @@ from dataclasses import dataclass, field
 
 from src.core.logic.criterions.interface_item_criterion import IItemCriterion
 from src.core.logic.criterions.item_criterion_factory import ItemCriterionFactory
-from src.core.states.entity_state import EntityState
-from src.core.states.fight_state import FightState
 from src.core.states.game_state import GameState
-from src.core.states.interactive_state import InteractiveState
-from src.core.states.inventory_state import InventoryState
-from src.core.states.map_state import MapState
-from src.core.states.objective_state import ObjectiveState
-from src.core.states.player_state import PlayerState
-from src.signals.grid_signals import GridSignals
-from src.signals.player_signals import GameInfoSignals
-from src.signals.world_signals import MapSignals
 
 
 @dataclass
@@ -102,32 +92,3 @@ class GroupItemCriterion(IItemCriterion):
                 return False
 
         return True
-
-
-if __name__ == "__main__":
-    grid_signals = GridSignals()
-    debug_signals = MapSignals()
-    game_info_signals = GameInfoSignals()
-
-    map_state = MapState(grid_signals=grid_signals)
-    entity_state = EntityState(grid_signals=grid_signals)
-    interactive_state = InteractiveState(grid_signals=grid_signals)
-    player_state = PlayerState(
-        game_info_signals=game_info_signals,
-        interactive_state=interactive_state,
-        entity_state=entity_state,
-        map_state=map_state,
-    )
-    fight_state = FightState(
-        game_info_signals=game_info_signals, player_state=player_state
-    )
-    player_state = PlayerState(
-        map_state=map_state,
-        game_info_signals=game_info_signals,
-        entity_state=entity_state,
-        interactive_state=interactive_state,
-    )
-    quest_state = ObjectiveState()
-    inventory_state = InventoryState(game_info_signals=game_info_signals)
-
-    criterion = GroupItemCriterion("MI=515576,1")

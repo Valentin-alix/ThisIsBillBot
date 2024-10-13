@@ -164,7 +164,7 @@ def find_path(
 ) -> list[U] | None:
     """A non-class version of the path finding algorithm"""
 
-    class FindPath(Astar[U]):
+    class FindPath(Astar):
         def get_dist(self, node: U, other_node: set[U]) -> float:
             return distance_between_func(node, other_node)
 

@@ -2,16 +2,20 @@ import os.path
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QColor, QIcon
-from qfluentwidgets import FluentIcon, FluentWindow, SplashScreen
+from qfluentwidgets import (
+    FluentIcon,
+    SplashScreen,
+)
 
 from src.bot import Bot
 from src.const import RESOURCE_FOLDER
 from src.gui.account_frame import AccountFrame
+from src.gui.components.no_animated_fluent_window import NoAnimatedFluentWindow
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
 from src.signals.shared_farm_signals import SharedSignals
 
 
-class MainWindow(FluentWindow):
+class MainWindow(NoAnimatedFluentWindow):
     def __init__(
         self,
         title: str,
@@ -19,7 +23,8 @@ class MainWindow(FluentWindow):
         *args,
         **kwargs,
     ) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(parent=None)
+
         self.title = title
         self.shared_signals = shared_signals
         self.setWindowTitle(self.title)
@@ -32,10 +37,11 @@ class MainWindow(FluentWindow):
         self.connected_icon = FluentIcon.PEOPLE.icon(color=QColor(0, 255, 0))
 
     def init_accounts(self, account_by_id: dict[int, Bot]):
+        bots = list(account_by_id.values())
         for account_id, account in account_by_id.items():
-            self.add_account(account_id, account)
+            self.add_account(account_id, account, bots)
 
-    def add_account(self, account_id: int, account: Bot):
+    def add_account(self, account_id: int, account: Bot, bots: list[Bot]):
         login = account.account["apikey"]["login"]
         account_widget = AccountFrame(
             login,
@@ -48,6 +54,7 @@ class MainWindow(FluentWindow):
             account.world_signals,
             account.log_signals,
             self.shared_signals,
+            bots,
         )
         navigation_widget = self.addSubInterface(
             account_widget, self.disconnected_icon, login

@@ -1,6 +1,4 @@
-from enum import StrEnum
-
-from PyQt5.QtCore import Qt, QThread
+from PyQt5.QtCore import Qt, QThread, pyqtSlot
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QStackedWidget
 from qfluentwidgets import (
     PivotItem,
@@ -10,22 +8,19 @@ from qfluentwidgets import (
     SegmentedWidget,
 )
 
+from src.bot import Bot
 from src.core.data_center.data_reader import DataReader
 from src.core.data_center.i18n import I18N
+from src.gui.components.multi_selection_combobox import MultiSelectComboBox
 from src.gui.pages.farmer.map_tab import MapTab
 from src.gui.pages.farmer.world_tab import WorldTab
 from src.gui.utils.run_in_background import Worker
+from src.interfaces.enums.bot_action_enum import BotActionEnum
 from src.signals.bot_signals import BotSignals
 from src.signals.grid_signals import GridSignals
 from src.signals.player_signals import GameInfoSignals
 from src.signals.shared_farm_signals import SharedSignals
 from src.signals.world_signals import WorldSignals
-
-
-class FarmActionEnum(StrEnum):
-    HARVESTER = "Récolte"
-    FIGHTER = "Combat"
-    # MULE_FIGHTER = "Mule Fighter"
 
 
 class FarmerWidget(PivotItem):
@@ -45,6 +40,7 @@ class FarmerWidget(PivotItem):
         world_signals: WorldSignals,
         bot_signals: BotSignals,
         shared_signals: SharedSignals,
+        bots: list[Bot],
         *args,
         **kwargs,
     ):
@@ -53,36 +49,50 @@ class FarmerWidget(PivotItem):
         self.grid_signals = grid_signals
         self.world_signals = world_signals
         self.game_info_signals = game_info_signals
-        self.farm_signals = bot_signals
+        self.bot_signals = bot_signals
         self.shared_farm_signals = shared_signals
 
         v_layout = QVBoxLayout()
         v_layout.setAlignment(Qt.AlignTop)
         self.setLayout(v_layout)
 
-        self.init_top_content()
+        self.init_top_content(bots)
         self.init_content()
 
-    def init_top_content(self) -> None:
+        self.bot_signals.play_harvester.connect(self.on_play_harvester)
+        self.bot_signals.play_crafter.connect(self.on_play_craft)
+        self.bot_signals.play_mule.connect(self.on_play_mule)
+        self.shared_farm_signals.play_fighter.connect(self.on_play_fighter)
+
+    def init_top_content(self, bots: list[Bot]) -> None:
         top_widget = QWidget()
         top_widget.setLayout(QHBoxLayout())
 
         self.play_btn = TransparentToolButton(FluentIcon.PLAY)
         self.play_btn.clicked.connect(self.on_click_play)
-        self.farm_signals.play.connect(self.on_play)
+        self.bot_signals.play.connect(self.on_play)
         top_widget.layout().addWidget(self.play_btn)
 
         self.stop_btn = TransparentToolButton(FluentIcon.PAUSE)
         self.stop_btn.clicked.connect(self.on_click_stop)
-        self.farm_signals.stop.connect(self.on_stop)
+        self.bot_signals.stop.connect(self.on_stop)
         top_widget.layout().addWidget(self.stop_btn)
         self.stop_btn.hide()
 
         self.type_action_combo = ComboBox()
-        for farm_action in FarmActionEnum:
+        for farm_action in BotActionEnum:
             self.type_action_combo.addItem(farm_action)
-        self.type_action_combo.setCurrentText(FarmActionEnum.HARVESTER)
+        self.type_action_combo.setCurrentText(BotActionEnum.HARVESTER)
+        self.type_action_combo.currentIndexChanged.connect(self.on_type_action_changed)
         top_widget.layout().addWidget(self.type_action_combo)
+
+        self.mules_combo = MultiSelectComboBox()
+        for bot in bots:
+            if bot.account["apikey"]["accountId"] == self.account_id:
+                continue
+            self.mules_combo.addItem(bot.account["apikey"]["login"], userData=bot)
+        self.mules_combo.hide()
+        top_widget.layout().addWidget(self.mules_combo)
 
         self.sub_area_farm_combo = ComboBox()
 
@@ -101,22 +111,6 @@ class FarmerWidget(PivotItem):
         top_widget.layout().addWidget(self.sub_area_farm_combo)
 
         self.layout().addWidget(top_widget)
-
-    def on_area_selected(self):
-        current_area_id = self.area_farm_combo.currentData()
-        self.sub_area_farm_combo.clear()
-        if current_area_id is None:
-            return
-        self.sub_area_farm_combo.addItem("")
-        for sub_area in sorted(
-            DataReader().sub_area_by_id.values(),
-            key=lambda subarea: I18N.name_by_id[subarea.nameId],
-        ):
-            if sub_area.areaId != current_area_id:
-                continue
-            self.sub_area_farm_combo.addItem(
-                I18N.name_by_id[sub_area.nameId], userData=sub_area.id
-            )
 
     def init_content(self):
         pivot = SegmentedWidget()
@@ -145,25 +139,113 @@ class FarmerWidget(PivotItem):
             onClick=lambda: stacked_widget.setCurrentWidget(world_tab),
         )
 
+    @pyqtSlot()
+    def on_type_action_changed(self):
+        current_action = self.type_action_combo.currentText()
+        if current_action is BotActionEnum.CRAFTER:
+            self.area_farm_combo.setHidden(True)
+            self.sub_area_farm_combo.setHidden(True)
+        else:
+            self.area_farm_combo.setHidden(False)
+            self.sub_area_farm_combo.setHidden(False)
+
+        if current_action in [BotActionEnum.MULE_FIGHTER, BotActionEnum.CRAFTER]:
+            self.play_btn.setDisabled(True)
+        else:
+            self.play_btn.setDisabled(False)
+
+        if current_action is BotActionEnum.FIGHTER:
+            self.mules_combo.setHidden(False)
+        else:
+            self.mules_combo.setHidden(True)
+
+    @pyqtSlot()
+    def on_area_selected(self):
+        current_area_id = self.area_farm_combo.currentData()
+        self.sub_area_farm_combo.clear()
+        if current_area_id is None:
+            return
+        self.sub_area_farm_combo.addItem("")
+        for sub_area in sorted(
+            DataReader().sub_area_by_id.values(),
+            key=lambda subarea: I18N.name_by_id[subarea.nameId],
+        ):
+            if sub_area.areaId != current_area_id:
+                continue
+            self.sub_area_farm_combo.addItem(
+                I18N.name_by_id[sub_area.nameId], userData=sub_area.id
+            )
+
+    @pyqtSlot()
+    def on_click_play(self):
+        area_id = self.area_farm_combo.currentData()
+        sub_area_id = self.sub_area_farm_combo.currentData()
+        if self.type_action_combo.currentText() == BotActionEnum.HARVESTER:
+            self.bot_signals.play_harvester.emit(area_id, sub_area_id)
+        elif self.type_action_combo.currentText() == BotActionEnum.FIGHTER:
+            self.shared_farm_signals.play_fighter.emit(
+                self.account_id,
+                area_id,
+                sub_area_id,
+                self.mules_combo.selectedItemsData(),
+            )
+
+    @pyqtSlot()
     def on_play(self):
         self.stop_btn.show()
         self.play_btn.hide()
+        self.type_action_combo.setDisabled(True)
+        self.area_farm_combo.setDisabled(True)
+        self.sub_area_farm_combo.setDisabled(True)
+        self.mules_combo.setDisabled(True)
 
-    def on_click_play(self):
-        self.on_play()
-        area_id = self.area_farm_combo.currentData()
-        sub_area_id = self.sub_area_farm_combo.currentData()
-        if self.type_action_combo.currentText() == FarmActionEnum.HARVESTER:
-            self.farm_signals.play_harvester.emit(area_id, sub_area_id)
+    @pyqtSlot(object, object)
+    def on_play_harvester(self, area_id: int | None, sub_area_id: int | None):
+        self.type_action_combo.setCurrentText(BotActionEnum.HARVESTER)
+        self.on_played_zone(area_id, sub_area_id)
 
-        elif self.type_action_combo.currentText() == FarmActionEnum.FIGHTER:
-            self.shared_farm_signals.play_fighter.emit(
-                self.account_id, area_id, sub_area_id, None
+    @pyqtSlot(int, object, object, object)
+    def on_play_fighter(
+        self,
+        account_id: int,
+        area_id: int | None,
+        sub_area_id: int | None,
+        mule_bots: list["Bot"] | None,
+    ):
+        self.type_action_combo.setCurrentText(BotActionEnum.FIGHTER)
+        self.on_played_zone(area_id, sub_area_id)
+
+    @pyqtSlot(int, int)
+    def on_play_mule(self, area_id: int, sub_area_id: int):
+        self.type_action_combo.setCurrentText(BotActionEnum.MULE_FIGHTER)
+        self.on_played_zone(area_id, sub_area_id)
+
+    @pyqtSlot(object)
+    def on_play_craft(self, _):
+        self.type_action_combo.setCurrentText(BotActionEnum.CRAFTER)
+
+    def on_played_zone(self, area_id: int | None, sub_area_id: int | None):
+        if area_id is not None:
+            self.area_farm_combo.setCurrentIndex(self.area_farm_combo.findData(area_id))
+        else:
+            self.area_farm_combo.setCurrentText("")
+
+        if sub_area_id is not None:
+            self.sub_area_farm_combo.setCurrentIndex(
+                self.sub_area_farm_combo.findData(sub_area_id)
             )
+        else:
+            self.sub_area_farm_combo.setCurrentText("")
 
+    @pyqtSlot()
     def on_stop(self):
         self.play_btn.show()
         self.stop_btn.hide()
+        self.type_action_combo.setDisabled(False)
+        self.area_farm_combo.setDisabled(False)
+        self.sub_area_farm_combo.setDisabled(False)
+        self.mules_combo.setDisabled(False)
 
+    @pyqtSlot()
     def on_click_stop(self):
-        self.farm_signals.stop.emit()
+        self.bot_signals.stop.emit()

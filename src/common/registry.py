@@ -12,7 +12,7 @@ def import_and_get_all_msg_from_folder(folder_path: str):
         folder_path (str): root folder
     """
     sys.path.append(folder_path)
-    for root, dirs, files in os.walk(folder_path):
+    for root, _, files in os.walk(folder_path):
         for filename in files:
             if not (filename.endswith(".py") and not filename.startswith("__")):
                 continue

@@ -1,25 +1,12 @@
-import sys
 from dataclasses import dataclass
 
-from PyQt5.QtWidgets import QApplication
 
-from protos.game.common_pb2 import (
-    ActorPositionInformation,
-    EntityDisposition,
-    InteractiveElement,
-)
 from protos.game.gamemap_pb2 import MapObstacle
 from src.core.data_center.map_reader import MapReader
-from src.core.logic.entities.entities import is_entity_actor_on_cell_id
 from src.core.logic.grid.consts import MAP_WIDTH, MAP_COUNT_CELL
 from src.core.logic.grid.directions import DirectionsEnum
 from src.core.logic.grid.map_point import MapPoint
 from src.core.states.game_state import GameState
-from src.core.states.state_factory import StateFactory
-from src.gui.components.graphics.grid_widget import GridView
-from src.signals.grid_signals import GridSignals
-from src.signals.player_signals import GameInfoSignals
-from src.signals.world_signals import MapSignals
 
 TOLERANCE_ELEVATION: int = 11
 
@@ -89,8 +76,8 @@ class DataMapProvider:
                 return False
 
         if not allow_through_entity:
-            if is_entity_actor_on_cell_id(
-                self.game_state.entity.actors_on_mp, map_point.cell_id
+            if self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(
+                map_point.cell_id
             ):
                 return False
 
@@ -110,8 +97,8 @@ class DataMapProvider:
                 weight += 11 + abs(speed)
 
         else:
-            if is_entity_actor_on_cell_id(
-                self.game_state.entity.actors_on_mp, mp.cell_id
+            if self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(
+                mp.cell_id
             ):
                 weight += 0.3
 
@@ -122,9 +109,8 @@ class DataMapProvider:
                 (mp.x, mp.y - 1),
             ]
             for coord_x, coord_y in coords:
-                if is_entity_actor_on_cell_id(
-                    self.game_state.entity.actors_on_mp,
-                    MapPoint.from_coords(coord_x, coord_y).cell_id,
+                if self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(
+                    MapPoint.from_coords(coord_x, coord_y).cell_id
                 ):
                     weight += 0.3
 
@@ -275,32 +261,3 @@ class DataMapProvider:
             )
 
         return False
-
-
-if __name__ == "__main__":
-    grid_signals = GridSignals()
-    debug_signals = MapSignals()
-    game_info_signals = GameInfoSignals()
-    game_state = StateFactory.create_game_state(game_info_signals, grid_signals)
-    data_map_provider = DataMapProvider(game_state=game_state)
-    application = QApplication(sys.argv)
-    widget = GridView(grid_signals=grid_signals, debug_signals=debug_signals)
-
-    game_state.player.character_id = 1
-    game_state.entity.set_actor(
-        ActorPositionInformation(
-            actor_id=1, disposition=EntityDisposition(entity_id=1, cell_id=401)
-        )
-    )
-    map_id = 192413702
-    player_mp = MapPoint.from_cell_id(428)
-    element_mp = MapPoint.from_cell_id(380)
-    element = InteractiveElement(
-        enabled_skills=[InteractiveElement.InteractiveElementSkill(skill_id=184)]
-    )
-
-    widget.on_new_map_id(map_id)
-    debug_signals.white_cell.emit(element_mp)
-    widget.show()
-
-    application.exec()

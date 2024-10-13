@@ -8,9 +8,9 @@ from src.core.logic.grid.consts import MAP_WIDTH, MAP_HEIGHT, CELL_WIDTH, CELL_H
 from src.core.logic.grid.directions import DirectionsEnum
 
 
-def get_map_point_by_cell_id_and_by_coord() -> (
-    tuple[dict[int, "MapPoint"], dict[tuple[int, int], "MapPoint"]]
-):
+def get_map_point_by_cell_id_and_by_coord() -> tuple[
+    dict[int, "MapPoint"], dict[tuple[int, int], "MapPoint"]
+]:
     map_point_by_id: dict[int, MapPoint] = {}
     map_point_by_coord: dict[tuple[int, int], MapPoint] = {}
     start_x: int = 0
@@ -188,10 +188,3 @@ class MapPoint:
 
 
 MAP_POINT_BY_CELL_ID, MAP_POINT_BY_COORD = get_map_point_by_cell_id_and_by_coord()
-
-
-if __name__ == "__main__":
-    print(MapPoint.from_coords(12, -4))
-    # cells = [484, 485, 513, 512]
-    # for cell in cells:
-    #     print(MapPoint.from_cell_id(cell))

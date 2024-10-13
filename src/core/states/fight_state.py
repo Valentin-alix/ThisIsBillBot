@@ -4,11 +4,11 @@ from dataclasses import dataclass, field
 
 from protos.game.common_pb2 import (
     Team,
-    SpellItem,
     SpellModifier,
     SpellModifierType,
     ChallengeMod,
 )
+from protos.game.spell_pb2 import SpellItem
 from src.core.logic.fight.effect import get_effect_elem_by_stat
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State

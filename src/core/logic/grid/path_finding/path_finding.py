@@ -1,6 +1,6 @@
 import sys
 from dataclasses import dataclass, field
-from logging import Logger
+from src.common.logger import Logger
 from time import sleep
 from typing import Iterator
 
@@ -8,7 +8,6 @@ from PyQt5.QtWidgets import QApplication
 from sortedcontainers import SortedSet
 
 from src.core.data_center.data_reader import DataReader
-from src.core.logic.entities.entities import is_entity_actor_on_cell_id
 from src.core.logic.grid.data_map_provider import DataMapProvider
 from src.core.logic.grid.directions import DirectionsEnum
 from src.core.logic.grid.map_point import MapPoint, MAP_POINT_BY_COORD
@@ -46,7 +45,7 @@ class Pathfinding:
     node_by_coord: dict[tuple[int, int], NodeMapPoint] = field(
         init=False, default_factory=dict
     )
-    open_list: SortedSet[NodeMapPoint] = field(init=False, default_factory=SortedSet)
+    open_list: SortedSet = field(init=False, default_factory=SortedSet)
     is_coord_closed: set[tuple[int, int]] = field(init=False, default_factory=set)
 
     def get_interactive_near_path(
@@ -273,8 +272,8 @@ class Pathfinding:
 
         point_weight: float
 
-        entity_on_cell = is_entity_actor_on_cell_id(
-            self.game_state.entity.actors_on_mp, mp.cell_id
+        entity_on_cell = self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(
+            mp.cell_id
         )
         if self.allow_trough_entity:
             speed = self.data_map_provider.get_cell_data(mp.cell_id).speed
@@ -289,8 +288,8 @@ class Pathfinding:
             if entity_on_cell:
                 point_weight += 0.3
             for side_map_point in mp.side_map_points:
-                if is_entity_actor_on_cell_id(
-                    self.game_state.entity.actors_on_mp, side_map_point.cell_id
+                if self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(
+                    side_map_point.cell_id
                 ):
                     point_weight += 0.3
 

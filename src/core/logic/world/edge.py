@@ -10,21 +10,7 @@ from src.signals.world_signals import WorldSignals
 
 FORBIDDEN_EDGE_TRANSITION: set[tuple[int, int, Transition]] = set()
 EXCLUDED_ELEMENT_IDS: set[int] = set()
-FORBIDDEN_MAP_IDS: set[int] = {
-    # 202899464,
-    # 193331717,
-    # 193331716,
-    # 166725120,
-    # 121766912,
-    # 121767936,
-    # 88082698,
-    # 121767936,
-    # 88083210,
-    # 205260292,
-    # 206047751,
-    # 206046725,
-    # 123470339,
-}
+FORBIDDEN_MAP_IDS: set[int] = {99096071, 206046725}
 
 
 def get_valid_transition(
@@ -94,13 +80,6 @@ def draw_edge_path(world_signals: WorldSignals, edges: list[Edge]):
 # 2, m_direction=255, m_skillId=184, m_criterion='', m_transitionMapId=57016832, m_cellId=132, m_id=456644)]) with transition : Transition(m_type=32, m_direction=255, m_ski
 # llId=184, m_criterion='', m_transitionMapId=57016832, m_cellId=132, m_id=456644)
 if __name__ == "__main__":
-    vertice = next(iter(WorldGraphReader().get_vertexes(217059328)))
-
-    edges = WorldGraphReader().get_outgoing_edges_from_vertex(vertice)
-
-    map_data = DataReader().map_pos_by_map_id[54162757]
-    print(map_data.posX, map_data.posY)
-
-    for edge in edges:
-        if edge.m_to.m_mapId == 212600322:
-            print(edge)
+    for map_id in FORBIDDEN_MAP_IDS:
+        map_data = DataReader().map_pos_by_map_id[map_id]
+        print(map_data.posX, map_data.posY)

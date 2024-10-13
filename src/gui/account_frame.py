@@ -1,7 +1,9 @@
 from PyQt5.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import SegmentedWidget
 
+from src.bot import Bot
 from src.common.logger import Logger
+from src.const import DEBUG
 from src.gui.pages.craft.craft_page import CraftPage
 from src.gui.pages.farmer.farmer import FarmerWidget
 from src.gui.pages.logs.logs import LogsWidget
@@ -28,6 +30,7 @@ class AccountFrame(QWidget):
         world_signals: WorldSignals,
         log_signals: LogSignals,
         shared_signals: SharedSignals,
+        bots: list[Bot],
     ):
         super().__init__()
         self.login = login
@@ -40,17 +43,6 @@ class AccountFrame(QWidget):
         stacked_widget = QStackedWidget(self)
         self.layout().addWidget(stacked_widget)
 
-        # sniffer
-        sniffer_interface = SnifferWidget(msg_info_signals)
-        stacked_widget.addWidget(sniffer_interface)
-        sniffer_route = f"{login}_sniffer"
-        pivot.addItem(
-            routeKey=sniffer_route,
-            text="Sniffer",
-            onClick=lambda: stacked_widget.setCurrentWidget(sniffer_interface),
-        )
-        pivot.setCurrentItem(sniffer_route)
-
         # farmer
         harvester_interface = FarmerWidget(
             account_id,
@@ -59,31 +51,44 @@ class AccountFrame(QWidget):
             world_signals,
             farm_signals,
             shared_signals=shared_signals,
+            bots=bots,
         )
         stacked_widget.addWidget(harvester_interface)
-        sniffer_route = f"{login}_harvester"
+        harvester_route = f"{login}_harvester"
         pivot.addItem(
-            routeKey=sniffer_route,
+            routeKey=harvester_route,
             text="Farmer",
             onClick=lambda: stacked_widget.setCurrentWidget(harvester_interface),
         )
+        pivot.setCurrentItem(harvester_route)
 
         # craft
         craft_interface = CraftPage(farm_signals=farm_signals, logger=logger)
         stacked_widget.addWidget(craft_interface)
-        sniffer_route = f"{login}_craft"
+        craft_route = f"{login}_craft"
         pivot.addItem(
-            routeKey=sniffer_route,
+            routeKey=craft_route,
             text="Craft",
             onClick=lambda: stacked_widget.setCurrentWidget(craft_interface),
         )
 
-        # logs
-        logs_interface = LogsWidget(log_signals=log_signals)
-        stacked_widget.addWidget(logs_interface)
-        logs_route = f"{login}_logs"
-        pivot.addItem(
-            routeKey=logs_route,
-            text="Logs",
-            onClick=lambda: stacked_widget.setCurrentWidget(logs_interface),
-        )
+        if DEBUG:
+            # sniffer
+            sniffer_interface = SnifferWidget(msg_info_signals)
+            stacked_widget.addWidget(sniffer_interface)
+            sniffer_route = f"{login}_sniffer"
+            pivot.addItem(
+                routeKey=sniffer_route,
+                text="Sniffer",
+                onClick=lambda: stacked_widget.setCurrentWidget(sniffer_interface),
+            )
+
+            # logs
+            logs_interface = LogsWidget(log_signals=log_signals)
+            stacked_widget.addWidget(logs_interface)
+            logs_route = f"{login}_logs"
+            pivot.addItem(
+                routeKey=logs_route,
+                text="Logs",
+                onClick=lambda: stacked_widget.setCurrentWidget(logs_interface),
+            )

@@ -41,7 +41,7 @@ USEFUL_INGREDIENT_IDS: set[int] = {
     for ingredient_id in DataReader().recipe_by_result_id[recipe].ingredientIds
 } | {11110, 7033}
 
-GATHERER_ITEM_IDS: set[int] = {
+GATHERER_ITEM_GIDS: set[int] = {
     harvestable
     for sub_area in DataReader().sub_area_by_id.values()
     for harvestable in sub_area.harvestables
@@ -53,7 +53,7 @@ GATHERER_ITEM_TABS = 1
 
 
 GUILD_CONTENT_BY_TAB = {
-    GATHERER_ITEM_TABS: GATHERER_ITEM_IDS,
+    GATHERER_ITEM_TABS: GATHERER_ITEM_GIDS,
     2: PROTECTOR_DROP_ITEM_IDS | RECIPE_ITEM_IDS,
 }
 

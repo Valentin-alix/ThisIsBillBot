@@ -6,16 +6,15 @@ from threading import Thread
 from PyQt5.QtCore import Qt
 from qfluentwidgets import Theme, setTheme, setThemeColor
 
-from src.signals.shared_farm_signals import SharedSignals
-from src.signals.shared_subjects import SharedSubjects
-
 sys.path.append(os.path.join(Path(__file__).parent, "D3Database"))
 
-from src.bot_manager import BotManager
 from src.const import DOFUS_CONNECTION_URL
+from src.mitm.proxy_listener import ProxyListener
+from src.signals.shared_farm_signals import SharedSignals
+from src.signals.shared_subjects import SharedSubjects
+from src.bot_manager import BotManager
 from src.gui.application import Application
 from src.gui.main_window import MainWindow
-from src.mitm.proxy_listener import ProxyListener
 
 
 def main() -> None:
@@ -42,15 +41,15 @@ def main() -> None:
 
     for bot in bot_manager.bot_by_account_id.values():
         if bot.account["apikey"]["login"] == "ezrealeu44700_1@outlook.com":
-            bot.bot_signals.play_harvester.emit(8, 519)
+            bot.bot_signals.play_harvester.emit(8, None)
         elif bot.account["apikey"]["login"] == "ezrealeu44700_2@outlook.com":
             bot.bot_signals.play_harvester.emit(48, None)
         elif bot.account["apikey"]["login"] == "ezrealeu44700_3@outlook.com":
             bot.bot_signals.play_harvester.emit(46, None)
         elif bot.account["apikey"]["login"] == "ezrealeu44700_4@outlook.com":
-            bot.bot_signals.play_harvester.emit(48, None)
+            bot.bot_signals.play_harvester.emit(78, None)
         elif bot.account["apikey"]["login"] == "ezrealeu44700_1+s1@outlook.com":
-            bot.bot_signals.play_harvester.emit(0, None)
+            bot.bot_signals.play_harvester.emit(28, None)
         elif bot.account["apikey"]["login"] == "ezrealeu44700_1+s2@outlook.com":
             bot.bot_signals.play_harvester.emit(0, None)
 

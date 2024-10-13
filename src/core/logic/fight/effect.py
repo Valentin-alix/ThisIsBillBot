@@ -3,7 +3,8 @@ from protos.game.common_pb2 import ActorPositionInformation, Team
 from src.core.data_center.data_reader import DataReader
 from src.core.data_center.i18n import I18N
 from src.interfaces.enums.characteristic_enum import CharacteristicEnum
-from src.interfaces.enums.effect_element import EffectElement
+from src.interfaces.enums.description_enum import DescriptionEnum
+from src.interfaces.enums.effect_element import EffectElement, TypeEffect
 
 
 def get_effect_elem_by_stat(stat_id: int):
@@ -34,20 +35,27 @@ def get_stat_by_effect_elem(elem: int):
             raise ValueError(f"Unknown elem : {elem} for stat")
 
 
-def get_life_point_malus(life_point: int, spell_id: int, effect: Effect) -> int:
+def get_type_effect(spell_id: int, effect: Effect) -> TypeEffect | None:
     data_effect = DataReader().effect_by_id[effect.effectId]
     description_spell = I18N.name_by_id[
         DataReader().spell_by_id[spell_id].descriptionId
     ]
-    if not (
-        data_effect.characteristicOperator == "-"
-        and data_effect.characteristic == CharacteristicEnum.LIFE_POINTS
+    if (
+        DescriptionEnum.MALUS_LIFE_PERCENT == data_effect.descriptionId
         and "vie du lanceur" in description_spell.lower()
+        and data_effect.isInPercent
     ):
-        return 0
-    if data_effect.isInPercent:
-        return life_point * effect.diceNum // 100
-    return life_point - effect.diceNum
+        return TypeEffect.MALUS_LIFE_PERCENT
+    if DescriptionEnum.SHIELD_PERCENT_LEVEL == data_effect.descriptionId:
+        return TypeEffect.SHIELD_PERCENT_LEVEL
+
+
+def get_life_point_percent_malus(life_point: int, effect: Effect) -> int:
+    return int(life_point * effect.diceNum / 100)
+
+
+def get_effect_shield_level_bonus(level: int, effect: Effect) -> int:
+    return int(level * effect.diceNum / 100)
 
 
 def is_included_by_mask(

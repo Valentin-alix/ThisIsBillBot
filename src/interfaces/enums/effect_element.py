@@ -1,4 +1,9 @@
-from enum import IntEnum
+from enum import Enum, IntEnum, auto
+
+
+class TypeEffect(Enum):
+    SHIELD_PERCENT_LEVEL = auto()
+    MALUS_LIFE_PERCENT = auto()
 
 
 class EffectElement(IntEnum):
