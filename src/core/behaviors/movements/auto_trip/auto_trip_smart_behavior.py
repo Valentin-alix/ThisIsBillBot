@@ -1,13 +1,15 @@
 from dataclasses import dataclass
 from functools import partial
 
-from protos.game.gamemap_pb2 import MapComplementaryInformationEvent
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
+    MapComplementaryInformationEvent,
+)
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_explorator_behavior import (
     AutoTripExploratorBehavior,
 )
 from src.core.behaviors.npc_dialog_behavior import NpcInfo, NpcDialogBehavior
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.exceptions import UnhandledErrorCodeException
 from src.interfaces.enums.area_enum import AreaEnum
 

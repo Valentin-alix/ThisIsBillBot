@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from protos.game.exchange_pb2 import (
+from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeStartedWithMultiTabStorageEvent,
     ExchangeLeaveEvent,
 )
-from protos.game.inventory_pb2 import (
+from d3_mapping.resources.protos.game.inventory_pb2 import (
     StorageInventoryContentEvent,
     StorageObjectUpdateEvent,
     StorageObjectRemovedEvent,

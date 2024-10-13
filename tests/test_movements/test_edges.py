@@ -1,6 +1,6 @@
 import unittest
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.world_graph_reader import WorldGraphReader
+from data_center.data_reader import DataReader
+from data_center.world_graph_reader import WorldGraphReader
 from src.core.logic.world.edge import FORBIDDEN_MAP_IDS
 
 

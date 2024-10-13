@@ -6,7 +6,7 @@ from threading import Lock, Thread
 
 import select
 
-from src.protocol.protocol import decode_varint_size
+from d3_mapping.protocol.protocol import decode_varint_size
 
 
 class WorkerAction(Enum):
@@ -19,7 +19,7 @@ class WorkerAction(Enum):
 class Proxy:
     client_socket: Socket
     server_socket: Socket
-    queue_worker_item: Queue[tuple[WorkerAction, bytes, bool]] = field(
+    queue_worker_item: Queue[tuple[WorkerAction, bytes, bool, bool]] = field(
         init=False, default_factory=Queue
     )
 
@@ -40,10 +40,12 @@ class Proxy:
 
     def run_worker(self):
         while True:
-            action, data, was_send_from_proxy = self.queue_worker_item.get()
+            action, data, was_send_from_proxy, from_server = (
+                self.queue_worker_item.get()
+            )
             match action:
                 case WorkerAction.RECEIVED:
-                    self.on_sent_msg_datas(data, was_send_from_proxy)
+                    self.on_sent_msg_datas(data, was_send_from_proxy, from_server)
                 case WorkerAction.SEND_CLIENT:
                     self.send_to_client(data)
                 case WorkerAction.SEND_SERVER:
@@ -80,6 +82,8 @@ class Proxy:
     def handle(self, data: bytes, origin: Socket) -> None:
         self.buffers[origin] += data
 
+        from_server = origin == self.server_socket
+
         while True:
             if len(self.buffers[origin]) == 0:
                 break
@@ -93,7 +97,9 @@ class Proxy:
             msg_datas = self.buffers[origin][: pos + size]
             msg_content_datas = self.buffers[origin][pos : pos + size]
 
-            msg_datas_altered = self.alter_msg_datas(msg_content_datas, msg_datas)
+            msg_datas_altered = self.alter_msg_datas(
+                msg_content_datas, msg_datas, from_server
+            )
 
             self.buffers[origin] = self.buffers[origin][pos + size :]
 
@@ -103,24 +109,24 @@ class Proxy:
                     self.opposite_connection[origin].sendall(msg_datas_altered)
 
                 self.queue_worker_item.put(
-                    (WorkerAction.RECEIVED, msg_datas_altered, False)
+                    (WorkerAction.RECEIVED, msg_datas_altered, False, from_server)
                 )
 
     def alter_msg_datas(
-        self, msg_content_datas: bytes, msg_datas: bytes
+        self, msg_content_datas: bytes, msg_datas: bytes, from_server: bool
     ) -> bytes | None:
         return msg_datas
 
     def on_sent_msg_datas(
-        self, msg_datas: bytes, was_send_from_proxy: bool
+        self, msg_datas: bytes, was_send_from_proxy: bool, from_server: bool
     ) -> None: ...
 
     def send_to_client(self, data: bytes):
         with self.locks[self.client_socket]:
             self.client_socket.sendall(data)
-        self.queue_worker_item.put((WorkerAction.RECEIVED, data, True))
+        self.queue_worker_item.put((WorkerAction.RECEIVED, data, True, True))
 
     def send_to_server(self, data: bytes):
         with self.locks[self.server_socket]:
             self.server_socket.sendall(data)
-        self.queue_worker_item.put((WorkerAction.RECEIVED, data, True))
+        self.queue_worker_item.put((WorkerAction.RECEIVED, data, True, False))

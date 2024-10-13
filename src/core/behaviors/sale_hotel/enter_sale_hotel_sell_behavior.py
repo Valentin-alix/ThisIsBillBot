@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from protos.game.exchange_pb2 import (
+from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeBidBuyerStartedEvent,
     ExchangeBidSellerStartedEvent,
 )
-from protos.game.npc_pb2 import NpcGenericActionRequest
+from d3_mapping.resources.protos.game.npc_pb2 import NpcGenericActionRequest
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (

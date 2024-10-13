@@ -4,7 +4,7 @@ from collections import defaultdict
 from functools import reduce
 from pathlib import Path
 
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 
 
 def map_spell_level():

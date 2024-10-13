@@ -1,11 +1,10 @@
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.core.logic.criterions.item_criterion import ItemCriterion
 from src.core.logic.criterions.item_criterion_operator import ItemCriterionOperator
 from src.core.states.game_state import GameState
 
 
 class AreaItemCriterion(ItemCriterion):
-
     def is_respected(self, game_state: GameState) -> bool:
         if (
             self.item_operator.text == ItemCriterionOperator.EQUAL

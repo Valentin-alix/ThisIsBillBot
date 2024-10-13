@@ -3,8 +3,8 @@ from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QModelIndex, Qt
 from PyQt5.QtGui import QStandardItem
 
 from models.datas.recipe_root import RecipeItem
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.i18n import I18N
+from data_center.data_reader import DataReader
+from data_center.i18n import I18N
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
 

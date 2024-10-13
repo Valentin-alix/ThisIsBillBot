@@ -1,6 +1,6 @@
 from models.datas.map_positions_root import MapPositionsRootItem
 from src.const import FAKE_INFINITY_VALUE
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.interfaces.enums.area_enum import AreaEnum
 
 

@@ -1,4 +1,4 @@
-from protos.game.common_pb2 import ActorPositionInformation
+from d3_mapping.resources.protos.game.common_pb2 import ActorPositionInformation
 
 FightFighterInformation = (
     ActorPositionInformation.ActorInformation.FightFighterInformation

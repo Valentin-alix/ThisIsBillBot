@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from models.world_graph import Vertice
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.core.logic.flags.map_position_flags import allow_teleport_to
 from src.core.logic.world.astar_vertice import AstarWorld
 

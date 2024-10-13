@@ -8,8 +8,8 @@ from src.interfaces.metaclasses.singleton import Singleton
 
 
 class SaleHotelController(metaclass=Singleton):
-    _BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID_LOCK = RLock()
-    _BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID_PATH = os.path.join(
+    _HDV_BY_UID_BY_PLAYER_BY_SERVER_LOCK = RLock()
+    _HDV_BY_UID_BY_PLAYER_BY_SERVER_PATH = os.path.join(
         RESOURCE_FOLDER, "bid_seller_item_by_uid_by_player_id.json"
     )
 
@@ -43,43 +43,54 @@ class SaleHotelController(metaclass=Singleton):
             with open(self._AVG_PRICE_BY_GID_BY_SERVER_PATH, "wb+") as file:
                 file.write(msgspec.json.encode(content))
 
-    def get_bid_seller_gid_quantity_by_uid_by_player_id(
+    def get_hdv_by_uid_by_player_by_server(
         self,
-    ) -> dict[int, dict[int, tuple[int, int]]]:
+    ) -> dict[int, dict[int, dict[int, tuple[int, int]]]]:
         with (
-            self._BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID_LOCK,
-            open(self._BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID_PATH, "rb+") as file,
+            self._HDV_BY_UID_BY_PLAYER_BY_SERVER_LOCK,
+            open(self._HDV_BY_UID_BY_PLAYER_BY_SERVER_PATH, "rb+") as file,
         ):
             content = msgspec.json.decode(
-                file.read(), type=dict[int, dict[int, tuple[int, int]]]
+                file.read(), type=dict[int, dict[int, dict[int, tuple[int, int]]]]
             )
         return content
 
-    def update_gid_quantity_by_uid_by_player_id(
-        self, player_id: int, gid_and_quantity_by_uid: dict[int, tuple[int, int]]
+    def update_hdv(
+        self,
+        server_id: int,
+        player_id: int,
+        gid_and_quantity_by_uid: dict[int, tuple[int, int]],
     ) -> None:
-        with self._BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID_LOCK:
-            content = self.get_bid_seller_gid_quantity_by_uid_by_player_id()
-            content[player_id] = gid_and_quantity_by_uid
-            with open(self._BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID_PATH, "wb+") as file:
+        with self._HDV_BY_UID_BY_PLAYER_BY_SERVER_LOCK:
+            content = self.get_hdv_by_uid_by_player_by_server()
+            if server_id not in content:
+                content[server_id] = {}
+            content[server_id][player_id] = gid_and_quantity_by_uid
+            with open(self._HDV_BY_UID_BY_PLAYER_BY_SERVER_PATH, "wb+") as file:
                 file.write(msgspec.json.encode(content))
 
     def add_gid_quantity_by_uid_by_player_id(
-        self, gid: int, quantity: int, uid: int, player_id: int
+        self, server_id: int, player_id: int, gid: int, quantity: int, uid: int
     ) -> None:
-        with self._BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID_LOCK:
-            content = self.get_bid_seller_gid_quantity_by_uid_by_player_id()
-            if player_id not in content:
-                content[player_id] = {}
-            content[player_id][uid] = (gid, quantity)
-            with open(self._BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID_PATH, "wb+") as file:
+        with self._HDV_BY_UID_BY_PLAYER_BY_SERVER_LOCK:
+            content = self.get_hdv_by_uid_by_player_by_server()
+            if server_id not in content:
+                content[server_id] = {}
+            if player_id not in content[server_id]:
+                content[server_id][player_id] = {}
+            content[server_id][player_id][uid] = (gid, quantity)
+            with open(self._HDV_BY_UID_BY_PLAYER_BY_SERVER_PATH, "wb+") as file:
                 file.write(msgspec.json.encode(content))
 
-    def remove_uid_for_player_id(self, uid: int, player_id: int) -> None:
-        with self._BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID_LOCK:
-            content = self.get_bid_seller_gid_quantity_by_uid_by_player_id()
-            if player_id not in content:
-                content[player_id] = {}
-            content[player_id].pop(uid, None)
-            with open(self._BID_SELLER_ITEM_BY_UID_BY_PLAYER_ID_PATH, "wb+") as file:
+    def remove_uid_for_player_id(
+        self, server_id: int, player_id: int, uid: int
+    ) -> None:
+        with self._HDV_BY_UID_BY_PLAYER_BY_SERVER_LOCK:
+            content = self.get_hdv_by_uid_by_player_by_server()
+            if server_id not in content:
+                content[server_id] = {}
+            if player_id not in content[server_id]:
+                content[server_id][player_id] = {}
+            content[server_id][player_id].pop(uid, None)
+            with open(self._HDV_BY_UID_BY_PLAYER_BY_SERVER_PATH, "wb+") as file:
                 file.write(msgspec.json.encode(content))

@@ -1,7 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Iterable
 
-from protos.game.common_pb2 import StatedElement, InteractiveElement
+from d3_mapping.resources.protos.game.common_pb2 import (
+    StatedElement,
+    InteractiveElement,
+)
 from src.core.states.state import State
 from src.signals.grid_signals import GridSignals
 

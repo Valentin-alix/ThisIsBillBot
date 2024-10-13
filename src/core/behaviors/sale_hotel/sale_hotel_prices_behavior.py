@@ -5,9 +5,9 @@ from functools import partial
 import random
 from typing import Iterable
 
-from protos.game.common_pb2 import ObjectItem
-from protos.game.dialog_pb2 import DialogLeaveRequest
-from protos.game.exchange_pb2 import (
+from d3_mapping.resources.protos.game.common_pb2 import ObjectItem
+from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
+from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeBidSellerStartedEvent,
     ExchangeBidHousePriceRequest,
     ExchangeObjectModifyPricedRequest,
@@ -17,7 +17,7 @@ from protos.game.exchange_pb2 import (
     ExchangeBidHouseSearchRequest,
     ExchangeObjectMovePricedRequest,
 )
-from protos.game.inventory_pb2 import InventoryWeightEvent
+from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
 from src.const import VERY_SMALL_RANGE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
@@ -64,7 +64,8 @@ class SaleHotelPricesBehavior(Behavior):
         item_sell_quantity_by_gid: dict[int, int] = defaultdict(int)
         for quantity_by_uid in (
             SaleHotelController()
-            .get_bid_seller_gid_quantity_by_uid_by_player_id()
+            .get_hdv_by_uid_by_player_by_server()
+            .get(self.game_state.player.server_id, {})
             .values()
         ):
             for gid, quantity in quantity_by_uid.values():
@@ -75,7 +76,7 @@ class SaleHotelPricesBehavior(Behavior):
             load_item_info = LoadItemInfo(
                 item_gid=item_gid,
                 remaining_quantity=max(
-                    2000 - item_sell_quantity_by_gid.get(item_gid, 0), 0
+                    4000 - item_sell_quantity_by_gid.get(item_gid, 0), 0
                 ),
             )
             load_items_infos.append(load_item_info)
@@ -278,9 +279,10 @@ class SaleHotelPricesBehavior(Behavior):
         if self.game_state.sale_hotel.bid_seller_condition is None:
             raise UnexpectedStateException("we should have bid seller infos")
         count_item_in_sale = len(
-            SaleHotelController().get_bid_seller_gid_quantity_by_uid_by_player_id()[
-                self.game_state.player.character_id
-            ]
+            SaleHotelController()
+            .get_hdv_by_uid_by_player_by_server()
+            .get(self.game_state.player.server_id, {})
+            .get(self.game_state.player.character_id, {})
         )
         self.logger.info(
             f"item in sale : {count_item_in_sale}, max item possible in sale : {self.game_state.sale_hotel.bid_seller_condition.max_item_per_account}"
@@ -401,9 +403,10 @@ class SaleHotelPricesBehavior(Behavior):
                 continue
             if (
                 item.item.uid
-                not in SaleHotelController().get_bid_seller_gid_quantity_by_uid_by_player_id()[
-                    self.game_state.player.character_id
-                ]
+                not in SaleHotelController()
+                .get_hdv_by_uid_by_player_by_server()
+                .get(self.game_state.player.server_id, {})
+                .get(self.game_state.player.character_id, {})
             ):
                 self.logger.info(
                     f"item {item.item.uid} not in bid seller anymore, skip"

@@ -1,27 +1,25 @@
 import random
 from abc import ABC
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import partial
 
-from protos.game.common_pb2 import ActorPositionInformation, PlayerSearch
-from protos.game.context_pb2 import ContextCreationEvent
-from protos.game.multi_account_pb2 import PartyInvitationRequest, PartyType
-from protos.game.roleplay_pb2 import AttackMonsterRequest
-from src.const import ON_NEW_MAP_BEFORE_ACTION, SMALL_RANGE
+from d3_mapping.resources.protos.game.common_pb2 import ActorPositionInformation
+from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
+from d3_mapping.resources.protos.game.roleplay_pb2 import AttackMonsterRequest
+
+from src.const import ON_NEW_MAP_BEFORE_ACTION
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
 from src.core.behaviors.movements.edge_behavior import EdgeError
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
-from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
+from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
 from src.core.behaviors.storage.unload_behavior import UnloadBehavior
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.core.logic.flags.map_position_flags import allow_monster_agression
 from src.core.logic.grid.path_finding.movement_path import MovementPath
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
-from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
-from src.interfaces.models.barrier import SubjectBarrier
 
 
 @dataclass
@@ -41,73 +39,21 @@ class FighterBehavior(Behavior, ABC):
     map_move_behavior: MapMoveBehavior
     fight_behavior: FightBehavior
     path_finding: Pathfinding
-    ready_barrier: SubjectBarrier
-
-    mule_states: list[GameState] = field(init=False, default_factory=list)
 
     def run(
         self,
         area_id: int | None,
         sub_area_id: int | None,
-        mule_states: list[GameState],
     ):
-        self.mule_states = mule_states
-        self.create_group(area_id, sub_area_id)
-
-    def create_group(self, area_id: int | None, sub_area_id: int | None):
-        self.logger.info(f"party members : {self.game_state.party.party_member_by_id}")
-        for mule_state in self.mule_states:
-            if (
-                mule_state.player.character_id
-                in self.game_state.party.party_member_by_id
-            ):
-                self.logger.info(
-                    f"Character {mule_state.player.character_id} already in group"
-                )
-                continue
-            self.run_timer(
-                SMALL_RANGE,
-                partial(self.invite_mule, name=mule_state.player.character_name),
-            )
-        self.logger.info("Waiting for all mule to accept group invitation")
-        self.ready_barrier.on_ready(
-            callback=lambda: self.on_created_group(area_id, sub_area_id),
-            originator=self,
-        )
-
-    def invite_mule(self, name: str):
-        self.event_manager.send(
-            PartyInvitationRequest(
-                target=PlayerSearch(
-                    search_by_character_name=PlayerSearch.SearchByCharacterName(
-                        name=name
-                    )
-                ),
-                party_type=PartyType.CLASSICAL,
-            )
-        )
-
-    def on_created_group(self, area_id: int | None, sub_area_id: int | None):
-        self.shared_subjects.full_pods.connect(
-            self.on_full_pods_signal, originator=self
-        )
         self.random_farm_behavior.init_random_farm(
             area_id, sub_area_id, self.get_additional_weight_by_map_id
         )
         self.on_new_map()
 
-    def on_full_pods_signal(self):
-        if self.unload_behavior.is_running.is_set():
-            return
-        self.unload_behavior.start(
-            parent=self, callback=self.on_unload_behavior_finished
-        )
-
     def on_new_map(self):
         if self.game_state.map.map_id in self.random_farm_behavior.map_ids:
             self.logger.info(f"Waiting for all mule to go {self.game_state.map.map_id}")
-            self.shared_subjects.leader_target_map_id.emit(self.game_state.map.map_id)
-            self.ready_barrier.on_ready(callback=self.attack_enemy, originator=self)
+            self.attack_enemy()
         else:
             self.run_next_step()
 
@@ -144,6 +90,8 @@ class FighterBehavior(Behavior, ABC):
 
     def on_moved_to_monster(self, error_code: str | None, group_actor_id: int) -> None:
         if error_code is not None:
+            if error_code is MapMoveError.INVALID_STARTING_POINT:
+                return self.attack_enemy()
             raise UnhandledErrorCodeException(error_code)
 
         related_actor = self.game_state.entity.actor_by_id.get(group_actor_id)
@@ -183,13 +131,21 @@ class FighterBehavior(Behavior, ABC):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
         if self.game_state.inventory.is_full_pods:
-            return self.shared_subjects.full_pods.emit()
-        self.ready_barrier.on_ready(callback=self.on_new_map, originator=self)
+            self.on_full_pods()
+        else:
+            self.on_new_map()
+
+    def on_full_pods(self):
+        if self.unload_behavior.is_running.is_set():
+            return
+        self.unload_behavior.start(
+            parent=self, callback=self.on_unload_behavior_finished
+        )
 
     def on_unload_behavior_finished(self, error_code: str | None):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
-        self.ready_barrier.on_ready(callback=self.on_new_map, originator=self)
+        self.on_new_map()
 
     def get_next_enemy(self) -> MonsterGroupInfo | None:
         monster_group_infos: list[MonsterGroupInfo] = []
@@ -237,15 +193,13 @@ class FighterBehavior(Behavior, ABC):
         return total_group_lvl
 
     def get_coeff_level(self, level: int):
-        return level * 1.1 + 5
+        return level * 1.3 + 5
 
     def is_valid_monster_group(
         self,
         monster_group: ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor,
     ) -> bool:
-        group_lvl = sum(
-            self.get_coeff_level(state.player.limited_lvl) for state in self.mule_states
-        ) + self.get_coeff_level(self.game_state.player.limited_lvl)
+        group_lvl = self.get_coeff_level(self.game_state.player.limited_lvl)
         monster_group_lvl = self.get_level_monster_group(monster_group)
         self.logger.info(
             f"Group lvl : {group_lvl} against monster group lvl : {monster_group_lvl}"
@@ -258,7 +212,6 @@ class FighterBehavior(Behavior, ABC):
     ) -> float:
         duration_move = MovementPath.get_total_duration(
             monster_group_info.move_path.path,
-            self.game_state.player.is_riding,
             self.game_state.inventory.inventory_weight,
             self.game_state.inventory.weight_max,
         )

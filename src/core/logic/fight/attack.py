@@ -3,18 +3,17 @@ from logging import Logger
 from typing import Iterable
 
 from models.datas.spell_levels_root import SpellLevelsRootItem, Effect
-from protos.game.common_pb2 import (
+from d3_mapping.resources.protos.game.common_pb2 import (
     SpellModifierType,
     ActorPositionInformation,
+    Team,
 )
 
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.i18n import I18N
-from src.core.data_center.map_reader import MapReader
+from data_center.data_reader import DataReader
+from data_center.i18n import I18N
+from data_center.map_reader import MapReader
 from src.core.logic.fight.damage_calculator import DamageCalculator
 from src.core.logic.fight.effect import (
-    get_effect_shield_level_bonus,
-    get_life_point_percent_malus,
     get_type_effect,
     is_included_by_mask,
 )
@@ -32,8 +31,8 @@ from src.core.logic.fight.spell import (
     does_spell_need_test_los,
 )
 from src.core.logic.fight.spell_zone import get_zone_mps
-from src.core.logic.grid.directions import DirectionsEnum
-from src.core.logic.grid.map_point import MapPoint
+from grid.directions import DirectionsEnum
+from grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.core.states.game_state import GameState
 from src.interfaces.aliases import MonsterFighter
@@ -67,10 +66,7 @@ class Attacker:
                 CharacteristicEnum.ACTION_POINTS
             ):
                 continue
-            if (
-                spell_lvl.initialCooldown != 0
-                and spell_lvl.initialCooldown > self.game_state.fight.fight_turn
-            ):
+            if spell_lvl.initialCooldown != 0:
                 continue
 
             last_triggered_turn = (
@@ -78,12 +74,7 @@ class Attacker:
                     spell_lvl.spellId, None
                 )
             )
-            if (
-                spell_lvl.globalCooldown != 0
-                and last_triggered_turn is not None
-                and self.game_state.fight.fight_turn - last_triggered_turn
-                < spell_lvl.globalCooldown
-            ):
+            if spell_lvl.globalCooldown != 0 and last_triggered_turn is not None:
                 continue
 
             max_cast_per_turn = get_spell_max_cast_per_turn(
@@ -120,11 +111,10 @@ class Attacker:
             if actor.disposition.cell_id != -1
         }
         entities_mp = set(entities_id_by_mp)
-        enemies = self.game_state.entity.get_enemies(self.game_state.fight.team)
+        enemies = self.game_state.entity.get_enemies()
         enemies_mp = {
             MapPoint.from_cell_id(enemy.disposition.cell_id) for enemy in enemies
         }
-        allies = self.game_state.entity.get_allies(self.game_state.fight.team)
         movable_mps = self.fight_reachable_cells.search(
             enemies_mp=enemies_mp, entities_mp=entities_mp
         )
@@ -202,12 +192,7 @@ class Attacker:
                             mp=targetable_mp, direction=direction
                         )
                         total_weight_spell = self.get_weight_attack(
-                            impact_mps,
-                            spell_lvl,
-                            effect,
-                            targetable_mp,
-                            enemies,
-                            allies,
+                            impact_mps, spell_lvl, effect, targetable_mp, enemies
                         )
                         weight_by_direction_and_target[(direction, targetable_mp)] = (
                             total_weight_spell
@@ -293,7 +278,6 @@ class Attacker:
         effect: Effect,
         target_mp: MapPoint,
         enemies: list[ActorPositionInformation],
-        allies: list[ActorPositionInformation],
     ) -> float:
         spell_ap_cost = get_ap_cost_spell(
             spell_lvl,
@@ -306,39 +290,36 @@ class Attacker:
         description_effect = I18N.name_by_id[data_effect.descriptionId]
 
         dmg_weight_spell, thieft_life = self.get_weight_dmg_and_life_thieft_effect(
-            effect, target_mp, impact_mps, enemies, allies, description_effect
+            effect, target_mp, impact_mps, enemies, description_effect
         )
-        life_point_malus: int = 0
-        shield_bonus: int = 0
+        do_life_point_malus: bool = False
+        does_shield: bool = False
+        does_thieft_life: bool = "vol" in description_effect
         for effect in spell_lvl.effects:
             type_effect = get_type_effect(spell_lvl.spellId, effect)
             if type_effect is None:
                 continue
-            if type_effect == TypeEffect.MALUS_LIFE_PERCENT and life_point_malus == 0:
-                life_point_malus = get_life_point_percent_malus(
-                    self.game_state.player.life_point, effect
-                )
-            elif type_effect == TypeEffect.SHIELD_PERCENT_LEVEL and shield_bonus == 0:
-                shield_bonus = get_effect_shield_level_bonus(
-                    self.game_state.player.level, effect
-                )
-        dmg_weight_spell /= 1 + (life_point_malus / self.game_state.player.life_point)
+            if (
+                type_effect == TypeEffect.MALUS_LIFE_PERCENT
+                and do_life_point_malus == 0
+            ):
+                do_life_point_malus = True
+            elif type_effect == TypeEffect.SHIELD_PERCENT_LEVEL and does_shield == 0:
+                does_shield = True
 
-        life_percentage_weight: float = (
-            min(
-                (
-                    self.game_state.player.life_point
-                    + thieft_life
-                    - life_point_malus
-                    + shield_bonus
-                )
-                / self.game_state.player.max_life_point,
-                1,
-            )
-            - self.game_state.player.life_percentage
-        ) / (self.game_state.player.life_percentage**2)
+        malus = 1
+        if do_life_point_malus:
+            malus += 1
 
-        return (dmg_weight_spell * (1 + life_percentage_weight)) / spell_ap_cost
+        bonus = 1
+        if does_shield:
+            bonus += 1
+        if does_thieft_life:
+            bonus += 1
+
+        dmg_weight_spell *= (bonus) / malus
+
+        return dmg_weight_spell
 
     def get_weight_dmg_and_life_thieft_effect(
         self,
@@ -346,7 +327,6 @@ class Attacker:
         target_mp: MapPoint,
         impact_mps: Iterable[MapPoint],
         enemies: list[ActorPositionInformation],
-        allies: list[ActorPositionInformation],
         description_effect: str,
     ) -> tuple[float, float]:
         enemy_killed: int = 0
@@ -360,7 +340,7 @@ class Attacker:
             actor_fight = self.game_state.entity.actor_fight_by_id[enemy.actor_id]
             if not is_included_by_mask(
                 caster_id=self.game_state.player.character_id,
-                caster_team=self.game_state.fight.team,
+                caster_team=Team.TEAM_DEFENDER,
                 masks=effect.targetMask.split(","),
                 target_actor=enemy,
                 is_summoned_target=actor_fight.is_summoned,
@@ -399,37 +379,11 @@ class Attacker:
                     actor_fight.life_point / monster_grade.lifePoints
                 )
 
-        ally_count_hit: int = 0
-        ally_summoned_count_hit: int = 0
-        for ally in allies:
-            ally_mp = MapPoint.from_cell_id(ally.disposition.cell_id)
-            if ally_mp not in impact_mps:
-                continue
-            actor_fight = self.game_state.entity.actor_fight_by_id[ally.actor_id]
-            if not is_included_by_mask(
-                caster_id=self.game_state.player.character_id,
-                caster_team=self.game_state.fight.team,
-                masks=effect.targetMask.split(","),
-                target_actor=ally,
-                is_summoned_target=actor_fight.is_summoned,
-            ):
-                continue
-            if actor_fight.is_summoned:
-                ally_count_hit += 1
-            else:
-                ally_summoned_count_hit += 1
-
         NEGATIVE_COEFF_SUMMONED = 4
-        NEGATIVE_COEFF_ALLY = 2
 
-        positive_weight = (
+        dmg_weight = (
             enemy_dmg_weight + enemy_dmg_summoned_weight / NEGATIVE_COEFF_SUMMONED
         ) * (1 + enemy_killed)
-        negative_weight = (
-            ally_count_hit / NEGATIVE_COEFF_ALLY
-            + ally_summoned_count_hit / (NEGATIVE_COEFF_ALLY * NEGATIVE_COEFF_SUMMONED)
-        )
-        dmg_weight = positive_weight / (1 + negative_weight)
 
         if "vol" in description_effect:
             thieft_life: float = enemy_total_dmg

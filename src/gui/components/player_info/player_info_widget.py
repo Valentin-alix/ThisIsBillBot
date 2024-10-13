@@ -41,19 +41,10 @@ class PlayerInfoWidget(QWidget):
         self.game_info_signals.in_fight.connect(
             partial(self.on_received_property, "Combat", "Est en combat")
         )
-        self.game_info_signals.team.connect(
-            partial(self.on_received_property, "Combat", "Équipe")
-        )
-        self.game_info_signals.fight_turn.connect(
-            partial(self.on_received_property, "Combat", "Tour")
-        )
         self.game_info_signals.inventory_weight.connect(
             self.on_inventory_weight_updated
         )
         self.game_info_signals.weight_max.connect(self.on_weight_max_updated)
-        self.game_info_signals.kamas.connect(
-            partial(self.on_received_property, "Inventaire", "Kamas")
-        )
         self.grid_signals.new_map_id.connect(
             partial(self.on_received_property, "Map", "Map id")
         )

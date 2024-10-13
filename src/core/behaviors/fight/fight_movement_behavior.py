@@ -1,15 +1,16 @@
 from collections import defaultdict
 from dataclasses import dataclass
 
-from protos.game.common_pb2 import (
+from d3_mapping.resources.protos.game.common_pb2 import (
     ActorPositionInformation,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
 from src.core.logic.fight.reachable_cells.fight_reachable_cells import (
     FightReachableCells,
 )
-from src.core.logic.grid.map_point import MapPoint
+from grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.movement_path import MovementPath
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.interfaces.enums.characteristic_enum import CharacteristicEnum
@@ -56,7 +57,7 @@ class FightMovementBehavior(Behavior):
     def find_near_enemy_with_dist(
         self, start: MapPoint
     ) -> tuple[ActorPositionInformation, MovementPath, float] | None:
-        enemies = self.game_state.entity.get_enemies(self.game_state.fight.team)
+        enemies = self.game_state.entity.get_enemies()
         if len(enemies) == 0:
             return None
 
@@ -105,7 +106,7 @@ class FightMovementBehavior(Behavior):
         }
         enemies_mp = {
             MapPoint.from_cell_id(enemy.disposition.cell_id)
-            for enemy in self.game_state.entity.get_enemies(self.game_state.fight.team)
+            for enemy in self.game_state.entity.get_enemies()
         }
 
         self.logger.info(f"enemies mp : {enemies_mp}")

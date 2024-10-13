@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from functools import partial
 
-from protos.game.dialog_pb2 import DialogLeaveEvent
-from protos.game.npc_pb2 import (
+from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveEvent
+from d3_mapping.resources.protos.game.npc_pb2 import (
     NpcGenericActionRequest,
     NpcDialogQuestionEvent,
     NpcDialogReplyRequest,

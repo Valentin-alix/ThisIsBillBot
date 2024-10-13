@@ -1,4 +1,4 @@
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 
 
 def allow_monster_agression(m_flags: int) -> bool:

@@ -4,7 +4,7 @@ from qfluentwidgets import FluentIcon, TransparentToolButton
 
 from models.datas.recipe_root import RecipeItem
 from src.common.logger import Logger
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.gui.pages.craft.recipe_group import RecipeGroup
 from src.gui.pages.craft.recipe_table import RecipeTable
 from src.signals.bot_signals import BotSignals

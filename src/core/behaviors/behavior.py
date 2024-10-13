@@ -7,7 +7,6 @@ from src.common.logger import Logger
 from src.common.timing import get_random_range
 from src.core.states.game_state import GameState
 from src.event_manager import EventManager
-from src.signals.shared_subjects import SharedSubjects
 
 
 @dataclass
@@ -17,7 +16,6 @@ class Behavior(ABC):
     logger: Logger
     callback: Callable | None = field(init=False, default=None)
     parent: "Behavior|None" = field(init=False, default=None)
-    shared_subjects: SharedSubjects
 
     is_running: Event = field(init=False, default_factory=Event)
     children: "list[Behavior]" = field(init=False, default_factory=list)
@@ -89,8 +87,6 @@ class Behavior(ABC):
             for timer in self.timers:
                 timer.cancel()
             self.timers.clear()
-
-            self.shared_subjects.disconnect_originator(self)
 
             self.event_manager.clear_listener_by_origin(self)
             self.event_manager.clear_modifier_by_origin(self)

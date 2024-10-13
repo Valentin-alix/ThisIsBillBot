@@ -1,20 +1,14 @@
 from dataclasses import dataclass
-from time import perf_counter
 
 from google.protobuf.any_pb2 import Any
 from google.protobuf.message import Message
 
-from protos.game.game_message_pb2 import GameMessage, Request, Response
+from d3_mapping.protocol.protocol import decode_varint_size
+from d3_mapping.protocol.protocol_game import get_game_msg_info
+from d3_mapping.resources.protos.game.game_message_pb2 import GameMessage, Request
 from src.bot import Bot
 from src.const import TYPE_URL_PREFIX
 from src.mitm.proxy import Proxy, WorkerAction
-from src.protocol.protocol import decode_varint_size
-from src.protocol.protocol import encode_msg
-from src.protocol.protocol_game import (
-    get_game_msg,
-    get_game_msg_info,
-    MAPPING_GAME_PROTO_TO_OBF,
-)
 
 
 @dataclass
@@ -29,9 +23,9 @@ class GameProxy(Proxy):
         self.bot.game_info_signals.disconnected.emit()
 
     def alter_msg_datas(
-        self, msg_content_datas: bytes, msg_datas: bytes
+        self, msg_content_datas: bytes, msg_datas: bytes, from_server: bool
     ) -> bytes | None:
-        msg_content, sub_msg_content = get_game_msg(msg_content_datas)
+        msg_content, sub_msg_content = get_game_msg_info(msg_content_datas, from_server)
         if sub_msg_content is None:
             return msg_datas
 
@@ -42,6 +36,7 @@ class GameProxy(Proxy):
         if sub_altered_msg is None:
             return None
 
+        return
         # msg was altered, let's repack any value
         any_msg = Any()
         any_msg.Pack(sub_altered_msg, type_url_prefix=TYPE_URL_PREFIX)
@@ -59,15 +54,18 @@ class GameProxy(Proxy):
 
         return encode_msg(full_msg)
 
-    def on_sent_msg_datas(self, msg_datas: bytes, was_send_from_proxy: bool) -> None:
+    def on_sent_msg_datas(
+        self, msg_datas: bytes, was_send_from_proxy: bool, from_server: bool
+    ) -> None:
         size, pos = decode_varint_size(msg_datas)
         msg_content_datas = msg_datas[pos : pos + size]
-        msg_infos, msg = get_game_msg_info(msg_content_datas)
+        msg_infos, msg = get_game_msg_info(msg_content_datas, from_server)
         self.bot.msg_info_signals.msg_info.emit(msg_infos, was_send_from_proxy)
         if msg is not None:
             self.bot.event_manager.process_msg(msg)
 
     def send_msg(self, msg: Message):
+        return
         any_msg = Any()
         any_msg.Pack(msg, type_url_prefix=TYPE_URL_PREFIX)
         any_msg.type_url = (
@@ -76,15 +74,3 @@ class GameProxy(Proxy):
         )
         msg = GameMessage(request=Request(uid=-1, content=any_msg))
         self.queue_worker_item.put((WorkerAction.SEND_SERVER, encode_msg(msg), True))
-
-    def send_to_server(self, data: bytes):
-        self.bot.game_state.server.latest_sent = perf_counter()
-        return super().send_to_server(data)
-
-    def send_to_client(self, data: bytes):
-        if self.bot.game_state.server.latest_sent is not None:
-            self.bot.game_state.server.latency_buffer.append(
-                perf_counter() - self.bot.game_state.server.latest_sent
-            )
-            self.bot.game_state.server.latest_sent = None
-        return super().send_to_client(data)

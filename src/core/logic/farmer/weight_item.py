@@ -1,5 +1,5 @@
-from protos.game.common_pb2 import ObjectItemInventory
-from src.core.data_center.data_reader import DataReader
+from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from data_center.data_reader import DataReader
 
 
 def get_weight_item_for_sale_hotel(

@@ -4,8 +4,8 @@ from typing import Iterator
 
 from models.world_graph import Vertice, Edge
 from src.common.astar import Astar, Node
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.world_graph_reader import WorldGraphReader
+from data_center.data_reader import DataReader
+from data_center.world_graph_reader import WorldGraphReader
 from src.core.logic.world.edge import iter_valid_outgoing_edges
 from src.core.logic.world.map_position import get_dist_to_maps
 from src.core.states.game_state import GameState

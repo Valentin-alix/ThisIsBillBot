@@ -1,17 +1,17 @@
 from dataclasses import dataclass, field
 from functools import partial
 
-from protos.game.common_pb2 import ObjectItemInventory
-from protos.game.dialog_pb2 import DialogLeaveRequest
-from protos.game.exchange_pb2 import (
+from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
+from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeObjectMoveRequest,
     ExchangeLeaveEvent,
 )
-from protos.game.guild_chest_pb2 import (
+from d3_mapping.resources.protos.game.guild_chest_pb2 import (
     GuildChestTabSelectRequest,
     GuildChestCurrentListenersAddEvent,
 )
-from protos.game.inventory_pb2 import (
+from d3_mapping.resources.protos.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
 from src.const import BASE_RANGE, SMALL_RANGE

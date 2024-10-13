@@ -6,11 +6,11 @@ from typing import Callable, Any
 from PyQt5.QtCore import QThread
 from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
 
+from d3_mapping.signals.message_signals import MessageInfoSignals
 from models.datas.recipe_root import RecipeItem
 from src.common.logger import Logger
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.farms.fighter.fighter_behavior import FighterBehavior
-from src.core.behaviors.farms.fighter.mule_fighter_behavior import MuleFighterBehavior
 from src.core.behaviors.farms.harvest.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
 from src.core.frames.frame import Frame
@@ -21,7 +21,6 @@ from src.gui.utils.run_in_background import run_in_background, Worker
 from src.signals.bot_signals import BotSignals
 from src.signals.grid_signals import GridSignals
 from src.signals.log_signals import LogSignals
-from src.signals.message_signals import MessageInfoSignals
 from src.signals.player_signals import GameInfoSignals
 from src.signals.shared_farm_signals import SharedSignals
 from src.signals.world_signals import WorldSignals
@@ -48,7 +47,6 @@ class Bot:
     harvester_behavior: HarvesterBehavior
     fighter_behavior: FighterBehavior
     craft_behavior: CraftBehavior
-    mule_fighter_behavior: MuleFighterBehavior
     fight_behavior: FightBehavior
     logger: Logger
     is_connected_event: Event
@@ -74,6 +72,7 @@ class Bot:
         self.bot_signals.stop.connect(self.on_stop)
         self.game_info_signals.is_ready_to_play.connect(self.on_ready_to_play)
         self.bot_signals.play_harvester.connect(self.on_play_harvester)
+        self.bot_signals.play_fighter.connect(self.on_play_fighter)
         self.bot_signals.play_crafter.connect(self.on_play_crafter)
 
     def on_connected(self):
@@ -130,6 +129,20 @@ class Bot:
             )
         )
 
+    def on_play_fighter(
+        self,
+        area_id: int | None,
+        sub_area_id: int | None,
+    ):
+        self.play_action(
+            lambda: self.fighter_behavior.start(
+                callback=lambda _: self.bot_signals.stop.emit(),
+                parent=None,
+                area_id=area_id,
+                sub_area_id=sub_area_id,
+            )
+        )
+
     def on_play_crafter(self, recipes: list[RecipeItem]):
         self.play_action(
             lambda: self.craft_behavior.start(
@@ -162,8 +175,6 @@ class Bot:
             self.harvester_behavior.stop()
         if self.fighter_behavior.is_running.is_set():
             self.fighter_behavior.stop()
-        if self.mule_fighter_behavior.is_running.is_set():
-            self.mule_fighter_behavior.stop()
         if self.craft_behavior.is_running.is_set():
             self.craft_behavior.stop()
         if self.fight_behavior.is_running.is_set():
@@ -174,8 +185,6 @@ class Bot:
             self.harvester_behavior.finish()
         if self.fighter_behavior.is_running.is_set():
             self.fighter_behavior.finish()
-        if self.mule_fighter_behavior.is_running.is_set():
-            self.mule_fighter_behavior.finish()
         if self.craft_behavior.is_running.is_set():
             self.craft_behavior.finish()
         if self.fight_behavior.is_running.is_set():

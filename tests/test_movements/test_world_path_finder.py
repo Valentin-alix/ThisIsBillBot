@@ -2,8 +2,8 @@ import sys
 from threading import Thread
 
 from PyQt5.QtWidgets import QApplication
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.world_graph_reader import WorldGraphReader
+from data_center.data_reader import DataReader
+from data_center.world_graph_reader import WorldGraphReader
 from src.gui.components.graphics.map_world_widget import MapWorldView
 from tests.setup_factory import GameStateFixture
 

@@ -6,7 +6,7 @@ from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripEr
 from src.core.behaviors.movements.auto_trip.auto_trip_zaap_behavior import (
     AutoTripZaapBehavior,
 )
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.core.logic.world.map_position import get_dist_to_maps
 from src.core.logic.world.waypoint import get_near_waypoint
 from src.exceptions import UnhandledErrorCodeException

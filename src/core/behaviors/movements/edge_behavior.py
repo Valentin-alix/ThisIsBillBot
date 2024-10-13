@@ -3,7 +3,7 @@ from enum import StrEnum, auto
 from functools import partial
 
 from models.world_graph import Edge, Transition
-from protos.game.gamemap_pb2 import MapCurrentEvent
+from d3_mapping.resources.protos.game.gamemap_pb2 import MapCurrentEvent
 from src.const import BASE_RANGE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactive_behavior import (
@@ -15,8 +15,8 @@ from src.core.behaviors.movements.map_change_behavior import (
     MapChangeError,
 )
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
-from src.core.data_center.map_reader import MapReader
-from src.core.logic.grid.map_point import MapPoint
+from data_center.map_reader import MapReader
+from grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.core.logic.world.edge import (
     get_valid_transition,

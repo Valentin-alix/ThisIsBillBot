@@ -1,4 +1,4 @@
-from protos.game.common_pb2 import CharacterCharacteristic
+from d3_mapping.resources.protos.game.common_pb2 import CharacterCharacteristic
 
 
 def get_stat_by_id(stat: CharacterCharacteristic | None) -> int:

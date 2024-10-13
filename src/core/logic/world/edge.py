@@ -1,8 +1,9 @@
 from typing import Iterator
 
-from models.world_graph import Edge, Vertice, Transition
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.world_graph_reader import WorldGraphReader
+from models.world_graph import Edge, Transition, Vertice
+
+from data_center.data_reader import DataReader
+from data_center.world_graph_reader import WorldGraphReader
 from src.core.logic.criterions.consts import CRITERION_WHITE_LIST
 from src.core.logic.criterions.group_item_criterion import GroupItemCriterion
 from src.core.states.game_state import GameState
@@ -10,7 +11,7 @@ from src.signals.world_signals import WorldSignals
 
 FORBIDDEN_EDGE_TRANSITION: set[tuple[int, int, Transition]] = set()
 EXCLUDED_ELEMENT_IDS: set[int] = set()
-FORBIDDEN_MAP_IDS: set[int] = {99096071, 206046725}
+FORBIDDEN_MAP_IDS: set[int] = {99096071, 206046725, 193331717}
 
 
 def get_valid_transition(

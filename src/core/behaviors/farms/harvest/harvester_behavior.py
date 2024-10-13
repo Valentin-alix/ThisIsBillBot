@@ -1,13 +1,13 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
-from protos.game.context_pb2 import ContextCreationEvent
-from protos.game.inventory_pb2 import (
+from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
+from d3_mapping.resources.protos.game.inventory_pb2 import (
     ObjectUseRequest,
     ObjectUseMultipleRequest,
     ObjectDeletedEvent,
 )
-from protos.game.job_pb2 import JobExperiencesUpdateEvent
+from d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
 from src.const import FAKE_INFINITY_VALUE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.harvest.collect_behavior import (
@@ -26,7 +26,7 @@ from src.core.behaviors.storage.enter_guild_chest_behavior import EnterGuildChes
 from src.core.behaviors.storage.unload_behavior import UnloadBehavior
 from src.core.controller.gfx_mapping import GfxMappingController
 from src.core.controller.sale_hotel import SaleHotelController
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.core.logic.farmer.weight_collectables import (
     get_map_ids_to_explore,
     get_map_id_collectable_weight,

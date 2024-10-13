@@ -2,7 +2,7 @@ import dataclasses
 import datetime
 
 
-from protos.game.exchange_pb2 import SellingConditions
+from d3_mapping.resources.protos.game.exchange_pb2 import SellingConditions
 from src.core.states.state import State
 
 

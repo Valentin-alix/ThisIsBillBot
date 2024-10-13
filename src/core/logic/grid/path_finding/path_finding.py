@@ -7,10 +7,10 @@ from typing import Iterator
 from PyQt5.QtWidgets import QApplication
 from sortedcontainers import SortedSet
 
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.core.logic.grid.data_map_provider import DataMapProvider
-from src.core.logic.grid.directions import DirectionsEnum
-from src.core.logic.grid.map_point import MapPoint, MAP_POINT_BY_COORD
+from grid.directions import DirectionsEnum
+from grid.map_point import MapPoint, MAP_POINT_BY_COORD
 from src.core.logic.grid.map_tools import MapTools
 from src.core.logic.grid.path_finding.movement_path import MovementPath
 from src.core.logic.grid.path_finding.node_map_point import NodeMapPoint

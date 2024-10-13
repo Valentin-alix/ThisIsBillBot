@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from functools import partial
 
 from models.datas.recipe_root import RecipeItem
-from protos.game.dialog_pb2 import DialogLeaveRequest
-from protos.game.exchange_pb2 import (
+from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
+from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeCraftStartedEvent,
     ExchangeSetCraftRecipeRequest,
     ExchangeCraftCountRequest,
@@ -11,7 +11,7 @@ from protos.game.exchange_pb2 import (
     ExchangeReadyRequest,
     ExchangeLeaveEvent,
 )
-from protos.game.inventory_pb2 import InventoryWeightEvent
+from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
 from src.const import BASE_RANGE, SMALL_RANGE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactive_behavior import InteractiveBehavior
@@ -21,9 +21,9 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 from src.core.behaviors.storage.load_recipe_from_guild_chest_behavior import (
     LoadRecipeFromGuildChestBehavior,
 )
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.map_reader import MapReader
-from src.core.logic.grid.map_point import MapPoint
+from data_center.data_reader import DataReader
+from data_center.map_reader import MapReader
+from grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
 

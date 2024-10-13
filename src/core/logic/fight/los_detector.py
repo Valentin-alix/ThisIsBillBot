@@ -1,7 +1,7 @@
 from typing import Iterable
 
-from src.core.data_center.map_reader import MapReader
-from src.core.logic.grid.map_point import MapPoint
+from data_center.map_reader import MapReader
+from grid.map_point import MapPoint
 from src.core.logic.grid.map_tools import MapTools
 
 

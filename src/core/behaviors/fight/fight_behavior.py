@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from protos.game.character_pb2 import CharacterLifeStatusEvent
-from protos.game.fight_pb2 import (
+from d3_mapping.resources.protos.game.character_pb2 import CharacterLifeStatusEvent
+from d3_mapping.resources.protos.game.fight_pb2 import (
     FightTurnStartPlayingEvent,
 )
-from protos.game.gamemap_pb2 import (
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
     FightMapInformationEvent,
 )

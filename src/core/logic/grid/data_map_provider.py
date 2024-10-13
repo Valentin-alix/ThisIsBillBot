@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
 
-from protos.game.gamemap_pb2 import MapObstacle
-from src.core.data_center.map_reader import MapReader
-from src.core.logic.grid.consts import MAP_WIDTH, MAP_COUNT_CELL
-from src.core.logic.grid.directions import DirectionsEnum
-from src.core.logic.grid.map_point import MapPoint
+from d3_mapping.resources.protos.game.gamemap_pb2 import MapObstacle
+from data_center.map_reader import MapReader
+from grid.consts import MAP_WIDTH, MAP_COUNT_CELL
+from grid.directions import DirectionsEnum
+from grid.map_point import MapPoint
 from src.core.states.game_state import GameState
 
 TOLERANCE_ELEVATION: int = 11

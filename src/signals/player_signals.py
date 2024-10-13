@@ -15,6 +15,3 @@ class GameInfoSignals(QObject):
     subscription_end_date = pyqtSignal(datetime.datetime)
     in_fight = pyqtSignal(bool)
     level = pyqtSignal(int)
-    team = pyqtSignal(object)
-    fight_turn = pyqtSignal(int)
-    kamas = pyqtSignal(int)

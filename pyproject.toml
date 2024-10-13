@@ -21,6 +21,8 @@ protobuf = "5.28.3"
 sortedcontainers = "^2.4.0"
 pywin32 = "^308"
 pywin32-stubs = "^1.0.7"
+mypy = "^1.15.0"
+proto-schema-parser = "^1.4.8"
 
 [tool.poetry.group.dev.dependencies]
 pyqt5-stubs = "^5.15.6.0"
@@ -33,9 +35,9 @@ pyinstaller = "^6.11.1"
 ruff = "^0.9.4"
 
 [tool.pylint]
-disable = [
-    "missing-docstring", "R0902", "too-few-public-methods"
-]
+exclude = ["__init__.py", "__init__.pyi", "env.py", ".venv/**/*"]
+ignore = ["E402"]
+line-length = 200
 
 [build-system]
 requires = ["poetry-core"]

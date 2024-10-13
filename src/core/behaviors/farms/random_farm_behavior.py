@@ -4,7 +4,9 @@ from functools import partial
 from typing import Callable
 
 from models.world_graph import Edge
-from protos.game.gamemap_pb2 import MapComplementaryInformationEvent
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
+    MapComplementaryInformationEvent,
+)
 from src.const import MIN_DATE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
@@ -12,7 +14,7 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 )
 from src.core.behaviors.movements.edge_behavior import EdgeBehavior
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.core.logic.farmer.weight_collectables import (
     draw_weight_on_map,
 )

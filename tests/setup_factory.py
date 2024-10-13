@@ -1,10 +1,10 @@
 import unittest
-from protos.game.spell_pb2 import SpellItem
+from d3_mapping.resources.protos.game.spell_pb2 import SpellItem
 from src.common.logger import Logger
 from typing import Iterable
 
 
-from protos.game.common_pb2 import (
+from d3_mapping.resources.protos.game.common_pb2 import (
     ActorPositionInformation,
     EntityDisposition,
     FightCharacteristics,
@@ -13,7 +13,7 @@ from protos.game.common_pb2 import (
     Team,
     SpawnInformation,
 )
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.core.logic.fight.attack import Attacker
 from src.core.logic.fight.damage_calculator import DamageCalculator
 from src.core.logic.fight.reachable_cells.fight_reachable_cells import (
@@ -83,8 +83,6 @@ class GameStateFixture(unittest.TestCase):
         movement_point: int = 5,
     ):
         player_id = -1
-        self.game_state.fight.team = Team.TEAM_CHALLENGER
-        self.game_state.fight.fight_turn = 1
         self.game_state.map.map_id = map_id
         self.game_state.player.character_id = player_id
         self.game_state.player.breed_id = Breed.CRA

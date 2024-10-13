@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 
-from protos.game.character_pb2 import CharacterLifeStatusEvent
-from protos.game.gamemap_pb2 import (
+from d3_mapping.resources.protos.game.character_pb2 import CharacterLifeStatusEvent
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
     MapCurrentEvent,
     FightMapInformationEvent,
     MapMovementConfirmRequest,
 )
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.core.frames.frame import Frame
 from src.signals.world_signals import WorldSignals
 

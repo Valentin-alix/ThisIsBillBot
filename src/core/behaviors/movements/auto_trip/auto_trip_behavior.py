@@ -3,7 +3,9 @@ from enum import StrEnum, auto
 from functools import partial
 
 from models.world_graph import Edge
-from protos.game.gamemap_pb2 import MapComplementaryInformationEvent
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
+    MapComplementaryInformationEvent,
+)
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.edge_behavior import EdgeBehavior, EdgeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveError

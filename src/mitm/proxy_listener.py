@@ -23,13 +23,16 @@ class ProxyListener:
         self, client_socket: Socket, server_socket: Socket, host_port: int
     ) -> None:
         def on_game_connection_callback(
-            host_port: int, target_address: tuple[str, int], bot: Bot
-        ) -> None:
+            target_address: tuple[str, int], bot: Bot
+        ) -> int:
+            proxy_socket = self.create_server()
+            host_port = proxy_socket.getsockname()[1]
             self.account_by_port[host_port] = bot
             Thread(
-                target=lambda: self.start_listener(host_port, target_address),
+                target=lambda: self.start_listener(proxy_socket, target_address),
                 daemon=True,
             ).start()
+            return host_port
 
         bridge: Proxy
         if server_socket.getpeername()[0] in CONNECTION_SERVERS_IPS:
@@ -62,8 +65,19 @@ class ProxyListener:
 
         bridge.loop()
 
+    def create_server(self, port: int = 0) -> Socket:
+        return socket.create_server(
+            address=("::", port),
+            family=AF_INET6,
+            backlog=5,
+            dualstack_ipv6=True,
+        )
+
     def start_listener(
-        self, host_port: int, target_address: tuple[str, int], forever: bool = False
+        self,
+        proxy_socket: Socket,
+        target_address: tuple[str, int],
+        forever: bool = False,
     ):
         def on_connection(client_socket: Socket, host_port: int):
             print(f"received connection from {client_socket.getpeername()}")
@@ -72,12 +86,7 @@ class ProxyListener:
             print(f"connect to {server_socket.getpeername()}")
             self.on_mitm_connection_callback(client_socket, server_socket, host_port)
 
-        proxy_socket = socket.create_server(
-            address=("::", host_port),
-            family=AF_INET6,
-            backlog=5,
-            dualstack_ipv6=True,
-        )
+        host_port = proxy_socket.getsockname()[1]
 
         while True:
             print(f"listening on {host_port} at localhost for target {target_address}")

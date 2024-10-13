@@ -2,13 +2,12 @@ import dataclasses
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from protos.game.common_pb2 import (
-    Team,
+from d3_mapping.resources.protos.game.common_pb2 import (
     SpellModifier,
     SpellModifierType,
     ChallengeMod,
 )
-from protos.game.spell_pb2 import SpellItem
+from d3_mapping.resources.protos.game.spell_pb2 import SpellItem
 from src.core.logic.fight.effect import get_effect_elem_by_stat
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State
@@ -23,7 +22,6 @@ class FightState(State):
     game_info_signals: GameInfoSignals
 
     is_map_fight_initialized: bool = field(init=False, default=False)
-    leader_id: int = field(default=0, init=False)
     fight_placement_possible_positions: list[int] = field(
         default_factory=list, init=False
     )
@@ -41,9 +39,7 @@ class FightState(State):
     last_triggered_turn_by_spell_id: dict[int, int] = dataclasses.field(
         default_factory=dict, init=False
     )
-    state_ids: set[int] = dataclasses.field(init=False, default_factory=set)
     _in_fight: bool = dataclasses.field(init=False, default=False)
-    _team: Team = dataclasses.field(init=False, default=Team.TEAM_NEUTRAL)
     _fight_turn: int = dataclasses.field(init=False, default=0)
 
     def clear_state(self):
@@ -55,28 +51,7 @@ class FightState(State):
         self.modifier_by_type_and_spell_id.clear()
         self.count_casted_by_target_by_spell_id.clear()
         self.last_triggered_turn_by_spell_id.clear()
-        self.state_ids.clear()
         self.in_fight = False
-        self.team = Team.TEAM_NEUTRAL
-        self.fight_turn = 0
-
-    @property
-    def team(self):
-        return self._team
-
-    @team.setter
-    def team(self, value: Team):
-        self._team = value
-        self.game_info_signals.team.emit(self._team)
-
-    @property
-    def fight_turn(self):
-        return self._fight_turn
-
-    @fight_turn.setter
-    def fight_turn(self, value: int):
-        self._fight_turn = value
-        self.game_info_signals.team.emit(self._fight_turn)
 
     @property
     def in_fight(self):

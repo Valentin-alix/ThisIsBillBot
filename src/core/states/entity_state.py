@@ -1,14 +1,14 @@
 from dataclasses import dataclass, field
 from typing import Iterable, cast
 
-from protos.game.common_pb2 import (
+from d3_mapping.resources.protos.game.common_pb2 import (
     ActorPositionInformation,
     EntityDisposition,
     Direction,
     Team,
 )
-from protos.game.gamemap_pb2 import MapObstacle
-from src.core.logic.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
+from d3_mapping.resources.protos.game.gamemap_pb2 import MapObstacle
+from grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 from src.core.logic.stats.characteristic import get_stat_by_id
 from src.core.states.state import State
 from src.interfaces.enums.characteristic_enum import CharacteristicEnum
@@ -172,19 +172,12 @@ class EntityState(State):
             actor_id
         ]
 
-    def get_enemies(self, team: Team) -> list[ActorPositionInformation]:
+    def get_enemies(self) -> list[ActorPositionInformation]:
         return [
             actor
             for actor in self.actor_by_id.values()
-            if actor.actor_information.fighter.spawn_information.team != team
-            and actor.disposition.cell_id != -1
-        ]
-
-    def get_allies(self, team: Team) -> list[ActorPositionInformation]:
-        return [
-            actor
-            for actor in self.actor_by_id.values()
-            if actor.actor_information.fighter.spawn_information.team == team
+            if actor.actor_information.fighter.spawn_information.team
+            != Team.TEAM_DEFENDER
             and actor.disposition.cell_id != -1
         ]
 

@@ -1,7 +1,7 @@
 import timeit
 
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.i18n import I18N
+from data_center.data_reader import DataReader
+from data_center.i18n import I18N
 from tests.setup_factory import GameStateFixture
 
 

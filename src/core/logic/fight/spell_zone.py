@@ -1,5 +1,5 @@
-from src.common.cache import cache
-from src.core.logic.grid.map_point import MapPoint
+from D3Database.utils import cache
+from grid.map_point import MapPoint
 from src.core.logic.zones.cone import Cone
 from src.core.logic.zones.cross import Cross
 from src.core.logic.zones.fork import Fork

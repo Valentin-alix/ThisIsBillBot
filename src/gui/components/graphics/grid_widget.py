@@ -11,9 +11,9 @@ from PyQt5.QtWidgets import (
     QGraphicsEllipseItem,
 )
 
-from src.core.data_center.map_reader import MapReader
-from src.core.logic.grid.consts import CELL_HEIGHT, CELL_WIDTH
-from src.core.logic.grid.map_point import MapPoint, MAP_POINT_BY_CELL_ID
+from data_center.map_reader import MapReader
+from grid.consts import CELL_HEIGHT, CELL_WIDTH
+from grid.map_point import MapPoint, MAP_POINT_BY_CELL_ID
 from src.signals.grid_signals import GridSignals
 from src.signals.world_signals import MapSignals
 

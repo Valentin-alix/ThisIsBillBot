@@ -1,4 +1,4 @@
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.core.logic.fight.effect import (
     get_life_point_percent_malus,
     get_effect_shield_level_bonus,

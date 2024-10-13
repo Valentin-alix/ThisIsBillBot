@@ -1,31 +1,31 @@
 from dataclasses import dataclass
 from typing import cast
 
-from protos.game.common_pb2 import (
+
+from d3_mapping.resources.protos.game.common_pb2 import (
     SpawnInformation,
     ActorPositionInformation,
     Direction,
 )
-from protos.game.context_pb2 import (
+from d3_mapping.resources.protos.game.context_pb2 import (
     ContextRemoveElementEvent,
     EntitiesDispositionEvent,
 )
-from protos.game.fight_pb2 import (
+from d3_mapping.resources.protos.game.fight_pb2 import (
     FightFighterRefreshEvent,
     FightSynchronizeEvent,
     FightFighterShowEvent,
 )
-from protos.game.game_action_pb2 import GameActionFightEvent
-from protos.game.gamemap_pb2 import (
+from d3_mapping.resources.protos.game.game_action_pb2 import GameActionFightEvent
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
     MapMovementEvent,
     GameRolePlayShowActorsEvent,
     MapTeleportOnSameEvent,
     MapMovementRefusedEvent,
 )
-from protos.game.map_confirm_response_pb2 import MapMovementConfirmResponse
 from src.core.frames.frame import Frame
-from src.core.logic.grid.map_point import MapPoint
+from grid.map_point import MapPoint
 from src.interfaces.aliases import (
     AIFighter,
     MonsterFighter,
@@ -236,9 +236,6 @@ class EntityFrame(Frame):
         )
 
     def on_map_movement_refused_event(self, msg: MapMovementRefusedEvent):
-        self.event_manager.clear_listener_by_origin_and_type(
-            MapMovementConfirmResponse, self
-        )
         if self.game_state.player.character_id in self.game_state.entity.actor_by_id:
             direction = self.game_state.entity.actor_by_id[
                 self.game_state.player.character_id

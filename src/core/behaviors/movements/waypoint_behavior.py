@@ -3,22 +3,27 @@ from enum import StrEnum, auto
 from functools import partial
 
 from models.world_graph import Vertice
-from protos.game.gamemap_pb2 import MapComplementaryInformationEvent
-from protos.game.haven_bag_pb2 import (
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
+    MapComplementaryInformationEvent,
+)
+from d3_mapping.resources.protos.game.haven_bag_pb2 import (
     HavenBagEnterRequest,
     HavenBagFurnitureEvent,
 )
-from protos.game.teleportation_pb2 import TeleportRequest, Teleporter
+from d3_mapping.resources.protos.game.teleportation_pb2 import (
+    TeleportRequest,
+    Teleporter,
+)
 from src.const import BASE_RANGE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
     AutoTripBehavior,
 )
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.world_graph_reader import WorldGraphReader
+from data_center.data_reader import DataReader
+from data_center.world_graph_reader import WorldGraphReader
 from src.core.logic.flags.map_position_flags import allow_teleport_to
-from src.core.logic.grid.map_point import MapPoint
+from grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.core.logic.world.astar_allow_capability import AstarAllowHavreSac
 from src.exceptions import UnexpectedStateException, UnhandledErrorCodeException

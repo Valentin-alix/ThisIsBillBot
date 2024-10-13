@@ -1,19 +1,18 @@
 from PyQt5.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import SegmentedWidget
 
+from d3_mapping.signals.message_signals import MessageInfoSignals
 from src.bot import Bot
 from src.common.logger import Logger
 from src.const import DEBUG
 from src.gui.pages.craft.craft_page import CraftPage
 from src.gui.pages.farmer.farmer import FarmerWidget
 from src.gui.pages.logs.logs import LogsWidget
-from src.gui.pages.sniffer.sniffer import SnifferWidget
+from d3_mapping.gui.sniffer.sniffer import SnifferWidget
 from src.signals.bot_signals import BotSignals
 from src.signals.grid_signals import GridSignals
 from src.signals.log_signals import LogSignals
-from src.signals.message_signals import MessageInfoSignals
 from src.signals.player_signals import GameInfoSignals
-from src.signals.shared_farm_signals import SharedSignals
 from src.signals.world_signals import WorldSignals
 
 
@@ -29,7 +28,6 @@ class AccountFrame(QWidget):
         grid_signals: GridSignals,
         world_signals: WorldSignals,
         log_signals: LogSignals,
-        shared_signals: SharedSignals,
         bots: list[Bot],
     ):
         super().__init__()
@@ -50,7 +48,6 @@ class AccountFrame(QWidget):
             game_infos_signals,
             world_signals,
             farm_signals,
-            shared_signals=shared_signals,
             bots=bots,
         )
         stacked_widget.addWidget(harvester_interface)

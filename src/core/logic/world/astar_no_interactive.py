@@ -3,7 +3,7 @@ from time import sleep
 from typing import Iterator
 
 from models.world_graph import Vertice
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.core.logic.world.astar_vertice import AstarWorld
 from src.core.logic.world.edge import (
     iter_valid_outgoing_edges,

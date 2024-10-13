@@ -1,17 +1,17 @@
 from dataclasses import dataclass
 
-from protos.game.gamemap_pb2 import (
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from protos.game.interactive_element_pb2 import (
+from d3_mapping.resources.protos.game.interactive_element_pb2 import (
     InteractiveMapUpdateEvent,
     InteractiveElementUpdatedEvent,
     StatedMapUpdateEvent,
     StatedElementUpdatedEvent,
 )
 from src.core.controller.gfx_mapping import GfxMappingController
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.map_reader import MapReader
+from data_center.data_reader import DataReader
+from data_center.map_reader import MapReader
 from src.core.frames.frame import Frame
 from src.interfaces.enums.job_enum import JobEnum, HARVESTER_JOB_IDS
 

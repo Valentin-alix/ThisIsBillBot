@@ -1,19 +1,21 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto
+from typing import cast
 
-from protos.game.guild_chest_pb2 import GuildChestCurrentListenersAddEvent
+from d3_mapping.resources.protos.game.guild_chest_pb2 import (
+    GuildChestCurrentListenersAddEvent,
+)
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.storage.consts import BANK_MAP_IDS
-from src.core.data_center.map_reader import MapReader
-from src.core.logic.grid.map_point import MapPoint
+from data_center.map_reader import MapReader
+from grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
 from src.interfaces.enums.element_type import ElementTypeEnum
-from src.interfaces.enums.guild_rank_enum import GuildRankEnum
 
 
 class EnterGuildChestError(StrEnum):
@@ -27,15 +29,7 @@ class EnterGuildChestBehavior(Behavior):
     auto_trip_world_behavior: AutoTripSmartBehavior
 
     def run(self):
-        if (
-            not self.game_state.player.is_sub
-            or self.game_state.player.guild_rank_id
-            not in [
-                GuildRankEnum.LEADER,
-                GuildRankEnum.OFFICER,
-                GuildRankEnum.INITIATED,
-            ]
-        ):
+        if not self.game_state.player.is_sub:
             return self.finish(
                 error_code=EnterGuildChestError.DOES_NOT_RESPECT_CONDITION
             )
@@ -60,7 +54,8 @@ class EnterGuildChestBehavior(Behavior):
         ]
 
         move_path_to_chest = self.path_finding.find_path(
-            self.game_state.player.map_point, {MapPoint.from_cell_id(ref_data.cellId)}
+            self.game_state.player.map_point,
+            {MapPoint.from_cell_id(cast(int, ref_data.cellId))},
         )
 
         self.interactive_behavior.start(

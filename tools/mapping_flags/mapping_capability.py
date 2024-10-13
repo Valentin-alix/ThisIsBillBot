@@ -4,7 +4,7 @@ from collections import defaultdict
 from functools import reduce
 from pathlib import Path
 
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 
 CAPABILITY_ALLOW_CHALLENGE: int = 1
 CAPABILITY_ALLOW_AGGRESSION: int = 2

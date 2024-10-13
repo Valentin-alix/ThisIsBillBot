@@ -2,8 +2,11 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from protos.game.gamemap_pb2 import MapCurrentEvent, MapComplementaryInformationEvent
-from protos.game.interactive_element_pb2 import (
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
+    MapCurrentEvent,
+    MapComplementaryInformationEvent,
+)
+from d3_mapping.resources.protos.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
 from src.const import ON_NEW_MAP_BEFORE_ACTION, BASE_RANGE
@@ -133,7 +136,6 @@ class CollectBehavior(Behavior):
                 continue
             coll_cost = MovementPath.get_total_duration(
                 coll_move_path.path,
-                self.game_state.player.is_riding,
                 self.game_state.inventory.inventory_weight,
                 self.game_state.inventory.weight_max,
             )

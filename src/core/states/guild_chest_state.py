@@ -1,6 +1,6 @@
 import dataclasses
 
-from protos.game.common_pb2 import ObjectItemInventory
+from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
 from src.core.states.state import State
 
 CHEST_OBJECT_BY_GID_BY_TAB: dict[int, dict[int, ObjectItemInventory]] = {}

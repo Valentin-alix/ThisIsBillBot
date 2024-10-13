@@ -2,14 +2,14 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from protos.game.gamemap_pb2 import (
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapChangeRequest,
     MapCurrentEvent,
     MapMovementRefusedEvent,
 )
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
-from src.core.logic.grid.map_point import MapPoint
+from grid.map_point import MapPoint
 from src.interfaces.enums.priority import PriorityEnum
 
 

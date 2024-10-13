@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
 
-from src.core.logic.grid.map_point import MapPoint
+from grid.map_point import MapPoint
 
 
 @dataclass

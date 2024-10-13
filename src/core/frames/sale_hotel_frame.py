@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from protos.game.exchange_pb2 import (
+from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeBidSellerStartedEvent,
     ExchangeBidHouseItemAddedEvent,
     ExchangeBidHouseItemRemovedEvent,
@@ -49,7 +49,8 @@ class SaleHotelFrame(Frame):
 
     def on_exchange_bid_seller_started_event(self, msg: ExchangeBidSellerStartedEvent):
         self.game_state.sale_hotel.bid_seller_condition = msg.selling_conditions
-        SaleHotelController().update_gid_quantity_by_uid_by_player_id(
+        SaleHotelController().update_hdv(
+            self.game_state.player.server_id,
             self.game_state.player.character_id,
             {item.item.uid: (item.item.gid, item.item.quantity) for item in msg.items},
         )
@@ -58,17 +59,20 @@ class SaleHotelFrame(Frame):
         self, msg: ExchangeBidHouseItemAddedEvent
     ):
         SaleHotelController().add_gid_quantity_by_uid_by_player_id(
+            self.game_state.player.server_id,
+            self.game_state.player.character_id,
             msg.item.gid,
             msg.item.quantity,
             msg.item.uid,
-            self.game_state.player.character_id,
         )
 
     def on_exchange_bid_house_item_removed_event(
         self, msg: ExchangeBidHouseItemRemovedEvent
     ):
         SaleHotelController().remove_uid_for_player_id(
-            msg.sell_id, self.game_state.player.character_id
+            self.game_state.player.server_id,
+            self.game_state.player.character_id,
+            msg.sell_id,
         )
 
     def on_exchange_bid_house_search_request(self, msg: ExchangeBidHouseSearchRequest):

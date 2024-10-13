@@ -1,9 +1,12 @@
 from dataclasses import dataclass
 from functools import partial
 
-from protos.game.dialog_pb2 import DialogLeaveRequest
-from protos.game.exchange_pb2 import ExchangeObjectMoveRequest, ExchangeLeaveEvent
-from protos.game.inventory_pb2 import InventoryWeightEvent
+from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
+from d3_mapping.resources.protos.game.exchange_pb2 import (
+    ExchangeObjectMoveRequest,
+    ExchangeLeaveEvent,
+)
+from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
 from src.const import BASE_RANGE, SMALL_RANGE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.storage.consts import USEFUL_UNLOAD
@@ -11,8 +14,8 @@ from src.core.behaviors.storage.enter_guild_chest_behavior import (
     EnterGuildChestBehavior,
 )
 from src.core.behaviors.storage.unload_behavior import UnloadBehavior
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.i18n import I18N
+from data_center.data_reader import DataReader
+from data_center.i18n import I18N
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 from src.exceptions import UnhandledErrorCodeException
 
@@ -114,7 +117,7 @@ class LoadFromGuildChestBehavior(Behavior):
         valid_quantity = min(portable_quantity, quantity_to_unload)
         load_item_info.remaining_quantity -= valid_quantity
         related_item.item.quantity -= valid_quantity
-        if load_item_info.remaining_quantity <= 0:
+        if load_item_info.remaining_quantity < 100:
             load_items_infos.remove(load_item_info)
 
         self.event_manager.on(

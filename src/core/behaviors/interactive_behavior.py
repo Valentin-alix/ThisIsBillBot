@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from protos.game.interactive_element_pb2 import (
+from d3_mapping.resources.protos.game.interactive_element_pb2 import (
     InteractiveUseRequest,
     InteractiveUsedEvent,
     InteractiveUseErrorEvent,

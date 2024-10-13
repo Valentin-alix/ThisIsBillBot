@@ -18,6 +18,7 @@ Profiling :
 
 TODO :
 
+- Guild rank id pas tjrs update
 - Gérer la reconnexion quand le perso est en fight
 - Fix un max de invalid transition
 - Avec le sniffer, capturer ses temps de réaction dans une session de farming et de fight pour les reproduire dans les temps d'attente (avec écart type etc...)

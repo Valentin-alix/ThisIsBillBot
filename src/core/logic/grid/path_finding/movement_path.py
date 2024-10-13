@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from src.core.logic.grid.directions import DirectionsEnum
-from src.core.logic.grid.map_point import MapPoint
+from grid.directions import DirectionsEnum
+from grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_element import PathElement
 
 WALK_HORIZONTAL_DIAG_DURATION = 510
@@ -85,7 +85,6 @@ class MovementPath:
     @staticmethod
     def get_total_duration(
         path_elements: list[PathElement],
-        is_riding: bool,
         inventory_weight: int,
         inventory_weight_max: int,
     ) -> float:
@@ -104,14 +103,6 @@ class MovementPath:
                 WALK_HORIZONTAL_DIAG_DURATION / speed_multiplier
             )
             vertical_diagonal_velocity = WALK_VERTICAL_DIAG_DURATION / speed_multiplier
-        elif is_riding:
-            linear_velocity = RUN_MOUNT_LINEAR_DURATION / speed_multiplier
-            horizontal_diagonal_velocity = (
-                RUN_MOUNT_HORIZONTAL_DIAG_DURATION / speed_multiplier
-            )
-            vertical_diagonal_velocity = (
-                RUN_MOUNT_VERTICAL_DIAG_DURATION / speed_multiplier
-            )
         else:
             linear_velocity = RUN_LINEAR_DURATION / speed_multiplier
             horizontal_diagonal_velocity = (

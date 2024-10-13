@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 
-from protos.game.common_pb2 import DialogType
-from protos.game.dialog_pb2 import DialogLeaveRequest
-from protos.game.exchange_pb2 import (
+from d3_mapping.resources.protos.game.common_pb2 import DialogType
+from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
+from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeObjectTransferAllFromInventoryRequest,
     ExchangeLeaveEvent,
 )
-from protos.game.inventory_pb2 import (
+from d3_mapping.resources.protos.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
 from src.const import ON_OPENED_INVENTORY, BEFORE_CLOSING_INVENTORY

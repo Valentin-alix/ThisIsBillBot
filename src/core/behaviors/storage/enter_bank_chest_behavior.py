@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from protos.game.inventory_pb2 import StorageInventoryContentEvent
+from d3_mapping.resources.protos.game.inventory_pb2 import StorageInventoryContentEvent
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,

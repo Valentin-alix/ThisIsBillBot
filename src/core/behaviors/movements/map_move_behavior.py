@@ -1,21 +1,24 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from protos.game.game_action_pb2 import (
+from d3_mapping.resources.protos.game.basic_pb2 import TextInformationEvent
+from d3_mapping.resources.protos.game.game_action_pb2 import (
     GameActionAcknowledgementRequest,
     SequenceEndEvent,
     SequenceType,
 )
-from protos.game.gamemap_pb2 import (
-    MapMovementRequest,
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapMovementConfirmRequest,
+    MapMovementConfirmResponse,
     MapMovementEvent,
     MapMovementRefusedEvent,
+    MapMovementRequest,
 )
-from protos.game.map_confirm_response_pb2 import MapMovementConfirmResponse
+
+
 from src.core.behaviors.behavior import Behavior
-from src.core.logic.grid.map_point import MapPoint
+from grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.movement_path import MovementPath
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 
@@ -24,12 +27,15 @@ class MapMoveError(StrEnum):
     CANCELED_MOVEMENT = auto()
     INVALID_STARTING_POINT = auto()
     REFUSED = auto()
+    CELL_TAKEN = auto()
     UNEXPECTED_NEW_MAP = auto()
 
 
 @dataclass
 class MapMoveBehavior(Behavior):
     path_finding: Pathfinding
+
+    _cell_is_taken: bool = field(init=False, default=False)
 
     def run(self, move_path: MovementPath):
         self.logger.info(f"Going to : {move_path.end}")
@@ -44,6 +50,10 @@ class MapMoveBehavior(Behavior):
 
         key_cells = move_path.get_key_cells()
         if self.game_state.fight.in_fight:
+            self._cell_is_taken = False
+            self.event_manager.on(
+                TextInformationEvent, self.on_text_information_event, originator=self
+            )
             self.event_manager.on(
                 SequenceEndEvent,
                 partial(self.on_sequence_end_event, end_mp=move_path.end),
@@ -68,10 +78,19 @@ class MapMoveBehavior(Behavior):
             originator=self,
             once=True,
         )
+
         map_movement_request = MapMovementRequest(
             key_cells=key_cells, map_id=self.game_state.map.map_id
         )
         self.event_manager.send(map_movement_request)
+
+    def on_text_information_event(self, msg: TextInformationEvent):
+        if (
+            msg.message_type
+            is TextInformationEvent.TextInformationType.TEXT_INFORMATION_ERROR
+            and msg.message_id == 276
+        ):
+            self._cell_is_taken = True
 
     def on_sequence_end_event(self, msg: SequenceEndEvent, end_mp: MapPoint):
         if (
@@ -96,6 +115,8 @@ class MapMoveBehavior(Behavior):
         end_mp: MapPoint,
     ):
         if msg.action_id == target_action_id:
+            if self._cell_is_taken:
+                return self.finish(MapMoveError.CELL_TAKEN)
             if self.game_state.player.map_point != end_mp:
                 self.logger.info("Movement was canceled.")
                 return self.finish(MapMoveError.CANCELED_MOVEMENT)
@@ -109,7 +130,6 @@ class MapMoveBehavior(Behavior):
                 )
             duration = MovementPath.get_total_duration(
                 MovementPath.get_path_elements_from_cells(list(msg.cells)),
-                self.game_state.player.is_riding,
                 self.game_state.inventory.inventory_weight,
                 self.game_state.inventory.weight_max,
             )

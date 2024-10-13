@@ -1,18 +1,17 @@
 from dataclasses import dataclass
 
-from protos.game.fight_pb2 import FightEndEvent
-from protos.game.game_action_pb2 import (
+from d3_mapping.resources.protos.game.fight_pb2 import FightEndEvent
+from d3_mapping.resources.protos.game.game_action_pb2 import (
     GameActionFightCastRequest,
     SequenceEndEvent,
     SequenceType,
 )
 from src.core.behaviors.behavior import Behavior
-from src.core.logic.grid.map_point import MapPoint
+from grid.map_point import MapPoint
 
 
 @dataclass
 class FightSpellBehavior(Behavior):
-
     def run(self, spell_id: int, target_mp: MapPoint):
         self.event_manager.on(
             FightEndEvent, lambda _: self.finish(), originator=self, once=True

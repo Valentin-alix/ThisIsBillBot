@@ -4,15 +4,13 @@ from datetime import datetime
 from threading import Event
 
 from models.world_graph import Vertice
-from protos.game.character_pb2 import CharacterLifeStatusEvent
-from protos.game.common_pb2 import (
-    ServerType,
+from d3_mapping.resources.protos.game.character_pb2 import CharacterLifeStatusEvent
+from d3_mapping.resources.protos.game.common_pb2 import (
     CharacterCharacteristic,
-    GuildInformation,
 )
-from src.core.data_center.data_reader import DataReader
-from src.core.data_center.world_graph_reader import WorldGraphReader
-from src.core.logic.grid.map_point import MapPoint
+from data_center.data_reader import DataReader
+from data_center.world_graph_reader import WorldGraphReader
+from grid.map_point import MapPoint
 from src.core.logic.stats.characteristic import get_stat_by_id
 from src.core.logic.world.linked_zone import get_linked_zone_rp
 from src.core.states.entity_state import EntityState
@@ -34,12 +32,6 @@ class PlayerState(State):
     life_state: CharacterLifeStatusEvent.LifeStatus = dataclasses.field(
         init=False, default=CharacterLifeStatusEvent.LifeStatus.ALIVE_AND_KICKING
     )
-    guild_information: GuildInformation | None = dataclasses.field(
-        init=False, default=None
-    )
-    guild_rank_id: int = dataclasses.field(init=False, default=0)
-    life_point: int = dataclasses.field(init=False, default=1)
-    max_life_point: int = dataclasses.field(init=False, default=1)
     _breed_id: int = dataclasses.field(init=False, default=0)
     _level: int = dataclasses.field(init=False, default=1)
     _subscription_end_date: datetime = dataclasses.field(
@@ -48,39 +40,27 @@ class PlayerState(State):
     _character_id: int = dataclasses.field(init=False, default=0)
     _character_name: str = dataclasses.field(init=False, default_factory=str)
 
-    game_type: ServerType = dataclasses.field(init=False, default=ServerType.UNDEFINED)
     characteristic_by_id: dict[int, CharacterCharacteristic] = dataclasses.field(
         init=False, default_factory=dict
     )
     waypoint_map_ids: list[int] = dataclasses.field(init=False, default_factory=list)
     jobs_lvl_by_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict)
-    is_riding: bool = dataclasses.field(init=False, default=False)
     server_id: int = dataclasses.field(init=False, default=0)
 
     def clear_state(self):
         self.is_ready_to_play_event.clear()
         self.life_state = CharacterLifeStatusEvent.LifeStatus.ALIVE_AND_KICKING
-        self.guild_information = None
-        self.guild_rank_id = 0
-        self.life_point = 1
-        self.max_life_point = 1
         self.breed_id = 0
         self.level = 1
         self.subscription_end_date = datetime(1975, 1, 1)
         self.character_id = 0
         self.character_name = ""
-        self.game_type = ServerType.UNDEFINED
         self.characteristic_by_id.clear()
         self.waypoint_map_ids.clear()
         self.jobs_lvl_by_id.clear()
-        self.is_riding = False
 
     def get_player_stat_by_id(self, characteristic: int) -> int:
         return get_stat_by_id(self.characteristic_by_id.get(characteristic))
-
-    @property
-    def life_percentage(self):
-        return self.life_point / self.max_life_point
 
     @property
     def breed_id(self):

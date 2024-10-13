@@ -1,4 +1,4 @@
-from src.core.data_center.map_reader import MapReader
+from data_center.map_reader import MapReader
 
 
 def get_linked_zone_rp(map_id: int, cell_id: int) -> int:

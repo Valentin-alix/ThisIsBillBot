@@ -1,4 +1,4 @@
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.interfaces.models.npc_info import NpcInfo
 
 ASTRUB_BANK_MAP = 192415750

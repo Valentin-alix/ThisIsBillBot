@@ -3,6 +3,70 @@ import os
 import socket
 from pathlib import Path
 
+from google.protobuf.message import Message
+
+from d3_mapping.resources.protos.game.challenge_pb2 import ChallengeModSelectRequest
+from d3_mapping.resources.protos.game.character_pb2 import (
+    CharacterCharacteristicsEvent,
+    CharacterLifeStatusEvent,
+)
+from d3_mapping.resources.protos.game.context_pb2 import (
+    ContextCreationEvent,
+    ContextRemoveElementEvent,
+    EntitiesDispositionEvent,
+)
+from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
+from d3_mapping.resources.protos.game.exchange_pb2 import (
+    ExchangeStartedWithMultiTabStorageEvent,
+)
+from d3_mapping.resources.protos.game.fight_pb2 import (
+    FightEndEvent,
+    FightFighterShowEvent,
+    FightIsTurnReadyEvent,
+    FightNewRoundEvent,
+    FightSynchronizeEvent,
+    FightTurnEndEvent,
+    FightTurnEvent,
+    FightTurnFinishRequest,
+    FightTurnReadyRequest,
+)
+from d3_mapping.resources.protos.game.fight_preparation_pb2 import (
+    FightPlacementPossiblePositionsEvent,
+    FightStartingEvent,
+    FightTeamUpdateEvent,
+)
+from d3_mapping.resources.protos.game.game_action_pb2 import GameActionFightEvent
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
+    FightMapInformationEvent,
+    GameRolePlayShowActorsEvent,
+    MapComplementaryInformationEvent,
+    MapCurrentEvent,
+    MapMovementConfirmRequest,
+    MapMovementEvent,
+    MapMovementRefusedEvent,
+    MapTeleportOnSameEvent,
+)
+from d3_mapping.resources.protos.game.interactive_element_pb2 import (
+    InteractiveElementUpdatedEvent,
+    InteractiveMapUpdateEvent,
+    StatedElementUpdatedEvent,
+    StatedMapUpdateEvent,
+)
+from d3_mapping.resources.protos.game.inventory_pb2 import (
+    InventoryContentEvent,
+    InventoryWeightEvent,
+    ObjectAddedEvent,
+    ObjectDeletedEvent,
+    ObjectQuantityEvent,
+    ObjectsAddedEvent,
+    ObjectsDeletedEvent,
+    ObjectsQuantityEvent,
+)
+from d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
+from d3_mapping.resources.protos.game.spell_pb2 import (
+    SpellsEvent,
+)
+
 DEBUG = True
 
 FILTER_DOFUS = "tcp port 5555"
@@ -36,3 +100,50 @@ ON_CHALLENGE = VERY_SMALL_RANGE
 
 # Npc
 BETWEEN_REPLY = BASE_RANGE
+
+
+NEEDED_MSG_MAPPING: list[type[Message]] = [
+    MapComplementaryInformationEvent,
+    MapMovementConfirmRequest,
+    MapCurrentEvent,
+    MapMovementEvent,
+    MapTeleportOnSameEvent,
+    MapMovementRefusedEvent,
+    ContextRemoveElementEvent,
+    ContextCreationEvent,
+    GameRolePlayShowActorsEvent,
+    EntitiesDispositionEvent,
+    InteractiveMapUpdateEvent,
+    InteractiveElementUpdatedEvent,
+    StatedMapUpdateEvent,
+    StatedElementUpdatedEvent,
+    GameActionFightEvent,
+    FightTeamUpdateEvent,
+    FightSynchronizeEvent,
+    FightFighterShowEvent,
+    FightPlacementPossiblePositionsEvent,
+    FightEndEvent,
+    FightStartingEvent,
+    FightNewRoundEvent,
+    FightIsTurnReadyEvent,
+    FightTurnEvent,
+    FightTurnReadyRequest,
+    FightTurnFinishRequest,
+    FightTurnEndEvent,
+    FightMapInformationEvent,
+    ChallengeModSelectRequest,
+    SpellsEvent,
+    CharacterCharacteristicsEvent,
+    CharacterLifeStatusEvent,
+    ExchangeStartedWithMultiTabStorageEvent,
+    InventoryWeightEvent,
+    InventoryContentEvent,
+    ObjectsDeletedEvent,
+    ObjectDeletedEvent,
+    ObjectQuantityEvent,
+    ObjectsQuantityEvent,
+    ObjectAddedEvent,
+    ObjectsAddedEvent,
+    DialogLeaveRequest,
+    JobExperiencesUpdateEvent,
+]

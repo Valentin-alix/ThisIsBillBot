@@ -1,39 +1,32 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from protos.connection.login_message_pb2 import IdentificationResponse
-from protos.game.account_pb2 import AccountInformationUpdateEvent
-from protos.game.character_management_pb2 import (
+from d3_mapping.resources.protos.connection.login_message_pb2 import (
+    IdentificationResponse,
+)
+from d3_mapping.resources.protos.game.account_pb2 import AccountInformationUpdateEvent
+from d3_mapping.resources.protos.game.character_management_pb2 import (
     CharacterSelectionEvent,
 )
-from protos.game.character_pb2 import (
+from d3_mapping.resources.protos.game.character_pb2 import (
     CharacterCharacteristicsEvent,
     CharacterLifeStatusEvent,
-    UpdateLifePointsEvent,
 )
-from protos.game.fight_pb2 import FightRefreshCharacterStatsEvent
-from protos.game.game_action_pb2 import GameActionFightEvent
-from protos.game.gamemap_pb2 import (
-    MapComplementaryInformationEvent,
+from d3_mapping.resources.protos.game.fight_pb2 import FightRefreshCharacterStatsEvent
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
     FightMapInformationEvent,
+    MapComplementaryInformationEvent,
 )
-from protos.game.guild_member_pb2 import GuildMembershipEvent
-from protos.game.job_pb2 import JobExperiencesUpdateEvent
-from protos.game.server_pb2 import ServerSettingsEvent
-from protos.game.teleportation_pb2 import ZaapKnownListEvent
+from d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
+from d3_mapping.resources.protos.game.teleportation_pb2 import ZaapKnownListEvent
+
 from src.core.frames.frame import Frame
-from src.interfaces.enums.characteristic_enum import CharacteristicEnum
 
 
 @dataclass
 class PlayerFrame(Frame):
     def __post_init__(self):
         self.game_info_signals.disconnected.connect(self.game_state.player.clear_state)
-        self.event_manager.on(
-            ServerSettingsEvent,
-            self.on_server_settings_event,
-            originator=self,
-        )
         self.event_manager.on(
             JobExperiencesUpdateEvent,
             self.on_job_experiences_update_event,
@@ -72,15 +65,6 @@ class PlayerFrame(Frame):
             self.on_character_life_status_event,
             originator=self,
         )
-        self.event_manager.on(
-            UpdateLifePointsEvent, self.on_update_life_points_event, originator=self
-        )
-        self.event_manager.on(
-            GameActionFightEvent, self.on_game_action_fight_event, originator=self
-        )
-        self.event_manager.on(
-            GuildMembershipEvent, self.on_guild_member_ship_event, originator=self
-        )
 
         self.game_info_signals.connected.connect(self.on_connected)
         self.game_info_signals.disconnected.connect(self.on_disconnected)
@@ -114,30 +98,11 @@ class PlayerFrame(Frame):
     def on_disconnected(self):
         self.game_state.player.is_ready_to_play_event.clear()
 
-    def on_update_life_points_event(self, msg: UpdateLifePointsEvent):
-        self.game_state.player.life_point = msg.life_points
-        self.game_state.player.max_life_point = msg.max_life_points
-
-    def on_game_action_fight_event(self, msg: GameActionFightEvent):
-        if (
-            msg.HasField("life_points_gain")
-            and msg.life_points_gain.target_id == self.game_state.player.character_id
-        ):
-            self.game_state.player.life_point += msg.life_points_gain.delta
-        if (
-            msg.HasField("life_points_lost")
-            and msg.life_points_lost.target_id == self.game_state.player.character_id
-        ):
-            self.game_state.player.life_point -= msg.life_points_lost.loss
-
     def on_identification_response(self, message: IdentificationResponse):
         if message.HasField("success"):
             self.game_state.player.subscription_end_date = datetime.fromisoformat(
                 message.success.subscription_end_date
             )
-
-    def on_server_settings_event(self, message: ServerSettingsEvent):
-        self.game_state.player.game_type = message.game_type
 
     def on_job_experiences_update_event(self, message: JobExperiencesUpdateEvent):
         for job_xp in message.experiences:
@@ -157,9 +122,7 @@ class PlayerFrame(Frame):
                 if message.success.character.character_basic_information.HasField(
                     "character_look"
                 ):
-                    self.game_state.player.breed_id = (
-                        message.success.character.character_basic_information.character_look.breed_id
-                    )
+                    self.game_state.player.breed_id = message.success.character.character_basic_information.character_look.breed_id
             elif message.success.character.HasField("character_remodeling_information"):
                 self.game_state.player.breed_id = (
                     message.success.character.character_remodeling_information.breed_id
@@ -170,14 +133,6 @@ class PlayerFrame(Frame):
     ):
         for stat in message.stats.characteristics:
             self.game_state.player.characteristic_by_id[stat.characteristic_id] = stat
-        if self.game_state.player.max_life_point == 1:
-            self.game_state.player.max_life_point = (
-                self.game_state.player.get_player_stat_by_id(
-                    CharacteristicEnum.LIFE_POINTS
-                )
-            )
-        if self.game_state.player.life_point == 1:
-            self.game_state.player.life_point = self.game_state.player.max_life_point
 
     def on_account_information_update_event(self, msg: AccountInformationUpdateEvent):
         self.game_state.player.subscription_end_date = datetime.fromtimestamp(
@@ -193,21 +148,9 @@ class PlayerFrame(Frame):
             self.game_state.player.characteristic_by_id[
                 characteristic.characteristic_id
             ] = characteristic
-        if self.game_state.player.max_life_point == 1:
-            self.game_state.player.max_life_point = (
-                self.game_state.player.get_player_stat_by_id(
-                    CharacteristicEnum.LIFE_POINTS
-                )
-            )
-        if self.game_state.player.life_point == 1:
-            self.game_state.player.life_point = self.game_state.player.max_life_point
 
     def on_zaap_known_list_event(self, msg: ZaapKnownListEvent):
         self.game_state.player.waypoint_map_ids = list(msg.destinations)
 
     def on_character_life_status_event(self, msg: CharacterLifeStatusEvent):
         self.game_state.player.life_state = msg.state
-
-    def on_guild_member_ship_event(self, msg: GuildMembershipEvent):
-        self.game_state.player.guild_information = msg.guild_information
-        self.game_state.player.guild_rank_id = msg.rank_id

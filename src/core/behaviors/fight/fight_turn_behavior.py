@@ -2,14 +2,15 @@ from dataclasses import dataclass, field
 from functools import partial
 from typing import Callable
 
-from protos.game.fight_pb2 import (
+from d3_mapping.resources.protos.game.fight_pb2 import (
     FightIsTurnReadyEvent,
-    FightTurnReadyRequest,
     FightTurnEndEvent,
+    FightTurnReadyRequest,
 )
+
 from src.const import (
-    ON_PLAYER_MOVED,
     ON_PLAYED_SPELL,
+    ON_PLAYER_MOVED,
 )
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
@@ -87,8 +88,8 @@ class FightTurnBehavior(Behavior):
     ):
         if error_code is MapMoveError.CANCELED_MOVEMENT:
             return self.find_and_do_attack()
-        elif error_code is MapMoveError.REFUSED:
-            # cell is probably occupied by invisible enemy
+        elif error_code in [MapMoveError.REFUSED, MapMoveError.CELL_TAKEN]:
+            # cell is probably taken by invisible enemy
             return self.finish()
         elif error_code is not None:
             raise UnhandledErrorCodeException(error_code)

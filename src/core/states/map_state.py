@@ -2,7 +2,7 @@ import dataclasses
 from dataclasses import dataclass
 
 from models.datas.map_positions_root import MapPositionsRootItem
-from src.core.data_center.data_reader import DataReader
+from data_center.data_reader import DataReader
 from src.core.states.state import State
 from src.signals.grid_signals import GridSignals
 

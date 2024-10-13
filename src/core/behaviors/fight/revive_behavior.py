@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 
-from protos.game.character_pb2 import CharacterLifeStatusEvent, FreeSoulRequest
-from protos.game.gamemap_pb2 import (
+from d3_mapping.resources.protos.game.character_pb2 import (
+    CharacterLifeStatusEvent,
+    FreeSoulRequest,
+)
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
     MapTeleportOnSameEvent,
 )
@@ -9,9 +12,9 @@ from src.const import ON_NEW_MAP_BEFORE_ACTION
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripBehavior
-from src.core.data_center.map_reader import MapReader
-from src.core.data_center.world_graph_reader import WorldGraphReader
-from src.core.logic.grid.map_point import MapPoint
+from data_center.map_reader import MapReader
+from data_center.world_graph_reader import WorldGraphReader
+from grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.core.logic.world.astar_no_interactive import AstarNoInteractive
 from src.exceptions import UnhandledErrorCodeException, UnexpectedStateException
