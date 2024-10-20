@@ -8,14 +8,14 @@ from d3_mapping.resources.protos.game.fight_pb2 import (
     FightTurnFinishRequest,
 )
 
-from src.const import (
-    ON_PLAYED_SPELL,
-    ON_PLAYER_MOVED,
-)
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
 from src.core.behaviors.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
+from src.core.config.timings import (
+    ON_PLAYED_SPELL,
+    ON_PLAYER_MOVED,
+)
 from src.core.logic.fight.attack import Attacker
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException

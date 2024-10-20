@@ -3,12 +3,13 @@ from functools import partial
 
 from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveEvent
 from d3_mapping.resources.protos.game.npc_pb2 import (
-    NpcGenericActionRequest,
     NpcDialogQuestionEvent,
     NpcDialogReplyRequest,
+    NpcGenericActionRequest,
 )
-from src.const import ON_NEW_MAP_BEFORE_ACTION, BETWEEN_REPLY
+
 from src.core.behaviors.behavior import Behavior
+from src.core.config.timings import BETWEEN_REPLY, ON_NEW_MAP_BEFORE_ACTION
 from src.exceptions import UnexpectedStateException
 from src.interfaces.models.npc_info import NpcInfo
 

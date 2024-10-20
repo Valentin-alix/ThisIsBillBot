@@ -9,10 +9,10 @@ from d3_mapping.resources.protos.game.fight_preparation_pb2 import (
 )
 from grid.map_point import MapPoint
 
-from src.const import ON_CHALLENGE, ON_PLAYER_MOVED
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_challenge_behavior import FightChallengeBehavior
 from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
+from src.core.config.timings import ON_CHALLENGE, ON_PLAYER_MOVED
 from src.exceptions import UnhandledErrorCodeException
 
 

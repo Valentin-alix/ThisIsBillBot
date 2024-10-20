@@ -1,23 +1,33 @@
 from dataclasses import dataclass, field
 from threading import Event
 from time import sleep
-from typing import Callable, Any
+from typing import Any, Callable
 
-from PyQt5.QtCore import QThread
 from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
-
 from d3_mapping.signals.message_signals import MessageInfoSignals
 from models.datas.recipe_root import RecipeItem
+from PyQt5.QtCore import QThread
+
 from src.common.logger import Logger
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.farms.fighter.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvest.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
+from src.core.behaviors.mule_kamas.mule_accept_kamas_behavior import (
+    MuleAcceptKamasBehavior,
+)
+from src.core.config.suicide_bots import (
+    INCARNAM_BOT_LOGINS,
+    MULE_BANK_CHARACTER_ID,
+    SUICIDE_BOT_FIGHT_LEVEL_LIMIT,
+    NOT_SUICIDE_BOT_LOGINS,
+)
 from src.core.frames.frame import Frame
 from src.core.states.game_state import GameState
 from src.event_manager import EventManager
 from src.exceptions import UnhandledErrorCodeException
-from src.gui.utils.run_in_background import run_in_background, Worker
+from src.gui.utils.run_in_background import Worker, run_in_background
+from src.interfaces.enums.area_enum import AreaEnum
 from src.signals.bot_signals import BotSignals
 from src.signals.grid_signals import GridSignals
 from src.signals.log_signals import LogSignals
@@ -44,6 +54,7 @@ class Bot:
     # frames
     frames: list[Frame]
     # behaviors
+    mule_accept_kamas_behavior: MuleAcceptKamasBehavior
     harvester_behavior: HarvesterBehavior
     fighter_behavior: FighterBehavior
     craft_behavior: CraftBehavior
@@ -74,6 +85,7 @@ class Bot:
         self.bot_signals.play_harvester.connect(self.on_play_harvester)
         self.bot_signals.play_fighter.connect(self.on_play_fighter)
         self.bot_signals.play_crafter.connect(self.on_play_crafter)
+        self.bot_signals.play_mule_kamas.connect(self.on_play_mule_kamas)
 
     def on_connected(self):
         self.is_connected_event.set()
@@ -91,14 +103,20 @@ class Bot:
         self.is_playing_event.set()
 
     def on_stop(self):
+        self.logger.info("stopping")
         self.is_playing_event.clear()
         self._current_bot_action_func = None
         self.stop_running_behaviors()
 
     def on_ready_to_play(self):
         self.is_ready_to_play_event.set()
-        if self._current_bot_action_func is None:
+        if (
+            self._current_bot_action_func is None
+            and self.account["apikey"]["login"] in NOT_SUICIDE_BOT_LOGINS
+        ):
             return
+
+        self.bot_signals.play.emit()
 
         def on_fight_behavior_finished(error_code: str | None):
             if error_code is not None:
@@ -113,11 +131,33 @@ class Bot:
         else:
             self.run_current_bot_action()
 
+    def guess_bot_action(self):
+        if self.account["apikey"]["login"] in NOT_SUICIDE_BOT_LOGINS:
+            return
+        if self.game_state.player.character_id == MULE_BANK_CHARACTER_ID:
+            self.bot_signals.play_mule_kamas.emit()
+        elif self.game_state.player.level < SUICIDE_BOT_FIGHT_LEVEL_LIMIT:
+            self.bot_signals.play_fighter.emit(
+                AreaEnum.INCARNAM,
+                None,
+                (
+                    SUICIDE_BOT_FIGHT_LEVEL_LIMIT,
+                    lambda: self.bot_signals.play_harvester.emit(AreaEnum.ASTRUB, None),
+                ),
+            )
+        else:
+            if self.account["apikey"]["login"] in INCARNAM_BOT_LOGINS:
+                self.bot_signals.play_harvester.emit(AreaEnum.INCARNAM, None)
+            else:
+                self.bot_signals.play_harvester.emit(AreaEnum.ASTRUB, None)
+
     def run_current_bot_action(self):
         if self._current_bot_action_func is not None:
             self._thread_worker_runnings.append(
                 run_in_background(self._current_bot_action_func)
             )
+        else:
+            self.guess_bot_action()
 
     def on_play_harvester(self, area_id: int | None, sub_area_id: int | None):
         self.play_action(
@@ -129,10 +169,18 @@ class Bot:
             )
         )
 
+    def on_play_mule_kamas(self):
+        self.play_action(
+            lambda: self.mule_accept_kamas_behavior.start(
+                callback=lambda _: self.bot_signals.stop.emit(), parent=None
+            )
+        )
+
     def on_play_fighter(
         self,
         area_id: int | None,
         sub_area_id: int | None,
+        level_limit_with_callback: tuple[int, Callable[[], None]] | None,
     ):
         self.play_action(
             lambda: self.fighter_behavior.start(
@@ -140,6 +188,7 @@ class Bot:
                 parent=None,
                 area_id=area_id,
                 sub_area_id=sub_area_id,
+                level_limit_with_callback=level_limit_with_callback,
             )
         )
 
@@ -178,7 +227,7 @@ class Bot:
         if self.craft_behavior.is_running.is_set():
             self.craft_behavior.stop()
         if self.fight_behavior.is_running.is_set():
-            self.fight_behavior.finish()
+            self.fight_behavior.stop()
 
     def stop_running_behaviors(self):
         if self.harvester_behavior.is_running.is_set():
@@ -188,4 +237,4 @@ class Bot:
         if self.craft_behavior.is_running.is_set():
             self.craft_behavior.finish()
         if self.fight_behavior.is_running.is_set():
-            self.fight_behavior.finish()
+            self.fight_behavior.stop()

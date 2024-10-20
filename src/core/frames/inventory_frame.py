@@ -130,6 +130,7 @@ class InventoryFrame(Frame):
     ):
         if not msg.exchange_type == ExchangeType.BANK:
             return
+        self.logger.info("Exchange started with bank")
         self.event_manager.on(
             StorageInventoryContentEvent,
             self.on_storage_inventory_content_event_bank,
@@ -148,10 +149,17 @@ class InventoryFrame(Frame):
         )
         self.event_manager.on(
             ExchangeLeaveEvent,
-            self.on_exchange_leave_guild_chest_event,
+            self.on_exchange_leave_storage_event,
             originator=self,
             once=True,
         )
+
+    def on_storage_inventory_content_event_bank(
+        self, msg: StorageInventoryContentEvent
+    ):
+        self.game_state.inventory.bank_object_by_gid = {
+            item.item.gid: item for item in msg.objects
+        }
 
     def on_storage_object_update_event(self, msg: StorageObjectUpdateEvent):
         self.game_state.inventory.bank_object_by_gid[msg.object.item.gid] = msg.object
@@ -170,7 +178,8 @@ class InventoryFrame(Frame):
 
         self.game_state.inventory.bank_object_by_gid.pop(related_gid)
 
-    def on_exchange_leave_guild_chest_event(self, msg: ExchangeLeaveEvent):
+    def on_exchange_leave_storage_event(self, msg: ExchangeLeaveEvent):
+        self.logger.info("Leaving storage")
         self.event_manager.clear_listener_by_origin_and_type(
             StorageObjectRemovedEvent, self
         )
@@ -180,13 +189,6 @@ class InventoryFrame(Frame):
         self.event_manager.clear_listener_by_origin_and_type(
             StorageInventoryContentEvent, self
         )
-
-    def on_storage_inventory_content_event_bank(
-        self, msg: StorageInventoryContentEvent
-    ):
-        self.game_state.inventory.bank_object_by_gid = {
-            item.item.gid: item for item in msg.objects
-        }
 
     def on_inventoy_content_event(self, msg: InventoryContentEvent):
         self.game_state.inventory.kamas = msg.kamas

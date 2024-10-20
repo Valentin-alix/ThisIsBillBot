@@ -1,16 +1,16 @@
+from data_center.data_reader import DataReader
+from data_center.i18n import I18N
 from PyQt5.QtCore import Qt, QThread, pyqtSlot
-from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QStackedWidget
+from PyQt5.QtWidgets import QHBoxLayout, QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import (
-    PivotItem,
-    FluentIcon,
-    TransparentToolButton,
     ComboBox,
+    FluentIcon,
+    PivotItem,
     SegmentedWidget,
+    TransparentToolButton,
 )
 
 from src.bot import Bot
-from data_center.data_reader import DataReader
-from data_center.i18n import I18N
 from src.gui.pages.farmer.map_tab import MapTab
 from src.gui.pages.farmer.world_tab import WorldTab
 from src.gui.utils.run_in_background import Worker
@@ -30,7 +30,7 @@ class FarmerWidget(PivotItem):
 
     _worker_running: tuple[QThread, Worker] | None = None
 
-    def __init__(
+    def __init__(  # type: ignore
         self,
         account_id: int,
         grid_signals: GridSignals,
@@ -165,7 +165,7 @@ class FarmerWidget(PivotItem):
         if self.type_action_combo.currentText() == BotActionEnum.HARVESTER:
             self.bot_signals.play_harvester.emit(area_id, sub_area_id)
         elif self.type_action_combo.currentText() == BotActionEnum.FIGHTER:
-            self.bot_signals.play_fighter.emit(area_id, sub_area_id)
+            self.bot_signals.play_fighter.emit(area_id, sub_area_id, None)
 
     @pyqtSlot()
     def on_play(self):
@@ -180,12 +180,8 @@ class FarmerWidget(PivotItem):
         self.type_action_combo.setCurrentText(BotActionEnum.HARVESTER)
         self.on_played_zone(area_id, sub_area_id)
 
-    @pyqtSlot(object, object)
-    def on_play_fighter(
-        self,
-        area_id: int | None,
-        sub_area_id: int | None,
-    ):
+    @pyqtSlot(object, object, object)
+    def on_play_fighter(self, area_id: int | None, sub_area_id: int | None, *args):
         self.type_action_combo.setCurrentText(BotActionEnum.FIGHTER)
         self.on_played_zone(area_id, sub_area_id)
 

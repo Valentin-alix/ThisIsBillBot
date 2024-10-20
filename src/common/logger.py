@@ -18,13 +18,13 @@ class Logger(logging.Logger):
 
         file_handler = RotatingFileHandler(
             f"{os.path.join(LOG_FOLDER, title)}.log",
-            maxBytes=10_000_000,
+            maxBytes=100_000_000,
             backupCount=1,
         )
         file_handler.setLevel(logging.DEBUG)
         file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         file_handler.setFormatter(file_formatter)
-        self.addHandler(file_handler)
+        # self.addHandler(file_handler)
 
     def _get_log_msg(self, msg: Any) -> str:
         return msg

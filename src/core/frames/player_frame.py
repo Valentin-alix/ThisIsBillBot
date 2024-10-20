@@ -9,6 +9,7 @@ from d3_mapping.resources.protos.game.character_management_pb2 import (
 )
 from d3_mapping.resources.protos.game.character_pb2 import (
     CharacterCharacteristicsEvent,
+    CharacterLevelUpEvent,
     CharacterLifeStatusEvent,
 )
 from d3_mapping.resources.protos.game.fight_pb2 import FightRefreshCharacterStatsEvent
@@ -58,6 +59,9 @@ class PlayerFrame(Frame):
             CharacterLifeStatusEvent,
             self.on_character_life_status_event,
             originator=self,
+        )
+        self.event_manager.on(
+            CharacterLevelUpEvent, self.on_character_level_up_event, originator=self
         )
 
         self.game_info_signals.connected.connect(self.on_connected)
@@ -143,3 +147,6 @@ class PlayerFrame(Frame):
 
     def on_character_life_status_event(self, msg: CharacterLifeStatusEvent):
         self.game_state.player.life_state = msg.state
+
+    def on_character_level_up_event(self, msg: CharacterLevelUpEvent):
+        self.game_state.player.level = msg.new_level

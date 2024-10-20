@@ -26,13 +26,15 @@ Avec proxy mobile (pour pas se faire ban ip car l'ip se reset souvent en mobile)
 
 Depuis création du compte (toujours sacri eau):
 
-- Monter lvl 10 au sein d'incarnam en combattant (auto monter charactéristique)
-- Une fois lvl 10 go farmer à astrub ressource récoltable
+- Monter lvl 15 au sein d'incarnam en combattant (auto monter charactéristique)
+- Une fois lvl 15 go farmer à astrub ressource récoltable
 - Une fois full pods mettre dans banque
 - Toutes les 2 heures mettre en vente le contenu de la banque trier par prix moyen estimé et auto recolté les kamas en banque
 
+Mule kamas (lvl 51) => si character id == MULE KAMAS alors executer behavior mule kamas
+
 A voir plus tard mais à terme créer un perso lvl 50 pour centraliser les kamas pour la revente (un perso jetable)
-et au bout de plus de 200 000 kamas sur les autres perso, donner le surplus à ce perso
+et au bout de plus de 400 000 kamas sur les autres perso, donner le surplus à ce perso
 
 TODO :
 

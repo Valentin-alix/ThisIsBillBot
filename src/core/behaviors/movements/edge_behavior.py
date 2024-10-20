@@ -2,9 +2,11 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from models.world_graph import Edge, Transition
 from d3_mapping.resources.protos.game.gamemap_pb2 import MapCurrentEvent
-from src.const import BASE_RANGE
+from data_center.map_reader import MapReader
+from grid.map_point import MapPoint
+from models.world_graph import Edge, Transition
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactive_behavior import (
     InteractiveBehavior,
@@ -15,13 +17,12 @@ from src.core.behaviors.movements.map_change_behavior import (
     MapChangeError,
 )
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
-from data_center.map_reader import MapReader
-from grid.map_point import MapPoint
+from src.core.config.timings import BASE_RANGE
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.core.logic.world.edge import (
-    get_valid_transition,
-    FORBIDDEN_EDGE_TRANSITION,
     EXCLUDED_ELEMENT_IDS,
+    FORBIDDEN_EDGE_TRANSITION,
+    get_valid_transition,
 )
 from src.exceptions import UnhandledErrorCodeException
 from src.interfaces.enums.transition_type import TransitionTypeEnum

@@ -4,8 +4,9 @@ from d3_mapping.resources.protos.game.challenge_pb2 import (
     ChallengeModSelectRequest,
 )
 from d3_mapping.resources.protos.game.common_pb2 import ChallengeMod
-from src.const import ON_CHALLENGE
+
 from src.core.behaviors.behavior import Behavior
+from src.core.config.timings import ON_CHALLENGE
 
 
 @dataclass

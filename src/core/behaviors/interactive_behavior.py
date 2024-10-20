@@ -3,13 +3,14 @@ from enum import StrEnum, auto
 from functools import partial
 
 from d3_mapping.resources.protos.game.interactive_element_pb2 import (
-    InteractiveUseRequest,
     InteractiveUsedEvent,
     InteractiveUseErrorEvent,
+    InteractiveUseRequest,
 )
-from src.const import BASE_RANGE
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
+from src.core.config.timings import BASE_RANGE
 from src.core.logic.grid.path_finding.movement_path import MovementPath
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 

@@ -158,9 +158,7 @@ class EntityFrame(Frame):
                         actor_id=sub_summon.position.actor_id,
                         disposition=sub_summon.position.disposition,
                     )
-                    self.game_state.entity.set_actor(
-                        related_actor_pos_information, True
-                    )
+                    self.game_state.entity.set_actor(related_actor_pos_information)
         elif msg.HasField("slide"):
             direction = self.game_state.entity.actor_by_id[
                 msg.slide.target_id

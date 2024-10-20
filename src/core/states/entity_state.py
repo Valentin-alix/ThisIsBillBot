@@ -93,7 +93,7 @@ class EntityState(State):
             self.remove_actor(actor.actor_id)
 
     def set_actors(self, actors: Iterable[ActorPositionInformation]):
-        old_actor_ids = set((actor.actor_id for actor in self.actor_by_id.values()))
+        old_actor_ids = set(actor_id for actor_id in self.actor_by_id)
         for actor in actors:
             self.set_actor(actor)
             if actor.actor_id in old_actor_ids:
@@ -103,7 +103,7 @@ class EntityState(State):
         for old_actor_id in old_actor_ids:
             self.remove_actor(old_actor_id)
 
-    def set_actor(self, actor: ActorPositionInformation, is_summoned: bool = False):
+    def set_actor(self, actor: ActorPositionInformation):
         old_actor = self.actor_by_id.get(actor.actor_id)
         if old_actor:
             if old_actor.disposition.cell_id in MAP_POINT_BY_CELL_ID:
@@ -129,10 +129,9 @@ class EntityState(State):
             )
             self.actor_by_id[actor_id] = related_actor
         else:
-            if related_actor.disposition.cell_id in MAP_POINT_BY_CELL_ID:
-                del self.actors_on_mp[
-                    MapPoint.from_cell_id(related_actor.disposition.cell_id)
-                ][related_actor.actor_id]
+            for actor_on_mp in self.actors_on_mp.values():
+                if actor_id in actor_on_mp:
+                    del actor_on_mp[actor_id]
             related_actor.disposition.cell_id = cell_id
             related_actor.disposition.direction = cast(Direction, direction)
 
@@ -142,17 +141,20 @@ class EntityState(State):
             ] = related_actor
 
     def remove_actor(self, actor_id: int):
-        actor = self.actor_by_id.pop(actor_id)
-        del self.actors_on_mp[MapPoint.from_cell_id(actor.disposition.cell_id)][
-            actor_id
-        ]
+        self.actor_by_id.pop(actor_id)
+        for actor_on_mp in self.actors_on_mp.values():
+            if actor_id in actor_on_mp:
+                del actor_on_mp[actor_id]
 
     def get_enemies(self, character_id: int) -> list[ActorPositionInformation]:
-        return [
+        enemies = [
             actor
             for actor in self.actor_by_id.values()
             if actor.actor_id != character_id and actor.disposition.cell_id != -1
         ]
+        self.logger.info(f"Found {len(enemies)}")
+
+        return enemies
 
     def get_monster_groups(
         self,

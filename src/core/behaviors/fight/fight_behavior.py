@@ -5,16 +5,17 @@ from d3_mapping.resources.protos.game.fight_pb2 import (
     FightTurnStartPlayingEvent,
 )
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
-    MapComplementaryInformationEvent,
     FightMapInformationEvent,
+    MapComplementaryInformationEvent,
 )
-from src.const import (
-    ON_PLAYER_TURN,
-)
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_preparation_behavior import FightPreparationBehavior
 from src.core.behaviors.fight.fight_turn_behavior import FightTurnBehavior
 from src.core.behaviors.fight.revive_behavior import ReviveBehavior
+from src.core.config.timings import (
+    ON_PLAYER_TURN,
+)
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
 

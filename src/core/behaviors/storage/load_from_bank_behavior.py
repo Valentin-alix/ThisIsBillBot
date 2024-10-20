@@ -8,12 +8,13 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
 )
 from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
 from data_center.data_reader import DataReader
-from src.const import BASE_RANGE, SMALL_RANGE
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.storage.consts import USEFUL_UNLOAD
 from src.core.behaviors.storage.enter_bank_chest_behavior import EnterBankChestBehavior
 from src.core.behaviors.storage.load_from_guild_chest_behavior import LoadItemInfo
 from src.core.behaviors.storage.unload_behavior import UnloadBehavior
+from src.core.config.timings import BASE_RANGE, SMALL_RANGE
 from src.exceptions import UnhandledErrorCodeException
 
 

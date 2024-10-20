@@ -2,16 +2,18 @@ from dataclasses import dataclass
 from logging import Logger
 from typing import Iterable
 
-from models.datas.spell_levels_root import SpellLevelsRootItem, Effect
 from d3_mapping.resources.protos.game.common_pb2 import (
-    SpellModifierType,
     ActorPositionInformation,
+    SpellModifierType,
     Team,
 )
-
 from data_center.data_reader import DataReader
 from data_center.i18n import I18N
 from data_center.map_reader import MapReader
+from grid.directions import DirectionsEnum
+from grid.map_point import MapPoint
+from models.datas.spell_levels_root import Effect, SpellLevelsRootItem
+
 from src.core.logic.fight.damage_calculator import DamageCalculator
 from src.core.logic.fight.effect import (
     get_type_effect,
@@ -22,17 +24,15 @@ from src.core.logic.fight.reachable_cells.fight_reachable_cells import (
     FightReachableCells,
 )
 from src.core.logic.fight.spell import (
+    does_spell_need_taken_cell,
+    does_spell_need_test_los,
+    get_ap_cost_spell,
     get_damage_spells,
     get_possible_mp_spell,
-    get_ap_cost_spell,
-    get_spell_max_cast_per_turn,
-    does_spell_need_taken_cell,
     get_spell_max_cast_per_target,
-    does_spell_need_test_los,
+    get_spell_max_cast_per_turn,
 )
 from src.core.logic.fight.spell_zone import get_zone_mps
-from grid.directions import DirectionsEnum
-from grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.core.states.game_state import GameState
 from src.interfaces.enums.characteristic_enum import CharacteristicEnum
@@ -52,6 +52,13 @@ class Attacker:
         valuable_spells = get_damage_spells(
             self.game_state.fight.spells,
             *self.game_state.fight.primary_and_second_elem,
+        )
+        self.logger.info(
+            f"PA : {
+                self.game_state.player.get_player_stat_by_id(
+                    CharacteristicEnum.ACTION_POINTS
+                )
+            }"
         )
         valid_spell_levels: list[tuple[SpellLevelsRootItem, Effect]] = []
         for spell_lvl, effect in valuable_spells:
@@ -122,6 +129,8 @@ class Attacker:
             f"mp : {enemies_mp}"
         )
         valid_spells_for_turn = self.get_valid_spells_for_turn()
+
+        self.logger.info(f"Count valid spell for turn : {len(valid_spells_for_turn)}")
         for spell_lvl, effect in valid_spells_for_turn:
             weight_by_direction_and_target: dict[
                 tuple[DirectionsEnum, MapPoint], float
@@ -280,7 +289,7 @@ class Attacker:
         data_effect = DataReader().effect_by_id[effect.effectId]
         description_effect = I18N.name_by_id[data_effect.descriptionId]
 
-        dmg_weight_spell, thieft_life = self.get_weight_dmg_and_life_thieft_effect(
+        dmg_weight_spell, _ = self.get_weight_dmg_and_life_thieft_effect(
             effect, target_mp, impact_mps, enemies, description_effect
         )
         do_life_point_malus: bool = False

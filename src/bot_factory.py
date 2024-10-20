@@ -1,8 +1,8 @@
 import threading
 
 from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
-
 from d3_mapping.signals.message_signals import MessageInfoSignals
+
 from src.bot import Bot
 from src.common.logger import Logger
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
@@ -32,6 +32,10 @@ from src.core.behaviors.movements.edge_behavior import EdgeBehavior
 from src.core.behaviors.movements.map_change_behavior import MapChangeBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
 from src.core.behaviors.movements.waypoint_behavior import WaypointBehavior
+from src.core.behaviors.mule_kamas.mule_accept_kamas_behavior import (
+    MuleAcceptKamasBehavior,
+)
+from src.core.behaviors.mule_kamas.mule_give_kamas_behavior import MuleGiveKamasBehavior
 from src.core.behaviors.npc_dialog_behavior import NpcDialogBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
@@ -423,9 +427,16 @@ class BotFactory:
             edge_behavior=edge_behavior,
             logger=logger,
         )
+        mule_give_kamas_behavior = MuleGiveKamasBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            logger=logger,
+            auto_trip_smart_behavior=auto_trip_world_behavior,
+        )
 
         # module
         harvester = HarvesterBehavior(
+            mule_give_kamas_behavior=mule_give_kamas_behavior,
             event_manager=event_manager,
             collect_behavior=collect_behavior,
             game_state=game_state,
@@ -444,6 +455,7 @@ class BotFactory:
             game_state=game_state,
             unload_behavior=unload_behavior,
             logger=logger,
+            sale_hotel_prices_behavior=sale_hotel_prices_behavior,
         )
         craft_behavior = CraftBehavior(
             event_manager=event_manager,
@@ -453,6 +465,12 @@ class BotFactory:
             interactive_behavior=interactive_behavior,
             auto_trip_smart_behavior=auto_trip_world_behavior,
             pathfinding=path_finding,
+        )
+        mule_accept_kamas_behavior = MuleAcceptKamasBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            logger=logger,
+            auto_trip_smart_behavior=auto_trip_world_behavior,
         )
 
         return Bot(
@@ -465,6 +483,7 @@ class BotFactory:
             event_manager=event_manager,
             harvester_behavior=harvester,
             fight_behavior=fight_behavior,
+            mule_accept_kamas_behavior=mule_accept_kamas_behavior,
             frames=[
                 map_frame,
                 player_frame,

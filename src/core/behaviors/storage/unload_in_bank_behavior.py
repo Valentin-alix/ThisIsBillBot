@@ -3,13 +3,13 @@ from dataclasses import dataclass
 from d3_mapping.resources.protos.game.common_pb2 import DialogType
 from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
 from d3_mapping.resources.protos.game.exchange_pb2 import (
-    ExchangeObjectTransferAllFromInventoryRequest,
     ExchangeLeaveEvent,
+    ExchangeObjectTransferAllFromInventoryRequest,
 )
 from d3_mapping.resources.protos.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
-from src.const import ON_OPENED_INVENTORY, BEFORE_CLOSING_INVENTORY
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
@@ -17,7 +17,8 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 from src.core.behaviors.npc_dialog_behavior import NpcDialogBehavior
 from src.core.behaviors.storage.consts import USEFUL_UNLOAD
 from src.core.behaviors.storage.enter_bank_chest_behavior import EnterBankChestBehavior
-from src.exceptions import UnhandledErrorCodeException, UnexpectedStateException
+from src.core.config.timings import BEFORE_CLOSING_INVENTORY, ON_OPENED_INVENTORY
+from src.exceptions import UnexpectedStateException, UnhandledErrorCodeException
 
 
 @dataclass

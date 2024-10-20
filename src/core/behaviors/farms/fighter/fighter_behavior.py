@@ -1,25 +1,31 @@
 import random
 from abc import ABC
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from functools import partial
+from typing import Callable
 
 from d3_mapping.resources.protos.game.common_pb2 import ActorPositionInformation
 from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
 from d3_mapping.resources.protos.game.roleplay_pb2 import AttackMonsterRequest
+from data_center.data_reader import DataReader
 
-from src.const import ON_NEW_MAP_BEFORE_ACTION
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
 from src.core.behaviors.movements.edge_behavior import EdgeError
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
+from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
+    SaleHotelPricesBehavior,
+)
 from src.core.behaviors.storage.unload_behavior import UnloadBehavior
-from data_center.data_reader import DataReader
+from src.core.config.timings import ON_NEW_MAP_BEFORE_ACTION
 from src.core.logic.flags.map_position_flags import allow_monster_agression
 from src.core.logic.grid.path_finding.movement_path import MovementPath
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
+from src.interfaces.enums.monster_gid_enum import MonsterGidEnum
 
 
 @dataclass
@@ -39,12 +45,19 @@ class FighterBehavior(Behavior, ABC):
     map_move_behavior: MapMoveBehavior
     fight_behavior: FightBehavior
     path_finding: Pathfinding
+    sale_hotel_prices_behavior: SaleHotelPricesBehavior
+
+    _level_limit_with_callback: tuple[int, Callable[[], None]] | None = field(
+        init=False, default=None
+    )
 
     def run(
         self,
         area_id: int | None,
         sub_area_id: int | None,
+        level_limit_with_callback: tuple[int, Callable[[], None]] | None,
     ):
+        self._level_limit_with_callback = level_limit_with_callback
         self.random_farm_behavior.init_random_farm(
             area_id, sub_area_id, self.get_additional_weight_by_map_id
         )
@@ -130,14 +143,18 @@ class FighterBehavior(Behavior, ABC):
     def on_fight_behavior_finish(self, error_code: str | None):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
+        if self._level_limit_with_callback is not None:
+            level_limit, callback = self._level_limit_with_callback
+            if self.game_state.player.level >= level_limit:
+                self.finish()
+                return callback()
+
         if self.game_state.inventory.is_full_pods:
             self.on_full_pods()
         else:
             self.on_new_map()
 
     def on_full_pods(self):
-        if self.unload_behavior.is_running.is_set():
-            return
         self.unload_behavior.start(
             parent=self, callback=self.on_unload_behavior_finished
         )
@@ -145,6 +162,18 @@ class FighterBehavior(Behavior, ABC):
     def on_unload_behavior_finished(self, error_code: str | None):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
+        if (
+            datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
+            > timedelta(hours=1, minutes=30)
+        ):
+            self.sale_hotel_prices_behavior.start(
+                callback=lambda _: self.on_sale_hotel_price_updated_and_unloaded(),
+                parent=self,
+            )
+        else:
+            self.on_sale_hotel_price_updated_and_unloaded()
+
+    def on_sale_hotel_price_updated_and_unloaded(self):
         self.on_new_map()
 
     def get_next_enemy(self) -> MonsterGroupInfo | None:
@@ -199,6 +228,8 @@ class FighterBehavior(Behavior, ABC):
         self,
         monster_group: ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor,
     ) -> bool:
+        if monster_group.identification.main_creature.gid == MonsterGidEnum.POUTCH:
+            return False
         group_lvl = self.get_coeff_level(self.game_state.player.limited_lvl)
         monster_group_lvl = self.get_level_monster_group(monster_group)
         self.logger.info(

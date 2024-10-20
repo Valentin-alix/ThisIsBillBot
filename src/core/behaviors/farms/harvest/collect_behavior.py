@@ -3,19 +3,20 @@ from enum import StrEnum, auto
 from functools import partial
 
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
-    MapCurrentEvent,
     MapComplementaryInformationEvent,
+    MapCurrentEvent,
 )
 from d3_mapping.resources.protos.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
-from src.const import ON_NEW_MAP_BEFORE_ACTION, BASE_RANGE
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactive_behavior import (
     InteractiveBehavior,
     InteractiveError,
 )
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
+from src.core.config.timings import BASE_RANGE, ON_NEW_MAP_BEFORE_ACTION
 from src.core.logic.grid.path_finding.movement_path import MovementPath
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.interfaces.models.collectable import Collectable

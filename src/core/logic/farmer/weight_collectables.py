@@ -1,19 +1,12 @@
 from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
-from src.core.controller.gfx_mapping import GfxMappingController
 from data_center.data_reader import DataReader
 from data_center.map_reader import MapReader
+
+from src.core.config.weights import WEIGHT_BY_JOB
+from src.core.controller.gfx_mapping import GfxMappingController
 from src.core.logic.grid.map_tools import MapTools
 from src.interfaces.enums.job_enum import JobEnum
 from src.signals.world_signals import WorldSignals
-
-WEIGHT_BY_JOB: dict[JobEnum, float] = {
-    JobEnum.MINER: 10,
-    JobEnum.WOODCUTTER: 10,
-    JobEnum.ALCHEMIST: 10,
-    JobEnum.PEASANT: 1,
-    JobEnum.FISHERMAN: 5,
-    JobEnum.BASE: 1,
-}
 
 
 def get_weight_collectable(

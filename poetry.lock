@@ -4599,6 +4599,17 @@ tornado = ["tornado (>=4.0)"]
 twisted = ["twisted"]
 
 [[package]]
+name = "tinydb"
+version = "4.8.2"
+description = "TinyDB is a tiny, document oriented database optimized for your happiness :)"
+optional = false
+python-versions = "<4.0,>=3.8"
+files = [
+    {file = "tinydb-4.8.2-py3-none-any.whl", hash = "sha256:f97030ee5cbc91eeadd1d7af07ab0e48ceb04aa63d4a983adbaca4cba16e86c3"},
+    {file = "tinydb-4.8.2.tar.gz", hash = "sha256:f7dfc39b8d7fda7a1ca62a8dbb449ffd340a117c1206b68c50b1a481fb95181d"},
+]
+
+[[package]]
 name = "tqdm"
 version = "4.67.1"
 description = "Fast, Extensible Progress Meter"
@@ -4801,4 +4812,4 @@ cffi = {version = ">=1.1.0", markers = "platform_python_implementation != \"PyPy
 [metadata]
 lock-version = "2.0"
 python-versions = ">3.11,<3.14"
-content-hash = "77f6ac78dc253b930783bb41d5209f978e9f18665721d7e194aab10107e65ec5"
+content-hash = "6268f703b98c291977a22cd56039dc8b34e29564c366bca9dc737baeeec928c7"

@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from threading import Event
 
-from models.world_graph import Vertice
 from d3_mapping.resources.protos.game.character_pb2 import CharacterLifeStatusEvent
 from d3_mapping.resources.protos.game.common_pb2 import (
     CharacterCharacteristic,
@@ -11,6 +10,8 @@ from d3_mapping.resources.protos.game.common_pb2 import (
 from data_center.data_reader import DataReader
 from data_center.world_graph_reader import WorldGraphReader
 from grid.map_point import MapPoint
+from models.world_graph import Vertice
+
 from src.core.logic.stats.characteristic import get_stat_by_id
 from src.core.logic.world.linked_zone import get_linked_zone_rp
 from src.core.states.entity_state import EntityState
@@ -178,3 +179,7 @@ class PlayerState(State):
     @property
     def linked_zone_rp(self) -> int:
         return get_linked_zone_rp(self.map_state.map_id, self.map_point.cell_id)
+
+    @property
+    def can_access_guild_chest(self):
+        return self.is_sub

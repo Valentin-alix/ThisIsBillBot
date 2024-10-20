@@ -3,11 +3,13 @@ from datetime import datetime, timedelta
 
 from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
 from d3_mapping.resources.protos.game.inventory_pb2 import (
-    ObjectUseRequest,
-    ObjectUseMultipleRequest,
     ObjectDeletedEvent,
+    ObjectUseMultipleRequest,
+    ObjectUseRequest,
 )
 from d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
+from data_center.data_reader import DataReader
+
 from src.const import FAKE_INFINITY_VALUE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.harvest.collect_behavior import (
@@ -18,18 +20,21 @@ from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
 from src.core.behaviors.movements.edge_behavior import EdgeError
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
+from src.core.behaviors.mule_kamas.mule_give_kamas_behavior import MuleGiveKamasBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
-from src.core.behaviors.storage.consts import USEFUL_UNLOAD
-from src.core.behaviors.storage.enter_guild_chest_behavior import EnterGuildChestError
 from src.core.behaviors.storage.unload_behavior import UnloadBehavior
+from src.core.config.suicide_bots import (
+    BOT_KAMA_LIMIT_TO_GIVE,
+    BOT_MINIMAL_KAMAS,
+    MULE_BANK_CHARACTER_ID,
+)
 from src.core.controller.gfx_mapping import GfxMappingController
 from src.core.controller.sale_hotel import SaleHotelController
-from data_center.data_reader import DataReader
 from src.core.logic.farmer.weight_collectables import (
-    get_map_ids_to_explore,
     get_map_id_collectable_weight,
+    get_map_ids_to_explore,
 )
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 from src.exceptions import UnhandledErrorCodeException
@@ -46,6 +51,7 @@ class HarvesterBehavior(Behavior):
     fight_behavior: FightBehavior
     unload_behavior: UnloadBehavior
     sale_hotel_prices_behavior: SaleHotelPricesBehavior
+    mule_give_kamas_behavior: MuleGiveKamasBehavior
 
     map_ids_to_explore: set[int] = field(init=False, default_factory=set)
 
@@ -173,32 +179,6 @@ class HarvesterBehavior(Behavior):
         self.on_new_map()
 
     def on_full_pods(self):
-        if self.game_state.player.level < 10:
-            self.logger.warning(
-                f"Player can't unload because he is level {self.game_state.player.level}"
-            )
-            return self.finish()
-        if (
-            datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
-            > timedelta(hours=1, minutes=30)
-        ):
-            self.logger.info("Let's update prices in sale hotel")
-            self.sale_hotel_prices_behavior.start(
-                callback=self.on_sale_hotel_prices_behavior_finished, parent=self
-            )
-        else:
-            return self.unload_behavior.start(
-                parent=self, callback=self.on_unload_behavior_finished
-            )
-
-    def on_sale_hotel_prices_behavior_finished(self, error_code: str | None):
-        if (
-            error_code is not None
-            and error_code is not EnterGuildChestError.DOES_NOT_RESPECT_CONDITION
-        ):
-            raise UnhandledErrorCodeException(error_code)
-        if self.game_state.inventory.pod_percentage < USEFUL_UNLOAD:
-            return self.on_new_map()
         self.unload_behavior.start(
             parent=self, callback=self.on_unload_behavior_finished
         )
@@ -206,7 +186,29 @@ class HarvesterBehavior(Behavior):
     def on_unload_behavior_finished(self, error_code: str | None):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
-        self.on_new_map()
+        if (
+            datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
+            > timedelta(hours=1, minutes=30)
+        ):
+            self.sale_hotel_prices_behavior.start(
+                callback=lambda _: self.on_sale_hotel_price_updated_and_unloaded(),
+                parent=self,
+            )
+        else:
+            self.on_sale_hotel_price_updated_and_unloaded()
+
+    def on_sale_hotel_price_updated_and_unloaded(self):
+        if (
+            MULE_BANK_CHARACTER_ID is not None
+            and self.game_state.inventory.kamas >= BOT_KAMA_LIMIT_TO_GIVE
+        ):
+            self.mule_give_kamas_behavior.start(
+                kamas=self.game_state.inventory.kamas - BOT_MINIMAL_KAMAS,
+                callback=lambda _: self.on_new_map(),
+                parent=self,
+            )
+        else:
+            self.on_new_map()
 
     def on_job_experiences_update_event(self, msg: JobExperiencesUpdateEvent):
         if any(

@@ -4,8 +4,8 @@ from functools import partial
 from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
 from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
 from d3_mapping.resources.protos.game.exchange_pb2 import (
-    ExchangeObjectMoveRequest,
     ExchangeLeaveEvent,
+    ExchangeObjectMoveRequest,
 )
 from d3_mapping.resources.protos.game.guild_chest_pb2 import (
     GuildChestTabSelectRequest,
@@ -14,7 +14,7 @@ from d3_mapping.resources.protos.game.inventory_pb2 import (
     InventoryWeightEvent,
     StorageInventoryContentEvent,
 )
-from src.const import BASE_RANGE, SMALL_RANGE
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
@@ -24,6 +24,7 @@ from src.core.behaviors.storage.enter_guild_chest_behavior import (
     EnterGuildChestBehavior,
     EnterGuildChestError,
 )
+from src.core.config.timings import BASE_RANGE, SMALL_RANGE
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
 

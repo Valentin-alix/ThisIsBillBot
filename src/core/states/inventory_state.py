@@ -2,6 +2,7 @@ import dataclasses
 from dataclasses import dataclass
 
 from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+
 from src.core.states.state import State
 from src.signals.player_signals import GameInfoSignals
 

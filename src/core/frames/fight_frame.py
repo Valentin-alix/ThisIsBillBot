@@ -8,7 +8,6 @@ from d3_mapping.resources.protos.game.context_pb2 import (
 from d3_mapping.resources.protos.game.fight_pb2 import (
     FightEndEvent,
     FightTurnFinishRequest,
-    FightTurnReadyRequest,
     FightTurnEndEvent,
     FightIsTurnReadyEvent,
     FightTurnStartPlayingEvent,
@@ -70,9 +69,6 @@ class FightFrame(Frame):
             self.before_fight_turn_finish_request,
             originator=self,
         )
-        self.event_manager.before(
-            FightTurnReadyRequest, self.before_fight_turn_ready_request, originator=self
-        )
         self.event_manager.on(
             FightTurnEndEvent, self.on_fight_turn_end_event, originator=self
         )
@@ -125,11 +121,6 @@ class FightFrame(Frame):
         self, msg: FightTurnFinishRequest
     ) -> FightTurnFinishRequest | None:
         if self.is_playing_event.is_set() and msg.is_active is False:
-            return None
-        return msg
-
-    def before_fight_turn_ready_request(self, msg: FightTurnReadyRequest):
-        if self.is_playing_event.is_set():
             return None
         return msg
 

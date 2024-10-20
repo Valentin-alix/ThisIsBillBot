@@ -1,12 +1,21 @@
 from dataclasses import dataclass
 
-from d3_mapping.resources.protos.game.inventory_pb2 import StorageInventoryContentEvent
+from d3_mapping.resources.protos.game.exchange_pb2 import ExchangeMoveKamaRequest
+from d3_mapping.resources.protos.game.inventory_pb2 import (
+    StorageInventoryContentEvent,
+    StorageKamasUpdateEvent,
+)
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.npc_dialog_behavior import NpcDialogBehavior
-from src.core.behaviors.storage.consts import BANKS_NPC_INFOS
+from src.core.behaviors.storage.consts import (
+    ASTRUB_BANK_NPC_INFO,
+    BANKS_NPC_INFOS,
+)
+from src.core.config.timings import BASE_RANGE
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -16,10 +25,15 @@ class EnterBankChestBehavior(Behavior):
     auto_trip_world_behavior: AutoTripSmartBehavior
 
     def run(self):
+        if self.game_state.player.is_sub:
+            bank_npc_infos = BANKS_NPC_INFOS
+        else:
+            bank_npc_infos = [ASTRUB_BANK_NPC_INFO]
+
         self.auto_trip_world_behavior.start(
             callback=self.on_bank_map,
             parent=self,
-            map_ids={bank.npc_map_id for bank in BANKS_NPC_INFOS},
+            map_ids={bank.npc_map_id for bank in bank_npc_infos},
         )
 
     def on_bank_map(self, error_code: str | None):
@@ -48,4 +62,14 @@ class EnterBankChestBehavior(Behavior):
         )
 
     def on_storage_inventory_content_event(self, msg: StorageInventoryContentEvent):
-        self.finish()
+        if msg.kamas > 0:
+            self.event_manager.on(
+                StorageKamasUpdateEvent,
+                lambda _: self.finish(),
+                originator=self,
+                once=True,
+            )
+            req = ExchangeMoveKamaRequest(quantity=-msg.kamas)
+            self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
+        else:
+            self.finish()

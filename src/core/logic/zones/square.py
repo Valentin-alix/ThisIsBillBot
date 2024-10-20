@@ -1,4 +1,4 @@
-from src.core.logic.zones.ZRectangle import ZRectangle
+from src.core.logic.zones.z_rectangle import ZRectangle
 
 
 class Square(ZRectangle):

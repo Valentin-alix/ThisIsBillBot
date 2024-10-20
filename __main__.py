@@ -9,6 +9,7 @@ from qfluentwidgets import Theme, setTheme, setThemeColor
 sys.path.append(os.path.join(Path(__file__).parent, "D3Mapping"))
 sys.path.append(os.path.join(Path(__file__).parent, "D3Database"))
 
+from src.core.config.suicide_bots import NOT_SUICIDE_BOT_LOGINS
 from src.bot_manager import BotManager
 from src.const import DOFUS_CONNECTION_URL
 from src.gui.application import Application
@@ -38,11 +39,9 @@ def main() -> None:
     main_window.splashScreen.finish()
 
     for bot in bot_manager.bot_by_account_id.values():
-        ...
-        # elif bot.account["apikey"]["login"] == "ezrealeu44700_2+s7@outlook.com":
-        #     bot.bot_signals.play_harvester.emit(18, None)
-        # elif bot.account["apikey"]["login"] == "ezrealeu44700_2+s8@outlook.com":
-        #     bot.bot_signals.play_harvester.emit(18, None)
+        if bot.account["apikey"]["login"] in NOT_SUICIDE_BOT_LOGINS:
+            continue
+        bot.shared_signals.launch_account.emit(bot.account["apikey"]["login"])
 
     app.exec()
 

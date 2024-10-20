@@ -25,6 +25,7 @@ mypy = "^1.15.0"
 proto-schema-parser = "^1.4.8"
 frida = "^16.7.3"
 frida-tools = "^13.6.1"
+tinydb = "^4.8.2"
 
 [tool.poetry.group.dev.dependencies]
 pyqt5-stubs = "^5.15.6.0"
