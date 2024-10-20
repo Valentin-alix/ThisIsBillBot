@@ -120,6 +120,7 @@ class FightFrame(Frame):
     def before_fight_turn_finish_request(
         self, msg: FightTurnFinishRequest
     ) -> FightTurnFinishRequest | None:
+        # return msg
         if self.is_playing_event.is_set() and msg.is_active is False:
             return None
         return msg

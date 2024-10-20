@@ -1,7 +1,7 @@
 import random
 from abc import ABC
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import partial
 from typing import Callable
 
@@ -20,7 +20,8 @@ from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
 from src.core.behaviors.storage.unload_behavior import UnloadBehavior
-from src.core.config.timings import ON_NEW_MAP_BEFORE_ACTION
+from src.core.config.timings import TIME_FIGHTER
+from src.core.controller.human_timings import HumanTimingsController
 from src.core.logic.flags.map_position_flags import allow_monster_agression
 from src.core.logic.grid.path_finding.movement_path import MovementPath
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
@@ -50,13 +51,18 @@ class FighterBehavior(Behavior, ABC):
     _level_limit_with_callback: tuple[int, Callable[[], None]] | None = field(
         init=False, default=None
     )
+    _callback_on_time_limit: tuple[Callable[[], None], datetime] | None = field(
+        init=False, default=None
+    )
 
     def run(
         self,
         area_id: int | None,
         sub_area_id: int | None,
-        level_limit_with_callback: tuple[int, Callable[[], None]] | None,
+        level_limit_with_callback: tuple[int, Callable[[], None]] | None = None,
+        callback_on_time_limit: tuple[Callable[[], None], datetime] | None = None,
     ):
+        self._callback_on_time_limit = callback_on_time_limit
         self._level_limit_with_callback = level_limit_with_callback
         self.random_farm_behavior.init_random_farm(
             area_id, sub_area_id, self.get_additional_weight_by_map_id
@@ -64,6 +70,11 @@ class FighterBehavior(Behavior, ABC):
         self.on_new_map()
 
     def on_new_map(self):
+        if self._callback_on_time_limit is not None:
+            callback, time_limit = self._callback_on_time_limit
+            if time_limit < datetime.now():
+                return callback()
+
         if self.game_state.map.map_id in self.random_farm_behavior.map_ids:
             self.logger.info(f"Waiting for all mule to go {self.game_state.map.map_id}")
             self.attack_enemy()
@@ -91,7 +102,7 @@ class FighterBehavior(Behavior, ABC):
             return self.run_next_step()
 
         self.run_timer(
-            ON_NEW_MAP_BEFORE_ACTION,
+            HumanTimingsController().get_timing_attack_on_new_map(),
             lambda: self.map_move_behavior.start(
                 callback=partial(
                     self.on_moved_to_monster, group_actor_id=monster_group_info.actor_id
@@ -146,6 +157,7 @@ class FighterBehavior(Behavior, ABC):
         if self._level_limit_with_callback is not None:
             level_limit, callback = self._level_limit_with_callback
             if self.game_state.player.level >= level_limit:
+                self.logger.info("Level limit passed, let's call callback")
                 self.finish()
                 return callback()
 
@@ -164,7 +176,7 @@ class FighterBehavior(Behavior, ABC):
             raise UnhandledErrorCodeException(error_code)
         if (
             datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
-            > timedelta(hours=1, minutes=30)
+            > TIME_FIGHTER
         ):
             self.sale_hotel_prices_behavior.start(
                 callback=lambda _: self.on_sale_hotel_price_updated_and_unloaded(),
@@ -222,7 +234,7 @@ class FighterBehavior(Behavior, ABC):
         return total_group_lvl
 
     def get_coeff_level(self, level: int):
-        return level * 1.3 + 5
+        return level * 1 + 5
 
     def is_valid_monster_group(
         self,

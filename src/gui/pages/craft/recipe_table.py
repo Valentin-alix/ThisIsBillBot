@@ -37,12 +37,14 @@ class RecipeTable(BaseTableWidget):
 
     def add_recipe(self, recipe: RecipeItem) -> None:
         name_id = DataReader().item_by_id[recipe.resultId].nameId
-        recipe_widget_item = QStandardItem(I18N.name_by_id[name_id] if name_id else "")
+        recipe_widget_item = QStandardItem(
+            I18N().name_by_id[name_id] if name_id else ""
+        )
         recipe_widget_item.setData(recipe, role=Qt.UserRole)
         self.widget_item_by_recipe[recipe] = recipe_widget_item
 
         job_name_widget = QStandardItem(
-            I18N.name_by_id[DataReader().job_by_id[recipe.jobId].nameId]
+            I18N().name_by_id[DataReader().job_by_id[recipe.jobId].nameId]
         )
 
         recipe_lvl = QStandardItem(str(DataReader().item_by_id[recipe.resultId].level))

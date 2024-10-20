@@ -33,6 +33,8 @@ class PlayerState(State):
     life_state: CharacterLifeStatusEvent.LifeStatus = dataclasses.field(
         init=False, default=CharacterLifeStatusEvent.LifeStatus.ALIVE_AND_KICKING
     )
+    _life_point: int = dataclasses.field(init=False, default=1)
+    _max_life_point: int = dataclasses.field(init=False, default=1)
     _breed_id: int = dataclasses.field(init=False, default=0)
     _level: int = dataclasses.field(init=False, default=1)
     _subscription_end_date: datetime = dataclasses.field(
@@ -58,9 +60,31 @@ class PlayerState(State):
         self.characteristic_by_id.clear()
         self.waypoint_map_ids.clear()
         self.jobs_lvl_by_id.clear()
+        self.life_point = 1
+        self.max_life_point = 1
 
     def get_player_stat_by_id(self, characteristic: int) -> int:
         return get_stat_by_id(self.characteristic_by_id.get(characteristic))
+
+    @property
+    def max_life_point(self):
+        return max(self._max_life_point, 1)
+
+    @max_life_point.setter
+    def max_life_point(self, value: int):
+        self._max_life_point = value
+
+    @property
+    def life_point(self):
+        return max(self._life_point, 1)
+
+    @life_point.setter
+    def life_point(self, value: int):
+        self._life_point = value
+
+    @property
+    def life_percentage(self):
+        return self.life_point / self.max_life_point
 
     @property
     def breed_id(self):
@@ -171,7 +195,7 @@ class PlayerState(State):
             potential_vertices = WorldGraphReader().get_vertexes(self.map_state.map_id)
             if len(potential_vertices) == 0:
                 raise ValueError(
-                    f"no vertice for map {self.map_state.map_id} at {self.map_point}"
+                    f"no vertice for map {self.map_state.map_id} at {self.map_point}, player is probably in fight"
                 )
             vertice = next(iter(potential_vertices))
         return vertice

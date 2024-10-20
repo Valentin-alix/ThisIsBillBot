@@ -16,7 +16,8 @@ from src.core.behaviors.interactive_behavior import (
     InteractiveError,
 )
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
-from src.core.config.timings import BASE_RANGE, ON_NEW_MAP_BEFORE_ACTION
+from src.core.config.timings import BASE_RANGE
+from src.core.controller.human_timings import HumanTimingsController
 from src.core.logic.grid.path_finding.movement_path import MovementPath
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.interfaces.models.collectable import Collectable
@@ -76,7 +77,8 @@ class CollectBehavior(Behavior):
         if self.is_first_action:
             self.is_first_action = False
             self.run_timer(
-                ON_NEW_MAP_BEFORE_ACTION, lambda: self.collect(move_path, collectable)
+                HumanTimingsController().get_timing_collect_on_new_map(),
+                lambda: self.collect(move_path, collectable),
             )
         else:
             self.collect(move_path, collectable)

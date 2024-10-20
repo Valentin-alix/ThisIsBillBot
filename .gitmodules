@@ -4,3 +4,6 @@
 [submodule "D3Mapping"]
 	path = D3Mapping
 	url = https://github.com/Valentin-alix/D3Mapping.git
+[submodule "DBDofusUnity"]
+	path = DBDofusUnity
+	url = https://github.com/Valentin-alix/DBDofusUnity.git

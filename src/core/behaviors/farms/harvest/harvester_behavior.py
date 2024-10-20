@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
+from typing import Callable
 
 from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
 from d3_mapping.resources.protos.game.inventory_pb2 import (
@@ -30,6 +31,7 @@ from src.core.config.suicide_bots import (
     BOT_MINIMAL_KAMAS,
     MULE_BANK_CHARACTER_ID,
 )
+from src.core.config.timings import BASE_RANGE, TIME_HARVESTER
 from src.core.controller.gfx_mapping import GfxMappingController
 from src.core.controller.sale_hotel import SaleHotelController
 from src.core.logic.farmer.weight_collectables import (
@@ -55,7 +57,17 @@ class HarvesterBehavior(Behavior):
 
     map_ids_to_explore: set[int] = field(init=False, default_factory=set)
 
-    def run(self, area_id: int | None, sub_area_id: int | None):
+    _callback_on_time_limit: tuple[Callable[[], None], datetime] | None = field(
+        init=False, default=None
+    )
+
+    def run(
+        self,
+        area_id: int | None,
+        sub_area_id: int | None,
+        callback_on_time_limit: tuple[Callable[[], None], datetime] | None = None,
+    ):
+        self._callback_on_time_limit = callback_on_time_limit
         self.random_farm_behavior.init_random_farm(
             area_id, sub_area_id, self.get_additional_weight_by_map_id
         )
@@ -92,6 +104,7 @@ class HarvesterBehavior(Behavior):
             self.game_state.player.jobs_lvl_by_id,
             storage_by_gid,
             avg_price_by_gid,
+            self.game_state.player.is_sub,
         )
         return weight
 
@@ -119,6 +132,11 @@ class HarvesterBehavior(Behavior):
         self.on_new_map()
 
     def on_new_map(self):
+        if self._callback_on_time_limit is not None:
+            callback, time_limit = self._callback_on_time_limit
+            if time_limit < datetime.now():
+                return callback()
+
         if self.game_state.map.map_id in self.random_farm_behavior.map_ids:
             self.collect_behavior.start(
                 callback=self.on_collect_behavior_finished, parent=self
@@ -170,7 +188,7 @@ class HarvesterBehavior(Behavior):
                     originator=self,
                     once=True,
                 )
-                return self.run_timer((0.1, 0.3), lambda: self.event_manager.send(req))
+                return self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
         self.on_fight_end_after_purge()
 
     def on_fight_end_after_purge(self):
@@ -188,7 +206,7 @@ class HarvesterBehavior(Behavior):
             raise UnhandledErrorCodeException(error_code)
         if (
             datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
-            > timedelta(hours=1, minutes=30)
+            > TIME_HARVESTER
         ):
             self.sale_hotel_prices_behavior.start(
                 callback=lambda _: self.on_sale_hotel_price_updated_and_unloaded(),

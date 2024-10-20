@@ -12,7 +12,7 @@ from grid.map_point import MapPoint
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_challenge_behavior import FightChallengeBehavior
 from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
-from src.core.config.timings import ON_CHALLENGE, ON_PLAYER_MOVED
+from src.core.controller.human_timings import HumanTimingsController
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -40,10 +40,7 @@ class FightPreparationBehavior(Behavior):
         self.logger.info(f"found near cell id to enemy : {near_possible_cell_id}")
         if self.game_state.player.map_point.cell_id != near_possible_cell_id:
             self.logger.info(f"Moving to {near_possible_cell_id}")
-            self.run_timer(
-                (0.3, 0.6),
-                partial(self.send_fight_placement_position, near_possible_cell_id),
-            )
+            self.send_fight_placement_position(near_possible_cell_id)
         else:
             self.on_player_placement_done()
 
@@ -66,7 +63,11 @@ class FightPreparationBehavior(Behavior):
             cell_id=cell_id,
             entity_id=self.game_state.player.character_id,
         )
-        self.event_manager.send(request)
+
+        self.run_timer(
+            HumanTimingsController().get_timing_before_preparation_placement(),
+            lambda: self.event_manager.send(request),
+        )
 
     def on_entity_disposition_event(
         self, msg: EntitiesDispositionEvent, requested_cell_id: int
@@ -79,11 +80,16 @@ class FightPreparationBehavior(Behavior):
             )
             if disposition.entity_id != self.game_state.player.character_id:
                 return self.position_player()
-            return self.run_timer(ON_PLAYER_MOVED, self.on_player_placement_done)
+
+            self.on_player_placement_done()
 
     def on_player_placement_done(self):
         request = FightReadyRequest(is_ready=True)
-        self.run_timer(ON_CHALLENGE, lambda: self.event_manager.send(request))
+
+        self.run_timer(
+            HumanTimingsController().get_timing_before_preparation_ready(),
+            lambda: self.event_manager.send(request),
+        )
 
     def get_near_placement_cell_id(self) -> int:
         min_dist_possible_cell_id: tuple[int, float] | None = None

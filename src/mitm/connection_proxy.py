@@ -2,13 +2,14 @@ from dataclasses import dataclass
 from typing import Callable
 
 from d3_mapping.protocol.protocol import decode_varint_size, encode_msg
-from d3_mapping.protocol.protocol_connection import get_conn_msg_info
+from d3_mapping.protocol.protocol_connection import get_conn_msg, get_conn_msg_info
 from d3_mapping.resources.protos.connection.login_message_pb2 import (
     LoginMessage,
     Request,
 )
 
 from src.bot import Bot
+from src.const import DEBUG
 from src.mitm.proxy import Proxy, WorkerAction
 
 
@@ -22,7 +23,7 @@ class ConnectionProxy(Proxy):
         self.bot.event_manager.on_send_callback = self.send_msg
 
     def alter_msg_datas(
-        self, msg_content_datas: bytes, msg_datas: bytes, from_server: bool
+        self, msg_content_datas: bytes, msg_datas: bytes
     ) -> bytes | None:
         msg = LoginMessage()
         msg.ParseFromString(msg_content_datas)
@@ -54,8 +55,12 @@ class ConnectionProxy(Proxy):
     ):
         size, pos = decode_varint_size(msg_datas)
         msg_content_datas = msg_datas[pos : pos + size]
-        msg_info, msg = get_conn_msg_info(msg_content_datas, from_server)
-        self.bot.msg_info_signals.msg_info.emit(msg_info, was_send_from_proxy)
+        _, msg = get_conn_msg(msg_content_datas)
+
+        if DEBUG:
+            msg_info = get_conn_msg_info(msg_content_datas, msg, from_server)
+            self.bot.msg_info_signals.msg_info.emit(msg_info, was_send_from_proxy)
+
         if msg is not None:
             self.bot.event_manager.process_msg(msg)
 

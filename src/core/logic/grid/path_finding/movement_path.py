@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+
 from grid.directions import DirectionsEnum
 from grid.map_point import MapPoint
 from src.core.logic.grid.path_finding.path_element import PathElement

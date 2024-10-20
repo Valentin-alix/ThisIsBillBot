@@ -15,7 +15,8 @@ from grid.map_point import MapPoint
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripBehavior
-from src.core.config.timings import ON_NEW_MAP_BEFORE_ACTION
+from src.core.config.timings import BASE_RANGE
+from src.core.controller.human_timings import HumanTimingsController
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.core.logic.world.astar_no_interactive import AstarNoInteractive
 from src.exceptions import UnexpectedStateException, UnhandledErrorCodeException
@@ -36,7 +37,7 @@ class ReviveBehavior(Behavior):
         ):
             return self.finish()
 
-        self.run_timer(ON_NEW_MAP_BEFORE_ACTION, self.free_soul)
+        self.run_timer(HumanTimingsController().get_timing_free_soul(), self.free_soul)
 
     def free_soul(self):
         self.event_manager.on(
@@ -51,8 +52,12 @@ class ReviveBehavior(Behavior):
             originator=self,
             once=True,
         )
+
         req = FreeSoulRequest()
-        self.event_manager.send(req)
+        self.run_timer(
+            HumanTimingsController().get_timing_free_soul(),
+            lambda: self.event_manager.send(req),
+        )
 
     def on_map_teleport_on_same_event(self, msg: MapTeleportOnSameEvent):
         self.event_manager.clear_listener_by_origin_and_type(
@@ -76,10 +81,13 @@ class ReviveBehavior(Behavior):
             raise UnexpectedStateException(
                 f"path to phoenix at {self.game_state.map.phoenix_map_id} is none"
             )
-        self.auto_trip_behavior.start(
-            edge_path=path_to_phoenix_map,
-            callback=self.on_auto_trip_behavior_finished,
-            parent=self,
+        self.run_timer(
+            BASE_RANGE,
+            lambda: self.auto_trip_behavior.start(
+                edge_path=path_to_phoenix_map,
+                callback=self.on_auto_trip_behavior_finished,
+                parent=self,
+            ),
         )
 
     def on_auto_trip_behavior_finished(self, error_code: str | None):
@@ -101,12 +109,15 @@ class ReviveBehavior(Behavior):
             MapPoint.from_cell_id(ref_data.cellId),
             [skill.skill_id for skill in phoenix_element.enabled_skills],
         )
-        self.interactive_behavior.start(
-            move_path=move_path,
-            element_id=phoenix_element.element_id,
-            skill_instance_uid=phoenix_element.enabled_skills[0].skill_instance_uid,
-            callback=self.on_phoenix_used,
-            parent=self,
+        self.run_timer(
+            BASE_RANGE,
+            lambda: self.interactive_behavior.start(
+                move_path=move_path,
+                element_id=phoenix_element.element_id,
+                skill_instance_uid=phoenix_element.enabled_skills[0].skill_instance_uid,
+                callback=self.on_phoenix_used,
+                parent=self,
+            ),
         )
 
     def on_phoenix_used(self, error_code: str | None):

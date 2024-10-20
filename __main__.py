@@ -6,10 +6,14 @@ from threading import Thread
 from PyQt5.QtCore import Qt
 from qfluentwidgets import Theme, setTheme, setThemeColor
 
+
 sys.path.append(os.path.join(Path(__file__).parent, "D3Mapping"))
 sys.path.append(os.path.join(Path(__file__).parent, "D3Database"))
+sys.path.append(os.path.join(Path(__file__).parent, "DB-DofusUnity"))
 
-from src.core.config.suicide_bots import NOT_SUICIDE_BOT_LOGINS
+
+from src.core.logic.grid.path_finding.movement_path import MovementPath
+from src.scheduler import run_continuously
 from src.bot_manager import BotManager
 from src.const import DOFUS_CONNECTION_URL
 from src.gui.application import Application
@@ -21,7 +25,7 @@ from src.signals.shared_farm_signals import SharedSignals
 def main() -> None:
     app = Application(sys.argv)
     shared_signals = SharedSignals()
-    main_window = MainWindow(app.TITLE)
+    main_window = MainWindow(title=app.TITLE, shared_signals=shared_signals)
     main_window.show()
     setTheme(Theme.DARK)
     setThemeColor(Qt.GlobalColor.yellow)
@@ -39,12 +43,28 @@ def main() -> None:
     main_window.splashScreen.finish()
 
     for bot in bot_manager.bot_by_account_id.values():
-        if bot.account["apikey"]["login"] in NOT_SUICIDE_BOT_LOGINS:
-            continue
-        bot.shared_signals.launch_account.emit(bot.account["apikey"]["login"])
+        bot.start()
+
+    cease_running = run_continuously()
+    shared_signals.closed.connect(cease_running.set)
 
     app.exec()
 
 
+def temp():
+    print(MovementPath.get_cell_id_by_key(20836))
+    print(MovementPath.get_cell_id_by_key(20793))
+    # print(MapPoint.from_coords(16, -4))
+
+
 if __name__ == "__main__":
+    # temp()
+    # sys.exit()
+    # if is_new_version():
+    #     print("New dofus version, updating datas and protos...")
+    #     update_all_datas()
+    #     print("Updating protos")
+    #     update_proto_on_new_version()
+    #     print("Please play sniffer and redo mapping.")
+    # else:
     main()

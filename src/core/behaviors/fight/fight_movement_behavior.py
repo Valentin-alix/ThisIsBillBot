@@ -43,6 +43,8 @@ class FightMovementBehavior(Behavior):
             CharacteristicEnum.MOVEMENT_POINTS
         )
 
+        self.logger.info(f"PM : {pm}")
+
         if pm < 0:
             return self.finish()
 

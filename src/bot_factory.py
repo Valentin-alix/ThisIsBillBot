@@ -59,6 +59,7 @@ from src.core.behaviors.storage.unload_in_bank_behavior import UnloadInBankBehav
 from src.core.behaviors.storage.unload_in_guild_chest_behavior import (
     UnloadInGuildChestBehavior,
 )
+from src.core.behaviors.suicide.suicide_bot_behavior import SuicideBotBehavior
 from src.core.frames.entity_frame import EntityFrame
 from src.core.frames.fight_frame import FightFrame
 from src.core.frames.guild_chest_frame import GuildChestFrame
@@ -472,6 +473,13 @@ class BotFactory:
             logger=logger,
             auto_trip_smart_behavior=auto_trip_world_behavior,
         )
+        suicide_bot_behavior = SuicideBotBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            logger=logger,
+            fighter_behavior=fighter_behavior,
+            harvester_behavior=harvester,
+        )
 
         return Bot(
             pid=None,
@@ -484,6 +492,7 @@ class BotFactory:
             harvester_behavior=harvester,
             fight_behavior=fight_behavior,
             mule_accept_kamas_behavior=mule_accept_kamas_behavior,
+            revive_behavior=revive_behavior,
             frames=[
                 map_frame,
                 player_frame,
@@ -501,6 +510,7 @@ class BotFactory:
             game_state=game_state,
             fighter_behavior=fighter_behavior,
             craft_behavior=craft_behavior,
+            suicide_bot_behavior=suicide_bot_behavior,
             is_playing_event=is_playing_event,
             shared_signals=shared_signals,
             is_ready_to_play_event=is_ready_to_play_event,

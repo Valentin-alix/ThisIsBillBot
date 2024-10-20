@@ -5,7 +5,6 @@ from typing import Iterable
 from d3_mapping.resources.protos.game.common_pb2 import (
     ActorPositionInformation,
     SpellModifierType,
-    Team,
 )
 from data_center.data_reader import DataReader
 from data_center.i18n import I18N
@@ -16,8 +15,9 @@ from models.datas.spell_levels_root import Effect, SpellLevelsRootItem
 
 from src.core.logic.fight.damage_calculator import DamageCalculator
 from src.core.logic.fight.effect import (
+    get_effect_shield_level_bonus,
+    get_life_point_percent_malus,
     get_type_effect,
-    is_included_by_mask,
 )
 from src.core.logic.fight.los_detector import LosDetector
 from src.core.logic.fight.reachable_cells.fight_reachable_cells import (
@@ -35,6 +35,7 @@ from src.core.logic.fight.spell import (
 from src.core.logic.fight.spell_zone import get_zone_mps
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.core.states.game_state import GameState
+from src.interfaces.aliases import MonsterFighter
 from src.interfaces.enums.characteristic_enum import CharacteristicEnum
 from src.interfaces.enums.effect_element import TypeEffect
 from src.interfaces.enums.spell_shape_enum import SpellShapeEnum
@@ -196,6 +197,9 @@ class Attacker:
                         total_weight_spell = self.get_weight_attack(
                             impact_mps, spell_lvl, effect, targetable_mp, enemies
                         )
+                        self.logger.info(
+                            f"Found total weight {total_weight_spell} on mp {targetable_mp.cell_id} with spell {I18N().name_by_id[DataReader().spell_by_id[spell_lvl.spellId].nameId]}"
+                        )
                         weight_by_direction_and_target[(direction, targetable_mp)] = (
                             total_weight_spell
                         )
@@ -217,13 +221,15 @@ class Attacker:
                     )
 
         if best_attack is not None and best_attack[0] > 0:
-            name_spell = I18N.name_by_id[
+            name_spell = I18N().name_by_id[
                 DataReader().spell_by_id[best_attack[3].spellId].nameId
             ]
             self.logger.info(
                 f"Found best attack with weight : {best_attack[0]} for spell {name_spell} at target {best_attack[4]}"
             )
             return best_attack[2], best_attack[3], best_attack[4]
+        else:
+            self.logger.info("Did not found any attack")
         return None
 
     def can_cast_spell_on_mp(
@@ -287,39 +293,71 @@ class Attacker:
         )
 
         data_effect = DataReader().effect_by_id[effect.effectId]
-        description_effect = I18N.name_by_id[data_effect.descriptionId]
+        description_effect = I18N().name_by_id[data_effect.descriptionId]
 
-        dmg_weight_spell, _ = self.get_weight_dmg_and_life_thieft_effect(
+        dmg_weight_spell, thieft_life = self.get_weight_dmg_and_life_thieft_effect(
             effect, target_mp, impact_mps, enemies, description_effect
         )
-        do_life_point_malus: bool = False
-        does_shield: bool = False
-        does_thieft_life: bool = "vol" in description_effect
+        self.logger.info(
+            f"Dmg weight spell : {dmg_weight_spell} thieft life {thieft_life}"
+        )
+
+        life_point_malus: int = 0
+        shield_bonus: int = 0
         for effect in spell_lvl.effects:
             type_effect = get_type_effect(spell_lvl.spellId, effect)
             if type_effect is None:
                 continue
-            if (
-                type_effect == TypeEffect.MALUS_LIFE_PERCENT
-                and do_life_point_malus == 0
-            ):
-                do_life_point_malus = True
-            elif type_effect == TypeEffect.SHIELD_PERCENT_LEVEL and does_shield == 0:
-                does_shield = True
+            if type_effect == TypeEffect.MALUS_LIFE_PERCENT and life_point_malus == 0:
+                life_point_malus = get_life_point_percent_malus(
+                    self.game_state.player.life_point, effect
+                )
+            elif type_effect == TypeEffect.SHIELD_PERCENT_LEVEL and shield_bonus == 0:
+                shield_bonus = get_effect_shield_level_bonus(
+                    self.game_state.player.level, effect
+                )
+        dmg_weight_spell /= 1 + (
+            life_point_malus / max(self.game_state.player.life_point, 1)
+        )
 
-        malus = 1
-        if do_life_point_malus:
-            malus += 1
+        self.logger.info(
+            f"Dmg weight spell after life point malus : {dmg_weight_spell}"
+        )
 
-        bonus = 1
-        if does_shield:
-            bonus += 1
-        if does_thieft_life:
-            bonus += 1
+        # ici on récupère le life percentage qu'on pourrait gagné avec le spell
+        life_percentage_weight: float = (
+            min(
+                (
+                    self.game_state.player.life_point
+                    + thieft_life
+                    - life_point_malus
+                    + shield_bonus
+                )
+                / self.game_state.player.max_life_point,
+                1,
+            )
+            - self.game_state.player.life_percentage
+        )
 
-        dmg_weight_spell *= (bonus) / malus
+        self.logger.info(f"Life percentage : {self.game_state.player.life_percentage}")
 
-        return dmg_weight_spell / spell_ap_cost
+        # puis on divise par le life percentage actuel (parce qu'on veux recup des pdv quand on est low)
+        life_percentage_weight /= self.game_state.player.life_percentage
+
+        if life_percentage_weight < 0:
+            self.logger.error(
+                f"Invalid life percentage weight : {life_percentage_weight}\n\
+                    Life point malus : {life_point_malus}\n\
+                    Shield bonus : {shield_bonus}\n\
+                    Life percentage : {self.game_state.player.life_percentage}\n\
+                    Life point : {self.game_state.player.life_point}\n\
+                    Max life point {self.game_state.player.max_life_point}"
+            )
+            life_percentage_weight = 1
+
+        self.logger.info(f"life percentage weight : {life_percentage_weight}")
+
+        return (dmg_weight_spell * (1 + life_percentage_weight)) / spell_ap_cost
 
     def get_weight_dmg_and_life_thieft_effect(
         self,
@@ -329,18 +367,40 @@ class Attacker:
         enemies: list[ActorPositionInformation],
         description_effect: str,
     ) -> tuple[float, float]:
+        enemy_killed: int = 0
+        enemy_dmg_weight: float = 0
         enemy_total_dmg: float = 0
         for enemy in enemies:
             enemy_mp = MapPoint.from_cell_id(enemy.disposition.cell_id)
             if enemy_mp not in impact_mps:
                 continue
-            if not is_included_by_mask(
-                caster_id=self.game_state.player.character_id,
-                caster_team=Team.TEAM_DEFENDER,
-                masks=effect.targetMask.split(","),
-                target_actor=enemy,
-            ):
-                continue
+            actor_fight = self.game_state.entity.actor_fight_by_id[enemy.actor_id]
+            # if not is_included_by_mask(
+            #     caster_id=self.game_state.player.character_id,
+            #     caster_team=Team.TEAM_DEFENDER,
+            #     masks=effect.targetMask.split(","),
+            #     target_actor=enemy,
+            # ):
+            #     self.logger.info(
+            #         f"effect with mask {effect.targetMask} not included for enemy {enemy.actor_id}"
+            #     )
+            #     continue
+            monster_info: MonsterFighter = (
+                enemy.actor_information.fighter.ai_fighter.monster_fighter_information
+            )
+            monster_id, monster_grade = (
+                monster_info.monster_gid,
+                monster_info.creature_grade,
+            )
+            if monster_id in DataReader().monsters_by_id:
+                monster = DataReader().monsters_by_id[monster_id]
+                monster_grade = monster.grades[monster_grade - 1]
+                monster_life_point = monster_grade.lifePoints
+            else:
+                self.logger.error(f"Did not found monster {monster_id}")
+                monster_grade = None
+                monster_life_point = 100
+
             decrease_by_dist_percent = (
                 min(
                     effect.zoneDescr.damageDecreaseStepPercent
@@ -349,14 +409,19 @@ class Attacker:
                 )
                 / 100
             )
-            dmg: float = self.damage_calculator.get_damage_effect(effect) * (
-                1 - decrease_by_dist_percent
-            )
+            dmg: float = self.damage_calculator.get_damage_effect(
+                effect, monster_grade
+            ) * (1 - decrease_by_dist_percent)
             enemy_total_dmg += dmg
+            if actor_fight.life_point - dmg <= 0:
+                enemy_killed += 1
+            enemy_dmg_weight += dmg / (actor_fight.life_point / monster_life_point)
+
+        dmg_weight = (enemy_dmg_weight) * (1 + enemy_killed)
 
         if "vol" in description_effect:
             thieft_life: float = enemy_total_dmg
         else:
             thieft_life = 0
 
-        return enemy_total_dmg, thieft_life
+        return dmg_weight, thieft_life

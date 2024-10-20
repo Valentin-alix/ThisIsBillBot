@@ -89,9 +89,11 @@ class FarmerWidget(PivotItem):
 
         for area in sorted(
             DataReader().area_by_id.values(),
-            key=lambda area: I18N.name_by_id[area.nameId],
+            key=lambda area: I18N().name_by_id[area.nameId],
         ):
-            self.area_farm_combo.addItem(I18N.name_by_id[area.nameId], userData=area.id)
+            self.area_farm_combo.addItem(
+                I18N().name_by_id[area.nameId], userData=area.id
+            )
 
         top_widget.layout().addWidget(self.area_farm_combo)
 
@@ -150,12 +152,12 @@ class FarmerWidget(PivotItem):
         self.sub_area_farm_combo.addItem("")
         for sub_area in sorted(
             DataReader().sub_area_by_id.values(),
-            key=lambda subarea: I18N.name_by_id[subarea.nameId],
+            key=lambda subarea: I18N().name_by_id[subarea.nameId],
         ):
             if sub_area.areaId != current_area_id:
                 continue
             self.sub_area_farm_combo.addItem(
-                I18N.name_by_id[sub_area.nameId], userData=sub_area.id
+                I18N().name_by_id[sub_area.nameId], userData=sub_area.id
             )
 
     @pyqtSlot()

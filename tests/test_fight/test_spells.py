@@ -17,7 +17,7 @@ class TestSpells(GameStateFixture):
     def test_los_spell(self):
         spell_id = 12728
         spell_data = DataReader().spell_by_id[spell_id]
-        print(I18N.name_by_id[spell_data.nameId])
+        print(I18N().name_by_id[spell_data.nameId])
 
     def test_bonus_shield(self):
         level = 100

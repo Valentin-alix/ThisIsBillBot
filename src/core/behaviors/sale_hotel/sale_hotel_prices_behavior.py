@@ -63,7 +63,7 @@ class SaleHotelPricesBehavior(Behavior):
             load_item_info = LoadItemInfo(
                 item_gid=item_gid,
                 remaining_quantity=max(
-                    7000 - item_sell_quantity_by_gid.get(item_gid, 0), 0
+                    10_000 - item_sell_quantity_by_gid.get(item_gid, 0), 0
                 ),
             )
             load_items_infos.append(load_item_info)
@@ -268,7 +268,7 @@ class SaleHotelPricesBehavior(Behavior):
             once=True,
         )
         req = ExchangeBidHousePriceRequest(object_gid=msg.object_gid)
-        self.run_timer((0.001, 0.01), lambda: self.event_manager.send(req))
+        self.event_manager.send(req)
 
     def on_exchange_bid_price_event_after_select_for_create_price(
         self,

@@ -15,6 +15,7 @@ def get_weight_collectable(
     item_gid: int,
     avg_price_by_gid: dict[int, float],
     storage_by_gid: dict[int, ObjectItemInventory],
+    is_sub: bool,
 ):
     item = DataReader().item_by_id[item_gid]
     if item.level is None:
@@ -29,11 +30,12 @@ def get_weight_collectable(
             else 1
         )
     )
-    if job_lvl != 200:
+    max_job_lvl = 200 if is_sub else 60
+    if job_lvl != max_job_lvl:
         weight = (
             weight
             * item.level
-            * (((201 - job_lvl) ** 2) if job_id != JobEnum.BASE else 1)
+            * (((max_job_lvl + 1 - job_lvl) ** 2) if job_id != JobEnum.BASE else 1)
         )
 
     return weight
@@ -45,6 +47,7 @@ def get_map_id_collectable_weight(
     player_job_lvl_by_id: dict[int, int],
     storage_by_gid: dict[int, ObjectItemInventory],
     avg_price_by_gid: dict[int, float],
+    is_sub: bool,
 ) -> float:
     weight_map: float = 0
     for ref_id in MapReader().map_by_id(map_id).references:
@@ -63,7 +66,7 @@ def get_map_id_collectable_weight(
         if item.level is None or item.level > job_lvl:
             continue
         weight_item = get_weight_collectable(
-            job_id, job_lvl, item_id, avg_price_by_gid, storage_by_gid
+            job_id, job_lvl, item_id, avg_price_by_gid, storage_by_gid, is_sub
         )
         weight_map += weight_item
     return weight_map

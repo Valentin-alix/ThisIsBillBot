@@ -167,6 +167,16 @@ class EntityFrame(Frame):
                 msg.slide.target_id, direction=direction, cell_id=msg.slide.end_cell
             )
         elif msg.HasField("exchange_positions"):
+            if (
+                msg.exchange_positions.target_cell_id
+                == self.game_state.entity.actor_by_id[msg.source_id].disposition.cell_id
+            ):
+                caster_new_cell_id = msg.exchange_positions.caster_cell_id
+                target_new_cell_id = msg.exchange_positions.target_cell_id
+            else:
+                caster_new_cell_id = msg.exchange_positions.target_cell_id
+                target_new_cell_id = msg.exchange_positions.caster_cell_id
+
             target_direction = self.game_state.entity.actor_by_id[
                 msg.exchange_positions.target_id
             ].disposition.direction
@@ -177,12 +187,10 @@ class EntityFrame(Frame):
             self.game_state.entity.update_actor_disposition(
                 msg.exchange_positions.target_id,
                 direction=target_direction,
-                cell_id=msg.exchange_positions.target_cell_id,
+                cell_id=target_new_cell_id,
             )
             self.game_state.entity.update_actor_disposition(
-                msg.source_id,
-                direction=caster_direction,
-                cell_id=msg.exchange_positions.caster_cell_id,
+                msg.source_id, direction=caster_direction, cell_id=caster_new_cell_id
             )
         elif msg.HasField("teleport_on_same_map"):
             if msg.teleport_on_same_map.target_id in self.game_state.entity.actor_by_id:
@@ -208,6 +216,7 @@ class EntityFrame(Frame):
         for actor in msg.fighters:
             if not actor.actor_information.fighter.spawn_information.alive:
                 self.game_state.entity.remove_actor(actor.actor_id)
+                self.logger.info("Actor is not alive, let's remove it")
             else:
                 self.game_state.entity.set_actors(msg.fighters)
 

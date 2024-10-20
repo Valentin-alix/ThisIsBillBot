@@ -10,6 +10,7 @@
     "python.testing.unittestEnabled": true,
     "python.analysis.extraPaths": [
         "D3Database",
-        "D3Mapping"
+        "D3Mapping",
+        "DB-DofusUnity"
     ],
 }

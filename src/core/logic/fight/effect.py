@@ -37,7 +37,7 @@ def get_stat_by_effect_elem(elem: int):
 
 def get_type_effect(spell_id: int, effect: Effect) -> TypeEffect | None:
     data_effect = DataReader().effect_by_id[effect.effectId]
-    description_spell = I18N.name_by_id[
+    description_spell = I18N().name_by_id[
         DataReader().spell_by_id[spell_id].descriptionId
     ]
     if (

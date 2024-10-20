@@ -114,7 +114,7 @@ class CustomTableView(TableView):  # type: ignore
         self.item_model.remove_rows(0, 250)
         self.scroll_bar.verticalScrollBar().setValue(old_scroll_position)
 
-    def resizeEvent(self, event):
+    def resizeEvent(self, event):  # type: ignore
         self.setUpdatesEnabled(False)
         super().resizeEvent(event)
         self.setUpdatesEnabled(True)

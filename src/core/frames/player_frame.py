@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+import sys
 
 from d3_mapping.resources.protos.connection.login_message_pb2 import (
     IdentificationResponse,
@@ -11,8 +12,10 @@ from d3_mapping.resources.protos.game.character_pb2 import (
     CharacterCharacteristicsEvent,
     CharacterLevelUpEvent,
     CharacterLifeStatusEvent,
+    UpdateLifePointsEvent,
 )
 from d3_mapping.resources.protos.game.fight_pb2 import FightRefreshCharacterStatsEvent
+from d3_mapping.resources.protos.game.game_action_pb2 import GameActionFightEvent
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
@@ -63,6 +66,12 @@ class PlayerFrame(Frame):
         self.event_manager.on(
             CharacterLevelUpEvent, self.on_character_level_up_event, originator=self
         )
+        self.event_manager.on(
+            UpdateLifePointsEvent, self.on_update_life_points_event, originator=self
+        )
+        self.event_manager.on(
+            GameActionFightEvent, self.on_game_action_fight_event, originator=self
+        )
 
         self.game_info_signals.connected.connect(self.on_connected)
         self.game_info_signals.disconnected.connect(self.on_disconnected)
@@ -96,11 +105,32 @@ class PlayerFrame(Frame):
     def on_disconnected(self):
         self.game_state.player.is_ready_to_play_event.clear()
 
+    def on_update_life_points_event(self, msg: UpdateLifePointsEvent):
+        self.game_state.player.life_point = msg.life_points
+        self.game_state.player.max_life_point = msg.max_life_points
+
+    def on_game_action_fight_event(self, msg: GameActionFightEvent):
+        if (
+            msg.HasField("life_points_gain")
+            and msg.life_points_gain.target_id == self.game_state.player.character_id
+        ):
+            self.game_state.player.life_point += msg.life_points_gain.delta
+        if (
+            msg.HasField("life_points_lost")
+            and msg.life_points_lost.target_id == self.game_state.player.character_id
+        ):
+            self.game_state.player.life_point -= msg.life_points_lost.loss
+
     def on_identification_response(self, message: IdentificationResponse):
         if message.HasField("success"):
             self.game_state.player.subscription_end_date = datetime.fromisoformat(
                 message.success.subscription_end_date
             )
+        elif message.error.ban_end_date != "":
+            print(
+                f"Player {self.game_state.player.character_name} has been banned rip, exiting program"
+            )
+            sys.exit()
 
     def on_job_experiences_update_event(self, message: JobExperiencesUpdateEvent):
         for job_xp in message.experiences:

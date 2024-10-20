@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
+import random
 from typing import Callable
 
 from models.world_graph import Edge
@@ -142,10 +143,13 @@ class RandomFarmBehavior(Behavior):
 
     def get_next_weighted_path(self) -> list[Edge] | None:
         cached_weight_by_map_id: dict[int, float] = {}
-        path = self.weighted_path.monte_carlo_path(
-            self.game_state.player.curr_vertex,
-            get_weight_by_map_id_func=self.get_weight_map_id,
+        path = self.weighted_path.get_best_path(
+            vertice=self.game_state.player.curr_vertex,
+            visited_map_ids=tuple(),
+            get_weight_by_edge_func=self.get_weight_edge,
             weight_by_map_id=cached_weight_by_map_id,
+            current_path=[],
+            memo={},
         )[0]
         draw_weight_on_map(cached_weight_by_map_id, self.world_signals)
         if len(path) == 0:
@@ -154,15 +158,22 @@ class RandomFarmBehavior(Behavior):
 
         return path
 
-    def get_weight_map_id(self, map_id: int) -> float:
-        if map_id not in self.map_ids:
+    def get_weight_edge(self, edge: Edge) -> float:
+        if edge.m_to.m_mapId not in self.map_ids:
             return -1
-        last_visited = LAST_VISITED_BY_MAP_ID.get(map_id, MIN_DATE)
+        last_visited = LAST_VISITED_BY_MAP_ID.get(edge.m_to.m_mapId, MIN_DATE)
         if (
-            additional_weight_map := self.additional_weight_by_map_id.get(map_id)
+            additional_weight_map := self.additional_weight_by_map_id.get(
+                edge.m_to.m_mapId
+            )
         ) is None:
-            additional_weight_map = self.get_additional_weight_by_map_id(map_id)
-            self.additional_weight_by_map_id[map_id] = additional_weight_map
-        return (min((datetime.now() - last_visited).total_seconds(), 1800) ** 2) * (
-            1 + additional_weight_map
+            additional_weight_map = self.get_additional_weight_by_map_id(
+                edge.m_to.m_mapId
+            )
+            self.additional_weight_by_map_id[edge.m_to.m_mapId] = additional_weight_map
+
+        return (
+            (min((datetime.now() - last_visited).total_seconds(), 1800) ** 2)
+            * (1 + additional_weight_map)
+            * random.uniform(0.6, 1)
         )

@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
-from threading import RLock
+from threading import _RLock as RLock
 from typing import Type, Callable, Any, TypeVar
 
 from google.protobuf.message import Message

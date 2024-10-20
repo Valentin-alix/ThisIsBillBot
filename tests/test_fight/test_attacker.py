@@ -19,7 +19,7 @@ class TestAttacker(GameStateFixture):
             map_id=54155586,
             movement_point=5,
         )
-        print(I18N.name_by_id[DataReader().spell_by_id[13064].nameId])
+        print(I18N().name_by_id[DataReader().spell_by_id[13064].nameId])
         best_attack = self.attacker.find_best_attack_from_mp()
         assert best_attack is None
 

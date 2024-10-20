@@ -51,24 +51,10 @@ class BotManager:
     def relaunch_account(self, login: str):
         related_bot = next(
             bot
-            for account_id, bot in self.bot_by_account_id.items()
+            for _, bot in self.bot_by_account_id.items()
             if bot.account["apikey"]["login"] == login
         )
-        if related_bot.pid is not None:
-            try:
-                process = psutil.Process(related_bot.pid)
-                process.terminate()
-                try:
-                    process.wait(timeout=5)
-                except psutil.TimeoutExpired:
-                    related_bot.logger.info("timeout, force kill process")
-                    process.kill()
-                related_bot.logger.info(f"killed pid : {related_bot.pid}")
-            except psutil.NoSuchProcess:
-                related_bot.logger.info(
-                    "process of related pid is not running anymore, skip."
-                )
-            related_bot.pid = None
+        related_bot.kill_process()
 
         while not has_internet_connection():
             related_bot.logger.info("waiting for internet connection to be up")

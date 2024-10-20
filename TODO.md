@@ -1,3 +1,9 @@
+TODO PingRequest est envoyé a des moment clé, voir comparaison quand click
+
+TODO => utiliser SQLite plutot que tinyDB pour HumanTiming
+TODO => "Planning de bot" => 12 heures max par jour puis remplacer par un autre bot
+le tout avec proxy mobile pour que l'ip soit reset régulièrement
+
 json par session (avec date heure debut dans nom de fichier)
 
 contient liste de :

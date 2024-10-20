@@ -88,7 +88,7 @@ class LoadFromBankBehavior(Behavior):
         portable_quantity = (
             self.game_state.inventory.weight_max
             - self.game_state.inventory.inventory_weight
-        ) // (DataReader().item_by_id[load_item_info.item_gid].realWeight or 0)
+        ) // (DataReader().item_by_id[load_item_info.item_gid].realWeight or 1)
         if portable_quantity == 0:
             self.event_manager.on(
                 ExchangeLeaveEvent,

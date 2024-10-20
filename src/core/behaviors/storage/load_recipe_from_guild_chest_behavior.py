@@ -235,14 +235,14 @@ class LoadRecipeFromGuildChestBehavior(Behavior):
             if ingredient_in_chest is None:
                 name_id = DataReader().item_by_id[ingredient_id].nameId
                 self.logger.info(
-                    f"ingredient {I18N.name_by_id[name_id] if name_id else ''} not in chest, can't "
+                    f"ingredient {I18N().name_by_id[name_id] if name_id else ''} not in chest, can't "
                     f"craft recipe"
                 )
                 return 0
             if ingredient_in_chest.item.quantity < quantity:
                 name_id = DataReader().item_by_id[ingredient_id].nameId
                 self.logger.info(
-                    f"ingredient {I18N.name_by_id[name_id] if name_id else ''} don't have enough "
+                    f"ingredient {I18N().name_by_id[name_id] if name_id else ''} don't have enough "
                     f"quantity, can't craft recipe"
                 )
                 return 0

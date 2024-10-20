@@ -6,11 +6,13 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeBidSellerStartedEvent,
 )
 from d3_mapping.resources.protos.game.npc_pb2 import NpcGenericActionRequest
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
+from src.core.config.timings import BASE_RANGE, SMALL_RANGE
 from src.exceptions import UnhandledErrorCodeException
 from src.interfaces.enums.element_type import ElementTypeEnum
 from src.interfaces.models.npc_info import NpcGenericAction
@@ -60,14 +62,18 @@ class EnterSaleHotelSellBehavior(Behavior):
             originator=self,
             once=True,
         )
-        self.interactive_behavior.start(
-            move_path=None,
-            element_id=sale_hotel_interactive.element_id,
-            skill_instance_uid=sale_hotel_interactive.enabled_skills[
-                0
-            ].skill_instance_uid,
-            callback=None,
-            parent=self,
+
+        self.run_timer(
+            BASE_RANGE,
+            lambda: self.interactive_behavior.start(
+                move_path=None,
+                element_id=sale_hotel_interactive.element_id,
+                skill_instance_uid=sale_hotel_interactive.enabled_skills[
+                    0
+                ].skill_instance_uid,
+                callback=None,
+                parent=self,
+            ),
         )
 
     def on_exchange_bid_buyer_started_event(
@@ -84,7 +90,7 @@ class EnterSaleHotelSellBehavior(Behavior):
             npc_map_id=generic_action.npc_map_id,
             npc_action_id=generic_action.npc_action_id,
         )
-        self.event_manager.send(req)
+        self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(req))
 
     def on_exchange_bid_seller_started_event(self, msg: ExchangeBidSellerStartedEvent):
         self.finish(items=msg.items)

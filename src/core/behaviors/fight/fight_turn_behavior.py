@@ -12,16 +12,13 @@ from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
 from src.core.behaviors.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
-from src.core.config.timings import (
-    ON_PLAYED_SPELL,
-    ON_PLAYER_MOVED,
-)
+from src.core.controller.human_timings import HumanTimingsController
 from src.core.logic.fight.attack import Attacker
 from src.core.logic.grid.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
 from src.interfaces.enums.breed import Breed
 
-RUNAWAY_BREED: set[int] = {Breed.CRA}
+RUNAWAY_BREED: set[int] = {Breed.CRA, Breed.SACRIER, 0}  # always run away
 
 
 @dataclass
@@ -46,7 +43,9 @@ class FightTurnBehavior(Behavior):
     def find_and_do_attack(self):
         attack_info = self.attacker.find_best_attack_from_mp()
         if attack_info is None:
+            self.logger.info(f"Breed id : {self.game_state.player.breed_id}")
             if self.game_state.player.breed_id in RUNAWAY_BREED and self.did_attack:
+                self.logger.info("Go go run away")
                 run_away = True
             else:
                 run_away = False
@@ -54,7 +53,10 @@ class FightTurnBehavior(Behavior):
             return self.fight_movement_behavior.start(
                 callback=partial(
                     self.on_fight_movement_behavior_finished,
-                    callback=self.pass_turn,
+                    callback=lambda: self.run_timer(
+                        HumanTimingsController().get_timing_before_pass_turn(),
+                        self.pass_turn,
+                    ),
                 ),
                 parent=self,
                 run_away=run_away,
@@ -69,14 +71,18 @@ class FightTurnBehavior(Behavior):
             allow_diag=False,
             allow_trough_entity=False,
         )
+
         self.fight_movement_behavior.start(
             callback=partial(
                 self.on_fight_movement_behavior_finished,
-                callback=lambda: self.fight_spell_behavior.start(
-                    spell_id=spell_lvl.spellId,
-                    target_mp=attack_mp,
-                    parent=self,
-                    callback=self.on_fight_spell_behavior_finished,
+                callback=lambda: self.run_timer(
+                    HumanTimingsController().get_timing_attack_finish_after_movement_or_attack(),
+                    lambda: self.fight_spell_behavior.start(
+                        spell_id=spell_lvl.spellId,
+                        target_mp=attack_mp,
+                        parent=self,
+                        callback=self.on_fight_spell_behavior_finished,
+                    ),
                 ),
             ),
             parent=self,
@@ -93,15 +99,13 @@ class FightTurnBehavior(Behavior):
             return self.finish()
         elif error_code is not None:
             return self.finish()
-            raise UnhandledErrorCodeException(error_code)
-
-        self.run_timer(ON_PLAYER_MOVED, callback)
+        callback()
 
     def on_fight_spell_behavior_finished(self, error_code: str | None):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
 
-        self.run_timer(ON_PLAYED_SPELL, self.find_and_do_attack)
+        self.find_and_do_attack()
 
     def pass_turn(self):
         req = FightTurnFinishRequest()

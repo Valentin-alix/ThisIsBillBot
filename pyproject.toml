@@ -26,6 +26,11 @@ proto-schema-parser = "^1.4.8"
 frida = "^16.7.3"
 frida-tools = "^13.6.1"
 tinydb = "^4.8.2"
+ujson = "^5.10.0"
+orjson = "^3.10.18"
+schedule = "^1.2.2"
+python-dotenv = "^1.1.0"
+line-profiler = "^4.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pyqt5-stubs = "^5.15.6.0"

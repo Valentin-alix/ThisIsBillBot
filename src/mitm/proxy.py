@@ -7,6 +7,7 @@ from threading import Lock, Thread
 import select
 
 from d3_mapping.protocol.protocol import decode_varint_size
+from src.signals.shared_farm_signals import SharedSignals
 
 
 class WorkerAction(Enum):
@@ -97,9 +98,7 @@ class Proxy:
             msg_datas = self.buffers[origin][: pos + size]
             msg_content_datas = self.buffers[origin][pos : pos + size]
 
-            msg_datas_altered = self.alter_msg_datas(
-                msg_content_datas, msg_datas, from_server
-            )
+            msg_datas_altered = self.alter_msg_datas(msg_content_datas, msg_datas)
 
             self.buffers[origin] = self.buffers[origin][pos + size :]
 
@@ -113,7 +112,7 @@ class Proxy:
                 )
 
     def alter_msg_datas(
-        self, msg_content_datas: bytes, msg_datas: bytes, from_server: bool
+        self, msg_content_datas: bytes, msg_datas: bytes
     ) -> bytes | None:
         return msg_datas
 

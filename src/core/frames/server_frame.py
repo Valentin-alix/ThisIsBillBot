@@ -8,7 +8,7 @@ from d3_mapping.resources.protos.game.connection_pb2 import PingRequest
 
 from src.core.frames.frame import Frame
 
-INTERVAL_HANDSHAKE = 20
+INTERVAL_HANDSHAKE = 10
 
 
 @dataclass

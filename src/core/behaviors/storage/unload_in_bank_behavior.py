@@ -17,7 +17,8 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 from src.core.behaviors.npc_dialog_behavior import NpcDialogBehavior
 from src.core.behaviors.storage.consts import USEFUL_UNLOAD
 from src.core.behaviors.storage.enter_bank_chest_behavior import EnterBankChestBehavior
-from src.core.config.timings import BEFORE_CLOSING_INVENTORY, ON_OPENED_INVENTORY
+from src.core.config.timings import BEFORE_CLOSING_INVENTORY
+from src.core.controller.human_timings import HumanTimingsController
 from src.exceptions import UnexpectedStateException, UnhandledErrorCodeException
 
 
@@ -47,7 +48,10 @@ class UnloadInBankBehavior(Behavior):
             on_timeout=self.leave_all_dialogs,
         )
         request = ExchangeObjectTransferAllFromInventoryRequest()
-        self.run_timer(ON_OPENED_INVENTORY, lambda: self.event_manager.send(request))
+        self.run_timer(
+            HumanTimingsController().get_timing_unload_on_bank(),
+            lambda: self.event_manager.send(request),
+        )
 
     def on_inventory_weight_event(self, msg: InventoryWeightEvent):
         self.run_timer(BEFORE_CLOSING_INVENTORY, self.leave_all_dialogs)

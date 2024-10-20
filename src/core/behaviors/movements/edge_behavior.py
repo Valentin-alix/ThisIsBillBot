@@ -265,7 +265,9 @@ class EdgeBehavior(Behavior):
                 self.logger.warning("Canceled or invalid starting point, retry edge")
                 return self.run_timer(BASE_RANGE, lambda: self.run(edge))
             elif error_code is MapMoveError.REFUSED:
-                self.logger.error("refused map move")
+                self.logger.error(
+                    f"refused map move with mp {self.game_state.player.map_point}"
+                )
                 self.handle_invalid_transition(edge, transition)
                 return self.run_timer(BASE_RANGE, lambda: self.run(edge))
 

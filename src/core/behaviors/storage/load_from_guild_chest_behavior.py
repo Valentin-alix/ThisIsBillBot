@@ -28,7 +28,7 @@ class LoadItemInfo:
 
     def __str__(self):
         name_id = DataReader().item_by_id[self.item_gid].nameId
-        name = I18N.name_by_id[name_id] if name_id is not None else ""
+        name = I18N().name_by_id[name_id] if name_id is not None else ""
         return f"{name} : {self.remaining_quantity}"
 
     def __repr__(self):

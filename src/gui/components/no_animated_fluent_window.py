@@ -5,13 +5,13 @@ from qfluentwidgets import (
     FluentIconBase,
     FluentStyleSheet,
     FluentTitleBar,
-    NavigationInterface,
     NavigationItemPosition,
     NavigationTreeWidget,
     qrouter,
 )
 from qfluentwidgets.window.fluent_window import FluentWindowBase
 
+from src.gui.components.custom_navigation_interface import CustomNavigationInterface
 from src.gui.components.no_animated_stacked_widget import NoAnimatedStackedWidget
 
 
@@ -26,7 +26,9 @@ class NoAnimatedFluentWindow(FluentWindowBase):
 
         self.setTitleBar(FluentTitleBar(self))
 
-        self.navigationInterface = NavigationInterface(self, showReturnButton=True)
+        self.navigationInterface = CustomNavigationInterface(
+            self, showReturnButton=True
+        )
         self.widgetLayout = QHBoxLayout()
 
         # initialize layout

@@ -6,7 +6,7 @@ from d3_mapping.resources.protos.game.challenge_pb2 import (
 from d3_mapping.resources.protos.game.common_pb2 import ChallengeMod
 
 from src.core.behaviors.behavior import Behavior
-from src.core.config.timings import ON_CHALLENGE
+from src.core.config.timings import SMALL_RANGE
 
 
 @dataclass
@@ -18,11 +18,11 @@ class FightChallengeBehavior(Behavior):
         if self.game_state.fight.challenge_mod == ChallengeMod.CHALLENGE_RANDOM:
             return self.finish()
 
-        request = ChallengeModSelectRequest(challenge_mod=ChallengeMod.CHALLENGE_RANDOM)
-
         def send_req():
-            nonlocal request
+            request = ChallengeModSelectRequest(
+                challenge_mod=ChallengeMod.CHALLENGE_RANDOM
+            )
             self.event_manager.send(request)
             self.finish()
 
-        self.run_timer(ON_CHALLENGE, send_req)
+        self.run_timer(SMALL_RANGE, send_req)

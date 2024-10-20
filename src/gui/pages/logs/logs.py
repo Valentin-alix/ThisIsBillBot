@@ -7,7 +7,7 @@ from src.signals.log_signals import LogSignals
 
 
 class LogsWidget(PivotItem):
-    def __init__(self, log_signals: LogSignals, *args, **kwargs):
+    def __init__(self, log_signals: LogSignals, *args, **kwargs):  # type: ignore
         super().__init__(*args, **kwargs)
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(4, 4, 4, 4)

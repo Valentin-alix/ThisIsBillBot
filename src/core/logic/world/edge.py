@@ -11,7 +11,15 @@ from src.signals.world_signals import WorldSignals
 
 FORBIDDEN_EDGE_TRANSITION: set[tuple[int, int, Transition]] = set()
 EXCLUDED_ELEMENT_IDS: set[int] = set()
-FORBIDDEN_MAP_IDS: set[int] = {99096071, 206046725, 193331717, 99096067, 103547392}
+FORBIDDEN_MAP_IDS: set[int] = {
+    99096071,
+    206046725,
+    193331717,
+    99096067,
+    103547392,
+    153358342,
+    153357312,
+}
 
 
 def get_valid_transition(

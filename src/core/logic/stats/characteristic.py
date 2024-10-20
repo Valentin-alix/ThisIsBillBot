@@ -16,9 +16,11 @@ def get_stat_by_id(stat: CharacterCharacteristic | None) -> int:
     elif stat.HasField("usable"):
         return (
             stat.usable.base
-            + stat.usable.context_modification
-            + stat.usable.additional
             + stat.usable.objects_and_mount_bonus
+            + stat.usable.alignment_gift_bonus
+            + stat.usable.additional
+            + stat.usable.context_modification
+            + stat.usable.temporary
         )
     elif stat.HasField("value"):
         return stat.value.total
