@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IL2CppExtract", "IL2CppExtract\IL2CppExtract.csproj", "{7CAEC26E-4AB2-4A9C-8198-C0FC808D4DB0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityMapper", "UnityMapper\UnityMapper.csproj", "{9F6EADD9-CEBC-4DE3-905C-C4B4A91D40BD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7CAEC26E-4AB2-4A9C-8198-C0FC808D4DB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CAEC26E-4AB2-4A9C-8198-C0FC808D4DB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CAEC26E-4AB2-4A9C-8198-C0FC808D4DB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CAEC26E-4AB2-4A9C-8198-C0FC808D4DB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CE7C9D5-1412-4588-8059-8819B858B33A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CE7C9D5-1412-4588-8059-8819B858B33A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CE7C9D5-1412-4588-8059-8819B858B33A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CE7C9D5-1412-4588-8059-8819B858B33A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F6EADD9-CEBC-4DE3-905C-C4B4A91D40BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F6EADD9-CEBC-4DE3-905C-C4B4A91D40BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F6EADD9-CEBC-4DE3-905C-C4B4A91D40BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F6EADD9-CEBC-4DE3-905C-C4B4A91D40BD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

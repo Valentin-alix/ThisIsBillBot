@@ -4,11 +4,12 @@ from functools import partial
 
 from d3_mapping.resources.protos.game.gamemap_pb2 import MapCurrentEvent
 from data_center.map_reader import MapReader
+from enums.transition_type import TransitionTypeEnum
 from grid.map_point import MapPoint
 from models.world_graph import Edge, Transition
 
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.interactive_behavior import (
+from src.core.behaviors.interactives.interactive_behavior import (
     InteractiveBehavior,
     InteractiveError,
 )
@@ -18,14 +19,13 @@ from src.core.behaviors.movements.map_change_behavior import (
 )
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
 from src.core.config.timings import BASE_RANGE
-from src.core.logic.grid.path_finding.path_finding import Pathfinding
+from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.core.logic.world.edge import (
     EXCLUDED_ELEMENT_IDS,
     FORBIDDEN_EDGE_TRANSITION,
     get_valid_transition,
 )
 from src.exceptions import UnhandledErrorCodeException
-from src.interfaces.enums.transition_type import TransitionTypeEnum
 
 
 class EdgeError(StrEnum):
@@ -145,7 +145,7 @@ class EdgeBehavior(Behavior):
             MapCurrentEvent,
             callback=lambda _: None,
             originator=self,
-            timeout=20,
+            timeout=30,
             on_timeout=lambda: self.on_timeout_map_after_interactive(
                 edge, target_element.element_id
             ),
@@ -289,8 +289,8 @@ class EdgeBehavior(Behavior):
             return self.run_timer(BASE_RANGE, lambda: self.run(edge))
         elif error_code in [MapMoveError.REFUSED, MapChangeError.TIMEOUT]:
             self.logger.error("refused or timeout map change")
-            self.handle_invalid_transition(edge, transition)
-            return self.run_timer(BASE_RANGE, lambda: self.run(edge))
+            # self.handle_invalid_transition(edge, transition)
+            return self.run_timer((1, 10), lambda: self.run(edge))
         elif error_code is not None:
             raise UnhandledErrorCodeException(error_code)
 

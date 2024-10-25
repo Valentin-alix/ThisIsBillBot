@@ -41,12 +41,25 @@ class PlayerInfoWidget(QWidget):
         self.game_info_signals.in_fight.connect(
             partial(self.on_received_property, "Combat", "Est en combat")
         )
+        self.game_info_signals.life_point.connect(
+            partial(self.on_received_property, "Combat", "Vie")
+        )
+        self.game_info_signals.max_life_point.connect(
+            partial(self.on_received_property, "Combat", "Vie maximum")
+        )
         self.game_info_signals.inventory_weight.connect(
             self.on_inventory_weight_updated
         )
         self.game_info_signals.weight_max.connect(self.on_weight_max_updated)
         self.grid_signals.new_map_id.connect(
             partial(self.on_received_property, "Map", "Map id")
+        )
+        self.game_info_signals.count_object_by_uid.connect(
+            partial(
+                self.on_received_property,
+                "Inventaire",
+                "Nombre d'objet dans l'inventaire",
+            )
         )
 
     def on_inventory_weight_updated(self, inventory_weight: int):

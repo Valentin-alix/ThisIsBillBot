@@ -2,12 +2,13 @@ from dataclasses import dataclass
 
 from d3_mapping.resources.protos.game.character_pb2 import CharacterLifeStatusEvent
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
+    FightMapInformationEvent,
     MapComplementaryInformationEvent,
     MapCurrentEvent,
-    FightMapInformationEvent,
     MapMovementConfirmRequest,
 )
 from data_center.data_reader import DataReader
+
 from src.core.frames.frame import Frame
 from src.signals.world_signals import WorldSignals
 
@@ -22,19 +23,25 @@ class MapFrame(Frame):
             MapComplementaryInformationEvent,
             self.on_map_complementary_information_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            MapCurrentEvent, self.on_map_current_event, originator=self
+            MapCurrentEvent,
+            self.on_map_current_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             CharacterLifeStatusEvent,
             self.on_character_life_status_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             FightMapInformationEvent,
             self.on_fight_map_information_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.before(
             MapMovementConfirmRequest,

@@ -2,9 +2,9 @@ import os
 from threading import RLock
 
 import msgspec
+from enums.jobs_enum import JobEnum
 
 from src.const import RESOURCE_FOLDER
-from src.interfaces.enums.job_enum import JobEnum
 from src.interfaces.metaclasses.singleton import Singleton
 
 

@@ -11,7 +11,7 @@ from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
-from src.core.config.suicide_bots import MULE_KAMAS_MAP_ID
+from src.core.config.mule_kamas import MULE_KAMAS_MAP_ID
 from src.core.config.timings import BASE_RANGE
 
 

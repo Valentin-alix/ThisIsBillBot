@@ -3,16 +3,17 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 
 from d3_mapping.resources.protos.game.common_pb2 import (
+    ChallengeMod,
     SpellModifier,
     SpellModifierType,
-    ChallengeMod,
 )
 from d3_mapping.resources.protos.game.spell_pb2 import SpellItem
+from enums.characteristic_enum import CharacteristicEnum
+from enums.effect_element import EffectElement
+
 from src.core.logic.fight.effect import get_effect_elem_by_stat
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State
-from src.interfaces.enums.characteristic_enum import CharacteristicEnum
-from src.interfaces.enums.effect_element import EffectElement
 from src.signals.player_signals import GameInfoSignals
 
 

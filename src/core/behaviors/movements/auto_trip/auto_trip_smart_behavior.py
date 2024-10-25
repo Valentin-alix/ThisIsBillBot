@@ -4,20 +4,22 @@ from functools import partial
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
+from data_center.data_reader import DataReader
+from enums.area_enum import AreaEnum
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_explorator_behavior import (
     AutoTripExploratorBehavior,
 )
-from src.core.behaviors.npc_dialog_behavior import NpcInfo, NpcDialogBehavior
-from data_center.data_reader import DataReader
+from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.exceptions import UnhandledErrorCodeException
-from src.interfaces.enums.area_enum import AreaEnum
+from src.interfaces.models.npc_info import NpcInfo
 
 NPC_PORTAL_INCARNAM = NpcInfo(
     npc_map_id=153880835,
     npc_action_id=3,
     npc_id=-20001,
-    reply_ids=[36982, 36980],
+    include_reply_ids=[36982, 36980],
 )
 
 
@@ -75,7 +77,7 @@ class AutoTripSmartBehavior(Behavior):
                 self.on_npc_dialog_portal_incarnam_finished, dst_map_ids=dst_map_ids
             ),
             parent=self,
-            npc_info=NPC_PORTAL_INCARNAM,
+            npc_dialog_info=NPC_PORTAL_INCARNAM,
         )
 
     def on_npc_dialog_portal_incarnam_finished(

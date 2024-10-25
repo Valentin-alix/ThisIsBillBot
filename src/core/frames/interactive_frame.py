@@ -4,16 +4,17 @@ from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
 from d3_mapping.resources.protos.game.interactive_element_pb2 import (
-    InteractiveMapUpdateEvent,
     InteractiveElementUpdatedEvent,
-    StatedMapUpdateEvent,
+    InteractiveMapUpdateEvent,
     StatedElementUpdatedEvent,
+    StatedMapUpdateEvent,
 )
-from src.core.controller.gfx_mapping import GfxMappingController
 from data_center.data_reader import DataReader
 from data_center.map_reader import MapReader
+from enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
+
+from src.core.controller.gfx_mapping import GfxMappingController
 from src.core.frames.frame import Frame
-from src.interfaces.enums.job_enum import JobEnum, HARVESTER_JOB_IDS
 
 
 @dataclass
@@ -26,24 +27,31 @@ class InteractiveFrame(Frame):
             MapComplementaryInformationEvent,
             self.on_map_complementary_information_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             InteractiveMapUpdateEvent,
             self.on_interactive_map_update_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             InteractiveElementUpdatedEvent,
             self.on_interactive_element_updated_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            StatedMapUpdateEvent, self.on_stated_map_update_event, originator=self
+            StatedMapUpdateEvent,
+            self.on_stated_map_update_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             StatedElementUpdatedEvent,
             self.on_stated_element_updated_event,
             originator=self,
+            priority=self.priority,
         )
 
     def on_map_complementary_information_event(

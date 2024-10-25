@@ -2,13 +2,14 @@ from dataclasses import dataclass
 from time import sleep
 from typing import Iterator
 
-from models.world_graph import Vertice
 from data_center.data_reader import DataReader
+from enums.transition_type import TransitionTypeEnum
+from models.world_graph import Vertice
+
 from src.core.logic.world.astar_vertice import AstarWorld
 from src.core.logic.world.edge import (
     iter_valid_outgoing_edges,
 )
-from src.interfaces.enums.transition_type import TransitionTypeEnum
 
 
 @dataclass

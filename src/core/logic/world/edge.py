@@ -1,11 +1,12 @@
 from typing import Iterator
 
-from models.world_graph import Edge, Transition, Vertice
-
 from data_center.data_reader import DataReader
 from data_center.world_graph_reader import WorldGraphReader
+from models.world_graph import Edge, Transition, Vertice
+
 from src.core.logic.criterions.consts import CRITERION_WHITE_LIST
 from src.core.logic.criterions.group_item_criterion import GroupItemCriterion
+from src.core.logic.map.map_tools import MapTools
 from src.core.states.game_state import GameState
 from src.signals.world_signals import WorldSignals
 
@@ -65,10 +66,9 @@ def iter_valid_outgoing_edges(
     for edge in edges:
         if edge.m_to.m_mapId in FORBIDDEN_MAP_IDS:
             continue
-        sub_area_id = DataReader().map_pos_by_map_id[edge.m_to.m_mapId].subAreaId
-        if (
-            not game_state.player.is_sub
-            and DataReader().sub_area_by_id[sub_area_id].basicAccountAllowed == 0
+
+        if not game_state.player.is_sub and not MapTools.is_map_allowed_for_unsub(
+            edge.m_to.m_mapId
         ):
             continue
         if not edge_has_valid_transition(edge, game_state):

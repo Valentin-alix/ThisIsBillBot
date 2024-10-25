@@ -1,11 +1,3 @@
-import os
-import sys
-from pathlib import Path
-
-sys.path.append(os.path.join(Path(__file__).parent.parent.parent.parent))
-sys.path.append(os.path.join(Path(__file__).parent.parent.parent.parent, "D3Mapping"))
-sys.path.append(os.path.join(Path(__file__).parent.parent.parent.parent, "D3Database"))
-
 from dataclasses import dataclass
 from threading import Lock
 from typing import Callable
@@ -63,7 +55,7 @@ TIMING_LOCK = Lock()
 
 class HumanTimingsController(metaclass=Singleton):
     def build_empirical_sampler(self, all_deltas: list[float]) -> Callable[[], float]:
-        all_deltas = [delta / 1.5 for delta in all_deltas if delta <= 10]
+        all_deltas = [delta for delta in all_deltas if delta <= 10]
         if len(all_deltas) < 2:
             return lambda: get_random_range(BASE_RANGE)
         with TIMING_LOCK:

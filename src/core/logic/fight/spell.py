@@ -1,12 +1,12 @@
-from models.datas.spell_levels_root import SpellLevelsRootItem, Effect
 from d3_mapping.resources.protos.game.common_pb2 import SpellModifier
-
 from d3_mapping.resources.protos.game.spell_pb2 import SpellItem
 from data_center.data_reader import DataReader
+from enums.effect_element import EffectElement
 from grid.map_point import MapPoint
+from models.datas.spell_levels_root import Effect, SpellLevelsRootItem
+
 from src.core.logic.zones.cross import Cross
 from src.core.logic.zones.lozenge import Lozenge
-from src.interfaces.enums.effect_element import EffectElement
 
 
 def get_max_range_spell(

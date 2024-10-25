@@ -8,6 +8,7 @@ class GameInfoSignals(QObject):
     disconnected = pyqtSignal()
     is_ready_to_play = pyqtSignal()
     inventory_weight = pyqtSignal(int)
+    count_object_by_uid = pyqtSignal(int)
     weight_max = pyqtSignal(int)
     breed_id = pyqtSignal(int)
     character_id = pyqtSignal(object)
@@ -15,3 +16,5 @@ class GameInfoSignals(QObject):
     subscription_end_date = pyqtSignal(datetime.datetime)
     in_fight = pyqtSignal(bool)
     level = pyqtSignal(int)
+    life_point = pyqtSignal(int)
+    max_life_point = pyqtSignal(int)

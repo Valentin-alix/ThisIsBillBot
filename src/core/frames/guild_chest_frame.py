@@ -1,15 +1,16 @@
 from dataclasses import dataclass
 
 from d3_mapping.resources.protos.game.exchange_pb2 import (
-    ExchangeStartedWithMultiTabStorageEvent,
     ExchangeLeaveEvent,
+    ExchangeStartedWithMultiTabStorageEvent,
 )
 from d3_mapping.resources.protos.game.inventory_pb2 import (
     MultiTabStorageEvent,
     StorageInventoryContentEvent,
-    StorageObjectUpdateEvent,
     StorageObjectRemovedEvent,
+    StorageObjectUpdateEvent,
 )
+
 from src.core.frames.frame import Frame
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 
@@ -24,9 +25,13 @@ class GuildChestFrame(Frame):
             ExchangeStartedWithMultiTabStorageEvent,
             self.on_exchange_started_with_multi_tab_storage_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            MultiTabStorageEvent, self.on_multi_tab_storage_event, originator=self
+            MultiTabStorageEvent,
+            self.on_multi_tab_storage_event,
+            originator=self,
+            priority=self.priority,
         )
 
     def on_multi_tab_storage_event(self, msg: MultiTabStorageEvent):
@@ -41,22 +46,26 @@ class GuildChestFrame(Frame):
             callback=self.on_storage_inventory_content_after_tab_storage,
             originator=self,
             once=True,
+            priority=self.priority,
         )
         self.event_manager.on(
             StorageObjectUpdateEvent,
             self.on_storage_object_update_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             StorageObjectRemovedEvent,
             self.on_storage_object_removed_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             ExchangeLeaveEvent,
             self.on_exchange_leave_guild_chest_event,
             originator=self,
             once=True,
+            priority=self.priority,
         )
 
     def on_storage_inventory_content_after_tab_storage(

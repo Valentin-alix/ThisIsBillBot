@@ -2,6 +2,7 @@ import datetime
 import random
 from collections import defaultdict
 from dataclasses import dataclass
+from enum import StrEnum, auto
 from functools import partial
 from typing import Iterable
 
@@ -27,17 +28,31 @@ from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
 from src.core.behaviors.storage.consts import (
     GATHERER_ITEM_TABS,
 )
-from src.core.behaviors.storage.load_from_bank_behavior import LoadFromBankBehavior
-from src.core.behaviors.storage.load_from_guild_chest_behavior import (
+from src.core.behaviors.storage.loads.load_from_bank_behavior import (
+    LoadFromBankBehavior,
+)
+from src.core.behaviors.storage.loads.load_from_guild_chest_behavior import (
     LoadFromGuildChestBehavior,
     LoadItemInfo,
 )
-from src.core.config.timings import VERY_SMALL_RANGE
+from src.core.config.sale_hotel_prices import (
+    MAX_QUANTITY_ON_SELL,
+    MIN_KAMAS_TO_GO_SALE_HOTEL,
+)
+from src.core.config.timings import (
+    BASE_RANGE,
+    SMALL_RANGE,
+    TINY_RANGE,
+)
 from src.core.controller.sale_hotel import SaleHotelController
 from src.core.logic.farmer.weight_item import get_weight_item_for_sale_hotel
 from src.core.logic.sale_hotel.price import QuantityIndex, get_price_for_sale_hotel
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 from src.exceptions import UnexpectedStateException, UnhandledErrorCodeException
+
+
+class SaleHotelErrorCode(StrEnum):
+    NOT_ENOUGH_KAMAS = auto()
 
 
 @dataclass
@@ -47,7 +62,7 @@ class SaleHotelPricesBehavior(Behavior):
     load_from_bank_behavior: LoadFromBankBehavior
 
     def run(self) -> None:
-        if self.game_state.inventory.kamas < 10_000:
+        if self.game_state.inventory.kamas < MIN_KAMAS_TO_GO_SALE_HOTEL:
             self.logger.warning(
                 "Player does not have enough kamas, skipping sale hotel"
             )
@@ -63,7 +78,7 @@ class SaleHotelPricesBehavior(Behavior):
             load_item_info = LoadItemInfo(
                 item_gid=item_gid,
                 remaining_quantity=max(
-                    10_000 - item_sell_quantity_by_gid.get(item_gid, 0), 0
+                    MAX_QUANTITY_ON_SELL - item_sell_quantity_by_gid.get(item_gid, 0), 0
                 ),
             )
             load_items_infos.append(load_item_info)
@@ -228,7 +243,7 @@ class SaleHotelPricesBehavior(Behavior):
             ),
             originator=self,
         )
-        self.run_timer(VERY_SMALL_RANGE, lambda: self.open_item(next_item.gid))
+        self.run_timer(SMALL_RANGE, lambda: self.open_item(next_item.gid))
 
     def open_item(self, item_gid: int):
         if self.game_state.sale_hotel.current_search_item_gid is not None:
@@ -331,6 +346,15 @@ class SaleHotelPricesBehavior(Behavior):
         ):
             self.logger.info("Sale hotel is full of object, let's update prices")
             return self.choose_and_update_item_price(list(items))
+        if price * 0.02 > self.game_state.inventory.kamas:
+            self.event_manager.on(
+                ExchangeLeaveEvent,
+                callback=lambda _: self.finish(SaleHotelErrorCode.NOT_ENOUGH_KAMAS),
+                originator=self,
+                once=True,
+            )
+            return self.leave_all_dialogs()
+
         if item.quantity < quantity:
             self.logger.info(
                 f"{item.gid} doesn't have enough quantity : {item.quantity}, go to next item"
@@ -360,7 +384,7 @@ class SaleHotelPricesBehavior(Behavior):
         req = ExchangeObjectMovePricedRequest(
             object_uid=item.uid, quantity=quantity, price=price
         )
-        self.run_timer(VERY_SMALL_RANGE, lambda: self.event_manager.send(req))
+        self.run_timer(TINY_RANGE, lambda: self.event_manager.send(req))
 
     def on_inventory_weight_event_after_created_price(
         self,
@@ -408,7 +432,7 @@ class SaleHotelPricesBehavior(Behavior):
             once=True,
         )
         req = ExchangeBidHousePriceRequest(object_gid=item_gid)
-        self.run_timer(VERY_SMALL_RANGE, lambda: self.event_manager.send(req))
+        self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(req))
 
     def on_exchange_bid_price_event(
         self,
@@ -426,6 +450,7 @@ class SaleHotelPricesBehavior(Behavior):
         )
 
         related_items = [item for item in items if item.item.gid == msg.object_gid]
+        price_cost: float = 0
         requests_modify_price: list[ExchangeObjectModifyPricedRequest] = []
         for item in related_items:
             items.remove(item)
@@ -449,6 +474,9 @@ class SaleHotelPricesBehavior(Behavior):
                     f"item {item.item.uid} not in bid seller anymore, skip"
                 )
                 continue
+            price_cost += price * 0.02
+            if price_cost > self.game_state.inventory.kamas:
+                break
             requests_modify_price.append(
                 ExchangeObjectModifyPricedRequest(
                     object_uid=item.item.uid, quantity=item.item.quantity, price=price
@@ -472,7 +500,7 @@ class SaleHotelPricesBehavior(Behavior):
                 for request_modify_price in requests_modify_price:
                     self.event_manager.send(request_modify_price)
 
-            self.run_timer(VERY_SMALL_RANGE, send_all_modify_price_req)
+            self.run_timer(BASE_RANGE, send_all_modify_price_req)
 
     def on_exchange_bid_house_item_removed_event_after_updated(
         self,
@@ -485,9 +513,7 @@ class SaleHotelPricesBehavior(Behavior):
         self.event_manager.clear_listener_by_origin_and_type(
             ExchangeBidHouseItemRemovedEvent, originator=self
         )
-        self.run_timer(
-            VERY_SMALL_RANGE, lambda: self.choose_and_update_item_price(items)
-        )
+        self.run_timer(BASE_RANGE, lambda: self.choose_and_update_item_price(items))
 
     def leave_all_dialogs(self):
         request = DialogLeaveRequest()

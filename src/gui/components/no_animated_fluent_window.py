@@ -27,7 +27,7 @@ class NoAnimatedFluentWindow(FluentWindowBase):
         self.setTitleBar(FluentTitleBar(self))
 
         self.navigationInterface = CustomNavigationInterface(
-            self, showReturnButton=True
+            self, showReturnButton=True, collapsible=False
         )
         self.widgetLayout = QHBoxLayout()
 

@@ -1,9 +1,10 @@
 from dataclasses import dataclass, field
 
+from enums.characteristic_enum import CharacteristicEnum
+
 from src.core.logic.criterions.interface_item_criterion import IItemCriterion
 from src.core.logic.criterions.item_criterion_operator import ItemCriterionOperator
 from src.core.states.game_state import GameState
-from src.interfaces.enums.characteristic_enum import CharacteristicEnum
 
 
 @dataclass

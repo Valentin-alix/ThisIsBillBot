@@ -9,6 +9,8 @@ from d3_mapping.resources.protos.game.common_pb2 import (
 from data_center.data_reader import DataReader
 from data_center.i18n import I18N
 from data_center.map_reader import MapReader
+from enums.characteristic_enum import CharacteristicEnum
+from enums.effect_element import TypeEffect
 from grid.directions import DirectionsEnum
 from grid.map_point import MapPoint
 from models.datas.spell_levels_root import Effect, SpellLevelsRootItem
@@ -33,11 +35,9 @@ from src.core.logic.fight.spell import (
     get_spell_max_cast_per_turn,
 )
 from src.core.logic.fight.spell_zone import get_zone_mps
-from src.core.logic.grid.path_finding.path_finding import Pathfinding
+from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.core.states.game_state import GameState
 from src.interfaces.aliases import MonsterFighter
-from src.interfaces.enums.characteristic_enum import CharacteristicEnum
-from src.interfaces.enums.effect_element import TypeEffect
 from src.interfaces.enums.spell_shape_enum import SpellShapeEnum
 
 
@@ -208,8 +208,12 @@ class Attacker:
                         continue
 
                     if best_attack is not None and best_attack[0] == total_weight_spell:
-                        if remaining_pm <= best_attack[1]:
-                            # same weight but the other need less pm
+                        if remaining_pm < best_attack[1] or (
+                            remaining_pm == best_attack[1]
+                            and targetable_mp.distance_to_map_point(movable_mp)
+                            >= best_attack[4].distance_to_map_point(best_attack[2])
+                        ):
+                            # same weight but the other need less pm or is farther
                             continue
 
                     best_attack = (
@@ -337,9 +341,15 @@ class Attacker:
                 1,
             )
             - self.game_state.player.life_percentage
-        )
+        ) * 3
 
-        self.logger.info(f"Life percentage : {self.game_state.player.life_percentage}")
+        self.logger.info(
+            f"Life weight before divide: {life_percentage_weight}\n\
+                    Life point malus : {life_point_malus}\n\
+                    Shield bonus : {shield_bonus}\n\
+                    Thieft_life : {thieft_life}\n\
+                    Life percentage : {self.game_state.player.life_percentage}\n"
+        )
 
         # puis on divise par le life percentage actuel (parce qu'on veux recup des pdv quand on est low)
         life_percentage_weight /= self.game_state.player.life_percentage
@@ -367,7 +377,7 @@ class Attacker:
         enemies: list[ActorPositionInformation],
         description_effect: str,
     ) -> tuple[float, float]:
-        enemy_killed: int = 0
+        enemy_killed: float = 0
         enemy_dmg_weight: float = 0
         enemy_total_dmg: float = 0
         for enemy in enemies:
@@ -414,8 +424,10 @@ class Attacker:
             ) * (1 - decrease_by_dist_percent)
             enemy_total_dmg += dmg
             if actor_fight.life_point - dmg <= 0:
-                enemy_killed += 1
-            enemy_dmg_weight += dmg / (actor_fight.life_point / monster_life_point)
+                enemy_killed += 0.5 if actor_fight.is_summoned else 1
+            enemy_dmg_weight += (
+                dmg / (actor_fight.life_point / monster_life_point)
+            ) / (2 if actor_fight.is_summoned else 1)
 
         dmg_weight = (enemy_dmg_weight) * (1 + enemy_killed)
 

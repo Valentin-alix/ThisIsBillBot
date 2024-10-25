@@ -7,6 +7,26 @@ from src.core.states.state import State
 from src.signals.player_signals import GameInfoSignals
 
 
+class ObjectByUid(dict[int, ObjectItemInventory]):
+    def __init__(self, game_info_signals: GameInfoSignals):
+        self.game_info_signals = game_info_signals
+        super().__init__()
+        self.game_info_signals.count_object_by_uid.emit(len(self))
+
+    def __setitem__(self, key: int, value: ObjectItemInventory):
+        res = super().__setitem__(key, value)
+        self.game_info_signals.count_object_by_uid.emit(len(self))
+        return res
+
+    def __delitem__(self, key: int) -> None:
+        super().__delitem__(key)
+        self.game_info_signals.count_object_by_uid.emit(len(self))
+
+    def clear(self) -> None:
+        super().clear()
+        self.game_info_signals.count_object_by_uid.emit(len(self))
+
+
 @dataclass
 class InventoryState(State):
     game_info_signals: GameInfoSignals
@@ -16,9 +36,9 @@ class InventoryState(State):
     )
     _inventory_weight: int = dataclasses.field(init=False, default=0)
     _weight_max: int = dataclasses.field(init=False, default=1)
-    objects_by_uid: dict[int, ObjectItemInventory] = dataclasses.field(
-        init=False, default_factory=dict
-    )
+
+    def __post_init__(self):
+        self.objects_by_uid = ObjectByUid(self.game_info_signals)
 
     def clear_state(self):
         self.inventory_weight = 0

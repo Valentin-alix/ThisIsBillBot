@@ -2,12 +2,13 @@ from dataclasses import dataclass, field
 from typing import Iterable
 
 from data_center.map_reader import MapReader
+from enums.characteristic_enum import CharacteristicEnum
+from grid.map_point import MapPoint
+
 from src.core.logic.fight.reachable_cells.reachable_mp_node import (
     ReachableMpNode,
 )
-from grid.map_point import MapPoint
 from src.core.states.game_state import GameState
-from src.interfaces.enums.characteristic_enum import CharacteristicEnum
 from src.signals.world_signals import MapSignals
 
 

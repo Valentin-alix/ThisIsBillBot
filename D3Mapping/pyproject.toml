@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "d3-mapping"
+version = "0.1.0"
+description = ""
+authors = ["Valentin Alix <valentin-alix.850@outlook.fr>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+scapy = "^2.6.1"
+pyqt5-qt5 = "5.15.2"
+pyqt5 = "^5.15.11"
+pyqt5-stubs = "^5.15.6.0"
+pyqt-fluent-widgets = "^1.7.5"
+pydantic = "^2.10.6"
+proto-schema-parser = "^1.4.8"
+cachetools = "^5.5.2"
+protobuf = "5.28.3"
+tqdm = "^4.67.1"
+numpy = "^2.2.3"
+scipy = "^1.15.2"
+msgspec = "^0.19.0"
+ghidra-stubs = "11.3.1"
+icecream = "^2.1.4"
+tinydb = "^4.8.2"
+ujson = "^5.10.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

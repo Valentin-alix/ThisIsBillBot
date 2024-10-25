@@ -2,9 +2,9 @@ from models.datas.spell_levels_root import Effect
 from d3_mapping.resources.protos.game.common_pb2 import ActorPositionInformation, Team
 from data_center.data_reader import DataReader
 from data_center.i18n import I18N
-from src.interfaces.enums.characteristic_enum import CharacteristicEnum
-from src.interfaces.enums.description_enum import DescriptionEnum
-from src.interfaces.enums.effect_element import EffectElement, TypeEffect
+from enums.characteristic_enum import CharacteristicEnum
+from enums.description_enum import DescriptionEnum
+from enums.effect_element import EffectElement, TypeEffect
 
 
 def get_effect_elem_by_stat(stat_id: int):

@@ -1,13 +1,12 @@
 import os
-from pathlib import Path
 import random
-from dataclasses import dataclass
 import sys
+from dataclasses import dataclass
+from pathlib import Path
 from time import perf_counter
 from typing import Callable
 
 from PyQt5.QtWidgets import QApplication
-
 
 sys.path.append(
     os.path.join(Path(__file__).parent.parent.parent.parent.parent, "D3Database")
@@ -18,14 +17,15 @@ sys.path.append(
 sys.path.append(os.path.join(Path(__file__).parent.parent.parent.parent.parent))
 
 
-from src.core.behaviors.storage.consts import ASTRUB_BANK_MAP
-from src.interfaces.enums.area_enum import SubAreaEnum
 from data_center.data_reader import DataReader
 from data_center.i18n import I18N
 from data_center.world_graph_reader import WorldGraphReader
+from enums.area_enum import SubAreaEnum
 from grid.map_point import MapPoint
-from models.world_graph import Vertice, Edge
+from models.world_graph import Edge, Vertice
+
 from src.common.logger import Logger
+from src.core.behaviors.storage.consts import ASTRUB_BANK_MAP
 from src.core.controller.gfx_mapping import GfxMappingController
 from src.core.logic.farmer.weight_collectables import (
     draw_weight_on_map,
@@ -121,7 +121,7 @@ class WeightedPath:
         current_path: list[Edge],
         memo: dict[tuple[Vertice, int, tuple[int, ...]], float],
         curr_weight: float = 0,
-        depth_remaining: int = 10,
+        depth_remaining: int = 9,
     ) -> tuple[list[Edge], float]:
         if depth_remaining == 0:
             return current_path, curr_weight
@@ -143,7 +143,7 @@ class WeightedPath:
 
             try:
                 last_visited_index = visited_map_ids.index(edge.m_to.m_mapId)
-                base = 0.99
+                base = 0.995
                 weight_malus = 1 - base**last_visited_index
                 weight *= weight_malus
             except ValueError:

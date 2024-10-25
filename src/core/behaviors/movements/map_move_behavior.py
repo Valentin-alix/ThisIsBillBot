@@ -15,12 +15,11 @@ from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapMovementRefusedEvent,
     MapMovementRequest,
 )
-
+from grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
-from grid.map_point import MapPoint
-from src.core.logic.grid.path_finding.movement_path import MovementPath
-from src.core.logic.grid.path_finding.path_finding import Pathfinding
+from src.core.logic.map.path_finding.movement_path import MovementPath
+from src.core.logic.map.path_finding.path_finding import Pathfinding
 
 
 class MapMoveError(StrEnum):

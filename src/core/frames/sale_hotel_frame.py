@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 
 from d3_mapping.resources.protos.game.exchange_pb2 import (
-    ExchangeBidSellerStartedEvent,
     ExchangeBidHouseItemAddedEvent,
     ExchangeBidHouseItemRemovedEvent,
     ExchangeBidHouseSearchRequest,
-    ObjectAveragePricesEvent,
     ExchangeBidPriceEvent,
+    ExchangeBidSellerStartedEvent,
+    ObjectAveragePricesEvent,
 )
+
 from src.core.controller.sale_hotel import SaleHotelController
 from src.core.frames.frame import Frame
 
@@ -22,29 +23,37 @@ class SaleHotelFrame(Frame):
             ExchangeBidSellerStartedEvent,
             self.on_exchange_bid_seller_started_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             ExchangeBidHouseItemAddedEvent,
             self.on_exchange_bid_house_item_added_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             ExchangeBidHouseItemRemovedEvent,
             self.on_exchange_bid_house_item_removed_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             ExchangeBidHouseSearchRequest,
             self.on_exchange_bid_house_search_request,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             ObjectAveragePricesEvent,
             self.on_object_average_prices_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            ExchangeBidPriceEvent, self.on_exchange_bid_price_event, originator=self
+            ExchangeBidPriceEvent,
+            self.on_exchange_bid_price_event,
+            originator=self,
+            priority=self.priority,
         )
 
     def on_exchange_bid_seller_started_event(self, msg: ExchangeBidSellerStartedEvent):

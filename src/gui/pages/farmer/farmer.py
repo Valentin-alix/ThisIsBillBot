@@ -12,6 +12,7 @@ from qfluentwidgets import (
 
 from src.bot import Bot
 from src.gui.pages.farmer.map_tab import MapTab
+from src.gui.pages.farmer.player_tab import PlayerTab
 from src.gui.pages.farmer.world_tab import WorldTab
 from src.gui.utils.run_in_background import Worker
 from src.interfaces.enums.bot_action_enum import BotActionEnum
@@ -119,6 +120,17 @@ class FarmerWidget(PivotItem):
         )
         pivot.setCurrentItem(map_route)
 
+        player_tab = PlayerTab(
+            grid_signals=self.grid_signals, game_info_signals=self.game_info_signals
+        )
+        stacked_widget.addWidget(player_tab)
+        player_route = f"{self.objectName()}_player_tab"
+        pivot.addItem(
+            routeKey=player_route,
+            text="Joueur",
+            onClick=lambda: stacked_widget.setCurrentWidget(player_tab),
+        )
+
         world_tab = WorldTab(world_signals=self.world_signals)
         stacked_widget.addWidget(world_tab)
         world_route = f"{self.objectName()}_world_tab"
@@ -167,7 +179,7 @@ class FarmerWidget(PivotItem):
         if self.type_action_combo.currentText() == BotActionEnum.HARVESTER:
             self.bot_signals.play_harvester.emit(area_id, sub_area_id)
         elif self.type_action_combo.currentText() == BotActionEnum.FIGHTER:
-            self.bot_signals.play_fighter.emit(area_id, sub_area_id, None)
+            self.bot_signals.play_fighter.emit(area_id, sub_area_id)
 
     @pyqtSlot()
     def on_play(self):
@@ -182,7 +194,7 @@ class FarmerWidget(PivotItem):
         self.type_action_combo.setCurrentText(BotActionEnum.HARVESTER)
         self.on_played_zone(area_id, sub_area_id)
 
-    @pyqtSlot(object, object, object)
+    @pyqtSlot(object, object)
     def on_play_fighter(self, area_id: int | None, sub_area_id: int | None, *args):
         self.type_action_combo.setCurrentText(BotActionEnum.FIGHTER)
         self.on_played_zone(area_id, sub_area_id)

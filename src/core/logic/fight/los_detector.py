@@ -2,7 +2,8 @@ from typing import Iterable
 
 from data_center.map_reader import MapReader
 from grid.map_point import MapPoint
-from src.core.logic.grid.map_tools import MapTools
+
+from src.core.logic.map.map_tools import MapTools
 
 
 class LosDetector:

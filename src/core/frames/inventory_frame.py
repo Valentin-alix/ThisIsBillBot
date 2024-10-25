@@ -7,19 +7,21 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeStartedWithStorageEvent,
 )
 from d3_mapping.resources.protos.game.inventory_pb2 import (
-    InventoryWeightEvent,
     InventoryContentEvent,
+    InventoryWeightEvent,
     KamasUpdateEvent,
     ObjectAddedEvent,
-    ObjectQuantityEvent,
     ObjectDeletedEvent,
-    ObjectsDeletedEvent,
+    ObjectModifiedEvent,
+    ObjectQuantityEvent,
     ObjectsAddedEvent,
+    ObjectsDeletedEvent,
     ObjectsQuantityEvent,
     StorageInventoryContentEvent,
     StorageObjectRemovedEvent,
     StorageObjectUpdateEvent,
 )
+
 from src.core.frames.frame import Frame
 
 
@@ -33,41 +35,83 @@ class InventoryFrame(Frame):
             InventoryWeightEvent,
             self.on_inventory_weight_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            InventoryContentEvent, self.on_inventory_content_event, originator=self
+            InventoryContentEvent,
+            self.on_inventory_content_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            ObjectsDeletedEvent, self.on_objects_deleted_event, originator=self
+            ObjectsDeletedEvent,
+            self.on_objects_deleted_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            ObjectDeletedEvent, self.on_object_deleted_event, originator=self
+            ObjectDeletedEvent,
+            self.on_object_deleted_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            ObjectQuantityEvent, self.on_object_quantity_event, originator=self
+            ObjectQuantityEvent,
+            self.on_object_quantity_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            ObjectsQuantityEvent, self.on_objects_quantity_event, originator=self
+            ObjectsQuantityEvent,
+            self.on_objects_quantity_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            ObjectAddedEvent, self.on_object_added_event, originator=self
+            ObjectAddedEvent,
+            self.on_object_added_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            ObjectsAddedEvent, self.on_objects_added_event, originator=self
+            ObjectsAddedEvent,
+            self.on_objects_added_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.before(
-            DialogLeaveRequest, self.before_dialog_leave_request, originator=self
+            DialogLeaveRequest,
+            self.before_dialog_leave_request,
+            originator=self,
         )
         self.event_manager.on(
-            InventoryContentEvent, self.on_inventoy_content_event, originator=self
+            InventoryContentEvent,
+            self.on_inventoy_content_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             ExchangeStartedWithStorageEvent,
             self.on_exchange_started_with_storage_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            KamasUpdateEvent, self.on_kamas_update_event, originator=self
+            KamasUpdateEvent,
+            self.on_kamas_update_event,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            ObjectModifiedEvent,
+            self.on_object_modified_event,
+            originator=self,
+            priority=self.priority,
+        )
+
+    def on_object_modified_event(self, message: ObjectModifiedEvent):
+        self.game_state.inventory.objects_by_uid[message.object.item.uid] = (
+            message.object
         )
 
     def on_inventory_weight_event(self, message: InventoryWeightEvent):
@@ -75,9 +119,9 @@ class InventoryFrame(Frame):
         self.game_state.inventory.weight_max = message.weight_max
 
     def on_inventory_content_event(self, msg: InventoryContentEvent):
-        self.game_state.inventory.objects_by_uid = {
-            object.item.uid: object for object in msg.objects
-        }
+        self.game_state.inventory.objects_by_uid.clear()
+        for object in msg.objects:
+            self.game_state.inventory.objects_by_uid[object.item.uid] = object
 
     def on_object_added_event(self, msg: ObjectAddedEvent):
         self.game_state.inventory.objects_by_uid[msg.object.item.uid] = msg.object
@@ -136,22 +180,26 @@ class InventoryFrame(Frame):
             self.on_storage_inventory_content_event_bank,
             originator=self,
             once=True,
+            priority=self.priority,
         )
         self.event_manager.on(
             StorageObjectUpdateEvent,
             self.on_storage_object_update_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             StorageObjectRemovedEvent,
             self.on_storage_object_removed_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             ExchangeLeaveEvent,
             self.on_exchange_leave_storage_event,
             originator=self,
             once=True,
+            priority=self.priority,
         )
 
     def on_storage_inventory_content_event_bank(
@@ -160,6 +208,9 @@ class InventoryFrame(Frame):
         self.game_state.inventory.bank_object_by_gid = {
             item.item.gid: item for item in msg.objects
         }
+        self.logger.info(
+            f"bank object by gid : {list(self.game_state.inventory.bank_object_by_gid.keys())}"
+        )
 
     def on_storage_object_update_event(self, msg: StorageObjectUpdateEvent):
         self.game_state.inventory.bank_object_by_gid[msg.object.item.gid] = msg.object

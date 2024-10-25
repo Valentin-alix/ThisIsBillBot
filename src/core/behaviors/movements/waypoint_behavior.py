@@ -14,20 +14,20 @@ from d3_mapping.resources.protos.game.teleportation_pb2 import (
 )
 from data_center.data_reader import DataReader
 from data_center.world_graph_reader import WorldGraphReader
+from enums.element_type import ElementTypeEnum
 from grid.map_point import MapPoint
 from models.world_graph import Vertice
 
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.interactive_behavior import InteractiveBehavior
+from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
     AutoTripBehavior,
 )
 from src.core.config.timings import BASE_RANGE
 from src.core.logic.flags.map_position_flags import allow_teleport_to
-from src.core.logic.grid.path_finding.path_finding import Pathfinding
+from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.core.logic.world.astar_allow_capability import AstarAllowHavreSac
 from src.exceptions import UnexpectedStateException, UnhandledErrorCodeException
-from src.interfaces.enums.element_type import ElementTypeEnum
 
 
 class WaypointErrorCode(StrEnum):

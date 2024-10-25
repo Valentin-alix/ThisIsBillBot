@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from threading import RLock
-from typing import Callable, ParamSpec, Generic
+from threading import _RLock as RLock
+from typing import Callable, Generic, ParamSpec
 
 from src.interfaces.models.observer import Observer
 

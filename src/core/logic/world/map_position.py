@@ -1,7 +1,8 @@
-from models.datas.map_positions_root import MapPositionsRootItem
-from src.const import FAKE_INFINITY_VALUE
 from data_center.data_reader import DataReader
-from src.interfaces.enums.area_enum import AreaEnum
+from enums.area_enum import AreaEnum
+from models.datas.map_positions_root import MapPositionsRootItem
+
+from src.const import FAKE_INFINITY_VALUE
 
 
 def get_dist_to_maps(

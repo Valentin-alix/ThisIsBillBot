@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 
-from models.datas.map_positions_root import MapPositionsRootItem
 from data_center.data_reader import DataReader
+from enums.area_enum import AreaEnum
+from models.datas.map_positions_root import MapPositionsRootItem
+
 from src.core.logic.world.map_position import get_dist_to_maps
-from src.interfaces.enums.area_enum import AreaEnum
 
 
 @dataclass

@@ -4,16 +4,16 @@ from dataclasses import dataclass
 from d3_mapping.resources.protos.game.common_pb2 import (
     ActorPositionInformation,
 )
+from enums.characteristic_enum import CharacteristicEnum
+from grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
 from src.core.logic.fight.reachable_cells.fight_reachable_cells import (
     FightReachableCells,
 )
-from grid.map_point import MapPoint
-from src.core.logic.grid.path_finding.movement_path import MovementPath
-from src.core.logic.grid.path_finding.path_finding import Pathfinding
-from src.interfaces.enums.characteristic_enum import CharacteristicEnum
+from src.core.logic.map.path_finding.movement_path import MovementPath
+from src.core.logic.map.path_finding.path_finding import Pathfinding
 
 
 @dataclass

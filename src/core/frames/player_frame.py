@@ -1,6 +1,6 @@
+import sys
 from dataclasses import dataclass
 from datetime import datetime
-import sys
 
 from d3_mapping.resources.protos.connection.login_message_pb2 import (
     IdentificationResponse,
@@ -34,43 +34,61 @@ class PlayerFrame(Frame):
             JobExperiencesUpdateEvent,
             self.on_job_experiences_update_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             CharacterSelectionEvent,
             self.on_character_selection_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             CharacterCharacteristicsEvent,
             self.on_character_characteristics_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             IdentificationResponse,
             self.on_identification_response,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             FightRefreshCharacterStatsEvent,
             self.on_fight_refresh_character_stats_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            ZaapKnownListEvent, self.on_zaap_known_list_event, originator=self
+            ZaapKnownListEvent,
+            self.on_zaap_known_list_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             CharacterLifeStatusEvent,
             self.on_character_life_status_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            CharacterLevelUpEvent, self.on_character_level_up_event, originator=self
+            CharacterLevelUpEvent,
+            self.on_character_level_up_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            UpdateLifePointsEvent, self.on_update_life_points_event, originator=self
+            UpdateLifePointsEvent,
+            self.on_update_life_points_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            GameActionFightEvent, self.on_game_action_fight_event, originator=self
+            GameActionFightEvent,
+            self.on_game_action_fight_event,
+            originator=self,
+            priority=self.priority,
         )
 
         self.game_info_signals.connected.connect(self.on_connected)
@@ -94,12 +112,14 @@ class PlayerFrame(Frame):
             lambda _: on_map_init_after_connected(),
             originator=self,
             once=True,
+            priority=self.priority,
         )
         self.event_manager.on(
             FightMapInformationEvent,
             lambda _: on_map_init_after_connected(),
             originator=self,
             once=True,
+            priority=self.priority,
         )
 
     def on_disconnected(self):

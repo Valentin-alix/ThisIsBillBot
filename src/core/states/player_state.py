@@ -72,6 +72,7 @@ class PlayerState(State):
 
     @max_life_point.setter
     def max_life_point(self, value: int):
+        self.game_info_signals.max_life_point.emit(value)
         self._max_life_point = value
 
     @property
@@ -80,6 +81,7 @@ class PlayerState(State):
 
     @life_point.setter
     def life_point(self, value: int):
+        self.game_info_signals.life_point.emit(value)
         self._life_point = value
 
     @property

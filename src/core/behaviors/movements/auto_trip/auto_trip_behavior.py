@@ -44,6 +44,7 @@ class AutoTripBehavior(Behavior):
                 )
                 return self.finish(AutoTripErrorCode.PATH_NOT_FOUND)
             if len(path) == 0:
+                self.logger.info("Path to these map ids is empty")
                 return self.finish()
             self.auto_trip_edges = path
             draw_edge_path(self.world_signals, self.auto_trip_edges)
@@ -51,6 +52,7 @@ class AutoTripBehavior(Behavior):
             if edge_path is None:
                 raise ValueError("no edge path provided")
             if len(edge_path) == 0:
+                self.logger.info("Path to these edge is empty")
                 return self.finish()
             self.target_map_ids = {edge_path[-1].m_to.m_mapId}
             self.auto_trip_edges = edge_path
@@ -60,6 +62,7 @@ class AutoTripBehavior(Behavior):
 
     def process_edge(self):
         if self.auto_trip_edges is None or len(self.auto_trip_edges) == 0:
+            self.logger.info("Empty auto trip edge")
             return self.finish()
 
         edge = self.auto_trip_edges.pop(0)

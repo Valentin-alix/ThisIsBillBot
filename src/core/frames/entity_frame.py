@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 from typing import cast
 
-
 from d3_mapping.resources.protos.game.common_pb2 import (
-    SpawnInformation,
     ActorPositionInformation,
     Direction,
+    SpawnInformation,
 )
 from d3_mapping.resources.protos.game.context_pb2 import (
     ContextRemoveElementEvent,
@@ -13,24 +12,25 @@ from d3_mapping.resources.protos.game.context_pb2 import (
 )
 from d3_mapping.resources.protos.game.fight_pb2 import (
     FightFighterRefreshEvent,
-    FightSynchronizeEvent,
     FightFighterShowEvent,
+    FightSynchronizeEvent,
 )
 from d3_mapping.resources.protos.game.game_action_pb2 import GameActionFightEvent
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
+    GameRolePlayShowActorsEvent,
     MapComplementaryInformationEvent,
     MapMovementEvent,
-    GameRolePlayShowActorsEvent,
-    MapTeleportOnSameEvent,
     MapMovementRefusedEvent,
+    MapTeleportOnSameEvent,
 )
-from src.core.frames.frame import Frame
 from grid.map_point import MapPoint
+
+from src.core.frames.frame import Frame
 from src.interfaces.aliases import (
     AIFighter,
+    EntityFighterInformation,
     MonsterFighter,
     NamedFighterInformation,
-    EntityFighterInformation,
 )
 
 
@@ -42,46 +42,67 @@ class EntityFrame(Frame):
             MapComplementaryInformationEvent,
             self.on_map_complementary_info_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             MapMovementEvent,
             self.on_map_movement_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             GameRolePlayShowActorsEvent,
             self.on_game_role_play_show_actors_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             ContextRemoveElementEvent,
             self.on_context_remove_element_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             EntitiesDispositionEvent,
             self.on_entities_disposition_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            GameActionFightEvent, self.on_game_action_fight_event, originator=self
+            GameActionFightEvent,
+            self.on_game_action_fight_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            FightSynchronizeEvent, self.on_fight_synchronize_event, originator=self
+            FightSynchronizeEvent,
+            self.on_fight_synchronize_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            FightFighterShowEvent, self.on_fight_fighter_show_event, originator=self
+            FightFighterShowEvent,
+            self.on_fight_fighter_show_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             FightFighterRefreshEvent,
             self.on_fight_fighter_refresh_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            MapTeleportOnSameEvent, self.on_map_teleport_on_same_event, originator=self
+            MapTeleportOnSameEvent,
+            self.on_map_teleport_on_same_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            MapMovementRefusedEvent, self.on_map_movement_refused_event, originator=self
+            MapMovementRefusedEvent,
+            self.on_map_movement_refused_event,
+            originator=self,
+            priority=self.priority,
         )
 
     def on_map_complementary_info_event(
@@ -158,7 +179,9 @@ class EntityFrame(Frame):
                         actor_id=sub_summon.position.actor_id,
                         disposition=sub_summon.position.disposition,
                     )
-                    self.game_state.entity.set_actor(related_actor_pos_information)
+                    self.game_state.entity.set_actor(
+                        related_actor_pos_information, True
+                    )
         elif msg.HasField("slide"):
             direction = self.game_state.entity.actor_by_id[
                 msg.slide.target_id

@@ -1,13 +1,15 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
-class NpcGenericAction:
+class NpcDialogInfo:
     npc_id: int
-    npc_action_id: int
+    npc_action_id: int = 3
+    include_reply_ids: list[int] | None = field(default=None)
+    exclude_reply_ids: list[int] = field(default_factory=list)
+    exclude_action_ids: list[int] = field(default_factory=list)
+
+
+@dataclass(kw_only=True)
+class NpcInfo(NpcDialogInfo):
     npc_map_id: int
-
-
-@dataclass
-class NpcInfo(NpcGenericAction):
-    reply_ids: list[int]

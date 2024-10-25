@@ -10,17 +10,17 @@ from d3_mapping.resources.protos.game.gamemap_pb2 import (
 )
 from data_center.map_reader import MapReader
 from data_center.world_graph_reader import WorldGraphReader
+from enums.skill_enum import SkillEnum
 from grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.interactive_behavior import InteractiveBehavior
+from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripBehavior
 from src.core.config.timings import BASE_RANGE
 from src.core.controller.human_timings import HumanTimingsController
-from src.core.logic.grid.path_finding.path_finding import Pathfinding
+from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.core.logic.world.astar_no_interactive import AstarNoInteractive
 from src.exceptions import UnexpectedStateException, UnhandledErrorCodeException
-from src.interfaces.enums.skill_enum import SkillEnum
 
 
 @dataclass

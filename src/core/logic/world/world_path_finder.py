@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-
-from models.world_graph import Vertice, Edge
 from data_center.world_graph_reader import WorldGraphReader
-from src.core.logic.grid.path_finding.path_finding import Pathfinding
+from models.world_graph import Edge, Vertice
+
+from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.core.logic.world.astar_vertice import AstarWorld
 from src.core.states.game_state import GameState
 

@@ -1,0 +1,97 @@
+from dataclasses import dataclass
+from functools import partial
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
+    MapComplementaryInformationEvent,
+)
+from data_center.data_reader import DataReader
+from data_center.i18n import I18N
+from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.fight.attacker_behavior import AttackerBehavior
+from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
+    AutoTripSmartBehavior,
+)
+from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
+from src.core.config.timings import ON_NEW_MAP_BEFORE_ACTION
+from src.core.logic.dungeons.dungeons import DungeonInfo
+from src.exceptions import UnhandledErrorCodeException
+
+
+@dataclass
+class DungeonBehavior(Behavior):
+    npc_dialog_behavior: NpcDialogBehavior
+    attacker_behavior: AttackerBehavior
+    auto_trip_smart_behavior: AutoTripSmartBehavior
+
+    def run(self, dungeon_info: DungeonInfo) -> None:
+        self.auto_trip_smart_behavior.start(
+            map_ids={dungeon_info.entrance_npc_info.npc_map_id},
+            callback=partial(
+                self.on_auto_trip_smart_behavior_to_entrance_finished,
+                dungeon_info=dungeon_info,
+            ),
+            parent=self,
+        )
+
+    def on_auto_trip_smart_behavior_to_entrance_finished(
+        self, error_code: str | None, dungeon_info: DungeonInfo
+    ):
+        if error_code is not None:
+            return self.exit_dungeon(dungeon_info)
+        self.npc_dialog_behavior.start(
+            npc_dialog_info=dungeon_info.entrance_npc_info,
+            callback=partial(
+                self.on_npc_dialog_behavior_finished, dungeon_info=dungeon_info
+            ),
+            parent=self,
+        )
+
+    def on_npc_dialog_behavior_finished(
+        self,
+        error_code: str | None,
+        dungeon_info: DungeonInfo,
+    ):
+        if error_code is not None:
+            raise UnhandledErrorCodeException(error_code)
+        self.event_manager.on(
+            MapComplementaryInformationEvent,
+            lambda _: self.on_new_map(dungeon_info),
+            originator=self,
+            once=True,
+        )
+
+    def on_new_map(self, dungeon_info: DungeonInfo):
+        if self.game_state.map.map_id not in dungeon_info.dungeon.mapIds:
+            return self.exit_dungeon(dungeon_info)
+        self.attacker_behavior.start(
+            count_fight_limit=1,
+            wait_for_group=True,
+            get_lvl_limit=lambda level: level * 100,
+            callback=lambda _: self.on_new_map(dungeon_info),
+            parent=self,
+        )
+
+    def exit_dungeon(self, dungeon_info: DungeonInfo):
+        map_name_id = DataReader().map_pos_by_map_id[self.game_state.map.map_id].nameId
+        title_map = (
+            I18N().name_by_id[map_name_id] if map_name_id in I18N().name_by_id else ""
+        )
+        if "Sortie" in title_map:
+            self.event_manager.on(
+                MapComplementaryInformationEvent,
+                callback=self.on_new_map_after_exit_dungeon,
+                originator=self,
+                once=True,
+            )
+            self.run_timer(
+                ON_NEW_MAP_BEFORE_ACTION,
+                lambda: self.npc_dialog_behavior.start(
+                    npc_dialog_info=dungeon_info.exit_npc_info,
+                    callback=None,
+                    parent=self,
+                ),
+            )
+        else:
+            self.finish()
+
+    def on_new_map_after_exit_dungeon(self, msg: MapComplementaryInformationEvent):
+        self.finish()

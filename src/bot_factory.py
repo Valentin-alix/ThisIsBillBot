@@ -5,11 +5,15 @@ from d3_mapping.signals.message_signals import MessageInfoSignals
 
 from src.bot import Bot
 from src.common.logger import Logger
+from src.core.behaviors.auto.auto_bot_behavior import AutoBotBehavior
+from src.core.behaviors.chat.chat_behavior import ChatBehavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
-from src.core.behaviors.farms.fighter.fighter_behavior import FighterBehavior
-from src.core.behaviors.farms.harvest.collect_behavior import CollectBehavior
-from src.core.behaviors.farms.harvest.harvester_behavior import HarvesterBehavior
+from src.core.behaviors.dungeons.dungeon_behavior import DungeonBehavior
+from src.core.behaviors.farms.fighter_behavior import FighterBehavior
+from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
+from src.core.behaviors.farms.multi_farming_behavior import MultiFarmingBehavior
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
+from src.core.behaviors.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
 from src.core.behaviors.fight.fight_challenge_behavior import FightChallengeBehavior
 from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
@@ -17,7 +21,8 @@ from src.core.behaviors.fight.fight_preparation_behavior import FightPreparation
 from src.core.behaviors.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.fight.fight_turn_behavior import FightTurnBehavior
 from src.core.behaviors.fight.revive_behavior import ReviveBehavior
-from src.core.behaviors.interactive_behavior import InteractiveBehavior
+from src.core.behaviors.interactives.collect_behavior import CollectBehavior
+from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_explorator_behavior import (
     AutoTripExploratorBehavior,
@@ -36,30 +41,38 @@ from src.core.behaviors.mule_kamas.mule_accept_kamas_behavior import (
     MuleAcceptKamasBehavior,
 )
 from src.core.behaviors.mule_kamas.mule_give_kamas_behavior import MuleGiveKamasBehavior
-from src.core.behaviors.npc_dialog_behavior import NpcDialogBehavior
+from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
 )
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
-from src.core.behaviors.storage.enter_bank_chest_behavior import EnterBankChestBehavior
-from src.core.behaviors.storage.enter_guild_chest_behavior import (
+from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
+    EnterBankChestBehavior,
+)
+from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestBehavior,
 )
-from src.core.behaviors.storage.load_from_bank_behavior import LoadFromBankBehavior
-from src.core.behaviors.storage.load_from_guild_chest_behavior import (
+from src.core.behaviors.storage.loads.load_from_bank_behavior import (
+    LoadFromBankBehavior,
+)
+from src.core.behaviors.storage.loads.load_from_guild_chest_behavior import (
     LoadFromGuildChestBehavior,
 )
-from src.core.behaviors.storage.load_recipe_from_guild_chest_behavior import (
+from src.core.behaviors.storage.loads.load_recipe_from_bank_chest_behavior import (
+    LoadRecipeFromBankChestBehavior,
+)
+from src.core.behaviors.storage.loads.load_recipe_from_guild_chest_behavior import (
     LoadRecipeFromGuildChestBehavior,
 )
-from src.core.behaviors.storage.unload_behavior import UnloadBehavior
-from src.core.behaviors.storage.unload_in_bank_behavior import UnloadInBankBehavior
-from src.core.behaviors.storage.unload_in_guild_chest_behavior import (
+from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
+from src.core.behaviors.storage.unloads.unload_in_bank_behavior import (
+    UnloadInBankBehavior,
+)
+from src.core.behaviors.storage.unloads.unload_in_guild_chest_behavior import (
     UnloadInGuildChestBehavior,
 )
-from src.core.behaviors.suicide.suicide_bot_behavior import SuicideBotBehavior
 from src.core.frames.entity_frame import EntityFrame
 from src.core.frames.fight_frame import FightFrame
 from src.core.frames.guild_chest_frame import GuildChestFrame
@@ -75,8 +88,8 @@ from src.core.logic.fight.damage_calculator import DamageCalculator
 from src.core.logic.fight.reachable_cells.fight_reachable_cells import (
     FightReachableCells,
 )
-from src.core.logic.grid.data_map_provider import DataMapProvider
-from src.core.logic.grid.path_finding.path_finding import Pathfinding
+from src.core.logic.map.data_map_provider import DataMapProvider
+from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.core.logic.world.astar_allow_capability import AstarAllowHavreSac
 from src.core.logic.world.astar_no_interactive import AstarNoInteractive
 from src.core.logic.world.astar_vertice import AstarWorld
@@ -447,9 +460,17 @@ class BotFactory:
             logger=logger,
             sale_hotel_prices_behavior=sale_hotel_prices_behavior,
         )
-        fighter_behavior = FighterBehavior(
+        attacker_behavior = AttackerBehavior(
             event_manager=event_manager,
             fight_behavior=fight_behavior,
+            map_move_behavior=map_move_behavior,
+            path_finding=path_finding,
+            game_state=game_state,
+            logger=logger,
+        )
+        fighter_behavior = FighterBehavior(
+            event_manager=event_manager,
+            attacker_behavior=attacker_behavior,
             map_move_behavior=map_move_behavior,
             path_finding=path_finding,
             random_farm_behavior=random_farm_behavior,
@@ -457,6 +478,13 @@ class BotFactory:
             unload_behavior=unload_behavior,
             logger=logger,
             sale_hotel_prices_behavior=sale_hotel_prices_behavior,
+        )
+        load_recipe_from_bank_chest_behavior = LoadRecipeFromBankChestBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            logger=logger,
+            enter_bank_chest_behavior=enter_bank_chest_behavior,
+            unload_behavior=unload_behavior,
         )
         craft_behavior = CraftBehavior(
             event_manager=event_manager,
@@ -466,6 +494,7 @@ class BotFactory:
             interactive_behavior=interactive_behavior,
             auto_trip_smart_behavior=auto_trip_world_behavior,
             pathfinding=path_finding,
+            load_recipe_from_bank_chest_behavior=load_recipe_from_bank_chest_behavior,
         )
         mule_accept_kamas_behavior = MuleAcceptKamasBehavior(
             event_manager=event_manager,
@@ -473,12 +502,39 @@ class BotFactory:
             logger=logger,
             auto_trip_smart_behavior=auto_trip_world_behavior,
         )
-        suicide_bot_behavior = SuicideBotBehavior(
+        chat_behavior = ChatBehavior(
+            event_manager=event_manager, game_state=game_state, logger=logger
+        )
+        dungeon_behavior = DungeonBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            logger=logger,
+            npc_dialog_behavior=npc_dialog_behavior,
+            attacker_behavior=attacker_behavior,
+            auto_trip_smart_behavior=auto_trip_world_behavior,
+        )
+        multi_farming_behavior = MultiFarmingBehavior(
+            chat_behavior=chat_behavior,
+            mule_give_kamas_behavior=mule_give_kamas_behavior,
+            event_manager=event_manager,
+            collect_behavior=collect_behavior,
+            game_state=game_state,
+            unload_behavior=unload_behavior,
+            random_farm_behavior=random_farm_behavior,
+            fight_behavior=fight_behavior,
+            logger=logger,
+            sale_hotel_prices_behavior=sale_hotel_prices_behavior,
+            attacker_behavior=attacker_behavior,
+            craft_behavior=craft_behavior,
+            dungeon_behavior=dungeon_behavior,
+        )
+        auto_bot_behavior = AutoBotBehavior(
             event_manager=event_manager,
             game_state=game_state,
             logger=logger,
             fighter_behavior=fighter_behavior,
             harvester_behavior=harvester,
+            multi_farming_behavior=multi_farming_behavior,
         )
 
         return Bot(
@@ -493,6 +549,7 @@ class BotFactory:
             fight_behavior=fight_behavior,
             mule_accept_kamas_behavior=mule_accept_kamas_behavior,
             revive_behavior=revive_behavior,
+            dungeon_behavior=dungeon_behavior,
             frames=[
                 map_frame,
                 player_frame,
@@ -510,7 +567,7 @@ class BotFactory:
             game_state=game_state,
             fighter_behavior=fighter_behavior,
             craft_behavior=craft_behavior,
-            suicide_bot_behavior=suicide_bot_behavior,
+            auto_bot_behavior=auto_bot_behavior,
             is_playing_event=is_playing_event,
             shared_signals=shared_signals,
             is_ready_to_play_event=is_ready_to_play_event,

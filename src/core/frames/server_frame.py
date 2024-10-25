@@ -18,7 +18,10 @@ class ServerFrame(Frame):
     def __post_init__(self):
         self.game_info_signals.disconnected.connect(self.on_disconnected)
         self.event_manager.on(
-            CharacterSelectionEvent, self.on_character_selection_event, originator=self
+            CharacterSelectionEvent,
+            self.on_character_selection_event,
+            originator=self,
+            priority=self.priority,
         )
 
     def on_disconnected(self):

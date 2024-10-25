@@ -6,21 +6,19 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeBidSellerStartedEvent,
 )
 from d3_mapping.resources.protos.game.npc_pb2 import NpcGenericActionRequest
+from enums.element_type import ElementTypeEnum
 
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.interactive_behavior import InteractiveBehavior
+from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.config.timings import BASE_RANGE, SMALL_RANGE
 from src.exceptions import UnhandledErrorCodeException
-from src.interfaces.enums.element_type import ElementTypeEnum
-from src.interfaces.models.npc_info import NpcGenericAction
+from src.interfaces.models.npc_info import NpcInfo
 
-BONTA_SALE_HOTEL_SELL_ACTION = NpcGenericAction(
-    npc_id=-1, npc_action_id=5, npc_map_id=212601350
-)
-ASTRUB_SALE_HOTEL_SELL_ACTION = NpcGenericAction(
+BONTA_SALE_HOTEL_SELL_ACTION = NpcInfo(npc_id=-1, npc_action_id=5, npc_map_id=212601350)
+ASTRUB_SALE_HOTEL_SELL_ACTION = NpcInfo(
     npc_id=-1, npc_action_id=5, npc_map_id=191104004
 )
 
@@ -31,22 +29,18 @@ class EnterSaleHotelSellBehavior(Behavior):
     interactive_behavior: InteractiveBehavior
 
     def run(self) -> None:
-        generic_action = (
+        npc_info = (
             BONTA_SALE_HOTEL_SELL_ACTION
             if self.game_state.player.is_sub
             else ASTRUB_SALE_HOTEL_SELL_ACTION
         )
         self.auto_trip_smart_behavior.start(
-            map_ids={generic_action.npc_map_id},
-            callback=partial(
-                self.on_auto_trip_smart_behavior, generic_action=generic_action
-            ),
+            map_ids={npc_info.npc_map_id},
+            callback=partial(self.on_auto_trip_smart_behavior, npc_info=npc_info),
             parent=self,
         )
 
-    def on_auto_trip_smart_behavior(
-        self, error_code: str | None, generic_action: NpcGenericAction
-    ):
+    def on_auto_trip_smart_behavior(self, error_code: str | None, npc_info: NpcInfo):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
         sale_hotel_interactive = next(
@@ -56,9 +50,7 @@ class EnterSaleHotelSellBehavior(Behavior):
         )
         self.event_manager.on(
             ExchangeBidBuyerStartedEvent,
-            partial(
-                self.on_exchange_bid_buyer_started_event, generic_action=generic_action
-            ),
+            partial(self.on_exchange_bid_buyer_started_event, npc_info=npc_info),
             originator=self,
             once=True,
         )
@@ -77,7 +69,7 @@ class EnterSaleHotelSellBehavior(Behavior):
         )
 
     def on_exchange_bid_buyer_started_event(
-        self, msg: ExchangeBidBuyerStartedEvent, generic_action: NpcGenericAction
+        self, msg: ExchangeBidBuyerStartedEvent, npc_info: NpcInfo
     ):
         self.event_manager.on(
             ExchangeBidSellerStartedEvent,
@@ -86,9 +78,9 @@ class EnterSaleHotelSellBehavior(Behavior):
             once=True,
         )
         req = NpcGenericActionRequest(
-            npc_id=generic_action.npc_id,
-            npc_map_id=generic_action.npc_map_id,
-            npc_action_id=generic_action.npc_action_id,
+            npc_id=npc_info.npc_id,
+            npc_map_id=npc_info.npc_map_id,
+            npc_action_id=npc_info.npc_action_id,
         )
         self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(req))
 

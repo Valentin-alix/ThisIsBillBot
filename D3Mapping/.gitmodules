@@ -1,0 +1,4 @@
+[submodule "D3Database"]
+	path = D3Database
+	url = https://github.com/Valentin-alix/D3Database.git
+	branch = main

@@ -16,13 +16,7 @@ from src.signals.shared_farm_signals import SharedSignals
 
 
 class MainWindow(NoAnimatedFluentWindow):
-    def __init__(
-        self,
-        title: str,
-        shared_signals: SharedSignals,
-        *args,
-        **kwargs,
-    ) -> None:
+    def __init__(self, title: str, shared_signals: SharedSignals) -> None:
         super().__init__(parent=None)
 
         self.title = title
@@ -58,11 +52,17 @@ class MainWindow(NoAnimatedFluentWindow):
         navigation_widget = self.addSubInterface(
             account_widget, self.disconnected_icon, login
         )
+
+        account.game_info_signals.character_name.connect(navigation_widget.setText)
+
         account.game_info_signals.is_ready_to_play.connect(
             lambda: navigation_widget.setIcon(self.connected_icon)
         )
         account.game_info_signals.disconnected.connect(
             lambda: navigation_widget.setIcon(self.disconnected_icon)
+        )
+        account.game_info_signals.disconnected.connect(
+            lambda: navigation_widget.setText(login)
         )
 
     def closeEvent(self, e):

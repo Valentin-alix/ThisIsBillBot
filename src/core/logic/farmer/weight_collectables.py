@@ -1,11 +1,12 @@
 from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
 from data_center.data_reader import DataReader
 from data_center.map_reader import MapReader
+from enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
 
 from src.core.config.weights import WEIGHT_BY_JOB
 from src.core.controller.gfx_mapping import GfxMappingController
-from src.core.logic.grid.map_tools import MapTools
-from src.interfaces.enums.job_enum import JobEnum
+from src.core.logic.map.map_tools import MapTools
 from src.signals.world_signals import WorldSignals
 
 
@@ -105,3 +106,14 @@ def draw_weight_on_map(weight_by_map_id: dict[int, float], world_signals: WorldS
         map_data = DataReader().map_pos_by_map_id[map_id]
         weight_color = int(255 * (weight / max_weight))
         world_signals.color_pos.emit(map_data, (255, 255 - weight_color, 0))
+
+
+def is_interesting_job_lvl_up_for_weight(
+    msg: JobExperiencesUpdateEvent, jobs_lvl_by_id: dict[int, int]
+) -> bool:
+    return any(
+        job_xp.job_level % 10 == 0
+        and jobs_lvl_by_id.get(job_xp.job_id, 1) != job_xp.job_level
+        and job_xp.job_id in HARVESTER_JOB_IDS
+        for job_xp in msg.experiences
+    )

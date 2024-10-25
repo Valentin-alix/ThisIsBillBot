@@ -12,22 +12,20 @@ from models.datas.recipe_root import RecipeItem
 from PyQt5.QtCore import QThread
 
 from src.common.logger import Logger
+from src.core.behaviors.auto.auto_bot_behavior import AutoBotBehavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
-from src.core.behaviors.farms.fighter.fighter_behavior import FighterBehavior
-from src.core.behaviors.farms.harvest.harvester_behavior import HarvesterBehavior
+from src.core.behaviors.dungeons.dungeon_behavior import DungeonBehavior
+from src.core.behaviors.farms.fighter_behavior import FighterBehavior
+from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
 from src.core.behaviors.fight.revive_behavior import ReviveBehavior
 from src.core.behaviors.mule_kamas.mule_accept_kamas_behavior import (
     MuleAcceptKamasBehavior,
 )
-from src.core.behaviors.suicide.suicide_bot_behavior import SuicideBotBehavior
-from src.core.config.suicide_bots import (
-    MULE_BANK_CHARACTER_ID,
-    MULE_BANK_CHARACTER_LOGIN,
-    SUICIDE_BOT_INFOS,
-    SuicideBotInfo,
-)
+from src.core.config.auto import SUICIDE_BOT_INFOS, AutoBotInfo
+from src.core.config.mule_kamas import MULE_BANK_CHARACTER_ID, MULE_BANK_CHARACTER_LOGIN
 from src.core.frames.frame import Frame
+from src.core.logic.dungeons.consts import DUNGEONS_INFOS
 from src.core.states.game_state import GameState
 from src.event_manager import EventManager
 from src.exceptions import UnhandledErrorCodeException
@@ -44,28 +42,29 @@ from src.signals.world_signals import WorldSignals
 class Bot:
     pid: int | None
     account: DecipheredApiKey
-    # event manager
+
     event_manager: EventManager
-    # states
+
     game_state: GameState
-    # signals
+
     grid_signals: GridSignals
     bot_signals: BotSignals
     game_info_signals: GameInfoSignals
     msg_info_signals: MessageInfoSignals
     world_signals: WorldSignals
     log_signals: LogSignals
-    # frames
+
     frames: list[Frame]
-    # behaviors
+
     mule_accept_kamas_behavior: MuleAcceptKamasBehavior
     harvester_behavior: HarvesterBehavior
     fighter_behavior: FighterBehavior
     craft_behavior: CraftBehavior
     fight_behavior: FightBehavior
-    suicide_bot_behavior: SuicideBotBehavior
+    auto_bot_behavior: AutoBotBehavior
     revive_behavior: ReviveBehavior
-    # utils
+    dungeon_behavior: DungeonBehavior
+
     logger: Logger
     is_connected_event: Event
     is_ready_to_play_event: Event
@@ -75,7 +74,9 @@ class Bot:
     _thread_worker_runnings: list[tuple[QThread, Worker]] = field(
         init=False, default_factory=list
     )
-    _current_bot_action_func: Callable[..., Any] | None = None
+    _current_bot_action_func: Callable[..., Any] | None = field(
+        init=False, default=None
+    )
 
     def __str__(self):
         return self.account["apikey"]["login"]
@@ -154,6 +155,16 @@ class Bot:
             self.run_current_bot_action()
 
         def on_live_and_kicking(error_code: str | None):
+            for dungeon_info in DUNGEONS_INFOS:
+                if (
+                    self.game_state.map.map_id in dungeon_info.dungeon.mapIds
+                    or self.game_state.map.map_id == dungeon_info.dungeon.exitMapId
+                ):
+                    return self.dungeon_behavior.start(
+                        dungeon_info=dungeon_info,
+                        callback=on_live_and_kicking,
+                        parent=None,
+                    )
             if self.game_state.fight.in_fight:
                 self.fight_behavior.start(
                     callback=on_fight_behavior_finished,
@@ -169,7 +180,7 @@ class Bot:
             self.bot_signals.play_mule_kamas.emit()
         elif SUICIDE_BOT_INFOS.get(self.account["apikey"]["login"]) is not None:
             self.play_action(
-                lambda: self.suicide_bot_behavior.start(
+                lambda: self.auto_bot_behavior.start(
                     callback=lambda _: self.bot_signals.stop.emit(), parent=None
                 )
             )
@@ -203,7 +214,6 @@ class Bot:
         self,
         area_id: int | None,
         sub_area_id: int | None,
-        level_limit_with_callback: tuple[int, Callable[[], None]] | None,
     ):
         self.play_action(
             lambda: self.fighter_behavior.start(
@@ -211,7 +221,6 @@ class Bot:
                 parent=None,
                 area_id=area_id,
                 sub_area_id=sub_area_id,
-                level_limit_with_callback=level_limit_with_callback,
             )
         )
 
@@ -253,8 +262,8 @@ class Bot:
             self.fight_behavior.stop()
         if self.mule_accept_kamas_behavior.is_running.is_set():
             self.mule_accept_kamas_behavior.stop()
-        if self.suicide_bot_behavior.is_running.is_set():
-            self.suicide_bot_behavior.stop()
+        if self.auto_bot_behavior.is_running.is_set():
+            self.auto_bot_behavior.stop()
         if self.revive_behavior.is_running.is_set():
             self.revive_behavior.stop()
 
@@ -269,12 +278,12 @@ class Bot:
             self.fight_behavior.stop()
         if self.mule_accept_kamas_behavior.is_running.is_set():
             self.mule_accept_kamas_behavior.finish()
-        if self.suicide_bot_behavior.is_running.is_set():
-            self.suicide_bot_behavior.finish()
+        if self.auto_bot_behavior.is_running.is_set():
+            self.auto_bot_behavior.finish()
         if self.revive_behavior.is_running.is_set():
             self.revive_behavior.finish()
 
-    def start_planning_bot(self, suicide_bot_info: SuicideBotInfo):
+    def start_planning_bot(self, suicide_bot_info: AutoBotInfo):
         def planned_stop_bot():
             self.logger.info("Stopping bot")
             if self.is_playing_event.is_set():

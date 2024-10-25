@@ -1,8 +1,7 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import SingleDirectionScrollArea, SmoothMode
 
 from src.gui.components.graphics.grid_widget import GridView
-from src.gui.components.player_info.player_info_widget import PlayerInfoWidget
 from src.signals.grid_signals import GridSignals
 from src.signals.player_signals import GameInfoSignals
 
@@ -18,9 +17,6 @@ class MapTab(QWidget):
 
         grid_view = GridView(grid_signals)
         content_widget.layout().addWidget(grid_view)
-
-        player_info_widget = PlayerInfoWidget(grid_signals, game_info_signals)
-        content_widget.layout().addWidget(player_info_widget)
 
         scroll_area_info.setSmoothMode(SmoothMode.NO_SMOOTH)
         scroll_area_info.setWidgetResizable(True)

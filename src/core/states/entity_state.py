@@ -3,14 +3,15 @@ from typing import Iterable, cast
 
 from d3_mapping.resources.protos.game.common_pb2 import (
     ActorPositionInformation,
-    EntityDisposition,
     Direction,
+    EntityDisposition,
 )
 from d3_mapping.resources.protos.game.gamemap_pb2 import MapObstacle
+from enums.characteristic_enum import CharacteristicEnum
 from grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
+
 from src.core.logic.stats.characteristic import get_stat_by_id
 from src.core.states.state import State
-from src.interfaces.enums.characteristic_enum import CharacteristicEnum
 from src.signals.grid_signals import GridSignals
 
 
@@ -70,6 +71,7 @@ type MonsterGroup = tuple[
 @dataclass
 class FightActor:
     life_point: int
+    is_summoned: bool
 
 
 @dataclass
@@ -112,7 +114,7 @@ class EntityState(State):
         for old_actor_id in old_actor_ids:
             self.remove_actor(old_actor_id)
 
-    def set_actor(self, actor: ActorPositionInformation):
+    def set_actor(self, actor: ActorPositionInformation, is_summoned: bool = False):
         self._remove_actor_on_mp(actor.actor_id)
 
         self.actor_by_id[actor.actor_id] = actor
@@ -130,7 +132,7 @@ class EntityState(State):
                 )
             )
             self.actor_fight_by_id[actor.actor_id] = FightActor(
-                life_point=target_max_health
+                life_point=target_max_health, is_summoned=is_summoned
             )
 
     def update_actor_disposition(self, actor_id: int, direction: int, cell_id: int):

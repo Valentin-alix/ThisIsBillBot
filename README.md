@@ -43,4 +43,6 @@ TODO :
 - Avec le sniffer, capturer ses temps de réaction dans une session de farming et de fight pour les reproduire dans les temps d'attente (avec écart type etc...)
 - Faire bdd pour enregistrer a quel point des ressources partent vite et leur prix
 
-PyInstaller -> pyarmor gen -O dist **main**.py && pyinstaller --add-data "D3Database":"D3Database" --add-data "resources":"resources" dist/**main**.py --noconfirm
+`poetry run pyarmor gen -O dist **main**.py && poetry run pyinstaller --add-data "D3Database":"D3Database" --add-data "resources":"resources" dist/**main**.py --noconfirm`
+
+`poetry run pyinstaller --add-data "D3Database":"D3Database" --add-data "D3Mapping":"D3Mapping" --add-data "resources":"resources"  **main**.py --noconfirm --paths ./D3Mapping:./D3Database:./DBDofusUnity`

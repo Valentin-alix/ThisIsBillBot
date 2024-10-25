@@ -7,11 +7,11 @@ from d3_mapping.resources.protos.game.context_pb2 import (
 )
 from d3_mapping.resources.protos.game.fight_pb2 import (
     FightEndEvent,
-    FightTurnFinishRequest,
-    FightTurnEndEvent,
     FightIsTurnReadyEvent,
-    FightTurnStartPlayingEvent,
+    FightTurnEndEvent,
     FightTurnEvent,
+    FightTurnFinishRequest,
+    FightTurnStartPlayingEvent,
 )
 from d3_mapping.resources.protos.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
@@ -23,6 +23,7 @@ from d3_mapping.resources.protos.game.game_action_pb2 import (
 from d3_mapping.resources.protos.game.spell_pb2 import (
     SpellsEvent,
 )
+
 from src.core.frames.frame import Frame
 
 
@@ -34,35 +35,49 @@ class FightFrame(Frame):
             FightPlacementPossiblePositionsEvent,
             self.on_fight_placement_position_request,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             ContextCreationEvent,
             self.on_context_creation_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             FightEndEvent,
             self.on_fight_end_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            FightStartingEvent, self.on_fight_starting_event, originator=self
+            FightStartingEvent,
+            self.on_fight_starting_event,
+            originator=self,
+            priority=self.priority,
         )
-        self.event_manager.on(SpellsEvent, self.on_spells_event, originator=self)
+        self.event_manager.on(
+            SpellsEvent,
+            self.on_spells_event,
+            originator=self,
+            priority=self.priority,
+        )
         self.event_manager.on(
             GameActionFightCastRequest,
             self.on_game_action_fight_cast_request,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             CharacterCharacteristicsEvent,
             self.on_character_characteristics_event,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
             ChallengeModSelectRequest,
             self.on_challenge_mod_select_request,
             originator=self,
+            priority=self.priority,
         )
         self.event_manager.before(
             FightTurnFinishRequest,
@@ -70,12 +85,23 @@ class FightFrame(Frame):
             originator=self,
         )
         self.event_manager.on(
-            FightTurnEndEvent, self.on_fight_turn_end_event, originator=self
+            FightTurnEndEvent,
+            self.on_fight_turn_end_event,
+            originator=self,
+            priority=self.priority,
         )
         self.event_manager.on(
-            FightIsTurnReadyEvent, self.on_fight_is_turn_ready_event, originator=self
+            FightIsTurnReadyEvent,
+            self.on_fight_is_turn_ready_event,
+            originator=self,
+            priority=self.priority,
         )
-        self.event_manager.on(FightTurnEvent, self.on_fight_turn_event, originator=self)
+        self.event_manager.on(
+            FightTurnEvent,
+            self.on_fight_turn_event,
+            originator=self,
+            priority=self.priority,
+        )
 
     def on_fight_placement_position_request(
         self, msg: FightPlacementPossiblePositionsEvent
@@ -120,8 +146,7 @@ class FightFrame(Frame):
     def before_fight_turn_finish_request(
         self, msg: FightTurnFinishRequest
     ) -> FightTurnFinishRequest | None:
-        # return msg
-        if self.is_playing_event.is_set() and msg.is_active is False:
+        if self.is_playing_event.is_set() and msg.is_active:
             return None
         return msg
 

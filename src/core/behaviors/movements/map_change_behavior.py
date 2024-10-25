@@ -7,9 +7,10 @@ from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapCurrentEvent,
     MapMovementRefusedEvent,
 )
+from grid.map_point import MapPoint
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
-from grid.map_point import MapPoint
 from src.interfaces.enums.priority import PriorityEnum
 
 
@@ -26,7 +27,7 @@ class MapChangeBehavior(Behavior):
             partial(self.on_map_current_event, expected_map_id=expected_map_id),
             originator=self,
             once=True,
-            timeout=10,
+            timeout=30,
             on_timeout=lambda: self.finish(MapChangeError.TIMEOUT),
         )
         self.event_manager.on(

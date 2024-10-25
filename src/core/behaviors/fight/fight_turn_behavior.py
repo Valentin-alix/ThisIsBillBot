@@ -7,6 +7,7 @@ from d3_mapping.resources.protos.game.fight_pb2 import (
     FightTurnEndEvent,
     FightTurnFinishRequest,
 )
+from enums.breed import Breed
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
@@ -14,9 +15,8 @@ from src.core.behaviors.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.controller.human_timings import HumanTimingsController
 from src.core.logic.fight.attack import Attacker
-from src.core.logic.grid.path_finding.path_finding import Pathfinding
+from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
-from src.interfaces.enums.breed import Breed
 
 RUNAWAY_BREED: set[int] = {Breed.CRA, Breed.SACRIER, 0}  # always run away
 

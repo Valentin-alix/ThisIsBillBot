@@ -5,10 +5,10 @@ ASTRUB_BANK_MAP = 192415750
 BONTA_BANK_MAP = 217059328
 BANK_MAP_IDS = [ASTRUB_BANK_MAP, BONTA_BANK_MAP]
 ASTRUB_BANK_NPC_INFO = NpcInfo(
-    npc_action_id=3, npc_id=-20001, npc_map_id=ASTRUB_BANK_MAP, reply_ids=[64361]
+    npc_id=-20001, npc_map_id=ASTRUB_BANK_MAP, include_reply_ids=[64361]
 )
 BONTA_BANK_NPC_INFO = NpcInfo(
-    npc_action_id=3, npc_id=-20000, npc_map_id=BONTA_BANK_MAP, reply_ids=[63535]
+    npc_id=-20000, npc_map_id=BONTA_BANK_MAP, include_reply_ids=[63535]
 )
 BANKS_NPC_INFOS = [ASTRUB_BANK_NPC_INFO, BONTA_BANK_NPC_INFO]
 

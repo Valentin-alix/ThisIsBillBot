@@ -1,4 +1,5 @@
 import logging
+from logging.handlers import RotatingFileHandler
 import os.path
 from pathlib import Path
 from typing import Any
@@ -15,15 +16,15 @@ class Logger(logging.Logger):
         self.log_signals = log_signals
         self.setLevel(logging.DEBUG)
 
-        # file_handler = RotatingFileHandler(
-        #     f"{os.path.join(LOG_FOLDER, title)}.log",
-        #     maxBytes=100_000_000,
-        #     backupCount=1,
-        # )
-        # file_handler.setLevel(logging.DEBUG)
-        # file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        # file_handler.setFormatter(file_formatter)
-        self.addHandler(logging.NullHandler())
+        file_handler = RotatingFileHandler(
+            f"{os.path.join(LOG_FOLDER, title)}.log",
+            maxBytes=100_000_000,
+            backupCount=1,
+        )
+        file_handler.setLevel(logging.DEBUG)
+        file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        file_handler.setFormatter(file_formatter)
+        self.addHandler(file_handler)
 
     def _get_log_msg(self, msg: Any) -> str:
         return msg

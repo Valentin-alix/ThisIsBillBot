@@ -173,7 +173,7 @@ class RandomFarmBehavior(Behavior):
             self.additional_weight_by_map_id[edge.m_to.m_mapId] = additional_weight_map
 
         return (
-            (min((datetime.now() - last_visited).total_seconds(), 1800) ** 2)
+            (min((datetime.now() - last_visited).total_seconds(), 3600) ** 3)
             * (1 + additional_weight_map)
             * random.uniform(0.6, 1)
         )

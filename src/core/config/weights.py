@@ -1,4 +1,4 @@
-from src.interfaces.enums.job_enum import JobEnum
+from enums.jobs_enum import JobEnum
 
 WEIGHT_BY_JOB: dict[JobEnum, float] = {
     JobEnum.MINER: 10,
