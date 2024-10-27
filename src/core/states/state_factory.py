@@ -24,21 +24,20 @@ class StateFactory:
             game_info_signals=game_info_signals, logger=logger
         )
         map_state = MapState(grid_signals=grid_signals, logger=logger)
-
+        sale_hotel_state = SaleHotelState(logger=logger)
         player_state = PlayerState(
             game_info_signals=game_info_signals,
             map_state=map_state,
             interactive_state=interactive_state,
             entity_state=entity_state,
             logger=logger,
+            sale_hotel_state=sale_hotel_state,
         )
         fight_state = FightState(
             game_info_signals=game_info_signals,
             player_state=player_state,
             logger=logger,
         )
-
-        sale_hotel_state = SaleHotelState(logger=logger)
         guild_chest_state = GuildChestState(logger=logger)
 
         game_state = GameState(

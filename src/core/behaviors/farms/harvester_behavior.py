@@ -31,9 +31,7 @@ from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
 )
 from src.core.behaviors.storage.consts import USEFUL_UNLOAD
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
-from src.core.config.mule import (
-    DO_UNLOAD_ON_MULE,
-)
+from src.core.config.mule import BOT_KAMA_LIMIT_TO_GIVE
 from src.core.config.timings import (
     BASE_RANGE,
     get_time_beween_sale_hotel_prices,
@@ -210,7 +208,13 @@ class HarvesterBehavior(Behavior):
         self.on_new_map()
 
     def on_full_pods(self):
-        if DO_UNLOAD_ON_MULE:
+        if self.game_state.inventory.kamas > BOT_KAMA_LIMIT_TO_GIVE or (
+            self.game_state.player.is_full_object_in_sale_hotel
+            and (
+                datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
+                < self._timedelta_for_sale_hotel_prices
+            )
+        ):
             self.mule_give_behavior.start(
                 callback=self.on_unloaded_on_mule_finished, parent=self
             )

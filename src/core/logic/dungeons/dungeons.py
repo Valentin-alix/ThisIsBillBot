@@ -1,6 +1,9 @@
+from logging import Logger
+
 from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
 from data_center.data_reader import DataReader
 from data_center.i18n import I18N
+
 from src.core.logic.dungeons.consts import (
     DUNGEON_OFFSET_LVL,
     DUNGEONS_INFOS,
@@ -12,7 +15,9 @@ from src.interfaces.enums.item_type_enum import ItemTypeEnum
 
 
 def do_have_key_access_to_dungeon(
-    dungeon_info: DungeonInfo, objects_by_uid: dict[int, ObjectItemInventory]
+    dungeon_info: DungeonInfo,
+    objects_by_uid: dict[int, ObjectItemInventory],
+    logger: Logger,
 ):
     related_king_ring_item = next(
         object.item
@@ -29,6 +34,11 @@ def do_have_key_access_to_dungeon(
     if len(related_item_key_ids) == 0:
         print(f"Wtf did not found related key for name {dungeon_info.name}")
 
+    logger.info(f"related item keys id : {related_item_key_ids}")
+    logger.info(
+        f"keyring value_int : {[effect.value_int for effect in related_king_ring_item.effects]}"
+    )
+
     does_have_king_ring_related_key = any(
         effect.value_int in related_item_key_ids
         for effect in related_king_ring_item.effects
@@ -37,7 +47,10 @@ def do_have_key_access_to_dungeon(
 
 
 def get_valid_dungeon_infos(
-    level: int, is_sub: bool, objects_by_uid: dict[int, ObjectItemInventory]
+    level: int,
+    is_sub: bool,
+    objects_by_uid: dict[int, ObjectItemInventory],
+    logger: Logger,
 ):
     return [
         dungeon_info
@@ -47,7 +60,7 @@ def get_valid_dungeon_infos(
             is_sub
             or MapTools.is_map_allowed_for_unsub(dungeon_info.dungeon.entranceMapId)
         )
-        and do_have_key_access_to_dungeon(dungeon_info, objects_by_uid)
+        and do_have_key_access_to_dungeon(dungeon_info, objects_by_uid, logger)
     ]
 
 

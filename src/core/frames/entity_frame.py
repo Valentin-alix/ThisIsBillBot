@@ -216,6 +216,7 @@ class EntityFrame(Frame):
                 msg.source_id, direction=caster_direction, cell_id=caster_new_cell_id
             )
         elif msg.HasField("teleport_on_same_map"):
+            return
             if msg.teleport_on_same_map.target_id in self.game_state.entity.actor_by_id:
                 target_direction = self.game_state.entity.actor_by_id[
                     msg.teleport_on_same_map.target_id
@@ -265,15 +266,8 @@ class EntityFrame(Frame):
         else:
             direction = Direction.DIRECTION_EAST
 
-        try:
-            self.game_state.entity.update_actor_disposition(
-                self.game_state.player.character_id,
-                direction=direction,
-                cell_id=MapPoint.from_coords(msg.cell_x, msg.cell_y).cell_id,
-            )
-        except KeyError:
-            self.game_state.entity.update_actor_disposition(
-                self.game_state.player.character_id,
-                direction=direction,
-                cell_id=MapPoint.from_coords(msg.cell_y, msg.cell_x).cell_id,
-            )
+        self.game_state.entity.update_actor_disposition(
+            self.game_state.player.character_id,
+            direction=direction,
+            cell_id=MapPoint.from_coords(msg.cell_x, msg.cell_y).cell_id,
+        )

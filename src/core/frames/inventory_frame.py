@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-from d3_mapping.resources.protos.game.common_pb2 import ExchangeType
 from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
 from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeLeaveEvent,
@@ -172,7 +171,7 @@ class InventoryFrame(Frame):
     def on_exchange_started_with_storage_event(
         self, msg: ExchangeStartedWithStorageEvent
     ):
-        if not msg.exchange_type == ExchangeType.BANK:
+        if msg.storage_max_slot <= 10_000:
             return
         self.logger.info("Exchange started with bank")
         self.event_manager.on(

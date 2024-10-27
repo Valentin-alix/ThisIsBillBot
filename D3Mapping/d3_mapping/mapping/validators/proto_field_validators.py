@@ -13,7 +13,7 @@ from d3_mapping.controller.instancied_msg_info_controller import (
 from d3_mapping.resources.protos.game.teleportation_pb2 import Teleporter
 from D3Database.data_center.i18n import I18N
 from D3Database.grid.directions import DirectionsEnum
-from D3Database.grid.map_point import MAP_POINT_BY_CELL_ID
+from D3Database.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 
 
 class ProtoFieldValidator(BaseModel):
@@ -255,7 +255,11 @@ def is_condition_respected(
         return True
     for obf_msg_info in MSG_INFO_BY_NAME[msg_namespace].obf_msg_info:
         for validator in field_validator.validators:
-            if not validator(obf_msg_info.value_by_field_array.get(field_name)):
+            try:
+                is_valid = validator(obf_msg_info.value_by_field_array.get(field_name))
+                if not is_valid:
+                    return False
+            except Exception:
                 return False
     return True
 
@@ -296,6 +300,8 @@ def is_parsed_obf_msg(obf_msg_namespace: str):
 
 
 VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
+    "CarryCharacter": {"cell": ProtoFieldValidator(validators=[is_valid_cell_id])},
+    "ThrowCharacter": {"cell": ProtoFieldValidator(validators=[is_valid_cell_id])},
     "CharacterCharacteristics": {
         "experience": ProtoFieldValidator(validators=[is_valid_positive]),
         "experience_level_floor": ProtoFieldValidator(validators=[is_valid_positive]),
@@ -567,6 +573,7 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
         "used": ProtoFieldValidator(validators=[is_valid_positive]),
         "base": ProtoFieldValidator(validators=[is_valid_positive]),
     },
+    "ObjectEffect": {"value_int": ProtoFieldValidator(validators=[is_valid_positive])},
 }
 
 
@@ -584,11 +591,10 @@ def validator_inventory_weight_event(values: dict[str, Any]):
 
 
 def validator_character_characteristic_upgrade_request(values: dict[str, Any]):
-    return True
     return not any(
-        value >= max(values["chance"], values["strength"])
+        value >= values["chance"]
         for key, value in values.items()
-        if key in ["chance", "strength"]
+        if key not in ["chance"]
     )
 
 
@@ -618,53 +624,11 @@ def validator_exchange_started_with_pods_event(values: dict[str, Any]):
     return True
 
 
-def _global_validator_map_complementary_information_event(
-    values_array: list[dict[str, Any]],
-):
-    count_off = 0
-    count_on = 0
-
-    for values in values_array:
-        off_element_ids: list[int] = []
-        on_element_ids: list[int] = []
-        for interactive_element in values["effy"]:
-            for disabled_skill in interactive_element.get("ekvj", []):
-                skill = DataReader().skill_by_id[disabled_skill["ekuy"]]
-                job_id = skill.parentJobId
-                if (
-                    job_id in HARVESTER_JOB_IDS
-                    and skill.levelMin == 1
-                    and interactive_element.get("ekvf", False) is True
-                ):
-                    off_element_ids.append(interactive_element["ekvg"])
-
-            for enabled_skill in interactive_element.get("ekvk", []):
-                skill = DataReader().skill_by_id[enabled_skill["ekuy"]]
-                job_id = skill.parentJobId
-                if (
-                    job_id in HARVESTER_JOB_IDS
-                    and skill.levelMin == 1
-                    and interactive_element.get("ekvf", False) is True
-                ):
-                    on_element_ids.append(interactive_element["ekvg"])
-
-        for stated_element in values["efga"]:
-            if "ekzl" in stated_element and stated_element["ekzp"] == 0:
-                if stated_element["ekzl"] in off_element_ids:
-                    count_off += 1
-                if stated_element["ekzl"] in on_element_ids:
-                    count_on += 1
-
-    print(f"count on {count_on}, count_off {count_off}")
-    return count_on >= count_off
-
-
 def global_validator_map_complementary_information_event(
     values_array: list[dict[str, Any]],
 ):
     count_off = 0
     count_on = 0
-    return True
     for values in values_array:
         off_element_ids: list[int] = []
         on_element_ids: list[int] = []
@@ -786,9 +750,28 @@ def global_validator_element_with_instance_uid(values_array: list[dict[str, Any]
     return element_id_total > uid_total
 
 
+def validator_slide(values: dict[str, Any]):
+    return (
+        MapPoint.from_cell_id(values["start_cell"]).distance_to_map_point(
+            MapPoint.from_cell_id(values["end_cell"])
+        )
+        < 10
+    )
+
+
+def validator_exchange_positions(values: dict[str, Any]):
+    return (
+        MapPoint.from_cell_id(values["caster_cell_id"]).distance_to_map_point(
+            MapPoint.from_cell_id(values["target_cell_id"])
+        )
+        < 10
+    )
+
+
 VALIDATORS_ON_SET_FIELDS: dict[str, tuple[Callable[[dict[str, Any]], bool], int]] = {
+    "Slide": (validator_slide, 1),
+    "ExchangePositions": (validator_exchange_positions, 1),
     "GameMessage": (validator_game_message, 1),
-    "GameActionFightEvent": (validator_game_action_fight_event, 2),
     "UpdateLifePointsEvent": (validator_update_life_points_event, 1),
     "InventoryWeightEvent": (validator_inventory_weight_event, 1),
     "CharacterCharacteristicDetailedUsable": (
@@ -805,10 +788,10 @@ VALIDATORS_ON_SET_FIELDS: dict[str, tuple[Callable[[dict[str, Any]], bool], int]
 VALIDATORS_GLOBAL_ON_SET_FIELDS: dict[
     str, tuple[Callable[[list[dict[str, Any]]], bool], int]
 ] = {
-    "MapComplementaryInformationEvent": (
-        global_validator_map_complementary_information_event,
-        3,
-    ),
+    # "MapComplementaryInformationEvent": (
+    #     global_validator_map_complementary_information_event,
+    #     3,
+    # ),
     "ObjectUidWithQuantity": (global_validator_object_with_quantity, 1),
     "ObjectItem": (global_validator_object_item, 1),
     "ExchangeObjectModifyPricedRequest": (global_validator_object_with_quantity, 1),
@@ -821,11 +804,6 @@ VALIDATORS_GLOBAL_ON_SET_FIELDS: dict[
 
 if __name__ == "__main__":
     temp = InstanciedMessageInfoController().get_msg_infos_by_name().root["ile"]
-    ici = _global_validator_map_complementary_information_event(
-        [msg_info.value_by_field_array for msg_info in temp.obf_msg_info]
-    )
-    print(ici)
-
     # (190842880, {'ekzm': 112, 'ekzn': True, 'ekzl': 513972, 'ekzp': 0})
     # infos = [(190842880, 513972), (190843392, 513975)]
     # for map_id, element_id in infos:

@@ -35,9 +35,8 @@ class AutoTripBehavior(Behavior):
         if map_ids is not None:
             self.logger.info(f"Auto trip to map id : {map_ids}")
             self.target_map_ids = map_ids
-            path = self.world_path_finder.find_path(
-                self.game_state.player.curr_vertex, map_ids
-            )
+            curr_vertex = self.game_state.player.curr_vertex
+            path = self.world_path_finder.find_path(curr_vertex, map_ids)
             if path is None:
                 self.logger.warning(
                     f"Path not found from {self.game_state.player.curr_vertex} to {map_ids}"

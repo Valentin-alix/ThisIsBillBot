@@ -3,9 +3,9 @@ from dataclasses import dataclass, field
 from functools import wraps
 from typing import cast
 
+from cachetools import cached
 import numpy as np
 import pulp
-from icecream import ic
 from proto_schema_parser import FieldCardinality
 from scipy.optimize import linear_sum_assignment
 
@@ -250,10 +250,16 @@ class ComparisonEngine:
 
         return total_sim, total_reliability, clear_by_obf_field_mapping
 
+    @cached(
+        cache={},
+        key=lambda _, clear_msg, obf_msg, __: (clear_msg.namespace, obf_msg.namespace),
+    )
     def get_deep_best_field_mapping_combination(
         self, clear_msg: PMessage, obf_msg: PMessage, treated_clear_namespaces: set[str]
     ):
-        print(f"solving msg {clear_msg.namespace} with obf msg {obf_msg.namespace}")
+        # Actuellement il faut faire gaffe si on a un big message il va pas utiliser la validation sur les sub messages
+        # print(f"solving msg {clear_msg.name} with obf msg {obf_msg.name}")
+
         solver = pulp.PULP_CBC_CMD(msg=False, presolve=True)
         total_reliability: float = 0
 
@@ -333,11 +339,7 @@ class ComparisonEngine:
                     pulp.lpSum(lp_variable_by_path[pair] for pair in mapping_result)
                     <= len(mapping_result) - 1
                 )
-                if clear_msg.name == "MapComplementaryInformationEvent":
-                    _temp = clear_by_obf_field_mapping["effy"]
-                    assert _temp is not None and _temp[2] is not None
-                    ic(_temp[2].field_mapping)
-                print("invalid search for an other combination...")
+                # print("invalid search for an other combination...")
             else:
                 break
         total_sim = cast(float, pulp.value(model.objective) or 0)

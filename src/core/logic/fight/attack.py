@@ -354,6 +354,10 @@ class Attacker:
         # puis on divise par le life percentage actuel (parce qu'on veux recup des pdv quand on est low)
         life_percentage_weight /= self.game_state.player.life_percentage
 
+        # <!> Warning custom percentage weight bc life point is not all time good
+        if thieft_life > 0 or shield_bonus > 0:
+            life_percentage_weight = 10
+
         if life_percentage_weight < 0:
             self.logger.error(
                 f"Invalid life percentage weight : {life_percentage_weight}\n\

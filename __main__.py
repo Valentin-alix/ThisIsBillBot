@@ -8,8 +8,21 @@ from qfluentwidgets import Theme, setTheme, setThemeColor
 
 sys.path.append(os.path.join(Path(__file__).parent))
 sys.path.append(os.path.join(Path(__file__).parent, "D3Mapping"))
+sys.path.append(os.path.join(Path(__file__).parent, "DBDofusUnity"))
 sys.path.append(os.path.join(Path(__file__).parent, "D3Database"))
 
+if hasattr(sys, "_MEIPASS"):
+    base_path = sys._MEIPASS  # type: ignore
+    sys.path.append(
+        os.path.join(
+            base_path, "D3Mapping", "d3_mapping", "resources", "protos", "game"
+        )
+    )
+    sys.path.append(
+        os.path.join(
+            base_path, "D3Mapping", "d3_mapping", "resources", "protos", "connection"
+        )
+    )
 
 from src.bot_manager import BotManager
 from src.const import DOFUS_CONNECTION_URL

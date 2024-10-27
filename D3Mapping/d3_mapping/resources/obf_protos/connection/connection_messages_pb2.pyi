@@ -7,451 +7,451 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class kgr(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+class bpry(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
-    KGR_DVXB: _ClassVar[kgr]
-    KGR_DVXC: _ClassVar[kgr]
-    KGR_DVXD: _ClassVar[kgr]
-    KGR_DVXE: _ClassVar[kgr]
-    KGR_DVXF: _ClassVar[kgr]
-    KGR_DVXG: _ClassVar[kgr]
-    KGR_DVXH: _ClassVar[kgr]
-KGR_DVXB: kgr
-KGR_DVXC: kgr
-KGR_DVXD: kgr
-KGR_DVXE: kgr
-KGR_DVXF: kgr
-KGR_DVXG: kgr
-KGR_DVXH: kgr
+    BPRY_ECYD: _ClassVar[bpry]
+    BPRY_ECYE: _ClassVar[bpry]
+    BPRY_ECYF: _ClassVar[bpry]
+    BPRY_ECYG: _ClassVar[bpry]
+    BPRY_ECYH: _ClassVar[bpry]
+    BPRY_ECYI: _ClassVar[bpry]
+    BPRY_ECYJ: _ClassVar[bpry]
+BPRY_ECYD: bpry
+BPRY_ECYE: bpry
+BPRY_ECYF: bpry
+BPRY_ECYG: bpry
+BPRY_ECYH: bpry
+BPRY_ECYI: bpry
+BPRY_ECYJ: bpry
 
-class kgt(_message.Message):
-    __slots__ = ("emyu", "emyv", "emyw")
-    EMYU_FIELD_NUMBER: _ClassVar[int]
-    EMYV_FIELD_NUMBER: _ClassVar[int]
-    EMYW_FIELD_NUMBER: _ClassVar[int]
-    emyu: kgv
-    emyv: kgx
-    emyw: kgz
-    def __init__(self, emyu: _Optional[_Union[kgv, _Mapping]] = ..., emyv: _Optional[_Union[kgx, _Mapping]] = ..., emyw: _Optional[_Union[kgz, _Mapping]] = ...) -> None: ...
+class bpsa(_message.Message):
+    __slots__ = ("eqjc", "eqjd", "eqje")
+    EQJC_FIELD_NUMBER: _ClassVar[int]
+    EQJD_FIELD_NUMBER: _ClassVar[int]
+    EQJE_FIELD_NUMBER: _ClassVar[int]
+    eqjc: bpsc
+    eqjd: bpse
+    eqje: bpsg
+    def __init__(self, eqjc: _Optional[_Union[bpsc, _Mapping]] = ..., eqjd: _Optional[_Union[bpse, _Mapping]] = ..., eqje: _Optional[_Union[bpsg, _Mapping]] = ...) -> None: ...
 
-class kgv(_message.Message):
-    __slots__ = ("emzb", "emzc", "emzd", "emze", "emzf", "emzg", "emzh", "emzi")
-    EMZB_FIELD_NUMBER: _ClassVar[int]
-    EMZC_FIELD_NUMBER: _ClassVar[int]
-    EMZD_FIELD_NUMBER: _ClassVar[int]
-    EMZE_FIELD_NUMBER: _ClassVar[int]
-    EMZF_FIELD_NUMBER: _ClassVar[int]
-    EMZG_FIELD_NUMBER: _ClassVar[int]
-    EMZH_FIELD_NUMBER: _ClassVar[int]
-    EMZI_FIELD_NUMBER: _ClassVar[int]
-    emzb: str
-    emzc: kha
-    emzd: khe
-    emze: khs
-    emzf: kih
-    emzg: kim
-    emzh: kir
-    emzi: kiz
-    def __init__(self, emzb: _Optional[str] = ..., emzc: _Optional[_Union[kha, _Mapping]] = ..., emzd: _Optional[_Union[khe, _Mapping]] = ..., emze: _Optional[_Union[khs, _Mapping]] = ..., emzf: _Optional[_Union[kih, _Mapping]] = ..., emzg: _Optional[_Union[kim, _Mapping]] = ..., emzh: _Optional[_Union[kir, _Mapping]] = ..., emzi: _Optional[_Union[kiz, _Mapping]] = ...) -> None: ...
+class bpsc(_message.Message):
+    __slots__ = ("eqjj", "eqjk", "eqjl", "eqjm", "eqjn", "eqjo", "eqjp", "eqjq")
+    EQJJ_FIELD_NUMBER: _ClassVar[int]
+    EQJK_FIELD_NUMBER: _ClassVar[int]
+    EQJL_FIELD_NUMBER: _ClassVar[int]
+    EQJM_FIELD_NUMBER: _ClassVar[int]
+    EQJN_FIELD_NUMBER: _ClassVar[int]
+    EQJO_FIELD_NUMBER: _ClassVar[int]
+    EQJP_FIELD_NUMBER: _ClassVar[int]
+    EQJQ_FIELD_NUMBER: _ClassVar[int]
+    eqjj: str
+    eqjk: bpsh
+    eqjl: bpsl
+    eqjm: bpsz
+    eqjn: bpto
+    eqjo: bptt
+    eqjp: bpty
+    eqjq: bpug
+    def __init__(self, eqjj: _Optional[str] = ..., eqjk: _Optional[_Union[bpsh, _Mapping]] = ..., eqjl: _Optional[_Union[bpsl, _Mapping]] = ..., eqjm: _Optional[_Union[bpsz, _Mapping]] = ..., eqjn: _Optional[_Union[bpto, _Mapping]] = ..., eqjo: _Optional[_Union[bptt, _Mapping]] = ..., eqjp: _Optional[_Union[bpty, _Mapping]] = ..., eqjq: _Optional[_Union[bpug, _Mapping]] = ...) -> None: ...
 
-class kgx(_message.Message):
-    __slots__ = ("emzn", "emzo", "emzp", "emzq", "emzr", "emzs", "emzt")
-    EMZN_FIELD_NUMBER: _ClassVar[int]
-    EMZO_FIELD_NUMBER: _ClassVar[int]
-    EMZP_FIELD_NUMBER: _ClassVar[int]
-    EMZQ_FIELD_NUMBER: _ClassVar[int]
-    EMZR_FIELD_NUMBER: _ClassVar[int]
-    EMZS_FIELD_NUMBER: _ClassVar[int]
-    EMZT_FIELD_NUMBER: _ClassVar[int]
-    emzn: str
-    emzo: khb
-    emzp: khr
-    emzq: khx
-    emzr: kij
-    emzs: kiy
-    emzt: kjg
-    def __init__(self, emzn: _Optional[str] = ..., emzo: _Optional[_Union[khb, _Mapping]] = ..., emzp: _Optional[_Union[khr, _Mapping]] = ..., emzq: _Optional[_Union[khx, _Mapping]] = ..., emzr: _Optional[_Union[kij, _Mapping]] = ..., emzs: _Optional[_Union[kiy, _Mapping]] = ..., emzt: _Optional[_Union[kjg, _Mapping]] = ...) -> None: ...
+class bpse(_message.Message):
+    __slots__ = ("eqjv", "eqjw", "eqjx", "eqjy", "eqjz", "eqka", "eqkb")
+    EQJV_FIELD_NUMBER: _ClassVar[int]
+    EQJW_FIELD_NUMBER: _ClassVar[int]
+    EQJX_FIELD_NUMBER: _ClassVar[int]
+    EQJY_FIELD_NUMBER: _ClassVar[int]
+    EQJZ_FIELD_NUMBER: _ClassVar[int]
+    EQKA_FIELD_NUMBER: _ClassVar[int]
+    EQKB_FIELD_NUMBER: _ClassVar[int]
+    eqjv: str
+    eqjw: bpsi
+    eqjx: bpsy
+    eqjy: bpte
+    eqjz: bptq
+    eqka: bpuf
+    eqkb: bpun
+    def __init__(self, eqjv: _Optional[str] = ..., eqjw: _Optional[_Union[bpsi, _Mapping]] = ..., eqjx: _Optional[_Union[bpsy, _Mapping]] = ..., eqjy: _Optional[_Union[bpte, _Mapping]] = ..., eqjz: _Optional[_Union[bptq, _Mapping]] = ..., eqka: _Optional[_Union[bpuf, _Mapping]] = ..., eqkb: _Optional[_Union[bpun, _Mapping]] = ...) -> None: ...
 
-class kgz(_message.Message):
-    __slots__ = ("emzy",)
-    EMZY_FIELD_NUMBER: _ClassVar[int]
-    emzy: khc
-    def __init__(self, emzy: _Optional[_Union[khc, _Mapping]] = ...) -> None: ...
+class bpsg(_message.Message):
+    __slots__ = ("eqkg",)
+    EQKG_FIELD_NUMBER: _ClassVar[int]
+    eqkg: bpsj
+    def __init__(self, eqkg: _Optional[_Union[bpsj, _Mapping]] = ...) -> None: ...
 
-class kha(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
-
-class khb(_message.Message):
+class bpsh(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
-class khc(_message.Message):
-    __slots__ = ("enaj",)
-    ENAJ_FIELD_NUMBER: _ClassVar[int]
-    enaj: kid
-    def __init__(self, enaj: _Optional[_Union[kid, _Mapping]] = ...) -> None: ...
+class bpsi(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
 
-class khe(_message.Message):
-    __slots__ = ("enan", "enaq", "enao", "enap")
-    ENAN_FIELD_NUMBER: _ClassVar[int]
-    ENAQ_FIELD_NUMBER: _ClassVar[int]
-    ENAO_FIELD_NUMBER: _ClassVar[int]
-    ENAP_FIELD_NUMBER: _ClassVar[int]
-    enan: str
-    enaq: str
-    enao: khh
-    enap: khi
-    def __init__(self, enan: _Optional[str] = ..., enaq: _Optional[str] = ..., enao: _Optional[_Union[khh, _Mapping]] = ..., enap: _Optional[_Union[khi, _Mapping]] = ...) -> None: ...
+class bpsj(_message.Message):
+    __slots__ = ("eqkr",)
+    EQKR_FIELD_NUMBER: _ClassVar[int]
+    eqkr: bptk
+    def __init__(self, eqkr: _Optional[_Union[bptk, _Mapping]] = ...) -> None: ...
 
-class khh(_message.Message):
-    __slots__ = ("enba", "enbb")
-    class khf(_message.Message):
-        __slots__ = ("enav", "enaw")
-        ENAV_FIELD_NUMBER: _ClassVar[int]
-        ENAW_FIELD_NUMBER: _ClassVar[int]
-        enav: int
-        enaw: str
-        def __init__(self, enav: _Optional[int] = ..., enaw: _Optional[str] = ...) -> None: ...
-    ENBA_FIELD_NUMBER: _ClassVar[int]
-    ENBB_FIELD_NUMBER: _ClassVar[int]
-    enba: str
-    enbb: khh.khf
-    def __init__(self, enba: _Optional[str] = ..., enbb: _Optional[_Union[khh.khf, _Mapping]] = ...) -> None: ...
+class bpsl(_message.Message):
+    __slots__ = ("eqkv", "eqky", "eqkw", "eqkx")
+    EQKV_FIELD_NUMBER: _ClassVar[int]
+    EQKY_FIELD_NUMBER: _ClassVar[int]
+    EQKW_FIELD_NUMBER: _ClassVar[int]
+    EQKX_FIELD_NUMBER: _ClassVar[int]
+    eqkv: str
+    eqky: str
+    eqkw: bpso
+    eqkx: bpsp
+    def __init__(self, eqkv: _Optional[str] = ..., eqky: _Optional[str] = ..., eqkw: _Optional[_Union[bpso, _Mapping]] = ..., eqkx: _Optional[_Union[bpsp, _Mapping]] = ...) -> None: ...
 
-class khi(_message.Message):
-    __slots__ = ("enbf",)
-    ENBF_FIELD_NUMBER: _ClassVar[int]
-    enbf: str
-    def __init__(self, enbf: _Optional[str] = ...) -> None: ...
+class bpso(_message.Message):
+    __slots__ = ("eqli", "eqlj")
+    class bpsm(_message.Message):
+        __slots__ = ("eqld", "eqle")
+        EQLD_FIELD_NUMBER: _ClassVar[int]
+        EQLE_FIELD_NUMBER: _ClassVar[int]
+        eqld: int
+        eqle: str
+        def __init__(self, eqld: _Optional[int] = ..., eqle: _Optional[str] = ...) -> None: ...
+    EQLI_FIELD_NUMBER: _ClassVar[int]
+    EQLJ_FIELD_NUMBER: _ClassVar[int]
+    eqli: str
+    eqlj: bpso.bpsm
+    def __init__(self, eqli: _Optional[str] = ..., eqlj: _Optional[_Union[bpso.bpsm, _Mapping]] = ...) -> None: ...
 
-class khr(_message.Message):
-    __slots__ = ("encm", "encn")
-    class khm(_message.Message):
-        __slots__ = ("enbs", "enbt", "enbu", "enbv", "enbw", "enbx", "enby", "enca")
-        class khk(_message.Message):
-            __slots__ = ("enbj", "enbk", "enbl", "enbm", "enbn", "enbo")
-            ENBJ_FIELD_NUMBER: _ClassVar[int]
-            ENBK_FIELD_NUMBER: _ClassVar[int]
-            ENBL_FIELD_NUMBER: _ClassVar[int]
-            ENBM_FIELD_NUMBER: _ClassVar[int]
-            ENBN_FIELD_NUMBER: _ClassVar[int]
-            ENBO_FIELD_NUMBER: _ClassVar[int]
-            enbj: bool
-            enbk: bool
-            enbl: bool
-            enbm: bool
-            enbn: bool
-            enbo: bool
-            def __init__(self, enbj: bool = ..., enbk: bool = ..., enbl: bool = ..., enbm: bool = ..., enbn: bool = ..., enbo: bool = ...) -> None: ...
-        ENBS_FIELD_NUMBER: _ClassVar[int]
-        ENBT_FIELD_NUMBER: _ClassVar[int]
-        ENBU_FIELD_NUMBER: _ClassVar[int]
-        ENBV_FIELD_NUMBER: _ClassVar[int]
-        ENBW_FIELD_NUMBER: _ClassVar[int]
-        ENBX_FIELD_NUMBER: _ClassVar[int]
-        ENBY_FIELD_NUMBER: _ClassVar[int]
-        ENCA_FIELD_NUMBER: _ClassVar[int]
-        enbs: int
-        enbt: str
-        enbu: str
-        enbv: kia
-        enbw: str
-        enbx: khr.khm.khk
-        enby: int
-        enca: kik
-        def __init__(self, enbs: _Optional[int] = ..., enbt: _Optional[str] = ..., enbu: _Optional[str] = ..., enbv: _Optional[_Union[kia, _Mapping]] = ..., enbw: _Optional[str] = ..., enbx: _Optional[_Union[khr.khm.khk, _Mapping]] = ..., enby: _Optional[int] = ..., enca: _Optional[_Union[kik, _Mapping]] = ...) -> None: ...
-    class khp(_message.Message):
-        __slots__ = ("ence", "encf", "ench")
-        class khn(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+class bpsp(_message.Message):
+    __slots__ = ("eqln",)
+    EQLN_FIELD_NUMBER: _ClassVar[int]
+    eqln: str
+    def __init__(self, eqln: _Optional[str] = ...) -> None: ...
+
+class bpsy(_message.Message):
+    __slots__ = ("eqmu", "eqmv")
+    class bpst(_message.Message):
+        __slots__ = ("eqma", "eqmb", "eqmc", "eqmd", "eqme", "eqmf", "eqmg", "eqmi")
+        class bpsr(_message.Message):
+            __slots__ = ("eqlr", "eqls", "eqlt", "eqlu", "eqlv", "eqlw")
+            EQLR_FIELD_NUMBER: _ClassVar[int]
+            EQLS_FIELD_NUMBER: _ClassVar[int]
+            EQLT_FIELD_NUMBER: _ClassVar[int]
+            EQLU_FIELD_NUMBER: _ClassVar[int]
+            EQLV_FIELD_NUMBER: _ClassVar[int]
+            EQLW_FIELD_NUMBER: _ClassVar[int]
+            eqlr: bool
+            eqls: bool
+            eqlt: bool
+            eqlu: bool
+            eqlv: bool
+            eqlw: bool
+            def __init__(self, eqlr: bool = ..., eqls: bool = ..., eqlt: bool = ..., eqlu: bool = ..., eqlv: bool = ..., eqlw: bool = ...) -> None: ...
+        EQMA_FIELD_NUMBER: _ClassVar[int]
+        EQMB_FIELD_NUMBER: _ClassVar[int]
+        EQMC_FIELD_NUMBER: _ClassVar[int]
+        EQMD_FIELD_NUMBER: _ClassVar[int]
+        EQME_FIELD_NUMBER: _ClassVar[int]
+        EQMF_FIELD_NUMBER: _ClassVar[int]
+        EQMG_FIELD_NUMBER: _ClassVar[int]
+        EQMI_FIELD_NUMBER: _ClassVar[int]
+        eqma: int
+        eqmb: str
+        eqmc: str
+        eqmd: bpth
+        eqme: str
+        eqmf: bpsy.bpst.bpsr
+        eqmg: int
+        eqmi: bptr
+        def __init__(self, eqma: _Optional[int] = ..., eqmb: _Optional[str] = ..., eqmc: _Optional[str] = ..., eqmd: _Optional[_Union[bpth, _Mapping]] = ..., eqme: _Optional[str] = ..., eqmf: _Optional[_Union[bpsy.bpst.bpsr, _Mapping]] = ..., eqmg: _Optional[int] = ..., eqmi: _Optional[_Union[bptr, _Mapping]] = ...) -> None: ...
+    class bpsw(_message.Message):
+        __slots__ = ("eqmm", "eqmn", "eqmp")
+        class bpsu(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
             __slots__ = ()
-            KHN_DWCK: _ClassVar[khr.khp.khn]
-            KHN_DWCL: _ClassVar[khr.khp.khn]
-            KHN_DWCM: _ClassVar[khr.khp.khn]
-            KHN_DWCN: _ClassVar[khr.khp.khn]
-            KHN_DWCO: _ClassVar[khr.khp.khn]
-            KHN_DWCP: _ClassVar[khr.khp.khn]
-            KHN_DWCQ: _ClassVar[khr.khp.khn]
-            KHN_DWCR: _ClassVar[khr.khp.khn]
-            KHN_DWCS: _ClassVar[khr.khp.khn]
-            KHN_DWCT: _ClassVar[khr.khp.khn]
-            KHN_DWCU: _ClassVar[khr.khp.khn]
-            KHN_DWCV: _ClassVar[khr.khp.khn]
-            KHN_DWCW: _ClassVar[khr.khp.khn]
-            KHN_DWCX: _ClassVar[khr.khp.khn]
-        KHN_DWCK: khr.khp.khn
-        KHN_DWCL: khr.khp.khn
-        KHN_DWCM: khr.khp.khn
-        KHN_DWCN: khr.khp.khn
-        KHN_DWCO: khr.khp.khn
-        KHN_DWCP: khr.khp.khn
-        KHN_DWCQ: khr.khp.khn
-        KHN_DWCR: khr.khp.khn
-        KHN_DWCS: khr.khp.khn
-        KHN_DWCT: khr.khp.khn
-        KHN_DWCU: khr.khp.khn
-        KHN_DWCV: khr.khp.khn
-        KHN_DWCW: khr.khp.khn
-        KHN_DWCX: khr.khp.khn
-        ENCE_FIELD_NUMBER: _ClassVar[int]
-        ENCF_FIELD_NUMBER: _ClassVar[int]
-        ENCH_FIELD_NUMBER: _ClassVar[int]
-        ence: khr.khp.khn
-        encf: str
-        ench: str
-        def __init__(self, ence: _Optional[_Union[khr.khp.khn, str]] = ..., encf: _Optional[str] = ..., ench: _Optional[str] = ...) -> None: ...
-    ENCM_FIELD_NUMBER: _ClassVar[int]
-    ENCN_FIELD_NUMBER: _ClassVar[int]
-    encm: khr.khm
-    encn: khr.khp
-    def __init__(self, encm: _Optional[_Union[khr.khm, _Mapping]] = ..., encn: _Optional[_Union[khr.khp, _Mapping]] = ...) -> None: ...
+            BPSU_EDDM: _ClassVar[bpsy.bpsw.bpsu]
+            BPSU_EDDN: _ClassVar[bpsy.bpsw.bpsu]
+            BPSU_EDDO: _ClassVar[bpsy.bpsw.bpsu]
+            BPSU_EDDP: _ClassVar[bpsy.bpsw.bpsu]
+            BPSU_EDDQ: _ClassVar[bpsy.bpsw.bpsu]
+            BPSU_EDDR: _ClassVar[bpsy.bpsw.bpsu]
+            BPSU_EDDS: _ClassVar[bpsy.bpsw.bpsu]
+            BPSU_EDDT: _ClassVar[bpsy.bpsw.bpsu]
+            BPSU_EDDU: _ClassVar[bpsy.bpsw.bpsu]
+            BPSU_EDDV: _ClassVar[bpsy.bpsw.bpsu]
+            BPSU_EDDW: _ClassVar[bpsy.bpsw.bpsu]
+            BPSU_EDDX: _ClassVar[bpsy.bpsw.bpsu]
+            BPSU_EDDY: _ClassVar[bpsy.bpsw.bpsu]
+            BPSU_EDDZ: _ClassVar[bpsy.bpsw.bpsu]
+        BPSU_EDDM: bpsy.bpsw.bpsu
+        BPSU_EDDN: bpsy.bpsw.bpsu
+        BPSU_EDDO: bpsy.bpsw.bpsu
+        BPSU_EDDP: bpsy.bpsw.bpsu
+        BPSU_EDDQ: bpsy.bpsw.bpsu
+        BPSU_EDDR: bpsy.bpsw.bpsu
+        BPSU_EDDS: bpsy.bpsw.bpsu
+        BPSU_EDDT: bpsy.bpsw.bpsu
+        BPSU_EDDU: bpsy.bpsw.bpsu
+        BPSU_EDDV: bpsy.bpsw.bpsu
+        BPSU_EDDW: bpsy.bpsw.bpsu
+        BPSU_EDDX: bpsy.bpsw.bpsu
+        BPSU_EDDY: bpsy.bpsw.bpsu
+        BPSU_EDDZ: bpsy.bpsw.bpsu
+        EQMM_FIELD_NUMBER: _ClassVar[int]
+        EQMN_FIELD_NUMBER: _ClassVar[int]
+        EQMP_FIELD_NUMBER: _ClassVar[int]
+        eqmm: bpsy.bpsw.bpsu
+        eqmn: str
+        eqmp: str
+        def __init__(self, eqmm: _Optional[_Union[bpsy.bpsw.bpsu, str]] = ..., eqmn: _Optional[str] = ..., eqmp: _Optional[str] = ...) -> None: ...
+    EQMU_FIELD_NUMBER: _ClassVar[int]
+    EQMV_FIELD_NUMBER: _ClassVar[int]
+    eqmu: bpsy.bpst
+    eqmv: bpsy.bpsw
+    def __init__(self, eqmu: _Optional[_Union[bpsy.bpst, _Mapping]] = ..., eqmv: _Optional[_Union[bpsy.bpsw, _Mapping]] = ...) -> None: ...
 
-class khs(_message.Message):
-    __slots__ = ("encs",)
-    ENCS_FIELD_NUMBER: _ClassVar[int]
-    encs: int
-    def __init__(self, encs: _Optional[int] = ...) -> None: ...
+class bpsz(_message.Message):
+    __slots__ = ("eqna",)
+    EQNA_FIELD_NUMBER: _ClassVar[int]
+    eqna: int
+    def __init__(self, eqna: _Optional[int] = ...) -> None: ...
 
-class khx(_message.Message):
-    __slots__ = ("endc", "endd")
-    class khu(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+class bpte(_message.Message):
+    __slots__ = ("eqnk", "eqnl")
+    class bptb(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
-        KHU_DWDV: _ClassVar[khx.khu]
-        KHU_DWDW: _ClassVar[khx.khu]
-        KHU_DWDX: _ClassVar[khx.khu]
-        KHU_DWDY: _ClassVar[khx.khu]
-    KHU_DWDV: khx.khu
-    KHU_DWDW: khx.khu
-    KHU_DWDX: khx.khu
-    KHU_DWDY: khx.khu
-    class khv(_message.Message):
-        __slots__ = ("encw", "encx", "ency")
-        ENCW_FIELD_NUMBER: _ClassVar[int]
-        ENCX_FIELD_NUMBER: _ClassVar[int]
-        ENCY_FIELD_NUMBER: _ClassVar[int]
-        encw: str
-        encx: str
-        ency: _containers.RepeatedScalarFieldContainer[int]
-        def __init__(self, encw: _Optional[str] = ..., encx: _Optional[str] = ..., ency: _Optional[_Iterable[int]] = ...) -> None: ...
-    ENDC_FIELD_NUMBER: _ClassVar[int]
-    ENDD_FIELD_NUMBER: _ClassVar[int]
-    endc: khx.khv
-    endd: khx.khu
-    def __init__(self, endc: _Optional[_Union[khx.khv, _Mapping]] = ..., endd: _Optional[_Union[khx.khu, str]] = ...) -> None: ...
+        BPTB_EDEX: _ClassVar[bpte.bptb]
+        BPTB_EDEY: _ClassVar[bpte.bptb]
+        BPTB_EDEZ: _ClassVar[bpte.bptb]
+        BPTB_EDFA: _ClassVar[bpte.bptb]
+    BPTB_EDEX: bpte.bptb
+    BPTB_EDEY: bpte.bptb
+    BPTB_EDEZ: bpte.bptb
+    BPTB_EDFA: bpte.bptb
+    class bptc(_message.Message):
+        __slots__ = ("eqne", "eqnf", "eqng")
+        EQNE_FIELD_NUMBER: _ClassVar[int]
+        EQNF_FIELD_NUMBER: _ClassVar[int]
+        EQNG_FIELD_NUMBER: _ClassVar[int]
+        eqne: str
+        eqnf: str
+        eqng: _containers.RepeatedScalarFieldContainer[int]
+        def __init__(self, eqne: _Optional[str] = ..., eqnf: _Optional[str] = ..., eqng: _Optional[_Iterable[int]] = ...) -> None: ...
+    EQNK_FIELD_NUMBER: _ClassVar[int]
+    EQNL_FIELD_NUMBER: _ClassVar[int]
+    eqnk: bpte.bptc
+    eqnl: bpte.bptb
+    def __init__(self, eqnk: _Optional[_Union[bpte.bptc, _Mapping]] = ..., eqnl: _Optional[_Union[bpte.bptb, str]] = ...) -> None: ...
 
-class kia(_message.Message):
-    __slots__ = ("endo", "endp", "endq")
-    class khy(_message.Message):
-        __slots__ = ("endj", "endk")
-        ENDJ_FIELD_NUMBER: _ClassVar[int]
-        ENDK_FIELD_NUMBER: _ClassVar[int]
-        endj: kgr
-        endk: int
-        def __init__(self, endj: _Optional[_Union[kgr, str]] = ..., endk: _Optional[int] = ...) -> None: ...
-    ENDO_FIELD_NUMBER: _ClassVar[int]
-    ENDP_FIELD_NUMBER: _ClassVar[int]
-    ENDQ_FIELD_NUMBER: _ClassVar[int]
-    endo: _containers.RepeatedCompositeFieldContainer[kid]
-    endp: _containers.RepeatedCompositeFieldContainer[kia.khy]
-    endq: bool
-    def __init__(self, endo: _Optional[_Iterable[_Union[kid, _Mapping]]] = ..., endp: _Optional[_Iterable[_Union[kia.khy, _Mapping]]] = ..., endq: bool = ...) -> None: ...
+class bpth(_message.Message):
+    __slots__ = ("eqnw", "eqnx", "eqny")
+    class bptf(_message.Message):
+        __slots__ = ("eqnr", "eqns")
+        EQNR_FIELD_NUMBER: _ClassVar[int]
+        EQNS_FIELD_NUMBER: _ClassVar[int]
+        eqnr: bpry
+        eqns: int
+        def __init__(self, eqnr: _Optional[_Union[bpry, str]] = ..., eqns: _Optional[int] = ...) -> None: ...
+    EQNW_FIELD_NUMBER: _ClassVar[int]
+    EQNX_FIELD_NUMBER: _ClassVar[int]
+    EQNY_FIELD_NUMBER: _ClassVar[int]
+    eqnw: _containers.RepeatedCompositeFieldContainer[bptk]
+    eqnx: _containers.RepeatedCompositeFieldContainer[bpth.bptf]
+    eqny: bool
+    def __init__(self, eqnw: _Optional[_Iterable[_Union[bptk, _Mapping]]] = ..., eqnx: _Optional[_Iterable[_Union[bpth.bptf, _Mapping]]] = ..., eqny: bool = ...) -> None: ...
 
-class kid(_message.Message):
-    __slots__ = ("endu", "endv", "endw")
-    class kib(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+class bptk(_message.Message):
+    __slots__ = ("eqoc", "eqod", "eqoe")
+    class bpti(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
-        KIB_DWFE: _ClassVar[kid.kib]
-        KIB_DWFF: _ClassVar[kid.kib]
-        KIB_DWFG: _ClassVar[kid.kib]
-        KIB_DWFH: _ClassVar[kid.kib]
-    KIB_DWFE: kid.kib
-    KIB_DWFF: kid.kib
-    KIB_DWFG: kid.kib
-    KIB_DWFH: kid.kib
-    ENDU_FIELD_NUMBER: _ClassVar[int]
-    ENDV_FIELD_NUMBER: _ClassVar[int]
-    ENDW_FIELD_NUMBER: _ClassVar[int]
-    endu: kig
-    endv: kid.kib
-    endw: _containers.RepeatedCompositeFieldContainer[kiq]
-    def __init__(self, endu: _Optional[_Union[kig, _Mapping]] = ..., endv: _Optional[_Union[kid.kib, str]] = ..., endw: _Optional[_Iterable[_Union[kiq, _Mapping]]] = ...) -> None: ...
+        BPTI_EDGG: _ClassVar[bptk.bpti]
+        BPTI_EDGH: _ClassVar[bptk.bpti]
+        BPTI_EDGI: _ClassVar[bptk.bpti]
+        BPTI_EDGJ: _ClassVar[bptk.bpti]
+    BPTI_EDGG: bptk.bpti
+    BPTI_EDGH: bptk.bpti
+    BPTI_EDGI: bptk.bpti
+    BPTI_EDGJ: bptk.bpti
+    EQOC_FIELD_NUMBER: _ClassVar[int]
+    EQOD_FIELD_NUMBER: _ClassVar[int]
+    EQOE_FIELD_NUMBER: _ClassVar[int]
+    eqoc: bptn
+    eqod: bptk.bpti
+    eqoe: _containers.RepeatedCompositeFieldContainer[bptx]
+    def __init__(self, eqoc: _Optional[_Union[bptn, _Mapping]] = ..., eqod: _Optional[_Union[bptk.bpti, str]] = ..., eqoe: _Optional[_Iterable[_Union[bptx, _Mapping]]] = ...) -> None: ...
 
-class kig(_message.Message):
-    __slots__ = ("enea", "eneb", "enec")
-    class kie(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+class bptn(_message.Message):
+    __slots__ = ("eqoi", "eqoj", "eqok")
+    class bptl(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
-        KIE_DWFR: _ClassVar[kig.kie]
-        KIE_DWFS: _ClassVar[kig.kie]
-    KIE_DWFR: kig.kie
-    KIE_DWFS: kig.kie
-    ENEA_FIELD_NUMBER: _ClassVar[int]
-    ENEB_FIELD_NUMBER: _ClassVar[int]
-    ENEC_FIELD_NUMBER: _ClassVar[int]
-    enea: int
-    eneb: kig.kie
-    enec: kgr
-    def __init__(self, enea: _Optional[int] = ..., eneb: _Optional[_Union[kig.kie, str]] = ..., enec: _Optional[_Union[kgr, str]] = ...) -> None: ...
+        BPTL_EDGT: _ClassVar[bptn.bptl]
+        BPTL_EDGU: _ClassVar[bptn.bptl]
+    BPTL_EDGT: bptn.bptl
+    BPTL_EDGU: bptn.bptl
+    EQOI_FIELD_NUMBER: _ClassVar[int]
+    EQOJ_FIELD_NUMBER: _ClassVar[int]
+    EQOK_FIELD_NUMBER: _ClassVar[int]
+    eqoi: int
+    eqoj: bptn.bptl
+    eqok: bpry
+    def __init__(self, eqoi: _Optional[int] = ..., eqoj: _Optional[_Union[bptn.bptl, str]] = ..., eqok: _Optional[_Union[bpry, str]] = ...) -> None: ...
 
-class kih(_message.Message):
-    __slots__ = ("eneg",)
-    ENEG_FIELD_NUMBER: _ClassVar[int]
-    eneg: int
-    def __init__(self, eneg: _Optional[int] = ...) -> None: ...
+class bpto(_message.Message):
+    __slots__ = ("eqoo",)
+    EQOO_FIELD_NUMBER: _ClassVar[int]
+    eqoo: int
+    def __init__(self, eqoo: _Optional[int] = ...) -> None: ...
 
-class kij(_message.Message):
-    __slots__ = ("enek", "enel")
-    ENEK_FIELD_NUMBER: _ClassVar[int]
-    ENEL_FIELD_NUMBER: _ClassVar[int]
-    enek: kik
-    enel: kil
-    def __init__(self, enek: _Optional[_Union[kik, _Mapping]] = ..., enel: _Optional[_Union[kil, _Mapping]] = ...) -> None: ...
+class bptq(_message.Message):
+    __slots__ = ("eqos", "eqot")
+    EQOS_FIELD_NUMBER: _ClassVar[int]
+    EQOT_FIELD_NUMBER: _ClassVar[int]
+    eqos: bptr
+    eqot: bpts
+    def __init__(self, eqos: _Optional[_Union[bptr, _Mapping]] = ..., eqot: _Optional[_Union[bpts, _Mapping]] = ...) -> None: ...
 
-class kik(_message.Message):
-    __slots__ = ("eneq", "ener", "enes", "enet", "eneu")
-    ENEQ_FIELD_NUMBER: _ClassVar[int]
-    ENER_FIELD_NUMBER: _ClassVar[int]
-    ENES_FIELD_NUMBER: _ClassVar[int]
-    ENET_FIELD_NUMBER: _ClassVar[int]
-    ENEU_FIELD_NUMBER: _ClassVar[int]
-    eneq: bool
-    ener: int
-    enes: str
-    enet: str
-    eneu: kia
-    def __init__(self, eneq: bool = ..., ener: _Optional[int] = ..., enes: _Optional[str] = ..., enet: _Optional[str] = ..., eneu: _Optional[_Union[kia, _Mapping]] = ...) -> None: ...
+class bptr(_message.Message):
+    __slots__ = ("eqoy", "eqoz", "eqpa", "eqpb", "eqpc")
+    EQOY_FIELD_NUMBER: _ClassVar[int]
+    EQOZ_FIELD_NUMBER: _ClassVar[int]
+    EQPA_FIELD_NUMBER: _ClassVar[int]
+    EQPB_FIELD_NUMBER: _ClassVar[int]
+    EQPC_FIELD_NUMBER: _ClassVar[int]
+    eqoy: bool
+    eqoz: int
+    eqpa: str
+    eqpb: str
+    eqpc: bpth
+    def __init__(self, eqoy: bool = ..., eqoz: _Optional[int] = ..., eqpa: _Optional[str] = ..., eqpb: _Optional[str] = ..., eqpc: _Optional[_Union[bpth, _Mapping]] = ...) -> None: ...
 
-class kil(_message.Message):
+class bpts(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
-class kim(_message.Message):
+class bptt(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
-class kiq(_message.Message):
-    __slots__ = ("enfe", "enff", "enfg", "enfh", "enfi")
-    class kio(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+class bptx(_message.Message):
+    __slots__ = ("eqpm", "eqpn", "eqpo", "eqpp", "eqpq")
+    class bptv(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
-        KIO_DWHG: _ClassVar[kiq.kio]
-        KIO_DWHH: _ClassVar[kiq.kio]
-        KIO_DWHI: _ClassVar[kiq.kio]
-        KIO_DWHJ: _ClassVar[kiq.kio]
-        KIO_DWHK: _ClassVar[kiq.kio]
-        KIO_DWHL: _ClassVar[kiq.kio]
-        KIO_DWHM: _ClassVar[kiq.kio]
-        KIO_DWHN: _ClassVar[kiq.kio]
-        KIO_DWHO: _ClassVar[kiq.kio]
-        KIO_DWHP: _ClassVar[kiq.kio]
-        KIO_DWHQ: _ClassVar[kiq.kio]
-        KIO_DWHR: _ClassVar[kiq.kio]
-        KIO_DWHS: _ClassVar[kiq.kio]
-        KIO_DWHT: _ClassVar[kiq.kio]
-        KIO_DWHU: _ClassVar[kiq.kio]
-        KIO_DWHV: _ClassVar[kiq.kio]
-        KIO_DWHW: _ClassVar[kiq.kio]
-        KIO_DWHX: _ClassVar[kiq.kio]
-        KIO_DWHY: _ClassVar[kiq.kio]
-    KIO_DWHG: kiq.kio
-    KIO_DWHH: kiq.kio
-    KIO_DWHI: kiq.kio
-    KIO_DWHJ: kiq.kio
-    KIO_DWHK: kiq.kio
-    KIO_DWHL: kiq.kio
-    KIO_DWHM: kiq.kio
-    KIO_DWHN: kiq.kio
-    KIO_DWHO: kiq.kio
-    KIO_DWHP: kiq.kio
-    KIO_DWHQ: kiq.kio
-    KIO_DWHR: kiq.kio
-    KIO_DWHS: kiq.kio
-    KIO_DWHT: kiq.kio
-    KIO_DWHU: kiq.kio
-    KIO_DWHV: kiq.kio
-    KIO_DWHW: kiq.kio
-    KIO_DWHX: kiq.kio
-    KIO_DWHY: kiq.kio
-    class kin(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+        BPTV_EDII: _ClassVar[bptx.bptv]
+        BPTV_EDIJ: _ClassVar[bptx.bptv]
+        BPTV_EDIK: _ClassVar[bptx.bptv]
+        BPTV_EDIL: _ClassVar[bptx.bptv]
+        BPTV_EDIM: _ClassVar[bptx.bptv]
+        BPTV_EDIN: _ClassVar[bptx.bptv]
+        BPTV_EDIO: _ClassVar[bptx.bptv]
+        BPTV_EDIP: _ClassVar[bptx.bptv]
+        BPTV_EDIQ: _ClassVar[bptx.bptv]
+        BPTV_EDIR: _ClassVar[bptx.bptv]
+        BPTV_EDIS: _ClassVar[bptx.bptv]
+        BPTV_EDIU: _ClassVar[bptx.bptv]
+        BPTV_EDIV: _ClassVar[bptx.bptv]
+        BPTV_EDIW: _ClassVar[bptx.bptv]
+        BPTV_EDIX: _ClassVar[bptx.bptv]
+        BPTV_EDIY: _ClassVar[bptx.bptv]
+        BPTV_EDIZ: _ClassVar[bptx.bptv]
+        BPTV_EDJA: _ClassVar[bptx.bptv]
+        BPTV_EDJB: _ClassVar[bptx.bptv]
+    BPTV_EDII: bptx.bptv
+    BPTV_EDIJ: bptx.bptv
+    BPTV_EDIK: bptx.bptv
+    BPTV_EDIL: bptx.bptv
+    BPTV_EDIM: bptx.bptv
+    BPTV_EDIN: bptx.bptv
+    BPTV_EDIO: bptx.bptv
+    BPTV_EDIP: bptx.bptv
+    BPTV_EDIQ: bptx.bptv
+    BPTV_EDIR: bptx.bptv
+    BPTV_EDIS: bptx.bptv
+    BPTV_EDIU: bptx.bptv
+    BPTV_EDIV: bptx.bptv
+    BPTV_EDIW: bptx.bptv
+    BPTV_EDIX: bptx.bptv
+    BPTV_EDIY: bptx.bptv
+    BPTV_EDIZ: bptx.bptv
+    BPTV_EDJA: bptx.bptv
+    BPTV_EDJB: bptx.bptv
+    class bptu(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
-        KIN_DWHE: _ClassVar[kiq.kin]
-        KIN_DWHF: _ClassVar[kiq.kin]
-    KIN_DWHE: kiq.kin
-    KIN_DWHF: kiq.kin
-    ENFE_FIELD_NUMBER: _ClassVar[int]
-    ENFF_FIELD_NUMBER: _ClassVar[int]
-    ENFG_FIELD_NUMBER: _ClassVar[int]
-    ENFH_FIELD_NUMBER: _ClassVar[int]
-    ENFI_FIELD_NUMBER: _ClassVar[int]
-    enfe: str
-    enff: kiq.kio
-    enfg: kiq.kin
-    enfh: int
-    enfi: str
-    def __init__(self, enfe: _Optional[str] = ..., enff: _Optional[_Union[kiq.kio, str]] = ..., enfg: _Optional[_Union[kiq.kin, str]] = ..., enfh: _Optional[int] = ..., enfi: _Optional[str] = ...) -> None: ...
+        BPTU_EDIG: _ClassVar[bptx.bptu]
+        BPTU_EDIH: _ClassVar[bptx.bptu]
+    BPTU_EDIG: bptx.bptu
+    BPTU_EDIH: bptx.bptu
+    EQPM_FIELD_NUMBER: _ClassVar[int]
+    EQPN_FIELD_NUMBER: _ClassVar[int]
+    EQPO_FIELD_NUMBER: _ClassVar[int]
+    EQPP_FIELD_NUMBER: _ClassVar[int]
+    EQPQ_FIELD_NUMBER: _ClassVar[int]
+    eqpm: str
+    eqpn: bptx.bptv
+    eqpo: bptx.bptu
+    eqpp: int
+    eqpq: str
+    def __init__(self, eqpm: _Optional[str] = ..., eqpn: _Optional[_Union[bptx.bptv, str]] = ..., eqpo: _Optional[_Union[bptx.bptu, str]] = ..., eqpp: _Optional[int] = ..., eqpq: _Optional[str] = ...) -> None: ...
 
-class kir(_message.Message):
+class bpty(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
-class kiy(_message.Message):
-    __slots__ = ("enfz", "enga")
-    class kit(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+class bpuf(_message.Message):
+    __slots__ = ("eqqh", "eqqi")
+    class bpua(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
-        KIT_DWIQ: _ClassVar[kiy.kit]
-        KIT_DWIR: _ClassVar[kiy.kit]
-    KIT_DWIQ: kiy.kit
-    KIT_DWIR: kiy.kit
-    class kiw(_message.Message):
-        __slots__ = ("enfv",)
-        class kiu(_message.Message):
-            __slots__ = ("enfp", "enfq", "enfr")
-            ENFP_FIELD_NUMBER: _ClassVar[int]
-            ENFQ_FIELD_NUMBER: _ClassVar[int]
-            ENFR_FIELD_NUMBER: _ClassVar[int]
-            enfp: str
-            enfq: str
-            enfr: _containers.RepeatedScalarFieldContainer[int]
-            def __init__(self, enfp: _Optional[str] = ..., enfq: _Optional[str] = ..., enfr: _Optional[_Iterable[int]] = ...) -> None: ...
-        ENFV_FIELD_NUMBER: _ClassVar[int]
-        enfv: _containers.RepeatedCompositeFieldContainer[kiy.kiw.kiu]
-        def __init__(self, enfv: _Optional[_Iterable[_Union[kiy.kiw.kiu, _Mapping]]] = ...) -> None: ...
-    ENFZ_FIELD_NUMBER: _ClassVar[int]
-    ENGA_FIELD_NUMBER: _ClassVar[int]
-    enfz: kiy.kiw
-    enga: kiy.kit
-    def __init__(self, enfz: _Optional[_Union[kiy.kiw, _Mapping]] = ..., enga: _Optional[_Union[kiy.kit, str]] = ...) -> None: ...
+        BPUA_EDJT: _ClassVar[bpuf.bpua]
+        BPUA_EDJU: _ClassVar[bpuf.bpua]
+    BPUA_EDJT: bpuf.bpua
+    BPUA_EDJU: bpuf.bpua
+    class bpud(_message.Message):
+        __slots__ = ("eqqd",)
+        class bpub(_message.Message):
+            __slots__ = ("eqpx", "eqpy", "eqpz")
+            EQPX_FIELD_NUMBER: _ClassVar[int]
+            EQPY_FIELD_NUMBER: _ClassVar[int]
+            EQPZ_FIELD_NUMBER: _ClassVar[int]
+            eqpx: str
+            eqpy: str
+            eqpz: _containers.RepeatedScalarFieldContainer[int]
+            def __init__(self, eqpx: _Optional[str] = ..., eqpy: _Optional[str] = ..., eqpz: _Optional[_Iterable[int]] = ...) -> None: ...
+        EQQD_FIELD_NUMBER: _ClassVar[int]
+        eqqd: _containers.RepeatedCompositeFieldContainer[bpuf.bpud.bpub]
+        def __init__(self, eqqd: _Optional[_Iterable[_Union[bpuf.bpud.bpub, _Mapping]]] = ...) -> None: ...
+    EQQH_FIELD_NUMBER: _ClassVar[int]
+    EQQI_FIELD_NUMBER: _ClassVar[int]
+    eqqh: bpuf.bpud
+    eqqi: bpuf.bpua
+    def __init__(self, eqqh: _Optional[_Union[bpuf.bpud, _Mapping]] = ..., eqqi: _Optional[_Union[bpuf.bpua, str]] = ...) -> None: ...
 
-class kiz(_message.Message):
-    __slots__ = ("engg", "engh")
-    ENGG_FIELD_NUMBER: _ClassVar[int]
-    ENGH_FIELD_NUMBER: _ClassVar[int]
-    engg: str
-    engh: str
-    def __init__(self, engg: _Optional[str] = ..., engh: _Optional[str] = ...) -> None: ...
+class bpug(_message.Message):
+    __slots__ = ("eqqo", "eqqp")
+    EQQO_FIELD_NUMBER: _ClassVar[int]
+    EQQP_FIELD_NUMBER: _ClassVar[int]
+    eqqo: str
+    eqqp: str
+    def __init__(self, eqqo: _Optional[str] = ..., eqqp: _Optional[str] = ...) -> None: ...
 
-class kjg(_message.Message):
-    __slots__ = ("engt", "engu")
-    class kjb(_message.Message):
-        __slots__ = ("engl",)
-        ENGL_FIELD_NUMBER: _ClassVar[int]
-        engl: _containers.RepeatedScalarFieldContainer[int]
-        def __init__(self, engl: _Optional[_Iterable[int]] = ...) -> None: ...
-    class kje(_message.Message):
-        __slots__ = ("engp",)
-        class kjc(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+class bpun(_message.Message):
+    __slots__ = ("eqrb", "eqrc")
+    class bpui(_message.Message):
+        __slots__ = ("eqqt",)
+        EQQT_FIELD_NUMBER: _ClassVar[int]
+        eqqt: _containers.RepeatedScalarFieldContainer[int]
+        def __init__(self, eqqt: _Optional[_Iterable[int]] = ...) -> None: ...
+    class bpul(_message.Message):
+        __slots__ = ("eqqx",)
+        class bpuj(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
             __slots__ = ()
-            KJC_DWKA: _ClassVar[kjg.kje.kjc]
-            KJC_DWKB: _ClassVar[kjg.kje.kjc]
-            KJC_DWKC: _ClassVar[kjg.kje.kjc]
-            KJC_DWKD: _ClassVar[kjg.kje.kjc]
-        KJC_DWKA: kjg.kje.kjc
-        KJC_DWKB: kjg.kje.kjc
-        KJC_DWKC: kjg.kje.kjc
-        KJC_DWKD: kjg.kje.kjc
-        ENGP_FIELD_NUMBER: _ClassVar[int]
-        engp: kjg.kje.kjc
-        def __init__(self, engp: _Optional[_Union[kjg.kje.kjc, str]] = ...) -> None: ...
-    ENGT_FIELD_NUMBER: _ClassVar[int]
-    ENGU_FIELD_NUMBER: _ClassVar[int]
-    engt: kjg.kjb
-    engu: kjg.kje
-    def __init__(self, engt: _Optional[_Union[kjg.kjb, _Mapping]] = ..., engu: _Optional[_Union[kjg.kje, _Mapping]] = ...) -> None: ...
+            BPUJ_EDLD: _ClassVar[bpun.bpul.bpuj]
+            BPUJ_EDLE: _ClassVar[bpun.bpul.bpuj]
+            BPUJ_EDLF: _ClassVar[bpun.bpul.bpuj]
+            BPUJ_EDLG: _ClassVar[bpun.bpul.bpuj]
+        BPUJ_EDLD: bpun.bpul.bpuj
+        BPUJ_EDLE: bpun.bpul.bpuj
+        BPUJ_EDLF: bpun.bpul.bpuj
+        BPUJ_EDLG: bpun.bpul.bpuj
+        EQQX_FIELD_NUMBER: _ClassVar[int]
+        eqqx: bpun.bpul.bpuj
+        def __init__(self, eqqx: _Optional[_Union[bpun.bpul.bpuj, str]] = ...) -> None: ...
+    EQRB_FIELD_NUMBER: _ClassVar[int]
+    EQRC_FIELD_NUMBER: _ClassVar[int]
+    eqrb: bpun.bpui
+    eqrc: bpun.bpul
+    def __init__(self, eqrb: _Optional[_Union[bpun.bpui, _Mapping]] = ..., eqrc: _Optional[_Union[bpun.bpul, _Mapping]] = ...) -> None: ...

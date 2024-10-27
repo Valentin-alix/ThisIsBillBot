@@ -154,6 +154,7 @@ class MapMoveBehavior(Behavior):
     def on_map_movement_refused_event_after_request(
         self, msg: MapMovementRefusedEvent, start_mp: MapPoint
     ):
-        if MapPoint.from_coords(msg.cell_x, msg.cell_y) != start_mp:
+        real_mp = MapPoint.from_coords(msg.cell_x, msg.cell_y)
+        if real_mp != start_mp:
             return self.finish(MapMoveError.INVALID_STARTING_POINT)
         return self.finish(MapMoveError.REFUSED)

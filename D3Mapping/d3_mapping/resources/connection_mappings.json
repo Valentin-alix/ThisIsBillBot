@@ -1,562 +1,562 @@
 {
   "obf_to_clear": {
-    "kha": {
+    "bpsh": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.Ping",
       "similarity": 1.0,
       "field_mapping": {}
     },
-    "khh.khf": {
+    "bpso.bpsm": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.TokenRequest.Shield",
       "similarity": 1.0,
       "field_mapping": {
-        "enav": [
+        "eqld": [
           1.0,
           "certificateId"
         ],
-        "enaw": [
+        "eqle": [
           1.0,
           "certificateHash"
         ]
       }
     },
-    "khh": {
+    "bpso": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.TokenRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "enba": [
+        "eqli": [
           1.0,
           "token"
         ],
-        "enbb": [
+        "eqlj": [
           1.0,
           "shield"
         ]
       }
     },
-    "khi": {
+    "bpsp": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.LoginRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "enbf": [
+        "eqln": [
           1.0,
           "login"
         ]
       }
     },
-    "khe": {
+    "bpsl": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.IdentificationRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "enan": [
+        "eqkv": [
           1.0,
           "device_identifier"
         ],
-        "enaq": [
+        "eqky": [
           1.0,
           "client_version"
         ],
-        "enao": [
+        "eqkw": [
           1.0,
           "tokenRequest"
         ],
-        "enap": [
+        "eqkx": [
           1.0,
           "loginRequest"
         ]
       }
     },
-    "khs": {
+    "bpsz": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.SelectServerRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "encs": [
+        "eqna": [
           1.0,
           "server"
         ]
       }
     },
-    "kih": {
+    "bpto": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.ForceAccountRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "eneg": [
+        "eqoo": [
           1.0,
           "account_id"
         ]
       }
     },
-    "kim": {
+    "bptt": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.ReleaseAccountRequest",
       "similarity": 1.0,
       "field_mapping": {}
     },
-    "kir": {
+    "bpty": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.FriendListRequest",
       "similarity": 1.0,
       "field_mapping": {}
     },
-    "kiz": {
+    "bpug": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.AcquaintanceServersRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "engg": [
+        "eqqo": [
           1.0,
           "name"
         ],
-        "engh": [
+        "eqqp": [
           1.0,
           "tag"
         ]
       }
     },
-    "kgv": {
+    "bpsc": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.Request",
       "similarity": 1.0,
       "field_mapping": {
-        "emzb": [
+        "eqjj": [
           1.0,
           "uuid"
         ],
-        "emzc": [
+        "eqjk": [
           1.0,
           "ping"
         ],
-        "emzd": [
+        "eqjl": [
           1.0,
           "identification"
         ],
-        "emze": [
+        "eqjm": [
           1.0,
           "selectServer"
         ],
-        "emzf": [
+        "eqjn": [
           1.0,
           "forceAccount"
         ],
-        "emzg": [
+        "eqjo": [
           1.0,
           "releaseAccount"
         ],
-        "emzh": [
+        "eqjp": [
           1.0,
           "friend_list_request"
         ],
-        "emzi": [
+        "eqjq": [
           1.0,
           "acquaintance_servers_request"
         ]
       }
     },
-    "khb": {
+    "bpsi": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.Pong",
       "similarity": 1.0,
       "field_mapping": {}
     },
-    "kig": {
+    "bptn": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.Server",
       "similarity": 1.0,
       "field_mapping": {
-        "enea": [
+        "eqoi": [
           1.0,
           "id"
         ],
-        "eneb": [
+        "eqoj": [
           1.0,
           "status"
         ],
-        "enec": [
+        "eqok": [
           0.0,
           "mono_account"
         ]
       }
     },
-    "kiq": {
+    "bptx": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.CharacterInformation",
       "similarity": 1.0,
       "field_mapping": {
-        "enfe": [
+        "eqpm": [
           1.0,
           "name"
         ],
-        "enff": [
+        "eqpn": [
           1.0,
           "breed"
         ],
-        "enfg": [
+        "eqpo": [
           1.0,
           "gender"
         ],
-        "enfh": [
+        "eqpp": [
           1.0,
           "level"
         ],
-        "enfi": [
+        "eqpq": [
           1.0,
           "last_connection_date"
         ]
       }
     },
-    "kid": {
+    "bptk": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.ServerInformation",
       "similarity": 1.0,
       "field_mapping": {
-        "endu": [
+        "eqoc": [
           1.0,
           "server"
         ],
-        "endv": [
+        "eqod": [
           1.0,
           "accessibility"
         ],
-        "endw": [
+        "eqoe": [
           1.0,
           "characters"
         ]
       }
     },
-    "kia": {
+    "bpth": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.ServerList",
       "similarity": 1.0,
       "field_mapping": {
-        "endo": [
+        "eqnw": [
           1.0,
           "servers"
         ],
-        "endp": [
+        "eqnx": [
           0.0,
           "max_slot_by_type"
         ],
-        "endq": [
+        "eqny": [
           1.0,
           "ctip"
         ]
       }
     },
-    "khr.khm.khk": {
+    "bpsy.bpst.bpsr": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.IdentificationResponse.Success.Rights",
       "similarity": 1.0,
       "field_mapping": {
-        "enbj": [
+        "eqlr": [
           1.0,
           "show_force_account"
         ],
-        "enbk": [
+        "eqls": [
           1.0,
           "show_console"
         ],
-        "enbl": [
+        "eqlt": [
           1.0,
           "unlimited_access"
         ],
-        "enbm": [
+        "eqlu": [
           1.0,
           "infinite_subscription"
         ],
-        "enbn": [
+        "eqlv": [
           1.0,
           "report"
         ],
-        "enbo": [
+        "eqlw": [
           1.0,
           "esda"
         ]
       }
     },
-    "kik": {
+    "bptr": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.ForceAccountStatus",
       "similarity": 1.0,
       "field_mapping": {
-        "eneq": [
+        "eqoy": [
           1.0,
           "is_forced"
         ],
-        "ener": [
+        "eqoz": [
           1.0,
           "forced_account_id"
         ],
-        "enes": [
+        "eqpa": [
           1.0,
           "forced_account_nickname"
         ],
-        "enet": [
+        "eqpb": [
           1.0,
           "forced_account_tag"
         ],
-        "eneu": [
+        "eqpc": [
           1.0,
           "server_list"
         ]
       }
     },
-    "khr.khm": {
+    "bpsy.bpst": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.IdentificationResponse.Success",
       "similarity": 1.0,
       "field_mapping": {
-        "enbs": [
+        "eqma": [
           1.0,
           "account_id"
         ],
-        "enbt": [
+        "eqmb": [
           1.0,
           "account_nickname"
         ],
-        "enbu": [
+        "eqmc": [
           1.0,
           "account_tag"
         ],
-        "enbv": [
+        "eqmd": [
           1.0,
           "server_list"
         ],
-        "enbw": [
+        "eqme": [
           1.0,
           "subscription_end_date"
         ],
-        "enbx": [
+        "eqmf": [
           1.0,
           "rights"
         ],
-        "enby": [
+        "eqmg": [
           1.0,
           "fight_reconnection_server_id"
         ],
-        "enca": [
+        "eqmi": [
           1.0,
           "force_account_status"
         ]
       }
     },
-    "khr.khp": {
+    "bpsy.bpsw": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.IdentificationResponse.Error",
       "similarity": 1.0,
       "field_mapping": {
-        "ence": [
+        "eqmm": [
           1.0,
           "reason"
         ],
-        "encf": [
+        "eqmn": [
           1.0,
           "ban_end_date"
         ],
-        "ench": [
+        "eqmp": [
           1.0,
           "required_version"
         ]
       }
     },
-    "khr": {
+    "bpsy": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.IdentificationResponse",
       "similarity": 1.0,
       "field_mapping": {
-        "encm": [
+        "eqmu": [
           1.0,
           "success"
         ],
-        "encn": [
+        "eqmv": [
           1.0,
           "error"
         ]
       }
     },
-    "khx.khv": {
+    "bpte.bptc": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.SelectServerResponse.Success",
       "similarity": 1.0,
       "field_mapping": {
-        "encw": [
+        "eqne": [
           1.0,
           "token"
         ],
-        "encx": [
+        "eqnf": [
           1.0,
           "host"
         ],
-        "ency": [
+        "eqng": [
           1.0,
           "ports"
         ]
       }
     },
-    "khx": {
+    "bpte": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.SelectServerResponse",
       "similarity": 1.0,
       "field_mapping": {
-        "endc": [
+        "eqnk": [
           1.0,
           "success"
         ],
-        "endd": [
+        "eqnl": [
           1.0,
           "error"
         ]
       }
     },
-    "kil": {
+    "bpts": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.ForceAccountError",
       "similarity": 1.0,
       "field_mapping": {}
     },
-    "kij": {
+    "bptq": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.ForceAccountResponse",
       "similarity": 1.0,
       "field_mapping": {
-        "enek": [
+        "eqos": [
           1.0,
           "success"
         ],
-        "enel": [
+        "eqot": [
           1.0,
           "error"
         ]
       }
     },
-    "kiy.kiw.kiu": {
+    "bpuf.bpud.bpub": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.FriendListResponse.FriendList.Friend",
       "similarity": 1.0,
       "field_mapping": {
-        "enfp": [
+        "eqpx": [
           1.0,
           "account_name"
         ],
-        "enfq": [
+        "eqpy": [
           1.0,
           "account_tag"
         ],
-        "enfr": [
+        "eqpz": [
           1.0,
           "servers"
         ]
       }
     },
-    "kiy.kiw": {
+    "bpuf.bpud": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.FriendListResponse.FriendList",
       "similarity": 1.0,
       "field_mapping": {
-        "enfv": [
+        "eqqd": [
           1.0,
           "friends"
         ]
       }
     },
-    "kiy": {
+    "bpuf": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.FriendListResponse",
       "similarity": 1.0,
       "field_mapping": {
-        "enfz": [
+        "eqqh": [
           1.0,
           "friends"
         ],
-        "enga": [
+        "eqqi": [
           1.0,
           "error"
         ]
       }
     },
-    "kjg.kjb": {
+    "bpun.bpui": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.AcquaintanceServersResponse.Servers",
       "similarity": 1.0,
       "field_mapping": {
-        "engl": [
+        "eqqt": [
           1.0,
           "servers"
         ]
       }
     },
-    "kjg.kje": {
+    "bpun.bpul": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.AcquaintanceServersResponse.Error",
       "similarity": 1.0,
       "field_mapping": {
-        "engp": [
+        "eqqx": [
           1.0,
           "reason"
         ]
       }
     },
-    "kjg": {
+    "bpun": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.AcquaintanceServersResponse",
       "similarity": 1.0,
       "field_mapping": {
-        "engt": [
+        "eqrb": [
           1.0,
           "servers"
         ],
-        "engu": [
+        "eqrc": [
           1.0,
           "error"
         ]
       }
     },
-    "kgx": {
+    "bpse": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.Response",
       "similarity": 1.0,
       "field_mapping": {
-        "emzn": [
+        "eqjv": [
           1.0,
           "uuid"
         ],
-        "emzo": [
+        "eqjw": [
           1.0,
           "pong"
         ],
-        "emzp": [
+        "eqjx": [
           1.0,
           "identification"
         ],
-        "emzq": [
+        "eqjy": [
           1.0,
           "selectServer"
         ],
-        "emzr": [
+        "eqjz": [
           1.0,
           "forceAccount"
         ],
-        "emzs": [
+        "eqka": [
           1.0,
           "friend_list"
         ],
-        "emzt": [
+        "eqkb": [
           1.0,
           "acquaintance_servers_response"
         ]
       }
     },
-    "khc": {
+    "bpsj": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.UpdateServerEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "enaj": [
+        "eqkr": [
           1.0,
           "serverInformation"
         ]
       }
     },
-    "kgz": {
+    "bpsg": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.Event",
       "similarity": 1.0,
       "field_mapping": {
-        "emzy": [
+        "eqkg": [
           1.0,
           "update_server_event"
         ]
       }
     },
-    "kgt": {
+    "bpsa": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.LoginMessage",
       "similarity": 1.0,
       "field_mapping": {
-        "emyu": [
+        "eqjc": [
           1.0,
           "request"
         ],
-        "emyv": [
+        "eqjd": [
           1.0,
           "response"
         ],
-        "emyw": [
+        "eqje": [
           1.0,
           "event"
         ]
       }
     }
   },
-  "version_date": 1752239079.668901
+  "version_date": 1753775235.4269485
 }

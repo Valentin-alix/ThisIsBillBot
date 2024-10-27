@@ -25,6 +25,7 @@ from src.core.behaviors.mule_storage.mule_accept_behavior import (
 )
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
 from src.core.config.mule import (
+    MULE_BANK_CHARACTER_IDS,
     MULE_BANK_CHARACTER_LOGIN,
 )
 from src.core.frames.frame import Frame
@@ -319,6 +320,7 @@ class Bot:
         if self.fight_behavior.is_running.is_set():
             self.fight_behavior.stop()
         if self.mule_accept_kamas_behavior.is_running.is_set():
+            MULE_BANK_CHARACTER_IDS.remove(self.game_state.player.character_id)
             self.mule_accept_kamas_behavior.finish()
         if self.auto_bot_behavior.is_running.is_set():
             self.auto_bot_behavior.finish()

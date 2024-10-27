@@ -62,15 +62,19 @@ class SaleHotelPricesBehavior(Behavior):
     load_from_bank_behavior: LoadFromBankBehavior
 
     def run(self) -> None:
+        self.game_state.sale_hotel.last_time_updated_prices = datetime.datetime.now()
+
         if self.game_state.inventory.kamas < MIN_KAMAS_TO_GO_SALE_HOTEL:
             self.logger.warning(
                 "Player does not have enough kamas, skipping sale hotel"
             )
             return self.finish()
 
-        self.game_state.sale_hotel.last_time_updated_prices = datetime.datetime.now()
-
         item_gids_to_sell = self.get_item_gids_to_sell()
+
+        if len(item_gids_to_sell) == 0:
+            return self.finish()
+
         item_sell_quantity_by_gid = self.get_item_sell_quantity_by_gid()
 
         load_items_infos: list[LoadItemInfo] = []
@@ -340,10 +344,7 @@ class SaleHotelPricesBehavior(Behavior):
         self.logger.info(
             f"item in sale : {count_item_in_sale}, max item possible in sale : {self.game_state.sale_hotel.bid_seller_condition.max_item_per_account}"
         )
-        if (
-            count_item_in_sale
-            == self.game_state.sale_hotel.bid_seller_condition.max_item_per_account
-        ):
+        if self.game_state.player.is_full_object_in_sale_hotel:
             self.logger.info("Sale hotel is full of object, let's update prices")
             return self.choose_and_update_item_price(list(items))
         if price * 0.02 > self.game_state.inventory.kamas:

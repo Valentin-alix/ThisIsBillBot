@@ -28,7 +28,7 @@ LAST_VISITED_BY_MAP_ID: dict[int, datetime] = {}
 
 @dataclass
 class RandomFarmBehavior(Behavior):
-    auto_trip_world_behavior: AutoTripSmartBehavior
+    auto_trip_smart_behavior: AutoTripSmartBehavior
     edge_behavior: EdgeBehavior
     weighted_path: WeightedPath
     world_signals: WorldSignals
@@ -66,7 +66,7 @@ class RandomFarmBehavior(Behavior):
         ):
             self.edge_path = None
             self.logger.info("go to area for farm")
-            return self.auto_trip_world_behavior.start(
+            return self.auto_trip_smart_behavior.start(
                 callback=self.on_auto_trip_world_behavior_finished,
                 parent=self,
                 map_ids=self.map_ids,
@@ -76,7 +76,7 @@ class RandomFarmBehavior(Behavior):
             self.logger.info("Empty edge path, recalculating")
             self.edge_path = self.get_next_weighted_path()
             if self.edge_path is None:
-                return self.auto_trip_world_behavior.start(
+                return self.auto_trip_smart_behavior.start(
                     callback=self.on_auto_trip_world_behavior_finished,
                     parent=self,
                     map_ids=self.map_ids - {self.game_state.map.map_id},
@@ -137,7 +137,8 @@ class RandomFarmBehavior(Behavior):
 
     def on_auto_trip_world_behavior_finished(self, error_code: str | None):
         if error_code is not None:
-            return self.logger.error(error_code)
+            self.logger.error(error_code)
+            return self.finish(error_code)
         LAST_VISITED_BY_MAP_ID[self.game_state.map.map_id] = datetime.now()
         self.finish(error_code)
 

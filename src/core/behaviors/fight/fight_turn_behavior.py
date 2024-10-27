@@ -7,7 +7,6 @@ from d3_mapping.resources.protos.game.fight_pb2 import (
     FightTurnEndEvent,
     FightTurnFinishRequest,
 )
-from enums.breed import Breed
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
@@ -18,7 +17,7 @@ from src.core.logic.fight.attack import Attacker
 from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
 
-RUNAWAY_BREED: set[int] = {Breed.CRA, Breed.SACRIER, 0}  # always run away
+DO_RUNAWAY_AFTER_ATK = True
 
 
 @dataclass
@@ -44,7 +43,7 @@ class FightTurnBehavior(Behavior):
         attack_info = self.attacker.find_best_attack_from_mp()
         if attack_info is None:
             self.logger.info(f"Breed id : {self.game_state.player.breed_id}")
-            if self.game_state.player.breed_id in RUNAWAY_BREED and self.did_attack:
+            if DO_RUNAWAY_AFTER_ATK and self.did_attack:
                 self.logger.info("Go go run away")
                 run_away = True
             else:

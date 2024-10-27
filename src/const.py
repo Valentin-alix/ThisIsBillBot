@@ -1,6 +1,7 @@
 import datetime
 import os
 import socket
+import sys
 from pathlib import Path
 
 from d3_mapping.resources.protos.game.arena_pb2 import ArenaSwitchXpRewardsModeRequest
@@ -8,8 +9,11 @@ from d3_mapping.resources.protos.game.basic_pb2 import SequenceNumberRequest
 from d3_mapping.resources.protos.game.client_verification_pb2 import ClientIdRequest
 from d3_mapping.resources.protos.game.connection_pb2 import PingRequest
 
+BACKEND_URL = "http://localhost:8000"
+
+IS_IN_PYINSTALLER = hasattr(sys, "_MEIPASS")
 DEBUG = True
-DO_POPULATE = True
+DO_POPULATE = not IS_IN_PYINSTALLER
 DO_INSERT_HUMAN_SESSION = False
 
 FILTER_DOFUS = "tcp port 5555"

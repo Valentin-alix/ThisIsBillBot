@@ -35,16 +35,12 @@ def get_connection_mapping_by_clear():
 
 
 GAME_MAPPING_FIELDS: dict[str, dict[str, str]] = {
-    # "GameMessage": {"request": "eals", "response": "ealq", "event": "ealr"},
-    "RolePlayActor": {"monster_group_actor": "ejjx"},
     "GameActionFightEvent": {
-        "death": "efsr",
-        "life_points_gain": "efsn",
-        "exchange_positions": "efso",
-        "targeted_ability": "efsk",
+        "slide": "ejcw",
+        "death": "ejds",
+        "life_points_gain": "ejdh",
     },
-    "SellingConditions": {"max_item_per_account": "ehbx"},
-    "Slide": {"start_cell": "efre"},
+    "Slide": {"start_cell": "ejaw"},
 }
 
 

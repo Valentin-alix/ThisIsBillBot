@@ -77,6 +77,7 @@ class MultiFarmingBehavior(HarvesterBehavior):
                 self.game_state.player.level,
                 self.game_state.player.is_sub,
                 self.game_state.inventory.objects_by_uid,
+                self.logger,
             )
             self.logger.info(f"Valid dungeons infos : {valid_dungeons_infos}")
             if len(valid_dungeons_infos) == 0:
@@ -129,7 +130,10 @@ class MultiFarmingBehavior(HarvesterBehavior):
             raise UnhandledErrorCodeException(error_code)
         self.run_next_step()
 
-    def on_sale_hotel_price_updated_and_unloaded(self):
+    def on_sale_hotel_prices_behavior_finished(self, error_code: str | None):
+        self.go_craft_for_xp()
+
+    def go_craft_for_xp(self):
         recipes = get_recipes_for_job_lvl_up(
             self.game_state.player.is_sub, self.game_state.player.jobs_lvl_by_id
         )
@@ -140,6 +144,8 @@ class MultiFarmingBehavior(HarvesterBehavior):
                 is_sub=self.game_state.player.is_sub,
                 jobs_lvl_by_id=self.game_state.player.jobs_lvl_by_id,
             ),
-            callback=lambda _: self.on_new_map(),
+            callback=lambda _: self.sale_hotel_prices_behavior.start(
+                callback=lambda _: self.on_new_map(), parent=self
+            ),
             parent=self,
         )

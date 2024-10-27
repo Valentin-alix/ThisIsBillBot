@@ -101,8 +101,8 @@ class InstanciedMessageInfoController(metaclass=Singleton):
                     from_server=from_server, is_entry_msg=is_entry_msg
                 ),
             )
-            if len(msg_fields_infos.obf_msg_info) <= 100:
-                msg_fields_infos.obf_msg_info.append(
+            if len(msg_fields_infos.obf_msg_info) <= 10_000:
+                msg_fields_infos.obf_msg_info.add(
                     ObfMessageInfo(value_by_field_array=value_by_field)
                 )
                 content[type_url] = msg_fields_infos

@@ -28,20 +28,32 @@ class ProtoValidator:
         clear_by_obf_field_mapping: FieldMapping,
     ):
         # Check if combination of mapped fields is coherent based on validators
+        parsed_obf_msg_infos = MSG_INFO_BY_NAME.get(obf_msg.name)
+        if not parsed_obf_msg_infos:
+            return True
 
-        validator_on_whole_msg = VALIDATORS_ON_SET_FIELDS.get(clear_msg.name)
-        validator_global_on_whole_msg = VALIDATORS_GLOBAL_ON_SET_FIELDS.get(
-            clear_msg.name
-        )
-        if (validator_on_whole_msg or validator_global_on_whole_msg) and (
-            parsed_obf_msg_infos := MSG_INFO_BY_NAME.get(obf_msg.name)
-        ):
-            values_array_mapped_to_clear = self.get_values_array_mapped_to_clear(
+        values_array_mapped_to_clear_by_clear_msg_name = (
+            self.get_values_array_mapped_to_clear(
                 treated_clear_namespaces,
+                clear_msg=clear_msg,
                 obf_msg=obf_msg,
                 clear_by_obf_field_mapping=clear_by_obf_field_mapping,
                 obf_msg_infos=parsed_obf_msg_infos.obf_msg_info,
+                values_array_mapped_to_clear_by_msg={},
             )
+        )
+
+        for (
+            sub_clear_msg,
+            values_array_mapped_to_clear,
+        ) in values_array_mapped_to_clear_by_clear_msg_name.items():
+            validator_on_whole_msg = VALIDATORS_ON_SET_FIELDS.get(sub_clear_msg.name)
+            validator_global_on_whole_msg = VALIDATORS_GLOBAL_ON_SET_FIELDS.get(
+                sub_clear_msg.name
+            )
+            if not validator_on_whole_msg and not validator_global_on_whole_msg:
+                continue
+
             if validator_global_on_whole_msg:
                 values_array_mapped_to_clear = list(values_array_mapped_to_clear)
                 if not validator_global_on_whole_msg[0](values_array_mapped_to_clear):
@@ -57,12 +69,13 @@ class ProtoValidator:
     def get_values_array_mapped_to_clear(
         self,
         treated_clear_namespaces: set[str],
+        clear_msg: PMessage,
         obf_msg: PMessage,
         clear_by_obf_field_mapping: FieldMapping,
         obf_msg_infos: Iterable[ObfMessageInfo],
+        values_array_mapped_to_clear_by_msg: dict[PMessage, list[dict[str, Any]]],
     ):
         """get deep values based on mapping with clear mapped field as key"""
-        values_array_mapped_to_clear: list[dict[str, Any]] = []
 
         for obf_msg_info in obf_msg_infos:
             values_mapped_to_clear = {}
@@ -104,12 +117,16 @@ class ProtoValidator:
                         and type(_sub_clear_struct) is PMessage
                     )
 
-                    value = self.get_values_array_mapped_to_clear(
+                    sub_values_array = self.get_values_array_mapped_to_clear(
                         treated_clear_namespaces,
+                        _sub_clear_struct,
                         _sub_obf_struct,
                         _sub_mapping_info.field_mapping,
                         [ObfMessageInfo(value_by_field_array=value)],
-                    )[0]
+                        values_array_mapped_to_clear_by_msg,
+                    )
+                    values_array_mapped_to_clear_by_msg |= sub_values_array
+                    value = sub_values_array[_sub_clear_struct][0]
                 elif type(value) is list:
                     _value = []
                     for sub_value in value:
@@ -129,20 +146,29 @@ class ProtoValidator:
                                 type(_sub_obf_struct) is PMessage
                                 and type(_sub_clear_struct) is PMessage
                             )
-                            _value.append(
-                                self.get_values_array_mapped_to_clear(
-                                    treated_clear_namespaces,
-                                    _sub_obf_struct,
-                                    _sub_mapping_info.field_mapping,
-                                    [ObfMessageInfo(value_by_field_array=sub_value)],
-                                )[0]
+                            sub_values_array = self.get_values_array_mapped_to_clear(
+                                treated_clear_namespaces,
+                                _sub_clear_struct,
+                                _sub_obf_struct,
+                                clear_by_obf_field_mapping=_sub_mapping_info.field_mapping,
+                                obf_msg_infos=[
+                                    ObfMessageInfo(value_by_field_array=sub_value)
+                                ],
+                                values_array_mapped_to_clear_by_msg=values_array_mapped_to_clear_by_msg,
                             )
+                            values_array_mapped_to_clear_by_msg |= sub_values_array
+                            sub_value = sub_values_array[_sub_clear_struct]
+                            _value.append(sub_value)
                         else:
                             _value.append(sub_value)
                     value = _value
 
                 values_mapped_to_clear[clear_field_name] = value
 
-            values_array_mapped_to_clear.append(values_mapped_to_clear)
+            if clear_msg not in values_array_mapped_to_clear_by_msg:
+                values_array_mapped_to_clear_by_msg[clear_msg] = []
+            values_array_mapped_to_clear_by_msg[clear_msg].append(
+                values_mapped_to_clear
+            )
 
-        return values_array_mapped_to_clear
+        return values_array_mapped_to_clear_by_msg

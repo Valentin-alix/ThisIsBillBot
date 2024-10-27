@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 from d3_mapping.resources.protos.game.fight_pb2 import FightEndEvent
 from d3_mapping.resources.protos.game.game_action_pb2 import (
-    GameActionFightCastOnTargetRequest,
     GameActionFightCastRequest,
     SequenceEndEvent,
     SequenceType,
@@ -23,13 +22,7 @@ class FightSpellBehavior(Behavior):
         self.event_manager.on(
             SequenceEndEvent, self.on_sequence_end_event, originator=self
         )
-        actor_on_mp = self.game_state.entity.get_first_actor_on_cell_id(cell_id)
-        if actor_on_mp is not None:
-            req = GameActionFightCastOnTargetRequest(
-                spell_id=spell_id, target_id=actor_on_mp.actor_id
-            )
-        else:
-            req = GameActionFightCastRequest(spell_id=spell_id, cell=cell_id)
+        req = GameActionFightCastRequest(spell_id=spell_id, cell=cell_id)
 
         self.event_manager.send(req)
 

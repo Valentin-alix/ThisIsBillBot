@@ -27,9 +27,9 @@ from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
 from src.core.config.mule import MULE_BANK_CHARACTER_IDS, MULE_BANK_MAP_ID
 from src.core.config.timings import (
     BASE_RANGE,
-    SMALL_RANGE,
     get_time_beween_sale_hotel_prices,
 )
+from src.exceptions import UnhandledErrorCodeException
 
 
 @dataclass
@@ -44,6 +44,7 @@ class MuleAcceptBehavior(Behavior):
     _step: int = field(init=False, default=0)
 
     def run(self) -> None:
+        # TODO Comment gérer les déco du client ? fake un movement ?
         MULE_BANK_CHARACTER_IDS.add(self.game_state.player.character_id)
         self.go_bank_map()
 
@@ -61,7 +62,7 @@ class MuleAcceptBehavior(Behavior):
         ):
             self._timedelta_for_sale_hotel_prices = get_time_beween_sale_hotel_prices()
             return self.sale_hotel_prices_behavior.start(
-                callback=lambda _: self.go_bank_map(), parent=self
+                callback=self.on_sale_hotel_price_behavior_finished, parent=self
             )
 
         if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
@@ -70,6 +71,11 @@ class MuleAcceptBehavior(Behavior):
             )
         else:
             self.stand_ready_for_exchanges()
+
+    def on_sale_hotel_price_behavior_finished(self, error_code: str | None):
+        if error_code is not None:
+            raise UnhandledErrorCodeException(error_code)
+        self.go_bank_map()
 
     def stand_ready_for_exchanges(self):
         self.event_manager.on(
@@ -145,7 +151,7 @@ class MuleAcceptBehavior(Behavior):
         self.logger.info("Canceling request bc we are unloading")
         # auto cancel exchange request
         req = DialogLeaveRequest()
-        self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(req), True)
+        self.event_manager.send(req)
 
     def on_exchange_leave_event(self, msg: ExchangeLeaveEvent):
         self.run_timer(BASE_RANGE, self.on_bank_map)

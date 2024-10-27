@@ -38,6 +38,7 @@ pulp = "^3.2.1"
 datamodel-code-generator = "^0.30.2"
 lap = "^0.5.12"
 icecream = "^2.1.5"
+openapi-python-client = "^0.25.3"
 
 [tool.poetry.group.dev.dependencies]
 pyqt5-stubs = "^5.15.6.0"

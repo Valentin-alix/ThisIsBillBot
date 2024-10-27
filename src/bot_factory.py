@@ -44,11 +44,17 @@ from src.core.behaviors.mule_storage.mule_give_behavior import (
 )
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
+from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
+    EnterSaleHotelBehavior,
+)
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
 )
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
+)
+from src.core.behaviors.sale_hotel.sale_hotel_scraping_behavior import (
+    SaleHotelScrapingBehavior,
 )
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
@@ -388,12 +394,18 @@ class BotFactory:
             logger=logger,
             enter_bank_chest_behavior=enter_bank_chest_behavior,
         )
-        enter_sale_hotel_sell_behavior = EnterSaleHotelSellBehavior(
-            interactive_behavior=interactive_behavior,
+        enter_sale_hotel_behavior = EnterSaleHotelBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            logger=logger,
             auto_trip_smart_behavior=auto_trip_world_behavior,
+            interactive_behavior=interactive_behavior,
+        )
+        enter_sale_hotel_sell_behavior = EnterSaleHotelSellBehavior(
             logger=logger,
             game_state=game_state,
             event_manager=event_manager,
+            enter_sale_hotel_behavior=enter_sale_hotel_behavior,
         )
 
         unload_behavior = UnloadBehavior(
@@ -437,7 +449,7 @@ class BotFactory:
         random_farm_behavior = RandomFarmBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            auto_trip_world_behavior=auto_trip_world_behavior,
+            auto_trip_smart_behavior=auto_trip_world_behavior,
             weighted_path=weighted_path,
             world_signals=world_signals,
             edge_behavior=edge_behavior,
@@ -541,10 +553,22 @@ class BotFactory:
             harvester_behavior=harvester,
             multi_farming_behavior=multi_farming_behavior,
         )
+        sale_hotel_scraping_behavior = SaleHotelScrapingBehavior(
+            event_manager=event_manager,
+            enter_sale_hotel_behavior=enter_sale_hotel_behavior,
+            game_state=game_state,
+            logger=logger,
+        )
 
         return Bot(
             pid=None,
-            usable_behaviors=[mule_give_behavior, mule_accept_kamas_behavior],
+            usable_behaviors=[
+                mule_give_behavior,
+                mule_accept_kamas_behavior,
+                dungeon_behavior,
+                sale_hotel_prices_behavior,
+                sale_hotel_scraping_behavior,
+            ],
             account=account,
             grid_signals=grid_signals,
             game_info_signals=game_info_signals,

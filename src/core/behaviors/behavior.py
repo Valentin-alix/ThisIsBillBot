@@ -51,34 +51,24 @@ class Behavior(ABC):
             self.run(*args, **kwargs)
 
     def run_timer(
-        self,
-        range_time: tuple[float, float] | float,
-        func: Callable[[], None],
-        lock_until: bool = False,
+        self, range_time: tuple[float, float] | float, func: Callable[[], None]
     ) -> None:
-        if lock_until:
-            self.event_manager.lock.acquire()
-
         if isinstance(range_time, tuple):
             wait_time = get_random_range(range_time)
         else:
             wait_time = range_time
         self.logger.info(f"Waiting for {wait_time} before executing function")
-        timer = Timer(wait_time, lambda: self.run_timed_func(func, lock_until))
+        timer = Timer(wait_time, lambda: self.run_timed_func(func))
         self.timers.append(timer)
         timer.start()
 
-    def run_timed_func(self, func: Callable[[], None], lock_until: bool):
+    def run_timed_func(self, func: Callable[[], None]):
         if not self.is_running.is_set():
             return self.logger.warning(
                 f"behavior {self.__class__} is not running anymore, don't run timed function"
             )
-        if not lock_until:
-            self.event_manager.lock.acquire()
-        try:
+        with self.event_manager.lock:
             func()
-        finally:
-            self.event_manager.lock.release()
 
     def stop(self) -> None:
         with self.event_manager.lock:

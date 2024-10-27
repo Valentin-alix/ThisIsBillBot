@@ -122,13 +122,7 @@ class AutoBotBehavior(Behavior):
             )
 
         def on_stopped_by_condition_fighter():
-            if (
-                self.game_state.player.level >= self._lvl_limit_for_harvest
-                and self.game_state.inventory.kamas >= self._kamas_limit_for_harvest
-            ):
-                self.play_fighter()
-            else:
-                self.play_multi_farming()
+            self.play_multi_farming()
 
         area_info = self.get_random_area_info()
         self.fighter_behavior.start(

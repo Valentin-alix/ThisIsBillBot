@@ -5,7 +5,9 @@ using System.Buffers;
 using System.Reflection;
 using System.Reflection.PortableExecutable;
 
-const string dir = @"D:\Programmes\Dofus-dofus3";
+const string dirServ = @"C:\Users\Valentin\AppData\Local\Ankama\Dofus-dofus3";
+const string dirBur = @"D:\Programmes\Dofus-dofus3";
+const string dir = dirServ;
 
 var assemblyFile = $@"{dir}\GameAssembly.dll";
 var globalMetadata = $@"{dir}\Dofus_Data\il2cpp_data\Metadata\global-metadata.dat";

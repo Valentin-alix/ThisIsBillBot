@@ -1,4 +1,3 @@
-from abc import ABC
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Callable
@@ -17,7 +16,7 @@ from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
 )
 from src.core.behaviors.storage.consts import USEFUL_UNLOAD
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
-from src.core.config.mule import DO_UNLOAD_ON_MULE
+from src.core.config.mule import BOT_KAMA_LIMIT_TO_GIVE
 from src.core.config.timings import (
     get_time_beween_sale_hotel_prices,
 )
@@ -27,7 +26,7 @@ from src.exceptions import UnhandledErrorCodeException
 
 
 @dataclass
-class FighterBehavior(Behavior, ABC):
+class FighterBehavior(Behavior):
     random_farm_behavior: RandomFarmBehavior
     unload_behavior: UnloadBehavior
     map_move_behavior: MapMoveBehavior
@@ -96,14 +95,20 @@ class FighterBehavior(Behavior, ABC):
             self.run_next_step()
 
     def on_full_pods(self):
-        if DO_UNLOAD_ON_MULE:
+        if self.game_state.inventory.kamas > BOT_KAMA_LIMIT_TO_GIVE or (
+            self.game_state.player.is_full_object_in_sale_hotel
+            and (
+                datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
+                < self._timedelta_for_sale_hotel_prices
+            )
+        ):
             self.mule_give_behavior.start(
-                callback=self.on_mule_given_behavior_finished, parent=self
+                callback=self.on_unloaded_on_mule_finished, parent=self
             )
         else:
             self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
 
-    def on_mule_given_behavior_finished(self, error_code: str | None):
+    def on_unloaded_on_mule_finished(self, error_code: str | None):
         if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
             self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
         else:

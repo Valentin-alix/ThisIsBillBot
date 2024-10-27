@@ -8,23 +8,19 @@
   ],
   "python.testing.pytestEnabled": false,
   "python.testing.unittestEnabled": true,
-  "python.analysis.extraPaths": [
-    "D3Database",
-    "D3Mapping",
-    "DBDofusUnity"
-  ],
+  "python.analysis.extraPaths": ["D3Database", "D3Mapping", "DBDofusUnity"],
   "files.exclude": {
-    "**/legacy/**": true,
+    "**/legacy/**": true
   },
   "search.exclude": {
-    "**/legacy/**": true,
+    "**/legacy/**": true
   },
   "python.envFile": "${workspaceFolder}/.paths.env",
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
     "README.md": "TODO.md",
-    "pyproject.toml": "poetry.toml,poetry.lock,.paths.env,.gitmodules",
+    "pyproject.toml": "poetry.toml,poetry.lock,.paths.env,.gitmodules,setup_venv.sh,scraping_d3.yaml",
     "__main__.spec": "build"
   }
 }

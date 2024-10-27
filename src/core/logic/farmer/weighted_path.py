@@ -8,6 +8,7 @@ from typing import Callable
 
 from PyQt5.QtWidgets import QApplication
 
+
 from src.controller.gfx_mapping import GfxMappingController
 
 sys.path.append(
@@ -65,20 +66,21 @@ class WeightedPath:
         start_vertex: Vertice,
         get_weight_by_edge_func: Callable[[Edge], float],
         weight_by_map_id: dict[int, float],
-        depth: int = 50,
-        iterations: int = 1000,
+        depth: int = 30,
+        iterations: int = 5000,
     ):
         # heuristic, randomized weighted path
-        best_weight: float = 0
+        best_score: float = 0
         best_path: list[Edge] = []
 
         for _ in range(iterations):
+            random_depth = random.randint(5, depth)
             current_vertex = start_vertex
             visited_map_ids: list[int] = [current_vertex.m_mapId]
             total_weight: float = 0
             path: list[Edge] = []
 
-            for _ in range(depth):
+            for _ in range(random_depth):
                 edge_neighbors = [
                     neighbor
                     for neighbor in iter_valid_outgoing_edges(
@@ -107,11 +109,12 @@ class WeightedPath:
                 total_weight += weight
                 current_vertex = next_edge.m_to
 
-            if total_weight > best_weight:
-                best_weight = total_weight
+            score = total_weight / (1 + len(path) ** 0.25)
+            if score > best_score:
+                best_score = score
                 best_path = path
 
-        return best_path, best_weight
+        return best_path, best_score
 
     def get_best_path(
         self,
@@ -227,12 +230,8 @@ if __name__ == "__main__":
 
     before = perf_counter()
 
-    # path, weight = weighted_path.get_best_path(
-    #     vertex, tuple(), get_weight_by_edge, {}, [], {}, depth_remaining=10
-    # )
-
     path, weight = weighted_path.monte_carlo_path(vertex, get_weight_by_edge, {})
-
+    print(len(path))
     print(perf_counter() - before)
 
     draw_weight_on_map(additional_weight, world_signals)

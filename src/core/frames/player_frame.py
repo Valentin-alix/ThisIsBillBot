@@ -13,6 +13,7 @@ from d3_mapping.resources.protos.game.character_pb2 import (
     CharacterCharacteristicUpgradeRequest,
     CharacterLevelUpEvent,
     CharacterLifeStatusEvent,
+    PlayerStatusUpdateRequest,
     UpdateLifePointsEvent,
 )
 from d3_mapping.resources.protos.game.fight_pb2 import FightRefreshCharacterStatsEvent
@@ -49,6 +50,11 @@ class PlayerFrame(Frame):
             self.on_character_characteristics_event,
             originator=self,
             priority=self.priority,
+        )
+        self.event_manager.before(
+            PlayerStatusUpdateRequest,
+            self.before_player_status_update_request,
+            originator=self,
         )
         self.event_manager.on(
             IdentificationResponse,
@@ -208,3 +214,8 @@ class PlayerFrame(Frame):
             self.logger.info(f"New amount of base chance : {chance}")
             req = CharacterCharacteristicUpgradeRequest(chance=chance)
             self.event_manager.send(req)
+
+    def before_player_status_update_request(self, msg: PlayerStatusUpdateRequest):
+        if self.is_playing_event.is_set():
+            return None
+        return msg

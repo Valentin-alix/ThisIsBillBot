@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from functools import partial
+
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
 from data_center.data_reader import DataReader
 from data_center.i18n import I18N
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
@@ -12,7 +14,8 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 )
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.core.config.timings import ON_NEW_MAP_BEFORE_ACTION
-from src.core.logic.dungeons.dungeons import DungeonInfo
+from src.core.logic.dungeons.consts import DUNGEONS_INFOS
+from src.core.logic.dungeons.dungeons import DungeonInfo, do_have_key_access_to_dungeon
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -22,7 +25,23 @@ class DungeonBehavior(Behavior):
     attacker_behavior: AttackerBehavior
     auto_trip_smart_behavior: AutoTripSmartBehavior
 
-    def run(self, dungeon_info: DungeonInfo) -> None:
+    def run(self, dungeon_info: DungeonInfo | None = None) -> None:
+        if dungeon_info is None:
+            dungeon_info = next(
+                (
+                    _dungeon_info
+                    for _dungeon_info in DUNGEONS_INFOS
+                    if do_have_key_access_to_dungeon(
+                        _dungeon_info,
+                        self.game_state.inventory.objects_by_uid,
+                        self.logger,
+                    )
+                ),
+                None,
+            )
+            if dungeon_info is None:
+                return self.finish()
+
         self.auto_trip_smart_behavior.start(
             map_ids={dungeon_info.entrance_npc_info.npc_map_id},
             callback=partial(

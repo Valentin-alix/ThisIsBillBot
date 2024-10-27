@@ -12,11 +12,13 @@ from data_center.world_graph_reader import WorldGraphReader
 from grid.map_point import MapPoint
 from models.world_graph import Vertice
 
+from src.controller.sale_hotel import SaleHotelController
 from src.core.logic.stats.characteristic import get_stat_by_id
 from src.core.logic.world.linked_zone import get_linked_zone_rp
 from src.core.states.entity_state import EntityState
 from src.core.states.interactive_state import InteractiveState
 from src.core.states.map_state import MapState
+from src.core.states.sale_hotel_state import SaleHotelState
 from src.core.states.state import State
 from src.interfaces.models.collectable import Collectable
 from src.signals.player_signals import GameInfoSignals
@@ -28,6 +30,7 @@ class PlayerState(State):
     map_state: MapState
     entity_state: EntityState
     interactive_state: InteractiveState
+    sale_hotel_state: SaleHotelState
 
     is_ready_to_play_event: Event = dataclasses.field(init=False, default_factory=Event)
     life_state: CharacterLifeStatusEvent.LifeStatus = dataclasses.field(
@@ -209,3 +212,14 @@ class PlayerState(State):
     @property
     def can_access_guild_chest(self):
         return self.is_sub
+
+    @property
+    def is_full_object_in_sale_hotel(self):
+        return self.sale_hotel_state.bid_seller_condition is not None and (
+            len(
+                SaleHotelController()
+                .get_hdv_by_uid_by_player()
+                .get(self.character_id, {})
+            )
+            >= self.sale_hotel_state.bid_seller_condition.max_item_per_account
+        )

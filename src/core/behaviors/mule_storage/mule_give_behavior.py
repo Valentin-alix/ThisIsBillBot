@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from functools import partial
 
 from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
 from d3_mapping.resources.protos.game.dialog_pb2 import (
@@ -23,6 +22,7 @@ from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
+from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.storage.consts import GATHERER_ITEM_GIDS
 from src.core.config.mule import (
     BOT_MINIMAL_KAMAS,
@@ -30,6 +30,7 @@ from src.core.config.mule import (
     MULE_BANK_MAP_ID,
 )
 from src.core.config.timings import BASE_RANGE
+from src.core.logic.inventory.inventory_item import is_exchangeable_item
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -43,6 +44,9 @@ class MuleGiveBehavior(Behavior):
         if len(MULE_BANK_CHARACTER_IDS) == 0:
             self.logger.error("Mule bank character is not defined !")
             return self.finish()
+        self.go_to_mule()
+
+    def go_to_mule(self):
         self.auto_trip_smart_behavior.start(
             map_ids={MULE_BANK_MAP_ID},
             callback=self.on_auto_trip_smart_behavior_finished,
@@ -51,6 +55,8 @@ class MuleGiveBehavior(Behavior):
 
     def on_auto_trip_smart_behavior_finished(self, error_code: str | None):
         if error_code is not None:
+            if error_code is MapChangeError.UNEXPECTED_NEW_MAP:
+                return self.run_timer((2, 4), self.go_to_mule)
             raise UnhandledErrorCodeException(error_code)
         self.start_exchange_with_mule()
 
@@ -64,27 +70,30 @@ class MuleGiveBehavior(Behavior):
             None,
         )
         if mule_id is None:
-            self.logger.warning("Mule bank not in map, skip giving to mule")
+            self.logger.warning("Mule bank not in map")
             return self.finish()
+
         self.event_manager.on(
             ExchangeStartedWithPodsEvent,
-            partial(self.on_exchange_started_with_pods_event, mule_id=mule_id),
+            self.on_exchange_started_with_pods_event,
             originator=self,
             once=True,
+            override_on_self=True,
         )
         self.event_manager.on(
             ExchangeErrorEvent,
             lambda _: self.run_timer((3, 6), self.start_exchange_with_mule),
             originator=self,
             once=True,
+            override_on_self=True,
         )
         req = ExchangePlayerRequest(target_id=mule_id)
         self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
 
-    def on_exchange_started_with_pods_event(
-        self, msg: ExchangeStartedWithPodsEvent, mule_id: int
-    ):
+    def on_exchange_started_with_pods_event(self, msg: ExchangeStartedWithPodsEvent):
         self._step = 0
+        if self.game_state.player.is_sub:
+            return self.depose_kamas_in_exchange(True)
         possible_mule_weight = [
             msg.first_character_current_weight,
             msg.second_character_current_weight,
@@ -109,7 +118,11 @@ class MuleGiveBehavior(Behavior):
             return self.depose_all_objects_in_exchange()
 
         objects_to_unload = sorted(
-            [object for object in self.game_state.inventory.objects_by_uid.values()],
+            [
+                object
+                for object in self.game_state.inventory.objects_by_uid.values()
+                if is_exchangeable_item(DataReader().item_by_id[object.item.gid])
+            ],
             key=lambda object: object.item.gid in GATHERER_ITEM_GIDS,
         )
         if len(objects_to_unload) == 0:

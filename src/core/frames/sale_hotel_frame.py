@@ -1,14 +1,25 @@
 from dataclasses import dataclass
 
+import httpx
 from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeBidHouseItemAddedEvent,
     ExchangeBidHouseItemRemovedEvent,
     ExchangeBidHouseSearchRequest,
     ExchangeBidPriceEvent,
     ExchangeBidSellerStartedEvent,
+    ExchangeTypesItemsExchangerDescriptionForUserEvent,
     ObjectAveragePricesEvent,
 )
 
+from scraping_d3_client.scraping_d3_client.api.default import (
+    bulk_insert_item_price_history_item_price_history_bulk_insert_post,
+)
+from scraping_d3_client.scraping_d3_client.client import Client
+from scraping_d3_client.scraping_d3_client.models.create_item_price_history_schema import (
+    CreateItemPriceHistorySchema,
+)
+from scraping_d3_client.scraping_d3_client.models.quantity_enum import QuantityEnum
+from src.const import BACKEND_URL
 from src.controller.sale_hotel import SaleHotelController
 from src.core.frames.frame import Frame
 
@@ -52,6 +63,12 @@ class SaleHotelFrame(Frame):
         self.event_manager.on(
             ExchangeBidPriceEvent,
             self.on_exchange_bid_price_event,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            ExchangeTypesItemsExchangerDescriptionForUserEvent,
+            callback=self.on_exchange_types_item_exchanger_description_for_user_event,
             originator=self,
             priority=self.priority,
         )
@@ -102,3 +119,33 @@ class SaleHotelFrame(Frame):
         SaleHotelController().add_multiple_avg_price_by_gid(
             [(msg.average_price, msg.object_gid)]
         )
+
+    def on_exchange_types_item_exchanger_description_for_user_event(
+        self, msg: ExchangeTypesItemsExchangerDescriptionForUserEvent
+    ):
+        if len(msg.item_descriptions) == 0:
+            return
+        item_description = msg.item_descriptions[0]
+        item_prices_histories: list[CreateItemPriceHistorySchema] = []
+        quantity_by_index: dict[int, QuantityEnum] = {
+            0: QuantityEnum.VALUE_1,
+            1: QuantityEnum.VALUE_10,
+            2: QuantityEnum.VALUE_100,
+            3: QuantityEnum.VALUE_1000,
+        }
+        for index, item_price in enumerate(item_description.prices):
+            item_prices_histories.append(
+                CreateItemPriceHistorySchema(
+                    gid=item_description.gid,
+                    quantity=quantity_by_index[index],
+                    price=item_price if item_price > 0 else None,
+                    server_id=1,
+                )
+            )
+        try:
+            with Client(BACKEND_URL) as client:
+                bulk_insert_item_price_history_item_price_history_bulk_insert_post.sync(
+                    client=client, body=item_prices_histories
+                )
+        except httpx.ConnectError:
+            self.logger.error("Can't connect to scraping api, skipping")

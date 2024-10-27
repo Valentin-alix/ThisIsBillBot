@@ -70,7 +70,7 @@ class AutoTripSmartBehavior(Behavior):
         self, error_code: str | None, dst_map_ids: set[int]
     ):
         if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+            return self.finish(error_code)
 
         self.npc_dialog_behavior.start(
             callback=partial(

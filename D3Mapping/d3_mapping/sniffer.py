@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 import socket
 import sys
 import traceback
@@ -13,6 +15,11 @@ from scapy.all import sniff
 from scapy.layers.inet import IP
 from scapy.layers.inet6 import IPv6
 from scapy.packet import Packet, Raw
+
+sys.path.append(os.path.join(Path(__file__).parent.parent.parent))
+sys.path.append(os.path.join(Path(__file__).parent.parent.parent, "D3Mapping"))
+sys.path.append(os.path.join(Path(__file__).parent.parent.parent, "DBDofusUnity"))
+sys.path.append(os.path.join(Path(__file__).parent.parent.parent, "D3Database"))
 
 from d3_mapping.gui.sniffer.sniffer import SnifferWidget
 from d3_mapping.protocol.protocol import decode_varint_size
