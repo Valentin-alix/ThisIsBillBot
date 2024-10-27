@@ -13,10 +13,9 @@ from PyQt5.QtCore import QThread
 
 from src.common.logger import Logger
 from src.controller.bot_config import BotConfig, BotConfigController
-from src.core.behaviors.auto.auto_bot_behavior import AutoBotBehavior
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
-from src.core.behaviors.dungeons.dungeon_behavior import DungeonBehavior
+from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
 from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
@@ -24,6 +23,7 @@ from src.core.behaviors.fight.revive_behavior import ReviveBehavior
 from src.core.behaviors.mule_storage.mule_accept_behavior import (
     MuleAcceptBehavior,
 )
+from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
 from src.core.config.mule import (
     MULE_BANK_CHARACTER_LOGIN,
 )

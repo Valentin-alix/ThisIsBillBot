@@ -36,7 +36,10 @@ class GameProxy(Proxy):
         self, msg_content_datas: bytes, msg_datas: bytes
     ) -> bytes | None:
         expected_uid = self.uid + 1
-        root_msg_namespace, clear_sub_msg, _, uid = get_game_msg(msg_content_datas)
+        root_msg_namespace, clear_sub_msg, _, uid = get_game_msg(
+            msg_content_datas,
+            DO_POPULATE,
+        )
         if clear_sub_msg is None:
             return msg_datas
 

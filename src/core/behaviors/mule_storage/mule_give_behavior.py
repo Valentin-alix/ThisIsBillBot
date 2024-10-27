@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from functools import partial
 
 from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
 from d3_mapping.resources.protos.game.dialog_pb2 import (
@@ -67,7 +68,7 @@ class MuleGiveBehavior(Behavior):
             return self.finish()
         self.event_manager.on(
             ExchangeStartedWithPodsEvent,
-            self.on_exchange_started_with_pods_event,
+            partial(self.on_exchange_started_with_pods_event, mule_id=mule_id),
             originator=self,
             once=True,
         )
@@ -80,16 +81,29 @@ class MuleGiveBehavior(Behavior):
         req = ExchangePlayerRequest(target_id=mule_id)
         self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
 
-    def on_exchange_started_with_pods_event(self, msg: ExchangeStartedWithPodsEvent):
+    def on_exchange_started_with_pods_event(
+        self, msg: ExchangeStartedWithPodsEvent, mule_id: int
+    ):
         self._step = 0
-        if msg.first_character_id != self.game_state.player.character_id:
-            mule_weight_remaining = (
-                msg.first_character_max_weight - msg.first_character_current_weight
-            )
-        else:
-            mule_weight_remaining = (
-                msg.second_character_max_weight - msg.second_character_current_weight
-            )
+        possible_mule_weight = [
+            msg.first_character_current_weight,
+            msg.second_character_current_weight,
+            msg.first_character_max_weight,
+            msg.second_character_max_weight,
+        ]
+        possible_mule_weight.remove(self.game_state.inventory.weight_max)
+        possible_mule_weight.remove(self.game_state.inventory.inventory_weight)
+
+        mule_weight = min(possible_mule_weight)
+        max_weight_mule = max(possible_mule_weight)
+
+        mule_weight_remaining = max_weight_mule - mule_weight
+
+        self.logger.info(
+            f"Mule weight remaining : {mule_weight_remaining} with max {max_weight_mule} and curr {mule_weight}"
+        )
+
+        assert mule_weight_remaining >= 0
 
         if self.game_state.inventory.inventory_weight < mule_weight_remaining:
             return self.depose_all_objects_in_exchange()

@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from d3_mapping.controller.data_center_controller import DataCenterController
 from d3_mapping.controller.instancied_msg_info_controller import (
     MSG_INFO_BY_NAME,
+    InstanciedMessageInfoController,
 )
 from d3_mapping.resources.protos.game.teleportation_pb2 import Teleporter
 from D3Database.data_center.i18n import I18N
@@ -617,30 +618,90 @@ def validator_exchange_started_with_pods_event(values: dict[str, Any]):
     return True
 
 
-def validator_map_complementary_information_event(values: dict[str, Any]):
-    off_element_ids: list[int] = []
+def _global_validator_map_complementary_information_event(
+    values_array: list[dict[str, Any]],
+):
+    count_off = 0
+    count_on = 0
 
-    for interactive_element in values["interactive_elements"]:
-        for disabled_skill in interactive_element.get("disabled_skills", []):
-            skill = DataReader().skill_by_id[disabled_skill["skill_id"]]
-            job_id = skill.parentJobId
-            if (
-                job_id in HARVESTER_JOB_IDS
-                and skill.levelMin == 1
-                and interactive_element.get("on_current_map", False) is True
-            ):
-                off_element_ids.append(interactive_element["element_id"])
+    for values in values_array:
+        off_element_ids: list[int] = []
+        on_element_ids: list[int] = []
+        for interactive_element in values["effy"]:
+            for disabled_skill in interactive_element.get("ekvj", []):
+                skill = DataReader().skill_by_id[disabled_skill["ekuy"]]
+                job_id = skill.parentJobId
+                if (
+                    job_id in HARVESTER_JOB_IDS
+                    and skill.levelMin == 1
+                    and interactive_element.get("ekvf", False) is True
+                ):
+                    off_element_ids.append(interactive_element["ekvg"])
 
-    for stated_element in values["stated_elements"]:
-        if (
-            "element_id" in stated_element
-            and stated_element["element_id"] in off_element_ids
-            and stated_element["state"] == 0
-        ):
-            print(f"Map complemtnary information stated_element {stated_element}")
-            return False
+            for enabled_skill in interactive_element.get("ekvk", []):
+                skill = DataReader().skill_by_id[enabled_skill["ekuy"]]
+                job_id = skill.parentJobId
+                if (
+                    job_id in HARVESTER_JOB_IDS
+                    and skill.levelMin == 1
+                    and interactive_element.get("ekvf", False) is True
+                ):
+                    on_element_ids.append(interactive_element["ekvg"])
 
+        for stated_element in values["efga"]:
+            if "ekzl" in stated_element and stated_element["ekzp"] == 0:
+                if stated_element["ekzl"] in off_element_ids:
+                    count_off += 1
+                if stated_element["ekzl"] in on_element_ids:
+                    count_on += 1
+
+    print(f"count on {count_on}, count_off {count_off}")
+    return count_on >= count_off
+
+
+def global_validator_map_complementary_information_event(
+    values_array: list[dict[str, Any]],
+):
+    count_off = 0
+    count_on = 0
     return True
+    for values in values_array:
+        off_element_ids: list[int] = []
+        on_element_ids: list[int] = []
+        for interactive_element in values["interactive_elements"]:
+            for disabled_skill in interactive_element.get("disabled_skills", []):
+                skill = DataReader().skill_by_id[disabled_skill["skill_id"]]
+                job_id = skill.parentJobId
+                if (
+                    job_id in HARVESTER_JOB_IDS
+                    and skill.levelMin == 1
+                    and interactive_element.get("on_current_map", False) is True
+                ):
+                    off_element_ids.append(interactive_element["element_id"])
+
+            for enabled_skill in interactive_element.get("enabled_skill", []):
+                skill = DataReader().skill_by_id[enabled_skill["skill_id"]]
+                job_id = skill.parentJobId
+                if (
+                    job_id in HARVESTER_JOB_IDS
+                    and skill.levelMin == 1
+                    and interactive_element.get("on_current_map", False) is True
+                ):
+                    on_element_ids.append(interactive_element["element_id"])
+
+        for stated_element in values["stated_elements"]:
+            if (
+                "element_id" in stated_element
+                and stated_element["element_id"] in off_element_ids
+                and stated_element["state"] == 0
+            ):
+                if stated_element["element_id"] in off_element_ids:
+                    count_off += 1
+
+                if stated_element["element_id"] in on_element_ids:
+                    count_on += 1
+
+    return count_on >= count_off
 
 
 def validator_game_message(values: dict[str, Any]):
@@ -727,10 +788,6 @@ def global_validator_element_with_instance_uid(values_array: list[dict[str, Any]
 
 VALIDATORS_ON_SET_FIELDS: dict[str, tuple[Callable[[dict[str, Any]], bool], int]] = {
     "GameMessage": (validator_game_message, 1),
-    "MapComplementaryInformationEvent": (
-        validator_map_complementary_information_event,
-        3,
-    ),
     "GameActionFightEvent": (validator_game_action_fight_event, 2),
     "UpdateLifePointsEvent": (validator_update_life_points_event, 1),
     "InventoryWeightEvent": (validator_inventory_weight_event, 1),
@@ -748,6 +805,10 @@ VALIDATORS_ON_SET_FIELDS: dict[str, tuple[Callable[[dict[str, Any]], bool], int]
 VALIDATORS_GLOBAL_ON_SET_FIELDS: dict[
     str, tuple[Callable[[list[dict[str, Any]]], bool], int]
 ] = {
+    "MapComplementaryInformationEvent": (
+        global_validator_map_complementary_information_event,
+        3,
+    ),
     "ObjectUidWithQuantity": (global_validator_object_with_quantity, 1),
     "ObjectItem": (global_validator_object_item, 1),
     "ExchangeObjectModifyPricedRequest": (global_validator_object_with_quantity, 1),
@@ -759,16 +820,17 @@ VALIDATORS_GLOBAL_ON_SET_FIELDS: dict[
 
 
 if __name__ == "__main__":
-    print(
-        validator_character_characteristic_detailed_usable(
-            {
-                "base": 3,
-                "additional": -3,
-                "alignment_gift_bonus": 1,
-                "used": 6,
-                "objects_and_mount_bonus": 0,
-                "context_modification": 0,
-                "temporary": 0,
-            }
-        )
+    temp = InstanciedMessageInfoController().get_msg_infos_by_name().root["ile"]
+    ici = _global_validator_map_complementary_information_event(
+        [msg_info.value_by_field_array for msg_info in temp.obf_msg_info]
     )
+    print(ici)
+
+    # (190842880, {'ekzm': 112, 'ekzn': True, 'ekzl': 513972, 'ekzp': 0})
+    # infos = [(190842880, 513972), (190843392, 513975)]
+    # for map_id, element_id in infos:
+    #     temp = MapReader().get_ref_data_by_element_id(map_id)
+    #     # print(DataReader().skill_by_id[6].parentJobId)
+    #     print(temp[element_id])
+    #     map = DataReader().map_pos_by_map_id[map_id]
+    #     print(map.posX, map.posY)

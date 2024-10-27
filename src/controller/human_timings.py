@@ -36,8 +36,8 @@ from tinydb.queries import QueryInstance
 
 from D3Database.utils import cache
 from src.common.timing import get_random_range
-from src.core.config.timings import BASE_RANGE
 from src.controller.session_timings import SessionTimingsController
+from src.core.config.timings import BASE_RANGE
 from src.interfaces.metaclasses.singleton import Singleton
 
 
@@ -64,7 +64,7 @@ class HumanTimingsController(metaclass=Singleton):
             inverse_cdf = interp1d(quantiles, sorted_deltas, fill_value="extrapolate")  # type: ignore
 
             def sampler():
-                return float(inverse_cdf(np.random.rand()))
+                return float(inverse_cdf(np.random.rand())) / 2
 
             return sampler
 

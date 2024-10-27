@@ -265,8 +265,15 @@ class EntityFrame(Frame):
         else:
             direction = Direction.DIRECTION_EAST
 
-        self.game_state.entity.update_actor_disposition(
-            self.game_state.player.character_id,
-            direction=direction,
-            cell_id=MapPoint.from_coords(msg.cell_x, msg.cell_y).cell_id,
-        )
+        try:
+            self.game_state.entity.update_actor_disposition(
+                self.game_state.player.character_id,
+                direction=direction,
+                cell_id=MapPoint.from_coords(msg.cell_x, msg.cell_y).cell_id,
+            )
+        except KeyError:
+            self.game_state.entity.update_actor_disposition(
+                self.game_state.player.character_id,
+                direction=direction,
+                cell_id=MapPoint.from_coords(msg.cell_y, msg.cell_x).cell_id,
+            )

@@ -6,12 +6,12 @@ from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
 
 from src.core.behaviors.chat.chat_behavior import ChatBehavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
-from src.core.behaviors.dungeons.dungeon_behavior import (
-    DungeonBehavior,
-)
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.interactives.collect_behavior import CollectError
+from src.core.behaviors.quests.dungeon_behavior import (
+    DungeonBehavior,
+)
 from src.core.config.multi_farming import (
     ATTACKER_TRIGGER_MAP_COUNT,
     GO_DUNGEON_MAP_COUNT,
@@ -57,17 +57,17 @@ class MultiFarmingBehavior(HarvesterBehavior):
         self._map_numero += 1
 
         if self._next_attack_map_numero < self._map_numero:
-            self._next_attack_map_numero = random.randint(
+            self._next_attack_map_numero = self._map_numero + random.randint(
                 int(ATTACKER_TRIGGER_MAP_COUNT / 1.5),
                 int(ATTACKER_TRIGGER_MAP_COUNT * 1.5),
             )
         if self._next_chat_map_numero < self._map_numero:
-            self._next_chat_map_numero = random.randint(
+            self._next_chat_map_numero = self._map_numero + random.randint(
                 int(RANDOM_CHAT_TRIGGER_MAP_COUNT / 1.5),
                 int(RANDOM_CHAT_TRIGGER_MAP_COUNT * 1.5),
             )
         if self._next_dungeon_map_numero < self._map_numero:
-            self._next_dungeon_map_numero = random.randint(
+            self._next_dungeon_map_numero = self._map_numero + random.randint(
                 int(GO_DUNGEON_MAP_COUNT / 1.5),
                 int(GO_DUNGEON_MAP_COUNT * 1.5),
             )

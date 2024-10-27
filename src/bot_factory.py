@@ -5,10 +5,9 @@ from d3_mapping.signals.message_signals import MessageInfoSignals
 
 from src.bot import Bot
 from src.common.logger import Logger
-from src.core.behaviors.auto.auto_bot_behavior import AutoBotBehavior
 from src.core.behaviors.chat.chat_behavior import ChatBehavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
-from src.core.behaviors.dungeons.dungeon_behavior import DungeonBehavior
+from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
 from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.farms.multi_farming_behavior import MultiFarmingBehavior
@@ -44,6 +43,7 @@ from src.core.behaviors.mule_storage.mule_give_behavior import (
     MuleGiveBehavior,
 )
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
+from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
 )

@@ -15,6 +15,7 @@ from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
+from src.core.behaviors.storage.consts import USEFUL_UNLOAD
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
 from src.core.config.mule import DO_UNLOAD_ON_MULE
 from src.core.config.timings import (
@@ -97,10 +98,16 @@ class FighterBehavior(Behavior, ABC):
     def on_full_pods(self):
         if DO_UNLOAD_ON_MULE:
             self.mule_give_behavior.start(
-                callback=lambda _: self.on_new_map(), parent=self
+                callback=self.on_mule_given_behavior_finished, parent=self
             )
         else:
             self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
+
+    def on_mule_given_behavior_finished(self, error_code: str | None):
+        if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
+            self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
+        else:
+            self.on_new_map()
 
     def on_unload_finished(self, error_code: str | None):
         if error_code is not None:

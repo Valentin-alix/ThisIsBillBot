@@ -33,7 +33,7 @@ wmi = "^1.5.1"
 type = "git"
 url = "https://github.com/Valentin-alix/AnkamaLauncherEmulator"
 reference = "HEAD"
-resolved_reference = "d47f203d96aca7111f14492ee974479b2c3df122"
+resolved_reference = "edbf894ecb17cb8aae200ea7cfb99de0c2b1279e"
 
 [[package]]
 name = "annotated-types"

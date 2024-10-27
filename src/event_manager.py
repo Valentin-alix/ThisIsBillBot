@@ -59,6 +59,9 @@ class EventManager:
 
             for listener in listeners_to_remove:
                 listener.delete()
+                self.logger.info(
+                    f"Removing {msg_type} with listener {listener.originator.__class__}"
+                )
                 self.listeners_by_type_msg[msg_type].remove(listener)
 
     def process_msg(self, msg: Message) -> None:
@@ -93,13 +96,13 @@ class EventManager:
         originator: object,
     ) -> None:
         with self.lock:
-            self.logger.info(
-                f"Add callback before msg : {msg_type} for originator {originator.__class__}"
-            )
             if msg_type in self.modifier_by_type_msg:
                 self.logger.error(
                     f"{msg_type} already in modifier when using before from originator {originator}, override..."
                 )
+            self.logger.info(
+                f"Add callback before msg : {msg_type} for originator {originator.__class__}"
+            )
             self.modifier_by_type_msg[msg_type] = Modifier(
                 callback=callback, originator=originator
             )
@@ -149,11 +152,8 @@ class EventManager:
         priority: PriorityEnum = PriorityEnum.NORMAL,
         timeout: float | None = None,
         on_timeout: Callable[[], Any] | None = None,
-        override_on_self: bool = True,
+        override_on_self: bool = False,
     ) -> None:
-        self.logger.info(
-            f"Adding on callback for msg {msg_type} and originator {originator.__class__}"
-        )
         if (timeout is None) != (on_timeout is None):
             raise ValueError(
                 f"Incoherent timeout is {timeout} but on timeout definition : {on_timeout is not None}"
@@ -162,7 +162,13 @@ class EventManager:
             if priority is None:
                 priority = getattr(originator, "priority", PriorityEnum.NORMAL)
             if override_on_self:
-                self.clear_listener_by_origin_and_type(msg_type, self)
+                self.logger.info(
+                    f"Overriding {msg_type} with originator {originator.__class__}"
+                )
+                self.clear_listener_by_origin_and_type(msg_type, originator)
+            self.logger.info(
+                f"Adding on callback for msg {msg_type} and originator {originator.__class__}"
+            )
             self.listeners_by_type_msg[msg_type].append(
                 Listener(
                     msg_type=msg_type,

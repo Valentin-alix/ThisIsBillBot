@@ -2,7 +2,7 @@ import atexit
 import os
 import signal
 import sys
-from threading import Lock
+from threading import RLock
 
 from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message
@@ -25,17 +25,18 @@ PATH_MSG_INFOS = os.path.join(RESOURCE_PATH, "instancied_msg_infos.json")
 
 
 class InstanciedMessageInfoController(metaclass=Singleton):
-    MSG_INFOS_LOCK = Lock()
+    MSG_INFOS_LOCK = RLock()
 
     @cache
     def get_msg_infos_by_name(self):
-        if not os.path.exists(PATH_MSG_INFOS):
-            with open(PATH_MSG_INFOS, "w+", encoding="utf-8") as file:
-                msg_infos_by_name = MsgInfosByMsgName()
-                file.write(msg_infos_by_name.model_dump_json())
-                return msg_infos_by_name
-        with open(PATH_MSG_INFOS, "r+", encoding="utf-8") as file:
-            return MsgInfosByMsgName.model_validate_json(file.read())
+        with self.MSG_INFOS_LOCK:
+            if not os.path.exists(PATH_MSG_INFOS):
+                with open(PATH_MSG_INFOS, "w+", encoding="utf-8") as file:
+                    msg_infos_by_name = MsgInfosByMsgName()
+                    file.write(msg_infos_by_name.model_dump_json())
+                    return msg_infos_by_name
+            with open(PATH_MSG_INFOS, "r+", encoding="utf-8") as file:
+                return MsgInfosByMsgName.model_validate_json(file.read())
 
     def clear_msg_infos(self):
         with self.MSG_INFOS_LOCK:
@@ -43,8 +44,9 @@ class InstanciedMessageInfoController(metaclass=Singleton):
             MSG_INFO_BY_NAME = {}
 
     def add_msg(self, msg: Message, from_server: bool):
-        global MSG_INFO_BY_NAME
-        self._update_msg_infos_content(msg, from_server, True, MSG_INFO_BY_NAME)
+        with self.MSG_INFOS_LOCK:
+            global MSG_INFO_BY_NAME
+            self._update_msg_infos_content(msg, from_server, True, MSG_INFO_BY_NAME)
 
     def _update_msg_infos_content(
         self,
@@ -93,24 +95,24 @@ class InstanciedMessageInfoController(metaclass=Singleton):
                     value_by_field[field.name] = value
 
         if type_url != "google.protobuf.Any":
-            with self.MSG_INFOS_LOCK:
-                msg_fields_infos = content.get(
-                    type_url,
-                    ParsedObfMessageInfos(
-                        from_server=from_server, is_entry_msg=is_entry_msg
-                    ),
+            msg_fields_infos = content.get(
+                type_url,
+                ParsedObfMessageInfos(
+                    from_server=from_server, is_entry_msg=is_entry_msg
+                ),
+            )
+            if len(msg_fields_infos.obf_msg_info) <= 100:
+                msg_fields_infos.obf_msg_info.append(
+                    ObfMessageInfo(value_by_field_array=value_by_field)
                 )
-                if len(msg_fields_infos.obf_msg_info) <= 500:
-                    msg_fields_infos.obf_msg_info.append(
-                        ObfMessageInfo(value_by_field_array=value_by_field)
-                    )
-                    content[type_url] = msg_fields_infos
+                content[type_url] = msg_fields_infos
 
         return value_by_field
 
     def _write_msg_info_content(self):
-        with open(PATH_MSG_INFOS, "w+", encoding="utf-8") as file:
-            file.write(MsgInfosByMsgName(root=MSG_INFO_BY_NAME).model_dump_json())
+        with self.MSG_INFOS_LOCK:
+            with open(PATH_MSG_INFOS, "w+", encoding="utf-8") as file:
+                file.write(MsgInfosByMsgName(root=MSG_INFO_BY_NAME).model_dump_json())
 
 
 MSG_INFO_BY_NAME: dict[str, ParsedObfMessageInfos] = (

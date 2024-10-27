@@ -45,6 +45,9 @@ class MuleAcceptBehavior(Behavior):
 
     def run(self) -> None:
         MULE_BANK_CHARACTER_IDS.add(self.game_state.player.character_id)
+        self.go_bank_map()
+
+    def go_bank_map(self):
         self.auto_trip_smart_behavior.start(
             map_ids={MULE_BANK_MAP_ID},
             parent=self,
@@ -58,7 +61,7 @@ class MuleAcceptBehavior(Behavior):
         ):
             self._timedelta_for_sale_hotel_prices = get_time_beween_sale_hotel_prices()
             return self.sale_hotel_prices_behavior.start(
-                callback=lambda _: self.on_bank_map(), parent=self
+                callback=lambda _: self.go_bank_map(), parent=self
             )
 
         if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
@@ -74,14 +77,17 @@ class MuleAcceptBehavior(Behavior):
             self.on_exchange_requested_trade_event,
             originator=self,
             once=True,
+            override_on_self=True,
         )
 
     def on_exchange_requested_trade_event(self, msg: ExchangeRequestedTradeEvent):
+        self.logger.info("on requested trade event, let's accept")
         self.event_manager.on(
             ExchangeStartedWithPodsEvent,
             callback=self.on_exchange_started_with_pods_event,
             originator=self,
             once=True,
+            override_on_self=True,
         )
         self.run_timer(
             BASE_RANGE, lambda: self.event_manager.send(ExchangeAcceptRequest())
@@ -93,22 +99,26 @@ class MuleAcceptBehavior(Behavior):
             self.on_exchange_leave_event,
             originator=self,
             once=True,
+            override_on_self=True,
         )
         self.event_manager.on(
             ExchangeReadyEvent,
             self.on_exchange_ready_event,
             originator=self,
             once=True,
+            override_on_self=True,
         )
         self.event_manager.on(
             ExchangeObjectsAddedEvent,
             lambda _: self.increment_step(),
             originator=self,
+            override_on_self=True,
         )
         self.event_manager.on(
             ExchangeKamaModifiedEvent,
             lambda _: self.increment_step(),
             originator=self,
+            override_on_self=True,
         )
         self._step = 0
 
@@ -120,6 +130,7 @@ class MuleAcceptBehavior(Behavior):
             ExchangeRequestedTradeEvent,
             self.on_exchange_requested_trade_event_during_unload,
             originator=self,
+            override_on_self=True,
         )
         self.run_timer(
             BASE_RANGE,
@@ -131,6 +142,7 @@ class MuleAcceptBehavior(Behavior):
     def on_exchange_requested_trade_event_during_unload(
         self, msg: ExchangeRequestedTradeEvent
     ):
+        self.logger.info("Canceling request bc we are unloading")
         # auto cancel exchange request
         req = DialogLeaveRequest()
         self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(req), True)

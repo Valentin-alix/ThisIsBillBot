@@ -9,8 +9,8 @@ from d3_mapping.resources.protos.game.character_management_pb2 import (
     CharacterSelectionEvent,
 )
 from d3_mapping.resources.protos.game.character_pb2 import (
-    CharacterCharacteristicUpgradeRequest,
     CharacterCharacteristicsEvent,
+    CharacterCharacteristicUpgradeRequest,
     CharacterLevelUpEvent,
     CharacterLifeStatusEvent,
     UpdateLifePointsEvent,
@@ -205,5 +205,6 @@ class PlayerFrame(Frame):
 
         if self.is_playing_event.is_set():
             chance = get_max_characteristic_per_point(msg.new_level)
+            self.logger.info(f"New amount of base chance : {chance}")
             req = CharacterCharacteristicUpgradeRequest(chance=chance)
             self.event_manager.send(req)
