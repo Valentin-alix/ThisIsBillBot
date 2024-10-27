@@ -17,7 +17,7 @@ from src.core.behaviors.interactives.interactive_behavior import (
 )
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.config.timings import BASE_RANGE
-from src.core.controller.human_timings import HumanTimingsController
+from src.controller.human_timings import HumanTimingsController
 from src.core.logic.map.path_finding.movement_path import MovementPath
 from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.interfaces.models.collectable import Collectable

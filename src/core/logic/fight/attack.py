@@ -426,7 +426,7 @@ class Attacker:
             if actor_fight.life_point - dmg <= 0:
                 enemy_killed += 0.5 if actor_fight.is_summoned else 1
             enemy_dmg_weight += (
-                dmg / (actor_fight.life_point / monster_life_point)
+                dmg / (actor_fight.life_point / max(monster_life_point, 1))
             ) / (2 if actor_fight.is_summoned else 1)
 
         dmg_weight = (enemy_dmg_weight) * (1 + enemy_killed)

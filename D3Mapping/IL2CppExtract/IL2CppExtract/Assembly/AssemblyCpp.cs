@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Il2CppDumper;
 using IL2CppExtract.Assembly.IL2Cpp;
 using IL2CppExtract.Metadata.IL2Cpp;
 
@@ -25,7 +26,7 @@ public partial class AssemblyCpp
     {
         Package = file;
         Image = file.Metadata.Images[index];
-            
+
         ShortName = file.Metadata.Strings[Image.NameIndex];
         Definition = file.Metadata.Assemblies[Image.AssemblyIndex];
 

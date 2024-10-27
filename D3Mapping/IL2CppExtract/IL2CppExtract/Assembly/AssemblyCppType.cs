@@ -68,9 +68,7 @@ public partial class AssemblyCppType
 
         Namespace = AssemblyCppType.NamespaceRegex().Replace(pkg.Metadata.Strings[Definition.NamespaceIndex], "");
         Name = pkg.Metadata.Strings[Definition.NameIndex];
-        
-        //Console.WriteLine($"Type {Namespace}.{Name}");
-        
+
         TypeContainer.TypesByDefinitionIndex[typeIndex] = this;
         
         // Nested type?
@@ -98,18 +96,18 @@ public partial class AssemblyCppType
         }
         
         // Generate methods in DefinedMethods from methodStart to methodStart+methodCount-1
-        for (var m = Definition.MethodStart; m < Definition.MethodStart + Definition.MethodCount; m++)
-        {
-            var method = pkg.Metadata.Methods[m];
-            var name = pkg.Metadata.Strings[method.NameIndex];
-            var pointer = pkg.GetMethodPointer(Assembly.Module, method);
+        //for (var m = Definition.MethodStart; m < Definition.MethodStart + Definition.MethodCount; m++)
+        //{
+        //    var method = pkg.Metadata.Methods[m];
+        //    var name = pkg.Metadata.Strings[method.NameIndex]; // FIXME
+        //    var pointer = pkg.GetMethodPointer(Assembly.Module, method);
             
-            if (pointer != null)
-            {
-                Methods[name] = pointer.Value;
-                pkg.Methods[Namespace + "$$" + Name + "_" + name] = pointer.Value;
-            }
-        }
+        //    if (pointer != null)
+        //    {
+        //        Methods[name] = pointer.Value;
+        //        pkg.Methods[Namespace + "$$" + Name + "_" + name] = pointer.Value;
+        //    }
+        //}
     }
 
     public AssemblyCppType(AssemblyCppType type, int rank) : this(type.Assembly, type.Index)

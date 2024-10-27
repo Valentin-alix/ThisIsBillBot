@@ -1,6 +1,6 @@
 import unittest
 
-from src.core.controller.sale_hotel import SaleHotelController
+from src.controller.sale_hotel import SaleHotelController
 
 
 class TestAvgPrice(unittest.TestCase):

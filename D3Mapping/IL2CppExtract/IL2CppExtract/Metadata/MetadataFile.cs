@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Il2CppDumper;
 using IL2CppExtract.Assembly;
 using IL2CppExtract.Assembly.IL2Cpp;
 using IL2CppExtract.Metadata.IL2Cpp;
@@ -25,15 +26,94 @@ public class MetadataFile
 
     public required Dictionary<int, string> Strings { get; set; } = new Dictionary<int, string>();
     
-    public static MetadataFile Read(FileStream stream)
+    public static MetadataFile Read(FileStream stream, Il2CppDumper.Metadata metadataIl2CppDumper)
     {
         var reader = new BinaryReader(stream);
-        var header = MetadataHeader.Read(reader);
+        //var header = MetadataHeader.Read(reader);
+        var header = new MetadataHeader
+        {
+            Signature = 0xFAB11BAF,
+            Version = (int)metadataIl2CppDumper.Version,
+            StringLiteralOffset = (int)metadataIl2CppDumper.header.stringLiteralOffset,
+            StringLiteralCount = metadataIl2CppDumper.header.stringLiteralSize,
+            StringLiteralDataOffset = (int)metadataIl2CppDumper.header.stringLiteralDataOffset,
+            StringLiteralDataCount = metadataIl2CppDumper.header.stringLiteralDataSize,
+            StringOffset = (int)metadataIl2CppDumper.header.stringOffset,
+            StringCount = metadataIl2CppDumper.header.stringSize,
+            EventsOffset = (int)metadataIl2CppDumper.header.eventsOffset,
+            EventsCount = metadataIl2CppDumper.header.eventsSize,
+            PropertiesOffset = (int)metadataIl2CppDumper.header.propertiesOffset,
+            PropertiesCount = metadataIl2CppDumper.header.propertiesSize,
+            MethodsOffset = (int)metadataIl2CppDumper.header.methodsOffset,
+            MethodsCount = metadataIl2CppDumper.header.methodsSize,
+            ParameterDefaultValuesOffset = (int)metadataIl2CppDumper.header.parameterDefaultValuesOffset,
+            ParameterDefaultValuesCount = metadataIl2CppDumper.header.parameterDefaultValuesSize,
+            FieldDefaultValuesOffset = (int)metadataIl2CppDumper.header.fieldDefaultValuesOffset,
+            FieldDefaultValuesCount = metadataIl2CppDumper.header.fieldDefaultValuesSize,
+            FieldAndParameterDefaultValueDataOffset = (int)metadataIl2CppDumper.header.fieldAndParameterDefaultValueDataOffset,
+            FieldAndParameterDefaultValueDataCount = metadataIl2CppDumper.header.fieldAndParameterDefaultValueDataSize,
+            FieldMarshaledSizesOffset = metadataIl2CppDumper.header.fieldMarshaledSizesOffset,
+            FieldMarshaledSizesCount = metadataIl2CppDumper.header.fieldMarshaledSizesSize,
+            ParametersOffset = (int)metadataIl2CppDumper.header.parametersOffset,
+            ParametersCount = metadataIl2CppDumper.header.parametersSize,
+            FieldsOffset = (int)metadataIl2CppDumper.header.fieldsOffset,
+            FieldsCount = metadataIl2CppDumper.header.fieldsSize,
+            GenericParametersOffset = (int)metadataIl2CppDumper.header.genericParametersOffset,
+            GenericParametersCount = metadataIl2CppDumper.header.genericParametersSize,
+            GenericParameterConstraintsOffset = (int)metadataIl2CppDumper.header.genericParameterConstraintsOffset,
+            GenericParameterConstraintsCount = metadataIl2CppDumper.header.genericParameterConstraintsSize,
+            GenericContainersOffset = (int)metadataIl2CppDumper.header.genericContainersOffset,
+            GenericContainersCount = metadataIl2CppDumper.header.genericContainersSize,
+            NestedTypesOffset = (int)metadataIl2CppDumper.header.nestedTypesOffset,
+            NestedTypesCount = metadataIl2CppDumper.header.nestedTypesSize,
+            InterfacesOffset = (int)metadataIl2CppDumper.header.interfacesOffset,
+            InterfacesCount = metadataIl2CppDumper.header.interfacesSize,
+            VTableMethodsOffset = (int)metadataIl2CppDumper.header.vtableMethodsOffset,
+            VTableMethodsCount = metadataIl2CppDumper.header.vtableMethodsSize,
+            InterfaceOffsetsOffset = metadataIl2CppDumper.header.interfaceOffsetsOffset,
+            InterfaceOffsetsCount = metadataIl2CppDumper.header.interfaceOffsetsSize,
+            TypeDefinitionsOffset = (int)metadataIl2CppDumper.header.typeDefinitionsOffset,
+            TypeDefinitionsCount = metadataIl2CppDumper.header.typeDefinitionsSize,
+            RgctxEntriesOffset = (int)metadataIl2CppDumper.header.rgctxEntriesOffset,
+            RgctxEntriesCount = metadataIl2CppDumper.header.rgctxEntriesCount,
+            ImagesOffset = (int)metadataIl2CppDumper.header.imagesOffset,
+            ImagesCount = metadataIl2CppDumper.header.imagesSize,
+            AssembliesOffset = (int)metadataIl2CppDumper.header.assembliesOffset,
+            AssembliesCount = metadataIl2CppDumper.header.assembliesSize,
+            MetadataUsageListsOffset = (int)metadataIl2CppDumper.header.metadataUsageListsOffset,
+            MetadataUsageListsCount = metadataIl2CppDumper.header.metadataUsageListsCount,
+            MetadataUsagePairsOffset = (int)metadataIl2CppDumper.header.metadataUsagePairsOffset,
+            MetadataUsagePairsCount = metadataIl2CppDumper.header.metadataUsagePairsCount,
+            FieldRefsOffset = (int)metadataIl2CppDumper.header.fieldRefsOffset,
+            FieldRefsCount = metadataIl2CppDumper.header.fieldRefsSize,
+            ReferencedAssembliesOffset = metadataIl2CppDumper.header.referencedAssembliesOffset,
+            ReferencedAssembliesCount = metadataIl2CppDumper.header.referencedAssembliesSize,
+            AttributesInfoOffset = (int)metadataIl2CppDumper.header.attributesInfoOffset,
+            AttributesInfoCount = metadataIl2CppDumper.header.attributesInfoCount,
+            AttributeTypesOffset = (int)metadataIl2CppDumper.header.attributeTypesOffset,
+            AttributeTypesCount = metadataIl2CppDumper.header.attributeTypesCount,
+            AttributeDataOffset = metadataIl2CppDumper.header.attributeDataOffset,
+            AttributeDataSize = metadataIl2CppDumper.header.attributeDataSize,
+            AttributeDataRangeOffset = metadataIl2CppDumper.header.attributeDataRangeOffset,
+            AttributeDataRangeSize = metadataIl2CppDumper.header.attributeDataRangeSize,
+            UnresolvedVirtualCallParameterTypesOffset = metadataIl2CppDumper.header.unresolvedVirtualCallParameterTypesOffset,
+            UnresolvedVirtualCallParameterTypesCount = metadataIl2CppDumper.header.unresolvedVirtualCallParameterTypesSize,
+            UnresolvedVirtualCallParameterRangesOffset = metadataIl2CppDumper.header.unresolvedVirtualCallParameterRangesOffset,
+            UnresolvedVirtualCallParameterRangesCount = metadataIl2CppDumper.header.unresolvedVirtualCallParameterRangesSize,
+            WindowsRuntimeTypeNamesOffset = metadataIl2CppDumper.header.windowsRuntimeTypeNamesOffset,
+            WindowsRuntimeTypeNamesSize = metadataIl2CppDumper.header.windowsRuntimeTypeNamesSize,
+            WindowsRuntimeStringsOffset = metadataIl2CppDumper.header.windowsRuntimeStringsOffset,
+            WindowsRuntimeStringsSize = metadataIl2CppDumper.header.windowsRuntimeStringsSize,
+            ExportedTypeDefinitionsOffset = metadataIl2CppDumper.header.exportedTypeDefinitionsOffset,
+            ExportedTypeDefinitionsCount = metadataIl2CppDumper.header.exportedTypeDefinitionsSize
+        };
+        reader.BaseStream.Position = header.StringLiteralOffset;
 
-        if (header.Version > 29)
+        if (header.Version > 31)
         {
             throw new NotSupportedException($"Unsupported metadata version: {header.Version}");
         }
+        
         
         if(reader.BaseStream.Position != header.StringLiteralOffset)
         {
@@ -41,7 +121,7 @@ public class MetadataFile
         }
         
         var images = Array.Empty<ImageDefinition>();
-        
+
         if (header.Version >= 16)
         {
             // we read images size array
@@ -70,7 +150,7 @@ public class MetadataFile
 
         var fields = ReadFields(header, reader);
         var fieldsDefaultValues = ReadFieldsDefaultValues(header, reader);
-        
+
         return new MetadataFile()
         {
             Header = header,

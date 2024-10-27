@@ -9,6 +9,7 @@ from d3_mapping.resources.protos.game.character_management_pb2 import (
     CharacterSelectionEvent,
 )
 from d3_mapping.resources.protos.game.character_pb2 import (
+    CharacterCharacteristicUpgradeRequest,
     CharacterCharacteristicsEvent,
     CharacterLevelUpEvent,
     CharacterLifeStatusEvent,
@@ -24,6 +25,7 @@ from d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
 from d3_mapping.resources.protos.game.teleportation_pb2 import ZaapKnownListEvent
 
 from src.core.frames.frame import Frame
+from src.core.logic.stats.characteristic import get_max_characteristic_per_point
 
 
 @dataclass
@@ -200,3 +202,8 @@ class PlayerFrame(Frame):
 
     def on_character_level_up_event(self, msg: CharacterLevelUpEvent):
         self.game_state.player.level = msg.new_level
+
+        if self.is_playing_event.is_set():
+            chance = get_max_characteristic_per_point(msg.new_level)
+            req = CharacterCharacteristicUpgradeRequest(chance=chance)
+            self.event_manager.send(req)

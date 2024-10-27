@@ -1,6 +1,6 @@
-from enum import StrEnum
 import json
 import os
+from enum import StrEnum
 
 from d3_mapping.consts import UNITY_MAPPER_PATH
 from D3Database.utils import cache
@@ -35,21 +35,15 @@ def get_connection_mapping_by_clear():
 
 
 GAME_MAPPING_FIELDS: dict[str, dict[str, str]] = {
-    "GameMessage": {"request": "eals", "response": "ealq", "event": "ealr"},
-    "InteractiveElement": {"enabled_skills": "ekvk"},
-    "InteractiveUseRequest": {"element_id": "eeat"},
-    "ObjectUidWithQuantity": {"object_uid": "ejnh"},
-    "ObjectItem": {"uid": "ekjq"},
+    # "GameMessage": {"request": "eals", "response": "ealq", "event": "ealr"},
     "RolePlayActor": {"monster_group_actor": "ejjx"},
     "GameActionFightEvent": {
         "death": "efsr",
         "life_points_gain": "efsn",
-        "slide": "efsy",
+        "exchange_positions": "efso",
         "targeted_ability": "efsk",
     },
     "SellingConditions": {"max_item_per_account": "ehbx"},
-    "ExchangeObjectModifyPricedRequest": {"object_uid": "egxn"},
-    "ExchangeObjectMovePricedRequest": {"object_uid": "egzk"},
     "Slide": {"start_cell": "efre"},
 }
 

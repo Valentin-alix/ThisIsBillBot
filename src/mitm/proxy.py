@@ -7,7 +7,6 @@ from threading import Lock, Thread
 import select
 
 from d3_mapping.protocol.protocol import decode_varint_size
-from src.signals.shared_farm_signals import SharedSignals
 
 
 class WorkerAction(Enum):

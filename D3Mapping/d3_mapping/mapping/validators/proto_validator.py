@@ -1,0 +1,148 @@
+from dataclasses import dataclass
+from typing import Any, Iterable
+
+from d3_mapping.consts import TYPE_URL_PREFIX
+from d3_mapping.controller.instancied_msg_info_controller import MSG_INFO_BY_NAME
+from d3_mapping.mapping.proto_organization import ProtoOrganization
+from d3_mapping.mapping.validators.proto_field_validators import (
+    VALIDATORS_GLOBAL_ON_SET_FIELDS,
+    VALIDATORS_ON_SET_FIELDS,
+)
+from d3_mapping.models.mapping_info import FieldMapping, OutputMappingInfo
+from d3_mapping.models.message_fields_infos import ObfMessageInfo
+from d3_mapping.models.p_enum import PEnum
+from d3_mapping.models.p_message import PMessage
+
+
+@dataclass
+class ProtoValidator:
+    clear_struct_by_namespace: dict[str, PMessage | PEnum]
+    obf_struct_by_namespace: dict[str, PMessage | PEnum]
+    msg_mapping_info_by_obf_namespace: dict[str, OutputMappingInfo]
+
+    def is_valid_clear_by_obf_field_mapping(
+        self,
+        treated_clear_namespaces: set[str],
+        clear_msg: PMessage,
+        obf_msg: PMessage,
+        clear_by_obf_field_mapping: FieldMapping,
+    ):
+        # Check if combination of mapped fields is coherent based on validators
+
+        validator_on_whole_msg = VALIDATORS_ON_SET_FIELDS.get(clear_msg.name)
+        validator_global_on_whole_msg = VALIDATORS_GLOBAL_ON_SET_FIELDS.get(
+            clear_msg.name
+        )
+        if (validator_on_whole_msg or validator_global_on_whole_msg) and (
+            parsed_obf_msg_infos := MSG_INFO_BY_NAME.get(obf_msg.name)
+        ):
+            values_array_mapped_to_clear = self.get_values_array_mapped_to_clear(
+                treated_clear_namespaces,
+                obf_msg=obf_msg,
+                clear_by_obf_field_mapping=clear_by_obf_field_mapping,
+                obf_msg_infos=parsed_obf_msg_infos.obf_msg_info,
+            )
+            if validator_global_on_whole_msg:
+                values_array_mapped_to_clear = list(values_array_mapped_to_clear)
+                if not validator_global_on_whole_msg[0](values_array_mapped_to_clear):
+                    return False
+
+            if validator_on_whole_msg:
+                for values_mapped_to_clear in values_array_mapped_to_clear:
+                    if not validator_on_whole_msg[0](values_mapped_to_clear):
+                        return False
+
+        return True
+
+    def get_values_array_mapped_to_clear(
+        self,
+        treated_clear_namespaces: set[str],
+        obf_msg: PMessage,
+        clear_by_obf_field_mapping: FieldMapping,
+        obf_msg_infos: Iterable[ObfMessageInfo],
+    ):
+        """get deep values based on mapping with clear mapped field as key"""
+        values_array_mapped_to_clear: list[dict[str, Any]] = []
+
+        for obf_msg_info in obf_msg_infos:
+            values_mapped_to_clear = {}
+
+            for key, value in obf_msg_info.value_by_field_array.items():
+                is_any_value = (
+                    type(value) is dict
+                    and "type_url" in value
+                    and TYPE_URL_PREFIX in value["type_url"]
+                )
+                if is_any_value:
+                    value: dict
+                    obf_type_url = value["type_url"].split("/")[1]
+                    if obf_type_url in self.msg_mapping_info_by_obf_namespace:
+                        value = {
+                            "type_url": f"{TYPE_URL_PREFIX}{self.msg_mapping_info_by_obf_namespace[obf_type_url].clear_msg_namespace}"
+                        }
+
+                if key not in clear_by_obf_field_mapping:
+                    continue
+                if (clear_mapping_info := clear_by_obf_field_mapping[key]) is None:
+                    continue
+
+                clear_field_name = clear_mapping_info[1]
+
+                if type(value) is dict and not is_any_value:
+                    _sub_mapping_info = clear_mapping_info[2]
+                    assert _sub_mapping_info is not None
+                    _sub_obf_struct = (
+                        ProtoOrganization.get_related_struct_from_field_name(
+                            self.obf_struct_by_namespace, obf_msg, key
+                        )
+                    )
+                    _sub_clear_struct = self.clear_struct_by_namespace[
+                        _sub_mapping_info.clear_msg_namespace
+                    ]
+                    assert (
+                        type(_sub_obf_struct) is PMessage
+                        and type(_sub_clear_struct) is PMessage
+                    )
+
+                    value = self.get_values_array_mapped_to_clear(
+                        treated_clear_namespaces,
+                        _sub_obf_struct,
+                        _sub_mapping_info.field_mapping,
+                        [ObfMessageInfo(value_by_field_array=value)],
+                    )[0]
+                elif type(value) is list:
+                    _value = []
+                    for sub_value in value:
+                        if type(sub_value) is dict:
+                            _sub_mapping_info = clear_mapping_info[2]
+                            assert _sub_mapping_info is not None
+                            # _value.append(sub_value)
+                            _sub_obf_struct = (
+                                ProtoOrganization.get_related_struct_from_field_name(
+                                    self.obf_struct_by_namespace, obf_msg, key
+                                )
+                            )
+                            _sub_clear_struct = self.clear_struct_by_namespace[
+                                _sub_mapping_info.clear_msg_namespace
+                            ]
+                            assert (
+                                type(_sub_obf_struct) is PMessage
+                                and type(_sub_clear_struct) is PMessage
+                            )
+                            _value.append(
+                                self.get_values_array_mapped_to_clear(
+                                    treated_clear_namespaces,
+                                    _sub_obf_struct,
+                                    _sub_mapping_info.field_mapping,
+                                    [ObfMessageInfo(value_by_field_array=sub_value)],
+                                )[0]
+                            )
+                        else:
+                            _value.append(sub_value)
+                    value = _value
+
+                values_mapped_to_clear[clear_field_name] = value
+
+            values_array_mapped_to_clear.append(values_mapped_to_clear)
+
+        return values_array_mapped_to_clear

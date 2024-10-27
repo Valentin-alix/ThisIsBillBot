@@ -1,8 +1,10 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Il2CppDumper;
 using IL2CppExtract.Assembly.IL2Cpp;
 using IL2CppExtract.Assembly.Native;
 using IL2CppExtract.Metadata;
@@ -43,31 +45,83 @@ public partial class AssemblyFile
     public required MetadataFile Metadata { get; init; }
     public required BinaryReader Reader { get; init; }
 
-    public static AssemblyFile Read(FileStream stream, MetadataFile metadataFile)
+    public static AssemblyFile Read(FileStream stream, MetadataFile metadataFile, Il2Cpp il2cpp)
     {
         var reader = new BinaryReader(stream);
 
         var file = AssemblyFile.ReadHeader(reader, metadataFile);
 
-        var (codeRegistration, metadataRegistration) = file.ScanImage(reader, metadataFile);
+        //var (codeRegistration, metadataRegistration) = file.ScanImage(reader, metadataFile);
+        //if (codeRegistration == 0 || metadataRegistration == 0)
+        //{
+        //    throw new Exception("Can't find codeRegistration and metadataRegistration");
+        //}
+        //file.CodeRegistrationPointer = codeRegistration;
+        //file.MetadataRegistrationPointer = metadataRegistration;
 
-        if (codeRegistration == 0 || metadataRegistration == 0)
+        file.CodeRegistration = new()
         {
-            throw new Exception("Can't find codeRegistration and metadataRegistration");
-        }
-        
-        file.CodeRegistrationPointer = codeRegistration;
-        file.MetadataRegistrationPointer = metadataRegistration;
+            MehodPointersCount = il2cpp.pCodeRegistration.methodPointersCount,
+            MehodPointers = il2cpp.pCodeRegistration.methodPointers,
+            ReversePInvokeWrappersCount = il2cpp.pCodeRegistration.reversePInvokeWrapperCount,
+            ReversePInvokeWrappers = il2cpp.pCodeRegistration.reversePInvokeWrappers,
+            DelegateWrappersFromManagedToNativeCount = il2cpp.pCodeRegistration.delegateWrappersFromManagedToNativeCount,
+            DelegateWrappersFromManagedToNative = il2cpp.pCodeRegistration.delegateWrappersFromManagedToNative,
+            MarshalingFunctionsCount = il2cpp.pCodeRegistration.marshalingFunctionsCount,
+            MarshalingFunctions = il2cpp.pCodeRegistration.marshalingFunctions,
+            CcwMarshalingFunctionsCount = il2cpp.pCodeRegistration.ccwMarshalingFunctionsCount,
+            CcwMarshalingFunctions = il2cpp.pCodeRegistration.ccwMarshalingFunctions,
+            GenericMethodPointersCount = il2cpp.pCodeRegistration.genericMethodPointersCount,
+            GenericMethodPointers = il2cpp.pCodeRegistration.genericMethodPointers,
+            GenericAdjustorThunks = il2cpp.pCodeRegistration.genericAdjustorThunks,
+            InvokerPointersCount = il2cpp.pCodeRegistration.invokerPointersCount,
+            InvokerPointers = il2cpp.pCodeRegistration.invokerPointers,
+            CustomAttributeCount = il2cpp.pCodeRegistration.customAttributeCount,
+            CustomAttributeGenerators = il2cpp.pCodeRegistration.customAttributeGenerators,
+            GuildCount = il2cpp.pCodeRegistration.guidCount,
+            Guilds = il2cpp.pCodeRegistration.guids,
+            UnresolvedVirtualCallCount = il2cpp.pCodeRegistration.unresolvedVirtualCallCount,
+            //UnresolvedIndirectCallCount = il2cpp.pCodeRegistration.unresolvedIndirectCallCount,
+            UnresolvedVirtualCallPointers = il2cpp.pCodeRegistration.unresolvedVirtualCallPointers,
+            //UnresolvedIndirectCallPointers = il2cpp.pCodeRegistration.unresolvedIndirectCallPointers,
+            UnresolveStaticCallPointers = il2cpp.pCodeRegistration.unresolvedStaticCallPointers,
+            InteropDataCount = il2cpp.pCodeRegistration.interopDataCount,
+            InteropData = il2cpp.pCodeRegistration.interopData,
+            WindowsRuntimeFactoryCount = il2cpp.pCodeRegistration.windowsRuntimeFactoryCount,
+            WindowsRuntimeFactoryTable = il2cpp.pCodeRegistration.windowsRuntimeFactoryTable,
+            CodeGenModulesCount = il2cpp.pCodeRegistration.codeGenModulesCount,
+            CodeGenModules = il2cpp.pCodeRegistration.codeGenModules
+        };
+        //file.CodeRegistration = file.ReadCodeRegistration(reader, metadataFile.Version);
 
-        file.CodeRegistration = file.ReadCodeRegistration(reader, metadataFile.Version);
-        file.MetadataRegistration = file.ReadMetadataRegistration(reader, metadataFile.Version);
-
-        if (metadataFile.Header.Version == 29 && file.CodeRegistration.GenericMethodPointersCount > 0x50000)
+        file.MetadataRegistration = new()
         {
-            metadataFile.Version = 29.1;
-            file.CodeRegistrationPointer -= 2 * 8;
-            file.CodeRegistration = file.ReadCodeRegistration(reader, metadataFile.Version);
-        }
+            GenericClassesCount = il2cpp.pMetadataRegistration.genericClassesCount,
+            GenericClasses = il2cpp.pMetadataRegistration.genericClasses,
+            GenericInstsCount = il2cpp.pMetadataRegistration.genericInstsCount,
+            GenericInsts = il2cpp.pMetadataRegistration.genericInsts,
+            GenericMethodTableCount = il2cpp.pMetadataRegistration.genericMethodTableCount,
+            GenericMethodTable = il2cpp.pMetadataRegistration.genericMethodTable,
+            TypesCount = il2cpp.pMetadataRegistration.typesCount,
+            Types = il2cpp.pMetadataRegistration.types,
+            MethodSpecsCount = il2cpp.pMetadataRegistration.methodSpecsCount,
+            MethodSpecs = il2cpp.pMetadataRegistration.methodSpecs,
+            MethodReferencesCount = il2cpp.pMetadataRegistration.methodReferencesCount,
+            MethodReferences = il2cpp.pMetadataRegistration.methodReferences,
+            FieldOffsetsCount = il2cpp.pMetadataRegistration.fieldOffsetsCount,
+            FieldOffsets = il2cpp.pMetadataRegistration.fieldOffsets,
+            TypeDefinitionsSizesCount = il2cpp.pMetadataRegistration.typeDefinitionsSizesCount,
+            TypeDefinitionsSizes = il2cpp.pMetadataRegistration.typeDefinitionsSizes,
+            MetadataUsageCount = (long)il2cpp.pMetadataRegistration.metadataUsagesCount,
+            MetadataUsage = il2cpp.pMetadataRegistration.metadataUsages,
+        };
+        //file.MetadataRegistration = file.ReadMetadataRegistration(reader, metadataFile.Version);
+        //if (metadataFile.Header.Version == 29 && file.CodeRegistration.GenericMethodPointersCount > 0x50000)
+        //{
+        //    metadataFile.Version = 29.1;
+        //    file.CodeRegistrationPointer -= 2 * 8;
+        //    file.CodeRegistration = file.ReadCodeRegistration(reader, metadataFile.Version);
+        //}
 
         // Do basic validatation that MetadataRegistration and CodeRegistration are sane
         if (metadataFile.Types.Length != file.MetadataRegistration.TypeDefinitionsSizesCount)
@@ -165,7 +219,7 @@ public partial class AssemblyFile
         TypeContainer.TypesByReferenceIndex = new AssemblyCppType[file.TypeReferences.Length];
 
         file.Metadata.GenerateFieldDefaultDictionary(file);
-        
+
         var assemblies = new AssemblyCpp[file.Metadata.Images.Length];
 
         for (var index = 0; index < file.Metadata.Images.Length; index++)

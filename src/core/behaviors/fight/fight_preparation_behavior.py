@@ -9,10 +9,10 @@ from d3_mapping.resources.protos.game.fight_preparation_pb2 import (
 )
 from grid.map_point import MapPoint
 
+from src.controller.human_timings import HumanTimingsController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_challenge_behavior import FightChallengeBehavior
 from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
-from src.core.controller.human_timings import HumanTimingsController
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -78,7 +78,10 @@ class FightPreparationBehavior(Behavior):
             self.event_manager.clear_listener_by_origin_and_type(
                 EntitiesDispositionEvent, self
             )
-            if disposition.entity_id != self.game_state.player.character_id:
+            if self.game_state.player.character_id not in [
+                disposition.entity_id,
+                disposition.carrying_character_id,
+            ]:
                 return self.position_player()
 
             self.on_player_placement_done()

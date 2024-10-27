@@ -13,7 +13,7 @@ from data_center.data_reader import DataReader
 from data_center.map_reader import MapReader
 from enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
 
-from src.core.controller.gfx_mapping import GfxMappingController
+from src.controller.gfx_mapping import GfxMappingController
 from src.core.frames.frame import Frame
 
 

@@ -3,7 +3,6 @@ import threading
 from dataclasses import dataclass, field
 from time import sleep
 
-import psutil
 import requests
 from ankama_launcher_emulator import AnkamaLauncherHandler, AnkamaLauncherServer
 from ankama_launcher_emulator.consts import OFFICIAL_CONFIG_URL

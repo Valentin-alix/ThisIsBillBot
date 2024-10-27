@@ -1,12 +1,14 @@
 from datetime import datetime
 from typing import cast
 
-from PyQt5.QtCore import pyqtSlot, QModelIndex, Qt
+from PyQt5.QtCore import QModelIndex, Qt, pyqtSlot
 from PyQt5.QtGui import QStandardItem
 from PyQt5.QtWidgets import QHeaderView
 from qfluentwidgets import TableWidget
 
-from src.gui.components.custom_message_box import CustomMessageBox
+from src.gui.components.qfluent_widget.scrollable_message_box import (
+    ScrollableMessageBox,
+)
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
 from src.interfaces.enums.log_level import LogLevel
@@ -46,5 +48,5 @@ class LogsTable(BaseTableWidget):
         msg_text = cast(
             str, model.data(model.index(source_index.row(), 2), Qt.DisplayRole)
         )
-        dialog = CustomMessageBox(f"Log {type_lvl} à {time_text}", msg_text, self)
+        dialog = ScrollableMessageBox(f"Log {type_lvl} à {time_text}", msg_text, self)
         dialog.exec()

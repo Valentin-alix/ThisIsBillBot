@@ -7,6 +7,7 @@ from models.datas.recipe_root import RecipeItem
 from src.common.logger import Logger
 from src.core.behaviors.storage.consts import GATHERER_ITEM_GIDS
 from src.core.config.weights import WEIGHT_BY_JOB
+from src.interfaces.enums.item_type_enum import ItemTypeEnum
 
 MAP_ID_BY_SKILL_ID: dict[int, set[int]] = {
     101: {217063430, 192940034},
@@ -16,6 +17,7 @@ MAP_ID_BY_SKILL_ID: dict[int, set[int]] = {
     47: {217061382, 192939008},
     27: {217061382, 192939008},
     135: {217062406, 192937984},
+    134: {192937994},  # chasseur
 }
 
 
@@ -40,7 +42,7 @@ def get_recipes_for_job_lvl_up(is_sub: bool, jobs_lvl_by_id: dict[int, int]):
         recipes.append(recipe)
     recipes.sort(
         key=lambda recipe: (
-            WEIGHT_BY_JOB[JobEnum(recipe.jobId)],
+            WEIGHT_BY_JOB.get(JobEnum(recipe.jobId), 1),
             recipe.resultLevel - jobs_lvl_by_id[recipe.jobId],
         ),
         reverse=True,
@@ -58,10 +60,13 @@ def is_not_valid_recipe_for_lvl_up_job(
         or current_job_lvl < recipe.resultLevel
         or current_job_lvl >= max_job_lvl
         or recipe.skillId not in MAP_ID_BY_SKILL_ID
-        or recipe.jobId not in HARVESTER_JOB_IDS
+        or (recipe.jobId not in HARVESTER_JOB_IDS and recipe.jobId != JobEnum.CHASSEUR)
         or current_job_lvl - recipe.resultLevel >= 20
         or any(
-            ingredient_id not in GATHERER_ITEM_GIDS
+            (
+                ingredient_id not in GATHERER_ITEM_GIDS
+                and DataReader().item_by_id[ingredient_id].typeId != ItemTypeEnum.VIANDE
+            )
             for ingredient_id in recipe.ingredientIds
         )
     )
@@ -121,5 +126,5 @@ def get_max_possible_result_quantity(
 
 
 if __name__ == "__main__":
-    for recipe in get_recipes_for_job_lvl_up(False, {JobEnum.WOODCUTTER: 40}):
+    for recipe in get_recipes_for_job_lvl_up(False, {JobEnum.CHASSEUR: 40}):
         print(I18N().name_by_id[int(recipe.resultNameId)])

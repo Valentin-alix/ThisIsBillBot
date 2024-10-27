@@ -143,13 +143,10 @@ class RandomFarmBehavior(Behavior):
 
     def get_next_weighted_path(self) -> list[Edge] | None:
         cached_weight_by_map_id: dict[int, float] = {}
-        path = self.weighted_path.get_best_path(
-            vertice=self.game_state.player.curr_vertex,
-            visited_map_ids=tuple(),
+        path = self.weighted_path.monte_carlo_path(
+            start_vertex=self.game_state.player.curr_vertex,
             get_weight_by_edge_func=self.get_weight_edge,
             weight_by_map_id=cached_weight_by_map_id,
-            current_path=[],
-            memo={},
         )[0]
         draw_weight_on_map(cached_weight_by_map_id, self.world_signals)
         if len(path) == 0:

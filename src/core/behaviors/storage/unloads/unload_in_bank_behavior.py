@@ -20,7 +20,7 @@ from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )
 from src.core.config.timings import BEFORE_CLOSING_INVENTORY
-from src.core.controller.human_timings import HumanTimingsController
+from src.controller.human_timings import HumanTimingsController
 from src.exceptions import UnexpectedStateException
 
 

@@ -1,8 +1,0 @@
-from src.core.behaviors.storage.consts import ASTRUB_BANK_MAP
-
-MULE_KAMAS_MAP_ID = ASTRUB_BANK_MAP
-MULE_BANK_CHARACTER_ID: int | None = 22466789726
-MULE_BANK_CHARACTER_LOGIN: str | None = None
-
-BOT_MINIMAL_KAMAS: int = 1_000_000
-BOT_KAMA_LIMIT_TO_GIVE: int = 1_500_000

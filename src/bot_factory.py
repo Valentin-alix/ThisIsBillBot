@@ -37,10 +37,12 @@ from src.core.behaviors.movements.edge_behavior import EdgeBehavior
 from src.core.behaviors.movements.map_change_behavior import MapChangeBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
 from src.core.behaviors.movements.waypoint_behavior import WaypointBehavior
-from src.core.behaviors.mule_kamas.mule_accept_kamas_behavior import (
-    MuleAcceptKamasBehavior,
+from src.core.behaviors.mule_storage.mule_accept_behavior import (
+    MuleAcceptBehavior,
 )
-from src.core.behaviors.mule_kamas.mule_give_kamas_behavior import MuleGiveKamasBehavior
+from src.core.behaviors.mule_storage.mule_give_behavior import (
+    MuleGiveBehavior,
+)
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
@@ -441,7 +443,7 @@ class BotFactory:
             edge_behavior=edge_behavior,
             logger=logger,
         )
-        mule_give_kamas_behavior = MuleGiveKamasBehavior(
+        mule_give_behavior = MuleGiveBehavior(
             event_manager=event_manager,
             game_state=game_state,
             logger=logger,
@@ -450,7 +452,7 @@ class BotFactory:
 
         # module
         harvester = HarvesterBehavior(
-            mule_give_kamas_behavior=mule_give_kamas_behavior,
+            mule_give_behavior=mule_give_behavior,
             event_manager=event_manager,
             collect_behavior=collect_behavior,
             game_state=game_state,
@@ -478,6 +480,7 @@ class BotFactory:
             unload_behavior=unload_behavior,
             logger=logger,
             sale_hotel_prices_behavior=sale_hotel_prices_behavior,
+            mule_give_behavior=mule_give_behavior,
         )
         load_recipe_from_bank_chest_behavior = LoadRecipeFromBankChestBehavior(
             event_manager=event_manager,
@@ -496,11 +499,13 @@ class BotFactory:
             pathfinding=path_finding,
             load_recipe_from_bank_chest_behavior=load_recipe_from_bank_chest_behavior,
         )
-        mule_accept_kamas_behavior = MuleAcceptKamasBehavior(
+        mule_accept_kamas_behavior = MuleAcceptBehavior(
             event_manager=event_manager,
             game_state=game_state,
             logger=logger,
             auto_trip_smart_behavior=auto_trip_world_behavior,
+            unload_behavior=unload_behavior,
+            sale_hotel_prices_behavior=sale_hotel_prices_behavior,
         )
         chat_behavior = ChatBehavior(
             event_manager=event_manager, game_state=game_state, logger=logger
@@ -515,7 +520,7 @@ class BotFactory:
         )
         multi_farming_behavior = MultiFarmingBehavior(
             chat_behavior=chat_behavior,
-            mule_give_kamas_behavior=mule_give_kamas_behavior,
+            mule_give_behavior=mule_give_behavior,
             event_manager=event_manager,
             collect_behavior=collect_behavior,
             game_state=game_state,
@@ -539,6 +544,7 @@ class BotFactory:
 
         return Bot(
             pid=None,
+            usable_behaviors=[mule_give_behavior, mule_accept_kamas_behavior],
             account=account,
             grid_signals=grid_signals,
             game_info_signals=game_info_signals,

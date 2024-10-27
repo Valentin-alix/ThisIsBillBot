@@ -13,6 +13,6 @@ class ObfMessageInfo(BaseModel):
 
 
 class ParsedObfMessageInfos(BaseModel):
-    obf_msg_info: set[ObfMessageInfo] = set()
+    obf_msg_info: list[ObfMessageInfo] = []
     from_server: bool
     is_entry_msg: bool

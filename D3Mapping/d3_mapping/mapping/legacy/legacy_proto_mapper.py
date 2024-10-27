@@ -6,7 +6,6 @@ from proto_schema_parser import FieldCardinality
 from scipy.optimize import linear_sum_assignment
 from tqdm import tqdm
 
-
 from d3_mapping.controller.instancied_msg_info_controller import (
     MSG_INFO_BY_NAME,
 )
@@ -15,12 +14,12 @@ from d3_mapping.mapping.legacy.legacy_proto_reliability_calculator import (
     LegacyProtoReliabilityCalculator,
 )
 from d3_mapping.mapping.proto_organization import ProtoOrganization
-from d3_mapping.mapping.validators.proto_validators import (
+from d3_mapping.mapping.validators.proto_field_validators import (
     VALIDATORS_ON_FIELD,
     is_condition_respected,
     is_parsed_obf_msg,
 )
-from d3_mapping.models.mapping_info import FieldMapping, MappingInfo
+from d3_mapping.models.mapping_info import FieldMapping, OutputMappingInfo
 from d3_mapping.models.p_enum import PEnum
 from d3_mapping.models.p_message import (
     PField,
@@ -45,7 +44,7 @@ class LegacyProtoMapper:
     enum_sim_by_namespace: defaultdict[str, dict[str, float]] = field(
         init=False, default_factory=lambda: defaultdict(dict)
     )
-    msg_mapping_info_by_obf_name: dict[str, MappingInfo] = field(
+    msg_mapping_info_by_obf_name: dict[str, OutputMappingInfo] = field(
         init=False, default_factory=dict
     )
     mapped_by_clear_namespace: dict[str, str] = field(init=False, default_factory=dict)
@@ -55,7 +54,7 @@ class LegacyProtoMapper:
     verified_mapping_by_clear: dict[str, str]
     verified_mapping_fields: dict[str, dict[str, str]]
 
-    def run_mapping(self) -> dict[str, MappingInfo]:
+    def run_mapping(self) -> dict[str, OutputMappingInfo]:
         # because new proto message is on only one file
         self.obf_root_namespaces.sort()
 
@@ -248,8 +247,8 @@ class LegacyProtoMapper:
             clear_msg.namespace, obf_msg.namespace, set()
         )
 
-        self.msg_mapping_info_by_obf_name[obf_msg.namespace] = MappingInfo(
-            clear_msg_name=clear_msg.namespace,
+        self.msg_mapping_info_by_obf_name[obf_msg.namespace] = OutputMappingInfo(
+            clear_msg_namespace=clear_msg.namespace,
             similarity=sim,
             field_mapping=field_mapping,
         )
@@ -361,7 +360,7 @@ class LegacyProtoMapper:
 
         if (
             obf_msg.namespace in self.msg_mapping_info_by_obf_name
-            and self.msg_mapping_info_by_obf_name[obf_msg.namespace].clear_msg_name
+            and self.msg_mapping_info_by_obf_name[obf_msg.namespace].clear_msg_namespace
             != clear_msg.namespace
         ):
             return 0, {}
@@ -592,10 +591,10 @@ class LegacyProtoMapper:
         if obf_p_field.type_name in PROTO_BASE_FIELDS:
             return 0
 
-        clear_struct = ProtoOrganization.get_related_struct(
+        clear_struct = ProtoOrganization.get_related_struct_from_type_name(
             self.clear_struct_by_namespace, clear_msg.namespace, clear_p_field.type_name
         )
-        obf_struct = ProtoOrganization.get_related_struct(
+        obf_struct = ProtoOrganization.get_related_struct_from_type_name(
             self.obf_struct_by_namespace, obf_msg.namespace, obf_p_field.type_name
         )
         if isinstance(clear_struct, PMessage) and isinstance(obf_struct, PMessage):

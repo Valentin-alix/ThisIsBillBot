@@ -8,6 +8,8 @@ from typing import Callable
 
 from PyQt5.QtWidgets import QApplication
 
+from src.controller.gfx_mapping import GfxMappingController
+
 sys.path.append(
     os.path.join(Path(__file__).parent.parent.parent.parent.parent, "D3Database")
 )
@@ -26,7 +28,6 @@ from models.world_graph import Edge, Vertice
 
 from src.common.logger import Logger
 from src.core.behaviors.storage.consts import ASTRUB_BANK_MAP
-from src.core.controller.gfx_mapping import GfxMappingController
 from src.core.logic.farmer.weight_collectables import (
     draw_weight_on_map,
     get_map_id_collectable_weight,
@@ -95,7 +96,7 @@ class WeightedPath:
                 )
                 try:
                     last_visited_index = visited_map_ids.index(next_edge.m_to.m_mapId)
-                    base = 0.99
+                    base = 0.9999
                     weight_malus = 1 - base**last_visited_index
                     weight *= weight_malus
                 except ValueError:
@@ -226,9 +227,11 @@ if __name__ == "__main__":
 
     before = perf_counter()
 
-    path, weight = weighted_path.get_best_path(
-        vertex, tuple(), get_weight_by_edge, {}, [], {}, depth_remaining=10
-    )
+    # path, weight = weighted_path.get_best_path(
+    #     vertex, tuple(), get_weight_by_edge, {}, [], {}, depth_remaining=10
+    # )
+
+    path, weight = weighted_path.monte_carlo_path(vertex, get_weight_by_edge, {})
 
     print(perf_counter() - before)
 

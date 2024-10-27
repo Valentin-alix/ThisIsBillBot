@@ -48,3 +48,7 @@ def generate_all_mapping():
         get_game_mapping_by_obf(),
         GAME_MAPPING_FIELDS,
     )
+
+
+if __name__ == "__main__":
+    generate_all_mapping()

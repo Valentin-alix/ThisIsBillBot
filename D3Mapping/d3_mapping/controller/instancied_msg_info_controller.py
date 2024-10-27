@@ -8,13 +8,13 @@ from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message
 from pydantic import RootModel
 
-from D3Database.utils import Singleton, cache
 from d3_mapping.consts import RESOURCE_PATH
 from d3_mapping.models.message_fields_infos import (
     ObfMessageInfo,
     ParsedObfMessageInfos,
     ValueByField,
 )
+from D3Database.utils import Singleton, cache
 
 
 class MsgInfosByMsgName(RootModel):
@@ -56,6 +56,8 @@ class InstanciedMessageInfoController(metaclass=Singleton):
         type_url = msg.DESCRIPTOR.full_name
         value_by_field: ValueByField = {}
         for field in msg.DESCRIPTOR.fields:
+            if type_url == "google.protobuf.Any" and field.name == "value":
+                continue
             value = getattr(msg, field.name)
             if field.label == FieldDescriptor.LABEL_REPEATED:
                 is_map_field = (
@@ -90,18 +92,19 @@ class InstanciedMessageInfoController(metaclass=Singleton):
                 else:
                     value_by_field[field.name] = value
 
-        with self.MSG_INFOS_LOCK:
-            msg_fields_infos = content.get(
-                type_url,
-                ParsedObfMessageInfos(
-                    from_server=from_server, is_entry_msg=is_entry_msg
-                ),
-            )
-            if len(msg_fields_infos.obf_msg_info) <= 500:
-                msg_fields_infos.obf_msg_info.add(
-                    ObfMessageInfo(value_by_field_array=value_by_field)
+        if type_url != "google.protobuf.Any":
+            with self.MSG_INFOS_LOCK:
+                msg_fields_infos = content.get(
+                    type_url,
+                    ParsedObfMessageInfos(
+                        from_server=from_server, is_entry_msg=is_entry_msg
+                    ),
                 )
-                content[type_url] = msg_fields_infos
+                if len(msg_fields_infos.obf_msg_info) <= 500:
+                    msg_fields_infos.obf_msg_info.append(
+                        ObfMessageInfo(value_by_field_array=value_by_field)
+                    )
+                    content[type_url] = msg_fields_infos
 
         return value_by_field
 

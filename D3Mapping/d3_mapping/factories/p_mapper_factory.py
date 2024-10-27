@@ -1,6 +1,7 @@
 from d3_mapping.factories.p_namespace_factory import PNamespaceFactory
 from d3_mapping.mapping.proto_mapper import ProtoMapper
 from d3_mapping.mapping.proto_reliability_calculator import ProtoReliabilityCalculator
+from d3_mapping.mapping.validators.proto_validator import ProtoValidator
 
 
 class PMapperFactory:
@@ -33,7 +34,14 @@ class PMapperFactory:
             obf_struct_by_namespace=obf_struct_by_namespace,
             verified_obf_msg_name_by_clear_msg_name=verified_mapping_by_obf,
         )
+        msg_mapping_info_by_obf_namespace = {}
+        proto_validator = ProtoValidator(
+            clear_struct_by_namespace,
+            obf_struct_by_namespace=obf_struct_by_namespace,
+            msg_mapping_info_by_obf_namespace=msg_mapping_info_by_obf_namespace,
+        )
         proto_mapper = ProtoMapper(
+            proto_validator=proto_validator,
             clear_struct_by_namespace=clear_struct_by_namespace,
             clear_root_namespaces=clear_root_namespaces,
             obf_struct_by_namespace=obf_struct_by_namespace,
@@ -41,5 +49,6 @@ class PMapperFactory:
             reliability_calculator=reliability_calculator,
             verified_msg_by_obf=verified_mapping_by_obf,
             verified_mapping_field_by_clear=verified_mapping_fields,
+            msg_mapping_info_by_obf_namespace=msg_mapping_info_by_obf_namespace,
         )
         return proto_mapper

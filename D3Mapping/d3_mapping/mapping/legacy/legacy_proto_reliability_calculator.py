@@ -16,9 +16,9 @@ from d3_mapping.mapping.consts import (
     RELIABILITY_BY_PROTO_BASE_FIELDS,
 )
 from d3_mapping.mapping.proto_organization import ProtoOrganization
-from d3_mapping.mapping.validators.proto_validators import (
+from d3_mapping.mapping.validators.proto_field_validators import (
     VALIDATORS_ON_FIELD,
-    get_count_msg_field_values,
+    get_count_defined_msg_field_values,
 )
 from d3_mapping.models.p_enum import PEnum
 from d3_mapping.models.p_message import PField, PMapField, PMessage
@@ -219,7 +219,9 @@ class LegacyProtoReliabilityCalculator(BaseModel):
         if clear_field.cardinality == FieldCardinality.REPEATED:
             base_reliability += 1
 
-        count_msg_values = get_count_msg_field_values(obf_msg.namespace, obf_field.name)
+        count_msg_values = get_count_defined_msg_field_values(
+            obf_msg.namespace, obf_field.name
+        )
         if count_msg_values != 0 and (
             clear_msg.name in VALIDATORS_ON_FIELD
             and clear_field.name in VALIDATORS_ON_FIELD[clear_msg.name]
@@ -234,10 +236,10 @@ class LegacyProtoReliabilityCalculator(BaseModel):
         ):
             return base_reliability
 
-        clear_sub_struct = ProtoOrganization.get_related_struct(
+        clear_sub_struct = ProtoOrganization.get_related_struct_from_type_name(
             self.clear_struct_by_namespace, clear_msg.namespace, clear_field.type_name
         )
-        obf_sub_struct = ProtoOrganization.get_related_struct(
+        obf_sub_struct = ProtoOrganization.get_related_struct_from_type_name(
             self.obf_struct_by_namespace, obf_msg.namespace, obf_field.type_name
         )
 

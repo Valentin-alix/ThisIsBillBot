@@ -5,12 +5,12 @@ from typing import Annotated
 from pydantic import Field, validate_call
 
 
-Percentage = Annotated[float, Field(ge=0, le=1)]  # Définition du type
+Percentage = Annotated[float, Field(ge=0, le=1.0000001)]
 
 
 @validate_call
 def set_percentage(value: Percentage) -> float:
-    return value
+    return min(value, 1)
 
 
 def to_snake_case(value: str):

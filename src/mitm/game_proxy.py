@@ -10,8 +10,8 @@ from d3_mapping.resources.protos.game.game_message_pb2 import Request
 from google.protobuf.message import Message
 
 from src.bot import Bot
-from src.const import DEBUG, MESSAGES_WITH_UID, DO_POPULATE
-from src.core.controller.session_timings import SessionTimingsController
+from src.const import DEBUG, DO_INSERT_HUMAN_SESSION, DO_POPULATE, MESSAGES_WITH_UID
+from src.controller.session_timings import SessionTimingsController
 from src.mitm.proxy import Proxy, WorkerAction
 
 
@@ -21,7 +21,7 @@ class GameProxy(Proxy):
 
     def __post_init__(self):
         super().__post_init__()
-        self.bot.event_manager.on_send_callback = self.send_msg
+        self.bot.event_manager.on_send_game_callback = self.send_msg
         self.uid: int = 1
         self.session_timings = SessionTimingsController(
             self.bot.account["apikey"]["login"]
@@ -29,7 +29,7 @@ class GameProxy(Proxy):
 
     def on_close(self):
         self.bot.game_info_signals.disconnected.emit()
-        if DO_POPULATE:
+        if DO_INSERT_HUMAN_SESSION:
             self.session_timings.insert_session_datas()
 
     def alter_msg_datas(
@@ -61,7 +61,9 @@ class GameProxy(Proxy):
         size, pos = decode_varint_size(msg_datas)
         msg_content_datas = msg_datas[pos : pos + size]
 
-        _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(msg_content_datas)
+        _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(
+            msg_content_datas, DO_POPULATE and not was_send_from_proxy
+        )
         if uid is not None and uid != -1:
             self.uid = uid
 
@@ -77,7 +79,7 @@ class GameProxy(Proxy):
             if DEBUG:
                 self.bot.msg_info_signals.msg_info.emit(msg_infos, was_send_from_proxy)
             if (
-                DO_POPULATE
+                DO_INSERT_HUMAN_SESSION
                 and clear_sub_msg is not None
                 and not self.bot.is_playing_event.is_set()
             ):

@@ -36,6 +36,8 @@ pyarmor = "^9.1.7"
 pyinstaller = "^6.13.0"
 pulp = "^3.2.1"
 datamodel-code-generator = "^0.30.2"
+lap = "^0.5.12"
+icecream = "^2.1.5"
 
 [tool.poetry.group.dev.dependencies]
 pyqt5-stubs = "^5.15.6.0"

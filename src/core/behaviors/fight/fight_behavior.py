@@ -13,7 +13,7 @@ from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_preparation_behavior import FightPreparationBehavior
 from src.core.behaviors.fight.fight_turn_behavior import FightTurnBehavior
 from src.core.behaviors.fight.revive_behavior import ReviveBehavior
-from src.core.controller.human_timings import HumanTimingsController
+from src.controller.human_timings import HumanTimingsController
 from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
 

@@ -13,7 +13,7 @@ from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
 from src.core.behaviors.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
-from src.core.controller.human_timings import HumanTimingsController
+from src.controller.human_timings import HumanTimingsController
 from src.core.logic.fight.attack import Attacker
 from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException

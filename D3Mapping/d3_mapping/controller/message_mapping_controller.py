@@ -7,11 +7,11 @@ from d3_mapping.consts import (
     MAPPING_CONN_PROTO_PATH,
     MAPPING_GAME_PROTO_PATH,
 )
-from d3_mapping.models.mapping_info import MappingInfo
+from d3_mapping.models.mapping_info import OutputMappingInfo
 
 
 class MappingObfToClear(BaseModel):
-    obf_to_clear: dict[str, MappingInfo]
+    obf_to_clear: dict[str, OutputMappingInfo]
     version_date: float = Field(
         default_factory=lambda: os.path.getmtime(GAME_ASSEMBLY_PATH)
     )
@@ -19,7 +19,7 @@ class MappingObfToClear(BaseModel):
 
 class MessageMappingController:
     @staticmethod
-    def dump_mapping(mapping: dict[str, MappingInfo], output: str):
+    def dump_mapping(mapping: dict[str, OutputMappingInfo], output: str):
         with open(output, "w+") as file:
             file.write(
                 MappingObfToClear(obf_to_clear=mapping).model_dump_json(indent=2)

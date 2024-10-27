@@ -12,7 +12,8 @@ from google.protobuf.internal.containers import (
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
-from D3Database.utils import cache
+
+from d3_mapping.consts import TYPE_URL_PREFIX
 from d3_mapping.controller.instancied_msg_info_controller import (
     InstanciedMessageInfoController,
 )
@@ -20,8 +21,7 @@ from d3_mapping.controller.message_mapping_controller import MessageMappingContr
 from d3_mapping.models.message import MessageInfo
 from d3_mapping.resources.obf_protos.game.game_messages_pb2 import hhf
 from d3_mapping.resources.protos.game.game_message_pb2 import GameMessage
-
-TYPE_URL_PREFIX = "type.ankama.com/"
+from D3Database.utils import cache
 
 POOL: descriptor_pool.DescriptorPool = descriptor_pool.Default()
 
@@ -30,10 +30,10 @@ POOL: descriptor_pool.DescriptorPool = descriptor_pool.Default()
 def get_mapping_proto_to_real() -> Mapping[str, tuple[str, Mapping[str, str | None]]]:
     return {
         obf_msg_name: (
-            info.clear_msg_name[1:],
+            info.clear_msg_namespace[1:],
             {
-                obf_field: clear_field
-                for obf_field, (clear_field, _) in info.field_mapping.items()
+                obf_field: clear_info[1] if clear_info is not None else None
+                for obf_field, clear_info in info.field_mapping.items()
             },
         )
         for obf_msg_name, info in MessageMappingController.get_mapping_game().items()
@@ -43,12 +43,12 @@ def get_mapping_proto_to_real() -> Mapping[str, tuple[str, Mapping[str, str | No
 @cache
 def get_mapping_proto_to_obf() -> Mapping[str, tuple[str, Mapping[str, str]]]:
     return {
-        info.clear_msg_name[1:]: (
+        info.clear_msg_namespace[1:]: (
             obf_msg_name,
             {
-                clear_field: obf_field
-                for obf_field, (clear_field, _) in info.field_mapping.items()
-                if clear_field is not None
+                clear_info[1]: obf_field
+                for obf_field, clear_info in info.field_mapping.items()
+                if clear_info is not None
             },
         )
         for obf_msg_name, info in MessageMappingController.get_mapping_game().items()
@@ -75,7 +75,9 @@ def get_obf_game_msg_info(content: bytes, from_server: bool) -> MessageInfo:
     )
 
 
-def get_game_msg(content: bytes) -> tuple[str, Message | None, Message, int]:
+def get_game_msg(
+    content: bytes, do_dump_values: bool
+) -> tuple[str, Message | None, Message, int]:
     obf_game_type_url, obf_game_field_mapping = get_mapping_proto_to_obf()[
         GameMessage.DESCRIPTOR.full_name
     ]
@@ -85,6 +87,9 @@ def get_game_msg(content: bytes) -> tuple[str, Message | None, Message, int]:
 
     msg = msg_type()
     msg.ParseFromString(content)
+
+    if do_dump_values:
+        InstanciedMessageInfoController().add_msg(msg, True)
 
     msg_one_of = next(
         obf_field

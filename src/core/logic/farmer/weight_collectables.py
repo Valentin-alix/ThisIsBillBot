@@ -4,8 +4,8 @@ from data_center.data_reader import DataReader
 from data_center.map_reader import MapReader
 from enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
 
+from src.controller.gfx_mapping import GfxMappingController
 from src.core.config.weights import WEIGHT_BY_JOB
-from src.core.controller.gfx_mapping import GfxMappingController
 from src.core.logic.map.map_tools import MapTools
 from src.signals.world_signals import WorldSignals
 

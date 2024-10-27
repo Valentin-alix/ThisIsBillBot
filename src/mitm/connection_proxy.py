@@ -20,7 +20,7 @@ class ConnectionProxy(Proxy):
 
     def __post_init__(self):
         super().__post_init__()
-        self.bot.event_manager.on_send_callback = self.send_msg
+        self.bot.event_manager.on_send_conn_callback = self.send_msg
 
     def alter_msg_datas(
         self, msg_content_datas: bytes, msg_datas: bytes

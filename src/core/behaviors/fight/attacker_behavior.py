@@ -9,10 +9,10 @@ from d3_mapping.resources.protos.game.roleplay_pb2 import AttackMonsterRequest
 from enums.monster_gid_enum import MonsterGidEnum
 from scapy.all import dataclass
 
+from src.controller.human_timings import HumanTimingsController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
-from src.core.controller.human_timings import HumanTimingsController
 from src.core.logic.map.path_finding.movement_path import MovementPath
 from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
@@ -90,9 +90,6 @@ class AttackerBehavior(Behavior):
             return self.attack_enemy()
 
         with self.event_manager.lock:
-            self.event_manager.clear_listener_by_origin_and_type(
-                ContextCreationEvent, self
-            )
             if self._behavior_context_to_clears is not None:
                 for behavior in self._behavior_context_to_clears:
                     self.event_manager.clear_listener_by_origin_and_type(

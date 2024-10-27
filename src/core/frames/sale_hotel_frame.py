@@ -9,7 +9,7 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ObjectAveragePricesEvent,
 )
 
-from src.core.controller.sale_hotel import SaleHotelController
+from src.controller.sale_hotel import SaleHotelController
 from src.core.frames.frame import Frame
 
 

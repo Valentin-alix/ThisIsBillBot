@@ -1,4 +1,16 @@
+`python -m cProfile -o tools/d3mapping_profiled D3Mapping/d3_mapping/main.py`
+
+- Regarder comment se log à ankama
+  -> pour pouvoir spécifier un HWID custom
+
+* Multi farming -> si pas d'arme de chasse alors aller champs d'incarnam et bouftou d'incarnam
+  -> dès que on peux craft l'arme, alors aller la craft à l'atelier forgeron
+
+-> Automatiquement craft chasseur, et ne pas farmer des zones supérieur au niveau chasseur
+
 - frida -n Dofus.exe -l script_frida.js
+
+# TODO On reco, si dans donjon alors faire dongon behavior
 
 ## Mitm
 
@@ -45,4 +57,4 @@ TODO :
 
 `poetry run pyarmor gen -O dist **main**.py && poetry run pyinstaller --add-data "D3Database":"D3Database" --add-data "resources":"resources" dist/**main**.py --noconfirm`
 
-`poetry run pyinstaller --add-data "D3Database":"D3Database" --add-data "D3Mapping":"D3Mapping" --add-data "resources":"resources"  **main**.py --noconfirm --paths ./D3Mapping:./D3Database:./DBDofusUnity`
+`poetry run pyinstaller --add-data "D3Database":"D3Database" --add-data "D3Mapping":"D3Mapping" --add-data "resources":"resources" **main**.py --noconfirm --paths ./D3Mapping:./D3Database:./DBDofusUnity`

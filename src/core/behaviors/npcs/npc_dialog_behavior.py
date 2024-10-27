@@ -3,7 +3,6 @@ from enum import StrEnum, auto
 from functools import partial
 from typing import Callable, Iterable
 
-
 from d3_mapping.resources.protos.game.dialog_pb2 import (
     DialogLeaveEvent,
     DialogLeaveRequest,
@@ -93,7 +92,6 @@ class NpcDialogBehavior(Behavior):
             )
 
     def leave_dialogs(self, error_code: str | None):
-        self.event_manager.clear_listener_by_origin_and_type(DialogLeaveEvent, self)
         self.event_manager.on(
             DialogLeaveEvent,
             callback=lambda _: self.finish(error_code=error_code),

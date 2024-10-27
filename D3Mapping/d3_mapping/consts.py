@@ -3,8 +3,15 @@ from pathlib import Path
 
 from D3Database.consts import DOFUS_PATH
 
+ROOT_PATH = Path(__file__).parent.parent
+
+TYPE_URL_PREFIX = "type.ankama.com/"
+
+IL2CPP_EXTRACT_ROOT_PATH = os.path.join(ROOT_PATH, "IL2CppExtract")
+IL2CPP_EXTRACT_PATH = os.path.join(IL2CPP_EXTRACT_ROOT_PATH, "IL2CppExtract")
+UNITY_MAPPER_PATH = os.path.join(IL2CPP_EXTRACT_ROOT_PATH, "UnityMapper")
 IL2_CPP_DUMPER_PATH_EXE = os.path.join(
-    Path(__file__).parent.parent,
+    IL2CPP_EXTRACT_ROOT_PATH,
     "Il2CppDumper",
     "Il2CppDumper",
     "bin",
@@ -36,11 +43,6 @@ PROTO_GAME_ASSEMBLY_PATH = os.path.join(
     ASSEMBLIES_PATH, "DummyDll", "Ankama.Dofus.Protocol.Game.dll"
 )
 
-
-ROOT_PATH = Path(__file__).parent.parent
-
-IL2CPP_EXTRACT_PATH = os.path.join(ROOT_PATH, "IL2CppExtract", "IL2CppExtract")
-UNITY_MAPPER_PATH = os.path.join(ROOT_PATH, "IL2CppExtract", "UnityMapper")
 
 RESOURCE_PATH = os.path.join(ROOT_PATH, "d3_mapping", "resources")
 

@@ -7,4 +7,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\IL2CppDumper\Il2CppDumper\Il2CppDumper.csproj" />
+    </ItemGroup>
+
 </Project>

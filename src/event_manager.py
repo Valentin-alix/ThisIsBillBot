@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
 from threading import _RLock as RLock
-from typing import Type, Callable, Any, TypeVar
+from typing import Any, Callable, Type, TypeVar
 
 from google.protobuf.message import Message
 
@@ -21,7 +21,12 @@ class EventManager:
     listeners_by_type_msg: defaultdict[Type[Message], list[Listener]] = field(
         init=False, default_factory=lambda: defaultdict(list)
     )
-    on_send_callback: Callable[[Any], None] | None = field(init=False, default=None)
+    on_send_game_callback: Callable[[Any], None] | None = field(
+        init=False, default=None
+    )
+    on_send_conn_callback: Callable[[Any], None] | None = field(
+        init=False, default=None
+    )
     lock: RLock = field(init=False, default_factory=RLock)
     logger: Logger
 
@@ -144,13 +149,20 @@ class EventManager:
         priority: PriorityEnum = PriorityEnum.NORMAL,
         timeout: float | None = None,
         on_timeout: Callable[[], Any] | None = None,
+        override_on_self: bool = True,
     ) -> None:
         self.logger.info(
             f"Adding on callback for msg {msg_type} and originator {originator.__class__}"
         )
+        if (timeout is None) != (on_timeout is None):
+            raise ValueError(
+                f"Incoherent timeout is {timeout} but on timeout definition : {on_timeout is not None}"
+            )
         with self.lock:
             if priority is None:
                 priority = getattr(originator, "priority", PriorityEnum.NORMAL)
+            if override_on_self:
+                self.clear_listener_by_origin_and_type(msg_type, self)
             self.listeners_by_type_msg[msg_type].append(
                 Listener(
                     msg_type=msg_type,
@@ -166,8 +178,17 @@ class EventManager:
     def send(self, msg: Message) -> None:
         self.logger.info(f"Sending {msg.__class__}")
         with self.lock:
-            if self.on_send_callback is None:
+            if self.on_send_game_callback is None:
                 raise AttributeError(
                     f"sending msg {msg.__class__} but on_send_callback is not defined !"
                 )
-            self.on_send_callback(msg)
+            self.on_send_game_callback(msg)
+
+    def send_connection_msg(self, msg: Message) -> None:
+        self.logger.info(f"Sending {msg.__class__}")
+        with self.lock:
+            if self.on_send_conn_callback is None:
+                raise AttributeError(
+                    f"sending msg {msg.__class__} but on_send_callback is not defined !"
+                )
+            self.on_send_conn_callback(msg)

@@ -12,6 +12,8 @@ from d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
 from data_center.data_reader import DataReader
 
 from src.const import FAKE_INFINITY_VALUE
+from src.controller.gfx_mapping import GfxMappingController
+from src.controller.sale_hotel import SaleHotelController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
@@ -21,22 +23,21 @@ from src.core.behaviors.interactives.collect_behavior import (
 )
 from src.core.behaviors.movements.edge_behavior import EdgeError
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
-from src.core.behaviors.mule_kamas.mule_give_kamas_behavior import MuleGiveKamasBehavior
+from src.core.behaviors.mule_storage.mule_give_behavior import (
+    MuleGiveBehavior,
+)
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
+from src.core.behaviors.storage.consts import USEFUL_UNLOAD
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
-from src.core.config.mule_kamas import (
-    BOT_KAMA_LIMIT_TO_GIVE,
-    BOT_MINIMAL_KAMAS,
-    MULE_BANK_CHARACTER_ID,
+from src.core.config.mule import (
+    DO_UNLOAD_ON_MULE,
 )
 from src.core.config.timings import (
     BASE_RANGE,
     get_time_beween_sale_hotel_prices,
 )
-from src.core.controller.gfx_mapping import GfxMappingController
-from src.core.controller.sale_hotel import SaleHotelController
 from src.core.logic.farmer.weight_collectables import (
     get_map_id_collectable_weight,
     get_map_ids_to_explore,
@@ -56,7 +57,7 @@ class HarvesterBehavior(Behavior):
     fight_behavior: FightBehavior
     unload_behavior: UnloadBehavior
     sale_hotel_prices_behavior: SaleHotelPricesBehavior
-    mule_give_kamas_behavior: MuleGiveKamasBehavior
+    mule_give_behavior: MuleGiveBehavior
 
     map_ids_to_explore: set[int] = field(init=False, default_factory=set)
 
@@ -209,11 +210,20 @@ class HarvesterBehavior(Behavior):
         self.on_new_map()
 
     def on_full_pods(self):
-        self.unload_behavior.start(
-            parent=self, callback=self.on_unload_behavior_finished
-        )
+        if DO_UNLOAD_ON_MULE:
+            self.mule_give_behavior.start(
+                callback=self.on_unloaded_on_mule_finished, parent=self
+            )
+        else:
+            self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
 
-    def on_unload_behavior_finished(self, error_code: str | None):
+    def on_unloaded_on_mule_finished(self, error_code: str | None):
+        if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
+            self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
+        else:
+            self.on_new_map()
+
+    def on_unload_finished(self, error_code: str | None):
         if error_code is not None:
             self.logger.error("Can't unload")
             return self.finish(error_code)
@@ -223,24 +233,13 @@ class HarvesterBehavior(Behavior):
         ):
             self._timedelta_for_sale_hotel_prices = get_time_beween_sale_hotel_prices()
             self.sale_hotel_prices_behavior.start(
-                callback=lambda _: self.on_sale_hotel_price_updated_and_unloaded(),
-                parent=self,
+                callback=self.on_sale_hotel_prices_behavior_finished, parent=self
             )
         else:
             self.on_new_map()
 
-    def on_sale_hotel_price_updated_and_unloaded(self):
-        if (
-            MULE_BANK_CHARACTER_ID is not None
-            and self.game_state.inventory.kamas >= BOT_KAMA_LIMIT_TO_GIVE
-        ):
-            self.mule_give_kamas_behavior.start(
-                kamas=self.game_state.inventory.kamas - BOT_MINIMAL_KAMAS,
-                callback=lambda _: self.on_new_map(),
-                parent=self,
-            )
-        else:
-            self.on_new_map()
+    def on_sale_hotel_prices_behavior_finished(self, error_code: str | None):
+        self.on_new_map()
 
     def on_job_experiences_update_event(self, msg: JobExperiencesUpdateEvent):
         if is_interesting_job_lvl_up_for_weight(

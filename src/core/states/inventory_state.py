@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
 
 from src.core.states.state import State
+from src.interfaces.enums.effect_action_enum import EffectActionEnum
+from src.interfaces.enums.set_position_enum import SetPositionEnum
 from src.signals.player_signals import GameInfoSignals
 
 
@@ -71,3 +73,13 @@ class InventoryState(State):
     def weight_max(self, value: int):
         self._weight_max = value
         self.game_info_signals.weight_max.emit(value)
+
+    def has_weapon_hunter(self):
+        any(
+            object.position == SetPositionEnum.ARME
+            for object in self.objects_by_uid.values()
+            if any(
+                effect.action == EffectActionEnum.WEAPON_HUNTER
+                for effect in object.item.effects
+            )
+        )

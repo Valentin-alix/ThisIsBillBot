@@ -11,10 +11,12 @@ from src.core.behaviors.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.movements.edge_behavior import EdgeError
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
+from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
+from src.core.config.mule import DO_UNLOAD_ON_MULE
 from src.core.config.timings import (
     get_time_beween_sale_hotel_prices,
 )
@@ -31,6 +33,7 @@ class FighterBehavior(Behavior, ABC):
     path_finding: Pathfinding
     sale_hotel_prices_behavior: SaleHotelPricesBehavior
     attacker_behavior: AttackerBehavior
+    mule_give_behavior: MuleGiveBehavior
 
     _stop_condition_with_callback: (
         tuple[Callable[[], bool], Callable[[], None]] | None
@@ -92,27 +95,27 @@ class FighterBehavior(Behavior, ABC):
             self.run_next_step()
 
     def on_full_pods(self):
-        self.unload_behavior.start(
-            parent=self, callback=self.on_unload_behavior_finished
-        )
+        if DO_UNLOAD_ON_MULE:
+            self.mule_give_behavior.start(
+                callback=lambda _: self.on_new_map(), parent=self
+            )
+        else:
+            self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
 
-    def on_unload_behavior_finished(self, error_code: str | None):
+    def on_unload_finished(self, error_code: str | None):
         if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+            self.logger.error("Can't unload")
+            return self.finish(error_code)
         if (
             datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
             > self._timedelta_for_sale_hotel_prices
         ):
             self._timedelta_for_sale_hotel_prices = get_time_beween_sale_hotel_prices()
             self.sale_hotel_prices_behavior.start(
-                callback=lambda _: self.on_sale_hotel_price_updated_and_unloaded(),
-                parent=self,
+                callback=lambda _: self.on_new_map(), parent=self
             )
         else:
-            self.on_sale_hotel_price_updated_and_unloaded()
-
-    def on_sale_hotel_price_updated_and_unloaded(self):
-        self.on_new_map()
+            self.on_new_map()
 
     def get_additional_weight_by_map_id(self, map_id: int):
         map_pos_data = DataReader().map_pos_by_map_id[map_id]

@@ -43,15 +43,21 @@ class AutoBotBehavior(Behavior):
     _get_time_beween_areas_fn: Callable[[], timedelta] = field(
         init=False, default=get_time_beween_areas
     )
+    _area_id: int | None = field(init=False, default=None)
+    _sub_area_id: int | None = field(init=False, default=None)
 
     def run(
         self,
+        area_id: int | None = None,
+        sub_area_id: int | None = None,
         lvl_limit_for_harvest: int = LVL_LIMIT_FOR_HARVEST,
         kamas_limit_for_harvest: int = KAMAS_LIMIT_FOR_HARVEST,
         areas_sub_with_weight: list[AreaInfoWithWeight] | None = None,
         areas_unsub_with_weight: list[AreaInfoWithWeight] | None = None,
         get_time_beween_areas_fn: Callable[[], timedelta] = get_time_beween_areas,
     ) -> None:
+        self._area_id = area_id
+        self._sub_area_id = sub_area_id
         if areas_sub_with_weight is None:
             areas_sub_with_weight = AREAS_SUB_WITH_WEIGHT
         if areas_unsub_with_weight is None:
@@ -136,6 +142,9 @@ class AutoBotBehavior(Behavior):
         )
 
     def get_random_area_info(self):
+        if self._sub_area_id is not None or self._area_id is not None:
+            return {"sub_area_id": self._sub_area_id, "area_id": self._area_id}
+
         if self.game_state.player.is_sub:
             areas_infos = self._areas_sub_with_weight
         else:

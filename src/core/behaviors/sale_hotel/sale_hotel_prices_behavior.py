@@ -44,7 +44,7 @@ from src.core.config.timings import (
     SMALL_RANGE,
     TINY_RANGE,
 )
-from src.core.controller.sale_hotel import SaleHotelController
+from src.controller.sale_hotel import SaleHotelController
 from src.core.logic.farmer.weight_item import get_weight_item_for_sale_hotel
 from src.core.logic.sale_hotel.price import QuantityIndex, get_price_for_sale_hotel
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB

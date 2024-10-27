@@ -71,9 +71,6 @@ class WaypointBehavior(Behavior):
         self.on_map_allowing_havre_sac(map_id)
 
     def on_map_allowing_havre_sac(self, map_id: int):
-        self.event_manager.clear_listener_by_origin_and_type(
-            MapComplementaryInformationEvent, self
-        )
         self.event_manager.on(
             MapComplementaryInformationEvent,
             callback=partial(self.on_entered_havre_sac, map_id=map_id),

@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import SingleDirectionScrollArea, SmoothMode
 
-from src.gui.components.player_info.player_info_widget import PlayerInfoWidget
+from src.gui.pages.farmer.player_info.player_info_widget import PlayerInfoWidget
 from src.signals.grid_signals import GridSignals
 from src.signals.player_signals import GameInfoSignals
 

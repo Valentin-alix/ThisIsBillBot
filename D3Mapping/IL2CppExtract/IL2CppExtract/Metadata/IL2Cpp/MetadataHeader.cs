@@ -1,4 +1,6 @@
-﻿namespace IL2CppExtract.Metadata.IL2Cpp;
+﻿using Il2CppDumper;
+
+namespace IL2CppExtract.Metadata.IL2Cpp;
 
 // Unity 4.6.1p5 - first release, no global-metadata.dat
 // Unity 5.2.0f3 -> v15
@@ -136,7 +138,7 @@ public class MetadataHeader
             throw new Exception("Invalid metadata signature " + signature.ToString("X"));
         
         var version = reader.ReadInt32();
-        
+
         return new MetadataHeader
         {
             Signature = signature,

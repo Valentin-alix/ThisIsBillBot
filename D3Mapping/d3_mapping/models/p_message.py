@@ -41,4 +41,4 @@ class PMessage:
     namespace: str
 
     def __hash__(self):
-        return self.name.__hash__()
+        return self.namespace.__hash__()

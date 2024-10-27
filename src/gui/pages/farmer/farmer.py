@@ -10,12 +10,12 @@ from qfluentwidgets import (
     TransparentToolButton,
 )
 
-from src.bot import Bot
+from src.gui.consts import USABLE_BEHAVIORS
 from src.gui.pages.farmer.map_tab import MapTab
 from src.gui.pages.farmer.player_tab import PlayerTab
 from src.gui.pages.farmer.world_tab import WorldTab
 from src.gui.utils.run_in_background import Worker
-from src.interfaces.enums.bot_action_enum import BotActionEnum
+from src.interfaces.enums.bot_action_enum import CraftActionEnum, FarmActionEnum
 from src.signals.bot_signals import BotSignals
 from src.signals.grid_signals import GridSignals
 from src.signals.player_signals import GameInfoSignals
@@ -33,17 +33,16 @@ class FarmerWidget(PivotItem):
 
     def __init__(  # type: ignore
         self,
-        account_id: int,
+        login: str,
         grid_signals: GridSignals,
         game_info_signals: GameInfoSignals,
         world_signals: WorldSignals,
         bot_signals: BotSignals,
-        bots: list[Bot],
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
-        self.account_id = account_id
+        self.login = login
         self.grid_signals = grid_signals
         self.world_signals = world_signals
         self.game_info_signals = game_info_signals
@@ -53,14 +52,15 @@ class FarmerWidget(PivotItem):
         v_layout.setAlignment(Qt.AlignTop)
         self.setLayout(v_layout)
 
-        self.init_top_content(bots)
+        self.init_top_content()
         self.init_content()
 
         self.bot_signals.play_harvester.connect(self.on_play_harvester)
         self.bot_signals.play_crafter.connect(self.on_play_craft)
+        self.bot_signals.play_auto_bot.connect(self.on_play_auto)
         self.bot_signals.play_fighter.connect(self.on_play_fighter)
 
-    def init_top_content(self, bots: list[Bot]) -> None:
+    def init_top_content(self) -> None:
         top_widget = QWidget()
         top_widget.setLayout(QHBoxLayout())
 
@@ -76,9 +76,13 @@ class FarmerWidget(PivotItem):
         self.stop_btn.hide()
 
         self.type_action_combo = ComboBox()
-        for farm_action in BotActionEnum:
+        for farm_action in FarmActionEnum:
             self.type_action_combo.addItem(farm_action)
-        self.type_action_combo.setCurrentText(BotActionEnum.HARVESTER)
+
+        for usable_behavior in USABLE_BEHAVIORS:
+            self.type_action_combo.addItem(usable_behavior.__name__)
+
+        self.type_action_combo.setCurrentText(FarmActionEnum.HARVESTER)
         self.type_action_combo.currentIndexChanged.connect(self.on_type_action_changed)
         top_widget.layout().addWidget(self.type_action_combo)
 
@@ -143,14 +147,16 @@ class FarmerWidget(PivotItem):
     @pyqtSlot()
     def on_type_action_changed(self):
         current_action = self.type_action_combo.currentText()
-        if current_action is BotActionEnum.CRAFTER:
+        if current_action not in FarmActionEnum or current_action in [
+            CraftActionEnum.CRAFTER
+        ]:
             self.area_farm_combo.setHidden(True)
             self.sub_area_farm_combo.setHidden(True)
         else:
             self.area_farm_combo.setHidden(False)
             self.sub_area_farm_combo.setHidden(False)
 
-        if current_action in [BotActionEnum.CRAFTER]:
+        if current_action in [CraftActionEnum.CRAFTER]:
             self.play_btn.setDisabled(True)
         else:
             self.play_btn.setDisabled(False)
@@ -176,10 +182,16 @@ class FarmerWidget(PivotItem):
     def on_click_play(self):
         area_id = self.area_farm_combo.currentData()
         sub_area_id = self.sub_area_farm_combo.currentData()
-        if self.type_action_combo.currentText() == BotActionEnum.HARVESTER:
+        if self.type_action_combo.currentText() == FarmActionEnum.HARVESTER:
             self.bot_signals.play_harvester.emit(area_id, sub_area_id)
-        elif self.type_action_combo.currentText() == BotActionEnum.FIGHTER:
+        elif self.type_action_combo.currentText() == FarmActionEnum.FIGHTER:
             self.bot_signals.play_fighter.emit(area_id, sub_area_id)
+        elif self.type_action_combo.currentText() == FarmActionEnum.AUTO:
+            self.bot_signals.play_auto_bot.emit(area_id, sub_area_id)
+        elif self.type_action_combo.currentText() not in FarmActionEnum:
+            self.bot_signals.play_usable_behavior.emit(
+                self.type_action_combo.currentText()
+            )
 
     @pyqtSlot()
     def on_play(self):
@@ -191,17 +203,23 @@ class FarmerWidget(PivotItem):
 
     @pyqtSlot(object, object)
     def on_play_harvester(self, area_id: int | None, sub_area_id: int | None):
-        self.type_action_combo.setCurrentText(BotActionEnum.HARVESTER)
+        self.type_action_combo.setCurrentText(FarmActionEnum.HARVESTER)
         self.on_played_zone(area_id, sub_area_id)
 
     @pyqtSlot(object, object)
     def on_play_fighter(self, area_id: int | None, sub_area_id: int | None, *args):
-        self.type_action_combo.setCurrentText(BotActionEnum.FIGHTER)
+        self.type_action_combo.setCurrentText(FarmActionEnum.FIGHTER)
+        self.on_played_zone(area_id, sub_area_id)
+
+    @pyqtSlot(object, object)
+    def on_play_auto(self, area_id: int | None, sub_area_id: int | None):
+        self.type_action_combo.setCurrentText(FarmActionEnum.AUTO)
         self.on_played_zone(area_id, sub_area_id)
 
     @pyqtSlot(object)
     def on_play_craft(self, _):
-        self.type_action_combo.setCurrentText(BotActionEnum.CRAFTER)
+        self.type_action_combo.addItem(CraftActionEnum.CRAFTER)
+        self.type_action_combo.setCurrentText(CraftActionEnum.CRAFTER)
 
     def on_played_zone(self, area_id: int | None, sub_area_id: int | None):
         if area_id is not None:
@@ -220,6 +238,9 @@ class FarmerWidget(PivotItem):
     def on_stop(self):
         self.play_btn.show()
         self.stop_btn.hide()
+        index_crafter = self.type_action_combo.findText(CraftActionEnum.CRAFTER)
+        if index_crafter != -1:
+            self.type_action_combo.removeItem(index_crafter)
         self.type_action_combo.setDisabled(False)
         self.area_farm_combo.setDisabled(False)
         self.sub_area_farm_combo.setDisabled(False)

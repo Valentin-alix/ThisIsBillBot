@@ -12,18 +12,21 @@ from models.datas.recipe_root import RecipeItem
 from PyQt5.QtCore import QThread
 
 from src.common.logger import Logger
+from src.controller.bot_config import BotConfig, BotConfigController
 from src.core.behaviors.auto.auto_bot_behavior import AutoBotBehavior
+from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.dungeons.dungeon_behavior import DungeonBehavior
 from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
 from src.core.behaviors.fight.revive_behavior import ReviveBehavior
-from src.core.behaviors.mule_kamas.mule_accept_kamas_behavior import (
-    MuleAcceptKamasBehavior,
+from src.core.behaviors.mule_storage.mule_accept_behavior import (
+    MuleAcceptBehavior,
 )
-from src.core.config.auto import SUICIDE_BOT_INFOS, AutoBotInfo
-from src.core.config.mule_kamas import MULE_BANK_CHARACTER_ID, MULE_BANK_CHARACTER_LOGIN
+from src.core.config.mule import (
+    MULE_BANK_CHARACTER_LOGIN,
+)
 from src.core.frames.frame import Frame
 from src.core.logic.dungeons.consts import DUNGEONS_INFOS
 from src.core.states.game_state import GameState
@@ -56,7 +59,7 @@ class Bot:
 
     frames: list[Frame]
 
-    mule_accept_kamas_behavior: MuleAcceptKamasBehavior
+    mule_accept_kamas_behavior: MuleAcceptBehavior
     harvester_behavior: HarvesterBehavior
     fighter_behavior: FighterBehavior
     craft_behavior: CraftBehavior
@@ -64,6 +67,8 @@ class Bot:
     auto_bot_behavior: AutoBotBehavior
     revive_behavior: ReviveBehavior
     dungeon_behavior: DungeonBehavior
+
+    usable_behaviors: list[Behavior]
 
     logger: Logger
     is_connected_event: Event
@@ -94,19 +99,39 @@ class Bot:
         self.bot_signals.play_fighter.connect(self.on_play_fighter)
         self.bot_signals.play_crafter.connect(self.on_play_crafter)
         self.bot_signals.play_mule_kamas.connect(self.on_play_mule_kamas)
+        self.bot_signals.play_auto_bot.connect(self.on_play_auto_bot)
+        self.bot_signals.play_usable_behavior.connect(self.on_play_usable_behavior)
+
+    def on_play_usable_behavior(self, behavior_class_name: str):
+        related_behavior = next(
+            behavior
+            for behavior in self.usable_behaviors
+            if behavior.__class__.__name__ == behavior_class_name
+        )
+        self.play_action(
+            lambda: related_behavior.start(
+                callback=lambda _: self.bot_signals.stop.emit(), parent=None
+            )
+        )
 
     def start(self):
-        if self.account["apikey"]["login"] == MULE_BANK_CHARACTER_LOGIN:
+        bot_config = (
+            BotConfigController()
+            .get_bot_config_by_login()
+            .get(self.account["apikey"]["login"])
+        )
+
+        if self.account["apikey"]["login"] in MULE_BANK_CHARACTER_LOGIN:
             self.bot_signals.play_mule_kamas.emit()
-        elif suicide_bot_info := SUICIDE_BOT_INFOS.get(self.account["apikey"]["login"]):
+        elif bot_config is not None:
             self.thread_planning = Thread(
-                target=self.start_planning_bot, daemon=True, args=(suicide_bot_info,)
+                target=self.start_planning_bot, daemon=True, args=(bot_config,)
             )
             self.thread_planning.start()
             now = datetime.now()
 
-            start_hour = int(suicide_bot_info.playtime_start.split(":")[0])
-            end_hour = int(suicide_bot_info.playtime_end.split(":")[0])
+            start_hour = int(bot_config.playtime_start.split(":")[0])
+            end_hour = int(bot_config.playtime_end.split(":")[0])
 
             if (
                 start_hour > end_hour
@@ -143,10 +168,12 @@ class Bot:
         if not self.is_playing_event.is_set():
             return
 
-        if (
-            self._current_bot_action_func is None
-            and self.account["apikey"]["login"] not in SUICIDE_BOT_INFOS
-        ):
+        bot_config = (
+            BotConfigController()
+            .get_bot_config_by_login()
+            .get(self.account["apikey"]["login"])
+        )
+        if self._current_bot_action_func is None and bot_config is None:
             raise ValueError("An action should be provided if is_playing_event is set")
 
         def on_fight_behavior_finished(error_code: str | None):
@@ -176,14 +203,15 @@ class Bot:
         self.revive_behavior.start(callback=on_live_and_kicking, parent=None)
 
     def guess_bot_action(self):
-        if self.game_state.player.character_id == MULE_BANK_CHARACTER_ID:
+        if self.account["apikey"]["login"] in MULE_BANK_CHARACTER_LOGIN:
             self.bot_signals.play_mule_kamas.emit()
-        elif SUICIDE_BOT_INFOS.get(self.account["apikey"]["login"]) is not None:
-            self.play_action(
-                lambda: self.auto_bot_behavior.start(
-                    callback=lambda _: self.bot_signals.stop.emit(), parent=None
-                )
-            )
+        elif (
+            BotConfigController()
+            .get_bot_config_by_login()
+            .get(self.account["apikey"]["login"])
+            is not None
+        ):
+            self.bot_signals.play_auto_bot.emit(None, None)
 
     def run_current_bot_action(self):
         if self._current_bot_action_func is not None:
@@ -217,6 +245,20 @@ class Bot:
     ):
         self.play_action(
             lambda: self.fighter_behavior.start(
+                callback=lambda _: self.bot_signals.stop.emit(),
+                parent=None,
+                area_id=area_id,
+                sub_area_id=sub_area_id,
+            )
+        )
+
+    def on_play_auto_bot(
+        self,
+        area_id: int | None,
+        sub_area_id: int | None,
+    ):
+        self.play_action(
+            lambda: self.auto_bot_behavior.start(
                 callback=lambda _: self.bot_signals.stop.emit(),
                 parent=None,
                 area_id=area_id,
@@ -283,7 +325,7 @@ class Bot:
         if self.revive_behavior.is_running.is_set():
             self.revive_behavior.finish()
 
-    def start_planning_bot(self, suicide_bot_info: AutoBotInfo):
+    def start_planning_bot(self, bot_config: BotConfig):
         def planned_stop_bot():
             self.logger.info("Stopping bot")
             if self.is_playing_event.is_set():
@@ -301,12 +343,12 @@ class Bot:
             else:
                 self.logger.info("Bot is playing, dont restart")
 
-        schedule.every().day.at(suicide_bot_info.playtime_end).do(
+        schedule.every().day.at(bot_config.playtime_end).do(
             lambda: self._thread_worker_runnings.append(
                 run_in_background(planned_stop_bot)
             )
         )
-        schedule.every().day.at(suicide_bot_info.playtime_start).do(
+        schedule.every().day.at(bot_config.playtime_start).do(
             lambda: self._thread_worker_runnings.append(
                 run_in_background(planned_restart_bot)
             )
