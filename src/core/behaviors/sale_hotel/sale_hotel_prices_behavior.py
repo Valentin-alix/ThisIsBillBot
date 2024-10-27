@@ -1,9 +1,8 @@
 import datetime
-import random
-from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
+import math
 from typing import Iterable
 
 from d3_mapping.resources.protos.game.common_pb2 import ObjectItem
@@ -21,12 +20,18 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
 from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
 from data_center.data_reader import DataReader
 
+from data_center.i18n import I18N
+from enums.category_item_enum import CategoryEnum
+from scraping_d3_client.scraping_d3_client.models.quantity_enum import (
+    QuantityEnum,
+    QuantityIndex,
+)
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
 )
-from src.core.behaviors.storage.consts import (
-    GATHERER_ITEM_TABS,
+from src.core.config.storage import (
+    TAB_BY_GID,
 )
 from src.core.behaviors.storage.loads.load_from_bank_behavior import (
     LoadFromBankBehavior,
@@ -35,8 +40,7 @@ from src.core.behaviors.storage.loads.load_from_guild_chest_behavior import (
     LoadFromGuildChestBehavior,
     LoadItemInfo,
 )
-from src.core.config.sale_hotel_prices import (
-    MAX_QUANTITY_ON_SELL,
+from src.core.config.sale_hotel import (
     MIN_KAMAS_TO_GO_SALE_HOTEL,
 )
 from src.core.config.timings import (
@@ -45,9 +49,13 @@ from src.core.config.timings import (
     TINY_RANGE,
 )
 from src.controller.sale_hotel import SaleHotelController
-from src.core.logic.farmer.weight_item import get_weight_item_for_sale_hotel
-from src.core.logic.sale_hotel.price import QuantityIndex, get_price_for_sale_hotel
-from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
+from src.core.logic.sale_hotel.price import (
+    choose_quantity_to_sell,
+    get_item_gids_to_sell,
+    get_max_quantity_sell,
+    get_price_for_sale_hotel,
+    is_interesting_item_to_sell,
+)
 from src.exceptions import UnexpectedStateException, UnhandledErrorCodeException
 
 
@@ -61,7 +69,13 @@ class SaleHotelPricesBehavior(Behavior):
     load_from_guild_chest_behavior: LoadFromGuildChestBehavior
     load_from_bank_behavior: LoadFromBankBehavior
 
+    categories: set[CategoryEnum] = field(
+        init=False, default_factory=lambda: set(CategoryEnum)
+    )
+    _curr_category: CategoryEnum = field(init=False, default=CategoryEnum.RESOURCES)
+
     def run(self) -> None:
+        self.categories = set(CategoryEnum)
         self.game_state.sale_hotel.last_time_updated_prices = datetime.datetime.now()
 
         if self.game_state.inventory.kamas < MIN_KAMAS_TO_GO_SALE_HOTEL:
@@ -70,68 +84,51 @@ class SaleHotelPricesBehavior(Behavior):
             )
             return self.finish()
 
-        item_gids_to_sell = self.get_item_gids_to_sell()
+        self.sell_next_category()
 
-        if len(item_gids_to_sell) == 0:
+    def sell_next_category(self):
+        if len(self.categories) == 0:
             return self.finish()
 
-        item_sell_quantity_by_gid = self.get_item_sell_quantity_by_gid()
+        self._curr_category = self.categories.pop()
+
+        item_sell_quantity_by_gid = (
+            SaleHotelController().get_item_sell_quantity_by_gid()
+        )
+
+        item_gids_to_sell = get_item_gids_to_sell(
+            self.game_state.player.can_access_guild_chest,
+            self.game_state.player.is_sub,
+            self.game_state.inventory.bank_object_by_gid,
+            item_sell_quantity_by_gid,
+            self._curr_category,
+            self.logger,
+        )
+
+        if len(item_gids_to_sell) == 0:
+            return self.sell_next_category()
+
+        self.logger.info(
+            f"Item to sells : {[I18N().name_by_id[DataReader().item_by_id[gid].nameId or 0] for gid in item_gids_to_sell]}"
+        )
 
         load_items_infos: list[LoadItemInfo] = []
         for item_gid in item_gids_to_sell:
+            max_quantity_sell = get_max_quantity_sell(item_gid)
             load_item_info = LoadItemInfo(
                 item_gid=item_gid,
-                remaining_quantity=max(
-                    MAX_QUANTITY_ON_SELL - item_sell_quantity_by_gid.get(item_gid, 0), 0
+                remaining_quantity=min(
+                    max(
+                        max_quantity_sell - item_sell_quantity_by_gid.get(item_gid, 0),
+                        0,
+                    ),
+                    math.ceil(max_quantity_sell / 4),
                 ),
+                tab=TAB_BY_GID[item_gid],
             )
             load_items_infos.append(load_item_info)
 
         self.load_items(load_items_infos, item_gids_to_sell)
-
-    def get_item_gids_to_sell(self):
-        if self.game_state.player.can_access_guild_chest:
-            item_by_gid_in_storage = CHEST_OBJECT_BY_GID_BY_TAB.get(
-                GATHERER_ITEM_TABS, {}
-            )
-        else:
-            item_by_gid_in_storage = self.game_state.inventory.bank_object_by_gid
-
-        self.logger.info(f"count item in storage : {len(item_by_gid_in_storage)}")
-
-        item_gids_to_sell = [
-            item_gid
-            for item_gid, item in item_by_gid_in_storage.items()
-            if item.item.quantity >= 100
-            and (
-                self.game_state.player.is_sub
-                or DataReader().item_by_id[item_gid].level <= 60  # type: ignore
-            )
-        ]
-
-        self.logger.info(f"count item to sell : {len(item_gids_to_sell)}")
-
-        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
-
-        item_gids_to_sell.sort(
-            key=lambda item_gid: random.random()
-            * get_weight_item_for_sale_hotel(
-                item_gid, avg_price_by_gid, item_by_gid_in_storage
-            ),
-            reverse=True,
-        )
-
-        return item_gids_to_sell
-
-    def get_item_sell_quantity_by_gid(self):
-        # get sum quantity of item already in sale hotel by gid
-        item_sell_quantity_by_gid: dict[int, int] = defaultdict(int)
-        for quantity_by_uid in (
-            SaleHotelController().get_hdv_by_uid_by_player().values()
-        ):
-            for gid, quantity in quantity_by_uid.values():
-                item_sell_quantity_by_gid[gid] += quantity
-        return item_sell_quantity_by_gid
 
     def load_items(
         self, load_items_infos: list[LoadItemInfo], item_gids_to_sell: list[int]
@@ -162,6 +159,7 @@ class SaleHotelPricesBehavior(Behavior):
     ):
         if error_code is not None:
             return self.finish(error_code)
+
         self.enter_sale_hotel_sell_behavior.start(
             callback=partial(
                 self.on_enter_sale_hotel_sell_behavior_finished,
@@ -169,6 +167,7 @@ class SaleHotelPricesBehavior(Behavior):
                 item_ids_to_sell=item_ids_to_sell,
             ),
             parent=self,
+            category=self._curr_category,
         )
 
     def on_enter_sale_hotel_sell_behavior_finished(
@@ -200,14 +199,14 @@ class SaleHotelPricesBehavior(Behavior):
         self.logger.info(
             f"Gonna sell in inventory : {[item.gid for item in item_to_sells_in_inventory]}"
         )
-        self.choose_and_create_item_price(
+        self.create_all_prices(
             item_to_sells_in_inventory=item_to_sells_in_inventory,
             items=items,
             load_items_infos=load_items_infos,
             item_ids_to_sell=item_ids_to_sell,
         )
 
-    def choose_and_create_item_price(
+    def create_all_prices(
         self,
         item_to_sells_in_inventory: list[ObjectItem],
         item_ids_to_sell: list[int],
@@ -217,7 +216,7 @@ class SaleHotelPricesBehavior(Behavior):
         while True:
             if len(item_to_sells_in_inventory) == 0:
                 if len(load_items_infos) == 0:
-                    return self.choose_and_update_item_price(list(items))
+                    return self.update_all_prices(list(items))
 
                 self.event_manager.on(
                     ExchangeLeaveEvent,
@@ -230,8 +229,9 @@ class SaleHotelPricesBehavior(Behavior):
                 return self.leave_all_dialogs()
 
             next_item = item_to_sells_in_inventory.pop()
-            if next_item.quantity >= 100:
+            if is_interesting_item_to_sell(next_item):
                 break
+
         self.logger.info(
             f"Sell item {next_item.gid} with quantity {next_item.quantity}"
         )
@@ -298,44 +298,61 @@ class SaleHotelPricesBehavior(Behavior):
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
     ):
-        price_for_hundred_quantity = (
-            get_price_for_sale_hotel(
-                list(msg.bid_price_for_seller.minimal_prices), QuantityIndex.HUNDRED
-            )
-            - 1
-        )
-        self.logger.info(
-            f"Price for hundred for item {item.gid} : {price_for_hundred_quantity}"
-        )
-        if price_for_hundred_quantity <= 0:
-            return self.choose_and_create_item_price(
-                load_items_infos=load_items_infos,
-                items=items,
-                item_to_sells_in_inventory=item_to_sells_in_inventory,
-                item_ids_to_sell=item_ids_to_sell,
-            )
-        self.sell_item(
+        self.create_price(
+            list(msg.bid_price_for_seller.minimal_prices),
             item,
-            quantity=100,
-            price=price_for_hundred_quantity,
             item_to_sells_in_inventory=item_to_sells_in_inventory,
             load_items_infos=load_items_infos,
             items=items,
             item_ids_to_sell=item_ids_to_sell,
         )
 
-    def sell_item(
+    def create_price(
         self,
+        minimal_prices: list[int],
         item: ObjectItem,
-        quantity: int,
-        price: int,
         item_to_sells_in_inventory: list[ObjectItem],
         items: Iterable[ExchangeBidSellerStartedEvent.ItemToSellInBid],
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
     ):
+        if not is_interesting_item_to_sell(item):
+            return self.create_all_prices(
+                load_items_infos=load_items_infos,
+                items=items,
+                item_to_sells_in_inventory=item_to_sells_in_inventory,
+                item_ids_to_sell=item_ids_to_sell,
+            )
+
+        quantity_to_sell, quantity_index = choose_quantity_to_sell(item)
+
+        minimal_price_in_sale_bots = (
+            SaleHotelController()
+            .get_minimal_price_by_gid_and_quantity()
+            .get((item.gid, quantity_to_sell))
+        )
+        minimal_price_in_sale = get_price_for_sale_hotel(
+            list(minimal_prices), quantity_index, quantity_to_sell
+        )
+        price_for_quantity = minimal_price_in_sale
+        if minimal_price_in_sale_bots != minimal_price_in_sale:
+            price_for_quantity -= 1
+
+        self.logger.info(
+            f"Price for {quantity_to_sell} for item {item.gid} : {price_for_quantity}"
+        )
+        if price_for_quantity <= 0:
+            # it's useless to sell this, so skip
+            return self.create_all_prices(
+                load_items_infos=load_items_infos,
+                items=items,
+                item_to_sells_in_inventory=item_to_sells_in_inventory,
+                item_ids_to_sell=item_ids_to_sell,
+            )
+
         if self.game_state.sale_hotel.bid_seller_condition is None:
             raise UnexpectedStateException("we should have bid seller infos")
+
         count_item_in_sale = len(
             SaleHotelController()
             .get_hdv_by_uid_by_player()
@@ -346,8 +363,9 @@ class SaleHotelPricesBehavior(Behavior):
         )
         if self.game_state.player.is_full_object_in_sale_hotel:
             self.logger.info("Sale hotel is full of object, let's update prices")
-            return self.choose_and_update_item_price(list(items))
-        if price * 0.02 > self.game_state.inventory.kamas:
+            return self.update_all_prices(list(items))
+
+        if price_for_quantity * 0.02 > self.game_state.inventory.kamas:
             self.event_manager.on(
                 ExchangeLeaveEvent,
                 callback=lambda _: self.finish(SaleHotelErrorCode.NOT_ENOUGH_KAMAS),
@@ -356,22 +374,11 @@ class SaleHotelPricesBehavior(Behavior):
             )
             return self.leave_all_dialogs()
 
-        if item.quantity < quantity:
-            self.logger.info(
-                f"{item.gid} doesn't have enough quantity : {item.quantity}, go to next item"
-            )
-            return self.choose_and_create_item_price(
-                load_items_infos=load_items_infos,
-                items=items,
-                item_to_sells_in_inventory=item_to_sells_in_inventory,
-                item_ids_to_sell=item_ids_to_sell,
-            )
         self.event_manager.on(
             InventoryWeightEvent,
             lambda _: self.on_inventory_weight_event_after_created_price(
                 item=item,
-                quantity=quantity,
-                price=price,
+                minimal_prices=minimal_prices,
                 item_to_sells_in_inventory=item_to_sells_in_inventory,
                 load_items_infos=load_items_infos,
                 items=items,
@@ -380,40 +387,41 @@ class SaleHotelPricesBehavior(Behavior):
             originator=self,
             once=True,
         )
-        item.quantity -= quantity
+        item.quantity -= quantity_to_sell
         self.logger.info(f"Remaining quantity of item {item.gid} : {item.quantity}")
         req = ExchangeObjectMovePricedRequest(
-            object_uid=item.uid, quantity=quantity, price=price
+            object_uid=item.uid, quantity=quantity_to_sell, price=price_for_quantity
         )
         self.run_timer(TINY_RANGE, lambda: self.event_manager.send(req))
 
     def on_inventory_weight_event_after_created_price(
         self,
+        minimal_prices: list[int],
         item: ObjectItem,
-        quantity: int,
-        price: int,
         item_to_sells_in_inventory: list[ObjectItem],
         items: Iterable[ExchangeBidSellerStartedEvent.ItemToSellInBid],
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
     ):
         self.logger.info("Successfully created price, move on to next item quantity")
-        self.sell_item(
+        self.create_price(
+            minimal_prices=minimal_prices,
             item=item,
-            quantity=quantity,
-            price=price,
             item_to_sells_in_inventory=item_to_sells_in_inventory,
             items=items,
             load_items_infos=load_items_infos,
             item_ids_to_sell=item_ids_to_sell,
         )
 
-    def choose_and_update_item_price(
+    def update_all_prices(
         self, items: list[ExchangeBidSellerStartedEvent.ItemToSellInBid]
     ):
         if len(items) == 0:
             self.event_manager.on(
-                ExchangeLeaveEvent, lambda _: self.finish(), originator=self, once=True
+                ExchangeLeaveEvent,
+                lambda _: self.sell_next_category(),
+                originator=self,
+                once=True,
             )
             return self.leave_all_dialogs()
         self.logger.info("Update prices of all item in sale hotel")
@@ -441,26 +449,56 @@ class SaleHotelPricesBehavior(Behavior):
         items: list[ExchangeBidSellerStartedEvent.ItemToSellInBid],
     ):
         price_for_one = get_price_for_sale_hotel(
-            list(msg.bid_price_for_seller.minimal_prices), QuantityIndex.ONE
+            list(msg.bid_price_for_seller.minimal_prices),
+            QuantityIndex.ONE,
+            QuantityEnum.VALUE_1,
         )
         price_for_ten = get_price_for_sale_hotel(
-            list(msg.bid_price_for_seller.minimal_prices), QuantityIndex.TEN
+            list(msg.bid_price_for_seller.minimal_prices),
+            QuantityIndex.TEN,
+            QuantityEnum.VALUE_10,
         )
         price_for_hundred = get_price_for_sale_hotel(
-            list(msg.bid_price_for_seller.minimal_prices), QuantityIndex.HUNDRED
+            list(msg.bid_price_for_seller.minimal_prices),
+            QuantityIndex.HUNDRED,
+            QuantityEnum.VALUE_100,
         )
+        price_for_thousand = get_price_for_sale_hotel(
+            list(msg.bid_price_for_seller.minimal_prices),
+            QuantityIndex.THOUSAND,
+            QuantityEnum.VALUE_1000,
+        )
+
+        minimal_price_by_gid_and_quantity = (
+            SaleHotelController().get_minimal_price_by_gid_and_quantity()
+        )
+        if price_for_one != minimal_price_by_gid_and_quantity.get((msg.object_gid, 1)):
+            price_for_one -= 1
+        if price_for_ten != minimal_price_by_gid_and_quantity.get((msg.object_gid, 10)):
+            price_for_ten -= 1
+        if price_for_hundred != minimal_price_by_gid_and_quantity.get(
+            (msg.object_gid, 100)
+        ):
+            price_for_hundred -= 1
+        if price_for_thousand != minimal_price_by_gid_and_quantity.get(
+            (msg.object_gid, 1000)
+        ):
+            price_for_thousand -= 1
 
         related_items = [item for item in items if item.item.gid == msg.object_gid]
         price_cost: float = 0
         requests_modify_price: list[ExchangeObjectModifyPricedRequest] = []
+
         for item in related_items:
             items.remove(item)
             if item.item.quantity == 1 and item.price != price_for_one:
-                price = price_for_one - 1
+                price = price_for_one
             elif item.item.quantity == 10 and item.price != price_for_ten:
-                price = price_for_ten - 1
+                price = price_for_ten
             elif item.item.quantity == 100 and item.price != price_for_hundred:
-                price = price_for_hundred - 1
+                price = price_for_hundred
+            elif item.item.quantity == 1000 and item.price != price_for_thousand:
+                price = price_for_thousand
             else:
                 continue
             if price <= 0:
@@ -485,7 +523,7 @@ class SaleHotelPricesBehavior(Behavior):
             )
 
         if len(requests_modify_price) == 0:
-            self.choose_and_update_item_price(items)
+            self.update_all_prices(items)
         else:
             self.event_manager.on(
                 ExchangeBidHouseItemRemovedEvent,
@@ -514,7 +552,7 @@ class SaleHotelPricesBehavior(Behavior):
         self.event_manager.clear_listener_by_origin_and_type(
             ExchangeBidHouseItemRemovedEvent, originator=self
         )
-        self.run_timer(BASE_RANGE, lambda: self.choose_and_update_item_price(items))
+        self.run_timer(BASE_RANGE, lambda: self.update_all_prices(items))
 
     def leave_all_dialogs(self):
         request = DialogLeaveRequest()

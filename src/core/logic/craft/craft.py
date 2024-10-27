@@ -5,7 +5,7 @@ from enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
 from models.datas.recipe_root import RecipeItem
 
 from src.common.logger import Logger
-from src.core.behaviors.storage.consts import GATHERER_ITEM_GIDS
+from src.core.config.storage import GATHERER_ITEM_GIDS
 from src.core.config.weights import WEIGHT_BY_JOB
 from src.interfaces.enums.item_type_enum import ItemTypeEnum
 
@@ -57,7 +57,6 @@ def is_not_valid_recipe_for_lvl_up_job(
     current_job_lvl = jobs_lvl_by_id.get(recipe.jobId)
     return (
         current_job_lvl is None
-        or current_job_lvl < recipe.resultLevel
         or current_job_lvl >= max_job_lvl
         or recipe.skillId not in MAP_ID_BY_SKILL_ID
         or (recipe.jobId not in HARVESTER_JOB_IDS and recipe.jobId != JobEnum.CHASSEUR)

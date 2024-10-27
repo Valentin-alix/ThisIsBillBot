@@ -58,7 +58,7 @@ class AttackerBehavior(Behavior):
         if monster_group_info is None:
             if self._wait_for_group:
                 return self.run_timer(0.5, self.attack_enemy)
-            return self.finish()
+            return self.finish(count_fighted_on_map=self._count_fighted_on_map)
 
         self.run_timer(
             HumanTimingsController().get_timing_attack_on_new_map(),
@@ -121,7 +121,7 @@ class AttackerBehavior(Behavior):
             self._count_fight_limit is not None
             and self._count_fighted_on_map >= self._count_fight_limit
         ):
-            return self.finish()
+            return self.finish(count_fighted_on_map=self._count_fighted_on_map)
         self.attack_enemy()
 
     def get_next_enemy(self) -> MonsterGroupInfo | None:

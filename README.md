@@ -60,3 +60,8 @@ TODO :
 `poetry run pyarmor gen -O dist-obf **main**.py src D3Mapping DBDofusUnity D3Database --recursive`
 
 `poetry run pyinstaller --add-data "D3Database/bundles":"D3Database/bundles" --add-data "D3Mapping/d3_mapping/resources":"d3_mapping/resources" --add-data "resources":"resources" --add-data ".venv/Lib/site-packages/wonderwords/assets:wonderwords/assets" **main**.py --noconfirm`
+
+<!-- "yolo.ezrealeu2+1747935431.2478561@outlook.fr": {
+        "playtime_start": "08:00",
+        "playtime_end": "23:00"
+    } -->

@@ -1,4 +1,4 @@
-- Générer HWID Aléatoire
+- TODO Gérer les sac de ressources pas correctement vidé
 
 - Plus de données pour human timings
 

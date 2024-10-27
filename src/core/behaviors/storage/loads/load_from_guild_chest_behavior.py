@@ -6,12 +6,16 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeObjectMoveRequest,
 )
+from d3_mapping.resources.protos.game.guild_chest_pb2 import (
+    GuildChestCurrentListenersAddEvent,
+    GuildChestTabSelectRequest,
+)
 from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
 from data_center.data_reader import DataReader
 from data_center.i18n import I18N
 
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.storage.consts import USEFUL_UNLOAD
+from src.core.config.storage import USEFUL_UNLOAD
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestBehavior,
 )
@@ -24,6 +28,7 @@ from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 class LoadItemInfo:
     item_gid: int
     remaining_quantity: int
+    tab: int
 
     def __str__(self):
         name_id = DataReader().item_by_id[self.item_gid].nameId
@@ -87,9 +92,13 @@ class LoadFromGuildChestBehavior(Behavior):
             return self.run_timer(BASE_RANGE, self.leave_all_dialogs)
 
         load_item_info = load_items_infos[0]
-        related_item = CHEST_OBJECT_BY_GID_BY_TAB[
-            self.game_state.guild_chest.tab_number
-        ].get(load_item_info.item_gid, None)
+        if load_item_info.tab != self.game_state.guild_chest.tab_number:
+            return self.go_to_tab(load_item_info.tab, load_items_infos)
+
+        related_item = CHEST_OBJECT_BY_GID_BY_TAB[load_item_info.tab].get(
+            load_item_info.item_gid, None
+        )
+
         if related_item is None:
             load_items_infos.remove(load_item_info)
             return self.on_item_loaded(load_items_infos)
@@ -104,7 +113,7 @@ class LoadFromGuildChestBehavior(Behavior):
         portable_quantity = (
             self.game_state.inventory.weight_max
             - self.game_state.inventory.inventory_weight
-        ) // (DataReader().item_by_id[load_item_info.item_gid].realWeight or 0)
+        ) // (DataReader().item_by_id[load_item_info.item_gid].realWeight or 1)
         if portable_quantity == 0:
             self.event_manager.on(
                 ExchangeLeaveEvent,
@@ -131,6 +140,20 @@ class LoadFromGuildChestBehavior(Behavior):
             quantity=-valid_quantity,
         )
         self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(req))
+
+    def go_to_tab(self, tab_number: int, load_items_infos: list[LoadItemInfo]):
+        self.event_manager.on(
+            GuildChestCurrentListenersAddEvent,
+            lambda _: self.load_item(load_items_infos=load_items_infos),
+            once=True,
+            originator=self,
+        )
+        return self.run_timer(
+            SMALL_RANGE,
+            lambda: self.event_manager.send(
+                GuildChestTabSelectRequest(tab_number=tab_number)
+            ),
+        )
 
     def on_item_loaded(self, load_items_infos: list[LoadItemInfo]):
         self.load_item(load_items_infos)

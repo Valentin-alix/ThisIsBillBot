@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.storage.consts import GUILD_CONTENT_BY_TAB
+from src.core.config.storage import GIDS_BY_TAB
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestError,
 )
@@ -21,7 +21,7 @@ class UnloadBehavior(Behavior):
 
     def run(self) -> None:
         self.unload_in_guild_chest_behavior.start(
-            unload_item_id_by_tab=GUILD_CONTENT_BY_TAB,
+            unload_item_id_by_tab=GIDS_BY_TAB,
             parent=self,
             callback=self.on_unload_in_guild_chest_behavior_finished,
         )

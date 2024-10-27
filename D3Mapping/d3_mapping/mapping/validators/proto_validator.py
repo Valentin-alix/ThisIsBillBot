@@ -74,7 +74,7 @@ class ProtoValidator:
         clear_by_obf_field_mapping: FieldMapping,
         obf_msg_infos: Iterable[ObfMessageInfo],
         values_array_mapped_to_clear_by_msg: dict[PMessage, list[dict[str, Any]]],
-    ):
+    ) -> dict[PMessage, list[dict[str, Any]]]:
         """get deep values based on mapping with clear mapped field as key"""
 
         for obf_msg_info in obf_msg_infos:
@@ -123,9 +123,12 @@ class ProtoValidator:
                         _sub_obf_struct,
                         _sub_mapping_info.field_mapping,
                         [ObfMessageInfo(value_by_field_array=value)],
-                        values_array_mapped_to_clear_by_msg,
+                        {},
                     )
-                    values_array_mapped_to_clear_by_msg |= sub_values_array
+                    for _key, _value in sub_values_array.items():
+                        if _key not in values_array_mapped_to_clear_by_msg:
+                            values_array_mapped_to_clear_by_msg[_key] = []
+                        values_array_mapped_to_clear_by_msg[_key].extend(_value)
                     value = sub_values_array[_sub_clear_struct][0]
                 elif type(value) is list:
                     _value = []
@@ -154,10 +157,14 @@ class ProtoValidator:
                                 obf_msg_infos=[
                                     ObfMessageInfo(value_by_field_array=sub_value)
                                 ],
-                                values_array_mapped_to_clear_by_msg=values_array_mapped_to_clear_by_msg,
+                                values_array_mapped_to_clear_by_msg={},
                             )
-                            values_array_mapped_to_clear_by_msg |= sub_values_array
-                            sub_value = sub_values_array[_sub_clear_struct]
+
+                            for _key, _value in sub_values_array.items():
+                                if _key not in values_array_mapped_to_clear_by_msg:
+                                    values_array_mapped_to_clear_by_msg[_key] = []
+                                values_array_mapped_to_clear_by_msg[_key].extend(_value)
+                            sub_value = sub_values_array[_sub_clear_struct][0]
                             _value.append(sub_value)
                         else:
                             _value.append(sub_value)

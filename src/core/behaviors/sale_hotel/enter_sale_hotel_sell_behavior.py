@@ -6,6 +6,7 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
 )
 from d3_mapping.resources.protos.game.npc_pb2 import NpcGenericActionRequest
 
+from enums.category_item_enum import CategoryEnum
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
     EnterSaleHotelBehavior,
@@ -19,9 +20,11 @@ from src.interfaces.models.npc_info import NpcInfo
 class EnterSaleHotelSellBehavior(Behavior):
     enter_sale_hotel_behavior: EnterSaleHotelBehavior
 
-    def run(self) -> None:
+    def run(self, category: CategoryEnum) -> None:
         self.enter_sale_hotel_behavior.start(
-            callback=self.on_entered_sale_hotel_behavior_finished, parent=self
+            callback=self.on_entered_sale_hotel_behavior_finished,
+            parent=self,
+            category=category,
         )
 
     def on_entered_sale_hotel_behavior_finished(

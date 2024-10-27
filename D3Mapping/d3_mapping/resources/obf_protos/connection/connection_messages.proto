@@ -99,6 +99,7 @@ message bpsy {
     bpsr eqmf = 6;
     optional int32 eqmg = 7;
     bptr eqmi = 8;
+    edy bmjr = 9;
     message bpsr {
       bool eqlr = 1;
       bool eqls = 2;
@@ -106,6 +107,7 @@ message bpsy {
       bool eqlu = 4;
       bool eqlv = 5;
       bool eqlw = 6;
+      bool bmjq = 7;
     }
   }
   message bpsw {
@@ -287,5 +289,11 @@ message bpun {
       BPUJ_EDLG = 3;
     }
   }
+}
+
+message edy {
+  string bmjz = 1;
+  string bmkt = 2;
+  repeated int32 bmlj = 3;
 }
 

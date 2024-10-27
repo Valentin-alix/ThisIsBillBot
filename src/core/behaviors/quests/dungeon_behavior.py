@@ -84,10 +84,20 @@ class DungeonBehavior(Behavior):
         self.attacker_behavior.start(
             count_fight_limit=1,
             wait_for_group=True,
-            get_lvl_limit=lambda level: level * 100,
-            callback=lambda _: self.on_new_map(dungeon_info),
+            get_lvl_limit=lambda _: float("inf"),
+            callback=partial(
+                self.on_attacker_behavior_finished, dungeon_info=dungeon_info
+            ),
             parent=self,
         )
+
+    def on_attacker_behavior_finished(
+        self,
+        error_code: str | None,
+        count_fighted_on_map: int,
+        dungeon_info: DungeonInfo,
+    ):
+        self.on_new_map(dungeon_info)
 
     def exit_dungeon(self, dungeon_info: DungeonInfo):
         map_name_id = DataReader().map_pos_by_map_id[self.game_state.map.map_id].nameId

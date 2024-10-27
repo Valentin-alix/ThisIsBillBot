@@ -16,11 +16,11 @@ from src.core.behaviors.npcs.npc_dialog_behavior import (
     NpcDialogBehavior,
     NpcDialogErrorCode,
 )
-from src.core.behaviors.storage.consts import (
-    ASTRUB_BANK_NPC_INFO,
+from src.core.config.storage import (
     BANKS_NPC_INFOS,
 )
 from src.core.config.timings import BASE_RANGE
+from src.core.logic.map.map_tools import MapTools
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -38,10 +38,12 @@ class EnterBankChestBehavior(Behavior):
         if self.game_state.player.level < 10:
             return self.finish(EnterBankChestErrorCode.NOT_ENOUGH_LVL)
 
-        if self.game_state.player.is_sub:
-            bank_npc_infos = BANKS_NPC_INFOS
-        else:
-            bank_npc_infos = [ASTRUB_BANK_NPC_INFO]
+        bank_npc_infos = [
+            npc_info
+            for npc_info in BANKS_NPC_INFOS
+            if self.game_state.player.is_sub
+            or MapTools.is_map_allowed_for_unsub(npc_info.npc_map_id)
+        ]
 
         self.auto_trip_world_behavior.start(
             callback=self.on_bank_map,

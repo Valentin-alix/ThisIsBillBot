@@ -463,6 +463,23 @@ class BotFactory:
         )
 
         # module
+        load_recipe_from_bank_chest_behavior = LoadRecipeFromBankChestBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            logger=logger,
+            enter_bank_chest_behavior=enter_bank_chest_behavior,
+            unload_behavior=unload_behavior,
+        )
+        craft_behavior = CraftBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            logger=logger,
+            load_recipe_from_guild_chest_behavior=load_recipe_from_guild_chest_behavior,
+            interactive_behavior=interactive_behavior,
+            auto_trip_smart_behavior=auto_trip_world_behavior,
+            pathfinding=path_finding,
+            load_recipe_from_bank_chest_behavior=load_recipe_from_bank_chest_behavior,
+        )
         harvester = HarvesterBehavior(
             mule_give_behavior=mule_give_behavior,
             event_manager=event_manager,
@@ -472,6 +489,7 @@ class BotFactory:
             random_farm_behavior=random_farm_behavior,
             fight_behavior=fight_behavior,
             logger=logger,
+            craft_behavior=craft_behavior,
             sale_hotel_prices_behavior=sale_hotel_prices_behavior,
         )
         attacker_behavior = AttackerBehavior(
@@ -491,25 +509,19 @@ class BotFactory:
             game_state=game_state,
             unload_behavior=unload_behavior,
             logger=logger,
+            craft_behavior=craft_behavior,
             sale_hotel_prices_behavior=sale_hotel_prices_behavior,
             mule_give_behavior=mule_give_behavior,
         )
-        load_recipe_from_bank_chest_behavior = LoadRecipeFromBankChestBehavior(
-            event_manager=event_manager,
-            game_state=game_state,
-            logger=logger,
-            enter_bank_chest_behavior=enter_bank_chest_behavior,
-            unload_behavior=unload_behavior,
+
+        chat_behavior = ChatBehavior(
+            event_manager=event_manager, game_state=game_state, logger=logger
         )
-        craft_behavior = CraftBehavior(
+        sale_hotel_scraping_behavior = SaleHotelScrapingBehavior(
             event_manager=event_manager,
+            enter_sale_hotel_behavior=enter_sale_hotel_behavior,
             game_state=game_state,
             logger=logger,
-            load_recipe_from_guild_chest_behavior=load_recipe_from_guild_chest_behavior,
-            interactive_behavior=interactive_behavior,
-            auto_trip_smart_behavior=auto_trip_world_behavior,
-            pathfinding=path_finding,
-            load_recipe_from_bank_chest_behavior=load_recipe_from_bank_chest_behavior,
         )
         mule_accept_kamas_behavior = MuleAcceptBehavior(
             event_manager=event_manager,
@@ -518,9 +530,7 @@ class BotFactory:
             auto_trip_smart_behavior=auto_trip_world_behavior,
             unload_behavior=unload_behavior,
             sale_hotel_prices_behavior=sale_hotel_prices_behavior,
-        )
-        chat_behavior = ChatBehavior(
-            event_manager=event_manager, game_state=game_state, logger=logger
+            sale_hotel_scraping_behavior=sale_hotel_scraping_behavior,
         )
         dungeon_behavior = DungeonBehavior(
             event_manager=event_manager,
@@ -552,12 +562,6 @@ class BotFactory:
             fighter_behavior=fighter_behavior,
             harvester_behavior=harvester,
             multi_farming_behavior=multi_farming_behavior,
-        )
-        sale_hotel_scraping_behavior = SaleHotelScrapingBehavior(
-            event_manager=event_manager,
-            enter_sale_hotel_behavior=enter_sale_hotel_behavior,
-            game_state=game_state,
-            logger=logger,
         )
 
         return Bot(

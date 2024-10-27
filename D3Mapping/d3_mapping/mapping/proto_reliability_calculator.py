@@ -6,7 +6,7 @@ from proto_schema_parser import FieldCardinality
 from pydantic import BaseModel
 from scipy.optimize import linear_sum_assignment
 
-from d3_mapping.mapping.consts import (
+from d3_mapping.consts import (
     BASE_RELIABILITY,
     EXTRA_RELIABILITY_ENUM,
     EXTRA_RELIABILITY_MAP,
@@ -17,8 +17,11 @@ from d3_mapping.mapping.consts import (
 )
 from d3_mapping.mapping.proto_organization import ProtoOrganization
 from d3_mapping.mapping.validators.proto_field_validators import (
+    VALIDATORS_GLOBAL_ON_SET_FIELDS,
     VALIDATORS_ON_FIELD,
+    VALIDATORS_ON_SET_FIELDS,
     get_count_defined_msg_field_values,
+    is_parsed_obf_msg,
 )
 from d3_mapping.models.p_enum import PEnum
 from d3_mapping.models.p_message import PField, PMapField, PMessage
@@ -87,6 +90,17 @@ class ProtoReliabilityCalculator(BaseModel):
             == obf_msg.name
         ):
             return 999
+
+        count_validator = 0
+        if clear_msg.name in VALIDATORS_ON_SET_FIELDS:
+            count_validator += 1
+        if clear_msg.name in VALIDATORS_GLOBAL_ON_SET_FIELDS:
+            count_validator += 1
+
+        if count_validator > 0:
+            if not is_parsed_obf_msg(obf_msg.namespace):
+                return 0
+            return count_validator * 250
 
         treated_msg_namespaces = treated_msg_namespaces.copy()
         treated_msg_namespaces.add(clear_msg.namespace)
@@ -173,11 +187,11 @@ class ProtoReliabilityCalculator(BaseModel):
             clear_msg.name in VALIDATORS_ON_FIELD
             and clear_field.name in VALIDATORS_ON_FIELD[clear_msg.name]
         ):
-            return (1 + math.log(count_msg_values, 2)) * (
+            return (1 + math.log(count_msg_values + 1, 2)) * (
                 base_reliability + EXTRA_RELIABILITY_WITH_VALIDATOR
             )
         elif count_msg_values != 0:
-            base_reliability += math.log(count_msg_values, 10)
+            base_reliability += math.log(count_msg_values + 1, 2)
 
         if (
             clear_field.type_name in PROTO_BASE_FIELDS

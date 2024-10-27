@@ -8,7 +8,6 @@ from pydantic import BaseModel
 from d3_mapping.controller.data_center_controller import DataCenterController
 from d3_mapping.controller.instancied_msg_info_controller import (
     MSG_INFO_BY_NAME,
-    InstanciedMessageInfoController,
 )
 from d3_mapping.resources.protos.game.teleportation_pb2 import Teleporter
 from D3Database.data_center.i18n import I18N
@@ -192,6 +191,10 @@ def is_valid_tax_update_percentage(value: Any):
     return value == 1.0
 
 
+def is_valid_duration(value: Any):
+    return value >= 0 and value < 1000 * 30
+
+
 def is_valid_max_item_lvl(value: Any):
     return value in [200, 60]
 
@@ -315,7 +318,7 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
     "BidItem": {
         "quantity": ProtoFieldValidator(validators=[is_valid_positive_total_quantity]),
         "gid": ProtoFieldValidator(validators=[is_valid_gid]),
-        "uid": ProtoFieldValidator(validators=[is_valid_strict_positive]),
+        "uid": ProtoFieldValidator(validators=[is_valid_positive]),
     },
     "ExchangeBidHouseSearchRequest": {
         "object_gid": ProtoFieldValidator(validators=[is_valid_gid])
@@ -403,7 +406,7 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
     "ObjectItem": {
         "quantity": ProtoFieldValidator(validators=[is_valid_positive_total_quantity]),
         "gid": ProtoFieldValidator(validators=[is_valid_gid]),
-        "uid": ProtoFieldValidator(validators=[is_valid_strict_positive]),
+        "uid": ProtoFieldValidator(validators=[is_valid_positive]),
     },
     "ObjectUidWithQuantity": {
         "object_uid": ProtoFieldValidator(validators=[is_valid_positive]),
@@ -428,7 +431,9 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
         )
     },
     "InteractiveUsedEvent": {
-        "skill_id": ProtoFieldValidator(validators=[is_valid_skill_id])
+        "skill_id": ProtoFieldValidator(validators=[is_valid_skill_id]),
+        "element_id": ProtoFieldValidator(validators=[is_valid_strict_positive]),
+        "duration": ProtoFieldValidator(validators=[is_valid_duration]),
     },
     "InteractiveUseEndedEvent": {
         "skill_id": ProtoFieldValidator(validators=[is_valid_skill_id])
@@ -529,7 +534,7 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
     "ObjectQuantityEvent": {"object": ProtoFieldValidator(validators=[is_defined])},
     "MonsterInGroupInformation": {
         "gid": ProtoFieldValidator(validators=[is_valid_monster_gid]),
-        "creature_grade": ProtoFieldValidator(validators=[is_valid_grade]),
+        "grade": ProtoFieldValidator(validators=[is_valid_grade]),
         "level": ProtoFieldValidator(validators=[is_valid_monster_level]),
     },
     "LifePointsGain": {
@@ -545,9 +550,6 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
     "MonsterFighter": {
         "monster_gid": ProtoFieldValidator(validators=[is_valid_monster_gid]),
         "creature_grade": ProtoFieldValidator(validators=[is_valid_grade]),
-    },
-    "GameActionFightCastOnTargetRequest": {
-        "spell_id": ProtoFieldValidator(validators=[is_valid_spell])
     },
     "Slide": {
         "start_cell": ProtoFieldValidator(validators=[is_valid_cell_id]),
@@ -585,17 +587,9 @@ def validator_update_life_points_event(values: dict[str, Any]):
 
 def validator_inventory_weight_event(values: dict[str, Any]):
     # sometimes we can be overload (after a fight for example, so lets add offset juste for that)
-    if values["weight_max"] + 30 <= values["inventory_weight"]:
+    if values["weight_max"] + 500 <= values["inventory_weight"]:
         return False
     return True
-
-
-def validator_character_characteristic_upgrade_request(values: dict[str, Any]):
-    return not any(
-        value >= values["chance"]
-        for key, value in values.items()
-        if key not in ["chance"]
-    )
 
 
 def validator_character_characteristic_detailed_usable(values: dict[str, Any]):
@@ -608,6 +602,13 @@ def validator_character_characteristic_detailed_usable(values: dict[str, Any]):
         + values["base"]
     ):
         return False
+    return True
+
+
+def validator_exchange_bid_seller_started_event(values: dict[str, Any]):
+    for item_sale in values["items"]:
+        if not is_valid_sale_hotel_quantity(item_sale["item"]["quantity"]):
+            return False
     return True
 
 
@@ -697,12 +698,27 @@ def validator_game_action_fight_event(values: dict[str, Any]):
             "tackled",
             "points_variation",
             "execute_script",
-            "invisible_detected",
             "spell_remove",
         ]
     ):
         return False
     return True
+
+
+def global_validator_character_characteristic_upgrade_request(
+    values_array: list[dict[str, Any]],
+):
+    values_chance_count = 0
+    for value_array in values_array:
+        is_not_maxed_chance = any(
+            value >= value_array["chance"]
+            for key, value in value_array.items()
+            if key != "chance"
+        )
+        if not is_not_maxed_chance:
+            values_chance_count += 1
+
+    return values_chance_count >= len(values_array) / 4
 
 
 def global_validator_entity_disposition(values_array: list[dict[str, Any]]):
@@ -751,6 +767,8 @@ def global_validator_element_with_instance_uid(values_array: list[dict[str, Any]
 
 
 def validator_slide(values: dict[str, Any]):
+    if values["start_cell"] == values["end_cell"]:
+        return False
     return (
         MapPoint.from_cell_id(values["start_cell"]).distance_to_map_point(
             MapPoint.from_cell_id(values["end_cell"])
@@ -760,6 +778,8 @@ def validator_slide(values: dict[str, Any]):
 
 
 def validator_exchange_positions(values: dict[str, Any]):
+    if values["caster_cell_id"] == values["target_cell_id"]:
+        return False
     return (
         MapPoint.from_cell_id(values["caster_cell_id"]).distance_to_map_point(
             MapPoint.from_cell_id(values["target_cell_id"])
@@ -778,11 +798,8 @@ VALIDATORS_ON_SET_FIELDS: dict[str, tuple[Callable[[dict[str, Any]], bool], int]
         validator_character_characteristic_detailed_usable,
         1,
     ),
-    "CharacterCharacteristicUpgradeRequest": (
-        validator_character_characteristic_upgrade_request,
-        1,
-    ),
     "ExchangeStartedWithPodsEvent": (validator_exchange_started_with_pods_event, 1),
+    "ExchangeBidSellerStartedEvent": (validator_exchange_bid_seller_started_event, 1),
 }
 
 VALIDATORS_GLOBAL_ON_SET_FIELDS: dict[
@@ -792,6 +809,10 @@ VALIDATORS_GLOBAL_ON_SET_FIELDS: dict[
     #     global_validator_map_complementary_information_event,
     #     3,
     # ),
+    "CharacterCharacteristicUpgradeRequest": (
+        global_validator_character_characteristic_upgrade_request,
+        1,
+    ),
     "ObjectUidWithQuantity": (global_validator_object_with_quantity, 1),
     "ObjectItem": (global_validator_object_item, 1),
     "ExchangeObjectModifyPricedRequest": (global_validator_object_with_quantity, 1),
@@ -803,7 +824,10 @@ VALIDATORS_GLOBAL_ON_SET_FIELDS: dict[
 
 
 if __name__ == "__main__":
-    temp = InstanciedMessageInfoController().get_msg_infos_by_name().root["ile"]
+    ...
+    # print((1 + math.log(0, 2)))
+    # temp = get_count_defined_msg_field_values("boeo", "ethz")
+    # print(temp)
     # (190842880, {'ekzm': 112, 'ekzn': True, 'ekzl': 513972, 'ekzp': 0})
     # infos = [(190842880, 513972), (190843392, 513975)]
     # for map_id, element_id in infos:

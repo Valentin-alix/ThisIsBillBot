@@ -64,7 +64,7 @@ class HumanTimingsController(metaclass=Singleton):
             inverse_cdf = interp1d(quantiles, sorted_deltas, fill_value="extrapolate")  # type: ignore
 
             def sampler():
-                return float(inverse_cdf(np.random.rand())) / 2
+                return float(inverse_cdf(np.random.rand())) / 1.5
 
             return sampler
 

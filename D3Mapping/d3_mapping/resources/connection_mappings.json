@@ -234,7 +234,7 @@
     },
     "bpsy.bpst.bpsr": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.IdentificationResponse.Success.Rights",
-      "similarity": 1.0,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
         "eqlr": [
           1.0,
@@ -259,7 +259,8 @@
         "eqlw": [
           1.0,
           "esda"
-        ]
+        ],
+        "bmjq": null
       }
     },
     "bptr": {
@@ -290,7 +291,7 @@
     },
     "bpsy.bpst": {
       "clear_msg_namespace": ".com.ankama.dofus.server.connection.protocol.IdentificationResponse.Success",
-      "similarity": 1.0,
+      "similarity": 0.8943127467240339,
       "field_mapping": {
         "eqma": [
           1.0,
@@ -313,7 +314,7 @@
           "subscription_end_date"
         ],
         "eqmf": [
-          1.0,
+          0.9090909090909091,
           "rights"
         ],
         "eqmg": [
@@ -323,7 +324,8 @@
         "eqmi": [
           1.0,
           "force_account_status"
-        ]
+        ],
+        "bmjr": null
       }
     },
     "bpsy.bpsw": {
@@ -349,7 +351,7 @@
       "similarity": 1.0,
       "field_mapping": {
         "eqmu": [
-          1.0,
+          0.8943127467240339,
           "success"
         ],
         "eqmv": [
@@ -558,5 +560,5 @@
       }
     }
   },
-  "version_date": 1753775235.4269485
+  "version_date": 1756200279.7386565
 }

@@ -123,9 +123,7 @@ class ProtoMapper(ComparisonEngine):
                 f"<!> Not enough registered msg for {clear_msg.name} with obf_msg {obf_msg.name}"
             )
 
-        self._added_mapping_by_clear_obf_namespaces[
-            (clear_msg.namespace, obf_msg.namespace)
-        ] = mapping_info
+        self._added_mapping_by_obf_namespaces[obf_msg.namespace] = mapping_info
 
         output_field_mapping: OutputFieldMapping = {}
 

@@ -1,9 +1,9 @@
+from wonderwords import RandomSentence
 from d3_mapping.resources.protos.game.chat_pb2 import (
     Channel,
     ChatChannelMessageEvent,
     ChatChannelMessageRequest,
 )
-from wonderwords import RandomSentence
 
 from src.core.behaviors.behavior import Behavior
 

@@ -28,7 +28,7 @@ from grid.map_point import MapPoint
 from models.world_graph import Edge, Vertice
 
 from src.common.logger import Logger
-from src.core.behaviors.storage.consts import ASTRUB_BANK_MAP
+from src.core.config.storage import ASTRUB_BANK_MAP
 from src.core.logic.farmer.weight_collectables import (
     draw_weight_on_map,
     get_map_id_collectable_weight,
@@ -66,50 +66,61 @@ class WeightedPath:
         start_vertex: Vertice,
         get_weight_by_edge_func: Callable[[Edge], float],
         weight_by_map_id: dict[int, float],
+        count_map_in_area: int,
         depth: int = 30,
-        iterations: int = 5000,
+        iterations: int = 7_500,
     ):
         # heuristic, randomized weighted path
         best_score: float = 0
         best_path: list[Edge] = []
+        min_depth = min(count_map_in_area, depth // 2)
 
         for _ in range(iterations):
-            random_depth = random.randint(5, depth)
+            random_depth = random.randint(min_depth, depth)
             current_vertex = start_vertex
-            visited_map_ids: list[int] = [current_vertex.m_mapId]
+            visited_map_ids: set[int] = {current_vertex.m_mapId}
             total_weight: float = 0
             path: list[Edge] = []
 
             for _ in range(random_depth):
-                edge_neighbors = [
-                    neighbor
-                    for neighbor in iter_valid_outgoing_edges(
-                        current_vertex, self.game_state
-                    )
-                ]
+                edge_neighbors = list(
+                    iter_valid_outgoing_edges(current_vertex, self.game_state)
+                )
                 if not edge_neighbors:
                     break
-                next_edge: Edge = random.choice(edge_neighbors)
 
-                weight = self.get_weight_edge(
-                    next_edge,
-                    weight_by_map_id=weight_by_map_id,
-                    get_weight_by_edge_func=get_weight_by_edge_func,
-                )
-                try:
-                    last_visited_index = visited_map_ids.index(next_edge.m_to.m_mapId)
-                    base = 0.9999
-                    weight_malus = 1 - base**last_visited_index
-                    weight *= weight_malus
-                except ValueError:
-                    pass
+                edge_weights = [
+                    (
+                        self.get_weight_edge(
+                            edge,
+                            weight_by_map_id=weight_by_map_id,
+                            get_weight_by_edge_func=get_weight_by_edge_func,
+                        )
+                        + 1
+                        if edge.m_to.m_mapId not in visited_map_ids
+                        else 1
+                    )
+                    for edge in edge_neighbors
+                ]
+                next_edge: Edge = random.choices(
+                    edge_neighbors, weights=edge_weights, k=1
+                )[0]
+
+                if next_edge.m_to.m_mapId in visited_map_ids:
+                    weight = 0
+                else:
+                    weight = self.get_weight_edge(
+                        next_edge,
+                        weight_by_map_id=weight_by_map_id,
+                        get_weight_by_edge_func=get_weight_by_edge_func,
+                    )
 
                 path.append(next_edge)
-                visited_map_ids.insert(0, next_edge.m_to.m_mapId)
+                visited_map_ids.add(next_edge.m_to.m_mapId)
                 total_weight += weight
                 current_vertex = next_edge.m_to
 
-            score = total_weight / (1 + len(path) ** 0.25)
+            score = total_weight / (1 + random_depth**0.5)
             if score > best_score:
                 best_score = score
                 best_path = path
@@ -230,7 +241,9 @@ if __name__ == "__main__":
 
     before = perf_counter()
 
-    path, weight = weighted_path.monte_carlo_path(vertex, get_weight_by_edge, {})
+    path, weight = weighted_path.monte_carlo_path(
+        vertex, get_weight_by_edge, {}, len(additional_weight)
+    )
     print(len(path))
     print(perf_counter() - before)
 

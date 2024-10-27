@@ -75,7 +75,7 @@ class Proxy:
 
     def close(self):
         for con in self.connections:
-            print(f"closing {con.getpeername()}")
+            print("closing conn")
             con.close()
         self.on_close()
 
@@ -121,10 +121,18 @@ class Proxy:
 
     def send_to_client(self, data: bytes):
         with self.locks[self.client_socket]:
-            self.client_socket.sendall(data)
+            try:
+                self.client_socket.sendall(data)
+            except OSError as err:
+                print(err)
+                self.close()
         self.queue_worker_item.put((WorkerAction.RECEIVED, data, True, True))
 
     def send_to_server(self, data: bytes):
         with self.locks[self.server_socket]:
-            self.server_socket.sendall(data)
+            try:
+                self.server_socket.sendall(data)
+            except OSError as err:
+                print(err)
+                self.close()
         self.queue_worker_item.put((WorkerAction.RECEIVED, data, True, False))

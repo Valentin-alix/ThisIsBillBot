@@ -1,10 +1,12 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from functools import partial
 from typing import Callable
 
 from data_center.data_reader import DataReader
 
 from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.movements.edge_behavior import EdgeError
@@ -14,11 +16,15 @@ from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
-from src.core.behaviors.storage.consts import USEFUL_UNLOAD
+from src.core.config.storage import USEFUL_UNLOAD
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
 from src.core.config.mule import BOT_KAMA_LIMIT_TO_GIVE
 from src.core.config.timings import (
     get_time_beween_sale_hotel_prices,
+)
+from src.core.logic.craft.craft import (
+    get_recipes_for_job_lvl_up,
+    is_not_valid_recipe_for_lvl_up_job,
 )
 from src.core.logic.flags.map_position_flags import allow_monster_agression
 from src.core.logic.map.path_finding.path_finding import Pathfinding
@@ -34,6 +40,7 @@ class FighterBehavior(Behavior):
     sale_hotel_prices_behavior: SaleHotelPricesBehavior
     attacker_behavior: AttackerBehavior
     mule_give_behavior: MuleGiveBehavior
+    craft_behavior: CraftBehavior
 
     _stop_condition_with_callback: (
         tuple[Callable[[], bool], Callable[[], None]] | None
@@ -85,7 +92,9 @@ class FighterBehavior(Behavior):
             raise UnhandledErrorCodeException(error_code)
         self.on_new_map()
 
-    def on_attacker_behavior_finish(self, error_code: str | None):
+    def on_attacker_behavior_finish(
+        self, error_code: str | None, count_fighted_on_map: int
+    ):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
 
@@ -96,7 +105,8 @@ class FighterBehavior(Behavior):
 
     def on_full_pods(self):
         if self.game_state.inventory.kamas > BOT_KAMA_LIMIT_TO_GIVE or (
-            self.game_state.player.is_full_object_in_sale_hotel
+            not self.game_state.player.is_sub
+            and self.game_state.player.is_full_object_in_sale_hotel
             and (
                 datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
                 < self._timedelta_for_sale_hotel_prices
@@ -112,7 +122,7 @@ class FighterBehavior(Behavior):
         if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
             self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
         else:
-            self.on_new_map()
+            self.on_unload_finished(error_code)
 
     def on_unload_finished(self, error_code: str | None):
         if error_code is not None:
@@ -123,11 +133,26 @@ class FighterBehavior(Behavior):
             > self._timedelta_for_sale_hotel_prices
         ):
             self._timedelta_for_sale_hotel_prices = get_time_beween_sale_hotel_prices()
-            self.sale_hotel_prices_behavior.start(
-                callback=lambda _: self.on_new_map(), parent=self
-            )
+            self.on_interesting_amount_of_farming_done()
         else:
             self.on_new_map()
+
+    def on_interesting_amount_of_farming_done(self):
+        recipes = get_recipes_for_job_lvl_up(
+            self.game_state.player.is_sub, self.game_state.player.jobs_lvl_by_id
+        )
+        self.craft_behavior.start(
+            recipes=recipes,
+            stop_craft_recipe_condition=partial(
+                is_not_valid_recipe_for_lvl_up_job,
+                is_sub=self.game_state.player.is_sub,
+                jobs_lvl_by_id=self.game_state.player.jobs_lvl_by_id,
+            ),
+            callback=lambda _: self.sale_hotel_prices_behavior.start(
+                callback=lambda _: self.on_new_map(), parent=self
+            ),
+            parent=self,
+        )
 
     def get_additional_weight_by_map_id(self, map_id: int):
         map_pos_data = DataReader().map_pos_by_map_id[map_id]

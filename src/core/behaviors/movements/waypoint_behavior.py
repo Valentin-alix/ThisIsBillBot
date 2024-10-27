@@ -81,6 +81,8 @@ class WaypointBehavior(Behavior):
         self.event_manager.send(req)
 
     def on_entered_havre_sac(self, msg: MapComplementaryInformationEvent, map_id: int):
+        if not msg.HasField("haven_bag_information"):
+            return self.finish(WaypointErrorCode.UNREACHABLE_HAVRE_MAP)
         self.go_and_use_waypoint(map_id)
 
     def go_and_use_waypoint(self, map_id: int):

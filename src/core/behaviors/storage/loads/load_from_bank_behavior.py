@@ -11,7 +11,7 @@ from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
 from data_center.data_reader import DataReader
 
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.storage.consts import USEFUL_UNLOAD
+from src.core.config.storage import USEFUL_UNLOAD
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )

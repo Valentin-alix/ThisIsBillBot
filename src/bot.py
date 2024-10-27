@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from datetime import datetime
 from threading import Event, Thread
 from time import sleep
@@ -25,7 +25,6 @@ from src.core.behaviors.mule_storage.mule_accept_behavior import (
 )
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
 from src.core.config.mule import (
-    MULE_BANK_CHARACTER_IDS,
     MULE_BANK_CHARACTER_LOGIN,
 )
 from src.core.frames.frame import Frame
@@ -131,17 +130,24 @@ class Bot:
             self.thread_planning.start()
             now = datetime.now()
 
-            start_hour = int(bot_config.playtime_start.split(":")[0])
-            end_hour = int(bot_config.playtime_end.split(":")[0])
-
-            if (
-                start_hour > end_hour
-                and (now.hour >= start_hour or now.hour < end_hour)
-            ) or (
-                start_hour < end_hour and now.hour >= start_hour and now.hour < end_hour
+            for playtime_start, playtime_end in zip(
+                bot_config.playtime_starts, bot_config.playtime_ends
             ):
-                self.bot_signals.play.emit()
-                self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
+                start_hour = int(playtime_start.split(":")[0])
+                end_hour = int(playtime_end.split(":")[0])
+
+                if (
+                    start_hour > end_hour
+                    and (now.hour >= start_hour or now.hour < end_hour)
+                ) or (
+                    start_hour < end_hour
+                    and now.hour >= start_hour
+                    and now.hour < end_hour
+                ):
+                    self.bot_signals.play.emit()
+                    self.shared_signals.launch_account.emit(
+                        self.account["apikey"]["login"]
+                    )
 
     def on_connected(self):
         self.is_connected_event.set()
@@ -152,7 +158,7 @@ class Bot:
         if not self.is_playing_event.is_set():
             return
         self.logger.info("disconnected, relaunch bot")
-        self.stop_internal_main_behavior()
+        self.stop_behaviors()
         self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
 
     def on_play(self):
@@ -162,7 +168,7 @@ class Bot:
         self.logger.info("stopping")
         self.is_playing_event.clear()
         self._current_bot_action_func = None
-        self.stop_running_behaviors()
+        self.stop_behaviors()
 
     def on_ready_to_play(self):
         self.is_ready_to_play_event.set()
@@ -277,7 +283,7 @@ class Bot:
         )
 
     def play_action(self, func: Callable[[], None]):
-        self.stop_running_behaviors()
+        self.stop_behaviors()
         self.bot_signals.play.emit()
         self._current_bot_action_func = func
         if not self.is_connected_event.is_set():
@@ -292,40 +298,17 @@ class Bot:
     def safe_stop(self):
         while self.fight_behavior.is_running.is_set():
             sleep(0.3)
-        self.stop_running_behaviors()
+        self.stop_behaviors()
 
-    def stop_internal_main_behavior(self):
-        if self.harvester_behavior.is_running.is_set():
-            self.harvester_behavior.stop()
-        if self.fighter_behavior.is_running.is_set():
-            self.fighter_behavior.stop()
-        if self.craft_behavior.is_running.is_set():
-            self.craft_behavior.stop()
-        if self.fight_behavior.is_running.is_set():
-            self.fight_behavior.stop()
-        if self.mule_accept_kamas_behavior.is_running.is_set():
-            self.mule_accept_kamas_behavior.stop()
-        if self.auto_bot_behavior.is_running.is_set():
-            self.auto_bot_behavior.stop()
-        if self.revive_behavior.is_running.is_set():
-            self.revive_behavior.stop()
+    def stop_behaviors(self):
+        for field_info in fields(self):
+            field_value = getattr(self, field_info.name)
+            if isinstance(field_value, Behavior) and field_value.is_running.is_set():
+                field_value.stop()
 
-    def stop_running_behaviors(self):
-        if self.harvester_behavior.is_running.is_set():
-            self.harvester_behavior.finish()
-        if self.fighter_behavior.is_running.is_set():
-            self.fighter_behavior.finish()
-        if self.craft_behavior.is_running.is_set():
-            self.craft_behavior.finish()
-        if self.fight_behavior.is_running.is_set():
-            self.fight_behavior.stop()
-        if self.mule_accept_kamas_behavior.is_running.is_set():
-            MULE_BANK_CHARACTER_IDS.remove(self.game_state.player.character_id)
-            self.mule_accept_kamas_behavior.finish()
-        if self.auto_bot_behavior.is_running.is_set():
-            self.auto_bot_behavior.finish()
-        if self.revive_behavior.is_running.is_set():
-            self.revive_behavior.finish()
+        for usable_behavior in self.usable_behaviors:
+            if usable_behavior.is_running.is_set():
+                usable_behavior.stop()
 
     def start_planning_bot(self, bot_config: BotConfig):
         def planned_stop_bot():
@@ -345,16 +328,19 @@ class Bot:
             else:
                 self.logger.info("Bot is playing, dont restart")
 
-        schedule.every().day.at(bot_config.playtime_end).do(
-            lambda: self._thread_worker_runnings.append(
-                run_in_background(planned_stop_bot)
+        for playtime_end in bot_config.playtime_ends:
+            schedule.every().day.at(playtime_end).do(
+                lambda: self._thread_worker_runnings.append(
+                    run_in_background(planned_stop_bot)
+                )
             )
-        )
-        schedule.every().day.at(bot_config.playtime_start).do(
-            lambda: self._thread_worker_runnings.append(
-                run_in_background(planned_restart_bot)
+
+        for playtime_start in bot_config.playtime_starts:
+            schedule.every().day.at(playtime_start).do(
+                lambda: self._thread_worker_runnings.append(
+                    run_in_background(planned_restart_bot)
+                )
             )
-        )
 
     def kill_process(self):
         if self.pid is None:

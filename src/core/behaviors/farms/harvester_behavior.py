@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from functools import partial
 from typing import Callable
 
 from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
@@ -15,6 +16,7 @@ from src.const import FAKE_INFINITY_VALUE
 from src.controller.gfx_mapping import GfxMappingController
 from src.controller.sale_hotel import SaleHotelController
 from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
 from src.core.behaviors.interactives.collect_behavior import (
@@ -29,12 +31,16 @@ from src.core.behaviors.mule_storage.mule_give_behavior import (
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
-from src.core.behaviors.storage.consts import USEFUL_UNLOAD
+from src.core.config.storage import USEFUL_UNLOAD
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
 from src.core.config.mule import BOT_KAMA_LIMIT_TO_GIVE
 from src.core.config.timings import (
     BASE_RANGE,
     get_time_beween_sale_hotel_prices,
+)
+from src.core.logic.craft.craft import (
+    get_recipes_for_job_lvl_up,
+    is_not_valid_recipe_for_lvl_up_job,
 )
 from src.core.logic.farmer.weight_collectables import (
     get_map_id_collectable_weight,
@@ -56,6 +62,7 @@ class HarvesterBehavior(Behavior):
     unload_behavior: UnloadBehavior
     sale_hotel_prices_behavior: SaleHotelPricesBehavior
     mule_give_behavior: MuleGiveBehavior
+    craft_behavior: CraftBehavior
 
     map_ids_to_explore: set[int] = field(init=False, default_factory=set)
 
@@ -209,7 +216,8 @@ class HarvesterBehavior(Behavior):
 
     def on_full_pods(self):
         if self.game_state.inventory.kamas > BOT_KAMA_LIMIT_TO_GIVE or (
-            self.game_state.player.is_full_object_in_sale_hotel
+            not self.game_state.player.is_sub
+            and self.game_state.player.is_full_object_in_sale_hotel
             and (
                 datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
                 < self._timedelta_for_sale_hotel_prices
@@ -225,7 +233,7 @@ class HarvesterBehavior(Behavior):
         if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
             self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
         else:
-            self.on_new_map()
+            self.on_unload_finished(error_code)
 
     def on_unload_finished(self, error_code: str | None):
         if error_code is not None:
@@ -236,14 +244,31 @@ class HarvesterBehavior(Behavior):
             > self._timedelta_for_sale_hotel_prices
         ):
             self._timedelta_for_sale_hotel_prices = get_time_beween_sale_hotel_prices()
-            self.sale_hotel_prices_behavior.start(
-                callback=self.on_sale_hotel_prices_behavior_finished, parent=self
-            )
+            self.on_interesting_amount_of_farming_done()
         else:
             self.on_new_map()
 
-    def on_sale_hotel_prices_behavior_finished(self, error_code: str | None):
-        self.on_new_map()
+    def on_interesting_amount_of_farming_done(self):
+        recipes = get_recipes_for_job_lvl_up(
+            self.game_state.player.is_sub, self.game_state.player.jobs_lvl_by_id
+        )
+        self.craft_behavior.start(
+            recipes=recipes,
+            stop_craft_recipe_condition=partial(
+                is_not_valid_recipe_for_lvl_up_job,
+                is_sub=self.game_state.player.is_sub,
+                jobs_lvl_by_id=self.game_state.player.jobs_lvl_by_id,
+            ),
+            callback=self.on_craft_behavior_finished,
+            parent=self,
+        )
+
+    def on_craft_behavior_finished(self, error_code: str | None):
+        if error_code is not None:
+            raise UnhandledErrorCodeException(error_code)
+        self.sale_hotel_prices_behavior.start(
+            callback=lambda _: self.on_new_map(), parent=self
+        )
 
     def on_job_experiences_update_event(self, msg: JobExperiencesUpdateEvent):
         if is_interesting_job_lvl_up_for_weight(

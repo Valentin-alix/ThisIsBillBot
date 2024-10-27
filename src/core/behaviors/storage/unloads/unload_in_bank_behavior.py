@@ -15,7 +15,7 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
-from src.core.behaviors.storage.consts import USEFUL_UNLOAD
+from src.core.config.storage import USEFUL_UNLOAD
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )

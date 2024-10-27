@@ -22,9 +22,11 @@ from d3_mapping.resources.protos.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
 )
+from d3_mapping.resources.protos.game.guild_member_pb2 import GuildMembershipEvent
 from d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
 from d3_mapping.resources.protos.game.teleportation_pb2 import ZaapKnownListEvent
 
+from src.controller.scraping_d3 import ScrapingD3Controller
 from src.core.frames.frame import Frame
 from src.core.logic.stats.characteristic import get_max_characteristic_per_point
 
@@ -98,6 +100,12 @@ class PlayerFrame(Frame):
             originator=self,
             priority=self.priority,
         )
+        self.event_manager.on(
+            GuildMembershipEvent,
+            self.on_guild_members_ship_event,
+            originator=self,
+            priority=self.priority,
+        )
 
         self.game_info_signals.connected.connect(self.on_connected)
         self.game_info_signals.disconnected.connect(self.on_disconnected)
@@ -167,6 +175,9 @@ class PlayerFrame(Frame):
     def on_character_selection_event(self, message: CharacterSelectionEvent):
         if message.HasField("success"):
             self.game_state.player.character_id = message.success.character.id
+            ScrapingD3Controller.create_character(
+                self.game_state.player.character_id, self.game_state.player.server_id
+            )
             self.game_info_signals.connected.emit()
             if message.success.character.HasField("character_basic_information"):
                 self.game_state.player.level = (
@@ -214,6 +225,9 @@ class PlayerFrame(Frame):
             self.logger.info(f"New amount of base chance : {chance}")
             req = CharacterCharacteristicUpgradeRequest(chance=chance)
             self.event_manager.send(req)
+
+    def on_guild_members_ship_event(self, msg: GuildMembershipEvent):
+        self.game_state.player.has_guild = True
 
     def before_player_status_update_request(self, msg: PlayerStatusUpdateRequest):
         if self.is_playing_event.is_set():

@@ -10,7 +10,7 @@ from d3_mapping.controller.message_mapping_controller import (
     MessageMappingController,
 )
 from d3_mapping.factories.p_mapper_factory import PMapperFactory
-from d3_mapping.mapping.consts import (
+from d3_mapping.consts import (
     GAME_MAPPING_FIELDS,
     get_connection_mapping_by_obf,
     get_game_mapping_by_obf,

@@ -3,6 +3,7 @@ import os
 import signal
 import sys
 from threading import RLock
+import traceback
 
 from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message
@@ -44,9 +45,12 @@ class InstanciedMessageInfoController(metaclass=Singleton):
             MSG_INFO_BY_NAME = {}
 
     def add_msg(self, msg: Message, from_server: bool):
-        with self.MSG_INFOS_LOCK:
-            global MSG_INFO_BY_NAME
-            self._update_msg_infos_content(msg, from_server, True, MSG_INFO_BY_NAME)
+        try:
+            with self.MSG_INFOS_LOCK:
+                global MSG_INFO_BY_NAME
+                self._update_msg_infos_content(msg, from_server, True, MSG_INFO_BY_NAME)
+        except Exception:
+            print(traceback.format_exc())
 
     def _update_msg_infos_content(
         self,
@@ -101,7 +105,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
                     from_server=from_server, is_entry_msg=is_entry_msg
                 ),
             )
-            if len(msg_fields_infos.obf_msg_info) <= 10_000:
+            if len(msg_fields_infos.obf_msg_info) <= 1_000:
                 msg_fields_infos.obf_msg_info.add(
                     ObfMessageInfo(value_by_field_array=value_by_field)
                 )

@@ -8,8 +8,8 @@ from src.interfaces.metaclasses.singleton import Singleton
 
 
 class BotConfig(BaseModel):
-    playtime_start: str
-    playtime_end: str
+    playtime_starts: list[str]
+    playtime_ends: list[str]
 
 
 class BotConfigs(RootModel):
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     tmp = BotConfigController().get_bot_config_by_login()
     print(tmp)
     BotConfigController().update_bot_config_by_login(
-        bot_config=BotConfig(playtime_end="la", playtime_start="poele"),
+        bot_config=BotConfig(playtime_ends=["la"], playtime_starts=["poele"]),
         login="yolo",
     )
     tmp = BotConfigController().get_bot_config_by_login()

@@ -11,6 +11,7 @@ sys.path.append(os.path.join(Path(__file__).parent, "D3Mapping"))
 sys.path.append(os.path.join(Path(__file__).parent, "DBDofusUnity"))
 sys.path.append(os.path.join(Path(__file__).parent, "D3Database"))
 
+
 if hasattr(sys, "_MEIPASS"):
     base_path = sys._MEIPASS  # type: ignore
     sys.path.append(

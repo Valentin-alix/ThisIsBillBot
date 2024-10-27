@@ -3,11 +3,23 @@ from random import uniform
 
 
 def get_time_beween_sale_hotel_prices():
-    return datetime.timedelta(hours=2, minutes=0) * uniform(0.75, 1.25)
+    return datetime.timedelta(hours=2, minutes=30) * uniform(0.75, 1.25)
 
 
 def get_time_beween_areas():
-    return datetime.timedelta(hours=2, minutes=0) * uniform(0.75, 1.25)
+    return datetime.timedelta(hours=1) * uniform(0.75, 1.25)
+
+
+def get_time_between_attacker():
+    return datetime.timedelta(minutes=20) * uniform(0.75, 1.25)
+
+
+def get_time_between_random_chat():
+    return datetime.timedelta(minutes=40) * uniform(0.75, 1.25)
+
+
+def get_time_between_dungeon():
+    return datetime.timedelta(hours=4) * uniform(0.75, 1.25)
 
 
 # Waiting times timing

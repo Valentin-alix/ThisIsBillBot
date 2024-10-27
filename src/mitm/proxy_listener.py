@@ -4,8 +4,10 @@ from functools import partial
 from socket import AF_INET6
 from socket import socket as Socket
 from threading import Thread
+from time import sleep
 
 from src.bot import Bot
+from src.common.internet import has_internet_connection
 from src.common.process import get_pid_by_local_and_remote_port
 from src.const import CONNECTION_SERVERS_IPS
 from src.mitm.connection_proxy import ConnectionProxy
@@ -82,7 +84,19 @@ class ProxyListener:
         def on_connection(client_socket: Socket, host_port: int):
             print(f"received connection from {client_socket.getpeername()}")
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server_socket.connect(target_address)
+
+            def connect_timeout_proof(retry: int = 5):
+                try:
+                    server_socket.connect(target_address)
+                except (TimeoutError, socket.gaierror) as err:
+                    if retry == 0:
+                        raise err
+                    while not has_internet_connection():
+                        sleep(1)
+                    sleep(1)
+                    connect_timeout_proof(retry - 1)
+
+            connect_timeout_proof()
             print(f"connect to {server_socket.getpeername()}")
             self.on_mitm_connection_callback(client_socket, server_socket, host_port)
 

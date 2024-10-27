@@ -9,3 +9,10 @@ class QuantityEnum(IntEnum):
 
     def __str__(self) -> str:
         return str(self.value)
+
+
+class QuantityIndex(IntEnum):
+    ONE = 0
+    TEN = 1
+    HUNDRED = 2
+    THOUSAND = 3

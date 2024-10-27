@@ -18,19 +18,22 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
 )
 from data_center.data_reader import DataReader
 
+from src.controller.scraping_d3 import ScrapingD3Controller
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
-from src.core.behaviors.storage.consts import GATHERER_ITEM_GIDS
+from src.core.config.storage import GATHERER_ITEM_GIDS
 from src.core.config.mule import (
     BOT_MINIMAL_KAMAS,
-    MULE_BANK_CHARACTER_IDS,
     MULE_BANK_MAP_ID,
 )
 from src.core.config.timings import BASE_RANGE
-from src.core.logic.inventory.inventory_item import is_exchangeable_item
+from src.core.logic.inventory.inventory_item import (
+    INVENTORY_POSITION,
+    is_exchangeable_item,
+)
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -39,10 +42,20 @@ class MuleGiveBehavior(Behavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
 
     _step: int = field(init=False, default=0)
+    _mule_bank_character_ids: list[int] = field(init=False, default_factory=list)
 
     def run(self) -> None:
-        if len(MULE_BANK_CHARACTER_IDS) == 0:
+        ScrapingD3Controller.get_mule_bank_ids(
+            self.game_state.player.server_id, self.on_get_mule_bank_ids
+        )
+
+    def on_get_mule_bank_ids(self, _mule_bank_character_ids: list[int]):
+        self._mule_bank_character_ids = _mule_bank_character_ids
+        if len(self._mule_bank_character_ids) == 0:
             self.logger.error("Mule bank character is not defined !")
+            return self.finish()
+        if self.game_state.inventory.pod_percentage >= 1:
+            self.logger.info("Mule has too much pods to exchange")
             return self.finish()
         self.go_to_mule()
 
@@ -65,7 +78,7 @@ class MuleGiveBehavior(Behavior):
             (
                 actor_id
                 for actor_id in self.game_state.entity.actor_by_id
-                if actor_id in MULE_BANK_CHARACTER_IDS
+                if actor_id in self._mule_bank_character_ids
             ),
             None,
         )
@@ -94,6 +107,7 @@ class MuleGiveBehavior(Behavior):
         self._step = 0
         if self.game_state.player.is_sub:
             return self.depose_kamas_in_exchange(True)
+
         possible_mule_weight = [
             msg.first_character_current_weight,
             msg.second_character_current_weight,
@@ -122,6 +136,7 @@ class MuleGiveBehavior(Behavior):
                 object
                 for object in self.game_state.inventory.objects_by_uid.values()
                 if is_exchangeable_item(DataReader().item_by_id[object.item.gid])
+                and object.position == INVENTORY_POSITION
             ],
             key=lambda object: object.item.gid in GATHERER_ITEM_GIDS,
         )

@@ -1,11 +1,11 @@
 import os
-from pathlib import Path
 import socket
 import sys
 import traceback
 from collections import defaultdict
 from dataclasses import dataclass, field
 from functools import cached_property
+from pathlib import Path
 from threading import Thread
 
 from PyQt5.QtCore import Qt

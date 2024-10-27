@@ -128,22 +128,24 @@ class bpsp(_message.Message):
 class bpsy(_message.Message):
     __slots__ = ("eqmu", "eqmv")
     class bpst(_message.Message):
-        __slots__ = ("eqma", "eqmb", "eqmc", "eqmd", "eqme", "eqmf", "eqmg", "eqmi")
+        __slots__ = ("eqma", "eqmb", "eqmc", "eqmd", "eqme", "eqmf", "eqmg", "eqmi", "bmjr")
         class bpsr(_message.Message):
-            __slots__ = ("eqlr", "eqls", "eqlt", "eqlu", "eqlv", "eqlw")
+            __slots__ = ("eqlr", "eqls", "eqlt", "eqlu", "eqlv", "eqlw", "bmjq")
             EQLR_FIELD_NUMBER: _ClassVar[int]
             EQLS_FIELD_NUMBER: _ClassVar[int]
             EQLT_FIELD_NUMBER: _ClassVar[int]
             EQLU_FIELD_NUMBER: _ClassVar[int]
             EQLV_FIELD_NUMBER: _ClassVar[int]
             EQLW_FIELD_NUMBER: _ClassVar[int]
+            BMJQ_FIELD_NUMBER: _ClassVar[int]
             eqlr: bool
             eqls: bool
             eqlt: bool
             eqlu: bool
             eqlv: bool
             eqlw: bool
-            def __init__(self, eqlr: bool = ..., eqls: bool = ..., eqlt: bool = ..., eqlu: bool = ..., eqlv: bool = ..., eqlw: bool = ...) -> None: ...
+            bmjq: bool
+            def __init__(self, eqlr: bool = ..., eqls: bool = ..., eqlt: bool = ..., eqlu: bool = ..., eqlv: bool = ..., eqlw: bool = ..., bmjq: bool = ...) -> None: ...
         EQMA_FIELD_NUMBER: _ClassVar[int]
         EQMB_FIELD_NUMBER: _ClassVar[int]
         EQMC_FIELD_NUMBER: _ClassVar[int]
@@ -152,6 +154,7 @@ class bpsy(_message.Message):
         EQMF_FIELD_NUMBER: _ClassVar[int]
         EQMG_FIELD_NUMBER: _ClassVar[int]
         EQMI_FIELD_NUMBER: _ClassVar[int]
+        BMJR_FIELD_NUMBER: _ClassVar[int]
         eqma: int
         eqmb: str
         eqmc: str
@@ -160,7 +163,8 @@ class bpsy(_message.Message):
         eqmf: bpsy.bpst.bpsr
         eqmg: int
         eqmi: bptr
-        def __init__(self, eqma: _Optional[int] = ..., eqmb: _Optional[str] = ..., eqmc: _Optional[str] = ..., eqmd: _Optional[_Union[bpth, _Mapping]] = ..., eqme: _Optional[str] = ..., eqmf: _Optional[_Union[bpsy.bpst.bpsr, _Mapping]] = ..., eqmg: _Optional[int] = ..., eqmi: _Optional[_Union[bptr, _Mapping]] = ...) -> None: ...
+        bmjr: edy
+        def __init__(self, eqma: _Optional[int] = ..., eqmb: _Optional[str] = ..., eqmc: _Optional[str] = ..., eqmd: _Optional[_Union[bpth, _Mapping]] = ..., eqme: _Optional[str] = ..., eqmf: _Optional[_Union[bpsy.bpst.bpsr, _Mapping]] = ..., eqmg: _Optional[int] = ..., eqmi: _Optional[_Union[bptr, _Mapping]] = ..., bmjr: _Optional[_Union[edy, _Mapping]] = ...) -> None: ...
     class bpsw(_message.Message):
         __slots__ = ("eqmm", "eqmn", "eqmp")
         class bpsu(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
@@ -455,3 +459,13 @@ class bpun(_message.Message):
     eqrb: bpun.bpui
     eqrc: bpun.bpul
     def __init__(self, eqrb: _Optional[_Union[bpun.bpui, _Mapping]] = ..., eqrc: _Optional[_Union[bpun.bpul, _Mapping]] = ...) -> None: ...
+
+class edy(_message.Message):
+    __slots__ = ("bmjz", "bmkt", "bmlj")
+    BMJZ_FIELD_NUMBER: _ClassVar[int]
+    BMKT_FIELD_NUMBER: _ClassVar[int]
+    BMLJ_FIELD_NUMBER: _ClassVar[int]
+    bmjz: str
+    bmkt: str
+    bmlj: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, bmjz: _Optional[str] = ..., bmkt: _Optional[str] = ..., bmlj: _Optional[_Iterable[int]] = ...) -> None: ...

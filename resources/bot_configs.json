@@ -1,42 +1,90 @@
 {
     "enzooodu353@outlook.fr": {
-        "playtime_start": "04:10",
-        "playtime_end": "12:00"
+        "playtime_starts": [
+            "04:10"
+        ],
+        "playtime_ends": [
+            "12:00"
+        ]
     },
     "ezre.2juillet@outlook.com": {
-        "playtime_start": "04:10",
-        "playtime_end": "12:00"
+        "playtime_starts": [
+            "04:10"
+        ],
+        "playtime_ends": [
+            "12:00"
+        ]
     },
     "ezre.juillet2@outlook.fr": {
-        "playtime_start": "04:10",
-        "playtime_end": "12:00"
+        "playtime_starts": [
+            "04:10"
+        ],
+        "playtime_ends": [
+            "12:00"
+        ]
     },
     "ezre.2juillet1@outlook.fr": {
-        "playtime_start": "12:10",
-        "playtime_end": "20:00"
+        "playtime_starts": [
+            "12:10"
+        ],
+        "playtime_ends": [
+            "20:00"
+        ]
     },
     "ezre.2juillet2@outlook.com": {
-        "playtime_start": "12:10",
-        "playtime_end": "20:00"
+        "playtime_starts": [
+            "12:10"
+        ],
+        "playtime_ends": [
+            "20:00"
+        ]
     },
     "ezre.3juillet@outlook.com": {
-        "playtime_start": "12:10",
-        "playtime_end": "20:00"
+        "playtime_starts": [
+            "12:10"
+        ],
+        "playtime_ends": [
+            "20:00"
+        ]
     },
     "enzoodu353@outlook.fr": {
-        "playtime_start": "20:10",
-        "playtime_end": "04:00"
+        "playtime_starts": [
+            "20:10"
+        ],
+        "playtime_ends": [
+            "04:00"
+        ]
     },
     "ezre.juillet@outlook.fr": {
-        "playtime_start": "20:10",
-        "playtime_end": "04:00"
+        "playtime_starts": [
+            "20:10"
+        ],
+        "playtime_ends": [
+            "04:00"
+        ]
     },
     "ezre.juillet1@outlook.fr": {
-        "playtime_start": "20:10",
-        "playtime_end": "04:00"
+        "playtime_starts": [
+            "20:10"
+        ],
+        "playtime_ends": [
+            "04:00"
+        ]
     },
-    "yolo.ezrealeu2+1747935431.2478561@outlook.fr": {
-        "playtime_start": "08:00",
-        "playtime_end": "23:00"
+    "ezrealeu44700_1+s4@outlook.com": {
+        "playtime_starts": [
+            "12:10"
+        ],
+        "playtime_ends": [
+            "20:00"
+        ]
+    },
+    "ezrealeu44700_2_1@outlook.com": {
+        "playtime_starts": [
+            "12:10"
+        ],
+        "playtime_ends": [
+            "20:00"
+        ]
     }
 }

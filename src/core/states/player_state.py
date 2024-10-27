@@ -31,6 +31,8 @@ class PlayerState(State):
     entity_state: EntityState
     interactive_state: InteractiveState
     sale_hotel_state: SaleHotelState
+    server_id: int = dataclasses.field(init=False, default=1)
+    has_guild: bool = dataclasses.field(init=False, default=False)
 
     is_ready_to_play_event: Event = dataclasses.field(init=False, default_factory=Event)
     life_state: CharacterLifeStatusEvent.LifeStatus = dataclasses.field(
@@ -211,7 +213,7 @@ class PlayerState(State):
 
     @property
     def can_access_guild_chest(self):
-        return self.is_sub
+        return self.is_sub and self.has_guild
 
     @property
     def is_full_object_in_sale_hotel(self):

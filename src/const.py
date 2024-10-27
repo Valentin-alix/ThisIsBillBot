@@ -8,12 +8,13 @@ from d3_mapping.resources.protos.game.arena_pb2 import ArenaSwitchXpRewardsModeR
 from d3_mapping.resources.protos.game.basic_pb2 import SequenceNumberRequest
 from d3_mapping.resources.protos.game.client_verification_pb2 import ClientIdRequest
 from d3_mapping.resources.protos.game.connection_pb2 import PingRequest
+from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
 
-BACKEND_URL = "http://localhost:8000"
+BACKEND_URL = "http://31.38.182.64:65472"
 
 IS_IN_PYINSTALLER = hasattr(sys, "_MEIPASS")
 DEBUG = True
-DO_POPULATE = not IS_IN_PYINSTALLER
+DO_POPULATE = not IS_IN_PYINSTALLER and DEBUG
 DO_INSERT_HUMAN_SESSION = False
 
 FILTER_DOFUS = "tcp port 5555"
@@ -34,4 +35,5 @@ MESSAGES_WITH_UID = [
     SequenceNumberRequest,
     ArenaSwitchXpRewardsModeRequest,
     PingRequest,
+    DialogLeaveRequest,
 ]

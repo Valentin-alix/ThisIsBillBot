@@ -54,7 +54,7 @@ class InventoryState(State):
 
     @property
     def is_full_pods(self) -> bool:
-        return self.pod_percentage >= 0.95
+        return self.pod_percentage >= 0.9
 
     @property
     def inventory_weight(self):

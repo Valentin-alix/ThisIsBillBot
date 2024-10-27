@@ -13,7 +13,7 @@ from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
 from models.datas.recipe_root import RecipeItem
 
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.storage.consts import GUILD_CONTENT_BY_TAB, USEFUL_UNLOAD
+from src.core.config.storage import GIDS_BY_TAB, USEFUL_UNLOAD
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestBehavior,
 )
@@ -88,7 +88,7 @@ class LoadRecipeFromGuildChestBehavior(Behavior):
         }
         tab_to_discovers = {
             tab
-            for tab, item_gids in GUILD_CONTENT_BY_TAB.items()
+            for tab, item_gids in GIDS_BY_TAB.items()
             if any(
                 ingredient_id in item_gids and tab not in CHEST_OBJECT_BY_GID_BY_TAB
                 for ingredient_id in all_ingredient_ids
@@ -118,7 +118,7 @@ class LoadRecipeFromGuildChestBehavior(Behavior):
         if len(self._remaining_recipes) == 0:
             return self.on_full_loaded()
 
-        recipe = self._remaining_recipes.pop()
+        recipe = self._remaining_recipes[0]
         objects_by_gid = {
             gid: object
             for object_by_gid in CHEST_OBJECT_BY_GID_BY_TAB.values()
@@ -209,6 +209,7 @@ class LoadRecipeFromGuildChestBehavior(Behavior):
             once=True,
         )
         self.logger.info(f"Current tab : {self.game_state.guild_chest.tab_number}")
+        self.logger.info(f"Tab of item {ingredient_info.tab}")
         req = ExchangeObjectMoveRequest(
             object_uid=CHEST_OBJECT_BY_GID_BY_TAB[
                 self.game_state.guild_chest.tab_number

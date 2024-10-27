@@ -82,7 +82,7 @@ class FarmerWidget(PivotItem):
         for usable_behavior in USABLE_BEHAVIORS:
             self.type_action_combo.addItem(usable_behavior.__name__)
 
-        self.type_action_combo.setCurrentText(FarmActionEnum.HARVESTER)
+        self.type_action_combo.setCurrentText(FarmActionEnum.AUTO)
         self.type_action_combo.currentIndexChanged.connect(self.on_type_action_changed)
         top_widget.layout().addWidget(self.type_action_combo)
 

@@ -4,6 +4,8 @@ from functools import partial
 from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeBidBuyerStartedEvent,
 )
+from data_center.data_reader import DataReader
+from enums.category_item_enum import CategoryEnum
 from enums.element_type import ElementTypeEnum
 
 from src.core.behaviors.behavior import Behavior
@@ -12,13 +14,13 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.config.timings import BASE_RANGE
+from src.core.logic.map.map_tools import MapTools
+from src.core.logic.sale_hotel.sale_hotel_infos import (
+    SALE_HOTELS_BY_CATEGORY,
+)
+from src.core.logic.world.map_position import get_dist_to_maps
 from src.exceptions import UnhandledErrorCodeException
 from src.interfaces.models.npc_info import NpcInfo
-
-BONTA_SALE_HOTEL_SELL_ACTION = NpcInfo(npc_id=-1, npc_action_id=5, npc_map_id=212601350)
-ASTRUB_SALE_HOTEL_SELL_ACTION = NpcInfo(
-    npc_id=-1, npc_action_id=5, npc_map_id=191104004
-)
 
 
 @dataclass
@@ -26,15 +28,24 @@ class EnterSaleHotelBehavior(Behavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
     interactive_behavior: InteractiveBehavior
 
-    def run(self) -> None:
-        npc_info = (
-            BONTA_SALE_HOTEL_SELL_ACTION
-            if self.game_state.player.is_sub
-            else ASTRUB_SALE_HOTEL_SELL_ACTION
+    def run(self, category: CategoryEnum) -> None:
+        curr_map_pos = DataReader().map_pos_by_map_id[self.game_state.map.map_id]
+        near_acessible_sale_hotel = min(
+            [
+                npc_info
+                for npc_info in SALE_HOTELS_BY_CATEGORY[category]
+                if self.game_state.player.is_sub
+                != MapTools.is_map_allowed_for_unsub(npc_info.npc_map_id)
+            ],
+            key=lambda npc_info: get_dist_to_maps(
+                curr_map_pos, [DataReader().map_pos_by_map_id[npc_info.npc_map_id]]
+            ),
         )
         self.auto_trip_smart_behavior.start(
-            map_ids={npc_info.npc_map_id},
-            callback=partial(self.on_auto_trip_smart_behavior, npc_info=npc_info),
+            map_ids={near_acessible_sale_hotel.npc_map_id},
+            callback=partial(
+                self.on_auto_trip_smart_behavior, npc_info=near_acessible_sale_hotel
+            ),
             parent=self,
         )
 
@@ -44,7 +55,11 @@ class EnterSaleHotelBehavior(Behavior):
         sale_hotel_interactive = next(
             interactive
             for interactive in self.game_state.interactive.interactive_element_by_id.values()
-            if interactive.element_type_id == ElementTypeEnum.RESOURCE_SALE_HOTEL
+            if interactive.element_type_id
+            in [
+                ElementTypeEnum.RESOURCE_SALE_HOTEL,
+                ElementTypeEnum.CONSUMABLE_SALE_HOTEL,
+            ]
         )
         self.event_manager.on(
             ExchangeBidBuyerStartedEvent,

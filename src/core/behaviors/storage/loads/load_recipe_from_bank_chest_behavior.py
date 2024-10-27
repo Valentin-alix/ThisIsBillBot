@@ -11,7 +11,7 @@ from data_center.i18n import I18N
 from models.datas.recipe_root import RecipeItem
 
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.storage.consts import USEFUL_UNLOAD
+from src.core.config.storage import USEFUL_UNLOAD
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )

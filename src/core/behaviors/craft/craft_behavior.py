@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from enum import StrEnum, auto
 from functools import partial
 from typing import Callable
 
@@ -36,6 +37,13 @@ from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
 
 
+class CraftErrorCode(StrEnum):
+    CRAFT_TIMEOUT = auto()
+
+
+FORBIDDEN_CRAFT_IDS: set[int] = {60}
+
+
 @dataclass
 class CraftBehavior(Behavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
@@ -67,17 +75,24 @@ class CraftBehavior(Behavior):
     ) -> list[RecipeItem]:
         valid_recipes = []
         for recipe in recipes:
+            if recipe.resultId in FORBIDDEN_CRAFT_IDS:
+                continue
             skill_data = DataReader().skill_by_id[recipe.skillId]
             if (
                 self.game_state.player.jobs_lvl_by_id.get(skill_data.parentJobId, 1)
                 < recipe.resultLevel
             ):
-                self.logger.warning(f"Can't craft recipe {recipe} because of job lvl")
+                self.logger.warning(
+                    f"Can't craft recipe {I18N().name_by_id[int(recipe.resultNameId)]} because of job lvl"
+                )
                 continue
             valid_recipes.append(recipe)
         return valid_recipes
 
     def process_remaining_recipes(self):
+        self.logger.info(
+            f"{len(self._remaining_recipes)} before filtering by conditon "
+        )
         self._remaining_recipes = [
             recipe
             for recipe in self._remaining_recipes
@@ -86,6 +101,7 @@ class CraftBehavior(Behavior):
                 or not self._stop_craft_recipe_condition(recipe)
             )
         ]
+        self.logger.info(f"{len(self._remaining_recipes)} after filtering by conditon ")
 
         if len(self._remaining_recipes) == 0:
             return self.finish()
@@ -248,6 +264,7 @@ class CraftBehavior(Behavior):
                 self.on_exchange_set_craft_recipe_request,
                 recipes_infos=recipes_infos,
                 max_possible_result_quantity=max_possible_result_quantity,
+                gid=recipe.resultId,
             ),
             once=True,
             originator=self,
@@ -261,12 +278,15 @@ class CraftBehavior(Behavior):
         msg: ExchangeSetCraftRecipeRequest,
         recipes_infos: list[tuple[RecipeItem, int]],
         max_possible_result_quantity: int,
+        gid: int,
     ):
         self.event_manager.clear_modifier_by_origin_and_type(DialogLeaveRequest, self)
         self.event_manager.on(
             ExchangeCraftCountModifiedEvent,
             partial(
-                self.on_exchange_craft_count_modified_event, recipes_infos=recipes_infos
+                self.on_exchange_craft_count_modified_event,
+                recipes_infos=recipes_infos,
+                gid=gid,
             ),
             originator=self,
             once=True,
@@ -282,12 +302,15 @@ class CraftBehavior(Behavior):
         self,
         msg: ExchangeCraftCountModifiedEvent,
         recipes_infos: list[tuple[RecipeItem, int]],
+        gid: int,
     ):
         self.event_manager.on(
             InventoryWeightEvent,
             lambda _: self.craft_recipe_in_same_skill(recipes_infos),
             originator=self,
             once=True,
+            timeout=15,
+            on_timeout=lambda: self.on_timeout_exchange_ready(gid),
         )
         req = ExchangeReadyRequest(ready=True, step=6)
         self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(req))
@@ -299,6 +322,18 @@ class CraftBehavior(Behavior):
             originator=self,
             once=True,
         )
+        self.run_timer(
+            SMALL_RANGE, lambda: self.event_manager.send(DialogLeaveRequest())
+        )
+
+    def on_timeout_exchange_ready(self, gid: int):
+        self.event_manager.on(
+            ExchangeLeaveEvent,
+            lambda _: self.finish(),
+            originator=self,
+            once=True,
+        )
+        FORBIDDEN_CRAFT_IDS.add(gid)
         self.run_timer(
             SMALL_RANGE, lambda: self.event_manager.send(DialogLeaveRequest())
         )

@@ -40,6 +40,9 @@ class GuildChestFrame(Frame):
     def on_exchange_started_with_multi_tab_storage_event(
         self, msg: ExchangeStartedWithMultiTabStorageEvent
     ):
+        if msg.tab_number == 100:
+            msg.tab_number = msg.storage_max_slot
+
         self.game_state.guild_chest.tab_number = msg.tab_number
         self.event_manager.on(
             StorageInventoryContentEvent,

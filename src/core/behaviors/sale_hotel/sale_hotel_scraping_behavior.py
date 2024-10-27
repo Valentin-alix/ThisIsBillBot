@@ -1,5 +1,4 @@
-import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import partial
 
 from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
@@ -12,14 +11,13 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeTypesItemsExchangerDescriptionForUserEvent,
 )
 
+from enums.category_item_enum import CategoryEnum
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
     EnterSaleHotelBehavior,
 )
 from src.core.config.timings import BASE_RANGE, BIG_RANGE
 from src.interfaces.models.npc_info import NpcInfo
-
-INTERVAL_BETWEEN_SCRAPING = 60 * 14
 
 
 @dataclass
@@ -28,12 +26,25 @@ class SaleHotelScrapingBehavior(Behavior):
 
     enter_sale_hotel_behavior: EnterSaleHotelBehavior
 
+    _categories: set[CategoryEnum] = field(
+        init=False, default_factory=lambda: set(CategoryEnum)
+    )
+
     def run(self) -> None:
+        self.go_scrape_all_sale_hotel()
+
+    def go_scrape_all_sale_hotel(self):
+        self._categories = set(CategoryEnum)
         self.go_to_sale_hotel()
 
     def go_to_sale_hotel(self):
+        if len(self._categories) == 0:
+            return self.finish()
+        category = self._categories.pop()
         self.enter_sale_hotel_behavior.start(
-            callback=self.on_entered_sale_hotel_behavior_finished, parent=self
+            category=category,
+            callback=self.on_entered_sale_hotel_behavior_finished,
+            parent=self,
         )
 
     def on_entered_sale_hotel_behavior_finished(
@@ -56,7 +67,7 @@ class SaleHotelScrapingBehavior(Behavior):
         types_items_ids: list[int],
     ):
         if len(types_items_ids) == 0:
-            return self.finish()
+            return self.leave_sale_hotel()
 
         type_item_id_to_check = types_items_ids.pop()
         self.event_manager.on(
@@ -135,10 +146,7 @@ class SaleHotelScrapingBehavior(Behavior):
     def leave_sale_hotel(self):
         self.event_manager.on(
             ExchangeLeaveEvent,
-            callback=lambda _: self.run_timer(
-                INTERVAL_BETWEEN_SCRAPING * random.uniform(0.75, 1.25),
-                self.go_to_sale_hotel,
-            ),
+            callback=lambda _: self.go_to_sale_hotel(),
             originator=self,
             once=True,
         )

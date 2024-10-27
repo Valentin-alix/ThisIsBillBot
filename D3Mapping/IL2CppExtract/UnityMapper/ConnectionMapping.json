@@ -25,5 +25,6 @@
   "bpty": "FriendListRequest",
   "bpuf": "FriendListResponse",
   "bpug": "AcquaintanceServersRequest",
-  "bpun": "AcquaintanceServersResponse"
+  "bpun": "AcquaintanceServersResponse",
+  "edy": "CharacterDeletionConfiguration"
 }

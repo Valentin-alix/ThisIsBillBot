@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from threading import Timer
+import time
 
 from d3_mapping.resources.protos.game.dialog_pb2 import (
     DialogLeaveRequest,
@@ -15,6 +17,10 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeStartedWithPodsEvent,
 )
 
+from scraping_d3_client.scraping_d3_client.models.character_action_enum import (
+    CharacterActionEnum,
+)
+from src.controller.scraping_d3 import ScrapingD3Controller
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
@@ -22,9 +28,12 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
-from src.core.behaviors.storage.consts import USEFUL_UNLOAD
+from src.core.behaviors.sale_hotel.sale_hotel_scraping_behavior import (
+    SaleHotelScrapingBehavior,
+)
+from src.core.config.storage import USEFUL_UNLOAD
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
-from src.core.config.mule import MULE_BANK_CHARACTER_IDS, MULE_BANK_MAP_ID
+from src.core.config.mule import MULE_BANK_MAP_ID
 from src.core.config.timings import (
     BASE_RANGE,
     get_time_beween_sale_hotel_prices,
@@ -37,16 +46,26 @@ class MuleAcceptBehavior(Behavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
     unload_behavior: UnloadBehavior
     sale_hotel_prices_behavior: SaleHotelPricesBehavior
+    sale_hotel_scraping_behavior: SaleHotelScrapingBehavior
 
     _timedelta_for_sale_hotel_prices: timedelta = field(
         init=False, default_factory=get_time_beween_sale_hotel_prices
     )
     _step: int = field(init=False, default=0)
+    _time_since_activity: float = field(init=False, default_factory=time.perf_counter)
+    _timer_go_scraping: Timer | None = field(init=False, default=None)
 
     def run(self) -> None:
-        # TODO Comment gérer les déco du client ? fake un movement ?
-        MULE_BANK_CHARACTER_IDS.add(self.game_state.player.character_id)
+        ScrapingD3Controller.patch_character_action(
+            self.game_state.player.character_id, CharacterActionEnum.MULE_ACCEPT_BANK
+        )
         self.go_bank_map()
+
+    def stop(self) -> None:
+        ScrapingD3Controller.patch_character_action(
+            self.game_state.player.character_id, None
+        )
+        return super().stop()
 
     def go_bank_map(self):
         self.auto_trip_smart_behavior.start(
@@ -78,6 +97,9 @@ class MuleAcceptBehavior(Behavior):
         self.go_bank_map()
 
     def stand_ready_for_exchanges(self):
+        self._time_since_activity = time.perf_counter()
+        self._timer_go_scraping = Timer(60 * 14, self.on_inactivity_go_scraping)
+        self._timer_go_scraping.start()
         self.event_manager.on(
             ExchangeRequestedTradeEvent,
             self.on_exchange_requested_trade_event,
@@ -86,7 +108,19 @@ class MuleAcceptBehavior(Behavior):
             override_on_self=True,
         )
 
+    def on_inactivity_go_scraping(self):
+        self.event_manager.clear_listener_by_origin_and_type(
+            ExchangeRequestedTradeEvent, self
+        )
+        self.sale_hotel_scraping_behavior.start(
+            callback=lambda _: self.go_bank_map(), parent=self
+        )
+
     def on_exchange_requested_trade_event(self, msg: ExchangeRequestedTradeEvent):
+        if self._timer_go_scraping:
+            self._timer_go_scraping.cancel()
+            self._timer_go_scraping = None
+
         self.logger.info("on requested trade event, let's accept")
         self.event_manager.on(
             ExchangeStartedWithPodsEvent,

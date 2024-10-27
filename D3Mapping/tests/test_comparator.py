@@ -27,8 +27,8 @@ class TestComparator(unittest.TestCase):
     def test_game_msg(self):
         comparisons: list[ComparisonInfo] = [
             (
-                ".com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryInformationEvent",
-                "ile",
+                ".com.ankama.dofus.server.game.protocol.common.ObjectItem",
+                "bpcb",
             )
         ]
         test_comparisons(self.game_p_mapper, comparisons)

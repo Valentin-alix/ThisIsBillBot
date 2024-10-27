@@ -2,7 +2,9 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from typing import cast
 
-from d3_mapping.resources.protos.game.inventory_pb2 import StorageInventoryContentEvent
+from d3_mapping.resources.protos.game.guild_chest_pb2 import (
+    GuildChestCurrentListenersAddEvent,
+)
 from data_center.map_reader import MapReader
 from enums.element_type import ElementTypeEnum
 from grid.map_point import MapPoint
@@ -12,7 +14,7 @@ from src.core.behaviors.interactives.interactive_behavior import InteractiveBeha
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
-from src.core.behaviors.storage.consts import BANK_MAP_IDS
+from src.core.config.storage import BANK_MAP_IDS
 from src.core.config.timings import BASE_RANGE
 from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
@@ -35,7 +37,7 @@ class EnterGuildChestBehavior(Behavior):
         self.auto_trip_world_behavior.start(
             callback=self.on_bank_map,
             parent=self,
-            map_ids={bank_map_id for bank_map_id in BANK_MAP_IDS},
+            map_ids=set(BANK_MAP_IDS),
         )
 
     def on_bank_map(self, error_code: str | None):
@@ -74,7 +76,7 @@ class EnterGuildChestBehavior(Behavior):
             raise UnhandledErrorCodeException(error_code)
 
         self.event_manager.on(
-            StorageInventoryContentEvent,
+            GuildChestCurrentListenersAddEvent,
             lambda _: self.finish(),
             originator=self,
             once=True,

@@ -46,18 +46,20 @@ class UnloadInGuildChestBehavior(Behavior):
         self.logger.info(
             f"Count objects in inventory : {len(object_by_gid_in_inventory)}"
         )
-        self.object_to_unload_on_tab = [
-            (tab, object_to_unloads)
-            for tab, gids in unload_item_id_by_tab.items()
-            if len(
-                object_to_unloads := [
-                    object
-                    for gid in gids
-                    if (object := object_by_gid_in_inventory.get(gid))
-                ]
-            )
-            > 0
-        ]
+
+        self.object_to_unload_on_tab = []
+        gids_treaded: set[int] = set()
+        for tab, gids in unload_item_id_by_tab.items():
+            object_to_unloads: list[ObjectItemInventory] = []
+            for gid in gids:
+                if (
+                    object := object_by_gid_in_inventory.get(gid)
+                ) and gid not in gids_treaded:
+                    gids_treaded.add(gid)
+                    object_to_unloads.append(object)
+            if len(object_to_unloads) > 0:
+                self.object_to_unload_on_tab.append((tab, object_to_unloads))
+
         self.logger.info(
             f"Count objects to unload on tabs  : {','.join([str(len(objects)) for _, objects in self.object_to_unload_on_tab])}"
         )

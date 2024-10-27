@@ -9,7 +9,7 @@ import pulp
 from proto_schema_parser import FieldCardinality
 from scipy.optimize import linear_sum_assignment
 
-from d3_mapping.mapping.consts import PROTO_BASE_FIELDS, EntryMsg
+from d3_mapping.consts import PROTO_BASE_FIELDS, EntryMsg
 from d3_mapping.mapping.malus_utils import get_value_with_len_malus
 from d3_mapping.mapping.proto_organization import ProtoOrganization
 from d3_mapping.mapping.proto_reliability_calculator import ProtoReliabilityCalculator
@@ -81,13 +81,16 @@ def enforce_proxy_compare_msg(compare_msg_func):
         obf_msg: PMessage,
         treated_clear_namespaces: set[str],
     ) -> MappingInfo:
-        if (
-            clear_msg.namespace,
-            obf_msg.namespace,
-        ) in self._added_mapping_by_clear_obf_namespaces:
-            return self._added_mapping_by_clear_obf_namespaces[
-                (clear_msg.namespace, obf_msg.namespace)
-            ]
+        if obf_msg.namespace in self._added_mapping_by_obf_namespaces:
+            obf_mapping_info = self._added_mapping_by_obf_namespaces[obf_msg.namespace]
+            if obf_mapping_info.clear_msg_namespace == clear_msg.namespace:
+                return obf_mapping_info
+            else:
+                return MappingInfo(
+                    similarity=0,
+                    clear_msg_namespace=clear_msg.namespace,
+                    field_mapping={},
+                )
 
         is_an_entry_msg = any(
             clear_msg.namespace.endswith(entry_msg) for entry_msg in EntryMsg
@@ -148,7 +151,7 @@ class ComparisonEngine:
     verified_msg_by_obf: dict[str, str]
     verified_mapping_field_by_clear: dict[str, dict[str, str]]
 
-    _added_mapping_by_clear_obf_namespaces: dict[tuple[str, str], MappingInfo] = field(
+    _added_mapping_by_obf_namespaces: dict[str, MappingInfo] = field(
         init=False, default_factory=dict
     )
 
