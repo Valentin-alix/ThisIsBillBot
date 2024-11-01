@@ -122,7 +122,7 @@ class SaleHotelPricesBehavior(Behavior):
                         max_quantity_sell - item_sell_quantity_by_gid.get(item_gid, 0),
                         0,
                     ),
-                    math.ceil(max_quantity_sell / 4),
+                    math.floor(max_quantity_sell / 4),
                 ),
                 tab=TAB_BY_GID[item_gid],
             )

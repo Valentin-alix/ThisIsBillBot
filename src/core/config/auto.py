@@ -37,7 +37,7 @@ AREAS_UNSUB_WITH_WEIGHT: list[AreaInfoWithWeight] = [
 
 AREAS_SUB_WITH_WEIGHT: list[AreaInfoWithWeight] = [
     *AREAS_UNSUB_WITH_WEIGHT,
-    AreaInfoWithWeight(area_id=AreaEnum.AMAKNA, weight=30, min_lvl=50),
+    AreaInfoWithWeight(area_id=AreaEnum.AMAKNA, weight=40, min_lvl=50),
     AreaInfoWithWeight(
         area_id=AreaEnum.CANIA_PLAIN,
         sub_area_id=SubAreaEnum.CANIA_LAKE,
@@ -58,6 +58,13 @@ AREAS_SUB_WITH_WEIGHT: list[AreaInfoWithWeight] = [
         min_lvl=30,
     ),
     AreaInfoWithWeight(
+        area_id=AreaEnum.CANIA_PLAIN,
+        sub_area_id=SubAreaEnum.DENT_PIERRE,
+        weight=40,
+        min_lvl=111,
+        min_job_lvls={JobEnum.ALCHEMIST: 140, JobEnum.PEASANT: 180},
+    ),
+    AreaInfoWithWeight(
         area_id=AreaEnum.KOALAK_MONTAIN,
         sub_area_id=SubAreaEnum.ENCHANTED_LAKE,
         weight=20,
@@ -66,13 +73,12 @@ AREAS_SUB_WITH_WEIGHT: list[AreaInfoWithWeight] = [
     ),
     AreaInfoWithWeight(
         area_id=AreaEnum.FRIGOST,
-        weight=40,
+        weight=60,
         min_lvl=91,
         waypoint_id_needed=54172969,
         min_job_lvls={
             JobEnum.ALCHEMIST: 200,
             JobEnum.WOODCUTTER: 200,
-            JobEnum.PEASANT: 200,
         },
     ),
     AreaInfoWithWeight(
@@ -99,9 +105,3 @@ AREAS_SUB_WITH_WEIGHT: list[AreaInfoWithWeight] = [
         },
     ),
 ]
-
-
-if __name__ == "__main__":
-    sub_area_id = DataReader().map_pos_by_map_id[154642].subAreaId
-    print(sub_area_id)
-    print(DataReader().sub_area_by_id[sub_area_id].areaId)

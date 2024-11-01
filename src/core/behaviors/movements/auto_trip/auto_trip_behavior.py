@@ -41,6 +41,7 @@ class AutoTripBehavior(Behavior):
                 self.logger.warning(
                     f"Path not found from {self.game_state.player.curr_vertex} to {map_ids}"
                 )
+                # TODO Parfois des forbidden edge sont erroné
                 return self.finish(AutoTripErrorCode.PATH_NOT_FOUND)
             if len(path) == 0:
                 self.logger.info("Path to these map ids is empty")

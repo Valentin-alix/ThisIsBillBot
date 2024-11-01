@@ -15,12 +15,14 @@ from src.mitm.proxy import Proxy, WorkerAction
 
 @dataclass
 class ConnectionProxy(Proxy):
-    bot: Bot
-    on_game_connection_callback: Callable[[tuple[str, int]], int]
+    bot: Bot | None
+    bot_by_id: dict[int, Bot]
+    on_game_connection_callback: Callable[[tuple[str, int], Bot], int]
 
     def __post_init__(self):
         super().__post_init__()
-        self.bot.event_manager.on_send_conn_callback = self.send_msg
+        if self.bot:
+            self.bot.event_manager.on_send_conn_callback = self.send_msg
 
     def alter_msg_datas(
         self, msg_content_datas: bytes, msg_datas: bytes
@@ -31,11 +33,13 @@ class ConnectionProxy(Proxy):
         if msg.response.HasField("selectServer") and msg.response.selectServer.HasField(
             "success"
         ):
+            assert self.bot
             new_port: int = self.on_game_connection_callback(
                 (
                     msg.response.selectServer.success.host,
                     msg.response.selectServer.success.ports[0],
                 ),
+                self.bot,
             )
             msg.response.selectServer.success.host = "localhost"
             msg.response.selectServer.success.ports[0] = new_port
@@ -43,6 +47,10 @@ class ConnectionProxy(Proxy):
         elif msg.response.HasField(
             "identification"
         ) and msg.response.identification.HasField("success"):
+            if msg.response.identification.success.account_id in self.bot_by_id:
+                self.bot = self.bot_by_id[
+                    msg.response.identification.success.account_id
+                ]
             msg.response.identification.success.ClearField(
                 "fight_reconnection_server_id"
             )
@@ -59,10 +67,12 @@ class ConnectionProxy(Proxy):
 
         if DEBUG:
             msg_info = get_conn_msg_info(msg_content_datas, msg, from_server)
-            self.bot.msg_info_signals.msg_info.emit(msg_info, was_send_from_proxy)
+            if self.bot:
+                self.bot.msg_info_signals.msg_info.emit(msg_info, was_send_from_proxy)
 
         if msg is not None:
-            self.bot.event_manager.process_msg(msg)
+            if self.bot:
+                self.bot.event_manager.process_msg(msg)
 
     def send_msg(self, msg: Request):
         conn_msg = LoginMessage(request=msg)

@@ -104,7 +104,7 @@ def choose_quantity_to_sell(item: ObjectItem):
 
 def get_max_quantity_sell(gid: int) -> int:
     if gid in PROTECTOR_DROP_ITEM_IDS:
-        return 2
+        return 1
 
     avg_price = SaleHotelController().get_avg_price_by_gid()[gid]
     return math.ceil(MAX_QUANTITY_ON_SELL / (avg_price / 1000 + 1))

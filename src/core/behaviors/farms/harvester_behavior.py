@@ -6,7 +6,6 @@ from typing import Callable
 from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
 from d3_mapping.resources.protos.game.inventory_pb2 import (
     ObjectDeletedEvent,
-    ObjectUseMultipleRequest,
     ObjectUseRequest,
 )
 from d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
@@ -193,13 +192,7 @@ class HarvesterBehavior(Behavior):
             type_item = DataReader().item_by_id[object.item.gid].typeId
             if type_item == 100:
                 # sac de ressource
-                if object.item.quantity > 1:
-                    req = ObjectUseMultipleRequest(
-                        object_uid=object.item.uid, quantity=object.item.quantity
-                    )
-                else:
-                    req = ObjectUseRequest(object_uid=object.item.uid)
-
+                req = ObjectUseRequest(object_uid=object.item.uid)
                 self.event_manager.on(
                     ObjectDeletedEvent,
                     lambda _: self.purge_inventory(),

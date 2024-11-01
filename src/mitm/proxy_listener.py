@@ -1,6 +1,5 @@
 import socket
 from dataclasses import dataclass, field
-from functools import partial
 from socket import AF_INET6
 from socket import socket as Socket
 from threading import Thread
@@ -46,15 +45,15 @@ class ProxyListener:
                 return print("Did not found related pid")
 
             related_bot = next(
-                bot for bot in self.account_by_id.values() if bot.pid == related_pid
+                (bot for bot in self.account_by_id.values() if bot.pid == related_pid),
+                None,
             )
             bridge = ConnectionProxy(
                 bot=related_bot,
-                on_game_connection_callback=partial(
-                    on_game_connection_callback, bot=related_bot
-                ),
+                on_game_connection_callback=on_game_connection_callback,
                 client_socket=client_socket,
                 server_socket=server_socket,
+                bot_by_id=self.account_by_id,
             )
         else:
             bridge = GameProxy(
@@ -88,7 +87,7 @@ class ProxyListener:
             def connect_timeout_proof(retry: int = 5):
                 try:
                     server_socket.connect(target_address)
-                except (TimeoutError, socket.gaierror) as err:
+                except (TimeoutError, socket.gaierror, OSError) as err:
                     if retry == 0:
                         raise err
                     while not has_internet_connection():

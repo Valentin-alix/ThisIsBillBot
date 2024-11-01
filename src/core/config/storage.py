@@ -21,7 +21,8 @@ PROTECTOR_DROP_ITEM_IDS = {
     for race in PROTECTOR_RACES
     for monster in DataReader().monsters_by_race[race]
     for drop in monster.drops
-    if DataReader().item_by_id[drop.objectId].typeId not in [310, TypeItemEnum.PLANCHE]
+    if DataReader().item_by_id[drop.objectId].typeId
+    not in [310, TypeItemEnum.PIERRE_BRUTE]
 }
 
 GATHERER_ITEM_GIDS: set[int] = {
@@ -35,7 +36,6 @@ SELLABLE_ITEMS = (
     GATHERER_ITEM_GIDS
     | DataReader().item_ids_by_type_id[TypeItemEnum.SUBSTRAT]
     | DataReader().item_ids_by_type_id[TypeItemEnum.ALLIAGE]
-    | PROTECTOR_DROP_ITEM_IDS
 )
 
 GIDS_BY_TAB = {

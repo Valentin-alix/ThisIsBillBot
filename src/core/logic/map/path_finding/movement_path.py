@@ -92,7 +92,7 @@ class MovementPath:
         if len(path_elements) == 0:
             return 0
 
-        if inventory_weight / inventory_weight_max >= 1 or len(path_elements) <= 2:
+        if inventory_weight / inventory_weight_max > 1 or len(path_elements) <= 2:
             can_run = False
         else:
             can_run = True

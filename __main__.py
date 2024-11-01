@@ -43,7 +43,7 @@ def main() -> None:
     setThemeColor(Qt.GlobalColor.yellow)
 
     bot_manager = BotManager(shared_signals=shared_signals)
-    listener = ProxyListener(bot_manager.bot_by_account_id)
+    listener = ProxyListener(account_by_id=bot_manager.bot_by_account_id)
     proxy_dofus = listener.create_server(5555)
     Thread(
         target=lambda: listener.start_listener(

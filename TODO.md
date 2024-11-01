@@ -1,9 +1,14 @@
+File "C:\Users\Valentin\Documents\Workspace\Bot-DofusUnity\.venv\Lib\site-packages\ankama_launcher_emulator\haapi\haapi.py", line 41, in signOnWithApiKey
+response = self.zaap_session.post(url, json={"game": game_id})
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\Valentin\Documents\Workspace\Bot-DofusUnity\.venv\Lib\site-packages\requests\sessions.py", line 637, in post
+return self.request("POST", url, data=data, json=json, **kwargs)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\Valentin\Documents\Workspace\Bot-DofusUnity\.venv\Lib\site-packages\requests\sessions.py", line 589, in request
+resp = self.send(prep, **send_kwargs)
+
 - TODO Gérer les sac de ressources pas correctement vidé
 
 - Plus de données pour human timings
 
-- Fouiller de temps en temps poubelle quand on peux => plus parler à un pnj random de temps (pour quitter le dialogue juste après) ?
-
 - Trouver un proxy avec ip rotatif avec prix ok
-
-- Faire lot de 4 compte par mail pour les regrouper par tranche d'horaire et les dissocier du reste
