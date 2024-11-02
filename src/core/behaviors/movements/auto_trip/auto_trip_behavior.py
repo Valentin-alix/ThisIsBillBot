@@ -11,6 +11,7 @@ from src.core.behaviors.movements.edge_behavior import EdgeBehavior, EdgeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.logic.world.edge import (
     draw_edge_path,
+    remove_forbidden_edge_transition_by_map_id,
 )
 from src.core.logic.world.world_path_finder import WorldPathFinder
 from src.signals.world_signals import WorldSignals
@@ -31,7 +32,13 @@ class AutoTripBehavior(Behavior):
     auto_trip_edges: list[Edge] | None = field(default=None, init=False)
     target_map_ids: set[int] | None = field(default=None, init=False)
 
-    def run(self, map_ids: set[int] | None = None, edge_path: list[Edge] | None = None):
+    def run(
+        self,
+        map_ids: set[int] | None = None,
+        edge_path: list[Edge] | None = None,
+        from_auto_trip_zaap_behavior: bool = False,
+        retry: int = 3,
+    ):
         if map_ids is not None:
             self.logger.info(f"Auto trip to map id : {map_ids}")
             self.target_map_ids = map_ids
@@ -41,8 +48,12 @@ class AutoTripBehavior(Behavior):
                 self.logger.warning(
                     f"Path not found from {self.game_state.player.curr_vertex} to {map_ids}"
                 )
-                # TODO Parfois des forbidden edge sont erroné
-                return self.finish(AutoTripErrorCode.PATH_NOT_FOUND)
+                if from_auto_trip_zaap_behavior or retry <= 0:
+                    return self.finish(AutoTripErrorCode.PATH_NOT_FOUND)
+                remove_forbidden_edge_transition_by_map_id(self.game_state.map.map_id)
+                return self.run(
+                    map_ids, edge_path, from_auto_trip_zaap_behavior, retry - 1
+                )
             if len(path) == 0:
                 self.logger.info("Path to these map ids is empty")
                 return self.finish()

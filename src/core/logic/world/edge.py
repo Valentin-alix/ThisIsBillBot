@@ -10,7 +10,7 @@ from src.core.logic.map.map_tools import MapTools
 from src.core.states.game_state import GameState
 from src.signals.world_signals import WorldSignals
 
-FORBIDDEN_EDGE_TRANSITION: set[tuple[int, int, Transition]] = set()
+FORBIDDEN_EDGE_TRANSITION: set[tuple[Vertice, Vertice, Transition]] = set()
 EXCLUDED_ELEMENT_IDS: set[int] = set()
 FORBIDDEN_MAP_IDS: set[int] = {
     99096071,
@@ -23,15 +23,17 @@ FORBIDDEN_MAP_IDS: set[int] = {
 }
 
 
+def remove_forbidden_edge_transition_by_map_id(map_id: int):
+    for vertice_from, vertice_to, transition in FORBIDDEN_EDGE_TRANSITION.copy():
+        if vertice_from.m_mapId == map_id:
+            FORBIDDEN_EDGE_TRANSITION.remove((vertice_from, vertice_to, transition))
+
+
 def get_valid_transition(
     edge: Edge, transitions: list[Transition], game_state: GameState
 ) -> Transition | None:
     for transition in transitions:
-        if (
-            edge.m_from.m_uid,
-            edge.m_to.m_uid,
-            transition,
-        ) in FORBIDDEN_EDGE_TRANSITION:
+        if (edge.m_from, edge.m_to, transition) in FORBIDDEN_EDGE_TRANSITION:
             continue
 
         if len(transition.m_criterion) == 0:

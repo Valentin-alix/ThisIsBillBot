@@ -1,6 +1,42 @@
+from datetime import datetime
 import random
 
 import numpy as np
+
+
+def is_in_playtime(
+    now: datetime, playtime_starts: list[str], playtime_ends: list[str]
+) -> bool:
+    current_time = now
+
+    current_date = datetime.now()
+
+    for start_str, end_str in zip(playtime_starts, playtime_ends):
+        start_hour, start_min = start_str.split(":")
+        start = datetime(
+            year=current_date.year,
+            month=current_date.month,
+            day=current_date.day,
+            hour=int(start_hour),
+            minute=int(start_min),
+        )
+        end_hour, end_min = end_str.split(":")
+        end = datetime(
+            year=current_date.year,
+            month=current_date.month,
+            day=current_date.day,
+            hour=int(end_hour),
+            minute=int(end_min),
+        )
+
+        if start <= end:
+            if start <= current_time <= end:
+                return True
+        else:
+            if current_time >= start or current_time <= end:
+                return True
+
+    return False
 
 
 def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 5) -> float:

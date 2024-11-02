@@ -60,20 +60,20 @@ AREAS_SUB_WITH_WEIGHT: list[AreaInfoWithWeight] = [
     AreaInfoWithWeight(
         area_id=AreaEnum.CANIA_PLAIN,
         sub_area_id=SubAreaEnum.DENT_PIERRE,
-        weight=40,
+        weight=50,
         min_lvl=111,
         min_job_lvls={JobEnum.ALCHEMIST: 140, JobEnum.PEASANT: 180},
     ),
     AreaInfoWithWeight(
         area_id=AreaEnum.KOALAK_MONTAIN,
         sub_area_id=SubAreaEnum.ENCHANTED_LAKE,
-        weight=20,
+        weight=30,
         min_lvl=39,
         min_job_lvls={JobEnum.WOODCUTTER: 150},
     ),
     AreaInfoWithWeight(
         area_id=AreaEnum.FRIGOST,
-        weight=60,
+        weight=70,
         min_lvl=91,
         waypoint_id_needed=54172969,
         min_job_lvls={
@@ -83,7 +83,7 @@ AREAS_SUB_WITH_WEIGHT: list[AreaInfoWithWeight] = [
     ),
     AreaInfoWithWeight(
         area_id=AreaEnum.PANDALA,
-        weight=40,
+        weight=60,
         min_lvl=91,
         waypoint_id_needed=207619076,
         min_job_lvls={
@@ -95,7 +95,7 @@ AREAS_SUB_WITH_WEIGHT: list[AreaInfoWithWeight] = [
     ),
     AreaInfoWithWeight(
         area_id=AreaEnum.OTOMAI,
-        weight=40,
+        weight=60,
         min_lvl=111,
         waypoint_id_needed=207619076,
         min_job_lvls={

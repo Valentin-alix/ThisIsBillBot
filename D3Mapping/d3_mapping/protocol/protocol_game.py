@@ -19,7 +19,7 @@ from d3_mapping.controller.instancied_msg_info_controller import (
 )
 from d3_mapping.controller.message_mapping_controller import MessageMappingController
 from d3_mapping.models.message import MessageInfo
-from d3_mapping.resources.obf_protos.game.game_messages_pb2 import tjw
+from d3_mapping.resources.obf_protos.game.game_messages_pb2 import gmq
 from d3_mapping.resources.protos.game.game_message_pb2 import GameMessage
 from D3Database.utils import cache
 
@@ -58,7 +58,7 @@ def get_mapping_proto_to_obf() -> Mapping[str, tuple[str, Mapping[str, str]]]:
 def get_obf_game_msg_info(content: bytes, from_server: bool) -> MessageInfo:
     received_msg_time = datetime.datetime.now()
 
-    game_msg = tjw()
+    game_msg = gmq()
     game_msg.ParseFromString(content)
 
     InstanciedMessageInfoController().add_msg(game_msg, True)

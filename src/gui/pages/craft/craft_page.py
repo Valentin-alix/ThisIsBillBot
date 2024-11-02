@@ -1,10 +1,10 @@
+from data_center.data_reader import DataReader
+from models.datas.recipe_root import RecipeItem
 from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtWidgets import QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import FluentIcon, TransparentToolButton
 
-from models.datas.recipe_root import RecipeItem
 from src.common.logger import Logger
-from data_center.data_reader import DataReader
 from src.gui.pages.craft.recipe_group import RecipeGroup
 from src.gui.pages.craft.recipe_table import RecipeTable
 from src.signals.bot_signals import BotSignals
@@ -13,7 +13,6 @@ from src.signals.bot_signals import BotSignals
 class CraftPage(QWidget):
     def __init__(self, logger: Logger, farm_signals: BotSignals):
         super().__init__()
-        self.is_loading: bool = False
         self.logger = logger
         self.farm_signals = farm_signals
 

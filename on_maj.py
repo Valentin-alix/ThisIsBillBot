@@ -1,7 +1,6 @@
 import os
-from pathlib import Path
 import sys
-
+from pathlib import Path
 
 sys.path.append(os.path.join(Path(__file__).parent))
 sys.path.append(os.path.join(Path(__file__).parent, "D3Mapping"))

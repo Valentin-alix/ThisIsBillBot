@@ -1,0 +1,682 @@
+[
+    {
+        "name": "PA",
+        "weight": 100,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune ga pa"
+            }
+        ]
+    },
+    {
+        "name": "Dommages",
+        "weight": 20,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune do"
+            }
+        ]
+    },
+    {
+        "name": "% Critique",
+        "weight": 10,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune cri"
+            }
+        ]
+    },
+    {
+        "name": "Portée",
+        "weight": 51,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune po"
+            }
+        ]
+    },
+    {
+        "name": "Force",
+        "weight": 1,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune fo"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa fo"
+            },
+            {
+                "quantity": 10,
+                "name": "rune ra fo"
+            }
+        ]
+    },
+    {
+        "name": "Agilité",
+        "weight": 1,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune age"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa age"
+            },
+            {
+                "quantity": 10,
+                "name": "rune ra age"
+            }
+        ]
+    },
+    {
+        "name": "Chance",
+        "weight": 1,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune cha"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa cha"
+            },
+            {
+                "quantity": 10,
+                "name": "rune ra cha"
+            }
+        ]
+    },
+    {
+        "name": "Sagesse",
+        "weight": 3,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune sa"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa sa"
+            },
+            {
+                "quantity": 10,
+                "name": "rune ra sa"
+            }
+        ]
+    },
+    {
+        "name": "Vitalité",
+        "weight": 0.2,
+        "runes": [
+            {
+                "quantity": 5,
+                "name": "rune vi"
+            },
+            {
+                "quantity": 15,
+                "name": "rune pa vi"
+            },
+            {
+                "quantity": 50,
+                "name": "rune ra vi"
+            }
+        ]
+    },
+    {
+        "name": "Intelligence",
+        "weight": 1,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune ine"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa ine"
+            },
+            {
+                "quantity": 10,
+                "name": "rune ra ine"
+            }
+        ]
+    },
+    {
+        "name": "PM",
+        "weight": 90,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune ga pme"
+            }
+        ]
+    },
+    {
+        "name": "Puissance",
+        "weight": 2,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune pui"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa pui"
+            },
+            {
+                "quantity": 10,
+                "name": "rune ra pui"
+            }
+        ]
+    },
+    {
+        "name": "Pods",
+        "weight": 0.25,
+        "runes": [
+            {
+                "quantity": 10,
+                "name": "rune pod"
+            },
+            {
+                "quantity": 30,
+                "name": "rune pa pod"
+            },
+            {
+                "quantity": 100,
+                "name": "rune ra pod"
+            }
+        ]
+    },
+    {
+        "name": "Esquive PA",
+        "weight": 7,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re pa"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa re pa"
+            }
+        ]
+    },
+    {
+        "name": "Esquive PM",
+        "weight": 7,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re pme"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa re pme"
+            }
+        ]
+    },
+    {
+        "name": "Initiative",
+        "weight": 0.1,
+        "runes": [
+            {
+                "quantity": 10,
+                "name": "rune ini"
+            },
+            {
+                "quantity": 30,
+                "name": "rune pa ini"
+            },
+            {
+                "quantity": 100,
+                "name": "rune ra ini"
+            }
+        ]
+    },
+    {
+        "name": "Prospection",
+        "weight": 3,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune prospe"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa prospe"
+            }
+        ]
+    },
+    {
+        "name": "Soins",
+        "weight": 10,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune so"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa so"
+            }
+        ]
+    },
+    {
+        "name": "Invocation",
+        "plurial": "Invocations",
+        "weight": 30,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune invo"
+            }
+        ]
+    },
+    {
+        "name": "% Résistance Terre",
+        "weight": 6,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re per terre"
+            }
+        ]
+    },
+    {
+        "name": "% Résistance Eau",
+        "weight": 6,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re per eau"
+            }
+        ]
+    },
+    {
+        "name": "% Résistance Air",
+        "weight": 6,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re per air"
+            }
+        ]
+    },
+    {
+        "name": "% Résistance Feu",
+        "weight": 6,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re per feu"
+            }
+        ]
+    },
+    {
+        "name": "% Résistance Neutre",
+        "weight": 6,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re per neutre"
+            }
+        ]
+    },
+    {
+        "name": "Dommages Pièges",
+        "weight": 5,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune do pi"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa do pi"
+            }
+        ]
+    },
+    {
+        "name": "Puissance (pièges)",
+        "weight": 2,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune per pi"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa per pi"
+            }
+        ]
+    },
+    {
+        "name": "Résistance Terre",
+        "weight": 2,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re terre"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa re terre"
+            }
+        ]
+    },
+    {
+        "name": "Résistance Eau",
+        "weight": 2,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re eau"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa re eau"
+            }
+        ]
+    },
+    {
+        "name": "Résistance Air",
+        "weight": 2,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re air"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa re air"
+            }
+        ]
+    },
+    {
+        "name": "Résistance Feu",
+        "weight": 2,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re feu"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa re feu"
+            }
+        ]
+    },
+    {
+        "name": "Résistance Neutre",
+        "weight": 2,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re neutre"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa re neutre"
+            }
+        ]
+    },
+    {
+        "name": "Retrait PA",
+        "weight": 7,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune ret pa"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa ret pa"
+            }
+        ]
+    },
+    {
+        "name": "Retrait PM",
+        "weight": 7,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune ret pme"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa ret pme"
+            }
+        ]
+    },
+    {
+        "name": "Dommages Poussée",
+        "weight": 5,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune do pou"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa do pou"
+            }
+        ]
+    },
+    {
+        "name": "Résistance Poussée",
+        "plurial": "Résistances Poussée",
+        "weight": 2,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re pou"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa re pou"
+            }
+        ]
+    },
+    {
+        "name": "Dommages Critiques",
+        "weight": 5,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune do cri"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa do cri"
+            }
+        ]
+    },
+    {
+        "name": "Résistance Critiques",
+        "weight": 2,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re cri"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa re cri"
+            }
+        ]
+    },
+    {
+        "name": "Dommages Terre",
+        "weight": 5,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune do terre"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa do terre"
+            }
+        ]
+    },
+    {
+        "name": "Dommages Feu",
+        "weight": 5,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune do feu"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa do feu"
+            }
+        ]
+    },
+    {
+        "name": "Dommages Eau",
+        "weight": 5,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune do eau"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa do eau"
+            }
+        ]
+    },
+    {
+        "name": "Dommages Air",
+        "weight": 5,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune do air"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa do air"
+            }
+        ]
+    },
+    {
+        "name": "Dommages Neutre",
+        "weight": 5,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune do neutre"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa do neutre"
+            }
+        ]
+    },
+    {
+        "name": "Fuite",
+        "weight": 4,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune fui"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa fui"
+            }
+        ]
+    },
+    {
+        "name": "Tacle",
+        "weight": 4,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune tac"
+            },
+            {
+                "quantity": 3,
+                "name": "rune pa tac"
+            }
+        ]
+    },
+    {
+        "name": "Arme de chasse",
+        "weight": 5,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune de chasse"
+            }
+        ]
+    },
+    {
+        "name": "% Dommages mêlée",
+        "weight": 15,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune do per me"
+            }
+        ]
+    },
+    {
+        "name": "% Résistance mêlée",
+        "weight": 15,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re per me"
+            }
+        ]
+    },
+    {
+        "name": "% Dommages distance",
+        "weight": 15,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune do per di"
+            }
+        ]
+    },
+    {
+        "name": "% Résistance distance",
+        "weight": 15,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune re per di"
+            }
+        ]
+    },
+    {
+        "name": "% Dommages d'armes",
+        "weight": 15,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune do per ar"
+            }
+        ]
+    },
+    {
+        "name": "% Dommages aux sorts",
+        "weight": 15,
+        "runes": [
+            {
+                "quantity": 1,
+                "name": "rune do per so"
+            }
+        ]
+    }
+]

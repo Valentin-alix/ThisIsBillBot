@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field, fields
 from datetime import datetime
+from functools import cached_property
 from threading import Event, Thread
 from time import sleep
 from typing import Any, Callable
@@ -11,7 +12,9 @@ from d3_mapping.signals.message_signals import MessageInfoSignals
 from models.datas.recipe_root import RecipeItem
 from PyQt5.QtCore import QThread
 
+from src.common.internet import has_internet_connection
 from src.common.logger import Logger
+from src.common.timing import is_in_playtime
 from src.controller.bot_config import BotConfig, BotConfigController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
@@ -83,6 +86,14 @@ class Bot:
         init=False, default=None
     )
 
+    @cached_property
+    def bot_config(self):
+        return (
+            BotConfigController()
+            .get_bot_config_by_login()
+            .get(self.account["apikey"]["login"])
+        )
+
     def __str__(self):
         return self.account["apikey"]["login"]
 
@@ -115,15 +126,9 @@ class Bot:
         )
 
     def start(self):
-        bot_config = (
-            BotConfigController()
-            .get_bot_config_by_login()
-            .get(self.account["apikey"]["login"])
-        )
+        bot_config = self.bot_config
 
-        if self.account["apikey"]["login"] in MULE_BANK_CHARACTER_LOGIN:
-            self.bot_signals.play_mule_kamas.emit()
-        elif bot_config is not None:
+        if bot_config is not None:
             self.thread_planning = Thread(
                 target=self.start_planning_bot, daemon=True, args=(bot_config,)
             )
@@ -175,11 +180,7 @@ class Bot:
         if not self.is_playing_event.is_set():
             return
 
-        bot_config = (
-            BotConfigController()
-            .get_bot_config_by_login()
-            .get(self.account["apikey"]["login"])
-        )
+        bot_config = self.bot_config
         if self._current_bot_action_func is None and bot_config is None:
             raise ValueError("An action should be provided if is_playing_event is set")
 
@@ -212,12 +213,7 @@ class Bot:
     def guess_bot_action(self):
         if self.account["apikey"]["login"] in MULE_BANK_CHARACTER_LOGIN:
             self.bot_signals.play_mule_kamas.emit()
-        elif (
-            BotConfigController()
-            .get_bot_config_by_login()
-            .get(self.account["apikey"]["login"])
-            is not None
-        ):
+        elif self.bot_config is not None:
             self.bot_signals.play_auto_bot.emit(None, None)
 
     def run_current_bot_action(self):
@@ -322,6 +318,17 @@ class Bot:
 
         def planned_restart_bot():
             self.logger.info("Restarting bot")
+            now = datetime.now()
+            while not has_internet_connection():
+                self.logger.info(
+                    "waiting for internet connection to be up in restart bot"
+                )
+                sleep(1)
+            if bot_config and not is_in_playtime(
+                now, bot_config.playtime_starts, bot_config.playtime_ends
+            ):
+                return self.logger.info("Bot is not anymore in playtime")
+
             if not self.is_playing_event.is_set():
                 self.bot_signals.play.emit()
                 self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
@@ -344,7 +351,7 @@ class Bot:
 
     def kill_process(self):
         if self.pid is None:
-            return
+            return self.logger.warning("No pid to kill")
         try:
             process = psutil.Process(self.pid)
             process.terminate()

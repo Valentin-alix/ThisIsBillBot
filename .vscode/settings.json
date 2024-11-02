@@ -2,13 +2,17 @@
   "python.testing.unittestArgs": [
     "-v",
     "-s",
-    "./D3Mapping/tests",
+    "./tests",
     "-p",
     "test_*.py"
   ],
   "python.testing.pytestEnabled": false,
   "python.testing.unittestEnabled": true,
-  "python.analysis.extraPaths": ["D3Database", "D3Mapping", "DBDofusUnity"],
+  "python.analysis.extraPaths": [
+    "D3Database",
+    "D3Mapping",
+    "DBDofusUnity"
+  ],
   "files.exclude": {
     "**/legacy/**": true
   },

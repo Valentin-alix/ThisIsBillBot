@@ -296,4 +296,4 @@ class EdgeBehavior(Behavior):
 
     def handle_invalid_transition(self, edge: Edge, transition: Transition):
         self.logger.error(f"Forbidden edge : {edge} with transition : {transition}")
-        FORBIDDEN_EDGE_TRANSITION.add((edge.m_from.m_uid, edge.m_to.m_uid, transition))
+        FORBIDDEN_EDGE_TRANSITION.add((edge.m_from, edge.m_to, transition))

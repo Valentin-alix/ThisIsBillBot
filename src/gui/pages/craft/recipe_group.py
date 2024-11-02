@@ -1,8 +1,9 @@
 from typing import override
 
-from models.datas.recipe_root import RecipeItem
 from data_center.data_reader import DataReader
 from data_center.i18n import I18N
+from models.datas.recipe_root import RecipeItem
+
 from src.gui.components.group_list import GroupList
 
 
@@ -17,4 +18,4 @@ class RecipeGroup(GroupList[RecipeItem]):
     @override
     def get_name_item(self, item: RecipeItem) -> str:
         name_id = DataReader().item_by_id[item.resultId].nameId
-        return I18N().name_by_id[name_id] if name_id else ""
+        return I18N().name_by_id.get(name_id, "") if name_id else ""
