@@ -7,6 +7,8 @@ from d3_mapping.resources.protos.game.dialog_pb2 import (
     DialogLeaveEvent,
     DialogLeaveRequest,
 )
+from d3_mapping.resources.protos.game.gamemap_pb2 import MapCurrentEvent
+from d3_mapping.resources.protos.game.inventory_pb2 import StorageInventoryContentEvent
 from d3_mapping.resources.protos.game.npc_pb2 import (
     NpcDialogQuestionEvent,
     NpcDialogReplyRequest,
@@ -37,6 +39,18 @@ class NpcDialogBehavior(Behavior):
         self._forbidden_condition_dialog_param = forbidden_condition_dialog_param
         self.event_manager.on(
             DialogLeaveEvent,
+            callback=lambda _: self.finish(),
+            once=True,
+            originator=self,
+        )
+        self.event_manager.on(
+            MapCurrentEvent,
+            callback=lambda _: self.finish(),
+            once=True,
+            originator=self,
+        )
+        self.event_manager.on(
+            StorageInventoryContentEvent,
             callback=lambda _: self.finish(),
             once=True,
             originator=self,

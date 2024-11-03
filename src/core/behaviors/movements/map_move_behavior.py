@@ -20,6 +20,7 @@ from grid.map_point import MapPoint
 from src.core.behaviors.behavior import Behavior
 from src.core.logic.map.path_finding.movement_path import MovementPath
 from src.core.logic.map.path_finding.path_finding import Pathfinding
+from src.interfaces.enums.text_id_enum import TextEnum
 
 
 class MapMoveError(StrEnum):
@@ -87,7 +88,7 @@ class MapMoveBehavior(Behavior):
         if (
             msg.message_type
             is TextInformationEvent.TextInformationType.TEXT_INFORMATION_ERROR
-            and msg.message_id == 276
+            and msg.message_id == TextEnum.TAKEN_CELL
         ):
             self._cell_is_taken = True
 

@@ -307,10 +307,12 @@ class GameActionFightEvent(_message.Message):
         target_id: int
         def __init__(self, target_id: _Optional[int] = ...) -> None: ...
     class Death(_message.Message):
-        __slots__ = ("target_id",)
+        __slots__ = ("source_id", "target_id")
+        SOURCE_ID_FIELD_NUMBER: _ClassVar[int]
         TARGET_ID_FIELD_NUMBER: _ClassVar[int]
+        source_id: int
         target_id: int
-        def __init__(self, target_id: _Optional[int] = ...) -> None: ...
+        def __init__(self, source_id: _Optional[int] = ..., target_id: _Optional[int] = ...) -> None: ...
     class SpellImmunity(_message.Message):
         __slots__ = ("target_id", "spell_id")
         TARGET_ID_FIELD_NUMBER: _ClassVar[int]

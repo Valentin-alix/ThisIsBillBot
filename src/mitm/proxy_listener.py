@@ -61,7 +61,6 @@ class ProxyListener:
                 client_socket=client_socket,
                 server_socket=server_socket,
             )
-
         self.proxies.append(bridge)
 
         bridge.loop()

@@ -19,7 +19,7 @@ from d3_mapping.controller.instancied_msg_info_controller import (
 )
 from d3_mapping.controller.message_mapping_controller import MessageMappingController
 from d3_mapping.models.message import MessageInfo
-from d3_mapping.resources.obf_protos.game.game_messages_pb2 import gmq
+from d3_mapping.resources.obf_protos.game.game_messages_pb2 import gmz
 from d3_mapping.resources.protos.game.game_message_pb2 import GameMessage
 from D3Database.utils import cache
 
@@ -55,10 +55,16 @@ def get_mapping_proto_to_obf() -> Mapping[str, tuple[str, Mapping[str, str]]]:
     }
 
 
+def is_usable_msg(msg_name: str):
+    return msg_name in get_mapping_proto_to_obf()
+
+
 def get_obf_game_msg_info(content: bytes, from_server: bool) -> MessageInfo:
+    SHOW_URL = True
+
     received_msg_time = datetime.datetime.now()
 
-    game_msg = gmq()
+    game_msg = gmz()
     game_msg.ParseFromString(content)
 
     InstanciedMessageInfoController().add_msg(game_msg, True)
@@ -68,12 +74,28 @@ def get_obf_game_msg_info(content: bytes, from_server: bool) -> MessageInfo:
         always_print_fields_with_no_presence=True,
         preserving_proto_field_name=True,
     )
-    url_info = game_msg.__class__.__name__
+    if SHOW_URL:
+        field_name = game_msg.WhichOneof("eqwe")
+        root_msg: Message = getattr(game_msg, field_name)
+
+        root_msg_any_field: protoAny | None = None
+        for _, field_value in root_msg.ListFields():
+            if field_value.__class__ == protoAny:
+                root_msg_any_field = field_value
+                break
+
+        if root_msg_any_field is None:
+            raise ValueError("Did not found any in root msg")
+
+        type_url = root_msg_any_field.type_url.split("/")[-1]
+    else:
+        type_url = game_msg.__class__.__name__
+
     return MessageInfo(
         received_time=received_msg_time,
         from_server=from_server,
         msg_json=msg_json,
-        sub_msg_name=url_info,
+        sub_msg_name=type_url,
         raw_content=content,
     )
 
@@ -193,12 +215,10 @@ def get_obf_game_message_from_msg(
         root_msg_namespace
     ]
     obf_sub_msg_type = GetMessageClass(POOL.FindMessageTypeByName(obf_sub_type_url))
-    obf_sub_msg = obf_sub_msg_type(
-        **{
-            obf_sub_field_mapping["uid"]: uid or -1,
-            obf_sub_field_mapping["content"]: obf_any_msg,
-        }
-    )
+    sub_msg_values: dict = {obf_sub_field_mapping["content"]: obf_any_msg}
+    if "uid" in obf_sub_field_mapping:
+        sub_msg_values[obf_sub_field_mapping["uid"]] = uid or -1
+    obf_sub_msg = obf_sub_msg_type(**sub_msg_values)
 
     # get related game message
     obf_game_type_url, obf_game_field_mapping = get_mapping_proto_to_obf()[
@@ -317,7 +337,10 @@ def set_field_from_mapping_field(
             msg_field_value.DESCRIPTOR.full_name, msg_mappings
         )
         if sub_transformer is not None:
-            output_field_value.CopyFrom(sub_transformer(msg_field_value))
+            try:
+                output_field_value.CopyFrom(sub_transformer(msg_field_value))
+            except TypeError:
+                pass
 
     else:
         setattr(output_msg, output_msg_field_name, msg_field_value)

@@ -3,21 +3,17 @@ from dataclasses import dataclass
 from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
 from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeLeaveEvent,
+    ExchangeMoveKamaRequest,
+    ExchangeObjectMoveRequest,
+    ExchangeObjectTransferAllFromInventoryRequest,
     ExchangeStartedWithStorageEvent,
 )
 from d3_mapping.resources.protos.game.inventory_pb2 import (
     InventoryContentEvent,
     InventoryWeightEvent,
-    KamasUpdateEvent,
     ObjectAddedEvent,
-    ObjectDeletedEvent,
-    ObjectModifiedEvent,
-    ObjectQuantityEvent,
     ObjectsAddedEvent,
-    ObjectsDeletedEvent,
-    ObjectsQuantityEvent,
     StorageInventoryContentEvent,
-    StorageObjectRemovedEvent,
     StorageObjectUpdateEvent,
 )
 
@@ -37,32 +33,30 @@ class InventoryFrame(Frame):
             priority=self.priority,
         )
         self.event_manager.on(
+            ExchangeObjectTransferAllFromInventoryRequest,
+            self.on_exchange_object_transfer_all_from_inventory_request,
+            originator=self,
+        )
+        self.event_manager.before(
+            DialogLeaveRequest,
+            self.before_dialog_leave_request,
+            originator=self,
+        )
+        self.event_manager.on(
             InventoryContentEvent,
             self.on_inventory_content_event,
             originator=self,
             priority=self.priority,
         )
         self.event_manager.on(
-            ObjectsDeletedEvent,
-            self.on_objects_deleted_event,
+            ExchangeStartedWithStorageEvent,
+            self.on_exchange_started_with_storage_event,
             originator=self,
             priority=self.priority,
         )
         self.event_manager.on(
-            ObjectDeletedEvent,
-            self.on_object_deleted_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            ObjectQuantityEvent,
-            self.on_object_quantity_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            ObjectsQuantityEvent,
-            self.on_objects_quantity_event,
+            ExchangeMoveKamaRequest,
+            self.on_exchange_move_kama_request,
             originator=self,
             priority=self.priority,
         )
@@ -78,40 +72,6 @@ class InventoryFrame(Frame):
             originator=self,
             priority=self.priority,
         )
-        self.event_manager.before(
-            DialogLeaveRequest,
-            self.before_dialog_leave_request,
-            originator=self,
-        )
-        self.event_manager.on(
-            InventoryContentEvent,
-            self.on_inventoy_content_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            ExchangeStartedWithStorageEvent,
-            self.on_exchange_started_with_storage_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            KamasUpdateEvent,
-            self.on_kamas_update_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            ObjectModifiedEvent,
-            self.on_object_modified_event,
-            originator=self,
-            priority=self.priority,
-        )
-
-    def on_object_modified_event(self, message: ObjectModifiedEvent):
-        self.game_state.inventory.objects_by_uid[message.object.item.uid] = (
-            message.object
-        )
 
     def on_inventory_weight_event(self, message: InventoryWeightEvent):
         self.game_state.inventory.inventory_weight = message.inventory_weight
@@ -121,6 +81,18 @@ class InventoryFrame(Frame):
         self.game_state.inventory.objects_by_uid.clear()
         for object in msg.objects:
             self.game_state.inventory.objects_by_uid[object.item.uid] = object
+        self.game_state.inventory.kamas = msg.kamas
+
+    def on_exchange_object_transfer_all_from_inventory_request(
+        self, msg: ExchangeObjectTransferAllFromInventoryRequest
+    ):
+        self.game_state.inventory.objects_by_uid.clear()
+
+    def before_dialog_leave_request(self, msg: DialogLeaveRequest):
+        if self.is_playing_event.is_set():
+            self.logger.info("Cancel dialog leave request from client")
+            return None
+        return msg
 
     def on_object_added_event(self, msg: ObjectAddedEvent):
         self.game_state.inventory.objects_by_uid[msg.object.item.uid] = msg.object
@@ -128,45 +100,6 @@ class InventoryFrame(Frame):
     def on_objects_added_event(self, msg: ObjectsAddedEvent):
         for object in msg.objects:
             self.game_state.inventory.objects_by_uid[object.item.uid] = object
-
-    def on_object_quantity_event(self, msg: ObjectQuantityEvent):
-        if msg.object.object_uid in self.game_state.inventory.objects_by_uid:
-            self.game_state.inventory.objects_by_uid[
-                msg.object.object_uid
-            ].item.quantity = msg.object.quantity
-        else:
-            print(
-                f"Did not found {msg.object.object_uid} in inventory after objectQuantiyEvent"
-            )
-
-    def on_objects_quantity_event(self, msg: ObjectsQuantityEvent):
-        for object in msg.object:
-            if object.object_uid in self.game_state.inventory.objects_by_uid:
-                self.game_state.inventory.objects_by_uid[
-                    object.object_uid
-                ].item.quantity = object.quantity
-            else:
-                print(
-                    f"Did not found {object.object_uid} in inventory after objectsQuantiyEvent"
-                )
-
-    def on_object_deleted_event(self, msg: ObjectDeletedEvent):
-        if msg.object_uid in self.game_state.inventory.objects_by_uid:
-            del self.game_state.inventory.objects_by_uid[msg.object_uid]
-        else:
-            print(f"Did not found {msg.object_uid} in inventory after objectDeleted")
-
-    def on_objects_deleted_event(self, msg: ObjectsDeletedEvent):
-        for object_uid in msg.objects_uid:
-            if object_uid in self.game_state.inventory.objects_by_uid:
-                del self.game_state.inventory.objects_by_uid[object_uid]
-            else:
-                print(f"Did not found {object_uid} in inventory after objectDeleted")
-
-    def before_dialog_leave_request(self, msg: DialogLeaveRequest):
-        if self.is_playing_event.is_set():
-            return None
-        return msg
 
     def on_exchange_started_with_storage_event(
         self, msg: ExchangeStartedWithStorageEvent
@@ -188,8 +121,8 @@ class InventoryFrame(Frame):
             priority=self.priority,
         )
         self.event_manager.on(
-            StorageObjectRemovedEvent,
-            self.on_storage_object_removed_event,
+            ExchangeObjectMoveRequest,
+            self.on_exchange_move_request_on_bank,
             originator=self,
             priority=self.priority,
         )
@@ -214,24 +147,34 @@ class InventoryFrame(Frame):
     def on_storage_object_update_event(self, msg: StorageObjectUpdateEvent):
         self.game_state.inventory.bank_object_by_gid[msg.object.item.gid] = msg.object
 
-    def on_storage_object_removed_event(self, msg: StorageObjectRemovedEvent):
-        related_gid = next(
+    def on_exchange_move_request_on_bank(self, msg: ExchangeObjectMoveRequest):
+        bank_item = next(
             (
-                gid
-                for gid, object in self.game_state.inventory.bank_object_by_gid.items()
-                if object.item.uid == msg.object_uid
+                item
+                for item in self.game_state.inventory.bank_object_by_gid.values()
+                if item.item.uid == msg.object_uid
             ),
             None,
         )
-        if not related_gid:
-            return self.logger.info("Did not found related gid in chest, skip.")
+        inventory_item = self.game_state.inventory.objects_by_uid.get(msg.object_uid)
 
-        self.game_state.inventory.bank_object_by_gid.pop(related_gid)
+        if bank_item is not None and bank_item.item.quantity == 0:
+            # the quantity is already updated in load from bank behavior
+            self.game_state.inventory.bank_object_by_gid.pop(bank_item.item.gid)
+
+        if inventory_item is not None:
+            self.logger.info(
+                f"Inventory item {inventory_item.item.gid} with quantity {inventory_item.item.quantity}"
+            )
+            inventory_item.item.quantity -= msg.quantity
+            assert inventory_item.item.quantity >= 0
+            if inventory_item.item.quantity == 0:
+                self.game_state.inventory.objects_by_uid.pop(inventory_item.item.uid)
 
     def on_exchange_leave_storage_event(self, msg: ExchangeLeaveEvent):
         self.logger.info("Leaving storage")
         self.event_manager.clear_listener_by_origin_and_type(
-            StorageObjectRemovedEvent, self
+            ExchangeObjectMoveRequest, self
         )
         self.event_manager.clear_listener_by_origin_and_type(
             StorageObjectUpdateEvent, self
@@ -240,8 +183,5 @@ class InventoryFrame(Frame):
             StorageInventoryContentEvent, self
         )
 
-    def on_inventoy_content_event(self, msg: InventoryContentEvent):
-        self.game_state.inventory.kamas = msg.kamas
-
-    def on_kamas_update_event(self, msg: KamasUpdateEvent):
-        self.game_state.inventory.kamas = msg.quantity
+    def on_exchange_move_kama_request(self, msg: ExchangeMoveKamaRequest):
+        self.game_state.inventory.kamas += msg.quantity

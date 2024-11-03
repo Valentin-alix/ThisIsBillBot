@@ -2,12 +2,12 @@ from dataclasses import dataclass
 
 from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeLeaveEvent,
+    ExchangeObjectMoveRequest,
     ExchangeStartedWithMultiTabStorageEvent,
 )
 from d3_mapping.resources.protos.game.inventory_pb2 import (
     MultiTabStorageEvent,
     StorageInventoryContentEvent,
-    StorageObjectRemovedEvent,
     StorageObjectUpdateEvent,
 )
 
@@ -58,8 +58,8 @@ class GuildChestFrame(Frame):
             priority=self.priority,
         )
         self.event_manager.on(
-            StorageObjectRemovedEvent,
-            self.on_storage_object_removed_event,
+            ExchangeObjectMoveRequest,
+            self.on_exchange_move_request_on_bank,
             originator=self,
             priority=self.priority,
         )
@@ -86,28 +86,35 @@ class GuildChestFrame(Frame):
             msg.object.item.gid
         ] = msg.object
 
-    def on_storage_object_removed_event(self, msg: StorageObjectRemovedEvent):
-        related_gid = next(
+    def on_exchange_move_request_on_bank(self, msg: ExchangeObjectMoveRequest):
+        guild_item = next(
             (
-                gid
-                for gid, object in CHEST_OBJECT_BY_GID_BY_TAB[
+                item
+                for item in CHEST_OBJECT_BY_GID_BY_TAB[
                     self.game_state.guild_chest.tab_number
-                ].items()
-                if object.item.uid == msg.object_uid
+                ].values()
+                if item.item.uid == msg.object_uid
             ),
             None,
         )
-        if not related_gid:
-            return self.logger.info("Did not found related gid in chest, skip.")
+        inventory_item = self.game_state.inventory.objects_by_uid.get(msg.object_uid)
 
-        CHEST_OBJECT_BY_GID_BY_TAB[self.game_state.guild_chest.tab_number].pop(
-            related_gid
-        )
+        if guild_item is not None and guild_item.item.quantity == 0:
+            # the quantity is already updated in load from guild chest behavior
+            CHEST_OBJECT_BY_GID_BY_TAB[self.game_state.guild_chest.tab_number].pop(
+                guild_item.item.gid
+            )
+
+        if inventory_item is not None:
+            self.logger.info(
+                f"Inventory item {inventory_item.item.gid} with quantity {inventory_item.item.quantity}"
+            )
+            inventory_item.item.quantity -= msg.quantity
+            assert inventory_item.item.quantity >= 0
+            if inventory_item.item.quantity == 0:
+                self.game_state.inventory.objects_by_uid.pop(inventory_item.item.uid)
 
     def on_exchange_leave_guild_chest_event(self, msg: ExchangeLeaveEvent):
-        self.event_manager.clear_listener_by_origin_and_type(
-            StorageObjectRemovedEvent, self
-        )
         self.event_manager.clear_listener_by_origin_and_type(
             StorageObjectUpdateEvent, self
         )

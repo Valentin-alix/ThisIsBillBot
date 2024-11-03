@@ -210,7 +210,7 @@ class CraftBehavior(Behavior):
         )
         element_mp = MapPoint.from_cell_id(
             MapReader()
-            .get_ref_data_by_element_id(self.game_state.map.map_id)[
+            .get_ref_data_by_element_id_by_map_id(self.game_state.map.map_id)[
                 related_element.element_id
             ]
             .cellId  # type: ignore

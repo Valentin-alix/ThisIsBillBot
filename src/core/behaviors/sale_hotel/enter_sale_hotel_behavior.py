@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from functools import partial
 
-from d3_mapping.resources.protos.game.exchange_pb2 import (
-    ExchangeBidBuyerStartedEvent,
-)
 from data_center.data_reader import DataReader
 from enums.category_item_enum import CategoryEnum
 from enums.element_type import ElementTypeEnum
@@ -61,13 +58,6 @@ class EnterSaleHotelBehavior(Behavior):
                 ElementTypeEnum.CONSUMABLE_SALE_HOTEL,
             ]
         )
-        self.event_manager.on(
-            ExchangeBidBuyerStartedEvent,
-            lambda msg: self.finish(npc_info=npc_info, bid_buyer_msg=msg),
-            originator=self,
-            once=True,
-        )
-
         self.run_timer(
             BASE_RANGE,
             lambda: self.interactive_behavior.start(
@@ -76,7 +66,7 @@ class EnterSaleHotelBehavior(Behavior):
                 skill_instance_uid=sale_hotel_interactive.enabled_skills[
                     0
                 ].skill_instance_uid,
-                callback=None,
+                callback=lambda _: self.finish(npc_info=npc_info),
                 parent=self,
             ),
         )

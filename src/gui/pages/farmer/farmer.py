@@ -170,7 +170,7 @@ class FarmerWidget(PivotItem):
         self.sub_area_farm_combo.addItem("")
         for sub_area in sorted(
             DataReader().sub_area_by_id.values(),
-            key=lambda subarea: I18N().name_by_id[subarea.nameId],
+            key=lambda subarea: I18N().name_by_id.get(subarea.nameId, ""),
         ):
             if sub_area.areaId != current_area_id:
                 continue

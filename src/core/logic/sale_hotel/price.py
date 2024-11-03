@@ -1,17 +1,21 @@
-from collections import defaultdict
 import math
 import random
+from collections import defaultdict
+
 from d3_mapping.resources.protos.game.common_pb2 import ObjectItem, ObjectItemInventory
 from data_center.data_reader import DataReader
 from enums.category_item_enum import CategoryEnum
-from scraping_d3_client.scraping_d3_client.models.quantity_enum import QuantityEnum
-from scraping_d3_client.scraping_d3_client.models.quantity_enum import QuantityIndex
+
+from scraping_d3_client.scraping_d3_client.models.quantity_enum import (
+    QuantityEnum,
+    QuantityIndex,
+)
 from src.common.logger import Logger
 from src.controller.sale_hotel import SaleHotelController
 from src.core.config.sale_hotel import MAX_QUANTITY_ON_SELL
 from src.core.config.storage import (
-    SELLABLE_ITEMS,
     PROTECTOR_DROP_ITEM_IDS,
+    SELLABLE_ITEMS,
 )
 from src.core.logic.farmer.weight_item import get_weight_item_for_sale_hotel
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
@@ -36,22 +40,24 @@ def get_item_gids_to_sell(
 
     logger.info(f"count item in storage : {len(item_by_gid_in_storage)}")
 
-    def is_valid_item_to_sell(gid: int, object_item: ObjectItemInventory):
+    def is_valid_item_to_sell(
+        gid: int, object_item: ObjectItemInventory, is_bank_item: bool
+    ):
         item_data = DataReader().item_by_id[gid]
         if not item_data.typeId:
             return False
         if not (is_sub or (item_data.level or 0) <= 60):
             return False
-        if gid not in SELLABLE_ITEMS:
+        if not is_bank_item and gid not in SELLABLE_ITEMS:
             return False
-        if not is_interesting_item_to_sell(object_item.item):
+        if not is_interesting_item_to_sell(object_item.item, is_bank_item):
             return False
         return DataReader().item_type_by_id[item_data.typeId].categoryId == category
 
     item_gids_to_sell = [
         item_gid
         for item_gid, item in item_by_gid_in_storage.items()
-        if is_valid_item_to_sell(item_gid, item)
+        if is_valid_item_to_sell(item_gid, item, not can_access_guild_chest)
     ]
 
     logger.info(f"count item to sell : {len(item_gids_to_sell)}")
@@ -70,9 +76,11 @@ def get_item_gids_to_sell(
     return item_gids_to_sell
 
 
-def is_interesting_item_to_sell(object_item: ObjectItem):
+def is_interesting_item_to_sell(object_item: ObjectItem, is_bank_item: bool):
     if object_item.quantity <= 0:
         return False
+    if is_bank_item:
+        return True
     avg_price = SaleHotelController().get_avg_price_by_gid()[object_item.gid]
     if avg_price < 5_000 and object_item.quantity < 100:
         return False
@@ -106,7 +114,7 @@ def get_max_quantity_sell(gid: int) -> int:
     if gid in PROTECTOR_DROP_ITEM_IDS:
         return 1
 
-    avg_price = SaleHotelController().get_avg_price_by_gid()[gid]
+    avg_price = SaleHotelController().get_avg_price_by_gid().get(gid, 1)
     return math.ceil(MAX_QUANTITY_ON_SELL / (avg_price / 1000 + 1))
 
 

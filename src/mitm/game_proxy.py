@@ -28,6 +28,7 @@ class GameProxy(Proxy):
         )
 
     def on_close(self):
+        self.bot.event_manager.on_send_game_callback = None
         self.bot.game_info_signals.disconnected.emit()
         if DO_INSERT_HUMAN_SESSION:
             self.session_timings.insert_session_datas()

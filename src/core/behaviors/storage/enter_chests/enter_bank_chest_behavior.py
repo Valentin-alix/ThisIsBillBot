@@ -2,10 +2,10 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from typing import Iterable
 
+from d3_mapping.protocol.protocol_game import is_usable_msg
 from d3_mapping.resources.protos.game.exchange_pb2 import ExchangeMoveKamaRequest
 from d3_mapping.resources.protos.game.inventory_pb2 import (
     StorageInventoryContentEvent,
-    StorageKamasUpdateEvent,
 )
 
 from src.core.behaviors.behavior import Behavior
@@ -58,6 +58,13 @@ class EnterBankChestBehavior(Behavior):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
 
+        self.event_manager.on(
+            StorageInventoryContentEvent,
+            self.on_storage_inventory_content_event,
+            originator=self,
+            once=True,
+        )
+
         self.npc_dialog_behavior.start(
             callback=self.on_npc_dialog_behavior_finished,
             parent=self,
@@ -75,22 +82,17 @@ class EnterBankChestBehavior(Behavior):
         elif error_code is not None:
             raise UnhandledErrorCodeException(error_code)
 
-        self.event_manager.on(
-            StorageInventoryContentEvent,
-            self.on_storage_inventory_content_event,
-            originator=self,
-            once=True,
-        )
-
     def on_storage_inventory_content_event(self, msg: StorageInventoryContentEvent):
+        if not is_usable_msg(ExchangeMoveKamaRequest.DESCRIPTOR.full_name):
+            return self.finish()
+
         if msg.kamas > 0:
-            self.event_manager.on(
-                StorageKamasUpdateEvent,
-                lambda _: self.finish(),
-                originator=self,
-                once=True,
-            )
-            req = ExchangeMoveKamaRequest(quantity=-msg.kamas)
-            self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
+
+            def move_kama():
+                req = ExchangeMoveKamaRequest(quantity=-msg.kamas)
+                self.event_manager.send(req)
+                self.finish()
+
+            self.run_timer(BASE_RANGE, move_kama)
         else:
             self.finish()

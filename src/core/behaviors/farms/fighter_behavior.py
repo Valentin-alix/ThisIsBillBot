@@ -16,9 +16,10 @@ from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
-from src.core.config.storage import USEFUL_UNLOAD
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
+from src.core.config.auto import DO_CRAFT, DO_SALE_HOTEL
 from src.core.config.mule import BOT_KAMA_LIMIT_TO_GIVE
+from src.core.config.storage import USEFUL_UNLOAD
 from src.core.config.timings import (
     get_time_beween_sale_hotel_prices,
 )
@@ -138,6 +139,8 @@ class FighterBehavior(Behavior):
             self.on_new_map()
 
     def on_interesting_amount_of_farming_done(self):
+        if not DO_CRAFT:
+            return self.on_craft_behavior_finished(None)
         recipes = get_recipes_for_job_lvl_up(
             self.game_state.player.is_sub, self.game_state.player.jobs_lvl_by_id
         )
@@ -148,10 +151,15 @@ class FighterBehavior(Behavior):
                 is_sub=self.game_state.player.is_sub,
                 jobs_lvl_by_id=self.game_state.player.jobs_lvl_by_id,
             ),
-            callback=lambda _: self.sale_hotel_prices_behavior.start(
-                callback=lambda _: self.on_new_map(), parent=self
-            ),
+            callback=self.on_craft_behavior_finished,
             parent=self,
+        )
+
+    def on_craft_behavior_finished(self, error_code: str | None):
+        if not DO_SALE_HOTEL:
+            return self.on_new_map()
+        self.sale_hotel_prices_behavior.start(
+            callback=lambda _: self.on_new_map(), parent=self
         )
 
     def get_additional_weight_by_map_id(self, map_id: int):

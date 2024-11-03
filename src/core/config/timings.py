@@ -1,9 +1,11 @@
 import datetime
 from random import uniform
 
+from src.core.config.auto import DO_DUNGEON, DO_EXTRA_ACTION, DO_FIGHTER
+
 
 def get_time_beween_sale_hotel_prices():
-    return datetime.timedelta(hours=3, minutes=30) * uniform(0.75, 1.25)
+    return datetime.timedelta(hours=4, minutes=0) * uniform(0.75, 1.25)
 
 
 def get_time_beween_areas():
@@ -11,15 +13,27 @@ def get_time_beween_areas():
 
 
 def get_time_between_attacker():
-    return datetime.timedelta(minutes=20) * uniform(0.75, 1.25)
+    return (
+        datetime.timedelta(minutes=20) * uniform(0.75, 1.25)
+        if DO_FIGHTER
+        else datetime.timedelta(datetime.MAXYEAR)
+    )
 
 
 def get_time_between_random_chat():
-    return datetime.timedelta(minutes=40) * uniform(0.75, 1.25)
+    return (
+        datetime.timedelta(minutes=40) * uniform(0.75, 1.25)
+        if DO_EXTRA_ACTION
+        else datetime.timedelta(datetime.MAXYEAR)
+    )
 
 
 def get_time_between_dungeon():
-    return datetime.timedelta(hours=4) * uniform(0.75, 1.25)
+    return (
+        datetime.timedelta(hours=4) * uniform(0.75, 1.25)
+        if DO_DUNGEON
+        else datetime.timedelta(datetime.MAXYEAR)
+    )
 
 
 # Waiting times timing

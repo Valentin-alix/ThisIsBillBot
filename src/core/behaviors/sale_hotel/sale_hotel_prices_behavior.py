@@ -1,10 +1,11 @@
 import datetime
+import math
 from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
-import math
 from typing import Iterable
 
+from d3_mapping.resources.protos.game.basic_pb2 import TextInformationEvent
 from d3_mapping.resources.protos.game.common_pb2 import ObjectItem
 from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
 from d3_mapping.resources.protos.game.exchange_pb2 import (
@@ -19,19 +20,17 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
 )
 from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
 from data_center.data_reader import DataReader
-
 from data_center.i18n import I18N
 from enums.category_item_enum import CategoryEnum
+
 from scraping_d3_client.scraping_d3_client.models.quantity_enum import (
     QuantityEnum,
     QuantityIndex,
 )
+from src.controller.sale_hotel import SaleHotelController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
-)
-from src.core.config.storage import (
-    TAB_BY_GID,
 )
 from src.core.behaviors.storage.loads.load_from_bank_behavior import (
     LoadFromBankBehavior,
@@ -43,12 +42,14 @@ from src.core.behaviors.storage.loads.load_from_guild_chest_behavior import (
 from src.core.config.sale_hotel import (
     MIN_KAMAS_TO_GO_SALE_HOTEL,
 )
+from src.core.config.storage import (
+    TAB_BY_GID,
+)
 from src.core.config.timings import (
     BASE_RANGE,
     SMALL_RANGE,
     TINY_RANGE,
 )
-from src.controller.sale_hotel import SaleHotelController
 from src.core.logic.sale_hotel.price import (
     choose_quantity_to_sell,
     get_item_gids_to_sell,
@@ -57,6 +58,7 @@ from src.core.logic.sale_hotel.price import (
     is_interesting_item_to_sell,
 )
 from src.exceptions import UnexpectedStateException, UnhandledErrorCodeException
+from src.interfaces.enums.text_id_enum import TextEnum
 
 
 class SaleHotelErrorCode(StrEnum):
@@ -75,7 +77,7 @@ class SaleHotelPricesBehavior(Behavior):
     _curr_category: CategoryEnum = field(init=False, default=CategoryEnum.RESOURCES)
 
     def run(self) -> None:
-        self.categories = set(CategoryEnum)
+        self.categories = {CategoryEnum.RESOURCES, CategoryEnum.CONSUMABLES}
         self.game_state.sale_hotel.last_time_updated_prices = datetime.datetime.now()
 
         if self.game_state.inventory.kamas < MIN_KAMAS_TO_GO_SALE_HOTEL:
@@ -124,7 +126,7 @@ class SaleHotelPricesBehavior(Behavior):
                     ),
                     math.floor(max_quantity_sell / 4),
                 ),
-                tab=TAB_BY_GID[item_gid],
+                tab=TAB_BY_GID.get(item_gid, 0),
             )
             load_items_infos.append(load_item_info)
 
@@ -216,6 +218,7 @@ class SaleHotelPricesBehavior(Behavior):
         while True:
             if len(item_to_sells_in_inventory) == 0:
                 if len(load_items_infos) == 0:
+                    self.logger.info("No more item to sell, lets update prices")
                     return self.update_all_prices(list(items))
 
                 self.event_manager.on(
@@ -229,7 +232,9 @@ class SaleHotelPricesBehavior(Behavior):
                 return self.leave_all_dialogs()
 
             next_item = item_to_sells_in_inventory.pop()
-            if is_interesting_item_to_sell(next_item):
+            if is_interesting_item_to_sell(
+                next_item, not self.game_state.player.can_access_guild_chest
+            ):
                 break
 
         self.logger.info(
@@ -316,7 +321,9 @@ class SaleHotelPricesBehavior(Behavior):
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
     ):
-        if not is_interesting_item_to_sell(item):
+        if not is_interesting_item_to_sell(
+            item, not self.game_state.player.can_access_guild_chest
+        ):
             return self.create_all_prices(
                 load_items_infos=load_items_infos,
                 items=items,
@@ -387,12 +394,33 @@ class SaleHotelPricesBehavior(Behavior):
             originator=self,
             once=True,
         )
+        self.event_manager.clear_listener_by_origin_and_type(TextInformationEvent, self)
+        self.event_manager.on(
+            TextInformationEvent,
+            partial(self.on_text_information_event, items=items),
+            originator=self,
+        )
         item.quantity -= quantity_to_sell
         self.logger.info(f"Remaining quantity of item {item.gid} : {item.quantity}")
         req = ExchangeObjectMovePricedRequest(
             object_uid=item.uid, quantity=quantity_to_sell, price=price_for_quantity
         )
         self.run_timer(TINY_RANGE, lambda: self.event_manager.send(req))
+
+    def on_text_information_event(
+        self,
+        msg: TextInformationEvent,
+        items: Iterable[ExchangeBidSellerStartedEvent.ItemToSellInBid],
+    ):
+        if msg.message_id != TextEnum.FULL_PLACE_SALE_HOTEL:
+            return
+        self.event_manager.clear_listener_by_origin_and_type(InventoryWeightEvent, self)
+        self.event_manager.clear_listener_by_origin_and_type(TextInformationEvent, self)
+        self.event_manager.clear_listener_by_origin_and_type(InventoryWeightEvent, self)
+        self.logger.info(
+            "Sale hotel is full, let's update prices (from text info event)"
+        )
+        self.update_all_prices(list(items))
 
     def on_inventory_weight_event_after_created_price(
         self,
@@ -440,6 +468,7 @@ class SaleHotelPricesBehavior(Behavior):
             originator=self,
             once=True,
         )
+        self.logger.info(f"Updating item {item_gid}")
         req = ExchangeBidHousePriceRequest(object_gid=item_gid)
         self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(req))
 
@@ -523,6 +552,7 @@ class SaleHotelPricesBehavior(Behavior):
             )
 
         if len(requests_modify_price) == 0:
+            self.logger.info("No request modify, go next item")
             self.update_all_prices(items)
         else:
             self.event_manager.on(
@@ -552,6 +582,7 @@ class SaleHotelPricesBehavior(Behavior):
         self.event_manager.clear_listener_by_origin_and_type(
             ExchangeBidHouseItemRemovedEvent, originator=self
         )
+        self.logger.info("Update all prices after item removed")
         self.run_timer(BASE_RANGE, lambda: self.update_all_prices(items))
 
     def leave_all_dialogs(self):

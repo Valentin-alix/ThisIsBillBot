@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field, fields
 from datetime import datetime
 from functools import cached_property
-from threading import Event, Thread
+from threading import Event, Thread, Timer
 from time import sleep
 from typing import Any, Callable
 
@@ -79,6 +79,7 @@ class Bot:
     is_playing_event: Event
     shared_signals: SharedSignals
 
+    _timer_disconnected: Timer | None = field(init=False, default=None)
     _thread_worker_runnings: list[tuple[QThread, Worker]] = field(
         init=False, default_factory=list
     )
@@ -164,7 +165,13 @@ class Bot:
             return
         self.logger.info("disconnected, relaunch bot")
         self.stop_behaviors()
-        self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
+        self._timer = Timer(
+            3,
+            lambda: self.shared_signals.launch_account.emit(
+                self.account["apikey"]["login"]
+            ),
+        )
+        self._timer.start()
 
     def on_play(self):
         self.is_playing_event.set()
@@ -283,6 +290,7 @@ class Bot:
         self.bot_signals.play.emit()
         self._current_bot_action_func = func
         if not self.is_connected_event.is_set():
+            self.logger.info("relaunching from play action")
             self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
         elif self.is_ready_to_play_event.is_set():
             self._thread_worker_runnings.append(
@@ -331,6 +339,7 @@ class Bot:
 
             if not self.is_playing_event.is_set():
                 self.bot_signals.play.emit()
+                self.logger.info("relaunching from planning")
                 self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
             else:
                 self.logger.info("Bot is playing, dont restart")

@@ -7,18 +7,15 @@ from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.farms.multi_farming_behavior import MultiFarmingBehavior
-from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
-    EnterBankChestErrorCode,
-)
 from src.core.config.auto import (
     AREAS_SUB_WITH_WEIGHT,
     AREAS_UNSUB_WITH_WEIGHT,
+    DO_FIGHTER,
     KAMAS_LIMIT_FOR_HARVEST,
     LVL_LIMIT_FOR_HARVEST,
     AreaInfoWithWeight,
 )
 from src.core.config.timings import get_time_beween_areas
-from src.exceptions import UnhandledErrorCodeException
 
 
 @dataclass
@@ -71,6 +68,7 @@ class AutoBotBehavior(Behavior):
         if (
             self.game_state.player.level < self._lvl_limit_for_harvest
             or self.game_state.inventory.kamas < self._kamas_limit_for_harvest
+            and DO_FIGHTER
         ):
             self.play_fighter()
         else:
@@ -96,15 +94,6 @@ class AutoBotBehavior(Behavior):
             callback=None,
             parent=self,
         )
-
-    def on_multi_farming_behavior_finished(self, error_code: str | None):
-        if error_code in [
-            EnterBankChestErrorCode.NOT_ENOUGH_KAMAS,
-            EnterBankChestErrorCode.NOT_ENOUGH_LVL,
-        ]:
-            return self.play_fighter()
-        elif error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
 
     def play_fighter(self, old_area_info: AreaInfoWithWeight | None = None):
         datetime_start_played = datetime.now()
@@ -140,14 +129,10 @@ class AutoBotBehavior(Behavior):
             for job_enum, min_lvl in area_info.min_job_lvls.items():
                 if self.game_state.player.jobs_lvl_by_id[job_enum] < min_lvl:
                     return False
-            return (
-                self.game_state.player.level >= area_info.min_lvl
-                and (not old_area_info or area_info != old_area_info)
-                and (
-                    area_info.waypoint_id_needed is None
-                    or area_info.waypoint_id_needed
-                    in self.game_state.player.waypoint_map_ids
-                )
+            return self.game_state.player.level >= area_info.min_lvl and (
+                area_info.waypoint_id_needed is None
+                or area_info.waypoint_id_needed
+                in self.game_state.player.waypoint_map_ids
             )
 
         if self._area_id is not None:
@@ -165,6 +150,8 @@ class AutoBotBehavior(Behavior):
         ]
         areas_weights = [
             area_info.weight
+            if (not old_area_info or area_info != old_area_info)
+            else 0.1
             for area_info in areas_with_weight
             if is_valid_area(area_info)
         ]

@@ -2,17 +2,22 @@ from dataclasses import dataclass, field
 from functools import partial
 from typing import Callable
 
+from d3_mapping.resources.protos.game.common_pb2 import (
+    CharacterCharacteristic,
+    CharacterCharacteristicDetailed,
+)
 from d3_mapping.resources.protos.game.fight_pb2 import (
     FightIsTurnReadyEvent,
     FightTurnEndEvent,
     FightTurnFinishRequest,
 )
+from enums.characteristic_enum import CharacteristicEnum
 
+from src.controller.human_timings import HumanTimingsController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.fight.fight_movement_behavior import FightMovementBehavior
 from src.core.behaviors.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
-from src.controller.human_timings import HumanTimingsController
 from src.core.logic.fight.attack import Attacker
 from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.exceptions import UnhandledErrorCodeException
@@ -31,6 +36,9 @@ class FightTurnBehavior(Behavior):
 
     def run(self) -> None:
         self.did_attack = False
+        self.event_manager.on(
+            FightTurnFinishRequest, lambda _: self.finish(), originator=self
+        )
         self.event_manager.on(
             FightTurnEndEvent, lambda _: self.finish(), originator=self
         )
@@ -93,7 +101,22 @@ class FightTurnBehavior(Behavior):
     ):
         if error_code is MapMoveError.CANCELED_MOVEMENT:
             return self.find_and_do_attack()
-        elif error_code in [MapMoveError.REFUSED, MapMoveError.CELL_TAKEN]:
+        if error_code is MapMoveError.REFUSED:
+            self.game_state.player.characteristic_by_id[
+                CharacteristicEnum.MOVEMENT_POINTS
+            ] = CharacterCharacteristic(
+                characteristic_id=CharacteristicEnum.MOVEMENT_POINTS,
+                detailed=CharacterCharacteristicDetailed(
+                    base=6,
+                    additional=0,
+                    objects_and_mount_bonus=0,
+                    alignment_gift_bonus=0,
+                    context_modification=-6,
+                    temporary=0,
+                ),
+            )
+            return self.find_and_do_attack()
+        elif error_code is MapMoveError.CELL_TAKEN:
             # cell is probably taken by invisible enemy
             return self.finish()
         elif error_code is not None:

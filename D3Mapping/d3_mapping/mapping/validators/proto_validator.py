@@ -29,6 +29,13 @@ class ProtoValidator:
     ):
         # Check if combination of mapped fields is coherent based on validators
         parsed_obf_msg_infos = MSG_INFO_BY_NAME.get(obf_msg.name)
+        if parsed_obf_msg_infos is None:
+            parsed_obf_msg_infos = MSG_INFO_BY_NAME.get(obf_msg.namespace)
+        elif obf_msg.namespace in MSG_INFO_BY_NAME:
+            parsed_obf_msg_infos.obf_msg_info |= MSG_INFO_BY_NAME[
+                obf_msg.namespace
+            ].obf_msg_info
+
         if not parsed_obf_msg_infos:
             return True
 
@@ -56,12 +63,20 @@ class ProtoValidator:
 
             if validator_global_on_whole_msg:
                 values_array_mapped_to_clear = list(values_array_mapped_to_clear)
-                if not validator_global_on_whole_msg[0](values_array_mapped_to_clear):
+                try:
+                    if not validator_global_on_whole_msg[0](
+                        values_array_mapped_to_clear
+                    ):
+                        return False
+                except Exception:
                     return False
 
             if validator_on_whole_msg:
                 for values_mapped_to_clear in values_array_mapped_to_clear:
-                    if not validator_on_whole_msg[0](values_mapped_to_clear):
+                    try:
+                        if not validator_on_whole_msg[0](values_mapped_to_clear):
+                            return False
+                    except Exception:
                         return False
 
         return True

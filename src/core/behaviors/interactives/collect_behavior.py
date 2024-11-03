@@ -2,7 +2,9 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
+
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
+    FightMapInformationEvent,
     MapComplementaryInformationEvent,
     MapCurrentEvent,
 )
@@ -47,8 +49,12 @@ class CollectBehavior(Behavior):
         self.collect_map()
 
     def on_map_current_event(self, msg: MapCurrentEvent):
-        if self.game_state.fight.in_fight:
-            return self.finish()
+        self.event_manager.on(
+            FightMapInformationEvent,
+            lambda _: self.finish(),
+            originator=self,
+            once=True,
+        )
         self.event_manager.on(
             MapComplementaryInformationEvent,
             lambda _: self.finish(),

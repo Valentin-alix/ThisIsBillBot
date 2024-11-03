@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from d3_mapping.protocol.protocol_game import is_usable_msg
 from d3_mapping.resources.protos.game.challenge_pb2 import (
     ChallengeModSelectRequest,
 )
@@ -19,10 +20,11 @@ class FightChallengeBehavior(Behavior):
             return self.finish()
 
         def send_req():
-            request = ChallengeModSelectRequest(
-                challenge_mod=ChallengeMod.CHALLENGE_RANDOM
-            )
-            self.event_manager.send(request)
+            if is_usable_msg(ChallengeModSelectRequest.DESCRIPTOR.full_name):
+                request = ChallengeModSelectRequest(
+                    challenge_mod=ChallengeMod.CHALLENGE_RANDOM
+                )
+                self.event_manager.send(request)
             self.finish()
 
         self.run_timer(SMALL_RANGE, send_req)

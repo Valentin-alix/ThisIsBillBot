@@ -1,15 +1,13 @@
-from datetime import datetime
 import random
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Callable
 
 from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
 
 from src.core.behaviors.chat.chat_behavior import ChatBehavior
-from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.fight.attacker_behavior import AttackerBehavior
-from src.core.behaviors.interactives.collect_behavior import CollectError
 from src.core.behaviors.quests.dungeon_behavior import (
     DungeonBehavior,
 )
@@ -30,7 +28,6 @@ class MultiFarmingBehavior(HarvesterBehavior):
     attacker_behavior: AttackerBehavior
     dungeon_behavior: DungeonBehavior
     chat_behavior: ChatBehavior
-    craft_behavior: CraftBehavior
 
     _next_time_chat: datetime = field(init=False, default_factory=datetime.now)
     _next_time_attacker: datetime = field(init=False, default_factory=datetime.now)
@@ -127,10 +124,3 @@ class MultiFarmingBehavior(HarvesterBehavior):
         self.collect_behavior.start(
             callback=self.on_collect_behavior_finished, parent=self
         )
-
-    def on_collect_behavior_finished(self, error_code: str | None):
-        if error_code == CollectError.FULL_PODS:
-            return self.on_full_pods()
-        elif error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
-        self.run_next_step()

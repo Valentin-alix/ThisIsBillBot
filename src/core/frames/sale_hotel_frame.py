@@ -22,6 +22,7 @@ from scraping_d3_client.scraping_d3_client.models.create_item_price_history_sche
 from scraping_d3_client.scraping_d3_client.models.quantity_enum import QuantityEnum
 from src.const import BACKEND_URL
 from src.controller.sale_hotel import SaleHotelController
+from src.core.config.auto import DO_REGISTER_PRICE
 from src.core.frames.frame import Frame
 
 
@@ -135,6 +136,8 @@ class SaleHotelFrame(Frame):
         self.register_prices(item_description.prices, item_description.gid)
 
     def register_prices(self, prices: Iterable[int], gid: int):
+        if not DO_REGISTER_PRICE:
+            return
         item_prices_histories: list[CreateItemPriceHistorySchema] = []
         quantity_by_index: dict[int, QuantityEnum] = {
             0: QuantityEnum.VALUE_1,

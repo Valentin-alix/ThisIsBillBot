@@ -183,12 +183,24 @@ class EntityFrame(Frame):
                         related_actor_pos_information, True
                     )
         elif msg.HasField("slide"):
+            old_cell_id = self.game_state.entity.actor_by_id[
+                msg.slide.target_id
+            ].disposition.cell_id
             direction = self.game_state.entity.actor_by_id[
                 msg.slide.target_id
             ].disposition.direction
-            self.game_state.entity.update_actor_disposition(
-                msg.slide.target_id, direction=direction, cell_id=msg.slide.end_cell
-            )
+
+            if old_cell_id == msg.slide.start_cell:
+                self.game_state.entity.update_actor_disposition(
+                    msg.slide.target_id, direction=direction, cell_id=msg.slide.end_cell
+                )
+            else:
+                self.game_state.entity.update_actor_disposition(
+                    msg.slide.target_id,
+                    direction=direction,
+                    cell_id=msg.slide.start_cell,
+                )
+
         elif msg.HasField("exchange_positions"):
             if not (
                 msg.exchange_positions.target_cell_id
@@ -218,6 +230,7 @@ class EntityFrame(Frame):
                 cell_id=msg.exchange_positions.caster_cell_id,
             )
         elif msg.HasField("teleport_on_same_map"):
+            return
             if msg.teleport_on_same_map.target_id in self.game_state.entity.actor_by_id:
                 target_direction = self.game_state.entity.actor_by_id[
                     msg.teleport_on_same_map.target_id
@@ -260,6 +273,8 @@ class EntityFrame(Frame):
         )
 
     def on_map_movement_refused_event(self, msg: MapMovementRefusedEvent):
+        if self.game_state.map.is_in_map_transition:
+            return
         if self.game_state.player.character_id in self.game_state.entity.actor_by_id:
             direction = self.game_state.entity.actor_by_id[
                 self.game_state.player.character_id

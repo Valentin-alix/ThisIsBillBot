@@ -1,5 +1,4 @@
 import os
-import subprocess
 import sys
 from pathlib import Path
 
@@ -13,7 +12,6 @@ from d3_mapping.consts import (
     GAME_ASSEMBLY_PATH,
     GLOBAL_METADATA_PATH,
     IL2_CPP_DUMPER_PATH_EXE,
-    IL2CPP_EXTRACT_PATH,
     OBFUSCATED_PROTO_CONNECTION_FILE,
     OBFUSCATED_PROTO_GAME_FILE,
     PROTO_CONNECTION_ASSEMBLY_PATH,
@@ -21,7 +19,6 @@ from d3_mapping.consts import (
     PROTO_GAME_ASSEMBLY_PATH,
     PROTO_GAME_PATH,
     PROTODEC_PATH_EXE,
-    UNITY_MAPPER_PATH,
 )
 from d3_mapping.controller.instancied_msg_info_controller import (
     InstanciedMessageInfoController,
@@ -88,12 +85,6 @@ def init_mapping_resources():
         return
     print("Getting new protos...")
     get_obf_protos()
-    print("IL2CPP extracting classes")
-    process = subprocess.Popen(["dotnet", "run"], cwd=IL2CPP_EXTRACT_PATH)
-    process.wait()
-    print("Mapping game messages")
-    process = subprocess.Popen(["dotnet", "run"], cwd=UNITY_MAPPER_PATH)
-    process.wait()
     print("Clearing msg infos")
     InstanciedMessageInfoController().clear_msg_infos()
 
@@ -105,4 +96,5 @@ def update_proto_on_new_version():
 
 
 if __name__ == "__main__":
+    # gen_all_python_from_protoc()
     generate_all_mapping()

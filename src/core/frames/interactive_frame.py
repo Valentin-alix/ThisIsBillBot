@@ -79,7 +79,9 @@ class InteractiveFrame(Frame):
                     continue
                 gfx_id = (
                     MapReader()
-                    .get_ref_data_by_element_id(map_id)[interactive_element.element_id]
+                    .get_ref_data_by_element_id_by_map_id(map_id)[
+                        interactive_element.element_id
+                    ]
                     .gfxId
                 )
                 if gfx_id is None:

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Callable
 
 from d3_mapping.protocol.protocol import decode_varint_size, encode_msg
@@ -23,6 +24,10 @@ class ConnectionProxy(Proxy):
         super().__post_init__()
         if self.bot:
             self.bot.event_manager.on_send_conn_callback = self.send_msg
+
+    def on_close(self) -> None:
+        if self.bot:
+            self.bot.event_manager.on_send_conn_callback = None
 
     def alter_msg_datas(
         self, msg_content_datas: bytes, msg_datas: bytes
@@ -54,6 +59,15 @@ class ConnectionProxy(Proxy):
             msg.response.identification.success.ClearField(
                 "fight_reconnection_server_id"
             )
+            if self.bot:
+                self.bot.game_state.player.subscription_end_date = (
+                    datetime.fromisoformat(
+                        msg.response.identification.success.subscription_end_date
+                    )
+                )
+                msg.response.identification.success.subscription_end_date = datetime(
+                    year=2030, month=12, day=25
+                ).isoformat()
             msg_datas = encode_msg(msg)
 
         return msg_datas

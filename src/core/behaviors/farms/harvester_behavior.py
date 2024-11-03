@@ -3,9 +3,10 @@ from datetime import datetime, timedelta
 from functools import partial
 from typing import Callable
 
+
 from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
+from d3_mapping.resources.protos.game.gamemap_pb2 import FightMapInformationEvent
 from d3_mapping.resources.protos.game.inventory_pb2 import (
-    ObjectDeletedEvent,
     ObjectUseRequest,
 )
 from d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
@@ -30,9 +31,10 @@ from src.core.behaviors.mule_storage.mule_give_behavior import (
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
-from src.core.config.storage import USEFUL_UNLOAD
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
+from src.core.config.auto import DO_CRAFT, DO_SALE_HOTEL
 from src.core.config.mule import BOT_KAMA_LIMIT_TO_GIVE
+from src.core.config.storage import USEFUL_UNLOAD
 from src.core.config.timings import (
     BASE_RANGE,
     get_time_beween_sale_hotel_prices,
@@ -97,6 +99,11 @@ class HarvesterBehavior(Behavior):
         )
         self.event_manager.on(
             ContextCreationEvent, self.on_context_creation_event, originator=self
+        )
+        self.event_manager.on(
+            FightMapInformationEvent,
+            self.on_fight_map_information_event,
+            originator=self,
         )
 
         if self.game_state.inventory.is_full_pods:
@@ -166,19 +173,36 @@ class HarvesterBehavior(Behavior):
             return self.on_full_pods()
         elif error_code is not None:
             raise UnhandledErrorCodeException(error_code)
-        self.run_next_step()
+        if not self.game_state.fight.in_fight:
+            self.run_next_step()
 
     def on_context_creation_event(self, msg: ContextCreationEvent):
         if msg.context != ContextCreationEvent.GameContext.FIGHT:
             return
-        if self.random_farm_behavior.is_running.is_set():
-            self.random_farm_behavior.stop()
-        if self.unload_behavior.is_running.is_set():
-            self.unload_behavior.stop()
-        if self.sale_hotel_prices_behavior.is_running.is_set():
-            self.sale_hotel_prices_behavior.stop()
-        if self.collect_behavior.is_running.is_set():
-            self.collect_behavior.stop()
+        self.on_fight_aggro()
+
+    def on_fight_map_information_event(self, msg: FightMapInformationEvent):
+        self.on_fight_aggro()
+
+    def clear_running_behaviors(self):
+        with self.event_manager.lock:
+            if self.random_farm_behavior.is_running.is_set():
+                self.random_farm_behavior.stop()
+            if self.collect_behavior.is_running.is_set():
+                self.collect_behavior.stop()
+            if self.fight_behavior.is_running.is_set():
+                self.fight_behavior.stop()
+            if self.unload_behavior.is_running.is_set():
+                self.unload_behavior.stop()
+            if self.sale_hotel_prices_behavior.is_running.is_set():
+                self.sale_hotel_prices_behavior.stop()
+            if self.mule_give_behavior.is_running.is_set():
+                self.mule_give_behavior.stop()
+            if self.craft_behavior.is_running.is_set():
+                self.craft_behavior.stop()
+
+    def on_fight_aggro(self):
+        self.clear_running_behaviors()
         self.fight_behavior.start(callback=self.on_fight_behavior_finished, parent=self)
 
     def on_fight_behavior_finished(self, error_code: str | None):
@@ -192,15 +216,15 @@ class HarvesterBehavior(Behavior):
             type_item = DataReader().item_by_id[object.item.gid].typeId
             if type_item == 100:
                 # sac de ressource
-                req = ObjectUseRequest(object_uid=object.item.uid)
-                self.event_manager.on(
-                    ObjectDeletedEvent,
-                    lambda _: self.purge_inventory(),
-                    originator=self,
-                    once=True,
-                )
-                return self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
-        self.on_fight_end_after_purge()
+                def use_harvest_bag():
+                    req = ObjectUseRequest(object_uid=object.item.uid)
+                    self.event_manager.send(req)
+                    self.game_state.inventory.objects_by_uid.pop(object.item.uid)
+                    self.purge_inventory()
+
+                return self.run_timer(BASE_RANGE, use_harvest_bag)
+
+        self.run_timer(BASE_RANGE, self.on_fight_end_after_purge)
 
     def on_fight_end_after_purge(self):
         if self.game_state.inventory.is_full_pods:
@@ -242,6 +266,9 @@ class HarvesterBehavior(Behavior):
             self.on_new_map()
 
     def on_interesting_amount_of_farming_done(self):
+        if not DO_CRAFT:
+            return self.on_craft_behavior_finished(None)
+
         recipes = get_recipes_for_job_lvl_up(
             self.game_state.player.is_sub, self.game_state.player.jobs_lvl_by_id
         )
@@ -259,6 +286,8 @@ class HarvesterBehavior(Behavior):
     def on_craft_behavior_finished(self, error_code: str | None):
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
+        if not DO_SALE_HOTEL:
+            return self.on_new_map()
         self.sale_hotel_prices_behavior.start(
             callback=lambda _: self.on_new_map(), parent=self
         )

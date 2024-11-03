@@ -191,9 +191,8 @@ class EntityState(State):
         enemies = [
             actor
             for actor in self.actor_by_id.values()
-            if actor.actor_id != character_id
-            and actor.disposition.cell_id != -1
-            and actor.actor_id in self.actor_fight_by_id
+            if actor.actor_id != character_id and actor.disposition.cell_id != -1
+            # and actor.actor_id in self.actor_fight_by_id
         ]
         self.logger.info(f"Found {len(enemies)}")
 

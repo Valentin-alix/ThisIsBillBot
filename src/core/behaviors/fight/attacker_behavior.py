@@ -5,6 +5,7 @@ from typing import Callable, Iterable
 
 from d3_mapping.resources.protos.game.common_pb2 import ActorPositionInformation
 from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
+from d3_mapping.resources.protos.game.gamemap_pb2 import FightMapInformationEvent
 from d3_mapping.resources.protos.game.roleplay_pb2 import AttackMonsterRequest
 from enums.monster_gid_enum import MonsterGidEnum
 from scapy.all import dataclass
@@ -53,8 +54,8 @@ class AttackerBehavior(Behavior):
         self._count_fight_limit = count_fight_limit
         self.attack_enemy()
 
-    def attack_enemy(self):
-        monster_group_info = self.get_next_enemy()
+    def attack_enemy(self, excluded_group_actor_id: int | None = None) -> None:
+        monster_group_info = self.get_next_enemy(excluded_group_actor_id)
         if monster_group_info is None:
             if self._wait_for_group:
                 return self.run_timer(0.5, self.attack_enemy)
@@ -96,22 +97,21 @@ class AttackerBehavior(Behavior):
                         ContextCreationEvent, behavior
                     )
             self.event_manager.on(
-                msg_type=ContextCreationEvent,
-                callback=self.on_context_creation_event,
+                msg_type=FightMapInformationEvent,
+                callback=self.on_fight_map_information_event,
                 originator=self,
                 once=True,
                 timeout=10,
-                on_timeout=self.attack_enemy,
+                on_timeout=lambda: self.attack_enemy(group_actor_id),
             )
         request = AttackMonsterRequest(monster_group_id=group_actor_id)
         self.event_manager.send(request)
 
-    def on_context_creation_event(self, msg: ContextCreationEvent):
-        if msg.context == ContextCreationEvent.GameContext.FIGHT:
-            self.fight_behavior.start(
-                callback=self.on_fight_behavior_finish,
-                parent=self,
-            )
+    def on_fight_map_information_event(self, msg: FightMapInformationEvent):
+        self.fight_behavior.start(
+            callback=self.on_fight_behavior_finish,
+            parent=self,
+        )
 
     def on_fight_behavior_finish(self, error_code: str | None):
         if error_code is not None:
@@ -124,13 +124,17 @@ class AttackerBehavior(Behavior):
             return self.finish(count_fighted_on_map=self._count_fighted_on_map)
         self.attack_enemy()
 
-    def get_next_enemy(self) -> MonsterGroupInfo | None:
+    def get_next_enemy(
+        self, excluded_group_actor_id: int | None = None
+    ) -> MonsterGroupInfo | None:
         monster_group_infos: list[MonsterGroupInfo] = []
         for (
             actor_id,
             mp_group,
             monster_group,
         ) in self.game_state.entity.get_monster_groups():
+            if actor_id == excluded_group_actor_id:
+                continue
             monster_group_lvl = self.get_level_monster_group(monster_group)
             if not self.is_valid_monster_group(monster_group, monster_group_lvl):
                 continue

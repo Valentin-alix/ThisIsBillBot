@@ -1,21 +1,15 @@
 import os
+from enum import StrEnum
 from pathlib import Path
 
 from D3Database.consts import DOFUS_PATH
-import json
-from enum import StrEnum
-
-from D3Database.utils import cache
 
 ROOT_PATH = Path(__file__).parent.parent
 
 TYPE_URL_PREFIX = "type.ankama.com/"
 
-IL2CPP_EXTRACT_ROOT_PATH = os.path.join(ROOT_PATH, "IL2CppExtract")
-IL2CPP_EXTRACT_PATH = os.path.join(IL2CPP_EXTRACT_ROOT_PATH, "IL2CppExtract")
-UNITY_MAPPER_PATH = os.path.join(IL2CPP_EXTRACT_ROOT_PATH, "UnityMapper")
 IL2_CPP_DUMPER_PATH_EXE = os.path.join(
-    IL2CPP_EXTRACT_ROOT_PATH,
+    ROOT_PATH,
     "Il2CppDumper",
     "Il2CppDumper",
     "bin",
@@ -65,46 +59,78 @@ PROTO_GAME_PATH = os.path.join(PROTO_ROOT_PATH, "game")
 MAPPING_CONN_PROTO_PATH = os.path.join(RESOURCE_PATH, "connection_mappings.json")
 MAPPING_GAME_PROTO_PATH = os.path.join(RESOURCE_PATH, "game_mappings.json")
 
-
-@cache
-def get_game_mapping_by_obf():
-    with open(os.path.join(UNITY_MAPPER_PATH, "GameMapping.json"), "r") as file:
-        return {
-            key: value if value != "Message" else "GameMessage"
-            for key, value in json.load(file).items()
-        }
-
-
-@cache
-def get_game_mapping_by_clear():
-    return {value: key for key, value in get_game_mapping_by_obf().items()}
-
-
-@cache
-def get_connection_mapping_by_obf():
-    with open(os.path.join(UNITY_MAPPER_PATH, "ConnectionMapping.json"), "r") as file:
-        return {
-            key: value if value != "Message" else "LoginMessage"
-            for key, value in json.load(file).items()
-        }
-
-
-@cache
-def get_connection_mapping_by_clear():
-    return {value: key for key, value in get_connection_mapping_by_obf().items()}
+GAME_VERIFIED_MAPPING_BY_OBF: dict[str, str] = {
+    "jfq": "CharacterSelectionEvent",
+    "ifr": "MapMovementRequest",
+    "ifn": "MapMovementEvent",
+    "igb": "MapMovementConfirmRequest",
+    "iex": "MapMovementConfirmResponse",
+    "hla": "NpcGenericActionRequest",
+    "hku": "NpcDialogQuestionEvent",
+    "hkx": "NpcDialogReplyRequest",
+    "htf": "StorageInventoryContentEvent",
+    "iwn": "DialogLeaveRequest",
+    "hpv": "JobExperiencesUpdateEvent",
+    "igm": "MapComplementaryInformationEvent",
+    "iup": "ExchangeObjectTransferAllFromInventoryRequest",
+    "hts": "InteractiveUseRequest",
+    "htz": "StatedElementUpdatedEvent",
+    "hua": "InteractiveUsedEvent",
+    "ifa": "MapChangeRequest",
+    "ifz": "MapCurrentEvent",
+    "hzc": "HavenBagEnterRequest",
+    "grt": "ZaapKnownListEvent",
+    "grs": "TeleportRequest",
+    "hsn": "ObjectUseRequest",
+    # # fight
+    "ioq": "FightPlacementPossiblePositionsEvent",
+    "iky": "FightTurnStartPlayingEvent",
+    "gvw": "SpellsEvent",  # 12728
+    "ion": "FightPlacementPositionRequest",
+    "ijd": "GameActionFightEvent",
+    "ijv": "GameActionFightCastRequest",
+    "imu": "FightTurnFinishRequest",
+    "ije": "SequenceEndEvent",
+    "ifc": "FightMapInformationEvent",
+    "ixw": "EntitiesDispositionEvent",
+    "jem": "CharacterCharacteristicsEvent",
+    "ine": "FightReadyRequest",
+    "ika": "GameActionAcknowledgementRequest",
+    "iki": "FightRefreshCharacterStatsEvent",
+    "hrp": "InventoryWeightEvent",
+    "irv": "ExchangeLeaveEvent",
+    # # revive
+    "jef": "FreeSoulRequest",
+    "jdz": "CharacterLifeStatusEvent",
+    # # sale hotel
+    "ipm": "ExchangeBidSellerStartedEvent",
+    "iqe": "ExchangeBidHouseSearchRequest",
+    "iqo": "ExchangeBidHousePriceRequest",
+    "irf": "ExchangeBidPriceEvent",
+    "iqu": "ExchangeObjectMovePricedRequest",
+    "iqc": "ExchangeObjectModifyPricedRequest",
+    "ivb": "ExchangeBidHouseItemAddedEvent",
+    "iqx": "ExchangeBidHouseItemRemovedEvent",
+    "ipv": "ExchangeObjectMoveRequest",
+    "jxv": "TextInformationEvent",
+    "ios": "ExchangeStartedWithStorageEvent",
+    "hrk": "InventoryContentEvent",
+    "hsf": "ObjectAddedEvent",
+    # # kamas
+    "iux": "ExchangeMoveKamaRequest",
+    # # fighter
+    "gym": "AttackMonsterRequest",
+    "ifx": "MapMovementRefusedEvent",
+    "jdn": "ChatChannelMessageRequest",
+    "jea": "CharacterCharacteristicUpgradeRequest",
+    "inc": "FightLiveStateEvent",
+}
 
 
 GAME_MAPPING_FIELDS: dict[str, dict[str, str]] = {
-    "GameActionFightEvent": {
-        "slide": "ejcw",
-        "death": "ejds",
-        "life_points_gain": "ejdh",
-        "exchange_positions": "ejcu",
-        "teleport_on_same_map": "ejdf",
-        "invisible_detected": "ejcx",
-    },
-    "Slide": {"start_cell": "ejaw"},
-    # "CharacteristicUpgradeRequest": {"chance": "elsl"},
+    "GameMessage": {"request": "eqwb", "event": "eqwc", "response": "eqwd"},
+    "InteractiveElement": {"enabled_skills": "fecc"},
+    "InteractiveUseRequest": {"element_id": "evtn"},
 }
 
 

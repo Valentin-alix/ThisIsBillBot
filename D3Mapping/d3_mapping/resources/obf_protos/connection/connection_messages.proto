@@ -4,296 +4,297 @@ syntax = "proto3";
 
 import "google/protobuf/any.proto";
 
-enum kmq {
-  KMQ_ELEX = 0;
-  KMQ_ELEY = 1;
-  KMQ_ELEZ = 2;
-  KMQ_ELFA = 3;
-  KMQ_ELFB = 4;
-  KMQ_ELFC = 5;
-  KMQ_ELFD = 6;
-}
-
-message kms {
-  oneof ffvm {
-    kmu ffvj = 1;
-    kmw ffvk = 2;
-    kmy ffvl = 3;
-  }
-}
-
-message kmu {
-  string ffvq = 1;
-  oneof ffvy {
-    kmz ffvr = 2;
-    knd ffvs = 3;
-    knr ffvt = 4;
-    kog ffvu = 5;
-    kol ffvv = 6;
-    koq ffvw = 7;
-    koy ffvx = 8;
-  }
-}
-
-message kmw {
-  string ffwc = 1;
-  oneof ffwj {
-    kna ffwd = 2;
-    knq ffwe = 3;
-    knw ffwf = 4;
-    koi ffwg = 5;
-    kox ffwh = 6;
-    kpf ffwi = 7;
-  }
-}
-
-message kmy {
-  oneof ffwo {
-    knb ffwn = 1;
-  }
-}
-
-message kmz {
-}
-
-message kna {
-}
-
-message knb {
-  koc ffwy = 1;
-}
-
-message knd {
-  string ffxc = 1;
-  string ffxf = 5;
-  oneof ffxg {
-    kng ffxd = 3;
-    knh ffxe = 4;
-  }
-}
-
-message kng {
-  string ffxp = 1;
-  kne ffxq = 2;
-  message kne {
-    int64 ffxk = 1;
-    string ffxl = 2;
-  }
-}
-
-message knh {
-  string ffxu = 1;
-}
-
-message knq {
-  oneof ffzf {
-    knl ffzd = 1;
-    kno ffze = 2;
-  }
-  message knl {
-    int64 ffyi = 1;
-    string ffyj = 2;
-    string ffyk = 3;
-    knz ffyl = 4;
-    string ffym = 5;
-    knj ffyn = 6;
-    optional int32 ffyo = 7;
-    koj ffyq = 8;
-    kpg ffyr = 9;
-    message knj {
-      bool ffxy = 1;
-      bool ffxz = 2;
-      bool ffya = 3;
-      bool ffyb = 4;
-      bool ffyc = 5;
-      bool ffyd = 6;
-      bool ffye = 7;
-    }
-  }
-  message kno {
-    knm ffyv = 1;
-    optional string ffyw = 2;
-    optional string ffyy = 3;
-    enum knm {
-      KNM_ELKK = 0;
-      KNM_ELKL = 1;
-      KNM_ELKM = 2;
-      KNM_ELKN = 3;
-      KNM_ELKO = 4;
-      KNM_ELKP = 5;
-      KNM_ELKQ = 6;
-      KNM_ELKR = 7;
-      KNM_ELKS = 8;
-      KNM_ELKT = 9;
-      KNM_ELKU = 10;
-      KNM_ELKV = 11;
-      KNM_ELKW = 12;
-      KNM_ELKX = 13;
-    }
-  }
-}
-
-message knr {
-  int32 ffzj = 1;
-}
-
-message knw {
-  oneof ffzw {
-    knu ffzt = 1;
-    knt ffzu = 2;
-  }
-  message knu {
-    string ffzn = 1;
-    string ffzo = 2;
-    repeated int32 ffzp = 3;
-  }
-  enum knt {
-    KNT_ELLV = 0;
-    KNT_ELLW = 1;
-    KNT_ELLX = 2;
-    KNT_ELLY = 3;
-  }
-}
-
-message knz {
-  repeated koc fgaf = 1;
-  repeated knx fgag = 2;
-  bool fgah = 3;
-  message knx {
-    kmq fgaa = 1;
-    int32 fgab = 2;
-  }
-}
-
-message koc {
-  kof fgal = 1;
-  koa fgam = 2;
-  repeated kop fgan = 3;
-  enum koa {
-    KOA_ELNE = 0;
-    KOA_ELNF = 1;
-    KOA_ELNG = 2;
-    KOA_ELNH = 3;
-  }
-}
-
-message kof {
-  int32 fgar = 1;
-  kod fgas = 2;
-  kmq fgat = 3;
-  enum kod {
-    KOD_ELNR = 0;
-    KOD_ELNS = 1;
-  }
-}
-
-message kog {
-  int64 fgax = 1;
-}
-
-message koi {
-  oneof fgbd {
-    koj fgbb = 2;
-    kok fgbc = 3;
-  }
-}
-
-message koj {
-  bool fgbh = 1;
-  int64 fgbi = 2;
-  string fgbj = 3;
-  string fgbk = 4;
-  knz fgbl = 5;
+enum koi {
+  KOI_EMCO = 0;
+  KOI_EMCP = 1;
+  KOI_EMCQ = 2;
+  KOI_EMCR = 3;
+  KOI_EMCS = 4;
+  KOI_EMCT = 5;
+  KOI_EMCU = 6;
 }
 
 message kok {
-}
-
-message kol {
-}
-
-message kop {
-  string fgbv = 1;
-  kon fgbw = 2;
-  kom fgbx = 3;
-  int32 fgby = 4;
-  string fgbz = 5;
-  enum kon {
-    KON_ELPG = 0;
-    KON_ELPH = 1;
-    KON_ELPI = 2;
-    KON_ELPJ = 3;
-    KON_ELPK = 4;
-    KON_ELPL = 5;
-    KON_ELPM = 6;
-    KON_ELPN = 7;
-    KON_ELPO = 8;
-    KON_ELPP = 9;
-    KON_ELPQ = 10;
-    KON_ELPR = 11;
-    KON_ELPS = 12;
-    KON_ELPT = 13;
-    KON_ELPU = 14;
-    KON_ELPV = 15;
-    KON_ELPW = 16;
-    KON_ELPX = 17;
-    KON_ELPY = 18;
+  oneof fgxv {
+    kom fgxs = 1;
+    koo fgxt = 2;
+    koq fgxu = 3;
   }
-  enum kom {
-    KOM_ELPE = 0;
-    KOM_ELPF = 1;
+}
+
+message kom {
+  string fgxz = 1;
+  oneof fgyh {
+    kor fgya = 2;
+    kov fgyb = 3;
+    kpj fgyc = 4;
+    kpy fgyd = 5;
+    kqd fgye = 6;
+    kqi fgyf = 7;
+    kqq fgyg = 8;
+  }
+}
+
+message koo {
+  string fgyl = 1;
+  oneof fgys {
+    kos fgym = 2;
+    kpi fgyn = 3;
+    kpo fgyo = 4;
+    kqa fgyp = 5;
+    kqp fgyq = 6;
+    kqx fgyr = 7;
   }
 }
 
 message koq {
+  oneof fgyx {
+    kot fgyw = 1;
+  }
 }
 
-message kox {
-  oneof fgct {
-    kov fgcq = 1;
-    kos fgcr = 2;
-  }
-  message kov {
-    repeated kot fgcm = 1;
-    message kot {
-      string fgcg = 1;
-      string fgch = 2;
-      repeated int32 fgci = 3;
-    }
-  }
-  enum kos {
-    KOS_ELQQ = 0;
-    KOS_ELQR = 1;
+message kor {
+}
+
+message kos {
+}
+
+message kot {
+  kpu fgzh = 1;
+}
+
+message kov {
+  string fgzl = 1;
+  string fgzo = 5;
+  oneof fgzp {
+    koy fgzm = 3;
+    koz fgzn = 4;
   }
 }
 
 message koy {
-  string fgcx = 1;
-  string fgcy = 2;
+  string fgzy = 1;
+  kow fgzz = 2;
+  message kow {
+    int64 fgzt = 1;
+    string fgzu = 2;
+  }
 }
 
-message kpf {
-  oneof fgdm {
-    kpa fgdk = 1;
-    kpd fgdl = 2;
-  }
-  message kpa {
-    repeated int32 fgdc = 1;
+message koz {
+  string fhad = 1;
+}
+
+message kpi {
+  oneof fhbp {
+    kpd fhbn = 1;
+    kpg fhbo = 2;
   }
   message kpd {
-    kpb fgdg = 1;
-    enum kpb {
-      KPB_ELSA = 0;
-      KPB_ELSB = 1;
-      KPB_ELSC = 2;
-      KPB_ELSD = 3;
+    int64 fhas = 1;
+    string fhat = 2;
+    string fhau = 3;
+    kpr fhav = 4;
+    string fhaw = 5;
+    kpb fhax = 6;
+    optional int32 fhay = 7;
+    kqb fhba = 8;
+    kqy fhbb = 9;
+    message kpb {
+      bool fhah = 1;
+      bool fhai = 2;
+      bool fhaj = 3;
+      bool fhak = 4;
+      bool fhal = 5;
+      bool fham = 6;
+      bool fhan = 7;
+      bool fhao = 8;
+    }
+  }
+  message kpg {
+    kpe fhbf = 1;
+    optional string fhbg = 2;
+    optional string fhbi = 3;
+    enum kpe {
+      KPE_EMID = 0;
+      KPE_EMIE = 1;
+      KPE_EMIF = 2;
+      KPE_EMIG = 3;
+      KPE_EMIH = 4;
+      KPE_EMII = 5;
+      KPE_EMIJ = 6;
+      KPE_EMIK = 7;
+      KPE_EMIL = 8;
+      KPE_EMIM = 9;
+      KPE_EMIN = 10;
+      KPE_EMIO = 11;
+      KPE_EMIP = 12;
+      KPE_EMIQ = 13;
     }
   }
 }
 
-message kpg {
-  string fgdq = 1;
-  string fgdr = 2;
-  repeated int32 fgds = 3;
+message kpj {
+  int32 fhbt = 1;
+}
+
+message kpo {
+  oneof fhcg {
+    kpm fhcd = 1;
+    kpl fhce = 2;
+  }
+  message kpm {
+    string fhbx = 1;
+    string fhby = 2;
+    repeated int32 fhbz = 3;
+  }
+  enum kpl {
+    KPL_EMJO = 0;
+    KPL_EMJP = 1;
+    KPL_EMJQ = 2;
+    KPL_EMJR = 3;
+  }
+}
+
+message kpr {
+  repeated kpu fhcp = 1;
+  repeated kpp fhcq = 2;
+  bool fhcr = 3;
+  message kpp {
+    koi fhck = 1;
+    int32 fhcl = 2;
+  }
+}
+
+message kpu {
+  kpx fhcv = 1;
+  kps fhcw = 2;
+  repeated kqh fhcx = 3;
+  enum kps {
+    KPS_EMKX = 0;
+    KPS_EMKY = 1;
+    KPS_EMKZ = 2;
+    KPS_EMLA = 3;
+  }
+}
+
+message kpx {
+  int32 fhdb = 1;
+  kpv fhdc = 2;
+  koi fhdd = 3;
+  enum kpv {
+    KPV_EMLK = 0;
+    KPV_EMLL = 1;
+  }
+}
+
+message kpy {
+  int64 fhdh = 1;
+}
+
+message kqa {
+  oneof fhdn {
+    kqb fhdl = 2;
+    kqc fhdm = 3;
+  }
+}
+
+message kqb {
+  bool fhdr = 1;
+  int64 fhds = 2;
+  string fhdt = 3;
+  string fhdu = 4;
+  kpr fhdv = 5;
+}
+
+message kqc {
+}
+
+message kqd {
+}
+
+message kqh {
+  string fhef = 1;
+  kqf fheg = 2;
+  kqe fheh = 3;
+  int32 fhei = 4;
+  string fhej = 5;
+  enum kqf {
+    KQF_EMMZ = 0;
+    KQF_EMNA = 1;
+    KQF_EMNB = 2;
+    KQF_EMNC = 3;
+    KQF_EMND = 4;
+    KQF_EMNE = 5;
+    KQF_EMNF = 6;
+    KQF_EMNG = 7;
+    KQF_EMNH = 8;
+    KQF_EMNI = 9;
+    KQF_EMNJ = 10;
+    KQF_EMNK = 11;
+    KQF_EMNL = 12;
+    KQF_EMNM = 13;
+    KQF_EMNN = 14;
+    KQF_EMNO = 15;
+    KQF_EMNP = 16;
+    KQF_EMNQ = 17;
+    KQF_EMNR = 18;
+  }
+  enum kqe {
+    KQE_EMMX = 0;
+    KQE_EMMY = 1;
+  }
+}
+
+message kqi {
+}
+
+message kqp {
+  oneof fhfd {
+    kqn fhfa = 1;
+    kqk fhfb = 2;
+  }
+  message kqn {
+    repeated kql fhew = 1;
+    message kql {
+      string fheq = 1;
+      string fher = 2;
+      repeated int32 fhes = 3;
+    }
+  }
+  enum kqk {
+    KQK_EMOJ = 0;
+    KQK_EMOK = 1;
+  }
+}
+
+message kqq {
+  string fhfh = 1;
+  string fhfi = 2;
+}
+
+message kqx {
+  oneof fhfw {
+    kqs fhfu = 1;
+    kqv fhfv = 2;
+  }
+  message kqs {
+    repeated int32 fhfm = 1;
+  }
+  message kqv {
+    kqt fhfq = 1;
+    enum kqt {
+      KQT_EMPT = 0;
+      KQT_EMPU = 1;
+      KQT_EMPV = 2;
+      KQT_EMPW = 3;
+    }
+  }
+}
+
+message kqy {
+  string fhga = 1;
+  string fhgb = 2;
+  repeated int32 fhgc = 3;
 }
 

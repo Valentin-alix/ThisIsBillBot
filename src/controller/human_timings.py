@@ -141,7 +141,7 @@ class HumanTimingsController(metaclass=Singleton):
                     if msg_target_timestamp and msg_timing.name in [
                         FightMapInformationEvent.__name__,
                     ]:
-                        deltas.append(msg_timing.timestamp - msg_target_timestamp)
+                        deltas.append(msg_target_timestamp - msg_timing.timestamp)
                         msg_target_timestamp = None
 
             return self.get_human_timing(deltas)
@@ -168,7 +168,7 @@ class HumanTimingsController(metaclass=Singleton):
                         FightPlacementPositionRequest.__name__,
                         ChallengeModSelectRequest.__name__,
                     ]:
-                        deltas.append(msg_timing.timestamp - msg_target_timestamp)
+                        deltas.append(msg_target_timestamp - msg_timing.timestamp)
                         msg_target_timestamp = None
 
             return self.get_human_timing(deltas)
@@ -335,3 +335,8 @@ class HumanTimingsController(metaclass=Singleton):
             return self.get_human_timing(deltas)
 
         return get_timing_func()()
+
+
+if __name__ == "__main__":
+    timing = HumanTimingsController().get_timing_before_preparation_ready()
+    print(timing)

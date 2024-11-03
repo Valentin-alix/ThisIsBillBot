@@ -183,3 +183,11 @@ message FightMapInformationResponse {
 	.com.ankama.dofus.server.game.protocol.common.FightStartingPositions fight_start_positions = 3;
 }
 
+message FightLiveStateEvent {
+	repeated .com.ankama.dofus.server.game.protocol.fight.FightLiveStateEvent.FightEntityState entities_states = 1;
+
+	message FightEntityState {
+		int64 entity_id = 1;
+		bool is_dead = 2;
+	}
+}

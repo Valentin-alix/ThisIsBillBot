@@ -8,6 +8,7 @@ from d3_mapping.resources.protos.game.context_pb2 import (
 from d3_mapping.resources.protos.game.fight_pb2 import (
     FightEndEvent,
     FightIsTurnReadyEvent,
+    FightLiveStateEvent,
     FightTurnEndEvent,
     FightTurnEvent,
     FightTurnFinishRequest,
@@ -19,6 +20,9 @@ from d3_mapping.resources.protos.game.fight_preparation_pb2 import (
 )
 from d3_mapping.resources.protos.game.game_action_pb2 import (
     GameActionFightCastRequest,
+)
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
+    MapComplementaryInformationEvent,
 )
 from d3_mapping.resources.protos.game.spell_pb2 import (
     SpellsEvent,
@@ -46,6 +50,12 @@ class FightFrame(Frame):
         self.event_manager.on(
             FightEndEvent,
             self.on_fight_end_event,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            MapComplementaryInformationEvent,
+            self.on_map_complementary_information_event,
             originator=self,
             priority=self.priority,
         )
@@ -102,13 +112,38 @@ class FightFrame(Frame):
             originator=self,
             priority=self.priority,
         )
+        self.event_manager.on(
+            FightTurnStartPlayingEvent,
+            self.on_fight_turn_start_playing_event,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            FightLiveStateEvent,
+            self.on_fight_live_state_event,
+            originator=self,
+            priority=self.priority,
+        )
+
+    def on_fight_live_state_event(self, msg: FightLiveStateEvent):
+        for live_state in msg.entities_states:
+            if live_state.is_dead:
+                self.game_state.entity.remove_actor(live_state.entity_id)
 
     def on_fight_placement_position_request(
         self, msg: FightPlacementPossiblePositionsEvent
     ):
-        self.game_state.fight.fight_placement_possible_positions = list(
-            msg.starting_positions.challengers_positions
-        )
+        if (
+            self.game_state.player.map_point.cell_id
+            in msg.starting_positions.challengers_positions
+        ):
+            self.game_state.fight.fight_placement_possible_positions = list(
+                msg.starting_positions.challengers_positions
+            )
+        else:
+            self.game_state.fight.fight_placement_possible_positions = list(
+                msg.starting_positions.defenders_positions
+            )
 
     def on_context_creation_event(self, message: ContextCreationEvent):
         if message.context == ContextCreationEvent.GameContext.FIGHT:
@@ -151,6 +186,7 @@ class FightFrame(Frame):
         return msg
 
     def on_fight_turn_start_playing_event(self, msg: FightTurnStartPlayingEvent):
+        self.game_state.fight.count_casted_by_spell_id.clear()
         self.game_state.fight.is_our_turn = True
 
     def on_fight_turn_end_event(self, msg: FightTurnEndEvent):
@@ -162,3 +198,10 @@ class FightFrame(Frame):
     def on_fight_turn_event(self, msg: FightTurnEvent):
         self.game_state.fight.count_casted_by_spell_id.clear()
         self.game_state.fight.is_our_turn = True
+
+    def on_map_complementary_information_event(
+        self, msg: MapComplementaryInformationEvent
+    ):
+        self.game_state.fight.is_our_turn = False
+        self.game_state.fight.in_fight = False
+        self.game_state.fight.is_map_fight_initialized = False

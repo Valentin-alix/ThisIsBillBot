@@ -8,7 +8,7 @@ from d3_mapping.resources.protos.game.arena_pb2 import ArenaSwitchXpRewardsModeR
 from d3_mapping.resources.protos.game.basic_pb2 import SequenceNumberRequest
 from d3_mapping.resources.protos.game.client_verification_pb2 import ClientIdRequest
 from d3_mapping.resources.protos.game.connection_pb2 import PingRequest
-from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
+from d3_mapping.resources.protos.game.fight_pb2 import FightTurnFinishRequest
 
 BACKEND_URL = "http://31.38.182.64:65472"
 
@@ -35,5 +35,5 @@ MESSAGES_WITH_UID = [
     SequenceNumberRequest,
     ArenaSwitchXpRewardsModeRequest,
     PingRequest,
-    DialogLeaveRequest,
+    FightTurnFinishRequest,
 ]

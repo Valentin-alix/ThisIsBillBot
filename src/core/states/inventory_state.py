@@ -32,7 +32,7 @@ class ObjectByUid(dict[int, ObjectItemInventory]):
 @dataclass
 class InventoryState(State):
     game_info_signals: GameInfoSignals
-    kamas: int = dataclasses.field(init=False, default=0)
+    kamas: int = dataclasses.field(init=False, default=500_000)
     bank_object_by_gid: dict[int, ObjectItemInventory] = dataclasses.field(
         init=False, default_factory=dict
     )

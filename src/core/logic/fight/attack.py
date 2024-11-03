@@ -10,7 +10,7 @@ from data_center.data_reader import DataReader
 from data_center.i18n import I18N
 from data_center.map_reader import MapReader
 from enums.characteristic_enum import CharacteristicEnum
-from enums.effect_element import TypeEffect
+from enums.effect_element import EffectElement, TypeEffect
 from grid.directions import DirectionsEnum
 from grid.map_point import MapPoint
 from models.datas.spell_levels_root import Effect, SpellLevelsRootItem
@@ -50,10 +50,11 @@ class Attacker:
     logger: Logger
 
     def get_valid_spells_for_turn(self) -> list[tuple[SpellLevelsRootItem, Effect]]:
+        self.logger.info(f"Count spell : {len(self.game_state.fight.spells)}")
         valuable_spells = get_damage_spells(
-            self.game_state.fight.spells,
-            *self.game_state.fight.primary_and_second_elem,
+            self.game_state.fight.spells, EffectElement.CHANCE, EffectElement.CHANCE
         )
+        self.logger.info(f"Count valuable spell : {len(valuable_spells)}")
         self.logger.info(
             f"PA : {
                 self.game_state.player.get_player_stat_by_id(
@@ -93,6 +94,9 @@ class Attacker:
                 and max_cast_per_turn != 0
                 and max_cast_per_turn <= count_casted
             ):
+                self.logger.info(
+                    f"Spell {I18N().name_by_id[DataReader().spell_by_id[spell_lvl.spellId].nameId]} reached max cast per turn : {count_casted}"
+                )
                 continue
             valid_spell_levels.append((spell_lvl, effect))
         return valid_spell_levels
@@ -388,7 +392,14 @@ class Attacker:
             enemy_mp = MapPoint.from_cell_id(enemy.disposition.cell_id)
             if enemy_mp not in impact_mps:
                 continue
-            actor_fight = self.game_state.entity.actor_fight_by_id[enemy.actor_id]
+            if enemy.actor_id in self.game_state.entity.actor_fight_by_id:
+                actor_fight = self.game_state.entity.actor_fight_by_id[enemy.actor_id]
+                life_point = actor_fight.life_point
+                is_summoned = actor_fight.is_summoned
+            else:
+                life_point = 1_000
+                is_summoned = False
+
             # if not is_included_by_mask(
             #     caster_id=self.game_state.player.character_id,
             #     caster_team=Team.TEAM_DEFENDER,
@@ -427,11 +438,11 @@ class Attacker:
                 effect, monster_grade
             ) * (1 - decrease_by_dist_percent)
             enemy_total_dmg += dmg
-            if actor_fight.life_point - dmg <= 0:
-                enemy_killed += 0.5 if actor_fight.is_summoned else 1
-            enemy_dmg_weight += (
-                dmg / (actor_fight.life_point / max(monster_life_point, 1))
-            ) / (2 if actor_fight.is_summoned else 1)
+            if life_point - dmg <= 0:
+                enemy_killed += 0.5 if is_summoned else 1
+            enemy_dmg_weight += (dmg / (life_point / max(monster_life_point, 1))) / (
+                2 if is_summoned else 1
+            )
 
         dmg_weight = (enemy_dmg_weight) * (1 + enemy_killed)
 

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from d3_mapping.resources.protos.game.character_pb2 import CharacterLifeStatusEvent
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
     FightMapInformationEvent,
+    MapChangeRequest,
     MapComplementaryInformationEvent,
     MapCurrentEvent,
     MapMovementConfirmRequest,
@@ -48,6 +49,11 @@ class MapFrame(Frame):
             self.before_map_movement_confirm_request,
             originator=self,
         )
+        self.event_manager.before(
+            MapChangeRequest,
+            self.before_map_change_request,
+            originator=self,
+        )
 
     def on_map_complementary_information_event(
         self, message: MapComplementaryInformationEvent
@@ -71,6 +77,7 @@ class MapFrame(Frame):
         self.game_state.map.phoenix_map_id = msg.phoenix_map_id
 
     def on_fight_map_information_event(self, msg: FightMapInformationEvent):
+        self.game_state.fight.in_fight = True
         self.game_state.map.is_in_haven_bag = False
         self.game_state.fight.is_map_fight_initialized = True
         self.game_state.map.is_in_map_transition = False
@@ -81,4 +88,10 @@ class MapFrame(Frame):
         )
         if self.is_playing_event.is_set():
             return None
+        return msg
+
+    def before_map_change_request(self, msg: MapChangeRequest):
+        self.logger.info("Before map change request")
+        if not self.game_state.player.is_sub:
+            msg.auto_pilot = False
         return msg

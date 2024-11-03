@@ -1,11 +1,20 @@
-from pydantic import BaseModel
 from data_center.data_reader import DataReader
 from data_center.i18n import I18N
 from enums.area_enum import AreaEnum, SubAreaEnum
 from enums.jobs_enum import JobEnum
+from pydantic import BaseModel
+
+DO_EXTRA_ACTION = True
+DO_FIGHTER = True
+DO_SALE_HOTEL = True
+DO_CRAFT = False
+DO_DUNGEON = False
+DO_USE_GUILD_CHEST = False
+DO_REGISTER_PRICE = False
+
 
 LVL_LIMIT_FOR_HARVEST = 10
-KAMAS_LIMIT_FOR_HARVEST = 10_000
+KAMAS_LIMIT_FOR_HARVEST = 5_000
 
 
 class AreaInfoWithWeight(BaseModel):

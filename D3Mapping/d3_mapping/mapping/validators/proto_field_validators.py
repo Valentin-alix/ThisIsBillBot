@@ -1,6 +1,7 @@
 from functools import cache
 from typing import Any, Callable
 
+
 from data_center.data_reader import DataReader
 from enums.jobs_enum import HARVESTER_JOB_IDS
 from pydantic import BaseModel
@@ -571,10 +572,6 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
     "SpellsEvent": {
         "human_spells": ProtoFieldValidator(validators=[is_not_default_value])
     },
-    "CharacterCharacteristicDetailedUsable": {
-        "used": ProtoFieldValidator(validators=[is_valid_positive]),
-        "base": ProtoFieldValidator(validators=[is_valid_positive]),
-    },
     "ObjectEffect": {"value_int": ProtoFieldValidator(validators=[is_valid_positive])},
 }
 
@@ -588,19 +585,6 @@ def validator_update_life_points_event(values: dict[str, Any]):
 def validator_inventory_weight_event(values: dict[str, Any]):
     # sometimes we can be overload (after a fight for example, so lets add offset juste for that)
     if values["weight_max"] + 500 <= values["inventory_weight"]:
-        return False
-    return True
-
-
-def validator_character_characteristic_detailed_usable(values: dict[str, Any]):
-    if (
-        values["used"]
-        > values["additional"]
-        + values["objects_and_mount_bonus"]
-        + values["alignment_gift_bonus"]
-        + values["temporary"]
-        + values["base"]
-    ):
         return False
     return True
 
@@ -763,7 +747,7 @@ def global_validator_element_with_instance_uid(values_array: list[dict[str, Any]
     for values in values_array:
         uid_total += values["skill_instance_uid"]
         element_id_total += values["element_id"]
-    return element_id_total > uid_total
+    return uid_total > element_id_total
 
 
 def validator_slide(values: dict[str, Any]):
@@ -788,16 +772,61 @@ def validator_exchange_positions(values: dict[str, Any]):
     )
 
 
+def global_validator_fight_refresh_character_stats_event(
+    array_values: list[dict[str, Any]],
+):
+    invalid_values = []
+    for values in array_values:
+        if values["fighter_id"] <= 0:
+            continue
+        characteristics = values["stats"]["characteristics"]
+        for characteristic in characteristics:
+            if characteristic["characteristic_id"] != 1:
+                continue
+            characteristic_usable = characteristic["usable"]
+            if characteristic_usable is None:
+                continue
+            if (
+                characteristic_usable["context_modification"] > 0
+                or characteristic_usable["used"] < 0
+                or characteristic_usable["alignment_gift_bonus"] < 0
+                or characteristic_usable["objects_and_mount_bonus"] < 0
+                or characteristic_usable["temporary"] < -6
+            ):
+                invalid_values.append(characteristic_usable)
+            elif characteristic_usable["base"] not in [6, 7]:
+                invalid_values.append(characteristic_usable)
+            elif (
+                characteristic_usable["used"]
+                > characteristic_usable["additional"]
+                + characteristic_usable["objects_and_mount_bonus"]
+                + characteristic_usable["alignment_gift_bonus"]
+                + characteristic_usable["temporary"]
+                + characteristic_usable["base"]
+            ):
+                invalid_values.append(characteristic_usable)
+            elif (
+                characteristic_usable["additional"]
+                + characteristic_usable["base"]
+                + characteristic_usable["temporary"]
+                + characteristic_usable["alignment_gift_bonus"]
+                + characteristic_usable["objects_and_mount_bonus"]
+                > 12
+            ):
+                invalid_values.append(characteristic_usable)
+
+    if len(invalid_values) > 0:
+        return False
+
+    return True
+
+
 VALIDATORS_ON_SET_FIELDS: dict[str, tuple[Callable[[dict[str, Any]], bool], int]] = {
     "Slide": (validator_slide, 1),
     "ExchangePositions": (validator_exchange_positions, 1),
     "GameMessage": (validator_game_message, 1),
     "UpdateLifePointsEvent": (validator_update_life_points_event, 1),
     "InventoryWeightEvent": (validator_inventory_weight_event, 1),
-    "CharacterCharacteristicDetailedUsable": (
-        validator_character_characteristic_detailed_usable,
-        1,
-    ),
     "ExchangeStartedWithPodsEvent": (validator_exchange_started_with_pods_event, 1),
     "ExchangeBidSellerStartedEvent": (validator_exchange_bid_seller_started_event, 1),
 }
@@ -820,6 +849,10 @@ VALIDATORS_GLOBAL_ON_SET_FIELDS: dict[
     "InteractiveUseRequest": (global_validator_element_with_instance_uid, 1),
     "InteractiveElement": (global_validator_interactive_element, 1),
     "EntityDisposition": (global_validator_entity_disposition, 1),
+    "FightRefreshCharacterStatsEvent": (
+        global_validator_fight_refresh_character_stats_event,
+        1,
+    ),
 }
 
 

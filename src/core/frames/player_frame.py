@@ -1,6 +1,6 @@
 import sys
-from dataclasses import dataclass
-from datetime import datetime
+from dataclasses import dataclass, field
+from threading import Timer
 
 from d3_mapping.resources.protos.connection.login_message_pb2 import (
     IdentificationResponse,
@@ -33,6 +33,8 @@ from src.core.logic.stats.characteristic import get_max_characteristic_per_point
 
 @dataclass
 class PlayerFrame(Frame):
+    _timer: Timer | None = field(init=False, default=None)
+
     def __post_init__(self):
         self.game_info_signals.disconnected.connect(self.game_state.player.clear_state)
         self.event_manager.on(
@@ -115,7 +117,8 @@ class PlayerFrame(Frame):
 
     def on_connected(self):
         def on_map_init_after_connected():
-            self.game_info_signals.is_ready_to_play.emit()
+            self._timer = Timer(3, self.game_info_signals.is_ready_to_play.emit)
+            self._timer.start()
             self.event_manager.clear_listener_by_origin_and_type(
                 MapComplementaryInformationEvent, self
             )
@@ -158,11 +161,7 @@ class PlayerFrame(Frame):
             self.game_state.player.life_point -= msg.life_points_lost.loss
 
     def on_identification_response(self, message: IdentificationResponse):
-        if message.HasField("success"):
-            self.game_state.player.subscription_end_date = datetime.fromisoformat(
-                message.success.subscription_end_date
-            )
-        elif message.error.ban_end_date != "":
+        if message.error.ban_end_date != "":
             print(
                 f"Player {self.game_state.player.character_name} has been banned rip, exiting program"
             )

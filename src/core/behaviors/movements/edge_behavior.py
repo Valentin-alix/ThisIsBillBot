@@ -94,7 +94,7 @@ class EdgeBehavior(Behavior):
                     continue
                 elem_data = (
                     MapReader()
-                    .get_ref_data_by_element_id(edge.m_from.m_mapId)
+                    .get_ref_data_by_element_id_by_map_id(edge.m_from.m_mapId)
                     .get(elem.element_id)
                 )
                 if (
@@ -289,7 +289,7 @@ class EdgeBehavior(Behavior):
             return self.run_timer(BASE_RANGE, lambda: self.run(edge))
         elif error_code in [MapMoveError.REFUSED, MapChangeError.TIMEOUT]:
             self.logger.error("refused or timeout map change")
-            # self.handle_invalid_transition(edge, transition)
+            self.handle_invalid_transition(edge, transition)
             return self.run_timer((1, 10), lambda: self.run(edge))
         elif error_code is not None:
             raise UnhandledErrorCodeException(error_code)

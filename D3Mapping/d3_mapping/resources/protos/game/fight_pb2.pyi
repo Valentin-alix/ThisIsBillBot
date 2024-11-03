@@ -310,3 +310,16 @@ class FightMapInformationResponse(_message.Message):
     fight_map_id: int
     fight_start_positions: _common_pb2.FightStartingPositions
     def __init__(self, map_id: _Optional[int] = ..., fight_map_id: _Optional[int] = ..., fight_start_positions: _Optional[_Union[_common_pb2.FightStartingPositions, _Mapping]] = ...) -> None: ...
+
+class FightLiveStateEvent(_message.Message):
+    __slots__ = ("entities_states",)
+    class FightEntityState(_message.Message):
+        __slots__ = ("entity_id", "is_dead")
+        ENTITY_ID_FIELD_NUMBER: _ClassVar[int]
+        IS_DEAD_FIELD_NUMBER: _ClassVar[int]
+        entity_id: int
+        is_dead: bool
+        def __init__(self, entity_id: _Optional[int] = ..., is_dead: bool = ...) -> None: ...
+    ENTITIES_STATES_FIELD_NUMBER: _ClassVar[int]
+    entities_states: _containers.RepeatedCompositeFieldContainer[FightLiveStateEvent.FightEntityState]
+    def __init__(self, entities_states: _Optional[_Iterable[_Union[FightLiveStateEvent.FightEntityState, _Mapping]]] = ...) -> None: ...

@@ -13,6 +13,7 @@ from grid.map_point import MapPoint
 from models.world_graph import Vertice
 
 from src.controller.sale_hotel import SaleHotelController
+from src.core.config.auto import DO_USE_GUILD_CHEST
 from src.core.logic.stats.characteristic import get_stat_by_id
 from src.core.logic.world.linked_zone import get_linked_zone_rp
 from src.core.states.entity_state import EntityState
@@ -213,7 +214,7 @@ class PlayerState(State):
 
     @property
     def can_access_guild_chest(self):
-        return self.is_sub and self.has_guild
+        return self.is_sub and self.has_guild and DO_USE_GUILD_CHEST
 
     @property
     def is_full_object_in_sale_hotel(self):

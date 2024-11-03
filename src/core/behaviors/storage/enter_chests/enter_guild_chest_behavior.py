@@ -49,9 +49,9 @@ class EnterGuildChestBehavior(Behavior):
             for element in self.game_state.interactive.interactive_element_by_id.values()
             if element.element_type_id == ElementTypeEnum.GUILD_CHEST
         )
-        ref_data = MapReader().get_ref_data_by_element_id(self.game_state.map.map_id)[
-            chest_interactive.element_id
-        ]
+        ref_data = MapReader().get_ref_data_by_element_id_by_map_id(
+            self.game_state.map.map_id
+        )[chest_interactive.element_id]
 
         move_path_to_chest = self.path_finding.find_path(
             self.game_state.player.map_point,

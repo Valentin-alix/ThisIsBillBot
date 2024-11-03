@@ -3,9 +3,9 @@ from dataclasses import dataclass, field
 from functools import wraps
 from typing import cast
 
-from cachetools import cached
 import numpy as np
 import pulp
+from cachetools import cached
 from proto_schema_parser import FieldCardinality
 from scipy.optimize import linear_sum_assignment
 
@@ -312,9 +312,7 @@ class ComparisonEngine:
         while True:
             max_iteration -= 1
             if max_iteration < 0:
-                raise ValueError(
-                    f"too much iteration on pulp solution on comparing {clear_msg.name} with {obf_msg.name}"
-                )
+                return 0, 1, {}
             model.solve(solver)
 
             total_reliability = 0
@@ -328,9 +326,12 @@ class ComparisonEngine:
                 )
                 total_reliability += reliability_by_mapping[(clear_path, obf_path)]
 
-            clear_by_obf_field_mapping = self.convert_pulp_result_to_field_mapping(
-                clear_msg, obf_msg, mapping_result
-            )
+            try:
+                clear_by_obf_field_mapping = self.convert_pulp_result_to_field_mapping(
+                    clear_msg, obf_msg, mapping_result
+                )
+            except Exception:
+                return 0, 1, {}
             is_valid = self.proto_validator.is_valid_clear_by_obf_field_mapping(
                 treated_clear_namespaces,
                 clear_msg,

@@ -37,6 +37,7 @@ class ServerFrame(Frame):
             self._timer_handshake = None
 
     def on_character_selection_event(self, msg: CharacterSelectionEvent):
+        return
         self._timer_handshake = Timer(
             interval=INTERVAL_HANDSHAKE, function=self.handle_handshake
         )

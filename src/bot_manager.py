@@ -1,5 +1,6 @@
 import json
 import threading
+from collections import defaultdict
 from dataclasses import dataclass, field
 from time import sleep
 
@@ -25,6 +26,9 @@ class BotManager:
     )
     _thread_worker_runnings: list[tuple[QThread, Worker]] = field(
         default_factory=list, init=False
+    )
+    _is_lauching_by_login: defaultdict[str, threading.Event] = field(
+        default_factory=lambda: defaultdict(threading.Event), init=False
     )
 
     def __post_init__(self):
@@ -53,6 +57,15 @@ class BotManager:
             for _, bot in self.bot_by_account_id.items()
             if bot.account["apikey"]["login"] == login
         )
+        if self._is_lauching_by_login[login].is_set():
+            return related_bot.logger.warning(
+                "Bot is already launching, don't launch twice."
+            )
+
+        self._is_lauching_by_login[login].set()
+
+        related_bot.logger.info("relaunching this")
+
         related_bot.kill_process()
 
         while not has_internet_connection():
@@ -61,6 +74,10 @@ class BotManager:
 
         related_bot.logger.info("Launch bot")
         related_bot.pid = self.ankama_launcher.launch_dofus(login, MITM_CONFIG_URL)
+
+        related_bot.logger.info(f"pid {related_bot.pid}")
+
+        self._is_lauching_by_login[login].clear()
 
     def safe_stop_bots(self, bots: list[Bot]):
         threads = [threading.Thread(target=bot.safe_stop, daemon=True) for bot in bots]

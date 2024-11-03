@@ -62,6 +62,9 @@ class InteractiveBehavior(Behavior):
             MapMoveError.INVALID_STARTING_POINT,
             MapMoveError.CANCELED_MOVEMENT,
         ]:
+            if self.game_state.map.is_in_map_transition:
+                return self.finish()
+
             move_path = self.path_finding.find_path(
                 self.game_state.player.map_point, {old_move_path.end}
             )

@@ -74,9 +74,11 @@ class Proxy:
             self.close()
 
     def close(self):
+        print("closing conns")
         for con in self.connections:
-            print("closing conn")
             con.close()
+        with self.queue_worker_item.mutex:
+            self.queue_worker_item.queue.clear()
         self.on_close()
 
     def handle(self, data: bytes, origin: Socket) -> None:
@@ -124,8 +126,8 @@ class Proxy:
             try:
                 self.client_socket.sendall(data)
             except OSError as err:
-                print(err)
-                self.close()
+                print(f"send to client err : {err}")
+                return self.close()
         self.queue_worker_item.put((WorkerAction.RECEIVED, data, True, True))
 
     def send_to_server(self, data: bytes):
@@ -133,6 +135,6 @@ class Proxy:
             try:
                 self.server_socket.sendall(data)
             except OSError as err:
-                print(err)
-                self.close()
+                print(f"send to server err : {err}")
+                return self.close()
         self.queue_worker_item.put((WorkerAction.RECEIVED, data, True, False))
