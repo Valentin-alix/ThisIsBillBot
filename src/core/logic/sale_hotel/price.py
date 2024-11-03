@@ -50,7 +50,7 @@ def get_item_gids_to_sell(
             return False
         if not is_bank_item and gid not in SELLABLE_ITEMS:
             return False
-        if not is_interesting_item_to_sell(object_item.item, is_bank_item):
+        if not is_interesting_item_to_sell(object_item.item):
             return False
         return DataReader().item_type_by_id[item_data.typeId].categoryId == category
 
@@ -76,15 +76,13 @@ def get_item_gids_to_sell(
     return item_gids_to_sell
 
 
-def is_interesting_item_to_sell(object_item: ObjectItem, is_bank_item: bool):
+def is_interesting_item_to_sell(object_item: ObjectItem):
     if object_item.quantity <= 0:
         return False
-    if is_bank_item:
-        return True
-    avg_price = SaleHotelController().get_avg_price_by_gid()[object_item.gid]
-    if avg_price < 5_000 and object_item.quantity < 100:
+    avg_price = SaleHotelController().get_avg_price_by_gid().get(object_item.gid, 1)
+    if avg_price < 500 and object_item.quantity < 100:
         return False
-    elif avg_price < 50_000 and object_item.quantity < 10:
+    elif avg_price < 5_000 and object_item.quantity < 10:
         return False
     return True
 
@@ -150,6 +148,7 @@ def get_average_price_for_description(prices: list[int]) -> int:
 
 
 if __name__ == "__main__":
+    print(DataReader().item_by_id[8162])
     min_prices = [99_999, 4878, 35548, 368997]
     avg_price = get_average_price_for_description(min_prices)
     print(avg_price)

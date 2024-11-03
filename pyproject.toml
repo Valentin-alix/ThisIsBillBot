@@ -40,6 +40,14 @@ lap = "^0.5.12"
 icecream = "^2.1.5"
 openapi-python-client = "^0.25.3"
 poethepoet = "^0.37.0"
+huggingface-hub = "^1.1.2"
+pandas = "^2.3.3"
+scikit-learn = "^1.7.2"
+lightgbm = "^4.6.0"
+fastparquet = "^2024.11.0"
+types-requests = "^2.32.4.20250913"
+langchain = "^1.0.7"
+langchain-openai = "^1.0.3"
 
 [tool.poetry.group.dev.dependencies]
 pyqt5-stubs = "^5.15.6.0"
@@ -50,6 +58,7 @@ line-profiler-pycharm = "^1.2.0"
 icecream = "^2.1.3"
 pyinstaller = "^6.11.1"
 ruff = "^0.9.4"
+ipykernel = "^7.1.0"
 
 [tool.poe.tasks]
 genapi = "openapi-python-client generate --url http://31.38.182.64:65472/openapi.json --overwrite --output-path scraping_d3_client --config scraping_d3.yaml"
@@ -62,3 +71,9 @@ line-length = 200
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[[tool.mypy.overrides]]
+module = ["qfluentwidgets.*", "ankama_launcher_emulator.*", "d3_mapping.*"]
+follow_untyped_imports = true
+exclude = "(^d3_mapping/|^src/gui/)"
+check_untyped_defs = true

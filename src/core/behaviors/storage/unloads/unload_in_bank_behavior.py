@@ -70,7 +70,6 @@ class UnloadInBankBehavior(Behavior):
         )
         request = DialogLeaveRequest()
         self.event_manager.send(request)
-        self.event_manager.send(request)
 
     def on_exchange_leave_event(self, msg: ExchangeLeaveEvent):
         if msg.dialog_type != DialogType.DIALOG_EXCHANGE:

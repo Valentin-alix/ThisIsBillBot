@@ -4,12 +4,14 @@ from tqdm import tqdm
 
 from d3_mapping.mapping.comparison_engine import ComparisonEngine
 from d3_mapping.mapping.proto_organization import ProtoOrganization
-from d3_mapping.mapping.validators.proto_field_validators import (
+from d3_mapping.mapping.validators.field_validators import VALIDATORS_ON_FIELD
+from d3_mapping.mapping.validators.global_validators import (
     VALIDATORS_GLOBAL_ON_SET_FIELDS,
-    VALIDATORS_ON_FIELD,
-    VALIDATORS_ON_SET_FIELDS,
+)
+from d3_mapping.mapping.validators.proto_field_validators import (
     is_parsed_obf_msg,
 )
+from d3_mapping.mapping.validators.set_validators import VALIDATORS_ON_SET_FIELDS
 from d3_mapping.models.mapping_info import (
     MappingInfo,
     OutputFieldMapping,
@@ -75,6 +77,7 @@ class ProtoMapper(ComparisonEngine):
             mapping_info.clear_msg_namespace
             for mapping_info in self.msg_mapping_info_by_obf_namespace.values()
         }
+        print("searching remaining clear_msgs")
         remaining_clear_msgs = [
             msg
             for namespace in self.clear_root_namespaces
@@ -92,7 +95,7 @@ class ProtoMapper(ComparisonEngine):
 
     def get_most_similar_obf_msg(self, clear_msg: PMessage):
         most_sim_msg_info: tuple[PMessage, MappingInfo] | None = None
-        for obf_namespace in self.obf_root_namespaces:
+        for obf_namespace in tqdm(self.obf_root_namespaces):
             related_obf_struct = self.obf_struct_by_namespace[obf_namespace]
             if not isinstance(related_obf_struct, PMessage):
                 continue

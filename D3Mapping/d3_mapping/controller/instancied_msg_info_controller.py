@@ -2,126 +2,157 @@ import atexit
 import os
 import signal
 import sys
+from collections import defaultdict
+from dataclasses import dataclass, field
+from functools import cached_property
 from threading import RLock
-import traceback
+from typing import Any
 
+import pandas as pd
 from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message
-from pydantic import RootModel
+from pandas import DataFrame
 
-from d3_mapping.consts import RESOURCE_PATH
-from d3_mapping.models.message_fields_infos import (
-    ObfMessageInfo,
-    ParsedObfMessageInfos,
-    ValueByField,
-)
-from D3Database.utils import Singleton, cache
+from D3Database.utils import Singleton
 
+BASE_FILENAME = "instancied_msg_infos"
 
-class MsgInfosByMsgName(RootModel):
-    root: dict[str, ParsedObfMessageInfos] = {}
+PATH_BOT_SHARED_DATAS = os.path.join(os.environ["HOME"], "OneDrive", "BotSharedDatas")
+
+MAX_COUNT_BY_NAME = 1_500
+
+PATH_MSG_INFOS = os.path.join(PATH_BOT_SHARED_DATAS, "instancied_msg_infos_1.parquet")
 
 
-PATH_MSG_INFOS = os.path.join(RESOURCE_PATH, "instancied_msg_infos.json")
-
-
+@dataclass
 class InstanciedMessageInfoController(metaclass=Singleton):
-    MSG_INFOS_LOCK = RLock()
+    _df: DataFrame | None = field(init=False, default=None)
+    _lock: RLock = field(init=False, default_factory=RLock)
+    _rows_to_add_by_name: dict[str, list[dict]] = field(
+        init=False, default_factory=lambda: defaultdict(list)
+    )
 
-    @cache
-    def get_msg_infos_by_name(self):
-        with self.MSG_INFOS_LOCK:
+    @property
+    def df(self) -> DataFrame:
+        if self._df is None:
+            self._df = self.get_df_from_file()
+        return self._df
+
+    @df.setter
+    def df(self, value: DataFrame):
+        self._df = value
+
+    def get_content_by_name(self, name: str):
+        return self.get_shared_content_df.loc[
+            self.get_shared_content_df.index == name, "content"
+        ]
+
+    @cached_property
+    def get_shared_content_df(self):
+        df = DataFrame(columns=["name", "content"])
+        for filename in os.listdir(PATH_BOT_SHARED_DATAS):
+            df = pd.concat(
+                [df, pd.read_parquet(os.path.join(PATH_BOT_SHARED_DATAS, filename))]
+            )
+        df = df.groupby("name").head(MAX_COUNT_BY_NAME)
+        df = df.set_index("name")
+        return df
+
+    @cached_property
+    def get_count_by_name_in_df(self):
+        return self.df["name"].value_counts().to_dict()
+
+    def get_df_from_file(self):
+        with self._lock:
             if not os.path.exists(PATH_MSG_INFOS):
-                with open(PATH_MSG_INFOS, "w+", encoding="utf-8") as file:
-                    msg_infos_by_name = MsgInfosByMsgName()
-                    file.write(msg_infos_by_name.model_dump_json())
-                    return msg_infos_by_name
-            with open(PATH_MSG_INFOS, "r+", encoding="utf-8") as file:
-                return MsgInfosByMsgName.model_validate_json(file.read())
+                return DataFrame(columns=["name", "content"])
+            else:
+                df_from_file = pd.read_parquet(PATH_MSG_INFOS)
+                df_from_file = df_from_file.groupby("name").head(MAX_COUNT_BY_NAME)
+                return df_from_file
 
-    def clear_msg_infos(self):
-        with self.MSG_INFOS_LOCK:
-            global MSG_INFO_BY_NAME
-            MSG_INFO_BY_NAME = {}
+    def clear(self):
+        with self._lock:
+            self.df = self.df.head(0)
+            for filename in os.listdir(PATH_BOT_SHARED_DATAS):
+                if BASE_FILENAME not in filename:
+                    continue
+                os.remove(os.path.join(PATH_BOT_SHARED_DATAS, filename))
 
     def add_msg(self, msg: Message, from_server: bool):
-        try:
-            with self.MSG_INFOS_LOCK:
-                global MSG_INFO_BY_NAME
-                self._update_msg_infos_content(msg, from_server, True, MSG_INFO_BY_NAME)
-        except Exception:
-            print(traceback.format_exc())
+        with self._lock:
+            self._update_msg_infos_content(msg, from_server)
+        if len(self._rows_to_add_by_name) > 500_000:
+            self._write_msg_info_content()
 
     def _update_msg_infos_content(
-        self,
-        msg: Message,
-        from_server: bool,
-        is_entry_msg: bool,
-        content: dict[str, ParsedObfMessageInfos],
-    ):
-        type_url = msg.DESCRIPTOR.full_name
-        value_by_field: ValueByField = {}
-        for field in msg.DESCRIPTOR.fields:
-            if type_url == "google.protobuf.Any" and field.name == "value":
+        self, msg: Message, from_server: bool
+    ) -> dict[str, Any]:
+        name = msg.DESCRIPTOR.full_name
+        value_by_field: dict = {}
+        for _field in msg.DESCRIPTOR.fields:
+            if name == "google.protobuf.Any" and _field.name == "value":
                 continue
-            value = getattr(msg, field.name)
-            if field.label == FieldDescriptor.LABEL_REPEATED:
+            value = getattr(msg, _field.name)
+            if _field.label == FieldDescriptor.LABEL_REPEATED:
                 is_map_field = (
-                    field.message_type and field.message_type.GetOptions().map_entry
+                    _field.message_type and _field.message_type.GetOptions().map_entry
                 )
                 if len(value) == 0:
-                    value_by_field[field.name] = {} if is_map_field else []
+                    value_by_field[_field.name] = {} if is_map_field else []
                 else:
-                    if field.type == FieldDescriptor.TYPE_MESSAGE:
-                        sub_values = (
-                            self._update_msg_infos_content(
+                    if _field.type == FieldDescriptor.TYPE_MESSAGE:
+                        sub_values: list = []
+                        for sub_value in value:
+                            _value = self._update_msg_infos_content(
                                 value[sub_value] if is_map_field else sub_value,
                                 from_server,
-                                False,
-                                content,
                             )
-                            for sub_value in value
-                        )
-                        value_by_field[field.name] = list(sub_values)
+                            sub_values.append(_value)
+                        value_by_field[_field.name] = list(sub_values)
                     else:
-                        value_by_field[field.name] = (
+                        value_by_field[_field.name] = (
                             dict(value) if is_map_field else list(value)
                         )
             else:
-                if field.type == FieldDescriptor.TYPE_MESSAGE:
-                    if not msg.HasField(field.name):
-                        value_by_field[field.name] = None
+                if _field.type == FieldDescriptor.TYPE_MESSAGE:
+                    if not msg.HasField(_field.name):
+                        value_by_field[_field.name] = None
                     else:
-                        value_by_field[field.name] = self._update_msg_infos_content(
-                            value, from_server, False, content
+                        value_by_field[_field.name] = self._update_msg_infos_content(
+                            value, from_server
                         )
                 else:
-                    value_by_field[field.name] = value
+                    value_by_field[_field.name] = value
 
-        if type_url != "google.protobuf.Any":
-            msg_fields_infos = content.get(
-                type_url,
-                ParsedObfMessageInfos(
-                    from_server=from_server, is_entry_msg=is_entry_msg
-                ),
-            )
-            if len(msg_fields_infos.obf_msg_info) <= 1_000:
-                msg_fields_infos.obf_msg_info.add(
-                    ObfMessageInfo(value_by_field_array=value_by_field)
-                )
-                content[type_url] = msg_fields_infos
+        if name != "google.protobuf.Any":
+            row = {"name": name, "content": value_by_field}
+            if (
+                self.get_count_by_name_in_df.get(name, 0)
+                + len(self._rows_to_add_by_name.get(name, []))
+                < MAX_COUNT_BY_NAME
+            ):
+                self._rows_to_add_by_name[name].append(row)
 
         return value_by_field
 
     def _write_msg_info_content(self):
-        with self.MSG_INFOS_LOCK:
-            with open(PATH_MSG_INFOS, "w+", encoding="utf-8") as file:
-                file.write(MsgInfosByMsgName(root=MSG_INFO_BY_NAME).model_dump_json())
-
-
-MSG_INFO_BY_NAME: dict[str, ParsedObfMessageInfos] = (
-    InstanciedMessageInfoController().get_msg_infos_by_name()
-).root
+        with self._lock:
+            if len(self._rows_to_add_by_name) == 0:
+                return
+            print("writing msg info contents...")
+            new_df = pd.DataFrame(
+                [
+                    row_to_add
+                    for rows_to_add in self._rows_to_add_by_name.values()
+                    for row_to_add in rows_to_add
+                ]
+            )
+            self.df = pd.concat([self.df, new_df], ignore_index=True)
+            InstanciedMessageInfoController().df.to_parquet(PATH_MSG_INFOS, index=False)
+            if hasattr(self, "get_count_by_name_in_df"):
+                del self.get_count_by_name_in_df
+            self._rows_to_add_by_name.clear()
 
 
 def on_exit(*args):
@@ -140,3 +171,7 @@ sys.excepthook = on_except_hook
 signal.signal(signal.SIGTERM, on_exit)
 signal.signal(signal.SIGINT, on_exit)
 atexit.register(on_exit)
+
+
+if __name__ == "__main__":
+    print(InstanciedMessageInfoController().get_shared_content_df.head())

@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import threading
 from collections import defaultdict
@@ -13,6 +14,7 @@ from PyQt5.QtCore import QThread
 from src.bot import Bot
 from src.bot_factory import BotFactory
 from src.common.internet import has_internet_connection
+from src.common.timing import is_in_playtime
 from src.const import MITM_CONFIG_URL
 from src.gui.utils.run_in_background import Worker, run_in_background
 from src.signals.shared_farm_signals import SharedSignals
@@ -66,11 +68,24 @@ class BotManager:
 
         related_bot.logger.info("relaunching this")
 
+        now = datetime.now()
+
         related_bot.kill_process()
 
         while not has_internet_connection():
             related_bot.logger.info("waiting for internet connection to be up")
             sleep(1)
+
+        if (
+            not related_bot.from_manual_play.is_set()
+            and related_bot.bot_config
+            and not is_in_playtime(
+                now,
+                related_bot.bot_config.playtime_starts,
+                related_bot.bot_config.playtime_ends,
+            )
+        ):
+            return related_bot.logger.info("Bot is not in playtime anymore")
 
         related_bot.logger.info("Launch bot")
         related_bot.pid = self.ankama_launcher.launch_dofus(login, MITM_CONFIG_URL)

@@ -1,13 +1,13 @@
 from functools import partial
 
-from PyQt5.QtCore import Qt, pyqtSlot, QModelIndex
+from PyQt5.QtCore import QModelIndex, Qt, pyqtSlot
 from PyQt5.QtWidgets import QHBoxLayout, QSplitter, QVBoxLayout, QWidget
-from qfluentwidgets import PivotItem, PrimaryPushButton, FluentIcon, LineEdit
+from qfluentwidgets import FluentIcon, LineEdit, PivotItem, PrimaryPushButton
 
-from d3_mapping.signals.message_signals import MessageInfoSignals
 from d3_mapping.gui.sniffer.message_detail import MessageDetailWidget
 from d3_mapping.gui.sniffer.message_table import MessageTable
 from d3_mapping.models.message import MessageInfo
+from d3_mapping.signals.message_signals import MessageInfoSignals
 
 
 class SnifferWidget(PivotItem):  # type: ignore
@@ -113,7 +113,9 @@ class SnifferWidget(PivotItem):  # type: ignore
         msg_infos: MessageInfo = model.data(
             model.index(source_index.row(), 3), Qt.UserRole
         )  # type: ignore
-        self.msg_detail.set_content(msg_infos.msg_json, msg_infos.raw_content)
+        self.msg_detail.set_content(
+            msg_infos.msg_json, msg_infos.obf_msg_json, msg_infos.raw_content
+        )
         self.msg_detail.show()
 
     @pyqtSlot()

@@ -78,6 +78,7 @@ class Bot:
     is_ready_to_play_event: Event
     is_playing_event: Event
     shared_signals: SharedSignals
+    from_manual_play: Event = field(init=False, default_factory=Event)
 
     _timer_disconnected: Timer | None = field(init=False, default=None)
     _thread_worker_runnings: list[tuple[QThread, Worker]] = field(
@@ -136,24 +137,11 @@ class Bot:
             self.thread_planning.start()
             now = datetime.now()
 
-            for playtime_start, playtime_end in zip(
-                bot_config.playtime_starts, bot_config.playtime_ends
+            if is_in_playtime(
+                now, bot_config.playtime_starts, bot_config.playtime_ends
             ):
-                start_hour = int(playtime_start.split(":")[0])
-                end_hour = int(playtime_end.split(":")[0])
-
-                if (
-                    start_hour > end_hour
-                    and (now.hour >= start_hour or now.hour < end_hour)
-                ) or (
-                    start_hour < end_hour
-                    and now.hour >= start_hour
-                    and now.hour < end_hour
-                ):
-                    self.bot_signals.play.emit()
-                    self.shared_signals.launch_account.emit(
-                        self.account["apikey"]["login"]
-                    )
+                self.bot_signals.play.emit(False)
+                self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
 
     def on_connected(self):
         self.is_connected_event.set()
@@ -173,7 +161,11 @@ class Bot:
         )
         self._timer.start()
 
-    def on_play(self):
+    def on_play(self, from_manual_play: bool):
+        if from_manual_play:
+            self.from_manual_play.set()
+        else:
+            self.from_manual_play.clear()
         self.is_playing_event.set()
 
     def on_stop(self):
@@ -287,7 +279,6 @@ class Bot:
 
     def play_action(self, func: Callable[[], None]):
         self.stop_behaviors()
-        self.bot_signals.play.emit()
         self._current_bot_action_func = func
         if not self.is_connected_event.is_set():
             self.logger.info("relaunching from play action")
@@ -338,7 +329,7 @@ class Bot:
                 return self.logger.info("Bot is not anymore in playtime")
 
             if not self.is_playing_event.is_set():
-                self.bot_signals.play.emit()
+                self.bot_signals.play.emit(False)
                 self.logger.info("relaunching from planning")
                 self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
             else:

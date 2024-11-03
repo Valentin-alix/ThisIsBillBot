@@ -4,11 +4,11 @@ import socket
 import sys
 from pathlib import Path
 
-from d3_mapping.resources.protos.game.arena_pb2 import ArenaSwitchXpRewardsModeRequest
-from d3_mapping.resources.protos.game.basic_pb2 import SequenceNumberRequest
-from d3_mapping.resources.protos.game.client_verification_pb2 import ClientIdRequest
-from d3_mapping.resources.protos.game.connection_pb2 import PingRequest
+from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
 from d3_mapping.resources.protos.game.fight_pb2 import FightTurnFinishRequest
+from d3_mapping.resources.protos.game.gamemap_pb2 import (
+    MapMovementConfirmRequest,
+)
 
 BACKEND_URL = "http://31.38.182.64:65472"
 
@@ -31,9 +31,7 @@ MIN_DATE = datetime.datetime(datetime.MINYEAR, 1, 1)
 FAKE_INFINITY_VALUE = 99999
 
 MESSAGES_WITH_UID = [
-    ClientIdRequest,
-    SequenceNumberRequest,
-    ArenaSwitchXpRewardsModeRequest,
-    PingRequest,
+    MapMovementConfirmRequest,
+    DialogLeaveRequest,
     FightTurnFinishRequest,
 ]

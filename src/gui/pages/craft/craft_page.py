@@ -51,14 +51,15 @@ class CraftPage(QWidget):
         self.craft_table.add_recipe(recipe)
         self.logger.info(f"Added recipe for result {recipe.resultId}")
 
-    @pyqtSlot()
-    def on_play(self):
+    @pyqtSlot(bool)
+    def on_play(self, _):
         self.stop_btn.show()
         self.play_btn.hide()
 
     @pyqtSlot()
     def on_click_play(self):
         recipes = self.craft_table.recipes
+        self.farm_signals.play.emit(True)
         self.farm_signals.play_crafter.emit(recipes)
 
     @pyqtSlot()

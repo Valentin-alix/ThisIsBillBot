@@ -3,15 +3,15 @@ import traceback
 from typing import Any
 
 from google.protobuf.json_format import MessageToDict
-from google.protobuf.message import Message, DecodeError
+from google.protobuf.message import DecodeError, Message
 
+from d3_mapping.models.message import MessageInfo
 from d3_mapping.resources.protos.connection.login_message_pb2 import (
     Event,
     LoginMessage,
     Request,
     Response,
 )
-from d3_mapping.models.message import MessageInfo
 
 
 def get_conn_msg(content: bytes) -> tuple[Request | Response | Event, Message]:
@@ -44,5 +44,6 @@ def get_conn_msg_info(
         from_server=from_server,
         msg_json=msg_json,
         sub_msg_name=sub_msg_name,
+        obf_msg_json=None,
         raw_content=content,
     )

@@ -70,7 +70,8 @@ class PlayerState(State):
         self.max_life_point = 1
 
     def get_player_stat_by_id(self, characteristic: int) -> int:
-        return get_stat_by_id(self.characteristic_by_id.get(characteristic))
+        value = get_stat_by_id(self.characteristic_by_id.get(characteristic))
+        return value
 
     @property
     def max_life_point(self):

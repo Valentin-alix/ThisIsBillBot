@@ -105,38 +105,38 @@ if __name__ == "__main__":
     debug_signals = MapSignals()
     game_info_signals = GameInfoSignals()
 
-    map_state = MapState(grid_signals=grid_signals)
-    entity_state = EntityState(grid_signals=grid_signals)
-    interactive_state = InteractiveState(grid_signals=grid_signals)
-    player_state = PlayerState(
-        game_info_signals=game_info_signals,
-        interactive_state=interactive_state,
-        entity_state=entity_state,
-        map_state=map_state,
-    )
-    fight_state = FightState(
-        game_info_signals=game_info_signals, player_state=player_state
-    )
-    player_state = PlayerState(
-        map_state=map_state,
-        game_info_signals=game_info_signals,
-        entity_state=entity_state,
-        interactive_state=interactive_state,
-    )
+    # map_state = MapState(grid_signals=grid_signals)
+    # entity_state = EntityState(grid_signals=grid_signals)
+    # interactive_state = InteractiveState(grid_signals=grid_signals)
+    # player_state = PlayerState(
+    #     game_info_signals=game_info_signals,
+    #     interactive_state=interactive_state,
+    #     entity_state=entity_state,
+    #     map_state=map_state,
+    # )
+    # fight_state = FightState(
+    #     game_info_signals=game_info_signals, player_state=player_state
+    # )
+    # player_state = PlayerState(
+    #     map_state=map_state,
+    #     game_info_signals=game_info_signals,
+    #     entity_state=entity_state,
+    #     interactive_state=interactive_state,
+    # )
 
-    map_state.map_id = 154010373
-    start = MapPoint.from_cell_id(506)
-    end = MapPoint.from_cell_id(452)
+    # map_state.map_id = 154010373
+    # start = MapPoint.from_cell_id(506)
+    # end = MapPoint.from_cell_id(452)
 
-    cross = Cross(
-        shape=None, size=5, alternative_size=1, is_all_directions=True, is_diagonal=True
-    )
+    # cross = Cross(
+    #     shape=None, size=5, alternative_size=1, is_all_directions=True, is_diagonal=True
+    # )
 
-    application = QApplication(sys.argv)
-    widget = GridView(grid_signals=grid_signals, debug_signals=debug_signals)
-    widget.on_new_map_id(map_state.map_id)
-    for cell in cross.get_mps(end, DirectionsEnum.UP_RIGHT):
-        debug_signals.green_cell.emit(cell)
-    widget.show()
+    # application = QApplication(sys.argv)
+    # widget = GridView(grid_signals=grid_signals, debug_signals=debug_signals)
+    # widget.on_new_map_id(map_state.map_id)
+    # for cell in cross.get_mps(end, DirectionsEnum.UP_RIGHT):
+    #     debug_signals.green_cell.emit(cell)
+    # widget.show()
 
-    application.exec()
+    # application.exec()

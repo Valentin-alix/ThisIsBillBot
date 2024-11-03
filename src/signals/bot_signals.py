@@ -8,5 +8,5 @@ class BotSignals(QObject):
     play_crafter = pyqtSignal(object)
     play_mule_kamas = pyqtSignal()
     play_usable_behavior = pyqtSignal(str)
-    play = pyqtSignal()
+    play = pyqtSignal(bool)
     stop = pyqtSignal()

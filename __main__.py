@@ -3,8 +3,11 @@ import sys
 from pathlib import Path
 from threading import Thread
 
+from dotenv import load_dotenv
 from PyQt5.QtCore import Qt
 from qfluentwidgets import Theme, setTheme, setThemeColor
+
+load_dotenv()
 
 sys.path.append(os.path.join(Path(__file__).parent))
 sys.path.append(os.path.join(Path(__file__).parent, "D3Mapping"))
@@ -25,13 +28,13 @@ if hasattr(sys, "_MEIPASS"):
         )
     )
 
-from src.bot_manager import BotManager
-from src.const import DOFUS_CONNECTION_URL
-from src.gui.application import Application
-from src.gui.main_window import MainWindow
-from src.mitm.proxy_listener import ProxyListener
-from src.scheduler import run_continuously
-from src.signals.shared_farm_signals import SharedSignals
+from src.bot_manager import BotManager  # noqa: E402
+from src.const import DOFUS_CONNECTION_URL  # noqa: E402
+from src.gui.application import Application  # noqa: E402
+from src.gui.main_window import MainWindow  # noqa: E402
+from src.mitm.proxy_listener import ProxyListener  # noqa: E402
+from src.scheduler import run_continuously  # noqa: E402
+from src.signals.shared_farm_signals import SharedSignals  # noqa: E402
 
 
 def main() -> None:

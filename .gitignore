@@ -13,6 +13,8 @@ benchmark.pstats
 benchmark_output.png
 .ruff_cache
 resources/sessions/*.json
+*.csv
+*.parquet
 
 avg_price_by_gid.json
 bid_seller_item_by_uid_by_player_id.json

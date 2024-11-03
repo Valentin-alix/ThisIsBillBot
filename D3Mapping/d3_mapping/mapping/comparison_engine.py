@@ -13,13 +13,15 @@ from d3_mapping.consts import PROTO_BASE_FIELDS, EntryMsg
 from d3_mapping.mapping.malus_utils import get_value_with_len_malus
 from d3_mapping.mapping.proto_organization import ProtoOrganization
 from d3_mapping.mapping.proto_reliability_calculator import ProtoReliabilityCalculator
-from d3_mapping.mapping.validators.proto_field_validators import (
+from d3_mapping.mapping.validators.field_validators import VALIDATORS_ON_FIELD
+from d3_mapping.mapping.validators.global_validators import (
     VALIDATORS_GLOBAL_ON_SET_FIELDS,
-    VALIDATORS_ON_FIELD,
-    VALIDATORS_ON_SET_FIELDS,
+)
+from d3_mapping.mapping.validators.proto_field_validators import (
     is_condition_respected,
 )
 from d3_mapping.mapping.validators.proto_validator import ProtoValidator
+from d3_mapping.mapping.validators.set_validators import VALIDATORS_ON_SET_FIELDS
 from d3_mapping.models.mapping_info import FieldMapping, MappingInfo
 from d3_mapping.models.p_enum import PEnum
 from d3_mapping.models.p_message import (
@@ -343,7 +345,8 @@ class ComparisonEngine:
                     pulp.lpSum(lp_variable_by_path[pair] for pair in mapping_result)
                     <= len(mapping_result) - 1
                 )
-                # print("invalid search for an other combination...")
+                if max_iteration == 0:
+                    print(f"Did not found valid combination {clear_msg.name}.")
             else:
                 break
         total_sim = cast(float, pulp.value(model.objective) or 0)

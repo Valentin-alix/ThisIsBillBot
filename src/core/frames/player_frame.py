@@ -29,6 +29,7 @@ from d3_mapping.resources.protos.game.teleportation_pb2 import ZaapKnownListEven
 from src.controller.scraping_d3 import ScrapingD3Controller
 from src.core.frames.frame import Frame
 from src.core.logic.stats.characteristic import get_max_characteristic_per_point
+from src.interfaces.enums.priority import PriorityEnum
 
 
 @dataclass
@@ -117,8 +118,7 @@ class PlayerFrame(Frame):
 
     def on_connected(self):
         def on_map_init_after_connected():
-            self._timer = Timer(3, self.game_info_signals.is_ready_to_play.emit)
-            self._timer.start()
+            self.run_timer(3, self.game_info_signals.is_ready_to_play.emit)
             self.event_manager.clear_listener_by_origin_and_type(
                 MapComplementaryInformationEvent, self
             )
@@ -131,14 +131,14 @@ class PlayerFrame(Frame):
             lambda _: on_map_init_after_connected(),
             originator=self,
             once=True,
-            priority=self.priority,
+            priority=PriorityEnum.MAX,
         )
         self.event_manager.on(
             FightMapInformationEvent,
             lambda _: on_map_init_after_connected(),
             originator=self,
             once=True,
-            priority=self.priority,
+            priority=PriorityEnum.MAX,
         )
 
     def on_disconnected(self):

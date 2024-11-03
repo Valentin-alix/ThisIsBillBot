@@ -1,19 +1,19 @@
 import sys
 
-from PyQt5.QtCore import QPointF, Qt, pyqtSlot
-from PyQt5.QtGui import QPolygonF, QColor, QFont, QPen, QPainter
-from PyQt5.QtWidgets import (
-    QApplication,
-    QGraphicsPolygonItem,
-    QGraphicsView,
-    QGraphicsScene,
-    QGraphicsTextItem,
-    QGraphicsEllipseItem,
-)
-
 from data_center.map_reader import MapReader
 from grid.consts import CELL_HEIGHT, CELL_WIDTH
-from grid.map_point import MapPoint, MAP_POINT_BY_CELL_ID
+from grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
+from PyQt5.QtCore import QPointF, Qt, pyqtSlot
+from PyQt5.QtGui import QColor, QFont, QPainter, QPen, QPolygonF
+from PyQt5.QtWidgets import (
+    QApplication,
+    QGraphicsEllipseItem,
+    QGraphicsPolygonItem,
+    QGraphicsScene,
+    QGraphicsTextItem,
+    QGraphicsView,
+)
+
 from src.signals.grid_signals import GridSignals
 from src.signals.world_signals import MapSignals
 
@@ -160,6 +160,19 @@ class GridView(QGraphicsView):
 
         self.fitInView(self.scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
         self.resizeEvent = self.on_resize  # type: ignore
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            scene_pos = self.mapToScene(event.pos())
+            item = self.scene.itemAt(scene_pos, self.transform())
+            if isinstance(item, (SquareCell, StateCell)):
+                cell_id = int(item.text_item.toPlainText())
+                self.grid_signals.cell_id_clicked.emit(cell_id)
+            elif isinstance(item, QGraphicsTextItem):
+                cell_id = int(item.toPlainText())
+                self.grid_signals.cell_id_clicked.emit(cell_id)
+
+        super().mousePressEvent(event)
 
     def init_grid(self) -> None:
         x: float

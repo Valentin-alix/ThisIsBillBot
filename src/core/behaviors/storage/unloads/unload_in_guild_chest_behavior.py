@@ -147,4 +147,3 @@ class UnloadInGuildChestBehavior(Behavior):
     def leave_all_dialogs(self):
         request = DialogLeaveRequest()
         self.event_manager.send(request)
-        self.event_manager.send(request)

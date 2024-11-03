@@ -9,6 +9,7 @@ from d3_mapping.resources.protos.game.common_pb2 import (
 from d3_mapping.resources.protos.game.gamemap_pb2 import MapObstacle
 from enums.characteristic_enum import CharacteristicEnum
 from grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
+from icecream import ic
 
 from src.core.logic.stats.characteristic import get_stat_by_id
 from src.core.states.state import State
@@ -85,6 +86,13 @@ class EntityState(State):
     def __post_init__(self):
         self.obstacle_on_cell_id = ObstacleByCellIdDict(grid_signals=self.grid_signals)
         self.actors_on_mp = ActorByMpDict(grid_signals=self.grid_signals)
+        self.grid_signals.cell_id_clicked.connect(self.on_cell_id_clicked)
+
+    def on_cell_id_clicked(self, cell_id: int):
+        actors_on_mp = self.actors_on_mp.get(MapPoint.from_cell_id(cell_id))
+        if actors_on_mp is None or len(actors_on_mp) == 0:
+            return print(f"No actor on {cell_id}")
+        ic(actors_on_mp.values())
 
     def clear_state(self):
         self.clear_actors()

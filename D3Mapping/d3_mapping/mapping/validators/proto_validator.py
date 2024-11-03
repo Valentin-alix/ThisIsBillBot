@@ -1,15 +1,18 @@
 from dataclasses import dataclass
-from typing import Any, Iterable
+from typing import Any
+
+from pandas import Series
 
 from d3_mapping.consts import TYPE_URL_PREFIX
-from d3_mapping.controller.instancied_msg_info_controller import MSG_INFO_BY_NAME
-from d3_mapping.mapping.proto_organization import ProtoOrganization
-from d3_mapping.mapping.validators.proto_field_validators import (
-    VALIDATORS_GLOBAL_ON_SET_FIELDS,
-    VALIDATORS_ON_SET_FIELDS,
+from d3_mapping.controller.instancied_msg_info_controller import (
+    InstanciedMessageInfoController,
 )
+from d3_mapping.mapping.proto_organization import ProtoOrganization
+from d3_mapping.mapping.validators.global_validators import (
+    VALIDATORS_GLOBAL_ON_SET_FIELDS,
+)
+from d3_mapping.mapping.validators.set_validators import VALIDATORS_ON_SET_FIELDS
 from d3_mapping.models.mapping_info import FieldMapping, OutputMappingInfo
-from d3_mapping.models.message_fields_infos import ObfMessageInfo
 from d3_mapping.models.p_enum import PEnum
 from d3_mapping.models.p_message import PMessage
 
@@ -28,16 +31,9 @@ class ProtoValidator:
         clear_by_obf_field_mapping: FieldMapping,
     ):
         # Check if combination of mapped fields is coherent based on validators
-        parsed_obf_msg_infos = MSG_INFO_BY_NAME.get(obf_msg.name)
-        if parsed_obf_msg_infos is None:
-            parsed_obf_msg_infos = MSG_INFO_BY_NAME.get(obf_msg.namespace)
-        elif obf_msg.namespace in MSG_INFO_BY_NAME:
-            parsed_obf_msg_infos.obf_msg_info |= MSG_INFO_BY_NAME[
-                obf_msg.namespace
-            ].obf_msg_info
-
-        if not parsed_obf_msg_infos:
-            return True
+        obf_msg_infos = InstanciedMessageInfoController().get_content_by_name(
+            obf_msg.name
+        )
 
         values_array_mapped_to_clear_by_clear_msg_name = (
             self.get_values_array_mapped_to_clear(
@@ -45,7 +41,7 @@ class ProtoValidator:
                 clear_msg=clear_msg,
                 obf_msg=obf_msg,
                 clear_by_obf_field_mapping=clear_by_obf_field_mapping,
-                obf_msg_infos=parsed_obf_msg_infos.obf_msg_info,
+                obf_msg_infos=obf_msg_infos,
                 values_array_mapped_to_clear_by_msg={},
             )
         )
@@ -87,7 +83,7 @@ class ProtoValidator:
         clear_msg: PMessage,
         obf_msg: PMessage,
         clear_by_obf_field_mapping: FieldMapping,
-        obf_msg_infos: Iterable[ObfMessageInfo],
+        obf_msg_infos: Series,
         values_array_mapped_to_clear_by_msg: dict[PMessage, list[dict[str, Any]]],
     ) -> dict[PMessage, list[dict[str, Any]]]:
         """get deep values based on mapping with clear mapped field as key"""
@@ -95,7 +91,7 @@ class ProtoValidator:
         for obf_msg_info in obf_msg_infos:
             values_mapped_to_clear = {}
 
-            for key, value in obf_msg_info.value_by_field_array.items():
+            for key, value in obf_msg_info.items():
                 is_any_value = (
                     type(value) is dict
                     and "type_url" in value
@@ -137,7 +133,7 @@ class ProtoValidator:
                         _sub_clear_struct,
                         _sub_obf_struct,
                         _sub_mapping_info.field_mapping,
-                        [ObfMessageInfo(value_by_field_array=value)],
+                        Series([value]),
                         {},
                     )
                     for _key, _value in sub_values_array.items():
@@ -169,9 +165,7 @@ class ProtoValidator:
                                 _sub_clear_struct,
                                 _sub_obf_struct,
                                 clear_by_obf_field_mapping=_sub_mapping_info.field_mapping,
-                                obf_msg_infos=[
-                                    ObfMessageInfo(value_by_field_array=sub_value)
-                                ],
+                                obf_msg_infos=Series([sub_value]),
                                 values_array_mapped_to_clear_by_msg={},
                             )
 

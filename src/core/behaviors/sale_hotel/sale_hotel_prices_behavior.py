@@ -232,9 +232,7 @@ class SaleHotelPricesBehavior(Behavior):
                 return self.leave_all_dialogs()
 
             next_item = item_to_sells_in_inventory.pop()
-            if is_interesting_item_to_sell(
-                next_item, not self.game_state.player.can_access_guild_chest
-            ):
+            if is_interesting_item_to_sell(next_item):
                 break
 
         self.logger.info(
@@ -321,9 +319,7 @@ class SaleHotelPricesBehavior(Behavior):
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
     ):
-        if not is_interesting_item_to_sell(
-            item, not self.game_state.player.can_access_guild_chest
-        ):
+        if not is_interesting_item_to_sell(item):
             return self.create_all_prices(
                 load_items_infos=load_items_infos,
                 items=items,

@@ -182,6 +182,7 @@ class FarmerWidget(PivotItem):
     def on_click_play(self):
         area_id = self.area_farm_combo.currentData()
         sub_area_id = self.sub_area_farm_combo.currentData()
+        self.bot_signals.play.emit(True)
         if self.type_action_combo.currentText() == FarmActionEnum.HARVESTER:
             self.bot_signals.play_harvester.emit(area_id, sub_area_id)
         elif self.type_action_combo.currentText() == FarmActionEnum.FIGHTER:
@@ -193,8 +194,8 @@ class FarmerWidget(PivotItem):
                 self.type_action_combo.currentText()
             )
 
-    @pyqtSlot()
-    def on_play(self):
+    @pyqtSlot(bool)
+    def on_play(self, _):
         self.stop_btn.show()
         self.play_btn.hide()
         self.type_action_combo.setDisabled(True)

@@ -113,4 +113,3 @@ class NpcDialogBehavior(Behavior):
         )
         req = DialogLeaveRequest()
         self.event_manager.send(req)
-        self.event_manager.send(req)

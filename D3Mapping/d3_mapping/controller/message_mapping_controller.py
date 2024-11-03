@@ -2,6 +2,7 @@ import json
 import os
 
 from pydantic import BaseModel, Field
+
 from d3_mapping.consts import (
     GAME_ASSEMBLY_PATH,
     MAPPING_CONN_PROTO_PATH,

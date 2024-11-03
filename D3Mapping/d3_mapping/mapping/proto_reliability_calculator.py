@@ -16,13 +16,15 @@ from d3_mapping.consts import (
     RELIABILITY_BY_PROTO_BASE_FIELDS,
 )
 from d3_mapping.mapping.proto_organization import ProtoOrganization
-from d3_mapping.mapping.validators.proto_field_validators import (
+from d3_mapping.mapping.validators.field_validators import VALIDATORS_ON_FIELD
+from d3_mapping.mapping.validators.global_validators import (
     VALIDATORS_GLOBAL_ON_SET_FIELDS,
-    VALIDATORS_ON_FIELD,
-    VALIDATORS_ON_SET_FIELDS,
+)
+from d3_mapping.mapping.validators.proto_field_validators import (
     get_count_defined_msg_field_values,
     is_parsed_obf_msg,
 )
+from d3_mapping.mapping.validators.set_validators import VALIDATORS_ON_SET_FIELDS
 from d3_mapping.models.p_enum import PEnum
 from d3_mapping.models.p_message import PField, PMapField, PMessage
 

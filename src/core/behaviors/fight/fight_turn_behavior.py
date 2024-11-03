@@ -118,9 +118,9 @@ class FightTurnBehavior(Behavior):
             return self.find_and_do_attack()
         elif error_code is MapMoveError.CELL_TAKEN:
             # cell is probably taken by invisible enemy
-            return self.finish()
+            return self.pass_turn()
         elif error_code is not None:
-            return self.finish()
+            return self.pass_turn()
         callback()
 
     def on_fight_spell_behavior_finished(self, error_code: str | None):

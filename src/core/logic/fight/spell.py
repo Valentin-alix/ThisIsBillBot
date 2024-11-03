@@ -151,3 +151,8 @@ def get_damage_spells(
                 break
 
     return spell_levels
+
+
+if __name__ == "__main__":
+    spell_lvl = DataReader().spell_lvl_by_id[40550]
+    print(get_max_range_spell(1, spell_lvl, None))

@@ -2,12 +2,18 @@ import os
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv(os.path.join(Path(__file__).parent.parent.parent, ".env"))
+
+
 sys.path.append(os.path.join(Path(__file__).parent.parent.parent))
 sys.path.append(os.path.join(Path(__file__).parent.parent.parent, "D3Mapping"))
 sys.path.append(os.path.join(Path(__file__).parent.parent.parent, "DBDofusUnity"))
 sys.path.append(os.path.join(Path(__file__).parent.parent.parent, "D3Database"))
 
-from d3_mapping.consts import (
+
+from d3_mapping.consts import (  # noqa: E402
     ASSEMBLIES_PATH,
     GAME_ASSEMBLY_PATH,
     GLOBAL_METADATA_PATH,
@@ -20,11 +26,13 @@ from d3_mapping.consts import (
     PROTO_GAME_PATH,
     PROTODEC_PATH_EXE,
 )
-from d3_mapping.controller.instancied_msg_info_controller import (
+from d3_mapping.controller.instancied_msg_info_controller import (  # noqa: E402
     InstanciedMessageInfoController,
 )
-from d3_mapping.controller.message_mapping_controller import MessageMappingController
-from d3_mapping.mapping.gen_mapping_proto import generate_all_mapping
+from d3_mapping.controller.message_mapping_controller import (  # noqa: E402
+    MessageMappingController,
+)
+from d3_mapping.mapping.gen_mapping_proto import generate_all_mapping  # noqa: E402
 
 
 def get_obf_protos():
@@ -86,7 +94,7 @@ def init_mapping_resources():
     print("Getting new protos...")
     get_obf_protos()
     print("Clearing msg infos")
-    InstanciedMessageInfoController().clear_msg_infos()
+    InstanciedMessageInfoController().clear()
 
 
 def update_proto_on_new_version():

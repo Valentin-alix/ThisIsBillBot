@@ -73,7 +73,7 @@ class GameProxy(Proxy):
 
         if DEBUG or DO_POPULATE:
             msg_infos = get_game_msg_info(
-                msg_content_datas,
+                msg_datas,
                 clear_sub_msg,
                 obf_sub_msg,
                 uid,

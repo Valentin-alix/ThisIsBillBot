@@ -7,6 +7,7 @@ from d3_mapping.resources.protos.game.gamemap_pb2 import (
 )
 from d3_mapping.resources.protos.game.haven_bag_pb2 import (
     HavenBagEnterRequest,
+    HavenBagExitRequest,
 )
 from d3_mapping.resources.protos.game.teleportation_pb2 import (
     Teleporter,
@@ -96,6 +97,18 @@ class WaypointBehavior(Behavior):
         )
         if zaap is None:
             raise UnexpectedStateException("Did not found any zaap inside havre sac.")
+
+        if len(zaap.enabled_skills) == 0:
+            self.event_manager.on(
+                MapComplementaryInformationEvent,
+                lambda _: self.finish(WaypointErrorCode.UNREACHABLE_HAVRE_MAP),
+                once=True,
+                originator=self,
+            )
+            return self.run_timer(
+                BASE_RANGE,
+                lambda: self.event_manager.send(HavenBagExitRequest()),
+            )
 
         mp_zaap = MapPoint.from_cell_id(
             self.game_state.interactive.stated_element_by_id[zaap.element_id].cell_id

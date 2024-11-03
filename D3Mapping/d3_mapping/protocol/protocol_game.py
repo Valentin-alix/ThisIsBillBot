@@ -19,7 +19,7 @@ from d3_mapping.controller.instancied_msg_info_controller import (
 )
 from d3_mapping.controller.message_mapping_controller import MessageMappingController
 from d3_mapping.models.message import MessageInfo
-from d3_mapping.resources.obf_protos.game.game_messages_pb2 import gmz
+from d3_mapping.resources.obf_protos.game.game_messages_pb2 import gpm
 from d3_mapping.resources.protos.game.game_message_pb2 import GameMessage
 from D3Database.utils import cache
 
@@ -59,14 +59,15 @@ def is_usable_msg(msg_name: str):
     return msg_name in get_mapping_proto_to_obf()
 
 
-def get_obf_game_msg_info(content: bytes, from_server: bool) -> MessageInfo:
+def get_obf_game_msg_info(
+    content: bytes, from_server: bool, do_dump_values: bool
+) -> MessageInfo:
     SHOW_URL = True
 
     received_msg_time = datetime.datetime.now()
 
-    game_msg = gmz()
+    game_msg = gpm()
     game_msg.ParseFromString(content)
-
     InstanciedMessageInfoController().add_msg(game_msg, True)
 
     msg_json = MessageToDict(
@@ -75,7 +76,7 @@ def get_obf_game_msg_info(content: bytes, from_server: bool) -> MessageInfo:
         preserving_proto_field_name=True,
     )
     if SHOW_URL:
-        field_name = game_msg.WhichOneof("eqwe")
+        field_name = game_msg.WhichOneof("euhu")
         root_msg: Message = getattr(game_msg, field_name)
 
         root_msg_any_field: protoAny | None = None
@@ -88,13 +89,24 @@ def get_obf_game_msg_info(content: bytes, from_server: bool) -> MessageInfo:
             raise ValueError("Did not found any in root msg")
 
         type_url = root_msg_any_field.type_url.split("/")[-1]
+
+        sub_msg_descriptor: Descriptor = POOL.FindMessageTypeByName(type_url)
+        sub_msg_type = GetMessageClass(sub_msg_descriptor)
+
+        sub_msg_content_unpacked: Message = sub_msg_type()
+        root_msg_any_field.Unpack(sub_msg_content_unpacked)
+
+        if do_dump_values:
+            InstanciedMessageInfoController().add_msg(
+                sub_msg_content_unpacked, from_server
+            )
     else:
         type_url = game_msg.__class__.__name__
 
     return MessageInfo(
         received_time=received_msg_time,
         from_server=from_server,
-        msg_json=msg_json,
+        obf_msg_json=msg_json,
         sub_msg_name=type_url,
         raw_content=content,
     )
@@ -171,19 +183,11 @@ def get_game_msg_info(
             preserving_proto_field_name=True,
         )
         sub_msg_info = (clear_sub_msg, clear_sub_msg.DESCRIPTOR.full_name)
-
-        # obf_game_type_url, obf_game_field_mapping = get_mapping_proto_to_obf()[
-        #     GameMessage.DESCRIPTOR.full_name
-        # ]
     else:
-        msg_json = MessageToDict(
-            obf_sub_msg,
-            always_print_fields_with_no_presence=True,
-            preserving_proto_field_name=True,
-        )
+        msg_json = None
         sub_msg_info = (obf_sub_msg, obf_sub_msg.DESCRIPTOR.full_name)
 
-    if uid_value is not None:
+    if msg_json and uid_value is not None:
         msg_json["uid"] = uid_value
 
     return MessageInfo(
@@ -191,6 +195,11 @@ def get_game_msg_info(
         from_server=from_server,
         msg_json=msg_json,
         sub_msg_name=sub_msg_info[0].__class__.__name__,
+        obf_msg_json=MessageToDict(
+            obf_sub_msg,
+            always_print_fields_with_no_presence=True,
+            preserving_proto_field_name=True,
+        ),
         raw_content=content,
     )
 
@@ -283,7 +292,7 @@ def get_msg_transformer(
                     output_msg_field_name,
                     msg_mappings,
                 )
-            except (AttributeError, ValueError):
+            except (AttributeError, ValueError, OverflowError):
                 pass
         return output_msg
 

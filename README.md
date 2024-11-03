@@ -1,3 +1,20 @@
+Sujet ML intéressants:
+
+- Centraliser les instancied msg dans une bdd qq part
+- En profiter pour stocker tous les messages (comment s'assurer de leur validité?)
+
+- Pour le mapping des messages, pour train le modèle : utiliser le mapping généré par mon truc.
+  -> Siamese Network ?
+  -> Hungarian algorithm
+  => ca semble compromis pour l'instant, sinon comme solution pr améliorer le mapping plus simplement, on peux retourner seulement le mapping qui va pas au retour de global_validator et validator set pour les exclure du modèle pulp, comme sa on exclue seulement ce qui va pas et ca améliorer énormément les perfs
+- Simuler conversation comme un humain -> répondre aux messages privé, aux modérateur, balancer des msgs random de temps en temps.
+  -> Appeler Api chat gpt 5 ? cest 1$25 pour 1M de token (1 token = 4 caractères environ)
+- Décision en fight ? (A clarifier)
+
+pouvoir identifier plein de règle automatiquement sur un message avec le nom en clair
+pouvoir savoir quel règle n'a pas été respecté pour un mapping particulier
+-> scripts en dehors du mapping
+
 `python -m cProfile -o tools/d3mapping_profiled D3Mapping/d3_mapping/main.py`
 
 - Regarder comment se log à ankama

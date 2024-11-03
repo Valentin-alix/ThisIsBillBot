@@ -81,6 +81,7 @@ from src.core.behaviors.storage.unloads.unload_in_bank_behavior import (
 from src.core.behaviors.storage.unloads.unload_in_guild_chest_behavior import (
     UnloadInGuildChestBehavior,
 )
+from src.core.frames.chat_frame import ChatFrame
 from src.core.frames.entity_frame import EntityFrame
 from src.core.frames.fight_frame import FightFrame
 from src.core.frames.guild_chest_frame import GuildChestFrame
@@ -167,6 +168,13 @@ class BotFactory:
             game_state=game_state,
             logger=logger,
             game_info_signals=game_info_signals,
+            is_playing_event=is_playing_event,
+        )
+        chat_frame = ChatFrame(
+            event_manager=event_manager,
+            game_state=game_state,
+            game_info_signals=game_info_signals,
+            logger=logger,
             is_playing_event=is_playing_event,
         )
         interactive_frame = InteractiveFrame(
@@ -590,6 +598,7 @@ class BotFactory:
                 entity_frame,
                 inventory_frame,
                 interactive_frame,
+                chat_frame,
                 fight_frame,
                 server_frame,
                 guild_chest_frame,
