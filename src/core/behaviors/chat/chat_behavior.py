@@ -4,7 +4,7 @@ from d3_mapping.resources.protos.game.chat_pb2 import (
 )
 
 from src.core.behaviors.behavior import Behavior
-from src.core.logic.chat.chat_bot import get_solo_human_talk_in_general_msg
+from src.core.logic.chat.human_solo_talk import get_solo_human_talk_in_general_msg
 
 
 class ChatBehavior(Behavior):
@@ -12,7 +12,9 @@ class ChatBehavior(Behavior):
 
     def run(self, content: str | None = None, channel=Channel.GLOBAL) -> None:
         if content is None:
-            content = get_solo_human_talk_in_general_msg()
+            content = get_solo_human_talk_in_general_msg(
+                self.game_state.player.character_name
+            )
         req = ChatChannelMessageRequest(content=content, channel=channel)
         self.event_manager.send(req)
         self.finish()

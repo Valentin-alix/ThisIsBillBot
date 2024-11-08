@@ -32,6 +32,7 @@ from src.core.config.mule import (
 )
 from src.core.frames.frame import Frame
 from src.core.logic.dungeons.consts import DUNGEONS_INFOS
+from src.core.logic.world.edge import remove_forbidden_edge_transition_by_map_id
 from src.core.states.game_state import GameState
 from src.event_manager import EventManager
 from src.exceptions import UnhandledErrorCodeException
@@ -182,6 +183,8 @@ class Bot:
         bot_config = self.bot_config
         if self._current_bot_action_func is None and bot_config is None:
             raise ValueError("An action should be provided if is_playing_event is set")
+
+        remove_forbidden_edge_transition_by_map_id(self.game_state.map.map_id)
 
         def on_fight_behavior_finished(error_code: str | None):
             if error_code is not None:

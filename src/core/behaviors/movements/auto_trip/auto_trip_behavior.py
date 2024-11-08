@@ -2,16 +2,16 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from models.world_graph import Edge
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
+from models.world_graph import Edge
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.edge_behavior import EdgeBehavior, EdgeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.logic.world.edge import (
     draw_edge_path,
-    remove_forbidden_edge_transition_by_map_id,
 )
 from src.core.logic.world.world_path_finder import WorldPathFinder
 from src.signals.world_signals import WorldSignals
@@ -50,7 +50,6 @@ class AutoTripBehavior(Behavior):
                 )
                 if from_auto_trip_zaap_behavior or retry <= 0:
                     return self.finish(AutoTripErrorCode.PATH_NOT_FOUND)
-                remove_forbidden_edge_transition_by_map_id(self.game_state.map.map_id)
                 return self.run(
                     map_ids, edge_path, from_auto_trip_zaap_behavior, retry - 1
                 )

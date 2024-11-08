@@ -79,6 +79,8 @@ def validator_game_action_fight_event(values: dict[str, Any]):
 
 
 def validator_slide(values: dict[str, Any]):
+    if values["start_cell"] == -1 and values["end_cell"] == -1:
+        return True
     if values["start_cell"] == values["end_cell"]:
         return False
     return (
@@ -189,6 +191,12 @@ def validator_spells_event(values: dict[str, Any]):
     return True
 
 
+def validator_characteristic_detailed_usable(values: dict[str, Any]):
+    if values["used"] > values["base"] + values["objects_and_mount_bonus"]:
+        return False
+    return True
+
+
 VALIDATORS_ON_SET_FIELDS: dict[str, tuple[Callable[[dict[str, Any]], bool], int]] = {
     "Slide": (validator_slide, 1),
     "ExchangePositions": (validator_exchange_positions, 1),
@@ -202,4 +210,8 @@ VALIDATORS_ON_SET_FIELDS: dict[str, tuple[Callable[[dict[str, Any]], bool], int]
         1,
     ),
     "SpellsEvent": (validator_spells_event, 1),
+    "CharacterCharacteristicDetailedUsable": (
+        validator_characteristic_detailed_usable,
+        1,
+    ),
 }

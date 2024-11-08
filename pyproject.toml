@@ -48,6 +48,7 @@ fastparquet = "^2024.11.0"
 types-requests = "^2.32.4.20250913"
 langchain = "^1.0.7"
 langchain-openai = "^1.0.3"
+langchain-community = "^0.4.1"
 
 [tool.poetry.group.dev.dependencies]
 pyqt5-stubs = "^5.15.6.0"

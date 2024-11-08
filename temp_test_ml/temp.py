@@ -5,7 +5,9 @@ import pandas as pd
 from d3_mapping.controller.instancied_msg_info_controller import (
     InstanciedMessageInfoController,
 )
-from d3_mapping.protocol.protocol_game import get_mapping_proto_to_real
+from d3_mapping.protocol.protocol_game import (
+    get_mapping_proto_to_real,
+)
 
 
 def generate_all_possible_mapping(clear_mapping_by_obf: Mapping[str, str | None]):
@@ -26,7 +28,6 @@ def convert_obf_values_to_clear_values(obf_msg_name: str):
         value_msg_info: dict[str, Any] = {}
         for key, value in obf_msg_info.items():
             if key not in clear_mapping_by_obf:
-                print("oups")
                 continue
             clear_key = clear_mapping_by_obf[key]
             if clear_key is not None:
@@ -36,8 +37,11 @@ def convert_obf_values_to_clear_values(obf_msg_name: str):
 
 
 if __name__ == "__main__":
-    clear_values = convert_obf_values_to_clear_values("hwg")
+    clear_values = convert_obf_values_to_clear_values("jxg")
     df = pd.DataFrame(clear_values)
     print(df.head())
+    print(df.describe(include=["object"]))
 
-    print(len(InstanciedMessageInfoController().get_content_by_name("hwg")))
+    # for _, value in df.iterrows():
+    #     if not validator_slide(value.to_dict()):
+    #         print(value)
