@@ -18,8 +18,11 @@ def is_condition_respected(
     obf_msg_infos = InstanciedMessageInfoController().get_content_by_name(msg_namespace)
     for obf_msg_info in obf_msg_infos:
         for validator in field_validator.validators:
-            is_valid = validator(obf_msg_info.get(field_name))
-            if not is_valid:
+            try:
+                is_valid = validator(obf_msg_info.get(field_name))
+                if not is_valid:
+                    return False
+            except TypeError:
                 return False
     return True
 

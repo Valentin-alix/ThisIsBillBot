@@ -1,6 +1,7 @@
-from D3Database.data_center.data_reader import DataReader
 from enums.item_enum import ItemEnum
 from enums.type_item_enum import TypeItemEnum
+
+from D3Database.data_center.data_reader import DataReader
 from src.interfaces.models.npc_info import NpcInfo
 
 ASTRUB_BANK_MAP = 192415750
@@ -24,6 +25,9 @@ PROTECTOR_DROP_ITEM_IDS = {
     if DataReader().item_by_id[drop.objectId].typeId
     not in [310, TypeItemEnum.PIERRE_BRUTE]
 }
+
+CUSTOM_GATHERER_ITEM_BY_SAC_GID = {7989: 1794, 7993: 1784, 11112: 11107}
+
 
 GATHERER_ITEM_GIDS: set[int] = {
     harvestable
@@ -50,8 +54,3 @@ TAB_BY_GID = {gid: tab for tab, gids in GIDS_BY_TAB.items() for gid in gids}
 
 
 USEFUL_UNLOAD = 0.15
-
-
-if __name__ == "__main__":
-    print(DataReader().item_by_id[16499].typeId)
-    # print(I18N().name_by_id[DataReader().item_by_id[16499].nameId])

@@ -9,6 +9,7 @@ from models.world_graph import Edge
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.edge_behavior import EdgeBehavior, EdgeError
+from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.logic.world.edge import (
     draw_edge_path,
@@ -39,6 +40,8 @@ class AutoTripBehavior(Behavior):
         from_auto_trip_zaap_behavior: bool = False,
         retry: int = 3,
     ):
+        if self.game_state.map._is_in_map_transition or self.game_state.fight.in_fight:
+            return self.finish(MapChangeError.UNEXPECTED_NEW_MAP)
         if map_ids is not None:
             self.logger.info(f"Auto trip to map id : {map_ids}")
             self.target_map_ids = map_ids

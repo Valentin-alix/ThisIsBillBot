@@ -1,3 +1,5 @@
+import base64
+import time
 from dataclasses import dataclass, field, fields
 from datetime import datetime
 from functools import cached_property
@@ -8,10 +10,16 @@ from typing import Any, Callable
 import psutil
 import schedule
 from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
+from d3_mapping.models.message import MessageInfo
+from d3_mapping.protocol.protocol_game import POOL
 from d3_mapping.signals.message_signals import MessageInfoSignals
+from google.protobuf.descriptor import Descriptor
+from google.protobuf.json_format import MessageToDict
+from google.protobuf.message_factory import GetMessageClass
 from models.datas.recipe_root import RecipeItem
 from PyQt5.QtCore import QThread
 
+from src.common.dataclass_utils import apply_dict_to_dataclass
 from src.common.internet import has_internet_connection
 from src.common.logger import Logger
 from src.common.timing import is_in_playtime
@@ -23,13 +31,9 @@ from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.fight.fight_behavior import FightBehavior
 from src.core.behaviors.fight.revive_behavior import ReviveBehavior
-from src.core.behaviors.mule_storage.mule_accept_behavior import (
-    MuleAcceptBehavior,
-)
+from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
-from src.core.config.mule import (
-    MULE_BANK_CHARACTER_LOGIN,
-)
+from src.core.config.mule import MULE_BANK_CHARACTER_LOGIN
 from src.core.frames.frame import Frame
 from src.core.logic.dungeons.consts import DUNGEONS_INFOS
 from src.core.logic.world.edge import remove_forbidden_edge_transition_by_map_id
@@ -40,9 +44,11 @@ from src.gui.utils.run_in_background import Worker, run_in_background
 from src.signals.bot_signals import BotSignals
 from src.signals.grid_signals import GridSignals
 from src.signals.log_signals import LogSignals
-from src.signals.player_signals import GameInfoSignals
+from src.signals.player_signals import GameInfoSignals, InventorySignals
+from src.signals.replay_signals import ReplaySignals
 from src.signals.shared_farm_signals import SharedSignals
 from src.signals.world_signals import WorldSignals
+from src.tools.recorder import Recorder
 
 
 @dataclass
@@ -54,8 +60,14 @@ class Bot:
 
     game_state: GameState
 
+    is_fake: bool
+
+    recorder: Recorder
+
+    replay_signals: ReplaySignals
     grid_signals: GridSignals
     bot_signals: BotSignals
+    inventory_signals: InventorySignals
     game_info_signals: GameInfoSignals
     msg_info_signals: MessageInfoSignals
     world_signals: WorldSignals
@@ -106,6 +118,7 @@ class Bot:
     def __post_init__(self):
         self.game_info_signals.connected.connect(self.on_connected)
         self.game_info_signals.disconnected.connect(self.on_disconnected)
+        self.replay_signals.replay_requested.connect(self.replay)
         self.bot_signals.play.connect(self.on_play)
         self.bot_signals.stop.connect(self.on_stop)
         self.game_info_signals.is_ready_to_play.connect(self.on_ready_to_play)
@@ -210,7 +223,13 @@ class Bot:
             else:
                 self.run_current_bot_action()
 
-        self.revive_behavior.start(callback=on_live_and_kicking, parent=None)
+        self._thread_worker_runnings.append(
+            run_in_background(
+                lambda: self.revive_behavior.start(
+                    callback=on_live_and_kicking, parent=None
+                )
+            )
+        )
 
     def guess_bot_action(self):
         if self.account["apikey"]["login"] in MULE_BANK_CHARACTER_LOGIN:
@@ -311,6 +330,8 @@ class Bot:
     def start_planning_bot(self, bot_config: BotConfig):
         def planned_stop_bot():
             self.logger.info("Stopping bot")
+            self.log_signals.clear_logs.emit()
+            self.msg_info_signals.clear_msg_infos.emit()
             if self.is_playing_event.is_set():
                 self.safe_stop()
                 self.bot_signals.stop.emit()
@@ -367,3 +388,49 @@ class Bot:
         except psutil.NoSuchProcess:
             self.logger.info("process of related pid is not running anymore, skip.")
         self.pid = None
+
+    def replay(
+        self, path: str, preserve_timing: bool = False, speedup: float | None = None
+    ) -> None:
+        def _worker():
+            did_apply_state: bool = False
+            last_timestamp: float | None = None
+            for record_line in self.recorder.load(path):
+                if record_line.get("type") == "state":
+                    apply_dict_to_dataclass(self.game_state, record_line["state"])
+                    did_apply_state = True
+                    continue
+                if record_line.get("type") != "message":
+                    continue
+                if not did_apply_state:
+                    continue
+                curr_timestamp = time.mktime(
+                    datetime.fromisoformat(
+                        record_line["timestamp"].replace("Z", "")
+                    ).timetuple()
+                )
+                if preserve_timing and last_timestamp is not None:
+                    wait = curr_timestamp - last_timestamp
+                    if speedup:
+                        wait = wait / speedup
+                    if wait > 0:
+                        time.sleep(wait)
+                last_timestamp = curr_timestamp
+                payload = base64.b64decode(record_line.get("payload_b64", ""))
+                full_name = record_line["msg_full_name"]
+                msg_descriptor: Descriptor = POOL.FindMessageTypeByName(full_name)
+                msg_type = GetMessageClass(msg_descriptor)
+                msg = msg_type()
+                msg.ParseFromString(payload)
+
+                msg_info = MessageInfo(
+                    received_time=datetime.fromtimestamp(curr_timestamp),
+                    from_server=record_line["from_server"],
+                    msg_json=MessageToDict(msg),
+                    sub_msg_name=msg.__class__.__name__,
+                    obf_msg_json=None,
+                )
+                self.msg_info_signals.msg_info.emit(msg_info, False)
+                self.event_manager.process_msg(msg)
+
+        self._thread_worker_runnings.append(run_in_background(_worker))

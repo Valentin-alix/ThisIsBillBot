@@ -45,5 +45,4 @@ def get_conn_msg_info(
         msg_json=msg_json,
         sub_msg_name=sub_msg_name,
         obf_msg_json=None,
-        raw_content=content,
     )

@@ -15,11 +15,11 @@ from data_center.data_reader import DataReader
 from data_center.i18n import I18N
 
 from src.core.behaviors.behavior import Behavior
-from src.core.config.storage import USEFUL_UNLOAD
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestBehavior,
 )
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
+from src.core.config.storage import USEFUL_UNLOAD
 from src.core.config.timings import BASE_RANGE, SMALL_RANGE
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 
@@ -125,7 +125,6 @@ class LoadFromGuildChestBehavior(Behavior):
 
         valid_quantity = min(portable_quantity, quantity_to_unload)
         load_item_info.remaining_quantity -= valid_quantity
-        related_item.item.quantity -= valid_quantity
         if load_item_info.remaining_quantity < 100:
             load_items_infos.remove(load_item_info)
 

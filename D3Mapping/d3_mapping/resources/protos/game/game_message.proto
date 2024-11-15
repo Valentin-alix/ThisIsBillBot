@@ -5,18 +5,11 @@ import "google/protobuf/any.proto";
 package com.ankama.dofus.server.game.protocol;
 
 message GameMessage {
-	.com.ankama.dofus.server.game.protocol.GameMessage.Unknown unknown = 4;
 	oneof content {
 		.com.ankama.dofus.server.game.protocol.Request request = 1;
 		.com.ankama.dofus.server.game.protocol.Response response = 2;
 		.com.ankama.dofus.server.game.protocol.Event event = 3;
 	}
-	message Unknown {
-		int64 unknown_one = 1;
-		string unknown_two = 2;
-		optional int32 unknown_three = 3;
-		int32 unknown_four = 4;
-  	}
 }
 
 message Request {

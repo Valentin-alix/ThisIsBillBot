@@ -7,7 +7,6 @@ from d3_mapping.resources.protos.game.character_pb2 import CharacterLifeStatusEv
 from d3_mapping.resources.protos.game.common_pb2 import (
     CharacterCharacteristic,
 )
-from data_center.data_reader import DataReader
 from data_center.world_graph_reader import WorldGraphReader
 from grid.map_point import MapPoint
 from models.world_graph import Vertice
@@ -17,11 +16,9 @@ from src.core.config.auto import DO_USE_GUILD_CHEST
 from src.core.logic.stats.characteristic import get_stat_by_id
 from src.core.logic.world.linked_zone import get_linked_zone_rp
 from src.core.states.entity_state import EntityState
-from src.core.states.interactive_state import InteractiveState
 from src.core.states.map_state import MapState
 from src.core.states.sale_hotel_state import SaleHotelState
 from src.core.states.state import State
-from src.interfaces.models.collectable import Collectable
 from src.signals.player_signals import GameInfoSignals
 
 
@@ -30,10 +27,9 @@ class PlayerState(State):
     game_info_signals: GameInfoSignals
     map_state: MapState
     entity_state: EntityState
-    interactive_state: InteractiveState
     sale_hotel_state: SaleHotelState
-    server_id: int = dataclasses.field(init=False, default=1)
-    has_guild: bool = dataclasses.field(init=False, default=False)
+    _server_id: int = dataclasses.field(init=False, default=1)
+    _has_guild: bool = dataclasses.field(init=False, default=False)
 
     is_ready_to_play_event: Event = dataclasses.field(init=False, default_factory=Event)
     life_state: CharacterLifeStatusEvent.LifeStatus = dataclasses.field(
@@ -68,6 +64,8 @@ class PlayerState(State):
         self.jobs_lvl_by_id.clear()
         self.life_point = 1
         self.max_life_point = 1
+        self.server_id = -1
+        self.has_guild = False
 
     def get_player_stat_by_id(self, characteristic: int) -> int:
         value = get_stat_by_id(self.characteristic_by_id.get(characteristic))
@@ -153,47 +151,28 @@ class PlayerState(State):
         return min(self.level, 200)
 
     @property
+    def server_id(self) -> int:
+        return self._server_id
+
+    @server_id.setter
+    def server_id(self, value: int):
+        self._server_id = value
+        self.game_info_signals.server_id.emit(value)
+
+    @property
+    def has_guild(self) -> bool:
+        return self._has_guild
+
+    @has_guild.setter
+    def has_guild(self, value: bool):
+        self._has_guild = value
+        self.game_info_signals.has_guild.emit(value)
+
+    @property
     def map_point(self):
         return MapPoint.from_cell_id(
             self.entity_state.actor_by_id[self.character_id].disposition.cell_id
         )
-
-    def get_farmable_collectables(
-        self, excluded_element_ids: set[int] | None = None
-    ) -> list[Collectable]:
-        farmable_collectables: list[Collectable] = []
-        for stated_element in self.interactive_state.stated_element_by_id.values():
-            if (
-                stated_element.state != 0
-                or excluded_element_ids is not None
-                and stated_element.element_id in excluded_element_ids
-            ):
-                continue
-            related_interactive = self.interactive_state.interactive_element_by_id.get(
-                stated_element.element_id
-            )
-            if (
-                not related_interactive
-                or related_interactive.on_current_map is not True
-                or len(related_interactive.enabled_skills) == 0
-            ):
-                continue
-            skill = related_interactive.enabled_skills[0]
-            data_skill = DataReader().skill_by_id[skill.skill_id]
-            if data_skill.gatheredRessourceItem in [-1, 0]:
-                continue
-            collectable = Collectable(
-                map_id=self.map_state.map_id,
-                interactive_element=related_interactive,
-                skill=skill,
-                resource_item_id=data_skill.gatheredRessourceItem,
-            )
-            if collectable.is_farmable(
-                self.jobs_lvl_by_id.get(data_skill.parentJobId, 1)
-            ):
-                farmable_collectables.append(collectable)
-
-        return farmable_collectables
 
     @property
     def curr_vertex(self) -> Vertice:

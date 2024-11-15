@@ -26,7 +26,7 @@ class FightState(State):
     fight_placement_possible_positions: list[int] = field(
         default_factory=list, init=False
     )
-    is_our_turn: bool = field(default=False, init=False)
+    _is_our_turn: bool = field(default=False, init=False)
     challenge_mod: ChallengeMod = field(
         init=False, default=ChallengeMod.CHALLENGE_CHOICE
     )
@@ -78,3 +78,12 @@ class FightState(State):
             get_effect_elem_by_stat(ordered_stats[0]),
             get_effect_elem_by_stat(ordered_stats[1]),
         )
+
+    @property
+    def is_our_turn(self) -> bool:
+        return self._is_our_turn
+
+    @is_our_turn.setter
+    def is_our_turn(self, value: bool):
+        self._is_our_turn = value
+        self.game_info_signals.is_our_turn.emit(value)

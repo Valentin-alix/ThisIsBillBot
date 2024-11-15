@@ -1,6 +1,4 @@
 from d3_mapping.consts import (
-    GAME_MAPPING_FIELDS,
-    GAME_VERIFIED_MAPPING_BY_OBF,
     MAPPING_CONN_PROTO_PATH,
     MAPPING_GAME_PROTO_PATH,
     OBFUSCATED_PROTO_CONNECTION,
@@ -12,6 +10,10 @@ from d3_mapping.controller.message_mapping_controller import (
     MessageMappingController,
 )
 from d3_mapping.factories.p_mapper_factory import PMapperFactory
+from d3_mapping.verified_mapping import (
+    GAME_MAPPING_FIELDS,
+    GAME_VERIFIED_MAPPING_BY_OBF,
+)
 
 
 def generate_mapping_proto(

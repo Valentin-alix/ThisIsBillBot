@@ -86,13 +86,12 @@ class ProxyListener:
             def connect_timeout_proof(retry: int = 5):
                 try:
                     server_socket.connect(target_address)
-                except (TimeoutError, socket.gaierror, OSError) as err:
-                    if retry == 0:
-                        raise err
-                    while not has_internet_connection():
+                except (TimeoutError, socket.gaierror, OSError):
+                    if retry > 0:
+                        while not has_internet_connection():
+                            sleep(1)
                         sleep(1)
-                    sleep(1)
-                    connect_timeout_proof(retry - 1)
+                        connect_timeout_proof(retry - 1)
 
             connect_timeout_proof()
             print(f"connect to {server_socket.getpeername()}")

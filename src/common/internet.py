@@ -8,8 +8,8 @@ def has_internet_connection(host="www.google.com", port=80, timeout=5) -> bool:
     Service: domain (DNS/TCP)
     """
     try:
-        socket.setdefaulttimeout(timeout)
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+        conn = socket.create_connection((host, port), timeout=timeout)
+        conn.close()
         return True
     except socket.error:
         return False

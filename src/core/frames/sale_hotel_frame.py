@@ -12,16 +12,18 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ObjectAveragePricesEvent,
 )
 
-from scraping_d3_client.scraping_d3_client.api.default import (
-    bulk_insert_item_price_history_item_price_history_bulk_insert_post,
-)
-from scraping_d3_client.scraping_d3_client.client import Client
-from scraping_d3_client.scraping_d3_client.models.create_item_price_history_schema import (
-    CreateItemPriceHistorySchema,
-)
-from scraping_d3_client.scraping_d3_client.models.quantity_enum import QuantityEnum
 from src.const import BACKEND_URL
 from src.controller.sale_hotel import SaleHotelController
+from src.controller.scraping_d3_client.scraping_d3_client.api.default import (
+    bulk_insert_item_price_history_item_price_history_bulk_insert_post,
+)
+from src.controller.scraping_d3_client.scraping_d3_client.client import Client
+from src.controller.scraping_d3_client.scraping_d3_client.models.create_item_price_history_schema import (
+    CreateItemPriceHistorySchema,
+)
+from src.controller.scraping_d3_client.scraping_d3_client.models.quantity_enum import (
+    QuantityEnum,
+)
 from src.core.config.auto import DO_REGISTER_PRICE
 from src.core.frames.frame import Frame
 
@@ -158,6 +160,7 @@ class SaleHotelFrame(Frame):
         def _silent_bulk_insert():
             try:
                 with Client(base_url=BACKEND_URL) as client:
+                    self.logger.info(f"Insert prices : {prices}")
                     bulk_insert_item_price_history_item_price_history_bulk_insert_post.sync(
                         client=client, body=item_prices_histories
                     )

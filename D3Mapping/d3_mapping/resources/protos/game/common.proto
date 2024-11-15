@@ -1550,7 +1550,7 @@ message ObjectItemInventory {
 message ObjectItem {
 	int32 uid = 1;
 	int32 quantity = 2;
-	int64 gid = 3;
+	int32 gid = 3;
 	repeated .com.ankama.dofus.server.game.protocol.common.ObjectEffect effects = 4;
 }
 

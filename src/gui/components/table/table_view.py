@@ -1,22 +1,24 @@
 from PyQt5.QtCore import (
-    pyqtSlot,
-    Qt,
     QAbstractTableModel,
     QModelIndex,
     QObject,
+    Qt,
     pyqtSignal,
+    pyqtSlot,
 )
-from PyQt5.QtGui import QStandardItem, QBrush
+from PyQt5.QtGui import QBrush, QStandardItem
 from PyQt5.QtWidgets import QAbstractItemView
-from qfluentwidgets import TableView, SmoothMode, SingleDirectionScrollArea
+from qfluentwidgets import SingleDirectionScrollArea, SmoothMode, TableView
 
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.filter_header_view import FilterHeaderView
 from src.gui.components.table.multi_filter_proxy import MultiColumnFilterProxyModel
+from src.gui.utils.profiling import profiled_slot
 
 
 class CustomTableModelSignal(QObject):
     max_row_reached = pyqtSignal()
+    batched_rows = pyqtSignal()
 
 
 class CustomTableModel(QAbstractTableModel):
@@ -25,7 +27,7 @@ class CustomTableModel(QAbstractTableModel):
         data: list[list[QStandardItem]] | None = None,
         column_count: int = 0,
         parent=None,
-        max_row_count: int = 5000,
+        max_row_count: int = 2000,
     ):
         super().__init__(parent)
         self.signals = CustomTableModelSignal()
@@ -68,10 +70,25 @@ class CustomTableModel(QAbstractTableModel):
         if len(self._data) > self._max_row_count:
             self.signals.max_row_reached.emit()
 
+    def append_rows(self, rows: list[list[QStandardItem]]):
+        if not rows:
+            return
+        start = len(self._data)
+        end = start + len(rows) - 1
+        self.beginInsertRows(QModelIndex(), start, end)
+        self._data.extend(rows)
+        self.endInsertRows()
+        self.signals.batched_rows.emit()
+        if len(self._data) > self._max_row_count:
+            self.signals.max_row_reached.emit()
+
     def remove_rows(self, row: int, count: int):
         self.beginRemoveRows(QModelIndex(), row, row + count - 1)
         del self._data[row : row + count]
         self.endRemoveRows()
+
+    def clear_all(self):
+        self.remove_rows(0, len(self._data))
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
         if not index.isValid():
@@ -98,20 +115,24 @@ class CustomTableView(TableView):  # type: ignore
         self.setHorizontalHeader(self.header)
         self.verticalHeader().hide()
 
-        self.item_model = CustomTableModel()
-        self.item_model.signals.max_row_reached.connect(self.on_max_row_reached)
+        self.item_model = CustomTableModel(parent=self)
+        self.item_model.signals.max_row_reached.connect(
+            profiled_slot(self.on_max_row_reached)
+        )
         self.proxy_model = MultiColumnFilterProxyModel()
         self.proxy_model.setSourceModel(self.item_model)
 
         self.setModel(self.proxy_model)
-        self.model().rowsInserted.connect(self.on_cell_changed)
-
+        self.model().rowsInserted.connect(profiled_slot(self.keep_scroll_position))
+        self.item_model.signals.batched_rows.connect(
+            profiled_slot(self.keep_scroll_position)
+        )
         self.header.signals.new_filter_input.connect(self.filter_rows)
 
     @pyqtSlot()
     def on_max_row_reached(self):
         old_scroll_position = self.scroll_bar.verticalScrollBar().value()
-        self.item_model.remove_rows(0, 250)
+        self.item_model.remove_rows(0, 100)
         self.scroll_bar.verticalScrollBar().setValue(old_scroll_position)
 
     def resizeEvent(self, event):  # type: ignore
@@ -131,7 +152,10 @@ class CustomTableView(TableView):  # type: ignore
     def filter_rows(self, header_filters: list[str]) -> None:
         self.proxy_model.set_filters(header_filters)
 
-    @pyqtSlot()
-    def on_cell_changed(self):
+    def append_row(self, row: list[QStandardItem]):
+        model = self.item_model
+        model.append_row(row)
+
+    def keep_scroll_position(self):
         if self.verticalScrollBar().value() == self.verticalScrollBar().maximum():
             self.scrollToBottom()

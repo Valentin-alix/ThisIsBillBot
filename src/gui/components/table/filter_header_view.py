@@ -1,14 +1,15 @@
 from functools import partial
 
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import (
-    QTableView,
     QHeaderView,
+    QTableView,
 )
 from qfluentwidgets import LineEdit
 
 from src.gui.components.table.column_info import ColumnInfo
+from src.gui.utils.profiling import profiled_slot
 
 
 class HeaderFilterSignals(QObject):
@@ -24,8 +25,10 @@ class FilterHeaderView(QHeaderView):
         self.header_filters: list[str] = []
         self.setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.setDefaultAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
-        self.sectionResized.connect(self.adjust_positions)
-        parent.horizontalScrollBar().valueChanged.connect(self.adjust_positions)
+        self.sectionResized.connect(profiled_slot(self.adjust_positions))
+        parent.horizontalScrollBar().valueChanged.connect(
+            profiled_slot(self.adjust_positions)
+        )
 
     @pyqtSlot(int, str)
     def on_new_filter_input(self, index: int, value: str) -> None:

@@ -1,12 +1,9 @@
+import os
 import os.path
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QColor, QIcon
-from qfluentwidgets import (
-    FluentIcon,
-    NavigationItemPosition,
-    SplashScreen,
-)
+from qfluentwidgets import FluentIcon, NavigationItemPosition, SplashScreen
 
 from src.bot import Bot
 from src.const import RESOURCE_FOLDER
@@ -39,16 +36,7 @@ class MainWindow(AppFluentWindow):
     def add_account(self, account: Bot):
         login = account.account["apikey"]["login"]
 
-        account_widget = AccountStackedWidget(
-            login,
-            account.logger,
-            account.msg_info_signals,
-            account.game_info_signals,
-            account.bot_signals,
-            account.grid_signals,
-            account.world_signals,
-            account.log_signals,
-        )
+        account_widget = AccountStackedWidget(login, account)
         navigation_widget = SidebarItem(
             self.disconnected_icon, login, True, parent=self
         )
@@ -73,6 +61,6 @@ class MainWindow(AppFluentWindow):
             lambda: navigation_widget.set_title(login)
         )
 
-    def closeEvent(self, e):
+    def closeEvent(self, *args, **kwargs):
         self.shared_signals.closed.emit()
-        return super().closeEvent(e)
+        return super().closeEvent(*args, **kwargs)

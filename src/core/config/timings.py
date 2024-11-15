@@ -22,7 +22,7 @@ def get_time_between_attacker():
 
 def get_time_between_random_chat():
     return (
-        datetime.timedelta(hours=6) * uniform(0.75, 1.25)
+        datetime.timedelta(hours=45) * uniform(0.75, 1.25)
         if DO_EXTRA_ACTION
         else datetime.timedelta(datetime.MAXYEAR)
     )

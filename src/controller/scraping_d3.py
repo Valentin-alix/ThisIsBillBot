@@ -2,23 +2,23 @@ from typing import Any, Callable
 
 from httpx import Timeout
 
-from scraping_d3_client.scraping_d3_client.api.default import (
+from src.const import BACKEND_URL
+from src.controller.request_executor import RequestExecutor
+from src.controller.scraping_d3_client.scraping_d3_client.api.default import (
     create_character_character_post,
     get_mule_accept_bank_ids_character_mule_accept_bank_ids_get,
     patch_character_action_character_id_action_patch,
 )
-from scraping_d3_client.scraping_d3_client.client import Client
-from scraping_d3_client.scraping_d3_client.models.character_action_enum import (
+from src.controller.scraping_d3_client.scraping_d3_client.client import Client
+from src.controller.scraping_d3_client.scraping_d3_client.models.character_action_enum import (
     CharacterActionEnum,
 )
-from scraping_d3_client.scraping_d3_client.models.character_create_schema import (
+from src.controller.scraping_d3_client.scraping_d3_client.models.character_create_schema import (
     CharacterCreateSchema,
 )
-from scraping_d3_client.scraping_d3_client.models.http_validation_error import (
+from src.controller.scraping_d3_client.scraping_d3_client.models.http_validation_error import (
     HTTPValidationError,
 )
-from src.const import BACKEND_URL
-from src.controller.request_executor import RequestExecutor
 
 SCRAPING_D3_CLIENT = Client(base_url=BACKEND_URL, timeout=Timeout(timeout=3))
 request_executor = RequestExecutor()

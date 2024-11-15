@@ -33,15 +33,14 @@ from src.core.behaviors.movements.auto_trip.auto_trip_zaap_behavior import (
     AutoTripZaapBehavior,
 )
 from src.core.behaviors.movements.edge_behavior import EdgeBehavior
+from src.core.behaviors.movements.fake_bad_movement_behavior import (
+    FakeBadMovementBehavior,
+)
 from src.core.behaviors.movements.map_change_behavior import MapChangeBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
 from src.core.behaviors.movements.waypoint_behavior import WaypointBehavior
-from src.core.behaviors.mule_storage.mule_accept_behavior import (
-    MuleAcceptBehavior,
-)
-from src.core.behaviors.mule_storage.mule_give_behavior import (
-    MuleGiveBehavior,
-)
+from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehavior
+from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
@@ -91,7 +90,7 @@ from src.core.frames.map_frame import MapFrame
 from src.core.frames.player_frame import PlayerFrame
 from src.core.frames.sale_hotel_frame import SaleHotelFrame
 from src.core.frames.server_frame import ServerFrame
-from src.core.logic.farmer.weighted_path import WeightedPath
+from src.core.logic.farms.weights.weighted_path import WeightedPath
 from src.core.logic.fight.attack import Attacker
 from src.core.logic.fight.damage_calculator import DamageCalculator
 from src.core.logic.fight.reachable_cells.fight_reachable_cells import (
@@ -108,21 +107,24 @@ from src.event_manager import EventManager
 from src.signals.bot_signals import BotSignals
 from src.signals.grid_signals import GridSignals
 from src.signals.log_signals import LogSignals
-from src.signals.player_signals import GameInfoSignals
+from src.signals.player_signals import GameInfoSignals, InventorySignals
+from src.signals.replay_signals import ReplaySignals
 from src.signals.shared_farm_signals import SharedSignals
 from src.signals.world_signals import WorldSignals
+from src.tools.recorder import Recorder
 
 
 class BotFactory:
     @staticmethod
     def create_bot(
-        shared_signals: SharedSignals,
-        account: DecipheredApiKey,
+        shared_signals: SharedSignals, account: DecipheredApiKey, is_fake: bool = False
     ):
         harvester_signals = BotSignals()
         game_info_signals = GameInfoSignals()
         msg_info_signals = MessageInfoSignals()
+        replay_signals = ReplaySignals()
         grid_signals = GridSignals()
+        inventory_signals = InventorySignals()
         world_signals = WorldSignals()
         log_signals = LogSignals()
 
@@ -136,7 +138,10 @@ class BotFactory:
 
         # state
         game_state = StateFactory.create_game_state(
-            game_info_signals, grid_signals, logger=logger
+            inventory_signals=inventory_signals,
+            game_info_signals=game_info_signals,
+            grid_signals=grid_signals,
+            logger=logger,
         )
 
         # logic
@@ -168,17 +173,20 @@ class BotFactory:
             game_state=game_state,
             logger=logger,
             game_info_signals=game_info_signals,
+            inventory_signals=inventory_signals,
             is_playing_event=is_playing_event,
         )
         chat_frame = ChatFrame(
             event_manager=event_manager,
             game_state=game_state,
             game_info_signals=game_info_signals,
+            inventory_signals=inventory_signals,
             logger=logger,
             is_playing_event=is_playing_event,
         )
         interactive_frame = InteractiveFrame(
             event_manager=event_manager,
+            inventory_signals=inventory_signals,
             game_state=game_state,
             logger=logger,
             game_info_signals=game_info_signals,
@@ -189,12 +197,14 @@ class BotFactory:
             game_state=game_state,
             logger=logger,
             game_info_signals=game_info_signals,
+            inventory_signals=inventory_signals,
             is_playing_event=is_playing_event,
         )
         map_frame = MapFrame(
             event_manager=event_manager,
             game_state=game_state,
             world_signals=world_signals,
+            inventory_signals=inventory_signals,
             logger=logger,
             game_info_signals=game_info_signals,
             is_playing_event=is_playing_event,
@@ -202,6 +212,7 @@ class BotFactory:
         player_frame = PlayerFrame(
             event_manager=event_manager,
             game_info_signals=game_info_signals,
+            inventory_signals=inventory_signals,
             game_state=game_state,
             logger=logger,
             is_playing_event=is_playing_event,
@@ -209,6 +220,7 @@ class BotFactory:
         fight_frame = FightFrame(
             event_manager=event_manager,
             game_state=game_state,
+            inventory_signals=inventory_signals,
             logger=logger,
             game_info_signals=game_info_signals,
             is_playing_event=is_playing_event,
@@ -217,18 +229,21 @@ class BotFactory:
             event_manager=event_manager,
             game_state=game_state,
             game_info_signals=game_info_signals,
+            inventory_signals=inventory_signals,
             logger=logger,
             is_playing_event=is_playing_event,
         )
         guild_chest_frame = GuildChestFrame(
             logger=logger,
             event_manager=event_manager,
+            inventory_signals=inventory_signals,
             game_state=game_state,
             game_info_signals=game_info_signals,
             is_playing_event=is_playing_event,
         )
         sale_hotel_frame = SaleHotelFrame(
             game_info_signals=game_info_signals,
+            inventory_signals=inventory_signals,
             game_state=game_state,
             event_manager=event_manager,
             logger=logger,
@@ -525,6 +540,9 @@ class BotFactory:
         chat_behavior = ChatBehavior(
             event_manager=event_manager, game_state=game_state, logger=logger
         )
+        fake_bad_movement_behavior = FakeBadMovementBehavior(
+            event_manager=event_manager, game_state=game_state, logger=logger
+        )
         sale_hotel_scraping_behavior = SaleHotelScrapingBehavior(
             event_manager=event_manager,
             enter_sale_hotel_behavior=enter_sale_hotel_behavior,
@@ -571,21 +589,26 @@ class BotFactory:
             harvester_behavior=harvester,
             multi_farming_behavior=multi_farming_behavior,
         )
+        recorder = Recorder()
 
         return Bot(
             pid=None,
+            recorder=recorder,
             usable_behaviors=[
                 mule_give_behavior,
                 mule_accept_kamas_behavior,
                 dungeon_behavior,
                 sale_hotel_prices_behavior,
                 sale_hotel_scraping_behavior,
+                fake_bad_movement_behavior,
             ],
             account=account,
             grid_signals=grid_signals,
             game_info_signals=game_info_signals,
             bot_signals=harvester_signals,
             msg_info_signals=msg_info_signals,
+            replay_signals=replay_signals,
+            inventory_signals=inventory_signals,
             event_manager=event_manager,
             harvester_behavior=harvester,
             fight_behavior=fight_behavior,
@@ -615,4 +638,5 @@ class BotFactory:
             shared_signals=shared_signals,
             is_ready_to_play_event=is_ready_to_play_event,
             is_connected_event=is_connected_event,
+            is_fake=is_fake,
         )

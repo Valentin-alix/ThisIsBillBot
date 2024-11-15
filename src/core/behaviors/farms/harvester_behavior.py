@@ -3,13 +3,11 @@ from datetime import datetime, timedelta
 from functools import partial
 from typing import Callable
 
-
 from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
 from d3_mapping.resources.protos.game.gamemap_pb2 import FightMapInformationEvent
 from d3_mapping.resources.protos.game.inventory_pb2 import (
     ObjectUseRequest,
 )
-from d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
 from data_center.data_reader import DataReader
 
 from src.const import FAKE_INFINITY_VALUE
@@ -43,14 +41,12 @@ from src.core.logic.craft.craft import (
     get_recipes_for_job_lvl_up,
     is_not_valid_recipe_for_lvl_up_job,
 )
-from src.core.logic.farmer.weight_collectables import (
+from src.core.logic.farms.explorator import get_map_ids_to_explore
+from src.core.logic.farms.weights.weight_items import (
     get_map_id_collectable_weight,
-    get_map_ids_to_explore,
-    is_interesting_job_lvl_up_for_weight,
 )
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 from src.exceptions import UnhandledErrorCodeException
-from src.interfaces.enums.priority import PriorityEnum
 
 
 @dataclass
@@ -92,18 +88,10 @@ class HarvesterBehavior(Behavior):
             self.random_farm_behavior.map_ids
         )
         self.event_manager.on(
-            JobExperiencesUpdateEvent,
-            self.on_job_experiences_update_event,
-            originator=self,
-            priority=PriorityEnum.MAX,
-        )
-        self.event_manager.on(
             ContextCreationEvent, self.on_context_creation_event, originator=self
         )
         self.event_manager.on(
-            FightMapInformationEvent,
-            self.on_fight_map_information_event,
-            originator=self,
+            FightMapInformationEvent, lambda _: self.on_fight_aggro(), originator=self
         )
 
         if self.game_state.inventory.is_full_pods:
@@ -113,7 +101,6 @@ class HarvesterBehavior(Behavior):
     def get_additional_weight_by_map_id(self, map_id: int):
         if map_id in self.map_ids_to_explore:
             return FAKE_INFINITY_VALUE
-        gfx_to_item_and_job = GfxMappingController().get_item_job_by_gfx()
         storage_by_gid = {
             object.item.gid: object
             for objects in CHEST_OBJECT_BY_GID_BY_TAB.values()
@@ -122,7 +109,6 @@ class HarvesterBehavior(Behavior):
         avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
         weight = get_map_id_collectable_weight(
             map_id,
-            gfx_to_item_and_job,
             self.game_state.player.jobs_lvl_by_id,
             storage_by_gid,
             avg_price_by_gid,
@@ -181,9 +167,6 @@ class HarvesterBehavior(Behavior):
             return
         self.on_fight_aggro()
 
-    def on_fight_map_information_event(self, msg: FightMapInformationEvent):
-        self.on_fight_aggro()
-
     def clear_running_behaviors(self):
         with self.event_manager.lock:
             if self.random_farm_behavior.is_running.is_set():
@@ -218,8 +201,8 @@ class HarvesterBehavior(Behavior):
                 # sac de ressource
                 def use_harvest_bag():
                     req = ObjectUseRequest(object_uid=object.item.uid)
-                    self.event_manager.send(req)
                     self.game_state.inventory.objects_by_uid.pop(object.item.uid)
+                    self.event_manager.send(req)
                     self.purge_inventory()
 
                 return self.run_timer(BASE_RANGE, use_harvest_bag)
@@ -291,10 +274,3 @@ class HarvesterBehavior(Behavior):
         self.sale_hotel_prices_behavior.start(
             callback=lambda _: self.on_new_map(), parent=self
         )
-
-    def on_job_experiences_update_event(self, msg: JobExperiencesUpdateEvent):
-        if is_interesting_job_lvl_up_for_weight(
-            msg, self.game_state.player.jobs_lvl_by_id
-        ):
-            # interesting lvl up, let's recalculate weights
-            self.random_farm_behavior.additional_weight_by_map_id.clear()

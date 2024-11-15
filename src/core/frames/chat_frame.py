@@ -7,7 +7,7 @@ from d3_mapping.resources.protos.game.chat_pb2 import (
 )
 
 from src.core.frames.frame import Frame
-from src.core.logic.chat.human_response import get_human_response_to_private_msg
+from src.core.logic.chat.human_response import HumanResponse
 
 
 @dataclass
@@ -22,7 +22,7 @@ class ChatFrame(Frame):
 
     def on_chat_channel_message_event(self, msg: ChatChannelMessageEvent):
         if self.is_playing_event.is_set() and msg.channel == Channel.PRIVATE:
-            response_content = get_human_response_to_private_msg(
+            response_content = HumanResponse().get_human_response_to_private_msg(
                 msg.content, self.game_state.player.character_name, msg.sender_name
             )
             if response_content is None:

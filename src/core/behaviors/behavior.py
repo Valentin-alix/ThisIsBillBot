@@ -32,7 +32,7 @@ class Behavior(ABC):
         **kwargs,
     ) -> None:
         with self.event_manager.lock:
-            self.logger.info(f"starting : {self.__class__}")
+            self.logger.debug(f"starting : {self.__class__}")
             if parent and not parent.is_running.is_set():
                 return self.logger.error(
                     f"behavior {self.__class__} parent {parent.__class__} is not running"
@@ -57,7 +57,7 @@ class Behavior(ABC):
             wait_time = get_random_range(range_time)
         else:
             wait_time = range_time
-        self.logger.info(f"Waiting for {wait_time} before executing function")
+        self.logger.debug(f"Waiting for {wait_time} before executing function")
         timer = Timer(wait_time, lambda: self.run_timed_func(func))
         self.timers.append(timer)
         timer.start()
@@ -76,7 +76,7 @@ class Behavior(ABC):
                 return self.logger.warning(
                     f"behavior {self.__class__} with parent {self.parent.__class__ if self.parent else None} is not running anymore, don't stop"
                 )
-            self.logger.info(f"Stopping {self.__class__}")
+            self.logger.debug(f"Stopping {self.__class__}")
             self.is_running.clear()
             self.clear_behavior()
             if self.parent and self in self.parent.children:

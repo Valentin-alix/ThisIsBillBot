@@ -59,19 +59,19 @@ class MapFrame(Frame):
         self, message: MapComplementaryInformationEvent
     ):
         self.logger.info(f"New map : {message.map_id}")
-        self.game_state.map.map_id = message.map_id
+        assert self.game_state.map.map_id == message.map_id
         self.game_state.map.is_in_haven_bag = message.HasField("haven_bag_information")
         self.world_signals.curr_map_pos.emit(
             DataReader().map_pos_by_map_id[message.map_id]
         )
-        self.game_state.map.is_in_map_transition = False
+        self.game_state.map._is_in_map_transition = False
 
     def on_map_current_event(self, msg: MapCurrentEvent):
         self.game_state.map.map_id = msg.map_id
         self.game_state.entity.clear_actors()
         self.game_state.entity.clear_obstacles()
         self.game_state.interactive.clear_stated_elements()
-        self.game_state.map.is_in_map_transition = True
+        self.game_state.map._is_in_map_transition = True
 
     def on_character_life_status_event(self, msg: CharacterLifeStatusEvent):
         self.game_state.map.phoenix_map_id = msg.phoenix_map_id
@@ -80,7 +80,7 @@ class MapFrame(Frame):
         self.game_state.fight.in_fight = True
         self.game_state.map.is_in_haven_bag = False
         self.game_state.fight.is_map_fight_initialized = True
-        self.game_state.map.is_in_map_transition = False
+        self.game_state.map._is_in_map_transition = False
 
     def before_map_movement_confirm_request(self, msg: MapMovementConfirmRequest):
         self.logger.info(

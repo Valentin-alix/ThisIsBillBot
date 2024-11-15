@@ -3,63 +3,95 @@ from typing import Any
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from qfluentwidgets import SingleDirectionScrollArea
 
+from src.bot import Bot
 from src.gui.pages.farmer.player_info.property_group_widget import PropertyGroupWidget
-from src.signals.grid_signals import GridSignals
-from src.signals.player_signals import GameInfoSignals
 
 
 class PlayerInfoWidget(QWidget):
-    def __init__(self, grid_signals: GridSignals, game_info_signals: GameInfoSignals):
+    def __init__(self, bot: Bot):
         super().__init__()
+
+        self.bot = bot
+
+        scroll_area = SingleDirectionScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
+        container_widget = QWidget()
         v_layout = QVBoxLayout()
         v_layout.setAlignment(Qt.AlignTop)
-        self.setLayout(v_layout)
+        v_layout.setContentsMargins(0, 0, 0, 0)
+        container_widget.setLayout(v_layout)
+
+        scroll_area.setWidget(container_widget)
+
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(scroll_area)
+        self.setLayout(main_layout)
 
         self.inventory_weight: int = 0
         self.weight_max: int = 0
 
-        self.game_info_signals = game_info_signals
-        self.grid_signals = grid_signals
         self.group_by_key: dict[str, PropertyGroupWidget] = {}
 
-        self.game_info_signals.character_id.connect(
+        self.bot.game_info_signals.character_id.connect(
             partial(self.on_received_property, "Joueur", "Player id")
         )
-        self.game_info_signals.character_name.connect(
+        self.bot.game_info_signals.character_name.connect(
             partial(self.on_received_property, "Joueur", "Nom")
         )
-        self.game_info_signals.breed_id.connect(
+        self.bot.game_info_signals.breed_id.connect(
             partial(self.on_received_property, "Joueur", "Race id")
         )
-        self.game_info_signals.level.connect(
+        self.bot.game_info_signals.level.connect(
             partial(self.on_received_property, "Joueur", "Niveau")
         )
-        self.game_info_signals.subscription_end_date.connect(
+        self.bot.game_info_signals.server_id.connect(
+            partial(self.on_received_property, "Joueur", "Serveur id")
+        )
+        self.bot.game_info_signals.has_guild.connect(
+            partial(self.on_received_property, "Joueur", "A une guilde")
+        )
+        self.bot.game_info_signals.subscription_end_date.connect(
             partial(self.on_received_property, "Joueur", "Date de fin d'abonnement")
         )
-        self.game_info_signals.in_fight.connect(
+        self.bot.game_info_signals.in_fight.connect(
             partial(self.on_received_property, "Combat", "Est en combat")
         )
-        self.game_info_signals.life_point.connect(
+        self.bot.game_info_signals.is_our_turn.connect(
+            partial(self.on_received_property, "Combat", "Notre tour")
+        )
+        self.bot.game_info_signals.life_point.connect(
             partial(self.on_received_property, "Combat", "Vie")
         )
-        self.game_info_signals.max_life_point.connect(
+        self.bot.game_info_signals.max_life_point.connect(
             partial(self.on_received_property, "Combat", "Vie maximum")
         )
-        self.game_info_signals.inventory_weight.connect(
+        self.bot.inventory_signals.inventory_weight.connect(
             self.on_inventory_weight_updated
         )
-        self.game_info_signals.weight_max.connect(self.on_weight_max_updated)
-        self.grid_signals.new_map_id.connect(
+        self.bot.inventory_signals.weight_max.connect(self.on_weight_max_updated)
+        self.bot.grid_signals.new_map_id.connect(
             partial(self.on_received_property, "Map", "Map id")
         )
-        self.game_info_signals.count_object_by_uid.connect(
-            partial(
-                self.on_received_property,
-                "Inventaire",
-                "Nombre d'objet dans l'inventaire",
-            )
+        self.bot.grid_signals.is_in_map_transition.connect(
+            partial(self.on_received_property, "Map", "Est en transition de map")
+        )
+        self.bot.game_info_signals.is_in_haven_bag.connect(
+            partial(self.on_received_property, "Map", "Dans le havre-sac")
+        )
+        self.bot.inventory_signals.kamas.connect(
+            partial(self.on_received_property, "Inventaire", "Kamas")
+        )
+        self.bot.game_info_signals.tab_number.connect(
+            partial(self.on_received_property, "Coffre de guilde", "Onglet actuel")
+        )
+        self.bot.game_info_signals.last_time_updated_prices.connect(
+            partial(self.on_received_property, "Hotel de vente", "Derniere maj prix")
         )
 
     def on_inventory_weight_updated(self, inventory_weight: int):

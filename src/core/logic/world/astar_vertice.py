@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from typing import Iterator
 
-
-from models.world_graph import Vertice, Edge
-from src.common.astar import Astar, Node
 from data_center.data_reader import DataReader
 from data_center.world_graph_reader import WorldGraphReader
+from models.world_graph import Edge, Vertice
+
+from src.common.astar import Astar, Node
 from src.core.logic.world.edge import iter_valid_outgoing_edges
 from src.core.logic.world.map_position import get_dist_to_maps
 from src.core.states.game_state import GameState
@@ -17,15 +17,15 @@ class AstarWorld(Astar[Vertice]):
     game_state: GameState
     world_signals: WorldSignals | None = None
 
-    def get_neighbors(self, vertice: Vertice) -> Iterator[Vertice]:
+    def get_neighbors(self, data: Vertice) -> Iterator[Vertice]:
         if self.world_signals:
-            map_data = DataReader().map_pos_by_map_id[vertice.m_mapId]
+            map_data = DataReader().map_pos_by_map_id[data.m_mapId]
             if (
                 map_data.posX != self.game_state.map.map_pos.posX
                 or map_data.posY != self.game_state.map.map_pos.posY
             ):
                 self.world_signals.color_pos.emit(map_data, (0, 255, 0))
-        for edge in iter_valid_outgoing_edges(vertice, game_state=self.game_state):
+        for edge in iter_valid_outgoing_edges(data, game_state=self.game_state):
             yield edge.m_to
 
     def get_dist(self, current: Vertice, ends: "set[Vertice]") -> float:

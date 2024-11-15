@@ -131,9 +131,12 @@ class Astar(ABC, Generic[T]):
             ):
                 if node.closed:
                     continue
-                cost_to_node = current_node.cost_to_node + self.get_dist(
-                    current_node.data, {node.data}
-                )
+                try:
+                    cost_to_node = current_node.cost_to_node + self.get_dist(
+                        current_node.data, {node.data}
+                    )
+                except KeyError:
+                    continue
                 if cost_to_node >= node.cost_to_node:
                     continue
 

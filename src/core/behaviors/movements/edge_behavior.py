@@ -292,7 +292,7 @@ class EdgeBehavior(Behavior):
             self.handle_invalid_transition(edge, transition)
             return self.run_timer((1, 10), lambda: self.run(edge))
         elif error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+            return self.finish(error_code)
 
     def handle_invalid_transition(self, edge: Edge, transition: Transition):
         self.logger.error(f"Forbidden edge : {edge} with transition : {transition}")

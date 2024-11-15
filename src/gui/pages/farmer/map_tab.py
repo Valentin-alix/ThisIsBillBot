@@ -3,11 +3,10 @@ from qfluentwidgets import SingleDirectionScrollArea, SmoothMode
 
 from src.gui.components.graphics.grid_widget import GridView
 from src.signals.grid_signals import GridSignals
-from src.signals.player_signals import GameInfoSignals
 
 
 class MapTab(QWidget):
-    def __init__(self, grid_signals: GridSignals, game_info_signals: GameInfoSignals):
+    def __init__(self, grid_signals: GridSignals):
         super().__init__()
         self.setLayout(QVBoxLayout())
         scroll_area_info = SingleDirectionScrollArea()

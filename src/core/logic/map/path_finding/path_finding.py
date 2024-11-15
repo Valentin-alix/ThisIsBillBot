@@ -21,7 +21,7 @@ from src.core.states.state_factory import StateFactory
 from src.gui.components.graphics.grid_widget import GridView
 from src.signals.grid_signals import GridSignals
 from src.signals.log_signals import LogSignals
-from src.signals.player_signals import GameInfoSignals
+from src.signals.player_signals import GameInfoSignals, InventorySignals
 from src.signals.world_signals import MapSignals
 
 HV_COST: int = 10
@@ -436,11 +436,12 @@ if __name__ == "__main__":
     grid_signals = GridSignals()
     debug_signals = MapSignals()
     game_info_signals = GameInfoSignals()
+    inventory_signals = InventorySignals()
     log_signals = LogSignals()
     logger = Logger(log_signals)
 
     game_state = StateFactory.create_game_state(
-        game_info_signals, grid_signals, logger=logger
+        inventory_signals, game_info_signals, grid_signals, logger=logger
     )
     data_map_provider = DataMapProvider(game_state=game_state)
     path_finding = Pathfinding(

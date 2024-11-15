@@ -1,11 +1,19 @@
+import cProfile
 import os
 import sys
 from pathlib import Path
 from threading import Thread
+from time import sleep
 
 from dotenv import load_dotenv
 from PyQt5.QtCore import Qt
 from qfluentwidgets import Theme, setTheme, setThemeColor
+
+from src.common.internet import has_internet_connection
+
+while not has_internet_connection():
+    print("waiting for internet connection")
+    sleep(1)
 
 load_dotenv()
 
@@ -29,15 +37,16 @@ if hasattr(sys, "_MEIPASS"):
     )
 
 from src.bot_manager import BotManager  # noqa: E402
-from src.const import DOFUS_CONNECTION_URL  # noqa: E402
+from src.const import DOFUS_CONNECTION_URL, RESOURCE_FOLDER  # noqa: E402
 from src.gui.application import Application  # noqa: E402
 from src.gui.main_window import MainWindow  # noqa: E402
 from src.mitm.proxy_listener import ProxyListener  # noqa: E402
-from src.scheduler import run_continuously  # noqa: E402
 from src.signals.shared_farm_signals import SharedSignals  # noqa: E402
+from src.tools.scheduler import run_continuously  # noqa: E402
 
 
 def main() -> None:
+    # idee -> montre l'inventaire de banque et du coffre de guilde , comme pour l'inventaire
     app = Application(sys.argv)
     shared_signals = SharedSignals()
     main_window = MainWindow(title=app.TITLE, shared_signals=shared_signals)
@@ -67,4 +76,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    profiler = cProfile.Profile()
+    profiler.enable()
+
+    exit_code = main()
+
+    profiler.disable()
+    profiler.dump_stats(os.path.join(RESOURCE_FOLDER, "profile.prof"))

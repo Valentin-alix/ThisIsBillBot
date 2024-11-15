@@ -1,12 +1,11 @@
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, TypeVar
 
-from httpx import ConnectTimeout
+from httpx import ConnectTimeout, ReadTimeout
 
-from scraping_d3_client.scraping_d3_client.models.http_validation_error import (
+from src.controller.scraping_d3_client.scraping_d3_client.models.http_validation_error import (
     HTTPValidationError,
 )
-
 
 T = TypeVar("T")
 
@@ -23,7 +22,7 @@ class RequestExecutor:
         def silence_connect_timeout(func: Callable[..., T | HTTPValidationError]):
             try:
                 return func()
-            except ConnectTimeout:
+            except (ConnectTimeout, ReadTimeout):
                 return HTTPValidationError()
 
         future = self.executor.submit(lambda: silence_connect_timeout(func))

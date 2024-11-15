@@ -56,7 +56,7 @@ class EnterBankChestBehavior(Behavior):
             return int(next(iter(dialog_params))) > self.game_state.inventory.kamas
 
         if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+            return self.finish(error_code)
 
         self.event_manager.on(
             StorageInventoryContentEvent,

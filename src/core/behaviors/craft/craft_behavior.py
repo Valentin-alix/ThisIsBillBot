@@ -257,7 +257,9 @@ class CraftBehavior(Behavior):
             return self.on_all_crafted_for_skill_in_inventory()
 
         recipe, max_possible_result_quantity = recipes_infos.pop()
-        self.logger.info(f"Gonna craft {I18N().name_by_id[int(recipe.resultNameId)]}")
+        self.logger.info(
+            f"Gonna craft {I18N().name_by_id[int(recipe.resultNameId)]} for quantity {max_possible_result_quantity}"
+        )
         self.event_manager.on(
             ExchangeSetCraftRecipeRequest,
             partial(

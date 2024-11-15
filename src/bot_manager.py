@@ -1,13 +1,10 @@
-from datetime import datetime
-import json
 import threading
 from collections import defaultdict
 from dataclasses import dataclass, field
+from datetime import datetime
 from time import sleep
 
-import requests
 from ankama_launcher_emulator import AnkamaLauncherHandler, AnkamaLauncherServer
-from ankama_launcher_emulator.consts import OFFICIAL_CONFIG_URL
 from ankama_launcher_emulator.decrypter.crypto_helper import CryptoHelper
 from PyQt5.QtCore import QThread
 
@@ -23,46 +20,25 @@ from src.signals.shared_farm_signals import SharedSignals
 @dataclass
 class BotManager:
     shared_signals: SharedSignals
-    ankama_launcher_handler: AnkamaLauncherHandler = field(
-        init=False, default_factory=AnkamaLauncherHandler
-    )
-    _thread_worker_runnings: list[tuple[QThread, Worker]] = field(
-        default_factory=list, init=False
-    )
+    ankama_launcher_handler: AnkamaLauncherHandler = field(init=False, default_factory=AnkamaLauncherHandler)
+    _thread_worker_runnings: list[tuple[QThread, Worker]] = field(default_factory=list, init=False)
     _is_lauching_by_login: defaultdict[str, threading.Event] = field(
         default_factory=lambda: defaultdict(threading.Event), init=False
     )
 
     def __post_init__(self):
         self.ankama_launcher = AnkamaLauncherServer(self.ankama_launcher_handler)
-        self.init_mitm_config()
         self.bot_by_account_id = self.get_bot_by_account_id()
         self.shared_signals.launch_account.connect(self.on_launch_account)
         self.ankama_launcher.start()
 
-    def init_mitm_config(self):
-        response = requests.get(OFFICIAL_CONFIG_URL)
-        response.raise_for_status()
-        datas = response.json()
-        datas["connectionHosts"] = ["JMBouftou:localhost:5555"]
-        with open(MITM_CONFIG_URL, "w+") as config_file:
-            config_file.write(json.dumps(datas))
-
     def on_launch_account(self, login: str):
-        self._thread_worker_runnings.append(
-            run_in_background(lambda: self.relaunch_account(login))
-        )
+        self._thread_worker_runnings.append(run_in_background(lambda: self.relaunch_account(login)))
 
     def relaunch_account(self, login: str):
-        related_bot = next(
-            bot
-            for _, bot in self.bot_by_account_id.items()
-            if bot.account["apikey"]["login"] == login
-        )
+        related_bot = next(bot for _, bot in self.bot_by_account_id.items() if bot.account["apikey"]["login"] == login)
         if self._is_lauching_by_login[login].is_set():
-            return related_bot.logger.warning(
-                "Bot is already launching, don't launch twice."
-            )
+            return related_bot.logger.warning("Bot is already launching, don't launch twice.")
 
         self._is_lauching_by_login[login].set()
 

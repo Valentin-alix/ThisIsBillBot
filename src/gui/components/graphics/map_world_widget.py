@@ -2,19 +2,20 @@ from collections import defaultdict
 from dataclasses import dataclass
 from math import floor
 
-from PyQt5.QtCore import Qt, QRectF, pyqtSlot
-from PyQt5.QtGui import QPainter, QPen, QColor, QResizeEvent
+from models.datas.map_positions_root import MapPositionsRootItem
+from PyQt5.QtCore import QRectF, Qt, pyqtSlot
+from PyQt5.QtGui import QColor, QPainter, QPen, QResizeEvent
 from PyQt5.QtWidgets import (
-    QGraphicsView,
-    QGraphicsScene,
-    QGraphicsRectItem,
-    QGraphicsLineItem,
     QGraphicsEllipseItem,
+    QGraphicsLineItem,
+    QGraphicsRectItem,
+    QGraphicsScene,
+    QGraphicsView,
 )
 
-from models.datas.map_positions_root import MapPositionsRootItem
 from src.gui.components.graphics.graphic_text import TEXT_SIZE, GraphicText
-from src.interfaces.custom_type import RGBColor, Coord
+from src.gui.utils.profiling import profiled_slot
+from src.interfaces.custom_type import Coord, RGBColor
 from src.signals.world_signals import WorldSignals
 
 CELL_SIZE: int = 50
@@ -102,11 +103,11 @@ class MapWorldView(QGraphicsView):
         self.fitInView(self.scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
 
         if self.world_signals:
-            self.world_signals.color_pos.connect(self.on_color_pos)
-            self.world_signals.arrow_pos.connect(self.on_arrow_pos)
-            self.world_signals.reset_weight.connect(self.on_reset_weight)
-            self.world_signals.reset_path.connect(self.on_reset_path)
-            self.world_signals.curr_map_pos.connect(self.on_curr_map)
+            self.world_signals.color_pos.connect(profiled_slot(self.on_color_pos))
+            self.world_signals.arrow_pos.connect(profiled_slot(self.on_arrow_pos))
+            self.world_signals.reset_weight.connect(profiled_slot(self.on_reset_weight))
+            self.world_signals.reset_path.connect(profiled_slot(self.on_reset_path))
+            self.world_signals.curr_map_pos.connect(profiled_slot(self.on_curr_map))
 
     def resizeEvent(self, event: QResizeEvent):
         self.fitInView(self.scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)

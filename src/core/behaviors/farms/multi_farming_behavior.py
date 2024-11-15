@@ -78,7 +78,7 @@ class MultiFarmingBehavior(HarvesterBehavior):
             self.logger.info(f"Valid dungeons infos : {valid_dungeons_infos}")
             if len(valid_dungeons_infos) == 0:
                 return on_dungeon_behavior_finished(None)
-            self.run_timer(
+            return self.run_timer(
                 BASE_RANGE,
                 lambda: self.dungeon_behavior.start(
                     dungeon_info=random.choice(valid_dungeons_infos),
@@ -86,19 +86,30 @@ class MultiFarmingBehavior(HarvesterBehavior):
                     parent=self,
                 ),
             )
-        elif self._next_time_chat <= datetime.now():
+
+        if self._next_time_chat <= datetime.now():
             self.logger.info("Time to chat !")
-            self.run_timer(
-                BASE_RANGE,
-                lambda: self.chat_behavior.start(
-                    callback=on_chat_behavior_finished, parent=self
-                ),
+            is_other_character_in_map = any(
+                actor_id != self.game_state.player.character_id and actor_id > 0
+                for actor_id in self.game_state.entity.actor_by_id.keys()
             )
-        elif self._next_time_attacker <= datetime.now():
+            if is_other_character_in_map:
+                self.logger.info(
+                    "There is other character in current map, skip chat for now !"
+                )
+            else:
+                return self.run_timer(
+                    BASE_RANGE,
+                    lambda: self.chat_behavior.start(
+                        callback=on_chat_behavior_finished, parent=self
+                    ),
+                )
+
+        if self._next_time_attacker <= datetime.now():
             self.logger.info("Time to attack !")
-            self.fight_on_map()
-        else:
-            on_random_action_done()
+            return self.fight_on_map()
+
+        on_random_action_done()
 
     def fight_on_map(self):
         self.attacker_behavior.start(

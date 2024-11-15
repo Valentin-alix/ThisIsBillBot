@@ -209,12 +209,10 @@ class EntityFrame(Frame):
                     msg.source_id
                 ].disposition.cell_id
                 if not msg.exchange_positions.caster_cell_id == source_cell_id:
-                    msg.exchange_positions.caster_cell_id = (
-                        msg.exchange_positions.target_cell_id
-                    )
                     msg.exchange_positions.target_cell_id = (
                         msg.exchange_positions.caster_cell_id
                     )
+                    msg.exchange_positions.caster_cell_id = source_cell_id
 
                 target_direction = self.game_state.entity.actor_by_id[
                     msg.exchange_positions.target_id
@@ -234,6 +232,7 @@ class EntityFrame(Frame):
                     cell_id=msg.exchange_positions.target_cell_id,
                 )
             elif msg.HasField("teleport_on_same_map"):
+                return
                 if (
                     msg.teleport_on_same_map.target_id
                     in self.game_state.entity.actor_by_id
@@ -281,7 +280,9 @@ class EntityFrame(Frame):
         )
 
     def on_map_movement_refused_event(self, msg: MapMovementRefusedEvent):
-        if self.game_state.map.is_in_map_transition:
+        if self.game_state.map._is_in_map_transition or (
+            msg.cell_x == 0 and msg.cell_y == 0
+        ):
             return
         if self.game_state.player.character_id in self.game_state.entity.actor_by_id:
             direction = self.game_state.entity.actor_by_id[

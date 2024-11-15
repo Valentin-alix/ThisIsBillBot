@@ -16,6 +16,8 @@ from d3_mapping.resources.protos.game.character_pb2 import (
     PlayerStatusUpdateRequest,
     UpdateLifePointsEvent,
 )
+from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
+from d3_mapping.resources.protos.game.exchange_pb2 import ExchangeMoveKamaRequest
 from d3_mapping.resources.protos.game.fight_pb2 import FightRefreshCharacterStatsEvent
 from d3_mapping.resources.protos.game.game_action_pb2 import GameActionFightEvent
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
@@ -23,6 +25,7 @@ from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
 from d3_mapping.resources.protos.game.guild_member_pb2 import GuildMembershipEvent
+from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
 from d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
 from d3_mapping.resources.protos.game.teleportation_pb2 import ZaapKnownListEvent
 
@@ -109,6 +112,23 @@ class PlayerFrame(Frame):
             originator=self,
             priority=self.priority,
         )
+        self.event_manager.on(
+            InventoryWeightEvent,
+            self.on_inventory_weight_event,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            ExchangeMoveKamaRequest,
+            self.on_exchange_move_kama_request,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.before(
+            DialogLeaveRequest,
+            self.before_dialog_leave_request,
+            originator=self,
+        )
 
         self.game_info_signals.connected.connect(self.on_connected)
         self.game_info_signals.disconnected.connect(self.on_disconnected)
@@ -169,7 +189,10 @@ class PlayerFrame(Frame):
 
     def on_job_experiences_update_event(self, message: JobExperiencesUpdateEvent):
         for job_xp in message.experiences:
-            self.game_state.player.jobs_lvl_by_id[job_xp.job_id] = job_xp.job_level
+            # round to ten digit lower bc only that matters
+            self.game_state.player.jobs_lvl_by_id[job_xp.job_id] = max(
+                (job_xp.job_level // 10) * 10, 1
+            )
 
     def on_character_selection_event(self, message: CharacterSelectionEvent):
         if message.HasField("success"):
@@ -227,6 +250,19 @@ class PlayerFrame(Frame):
 
     def on_guild_members_ship_event(self, msg: GuildMembershipEvent):
         self.game_state.player.has_guild = True
+
+    def on_exchange_move_kama_request(self, msg: ExchangeMoveKamaRequest):
+        self.game_state.inventory.kamas += msg.quantity
+
+    def on_inventory_weight_event(self, message: InventoryWeightEvent):
+        self.game_state.inventory.inventory_weight = message.inventory_weight
+        self.game_state.inventory.weight_max = message.weight_max
+
+    def before_dialog_leave_request(self, msg: DialogLeaveRequest):
+        if self.is_playing_event.is_set():
+            self.logger.info("Cancel dialog leave request from client")
+            return None
+        return msg
 
     def before_player_status_update_request(self, msg: PlayerStatusUpdateRequest):
         if self.is_playing_event.is_set():

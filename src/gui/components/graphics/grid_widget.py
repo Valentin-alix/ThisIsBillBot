@@ -1,8 +1,10 @@
 import sys
 
+from d3_mapping.resources.protos.game.common_pb2 import StatedElement
 from data_center.map_reader import MapReader
 from grid.consts import CELL_HEIGHT, CELL_WIDTH
 from grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
+from models.datas.collectionsroot import Collectable
 from PyQt5.QtCore import QPointF, Qt, pyqtSlot
 from PyQt5.QtGui import QColor, QFont, QPainter, QPen, QPolygonF
 from PyQt5.QtWidgets import (
@@ -14,6 +16,7 @@ from PyQt5.QtWidgets import (
     QGraphicsView,
 )
 
+from src.gui.utils.profiling import profiled_slot
 from src.signals.grid_signals import GridSignals
 from src.signals.world_signals import MapSignals
 
@@ -73,7 +76,8 @@ class StateCell(QGraphicsEllipseItem):
         )
         self.is_obstacle: bool = False
         self.count_actor: int = 0
-        self.state_element: int | None = None
+        self.state_element: StatedElement | None = None
+        self.collectable: Collectable | None = None
 
         text = str(cell_id)
         self.text_item = QGraphicsTextItem(text, parent=self)
@@ -93,8 +97,11 @@ class StateCell(QGraphicsEllipseItem):
         self.count_actor = count_actor
         self.update_state()
 
-    def set_state_element(self, state: int | None) -> None:
-        self.state_element = state
+    def set_state_element(
+        self, stated_element: StatedElement | None, collectable: Collectable | None
+    ) -> None:
+        self.state_element = stated_element
+        self.collectable = collectable
         self.update_state()
 
     def set_is_obstacle(self, is_obstacle: bool) -> None:
@@ -107,7 +114,7 @@ class StateCell(QGraphicsEllipseItem):
             self.setBrush(self.OBSTACLE)
         elif self.state_element is not None:
             self.setVisible(True)
-            if self.state_element == 0:
+            if self.collectable is not None:
                 self.setBrush(self.STATED)
             else:
                 self.setBrush(self.STATED_DOWN)
@@ -143,15 +150,15 @@ class GridView(QGraphicsView):
         self.scale(0.75, 0.75)
 
         self.grid_signals.count_actor_on_cell_id.connect(
-            self.on_new_count_actor_on_cell_id
+            profiled_slot(self.on_new_count_actor_on_cell_id)
         )
         self.grid_signals.set_stated_element_on_cell_id.connect(
-            self.on_set_stated_element_on_cell_id
+            profiled_slot(self.on_set_stated_element_on_cell_id)
         )
         self.grid_signals.set_obstacle_on_cell_id.connect(
-            self.on_set_obstacle_on_cell_id
+            profiled_slot(self.on_set_obstacle_on_cell_id)
         )
-        self.grid_signals.new_map_id.connect(self.on_new_map_id)
+        self.grid_signals.new_map_id.connect(profiled_slot(self.on_new_map_id))
 
         if self.debug_signals:
             self.debug_signals.white_cell.connect(self.on_debug_white_cell)
@@ -218,10 +225,17 @@ class GridView(QGraphicsView):
         mp = MapPoint.from_cell_id(cell_id)
         self.cell_state_by_coord[(mp.x, mp.y)].set_count_actor(count_actor)
 
-    @pyqtSlot(int, object)
-    def on_set_stated_element_on_cell_id(self, cell_id: int, state: int | None):
+    @pyqtSlot(int, object, object)
+    def on_set_stated_element_on_cell_id(
+        self,
+        cell_id: int,
+        stated_element: StatedElement | None,
+        collectable: Collectable | None,
+    ):
         mp = MapPoint.from_cell_id(cell_id)
-        self.cell_state_by_coord[(mp.x, mp.y)].set_state_element(state)
+        self.cell_state_by_coord[(mp.x, mp.y)].set_state_element(
+            stated_element, collectable
+        )
 
     @pyqtSlot(int, bool)
     def on_set_obstacle_on_cell_id(self, cell_id: int, is_obstacle: bool):

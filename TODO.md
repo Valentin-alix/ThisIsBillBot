@@ -1,1 +1,4 @@
-- Plus de données pour human timings
+- Pouvoir identifier plein de règle automatiquement sur un message avec le nom en clair
+- Pouvoir savoir quel règle n'a pas été respecté pour un mapping particulier
+  -> scripts en dehors du mapping
+- Utiliser dynamique programming ou autre truc pour weighted path, avec des tests, puis ajouter, une fois tout validé, des random sur les poids

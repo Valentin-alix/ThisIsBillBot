@@ -10,16 +10,14 @@ from qfluentwidgets import (
     TransparentToolButton,
 )
 
-from src.gui.consts import USABLE_BEHAVIORS
+from src.bot import Bot
+from src.core.behaviors.behavior_factory import USABLE_BEHAVIORS
+from src.gui.pages.farmer.inventory_tab import InventoryTab
 from src.gui.pages.farmer.map_tab import MapTab
 from src.gui.pages.farmer.player_tab import PlayerTab
 from src.gui.pages.farmer.world_tab import WorldTab
 from src.gui.utils.run_in_background import Worker
 from src.interfaces.enums.bot_action_enum import CraftActionEnum, FarmActionEnum
-from src.signals.bot_signals import BotSignals
-from src.signals.grid_signals import GridSignals
-from src.signals.player_signals import GameInfoSignals
-from src.signals.world_signals import WorldSignals
 
 
 class FarmerWidget(PivotItem):
@@ -34,20 +32,13 @@ class FarmerWidget(PivotItem):
     def __init__(  # type: ignore
         self,
         login: str,
-        grid_signals: GridSignals,
-        game_info_signals: GameInfoSignals,
-        world_signals: WorldSignals,
-        bot_signals: BotSignals,
+        bot: Bot,
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.login = login
-        self.grid_signals = grid_signals
-        self.world_signals = world_signals
-        self.game_info_signals = game_info_signals
-        self.bot_signals = bot_signals
-
+        self.bot = bot
         v_layout = QVBoxLayout()
         v_layout.setAlignment(Qt.AlignTop)
         self.setLayout(v_layout)
@@ -55,10 +46,10 @@ class FarmerWidget(PivotItem):
         self.init_top_content()
         self.init_content()
 
-        self.bot_signals.play_harvester.connect(self.on_play_harvester)
-        self.bot_signals.play_crafter.connect(self.on_play_craft)
-        self.bot_signals.play_auto_bot.connect(self.on_play_auto)
-        self.bot_signals.play_fighter.connect(self.on_play_fighter)
+        self.bot.bot_signals.play_harvester.connect(self.on_play_harvester)
+        self.bot.bot_signals.play_crafter.connect(self.on_play_craft)
+        self.bot.bot_signals.play_auto_bot.connect(self.on_play_auto)
+        self.bot.bot_signals.play_fighter.connect(self.on_play_fighter)
 
     def init_top_content(self) -> None:
         top_widget = QWidget()
@@ -66,12 +57,12 @@ class FarmerWidget(PivotItem):
 
         self.play_btn = TransparentToolButton(FluentIcon.PLAY)
         self.play_btn.clicked.connect(self.on_click_play)
-        self.bot_signals.play.connect(self.on_play)
+        self.bot.bot_signals.play.connect(self.on_play)
         top_widget.layout().addWidget(self.play_btn)
 
         self.stop_btn = TransparentToolButton(FluentIcon.PAUSE)
         self.stop_btn.clicked.connect(self.on_click_stop)
-        self.bot_signals.stop.connect(self.on_stop)
+        self.bot.bot_signals.stop.connect(self.on_stop)
         top_widget.layout().addWidget(self.stop_btn)
         self.stop_btn.hide()
 
@@ -112,9 +103,7 @@ class FarmerWidget(PivotItem):
         stacked_widget = QStackedWidget(self)
         self.layout().addWidget(stacked_widget)
 
-        map_tab = MapTab(
-            grid_signals=self.grid_signals, game_info_signals=self.game_info_signals
-        )
+        map_tab = MapTab(grid_signals=self.bot.grid_signals)
         stacked_widget.addWidget(map_tab)
         map_route = f"{self.objectName()}_map_tab"
         pivot.addItem(
@@ -124,9 +113,7 @@ class FarmerWidget(PivotItem):
         )
         pivot.setCurrentItem(map_route)
 
-        player_tab = PlayerTab(
-            grid_signals=self.grid_signals, game_info_signals=self.game_info_signals
-        )
+        player_tab = PlayerTab(bot=self.bot)
         stacked_widget.addWidget(player_tab)
         player_route = f"{self.objectName()}_player_tab"
         pivot.addItem(
@@ -135,13 +122,22 @@ class FarmerWidget(PivotItem):
             onClick=lambda: stacked_widget.setCurrentWidget(player_tab),
         )
 
-        world_tab = WorldTab(world_signals=self.world_signals)
+        world_tab = WorldTab(world_signals=self.bot.world_signals)
         stacked_widget.addWidget(world_tab)
         world_route = f"{self.objectName()}_world_tab"
         pivot.addItem(
             routeKey=world_route,
             text="Monde",
             onClick=lambda: stacked_widget.setCurrentWidget(world_tab),
+        )
+
+        inventory_tab = InventoryTab(self.bot)
+        stacked_widget.addWidget(inventory_tab)
+        inventory_route = f"{self.objectName()}_inventory_tab"
+        pivot.addItem(
+            routeKey=inventory_route,
+            text="Inventaire",
+            onClick=lambda: stacked_widget.setCurrentWidget(inventory_tab),
         )
 
     @pyqtSlot()
@@ -182,15 +178,15 @@ class FarmerWidget(PivotItem):
     def on_click_play(self):
         area_id = self.area_farm_combo.currentData()
         sub_area_id = self.sub_area_farm_combo.currentData()
-        self.bot_signals.play.emit(True)
+        self.bot.bot_signals.play.emit(True)
         if self.type_action_combo.currentText() == FarmActionEnum.HARVESTER:
-            self.bot_signals.play_harvester.emit(area_id, sub_area_id)
+            self.bot.bot_signals.play_harvester.emit(area_id, sub_area_id)
         elif self.type_action_combo.currentText() == FarmActionEnum.FIGHTER:
-            self.bot_signals.play_fighter.emit(area_id, sub_area_id)
+            self.bot.bot_signals.play_fighter.emit(area_id, sub_area_id)
         elif self.type_action_combo.currentText() == FarmActionEnum.AUTO:
-            self.bot_signals.play_auto_bot.emit(area_id, sub_area_id)
+            self.bot.bot_signals.play_auto_bot.emit(area_id, sub_area_id)
         elif self.type_action_combo.currentText() not in FarmActionEnum:
-            self.bot_signals.play_usable_behavior.emit(
+            self.bot.bot_signals.play_usable_behavior.emit(
                 self.type_action_combo.currentText()
             )
 
@@ -248,4 +244,4 @@ class FarmerWidget(PivotItem):
 
     @pyqtSlot()
     def on_click_stop(self):
-        self.bot_signals.stop.emit()
+        self.bot.bot_signals.stop.emit()

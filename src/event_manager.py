@@ -31,7 +31,7 @@ class EventManager:
     logger: Logger
 
     def clear_listener_by_origin(self, originator: object) -> None:
-        self.logger.info(f"Clear listener by origin : {originator.__class__}")
+        self.logger.debug(f"Clear listener by origin : {originator.__class__}")
         with self.lock:
             listeners_to_remove: list[Listener] = []
 
@@ -48,7 +48,7 @@ class EventManager:
     def clear_listener_by_origin_and_type(
         self, msg_type: Type[Message], originator: object
     ) -> None:
-        self.logger.info(
+        self.logger.debug(
             f"Clear listener by origin: {originator.__class__} and type : {msg_type}"
         )
         with self.lock:
@@ -59,7 +59,7 @@ class EventManager:
 
             for listener in listeners_to_remove:
                 listener.delete()
-                self.logger.info(
+                self.logger.debug(
                     f"Removing {msg_type} with listener {listener.originator.__class__}"
                 )
                 self.listeners_by_type_msg[msg_type].remove(listener)
@@ -86,7 +86,7 @@ class EventManager:
             modifier = self.modifier_by_type_msg.get(msg.__class__, None)
             if modifier is None:
                 return msg, False
-            self.logger.info(f"Altering msg : {msg.__class__.__name__}")
+            self.logger.debug(f"Altering msg : {msg.__class__.__name__}")
             return modifier.callback(msg), True
 
     def before(
@@ -100,7 +100,7 @@ class EventManager:
                 self.logger.error(
                     f"{msg_type} already in modifier when using before from originator {originator}, override..."
                 )
-            self.logger.info(
+            self.logger.debug(
                 f"Add callback before msg : {msg_type} for originator {originator.__class__}"
             )
             self.modifier_by_type_msg[msg_type] = Modifier(
@@ -109,7 +109,7 @@ class EventManager:
 
     def prevent(self, msg_type: Type[Message], originator: object):
         with self.lock:
-            self.logger.info(
+            self.logger.debug(
                 f"Add prevent msg : {msg_type} for originator {originator.__class__}"
             )
             if msg_type in self.modifier_by_type_msg:
@@ -124,7 +124,7 @@ class EventManager:
         return None
 
     def clear_modifier_by_origin(self, originator: object) -> None:
-        self.logger.info(f"Clear modifiers for originator {originator.__class__}")
+        self.logger.debug(f"Clear modifiers for originator {originator.__class__}")
         with self.lock:
             self.modifier_by_type_msg = {
                 type_msg: modifier
@@ -135,7 +135,7 @@ class EventManager:
     def clear_modifier_by_origin_and_type(
         self, msg_type: Type[Message], originator: object
     ) -> None:
-        self.logger.info(
+        self.logger.debug(
             f"Clear modifier type : {msg_type} for originator {originator.__class__}"
         )
         with self.lock:
@@ -159,14 +159,12 @@ class EventManager:
                 f"Incoherent timeout is {timeout} but on timeout definition : {on_timeout is not None}"
             )
         with self.lock:
-            if priority is None:
-                priority = getattr(originator, "priority", PriorityEnum.NORMAL)
             if override_on_self:
-                self.logger.info(
+                self.logger.debug(
                     f"Overriding {msg_type} with originator {originator.__class__}"
                 )
                 self.clear_listener_by_origin_and_type(msg_type, originator)
-            self.logger.info(
+            self.logger.debug(
                 f"Adding on callback for msg {msg_type} and originator {originator.__class__}"
             )
             self.listeners_by_type_msg[msg_type].append(
@@ -182,7 +180,7 @@ class EventManager:
             )
 
     def send(self, msg: Message) -> None:
-        self.logger.info(f"Sending {msg.__class__}")
+        self.logger.debug(f"Sending {msg.__class__}")
         with self.lock:
             if self.on_send_game_callback is None:
                 raise AttributeError(
@@ -191,7 +189,7 @@ class EventManager:
             self.on_send_game_callback(msg)
 
     def send_connection_msg(self, msg: Message) -> None:
-        self.logger.info(f"Sending {msg.__class__}")
+        self.logger.debug(f"Sending {msg.__class__}")
         with self.lock:
             if self.on_send_conn_callback is None:
                 raise AttributeError(

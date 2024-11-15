@@ -62,7 +62,7 @@ class ObstacleByCellIdDict(dict[int, MapObstacle]):
         return super().__delitem__(key)
 
 
-type MonsterGroup = tuple[
+MonsterGroup = tuple[
     int,
     MapPoint,
     ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor,

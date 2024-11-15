@@ -11,11 +11,11 @@ from data_center.i18n import I18N
 from models.datas.recipe_root import RecipeItem
 
 from src.core.behaviors.behavior import Behavior
-from src.core.config.storage import USEFUL_UNLOAD
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
+from src.core.config.storage import USEFUL_UNLOAD
 from src.core.config.timings import BASE_RANGE, SMALL_RANGE
 from src.core.logic.craft.craft import (
     get_max_possible_result_quantity,
@@ -80,9 +80,6 @@ class LoadRecipeFromBankChestBehavior(Behavior):
             return self.on_full_loaded()
 
         recipe = self._remaining_recipes[0]
-        self.logger.info(
-            f"bank object by gid on load item: {list(self.game_state.inventory.bank_object_by_gid.keys())}"
-        )
         max_result_quantity, weight_for_one_result = get_max_result_quantity(
             self.logger, self.game_state.inventory.bank_object_by_gid, recipe
         )

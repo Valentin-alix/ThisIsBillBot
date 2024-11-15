@@ -1,6 +1,5 @@
-from PyQt5.QtCore import QObject, pyqtSignal
-
 from grid.map_point import MapPoint
+from PyQt5.QtCore import QObject, pyqtSignal
 
 
 class MapSignals(QObject):

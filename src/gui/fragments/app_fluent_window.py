@@ -1,16 +1,8 @@
 from PyQt5.QtWidgets import QHBoxLayout, QWidget
-from qfluentwidgets import (
-    FluentStyleSheet,
-    FluentTitleBar,
-    NavigationItemPosition,
-    NavigationWidget,
-    qrouter,
-)
+from qfluentwidgets import FluentStyleSheet, FluentTitleBar, NavigationItemPosition, NavigationWidget, qrouter
 from qfluentwidgets.window.fluent_window import FluentWindowBase
 
-from src.gui.components.qfluent_widget.no_animated_stacked_widget import (
-    NoAnimatedStackedWidget,
-)
+from src.gui.components.qfluent_widget.no_animated_stacked_widget import NoAnimatedStackedWidget
 from src.gui.fragments.sidebar import Sidebar
 
 

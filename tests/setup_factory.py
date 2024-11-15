@@ -34,7 +34,7 @@ from src.interfaces.aliases import (
 )
 from src.signals.grid_signals import GridSignals
 from src.signals.log_signals import LogSignals
-from src.signals.player_signals import GameInfoSignals
+from src.signals.player_signals import GameInfoSignals, InventorySignals
 from src.signals.world_signals import WorldSignals
 
 
@@ -44,8 +44,10 @@ class GameStateFixture(unittest.TestCase):
         self.grid_signals = GridSignals()
         self.log_signals = LogSignals()
         self.world_signals = WorldSignals()
+        self.inventory_signals = InventorySignals()
         self.logger = Logger(log_signals=LogSignals())
         self.game_state = StateFactory.create_game_state(
+            inventory_signals=self.inventory_signals,
             game_info_signals=self.game_info_signals,
             grid_signals=self.grid_signals,
             logger=self.logger,

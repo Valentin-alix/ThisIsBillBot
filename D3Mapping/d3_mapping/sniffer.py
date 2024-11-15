@@ -8,6 +8,7 @@ from functools import cached_property
 from pathlib import Path
 from threading import Thread
 
+from dotenv import load_dotenv
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 from qfluentwidgets import Theme, setTheme, setThemeColor
@@ -16,12 +17,17 @@ from scapy.layers.inet import IP
 from scapy.layers.inet6 import IPv6
 from scapy.packet import Packet, Raw
 
+from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
+from src.gui.pages.debugs.sniffer import SnifferWidget
+from tests.fixtures.random_generator import generate_random_bot
+
+load_dotenv(os.path.join(Path(__file__).parent.parent.parent, ".env"))
+
 sys.path.append(os.path.join(Path(__file__).parent.parent.parent))
 sys.path.append(os.path.join(Path(__file__).parent.parent.parent, "D3Mapping"))
 sys.path.append(os.path.join(Path(__file__).parent.parent.parent, "DBDofusUnity"))
 sys.path.append(os.path.join(Path(__file__).parent.parent.parent, "D3Database"))
 
-from d3_mapping.gui.sniffer.sniffer import SnifferWidget
 from d3_mapping.protocol.protocol import decode_varint_size
 from d3_mapping.protocol.protocol_connection import (
     get_conn_msg,
@@ -30,12 +36,10 @@ from d3_mapping.protocol.protocol_connection import (
 from d3_mapping.protocol.protocol_game import (
     get_game_msg,
     get_game_msg_info,
+    get_obf_game_msg_info,
 )
 from d3_mapping.signals.message_signals import MessageInfoSignals
 from d3_mapping.utils import get_local_ip
-
-BASE_WIDTH: int = 1280
-BASE_HEIGHT: int = 720
 
 FILTER_DOFUS = "tcp port 5555"
 DOFUS_CONNECTION_URL = "dofus2-co-production.ankama-games.com"
@@ -104,9 +108,9 @@ class Sniffer:
 
     def handle_game_message(self, content: bytes, from_server: bool):
         try:
-            # msg_infos = get_obf_game_msg_info(content, from_server, True)
-            # self.msg_info_signals.msg_info.emit(msg_infos, False)
-            # return
+            msg_infos = get_obf_game_msg_info(content, from_server, True)
+            self.msg_info_signals.msg_info.emit(msg_infos, False)
+            return
             _, clear_sub_msg, obf_sub_msg, uid_value = get_game_msg(content, True)
             msg_infos = get_game_msg_info(
                 clear_sub_msg, obf_sub_msg, uid_value, from_server, True
@@ -121,7 +125,7 @@ def main():
     msg_signals = MessageInfoSignals()
     sniffer = Sniffer(msg_signals, True)
     Thread(target=sniffer.launch_sniffer, daemon=True).start()
-    sniffer_widget = SnifferWidget(msg_signals)
+    sniffer_widget = SnifferWidget(bot=generate_random_bot())
     sniffer_widget.resize(BASE_WIDTH, BASE_HEIGHT)
     sniffer_widget.show()
     setTheme(Theme.DARK)

@@ -8,6 +8,8 @@ from functools import cached_property
 from threading import RLock
 from typing import Any
 
+# don't remove below import, otherwise to_parquet in atexis shutdown is gonna boum boum
+import fastparquet  # noqa: F401
 import pandas as pd
 from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message
@@ -20,8 +22,6 @@ BASE_FILENAME = "instancied_msg_infos"
 PATH_BOT_SHARED_DATAS = os.path.join(os.environ["HOME"], "OneDrive", "BotSharedDatas")
 
 MAX_COUNT_BY_NAME = 1_500
-
-PATH_MSG_INFOS = os.path.join(PATH_BOT_SHARED_DATAS, "instancied_msg_infos_1.parquet")
 
 
 @dataclass
@@ -37,6 +37,17 @@ class InstanciedMessageInfoController(metaclass=Singleton):
         if self._df is None:
             self._df = self.get_df_from_file()
         return self._df
+
+    @property
+    def path_msg_infos(self):
+        if os.path.exists(PATH_BOT_SHARED_DATAS):
+            return os.path.join(
+                PATH_BOT_SHARED_DATAS,
+                f"instancied_msg_infos_{os.environ['PC_ID']}.parquet",
+            )
+        else:
+            print("<!> Shared datas folder not found")
+            return "DUMMY_PATH"
 
     @df.setter
     def df(self, value: DataFrame):
@@ -64,10 +75,10 @@ class InstanciedMessageInfoController(metaclass=Singleton):
 
     def get_df_from_file(self):
         with self._lock:
-            if not os.path.exists(PATH_MSG_INFOS):
+            if not os.path.exists(self.path_msg_infos):
                 return DataFrame(columns=["name", "content"])
             else:
-                df_from_file = pd.read_parquet(PATH_MSG_INFOS)
+                df_from_file = pd.read_parquet(self.path_msg_infos)
                 df_from_file = df_from_file.groupby("name").head(MAX_COUNT_BY_NAME)
                 return df_from_file
 
@@ -149,7 +160,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
                 ]
             )
             self.df = pd.concat([self.df, new_df], ignore_index=True)
-            InstanciedMessageInfoController().df.to_parquet(PATH_MSG_INFOS, index=False)
+            self.df.to_parquet(self.path_msg_infos, index=False)
             if hasattr(self, "get_count_by_name_in_df"):
                 del self.get_count_by_name_in_df
             self._rows_to_add_by_name.clear()

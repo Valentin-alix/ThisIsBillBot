@@ -1,13 +1,16 @@
+import random
 from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
-import random
+from threading import Lock
 from typing import Callable
 
-from models.world_graph import Edge
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
+from data_center.data_reader import DataReader
+from models.world_graph import Edge
+
 from src.const import MIN_DATE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
@@ -15,15 +18,16 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 )
 from src.core.behaviors.movements.edge_behavior import EdgeBehavior
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
-from data_center.data_reader import DataReader
-from src.core.logic.farmer.weight_collectables import (
+from src.core.logic.farms.weights.weight_items import (
     draw_weight_on_map,
 )
-from src.core.logic.farmer.weighted_path import WeightedPath
+from src.core.logic.farms.weights.weighted_path import WeightedPath
 from src.core.logic.world.edge import draw_edge_path
 from src.signals.world_signals import WorldSignals
 
+PATH_LOCK = Lock()
 LAST_VISITED_BY_MAP_ID: dict[int, datetime] = {}
+EDGE_PATH_BY_CHARACTER_ID: dict[int, list[Edge]] = {}
 
 
 @dataclass
@@ -39,7 +43,19 @@ class RandomFarmBehavior(Behavior):
         init=False, default=lambda _: 0
     )
     map_ids: set[int] = field(default_factory=set, init=False)
-    edge_path: list[Edge] | None = field(default=None, init=False)
+    _edge_path: list[Edge] | None = field(default=None, init=False)
+
+    @property
+    def edge_path(self):
+        return self._edge_path
+
+    @edge_path.setter
+    def edge_path(self, value: list[Edge] | None):
+        self._edge_path = value
+        if value is None:
+            EDGE_PATH_BY_CHARACTER_ID.pop(self.game_state.player.character_id, None)
+        else:
+            EDGE_PATH_BY_CHARACTER_ID[self.game_state.player.character_id] = value
 
     def init_random_farm(
         self,
@@ -52,6 +68,10 @@ class RandomFarmBehavior(Behavior):
         self.edge_path = None
         self.world_signals.reset_weight.emit()
         self.map_ids = self.get_map_ids(area_id, sub_area_id)
+
+    def stop(self) -> None:
+        self.edge_path = None
+        return super().stop()
 
     def run(
         self,
@@ -74,7 +94,9 @@ class RandomFarmBehavior(Behavior):
 
         if self.edge_path is None or len(self.edge_path) == 0:
             self.logger.info("Empty edge path, recalculating")
-            self.edge_path = self.get_next_weighted_path()
+            with PATH_LOCK:
+                self.edge_path = None
+                self.edge_path = self.get_next_weighted_path()
             if self.edge_path is None:
                 return self.auto_trip_smart_behavior.start(
                     callback=self.on_auto_trip_world_behavior_finished,
@@ -171,8 +193,17 @@ class RandomFarmBehavior(Behavior):
             )
             self.additional_weight_by_map_id[edge.m_to.m_mapId] = additional_weight_map
 
+        count_edge_already_on_other_players = len(
+            [
+                edge
+                for character_id, edge_path in list(EDGE_PATH_BY_CHARACTER_ID.items())
+                for edge in edge_path
+                if character_id != self.game_state.player.character_id and edge == edge
+            ]
+        )
+
         return (
             (min((datetime.now() - last_visited).total_seconds(), 3600) ** 3)
             * (1 + additional_weight_map)
             * random.uniform(0.65, 1)
-        )
+        ) / (1 + count_edge_already_on_other_players)

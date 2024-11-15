@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12game_message.proto\x12%com.ankama.dofus.server.game.protocol\x1a\x19google/protobuf/any.proto\"\xa5\x03\n\x0bGameMessage\x12K\n\x07unknown\x18\x04 \x01(\x0b\x32:.com.ankama.dofus.server.game.protocol.GameMessage.Unknown\x12\x41\n\x07request\x18\x01 \x01(\x0b\x32..com.ankama.dofus.server.game.protocol.RequestH\x00\x12\x43\n\x08response\x18\x02 \x01(\x0b\x32/.com.ankama.dofus.server.game.protocol.ResponseH\x00\x12=\n\x05\x65vent\x18\x03 \x01(\x0b\x32,.com.ankama.dofus.server.game.protocol.EventH\x00\x1aw\n\x07Unknown\x12\x13\n\x0bunknown_one\x18\x01 \x01(\x03\x12\x13\n\x0bunknown_two\x18\x02 \x01(\t\x12\x1a\n\runknown_three\x18\x03 \x01(\x05H\x00\x88\x01\x01\x12\x14\n\x0cunknown_four\x18\x04 \x01(\x05\x42\x10\n\x0e_unknown_threeB\t\n\x07\x63ontent\"=\n\x07Request\x12\x0b\n\x03uid\x18\x01 \x01(\x05\x12%\n\x07\x63ontent\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any\">\n\x08Response\x12\x0b\n\x03uid\x18\x01 \x01(\x05\x12%\n\x07\x63ontent\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any\".\n\x05\x45vent\x12%\n\x07\x63ontent\x18\x01 \x01(\x0b\x32\x14.google.protobuf.Anyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12game_message.proto\x12%com.ankama.dofus.server.game.protocol\x1a\x19google/protobuf/any.proto\"\xdf\x01\n\x0bGameMessage\x12\x41\n\x07request\x18\x01 \x01(\x0b\x32..com.ankama.dofus.server.game.protocol.RequestH\x00\x12\x43\n\x08response\x18\x02 \x01(\x0b\x32/.com.ankama.dofus.server.game.protocol.ResponseH\x00\x12=\n\x05\x65vent\x18\x03 \x01(\x0b\x32,.com.ankama.dofus.server.game.protocol.EventH\x00\x42\t\n\x07\x63ontent\"=\n\x07Request\x12\x0b\n\x03uid\x18\x01 \x01(\x05\x12%\n\x07\x63ontent\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any\">\n\x08Response\x12\x0b\n\x03uid\x18\x01 \x01(\x05\x12%\n\x07\x63ontent\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any\".\n\x05\x45vent\x12%\n\x07\x63ontent\x18\x01 \x01(\x0b\x32\x14.google.protobuf.Anyb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,13 +33,11 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'game_message_pb2', _globals
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_GAMEMESSAGE']._serialized_start=89
-  _globals['_GAMEMESSAGE']._serialized_end=510
-  _globals['_GAMEMESSAGE_UNKNOWN']._serialized_start=380
-  _globals['_GAMEMESSAGE_UNKNOWN']._serialized_end=499
-  _globals['_REQUEST']._serialized_start=512
-  _globals['_REQUEST']._serialized_end=573
-  _globals['_RESPONSE']._serialized_start=575
-  _globals['_RESPONSE']._serialized_end=637
-  _globals['_EVENT']._serialized_start=639
-  _globals['_EVENT']._serialized_end=685
+  _globals['_GAMEMESSAGE']._serialized_end=312
+  _globals['_REQUEST']._serialized_start=314
+  _globals['_REQUEST']._serialized_end=375
+  _globals['_RESPONSE']._serialized_start=377
+  _globals['_RESPONSE']._serialized_end=439
+  _globals['_EVENT']._serialized_start=441
+  _globals['_EVENT']._serialized_end=487
 # @@protoc_insertion_point(module_scope)

@@ -23,11 +23,10 @@ from data_center.data_reader import DataReader
 from data_center.i18n import I18N
 from enums.category_item_enum import CategoryEnum
 
-from scraping_d3_client.scraping_d3_client.models.quantity_enum import (
-    QuantityEnum,
-    QuantityIndex,
-)
 from src.controller.sale_hotel import SaleHotelController
+from src.controller.scraping_d3_client.scraping_d3_client.models.quantity_enum import (
+    QuantityEnum,
+)
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
@@ -335,7 +334,7 @@ class SaleHotelPricesBehavior(Behavior):
             .get((item.gid, quantity_to_sell))
         )
         minimal_price_in_sale = get_price_for_sale_hotel(
-            list(minimal_prices), quantity_index, quantity_to_sell
+            list(minimal_prices), quantity_to_sell
         )
         price_for_quantity = minimal_price_in_sale
         if minimal_price_in_sale_bots != minimal_price_in_sale:
@@ -396,11 +395,11 @@ class SaleHotelPricesBehavior(Behavior):
             partial(self.on_text_information_event, items=items),
             originator=self,
         )
-        item.quantity -= quantity_to_sell
         self.logger.info(f"Remaining quantity of item {item.gid} : {item.quantity}")
         req = ExchangeObjectMovePricedRequest(
             object_uid=item.uid, quantity=quantity_to_sell, price=price_for_quantity
         )
+        item.quantity -= quantity_to_sell  # bc these items instance are not linked to new items received in msg
         self.run_timer(TINY_RANGE, lambda: self.event_manager.send(req))
 
     def on_text_information_event(
@@ -474,24 +473,16 @@ class SaleHotelPricesBehavior(Behavior):
         items: list[ExchangeBidSellerStartedEvent.ItemToSellInBid],
     ):
         price_for_one = get_price_for_sale_hotel(
-            list(msg.bid_price_for_seller.minimal_prices),
-            QuantityIndex.ONE,
-            QuantityEnum.VALUE_1,
+            list(msg.bid_price_for_seller.minimal_prices), QuantityEnum.VALUE_1
         )
         price_for_ten = get_price_for_sale_hotel(
-            list(msg.bid_price_for_seller.minimal_prices),
-            QuantityIndex.TEN,
-            QuantityEnum.VALUE_10,
+            list(msg.bid_price_for_seller.minimal_prices), QuantityEnum.VALUE_10
         )
         price_for_hundred = get_price_for_sale_hotel(
-            list(msg.bid_price_for_seller.minimal_prices),
-            QuantityIndex.HUNDRED,
-            QuantityEnum.VALUE_100,
+            list(msg.bid_price_for_seller.minimal_prices), QuantityEnum.VALUE_100
         )
         price_for_thousand = get_price_for_sale_hotel(
-            list(msg.bid_price_for_seller.minimal_prices),
-            QuantityIndex.THOUSAND,
-            QuantityEnum.VALUE_1000,
+            list(msg.bid_price_for_seller.minimal_prices), QuantityEnum.VALUE_1000
         )
 
         minimal_price_by_gid_and_quantity = (

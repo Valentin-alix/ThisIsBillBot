@@ -126,9 +126,17 @@ class FightFrame(Frame):
         )
 
     def on_fight_live_state_event(self, msg: FightLiveStateEvent):
-        for live_state in msg.entities_states:
-            if live_state.is_dead:
-                self.game_state.entity.remove_actor(live_state.entity_id)
+        for actor_id in list(self.game_state.entity.actor_by_id.keys()):
+            related_entity_state = next(
+                (
+                    entity_state
+                    for entity_state in msg.entities_states
+                    if entity_state.entity_id == actor_id
+                ),
+                None,
+            )
+            if not related_entity_state or related_entity_state.is_dead:
+                self.game_state.entity.remove_actor(actor_id)
 
     def on_fight_placement_position_request(
         self, msg: FightPlacementPossiblePositionsEvent
@@ -164,7 +172,9 @@ class FightFrame(Frame):
         self.game_state.fight.spells = list(message.human_spells)
 
     def on_game_action_fight_cast_request(self, message: GameActionFightCastRequest):
-        self.game_state.fight.count_casted_by_spell_id[message.spell_id] += 1
+        self.game_state.fight.count_casted_by_spell_id[message.spell_id] = (
+            self.game_state.fight.count_casted_by_spell_id.get(message.spell_id, 0) + 1
+        )
 
     def on_character_characteristics_event(
         self, message: CharacterCharacteristicsEvent

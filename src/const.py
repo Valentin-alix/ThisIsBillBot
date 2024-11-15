@@ -6,9 +6,7 @@ from pathlib import Path
 
 from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
 from d3_mapping.resources.protos.game.fight_pb2 import FightTurnFinishRequest
-from d3_mapping.resources.protos.game.gamemap_pb2 import (
-    MapMovementConfirmRequest,
-)
+from d3_mapping.resources.protos.game.gamemap_pb2 import MapMovementConfirmRequest
 
 BACKEND_URL = "http://31.38.182.64:65472"
 
@@ -35,3 +33,5 @@ MESSAGES_WITH_UID = [
     DialogLeaveRequest,
     FightTurnFinishRequest,
 ]
+
+RECORDING_FOLDER = os.path.join(Path(__file__).parent, "recordings")

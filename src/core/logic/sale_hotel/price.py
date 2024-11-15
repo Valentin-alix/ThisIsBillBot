@@ -1,24 +1,32 @@
 import math
 import random
 from collections import defaultdict
+from statistics import median
+from typing import cast
 
 from d3_mapping.resources.protos.game.common_pb2 import ObjectItem, ObjectItemInventory
 from data_center.data_reader import DataReader
 from enums.category_item_enum import CategoryEnum
 
-from scraping_d3_client.scraping_d3_client.models.quantity_enum import (
+from src.common.logger import Logger
+from src.controller.sale_hotel import SaleHotelController
+from src.controller.scraping_d3_client.scraping_d3_client.models.quantity_enum import (
+    QUANTITY_INDEX_BY_QUANTITY,
     QuantityEnum,
     QuantityIndex,
 )
-from src.common.logger import Logger
-from src.controller.sale_hotel import SaleHotelController
 from src.core.config.sale_hotel import MAX_QUANTITY_ON_SELL
 from src.core.config.storage import (
     PROTECTOR_DROP_ITEM_IDS,
     SELLABLE_ITEMS,
 )
-from src.core.logic.farmer.weight_item import get_weight_item_for_sale_hotel
+from src.core.logic.farms.weights.weight_items import (
+    get_weight_item_for_sale_hotel,
+)
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
+
+PRICE_LOW_RATIO = 0.5
+PRICE_HIGH_RATIO = 2.0
 
 
 def get_item_gids_to_sell(
@@ -65,11 +73,13 @@ def get_item_gids_to_sell(
     avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
 
     item_gids_to_sell.sort(
-        key=lambda item_gid: random.randint(1, 10)
+        key=lambda item_gid: random.randint(1, 5)
         * get_weight_item_for_sale_hotel(
-            item_gid, avg_price_by_gid, item_by_gid_in_storage
-        )
-        / (1 + item_sell_quantity_by_gid.get(item_gid, 0)),
+            item_gid,
+            avg_price_by_gid,
+            item_by_gid_in_storage,
+            item_sell_quantity_by_gid,
+        ),
         reverse=True,
     )
 
@@ -111,50 +121,62 @@ def choose_quantity_to_sell(item: ObjectItem):
 def get_max_quantity_sell(gid: int) -> int:
     if gid in PROTECTOR_DROP_ITEM_IDS:
         return 1
-
-    avg_price = SaleHotelController().get_avg_price_by_gid().get(gid, 1)
-    return math.ceil(MAX_QUANTITY_ON_SELL / (avg_price / 1000 + 1))
+    return MAX_QUANTITY_ON_SELL
 
 
 def get_price_for_sale_hotel(
-    prices: list[int], quantity_index: QuantityIndex, quantity: QuantityEnum
-):
-    avg_price = get_average_price_for_description(prices) * quantity
-    min_price = prices[quantity_index]
-    if min_price == 0:
-        return avg_price
-    return min(avg_price, min_price)
+    min_prices: list[int],
+    target_lot: QuantityEnum,
+) -> int:
+    unit_prices: list[float | None] = []
+    valid_indexes: list[int] = []
 
+    for index, (current_price, current_lot) in enumerate(zip(min_prices, QuantityEnum)):
+        if current_price > 0:
+            unit_prices.append(current_price / current_lot)
+            valid_indexes.append(index)
+        else:
+            unit_prices.append(None)
 
-def get_average_price_for_description(prices: list[int]) -> int:
-    sum_price = 0
-    valid_quantity = 0
-    if prices[QuantityIndex.ONE] != 0:
-        sum_price += prices[QuantityIndex.ONE]
-        valid_quantity += 1
-    if prices[QuantityIndex.TEN] != 0:
-        sum_price += prices[QuantityIndex.TEN]
-        valid_quantity += 10
-    if prices[QuantityIndex.HUNDRED] != 0:
-        sum_price += prices[QuantityIndex.HUNDRED]
-        valid_quantity += 100
-    if prices[QuantityIndex.THOUSAND] != 0:
-        sum_price += prices[QuantityIndex.THOUSAND]
-        valid_quantity += 1000
-
-    if valid_quantity == 0:
+    if not valid_indexes:
         return 0
-    return sum_price // valid_quantity
+
+    filtered_unit_prices: list[float] = [
+        cast(float, unit_prices[index]) for index in valid_indexes
+    ]
+    median_raw = median(filtered_unit_prices)
+
+    accepted_indexes: list[int] = []
+
+    for index in valid_indexes:
+        unit_price = cast(float, unit_prices[index])
+        ratio = unit_price / median_raw
+        if PRICE_LOW_RATIO <= ratio <= PRICE_HIGH_RATIO:
+            accepted_indexes.append(index)
+
+    if not accepted_indexes:
+        closest_index = min(
+            valid_indexes,
+            key=lambda index: abs(cast(float, unit_prices[index]) - median_raw),
+        )
+        accepted_indexes = [closest_index]
+
+    cleaned_unit_price = median(
+        [cast(float, unit_prices[index]) for index in accepted_indexes]
+    )
+
+    lot_index_by_quantity = QUANTITY_INDEX_BY_QUANTITY[target_lot]
+    curr_min_price_lot = (
+        min_prices[lot_index_by_quantity]
+        if min_prices[lot_index_by_quantity] > 0
+        else float("inf")
+    )
+
+    return int(min(cleaned_unit_price * target_lot, curr_min_price_lot))
 
 
 if __name__ == "__main__":
-    print(DataReader().item_by_id[8162])
-    min_prices = [99_999, 4878, 35548, 368997]
-    avg_price = get_average_price_for_description(min_prices)
-    print(avg_price)
-
-    print(
-        get_price_for_sale_hotel(
-            min_prices, QuantityIndex.HUNDRED, QuantityEnum.VALUE_100
-        )
-    )
+    print(is_interesting_item_to_sell(ObjectItem(uid=1, quantity=561, gid=533)))
+    print(math.ceil(MAX_QUANTITY_ON_SELL / ((1000 / 500) + 1)))
+    min_prices = [50, 500, 5000, 500_000]
+    print(get_price_for_sale_hotel(min_prices, QuantityEnum.VALUE_1000))

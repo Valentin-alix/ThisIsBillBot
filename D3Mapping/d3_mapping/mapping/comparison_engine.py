@@ -31,7 +31,7 @@ from d3_mapping.models.p_message import (
 )
 from d3_mapping.utils import Percentage, set_percentage
 
-type PulpMappingStruct = dict[tuple[tuple[str, ...], tuple[str, ...]], float]
+PulpMappingStruct = dict[tuple[tuple[str, ...], tuple[str, ...]], float]
 
 
 def compare_p_enum(clear_enum: PEnum, obf_enum: PEnum) -> float:

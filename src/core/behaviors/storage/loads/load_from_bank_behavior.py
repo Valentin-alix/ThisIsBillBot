@@ -11,12 +11,12 @@ from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
 from data_center.data_reader import DataReader
 
 from src.core.behaviors.behavior import Behavior
-from src.core.config.storage import USEFUL_UNLOAD
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )
 from src.core.behaviors.storage.loads.load_from_guild_chest_behavior import LoadItemInfo
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
+from src.core.config.storage import USEFUL_UNLOAD
 from src.core.config.timings import BASE_RANGE, SMALL_RANGE
 
 
@@ -107,7 +107,6 @@ class LoadFromBankBehavior(Behavior):
 
         valid_quantity = min(portable_quantity, quantity_to_unload)
         load_item_info.remaining_quantity -= valid_quantity
-        related_item.item.quantity -= valid_quantity
         if load_item_info.remaining_quantity < 100:
             load_items_infos.remove(load_item_info)
 

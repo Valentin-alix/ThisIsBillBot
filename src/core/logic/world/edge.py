@@ -1,3 +1,4 @@
+from functools import cache
 from typing import Iterator
 
 from data_center.data_reader import DataReader
@@ -6,6 +7,7 @@ from models.world_graph import Edge, Transition, Vertice
 
 from src.core.logic.criterions.consts import CRITERION_WHITE_LIST
 from src.core.logic.criterions.group_item_criterion import GroupItemCriterion
+from src.core.logic.criterions.interface_item_criterion import IItemCriterion
 from src.core.logic.map.map_tools import MapTools
 from src.core.states.game_state import GameState
 from src.signals.world_signals import WorldSignals
@@ -33,24 +35,36 @@ def remove_forbidden_edge_transition_by_map_id(map_id: int):
 def get_valid_transition(
     edge: Edge, transitions: list[Transition], game_state: GameState
 ) -> Transition | None:
+    for transition, criterion in _get_transition_to_valid_criterions(
+        edge, tuple(transitions)
+    ):
+        if (edge.m_from, edge.m_to, transition) in FORBIDDEN_EDGE_TRANSITION:
+            continue
+        if not criterion or criterion.is_respected(game_state):
+            return transition
+    return None
+
+
+@cache
+def _get_transition_to_valid_criterions(
+    edge: Edge, transitions: tuple[Transition]
+) -> list[tuple[Transition, IItemCriterion | None]]:
+    transitions_with_criterion: list[tuple[Transition, IItemCriterion | None]] = []
     for transition in transitions:
         if (edge.m_from, edge.m_to, transition) in FORBIDDEN_EDGE_TRANSITION:
             continue
-
         if len(transition.m_criterion) == 0:
-            return transition
-
+            transitions_with_criterion.append((transition, None))
         if (
             "&" not in transition.m_criterion
             and "|" not in transition.m_criterion
             and transition.m_criterion[0:2] not in CRITERION_WHITE_LIST
         ):
             continue
-
-        criterion = GroupItemCriterion(transition.m_criterion)
-        if criterion.is_respected(game_state):
-            return transition
-    return None
+        transitions_with_criterion.append(
+            (transition, GroupItemCriterion(transition.m_criterion))
+        )
+    return transitions_with_criterion
 
 
 def edge_has_valid_transition(edge: Edge, game_state: GameState) -> bool:
@@ -69,12 +83,14 @@ def iter_valid_outgoing_edges(
     for edge in edges:
         if edge.m_to.m_mapId in FORBIDDEN_MAP_IDS:
             continue
-
-        if not game_state.player.is_sub and not MapTools.is_map_allowed_for_unsub(
-            edge.m_to.m_mapId
-        ):
-            continue
-        if not edge_has_valid_transition(edge, game_state):
+        try:
+            if not game_state.player.is_sub and not MapTools.is_map_allowed_for_unsub(
+                edge.m_to.m_mapId
+            ):
+                continue
+            if not edge_has_valid_transition(edge, game_state):
+                continue
+        except KeyError:
             continue
         yield edge
 

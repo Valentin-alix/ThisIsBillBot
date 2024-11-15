@@ -1,65 +1,65 @@
-[tool.poetry]
+[project]
 name = "bot_dofus_unity"
 version = "0.1.0"
 description = ""
-authors = ["Valentin Alix <valentin-alix.850@outlook.fr>"]
+authors = [{ name = "Valentin Alix", email = "valentin-alix.850@outlook.fr" }]
+requires-python = ">3.11,<3.14"
 readme = "README.md"
-package-mode = false
+dependencies = [
+    "pydantic>2.8",
+    "scapy>=2.5.0,<3",
+    "psutil>=6.0.0,<7",
+    "pyqt5-qt5==5.15.2",
+    "pyqt5==5.15.10",
+    "pyqt-fluent-widgets[full]>=1.6.3,<2",
+    "cachetools>=5.5.0,<6",
+    "msgspec>=0.18.6,<0.19",
+    "protobuf==5.28.3",
+    "sortedcontainers>=2.4.0,<3",
+    "mypy>=1.15.0,<2",
+    "proto-schema-parser>=1.4.8,<2",
+    "frida>=16.7.3,<17",
+    "frida-tools>=13.6.1,<14",
+    "tinydb>=4.8.2,<5",
+    "ujson>=5.10.0,<6",
+    "orjson>=3.10.18,<4",
+    "schedule>=1.2.2,<2",
+    "python-dotenv>=1.1.0,<2",
+    "line-profiler>=4.2.0,<5",
+    "pyinstaller>=6.13.0,<7",
+    "pulp>=3.2.1,<4",
+    "datamodel-code-generator>=0.30.2,<0.31",
+    "openapi-python-client>=0.25.3,<0.26",
+    "pandas>=2.3.3,<3",
+    "scikit-learn>=1.7.2,<2",
+    "fastparquet>=2024.11.0,<2025",
+    "types-requests>=2.32.4.20250913,<3",
+    "langchain>=1.0.7,<2",
+    "langchain-openai>=1.0.3,<2",
+    "langchain-community>=0.4.1,<0.5",
+    "psycopg2>=2.9.11,<3",
+    "ankama-launcher-emulator",
+    "watchfiles>=1.1.1"
+]
 
-[tool.poetry.dependencies]
-python = ">3.11,<3.14"
-pydantic = ">2.8"
-scapy = "^2.5.0"
-psutil = "^6.0.0"
-pyqt5-qt5 = "5.15.2"
-pyqt5 = "5.15.10"
-pyqt-fluent-widgets = { extras = ["full"], version = "^1.6.3" }
-ankama-launcher-emulator = { git = "https://github.com/Valentin-alix/AnkamaLauncherEmulator" }
-cachetools = "^5.5.0"
-msgspec = "^0.18.6"
-protobuf = "5.28.3"
-sortedcontainers = "^2.4.0"
-pywin32 = "^308"
-pywin32-stubs = "^1.0.7"
-mypy = "^1.15.0"
-proto-schema-parser = "^1.4.8"
-frida = "^16.7.3"
-frida-tools = "^13.6.1"
-tinydb = "^4.8.2"
-ujson = "^5.10.0"
-orjson = "^3.10.18"
-schedule = "^1.2.2"
-python-dotenv = "^1.1.0"
-line-profiler = "^4.2.0"
-wonderwords = "^2.2.0"
-pyarmor = "^9.1.7"
-pyinstaller = "^6.13.0"
-pulp = "^3.2.1"
-datamodel-code-generator = "^0.30.2"
-lap = "^0.5.12"
-icecream = "^2.1.5"
-openapi-python-client = "^0.25.3"
-poethepoet = "^0.37.0"
-huggingface-hub = "^1.1.2"
-pandas = "^2.3.3"
-scikit-learn = "^1.7.2"
-lightgbm = "^4.6.0"
-fastparquet = "^2024.11.0"
-types-requests = "^2.32.4.20250913"
-langchain = "^1.0.7"
-langchain-openai = "^1.0.3"
-langchain-community = "^0.4.1"
+[dependency-groups]
+dev = [
+    "pyqt5-stubs>=5.15.6.0,<6",
+    "types-cachetools>=5.5.0.20240820,<6",
+    "tqdm>=4.66.5,<5",
+    "icecream>=2.1.3,<3",
+    "pyinstaller>=6.11.1,<7",
+]
 
-[tool.poetry.group.dev.dependencies]
-pyqt5-stubs = "^5.15.6.0"
-types-cachetools = "^5.5.0.20240820"
-tqdm = "^4.66.5"
-gprof2dot = "^2024.6.6"
-line-profiler-pycharm = "^1.2.0"
-icecream = "^2.1.3"
-pyinstaller = "^6.11.1"
-ruff = "^0.9.4"
-ipykernel = "^7.1.0"
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+ankama-launcher-emulator = { git = "https://github.com/Valentin-alix/AnkamaLauncherEmulator.git" }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.poe.tasks]
 genapi = "openapi-python-client generate --url http://31.38.182.64:65472/openapi.json --overwrite --output-path scraping_d3_client --config scraping_d3.yaml"
@@ -69,9 +69,8 @@ exclude = ["__init__.py", "__init__.pyi", "env.py", ".venv/**/*"]
 ignore = ["E402"]
 line-length = 200
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.pyright]
+extraPaths = ["D3Database", "D3Mapping", "DBDofusUnity"]
 
 [[tool.mypy.overrides]]
 module = ["qfluentwidgets.*", "ankama_launcher_emulator.*", "d3_mapping.*"]

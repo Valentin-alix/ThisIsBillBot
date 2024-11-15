@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-
 from d3_mapping.resources.protos.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
@@ -12,6 +11,7 @@ from d3_mapping.resources.protos.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
 
+from src.controller.human_timings import HumanTimingsController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import (
     InteractiveBehavior,
@@ -19,7 +19,6 @@ from src.core.behaviors.interactives.interactive_behavior import (
 )
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.config.timings import BASE_RANGE
-from src.controller.human_timings import HumanTimingsController
 from src.core.logic.map.path_finding.movement_path import MovementPath
 from src.core.logic.map.path_finding.path_finding import Pathfinding
 from src.interfaces.models.collectable import Collectable
@@ -63,13 +62,13 @@ class CollectBehavior(Behavior):
         )
 
     def collect_map(self):
-        if self.game_state.map.is_in_map_transition:
+        if self.game_state.map._is_in_map_transition:
             return
 
         if self.game_state.inventory.is_full_pods:
             return self.finish(CollectError.FULL_PODS)
 
-        collectables = self.game_state.player.get_farmable_collectables(
+        collectables = self.game_state.interactive.get_farmable_collectables(
             self.excluded_element_ids
         )
         if len(collectables) == 0:

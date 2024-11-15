@@ -1,28 +1,4 @@
 {
-    "pcmain_blibli_0_0@outlook.fr": {
-        "playtime_starts": [
-            "13:09"
-        ],
-        "playtime_ends": [
-            "21:00"
-        ]
-    },
-    "pcmain_blibli_0_1@outlook.fr": {
-        "playtime_starts": [
-            "13:09"
-        ],
-        "playtime_ends": [
-            "21:00"
-        ]
-    },
-    "pcmain_blibli_0_2@outlook.fr": {
-        "playtime_starts": [
-            "13:09"
-        ],
-        "playtime_ends": [
-            "21:00"
-        ]
-    },
     "ezre.juillet1@outlook.fr": {
         "playtime_starts": [
             "04:09"
@@ -47,30 +23,6 @@
             "12:00"
         ]
     },
-    "pcserv_blibli_0_0@outlook.fr": {
-        "playtime_starts": [
-            "12:09"
-        ],
-        "playtime_ends": [
-            "20:00"
-        ]
-    },
-    "pcserv_blibli_0_1@outlook.fr": {
-        "playtime_starts": [
-            "12:09"
-        ],
-        "playtime_ends": [
-            "20:00"
-        ]
-    },
-    "pcserv_blibli_0_2@outlook.fr": {
-        "playtime_starts": [
-            "12:09"
-        ],
-        "playtime_ends": [
-            "20:00"
-        ]
-    },
     "pcserv_blibli_1_0@outlook.fr": {
         "playtime_starts": [
             "20:09"
@@ -87,12 +39,52 @@
             "04:00"
         ]
     },
-    "pcserv_blibli_1_2@outlook.fr": {
+    "pcserv_blibli_3_0@outlook.fr": {
         "playtime_starts": [
             "20:09"
         ],
         "playtime_ends": [
             "04:00"
+        ]
+    },
+    "pcserv_blibli_5_0@outlook.fr": {
+        "playtime_starts": [
+            "20:09"
+        ],
+        "playtime_ends": [
+            "04:00"
+        ]
+    },
+    "pcserv_blibli_1_2@outlook.fr": {
+        "playtime_starts": [
+            "12:09"
+        ],
+        "playtime_ends": [
+            "20:00"
+        ]
+    },
+    "pcserv_blibli_4_0@outlook.fr": {
+        "playtime_starts": [
+            "12:09"
+        ],
+        "playtime_ends": [
+            "20:00"
+        ]
+    },
+    "pcserv_blibli_4_1@outlook.fr": {
+        "playtime_starts": [
+            "12:09"
+        ],
+        "playtime_ends": [
+            "20:00"
+        ]
+    },
+    "pcserv_blibli_4_2@outlook.fr": {
+        "playtime_starts": [
+            "12:09"
+        ],
+        "playtime_ends": [
+            "20:00"
         ]
     }
 }

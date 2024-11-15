@@ -10,6 +10,7 @@ from d3_mapping.resources.protos.game.game_message_pb2 import Request
 from google.protobuf.message import Message
 
 from src.bot import Bot
+from src.common.dataclass_utils import dataclass_to_dict
 from src.const import DEBUG, DO_INSERT_HUMAN_SESSION, DO_POPULATE, MESSAGES_WITH_UID
 from src.controller.session_timings import SessionTimingsController
 from src.mitm.proxy import Proxy, WorkerAction
@@ -73,7 +74,6 @@ class GameProxy(Proxy):
 
         if DEBUG or DO_POPULATE:
             msg_infos = get_game_msg_info(
-                msg_datas,
                 clear_sub_msg,
                 obf_sub_msg,
                 uid,
@@ -92,6 +92,22 @@ class GameProxy(Proxy):
                 )
 
         if clear_sub_msg is not None:
+            # record the clear protobuf message (bytes + descriptor full name)
+            if self.bot.recorder._session_file or DEBUG:
+                if (
+                    "MapComplementaryInformationEvent"
+                    in clear_sub_msg.DESCRIPTOR.full_name
+                ):
+                    self.bot.recorder.snapshot_state(
+                        self.bot.account["apikey"]["login"],
+                        dataclass_to_dict(self.bot.game_state),
+                    )
+                payload = clear_sub_msg.SerializeToString()
+                msg_full_name = clear_sub_msg.DESCRIPTOR.full_name
+                bot_id = self.bot.account["apikey"]["login"]
+                self.bot.recorder.record_message(
+                    bot_id, payload, msg_full_name, from_server
+                )
             self.bot.event_manager.process_msg(clear_sub_msg)
 
     def send_msg(self, clear_sub_msg: Message):

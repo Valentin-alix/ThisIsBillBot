@@ -101,7 +101,7 @@ class AttackerBehavior(Behavior):
                 callback=self.on_fight_map_information_event,
                 originator=self,
                 once=True,
-                timeout=10,
+                timeout=15,
                 on_timeout=lambda: self.attack_enemy(group_actor_id),
             )
         request = AttackMonsterRequest(monster_group_id=group_actor_id)

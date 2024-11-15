@@ -19,7 +19,7 @@ from d3_mapping.controller.instancied_msg_info_controller import (
 )
 from d3_mapping.controller.message_mapping_controller import MessageMappingController
 from d3_mapping.models.message import MessageInfo
-from d3_mapping.resources.obf_protos.game.game_messages_pb2 import gpm
+from d3_mapping.resources.obf_protos.game.game_messages_pb2 import gso
 from d3_mapping.resources.protos.game.game_message_pb2 import GameMessage
 from D3Database.utils import cache
 
@@ -66,7 +66,7 @@ def get_obf_game_msg_info(
 
     received_msg_time = datetime.datetime.now()
 
-    game_msg = gpm()
+    game_msg = gso()
     game_msg.ParseFromString(content)
     InstanciedMessageInfoController().add_msg(game_msg, True)
 
@@ -76,7 +76,7 @@ def get_obf_game_msg_info(
         preserving_proto_field_name=True,
     )
     if SHOW_URL:
-        field_name = game_msg.WhichOneof("euhu")
+        field_name = game_msg.WhichOneof("exvc")
         root_msg: Message = getattr(game_msg, field_name)
 
         root_msg_any_field: protoAny | None = None
@@ -108,7 +108,6 @@ def get_obf_game_msg_info(
         from_server=from_server,
         obf_msg_json=msg_json,
         sub_msg_name=type_url,
-        raw_content=content,
     )
 
 
@@ -164,7 +163,6 @@ def get_game_msg(
 
 
 def get_game_msg_info(
-    content: bytes,
     clear_sub_msg: Message | None,
     obf_sub_msg: Message,
     uid_value: int | None,
@@ -200,7 +198,6 @@ def get_game_msg_info(
             always_print_fields_with_no_presence=True,
             preserving_proto_field_name=True,
         ),
-        raw_content=content,
     )
 
 

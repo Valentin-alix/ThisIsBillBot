@@ -1,12 +1,15 @@
-from collections import defaultdict
 import os
+from collections import defaultdict
 from threading import _RLock as RLock
 from time import perf_counter
 
 import msgspec
+from cachetools import TTLCache, cached
 
 from src.const import RESOURCE_FOLDER
 from src.interfaces.metaclasses.singleton import Singleton
+
+TTL_CACHE = TTLCache(maxsize=100, ttl=60 * 60 * 3 * 1000)
 
 
 class SaleHotelController(metaclass=Singleton):
@@ -18,6 +21,7 @@ class SaleHotelController(metaclass=Singleton):
     _AVG_PRICE_BY_GID_LOCK = RLock()
     _AVG_PRICE_BY_GID_PATH = os.path.join(RESOURCE_FOLDER, "avg_price_by_gid.json")
 
+    @cached(TTL_CACHE)
     def get_avg_price_by_gid(self) -> dict[int, float]:
         if not os.path.exists(self._AVG_PRICE_BY_GID_PATH):
             with open(self._AVG_PRICE_BY_GID_PATH, "wb+") as file:

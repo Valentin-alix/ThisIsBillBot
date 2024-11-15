@@ -30,7 +30,7 @@ class InteractiveBehavior(Behavior):
         element_id: int,
         skill_instance_uid: int,
     ):
-        if self.game_state.map.is_in_map_transition:
+        if self.game_state.map._is_in_map_transition:
             return
         if (
             move_path is None
@@ -62,7 +62,7 @@ class InteractiveBehavior(Behavior):
             MapMoveError.INVALID_STARTING_POINT,
             MapMoveError.CANCELED_MOVEMENT,
         ]:
-            if self.game_state.map.is_in_map_transition:
+            if self.game_state.map._is_in_map_transition:
                 return self.finish()
 
             move_path = self.path_finding.find_path(

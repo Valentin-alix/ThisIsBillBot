@@ -100,6 +100,9 @@ def get_possible_mp_spell(
     min_range = get_min_range_spell(spell_lvl, modifier_range_min)
     max_range = get_max_range_spell(stat_po, spell_lvl, modifier_range_max)
 
+    if spell_lvl.spellId == 12745 and max_range >= 6:
+        print(stat_po, spell_lvl, modifier_range_max)
+
     if is_spell_cast_in_line(spell_lvl, modifier_cast_line):
         cross = Cross(shape=None, alternative_size=min_range, size=max_range)
         possible_mps = cross.get_mps(mp=origin, direction=None)
@@ -154,5 +157,5 @@ def get_damage_spells(
 
 
 if __name__ == "__main__":
-    spell_lvl = DataReader().spell_lvl_by_id[40550]
+    spell_lvl = DataReader().spell_lvl_by_spell_id[12745][1]
     print(get_max_range_spell(1, spell_lvl, None))

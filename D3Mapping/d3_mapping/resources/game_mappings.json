@@ -1,4706 +1,4725 @@
 {
   "obf_to_clear": {
-    "gyx": {
+    "hbm": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.spell.SpellItem",
-      "similarity": 0.9090909090909091,
+      "similarity": 0.5256183909827598,
       "field_mapping": {
-        "evsg": [
+        "ezdw": [
           1.0,
           "spell_id"
         ],
-        "evsh": [
-          1.0,
-          "spell_level"
-        ],
-        "evsd": [
+        "ezdt": [
           1.0,
           "available"
         ]
       }
     },
-    "gyu": {
+    "hby": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.spell.SpellsEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "evrx": [
+        "ezfd": [
           1.0,
           "spell_visualisation"
         ],
-        "evrz": [
-          0.9090909090909091,
+        "ezfb": [
+          0.5256183909827598,
           "human_spells"
         ],
-        "evrw": [
-          0.9090909090909091,
+        "ezfc": [
+          0.5256183909827598,
           "mutant_spells"
         ]
       }
     },
-    "hus": {
+    "hzo": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.inventory.InventoryWeightEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "ezbt": [
+        "fcxc": [
           1.0,
           "inventory_weight"
         ],
-        "ezbw": [
+        "fcxd": [
           1.0,
           "weight_max"
         ]
       }
     },
-    "hwg": {
+    "iaa": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.interactive.element.InteractiveUseRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "ezia": [
+        "fczk": [
           1.0,
           "element_id"
         ],
-        "ezib": [
+        "fczj": [
           1.0,
           "skill_instance_uid"
         ],
-        "ezhy": [
+        "fczl": [
           1.0,
           "specific_instance_id"
         ]
       }
     },
-    "jyg": {
+    "kez": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.CharacterCharacteristicValue",
       "similarity": 1.0,
       "field_mapping": {
-        "fhyf": [
+        "flpz": [
           1.0,
           "total"
         ]
       }
     },
-    "jyh": {
+    "kfd": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.CharacterCharacteristicDetailed",
-      "similarity": 0.75,
+      "similarity": 1.0,
       "field_mapping": {
-        "fhyj": [
+        "flqy": [
           1.0,
           "base"
         ],
-        "fhyn": [
+        "flqv": [
           1.0,
           "additional"
         ],
-        "fhyk": [
+        "flqz": [
           1.0,
           "objects_and_mount_bonus"
         ],
-        "fhyq": [
+        "flqx": [
           1.0,
           "alignment_gift_bonus"
         ],
-        "fhyp": [
+        "flqw": [
           1.0,
           "context_modification"
         ],
-        "fhyl": [
+        "flra": [
           1.0,
           "temporary"
         ]
       }
     },
-    "jnx": {
+    "kkq": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.CharacterCharacteristicDetailedUsable",
       "similarity": 1.0,
       "field_mapping": {
-        "ffzc": [
+        "fmre": [
           1.0,
           "base"
         ],
-        "ffze": [
+        "fmrc": [
           1.0,
           "additional"
         ],
-        "ffzb": [
+        "fmrb": [
           1.0,
           "objects_and_mount_bonus"
         ],
-        "ffzg": [
+        "fmqz": [
           1.0,
           "alignment_gift_bonus"
         ],
-        "ffzh": [
+        "fmrf": [
           1.0,
           "context_modification"
         ],
-        "ffzd": [
+        "fmra": [
           1.0,
           "used"
         ],
-        "ffzf": [
+        "fmrd": [
           1.0,
           "temporary"
         ]
       }
     },
-    "jxl": {
+    "kgx": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.CharacterCharacteristic",
-      "similarity": 0.8526452270488052,
+      "similarity": 1.0,
       "field_mapping": {
-        "fhto": [
+        "flzb": [
           1.0,
           "characteristic_id"
         ],
-        "fhtq": [
+        "flzc": [
           1.0,
           "value"
         ],
-        "fhts": [
-          0.75,
+        "flzd": [
+          1.0,
           "detailed"
         ],
-        "fhtr": [
+        "flze": [
           1.0,
           "usable"
         ]
       }
     },
-    "jye": {
+    "kbl": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightCharacteristics",
-      "similarity": 0.9147503640095455,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fhxq": [
-          0.8526452270488052,
+        "flap": [
+          1.0,
           "characteristics"
         ],
-        "fhxn": [
+        "flao": [
           1.0,
           "summoner"
         ],
-        "fhxp": [
+        "flam": [
           1.0,
           "summoned"
         ],
-        "fhxo": [
+        "flan": [
           1.0,
           "invisibility_state"
         ]
       }
     },
-    "iob": {
+    "ivv": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.fight.FightRefreshCharacterStatsEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "fcgm": [
+        "fglj": [
           1.0,
           "fighter_id"
         ],
-        "fcgn": [
-          0.9147503640095455,
+        "fgli": [
+          0.9090909090909091,
           "stats"
         ]
       }
     },
-    "isu": {
+    "iyt": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectMovePricedRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "fdaw": [
+        "fgxh": [
           1.0,
           "object_uid"
         ],
-        "fday": [
+        "fgxi": [
           1.0,
           "quantity"
         ],
-        "fdax": [
+        "fgxk": [
           1.0,
           "price"
         ]
       }
     },
-    "iyi": {
+    "jal": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.SellingConditions",
-      "similarity": 0.9090909090909091,
+      "similarity": 1.0,
       "field_mapping": {
-        "fdyl": [
+        "fhel": [
           1.0,
           "quantities"
         ],
-        "fdyk": [
+        "fhei": [
           1.0,
           "types"
         ],
-        "fdym": [
+        "fhej": [
           1.0,
           "tax_percentage"
         ],
-        "fdyp": [
+        "fheo": [
           1.0,
           "tax_modification_percentage"
         ],
-        "fdyi": [
+        "fhem": [
           1.0,
           "max_item_level"
         ],
-        "fdyn": [
+        "fheh": [
           1.0,
           "max_item_per_account"
         ],
-        "fdyh": [
+        "fhek": [
           1.0,
           "npc_contextual_id"
         ],
-        "fdyj": [
+        "fhen": [
           1.0,
           "unsold_delay"
         ]
       }
     },
-    "jwv.jws": {
+    "kaj.kac": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ObjectEffect.ObjectEffectMinMaxValue",
       "similarity": 1.0,
       "field_mapping": {
-        "fhpe": [
+        "fkuc": [
           1.0,
           "min"
         ],
-        "fhpd": [
+        "fkud": [
           1.0,
           "max"
         ]
       }
     },
-    "jwv.jwr": {
+    "kaj.kad": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ObjectEffect.ObjectEffectDiceValue",
-      "similarity": 1.0,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fhoy": [
+        "fkuh": [
           1.0,
           "num"
         ],
-        "fhox": [
+        "fkuk": [
           1.0,
           "side"
         ],
-        "fhoz": [
+        "fkui": [
           1.0,
           "const"
         ]
       }
     },
-    "jwv.jwp": {
+    "kaj.kab": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ObjectEffect.DofusDate",
-      "similarity": 1.0,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fhon": [
+        "fktt": [
           1.0,
           "year"
         ],
-        "fhok": [
+        "fktu": [
           1.0,
           "month"
         ],
-        "fhom": [
+        "fktv": [
           1.0,
           "day"
         ],
-        "fhoo": [
+        "fktw": [
           1.0,
           "hour"
         ],
-        "fhol": [
+        "fktx": [
           1.0,
           "minute"
         ]
       }
     },
-    "jwv.jwq": {
+    "kaj.kag": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ObjectEffect.MonsterCount",
-      "similarity": 1.0,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fhos": [
+        "fkuo": [
           1.0,
           "creature_family"
         ],
-        "fhot": [
+        "fkuq": [
           1.0,
           "count"
         ]
       }
     },
-    "jwv": {
+    "kaj": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ObjectEffect",
-      "similarity": 1.0,
+      "similarity": 0.8801983150094137,
       "field_mapping": {
-        "fhqb": [
+        "fkvt": [
           1.0,
           "action"
         ],
-        "fhql": [
+        "fkvy": [
           1.0,
           "value_string"
         ],
-        "fhqe": [
+        "fkvp": [
           1.0,
           "value_int"
         ],
-        "fhqh": [
+        "fkvs": [
           1.0,
           "min_max"
         ],
-        "fhqd": [
-          1.0,
+        "fkvn": [
+          0.9090909090909091,
           "dice"
         ],
-        "fhqa": [
-          1.0,
+        "fkvl": [
+          0.9090909090909091,
           "date"
         ],
-        "fhqi": [
+        "fkvw": [
           1.0,
           "duration_minute"
         ],
-        "fhpz": [
+        "fkvm": [
           1.0,
           "creature_family"
         ],
-        "fhqk": [
-          1.0,
+        "fkvv": [
+          0.9090909090909091,
           "monster_count"
         ],
-        "fhqg": [
+        "fkvo": [
           1.0,
           "mount"
         ]
       }
     },
-    "jwv.jwt": {
+    "kaj.kah": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ObjectEffect.ObjectEffectMountValue",
       "similarity": 1.0,
       "field_mapping": {
-        "fhpo": [
+        "fkuz": [
           1.0,
           "certificate_id"
         ],
-        "fhpr": [
+        "fkvc": [
           1.0,
           "date_expiration"
         ],
-        "fhpl": [
+        "fkvg": [
           1.0,
           "model_id"
         ],
-        "fhpt": [
+        "fkvb": [
           1.0,
           "mount_name"
         ],
-        "fhpv": [
+        "fkuu": [
           1.0,
           "owner_name"
         ],
-        "fhpu": [
+        "fkuw": [
           1.0,
           "mount_level"
         ],
-        "fhpp": [
+        "fkve": [
           1.0,
           "mount_gender"
         ],
-        "fhps": [
+        "fkvd": [
           1.0,
           "rideable"
         ],
-        "fhpq": [
+        "fkux": [
           1.0,
           "impregnated"
         ],
-        "fhpi": [
+        "fkvh": [
           1.0,
           "impregnate_ready"
         ],
-        "fhpm": [
+        "fkuy": [
           1.0,
           "reproduction_count"
         ],
-        "fhpn": [
+        "fkuv": [
           1.0,
           "reproduction_max"
         ],
-        "fhpj": [
+        "fkva": [
           1.0,
           "effect"
         ],
-        "fhpk": [
+        "fkvf": [
           1.0,
           "capacity"
         ]
       }
     },
-    "iyc": {
+    "jei": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.BidItem",
-      "similarity": 0.9090909090909091,
+      "similarity": 0.8750539572070676,
       "field_mapping": {
-        "fdxl": [
+        "fhto": [
           1.0,
           "uid"
         ],
-        "fdxi": [
+        "fhtq": [
           1.0,
           "quantity"
         ],
-        "fdxj": [
+        "fhtm": [
           1.0,
           "gid"
         ],
-        "fdxm": [
-          1.0,
+        "fhtn": [
+          0.8801983150094137,
           "effects"
         ]
       }
     },
-    "itn.itl": {
+    "jbu.jbs": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidSellerStartedEvent.ItemToSellInBid",
-      "similarity": 0.865390137517057,
+      "similarity": 0.848710255781917,
       "field_mapping": {
-        "fddw": [
-          0.9090909090909091,
+        "fhiu": [
+          0.8750539572070676,
           "item"
         ],
-        "fddz": [
+        "fhix": [
           1.0,
           "price"
         ],
-        "fddx": [
+        "fhiw": [
           1.0,
           "unsold_delay"
         ]
       }
     },
-    "itn": {
+    "jbu": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidSellerStartedEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "fded": [
-          0.9090909090909091,
+        "fhje": [
+          1.0,
           "selling_conditions"
         ],
-        "fdee": [
-          0.865390137517057,
+        "fhjd": [
+          0.848710255781917,
           "items"
         ]
       }
     },
-    "ivj": {
+    "jem": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectModifyPricedRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "fdml": [
+        "fhuj": [
           1.0,
           "object_uid"
         ],
-        "fdmk": [
+        "fhuh": [
           1.0,
           "quantity"
         ],
-        "fdmj": [
+        "fhui": [
           1.0,
           "price"
         ]
       }
     },
-    "jio": {
+    "jsc": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.character.CharacterCharacteristicUpgradeRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "ffjj": [
+        "fjrz": [
           1.0,
           "strength"
         ],
-        "ffji": [
+        "fjsa": [
           1.0,
           "vitality"
         ],
-        "ffjg": [
+        "fjsd": [
           1.0,
           "wisdom"
         ],
-        "ffjm": [
+        "fjsc": [
           1.0,
           "chance"
         ],
-        "ffjk": [
+        "fjry": [
           1.0,
           "agility"
         ],
-        "ffjl": [
+        "fjsb": [
           1.0,
           "intelligence"
         ]
       }
     },
-    "guf": {
+    "gxh": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.teleportation.ZaapKnownListEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "eymz": [
+          1.0,
+          "destinations"
+        ]
+      }
+    },
+    "gxu": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.teleportation.TeleportRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "euzl": [
+        "eypm": [
           1.0,
           "source_type"
         ],
-        "euzm": [
+        "eypl": [
           0.0,
           "destination_type"
         ],
-        "euzn": [
+        "eypn": [
           1.0,
           "map_id"
         ]
       }
     },
-    "guu": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.teleportation.ZaapKnownListEvent",
-      "similarity": 1.0,
-      "field_mapping": {
-        "evcs": [
-          1.0,
-          "destinations"
-        ],
-        "evct": null
-      }
-    },
-    "hbn": {
+    "hev": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.roleplay.AttackMonsterRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "ewch": [
+        "ezry": [
           1.0,
           "monster_group_id"
         ],
-        "ewcg": null
+        "ezrz": null
       }
     },
-    "hmx": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.npc.NpcGenericActionRequest",
-      "similarity": 1.0,
-      "field_mapping": {
-        "exws": [
-          1.0,
-          "npc_id"
-        ],
-        "exwq": [
-          1.0,
-          "npc_action_id"
-        ],
-        "exwp": [
-          1.0,
-          "npc_map_id"
-        ],
-        "exwn": null,
-        "exwr": null
-      }
-    },
-    "hnh": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.npc.NpcDialogReplyRequest",
-      "similarity": 1.0,
-      "field_mapping": {
-        "exyg": [
-          1.0,
-          "reply_id"
-        ]
-      }
-    },
-    "hnm.hnk.hni": {
+    "hrm.hrk.hri": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.npc.NpcDialogQuestionEvent.VisibleReply.ActionInformation",
       "similarity": 1.0,
       "field_mapping": {
-        "exym": [
+        "fbpt": [
           1.0,
           "id"
         ],
-        "exyk": [
+        "fbpu": [
           1.0,
           "is_repeatable"
         ]
       }
     },
-    "hnm.hnk": {
+    "hrm.hrk": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.npc.NpcDialogQuestionEvent.VisibleReply",
       "similarity": 1.0,
       "field_mapping": {
-        "exyr": [
+        "fbqa": [
           1.0,
           "reply_id"
         ],
-        "exyq": [
+        "fbpz": [
           1.0,
           "actions"
         ]
       }
     },
-    "hnm": {
+    "hrm": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.npc.NpcDialogQuestionEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "exyw": [
+        "fbqg": [
           1.0,
           "message_id"
         ],
-        "exyv": [
+        "fbqh": [
           1.0,
           "dialog_params"
         ],
-        "exyy": [
+        "fbqf": [
           1.0,
           "visible_replies"
         ],
-        "exyx": null
-      }
-    },
-    "hrx": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.job.JobExperience",
-      "similarity": 0.9090909090909091,
-      "field_mapping": {
-        "eyqq": [
-          1.0,
-          "job_id"
-        ],
-        "eyqp": [
-          1.0,
-          "job_level"
-        ],
-        "eyqr": [
-          1.0,
-          "job_xp"
-        ],
-        "eyqs": [
-          1.0,
-          "job_xp_level_floor"
-        ],
-        "eyqu": [
-          1.0,
-          "job_xp_next_level_floor"
-        ],
-        "eyqt": null
+        "fbqe": null,
+        "fbqi": null
       }
     },
     "hrq": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.npc.NpcGenericActionRequest",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fbqv": [
+          1.0,
+          "npc_id"
+        ],
+        "fbqu": [
+          1.0,
+          "npc_action_id"
+        ],
+        "fbqw": [
+          1.0,
+          "npc_map_id"
+        ]
+      }
+    },
+    "hrt": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.npc.NpcDialogReplyRequest",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fbra": [
+          1.0,
+          "reply_id"
+        ],
+        "fbrb": null
+      }
+    },
+    "hwa": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.job.JobExperience",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fcii": [
+          1.0,
+          "job_id"
+        ],
+        "fcik": [
+          1.0,
+          "job_level"
+        ],
+        "fcih": [
+          1.0,
+          "job_xp"
+        ],
+        "fcig": [
+          1.0,
+          "job_xp_level_floor"
+        ],
+        "fcij": [
+          1.0,
+          "job_xp_next_level_floor"
+        ]
+      }
+    },
+    "hxg": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.job.JobExperiencesUpdateEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "eypn": [
-          0.9090909090909091,
+        "fcnk": [
+          1.0,
           "experiences"
         ]
       }
     },
-    "jwn": {
+    "kkh": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ObjectItem",
-      "similarity": 1.0,
+      "similarity": 0.6601168760590166,
       "field_mapping": {
-        "fhof": [
+        "fmoi": [
           1.0,
           "uid"
         ],
-        "fhod": [
+        "fmol": [
           1.0,
           "quantity"
         ],
-        "fhog": [
+        "fmoj": [
           1.0,
           "gid"
         ],
-        "fhoe": [
+        "fmof": [
           1.0,
           "effects"
         ]
       }
     },
-    "jzi": {
+    "jwm": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ObjectItemInventory",
-      "similarity": 0.9090909090909091,
+      "similarity": 0.8286239958877546,
       "field_mapping": {
-        "fiee": [
+        "fkcn": [
           1.0,
           "position"
         ],
-        "fief": [
-          1.0,
+        "fkcl": [
+          0.6601168760590166,
           "item"
         ],
-        "fieb": [
+        "fkck": [
           1.0,
           "favorite"
         ],
-        "fiec": [
+        "fkcm": [
           1.0,
           "tag_storage_uuids"
-        ],
-        "fied": null
-      }
-    },
-    "htn": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.inventory.StorageInventoryContentEvent",
-      "similarity": 1.0,
-      "field_mapping": {
-        "eywn": [
-          0.9090909090909091,
-          "objects"
-        ],
-        "eywo": [
-          1.0,
-          "kamas"
         ]
       }
     },
-    "htq": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.inventory.ObjectUseRequest",
-      "similarity": 1.0,
-      "field_mapping": {
-        "eywy": [
-          1.0,
-          "object_uid"
-        ],
-        "eywz": null
-      }
-    },
-    "huf": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.inventory.ObjectAddedEvent",
-      "similarity": 1.0,
-      "field_mapping": {
-        "eyzu": [
-          0.9090909090909091,
-          "object"
-        ],
-        "eyzt": [
-          0.9090909090909091,
-          "origin"
-        ]
-      }
-    },
-    "hut": {
+    "hxv": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.inventory.InventoryContentEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "ezcb": [
-          0.9090909090909091,
+        "fcpq": [
+          0.8286239958877546,
           "objects"
         ],
-        "ezca": [
+        "fcpt": [
           1.0,
           "kamas"
         ],
-        "ezcc": null
+        "fcpr": null
       }
     },
-    "hwn": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.interactive.element.InteractiveUsedEvent",
+    "hya": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.inventory.ObjectAddedEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "ezjk": [
-          1.0,
-          "entity_id"
+        "fcqj": [
+          0.8286239958877546,
+          "object"
         ],
-        "ezjg": [
-          1.0,
-          "element_id"
+        "fcqk": [
+          0.5,
+          "origin"
         ],
-        "ezjf": [
-          1.0,
-          "skill_id"
-        ],
-        "ezjh": [
-          1.0,
-          "duration"
-        ],
-        "ezjj": [
-          1.0,
-          "can_move"
-        ],
-        "ezji": null
+        "fcqi": null
       }
     },
-    "jqa": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.StatedElement",
-      "similarity": 0.6666666666666666,
+    "kjt": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ObjectUidWithQuantity",
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fgli": [
+        "fmlo": [
           1.0,
-          "element_id"
+          "object_uid"
         ],
-        "fglj": [
+        "fmlq": [
           1.0,
-          "cell_id"
-        ],
-        "fglk": [
-          1.0,
-          "state"
-        ],
-        "fglf": [
-          1.0,
-          "on_current_map"
-        ],
-        "fglg": null,
-        "fglh": null
-      }
-    },
-    "hwo": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.interactive.element.StatedElementUpdatedEvent",
-      "similarity": 1.0,
-      "field_mapping": {
-        "ezjo": [
-          0.6666666666666666,
-          "stated_element"
+          "quantity"
         ]
       }
     },
-    "iaz": {
+    "hza": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.inventory.ObjectQuantityEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fcuv": [
+          0.9090909090909091,
+          "object"
+        ],
+        "fcuw": [
+          0.5,
+          "origin"
+        ],
+        "fcuu": null
+      }
+    },
+    "hzj": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.inventory.ObjectUseRequest",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fcwh": [
+          1.0,
+          "object_uid"
+        ],
+        "fcwi": null
+      }
+    },
+    "hzs": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.inventory.StorageInventoryContentEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fcxu": [
+          0.8286239958877546,
+          "objects"
+        ],
+        "fcxv": [
+          1.0,
+          "kamas"
+        ]
+      }
+    },
+    "iab": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.interactive.element.InteractiveUsedEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fczu": [
+          1.0,
+          "entity_id"
+        ],
+        "fczr": [
+          1.0,
+          "element_id"
+        ],
+        "fczq": [
+          1.0,
+          "skill_id"
+        ],
+        "fczs": [
+          1.0,
+          "duration"
+        ],
+        "fczt": [
+          1.0,
+          "can_move"
+        ]
+      }
+    },
+    "kei": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.StatedElement",
+      "similarity": 0.6666666666666666,
+      "field_mapping": {
+        "flnk": [
+          1.0,
+          "element_id"
+        ],
+        "flni": [
+          1.0,
+          "cell_id"
+        ],
+        "flnj": [
+          1.0,
+          "state"
+        ],
+        "flng": [
+          1.0,
+          "on_current_map"
+        ],
+        "flnh": null,
+        "flnl": null
+      }
+    },
+    "iah": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.interactive.element.StatedElementUpdatedEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fdan": [
+          0.6666666666666666,
+          "stated_element"
+        ],
+        "fdam": null,
+        "fdao": null
+      }
+    },
+    "icb": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.haven.bag.HavenBagExitRequest",
-      "similarity": 0.0,
+      "similarity": 1.0,
       "field_mapping": {}
     },
-    "ibp": {
+    "icc": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.haven.bag.HavenBagEnterRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "fafn": [
+        "fdig": [
           1.0,
           "owner"
         ]
       }
     },
-    "ihc": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapChangeRequest",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fbaw": [
-          1.0,
-          "map_id"
-        ],
-        "fbav": [
-          1.0,
-          "auto_pilot"
-        ],
-        "fbau": null
-      }
-    },
-    "ihs": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementRefusedEvent",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fbdr": [
-          1.0,
-          "cell_x"
-        ],
-        "fbdp": [
-          1.0,
-          "cell_y"
-        ],
-        "fbdo": null,
-        "fbdq": null
-      }
-    },
-    "iht": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementConfirmRequest",
-      "similarity": 1.0,
-      "field_mapping": {}
-    },
-    "kab": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.AccountTag",
-      "similarity": 0.9090909090909091,
-      "field_mapping": {
-        "fihj": [
-          1.0,
-          "nickname"
-        ],
-        "fihk": [
-          1.0,
-          "tag"
-        ],
-        "fihi": null
-      }
-    },
-    "jtx": {
+    "kak": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.SocialEmblem",
       "similarity": 1.0,
       "field_mapping": {
-        "fhcy": [
+        "fkwg": [
           1.0,
           "symbol_shape_id"
         ],
-        "fhda": [
+        "fkwf": [
           1.0,
           "symbol_color"
         ],
-        "fhcx": [
+        "fkwh": [
           1.0,
           "background_shape_id"
         ],
-        "fhcz": [
+        "fkwe": [
           1.0,
           "background_color"
         ]
       }
     },
-    "jpr": {
+    "jwl": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.GuildRecruitmentInformation",
-      "similarity": 0.9090909090909091,
+      "similarity": 1.0,
       "field_mapping": {
-        "fgjc": [
+        "fkbt": [
           1.0,
           "social_id"
         ],
-        "fgje": [
+        "fkcg": [
           1.0,
           "recruitment_type"
         ],
-        "fgix": [
+        "fkbw": [
           1.0,
           "title"
         ],
-        "fgjb": [
+        "fkbx": [
           1.0,
           "text"
         ],
-        "fgja": [
+        "fkbv": [
           1.0,
           "selected_languages"
         ],
-        "fgjl": [
+        "fkbu": [
           1.0,
           "selected_criterion"
         ],
-        "fgjg": [
+        "fkca": [
           1.0,
           "min_level"
         ],
-        "fgiy": [
+        "fkby": [
           1.0,
           "min_level_facultative"
         ],
-        "fgiz": [
+        "fkcb": [
           1.0,
           "invalidated_by_moderation"
         ],
-        "fgjk": [
+        "fkbz": [
           1.0,
           "last_edit_player_name"
         ],
-        "fgjf": [
+        "fkcd": [
           1.0,
           "last_edit_date"
         ],
-        "fgjd": [
+        "fkce": [
           1.0,
           "auto_locked"
         ],
-        "fgjh": [
+        "fkcc": [
           1.0,
           "min_success"
         ],
-        "fgjj": [
+        "fkcf": [
           1.0,
           "min_success_facultative"
-        ],
-        "fgji": null
+        ]
       }
     },
-    "jxv.jxt.jxr": {
+    "jwu.jws.jwq": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.GuildInformation.GuildSocialInformation.GuildDetailedInformation",
-      "similarity": 0.95179586925207,
+      "similarity": 0.75,
       "field_mapping": {
-        "fhvb": [
+        "fkcv": [
           1.0,
           "leader_id"
         ],
-        "fhva": [
+        "fkcy": [
           1.0,
           "members_count"
         ],
-        "fhvc": [
+        "fkcz": [
           1.0,
           "last_activity_day"
         ],
-        "fhuz": [
-          0.9090909090909091,
+        "fkda": [
+          1.0,
           "recruitment"
         ],
-        "fhvf": [
+        "fkdd": [
           1.0,
           "pending_applications_count"
         ],
-        "fhvd": [
+        "fkcw": [
           1.0,
           "leader_name"
-        ]
+        ],
+        "fkdb": null,
+        "fkdc": null
       }
     },
-    "jxv.jxt": {
+    "jwu.jws": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.GuildInformation.GuildSocialInformation",
-      "similarity": 0.8878382553106376,
+      "similarity": 0.8772013616736966,
       "field_mapping": {
-        "fhvk": [
+        "fkdi": [
           1.0,
           "emblem"
         ],
-        "fhvj": [
-          0.95179586925207,
+        "fkdh": [
+          0.75,
           "detailed_information"
-        ],
-        "fhvl": null
+        ]
       }
     },
-    "jxv": {
+    "jwu": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.GuildInformation",
-      "similarity": 0.8699016788164136,
+      "similarity": 0.8635189767546745,
       "field_mapping": {
-        "fhvp": [
+        "fkdo": [
           1.0,
           "id"
         ],
-        "fhvq": [
+        "fkdn": [
           1.0,
           "name"
         ],
-        "fhvr": [
+        "fkdp": [
           1.0,
           "level"
         ],
-        "fhvs": [
-          0.8878382553106376,
+        "fkdm": [
+          0.8772013616736966,
           "social_information"
         ],
-        "fhvt": null
+        "fkdq": null
       }
     },
-    "jpx": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.HouseInstance",
-      "similarity": 0.9505948769613727,
+    "iia": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.guild.member.GuildMembershipEvent",
+      "similarity": 1.0,
       "field_mapping": {
-        "fglb": [
-          1.0,
-          "instance_id"
-        ],
-        "fgkv": [
-          1.0,
-          "second_hand"
-        ],
-        "fgkx": [
-          1.0,
-          "is_locked"
-        ],
-        "fgku": [
-          0.9090909090909091,
-          "account_tag"
-        ],
-        "fgla": [
-          1.0,
-          "has_owner"
-        ],
-        "fgks": [
-          1.0,
-          "is_sale_locked"
-        ],
-        "fgky": [
-          1.0,
-          "is_admin_locked"
-        ],
-        "fgkw": [
-          1.0,
-          "rooms_count"
-        ],
-        "fgkz": [
-          1.0,
-          "chests_count"
-        ],
-        "fgkp": [
-          1.0,
-          "skills_id"
-        ],
-        "fgkq": [
-          1.0,
-          "price"
-        ],
-        "fgkt": [
-          0.8699016788164136,
+        "febv": [
+          0.8635189767546745,
           "guild_information"
+        ],
+        "febu": [
+          1.0,
+          "rank_id"
+        ],
+        "febw": null
+      }
+    },
+    "imj": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.guild.chest.GuildChestCurrentListenersAddEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fesl": [
+          1.0,
+          "players"
         ]
       }
     },
-    "jzb": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.MapExtendedCoordinates",
-      "similarity": 0.6666666666666666,
+    "imq": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.guild.chest.GuildChestTabSelectRequest",
+      "similarity": 1.0,
       "field_mapping": {
-        "ficr": [
+        "fetj": [
           1.0,
-          "world_x"
+          "tab_number"
         ],
-        "fics": [
+        "feti": null
+      }
+    },
+    "inw": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fezh": [
           1.0,
-          "world_y"
+          "cells"
         ],
-        "ficw": [
+        "fezk": [
+          1.0,
+          "character_id"
+        ],
+        "fezg": [
+          1.0,
+          "cautious"
+        ],
+        "fezi": [
+          1.0,
+          "direction"
+        ]
+      }
+    },
+    "iof": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementConfirmRequest",
+      "similarity": 1.0,
+      "field_mapping": {}
+    },
+    "ioh": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementRequest",
+      "similarity": 1.0,
+      "field_mapping": {
+        "ffau": [
+          1.0,
+          "key_cells"
+        ],
+        "ffat": [
           1.0,
           "map_id"
         ],
-        "ficu": [
+        "ffas": [
           1.0,
-          "sub_area_id"
-        ],
-        "fict": null,
-        "ficv": null
-      }
-    },
-    "jue.jtz": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.House.HouseAccount",
-      "similarity": 0.7841629098588586,
-      "field_mapping": {
-        "fhde": [
-          0.9505948769613727,
-          "house_information"
-        ],
-        "fhdg": [
-          0.6666666666666666,
-          "coordinates"
-        ],
-        "fhdf": null
-      }
-    },
-    "jue.jua": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.House.HouseOnMap",
-      "similarity": 0.9672608609247971,
-      "field_mapping": {
-        "fhdl": [
-          1.0,
-          "doors_on_map"
-        ],
-        "fhdk": [
-          0.9505948769613727,
-          "houses_information"
+          "cautious"
         ]
       }
     },
-    "jvm": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.MapCoordinates",
+    "ioi": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementRefusedEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "fhjx": [
+        "ffay": [
+          1.0,
+          "cell_x"
+        ],
+        "ffaz": [
+          1.0,
+          "cell_y"
+        ],
+        "ffba": null
+      }
+    },
+    "ior": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapCurrentEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "ffcf": [
+          1.0,
+          "map_id"
+        ]
+      }
+    },
+    "kca": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.MapCoordinates",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "fldb": [
           1.0,
           "world_x"
         ],
-        "fhjy": [
+        "fldc": [
           1.0,
           "world_y"
-        ]
-      }
-    },
-    "jue.jub": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.House.HouseInside",
-      "similarity": 0.9738414377430661,
-      "field_mapping": {
-        "fhdq": [
-          0.9505948769613727,
-          "house_information"
-        ],
-        "fhdp": [
-          1.0,
-          "coordinates"
-        ]
-      }
-    },
-    "jue.juc": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.House.HouseGuild",
-      "similarity": 0.8086873219367264,
-      "field_mapping": {
-        "fhdv": [
-          0.9505948769613727,
-          "house_information"
-        ],
-        "fhdy": [
-          0.6666666666666666,
-          "coordinates"
-        ],
-        "fhdu": [
-          1.0,
-          "skills_id"
-        ],
-        "fhdw": [
-          1.0,
-          "guild_share_params"
-        ],
-        "fhdx": null
-      }
-    },
-    "jue": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.House",
-      "similarity": 0.9040376131186106,
-      "field_mapping": {
-        "fhec": [
-          1.0,
-          "house_id"
-        ],
-        "fhed": [
-          1.0,
-          "model_id"
-        ],
-        "fhee": [
-          0.7841629098588586,
-          "house_account"
-        ],
-        "fheg": [
-          0.9672608609247971,
-          "house_on_map"
-        ],
-        "fhef": [
-          0.9738414377430661,
-          "house_inside"
-        ],
-        "fheh": [
-          0.8086873219367264,
-          "house_guild"
-        ]
-      }
-    },
-    "jnd": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.EntityDisposition",
-      "similarity": 0.9090909090909091,
-      "field_mapping": {
-        "ffui": [
-          1.0,
-          "direction"
-        ],
-        "ffuk": [
-          1.0,
-          "entity_id"
-        ],
-        "ffuo": [
-          1.0,
-          "cell_id"
-        ],
-        "ffum": [
-          1.0,
-          "carrying_character_id"
-        ]
-      }
-    },
-    "jot": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.SubEntityInformation",
-      "similarity": 0.48467174985301387,
-      "field_mapping": {
-        "fgda": [
-          0.5833333333333334,
-          "binding_point_category"
-        ],
-        "fgdc": [
-          1.0,
-          "binding_point_index"
-        ],
-        "fgcz": [
-          1.0,
-          "sub_entity_look"
-        ],
-        "fgcy": null,
-        "fgdb": null
-      }
-    },
-    "jyq": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.EntityLook",
-      "similarity": 0.6178986576708431,
-      "field_mapping": {
-        "fiax": [
-          1.0,
-          "bones_id"
-        ],
-        "fias": [
-          1.0,
-          "skins"
-        ],
-        "fiav": [
-          1.0,
-          "indexed_colors"
-        ],
-        "fiaw": [
-          1.0,
-          "scales"
-        ],
-        "fiay": [
-          0.48467174985301387,
-          "sub_entities"
-        ],
-        "fiat": null,
-        "fiau": null
-      }
-    },
-    "jti.jtg.jsq.jsg.jsd.jry.jro.jrm": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.FollowingCharactersOption.IndexedEntityLook",
-      "similarity": 0.6022513896086568,
-      "field_mapping": {
-        "fgru": [
-          0.6178986576708431,
-          "look"
-        ],
-        "fgrw": [
-          1.0,
-          "index"
-        ],
-        "fgrv": null
-      }
-    },
-    "jti.jtg.jsq.jsg.jsd.jry.jro": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.FollowingCharactersOption",
-      "similarity": 0.6022513896086568,
-      "field_mapping": {
-        "fgsa": [
-          0.6022513896086568,
-          "following_characters_looks"
-        ]
-      }
-    },
-    "jpf": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.AllianceRecruitmentInformation",
-      "similarity": 0.8571428571428571,
-      "field_mapping": {
-        "fgfe": [
-          1.0,
-          "social_uid"
-        ],
-        "fgfh": [
-          1.0,
-          "recruitment_type"
-        ],
-        "fgff": [
-          1.0,
-          "title"
-        ],
-        "fgfl": [
-          1.0,
-          "text"
-        ],
-        "fgfg": [
-          1.0,
-          "selected_languages"
-        ],
-        "fgfi": [
-          1.0,
-          "selected_criterion"
-        ],
-        "fgfj": [
-          1.0,
-          "min_level"
-        ],
-        "fgfc": [
-          1.0,
-          "min_level_facultative"
-        ],
-        "fgfd": [
-          1.0,
-          "invalidated_by_moderation"
-        ],
-        "fgfn": [
-          1.0,
-          "last_edit_player_name"
-        ],
-        "fgfm": [
-          1.0,
-          "last_edit_date"
-        ],
-        "fgfo": [
-          1.0,
-          "auto_locked"
-        ],
-        "fgfk": null,
-        "fgfp": null
-      }
-    },
-    "jqy.jqw": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.AllianceInformation.AllianceCardInformation",
-      "similarity": 0.9171444168602423,
-      "field_mapping": {
-        "fgpg": [
-          1.0,
-          "creation_date"
-        ],
-        "fgpi": [
-          1.0,
-          "members_number"
-        ],
-        "fgpj": [
-          1.0,
-          "subarea_number"
-        ],
-        "fgpk": [
-          1.0,
-          "tax_collector_number"
-        ],
-        "fgph": [
-          0.8571428571428571,
-          "recruitment"
-        ]
-      }
-    },
-    "jqy": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.AllianceInformation",
-      "similarity": 0.890570018529026,
-      "field_mapping": {
-        "fgpo": [
-          1.0,
-          "uid"
-        ],
-        "fgpq": [
-          1.0,
-          "tag"
-        ],
-        "fgpu": [
-          1.0,
-          "name"
-        ],
-        "fgpt": [
-          1.0,
-          "emblem"
-        ],
-        "fgpp": [
-          0.9171444168602423,
-          "card_information"
-        ],
-        "fgps": null
-      }
-    },
-    "jti.jtg.jsq.jsg.jsd.jry.jrp": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.AllianceOption",
-      "similarity": 0.9312389113400722,
-      "field_mapping": {
-        "fgsf": [
-          0.890570018529026,
-          "alliance_information"
-        ],
-        "fgse": [
-          1.0,
-          "attackable_status"
-        ]
-      }
-    },
-    "jti.jtg.jsq.jsg.jsd.jry.jrr": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.EmoteOption",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fgsp": [
-          1.0,
-          "emote_id"
-        ],
-        "fgsn": [
-          1.0,
-          "emote_start_time"
-        ]
-      }
-    },
-    "jti.jtg.jsq.jsg.jsd.jry.jrq": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.TitleOption",
-      "similarity": 0.25,
-      "field_mapping": {
-        "fgsj": [
-          1.0,
-          "title_id"
-        ]
-      }
-    },
-    "jti.jtg.jsq.jsg.jsd.jry.jrs": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.OrnamentOption",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fgsw": [
-          1.0,
-          "player_level"
-        ],
-        "fgsy": [
-          1.0,
-          "ornament_id"
-        ],
-        "fgsz": [
-          1.0,
-          "league_id"
-        ],
-        "fgsu": [
-          1.0,
-          "ladder_position"
-        ]
-      }
-    },
-    "jti.jtg.jsq.jsg.jsd.jry.jrv": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.ObjectUseOption",
-      "similarity": 0.9090909090909091,
-      "field_mapping": {
-        "fgtn": [
-          1.0,
-          "delayed_action_type"
-        ],
-        "fgtm": [
-          1.0,
-          "end_delay"
-        ],
-        "fgtl": [
-          1.0,
-          "object_gid"
-        ],
-        "fgto": null
-      }
-    },
-    "jti.jtg.jsq.jsg.jsd.jry.jrw": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.SkillUseOption",
-      "similarity": 0.9090909090909091,
-      "field_mapping": {
-        "fgtu": [
-          1.0,
-          "element_id"
-        ],
-        "fgtv": [
-          1.0,
-          "skill_id"
-        ],
-        "fgtt": [
-          1.0,
-          "skill_end_time"
-        ],
-        "fgts": null
-      }
-    },
-    "jti.jtg.jsq.jsg.jsd.jry": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption",
-      "similarity": 0.7452684305092437,
-      "field_mapping": {
-        "fgue": [
-          0.6022513896086568,
-          "followers"
-        ],
-        "fguj": [
-          0.8699016788164136,
-          "guild_information"
-        ],
-        "fgug": [
-          0.9312389113400722,
-          "alliance_information"
-        ],
-        "fguf": [
-          1.0,
-          "emote_option"
-        ],
-        "fgud": [
-          0.25,
-          "title_option"
-        ],
-        "fguh": [
-          1.0,
-          "ornament_option"
-        ],
-        "fguc": [
-          0.9090909090909091,
-          "object_use_option"
-        ],
-        "fgui": [
-          0.9090909090909091,
-          "skill_use_option"
-        ],
-        "fgua": [
-          1.0,
-          "speed_multiplier"
-        ],
-        "fgtz": null
-      }
-    },
-    "jzp.jzn": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.AlignmentInformation.AlignmentExtendedInformation",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fifg": [
-          1.0,
-          "honor"
-        ],
-        "fiff": [
-          1.0,
-          "honor_grade_floor"
-        ],
-        "fife": [
-          1.0,
-          "honor_next_grade_floor"
-        ],
-        "fifh": [
-          1.0,
-          "attackable"
-        ]
-      }
-    },
-    "jzp": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.AlignmentInformation",
-      "similarity": 0.8561727609173496,
-      "field_mapping": {
-        "fifl": [
-          1.0,
-          "alignment"
-        ],
-        "fifo": [
-          1.0,
-          "alignment_quest_number"
-        ],
-        "fifq": [
-          1.0,
-          "alignment_grade"
-        ],
-        "fifp": [
-          0.0,
-          "character_id"
-        ],
-        "fifn": [
-          0.0,
-          "character_level"
-        ],
-        "fifm": [
-          1.0,
-          "extended_information"
-        ]
-      }
-    },
-    "jti.jtg.jsq.jsg.jsd.jsb": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.MutantInformation",
-      "similarity": 0.5,
-      "field_mapping": {
-        "fgup": [
-          1.0,
-          "monster_id"
-        ],
-        "fguq": [
-          1.0,
-          "power_level"
-        ],
-        "fguo": null,
-        "fgur": null
-      }
-    },
-    "jti.jtg.jsq.jsg.jsd": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid",
-      "similarity": 0.636479783083214,
-      "field_mapping": {
-        "fguv": [
-          1.0,
-          "restrictions"
-        ],
-        "fguw": [
-          1.0,
-          "gender"
-        ],
-        "fguz": [
-          0.7452684305092437,
-          "options"
-        ],
-        "fgvb": [
-          1.0,
-          "account_id"
-        ],
-        "fgvc": [
-          0.8561727609173496,
-          "alignment_information"
-        ],
-        "fgux": [
-          0.5,
-          "mutant_information"
-        ],
-        "fguy": null,
-        "fgva": null
-      }
-    },
-    "jti.jtg.jsq.jsg.jse": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Mount",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fgvh": [
-          1.0,
-          "owner_name"
-        ],
-        "fgvg": [
-          1.0,
-          "level"
-        ]
-      }
-    },
-    "jti.jtg.jsq.jsg": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor",
-      "similarity": 0.8115133012592716,
-      "field_mapping": {
-        "fgvl": [
-          1.0,
-          "name"
-        ],
-        "fgvn": [
-          0.636479783083214,
-          "humanoid_information"
-        ],
-        "fgvm": [
-          1.0,
-          "mount_information"
-        ]
-      }
-    },
-    "jra": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.TaxCollectorStaticInformation",
-      "similarity": 0.8438628805964239,
-      "field_mapping": {
-        "fgqj": [
-          1.0,
-          "uid"
-        ],
-        "fgqg": [
-          1.0,
-          "first_name_id"
-        ],
-        "fgqh": [
-          1.0,
-          "last_name_id"
-        ],
-        "fgqe": [
-          0.890570018529026,
-          "alliance"
-        ],
-        "fgqi": [
-          1.0,
-          "caller_id"
-        ],
-        "fgqf": null
-      }
-    },
-    "jti.jtg.jsq.jsh": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.TaxCollectorActor",
-      "similarity": 0.8617758804821591,
-      "field_mapping": {
-        "fgvt": [
-          0.8438628805964239,
-          "identification"
-        ],
-        "fgvs": [
-          1.0,
-          "attack"
-        ]
-      }
-    },
-    "jqv": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.MonsterInGroupInformation",
-      "similarity": 0.8857245319318697,
-      "field_mapping": {
-        "fgpc": [
-          1.0,
-          "gid"
-        ],
-        "fgpa": [
-          1.0,
-          "grade"
-        ],
-        "fgpb": [
-          1.0,
-          "level"
-        ],
-        "fgoz": [
-          0.6178986576708431,
-          "look"
-        ]
-      }
-    },
-    "jyv": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.MonstersInGroupAlternativeInformation",
-      "similarity": 0.9071394588741796,
-      "field_mapping": {
-        "fiby": [
-          1.0,
-          "player_count"
-        ],
-        "fibx": [
-          0.8857245319318697,
-          "monsters"
-        ]
-      }
-    },
-    "joq": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.MonsterGroupStaticInformation",
-      "similarity": 0.892863579681873,
-      "field_mapping": {
-        "fgcs": [
-          0.8857245319318697,
-          "main_creature"
-        ],
-        "fgcu": [
-          0.8857245319318697,
-          "underlings"
-        ],
-        "fgct": [
-          0.9071394588741796,
-          "alternatives"
-        ]
-      }
-    },
-    "jti.jtg.jsq.jsk.jsi": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor.WaveInformation",
-      "similarity": 0.902338370422701,
-      "field_mapping": {
-        "fgvx": [
-          0.892863579681873,
-          "alternatives"
-        ],
-        "fgvy": [
-          1.0,
-          "wave_count"
-        ]
-      }
-    },
-    "jti.jtg.jsq.jsk": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor",
-      "similarity": 0.8378216530731359,
-      "field_mapping": {
-        "fgwf": [
-          0.892863579681873,
-          "identification"
-        ],
-        "fgwg": [
-          1.0,
-          "loot_share"
-        ],
-        "fgwh": [
-          1.0,
-          "alignment"
         ],
-        "fgwd": [
-          0.902338370422701,
-          "wave_information"
-        ],
-        "fgwe": null
-      }
-    },
-    "jti.jtg.jsq.jso.jsm": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NpcStaticInformation.Quests",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fgwr": [
-          1.0,
-          "quests_to_valid"
-        ],
-        "fgws": [
-          1.0,
-          "quests_to_start"
-        ]
-      }
-    },
-    "jti.jtg.jsq.jso": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NpcStaticInformation",
-      "similarity": 0.9090909090909091,
-      "field_mapping": {
-        "fgwx": [
-          1.0,
-          "npc_id"
-        ],
-        "fgwy": [
-          1.0,
-          "gender"
-        ],
-        "fgww": [
-          1.0,
-          "special_artwork_id"
-        ],
-        "fgwz": [
-          1.0,
-          "quests"
-        ],
-        "fgxa": null
-      }
-    },
-    "jyy": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.PrismModule",
-      "similarity": 0.7405250107457109,
-      "field_mapping": {
-        "ficd": [
-          0.9090909090909091,
-          "module_object"
-        ],
-        "ficc": [
-          0.3333333333333333,
-          "type"
-        ]
-      }
-    },
-    "jqq": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.PrismInformation",
-      "similarity": 0.2691557765288695,
-      "field_mapping": {
-        "fgoh": [
-          0.4,
-          "state"
-        ],
-        "fgod": [
-          1.0,
-          "placement_date"
-        ],
-        "fgoe": [
-          1.0,
-          "nuggets_count"
-        ],
-        "fgob": [
-          1.0,
-          "durability"
-        ],
-        "fgof": [
-          0.890570018529026,
-          "alliance_information"
-        ],
-        "fgog": [
-          0.7405250107457109,
-          "module"
-        ]
-      }
-    },
-    "jti.jtg.jsq.jrh": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.PortalInformation",
-      "similarity": 0.5,
-      "field_mapping": {
-        "fgrk": [
-          1.0,
-          "portal_id"
-        ],
-        "fgri": [
-          0.0,
-          "area_id"
-        ]
-      }
-    },
-    "jti.jtg.jsq": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor",
-      "similarity": 0.650665222159793,
-      "field_mapping": {
-        "fgxk": [
-          0.8115133012592716,
-          "named_actor"
-        ],
-        "fgxm": [
-          0.8617758804821591,
-          "tax_collector_actor"
-        ],
-        "fgxj": [
-          0.8378216530731359,
-          "monster_group_actor"
-        ],
-        "fgxf": [
-          0.9090909090909091,
-          "npc_actor"
-        ],
-        "fgxi": [
-          0.2691557765288695,
-          "prism_actor"
-        ],
-        "fgxe": [
-          0.5,
-          "portal_actor"
-        ],
-        "fgxg": [
-          1.0,
-          "treasure_hunt_npc_id"
-        ],
-        "fgxl": null
-      }
-    },
-    "jzl": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.SpawnInformation",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fiey": [
-          1.0,
-          "team"
-        ],
-        "fifa": [
-          1.0,
-          "alive"
-        ],
-        "fiez": [
-          1.0,
-          "position"
-        ]
-      }
-    },
-    "jyu": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.CharacterStatus",
-      "similarity": 0.5,
-      "field_mapping": {
-        "fibr": [
-          1.0,
-          "status"
-        ],
-        "fibp": [
-          1.0,
-          "message"
-        ],
-        "fibo": null,
-        "fibs": null
-      }
-    },
-    "jti.jtg.jte.jsw.jst": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.NamedFighterInformation.FightCharacterInformation",
-      "similarity": 0.9361357979780783,
-      "field_mapping": {
-        "fgxr": [
-          1.0,
-          "level"
-        ],
-        "fgxu": [
-          0.8561727609173496,
-          "alignment_information"
-        ],
-        "fgxs": [
-          1.0,
-          "breed_id"
-        ],
-        "fgxt": [
-          1.0,
-          "gender"
-        ]
-      }
-    },
-    "jti.jtg.jte.jsw.jsu": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.NamedFighterInformation.FightMutantInformation",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fgxy": [
-          1.0,
-          "power_level"
-        ]
-      }
-    },
-    "jti.jtg.jte.jsw": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.NamedFighterInformation",
-      "similarity": 0.8575847713809409,
-      "field_mapping": {
-        "fgyf": [
-          1.0,
-          "name"
-        ],
-        "fgye": [
-          0.5,
-          "status"
-        ],
-        "fgyd": [
-          1.0,
-          "league_id"
-        ],
-        "fgyc": [
-          1.0,
-          "ladder_position"
-        ],
-        "fgyg": [
-          1.0,
-          "hidden_in_pre_fight"
-        ],
-        "fgyi": [
-          0.9361357979780783,
-          "character_information"
-        ],
-        "fgyh": [
-          1.0,
-          "mutant_information"
-        ]
-      }
-    },
-    "jti.jtg.jte.jtb.jsy": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.AIFighterInformation.MonsterFighter",
-      "similarity": 0.9386521803050356,
-      "field_mapping": {
-        "fgyq": [
-          1.0,
-          "monster_gid"
-        ],
-        "fgyp": [
-          1.0,
-          "creature_grade"
-        ],
-        "fgyn": [
-          1.0,
-          "creature_level"
-        ],
-        "fgyo": [
-          0.0,
-          "alignment_information"
-        ]
-      }
-    },
-    "jti.jtg.jte.jtb.jsz": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.AIFighterInformation.TaxCollectorFighter",
-      "similarity": 0.9090909090909091,
-      "field_mapping": {
-        "fgyu": [
-          1.0,
-          "first_name_id"
-        ],
-        "fgyv": [
-          1.0,
-          "last_name_id"
-        ],
-        "fgyw": null
-      }
-    },
-    "jti.jtg.jte.jtb": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.AIFighterInformation",
-      "similarity": 0.9295890207233405,
-      "field_mapping": {
-        "fgza": [
-          0.9386521803050356,
-          "monster_fighter_information"
-        ],
-        "fgzb": [
-          0.9090909090909091,
-          "tax_collector_information"
-        ]
-      }
-    },
-    "jti.jtg.jte.jtc": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.EntityFighterInformation",
-      "similarity": 0.5,
-      "field_mapping": {
-        "fgzj": [
-          1.0,
-          "entity_model_id"
-        ],
-        "fgzk": [
-          1.0,
-          "level"
-        ],
-        "fgzg": [
-          1.0,
-          "master_id"
-        ],
-        "fgzh": null,
-        "fgzi": null,
-        "fgzl": null
-      }
-    },
-    "jti.jtg.jte": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation",
-      "similarity": 0.620236502233161,
-      "field_mapping": {
-        "fgzq": [
-          1.0,
-          "spawn_information"
-        ],
-        "fgzt": [
-          1.0,
-          "wave"
-        ],
-        "fgzr": [
-          0.9147503640095455,
-          "stats"
-        ],
-        "fgzw": [
-          1.0,
-          "previous_positions"
-        ],
-        "fgzx": [
-          0.8575847713809409,
-          "named_fighter"
-        ],
-        "fgzy": [
-          0.9295890207233405,
-          "ai_fighter"
-        ],
-        "fgzz": [
-          0.5,
-          "entity_fighter"
-        ],
-        "fgzp": null,
-        "fgzs": null,
-        "fgzu": null
-      }
-    },
-    "jti.jtg": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation",
-      "similarity": 0.6320831863680251,
-      "field_mapping": {
-        "fhae": [
-          0.6178986576708431,
-          "look"
-        ],
-        "fhaf": [
-          0.650665222159793,
-          "role_play_actor"
-        ],
-        "fhag": [
-          0.620236502233161,
-          "fighter"
-        ]
-      }
-    },
-    "jti": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation",
-      "similarity": 0.4728433457511385,
-      "field_mapping": {
-        "fhal": [
-          1.0,
-          "actor_id"
-        ],
-        "fhap": [
-          0.9090909090909091,
-          "disposition"
-        ],
-        "fham": [
-          0.6320831863680251,
-          "actor_information"
-        ],
-        "fhan": null,
-        "fhao": null
-      }
-    },
-    "jxg.jxe": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.InteractiveElement.InteractiveElementSkill",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fhsj": [
-          1.0,
-          "skill_id"
-        ],
-        "fhsk": [
-          1.0,
-          "skill_instance_uid"
-        ],
-        "fhsh": [
-          1.0,
-          "name_id"
-        ]
-      }
-    },
-    "jxg": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.InteractiveElement",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fhso": [
-          1.0,
-          "element_id"
-        ],
-        "fhst": [
-          1.0,
-          "element_type_id"
-        ],
-        "fhsp": [
-          1.0,
-          "enabled_skills"
-        ],
-        "fhss": [
-          1.0,
-          "disabled_skills"
-        ],
-        "fhsu": [
-          1.0,
-          "on_current_map"
-        ],
-        "fhsq": [
-          1.0,
-          "age_bonus"
-        ]
-      }
-    },
-    "ihg": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapObstacle",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fbbf": [
-          1.0,
-          "cell_id"
-        ],
-        "fbbe": [
-          1.0,
-          "state"
-        ]
-      }
-    },
-    "jpg": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamMemberCharacter",
-      "similarity": 0.16666666666666666,
-      "field_mapping": {
-        "fgfu": [
-          0.0,
-          "name"
-        ],
-        "fgft": [
-          1.0,
-          "level"
-        ]
-      }
-    },
-    "jtt": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamMemberEntity",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fhce": [
-          1.0,
-          "entity_model_id"
-        ],
-        "fhcg": [
-          1.0,
-          "level"
-        ],
-        "fhcf": [
-          1.0,
-          "master_id"
-        ]
-      }
-    },
-    "jph": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamMemberMonster",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fgfy": [
-          1.0,
-          "monster_id"
-        ],
-        "fgfz": [
-          1.0,
-          "grade"
-        ]
-      }
-    },
-    "jpl": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamMemberTaxCollector",
-      "similarity": 0.706920299228417,
-      "field_mapping": {
-        "fggn": [
-          1.0,
-          "first_name_id"
-        ],
-        "fggk": [
-          0.0,
-          "last_name_id"
-        ],
-        "fggl": [
-          0.0,
-          "group_id"
-        ],
-        "fggj": [
-          1.0,
-          "tax_collector_uid"
-        ],
-        "fggm": null
-      }
-    },
-    "jpw": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamMemberInformation",
-      "similarity": 0.7980464629346583,
-      "field_mapping": {
-        "fgkg": [
-          1.0,
-          "member_id"
-        ],
-        "fgkh": [
-          0.16666666666666666,
-          "character_member"
-        ],
-        "fgkk": [
-          1.0,
-          "entity_member"
-        ],
-        "fgki": [
-          1.0,
-          "monster_member"
-        ],
-        "fgkj": [
-          0.706920299228417,
-          "tax_collector_member"
-        ]
-      }
-    },
-    "jto": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamMembersInformation",
-      "similarity": 0.7948070112979887,
-      "field_mapping": {
-        "fhbr": [
-          0.7980464629346583,
-          "team_members"
-        ],
-        "fhbp": [
-          1.0,
-          "alliance_relation"
-        ],
-        "fhbs": null
-      }
-    },
-    "jyf": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamLightInformation",
-      "similarity": 0.9090909090909091,
-      "field_mapping": {
-        "fhxu": [
-          1.0,
-          "team_members_count"
-        ],
-        "fhxz": [
-          1.0,
-          "average_level"
-        ],
-        "fhxv": [
-          1.0,
-          "has_friend"
-        ],
-        "fhxw": [
-          1.0,
-          "has_guild_member"
-        ],
-        "fhxx": [
-          1.0,
-          "has_alliance_member"
-        ],
-        "fhxy": [
-          1.0,
-          "has_group_member"
-        ],
-        "fhya": [
-          1.0,
-          "has_my_tax_collector"
-        ],
-        "fhyb": null
-      }
-    },
-    "jnv": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamInformation",
-      "similarity": 0.8486796506032351,
-      "field_mapping": {
-        "ffyn": [
-          1.0,
-          "team"
-        ],
-        "ffyq": [
-          1.0,
-          "leader_id"
-        ],
-        "ffym": [
-          1.0,
-          "side"
-        ],
-        "ffyo": [
-          1.0,
-          "type"
-        ],
-        "ffyl": [
-          1.0,
-          "waves"
-        ],
-        "ffys": [
-          0.7948070112979887,
-          "team_members"
-        ],
-        "ffyr": [
-          0.9090909090909091,
-          "light_information"
-        ],
-        "ffyp": null
-      }
-    },
-    "jrc": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightOptionsInformation",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fgqr": [
-          1.0,
-          "is_secret"
-        ],
-        "fgqs": [
-          1.0,
-          "is_restricted_to_party"
-        ],
-        "fgqt": [
-          1.0,
-          "is_closed"
-        ],
-        "fgqu": [
-          1.0,
-          "is_asking_for_help"
-        ]
-      }
-    },
-    "jqm": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightCommonInformation",
-      "similarity": 0.9499498126504684,
-      "field_mapping": {
-        "fgnt": [
-          1.0,
-          "fight_id"
-        ],
-        "fgnp": [
-          1.0,
-          "type"
-        ],
-        "fgns": [
-          0.8486796506032351,
-          "teams_information"
-        ],
-        "fgnr": [
-          1.0,
-          "teams_position"
-        ],
-        "fgnq": [
-          1.0,
-          "teams_options"
-        ]
-      }
-    },
-    "iis": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryInHouseInformation",
-      "similarity": 0.9040376131186106,
-      "field_mapping": {
-        "fbhd": [
-          0.9040376131186106,
-          "current_house"
-        ]
+        "fldd": null
       }
     },
-    "ihm": {
+    "ipa": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryAnomalyInformation",
       "similarity": 1.0,
       "field_mapping": {
-        "fbcg": [
+        "ffdt": [
           1.0,
           "level"
         ],
-        "fbcf": [
+        "ffds": [
           1.0,
           "closing_time"
         ]
       }
     },
-    "jwm.jwk.jwi.jwg.jwc": {
+    "iou": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.FightMapInformationEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "ffcp": [
+          1.0,
+          "subarea_id"
+        ],
+        "ffcn": [
+          1.0,
+          "map_id"
+        ],
+        "ffcr": [
+          0.9090909090909091,
+          "coordinates"
+        ],
+        "ffco": [
+          0.0,
+          "breach_information"
+        ],
+        "ffcq": [
+          1.0,
+          "anomaly_information"
+        ]
+      }
+    },
+    "kfa": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.AccountTag",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "flqd": [
+          1.0,
+          "nickname"
+        ],
+        "flqf": [
+          1.0,
+          "tag"
+        ],
+        "flqe": null
+      }
+    },
+    "kdt": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.HouseInstance",
+      "similarity": 0.9492582232388074,
+      "field_mapping": {
+        "fllf": [
+          1.0,
+          "instance_id"
+        ],
+        "flkv": [
+          1.0,
+          "second_hand"
+        ],
+        "flla": [
+          1.0,
+          "is_locked"
+        ],
+        "flkx": [
+          0.9090909090909091,
+          "account_tag"
+        ],
+        "flle": [
+          1.0,
+          "has_owner"
+        ],
+        "flkz": [
+          1.0,
+          "is_sale_locked"
+        ],
+        "flku": [
+          1.0,
+          "is_admin_locked"
+        ],
+        "flkw": [
+          1.0,
+          "rooms_count"
+        ],
+        "flky": [
+          1.0,
+          "chests_count"
+        ],
+        "flkt": [
+          1.0,
+          "skills_id"
+        ],
+        "fllb": [
+          1.0,
+          "price"
+        ],
+        "flld": [
+          0.8635189767546745,
+          "guild_information"
+        ]
+      }
+    },
+    "kfi": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.MapExtendedCoordinates",
+      "similarity": 0.5714285714285714,
+      "field_mapping": {
+        "flry": [
+          1.0,
+          "world_x"
+        ],
+        "flsd": [
+          1.0,
+          "world_y"
+        ],
+        "flsa": [
+          1.0,
+          "map_id"
+        ],
+        "flse": [
+          1.0,
+          "sub_area_id"
+        ],
+        "flrz": null,
+        "flsb": null,
+        "flsf": null
+      }
+    },
+    "khs.khn": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.House.HouseAccount",
+      "similarity": 0.7568117074525619,
+      "field_mapping": {
+        "fmby": [
+          0.9492582232388074,
+          "house_information"
+        ],
+        "fmca": [
+          0.5714285714285714,
+          "coordinates"
+        ],
+        "fmbz": null
+      }
+    },
+    "khs.kho": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.House.HouseOnMap",
+      "similarity": 0.9666750331163028,
+      "field_mapping": {
+        "fmcf": [
+          1.0,
+          "doors_on_map"
+        ],
+        "fmce": [
+          0.9492582232388074,
+          "houses_information"
+        ]
+      }
+    },
+    "khs.khp": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.House.HouseInside",
+      "similarity": 0.9304260859789154,
+      "field_mapping": {
+        "fmcj": [
+          0.9492582232388074,
+          "house_information"
+        ],
+        "fmck": [
+          0.9090909090909091,
+          "coordinates"
+        ]
+      }
+    },
+    "khs.khq": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.House.HouseGuild",
+      "similarity": 0.7866316856214366,
+      "field_mapping": {
+        "fmcq": [
+          0.9492582232388074,
+          "house_information"
+        ],
+        "fmcp": [
+          0.5714285714285714,
+          "coordinates"
+        ],
+        "fmcs": [
+          1.0,
+          "skills_id"
+        ],
+        "fmco": [
+          1.0,
+          "guild_share_params"
+        ],
+        "fmcr": null
+      }
+    },
+    "khs": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.House",
+      "similarity": 0.8860702286767441,
+      "field_mapping": {
+        "fmcw": [
+          1.0,
+          "house_id"
+        ],
+        "fmcx": [
+          1.0,
+          "model_id"
+        ],
+        "fmda": [
+          0.7568117074525619,
+          "house_account"
+        ],
+        "fmcy": [
+          0.9666750331163028,
+          "house_on_map"
+        ],
+        "fmcz": [
+          0.9304260859789154,
+          "house_inside"
+        ],
+        "fmdb": [
+          0.7866316856214366,
+          "house_guild"
+        ]
+      }
+    },
+    "kft": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.EntityDisposition",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "fluc": [
+          1.0,
+          "direction"
+        ],
+        "flud": [
+          1.0,
+          "entity_id"
+        ],
+        "fluf": [
+          1.0,
+          "cell_id"
+        ],
+        "flui": [
+          1.0,
+          "carrying_character_id"
+        ]
+      }
+    },
+    "khz": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.SubEntityInformation",
+      "similarity": 0.7155330067463169,
+      "field_mapping": {
+        "fmds": [
+          0.5384615384615384,
+          "binding_point_category"
+        ],
+        "fmdq": [
+          1.0,
+          "binding_point_index"
+        ],
+        "fmdr": [
+          1.0,
+          "sub_entity_look"
+        ],
+        "fmdp": null
+      }
+    },
+    "kkm": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.EntityLook",
+      "similarity": 0.9257668551923443,
+      "field_mapping": {
+        "fmqb": [
+          1.0,
+          "bones_id"
+        ],
+        "fmqc": [
+          1.0,
+          "skins"
+        ],
+        "fmqd": [
+          1.0,
+          "indexed_colors"
+        ],
+        "fmqe": [
+          1.0,
+          "scales"
+        ],
+        "fmqa": [
+          0.7155330067463169,
+          "sub_entities"
+        ]
+      }
+    },
+    "jzp.jzn.jyx.jyo.jyl.jyi.jxy.jxw": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.FollowingCharactersOption.IndexedEntityLook",
+      "similarity": 0.9343994235263842,
+      "field_mapping": {
+        "fkhv": [
+          0.9257668551923443,
+          "look"
+        ],
+        "fkhu": [
+          1.0,
+          "index"
+        ]
+      }
+    },
+    "jzp.jzn.jyx.jyo.jyl.jyi.jxy": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.FollowingCharactersOption",
+      "similarity": 0.3114664745087947,
+      "field_mapping": {
+        "fkhz": [
+          0.9343994235263842,
+          "following_characters_looks"
+        ],
+        "fkia": null,
+        "fkib": null
+      }
+    },
+    "kia": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.AllianceRecruitmentInformation",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fmdw": [
+          1.0,
+          "social_uid"
+        ],
+        "fmdy": [
+          1.0,
+          "recruitment_type"
+        ],
+        "fmdz": [
+          1.0,
+          "title"
+        ],
+        "fmeb": [
+          1.0,
+          "text"
+        ],
+        "fmdx": [
+          1.0,
+          "selected_languages"
+        ],
+        "fmef": [
+          1.0,
+          "selected_criterion"
+        ],
+        "fmee": [
+          1.0,
+          "min_level"
+        ],
+        "fmec": [
+          1.0,
+          "min_level_facultative"
+        ],
+        "fmeg": [
+          1.0,
+          "invalidated_by_moderation"
+        ],
+        "fmed": [
+          1.0,
+          "last_edit_player_name"
+        ],
+        "fmea": [
+          1.0,
+          "last_edit_date"
+        ],
+        "fmeh": [
+          1.0,
+          "auto_locked"
+        ]
+      }
+    },
+    "kka.kjy": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.AllianceInformation.AllianceCardInformation",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "fmmq": [
+          1.0,
+          "creation_date"
+        ],
+        "fmmn": [
+          1.0,
+          "members_number"
+        ],
+        "fmmo": [
+          1.0,
+          "subarea_number"
+        ],
+        "fmmp": [
+          1.0,
+          "tax_collector_number"
+        ],
+        "fmmm": [
+          1.0,
+          "recruitment"
+        ],
+        "fmmr": null
+      }
+    },
+    "kka": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.AllianceInformation",
+      "similarity": 0.8880210703224407,
+      "field_mapping": {
+        "fmmy": [
+          1.0,
+          "uid"
+        ],
+        "fmmz": [
+          1.0,
+          "tag"
+        ],
+        "fmna": [
+          1.0,
+          "name"
+        ],
+        "fmmv": [
+          1.0,
+          "emblem"
+        ],
+        "fmmw": [
+          0.9090909090909091,
+          "card_information"
+        ],
+        "fmmx": null
+      }
+    },
+    "jzp.jzn.jyx.jyo.jyl.jyi.jxz": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.AllianceOption",
+      "similarity": 0.9304935115869887,
+      "field_mapping": {
+        "fkig": [
+          0.8880210703224407,
+          "alliance_information"
+        ],
+        "fkif": [
+          1.0,
+          "attackable_status"
+        ]
+      }
+    },
+    "jzp.jzn.jyx.jyo.jyl.jyi.jyd": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.EmoteOption",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "fkjd": [
+          1.0,
+          "emote_id"
+        ],
+        "fkjf": [
+          1.0,
+          "emote_start_time"
+        ],
+        "fkjc": null
+      }
+    },
+    "jzp.jzn.jyx.jyo.jyl.jyi.jye": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.OrnamentOption",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fkjq": [
+          1.0,
+          "player_level"
+        ],
+        "fkjm": [
+          1.0,
+          "ornament_id"
+        ],
+        "fkjk": [
+          1.0,
+          "league_id"
+        ],
+        "fkjo": [
+          1.0,
+          "ladder_position"
+        ]
+      }
+    },
+    "jzp.jzn.jyx.jyo.jyl.jyi.jyf": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.ObjectUseOption",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fkjw": [
+          1.0,
+          "delayed_action_type"
+        ],
+        "fkjv": [
+          1.0,
+          "end_delay"
+        ],
+        "fkju": [
+          1.0,
+          "object_gid"
+        ]
+      }
+    },
+    "jzp.jzn.jyx.jyo.jyl.jyi.jyg": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption.SkillUseOption",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fkkc": [
+          1.0,
+          "element_id"
+        ],
+        "fkkb": [
+          1.0,
+          "skill_id"
+        ],
+        "fkka": [
+          1.0,
+          "skill_end_time"
+        ]
+      }
+    },
+    "jzp.jzn.jyx.jyo.jyl.jyi": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.HumanOption",
+      "similarity": 0.769401535384666,
+      "field_mapping": {
+        "fkkk": [
+          0.3114664745087947,
+          "followers"
+        ],
+        "fkkn": [
+          0.8635189767546745,
+          "guild_information"
+        ],
+        "fkkp": [
+          0.9304935115869887,
+          "alliance_information"
+        ],
+        "fkkj": [
+          0.9090909090909091,
+          "emote_option"
+        ],
+        "fkkg": [
+          0.9090909090909091,
+          "title_option"
+        ],
+        "fkko": [
+          1.0,
+          "ornament_option"
+        ],
+        "fkkm": [
+          1.0,
+          "object_use_option"
+        ],
+        "fkkl": [
+          1.0,
+          "skill_use_option"
+        ],
+        "fkkh": [
+          1.0,
+          "speed_multiplier"
+        ],
+        "fkkq": null
+      }
+    },
+    "jzv.jzt": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.AlignmentInformation.AlignmentExtendedInformation",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "fkrd": [
+          1.0,
+          "honor"
+        ],
+        "fkra": [
+          1.0,
+          "honor_grade_floor"
+        ],
+        "fkrc": [
+          1.0,
+          "honor_next_grade_floor"
+        ],
+        "fkqz": [
+          1.0,
+          "attackable"
+        ],
+        "fkrb": null
+      }
+    },
+    "jzv": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.AlignmentInformation",
+      "similarity": 0.8741217124130333,
+      "field_mapping": {
+        "fkrm": [
+          1.0,
+          "alignment"
+        ],
+        "fkrl": [
+          1.0,
+          "alignment_quest_number"
+        ],
+        "fkrj": [
+          1.0,
+          "alignment_grade"
+        ],
+        "fkrh": [
+          0.0,
+          "character_id"
+        ],
+        "fkrk": [
+          0.0,
+          "character_level"
+        ],
+        "fkri": [
+          0.9090909090909091,
+          "extended_information"
+        ]
+      }
+    },
+    "jzp.jzn.jyx.jyo.jyl.jyj": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid.MutantInformation",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fkkv": [
+          1.0,
+          "monster_id"
+        ],
+        "fkkw": [
+          1.0,
+          "power_level"
+        ]
+      }
+    },
+    "jzp.jzn.jyx.jyo.jyl": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid",
+      "similarity": 0.6807951311151799,
+      "field_mapping": {
+        "fklc": [
+          1.0,
+          "restrictions"
+        ],
+        "fklb": [
+          1.0,
+          "gender"
+        ],
+        "fkle": [
+          0.769401535384666,
+          "options"
+        ],
+        "fklf": [
+          1.0,
+          "account_id"
+        ],
+        "fkla": [
+          0.8741217124130333,
+          "alignment_information"
+        ],
+        "fkld": [
+          1.0,
+          "mutant_information"
+        ],
+        "fklg": null,
+        "fklh": null
+      }
+    },
+    "jzp.jzn.jyx.jyo.jym": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Mount",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fkll": [
+          1.0,
+          "owner_name"
+        ],
+        "fklm": [
+          1.0,
+          "level"
+        ]
+      }
+    },
+    "jzp.jzn.jyx.jyo": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor",
+      "similarity": 0.7478173126391255,
+      "field_mapping": {
+        "fklr": [
+          1.0,
+          "name"
+        ],
+        "fkls": [
+          0.6807951311151799,
+          "humanoid_information"
+        ],
+        "fklt": [
+          1.0,
+          "mount_information"
+        ],
+        "fklq": null
+      }
+    },
+    "kem": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.TaxCollectorStaticInformation",
+      "similarity": 0.9267831604451704,
+      "field_mapping": {
+        "flnv": [
+          1.0,
+          "uid"
+        ],
+        "flnx": [
+          1.0,
+          "first_name_id"
+        ],
+        "flnz": [
+          1.0,
+          "last_name_id"
+        ],
+        "flnw": [
+          0.8880210703224407,
+          "alliance"
+        ],
+        "flny": [
+          1.0,
+          "caller_id"
+        ]
+      }
+    },
+    "jzp.jzn.jyx.jyp": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.TaxCollectorActor",
+      "similarity": 0.9352386700901938,
+      "field_mapping": {
+        "fkly": [
+          0.9267831604451704,
+          "identification"
+        ],
+        "fklz": [
+          1.0,
+          "attack"
+        ]
+      }
+    },
+    "kcf": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.MonsterInGroupInformation",
+      "similarity": 0.9777162140397897,
+      "field_mapping": {
+        "flea": [
+          1.0,
+          "gid"
+        ],
+        "fldz": [
+          1.0,
+          "grade"
+        ],
+        "fleb": [
+          1.0,
+          "level"
+        ],
+        "fldy": [
+          0.9257668551923443,
+          "look"
+        ]
+      }
+    },
+    "kgm": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.MonstersInGroupAlternativeInformation",
+      "similarity": 0.892629417156222,
+      "field_mapping": {
+        "flxi": [
+          1.0,
+          "player_count"
+        ],
+        "flxg": [
+          0.9777162140397897,
+          "monsters"
+        ],
+        "flxh": null
+      }
+    },
+    "jzy": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.MonsterGroupStaticInformation",
+      "similarity": 0.5695049033542238,
+      "field_mapping": {
+        "fkry": [
+          0.9777162140397897,
+          "main_creature"
+        ],
+        "fksc": [
+          0.9777162140397897,
+          "underlings"
+        ],
+        "fksa": [
+          0.892629417156222,
+          "alternatives"
+        ],
+        "fkrz": null,
+        "fksb": null
+      }
+    },
+    "jzp.jzn.jyx.jys.jyq": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor.WaveInformation",
+      "similarity": 0.6069388750058107,
+      "field_mapping": {
+        "fkmf": [
+          0.5695049033542238,
+          "alternatives"
+        ],
+        "fkmd": [
+          1.0,
+          "wave_count"
+        ]
+      }
+    },
+    "jzp.jzn.jyx.jys": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor",
+      "similarity": 0.621272684946096,
+      "field_mapping": {
+        "fkmo": [
+          0.5695049033542238,
+          "identification"
+        ],
+        "fkmm": [
+          1.0,
+          "loot_share"
+        ],
+        "fkml": [
+          1.0,
+          "alignment"
+        ],
+        "fkmn": [
+          0.6069388750058107,
+          "wave_information"
+        ],
+        "fkmj": null
+      }
+    },
+    "jzp.jzn.jyx.jyv.jyt": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NpcStaticInformation.Quests",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "fkmt": [
+          1.0,
+          "quests_to_valid"
+        ],
+        "fkms": [
+          1.0,
+          "quests_to_start"
+        ],
+        "fkmu": null
+      }
+    },
+    "jzp.jzn.jyx.jyv": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NpcStaticInformation",
+      "similarity": 0.9646787384580756,
+      "field_mapping": {
+        "fkna": [
+          1.0,
+          "npc_id"
+        ],
+        "fknb": [
+          1.0,
+          "gender"
+        ],
+        "fkmy": [
+          1.0,
+          "special_artwork_id"
+        ],
+        "fkmz": [
+          0.9090909090909091,
+          "quests"
+        ]
+      }
+    },
+    "kkv": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.PrismModule",
+      "similarity": 0.6216432499409604,
+      "field_mapping": {
+        "fmry": [
+          0.8286239958877546,
+          "module_object"
+        ],
+        "fmrx": [
+          0.3333333333333333,
+          "type"
+        ],
+        "fmrw": null
+      }
+    },
+    "kby": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.PrismInformation",
+      "similarity": 0.2576436710727442,
+      "field_mapping": {
+        "flcr": [
+          0.4,
+          "state"
+        ],
+        "flcm": [
+          1.0,
+          "placement_date"
+        ],
+        "flcn": [
+          1.0,
+          "nuggets_count"
+        ],
+        "flcp": [
+          1.0,
+          "durability"
+        ],
+        "flcs": [
+          0.8880210703224407,
+          "alliance_information"
+        ],
+        "flco": [
+          0.6216432499409604,
+          "module"
+        ]
+      }
+    },
+    "kbd": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.PortalInformation",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "fkzb": [
+          1.0,
+          "portal_id"
+        ],
+        "fkzc": [
+          1.0,
+          "area_id"
+        ],
+        "fkzd": null
+      }
+    },
+    "jzp.jzn.jyx": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor",
+      "similarity": 0.6971015627001323,
+      "field_mapping": {
+        "fkni": [
+          0.7478173126391255,
+          "named_actor"
+        ],
+        "fknj": [
+          0.9352386700901938,
+          "tax_collector_actor"
+        ],
+        "fknh": [
+          0.621272684946096,
+          "monster_group_actor"
+        ],
+        "fknk": [
+          0.9646787384580756,
+          "npc_actor"
+        ],
+        "fknm": [
+          0.2576436710727442,
+          "prism_actor"
+        ],
+        "fknl": [
+          0.9090909090909091,
+          "portal_actor"
+        ],
+        "fknf": [
+          1.0,
+          "treasure_hunt_npc_id"
+        ]
+      }
+    },
+    "kkr": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.SpawnInformation",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fmrk": [
+          1.0,
+          "team"
+        ],
+        "fmrj": [
+          1.0,
+          "alive"
+        ],
+        "fmrl": [
+          1.0,
+          "position"
+        ]
+      }
+    },
+    "kel": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.CharacterStatus",
+      "similarity": 1.0,
+      "field_mapping": {
+        "flnp": [
+          1.0,
+          "status"
+        ],
+        "flnq": [
+          1.0,
+          "message"
+        ]
+      }
+    },
+    "jzp.jzn.jzl.jzd.jza": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.NamedFighterInformation.FightCharacterInformation",
+      "similarity": 0.9439237670214943,
+      "field_mapping": {
+        "fknt": [
+          1.0,
+          "level"
+        ],
+        "fkns": [
+          0.8741217124130333,
+          "alignment_information"
+        ],
+        "fknr": [
+          1.0,
+          "breed_id"
+        ],
+        "fknu": [
+          1.0,
+          "gender"
+        ]
+      }
+    },
+    "jzp.jzn.jzl.jzd.jzb": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.NamedFighterInformation.FightMutantInformation",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "fkny": [
+          1.0,
+          "power_level"
+        ],
+        "fknz": null
+      }
+    },
+    "jzp.jzn.jzl.jzd": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.NamedFighterInformation",
+      "similarity": 0.9699888104944825,
+      "field_mapping": {
+        "fkoh": [
+          1.0,
+          "name"
+        ],
+        "fkog": [
+          1.0,
+          "status"
+        ],
+        "fkof": [
+          1.0,
+          "league_id"
+        ],
+        "fkod": [
+          1.0,
+          "ladder_position"
+        ],
+        "fkoe": [
+          1.0,
+          "hidden_in_pre_fight"
+        ],
+        "fkoj": [
+          0.9439237670214943,
+          "character_information"
+        ],
+        "fkoi": [
+          0.9090909090909091,
+          "mutant_information"
+        ]
+      }
+    },
+    "jzp.jzn.jzl.jzi.jzf": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.AIFighterInformation.MonsterFighter",
+      "similarity": 0.7125024371943817,
+      "field_mapping": {
+        "fkos": [
+          1.0,
+          "monster_gid"
+        ],
+        "fkop": [
+          1.0,
+          "creature_grade"
+        ],
+        "fkoo": [
+          1.0,
+          "creature_level"
+        ],
+        "fkoq": [
+          0.0,
+          "alignment_information"
+        ],
+        "fkor": null
+      }
+    },
+    "jzp.jzn.jzl.jzi.jzg": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.AIFighterInformation.TaxCollectorFighter",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "fkow": [
+          1.0,
+          "first_name_id"
+        ],
+        "fkox": [
+          1.0,
+          "last_name_id"
+        ],
+        "fkoy": null
+      }
+    },
+    "jzp.jzn.jzl.jzi": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.AIFighterInformation",
+      "similarity": 0.7024928891769286,
+      "field_mapping": {
+        "fkpe": [
+          0.7125024371943817,
+          "monster_fighter_information"
+        ],
+        "fkpc": [
+          0.9090909090909091,
+          "tax_collector_information"
+        ],
+        "fkpd": null
+      }
+    },
+    "jzp.jzn.jzl.jzj": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation.EntityFighterInformation",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "fkpk": [
+          1.0,
+          "entity_model_id"
+        ],
+        "fkpm": [
+          1.0,
+          "level"
+        ],
+        "fkpj": [
+          1.0,
+          "master_id"
+        ],
+        "fkpl": null
+      }
+    },
+    "jzp.jzn.jzl": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.FightFighterInformation",
+      "similarity": 0.635340013483596,
+      "field_mapping": {
+        "fkpr": [
+          1.0,
+          "spawn_information"
+        ],
+        "fkpt": [
+          1.0,
+          "wave"
+        ],
+        "fkpu": [
+          0.9090909090909091,
+          "stats"
+        ],
+        "fkpv": [
+          1.0,
+          "previous_positions"
+        ],
+        "fkqa": [
+          0.9699888104944825,
+          "named_fighter"
+        ],
+        "fkpz": [
+          0.7024928891769286,
+          "ai_fighter"
+        ],
+        "fkpy": [
+          0.9090909090909091,
+          "entity_fighter"
+        ],
+        "fkpq": null,
+        "fkps": null,
+        "fkpw": null
+      }
+    },
+    "jzp.jzn": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation",
+      "similarity": 0.6656068929417674,
+      "field_mapping": {
+        "fkqf": [
+          0.9257668551923443,
+          "look"
+        ],
+        "fkqi": [
+          0.6971015627001323,
+          "role_play_actor"
+        ],
+        "fkqh": [
+          0.635340013483596,
+          "fighter"
+        ],
+        "fkqg": null
+      }
+    },
+    "jzp": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation",
+      "similarity": 0.8046522901423401,
+      "field_mapping": {
+        "fkqo": [
+          1.0,
+          "actor_id"
+        ],
+        "fkqn": [
+          0.9090909090909091,
+          "disposition"
+        ],
+        "fkqp": [
+          0.6656068929417674,
+          "actor_information"
+        ]
+      }
+    },
+    "khd.khb": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.InteractiveElement.InteractiveElementSkill",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "flzo": [
+          1.0,
+          "skill_id"
+        ],
+        "flzp": [
+          1.0,
+          "skill_instance_uid"
+        ],
+        "flzs": [
+          1.0,
+          "name_id"
+        ]
+      }
+    },
+    "khd": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.InteractiveElement",
+      "similarity": 0.978740160198398,
+      "field_mapping": {
+        "fmac": [
+          1.0,
+          "element_id"
+        ],
+        "flzz": [
+          1.0,
+          "element_type_id"
+        ],
+        "flzy": [
+          0.9090909090909091,
+          "enabled_skills"
+        ],
+        "flzx": [
+          0.9090909090909091,
+          "disabled_skills"
+        ],
+        "fmad": [
+          1.0,
+          "on_current_map"
+        ],
+        "fmaa": [
+          1.0,
+          "age_bonus"
+        ]
+      }
+    },
+    "inz": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapObstacle",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "fezo": [
+          1.0,
+          "cell_id"
+        ],
+        "fezq": [
+          1.0,
+          "state"
+        ],
+        "fezp": null
+      }
+    },
+    "kan.kal": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamMemberCharacter.BasicAllianceInformation",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fkwl": [
+          1.0,
+          "alliance_uid"
+        ],
+        "fkwm": [
+          1.0,
+          "alliance_tag"
+        ]
+      }
+    },
+    "kan": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamMemberCharacter",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fkwr": [
+          1.0,
+          "name"
+        ],
+        "fkws": [
+          1.0,
+          "level"
+        ],
+        "fkwq": [
+          1.0,
+          "alliance_info"
+        ]
+      }
+    },
+    "kki": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamMemberEntity",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "fmop": [
+          1.0,
+          "entity_model_id"
+        ],
+        "fmoq": [
+          1.0,
+          "level"
+        ],
+        "fmor": [
+          1.0,
+          "master_id"
+        ],
+        "fmos": null
+      }
+    },
+    "kbz": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamMemberMonster",
+      "similarity": 1.0,
+      "field_mapping": {
+        "flcw": [
+          1.0,
+          "monster_id"
+        ],
+        "flcx": [
+          1.0,
+          "grade"
+        ]
+      }
+    },
+    "kfv": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamMemberTaxCollector",
+      "similarity": 0.25,
+      "field_mapping": {
+        "flus": [
+          1.0,
+          "first_name_id"
+        ],
+        "flut": [
+          1.0,
+          "last_name_id"
+        ]
+      }
+    },
+    "kbr": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamMemberInformation",
+      "similarity": 0.876303197855679,
+      "field_mapping": {
+        "flbn": [
+          1.0,
+          "member_id"
+        ],
+        "flbp": [
+          1.0,
+          "character_member"
+        ],
+        "flbr": [
+          0.9090909090909091,
+          "entity_member"
+        ],
+        "flbq": [
+          1.0,
+          "monster_member"
+        ],
+        "flbo": [
+          0.25,
+          "tax_collector_member"
+        ]
+      }
+    },
+    "kkp": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamMembersInformation",
+      "similarity": 0.8382203853339474,
+      "field_mapping": {
+        "fmqu": [
+          0.876303197855679,
+          "team_members"
+        ],
+        "fmqs": [
+          1.0,
+          "alliance_relation"
+        ],
+        "fmqv": null
+      }
+    },
+    "kfw": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamLightInformation",
+      "similarity": 1.0,
+      "field_mapping": {
+        "flux": [
+          1.0,
+          "team_members_count"
+        ],
+        "flva": [
+          1.0,
+          "average_level"
+        ],
+        "fluy": [
+          1.0,
+          "has_friend"
+        ],
+        "fluz": [
+          1.0,
+          "has_guild_member"
+        ],
+        "flvb": [
+          1.0,
+          "has_alliance_member"
+        ],
+        "flvc": [
+          1.0,
+          "has_group_member"
+        ],
+        "flvd": [
+          1.0,
+          "has_my_tax_collector"
+        ]
+      }
+    },
+    "kkk": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTeamInformation",
+      "similarity": 0.9570980911959663,
+      "field_mapping": {
+        "fmow": [
+          1.0,
+          "team"
+        ],
+        "fmpa": [
+          1.0,
+          "leader_id"
+        ],
+        "fmox": [
+          1.0,
+          "side"
+        ],
+        "fmoy": [
+          1.0,
+          "type"
+        ],
+        "fmoz": [
+          1.0,
+          "waves"
+        ],
+        "fmpc": [
+          0.8382203853339474,
+          "team_members"
+        ],
+        "fmpb": [
+          1.0,
+          "light_information"
+        ]
+      }
+    },
+    "kaq": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightOptionsInformation",
+      "similarity": 0.9090909090909091,
+      "field_mapping": {
+        "fkxb": [
+          1.0,
+          "is_secret"
+        ],
+        "fkxd": [
+          1.0,
+          "is_restricted_to_party"
+        ],
+        "fkxe": [
+          1.0,
+          "is_closed"
+        ],
+        "fkxf": [
+          1.0,
+          "is_asking_for_help"
+        ],
+        "fkxc": null
+      }
+    },
+    "khe": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightCommonInformation",
+      "similarity": 0.6916700835758298,
+      "field_mapping": {
+        "fmah": [
+          1.0,
+          "fight_id"
+        ],
+        "fmal": [
+          1.0,
+          "type"
+        ],
+        "fman": [
+          0.9570980911959663,
+          "teams_information"
+        ],
+        "fmai": [
+          1.0,
+          "teams_position"
+        ],
+        "fmam": [
+          0.9090909090909091,
+          "teams_options"
+        ],
+        "fmaj": null,
+        "fmak": null
+      }
+    },
+    "ipo": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryInHouseInformation",
+      "similarity": 0.295356742892248,
+      "field_mapping": {
+        "ffgk": [
+          0.8860702286767441,
+          "current_house"
+        ],
+        "ffgl": null,
+        "ffgm": null
+      }
+    },
+    "kiw.kiu.kis.kiq.kim": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.Character.CharacterBasicInformation.CharacterLook.CharacterBaseInformation.CharacterEpicInformation",
       "similarity": 1.0,
       "field_mapping": {
-        "fhlu": [
+        "fmfq": [
           1.0,
           "death_state"
         ],
-        "fhls": [
+        "fmfp": [
           1.0,
           "death_count"
         ],
-        "fhlt": [
+        "fmfr": [
           1.0,
           "death_max_level"
         ]
       }
     },
-    "jxp": {
+    "kep": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.PartyUpdateCommonsInformation",
       "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fhur": [
+        "flog": [
           1.0,
           "life_point"
         ],
-        "fhus": [
+        "floh": [
           1.0,
           "max_life_points"
         ],
-        "fhut": [
+        "floi": [
           1.0,
           "prospecting"
         ],
-        "fhuu": [
+        "floj": [
           1.0,
           "regen_rate"
         ],
-        "fhuv": null
+        "flok": null
       }
     },
-    "jvk.jvi": {
+    "kgr.kgp": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.PartyEntity.EntityMember",
-      "similarity": 0.8436375700559098,
+      "similarity": 0.9280013270615008,
       "field_mapping": {
-        "fhjd": [
+        "flxx": [
           1.0,
           "initiative"
         ],
-        "fhjc": [
+        "flxw": [
           0.9090909090909091,
           "commons_information"
-        ],
-        "fhjb": null
+        ]
       }
     },
-    "jvk": {
+    "kgr": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.PartyEntity",
-      "similarity": 0.4257338589478765,
+      "similarity": 0.8519409776672486,
       "field_mapping": {
-        "fhjh": [
+        "flyb": [
           1.0,
           "index_id"
         ],
-        "fhjm": [
+        "flyc": [
           1.0,
           "entity_model_id"
         ],
-        "fhjk": [
-          0.6178986576708431,
+        "flyf": [
+          0.9257668551923443,
           "look"
         ],
-        "fhjl": [
-          0.8436375700559098,
+        "flyd": [
+          0.9280013270615008,
           "entity_member"
         ],
-        "fhji": null,
-        "fhjj": null,
-        "fhjn": null
+        "flye": null
       }
     },
-    "jwm.jwk.jwi.jwg.jwd": {
+    "kiw.kiu.kis.kiq.kin": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.Character.CharacterBasicInformation.CharacterLook.CharacterBaseInformation.PartyMemberInformation",
-      "similarity": 0.6124352895045696,
+      "similarity": 0.8022470063151736,
       "field_mapping": {
-        "fhlz": [
+        "fmfy": [
           0.9090909090909091,
           "commons_information"
         ],
-        "fhmb": [
+        "fmfz": [
           1.0,
           "initiative"
         ],
-        "fhly": [
+        "fmfx": [
           1.0,
           "alignment"
         ],
-        "fhmd": [
-          0.6666666666666666,
+        "fmga": [
+          0.5714285714285714,
           "coordinates"
         ],
-        "fhme": [
-          0.5,
+        "fmfv": [
+          1.0,
           "status"
         ],
-        "fhma": [
-          0.4257338589478765,
+        "fmfw": [
+          0.8519409776672486,
           "entities"
         ],
-        "fhmg": [
+        "fmgc": [
           1.0,
           "rank"
         ],
-        "fhmf": null
+        "fmgb": null
       }
     },
-    "jwm.jwk.jwi.jwg.jwe": {
+    "kiw.kiu.kis.kiq.kio": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.Character.CharacterBasicInformation.CharacterLook.CharacterBaseInformation.PartyInvitationMemberInformation",
-      "similarity": 0.4569177263923002,
+      "similarity": 0.7593620709710129,
       "field_mapping": {
-        "fhmk": [
-          0.6666666666666666,
+        "fmgi": [
+          0.5714285714285714,
           "coordinates"
         ],
-        "fhml": [
-          0.4257338589478765,
+        "fmgh": [
+          0.8519409776672486,
           "entities"
-        ],
-        "fhmm": null
+        ]
       }
     },
-    "jwm.jwk.jwi.jwg": {
+    "kiw.kiu.kis.kiq": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.Character.CharacterBasicInformation.CharacterLook.CharacterBaseInformation",
-      "similarity": 0.46062721164906284,
+      "similarity": 0.8562601675908332,
       "field_mapping": {
-        "fhmq": [
+        "fmgm": [
           1.0,
           "gender"
         ],
-        "fhms": [
+        "fmgo": [
           1.0,
           "epic_information"
         ],
-        "fhmv": [
-          0.6124352895045696,
+        "fmgp": [
+          0.8022470063151736,
           "party_member_information"
         ],
-        "fhmu": [
-          0.4569177263923002,
+        "fmgn": [
+          0.7593620709710129,
           "party_invitation_member_information"
-        ],
-        "fhmr": null,
-        "fhmt": null
+        ]
       }
     },
-    "jwm.jwk.jwi": {
+    "kiw.kiu.kis": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.Character.CharacterBasicInformation.CharacterLook",
-      "similarity": 0.656675222761055,
+      "similarity": 0.8919097319520932,
       "field_mapping": {
-        "fhnb": [
-          0.6178986576708431,
+        "fmgv": [
+          0.9257668551923443,
           "look"
         ],
-        "fhna": [
+        "fmgu": [
           1.0,
           "breed_id"
         ],
-        "fhnd": [
-          0.8699016788164136,
+        "fmgw": [
+          0.8635189767546745,
           "guild_information"
         ],
-        "fhnf": [
-          0.890570018529026,
+        "fmha": [
+          0.8880210703224407,
           "alliance_information"
         ],
-        "fhng": [
+        "fmgy": [
           1.0,
           "grade"
         ],
-        "fhne": [
-          0.46062721164906284,
+        "fmgx": [
+          0.8562601675908332,
           "base_information"
-        ],
-        "fhnc": null
+        ]
       }
     },
-    "jxd.jxa": {
+    "jxb.jwy": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.RankInformation.OrderAndGfx",
       "similarity": 1.0,
       "field_mapping": {
-        "fhrq": [
+        "fkel": [
           1.0,
           "order"
         ],
-        "fhrr": [
+        "fkek": [
           1.0,
           "gfx_id"
         ]
       }
     },
-    "jxd.jxb": {
+    "jxb.jwz": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.RankInformation.PrivateInformation",
-      "similarity": 1.0,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fhrw": [
+        "fker": [
           1.0,
           "modifiable"
         ],
-        "fhrv": [
+        "fkep": [
           1.0,
           "rights"
-        ]
+        ],
+        "fkeq": null
       }
     },
-    "jxd": {
+    "jxb": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.RankInformation",
-      "similarity": 1.0,
+      "similarity": 0.8809236711149985,
       "field_mapping": {
-        "fhsa": [
+        "fkew": [
           1.0,
           "id"
         ],
-        "fhsb": [
+        "fkev": [
           1.0,
           "name"
         ],
-        "fhsd": [
+        "fkex": [
           1.0,
           "order_and_gfx"
         ],
-        "fhsc": [
-          1.0,
+        "fkey": [
+          0.9090909090909091,
           "private_information"
-        ]
+        ],
+        "fkez": null
       }
     },
-    "jwm.jwk.jvv.jvt.jvr": {
+    "kiw.kiu.kih.kif.kid": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.Character.CharacterBasicInformation.SocialMember.GuildMember.PlayerNote",
-      "similarity": 0.5,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fhke": [
+        "fmem": [
           1.0,
           "content"
         ],
-        "fhkd": [
+        "fmel": [
           1.0,
           "last_edit_date"
         ],
-        "fhkc": null,
-        "fhkf": null
+        "fmen": null
       }
     },
-    "jwm.jwk.jvv.jvt": {
+    "kiw.kiu.kih.kif": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.Character.CharacterBasicInformation.SocialMember.GuildMember",
-      "similarity": 0.8670362167538056,
+      "similarity": 0.8521893415487635,
       "field_mapping": {
-        "fhkm": [
-          1.0,
+        "fmev": [
+          0.0,
           "given_experience"
         ],
-        "fhkl": [
+        "fmet": [
           1.0,
           "experience_given_percent"
         ],
-        "fhko": [
+        "fmew": [
           1.0,
           "alignment"
         ],
-        "fhkn": [
+        "fmeu": [
           1.0,
           "mood_smiley_id"
         ],
-        "fhkp": [
-          1.0,
+        "fmes": [
+          0.0,
           "achievement_points"
         ],
-        "fhkj": [
+        "fmex": [
           1.0,
           "haven_bag_shared"
         ],
-        "fhkk": [
-          0.5,
+        "fmer": [
+          0.9090909090909091,
           "note"
         ]
       }
     },
-    "jwm.jwk.jvv": {
+    "kiw.kiu.kih": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.Character.CharacterBasicInformation.SocialMember",
-      "similarity": 0.8658353932158062,
+      "similarity": 0.97374140043885,
       "field_mapping": {
-        "fhku": [
+        "fmfl": [
           1.0,
           "breed_id"
         ],
-        "fhkx": [
+        "fmfd": [
           1.0,
           "gender"
         ],
-        "fhkv": [
+        "fmfh": [
           1.0,
           "state"
         ],
-        "fhkw": [
+        "fmfe": [
           1.0,
           "hours_since_last_connection"
         ],
-        "fhky": [
+        "fmfk": [
           1.0,
           "account_id"
         ],
-        "fhld": [
-          0.5,
+        "fmff": [
+          1.0,
           "status"
         ],
-        "fhla": [
+        "fmfg": [
           1.0,
           "rank_id"
         ],
-        "fhkz": [
+        "fmfb": [
           1.0,
           "enrollment_date"
         ],
-        "fhlc": [
+        "fmfi": [
           1.0,
           "ava_role_id"
         ],
-        "fhkt": [
-          0.8670362167538056,
+        "fmfc": [
+          0.8521893415487635,
           "guild_member"
         ]
       }
     },
-    "jwm.jwk": {
+    "kiw.kiu": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.Character.CharacterBasicInformation",
-      "similarity": 0.8407590581760855,
+      "similarity": 0.8488132506518155,
       "field_mapping": {
-        "fhno": [
+        "fmhf": [
           1.0,
           "name"
         ],
-        "fhnm": [
+        "fmhg": [
           1.0,
           "level"
         ],
-        "fhnq": [
-          0.656675222761055,
+        "fmhk": [
+          0.8919097319520932,
           "character_look"
         ],
-        "fhnp": [
-          1.0,
+        "fmhj": [
+          0.8809236711149985,
           "rank"
         ],
-        "fhnr": [
-          0.8658353932158062,
+        "fmhl": [
+          0.97374140043885,
           "social_member"
-        ]
+        ],
+        "fmhi": null
       }
     },
-    "jyc.jya": {
+    "jwx.jwv": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.CharacterRemodelingInformation.CharacterToRemodelInformation",
-      "similarity": 0.9090909090909091,
+      "similarity": 1.0,
       "field_mapping": {
-        "fhwr": [
+        "fkdv": [
           1.0,
           "possible_change_mask"
         ],
-        "fhws": [
+        "fkdw": [
           1.0,
           "mandatory_change_mask"
-        ],
-        "fhwt": null
-      }
-    },
-    "jyc": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.CharacterRemodelingInformation",
-      "similarity": 0.730977813178008,
-      "field_mapping": {
-        "fhxd": [
-          1.0,
-          "name"
-        ],
-        "fhxa": [
-          1.0,
-          "breed_id"
-        ],
-        "fhwx": [
-          1.0,
-          "gender"
-        ],
-        "fhxc": [
-          1.0,
-          "colors"
-        ],
-        "fhxb": [
-          1.0,
-          "cosmeticId"
-        ],
-        "fhwz": [
-          0.9090909090909091,
-          "character_to_remodel_information"
-        ],
-        "fhwy": null,
-        "fhxe": null
-      }
-    },
-    "jwm": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.Character",
-      "similarity": 0.8349251025062204,
-      "field_mapping": {
-        "fhnw": [
-          1.0,
-          "id"
-        ],
-        "fhny": [
-          0.8407590581760855,
-          "character_basic_information"
-        ],
-        "fhnx": [
-          0.730977813178008,
-          "character_remodeling_information"
         ]
       }
     },
-    "iiv": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryHavenBagInformation",
-      "similarity": 0.8875245318084257,
+    "jwx": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.CharacterRemodelingInformation",
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fbhw": [
-          0.8349251025062204,
+        "fked": [
+          1.0,
+          "name"
+        ],
+        "fkea": [
+          1.0,
+          "breed_id"
+        ],
+        "fkef": [
+          1.0,
+          "gender"
+        ],
+        "fkec": [
+          1.0,
+          "colors"
+        ],
+        "fkeb": [
+          1.0,
+          "cosmeticId"
+        ],
+        "fkeg": [
+          1.0,
+          "character_to_remodel_information"
+        ],
+        "fkee": null
+      }
+    },
+    "kiw": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.Character",
+      "similarity": 0.8110907541736909,
+      "field_mapping": {
+        "fmhr": [
+          1.0,
+          "id"
+        ],
+        "fmht": [
+          0.8488132506518155,
+          "character_basic_information"
+        ],
+        "fmhs": [
+          0.9090909090909091,
+          "character_remodeling_information"
+        ],
+        "fmhq": null
+      }
+    },
+    "iop": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryHavenBagInformation",
+      "similarity": 0.8710582236419638,
+      "field_mapping": {
+        "ffbt": [
+          0.8110907541736909,
           "owner_information"
         ],
-        "fbhu": [
+        "ffbu": [
           1.0,
           "theme"
         ],
-        "fbhv": [
+        "ffbw": [
           1.0,
           "room_id"
         ],
-        "fbhx": [
+        "ffbv": [
           1.0,
           "max_room_id"
         ]
       }
     },
-    "ihy": {
+    "ipl": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryInformationEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "fbem": [
+        "fffm": [
           1.0,
           "subarea_id"
         ],
-        "fbel": [
+        "fffs": [
           1.0,
           "map_id"
         ],
-        "fben": [
-          0.9040376131186106,
+        "fffn": [
+          0.8860702286767441,
           "houses"
         ],
-        "fbek": [
-          0.4728433457511385,
+        "fffj": [
+          0.8046522901423401,
           "actors"
         ],
-        "fbeh": [
-          1.0,
+        "fffo": [
+          0.978740160198398,
           "interactive_elements"
         ],
-        "fbej": [
+        "fffq": [
           0.6666666666666666,
           "stated_elements"
         ],
-        "fbeo": [
-          1.0,
+        "fffh": [
+          0.9090909090909091,
           "obstacles"
         ],
-        "fbeg": [
-          0.9499498126504684,
+        "fffi": [
+          0.6916700835758298,
           "fights"
         ],
-        "fbei": [
+        "fffr": [
           1.0,
           "has_aggressive_monsters"
         ],
-        "fbeq": [
-          0.9040376131186106,
+        "fffx": [
+          0.295356742892248,
           "in_house_information"
         ],
-        "fbep": [
-          1.0,
+        "ffft": [
+          0.9090909090909091,
           "coordinates"
         ],
-        "fbef": [
+        "fffk": [
           0.0,
           "breach_information"
         ],
-        "fber": [
+        "fffu": [
           1.0,
           "anomaly_information"
         ],
-        "fbes": [
-          0.8875245318084257,
+        "fffv": [
+          0.8710582236419638,
           "haven_bag_information"
+        ],
+        "fffl": null,
+        "fffp": null,
+        "fffw": null
+      }
+    },
+    "ipp": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementConfirmResponse",
+      "similarity": 0.0,
+      "field_mapping": {}
+    },
+    "ips": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapChangeRequest",
+      "similarity": 1.0,
+      "field_mapping": {
+        "ffhd": [
+          0.0,
+          "map_id"
+        ],
+        "ffhe": [
+          1.0,
+          "auto_pilot"
         ]
       }
     },
-    "iib": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementRequest",
+    "iqg": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionAcknowledgementRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "fbfe": [
+        "ffje": [
           1.0,
-          "key_cells"
+          "valid"
         ],
-        "fbff": [
+        "ffjf": [
           1.0,
-          "map_id"
-        ],
-        "fbfh": [
-          1.0,
-          "cautious"
-        ],
-        "fbfg": null
+          "action_id"
+        ]
       }
     },
-    "iih": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.FightMapInformationEvent",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fbfz": [
-          1.0,
-          "subarea_id"
-        ],
-        "fbga": [
-          1.0,
-          "map_id"
-        ],
-        "fbgc": [
-          1.0,
-          "coordinates"
-        ],
-        "fbfx": [
-          0.0,
-          "breach_information"
-        ],
-        "fbgd": [
-          1.0,
-          "anomaly_information"
-        ],
-        "fbfy": null,
-        "fbgb": null
-      }
-    },
-    "iik": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapCurrentEvent",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fbgi": [
-          1.0,
-          "map_id"
-        ],
-        "fbgj": null,
-        "fbgk": null
-      }
-    },
-    "iit": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementConfirmResponse",
-      "similarity": 1.0,
-      "field_mapping": {}
-    },
-    "iiu": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementEvent",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fbhk": [
-          1.0,
-          "cells"
-        ],
-        "fbhq": [
-          1.0,
-          "character_id"
-        ],
-        "fbhp": [
-          1.0,
-          "cautious"
-        ],
-        "fbhl": [
-          1.0,
-          "direction"
-        ],
-        "fbhn": null
-      }
-    },
-    "ijv": {
+    "iqh": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightCastRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "fbln": [
+        "ffjj": [
           1.0,
           "spell_id"
         ],
-        "fblo": [
+        "ffjk": [
           1.0,
           "cell"
         ]
       }
     },
-    "ijx": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionAcknowledgementRequest",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fbma": [
-          1.0,
-          "valid"
-        ],
-        "fbly": [
-          1.0,
-          "action_id"
-        ],
-        "fblz": null
-      }
-    },
-    "ijy": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.SequenceEndEvent",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fbmg": [
-          1.0,
-          "action_id"
-        ],
-        "fbmf": [
-          1.0,
-          "author_id"
-        ],
-        "fbme": [
-          0.8181818181818182,
-          "sequence_type"
-        ]
-      }
-    },
-    "imu.ime": {
+    "iss.isf": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.Slide",
-      "similarity": 0.9090909090909091,
+      "similarity": 1.0,
       "field_mapping": {
-        "fbvr": [
+        "ffry": [
           1.0,
           "target_id"
         ],
-        "fbvs": [
+        "ffrx": [
           1.0,
           "start_cell"
         ],
-        "fbvt": [
+        "ffrz": [
           1.0,
           "end_cell"
         ]
       }
     },
-    "imu.ikd": {
+    "iss.irb": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.DodgePointLoss",
-      "similarity": 0.9090909090909091,
+      "similarity": 1.0,
       "field_mapping": {
-        "fbmx": [
+        "ffmv": [
           1.0,
           "target_id"
         ],
-        "fbmy": [
+        "ffmu": [
           1.0,
           "amount"
-        ],
-        "fbmz": null
+        ]
       }
     },
-    "imu.ilw": {
+    "iss.irw": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.ReflectDamages",
       "similarity": 1.0,
       "field_mapping": {
-        "fbue": [
+        "ffqi": [
           1.0,
           "target_id"
         ]
       }
     },
-    "imu.ikf": {
+    "iss.isk": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.ReduceDamages",
       "similarity": 1.0,
       "field_mapping": {
-        "fbni": [
+        "fftb": [
           1.0,
           "target_id"
         ],
-        "fbnj": [
+        "fftc": [
           1.0,
           "amount"
         ]
       }
     },
-    "imu.imp": {
+    "iss.isn": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.ReflectSpell",
       "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fbxi": [
+        "fftg": [
           1.0,
           "target_id"
         ],
-        "fbxh": null
+        "ffth": null
       }
     },
-    "jqf": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightRemovableEffect",
-      "similarity": 0.5819326886483889,
+    "kew.ker": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTemporaryBoostEffect",
+      "similarity": 0.0,
       "field_mapping": {
-        "fgmc": [
+        "floo": [
+          0.0,
+          "delta"
+        ],
+        "flop": [
+          0.0,
+          "boosted_spell_id"
+        ],
+        "floq": [
+          0.0,
+          "weapon_type_id"
+        ],
+        "flos": [
+          0.0,
+          "state_id"
+        ]
+      }
+    },
+    "kew": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightRemovableEffect",
+      "similarity": 0.548367688026451,
+      "field_mapping": {
+        "flpf": [
           1.0,
           "uid"
         ],
-        "fglv": [
+        "flpd": [
           1.0,
           "target_id"
         ],
-        "fglz": [
+        "flpj": [
           1.0,
           "turn_duration"
         ],
-        "fgmf": [
+        "flpi": [
           1.0,
           "dissipation_state"
         ],
-        "fgmd": [
+        "flph": [
           1.0,
           "spell_id"
         ],
-        "fgmg": [
+        "flpn": [
           1.0,
           "effect_id"
         ],
-        "fgmh": [
+        "flpk": [
           1.0,
           "parent_boost_id"
         ],
-        "fglu": [
+        "flpe": [
           0.0,
           "temporary_boost_effect"
         ],
-        "fglw": [
+        "flpg": [
           0.0,
           "temporary_spell_immunity_effect"
         ],
-        "fglx": [
+        "flpl": [
           0.0,
           "triggered_effect"
         ],
-        "fgly": null,
-        "fgma": null,
-        "fgmb": null,
-        "fgme": null
+        "flpm": null,
+        "flpo": null,
+        "flpp": null,
+        "flpq": null
       }
     },
-    "imu.imd": {
+    "iss.ira": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.RemovableEffect",
-      "similarity": 0.5819326886483889,
+      "similarity": 0.548367688026451,
       "field_mapping": {
-        "fbvl": [
-          0.5819326886483889,
+        "ffmq": [
+          0.548367688026451,
           "effect"
         ]
       }
     },
-    "imu.ima": {
+    "iss.isd": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.LifePointsLost",
-      "similarity": 1.0,
+      "similarity": 0.8466608491509229,
       "field_mapping": {
-        "fbut": [
+        "ffrl": [
           1.0,
           "target_id"
         ],
-        "fbup": [
-          1.0,
+        "ffrm": [
+          0.0,
           "loss"
         ],
-        "fbuq": [
+        "ffri": [
           1.0,
           "permanent_damages"
         ],
-        "fbur": [
+        "ffrj": [
           1.0,
           "element_id"
         ],
-        "fbus": [
+        "ffrk": [
           1.0,
           "shield_loss"
-        ]
+        ],
+        "ffro": null
       }
     },
-    "imu.ilo": {
+    "iss.iqq": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.LifePointsGain",
-      "similarity": 0.5,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fbsm": [
+        "fflc": [
           1.0,
           "target_id"
         ],
-        "fbso": [
+        "ffld": [
           1.0,
           "delta"
         ],
-        "fbsn": null,
-        "fbsp": null
+        "ffle": null
       }
     },
-    "imu.ike": {
+    "iss.iqn": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.SpellImmunity",
       "similarity": 1.0,
       "field_mapping": {
-        "fbne": [
+        "ffkl": [
           1.0,
           "target_id"
         ],
-        "fbnd": [
+        "ffkk": [
           1.0,
           "spell_id"
         ]
       }
     },
-    "imu.ilz": {
+    "iss.irk": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.SpellCoolDownVariation",
-      "similarity": 0.9090909090909091,
+      "similarity": 0.7294294352105404,
       "field_mapping": {
-        "fbuj": [
+        "ffog": [
           1.0,
           "target_id"
         ],
-        "fbuk": [
+        "ffoi": [
           1.0,
           "spell_id"
         ],
-        "fbul": [
-          1.0,
+        "ffoh": [
+          0.0,
           "value"
         ],
-        "fbui": null
+        "ffok": null
       }
     },
-    "imu.ilv": {
+    "iss.iry": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.Vanish",
-      "similarity": 1.0,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fbua": [
+        "ffqr": [
           1.0,
           "target_id"
-        ]
+        ],
+        "ffqq": null
       }
     },
-    "imu.ilu": {
+    "iss.irx": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.Kill",
       "similarity": 1.0,
       "field_mapping": {
-        "fbtw": [
+        "ffqm": [
           1.0,
           "target_id"
         ]
       }
     },
-    "imu.ila": {
+    "iss.irn": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.Death",
-      "similarity": 1.0,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fbql": [
+        "ffoz": [
           1.0,
           "source_id"
         ],
-        "fbqm": [
+        "ffpb": [
           1.0,
           "target_id"
-        ]
+        ],
+        "ffpa": null
       }
     },
-    "imu.ilt.ilq": {
+    "iss.irv.irs": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.TargetedAbility.SpellCast",
-      "similarity": 0.6,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fbsu": [
+        "ffph": [
           1.0,
           "spell_id"
         ],
-        "fbsw": [
+        "ffpi": [
           1.0,
           "spell_level"
         ],
-        "fbsx": [
+        "ffpg": [
           1.0,
           "portals_id"
         ],
-        "fbst": null,
-        "fbsv": null
+        "ffpf": null
       }
     },
-    "imu.ilt": {
+    "iss.irv": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.TargetedAbility",
-      "similarity": 0.6907974226599466,
+      "similarity": 0.681716618393276,
       "field_mapping": {
-        "fbtk": [
+        "ffpy": [
           1.0,
           "target_id"
         ],
-        "fbto": [
+        "ffpw": [
           1.0,
           "destination_cell"
         ],
-        "fbti": [
+        "ffpu": [
           1.0,
           "critical"
         ],
-        "fbtj": [
+        "ffpt": [
           1.0,
           "silent_cast"
         ],
-        "fbtl": [
+        "ffqa": [
           1.0,
           "verbose_cast"
         ],
-        "fbtp": [
-          0.6,
+        "ffqb": [
+          0.9090909090909091,
           "spell_cast"
         ],
-        "fbtq": [
+        "ffpv": [
           1.0,
           "weapon_generic_id"
         ],
-        "fbtm": null,
-        "fbtn": null
+        "ffpx": null,
+        "ffpz": null,
+        "ffqc": null
       }
     },
-    "imu.ilk": {
+    "iss.irl": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.Tackled",
       "similarity": 1.0,
       "field_mapping": {
-        "fbsc": [
+        "ffoq": [
           1.0,
           "tacklers_id"
         ]
       }
     },
-    "imu.ill": {
+    "iss.irm": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.PointsVariation",
-      "similarity": 0.9090909090909091,
+      "similarity": 1.0,
       "field_mapping": {
-        "fbsi": [
+        "ffou": [
           1.0,
           "target_id"
         ],
-        "fbsh": [
+        "ffov": [
           1.0,
           "delta"
-        ],
-        "fbsg": null
+        ]
       }
     },
-    "imu.imf": {
+    "iss.iql": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.InvisibleDetected",
       "similarity": 1.0,
       "field_mapping": {
-        "fbvx": [
+        "ffka": [
           1.0,
           "target_id"
         ],
-        "fbvy": [
+        "ffkb": [
           1.0,
           "cell"
         ]
       }
     },
-    "imu.ile": {
+    "iss.irg": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.TeleportOnSameMap",
-      "similarity": 0.9090909090909091,
+      "similarity": 0.4,
       "field_mapping": {
-        "fbqz": [
+        "ffnl": [
           1.0,
           "target_id"
         ],
-        "fbqy": [
+        "ffnk": [
           1.0,
           "cell"
         ],
-        "fbra": null
+        "ffnm": null,
+        "ffnn": null,
+        "ffno": null
       }
     },
-    "imu.imr": {
+    "iss.irh": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.ExchangePositions",
-      "similarity": 0.16666666666666666,
+      "similarity": 1.0,
       "field_mapping": {
-        "fbxq": [
+        "ffnu": [
+          1.0,
+          "target_id"
+        ],
+        "ffns": [
           1.0,
           "caster_cell_id"
+        ],
+        "ffnt": [
+          1.0,
+          "target_cell_id"
         ]
       }
     },
-    "imu.ilj.ilh": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.SpellRemove.EffectRemove",
-      "similarity": 0.9090909090909091,
-      "field_mapping": {
-        "fbrn": [
-          1.0,
-          "effect"
-        ],
-        "fbrm": [
-          1.0,
-          "trigger"
-        ],
-        "fbrl": null
-      }
-    },
-    "imu.ilj": {
+    "iss.iri": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.SpellRemove",
-      "similarity": 0.6417127322548988,
+      "similarity": 0.8116040352218484,
       "field_mapping": {
-        "fbru": [
+        "ffob": [
           1.0,
           "target_id"
         ],
-        "fbrr": [
+        "ffnz": [
           1.0,
           "verbose_cast"
         ],
-        "fbrv": [
-          0.9090909090909091,
+        "ffoa": [
+          0.0,
           "effect_remove"
         ],
-        "fbrw": [
+        "ffny": [
           1.0,
           "spell_id"
         ],
-        "fbrs": null,
-        "fbrt": null
+        "ffoc": null
       }
     },
-    "imu.imm": {
+    "iss.irz": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.ModifyEffectsDuration",
-      "similarity": 0.9090909090909091,
+      "similarity": 1.0,
       "field_mapping": {
-        "fbxc": [
+        "ffqv": [
           1.0,
           "target_id"
         ],
-        "fbxb": [
+        "ffqw": [
           1.0,
           "delta"
-        ],
-        "fbxd": null
+        ]
       }
     },
-    "imu.imj": {
+    "iss.irc": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.StealKama",
-      "similarity": 0.5,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fbwp": [
+        "ffmz": [
           1.0,
           "target_id"
         ],
-        "fbwo": [
+        "ffna": [
           1.0,
           "amount"
         ],
-        "fbwn": null,
-        "fbwq": null
+        "ffnb": null
       }
     },
-    "imu.ilb": {
+    "iss.ird": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.ChangeLook",
-      "similarity": 0.6630133503303919,
+      "similarity": 0.9413500941933329,
       "field_mapping": {
-        "fbqr": [
+        "ffng": [
           1.0,
           "target_id"
         ],
-        "fbqq": [
-          0.6178986576708431,
+        "ffnf": [
+          0.9257668551923443,
           "look"
         ]
       }
     },
-    "imu.iko": {
+    "iss.iqs": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.Invisibility",
       "similarity": 1.0,
       "field_mapping": {
-        "fbop": [
+        "ffln": [
           1.0,
           "target_id"
         ],
-        "fboq": [
+        "fflo": [
           1.0,
           "invisibility_state"
         ]
       }
     },
-    "imu.ikv.ikq": {
+    "iss.iqz.iqu": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.Summons.SummonsByActor",
-      "similarity": 0.15761444858371282,
+      "similarity": 0.8046522901423401,
       "field_mapping": {
-        "fbou": [
-          0.4728433457511385,
+        "ffls": [
+          0.8046522901423401,
           "summons"
-        ],
-        "fbov": null,
-        "fbow": null
+        ]
       }
     },
-    "ijs.ijo": {
+    "iti.ite": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.EntitySpawnInformation.Monster",
-      "similarity": 1.0,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fbjz": [
+        "ffxk": [
           1.0,
           "monster_gid"
         ],
-        "fbkc": [
+        "ffxn": [
           1.0,
           "grade"
         ],
-        "fbka": [
+        "ffxl": [
           1.0,
           "level"
-        ]
+        ],
+        "ffxi": null
       }
     },
-    "ijs.ijp": {
+    "iti.itf": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.EntitySpawnInformation.CharacterEntity",
       "similarity": 1.0,
       "field_mapping": {
-        "fbkj": [
+        "ffxt": [
           1.0,
           "name"
         ],
-        "fbki": [
+        "ffxu": [
           1.0,
           "level"
         ]
       }
     },
-    "ijs.ijq": {
+    "iti.itg": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.EntitySpawnInformation.Companion",
-      "similarity": 0.9090909090909091,
+      "similarity": 1.0,
       "field_mapping": {
-        "fbkp": [
+        "ffxz": [
           1.0,
           "model_id"
         ],
-        "fbkr": [
+        "ffyb": [
           1.0,
           "level"
         ],
-        "fbkn": [
+        "ffxy": [
           1.0,
           "summoner_id"
         ],
-        "fbko": [
+        "ffya": [
           1.0,
           "owner_id"
-        ],
-        "fbkq": null
+        ]
       }
     },
-    "ijs": {
+    "iti": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.EntitySpawnInformation",
-      "similarity": 0.9710251045807443,
+      "similarity": 0.9644712564037364,
       "field_mapping": {
-        "fbkw": [
-          1.0,
+        "ffyf": [
+          0.9090909090909091,
           "monster"
         ],
-        "fbkv": [
+        "ffyh": [
           1.0,
           "character"
         ],
-        "fbkx": [
-          0.9090909090909091,
+        "ffyg": [
+          1.0,
           "companion"
         ]
       }
     },
-    "imu.ikv.ikt.ikr": {
+    "iss.iqz.iqx.iqv": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.Summons.SummonsByContextInformation.SummonContextInformation",
-      "similarity": 0.7903674908834868,
+      "similarity": 0.8589836716369145,
       "field_mapping": {
-        "fbpb": [
-          0.9710251045807443,
+        "ffmb": [
+          0.9644712564037364,
           "spawn_information"
         ],
-        "fbpc": [
+        "ffmc": [
           1.0,
           "wave"
         ],
-        "fbpd": [
-          0.6178986576708431,
+        "fflx": [
+          0.9257668551923443,
           "look"
         ],
-        "fbpe": [
-          0.9147503640095455,
+        "ffly": [
+          0.9090909090909091,
           "characteristics"
         ],
-        "fbpa": [
+        "fflw": [
           1.0,
           "summons"
         ],
-        "fbpf": null
+        "fflz": null
       }
     },
-    "imu.ikv.ikt": {
+    "iss.iqz.iqx": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.Summons.SummonsByContextInformation",
-      "similarity": 0.7185159008031697,
+      "similarity": 0.8589836716369145,
       "field_mapping": {
-        "fbpk": [
-          0.7903674908834868,
+        "ffmg": [
+          0.8589836716369145,
           "summons"
-        ],
-        "fbpl": null
+        ]
       }
     },
-    "imu.ikv": {
+    "iss.iqz": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.Summons",
-      "similarity": 0.360614028384721,
+      "similarity": 0.8286677879210274,
       "field_mapping": {
-        "fbpp": [
-          0.15761444858371282,
+        "ffml": [
+          0.8046522901423401,
           "summons_by_actor"
         ],
-        "fbpr": [
-          0.7185159008031697,
+        "ffmk": [
+          0.8589836716369145,
           "summons_by_context_information"
-        ],
-        "fbpq": null
+        ]
       }
     },
-    "jpa.joy": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightMark.MarkedCell",
-      "similarity": 0.9090909090909091,
-      "field_mapping": {
-        "fgdp": [
-          1.0,
-          "id"
-        ],
-        "fgdq": [
-          1.0,
-          "zone_size"
-        ],
-        "fgds": [
-          1.0,
-          "color"
-        ],
-        "fgdt": [
-          1.0,
-          "cells_type"
-        ],
-        "fgdr": null
-      }
-    },
-    "jpa": {
+    "iss.isj.ish": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightMark",
-      "similarity": 0.6803327429350774,
+      "similarity": 0.3,
       "field_mapping": {
-        "fgei": [
+        "ffsl": [
           1.0,
           "author_id"
         ],
-        "fgeh": [
-          1.0,
+        "ffsi": [
+          0.0,
           "team"
         ],
-        "fgec": [
+        "ffsq": [
           1.0,
           "spell_id"
         ],
-        "fgeb": [
-          1.0,
+        "ffsj": [
+          0.0,
           "spell_level"
         ],
-        "fgee": [
-          1.0,
+        "ffsk": [
+          0.0,
           "mark_id"
         ],
-        "fgdy": [
-          1.0,
+        "ffsm": [
+          0.0,
           "mark_type"
         ],
-        "fgea": [
-          1.0,
+        "ffss": [
+          0.0,
           "mark_impact_cell"
         ],
-        "fgef": [
-          0.9090909090909091,
+        "ffsp": [
+          0.0,
           "cells"
         ],
-        "fged": [
+        "ffsn": [
           1.0,
           "active"
-        ],
-        "fgdx": null,
-        "fgdz": null,
-        "fgeg": null,
-        "fgej": null
+        ]
       }
     },
-    "imu.ikw": {
+    "iss.isj": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.MarkCells",
-      "similarity": 0.6184843117591612,
+      "similarity": 0.2727272727272727,
       "field_mapping": {
-        "fbpx": [
-          0.6803327429350774,
+        "ffsx": [
+          0.3,
           "mark"
         ],
-        "fbpw": null
+        "ffsw": null
       }
     },
-    "imu.ikj": {
+    "iss.iqp": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.UnmarkCells",
       "similarity": 1.0,
       "field_mapping": {
-        "fbnx": [
+        "ffky": [
           1.0,
           "mark_id"
         ]
       }
     },
-    "imu.ilf": {
+    "iss.iqk": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.TriggerGlyphTrap",
-      "similarity": 0.9090909090909091,
+      "similarity": 0.6666666666666666,
       "field_mapping": {
-        "fbre": [
+        "ffju": [
           1.0,
           "mark_id"
         ],
-        "fbrf": [
+        "ffjv": [
           1.0,
           "mark_impact_cell"
         ],
-        "fbrh": [
-          1.0,
+        "ffjw": [
+          0.0,
           "triggering_character_id"
-        ],
-        "fbrg": null
+        ]
       }
     },
-    "imu.ika": {
+    "iss.iqr": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.ActivateGlyphTrap",
-      "similarity": 0.9090909090909091,
+      "similarity": 1.0,
       "field_mapping": {
-        "fbmk": [
+        "fflj": [
           1.0,
           "mark_id"
         ],
-        "fbml": [
+        "ffli": [
           1.0,
           "active"
-        ],
-        "fbmm": null
+        ]
       }
     },
-    "imu.imc": {
+    "iss.ise": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.CarryCharacter",
       "similarity": 1.0,
       "field_mapping": {
-        "fbvg": [
+        "ffrs": [
           1.0,
           "target_id"
         ],
-        "fbvh": [
+        "ffrt": [
           1.0,
           "cell"
         ]
       }
     },
-    "imu.ikk": {
+    "iss.isg": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.ThrowCharacter",
-      "similarity": 0.5,
+      "similarity": 1.0,
       "field_mapping": {
-        "fbob": [
+        "ffsd": [
           1.0,
           "target_id"
         ],
-        "fboc": [
+        "ffse": [
           1.0,
           "cell"
-        ],
-        "fbod": null,
-        "fboe": null
+        ]
       }
     },
-    "imu.ikz": {
+    "iss.iqm": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.DropCharacter",
+      "similarity": 1.0,
+      "field_mapping": {
+        "ffkg": [
+          1.0,
+          "target_id"
+        ],
+        "ffkf": [
+          1.0,
+          "cell"
+        ]
+      }
+    },
+    "iss.iqo": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.ExecuteScript",
       "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fbqg": [
-          1.0,
-          "target_id"
-        ],
-        "fbqh": [
-          1.0,
-          "cell"
-        ],
-        "fbqf": null
-      }
-    },
-    "imu.imb": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.ExecuteScript",
-      "similarity": 0.8131715204469376,
-      "field_mapping": {
-        "fbuy": [
+        "ffkp": [
           1.0,
           "script_usage_id"
         ],
-        "fbuz": [
-          0.0,
+        "ffkq": [
+          1.0,
           "critical"
         ],
-        "fbux": [
+        "ffkr": [
           1.0,
           "spell_id"
         ],
-        "fbvb": [
+        "ffks": [
           1.0,
           "spell_rank"
         ],
-        "fbva": [
+        "ffkt": [
           1.0,
           "cell"
-        ]
+        ],
+        "ffku": null
       }
     },
-    "imu": {
+    "iss": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "fbxy": [
+        "fftx": [
           1.0,
           "action_id"
         ],
-        "fbxz": [
+        "ffty": [
           1.0,
           "source_id"
         ],
-        "fbyw": [
+        "ffun": [
           1.0,
           "slide"
         ],
-        "fbyh": [
-          0.9090909090909091,
+        "ffuu": [
+          1.0,
           "dodge_point_loss"
         ],
-        "fbyr": [
+        "ffuz": [
           1.0,
           "reflect_damages"
         ],
-        "fbya": [
+        "ffuo": [
           1.0,
           "reduce_damages"
         ],
-        "fbye": [
+        "ffuc": [
           0.9090909090909091,
           "reflect_spell"
         ],
-        "fbzj": [
-          0.5819326886483889,
+        "ffui": [
+          0.548367688026451,
           "removable_effect"
         ],
-        "fbyq": [
-          1.0,
+        "ffva": [
+          0.8466608491509229,
           "life_points_lost"
         ],
-        "fbze": [
-          0.5,
+        "ffud": [
+          0.9090909090909091,
           "life_points_gain"
         ],
-        "fbzf": [
+        "ffum": [
           1.0,
           "spell_immunity"
         ],
-        "fbzc": [
-          0.9090909090909091,
+        "ffuv": [
+          0.7294294352105404,
           "spell_cool_down_variation"
         ],
-        "fbyc": [
-          1.0,
+        "ffuw": [
+          0.9090909090909091,
           "vanish"
         ],
-        "fbzi": [
+        "ffue": [
           1.0,
           "kill"
         ],
-        "fbyo": [
-          1.0,
+        "ffug": [
+          0.9090909090909091,
           "death"
         ],
-        "fbyu": [
-          0.6907974226599466,
+        "ffuh": [
+          0.681716618393276,
           "targeted_ability"
         ],
-        "fbyx": [
+        "ffvc": [
           1.0,
           "tackled"
         ],
-        "fbzk": [
-          0.9090909090909091,
+        "ffuj": [
+          1.0,
           "points_variation"
         ],
-        "fbys": [
+        "ffvb": [
           1.0,
           "invisible_detected"
         ],
-        "fbyn": [
-          0.9090909090909091,
+        "ffus": [
+          1.0,
           "teleport_on_same_map"
         ],
-        "fbza": [
-          0.0,
+        "ffuq": [
+          1.0,
           "exchange_positions"
         ],
-        "fbzh": [
-          0.6417127322548988,
+        "ffvh": [
+          0.8116040352218484,
           "spell_remove"
         ],
-        "fbyf": [
-          0.9090909090909091,
+        "ffur": [
+          1.0,
           "modify_effects_duration"
         ],
-        "fbzd": [
-          0.5,
+        "ffvd": [
+          0.9090909090909091,
           "steal_kama"
         ],
-        "fbyd": [
-          0.6630133503303919,
+        "ffvi": [
+          0.9413500941933329,
           "change_look"
         ],
-        "fbyz": [
+        "ffuy": [
           1.0,
           "invisibility"
         ],
-        "fbzb": [
-          0.360614028384721,
+        "ffut": [
+          0.8286677879210274,
           "summons"
         ],
-        "fbym": [
-          0.6184843117591612,
+        "ffvf": [
+          0.2727272727272727,
           "mark_cells"
         ],
-        "fbyk": [
+        "ffux": [
           1.0,
           "unmark_cells"
         ],
-        "fbyi": [
-          0.9090909090909091,
+        "ffuk": [
+          0.6666666666666666,
           "trigger_glyph_trap"
         ],
-        "fbyg": [
-          0.9090909090909091,
+        "ffup": [
+          1.0,
           "activate_glyph_trap"
         ],
-        "fbyy": [
+        "ffub": [
           1.0,
           "carry_character"
         ],
-        "fbyl": [
-          0.5,
+        "ffuf": [
+          1.0,
           "throw_character"
         ],
-        "fbzg": [
-          0.9090909090909091,
+        "ffvj": [
+          1.0,
           "drop_character"
         ],
-        "fbyv": [
-          0.8131715204469376,
+        "ffvg": [
+          0.9090909090909091,
           "execute_script"
         ],
-        "fbyb": null,
-        "fbyj": null,
-        "fbyp": null,
-        "fbyt": null
+        "fftz": null,
+        "ffua": null,
+        "fful": null,
+        "ffve": null
       }
     },
-    "ipc": {
+    "ita": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.game.action.SequenceEndEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "ffwx": [
+          1.0,
+          "action_id"
+        ],
+        "ffwy": [
+          1.0,
+          "author_id"
+        ],
+        "ffww": [
+          0.8181818181818182,
+          "sequence_type"
+        ]
+      }
+    },
+    "iux": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.fight.FightTurnStartPlayingEvent",
+      "similarity": 0.0,
+      "field_mapping": {}
+    },
+    "ivo": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.fight.FightTurnFinishRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "fcll": [
+        "fgjr": [
           1.0,
           "is_active"
         ]
       }
     },
-    "ipk": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.fight.FightTurnStartPlayingEvent",
-      "similarity": 1.0,
-      "field_mapping": {}
-    },
-    "iqa.ipy": {
+    "iwq.iwo": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.fight.FightLiveStateEvent.FightEntityState",
       "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fcoz": [
+        "fgoq": [
           1.0,
           "entity_id"
         ],
-        "fcpb": [
+        "fgop": [
           1.0,
           "is_dead"
         ],
-        "fcpa": null
+        "fgor": null
       }
     },
-    "iqa": {
+    "iwq": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.fight.FightLiveStateEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "fcpf": [
+        "fgov": [
           0.9090909090909091,
           "entities_states"
         ]
       }
     },
-    "iqc": {
+    "iwu": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.fight.preparation.FightPlacementPositionRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "fcpl": [
+        "fgpk": [
           1.0,
           "cell_id"
         ],
-        "fcpk": [
+        "fgpl": [
           1.0,
           "entity_id"
         ]
       }
     },
-    "iqg": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.fight.preparation.FightReadyRequest",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fcpy": [
-          1.0,
-          "is_ready"
-        ],
-        "fcpz": null
-      }
-    },
-    "jvd": {
+    "kav": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightStartingPositions",
-      "similarity": 0.5,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fhie": [
+        "fkyb": [
           1.0,
           "challengers_positions"
         ],
-        "fhih": [
+        "fkyc": [
           1.0,
           "defenders_positions"
         ],
-        "fhif": null,
-        "fhig": null
+        "fkyd": null
       }
     },
-    "iri": {
+    "iwv": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.fight.preparation.FightPlacementPossiblePositionsEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "fcuk": [
-          0.5,
+        "fgpp": [
+          0.9090909090909091,
           "starting_positions"
         ],
-        "fcuj": [
+        "fgps": [
           1.0,
           "team"
         ],
-        "fcul": null
+        "fgpq": null,
+        "fgpr": null
       }
     },
-    "irs": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeLeaveEvent",
+    "ixk": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.fight.preparation.FightReadyRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "fcwl": [
+        "fgsg": [
           1.0,
-          "dialog_type"
+          "is_ready"
         ],
-        "fcwm": [
-          1.0,
-          "success"
-        ]
+        "fgsh": null
       }
     },
-    "isk": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHousePriceRequest",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fczg": [
-          1.0,
-          "object_gid"
-        ]
-      }
-    },
-    "isp": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseSearchRequest",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fdag": [
-          1.0,
-          "object_gid"
-        ],
-        "fdah": [
-          1.0,
-          "follow"
-        ],
-        "fdai": null,
-        "fdaj": null
-      }
-    },
-    "itf": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectMoveRequest",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fdcx": [
-          1.0,
-          "object_uid"
-        ],
-        "fdcv": [
-          1.0,
-          "quantity"
-        ],
-        "fdcw": null
-      }
-    },
-    "ito": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseItemRemovedEvent",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fdei": [
-          1.0,
-          "sell_id"
-        ],
-        "fdej": null
-      }
-    },
-    "its": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeMoveKamaRequest",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fdex": [
-          1.0,
-          "quantity"
-        ],
-        "fdey": null,
-        "fdez": null
-      }
-    },
-    "iuv.iut": {
+    "iyz.iyx": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidPriceEvent.BidPriceForSeller",
       "similarity": 0.9090909090909091,
       "field_mapping": {
-        "fdjj": [
+        "fgyj": [
           1.0,
           "all_identical"
         ],
-        "fdjh": [
+        "fgyi": [
           1.0,
           "minimal_prices"
         ],
-        "fdji": null
+        "fgyk": null
       }
     },
-    "iuv": {
+    "iyz": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidPriceEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "fdjo": [
+        "fgyo": [
           1.0,
           "object_gid"
         ],
-        "fdjn": [
-          0.0,
+        "fgyp": [
+          1.0,
           "average_price"
         ],
-        "fdjp": [
+        "fgyq": [
           0.9090909090909091,
           "bid_price_for_seller"
-        ],
-        "fdjq": null
-      }
-    },
-    "iux": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseItemAddedEvent",
-      "similarity": 1.0,
-      "field_mapping": {
-        "fdka": [
-          0.9090909090909091,
-          "item"
-        ],
-        "fdkb": [
-          1.0,
-          "price"
-        ],
-        "fdkc": [
-          1.0,
-          "unsold_delay"
         ]
       }
     },
-    "iyt": {
+    "izk": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectMoveRequest",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fgzu": [
+          1.0,
+          "object_uid"
+        ],
+        "fgzv": [
+          1.0,
+          "quantity"
+        ]
+      }
+    },
+    "jbn": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeStartedWithStorageEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "fdzx": [
-          1.0,
+        "fhif": [
+          0.9090909090909091,
           "exchange_type"
         ],
-        "fdzw": [
+        "fhig": [
           1.0,
           "storage_max_slot"
         ]
       }
     },
-    "izb": {
+    "jbv": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseSearchRequest",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fhjj": [
+          1.0,
+          "object_gid"
+        ],
+        "fhji": [
+          1.0,
+          "follow"
+        ],
+        "fhjk": null
+      }
+    },
+    "jci": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeStartedWithMultiTabStorageEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fhlj": [
+          0.9090909090909091,
+          "exchange_type"
+        ],
+        "fhli": [
+          1.0,
+          "storage_max_slot"
+        ],
+        "fhlh": [
+          1.0,
+          "tab_number"
+        ]
+      }
+    },
+    "jcl": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeMoveKamaRequest",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fhlx": [
+          1.0,
+          "quantity"
+        ],
+        "fhly": null
+      }
+    },
+    "jcx": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseItemAddedEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fhoe": [
+          0.8750539572070676,
+          "item"
+        ],
+        "fhof": [
+          1.0,
+          "price"
+        ],
+        "fhog": [
+          1.0,
+          "unsold_delay"
+        ]
+      }
+    },
+    "jdp": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeLeaveEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fhqy": [
+          1.0,
+          "dialog_type"
+        ],
+        "fhqv": [
+          1.0,
+          "success"
+        ],
+        "fhqw": null,
+        "fhqx": null
+      }
+    },
+    "jdt": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHousePriceRequest",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fhrp": [
+          1.0,
+          "object_gid"
+        ]
+      }
+    },
+    "jdu": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseItemRemovedEvent",
+      "similarity": 1.0,
+      "field_mapping": {
+        "fhru": [
+          1.0,
+          "sell_id"
+        ],
+        "fhrt": null
+      }
+    },
+    "jec": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectTransferAllFromInventoryRequest",
       "similarity": 0.0,
       "field_mapping": {}
     },
-    "jak": {
+    "jjh": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.dialog.DialogLeaveRequest",
-      "similarity": 1.0,
+      "similarity": 0.0,
       "field_mapping": {}
     },
-    "jca": {
+    "jkz": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.context.EntitiesDispositionEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "fela": [
+        "firt": [
           0.9090909090909091,
           "dispositions"
-        ],
-        "felb": null
-      }
-    },
-    "jhd": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.chat.ChatChannelMessageEvent",
-      "similarity": 1.0,
-      "field_mapping": {
-        "ffdx": [
-          1.0,
-          "content"
-        ],
-        "ffdq": [
-          0.8888888888888888,
-          "channel"
-        ],
-        "ffdo": [
-          1.0,
-          "date"
-        ],
-        "ffds": [
-          1.0,
-          "sender_character_id"
-        ],
-        "ffdv": [
-          1.0,
-          "sender_account_id"
-        ],
-        "ffdw": [
-          1.0,
-          "sender_prefix"
-        ],
-        "ffdn": [
-          1.0,
-          "sender_name"
-        ],
-        "ffdp": [
-          1.0,
-          "from_admin"
-        ],
-        "ffdr": [
-          0.0,
-          "object"
-        ],
-        "ffdt": [
-          1.0,
-          "origin_server_id"
         ]
       }
     },
-    "jhf": {
+    "jqu": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.chat.ChatPrivateMessageRequest",
       "similarity": 1.0,
       "field_mapping": {
-        "ffec": [
+        "fjmb": [
           1.0,
           "content"
         ],
-        "ffeb": [
+        "fjmc": [
           0.0,
           "object"
         ],
-        "ffed": [
+        "fjme": [
           1.0,
           "name"
         ],
-        "ffef": [
+        "fjmd": [
           0.9090909090909091,
           "tag"
         ]
       }
     },
-    "jhp": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.chat.ChatChannelMessageRequest",
+    "jqy": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.chat.ChatChannelMessageEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "fffu": [
+        "fjnd": [
           1.0,
           "content"
         ],
-        "fffv": [
+        "fjne": [
           0.8888888888888888,
           "channel"
         ],
-        "fffs": [
+        "fjnn": [
+          1.0,
+          "date"
+        ],
+        "fjnf": [
+          1.0,
+          "sender_character_id"
+        ],
+        "fjnh": [
+          1.0,
+          "sender_account_id"
+        ],
+        "fjnm": [
+          1.0,
+          "sender_prefix"
+        ],
+        "fjnj": [
+          1.0,
+          "sender_name"
+        ],
+        "fjni": [
+          1.0,
+          "from_admin"
+        ],
+        "fjng": [
           0.0,
           "object"
         ],
-        "ffft": null
-      }
-    },
-    "jzj": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.SpellModifier",
-      "similarity": 0.9699660423418629,
-      "field_mapping": {
-        "fiek": [
+        "fjnk": [
           1.0,
-          "spell_id"
-        ],
-        "fiel": [
-          1.0,
-          "action_type"
-        ],
-        "fien": [
-          0.9047619047619048,
-          "modifier_type"
-        ],
-        "fiem": [
-          1.0,
-          "context"
-        ],
-        "fiej": [
-          1.0,
-          "equipment"
+          "origin_server_id"
         ]
       }
     },
-    "jnk": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.CharacterCharacteristics",
-      "similarity": 0.866152812037494,
+    "jrb": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.chat.ChatChannelMessageRequest",
+      "similarity": 1.0,
       "field_mapping": {
-        "ffvt": [
+        "fjny": [
+          1.0,
+          "content"
+        ],
+        "fjnz": [
+          0.8888888888888888,
+          "channel"
+        ],
+        "fjnw": [
+          0.0,
+          "object"
+        ],
+        "fjnx": null
+      }
+    },
+    "kch": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.SpellModifier",
+      "similarity": 0.8817873112198753,
+      "field_mapping": {
+        "fleq": [
+          1.0,
+          "spell_id"
+        ],
+        "flem": [
+          1.0,
+          "action_type"
+        ],
+        "flen": [
+          0.9047619047619048,
+          "modifier_type"
+        ],
+        "flep": [
+          1.0,
+          "context"
+        ],
+        "fleo": [
+          1.0,
+          "equipment"
+        ],
+        "fler": null
+      }
+    },
+    "kfn": {
+      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.CharacterCharacteristics",
+      "similarity": 0.8063336205678907,
+      "field_mapping": {
+        "fltc": [
           1.0,
           "experience"
         ],
-        "ffvp": [
+        "flsx": [
           1.0,
           "experience_level_floor"
         ],
-        "ffvr": [
+        "flsy": [
           1.0,
           "experience_next_level_floor"
         ],
-        "ffvo": [
+        "flte": [
           1.0,
           "experience_bonus_limit"
         ],
-        "ffvv": [
+        "flsv": [
           1.0,
           "kamas"
         ],
-        "ffvu": [
-          0.8561727609173496,
+        "flsz": [
+          0.8741217124130333,
           "alignment_information"
         ],
-        "ffvs": [
+        "flsw": [
           1.0,
           "critical_hit_weapon"
         ],
-        "ffvw": [
-          0.8526452270488052,
+        "fltd": [
+          1.0,
           "characteristics"
         ],
-        "ffvy": [
-          0.9699660423418629,
+        "flsu": [
+          0.8817873112198753,
           "spell_modifiers"
         ],
-        "ffvx": [
+        "flst": [
           1.0,
           "probation_time"
         ],
-        "ffvq": null
+        "flta": null,
+        "fltb": null
       }
     },
-    "jhx": {
+    "jrp": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.character.CharacterCharacteristicsEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "ffgz": [
-          0.866152812037494,
+        "fjqf": [
+          0.8063336205678907,
           "stats"
-        ],
-        "ffha": null
+        ]
       }
     },
-    "jka.jjx": {
+    "jtu.jtr": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.character.management.CharacterSelectionEvent.Error",
       "similarity": 1.0,
       "field_mapping": {}
     },
-    "jka.jjy": {
+    "jtu.jts": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.character.management.CharacterSelectionEvent.Success",
-      "similarity": 0.7590228204602003,
+      "similarity": 0.7373552310669916,
       "field_mapping": {
-        "ffob": [
-          0.8349251025062204,
+        "fjwu": [
+          0.8110907541736909,
           "character"
         ],
-        "ffnz": null
+        "fjwt": null
       }
     },
-    "jka": {
+    "jtu": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.character.management.CharacterSelectionEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "ffog": [
+        "fjwy": [
           1.0,
           "error"
         ],
-        "ffof": [
-          0.7590228204602003,
+        "fjwz": [
+          0.7373552310669916,
           "success"
         ]
       }
     },
-    "kbj": {
+    "klo": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.basic.TextInformationEvent",
       "similarity": 1.0,
       "field_mapping": {
-        "fima": [
+        "fmvm": [
           1.0,
           "message_type"
         ],
-        "fimc": [
+        "fmvn": [
           1.0,
           "message_id"
         ],
-        "fimb": [
+        "fmvl": [
           1.0,
           "parameters"
-        ],
-        "fimd": null
-      }
-    },
-    "gpm.gpk": {
-      "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.GameMessage.Unknown",
-      "similarity": 1.0,
-      "field_mapping": {
-        "euhi": [
-          1.0,
-          "unknown_one"
-        ],
-        "euhj": [
-          1.0,
-          "unknown_two"
-        ],
-        "euhk": [
-          1.0,
-          "unknown_three"
-        ],
-        "euhm": [
-          1.0,
-          "unknown_four"
         ]
       }
     },
-    "gpi": {
+    "gsp": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.Request",
-      "similarity": 0.5,
+      "similarity": 1.0,
       "field_mapping": {
-        "euhd": [
+        "exvg": [
           1.0,
           "uid"
         ],
-        "euhe": [
+        "exvh": [
           1.0,
           "content"
         ]
       }
     },
-    "gpn": {
+    "gsm": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.Response",
       "similarity": 1.0,
       "field_mapping": {
-        "euhy": [
+        "exuu": [
           1.0,
           "uid"
         ],
-        "euhz": [
+        "exut": [
           1.0,
           "content"
         ]
       }
     },
-    "gpo": {
+    "gsl": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.Event",
       "similarity": 1.0,
       "field_mapping": {
-        "euid": [
+        "exuo": [
           1.0,
           "content"
         ]
       }
     },
-    "gpm": {
+    "gso": {
       "clear_msg_namespace": ".com.ankama.dofus.server.game.protocol.GameMessage",
-      "similarity": 0.9364627333097176,
+      "similarity": 0.9090909090909091,
       "field_mapping": {
-        "euhq": [
+        "exuz": [
           1.0,
-          "unknown"
-        ],
-        "euht": [
-          0.5,
           "request"
         ],
-        "euhs": [
+        "exva": [
           1.0,
           "response"
         ],
-        "euhr": [
+        "exvb": [
           1.0,
           "event"
         ]
       }
     }
   },
-  "version_date": 1762455110.6055372
+  "version_date": 1765478085.797761
 }

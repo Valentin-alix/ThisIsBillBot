@@ -3,6 +3,7 @@ import os
 from threading import RLock
 
 from pydantic import BaseModel, RootModel
+
 from src.const import RESOURCE_FOLDER
 from src.interfaces.metaclasses.singleton import Singleton
 

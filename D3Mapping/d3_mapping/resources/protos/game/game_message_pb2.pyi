@@ -6,27 +6,14 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class GameMessage(_message.Message):
-    __slots__ = ("unknown", "request", "response", "event")
-    class Unknown(_message.Message):
-        __slots__ = ("unknown_one", "unknown_two", "unknown_three", "unknown_four")
-        UNKNOWN_ONE_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_TWO_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_THREE_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FOUR_FIELD_NUMBER: _ClassVar[int]
-        unknown_one: int
-        unknown_two: str
-        unknown_three: int
-        unknown_four: int
-        def __init__(self, unknown_one: _Optional[int] = ..., unknown_two: _Optional[str] = ..., unknown_three: _Optional[int] = ..., unknown_four: _Optional[int] = ...) -> None: ...
-    UNKNOWN_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("request", "response", "event")
     REQUEST_FIELD_NUMBER: _ClassVar[int]
     RESPONSE_FIELD_NUMBER: _ClassVar[int]
     EVENT_FIELD_NUMBER: _ClassVar[int]
-    unknown: GameMessage.Unknown
     request: Request
     response: Response
     event: Event
-    def __init__(self, unknown: _Optional[_Union[GameMessage.Unknown, _Mapping]] = ..., request: _Optional[_Union[Request, _Mapping]] = ..., response: _Optional[_Union[Response, _Mapping]] = ..., event: _Optional[_Union[Event, _Mapping]] = ...) -> None: ...
+    def __init__(self, request: _Optional[_Union[Request, _Mapping]] = ..., response: _Optional[_Union[Response, _Mapping]] = ..., event: _Optional[_Union[Event, _Mapping]] = ...) -> None: ...
 
 class Request(_message.Message):
     __slots__ = ("uid", "content")

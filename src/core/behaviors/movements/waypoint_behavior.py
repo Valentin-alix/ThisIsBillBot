@@ -111,7 +111,7 @@ class WaypointBehavior(Behavior):
             )
 
         mp_zaap = MapPoint.from_cell_id(
-            self.game_state.interactive.stated_element_by_id[zaap.element_id].cell_id
+            self.game_state.interactive.stated_element_by_id[zaap.element_id][0].cell_id
         )
         move_path = self.pathfinding.find_path(
             self.game_state.player.map_point, {mp_zaap}

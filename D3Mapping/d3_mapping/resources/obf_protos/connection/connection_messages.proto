@@ -4,297 +4,293 @@ syntax = "proto3";
 
 import "google/protobuf/any.proto";
 
-enum krv {
-  KRV_EPNH = 0;
-  KRV_EPNI = 1;
-  KRV_EPNJ = 2;
-  KRV_EPNK = 3;
-  KRV_EPNL = 4;
-  KRV_EPNM = 5;
-  KRV_EPNN = 6;
+enum lbp {
+  LBP_ESZK = 0;
+  LBP_ESZL = 1;
+  LBP_ESZM = 2;
+  LBP_ESZN = 3;
+  LBP_ESZO = 4;
+  LBP_ESZP = 5;
+  LBP_ESZQ = 6;
 }
 
-message krx {
-  oneof fkxv {
-    krz fkxs = 1;
-    ksb fkxt = 2;
-    ksd fkxu = 3;
+message lbr {
+  oneof fpeq {
+    lbt fpen = 1;
+    lbv fpeo = 2;
+    lbx fpep = 3;
   }
 }
 
-message krz {
-  string fkxz = 1;
-  oneof fkyh {
-    kse fkya = 2;
-    ksi fkyb = 3;
-    ksw fkyc = 4;
-    ktl fkyd = 5;
-    ktq fkye = 6;
-    ktv fkyf = 7;
-    kud fkyg = 8;
+message lbt {
+  string fpeu = 1;
+  oneof fpfc {
+    lby fpev = 2;
+    lcc fpew = 3;
+    lcq fpex = 4;
+    ldf fpey = 5;
+    ldk fpez = 6;
+    ldp fpfa = 7;
+    ldx fpfb = 8;
   }
 }
 
-message ksb {
-  string fkyl = 1;
-  oneof fkys {
-    ksf fkym = 2;
-    ksv fkyn = 3;
-    ktb fkyo = 4;
-    ktn fkyp = 5;
-    kuc fkyq = 6;
-    kuk fkyr = 7;
+message lbv {
+  string fpfg = 1;
+  oneof fpfn {
+    lbz fpfh = 2;
+    lcp fpfi = 3;
+    lcv fpfj = 4;
+    ldh fpfk = 5;
+    ldw fpfl = 6;
+    lee fpfm = 7;
   }
 }
 
-message ksd {
-  oneof fkyx {
-    ksg fkyw = 1;
+message lbx {
+  oneof fpfs {
+    lca fpfr = 1;
   }
 }
 
-message kse {
+message lby {
 }
 
-message ksf {
+message lbz {
 }
 
-message ksg {
-  kth fkzh = 1;
+message lca {
+  ldb fpgc = 1;
 }
 
-message ksi {
-  string fkzl = 1;
-  string fkzo = 5;
-  oneof fkzp {
-    ksl fkzm = 3;
-    ksm fkzn = 4;
+message lcc {
+  string fpgg = 1;
+  string fpgj = 5;
+  oneof fpgk {
+    lcf fpgh = 3;
+    lcg fpgi = 4;
   }
 }
 
-message ksl {
-  string fkzy = 1;
-  ksj fkzz = 2;
-  message ksj {
-    int64 fkzt = 1;
-    string fkzu = 2;
+message lcf {
+  string fpgt = 1;
+  lcd fpgu = 2;
+  message lcd {
+    int64 fpgo = 1;
+    string fpgp = 2;
   }
 }
 
-message ksm {
-  string flad = 1;
+message lcg {
+  string fpgy = 1;
 }
 
-message ksv {
-  oneof flbq {
-    ksq flbo = 1;
-    kst flbp = 2;
+message lcp {
+  oneof fpig {
+    lck fpie = 1;
+    lcn fpif = 2;
   }
-  message ksq {
-    int64 flat = 1;
-    string flau = 2;
-    string flav = 3;
-    kte flaw = 4;
-    string flax = 5;
-    kso flay = 6;
-    optional int32 flaz = 7;
-    kto flbb = 8;
-    kul flbc = 9;
-    message kso {
-      bool flai = 1;
-      bool flaj = 2;
-      bool flak = 3;
-      bool flal = 4;
-      bool flam = 5;
-      bool flan = 6;
-      bool flao = 7;
-      bool flap = 8;
+  message lck {
+    int64 fphj = 1;
+    string fphk = 2;
+    string fphl = 3;
+    lcy fphm = 4;
+    string fphn = 5;
+    lci fpho = 6;
+    optional int32 fphp = 7;
+    ldi fphr = 8;
+    lef fphs = 9;
+    message lci {
+      bool fphc = 1;
+      bool fphd = 2;
+      bool fphe = 3;
+      bool fphf = 4;
     }
   }
-  message kst {
-    ksr flbg = 1;
-    optional string flbh = 2;
-    optional string flbj = 3;
-    enum ksr {
-      KSR_EPSW = 0;
-      KSR_EPSX = 1;
-      KSR_EPSY = 2;
-      KSR_EPSZ = 3;
-      KSR_EPTA = 4;
-      KSR_EPTB = 5;
-      KSR_EPTC = 6;
-      KSR_EPTD = 7;
-      KSR_EPTE = 8;
-      KSR_EPTF = 9;
-      KSR_EPTG = 10;
-      KSR_EPTH = 11;
-      KSR_EPTI = 12;
-      KSR_EPTJ = 13;
+  message lcn {
+    lcl fphw = 1;
+    optional string fphx = 2;
+    optional string fphz = 3;
+    enum lcl {
+      LCL_ETER = 0;
+      LCL_ETES = 1;
+      LCL_ETET = 2;
+      LCL_ETEU = 3;
+      LCL_ETEV = 4;
+      LCL_ETEW = 5;
+      LCL_ETEX = 6;
+      LCL_ETEY = 7;
+      LCL_ETEZ = 8;
+      LCL_ETFA = 9;
+      LCL_ETFB = 10;
+      LCL_ETFC = 11;
+      LCL_ETFD = 12;
+      LCL_ETFE = 13;
     }
   }
 }
 
-message ksw {
-  int32 flbu = 1;
+message lcq {
+  int32 fpik = 1;
 }
 
-message ktb {
-  oneof flch {
-    ksz flce = 1;
-    ksy flcf = 2;
+message lcv {
+  oneof fpix {
+    lct fpiu = 1;
+    lcs fpiv = 2;
   }
-  message ksz {
-    string flby = 1;
-    string flbz = 2;
-    repeated int32 flca = 3;
+  message lct {
+    string fpio = 1;
+    string fpip = 2;
+    repeated int32 fpiq = 3;
   }
-  enum ksy {
-    KSY_EPUH = 0;
-    KSY_EPUI = 1;
-    KSY_EPUJ = 2;
-    KSY_EPUK = 3;
-  }
-}
-
-message kte {
-  repeated kth flcq = 1;
-  repeated ktc flcr = 2;
-  bool flcs = 3;
-  message ktc {
-    krv flcl = 1;
-    int32 flcm = 2;
+  enum lcs {
+    LCS_ETGC = 0;
+    LCS_ETGD = 1;
+    LCS_ETGE = 2;
+    LCS_ETGF = 3;
   }
 }
 
-message kth {
-  ktk flcw = 1;
-  ktf flcx = 2;
-  repeated ktu flcy = 3;
-  enum ktf {
-    KTF_EPVQ = 0;
-    KTF_EPVR = 1;
-    KTF_EPVS = 2;
-    KTF_EPVT = 3;
+message lcy {
+  repeated ldb fpjg = 1;
+  repeated lcw fpjh = 2;
+  bool fpji = 3;
+  message lcw {
+    lbp fpjb = 1;
+    int32 fpjc = 2;
   }
 }
 
-message ktk {
-  int32 fldc = 1;
-  kti fldd = 2;
-  krv flde = 3;
-  enum kti {
-    KTI_EPWD = 0;
-    KTI_EPWE = 1;
+message ldb {
+  lde fpjm = 1;
+  lcz fpjn = 2;
+  repeated ldo fpjo = 3;
+  enum lcz {
+    LCZ_ETHL = 0;
+    LCZ_ETHM = 1;
+    LCZ_ETHN = 2;
+    LCZ_ETHO = 3;
   }
 }
 
-message ktl {
-  int64 fldi = 1;
-}
-
-message ktn {
-  oneof fldo {
-    kto fldm = 2;
-    ktp fldn = 3;
+message lde {
+  int32 fpjs = 1;
+  ldc fpjt = 2;
+  lbp fpju = 3;
+  enum ldc {
+    LDC_ETHY = 0;
+    LDC_ETHZ = 1;
   }
 }
 
-message kto {
-  bool flds = 1;
-  int64 fldt = 2;
-  string fldu = 3;
-  string fldv = 4;
-  kte fldw = 5;
+message ldf {
+  int64 fpjy = 1;
 }
 
-message ktp {
-}
-
-message ktq {
-}
-
-message ktu {
-  string fleg = 1;
-  kts fleh = 2;
-  ktr flei = 3;
-  int32 flej = 4;
-  string flek = 5;
-  enum kts {
-    KTS_EPXS = 0;
-    KTS_EPXT = 1;
-    KTS_EPXU = 2;
-    KTS_EPXV = 3;
-    KTS_EPXW = 4;
-    KTS_EPXX = 5;
-    KTS_EPXY = 6;
-    KTS_EPXZ = 7;
-    KTS_EPYA = 8;
-    KTS_EPYB = 9;
-    KTS_EPYC = 10;
-    KTS_EPYD = 11;
-    KTS_EPYE = 12;
-    KTS_EPYF = 13;
-    KTS_EPYG = 14;
-    KTS_EPYH = 15;
-    KTS_EPYI = 16;
-    KTS_EPYJ = 17;
-    KTS_EPYK = 18;
-  }
-  enum ktr {
-    KTR_EPXQ = 0;
-    KTR_EPXR = 1;
+message ldh {
+  oneof fpke {
+    ldi fpkc = 2;
+    ldj fpkd = 3;
   }
 }
 
-message ktv {
+message ldi {
+  bool fpki = 1;
+  int64 fpkj = 2;
+  string fpkk = 3;
+  string fpkl = 4;
+  lcy fpkm = 5;
 }
 
-message kuc {
-  oneof flfe {
-    kua flfb = 1;
-    ktx flfc = 2;
+message ldj {
+}
+
+message ldk {
+}
+
+message ldo {
+  string fpkw = 1;
+  ldm fpkx = 2;
+  ldl fpky = 3;
+  int32 fpkz = 4;
+  string fpla = 5;
+  enum ldm {
+    LDM_ETJN = 0;
+    LDM_ETJO = 1;
+    LDM_ETJP = 2;
+    LDM_ETJQ = 3;
+    LDM_ETJR = 4;
+    LDM_ETJS = 5;
+    LDM_ETJT = 6;
+    LDM_ETJU = 7;
+    LDM_ETJV = 8;
+    LDM_ETJW = 9;
+    LDM_ETJX = 10;
+    LDM_ETJY = 11;
+    LDM_ETJZ = 12;
+    LDM_ETKA = 13;
+    LDM_ETKB = 14;
+    LDM_ETKC = 15;
+    LDM_ETKD = 16;
+    LDM_ETKE = 17;
+    LDM_ETKF = 18;
   }
-  message kua {
-    repeated kty flex = 1;
-    message kty {
-      string fler = 1;
-      string fles = 2;
-      repeated int32 flet = 3;
+  enum ldl {
+    LDL_ETJL = 0;
+    LDL_ETJM = 1;
+  }
+}
+
+message ldp {
+}
+
+message ldw {
+  oneof fplu {
+    ldu fplr = 1;
+    ldr fpls = 2;
+  }
+  message ldu {
+    repeated lds fpln = 1;
+    message lds {
+      string fplh = 1;
+      string fpli = 2;
+      repeated int32 fplj = 3;
     }
   }
-  enum ktx {
-    KTX_EPZC = 0;
-    KTX_EPZD = 1;
+  enum ldr {
+    LDR_ETKX = 0;
+    LDR_ETKY = 1;
   }
 }
 
-message kud {
-  string flfi = 1;
-  string flfj = 2;
+message ldx {
+  string fply = 1;
+  string fplz = 2;
 }
 
-message kuk {
-  oneof flfx {
-    kuf flfv = 1;
-    kui flfw = 2;
+message lee {
+  oneof fpmn {
+    ldz fpml = 1;
+    lec fpmm = 2;
   }
-  message kuf {
-    repeated int32 flfn = 1;
+  message ldz {
+    repeated int32 fpmd = 1;
   }
-  message kui {
-    kug flfr = 1;
-    enum kug {
-      KUG_EQAM = 0;
-      KUG_EQAN = 1;
-      KUG_EQAO = 2;
-      KUG_EQAP = 3;
+  message lec {
+    lea fpmh = 1;
+    enum lea {
+      LEA_ETMH = 0;
+      LEA_ETMI = 1;
+      LEA_ETMJ = 2;
+      LEA_ETMK = 3;
     }
   }
 }
 
-message kul {
-  string flgb = 1;
-  string flgc = 2;
-  repeated int32 flgd = 3;
+message lef {
+  string fpmr = 1;
+  string fpms = 2;
+  repeated int32 fpmt = 3;
 }
 
