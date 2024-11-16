@@ -1,22 +1,20 @@
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
 from functools import partial
 from typing import Callable
 
-from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
-from d3_mapping.resources.protos.game.gamemap_pb2 import FightMapInformationEvent
-from d3_mapping.resources.protos.game.inventory_pb2 import (
+from D3Database.data_center.data_reader import DataReader
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+    FightMapInformationEvent,
+    MapComplementaryInformationEvent,
+)
+from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
     ObjectUseRequest,
 )
-from data_center.data_reader import DataReader
-
-from src.const import FAKE_INFINITY_VALUE
 from src.controller.gfx_mapping import GfxMappingController
-from src.controller.sale_hotel import SaleHotelController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
+from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
-from src.core.behaviors.fight.fight_behavior import FightBehavior
 from src.core.behaviors.interactives.collect_behavior import (
     CollectBehavior,
     CollectError,
@@ -29,23 +27,25 @@ from src.core.behaviors.mule_storage.mule_give_behavior import (
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
-from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
-from src.core.config.auto import DO_CRAFT, DO_SALE_HOTEL
-from src.core.config.mule import BOT_KAMA_LIMIT_TO_GIVE
-from src.core.config.storage import USEFUL_UNLOAD
-from src.core.config.timings import (
-    BASE_RANGE,
-    get_time_beween_sale_hotel_prices,
+from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
+    EnterGuildChestError,
 )
-from src.core.logic.craft.craft import (
+from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
+from src.core.config import (
+    BASE_RANGE,
+    DO_CRAFT,
+    DO_SALE_HOTEL,
+    USEFUL_UNLOAD,
+)
+from src.core.engine.crafts.recipes import (
     get_recipes_for_job_lvl_up,
     is_not_valid_recipe_for_lvl_up_job,
 )
-from src.core.logic.farms.explorator import get_map_ids_to_explore
-from src.core.logic.farms.weights.weight_items import (
-    get_map_id_collectable_weight,
+from src.core.engine.storage.unload import do_unload_on_mule
+from src.core.engine.weights.harvester.explorator import get_map_ids_to_explore
+from src.core.engine.weights.harvester.weight_map import (
+    get_harvester_additional_weight_by_map_id,
 )
-from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -66,9 +66,6 @@ class HarvesterBehavior(Behavior):
     _stop_condition_with_callback: (
         tuple[Callable[[], bool], Callable[[], None]] | None
     ) = field(init=False, default=None)
-    _timedelta_for_sale_hotel_prices: timedelta = field(
-        init=False, default_factory=get_time_beween_sale_hotel_prices
-    )
 
     def run(
         self,
@@ -81,14 +78,17 @@ class HarvesterBehavior(Behavior):
             f"Harvester is going to area {area_id} with subarea_id {sub_area_id}"
         )
         self._stop_condition_with_callback = stop_condition_with_callback
-        self.random_farm_behavior.init_random_farm(
-            area_id, sub_area_id, self.get_additional_weight_by_map_id
-        )
         self.map_ids_to_explore = get_map_ids_to_explore(
             self.random_farm_behavior.map_ids
         )
-        self.event_manager.on(
-            ContextCreationEvent, self.on_context_creation_event, originator=self
+        self.random_farm_behavior.init_random_farm(
+            area_id,
+            sub_area_id,
+            partial(
+                get_harvester_additional_weight_by_map_id,
+                map_ids_to_explore=self.map_ids_to_explore,
+                game_state=self.game_state,
+            ),
         )
         self.event_manager.on(
             FightMapInformationEvent, lambda _: self.on_fight_aggro(), originator=self
@@ -98,37 +98,35 @@ class HarvesterBehavior(Behavior):
             return self.on_full_pods()
         self.on_new_map()
 
-    def get_additional_weight_by_map_id(self, map_id: int):
-        if map_id in self.map_ids_to_explore:
-            return FAKE_INFINITY_VALUE
-        storage_by_gid = {
-            object.item.gid: object
-            for objects in CHEST_OBJECT_BY_GID_BY_TAB.values()
-            for object in objects.values()
-        }
-        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
-        weight = get_map_id_collectable_weight(
-            map_id,
-            self.game_state.player.jobs_lvl_by_id,
-            storage_by_gid,
-            avg_price_by_gid,
-            self.game_state.player.is_sub,
-        )
-        return weight
-
     def run_next_step(self):
         self.random_farm_behavior.start(
             callback=self.on_random_farm_behavior_finished, parent=self
         )
 
     def on_random_farm_behavior_finished(self, error_code: str | None):
-        if (
-            error_code is not None
-            and error_code is not MapChangeError.UNEXPECTED_NEW_MAP
-        ):
-            if error_code is EdgeError.NO_VALID_TRANSITION:
-                return self.run_next_step()
+        if error_code is EdgeError.NO_VALID_TRANSITION:
+            return self.run_next_step()
+        elif error_code is MapChangeError.UNEXPECTED_NEW_MAP:
+            return self.on_unexpected_new_map()
+        elif error_code is not None:
             raise UnhandledErrorCodeException(error_code)
+        self.on_new_map()
+
+    def on_unexpected_new_map(self):
+        self.event_manager.on(
+            MapComplementaryInformationEvent,
+            callback=lambda _: self.on_new_map_completed_after_unexpected_error(),
+            originator=self,
+            once=True,
+        )
+
+    def on_new_map_completed_after_unexpected_error(self):
+        self.event_manager.clear_listener_by_origin_and_type(
+            MapComplementaryInformationEvent, self
+        )
+        self.on_new_map()
+
+    def on_new_map(self):
         if self.game_state.map.map_id in self.map_ids_to_explore:
             self.logger.info("New map explored adding to map checked")
             self.map_ids_to_explore.remove(self.game_state.map.map_id)
@@ -137,9 +135,6 @@ class HarvesterBehavior(Behavior):
                 self.game_state.map.map_id, None
             )
 
-        self.on_new_map()
-
-    def on_new_map(self):
         if self._stop_condition_with_callback is not None:
             stop_condition, callback = self._stop_condition_with_callback
             if stop_condition():
@@ -162,11 +157,6 @@ class HarvesterBehavior(Behavior):
         if not self.game_state.fight.in_fight:
             self.run_next_step()
 
-    def on_context_creation_event(self, msg: ContextCreationEvent):
-        if msg.context != ContextCreationEvent.GameContext.FIGHT:
-            return
-        self.on_fight_aggro()
-
     def clear_running_behaviors(self):
         with self.event_manager.lock:
             if self.random_farm_behavior.is_running.is_set():
@@ -185,6 +175,9 @@ class HarvesterBehavior(Behavior):
                 self.craft_behavior.stop()
 
     def on_fight_aggro(self):
+        self.event_manager.clear_listener_by_origin_and_type(
+            MapComplementaryInformationEvent, self
+        )
         self.clear_running_behaviors()
         self.fight_behavior.start(callback=self.on_fight_behavior_finished, parent=self)
 
@@ -215,14 +208,7 @@ class HarvesterBehavior(Behavior):
         self.on_new_map()
 
     def on_full_pods(self):
-        if self.game_state.inventory.kamas > BOT_KAMA_LIMIT_TO_GIVE or (
-            not self.game_state.player.is_sub
-            and self.game_state.player.is_full_object_in_sale_hotel
-            and (
-                datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
-                < self._timedelta_for_sale_hotel_prices
-            )
-        ):
+        if do_unload_on_mule(self.game_state):
             self.mule_give_behavior.start(
                 callback=self.on_unloaded_on_mule_finished, parent=self
             )
@@ -239,11 +225,7 @@ class HarvesterBehavior(Behavior):
         if error_code is not None:
             self.logger.error("Can't unload")
             return self.finish(error_code)
-        if (
-            datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
-            > self._timedelta_for_sale_hotel_prices
-        ):
-            self._timedelta_for_sale_hotel_prices = get_time_beween_sale_hotel_prices()
+        if self.game_state.sale_hotel.should_update_price:
             self.on_interesting_amount_of_farming_done()
         else:
             self.on_new_map()
@@ -267,7 +249,10 @@ class HarvesterBehavior(Behavior):
         )
 
     def on_craft_behavior_finished(self, error_code: str | None):
-        if error_code is not None:
+        if (
+            error_code is not None
+            and error_code is not EnterGuildChestError.CANT_ACCESS_GUILD_CHEST
+        ):
             raise UnhandledErrorCodeException(error_code)
         if not DO_SALE_HOTEL:
             return self.on_new_map()

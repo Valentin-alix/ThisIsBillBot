@@ -1,8 +1,0 @@
-from src.core.config.storage import ASTRUB_BANK_MAP
-
-MULE_BANK_MAP_ID = ASTRUB_BANK_MAP
-MULE_BANK_CHARACTER_LOGIN: set[str] = set()
-
-
-BOT_MINIMAL_KAMAS: int = 2_000_000
-BOT_KAMA_LIMIT_TO_GIVE: int = 8_000_000

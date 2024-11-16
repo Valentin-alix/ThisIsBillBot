@@ -1,7 +1,7 @@
 from typing import Any, Callable
 
-from data_center.data_reader import DataReader
-from enums.jobs_enum import HARVESTER_JOB_IDS
+from D3Database.data_center.data_reader import DataReader
+from D3Database.enums.jobs_enum import HARVESTER_JOB_IDS
 
 
 def global_validator_character_characteristic_upgrade_request(

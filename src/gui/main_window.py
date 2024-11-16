@@ -5,13 +5,13 @@ from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QColor, QIcon
 from qfluentwidgets import FluentIcon, NavigationItemPosition, SplashScreen
 
-from src.bot import Bot
+from src.core.bot.bot import Bot
 from src.const import RESOURCE_FOLDER
+from src.core.signals.shared_farm_signals import SharedSignals
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
 from src.gui.fragments.account_stacked_widget import AccountStackedWidget
 from src.gui.fragments.app_fluent_window import AppFluentWindow
 from src.gui.fragments.sidebar_item import SidebarItem
-from src.signals.shared_farm_signals import SharedSignals
 
 
 class MainWindow(AppFluentWindow):

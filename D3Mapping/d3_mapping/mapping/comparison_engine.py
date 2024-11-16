@@ -9,27 +9,31 @@ from cachetools import cached
 from proto_schema_parser import FieldCardinality
 from scipy.optimize import linear_sum_assignment
 
-from d3_mapping.consts import PROTO_BASE_FIELDS, EntryMsg
-from d3_mapping.mapping.malus_utils import get_value_with_len_malus
-from d3_mapping.mapping.proto_organization import ProtoOrganization
-from d3_mapping.mapping.proto_reliability_calculator import ProtoReliabilityCalculator
-from d3_mapping.mapping.validators.field_validators import VALIDATORS_ON_FIELD
-from d3_mapping.mapping.validators.global_validators import (
+from D3Mapping.d3_mapping.consts import PROTO_BASE_FIELDS, EntryMsg
+from D3Mapping.d3_mapping.mapping.malus_utils import get_value_with_len_malus
+from D3Mapping.d3_mapping.mapping.proto_organization import ProtoOrganization
+from D3Mapping.d3_mapping.mapping.proto_reliability_calculator import (
+    ProtoReliabilityCalculator,
+)
+from D3Mapping.d3_mapping.mapping.validators.field_validators import VALIDATORS_ON_FIELD
+from D3Mapping.d3_mapping.mapping.validators.global_validators import (
     VALIDATORS_GLOBAL_ON_SET_FIELDS,
 )
-from d3_mapping.mapping.validators.proto_field_validators import (
+from D3Mapping.d3_mapping.mapping.validators.proto_field_validators import (
     is_condition_respected,
 )
-from d3_mapping.mapping.validators.proto_validator import ProtoValidator
-from d3_mapping.mapping.validators.set_validators import VALIDATORS_ON_SET_FIELDS
-from d3_mapping.models.mapping_info import FieldMapping, MappingInfo
-from d3_mapping.models.p_enum import PEnum
-from d3_mapping.models.p_message import (
+from D3Mapping.d3_mapping.mapping.validators.proto_validator import ProtoValidator
+from D3Mapping.d3_mapping.mapping.validators.set_validators import (
+    VALIDATORS_ON_SET_FIELDS,
+)
+from D3Mapping.d3_mapping.models.mapping_info import FieldMapping, MappingInfo
+from D3Mapping.d3_mapping.models.p_enum import PEnum
+from D3Mapping.d3_mapping.models.p_message import (
     PField,
     PMapField,
     PMessage,
 )
-from d3_mapping.utils import Percentage, set_percentage
+from D3Mapping.d3_mapping.utils import Percentage, set_percentage
 
 PulpMappingStruct = dict[tuple[tuple[str, ...], tuple[str, ...]], float]
 

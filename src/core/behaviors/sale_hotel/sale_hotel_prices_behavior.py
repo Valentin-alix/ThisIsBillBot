@@ -5,10 +5,13 @@ from enum import StrEnum, auto
 from functools import partial
 from typing import Iterable
 
-from d3_mapping.resources.protos.game.basic_pb2 import TextInformationEvent
-from d3_mapping.resources.protos.game.common_pb2 import ObjectItem
-from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
-from d3_mapping.resources.protos.game.exchange_pb2 import (
+from D3Database.data_center.data_reader import DataReader
+from D3Database.data_center.i18n import I18N
+from D3Database.enums.category_item_enum import CategoryEnum
+from D3Mapping.d3_mapping.resources.protos.game.basic_pb2 import TextInformationEvent
+from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItem
+from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
+from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeBidHouseItemRemovedEvent,
     ExchangeBidHousePriceRequest,
     ExchangeBidHouseSearchRequest,
@@ -18,13 +21,11 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeObjectModifyPricedRequest,
     ExchangeObjectMovePricedRequest,
 )
-from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
-from data_center.data_reader import DataReader
-from data_center.i18n import I18N
-from enums.category_item_enum import CategoryEnum
-
+from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+    InventoryWeightEvent,
+)
 from src.controller.sale_hotel import SaleHotelController
-from src.controller.scraping_d3_client.scraping_d3_client.models.quantity_enum import (
+from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.models.quantity_enum import (
     QuantityEnum,
 )
 from src.core.behaviors.behavior import Behavior
@@ -38,26 +39,25 @@ from src.core.behaviors.storage.loads.load_from_guild_chest_behavior import (
     LoadFromGuildChestBehavior,
     LoadItemInfo,
 )
-from src.core.config.sale_hotel import (
-    MIN_KAMAS_TO_GO_SALE_HOTEL,
-)
-from src.core.config.storage import (
-    TAB_BY_GID,
-)
-from src.core.config.timings import (
+from src.core.config import (
     BASE_RANGE,
+    MIN_KAMAS_TO_GO_SALE_HOTEL,
     SMALL_RANGE,
     TINY_RANGE,
 )
-from src.core.logic.sale_hotel.price import (
+from src.core.engine.communications.text import TextEnum
+from src.core.engine.economy.sale_hotel import (
     choose_quantity_to_sell,
     get_item_gids_to_sell,
     get_max_quantity_sell,
     get_price_for_sale_hotel,
     is_interesting_item_to_sell,
 )
+from src.core.game_constants import (
+    TAB_BY_GID,
+)
+from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 from src.exceptions import UnexpectedStateException, UnhandledErrorCodeException
-from src.interfaces.enums.text_id_enum import TextEnum
 
 
 class SaleHotelErrorCode(StrEnum):
@@ -96,14 +96,19 @@ class SaleHotelPricesBehavior(Behavior):
         item_sell_quantity_by_gid = (
             SaleHotelController().get_item_sell_quantity_by_gid()
         )
+        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
 
         item_gids_to_sell = get_item_gids_to_sell(
-            self.game_state.player.can_access_guild_chest,
+            self.game_state.guild_chest.can_access_guild_chest,
             self.game_state.player.is_sub,
             self.game_state.inventory.bank_object_by_gid,
             item_sell_quantity_by_gid,
             self._curr_category,
             self.logger,
+            avg_price_by_gid,
+            CHEST_OBJECT_BY_GID_BY_TAB
+            if self.game_state.guild_chest.can_access_guild_chest
+            else None,
         )
 
         if len(item_gids_to_sell) == 0:
@@ -135,7 +140,7 @@ class SaleHotelPricesBehavior(Behavior):
         self, load_items_infos: list[LoadItemInfo], item_gids_to_sell: list[int]
     ):
         self.logger.info(f"Gonna load and sell : {load_items_infos}")
-        if self.game_state.player.can_access_guild_chest:
+        if self.game_state.guild_chest.can_access_guild_chest:
             self.load_from_guild_chest_behavior.start(
                 callback=partial(
                     self.on_loaded_behavior_finished, item_ids_to_sell=item_gids_to_sell
@@ -231,7 +236,9 @@ class SaleHotelPricesBehavior(Behavior):
                 return self.leave_all_dialogs()
 
             next_item = item_to_sells_in_inventory.pop()
-            if is_interesting_item_to_sell(next_item):
+            if is_interesting_item_to_sell(
+                next_item, SaleHotelController().get_avg_price_by_gid()
+            ):
                 break
 
         self.logger.info(
@@ -318,7 +325,9 @@ class SaleHotelPricesBehavior(Behavior):
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
     ):
-        if not is_interesting_item_to_sell(item):
+        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
+
+        if not is_interesting_item_to_sell(item, avg_price_by_gid):
             return self.create_all_prices(
                 load_items_infos=load_items_infos,
                 items=items,
@@ -326,7 +335,9 @@ class SaleHotelPricesBehavior(Behavior):
                 item_ids_to_sell=item_ids_to_sell,
             )
 
-        quantity_to_sell, quantity_index = choose_quantity_to_sell(item)
+        quantity_to_sell, quantity_index = choose_quantity_to_sell(
+            item, avg_price_by_gid
+        )
 
         minimal_price_in_sale_bots = (
             SaleHotelController()
@@ -363,7 +374,7 @@ class SaleHotelPricesBehavior(Behavior):
         self.logger.info(
             f"item in sale : {count_item_in_sale}, max item possible in sale : {self.game_state.sale_hotel.bid_seller_condition.max_item_per_account}"
         )
-        if self.game_state.player.is_full_object_in_sale_hotel:
+        if self.game_state.sale_hotel.is_full_object_in_sale_hotel:
             self.logger.info("Sale hotel is full of object, let's update prices")
             return self.update_all_prices(list(items))
 

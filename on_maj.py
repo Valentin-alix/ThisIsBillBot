@@ -1,14 +1,5 @@
-import os
-import sys
-from pathlib import Path
-
-sys.path.append(os.path.join(Path(__file__).parent))
-sys.path.append(os.path.join(Path(__file__).parent, "D3Mapping"))
-sys.path.append(os.path.join(Path(__file__).parent, "DBDofusUnity"))
-sys.path.append(os.path.join(Path(__file__).parent, "D3Database"))
-
-from d3_mapping.main import update_proto_on_new_version
-from db_dofus_unity.get_datas import update_all_datas
+from D3Mapping.d3_mapping.main import update_proto_on_new_version
+from DBDofusUnity.db_dofus_unity.get_datas import update_all_datas
 
 if __name__ == "__main__":
     update_all_datas()

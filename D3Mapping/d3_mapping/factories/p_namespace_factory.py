@@ -1,12 +1,12 @@
 import os
 
 from proto_schema_parser import Message, Parser
-from proto_schema_parser.ast import File, Package, Enum
+from proto_schema_parser.ast import Enum, File, Package
 
-from d3_mapping.factories.p_enum_factory import PEnumFactory
-from d3_mapping.factories.p_message_factory import PMessageFactory
-from d3_mapping.models.p_enum import PEnum
-from d3_mapping.models.p_message import PMessage
+from D3Mapping.d3_mapping.factories.p_enum_factory import PEnumFactory
+from D3Mapping.d3_mapping.factories.p_message_factory import PMessageFactory
+from D3Mapping.d3_mapping.models.p_enum import PEnum
+from D3Mapping.d3_mapping.models.p_message import PMessage
 
 
 class PNamespaceFactory:

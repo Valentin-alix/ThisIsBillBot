@@ -3,21 +3,22 @@ from enum import StrEnum, auto
 from functools import partial
 from typing import Callable, Iterable
 
-from d3_mapping.resources.protos.game.dialog_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import (
     DialogLeaveEvent,
     DialogLeaveRequest,
 )
-from d3_mapping.resources.protos.game.gamemap_pb2 import MapCurrentEvent
-from d3_mapping.resources.protos.game.inventory_pb2 import StorageInventoryContentEvent
-from d3_mapping.resources.protos.game.npc_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import MapCurrentEvent
+from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+    StorageInventoryContentEvent,
+)
+from D3Mapping.d3_mapping.resources.protos.game.npc_pb2 import (
     NpcDialogQuestionEvent,
     NpcDialogReplyRequest,
     NpcGenericActionRequest,
 )
-
 from src.core.behaviors.behavior import Behavior
-from src.core.config.timings import BETWEEN_REPLY, ON_NEW_MAP_BEFORE_ACTION
-from src.interfaces.models.npc_info import NpcDialogInfo
+from src.core.config import BETWEEN_REPLY, ON_NEW_MAP_BEFORE_ACTION
+from src.core.engine.npcs.npc_dialog_info import NpcDialogInfo
 
 
 class NpcDialogErrorCode(StrEnum):

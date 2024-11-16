@@ -1,9 +1,9 @@
-from datetime import datetime
 import unittest
+from datetime import datetime
 
 from dateutil import relativedelta
 
-from src.common.timing import is_in_playtime
+from src.core.bot.lifecycle.scheduler import is_in_playtime
 
 
 class TestPlaytime(unittest.TestCase):

@@ -1,36 +1,23 @@
 import dataclasses
 from dataclasses import dataclass, field
 
-from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
-
+from D3Database.models.datas.recipe_root import RecipeItem
+from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from src.core.engine.fights.effect import EffectActionEnum
+from src.core.engine.items.inventory_item import SetPositionEnum
+from src.core.signals.player_signals import InventorySignals
+from src.core.states.player_state import PlayerState
 from src.core.states.state import State
-from src.interfaces.enums.effect_action_enum import EffectActionEnum
-from src.interfaces.enums.set_position_enum import SetPositionEnum
-from src.signals.player_signals import InventorySignals
 
 
 class ObjectByUid(dict[int, ObjectItemInventory]):
-    def __init__(self, inventory_signals: InventorySignals):
-        self.inventory_signals = inventory_signals
-        super().__init__()
-
-    def __setitem__(self, key: int, value: ObjectItemInventory):
-        res = super().__setitem__(key, value)
-        self.inventory_signals.added_object_item.emit(value)
-        return res
-
-    def __delitem__(self, key: int) -> None:
-        super().__delitem__(key)
-        self.inventory_signals.deleted_object_item_uid.emit(key)
-
-    def clear(self) -> None:
-        super().clear()
-        self.inventory_signals.clear_inventory.emit()
+    pass
 
 
 @dataclass
 class InventoryState(State):
     inventory_signals: InventorySignals
+    player_state: PlayerState
     _kamas: int = dataclasses.field(init=False, default=500_000)
     bank_object_by_gid: dict[int, ObjectItemInventory] = dataclasses.field(
         init=False, default_factory=dict
@@ -40,13 +27,42 @@ class InventoryState(State):
     objects_by_uid: ObjectByUid = field(init=False)
 
     def __post_init__(self):
-        self.objects_by_uid = ObjectByUid(self.inventory_signals)
+        self.objects_by_uid = ObjectByUid()
 
     def clear_state(self):
         self.inventory_weight = 0
         self.weight_max = 1
         self.kamas = 0
+        self.clear_inventory()
+
+    # ==================== Inventory Operations ====================
+
+    def set_objects(self, objects: list[ObjectItemInventory]):
         self.objects_by_uid.clear()
+        for obj in objects:
+            self.objects_by_uid[obj.item.uid] = obj
+        self.inventory_signals.clear_inventory.emit()
+        if objects:
+            self.inventory_signals.added_object_items_batch.emit(objects)
+
+    def add_object(self, obj: ObjectItemInventory):
+        self.objects_by_uid[obj.item.uid] = obj
+        self.inventory_signals.added_object_item.emit(obj)
+
+    def add_objects(self, objects: list[ObjectItemInventory]):
+        for obj in objects:
+            self.objects_by_uid[obj.item.uid] = obj
+        if objects:
+            self.inventory_signals.added_object_items_batch.emit(objects)
+
+    def remove_object(self, uid: int):
+        if uid in self.objects_by_uid:
+            del self.objects_by_uid[uid]
+            self.inventory_signals.deleted_object_item_uid.emit(uid)
+
+    def clear_inventory(self):
+        self.objects_by_uid.clear()
+        self.inventory_signals.clear_inventory.emit()
 
     @property
     def pod_percentage(self):
@@ -84,7 +100,7 @@ class InventoryState(State):
         self.inventory_signals.kamas.emit(value)
 
     def has_weapon_hunter(self):
-        any(
+        return any(
             object.position == SetPositionEnum.ARME
             for object in self.objects_by_uid.values()
             if any(
@@ -92,3 +108,12 @@ class InventoryState(State):
                 for effect in object.item.effects
             )
         )
+
+    def get_valid_recipes(
+        self,
+        recipes: list[RecipeItem],
+    ) -> list[RecipeItem]:
+        """Delegate to logic layer for recipe validation."""
+        from src.core.engine.crafts.recipes import get_valid_recipes
+
+        return get_valid_recipes(self.logger, self.player_state.jobs_lvl_by_id, recipes)

@@ -4,8 +4,8 @@ from PyQt5.QtCore import Qt, QThread
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import FluentIcon, TransparentToolButton
 
+from src.core.signals.bot_signals import BotSignals
 from src.gui.pages.fm.fm_item.fm_item import FmItem
-from src.signals.bot_signals import BotSignals
 
 
 class FmPage(QWidget):

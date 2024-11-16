@@ -1,9 +1,8 @@
 from typing import Any, Callable
 
-from data_center.data_reader import DataReader
-from grid.map_point import MapPoint
-
-from d3_mapping.mapping.validators.field_validators import (
+from D3Database.data_center.data_reader import DataReader
+from D3Database.grid.map_point import MapPoint
+from D3Mapping.d3_mapping.mapping.validators.field_validators import (
     is_not_default_value,
     is_valid_sale_hotel_quantity,
 )

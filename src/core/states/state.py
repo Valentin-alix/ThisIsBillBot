@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass
 
-from src.common.logger import Logger
+from src.services.logging.logger import Logger
 
 
 @dataclass

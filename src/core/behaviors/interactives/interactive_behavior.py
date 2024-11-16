@@ -2,17 +2,16 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from d3_mapping.resources.protos.game.interactive_element_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.interactive_element_pb2 import (
     InteractiveUsedEvent,
     InteractiveUseErrorEvent,
     InteractiveUseRequest,
 )
-
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
-from src.core.config.timings import BASE_RANGE
-from src.core.logic.map.path_finding.movement_path import MovementPath
-from src.core.logic.map.path_finding.path_finding import Pathfinding
+from src.core.config import BASE_RANGE
+from src.core.engine.movements.map.path_finding.movement_path import MovementPath
+from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 
 
 class InteractiveError(StrEnum):
@@ -30,11 +29,11 @@ class InteractiveBehavior(Behavior):
         element_id: int,
         skill_instance_uid: int,
     ):
-        if self.game_state.map._is_in_map_transition:
+        if self.game_state.map.is_in_map_transition:
             return
         if (
             move_path is None
-            or self.game_state.player.map_point.cell_id == move_path.end.cell_id
+            or self.game_state.map.map_point.cell_id == move_path.end.cell_id
         ):
             return self.use_interactive(
                 element_id=element_id, skill_instance_uid=skill_instance_uid
@@ -62,11 +61,11 @@ class InteractiveBehavior(Behavior):
             MapMoveError.INVALID_STARTING_POINT,
             MapMoveError.CANCELED_MOVEMENT,
         ]:
-            if self.game_state.map._is_in_map_transition:
+            if self.game_state.map.is_in_map_transition:
                 return self.finish()
 
             move_path = self.path_finding.find_path(
-                self.game_state.player.map_point, {old_move_path.end}
+                self.game_state.map.map_point, {old_move_path.end}
             )
             self.logger.warning(
                 "Invalid starting point or canceled movement, let's retry interactive"

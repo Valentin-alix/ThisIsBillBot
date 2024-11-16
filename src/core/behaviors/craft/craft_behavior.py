@@ -3,8 +3,12 @@ from enum import StrEnum, auto
 from functools import partial
 from typing import Callable
 
-from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
-from d3_mapping.resources.protos.game.exchange_pb2 import (
+from D3Database.data_center.i18n import I18N
+from D3Database.data_center.map_reader import MapReader
+from D3Database.grid.map_point import MapPoint
+from D3Database.models.datas.recipe_root import RecipeItem
+from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
+from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeCraftCountModifiedEvent,
     ExchangeCraftCountRequest,
     ExchangeCraftStartedEvent,
@@ -12,13 +16,9 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeReadyRequest,
     ExchangeSetCraftRecipeRequest,
 )
-from d3_mapping.resources.protos.game.inventory_pb2 import InventoryWeightEvent
-from data_center.data_reader import DataReader
-from data_center.i18n import I18N
-from data_center.map_reader import MapReader
-from grid.map_point import MapPoint
-from models.datas.recipe_root import RecipeItem
-
+from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+    InventoryWeightEvent,
+)
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
@@ -30,18 +30,16 @@ from src.core.behaviors.storage.loads.load_recipe_from_bank_chest_behavior impor
 from src.core.behaviors.storage.loads.load_recipe_from_guild_chest_behavior import (
     LoadRecipeFromGuildChestBehavior,
 )
-from src.core.config.timings import BASE_RANGE, SMALL_RANGE
-from src.core.logic.craft.craft import MAP_ID_BY_SKILL_ID
-from src.core.logic.map.map_tools import MapTools
-from src.core.logic.map.path_finding.path_finding import Pathfinding
+from src.core.config import BASE_RANGE, SMALL_RANGE
+from src.core.engine.crafts.recipes import FORBIDDEN_CRAFT_IDS
+from src.core.engine.movements.map.map_tools import MapTools
+from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
+from src.core.game_constants import MAP_ID_BY_SKILL_ID
 from src.exceptions import UnhandledErrorCodeException
 
 
 class CraftErrorCode(StrEnum):
     CRAFT_TIMEOUT = auto()
-
-
-FORBIDDEN_CRAFT_IDS: set[int] = {60}
 
 
 @dataclass
@@ -65,29 +63,9 @@ class CraftBehavior(Behavior):
         recipes: list[RecipeItem],
         stop_craft_recipe_condition: Callable[[RecipeItem], bool] | None = None,
     ) -> None:
-        self._remaining_recipes = self.get_valid_recipes(recipes)
+        self._remaining_recipes = self.game_state.craft.get_valid_recipes(recipes)
         self._stop_craft_recipe_condition = stop_craft_recipe_condition
         self.process_remaining_recipes()
-
-    def get_valid_recipes(
-        self,
-        recipes: list[RecipeItem],
-    ) -> list[RecipeItem]:
-        valid_recipes = []
-        for recipe in recipes:
-            if recipe.resultId in FORBIDDEN_CRAFT_IDS:
-                continue
-            skill_data = DataReader().skill_by_id[recipe.skillId]
-            if (
-                self.game_state.player.jobs_lvl_by_id.get(skill_data.parentJobId, 1)
-                < recipe.resultLevel
-            ):
-                self.logger.warning(
-                    f"Can't craft recipe {I18N().name_by_id[int(recipe.resultNameId)]} because of job lvl"
-                )
-                continue
-            valid_recipes.append(recipe)
-        return valid_recipes
 
     def process_remaining_recipes(self):
         self.logger.info(
@@ -216,7 +194,7 @@ class CraftBehavior(Behavior):
             .cellId  # type: ignore
         )
         move_path = self.pathfinding.find_path(
-            self.game_state.player.map_point, {element_mp}
+            self.game_state.map.map_point, {element_mp}
         )
 
         self.run_timer(

@@ -4,7 +4,7 @@ import sys
 
 from google.protobuf.message import Message
 
-from d3_mapping.consts import OBFUSCATED_PROTOS, PROTO_GAME_PATH
+from D3Mapping.d3_mapping.consts import OBFUSCATED_PROTOS, PROTO_GAME_PATH
 
 
 def import_and_get_all_msg_from_folder(folder_path: str):

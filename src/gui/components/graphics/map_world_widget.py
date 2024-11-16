@@ -2,7 +2,6 @@ from collections import defaultdict
 from dataclasses import dataclass
 from math import floor
 
-from models.datas.map_positions_root import MapPositionsRootItem
 from PyQt5.QtCore import QRectF, Qt, pyqtSlot
 from PyQt5.QtGui import QColor, QPainter, QPen, QResizeEvent
 from PyQt5.QtWidgets import (
@@ -13,10 +12,13 @@ from PyQt5.QtWidgets import (
     QGraphicsView,
 )
 
+from D3Database.models.datas.map_positions_root import MapPositionsRootItem
+from src.core.signals.world_signals import WorldSignals
 from src.gui.components.graphics.graphic_text import TEXT_SIZE, GraphicText
 from src.gui.utils.profiling import profiled_slot
-from src.interfaces.custom_type import Coord, RGBColor
-from src.signals.world_signals import WorldSignals
+
+type Coord = tuple[int, int]
+type RGBColor = tuple[int, int, int]
 
 CELL_SIZE: int = 50
 LIMIT_GRID = 8
@@ -104,7 +106,13 @@ class MapWorldView(QGraphicsView):
 
         if self.world_signals:
             self.world_signals.color_pos.connect(profiled_slot(self.on_color_pos))
+            self.world_signals.color_pos_batch.connect(
+                profiled_slot(self.on_color_pos_batch)
+            )
             self.world_signals.arrow_pos.connect(profiled_slot(self.on_arrow_pos))
+            self.world_signals.arrow_pos_batch.connect(
+                profiled_slot(self.on_arrow_pos_batch)
+            )
             self.world_signals.reset_weight.connect(profiled_slot(self.on_reset_weight))
             self.world_signals.reset_path.connect(profiled_slot(self.on_reset_path))
             self.world_signals.curr_map_pos.connect(profiled_slot(self.on_curr_map))
@@ -158,6 +166,14 @@ class MapWorldView(QGraphicsView):
         square_cell = self.get_or_create_map(map_pos)
         square_cell.add_color(map_pos.id, color)
 
+    @pyqtSlot(list)
+    def on_color_pos_batch(
+        self, items: list[tuple[MapPositionsRootItem, RGBColor]]
+    ):
+        for map_pos, color in items:
+            square_cell = self.get_or_create_map(map_pos)
+            square_cell.add_color(map_pos.id, color)
+
     @pyqtSlot(MapPositionsRootItem, MapPositionsRootItem)
     def on_arrow_pos(
         self, map_pos_start: MapPositionsRootItem, map_pos_end: MapPositionsRootItem
@@ -176,6 +192,25 @@ class MapWorldView(QGraphicsView):
         line_item.setPen(pen)
         self.line_items.append(line_item)
         self.scene.addItem(line_item)
+
+    @pyqtSlot(list)
+    def on_arrow_pos_batch(
+        self, items: list[tuple[MapPositionsRootItem, MapPositionsRootItem]]
+    ):
+        for map_pos_start, map_pos_end in items:
+            start_square = self.get_or_create_map(map_pos_start)
+            end_square = self.get_or_create_map(map_pos_end)
+            line_item = QGraphicsLineItem(
+                start_square.x() + CELL_SIZE / 2,
+                start_square.y() + CELL_SIZE / 2,
+                end_square.x() + CELL_SIZE / 2,
+                end_square.y() + CELL_SIZE / 2,
+            )
+            pen = QPen(Qt.green)
+            pen.setWidth(2)
+            line_item.setPen(pen)
+            self.line_items.append(line_item)
+            self.scene.addItem(line_item)
 
     @pyqtSlot()
     def on_reset_path(self):

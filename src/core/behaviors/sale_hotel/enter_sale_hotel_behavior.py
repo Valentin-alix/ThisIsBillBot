@@ -1,23 +1,20 @@
 from dataclasses import dataclass
 from functools import partial
 
-from data_center.data_reader import DataReader
-from enums.category_item_enum import CategoryEnum
-from enums.element_type import ElementTypeEnum
-
+from D3Database.data_center.data_reader import DataReader
+from D3Database.enums.category_item_enum import CategoryEnum
+from D3Database.enums.element_type import ElementTypeEnum
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
-from src.core.config.timings import BASE_RANGE
-from src.core.logic.map.map_tools import MapTools
-from src.core.logic.sale_hotel.sale_hotel_infos import (
-    SALE_HOTELS_BY_CATEGORY,
-)
-from src.core.logic.world.map_position import get_dist_to_maps
+from src.core.config import BASE_RANGE
+from src.core.engine.movements.map.map_tools import MapTools
+from src.core.engine.movements.world.map_position import get_dist_to_maps
+from src.core.engine.npcs.npc_info import NpcInfo
+from src.core.game_constants import SALE_HOTELS_BY_CATEGORY
 from src.exceptions import UnhandledErrorCodeException
-from src.interfaces.models.npc_info import NpcInfo
 
 
 @dataclass

@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from src.core.behaviors.behavior import Behavior
-from src.core.config.storage import GIDS_BY_TAB
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestError,
 )
@@ -11,6 +10,7 @@ from src.core.behaviors.storage.unloads.unload_in_bank_behavior import (
 from src.core.behaviors.storage.unloads.unload_in_guild_chest_behavior import (
     UnloadInGuildChestBehavior,
 )
+from src.core.game_constants import GIDS_BY_TAB
 from src.exceptions import UnhandledErrorCodeException
 
 

@@ -1,0 +1,145 @@
+import random
+from dataclasses import dataclass
+from typing import Callable
+
+from D3Database.models.world_graph import Edge, Vertice
+from src.core.engine.movements.world.edge import iter_valid_outgoing_edges
+from src.core.states.game_state import GameState
+
+
+@dataclass
+class WeightedPath:
+    game_state: GameState
+
+    def get_weight_edge(
+        self,
+        edge: Edge,
+        get_weight_by_edge_func: Callable[[Edge], float],
+        weight_by_map_id: dict[int, float],
+    ):
+        if weight_by_map_id.get(edge.m_to.m_mapId) is None:
+            weight_by_map_id[edge.m_to.m_mapId] = get_weight_by_edge_func(edge)
+        return weight_by_map_id[edge.m_to.m_mapId]
+
+    def monte_carlo_path(
+        self,
+        start_vertex: Vertice,
+        get_weight_by_edge_func: Callable[[Edge], float],
+        weight_by_map_id: dict[int, float],
+        count_map_in_area: int,
+        depth: int = 20,
+        iterations: int = 5_000,
+    ):
+        # heuristic, randomized weighted path
+        best_score: float = 0
+        best_path: list[Edge] = []
+        min_depth = min(count_map_in_area, depth // 2)
+
+        for _ in range(iterations):
+            random_depth = random.randint(min_depth, depth)
+            current_vertex = start_vertex
+            visited_map_ids: set[int] = {current_vertex.m_mapId}
+            total_weight: float = 0
+            path: list[Edge] = []
+
+            for _ in range(random_depth):
+                edge_neighbors = list(
+                    iter_valid_outgoing_edges(current_vertex, self.game_state)
+                )
+                if not edge_neighbors:
+                    break
+
+                edge_weights = [
+                    (
+                        self.get_weight_edge(
+                            edge,
+                            weight_by_map_id=weight_by_map_id,
+                            get_weight_by_edge_func=get_weight_by_edge_func,
+                        )
+                        + 1
+                        if edge.m_to.m_mapId not in visited_map_ids
+                        else 1
+                    )
+                    for edge in edge_neighbors
+                ]
+                next_edge: Edge = random.choices(
+                    edge_neighbors, weights=edge_weights, k=1
+                )[0]
+
+                if next_edge.m_to.m_mapId in visited_map_ids:
+                    weight = 0
+                else:
+                    weight = self.get_weight_edge(
+                        next_edge,
+                        weight_by_map_id=weight_by_map_id,
+                        get_weight_by_edge_func=get_weight_by_edge_func,
+                    )
+
+                path.append(next_edge)
+                visited_map_ids.add(next_edge.m_to.m_mapId)
+                total_weight += weight
+                current_vertex = next_edge.m_to
+
+            score = total_weight / (1 + random_depth**0.5)
+            if score > best_score:
+                best_score = score
+                best_path = path
+
+        return best_path, best_score
+
+    def get_best_path(
+        self,
+        vertice: Vertice,
+        visited_map_ids: tuple[int, ...],
+        get_weight_by_edge_func: Callable[[Edge], float],
+        weight_by_map_id: dict[int, float],
+        current_path: list[Edge],
+        memo: dict[tuple[Vertice, int, tuple[int, ...]], float],
+        curr_weight: float = 0,
+        depth_remaining: int = 9,
+    ) -> tuple[list[Edge], float]:
+        if depth_remaining == 0:
+            return current_path, curr_weight
+
+        state = (vertice, depth_remaining, visited_map_ids[:5])
+        if state in memo:
+            memo_weight = memo[state]
+            return current_path, memo_weight
+
+        max_weight = curr_weight
+        best_path = current_path
+
+        for edge in iter_valid_outgoing_edges(vertice, game_state=self.game_state):
+            weight = self.get_weight_edge(
+                edge, get_weight_by_edge_func, weight_by_map_id
+            )
+            if weight is None:
+                continue
+
+            try:
+                last_visited_index = visited_map_ids.index(edge.m_to.m_mapId)
+                base = 0.995
+                weight_malus = 1 - base**last_visited_index
+                weight *= weight_malus
+            except ValueError:
+                pass
+
+            child_curr_path = current_path[::]
+            child_curr_path.append(edge)
+            child_path, child_weight = self.get_best_path(
+                edge.m_to,
+                (edge.m_to.m_mapId,) + visited_map_ids,
+                get_weight_by_edge_func,
+                weight_by_map_id,
+                current_path=child_curr_path,
+                memo=memo,
+                curr_weight=curr_weight + weight,
+                depth_remaining=depth_remaining - 1,
+            )
+            if child_weight > max_weight:
+                max_weight = child_weight
+                best_path = child_path
+
+        memo[state] = max_weight
+
+        return best_path, max_weight

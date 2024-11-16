@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import SingleDirectionScrollArea
 
-from src.bot import Bot
+from src.core.bot.bot import Bot
 from src.gui.pages.farmer.player_info.property_group_widget import PropertyGroupWidget
 
 

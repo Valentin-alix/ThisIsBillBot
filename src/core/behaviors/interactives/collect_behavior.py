@@ -2,26 +2,25 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from d3_mapping.resources.protos.game.gamemap_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
     MapCurrentEvent,
 )
-from d3_mapping.resources.protos.game.interactive_element_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
-
-from src.controller.human_timings import HumanTimingsController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import (
     InteractiveBehavior,
     InteractiveError,
 )
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
-from src.core.config.timings import BASE_RANGE
-from src.core.logic.map.path_finding.movement_path import MovementPath
-from src.core.logic.map.path_finding.path_finding import Pathfinding
-from src.interfaces.models.collectable import Collectable
+from src.core.config import BASE_RANGE
+from src.core.engine.interactives.collectable import Collectable
+from src.core.engine.movements.map.path_finding.movement_path import MovementPath
+from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
+from src.services.human_timings import HumanTimingsService
 
 
 class CollectError(StrEnum):
@@ -62,7 +61,7 @@ class CollectBehavior(Behavior):
         )
 
     def collect_map(self):
-        if self.game_state.map._is_in_map_transition:
+        if self.game_state.map.is_in_map_transition:
             return
 
         if self.game_state.inventory.is_full_pods:
@@ -82,7 +81,7 @@ class CollectBehavior(Behavior):
         if self.is_first_action:
             self.is_first_action = False
             self.run_timer(
-                HumanTimingsController().get_timing_collect_on_new_map(),
+                HumanTimingsService().get_timing_collect_on_new_map(),
                 lambda: self.collect(move_path, collectable),
             )
         else:
@@ -136,7 +135,7 @@ class CollectBehavior(Behavior):
         near_coll_info: tuple[MovementPath, Collectable, float] | None = None
         for collectable in collectables:
             coll_move_path = self.path_finding.get_interactive_near_path(
-                self.game_state.player.map_point,
+                self.game_state.map.map_point,
                 collectable.mp,
                 skill_ids=[collectable.skill.skill_id],
             )

@@ -1,8 +1,8 @@
-from data_center.data_reader import DataReader
-from data_center.i18n import I18N
-from src.core.logic.fight.effect import (
-    get_life_point_percent_malus,
+from D3Database.data_center.data_reader import DataReader
+from D3Database.data_center.i18n import I18N
+from src.core.engine.fights.effect import (
     get_effect_shield_level_bonus,
+    get_life_point_percent_malus,
 )
 from tests.setup_factory import GameStateFixture
 

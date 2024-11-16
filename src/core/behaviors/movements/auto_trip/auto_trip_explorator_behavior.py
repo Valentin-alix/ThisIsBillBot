@@ -1,14 +1,14 @@
 from dataclasses import dataclass
 from functools import partial
 
+from D3Database.data_center.data_reader import DataReader
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripErrorCode
 from src.core.behaviors.movements.auto_trip.auto_trip_zaap_behavior import (
     AutoTripZaapBehavior,
 )
-from data_center.data_reader import DataReader
-from src.core.logic.world.map_position import get_dist_to_maps
-from src.core.logic.world.waypoint import get_near_waypoint
+from src.core.engine.movements.world.map_position import get_dist_to_maps
+from src.core.engine.movements.world.waypoint import get_near_waypoint
 from src.exceptions import UnhandledErrorCodeException
 
 

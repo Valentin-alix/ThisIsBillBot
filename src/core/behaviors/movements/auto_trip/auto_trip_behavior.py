@@ -2,20 +2,19 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from d3_mapping.resources.protos.game.gamemap_pb2 import (
+from D3Database.models.world_graph import Edge
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from models.world_graph import Edge
-
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.edge_behavior import EdgeBehavior, EdgeError
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
-from src.core.logic.world.edge import (
+from src.core.engine.movements.world.edge import (
     draw_edge_path,
 )
-from src.core.logic.world.world_path_finder import WorldPathFinder
-from src.signals.world_signals import WorldSignals
+from src.core.engine.movements.world.world_path_finder import WorldPathFinder
+from src.core.signals.world_signals import WorldSignals
 
 
 class AutoTripErrorCode(StrEnum):
@@ -40,16 +39,16 @@ class AutoTripBehavior(Behavior):
         from_auto_trip_zaap_behavior: bool = False,
         retry: int = 3,
     ):
-        if self.game_state.map._is_in_map_transition or self.game_state.fight.in_fight:
+        if self.game_state.map.is_in_map_transition or self.game_state.fight.in_fight:
             return self.finish(MapChangeError.UNEXPECTED_NEW_MAP)
         if map_ids is not None:
             self.logger.info(f"Auto trip to map id : {map_ids}")
             self.target_map_ids = map_ids
-            curr_vertex = self.game_state.player.curr_vertex
+            curr_vertex = self.game_state.map.curr_vertex
             path = self.world_path_finder.find_path(curr_vertex, map_ids)
             if path is None:
                 self.logger.warning(
-                    f"Path not found from {self.game_state.player.curr_vertex} to {map_ids}"
+                    f"Path not found from {self.game_state.map.curr_vertex} to {map_ids}"
                 )
                 if from_auto_trip_zaap_behavior or retry <= 0:
                     return self.finish(AutoTripErrorCode.PATH_NOT_FOUND)

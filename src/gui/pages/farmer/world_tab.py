@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import SingleDirectionScrollArea, SmoothMode
 
+from src.core.signals.world_signals import WorldSignals
 from src.gui.components.graphics.map_world_widget import MapWorldView
-from src.signals.world_signals import WorldSignals
 
 
 class WorldTab(QWidget):
@@ -22,5 +22,3 @@ class WorldTab(QWidget):
         scroll_area_info.enableTransparentBackground()
 
         self.layout().addWidget(scroll_area_info)
-
-

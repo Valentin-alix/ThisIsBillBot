@@ -1,7 +1,9 @@
-from d3_mapping.factories.p_namespace_factory import PNamespaceFactory
-from d3_mapping.mapping.proto_mapper import ProtoMapper
-from d3_mapping.mapping.proto_reliability_calculator import ProtoReliabilityCalculator
-from d3_mapping.mapping.validators.proto_validator import ProtoValidator
+from D3Mapping.d3_mapping.factories.p_namespace_factory import PNamespaceFactory
+from D3Mapping.d3_mapping.mapping.proto_mapper import ProtoMapper
+from D3Mapping.d3_mapping.mapping.proto_reliability_calculator import (
+    ProtoReliabilityCalculator,
+)
+from D3Mapping.d3_mapping.mapping.validators.proto_validator import ProtoValidator
 
 
 class PMapperFactory:

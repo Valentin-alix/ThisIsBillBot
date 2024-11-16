@@ -1,6 +1,5 @@
 from functools import partial
 
-from d3_mapping.models.message import MessageInfo
 from PyQt5.QtCore import QModelIndex, Qt, pyqtSlot
 from PyQt5.QtWidgets import (
     QFileDialog,
@@ -12,7 +11,8 @@ from PyQt5.QtWidgets import (
 )
 from qfluentwidgets import FluentIcon, LineEdit, PivotItem, PrimaryPushButton
 
-from src.bot import Bot
+from D3Mapping.d3_mapping.models.message import MessageInfo
+from src.core.bot.bot import Bot
 from src.gui.pages.debugs.logs import LogsWidget
 from src.gui.pages.debugs.message_detail import MessageDetailWidget
 from src.gui.pages.debugs.message_table import MessageTable
@@ -237,4 +237,5 @@ class SnifferWidget(PivotItem):  # type: ignore
         )
         if not path:
             return
-        self.bot.replay_signals.replay_requested.emit(path)
+        # emit(path, preserve_timing, speedup, use_obfuscated)
+        self.bot.replay_signals.replay_requested.emit(path, False, None, False)

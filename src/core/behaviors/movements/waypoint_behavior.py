@@ -2,32 +2,33 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from d3_mapping.resources.protos.game.gamemap_pb2 import (
+from D3Database.data_center.data_reader import DataReader
+from D3Database.data_center.world_graph_reader import WorldGraphReader
+from D3Database.enums.element_type import ElementTypeEnum
+from D3Database.grid.map_point import MapPoint
+from D3Database.models.world_graph import Vertice
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from d3_mapping.resources.protos.game.haven_bag_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.haven_bag_pb2 import (
     HavenBagEnterRequest,
     HavenBagExitRequest,
 )
-from d3_mapping.resources.protos.game.teleportation_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.teleportation_pb2 import (
     Teleporter,
     TeleportRequest,
 )
-from data_center.data_reader import DataReader
-from data_center.world_graph_reader import WorldGraphReader
-from enums.element_type import ElementTypeEnum
-from grid.map_point import MapPoint
-from models.world_graph import Vertice
-
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
     AutoTripBehavior,
 )
-from src.core.config.timings import BASE_RANGE
-from src.core.logic.flags.map_position_flags import allow_teleport_to
-from src.core.logic.map.path_finding.path_finding import Pathfinding
-from src.core.logic.world.astar_allow_capability import AstarAllowHavreSac
+from src.core.config import BASE_RANGE
+from src.core.engine.movements.map.map_position_flags import allow_teleport_to
+from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
+from src.core.engine.movements.world.astar_allow_capability import (
+    AstarAllowHavreSac,
+)
 from src.exceptions import UnexpectedStateException, UnhandledErrorCodeException
 
 
@@ -54,7 +55,7 @@ class WaypointBehavior(Behavior):
                 for vertex in WorldGraphReader().get_vertexes(dst)
             }
             path = self.astar_allow_havre_sac.find_path(
-                start=self.game_state.player.curr_vertex, ends=dst_vertex
+                start=self.game_state.map.curr_vertex, ends=dst_vertex
             )
             if path is None:
                 return self.finish(WaypointErrorCode.UNREACHABLE_HAVRE_MAP)
@@ -113,9 +114,7 @@ class WaypointBehavior(Behavior):
         mp_zaap = MapPoint.from_cell_id(
             self.game_state.interactive.stated_element_by_id[zaap.element_id][0].cell_id
         )
-        move_path = self.pathfinding.find_path(
-            self.game_state.player.map_point, {mp_zaap}
-        )
+        move_path = self.pathfinding.find_path(self.game_state.map.map_point, {mp_zaap})
         self.run_timer(
             BASE_RANGE,
             lambda: self.interactive_behavior.start(

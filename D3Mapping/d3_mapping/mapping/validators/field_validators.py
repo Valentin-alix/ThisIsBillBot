@@ -1,14 +1,15 @@
 from datetime import datetime
 from typing import Any
 
-from data_center.data_reader import DataReader
-
-from d3_mapping.controller.data_center_controller import DataCenterController
-from d3_mapping.mapping.validators.proto_field_validators import ProtoFieldValidator
-from d3_mapping.resources.protos.game.teleportation_pb2 import Teleporter
+from D3Database.data_center.data_reader import DataReader
 from D3Database.data_center.i18n import I18N
-from D3Database.grid.directions import DirectionsEnum
+from D3Database.enums.directions import DirectionsEnum
 from D3Database.grid.map_point import MAP_POINT_BY_CELL_ID
+from D3Mapping.d3_mapping.controller.data_center_controller import DataCenterController
+from D3Mapping.d3_mapping.mapping.validators.proto_field_validators import (
+    ProtoFieldValidator,
+)
+from D3Mapping.d3_mapping.resources.protos.game.teleportation_pb2 import Teleporter
 
 
 def is_defined(value: Any):
@@ -44,7 +45,11 @@ def is_valid_world_y_coodinates(value: Any):
 
 
 def is_valid_map_id(value: Any):
-    return value in DataCenterController.get_all_map_ids()
+    return (
+        value in DataCenterController.get_all_map_ids()
+        or value > 180000000
+        and value < 200000000
+    )
 
 
 def is_valid_sub_area_id(value: Any):

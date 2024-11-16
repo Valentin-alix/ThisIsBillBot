@@ -1,10 +1,10 @@
 from PyQt5.QtWidgets import QVBoxLayout
 from qfluentwidgets import PivotItem
 
+from src.core.signals.log_signals import LogSignals
 from src.gui.pages.debugs.logs_table import LogsTable
 from src.gui.utils.profiling import profiled_slot
-from src.interfaces.enums.log_level import LogLevel
-from src.signals.log_signals import LogSignals
+from src.services.logging.log_level import LogLevel
 
 
 class LogsWidget(PivotItem):

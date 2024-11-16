@@ -3,21 +3,19 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Callable
 
-from d3_mapping.resources.protos.game.context_pb2 import ContextCreationEvent
-
-from src.core.behaviors.chat.chat_behavior import ChatBehavior
+from src.core.behaviors.communication.chat_behavior import ChatBehavior
+from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
-from src.core.behaviors.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.quests.dungeon_behavior import (
     DungeonBehavior,
 )
-from src.core.config.timings import (
+from src.core.config import (
     BASE_RANGE,
     get_time_between_attacker,
     get_time_between_dungeon,
     get_time_between_random_chat,
 )
-from src.core.logic.dungeons.dungeons import get_valid_dungeon_infos
+from src.core.engine.dungeons.dungeon_access import get_valid_dungeon_infos
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -129,9 +127,6 @@ class MultiFarmingBehavior(HarvesterBehavior):
         self.collect_on_map()
 
     def collect_on_map(self):
-        self.event_manager.on(
-            ContextCreationEvent, self.on_context_creation_event, originator=self
-        )
         self.collect_behavior.start(
             callback=self.on_collect_behavior_finished, parent=self
         )

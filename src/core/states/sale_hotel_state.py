@@ -1,15 +1,21 @@
 import dataclasses
 import datetime
 
-
-from d3_mapping.resources.protos.game.exchange_pb2 import SellingConditions
+from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import SellingConditions
+from src.controller.sale_hotel import SaleHotelController
+from src.core.config import get_time_beween_sale_hotel_prices
+from src.core.signals.player_signals import GameInfoSignals
+from src.core.states.player_state import PlayerState
 from src.core.states.state import State
-from src.signals.player_signals import GameInfoSignals
 
 
 @dataclasses.dataclass
 class SaleHotelState(State):
+    player_state: PlayerState
     game_info_signals: GameInfoSignals
+    timedelta_for_next_sale_hotel_prices: datetime.timedelta = dataclasses.field(
+        init=False, default_factory=get_time_beween_sale_hotel_prices
+    )
     _last_time_updated_prices: datetime.datetime = dataclasses.field(
         init=False, default=datetime.datetime(datetime.MINYEAR, 1, 1)
     )
@@ -24,6 +30,13 @@ class SaleHotelState(State):
         self.last_time_updated_prices = datetime.datetime(datetime.MINYEAR, 1, 1)
 
     @property
+    def should_update_price(self):
+        return (
+            datetime.datetime.now() - self.last_time_updated_prices
+            > self.timedelta_for_next_sale_hotel_prices
+        )
+
+    @property
     def last_time_updated_prices(self) -> datetime.datetime:
         return self._last_time_updated_prices
 
@@ -31,3 +44,14 @@ class SaleHotelState(State):
     def last_time_updated_prices(self, value: datetime.datetime):
         self._last_time_updated_prices = value
         self.game_info_signals.last_time_updated_prices.emit(value)
+
+    @property
+    def is_full_object_in_sale_hotel(self):
+        return self.bid_seller_condition is not None and (
+            len(
+                SaleHotelController()
+                .get_hdv_by_uid_by_player()
+                .get(self.player_state.character_id, {})
+            )
+            >= self.bid_seller_condition.max_item_per_account
+        )

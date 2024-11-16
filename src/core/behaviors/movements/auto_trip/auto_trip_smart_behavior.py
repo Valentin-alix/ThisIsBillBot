@@ -1,19 +1,18 @@
 from dataclasses import dataclass
 from functools import partial
 
-from d3_mapping.resources.protos.game.gamemap_pb2 import (
+from D3Database.data_center.data_reader import DataReader
+from D3Database.enums.area_enum import AreaEnum
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from data_center.data_reader import DataReader
-from enums.area_enum import AreaEnum
-
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_explorator_behavior import (
     AutoTripExploratorBehavior,
 )
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
+from src.core.engine.npcs.npc_info import NpcInfo
 from src.exceptions import UnhandledErrorCodeException
-from src.interfaces.models.npc_info import NpcInfo
 
 NPC_PORTAL_INCARNAM = NpcInfo(
     npc_map_id=153880835,

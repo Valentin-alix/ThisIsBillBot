@@ -3,12 +3,12 @@ import os
 
 from pydantic import BaseModel, Field
 
-from d3_mapping.consts import (
+from D3Mapping.d3_mapping.consts import (
     GAME_ASSEMBLY_PATH,
     MAPPING_CONN_PROTO_PATH,
     MAPPING_GAME_PROTO_PATH,
 )
-from d3_mapping.models.mapping_info import OutputMappingInfo
+from D3Mapping.d3_mapping.models.mapping_info import OutputMappingInfo
 
 
 class MappingObfToClear(BaseModel):

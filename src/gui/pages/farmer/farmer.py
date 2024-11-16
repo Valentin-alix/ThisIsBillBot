@@ -1,5 +1,5 @@
-from data_center.data_reader import DataReader
-from data_center.i18n import I18N
+from enum import StrEnum
+
 from PyQt5.QtCore import Qt, QThread, pyqtSlot
 from PyQt5.QtWidgets import QHBoxLayout, QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import (
@@ -10,14 +10,25 @@ from qfluentwidgets import (
     TransparentToolButton,
 )
 
-from src.bot import Bot
+from D3Database.data_center.data_reader import DataReader
+from D3Database.data_center.i18n import I18N
 from src.core.behaviors.behavior_factory import USABLE_BEHAVIORS
+from src.core.bot.bot import Bot
 from src.gui.pages.farmer.inventory_tab import InventoryTab
 from src.gui.pages.farmer.map_tab import MapTab
 from src.gui.pages.farmer.player_tab import PlayerTab
 from src.gui.pages.farmer.world_tab import WorldTab
 from src.gui.utils.run_in_background import Worker
-from src.interfaces.enums.bot_action_enum import CraftActionEnum, FarmActionEnum
+
+
+class FarmActionEnum(StrEnum):
+    AUTO = "Automatique"
+    HARVESTER = "Récolte"
+    FIGHTER = "Combat"
+
+
+class CraftActionEnum(StrEnum):
+    CRAFTER = "Craft"
 
 
 class FarmerWidget(PivotItem):

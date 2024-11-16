@@ -6,7 +6,7 @@ from proto_schema_parser import FieldCardinality
 from pydantic import BaseModel
 from scipy.optimize import linear_sum_assignment
 
-from d3_mapping.consts import (
+from D3Mapping.d3_mapping.consts import (
     BASE_RELIABILITY,
     EXTRA_RELIABILITY_ENUM,
     EXTRA_RELIABILITY_MAP,
@@ -15,18 +15,20 @@ from d3_mapping.consts import (
     PROTO_BASE_FIELDS,
     RELIABILITY_BY_PROTO_BASE_FIELDS,
 )
-from d3_mapping.mapping.proto_organization import ProtoOrganization
-from d3_mapping.mapping.validators.field_validators import VALIDATORS_ON_FIELD
-from d3_mapping.mapping.validators.global_validators import (
+from D3Mapping.d3_mapping.mapping.proto_organization import ProtoOrganization
+from D3Mapping.d3_mapping.mapping.validators.field_validators import VALIDATORS_ON_FIELD
+from D3Mapping.d3_mapping.mapping.validators.global_validators import (
     VALIDATORS_GLOBAL_ON_SET_FIELDS,
 )
-from d3_mapping.mapping.validators.proto_field_validators import (
+from D3Mapping.d3_mapping.mapping.validators.proto_field_validators import (
     get_count_defined_msg_field_values,
     is_parsed_obf_msg,
 )
-from d3_mapping.mapping.validators.set_validators import VALIDATORS_ON_SET_FIELDS
-from d3_mapping.models.p_enum import PEnum
-from d3_mapping.models.p_message import PField, PMapField, PMessage
+from D3Mapping.d3_mapping.mapping.validators.set_validators import (
+    VALIDATORS_ON_SET_FIELDS,
+)
+from D3Mapping.d3_mapping.models.p_enum import PEnum
+from D3Mapping.d3_mapping.models.p_message import PField, PMapField, PMessage
 
 
 class ProtoReliabilityCalculator(BaseModel):

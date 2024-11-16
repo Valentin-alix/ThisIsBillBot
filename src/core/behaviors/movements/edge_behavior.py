@@ -2,12 +2,11 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from d3_mapping.resources.protos.game.gamemap_pb2 import MapCurrentEvent
-from data_center.map_reader import MapReader
-from enums.transition_type import TransitionTypeEnum
-from grid.map_point import MapPoint
-from models.world_graph import Edge, Transition
-
+from D3Database.data_center.map_reader import MapReader
+from D3Database.enums.transition_type import TransitionTypeEnum
+from D3Database.grid.map_point import MapPoint
+from D3Database.models.world_graph import Edge, Transition
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import MapCurrentEvent
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import (
     InteractiveBehavior,
@@ -18,13 +17,13 @@ from src.core.behaviors.movements.map_change_behavior import (
     MapChangeError,
 )
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
-from src.core.config.timings import BASE_RANGE
-from src.core.logic.map.path_finding.path_finding import Pathfinding
-from src.core.logic.world.edge import (
-    EXCLUDED_ELEMENT_IDS,
+from src.core.config import BASE_RANGE
+from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
+from src.core.engine.movements.world.edge import (
     FORBIDDEN_EDGE_TRANSITION,
     get_valid_transition,
 )
+from src.core.game_constants import EXCLUDED_ELEMENT_IDS
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -129,7 +128,7 @@ class EdgeBehavior(Behavior):
             return self.run(edge)
 
         move_path_interactive = self.path_finding.get_interactive_near_path(
-            player_mp=self.game_state.player.map_point,
+            player_mp=self.game_state.map.map_point,
             element_mp=MapPoint.from_cell_id(transition.m_cellId),
             skill_ids=[related_skill.skill_id],
         )
@@ -191,7 +190,7 @@ class EdgeBehavior(Behavior):
 
     def use_map_action_transition(self, edge: Edge, transition: Transition):
         move_path = self.path_finding.find_path(
-            self.game_state.player.map_point,
+            self.game_state.map.map_point,
             {MapPoint.from_cell_id(transition.m_cellId)},
         )
         if move_path.end.cell_id != transition.m_cellId:
@@ -229,7 +228,7 @@ class EdgeBehavior(Behavior):
 
     def use_map_change_transition(self, edge: Edge, transition: Transition):
         move_path = self.path_finding.find_path(
-            self.game_state.player.map_point,
+            self.game_state.map.map_point,
             {MapPoint.from_cell_id(transition.m_cellId)},
         )
         if move_path.end.cell_id != transition.m_cellId:
@@ -266,7 +265,7 @@ class EdgeBehavior(Behavior):
                 return self.run_timer(BASE_RANGE, lambda: self.run(edge))
             elif error_code is MapMoveError.REFUSED:
                 self.logger.error(
-                    f"refused map move with mp {self.game_state.player.map_point}"
+                    f"refused map move with mp {self.game_state.map.map_point}"
                 )
                 self.handle_invalid_transition(edge, transition)
                 return self.run_timer(BASE_RANGE, lambda: self.run(edge))

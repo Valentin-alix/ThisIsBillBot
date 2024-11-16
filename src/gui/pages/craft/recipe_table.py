@@ -1,10 +1,10 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QModelIndex, Qt
+from PyQt5.QtCore import QModelIndex, QObject, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QStandardItem
 
-from models.datas.recipe_root import RecipeItem
-from data_center.data_reader import DataReader
-from data_center.i18n import I18N
+from D3Database.data_center.data_reader import DataReader
+from D3Database.data_center.i18n import I18N
+from D3Database.models.datas.recipe_root import RecipeItem
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
 

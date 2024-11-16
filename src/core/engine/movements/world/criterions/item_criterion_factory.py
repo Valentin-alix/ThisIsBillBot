@@ -1,0 +1,112 @@
+from src.core.engine.movements.world.criterions.interface_item_criterion import (
+    IItemCriterion,
+)
+from src.core.engine.movements.world.criterions.item_criterion import (
+    ItemCriterion,
+)
+from src.core.engine.movements.world.criterions.items_criterion.always_valid_item_criterion import (
+    AlwaysValidItemCriterion,
+)
+from src.core.engine.movements.world.criterions.items_criterion.area_item_criterion import (
+    AreaItemCriterion,
+)
+from src.core.engine.movements.world.criterions.items_criterion.breed_item_criterion import (
+    BreedItemCriterion,
+)
+from src.core.engine.movements.world.criterions.items_criterion.day_item_criterion import (
+    DayItemCriterion,
+)
+from src.core.engine.movements.world.criterions.items_criterion.job_item_criterion import (
+    JobItemCriterion,
+)
+from src.core.engine.movements.world.criterions.items_criterion.level_item_criterion import (
+    LevelItemCriterion,
+)
+from src.core.engine.movements.world.criterions.items_criterion.map_characters_item_criterion import (
+    MapCharactersItemCriterion,
+)
+from src.core.engine.movements.world.criterions.items_criterion.map_item_criterion import (
+    MapItemCriterion,
+)
+from src.core.engine.movements.world.criterions.items_criterion.month_item_criterion import (
+    MonthItemCriterion,
+)
+from src.core.engine.movements.world.criterions.items_criterion.object_item_criterion import (
+    ObjectItemCriterion,
+)
+from src.core.engine.movements.world.criterions.items_criterion.static_criterion_item_criterion import (
+    StaticCriterionItemCriterion,
+)
+from src.core.engine.movements.world.criterions.items_criterion.sub_area_item_criterion import (
+    SubareaItemCriterion,
+)
+from src.core.engine.movements.world.criterions.items_criterion.subscribe_item_criterion import (
+    SubscribeItemCriterion,
+)
+
+
+class ItemCriterionFactory:
+    @staticmethod
+    def create(criterion: str) -> IItemCriterion | None:
+        type_criterion = criterion[0:2]
+
+        item_criterion: IItemCriterion | None = None
+
+        if type_criterion in [
+            "Ca",
+            "CA",
+            "ca",
+            "Cc",
+            "CC",
+            "cc",
+            "CD",
+            "Ce",
+            "CE",
+            "CH",
+            "Ci",
+            "CI",
+            "ci",
+            "CL",
+            "CM",
+            "CP",
+            "Cs",
+            "CS",
+            "cs",
+            "Ct",
+            "CT",
+            "Cv",
+            "CV",
+            "cv",
+            "Cw",
+            "CW",
+            "cw",
+        ]:
+            item_criterion = ItemCriterion(criterion)
+        elif type_criterion == "MK":
+            item_criterion = MapCharactersItemCriterion(criterion)
+        elif type_criterion == "PB":
+            item_criterion = SubareaItemCriterion(criterion)
+        elif type_criterion == "PL":
+            item_criterion = LevelItemCriterion(criterion)
+        elif type_criterion == "PO":
+            item_criterion = ObjectItemCriterion(criterion)
+        elif type_criterion == "Po":
+            item_criterion = AreaItemCriterion(criterion)
+        elif type_criterion in ["Pz", "PZ"]:
+            item_criterion = SubscribeItemCriterion(criterion)
+        elif type_criterion == "Sd":
+            item_criterion = DayItemCriterion(criterion)
+        elif type_criterion == "SG":
+            item_criterion = MonthItemCriterion(criterion)
+        elif type_criterion == "Sc":
+            item_criterion = StaticCriterionItemCriterion(criterion)
+        elif type_criterion in ["PJ", "Pj"]:
+            item_criterion = JobItemCriterion(criterion)
+        elif type_criterion == "Pm":
+            item_criterion = MapItemCriterion(criterion)
+        elif type_criterion == "PG":
+            item_criterion = BreedItemCriterion(criterion)
+        elif type_criterion in ["PU", "BI"]:
+            item_criterion = AlwaysValidItemCriterion(criterion)
+
+        return item_criterion

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from d3_mapping.models.p_enum import PEnum
-from d3_mapping.models.p_message import PMessage
+from D3Mapping.d3_mapping.models.p_enum import PEnum
+from D3Mapping.d3_mapping.models.p_message import PMessage
 
 
 @dataclass(frozen=True)

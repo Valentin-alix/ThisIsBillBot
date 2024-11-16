@@ -27,6 +27,7 @@ def profiled_slot(func, threshold_ms=1):
         try:
             return func(*call_args, **kwargs)
         finally:
+            return
             dt = (perf_counter() - start) * 1000
             if dt >= threshold_ms:
                 print(

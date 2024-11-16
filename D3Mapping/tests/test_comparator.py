@@ -1,11 +1,10 @@
 import unittest
 
-from d3_mapping.consts import (
+from D3Mapping.d3_mapping.consts import (
     OBFUSCATED_PROTO_GAME,
     PROTO_GAME_PATH,
 )
-from d3_mapping.factories.p_mapper_factory import PMapperFactory
-
+from D3Mapping.d3_mapping.factories.p_mapper_factory import PMapperFactory
 from tests.utils import ComparisonInfo, test_comparisons
 
 

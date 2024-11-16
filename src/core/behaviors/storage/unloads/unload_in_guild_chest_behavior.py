@@ -1,20 +1,19 @@
 from dataclasses import dataclass, field
 from functools import partial
 
-from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
-from d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
-from d3_mapping.resources.protos.game.exchange_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
+from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeObjectMoveRequest,
 )
-from d3_mapping.resources.protos.game.guild_chest_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.guild_chest_pb2 import (
     GuildChestTabSelectRequest,
 )
-from d3_mapping.resources.protos.game.inventory_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
     InventoryWeightEvent,
     StorageInventoryContentEvent,
 )
-
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
@@ -23,8 +22,8 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestBehavior,
 )
-from src.core.config.timings import BASE_RANGE, SMALL_RANGE
-from src.core.logic.map.path_finding.path_finding import Pathfinding
+from src.core.config import BASE_RANGE, SMALL_RANGE
+from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 
 
 @dataclass

@@ -1,14 +1,14 @@
-from proto_schema_parser import Message, Field
-from proto_schema_parser.ast import OneOf, Enum, MapField
+from proto_schema_parser import Field, Message
+from proto_schema_parser.ast import Enum, MapField, OneOf
 
-from d3_mapping.exceptions import UnhandledTypeCase
-from d3_mapping.factories.p_enum_factory import PEnumFactory
-from d3_mapping.models.p_enum import PEnum
-from d3_mapping.models.p_message import (
-    PMessage,
-    POneOf,
+from D3Mapping.d3_mapping.exceptions import UnhandledTypeCase
+from D3Mapping.d3_mapping.factories.p_enum_factory import PEnumFactory
+from D3Mapping.d3_mapping.models.p_enum import PEnum
+from D3Mapping.d3_mapping.models.p_message import (
     PField,
     PMapField,
+    PMessage,
+    POneOf,
 )
 
 

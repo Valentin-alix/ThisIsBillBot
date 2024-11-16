@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import SingleDirectionScrollArea, SmoothMode
 
-from src.bot import Bot
+from src.core.bot.bot import Bot
 from src.gui.pages.farmer.player_info.player_info_widget import PlayerInfoWidget
 
 

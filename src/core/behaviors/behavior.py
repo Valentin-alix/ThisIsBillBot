@@ -3,10 +3,10 @@ from dataclasses import dataclass, field
 from threading import Event, Timer
 from typing import Callable
 
-from src.common.logger import Logger
-from src.common.timing import get_random_range
+from src.core.events_manager.event_manager import EventManager
 from src.core.states.game_state import GameState
-from src.event_manager import EventManager
+from src.services.human_timings import get_random_range
+from src.services.logging.logger import Logger
 
 
 @dataclass

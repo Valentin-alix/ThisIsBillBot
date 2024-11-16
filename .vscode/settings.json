@@ -12,14 +12,15 @@
     "**/legacy/**": true
   },
   "search.exclude": {
-    "**/legacy/**": true
+    "**/legacy/**": true,
+    "**/__pycache__/**": true
   },
   "python.envFile": "${workspaceFolder}/.paths.env",
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
     "README.md": "TODO.md",
-    "pyproject.toml": "poetry.toml,poetry.lock,.paths.env,.gitmodules,setup_venv.sh,scraping_d3.yaml,uv.lock,.gitignore,.env,.env.example",
+    "pyproject.toml": "poetry.toml,poetry.lock,.paths.env,.gitmodules,setup_venv.sh,scraping_d3.yaml,uv.lock,.gitignore,.env,.env.example,mypy.ini",
     "__main__.spec": "build"
   },
 }

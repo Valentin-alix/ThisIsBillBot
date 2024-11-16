@@ -1,43 +1,41 @@
 from dataclasses import dataclass
 from typing import cast
 
-from d3_mapping.resources.protos.game.common_pb2 import (
+from D3Database.grid.map_point import MapPoint
+from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
     ActorPositionInformation,
     Direction,
     SpawnInformation,
 )
-from d3_mapping.resources.protos.game.context_pb2 import (
-    ContextRemoveElementEvent,
+from D3Mapping.d3_mapping.resources.protos.game.context_pb2 import (
     EntitiesDispositionEvent,
 )
-from d3_mapping.resources.protos.game.fight_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.fight_pb2 import (
     FightFighterRefreshEvent,
     FightFighterShowEvent,
     FightSynchronizeEvent,
 )
-from d3_mapping.resources.protos.game.game_action_pb2 import GameActionFightEvent
-from d3_mapping.resources.protos.game.gamemap_pb2 import (
-    GameRolePlayShowActorsEvent,
+from D3Mapping.d3_mapping.resources.protos.game.game_action_pb2 import (
+    GameActionFightEvent,
+)
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
     MapMovementEvent,
     MapMovementRefusedEvent,
     MapTeleportOnSameEvent,
 )
-from grid.map_point import MapPoint
-
-from src.core.frames.frame import Frame
-from src.interfaces.aliases import (
+from src.core.engine.monsters.monster_group import (
     AIFighter,
     EntityFighterInformation,
     MonsterFighter,
     NamedFighterInformation,
 )
+from src.core.frames.frame import Frame
 
 
 @dataclass
 class EntityFrame(Frame):
     def __post_init__(self):
-        self.game_info_signals.disconnected.connect(self.game_state.entity.clear_state)
         self.event_manager.on(
             MapComplementaryInformationEvent,
             self.on_map_complementary_info_event,
@@ -47,18 +45,6 @@ class EntityFrame(Frame):
         self.event_manager.on(
             MapMovementEvent,
             self.on_map_movement_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            GameRolePlayShowActorsEvent,
-            self.on_game_role_play_show_actors_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            ContextRemoveElementEvent,
-            self.on_context_remove_element_event,
             originator=self,
             priority=self.priority,
         )
@@ -115,14 +101,6 @@ class EntityFrame(Frame):
         self.game_state.entity.update_actor_disposition(
             message.character_id, message.direction, message.cells[-1]
         )
-
-    def on_game_role_play_show_actors_event(self, message: GameRolePlayShowActorsEvent):
-        for actor in message.actors:
-            self.game_state.entity.set_actor(actor)
-
-    def on_context_remove_element_event(self, message: ContextRemoveElementEvent):
-        if message.element_id in self.game_state.entity.actor_by_id:
-            self.game_state.entity.remove_actor(message.element_id)
 
     def on_entities_disposition_event(self, msg: EntitiesDispositionEvent):
         for disposition in msg.dispositions:
@@ -280,7 +258,7 @@ class EntityFrame(Frame):
         )
 
     def on_map_movement_refused_event(self, msg: MapMovementRefusedEvent):
-        if self.game_state.map._is_in_map_transition or (
+        if self.game_state.map.is_in_map_transition or (
             msg.cell_x == 0 and msg.cell_y == 0
         ):
             return

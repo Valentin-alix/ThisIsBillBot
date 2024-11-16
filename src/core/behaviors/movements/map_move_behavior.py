@@ -2,25 +2,24 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from d3_mapping.resources.protos.game.basic_pb2 import TextInformationEvent
-from d3_mapping.resources.protos.game.game_action_pb2 import (
+from D3Database.grid.map_point import MapPoint
+from D3Mapping.d3_mapping.resources.protos.game.basic_pb2 import TextInformationEvent
+from D3Mapping.d3_mapping.resources.protos.game.game_action_pb2 import (
     GameActionAcknowledgementRequest,
     SequenceEndEvent,
     SequenceType,
 )
-from d3_mapping.resources.protos.game.gamemap_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapMovementConfirmRequest,
     MapMovementConfirmResponse,
     MapMovementEvent,
     MapMovementRefusedEvent,
     MapMovementRequest,
 )
-from grid.map_point import MapPoint
-
 from src.core.behaviors.behavior import Behavior
-from src.core.logic.map.path_finding.movement_path import MovementPath
-from src.core.logic.map.path_finding.path_finding import Pathfinding
-from src.interfaces.enums.text_id_enum import TextEnum
+from src.core.engine.communications.text import TextEnum
+from src.core.engine.movements.map.path_finding.movement_path import MovementPath
+from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 
 
 class MapMoveError(StrEnum):
@@ -39,13 +38,13 @@ class MapMoveBehavior(Behavior):
 
     def run(self, move_path: MovementPath):
         self.logger.info(f"Going to : {move_path.end}")
-        if self.game_state.player.map_point != move_path.start:
+        if self.game_state.map.map_point != move_path.start:
             self.logger.warning(
-                f"Player is not at starting move path, he is at {self.game_state.player.map_point}, invalid move path"
+                f"Player is not at starting move path, he is at {self.game_state.map.map_point}, invalid move path"
             )
             return self.finish(MapMoveError.INVALID_STARTING_POINT)
 
-        if self.game_state.player.map_point.cell_id == move_path.end.cell_id:
+        if self.game_state.map.map_point.cell_id == move_path.end.cell_id:
             return self.finish()
 
         key_cells = move_path.get_key_cells()
@@ -117,7 +116,7 @@ class MapMoveBehavior(Behavior):
         if msg.action_id == target_action_id:
             if self._cell_is_taken:
                 return self.finish(MapMoveError.CELL_TAKEN)
-            if self.game_state.player.map_point != end_mp:
+            if self.game_state.map.map_point != end_mp:
                 self.logger.info("Movement was canceled.")
                 return self.finish(MapMoveError.CANCELED_MOVEMENT)
             self.finish()

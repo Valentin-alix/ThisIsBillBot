@@ -1,21 +1,21 @@
 from dataclasses import dataclass
 from functools import partial
 
-from d3_mapping.resources.protos.game.gamemap_pb2 import (
+from D3Database.data_center.data_reader import DataReader
+from D3Database.data_center.i18n import I18N
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from data_center.data_reader import DataReader
-from data_center.i18n import I18N
-
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.fight.attacker_behavior import AttackerBehavior
+from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
-from src.core.config.timings import ON_NEW_MAP_BEFORE_ACTION
-from src.core.logic.dungeons.consts import DUNGEONS_INFOS
-from src.core.logic.dungeons.dungeons import DungeonInfo, do_have_key_access_to_dungeon
+from src.core.config import ON_NEW_MAP_BEFORE_ACTION
+from src.core.engine.dungeons.dungeon_access import do_have_key_access_to_dungeon
+from src.core.engine.dungeons.dungeon_info import DungeonInfo
+from src.core.game_constants import DUNGEONS_INFOS
 from src.exceptions import UnhandledErrorCodeException
 
 

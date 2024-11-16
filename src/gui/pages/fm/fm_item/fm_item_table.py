@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QLabel, QLineEdit
 
+from src.core.engine.fms.equipment import EquipmentSchema, LineSchema, StatSchema
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
-from src.interfaces.models.equipment import EquipmentSchema, LineSchema, StatSchema
 
 
 class FmItemTable(BaseTableWidget):

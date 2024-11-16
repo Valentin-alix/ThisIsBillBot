@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from threading import Thread
 from typing import Iterable
 
-from d3_mapping.resources.protos.game.exchange_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeBidHouseItemAddedEvent,
     ExchangeBidHouseItemRemovedEvent,
     ExchangeBidHouseSearchRequest,
@@ -11,20 +11,21 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeTypesItemsExchangerDescriptionForUserEvent,
     ObjectAveragePricesEvent,
 )
-
 from src.const import BACKEND_URL
 from src.controller.sale_hotel import SaleHotelController
-from src.controller.scraping_d3_client.scraping_d3_client.api.default import (
+from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.api.default import (
     bulk_insert_item_price_history_item_price_history_bulk_insert_post,
 )
-from src.controller.scraping_d3_client.scraping_d3_client.client import Client
-from src.controller.scraping_d3_client.scraping_d3_client.models.create_item_price_history_schema import (
+from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.client import (
+    Client,
+)
+from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.models.create_item_price_history_schema import (
     CreateItemPriceHistorySchema,
 )
-from src.controller.scraping_d3_client.scraping_d3_client.models.quantity_enum import (
+from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.models.quantity_enum import (
     QuantityEnum,
 )
-from src.core.config.auto import DO_REGISTER_PRICE
+from src.core.config import DO_REGISTER_PRICE, get_time_beween_sale_hotel_prices
 from src.core.frames.frame import Frame
 
 
@@ -78,6 +79,9 @@ class SaleHotelFrame(Frame):
         )
 
     def on_exchange_bid_seller_started_event(self, msg: ExchangeBidSellerStartedEvent):
+        self.game_state.sale_hotel.timedelta_for_next_sale_hotel_prices = (
+            get_time_beween_sale_hotel_prices()
+        )
         self.game_state.sale_hotel.bid_seller_condition = msg.selling_conditions
         SaleHotelController().update_hdv(
             self.game_state.player.character_id,

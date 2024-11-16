@@ -1,13 +1,12 @@
 from dataclasses import dataclass
 
-from d3_mapping.resources.protos.game.chat_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.chat_pb2 import (
     Channel,
     ChatChannelMessageEvent,
     ChatPrivateMessageRequest,
 )
-
 from src.core.frames.frame import Frame
-from src.core.logic.chat.human_response import HumanResponse
+from src.services.ai.human_response import HumanResponse
 
 
 @dataclass

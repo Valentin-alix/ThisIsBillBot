@@ -1,7 +1,8 @@
 from typing import Mapping
+
 from pydantic import BaseModel
 
-from d3_mapping.utils import Percentage
+from D3Mapping.d3_mapping.utils import Percentage
 
 
 class BaseMappingInfo(BaseModel):

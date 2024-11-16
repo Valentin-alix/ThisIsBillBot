@@ -1,9 +1,0 @@
-from d3_mapping.resources.protos.game.common_pb2 import ActorPositionInformation
-
-FightFighterInformation = (
-    ActorPositionInformation.ActorInformation.FightFighterInformation
-)
-AIFighter = FightFighterInformation.AIFighterInformation
-MonsterFighter = AIFighter.MonsterFighter
-NamedFighterInformation = FightFighterInformation.NamedFighterInformation
-EntityFighterInformation = FightFighterInformation.EntityFighterInformation

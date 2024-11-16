@@ -1,12 +1,11 @@
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
 from threading import Timer
 
-from d3_mapping.resources.protos.game.dialog_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import (
     DialogLeaveRequest,
 )
-from d3_mapping.resources.protos.game.exchange_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeAcceptRequest,
     ExchangeKamaModifiedEvent,
     ExchangeLeaveEvent,
@@ -16,9 +15,8 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeRequestedTradeEvent,
     ExchangeStartedWithPodsEvent,
 )
-
-from src.controller.scraping_d3 import ScrapingD3Controller
-from src.controller.scraping_d3_client.scraping_d3_client.models.character_action_enum import (
+from src.controller.scraping_d3_api.scraping_d3 import ScrapingD3Controller
+from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.models.character_action_enum import (
     CharacterActionEnum,
 )
 from src.core.behaviors.behavior import Behavior
@@ -32,11 +30,10 @@ from src.core.behaviors.sale_hotel.sale_hotel_scraping_behavior import (
     SaleHotelScrapingBehavior,
 )
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
-from src.core.config.mule import MULE_BANK_MAP_ID
-from src.core.config.storage import USEFUL_UNLOAD
-from src.core.config.timings import (
+from src.core.config import (
     BASE_RANGE,
-    get_time_beween_sale_hotel_prices,
+    MULE_BANK_MAP_ID,
+    USEFUL_UNLOAD,
 )
 from src.exceptions import UnhandledErrorCodeException
 
@@ -48,9 +45,6 @@ class MuleAcceptBehavior(Behavior):
     sale_hotel_prices_behavior: SaleHotelPricesBehavior
     sale_hotel_scraping_behavior: SaleHotelScrapingBehavior
 
-    _timedelta_for_sale_hotel_prices: timedelta = field(
-        init=False, default_factory=get_time_beween_sale_hotel_prices
-    )
     _step: int = field(init=False, default=0)
     _time_since_activity: float = field(init=False, default_factory=time.perf_counter)
     _timer_go_scraping: Timer | None = field(init=False, default=None)
@@ -75,11 +69,7 @@ class MuleAcceptBehavior(Behavior):
         )
 
     def on_bank_map(self):
-        if (
-            datetime.now() - self.game_state.sale_hotel.last_time_updated_prices
-            > self._timedelta_for_sale_hotel_prices
-        ):
-            self._timedelta_for_sale_hotel_prices = get_time_beween_sale_hotel_prices()
+        if self.game_state.sale_hotel.should_update_price:
             return self.sale_hotel_prices_behavior.start(
                 callback=self.on_sale_hotel_price_behavior_finished, parent=self
             )

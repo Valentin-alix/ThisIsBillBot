@@ -3,10 +3,10 @@ from threading import RLock
 
 import msgspec
 from cachetools import TTLCache, cached
-from enums.jobs_enum import JobEnum
 
+from D3Database.enums.jobs_enum import JobEnum
 from src.const import RESOURCE_FOLDER
-from src.interfaces.metaclasses.singleton import Singleton
+from src.utils.metaclasses.singleton import Singleton
 
 TTL_CACHE = TTLCache(maxsize=100, ttl=60 * 60 * 3 * 1000)
 
@@ -21,11 +21,9 @@ class GfxMappingController(metaclass=Singleton):
     )
 
     @cached(TTL_CACHE)
-    def get_item_job_by_gfx(self) -> dict[int, tuple[int, JobEnum]]:
+    def get_item_job_by_gfx(self) -> dict[int, tuple[int, int]]:
         with self._GFX_TO_ITEM_LOCK, open(self._GFX_TO_ITEM_PATH, "rb+") as file:
-            content = msgspec.json.decode(
-                file.read(), type=dict[int, tuple[int, JobEnum]]
-            )
+            content = msgspec.json.decode(file.read(), type=dict[int, tuple[int, int]])
         return content
 
     def add_multiple_item_job_by_gfx(

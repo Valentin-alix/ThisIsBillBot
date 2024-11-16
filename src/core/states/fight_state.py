@@ -2,24 +2,28 @@ import dataclasses
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from d3_mapping.resources.protos.game.common_pb2 import (
+from D3Database.enums.characteristic_enum import CharacteristicEnum
+from D3Database.enums.effect_element import EffectElement
+from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+    ActorPositionInformation,
     ChallengeMod,
+    CharacterCharacteristic,
     SpellModifier,
     SpellModifierType,
 )
-from d3_mapping.resources.protos.game.spell_pb2 import SpellItem
-from enums.characteristic_enum import CharacteristicEnum
-from enums.effect_element import EffectElement
-
-from src.core.logic.fight.effect import get_effect_elem_by_stat
+from D3Mapping.d3_mapping.resources.protos.game.spell_pb2 import SpellItem
+from src.core.engine.fights.effect import get_effect_elem_by_stat
+from src.core.engine.fights.stats.characteristic import get_stat_by_id
+from src.core.signals.player_signals import GameInfoSignals
+from src.core.states.entity_state import EntityState
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State
-from src.signals.player_signals import GameInfoSignals
 
 
 @dataclass
 class FightState(State):
     player_state: PlayerState
+    entity_state: EntityState
     game_info_signals: GameInfoSignals
 
     is_map_fight_initialized: bool = field(init=False, default=False)
@@ -27,18 +31,21 @@ class FightState(State):
         default_factory=list, init=False
     )
     _is_our_turn: bool = field(default=False, init=False)
-    challenge_mod: ChallengeMod = field(
-        init=False, default=ChallengeMod.CHALLENGE_CHOICE
-    )
     spells: list[SpellItem] = dataclasses.field(init=False, default_factory=list)
     modifier_by_type_and_spell_id: dict[
         tuple[int, SpellModifierType], SpellModifier
     ] = dataclasses.field(init=False, default_factory=dict)
-    count_casted_by_spell_id: dict[int, int] = dataclasses.field(
+    count_casted_by_spell_id_on_current_turn: dict[int, int] = dataclasses.field(
         default_factory=lambda: defaultdict(int), init=False
     )
+    characteristic_by_id: dict[int, CharacterCharacteristic] = dataclasses.field(
+        init=False, default_factory=dict
+    )
+    _breed_id: int = dataclasses.field(init=False, default=0)
     _in_fight: bool = dataclasses.field(init=False, default=False)
     _fight_turn: int = dataclasses.field(init=False, default=0)
+    _life_point: int = dataclasses.field(init=False, default=1)
+    _max_life_point: int = dataclasses.field(init=False, default=1)
 
     def clear_state(self):
         self.is_map_fight_initialized = False
@@ -47,8 +54,56 @@ class FightState(State):
         self.challenge_mod = ChallengeMod.CHALLENGE_CHOICE
         self.spells.clear()
         self.modifier_by_type_and_spell_id.clear()
-        self.count_casted_by_spell_id.clear()
+        self.count_casted_by_spell_id_on_current_turn.clear()
         self.in_fight = False
+        self.life_point = 1
+        self.max_life_point = 1
+        self.fight_turn = 0
+        self.characteristic_by_id.clear()
+
+    def get_stat_by_id(self, characteristic: int) -> int:
+        value = get_stat_by_id(self.characteristic_by_id.get(characteristic))
+        return value
+
+    @property
+    def breed_id(self):
+        return self._breed_id
+
+    @breed_id.setter
+    def breed_id(self, value: int):
+        self._breed_id = value
+        self.game_info_signals.breed_id.emit(value)
+
+    @property
+    def max_life_point(self):
+        return max(self._max_life_point, 1)
+
+    @max_life_point.setter
+    def max_life_point(self, value: int):
+        self.game_info_signals.max_life_point.emit(value)
+        self._max_life_point = value
+
+    @property
+    def life_percentage(self):
+        return self.life_point / self.max_life_point
+
+    @property
+    def fight_turn(self):
+        return self._fight_turn
+
+    @fight_turn.setter
+    def fight_turn(self, value: int):
+        self.game_info_signals.fight_turn.emit(value)
+        self._fight_turn = value
+
+    @property
+    def life_point(self):
+        return max(self._life_point, 1)
+
+    @life_point.setter
+    def life_point(self, value: int):
+        self.game_info_signals.life_point.emit(value)
+        self._life_point = value
 
     @property
     def in_fight(self):
@@ -67,9 +122,7 @@ class FightState(State):
             CharacteristicEnum.INTELLIGENCE,
             CharacteristicEnum.CHANCE,
         ]
-        return list(
-            sorted(dmg_stats, key=self.player_state.get_player_stat_by_id, reverse=True)
-        )
+        return list(sorted(dmg_stats, key=self.get_stat_by_id, reverse=True))
 
     @property
     def primary_and_second_elem(self) -> tuple[EffectElement, EffectElement]:
@@ -87,3 +140,14 @@ class FightState(State):
     def is_our_turn(self, value: bool):
         self._is_our_turn = value
         self.game_info_signals.is_our_turn.emit(value)
+
+    def get_enemies(self, character_id: int) -> list[ActorPositionInformation]:
+        enemies = [
+            actor
+            for actor in self.entity_state.actor_by_id.values()
+            if actor.actor_id != character_id and actor.disposition.cell_id != -1
+            # and actor.actor_id in self.actor_fight_by_id
+        ]
+        self.logger.info(f"Found {len(enemies)}")
+
+        return enemies

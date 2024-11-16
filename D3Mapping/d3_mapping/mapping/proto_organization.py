@@ -1,6 +1,6 @@
-from d3_mapping.consts import PROTO_BASE_FIELDS
-from d3_mapping.models.p_enum import PEnum
-from d3_mapping.models.p_message import PField, PMapField, PMessage, POneOf
+from D3Mapping.d3_mapping.consts import PROTO_BASE_FIELDS
+from D3Mapping.d3_mapping.models.p_enum import PEnum
+from D3Mapping.d3_mapping.models.p_message import PField, PMapField, PMessage, POneOf
 
 
 class ProtoOrganization:

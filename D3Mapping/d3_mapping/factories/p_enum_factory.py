@@ -1,7 +1,7 @@
 from proto_schema_parser.ast import Enum, EnumValue
 
-from d3_mapping.exceptions import UnhandledTypeCase
-from d3_mapping.models.p_enum import PEnum, PEnumElement
+from D3Mapping.d3_mapping.exceptions import UnhandledTypeCase
+from D3Mapping.d3_mapping.models.p_enum import PEnum, PEnumElement
 
 
 class PEnumFactory:

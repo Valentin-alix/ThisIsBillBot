@@ -5,8 +5,8 @@ from typing import Any
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import DecodeError, Message
 
-from d3_mapping.models.message import MessageInfo
-from d3_mapping.resources.protos.connection.login_message_pb2 import (
+from D3Mapping.d3_mapping.models.message import MessageInfo
+from D3Mapping.d3_mapping.resources.protos.connection.login_message_pb2 import (
     Event,
     LoginMessage,
     Request,

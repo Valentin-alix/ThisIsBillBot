@@ -1,10 +1,5 @@
 import sys
 
-from d3_mapping.resources.protos.game.common_pb2 import StatedElement
-from data_center.map_reader import MapReader
-from grid.consts import CELL_HEIGHT, CELL_WIDTH
-from grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
-from models.datas.collectionsroot import Collectable
 from PyQt5.QtCore import QPointF, Qt, pyqtSlot
 from PyQt5.QtGui import QColor, QFont, QPainter, QPen, QPolygonF
 from PyQt5.QtWidgets import (
@@ -16,9 +11,14 @@ from PyQt5.QtWidgets import (
     QGraphicsView,
 )
 
+from D3Database.data_center.map_reader import MapReader
+from D3Database.grid.consts import CELL_HEIGHT, CELL_WIDTH
+from D3Database.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
+from D3Database.models.datas.collectionsroot import Collectable
+from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import StatedElement
+from src.core.signals.grid_signals import GridSignals
+from src.core.signals.world_signals import MapSignals
 from src.gui.utils.profiling import profiled_slot
-from src.signals.grid_signals import GridSignals
-from src.signals.world_signals import MapSignals
 
 CELL_BORDER_COLOR = QColor("#A9A9A9")
 CELL_TEXT_COLOR = Qt.black
@@ -152,11 +152,20 @@ class GridView(QGraphicsView):
         self.grid_signals.count_actor_on_cell_id.connect(
             profiled_slot(self.on_new_count_actor_on_cell_id)
         )
+        self.grid_signals.count_actor_on_cell_id_batch.connect(
+            profiled_slot(self.on_new_count_actor_on_cell_id_batch)
+        )
         self.grid_signals.set_stated_element_on_cell_id.connect(
             profiled_slot(self.on_set_stated_element_on_cell_id)
         )
+        self.grid_signals.set_stated_element_on_cell_id_batch.connect(
+            profiled_slot(self.on_set_stated_element_on_cell_id_batch)
+        )
         self.grid_signals.set_obstacle_on_cell_id.connect(
             profiled_slot(self.on_set_obstacle_on_cell_id)
+        )
+        self.grid_signals.set_obstacle_on_cell_id_batch.connect(
+            profiled_slot(self.on_set_obstacle_on_cell_id_batch)
         )
         self.grid_signals.new_map_id.connect(profiled_slot(self.on_new_map_id))
 
@@ -225,6 +234,12 @@ class GridView(QGraphicsView):
         mp = MapPoint.from_cell_id(cell_id)
         self.cell_state_by_coord[(mp.x, mp.y)].set_count_actor(count_actor)
 
+    @pyqtSlot(list)
+    def on_new_count_actor_on_cell_id_batch(self, items: list[tuple[int, int]]):
+        for cell_id, count_actor in items:
+            mp = MapPoint.from_cell_id(cell_id)
+            self.cell_state_by_coord[(mp.x, mp.y)].set_count_actor(count_actor)
+
     @pyqtSlot(int, object, object)
     def on_set_stated_element_on_cell_id(
         self,
@@ -237,10 +252,26 @@ class GridView(QGraphicsView):
             stated_element, collectable
         )
 
+    @pyqtSlot(list)
+    def on_set_stated_element_on_cell_id_batch(
+        self, items: list[tuple[int, StatedElement | None, Collectable | None]]
+    ):
+        for cell_id, stated_element, collectable in items:
+            mp = MapPoint.from_cell_id(cell_id)
+            self.cell_state_by_coord[(mp.x, mp.y)].set_state_element(
+                stated_element, collectable
+            )
+
     @pyqtSlot(int, bool)
     def on_set_obstacle_on_cell_id(self, cell_id: int, is_obstacle: bool):
         mp = MapPoint.from_cell_id(cell_id)
         self.cell_state_by_coord[(mp.x, mp.y)].set_is_obstacle(is_obstacle)
+
+    @pyqtSlot(list)
+    def on_set_obstacle_on_cell_id_batch(self, items: list[tuple[int, bool]]):
+        for cell_id, is_obstacle in items:
+            mp = MapPoint.from_cell_id(cell_id)
+            self.cell_state_by_coord[(mp.x, mp.y)].set_is_obstacle(is_obstacle)
 
     @pyqtSlot(MapPoint)
     def on_debug_white_cell(self, mp: MapPoint):

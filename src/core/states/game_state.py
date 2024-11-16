@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from src.core.states.craft_state import CraftState
 from src.core.states.entity_state import EntityState
 from src.core.states.fight_state import FightState
 from src.core.states.guild_chest_state import GuildChestState
@@ -20,3 +21,4 @@ class GameState:
     player: PlayerState
     guild_chest: GuildChestState
     sale_hotel: SaleHotelState
+    craft: CraftState

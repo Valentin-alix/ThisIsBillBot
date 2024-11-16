@@ -1,18 +1,15 @@
 from dataclasses import dataclass
 
-from d3_mapping.resources.protos.game.gamemap_pb2 import (
+from D3Database.data_center.data_reader import DataReader
+from D3Database.data_center.map_reader import MapReader
+from D3Database.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from d3_mapping.resources.protos.game.interactive_element_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.interactive_element_pb2 import (
     InteractiveElementUpdatedEvent,
-    InteractiveMapUpdateEvent,
     StatedElementUpdatedEvent,
-    StatedMapUpdateEvent,
 )
-from data_center.data_reader import DataReader
-from data_center.map_reader import MapReader
-from enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
-
 from src.controller.gfx_mapping import GfxMappingController
 from src.core.frames.frame import Frame
 
@@ -20,30 +17,9 @@ from src.core.frames.frame import Frame
 @dataclass
 class InteractiveFrame(Frame):
     def __post_init__(self):
-        self.game_info_signals.disconnected.connect(
-            self.game_state.interactive.clear_state
-        )
         self.event_manager.on(
             MapComplementaryInformationEvent,
             self.on_map_complementary_information_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            InteractiveMapUpdateEvent,
-            self.on_interactive_map_update_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            InteractiveElementUpdatedEvent,
-            self.on_interactive_element_updated_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            StatedMapUpdateEvent,
-            self.on_stated_map_update_event,
             originator=self,
             priority=self.priority,
         )
@@ -96,18 +72,10 @@ class InteractiveFrame(Frame):
         GfxMappingController().add_multiple_item_job_by_gfx(item_and_job_by_gfx_array)
         GfxMappingController().add_map_id_checked(message.map_id)
 
-    def on_interactive_map_update_event(self, msg: InteractiveMapUpdateEvent):
-        self.game_state.interactive.interactive_element_by_id = {
-            element.element_id: element for element in msg.interactive_elements
-        }
-
     def on_interactive_element_updated_event(self, msg: InteractiveElementUpdatedEvent):
         self.game_state.interactive.interactive_element_by_id[
             msg.interactive_element.element_id
         ] = msg.interactive_element
-
-    def on_stated_map_update_event(self, msg: StatedMapUpdateEvent):
-        self.game_state.interactive.set_stated_elements(msg.stated_elements)
 
     def on_stated_element_updated_event(self, msg: StatedElementUpdatedEvent):
         self.game_state.interactive.set_stated_element(msg.stated_element)

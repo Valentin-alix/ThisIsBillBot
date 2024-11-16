@@ -1,18 +1,17 @@
 from dataclasses import dataclass
 
-from d3_mapping.resources.protos.game.exchange_pb2 import (
+from D3Database.enums.category_item_enum import CategoryEnum
+from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeBidSellerStartedEvent,
 )
-from d3_mapping.resources.protos.game.npc_pb2 import NpcGenericActionRequest
-from enums.category_item_enum import CategoryEnum
-
+from D3Mapping.d3_mapping.resources.protos.game.npc_pb2 import NpcGenericActionRequest
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
     EnterSaleHotelBehavior,
 )
-from src.core.config.timings import BASE_RANGE
+from src.core.config import BASE_RANGE
+from src.core.engine.npcs.npc_info import NpcInfo
 from src.exceptions import UnhandledErrorCodeException
-from src.interfaces.models.npc_info import NpcInfo
 
 
 @dataclass

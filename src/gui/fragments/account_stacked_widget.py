@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import SegmentedWidget
 
-from src.bot import Bot
+from src.core.bot.bot import Bot
 from src.const import DEBUG
 from src.gui.pages.craft.craft_page import CraftPage
 from src.gui.pages.debugs.sniffer import SnifferWidget

@@ -3,26 +3,27 @@ from typing import Any
 
 from tqdm import tqdm
 
-from db_dofus_unity.generator.struct import gen_model
-from models.datas.dungeons_root import DungeonsRoot
-from models.datas.npc_actions_root import NpcActionsRoot
-from models.datas.npc_messages_root import NpcMessagesRoot
-from models.datas.npcs_root import NpcsRoot
-
-
-from db_dofus_unity.generator.i18n import I18NReader
-
+from D3Database.consts import (
+    D3_DATA,
+    D3_MAP,
+    D3_STANDALONE,
+    OUTPUT_CLASS_DATAS,
+)
 from D3Database.models.datas.areas_root import AreasRoot
 from D3Database.models.datas.characteristic_category_root import (
     CharacteristicCategoriesRoot,
 )
 from D3Database.models.datas.characteristic_root import CharacteristicsRoot
+from D3Database.models.datas.dungeons_root import DungeonsRoot
 from D3Database.models.datas.effects_root import EffectsRoot
 from D3Database.models.datas.item_type_root import ItemsTypeRoot
 from D3Database.models.datas.items_root import ItemsRoot
 from D3Database.models.datas.jobs_root import JobsRoot
 from D3Database.models.datas.map_positions_root import MapPositionsRoot
 from D3Database.models.datas.monsters_root import MonstersRoot
+from D3Database.models.datas.npc_actions_root import NpcActionsRoot
+from D3Database.models.datas.npc_messages_root import NpcMessagesRoot
+from D3Database.models.datas.npcs_root import NpcsRoot
 from D3Database.models.datas.quest_objectives_root import QuestObjectivesRoot
 from D3Database.models.datas.quests_root import QuestsRoot
 from D3Database.models.datas.recipe_root import RecipeRoot
@@ -34,21 +35,15 @@ from D3Database.models.datas.sub_areas_root import SubAreasRoot
 from D3Database.models.datas.waypoints_root import WaypointsRoot
 from D3Database.models.maps import MapDataRoot
 from D3Database.models.world_graph import WorldGraphData
-from db_dofus_unity.generator.data_cleaning import clean_data_to_output
-
-
-from db_dofus_unity.consts import (
+from DBDofusUnity.db_dofus_unity.consts import (
     PATH_DATAS,
     PATH_MAPS,
     PATH_STANDALONE_BUNDLES,
     UABEA_PATH_EXE,
 )
-from D3Database.consts import (
-    D3_STANDALONE,
-    D3_MAP,
-    D3_DATA,
-    OUTPUT_CLASS_DATAS,
-)
+from DBDofusUnity.db_dofus_unity.generator.data_cleaning import clean_data_to_output
+from DBDofusUnity.db_dofus_unity.generator.i18n import I18NReader
+from DBDofusUnity.db_dofus_unity.generator.struct import gen_model
 
 
 def get_world_graph_datas():

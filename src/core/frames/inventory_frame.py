@@ -1,20 +1,20 @@
 from dataclasses import dataclass
 
-from d3_mapping.resources.protos.game.exchange_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeLeaveEvent,
+    ExchangeMoveKamaRequest,
     ExchangeObjectMovePricedRequest,
     ExchangeObjectMoveRequest,
     ExchangeObjectTransferAllFromInventoryRequest,
     ExchangeStartedWithStorageEvent,
 )
-from d3_mapping.resources.protos.game.inventory_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
     InventoryContentEvent,
+    InventoryWeightEvent,
     ObjectAddedEvent,
     ObjectQuantityEvent,
-    ObjectsAddedEvent,
     StorageInventoryContentEvent,
 )
-
 from src.core.frames.frame import Frame
 
 
@@ -48,12 +48,6 @@ class InventoryFrame(Frame):
             priority=self.priority,
         )
         self.event_manager.on(
-            ObjectsAddedEvent,
-            self.on_objects_added_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
             ObjectQuantityEvent,
             self.on_object_quantity_event,
             originator=self,
@@ -65,11 +59,18 @@ class InventoryFrame(Frame):
             originator=self,
             priority=self.priority,
         )
-
-    def on_exchange_object_move_priced_request(
-        self, message: ExchangeObjectMovePricedRequest
-    ):
-        self.on_move_object_inventory(message.object_uid, message.quantity, None)
+        self.event_manager.on(
+            InventoryWeightEvent,
+            self.on_inventory_weight_event,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            ExchangeMoveKamaRequest,
+            self.on_exchange_move_kama_request,
+            originator=self,
+            priority=self.priority,
+        )
 
     def on_object_quantity_event(self, message: ObjectQuantityEvent):
         self.game_state.inventory.objects_by_uid[
@@ -80,22 +81,16 @@ class InventoryFrame(Frame):
         )
 
     def on_inventory_content_event(self, msg: InventoryContentEvent):
-        self.game_state.inventory.objects_by_uid.clear()
-        for object in msg.objects:
-            self.game_state.inventory.objects_by_uid[object.item.uid] = object
+        self.game_state.inventory.set_objects(list(msg.objects))
         self.game_state.inventory.kamas = msg.kamas
 
     def on_exchange_object_transfer_all_from_inventory_request(
         self, msg: ExchangeObjectTransferAllFromInventoryRequest
     ):
-        self.game_state.inventory.objects_by_uid.clear()
+        self.game_state.inventory.clear_inventory()
 
     def on_object_added_event(self, msg: ObjectAddedEvent):
-        self.game_state.inventory.objects_by_uid[msg.object.item.uid] = msg.object
-
-    def on_objects_added_event(self, msg: ObjectsAddedEvent):
-        for object in msg.objects:
-            self.game_state.inventory.objects_by_uid[object.item.uid] = object
+        self.game_state.inventory.add_object(msg.object)
 
     def on_exchange_started_with_storage_event(
         self, msg: ExchangeStartedWithStorageEvent
@@ -162,6 +157,11 @@ class InventoryFrame(Frame):
             StorageInventoryContentEvent, self
         )
 
+    def on_exchange_object_move_priced_request(
+        self, message: ExchangeObjectMovePricedRequest
+    ):
+        self.on_move_object_inventory(message.object_uid, message.quantity, None)
+
     def on_move_object_inventory(self, object_uid: int, quantity: int, gid: int | None):
         inventory_item = self.game_state.inventory.objects_by_uid.get(object_uid)
         if not inventory_item:
@@ -180,3 +180,10 @@ class InventoryFrame(Frame):
 
         if inventory_item.item.quantity - quantity == 0:
             self.game_state.inventory.objects_by_uid.pop(inventory_item.item.uid)
+
+    def on_exchange_move_kama_request(self, msg: ExchangeMoveKamaRequest):
+        self.game_state.inventory.kamas -= msg.quantity
+
+    def on_inventory_weight_event(self, message: InventoryWeightEvent):
+        self.game_state.inventory.inventory_weight = message.inventory_weight
+        self.game_state.inventory.weight_max = message.weight_max

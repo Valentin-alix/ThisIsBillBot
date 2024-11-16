@@ -2,12 +2,13 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from typing import Iterable
 
-from d3_mapping.protocol.protocol_game import is_usable_msg
-from d3_mapping.resources.protos.game.exchange_pb2 import ExchangeMoveKamaRequest
-from d3_mapping.resources.protos.game.inventory_pb2 import (
+from D3Mapping.d3_mapping.protocol.protocol_game import is_usable_msg
+from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+    ExchangeMoveKamaRequest,
+)
+from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
     StorageInventoryContentEvent,
 )
-
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
@@ -16,11 +17,11 @@ from src.core.behaviors.npcs.npc_dialog_behavior import (
     NpcDialogBehavior,
     NpcDialogErrorCode,
 )
-from src.core.config.storage import (
+from src.core.config import BASE_RANGE
+from src.core.engine.storage.unload import get_bank_npc_info
+from src.core.game_constants import (
     BANKS_NPC_INFOS,
 )
-from src.core.config.timings import BASE_RANGE
-from src.core.logic.map.map_tools import MapTools
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -38,12 +39,7 @@ class EnterBankChestBehavior(Behavior):
         if self.game_state.player.level < 10:
             return self.finish(EnterBankChestErrorCode.NOT_ENOUGH_LVL)
 
-        bank_npc_infos = [
-            npc_info
-            for npc_info in BANKS_NPC_INFOS
-            if self.game_state.player.is_sub
-            or MapTools.is_map_allowed_for_unsub(npc_info.npc_map_id)
-        ]
+        bank_npc_infos = get_bank_npc_info(self.game_state.player.is_sub)
 
         self.auto_trip_world_behavior.start(
             callback=self.on_bank_map,

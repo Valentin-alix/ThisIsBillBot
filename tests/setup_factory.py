@@ -1,7 +1,10 @@
 import unittest
 from typing import Iterable
 
-from d3_mapping.resources.protos.game.common_pb2 import (
+from D3Database.data_center.data_reader import DataReader
+from D3Database.enums.breed import Breed
+from D3Database.enums.characteristic_enum import CharacteristicEnum
+from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
     CharacterCharacteristicValue,
@@ -10,32 +13,28 @@ from d3_mapping.resources.protos.game.common_pb2 import (
     SpawnInformation,
     Team,
 )
-from d3_mapping.resources.protos.game.spell_pb2 import SpellItem
-from data_center.data_reader import DataReader
-from enums.breed import Breed
-from enums.characteristic_enum import CharacteristicEnum
-
-from src.common.logger import Logger
-from src.core.logic.fight.attack import Attacker
-from src.core.logic.fight.damage_calculator import DamageCalculator
-from src.core.logic.fight.reachable_cells.fight_reachable_cells import (
+from D3Mapping.d3_mapping.resources.protos.game.spell_pb2 import SpellItem
+from src.core.engine.fights.attack import Attacker
+from src.core.engine.fights.damage_calculator import DamageCalculator
+from src.core.engine.fights.reachable_cells.fight_reachable_cells import (
     FightReachableCells,
 )
-from src.core.logic.map.data_map_provider import DataMapProvider
-from src.core.logic.map.path_finding.path_finding import Pathfinding
-from src.core.logic.world.astar_vertice import AstarWorld
-from src.core.logic.world.world_path_finder import WorldPathFinder
-from src.core.states.state_factory import StateFactory
-from src.interfaces.aliases import (
+from src.core.engine.monsters.monster_group import (
     AIFighter,
     FightFighterInformation,
     MonsterFighter,
     NamedFighterInformation,
 )
-from src.signals.grid_signals import GridSignals
-from src.signals.log_signals import LogSignals
-from src.signals.player_signals import GameInfoSignals, InventorySignals
-from src.signals.world_signals import WorldSignals
+from src.core.engine.movements.map.map_data_adapter import DataMapProvider
+from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
+from src.core.engine.movements.world.astar_vertice import AstarWorld
+from src.core.engine.movements.world.world_path_finder import WorldPathFinder
+from src.core.signals.grid_signals import GridSignals
+from src.core.signals.log_signals import LogSignals
+from src.core.signals.player_signals import GameInfoSignals, InventorySignals
+from src.core.signals.world_signals import WorldSignals
+from src.core.states.state_factory import StateFactory
+from src.services.logging.logger import Logger
 
 
 class GameStateFixture(unittest.TestCase):
@@ -87,7 +86,7 @@ class GameStateFixture(unittest.TestCase):
         player_id = -1
         self.game_state.map.map_id = map_id
         self.game_state.player.character_id = player_id
-        self.game_state.player.breed_id = Breed.CRA
+        self.game_state.fight.breed_id = Breed.CRA
         self.game_state.player.level = 200
 
         player_characteristics: dict[CharacteristicEnum, int] = {
@@ -97,13 +96,13 @@ class GameStateFixture(unittest.TestCase):
             CharacteristicEnum.MOVEMENT_POINTS: movement_point,
         }
         for char, value in player_characteristics.items():
-            self.game_state.player.characteristic_by_id[char] = CharacterCharacteristic(
+            self.game_state.fight.characteristic_by_id[char] = CharacterCharacteristic(
                 characteristic_id=char,
                 value=CharacterCharacteristicValue(total=value),
             )
 
         for spell_variant in DataReader().spell_variant_by_breed_id[
-            self.game_state.player.breed_id
+            self.game_state.fight.breed_id
         ]:
             if (
                 include_spell_ids is None
@@ -126,7 +125,7 @@ class GameStateFixture(unittest.TestCase):
                         character_information=NamedFighterInformation.FightCharacterInformation()
                     ),
                     stats=FightCharacteristics(
-                        characteristics=self.game_state.player.characteristic_by_id.values()
+                        characteristics=self.game_state.fight.characteristic_by_id.values()
                     ),
                 )
             ),

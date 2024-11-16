@@ -2,12 +2,12 @@ import json
 from typing import Any
 
 from cachetools import cached
-from d3_mapping.models.message import MessageInfo
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItem
 from PyQt5.QtWidgets import QHeaderView
 from qfluentwidgets import TableWidget
 
+from D3Mapping.d3_mapping.models.message import MessageInfo
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
 from src.gui.consts import GREEN_COLOR

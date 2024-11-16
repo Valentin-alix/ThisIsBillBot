@@ -1,6 +1,6 @@
-from d3_mapping.mapping.proto_mapper import ProtoMapper
-from d3_mapping.mapping.proto_organization import ProtoOrganization
-from d3_mapping.models.p_message import PMessage
+from D3Mapping.d3_mapping.mapping.proto_mapper import ProtoMapper
+from D3Mapping.d3_mapping.mapping.proto_organization import ProtoOrganization
+from D3Mapping.d3_mapping.models.p_message import PMessage
 
 type ComparisonInfo = tuple[str, str]
 

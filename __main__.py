@@ -1,7 +1,5 @@
-import cProfile
 import os
 import sys
-from pathlib import Path
 from threading import Thread
 from time import sleep
 
@@ -9,18 +7,13 @@ from dotenv import load_dotenv
 from PyQt5.QtCore import Qt
 from qfluentwidgets import Theme, setTheme, setThemeColor
 
-from src.common.internet import has_internet_connection
+from src.utils.internet import has_internet_connection
 
 while not has_internet_connection():
     print("waiting for internet connection")
     sleep(1)
 
 load_dotenv()
-
-sys.path.append(os.path.join(Path(__file__).parent))
-sys.path.append(os.path.join(Path(__file__).parent, "D3Mapping"))
-sys.path.append(os.path.join(Path(__file__).parent, "DBDofusUnity"))
-sys.path.append(os.path.join(Path(__file__).parent, "D3Database"))
 
 
 if hasattr(sys, "_MEIPASS"):
@@ -36,17 +29,18 @@ if hasattr(sys, "_MEIPASS"):
         )
     )
 
-from src.bot_manager import BotManager  # noqa: E402
-from src.const import DOFUS_CONNECTION_URL, RESOURCE_FOLDER  # noqa: E402
+from src.const import DOFUS_CONNECTION_URL  # noqa: E402
+from src.core.bot.bot_manager import BotManager  # noqa: E402
+from src.core.bot.lifecycle.scheduler import run_continuously  # noqa: E402
+from src.core.mitm.proxy_listener import ProxyListener  # noqa: E402
+from src.core.signals.shared_farm_signals import SharedSignals  # noqa: E402
 from src.gui.application import Application  # noqa: E402
 from src.gui.main_window import MainWindow  # noqa: E402
-from src.mitm.proxy_listener import ProxyListener  # noqa: E402
-from src.signals.shared_farm_signals import SharedSignals  # noqa: E402
-from src.tools.scheduler import run_continuously  # noqa: E402
 
 
 def main() -> None:
-    # idee -> montre l'inventaire de banque et du coffre de guilde , comme pour l'inventaire
+    # reflechir a d'autre idée pour aller plus vite dans le mapping
+    # -> pouvoir après avoir sniffer et rec les datas lancer le mapping et savoir quel champs est problématique ou non -> utiliser pydantic pour full valider des champs ?
     app = Application(sys.argv)
     shared_signals = SharedSignals()
     main_window = MainWindow(title=app.TITLE, shared_signals=shared_signals)
@@ -76,10 +70,11 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    profiler = cProfile.Profile()
-    profiler.enable()
+    main()
+    # profiler = cProfile.Profile()
+    # profiler.enable()
 
-    exit_code = main()
+    # exit_code = main()
 
-    profiler.disable()
-    profiler.dump_stats(os.path.join(RESOURCE_FOLDER, "profile.prof"))
+    # profiler.disable()
+    # profiler.dump_stats(os.path.join(RESOURCE_FOLDER, "profile.prof"))

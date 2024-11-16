@@ -3,7 +3,7 @@ from typing import Any, Callable
 
 from pydantic import BaseModel
 
-from d3_mapping.controller.instancied_msg_info_controller import (
+from D3Mapping.d3_mapping.controller.instancied_msg_info_controller import (
     InstanciedMessageInfoController,
 )
 

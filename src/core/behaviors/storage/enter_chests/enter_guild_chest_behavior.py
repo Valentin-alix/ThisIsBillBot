@@ -2,21 +2,20 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from typing import cast
 
-from d3_mapping.resources.protos.game.guild_chest_pb2 import (
+from D3Database.data_center.map_reader import MapReader
+from D3Database.enums.element_type import ElementTypeEnum
+from D3Database.grid.map_point import MapPoint
+from D3Mapping.d3_mapping.resources.protos.game.guild_chest_pb2 import (
     GuildChestCurrentListenersAddEvent,
 )
-from data_center.map_reader import MapReader
-from enums.element_type import ElementTypeEnum
-from grid.map_point import MapPoint
-
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
-from src.core.config.storage import BANK_MAP_IDS
-from src.core.config.timings import BASE_RANGE
-from src.core.logic.map.path_finding.path_finding import Pathfinding
+from src.core.config import BASE_RANGE
+from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
+from src.core.game_constants import BANK_MAP_IDS
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -31,7 +30,7 @@ class EnterGuildChestBehavior(Behavior):
     auto_trip_world_behavior: AutoTripSmartBehavior
 
     def run(self):
-        if not self.game_state.player.can_access_guild_chest:
+        if not self.game_state.guild_chest.can_access_guild_chest:
             return self.finish(error_code=EnterGuildChestError.CANT_ACCESS_GUILD_CHEST)
 
         self.auto_trip_world_behavior.start(
@@ -54,7 +53,7 @@ class EnterGuildChestBehavior(Behavior):
         )[chest_interactive.element_id]
 
         move_path_to_chest = self.path_finding.find_path(
-            self.game_state.player.map_point,
+            self.game_state.map.map_point,
             {MapPoint.from_cell_id(cast(int, ref_data.cellId))},
         )
 

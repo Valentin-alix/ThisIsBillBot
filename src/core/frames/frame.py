@@ -2,12 +2,12 @@ from dataclasses import dataclass, field
 from threading import Event, Timer
 from typing import Callable
 
-from src.common.logger import Logger
-from src.common.timing import get_random_range
+from src.core.events_manager.event_manager import EventManager
+from src.core.events_manager.priority import PriorityEnum
+from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.states.game_state import GameState
-from src.event_manager import EventManager
-from src.interfaces.enums.priority import PriorityEnum
-from src.signals.player_signals import GameInfoSignals, InventorySignals
+from src.services.human_timings import get_random_range
+from src.services.logging.logger import Logger
 
 
 @dataclass
@@ -22,6 +22,17 @@ class Frame:
     priority: PriorityEnum = field(default=PriorityEnum.FRAME, init=False)
 
     _timers: list[Timer] = field(default_factory=list, init=False)
+
+    def __post_init__(self):
+        self.game_info_signals.disconnected.connect(self.on_disconnected)
+
+    def on_disconnected(self):
+        for field_name in dir(self):
+            if field_name.startswith("__"):
+                continue
+            field_value = getattr(self, field_name)
+            if hasattr(field_value, "clear_state"):
+                field_value.clear_state()
 
     def run_timer(
         self, range_time: tuple[float, float] | float, func: Callable[[], None]

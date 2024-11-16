@@ -2,16 +2,15 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from d3_mapping.resources.protos.game.gamemap_pb2 import (
+from D3Database.grid.map_point import MapPoint
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapChangeRequest,
     MapCurrentEvent,
     MapMovementRefusedEvent,
 )
-from grid.map_point import MapPoint
-
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
-from src.interfaces.enums.priority import PriorityEnum
+from src.core.events_manager.priority import PriorityEnum
 
 
 class MapChangeError(StrEnum):
@@ -48,7 +47,7 @@ class MapChangeBehavior(Behavior):
     def on_map_movement_refused_event(self, msg: MapMovementRefusedEvent):
         if (
             MapPoint.from_coords(msg.cell_x, msg.cell_y)
-            != self.game_state.player.map_point
+            != self.game_state.map.map_point
         ):
             return self.finish(MapMoveError.INVALID_STARTING_POINT)
         return self.finish(MapMoveError.REFUSED)

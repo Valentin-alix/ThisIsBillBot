@@ -3,18 +3,20 @@ from typing import Any
 
 from pandas import Series
 
-from d3_mapping.consts import TYPE_URL_PREFIX
-from d3_mapping.controller.instancied_msg_info_controller import (
+from D3Mapping.d3_mapping.consts import TYPE_URL_PREFIX
+from D3Mapping.d3_mapping.controller.instancied_msg_info_controller import (
     InstanciedMessageInfoController,
 )
-from d3_mapping.mapping.proto_organization import ProtoOrganization
-from d3_mapping.mapping.validators.global_validators import (
+from D3Mapping.d3_mapping.mapping.proto_organization import ProtoOrganization
+from D3Mapping.d3_mapping.mapping.validators.global_validators import (
     VALIDATORS_GLOBAL_ON_SET_FIELDS,
 )
-from d3_mapping.mapping.validators.set_validators import VALIDATORS_ON_SET_FIELDS
-from d3_mapping.models.mapping_info import FieldMapping, OutputMappingInfo
-from d3_mapping.models.p_enum import PEnum
-from d3_mapping.models.p_message import PMessage
+from D3Mapping.d3_mapping.mapping.validators.set_validators import (
+    VALIDATORS_ON_SET_FIELDS,
+)
+from D3Mapping.d3_mapping.models.mapping_info import FieldMapping, OutputMappingInfo
+from D3Mapping.d3_mapping.models.p_enum import PEnum
+from D3Mapping.d3_mapping.models.p_message import PMessage
 
 
 @dataclass

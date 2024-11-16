@@ -1,10 +1,11 @@
 from dataclasses import dataclass, field
 
-from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
-from d3_mapping.resources.protos.game.dialog_pb2 import (
+from D3Database.data_center.data_reader import DataReader
+from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import (
     DialogLeaveRequest,
 )
-from d3_mapping.resources.protos.game.exchange_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeErrorEvent,
     ExchangeKamaModifiedEvent,
     ExchangeLeaveEvent,
@@ -16,24 +17,15 @@ from d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeReadyRequest,
     ExchangeStartedWithPodsEvent,
 )
-from data_center.data_reader import DataReader
-
-from src.controller.scraping_d3 import ScrapingD3Controller
+from src.controller.scraping_d3_api.scraping_d3 import ScrapingD3Controller
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
-from src.core.config.storage import GATHERER_ITEM_GIDS
-from src.core.config.mule import (
-    BOT_MINIMAL_KAMAS,
-    MULE_BANK_MAP_ID,
-)
-from src.core.config.timings import BASE_RANGE
-from src.core.logic.inventory.inventory_item import (
-    INVENTORY_POSITION,
-    is_exchangeable_item,
-)
+from src.core.config import BASE_RANGE, BOT_MINIMAL_KAMAS, MULE_BANK_MAP_ID
+from src.core.engine.items.inventory_item import is_exchangeable_item
+from src.core.game_constants import GATHERER_ITEM_GIDS, INVENTORY_EQUIPMENT_POSITION
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -136,7 +128,7 @@ class MuleGiveBehavior(Behavior):
                 object
                 for object in self.game_state.inventory.objects_by_uid.values()
                 if is_exchangeable_item(DataReader().item_by_id[object.item.gid])
-                and object.position == INVENTORY_POSITION
+                and object.position == INVENTORY_EQUIPMENT_POSITION
             ],
             key=lambda object: object.item.gid in GATHERER_ITEM_GIDS,
         )

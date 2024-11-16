@@ -11,7 +11,7 @@ from src.gui.components.qfluent_widget.scrollable_message_box import (
 )
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
-from src.interfaces.enums.log_level import LogLevel
+from src.services.logging.log_level import LogLevel
 
 
 class LogsTable(BaseTableWidget):

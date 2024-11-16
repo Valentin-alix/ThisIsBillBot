@@ -4,9 +4,8 @@ from functools import cached_property
 from math import log
 from pathlib import Path
 
-from data_center.data_reader import DataReader
-
-from src.interfaces.metaclasses.singleton import Singleton
+from D3Database.data_center.data_reader import DataReader
+from src.utils.metaclasses.singleton import Singleton
 
 SPEED_SCORE_BY_GID_PATH = os.path.join(
     Path(__file__).parent.parent.parent, "resources", "speed_score_by_gid.json"
@@ -24,7 +23,3 @@ class SpeedSellScoreController(metaclass=Singleton):
                 if item_id not in speed_score:
                     speed_score[item_id] = 1
             return speed_score
-
-
-if __name__ == "__main__":
-    print(SpeedSellScoreController().get_speed_sell_score_by_gid)

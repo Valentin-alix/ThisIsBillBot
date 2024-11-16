@@ -1,14 +1,13 @@
 from dataclasses import dataclass
 from functools import partial
 
-from d3_mapping.resources.protos.game.gamemap_pb2 import (
+from D3Database.data_center.data_reader import DataReader
+from D3Database.enums.area_enum import AreaEnum
+from D3Database.models.datas.map_positions_root import MapPositionsRootItem
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from d3_mapping.resources.protos.game.haven_bag_pb2 import HavenBagExitRequest
-from data_center.data_reader import DataReader
-from enums.area_enum import AreaEnum
-from models.datas.map_positions_root import MapPositionsRootItem
-
+from D3Mapping.d3_mapping.resources.protos.game.haven_bag_pb2 import HavenBagExitRequest
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
     AutoTripBehavior,
@@ -18,8 +17,8 @@ from src.core.behaviors.movements.waypoint_behavior import (
     WaypointBehavior,
     WaypointErrorCode,
 )
-from src.core.logic.world.map_position import get_dist_to_maps
-from src.core.logic.world.waypoint import get_near_waypoint
+from src.core.engine.movements.world.map_position import get_dist_to_maps
+from src.core.engine.movements.world.waypoint import get_near_waypoint
 from src.exceptions import UnhandledErrorCodeException
 
 

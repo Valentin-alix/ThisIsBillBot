@@ -5,25 +5,21 @@ from functools import partial
 from threading import Lock
 from typing import Callable
 
-from d3_mapping.resources.protos.game.gamemap_pb2 import (
+from D3Database.data_center.data_reader import DataReader
+from D3Database.models.world_graph import Edge
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from data_center.data_reader import DataReader
-from models.world_graph import Edge
-
 from src.const import MIN_DATE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.movements.edge_behavior import EdgeBehavior
-from src.core.behaviors.movements.map_change_behavior import MapChangeError
-from src.core.logic.farms.weights.weight_items import (
-    draw_weight_on_map,
-)
-from src.core.logic.farms.weights.weighted_path import WeightedPath
-from src.core.logic.world.edge import draw_edge_path
-from src.signals.world_signals import WorldSignals
+from src.core.engine.movements.world.edge import draw_edge_path
+from src.core.engine.weights.weight_drawer import draw_weight_on_map
+from src.core.engine.weights.weighted_path import WeightedPath
+from src.core.signals.world_signals import WorldSignals
 
 PATH_LOCK = Lock()
 LAST_VISITED_BY_MAP_ID: dict[int, datetime] = {}
@@ -137,8 +133,7 @@ class RandomFarmBehavior(Behavior):
             raise ValueError("edge path should not be none")
         if error_code is not None:
             self.edge_path = None
-            if error_code is not MapChangeError.UNEXPECTED_NEW_MAP:
-                return self.finish(error_code)
+            return self.finish(error_code)
         else:
             self.edge_path.remove(edge)
         LAST_VISITED_BY_MAP_ID[self.game_state.map.map_id] = datetime.now()
@@ -159,6 +154,7 @@ class RandomFarmBehavior(Behavior):
 
     def on_auto_trip_world_behavior_finished(self, error_code: str | None):
         if error_code is not None:
+            self.edge_path = None
             self.logger.error(error_code)
             return self.finish(error_code)
         LAST_VISITED_BY_MAP_ID[self.game_state.map.map_id] = datetime.now()
@@ -167,7 +163,7 @@ class RandomFarmBehavior(Behavior):
     def get_next_weighted_path(self) -> list[Edge] | None:
         cached_weight_by_map_id: dict[int, float] = {}
         path = self.weighted_path.monte_carlo_path(
-            start_vertex=self.game_state.player.curr_vertex,
+            start_vertex=self.game_state.map.curr_vertex,
             get_weight_by_edge_func=self.get_weight_edge,
             weight_by_map_id=cached_weight_by_map_id,
             count_map_in_area=len(self.map_ids),

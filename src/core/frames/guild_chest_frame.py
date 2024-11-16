@@ -1,15 +1,16 @@
 from dataclasses import dataclass
 
-from d3_mapping.resources.protos.game.exchange_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeObjectMoveRequest,
     ExchangeStartedWithMultiTabStorageEvent,
 )
-from d3_mapping.resources.protos.game.inventory_pb2 import (
-    MultiTabStorageEvent,
+from D3Mapping.d3_mapping.resources.protos.game.guild_member_pb2 import (
+    GuildMembershipEvent,
+)
+from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
     StorageInventoryContentEvent,
 )
-
 from src.core.frames.frame import Frame
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 
@@ -17,9 +18,6 @@ from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
 @dataclass
 class GuildChestFrame(Frame):
     def __post_init__(self):
-        self.game_info_signals.disconnected.connect(
-            self.game_state.guild_chest.clear_state
-        )
         self.event_manager.on(
             ExchangeStartedWithMultiTabStorageEvent,
             self.on_exchange_started_with_multi_tab_storage_event,
@@ -27,14 +25,11 @@ class GuildChestFrame(Frame):
             priority=self.priority,
         )
         self.event_manager.on(
-            MultiTabStorageEvent,
-            self.on_multi_tab_storage_event,
+            GuildMembershipEvent,
+            self.on_guild_members_ship_event,
             originator=self,
             priority=self.priority,
         )
-
-    def on_multi_tab_storage_event(self, msg: MultiTabStorageEvent):
-        self.game_state.guild_chest.tabs = [tab.tab_number for tab in msg.tabs]
 
     def on_exchange_started_with_multi_tab_storage_event(
         self, msg: ExchangeStartedWithMultiTabStorageEvent
@@ -111,3 +106,6 @@ class GuildChestFrame(Frame):
         self.event_manager.clear_listener_by_origin_and_type(
             StorageInventoryContentEvent, self
         )
+
+    def on_guild_members_ship_event(self, msg: GuildMembershipEvent):
+        self.game_state.guild_chest.has_guild = True

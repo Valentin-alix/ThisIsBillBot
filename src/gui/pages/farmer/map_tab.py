@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import SingleDirectionScrollArea, SmoothMode
 
+from src.core.signals.grid_signals import GridSignals
 from src.gui.components.graphics.grid_widget import GridView
-from src.signals.grid_signals import GridSignals
 
 
 class MapTab(QWidget):

@@ -7,7 +7,7 @@ import msgspec
 from cachetools import TTLCache, cached
 
 from src.const import RESOURCE_FOLDER
-from src.interfaces.metaclasses.singleton import Singleton
+from src.utils.metaclasses.singleton import Singleton
 
 TTL_CACHE = TTLCache(maxsize=100, ttl=60 * 60 * 3 * 1000)
 

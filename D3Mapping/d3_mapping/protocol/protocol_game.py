@@ -13,15 +13,17 @@ from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
 
-from d3_mapping.consts import TYPE_URL_PREFIX
-from d3_mapping.controller.instancied_msg_info_controller import (
+from D3Database.utils import cache
+from D3Mapping.d3_mapping.consts import TYPE_URL_PREFIX
+from D3Mapping.d3_mapping.controller.instancied_msg_info_controller import (
     InstanciedMessageInfoController,
 )
-from d3_mapping.controller.message_mapping_controller import MessageMappingController
-from d3_mapping.models.message import MessageInfo
-from d3_mapping.resources.obf_protos.game.game_messages_pb2 import gso
-from d3_mapping.resources.protos.game.game_message_pb2 import GameMessage
-from D3Database.utils import cache
+from D3Mapping.d3_mapping.controller.message_mapping_controller import (
+    MessageMappingController,
+)
+from D3Mapping.d3_mapping.models.message import MessageInfo
+from D3Mapping.d3_mapping.resources.obf_protos.game.game_messages_pb2 import gso
+from D3Mapping.d3_mapping.resources.protos.game.game_message_pb2 import GameMessage
 
 POOL: descriptor_pool.DescriptorPool = descriptor_pool.Default()
 
@@ -76,7 +78,7 @@ def get_obf_game_msg_info(
         preserving_proto_field_name=True,
     )
     if SHOW_URL:
-        field_name = game_msg.WhichOneof("exvc")
+        field_name = game_msg.WhichOneof("eygn")
         root_msg: Message = getattr(game_msg, field_name)
 
         root_msg_any_field: protoAny | None = None

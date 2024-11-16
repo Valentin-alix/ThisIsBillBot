@@ -1,11 +1,11 @@
-from d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
-from data_center.data_reader import DataReader
-from data_center.i18n import I18N
 from PyQt5.QtCore import QSize, pyqtSlot
 from PyQt5.QtWidgets import QListWidgetItem, QVBoxLayout, QWidget
 from qfluentwidgets import ListWidget, SmoothMode
 
-from src.bot import Bot
+from D3Database.data_center.data_reader import DataReader
+from D3Database.data_center.i18n import I18N
+from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from src.core.bot.bot import Bot
 from src.gui.utils.profiling import profiled_slot
 
 CARD_WIDTH = 150
@@ -39,6 +39,9 @@ class InventoryTab(QWidget):
         self.bot.inventory_signals.added_object_item.connect(
             profiled_slot(self.on_added_object_item)
         )
+        self.bot.inventory_signals.added_object_items_batch.connect(
+            profiled_slot(self.on_added_object_items_batch)
+        )
         self.bot.inventory_signals.updated_object_item.connect(
             profiled_slot(self.on_updated_object_item)
         )
@@ -51,6 +54,14 @@ class InventoryTab(QWidget):
 
     @pyqtSlot(ObjectItemInventory)
     def on_added_object_item(self, object_item: ObjectItemInventory):
+        self._add_item_to_list(object_item)
+
+    @pyqtSlot(list)
+    def on_added_object_items_batch(self, objects: list[ObjectItemInventory]):
+        for object_item in objects:
+            self._add_item_to_list(object_item)
+
+    def _add_item_to_list(self, object_item: ObjectItemInventory):
         list_item = QListWidgetItem(self.list_widget)
         list_item.setSizeHint(QSize(CARD_WIDTH, CARD_HEIGHT))
         list_item.setText(self.get_item_widget_text(object_item))

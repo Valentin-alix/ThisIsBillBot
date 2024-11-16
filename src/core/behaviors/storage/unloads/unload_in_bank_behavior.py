@@ -1,18 +1,16 @@
 from dataclasses import dataclass
 
-from d3_mapping.resources.protos.game.common_pb2 import DialogType
-from d3_mapping.resources.protos.game.dialog_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import DialogType
+from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import (
     DialogLeaveRequest,
 )
-from d3_mapping.resources.protos.game.exchange_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeObjectTransferAllFromInventoryRequest,
 )
-from d3_mapping.resources.protos.game.inventory_pb2 import (
+from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
-
-from src.controller.human_timings import HumanTimingsController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
@@ -21,9 +19,9 @@ from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )
-from src.core.config.storage import USEFUL_UNLOAD
-from src.core.config.timings import BEFORE_CLOSING_INVENTORY
+from src.core.config import BEFORE_CLOSING_INVENTORY, USEFUL_UNLOAD
 from src.exceptions import UnexpectedStateException
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
@@ -54,7 +52,7 @@ class UnloadInBankBehavior(Behavior):
         )
         request = ExchangeObjectTransferAllFromInventoryRequest()
         self.run_timer(
-            HumanTimingsController().get_timing_unload_on_bank(),
+            HumanTimingsService().get_timing_unload_on_bank(),
             lambda: self.event_manager.send(request),
         )
 
