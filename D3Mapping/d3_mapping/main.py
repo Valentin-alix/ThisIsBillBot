@@ -1,15 +1,23 @@
+import json
 import os
+import subprocess
 import sys
 from pathlib import Path
+from typing import cast
 
 from dotenv import load_dotenv
 from icecream import ic
+from tqdm import tqdm
 
 from D3Mapping.d3_mapping.factories.p_mapper_factory import PMapperFactory
 from D3Mapping.d3_mapping.mapping.debug_messages import diff_output_field_mappings
 from D3Mapping.d3_mapping.models.mapping_info import OutputMappingInfo
+from D3Mapping.d3_mapping.models.p_message import PMessage
 from D3Mapping.d3_mapping.models.verified_mapping import VerifiedMapping
-from D3Mapping.d3_mapping.verified_mapping import GAME_VERIFIED_MAPPING
+from D3Mapping.d3_mapping.verified_mapping import (
+    GAME_VERIFIED_MAPPING,
+    GAME_VERIFIED_MAPPING_BY_OBF,
+)
 
 load_dotenv(os.path.join(Path(__file__).parent.parent.parent, ".env"))
 
@@ -26,6 +34,7 @@ from D3Mapping.d3_mapping.consts import (
     MAPPING_CONN_PROTO_PATH,
     MAPPING_GAME_AUDIT_PATH,
     MAPPING_GAME_PROTO_PATH,
+    MSG_TO_MAP,
     OBFUSCATED_PROTO_CONNECTION,
     OBFUSCATED_PROTO_CONNECTION_FILE,
     OBFUSCATED_PROTO_GAME,
@@ -35,6 +44,7 @@ from D3Mapping.d3_mapping.consts import (
     PROTO_GAME_ASSEMBLY_PATH,
     PROTO_GAME_PATH,
     PROTODEC_PATH_EXE,
+    UNMAPPED_CANDIDATES_PATH,
 )
 from D3Mapping.d3_mapping.controller.instancied_msg_info_controller import (
     InstanciedMessageInfoController,  # noqa: E402
@@ -51,16 +61,29 @@ def get_obf_protos():
 
 def get_assemblies():
     os.makedirs(ASSEMBLIES_PATH, exist_ok=True)
-    command = f"{IL2_CPP_DUMPER_PATH_EXE} {GAME_ASSEMBLY_PATH} {GLOBAL_METADATA_PATH} {ASSEMBLIES_PATH}"
-    os.system(command)
+    subprocess.run(
+        [
+            IL2_CPP_DUMPER_PATH_EXE,
+            GAME_ASSEMBLY_PATH,
+            GLOBAL_METADATA_PATH,
+            ASSEMBLIES_PATH,
+        ],
+        check=True,
+    )
 
 
 def get_protos():
-    os.system(
-        f"{PROTODEC_PATH_EXE} {PROTO_CONNECTION_ASSEMBLY_PATH} {OBFUSCATED_PROTO_CONNECTION_FILE}"
+    subprocess.run(
+        [
+            PROTODEC_PATH_EXE,
+            PROTO_CONNECTION_ASSEMBLY_PATH,
+            OBFUSCATED_PROTO_CONNECTION_FILE,
+        ],
+        check=True,
     )
-    os.system(
-        f"{PROTODEC_PATH_EXE} {PROTO_GAME_ASSEMBLY_PATH} {OBFUSCATED_PROTO_GAME_FILE}"
+    subprocess.run(
+        [PROTODEC_PATH_EXE, PROTO_GAME_ASSEMBLY_PATH, OBFUSCATED_PROTO_GAME_FILE],
+        check=True,
     )
 
 
@@ -82,12 +105,27 @@ def gen_python_from_protoc(input: str, output_folder: str):
             if not filename.endswith(".proto"):
                 continue
             file_path = os.path.join(input, filename)
-            os.system(
-                f"protoc --proto_path={input} --python_out={output_folder} {file_path} --pyi_out={output_folder}"
+            subprocess.run(
+                [
+                    "protoc",
+                    f"--proto_path={input}",
+                    f"--python_out={output_folder}",
+                    file_path,
+                    f"--pyi_out={output_folder}",
+                ],
+                check=True,
             )
     else:
-        os.system(
-            f"protoc --proto_path={Path(input).parent} --python_out={Path(input).parent} {input} --pyi_out={Path(input).parent}"
+        parent = str(Path(input).parent)
+        subprocess.run(
+            [
+                "protoc",
+                f"--proto_path={parent}",
+                f"--python_out={parent}",
+                input,
+                f"--pyi_out={parent}",
+            ],
+            check=True,
         )
 
 
@@ -155,17 +193,56 @@ def generate_filtered_mapping():
     MessageMappingController.dump_mapping(filtered_mapping, MAPPING_GAME_PROTO_PATH)
 
 
+def generate_unmapped_candidates():
+    mapper = PMapperFactory.create_p_mapper(
+        PROTO_GAME_PATH,
+        OBFUSCATED_PROTO_GAME,
+        verified_mapping=GAME_VERIFIED_MAPPING,
+    )
+    mapper._build_indices()
+
+    already_mapped_clear_names = set(GAME_VERIFIED_MAPPING_BY_OBF.values())
+    excluded_obf_namespaces = set(GAME_VERIFIED_MAPPING_BY_OBF.keys())
+    unmapped_clear_names = [
+        name for name in MSG_TO_MAP if name not in already_mapped_clear_names
+    ]
+
+    candidates: dict[str, list[dict[str, str | float]]] = {}
+    for clear_name in tqdm(unmapped_clear_names):
+        clear_namespace = cast(dict[str, str], mapper._clear_name_to_namespace).get(
+            clear_name
+        )
+        if clear_namespace is None:
+            print(f"Skipping {clear_name}: namespace not found")
+            continue
+        clear_struct = mapper.clear_struct_by_namespace.get(clear_namespace)
+        if not isinstance(clear_struct, PMessage):
+            continue
+
+        top_matches = mapper.get_top_similar_obf_msgs(
+            clear_struct, excluded_obf_namespaces=excluded_obf_namespaces
+        )
+        if top_matches:
+            candidates[clear_name] = [
+                {"obf_namespace": obf_ns, "similarity": round(sim, 4)}
+                for sim, obf_ns, _ in top_matches
+            ]
+
+    with open(UNMAPPED_CANDIDATES_PATH, "w") as f:
+        json.dump(candidates, f, indent=2)
+
+    print(f"\nUnmapped candidates written to {UNMAPPED_CANDIDATES_PATH}")
+    print(
+        f"Found candidates for {len(candidates)}/{len(unmapped_clear_names)} unmapped messages"
+    )
+
+
 def main():
     # gen_all_python_from_protoc()
     # dump_all_used_fields()
     generate_all_mapping()
-    # generate_filtered_mapping()
+    generate_unmapped_candidates()
 
 
 if __name__ == "__main__":
     main()
-    # profiler = cProfile.Profile()
-    # profiler.enable()
-    # exit_code = main()
-    # profiler.disable()
-    # profiler.dump_stats(os.path.join(RESOURCE_FOLDER, "profile.prof"))

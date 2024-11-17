@@ -1,3 +1,4 @@
+import logging
 import traceback
 from functools import cached_property
 from typing import cast
@@ -13,6 +14,8 @@ from src.const import ENV_PATH
 from src.utils.metaclasses.singleton import Singleton
 
 load_dotenv(ENV_PATH)
+
+logger = logging.getLogger()
 
 
 class HumanSoloTalk(metaclass=Singleton):
@@ -44,7 +47,7 @@ class HumanSoloTalk(metaclass=Singleton):
             )
             return cast(str, ai_msg["messages"][-1].content)
         except (APIConnectionError, OpenAIError):
-            print(traceback.format_exc())
+            logger.error(traceback.format_exc())
             return None
 
 

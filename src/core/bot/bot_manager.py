@@ -4,16 +4,23 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from time import sleep
 
-from ankama_launcher_emulator import AnkamaLauncherHandler, AnkamaLauncherServer
-from ankama_launcher_emulator.decrypter.crypto_helper import CryptoHelper
 from PyQt5.QtCore import QThread
 
-from src.const import MITM_CONFIG_URL
+from AnkamaLauncherEmulator.ankama_launcher_emulator import (
+    AnkamaLauncherHandler,
+    AnkamaLauncherServer,
+)
+from AnkamaLauncherEmulator.ankama_launcher_emulator.decrypter.crypto_helper import (
+    CryptoHelper,
+)
 from src.core.bot.bot import Bot
 from src.core.bot.bot_factory import BotFactory
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.gui.utils.run_in_background import Worker, run_in_background
-from src.utils.internet import ETHER_IP, has_internet_connection
+from src.utils.internet import (
+    DEFAULT_LOCAL_IP,
+    has_internet_connection,
+)
 
 
 @dataclass
@@ -34,7 +41,10 @@ class BotManager:
         self.bot_by_account_id = self.get_bot_by_account_id()
         self.shared_signals.launch_account.connect(self.on_launch_account)
         self.shared_signals.synchronize_bots.connect(self.on_synchronize_bots)
-        self.ankama_launcher.start(source_ip=ETHER_IP or "0.0.0.0")
+        source_ip = DEFAULT_LOCAL_IP
+        self.ankama_launcher.start(
+            source_ip=source_ip or "0.0.0.0", do_intercept_to_localhost=True
+        )
 
     def on_launch_account(self, login: str):
         self._cleanup_finished_threads()
@@ -66,7 +76,7 @@ class BotManager:
         count = len(self._thread_worker_runnings)
         self.shared_signals.thread_count_update.emit(count)
 
-    def relaunch_account(self, login: str, max_retries: int = 10):
+    def relaunch_account(self, login: str, max_retries: int = 3):
         related_bot: Bot = next(
             bot
             for _, bot in self.bot_by_account_id.items()
@@ -80,6 +90,12 @@ class BotManager:
         self._is_lauching_by_login[login].set()
 
         for attempt in range(max_retries):
+            if not related_bot.is_playing_event.is_set():
+                self._is_lauching_by_login[login].clear()
+                return related_bot.logger.info(
+                    "Bot is not playing anymore, aborting relaunch"
+                )
+
             related_bot.logger.info(
                 f"Relaunching (attempt {attempt + 1}/{max_retries})"
             )
@@ -97,9 +113,7 @@ class BotManager:
                 return related_bot.logger.info("Bot is not in playtime anymore")
 
             related_bot.logger.info("Launch bot")
-            related_bot.process_manager.pid = self.ankama_launcher.launch_dofus(
-                login, MITM_CONFIG_URL
-            )
+            related_bot.process_manager.pid = self.ankama_launcher.launch_dofus(login)
 
             related_bot.logger.info(f"Pid {related_bot.process_manager.pid}")
 

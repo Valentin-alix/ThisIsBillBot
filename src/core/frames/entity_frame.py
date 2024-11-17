@@ -177,6 +177,11 @@ class EntityFrame(Frame):
                     )
 
             elif msg.HasField("exchange_positions"):
+                if (
+                    msg.exchange_positions.caster_cell_id
+                    == msg.exchange_positions.target_cell_id
+                ):
+                    return
                 source_cell_id = self.game_state.entity.actor_by_id[
                     msg.source_id
                 ].disposition.cell_id

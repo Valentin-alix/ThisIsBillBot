@@ -57,8 +57,3 @@ def get_max_characteristic_per_point(level: int) -> int:
     remaining -= take * 4
 
     return used_points
-
-
-if __name__ == "__main__":
-    print(get_max_characteristic_per_point(34))
-    # ca devrait etre 164

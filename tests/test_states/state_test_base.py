@@ -1,9 +1,11 @@
 import unittest
 from typing import Callable
 
-from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
 from google.protobuf.message import Message
 
+from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_api_key import (
+    DecipheredApiKey,
+)
 from src.core.bot.bot_factory import BotFactory
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.services.recorder import Recorder

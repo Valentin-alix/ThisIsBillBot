@@ -68,6 +68,9 @@ class PulpResultConverter:
                 sorted_pulp_result.pop(0)
                 continue
 
+            if prefix_obf_path not in clear_by_obf_field_mapping:
+                return {}
+
             assert prefix_obf_path in clear_by_obf_field_mapping
             sub_clear_msg = ProtoOrganization.get_related_struct_from_field_name(
                 self.clear_struct_by_namespace, clear_msg, prefix_clear_path

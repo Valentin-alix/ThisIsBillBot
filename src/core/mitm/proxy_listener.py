@@ -1,3 +1,4 @@
+import logging
 import socket
 from dataclasses import dataclass, field
 from socket import AF_INET6
@@ -11,8 +12,10 @@ from src.core.bot.bot import Bot
 from src.core.mitm.connection_proxy import ConnectionProxy
 from src.core.mitm.game_proxy import GameProxy
 from src.core.mitm.proxy import Proxy
-from src.utils.internet import ETHER_IP, has_internet_connection
+from src.utils.internet import DEFAULT_LOCAL_IP, has_internet_connection
 from src.utils.pids import get_pid_by_local_and_remote_port
+
+logger = logging.getLogger()
 
 
 @dataclass
@@ -55,7 +58,8 @@ class ProxyListener:
                 local_port=local_port, remote_port=host_port
             )
             if related_pid is None:
-                return print("Did not found related pid")
+                logger.warning("Did not found related pid")
+                return
 
             related_bot = next(
                 (
@@ -98,15 +102,16 @@ class ProxyListener:
         bot: Bot | None = None,
     ):
         def on_connection(client_socket: Socket, host_port: int):
-            print(f"received connection from {client_socket.getpeername()}")
+            logger.info(f"received connection from {client_socket.getpeername()}")
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
             interface_ip = self._get_bot_network_interface(bot)
             if interface_ip:
-                print(f"binding to {interface_ip}")
+                logger.debug(f"binding to {interface_ip}")
                 server_socket.bind((interface_ip, 0))
-            elif ETHER_IP:
-                print(f"binding to {ETHER_IP}")
-                server_socket.bind((ETHER_IP, 0))
+            elif DEFAULT_LOCAL_IP:
+                logger.debug(f"binding to {DEFAULT_LOCAL_IP}")
+                server_socket.bind((DEFAULT_LOCAL_IP, 0))
 
             def connect_timeout_proof(retry: int = 5):
                 try:
@@ -121,14 +126,16 @@ class ProxyListener:
                         raise err
 
             connect_timeout_proof()
-            print(f"connect to {server_socket.getpeername()}")
+            logger.info(f"connect to {server_socket.getpeername()}")
             self.on_mitm_connection_callback(client_socket, server_socket, host_port)
 
         host_port = proxy_socket.getsockname()[1]
 
         self._listener_sockets.append(proxy_socket)
         proxy_socket.settimeout(1.0)
-        print(f"listening on {host_port} at localhost for target {target_address}")
+        logger.info(
+            f"listening on {host_port} at localhost for target {target_address}"
+        )
         while not self._shutdown_requested:
             try:
                 client_socket, _ = proxy_socket.accept()

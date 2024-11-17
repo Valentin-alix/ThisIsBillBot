@@ -1,1 +1,0 @@
-git subtree push --prefix=protodec https://github.com/Valentin-alix/protodec.git master

@@ -322,8 +322,8 @@ class SidebarPanel(QFrame):
         widget: NavigationWidget,
         onClick=None,
         position=NavigationItemPosition.TOP,
-        tooltip: str = None,  # type: ignore
-        parentRouteKey: str = None,  # type: ignore
+        tooltip: str | None = None,  # type: ignore[assignment]
+        parentRouteKey: str | None = None,  # type: ignore[assignment]
     ):
         """insert custom widget
 
@@ -386,10 +386,10 @@ class SidebarPanel(QFrame):
     def _registerWidget(
         self,
         routeKey: str,
-        parentRouteKey: str,
+        parentRouteKey: str | None,
         widget: NavigationWidget,
         onClick,
-        tooltip: str,
+        tooltip: str | None,
     ):
         """register widget"""
         widget.clicked.connect(self._onWidgetClicked)
@@ -399,7 +399,7 @@ class SidebarPanel(QFrame):
 
         widget.setProperty("routeKey", routeKey)
         widget.setProperty("parentRouteKey", parentRouteKey)
-        self.items[routeKey] = NavigationItem(routeKey, parentRouteKey, widget)
+        self.items[routeKey] = NavigationItem(routeKey, parentRouteKey or "", widget)
 
         if self.displayMode in [
             NavigationDisplayMode.EXPAND,

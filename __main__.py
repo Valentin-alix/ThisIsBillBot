@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from threading import Thread
@@ -7,7 +8,11 @@ from dotenv import load_dotenv
 from PyQt5.QtCore import Qt
 from qfluentwidgets import Theme, setTheme, setThemeColor
 
+from src.services.logging.logger import init_global_logging
+from src.tools.lower_config import set_low_config_for_all
 from src.utils.internet import has_internet_connection
+
+logger = logging.getLogger()
 
 while not has_internet_connection():
     print("waiting for internet connection")
@@ -37,10 +42,11 @@ from src.core.signals.shared_farm_signals import SharedSignals  # noqa: E402
 from src.gui.application import Application  # noqa: E402
 from src.gui.main_window import MainWindow  # noqa: E402
 
+init_global_logging()
+
 
 def main() -> None:
-    # pouvoir update le mapping en cours ? genre hop on ajoute une combinaison de mapping ca va auto valider le mapping pour ce field
-    # reflechir a d'autre idée pour aller plus vite dans le mapping
+    set_low_config_for_all()
     app = Application(sys.argv)
     shared_signals = SharedSignals()
     main_window = MainWindow(title=app.TITLE, shared_signals=shared_signals)

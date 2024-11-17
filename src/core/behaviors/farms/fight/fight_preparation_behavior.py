@@ -14,6 +14,7 @@ from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_movement_behavior import FightMovementBehavior
 from src.core.config import (
     PLACEMENT_EXTRA_HESITATION_RANGE,
+    PLACEMENT_NON_OPTIMAL_MOVE_PROBABILITY,
     PLACEMENT_REPOSITIONING_PROBABILITY,
 )
 from src.services.human_timings import HumanTimingsService
@@ -24,9 +25,11 @@ class FightPreparationBehavior(Behavior):
     fight_movement_behavior: FightMovementBehavior
 
     _has_repositioned: bool = field(init=False, default=False)
+    _has_done_non_optimal_move: bool = field(init=False, default=False)
 
     def run(self):
         self._has_repositioned = False
+        self._has_done_non_optimal_move = False
         self.event_manager.on(
             FightReadyRequest, lambda _: self.finish(), originator=self, once=True
         )
@@ -35,6 +38,20 @@ class FightPreparationBehavior(Behavior):
     def position_player(self):
         near_possible_cell_id = self.get_near_placement_cell_id()
         self.logger.info(f"found near cell id to enemy : {near_possible_cell_id}")
+
+        if (
+            not self._has_done_non_optimal_move
+            and random.random() < PLACEMENT_NON_OPTIMAL_MOVE_PROBABILITY
+        ):
+            non_optimal_cell = self.get_random_non_optimal_cell(near_possible_cell_id)
+            if non_optimal_cell is not None:
+                self._has_done_non_optimal_move = True
+                self.logger.debug(
+                    f"Moving to non-optimal cell {non_optimal_cell} before optimal"
+                )
+                self.send_fight_placement_position(non_optimal_cell)
+                return
+
         if self.game_state.map.map_point.cell_id != near_possible_cell_id:
             self.logger.info(f"Moving to {near_possible_cell_id}")
             self.send_fight_placement_position(near_possible_cell_id)
@@ -136,3 +153,18 @@ class FightPreparationBehavior(Behavior):
             )
 
         return min_dist_possible_cell_id[0]
+
+    def get_random_non_optimal_cell(self, optimal_cell_id: int) -> int | None:
+        non_optimal_cells: list[int] = []
+        for cell_id in self.game_state.fight.fight_placement_possible_positions:
+            if cell_id == optimal_cell_id:
+                continue
+            if cell_id == self.game_state.map.map_point.cell_id:
+                continue
+            if self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(cell_id):
+                continue
+            non_optimal_cells.append(cell_id)
+
+        if not non_optimal_cells:
+            return None
+        return random.choice(non_optimal_cells)

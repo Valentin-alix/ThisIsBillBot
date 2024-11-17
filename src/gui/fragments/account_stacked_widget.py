@@ -6,16 +6,18 @@ from qfluentwidgets import PivotItem, SegmentedWidget
 
 from src import const
 from src.core.bot.bot import Bot
+from src.core.signals.global_log_signals import GlobalLogSignals
 from src.gui.pages.craft.craft_page import CraftPage
 from src.gui.pages.debugs.sniffer import SnifferWidget
 from src.gui.pages.farmer.farmer import FarmerWidget
 
 
 class AccountStackedWidget(QWidget):
-    def __init__(self, login: str, bot: Bot):
+    def __init__(self, global_log_signals: GlobalLogSignals, login: str, bot: Bot):
         super().__init__()
         self.login = login
         self.bot = bot
+        self.global_log_signals = global_log_signals
         self.setObjectName(f"{login}_bot")
         self.setLayout(QVBoxLayout())
 
@@ -25,7 +27,7 @@ class AccountStackedWidget(QWidget):
         self.stacked_widget = QStackedWidget(self)
         self.layout().addWidget(self.stacked_widget)
 
-        self.sniffer_interface = SnifferWidget(bot)
+        self.sniffer_interface = SnifferWidget(bot, self.global_log_signals)
         self.stacked_widget.addWidget(self.sniffer_interface)
         self.sniffer_route = f"{login}_sniffer"
         self.debug_pivot_item = cast(

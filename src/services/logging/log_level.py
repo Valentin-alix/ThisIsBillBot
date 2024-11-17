@@ -1,9 +1,10 @@
-from enum import auto, Enum
+import logging
+from enum import IntEnum
 
 
-class LogLevel(Enum):
-    DEBUG = auto()
-    INFO = auto()
-    WARNING = auto()
-    ERROR = auto()
-    CRITICAL = auto()
+class LogLevel(IntEnum):
+    DEBUG = logging.DEBUG
+    INFO = logging.INFO
+    WARNING = logging.WARNING
+    ERROR = logging.ERROR
+    CRITICAL = logging.CRITICAL

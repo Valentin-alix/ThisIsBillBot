@@ -1,6 +1,3 @@
-import os
-import os.path
-
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QColor, QIcon
 from PyQt5.QtWidgets import QHBoxLayout
@@ -15,15 +12,17 @@ from qfluentwidgets import (
 from qfluentwidgets.components.navigation import NavigationDisplayMode, NavigationWidget
 
 from src import const
-from src.const import RESOURCE_FOLDER
+from src.const import LOGO_FILE
 from src.controller.bot_config import BotConfig, BotConfigController
 from src.controller.schedule_profile_controller import ScheduleProfileController
 from src.core.bot.bot import Bot
+from src.core.signals.global_log_signals import GlobalLogSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
 from src.gui.fragments.account_stacked_widget import AccountStackedWidget
 from src.gui.fragments.app_fluent_window import AppFluentWindow
 from src.gui.fragments.sidebar_item import SidebarItem
+from src.services.logging.logger import init_gui_global_logging
 from src.utils.internet import get_available_network_interfaces
 
 
@@ -34,11 +33,14 @@ class MainWindow(AppFluentWindow):
     def __init__(self, title: str, shared_signals: SharedSignals) -> None:
         super().__init__(parent=None)
 
+        self.global_log_signals = GlobalLogSignals()
+        init_gui_global_logging(self.global_log_signals)
+
         self.title = title
         self.shared_signals = shared_signals
         self.setWindowTitle(self.title)
         self.resize(BASE_WIDTH, BASE_HEIGHT)
-        self.setWindowIcon(QIcon(os.path.join(RESOURCE_FOLDER, "logo.png")))
+        self.setWindowIcon(QIcon(LOGO_FILE))
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(102, 102))
 
@@ -59,7 +61,7 @@ class MainWindow(AppFluentWindow):
         login = account.account["apikey"]["login"]
         self.bots_by_login[login] = account
 
-        account_widget = AccountStackedWidget(login, account)
+        account_widget = AccountStackedWidget(self.global_log_signals, login, account)
         self.account_widgets.append(account_widget)
         navigation_widget = SidebarItem(
             account.bot_signals, self.disconnected_icon, login, True, parent=self

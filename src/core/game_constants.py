@@ -2,9 +2,6 @@
 Constantes du monde de Dofus (immuables).
 Valeurs fixes provenant du jeu : map IDs, NPC IDs, skill IDs, etc.
 
-⚠️ Ces valeurs NE DOIVENT PAS être modifiées par l'utilisateur.
-Elles représentent des données fixes du jeu Dofus.
-
 Pour configurer le comportement du bot, voir src/core/config.py
 """
 

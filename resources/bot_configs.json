@@ -1,42 +1,7 @@
 {
-  "pcserv_blibli_7_1@outlook.fr": {
-    "network_interface": null,
-    "pc_id": 3,
-    "schedule_profile": "A"
-  },
-  "pcserv_blibli_7_0@outlook.fr": {
-    "network_interface": null,
-    "pc_id": 3,
-    "schedule_profile": "A"
-  },
-  "pcserv_blibli_7_2@outlook.fr": {
-    "network_interface": null,
-    "pc_id": 3,
-    "schedule_profile": "E"
-  },
-  "pcserv_blibli_8_0@outlook.fr": {
-    "network_interface": null,
-    "pc_id": 3,
-    "schedule_profile": "E"
-  },
-  "pcserv_blibli_8_1@outlook.fr": {
-    "network_interface": null,
-    "pc_id": 3,
-    "schedule_profile": "B"
-  },
-  "pcserv_blibli_8_2@outlook.fr": {
-    "network_interface": null,
-    "pc_id": 3,
-    "schedule_profile": "B"
-  },
-  "pcserv_blibli_9_0@outlook.fr": {
-    "network_interface": null,
-    "pc_id": 3,
-    "schedule_profile": "C"
-  },
-  "pcserv_blibli_9_1@outlook.fr": {
-    "network_interface": null,
-    "pc_id": 3,
-    "schedule_profile": "C"
+  "pcserv_blibli_12_2@outlook.fr": {
+    "network_interface": "192.168.0.117",
+    "pc_id": 2,
+    "schedule_profile": null
   }
 }

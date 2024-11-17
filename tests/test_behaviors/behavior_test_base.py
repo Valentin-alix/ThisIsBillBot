@@ -1,11 +1,12 @@
 import unittest
 from threading import Event
 from typing import Callable, TypeVar
-from unittest.mock import MagicMock
 
-from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
 from google.protobuf.message import Message
 
+from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_api_key import (
+    DecipheredApiKey,
+)
 from src.core.behaviors.behavior import Behavior
 from src.core.bot.bot_factory import BotFactory
 from src.core.signals.shared_farm_signals import SharedSignals
@@ -95,9 +96,9 @@ class BehaviorTestBase(unittest.TestCase):
     def assert_message_sent(self, msg_type: type[Message], count: int = 1):
         """Assert that a specific message type was sent."""
         sent_count = sum(1 for msg in self.sent_messages if isinstance(msg, msg_type))
-        assert (
-            sent_count == count
-        ), f"Expected {count} {msg_type.__name__} messages, got {sent_count}"
+        assert sent_count == count, (
+            f"Expected {count} {msg_type.__name__} messages, got {sent_count}"
+        )
 
     def get_sent_messages(self, msg_type: type[T]) -> list[T]:
         """Get all sent messages of a specific type."""
@@ -106,7 +107,9 @@ class BehaviorTestBase(unittest.TestCase):
     def get_sent_message(self, msg_type: type[T], index: int = 0) -> T:
         """Get a specific sent message by type and index (default: first message)."""
         messages = self.get_sent_messages(msg_type)
-        assert len(messages) > index, f"Expected at least {index + 1} {msg_type.__name__} messages, got {len(messages)}"
+        assert len(messages) > index, (
+            f"Expected at least {index + 1} {msg_type.__name__} messages, got {len(messages)}"
+        )
         return messages[index]
 
     def clear_sent_messages(self):
@@ -115,18 +118,14 @@ class BehaviorTestBase(unittest.TestCase):
 
     def assert_callback_success(self):
         """Assert that the callback was called without error."""
-        assert (
-            self.callback_called.is_set()
-        ), "Callback was not called"
-        assert (
-            self.callback_error_code is None
-        ), f"Callback called with error: {self.callback_error_code}"
+        assert self.callback_called.is_set(), "Callback was not called"
+        assert self.callback_error_code is None, (
+            f"Callback called with error: {self.callback_error_code}"
+        )
 
     def assert_callback_error(self, expected_error: str):
         """Assert that the callback was called with a specific error code."""
-        assert (
-            self.callback_called.is_set()
-        ), "Callback was not called"
-        assert (
-            self.callback_error_code == expected_error
-        ), f"Expected error '{expected_error}', got '{self.callback_error_code}'"
+        assert self.callback_called.is_set(), "Callback was not called"
+        assert self.callback_error_code == expected_error, (
+            f"Expected error '{expected_error}', got '{self.callback_error_code}'"
+        )

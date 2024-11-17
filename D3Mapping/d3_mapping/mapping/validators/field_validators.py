@@ -86,7 +86,6 @@ def is_valid_element_state(value: Any):
 
 def is_valid_characteristic_id(value: Any):
     return value >= 0 and value <= 200
-    return value in DataReader().get_all_characteristic_ids()
 
 
 def is_valid_instance(value: Any):
@@ -178,7 +177,6 @@ def is_valid_total_quantity(value: Any):
 
 def is_valid_type_item(value: Any):
     return value > 0 and value < 1000
-    return value in DataReader().get_all_type_item_ids()
 
 
 def is_valid_spell(value: Any):

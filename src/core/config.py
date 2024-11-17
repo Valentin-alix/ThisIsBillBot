@@ -2,9 +2,6 @@
 Configuration du comportement du bot (modifiable par l'utilisateur).
 Paramètres de stratégie, timings, poids, limites, etc.
 
-✅ Ces valeurs PEUVENT et DOIVENT être ajustées selon vos besoins.
-Elles définissent comment votre bot se comporte, pas le jeu lui-même.
-
 Pour les constantes du jeu, voir src/core/game_constants.py
 """
 
@@ -25,8 +22,10 @@ DO_FIGHTER = (
     True  # le bot va attacker un groupe de monstre random toutes les 30 minutes
 )
 DO_SALE_HOTEL = True  # le bot va aller vendre en hdv
-DO_CRAFT = True  # le bot va aller craft pr level up principalement
-DO_USE_GUILD_CHEST = True  # le bot va utiliser le coffre de guilde plutot que la banque
+DO_CRAFT = False  # le bot va aller craft pr level up principalement
+DO_USE_GUILD_CHEST = (
+    False  # le bot va utiliser le coffre de guilde plutot que la banque
+)
 DO_CHAT = False  # le bot va parler en général (avec le model de chatgpt)
 DO_REGISTER_PRICE = False  # le bot va faire une requete pour enregistrer le prix a chaque fois qu'on l'obtient
 DO_DUNGEON = (
@@ -188,13 +187,14 @@ AREAS_SUB_WITH_WEIGHT: list[AreaInfo] = [
 HARVEST_PAUSE_PROBABILITY = 0.05
 HARVEST_PAUSE_RANGE = (2.0, 8.0)
 
-AFK_PROBABILITY_PER_MAP = 0.03
-AFK_DURATION_RANGE = (30.0, 300.0)
+AFK_PROBABILITY_PER_MAP = 0.01
+AFK_DURATION_RANGE = (30.0, 180.0)
 
 ENABLE_SESSION_CONTEXT = True
 
 PLACEMENT_REPOSITIONING_PROBABILITY = 0.08
 PLACEMENT_EXTRA_HESITATION_RANGE = (0.5, 2.0)
+PLACEMENT_NON_OPTIMAL_MOVE_PROBABILITY = 0.2
 
 LOOK_AROUND_PROBABILITY = 0.03
 LOOK_AROUND_PAUSE_RANGE = (0.3, 1.0)

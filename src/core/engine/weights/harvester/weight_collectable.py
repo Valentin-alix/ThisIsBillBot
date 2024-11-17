@@ -1,5 +1,6 @@
 from collections import defaultdict
 from functools import cache
+from math import log1p
 
 from D3Database.data_center.data_reader import DataReader
 from D3Database.data_center.map_reader import MapReader
@@ -34,7 +35,7 @@ def get_weight_collectable_for_sale_hotel(
             if (related_object := storage_object_by_item.get(item_gid))
             else 0
         )
-        / (1 + item_sell_quantity_by_gid.get(item_gid, 0))
+        / (1 + log1p(item_sell_quantity_by_gid.get(item_gid, 0)))
     )
 
 
@@ -95,14 +96,12 @@ def get_weight_collectable(
     # apply non-linear scaling to favor high prices (tunable via PRICE_EXPONENT)
     scaled_price = price**PRICE_EXPONENT
     weight = base * scaled_price
-    return weight / (
-        1
-        + (
-            related_object.item.quantity
-            if (related_object := storage_by_gid.get(item_gid))
-            else 0
-        )
+    storage_qty = (
+        related_object.item.quantity
+        if (related_object := storage_by_gid.get(item_gid))
+        else 0
     )
+    return weight / (1 + log1p(storage_qty))
 
 
 @cache

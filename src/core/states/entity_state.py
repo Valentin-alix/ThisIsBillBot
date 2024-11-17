@@ -1,8 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Iterable, cast
 
-from icecream import ic
-
 from D3Database.enums.characteristic_enum import CharacteristicEnum
 from D3Database.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
@@ -60,8 +58,9 @@ class EntityState(State):
     def on_cell_id_clicked(self, cell_id: int):
         actors_on_mp = self.actors_on_mp.get(MapPoint.from_cell_id(cell_id))
         if actors_on_mp is None or len(actors_on_mp) == 0:
-            return print(f"No actor on {cell_id}")
-        ic(actors_on_mp.values())
+            self.logger.debug(f"No actor on {cell_id}")
+            return
+        self.logger.debug(f"Actors on cell {cell_id}: {list(actors_on_mp.values())}")
 
     def clear_state(self):
         self.clear_actors()

@@ -1,7 +1,8 @@
 import threading
 
-from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
-
+from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_api_key import (
+    DecipheredApiKey,
+)
 from src.core.behaviors.communication.chat_behavior import ChatBehavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
@@ -16,9 +17,12 @@ from src.core.behaviors.farms.fight.fight_turn_behavior import FightTurnBehavior
 from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.farms.multi_farming_behavior import MultiFarmingBehavior
-from src.core.behaviors.idle_behavior import IdleBehavior
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
+from src.core.behaviors.idle_behavior import IdleBehavior
 from src.core.behaviors.interactives.collect_behavior import CollectBehavior
+from src.core.behaviors.interactives.fake_bad_interactive_behavior import (
+    FakeBadInteractiveBehavior,
+)
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_explorator_behavior import (
@@ -617,6 +621,10 @@ class BotFactory:
             recorder=recorder,
         )
 
+        fake_bad_interactive_behavior = FakeBadInteractiveBehavior(
+            _logger=logger, event_manager=event_manager, game_state=game_state
+        )
+
         return Bot(
             recorder=recorder,
             replayer=replayer,
@@ -627,6 +635,7 @@ class BotFactory:
                 sale_hotel_prices_behavior,
                 sale_hotel_scraping_behavior,
                 fake_bad_movement_behavior,
+                fake_bad_interactive_behavior,
             ],
             account=account,
             grid_signals=grid_signals,

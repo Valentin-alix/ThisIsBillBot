@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ankama_launcher_emulator"
+version = "0.1.0"
+description = ""
+authors = [{ name = "Valentin Alix", email = "valentin-alix.850@outlook.fr" }]
+requires-python = ">=3.12"
+readme = "README.md"
+dependencies = [
+    "requests>1.0.0",
+    "thrift>=0.20.0,<0.21",
+    "psutil>3.0.0",
+    "wmi>=1.5.1,<2; sys_platform == 'win32'",
+    "pycryptodomex>=3.21.0,<4",
+    "frida>=16.6.5,<17",
+    "python-dateutil>=2.9.0.post0,<3",
+    "mitmproxy>=12.2.1",
+]
+
+[dependency-groups]
+dev = ["black>=24.10.0,<25"]

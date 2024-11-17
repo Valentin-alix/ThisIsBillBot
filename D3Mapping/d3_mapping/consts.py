@@ -62,6 +62,7 @@ MAPPING_GAME_PROTO_PATH = os.path.join(RESOURCE_PATH, "game_mappings.json")
 MAPPING_CONN_AUDIT_PATH = os.path.join(RESOURCE_PATH, "connection_mappings_audit.json")
 MAPPING_GAME_AUDIT_PATH = os.path.join(RESOURCE_PATH, "game_mappings_audit.json")
 USED_FIELDS_PATH = os.path.join(RESOURCE_PATH, "used_fields.json")
+UNMAPPED_CANDIDATES_PATH = os.path.join(RESOURCE_PATH, "unmapped_candidates.json")
 
 RELIABILITY_BY_PROTO_BASE_FIELDS: dict[str, float] = {
     "int32": 1,
@@ -86,7 +87,6 @@ EXTRA_RELIABILITY_WITH_VALIDATOR = 5
 
 MAX_PULP_ITERATIONS = 50
 RELIABILITY_LOG_BASE = 2.0
-MAX_PARALLEL_WORKERS = 8
 SIMILARITY_DIVERGENCE_THRESHOLD = 0.1
 
 
@@ -99,3 +99,88 @@ class EntryMsg(StrEnum):
 def log_reliability(value: float, base: float = RELIABILITY_LOG_BASE) -> float:
     """Compute log reliability with consistent offset to avoid log(0)"""
     return math.log(1 + value, base)
+
+
+# Spopollo 48757342559
+
+
+MSG_TO_MAP: list[str] = [
+    "GameMessage",
+    "SpellsEvent",
+    "InventoryContentEvent",
+    "CharacterCharacteristicsEvent",
+    "CharacterSelectionEvent",
+    "InventoryWeightEvent",
+    "ZaapKnownListEvent",
+    "JobExperiencesUpdateEvent",
+    "MapCurrentEvent",
+    "MapComplementaryInformationEvent",
+    "MapMovementRequest",
+    "MapMovementEvent",
+    "MapMovementConfirmRequest",
+    "MapMovementConfirmResponse",
+    "MapChangeRequest",
+    "InteractiveUseRequest",
+    "StatedElementUpdatedEvent",
+    "InteractiveUsedEvent",
+    "NpcGenericActionRequest",
+    "NpcDialogQuestionEvent",
+    "NpcDialogReplyRequest",
+    "ExchangeStartedWithStorageEvent",
+    "StorageInventoryContentEvent",
+    "ExchangeObjectTransferAllFromInventoryRequest",
+    "ExchangeObjectMoveRequest",
+    "ObjectAddedEvent",
+    "ObjectQuantityEvent",
+    "ExchangeMoveKamaRequest",
+    "DialogLeaveRequest",
+    "ExchangeLeaveEvent",
+    "HavenBagEnterRequest",
+    "HavenBagExitRequest",
+    "ObjectUseRequest",
+    "TeleportRequest",
+    "ExchangeBidSellerStartedEvent",
+    "ExchangeBidHouseSearchRequest",
+    "ExchangeBidHousePriceRequest",
+    "ExchangeBidPriceEvent",
+    "ExchangeObjectMovePricedRequest",
+    "ExchangeObjectModifyPricedRequest",
+    "ExchangeBidHouseItemRemovedEvent",
+    "ExchangeBidHouseItemAddedEvent",
+    "TextInformationEvent",
+    "AttackMonsterRequest",
+    "FightMapInformationEvent",
+    "FightPlacementPossiblePositionsEvent",
+    "FightPlacementPositionRequest",
+    "FightReadyRequest",
+    "FightTurnStartPlayingEvent",
+    "GameActionFightCastRequest",
+    "GameActionFightEvent",
+    "SequenceEndEvent",
+    "GameActionAcknowledgementRequest",
+    "FightLiveStateEvent",
+    "FightTurnFinishRequest",
+    "EntitiesDispositionEvent",
+    "FightRefreshCharacterStatsEvent",
+    "MapMovementRefusedEvent",
+    "ChatChannelMessageRequest",
+    "ChatPrivateMessageRequest",
+    "ChatChannelMessageEvent",
+    "GuildMembershipEvent",
+    "GuildChestCurrentListenersAddEvent",
+    "ExchangeStartedWithMultiTabStorageEvent",
+    "GuildChestTabSelectRequest",
+    "ExchangeCraftStartedEvent",
+    "ExchangeSetCraftRecipeRequest",
+    "ExchangeCraftCountRequest",
+    "ExchangeCraftCountModifiedEvent",
+    "ExchangeReadyRequest",
+    "InteractiveUseErrorEvent",
+    "ObjectAveragePricesEvent",
+    "CharacterCharacteristicUpgradeRequest",
+    "CharacterLevelUpEvent",
+    "ExchangeBidBuyerStartedEvent",
+    "ExchangeBidHouseTypeRequest",
+    "ExchangeTypesExchangerDescriptionForUserEvent",
+    "ExchangeTypesItemsExchangerDescriptionForUserEvent",
+]

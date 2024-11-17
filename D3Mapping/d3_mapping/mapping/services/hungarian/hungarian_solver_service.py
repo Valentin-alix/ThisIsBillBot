@@ -5,14 +5,8 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 
 from D3Mapping.d3_mapping.consts import log_reliability
-from D3Mapping.d3_mapping.mapping.services.field_comparison_service import (
-    FieldComparisonService,
-)
 from D3Mapping.d3_mapping.mapping.services.hungarian.cost_matrix_service import (
     CostMatrixService,
-)
-from D3Mapping.d3_mapping.mapping.services.proto_reliability_calculator_service import (
-    ProtoReliabilityCalculator,
 )
 from D3Mapping.d3_mapping.models.mapping_info import (
     AlternativeCandidate,
@@ -35,15 +29,7 @@ class HungarianSolverResult:
 
 @dataclass
 class HungarianSolverService:
-    reliability_calculator: ProtoReliabilityCalculator
-    field_comparison_service: FieldComparisonService
     cost_matrix_service: CostMatrixService
-    """Service for solving field mapping using Hungarian algorithm.
-
-    The Hungarian algorithm (also known as Kuhn-Munkres algorithm) solves
-    the assignment problem in polynomial time. It's used for flat field
-    mapping where we don't need deep constraints.
-    """
 
     def get_flat_best_field_mapping_combination(
         self,
@@ -54,18 +40,11 @@ class HungarianSolverService:
         obf_elem_by_index: dict[int, PMapField | PField],
         treated_clear_namespaces: set[str],
     ):
-        reliability_by_indexes = (
-            self.reliability_calculator.get_flat_reliability_by_indexes(
-                clear_msg, obf_msg, treated_clear_namespaces
-            )
-        )
-
         result_cost = self.cost_matrix_service.compute(
             clear_msg=clear_msg,
             clear_elem_by_index=clear_elem_by_index,
             obf_msg=obf_msg,
             obf_elem_by_index=obf_elem_by_index,
-            reliability_by_indexes=reliability_by_indexes,
             treated_namespaces=treated_clear_namespaces,
             compare_msg_func=compare_msg_func,
         )
@@ -73,7 +52,7 @@ class HungarianSolverService:
             obf_elem_by_index=obf_elem_by_index,
             cost_matrix=result_cost.cost_matrix,
             mapping_by_indexes=result_cost.mapping_by_indexes,
-            reliability_by_indexes=reliability_by_indexes,
+            reliability_by_indexes=result_cost.reliability_by_indexes,
             all_comparisons_by_obf_index=result_cost.all_comparisons_by_obf_index,
         )
 
@@ -94,18 +73,6 @@ class HungarianSolverService:
             int, list[tuple[int, str, float, float, RejectionReason | None]]
         ],
     ) -> HungarianSolverResult:
-        """Solve the assignment problem using Hungarian algorithm.
-
-        Args:
-            obf_elem_by_index: Obfuscated fields indexed
-            cost_matrix: Similarity matrix (clear x obf)
-            mapping_by_indexes: Mapping info by index pairs
-            reliability_by_indexes: Reliability matrix
-            all_comparisons_by_obf_index: All comparisons for audit
-
-        Returns:
-            HungarianSolverResult with best matching
-        """
         row_ind, col_ind = linear_sum_assignment(cost_matrix, maximize=True)
 
         field_mapping: FieldMapping = {}
@@ -151,7 +118,7 @@ class HungarianSolverService:
             else:
                 mapping_tuple = field_mapping[obf_elem.name]
                 assert mapping_tuple is not None
-                sim, clear_name, rel, rel = mapping_tuple
+                sim, clear_name, _mapping_info, _rejection_reason = mapping_tuple
                 selected_clear_idx = obf_index_to_selected_clear[obf_index]
                 reliability = reliability_by_indexes[selected_clear_idx][obf_index]
 

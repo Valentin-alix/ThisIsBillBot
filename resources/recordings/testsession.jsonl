@@ -1,0 +1,2 @@
+{"type": "message", "bot_id": "bot1", "from_server": true, "timestamp": "2026-02-08T12:53:02.878294Z", "msg_full_name": "com.ankama.dofus.server.game.protocol.exchange.ExchangeCraftCountRequest", "payload_b64": "CBo="}
+{"type": "state", "bot_id": "bot1", "state": {"player": {"foo": 42, "bar": "hello"}}, "timestamp": "2026-02-08T12:53:02.878294Z"}

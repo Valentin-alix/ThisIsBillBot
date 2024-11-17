@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFileDialog, QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import FluentIcon, PrimaryPushButton
 
+from src.core.signals.global_log_signals import GlobalLogSignals
 from src.core.signals.log_signals import LogSignals
 from src.gui.pages.debugs.logs_table import LogsTable
 from src.gui.utils.profiling import profiled_slot
@@ -11,11 +12,14 @@ from src.services.logging.log_level import LogLevel
 
 
 class LogsWidget(QWidget):
-    def __init__(self, log_signals: LogSignals, *args, **kwargs):
+    def __init__(
+        self, global_signals: GlobalLogSignals, log_signals: LogSignals, *args, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(4, 4, 4, 4)
         self.v_layout.setSpacing(4)
+        self.global_signals = global_signals
         self.setLayout(self.v_layout)
 
         top_bar = QWidget()
@@ -34,7 +38,7 @@ class LogsWidget(QWidget):
         self.layout().addWidget(self.logs_table)
 
         log_signals.log_emitted.connect(profiled_slot(self.on_log_emitted))
-        log_signals.clear_logs.connect(self.logs_table.table.item_model.clear_all)
+        self.global_signals.log_emitted.connect(profiled_slot(self.on_log_emitted))
 
     def on_log_emitted(self, log_level: LogLevel, msg: str):
         self.logs_table.add_row(log_level, msg)

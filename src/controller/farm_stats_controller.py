@@ -95,7 +95,3 @@ class FarmStatsController(metaclass=Singleton):
     def reset_all_stats(self):
         with self._STATS_LOCK:
             self._save_stats({})
-
-
-if __name__ == "__main__":
-    print(FarmStatsController().get_stats("Iristeau"))

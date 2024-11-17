@@ -2,8 +2,9 @@ import datetime
 from dataclasses import dataclass, field
 from threading import Event
 
-from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
-
+from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_api_key import (
+    DecipheredApiKey,
+)
 from src.controller.bot_config import BotConfigController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
@@ -162,6 +163,7 @@ class Bot(ContextualLogger):
         )
         self.bot_signals.play.connect(self.behavior_coordinator.on_play)
         self.bot_signals.stop.connect(self.behavior_coordinator.on_stop)
+        self.bot_signals.stop.connect(self.connection_handler.cleanup)
         self.game_info_signals.is_ready_to_play.connect(
             self.connection_handler.on_ready_to_play
         )

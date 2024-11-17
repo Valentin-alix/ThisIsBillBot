@@ -44,7 +44,7 @@ class GameStateFixture(unittest.TestCase):
         self.log_signals = LogSignals()
         self.world_signals = WorldSignals()
         self.inventory_signals = InventorySignals()
-        self.logger = Logger(log_signals=LogSignals())
+        self.logger = Logger(log_signals=LogSignals(), title="gamestatefixture")
         self.game_state = StateFactory.create_game_state(
             inventory_signals=self.inventory_signals,
             game_info_signals=self.game_info_signals,

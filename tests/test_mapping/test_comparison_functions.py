@@ -1,7 +1,5 @@
 import unittest
 
-from proto_schema_parser import FieldCardinality
-
 from D3Mapping.d3_mapping.consts import OBFUSCATED_PROTO_GAME, PROTO_GAME_PATH
 from D3Mapping.d3_mapping.factories.p_mapper_factory import PMapperFactory
 from D3Mapping.d3_mapping.mapping.services.enum_comparison_service import compare_p_enum
@@ -58,141 +56,6 @@ class TestComparisonFunctions(unittest.TestCase):
         assert sim_diff_length < sim_same_length, (
             "Different length enums should have lower similarity"
         )
-
-    def test_compare_p_field_basic_types(self):
-        """Test field comparison with basic protobuf types."""
-        test_msg = PMessage(
-            name="TestMessage",
-            elements=[
-                PField(type_name="int32", name="field1", number=1),
-                PField(type_name="string", name="field2", number=2),
-            ],
-            namespace=".test.TestMessage",
-        )
-
-        field_int32_1 = PField(type_name="int32", name="field_a", number=1)
-        field_int32_2 = PField(type_name="int32", name="field_b", number=2)
-        field_string = PField(type_name="string", name="field_c", number=3)
-        field_bool = PField(type_name="bool", name="field_d", number=4)
-
-        sim_same_type, _, _ = (
-            self.p_mapper.hungarian_solver_service.field_comparison_service.compare_p_field(
-                self.p_mapper.get_comparison_message,
-                test_msg,
-                field_int32_1,
-                test_msg,
-                field_int32_2,
-                set(),
-            )
-        )
-        assert 0 <= sim_same_type <= 1
-        assert sim_same_type > 0.5, "Same type fields should have high similarity"
-
-        sim_diff_type, _, _ = (
-            self.p_mapper.hungarian_solver_service.field_comparison_service.compare_p_field(
-                self.p_mapper.get_comparison_message,
-                test_msg,
-                field_int32_1,
-                test_msg,
-                field_string,
-                set(),
-            )
-        )
-        assert 0 <= sim_diff_type <= 1
-        assert sim_diff_type < sim_same_type, (
-            "Different type fields should have lower similarity"
-        )
-
-        sim_very_diff, _, _ = (
-            self.p_mapper.hungarian_solver_service.field_comparison_service.compare_p_field(
-                self.p_mapper.get_comparison_message,
-                test_msg,
-                field_int32_1,
-                test_msg,
-                field_bool,
-                set(),
-            )
-        )
-        assert 0 <= sim_very_diff <= 1
-
-    def test_compare_p_field_repeated_vs_singular(self):
-        """Test that repeated vs singular fields have different similarities."""
-        test_msg = PMessage(
-            name="TestMessage", elements=[], namespace=".test.TestMessage"
-        )
-
-        field_singular = PField(
-            type_name="int32", name="field1", number=1, cardinality=None
-        )
-        field_repeated = PField(
-            type_name="int32",
-            name="field2",
-            number=2,
-            cardinality=FieldCardinality.REPEATED,
-        )
-
-        sim_repeated_vs_singular, _, _ = (
-            self.p_mapper.hungarian_solver_service.field_comparison_service.compare_p_field(
-                self.p_mapper.get_comparison_message,
-                test_msg,
-                field_singular,
-                test_msg,
-                field_repeated,
-                set(),
-            )
-        )
-        sim_singular_vs_singular, _, _ = (
-            self.p_mapper.hungarian_solver_service.field_comparison_service.compare_p_field(
-                self.p_mapper.get_comparison_message,
-                test_msg,
-                field_singular,
-                test_msg,
-                field_singular,
-                set(),
-            )
-        )
-
-        assert 0 <= sim_repeated_vs_singular <= 1
-        assert 0 <= sim_singular_vs_singular <= 1
-        assert sim_singular_vs_singular >= sim_repeated_vs_singular, (
-            "Same cardinality should have higher similarity"
-        )
-
-    def test_verified_message_mapping_simple(self):
-        """Test a few verified messages to ensure mapping works."""
-        test_cases = [
-            ("hbo", "SpellsEvent"),
-            ("hyp", "InventoryContentEvent"),
-        ]
-
-        for obf_name, clear_name in test_cases:
-            obf_namespace = None
-            for namespace in self.p_mapper.obf_struct_by_namespace:
-                if namespace.split(".")[-1] == obf_name:
-                    obf_namespace = namespace
-                    break
-
-            clear_namespace = None
-            for namespace in self.p_mapper.clear_struct_by_namespace:
-                if namespace.split(".")[-1] == clear_name:
-                    clear_namespace = namespace
-                    break
-
-            if obf_namespace and clear_namespace:
-                obf_msg = self.p_mapper.obf_struct_by_namespace[obf_namespace]
-                clear_msg = self.p_mapper.clear_struct_by_namespace[clear_namespace]
-
-                if isinstance(obf_msg, PMessage) and isinstance(clear_msg, PMessage):
-                    mapping_info = self.p_mapper.get_comparison_message(
-                        clear_msg, obf_msg, set()
-                    )
-
-                    assert 0 <= mapping_info.similarity <= 1, (
-                        f"Similarity for {clear_name} should be between 0 and 1"
-                    )
-                    assert mapping_info.similarity > 0, (
-                        f"Verified message {clear_name} should have positive similarity"
-                    )
 
     def test_field_mapping_returns_valid_structure(self):
         """Test that field mapping returns expected structure."""
@@ -274,46 +137,6 @@ class TestComparisonFunctions(unittest.TestCase):
                 "def",
                 "ghi",
             ], f"Unexpected field name: {obf_field_name}"
-
-    def test_reliability_calculation_consistency(self):
-        """Test that reliability calculation is consistent."""
-        clear_msg = PMessage(
-            name="TestMsg",
-            elements=[
-                PField(type_name="int32", name="field1", number=1),
-            ],
-            namespace=".test.TestMsg",
-        )
-
-        obf_msg = PMessage(
-            name="xyz",
-            elements=[
-                PField(type_name="int32", name="abc", number=1),
-            ],
-            namespace="xyz",
-        )
-
-        reliability_by_indexes = self.p_mapper.hungarian_solver_service.reliability_calculator.get_flat_reliability_by_indexes(
-            clear_msg, obf_msg, set()
-        )
-
-        assert reliability_by_indexes is not None, "Should return reliability data"
-
-        import numpy as np
-
-        if isinstance(reliability_by_indexes, np.ndarray):
-            assert reliability_by_indexes.size > 0, "Should have reliability data"
-            assert np.all(reliability_by_indexes >= 0), (
-                "All reliabilities should be non-negative"
-            )
-        elif isinstance(reliability_by_indexes, (list, tuple)):
-            assert len(reliability_by_indexes) > 0, "Should have reliability data"
-            for row in reliability_by_indexes:
-                if isinstance(row, (list, tuple)):
-                    for reliability in row:
-                        assert reliability >= 0, "Reliability should be non-negative"
-                else:
-                    assert row >= 0, "Reliability should be non-negative"
 
 
 if __name__ == "__main__":

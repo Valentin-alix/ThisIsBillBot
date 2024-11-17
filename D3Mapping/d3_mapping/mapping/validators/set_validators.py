@@ -182,10 +182,7 @@ def validator_spells_event(values: dict[str, Any]):
     if len(values["human_spells"]) == 0:
         return False
     for spell in values["human_spells"]:
-        if not (
-            spell["spell_id"] in DataReader().spell_by_id
-            or spell["spell_level"] not in DataReader().spell_lvl_by_id
-        ):
+        if spell["spell_id"] not in DataReader().spell_by_id:
             return False
     return True
 

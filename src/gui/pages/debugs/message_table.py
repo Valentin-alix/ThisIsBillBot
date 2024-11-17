@@ -6,6 +6,9 @@ from PyQt5.QtGui import QStandardItem
 from PyQt5.QtWidgets import QHeaderView
 from qfluentwidgets import TableWidget
 
+from D3Mapping.d3_mapping.controller.message_mapping_controller import (
+    MessageMappingController,
+)
 from D3Mapping.d3_mapping.models.message import MessageInfo
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
@@ -21,6 +24,9 @@ class MessageTable(BaseTableWidget):
         self._batch_timer.setInterval(50)
         self._batch_timer.setSingleShot(True)
         self._batch_timer.timeout.connect(self._flush_pending_messages)
+        self._unmapped_candidates_by_obf = (
+            MessageMappingController.get_unmapped_candidates_by_obf()
+        )
         columns: list[ColumnInfo] = [
             ColumnInfo(name="Heure"),
             ColumnInfo(name="Origine"),
@@ -67,7 +73,18 @@ class MessageTable(BaseTableWidget):
         for msg_info, was_send_from_proxy in self._pending_messages:
             date_field = QStandardItem(msg_info.received_time.strftime("%H:%M:%S"))
             origin_field = QStandardItem("S" if msg_info.from_server else "C")
-            sub_msg_name_field = QStandardItem(msg_info.sub_msg_name)
+
+            display_name = msg_info.sub_msg_name
+            if msg_info.msg_json is None:
+                candidates = self._unmapped_candidates_by_obf.get(
+                    msg_info.sub_msg_name
+                )
+                if candidates:
+                    candidates_str = ", ".join(
+                        f"{name} ({sim:.0%})" for name, sim in candidates
+                    )
+                    display_name = f"{msg_info.sub_msg_name} ? {candidates_str}"
+            sub_msg_name_field = QStandardItem(display_name)
 
             count = ""
             if msg_info.obf_msg_json:

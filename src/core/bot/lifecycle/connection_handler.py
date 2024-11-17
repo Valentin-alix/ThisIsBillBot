@@ -1,9 +1,11 @@
+import time
 from dataclasses import dataclass, field
 from threading import Event, Timer
 from typing import Callable
 
-from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
-
+from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_api_key import (
+    DecipheredApiKey,
+)
 from src.controller.bot_config import BotConfig
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
@@ -35,6 +37,8 @@ class ConnectionHandler(ContextualLogger):
     behavior_coordinator: BehaviorCoordinator
 
     _timer: Timer | None = field(init=False, default=None)
+    _reconnect_attempts: int = field(init=False, default=0)
+    _last_disconnect_time: float | None = field(init=False, default=None)
 
     def cleanup(self):
         if self._timer is not None:
@@ -49,17 +53,37 @@ class ConnectionHandler(ContextualLogger):
         self.is_connected_event.clear()
         self.is_ready_to_play_event.clear()
         if not self.is_playing_event.is_set():
+            self._reconnect_attempts = 0
+            return
+
+        current_time = time.time()
+
+        if self._last_disconnect_time is not None:
+            if current_time - self._last_disconnect_time < 120:
+                self._reconnect_attempts += 1
+            else:
+                self._reconnect_attempts = 0
+
+        self._last_disconnect_time = current_time
+
+        if self._reconnect_attempts >= 3:
+            self.logger.warning(
+                f"Trop de déconnexions rapides ({self._reconnect_attempts}), arrêt du bot"
+            )
+            self.is_playing_event.clear()
+            self._reconnect_attempts = 0
             return
 
         self.behavior_coordinator.stop_behaviors()
         self.cleanup()
-        self._timer = Timer(
-            3,
-            lambda: self.shared_signals.launch_account.emit(
-                self.account["apikey"]["login"]
-            ),
-        )
+
+        delay = 3 + (self._reconnect_attempts * 5)
+        self._timer = Timer(delay, self._emit_relaunch)
         self._timer.start()
+
+    def _emit_relaunch(self):
+        if self.is_playing_event.is_set():
+            self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
 
     def on_ready_to_play(self):
         """Handle ready to play event and start appropriate behavior."""

@@ -1,14 +1,9 @@
 import re
 import socket
 
-from pydantic import validate_call
 
-from D3Mapping.d3_mapping.models.mapping_info import Percentage
-
-
-@validate_call
-def set_percentage(value: Percentage) -> float:
-    return min(value, 1)
+def set_percentage(value: float) -> float:
+    return max(0.0, min(value, 1.0))
 
 
 def to_snake_case(value: str):

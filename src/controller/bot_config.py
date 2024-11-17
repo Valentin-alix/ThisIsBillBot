@@ -40,14 +40,3 @@ class BotConfigController(metaclass=Singleton):
             all_configs[login] = bot_config
             with open(self._BOT_CONFIG_PATH, "w") as file:
                 json.dump(BotConfigs(root=all_configs).model_dump(), file, indent=2)
-
-
-if __name__ == "__main__":
-    tmp = BotConfigController().get_bot_config_by_login()
-    print(tmp)
-    BotConfigController().update_bot_config_by_login(
-        bot_config=BotConfig(schedule_profile="A"),
-        login="yolo",
-    )
-    tmp = BotConfigController().get_bot_config_by_login()
-    print(tmp)

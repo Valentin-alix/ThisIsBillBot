@@ -17,13 +17,23 @@ from scapy.layers.inet import IP
 from scapy.layers.inet6 import IPv6
 from scapy.packet import Packet, Raw
 
+from src.core.signals.global_log_signals import GlobalLogSignals
+from src.services.logging.logger import init_gui_global_logging
+
 load_dotenv(os.path.join(Path(__file__).parent.parent.parent, ".env"))
 
 sys.path.append(os.path.join(Path(__file__).parent.parent.parent))
 
 from D3Mapping.d3_mapping.protocol.protocol import decode_varint_size
-from D3Mapping.d3_mapping.protocol.protocol_connection import get_conn_msg, get_conn_msg_info
-from D3Mapping.d3_mapping.protocol.protocol_game import get_game_msg, get_game_msg_info
+from D3Mapping.d3_mapping.protocol.protocol_connection import (
+    get_conn_msg,
+    get_conn_msg_info,
+)
+from D3Mapping.d3_mapping.protocol.protocol_game import (
+    get_game_msg,
+    get_game_msg_info,
+    get_obf_game_msg_info,
+)
 from D3Mapping.d3_mapping.utils import get_local_ip
 from src.core.signals.message_signals import MessageInfoSignals
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
@@ -97,11 +107,13 @@ class Sniffer:
 
     def handle_game_message(self, content: bytes, from_server: bool):
         try:
-            # msg_infos = get_obf_game_msg_info(content, from_server, True)
-            # self.msg_info_signals.msg_info.emit(msg_infos, False)
-            # return
+            msg_infos = get_obf_game_msg_info(content, from_server, True)
+            self.msg_info_signals.msg_info.emit(msg_infos, False)
+            return
             _, clear_sub_msg, obf_sub_msg, uid_value = get_game_msg(content, True)
-            msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid_value, from_server, True)
+            msg_infos = get_game_msg_info(
+                clear_sub_msg, obf_sub_msg, uid_value, from_server, True
+            )
             self.msg_info_signals.msg_info.emit(msg_infos, False)
         except Exception:
             print(traceback.format_exc())
@@ -113,7 +125,9 @@ def main():
     bot.is_fake = False
     sniffer = Sniffer(msg_info_signals=bot.msg_info_signals, from_obfuscated=True)
     Thread(target=sniffer.launch_sniffer, daemon=True).start()
-    sniffer_widget = SnifferWidget(bot)
+    global_signals = GlobalLogSignals()
+    init_gui_global_logging(global_signals)
+    sniffer_widget = SnifferWidget(bot, global_signals)
     sniffer_widget.resize(BASE_WIDTH, BASE_HEIGHT)
     sniffer_widget.show()
     setTheme(Theme.DARK)

@@ -77,7 +77,7 @@ def _convert_str_value(value):
         return value
     try:
         return datetime.fromisoformat(value)
-    except Exception:
+    except ValueError:
         if value.isnumeric():
             return int(value)
         return value

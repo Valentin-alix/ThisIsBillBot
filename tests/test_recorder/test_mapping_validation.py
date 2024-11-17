@@ -80,7 +80,7 @@ class MappingValidator:
         game_info_signals = GameInfoSignals()
         grid_signals = GridSignals()
         inventory_signals = InventorySignals()
-        logger = Logger(log_signals=log_signals)
+        logger = Logger(log_signals=log_signals, title="mappingvalidator")
 
         self.game_state = StateFactory.create_game_state(
             inventory_signals=inventory_signals,
@@ -123,7 +123,9 @@ class MappingValidator:
 
         # Replay obfuscated messages
         try:
-            worker = self.replayer.get_replay_worker(recording_path, preserve_timing=False, use_obfuscated=True)
+            worker = self.replayer.get_replay_worker(
+                recording_path, preserve_timing=False, use_obfuscated=True
+            )
             worker()
 
             # Analyze each processed message
@@ -133,7 +135,9 @@ class MappingValidator:
                     if msg_info.msg_json is not None:
                         result.add_success()
                     else:
-                        result.add_failure(msg_info.sub_msg_name, "No msg_json produced")
+                        result.add_failure(
+                            msg_info.sub_msg_name, "No msg_json produced"
+                        )
 
                     # Additional validation could be added here:
                     # - Check if all required fields are present
@@ -177,7 +181,9 @@ class TestMappingValidation(unittest.TestCase):
 
         for idx, clear_msg in enumerate(test_messages):
             # Create obfuscated version
-            obf_msg = get_obf_game_message_from_msg(Request.DESCRIPTOR.full_name, clear_msg, uid=idx + 100)
+            obf_msg = get_obf_game_message_from_msg(
+                Request.DESCRIPTOR.full_name, clear_msg, uid=idx + 100
+            )
 
             assert obf_msg
 
@@ -234,7 +240,9 @@ class TestMappingValidation(unittest.TestCase):
             else:
                 clear_msg = generate_ChatChannelMessageRequest()
 
-            obf_msg = get_obf_game_message_from_msg(Request.DESCRIPTOR.full_name, clear_msg, uid=i + 200)
+            obf_msg = get_obf_game_message_from_msg(
+                Request.DESCRIPTOR.full_name, clear_msg, uid=i + 200
+            )
 
             assert obf_msg
 

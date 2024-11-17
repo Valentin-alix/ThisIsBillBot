@@ -10,9 +10,11 @@ import schedule
 
 SCHEDULE_RANDOM_MINUTES_MIN = 1
 SCHEDULE_RANDOM_MINUTES_MAX = 8
-from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
 from PyQt5.QtCore import QThread
 
+from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_api_key import (
+    DecipheredApiKey,
+)
 from src.controller.bot_config import BotConfig
 from src.controller.schedule_profile_controller import ScheduleProfileController
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
@@ -214,8 +216,6 @@ class BotScheduler(ContextualLogger):
 
     def _planned_stop_bot(self):
         self.logger.info("Stopping bot")
-        if self.msg_info_signals:
-            self.msg_info_signals.clear_msg_infos.emit()
         if self.is_playing_event.is_set():
             if self.behavior_coordinator:
                 self.behavior_coordinator.stop_behaviors()

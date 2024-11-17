@@ -21,6 +21,7 @@ from qfluentwidgets import (
 
 from D3Mapping.d3_mapping.models.message import MessageInfo
 from src.core.bot.bot import Bot
+from src.core.signals.global_log_signals import GlobalLogSignals
 from src.gui.components.thread_monitor_widget import ThreadMonitorWidget
 from src.gui.pages.debugs.listeners_stats import ListenersStatsWidget
 from src.gui.pages.debugs.logs import LogsWidget
@@ -38,11 +39,13 @@ class SnifferWidget(PivotItem):
     def __init__(  # type: ignore[override]
         self,
         bot: Bot,
+        global_log_signals: GlobalLogSignals,
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.bot = bot
+        self.global_log_signals = global_log_signals
         self.is_playing: bool = True
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(4, 4, 4, 4)
@@ -50,8 +53,6 @@ class SnifferWidget(PivotItem):
         self.setLayout(self.v_layout)
         self.init_top_content()
         self.init_content()
-
-        self.bot.msg_info_signals.clear_msg_infos.connect(self.on_reset)
         self.bot.msg_info_signals.msg_info.connect(
             profiled_slot(self.on_receive_msg_info)
         )
@@ -159,7 +160,9 @@ class SnifferWidget(PivotItem):
             debug_stacked = QStackedWidget()
             debug_tabs_widget.layout().addWidget(debug_stacked)
 
-            logs_widget = LogsWidget(log_signals=self.bot.log_signals)
+            logs_widget = LogsWidget(
+                global_signals=self.global_log_signals, log_signals=self.bot.log_signals
+            )
             debug_stacked.addWidget(logs_widget)
 
             listeners_widget = ListenersStatsWidget(

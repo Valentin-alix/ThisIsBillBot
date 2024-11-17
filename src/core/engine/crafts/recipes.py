@@ -12,7 +12,9 @@ from src.core.states.guild_chest_state import GIDS_BY_TAB
 from src.services.logging.logger import Logger
 
 
-def get_benefice_on_craft_recipe(recipe: RecipeItem, server_id: int = 1) -> tuple[float, float]:
+def get_benefice_on_craft_recipe(
+    recipe: RecipeItem, server_id: int = 1
+) -> tuple[float, float]:
     avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(server_id)
     if recipe.resultId in avg_price_by_gid and all(
         ingredient_id in avg_price_by_gid for ingredient_id in recipe.ingredientIds

@@ -153,7 +153,8 @@ class DeepMappingDataService:
                             self.clear_struct_by_namespace, clear_msg, clear_elem.name
                         )
                     )
-                    assert type(sub_clear_struct) is PMessage
+                    if not isinstance(sub_clear_struct, PMessage):
+                        continue
 
                     if sub_clear_struct.namespace in treated_clear_namespaces:
                         continue
@@ -163,7 +164,8 @@ class DeepMappingDataService:
                             self.obf_struct_by_namespace, obf_msg, obf_elem.name
                         )
                     )
-                    assert type(sub_obf_struct) is PMessage
+                    if not isinstance(sub_obf_struct, PMessage):
+                        continue
                     sub_sim_by_mapping, sub_reliability_by_mapping = self.compute(
                         clear_prefix + (clear_elem.name,)
                         if clear_prefix is not None

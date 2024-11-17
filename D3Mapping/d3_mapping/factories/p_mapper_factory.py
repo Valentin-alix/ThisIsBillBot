@@ -18,9 +18,6 @@ from D3Mapping.d3_mapping.mapping.services.proto_reliability_calculator_service 
 from D3Mapping.d3_mapping.mapping.services.pulp.deep_mapping_data_service import (
     DeepMappingDataService,
 )
-from D3Mapping.d3_mapping.mapping.services.pulp.pulp_model_builder import (
-    PulpModelBuilder,
-)
 from D3Mapping.d3_mapping.mapping.services.pulp.pulp_result_converter import (
     PulpResultConverter,
 )
@@ -62,12 +59,14 @@ class PMapperFactory:
             obf_struct_by_namespace=obf_struct_by_namespace,
             msg_mapping_info_by_obf_namespace=msg_mapping_info_by_obf_namespace,
         )
-        pulp_model_build = PulpModelBuilder()
         metrics = MappingMetrics()
         added_mapping_by_obf_namespaces = {}
         mapping_enforcement_service = MappingEnforcementService(
             verified_msg_by_obf=verified_mapping.verified_msg_by_obf,
-            verified_msg_by_clear=verified_mapping.verified_msg_by_obf,
+            verified_msg_by_clear={
+                value: key
+                for key, value in verified_mapping.verified_msg_by_obf.items()
+            },
             verified_mapping_field_by_clear=verified_mapping.field_mappings,
             added_mapping_by_obf_namespaces=added_mapping_by_obf_namespaces,
             metrics=metrics,
@@ -88,18 +87,16 @@ class PMapperFactory:
             obf_struct_by_namespace=obf_struct_by_namespace,
         )
         pulp_solver_service = PulpSolverService(
-            model_builder=pulp_model_build,
             metrics=metrics,
             proto_validator=proto_validator,
             deep_mapping_data_service=deep_mapping_data_service,
             pulp_result_converter=pulp_result_converter,
         )
         cost_matrix_service = CostMatrixService(
-            field_comparison_service=field_comparison_service
+            field_comparison_service=field_comparison_service,
+            reliability_calculator=reliability_calculator,
         )
         hungarian_solver_service = HungarianSolverService(
-            reliability_calculator=reliability_calculator,
-            field_comparison_service=field_comparison_service,
             cost_matrix_service=cost_matrix_service,
         )
         proto_mapper = GlobalProtoMapper(

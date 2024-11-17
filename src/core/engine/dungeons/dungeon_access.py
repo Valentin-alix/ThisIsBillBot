@@ -16,7 +16,9 @@ def do_have_key_access_to_dungeon(
     logger: Logger,
 ):
     related_king_ring_item = next(
-        object.item for object in objects_by_uid.values() if object.item.gid == Items.KEY_RING
+        object.item
+        for object in objects_by_uid.values()
+        if object.item.gid == Items.KEY_RING
     )
     related_item_key_ids = [
         item.id
@@ -26,13 +28,17 @@ def do_have_key_access_to_dungeon(
         and item.typeId == ItemTypeEnum.KEY
     ]
     if len(related_item_key_ids) == 0:
-        print(f"Wtf did not found related key for name {dungeon_info.name}")
+        logger.error(f"Wtf did not found related key for name {dungeon_info.name}")
+        return False
 
     logger.info(f"related item keys id : {related_item_key_ids}")
-    logger.info(f"keyring value_int : {[effect.value_int for effect in related_king_ring_item.effects]}")
+    logger.info(
+        f"keyring value_int : {[effect.value_int for effect in related_king_ring_item.effects]}"
+    )
 
     does_have_king_ring_related_key = any(
-        effect.value_int in related_item_key_ids for effect in related_king_ring_item.effects
+        effect.value_int in related_item_key_ids
+        for effect in related_king_ring_item.effects
     )
     return does_have_king_ring_related_key
 
@@ -47,6 +53,9 @@ def get_valid_dungeon_infos(
         dungeon_info
         for dungeon_info in Dungeons.ALL
         if dungeon_info.dungeon.optimalPlayerLevel + DUNGEON_OFFSET_LVL < level
-        and (is_sub or MapTools.is_map_allowed_for_unsub(dungeon_info.dungeon.entranceMapId))
+        and (
+            is_sub
+            or MapTools.is_map_allowed_for_unsub(dungeon_info.dungeon.entranceMapId)
+        )
         and do_have_key_access_to_dungeon(dungeon_info, objects_by_uid, logger)
     ]

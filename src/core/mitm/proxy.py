@@ -1,3 +1,4 @@
+import logging
 import select
 import socket
 from dataclasses import dataclass, field
@@ -7,6 +8,9 @@ from socket import socket as Socket
 from threading import Lock, Thread
 
 from D3Mapping.d3_mapping.protocol.protocol import decode_varint_size
+from src.utils.internet import has_internet_connection
+
+logger = logging.getLogger()
 
 
 class WorkerAction(Enum):
@@ -59,7 +63,7 @@ class Proxy:
                 rlist, wlist, xlist = select.select(conns, [], conns)
                 if xlist:
                     for error in xlist:
-                        print(f"error socket : {error}")
+                        logger.error(f"error socket : {error}")
                 if xlist or not rlist:
                     break
                 for r in rlist:
@@ -69,12 +73,14 @@ class Proxy:
                         break
                     self.handle(data, origin=r)
         except (ConnectionResetError, BrokenPipeError, OSError, ValueError) as err:
-            print(f"Network error in proxy loop: {err}")
+            logger.warning(f"Network error in proxy loop: {err}")
         finally:
             self.close()
 
     def close(self):
-        print("closing conns")
+        logger.info(
+            f"closing conns, internet connection is {has_internet_connection()}"
+        )
         for con in self.connections:
             con.close()
         with self.queue_worker_item.mutex:
@@ -109,7 +115,7 @@ class Proxy:
                     try:
                         self.opposite_connection[origin].sendall(msg_datas_altered)
                     except OSError as err:
-                        print(f"sendall failed in handle: {err}")
+                        logger.error(f"sendall failed in handle: {err}")
                         return self.close()
 
                 self.queue_worker_item.put(
@@ -130,7 +136,7 @@ class Proxy:
             try:
                 self.client_socket.sendall(data)
             except OSError as err:
-                print(f"send to client err : {err}")
+                logger.error(f"send to client err : {err}")
                 return self.close()
         self.queue_worker_item.put((WorkerAction.RECEIVED, data, True, True))
 
@@ -139,6 +145,6 @@ class Proxy:
             try:
                 self.server_socket.sendall(data)
             except OSError as err:
-                print(f"send to server err : {err}")
+                logger.error(f"send to server err : {err}")
                 return self.close()
         self.queue_worker_item.put((WorkerAction.RECEIVED, data, True, False))

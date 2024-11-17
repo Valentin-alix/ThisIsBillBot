@@ -1,5 +1,6 @@
 import unittest
 from time import sleep
+from unittest.mock import patch
 
 from src.core.behaviors.behavior import (
     Behavior,
@@ -20,6 +21,7 @@ class DummyBehavior(Behavior):
 class TestBehaviorLifecycle(BehaviorTestBase):
     """Test behavior lifecycle with strict exception enforcement (Phase 1)"""
 
+    @patch("src.core.behaviors.behavior.STRICT_MODE", True)
     def test_double_stop_raises_error(self):
         """Phase 1: Verify double stop raises error (BehaviorStateError in Phase 2)"""
         behavior = DummyBehavior(
@@ -33,8 +35,9 @@ class TestBehaviorLifecycle(BehaviorTestBase):
         with self.assertRaises(BehaviorStateError) as ctx:
             behavior.stop()
 
-        self.assertIn("invalid transition", str(ctx.exception).lower())
+        self.assertIn("already stopped", str(ctx.exception).lower())
 
+    @patch("src.core.behaviors.behavior.STRICT_MODE", True)
     def test_start_when_running_raises_error(self):
         """Phase 1: Verify starting running behavior raises error (BehaviorStateError in Phase 2)"""
         behavior = DummyBehavior(
@@ -44,11 +47,12 @@ class TestBehaviorLifecycle(BehaviorTestBase):
         )
         behavior.start(callback=None, parent=None)
 
-        with self.assertRaises(BehaviorStateError) as ctx:
+        with self.assertRaises(BehaviorLifecycleError) as ctx:
             behavior.start(callback=None, parent=None)
 
         self.assertIn("invalid transition", str(ctx.exception).lower())
 
+    @patch("src.core.behaviors.behavior.STRICT_MODE", True)
     def test_start_with_stopped_parent_raises_error(self):
         """Phase 1: Verify starting child with stopped parent raises BehaviorLifecycleError"""
         parent = DummyBehavior(
@@ -182,6 +186,7 @@ class TestBehaviorLifecycle(BehaviorTestBase):
         behavior.stop()
         self.assertEqual(behavior.state, BehaviorState.STOPPED)
 
+    @patch("src.core.behaviors.behavior.STRICT_MODE", True)
     def test_invalid_state_transition_raises_error(self):
         """Phase 2: Verify invalid state transitions raise BehaviorStateError"""
         behavior = DummyBehavior(
@@ -195,8 +200,9 @@ class TestBehaviorLifecycle(BehaviorTestBase):
         with self.assertRaises(BehaviorStateError) as ctx:
             behavior.stop()
 
-        self.assertIn("invalid transition", str(ctx.exception).lower())
+        self.assertIn("already stopped", str(ctx.exception).lower())
 
+    @patch("src.core.behaviors.behavior.STRICT_MODE", True)
     def test_state_machine_prevents_double_start(self):
         """Phase 2: Verify state machine prevents starting already running behavior"""
         behavior = DummyBehavior(
@@ -208,7 +214,7 @@ class TestBehaviorLifecycle(BehaviorTestBase):
         behavior.start(callback=None, parent=None)
         self.assertEqual(behavior.state, BehaviorState.RUNNING)
 
-        with self.assertRaises(BehaviorStateError) as ctx:
+        with self.assertRaises(BehaviorLifecycleError) as ctx:
             behavior.start(callback=None, parent=None)
 
         self.assertIn("invalid transition", str(ctx.exception).lower())
@@ -254,6 +260,7 @@ class TestBehaviorLifecycle(BehaviorTestBase):
         sleep(0.1)
         self.assertEqual(len(callback_executed), 0, "Timer callback should not execute after stop")
 
+    @patch("src.core.behaviors.behavior.STRICT_MODE", True)
     def test_finish_prevents_double_callback(self):
         """Phase 3: Verify finish() prevents double-callback execution"""
         behavior = DummyBehavior(
@@ -269,8 +276,7 @@ class TestBehaviorLifecycle(BehaviorTestBase):
         behavior.start(callback=test_callback, parent=None)
         behavior.finish(error_code=None)
 
-        with self.assertRaises(BehaviorLifecycleError):
-            behavior.finish(error_code=None)
+        behavior.finish(error_code=None)
 
         self.assertEqual(len(callback_count), 1, "Callback should only be called once")
 

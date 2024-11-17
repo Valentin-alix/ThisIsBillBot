@@ -34,7 +34,7 @@ DO_INSERT_HUMAN_SESSION = False
 # BACKEND & RÉSEAU
 # ============================================================================
 
-BACKEND_URL = "http://31.38.182.64:65472"
+BACKEND_URL = "http://localhost:8000"
 
 FILTER_DOFUS = "tcp port 5555"
 DOFUS_CONNECTION_URL = "dofus2-co-production.ankama-games.com"
@@ -45,7 +45,7 @@ CONNECTION_SERVERS_IPS: list[str] = socket.gethostbyname_ex(DOFUS_CONNECTION_URL
 # ============================================================================
 
 RESOURCE_FOLDER = os.path.join(Path(__file__).parent.parent, "resources")
-MITM_CONFIG_URL = os.path.join(RESOURCE_FOLDER, "config.json")
+LOGO_FILE = os.path.join(RESOURCE_FOLDER, "icons", "logo.png")
 RECORDING_FOLDER = os.path.join(RESOURCE_FOLDER, "recordings")
 HUMAN_SESSIONS_FILE = os.path.join(RESOURCE_FOLDER, "human_sessions.json")
 LOG_FOLDER: str = os.path.join(RESOURCE_FOLDER, "logs")

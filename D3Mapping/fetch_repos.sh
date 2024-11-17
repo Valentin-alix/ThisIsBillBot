@@ -1,1 +1,0 @@
-git subtree pull --prefix=protodec https://github.com/Valentin-alix/protodec.git master --squash

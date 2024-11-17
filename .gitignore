@@ -13,13 +13,13 @@ benchmark.pstats
 benchmark_output.png
 .ruff_cache
 resources/sessions/*.json
-recordings
 avg_price_by_gid.json
 *.csv
 *.parquet
 *.prof
 
 bid_seller_item_by_uid_by_player_id.json
+*_audit.json
 
 .idea
 

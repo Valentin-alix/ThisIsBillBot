@@ -1,12 +1,14 @@
 import json
+from collections import defaultdict
 from datetime import datetime
 
 from pydantic import RootModel
 
 from D3Mapping.d3_mapping.consts import (
     MAPPING_CONN_PROTO_PATH,
-    MAPPING_GAME_PROTO_PATH,
     MAPPING_GAME_AUDIT_PATH,
+    MAPPING_GAME_PROTO_PATH,
+    UNMAPPED_CANDIDATES_PATH,
     USED_FIELDS_PATH,
 )
 from D3Mapping.d3_mapping.models.mapping_info import (
@@ -140,3 +142,15 @@ class MessageMappingController:
         sorted_audit = MappingAudit(_header=audit.header, messages=sorted_messages)
         with open(output, "w+") as file:
             file.write(sorted_audit.model_dump_json(indent=2, by_alias=True))
+
+    @staticmethod
+    def get_unmapped_candidates_by_obf() -> dict[str, list[tuple[str, float]]]:
+        with open(UNMAPPED_CANDIDATES_PATH, "r") as file:
+            data: dict[str, list[dict[str, str | float]]] = json.load(file)
+        result: dict[str, list[tuple[str, float]]] = defaultdict(list)
+        for clear_name, candidates in data.items():
+            for candidate in candidates:
+                obf_ns = str(candidate["obf_namespace"])
+                similarity = float(candidate["similarity"])
+                result[obf_ns].append((clear_name, similarity))
+        return result

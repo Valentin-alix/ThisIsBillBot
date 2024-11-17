@@ -19,12 +19,8 @@ dependencies = [
     "proto-schema-parser>=1.4.8,<2",
     "frida>=16.7.3,<17",
     "frida-tools>=13.6.1,<14",
-    "tinydb>=4.8.2,<5",
-    "ujson>=5.10.0,<6",
-    "orjson>=3.10.18,<4",
     "schedule>=1.2.2,<2",
     "python-dotenv>=1.1.0,<2",
-    "line-profiler>=4.2.0,<5",
     "pyinstaller>=6.13.0,<7",
     "pulp>=3.2.1,<4",
     "datamodel-code-generator>=0.30.2,<0.31",
@@ -35,10 +31,14 @@ dependencies = [
     "langchain-openai>=1.0.3,<2",
     "langchain-community>=0.4.1,<0.5",
     "psycopg2>=2.9.11,<3",
-    "ankama-launcher-emulator",
     "watchfiles>=1.1.1",
     "pyright>=1.1.408",
     "langchain>=1.2.6",
+    "mitmproxy>=12.2.1",
+    "pycryptodomex>=3.23.0",
+    "thrift>=0.20.0,<0.21",
+    "wmi>=1.5.1",
+    "ruff>=0.12.12",
 ]
 
 [dependency-groups]
@@ -61,9 +61,6 @@ dev = [
 [tool.uv]
 package = false
 
-[tool.uv.sources]
-ankama-launcher-emulator = { git = "https://github.com/Valentin-alix/AnkamaLauncherEmulator.git" }
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -76,7 +73,8 @@ venvPath = "."
 venv = ".venv"
 exclude = [
   "**/IL2CppDumper",
-  "**/.venv"
+  "**/.venv",
+  "AnkamaLauncherEmulator/ankama_launcher_emulator/gen_zaap"
 ]
 ignore = [
   "D3Mapping/d3_mapping/resources"

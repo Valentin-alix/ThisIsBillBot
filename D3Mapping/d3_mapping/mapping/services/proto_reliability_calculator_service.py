@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 import numpy as np
 from proto_schema_parser import FieldCardinality
 from pydantic import BaseModel
@@ -39,42 +37,6 @@ class ProtoReliabilityCalculator(BaseModel):
 
     reliability_by_clear_namespace_with_obf_namespace: dict[tuple[str, str], float] = {}
     verified_obf_msg_name_by_clear_msg_name: dict[str, str]
-
-    def get_flat_reliability_by_indexes(
-        self, clear_msg: PMessage, obf_msg: PMessage, treated_msg_namespaces: set[str]
-    ) -> dict[int, dict[int, float]]:
-        """get reliability by field  with the total reliability"""
-        reliability_by_indexes: dict[int, dict[int, float]] = defaultdict(dict)
-
-        clear_elem_by_index = ProtoOrganization.get_flat_elements(clear_msg)
-        obf_elem_by_index = ProtoOrganization.get_flat_elements(obf_msg)
-
-        for clear_index, _clear_elem in clear_elem_by_index.items():
-            for obf_index, _obf_elem in obf_elem_by_index.items():
-                if type(_clear_elem) is PField and type(_obf_elem) is PField:
-                    reliability_by_indexes[clear_index][obf_index] = (
-                        self.get_reliability_p_clear_field(
-                            clear_msg,
-                            _clear_elem,
-                            obf_msg,
-                            _obf_elem,
-                            treated_msg_namespaces,
-                        )
-                    )
-                elif type(_clear_elem) is PMapField and type(_obf_elem) is PMapField:
-                    reliability_by_indexes[clear_index][obf_index] = (
-                        self.get_reliability_clear_map_field(
-                            clear_msg,
-                            _clear_elem,
-                            obf_msg,
-                            _obf_elem,
-                            treated_msg_namespaces,
-                        )
-                    )
-                else:
-                    reliability_by_indexes[clear_index][obf_index] = BASE_RELIABILITY
-
-        return reliability_by_indexes
 
     def get_reliability_clear_enum(self, enum: PEnum) -> float:
         return len(enum.elements) + EXTRA_RELIABILITY_ENUM

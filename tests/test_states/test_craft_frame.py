@@ -3,13 +3,11 @@ from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
     ObjectItemInventory,
 )
 from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
-    ExchangeCraftCountModifiedEvent,
+    ExchangeCraftCountRequest,
     ExchangeCraftStartedEvent,
     ExchangeLeaveEvent,
+    ExchangeReadyRequest,
     ExchangeSetCraftRecipeRequest,
-)
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
-    InventoryWeightEvent,
 )
 from tests.test_states.state_test_base import StateTestBase
 
@@ -36,7 +34,7 @@ class TestCraftFrame(StateTestBase):
         # The frame defaults to _craft_count=1
 
         # Complete craft
-        self.inject(InventoryWeightEvent(inventory_weight=100, weight_max=1000))
+        self.inject(ExchangeReadyRequest())
 
         # Verify ingredients were consumed (1 and 3)
         assert self.game_state.inventory.objects_by_uid[1].item.quantity == 9
@@ -60,10 +58,10 @@ class TestCraftFrame(StateTestBase):
         self.inject(ExchangeSetCraftRecipeRequest(object_uid=49))
 
         # Set craft count to 5
-        self.inject(ExchangeCraftCountModifiedEvent(count=5))
+        self.inject(ExchangeCraftCountRequest(count=5))
 
         # Complete craft
-        self.inject(InventoryWeightEvent(inventory_weight=100, weight_max=1000))
+        self.inject(ExchangeReadyRequest())
 
         # Verify ingredients were consumed (5*1=5, 5*3=15)
         assert self.game_state.inventory.objects_by_uid[1].item.quantity == 15
@@ -87,10 +85,10 @@ class TestCraftFrame(StateTestBase):
         self.inject(ExchangeSetCraftRecipeRequest(object_uid=49))
 
         # Set craft count to 3 (consumes 3*1=3 and 3*3=9)
-        self.inject(ExchangeCraftCountModifiedEvent(count=3))
+        self.inject(ExchangeCraftCountRequest(count=3))
 
         # Complete craft
-        self.inject(InventoryWeightEvent(inventory_weight=100, weight_max=1000))
+        self.inject(ExchangeReadyRequest())
 
         # Verify ingredients were removed
         assert 1 not in self.game_state.inventory.objects_by_uid
@@ -119,10 +117,10 @@ class TestCraftFrame(StateTestBase):
         self.inject(ExchangeSetCraftRecipeRequest(object_uid=55))
 
         # Craft 3 times
-        self.inject(ExchangeCraftCountModifiedEvent(count=3))
+        self.inject(ExchangeCraftCountRequest(count=3))
 
         # Complete craft
-        self.inject(InventoryWeightEvent(inventory_weight=100, weight_max=1000))
+        self.inject(ExchangeReadyRequest())
 
         # Verify ingredients consumed: 4*3=12 for each
         assert self.game_state.inventory.objects_by_uid[1].item.quantity == 8
@@ -140,7 +138,7 @@ class TestCraftFrame(StateTestBase):
         # Start craft
         self.inject(ExchangeCraftStartedEvent())
         self.inject(ExchangeSetCraftRecipeRequest(object_uid=49))
-        self.inject(ExchangeCraftCountModifiedEvent(count=5))
+        self.inject(ExchangeCraftCountRequest(count=5))
 
         # Leave without completing
         self.inject(ExchangeLeaveEvent())
@@ -173,8 +171,8 @@ class TestCraftFrame(StateTestBase):
         # First craft: Recipe 49 x2
         self.inject(ExchangeCraftStartedEvent())
         self.inject(ExchangeSetCraftRecipeRequest(object_uid=49))
-        self.inject(ExchangeCraftCountModifiedEvent(count=2))
-        self.inject(InventoryWeightEvent(inventory_weight=100, weight_max=1000))
+        self.inject(ExchangeCraftCountRequest(count=2))
+        self.inject(ExchangeReadyRequest())
 
         # Verify first craft consumption (2*1=2, 2*3=6)
         assert self.game_state.inventory.objects_by_uid[1].item.quantity == 18  # 1673
@@ -182,8 +180,8 @@ class TestCraftFrame(StateTestBase):
 
         # Second craft: Recipe 44 x3
         self.inject(ExchangeSetCraftRecipeRequest(object_uid=44))
-        self.inject(ExchangeCraftCountModifiedEvent(count=3))
-        self.inject(InventoryWeightEvent(inventory_weight=100, weight_max=1000))
+        self.inject(ExchangeCraftCountRequest(count=3))
+        self.inject(ExchangeReadyRequest())
 
         # Verify second craft consumption (3*3=9, 3*3=9)
         assert self.game_state.inventory.objects_by_uid[3].item.quantity == 11  # 16512
@@ -192,13 +190,13 @@ class TestCraftFrame(StateTestBase):
         # Leave craft
         self.inject(ExchangeLeaveEvent())
 
-    def test_inventory_weight_without_recipe_does_nothing(self):
-        """Test that InventoryWeightEvent without a recipe doesn't crash."""
+    def test_exchange_ready_without_recipe_does_nothing(self):
+        """Test that ExchangeReadyRequest without a recipe doesn't crash."""
         ingredient_1 = ObjectItemInventory(item=ObjectItem(uid=1, gid=303, quantity=10))
         self.game_state.inventory.add_object(ingredient_1)
 
-        # Inject weight event without selecting a recipe
-        self.inject(InventoryWeightEvent(inventory_weight=100, weight_max=1000))
+        # Inject ready request without selecting a recipe
+        self.inject(ExchangeReadyRequest())
 
         # Verify nothing changed
         assert self.game_state.inventory.objects_by_uid[1].item.quantity == 10

@@ -1,9 +1,7 @@
-import sys
 from dataclasses import dataclass, field
 from time import sleep
 from typing import Iterator
 
-from PyQt5.QtWidgets import QApplication
 from sortedcontainers import SortedSet
 
 from D3Database.data_center.data_reader import DataReader
@@ -15,13 +13,8 @@ from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
 from src.core.engine.movements.map.path_finding.node_map_point import NodeMapPoint
 from src.core.engine.movements.map.path_finding.path_element import PathElement
-from src.core.signals.grid_signals import GridSignals
-from src.core.signals.log_signals import LogSignals
-from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.signals.world_signals import MapSignals
 from src.core.states.game_state import GameState
-from src.core.states.state_factory import StateFactory
-from src.gui.components.graphics.grid_widget import GridView
 from src.services.logging.logger import Logger
 
 HV_COST: int = 10
@@ -440,57 +433,3 @@ class Pathfinding:
         mov_path: MovementPath = MovementPath(start, closest_node.mp, path)
         mov_path.path.reverse()
         return mov_path
-
-
-if __name__ == "__main__":
-    grid_signals = GridSignals()
-    debug_signals = MapSignals()
-    game_info_signals = GameInfoSignals()
-    inventory_signals = InventorySignals()
-    log_signals = LogSignals()
-    logger = Logger(log_signals)
-
-    game_state = StateFactory.create_game_state(
-        inventory_signals, game_info_signals, grid_signals, logger=logger
-    )
-    data_map_provider = DataMapProvider(game_state=game_state)
-    path_finding = Pathfinding(
-        data_map_provider=data_map_provider,
-        debug_signals=debug_signals,
-        game_state=game_state,
-        logger=logger,
-    )
-
-    game_state.map.map_id = 88083215
-    start = MapPoint.from_cell_id(360)
-    end = MapPoint.from_cell_id(275)
-
-    application = QApplication(sys.argv)
-    widget = GridView(grid_signals=grid_signals, debug_signals=debug_signals)
-    widget.on_new_map_id(game_state.map.map_id)
-    widget.show()
-
-    debug_signals.white_cell.emit(start)
-    debug_signals.red_cells.emit({end})
-
-    near_path = path_finding.get_interactive_near_path(
-        player_mp=start,
-        element_mp=end,
-        skill_ids=[184],
-    )
-    print(near_path)
-
-    # def _find_path():
-    #     move_path = path_finding.find_path(
-    #         start,
-    #         {end},
-    #         heuristic_scale=1,
-    #     )
-    #     icecream.ic(move_path)
-    #     key_cells = move_path.get_key_cells()
-    #     print(key_cells)
-    #
-    # thread = Thread(target=_find_path, daemon=True)
-    # thread.start()
-
-    application.exec()

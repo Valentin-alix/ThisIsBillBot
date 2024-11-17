@@ -11,11 +11,15 @@ class ProtoOrganization:
         struct_by_namespace: dict[str, PMessage | PEnum],
         msg_namespace: str,
         type_name: str,
-    ):
-        struct = struct_by_namespace.get(msg_namespace + "." + type_name)
-        if struct is None:
-            struct = struct_by_namespace[type_name]
-        return struct
+    ) -> PMessage | PEnum:
+        current = msg_namespace
+        while current:
+            result = struct_by_namespace.get(current + "." + type_name)
+            if result is not None:
+                return result
+            dot_idx = current.rfind(".")
+            current = current[:dot_idx] if dot_idx != -1 else ""
+        return struct_by_namespace[type_name]
 
     @staticmethod
     def get_related_struct_from_field_name(

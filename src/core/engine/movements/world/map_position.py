@@ -25,15 +25,3 @@ def get_dist_to_maps(
             dist = manhattan_dist
         dist_to_end_pos.append(dist)
     return min(dist_to_end_pos)
-
-
-if __name__ == "__main__":
-    map_ids: set[int] = set()
-    target_map = DataReader().map_pos_by_map_id[126224149]
-    map_ids |= set(DataReader().sub_area_by_id[target_map.subAreaId].mapIds)
-
-    curr_map_pos = DataReader().map_pos_by_map_id[147590153]
-    print(curr_map_pos.posX, curr_map_pos.posY)
-    dst_map_pos = [DataReader().map_pos_by_map_id[map_id] for map_id in map_ids]
-    dist = get_dist_to_maps(curr_map_pos, dst_map_pos)
-    print(dist)

@@ -8,16 +8,10 @@ from cachetools import cached
 from D3Mapping.d3_mapping.consts import MAX_PULP_ITERATIONS
 from D3Mapping.d3_mapping.mapping.debug_messages import (
     PULP_CONVERSION_ERROR,
-    PULP_CYCLE_DETECTED,
     format_pulp_timeout,
 )
 from D3Mapping.d3_mapping.mapping.services.pulp.deep_mapping_data_service import (
     DeepMappingDataService,
-)
-from D3Mapping.d3_mapping.mapping.services.pulp.pulp_model_builder import (
-    PulpMappingData,
-    PulpModel,
-    PulpModelBuilder,
 )
 from D3Mapping.d3_mapping.mapping.services.pulp.pulp_result_converter import (
     PulpResultConverter,
@@ -37,9 +31,19 @@ PulpMappingResult = dict[tuple[tuple[str, ...], tuple[str, ...]], float]
 
 
 @dataclass
-class PulpSolverResult:
-    """Result from PuLP solver."""
+class PulpMappingData:
+    sim_by_mapping: dict[tuple[tuple[str, ...], tuple[str, ...]], float]
+    reliability_by_mapping: dict[tuple[tuple[str, ...], tuple[str, ...]], float]
 
+
+@dataclass
+class PulpModel:
+    model: pulp.LpProblem
+    variables: dict[tuple[tuple[str, ...], tuple[str, ...]], pulp.LpVariable]
+
+
+@dataclass
+class PulpSolverResult:
     total_sim: float
     total_reliability: float
     field_mapping: FieldMapping
@@ -49,9 +53,6 @@ class PulpSolverResult:
 
 @dataclass
 class PulpSolverService:
-    """Service for solving field mapping using PuLP linear programming."""
-
-    model_builder: PulpModelBuilder
     metrics: MappingMetrics
     proto_validator: ProtoValidator
     deep_mapping_data_service: DeepMappingDataService
@@ -83,14 +84,12 @@ class PulpSolverService:
         treated_clear_namespaces: set[str],
         compare_msg_func: Callable,
     ):
-        # Use PulpSolverService
         ctx = ComparisonContext(
             clear_msg=clear_msg,
             obf_msg=obf_msg,
             treated_namespaces=treated_clear_namespaces,
         )
 
-        # Use DeepMappingDataService
         sim_by_mapping, reliability_by_mapping = self.deep_mapping_data_service.compute(
             None,
             clear_msg,
@@ -105,7 +104,6 @@ class PulpSolverService:
             reliability_by_mapping=reliability_by_mapping,
         )
 
-        # Use PulpResultConverter
         result = self.solve(
             ctx=ctx,
             mapping_data=mapping_data,
@@ -127,17 +125,6 @@ class PulpSolverService:
         converter,
         validator,
     ) -> PulpSolverResult:
-        """Solve the mapping problem using PuLP.
-
-        Args:
-            ctx: Comparison context
-            mapping_data: Similarity and reliability data
-            converter: Function to convert PuLP result to field mapping
-            validator: Validator to check if mapping is valid
-
-        Returns:
-            PulpSolverResult with mapping or empty result if failed
-        """
         cache_key = ctx.cache_key
 
         if cache_key in self.failed_combinations:
@@ -166,8 +153,7 @@ class PulpSolverService:
         converter,
         validator,
     ) -> PulpSolverResult:
-        """Solve with iterative constraint addition based on validation."""
-        pulp_model = self.model_builder.build(mapping_data)
+        pulp_model = self._build_model(mapping_data)
         constraint_history: set[frozenset] = set()
 
         for _ in range(MAX_PULP_ITERATIONS):
@@ -182,7 +168,6 @@ class PulpSolverService:
 
             if self._is_cycle(mapping_result, constraint_history):
                 self.metrics.add_pulp_cycle()
-                print(PULP_CYCLE_DETECTED.format(clear_name=ctx.clear_msg.name))
                 raise PulpCycleError()
 
             constraint_history.add(frozenset(mapping_result.keys()))
@@ -210,8 +195,8 @@ class PulpSolverService:
                 )
 
             self.metrics.add_validation_failure()
-            self.model_builder.add_exclusion_constraint(
-                pulp_model.model, pulp_model, set(mapping_result.keys())
+            self._add_exclusion_constraint(
+                pulp_model, set(mapping_result.keys())
             )
 
         self.metrics.add_pulp_timeout()
@@ -222,13 +207,49 @@ class PulpSolverService:
         )
         raise PulpTimeoutError()
 
+    def _build_model(self, mapping_data: PulpMappingData) -> PulpModel:
+        model = pulp.LpProblem("BestPathMapping", pulp.LpMaximize)
+        variables: dict[tuple[tuple[str, ...], tuple[str, ...]], pulp.LpVariable] = {}
+        for clear_path, obf_path in mapping_data.sim_by_mapping:
+            var_name = f"map_{'_'.join(clear_path)}__{'_'.join(obf_path)}"
+            variables[(clear_path, obf_path)] = pulp.LpVariable(var_name, cat="Binary")
+
+        for (clear_path, obf_path), var in variables.items():
+            for i in range(1, len(clear_path)):
+                parent_var = variables[(clear_path[:i], obf_path[:i])]
+                model += (
+                    var <= parent_var,
+                    f"parent_constraint_{var.name}_le_{parent_var.name}",
+                )
+
+        pairs_by_path: dict[tuple[str, ...], list] = {}
+        for clear_path, obf_path in variables.keys():
+            pairs_by_path.setdefault(clear_path, []).append((clear_path, obf_path))
+            pairs_by_path.setdefault(obf_path, []).append((clear_path, obf_path))
+        for pairs in pairs_by_path.values():
+            model += pulp.lpSum(variables[pair] for pair in pairs) <= 1
+
+        model += pulp.lpSum(
+            mapping_data.sim_by_mapping[(clear_path, obf_path)] * variables[(clear_path, obf_path)]
+            for (clear_path, obf_path) in mapping_data.sim_by_mapping
+        )
+
+        return PulpModel(model=model, variables=variables)
+
+    def _add_exclusion_constraint(
+        self, pulp_model: PulpModel, failed_mapping: set
+    ):
+        pulp_model.model += (
+            pulp.lpSum(pulp_model.variables[pair] for pair in failed_mapping)
+            <= len(failed_mapping) - 1
+        )
+
     def _extract_result(
         self,
         pulp_model: PulpModel,
         sim_by_mapping: dict,
         reliability_by_mapping: dict,
     ) -> PulpMappingResult:
-        """Extract the selected mappings from PuLP solution."""
         result = {}
         for clear_path, obf_path in sim_by_mapping:
             if pulp.value(pulp_model.variables[(clear_path, obf_path)]) == 1:
@@ -241,12 +262,10 @@ class PulpSolverService:
     def _is_cycle(
         self, mapping_result: PulpMappingResult, history: set[frozenset]
     ) -> bool:
-        """Check if we've seen this mapping result before (cycle detection)."""
         current = frozenset(mapping_result.keys())
         return current in history
 
     def _empty_result(self) -> PulpSolverResult:
-        """Return an empty failed result."""
         return PulpSolverResult(
             total_sim=0,
             total_reliability=1,
@@ -261,10 +280,6 @@ class PulpSolverService:
         sim_by_mapping: dict[tuple[tuple[str, ...], tuple[str, ...]], float],
         reliability_by_mapping: dict[tuple[tuple[str, ...], tuple[str, ...]], float],
     ) -> dict[str, FieldAuditInfo]:
-        """Build field audit from PuLP results.
-
-        Only processes top-level fields (paths of length 1).
-        """
         field_audit: dict[str, FieldAuditInfo] = {}
 
         selected_by_obf: dict[str, tuple[str, float, float]] = {}
@@ -330,12 +345,8 @@ class PulpSolverService:
 
 
 class PulpTimeoutError(Exception):
-    """Raised when PuLP solver reaches max iterations."""
-
     pass
 
 
 class PulpCycleError(Exception):
-    """Raised when PuLP solver detects a constraint cycle."""
-
     pass

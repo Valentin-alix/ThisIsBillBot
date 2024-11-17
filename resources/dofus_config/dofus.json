@@ -1,0 +1,561 @@
+{
+    "hasGotFirstForgettableSpellNotification": {
+        "value": false
+    },
+    "characterCreationState": {
+        "value": ""
+    },
+    "forceServerListDisplay": {
+        "value": false
+    },
+    "useFightResultSimple": {
+        "value": true
+    },
+    "sortCacheNamePrefixBuy": {
+        "value": []
+    },
+    "sortInfiniteDreamBestiary": {
+        "value": {
+            "Item1": 3,
+            "Item2": false
+        }
+    },
+    "sortAvaUi": {
+        "value": 0
+    },
+    "avaView": {
+        "value": 0
+    },
+    "displayAllItemsAuctionHouse": {
+        "value": false
+    },
+    "displayAvailableDrop": {
+        "value": true
+    },
+    "displayUnavailableCosmeticItems": {
+        "value": true
+    },
+    "sortInfosSort": {
+        "value": []
+    },
+    "sortInfosCriteria": {
+        "value": []
+    },
+    "shopLastOpenedTab": {
+        "value": 1
+    },
+    "fightResultLastOpenedTab": {
+        "value": 0
+    },
+    "giftNotification": {
+        "value": false
+    },
+    "showSpellLevel": {
+        "value": false
+    },
+    "firstTimeUserExperience": {
+        "value": [
+            {
+                "Item1": 2,
+                "Item2": true
+            }
+        ]
+    },
+    "statsActions": {
+        "value": []
+    },
+    "zaapSelectionData": {
+        "value": {
+            "sortCriteria": 0,
+            "isSortDescending": false,
+            "showUnknownZaap": false,
+            "showAllAnomaly": false,
+            "showFavoriteZaap": false,
+            "favoriteZaapMapIds": [],
+            "lastTabIndex": 0
+        }
+    },
+    "zaapiSelectionData": {
+        "value": {
+            "sortCriteria": 0,
+            "isSortDescending": false,
+            "showUnknownZaap": false,
+            "showAllAnomaly": false,
+            "showFavoriteZaap": false,
+            "favoriteZaapMapIds": [],
+            "lastTabIndex": 0
+        }
+    },
+    "rememberedJobsInJobBookPerServer": {
+        "value": {
+            "351": {}
+        }
+    },
+    "letLivingObjectTalk": {
+        "value": false
+    },
+    "selectedTabIndex": {
+        "value": 0
+    },
+    "fightTabIndex": {
+        "value": 1
+    },
+    "tabsPerChat": {
+        "value": [
+            [
+                {
+                    "Item1": 11,
+                    "Item2": 115615
+                },
+                {
+                    "Item1": 2,
+                    "Item2": 17923
+                }
+            ]
+        ]
+    },
+    "currentChatTheme": {
+        "value": ""
+    },
+    "defaultHeight": {
+        "value": 350.0
+    },
+    "extendedHeight": {
+        "value": 650.0
+    },
+    "favoriteSmileys": {
+        "value": []
+    },
+    "moodSmileyByCharacterId": {
+        "value": {
+            "48016392543": ""
+        }
+    },
+    "keyboardLang": {
+        "value": 0
+    },
+    "allowAnimsFun": {
+        "value": true
+    },
+    "turnPicture": {
+        "value": false
+    },
+    "seePings": {
+        "value": false
+    },
+    "mapCoordinates": {
+        "value": true
+    },
+    "showTooltipShortcuts": {
+        "value": true
+    },
+    "showItemTooltipDescription": {
+        "value": true
+    },
+    "showItemTooltipAvgPrice": {
+        "value": true
+    },
+    "remindTurn": {
+        "value": false
+    },
+    "confirmItemDrop": {
+        "value": true
+    },
+    "limitReceivedExperience": {
+        "value": 100
+    },
+    "useOwnRunesInSmithMagicCoop": {
+        "value": false
+    },
+    "hdvBlockPopupType": {
+        "value": 2
+    },
+    "hdvMaxItemListCount": {
+        "value": 1
+    },
+    "showUsedPaPm": {
+        "value": false
+    },
+    "largeTooltipDelay": {
+        "value": 500
+    },
+    "itemTooltipDelay": {
+        "value": 0
+    },
+    "alwaysDisplayTheoreticalEffectsInTooltip": {
+        "value": false
+    },
+    "cumulateBonusInSpellTooltips": {
+        "value": true
+    },
+    "showOmegaUnderOrnament": {
+        "value": false
+    },
+    "displayTooltips": {
+        "value": true
+    },
+    "autoFollowGroupLeader": {
+        "value": false
+    },
+    "autoJoinGroupFight": {
+        "value": false
+    },
+    "autoReadyGroupFight": {
+        "value": false
+    },
+    "bigMenuButton": {
+        "value": 1
+    },
+    "allowSpellEffects": {
+        "value": true
+    },
+    "showAlignmentWings": {
+        "value": false
+    },
+    "showMovementDistance": {
+        "value": false
+    },
+    "showMovementArea": {
+        "value": false
+    },
+    "showTurnsRemaining": {
+        "value": false
+    },
+    "toggleEntityIcons": {
+        "value": false
+    },
+    "mapUIFilters": {
+        "value": [
+            {
+                "Item1": 1,
+                "Item2": 65536
+            },
+            {
+                "Item1": 2,
+                "Item2": 2097152
+            },
+            {
+                "Item1": 3,
+                "Item2": 0
+            },
+            {
+                "Item1": 4,
+                "Item2": 16773120
+            }
+        ]
+    },
+    "mapFiltersMiniMap": {
+        "value": 16773120
+    },
+    "showMapGrid": {
+        "value": false
+    },
+    "showMiniMapGrid": {
+        "value": false
+    },
+    "showLogPvDetails": {
+        "value": false
+    },
+    "warnOnFriendConnect": {
+        "value": false
+    },
+    "warnWhenFriendOrGuildMemberLvlUp": {
+        "value": false
+    },
+    "warnWhenFriendOrGuildMemberAchieves": {
+        "value": false
+    },
+    "warnOnHardcoreDeath": {
+        "value": false
+    },
+    "shareStatus": {
+        "value": false
+    },
+    "showOfflineGuildMember": {
+        "value": false
+    },
+    "showOfflineAllianceMember": {
+        "value": false
+    },
+    "warnGuildMemberConnection": {
+        "value": false
+    },
+    "warnOnAllianceItemAggression": {
+        "value": false
+    },
+    "enableGuildMotd": {
+        "value": false
+    },
+    "enableAllianceMotd": {
+        "value": false
+    },
+    "showPermanentTargetsTooltips": {
+        "value": false
+    },
+    "animateFightPreviewTooltips": {
+        "value": false
+    },
+    "showDamagesPreview": {
+        "value": false
+    },
+    "showMovePreview": {
+        "value": false
+    },
+    "showBreed": {
+        "value": false
+    },
+    "spectatorAutoShowCurrentFighterInfo": {
+        "value": false
+    },
+    "autoFocusApp": {
+        "value": 0
+    },
+    "enableForceWalk": {
+        "value": true
+    },
+    "showOnlineStatus": {
+        "value": false
+    },
+    "followQuestOnStarted": {
+        "value": true
+    },
+    "commonSpellsDataStorageName": {
+        "value": false
+    },
+    "resetNotifications": {
+        "value": false
+    },
+    "resetColors": {
+        "value": false
+    },
+    "lastStorageTab": {
+        "value": -1
+    },
+    "lastSubFilter": {
+        "value": -1
+    },
+    "alterationFavorites": {
+        "value": []
+    },
+    "widgetsSettings": {
+        "value": 2047
+    },
+    "questListWidgetOptions": {
+        "value": 1196
+    },
+    "treasureHuntWidgetSettings": {
+        "value": 34
+    },
+    "treasureHuntWidgetPinColor": {
+        "value": ""
+    },
+    "treasureHuntWidgetValidateColor": {
+        "value": ""
+    },
+    "infiniteDreamWidgetSettings": {
+        "value": 24
+    },
+    "actionBarPageIndex": {
+        "value": 0
+    },
+    "actionBarsWidgetOptions": {
+        "value": [
+            {
+                "Item1": 69,
+                "Item2": [
+                    1
+                ],
+                "Item3": true
+            },
+            {
+                "Item1": 69,
+                "Item2": [],
+                "Item3": false
+            },
+            {
+                "Item1": 69,
+                "Item2": [],
+                "Item3": false
+            },
+            {
+                "Item1": 69,
+                "Item2": [],
+                "Item3": false
+            }
+        ]
+    },
+    "partyWidgetOptions": {
+        "value": 262
+    },
+    "characterInfosWidgetOptions": {
+        "value": 69
+    },
+    "chatWidgetOptions": {
+        "value": 34
+    },
+    "dialogFontSize": {
+        "value": 1
+    },
+    "dialogAnimationEnabled": {
+        "value": true
+    },
+    "gaugesWidgetColors": {
+        "value": [
+            {
+                "Item1": 1,
+                "Item2": "#00000000"
+            }
+        ]
+    },
+    "gaugesWidgetOptions": {
+        "value": 1
+    },
+    "timelineTileSize": {
+        "value": 0
+    },
+    "timelineGaugePlacement": {
+        "value": 0
+    },
+    "timelineOrientation": {
+        "value": 0
+    },
+    "timelineSizedAutomatically": {
+        "value": true
+    },
+    "timelineShowDeadFighters": {
+        "value": false
+    },
+    "timelineShowSummonedFighters": {
+        "value": false
+    },
+    "timelineShowFightersOrder": {
+        "value": false
+    },
+    "timelineFollowPlayingEntity": {
+        "value": false
+    },
+    "challengeSelectionIsInHorizontalOrientation": {
+        "value": false
+    },
+    "companionSlaveUIOrientationIsHorizontal": {
+        "value": true
+    },
+    "summonedSlaveUiGrouped": {
+        "value": true
+    },
+    "buffsUISizedAutomatically": {
+        "value": false
+    },
+    "buffsUiSelectedTab": {
+        "value": 1
+    },
+    "community": {
+        "value": 0
+    },
+    "pointsOverhead": {
+        "value": 2
+    },
+    "creaturesMode": {
+        "value": 20
+    },
+    "ids": {
+        "value": [
+            15
+        ]
+    },
+    "alwaysShowGrid": {
+        "value": false
+    },
+    "alwaysShowGridFight": {
+        "value": false
+    },
+    "transparentOverlayMode": {
+        "value": false
+    },
+    "transparentOverlayModeFight": {
+        "value": false
+    },
+    "creatureModeRoleplay": {
+        "value": true
+    },
+    "creatureModeFight": {
+        "value": true
+    },
+    "hideBlackBorder": {
+        "value": true
+    },
+    "worldmapMenuIsHidden": {
+        "value": true
+    },
+    "havenbagPackedInfos": {
+        "value": []
+    },
+    "notificationPosition": {
+        "value": 3
+    },
+    "paddockDisplayType": {
+        "value": 1
+    },
+    "stableDisplayType": {
+        "value": 1
+    },
+    "spellUiSize": {
+        "value": 1
+    },
+    "displayOutfitLook": {
+        "value": false
+    },
+    "buyConfirmation": {
+        "value": true
+    },
+    "sellConfirmation": {
+        "value": true
+    },
+    "fighterInfosPosition": {
+        "value": {
+            "x": -1.0,
+            "y": -1.0
+        }
+    },
+    "bannerMenuButtonPosition": {
+        "value": []
+    },
+    "bannerMenuButtonPositionTemporis": {
+        "value": []
+    },
+    "anomalyNotificationEnabled": {
+        "value": false
+    },
+    "mapSortAnomaly": {
+        "value": {
+            "Item1": 1,
+            "Item2": false
+        }
+    },
+    "mapSortConquest": {
+        "value": {
+            "Item1": 1,
+            "Item2": false
+        }
+    },
+    "lastColorsUsed": {
+        "value": [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ]
+    }
+}

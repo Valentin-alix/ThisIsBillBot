@@ -1,9 +1,10 @@
+from logging import Logger
+
 from D3Database.enums.monster_gid_enum import MonsterGidEnum
 from D3Database.grid.map_point import MapPoint
 from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
     ActorPositionInformation,
 )
-from src.services.logging.logger import Logger
 
 
 def get_level_monster_group(

@@ -4,294 +4,294 @@ syntax = "proto3";
 
 import "google/protobuf/any.proto";
 
-enum lcg {
-  LCG_ETKY = 0;
-  LCG_ETKZ = 1;
-  LCG_ETLA = 2;
-  LCG_ETLB = 3;
-  LCG_ETLC = 4;
-  LCG_ETLD = 5;
-  LCG_ETLE = 6;
+enum lbq {
+  LBQ_ETWL = 0;
+  LBQ_ETWM = 1;
+  LBQ_ETWN = 2;
+  LBQ_ETWO = 3;
+  LBQ_ETWP = 4;
+  LBQ_ETWQ = 5;
+  LBQ_ETWR = 6;
 }
 
-message lci {
-  oneof fpts {
-    lck fptp = 1;
-    lcm fptq = 2;
-    lco fptr = 3;
+message lbs {
+  oneof fqix {
+    lbu fqiu = 1;
+    lbw fqiv = 2;
+    lby fqiw = 3;
   }
 }
 
-message lck {
-  string fptw = 1;
-  oneof fpue {
-    lcp fptx = 2;
-    lct fpty = 3;
-    ldh fptz = 4;
-    ldw fpua = 5;
-    leb fpub = 6;
-    leg fpuc = 7;
-    leo fpud = 8;
+message lbu {
+  string fqjb = 1;
+  oneof fqjj {
+    lbz fqjc = 2;
+    lcd fqjd = 3;
+    lcr fqje = 4;
+    ldg fqjf = 5;
+    ldl fqjg = 6;
+    ldq fqjh = 7;
+    ldy fqji = 8;
   }
 }
 
-message lcm {
-  string fpui = 1;
-  oneof fpup {
-    lcq fpuj = 2;
-    ldg fpuk = 3;
-    ldm fpul = 4;
-    ldy fpum = 5;
-    len fpun = 6;
-    lev fpuo = 7;
+message lbw {
+  string fqjn = 1;
+  oneof fqju {
+    lca fqjo = 2;
+    lcq fqjp = 3;
+    lcw fqjq = 4;
+    ldi fqjr = 5;
+    ldx fqjs = 6;
+    lef fqjt = 7;
   }
 }
 
-message lco {
-  oneof fpuu {
-    lcr fput = 1;
+message lby {
+  oneof fqjz {
+    lcb fqjy = 1;
   }
 }
 
-message lcp {
+message lbz {
+}
+
+message lca {
+}
+
+message lcb {
+  ldc fqkj = 1;
+}
+
+message lcd {
+  string fqkn = 1;
+  string fqkq = 5;
+  oneof fqkr {
+    lcg fqko = 3;
+    lch fqkp = 4;
+  }
+}
+
+message lcg {
+  string fqla = 1;
+  lce fqlb = 2;
+  message lce {
+    int64 fqkv = 1;
+    string fqkw = 2;
+  }
+}
+
+message lch {
+  string fqlf = 1;
 }
 
 message lcq {
+  oneof fqmn {
+    lcl fqml = 1;
+    lco fqmm = 2;
+  }
+  message lcl {
+    int64 fqlq = 1;
+    string fqlr = 2;
+    string fqls = 3;
+    lcz fqlt = 4;
+    string fqlu = 5;
+    lcj fqlv = 6;
+    optional int32 fqlw = 7;
+    ldj fqly = 8;
+    leg fqlz = 9;
+    message lcj {
+      bool fqlj = 1;
+      bool fqlk = 2;
+      bool fqll = 3;
+      bool fqlm = 4;
+    }
+  }
+  message lco {
+    lcm fqmd = 1;
+    optional string fqme = 2;
+    optional string fqmg = 3;
+    enum lcm {
+      LCM_EUBS = 0;
+      LCM_EUBT = 1;
+      LCM_EUBU = 2;
+      LCM_EUBV = 3;
+      LCM_EUBW = 4;
+      LCM_EUBX = 5;
+      LCM_EUBY = 6;
+      LCM_EUBZ = 7;
+      LCM_EUCA = 8;
+      LCM_EUCB = 9;
+      LCM_EUCC = 10;
+      LCM_EUCD = 11;
+      LCM_EUCE = 12;
+      LCM_EUCF = 13;
+      LCM_EUCG = 14;
+    }
+  }
 }
 
 message lcr {
-  lds fpve = 1;
-}
-
-message lct {
-  string fpvi = 1;
-  string fpvl = 5;
-  oneof fpvm {
-    lcw fpvj = 3;
-    lcx fpvk = 4;
-  }
+  int32 fqmr = 1;
 }
 
 message lcw {
-  string fpvv = 1;
-  lcu fpvw = 2;
+  oneof fqne {
+    lcu fqnb = 1;
+    lct fqnc = 2;
+  }
   message lcu {
-    int64 fpvq = 1;
-    string fpvr = 2;
+    string fqmv = 1;
+    string fqmw = 2;
+    repeated int32 fqmx = 3;
+  }
+  enum lct {
+    LCT_EUDE = 0;
+    LCT_EUDF = 1;
+    LCT_EUDG = 2;
+    LCT_EUDH = 3;
   }
 }
 
-message lcx {
-  string fpwa = 1;
+message lcz {
+  repeated ldc fqnn = 1;
+  repeated lcx fqno = 2;
+  bool fqnp = 3;
+  message lcx {
+    lbq fqni = 1;
+    int32 fqnj = 2;
+  }
+}
+
+message ldc {
+  ldf fqnt = 1;
+  lda fqnu = 2;
+  repeated ldp fqnv = 3;
+  enum lda {
+    LDA_EUEN = 0;
+    LDA_EUEO = 1;
+    LDA_EUEP = 2;
+    LDA_EUEQ = 3;
+  }
+}
+
+message ldf {
+  int32 fqnz = 1;
+  ldd fqoa = 2;
+  lbq fqob = 3;
+  enum ldd {
+    LDD_EUFA = 0;
+    LDD_EUFB = 1;
+  }
 }
 
 message ldg {
-  oneof fpxi {
-    ldb fpxg = 1;
-    lde fpxh = 2;
-  }
-  message ldb {
-    int64 fpwl = 1;
-    string fpwm = 2;
-    string fpwn = 3;
-    ldp fpwo = 4;
-    string fpwp = 5;
-    lcz fpwq = 6;
-    optional int32 fpwr = 7;
-    ldz fpwt = 8;
-    lew fpwu = 9;
-    message lcz {
-      bool fpwe = 1;
-      bool fpwf = 2;
-      bool fpwg = 3;
-      bool fpwh = 4;
-    }
-  }
-  message lde {
-    ldc fpwy = 1;
-    optional string fpwz = 2;
-    optional string fpxb = 3;
-    enum ldc {
-      LDC_ETQF = 0;
-      LDC_ETQG = 1;
-      LDC_ETQH = 2;
-      LDC_ETQI = 3;
-      LDC_ETQJ = 4;
-      LDC_ETQK = 5;
-      LDC_ETQL = 6;
-      LDC_ETQM = 7;
-      LDC_ETQN = 8;
-      LDC_ETQO = 9;
-      LDC_ETQP = 10;
-      LDC_ETQQ = 11;
-      LDC_ETQR = 12;
-      LDC_ETQS = 13;
-      LDC_ETQT = 14;
-    }
+  int64 fqof = 1;
+}
+
+message ldi {
+  oneof fqol {
+    ldj fqoj = 2;
+    ldk fqok = 3;
   }
 }
 
-message ldh {
-  int32 fpxm = 1;
+message ldj {
+  bool fqop = 1;
+  int64 fqoq = 2;
+  string fqor = 3;
+  string fqos = 4;
+  lcz fqot = 5;
 }
 
-message ldm {
-  oneof fpxz {
-    ldk fpxw = 1;
-    ldj fpxx = 2;
-  }
-  message ldk {
-    string fpxq = 1;
-    string fpxr = 2;
-    repeated int32 fpxs = 3;
-  }
-  enum ldj {
-    LDJ_ETRR = 0;
-    LDJ_ETRS = 1;
-    LDJ_ETRT = 2;
-    LDJ_ETRU = 3;
-  }
+message ldk {
+}
+
+message ldl {
 }
 
 message ldp {
-  repeated lds fpyi = 1;
-  repeated ldn fpyj = 2;
-  bool fpyk = 3;
-  message ldn {
-    lcg fpyd = 1;
-    int32 fpye = 2;
+  string fqpd = 1;
+  ldn fqpe = 2;
+  ldm fqpf = 3;
+  int32 fqpg = 4;
+  string fqph = 5;
+  enum ldn {
+    LDN_EUGP = 0;
+    LDN_EUGQ = 1;
+    LDN_EUGR = 2;
+    LDN_EUGS = 3;
+    LDN_EUGT = 4;
+    LDN_EUGU = 5;
+    LDN_EUGV = 6;
+    LDN_EUGW = 7;
+    LDN_EUGX = 8;
+    LDN_EUGY = 9;
+    LDN_EUGZ = 10;
+    LDN_EUHA = 11;
+    LDN_EUHB = 12;
+    LDN_EUHC = 13;
+    LDN_EUHD = 14;
+    LDN_EUHE = 15;
+    LDN_EUHF = 16;
+    LDN_EUHG = 17;
+    LDN_EUHH = 18;
+  }
+  enum ldm {
+    LDM_EUGN = 0;
+    LDM_EUGO = 1;
   }
 }
 
-message lds {
-  ldv fpyo = 1;
-  ldq fpyp = 2;
-  repeated lef fpyq = 3;
-  enum ldq {
-    LDQ_ETTA = 0;
-    LDQ_ETTB = 1;
-    LDQ_ETTC = 2;
-    LDQ_ETTD = 3;
-  }
+message ldq {
 }
 
-message ldv {
-  int32 fpyu = 1;
-  ldt fpyv = 2;
-  lcg fpyw = 3;
-  enum ldt {
-    LDT_ETTN = 0;
-    LDT_ETTO = 1;
+message ldx {
+  oneof fqqb {
+    ldv fqpy = 1;
+    lds fqpz = 2;
   }
-}
-
-message ldw {
-  int64 fpza = 1;
+  message ldv {
+    repeated ldt fqpu = 1;
+    message ldt {
+      string fqpo = 1;
+      string fqpp = 2;
+      repeated int32 fqpq = 3;
+    }
+  }
+  enum lds {
+    LDS_EUHZ = 0;
+    LDS_EUIA = 1;
+  }
 }
 
 message ldy {
-  oneof fpzg {
-    ldz fpze = 2;
-    lea fpzf = 3;
-  }
-}
-
-message ldz {
-  bool fpzk = 1;
-  int64 fpzl = 2;
-  string fpzm = 3;
-  string fpzn = 4;
-  ldp fpzo = 5;
-}
-
-message lea {
-}
-
-message leb {
+  string fqqf = 1;
+  string fqqg = 2;
 }
 
 message lef {
-  string fpzy = 1;
-  led fpzz = 2;
-  lec fqaa = 3;
-  int32 fqab = 4;
-  string fqac = 5;
-  enum led {
-    LED_ETVC = 0;
-    LED_ETVD = 1;
-    LED_ETVE = 2;
-    LED_ETVF = 3;
-    LED_ETVG = 4;
-    LED_ETVH = 5;
-    LED_ETVI = 6;
-    LED_ETVJ = 7;
-    LED_ETVK = 8;
-    LED_ETVL = 9;
-    LED_ETVM = 10;
-    LED_ETVN = 11;
-    LED_ETVO = 12;
-    LED_ETVP = 13;
-    LED_ETVQ = 14;
-    LED_ETVR = 15;
-    LED_ETVS = 16;
-    LED_ETVT = 17;
-    LED_ETVU = 18;
+  oneof fqqu {
+    lea fqqs = 1;
+    led fqqt = 2;
   }
-  enum lec {
-    LEC_ETVA = 0;
-    LEC_ETVB = 1;
+  message lea {
+    repeated int32 fqqk = 1;
+  }
+  message led {
+    leb fqqo = 1;
+    enum leb {
+      LEB_EUJJ = 0;
+      LEB_EUJK = 1;
+      LEB_EUJL = 2;
+      LEB_EUJM = 3;
+    }
   }
 }
 
 message leg {
-}
-
-message len {
-  oneof fqaw {
-    lel fqat = 1;
-    lei fqau = 2;
-  }
-  message lel {
-    repeated lej fqap = 1;
-    message lej {
-      string fqaj = 1;
-      string fqak = 2;
-      repeated int32 fqal = 3;
-    }
-  }
-  enum lei {
-    LEI_ETWM = 0;
-    LEI_ETWN = 1;
-  }
-}
-
-message leo {
-  string fqba = 1;
-  string fqbb = 2;
-}
-
-message lev {
-  oneof fqbp {
-    leq fqbn = 1;
-    let fqbo = 2;
-  }
-  message leq {
-    repeated int32 fqbf = 1;
-  }
-  message let {
-    ler fqbj = 1;
-    enum ler {
-      LER_ETXW = 0;
-      LER_ETXX = 1;
-      LER_ETXY = 2;
-      LER_ETXZ = 3;
-    }
-  }
-}
-
-message lew {
-  string fqbt = 1;
-  string fqbu = 2;
-  repeated int32 fqbv = 3;
+  string fqqy = 1;
+  string fqqz = 2;
+  repeated int32 fqra = 3;
 }
 

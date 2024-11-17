@@ -228,6 +228,8 @@ class GridView(QGraphicsView):
     def on_new_count_actor_on_cell_id_batch(self, items: list[tuple[int, int]]):
         self.setUpdatesEnabled(False)
         for cell_id, count_actor in items:
+            if cell_id not in MAP_POINT_BY_CELL_ID:
+                continue
             mp = MapPoint.from_cell_id(cell_id)
             self.cell_state_by_coord[(mp.x, mp.y)].set_count_actor(count_actor)
         self.setUpdatesEnabled(True)

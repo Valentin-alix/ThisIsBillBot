@@ -21,7 +21,7 @@ from D3Mapping.d3_mapping.controller.message_mapping_controller import (
     MessageMappingController,
 )
 from D3Mapping.d3_mapping.models.message import MessageInfo
-from D3Mapping.d3_mapping.resources.obf_protos.game.game_messages_pb2 import gso
+from D3Mapping.d3_mapping.resources.obf_protos.game.game_messages_pb2 import gsr
 from D3Mapping.d3_mapping.resources.protos.game.game_message_pb2 import GameMessage
 
 POOL: descriptor_pool.DescriptorPool = descriptor_pool.Default()
@@ -65,7 +65,7 @@ def get_obf_game_msg_info(
 
     received_msg_time = datetime.datetime.now()
 
-    game_msg = gso()
+    game_msg = gsr()
     game_msg.ParseFromString(content)
     InstanciedMessageInfoController().add_msg(game_msg, True)
 
@@ -75,7 +75,7 @@ def get_obf_game_msg_info(
         preserving_proto_field_name=True,
     )
     if SHOW_URL:
-        field_name = game_msg.WhichOneof("eygn")
+        field_name = game_msg.WhichOneof("eyrz")
         root_msg: Message = getattr(game_msg, field_name)
 
         root_msg_any_field: protoAny | None = None

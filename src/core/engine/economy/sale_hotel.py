@@ -1,4 +1,3 @@
-import math
 import random
 from collections import defaultdict
 from statistics import median
@@ -73,7 +72,7 @@ def get_item_gids_to_sell(
     logger.info(f"count item to sell : {len(item_gids_to_sell)}")
 
     item_gids_to_sell.sort(
-        key=lambda item_gid: random.randint(1, 5)
+        key=lambda item_gid: random.uniform(0.95, 1.05)
         * get_weight_collectable_for_sale_hotel(
             item_gid,
             avg_price_by_gid,
@@ -183,16 +182,3 @@ def get_price_for_sale_hotel(
     )
 
     return int(min(cleaned_unit_price * target_lot, curr_min_price_lot))
-
-
-if __name__ == "__main__":
-    # Example usage - requires avg_price_by_gid injected
-    test_avg_prices = {533: 1000.0}
-    print(
-        is_interesting_item_to_sell(
-            ObjectItem(uid=1, quantity=561, gid=533), test_avg_prices
-        )
-    )
-    print(math.ceil(MAX_QUANTITY_ON_SELL / ((1000 / 500) + 1)))
-    min_prices = [50, 500, 5000, 500_000]
-    print(get_price_for_sale_hotel(min_prices, QuantityEnum.VALUE_1000))

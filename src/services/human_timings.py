@@ -1,11 +1,9 @@
 import random
-from dataclasses import dataclass
 from threading import Lock
 from typing import Callable
 
 import numpy as np
 from scipy.interpolate import interp1d
-from tinydb.queries import QueryInstance
 
 from D3Database.utils import cache
 from D3Mapping.d3_mapping.resources.protos.game.challenge_pb2 import (
@@ -45,17 +43,9 @@ from src.core.config import BASE_RANGE, ENABLE_SESSION_CONTEXT
 from src.services.session_context import SessionContextService
 from src.utils.metaclasses.singleton import Singleton
 
-
-@dataclass
-class MessageWithCondition:
-    query: QueryInstance
-    delta: float | None = None
-
-    def __hash__(self) -> int:
-        return (self.query, self.delta).__hash__()
-
-
 TIMING_LOCK = Lock()
+
+INVERSED_COEFF = 1.5
 
 
 def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 5) -> float:
@@ -92,7 +82,9 @@ MICRO_JITTER_RANGES: dict[str, tuple[float, float]] = {
 
 class HumanTimingsService(metaclass=Singleton):
     def get_micro_jitter(self, action_type: str = "default") -> float:
-        range_tuple = MICRO_JITTER_RANGES.get(action_type, MICRO_JITTER_RANGES["default"])
+        range_tuple = MICRO_JITTER_RANGES.get(
+            action_type, MICRO_JITTER_RANGES["default"]
+        )
         return random.uniform(*range_tuple)
 
     def build_empirical_sampler(self, all_deltas: list[float]) -> Callable[[], float]:
@@ -105,7 +97,7 @@ class HumanTimingsService(metaclass=Singleton):
             inverse_cdf = interp1d(quantiles, sorted_deltas, fill_value="extrapolate")
 
             def sampler():
-                return float(inverse_cdf(np.random.rand())) / 1.5
+                return float(inverse_cdf(np.random.rand())) / INVERSED_COEFF
 
             return sampler
 

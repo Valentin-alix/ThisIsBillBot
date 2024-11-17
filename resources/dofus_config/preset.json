@@ -1,0 +1,120 @@
+{
+    "fightPresetId": {
+        "value": -1
+    },
+    "currentPreset": {
+        "value": {
+            "presetIcon": 0,
+            "presetName": null,
+            "widgetSettings": 2047,
+            "characterInfosWidgetOptions": 69,
+            "questListWidgetOption": 1196,
+            "chatWidgetOptions": 34,
+            "bannerBigButton": false,
+            "buffsUISizedAutomatically": false,
+            "fighterInfoTooltipIsHorizontal": false,
+            "companionSlaveUIOrientationIsHorizontal": true,
+            "timelineSizedAutomatically": true,
+            "timelineTileSize": 0,
+            "timelineGaugePlacement": 0,
+            "timelineShowDeadFighters": false,
+            "timelineShowSummonedFighters": false,
+            "timelineFollowPlayingEntity": false,
+            "timelineOrientation": 0,
+            "alwaysShowGrid": false,
+            "alwaysShowGridFight": false,
+            "transparentOverlayMode": false,
+            "transparentOverlayModeFight": false,
+            "creatureModeRoleplay": true,
+            "creatureModeFight": true,
+            "mapCoordinates": true,
+            "challengeSelectionIsInHorizontalOrientation": false,
+            "gaugesWidgetColors": [
+                {
+                    "Item1": 1,
+                    "Item2": "#00000000"
+                }
+            ],
+            "gaugesWidgetOptions": 1,
+            "actionBarsWidgetOptions": [
+                {
+                    "Item1": 69,
+                    "Item2": [
+                        1
+                    ],
+                    "Item3": true
+                },
+                {
+                    "Item1": 69,
+                    "Item2": [],
+                    "Item3": false
+                },
+                {
+                    "Item1": 69,
+                    "Item2": [],
+                    "Item3": false
+                },
+                {
+                    "Item1": 69,
+                    "Item2": [],
+                    "Item3": false
+                }
+            ],
+            "positions": [],
+            "uiPositionData": [
+                {
+                    "Item1": "OptionBase",
+                    "Item2": {
+                        "x": 236.979156,
+                        "y": 114.965309
+                    },
+                    "Item3": false,
+                    "Item4": false
+                }
+            ],
+            "dimensions": [],
+            "headerStates": [],
+            "uid": -1
+        }
+    },
+    "currentFightPreset": {
+        "value": {
+            "presetIcon": 0,
+            "presetName": null,
+            "widgetSettings": 0,
+            "characterInfosWidgetOptions": 0,
+            "questListWidgetOption": 0,
+            "chatWidgetOptions": 0,
+            "bannerBigButton": false,
+            "buffsUISizedAutomatically": false,
+            "fighterInfoTooltipIsHorizontal": false,
+            "companionSlaveUIOrientationIsHorizontal": false,
+            "timelineSizedAutomatically": false,
+            "timelineTileSize": 0,
+            "timelineGaugePlacement": 0,
+            "timelineShowDeadFighters": false,
+            "timelineShowSummonedFighters": false,
+            "timelineFollowPlayingEntity": false,
+            "timelineOrientation": 0,
+            "alwaysShowGrid": false,
+            "alwaysShowGridFight": false,
+            "transparentOverlayMode": false,
+            "transparentOverlayModeFight": false,
+            "creatureModeRoleplay": false,
+            "creatureModeFight": false,
+            "mapCoordinates": false,
+            "challengeSelectionIsInHorizontalOrientation": false,
+            "gaugesWidgetColors": [],
+            "gaugesWidgetOptions": 0,
+            "actionBarsWidgetOptions": null,
+            "positions": [],
+            "uiPositionData": [],
+            "dimensions": [],
+            "headerStates": [],
+            "uid": -1
+        }
+    },
+    "resetUIPositions": {
+        "value": true
+    }
+}

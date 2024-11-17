@@ -205,7 +205,7 @@ class RandomFarmBehavior(Behavior):
         key = (self.game_state.player.server_id, map_id)
         last_visited = LAST_VISITED_BY_SERVER_AND_MAP.get(key, MIN_DATE)
         seconds_since_visit = (datetime.now() - last_visited).total_seconds()
-        return min(seconds_since_visit, 3600) ** 3
+        return min(seconds_since_visit, 3600) ** 2
 
     def _get_cached_additional_weight(self, map_id: int) -> float:
         if map_id not in self.additional_weight_by_map_id:

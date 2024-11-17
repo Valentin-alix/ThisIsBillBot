@@ -1,0 +1,316 @@
+{
+    "serverFilter": {
+        "value": 1
+    },
+    "serverWithCharacter": {
+        "value": false
+    },
+    "serverModeList": {
+        "value": false
+    },
+    "loginUiMode": {
+        "value": 2
+    },
+    "lastHostSelected": {
+        "value": ""
+    },
+    "autoConnectType": {
+        "value": 0
+    },
+    "connectionPort": {
+        "value": 5555
+    },
+    "askForQualitySelection": {
+        "value": true
+    },
+    "channelLocked": {
+        "value": true
+    },
+    "displayTime": {
+        "value": true
+    },
+    "displayShortcut": {
+        "value": false
+    },
+    "displayInfoPrefix": {
+        "value": false
+    },
+    "chatColorOptions": {
+        "value": []
+    },
+    "showEveryMonsters": {
+        "value": false
+    },
+    "almanaxDailyNotification": {
+        "value": {
+            "isEnabled": false,
+            "hasSound": true
+        }
+    },
+    "questOverNotification": {
+        "value": {
+            "isEnabled": false,
+            "hasSound": true
+        }
+    },
+    "unlockedAchievementNotification": {
+        "value": {
+            "isEnabled": false,
+            "hasSound": true
+        }
+    },
+    "impossibleHarvestNotification": {
+        "value": {
+            "isEnabled": false,
+            "hasSound": true
+        }
+    },
+    "jobLevelUpNotification": {
+        "value": {
+            "isEnabled": false,
+            "hasSound": true
+        }
+    },
+    "externalNotificationOptions": {
+        "value": [
+            0,
+            17,
+            32,
+            53,
+            69,
+            85,
+            101,
+            117,
+            133,
+            144,
+            165,
+            181,
+            199,
+            209,
+            227,
+            241,
+            257,
+            277,
+            288,
+            304,
+            320,
+            336,
+            352,
+            368,
+            384,
+            400,
+            416,
+            432,
+            448,
+            485,
+            496,
+            513,
+            529,
+            549,
+            560,
+            576,
+            597,
+            608,
+            629,
+            645,
+            661,
+            677,
+            693,
+            709,
+            721,
+            741,
+            752,
+            768,
+            784
+        ]
+    },
+    "lockUI": {
+        "value": false
+    },
+    "snappingDistance": {
+        "value": {
+            "isMute": false,
+            "value": 30
+        }
+    },
+    "snappingGap": {
+        "value": {
+            "isMute": false,
+            "value": 0
+        }
+    },
+    "notificationsAlphaWindows": {
+        "value": false
+    },
+    "notificationsMode": {
+        "value": 0
+    },
+    "notificationsDisplayDuration": {
+        "value": 3
+    },
+    "volumeGlobal": {
+        "value": {
+            "isMute": true,
+            "value": 100
+        }
+    },
+    "volumeMenu": {
+        "value": {
+            "isMute": false,
+            "value": 100
+        }
+    },
+    "volumeAmbiance": {
+        "value": {
+            "isMute": false,
+            "value": 100
+        }
+    },
+    "volumeSfx": {
+        "value": {
+            "isMute": false,
+            "value": 100
+        }
+    },
+    "volumeMusic": {
+        "value": {
+            "isMute": false,
+            "value": 100
+        }
+    },
+    "playSoundAtTurnStart": {
+        "value": false
+    },
+    "playSoundOnPrivateMessage": {
+        "value": false
+    },
+    "playSoundOnTeamMessage": {
+        "value": false
+    },
+    "playSoundOnGuildMessage": {
+        "value": false
+    },
+    "playSoundOnAllianceMessage": {
+        "value": false
+    },
+    "playSoundOnPartyMessage": {
+        "value": false
+    },
+    "allowAnimShake": {
+        "value": false
+    },
+    "recipeShowConditionalCraft": {
+        "value": false
+    },
+    "recipePossibleOnlyCraft": {
+        "value": false
+    },
+    "bindingOverrides": {
+        "value": ""
+    },
+    "displaySlaveUIs": {
+        "value": true
+    },
+    "updateUiFromSlaves": {
+        "value": true
+    },
+    "windowDisplayMode": {
+        "value": 2
+    },
+    "windowResolutionMode": {
+        "value": 0
+    },
+    "login": {
+        "value": {
+            "Item1": "",
+            "Item2": ""
+        }
+    },
+    "displayAuras": {
+        "value": false
+    },
+    "alwaysShowAuraOnFront": {
+        "value": false
+    },
+    "isDebug": {
+        "value": false
+    },
+    "isConcurrency": {
+        "value": true
+    },
+    "isFightContextCache": {
+        "value": true
+    },
+    "maxEffectCount": {
+        "value": 1
+    },
+    "timeout": {
+        "value": 1000
+    },
+    "fps": {
+        "value": 30
+    },
+    "vsync": {
+        "value": false
+    },
+    "hdrEnabled": {
+        "value": false
+    },
+    "antiAliasingMode": {
+        "value": 0
+    },
+    "msaaQuality": {
+        "value": 0
+    },
+    "smaaQuality": {
+        "value": 0
+    },
+    "dofusQuality": {
+        "value": 0
+    },
+    "currentTexturePack": {
+        "value": 1
+    },
+    "renderingScale": {
+        "value": {
+            "isMute": false,
+            "value": 100
+        }
+    },
+    "swipeToSwitchMap": {
+        "value": false
+    },
+    "swipeHorizontalSwitch": {
+        "value": false
+    },
+    "swipeVerticalSwitch": {
+        "value": false
+    },
+    "swipeSensitivity": {
+        "value": {
+            "isMute": false,
+            "value": 50
+        }
+    },
+    "allowMapEffects": {
+        "value": false
+    },
+    "mapArrowColor": {
+        "value": 16777215
+    },
+    "currentTheme": {
+        "value": 1
+    },
+    "globalFontSize": {
+        "value": 1
+    },
+    "uiScale": {
+        "value": 90
+    },
+    "useDefaultScale": {
+        "value": true
+    },
+    "displayBreedPictoForWindow": {
+        "value": false
+    }
+}

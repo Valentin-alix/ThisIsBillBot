@@ -1,8 +1,10 @@
+import heapq
 from dataclasses import dataclass, field
 from typing import cast
 
 from tqdm import tqdm
 
+from D3Mapping.d3_mapping.consts import LIMIT
 from D3Mapping.d3_mapping.mapping.services.hungarian.hungarian_solver_service import (
     HungarianSolverService,
 )
@@ -91,74 +93,38 @@ class GlobalProtoMapper:
             return None
         return set(self.used_fields.get(f".{clear_namespace}", []))
 
-    def run_mapping(self) -> dict[str, OutputMappingInfo]:
-        self._build_indices()
-
-        sorted_obf_struct_to_map_fields = sorted(
-            [
-                obf_struct
-                for obf_struct in self.obf_struct_by_namespace.values()
-                if isinstance(obf_struct, PMessage)
-                and obf_struct.namespace in self.verified_msg_by_obf
-            ],
-            key=lambda obf_struct: self._get_validator_priority(
-                obf_struct.namespace, self.verified_msg_by_obf
-            ),
-            reverse=True,
-        )
-        for obf_msg in tqdm(sorted_obf_struct_to_map_fields):
-            related_clear_msg_name = self.verified_msg_by_obf[obf_msg.namespace]
-            related_clear_namespace = cast(dict, self._clear_name_to_namespace).get(
-                related_clear_msg_name
-            )
-            if related_clear_namespace is None:
-                continue
-
-            if not self._is_message_used(related_clear_namespace):
-                continue
-
-            related_clear_msg = self.clear_struct_by_namespace[related_clear_namespace]
-            assert isinstance(related_clear_msg, PMessage)
-
-            mapping_info = self.get_comparison_message(
-                related_clear_msg, obf_msg, set()
-            )
-            self.add_new_msg_mapping(related_clear_msg, obf_msg, mapping_info)
-
-        print("\n" + "=" * 60)
-        print(self.metrics.get_summary())
-        print("=" * 60)
-
-        return self.msg_mapping_info_by_clear_namespace
-
-    def map_new_messages(
-        self, new_verified_msg_by_obf: dict[str, str]
+    def _map_messages(
+        self,
+        verified_msg_by_obf: dict[str, str],
+        desc: str = "",
+        check_used: bool = False,
     ) -> dict[str, OutputMappingInfo]:
         self._build_indices()
 
-        new_mappings: dict[str, OutputMappingInfo] = {}
-
-        sorted_obf_struct_to_map_fields = sorted(
+        sorted_obf_structs = sorted(
             [
                 obf_struct
                 for obf_struct in self.obf_struct_by_namespace.values()
                 if isinstance(obf_struct, PMessage)
-                and obf_struct.namespace in new_verified_msg_by_obf
+                and obf_struct.namespace in verified_msg_by_obf
             ],
             key=lambda obf_struct: self._get_validator_priority(
-                obf_struct.namespace, new_verified_msg_by_obf
+                obf_struct.namespace, verified_msg_by_obf
             ),
             reverse=True,
         )
 
-        for obf_msg in tqdm(
-            sorted_obf_struct_to_map_fields, desc="Mapping new messages"
-        ):
-            related_clear_msg_name = new_verified_msg_by_obf[obf_msg.namespace]
+        new_mappings: dict[str, OutputMappingInfo] = {}
+
+        for obf_msg in tqdm(sorted_obf_structs, desc=desc or None):
+            related_clear_msg_name = verified_msg_by_obf[obf_msg.namespace]
             related_clear_namespace = cast(dict, self._clear_name_to_namespace).get(
                 related_clear_msg_name
             )
             if related_clear_namespace is None:
+                continue
+
+            if check_used and not self._is_message_used(related_clear_namespace):
                 continue
 
             related_clear_msg = self.clear_struct_by_namespace[related_clear_namespace]
@@ -172,6 +138,24 @@ class GlobalProtoMapper:
             new_mappings[related_clear_msg.namespace] = (
                 self.msg_mapping_info_by_clear_namespace[related_clear_msg.namespace]
             )
+
+        return new_mappings
+
+    def run_mapping(self) -> dict[str, OutputMappingInfo]:
+        self._map_messages(self.verified_msg_by_obf, check_used=True)
+
+        print("\n" + "=" * 60)
+        print(self.metrics.get_summary())
+        print("=" * 60)
+
+        return self.msg_mapping_info_by_clear_namespace
+
+    def map_new_messages(
+        self, new_verified_msg_by_obf: dict[str, str]
+    ) -> dict[str, OutputMappingInfo]:
+        new_mappings = self._map_messages(
+            new_verified_msg_by_obf, desc="Mapping new messages"
+        )
 
         print("\n" + "=" * 60)
         print(f"Mapped {len(new_mappings)} new messages")
@@ -225,35 +209,45 @@ class GlobalProtoMapper:
                 clear_msg.name in VALIDATORS_ON_SET_FIELDS
                 or clear_msg.name in VALIDATORS_GLOBAL_ON_SET_FIELDS
             ):
-                total_sim, total_reliability, clear_by_obf_field_mapping, field_audit = (
-                    self.pulp_solver_service.get_deep_best_field_mapping_combination(
-                        clear_msg,
-                        obf_msg,
-                        treated,
-                        self.get_comparison_message,
-                    )
+                (
+                    total_sim,
+                    total_reliability,
+                    clear_by_obf_field_mapping,
+                    field_audit,
+                ) = self.pulp_solver_service.get_deep_best_field_mapping_combination(
+                    clear_msg,
+                    obf_msg,
+                    treated,
+                    self.get_comparison_message,
                 )
                 algorithm = "pulp"
             else:
                 clear_elem_by_index = ProtoOrganization.get_flat_elements(clear_msg)
                 obf_elem_by_index = ProtoOrganization.get_flat_elements(obf_msg)
 
-                total_sim, total_reliability, clear_by_obf_field_mapping, field_audit = (
-                    self.hungarian_solver_service.get_flat_best_field_mapping_combination(
-                        self.get_comparison_message,
-                        clear_msg,
-                        obf_msg,
-                        clear_elem_by_index,
-                        obf_elem_by_index,
-                        treated,
-                    )
+                (
+                    total_sim,
+                    total_reliability,
+                    clear_by_obf_field_mapping,
+                    field_audit,
+                ) = self.hungarian_solver_service.get_flat_best_field_mapping_combination(
+                    self.get_comparison_message,
+                    clear_msg,
+                    obf_msg,
+                    clear_elem_by_index,
+                    obf_elem_by_index,
+                    treated,
                 )
                 algorithm = "hungarian"
 
             validator_priority = self._get_validator_priority(
                 obf_msg.namespace, self.verified_msg_by_obf
             )
-            self._audit_cache[clear_msg.namespace] = (algorithm, validator_priority, field_audit)
+            self._audit_cache[clear_msg.namespace] = (
+                algorithm,
+                validator_priority,
+                field_audit,
+            )
 
             if total_reliability == 0:
                 return MappingInfo(
@@ -294,6 +288,34 @@ class GlobalProtoMapper:
 
         return most_sim_msg_info
 
+    def get_top_similar_obf_msgs(
+        self,
+        clear_msg: PMessage,
+        n: int = 3,
+        min_similarity: float = LIMIT,
+        excluded_obf_namespaces: set[str] | None = None,
+    ) -> list[tuple[float, str, MappingInfo]]:
+        heap: list[tuple[float, str, MappingInfo]] = []
+        for obf_namespace in self.obf_root_namespaces:
+            if excluded_obf_namespaces and obf_namespace in excluded_obf_namespaces:
+                continue
+            related_obf_struct = self.obf_struct_by_namespace[obf_namespace]
+            if not isinstance(related_obf_struct, PMessage):
+                continue
+            mapping_info = self.get_comparison_message(
+                clear_msg, related_obf_struct, set()
+            )
+            if mapping_info.similarity >= min_similarity:
+                if len(heap) < n:
+                    heapq.heappush(
+                        heap, (mapping_info.similarity, obf_namespace, mapping_info)
+                    )
+                elif mapping_info.similarity > heap[0][0]:
+                    heapq.heapreplace(
+                        heap, (mapping_info.similarity, obf_namespace, mapping_info)
+                    )
+        return sorted(heap, key=lambda x: x[0], reverse=True)
+
     def add_new_msg_mapping(
         self, clear_msg: PMessage, obf_msg: PMessage, mapping_info: MappingInfo
     ):
@@ -324,7 +346,10 @@ class GlobalProtoMapper:
 
             _sim, _clear_field_name, _sub_mapping_info, _ = _mapping_info
 
-            if used_fields_for_msg is not None and _clear_field_name not in used_fields_for_msg:
+            if (
+                used_fields_for_msg is not None
+                and _clear_field_name not in used_fields_for_msg
+            ):
                 continue
 
             output_field_mapping[_obf_field_name] = _clear_field_name
@@ -352,7 +377,9 @@ class GlobalProtoMapper:
         )
 
         if clear_msg.namespace in self._audit_cache:
-            algorithm, validator_priority, field_audit = self._audit_cache[clear_msg.namespace]
+            algorithm, validator_priority, field_audit = self._audit_cache[
+                clear_msg.namespace
+            ]
 
             if used_fields_for_msg is not None:
                 filtered_field_audit = {
