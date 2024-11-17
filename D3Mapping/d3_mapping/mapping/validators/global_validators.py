@@ -110,10 +110,10 @@ def global_validator_map_complementary_information_event(
 VALIDATORS_GLOBAL_ON_SET_FIELDS: dict[
     str, tuple[Callable[[list[dict[str, Any]]], bool], int]
 ] = {
-    # "MapComplementaryInformationEvent": (
-    #     global_validator_map_complementary_information_event,
-    #     3,
-    # ),
+    "MapComplementaryInformationEvent": (
+        global_validator_map_complementary_information_event,
+        3,
+    ),
     "CharacterCharacteristicUpgradeRequest": (
         global_validator_character_characteristic_upgrade_request,
         1,

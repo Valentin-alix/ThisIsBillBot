@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Callable
 
 import numpy as np
@@ -15,10 +14,10 @@ from D3Mapping.d3_mapping.models.mapping_info import (
     RejectionReason,
 )
 from D3Mapping.d3_mapping.models.p_message import PField, PMapField, PMessage
+from src.utils.dataclass_utils import AppModel
 
 
-@dataclass
-class HungarianSolverResult:
+class HungarianSolverResult(AppModel):
     """Result from Hungarian algorithm solver."""
 
     total_sim: float
@@ -27,8 +26,7 @@ class HungarianSolverResult:
     field_audit: dict[str, FieldAuditInfo]
 
 
-@dataclass
-class HungarianSolverService:
+class HungarianSolverService(AppModel):
     cost_matrix_service: CostMatrixService
 
     def get_flat_best_field_mapping_combination(

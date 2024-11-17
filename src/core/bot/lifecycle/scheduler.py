@@ -10,11 +10,12 @@ import schedule
 
 SCHEDULE_RANDOM_MINUTES_MIN = 1
 SCHEDULE_RANDOM_MINUTES_MAX = 8
-from PyQt5.QtCore import QThread
 
-from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_api_key import (
+from ankama_launcher_emulator.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
+from PyQt5.QtCore import QThread
+
 from src.controller.bot_config import BotConfig
 from src.controller.schedule_profile_controller import ScheduleProfileController
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator

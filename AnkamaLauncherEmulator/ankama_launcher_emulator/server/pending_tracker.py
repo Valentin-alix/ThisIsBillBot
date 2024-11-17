@@ -3,12 +3,12 @@ import threading
 import time
 from dataclasses import dataclass, field
 
-from AnkamaLauncherEmulator.ankama_launcher_emulator.redirect import set_proxy
+from ankama_launcher_emulator.redirect import set_proxy
 from src.utils.metaclasses.singleton import Singleton
 
 logger = logging.getLogger()
 
-PENDING_TIMEOUT_SECONDS = 60
+PENDING_TIMEOUT_SECONDS = 120
 
 
 @dataclass
@@ -22,34 +22,37 @@ class PendingConnectionTracker(metaclass=Singleton):
     - Auto-decrements after timeout if client never connects
     """
 
-    _pending_count: int = field(init=False, default=0)
-    _pending_timestamps: list[float] = field(init=False, default_factory=list)
+    _pending_entries: list[tuple[float, int | None]] = field(
+        init=False, default_factory=list
+    )
     _lock: threading.Lock = field(init=False, default_factory=threading.Lock)
     _cleanup_timer: threading.Timer | None = field(init=False, default=None)
 
-    def register_launch(self):
+    def register_launch(self, port: int | None):
         with self._lock:
-            was_zero = self._pending_count == 0
-            self._pending_count += 1
-            self._pending_timestamps.append(time.time())
+            was_zero = len(self._pending_entries) == 0
+            self._pending_entries.append((time.time(), port))
 
             if was_zero:
                 logger.info("[PROXY] Premier lancement, activation proxy")
                 set_proxy(True)
             else:
                 logger.info(
-                    f"[PROXY] Lancement enregistré, {self._pending_count} en attente"
+                    f"[PROXY] Lancement enregistré, {len(self._pending_entries)} en attente"
                 )
+            self._schedule_cleanup()
 
-    def register_connection(self):
+    def pop_next_port(self) -> int | None:
         with self._lock:
-            assert self._pending_count > 0
-            self._pending_count -= 1
-            self._pending_timestamps.pop(0)
-            logger.info(f"[PROXY] Config interceptée, {self._pending_count} en attente")
-            if self._pending_count == 0:
+            assert self._pending_entries, "No pending entries when config intercepted"
+            _, port = self._pending_entries.pop(0)
+            logger.info(
+                f"[PROXY] Config interceptée, {len(self._pending_entries)} en attente"
+            )
+            if not self._pending_entries:
                 logger.info("[PROXY] Dernier client connecté, désactivation proxy")
                 set_proxy(False)
+            return port
 
     def _schedule_cleanup(self):
         if self._cleanup_timer:
@@ -65,19 +68,18 @@ class PendingConnectionTracker(metaclass=Singleton):
             expired_count = 0
 
             while (
-                self._pending_timestamps
-                and (now - self._pending_timestamps[0]) > PENDING_TIMEOUT_SECONDS
+                self._pending_entries
+                and (now - self._pending_entries[0][0]) > PENDING_TIMEOUT_SECONDS
             ):
-                self._pending_timestamps.pop(0)
-                self._pending_count -= 1
+                self._pending_entries.pop(0)
                 expired_count += 1
 
             if expired_count > 0:
                 logger.info(
-                    f"[PROXY] Timeout: {expired_count} connexion(s) expirée(s), {self._pending_count} en attente"
+                    f"[PROXY] Timeout: {expired_count} connexion(s) expirée(s), {len(self._pending_entries)} en attente"
                 )
-                if self._pending_count == 0:
+                if not self._pending_entries:
                     logger.info("[PROXY] Tous les clients expirés, désactivation proxy")
                     set_proxy(False)
-                elif self._pending_timestamps:
+                else:
                     self._schedule_cleanup()

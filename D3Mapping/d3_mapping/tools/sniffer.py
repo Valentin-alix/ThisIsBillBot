@@ -3,12 +3,12 @@ import socket
 import sys
 import traceback
 from collections import defaultdict
-from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
 from threading import Thread
 
 from dotenv import load_dotenv
+from pydantic import Field
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 from qfluentwidgets import Theme, setTheme, setThemeColor
@@ -19,6 +19,7 @@ from scapy.packet import Packet, Raw
 
 from src.core.signals.global_log_signals import GlobalLogSignals
 from src.services.logging.logger import init_gui_global_logging
+from src.utils.dataclass_utils import AppModel
 
 load_dotenv(os.path.join(Path(__file__).parent.parent.parent, ".env"))
 
@@ -45,9 +46,8 @@ DOFUS_CONNECTION_URL = "dofus2-co-production.ankama-games.com"
 CONNECTION_SERVERS_IPS: list[str] = socket.gethostbyname_ex(DOFUS_CONNECTION_URL)[2]
 
 
-@dataclass
-class Sniffer:
-    buffers: defaultdict[tuple[str, str], bytes] = field(
+class Sniffer(AppModel):
+    buffers: defaultdict[tuple[str, str], bytes] = Field(
         init=False, default_factory=lambda: defaultdict(lambda: bytes())
     )
     msg_info_signals: MessageInfoSignals

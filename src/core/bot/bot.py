@@ -2,9 +2,10 @@ import datetime
 from dataclasses import dataclass, field
 from threading import Event
 
-from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_api_key import (
+from ankama_launcher_emulator.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
+
 from src.controller.bot_config import BotConfigController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior

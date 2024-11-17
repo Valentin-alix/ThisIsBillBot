@@ -1,10 +1,10 @@
 import datetime
-from dataclasses import dataclass
 from typing import Any
 
+from src.utils.dataclass_utils import AppModel
 
-@dataclass
-class MessageInfo:
+
+class MessageInfo(AppModel):
     received_time: datetime.datetime
     from_server: bool
     sub_msg_name: str

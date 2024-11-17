@@ -1,9 +1,9 @@
 import traceback
-from dataclasses import dataclass, field
 from typing import Callable, cast
 
 import pulp
 from cachetools import cached
+from pydantic import Field
 
 from D3Mapping.d3_mapping.consts import MAX_PULP_ITERATIONS
 from D3Mapping.d3_mapping.mapping.debug_messages import (
@@ -26,24 +26,22 @@ from D3Mapping.d3_mapping.models.mapping_info import (
 )
 from D3Mapping.d3_mapping.models.mapping_metrics import MappingMetrics
 from D3Mapping.d3_mapping.models.p_message import PMessage
+from src.utils.dataclass_utils import AppModel
 
 PulpMappingResult = dict[tuple[tuple[str, ...], tuple[str, ...]], float]
 
 
-@dataclass
-class PulpMappingData:
+class PulpMappingData(AppModel):
     sim_by_mapping: dict[tuple[tuple[str, ...], tuple[str, ...]], float]
     reliability_by_mapping: dict[tuple[tuple[str, ...], tuple[str, ...]], float]
 
 
-@dataclass
-class PulpModel:
+class PulpModel(AppModel):
     model: pulp.LpProblem
     variables: dict[tuple[tuple[str, ...], tuple[str, ...]], pulp.LpVariable]
 
 
-@dataclass
-class PulpSolverResult:
+class PulpSolverResult(AppModel):
     total_sim: float
     total_reliability: float
     field_mapping: FieldMapping
@@ -51,24 +49,16 @@ class PulpSolverResult:
     success: bool = True
 
 
-@dataclass
-class PulpSolverService:
+class PulpSolverService(AppModel):
     metrics: MappingMetrics
     proto_validator: ProtoValidator
     deep_mapping_data_service: DeepMappingDataService
     pulp_result_converter: PulpResultConverter
-    failed_combinations: set[tuple[str, str]] = field(default_factory=set)
+    failed_combinations: set[tuple[str, str]] = Field(default_factory=set)
 
-    def __post_init__(self):
-        try:
-            self.solver = pulp.HiGHS_CMD(msg=False, warmStart=True)
-            test_prob = pulp.LpProblem("test", pulp.LpMaximize)
-            test_var = pulp.LpVariable("x", 0, 1)
-            test_prob += test_var
-            test_prob.solve(self.solver)
-            print("Using HiGHS solver (fast)")
-        except (pulp.PulpSolverError, AttributeError, Exception):
-            self.solver = pulp.PULP_CBC_CMD(msg=False, presolve=True)
+    solver: pulp.PULP_CBC_CMD = Field(
+        init=False, default_factory=lambda: pulp.PULP_CBC_CMD(msg=False, presolve=True)
+    )
 
     @cached(
         cache={},
@@ -195,9 +185,7 @@ class PulpSolverService:
                 )
 
             self.metrics.add_validation_failure()
-            self._add_exclusion_constraint(
-                pulp_model, set(mapping_result.keys())
-            )
+            self._add_exclusion_constraint(pulp_model, set(mapping_result.keys()))
 
         self.metrics.add_pulp_timeout()
         print(
@@ -230,15 +218,14 @@ class PulpSolverService:
             model += pulp.lpSum(variables[pair] for pair in pairs) <= 1
 
         model += pulp.lpSum(
-            mapping_data.sim_by_mapping[(clear_path, obf_path)] * variables[(clear_path, obf_path)]
+            mapping_data.sim_by_mapping[(clear_path, obf_path)]
+            * variables[(clear_path, obf_path)]
             for (clear_path, obf_path) in mapping_data.sim_by_mapping
         )
 
         return PulpModel(model=model, variables=variables)
 
-    def _add_exclusion_constraint(
-        self, pulp_model: PulpModel, failed_mapping: set
-    ):
+    def _add_exclusion_constraint(self, pulp_model: PulpModel, failed_mapping: set):
         pulp_model.model += (
             pulp.lpSum(pulp_model.variables[pair] for pair in failed_mapping)
             <= len(failed_mapping) - 1

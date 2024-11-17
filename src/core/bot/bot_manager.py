@@ -4,21 +4,32 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from time import sleep
 
-from PyQt5.QtCore import QThread
-
-from AnkamaLauncherEmulator.ankama_launcher_emulator import (
+from ankama_launcher_emulator import (
     AnkamaLauncherHandler,
-    AnkamaLauncherServer,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.decrypter.crypto_helper import (
+from ankama_launcher_emulator.consts import (
+    SOCKS5_HOST,
+    SOCKS5_PASSWORD,
+    SOCKS5_PORT,
+    SOCKS5_USERNAME,
+)
+from ankama_launcher_emulator.decrypter.crypto_helper import (
     CryptoHelper,
 )
+from ankama_launcher_emulator.proxy.proxy_listener import (
+    ProxyListener,
+)
+from ankama_launcher_emulator.server.server import (
+    AnkamaLauncherServer,
+)
+from PyQt5.QtCore import QThread
+
+from src.controller.bot_config import BotConfigController
 from src.core.bot.bot import Bot
 from src.core.bot.bot_factory import BotFactory
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.gui.utils.run_in_background import Worker, run_in_background
 from src.utils.internet import (
-    DEFAULT_LOCAL_IP,
     has_internet_connection,
 )
 
@@ -41,9 +52,12 @@ class BotManager:
         self.bot_by_account_id = self.get_bot_by_account_id()
         self.shared_signals.launch_account.connect(self.on_launch_account)
         self.shared_signals.synchronize_bots.connect(self.on_synchronize_bots)
-        source_ip = DEFAULT_LOCAL_IP
-        self.ankama_launcher.start(
-            source_ip=source_ip or "0.0.0.0", do_intercept_to_localhost=True
+        self.proxy_url = "http://090de9c7b643e2e1:x0JriSUK@185.162.130.85:10000"
+        self.proxy_listener = ProxyListener(
+            socks5_host=SOCKS5_HOST,
+            socks5_port=SOCKS5_PORT,
+            socks5_username=SOCKS5_USERNAME,
+            socks5_password=SOCKS5_PASSWORD,
         )
 
     def on_launch_account(self, login: str):
@@ -89,6 +103,12 @@ class BotManager:
 
         self._is_lauching_by_login[login].set()
 
+        bot_config = (
+            BotConfigController()
+            .get_bot_config_by_login()
+            .get(related_bot.account["apikey"]["login"])
+        )
+
         for attempt in range(max_retries):
             if not related_bot.is_playing_event.is_set():
                 self._is_lauching_by_login[login].clear()
@@ -113,7 +133,11 @@ class BotManager:
                 return related_bot.logger.info("Bot is not in playtime anymore")
 
             related_bot.logger.info("Launch bot")
-            related_bot.process_manager.pid = self.ankama_launcher.launch_dofus(login)
+            related_bot.process_manager.pid = self.ankama_launcher.launch_dofus(
+                login,
+                self.proxy_listener,
+                source_ip=bot_config.network_interface if bot_config else None,
+            )
 
             related_bot.logger.info(f"Pid {related_bot.process_manager.pid}")
 
@@ -163,6 +187,7 @@ class BotManager:
         for bot in bots:
             bot.connection_handler.cleanup()
             bot.process_manager.kill_process()
+        self.proxy_listener.shutdown()
 
     def on_synchronize_bots(self) -> None:
         for account in CryptoHelper.getStoredApiKeys():

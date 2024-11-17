@@ -1,15 +1,18 @@
-from dataclasses import dataclass
 from typing import Callable
 
 from D3Mapping.d3_mapping.consts import SIMILARITY_DIVERGENCE_THRESHOLD, EntryMsg
-from D3Mapping.d3_mapping.models.mapping_info import MappingInfo, Percentage, RejectionReason
+from D3Mapping.d3_mapping.models.mapping_info import (
+    MappingInfo,
+    Percentage,
+    RejectionReason,
+)
 from D3Mapping.d3_mapping.models.mapping_metrics import MappingMetrics
 from D3Mapping.d3_mapping.models.p_message import PField, PMessage
 from D3Mapping.d3_mapping.utils import set_percentage
+from src.utils.dataclass_utils import AppModel
 
 
-@dataclass
-class MappingEnforcementService:
+class MappingEnforcementService(AppModel):
     """Service for enforcing verified mappings on fields and messages.
 
     This service ensures that verified mappings (from manual validation) are

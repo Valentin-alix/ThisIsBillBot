@@ -1,7 +1,6 @@
 import logging
 import os
 import sys
-from threading import Thread
 from time import sleep
 
 from dotenv import load_dotenv
@@ -34,10 +33,8 @@ if hasattr(sys, "_MEIPASS"):
         )
     )
 
-from src.const import DOFUS_CONNECTION_URL  # noqa: E402
 from src.core.bot.bot_manager import BotManager  # noqa: E402
 from src.core.bot.lifecycle.scheduler import run_continuously  # noqa: E402
-from src.core.mitm.proxy_listener import ProxyListener  # noqa: E402
 from src.core.signals.shared_farm_signals import SharedSignals  # noqa: E402
 from src.gui.application import Application  # noqa: E402
 from src.gui.main_window import MainWindow  # noqa: E402
@@ -55,14 +52,8 @@ def main() -> None:
     setThemeColor(Qt.GlobalColor.yellow)
 
     bot_manager = BotManager(shared_signals=shared_signals)
-    proxy_listener = ProxyListener(account_by_id=bot_manager.bot_by_account_id)
-    proxy_dofus = proxy_listener.create_server(5555)
-    Thread(
-        target=lambda: proxy_listener.start_listener(
-            proxy_dofus, (DOFUS_CONNECTION_URL, 5555), True
-        ),
-        daemon=True,
-    ).start()
+
+    bot_manager.ankama_launcher.start()
     main_window.init_accounts(bot_manager.bot_by_account_id)
     main_window.splashScreen.finish()
 
@@ -73,7 +64,6 @@ def main() -> None:
 
     def on_app_close():
         cease_running.set()
-        proxy_listener.shutdown()
         bot_manager.shutdown()
 
     shared_signals.closed.connect(on_app_close)

@@ -1,8 +1,7 @@
-from dataclasses import dataclass
+from src.utils.dataclass_utils import AppModel
 
 
-@dataclass
-class MappingMetrics:
+class MappingMetrics(AppModel):
     total_comparisons: int = 0
     forced_matches: int = 0
     calculated_matches: int = 0
@@ -21,9 +20,8 @@ class MappingMetrics:
         else:
             self.calculated_matches += 1
             self.avg_similarity = (
-                (self.avg_similarity * (self.calculated_matches - 1) + similarity)
-                / self.calculated_matches
-            )
+                self.avg_similarity * (self.calculated_matches - 1) + similarity
+            ) / self.calculated_matches
 
     def add_validation_failure(self):
         """Track a validation failure in PuLP"""

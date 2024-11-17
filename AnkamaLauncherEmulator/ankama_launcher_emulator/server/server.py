@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from signal import SIGTERM
 from threading import Thread
-from time import sleep
 from typing import Any
 
 from psutil import process_iter
@@ -14,30 +13,33 @@ from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 from thrift.transport import TSocket, TTransport
 
-from AnkamaLauncherEmulator.ankama_launcher_emulator.redirect import (
+from ankama_launcher_emulator.proxy.proxy_listener import (
+    ProxyListener,
+)
+from ankama_launcher_emulator.redirect import (
     run_proxy_config_in_thread,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.server.pending_tracker import (
+from ankama_launcher_emulator.server.pending_tracker import (
     PendingConnectionTracker,
 )
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from AnkamaLauncherEmulator.ankama_launcher_emulator.consts import (
+from ankama_launcher_emulator.consts import (
     DOFUS_PATH,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.decrypter.crypto_helper import (
+from ankama_launcher_emulator.decrypter.crypto_helper import (
     CryptoHelper,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.gen_zaap.zaap import ZaapService
-from AnkamaLauncherEmulator.ankama_launcher_emulator.haapi.haapi import Haapi
-from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.account_game_info import (
+from ankama_launcher_emulator.gen_zaap.zaap import ZaapService
+from ankama_launcher_emulator.haapi.haapi import Haapi
+from ankama_launcher_emulator.interfaces.account_game_info import (
     AccountGameInfo,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.game_name_enum import (
+from ankama_launcher_emulator.interfaces.game_name_enum import (
     GameNameEnum,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.server.handler import (
+from ankama_launcher_emulator.server.handler import (
     AnkamaLauncherHandler,
 )
 
@@ -50,25 +52,11 @@ class AnkamaLauncherServer:
     instance_id: int = field(init=False, default=0)
     _server_thread: Thread | None = None
     _dofus_threads: list[Thread] = field(init=False, default_factory=list)
-    _source_ip: str | None = field(init=False, default=None)
-    _do_intercept_to_localhost: bool = field(init=False, default=False)
 
-    def start(
-        self, source_ip: str | None = None, do_intercept_to_localhost: bool = False
-    ):
-        """start the ankama launcher emulator
-
-        Args:
-            source_ip (str | None, optional): the local ip, useful to bind to a specific network interface. Defaults to None.
-            do_intercept_to_localhost (bool, optional): we intercept the config for dofus3 to put a local server instead of the real server, useful for mitm bot. Defaults to False.
-        """
-        self._do_intercept_to_localhost = do_intercept_to_localhost
-        self._source_ip = source_ip
-
-        if do_intercept_to_localhost:
-            run_proxy_config_in_thread(
-                on_config_intercepted=PendingConnectionTracker().register_connection
-            )
+    def start(self):
+        run_proxy_config_in_thread(
+            get_next_port=PendingConnectionTracker().pop_next_port
+        )
 
         for proc in process_iter():
             if proc.pid == 0:
@@ -84,7 +72,13 @@ class AnkamaLauncherServer:
         server = TServer.TThreadedServer(processor, transport, tfactory, pfactory)
         Thread(target=server.serve, daemon=True).start()
 
-    def launch_dofus(self, login: str) -> int:
+    def launch_dofus(
+        self,
+        login: str,
+        proxy_listener: ProxyListener,
+        proxy_url: str | None = None,
+        source_ip: str | None = None,
+    ) -> int:
         random_hash = str(uuid.uuid4())
         self.instance_id += 1
 
@@ -94,17 +88,15 @@ class AnkamaLauncherServer:
             login=login,
             game_id=102,
             api_key=api_key,
-            haapi=Haapi(api_key, source_ip=self._source_ip, login=login),
+            haapi=Haapi(api_key, source_ip=source_ip, login=login, proxy_url=proxy_url),
         )
 
-        pid = self._launch_dofus_exe(random_hash)
+        connection_port = proxy_listener.start(port=0, interface_ip=source_ip)
 
-        if self._do_intercept_to_localhost:
-            PendingConnectionTracker().register_launch()
+        PendingConnectionTracker().register_launch(port=connection_port)
+        return self._launch_dofus_exe(random_hash, connection_port=connection_port)
 
-        return pid
-
-    def _launch_dofus_exe(self, random_hash: str) -> int:
+    def _launch_dofus_exe(self, random_hash: str, connection_port: int) -> int:
         log_path = os.path.join(
             os.environ["LOCALAPPDATA"],
             "Roaming",
@@ -134,8 +126,9 @@ class AnkamaLauncherServer:
             "--autoConnectType",
             "2",
             "--connectionPort",
-            "5555",
+            str(connection_port),
         ]
+
         env = {
             "ZAAP_CAN_AUTH": "true",
             "ZAAP_GAME": GameNameEnum.DOFUS.value,
@@ -159,14 +152,9 @@ class AnkamaLauncherServer:
 
 
 def main():
-    handler = AnkamaLauncherHandler()
-    server = AnkamaLauncherServer(handler)
-    server.start()
+    from ankama_launcher_emulator.gui import run_gui
 
-    server.launch_dofus("pcserv_blibli_2_0@outlook.fr")
-
-    while True:
-        sleep(1)
+    run_gui()
 
 
 if __name__ == "__main__":

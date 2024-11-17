@@ -1,5 +1,6 @@
-from dataclasses import dataclass, field
 from typing import Callable
+
+from pydantic import PrivateAttr
 
 from D3Mapping.d3_mapping.consts import log_reliability
 from D3Mapping.d3_mapping.mapping.services.field_comparison_service import (
@@ -19,12 +20,12 @@ from D3Mapping.d3_mapping.mapping.validators.proto_field_validators import (
 )
 from D3Mapping.d3_mapping.models.p_enum import PEnum
 from D3Mapping.d3_mapping.models.p_message import PField, PMapField, PMessage
+from src.utils.dataclass_utils import AppModel
 
 PulpMappingStruct = dict[tuple[tuple[str, ...], tuple[str, ...]], float]
 
 
-@dataclass
-class DeepMappingDataService:
+class DeepMappingDataService(AppModel):
     """Service for computing deep mapping similarity data for PuLP optimization."""
 
     clear_struct_by_namespace: dict[str, PMessage | PEnum]
@@ -34,8 +35,8 @@ class DeepMappingDataService:
 
     _compute_cache: dict[
         tuple[str, str, frozenset[str]],
-        tuple[PulpMappingStruct, dict[tuple[tuple[str, ...], tuple[str, ...]], float]]
-    ] = field(default_factory=dict)
+        tuple[PulpMappingStruct, dict[tuple[tuple[str, ...], tuple[str, ...]], float]],
+    ] = PrivateAttr(default_factory=dict)
 
     def compute(
         self,
@@ -64,7 +65,7 @@ class DeepMappingDataService:
         cache_key = (
             clear_msg.namespace,
             obf_msg.namespace,
-            frozenset(treated_clear_namespaces)
+            frozenset(treated_clear_namespaces),
         )
         if cache_key in self._compute_cache:
             cached_sim, cached_rel = self._compute_cache[cache_key]
@@ -94,13 +95,15 @@ class DeepMappingDataService:
                             if not is_respected:
                                 continue
 
-                    cost, mapping_info, _ = self.field_comparison_service.compare_p_field(
-                        compare_msg_func,
-                        clear_msg,
-                        clear_elem,
-                        obf_msg,
-                        obf_elem,
-                        treated_clear_namespaces,
+                    cost, mapping_info, _ = (
+                        self.field_comparison_service.compare_p_field(
+                            compare_msg_func,
+                            clear_msg,
+                            clear_elem,
+                            obf_msg,
+                            obf_elem,
+                            treated_clear_namespaces,
+                        )
                     )
                     reliability_field = (
                         self.reliability_calculator.get_reliability_p_clear_field(

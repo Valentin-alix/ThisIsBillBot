@@ -1,7 +1,7 @@
 import heapq
-from dataclasses import dataclass, field
 from typing import cast
 
+from pydantic import Field, PrivateAttr
 from tqdm import tqdm
 
 from D3Mapping.d3_mapping.consts import LIMIT
@@ -40,10 +40,10 @@ from D3Mapping.d3_mapping.models.p_message import (
     PMessage,
 )
 from D3Mapping.d3_mapping.utils import get_value_with_len_malus
+from src.utils.dataclass_utils import AppModel
 
 
-@dataclass
-class GlobalProtoMapper:
+class GlobalProtoMapper(AppModel):
     obf_root_namespaces: list[str]
     clear_struct_by_namespace: dict[str, PMessage | PEnum]
     obf_struct_by_namespace: dict[str, PMessage | PEnum]
@@ -58,15 +58,15 @@ class GlobalProtoMapper:
 
     used_fields: dict[str, list[str]] | None = None
 
-    _clear_name_to_namespace: dict[str, str] | None = None
-    _validator_priority_cache: dict[str, int] | None = None
-    _comparison_cache: dict[tuple[str, str, frozenset[str]], MappingInfo] = field(
+    _clear_name_to_namespace: dict[str, str] | None = PrivateAttr(default=None)
+    _validator_priority_cache: dict[str, int] | None = PrivateAttr(default=None)
+    _comparison_cache: dict[tuple[str, str, frozenset[str]], MappingInfo] = PrivateAttr(
         default_factory=dict
     )
-    _audit_cache: dict[str, tuple[str, int, dict[str, FieldAuditInfo]]] = field(
+    _audit_cache: dict[str, tuple[str, int, dict[str, FieldAuditInfo]]] = PrivateAttr(
         default_factory=dict
     )
-    audit_by_clear_namespace: dict[str, MessageAuditInfo] = field(default_factory=dict)
+    audit_by_clear_namespace: dict[str, MessageAuditInfo] = Field(default_factory=dict)
 
     def _build_indices(self):
         if self._clear_name_to_namespace is None:

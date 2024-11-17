@@ -55,7 +55,7 @@ class PMapperFactory:
         )
         msg_mapping_info_by_obf_namespace = {}
         proto_validator = ProtoValidator(
-            clear_struct_by_namespace,
+            clear_struct_by_namespace=clear_struct_by_namespace,
             obf_struct_by_namespace=obf_struct_by_namespace,
             msg_mapping_info_by_obf_namespace=msg_mapping_info_by_obf_namespace,
         )

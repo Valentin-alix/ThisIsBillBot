@@ -8,16 +8,16 @@ from typing import Any
 from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import pad, unpad
 
-from AnkamaLauncherEmulator.ankama_launcher_emulator.consts import (
+from ankama_launcher_emulator.consts import (
     API_KEY_FOLDER_PATH,
     CERTIFICATE_FOLDER_PATH,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.decrypter.device import Device
-from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_api_key import (
+from ankama_launcher_emulator.decrypter.device import Device
+from ankama_launcher_emulator.interfaces.deciphered_api_key import (
     DecipheredApiKey,
     DecipheredApiKeyDatas,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_cert import (
+from ankama_launcher_emulator.interfaces.deciphered_cert import (
     DecipheredCertifDatas,
     StoredCertificate,
 )
@@ -145,26 +145,3 @@ class CryptoHelper:
         encrypted_json_obj = CryptoHelper.encrypt(json_obj, uuid)
         with open(file_path, "w", encoding="utf-8") as file:
             file.write(encrypted_json_obj)
-
-
-if __name__ == "__main__":
-    datas = CryptoHelper.getStoredApiKey("ezrealeu44700_main@outlook.com")
-
-    temp = {
-        "apikeyFile": ".keydata182394599",
-        "apikey": {
-            "key": "c19494d7-c6a4-49ed-a504-7b582e6e5d91",
-            "provider": "ankama",
-            "refreshToken": "cf29109b-a71e-4104-9a90-05aa8c2f0180",
-            "isStayLoggedIn": True,
-            "accountId": 182394599,
-            "login": "ezrealeu44700_main@outlook.com",
-            "certificate": {
-                "id": 522791184,
-                "encodedCertificate": "BmlqFSudzq1+8wFBhlz7vW1GtxzGxEXTfM+2Sh+lPr7TpTUezMwQnDPtLqVQ01fGSR++Fsx995gl9hEp49SCq4aw9NwH0gowx7g2w3kJF//ZFE0m4cJegzeP8KsHHXRtZSiOqpUQG/KfWU9URfmEGuM1ya/32ivQBsobPRNpryV2HyC+xF0eJ2Ma3peKH+fDY2zURRF4ZjdbhBiyEF0n0A2Xr2NqtR/Urq9ztUHiXZGQR8KwNQccB3+/ZEBiOl4EQlTgHyrYb5XycLCo2QdM9C9ds+XXFFUzEGWYetL3nAji/C9eVerIkDVx0cB3ZYh/SSadQ0qpGBPSUkZ5+sUIjos1a7qAevz/Ot9i/GkcsyL55Ni4XIF2VkqWY+ck9Y3N/quOn/85gqlOxjfYE+l8rTBngAwT8GlBljm0k1snr0wNgLoUzkhxChK5AENQJ87HfY6/WyTwx5qu88pIgL7bDxFljHTsBzZsaQbK8Gu1LsTS4R+uf5rGLtXpxYmMKgzlQbDD98RYR3/ikoevgtjwDxoF3uKf0FybqmJEVwmT8nCkVAPvQzb7mgCc/2co0J/gGnykMz7bdd3taACrhoTOxAQGMqUUzqmnUpVqw/LdNQ+oVcH/2r7Fay4LR6MZI09z2BDcnGb/fnUuwooiecMNwHYys9qTXmPL6p7Z+p389Ri/pNO1rDFmTI7BW8ueyOc+ecGgeUwf7amIualyBAweQ/RQsOiKgiVVMPQGBCHC8mI7OUiEkYe1U8FtdYWGS31r8moshKKIFX1Iil/HOvStqtWci8ynEEKm02qfWWL/DIt0syrfAaf3CNBazlcP8zDsmAeT5XBGg9R3VHG1w5FYfRoVxUTvjDHBSastfYvdeyeEFREbT1c8A9FIYWdgcklYCfL+ndoMGEJavb6sHtowcQ==",
-                "login": "ezrealeu44700_main@outlook.com",
-            },
-            "refreshDate": 1748523228885,
-        },
-    }
-    yolo = CryptoHelper.encrypt(temp, Device.getUUID())

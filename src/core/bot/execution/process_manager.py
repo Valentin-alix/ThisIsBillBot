@@ -13,7 +13,7 @@ class ProcessManager(ContextualLogger):
 
     def kill_process(self):
         """Kill the Dofus process associated with this bot."""
-        if self.pid is None:
+        if self.pid is None or not psutil.pid_exists(self.pid):
             return self.logger.warning("No pid to kill")
         try:
             process = psutil.Process(self.pid)

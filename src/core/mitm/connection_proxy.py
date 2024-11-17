@@ -1,6 +1,13 @@
+import os
+import signal
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable
+
+from ankama_launcher_emulator.proxy.proxy import (
+    Proxy,
+    WorkerAction,
+)
 
 from D3Mapping.d3_mapping.protocol.protocol import decode_varint_size, encode_msg
 from D3Mapping.d3_mapping.protocol.protocol_connection import (
@@ -8,12 +15,12 @@ from D3Mapping.d3_mapping.protocol.protocol_connection import (
     get_conn_msg_info,
 )
 from D3Mapping.d3_mapping.resources.protos.connection.login_message_pb2 import (
+    IdentificationResponse,
     LoginMessage,
     Request,
 )
 from src.const import DEBUG
 from src.core.bot.bot import Bot
-from src.core.mitm.proxy import Proxy, WorkerAction
 
 
 @dataclass
@@ -51,26 +58,36 @@ class ConnectionProxy(Proxy):
             msg.response.selectServer.success.host = "localhost"
             msg.response.selectServer.success.ports[0] = new_port
             msg_datas = encode_msg(msg)
-        elif msg.response.HasField(
-            "identification"
-        ) and msg.response.identification.HasField("success"):
-            if msg.response.identification.success.account_id in self.bot_by_id:
-                self.bot = self.bot_by_id[
-                    msg.response.identification.success.account_id
-                ]
-            msg.response.identification.success.ClearField(
-                "fight_reconnection_server_id"
-            )
-            if self.bot:
-                self.bot.game_state.player.subscription_end_date = (
-                    datetime.fromisoformat(
-                        msg.response.identification.success.subscription_end_date
-                    )
+        elif msg.response.HasField("identification"):
+            if msg.response.identification.HasField("success"):
+                if msg.response.identification.success.account_id in self.bot_by_id:
+                    self.bot = self.bot_by_id[
+                        msg.response.identification.success.account_id
+                    ]
+                msg.response.identification.success.ClearField(
+                    "fight_reconnection_server_id"
                 )
-                msg.response.identification.success.subscription_end_date = datetime(
-                    year=2030, month=12, day=25
-                ).isoformat()
-            msg_datas = encode_msg(msg)
+                if self.bot:
+                    self.bot.game_state.player.subscription_end_date = (
+                        datetime.fromisoformat(
+                            msg.response.identification.success.subscription_end_date
+                        )
+                    )
+                    msg.response.identification.success.subscription_end_date = (
+                        datetime(year=2030, month=12, day=25).isoformat()
+                    )
+                msg_datas = encode_msg(msg)
+            elif msg.response.identification.HasField("error"):
+                if self.bot:
+                    self.bot.process_manager.kill_process()
+                print(
+                    f"Error Identification, reason : {IdentificationResponse.Error.Reason.Name(msg.response.identification.error.reason)}"
+                )
+                if (
+                    msg.response.identification.error.reason
+                    == IdentificationResponse.Error.Reason.OUTDATED_CLIENT_VERSION
+                ):
+                    os.kill(os.getpid(), signal.SIGTERM)
 
         return msg_datas
 

@@ -19,7 +19,7 @@ else
     PATH_SEPARATOR=":"
 fi
 
-LINE="export PYTHONPATH=\".\""
+LINE='export PYTHONPATH=".:./AnkamaLauncherEmulator"'
 
 # ajoute seulement si absent
 if ! grep -Fxq "$LINE" "$ACTIVATE_FILE"; then

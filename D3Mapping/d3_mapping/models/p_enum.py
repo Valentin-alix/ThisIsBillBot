@@ -1,8 +1,11 @@
-from dataclasses import dataclass
+from pydantic import ConfigDict
+
+from src.utils.dataclass_utils import AppModel
 
 
-@dataclass(frozen=True)
-class PEnumElement:
+class PEnumElement(AppModel):
+    model_config = ConfigDict(frozen=True)
+
     name: str
     value: int
 
@@ -10,8 +13,9 @@ class PEnumElement:
         return self.name.__hash__()
 
 
-@dataclass(frozen=True)
-class PEnum:
+class PEnum(AppModel):
+    model_config = ConfigDict(frozen=True)
+
     name: str
     namespace: str
     elements: list[PEnumElement]

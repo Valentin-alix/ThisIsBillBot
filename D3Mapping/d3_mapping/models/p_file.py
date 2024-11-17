@@ -1,11 +1,12 @@
-from dataclasses import dataclass
+from pydantic import ConfigDict
 
 from D3Mapping.d3_mapping.models.p_enum import PEnum
 from D3Mapping.d3_mapping.models.p_message import PMessage
+from src.utils.dataclass_utils import AppModel
 
 
-@dataclass(frozen=True)
-class PFile:
+class PFile(AppModel):
+    model_config = ConfigDict(frozen=True)
     filename: str
     package: str | None
     imports: list[str]

@@ -62,18 +62,3 @@ def is_parsed_obf_msg(obf_msg_namespace: str):
         len(InstanciedMessageInfoController().get_content_by_name(obf_msg_namespace))
         > 0
     )
-
-
-if __name__ == "__main__":
-    ...
-    # print((1 + math.log(0, 2)))
-    # temp = get_count_defined_msg_field_values("boeo", "ethz")
-    # print(temp)
-    # (190842880, {'ekzm': 112, 'ekzn': True, 'ekzl': 513972, 'ekzp': 0})
-    # infos = [(190842880, 513972), (190843392, 513975)]
-    # for map_id, element_id in infos:
-    #     temp = MapReader().get_ref_data_by_element_id(map_id)
-    #     # print(DataReader().skill_by_id[6].parentJobId)
-    #     print(temp[element_id])
-    #     map = DataReader().map_pos_by_map_id[map_id]
-    #     print(map.posX, map.posY)

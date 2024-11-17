@@ -6,7 +6,6 @@ authors = [{ name = "Valentin Alix", email = "valentin-alix.850@outlook.fr" }]
 requires-python = ">3.12,<3.14"
 readme = "README.md"
 dependencies = [
-    "pydantic>2.8",
     "scapy>=2.5.0,<3",
     "psutil>=6.0.0,<7",
     "pyqt5-qt5==5.15.2",
@@ -39,6 +38,9 @@ dependencies = [
     "thrift>=0.20.0,<0.21",
     "wmi>=1.5.1",
     "ruff>=0.12.12",
+    "pysocks>=1.7.1,<2.0.0",
+    "pydantic>=2.11.10",
+    "nicegui>=3.3.1"
 ]
 
 [dependency-groups]
@@ -70,11 +72,15 @@ genapi = "openapi-python-client generate --url http://31.38.182.64:65472/openapi
 
 [tool.pyright]
 venvPath = "."
+extraPaths = ["AnkamaLauncherEmulator"]
 venv = ".venv"
 exclude = [
   "**/IL2CppDumper",
   "**/.venv",
-  "AnkamaLauncherEmulator/ankama_launcher_emulator/gen_zaap"
+  "AnkamaLauncherEmulator/ankama_launcher_emulator/gen_zaap",
+  "**/node_modules",
+  "**/__pycache__",
+  "**/.*"
 ]
 ignore = [
   "D3Mapping/d3_mapping/resources"

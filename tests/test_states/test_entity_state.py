@@ -8,7 +8,8 @@ from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapMovementEvent,
 )
 from src.core.states.entity_state import ActorByMpDict
-from src.utils.dataclass_utils import apply_dict_to_dataclass, dataclass_to_dict
+from src.utils.dataclass_utils import dataclass_to_dict
+from src.utils.protobuf_utils import apply_dict_to_dataclass
 from tests.test_states.state_test_base import StateTestBase
 
 
@@ -92,6 +93,6 @@ class TestEntityState(StateTestBase):
 
         apply_dict_to_dataclass(self.game_state.entity, state_dict)
 
-        assert isinstance(
-            self.game_state.entity.actors_on_mp, ActorByMpDict
-        ), f"Expected ActorByMpDict but got {type(self.game_state.entity.actors_on_mp)}"
+        assert isinstance(self.game_state.entity.actors_on_mp, ActorByMpDict), (
+            f"Expected ActorByMpDict but got {type(self.game_state.entity.actors_on_mp)}"
+        )

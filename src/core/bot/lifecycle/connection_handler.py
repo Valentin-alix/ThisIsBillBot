@@ -3,9 +3,10 @@ from dataclasses import dataclass, field
 from threading import Event, Timer
 from typing import Callable
 
-from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_api_key import (
+from ankama_launcher_emulator.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
+
 from src.controller.bot_config import BotConfig
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior

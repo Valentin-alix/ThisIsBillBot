@@ -1,10 +1,12 @@
-from dataclasses import dataclass
+from pydantic import ConfigDict
 
 from D3Mapping.d3_mapping.models.p_message import PMessage
+from src.utils.dataclass_utils import AppModel
 
 
-@dataclass(frozen=True)
-class ComparisonContext:
+class ComparisonContext(AppModel):
+    model_config = ConfigDict(frozen=True)
+
     """Context for message comparison operations.
 
     This class encapsulates all the parameters needed for comparing
@@ -31,8 +33,8 @@ class ComparisonContext:
         )
 
 
-@dataclass(frozen=True)
-class FieldComparisonContext:
+class FieldComparisonContext(AppModel):
+    model_config = ConfigDict(frozen=True)
     """Context for field comparison operations."""
 
     clear_msg: PMessage

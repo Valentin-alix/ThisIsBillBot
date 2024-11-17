@@ -1,5 +1,4 @@
 from collections import defaultdict
-from dataclasses import dataclass
 from typing import Callable
 
 import numpy as np
@@ -13,15 +12,16 @@ from D3Mapping.d3_mapping.mapping.services.proto_reliability_calculator_service 
 )
 from D3Mapping.d3_mapping.models.mapping_info import MappingInfo, RejectionReason
 from D3Mapping.d3_mapping.models.p_message import PField, PMapField, PMessage
+from src.utils.dataclass_utils import AppModel
 
 
-@dataclass
-class CostMatrixResult:
+class CostMatrixResult(AppModel):
     """Result of cost matrix computation."""
 
     cost_matrix: np.ndarray
     mapping_by_indexes: dict[
-        tuple[int, int], tuple[str, tuple[float, str, MappingInfo | None, RejectionReason | None]]
+        tuple[int, int],
+        tuple[str, tuple[float, str, MappingInfo | None, RejectionReason | None]],
     ]
     all_comparisons_by_obf_index: dict[
         int, list[tuple[int, str, float, float, RejectionReason | None]]
@@ -29,8 +29,7 @@ class CostMatrixResult:
     reliability_by_indexes: dict[int, dict[int, float]]
 
 
-@dataclass
-class CostMatrixService:
+class CostMatrixService(AppModel):
     field_comparison_service: FieldComparisonService
     reliability_calculator: ProtoReliabilityCalculator
 
@@ -45,7 +44,8 @@ class CostMatrixService:
     ) -> CostMatrixResult:
         cost_matrix = np.zeros((len(clear_elem_by_index), len(obf_elem_by_index)))
         mapping_by_indexes: dict[
-            tuple[int, int], tuple[str, tuple[float, str, MappingInfo | None, RejectionReason | None]]
+            tuple[int, int],
+            tuple[str, tuple[float, str, MappingInfo | None, RejectionReason | None]],
         ] = {}
         all_comparisons_by_obf_index: dict[
             int, list[tuple[int, str, float, float, RejectionReason | None]]
@@ -64,12 +64,16 @@ class CostMatrixService:
                 )
 
                 if type(clear_elem) is PField and type(obf_elem) is PField:
-                    reliability = self.reliability_calculator.get_reliability_p_clear_field(
-                        clear_msg, clear_elem, obf_msg, obf_elem, treated_namespaces
+                    reliability = (
+                        self.reliability_calculator.get_reliability_p_clear_field(
+                            clear_msg, clear_elem, obf_msg, obf_elem, treated_namespaces
+                        )
                     )
                 elif type(clear_elem) is PMapField and type(obf_elem) is PMapField:
-                    reliability = self.reliability_calculator.get_reliability_clear_map_field(
-                        clear_msg, clear_elem, obf_msg, obf_elem, treated_namespaces
+                    reliability = (
+                        self.reliability_calculator.get_reliability_clear_map_field(
+                            clear_msg, clear_elem, obf_msg, obf_elem, treated_namespaces
+                        )
                     )
                 else:
                     reliability = BASE_RELIABILITY
@@ -80,10 +84,21 @@ class CostMatrixService:
                 cost_matrix[clear_index][obf_index] = weighted_sim
                 mapping_by_indexes[(clear_index, obf_index)] = (
                     obf_elem.name,
-                    (result.similarity, clear_elem.name, result.mapping_info, result.rejection_reason),
+                    (
+                        result.similarity,
+                        clear_elem.name,
+                        result.mapping_info,
+                        result.rejection_reason,
+                    ),
                 )
                 all_comparisons_by_obf_index[obf_index].append(
-                    (clear_index, clear_elem.name, result.similarity, reliability, result.rejection_reason)
+                    (
+                        clear_index,
+                        clear_elem.name,
+                        result.similarity,
+                        reliability,
+                        result.rejection_reason,
+                    )
                 )
 
         return CostMatrixResult(

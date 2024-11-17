@@ -1,8 +1,9 @@
 import threading
 
-from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_api_key import (
+from ankama_launcher_emulator.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
+
 from src.core.behaviors.communication.chat_behavior import ChatBehavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior

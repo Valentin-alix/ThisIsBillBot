@@ -1,10 +1,11 @@
-from dataclasses import dataclass
-
 from proto_schema_parser.ast import FieldCardinality
+from pydantic import ConfigDict
+
+from src.utils.dataclass_utils import AppModel
 
 
-@dataclass(frozen=True)
-class PField:
+class PField(AppModel):
+    model_config = ConfigDict(frozen=True)
     type_name: str
     name: str
     number: int
@@ -14,8 +15,9 @@ class PField:
         return self.name.__hash__()
 
 
-@dataclass(frozen=True)
-class PMapField:
+class PMapField(AppModel):
+    model_config = ConfigDict(frozen=True)
+
     name: str
     number: int
     key_type: str
@@ -25,8 +27,9 @@ class PMapField:
         return self.name.__hash__()
 
 
-@dataclass(frozen=True)
-class POneOf:
+class POneOf(AppModel):
+    model_config = ConfigDict(frozen=True)
+
     name: str
     elements: list[PField]
 
@@ -34,8 +37,9 @@ class POneOf:
         return self.name.__hash__()
 
 
-@dataclass(frozen=True)
-class PMessage:
+class PMessage(AppModel):
+    model_config = ConfigDict(frozen=True)
+
     name: str
     elements: list[POneOf | PField | PMapField]
     namespace: str

@@ -1,21 +1,30 @@
-from dataclasses import dataclass
 from typing import Callable
 
 from proto_schema_parser import FieldCardinality
 
 from D3Mapping.d3_mapping.consts import PROTO_BASE_FIELDS
 from D3Mapping.d3_mapping.mapping.services.enum_comparison_service import compare_p_enum
-from D3Mapping.d3_mapping.mapping.services.mapping_enforcement_service import MappingEnforcementService
-from D3Mapping.d3_mapping.mapping.services.proto_organization_service import ProtoOrganization
+from D3Mapping.d3_mapping.mapping.services.mapping_enforcement_service import (
+    MappingEnforcementService,
+)
+from D3Mapping.d3_mapping.mapping.services.proto_organization_service import (
+    ProtoOrganization,
+)
 from D3Mapping.d3_mapping.mapping.validators.field_validators import VALIDATORS_ON_FIELD
-from D3Mapping.d3_mapping.mapping.validators.proto_field_validators import is_condition_respected
-from D3Mapping.d3_mapping.models.mapping_info import MappingInfo, Percentage, RejectionReason
+from D3Mapping.d3_mapping.mapping.validators.proto_field_validators import (
+    is_condition_respected,
+)
+from D3Mapping.d3_mapping.models.mapping_info import (
+    MappingInfo,
+    Percentage,
+    RejectionReason,
+)
 from D3Mapping.d3_mapping.models.p_enum import PEnum
 from D3Mapping.d3_mapping.models.p_message import PField, PMapField, PMessage
+from src.utils.dataclass_utils import AppModel
 
 
-@dataclass
-class FieldComparisonResult:
+class FieldComparisonResult(AppModel):
     """Result of comparing two fields."""
 
     similarity: Percentage
@@ -23,8 +32,7 @@ class FieldComparisonResult:
     rejection_reason: RejectionReason | None = None
 
 
-@dataclass
-class FieldComparisonService:
+class FieldComparisonService(AppModel):
     mapping_enforcement_service: MappingEnforcementService
     clear_struct_by_namespace: dict[str, PMessage | PEnum]
     obf_struct_by_namespace: dict[str, PMessage | PEnum]
@@ -105,7 +113,8 @@ class FieldComparisonService:
             return 0, None, RejectionReason.CARDINALITY_MISMATCH
 
         if (
-            clear_p_field.type_name in PROTO_BASE_FIELDS or obf_p_field.type_name in PROTO_BASE_FIELDS
+            clear_p_field.type_name in PROTO_BASE_FIELDS
+            or obf_p_field.type_name in PROTO_BASE_FIELDS
         ) and clear_p_field.type_name != obf_p_field.type_name:
             return 0, None, RejectionReason.TYPE_MISMATCH
 
@@ -113,12 +122,17 @@ class FieldComparisonService:
         if related_validator:
             related_field_validators = related_validator.get(clear_p_field.name)
             if related_field_validators:
-                is_respected = is_condition_respected(obf_msg.namespace, obf_p_field.name, related_field_validators)
+                is_respected = is_condition_respected(
+                    obf_msg.namespace, obf_p_field.name, related_field_validators
+                )
                 if not is_respected:
                     return 0, None, RejectionReason.VALIDATOR_FAILURE
 
         if clear_p_field.type_name in PROTO_BASE_FIELDS:
-            assert obf_p_field.type_name in PROTO_BASE_FIELDS and clear_p_field.type_name == obf_p_field.type_name
+            assert (
+                obf_p_field.type_name in PROTO_BASE_FIELDS
+                and clear_p_field.type_name == obf_p_field.type_name
+            )
             return 1, None, None
 
         clear_struct = ProtoOrganization.get_related_struct_from_type_name(

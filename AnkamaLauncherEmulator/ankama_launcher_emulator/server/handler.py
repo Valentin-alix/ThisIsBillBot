@@ -3,16 +3,16 @@ import logging
 from dataclasses import dataclass, field
 from threading import Timer
 
-from AnkamaLauncherEmulator.ankama_launcher_emulator.decrypter.crypto_helper import (
+from ankama_launcher_emulator.decrypter.crypto_helper import (
     CryptoHelper,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.haapi.haapi import (
+from ankama_launcher_emulator.haapi.haapi import (
     get_account_info_by_login,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.account_game_info import (
+from ankama_launcher_emulator.interfaces.account_game_info import (
     AccountGameInfo,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.internet_utils import (
+from ankama_launcher_emulator.internet_utils import (
     retry_internet,
 )
 

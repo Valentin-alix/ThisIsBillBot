@@ -2,11 +2,11 @@ import unittest
 from threading import Event
 from typing import Callable, TypeVar
 
-from google.protobuf.message import Message
-
-from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_api_key import (
+from ankama_launcher_emulator.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
+from google.protobuf.message import Message
+
 from src.core.behaviors.behavior import Behavior
 from src.core.bot.bot_factory import BotFactory
 from src.core.signals.shared_farm_signals import SharedSignals

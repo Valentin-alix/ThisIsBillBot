@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from mitmproxy import http, options
 from mitmproxy.tools.dump import DumpMaster
 
-from AnkamaLauncherEmulator.ankama_launcher_emulator.consts import BASE_CONFIG_URL
+from ankama_launcher_emulator.consts import BASE_CONFIG_URL
 
 PROXY_EXCEPTIONS = "haapi.ankama.com"
 
@@ -45,7 +45,7 @@ def set_proxy(
 @dataclass
 class ChangeDofusConfig:
     dump_master: DumpMaster
-    on_config_intercepted: Callable[[], None] | None = field(default=None)
+    get_next_port: Callable[[], int | None] | None = field(default=None)
 
     async def response(self, flow: http.HTTPFlow):
         if (
@@ -53,22 +53,26 @@ class ChangeDofusConfig:
             and flow.response
             and flow.response.content
         ):
-            datas = json.loads(flow.response.content)
-            datas["connectionHosts"] = ["JMBouftou:localhost:5555"]
-            flow.response.content = json.dumps(datas).encode()
-            logger.info("[PROXY] Config interceptée et modifiée")
-            if self.on_config_intercepted:
-                self.on_config_intercepted()
+            port = self.get_next_port() if self.get_next_port else None
+            if port is not None:
+                datas = json.loads(flow.response.content)
+                datas["connectionHosts"] = [f"JMBouftou:localhost:{port}"]
+                flow.response.content = json.dumps(datas).encode()
+                logger.info(f"[PROXY] Config interceptée et modifiée -> port {port}")
+            else:
+                logger.info(
+                    "[PROXY] Config interceptée, pas de redirection (no-proxy instance)"
+                )
 
 
 async def start_proxy_dofus_config(
     with_logs: bool = False,
-    on_config_intercepted: Callable[[], None] | None = None,
+    get_next_port: Callable[[], int | None] | None = None,
 ):
     opts = options.Options(listen_host="127.0.0.1", listen_port=8080)
     dump_master = DumpMaster(opts, with_termlog=with_logs, with_dumper=with_logs)
 
-    addon = ChangeDofusConfig(dump_master, on_config_intercepted)
+    addon = ChangeDofusConfig(dump_master, get_next_port)
     dump_master.addons.add(addon)
 
     try:
@@ -80,12 +84,10 @@ async def start_proxy_dofus_config(
 
 def run_proxy_config_in_thread(
     with_logs: bool = False,
-    on_config_intercepted: Callable[[], None] | None = None,
+    get_next_port: Callable[[], int | None] | None = None,
 ) -> threading.Thread:
     thread = threading.Thread(
-        target=lambda: asyncio.run(
-            start_proxy_dofus_config(with_logs, on_config_intercepted)
-        ),
+        target=lambda: asyncio.run(start_proxy_dofus_config(with_logs, get_next_port)),
         daemon=True,
     )
     thread.start()

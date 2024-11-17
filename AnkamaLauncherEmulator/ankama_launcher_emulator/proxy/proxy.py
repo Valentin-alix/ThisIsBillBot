@@ -7,10 +7,18 @@ from queue import Queue
 from socket import socket as Socket
 from threading import Lock, Thread
 
-from D3Mapping.d3_mapping.protocol.protocol import decode_varint_size
-from src.utils.internet import has_internet_connection
+from google.protobuf.internal.decoder import _DecodeVarint  # type: ignore
+
+from ankama_launcher_emulator.internet_utils import (
+    has_internet_connection,  # type: ignore
+)
 
 logger = logging.getLogger()
+
+
+def decode_varint_size(data: bytes) -> tuple[int, int]:
+    size, new_pos = _DecodeVarint(data, 0)
+    return size, new_pos
 
 
 class WorkerAction(Enum):
@@ -110,7 +118,6 @@ class Proxy:
             self.buffers[origin] = self.buffers[origin][pos + size :]
 
             if msg_datas_altered is not None:
-                # send msg_datas to origin target
                 with self.locks[self.opposite_connection[origin]]:
                     try:
                         self.opposite_connection[origin].sendall(msg_datas_altered)

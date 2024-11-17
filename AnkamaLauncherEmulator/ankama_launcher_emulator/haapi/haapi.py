@@ -4,23 +4,26 @@ from dataclasses import dataclass
 from typing import Any
 
 import requests
+import urllib3
 from requests.adapters import HTTPAdapter
 
-from AnkamaLauncherEmulator.ankama_launcher_emulator.consts import SETTINGS_PATH
-from AnkamaLauncherEmulator.ankama_launcher_emulator.decrypter.crypto_helper import (
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+from ankama_launcher_emulator.consts import SETTINGS_PATH
+from ankama_launcher_emulator.decrypter.crypto_helper import (
     CryptoHelper,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.haapi.urls import (
+from ankama_launcher_emulator.haapi.urls import (
     ANKAMA_ACCOUNT_CREATE_TOKEN,
     ANKAMA_ACCOUNT_SIGN_ON_WITH_API_KEY,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.haapi.zaap_version import (
+from ankama_launcher_emulator.haapi.zaap_version import (
     ZAAP_VERSION,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.deciphered_cert import (
+from ankama_launcher_emulator.interfaces.deciphered_cert import (
     DecipheredCertifDatas,
 )
-from AnkamaLauncherEmulator.ankama_launcher_emulator.internet_utils import (
+from ankama_launcher_emulator.internet_utils import (
     retry_internet,
 )
 
@@ -51,10 +54,16 @@ logger = logging.getLogger()
 class Haapi:
     api_key: str
     login: str
-    source_ip: str | None = None
+    source_ip: str | None
+    proxy_url: str | None
 
     def __post_init__(self):
         self.zaap_session = requests.Session()
+        if self.proxy_url:
+            self.zaap_session.proxies = {
+                "http": self.proxy_url,
+                "https": self.proxy_url,
+            }
         if self.source_ip:
             adapter = InterfaceAdapter(self.source_ip)
             self.zaap_session.mount("https://", adapter)

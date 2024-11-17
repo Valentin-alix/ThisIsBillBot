@@ -1,3 +1,6 @@
+from ankama_launcher_emulator.internet_utils import (
+    get_available_network_interfaces,
+)
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QColor, QIcon
 from PyQt5.QtWidgets import QHBoxLayout
@@ -23,7 +26,6 @@ from src.gui.fragments.account_stacked_widget import AccountStackedWidget
 from src.gui.fragments.app_fluent_window import AppFluentWindow
 from src.gui.fragments.sidebar_item import SidebarItem
 from src.services.logging.logger import init_gui_global_logging
-from src.utils.internet import get_available_network_interfaces
 
 
 class MainWindow(AppFluentWindow):

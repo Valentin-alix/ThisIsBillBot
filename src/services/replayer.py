@@ -14,7 +14,7 @@ from src.core.events_manager.event_manager import EventManager
 from src.core.signals.message_signals import MessageInfoSignals
 from src.core.states.game_state import GameState
 from src.services.recorder import Recorder
-from src.utils.dataclass_utils import apply_dict_to_dataclass
+from src.utils.protobuf_utils import apply_dict_to_dataclass
 
 
 def _get_clear_message_from_obf(obf_msg: Message) -> tuple[dict, Message]:
@@ -85,7 +85,9 @@ class Replayer:
                     continue
 
                 curr_timestamp = time.mktime(
-                    datetime.fromisoformat(record_line["timestamp"].replace("Z", "")).timetuple()
+                    datetime.fromisoformat(
+                        record_line["timestamp"].replace("Z", "")
+                    ).timetuple()
                 )
 
                 if preserve_timing:
@@ -96,7 +98,9 @@ class Replayer:
 
         return _worker
 
-    def _handle_timing(self, curr_timestamp: float, last_timestamp: float | None, speedup: float | None) -> None:
+    def _handle_timing(
+        self, curr_timestamp: float, last_timestamp: float | None, speedup: float | None
+    ) -> None:
         if last_timestamp is None:
             return
         wait = curr_timestamp - last_timestamp
@@ -113,10 +117,16 @@ class Replayer:
         payload, full_name = message_data
         msg = parse_message_from_payload(payload, full_name)
 
-        clear_msg_json, clear_msg = self._prepare_clear_message_info(record_line, msg, use_obfuscated)
+        clear_msg_json, clear_msg = self._prepare_clear_message_info(
+            record_line, msg, use_obfuscated
+        )
         obf_msg_json = _get_obf_message_from_record(record_line)
 
-        curr_timestamp = time.mktime(datetime.fromisoformat(record_line["timestamp"].replace("Z", "")).timetuple())
+        curr_timestamp = time.mktime(
+            datetime.fromisoformat(
+                record_line["timestamp"].replace("Z", "")
+            ).timetuple()
+        )
 
         msg_info = MessageInfo(
             received_time=datetime.fromtimestamp(curr_timestamp),
@@ -128,7 +138,9 @@ class Replayer:
         self.msg_info_signals.msg_info.emit(msg_info, False)
         self.event_manager.process_msg(clear_msg)
 
-    def _get_message_to_process(self, record_line: dict, use_obfuscated: bool) -> tuple[bytes, str] | None:
+    def _get_message_to_process(
+        self, record_line: dict, use_obfuscated: bool
+    ) -> tuple[bytes, str] | None:
         if use_obfuscated and "obf_payload_b64" in record_line:
             payload = base64.b64decode(record_line["obf_payload_b64"])
             full_name = record_line["obf_msg_full_name"]

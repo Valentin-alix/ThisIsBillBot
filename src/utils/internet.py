@@ -12,20 +12,8 @@ def get_ethernet_ip() -> str | None:
     return None
 
 
-def get_available_network_interfaces() -> dict[str, str]:
-    interfaces = {}
-    stats = psutil.net_if_stats()
-    for iface_name, addrs in psutil.net_if_addrs().items():
-        if not stats.get(iface_name, None) or not stats[iface_name].isup:
-            continue
-        for addr in addrs:
-            if addr.family == socket.AF_INET and addr.address != "127.0.0.1":
-                interfaces[iface_name] = addr.address
-                break
-    return interfaces
-
-
 DEFAULT_LOCAL_IP = "192.168.0.117"
+DEFAULT_LOCAL_IP = None
 
 
 def has_internet_connection(

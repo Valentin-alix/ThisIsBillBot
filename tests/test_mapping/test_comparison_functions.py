@@ -27,24 +27,24 @@ class TestComparisonFunctions(unittest.TestCase):
             name="TestEnum1",
             namespace=".test.TestEnum1",
             elements=[
-                PEnumElement("A", 1),
-                PEnumElement("B", 2),
-                PEnumElement("C", 3),
+                PEnumElement(name="A", value=1),
+                PEnumElement(name="B", value=2),
+                PEnumElement(name="C", value=3),
             ],
         )
         enum2 = PEnum(
             name="TestEnum2",
             namespace=".test.TestEnum2",
             elements=[
-                PEnumElement("X", 1),
-                PEnumElement("Y", 2),
-                PEnumElement("Z", 3),
+                PEnumElement(name="X", value=1),
+                PEnumElement(name="Y", value=2),
+                PEnumElement(name="Z", value=3),
             ],
         )
         enum3 = PEnum(
             name="TestEnum3",
             namespace=".test.TestEnum3",
-            elements=[PEnumElement("P", 1), PEnumElement("Q", 2)],
+            elements=[PEnumElement(name="P", value=1), PEnumElement(name="Q", value=2)],
         )
 
         sim_same_length = compare_p_enum(enum1, enum2)

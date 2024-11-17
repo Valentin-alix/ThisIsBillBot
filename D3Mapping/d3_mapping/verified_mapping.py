@@ -18,7 +18,7 @@ GAME_VERIFIED_MAPPING_BY_OBF: dict[str, str] = {
     "ioh": "MapChangeRequest",
     "iah": "InteractiveUseRequest",
     "iao": "StatedElementUpdatedEvent",
-    "iaj": "InteractiveUsedEvent",
+    "iam": "InteractiveUsedEvent",
     "hqs": "NpcGenericActionRequest",
     "hrc": "NpcDialogQuestionEvent",
     "hqt": "NpcDialogReplyRequest",
@@ -85,7 +85,7 @@ GAME_VERIFIED_MAPPING_BY_OBF: dict[str, str] = {
 GAME_MAPPING_FIELDS: dict[str, dict[str, str]] = {
     "GameMessage": {"request": "eyry", "event": "eyrx"},
     # "InteractiveUseRequest": {"element_id": "fdlu"},
-    "InteractiveElement": {"enabled_skills": "flsr"},
+    # "InteractiveElement": {"enabled_skills": "flsr"},
     "GameActionFightEvent": {
         "slide": "fgyj",
         # "exchange_positions": "fgkn",

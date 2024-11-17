@@ -1,5 +1,9 @@
 from dataclasses import dataclass
 
+from ankama_launcher_emulator.proxy.proxy import (
+    Proxy,
+    WorkerAction,
+)
 from google.protobuf.message import Message
 from PyQt5.QtCore import QMetaObject, Qt
 
@@ -14,7 +18,6 @@ from src import const
 from src.const import MESSAGES_WITH_UID
 from src.controller.session_timings import SessionTimingsController
 from src.core.bot.bot import Bot
-from src.core.mitm.proxy import Proxy, WorkerAction
 from src.gui.utils.run_in_background import run_in_background
 
 

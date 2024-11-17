@@ -1,17 +1,15 @@
-from dataclasses import dataclass
-
 from D3Mapping.d3_mapping.mapping.services.proto_organization_service import (
     ProtoOrganization,
 )
 from D3Mapping.d3_mapping.models.mapping_info import FieldMapping, MappingInfo
 from D3Mapping.d3_mapping.models.p_enum import PEnum
 from D3Mapping.d3_mapping.models.p_message import PMessage
+from src.utils.dataclass_utils import AppModel
 
 PulpMappingStruct = dict[tuple[tuple[str, ...], tuple[str, ...]], float]
 
 
-@dataclass
-class PulpResultConverter:
+class PulpResultConverter(AppModel):
     """Service for converting PuLP optimization results to field mappings."""
 
     clear_struct_by_namespace: dict[str, PMessage | PEnum]
