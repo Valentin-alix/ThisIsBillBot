@@ -4,6 +4,10 @@ from threading import Timer
 from D3Mapping.d3_mapping.resources.protos.game.character_management_pb2 import (
     CharacterSelectionEvent,
 )
+from D3Mapping.d3_mapping.resources.protos.game.character_pb2 import (
+    CharacterCharacteristicUpgradeRequest,
+    CharacterLevelUpEvent,
+)
 from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
 from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     FightMapInformationEvent,
@@ -14,6 +18,7 @@ from D3Mapping.d3_mapping.resources.protos.game.teleportation_pb2 import (
     ZaapKnownListEvent,
 )
 from src.controller.scraping_d3_api.scraping_d3 import ScrapingD3Controller
+from src.core.engine.fights.stats.characteristic import get_max_characteristic_per_point
 from src.core.events_manager.priority import PriorityEnum
 from src.core.frames.frame import Frame
 
@@ -41,7 +46,9 @@ class PlayerFrame(Frame):
             originator=self,
             priority=self.priority,
         )
-
+        self.event_manager.on(
+            CharacterLevelUpEvent, self.on_character_level_up_event, originator=self
+        )
         self.event_manager.before(
             DialogLeaveRequest,
             self.before_dialog_leave_request,
@@ -57,12 +64,8 @@ class PlayerFrame(Frame):
     def on_connected(self):
         def on_map_init_after_connected():
             self.run_timer(3, self.game_info_signals.is_ready_to_play.emit)
-            self.event_manager.clear_listener_by_origin_and_type(
-                MapComplementaryInformationEvent, self
-            )
-            self.event_manager.clear_listener_by_origin_and_type(
-                FightMapInformationEvent, self
-            )
+            self.unregister_listener(MapComplementaryInformationEvent)
+            self.unregister_listener(FightMapInformationEvent)
 
         self.event_manager.on(
             MapComplementaryInformationEvent,
@@ -81,6 +84,14 @@ class PlayerFrame(Frame):
 
     def on_disconnected(self):
         self.game_state.player.is_ready_to_play_event.clear()
+
+    def on_character_level_up_event(self, msg: CharacterLevelUpEvent):
+        self.game_state.player.level = msg.new_level
+        if self.is_playing_event.is_set():
+            chance = get_max_characteristic_per_point(msg.new_level)
+            self.logger.info(f"New amount of base chance : {chance}")
+            req = CharacterCharacteristicUpgradeRequest(chance=chance)
+            self.event_manager.send(req)
 
     def on_job_experiences_update_event(self, message: JobExperiencesUpdateEvent):
         for job_xp in message.experiences:

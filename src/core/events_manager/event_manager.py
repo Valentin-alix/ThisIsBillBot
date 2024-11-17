@@ -8,13 +8,14 @@ from google.protobuf.message import Message
 from src.core.events_manager.listener import Listener
 from src.core.events_manager.modifier import Modifier
 from src.core.events_manager.priority import PriorityEnum
-from src.services.logging.logger import Logger
+from src.core.signals.event_manager_signals import EventManagerSignals
+from src.services.logging.contextual_logger import ContextualLogger
 
 T = TypeVar("T", bound=Message)
 
 
 @dataclass
-class EventManager:
+class EventManager(ContextualLogger):
     modifier_by_type_msg: dict[Type[Message], Modifier] = field(
         init=False, default_factory=dict
     )
@@ -28,13 +29,14 @@ class EventManager:
         init=False, default=None
     )
     lock: RLock = field(init=False, default_factory=RLock)
-    logger: Logger
+    signals: EventManagerSignals = field(
+        init=False, default_factory=EventManagerSignals
+    )
 
     def clear_listener_by_origin(self, originator: object) -> None:
-        self.logger.debug(f"Clear listener by origin : {originator.__class__}")
+        self.logger.info(f"Clearing all listener from {originator.__class__.__name__}")
         with self.lock:
             listeners_to_remove: list[Listener] = []
-
             for listeners in self.listeners_by_type_msg.values():
                 for listener in listeners:
                     if not listener.originator == originator:
@@ -45,11 +47,14 @@ class EventManager:
                 listener.delete()
                 self.listeners_by_type_msg[listener.msg_type].remove(listener)
 
+            if listeners_to_remove:
+                self.signals.listeners_removed.emit(listeners_to_remove)
+
     def clear_listener_by_origin_and_type(
         self, msg_type: Type[Message], originator: object
     ) -> None:
         self.logger.debug(
-            f"Clear listener by origin: {originator.__class__} and type : {msg_type}"
+            f"Clearing listeners {msg_type.__name__} from {originator.__class__.__name__}"
         )
         with self.lock:
             listeners_to_remove: list[Listener] = []
@@ -59,10 +64,10 @@ class EventManager:
 
             for listener in listeners_to_remove:
                 listener.delete()
-                self.logger.debug(
-                    f"Removing {msg_type} with listener {listener.originator.__class__}"
-                )
                 self.listeners_by_type_msg[msg_type].remove(listener)
+
+            if listeners_to_remove:
+                self.signals.listeners_removed.emit(listeners_to_remove)
 
     def process_msg(self, msg: Message) -> None:
         with self.lock:
@@ -86,7 +91,6 @@ class EventManager:
             modifier = self.modifier_by_type_msg.get(msg.__class__, None)
             if modifier is None:
                 return msg, False
-            self.logger.debug(f"Altering msg : {msg.__class__.__name__}")
             return modifier.callback(msg), True
 
     def before(
@@ -97,24 +101,18 @@ class EventManager:
     ) -> None:
         with self.lock:
             if msg_type in self.modifier_by_type_msg:
-                self.logger.error(
-                    f"{msg_type} already in modifier when using before from originator {originator}, override..."
+                self.logger.warning(
+                    f"Overriding modifier for {msg_type.__name__} (originator: {originator.__class__.__name__})"
                 )
-            self.logger.debug(
-                f"Add callback before msg : {msg_type} for originator {originator.__class__}"
-            )
             self.modifier_by_type_msg[msg_type] = Modifier(
                 callback=callback, originator=originator
             )
 
     def prevent(self, msg_type: Type[Message], originator: object):
         with self.lock:
-            self.logger.debug(
-                f"Add prevent msg : {msg_type} for originator {originator.__class__}"
-            )
             if msg_type in self.modifier_by_type_msg:
-                self.logger.error(
-                    f"{msg_type} already in modifier when using prevent from originator {originator}, override..."
+                self.logger.warning(
+                    f"Overriding prevent for {msg_type.__name__} (originator: {originator.__class__.__name__})"
                 )
             self.modifier_by_type_msg[msg_type] = Modifier(
                 callback=self.empty_callback, originator=originator
@@ -124,7 +122,6 @@ class EventManager:
         return None
 
     def clear_modifier_by_origin(self, originator: object) -> None:
-        self.logger.debug(f"Clear modifiers for originator {originator.__class__}")
         with self.lock:
             self.modifier_by_type_msg = {
                 type_msg: modifier
@@ -135,9 +132,6 @@ class EventManager:
     def clear_modifier_by_origin_and_type(
         self, msg_type: Type[Message], originator: object
     ) -> None:
-        self.logger.debug(
-            f"Clear modifier type : {msg_type} for originator {originator.__class__}"
-        )
         with self.lock:
             modifier = self.modifier_by_type_msg.get(msg_type, None)
             if modifier and modifier.originator == originator:
@@ -154,33 +148,30 @@ class EventManager:
         on_timeout: Callable[[], Any] | None = None,
         override_on_self: bool = False,
     ) -> None:
+        self.logger.info(
+            f"Adding listener {msg_type.__name__} from {originator.__class__.__name__}"
+        )
         if (timeout is None) != (on_timeout is None):
             raise ValueError(
                 f"Incoherent timeout is {timeout} but on timeout definition : {on_timeout is not None}"
             )
         with self.lock:
             if override_on_self:
-                self.logger.debug(
-                    f"Overriding {msg_type} with originator {originator.__class__}"
-                )
                 self.clear_listener_by_origin_and_type(msg_type, originator)
-            self.logger.debug(
-                f"Adding on callback for msg {msg_type} and originator {originator.__class__}"
+            new_listener = Listener(
+                msg_type=msg_type,
+                callback=callback,
+                once=once,
+                originator=originator,
+                priority=priority,
+                timeout=timeout,
+                on_timeout=on_timeout,
             )
-            self.listeners_by_type_msg[msg_type].append(
-                Listener(
-                    msg_type=msg_type,
-                    callback=callback,
-                    once=once,
-                    originator=originator,
-                    priority=priority,
-                    timeout=timeout,
-                    on_timeout=on_timeout,
-                )
-            )
+            self.listeners_by_type_msg[msg_type].append(new_listener)
+            self.signals.listeners_added.emit([new_listener])
 
     def send(self, msg: Message) -> None:
-        self.logger.debug(f"Sending {msg.__class__}")
+        self.logger.debug(f"Sending {msg.__class__.__name__}")
         with self.lock:
             if self.on_send_game_callback is None:
                 raise AttributeError(
@@ -189,10 +180,10 @@ class EventManager:
             self.on_send_game_callback(msg)
 
     def send_connection_msg(self, msg: Message) -> None:
-        self.logger.debug(f"Sending {msg.__class__}")
+        self.logger.debug(f"Sending {msg.__class__.__name__}")
         with self.lock:
             if self.on_send_conn_callback is None:
                 raise AttributeError(
-                    f"sending msg {msg.__class__} but on_send_callback is not defined !"
+                    f"sending msg {msg.__class__.__name__} but on_send_callback is not defined !"
                 )
             self.on_send_conn_callback(msg)

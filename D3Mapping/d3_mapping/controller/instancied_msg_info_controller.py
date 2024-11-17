@@ -9,13 +9,12 @@ from threading import RLock
 from typing import Any
 
 # don't remove below import, otherwise to_parquet in atexis shutdown is gonna boum boum
-import fastparquet  # noqa: F401
 import pandas as pd
 from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message
 from pandas import DataFrame
 
-from D3Database.utils import Singleton
+from D3Database.utils import Singleton, cache
 
 BASE_FILENAME = "instancied_msg_infos"
 
@@ -31,6 +30,10 @@ class InstanciedMessageInfoController(metaclass=Singleton):
     _rows_to_add_by_name: dict[str, list[dict]] = field(
         init=False, default_factory=lambda: defaultdict(list)
     )
+    _total_pending_rows: int = field(init=False, default=0)
+
+    def __hash__(self) -> int:
+        return 0
 
     @property
     def df(self) -> DataFrame:
@@ -38,7 +41,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
             self._df = self.get_df_from_file()
         return self._df
 
-    @property
+    @cached_property
     def path_msg_infos(self):
         if os.path.exists(PATH_BOT_SHARED_DATAS):
             return os.path.join(
@@ -53,6 +56,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
     def df(self, value: DataFrame):
         self._df = value
 
+    @cache
     def get_content_by_name(self, name: str):
         return self.get_shared_content_df.loc[
             self.get_shared_content_df.index == name, "content"
@@ -60,11 +64,17 @@ class InstanciedMessageInfoController(metaclass=Singleton):
 
     @cached_property
     def get_shared_content_df(self):
-        df = DataFrame(columns=["name", "content"])
-        for filename in os.listdir(PATH_BOT_SHARED_DATAS):
-            df = pd.concat(
-                [df, pd.read_parquet(os.path.join(PATH_BOT_SHARED_DATAS, filename))]
-            )
+        parquet_files = [
+            os.path.join(PATH_BOT_SHARED_DATAS, file)
+            for file in os.listdir(PATH_BOT_SHARED_DATAS)
+            if file.startswith(BASE_FILENAME) and file.endswith(".parquet")
+        ]
+
+        if not parquet_files:
+            return DataFrame(columns=["name", "content"]).set_index("name")
+
+        dfs = [pd.read_parquet(file) for file in parquet_files]
+        df = pd.concat(dfs, ignore_index=True)
         df = df.groupby("name").head(MAX_COUNT_BY_NAME)
         df = df.set_index("name")
         return df
@@ -93,16 +103,17 @@ class InstanciedMessageInfoController(metaclass=Singleton):
     def add_msg(self, msg: Message, from_server: bool):
         with self._lock:
             self._update_msg_infos_content(msg, from_server)
-        if len(self._rows_to_add_by_name) > 500_000:
-            self._write_msg_info_content()
+            if self._total_pending_rows > 500_000:
+                self._write_msg_info_content()
 
     def _update_msg_infos_content(
         self, msg: Message, from_server: bool
     ) -> dict[str, Any]:
         name = msg.DESCRIPTOR.full_name
-        value_by_field: dict = {}
+        is_any_msg = name == "google.protobuf.Any"
+        value_by_field: dict[str, Any] = {}
         for _field in msg.DESCRIPTOR.fields:
-            if name == "google.protobuf.Any" and _field.name == "value":
+            if is_any_msg and _field.name == "value":
                 continue
             value = getattr(msg, _field.name)
             if _field.label == FieldDescriptor.LABEL_REPEATED:
@@ -120,7 +131,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
                                 from_server,
                             )
                             sub_values.append(_value)
-                        value_by_field[_field.name] = list(sub_values)
+                        value_by_field[_field.name] = sub_values
                     else:
                         value_by_field[_field.name] = (
                             dict(value) if is_map_field else list(value)
@@ -144,6 +155,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
                 < MAX_COUNT_BY_NAME
             ):
                 self._rows_to_add_by_name[name].append(row)
+                self._total_pending_rows += 1
 
         return value_by_field
 
@@ -164,6 +176,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
             if hasattr(self, "get_count_by_name_in_df"):
                 del self.get_count_by_name_in_df
             self._rows_to_add_by_name.clear()
+            self._total_pending_rows = 0
 
 
 def on_exit(*args):

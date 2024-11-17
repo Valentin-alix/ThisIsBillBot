@@ -61,7 +61,7 @@ def get_speed_sell_score(df: pd.DataFrame, gids: set[int]) -> dict[int, float]:
     df["sell_score"] = df["is_buy"] * df["quantity_num"] * df["time_weight"]
 
     item_speed = df.groupby("gid")["sell_score"].mean()
-    return item_speed.to_dict()
+    return item_speed.to_dict()  # type: ignore
 
 
 if __name__ == "__main__":

@@ -210,7 +210,6 @@ class EntityFrame(Frame):
                     cell_id=msg.exchange_positions.target_cell_id,
                 )
             elif msg.HasField("teleport_on_same_map"):
-                return
                 if (
                     msg.teleport_on_same_map.target_id
                     in self.game_state.entity.actor_by_id
@@ -226,7 +225,7 @@ class EntityFrame(Frame):
                     actor_id=msg.teleport_on_same_map.target_id,
                 )
         except KeyError as err:
-            self.logger.error(err)
+            self.logger.error(str(err))
 
     def on_fight_fighter_refresh_event(self, msg: FightFighterRefreshEvent):
         self.game_state.entity.update_actor_disposition(

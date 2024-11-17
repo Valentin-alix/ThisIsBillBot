@@ -24,6 +24,8 @@ class GameInfoSignals(QObject):
     is_in_haven_bag = pyqtSignal(bool)
     last_time_updated_prices = pyqtSignal(datetime.datetime)
     fight_turn = pyqtSignal(int)
+    fight_completed = pyqtSignal(int)
+    resource_harvested = pyqtSignal(int, int)
 
 
 class InventorySignals(QObject):

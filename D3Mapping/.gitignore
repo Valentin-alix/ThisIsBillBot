@@ -1,6 +1,0 @@
-.venv
-old
-**/__pycache__/**
-dist
-instancied_msg_infos.json
-node_modules

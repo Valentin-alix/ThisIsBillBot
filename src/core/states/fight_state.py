@@ -46,6 +46,10 @@ class FightState(State):
     _fight_turn: int = dataclasses.field(init=False, default=0)
     _life_point: int = dataclasses.field(init=False, default=1)
     _max_life_point: int = dataclasses.field(init=False, default=1)
+    _last_attacked_monster_group: (
+        ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor | None
+    ) = dataclasses.field(init=False, default=None)
+    _player_died_in_current_fight: bool = dataclasses.field(init=False, default=False)
 
     def clear_state(self):
         self.is_map_fight_initialized = False
@@ -64,6 +68,9 @@ class FightState(State):
     def get_stat_by_id(self, characteristic: int) -> int:
         value = get_stat_by_id(self.characteristic_by_id.get(characteristic))
         return value
+
+    def update_characteristic(self, characteristic: CharacterCharacteristic) -> None:
+        self.characteristic_by_id[characteristic.characteristic_id] = characteristic
 
     @property
     def breed_id(self):
@@ -148,6 +155,28 @@ class FightState(State):
             if actor.actor_id != character_id and actor.disposition.cell_id != -1
             # and actor.actor_id in self.actor_fight_by_id
         ]
-        self.logger.info(f"Found {len(enemies)}")
+        self.logger.info(f"Found {len(enemies)} enemies")
 
         return enemies
+
+    def set_last_attacked_monster_group(
+        self,
+        monster_group: ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor
+        | None,
+    ):
+        self._last_attacked_monster_group = monster_group
+
+    @property
+    def last_attacked_monster_group(
+        self,
+    ) -> (
+        ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor | None
+    ):
+        return self._last_attacked_monster_group
+
+    def set_player_died_in_current_fight(self, died: bool):
+        self._player_died_in_current_fight = died
+
+    @property
+    def player_died_in_current_fight(self) -> bool:
+        return self._player_died_in_current_fight

@@ -45,7 +45,6 @@ class TestFightState(StateTestBase):
 
         assert len(self.game_state.fight.count_casted_by_spell_id_on_current_turn) == 0
         assert len(self.game_state.fight.modifier_by_type_and_spell_id) == 0
-        assert len(self.game_state.fight.fight_placement_possible_positions) == 0
 
     def test_spells_event_sets_spells(self):
         spells = [

@@ -2,6 +2,9 @@ from dataclasses import dataclass
 from threading import Thread
 from typing import Iterable
 
+from D3Database.data_center.data_reader import DataReader
+from D3Database.enums.category_item_enum import CategoryEnum
+from D3Database.enums.type_item_enum import TypeItemEnum
 from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeBidHouseItemAddedEvent,
     ExchangeBidHouseItemRemovedEvent,
@@ -26,7 +29,33 @@ from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.models
     QuantityEnum,
 )
 from src.core.config import DO_REGISTER_PRICE, get_time_beween_sale_hotel_prices
+from src.core.engine.items.item import GATHERER_ITEM_GIDS
+from src.core.engine.npcs.npc_info import NpcInfo
 from src.core.frames.frame import Frame
+from src.core.game_constants import NPCs
+
+# Items vendables
+SELLABLE_ITEMS = (
+    GATHERER_ITEM_GIDS
+    | DataReader().item_ids_by_type_id[TypeItemEnum.SUBSTRAT]
+    | DataReader().item_ids_by_type_id[TypeItemEnum.ALLIAGE]
+)
+# Hôtels de vente par catégorie
+SALE_HOTELS_BY_CATEGORY: dict[CategoryEnum, list[NpcInfo]] = {
+    CategoryEnum.RESOURCES: [
+        NPCs.BONTA_SALE_HOTEL_RES_SELL,
+        NPCs.ASTRUB_SALE_HOTEL_RES_SELL,
+    ],
+    CategoryEnum.CONSUMABLES: [
+        NPCs.BONTA_SALE_HOTEL_COM_SELL,
+        NPCs.ASTRUB_SALE_HOTEL_COM_SELL,
+    ],
+}
+UNSUB_SALE_HOTEL = [
+    NPCs.ASTRUB_SALE_HOTEL_COM_SELL,
+    NPCs.ASTRUB_SALE_HOTEL_RES_SELL,
+]
+SUB_SALE_HOTEL = [NPCs.BONTA_SALE_HOTEL_RES_SELL]
 
 
 @dataclass

@@ -16,7 +16,6 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 from src.core.config import BASE_RANGE
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.game_constants import BANK_MAP_IDS
-from src.exceptions import UnhandledErrorCodeException
 
 
 class EnterGuildChestError(StrEnum):
@@ -71,8 +70,7 @@ class EnterGuildChestBehavior(Behavior):
         )
 
     def on_interactive_behavior_finished(self, error_code: str | None):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+        self.raise_if_error(error_code)
 
         self.event_manager.on(
             GuildChestCurrentListenersAddEvent,

@@ -1,13 +1,12 @@
-from typing import Mapping
+from typing import Annotated, Mapping
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from D3Mapping.d3_mapping.utils import Percentage
+Percentage = Annotated[float, Field(ge=0, le=1.0000001)]
 
 
 class BaseMappingInfo(BaseModel):
-    clear_msg_namespace: str
-    similarity: Percentage
+    obf_msg_namespace: str
 
 
 type FieldMapping = Mapping[str, tuple[float, str, MappingInfo | None] | None]
@@ -19,35 +18,7 @@ class MappingInfo(BaseModel):
     field_mapping: FieldMapping
 
 
-temp = {
-    "exchange_positions": (
-        0.8,
-        "yhg",
-        MappingInfo(
-            clear_msg_namespace="ExchangePositions",
-            similarity=0.8,
-            field_mapping={
-                "start_cell": (0.5, "kuu", None),
-                "end_cell": (1, "kab", None),
-            },
-        ),
-    )
-}
-
-
-game_action_fight_event: FieldMapping = {
-    "exchange_positions": (
-        0.8,
-        "yhg",
-        MappingInfo(
-            clear_msg_namespace="GameActionFightEvent.ExchangePosition",
-            similarity=1,
-            field_mapping={"start_cell": (1, "jik", None)},
-        ),
-    ),
-}
-
-type OutputFieldMapping = Mapping[str, tuple[float, str] | None]
+type OutputFieldMapping = dict[str, str | None]
 
 
 class OutputMappingInfo(BaseMappingInfo):

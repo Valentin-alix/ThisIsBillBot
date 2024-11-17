@@ -10,12 +10,16 @@ EVENT_NAMES = {
     value: name for name, value in vars(QEvent).items() if isinstance(value, int)
 }
 
+PROFILING_ENABLED = False
+
 
 def profiled_slot(func, threshold_ms=1):
+    if not PROFILING_ENABLED:
+        return func
+
     sig = inspect.signature(func)
     params = list(sig.parameters.values())
 
-    # Nombre de paramètres positionnels acceptés (hors *args)
     max_args = sum(
         p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD) for p in params
     )
@@ -27,7 +31,6 @@ def profiled_slot(func, threshold_ms=1):
         try:
             return func(*call_args, **kwargs)
         finally:
-            return
             dt = (perf_counter() - start) * 1000
             if dt >= threshold_ms:
                 print(

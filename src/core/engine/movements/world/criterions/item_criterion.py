@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Callable
 
 from D3Database.enums.characteristic_enum import CharacteristicEnum
 from src.core.engine.movements.world.criterions.interface_item_criterion import (
@@ -8,6 +9,39 @@ from src.core.engine.movements.world.criterions.item_criterion_operator import (
     ItemCriterionOperator,
 )
 from src.core.states.game_state import GameState
+
+
+def _get_criterion_handlers() -> dict[str, Callable[[GameState], int]]:
+    return {
+        "Ca": lambda gs: gs.fight.characteristic_by_id[CharacteristicEnum.AGILITY].detailed.base,
+        "CA": lambda gs: (s := gs.fight.characteristic_by_id[CharacteristicEnum.AGILITY]).detailed.base + s.detailed.additional,
+        "Cc": lambda gs: gs.fight.characteristic_by_id[CharacteristicEnum.CHANCE].detailed.base,
+        "CC": lambda gs: (s := gs.fight.characteristic_by_id[CharacteristicEnum.CHANCE]).detailed.base + s.detailed.additional,
+        "Ce": lambda gs: gs.fight.characteristic_by_id[CharacteristicEnum.ENERGY_POINTS].detailed.base,
+        "CE": lambda gs: (s := gs.fight.characteristic_by_id[CharacteristicEnum.MAX_ENERGY_POINTS]).detailed.base + s.detailed.additional,
+        "CH": lambda gs: (s := gs.fight.characteristic_by_id[CharacteristicEnum.HONOUR_POINTS]).detailed.base + s.detailed.additional,
+        "Ci": lambda gs: gs.fight.characteristic_by_id[CharacteristicEnum.INTELLIGENCE].detailed.base,
+        "CI": lambda gs: (s := gs.fight.characteristic_by_id[CharacteristicEnum.INTELLIGENCE]).detailed.base + s.detailed.additional,
+        "CM": lambda gs: (s := gs.fight.characteristic_by_id[CharacteristicEnum.MOVEMENT_POINTS]).detailed.base + s.detailed.additional,
+        "CP": lambda gs: (s := gs.fight.characteristic_by_id[CharacteristicEnum.ACTION_POINTS]).detailed.base + s.detailed.additional,
+        "Cs": lambda gs: gs.fight.characteristic_by_id[CharacteristicEnum.STRENGTH].detailed.base,
+        "CS": lambda gs: (s := gs.fight.characteristic_by_id[CharacteristicEnum.STRENGTH]).detailed.base + s.detailed.additional,
+        "Cv": lambda gs: gs.fight.characteristic_by_id[CharacteristicEnum.VITALITY].detailed.base,
+        "CV": lambda gs: (s := gs.fight.characteristic_by_id[CharacteristicEnum.VITALITY]).detailed.base + s.detailed.additional,
+        "Cw": lambda gs: gs.fight.characteristic_by_id[CharacteristicEnum.WISDOM].detailed.base,
+        "CW": lambda gs: (s := gs.fight.characteristic_by_id[CharacteristicEnum.WISDOM]).detailed.base + s.detailed.additional,
+        "Ct": lambda gs: (s := gs.fight.characteristic_by_id[CharacteristicEnum.TACKLE_EVADE]).detailed.base + s.detailed.additional,
+        "CT": lambda gs: (s := gs.fight.characteristic_by_id[CharacteristicEnum.TACKLE_BLOCK]).detailed.base + s.detailed.additional,
+        "ca": lambda gs: gs.fight.characteristic_by_id[CharacteristicEnum.AGILITY].detailed.additional,
+        "cc": lambda gs: gs.fight.characteristic_by_id[CharacteristicEnum.CHANCE].detailed.additional,
+        "ci": lambda gs: gs.fight.characteristic_by_id[CharacteristicEnum.INTELLIGENCE].detailed.additional,
+        "cs": lambda gs: gs.fight.characteristic_by_id[CharacteristicEnum.STRENGTH].detailed.additional,
+        "cv": lambda gs: gs.fight.characteristic_by_id[CharacteristicEnum.VITALITY].detailed.additional,
+        "cw": lambda gs: gs.fight.characteristic_by_id[CharacteristicEnum.WISDOM].detailed.additional,
+    }
+
+
+CRITERION_HANDLERS = _get_criterion_handlers()
 
 
 @dataclass
@@ -46,145 +80,11 @@ class ItemCriterion(IItemCriterion):
             break
 
     def get_criterion(self, game_state: GameState) -> int:
-        criterion: int = 0
-
         if len(game_state.fight.characteristic_by_id.keys()) == 0:
             return 0
 
-        elif self.criterion_ref == "Ca":
-            criterion = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.AGILITY
-            ].detailed.base
+        handler = CRITERION_HANDLERS.get(self.criterion_ref)
+        if handler is None:
+            return 0
 
-        elif self.criterion_ref == "CA":
-            related_state = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.AGILITY
-            ]
-            criterion = related_state.detailed.base + related_state.detailed.additional
-
-        elif self.criterion_ref == "Cc":
-            criterion = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.CHANCE
-            ].detailed.base
-
-        elif self.criterion_ref == "CC":
-            related_state = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.CHANCE
-            ]
-            criterion = related_state.detailed.base + related_state.detailed.additional
-
-        elif self.criterion_ref == "Ce":
-            criterion = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.ENERGY_POINTS
-            ].detailed.base
-
-        elif self.criterion_ref == "CE":
-            related_state = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.MAX_ENERGY_POINTS
-            ]
-            criterion = related_state.detailed.base + related_state.detailed.additional
-
-        elif self.criterion_ref == "CH":
-            related_state = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.HONOUR_POINTS
-            ]
-            criterion = related_state.detailed.base + related_state.detailed.additional
-
-        elif self.criterion_ref == "Ci":
-            criterion = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.INTELLIGENCE
-            ].detailed.base
-
-        elif self.criterion_ref == "CI":
-            related_state = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.INTELLIGENCE
-            ]
-            criterion = related_state.detailed.base + related_state.detailed.additional
-
-        elif self.criterion_ref == "CM":
-            related_state = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.MOVEMENT_POINTS
-            ]
-            criterion = related_state.detailed.base + related_state.detailed.additional
-
-        elif self.criterion_ref == "CP":
-            related_state = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.ACTION_POINTS
-            ]
-            criterion = related_state.detailed.base + related_state.detailed.additional
-        elif self.criterion_ref == "Cs":
-            criterion = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.STRENGTH
-            ].detailed.base
-
-        elif self.criterion_ref == "CS":
-            related_state = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.STRENGTH
-            ]
-            criterion = related_state.detailed.base + related_state.detailed.additional
-
-        elif self.criterion_ref == "Cv":
-            criterion = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.VITALITY
-            ].detailed.base
-
-        elif self.criterion_ref == "CV":
-            related_state = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.VITALITY
-            ]
-            criterion = related_state.detailed.base + related_state.detailed.additional
-
-        elif self.criterion_ref == "Cw":
-            criterion = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.WISDOM
-            ].detailed.base
-
-        elif self.criterion_ref == "CW":
-            related_state = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.WISDOM
-            ]
-            criterion = related_state.detailed.base + related_state.detailed.additional
-
-        elif self.criterion_ref == "Ct":
-            related_state = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.TACKLE_EVADE
-            ]
-            criterion = related_state.detailed.base + related_state.detailed.additional
-
-        elif self.criterion_ref == "CT":
-            related_state = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.TACKLE_BLOCK
-            ]
-            criterion = related_state.detailed.base + related_state.detailed.additional
-
-        elif self.criterion_ref == "ca":
-            criterion = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.AGILITY
-            ].detailed.additional
-
-        elif self.criterion_ref == "cc":
-            criterion = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.CHANCE
-            ].detailed.additional
-
-        elif self.criterion_ref == "ci":
-            criterion = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.INTELLIGENCE
-            ].detailed.additional
-
-        elif self.criterion_ref == "cs":
-            criterion = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.STRENGTH
-            ].detailed.additional
-
-        elif self.criterion_ref == "cv":
-            criterion = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.VITALITY
-            ].detailed.additional
-
-        elif self.criterion_ref == "cw":
-            criterion = game_state.fight.characteristic_by_id[
-                CharacteristicEnum.WISDOM
-            ].detailed.additional
-
-        return criterion
+        return handler(game_state)

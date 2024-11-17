@@ -47,6 +47,11 @@ class Pathfinding:
     )
     open_list: SortedSet = field(init=False, default_factory=SortedSet)
     is_coord_closed: set[tuple[int, int]] = field(init=False, default_factory=set)
+    occupied_cell_ids: set[int] = field(init=False, default_factory=set)
+    end_columns: set[int] = field(init=False, default_factory=set)
+    end_lines: set[int] = field(init=False, default_factory=set)
+    end_x_coords: set[int] = field(init=False, default_factory=set)
+    end_y_coords: set[int] = field(init=False, default_factory=set)
 
     def get_interactive_near_path(
         self,
@@ -55,9 +60,6 @@ class Pathfinding:
         skill_ids: list[int],
     ) -> MovementPath | None:
         """get near path for using interactive element"""
-        self.logger.info(
-            f"from {player_mp} to {element_mp} at map id {self.game_state.map.map_id} with element : {skill_ids}"
-        )
         minimal_range = 63
         for skill_id in skill_ids:
             skill_data = DataReader().skill_by_id[skill_id]
@@ -118,6 +120,17 @@ class Pathfinding:
         self.node_by_coord.clear()
         self.is_coord_closed.clear()
 
+        self.occupied_cell_ids = {
+            actor.disposition.cell_id
+            for actor in self.game_state.entity.actor_by_id.values()
+            if actor.disposition.cell_id != -1
+        }
+
+        self.end_columns = {end.x + end.y for end in ends}
+        self.end_lines = {end.x - end.y for end in ends}
+        self.end_x_coords = {end.x for end in ends}
+        self.end_y_coords = {end.y for end in ends}
+
         dist_to_end = self.get_heuristic_to_end(start, ends)
         start_node = NodeMapPoint(
             mp=start,
@@ -141,8 +154,9 @@ class Pathfinding:
 
             self.is_coord_closed.add((curr_node.mp.x, curr_node.mp.y))
             for node in self.get_neighbors(curr_node.mp):
+                cost_to_end: float = self.get_heuristic_to_end(node.mp, ends)
                 cost_to_node = (
-                    self.get_move_cost(node.mp, curr_node.mp, start, ends)
+                    self.get_move_cost(node.mp, curr_node.mp, start, ends, cost_to_end)
                     + curr_node.cost_to_node
                 )
 
@@ -155,7 +169,6 @@ class Pathfinding:
                     self.open_list.remove(node)
                     node.in_open_set = False
 
-                cost_to_end: float = self.get_heuristic_to_end(node.mp, ends)
                 node.cost_to_node = cost_to_node
                 node.parent = curr_node
                 node.cost_to_end = cost_to_end
@@ -176,11 +189,11 @@ class Pathfinding:
     def is_goal_reached(self, curr_node: NodeMapPoint, ends: set[MapPoint]):
         return curr_node.mp in ends
 
-    def is_cell_on_ends_column(self, map_point: MapPoint, ends: set[MapPoint]) -> bool:
-        return any(map_point.x + map_point.y == end.x + end.y for end in ends)
+    def is_cell_on_ends_column(self, map_point: MapPoint) -> bool:
+        return (map_point.x + map_point.y) in self.end_columns
 
-    def is_cell_on_ends_line(self, map_point: MapPoint, ends: set[MapPoint]) -> bool:
-        return any(map_point.x - map_point.y == end.x - end.y for end in ends)
+    def is_cell_on_ends_line(self, map_point: MapPoint) -> bool:
+        return (map_point.x - map_point.y) in self.end_lines
 
     def get_neighbors(self, parent_mp: MapPoint) -> Iterator[NodeMapPoint]:
         for y in range(parent_mp.y - 1, parent_mp.y + 2):
@@ -229,6 +242,7 @@ class Pathfinding:
         parent_mp: MapPoint,
         start: MapPoint,
         ends: set[MapPoint],
+        cost_to_end: float,
     ) -> float:
         """check cost of move from map point to parent map point"""
         point_weight = self.get_map_point_weight(mp, ends)
@@ -236,17 +250,17 @@ class Pathfinding:
             DIAG_COST if mp.is_diagonal_move(parent_mp) else HV_COST
         ) * point_weight
         if self.allow_trough_entity:
-            is_cell_on_end_column = self.is_cell_on_ends_column(mp, ends)
+            is_cell_on_end_column = self.is_cell_on_ends_column(mp)
             is_cell_on_start_column = mp.x + mp.y == start.x + start.y
-            is_cell_on_end_line = self.is_cell_on_ends_line(mp, ends)
+            is_cell_on_end_line = self.is_cell_on_ends_line(mp)
             is_cell_on_start_line = mp.x - mp.y == start.x - start.y
             if (not is_cell_on_end_column and not is_cell_on_end_line) or (
                 not is_cell_on_start_column and not is_cell_on_start_line
             ):
-                movement_cost += self.get_heuristic_to_end(mp, ends)
+                movement_cost += cost_to_end
                 movement_cost += start.distance_to_map_point(mp)
 
-            if any(mp.x == end.x for end in ends) or any(mp.y == end.y for end in ends):
+            if mp.x in self.end_x_coords or mp.y in self.end_y_coords:
                 movement_cost -= 3
 
             if (
@@ -272,9 +286,7 @@ class Pathfinding:
 
         point_weight: float
 
-        entity_on_cell = self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(
-            mp.cell_id
-        )
+        entity_on_cell = mp.cell_id in self.occupied_cell_ids
         if self.allow_trough_entity:
             speed = self.data_map_provider.get_cell_data(mp.cell_id).speed
             if entity_on_cell:
@@ -288,9 +300,7 @@ class Pathfinding:
             if entity_on_cell:
                 point_weight += 0.3
             for side_map_point in mp.side_map_points:
-                if self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(
-                    side_map_point.cell_id
-                ):
+                if side_map_point.cell_id in self.occupied_cell_ids:
                     point_weight += 0.3
 
         return point_weight

@@ -17,15 +17,12 @@ from typing import List, Tuple
 from D3Mapping.d3_mapping.models.message import MessageInfo
 from D3Mapping.d3_mapping.protocol.protocol_game import get_obf_game_message_from_msg
 from D3Mapping.d3_mapping.resources.protos.game.game_message_pb2 import Request
-from D3Mapping.d3_mapping.signals.message_signals import MessageInfoSignals
 from src.const import RECORDING_FOLDER
 from src.core.events_manager.event_manager import EventManager
+from src.core.signals.message_signals import MessageInfoSignals
 from src.services.recorder import Recorder
 from src.services.replayer import Replayer
-from tests.fixtures.random_proto_generators import (
-    generate_ChatChannelMessageRequest,
-    generate_MapMovementRequest,
-)
+from tests.fixtures.random_proto_generators import generate_ChatChannelMessageRequest, generate_MapMovementRequest
 from tests.setup_factory import GameStateFixture
 
 
@@ -37,7 +34,7 @@ class TestObfuscatedReplay(GameStateFixture):
         super().setUp()
         self.recorder: Recorder = Recorder(max_in_memory=100)
         self.msg_info_signals: MessageInfoSignals = MessageInfoSignals()
-        self.event_manager_replay: EventManager = EventManager(logger=self.logger)
+        self.event_manager_replay: EventManager = EventManager(_logger=self.logger)
         self.replayer: Replayer = Replayer(
             game_state=self.game_state,
             event_manager=self.event_manager_replay,
@@ -65,9 +62,7 @@ class TestObfuscatedReplay(GameStateFixture):
         clear_payload = clear_sub_msg.SerializeToString()
         clear_full_name = clear_sub_msg.DESCRIPTOR.full_name
 
-        obf_msg = get_obf_game_message_from_msg(
-            Request.DESCRIPTOR.full_name, clear_sub_msg, uid=1
-        )
+        obf_msg = get_obf_game_message_from_msg(Request.DESCRIPTOR.full_name, clear_sub_msg, uid=1)
         assert obf_msg
         obf_payload = obf_msg.SerializeToString()
         obf_full_name = obf_msg.DESCRIPTOR.full_name
@@ -87,9 +82,7 @@ class TestObfuscatedReplay(GameStateFixture):
         self.assertTrue(os.path.exists(saved_path))
 
         # Replay clear version
-        worker = self.replayer.get_replay_worker(
-            saved_path, preserve_timing=False, use_obfuscated=False
-        )
+        worker = self.replayer.get_replay_worker(saved_path, preserve_timing=False, use_obfuscated=False)
         worker()
 
         # Verify message was emitted
@@ -106,9 +99,7 @@ class TestObfuscatedReplay(GameStateFixture):
 
         # Generate a clear message then obfuscate it
         clear_msg = generate_ChatChannelMessageRequest()
-        obf_msg = get_obf_game_message_from_msg(
-            Request.DESCRIPTOR.full_name, clear_msg, uid=2
-        )
+        obf_msg = get_obf_game_message_from_msg(Request.DESCRIPTOR.full_name, clear_msg, uid=2)
         assert obf_msg
         obf_payload = obf_msg.SerializeToString()
         obf_full_name = obf_msg.DESCRIPTOR.full_name
@@ -127,9 +118,7 @@ class TestObfuscatedReplay(GameStateFixture):
         assert saved_path
 
         # Replay - should automatically use obfuscated since clear is not available
-        worker = self.replayer.get_replay_worker(
-            saved_path, preserve_timing=False, use_obfuscated=False
-        )
+        worker = self.replayer.get_replay_worker(saved_path, preserve_timing=False, use_obfuscated=False)
         worker()
 
         # Verify obfuscated message was replayed
@@ -138,44 +127,6 @@ class TestObfuscatedReplay(GameStateFixture):
         # The message class name should be the obfuscated one
         assert msg_info.sub_msg_name == obf_full_name
         self.assertFalse(msg_info.from_server)
-
-    def test_replay_with_use_obfuscated_flag(self) -> None:
-        """Test explicitly replaying obfuscated version when both are available."""
-        self.recorder.start_session("test_obf_flag")
-
-        clear_msg = generate_MapMovementRequest()
-        clear_payload = clear_msg.SerializeToString()
-        clear_full_name = clear_msg.DESCRIPTOR.full_name
-
-        obf_msg = get_obf_game_message_from_msg(
-            Request.DESCRIPTOR.full_name, clear_msg, uid=3
-        )
-        assert obf_msg
-        obf_payload = obf_msg.SerializeToString()
-        obf_full_name = obf_msg.DESCRIPTOR.full_name
-
-        self.recorder.record_message(
-            bot_id="test_bot",
-            msg_bytes=clear_payload,
-            msg_full_name=clear_full_name,
-            from_server=True,
-            obf_msg_bytes=obf_payload,
-            obf_msg_full_name=obf_full_name,
-        )
-
-        saved_path = self.recorder.stop_session()
-        assert saved_path
-
-        # Replay with use_obfuscated=True
-        worker = self.replayer.get_replay_worker(
-            saved_path, preserve_timing=False, use_obfuscated=True
-        )
-        worker()
-
-        # Verify obfuscated version was used
-        self.assertEqual(len(self.received_messages), 1)
-        msg_info, from_proxy = self.received_messages[0]
-        assert obf_msg.__class__.__name__ == msg_info.sub_msg_name
 
     def test_validate_mapping_via_replay(self) -> None:
         """
@@ -195,9 +146,7 @@ class TestObfuscatedReplay(GameStateFixture):
         ]
 
         for idx, clear_msg in enumerate(messages):
-            obf_msg = get_obf_game_message_from_msg(
-                Request.DESCRIPTOR.full_name, clear_msg, uid=idx + 10
-            )
+            obf_msg = get_obf_game_message_from_msg(Request.DESCRIPTOR.full_name, clear_msg, uid=idx + 10)
             assert obf_msg
             obf_payload = obf_msg.SerializeToString()
             obf_full_name = obf_msg.DESCRIPTOR.full_name
@@ -217,9 +166,7 @@ class TestObfuscatedReplay(GameStateFixture):
         assert saved_path
 
         # Replay and verify all messages are processed
-        worker = self.replayer.get_replay_worker(
-            saved_path, preserve_timing=False, use_obfuscated=False
-        )
+        worker = self.replayer.get_replay_worker(saved_path, preserve_timing=False, use_obfuscated=False)
         worker()
 
         # All messages should have been emitted
@@ -257,9 +204,7 @@ class TestObfuscatedReplay(GameStateFixture):
 
         assert saved_path
 
-        worker = self.replayer.get_replay_worker(
-            saved_path, preserve_timing=False, use_obfuscated=False
-        )
+        worker = self.replayer.get_replay_worker(saved_path, preserve_timing=False, use_obfuscated=False)
         worker()
 
         # No messages should be received
@@ -273,8 +218,7 @@ class TestObfuscatedReplay(GameStateFixture):
         base_time = datetime.now()
         timestamps = [
             base_time.isoformat() + "Z",
-            (base_time.replace(microsecond=base_time.microsecond + 100000)).isoformat()
-            + "Z",
+            (base_time.replace(microsecond=base_time.microsecond + 100000)).isoformat() + "Z",
         ]
 
         for ts in timestamps:

@@ -24,6 +24,7 @@ from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
 from D3Mapping.d3_mapping.resources.protos.game.spell_pb2 import (
     SpellsEvent,
 )
+from src.controller.forbidden_monster_controller import ForbiddenMonsterController
 from src.core.frames.frame import Frame
 
 
@@ -115,6 +116,19 @@ class FightFrame(Frame):
         )
 
     def on_fight_live_state_event(self, msg: FightLiveStateEvent):
+        player_entity_state = next(
+            (
+                entity_state
+                for entity_state in msg.entities_states
+                if entity_state.entity_id == self.game_state.player.character_id
+            ),
+            None,
+        )
+        player_is_dead = player_entity_state is None or player_entity_state.is_dead
+
+        if player_is_dead:
+            self.game_state.fight.set_player_died_in_current_fight(True)
+
         for actor_id in list(self.game_state.entity.actor_by_id.keys()):
             related_entity_state = next(
                 (
@@ -124,7 +138,9 @@ class FightFrame(Frame):
                 ),
                 None,
             )
-            if not related_entity_state or related_entity_state.is_dead:
+            if self.game_state.player.character_id != actor_id and (
+                not related_entity_state or related_entity_state.is_dead
+            ):
                 self.game_state.entity.remove_actor(actor_id)
 
     def on_fight_placement_position_request(
@@ -165,7 +181,7 @@ class FightFrame(Frame):
             ] = spell_modifier
 
         for stat in message.stats.characteristics:
-            self.game_state.fight.characteristic_by_id[stat.characteristic_id] = stat
+            self.game_state.fight.update_characteristic(stat)
 
     def before_fight_turn_finish_request(
         self, msg: FightTurnFinishRequest
@@ -186,10 +202,28 @@ class FightFrame(Frame):
     def on_map_complementary_information_event(
         self, msg: MapComplementaryInformationEvent
     ):
+        if self.game_state.fight.last_attacked_monster_group is not None:
+            unique_name_id = ForbiddenMonsterController().get_unique_name_id_from_group(
+                self.game_state.fight.last_attacked_monster_group
+            )
+            self.logger.info(f"Unique monster group name_id attacked : {unique_name_id}")
+            if unique_name_id is not None:
+                if self.game_state.fight.player_died_in_current_fight:
+                    self.logger.info(f"Increase defeat monster name_id : {unique_name_id}")
+                    ForbiddenMonsterController().increment_defeat_count(
+                        unique_name_id, self.logger
+                    )
+                else:
+                    ForbiddenMonsterController().reset_defeat_count(
+                        unique_name_id, self.logger
+                    )
+
         self.game_state.fight.is_our_turn = False
         self.game_state.fight.in_fight = False
         self.game_state.fight.fight_turn = 0
         self.game_state.fight.is_map_fight_initialized = False
+        self.game_state.fight.set_last_attacked_monster_group(None)
+        self.game_state.fight.set_player_died_in_current_fight(False)
 
     def on_update_life_points_event(self, msg: UpdateLifePointsEvent):
         self.game_state.fight.life_point = msg.life_points
@@ -213,12 +247,11 @@ class FightFrame(Frame):
         if self.game_state.player.character_id != msg.fighter_id:
             return
         for characteristic in msg.stats.characteristics:
-            self.game_state.fight.characteristic_by_id[
-                characteristic.characteristic_id
-            ] = characteristic
+            self.game_state.fight.update_characteristic(characteristic)
 
     def on_fight_map_information_event(self, msg: FightMapInformationEvent):
         self.game_state.fight.count_casted_by_spell_id_on_current_turn.clear()
         self.game_state.fight.modifier_by_type_and_spell_id.clear()
         self.game_state.fight.in_fight = True
         self.game_state.fight.is_map_fight_initialized = True
+        self.game_state.fight.set_player_died_in_current_fight(False)

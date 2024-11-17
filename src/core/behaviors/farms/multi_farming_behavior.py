@@ -3,6 +3,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Callable
 
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+    FightMapInformationEvent,
+)
 from src.core.behaviors.communication.chat_behavior import ChatBehavior
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
@@ -16,7 +19,6 @@ from src.core.config import (
     get_time_between_random_chat,
 )
 from src.core.engine.dungeons.dungeon_access import get_valid_dungeon_infos
-from src.exceptions import UnhandledErrorCodeException
 
 
 @dataclass
@@ -35,27 +37,19 @@ class MultiFarmingBehavior(HarvesterBehavior):
         self,
         area_id: int | None,
         sub_area_id: int | None,
-        stop_condition_with_callback: tuple[Callable[[], bool], Callable[[], None]]
-        | None = None,
+        is_stopped_at_new_map_condition: Callable[[], bool] | None = None,
     ):
         self._next_time_chat = datetime.now() + get_time_between_random_chat()
         self._next_time_attacker = datetime.now() + get_time_between_attacker()
         self._next_time_dungeon = datetime.now() + get_time_between_dungeon()
-        return super().run(area_id, sub_area_id, stop_condition_with_callback)
+        return super().run(area_id, sub_area_id, is_stopped_at_new_map_condition)
 
     def on_new_map(self):
-        if self._stop_condition_with_callback is not None:
-            stop_condition, callback = self._stop_condition_with_callback
-            if stop_condition():
-                self.logger.info("Stop condition triggered, let's call callback")
-                self.finish()
-                return callback()
+        if self.check_stop_condition():
+            return
 
         def on_random_action_done():
-            if self.game_state.map.map_id in self.random_farm_behavior.map_ids:
-                self.collect_on_map()
-            else:
-                self.run_next_step()
+            HarvesterBehavior.on_new_map(self)
 
         def on_chat_behavior_finished(error_code: str | None):
             self._next_time_chat = datetime.now() + get_time_between_random_chat()
@@ -110,9 +104,9 @@ class MultiFarmingBehavior(HarvesterBehavior):
         on_random_action_done()
 
     def fight_on_map(self):
+        self.unregister_listener(FightMapInformationEvent)
         self.attacker_behavior.start(
             count_fight_limit=1,
-            behavior_context_to_clears=[self],
             parent=self,
             callback=self.on_attacker_behavior_finished,
         )
@@ -120,13 +114,10 @@ class MultiFarmingBehavior(HarvesterBehavior):
     def on_attacker_behavior_finished(
         self, error_code: str | None, count_fighted_on_map: int
     ):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
-        if count_fighted_on_map >= 1:
-            self._next_time_attacker = datetime.now() + get_time_between_attacker()
-        self.collect_on_map()
+        self.raise_if_error(error_code)
+        self.init_listeners()
+        HarvesterBehavior.on_new_map(self)
 
-    def collect_on_map(self):
-        self.collect_behavior.start(
-            callback=self.on_collect_behavior_finished, parent=self
-        )
+    def on_fight_aggro(self):
+        self._next_time_attacker = datetime.now() + get_time_between_attacker()
+        return super().on_fight_aggro()

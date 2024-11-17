@@ -2,11 +2,6 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
-    FightMapInformationEvent,
-    MapComplementaryInformationEvent,
-    MapCurrentEvent,
-)
 from D3Mapping.d3_mapping.resources.protos.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
@@ -41,29 +36,9 @@ class CollectBehavior(Behavior):
     def run(self) -> None:
         self.excluded_element_ids.clear()
         self.is_first_action = True
-        self.event_manager.on(
-            MapCurrentEvent, self.on_map_current_event, originator=self, once=True
-        )
         self.collect_map()
 
-    def on_map_current_event(self, msg: MapCurrentEvent):
-        self.event_manager.on(
-            FightMapInformationEvent,
-            lambda _: self.finish(),
-            originator=self,
-            once=True,
-        )
-        self.event_manager.on(
-            MapComplementaryInformationEvent,
-            lambda _: self.finish(),
-            originator=self,
-            once=True,
-        )
-
     def collect_map(self):
-        if self.game_state.map.is_in_map_transition:
-            return
-
         if self.game_state.inventory.is_full_pods:
             return self.finish(CollectError.FULL_PODS)
 
@@ -111,11 +86,12 @@ class CollectBehavior(Behavior):
         self, error_code: str | None, collectable: Collectable
     ):
         if error_code in [InteractiveError.USE_ERROR, MapMoveError.REFUSED]:
-            self.event_manager.clear_listener_by_origin_and_type(
-                StatedElementUpdatedEvent, originator=self
+            self.unregister_listener(
+                StatedElementUpdatedEvent,
+                reason="Interactive error, retrying collection without this listener",
             )
             self.excluded_element_ids.add(collectable.interactive_element.element_id)
-            self.logger.warning("Interactive error, trying to recollect on map.")
+            self.logger.info("Interactive error, trying to recollect on map.")
             return self.run_timer(BASE_RANGE, self.collect_map)
 
     def on_interactive_updated(self, msg: StatedElementUpdatedEvent, element_id: int):
@@ -123,8 +99,9 @@ class CollectBehavior(Behavior):
             msg.stated_element.element_id == element_id
             and msg.stated_element.state == 1
         ):
-            self.event_manager.clear_listener_by_origin_and_type(
-                StatedElementUpdatedEvent, originator=self
+            self.unregister_listener(
+                StatedElementUpdatedEvent,
+                reason="Element state confirmed, proceeding with collection",
             )
             self.collect_map()
 

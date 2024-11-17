@@ -27,7 +27,7 @@ class CustomTableModel(QAbstractTableModel):
         data: list[list[QStandardItem]] | None = None,
         column_count: int = 0,
         parent=None,
-        max_row_count: int = 2000,
+        max_row_count: int = 5000,
     ):
         super().__init__(parent)
         self.signals = CustomTableModelSignal()
@@ -95,9 +95,37 @@ class CustomTableModel(QAbstractTableModel):
             return Qt.NoItemFlags  # type: ignore
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
+    def setData(self, index: QModelIndex, value: str, role: int = Qt.EditRole) -> bool:
+        if not index.isValid():
+            return False
+
+        item = self._data[index.row()][index.column()]
+        if role == Qt.DisplayRole or role == Qt.EditRole:
+            item.setText(value)
+            self.dataChanged.emit(index, index, [role])
+            return True
+        return False
+
+    def update_row_cells(
+        self, row: int, col_start: int, col_end: int, values: list[str]
+    ):
+        if row < 0 or row >= len(self._data):
+            return
+        for i, value in enumerate(values):
+            col = col_start + i
+            if col <= col_end and col < self._column_count:
+                self._data[row][col].setText(value)
+        self.dataChanged.emit(
+            self.index(row, col_start), self.index(row, col_end), [Qt.DisplayRole]
+        )
+
 
 class CustomTableView(TableView):  # type: ignore
-    def __init__(self, parent: SingleDirectionScrollArea) -> None:
+    def __init__(
+        self,
+        parent: SingleDirectionScrollArea,
+        proxy_model: MultiColumnFilterProxyModel | None = None,
+    ) -> None:
         super().__init__(parent=parent)
         self.scroll_bar = parent
         self.columns_infos: list[ColumnInfo] = []
@@ -119,7 +147,7 @@ class CustomTableView(TableView):  # type: ignore
         self.item_model.signals.max_row_reached.connect(
             profiled_slot(self.on_max_row_reached)
         )
-        self.proxy_model = MultiColumnFilterProxyModel()
+        self.proxy_model = proxy_model or MultiColumnFilterProxyModel()
         self.proxy_model.setSourceModel(self.item_model)
 
         self.setModel(self.proxy_model)
@@ -132,7 +160,7 @@ class CustomTableView(TableView):  # type: ignore
     @pyqtSlot()
     def on_max_row_reached(self):
         old_scroll_position = self.scroll_bar.verticalScrollBar().value()
-        self.item_model.remove_rows(0, 100)
+        self.item_model.remove_rows(0, 500)
         self.scroll_bar.verticalScrollBar().setValue(old_scroll_position)
 
     def resizeEvent(self, event):  # type: ignore

@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Any, Union
 
 from PyQt5.QtCore import (
     QEasingCurve,
@@ -75,7 +75,7 @@ class SidebarPanel(QFrame):
         self.bottomLayout = NavigationItemLayout()
         self.scrollLayout = NavigationItemLayout(self.scrollWidget)
 
-        self.items = {}
+        self.items: dict[str, Any] = {}
         self.history = qrouter
 
         self.expandAni = QPropertyAnimation(self, b"geometry", self)

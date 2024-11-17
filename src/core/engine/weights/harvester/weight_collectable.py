@@ -2,7 +2,6 @@ from collections import defaultdict
 from functools import cache
 
 from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
 from D3Database.data_center.map_reader import MapReader
 from D3Database.enums.jobs_enum import JobEnum
 from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
@@ -10,10 +9,9 @@ from src.controller.gfx_mapping import GfxMappingController
 from src.controller.sale_hotel import SaleHotelController
 from src.controller.speed_sell_score import SpeedSellScoreController
 from src.core.config import WEIGHT_BY_JOB
+from src.core.engine.monsters.drops import get_rare_gid_with_weight_from_protector_drop
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.game_constants import (
-    CUSTOM_GATHERER_ITEM_BY_SAC_GID,
-    GATHERER_ITEM_GIDS,
     PROTECTOR_RACES,
 )
 
@@ -130,48 +128,12 @@ def get_basic_weight_collectable(
 
 @cache
 def get_rare_drop_weight_by_collectable_gid() -> dict[int, float]:
-    avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
-    speed_sell_score_by_gid = SpeedSellScoreController().get_speed_sell_score_by_gid
-
     drop_weight_by_res_id: dict[int, float] = defaultdict(float)
-    gathered_item_id_by_name = {
-        I18N()
-        .name_by_id[DataReader().item_by_id[item_id].nameId or 0]
-        .lower()
-        .replace("s", "")
-        .replace(" ", ""): item_id
-        for item_id in GATHERER_ITEM_GIDS
-    }
     for race in PROTECTOR_RACES:
         for monster in DataReader().monsters_by_race[race]:
-            res_object_id: int | None = None
-            curr_weight: float = 0
-            for drop in monster.drops:
-                description = (
-                    I18N()
-                    .name_by_id[
-                        DataReader().item_by_id[drop.objectId].descriptionId or 0
-                    ]
-                    .lower()
-                    .replace("s", "")
-                )
-                if drop.objectId in CUSTOM_GATHERER_ITEM_BY_SAC_GID:
-                    res_object_id = CUSTOM_GATHERER_ITEM_BY_SAC_GID[drop.objectId]
-                elif description.startswith("cet énorme"):
-                    cleaned_desc = "".join(description.replace(".", "").split(" ")[-4:])
-                    for item_name, item_gid in gathered_item_id_by_name.items():
-                        if item_name in cleaned_desc:
-                            res_object_id = item_gid
-                            break
-                    else:
-                        continue
-
-                curr_weight += (
-                    drop.percentDropForGrade1
-                    / 100
-                    * avg_price_by_gid.get(drop.objectId, 1)
-                    * speed_sell_score_by_gid.get(drop.objectId, 1.0)
-                )
+            res_object_id, curr_weight = get_rare_gid_with_weight_from_protector_drop(
+                monster.drops
+            )
             if res_object_id is None:
                 continue
             drop_weight_by_res_id[res_object_id] = curr_weight

@@ -6,13 +6,21 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QSizePolicy,
     QSplitter,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
-from qfluentwidgets import FluentIcon, LineEdit, PivotItem, PrimaryPushButton
+from qfluentwidgets import (
+    FluentIcon,
+    LineEdit,
+    PivotItem,
+    PrimaryPushButton,
+    SegmentedWidget,
+)
 
 from D3Mapping.d3_mapping.models.message import MessageInfo
 from src.core.bot.bot import Bot
+from src.gui.pages.debugs.listeners_stats import ListenersStatsWidget
 from src.gui.pages.debugs.logs import LogsWidget
 from src.gui.pages.debugs.message_detail import MessageDetailWidget
 from src.gui.pages.debugs.message_table import MessageTable
@@ -129,20 +137,56 @@ class SnifferWidget(PivotItem):  # type: ignore
         left_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.msg_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        # right side: message detail and logs
+        # right side: message detail and logs/listeners tabs
         self.msg_detail = MessageDetailWidget()
         self.msg_detail.hide()
         self.msg_detail.quit_btn.clicked.connect(self.on_close_detail)
 
         self.right_splitter = QSplitter(Qt.Vertical)
         self.right_splitter.addWidget(self.msg_detail)
+
         if self.bot.log_signals is not None:
-            self.logs_widget = LogsWidget(log_signals=self.bot.log_signals)
-            # make logs expand to fill splitter space
-            self.logs_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-            self.right_splitter.addWidget(self.logs_widget)
+            debug_tabs_widget = QWidget()
+            debug_tabs_widget.setLayout(QVBoxLayout())
+            debug_tabs_widget.layout().setContentsMargins(0, 16, 0, 0)
+            debug_tabs_widget.layout().setSpacing(0)
+
+            debug_pivot = SegmentedWidget()
+            debug_tabs_widget.layout().addWidget(debug_pivot)
+
+            debug_stacked = QStackedWidget()
+            debug_tabs_widget.layout().addWidget(debug_stacked)
+
+            logs_widget = LogsWidget(log_signals=self.bot.log_signals)
+            debug_stacked.addWidget(logs_widget)
+
+            listeners_widget = ListenersStatsWidget(
+                event_manager=self.bot.event_manager
+            )
+            debug_stacked.addWidget(listeners_widget)
+
+            debug_pivot.addItem(
+                routeKey="logs",
+                text="Logs",
+                onClick=lambda: debug_stacked.setCurrentWidget(logs_widget),
+            )
+            debug_pivot.addItem(
+                routeKey="listeners",
+                text="Listeners",
+                onClick=lambda: (
+                    debug_stacked.setCurrentWidget(listeners_widget),
+                    listeners_widget.init(),
+                ),
+            )
+            debug_pivot.setCurrentItem("logs")
+
+            self.right_splitter.addWidget(debug_tabs_widget)
+
+            self.logs_widget = logs_widget
+            self.listeners_widget = listeners_widget
         else:
             self.logs_widget = None
+            self.listeners_widget = None
 
         # main horizontal splitter: left (filter+table) | right (detail+logs)
         splitter = QSplitter(Qt.Horizontal)

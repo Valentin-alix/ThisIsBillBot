@@ -8,12 +8,10 @@ Elles représentent des données fixes du jeu Dofus.
 Pour configurer le comportement du bot, voir src/core/config.py
 """
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.enums.category_item_enum import CategoryEnum
-from D3Database.enums.item_enum import ItemEnum
-from D3Database.enums.type_item_enum import TypeItemEnum
+from D3Database.enums.npc_message_id_enum import NpcAskMessageIdEnum
 from D3Database.models.world_graph import Transition, Vertice
 from src.core.engine.dungeons.dungeon_info import DungeonInfo
+from src.core.engine.npcs.npc_dialog_info import ReplyInfo
 from src.core.engine.npcs.npc_info import NpcInfo
 
 # ============================================================================
@@ -58,10 +56,22 @@ class NPCs:
 
     # Banques
     ASTRUB_BANK = NpcInfo(
-        npc_id=-20001, npc_map_id=Maps.ASTRUB_BANK, include_reply_ids=[64361]
+        npc_id=-20001,
+        npc_map_id=Maps.ASTRUB_BANK,
+        reply_info_by_message_id={
+            NpcAskMessageIdEnum.ASTRUB_BANK_NPC_ASK_OPEN_CHEST: ReplyInfo(
+                reply_id=64361, do_finish_after=True
+            )
+        },
     )
     BONTA_BANK = NpcInfo(
-        npc_id=-20000, npc_map_id=Maps.BONTA_BANK, include_reply_ids=[63535]
+        npc_id=-20000,
+        npc_map_id=Maps.BONTA_BANK,
+        reply_info_by_message_id={
+            NpcAskMessageIdEnum.BONTA_BANK_NPC_ASK_OPEN_CHEST: ReplyInfo(
+                reply_id=63535, do_finish_after=True
+            )
+        },
     )
     BANKS = [ASTRUB_BANK, BONTA_BANK]
 
@@ -165,67 +175,6 @@ class Pathfinding:
     EXCLUDED_ELEMENT_IDS: set[int] = set()
 
 
-# ============================================================================
-# ENSEMBLES CALCULÉS (à partir de D3Database)
-# ============================================================================
-
-# Items de protecteurs (calculé dynamiquement à partir de la DB)
-PROTECTOR_DROP_ITEM_IDS = {
-    drop.objectId
-    for race in Monsters.PROTECTOR_RACES
-    for monster in DataReader().monsters_by_race[race]
-    for drop in monster.drops
-    if DataReader().item_by_id[drop.objectId].typeId
-    not in [310, TypeItemEnum.PIERRE_BRUTE]
-}
-
-# Items récoltables (calculé dynamiquement)
-GATHERER_ITEM_GIDS: set[int] = {
-    harvestable
-    for sub_area in DataReader().sub_area_by_id.values()
-    for harvestable in sub_area.harvestables
-    if harvestable in DataReader().item_by_id
-} | {ItemEnum.WATER}
-
-# Items vendables
-SELLABLE_ITEMS = (
-    GATHERER_ITEM_GIDS
-    | DataReader().item_ids_by_type_id[TypeItemEnum.SUBSTRAT]
-    | DataReader().item_ids_by_type_id[TypeItemEnum.ALLIAGE]
-)
-
-# Organisation par onglets
-GIDS_BY_TAB = {
-    1: GATHERER_ITEM_GIDS,
-    2: DataReader().item_ids_by_type_id[TypeItemEnum.PLANCHE]
-    | DataReader().item_ids_by_type_id[TypeItemEnum.PREPARATION]
-    | DataReader().item_ids_by_type_id[TypeItemEnum.SUBSTRAT]
-    | DataReader().item_ids_by_type_id[TypeItemEnum.ALLIAGE]
-    | PROTECTOR_DROP_ITEM_IDS,
-}
-TAB_BY_GID = {gid: tab for tab, gids in GIDS_BY_TAB.items() for gid in gids}
-
-# Hôtels de vente par catégorie
-SALE_HOTELS_BY_CATEGORY: dict[CategoryEnum, list[NpcInfo]] = {
-    CategoryEnum.RESOURCES: [
-        NPCs.BONTA_SALE_HOTEL_RES_SELL,
-        NPCs.ASTRUB_SALE_HOTEL_RES_SELL,
-    ],
-    CategoryEnum.CONSUMABLES: [
-        NPCs.BONTA_SALE_HOTEL_COM_SELL,
-        NPCs.ASTRUB_SALE_HOTEL_COM_SELL,
-    ],
-}
-
-UNSUB_SALE_HOTEL = [
-    NPCs.ASTRUB_SALE_HOTEL_COM_SELL,
-    NPCs.ASTRUB_SALE_HOTEL_RES_SELL,
-]
-
-SUB_SALE_HOTEL = [NPCs.BONTA_SALE_HOTEL_RES_SELL]
-
-
-# ============================================================================
 # RÉTRO-COMPATIBILITÉ (deprecated, à supprimer progressivement)
 # ============================================================================
 # Ces alias permettent une migration en douceur du code existant

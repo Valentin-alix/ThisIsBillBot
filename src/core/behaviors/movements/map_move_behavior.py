@@ -96,7 +96,10 @@ class MapMoveBehavior(Behavior):
             msg.sequence_type == SequenceType.MOVE
             and msg.author_id == self.game_state.player.character_id
         ):
-            self.event_manager.clear_listener_by_origin_and_type(SequenceEndEvent, self)
+            self.unregister_listener(
+                SequenceEndEvent,
+                reason="Movement sequence ended, now waiting for acknowledgement"
+            )
             self.event_manager.on(
                 GameActionAcknowledgementRequest,
                 partial(
@@ -123,10 +126,10 @@ class MapMoveBehavior(Behavior):
 
     def on_map_movement_event(self, msg: MapMovementEvent, move_path: MovementPath):
         if self.game_state.player.character_id == msg.character_id:
-            with self.event_manager.lock:
-                self.event_manager.clear_listener_by_origin_and_type(
-                    MapMovementEvent, self
-                )
+            self.unregister_listener(
+                MapMovementEvent,
+                reason="Player movement confirmed, switching to completion listener"
+            )
             duration = MovementPath.get_total_duration(
                 MovementPath.get_path_elements_from_cells(list(msg.cells)),
                 self.game_state.inventory.inventory_weight,

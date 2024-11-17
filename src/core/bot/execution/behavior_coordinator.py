@@ -8,7 +8,7 @@ from PyQt5.QtCore import QThread
 
 from D3Database.models.datas.recipe_root import RecipeItem
 from src.controller.bot_config import BotConfig
-from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.behavior import Behavior, BehaviorState
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
@@ -16,20 +16,23 @@ from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehavior
 from src.core.config import MULE_BANK_CHARACTER_LOGIN
+from src.core.events_manager.event_manager import EventManager
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.gui.utils.run_in_background import run_in_background
-from src.services.logging.logger import Logger
+from src.services.logging.contextual_logger import ContextualLogger
 
 
 @dataclass
-class BehaviorCoordinator:
+class BehaviorCoordinator(ContextualLogger):
     """Coordinates and orchestrates bot behaviors execution."""
 
     is_connected_event: Event
     is_ready_to_play_event: Event
     is_playing_event: Event
     from_manual_play: Event
+
+    event_manager: EventManager
 
     fight_behavior: FightBehavior
     harvester_behavior: HarvesterBehavior
@@ -41,7 +44,6 @@ class BehaviorCoordinator:
 
     bot_signals: BotSignals
     shared_signals: SharedSignals
-    logger: Logger
 
     account: DecipheredApiKey
     bot_config: BotConfig | None
@@ -61,7 +63,7 @@ class BehaviorCoordinator:
         self.is_playing_event.set()
 
     def on_stop(self):
-        self.logger.info("stopping")
+        self.logger.info("Full Stop")
         self.is_playing_event.clear()
         self._current_bot_action_func = None
         self.stop_behaviors()
@@ -138,7 +140,6 @@ class BehaviorCoordinator:
         self.stop_behaviors()
         self._current_bot_action_func = func
         if not self.is_connected_event.is_set():
-            self.logger.info("relaunching from play action")
             self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
         elif self.is_ready_to_play_event.is_set():
             self._thread_worker_runnings.append(
@@ -164,16 +165,20 @@ class BehaviorCoordinator:
             self.bot_signals.play_auto_bot.emit(None, None)
 
     def safe_stop(self):
-        while self.fight_behavior.is_running.is_set():
+        while self.fight_behavior.state == BehaviorState.RUNNING:
             sleep(0.3)
         self.stop_behaviors()
 
     def stop_behaviors(self):
-        for field_info in fields(self):
-            field_value = getattr(self, field_info.name)
-            if isinstance(field_value, Behavior) and field_value.is_running.is_set():
-                field_value.stop()
+        with self.event_manager.lock:
+            for field_info in fields(self):
+                field_value = getattr(self, field_info.name)
+                if (
+                    isinstance(field_value, Behavior)
+                    and field_value.state == BehaviorState.RUNNING
+                ):
+                    field_value.stop()
 
-        for usable_behavior in self.usable_behaviors:
-            if usable_behavior.is_running.is_set():
-                usable_behavior.stop()
+            for usable_behavior in self.usable_behaviors:
+                if usable_behavior.state == BehaviorState.RUNNING:
+                    usable_behavior.stop()

@@ -1,9 +1,6 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-from D3Database.models.datas.recipe_root import RecipeItem
-from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
 from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
-    ExchangeLeaveEvent,
     ExchangeObjectMoveRequest,
 )
 from D3Mapping.d3_mapping.resources.protos.game.guild_chest_pb2 import (
@@ -13,18 +10,14 @@ from D3Mapping.d3_mapping.resources.protos.game.guild_chest_pb2 import (
 from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
-from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestBehavior,
 )
-from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
-from src.core.config import BASE_RANGE, SMALL_RANGE, USEFUL_UNLOAD
-from src.core.engine.crafts.recipes import (
-    get_max_possible_result_quantity,
-    get_max_result_quantity,
+from src.core.behaviors.storage.loads.recipe_loader_behavior import (
+    RecipeLoaderBehavior,
 )
-from src.core.game_constants import GIDS_BY_TAB
-from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
+from src.core.config import SMALL_RANGE
+from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB, GIDS_BY_TAB
 
 
 @dataclass
@@ -35,45 +28,16 @@ class IngredientsInfo:
 
 
 @dataclass
-class LoadRecipeFromGuildChestBehavior(Behavior):
+class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
     enter_guild_chest_behavior: EnterGuildChestBehavior
-    unload_behavior: UnloadBehavior
 
-    _remaining_recipes: list[RecipeItem] = field(init=False, default_factory=list)
-    _loaded_recipes_infos: list[tuple[RecipeItem, int]] = field(
-        init=False, default_factory=list
-    )
-
-    def run(self, recipes: list[RecipeItem]) -> None:
-        self._remaining_recipes = recipes.copy()
-        self._loaded_recipes_infos = []
-        if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
-            return self.unload_behavior.start(
-                callback=self.on_unload_behavior_finished,
-                parent=self,
-            )
-        self.on_unloaded()
-
-    def on_unload_behavior_finished(self, error_code: str | None):
-        if error_code is not None:
-            self.logger.error(error_code)
-            return self.finish(
-                error_code=error_code,
-                loaded_recipes_infos=self._loaded_recipes_infos,
-                remaining_recipes=self._remaining_recipes,
-            )
-        self.on_unloaded()
-
-    def on_unloaded(self):
-        self.run_timer(
-            BASE_RANGE,
-            lambda: self.enter_guild_chest_behavior.start(
-                callback=self.on_entered_guild_chest_behavior,
-                parent=self,
-            ),
+    def enter_storage(self) -> None:
+        self.enter_guild_chest_behavior.start(
+            callback=self.on_entered_storage,
+            parent=self,
         )
 
-    def on_entered_guild_chest_behavior(self, error_code: str | None):
+    def on_entered_storage(self, error_code: str | None):
         if error_code is not None:
             self.logger.error(error_code)
             return self.finish(
@@ -110,39 +74,21 @@ class LoadRecipeFromGuildChestBehavior(Behavior):
         )
         tab = tabs.pop()
         self.logger.info(f"Gonna discover tab {tab}")
-        return self.run_timer(
+        return self.send_message_delayed(
+            GuildChestTabSelectRequest(tab_number=tab),
             SMALL_RANGE,
-            lambda: self.event_manager.send(GuildChestTabSelectRequest(tab_number=tab)),
         )
 
-    def load_recipe(self):
-        if len(self._remaining_recipes) == 0:
-            return self.on_full_loaded()
-
-        recipe = self._remaining_recipes[0]
-        objects_by_gid = {
+    def get_storage_objects_by_gid(self) -> dict:
+        return {
             gid: object
             for object_by_gid in CHEST_OBJECT_BY_GID_BY_TAB.values()
             for gid, object in object_by_gid.items()
         }
-        max_result_quantity, weight_for_one_result = get_max_result_quantity(
-            self.logger, objects_by_gid, recipe
-        )
-        if max_result_quantity == 0:
-            # not enough ingredients in chest
-            self._remaining_recipes.remove(recipe)
-            return self.load_recipe()
 
-        max_possible_result_quantity = get_max_possible_result_quantity(
-            self.game_state.inventory.weight_max,
-            self.game_state.inventory.inventory_weight,
-            weight_for_one_result,
-            max_result_quantity,
-        )
-        if max_possible_result_quantity == 0:
-            return self.on_full_loaded()
-
-        self._loaded_recipes_infos.append((recipe, max_possible_result_quantity))
+    def load_ingredients_for_recipe(
+        self, recipe, max_possible_result_quantity: int
+    ) -> None:
         ingredients_infos: list[IngredientsInfo] = [
             IngredientsInfo(
                 gid=ingredient_id,
@@ -155,7 +101,6 @@ class LoadRecipeFromGuildChestBehavior(Behavior):
             )
             for ingredient_id, quantity in zip(recipe.ingredientIds, recipe.quantities)
         ]
-        # sort by tab to avoid useless comeback
         ingredients_infos.sort(
             key=lambda ingredient_info: (
                 ingredient_info.tab == self.game_state.guild_chest.tab_number,
@@ -217,7 +162,7 @@ class LoadRecipeFromGuildChestBehavior(Behavior):
             ][ingredient_info.gid].item.uid,
             quantity=-ingredient_info.quantity * max_possible_result_quantity,
         )
-        self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(req))
+        self.send_message_delayed(req, SMALL_RANGE)
 
     def on_ingredient_loaded(
         self,
@@ -225,19 +170,3 @@ class LoadRecipeFromGuildChestBehavior(Behavior):
         max_possible_result_quantity: int,
     ):
         self.load_ingredient(ingredients_infos, max_possible_result_quantity)
-
-    def on_full_loaded(self):
-        self.event_manager.on(
-            ExchangeLeaveEvent,
-            callback=lambda _: self.finish(
-                remaining_recipes=self._remaining_recipes,
-                loaded_recipes_infos=self._loaded_recipes_infos,
-            ),
-            originator=self,
-            once=True,
-        )
-        self.run_timer(BASE_RANGE, self.leave_all_dialogs)
-
-    def leave_all_dialogs(self):
-        request = DialogLeaveRequest()
-        self.event_manager.send(request)

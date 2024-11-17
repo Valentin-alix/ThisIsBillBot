@@ -1,8 +1,10 @@
+from D3Mapping.d3_mapping.models.verified_mapping import VerifiedMapping
+
 # Iristeau : 35571040606
 # Lipapach : 27555660126
 
 GAME_VERIFIED_MAPPING_BY_OBF: dict[str, str] = {
-    # # "gpl": "GameMessage",
+    "gso": "GameMessage",
     "hbo": "SpellsEvent",  # 12728
     "hyp": "InventoryContentEvent",
     "jss": "CharacterCharacteristicsEvent",
@@ -75,6 +77,13 @@ GAME_VERIFIED_MAPPING_BY_OBF: dict[str, str] = {
     "jbr": "ExchangeCraftCountModifiedEvent",
     "jfz": "ExchangeReadyRequest",
     "iba": "InteractiveUseErrorEvent",
+    "jft": "ObjectAveragePricesEvent",
+    # CharacterCharacteristicUpgradeRequest
+    # CharacterLevelUpEvent
+    "jbl": "ExchangeBidBuyerStartedEvent",
+    "jcd": "ExchangeBidHouseTypeRequest",
+    "jeu": "ExchangeTypesExchangerDescriptionForUserEvent",
+    "jet": "ExchangeTypesItemsExchangerDescriptionForUserEvent",
 }
 GAME_MAPPING_FIELDS: dict[str, dict[str, str]] = {
     # "GameMessage": {"request": "exuz", "event": "exvb", "response": "exva"},
@@ -83,6 +92,11 @@ GAME_MAPPING_FIELDS: dict[str, dict[str, str]] = {
     "GameActionFightEvent": {
         "slide": "fgjg",
         "exchange_positions": "fgkn",
-        # "teleport_on_same_map": "ffus",
+        "teleport_on_same_map": "fgkm",
     },
 }
+
+GAME_VERIFIED_MAPPING = VerifiedMapping(
+    verified_msg_by_obf=GAME_VERIFIED_MAPPING_BY_OBF,
+    field_mappings=GAME_MAPPING_FIELDS,
+)

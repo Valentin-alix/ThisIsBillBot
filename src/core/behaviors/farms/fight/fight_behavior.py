@@ -16,7 +16,6 @@ from src.core.behaviors.farms.fight.fight_preparation_behavior import (
 from src.core.behaviors.farms.fight.fight_turn_behavior import FightTurnBehavior
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.signals.shared_farm_signals import SharedSignals
-from src.exceptions import UnhandledErrorCodeException
 from src.services.human_timings import HumanTimingsService
 from src.services.recorder import Recorder
 
@@ -68,15 +67,15 @@ class FightBehavior(Behavior):
         self.finish()
 
     def on_fight_preparation_behavior_finish(self, error_code: str | None):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+        self.raise_if_error(error_code)
 
     def on_player_turn(self):
         if self.game_state.fight.fight_turn > 100:
             self.logger.error("Bot Might be stuck")
             self.recorder.save(
                 os.path.join(
-                    RECORDING_FOLDER, f"fight_bot_stuck_{self.recorder.session_id}"
+                    RECORDING_FOLDER,
+                    f"fight_bot_stuck_{self.recorder.session_id}.jsonl",
                 )
             )
             self.shared_signals.launch_account.emit(self.login)

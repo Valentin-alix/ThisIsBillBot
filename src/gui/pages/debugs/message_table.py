@@ -1,8 +1,7 @@
-import json
 from typing import Any
 
-from cachetools import cached
-from PyQt5.QtCore import Qt
+from cachetools import LRUCache, cached
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QStandardItem
 from PyQt5.QtWidgets import QHeaderView
 from qfluentwidgets import TableWidget
@@ -11,11 +10,17 @@ from D3Mapping.d3_mapping.models.message import MessageInfo
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
 from src.gui.consts import GREEN_COLOR
+from src.gui.pages.debugs.message_filter_proxy import MessageFilterProxyModel
 
 
 class MessageTable(BaseTableWidget):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(proxy_model=MessageFilterProxyModel())
+        self._pending_messages: list[tuple[MessageInfo, bool]] = []
+        self._batch_timer = QTimer()
+        self._batch_timer.setInterval(50)
+        self._batch_timer.setSingleShot(True)
+        self._batch_timer.timeout.connect(self._flush_pending_messages)
         columns: list[ColumnInfo] = [
             ColumnInfo(name="Heure"),
             ColumnInfo(name="Origine"),
@@ -36,7 +41,7 @@ class MessageTable(BaseTableWidget):
 
         self.table.setEditTriggers(TableWidget.NoEditTriggers)
 
-    @cached(cache={}, key=lambda _, sub_msg_name, __: sub_msg_name)
+    @cached(cache=LRUCache(maxsize=500), key=lambda _, sub_msg_name, __: sub_msg_name)
     def deep_count_fields(self, sub_msg_name: str, dico: Any) -> int:
         if not isinstance(dico, dict):
             return 1
@@ -50,38 +55,49 @@ class MessageTable(BaseTableWidget):
         return count
 
     def add_row(self, msg_info: MessageInfo, was_send_from_proxy: bool):
-        date_field = QStandardItem(msg_info.received_time.strftime("%H:%M:%S"))
-        origin_field = QStandardItem("S" if msg_info.from_server else "C")
-        sub_msg_name_field = QStandardItem(msg_info.sub_msg_name)
+        self._pending_messages.append((msg_info, was_send_from_proxy))
+        if not self._batch_timer.isActive():
+            self._batch_timer.start()
 
-        count = ""
-        if msg_info.obf_msg_json:
-            count = str(
-                self.deep_count_fields(msg_info.sub_msg_name, msg_info.obf_msg_json)
+    def _flush_pending_messages(self):
+        if not self._pending_messages:
+            return
+
+        rows_to_add = []
+        for msg_info, was_send_from_proxy in self._pending_messages:
+            date_field = QStandardItem(msg_info.received_time.strftime("%H:%M:%S"))
+            origin_field = QStandardItem("S" if msg_info.from_server else "C")
+            sub_msg_name_field = QStandardItem(msg_info.sub_msg_name)
+
+            count = ""
+            if msg_info.obf_msg_json:
+                count = str(
+                    self.deep_count_fields(msg_info.sub_msg_name, msg_info.obf_msg_json)
+                )
+            elif msg_info.msg_json:
+                count = str(
+                    self.deep_count_fields(msg_info.sub_msg_name, msg_info.msg_json)
+                )
+            count_fields = QStandardItem(count)
+
+            content_msg_field = QStandardItem("")
+            content_msg_field.setData(msg_info, Qt.UserRole)
+
+            if was_send_from_proxy:
+                date_field.setData(GREEN_COLOR, Qt.BackgroundRole)
+                origin_field.setData(GREEN_COLOR, Qt.BackgroundRole)
+                sub_msg_name_field.setData(GREEN_COLOR, Qt.BackgroundRole)
+                count_fields.setData(GREEN_COLOR, Qt.BackgroundRole)
+
+            rows_to_add.append(
+                [
+                    date_field,
+                    origin_field,
+                    count_fields,
+                    sub_msg_name_field,
+                    content_msg_field,
+                ]
             )
-        elif msg_info.msg_json:
-            count = str(
-                self.deep_count_fields(msg_info.sub_msg_name, msg_info.msg_json)
-            )
-        count_fields = QStandardItem(count)
 
-        content_msg_field = QStandardItem(
-            json.dumps(msg_info.msg_json) + json.dumps(msg_info.obf_msg_json)
-        )
-        content_msg_field.setData(msg_info, Qt.UserRole)
-
-        if was_send_from_proxy:
-            date_field.setData(GREEN_COLOR, Qt.BackgroundRole)
-            origin_field.setData(GREEN_COLOR, Qt.BackgroundRole)
-            sub_msg_name_field.setData(GREEN_COLOR, Qt.BackgroundRole)
-            count_fields.setData(GREEN_COLOR, Qt.BackgroundRole)
-
-        self.table.append_row(
-            [
-                date_field,
-                origin_field,
-                count_fields,
-                sub_msg_name_field,
-                content_msg_field,
-            ]
-        )
+        self.table.item_model.append_rows(rows_to_add)
+        self._pending_messages.clear()

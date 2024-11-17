@@ -5,6 +5,7 @@ from PyQt5.QtGui import QStandardItem
 from D3Database.data_center.data_reader import DataReader
 from D3Database.data_center.i18n import I18N
 from D3Database.models.datas.recipe_root import RecipeItem
+from src.core.engine.crafts.recipes import get_benefice_on_craft_recipe
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
 
@@ -20,6 +21,7 @@ class RecipeTable(BaseTableWidget):
             ColumnInfo(name="Nom"),
             ColumnInfo(name="Métier"),
             ColumnInfo(name="Lvl"),
+            ColumnInfo(name="Bénéfice"),
         ]
         self.table.set_columns(columns)
         self.table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
@@ -48,8 +50,12 @@ class RecipeTable(BaseTableWidget):
         )
 
         recipe_lvl = QStandardItem(str(DataReader().item_by_id[recipe.resultId].level))
+
+        profit = get_benefice_on_craft_recipe(recipe) or "Unknown"
+        benefice = QStandardItem(str(profit))
+
         self.table.item_model.append_row(
-            [recipe_widget_item, job_name_widget, recipe_lvl]
+            [recipe_widget_item, job_name_widget, recipe_lvl, benefice]
         )
 
     @pyqtSlot(QModelIndex)

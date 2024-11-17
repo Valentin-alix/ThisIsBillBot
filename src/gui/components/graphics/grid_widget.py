@@ -149,20 +149,11 @@ class GridView(QGraphicsView):
 
         self.scale(0.75, 0.75)
 
-        self.grid_signals.count_actor_on_cell_id.connect(
-            profiled_slot(self.on_new_count_actor_on_cell_id)
-        )
         self.grid_signals.count_actor_on_cell_id_batch.connect(
             profiled_slot(self.on_new_count_actor_on_cell_id_batch)
         )
-        self.grid_signals.set_stated_element_on_cell_id.connect(
-            profiled_slot(self.on_set_stated_element_on_cell_id)
-        )
         self.grid_signals.set_stated_element_on_cell_id_batch.connect(
             profiled_slot(self.on_set_stated_element_on_cell_id_batch)
-        )
-        self.grid_signals.set_obstacle_on_cell_id.connect(
-            profiled_slot(self.on_set_obstacle_on_cell_id)
         )
         self.grid_signals.set_obstacle_on_cell_id_batch.connect(
             profiled_slot(self.on_set_obstacle_on_cell_id_batch)
@@ -229,49 +220,33 @@ class GridView(QGraphicsView):
             else:
                 cell_square.setBrush(SquareCell.EMPTY)
 
-    @pyqtSlot(int, int)
-    def on_new_count_actor_on_cell_id(self, cell_id: int, count_actor: int):
-        mp = MapPoint.from_cell_id(cell_id)
-        self.cell_state_by_coord[(mp.x, mp.y)].set_count_actor(count_actor)
-
     @pyqtSlot(list)
     def on_new_count_actor_on_cell_id_batch(self, items: list[tuple[int, int]]):
+        self.setUpdatesEnabled(False)
         for cell_id, count_actor in items:
             mp = MapPoint.from_cell_id(cell_id)
             self.cell_state_by_coord[(mp.x, mp.y)].set_count_actor(count_actor)
-
-    @pyqtSlot(int, object, object)
-    def on_set_stated_element_on_cell_id(
-        self,
-        cell_id: int,
-        stated_element: StatedElement | None,
-        collectable: Collectable | None,
-    ):
-        mp = MapPoint.from_cell_id(cell_id)
-        self.cell_state_by_coord[(mp.x, mp.y)].set_state_element(
-            stated_element, collectable
-        )
+        self.setUpdatesEnabled(True)
 
     @pyqtSlot(list)
     def on_set_stated_element_on_cell_id_batch(
         self, items: list[tuple[int, StatedElement | None, Collectable | None]]
     ):
+        self.setUpdatesEnabled(False)
         for cell_id, stated_element, collectable in items:
             mp = MapPoint.from_cell_id(cell_id)
             self.cell_state_by_coord[(mp.x, mp.y)].set_state_element(
                 stated_element, collectable
             )
-
-    @pyqtSlot(int, bool)
-    def on_set_obstacle_on_cell_id(self, cell_id: int, is_obstacle: bool):
-        mp = MapPoint.from_cell_id(cell_id)
-        self.cell_state_by_coord[(mp.x, mp.y)].set_is_obstacle(is_obstacle)
+        self.setUpdatesEnabled(True)
 
     @pyqtSlot(list)
     def on_set_obstacle_on_cell_id_batch(self, items: list[tuple[int, bool]]):
+        self.setUpdatesEnabled(False)
         for cell_id, is_obstacle in items:
             mp = MapPoint.from_cell_id(cell_id)
             self.cell_state_by_coord[(mp.x, mp.y)].set_is_obstacle(is_obstacle)
+        self.setUpdatesEnabled(True)
 
     @pyqtSlot(MapPoint)
     def on_debug_white_cell(self, mp: MapPoint):

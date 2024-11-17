@@ -58,8 +58,10 @@ class InventoryTab(QWidget):
 
     @pyqtSlot(list)
     def on_added_object_items_batch(self, objects: list[ObjectItemInventory]):
+        self.list_widget.setUpdatesEnabled(False)
         for object_item in objects:
             self._add_item_to_list(object_item)
+        self.list_widget.setUpdatesEnabled(True)
 
     def _add_item_to_list(self, object_item: ObjectItemInventory):
         list_item = QListWidgetItem(self.list_widget)

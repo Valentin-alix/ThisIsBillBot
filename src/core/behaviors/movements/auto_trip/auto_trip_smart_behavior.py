@@ -3,6 +3,7 @@ from functools import partial
 
 from D3Database.data_center.data_reader import DataReader
 from D3Database.enums.area_enum import AreaEnum
+from D3Database.enums.npc_message_id_enum import NpcAskMessageIdEnum
 from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
@@ -11,14 +12,19 @@ from src.core.behaviors.movements.auto_trip.auto_trip_explorator_behavior import
     AutoTripExploratorBehavior,
 )
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
+from src.core.engine.npcs.npc_dialog_info import ReplyInfo
 from src.core.engine.npcs.npc_info import NpcInfo
-from src.exceptions import UnhandledErrorCodeException
 
 NPC_PORTAL_INCARNAM = NpcInfo(
     npc_map_id=153880835,
     npc_action_id=3,
     npc_id=-20001,
-    include_reply_ids=[36982, 36980],
+    reply_info_by_message_id={
+        NpcAskMessageIdEnum.HESITATE_BEFORE_GO_ANKARNOOB: ReplyInfo(reply_id=36982),
+        NpcAskMessageIdEnum.CONFIRM_GO_ASTRUB: ReplyInfo(
+            reply_id=36980, do_finish_after=True
+        ),
+    },
 )
 
 
@@ -73,18 +79,15 @@ class AutoTripSmartBehavior(Behavior):
 
         self.npc_dialog_behavior.start(
             callback=partial(
-                self.on_npc_dialog_portal_incarnam_finished, dst_map_ids=dst_map_ids
+                self.on_npc_dialog_behavior_finished, dst_map_ids=dst_map_ids
             ),
             parent=self,
             npc_dialog_info=NPC_PORTAL_INCARNAM,
         )
 
-    def on_npc_dialog_portal_incarnam_finished(
+    def on_npc_dialog_behavior_finished(
         self, error_code: str | None, dst_map_ids: set[int]
     ):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
-
         self.event_manager.on(
             MapComplementaryInformationEvent,
             callback=partial(

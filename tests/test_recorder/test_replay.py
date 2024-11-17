@@ -240,7 +240,5 @@ class TestReplayerIntegration(unittest.TestCase):
         bot = generate_random_bot()
         bot.replay_handler.on_replay_requested(recording_path)
 
-        print(bot.game_state.fight.count_casted_by_spell_id_on_current_turn)
-
         for thread, worker in bot._thread_worker_runnings:
             thread.wait()

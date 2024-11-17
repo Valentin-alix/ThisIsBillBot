@@ -13,8 +13,7 @@ from src.core.config import BASE_RANGE
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.movements.world.map_position import get_dist_to_maps
 from src.core.engine.npcs.npc_info import NpcInfo
-from src.core.game_constants import SALE_HOTELS_BY_CATEGORY
-from src.exceptions import UnhandledErrorCodeException
+from src.core.frames.sale_hotel_frame import SALE_HOTELS_BY_CATEGORY
 
 
 @dataclass
@@ -44,8 +43,7 @@ class EnterSaleHotelBehavior(Behavior):
         )
 
     def on_auto_trip_smart_behavior(self, error_code: str | None, npc_info: NpcInfo):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+        self.raise_if_error(error_code)
         sale_hotel_interactive = next(
             interactive
             for interactive in self.game_state.interactive.interactive_element_by_id.values()

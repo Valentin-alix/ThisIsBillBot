@@ -2,7 +2,6 @@ import threading
 
 from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
 
-from D3Mapping.d3_mapping.signals.message_signals import MessageInfoSignals
 from src.core.behaviors.communication.chat_behavior import ChatBehavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
@@ -65,6 +64,7 @@ from src.core.behaviors.storage.loads.load_from_bank_behavior import (
 from src.core.behaviors.storage.loads.load_from_guild_chest_behavior import (
     LoadFromGuildChestBehavior,
 )
+from src.core.behaviors.storage.loads.load_recipe_behavior import LoadRecipeBehavior
 from src.core.behaviors.storage.loads.load_recipe_from_bank_chest_behavior import (
     LoadRecipeFromBankChestBehavior,
 )
@@ -86,17 +86,14 @@ from src.core.engine.fights.reachable_cells.fight_reachable_cells import (
 )
 from src.core.engine.movements.map.map_data_adapter import DataMapProvider
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
-from src.core.engine.movements.world.astar_allow_capability import (
-    AstarAllowHavreSac,
-)
-from src.core.engine.movements.world.astar_no_interactive import (
-    AstarNoInteractive,
-)
+from src.core.engine.movements.world.astar_allow_capability import AstarAllowHavreSac
+from src.core.engine.movements.world.astar_no_interactive import AstarNoInteractive
 from src.core.engine.movements.world.astar_vertice import AstarWorld
 from src.core.engine.movements.world.world_path_finder import WorldPathFinder
 from src.core.engine.weights.weighted_path import WeightedPath
 from src.core.events_manager.event_manager import EventManager
 from src.core.frames.chat_frame import ChatFrame
+from src.core.frames.craft_frame import CraftFrame
 from src.core.frames.entity_frame import EntityFrame
 from src.core.frames.fight_frame import FightFrame
 from src.core.frames.guild_chest_frame import GuildChestFrame
@@ -106,9 +103,11 @@ from src.core.frames.map_frame import MapFrame
 from src.core.frames.player_frame import PlayerFrame
 from src.core.frames.sale_hotel_frame import SaleHotelFrame
 from src.core.frames.server_frame import ServerFrame
+from src.core.frames.stats_frame import StatsFrame
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.grid_signals import GridSignals
 from src.core.signals.log_signals import LogSignals
+from src.core.signals.message_signals import MessageInfoSignals
 from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.signals.replay_signals import ReplaySignals
 from src.core.signals.shared_farm_signals import SharedSignals
@@ -139,7 +138,7 @@ class BotFactory:
 
         logger = Logger(title=account["apikey"]["login"], log_signals=log_signals)
 
-        event_manager = EventManager(logger=logger)
+        event_manager = EventManager(_logger=logger)
 
         # state
         game_state = StateFactory.create_game_state(
@@ -176,7 +175,7 @@ class BotFactory:
         entity_frame = EntityFrame(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             game_info_signals=game_info_signals,
             inventory_signals=inventory_signals,
             is_playing_event=is_playing_event,
@@ -186,21 +185,21 @@ class BotFactory:
             game_state=game_state,
             game_info_signals=game_info_signals,
             inventory_signals=inventory_signals,
-            logger=logger,
+            _logger=logger,
             is_playing_event=is_playing_event,
         )
         interactive_frame = InteractiveFrame(
             event_manager=event_manager,
             inventory_signals=inventory_signals,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             game_info_signals=game_info_signals,
             is_playing_event=is_playing_event,
         )
         inventory_frame = InventoryFrame(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             game_info_signals=game_info_signals,
             inventory_signals=inventory_signals,
             is_playing_event=is_playing_event,
@@ -210,7 +209,7 @@ class BotFactory:
             game_state=game_state,
             world_signals=world_signals,
             inventory_signals=inventory_signals,
-            logger=logger,
+            _logger=logger,
             game_info_signals=game_info_signals,
             is_playing_event=is_playing_event,
         )
@@ -219,14 +218,14 @@ class BotFactory:
             game_info_signals=game_info_signals,
             inventory_signals=inventory_signals,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             is_playing_event=is_playing_event,
         )
         fight_frame = FightFrame(
             event_manager=event_manager,
             game_state=game_state,
             inventory_signals=inventory_signals,
-            logger=logger,
+            _logger=logger,
             game_info_signals=game_info_signals,
             is_playing_event=is_playing_event,
         )
@@ -235,11 +234,11 @@ class BotFactory:
             game_state=game_state,
             game_info_signals=game_info_signals,
             inventory_signals=inventory_signals,
-            logger=logger,
+            _logger=logger,
             is_playing_event=is_playing_event,
         )
         guild_chest_frame = GuildChestFrame(
-            logger=logger,
+            _logger=logger,
             event_manager=event_manager,
             inventory_signals=inventory_signals,
             game_state=game_state,
@@ -251,7 +250,23 @@ class BotFactory:
             inventory_signals=inventory_signals,
             game_state=game_state,
             event_manager=event_manager,
-            logger=logger,
+            _logger=logger,
+            is_playing_event=is_playing_event,
+        )
+        craft_frame = CraftFrame(
+            event_manager=event_manager,
+            game_state=game_state,
+            game_info_signals=game_info_signals,
+            inventory_signals=inventory_signals,
+            _logger=logger,
+            is_playing_event=is_playing_event,
+        )
+        stats_frame = StatsFrame(
+            event_manager=event_manager,
+            game_info_signals=game_info_signals,
+            game_state=game_state,
+            inventory_signals=inventory_signals,
+            _logger=logger,
             is_playing_event=is_playing_event,
         )
 
@@ -259,19 +274,19 @@ class BotFactory:
         map_change_behavior = MapChangeBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
         )
         map_move_behavior = MapMoveBehavior(
             event_manager=event_manager,
             game_state=game_state,
             path_finding=path_finding,
-            logger=logger,
+            _logger=logger,
         )
         interactive_behavior = InteractiveBehavior(
             game_state=game_state,
             event_manager=event_manager,
             map_move_behavior=map_move_behavior,
-            logger=logger,
+            _logger=logger,
             path_finding=path_finding,
         )
         edge_behavior = EdgeBehavior(
@@ -281,7 +296,7 @@ class BotFactory:
             map_change_behavior=map_change_behavior,
             map_move_behavior=map_move_behavior,
             path_finding=path_finding,
-            logger=logger,
+            _logger=logger,
         )
         recorder = Recorder()
         auto_trip_behavior = AutoTripBehavior(
@@ -290,12 +305,12 @@ class BotFactory:
             game_state=game_state,
             world_signals=world_signals,
             edge_behavior=edge_behavior,
-            logger=logger,
+            _logger=logger,
         )
         npc_dialog_behavior = NpcDialogBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
         )
         astar_allow_havre_sac = AstarAllowHavreSac(game_state=game_state)
         waypoint_behavior = WaypointBehavior(
@@ -304,7 +319,7 @@ class BotFactory:
             game_state=game_state,
             auto_trip_behavior=auto_trip_behavior,
             astar_allow_havre_sac=astar_allow_havre_sac,
-            logger=logger,
+            _logger=logger,
             pathfinding=path_finding,
         )
         auto_trip_zaap_behavior = AutoTripZaapBehavior(
@@ -312,20 +327,20 @@ class BotFactory:
             event_manager=event_manager,
             game_state=game_state,
             waypoint_behavior=waypoint_behavior,
-            logger=logger,
+            _logger=logger,
         )
         auto_trip_explorator_behavior = AutoTripExploratorBehavior(
             event_manager=event_manager,
             game_state=game_state,
             auto_trip_zaap_behavior=auto_trip_zaap_behavior,
-            logger=logger,
+            _logger=logger,
         )
         auto_trip_world_behavior = AutoTripSmartBehavior(
             event_manager=event_manager,
             game_state=game_state,
             npc_dialog_behavior=npc_dialog_behavior,
             auto_trip_explorator_behavior=auto_trip_explorator_behavior,
-            logger=logger,
+            _logger=logger,
         )
         astar_no_interactive = AstarNoInteractive(game_state=game_state)
         fight_movement_behavior = FightMovementBehavior(
@@ -333,23 +348,23 @@ class BotFactory:
             game_state=game_state,
             event_manager=event_manager,
             path_finding=path_finding,
-            logger=logger,
+            _logger=logger,
             fight_reachable_cells=fight_reachable_cells,
         )
         fight_placement_behavior = FightPreparationBehavior(
             game_state=game_state,
             event_manager=event_manager,
             fight_movement_behavior=fight_movement_behavior,
-            logger=logger,
+            _logger=logger,
         )
         fight_spell_behavior = FightSpellBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
         )
 
         fight_turn_behavior = FightTurnBehavior(
-            logger=logger,
+            _logger=logger,
             fight_spell_behavior=fight_spell_behavior,
             event_manager=event_manager,
             fight_movement_behavior=fight_movement_behavior,
@@ -362,7 +377,7 @@ class BotFactory:
             game_state=game_state,
             fight_preparation_behavior=fight_placement_behavior,
             path_finding=path_finding,
-            logger=logger,
+            _logger=logger,
             fight_turn_behavior=fight_turn_behavior,
             recorder=recorder,
             login=account["apikey"]["login"],
@@ -374,11 +389,11 @@ class BotFactory:
             interactive_behavior=interactive_behavior,
             game_state=game_state,
             path_finding=path_finding,
-            logger=logger,
+            _logger=logger,
         )
         enter_guild_chest_behavior = EnterGuildChestBehavior(
             interactive_behavior=interactive_behavior,
-            logger=logger,
+            _logger=logger,
             event_manager=event_manager,
             auto_trip_world_behavior=auto_trip_world_behavior,
             path_finding=path_finding,
@@ -387,7 +402,7 @@ class BotFactory:
         unload_in_guild_chest_behavior = UnloadInGuildChestBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             interactive_behavior=interactive_behavior,
             path_finding=path_finding,
             auto_trip_world_behavior=auto_trip_world_behavior,
@@ -397,28 +412,27 @@ class BotFactory:
         enter_bank_chest_behavior = EnterBankChestBehavior(
             game_state=game_state,
             auto_trip_world_behavior=auto_trip_world_behavior,
-            logger=logger,
+            _logger=logger,
             event_manager=event_manager,
             npc_dialog_behavior=npc_dialog_behavior,
         )
 
         unload_in_bank_behavior = UnloadInBankBehavior(
             event_manager=event_manager,
-            npc_dialog_behavior=npc_dialog_behavior,
             auto_trip_world_behavior=auto_trip_world_behavior,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             enter_bank_chest_behavior=enter_bank_chest_behavior,
         )
         enter_sale_hotel_behavior = EnterSaleHotelBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             auto_trip_smart_behavior=auto_trip_world_behavior,
             interactive_behavior=interactive_behavior,
         )
         enter_sale_hotel_sell_behavior = EnterSaleHotelSellBehavior(
-            logger=logger,
+            _logger=logger,
             game_state=game_state,
             event_manager=event_manager,
             enter_sale_hotel_behavior=enter_sale_hotel_behavior,
@@ -427,12 +441,12 @@ class BotFactory:
         unload_behavior = UnloadBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             unload_in_bank_behavior=unload_in_bank_behavior,
             unload_in_guild_chest_behavior=unload_in_guild_chest_behavior,
         )
         load_recipe_from_guild_chest_behavior = LoadRecipeFromGuildChestBehavior(
-            logger=logger,
+            _logger=logger,
             game_state=game_state,
             unload_behavior=unload_behavior,
             event_manager=event_manager,
@@ -440,14 +454,14 @@ class BotFactory:
         )
         load_from_guild_chest_behavior = LoadFromGuildChestBehavior(
             event_manager=event_manager,
-            logger=logger,
+            _logger=logger,
             unload_behavior=unload_behavior,
             game_state=game_state,
             enter_guild_chest_behavior=enter_guild_chest_behavior,
         )
         load_from_bank_behavior = LoadFromBankBehavior(
             event_manager=event_manager,
-            logger=logger,
+            _logger=logger,
             unload_behavior=unload_behavior,
             game_state=game_state,
             enter_bank_behavior=enter_bank_chest_behavior,
@@ -455,7 +469,7 @@ class BotFactory:
         sale_hotel_prices_behavior = SaleHotelPricesBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             load_from_bank_behavior=load_from_bank_behavior,
             enter_sale_hotel_sell_behavior=enter_sale_hotel_sell_behavior,
             load_from_guild_chest_behavior=load_from_guild_chest_behavior,
@@ -469,12 +483,12 @@ class BotFactory:
             weighted_path=weighted_path,
             world_signals=world_signals,
             edge_behavior=edge_behavior,
-            logger=logger,
+            _logger=logger,
         )
         mule_give_behavior = MuleGiveBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             auto_trip_smart_behavior=auto_trip_world_behavior,
         )
 
@@ -482,19 +496,25 @@ class BotFactory:
         load_recipe_from_bank_chest_behavior = LoadRecipeFromBankChestBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             enter_bank_chest_behavior=enter_bank_chest_behavior,
             unload_behavior=unload_behavior,
+        )
+        load_recipe_behavior = LoadRecipeBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            _logger=logger,
+            load_recipe_from_bank_chest_behavior=load_recipe_from_bank_chest_behavior,
+            load_recipe_from_guild_chest_behavior=load_recipe_from_guild_chest_behavior,
         )
         craft_behavior = CraftBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
-            load_recipe_from_guild_chest_behavior=load_recipe_from_guild_chest_behavior,
+            _logger=logger,
+            load_recipe_behavior=load_recipe_behavior,
             interactive_behavior=interactive_behavior,
             auto_trip_smart_behavior=auto_trip_world_behavior,
             pathfinding=path_finding,
-            load_recipe_from_bank_chest_behavior=load_recipe_from_bank_chest_behavior,
         )
         harvester = HarvesterBehavior(
             mule_give_behavior=mule_give_behavior,
@@ -504,7 +524,7 @@ class BotFactory:
             unload_behavior=unload_behavior,
             random_farm_behavior=random_farm_behavior,
             fight_behavior=fight_behavior,
-            logger=logger,
+            _logger=logger,
             craft_behavior=craft_behavior,
             sale_hotel_prices_behavior=sale_hotel_prices_behavior,
         )
@@ -514,7 +534,9 @@ class BotFactory:
             map_move_behavior=map_move_behavior,
             path_finding=path_finding,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
+            bot_signals=harvester_signals,
+            game_info_signals=game_info_signals,
         )
         fighter_behavior = FighterBehavior(
             event_manager=event_manager,
@@ -524,28 +546,28 @@ class BotFactory:
             random_farm_behavior=random_farm_behavior,
             game_state=game_state,
             unload_behavior=unload_behavior,
-            logger=logger,
+            _logger=logger,
             craft_behavior=craft_behavior,
             sale_hotel_prices_behavior=sale_hotel_prices_behavior,
             mule_give_behavior=mule_give_behavior,
         )
 
         chat_behavior = ChatBehavior(
-            event_manager=event_manager, game_state=game_state, logger=logger
+            event_manager=event_manager, game_state=game_state, _logger=logger
         )
         fake_bad_movement_behavior = FakeBadMovementBehavior(
-            event_manager=event_manager, game_state=game_state, logger=logger
+            event_manager=event_manager, game_state=game_state, _logger=logger
         )
         sale_hotel_scraping_behavior = SaleHotelScrapingBehavior(
             event_manager=event_manager,
             enter_sale_hotel_behavior=enter_sale_hotel_behavior,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
         )
         mule_accept_kamas_behavior = MuleAcceptBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             auto_trip_smart_behavior=auto_trip_world_behavior,
             unload_behavior=unload_behavior,
             sale_hotel_prices_behavior=sale_hotel_prices_behavior,
@@ -554,7 +576,7 @@ class BotFactory:
         dungeon_behavior = DungeonBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             npc_dialog_behavior=npc_dialog_behavior,
             attacker_behavior=attacker_behavior,
             auto_trip_smart_behavior=auto_trip_world_behavior,
@@ -568,7 +590,7 @@ class BotFactory:
             unload_behavior=unload_behavior,
             random_farm_behavior=random_farm_behavior,
             fight_behavior=fight_behavior,
-            logger=logger,
+            _logger=logger,
             sale_hotel_prices_behavior=sale_hotel_prices_behavior,
             attacker_behavior=attacker_behavior,
             craft_behavior=craft_behavior,
@@ -577,7 +599,7 @@ class BotFactory:
         auto_bot_behavior = AutoBotBehavior(
             event_manager=event_manager,
             game_state=game_state,
-            logger=logger,
+            _logger=logger,
             fighter_behavior=fighter_behavior,
             harvester_behavior=harvester,
             multi_farming_behavior=multi_farming_behavior,
@@ -624,9 +646,11 @@ class BotFactory:
                 server_frame,
                 guild_chest_frame,
                 sale_hotel_frame,
+                craft_frame,
+                stats_frame,
             ],
             world_signals=world_signals,
-            logger=logger,
+            _logger=logger,
             log_signals=log_signals,
             game_state=game_state,
             fighter_behavior=fighter_behavior,

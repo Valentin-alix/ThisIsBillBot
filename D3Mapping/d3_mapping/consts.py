@@ -1,3 +1,4 @@
+import math
 import os
 from enum import StrEnum
 from pathlib import Path
@@ -80,8 +81,18 @@ EXTRA_RELIABILITY_ENUM = 3
 EXTRA_RELIABILITY_MESSAGE = 2
 EXTRA_RELIABILITY_WITH_VALIDATOR = 5
 
+MAX_PULP_ITERATIONS = 50
+RELIABILITY_LOG_BASE = 2.0
+MAX_PARALLEL_WORKERS = 4
+SIMILARITY_DIVERGENCE_THRESHOLD = 0.1
+
 
 class EntryMsg(StrEnum):
     REQUEST = "Request"
     RESPONSE = "Response"
     EVENT = "Event"
+
+
+def log_reliability(value: float, base: float = RELIABILITY_LOG_BASE) -> float:
+    """Compute log reliability with consistent offset to avoid log(0)"""
+    return math.log(1 + value, base)

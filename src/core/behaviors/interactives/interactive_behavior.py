@@ -62,6 +62,7 @@ class InteractiveBehavior(Behavior):
             MapMoveError.CANCELED_MOVEMENT,
         ]:
             if self.game_state.map.is_in_map_transition:
+                self.logger.info("Is in map transition, finish")
                 return self.finish()
 
             move_path = self.path_finding.find_path(

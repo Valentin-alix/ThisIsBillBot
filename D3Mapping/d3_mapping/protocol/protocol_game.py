@@ -13,7 +13,6 @@ from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
 
-from D3Database.utils import cache
 from D3Mapping.d3_mapping.consts import TYPE_URL_PREFIX
 from D3Mapping.d3_mapping.controller.instancied_msg_info_controller import (
     InstanciedMessageInfoController,
@@ -28,32 +27,30 @@ from D3Mapping.d3_mapping.resources.protos.game.game_message_pb2 import GameMess
 POOL: descriptor_pool.DescriptorPool = descriptor_pool.Default()
 
 
-@cache
 def get_mapping_proto_to_real() -> Mapping[str, tuple[str, Mapping[str, str | None]]]:
     return {
-        obf_msg_name: (
-            info.clear_msg_namespace[1:],
+        info.obf_msg_namespace: (
+            clear_msg_namespace[1:],
             {
-                obf_field: clear_info[1] if clear_info is not None else None
-                for obf_field, clear_info in info.field_mapping.items()
+                obf_field: clear_field if clear_field is not None else None
+                for obf_field, clear_field in info.field_mapping.items()
             },
         )
-        for obf_msg_name, info in MessageMappingController.get_mapping_game().items()
+        for clear_msg_namespace, info in MessageMappingController.get_mapping_game().items()
     }
 
 
-@cache
 def get_mapping_proto_to_obf() -> Mapping[str, tuple[str, Mapping[str, str]]]:
     return {
-        info.clear_msg_namespace[1:]: (
-            obf_msg_name,
+        clear_msg_namespace[1:]: (
+            info.obf_msg_namespace,
             {
-                clear_info[1]: obf_field
-                for obf_field, clear_info in info.field_mapping.items()
-                if clear_info is not None
+                clear_field: obf_field
+                for obf_field, clear_field in info.field_mapping.items()
+                if clear_field is not None
             },
         )
-        for obf_msg_name, info in MessageMappingController.get_mapping_game().items()
+        for clear_msg_namespace, info in MessageMappingController.get_mapping_game().items()
     }
 
 
@@ -255,12 +252,10 @@ def get_obf_msg_from_clear(
     return transformer(clear_msg) if transformer else None
 
 
-@cache
 def get_msg_transformer_to_obf(msg_full_name: str):
     return get_msg_transformer(msg_full_name, get_mapping_proto_to_obf())
 
 
-@cache
 def get_msg_transformer_to_clear(msg_full_name: str):
     return get_msg_transformer(msg_full_name, get_mapping_proto_to_real())
 

@@ -22,16 +22,10 @@ load_dotenv(os.path.join(Path(__file__).parent.parent.parent, ".env"))
 sys.path.append(os.path.join(Path(__file__).parent.parent.parent))
 
 from D3Mapping.d3_mapping.protocol.protocol import decode_varint_size
-from D3Mapping.d3_mapping.protocol.protocol_connection import (
-    get_conn_msg,
-    get_conn_msg_info,
-)
-from D3Mapping.d3_mapping.protocol.protocol_game import (
-    get_game_msg,
-    get_game_msg_info,
-)
-from D3Mapping.d3_mapping.signals.message_signals import MessageInfoSignals
+from D3Mapping.d3_mapping.protocol.protocol_connection import get_conn_msg, get_conn_msg_info
+from D3Mapping.d3_mapping.protocol.protocol_game import get_game_msg, get_game_msg_info
 from D3Mapping.d3_mapping.utils import get_local_ip
+from src.core.signals.message_signals import MessageInfoSignals
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
 from src.gui.pages.debugs.sniffer import SnifferWidget
 from tests.fixtures.random_generator import generate_random_bot
@@ -107,9 +101,7 @@ class Sniffer:
             # self.msg_info_signals.msg_info.emit(msg_infos, False)
             # return
             _, clear_sub_msg, obf_sub_msg, uid_value = get_game_msg(content, True)
-            msg_infos = get_game_msg_info(
-                clear_sub_msg, obf_sub_msg, uid_value, from_server, True
-            )
+            msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid_value, from_server, True)
             self.msg_info_signals.msg_info.emit(msg_infos, False)
         except Exception:
             print(traceback.format_exc())

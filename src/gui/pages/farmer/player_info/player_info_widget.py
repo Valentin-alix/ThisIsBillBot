@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Any
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import SingleDirectionScrollArea
 
@@ -37,6 +37,8 @@ class PlayerInfoWidget(QWidget):
         self.weight_max: int = 0
 
         self.group_by_key: dict[str, PropertyGroupWidget] = {}
+        self._pending_updates: dict[tuple[str, str], Any] = {}
+        self._update_scheduled = False
 
         self.bot.game_info_signals.character_id.connect(
             partial(self.on_received_property, "Joueur", "Player id")
@@ -107,8 +109,17 @@ class PlayerInfoWidget(QWidget):
         )
 
     def on_received_property(self, group_key: str, key: str, value: Any):
-        group_widget = self.get_or_create_group_widget(group_key)
-        group_widget.add_or_update_property_label(key, str(value))
+        self._pending_updates[(group_key, key)] = value
+        if not self._update_scheduled:
+            self._update_scheduled = True
+            QTimer.singleShot(0, self._flush_updates)
+
+    def _flush_updates(self):
+        for (group_key, key), value in self._pending_updates.items():
+            group_widget = self.get_or_create_group_widget(group_key)
+            group_widget.add_or_update_property_label(key, str(value))
+        self._pending_updates.clear()
+        self._update_scheduled = False
 
     def get_or_create_group_widget(self, group_key: str) -> PropertyGroupWidget:
         group_widget = self.group_by_key.get(group_key)

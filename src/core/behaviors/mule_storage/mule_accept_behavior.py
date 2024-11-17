@@ -35,7 +35,6 @@ from src.core.config import (
     MULE_BANK_MAP_ID,
     USEFUL_UNLOAD,
 )
-from src.exceptions import UnhandledErrorCodeException
 
 
 @dataclass
@@ -82,8 +81,7 @@ class MuleAcceptBehavior(Behavior):
             self.stand_ready_for_exchanges()
 
     def on_sale_hotel_price_behavior_finished(self, error_code: str | None):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+        self.raise_if_error(error_code)
         self.go_bank_map()
 
     def stand_ready_for_exchanges(self):
@@ -99,8 +97,9 @@ class MuleAcceptBehavior(Behavior):
         )
 
     def on_inactivity_go_scraping(self):
-        self.event_manager.clear_listener_by_origin_and_type(
-            ExchangeRequestedTradeEvent, self
+        self.unregister_listener(
+            ExchangeRequestedTradeEvent,
+            reason="Inactivity timeout, switching to scraping mode",
         )
         self.sale_hotel_scraping_behavior.start(
             callback=lambda _: self.go_bank_map(), parent=self
@@ -119,9 +118,7 @@ class MuleAcceptBehavior(Behavior):
             once=True,
             override_on_self=True,
         )
-        self.run_timer(
-            BASE_RANGE, lambda: self.event_manager.send(ExchangeAcceptRequest())
-        )
+        self.send_message_delayed(ExchangeAcceptRequest(), BASE_RANGE)
 
     def on_exchange_started_with_pods_event(self, msg: ExchangeStartedWithPodsEvent):
         self.event_manager.on(

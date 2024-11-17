@@ -29,7 +29,7 @@ from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.engine.movements.world.astar_allow_capability import (
     AstarAllowHavreSac,
 )
-from src.exceptions import UnexpectedStateException, UnhandledErrorCodeException
+from src.exceptions import UnexpectedStateException
 
 
 class WaypointErrorCode(StrEnum):
@@ -68,8 +68,7 @@ class WaypointBehavior(Behavior):
         self.on_map_allowing_havre_sac(map_id)
 
     def on_auto_trip_behavior_finished(self, error_code: str | None, map_id: int):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+        self.raise_if_error(error_code)
         self.on_map_allowing_havre_sac(map_id)
 
     def on_map_allowing_havre_sac(self, map_id: int):
@@ -106,10 +105,7 @@ class WaypointBehavior(Behavior):
                 once=True,
                 originator=self,
             )
-            return self.run_timer(
-                BASE_RANGE,
-                lambda: self.event_manager.send(HavenBagExitRequest()),
-            )
+            return self.send_message_delayed(HavenBagExitRequest(), BASE_RANGE)
 
         mp_zaap = MapPoint.from_cell_id(
             self.game_state.interactive.stated_element_by_id[zaap.element_id][0].cell_id
@@ -127,8 +123,7 @@ class WaypointBehavior(Behavior):
         )
 
     def on_zaap_used(self, error_code: str | None, map_id: int):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+        self.raise_if_error(error_code)
 
         self.event_manager.on(
             MapComplementaryInformationEvent,
@@ -141,7 +136,7 @@ class WaypointBehavior(Behavior):
         req = TeleportRequest(
             source_type=Teleporter.TELEPORTER_HAVEN_BAG, map_id=map_id
         )
-        self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
+        self.send_message_delayed(req, BASE_RANGE)
 
     def on_map_complementary_information_event(
         self, msg: MapComplementaryInformationEvent, map_id: int

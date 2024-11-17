@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime
 from threading import Timer
 from typing import Callable, Type, TypeVar
 
@@ -21,6 +22,7 @@ class Listener[T]:
 
     _deleted: bool = field(init=False, default=False)
     _timeout_timer: Timer | None = field(init=False, default=None)
+    registered_at: datetime = field(init=False, default_factory=datetime.now)
 
     def __post_init__(self):
         if self.timeout and self.on_timeout is not None:
@@ -48,3 +50,6 @@ class Listener[T]:
 
     def __lt__(self, other: "Listener") -> bool:
         return self.priority < other.priority
+
+    def __hash__(self) -> int:
+        return id(self)

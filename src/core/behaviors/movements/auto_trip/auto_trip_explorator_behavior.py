@@ -9,7 +9,6 @@ from src.core.behaviors.movements.auto_trip.auto_trip_zaap_behavior import (
 )
 from src.core.engine.movements.world.map_position import get_dist_to_maps
 from src.core.engine.movements.world.waypoint import get_near_waypoint
-from src.exceptions import UnhandledErrorCodeException
 
 
 @dataclass
@@ -50,8 +49,7 @@ class AutoTripExploratorBehavior(Behavior):
     ):
         if error_code is AutoTripErrorCode.PATH_NOT_FOUND:
             return self.on_explored_near_zaap(map_ids)
-        elif error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+        self.raise_if_error(error_code)
         self.on_explored_near_zaap(map_ids)
 
     def on_explored_near_zaap(self, map_ids: set[int]):

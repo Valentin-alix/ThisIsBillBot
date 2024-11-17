@@ -1,7 +1,7 @@
 import random
 from dataclasses import field
 from functools import partial
-from typing import Callable, Iterable
+from typing import Callable
 
 from scapy.all import dataclass
 
@@ -9,6 +9,7 @@ from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     FightMapInformationEvent,
 )
 from D3Mapping.d3_mapping.resources.protos.game.roleplay_pb2 import AttackMonsterRequest
+from src.controller.forbidden_monster_controller import ForbiddenMonsterController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
@@ -17,7 +18,8 @@ from src.core.engine.weights.fighter.weight_monsters import (
     MonsterGroupInfo,
     get_weight_monster_group_info,
 )
-from src.exceptions import UnhandledErrorCodeException
+from src.core.signals.bot_signals import BotSignals
+from src.core.signals.player_signals import GameInfoSignals
 from src.services.human_timings import HumanTimingsService
 
 
@@ -26,12 +28,11 @@ class AttackerBehavior(Behavior):
     path_finding: Pathfinding
     map_move_behavior: MapMoveBehavior
     fight_behavior: FightBehavior
+    game_info_signals: GameInfoSignals
+    bot_signals: BotSignals | None = None
 
     _count_fight_limit: int | None = field(init=False, default=None)
     _count_fighted_on_map: int = field(init=False, default=0)
-    _behavior_context_to_clears: Iterable[Behavior] | None = field(
-        init=False, default=None
-    )
     _wait_for_group: bool = field(init=False, default=False)
     _get_lvl_limit: Callable[[int], float] = lambda level: level * 1.5 + 5
 
@@ -40,11 +41,9 @@ class AttackerBehavior(Behavior):
         count_fight_limit: int | None = 10,
         wait_for_group: bool = False,
         get_lvl_limit: Callable[[int], float] = lambda level: level * 1.5 + 5,
-        behavior_context_to_clears: Iterable[Behavior] | None = None,
     ) -> None:
         self._get_lvl_limit = get_lvl_limit
         self._wait_for_group = wait_for_group
-        self._behavior_context_to_clears = behavior_context_to_clears
         self._count_fighted_on_map = 0
         self._count_fight_limit = count_fight_limit
         self.attack_enemy()
@@ -71,7 +70,7 @@ class AttackerBehavior(Behavior):
         if error_code is not None:
             if error_code is MapMoveError.INVALID_STARTING_POINT:
                 return self.attack_enemy()
-            raise UnhandledErrorCodeException(error_code)
+            self.raise_if_error(error_code)
 
         related_actor = self.game_state.entity.actor_by_id.get(group_actor_id)
         if (
@@ -84,6 +83,16 @@ class AttackerBehavior(Behavior):
                 f"skipping."
             )
             return self.attack_enemy()
+
+        if related_actor.actor_information.HasField(
+            "role_play_actor"
+        ) and related_actor.actor_information.role_play_actor.HasField(
+            "monster_group_actor"
+        ):
+            monster_group = (
+                related_actor.actor_information.role_play_actor.monster_group_actor
+            )
+            self.game_state.fight.set_last_attacked_monster_group(monster_group)
 
         with self.event_manager.lock:
             self.event_manager.on(
@@ -104,9 +113,10 @@ class AttackerBehavior(Behavior):
         )
 
     def on_fight_behavior_finish(self, error_code: str | None):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+        self.raise_if_error(error_code)
         self._count_fighted_on_map += 1
+        if self.bot_signals:
+            self.game_info_signals.fight_completed.emit(1)
         if (
             self._count_fight_limit is not None
             and self._count_fighted_on_map >= self._count_fight_limit
@@ -125,6 +135,13 @@ class AttackerBehavior(Behavior):
         ) in self.game_state.entity.get_monster_groups():
             if actor_id == excluded_group_actor_id:
                 continue
+
+            if not ForbiddenMonsterController().is_group_allowed(monster_group):
+                self.logger.info(
+                    f"Skipping forbidden monster group (actor_id={actor_id})"
+                )
+                continue
+
             monster_group_lvl = self.game_state.entity.get_level_monster_group(
                 monster_group
             )

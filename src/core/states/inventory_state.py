@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from D3Database.models.datas.recipe_root import RecipeItem
 from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
 from src.core.engine.fights.effect import EffectActionEnum
-from src.core.engine.items.inventory_item import SetPositionEnum
+from src.core.engine.items.item import SetPositionEnum
 from src.core.signals.player_signals import InventorySignals
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State
@@ -117,3 +117,8 @@ class InventoryState(State):
         from src.core.engine.crafts.recipes import get_valid_recipes
 
         return get_valid_recipes(self.logger, self.player_state.jobs_lvl_by_id, recipes)
+
+    def get_object_item_by_gid(self, gid: int):
+        return next(
+            (obj for obj in self.objects_by_uid.values() if obj.item.gid == gid), None
+        )

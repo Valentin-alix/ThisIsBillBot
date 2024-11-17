@@ -39,8 +39,8 @@ from src.gui.main_window import MainWindow  # noqa: E402
 
 
 def main() -> None:
+    # pouvoir update le mapping en cours ? genre hop on ajoute une combinaison de mapping ca va auto valider le mapping pour ce field
     # reflechir a d'autre idée pour aller plus vite dans le mapping
-    # -> pouvoir après avoir sniffer et rec les datas lancer le mapping et savoir quel champs est problématique ou non -> utiliser pydantic pour full valider des champs ?
     app = Application(sys.argv)
     shared_signals = SharedSignals()
     main_window = MainWindow(title=app.TITLE, shared_signals=shared_signals)

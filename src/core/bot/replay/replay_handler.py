@@ -12,9 +12,7 @@ class ReplayHandler:
     """Handles replay functionality for the bot."""
 
     replayer: Replayer
-    _thread_worker_runnings: list[tuple[QThread, Any]] = field(
-        init=False, default_factory=list
-    )
+    _thread_worker_runnings: list[tuple[QThread, Any]] = field(init=False, default_factory=list)
 
     def on_replay_requested(
         self,
@@ -34,8 +32,6 @@ class ReplayHandler:
         """
         self._thread_worker_runnings.append(
             run_in_background(
-                self.replayer.get_replay_worker(
-                    path, preserve_timing, speedup, use_obfuscated, do_wait_state=True
-                )
+                self.replayer.get_replay_worker(path, preserve_timing, speedup, use_obfuscated, do_wait_state=True)
             )
         )

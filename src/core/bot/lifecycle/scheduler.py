@@ -9,23 +9,22 @@ import schedule
 from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
 from PyQt5.QtCore import QThread
 
-from D3Mapping.d3_mapping.signals.message_signals import MessageInfoSignals
 from src.controller.bot_config import BotConfig
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.execution.process_manager import ProcessManager
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.log_signals import LogSignals
+from src.core.signals.message_signals import MessageInfoSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.gui.utils.run_in_background import run_in_background
-from src.services.logging.logger import Logger
+from src.services.logging.contextual_logger import ContextualLogger
 from src.utils.internet import has_internet_connection
 
 
 @dataclass
-class BotScheduler:
+class BotScheduler(ContextualLogger):
     """Handles bot scheduling and playtime management."""
 
-    logger: Logger
     account: DecipheredApiKey
     bot_signals: BotSignals
     shared_signals: SharedSignals
@@ -38,9 +37,7 @@ class BotScheduler:
     behavior_coordinator: BehaviorCoordinator
     process_manager: ProcessManager
 
-    _thread_worker_runnings: list[tuple[QThread, Any]] = field(
-        init=False, default_factory=list
-    )
+    _thread_worker_runnings: list[tuple[QThread, Any]] = field(init=False, default_factory=list)
 
     def start(self):
         """Start the bot scheduler if bot config exists."""
@@ -49,9 +46,7 @@ class BotScheduler:
             self.thread_planning.start()
             now = datetime.now()
 
-            if is_in_playtime(
-                now, self.bot_config.playtime_starts, self.bot_config.playtime_ends
-            ):
+            if is_in_playtime(now, self.bot_config.playtime_starts, self.bot_config.playtime_ends):
                 self.bot_signals.play.emit(False)
                 self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
 
@@ -76,9 +71,7 @@ class BotScheduler:
             self.logger.info("Restarting bot")
             now = datetime.now()
             while not has_internet_connection():
-                self.logger.info(
-                    "waiting for internet connection to be up in restart bot"
-                )
+                self.logger.info("waiting for internet connection to be up in restart bot")
                 sleep(1)
             if self.bot_config and not is_in_playtime(
                 now, self.bot_config.playtime_starts, self.bot_config.playtime_ends
@@ -87,7 +80,6 @@ class BotScheduler:
 
             if not self.is_playing_event.is_set():
                 self.bot_signals.play.emit(False)
-                self.logger.info("relaunching from planning")
                 self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
             else:
                 self.logger.info("Bot is playing, dont restart")
@@ -95,16 +87,12 @@ class BotScheduler:
         assert self.bot_config is not None
         for playtime_end in self.bot_config.playtime_ends:
             schedule.every().day.at(playtime_end).do(
-                lambda: self._thread_worker_runnings.append(
-                    run_in_background(planned_stop_bot)
-                )
+                lambda: self._thread_worker_runnings.append(run_in_background(planned_stop_bot))
             )
 
         for playtime_start in self.bot_config.playtime_starts:
             schedule.every().day.at(playtime_start).do(
-                lambda: self._thread_worker_runnings.append(
-                    run_in_background(planned_restart_bot)
-                )
+                lambda: self._thread_worker_runnings.append(run_in_background(planned_restart_bot))
             )
 
 
@@ -122,9 +110,7 @@ def run_continuously(interval=5):
     return cease_continuous_run
 
 
-def is_in_playtime(
-    now: datetime, playtime_starts: list[str], playtime_ends: list[str]
-) -> bool:
+def is_in_playtime(now: datetime, playtime_starts: list[str], playtime_ends: list[str]) -> bool:
     current_time = now
 
     current_date = datetime.now()

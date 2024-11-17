@@ -1,28 +1,86 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from threading import Event, Timer
+from enum import Enum, auto
+from threading import Lock, Timer
 from typing import Callable
 
 from src.core.events_manager.event_manager import EventManager
 from src.core.states.game_state import GameState
+from src.exceptions import UnhandledErrorCodeException
 from src.services.human_timings import get_random_range
-from src.services.logging.logger import Logger
+from src.services.logging.contextual_logger import ContextualLogger
+
+
+class BehaviorLifecycleError(Exception):
+    """Raised when behavior lifecycle contracts are violated"""
+
+    pass
+
+
+class BehaviorStateError(Exception):
+    """Raised when invalid state transition is attempted"""
+
+    pass
+
+
+class BehaviorState(Enum):
+    """Explicit behavior lifecycle states"""
+
+    STOPPED = auto()
+    STARTING = auto()
+    RUNNING = auto()
+    STOPPING = auto()
 
 
 @dataclass
-class Behavior(ABC):
+class Behavior(ABC, ContextualLogger):
     event_manager: EventManager
     game_state: GameState
-    logger: Logger
     callback: Callable | None = field(init=False, default=None)
     parent: "Behavior|None" = field(init=False, default=None)
 
-    is_running: Event = field(init=False, default_factory=Event)
+    _state: BehaviorState = field(init=False, default=BehaviorState.STOPPED)
+    _state_lock: Lock = field(init=False, default_factory=Lock)
     children: "list[Behavior]" = field(init=False, default_factory=list)
     timers: list[Timer] = field(init=False, default_factory=list)
 
     @abstractmethod
     def run(self, *args, **kwargs) -> None: ...
+
+    def _transition(
+        self, from_states: set[BehaviorState], to_state: BehaviorState, reason: str = ""
+    ) -> None:
+        """
+        Atomic state transition with validation.
+
+        Args:
+            from_states: Valid source states for this transition
+            to_state: Target state
+            reason: Optional debug message
+
+        Raises:
+            BehaviorStateError: If current state not in from_states
+        """
+        with self._state_lock:
+            if self._state not in from_states:
+                raise BehaviorStateError(
+                    f"{self.__class__.__name__} invalid transition: "
+                    f"{self._state.name} -> {to_state.name}. "
+                    f"Expected current state in {[s.name for s in from_states]}. "
+                    f"Reason: {reason}"
+                )
+            old_state = self._state
+            self._state = to_state
+            self.logger.debug(
+                f"State transition: {old_state.name} -> {to_state.name}"
+                + (f" ({reason})" if reason else "")
+            )
+
+    @property
+    def state(self) -> BehaviorState:
+        """Thread-safe state accessor"""
+        with self._state_lock:
+            return self._state
 
     def start(
         self,
@@ -31,24 +89,34 @@ class Behavior(ABC):
         *args,
         **kwargs,
     ) -> None:
+        self._transition(
+            {BehaviorState.STOPPED},
+            BehaviorState.STARTING,
+            reason=f"start() called with parent={parent.__class__.__name__ if parent else None}",
+        )
+
         with self.event_manager.lock:
-            self.logger.debug(f"starting : {self.__class__}")
-            if parent and not parent.is_running.is_set():
-                return self.logger.error(
-                    f"behavior {self.__class__} parent {parent.__class__} is not running"
+            if parent and parent.state != BehaviorState.RUNNING:
+                raise BehaviorLifecycleError(
+                    f"Cannot start {self.__class__.__name__}: "
+                    f"parent {parent.__class__.__name__} in state {parent.state.name}, "
+                    f"expected RUNNING"
                 )
-            if self.is_running.is_set():
-                self.logger.warning(
-                    f"behavior {self.__class__} is already running, stop & start."
-                )
-                self.stop()
 
             self.parent = parent
             if self.parent:
                 self.parent.children.append(self)
-            self.is_running.set()
             self.callback = callback
+
+            self._transition(
+                {BehaviorState.STARTING},
+                BehaviorState.RUNNING,
+                reason="setup complete, entering run()",
+            )
             self.run(*args, **kwargs)
+
+    def send_message_delayed(self, message, delay: tuple[float, float] | float) -> None:
+        self.run_timer(delay, lambda: self.event_manager.send(message))
 
     def run_timer(
         self, range_time: tuple[float, float] | float, func: Callable[[], None]
@@ -57,30 +125,35 @@ class Behavior(ABC):
             wait_time = get_random_range(range_time)
         else:
             wait_time = range_time
-        self.logger.debug(f"Waiting for {wait_time} before executing function")
         timer = Timer(wait_time, lambda: self.run_timed_func(func))
         self.timers.append(timer)
         timer.start()
 
     def run_timed_func(self, func: Callable[[], None]):
-        if not self.is_running.is_set():
-            return self.logger.warning(
-                f"behavior {self.__class__} is not running anymore, don't run timed function"
-            )
         with self.event_manager.lock:
+            with self._state_lock:
+                if self._state != BehaviorState.RUNNING:
+                    raise BehaviorLifecycleError(
+                        f"Timer fired but behavior in state {self.state.name}"
+                    )
             func()
 
     def stop(self) -> None:
+        self._transition(
+            {BehaviorState.RUNNING},
+            BehaviorState.STOPPING,
+            reason="stop() called",
+        )
+
         with self.event_manager.lock:
-            if not self.is_running.is_set():
-                return self.logger.warning(
-                    f"behavior {self.__class__} with parent {self.parent.__class__ if self.parent else None} is not running anymore, don't stop"
-                )
-            self.logger.debug(f"Stopping {self.__class__}")
-            self.is_running.clear()
+            self.logger.info("Stopping")
             self.clear_behavior()
             if self.parent and self in self.parent.children:
                 self.parent.children.remove(self)
+
+        self._transition(
+            {BehaviorState.STOPPING}, BehaviorState.STOPPED, reason="cleanup complete"
+        )
 
     def clear_behavior(self):
         with self.event_manager.lock:
@@ -96,13 +169,42 @@ class Behavior(ABC):
                 child.stop()
 
     def finish(self, error_code: str | None = None, *args, **kwargs) -> None:
-        with self.event_manager.lock:
-            if error_code is not None:
-                self.logger.warning(
-                    f"Stopping {self.__class__} with error code : {error_code}"
+        with self._state_lock:
+            if self._state not in {BehaviorState.RUNNING, BehaviorState.STARTING}:
+                raise BehaviorLifecycleError(
+                    f"finish() called in state {self._state.name}"
                 )
-            self.stop()
-            if self.callback:
-                callback = self.callback
-                self.callback = None
-                callback(error_code, *args, **kwargs)
+
+            callback = self.callback
+            self.callback = None
+
+        if error_code is not None:
+            self.logger.warning(f"Finished with error: {error_code}")
+
+        self.stop()
+
+        if callback:
+            callback(error_code, *args, **kwargs)
+
+    def unregister_listener(self, event_type: type, reason: str = "") -> None:
+        """
+        Nettoie un listener spécifique en cours d'exécution.
+
+        Note: Utilisez cette méthode uniquement si vous devez nettoyer
+        un listener pendant que le behavior continue à s'exécuter.
+        Si le behavior va terminer juste après, laissez clear_behavior()
+        gérer le nettoyage automatiquement.
+
+        Args:
+            event_type: Type d'événement à dé-enregistrer
+            reason: Raison du nettoyage manuel (pour debug/doc)
+        """
+        if reason:
+            self.logger.debug(
+                f"Manual listener cleanup: {event_type.__name__} - {reason}"
+            )
+        self.event_manager.clear_listener_by_origin_and_type(event_type, self)
+
+    def raise_if_error(self, error_code: str | None):
+        if error_code is not None:
+            raise UnhandledErrorCodeException(error_code)

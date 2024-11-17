@@ -19,7 +19,6 @@ from src.core.behaviors.movements.waypoint_behavior import (
 )
 from src.core.engine.movements.world.map_position import get_dist_to_maps
 from src.core.engine.movements.world.waypoint import get_near_waypoint
-from src.exceptions import UnhandledErrorCodeException
 
 
 @dataclass
@@ -85,8 +84,7 @@ class AutoTripZaapBehavior(Behavior):
     ):
         if error_code is WaypointErrorCode.UNREACHABLE_HAVRE_MAP:
             self.walk_to_map_ids(map_ids, ends_pos)
-        elif error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+        self.raise_if_error(error_code)
         self.walk_to_map_ids(map_ids, ends_pos)
 
     def walk_to_map_ids(self, map_ids: set[int], ends_pos: list[MapPositionsRootItem]):
@@ -127,8 +125,7 @@ class AutoTripZaapBehavior(Behavior):
     ):
         if error_code is WaypointErrorCode.UNREACHABLE_HAVRE_MAP:
             return self.finish(AutoTripErrorCode.PATH_NOT_FOUND)
-        elif error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+        self.raise_if_error(error_code)
         self.auto_trip_behavior.start(
             parent=self, map_ids=map_ids, callback=self.finish
         )

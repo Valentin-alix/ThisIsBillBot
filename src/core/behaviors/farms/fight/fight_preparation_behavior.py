@@ -64,8 +64,9 @@ class FightPreparationBehavior(Behavior):
         for disposition in msg.dispositions:
             if not disposition.cell_id == requested_cell_id:
                 continue
-            self.event_manager.clear_listener_by_origin_and_type(
-                EntitiesDispositionEvent, self
+            self.unregister_listener(
+                EntitiesDispositionEvent,
+                reason="Received entity disposition for requested cell"
             )
             if self.game_state.player.character_id not in [
                 disposition.entity_id,

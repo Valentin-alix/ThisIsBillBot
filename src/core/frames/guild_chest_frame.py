@@ -100,12 +100,9 @@ class GuildChestFrame(Frame):
                 self.game_state.inventory.objects_by_uid.pop(inventory_item.item.uid)
 
     def on_exchange_leave_guild_chest_event(self, msg: ExchangeLeaveEvent):
-        self.event_manager.clear_listener_by_origin_and_type(
-            ExchangeObjectMoveRequest, self
-        )
-        self.event_manager.clear_listener_by_origin_and_type(
-            StorageInventoryContentEvent, self
-        )
+        self.unregister_listener(ExchangeObjectMoveRequest)
+        self.unregister_listener(StorageInventoryContentEvent)
 
     def on_guild_members_ship_event(self, msg: GuildMembershipEvent):
         self.game_state.guild_chest.has_guild = True
+        self.game_state.guild_chest.rank_id = msg.rank_id

@@ -2,14 +2,13 @@ from dataclasses import dataclass, field
 
 import psutil
 
-from src.services.logging.logger import Logger
+from src.services.logging.contextual_logger import ContextualLogger
 
 
 @dataclass
-class ProcessManager:
+class ProcessManager(ContextualLogger):
     """Manages bot process lifecycle (kill, restart, etc.)."""
 
-    logger: Logger
     pid: int | None = field(init=False, default=None)
 
     def kill_process(self):
@@ -22,9 +21,9 @@ class ProcessManager:
             try:
                 process.wait(timeout=5)
             except psutil.TimeoutExpired:
-                self.logger.info("timeout, force kill process")
+                self.logger.info("Timeout, force kill process")
                 process.kill()
-            self.logger.info(f"killed pid : {self.pid}")
+            self.logger.info(f"Killed pid : {self.pid}")
         except psutil.NoSuchProcess:
-            self.logger.info("process of related pid is not running anymore, skip.")
+            self.logger.info("Process of related pid is not running anymore, skip.")
         self.pid = None

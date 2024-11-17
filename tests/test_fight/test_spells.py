@@ -17,7 +17,7 @@ class TestSpells(GameStateFixture):
     def test_los_spell(self):
         spell_id = 12728
         spell_data = DataReader().spell_by_id[spell_id]
-        print(I18N().name_by_id[spell_data.nameId])
+        I18N().name_by_id[spell_data.nameId]
 
     def test_bonus_shield(self):
         level = 100
@@ -38,7 +38,6 @@ class TestSpells(GameStateFixture):
         ]
         for param in params:
             related_spell_lvl = DataReader().spell_lvl_by_spell_id[param["spell_id"]][0]
-            print(related_spell_lvl.effects)
             assert any(
                 get_effect_shield_level_bonus(level, effect) == param["value"]
                 for effect in related_spell_lvl.effects

@@ -21,7 +21,7 @@ class DungeonInfo:
         self.entrance_npc_info = NpcInfo(
             npc_id=-20000,
             npc_map_id=self.dungeon.entranceMapId,
-            exclude_action_ids=[1074],
+            forbidden_action_ids=[1074],
         )
         self.exit_npc_info = NpcDialogInfo(npc_id=-20000)
 

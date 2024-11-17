@@ -54,7 +54,7 @@ class BotManager:
 
         self._is_lauching_by_login[login].set()
 
-        related_bot.logger.info("relaunching this")
+        related_bot.logger.info("Relaunching")
 
         now = datetime.now()
 
@@ -80,7 +80,7 @@ class BotManager:
             login, MITM_CONFIG_URL
         )
 
-        related_bot.logger.info(f"pid {related_bot.process_manager.pid}")
+        related_bot.logger.info(f"Pid {related_bot.process_manager.pid}")
 
         self._is_lauching_by_login[login].clear()
 

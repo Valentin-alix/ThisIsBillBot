@@ -19,6 +19,7 @@ from src.core.engine.weights.weighted_path import WeightedPath
 
 if TYPE_CHECKING:
     from src.gui.main_window import MainWindow
+
 from src.core.engine.weights.harvester.weight_collectable import (
     get_map_id_collectable_weight,
 )
@@ -95,11 +96,10 @@ def simulate_weighted_path(fake_bot: Bot):
 
         return weight
 
-    path, weight = WeightedPath(game_state=fake_bot.game_state).monte_carlo_path(
+    path, weight = WeightedPath(game_state=fake_bot.game_state).beam_search_path(
         fake_bot.game_state.map.curr_vertex,
         get_weight_by_edge,
         {},
-        len(additional_weight),
     )
     draw_weight_on_map({}, fake_bot.world_signals)
     draw_edge_path(fake_bot.world_signals, path)

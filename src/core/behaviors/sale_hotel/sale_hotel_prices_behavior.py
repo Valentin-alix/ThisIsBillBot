@@ -10,7 +10,6 @@ from D3Database.data_center.i18n import I18N
 from D3Database.enums.category_item_enum import CategoryEnum
 from D3Mapping.d3_mapping.resources.protos.game.basic_pb2 import TextInformationEvent
 from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItem
-from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
 from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeBidHouseItemRemovedEvent,
     ExchangeBidHousePriceRequest,
@@ -28,7 +27,7 @@ from src.controller.sale_hotel import SaleHotelController
 from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.models.quantity_enum import (
     QuantityEnum,
 )
-from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
 )
@@ -53,11 +52,11 @@ from src.core.engine.economy.sale_hotel import (
     get_price_for_sale_hotel,
     is_interesting_item_to_sell,
 )
-from src.core.game_constants import (
+from src.core.states.guild_chest_state import (
+    CHEST_OBJECT_BY_GID_BY_TAB,
     TAB_BY_GID,
 )
-from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
-from src.exceptions import UnexpectedStateException, UnhandledErrorCodeException
+from src.exceptions import UnexpectedStateException
 
 
 class SaleHotelErrorCode(StrEnum):
@@ -65,7 +64,7 @@ class SaleHotelErrorCode(StrEnum):
 
 
 @dataclass
-class SaleHotelPricesBehavior(Behavior):
+class SaleHotelPricesBehavior(DialogHandlerBehavior):
     enter_sale_hotel_sell_behavior: EnterSaleHotelSellBehavior
     load_from_guild_chest_behavior: LoadFromGuildChestBehavior
     load_from_bank_behavior: LoadFromBankBehavior
@@ -183,8 +182,7 @@ class SaleHotelPricesBehavior(Behavior):
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
     ):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+        self.raise_if_error(error_code)
         self.sell_inventory(
             items=items,
             load_items_infos=load_items_infos,
@@ -279,8 +277,9 @@ class SaleHotelPricesBehavior(Behavior):
     ):
         if not msg.follow:
             return
-        self.event_manager.clear_listener_by_origin_and_type(
-            ExchangeBidHouseSearchRequest, self
+        self.unregister_listener(
+            ExchangeBidHouseSearchRequest,
+            reason="Item selected for pricing, switching to price event listener",
         )
         self.event_manager.on(
             ExchangeBidPriceEvent,
@@ -400,18 +399,18 @@ class SaleHotelPricesBehavior(Behavior):
             originator=self,
             once=True,
         )
-        self.event_manager.clear_listener_by_origin_and_type(TextInformationEvent, self)
         self.event_manager.on(
             TextInformationEvent,
             partial(self.on_text_information_event, items=items),
             originator=self,
+            override_on_self=True,
         )
         self.logger.info(f"Remaining quantity of item {item.gid} : {item.quantity}")
         req = ExchangeObjectMovePricedRequest(
             object_uid=item.uid, quantity=quantity_to_sell, price=price_for_quantity
         )
         item.quantity -= quantity_to_sell  # bc these items instance are not linked to new items received in msg
-        self.run_timer(TINY_RANGE, lambda: self.event_manager.send(req))
+        self.send_message_delayed(req, TINY_RANGE)
 
     def on_text_information_event(
         self,
@@ -420,9 +419,14 @@ class SaleHotelPricesBehavior(Behavior):
     ):
         if msg.message_id != TextEnum.FULL_PLACE_SALE_HOTEL:
             return
-        self.event_manager.clear_listener_by_origin_and_type(InventoryWeightEvent, self)
-        self.event_manager.clear_listener_by_origin_and_type(TextInformationEvent, self)
-        self.event_manager.clear_listener_by_origin_and_type(InventoryWeightEvent, self)
+        self.unregister_listener(
+            TextInformationEvent,
+            reason="Sale hotel full, cleaning up listeners before updating prices",
+        )
+        self.unregister_listener(
+            InventoryWeightEvent,
+            reason="Sale hotel full, cleaning up listeners before updating prices",
+        )
         self.logger.info(
             "Sale hotel is full, let's update prices (from text info event)"
         )
@@ -476,7 +480,7 @@ class SaleHotelPricesBehavior(Behavior):
         )
         self.logger.info(f"Updating item {item_gid}")
         req = ExchangeBidHousePriceRequest(object_gid=item_gid)
-        self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(req))
+        self.send_message_delayed(req, SMALL_RANGE)
 
     def on_exchange_bid_price_event(
         self,
@@ -577,12 +581,12 @@ class SaleHotelPricesBehavior(Behavior):
     ):
         if msg.sell_id != target_uid:
             return
-        self.event_manager.clear_listener_by_origin_and_type(
-            ExchangeBidHouseItemRemovedEvent, originator=self
+        self.unregister_listener(
+            ExchangeBidHouseItemRemovedEvent,
+            reason="Item removed from sale hotel, proceeding to update all prices",
         )
         self.logger.info("Update all prices after item removed")
         self.run_timer(BASE_RANGE, lambda: self.update_all_prices(items))
 
     def leave_all_dialogs(self):
-        request = DialogLeaveRequest()
-        self.event_manager.send(request)
+        self.leave_dialog()

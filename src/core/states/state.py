@@ -1,9 +1,8 @@
 from abc import ABC
 from dataclasses import dataclass
 
-from src.services.logging.logger import Logger
+from src.services.logging.contextual_logger import ContextualLogger
 
 
 @dataclass
-class State(ABC):
-    logger: Logger
+class State(ABC, ContextualLogger): ...

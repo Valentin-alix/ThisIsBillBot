@@ -11,7 +11,6 @@ from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
 )
 from src.core.config import BASE_RANGE
 from src.core.engine.npcs.npc_info import NpcInfo
-from src.exceptions import UnhandledErrorCodeException
 
 
 @dataclass
@@ -28,8 +27,7 @@ class EnterSaleHotelSellBehavior(Behavior):
     def on_entered_sale_hotel_behavior_finished(
         self, error_code: str | None, npc_info: NpcInfo
     ):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
+        self.raise_if_error(error_code)
         self.event_manager.on(
             ExchangeBidSellerStartedEvent,
             self.on_exchange_bid_seller_started_event,
@@ -41,7 +39,7 @@ class EnterSaleHotelSellBehavior(Behavior):
             npc_map_id=npc_info.npc_map_id,
             npc_action_id=npc_info.npc_action_id,
         )
-        self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
+        self.send_message_delayed(req, BASE_RANGE)
 
     def on_exchange_bid_seller_started_event(self, msg: ExchangeBidSellerStartedEvent):
         self.finish(items=msg.items)

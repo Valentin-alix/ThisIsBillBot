@@ -10,7 +10,7 @@ from src.core.behaviors.storage.unloads.unload_in_bank_behavior import (
 from src.core.behaviors.storage.unloads.unload_in_guild_chest_behavior import (
     UnloadInGuildChestBehavior,
 )
-from src.core.game_constants import GIDS_BY_TAB
+from src.core.states.guild_chest_state import GIDS_BY_TAB
 from src.exceptions import UnhandledErrorCodeException
 
 

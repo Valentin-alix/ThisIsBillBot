@@ -16,7 +16,6 @@ from src.core.config import ON_NEW_MAP_BEFORE_ACTION
 from src.core.engine.dungeons.dungeon_access import do_have_key_access_to_dungeon
 from src.core.engine.dungeons.dungeon_info import DungeonInfo
 from src.core.game_constants import DUNGEONS_INFOS
-from src.exceptions import UnhandledErrorCodeException
 
 
 @dataclass
@@ -56,21 +55,16 @@ class DungeonBehavior(Behavior):
     ):
         if error_code is not None:
             return self.exit_dungeon(dungeon_info)
+
         self.npc_dialog_behavior.start(
             npc_dialog_info=dungeon_info.entrance_npc_info,
-            callback=partial(
-                self.on_npc_dialog_behavior_finished, dungeon_info=dungeon_info
-            ),
+            callback=self.on_npc_dialog_behavior_finished,
             parent=self,
         )
 
     def on_npc_dialog_behavior_finished(
-        self,
-        error_code: str | None,
-        dungeon_info: DungeonInfo,
+        self, error_code: str | None, dungeon_info: DungeonInfo
     ):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
         self.event_manager.on(
             MapComplementaryInformationEvent,
             lambda _: self.on_new_map(dungeon_info),

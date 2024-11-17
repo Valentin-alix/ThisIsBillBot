@@ -12,9 +12,11 @@ class DynamicTreeWidget(TreeWidget):
     def set_content(
         self, datas: dict, get_display_value: Callable[[Any], str] | None = None
     ):
+        self.setUpdatesEnabled(False)
         self.clear()
         self._deep_tree_from_message_dict(datas, get_display_value, None, self)
-        self.expandAll()
+        self.expandToDepth(1)
+        self.setUpdatesEnabled(True)
 
     def _deep_tree_from_message_dict(
         self,

@@ -1,13 +1,34 @@
 import dataclasses
 
+from D3Database.data_center.data_reader import DataReader
+from D3Database.enums.category_item_enum import CategoryEnum
+from D3Database.enums.type_item_enum import TypeItemEnum
 from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
 from src.core.config import DO_USE_GUILD_CHEST
+from src.core.engine.items.item import GATHERER_ITEM_GIDS
+from src.core.engine.monsters.drops import PROTECTOR_DROP_ITEM_IDS
 from src.core.signals.player_signals import GameInfoSignals
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State
 
 # Global dict shared across all bots for guild chest items
 CHEST_OBJECT_BY_GID_BY_TAB: dict[int, dict[int, ObjectItemInventory]] = {}
+
+# Organisation par onglets
+GIDS_BY_TAB = {
+    1: GATHERER_ITEM_GIDS,
+    2: DataReader().item_ids_by_type_id[TypeItemEnum.PLANCHE]
+    | DataReader().item_ids_by_type_id[TypeItemEnum.PREPARATION]
+    | DataReader().item_ids_by_type_id[TypeItemEnum.SUBSTRAT]
+    | DataReader().item_ids_by_type_id[TypeItemEnum.ALLIAGE],
+    3: {
+        gid
+        for gid in PROTECTOR_DROP_ITEM_IDS
+        if DataReader().item_type_by_id[DataReader().item_by_id[gid].typeId].categoryId
+        != CategoryEnum.CONSUMABLES
+    },
+}
+TAB_BY_GID = {gid: tab for tab, gids in GIDS_BY_TAB.items() for gid in gids}
 
 
 @dataclasses.dataclass
@@ -19,6 +40,7 @@ class GuildChestState(State):
     tabs: list[int] = dataclasses.field(
         init=False, default_factory=lambda: [1, 2, 3, 4]
     )
+    rank_id: int = dataclasses.field(init=False, default=4)
 
     def clear_state(self):
         self.tab_number = 1
@@ -45,4 +67,9 @@ class GuildChestState(State):
 
     @property
     def can_access_guild_chest(self):
-        return self.player_state.is_sub and self.has_guild and DO_USE_GUILD_CHEST
+        return (
+            self.player_state.is_sub
+            and self.has_guild
+            and DO_USE_GUILD_CHEST
+            and self.rank_id <= 3
+        )

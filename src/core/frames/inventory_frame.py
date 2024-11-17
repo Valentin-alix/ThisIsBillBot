@@ -13,6 +13,7 @@ from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
     InventoryWeightEvent,
     ObjectAddedEvent,
     ObjectQuantityEvent,
+    ObjectUseRequest,
     StorageInventoryContentEvent,
 )
 from src.core.frames.frame import Frame
@@ -71,6 +72,19 @@ class InventoryFrame(Frame):
             originator=self,
             priority=self.priority,
         )
+        self.event_manager.on(
+            ObjectUseRequest,
+            self.on_exchange_object_use_request,
+            originator=self,
+            priority=self.priority,
+        )
+
+    def on_exchange_object_use_request(self, message: ObjectUseRequest):
+        if (
+            self.game_state.inventory.objects_by_uid[message.object_uid].item.quantity
+            == 1
+        ):
+            self.game_state.inventory.objects_by_uid.pop(message.object_uid)
 
     def on_object_quantity_event(self, message: ObjectQuantityEvent):
         self.game_state.inventory.objects_by_uid[
@@ -150,12 +164,8 @@ class InventoryFrame(Frame):
 
     def on_exchange_leave_storage_event(self, msg: ExchangeLeaveEvent):
         self.logger.info("Leaving storage")
-        self.event_manager.clear_listener_by_origin_and_type(
-            ExchangeObjectMoveRequest, self
-        )
-        self.event_manager.clear_listener_by_origin_and_type(
-            StorageInventoryContentEvent, self
-        )
+        self.unregister_listener(ExchangeObjectMoveRequest)
+        self.unregister_listener(StorageInventoryContentEvent)
 
     def on_exchange_object_move_priced_request(
         self, message: ExchangeObjectMovePricedRequest

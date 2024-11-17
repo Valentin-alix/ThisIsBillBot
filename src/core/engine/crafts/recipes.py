@@ -3,31 +3,60 @@ from D3Database.data_center.i18n import I18N
 from D3Database.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
 from D3Database.models.datas.recipe_root import RecipeItem
 from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from src.controller.sale_hotel import SaleHotelController
 from src.core.config import WEIGHT_BY_JOB
+from src.core.engine.items.item import GATHERER_ITEM_GIDS
 from src.core.engine.items.item_type import ItemTypeEnum
-from src.core.game_constants import GATHERER_ITEM_GIDS, MAP_ID_BY_SKILL_ID
+from src.core.game_constants import MAP_ID_BY_SKILL_ID
+from src.core.states.guild_chest_state import GIDS_BY_TAB
 from src.services.logging.logger import Logger
 
 
-def is_not_valid_recipe_for_lvl_up_job(
+def get_benefice_on_craft_recipe(recipe: RecipeItem) -> tuple[float, float]:
+    avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
+    if recipe.resultId in avg_price_by_gid and all(
+        ingredient_id in avg_price_by_gid for ingredient_id in recipe.ingredientIds
+    ):
+        profit = avg_price_by_gid[recipe.resultId]
+        for ingredient_id in recipe.ingredientIds:
+            profit -= avg_price_by_gid[ingredient_id]
+        return profit, profit / avg_price_by_gid[recipe.resultId]
+    return 0, 0
+
+
+def is_not_valid_recipe_for_lvl_up_job_or_benefice(
     recipe: RecipeItem, is_sub: bool, jobs_lvl_by_id: dict[int, int]
 ) -> bool:
     max_job_lvl = 200 if is_sub else 60
     current_job_lvl = jobs_lvl_by_id.get(recipe.jobId)
-    return (
-        current_job_lvl is None
-        or current_job_lvl >= max_job_lvl
-        or recipe.skillId not in MAP_ID_BY_SKILL_ID
-        or (recipe.jobId not in HARVESTER_JOB_IDS and recipe.jobId != JobEnum.CHASSEUR)
-        or current_job_lvl - recipe.resultLevel >= 20
-        or any(
-            (
-                ingredient_id not in GATHERER_ITEM_GIDS
-                and DataReader().item_by_id[ingredient_id].typeId != ItemTypeEnum.VIANDE
-            )
-            for ingredient_id in recipe.ingredientIds
+    if current_job_lvl is None or current_job_lvl >= max_job_lvl:
+        # insufficient lvl
+        return True
+    if recipe.skillId not in MAP_ID_BY_SKILL_ID:
+        # not configured craft
+        return True
+    result_item = DataReader().item_by_id[recipe.resultId]
+    if result_item.craftConditional not in ["", None]:
+        # the item need a condition, like a quest completed or something
+        return True
+    if recipe.jobId not in HARVESTER_JOB_IDS and recipe.jobId != JobEnum.CHASSEUR:
+        return True
+    benefit_percent = get_benefice_on_craft_recipe(recipe)[1]
+    if current_job_lvl - recipe.resultLevel >= 20 and not (
+        benefit_percent > 0.3 and recipe.resultId in GIDS_BY_TAB[2]
+    ):
+        # this recipe don't give enought xp, skip
+        return True
+    if any(
+        (
+            ingredient_id not in GATHERER_ITEM_GIDS
+            and DataReader().item_by_id[ingredient_id].typeId != ItemTypeEnum.VIANDE
         )
-    )
+        for ingredient_id in recipe.ingredientIds
+    ):
+        # recipe contains an ingredient that we can't gather, skip
+        return True
+    return False
 
 
 def get_max_result_quantity(
@@ -111,10 +140,12 @@ def get_valid_recipes(
     return valid_recipes
 
 
-def get_recipes_for_job_lvl_up(is_sub: bool, jobs_lvl_by_id: dict[int, int]):
+def get_recipes_for_job_lvl_upor_benefice(is_sub: bool, jobs_lvl_by_id: dict[int, int]):
     recipes: list[RecipeItem] = []
     for recipe in DataReader().recipes:
-        if is_not_valid_recipe_for_lvl_up_job(recipe, is_sub, jobs_lvl_by_id):
+        if is_not_valid_recipe_for_lvl_up_job_or_benefice(
+            recipe, is_sub, jobs_lvl_by_id
+        ):
             continue
         recipes.append(recipe)
     recipes.sort(

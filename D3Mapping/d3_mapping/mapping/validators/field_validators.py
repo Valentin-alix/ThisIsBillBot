@@ -5,10 +5,7 @@ from D3Database.data_center.data_reader import DataReader
 from D3Database.data_center.i18n import I18N
 from D3Database.enums.directions import DirectionsEnum
 from D3Database.grid.map_point import MAP_POINT_BY_CELL_ID
-from D3Mapping.d3_mapping.controller.data_center_controller import DataCenterController
-from D3Mapping.d3_mapping.mapping.validators.proto_field_validators import (
-    ProtoFieldValidator,
-)
+from D3Mapping.d3_mapping.mapping.validators.proto_field_validators import ProtoFieldValidator
 from D3Mapping.d3_mapping.resources.protos.game.teleportation_pb2 import Teleporter
 
 
@@ -25,11 +22,11 @@ def is_valid_cell_id(value: Any):
 
 
 def is_valid_cell_x(value: Any):
-    return value in DataCenterController.POSSIBLE_COORD_X
+    return value in DataReader().POSSIBLE_COORD_X
 
 
 def is_valid_cell_y(value: Any):
-    return value in DataCenterController.POSSIBLE_COORD_Y
+    return value in DataReader().POSSIBLE_COORD_Y
 
 
 def is_valid_cells(value: Any):
@@ -37,23 +34,19 @@ def is_valid_cells(value: Any):
 
 
 def is_valid_world_x_coodinates(value: Any):
-    return value in DataCenterController.get_all_x_world_coodinates()
+    return value in DataReader().get_all_x_world_coodinates()
 
 
 def is_valid_world_y_coodinates(value: Any):
-    return value in DataCenterController.get_all_y_world_coodinates()
+    return value in DataReader().get_all_y_world_coodinates()
 
 
 def is_valid_map_id(value: Any):
-    return (
-        value in DataCenterController.get_all_map_ids()
-        or value > 180000000
-        and value < 200000000
-    )
+    return value in DataReader().get_all_map_ids() or value > 180000000 and value < 200000000
 
 
 def is_valid_sub_area_id(value: Any):
-    return value in DataCenterController.get_all_sub_area_ids()
+    return value in DataReader().get_all_sub_area_ids()
 
 
 def is_valid_element_id(value: Any):
@@ -69,7 +62,7 @@ def is_valid_direction(value: Any):
 
 
 def is_valid_skill_id(value: Any):
-    return value in DataCenterController.get_all_skill_ids()
+    return value in DataReader().get_all_skill_ids()
 
 
 def is_valid_name_id_optional(value: Any):
@@ -81,12 +74,12 @@ def is_0(value: Any):
 
 
 def is_valid_element_state(value: Any):
-    return value in DataCenterController.POSSIBLE_ELEMENT_STATES
+    return value in DataReader().POSSIBLE_ELEMENT_STATES
 
 
 def is_valid_characteristic_id(value: Any):
     return value >= 0 and value <= 200
-    return value in DataCenterController.get_all_characteristic_ids()
+    return value in DataReader().get_all_characteristic_ids()
 
 
 def is_valid_instance(value: Any):
@@ -118,15 +111,15 @@ def is_valid_list_positive(value: list):
 
 
 def is_valid_gid(value: Any):
-    return value in DataCenterController.get_all_item_ids()
+    return value in DataReader().get_all_item_ids()
 
 
 def is_valid_monster_gid(value: Any):
-    return value in DataCenterController.get_all_monster_gids()
+    return value in DataReader().get_all_monster_gids()
 
 
 def is_valid_job_id(value: Any):
-    return value in DataCenterController.get_all_job_ids()
+    return value in DataReader().get_all_job_ids()
 
 
 def is_valid_job_lvl(value: Any):
@@ -134,9 +127,7 @@ def is_valid_job_lvl(value: Any):
 
 
 def is_valid_key_cells(value: Any):
-    return all(
-        key_cell in DataCenterController.get_all_key_cells() for key_cell in value
-    )
+    return all(key_cell in DataReader().get_all_key_cells() for key_cell in value)
 
 
 def is_valid_amount_of_kamas(value: Any):
@@ -169,19 +160,19 @@ def is_valid_total_quantity(value: Any):
 
 def is_valid_type_item(value: Any):
     return value > 0 and value < 1000
-    return value in DataCenterController.get_all_type_item_ids()
+    return value in DataReader().get_all_type_item_ids()
 
 
 def is_valid_spell(value: Any):
-    return value in DataCenterController.get_all_spell_ids()
+    return value in DataReader().get_all_spell_ids()
 
 
 def is_valid_spell_lvl(value: Any):
-    return value in DataCenterController.get_all_spell_lvl_ids()
+    return value in DataReader().get_all_spell_lvl_ids()
 
 
 def is_valid_spell_numero(value: Any):
-    return value in DataCenterController.SPELL_NUMEROS
+    return value in DataReader().SPELL_NUMEROS
 
 
 def is_valid_type_items(value: Any):
@@ -282,9 +273,7 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
     "CharacterCharacteristics": {
         "experience": ProtoFieldValidator(validators=[is_valid_positive]),
         "experience_level_floor": ProtoFieldValidator(validators=[is_valid_positive]),
-        "experience_next_level_floor": ProtoFieldValidator(
-            validators=[is_valid_positive]
-        ),
+        "experience_next_level_floor": ProtoFieldValidator(validators=[is_valid_positive]),
         "experience_bonus_limit": ProtoFieldValidator(validators=[is_valid_positive]),
         "kamas": ProtoFieldValidator(validators=[is_valid_positive]),
     },
@@ -294,9 +283,7 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
         "gid": ProtoFieldValidator(validators=[is_valid_gid]),
         "uid": ProtoFieldValidator(validators=[is_valid_positive]),
     },
-    "ExchangeBidHouseSearchRequest": {
-        "object_gid": ProtoFieldValidator(validators=[is_valid_gid])
-    },
+    "ExchangeBidHouseSearchRequest": {"object_gid": ProtoFieldValidator(validators=[is_valid_gid])},
     "ExchangeBidPriceEvent": {
         "object_gid": ProtoFieldValidator(validators=[is_valid_gid]),
         "average_price": ProtoFieldValidator(validators=[is_valid_positive]),
@@ -305,24 +292,14 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
         "quantities": ProtoFieldValidator(validators=[is_valid_sale_hotel_quantities]),
         "types": ProtoFieldValidator(validators=[is_valid_type_items]),
         "tax_percentage": ProtoFieldValidator(validators=[is_valid_tax_percentage]),
-        "tax_modification_percentage": ProtoFieldValidator(
-            validators=[is_valid_tax_update_percentage]
-        ),
+        "tax_modification_percentage": ProtoFieldValidator(validators=[is_valid_tax_update_percentage]),
         "max_item_level": ProtoFieldValidator(validators=[is_valid_max_item_lvl]),
-        "max_item_per_account": ProtoFieldValidator(
-            validators=[is_valid_max_item_per_account]
-        ),
+        "max_item_per_account": ProtoFieldValidator(validators=[is_valid_max_item_per_account]),
         "unsold_delay": ProtoFieldValidator(validators=[is_valid_unsold_delay]),
     },
-    "ExchangeStartedWithMultiTabStorageEvent": {
-        "tab_number": ProtoFieldValidator(validators=[is_valid_tab_number])
-    },
-    "GuildChestTabSelectRequest": {
-        "tab_number": ProtoFieldValidator(validators=[is_valid_tab_number])
-    },
-    "MapMovementCancelRequest": {
-        "cell_id": ProtoFieldValidator(validators=[is_valid_cell_id])
-    },
+    "ExchangeStartedWithMultiTabStorageEvent": {"tab_number": ProtoFieldValidator(validators=[is_valid_tab_number])},
+    "GuildChestTabSelectRequest": {"tab_number": ProtoFieldValidator(validators=[is_valid_tab_number])},
+    "MapMovementCancelRequest": {"cell_id": ProtoFieldValidator(validators=[is_valid_cell_id])},
     "MapMovementEvent": {
         "cells": ProtoFieldValidator(validators=[is_valid_cells]),
         "direction": ProtoFieldValidator(validators=[is_valid_direction]),
@@ -333,9 +310,7 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
         "map_id": ProtoFieldValidator(validators=[is_valid_map_id]),
         "key_cells": ProtoFieldValidator(validators=[is_valid_key_cells]),
     },
-    "MapInformationRequest": {
-        "map_id": ProtoFieldValidator(validators=[is_valid_map_id])
-    },
+    "MapInformationRequest": {"map_id": ProtoFieldValidator(validators=[is_valid_map_id])},
     "FightMapInformationEvent": {
         "subarea_id": ProtoFieldValidator(validators=[is_valid_sub_area_id]),
         "map_id": ProtoFieldValidator(validators=[is_valid_map_id]),
@@ -344,16 +319,12 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
         "world_x": ProtoFieldValidator(validators=[is_valid_world_x_coodinates]),
         "world_y": ProtoFieldValidator(validators=[is_valid_world_y_coodinates]),
     },
-    "MapTeleportOnSameEvent": {
-        "cell_id": ProtoFieldValidator(validators=[is_valid_cell_id])
-    },
+    "MapTeleportOnSameEvent": {"cell_id": ProtoFieldValidator(validators=[is_valid_cell_id])},
     "MapMovementRefusedEvent": {
         "cell_x": ProtoFieldValidator(validators=[is_valid_cell_x]),
         "cell_y": ProtoFieldValidator(validators=[is_valid_cell_y]),
     },
-    "EntityDisposition": {
-        "cell_id": ProtoFieldValidator(validators=[is_valid_cell_id])
-    },
+    "EntityDisposition": {"cell_id": ProtoFieldValidator(validators=[is_valid_cell_id])},
     "InteractiveElement": {
         "skill_id": ProtoFieldValidator(validators=[is_valid_skill_id]),
         "age_bonus": ProtoFieldValidator(validators=[is_valid_age_bonus]),
@@ -361,9 +332,7 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
     },
     "InteractiveElementSkill": {
         "skill_id": ProtoFieldValidator(validators=[is_valid_skill_id]),
-        "skill_instance_uid": ProtoFieldValidator(
-            validators=[is_valid_strict_positive]
-        ),
+        "skill_instance_uid": ProtoFieldValidator(validators=[is_valid_strict_positive]),
         "name_id": ProtoFieldValidator(validators=[is_valid_name_id_optional]),
     },
     "StatedElement": {
@@ -374,9 +343,7 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
         "challengers_positions": ProtoFieldValidator(validators=[is_valid_cells]),
         "defenders_positions": ProtoFieldValidator(validators=[is_valid_cells]),
     },
-    "ObjectItemInventory": {
-        "position": ProtoFieldValidator(validators=[is_valid_positive])
-    },
+    "ObjectItemInventory": {"position": ProtoFieldValidator(validators=[is_valid_positive])},
     "ObjectItem": {
         "quantity": ProtoFieldValidator(validators=[is_valid_positive_total_quantity]),
         "gid": ProtoFieldValidator(validators=[is_valid_gid]),
@@ -386,12 +353,8 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
         "object_uid": ProtoFieldValidator(validators=[is_valid_positive]),
         "quantity": ProtoFieldValidator(validators=[is_valid_total_quantity]),
     },
-    "ObjectDeletedEvent": {
-        "object_uid": ProtoFieldValidator(validators=[is_valid_positive])
-    },
-    "ObjectsDeletedEvent": {
-        "objects_uid": ProtoFieldValidator(validators=[is_valid_list_positive])
-    },
+    "ObjectDeletedEvent": {"object_uid": ProtoFieldValidator(validators=[is_valid_positive])},
+    "ObjectsDeletedEvent": {"objects_uid": ProtoFieldValidator(validators=[is_valid_list_positive])},
     "JobExperience": {
         "job_id": ProtoFieldValidator(validators=[is_valid_job_id]),
         "job_level": ProtoFieldValidator(validators=[is_valid_job_lvl]),
@@ -399,20 +362,14 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
         "job_xp_level_floor": ProtoFieldValidator(validators=[is_valid_positive]),
         "job_xp_next_level_floor": ProtoFieldValidator(validators=[is_valid_positive]),
     },
-    "CharacterCharacteristic": {
-        "characteristic_id": ProtoFieldValidator(
-            validators=[is_valid_characteristic_id]
-        )
-    },
+    "CharacterCharacteristic": {"characteristic_id": ProtoFieldValidator(validators=[is_valid_characteristic_id])},
     "InteractiveUsedEvent": {
         "skill_id": ProtoFieldValidator(validators=[is_valid_skill_id]),
         "element_id": ProtoFieldValidator(validators=[is_valid_element_id]),
         "duration": ProtoFieldValidator(validators=[is_valid_duration]),
         "entity_id": ProtoFieldValidator(validators=[is_valid_strict_positive]),
     },
-    "InteractiveUseEndedEvent": {
-        "skill_id": ProtoFieldValidator(validators=[is_valid_skill_id])
-    },
+    "InteractiveUseEndedEvent": {"skill_id": ProtoFieldValidator(validators=[is_valid_skill_id])},
     "FightPlacementPositionRequest": {
         "cell_id": ProtoFieldValidator(validators=[is_valid_cell_id]),
         "entity_id": ProtoFieldValidator(validators=[is_valid_positive]),
@@ -423,9 +380,7 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
         "npc_id": ProtoFieldValidator(validators=[is_valid_npc_id]),
         "npc_action_id": ProtoFieldValidator(validators=[is_valid_npc_action_id]),
     },
-    "NpcDialogQuestionEvent": {
-        "map_id": ProtoFieldValidator(validators=[is_valid_map_id])
-    },
+    "NpcDialogQuestionEvent": {"map_id": ProtoFieldValidator(validators=[is_valid_map_id])},
     "ExchangeSellRequest": {
         "quantity": ProtoFieldValidator(validators=[is_valid_positive_total_quantity]),
         "object_uid": ProtoFieldValidator(validators=[is_valid_positive]),
@@ -443,39 +398,27 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
         "object_gid": ProtoFieldValidator(validators=[is_valid_gid]),
         "average_price": ProtoFieldValidator(validators=[is_valid_positive]),
     },
-    "ExchangeStartedWithStorageEvent": {
-        "storage_max_slot": ProtoFieldValidator(validators=[is_valid_positive])
-    },
+    "ExchangeStartedWithStorageEvent": {"storage_max_slot": ProtoFieldValidator(validators=[is_valid_positive])},
     "InventoryWeightEvent": {
         "inventory_weight": ProtoFieldValidator(validators=[is_valid_inventory_weight]),
         "weight_max": ProtoFieldValidator(validators=[is_valid_inventory_weight]),
     },
-    "InventoryContentEvent": {
-        "kamas": ProtoFieldValidator(validators=[is_valid_amount_of_kamas])
-    },
+    "InventoryContentEvent": {"kamas": ProtoFieldValidator(validators=[is_valid_amount_of_kamas])},
     "ExchangeTypesItemsExchangerDescriptionForUserEvent": {
         "object_gid": ProtoFieldValidator(validators=[is_valid_gid])
     },
     "InteractiveUseRequest": {
         "element_id": ProtoFieldValidator(validators=[is_valid_element_id]),
-        "skill_instance_uid": ProtoFieldValidator(
-            validators=[is_valid_strict_positive]
-        ),
-        "specific_instance_id": ProtoFieldValidator(
-            validators=[is_valid_specific_instance_id]
-        ),
+        "skill_instance_uid": ProtoFieldValidator(validators=[is_valid_strict_positive]),
+        "specific_instance_id": ProtoFieldValidator(validators=[is_valid_specific_instance_id]),
     },
-    "ExchangeBidHousePriceRequest": {
-        "object_gid": ProtoFieldValidator(validators=[is_valid_gid])
-    },
+    "ExchangeBidHousePriceRequest": {"object_gid": ProtoFieldValidator(validators=[is_valid_gid])},
     "ExchangeObjectModifyPricedRequest": {
         "object_uid": ProtoFieldValidator(validators=[is_valid_positive]),
         "quantity": ProtoFieldValidator(validators=[is_valid_sale_hotel_quantity]),
         "price": ProtoFieldValidator(validators=[is_valid_positive]),
     },
-    "HavenBagEnterRequest": {
-        "owner": ProtoFieldValidator(validators=[is_valid_positive])
-    },
+    "HavenBagEnterRequest": {"owner": ProtoFieldValidator(validators=[is_valid_positive])},
     "Element": {
         "cell_id": ProtoFieldValidator(validators=[is_valid_cell_id]),
         "orientation": ProtoFieldValidator(validators=[is_valid_direction]),
@@ -496,9 +439,7 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
         "spell_id": ProtoFieldValidator(validators=[is_valid_spell]),
         "spell_level": ProtoFieldValidator(validators=[is_valid_spell_numero]),
     },
-    "GameActionAcknowledgementRequest": {
-        "action_id": ProtoFieldValidator(validators=[is_valid_action_id])
-    },
+    "GameActionAcknowledgementRequest": {"action_id": ProtoFieldValidator(validators=[is_valid_action_id])},
     "ExchangeObjectMovePricedRequest": {
         "object_uid": ProtoFieldValidator(validators=[is_valid_positive]),
         "quantity": ProtoFieldValidator(validators=[is_valid_sale_hotel_quantity]),
@@ -514,12 +455,8 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
         "grade": ProtoFieldValidator(validators=[is_valid_grade]),
         "level": ProtoFieldValidator(validators=[is_valid_monster_level]),
     },
-    "LifePointsGain": {
-        "delta": ProtoFieldValidator(validators=[is_valid_strict_positive])
-    },
-    "LifePointsLost": {
-        "loss": ProtoFieldValidator(validators=[is_valid_strict_positive])
-    },
+    "LifePointsGain": {"delta": ProtoFieldValidator(validators=[is_valid_strict_positive])},
+    "LifePointsLost": {"loss": ProtoFieldValidator(validators=[is_valid_strict_positive])},
     "UpdateLifePointsEvent": {
         "life_point": ProtoFieldValidator(validators=[is_valid_positive]),
         "max_life_point": ProtoFieldValidator(validators=[is_valid_strict_positive]),
@@ -545,9 +482,7 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
     },
     "SpellImmunity": {"spell_id": ProtoFieldValidator(validators=[is_valid_spell])},
     "InvisibleDetected": {"cell": ProtoFieldValidator(validators=[is_valid_cell_id])},
-    "SpellsEvent": {
-        "human_spells": ProtoFieldValidator(validators=[is_not_default_value])
-    },
+    "SpellsEvent": {"human_spells": ProtoFieldValidator(validators=[is_not_default_value])},
     "ObjectEffect": {"value_int": ProtoFieldValidator(validators=[is_valid_positive])},
     "ChatChannelMessageEvent": {
         "sender_name": ProtoFieldValidator(validators=[is_valid_nickname]),
@@ -558,15 +493,9 @@ VALIDATORS_ON_FIELD: dict[str, dict[str, ProtoFieldValidator]] = {
     },
     "CharacterCharacteristicDetailedUsable": {
         "base": ProtoFieldValidator(validators=[lambda elem: elem in [3, 6, 7]]),
-        "objects_and_mount_bonus": ProtoFieldValidator(
-            validators=[lambda elem: elem >= 0 and elem < 6]
-        ),
-        "context_modification": ProtoFieldValidator(
-            validators=[lambda elem: elem <= 0 and elem >= -12]
-        ),
-        "alignment_gift_bonus": ProtoFieldValidator(
-            validators=[lambda elem: elem == 0]
-        ),
+        "objects_and_mount_bonus": ProtoFieldValidator(validators=[lambda elem: elem >= 0 and elem < 6]),
+        "context_modification": ProtoFieldValidator(validators=[lambda elem: elem <= 0 and elem >= -12]),
+        "alignment_gift_bonus": ProtoFieldValidator(validators=[lambda elem: elem == 0]),
         "temporary": ProtoFieldValidator(validators=[lambda elem: elem == 0]),
         "additional": ProtoFieldValidator(validators=[lambda elem: elem == 0]),
         "used": ProtoFieldValidator(validators=[lambda elem: elem >= 0]),

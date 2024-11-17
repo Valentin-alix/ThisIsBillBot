@@ -7,16 +7,15 @@ from src.core.events_manager.priority import PriorityEnum
 from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.states.game_state import GameState
 from src.services.human_timings import get_random_range
-from src.services.logging.logger import Logger
+from src.services.logging.contextual_logger import ContextualLogger
 
 
 @dataclass
-class Frame:
+class Frame(ContextualLogger):
     event_manager: EventManager
     game_state: GameState
     game_info_signals: GameInfoSignals
     inventory_signals: InventorySignals
-    logger: Logger
     is_playing_event: Event
 
     priority: PriorityEnum = field(default=PriorityEnum.FRAME, init=False)
@@ -41,7 +40,6 @@ class Frame:
             wait_time = get_random_range(range_time)
         else:
             wait_time = range_time
-        self.logger.info(f"Waiting for {wait_time} before executing function {func}")
         timer = Timer(wait_time, lambda: self.run_timed_func(func))
         self._timers.append(timer)
         timer.start()
@@ -49,3 +47,22 @@ class Frame:
     def run_timed_func(self, func: Callable[[], None]):
         with self.event_manager.lock:
             func()
+
+    def unregister_listener(self, event_type: type, reason: str = "") -> None:
+        """
+        Nettoie un listener spécifique en cours d'exécution.
+
+        Note: Utilisez cette méthode uniquement si vous devez nettoyer
+        un listener pendant que le behavior continue à s'exécuter.
+        Si le behavior va terminer juste après, laissez clear_behavior()
+        gérer le nettoyage automatiquement.
+
+        Args:
+            event_type: Type d'événement à dé-enregistrer
+            reason: Raison du nettoyage manuel (pour debug/doc)
+        """
+        if reason:
+            self.logger.debug(
+                f"Manual listener cleanup: {event_type.__name__} - {reason}"
+            )
+        self.event_manager.clear_listener_by_origin_and_type(event_type, self)

@@ -151,6 +151,18 @@ class FarmerWidget(PivotItem):
             onClick=lambda: stacked_widget.setCurrentWidget(inventory_tab),
         )
 
+        # stats_tab = StatsTab(
+        #     self.bot.game_state.player.character_name,
+        #     self.bot.game_state.player.game_info_signals,
+        # )
+        # stacked_widget.addWidget(stats_tab)
+        # stats_route = f"{self.objectName()}_stats_tab"
+        # pivot.addItem(
+        #     routeKey=stats_route,
+        #     text="Statistiques",
+        #     onClick=lambda: stacked_widget.setCurrentWidget(stats_tab),
+        # )
+
     @pyqtSlot()
     def on_type_action_changed(self):
         current_action = self.type_action_combo.currentText()

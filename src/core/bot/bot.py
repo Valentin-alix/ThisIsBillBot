@@ -6,7 +6,6 @@ from typing import Any
 from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
 from PyQt5.QtCore import QThread
 
-from D3Mapping.d3_mapping.signals.message_signals import MessageInfoSignals
 from src.controller.bot_config import BotConfigController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
@@ -26,18 +25,19 @@ from src.core.frames.frame import Frame
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.grid_signals import GridSignals
 from src.core.signals.log_signals import LogSignals
+from src.core.signals.message_signals import MessageInfoSignals
 from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.signals.replay_signals import ReplaySignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.signals.world_signals import WorldSignals
 from src.core.states.game_state import GameState
-from src.services.logging.logger import Logger
+from src.services.logging.contextual_logger import ContextualLogger
 from src.services.recorder import Recorder
 from src.services.replayer import Replayer
 
 
 @dataclass
-class Bot:
+class Bot(ContextualLogger):
     """
     Main bot class representing a single Dofus bot instance.
 
@@ -81,7 +81,6 @@ class Bot:
     usable_behaviors: list[Behavior]
 
     replayer: Replayer
-    logger: Logger
     is_connected_event: Event
     is_ready_to_play_event: Event
     is_playing_event: Event
@@ -117,9 +116,10 @@ class Bot:
             is_ready_to_play_event=self.is_ready_to_play_event,
             is_playing_event=self.is_playing_event,
             fight_behavior=self.fight_behavior,
-            logger=self.logger,
+            _logger=self.logger,
             account=self.account,
             shared_signals=self.shared_signals,
+            event_manager=self.event_manager,
             bot_config=self.bot_config,
             is_connected_event=self.is_connected_event,
             from_manual_play=self.from_manual_play,
@@ -137,7 +137,7 @@ class Bot:
             game_state=self.game_state,
             dungeon_behavior=self.dungeon_behavior,
             fight_behavior=self.fight_behavior,
-            logger=self.logger,
+            _logger=self.logger,
             account=self.account,
             shared_signals=self.shared_signals,
             bot_config=self.bot_config,
@@ -145,10 +145,10 @@ class Bot:
             is_connected_event=self.is_connected_event,
         )
 
-        self.process_manager = ProcessManager(logger=self.logger)
+        self.process_manager = ProcessManager(_logger=self.logger)
         self.scheduler = BotScheduler(
             is_playing_event=self.is_playing_event,
-            logger=self.logger,
+            _logger=self.logger,
             account=self.account,
             shared_signals=self.shared_signals,
             bot_config=self.bot_config,

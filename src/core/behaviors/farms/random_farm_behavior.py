@@ -69,17 +69,8 @@ class RandomFarmBehavior(Behavior):
         self.edge_path = None
         return super().stop()
 
-    def run(
-        self,
-    ):
-        if (
-            (self.edge_path is None or len(self.edge_path) == 0)
-            and self.game_state.map.map_id not in self.map_ids
-        ) or (
-            self.edge_path is not None
-            and len(self.edge_path) > 0
-            and self.edge_path[0].m_from.m_mapId != self.game_state.map.map_id
-        ):
+    def run(self):
+        if self._should_go_to_area():
             self.edge_path = None
             self.logger.info("go to area for farm")
             return self.auto_trip_smart_behavior.start(
@@ -88,25 +79,46 @@ class RandomFarmBehavior(Behavior):
                 map_ids=self.map_ids,
             )
 
-        if self.edge_path is None or len(self.edge_path) == 0:
-            self.logger.info("Empty edge path, recalculating")
-            with PATH_LOCK:
-                self.edge_path = None
-                self.edge_path = self.get_next_weighted_path()
-            if self.edge_path is None:
-                return self.auto_trip_smart_behavior.start(
-                    callback=self.on_auto_trip_world_behavior_finished,
-                    parent=self,
-                    map_ids=self.map_ids - {self.game_state.map.map_id},
-                )
-            draw_edge_path(self.world_signals, self.edge_path)
+        if self._is_edge_path_empty():
+            self._recalculate_edge_path()
 
-        edge = self.edge_path[0]
-        self.edge_behavior.start(
-            callback=partial(self.on_edge_behavior_finished, edge=edge),
-            parent=self,
-            edge=edge,
+        if self.edge_path is not None and len(self.edge_path) > 0:
+            edge = self.edge_path[0]
+            self.edge_behavior.start(
+                callback=partial(self.on_edge_behavior_finished, edge=edge),
+                parent=self,
+                edge=edge,
+            )
+
+    def _should_go_to_area(self) -> bool:
+        is_outside_farm_area = (
+            self._is_edge_path_empty()
+            and self.game_state.map.map_id not in self.map_ids
         )
+        is_path_desynchronized = (
+            self.edge_path is not None
+            and len(self.edge_path) > 0
+            and self.edge_path[0].m_from.m_mapId != self.game_state.map.map_id
+        )
+        return is_outside_farm_area or is_path_desynchronized
+
+    def _is_edge_path_empty(self) -> bool:
+        return self.edge_path is None or len(self.edge_path) == 0
+
+    def _recalculate_edge_path(self):
+        self.logger.info("Empty edge path, recalculating")
+        with PATH_LOCK:
+            self.edge_path = None
+            self.edge_path = self.get_next_weighted_path()
+
+        if self.edge_path is None:
+            self.auto_trip_smart_behavior.start(
+                callback=self.on_auto_trip_world_behavior_finished,
+                parent=self,
+                map_ids=self.map_ids - {self.game_state.map.map_id},
+            )
+        else:
+            draw_edge_path(self.world_signals, self.edge_path)
 
     def get_map_ids(self, area_id: int | None, sub_area_id: int | None) -> set[int]:
         self.logger.info(
@@ -162,11 +174,10 @@ class RandomFarmBehavior(Behavior):
 
     def get_next_weighted_path(self) -> list[Edge] | None:
         cached_weight_by_map_id: dict[int, float] = {}
-        path = self.weighted_path.monte_carlo_path(
+        path = self.weighted_path.beam_search_path(
             start_vertex=self.game_state.map.curr_vertex,
             get_weight_by_edge_func=self.get_weight_edge,
             weight_by_map_id=cached_weight_by_map_id,
-            count_map_in_area=len(self.map_ids),
         )[0]
         draw_weight_on_map(cached_weight_by_map_id, self.world_signals)
         if len(path) == 0:
@@ -178,28 +189,33 @@ class RandomFarmBehavior(Behavior):
     def get_weight_edge(self, edge: Edge) -> float:
         if edge.m_to.m_mapId not in self.map_ids:
             return -1
-        last_visited = LAST_VISITED_BY_MAP_ID.get(edge.m_to.m_mapId, MIN_DATE)
-        if (
-            additional_weight_map := self.additional_weight_by_map_id.get(
-                edge.m_to.m_mapId
-            )
-        ) is None:
-            additional_weight_map = self.get_additional_weight_by_map_id(
-                edge.m_to.m_mapId
-            )
-            self.additional_weight_by_map_id[edge.m_to.m_mapId] = additional_weight_map
 
-        count_edge_already_on_other_players = len(
-            [
-                edge
-                for character_id, edge_path in list(EDGE_PATH_BY_CHARACTER_ID.items())
-                for edge in edge_path
-                if character_id != self.game_state.player.character_id and edge == edge
-            ]
+        time_weight = self._calculate_time_weight(edge.m_to.m_mapId)
+        additional_weight = self._get_cached_additional_weight(edge.m_to.m_mapId)
+        randomness_factor = random.uniform(0.8, 1)
+        competition_penalty = self._calculate_competition_penalty(edge)
+
+        return (time_weight * (1 + additional_weight) * randomness_factor) / (
+            1 + competition_penalty
         )
 
-        return (
-            (min((datetime.now() - last_visited).total_seconds(), 3600) ** 3)
-            * (1 + additional_weight_map)
-            * random.uniform(0.65, 1)
-        ) / (1 + count_edge_already_on_other_players)
+    def _calculate_time_weight(self, map_id: int) -> float:
+        last_visited = LAST_VISITED_BY_MAP_ID.get(map_id, MIN_DATE)
+        seconds_since_visit = (datetime.now() - last_visited).total_seconds()
+        return min(seconds_since_visit, 3600) ** 3
+
+    def _get_cached_additional_weight(self, map_id: int) -> float:
+        if map_id not in self.additional_weight_by_map_id:
+            self.additional_weight_by_map_id[map_id] = (
+                self.get_additional_weight_by_map_id(map_id)
+            )
+        return self.additional_weight_by_map_id[map_id]
+
+    def _calculate_competition_penalty(self, edge: Edge) -> int:
+        return sum(
+            1
+            for character_id, edge_path in EDGE_PATH_BY_CHARACTER_ID.items()
+            if character_id != self.game_state.player.character_id
+            for other_edge in edge_path
+            if other_edge == edge
+        )

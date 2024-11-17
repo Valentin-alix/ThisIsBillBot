@@ -21,44 +21,44 @@ class StateFactory:
         grid_signals: GridSignals,
         logger: Logger,
     ):
-        entity_state = EntityState(grid_signals=grid_signals, logger=logger)
-        player_state = PlayerState(game_info_signals=game_info_signals, logger=logger)
+        entity_state = EntityState(grid_signals=grid_signals, _logger=logger)
+        player_state = PlayerState(game_info_signals=game_info_signals, _logger=logger)
         inventory_state = InventoryState(
             inventory_signals=inventory_signals,
-            logger=logger,
+            _logger=logger,
             player_state=player_state,
         )
         map_state = MapState(
             grid_signals=grid_signals,
             game_info_signals=game_info_signals,
-            logger=logger,
+            _logger=logger,
             player_state=player_state,
             entity_state=entity_state,
         )
         sale_hotel_state = SaleHotelState(
             game_info_signals=game_info_signals,
-            logger=logger,
+            _logger=logger,
             player_state=player_state,
         )
 
         fight_state = FightState(
             game_info_signals=game_info_signals,
             player_state=player_state,
-            logger=logger,
+            _logger=logger,
             entity_state=entity_state,
         )
         guild_chest_state = GuildChestState(
             game_info_signals=game_info_signals,
-            logger=logger,
+            _logger=logger,
             player_state=player_state,
         )
         interactive_state = InteractiveState(
             grid_signals=grid_signals,
-            logger=logger,
+            _logger=logger,
             player_state=player_state,
             map_state=map_state,
         )
-        craft_state = CraftState(logger=logger, player_state=player_state)
+        craft_state = CraftState(_logger=logger, player_state=player_state)
         game_state = GameState(
             entity=entity_state,
             fight=fight_state,

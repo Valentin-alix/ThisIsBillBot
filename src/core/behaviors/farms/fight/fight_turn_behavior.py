@@ -18,7 +18,6 @@ from src.core.behaviors.farms.fight.fight_spell_behavior import FightSpellBehavi
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.engine.fights.attack import Attacker
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
-from src.exceptions import UnhandledErrorCodeException
 from src.services.human_timings import HumanTimingsService
 
 DO_RUNAWAY_AFTER_ATK = True
@@ -101,18 +100,18 @@ class FightTurnBehavior(Behavior):
         if error_code is MapMoveError.CANCELED_MOVEMENT:
             return self.find_and_do_attack()
         if error_code is MapMoveError.REFUSED:
-            self.game_state.fight.characteristic_by_id[
-                CharacteristicEnum.MOVEMENT_POINTS
-            ] = CharacterCharacteristic(
-                characteristic_id=CharacteristicEnum.MOVEMENT_POINTS,
-                detailed=CharacterCharacteristicDetailed(
-                    base=6,
-                    additional=0,
-                    objects_and_mount_bonus=0,
-                    alignment_gift_bonus=0,
-                    context_modification=-6,
-                    temporary=0,
-                ),
+            self.game_state.fight.update_characteristic(
+                CharacterCharacteristic(
+                    characteristic_id=CharacteristicEnum.MOVEMENT_POINTS,
+                    detailed=CharacterCharacteristicDetailed(
+                        base=6,
+                        additional=0,
+                        objects_and_mount_bonus=0,
+                        alignment_gift_bonus=0,
+                        context_modification=-6,
+                        temporary=0,
+                    ),
+                )
             )
             return self.find_and_do_attack()
         elif error_code is MapMoveError.CELL_TAKEN:
@@ -123,9 +122,7 @@ class FightTurnBehavior(Behavior):
         callback()
 
     def on_fight_spell_behavior_finished(self, error_code: str | None):
-        if error_code is not None:
-            raise UnhandledErrorCodeException(error_code)
-
+        self.raise_if_error(error_code)
         self.find_and_do_attack()
 
     def pass_turn(self):

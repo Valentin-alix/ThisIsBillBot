@@ -1,6 +1,6 @@
 import unittest
+from unittest.mock import MagicMock, patch
 
-from D3Database.data_center.data_reader import DataReader
 from D3Database.enums.jobs_enum import JobEnum
 from D3Database.models.datas.recipe_root import RecipeItem
 from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
@@ -9,10 +9,11 @@ from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
 )
 from src.core.engine.crafts.recipes import (
     FORBIDDEN_CRAFT_IDS,
+    get_benefice_on_craft_recipe,
     get_max_possible_result_quantity,
     get_max_result_quantity,
     get_valid_recipes,
-    is_not_valid_recipe_for_lvl_up_job,
+    is_not_valid_recipe_for_lvl_up_job_or_benefice,
 )
 from src.core.signals.log_signals import LogSignals
 from src.services.logging.logger import Logger
@@ -27,22 +28,23 @@ class TestRecipesReal(unittest.TestCase):
     # is_not_valid_recipe_for_lvl_up_job
     # ------------------------------------------------------------------
     def test_is_not_valid_recipe_for_lvl_up_job(self):
+        # Use real valid recipe from DataReader: Peasant level 1 recipe with gatherable ingredients
         recipe = RecipeItem(
-            resultId=1,
-            resultNameId="1",
-            resultTypeId=0,
-            resultLevel=5,
-            ingredientIds=[],
-            quantities=[2],
+            resultId=468,
+            resultNameId="521785",
+            resultTypeId=33,
+            resultLevel=1,
+            ingredientIds=[289],
+            quantities=[4],
             jobId=JobEnum.PEASANT,
-            skillId=101,
+            skillId=27,
         )
-        result = is_not_valid_recipe_for_lvl_up_job(
+        result = is_not_valid_recipe_for_lvl_up_job_or_benefice(
             recipe, is_sub=False, jobs_lvl_by_id=self.jobs_lvl_by_id
         )
         self.assertFalse(result)
 
-        result2 = is_not_valid_recipe_for_lvl_up_job(
+        result2 = is_not_valid_recipe_for_lvl_up_job_or_benefice(
             recipe, is_sub=False, jobs_lvl_by_id={JobEnum.PEASANT: 200}
         )
         self.assertTrue(result2)
@@ -51,32 +53,30 @@ class TestRecipesReal(unittest.TestCase):
     # get_max_result_quantity
     # ------------------------------------------------------------------
     def test_get_max_result_quantity(self):
-        item1 = ObjectItem(uid=1, gid=1, quantity=10)
-        item2 = ObjectItem(uid=2, gid=2, quantity=4)
+        # Using real item GIDs: 44 (weight=1), 49 (weight=5)
+        item1 = ObjectItem(uid=1, gid=44, quantity=10)
+        item2 = ObjectItem(uid=2, gid=49, quantity=4)
         inventory = {
-            1: ObjectItemInventory(item=item1),
-            2: ObjectItemInventory(item=item2),
+            44: ObjectItemInventory(item=item1),
+            49: ObjectItemInventory(item=item2),
         }
 
         recipe = RecipeItem(
-            resultId=1,
-            resultNameId="1",
+            resultId=100,
+            resultNameId="100",
             resultTypeId=0,
             resultLevel=1,
-            ingredientIds=[1, 2],
+            ingredientIds=[44, 49],
             quantities=[2, 1],
-            jobId=1,
-            skillId=1,
+            jobId=JobEnum.ALCHEMIST,
+            skillId=23,
         )
 
         max_q, weight = get_max_result_quantity(self.logger, inventory, recipe)
-        self.assertEqual(max_q, 4)  # limité par ingredient 2
-        # Poids calculé via DataReader().item_by_id[].realWeight
-        expected_weight = sum(
-            qty * (DataReader().item_by_id[gid].realWeight or 0)
-            for gid, qty in zip(recipe.ingredientIds, recipe.quantities)
-        )
-        self.assertEqual(weight, expected_weight)
+        assert max_q == 4  # limité par ingredient 49 (quantity=4, needs 1 per craft)
+        # Poids calculé: 2*1 + 1*5 = 7
+        expected_weight = 2 * 1 + 1 * 5
+        assert weight == expected_weight
 
     # ------------------------------------------------------------------
     # get_max_possible_result_quantity
@@ -103,13 +103,13 @@ class TestRecipesReal(unittest.TestCase):
             resultLevel=1,
             ingredientIds=[],
             quantities=[],
-            jobId=1,
-            skillId=1,
+            jobId=JobEnum.WOODCUTTER,
+            skillId=6,  # Valid skill ID with parent job WOODCUTTER (2)
         )
         valid = get_valid_recipes(self.logger, self.jobs_lvl_by_id, [forbidden_recipe])
-        self.assertEqual(valid, [])
+        assert valid == []
 
-        # Recette valide
+        # Recette valide pour ALCHEMIST (niveau 5)
         valid_recipe = RecipeItem(
             resultId=2,
             resultNameId="2",
@@ -117,11 +117,240 @@ class TestRecipesReal(unittest.TestCase):
             resultLevel=5,
             ingredientIds=[],
             quantities=[],
-            jobId=1,
-            skillId=1,
+            jobId=JobEnum.ALCHEMIST,
+            skillId=23,  # Valid skill ID for ALCHEMIST
         )
         valid2 = get_valid_recipes(self.logger, self.jobs_lvl_by_id, [valid_recipe])
-        self.assertEqual(valid2, [valid_recipe])
+        assert valid2 == [valid_recipe]
+
+        # Recette invalide car le niveau du job est insuffisant
+        invalid_recipe = RecipeItem(
+            resultId=3,
+            resultNameId="3",
+            resultTypeId=0,
+            resultLevel=10,  # Niveau 10 requis mais ALCHEMIST est niveau 5
+            ingredientIds=[],
+            quantities=[],
+            jobId=JobEnum.ALCHEMIST,
+            skillId=23,
+        )
+        valid3 = get_valid_recipes(self.logger, self.jobs_lvl_by_id, [invalid_recipe])
+        assert valid3 == []
+
+    # ------------------------------------------------------------------
+    # get_benefice_on_craft_recipe
+    # ------------------------------------------------------------------
+    @patch("src.core.engine.crafts.recipes.SaleHotelController")
+    def test_get_benefice_on_craft_recipe_profitable(self, mock_controller_class):
+        mock_controller = MagicMock()
+        mock_controller_class.return_value = mock_controller
+        mock_controller.get_avg_price_by_gid.return_value = {
+            100: 1000.0,
+            50: 200.0,
+            51: 150.0,
+        }
+
+        recipe = RecipeItem(
+            resultId=100,
+            resultNameId="100",
+            resultTypeId=0,
+            resultLevel=10,
+            ingredientIds=[50, 51],
+            quantities=[2, 3],
+            jobId=JobEnum.ALCHEMIST,
+            skillId=23,
+        )
+
+        profit, profit_percent = get_benefice_on_craft_recipe(recipe)
+
+        expected_profit = 1000.0 - 200.0 - 150.0
+        expected_percent = expected_profit / 1000.0
+
+        self.assertEqual(profit, expected_profit)
+        self.assertAlmostEqual(profit_percent, expected_percent)
+        self.assertEqual(profit, 650.0)
+        self.assertAlmostEqual(profit_percent, 0.65)
+
+    @patch("src.core.engine.crafts.recipes.SaleHotelController")
+    def test_get_benefice_on_craft_recipe_loss(self, mock_controller_class):
+        mock_controller = MagicMock()
+        mock_controller_class.return_value = mock_controller
+        mock_controller.get_avg_price_by_gid.return_value = {
+            100: 500.0,
+            50: 300.0,
+            51: 250.0,
+        }
+
+        recipe = RecipeItem(
+            resultId=100,
+            resultNameId="100",
+            resultTypeId=0,
+            resultLevel=10,
+            ingredientIds=[50, 51],
+            quantities=[2, 3],
+            jobId=JobEnum.ALCHEMIST,
+            skillId=23,
+        )
+
+        profit, profit_percent = get_benefice_on_craft_recipe(recipe)
+
+        expected_profit = 500.0 - 300.0 - 250.0
+        expected_percent = expected_profit / 500.0
+
+        self.assertEqual(profit, expected_profit)
+        self.assertAlmostEqual(profit_percent, expected_percent)
+        self.assertEqual(profit, -50.0)
+        self.assertAlmostEqual(profit_percent, -0.1)
+
+    @patch("src.core.engine.crafts.recipes.SaleHotelController")
+    def test_get_benefice_on_craft_recipe_no_result_price(self, mock_controller_class):
+        mock_controller = MagicMock()
+        mock_controller_class.return_value = mock_controller
+        mock_controller.get_avg_price_by_gid.return_value = {
+            50: 200.0,
+            51: 150.0,
+        }
+
+        recipe = RecipeItem(
+            resultId=100,
+            resultNameId="100",
+            resultTypeId=0,
+            resultLevel=10,
+            ingredientIds=[50, 51],
+            quantities=[2, 3],
+            jobId=JobEnum.ALCHEMIST,
+            skillId=23,
+        )
+
+        profit, profit_percent = get_benefice_on_craft_recipe(recipe)
+
+        self.assertEqual(profit, 0)
+        self.assertEqual(profit_percent, 0)
+
+    @patch("src.core.engine.crafts.recipes.SaleHotelController")
+    def test_get_benefice_on_craft_recipe_missing_ingredient_price(
+        self, mock_controller_class
+    ):
+        mock_controller = MagicMock()
+        mock_controller_class.return_value = mock_controller
+        mock_controller.get_avg_price_by_gid.return_value = {
+            100: 1000.0,
+            50: 200.0,
+        }
+
+        recipe = RecipeItem(
+            resultId=100,
+            resultNameId="100",
+            resultTypeId=0,
+            resultLevel=10,
+            ingredientIds=[50, 51],
+            quantities=[2, 3],
+            jobId=JobEnum.ALCHEMIST,
+            skillId=23,
+        )
+
+        profit, profit_percent = get_benefice_on_craft_recipe(recipe)
+
+        self.assertEqual(profit, 0)
+        self.assertEqual(profit_percent, 0)
+
+    @patch("src.core.engine.crafts.recipes.SaleHotelController")
+    def test_get_benefice_on_craft_recipe_zero_profit(self, mock_controller_class):
+        mock_controller = MagicMock()
+        mock_controller_class.return_value = mock_controller
+        mock_controller.get_avg_price_by_gid.return_value = {
+            100: 500.0,
+            50: 300.0,
+            51: 200.0,
+        }
+
+        recipe = RecipeItem(
+            resultId=100,
+            resultNameId="100",
+            resultTypeId=0,
+            resultLevel=10,
+            ingredientIds=[50, 51],
+            quantities=[2, 3],
+            jobId=JobEnum.ALCHEMIST,
+            skillId=23,
+        )
+
+        profit, profit_percent = get_benefice_on_craft_recipe(recipe)
+
+        expected_profit = 500.0 - 300.0 - 200.0
+        expected_percent = expected_profit / 500.0
+
+        self.assertEqual(profit, expected_profit)
+        self.assertAlmostEqual(profit_percent, expected_percent)
+        self.assertEqual(profit, 0.0)
+        self.assertAlmostEqual(profit_percent, 0.0)
+
+    @patch("src.core.engine.crafts.recipes.SaleHotelController")
+    def test_get_benefice_on_craft_recipe_single_ingredient(
+        self, mock_controller_class
+    ):
+        mock_controller = MagicMock()
+        mock_controller_class.return_value = mock_controller
+        mock_controller.get_avg_price_by_gid.return_value = {
+            100: 800.0,
+            50: 300.0,
+        }
+
+        recipe = RecipeItem(
+            resultId=100,
+            resultNameId="100",
+            resultTypeId=0,
+            resultLevel=5,
+            ingredientIds=[50],
+            quantities=[1],
+            jobId=JobEnum.PEASANT,
+            skillId=27,
+        )
+
+        profit, profit_percent = get_benefice_on_craft_recipe(recipe)
+
+        expected_profit = 800.0 - 300.0
+        expected_percent = expected_profit / 800.0
+
+        self.assertEqual(profit, expected_profit)
+        self.assertAlmostEqual(profit_percent, expected_percent)
+        self.assertEqual(profit, 500.0)
+        self.assertAlmostEqual(profit_percent, 0.625)
+
+    @patch("src.core.engine.crafts.recipes.SaleHotelController")
+    def test_get_benefice_on_craft_recipe_multiple_ingredients(
+        self, mock_controller_class
+    ):
+        mock_controller = MagicMock()
+        mock_controller_class.return_value = mock_controller
+        mock_controller.get_avg_price_by_gid.return_value = {
+            200: 2000.0,
+            10: 100.0,
+            20: 150.0,
+            30: 200.0,
+            40: 250.0,
+        }
+
+        recipe = RecipeItem(
+            resultId=200,
+            resultNameId="200",
+            resultTypeId=0,
+            resultLevel=50,
+            ingredientIds=[10, 20, 30, 40],
+            quantities=[1, 2, 3, 4],
+            jobId=JobEnum.ALCHEMIST,
+            skillId=23,
+        )
+
+        profit, profit_percent = get_benefice_on_craft_recipe(recipe)
+
+        expected_profit = 2000.0 - 100.0 - 150.0 - 200.0 - 250.0
+        expected_percent = expected_profit / 2000.0
+
+        self.assertEqual(profit, expected_profit)
+        self.assertAlmostEqual(profit_percent, expected_percent)
+        self.assertEqual(profit, 1300.0)
+        self.assertAlmostEqual(profit_percent, 0.65)
 
 
 if __name__ == "__main__":

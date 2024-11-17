@@ -28,4 +28,4 @@ def generate_random_fake_game_message() -> list[Message]:
 
 if __name__ == "__main__":
     for _ in range(50):
-        print(generate_ObjectAddedEvent())
+        generate_ObjectAddedEvent()

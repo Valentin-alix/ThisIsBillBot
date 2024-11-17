@@ -11,7 +11,7 @@ from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
 from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
-from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )
@@ -26,7 +26,7 @@ class LoadFromBankError(StrEnum):
 
 
 @dataclass
-class LoadFromBankBehavior(Behavior):
+class LoadFromBankBehavior(DialogHandlerBehavior):
     enter_bank_behavior: EnterBankChestBehavior
     unload_behavior: UnloadBehavior
 
@@ -120,11 +120,10 @@ class LoadFromBankBehavior(Behavior):
             object_uid=related_item.item.uid,
             quantity=-valid_quantity,
         )
-        self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(req))
+        self.send_message_delayed(req, SMALL_RANGE)
 
     def on_item_loaded(self, load_items_infos: list[LoadItemInfo]):
         self.load_item(load_items_infos)
 
     def leave_all_dialogs(self):
-        request = DialogLeaveRequest()
-        self.event_manager.send(request)
+        self.leave_dialog()

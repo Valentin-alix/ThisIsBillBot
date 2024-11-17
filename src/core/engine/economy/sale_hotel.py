@@ -16,10 +16,11 @@ from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.models
     QuantityIndex,
 )
 from src.core.config import MAX_QUANTITY_ON_SELL
+from src.core.engine.monsters.drops import PROTECTOR_DROP_ITEM_IDS
 from src.core.engine.weights.harvester.weight_collectable import (
     get_weight_collectable_for_sale_hotel,
 )
-from src.core.game_constants import PROTECTOR_DROP_ITEM_IDS, SELLABLE_ITEMS
+from src.core.frames.sale_hotel_frame import SELLABLE_ITEMS
 from src.services.logging.logger import Logger
 
 

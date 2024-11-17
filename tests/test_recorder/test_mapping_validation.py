@@ -12,15 +12,13 @@ import unittest
 from typing import List, Tuple
 
 from D3Mapping.d3_mapping.models.message import MessageInfo
-from D3Mapping.d3_mapping.protocol.protocol_game import (
-    get_obf_game_message_from_msg,
-)
+from D3Mapping.d3_mapping.protocol.protocol_game import get_obf_game_message_from_msg
 from D3Mapping.d3_mapping.resources.protos.game.game_message_pb2 import Request
-from D3Mapping.d3_mapping.signals.message_signals import MessageInfoSignals
 from src.const import RECORDING_FOLDER
 from src.core.events_manager.event_manager import EventManager
 from src.core.signals.grid_signals import GridSignals
 from src.core.signals.log_signals import LogSignals
+from src.core.signals.message_signals import MessageInfoSignals
 from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.states.state_factory import StateFactory
 from src.services.logging.logger import Logger
@@ -90,7 +88,7 @@ class MappingValidator:
             grid_signals=grid_signals,
             logger=logger,
         )
-        self.event_manager: EventManager = EventManager(logger=logger)
+        self.event_manager: EventManager = EventManager(_logger=logger)
         self.msg_info_signals: MessageInfoSignals = MessageInfoSignals()
         self.replayer: Replayer = Replayer(
             game_state=self.game_state,
@@ -125,9 +123,7 @@ class MappingValidator:
 
         # Replay obfuscated messages
         try:
-            worker = self.replayer.get_replay_worker(
-                recording_path, preserve_timing=False, use_obfuscated=True
-            )
+            worker = self.replayer.get_replay_worker(recording_path, preserve_timing=False, use_obfuscated=True)
             worker()
 
             # Analyze each processed message
@@ -137,9 +133,7 @@ class MappingValidator:
                     if msg_info.msg_json is not None:
                         result.add_success()
                     else:
-                        result.add_failure(
-                            msg_info.sub_msg_name, "No msg_json produced"
-                        )
+                        result.add_failure(msg_info.sub_msg_name, "No msg_json produced")
 
                     # Additional validation could be added here:
                     # - Check if all required fields are present
@@ -183,9 +177,7 @@ class TestMappingValidation(unittest.TestCase):
 
         for idx, clear_msg in enumerate(test_messages):
             # Create obfuscated version
-            obf_msg = get_obf_game_message_from_msg(
-                Request.DESCRIPTOR.full_name, clear_msg, uid=idx + 100
-            )
+            obf_msg = get_obf_game_message_from_msg(Request.DESCRIPTOR.full_name, clear_msg, uid=idx + 100)
 
             assert obf_msg
 
@@ -242,9 +234,7 @@ class TestMappingValidation(unittest.TestCase):
             else:
                 clear_msg = generate_ChatChannelMessageRequest()
 
-            obf_msg = get_obf_game_message_from_msg(
-                Request.DESCRIPTOR.full_name, clear_msg, uid=i + 200
-            )
+            obf_msg = get_obf_game_message_from_msg(Request.DESCRIPTOR.full_name, clear_msg, uid=i + 200)
 
             assert obf_msg
 
@@ -263,9 +253,6 @@ class TestMappingValidation(unittest.TestCase):
 
         result = self.validator._validate_mapping(saved_path)
 
-        print(result)
-
-        # All synthetic messages should validate correctly
         self.assertTrue(result.is_valid())
         self.assertEqual(result.total_messages, message_count)
         self.assertEqual(result.successful_conversions, message_count)
@@ -277,9 +264,8 @@ def validate_real_traffic_recording(recording_path: str) -> MappingValidationRes
 
     Usage:
         result = validate_real_traffic_recording("captures/session_20250116.jsonl")
-        print(result)
         if not result.is_valid():
-            print("Failed conversions:", result.failed_conversions)
+            pass
 
     Args:
         recording_path: Path to recording file captured from real gameplay

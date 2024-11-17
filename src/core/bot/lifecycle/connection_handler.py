@@ -14,11 +14,11 @@ from src.core.game_constants import DUNGEONS_INFOS
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
-from src.services.logging.logger import Logger
+from src.services.logging.contextual_logger import ContextualLogger
 
 
 @dataclass
-class ConnectionHandler:
+class ConnectionHandler(ContextualLogger):
     """Handles bot connection/disconnection lifecycle events."""
 
     is_connected_event: Event
@@ -27,7 +27,6 @@ class ConnectionHandler:
     game_state: GameState
     dungeon_behavior: DungeonBehavior
     fight_behavior: FightBehavior
-    logger: Logger
     account: DecipheredApiKey
     shared_signals: SharedSignals
     bot_config: BotConfig | None
@@ -73,13 +72,19 @@ class ConnectionHandler:
         def on_fight_behavior_finished(error_code: str | None):
             if error_code is not None:
                 raise UnhandledErrorCodeException(error_code)
-            if self.behavior_coordinator:
+            if (
+                self.behavior_coordinator
+                and self.behavior_coordinator.is_playing_event.is_set()
+            ):
                 self.behavior_coordinator.run_current_bot_action()
 
         def on_dungeon_behavior_finished(error_code: str | None):
             if error_code is not None:
                 raise UnhandledErrorCodeException(error_code)
-            if self.behavior_coordinator:
+            if (
+                self.behavior_coordinator
+                and self.behavior_coordinator.is_playing_event.is_set()
+            ):
                 self.behavior_coordinator.run_current_bot_action()
 
         for dungeon_info in DUNGEONS_INFOS:
@@ -99,5 +104,8 @@ class ConnectionHandler:
                 parent=None,
             )
         else:
-            if self.behavior_coordinator:
+            if (
+                self.behavior_coordinator
+                and self.behavior_coordinator.is_playing_event.is_set()
+            ):
                 self.behavior_coordinator.run_current_bot_action()

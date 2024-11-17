@@ -24,9 +24,8 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 )
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.config import BASE_RANGE, BOT_MINIMAL_KAMAS, MULE_BANK_MAP_ID
-from src.core.engine.items.inventory_item import is_exchangeable_item
-from src.core.game_constants import GATHERER_ITEM_GIDS, INVENTORY_EQUIPMENT_POSITION
-from src.exceptions import UnhandledErrorCodeException
+from src.core.engine.items.item import GATHERER_ITEM_GIDS, is_exchangeable_item
+from src.core.game_constants import INVENTORY_EQUIPMENT_POSITION
 
 
 @dataclass
@@ -62,7 +61,7 @@ class MuleGiveBehavior(Behavior):
         if error_code is not None:
             if error_code is MapChangeError.UNEXPECTED_NEW_MAP:
                 return self.run_timer((2, 4), self.go_to_mule)
-            raise UnhandledErrorCodeException(error_code)
+            self.raise_if_error(error_code)
         self.start_exchange_with_mule()
 
     def start_exchange_with_mule(self):
@@ -93,7 +92,7 @@ class MuleGiveBehavior(Behavior):
             override_on_self=True,
         )
         req = ExchangePlayerRequest(target_id=mule_id)
-        self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
+        self.send_message_delayed(req, BASE_RANGE)
 
     def on_exchange_started_with_pods_event(self, msg: ExchangeStartedWithPodsEvent):
         self._step = 0
@@ -177,15 +176,16 @@ class MuleGiveBehavior(Behavior):
             on_timeout=self.on_timeout_deposed_all_objects_in_exchange,
         )
         req = ExchangeObjectTransferAllFromInventoryRequest()
-        self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
+        self.send_message_delayed(req, BASE_RANGE)
 
     def on_objects_deposed_after_transfer_all(self, msg: ExchangeObjectsAddedEvent):
         self._step += 1
         self.depose_kamas_in_exchange(True)
 
     def on_timeout_deposed_all_objects_in_exchange(self):
-        self.event_manager.clear_listener_by_origin_and_type(
-            ExchangeObjectsAddedEvent, self
+        self.unregister_listener(
+            ExchangeObjectsAddedEvent,
+            reason="Timeout waiting for exchange objects, proceeding with kamas",
         )
         self.depose_kamas_in_exchange(True)
 
@@ -205,7 +205,7 @@ class MuleGiveBehavior(Behavior):
         req = ExchangeObjectMoveRequest(
             object_uid=next_object.item.uid, quantity=quantity
         )
-        self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
+        self.send_message_delayed(req, BASE_RANGE)
 
     def depose_kamas_in_exchange(self, did_full_unload: bool):
         kamas_to_gives = self.game_state.inventory.kamas - BOT_MINIMAL_KAMAS
@@ -217,7 +217,7 @@ class MuleGiveBehavior(Behavior):
                     originator=self,
                 )
                 req = DialogLeaveRequest()
-                return self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
+                return self.send_message_delayed(req, BASE_RANGE)
             return self.accept_exchange(did_full_unload)
         self.event_manager.on(
             ExchangeKamaModifiedEvent,
@@ -226,8 +226,8 @@ class MuleGiveBehavior(Behavior):
             once=True,
         )
         self._step += 1
-        req = ExchangeMoveKamaRequest(quantity=kamas_to_gives)
-        self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
+        move_kama_req = ExchangeMoveKamaRequest(quantity=kamas_to_gives)
+        self.send_message_delayed(move_kama_req, BASE_RANGE)
 
     def accept_exchange(self, did_full_unload: bool):
         self.event_manager.on(
@@ -239,4 +239,4 @@ class MuleGiveBehavior(Behavior):
             once=True,
         )
         req = ExchangeReadyRequest(ready=True, step=self._step)
-        self.run_timer((3, 4), lambda: self.event_manager.send(req))
+        self.send_message_delayed(req, (3, 4))

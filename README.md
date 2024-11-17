@@ -20,6 +20,7 @@ It is not a simple script bot but a full automation engine.
 - Network messages are the single source of truth
 - Game state is rebuilt incrementally from intercepted packets
 - Logic is deterministic and testable
+- Behaviors manage execution and orchestration
 - GUI never contains game logic
 
 ---
@@ -89,7 +90,7 @@ Examples:
 
 ---
 
-### `src/core/logic/`
+### `src/core/engine/`
 
 **Game logic and reasoning**:
 
@@ -101,9 +102,8 @@ Examples:
 
 Submodules:
 
-- `decision/` – Determines actions based on state
 - `fight/` – Fight mechanics, effects, spells
-- `farms/` – Farming logic, weighted paths
+- `weights/` – Farming logic, weighted paths
 - `items/` – Item utilities, inventory handling
 - `movements/` – Map navigation and pathfinding
 - `dungeons/`, `craft/`, `economy/` – Specialized logic modules
@@ -116,26 +116,13 @@ Submodules:
 
 - Behaviors read state and emit actions
 - One responsibility per behavior
-- Examples: `craft_behavior`, `fight_behavior`, `harvester_behavior`, `mule_storage`, `movements/auto_trip`
-
-Behavior priority and orchestration are handled externally.
-
----
-
-### `src/interfaces/`
-
-Shared contracts:
-
-- Enums
-- Interfaces
-- Core models
-- Observer patterns
-
-Used across all layers.
+- Behavior should always launch finish method when it's completed
+- Use unregister_listener method when you need delete one listener
+- Examples: `craft_behavior`, `fight_behavior`, `harvester_behavior`, `mule_storage_behavior`, `auto_trip_behavior`
 
 ---
 
-### `src/common/`
+### `src/utils/`
 
 Generic utilities:
 
@@ -188,14 +175,6 @@ Development and debugging utilities:
 
 ---
 
-## Behavior Model
-
-- Behaviors are driven by `core.states` and network messages
-- Isolated by responsibility
-- Never mutate states directly
-
----
-
 ## Configuration
 
 - Lives under `core/config/`
@@ -215,18 +194,22 @@ Development and debugging utilities:
 
 ## Development Guidelines
 
-- Always type hint
+- Always type hint and use built in python type when it's possible,
+  example : ->
+  [BAD] : List[int]
+  [GOOD] : list[int]
 - Avoid broad exception catching
 - Keep logic simple and explicit
 - Prefer readability over abstraction
 - DRY, but clarity first
+- Don't except if it's really necessary
+- Prefer composition over inheritance
 
 ---
 
 ## Tests
 
 - Uses `unittest`
-- Tests critical logic only
 
 ---
 
@@ -249,8 +232,6 @@ Development and debugging utilities:
 `poetry run python -m cProfile -o benchmark.pstats __main__.py`
 `gprof2dot -f pstats benchmark.pstats | dot -Tpng -o benchmark_output.png`
 
-### pyarmor limite à 20 fichiers maxi
+### Packaging
 
-`poetry run pyarmor gen -O dist-obf **main**.py src D3Mapping DBDofusUnity D3Database --recursive`
-
-`poetry run pyinstaller --add-data "D3Database/bundles":"D3Database/bundles" --add-data "D3Mapping/d3_mapping/resources":"d3_mapping/resources" --add-data "resources":"resources" --add-data ".venv/Lib/site-packages/wonderwords/assets:wonderwords/assets" **main**.py --noconfirm`
+`poetry run pyinstaller --add-data "D3Database/bundles":"D3Database/bundles" --add-data "D3Mapping/d3_mapping/resources":"d3_mapping/resources" --add-data "resources":"resources"`

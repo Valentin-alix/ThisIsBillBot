@@ -24,7 +24,6 @@ from src.core.engine.movements.world.edge import (
     get_valid_transition,
 )
 from src.core.game_constants import EXCLUDED_ELEMENT_IDS
-from src.exceptions import UnhandledErrorCodeException
 
 
 class EdgeError(StrEnum):
@@ -39,14 +38,7 @@ class EdgeBehavior(Behavior):
     path_finding: Pathfinding
 
     def run(self, edge: Edge) -> None:
-        with self.event_manager.lock:
-            self.clear_behavior()
-            self.event_manager.on(
-                MapCurrentEvent,
-                partial(self.on_map_current_event, expected_map_id=edge.m_to.m_mapId),
-                originator=self,
-                once=True,
-            )
+        self.clear_behavior()
         self.logger.info(f"Go to edge: {edge}")
         if edge.m_to.m_mapId == self.game_state.map.map_id:
             return self.finish()
@@ -74,12 +66,6 @@ class EdgeBehavior(Behavior):
             self.logger.error(f"invalid transition type : {transition_type}")
             self.handle_invalid_transition(edge, transition)
             self.run(edge)
-
-    def on_map_current_event(self, msg: MapCurrentEvent, expected_map_id: int):
-        error_code = (
-            MapChangeError.UNEXPECTED_NEW_MAP if msg.map_id != expected_map_id else None
-        )
-        return self.finish(error_code)
 
     def use_interactive_transition(self, edge: Edge, transition: Transition):
         target_element = (
@@ -142,8 +128,9 @@ class EdgeBehavior(Behavior):
 
         self.event_manager.on(
             MapCurrentEvent,
-            callback=lambda _: None,
+            partial(self.on_map_current_event, expected_map_id=edge.m_to.m_mapId),
             originator=self,
+            once=True,
             timeout=30,
             on_timeout=lambda: self.on_timeout_map_after_interactive(
                 edge, target_element.element_id
@@ -186,7 +173,7 @@ class EdgeBehavior(Behavior):
                 MapMoveError.INVALID_STARTING_POINT,
             ]:
                 return self.run_timer(BASE_RANGE, lambda: self.run(edge))
-            raise UnhandledErrorCodeException(error_code)
+            self.raise_if_error(error_code)
 
     def use_map_action_transition(self, edge: Edge, transition: Transition):
         move_path = self.path_finding.find_path(
@@ -199,6 +186,13 @@ class EdgeBehavior(Behavior):
             )
             self.handle_invalid_transition(edge, transition)
             return self.run(edge)
+
+        self.event_manager.on(
+            MapCurrentEvent,
+            partial(self.on_map_current_event, expected_map_id=edge.m_to.m_mapId),
+            originator=self,
+            once=True,
+        )
 
         self.map_move_behavior.start(
             callback=partial(
@@ -224,7 +218,13 @@ class EdgeBehavior(Behavior):
                 self.logger.error("map move refused")
                 self.handle_invalid_transition(edge, transition)
                 return self.run_timer(BASE_RANGE, lambda: self.run(edge))
-            raise UnhandledErrorCodeException(error_code)
+            self.raise_if_error(error_code)
+
+    def on_map_current_event(self, msg: MapCurrentEvent, expected_map_id: int):
+        error_code = (
+            MapChangeError.UNEXPECTED_NEW_MAP if msg.map_id != expected_map_id else None
+        )
+        return self.finish(error_code)
 
     def use_map_change_transition(self, edge: Edge, transition: Transition):
         move_path = self.path_finding.find_path(
@@ -270,7 +270,7 @@ class EdgeBehavior(Behavior):
                 self.handle_invalid_transition(edge, transition)
                 return self.run_timer(BASE_RANGE, lambda: self.run(edge))
 
-            raise UnhandledErrorCodeException(error_code)
+            self.raise_if_error(error_code)
 
         self.map_change_behavior.start(
             callback=partial(
@@ -290,8 +290,7 @@ class EdgeBehavior(Behavior):
             self.logger.error("refused or timeout map change")
             self.handle_invalid_transition(edge, transition)
             return self.run_timer((1, 10), lambda: self.run(edge))
-        elif error_code is not None:
-            return self.finish(error_code)
+        self.finish(error_code)
 
     def handle_invalid_transition(self, edge: Edge, transition: Transition):
         self.logger.error(f"Forbidden edge : {edge} with transition : {transition}")

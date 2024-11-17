@@ -94,6 +94,7 @@ class GameStateFixture(unittest.TestCase):
             CharacteristicEnum.LIFE_POINTS: 1500,
             CharacteristicEnum.ACTION_POINTS: 10,
             CharacteristicEnum.MOVEMENT_POINTS: movement_point,
+            CharacteristicEnum.RANGE: 10,
         }
         for char, value in player_characteristics.items():
             self.game_state.fight.characteristic_by_id[char] = CharacterCharacteristic(
