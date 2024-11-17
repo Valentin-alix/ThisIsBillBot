@@ -1,4 +1,5 @@
 from functools import partial
+from typing import cast
 
 from PyQt5.QtCore import QModelIndex, Qt, pyqtSlot
 from PyQt5.QtWidgets import (
@@ -20,6 +21,7 @@ from qfluentwidgets import (
 
 from D3Mapping.d3_mapping.models.message import MessageInfo
 from src.core.bot.bot import Bot
+from src.gui.components.thread_monitor_widget import ThreadMonitorWidget
 from src.gui.pages.debugs.listeners_stats import ListenersStatsWidget
 from src.gui.pages.debugs.logs import LogsWidget
 from src.gui.pages.debugs.message_detail import MessageDetailWidget
@@ -27,18 +29,18 @@ from src.gui.pages.debugs.message_table import MessageTable
 from src.gui.utils.profiling import profiled_slot
 
 
-class SnifferWidget(PivotItem):  # type: ignore
+class SnifferWidget(PivotItem):
     msg_table: MessageTable
     msg_detail: MessageDetailWidget
     play_btn: PrimaryPushButton
     stop_btn: PrimaryPushButton
 
-    def __init__(  # type: ignore
+    def __init__(  # type: ignore[override]
         self,
         bot: Bot,
         *args,
         **kwargs,
-    ):  # type: ignore
+    ):
         super().__init__(*args, **kwargs)
         self.bot = bot
         self.is_playing: bool = True
@@ -165,6 +167,11 @@ class SnifferWidget(PivotItem):  # type: ignore
             )
             debug_stacked.addWidget(listeners_widget)
 
+            thread_monitor_widget = ThreadMonitorWidget(
+                shared_signals=self.bot.shared_signals
+            )
+            debug_stacked.addWidget(thread_monitor_widget)
+
             debug_pivot.addItem(
                 routeKey="logs",
                 text="Logs",
@@ -178,15 +185,22 @@ class SnifferWidget(PivotItem):  # type: ignore
                     listeners_widget.init(),
                 ),
             )
+            debug_pivot.addItem(
+                routeKey="threads",
+                text="Threads",
+                onClick=lambda: debug_stacked.setCurrentWidget(thread_monitor_widget),
+            )
             debug_pivot.setCurrentItem("logs")
 
             self.right_splitter.addWidget(debug_tabs_widget)
 
             self.logs_widget = logs_widget
             self.listeners_widget = listeners_widget
+            self.thread_monitor_widget = thread_monitor_widget
         else:
             self.logs_widget = None
             self.listeners_widget = None
+            self.thread_monitor_widget = None
 
         # main horizontal splitter: left (filter+table) | right (detail+logs)
         splitter = QSplitter(Qt.Horizontal)
@@ -241,9 +255,9 @@ class SnifferWidget(PivotItem):  # type: ignore
     def on_click_msg(self, model_index: QModelIndex):
         source_index = self.msg_table.table.proxy_model.mapToSource(model_index)
         model = self.msg_table.table.item_model
-        msg_infos: MessageInfo = model.data(
-            model.index(source_index.row(), 4), Qt.UserRole
-        )  # type: ignore
+        msg_infos = cast(
+            MessageInfo, model.data(model.index(source_index.row(), 4), Qt.UserRole)
+        )
         self.msg_detail.set_content(msg_infos.msg_json, msg_infos.obf_msg_json)
         self.msg_detail.show()
 

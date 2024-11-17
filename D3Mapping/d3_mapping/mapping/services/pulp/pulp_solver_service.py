@@ -24,7 +24,12 @@ from D3Mapping.d3_mapping.mapping.services.pulp.pulp_result_converter import (
 )
 from D3Mapping.d3_mapping.mapping.validators.proto_validator import ProtoValidator
 from D3Mapping.d3_mapping.models.comparison_context import ComparisonContext
-from D3Mapping.d3_mapping.models.mapping_info import FieldMapping
+from D3Mapping.d3_mapping.models.mapping_info import (
+    AlternativeCandidate,
+    FieldAuditInfo,
+    FieldMapping,
+    RejectionReason,
+)
 from D3Mapping.d3_mapping.models.mapping_metrics import MappingMetrics
 from D3Mapping.d3_mapping.models.p_message import PMessage
 
@@ -38,6 +43,7 @@ class PulpSolverResult:
     total_sim: float
     total_reliability: float
     field_mapping: FieldMapping
+    field_audit: dict[str, FieldAuditInfo]
     success: bool = True
 
 
@@ -107,7 +113,12 @@ class PulpSolverService:
             validator=self.proto_validator.is_valid_clear_by_obf_field_mapping,
         )
 
-        return result.total_sim, result.total_reliability, result.field_mapping
+        return (
+            result.total_sim,
+            result.total_reliability,
+            result.field_mapping,
+            result.field_audit,
+        )
 
     def solve(
         self,
@@ -155,7 +166,6 @@ class PulpSolverService:
         converter,
         validator,
     ) -> PulpSolverResult:
-        # TODO Cache result
         """Solve with iterative constraint addition based on validation."""
         pulp_model = self.model_builder.build(mapping_data)
         constraint_history: set[frozenset] = set()
@@ -187,10 +197,16 @@ class PulpSolverService:
                     mapping_data.reliability_by_mapping[pair]
                     for pair in mapping_result.keys()
                 )
+                field_audit = self._build_field_audit(
+                    mapping_result,
+                    mapping_data.sim_by_mapping,
+                    mapping_data.reliability_by_mapping,
+                )
                 return PulpSolverResult(
                     total_sim=total_sim,
                     total_reliability=total_reliability,
                     field_mapping=field_mapping,
+                    field_audit=field_audit,
                 )
 
             self.metrics.add_validation_failure()
@@ -232,8 +248,85 @@ class PulpSolverService:
     def _empty_result(self) -> PulpSolverResult:
         """Return an empty failed result."""
         return PulpSolverResult(
-            total_sim=0, total_reliability=1, field_mapping={}, success=False
+            total_sim=0,
+            total_reliability=1,
+            field_mapping={},
+            field_audit={},
+            success=False,
         )
+
+    def _build_field_audit(
+        self,
+        selected_mappings: PulpMappingResult,
+        sim_by_mapping: dict[tuple[tuple[str, ...], tuple[str, ...]], float],
+        reliability_by_mapping: dict[tuple[tuple[str, ...], tuple[str, ...]], float],
+    ) -> dict[str, FieldAuditInfo]:
+        """Build field audit from PuLP results.
+
+        Only processes top-level fields (paths of length 1).
+        """
+        field_audit: dict[str, FieldAuditInfo] = {}
+
+        selected_by_obf: dict[str, tuple[str, float, float]] = {}
+        for (clear_path, obf_path), sim in selected_mappings.items():
+            if len(obf_path) == 1:
+                obf_field = obf_path[0]
+                clear_field = clear_path[0]
+                reliability = reliability_by_mapping.get((clear_path, obf_path), 0)
+                selected_by_obf[obf_field] = (clear_field, sim, reliability)
+
+        all_alternatives_by_obf: dict[str, list[tuple[str, float, float]]] = {}
+        for (clear_path, obf_path), weighted_sim in sim_by_mapping.items():
+            if len(obf_path) == 1:
+                obf_field = obf_path[0]
+                clear_field = clear_path[0]
+                reliability = reliability_by_mapping.get((clear_path, obf_path), 1)
+                sim = weighted_sim / reliability if reliability > 0 else 0
+                if obf_field not in all_alternatives_by_obf:
+                    all_alternatives_by_obf[obf_field] = []
+                all_alternatives_by_obf[obf_field].append(
+                    (clear_field, sim, reliability)
+                )
+
+        for obf_field, alternatives in all_alternatives_by_obf.items():
+            if obf_field in selected_by_obf:
+                selected_clear, selected_sim, selected_rel = selected_by_obf[obf_field]
+                alt_candidates = [
+                    AlternativeCandidate(
+                        clear_field=alt_clear,
+                        similarity=alt_sim,
+                        rejection_reason=RejectionReason.NOT_SELECTED,
+                        reliability=alt_reliability,
+                    )
+                    for alt_clear, alt_sim, alt_reliability in alternatives
+                    if alt_clear != selected_clear
+                ]
+                field_audit[obf_field] = FieldAuditInfo(
+                    matched_clear_field=selected_clear,
+                    similarity=selected_sim,
+                    reliability=selected_rel,
+                    source="calculated",
+                    alternatives=alt_candidates,
+                )
+            else:
+                alt_candidates = [
+                    AlternativeCandidate(
+                        clear_field=alt_clear,
+                        similarity=alt_sim,
+                        rejection_reason=RejectionReason.NOT_SELECTED,
+                        reliability=alt_reliability,
+                    )
+                    for alt_clear, alt_sim, alt_reliability in alternatives
+                ]
+                field_audit[obf_field] = FieldAuditInfo(
+                    matched_clear_field=None,
+                    similarity=0,
+                    reliability=0,
+                    source="calculated",
+                    alternatives=alt_candidates,
+                )
+
+        return field_audit
 
 
 class PulpTimeoutError(Exception):

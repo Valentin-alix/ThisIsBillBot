@@ -59,6 +59,9 @@ PROTO_GAME_PATH = os.path.join(PROTO_ROOT_PATH, "game")
 
 MAPPING_CONN_PROTO_PATH = os.path.join(RESOURCE_PATH, "connection_mappings.json")
 MAPPING_GAME_PROTO_PATH = os.path.join(RESOURCE_PATH, "game_mappings.json")
+MAPPING_CONN_AUDIT_PATH = os.path.join(RESOURCE_PATH, "connection_mappings_audit.json")
+MAPPING_GAME_AUDIT_PATH = os.path.join(RESOURCE_PATH, "game_mappings_audit.json")
+USED_FIELDS_PATH = os.path.join(RESOURCE_PATH, "used_fields.json")
 
 RELIABILITY_BY_PROTO_BASE_FIELDS: dict[str, float] = {
     "int32": 1,
@@ -83,7 +86,7 @@ EXTRA_RELIABILITY_WITH_VALIDATOR = 5
 
 MAX_PULP_ITERATIONS = 50
 RELIABILITY_LOG_BASE = 2.0
-MAX_PARALLEL_WORKERS = 4
+MAX_PARALLEL_WORKERS = 8
 SIMILARITY_DIVERGENCE_THRESHOLD = 0.1
 
 

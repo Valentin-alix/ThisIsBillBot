@@ -26,7 +26,9 @@ from D3Mapping.d3_mapping.mapping.validators.set_validators import (
     VALIDATORS_ON_SET_FIELDS,
 )
 from D3Mapping.d3_mapping.models.mapping_info import (
+    FieldAuditInfo,
     MappingInfo,
+    MessageAuditInfo,
     OutputFieldMapping,
     OutputMappingInfo,
 )
@@ -52,11 +54,17 @@ class GlobalProtoMapper:
 
     msg_mapping_info_by_clear_namespace: dict[str, OutputMappingInfo]
 
+    used_fields: dict[str, list[str]] | None = None
+
     _clear_name_to_namespace: dict[str, str] | None = None
     _validator_priority_cache: dict[str, int] | None = None
     _comparison_cache: dict[tuple[str, str, frozenset[str]], MappingInfo] = field(
         default_factory=dict
     )
+    _audit_cache: dict[str, tuple[str, int, dict[str, FieldAuditInfo]]] = field(
+        default_factory=dict
+    )
+    audit_by_clear_namespace: dict[str, MessageAuditInfo] = field(default_factory=dict)
 
     def _build_indices(self):
         if self._clear_name_to_namespace is None:
@@ -72,6 +80,16 @@ class GlobalProtoMapper:
                     VALIDATORS_GLOBAL_ON_SET_FIELDS.get(clear_name, (None, 0))[1],
                 )
                 self._validator_priority_cache[obf_namespace] = priority
+
+    def _is_message_used(self, clear_namespace: str) -> bool:
+        if self.used_fields is None:
+            return True
+        return f".{clear_namespace}" in self.used_fields
+
+    def _get_used_fields_for_message(self, clear_namespace: str) -> set[str] | None:
+        if self.used_fields is None:
+            return None
+        return set(self.used_fields.get(f".{clear_namespace}", []))
 
     def run_mapping(self) -> dict[str, OutputMappingInfo]:
         self._build_indices()
@@ -94,6 +112,9 @@ class GlobalProtoMapper:
                 related_clear_msg_name
             )
             if related_clear_namespace is None:
+                continue
+
+            if not self._is_message_used(related_clear_namespace):
                 continue
 
             related_clear_msg = self.clear_struct_by_namespace[related_clear_namespace]
@@ -197,11 +218,14 @@ class GlobalProtoMapper:
             len_clear_elems = len(ProtoOrganization.get_flat_elements(clear_msg))
             len_obf_elems = len(ProtoOrganization.get_flat_elements(obf_msg))
 
+            algorithm: str
+            field_audit: dict[str, FieldAuditInfo]
+
             if (
                 clear_msg.name in VALIDATORS_ON_SET_FIELDS
                 or clear_msg.name in VALIDATORS_GLOBAL_ON_SET_FIELDS
             ):
-                total_sim, total_reliability, clear_by_obf_field_mapping = (
+                total_sim, total_reliability, clear_by_obf_field_mapping, field_audit = (
                     self.pulp_solver_service.get_deep_best_field_mapping_combination(
                         clear_msg,
                         obf_msg,
@@ -209,11 +233,12 @@ class GlobalProtoMapper:
                         self.get_comparison_message,
                     )
                 )
+                algorithm = "pulp"
             else:
                 clear_elem_by_index = ProtoOrganization.get_flat_elements(clear_msg)
                 obf_elem_by_index = ProtoOrganization.get_flat_elements(obf_msg)
 
-                total_sim, total_reliability, clear_by_obf_field_mapping = (
+                total_sim, total_reliability, clear_by_obf_field_mapping, field_audit = (
                     self.hungarian_solver_service.get_flat_best_field_mapping_combination(
                         self.get_comparison_message,
                         clear_msg,
@@ -223,6 +248,12 @@ class GlobalProtoMapper:
                         treated,
                     )
                 )
+                algorithm = "hungarian"
+
+            validator_priority = self._get_validator_priority(
+                obf_msg.namespace, self.verified_msg_by_obf
+            )
+            self._audit_cache[clear_msg.namespace] = (algorithm, validator_priority, field_audit)
 
             if total_reliability == 0:
                 return MappingInfo(
@@ -280,13 +311,22 @@ class GlobalProtoMapper:
 
         self.added_mapping_by_obf_namespaces[obf_msg.namespace] = mapping_info
 
+        used_fields_for_msg = self._get_used_fields_for_message(clear_msg.namespace)
+
         output_field_mapping: OutputFieldMapping = {}
+        filtered_field_audit: dict[str, FieldAuditInfo] = {}
 
         for _obf_field_name, _mapping_info in mapping_info.field_mapping.items():
             if _mapping_info is None:
-                output_field_mapping[_obf_field_name] = None
+                if used_fields_for_msg is None:
+                    output_field_mapping[_obf_field_name] = None
                 continue
-            _sim, _clear_field_name, _sub_mapping_info = _mapping_info
+
+            _sim, _clear_field_name, _sub_mapping_info, _ = _mapping_info
+
+            if used_fields_for_msg is not None and _clear_field_name not in used_fields_for_msg:
+                continue
+
             output_field_mapping[_obf_field_name] = _clear_field_name
 
             if _sub_mapping_info is not None:
@@ -310,3 +350,23 @@ class GlobalProtoMapper:
                 field_mapping=output_field_mapping,
             )
         )
+
+        if clear_msg.namespace in self._audit_cache:
+            algorithm, validator_priority, field_audit = self._audit_cache[clear_msg.namespace]
+
+            if used_fields_for_msg is not None:
+                filtered_field_audit = {
+                    obf: info
+                    for obf, info in field_audit.items()
+                    if info.matched_clear_field is None
+                    or info.matched_clear_field in used_fields_for_msg
+                }
+            else:
+                filtered_field_audit = field_audit
+
+            self.audit_by_clear_namespace[clear_msg.namespace] = MessageAuditInfo(
+                similarity=mapping_info.similarity,
+                algorithm=algorithm,  # type: ignore
+                validator_priority=validator_priority,
+                fields=filtered_field_audit,
+            )

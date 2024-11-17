@@ -9,10 +9,13 @@ from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
 from src.core.behaviors.communication.chat_behavior import ChatBehavior
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
+from src.core.behaviors.idle_behavior import IdleBehavior
 from src.core.behaviors.quests.dungeon_behavior import (
     DungeonBehavior,
 )
 from src.core.config import (
+    AFK_DURATION_RANGE,
+    AFK_PROBABILITY_PER_MAP,
     BASE_RANGE,
     get_time_between_attacker,
     get_time_between_dungeon,
@@ -28,6 +31,7 @@ class MultiFarmingBehavior(HarvesterBehavior):
     attacker_behavior: AttackerBehavior
     dungeon_behavior: DungeonBehavior
     chat_behavior: ChatBehavior
+    idle_behavior: IdleBehavior
 
     _next_time_chat: datetime = field(init=False, default_factory=datetime.now)
     _next_time_attacker: datetime = field(init=False, default_factory=datetime.now)
@@ -45,6 +49,21 @@ class MultiFarmingBehavior(HarvesterBehavior):
         return super().run(area_id, sub_area_id, is_stopped_at_new_map_condition)
 
     def on_new_map(self):
+        if self.check_stop_condition():
+            return
+
+        if random.random() < AFK_PROBABILITY_PER_MAP:
+            afk_duration = random.uniform(*AFK_DURATION_RANGE)
+            self.logger.info(f"Taking an AFK break: {afk_duration:.0f}s")
+            return self.idle_behavior.start(
+                duration=afk_duration,
+                callback=lambda _: self._continue_on_new_map(),
+                parent=self,
+            )
+
+        self._continue_on_new_map()
+
+    def _continue_on_new_map(self):
         if self.check_stop_condition():
             return
 
@@ -99,14 +118,23 @@ class MultiFarmingBehavior(HarvesterBehavior):
 
         if self._next_time_attacker <= datetime.now():
             self.logger.info("Time to attack !")
-            return self.fight_on_map()
+            force_attack = False
+            if datetime.now() - self._next_time_attacker > (
+                get_time_between_attacker() * 1.5
+            ):
+                self.logger.info(
+                    "We really need to attack to counter antibot, so force attack"
+                )
+                force_attack = True
+            return self.fight_on_map(force_attack)
 
         on_random_action_done()
 
-    def fight_on_map(self):
+    def fight_on_map(self, force_attack: bool):
         self.unregister_listener(FightMapInformationEvent)
         self.attacker_behavior.start(
             count_fight_limit=1,
+            force_attack=force_attack,
             parent=self,
             callback=self.on_attacker_behavior_finished,
         )

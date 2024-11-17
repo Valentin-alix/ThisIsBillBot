@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any, Union, cast
 
 from PyQt5.QtCore import (
     QEasingCurve,
@@ -38,6 +38,7 @@ from qfluentwidgets.components.navigation.navigation_widget import NavigationToo
 from qfluentwidgets.components.widgets.acrylic_label import AcrylicBrush
 from qfluentwidgets.components.widgets.flyout import (
     Flyout,
+    FlyoutAnimationManager,
     FlyoutAnimationType,
     FlyoutViewBase,
     SlideRightFlyoutAnimationManager,
@@ -80,7 +81,7 @@ class SidebarPanel(QFrame):
 
         self.expandAni = QPropertyAnimation(self, b"geometry", self)
         self.expandWidth = 322
-        self.minimumExpandWidth = 1008
+        self.minimumExpandWidth = 1
 
         self.isMinimalEnabled = isMinimalEnabled
         if isMinimalEnabled:
@@ -586,9 +587,9 @@ class SidebarPanel(QFrame):
             item.widget.setSelected(k == routeKey)
 
     def _onWidgetClicked(self):
-        widget = self.sender()  # type: ignore # type: NavigationWidget
-        if not widget.isSelectable:  # type: ignore
-            return self._showFlyoutNavigationMenu(widget)  # type: ignore
+        widget = cast(NavigationTreeWidget, self.sender())
+        if not widget.isSelectable:
+            return self._showFlyoutNavigationMenu(widget)
 
         self.setCurrentItem(widget.property("routeKey"))
 
@@ -596,7 +597,7 @@ class SidebarPanel(QFrame):
         if self.displayMode == NavigationDisplayMode.MENU and isLeaf:
             self.collapse()
         elif self.isCollapsed():
-            self._showFlyoutNavigationMenu(widget)  # type: ignore
+            self._showFlyoutNavigationMenu(widget)
 
     def _showFlyoutNavigationMenu(self, widget: NavigationTreeWidget):
         """show flyout navigation menu"""
@@ -635,13 +636,15 @@ class SidebarPanel(QFrame):
         flyout.view.setFixedSize(menu.size())
         flyout.setFixedSize(flyout.layout().sizeHint())
 
-        manager = flyout.aniManager
+        manager: FlyoutAnimationManager = cast(
+            FlyoutAnimationManager, flyout.aniManager
+        )
         pos = manager.position(widget)
 
         rect = self.window().geometry()
         w, h = flyout.sizeHint().width() + 5, flyout.sizeHint().height()
-        x = max(rect.left(), min(pos.x(), rect.right() - w))
-        y = max(rect.top() + 42, min(pos.y() - 4, rect.bottom() - h + 5))
+        x: int = max(rect.left(), min(pos.x(), rect.right() - w))
+        y: int = max(rect.top() + 42, min(pos.y() - 4, rect.bottom() - h + 5))
         flyout.move(x, y)
 
     def isCollapsed(self):

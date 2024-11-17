@@ -17,7 +17,9 @@ from src.core.engine.movements.area_infos import AreaInfo
 from src.core.engine.weights.harvester.weight_areas import (
     get_random_best_area_info_for_harvester,
 )
-from src.core.states.area_state import CURRENT_AREAS_PLAYING_INFOS_BY_CHARACTER_ID
+from src.core.states.area_state import (
+    CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER,
+)
 
 AREA_CHOICE_LOCK = Lock()
 
@@ -40,12 +42,13 @@ class AutoBotBehavior(Behavior):
     def run(self, area_id: int | None = None, sub_area_id: int | None = None) -> None:
         self._area_id = area_id
         self._sub_area_id = sub_area_id
+        self.play()
 
+    def play(self):
         if (
             self.game_state.player.level < LVL_LIMIT_FOR_HARVEST
             or self.game_state.inventory.kamas < KAMAS_LIMIT_FOR_HARVEST
-            and DO_FIGHTER
-        ):
+        ) and DO_FIGHTER:
             self.play_fighter()
         else:
             self.play_multi_farming()
@@ -64,9 +67,11 @@ class AutoBotBehavior(Behavior):
                 self._previous_area_info_played,
                 self.logger,
             )
-            CURRENT_AREAS_PLAYING_INFOS_BY_CHARACTER_ID[
-                self.game_state.player.character_id
-            ] = area_info
+            key = (
+                self.game_state.player.server_id,
+                self.game_state.player.character_id,
+            )
+            CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER[key] = area_info
             self._previous_area_info_played.append(area_info)
 
         self.multi_farming_behavior.start(
@@ -114,5 +119,5 @@ class AutoBotBehavior(Behavior):
 
     def on_fighter_behavior_finished(self, error_code: str | None):
         if error_code is BaseFarmingErrorCode.STOP_CONDITION_TRIGGERED:
-            return self.play_multi_farming()
+            return self.play()
         self.finish(error_code)

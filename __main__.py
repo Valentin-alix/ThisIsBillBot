@@ -49,10 +49,10 @@ def main() -> None:
     setThemeColor(Qt.GlobalColor.yellow)
 
     bot_manager = BotManager(shared_signals=shared_signals)
-    listener = ProxyListener(account_by_id=bot_manager.bot_by_account_id)
-    proxy_dofus = listener.create_server(5555)
+    proxy_listener = ProxyListener(account_by_id=bot_manager.bot_by_account_id)
+    proxy_dofus = proxy_listener.create_server(5555)
     Thread(
-        target=lambda: listener.start_listener(
+        target=lambda: proxy_listener.start_listener(
             proxy_dofus, (DOFUS_CONNECTION_URL, 5555), True
         ),
         daemon=True,
@@ -64,7 +64,13 @@ def main() -> None:
         bot.start()
 
     cease_running = run_continuously()
-    shared_signals.closed.connect(cease_running.set)
+
+    def on_app_close():
+        cease_running.set()
+        proxy_listener.shutdown()
+        bot_manager.shutdown()
+
+    shared_signals.closed.connect(on_app_close)
 
     app.exec()
 

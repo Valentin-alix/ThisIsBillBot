@@ -47,7 +47,7 @@ class ScrapingD3Controller:
     @staticmethod
     def get_mule_bank_ids(server_id: int, callback: Callable[[list[int]], Any]):
         def _callback(res: HTTPValidationError | list[int] | None):
-            if isinstance(res, list):
+            if res and not isinstance(res, HTTPValidationError):
                 return callback(res)
             return callback([])
 

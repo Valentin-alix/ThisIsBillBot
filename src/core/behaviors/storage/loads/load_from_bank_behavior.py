@@ -3,7 +3,6 @@ from enum import StrEnum, auto
 from functools import partial
 
 from D3Database.data_center.data_reader import DataReader
-from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
 from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeObjectMoveRequest,
@@ -74,6 +73,7 @@ class LoadFromBankBehavior(DialogHandlerBehavior):
                 callback=lambda _: self.finish(load_items_infos=load_items_infos),
                 originator=self,
                 once=True,
+                override_on_self=True,
             )
             return self.run_timer(BASE_RANGE, self.leave_all_dialogs)
 
@@ -102,6 +102,7 @@ class LoadFromBankBehavior(DialogHandlerBehavior):
                 callback=lambda _: self.finish(load_items_infos=load_items_infos),
                 originator=self,
                 once=True,
+                override_on_self=True,
             )
             return self.run_timer(BASE_RANGE, self.leave_all_dialogs)
 
@@ -115,6 +116,7 @@ class LoadFromBankBehavior(DialogHandlerBehavior):
             callback=lambda _: self.on_item_loaded(load_items_infos),
             originator=self,
             once=True,
+            override_on_self=True,
         )
         req = ExchangeObjectMoveRequest(
             object_uid=related_item.item.uid,

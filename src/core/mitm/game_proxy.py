@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from google.protobuf.message import Message
+from PyQt5.QtCore import QMetaObject, Qt
 
 from D3Mapping.d3_mapping.protocol.protocol import decode_varint_size, encode_msg
 from D3Mapping.d3_mapping.protocol.protocol_game import (
@@ -9,10 +10,12 @@ from D3Mapping.d3_mapping.protocol.protocol_game import (
     get_obf_game_message_from_msg,
 )
 from D3Mapping.d3_mapping.resources.protos.game.game_message_pb2 import Request
-from src.const import DEBUG, DO_INSERT_HUMAN_SESSION, DO_POPULATE, MESSAGES_WITH_UID
+from src import const
+from src.const import MESSAGES_WITH_UID
 from src.controller.session_timings import SessionTimingsController
 from src.core.bot.bot import Bot
 from src.core.mitm.proxy import Proxy, WorkerAction
+from src.gui.utils.run_in_background import run_in_background
 
 
 @dataclass
@@ -29,17 +32,22 @@ class GameProxy(Proxy):
 
     def on_close(self):
         self.bot.event_manager.on_send_game_callback = None
-        self.bot.game_info_signals.disconnected.emit()
-        if DO_INSERT_HUMAN_SESSION:
-            self.session_timings.insert_session_datas()
+
+        QMetaObject.invokeMethod(
+            self.bot.game_info_signals, "disconnected", Qt.QueuedConnection
+        )
+
+        if const.DO_INSERT_HUMAN_SESSION:
+            run_in_background(
+                self.session_timings.insert_session_datas, on_success=lambda _: None
+            )
 
     def alter_msg_datas(
         self, msg_content_datas: bytes, msg_datas: bytes
     ) -> bytes | None:
         expected_uid = self.uid + 1
         root_msg_namespace, clear_sub_msg, _, uid = get_game_msg(
-            msg_content_datas,
-            DO_POPULATE,
+            msg_content_datas, const.DEBUG
         )
         if clear_sub_msg is None:
             return msg_datas
@@ -66,23 +74,23 @@ class GameProxy(Proxy):
         msg_content_datas = msg_datas[pos : pos + size]
 
         _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(
-            msg_content_datas, DO_POPULATE and not was_send_from_proxy
+            msg_content_datas, const.DEBUG and not was_send_from_proxy
         )
         if uid is not None and uid != -1:
             self.uid = uid
 
-        if DEBUG or DO_POPULATE:
+        if const.DEBUG or const.DEBUG:
             msg_infos = get_game_msg_info(
                 clear_sub_msg,
                 obf_sub_msg,
                 uid,
                 from_server,
-                DO_POPULATE and not was_send_from_proxy,
+                const.DEBUG and not was_send_from_proxy,
             )
-            if DEBUG:
+            if const.DEBUG:
                 self.bot.msg_info_signals.msg_info.emit(msg_infos, was_send_from_proxy)
             if (
-                DO_INSERT_HUMAN_SESSION
+                const.DO_INSERT_HUMAN_SESSION
                 and clear_sub_msg is not None
                 and not self.bot.is_playing_event.is_set()
             ):
@@ -90,13 +98,14 @@ class GameProxy(Proxy):
                     clear_sub_msg.__class__.__name__, msg_infos.received_time
                 )
 
-        self.bot.recorder.record_message_with_clear_and_obf_msg(
-            self.bot.account["apikey"]["login"],
-            self.bot.game_state,
-            clear_sub_msg,
-            obf_sub_msg,
-            from_server,
-        )
+        if not const.DEBUG:
+            self.bot.recorder.record_message_with_clear_and_obf_msg(
+                self.bot.account["apikey"]["login"],
+                self.bot.game_state,
+                clear_sub_msg,
+                obf_sub_msg,
+                from_server,
+            )
 
         if clear_sub_msg is not None:
             self.bot.event_manager.process_msg(clear_sub_msg)

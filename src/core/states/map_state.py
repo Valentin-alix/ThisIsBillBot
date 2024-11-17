@@ -25,9 +25,9 @@ class MapState(State):
     _is_in_haven_bag: bool = dataclasses.field(init=False, default=False)
 
     def clear_state(self):
-        self.is_in_haven_bag = False
         self.is_in_map_transition = False
         self._map_id = 0
+        self.is_in_haven_bag = False
 
     @property
     def is_in_map_transition(self) -> int:
@@ -66,11 +66,7 @@ class MapState(State):
 
     @property
     def map_point(self):
-        return MapPoint.from_cell_id(
-            self.entity_state.actor_by_id[
-                self.player_state.character_id
-            ].disposition.cell_id
-        )
+        return MapPoint.from_cell_id(self.entity_state.actor_by_id[self.player_state.character_id].disposition.cell_id)
 
     @property
     def linked_zone_rp(self) -> int:
@@ -82,8 +78,6 @@ class MapState(State):
         if vertice is None:
             potential_vertices = WorldGraphReader().get_vertexes(self.map_id)
             if len(potential_vertices) == 0:
-                raise ValueError(
-                    f"no vertice for map {self.map_id} at {self.map_point}, player is probably in fight"
-                )
+                raise ValueError(f"no vertice for map {self.map_id} at {self.map_point}, player is probably in fight")
             vertice = next(iter(potential_vertices))
         return vertice

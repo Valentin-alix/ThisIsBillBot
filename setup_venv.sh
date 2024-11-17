@@ -19,7 +19,7 @@ else
     PATH_SEPARATOR=":"
 fi
 
-LINE="export PYTHONPATH=\".${PATH_SEPARATOR}./D3Mapping${PATH_SEPARATOR}./D3Database${PATH_SEPARATOR}./DBDofusUnity\""
+LINE="export PYTHONPATH=\".\""
 
 # ajoute seulement si absent
 if ! grep -Fxq "$LINE" "$ACTIVATE_FILE"; then

@@ -19,6 +19,7 @@ from src.core.engine.monsters.monster_group import (
     get_monster_groups,
     is_valid_monster_group,
 )
+from src.core.engine.npcs.npc_dialog_info import NpcDialogInfo
 from src.core.signals.grid_signals import GridSignals
 from src.core.states.state import State
 
@@ -260,3 +261,32 @@ class EntityState(State):
         monster_group: ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor,
     ) -> int:
         return get_level_monster_group(monster_group)
+
+    def resolve_npc_id(self, npc_info: NpcDialogInfo) -> int:
+        if npc_info.npc_id:
+            return npc_info.npc_id
+        assert npc_info.bones_id
+        if npc_info.cell_id is not None:
+            return self.get_npc_id_by_cell_and_bones(
+                npc_info.cell_id, npc_info.bones_id
+            )
+        return self.get_npc_id_by_bones(npc_info.bones_id)
+
+    def get_npc_id_by_cell_and_bones(self, cell_id: int, bones_id: int) -> int:
+        mp = MapPoint.from_cell_id(cell_id)
+        actors_on_cell = self.actors_on_mp.get(mp)
+        if actors_on_cell is None:
+            raise ValueError(f"No actors on cell {cell_id}")
+
+        for actor in actors_on_cell.values():
+            if actor.actor_information.look.bones_id == bones_id:
+                return actor.actor_id
+
+        raise ValueError(f"No NPC with bones_id={bones_id} found on cell {cell_id}")
+
+    def get_npc_id_by_bones(self, bones_id: int) -> int:
+        for actor in self.actor_by_id.values():
+            if actor.actor_information.look.bones_id == bones_id:
+                return actor.actor_id
+
+        raise ValueError(f"No NPC with bones_id={bones_id} found on map")

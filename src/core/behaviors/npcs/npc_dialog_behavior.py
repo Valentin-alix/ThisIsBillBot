@@ -9,8 +9,9 @@ from D3Mapping.d3_mapping.resources.protos.game.npc_pb2 import (
     NpcGenericActionRequest,
 )
 from src.core.behaviors.behavior import Behavior
-from src.core.config import BETWEEN_REPLY, ON_NEW_MAP_BEFORE_ACTION
+from src.core.config import ON_NEW_MAP_BEFORE_ACTION
 from src.core.engine.npcs.npc_dialog_info import NpcDialogInfo, ReplyInfo
+from src.services.human_timings import HumanTimingsService
 
 
 class NpcDialogErrorCode(StrEnum):
@@ -45,9 +46,10 @@ class NpcDialogBehavior(Behavior):
             ),
             originator=self,
         )
+        npc_id = self.game_state.entity.resolve_npc_id(npc_dialog_info)
         npc_request = NpcGenericActionRequest(
             npc_action_id=npc_dialog_info.npc_action_id,
-            npc_id=npc_dialog_info.npc_id,
+            npc_id=npc_id,
             npc_map_id=self.game_state.map.map_id,
         )
         self.event_manager.send(npc_request)
@@ -62,7 +64,9 @@ class NpcDialogBehavior(Behavior):
             return self.finish(NpcDialogErrorCode.UNEXPECTED_MESSAGE)
 
         reply_info = npc_dialog_info.reply_info_by_message_id[msg.message_id]
-        self.run_timer(BETWEEN_REPLY, lambda: self.send_npc_dialog_reply(reply_info))
+        estimated_length = sum(len(param) for param in msg.dialog_params) + 50
+        timing = HumanTimingsService().get_timing_npc_dialog_reply(estimated_length)
+        self.run_timer(timing, lambda: self.send_npc_dialog_reply(reply_info))
 
     def send_npc_dialog_reply(self, reply_info: ReplyInfo):
         npc_dialog_reply_request = NpcDialogReplyRequest(reply_id=reply_info.reply_id)

@@ -1,8 +1,16 @@
 from PyQt5.QtWidgets import QHBoxLayout, QWidget
-from qfluentwidgets import FluentStyleSheet, FluentTitleBar, NavigationItemPosition, NavigationWidget, qrouter
+from qfluentwidgets import (
+    FluentStyleSheet,
+    FluentTitleBar,
+    NavigationItemPosition,
+    NavigationWidget,
+    qrouter,
+)
 from qfluentwidgets.window.fluent_window import FluentWindowBase
 
-from src.gui.components.qfluent_widget.no_animated_stacked_widget import NoAnimatedStackedWidget
+from src.gui.components.qfluent_widget.no_animated_stacked_widget import (
+    NoAnimatedStackedWidget,
+)
 from src.gui.fragments.sidebar import Sidebar
 
 
@@ -77,14 +85,14 @@ class AppFluentWindow(FluentWindowBase):
             widget=navigation_widget,
             onClick=lambda: self.switchTo(interface),
             position=position,
-            parentRouteKey=parent.objectName() if parent else None,  # type: ignore
+            parentRouteKey=parent.objectName() if parent else None,  # type: ignore[arg-type]
         )
 
         # initialize selected item
         if self.stackedWidget.count() == 1:
             self.stackedWidget.currentChanged.connect(self._onCurrentInterfaceChanged)
             self.navigationInterface.setCurrentItem(routeKey)
-            qrouter.setDefaultRouteKey(self.stackedWidget, routeKey)  # type: ignore
+            qrouter.setDefaultRouteKey(self.stackedWidget, routeKey)  # type: ignore[arg-type]
 
         self._updateStackedBackground()
 

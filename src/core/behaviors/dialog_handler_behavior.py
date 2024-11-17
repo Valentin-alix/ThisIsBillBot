@@ -19,5 +19,6 @@ class DialogHandlerBehavior(Behavior, ABC):
                 callback=on_leave_callback,
                 originator=self,
                 once=True,
+                override_on_self=True,
             )
         self.event_manager.send(DialogLeaveRequest())

@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+import random
+from dataclasses import dataclass, field
 from functools import partial
 
 from D3Database.grid.map_point import MapPoint
@@ -11,6 +12,10 @@ from D3Mapping.d3_mapping.resources.protos.game.fight_preparation_pb2 import (
 )
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_movement_behavior import FightMovementBehavior
+from src.core.config import (
+    PLACEMENT_EXTRA_HESITATION_RANGE,
+    PLACEMENT_REPOSITIONING_PROBABILITY,
+)
 from src.services.human_timings import HumanTimingsService
 
 
@@ -18,7 +23,10 @@ from src.services.human_timings import HumanTimingsService
 class FightPreparationBehavior(Behavior):
     fight_movement_behavior: FightMovementBehavior
 
+    _has_repositioned: bool = field(init=False, default=False)
+
     def run(self):
+        self._has_repositioned = False
         self.event_manager.on(
             FightReadyRequest, lambda _: self.finish(), originator=self, once=True
         )
@@ -77,8 +85,18 @@ class FightPreparationBehavior(Behavior):
             self.on_player_placement_done()
 
     def on_player_placement_done(self):
-        request = FightReadyRequest(is_ready=True)
+        if (
+            not self._has_repositioned
+            and random.random() < PLACEMENT_REPOSITIONING_PROBABILITY
+        ):
+            self._has_repositioned = True
+            self.logger.debug("Hesitating, repositioning...")
+            return self.run_timer(
+                random.uniform(*PLACEMENT_EXTRA_HESITATION_RANGE),
+                self.position_player,
+            )
 
+        request = FightReadyRequest(is_ready=True)
         self.run_timer(
             HumanTimingsService().get_timing_before_preparation_ready(),
             lambda: self.event_manager.send(request),

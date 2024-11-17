@@ -20,13 +20,18 @@ from src.core.game_constants import Maps
 # FONCTIONNALITÉS ACTIVÉES
 # ============================================================================
 
-DO_EXTRA_ACTION = True
-DO_FIGHTER = True
-DO_SALE_HOTEL = True
-DO_CRAFT = True
-DO_DUNGEON = False
-DO_USE_GUILD_CHEST = True
-DO_REGISTER_PRICE = False
+
+DO_FIGHTER = (
+    True  # le bot va attacker un groupe de monstre random toutes les 30 minutes
+)
+DO_SALE_HOTEL = True  # le bot va aller vendre en hdv
+DO_CRAFT = True  # le bot va aller craft pr level up principalement
+DO_USE_GUILD_CHEST = True  # le bot va utiliser le coffre de guilde plutot que la banque
+DO_CHAT = False  # le bot va parler en général (avec le model de chatgpt)
+DO_REGISTER_PRICE = False  # le bot va faire une requete pour enregistrer le prix a chaque fois qu'on l'obtient
+DO_DUNGEON = (
+    False  # le bot va aller faire des dongons toutes les 4 heures (si cest possible)
+)
 
 
 # ============================================================================
@@ -91,7 +96,7 @@ def get_time_beween_areas():
     return datetime.timedelta(hours=1) * uniform(0.75, 1.25)
 
 
-def get_time_between_attacker():
+def get_time_between_attacker() -> datetime.timedelta:
     return (
         datetime.timedelta(minutes=20) * uniform(0.75, 1.25)
         if DO_FIGHTER
@@ -102,7 +107,7 @@ def get_time_between_attacker():
 def get_time_between_random_chat():
     return (
         datetime.timedelta(hours=45) * uniform(0.75, 1.25)
-        if DO_EXTRA_ACTION
+        if DO_CHAT
         else datetime.timedelta(datetime.MAXYEAR)
     )
 
@@ -174,3 +179,22 @@ AREAS_SUB_WITH_WEIGHT: list[AreaInfo] = [
         waypoint_id_needed=207619076,
     ),
 ]
+
+
+# ============================================================================
+# HUMANISATION
+# ============================================================================
+
+HARVEST_PAUSE_PROBABILITY = 0.05
+HARVEST_PAUSE_RANGE = (2.0, 8.0)
+
+AFK_PROBABILITY_PER_MAP = 0.03
+AFK_DURATION_RANGE = (30.0, 300.0)
+
+ENABLE_SESSION_CONTEXT = True
+
+PLACEMENT_REPOSITIONING_PROBABILITY = 0.08
+PLACEMENT_EXTRA_HESITATION_RANGE = (0.5, 2.0)
+
+LOOK_AROUND_PROBABILITY = 0.03
+LOOK_AROUND_PAUSE_RANGE = (0.3, 1.0)

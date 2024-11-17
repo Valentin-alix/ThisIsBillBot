@@ -3,14 +3,11 @@ from dataclasses import dataclass, field
 from D3Database.data_center.data_reader import DataReader
 from D3Database.models.datas.recipe_root import RecipeItem
 from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
-    ExchangeCraftCountModifiedEvent,
     ExchangeCraftCountRequest,
     ExchangeCraftStartedEvent,
     ExchangeLeaveEvent,
+    ExchangeReadyRequest,
     ExchangeSetCraftRecipeRequest,
-)
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
-    InventoryWeightEvent,
 )
 from src.core.frames.frame import Frame
 
@@ -58,18 +55,19 @@ class CraftFrame(Frame):
             override_on_self=True,
         )
         self.event_manager.on(
-            InventoryWeightEvent,
-            self.on_inventory_weight_event_on_craft,
+            ExchangeReadyRequest,
+            self.on_exchange_ready_request,
             originator=self,
             priority=self.priority,
             override_on_self=True,
+            once=True,
         )
 
     def on_exchange_craft_count_request(self, msg: ExchangeCraftCountRequest):
         self._requested_craft_count = msg.count
         self.logger.info(f"Craft count requested: {self._requested_craft_count}")
 
-    def on_inventory_weight_event_on_craft(self, msg: InventoryWeightEvent):
+    def on_exchange_ready_request(self, msg: ExchangeReadyRequest):
         if not self._current_recipe or self._requested_craft_count == 0:
             self.logger.warning(
                 "Inventory weight event on craft but no treating a recipe ?!"
@@ -103,6 +101,5 @@ class CraftFrame(Frame):
     def on_exchange_leave_event(self, _: ExchangeLeaveEvent):
         self.logger.info("Craft exchange ended, clearing listeners")
         self.unregister_listener(ExchangeSetCraftRecipeRequest)
-        self.unregister_listener(ExchangeCraftCountModifiedEvent)
         self.unregister_listener(ExchangeCraftCountRequest)
-        self.unregister_listener(InventoryWeightEvent)
+        self.unregister_listener(ExchangeReadyRequest)

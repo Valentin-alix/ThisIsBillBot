@@ -8,6 +8,7 @@ from D3Mapping.d3_mapping.resources.protos.game.game_action_pb2 import (
     SequenceType,
 )
 from src.core.behaviors.behavior import Behavior
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
@@ -24,7 +25,10 @@ class FightSpellBehavior(Behavior):
         )
         req = GameActionFightCastRequest(spell_id=spell_id, cell=cell_id)
 
-        self.event_manager.send(req)
+        self.run_timer(
+            HumanTimingsService().get_micro_jitter("spell_cast"),
+            lambda: self.event_manager.send(req),
+        )
 
     def on_sequence_end_event(self, msg: SequenceEndEvent):
         if (

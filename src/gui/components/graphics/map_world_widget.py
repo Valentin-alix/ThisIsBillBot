@@ -94,15 +94,15 @@ class MapWorldView(QGraphicsView):
         self.world_signals = world_signals
         self.curr_map_info: CurrMapInfo | None = None
         self.line_items: list[QGraphicsLineItem] = []
-        self.scene: QGraphicsScene = QGraphicsScene()  # type: ignore
+        self._scene: QGraphicsScene = QGraphicsScene()
         self.square_by_coord: dict[Coord, SquareMap] = {}
         self.map_pos_by_coord: dict[Coord, set[MapPositionsRootItem]] = defaultdict(set)
 
         self.setStyleSheet("border: 0px")
         self.setAlignment(Qt.AlignTop)
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
-        self.setScene(self.scene)
-        self.fitInView(self.scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
+        self.setScene(self._scene)
+        self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
 
         if self.world_signals:
             self.world_signals.color_pos.connect(profiled_slot(self.on_color_pos))
@@ -118,7 +118,7 @@ class MapWorldView(QGraphicsView):
             self.world_signals.curr_map_pos.connect(profiled_slot(self.on_curr_map))
 
     def resizeEvent(self, event: QResizeEvent):
-        self.fitInView(self.scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
+        self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
         return super().resizeEvent(event)
 
     @pyqtSlot(MapPositionsRootItem)
@@ -126,7 +126,7 @@ class MapWorldView(QGraphicsView):
         coord = map_pos.posX, map_pos.posY
         if self.curr_map_info is None:
             state = MapCircle()
-            self.scene.addItem(state)
+            self._scene.addItem(state)
             self.curr_map_info = CurrMapInfo(state=state, map_pos=map_pos)
         else:
             self.curr_map_info.map_pos = map_pos
@@ -135,7 +135,7 @@ class MapWorldView(QGraphicsView):
         self.curr_map_info.state.setPos(x, y)
         left = x - CELL_SIZE * LIMIT_GRID
         top = y - CELL_SIZE * LIMIT_GRID
-        self.scene.setSceneRect(
+        self._scene.setSceneRect(
             QRectF(left, top, WIDTH_AROUND_CURRENT_MAP, HEIGHT_AROUND_CURRENT_MAP)
         )
         self.centerOn(x, y)
@@ -148,13 +148,13 @@ class MapWorldView(QGraphicsView):
             x, y = self.get_pos_by_coord(coord)
             square.setPos(x, y)
             self.square_by_coord[coord] = square
-            self.scene.addItem(square)
+            self._scene.addItem(square)
 
             if self.debug:
                 text = GraphicText(text=f"{coord[0]},{coord[1]}")
                 text.setPos(x, y)
                 text.setZValue(2)
-                self.scene.addItem(text)
+                self._scene.addItem(text)
 
         return self.square_by_coord[coord]
 
@@ -167,9 +167,7 @@ class MapWorldView(QGraphicsView):
         square_cell.add_color(map_pos.id, color)
 
     @pyqtSlot(list)
-    def on_color_pos_batch(
-        self, items: list[tuple[MapPositionsRootItem, RGBColor]]
-    ):
+    def on_color_pos_batch(self, items: list[tuple[MapPositionsRootItem, RGBColor]]):
         for map_pos, color in items:
             square_cell = self.get_or_create_map(map_pos)
             square_cell.add_color(map_pos.id, color)
@@ -191,7 +189,7 @@ class MapWorldView(QGraphicsView):
         pen.setWidth(2)
         line_item.setPen(pen)
         self.line_items.append(line_item)
-        self.scene.addItem(line_item)
+        self._scene.addItem(line_item)
 
     @pyqtSlot(list)
     def on_arrow_pos_batch(
@@ -210,13 +208,13 @@ class MapWorldView(QGraphicsView):
             pen.setWidth(2)
             line_item.setPen(pen)
             self.line_items.append(line_item)
-            self.scene.addItem(line_item)
+            self._scene.addItem(line_item)
 
     @pyqtSlot()
     def on_reset_path(self):
         while self.line_items:
             line_item = self.line_items.pop()
-            self.scene.removeItem(line_item)
+            self._scene.removeItem(line_item)
 
     @pyqtSlot()
     def on_reset_weight(self):

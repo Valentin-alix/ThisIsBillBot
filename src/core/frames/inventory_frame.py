@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeMoveKamaRequest,
+    ExchangeObjectModifyPricedRequest,
     ExchangeObjectMovePricedRequest,
     ExchangeObjectMoveRequest,
     ExchangeObjectTransferAllFromInventoryRequest,
@@ -78,6 +79,18 @@ class InventoryFrame(Frame):
             originator=self,
             priority=self.priority,
         )
+        self.event_manager.on(
+            ExchangeObjectMovePricedRequest,
+            self.on_exchange_move_priced_request,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            ExchangeObjectModifyPricedRequest,
+            self.on_exchange_object_modify_priced_request,
+            originator=self,
+            priority=self.priority,
+        )
 
     def on_exchange_object_use_request(self, message: ObjectUseRequest):
         if (
@@ -139,6 +152,7 @@ class InventoryFrame(Frame):
         self.game_state.inventory.bank_object_by_gid = {
             item.item.gid: item for item in msg.objects
         }
+        self.game_state.inventory.kamas -= len(msg.objects)
         self.logger.info(
             f"bank object by gid : {list(self.game_state.inventory.bank_object_by_gid.keys())}"
         )
@@ -171,6 +185,15 @@ class InventoryFrame(Frame):
         self, message: ExchangeObjectMovePricedRequest
     ):
         self.on_move_object_inventory(message.object_uid, message.quantity, None)
+        self.game_state.inventory.kamas -= int(message.price * 0.02)
+
+    def on_exchange_object_modify_priced_request(
+        self, message: ExchangeObjectModifyPricedRequest
+    ):
+        self.game_state.inventory.kamas -= int(message.price * 0.02)
+
+    def on_exchange_move_priced_request(self, message: ExchangeObjectMovePricedRequest):
+        self.game_state.inventory.kamas -= int(message.price * 0.02)
 
     def on_move_object_inventory(self, object_uid: int, quantity: int, gid: int | None):
         inventory_item = self.game_state.inventory.objects_by_uid.get(object_uid)

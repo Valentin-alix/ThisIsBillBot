@@ -1,6 +1,9 @@
 import logging
+import os
+from logging.handlers import RotatingFileHandler
 from typing import Any
 
+from src.const import LOG_FOLDER
 from src.core.signals.log_signals import LogSignals
 from src.services.logging.log_level import LogLevel
 
@@ -13,6 +16,17 @@ class Logger(logging.Logger):
         self.title = title
         self.context = context
         self.log_signals = log_signals
+
+        file_handler = RotatingFileHandler(
+            f"{os.path.join(LOG_FOLDER, title)}.log",
+            maxBytes=1024 * 1024 * 1024,
+            backupCount=1,
+        )
+        file_handler.setLevel(logging.DEBUG)
+        file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        file_handler.setFormatter(file_formatter)
+        self.addHandler(file_handler)
+
         self.setLevel(logging.DEBUG)
         self.addHandler(logging.NullHandler())
 

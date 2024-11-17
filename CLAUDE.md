@@ -81,7 +81,8 @@ Game State
 - Prefer readability over abstraction
 - DRY, but clarity first
 - Don't comment, the code should be self explanotory
-- Fail fast instead of catching unexpected exception
+- Fail FAST, DONT silence error
+- Use pyright to check if the code has valid types, everytime you make changes (uv run pyright)
 
 ## Behavior Implementation Rules
 

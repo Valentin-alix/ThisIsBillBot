@@ -63,6 +63,7 @@ class PulpResultConverter:
                     sim,
                     prefix_clear_path,
                     mapping_info,
+                    None,
                 )
                 sorted_pulp_result.pop(0)
                 continue

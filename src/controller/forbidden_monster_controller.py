@@ -16,7 +16,7 @@ from src.services.logging.logger import Logger
 class ForbiddenMonsterController(metaclass=Singleton):
     _LOCK = RLock()
     _FILE_PATH = os.path.join(RESOURCE_FOLDER, "forbidden_monster_race.json")
-    _DEFEAT_THRESHOLD = 3
+    _DEFEAT_THRESHOLD = 5
 
     def __init__(self):
         self._ensure_file_exists()
@@ -65,9 +65,7 @@ class ForbiddenMonsterController(metaclass=Singleton):
             if monster_name in defeat_count_by_name:
                 del defeat_count_by_name[monster_name]
                 self._save_data(defeat_count_by_name)
-                logger.info(
-                    f"Monster {monster_name} defeat count reset after victory"
-                )
+                logger.info(f"Monster {monster_name} defeat count reset after victory")
 
     def is_group_allowed(
         self,
@@ -81,14 +79,20 @@ class ForbiddenMonsterController(metaclass=Singleton):
                 .monsters_by_id[monster_group.identification.main_creature.gid]
                 .nameId
             ]
-            if defeat_count_by_name.get(main_creature_name, 0) >= self._DEFEAT_THRESHOLD:
+            if (
+                defeat_count_by_name.get(main_creature_name, 0)
+                >= self._DEFEAT_THRESHOLD
+            ):
                 return False
 
             for underling in monster_group.identification.underlings:
                 underling_name = I18N().name_by_id[
                     DataReader().monsters_by_id[underling.gid].nameId
                 ]
-                if defeat_count_by_name.get(underling_name, 0) >= self._DEFEAT_THRESHOLD:
+                if (
+                    defeat_count_by_name.get(underling_name, 0)
+                    >= self._DEFEAT_THRESHOLD
+                ):
                     return False
 
             return True

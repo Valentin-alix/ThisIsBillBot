@@ -6,7 +6,6 @@ from D3Database.enums.characteristic_enum import CharacteristicEnum
 from D3Database.enums.effect_element import EffectElement
 from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
     ActorPositionInformation,
-    ChallengeMod,
     CharacterCharacteristic,
     SpellModifier,
     SpellModifierType,
@@ -55,15 +54,17 @@ class FightState(State):
         self.is_map_fight_initialized = False
         self.fight_placement_possible_positions.clear()
         self.is_our_turn = False
-        self.challenge_mod = ChallengeMod.CHALLENGE_CHOICE
         self.spells.clear()
         self.modifier_by_type_and_spell_id.clear()
         self.count_casted_by_spell_id_on_current_turn.clear()
+        self.characteristic_by_id.clear()
+        self.breed_id = 0
         self.in_fight = False
+        self.fight_turn = 0
         self.life_point = 1
         self.max_life_point = 1
-        self.fight_turn = 0
-        self.characteristic_by_id.clear()
+        self._last_attacked_monster_group = None
+        self._player_died_in_current_fight = False
 
     def get_stat_by_id(self, characteristic: int) -> int:
         value = get_stat_by_id(self.characteristic_by_id.get(characteristic))
@@ -122,8 +123,8 @@ class FightState(State):
         self.game_info_signals.in_fight.emit(self._in_fight)
 
     @property
-    def ordered_stat(self) -> list[CharacteristicEnum]:
-        dmg_stats = [
+    def ordered_stat(self) -> list[int]:
+        dmg_stats: list[CharacteristicEnum] = [
             CharacteristicEnum.AGILITY,
             CharacteristicEnum.STRENGTH,
             CharacteristicEnum.INTELLIGENCE,

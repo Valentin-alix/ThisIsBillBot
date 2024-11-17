@@ -113,6 +113,7 @@ class SaleHotelFrame(Frame):
         )
         self.game_state.sale_hotel.bid_seller_condition = msg.selling_conditions
         SaleHotelController().update_hdv(
+            self.game_state.player.server_id,
             self.game_state.player.character_id,
             {
                 item.item.uid: (item.item.gid, item.item.quantity, item.price)
@@ -124,6 +125,7 @@ class SaleHotelFrame(Frame):
         self, msg: ExchangeBidHouseItemAddedEvent
     ):
         SaleHotelController().add_gid_quantity_by_uid_by_player_id(
+            self.game_state.player.server_id,
             self.game_state.player.character_id,
             msg.item.gid,
             msg.item.quantity,
@@ -135,6 +137,7 @@ class SaleHotelFrame(Frame):
         self, msg: ExchangeBidHouseItemRemovedEvent
     ):
         SaleHotelController().remove_uid_for_player_id(
+            self.game_state.player.server_id,
             self.game_state.player.character_id,
             msg.sell_id,
         )
@@ -147,18 +150,20 @@ class SaleHotelFrame(Frame):
 
     def on_object_average_prices_event(self, msg: ObjectAveragePricesEvent):
         SaleHotelController().add_multiple_avg_price_by_gid(
+            self.game_state.player.server_id,
             [
                 (
                     object_average_price.average_price,
                     object_average_price.object_gid,
                 )
                 for object_average_price in msg.objects_average_prices
-            ]
+            ],
         )
 
     def on_exchange_bid_price_event(self, msg: ExchangeBidPriceEvent):
         SaleHotelController().add_multiple_avg_price_by_gid(
-            [(msg.average_price, msg.object_gid)]
+            self.game_state.player.server_id,
+            [(msg.average_price, msg.object_gid)],
         )
         self.register_prices(msg.bid_price_for_seller.minimal_prices, msg.object_gid)
 

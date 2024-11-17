@@ -19,20 +19,18 @@ class InventoryState(State):
     inventory_signals: InventorySignals
     player_state: PlayerState
     _kamas: int = dataclasses.field(init=False, default=500_000)
-    bank_object_by_gid: dict[int, ObjectItemInventory] = dataclasses.field(
-        init=False, default_factory=dict
-    )
     _inventory_weight: int = dataclasses.field(init=False, default=0)
     _weight_max: int = dataclasses.field(init=False, default=1)
+    bank_object_by_gid: dict[int, ObjectItemInventory] = dataclasses.field(init=False, default_factory=dict)
     objects_by_uid: ObjectByUid = field(init=False)
 
     def __post_init__(self):
         self.objects_by_uid = ObjectByUid()
 
     def clear_state(self):
+        self.kamas = 0
         self.inventory_weight = 0
         self.weight_max = 1
-        self.kamas = 0
         self.clear_inventory()
 
     # ==================== Inventory Operations ====================
@@ -103,10 +101,7 @@ class InventoryState(State):
         return any(
             object.position == SetPositionEnum.ARME
             for object in self.objects_by_uid.values()
-            if any(
-                effect.action == EffectActionEnum.WEAPON_HUNTER
-                for effect in object.item.effects
-            )
+            if any(effect.action == EffectActionEnum.WEAPON_HUNTER for effect in object.item.effects)
         )
 
     def get_valid_recipes(
@@ -119,6 +114,4 @@ class InventoryState(State):
         return get_valid_recipes(self.logger, self.player_state.jobs_lvl_by_id, recipes)
 
     def get_object_item_by_gid(self, gid: int):
-        return next(
-            (obj for obj in self.objects_by_uid.values() if obj.item.gid == gid), None
-        )
+        return next((obj for obj in self.objects_by_uid.values() if obj.item.gid == gid), None)

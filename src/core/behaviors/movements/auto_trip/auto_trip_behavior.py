@@ -39,7 +39,13 @@ class AutoTripBehavior(Behavior):
         from_auto_trip_zaap_behavior: bool = False,
         retry: int = 3,
     ):
-        if self.game_state.map.is_in_map_transition or self.game_state.fight.in_fight:
+        if self.game_state.map.is_in_map_transition:
+            return self.event_manager.on(
+                MapComplementaryInformationEvent,
+                lambda _: self.finish(MapChangeError.UNEXPECTED_NEW_MAP),
+                originator=self,
+            )
+        if self.game_state.fight.in_fight:
             return self.finish(MapChangeError.UNEXPECTED_NEW_MAP)
         if map_ids is not None:
             self.logger.info(f"Auto trip to map id : {map_ids}")
@@ -98,6 +104,7 @@ class AutoTripBehavior(Behavior):
             ),
             originator=self,
             once=True,
+            override_on_self=True,
         )
 
     def on_map_complementary_information_event_after_edge(

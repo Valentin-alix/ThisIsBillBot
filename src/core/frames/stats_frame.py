@@ -33,21 +33,20 @@ class StatsFrame(Frame):
             for uid, obj in self.game_state.inventory.objects_by_uid.items()
         }
 
-        with self.event_manager.lock:
-            self.unregister_listener(ObjectAddedEvent)
-            self.unregister_listener(ObjectQuantityEvent)
-            self.event_manager.on(
-                ObjectAddedEvent,
-                self.on_object_added,
-                self,
-                priority=PriorityEnum.NORMAL,
-            )
-            self.event_manager.on(
-                ObjectQuantityEvent,
-                self.on_object_quantity,
-                self,
-                priority=PriorityEnum.NORMAL,
-            )
+        self.event_manager.on(
+            ObjectAddedEvent,
+            self.on_object_added,
+            self,
+            priority=PriorityEnum.NORMAL,
+            override_on_self=True,
+        )
+        self.event_manager.on(
+            ObjectQuantityEvent,
+            self.on_object_quantity,
+            self,
+            priority=PriorityEnum.NORMAL,
+            override_on_self=True,
+        )
 
     def on_object_added(self, msg: ObjectAddedEvent):
         self.unregister_listener(ObjectAddedEvent)
@@ -59,7 +58,7 @@ class StatsFrame(Frame):
         if not item.nameId:
             return
 
-        resource_name = I18N().name_by_id[item.nameId]
+        resource_name = I18N().name_by_id.get(item.nameId, f"Unknown {gid}")
 
         FarmStatsController().add_harvested_resource(
             self.game_state.player.character_name,

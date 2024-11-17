@@ -35,13 +35,16 @@ class AttackerBehavior(Behavior):
     _count_fighted_on_map: int = field(init=False, default=0)
     _wait_for_group: bool = field(init=False, default=False)
     _get_lvl_limit: Callable[[int], float] = lambda level: level * 1.5 + 5
+    _force_attack: bool = field(init=False, default=False)
 
     def run(
         self,
         count_fight_limit: int | None = 10,
         wait_for_group: bool = False,
         get_lvl_limit: Callable[[int], float] = lambda level: level * 1.5 + 5,
+        force_attack: bool = False,
     ) -> None:
+        self._force_attack = force_attack
         self._get_lvl_limit = get_lvl_limit
         self._wait_for_group = wait_for_group
         self._count_fighted_on_map = 0
@@ -68,7 +71,10 @@ class AttackerBehavior(Behavior):
 
     def on_moved_to_monster(self, error_code: str | None, group_actor_id: int) -> None:
         if error_code is not None:
-            if error_code is MapMoveError.INVALID_STARTING_POINT:
+            if error_code in [
+                MapMoveError.INVALID_STARTING_POINT,
+                MapMoveError.CANCELED_MOVEMENT,
+            ]:
                 return self.attack_enemy()
             self.raise_if_error(error_code)
 
@@ -94,15 +100,15 @@ class AttackerBehavior(Behavior):
             )
             self.game_state.fight.set_last_attacked_monster_group(monster_group)
 
-        with self.event_manager.lock:
-            self.event_manager.on(
-                msg_type=FightMapInformationEvent,
-                callback=self.on_fight_map_information_event,
-                originator=self,
-                once=True,
-                timeout=15,
-                on_timeout=lambda: self.attack_enemy(group_actor_id),
-            )
+        self.event_manager.on(
+            msg_type=FightMapInformationEvent,
+            callback=self.on_fight_map_information_event,
+            originator=self,
+            once=True,
+            override_on_self=True,
+            timeout=15,
+            on_timeout=lambda: self.attack_enemy(group_actor_id),
+        )
         request = AttackMonsterRequest(monster_group_id=group_actor_id)
         self.event_manager.send(request)
 
@@ -136,7 +142,13 @@ class AttackerBehavior(Behavior):
             if actor_id == excluded_group_actor_id:
                 continue
 
-            if not ForbiddenMonsterController().is_group_allowed(monster_group):
+            if self._force_attack:
+                self.logger.warning("Forcing attack, even to forbidden group")
+
+            if (
+                not self._force_attack
+                and not ForbiddenMonsterController().is_group_allowed(monster_group)
+            ):
                 self.logger.info(
                     f"Skipping forbidden monster group (actor_id={actor_id})"
                 )

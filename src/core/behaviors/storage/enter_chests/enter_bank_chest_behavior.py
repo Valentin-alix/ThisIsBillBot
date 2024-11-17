@@ -3,26 +3,15 @@ from enum import StrEnum, auto
 
 from D3Database.enums.npc_message_id_enum import NpcAskMessageIdEnum
 from D3Mapping.d3_mapping.protocol.protocol_game import is_usable_msg
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
-    ExchangeMoveKamaRequest,
-)
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
-    StorageInventoryContentEvent,
-)
+from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import ExchangeMoveKamaRequest
+from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import StorageInventoryContentEvent
 from D3Mapping.d3_mapping.resources.protos.game.npc_pb2 import NpcDialogQuestionEvent
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
-    AutoTripSmartBehavior,
-)
-from src.core.behaviors.npcs.npc_dialog_behavior import (
-    NpcDialogBehavior,
-    NpcDialogErrorCode,
-)
+from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import AutoTripSmartBehavior
+from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior, NpcDialogErrorCode
 from src.core.config import BASE_RANGE
 from src.core.engine.storage.unload import get_bank_npc_info
-from src.core.game_constants import (
-    BANKS_NPC_INFOS,
-)
+from src.core.game_constants import NPCs
 
 
 class EnterBankChestErrorCode(StrEnum):
@@ -60,11 +49,7 @@ class EnterBankChestBehavior(Behavior):
         self.npc_dialog_behavior.start(
             callback=self.on_npc_dialog_behavior_finished,
             parent=self,
-            npc_dialog_info=next(
-                bank
-                for bank in BANKS_NPC_INFOS
-                if bank.npc_map_id == self.game_state.map.map_id
-            ),
+            npc_dialog_info=next(bank for bank in NPCs.BANKS if bank.npc_map_id == self.game_state.map.map_id),
             is_forbidden_msg_callback=is_forbidden_msg_callback,
         )
 

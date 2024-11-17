@@ -41,7 +41,8 @@ from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
 )
 from D3Mapping.d3_mapping.resources.protos.game.roleplay_pb2 import AttackMonsterRequest
 from src.controller.session_timings import SessionTimingsController
-from src.core.config import BASE_RANGE
+from src.core.config import BASE_RANGE, ENABLE_SESSION_CONTEXT
+from src.services.session_context import SessionContextService
 from src.utils.metaclasses.singleton import Singleton
 
 
@@ -61,7 +62,7 @@ def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 5) -> flo
     if mini == 0:
         return 0
 
-    steps: list[float] = [round(time, 3) for time in np.arange(mini, maxi, 0.05)]  # type: ignore
+    steps: list[float] = [float(round(time, 3)) for time in np.arange(mini, maxi, 0.05)]
     wait_time = random.choices(steps, [1 / (step**coeff) for step in steps])[0]
     return random.uniform(wait_time, wait_time * 1.05)
 
@@ -74,10 +75,26 @@ def get_random_range(
     else:
         wait_time = random.uniform(*range_time)
 
+    if ENABLE_SESSION_CONTEXT:
+        wait_time *= SessionContextService().get_timing_modifier()
+
     return wait_time
 
 
+MICRO_JITTER_RANGES: dict[str, tuple[float, float]] = {
+    "spell_cast": (0.1, 0.4),
+    "movement_request": (0.05, 0.2),
+    "npc_reply": (0.2, 0.6),
+    "item_use": (0.1, 0.3),
+    "default": (0.05, 0.25),
+}
+
+
 class HumanTimingsService(metaclass=Singleton):
+    def get_micro_jitter(self, action_type: str = "default") -> float:
+        range_tuple = MICRO_JITTER_RANGES.get(action_type, MICRO_JITTER_RANGES["default"])
+        return random.uniform(*range_tuple)
+
     def build_empirical_sampler(self, all_deltas: list[float]) -> Callable[[], float]:
         all_deltas = [delta for delta in all_deltas if delta <= 10]
         if len(all_deltas) < 2:
@@ -85,7 +102,7 @@ class HumanTimingsService(metaclass=Singleton):
         with TIMING_LOCK:
             sorted_deltas = np.sort(all_deltas)
             quantiles = np.linspace(0, 1, len(all_deltas))
-            inverse_cdf = interp1d(quantiles, sorted_deltas, fill_value="extrapolate")  # type: ignore
+            inverse_cdf = interp1d(quantiles, sorted_deltas, fill_value="extrapolate")
 
             def sampler():
                 return float(inverse_cdf(np.random.rand())) / 1.5
@@ -359,6 +376,11 @@ class HumanTimingsService(metaclass=Singleton):
             return self.get_human_timing(deltas)
 
         return get_timing_func()()
+
+    def get_timing_npc_dialog_reply(self, message_length: int = 0) -> float:
+        base_timing = get_random_range(BASE_RANGE)
+        reading_time = (message_length * 0.04) * random.uniform(0.6, 1.4)
+        return base_timing + min(reading_time, 1.5)
 
 
 if __name__ == "__main__":

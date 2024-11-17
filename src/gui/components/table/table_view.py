@@ -92,8 +92,8 @@ class CustomTableModel(QAbstractTableModel):
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
         if not index.isValid():
-            return Qt.NoItemFlags  # type: ignore
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+            return Qt.ItemFlags(Qt.NoItemFlags)
+        return Qt.ItemFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
 
     def setData(self, index: QModelIndex, value: str, role: int = Qt.EditRole) -> bool:
         if not index.isValid():
@@ -120,7 +120,7 @@ class CustomTableModel(QAbstractTableModel):
         )
 
 
-class CustomTableView(TableView):  # type: ignore
+class CustomTableView(TableView):
     def __init__(
         self,
         parent: SingleDirectionScrollArea,

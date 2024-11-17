@@ -34,8 +34,9 @@ class EnterSaleHotelSellBehavior(Behavior):
             originator=self,
             once=True,
         )
+        npc_id = self.game_state.entity.resolve_npc_id(npc_info)
         req = NpcGenericActionRequest(
-            npc_id=npc_info.npc_id,
+            npc_id=npc_id,
             npc_map_id=npc_info.npc_map_id,
             npc_action_id=npc_info.npc_action_id,
         )

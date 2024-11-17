@@ -29,6 +29,8 @@ class BaseFarmingErrorCode(StrEnum):
 
 @dataclass
 class BaseFarmBehavior(Behavior, ABC):
+    """Abstract behavior that is used to automatically unload when full pods, then craft items to lvl up jobs, then sell & update items in sale hotel"""
+
     random_farm_behavior: RandomFarmBehavior
     unload_behavior: UnloadBehavior
     sale_hotel_prices_behavior: SaleHotelPricesBehavior

@@ -34,8 +34,8 @@ class InteractiveState(State):
         self.stated_element_by_cell_id: StatedElementByCellIdDict = StatedElementByCellIdDict()
 
     def clear_state(self):
-        self.clear_stated_elements()
         self.interactive_element_by_id.clear()
+        self.clear_stated_elements()
 
     def clear_stated_elements(self) -> None:
         if not self.stated_element_by_id:

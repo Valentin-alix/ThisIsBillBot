@@ -7,7 +7,7 @@ from src.core.engine.movements.area_infos import AreaInfo
 from src.core.engine.weights.harvester.weight_collectable import (
     get_map_id_collectable_weight,
 )
-from src.core.states.area_state import CURRENT_AREAS_PLAYING_INFOS_BY_CHARACTER_ID
+from src.core.states.area_state import CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER
 from src.core.states.game_state import GameState
 from src.services.logging.logger import Logger
 
@@ -17,6 +17,7 @@ def get_weight_harvester_area(
     area_id: int,
     is_sub: bool,
     storage_by_gid: dict[int, ObjectItemInventory],
+    server_id: int = 1,
 ):
     return sum(
         [
@@ -25,6 +26,7 @@ def get_weight_harvester_area(
                 storage_by_gid,
                 sub_area_id,
                 is_sub,
+                server_id,
             )
             for sub_area_id in DataReader().sub_areas_by_area_id[area_id]
         ]
@@ -36,6 +38,7 @@ def get_weight_harvester_sub_area(
     storage_by_gid: dict[int, ObjectItemInventory],
     sub_area_id: int,
     is_sub: bool,
+    server_id: int = 1,
 ):
     weight: float = 0
     for map_id in DataReader().map_ids_by_sub_area_id[sub_area_id]:
@@ -44,6 +47,7 @@ def get_weight_harvester_sub_area(
             job_lvl_by_id,
             storage_by_gid,
             is_sub,
+            server_id,
         )
     return int(weight / len(DataReader().map_ids_by_sub_area_id[sub_area_id]))
 
@@ -80,14 +84,20 @@ def get_random_best_area_info_for_harvester(
 
     weight_by_areas_info: dict[AreaInfo, float] = {}
 
+    server_id = game_state.player.server_id
+    server_area_infos = [
+        info for (srv_id, _), info in CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER.items()
+        if srv_id == server_id
+    ]
+
     for area_info in areas_with_weight:
-        list(CURRENT_AREAS_PLAYING_INFOS_BY_CHARACTER_ID.values()).count(area_info)
         if area_info.sub_area_id:
             weight = get_weight_harvester_sub_area(
                 game_state.player.jobs_lvl_by_id,
                 game_state.inventory.bank_object_by_gid,
                 area_info.sub_area_id,
                 game_state.player.is_sub,
+                server_id,
             )
         else:
             weight = get_weight_harvester_area(
@@ -95,10 +105,9 @@ def get_random_best_area_info_for_harvester(
                 area_info.area_id,
                 game_state.player.is_sub,
                 game_state.inventory.bank_object_by_gid,
+                server_id,
             )
-        count_area_already_playing = list(
-            CURRENT_AREAS_PLAYING_INFOS_BY_CHARACTER_ID.values()
-        ).count(area_info)
+        count_area_already_playing = server_area_infos.count(area_info)
         weight_by_areas_info[area_info] = weight / (
             1
             + count_area_already_playing * 3

@@ -1,10 +1,8 @@
+import datetime
 from dataclasses import dataclass, field
-from functools import cached_property
 from threading import Event
-from typing import Any
 
 from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
-from PyQt5.QtCore import QThread
 
 from src.controller.bot_config import BotConfigController
 from src.core.behaviors.behavior import Behavior
@@ -87,18 +85,13 @@ class Bot(ContextualLogger):
     shared_signals: SharedSignals
     from_manual_play: Event = field(init=False, default_factory=Event)
 
-    _thread_worker_runnings: list[tuple[QThread, Any]] = field(
-        init=False, default_factory=list
-    )
-
     connection_handler: ConnectionHandler = field(init=False)
     behavior_coordinator: BehaviorCoordinator = field(init=False)
     process_manager: ProcessManager = field(init=False)
     scheduler: BotScheduler = field(init=False)
     replay_handler: ReplayHandler = field(init=False)
 
-    @cached_property
-    def bot_config(self):
+    def get_bot_config(self):
         return (
             BotConfigController()
             .get_bot_config_by_login()
@@ -120,7 +113,7 @@ class Bot(ContextualLogger):
             account=self.account,
             shared_signals=self.shared_signals,
             event_manager=self.event_manager,
-            bot_config=self.bot_config,
+            get_bot_config=self.get_bot_config,
             is_connected_event=self.is_connected_event,
             from_manual_play=self.from_manual_play,
             harvester_behavior=self.harvester_behavior,
@@ -140,7 +133,7 @@ class Bot(ContextualLogger):
             _logger=self.logger,
             account=self.account,
             shared_signals=self.shared_signals,
-            bot_config=self.bot_config,
+            get_bot_config=self.get_bot_config,
             behavior_coordinator=self.behavior_coordinator,
             is_connected_event=self.is_connected_event,
         )
@@ -151,7 +144,7 @@ class Bot(ContextualLogger):
             _logger=self.logger,
             account=self.account,
             shared_signals=self.shared_signals,
-            bot_config=self.bot_config,
+            get_bot_config=self.get_bot_config,
             behavior_coordinator=self.behavior_coordinator,
             bot_signals=self.bot_signals,
             log_signals=self.log_signals,
@@ -189,3 +182,15 @@ class Bot(ContextualLogger):
 
     def start(self):
         self.scheduler.start()
+
+    def wait_for_connection_result(self, timeout: float = 120.0) -> bool:
+        is_success = self.is_connected_event.wait(timeout)
+        return is_success
+
+    def bot_should_not_play(self, now: datetime.datetime):
+        if self.from_manual_play.is_set():
+            return False
+        in_playtime = self.scheduler.is_in_randomized_playtime(now)
+        if in_playtime is None:
+            return False
+        return not in_playtime

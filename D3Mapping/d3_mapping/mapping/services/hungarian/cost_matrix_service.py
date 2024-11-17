@@ -8,7 +8,7 @@ from D3Mapping.d3_mapping.consts import MAX_PARALLEL_WORKERS, log_reliability
 from D3Mapping.d3_mapping.mapping.services.field_comparison_service import (
     FieldComparisonService,
 )
-from D3Mapping.d3_mapping.models.mapping_info import MappingInfo
+from D3Mapping.d3_mapping.models.mapping_info import MappingInfo, RejectionReason
 from D3Mapping.d3_mapping.models.p_message import PField, PMapField, PMessage
 
 
@@ -18,7 +18,10 @@ class CostMatrixResult:
 
     cost_matrix: np.ndarray
     mapping_by_indexes: dict[
-        tuple[int, int], tuple[str, tuple[float, str, MappingInfo | None]]
+        tuple[int, int], tuple[str, tuple[float, str, MappingInfo | None, RejectionReason | None]]
+    ]
+    all_comparisons_by_obf_index: dict[
+        int, list[tuple[int, str, float, float, RejectionReason | None]]
     ]
 
 
@@ -58,7 +61,12 @@ class CostMatrixService:
             CostMatrixResult with cost matrix and mapping info
         """
         cost_matrix = np.zeros((len(clear_elem_by_index), len(obf_elem_by_index)))
-        mapping_by_indexes = {}
+        mapping_by_indexes: dict[
+            tuple[int, int], tuple[str, tuple[float, str, MappingInfo | None, RejectionReason | None]]
+        ] = {}
+        all_comparisons_by_obf_index: dict[
+            int, list[tuple[int, str, float, float, RejectionReason | None]]
+        ] = {i: [] for i in obf_elem_by_index}
 
         with ThreadPoolExecutor(max_workers=MAX_PARALLEL_WORKERS) as executor:
             futures = {}
@@ -86,9 +94,14 @@ class CostMatrixService:
                 cost_matrix[clear_index][obf_index] = weighted_sim
                 mapping_by_indexes[(clear_index, obf_index)] = (
                     obf_elem.name,
-                    (result.similarity, clear_elem.name, result.mapping_info),
+                    (result.similarity, clear_elem.name, result.mapping_info, result.rejection_reason),
+                )
+                all_comparisons_by_obf_index[obf_index].append(
+                    (clear_index, clear_elem.name, result.similarity, reliability, result.rejection_reason)
                 )
 
         return CostMatrixResult(
-            cost_matrix=cost_matrix, mapping_by_indexes=mapping_by_indexes
+            cost_matrix=cost_matrix,
+            mapping_by_indexes=mapping_by_indexes,
+            all_comparisons_by_obf_index=all_comparisons_by_obf_index,
         )

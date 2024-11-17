@@ -240,5 +240,5 @@ class TestReplayerIntegration(unittest.TestCase):
         bot = generate_random_bot()
         bot.replay_handler.on_replay_requested(recording_path)
 
-        for thread, worker in bot._thread_worker_runnings:
+        for thread, worker in bot.replay_handler._thread_worker_runnings:
             thread.wait()

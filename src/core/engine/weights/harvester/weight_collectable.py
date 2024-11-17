@@ -11,9 +11,7 @@ from src.controller.speed_sell_score import SpeedSellScoreController
 from src.core.config import WEIGHT_BY_JOB
 from src.core.engine.monsters.drops import get_rare_gid_with_weight_from_protector_drop
 from src.core.engine.movements.map.map_tools import MapTools
-from src.core.game_constants import (
-    PROTECTOR_RACES,
-)
+from src.core.game_constants import Monsters
 
 PRICE_EXPONENT = 1.1
 
@@ -45,6 +43,7 @@ def get_map_id_collectable_weight(
     player_job_lvl_by_id: dict[int, int],
     storage_by_gid: dict[int, ObjectItemInventory],
     is_sub: bool,
+    server_id: int = 1,
 ) -> float:
     item_job_by_gfx = GfxMappingController().get_item_job_by_gfx()
     weight_map: float = 0
@@ -69,6 +68,7 @@ def get_map_id_collectable_weight(
             item_id,
             storage_by_gid,
             is_sub,
+            server_id,
         )
         weight_map += weight_item
     return weight_map
@@ -80,8 +80,9 @@ def get_weight_collectable(
     item_gid: int,
     storage_by_gid: dict[int, ObjectItemInventory],
     is_sub: bool,
+    server_id: int = 1,
 ):
-    avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
+    avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(server_id)
     rare_drop_weight_by_collectable_gid = get_rare_drop_weight_by_collectable_gid()
 
     base = get_basic_weight_collectable(job_id, job_lvl, item_gid, is_sub)
@@ -129,7 +130,7 @@ def get_basic_weight_collectable(
 @cache
 def get_rare_drop_weight_by_collectable_gid() -> dict[int, float]:
     drop_weight_by_res_id: dict[int, float] = defaultdict(float)
-    for race in PROTECTOR_RACES:
+    for race in Monsters.PROTECTOR_RACES:
         for monster in DataReader().monsters_by_race[race]:
             res_object_id, curr_weight = get_rare_gid_with_weight_from_protector_drop(
                 monster.drops

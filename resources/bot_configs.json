@@ -1,90 +1,42 @@
 {
-    "ezre.juillet1@outlook.fr": {
-        "playtime_starts": [
-            "04:09"
-        ],
-        "playtime_ends": [
-            "12:00"
-        ]
-    },
-    "ezre.juillet2@outlook.fr": {
-        "playtime_starts": [
-            "04:09"
-        ],
-        "playtime_ends": [
-            "12:00"
-        ]
-    },
-    "ezre.2juillet1@outlook.fr": {
-        "playtime_starts": [
-            "04:09"
-        ],
-        "playtime_ends": [
-            "12:00"
-        ]
-    },
-    "pcserv_blibli_1_0@outlook.fr": {
-        "playtime_starts": [
-            "20:09"
-        ],
-        "playtime_ends": [
-            "04:00"
-        ]
-    },
-    "pcserv_blibli_1_1@outlook.fr": {
-        "playtime_starts": [
-            "20:09"
-        ],
-        "playtime_ends": [
-            "04:00"
-        ]
-    },
-    "pcserv_blibli_3_0@outlook.fr": {
-        "playtime_starts": [
-            "20:09"
-        ],
-        "playtime_ends": [
-            "04:00"
-        ]
-    },
-    "pcserv_blibli_5_0@outlook.fr": {
-        "playtime_starts": [
-            "20:09"
-        ],
-        "playtime_ends": [
-            "04:00"
-        ]
-    },
-    "pcserv_blibli_1_2@outlook.fr": {
-        "playtime_starts": [
-            "12:09"
-        ],
-        "playtime_ends": [
-            "20:00"
-        ]
-    },
-    "pcserv_blibli_4_0@outlook.fr": {
-        "playtime_starts": [
-            "12:09"
-        ],
-        "playtime_ends": [
-            "20:00"
-        ]
-    },
-    "pcserv_blibli_4_1@outlook.fr": {
-        "playtime_starts": [
-            "12:09"
-        ],
-        "playtime_ends": [
-            "20:00"
-        ]
-    },
-    "pcserv_blibli_4_2@outlook.fr": {
-        "playtime_starts": [
-            "12:09"
-        ],
-        "playtime_ends": [
-            "20:00"
-        ]
-    }
+  "pcserv_blibli_7_1@outlook.fr": {
+    "network_interface": null,
+    "pc_id": 3,
+    "schedule_profile": "A"
+  },
+  "pcserv_blibli_7_0@outlook.fr": {
+    "network_interface": null,
+    "pc_id": 3,
+    "schedule_profile": "A"
+  },
+  "pcserv_blibli_7_2@outlook.fr": {
+    "network_interface": null,
+    "pc_id": 3,
+    "schedule_profile": "E"
+  },
+  "pcserv_blibli_8_0@outlook.fr": {
+    "network_interface": null,
+    "pc_id": 3,
+    "schedule_profile": "E"
+  },
+  "pcserv_blibli_8_1@outlook.fr": {
+    "network_interface": null,
+    "pc_id": 3,
+    "schedule_profile": "B"
+  },
+  "pcserv_blibli_8_2@outlook.fr": {
+    "network_interface": null,
+    "pc_id": 3,
+    "schedule_profile": "B"
+  },
+  "pcserv_blibli_9_0@outlook.fr": {
+    "network_interface": null,
+    "pc_id": 3,
+    "schedule_profile": "C"
+  },
+  "pcserv_blibli_9_1@outlook.fr": {
+    "network_interface": null,
+    "pc_id": 3,
+    "schedule_profile": "C"
+  }
 }

@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field, fields
 from threading import Event
-from time import sleep
 from typing import Any, Callable
 
 from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
@@ -46,7 +45,7 @@ class BehaviorCoordinator(ContextualLogger):
     shared_signals: SharedSignals
 
     account: DecipheredApiKey
-    bot_config: BotConfig | None
+    get_bot_config: Callable[[], BotConfig | None]
 
     _thread_worker_runnings: list[tuple[QThread, Any]] = field(
         init=False, default_factory=list
@@ -112,17 +111,13 @@ class BehaviorCoordinator(ContextualLogger):
             )
         )
 
-    def on_play_auto_bot(
-        self,
-        area_id: int | None,
-        sub_area_id: int | None,
-    ):
+    def on_play_auto_bot(self):
         self.play_action(
             lambda: self.auto_bot_behavior.start(
                 callback=lambda _: self.bot_signals.stop.emit(),
                 parent=None,
-                area_id=area_id,
-                sub_area_id=sub_area_id,
+                area_id=None,
+                sub_area_id=None,
             )
         )
 
@@ -161,13 +156,8 @@ class BehaviorCoordinator(ContextualLogger):
         """Determine and trigger the appropriate bot action based on configuration."""
         if self.account["apikey"]["login"] in MULE_BANK_CHARACTER_LOGIN:
             self.bot_signals.play_mule_kamas.emit()
-        elif self.bot_config is not None:
-            self.bot_signals.play_auto_bot.emit(None, None)
-
-    def safe_stop(self):
-        while self.fight_behavior.state == BehaviorState.RUNNING:
-            sleep(0.3)
-        self.stop_behaviors()
+        elif self.get_bot_config() is not None:
+            self.bot_signals.play_auto_bot.emit()
 
     def stop_behaviors(self):
         with self.event_manager.lock:
@@ -182,3 +172,17 @@ class BehaviorCoordinator(ContextualLogger):
             for usable_behavior in self.usable_behaviors:
                 if usable_behavior.state == BehaviorState.RUNNING:
                     usable_behavior.stop()
+
+    def force_reset_all_behaviors(self):
+        """
+        Force reset all behaviors to STOPPED state.
+        Used when reconnecting after process kill to ensure clean state.
+        """
+        with self.event_manager.lock:
+            for field_info in fields(self):
+                field_value = getattr(self, field_info.name)
+                if isinstance(field_value, Behavior):
+                    field_value.force_reset()
+
+            for usable_behavior in self.usable_behaviors:
+                usable_behavior.force_reset()

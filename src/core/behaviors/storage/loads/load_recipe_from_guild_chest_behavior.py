@@ -1,5 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
+from D3Database.models.datas.recipe_root import RecipeItem
 from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeObjectMoveRequest,
 )
@@ -17,7 +18,7 @@ from src.core.behaviors.storage.loads.recipe_loader_behavior import (
     RecipeLoaderBehavior,
 )
 from src.core.config import SMALL_RANGE
-from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB, GIDS_BY_TAB
+from src.core.states.guild_chest_state import GIDS_BY_TAB, GuildChestState
 
 
 @dataclass
@@ -30,6 +31,8 @@ class IngredientsInfo:
 @dataclass
 class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
     enter_guild_chest_behavior: EnterGuildChestBehavior
+    _current_recipe_being_loaded: RecipeItem | None = field(init=False, default=None)
+    _current_recipe_quantity: int = field(init=False, default=0)
 
     def enter_storage(self) -> None:
         self.enter_guild_chest_behavior.start(
@@ -51,11 +54,12 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
             for recipe in self._remaining_recipes
             for ingredient_id in recipe.ingredientIds
         }
+        server_id = self.game_state.player.server_id
         tab_to_discovers = {
             tab
             for tab, item_gids in GIDS_BY_TAB.items()
             if any(
-                ingredient_id in item_gids and tab not in CHEST_OBJECT_BY_GID_BY_TAB
+                ingredient_id in item_gids and not GuildChestState.tab_exists(server_id, tab)
                 for ingredient_id in all_ingredient_ids
             )
         }
@@ -80,27 +84,43 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
         )
 
     def get_storage_objects_by_gid(self) -> dict:
-        return {
-            gid: object
-            for object_by_gid in CHEST_OBJECT_BY_GID_BY_TAB.values()
-            for gid, object in object_by_gid.items()
-        }
+        return GuildChestState.get_storage_objects_by_gid(self.game_state.player.server_id)
+
+    def reserve_ingredients_for_recipe(
+        self, recipe: RecipeItem, max_possible_result_quantity: int
+    ) -> None:
+        self._current_recipe_being_loaded = recipe
+        self._current_recipe_quantity = max_possible_result_quantity
+        server_id = self.game_state.player.server_id
+        for ingredient_id, quantity in zip(recipe.ingredientIds, recipe.quantities):
+            tab = GuildChestState.get_tab_for_gid(server_id, ingredient_id)
+            if tab is None:
+                continue
+            total_quantity = quantity * max_possible_result_quantity
+            GuildChestState.reserve_quantity(
+                server_id,
+                tab,
+                ingredient_id,
+                total_quantity,
+                self.game_state.player.character_name,
+            )
 
     def load_ingredients_for_recipe(
         self, recipe, max_possible_result_quantity: int
     ) -> None:
-        ingredients_infos: list[IngredientsInfo] = [
-            IngredientsInfo(
-                gid=ingredient_id,
-                quantity=quantity,
-                tab=next(
-                    tab
-                    for tab, item_gids in CHEST_OBJECT_BY_GID_BY_TAB.items()
-                    if ingredient_id in item_gids
-                ),
-            )
-            for ingredient_id, quantity in zip(recipe.ingredientIds, recipe.quantities)
-        ]
+        server_id = self.game_state.player.server_id
+        ingredients_infos: list[IngredientsInfo] = []
+        for ingredient_id, quantity in zip(recipe.ingredientIds, recipe.quantities):
+            tab = GuildChestState.get_tab_for_gid(server_id, ingredient_id)
+            if tab is not None:
+                ingredients_infos.append(
+                    IngredientsInfo(
+                        gid=ingredient_id,
+                        quantity=quantity,
+                        tab=tab,
+                    )
+                )
+
         ingredients_infos.sort(
             key=lambda ingredient_info: (
                 ingredient_info.tab == self.game_state.guild_chest.tab_number,
@@ -149,24 +169,91 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
         self.event_manager.on(
             InventoryWeightEvent,
             callback=lambda _: self.on_ingredient_loaded(
-                ingredients_infos, max_possible_result_quantity
+                ingredient_info, ingredients_infos, max_possible_result_quantity
             ),
             originator=self,
             once=True,
         )
         self.logger.info(f"Current tab : {self.game_state.guild_chest.tab_number}")
         self.logger.info(f"Tab of item {ingredient_info.tab}")
+
+        item = GuildChestState.get_item_by_gid(
+            self.game_state.player.server_id,
+            self.game_state.guild_chest.tab_number,
+            ingredient_info.gid,
+        )
+        if item is None:
+            self.logger.error(
+                f"Item {ingredient_info.gid} not found in tab {self.game_state.guild_chest.tab_number}. Aborting recipe {self._current_recipe_being_loaded.resultId if self._current_recipe_being_loaded else 'unknown'}."
+            )
+            return self.abort_current_recipe()
+
         req = ExchangeObjectMoveRequest(
-            object_uid=CHEST_OBJECT_BY_GID_BY_TAB[
-                self.game_state.guild_chest.tab_number
-            ][ingredient_info.gid].item.uid,
+            object_uid=item.item.uid,
             quantity=-ingredient_info.quantity * max_possible_result_quantity,
         )
         self.send_message_delayed(req, SMALL_RANGE)
 
     def on_ingredient_loaded(
         self,
+        ingredient_info: IngredientsInfo,
         ingredients_infos: list[IngredientsInfo],
         max_possible_result_quantity: int,
     ):
+        total_quantity = ingredient_info.quantity * max_possible_result_quantity
+        GuildChestState.release_reservation(
+            self.game_state.player.server_id,
+            ingredient_info.tab,
+            ingredient_info.gid,
+            total_quantity,
+            self.game_state.player.character_name,
+        )
         self.load_ingredient(ingredients_infos, max_possible_result_quantity)
+
+    def abort_current_recipe(self):
+        if self._current_recipe_being_loaded is None:
+            return self.load_recipe()
+
+        self.logger.warning(
+            f"Aborting recipe {self._current_recipe_being_loaded.resultId} - missing ingredients"
+        )
+
+        server_id = self.game_state.player.server_id
+        for ingredient_id, quantity in zip(
+            self._current_recipe_being_loaded.ingredientIds,
+            self._current_recipe_being_loaded.quantities,
+        ):
+            tab = GuildChestState.get_tab_for_gid(server_id, ingredient_id)
+            if tab is not None:
+                total_quantity = quantity * self._current_recipe_quantity
+                GuildChestState.release_reservation(
+                    server_id,
+                    tab,
+                    ingredient_id,
+                    total_quantity,
+                    self.game_state.player.character_name,
+                )
+
+        if self._current_recipe_being_loaded in self._remaining_recipes:
+            self._remaining_recipes.remove(self._current_recipe_being_loaded)
+
+        if self._current_recipe_being_loaded in [
+            recipe for recipe, _ in self._loaded_recipes_infos
+        ]:
+            self._loaded_recipes_infos = [
+                (recipe, qty)
+                for recipe, qty in self._loaded_recipes_infos
+                if recipe != self._current_recipe_being_loaded
+            ]
+
+        self._current_recipe_being_loaded = None
+        self._current_recipe_quantity = 0
+
+        self.load_recipe()
+
+    def clear_behavior(self):
+        GuildChestState.clear_all_reservations_for_bot(
+            self.game_state.player.server_id,
+            self.game_state.player.character_name,
+        )
+        super().clear_behavior()

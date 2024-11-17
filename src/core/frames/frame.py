@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from threading import Event, Timer
 from typing import Callable
 
+from google.protobuf.message import Message
+
 from src.core.events_manager.event_manager import EventManager
 from src.core.events_manager.priority import PriorityEnum
 from src.core.signals.player_signals import GameInfoSignals, InventorySignals
@@ -48,7 +50,7 @@ class Frame(ContextualLogger):
         with self.event_manager.lock:
             func()
 
-    def unregister_listener(self, event_type: type, reason: str = "") -> None:
+    def unregister_listener(self, event_type: type[Message], reason: str = "") -> None:
         """
         Nettoie un listener spécifique en cours d'exécution.
 

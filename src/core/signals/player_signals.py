@@ -10,7 +10,7 @@ class GameInfoSignals(QObject):
     disconnected = pyqtSignal()
     is_ready_to_play = pyqtSignal()
     breed_id = pyqtSignal(int)
-    character_id = pyqtSignal(int)
+    character_id = pyqtSignal(object)  # bc it's a big int
     character_name = pyqtSignal(str)
     subscription_end_date = pyqtSignal(datetime.datetime)
     in_fight = pyqtSignal(bool)

@@ -50,7 +50,7 @@ class SaleHotelState(State):
         return self.bid_seller_condition is not None and (
             len(
                 SaleHotelController()
-                .get_hdv_by_uid_by_player()
+                .get_hdv_by_uid_by_player(self.player_state.server_id)
                 .get(self.player_state.character_id, {})
             )
             >= self.bid_seller_condition.max_item_per_account

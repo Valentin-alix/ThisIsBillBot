@@ -6,6 +6,7 @@ from typing import Callable, Type, TypeVar
 from google.protobuf.message import Message
 
 from src.core.events_manager.priority import PriorityEnum
+from src.services.logging.logger import Logger
 
 T = TypeVar("T", bound=Message)
 
@@ -15,6 +16,7 @@ class Listener[T]:
     msg_type: Type[T]
     callback: Callable[[T], None]
     originator: object
+    logger: Logger
     once: bool = field(default=False)
     priority: int = field(default=PriorityEnum.NORMAL)
     timeout: float | None = None
@@ -22,24 +24,28 @@ class Listener[T]:
 
     _deleted: bool = field(init=False, default=False)
     _timeout_timer: Timer | None = field(init=False, default=None)
+    _context: str = field(init=False, default="")
     registered_at: datetime = field(init=False, default_factory=datetime.now)
 
     def __post_init__(self):
+        self._context = f"{self.originator.__class__.__name__}:{self.msg_type.__name__}"
         if self.timeout and self.on_timeout is not None:
             if self.on_timeout is None:
                 raise ValueError("timeout is defined but not function on_timeout !")
-            if self._deleted:
-                raise ValueError(
-                    "listener was going to use timeout callback but it is deleted !"
-                )
             self._timeout_timer = Timer(
                 interval=self.timeout, function=self.on_timeout_callback
             )
             self._timeout_timer.start()
 
     def on_timeout_callback(self):
+        if self._deleted:
+            self.logger.info(
+                f"{self._context} : On timeout callback called but listener is deleted"
+            )
+            return
         if self.on_timeout is None:
             raise ValueError("timeout timer is set but no timeout callback provided")
+        self.logger.info(f"{self._context} : Calling on timeout")
         self.on_timeout()
 
     def delete(self):

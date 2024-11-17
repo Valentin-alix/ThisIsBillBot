@@ -16,6 +16,7 @@ from src.core.behaviors.farms.fight.fight_turn_behavior import FightTurnBehavior
 from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.farms.multi_farming_behavior import MultiFarmingBehavior
+from src.core.behaviors.idle_behavior import IdleBehavior
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.interactives.collect_behavior import CollectBehavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
@@ -87,7 +88,6 @@ from src.core.engine.fights.reachable_cells.fight_reachable_cells import (
 from src.core.engine.movements.map.map_data_adapter import DataMapProvider
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.engine.movements.world.astar_allow_capability import AstarAllowHavreSac
-from src.core.engine.movements.world.astar_no_interactive import AstarNoInteractive
 from src.core.engine.movements.world.astar_vertice import AstarWorld
 from src.core.engine.movements.world.world_path_finder import WorldPathFinder
 from src.core.engine.weights.weighted_path import WeightedPath
@@ -289,6 +289,47 @@ class BotFactory:
             _logger=logger,
             path_finding=path_finding,
         )
+        fight_movement_behavior = FightMovementBehavior(
+            map_move_behavior=map_move_behavior,
+            game_state=game_state,
+            event_manager=event_manager,
+            path_finding=path_finding,
+            _logger=logger,
+            fight_reachable_cells=fight_reachable_cells,
+        )
+        fight_placement_behavior = FightPreparationBehavior(
+            game_state=game_state,
+            event_manager=event_manager,
+            fight_movement_behavior=fight_movement_behavior,
+            _logger=logger,
+        )
+        fight_spell_behavior = FightSpellBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            _logger=logger,
+        )
+
+        fight_turn_behavior = FightTurnBehavior(
+            _logger=logger,
+            fight_spell_behavior=fight_spell_behavior,
+            event_manager=event_manager,
+            fight_movement_behavior=fight_movement_behavior,
+            path_finding=path_finding,
+            game_state=game_state,
+            attacker=attacker,
+        )
+        recorder = Recorder()
+        fight_behavior = FightBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            fight_preparation_behavior=fight_placement_behavior,
+            path_finding=path_finding,
+            _logger=logger,
+            fight_turn_behavior=fight_turn_behavior,
+            recorder=recorder,
+            login=account["apikey"]["login"],
+            shared_signals=shared_signals,
+        )
         edge_behavior = EdgeBehavior(
             event_manager=event_manager,
             interactive_behavior=interactive_behavior,
@@ -297,8 +338,8 @@ class BotFactory:
             map_move_behavior=map_move_behavior,
             path_finding=path_finding,
             _logger=logger,
+            fight_behavior=fight_behavior,
         )
-        recorder = Recorder()
         auto_trip_behavior = AutoTripBehavior(
             event_manager=event_manager,
             world_path_finder=world_path_finder,
@@ -342,48 +383,6 @@ class BotFactory:
             auto_trip_explorator_behavior=auto_trip_explorator_behavior,
             _logger=logger,
         )
-        astar_no_interactive = AstarNoInteractive(game_state=game_state)
-        fight_movement_behavior = FightMovementBehavior(
-            map_move_behavior=map_move_behavior,
-            game_state=game_state,
-            event_manager=event_manager,
-            path_finding=path_finding,
-            _logger=logger,
-            fight_reachable_cells=fight_reachable_cells,
-        )
-        fight_placement_behavior = FightPreparationBehavior(
-            game_state=game_state,
-            event_manager=event_manager,
-            fight_movement_behavior=fight_movement_behavior,
-            _logger=logger,
-        )
-        fight_spell_behavior = FightSpellBehavior(
-            event_manager=event_manager,
-            game_state=game_state,
-            _logger=logger,
-        )
-
-        fight_turn_behavior = FightTurnBehavior(
-            _logger=logger,
-            fight_spell_behavior=fight_spell_behavior,
-            event_manager=event_manager,
-            fight_movement_behavior=fight_movement_behavior,
-            path_finding=path_finding,
-            game_state=game_state,
-            attacker=attacker,
-        )
-        fight_behavior = FightBehavior(
-            event_manager=event_manager,
-            game_state=game_state,
-            fight_preparation_behavior=fight_placement_behavior,
-            path_finding=path_finding,
-            _logger=logger,
-            fight_turn_behavior=fight_turn_behavior,
-            recorder=recorder,
-            login=account["apikey"]["login"],
-            shared_signals=shared_signals,
-        )
-
         collect_behavior = CollectBehavior(
             event_manager=event_manager,
             interactive_behavior=interactive_behavior,
@@ -581,6 +580,11 @@ class BotFactory:
             attacker_behavior=attacker_behavior,
             auto_trip_smart_behavior=auto_trip_world_behavior,
         )
+        idle_behavior = IdleBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            _logger=logger,
+        )
         multi_farming_behavior = MultiFarmingBehavior(
             chat_behavior=chat_behavior,
             mule_give_behavior=mule_give_behavior,
@@ -595,6 +599,7 @@ class BotFactory:
             attacker_behavior=attacker_behavior,
             craft_behavior=craft_behavior,
             dungeon_behavior=dungeon_behavior,
+            idle_behavior=idle_behavior,
         )
         auto_bot_behavior = AutoBotBehavior(
             event_manager=event_manager,

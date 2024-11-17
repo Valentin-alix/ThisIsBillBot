@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 from D3Mapping.d3_mapping.consts import SIMILARITY_DIVERGENCE_THRESHOLD, EntryMsg
-from D3Mapping.d3_mapping.models.mapping_info import MappingInfo, Percentage
+from D3Mapping.d3_mapping.models.mapping_info import MappingInfo, Percentage, RejectionReason
 from D3Mapping.d3_mapping.models.mapping_metrics import MappingMetrics
 from D3Mapping.d3_mapping.models.p_message import PField, PMessage
 from D3Mapping.d3_mapping.utils import set_percentage
@@ -44,7 +44,7 @@ class MappingEnforcementService:
         clear_msg: PMessage,
         clear_field: PField,
         obf_field: PField,
-    ) -> tuple[Percentage, MappingInfo | None]:
+    ) -> tuple[Percentage, MappingInfo | None, RejectionReason | None]:
         """Enforce field comparison rules and track metrics.
 
         Args:
@@ -55,13 +55,16 @@ class MappingEnforcementService:
             obf_field: Obfuscated field
 
         Returns:
-            Tuple of (enforced_similarity, mapping_info)
+            Tuple of (enforced_similarity, mapping_info, rejection_reason)
         """
+        rejection_reason: RejectionReason | None = None
         forced_match = self._should_force_field_match(clear_msg, clear_field, obf_field)
         if forced_match is not None:
             original_sim = sim
             sim = 1 if forced_match else 0
             self.metrics.add_comparison(sim, was_forced=True)
+            if not forced_match:
+                rejection_reason = RejectionReason.FORCED_NON_MATCH
             if (
                 forced_match
                 and abs(original_sim - sim) > SIMILARITY_DIVERGENCE_THRESHOLD
@@ -72,7 +75,7 @@ class MappingEnforcementService:
         else:
             self.metrics.add_comparison(sim, was_forced=False)
 
-        return sim, mapping_info
+        return sim, mapping_info, rejection_reason
 
     def enforce_message_comparison(
         self,

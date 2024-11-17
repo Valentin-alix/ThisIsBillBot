@@ -11,7 +11,7 @@ from src.services.logging.log_level import LogLevel
 
 
 class LogsWidget(QWidget):
-    def __init__(self, log_signals: LogSignals, *args, **kwargs):  # type: ignore
+    def __init__(self, log_signals: LogSignals, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(4, 4, 4, 4)

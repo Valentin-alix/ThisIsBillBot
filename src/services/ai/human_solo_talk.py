@@ -1,13 +1,18 @@
+import traceback
 from functools import cached_property
 from typing import cast
 
+from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from openai import APIConnectionError, OpenAIError
 
+from src.const import ENV_PATH
 from src.utils.metaclasses.singleton import Singleton
+
+load_dotenv(ENV_PATH)
 
 
 class HumanSoloTalk(metaclass=Singleton):
@@ -39,4 +44,9 @@ class HumanSoloTalk(metaclass=Singleton):
             )
             return cast(str, ai_msg["messages"][-1].content)
         except (APIConnectionError, OpenAIError):
+            print(traceback.format_exc())
             return None
+
+
+if __name__ == "__main__":
+    print(HumanSoloTalk().get_solo_human_talk_in_general_msg("yolo"))

@@ -35,14 +35,14 @@ class Maps:
 
     # Maps interdites pour pathfinding
     FORBIDDEN = {
-        99096071,
-        206046725,
-        193331717,
-        99096067,
-        103547392,
-        153358342,
-        153357312,
-        73400323,
+        99096071,  # (3,-17)
+        206046725,  # (1,-5)
+        193331717,  # (4,2)
+        99096067,  # (-16,4)
+        103547392,  # (9,-17)
+        153358342,  # (15,-31)
+        153357312,  # (9,21)
+        73400323,  # (4,-4)
     }
 
 
@@ -98,7 +98,13 @@ class NPCs:
 class Monsters:
     """Races et monstres"""
 
-    PROTECTOR_RACES = [66, 65, 64, 63, 62]
+    PROTECTOR_RACES = [
+        66,  # protecteur alchimiste
+        65,  # protecteur pecheur
+        64,  # protecteur bucheron
+        63,  # protecteur mineur
+        62,  # protecteur paysan
+    ]
 
 
 # ============================================================================
@@ -110,11 +116,15 @@ class Items:
     """Items et équipements fixes"""
 
     # Items spéciaux
-    KEY_RING = 10207
-    INVENTORY_EQUIPMENT_POSITION = 63
+    KEY_RING = 10207  # trousseau de clé
+    INVENTORY_EQUIPMENT_POSITION = 63  # inventaire
 
-    # Mappings customs
-    CUSTOM_GATHERER_BY_SAC = {7989: 1794, 7993: 1784, 11112: 11107}
+    # custom mapping
+    CUSTOM_GATHERER_BY_SAC = {
+        7989: 1794,  # sac de carpe, carpe d'iem
+        7993: 1784,  # sac de raies, raie bleue
+        11112: 11107,  # sac de tremble, bois de tremble
+    }
 
 
 # ============================================================================
@@ -127,14 +137,14 @@ class Skills:
 
     # Map ID par Skill ID (pour le craft)
     MAP_BY_SKILL: dict[int, set[int]] = {
-        101: {217063430, 192940034},
-        23: {217057284, 192937988},
-        48: {217061380, 192939010},
-        32: {217060356, 192939010},
-        47: {217061382, 192939008},
-        27: {217061382, 192939008},
-        135: {217062406, 192937984},
-        134: {192937994},
+        101: {217063430, 192940034},  # scier (bucheron)
+        23: {217057284, 192937988},  # preparer une potion (alchimiste)
+        48: {217061380, 192939010},  # polir une pierre (mineur)
+        32: {217060356, 192939010},  # fondre (mineur)
+        47: {217061382, 192939008},  # moudre (paysan)
+        27: {217061382, 192939008},  # cuire (paysan)
+        135: {217062406, 192937984},  # preparer un poisson (pecheur)
+        134: {192937994},  # preparer une viande (chasseur)
     }
 
 
@@ -168,48 +178,8 @@ class Dungeons:
 # ============================================================================
 
 
-class Pathfinding:
+class PathfindingConst:
     """Constantes pour le pathfinding"""
 
     FORBIDDEN_EDGE_TRANSITION: set[tuple[Vertice, Vertice, Transition]] = set()
     EXCLUDED_ELEMENT_IDS: set[int] = set()
-
-
-# RÉTRO-COMPATIBILITÉ (deprecated, à supprimer progressivement)
-# ============================================================================
-# Ces alias permettent une migration en douceur du code existant
-
-# Maps (deprecated)
-ASTRUB_BANK_MAP = Maps.ASTRUB_BANK
-BONTA_BANK_MAP = Maps.BONTA_BANK
-BANK_MAP_IDS = Maps.BANKS
-FORBIDDEN_MAP_IDS = Maps.FORBIDDEN
-
-# NPCs (deprecated)
-ASTRUB_BANK_NPC_INFO = NPCs.ASTRUB_BANK
-BONTA_BANK_NPC_INFO = NPCs.BONTA_BANK
-BANKS_NPC_INFOS = NPCs.BANKS
-ASTRUB_SALE_HOTEL_COM_SELL_ACTION = NPCs.ASTRUB_SALE_HOTEL_COM_SELL
-ASTRUB_SALE_HOTEL_RES_SELL_ACTION = NPCs.ASTRUB_SALE_HOTEL_RES_SELL
-BONTA_SALE_HOTEL_COM_SELL_ACTION = NPCs.BONTA_SALE_HOTEL_COM_SELL
-BONTA_SALE_HOTEL_RES_SELL_ACTION = NPCs.BONTA_SALE_HOTEL_RES_SELL
-
-# Monsters (deprecated)
-PROTECTOR_RACES = Monsters.PROTECTOR_RACES
-
-# Items (deprecated)
-KEY_RING_ITEM_ID = Items.KEY_RING
-INVENTORY_EQUIPMENT_POSITION = Items.INVENTORY_EQUIPMENT_POSITION
-CUSTOM_GATHERER_ITEM_BY_SAC_GID = Items.CUSTOM_GATHERER_BY_SAC
-
-# Skills (deprecated)
-MAP_ID_BY_SKILL_ID = Skills.MAP_BY_SKILL
-
-# Dungeons (deprecated)
-GRANGE_TOURNESOL = Dungeons.GRANGE_TOURNESOL
-BOUFTOU_ROYAL = Dungeons.BOUFTOU_ROYAL
-DUNGEONS_INFOS = Dungeons.ALL
-
-# Pathfinding (deprecated)
-FORBIDDEN_EDGE_TRANSITION = Pathfinding.FORBIDDEN_EDGE_TRANSITION
-EXCLUDED_ELEMENT_IDS = Pathfinding.EXCLUDED_ELEMENT_IDS

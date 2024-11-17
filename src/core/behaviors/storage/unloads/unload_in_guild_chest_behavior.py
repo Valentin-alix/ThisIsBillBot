@@ -27,7 +27,7 @@ from src.core.engine.items.item import is_exchangeable_item
 from src.core.engine.items.item_formatter import format_item_name
 from src.core.engine.items.item_type import ItemTypeEnum
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
-from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
+from src.core.states.guild_chest_state import GuildChestState
 
 
 @dataclass
@@ -111,6 +111,7 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
                 ),
                 once=True,
                 originator=self,
+                override_on_self=True,
             )
             return self.run_timer(
                 SMALL_RANGE,
@@ -139,16 +140,20 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
             ),
             originator=self,
             once=True,
+            override_on_self=True,
         )
         next_object = object_to_unloads.pop()
         item_name = format_item_name(next_object.item.gid)
 
-        if (
-            next_object.item.gid
-            not in CHEST_OBJECT_BY_GID_BY_TAB[self.game_state.guild_chest.tab_number]
-            and len(CHEST_OBJECT_BY_GID_BY_TAB[self.game_state.guild_chest.tab_number])
-            == 100
-        ):
+        server_id = self.game_state.player.server_id
+        tab_size = GuildChestState.get_tab_size(server_id, self.game_state.guild_chest.tab_number)
+        item_in_chest = GuildChestState.get_item_by_gid(
+            server_id,
+            self.game_state.guild_chest.tab_number,
+            next_object.item.gid,
+        )
+
+        if item_in_chest is None and tab_size == 100:
             self.logger.warning(
                 f"Tab {self.game_state.guild_chest.tab_number} is full (100/100 slots), skipping {item_name}"
             )
@@ -173,6 +178,7 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
             callback=lambda _: self.finish(),
             originator=self,
             once=True,
+            override_on_self=True,
         )
         self.leave_all_dialogs()
 

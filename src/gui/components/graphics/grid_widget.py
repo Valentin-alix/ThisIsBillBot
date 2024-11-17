@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5.QtCore import QPointF, Qt, pyqtSlot
-from PyQt5.QtGui import QColor, QFont, QPainter, QPen, QPolygonF
+from PyQt5.QtGui import QColor, QFont, QMouseEvent, QPainter, QPen, QPolygonF
 from PyQt5.QtWidgets import (
     QApplication,
     QGraphicsEllipseItem,
@@ -136,14 +136,14 @@ class GridView(QGraphicsView):
         self.setAlignment(Qt.AlignTop)
         self.grid_signals = grid_signals
         self.debug_signals = debug_signals
-        self.scene: QGraphicsScene = QGraphicsScene()  # type: ignore
+        self._scene: QGraphicsScene = QGraphicsScene()
 
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         self.cell_square_by_coord: dict[tuple[int, int], SquareCell] = {}
         self.cell_state_by_coord: dict[tuple[int, int], StateCell] = {}
 
-        self.setScene(self.scene)
+        self.setScene(self._scene)
 
         self.init_grid()
 
@@ -165,13 +165,13 @@ class GridView(QGraphicsView):
             self.debug_signals.red_cells.connect(self.on_debug_red_cells)
             self.debug_signals.green_cell.connect(self.on_debug_green_cell)
 
-        self.fitInView(self.scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
+        self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
         self.resizeEvent = self.on_resize  # type: ignore
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.LeftButton:
             scene_pos = self.mapToScene(event.pos())
-            item = self.scene.itemAt(scene_pos, self.transform())
+            item = self._scene.itemAt(scene_pos, self.transform())
             if isinstance(item, (SquareCell, StateCell)):
                 cell_id = int(item.text_item.toPlainText())
                 self.grid_signals.cell_id_clicked.emit(cell_id)
@@ -179,9 +179,11 @@ class GridView(QGraphicsView):
                 cell_id = int(item.toPlainText())
                 self.grid_signals.cell_id_clicked.emit(cell_id)
 
-        super().mousePressEvent(event)
+        return super().mousePressEvent(event)
 
     def init_grid(self) -> None:
+        self.setUpdatesEnabled(False)
+
         x: float
         y: float
         for cell_id, point in MAP_POINT_BY_CELL_ID.items():
@@ -191,8 +193,10 @@ class GridView(QGraphicsView):
             self.cell_square_by_coord[coord_cell] = square_cell
             self.cell_state_by_coord[coord_cell] = state_cell
 
+        self.setUpdatesEnabled(True)
+
     def on_resize(self, event):
-        self.fitInView(self.scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
+        self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
         super().resizeEvent(event)
 
     def add_cell(
@@ -200,11 +204,11 @@ class GridView(QGraphicsView):
     ) -> tuple[SquareCell, StateCell]:
         square_cell = SquareCell(cell_id)
         square_cell.setPos(x, y)
-        self.scene.addItem(square_cell)
+        self._scene.addItem(square_cell)
 
         state_cell = StateCell(cell_id)
         state_cell.setPos(x, y)
-        self.scene.addItem(state_cell)
+        self._scene.addItem(state_cell)
 
         return square_cell, state_cell
 

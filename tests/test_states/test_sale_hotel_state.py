@@ -103,14 +103,16 @@ class TestSaleHotelState(StateTestBase):
             selling_conditions=SellingConditions(max_item_per_account=5)
         )
         self.inject(msg1)
-        assert self.game_state.sale_hotel.bid_seller_condition.max_item_per_account == 5  # type: ignore
+        assert self.game_state.sale_hotel.bid_seller_condition is not None
+        assert self.game_state.sale_hotel.bid_seller_condition.max_item_per_account == 5
 
         msg2 = ExchangeBidSellerStartedEvent(
             selling_conditions=SellingConditions(max_item_per_account=10)
         )
         self.inject(msg2)
+        assert self.game_state.sale_hotel.bid_seller_condition is not None
         assert (
-            self.game_state.sale_hotel.bid_seller_condition.max_item_per_account == 10  # type: ignore
+            self.game_state.sale_hotel.bid_seller_condition.max_item_per_account == 10
         )
 
     def test_search_different_items_sequentially(self):

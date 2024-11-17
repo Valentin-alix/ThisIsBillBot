@@ -47,11 +47,11 @@ class EventManager(ContextualLogger):
                 listener.delete()
                 self.listeners_by_type_msg[listener.msg_type].remove(listener)
 
-            if listeners_to_remove:
-                self.signals.listeners_removed.emit(listeners_to_remove)
+        if listeners_to_remove:
+            self.signals.listeners_removed.emit(listeners_to_remove)
 
     def clear_listener_by_origin_and_type(
-        self, msg_type: Type[Message], originator: object
+        self, msg_type: type[Message], originator: object
     ) -> None:
         self.logger.debug(
             f"Clearing listeners {msg_type.__name__} from {originator.__class__.__name__}"
@@ -66,10 +66,11 @@ class EventManager(ContextualLogger):
                 listener.delete()
                 self.listeners_by_type_msg[msg_type].remove(listener)
 
-            if listeners_to_remove:
-                self.signals.listeners_removed.emit(listeners_to_remove)
+        if listeners_to_remove:
+            self.signals.listeners_removed.emit(listeners_to_remove)
 
     def process_msg(self, msg: Message) -> None:
+        self.logger.debug(f"Received msg {msg.__class__.__name__}")
         with self.lock:
             related_listeners = self.listeners_by_type_msg.get(msg.__class__, [])
             related_listeners.sort(key=lambda listener: listener.priority)
@@ -104,7 +105,7 @@ class EventManager(ContextualLogger):
                 self.logger.warning(
                     f"Overriding modifier for {msg_type.__name__} (originator: {originator.__class__.__name__})"
                 )
-            self.modifier_by_type_msg[msg_type] = Modifier(
+            self.modifier_by_type_msg[msg_type] = Modifier[T](
                 callback=callback, originator=originator
             )
 
@@ -166,12 +167,14 @@ class EventManager(ContextualLogger):
                 priority=priority,
                 timeout=timeout,
                 on_timeout=on_timeout,
+                logger=self.logger,
             )
             self.listeners_by_type_msg[msg_type].append(new_listener)
-            self.signals.listeners_added.emit([new_listener])
+
+        self.signals.listeners_added.emit([new_listener])
 
     def send(self, msg: Message) -> None:
-        self.logger.debug(f"Sending {msg.__class__.__name__}")
+        self.logger.debug(f"Sending Game MSG {msg.__class__.__name__}")
         with self.lock:
             if self.on_send_game_callback is None:
                 raise AttributeError(
@@ -180,7 +183,7 @@ class EventManager(ContextualLogger):
             self.on_send_game_callback(msg)
 
     def send_connection_msg(self, msg: Message) -> None:
-        self.logger.debug(f"Sending {msg.__class__.__name__}")
+        self.logger.debug(f"Sending Connection MSG {msg.__class__.__name__}")
         with self.lock:
             if self.on_send_conn_callback is None:
                 raise AttributeError(

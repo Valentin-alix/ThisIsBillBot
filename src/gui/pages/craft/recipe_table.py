@@ -1,3 +1,5 @@
+from typing import cast
+
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QModelIndex, QObject, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QStandardItem
@@ -62,7 +64,9 @@ class RecipeTable(BaseTableWidget):
     def on_click_recipe(self, model_index: QModelIndex):
         source_index = self.table.proxy_model.mapToSource(model_index)
         model = self.table.item_model
-        recipe: RecipeItem = model.data(model.index(source_index.row(), 0), Qt.UserRole)  # type: ignore
+        recipe = cast(
+            RecipeItem, model.data(model.index(source_index.row(), 0), Qt.UserRole)
+        )
         model.remove_rows(source_index.row(), 1)
         self.on_remove_recipe(recipe)
 

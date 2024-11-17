@@ -26,7 +26,7 @@ from src.core.engine.weights.harvester.weight_map import (
 
 @dataclass
 class HarvesterBehavior(BaseFarmBehavior):
-    """random harvest in zone"""
+    """Behavior that automatically collect collectable in map, move to the next collectable or map"""
 
     collect_behavior: CollectBehavior
     fight_behavior: FightBehavior
@@ -87,7 +87,10 @@ class HarvesterBehavior(BaseFarmBehavior):
     def on_random_farm_behavior_finished(self, error_code: str | None):
         if error_code is EdgeError.NO_VALID_TRANSITION:
             return self.run_next_step()
-        elif error_code is MapChangeError.UNEXPECTED_NEW_MAP:
+        elif error_code in [
+            MapChangeError.UNEXPECTED_NEW_MAP,
+            EdgeError.INVALID_STARTING_MAP,
+        ]:
             return self.on_unexpected_new_map()
         self.raise_if_error(error_code)
         self.on_new_map()
@@ -98,6 +101,7 @@ class HarvesterBehavior(BaseFarmBehavior):
             callback=lambda _: self.on_new_map(),
             originator=self,
             once=True,
+            override_on_self=True,
         )
 
     def on_new_map(self):
@@ -125,6 +129,8 @@ class HarvesterBehavior(BaseFarmBehavior):
     def on_collect_behavior_finished(self, error_code: str | None):
         if error_code == CollectError.FULL_PODS:
             return self.on_full_pods()
+        if error_code == MapChangeError.UNEXPECTED_NEW_MAP:
+            return self.on_unexpected_new_map()
         self.raise_if_error(error_code)
         self.run_next_step()
 
@@ -153,11 +159,9 @@ class HarvesterBehavior(BaseFarmBehavior):
                 def use_harvest_bag():
                     req = ObjectUseRequest(object_uid=object.item.uid)
                     self.event_manager.send(req)
-                    self.event_manager.on(
-                        ObjectUseRequest,
-                        lambda _: self.purge_inventory(),
-                        originator=self,
-                        once=True,
+                    self.run_timer(
+                        BASE_RANGE,
+                        lambda: self.purge_inventory(),
                     )
 
                 return self.run_timer(BASE_RANGE, use_harvest_bag)

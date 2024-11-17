@@ -1,4 +1,5 @@
 import unittest
+from typing import cast
 from unittest.mock import MagicMock
 
 from D3Mapping.d3_mapping.mapping.global_proto_mapper import GlobalProtoMapper
@@ -9,7 +10,6 @@ from D3Mapping.d3_mapping.models.p_message import PField, PMessage
 
 
 class TestIncrementalMapping(unittest.TestCase):
-
     def setUp(self):
         self.clear_msg1 = PMessage(
             name="Message1",
@@ -71,10 +71,17 @@ class TestIncrementalMapping(unittest.TestCase):
             msg_mapping_info_by_clear_namespace={},
         )
 
-        mapper.mapping_enforcement_service.enforce_message_comparison.side_effect = (
-            lambda clear_msg, obf_msg, comparison_fn, treated: comparison_fn(clear_msg, obf_msg, treated)
+        cast(
+            MagicMock, mapper.mapping_enforcement_service.enforce_message_comparison
+        ).side_effect = (
+            lambda clear_msg, obf_msg, comparison_fn, treated: comparison_fn(
+                clear_msg, obf_msg, treated
+            )
         )
-        mapper.hungarian_solver_service.get_flat_best_field_mapping_combination.return_value = (
+        cast(
+            MagicMock,
+            mapper.hungarian_solver_service.get_flat_best_field_mapping_combination,
+        ).return_value = (
             1.0,
             1.0,
             {"xyz": (1.0, "field1", None), "def": (1.0, "field2", None)},
@@ -107,10 +114,17 @@ class TestIncrementalMapping(unittest.TestCase):
             },
         )
 
-        mapper.mapping_enforcement_service.enforce_message_comparison.side_effect = (
-            lambda clear_msg, obf_msg, comparison_fn, treated: comparison_fn(clear_msg, obf_msg, treated)
+        cast(
+            MagicMock, mapper.mapping_enforcement_service.enforce_message_comparison
+        ).side_effect = (
+            lambda clear_msg, obf_msg, comparison_fn, treated: comparison_fn(
+                clear_msg, obf_msg, treated
+            )
         )
-        mapper.hungarian_solver_service.get_flat_best_field_mapping_combination.return_value = (
+        cast(
+            MagicMock,
+            mapper.hungarian_solver_service.get_flat_best_field_mapping_combination,
+        ).return_value = (
             1.0,
             1.0,
             {"jkl": (1.0, "fieldA", None), "mno": (1.0, "fieldB", None)},
@@ -145,8 +159,12 @@ class TestIncrementalMapping(unittest.TestCase):
             msg_mapping_info_by_clear_namespace={},
         )
 
-        mapper.mapping_enforcement_service.enforce_message_comparison.side_effect = (
-            lambda clear_msg, obf_msg, comparison_fn, treated: comparison_fn(clear_msg, obf_msg, treated)
+        cast(
+            MagicMock, mapper.mapping_enforcement_service.enforce_message_comparison
+        ).side_effect = (
+            lambda clear_msg, obf_msg, comparison_fn, treated: comparison_fn(
+                clear_msg, obf_msg, treated
+            )
         )
 
         new_messages = {
@@ -154,7 +172,10 @@ class TestIncrementalMapping(unittest.TestCase):
             "ghi": "Message2",
         }
 
-        mapper.hungarian_solver_service.get_flat_best_field_mapping_combination.return_value = (
+        cast(
+            MagicMock,
+            mapper.hungarian_solver_service.get_flat_best_field_mapping_combination,
+        ).return_value = (
             1.0,
             1.0,
             {"jkl": (1.0, "fieldA", None), "mno": (1.0, "fieldB", None)},
@@ -188,7 +209,10 @@ class TestIncrementalMapping(unittest.TestCase):
         priority2 = mapper._get_validator_priority("abc", verified_msg)
 
         assert priority1 == priority2
-        assert "abc" in mapper._validator_priority_cache
+        assert (
+            mapper._validator_priority_cache is not None
+            and "abc" in mapper._validator_priority_cache
+        )
 
     def test_map_new_messages_reuses_sub_message_mappings(self):
         sub_clear_msg = PMessage(
@@ -227,12 +251,12 @@ class TestIncrementalMapping(unittest.TestCase):
             ],
         )
 
-        clear_structs = {
+        clear_structs: dict[str, PMessage | PEnum] = {
             ".test.SubMessage": sub_clear_msg,
             ".test.ParentMessage": parent_clear_msg,
         }
 
-        obf_structs = {
+        obf_structs: dict[str, PMessage | PEnum] = {
             "sub_obf": sub_obf_msg,
             "parent_obf": parent_obf_msg,
         }
@@ -255,11 +279,18 @@ class TestIncrementalMapping(unittest.TestCase):
             },
         )
 
-        mapper.mapping_enforcement_service.enforce_message_comparison.side_effect = (
-            lambda clear_msg, obf_msg, comparison_fn, treated: comparison_fn(clear_msg, obf_msg, treated)
+        cast(
+            MagicMock, mapper.mapping_enforcement_service.enforce_message_comparison
+        ).side_effect = (
+            lambda clear_msg, obf_msg, comparison_fn, treated: comparison_fn(
+                clear_msg, obf_msg, treated
+            )
         )
 
-        mapper.hungarian_solver_service.get_flat_best_field_mapping_combination.return_value = (
+        cast(
+            MagicMock,
+            mapper.hungarian_solver_service.get_flat_best_field_mapping_combination,
+        ).return_value = (
             1.0,
             1.0,
             {
@@ -269,7 +300,7 @@ class TestIncrementalMapping(unittest.TestCase):
                     MappingInfo(
                         clear_msg_namespace=".test.SubMessage",
                         similarity=1.0,
-                        field_mapping={"subObfField": (1.0, "subField", None)},
+                        field_mapping={"subObfField": (1.0, "subField", None, None)},
                     ),
                 )
             },

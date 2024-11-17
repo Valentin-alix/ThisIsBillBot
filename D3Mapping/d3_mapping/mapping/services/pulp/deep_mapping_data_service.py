@@ -94,7 +94,7 @@ class DeepMappingDataService:
                             if not is_respected:
                                 continue
 
-                    cost, mapping_info = self.field_comparison_service.compare_p_field(
+                    cost, mapping_info, _ = self.field_comparison_service.compare_p_field(
                         compare_msg_func,
                         clear_msg,
                         clear_elem,
@@ -109,7 +109,7 @@ class DeepMappingDataService:
                     )
 
                 elif type(clear_elem) is PMapField and type(obf_elem) is PMapField:
-                    cost, mapping_info = (
+                    cost, mapping_info, _ = (
                         self.field_comparison_service.compare_map_fields(
                             compare_msg_func,
                             clear_msg,

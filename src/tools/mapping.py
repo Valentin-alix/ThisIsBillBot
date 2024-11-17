@@ -12,7 +12,7 @@ from D3Mapping.d3_mapping.controller.instancied_msg_info_controller import (
     InstanciedMessageInfoController,
 )
 from D3Mapping.d3_mapping.mapping.validators.field_validators import (
-    is_valid_map_id,
+    is_valid_nickname,
 )
 from D3Mapping.d3_mapping.protocol.protocol_game import (
     get_mapping_proto_to_real,
@@ -46,9 +46,9 @@ def convert_obf_values_to_clear_values(obf_msg_name: str):
 
 
 if __name__ == "__main__":
-    clear_values = convert_obf_values_to_clear_values("iqu")
+    clear_values = convert_obf_values_to_clear_values("jrm")
     for clear_value in clear_values:
-        if not is_valid_map_id(clear_value["map_id"]):
+        if not is_valid_nickname(clear_value["object"]):
             print(clear_value)
     # for _, value in df.iterrows():
     #     if not validator_slide(value.to_dict()):

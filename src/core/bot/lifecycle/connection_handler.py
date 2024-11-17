@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from threading import Event, Timer
+from typing import Callable
 
 from ankama_launcher_emulator.interfaces.deciphered_api_key import DecipheredApiKey
 
@@ -10,7 +11,7 @@ from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.engine.movements.world.edge import (
     remove_forbidden_edge_transition_by_map_id,
 )
-from src.core.game_constants import DUNGEONS_INFOS
+from src.core.game_constants import Dungeons
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
@@ -29,11 +30,16 @@ class ConnectionHandler(ContextualLogger):
     fight_behavior: FightBehavior
     account: DecipheredApiKey
     shared_signals: SharedSignals
-    bot_config: BotConfig | None
+    get_bot_config: Callable[[], BotConfig | None]
 
     behavior_coordinator: BehaviorCoordinator
 
-    _timer_disconnected: Timer | None = field(init=False, default=None)
+    _timer: Timer | None = field(init=False, default=None)
+
+    def cleanup(self):
+        if self._timer is not None:
+            self._timer.cancel()
+            self._timer = None
 
     def on_connected(self):
         self.is_connected_event.set()
@@ -44,9 +50,9 @@ class ConnectionHandler(ContextualLogger):
         self.is_ready_to_play_event.clear()
         if not self.is_playing_event.is_set():
             return
-        self.logger.info("disconnected, relaunch bot")
-        if self.behavior_coordinator:
-            self.behavior_coordinator.stop_behaviors()
+
+        self.behavior_coordinator.stop_behaviors()
+        self.cleanup()
         self._timer = Timer(
             3,
             lambda: self.shared_signals.launch_account.emit(
@@ -61,9 +67,9 @@ class ConnectionHandler(ContextualLogger):
         if not self.is_playing_event.is_set():
             return
 
-        if not self.behavior_coordinator or (
+        if (
             self.behavior_coordinator._current_bot_action_func is None
-            and self.bot_config is None
+            and self.get_bot_config() is None
         ):
             raise ValueError("An action should be provided if is_playing_event is set")
 
@@ -87,7 +93,7 @@ class ConnectionHandler(ContextualLogger):
             ):
                 self.behavior_coordinator.run_current_bot_action()
 
-        for dungeon_info in DUNGEONS_INFOS:
+        for dungeon_info in Dungeons.ALL:
             if (
                 self.game_state.map.map_id in dungeon_info.dungeon.mapIds
                 or self.game_state.map.map_id == dungeon_info.dungeon.exitMapId

@@ -1,7 +1,9 @@
+import random
 from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
+from D3Database.grid.map_point import MapPoint
 from D3Mapping.d3_mapping.resources.protos.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
@@ -10,8 +12,15 @@ from src.core.behaviors.interactives.interactive_behavior import (
     InteractiveBehavior,
     InteractiveError,
 )
+from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
-from src.core.config import BASE_RANGE
+from src.core.config import (
+    BASE_RANGE,
+    HARVEST_PAUSE_PROBABILITY,
+    HARVEST_PAUSE_RANGE,
+    LOOK_AROUND_PAUSE_RANGE,
+    LOOK_AROUND_PROBABILITY,
+)
 from src.core.engine.interactives.collectable import Collectable
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
@@ -55,6 +64,8 @@ class CollectBehavior(Behavior):
         move_path, collectable = collectable_info
         if self.is_first_action:
             self.is_first_action = False
+            if random.random() < LOOK_AROUND_PROBABILITY:
+                return self._do_look_around(move_path, collectable)
             self.run_timer(
                 HumanTimingsService().get_timing_collect_on_new_map(),
                 lambda: self.collect(move_path, collectable),
@@ -64,14 +75,7 @@ class CollectBehavior(Behavior):
 
     def collect(self, move_path: MovementPath, collectable: Collectable):
         self.logger.info(f"Collecting at {move_path.end}")
-        self.event_manager.on(
-            StatedElementUpdatedEvent,
-            partial(
-                self.on_interactive_updated,
-                element_id=collectable.interactive_element.element_id,
-            ),
-            originator=self,
-        )
+
         self.interactive_behavior.start(
             callback=partial(
                 self.on_interactive_behavior_finished, collectable=collectable
@@ -93,8 +97,21 @@ class CollectBehavior(Behavior):
             self.excluded_element_ids.add(collectable.interactive_element.element_id)
             self.logger.info("Interactive error, trying to recollect on map.")
             return self.run_timer(BASE_RANGE, self.collect_map)
+        elif error_code == MapChangeError.UNEXPECTED_NEW_MAP:
+            return self.finish(error_code)
 
-    def on_interactive_updated(self, msg: StatedElementUpdatedEvent, element_id: int):
+        self.event_manager.on(
+            StatedElementUpdatedEvent,
+            partial(
+                self.on_stated_element_updated_event,
+                element_id=collectable.interactive_element.element_id,
+            ),
+            originator=self,
+        )
+
+    def on_stated_element_updated_event(
+        self, msg: StatedElementUpdatedEvent, element_id: int
+    ):
         if (
             msg.stated_element.element_id == element_id
             and msg.stated_element.state == 1
@@ -103,7 +120,67 @@ class CollectBehavior(Behavior):
                 StatedElementUpdatedEvent,
                 reason="Element state confirmed, proceeding with collection",
             )
-            self.collect_map()
+            if random.random() < HARVEST_PAUSE_PROBABILITY:
+                pause_time = random.uniform(*HARVEST_PAUSE_RANGE)
+                self.logger.debug(f"Taking a short break: {pause_time:.1f}s")
+                self.run_timer(pause_time, self.collect_map)
+            else:
+                self.collect_map()
+
+    def _do_look_around(self, move_path: MovementPath, collectable: Collectable):
+        adjacent_cell = self._get_random_walkable_cell_nearby()
+        if adjacent_cell is None:
+            return self.run_timer(
+                HumanTimingsService().get_timing_collect_on_new_map(),
+                lambda: self.collect(move_path, collectable),
+            )
+
+        self.logger.debug(f"Looking around at cell {adjacent_cell.cell_id}")
+        look_path = self.path_finding.find_path(
+            self.game_state.map.map_point, {adjacent_cell}
+        )
+        if look_path.end.cell_id != adjacent_cell.cell_id:
+            return self.run_timer(
+                HumanTimingsService().get_timing_collect_on_new_map(),
+                lambda: self.collect(move_path, collectable),
+            )
+
+        self.interactive_behavior.map_move_behavior.start(
+            callback=lambda _: self.run_timer(
+                random.uniform(*LOOK_AROUND_PAUSE_RANGE),
+                lambda: self.collect(move_path, collectable),
+            ),
+            parent=self,
+            move_path=look_path,
+        )
+
+    def _get_random_walkable_cell_nearby(self) -> MapPoint | None:
+        current_mp = self.game_state.map.map_point
+        reachable_cells: list[MapPoint] = []
+
+        candidates: set[MapPoint] = set()
+        visited: set[MapPoint] = {current_mp}
+        frontier: set[MapPoint] = set(current_mp.side_map_points)
+
+        for _ in range(10):
+            if not frontier:
+                break
+            candidates.update(frontier)
+            next_frontier: set[MapPoint] = set()
+            for mp in frontier:
+                if mp not in visited:
+                    visited.add(mp)
+                    next_frontier.update(mp.side_map_points - visited)
+            frontier = next_frontier
+
+        for mp in candidates:
+            path = self.path_finding.find_path(current_mp, {mp})
+            if path.end.cell_id == mp.cell_id:
+                reachable_cells.append(mp)
+
+        if not reachable_cells:
+            return None
+        return random.choice(reachable_cells)
 
     def get_near_collectable(
         self,

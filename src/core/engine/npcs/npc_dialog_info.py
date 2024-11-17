@@ -10,7 +10,9 @@ class ReplyInfo(BaseModel):
 
 @dataclass
 class NpcDialogInfo:
-    npc_id: int
+    npc_id: int | None = None
+    bones_id: int | None = None
+    cell_id: int | None = None
     npc_action_id: int = 3
 
     reply_info_by_message_id: dict[int, ReplyInfo] = field(default_factory=dict)

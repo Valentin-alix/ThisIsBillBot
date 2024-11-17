@@ -7,13 +7,13 @@ from src.controller.sale_hotel import SaleHotelController
 from src.core.config import WEIGHT_BY_JOB
 from src.core.engine.items.item import GATHERER_ITEM_GIDS
 from src.core.engine.items.item_type import ItemTypeEnum
-from src.core.game_constants import MAP_ID_BY_SKILL_ID
+from src.core.game_constants import Skills
 from src.core.states.guild_chest_state import GIDS_BY_TAB
 from src.services.logging.logger import Logger
 
 
-def get_benefice_on_craft_recipe(recipe: RecipeItem) -> tuple[float, float]:
-    avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
+def get_benefice_on_craft_recipe(recipe: RecipeItem, server_id: int = 1) -> tuple[float, float]:
+    avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(server_id)
     if recipe.resultId in avg_price_by_gid and all(
         ingredient_id in avg_price_by_gid for ingredient_id in recipe.ingredientIds
     ):
@@ -32,7 +32,7 @@ def is_not_valid_recipe_for_lvl_up_job_or_benefice(
     if current_job_lvl is None or current_job_lvl >= max_job_lvl:
         # insufficient lvl
         return True
-    if recipe.skillId not in MAP_ID_BY_SKILL_ID:
+    if recipe.skillId not in Skills.MAP_BY_SKILL:
         # not configured craft
         return True
     result_item = DataReader().item_by_id[recipe.resultId]
@@ -106,8 +106,7 @@ def get_max_possible_result_quantity(
 ):
     player_weight = weight_max - inventory_weight
     max_possible_result_quantity = min(
-        player_weight // weight_for_one_result,
-        max_result_quantity,  # type: ignore
+        player_weight // weight_for_one_result, max_result_quantity
     )
     return max_possible_result_quantity
 

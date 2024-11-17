@@ -1,4 +1,5 @@
 import select
+import socket
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from queue import Queue
@@ -29,7 +30,7 @@ class Proxy:
             self.client_socket: self.server_socket,
             self.server_socket: self.client_socket,
         }
-        self.connections = [self.client_socket, self.server_socket]
+        self.connections: list[socket.socket] = [self.client_socket, self.server_socket]
 
         self.locks: dict[Socket, Lock] = {sock: Lock() for sock in self.connections}
         self.buffers: dict[Socket, bytes] = {sock: bytes() for sock in self.connections}
@@ -67,8 +68,8 @@ class Proxy:
                         active = False
                         break
                     self.handle(data, origin=r)
-        except ConnectionResetError as err:
-            print(err)
+        except (ConnectionResetError, BrokenPipeError, OSError, ValueError) as err:
+            print(f"Network error in proxy loop: {err}")
         finally:
             self.close()
 
@@ -105,7 +106,11 @@ class Proxy:
             if msg_datas_altered is not None:
                 # send msg_datas to origin target
                 with self.locks[self.opposite_connection[origin]]:
-                    self.opposite_connection[origin].sendall(msg_datas_altered)
+                    try:
+                        self.opposite_connection[origin].sendall(msg_datas_altered)
+                    except OSError as err:
+                        print(f"sendall failed in handle: {err}")
+                        return self.close()
 
                 self.queue_worker_item.put(
                     (WorkerAction.RECEIVED, msg_datas_altered, False, from_server)

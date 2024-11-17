@@ -46,6 +46,7 @@ def base_populate_bot(win, fake_bot: Bot):
 
 
 def fake_populate_bot(win, fake_bot: Bot):
+    return
     replay_populate_bot(win, fake_bot)
     # simulate_received_msg(win, fake_bot)
     # simulate_weighted_path(fake_bot)

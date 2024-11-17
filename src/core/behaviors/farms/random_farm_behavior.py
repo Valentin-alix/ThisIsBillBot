@@ -22,8 +22,8 @@ from src.core.engine.weights.weighted_path import WeightedPath
 from src.core.signals.world_signals import WorldSignals
 
 PATH_LOCK = Lock()
-LAST_VISITED_BY_MAP_ID: dict[int, datetime] = {}
-EDGE_PATH_BY_CHARACTER_ID: dict[int, list[Edge]] = {}
+LAST_VISITED_BY_SERVER_AND_MAP: dict[tuple[int, int], datetime] = {}
+EDGE_PATH_BY_SERVER_AND_CHARACTER: dict[tuple[int, int], list[Edge]] = {}
 
 
 @dataclass
@@ -48,10 +48,11 @@ class RandomFarmBehavior(Behavior):
     @edge_path.setter
     def edge_path(self, value: list[Edge] | None):
         self._edge_path = value
+        key = (self.game_state.player.server_id, self.game_state.player.character_id)
         if value is None:
-            EDGE_PATH_BY_CHARACTER_ID.pop(self.game_state.player.character_id, None)
+            EDGE_PATH_BY_SERVER_AND_CHARACTER.pop(key, None)
         else:
-            EDGE_PATH_BY_CHARACTER_ID[self.game_state.player.character_id] = value
+            EDGE_PATH_BY_SERVER_AND_CHARACTER[key] = value
 
     def init_random_farm(
         self,
@@ -148,7 +149,7 @@ class RandomFarmBehavior(Behavior):
             return self.finish(error_code)
         else:
             self.edge_path.remove(edge)
-        LAST_VISITED_BY_MAP_ID[self.game_state.map.map_id] = datetime.now()
+        LAST_VISITED_BY_SERVER_AND_MAP[(self.game_state.player.server_id, self.game_state.map.map_id)] = datetime.now()
         self.event_manager.on(
             MapComplementaryInformationEvent,
             partial(
@@ -157,6 +158,7 @@ class RandomFarmBehavior(Behavior):
             ),
             originator=self,
             once=True,
+            override_on_self=True,
         )
 
     def on_map_complementary_information_event_after_edge(
@@ -169,7 +171,7 @@ class RandomFarmBehavior(Behavior):
             self.edge_path = None
             self.logger.error(error_code)
             return self.finish(error_code)
-        LAST_VISITED_BY_MAP_ID[self.game_state.map.map_id] = datetime.now()
+        LAST_VISITED_BY_SERVER_AND_MAP[(self.game_state.player.server_id, self.game_state.map.map_id)] = datetime.now()
         self.finish(error_code)
 
     def get_next_weighted_path(self) -> list[Edge] | None:
@@ -200,7 +202,8 @@ class RandomFarmBehavior(Behavior):
         )
 
     def _calculate_time_weight(self, map_id: int) -> float:
-        last_visited = LAST_VISITED_BY_MAP_ID.get(map_id, MIN_DATE)
+        key = (self.game_state.player.server_id, map_id)
+        last_visited = LAST_VISITED_BY_SERVER_AND_MAP.get(key, MIN_DATE)
         seconds_since_visit = (datetime.now() - last_visited).total_seconds()
         return min(seconds_since_visit, 3600) ** 3
 
@@ -212,10 +215,12 @@ class RandomFarmBehavior(Behavior):
         return self.additional_weight_by_map_id[map_id]
 
     def _calculate_competition_penalty(self, edge: Edge) -> int:
+        server_id = self.game_state.player.server_id
+        character_id = self.game_state.player.character_id
         return sum(
             1
-            for character_id, edge_path in EDGE_PATH_BY_CHARACTER_ID.items()
-            if character_id != self.game_state.player.character_id
+            for (srv_id, char_id), edge_path in EDGE_PATH_BY_SERVER_AND_CHARACTER.items()
+            if srv_id == server_id and char_id != character_id
             for other_edge in edge_path
             if other_edge == edge
         )

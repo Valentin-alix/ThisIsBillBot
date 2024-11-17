@@ -98,8 +98,8 @@ class Sidebar(NavigationInterface):
             tooltip,  # type: ignore
             parentRouteKey,
         )
-        # self.setMinimumHeight(self.panel.layoutMinHeight())
-        return _widget  # type: ignore
+        assert _widget
+        return _widget
 
     def insertWidget(
         self,

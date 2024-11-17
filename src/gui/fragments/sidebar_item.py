@@ -1,11 +1,13 @@
 import os
 
-from PyQt5.QtCore import QMargins, QPoint, QRect, Qt
+from PyQt5.QtCore import QMargins, QPoint, QRect, Qt, pyqtSignal
 from PyQt5.QtGui import QColor, QCursor, QIcon, QPainter
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QSpacerItem
 from qfluentwidgets import (
     BodyLabel,
+    ComboBox,
     FluentIcon,
+    TransparentToolButton,
 )
 from qfluentwidgets.common.config import isDarkTheme
 from qfluentwidgets.common.icon import toQIcon
@@ -13,16 +15,30 @@ from qfluentwidgets.common.style_sheet import themeColor
 from qfluentwidgets.components.navigation.navigation_widget import NavigationWidget
 
 from src.const import RESOURCE_FOLDER
+from src.core.signals.bot_signals import BotSignals
 
 
 class SidebarItem(NavigationWidget):
+    network_interface_changed = pyqtSignal(str)
+    schedule_profile_changed = pyqtSignal(str)
+    play_clicked = pyqtSignal()
+    stop_clicked = pyqtSignal()
+
     def __init__(
-        self, left_icon: FluentIcon | QIcon, title: str, isSelectable: bool, parent=None
+        self,
+        bot_signals: BotSignals,
+        left_icon: FluentIcon | QIcon,
+        title: str,
+        isSelectable: bool,
+        parent=None,
     ):
         super().__init__(
             isSelectable=isSelectable,
             parent=parent,
         )
+        self.bot_signals = bot_signals
+        self.in_fight: bool = False
+        self._is_playing: bool = False
         self.main_layout = QHBoxLayout()
         self.main_layout.setAlignment(Qt.AlignLeft)
         self.setLayout(self.main_layout)
@@ -43,7 +59,33 @@ class SidebarItem(NavigationWidget):
         self._right_icon.hide()
         self.layout().addWidget(self._right_icon)
 
+        self._play_btn = TransparentToolButton(FluentIcon.PLAY)
+        self._play_btn.setFixedSize(24, 24)
+        self._play_btn.clicked.connect(self.on_click_play)
+        self.bot_signals.play.connect(self.on_play)
+        self.layout().addWidget(self._play_btn)
+
+        self._stop_btn = TransparentToolButton(FluentIcon.PAUSE)
+        self._stop_btn.setFixedSize(24, 24)
+        self._stop_btn.clicked.connect(self.on_click_stop)
+        self.bot_signals.stop.connect(self.on_stop)
+        self._stop_btn.hide()
+        self.layout().addWidget(self._stop_btn)
+
+        self._profile_combo = ComboBox()
+        self._profile_combo.setFixedWidth(60)
+        self._profile_combo.currentIndexChanged.connect(self._on_profile_changed)
+        self.layout().addWidget(self._profile_combo)
+
+        self._network_combo = ComboBox()
+        self._network_combo.setFixedWidth(60)
+        self._network_combo.currentIndexChanged.connect(
+            self._on_network_interface_changed
+        )
+        self.layout().addWidget(self._network_combo)
+
     def show_battle_icon(self, show: bool):
+        self.in_fight = show
         if show:
             self._right_icon.show()
         else:
@@ -56,11 +98,24 @@ class SidebarItem(NavigationWidget):
 
         self.isCompacted = isCompacted
         if isCompacted:
-            self.setFixedSize(40, 36)
+            self.setFixedSize(40, 48)
             self._title.hide()
+            self._right_icon.hide()
+            self._play_btn.hide()
+            self._stop_btn.hide()
+            self._profile_combo.hide()
+            self._network_combo.hide()
         else:
-            self.setFixedSize(self.EXPAND_WIDTH, 36)
+            self.setFixedSize(self.EXPAND_WIDTH, 48)
             self._title.show()
+            if self.in_fight:
+                self._right_icon.show()
+            if self._is_playing:
+                self._stop_btn.show()
+            else:
+                self._play_btn.show()
+            self._profile_combo.show()
+            self._network_combo.show()
 
         self.update()
 
@@ -75,6 +130,65 @@ class SidebarItem(NavigationWidget):
 
     def set_title(self, text: str):
         self._title.setText(text)
+
+    def populate_network_interfaces(
+        self, interfaces: dict[str, str], selected_ip: str | None
+    ):
+        self._network_combo.blockSignals(True)
+        self._network_combo.clear()
+        self._network_combo.addItem("Auto", userData=None)
+        for name, ip in interfaces.items():
+            self._network_combo.addItem(name, userData=ip)
+        if selected_ip:
+            for i in range(self._network_combo.count()):
+                if self._network_combo.itemData(i) == selected_ip:
+                    self._network_combo.setCurrentIndex(i)
+                    break
+        else:
+            self._network_combo.setCurrentIndex(0)
+        self._network_combo.blockSignals(False)
+
+    def populate_schedule_profiles(
+        self, profiles: dict[str, str], selected_profile: str | None
+    ):
+        self._profile_combo.blockSignals(True)
+        self._profile_combo.clear()
+        self._profile_combo.addItem("Vide", userData=None)
+        for profile_id, display_name in profiles.items():
+            self._profile_combo.addItem(display_name, userData=profile_id)
+        if selected_profile:
+            for i in range(self._profile_combo.count()):
+                if self._profile_combo.itemData(i) == selected_profile:
+                    self._profile_combo.setCurrentIndex(i)
+                    break
+        else:
+            self._profile_combo.setCurrentIndex(0)
+        self._profile_combo.blockSignals(False)
+
+    def _on_profile_changed(self):
+        profile_id = self._profile_combo.currentData()
+        self.schedule_profile_changed.emit(profile_id if profile_id else "")
+
+    def _on_network_interface_changed(self):
+        ip = self._network_combo.currentData()
+        self.network_interface_changed.emit(ip if ip else "")
+
+    def on_click_play(self):
+        self.bot_signals.play.emit(True)
+        self.bot_signals.play_auto_bot.emit()
+
+    def on_click_stop(self):
+        self.bot_signals.stop.emit()
+
+    def on_play(self, _):
+        self._is_playing = True
+        self._stop_btn.show()
+        self._play_btn.hide()
+
+    def on_stop(self):
+        self._is_playing = False
+        self._play_btn.show()
+        self._stop_btn.hide()
 
     def paintEvent(self, a0):
         painter = QPainter(self)

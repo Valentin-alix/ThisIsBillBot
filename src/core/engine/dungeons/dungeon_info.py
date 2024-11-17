@@ -9,6 +9,10 @@ class DungeonInfo:
         self,
         name: str,
         key_name: str,
+        entrance_npc_id: int = -20000,
+        exit_npc_id: int = -20000,
+        entrance_bones_id: int | None = None,
+        exit_bones_id: int | None = None,
     ) -> None:
         self.name = name
         self.key_name = key_name
@@ -19,11 +23,12 @@ class DungeonInfo:
             and len(dungeon.mapIds) > 2
         )
         self.entrance_npc_info = NpcInfo(
-            npc_id=-20000,
+            npc_id=entrance_npc_id,
+            bones_id=entrance_bones_id,
             npc_map_id=self.dungeon.entranceMapId,
             forbidden_action_ids=[1074],
         )
-        self.exit_npc_info = NpcDialogInfo(npc_id=-20000)
+        self.exit_npc_info = NpcDialogInfo(npc_id=exit_npc_id, bones_id=exit_bones_id)
 
     def __post_init__(self):
         self.dungeon = DataReader().dungeon_by_entrance_map_id[

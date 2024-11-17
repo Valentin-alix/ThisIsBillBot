@@ -75,7 +75,7 @@ class TestComparisonFunctions(unittest.TestCase):
         field_string = PField(type_name="string", name="field_c", number=3)
         field_bool = PField(type_name="bool", name="field_d", number=4)
 
-        sim_same_type, _ = (
+        sim_same_type, _, _ = (
             self.p_mapper.hungarian_solver_service.field_comparison_service.compare_p_field(
                 self.p_mapper.get_comparison_message,
                 test_msg,
@@ -88,7 +88,7 @@ class TestComparisonFunctions(unittest.TestCase):
         assert 0 <= sim_same_type <= 1
         assert sim_same_type > 0.5, "Same type fields should have high similarity"
 
-        sim_diff_type, _ = (
+        sim_diff_type, _, _ = (
             self.p_mapper.hungarian_solver_service.field_comparison_service.compare_p_field(
                 self.p_mapper.get_comparison_message,
                 test_msg,
@@ -103,7 +103,7 @@ class TestComparisonFunctions(unittest.TestCase):
             "Different type fields should have lower similarity"
         )
 
-        sim_very_diff, _ = (
+        sim_very_diff, _, _ = (
             self.p_mapper.hungarian_solver_service.field_comparison_service.compare_p_field(
                 self.p_mapper.get_comparison_message,
                 test_msg,
@@ -131,7 +131,7 @@ class TestComparisonFunctions(unittest.TestCase):
             cardinality=FieldCardinality.REPEATED,
         )
 
-        sim_repeated_vs_singular, _ = (
+        sim_repeated_vs_singular, _, _ = (
             self.p_mapper.hungarian_solver_service.field_comparison_service.compare_p_field(
                 self.p_mapper.get_comparison_message,
                 test_msg,
@@ -141,7 +141,7 @@ class TestComparisonFunctions(unittest.TestCase):
                 set(),
             )
         )
-        sim_singular_vs_singular, _ = (
+        sim_singular_vs_singular, _, _ = (
             self.p_mapper.hungarian_solver_service.field_comparison_service.compare_p_field(
                 self.p_mapper.get_comparison_message,
                 test_msg,
@@ -218,7 +218,7 @@ class TestComparisonFunctions(unittest.TestCase):
                 for obf_field_name, mapping in mapping_info.field_mapping.items():
                     assert isinstance(obf_field_name, str)
                     if mapping is not None:
-                        sim, clear_field_name, sub_mapping = mapping
+                        sim, clear_field_name, sub_mapping, _ = mapping
                         assert 0 <= sim <= 1, (
                             "Field similarity should be between 0 and 1"
                         )
@@ -253,7 +253,7 @@ class TestComparisonFunctions(unittest.TestCase):
         clear_elems = ProtoOrganization.get_flat_elements(clear_msg)
         obf_elems = ProtoOrganization.get_flat_elements(obf_msg)
 
-        total_sim, total_reliability, field_mapping = (
+        total_sim, total_reliability, field_mapping, audit = (
             self.p_mapper.hungarian_solver_service.get_flat_best_field_mapping_combination(
                 self.p_mapper.get_comparison_message,
                 clear_msg,

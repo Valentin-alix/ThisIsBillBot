@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import cast
 
 from D3Database.grid.map_point import MapPoint
 from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
@@ -119,11 +118,6 @@ class EntityFrame(Frame):
                     msg.source_id
                 ].actor_information.fighter.spawn_information.team
                 for summon in msg.summons.summons_by_context_information.summons:
-                    summon = cast(
-                        GameActionFightEvent.Summons.SummonsByContextInformation.SummonContextInformation,
-                        summon,
-                    )
-
                     entity_info = {}
                     if summon.spawn_information.HasField("monster"):
                         entity_info["ai_fighter"] = AIFighter(

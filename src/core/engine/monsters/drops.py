@@ -5,16 +5,14 @@ from D3Database.models.datas.monsters_root import MonsterDrop
 from src.controller.sale_hotel import SaleHotelController
 from src.controller.speed_sell_score import SpeedSellScoreController
 from src.core.engine.items.item import GATHERED_ITEM_ID_BY_NAME
-from src.core.game_constants import (
-    CUSTOM_GATHERER_ITEM_BY_SAC_GID,
-    Monsters,
-)
+from src.core.game_constants import Items, Monsters
 
 
 def get_rare_gid_with_weight_from_protector_drop(
     drops: list[MonsterDrop],
+    server_id: int = 1,
 ) -> tuple[int | None, float]:
-    avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
+    avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(server_id)
     speed_sell_score_by_gid = SpeedSellScoreController().get_speed_sell_score_by_gid
 
     res_object_id: int | None = None
@@ -22,13 +20,10 @@ def get_rare_gid_with_weight_from_protector_drop(
 
     for drop in drops:
         description = (
-            I18N()
-            .name_by_id[DataReader().item_by_id[drop.objectId].descriptionId or 0]
-            .lower()
-            .replace("s", "")
+            I18N().name_by_id[DataReader().item_by_id[drop.objectId].descriptionId or 0].lower().replace("s", "")
         )
-        if drop.objectId in CUSTOM_GATHERER_ITEM_BY_SAC_GID:
-            res_object_id = CUSTOM_GATHERER_ITEM_BY_SAC_GID[drop.objectId]
+        if drop.objectId in Items.CUSTOM_GATHERER_BY_SAC:
+            res_object_id = Items.CUSTOM_GATHERER_BY_SAC[drop.objectId]
         elif description.startswith("cet énorme"):
             cleaned_desc = "".join(description.replace(".", "").split(" ")[-4:])
             for item_name, item_gid in GATHERED_ITEM_ID_BY_NAME.items():
@@ -52,6 +47,5 @@ PROTECTOR_DROP_ITEM_IDS = {
     for race in Monsters.PROTECTOR_RACES
     for monster in DataReader().monsters_by_race[race]
     for drop in monster.drops
-    if DataReader().item_by_id[drop.objectId].typeId
-    not in [310, TypeItemEnum.PIERRE_BRUTE]
+    if DataReader().item_by_id[drop.objectId].typeId not in [310, TypeItemEnum.PIERRE_BRUTE]
 }

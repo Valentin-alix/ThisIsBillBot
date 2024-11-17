@@ -19,13 +19,15 @@ from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapMovementConfirmRequest,
 )
 
+ENV_PATH = os.path.join(Path(__file__).parent.parent, ".env")
+
 # ============================================================================
 # SYSTÈME
 # ============================================================================
 
 IS_IN_PYINSTALLER = hasattr(sys, "_MEIPASS")
-DEBUG = True
-DO_POPULATE = not IS_IN_PYINSTALLER and DEBUG
+DEBUG = bool(int(os.environ.get("DEBUG", 1)))
+STRICT_MODE = bool(int(os.environ.get("STRICT_MODE", 0)))
 DO_INSERT_HUMAN_SESSION = False
 
 # ============================================================================
@@ -46,6 +48,7 @@ RESOURCE_FOLDER = os.path.join(Path(__file__).parent.parent, "resources")
 MITM_CONFIG_URL = os.path.join(RESOURCE_FOLDER, "config.json")
 RECORDING_FOLDER = os.path.join(RESOURCE_FOLDER, "recordings")
 HUMAN_SESSIONS_FILE = os.path.join(RESOURCE_FOLDER, "human_sessions.json")
+LOG_FOLDER: str = os.path.join(RESOURCE_FOLDER, "logs")
 
 # ============================================================================
 # UTILITAIRES

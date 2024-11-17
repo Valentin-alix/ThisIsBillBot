@@ -74,7 +74,6 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
         self.logger.info(
             f"We can craft {max_result_quantity} of recipe {I18N().name_by_id[int(recipe.resultNameId)]}"
         )
-
         max_possible_result_quantity = get_max_possible_result_quantity(
             self.game_state.inventory.weight_max,
             self.game_state.inventory.inventory_weight,
@@ -88,7 +87,13 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
             f"We can craft in inventory {max_possible_result_quantity} of recipe {I18N().name_by_id[int(recipe.resultNameId)]}"
         )
         self._loaded_recipes_infos.append((recipe, max_possible_result_quantity))
+        self.reserve_ingredients_for_recipe(recipe, max_possible_result_quantity)
         self.load_ingredients_for_recipe(recipe, max_possible_result_quantity)
+
+    def reserve_ingredients_for_recipe(
+        self, recipe: RecipeItem, max_possible_result_quantity: int
+    ) -> None:
+        pass
 
     def on_full_loaded(self):
         self.event_manager.on(

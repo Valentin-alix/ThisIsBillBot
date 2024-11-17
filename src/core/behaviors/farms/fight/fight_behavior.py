@@ -19,6 +19,8 @@ from src.core.signals.shared_farm_signals import SharedSignals
 from src.services.human_timings import HumanTimingsService
 from src.services.recorder import Recorder
 
+FIGHT_TIMEOUT_SECONDS = 30 * 60
+
 
 @dataclass
 class FightBehavior(Behavior):
@@ -30,6 +32,7 @@ class FightBehavior(Behavior):
     login: str
 
     def run(self):
+        self.run_timer(FIGHT_TIMEOUT_SECONDS, self.on_fight_timeout)
         self.event_manager.on(
             MapComplementaryInformationEvent,
             callback=self.on_map_complementary_information_event,
@@ -83,3 +86,13 @@ class FightBehavior(Behavior):
             HumanTimingsService().get_timing_before_playing_turn(),
             lambda: self.fight_turn_behavior.start(callback=None, parent=self),
         )
+
+    def on_fight_timeout(self):
+        self.logger.error("Fight timeout reached (30 min), relaunching game")
+        self.recorder.save(
+            os.path.join(
+                RECORDING_FOLDER,
+                f"fight_timeout_{self.recorder.session_id}.jsonl",
+            )
+        )
+        self.shared_signals.launch_account.emit(self.login)

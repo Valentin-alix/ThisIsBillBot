@@ -2,12 +2,14 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
+from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import MapCurrentEvent
 from D3Mapping.d3_mapping.resources.protos.game.interactive_element_pb2 import (
     InteractiveUsedEvent,
     InteractiveUseErrorEvent,
     InteractiveUseRequest,
 )
 from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
 from src.core.config import BASE_RANGE
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
@@ -16,6 +18,7 @@ from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 
 class InteractiveError(StrEnum):
     USE_ERROR = auto()
+
 
 
 @dataclass
@@ -30,7 +33,7 @@ class InteractiveBehavior(Behavior):
         skill_instance_uid: int,
     ):
         if self.game_state.map.is_in_map_transition:
-            return
+            return self.finish()
         if (
             move_path is None
             or self.game_state.map.map_point.cell_id == move_path.end.cell_id
@@ -39,6 +42,13 @@ class InteractiveBehavior(Behavior):
                 element_id=element_id, skill_instance_uid=skill_instance_uid
             )
 
+        self.event_manager.on(
+            MapCurrentEvent,
+            lambda _: self.finish(MapChangeError.UNEXPECTED_NEW_MAP),
+            originator=self,
+            once=True,
+            override_on_self=True,
+        )
         self.map_move_behavior.start(
             callback=partial(
                 self.on_map_behavior_finish,
@@ -90,6 +100,7 @@ class InteractiveBehavior(Behavior):
             self.on_interactive_use_error_event,
             originator=self,
             once=True,
+            override_on_self=True,
         )
         request = InteractiveUseRequest(
             element_id=element_id,

@@ -22,7 +22,8 @@ def reset_fields_to_default(instance: Any, include_fields: list[str]):
 
 def dataclass_to_dict(obj: object) -> dict[str, Any]:
     result: dict[str, Any] = {}
-    for field in fields(obj):  # type: ignore
+    assert is_dataclass(obj)
+    for field in fields(obj):
         name = field.name
         val = getattr(obj, name)
         serialized_value = _serialize_value(val)

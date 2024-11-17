@@ -17,6 +17,7 @@ class StatsTab(QWidget):
         super().__init__()
         self.character_name = character_name
         self.game_info_signals = game_info_signals
+        self._server_id: int = 1
         self.resource_rows: dict[str, int] = {}
         self._is_loading = False
         self._pending_updates: set[int] = set()
@@ -44,10 +45,14 @@ class StatsTab(QWidget):
         self._update_timer.timeout.connect(self._process_pending_updates)
 
         game_info_signals.character_name.connect(self.on_change_character_name)
+        game_info_signals.server_id.connect(self._on_server_id_changed)
         self.game_info_signals.resource_harvested.connect(self.on_resource_harvested)
         self.game_info_signals.fight_completed.connect(self.on_fight_completed)
 
         QTimer.singleShot(0, self.load_initial_data)
+
+    def _on_server_id_changed(self, server_id: int):
+        self._server_id = server_id
 
     def on_change_character_name(self, character_name: str):
         if self.character_name == character_name:
@@ -65,7 +70,7 @@ class StatsTab(QWidget):
         self._is_loading = True
         self.clear_table()
         stats = FarmStatsController().get_stats(self.character_name)
-        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
+        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(self._server_id)
         total_value = 0
 
         for resource_name, quantity in stats.resources_harvested_by_name.items():
@@ -113,7 +118,7 @@ class StatsTab(QWidget):
             return
 
         stats = FarmStatsController().get_stats(self.character_name)
-        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
+        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(self._server_id)
 
         for gid in self._pending_updates:
             item = DataReader().item_by_id.get(gid)
@@ -157,7 +162,7 @@ class StatsTab(QWidget):
 
     def _update_total_value(self):
         stats = FarmStatsController().get_stats(self.character_name)
-        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
+        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(self._server_id)
         total_value = 0
 
         for resource_name, quantity in stats.resources_harvested_by_name.items():

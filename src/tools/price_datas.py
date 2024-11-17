@@ -1,4 +1,5 @@
 import json
+from sqlite3 import Connection
 from time import perf_counter
 from typing import cast
 
@@ -14,17 +15,16 @@ from src.controller.speed_sell_score import SPEED_SCORE_BY_GID_PATH
 
 
 def get_price_df():
-    conn_params = {
-        "host": "localhost",
-        "port": 5432,
-        "database": "postgres",
-        "user": "postgres",
-        "password": "postgres",
-    }
-    with psycopg2.connect(**conn_params) as conn:
+    with psycopg2.connect(
+        host="localhost",
+        port=5432,
+        database="postgres",
+        user="postgres",
+        password="postgres",
+    ) as conn:
         table_name = "item_price_history"
         query = f"SELECT * FROM {table_name};"
-        df = pd.read_sql_query(query, conn)
+        df = pd.read_sql_query(query, cast(Connection, conn))
 
     return df
 

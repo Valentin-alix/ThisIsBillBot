@@ -26,7 +26,7 @@ class ListenersStatsTable(BaseTableWidget):
 
 
 class ListenersStatsWidget(QWidget):
-    def __init__(self, event_manager: EventManager, *args, **kwargs):  # type: ignore
+    def __init__(self, event_manager: EventManager, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.event_manager = event_manager
 
@@ -52,10 +52,9 @@ class ListenersStatsWidget(QWidget):
         self.stats_table.table.item_model.clear_all()
         self.sorted_listeners.clear()
 
-        with self.event_manager.lock:
-            all_listeners: list[Listener] = []
-            for listeners in self.event_manager.listeners_by_type_msg.values():
-                all_listeners.extend(listeners)
+        all_listeners: list[Listener] = []
+        for listeners in self.event_manager.listeners_by_type_msg.values():
+            all_listeners.extend(listeners)
 
         self.sorted_listeners = sorted(all_listeners, key=self.get_sort_key)
 

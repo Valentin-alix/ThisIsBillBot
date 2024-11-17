@@ -12,14 +12,17 @@ from D3Mapping.d3_mapping.resources.protos.game.guild_member_pb2 import (
 from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
     StorageInventoryContentEvent,
 )
-from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB
+from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER
 from tests.test_states.state_test_base import StateTestBase
+
+TEST_SERVER_ID = 1
 
 
 class TestGuildChestState(StateTestBase):
     def setUp(self):
         super().setUp()
-        CHEST_OBJECT_BY_GID_BY_TAB.clear()
+        CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER.clear()
+        self.game_state.player._server_id = TEST_SERVER_ID
 
     def test_initial_state(self):
         assert self.game_state.guild_chest.tab_number == 1
@@ -76,14 +79,15 @@ class TestGuildChestState(StateTestBase):
 
         self.inject(msg_content)
 
-        assert 1 in CHEST_OBJECT_BY_GID_BY_TAB
-        assert 100 in CHEST_OBJECT_BY_GID_BY_TAB[1]
-        assert 200 in CHEST_OBJECT_BY_GID_BY_TAB[1]
-        assert CHEST_OBJECT_BY_GID_BY_TAB[1][100].item.quantity == 10
+        assert 1 in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID]
+        assert 100 in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1]
+        assert 200 in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1]
+        assert CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1][100].item.quantity == 10
 
     def test_exchange_object_move_from_inventory_to_chest(self):
         self.game_state.guild_chest.tab_number = 1
-        CHEST_OBJECT_BY_GID_BY_TAB[1] = {
+        CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID] = {}
+        CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1] = {
             100: ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=5))
         }
         inventory_item = ObjectItemInventory(
@@ -99,11 +103,12 @@ class TestGuildChestState(StateTestBase):
         msg_move = ExchangeObjectMoveRequest(object_uid=1, quantity=3)
         self.inject(msg_move)
 
-        assert CHEST_OBJECT_BY_GID_BY_TAB[1][100].item.quantity == 8
+        assert CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1][100].item.quantity == 8
 
     def test_exchange_object_move_removes_item_when_quantity_zero(self):
         self.game_state.guild_chest.tab_number = 1
-        CHEST_OBJECT_BY_GID_BY_TAB[1] = {
+        CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID] = {}
+        CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1] = {
             100: ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=5))
         }
 
@@ -115,7 +120,7 @@ class TestGuildChestState(StateTestBase):
         msg_move = ExchangeObjectMoveRequest(object_uid=1, quantity=-5)
         self.inject(msg_move)
 
-        assert 100 not in CHEST_OBJECT_BY_GID_BY_TAB[1]
+        assert 100 not in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1]
 
     def test_can_access_guild_chest_requires_sub_and_guild(self):
         self.game_state.guild_chest.has_guild = False
@@ -136,7 +141,7 @@ class TestGuildChestState(StateTestBase):
         ]
         self.inject(StorageInventoryContentEvent(objects=objects_tab1))
 
-        assert 100 in CHEST_OBJECT_BY_GID_BY_TAB[1]
+        assert 100 in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1]
 
         msg_start_tab2 = ExchangeStartedWithMultiTabStorageEvent(
             tab_number=2, storage_max_slot=100
@@ -148,5 +153,5 @@ class TestGuildChestState(StateTestBase):
         ]
         self.inject(StorageInventoryContentEvent(objects=objects_tab2))
 
-        assert 100 in CHEST_OBJECT_BY_GID_BY_TAB[1]
-        assert 200 in CHEST_OBJECT_BY_GID_BY_TAB[2]
+        assert 100 in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1]
+        assert 200 in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][2]

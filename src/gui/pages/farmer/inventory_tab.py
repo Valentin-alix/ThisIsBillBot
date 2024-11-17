@@ -18,6 +18,7 @@ class InventoryTab(QWidget):
         self.setLayout(QVBoxLayout())
         self.bot = bot
         self.list_item_by_uid: dict[int, QListWidgetItem] = {}
+        self.signals_connected = False
 
         self.list_widget = ListWidget()
         self.list_widget.scrollDelegate.verticalSmoothScroll.setSmoothMode(
@@ -35,22 +36,6 @@ class InventoryTab(QWidget):
         )
 
         self.layout().addWidget(self.list_widget)
-
-        self.bot.inventory_signals.added_object_item.connect(
-            profiled_slot(self.on_added_object_item)
-        )
-        self.bot.inventory_signals.added_object_items_batch.connect(
-            profiled_slot(self.on_added_object_items_batch)
-        )
-        self.bot.inventory_signals.updated_object_item.connect(
-            profiled_slot(self.on_updated_object_item)
-        )
-        self.bot.inventory_signals.deleted_object_item_uid.connect(
-            profiled_slot(self.on_deleted_object_item_uid)
-        )
-        self.bot.inventory_signals.clear_inventory.connect(
-            profiled_slot(self.on_clear_inventory)
-        )
 
     @pyqtSlot(ObjectItemInventory)
     def on_added_object_item(self, object_item: ObjectItemInventory):
@@ -99,3 +84,53 @@ class InventoryTab(QWidget):
             item_name = f"Item {object_item.item.gid}"
         item_name = item_name
         return f"{item_name} \n\n {object_item.item.quantity}"
+
+    def connect_signals(self) -> None:
+        if self.signals_connected:
+            return
+        self.bot.inventory_signals.added_object_item.connect(
+            profiled_slot(self.on_added_object_item)
+        )
+        self.bot.inventory_signals.added_object_items_batch.connect(
+            profiled_slot(self.on_added_object_items_batch)
+        )
+        self.bot.inventory_signals.updated_object_item.connect(
+            profiled_slot(self.on_updated_object_item)
+        )
+        self.bot.inventory_signals.deleted_object_item_uid.connect(
+            profiled_slot(self.on_deleted_object_item_uid)
+        )
+        self.bot.inventory_signals.clear_inventory.connect(
+            profiled_slot(self.on_clear_inventory)
+        )
+        self.signals_connected = True
+        self._resync_inventory()
+
+    def disconnect_signals(self) -> None:
+        if not self.signals_connected:
+            return
+        self.bot.inventory_signals.added_object_item.disconnect(
+            profiled_slot(self.on_added_object_item)
+        )
+        self.bot.inventory_signals.added_object_items_batch.disconnect(
+            profiled_slot(self.on_added_object_items_batch)
+        )
+        self.bot.inventory_signals.updated_object_item.disconnect(
+            profiled_slot(self.on_updated_object_item)
+        )
+        self.bot.inventory_signals.deleted_object_item_uid.disconnect(
+            profiled_slot(self.on_deleted_object_item_uid)
+        )
+        self.bot.inventory_signals.clear_inventory.disconnect(
+            profiled_slot(self.on_clear_inventory)
+        )
+        self.signals_connected = False
+        self.list_widget.clear()
+        self.list_item_by_uid.clear()
+
+    def _resync_inventory(self) -> None:
+        self.list_widget.clear()
+        self.list_item_by_uid.clear()
+        inventory_items = list(self.bot.game_state.inventory.objects_by_uid.values())
+        if inventory_items:
+            self.on_added_object_items_batch(inventory_items)

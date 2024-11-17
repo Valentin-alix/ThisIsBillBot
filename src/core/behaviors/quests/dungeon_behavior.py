@@ -15,7 +15,7 @@ from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.core.config import ON_NEW_MAP_BEFORE_ACTION
 from src.core.engine.dungeons.dungeon_access import do_have_key_access_to_dungeon
 from src.core.engine.dungeons.dungeon_info import DungeonInfo
-from src.core.game_constants import DUNGEONS_INFOS
+from src.core.game_constants import Dungeons
 
 
 @dataclass
@@ -29,7 +29,7 @@ class DungeonBehavior(Behavior):
             dungeon_info = next(
                 (
                     _dungeon_info
-                    for _dungeon_info in DUNGEONS_INFOS
+                    for _dungeon_info in Dungeons.ALL
                     if do_have_key_access_to_dungeon(
                         _dungeon_info,
                         self.game_state.inventory.objects_by_uid,

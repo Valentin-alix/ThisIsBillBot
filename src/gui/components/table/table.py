@@ -5,8 +5,10 @@ from src.gui.components.table.multi_filter_proxy import MultiColumnFilterProxyMo
 from src.gui.components.table.table_view import CustomTableView
 
 
-class BaseTableWidget(SingleDirectionScrollArea):  # type: ignore
-    def __init__(self, proxy_model: MultiColumnFilterProxyModel | None = None, *args, **kwargs) -> None:
+class BaseTableWidget(SingleDirectionScrollArea):
+    def __init__(
+        self, proxy_model: MultiColumnFilterProxyModel | None = None, *args, **kwargs
+    ) -> None:
         super().__init__(*args, **kwargs)
 
         self.columns_infos: list[ColumnInfo] = []

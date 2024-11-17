@@ -49,6 +49,9 @@ class WeightedPath:
                         weight_by_map_id,
                     )
 
+                    if base_weight <= 0:
+                        continue
+
                     if edge.m_to.m_mapId in visited:
                         idx = visited.index(edge.m_to.m_mapId)
                         steps_since_visit = idx

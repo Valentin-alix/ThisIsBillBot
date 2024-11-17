@@ -13,6 +13,8 @@ from src.core.engine.weights.fighter.weight_map import get_additional_weight_by_
 
 @dataclass
 class FighterBehavior(BaseFarmBehavior):
+    """Behavior that automatically attack a monster group, fight it, then move to the next group or map"""
+
     map_move_behavior: MapMoveBehavior
     path_finding: Pathfinding
     attacker_behavior: AttackerBehavior

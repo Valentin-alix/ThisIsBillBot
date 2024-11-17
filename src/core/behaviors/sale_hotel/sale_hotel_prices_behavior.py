@@ -53,7 +53,7 @@ from src.core.engine.economy.sale_hotel import (
     is_interesting_item_to_sell,
 )
 from src.core.states.guild_chest_state import (
-    CHEST_OBJECT_BY_GID_BY_TAB,
+    CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER,
     TAB_BY_GID,
 )
 from src.exceptions import UnexpectedStateException
@@ -91,12 +91,18 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
             return self.finish()
 
         self._curr_category = self.categories.pop()
+        server_id = self.game_state.player.server_id
 
-        item_sell_quantity_by_gid = (
-            SaleHotelController().get_item_sell_quantity_by_gid()
+        item_sell_quantity_by_gid = SaleHotelController().get_item_sell_quantity_by_gid(
+            server_id
         )
-        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
+        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(server_id)
 
+        chest_by_tab = (
+            CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER.get(server_id)
+            if self.game_state.guild_chest.can_access_guild_chest
+            else None
+        )
         item_gids_to_sell = get_item_gids_to_sell(
             self.game_state.guild_chest.can_access_guild_chest,
             self.game_state.player.is_sub,
@@ -105,16 +111,14 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
             self._curr_category,
             self.logger,
             avg_price_by_gid,
-            CHEST_OBJECT_BY_GID_BY_TAB
-            if self.game_state.guild_chest.can_access_guild_chest
-            else None,
+            chest_by_tab,
         )
 
         if len(item_gids_to_sell) == 0:
             return self.sell_next_category()
 
         self.logger.info(
-            f"Item to sells : {[I18N().name_by_id[DataReader().item_by_id[gid].nameId or 0] for gid in item_gids_to_sell]}"
+            f"Item to sells : {[I18N().name_by_id.get(DataReader().item_by_id[gid].nameId or 0, f'Unknown {gid}') for gid in item_gids_to_sell]}"
         )
 
         load_items_infos: list[LoadItemInfo] = []
@@ -235,7 +239,10 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
 
             next_item = item_to_sells_in_inventory.pop()
             if is_interesting_item_to_sell(
-                next_item, SaleHotelController().get_avg_price_by_gid()
+                next_item,
+                SaleHotelController().get_avg_price_by_gid(
+                    self.game_state.player.server_id
+                ),
             ):
                 break
 
@@ -324,7 +331,8 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
     ):
-        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid()
+        server_id = self.game_state.player.server_id
+        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(server_id)
 
         if not is_interesting_item_to_sell(item, avg_price_by_gid):
             return self.create_all_prices(
@@ -340,7 +348,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
 
         minimal_price_in_sale_bots = (
             SaleHotelController()
-            .get_minimal_price_by_gid_and_quantity()
+            .get_minimal_price_by_gid_and_quantity(server_id)
             .get((item.gid, quantity_to_sell))
         )
         minimal_price_in_sale = get_price_for_sale_hotel(
@@ -367,7 +375,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
 
         count_item_in_sale = len(
             SaleHotelController()
-            .get_hdv_by_uid_by_player()
+            .get_hdv_by_uid_by_player(server_id)
             .get(self.game_state.player.character_id, {})
         )
         self.logger.info(
@@ -500,8 +508,9 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
             list(msg.bid_price_for_seller.minimal_prices), QuantityEnum.VALUE_1000
         )
 
+        server_id = self.game_state.player.server_id
         minimal_price_by_gid_and_quantity = (
-            SaleHotelController().get_minimal_price_by_gid_and_quantity()
+            SaleHotelController().get_minimal_price_by_gid_and_quantity(server_id)
         )
         if price_for_one != minimal_price_by_gid_and_quantity.get((msg.object_gid, 1)):
             price_for_one -= 1
@@ -534,12 +543,9 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
                 continue
             if price <= 0:
                 continue
-            if (
-                item.item.uid
-                not in SaleHotelController()
-                .get_hdv_by_uid_by_player()
-                .get(self.game_state.player.character_id, {})
-            ):
+            if item.item.uid not in SaleHotelController().get_hdv_by_uid_by_player(
+                server_id
+            ).get(self.game_state.player.character_id, {}):
                 self.logger.info(
                     f"item {item.item.uid} not in bid seller anymore, skip"
                 )

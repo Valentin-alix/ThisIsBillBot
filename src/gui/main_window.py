@@ -1,20 +1,36 @@
 import os
 import os.path
 
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QColor, QIcon
-from qfluentwidgets import FluentIcon, NavigationItemPosition, SplashScreen
+from PyQt5.QtWidgets import QHBoxLayout
+from qfluentwidgets import (
+    BodyLabel,
+    FluentIcon,
+    NavigationItemPosition,
+    PrimaryPushButton,
+    SplashScreen,
+    SwitchButton,
+)
+from qfluentwidgets.components.navigation import NavigationDisplayMode, NavigationWidget
 
-from src.core.bot.bot import Bot
+from src import const
 from src.const import RESOURCE_FOLDER
+from src.controller.bot_config import BotConfig, BotConfigController
+from src.controller.schedule_profile_controller import ScheduleProfileController
+from src.core.bot.bot import Bot
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
 from src.gui.fragments.account_stacked_widget import AccountStackedWidget
 from src.gui.fragments.app_fluent_window import AppFluentWindow
 from src.gui.fragments.sidebar_item import SidebarItem
+from src.utils.internet import get_available_network_interfaces
 
 
 class MainWindow(AppFluentWindow):
+    account_widgets: list[AccountStackedWidget]
+    bots_by_login: dict[str, Bot]
+
     def __init__(self, title: str, shared_signals: SharedSignals) -> None:
         super().__init__(parent=None)
 
@@ -29,16 +45,24 @@ class MainWindow(AppFluentWindow):
         self.disconnected_icon = FluentIcon.PEOPLE.icon(color=QColor(255, 0, 0))
         self.connected_icon = FluentIcon.PEOPLE.icon(color=QColor(0, 255, 0))
 
+        self.account_widgets: list[AccountStackedWidget] = []
+        self.bots_by_login: dict[str, Bot] = {}
+        self._init_debug_button()
+        self._init_sync_button()
+        self.shared_signals.new_bot_added.connect(self.add_account)
+
     def init_accounts(self, account_by_id: dict[int, Bot]):
         for account in account_by_id.values():
             self.add_account(account)
 
     def add_account(self, account: Bot):
         login = account.account["apikey"]["login"]
+        self.bots_by_login[login] = account
 
         account_widget = AccountStackedWidget(login, account)
+        self.account_widgets.append(account_widget)
         navigation_widget = SidebarItem(
-            self.disconnected_icon, login, True, parent=self
+            account.bot_signals, self.disconnected_icon, login, True, parent=self
         )
         account_widget.setObjectName(login)
         self.addWidget(
@@ -47,6 +71,22 @@ class MainWindow(AppFluentWindow):
             position=NavigationItemPosition.SCROLL,
         )
         self.navigationInterface.panel.expand()
+
+        current_config = BotConfigController().get_bot_config_by_login().get(login)
+
+        profiles = ScheduleProfileController().get_profile_display_names()
+        selected_profile = current_config.schedule_profile if current_config else None
+        navigation_widget.populate_schedule_profiles(profiles, selected_profile)
+        navigation_widget.schedule_profile_changed.connect(
+            lambda profile_id: self._on_schedule_profile_changed(login, profile_id)
+        )
+
+        interfaces = get_available_network_interfaces()
+        selected_ip = current_config.network_interface if current_config else None
+        navigation_widget.populate_network_interfaces(interfaces, selected_ip)
+        navigation_widget.network_interface_changed.connect(
+            lambda ip: self._on_network_interface_changed(login, ip)
+        )
 
         account.game_info_signals.character_name.connect(navigation_widget.set_title)
 
@@ -59,6 +99,103 @@ class MainWindow(AppFluentWindow):
         )
         account.game_info_signals.disconnected.connect(
             lambda: navigation_widget.set_title(login)
+        )
+
+    def _on_schedule_profile_changed(self, login: str, profile_id: str):
+        profile = profile_id if profile_id else None
+
+        configs = BotConfigController().get_bot_config_by_login()
+        existing_config = configs.get(login)
+        if existing_config:
+            updated_config = BotConfig(
+                network_interface=existing_config.network_interface,
+                schedule_profile=profile,
+            )
+        else:
+            updated_config = BotConfig(schedule_profile=profile)
+        BotConfigController().update_bot_config_by_login(updated_config, login)
+
+        bot = self.bots_by_login.get(login)
+        if bot:
+            bot.scheduler.update_profile(profile)
+
+    def _on_network_interface_changed(self, login: str, ip: str):
+        configs = BotConfigController().get_bot_config_by_login()
+        existing_config = configs.get(login)
+        if existing_config:
+            updated_config = BotConfig(
+                network_interface=ip if ip else None,
+                schedule_profile=existing_config.schedule_profile,
+            )
+        else:
+            updated_config = BotConfig(
+                network_interface=ip if ip else None,
+            )
+        BotConfigController().update_bot_config_by_login(updated_config, login)
+
+    def _init_debug_button(self):
+        class DebugSwitchWidget(NavigationWidget):
+            def __init__(self, parent=None):
+                super().__init__(isSelectable=False, parent=parent)
+                self.setFixedHeight(48)
+                layout = QHBoxLayout(self)
+                layout.setContentsMargins(12, 8, 12, 8)
+
+                icon_label = BodyLabel()
+                icon_label.setPixmap(
+                    FluentIcon.CODE.icon(color=QColor(255, 255, 255)).pixmap(16, 16)
+                )
+                layout.addWidget(icon_label)
+
+                text_label = BodyLabel("Debug")
+                layout.addWidget(text_label)
+
+                layout.addStretch()
+
+                self.switch = SwitchButton()
+                self.switch.setChecked(const.DEBUG)
+                layout.addWidget(self.switch, alignment=Qt.AlignRight)
+
+        self.debug_widget = DebugSwitchWidget(self)
+        self.debug_widget.switch.checkedChanged.connect(self._on_debug_toggled)
+
+        self.navigationInterface.addWidget(
+            routeKey="debug_toggle",
+            widget=self.debug_widget,
+            position=NavigationItemPosition.BOTTOM,
+        )
+
+    def _on_debug_toggled(self, checked: bool):
+        const.DEBUG = checked
+
+        for account_widget in self.account_widgets:
+            account_widget.set_debug_visibility(checked)
+
+    def _init_sync_button(self):
+        def manage_visibility_sync_btn(display_mode: NavigationDisplayMode):
+            if display_mode == NavigationDisplayMode.COMPACT:
+                self.sync_widget.hide()
+            else:
+                self.sync_widget.show()
+
+        class SyncButtonWidget(NavigationWidget):
+            def __init__(self, parent=None):
+                super().__init__(isSelectable=False, parent=parent)
+                layout = QHBoxLayout(self)
+                layout.setContentsMargins(12, 0, 12, 0)
+                self.button = PrimaryPushButton(FluentIcon.SYNC, "Sync")
+                layout.addWidget(self.button)
+
+        self.sync_widget = SyncButtonWidget(self)
+        self.sync_widget.button.clicked.connect(
+            lambda: self.shared_signals.synchronize_bots.emit()
+        )
+        self.navigationInterface.displayModeChanged.connect(manage_visibility_sync_btn)
+
+        self.navigationInterface.addWidget(
+            routeKey="sync_button",
+            widget=self.sync_widget,
+            position=NavigationItemPosition.BOTTOM,
         )
 
     def closeEvent(self, *args, **kwargs):

@@ -4,6 +4,9 @@ from enum import Enum, auto
 from threading import Lock, Timer
 from typing import Callable
 
+from google.protobuf.message import Message
+
+from src.const import STRICT_MODE
 from src.core.events_manager.event_manager import EventManager
 from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
@@ -63,12 +66,17 @@ class Behavior(ABC, ContextualLogger):
         """
         with self._state_lock:
             if self._state not in from_states:
-                raise BehaviorStateError(
+                error = (
                     f"{self.__class__.__name__} invalid transition: "
                     f"{self._state.name} -> {to_state.name}. "
                     f"Expected current state in {[s.name for s in from_states]}. "
                     f"Reason: {reason}"
                 )
+                if STRICT_MODE:
+                    raise BehaviorLifecycleError(error)
+                self.logger.error(error)
+                return
+
             old_state = self._state
             self._state = to_state
             self.logger.debug(
@@ -97,11 +105,16 @@ class Behavior(ABC, ContextualLogger):
 
         with self.event_manager.lock:
             if parent and parent.state != BehaviorState.RUNNING:
-                raise BehaviorLifecycleError(
+                error = (
                     f"Cannot start {self.__class__.__name__}: "
                     f"parent {parent.__class__.__name__} in state {parent.state.name}, "
                     f"expected RUNNING"
                 )
+                if STRICT_MODE:
+                    raise BehaviorLifecycleError(error)
+
+                self.logger.error(error)
+                return
 
             self.parent = parent
             if self.parent:
@@ -133,14 +146,33 @@ class Behavior(ABC, ContextualLogger):
         with self.event_manager.lock:
             with self._state_lock:
                 if self._state != BehaviorState.RUNNING:
-                    raise BehaviorLifecycleError(
-                        f"Timer fired but behavior in state {self.state.name}"
+                    error = (
+                        f"Timer fired but behavior in state {self.state.name}, ignoring"
                     )
+                    if STRICT_MODE:
+                        raise BehaviorLifecycleError(error)
+                    self.logger.error(error)
+                    return
             func()
 
     def stop(self) -> None:
+        with self._state_lock:
+            if self._state == BehaviorState.STOPPED:
+                error = "Already stopped, ignoring"
+                if STRICT_MODE:
+                    raise BehaviorStateError(error)
+                self.logger.error(error)
+                return
+
+            if self._state == BehaviorState.STOPPING:
+                error = "Already stopping, ignoring"
+                if STRICT_MODE:
+                    raise BehaviorStateError(error)
+                self.logger.error(error)
+                return
+
         self._transition(
-            {BehaviorState.RUNNING},
+            {BehaviorState.RUNNING, BehaviorState.STARTING},
             BehaviorState.STOPPING,
             reason="stop() called",
         )
@@ -154,6 +186,19 @@ class Behavior(ABC, ContextualLogger):
         self._transition(
             {BehaviorState.STOPPING}, BehaviorState.STOPPED, reason="cleanup complete"
         )
+
+    def force_reset(self) -> None:
+        """
+        Force reset behavior to STOPPED state without validation.
+        Used for recovery when process was killed during execution.
+        """
+        with self._state_lock:
+            self._state = BehaviorState.STOPPED
+
+        with self.event_manager.lock:
+            self.clear_behavior()
+            self.parent = None
+            self.callback = None
 
     def clear_behavior(self):
         with self.event_manager.lock:
@@ -171,9 +216,9 @@ class Behavior(ABC, ContextualLogger):
     def finish(self, error_code: str | None = None, *args, **kwargs) -> None:
         with self._state_lock:
             if self._state not in {BehaviorState.RUNNING, BehaviorState.STARTING}:
-                raise BehaviorLifecycleError(
-                    f"finish() called in state {self._state.name}"
-                )
+                error = f"finish() called in state {self._state.name}"
+                self.logger.error(error)
+                return
 
             callback = self.callback
             self.callback = None
@@ -186,7 +231,7 @@ class Behavior(ABC, ContextualLogger):
         if callback:
             callback(error_code, *args, **kwargs)
 
-    def unregister_listener(self, event_type: type, reason: str = "") -> None:
+    def unregister_listener(self, event_type: type[Message], reason: str = "") -> None:
         """
         Nettoie un listener spécifique en cours d'exécution.
 

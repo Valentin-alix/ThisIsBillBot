@@ -1,4 +1,5 @@
 from enum import StrEnum
+from typing import cast
 
 from PyQt5.QtCore import Qt, QThread, pyqtSlot
 from PyQt5.QtWidgets import QHBoxLayout, QStackedWidget, QVBoxLayout, QWidget
@@ -12,6 +13,7 @@ from qfluentwidgets import (
 
 from D3Database.data_center.data_reader import DataReader
 from D3Database.data_center.i18n import I18N
+from src import const
 from src.core.behaviors.behavior_factory import USABLE_BEHAVIORS
 from src.core.bot.bot import Bot
 from src.gui.pages.farmer.inventory_tab import InventoryTab
@@ -40,7 +42,7 @@ class FarmerWidget(PivotItem):
 
     _worker_running: tuple[QThread, Worker] | None = None
 
-    def __init__(  # type: ignore
+    def __init__(  # type: ignore[override]
         self,
         login: str,
         bot: Bot,
@@ -54,13 +56,31 @@ class FarmerWidget(PivotItem):
         v_layout.setAlignment(Qt.AlignTop)
         self.setLayout(v_layout)
 
+        self.map_pivot_item: PivotItem | None = None
+        self.player_pivot_item: PivotItem | None = None
+        self.world_pivot_item: PivotItem | None = None
+        self.inventory_pivot_item: PivotItem | None = None
+        self.is_debug_tabs_visible = None
+
+        self.map_tab: MapTab | None = None
+        self.player_tab: PlayerTab | None = None
+        self.world_tab: WorldTab | None = None
+        self.inventory_tab: InventoryTab | None = None
+
         self.init_top_content()
         self.init_content()
+
+        self.pivot: SegmentedWidget
+        self.stacked_widget: QStackedWidget
+
+        self._create_debug_tabs()
 
         self.bot.bot_signals.play_harvester.connect(self.on_play_harvester)
         self.bot.bot_signals.play_crafter.connect(self.on_play_craft)
         self.bot.bot_signals.play_auto_bot.connect(self.on_play_auto)
         self.bot.bot_signals.play_fighter.connect(self.on_play_fighter)
+
+        self.set_debug_tabs_visibility(const.DEBUG)
 
     def init_top_content(self) -> None:
         top_widget = QWidget()
@@ -109,47 +129,10 @@ class FarmerWidget(PivotItem):
         self.layout().addWidget(top_widget)
 
     def init_content(self):
-        pivot = SegmentedWidget()
-        self.layout().addWidget(pivot)
-        stacked_widget = QStackedWidget(self)
-        self.layout().addWidget(stacked_widget)
-
-        map_tab = MapTab(grid_signals=self.bot.grid_signals)
-        stacked_widget.addWidget(map_tab)
-        map_route = f"{self.objectName()}_map_tab"
-        pivot.addItem(
-            routeKey=map_route,
-            text="Map",
-            onClick=lambda: stacked_widget.setCurrentWidget(map_tab),
-        )
-        pivot.setCurrentItem(map_route)
-
-        player_tab = PlayerTab(bot=self.bot)
-        stacked_widget.addWidget(player_tab)
-        player_route = f"{self.objectName()}_player_tab"
-        pivot.addItem(
-            routeKey=player_route,
-            text="Joueur",
-            onClick=lambda: stacked_widget.setCurrentWidget(player_tab),
-        )
-
-        world_tab = WorldTab(world_signals=self.bot.world_signals)
-        stacked_widget.addWidget(world_tab)
-        world_route = f"{self.objectName()}_world_tab"
-        pivot.addItem(
-            routeKey=world_route,
-            text="Monde",
-            onClick=lambda: stacked_widget.setCurrentWidget(world_tab),
-        )
-
-        inventory_tab = InventoryTab(self.bot)
-        stacked_widget.addWidget(inventory_tab)
-        inventory_route = f"{self.objectName()}_inventory_tab"
-        pivot.addItem(
-            routeKey=inventory_route,
-            text="Inventaire",
-            onClick=lambda: stacked_widget.setCurrentWidget(inventory_tab),
-        )
+        self.pivot = SegmentedWidget()
+        self.layout().addWidget(self.pivot)
+        self.stacked_widget = QStackedWidget(self)
+        self.layout().addWidget(self.stacked_widget)
 
         # stats_tab = StatsTab(
         #     self.bot.game_state.player.character_name,
@@ -167,7 +150,8 @@ class FarmerWidget(PivotItem):
     def on_type_action_changed(self):
         current_action = self.type_action_combo.currentText()
         if current_action not in FarmActionEnum or current_action in [
-            CraftActionEnum.CRAFTER
+            CraftActionEnum.CRAFTER,
+            FarmActionEnum.AUTO,
         ]:
             self.area_farm_combo.setHidden(True)
             self.sub_area_farm_combo.setHidden(True)
@@ -207,7 +191,7 @@ class FarmerWidget(PivotItem):
         elif self.type_action_combo.currentText() == FarmActionEnum.FIGHTER:
             self.bot.bot_signals.play_fighter.emit(area_id, sub_area_id)
         elif self.type_action_combo.currentText() == FarmActionEnum.AUTO:
-            self.bot.bot_signals.play_auto_bot.emit(area_id, sub_area_id)
+            self.bot.bot_signals.play_auto_bot.emit()
         elif self.type_action_combo.currentText() not in FarmActionEnum:
             self.bot.bot_signals.play_usable_behavior.emit(
                 self.type_action_combo.currentText()
@@ -231,10 +215,10 @@ class FarmerWidget(PivotItem):
         self.type_action_combo.setCurrentText(FarmActionEnum.FIGHTER)
         self.on_played_zone(area_id, sub_area_id)
 
-    @pyqtSlot(object, object)
-    def on_play_auto(self, area_id: int | None, sub_area_id: int | None):
+    @pyqtSlot()
+    def on_play_auto(self):
         self.type_action_combo.setCurrentText(FarmActionEnum.AUTO)
-        self.on_played_zone(area_id, sub_area_id)
+        self.on_played_zone(None, None)
 
     @pyqtSlot(object)
     def on_play_craft(self, _):
@@ -268,3 +252,103 @@ class FarmerWidget(PivotItem):
     @pyqtSlot()
     def on_click_stop(self):
         self.bot.bot_signals.stop.emit()
+
+    def _create_debug_tabs(self) -> None:
+        if self.map_tab is not None:
+            return
+
+        self.map_tab = MapTab(grid_signals=self.bot.grid_signals)
+        self.stacked_widget.addWidget(self.map_tab)
+        self.map_route = f"{self.objectName()}_map_tab"
+        self.map_pivot_item = cast(
+            PivotItem,
+            self.pivot.addItem(
+                routeKey=self.map_route,
+                text="Map",
+                onClick=lambda: self.stacked_widget.setCurrentWidget(self.map_tab),  # type: ignore
+            ),
+        )
+
+        self.player_tab = PlayerTab(bot=self.bot)
+        self.stacked_widget.addWidget(self.player_tab)
+        player_route = f"{self.objectName()}_player_tab"
+        self.player_pivot_item = cast(
+            PivotItem,
+            self.pivot.addItem(
+                routeKey=player_route,
+                text="Joueur",
+                onClick=lambda: self.stacked_widget.setCurrentWidget(self.player_tab),  # type: ignore
+            ),
+        )
+
+        self.world_tab = WorldTab(world_signals=self.bot.world_signals)
+        self.stacked_widget.addWidget(self.world_tab)
+        world_route = f"{self.objectName()}_world_tab"
+        self.world_pivot_item = cast(
+            PivotItem,
+            self.pivot.addItem(
+                routeKey=world_route,
+                text="Monde",
+                onClick=lambda: self.stacked_widget.setCurrentWidget(self.world_tab),  # type: ignore
+            ),
+        )
+
+        self.inventory_tab = InventoryTab(self.bot)
+        self.stacked_widget.addWidget(self.inventory_tab)
+        inventory_route = f"{self.objectName()}_inventory_tab"
+        self.inventory_pivot_item = cast(
+            PivotItem,
+            self.pivot.addItem(
+                routeKey=inventory_route,
+                text="Inventaire",
+                onClick=lambda: self.stacked_widget.setCurrentWidget(
+                    self.inventory_tab  # type: ignore
+                ),
+            ),
+        )
+
+    def set_debug_tabs_visibility(self, is_visible: bool) -> None:
+        if self.is_debug_tabs_visible == is_visible:
+            return
+
+        self.is_debug_tabs_visible = is_visible
+
+        if is_visible:
+            if self.map_pivot_item is not None:
+                self.map_pivot_item.setVisible(True)
+            if self.player_pivot_item is not None:
+                self.player_pivot_item.setVisible(True)
+            if self.world_pivot_item is not None:
+                self.world_pivot_item.setVisible(True)
+            if self.inventory_pivot_item is not None:
+                self.inventory_pivot_item.setVisible(True)
+            if self.map_tab is not None:
+                self.map_tab.setUpdatesEnabled(True)
+            if self.player_tab is not None:
+                self.player_tab.setUpdatesEnabled(True)
+            if self.world_tab is not None:
+                self.world_tab.setUpdatesEnabled(True)
+            if self.inventory_tab is not None:
+                self.inventory_tab.setUpdatesEnabled(True)
+                self.inventory_tab.connect_signals()
+            self.pivot.setCurrentItem(self.map_route)
+            assert self.map_tab
+            self.stacked_widget.setCurrentWidget(self.map_tab)
+        else:
+            if self.map_pivot_item is not None:
+                self.map_pivot_item.setVisible(False)
+            if self.player_pivot_item is not None:
+                self.player_pivot_item.setVisible(False)
+            if self.world_pivot_item is not None:
+                self.world_pivot_item.setVisible(False)
+            if self.inventory_pivot_item is not None:
+                self.inventory_pivot_item.setVisible(False)
+            if self.map_tab is not None:
+                self.map_tab.setUpdatesEnabled(False)
+            if self.player_tab is not None:
+                self.player_tab.setUpdatesEnabled(False)
+            if self.world_tab is not None:
+                self.world_tab.setUpdatesEnabled(False)
+            if self.inventory_tab is not None:
+                self.inventory_tab.setUpdatesEnabled(False)
+                self.inventory_tab.disconnect_signals()
