@@ -2,10 +2,8 @@ import logging
 from dataclasses import dataclass, field
 from socket import socket as Socket
 
-from ankama_launcher_emulator.proxy.proxy import Proxy
-from ankama_launcher_emulator.proxy.proxy_listener import (
-    ProxyListener as BaseProxyListener,
-)
+from ankama_launcher_emulator.proxy.dofus3.proxy import Proxy
+from ankama_launcher_emulator.proxy.dofus3.proxy_listener import BaseProxyListener
 
 from src.const import CONNECTION_SERVERS_IPS
 from src.controller.bot_config import BotConfigController
@@ -60,7 +58,6 @@ class ProxyListener(BaseProxyListener):
                 server_socket=server_socket,
                 bot_by_id=self.account_by_id,
             )
-
         return GameProxy(
             bot=self.account_by_port[client_socket.getsockname()[1]],
             client_socket=client_socket,

@@ -1,4 +1,4 @@
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     QAbstractTableModel,
     QModelIndex,
     QObject,
@@ -6,8 +6,8 @@ from PyQt5.QtCore import (
     pyqtSignal,
     pyqtSlot,
 )
-from PyQt5.QtGui import QBrush, QStandardItem
-from PyQt5.QtWidgets import QAbstractItemView
+from PyQt6.QtGui import QBrush, QStandardItem
+from PyQt6.QtWidgets import QAbstractItemView
 from qfluentwidgets import SingleDirectionScrollArea, SmoothMode, TableView
 
 from src.gui.components.table.column_info import ColumnInfo
@@ -46,12 +46,12 @@ class CustomTableModel(QAbstractTableModel):
             return None
 
         item = self._data[index.row()][index.column()]
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return item.text()
-        elif role == Qt.UserRole:
-            return item.data(Qt.UserRole)
-        elif role == Qt.BackgroundRole:
-            color = item.data(Qt.BackgroundRole)
+        elif role == Qt.ItemDataRole.UserRole:
+            return item.data(Qt.ItemDataRole.UserRole)
+        elif role == Qt.ItemDataRole.BackgroundRole:
+            color = item.data(Qt.ItemDataRole.BackgroundRole)
             if color is not None:
                 return QBrush(color)
 
@@ -90,17 +90,19 @@ class CustomTableModel(QAbstractTableModel):
     def clear_all(self):
         self.remove_rows(0, len(self._data))
 
-    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         if not index.isValid():
-            return Qt.ItemFlags(Qt.NoItemFlags)
-        return Qt.ItemFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+            return Qt.ItemFlag.NoItemFlags
+        return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
-    def setData(self, index: QModelIndex, value: str, role: int = Qt.EditRole) -> bool:
+    def setData(
+        self, index: QModelIndex, value: str, role: int = Qt.ItemDataRole.EditRole
+    ) -> bool:
         if not index.isValid():
             return False
 
         item = self._data[index.row()][index.column()]
-        if role == Qt.DisplayRole or role == Qt.EditRole:
+        if role == Qt.ItemDataRole.DisplayRole or role == Qt.ItemDataRole.EditRole:
             item.setText(value)
             self.dataChanged.emit(index, index, [role])
             return True
@@ -116,7 +118,9 @@ class CustomTableModel(QAbstractTableModel):
             if col <= col_end and col < self._column_count:
                 self._data[row][col].setText(value)
         self.dataChanged.emit(
-            self.index(row, col_start), self.index(row, col_end), [Qt.DisplayRole]
+            self.index(row, col_start),
+            self.index(row, col_end),
+            [Qt.ItemDataRole.DisplayRole],
         )
 
 
@@ -129,19 +133,21 @@ class CustomTableView(TableView):
         super().__init__(parent=parent)
         self.scroll_bar = parent
         self.columns_infos: list[ColumnInfo] = []
-        self.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
-        self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.setSelectionMode(QAbstractItemView.NoSelection)
+        self.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.scrollDelagate.verticalSmoothScroll.setSmoothMode(SmoothMode.NO_SMOOTH)
 
         # optimization
         self.setWordWrap(False)
         self.setAlternatingRowColors(False)
 
-        self.header = FilterHeaderView(Qt.Horizontal, self)
+        self.header = FilterHeaderView(Qt.Orientation.Horizontal, self)
         self.setHorizontalHeader(self.header)
-        self.verticalHeader().hide()
+        vertical_header = self.verticalHeader()
+        assert vertical_header is not None
+        vertical_header.hide()
 
         self.item_model = CustomTableModel(parent=self)
         self.item_model.signals.max_row_reached.connect(
@@ -151,7 +157,9 @@ class CustomTableView(TableView):
         self.proxy_model.setSourceModel(self.item_model)
 
         self.setModel(self.proxy_model)
-        self.model().rowsInserted.connect(profiled_slot(self.keep_scroll_position))
+        proxy_model_set = self.model()
+        assert proxy_model_set is not None
+        proxy_model_set.rowsInserted.connect(profiled_slot(self.keep_scroll_position))
         self.item_model.signals.batched_rows.connect(
             profiled_slot(self.keep_scroll_position)
         )
@@ -159,13 +167,15 @@ class CustomTableView(TableView):
 
     @pyqtSlot()
     def on_max_row_reached(self):
-        old_scroll_position = self.scroll_bar.verticalScrollBar().value()
+        scroll_bar = self.scroll_bar.verticalScrollBar()
+        assert scroll_bar is not None
+        old_scroll_position = scroll_bar.value()
         self.item_model.remove_rows(0, 500)
-        self.scroll_bar.verticalScrollBar().setValue(old_scroll_position)
+        scroll_bar.setValue(old_scroll_position)
 
-    def resizeEvent(self, event):  # type: ignore
+    def resizeEvent(self, e):
         self.setUpdatesEnabled(False)
-        super().resizeEvent(event)
+        super().resizeEvent(e)
         self.setUpdatesEnabled(True)
 
     def set_columns(self, columns_infos: list[ColumnInfo]) -> None:
@@ -185,5 +195,7 @@ class CustomTableView(TableView):
         model.append_row(row)
 
     def keep_scroll_position(self):
-        if self.verticalScrollBar().value() == self.verticalScrollBar().maximum():
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        if vsb.value() == vsb.maximum():
             self.scrollToBottom()

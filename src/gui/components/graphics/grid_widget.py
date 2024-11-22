@@ -1,8 +1,8 @@
 import sys
 
-from PyQt5.QtCore import QPointF, Qt, pyqtSlot
-from PyQt5.QtGui import QColor, QFont, QMouseEvent, QPainter, QPen, QPolygonF
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import QPointF, Qt, pyqtSlot
+from PyQt6.QtGui import QColor, QFont, QMouseEvent, QPainter, QPen, QPolygonF
+from PyQt6.QtWidgets import (
     QApplication,
     QGraphicsEllipseItem,
     QGraphicsPolygonItem,
@@ -21,18 +21,18 @@ from src.core.signals.world_signals import MapSignals
 from src.gui.utils.profiling import profiled_slot
 
 CELL_BORDER_COLOR = QColor("#A9A9A9")
-CELL_TEXT_COLOR = Qt.black
+CELL_TEXT_COLOR = Qt.GlobalColor.black
 
 CIRCLE_CELL_SIZE = 15
 
 
 class SquareCell(QGraphicsPolygonItem):
-    MOVABLE = Qt.lightGray
-    BLOCK = Qt.darkGray
-    EMPTY = Qt.black
-    PATH_FINDING_TREATED = Qt.green
-    PATH_FINDING_START = Qt.white
-    PATH_FINDING_END = Qt.red
+    MOVABLE = Qt.GlobalColor.lightGray
+    BLOCK = Qt.GlobalColor.darkGray
+    EMPTY = Qt.GlobalColor.black
+    PATH_FINDING_TREATED = Qt.GlobalColor.green
+    PATH_FINDING_START = Qt.GlobalColor.white
+    PATH_FINDING_END = Qt.GlobalColor.red
 
     def __init__(self, cell_id: int):
         super().__init__()
@@ -62,10 +62,10 @@ class SquareCell(QGraphicsPolygonItem):
 
 
 class StateCell(QGraphicsEllipseItem):
-    ACTOR = Qt.red
-    STATED = Qt.green
+    ACTOR = Qt.GlobalColor.red
+    STATED = Qt.GlobalColor.green
     STATED_DOWN = QColor(144, 238, 144)
-    OBSTACLE = Qt.darkGray
+    OBSTACLE = Qt.GlobalColor.darkGray
 
     def __init__(self, cell_id: int) -> None:
         super().__init__(
@@ -133,7 +133,7 @@ class GridView(QGraphicsView):
     ) -> None:
         super().__init__()
         self.setStyleSheet("border: 0px")
-        self.setAlignment(Qt.AlignTop)
+        self.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.grid_signals = grid_signals
         self.debug_signals = debug_signals
         self._scene: QGraphicsScene = QGraphicsScene()
@@ -166,10 +166,10 @@ class GridView(QGraphicsView):
             self.debug_signals.green_cell.connect(self.on_debug_green_cell)
 
         self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
-        self.resizeEvent = self.on_resize  # type: ignore
+        self.resizeEvent = self.on_resize
 
-    def mousePressEvent(self, event: QMouseEvent):
-        if event.button() == Qt.LeftButton:
+    def mousePressEvent(self, event: QMouseEvent | None):
+        if event is not None and event.button() == Qt.MouseButton.LeftButton:
             scene_pos = self.mapToScene(event.pos())
             item = self._scene.itemAt(scene_pos, self.transform())
             if isinstance(item, (SquareCell, StateCell)):

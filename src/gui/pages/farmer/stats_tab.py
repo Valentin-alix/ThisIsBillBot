@@ -1,6 +1,6 @@
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QStandardItem
-from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from PyQt6.QtCore import QTimer
+from PyQt6.QtGui import QStandardItem
+from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import StrongBodyLabel
 
 from D3Database.data_center.data_reader import DataReader
@@ -22,13 +22,14 @@ class StatsTab(QWidget):
         self._is_loading = False
         self._pending_updates: set[int] = set()
 
-        self.setLayout(QVBoxLayout())
+        self._layout = QVBoxLayout()
+        self.setLayout(self._layout)
 
         self.total_value_label = StrongBodyLabel("Valeur totale récoltée: 0 kamas")
-        self.layout().addWidget(self.total_value_label)
+        self._layout.addWidget(self.total_value_label)
 
         self.total_fights_label = StrongBodyLabel("Nombre total de combats: 0")
-        self.layout().addWidget(self.total_fights_label)
+        self._layout.addWidget(self.total_fights_label)
 
         self.table_widget = BaseTableWidget()
         columns = [
@@ -38,7 +39,7 @@ class StatsTab(QWidget):
             ColumnInfo(name="Valeur totale"),
         ]
         self.table_widget.table.set_columns(columns)
-        self.layout().addWidget(self.table_widget)
+        self._layout.addWidget(self.table_widget)
 
         self._update_timer = QTimer()
         self._update_timer.setSingleShot(True)

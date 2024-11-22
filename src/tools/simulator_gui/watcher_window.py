@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Callable
 
 from dotenv import load_dotenv
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtCore import QObject, Qt, pyqtSignal
+from PyQt6.QtWidgets import QApplication
 from qfluentwidgets import Theme, setTheme, setThemeColor
 from watchfiles import Change, watch
 

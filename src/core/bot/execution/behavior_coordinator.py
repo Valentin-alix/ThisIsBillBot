@@ -5,7 +5,7 @@ from typing import Any, Callable
 from ankama_launcher_emulator.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
-from PyQt5.QtCore import QThread
+from PyQt6.QtCore import QThread
 
 from D3Database.models.datas.recipe_root import RecipeItem
 from src.controller.bot_config import BotConfig

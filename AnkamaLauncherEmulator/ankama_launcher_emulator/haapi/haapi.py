@@ -5,7 +5,8 @@ from typing import Any
 
 import requests
 import urllib3
-from requests.adapters import HTTPAdapter
+
+from ankama_launcher_emulator.utils.internet import InterfaceAdapter
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -23,19 +24,9 @@ from ankama_launcher_emulator.haapi.zaap_version import (
 from ankama_launcher_emulator.interfaces.deciphered_cert import (
     DecipheredCertifDatas,
 )
-from ankama_launcher_emulator.internet_utils import (
+from ankama_launcher_emulator.utils.internet import (
     retry_internet,
 )
-
-
-class InterfaceAdapter(HTTPAdapter):
-    def __init__(self, source_ip: str, **kwargs):
-        self.source_ip = source_ip
-        super().__init__(**kwargs)
-
-    def init_poolmanager(self, *args, **kwargs):
-        kwargs["source_address"] = (self.source_ip, 0)
-        super().init_poolmanager(*args, **kwargs)
 
 
 def get_account_info_by_login(login: str):
@@ -54,7 +45,7 @@ logger = logging.getLogger()
 class Haapi:
     api_key: str
     login: str
-    source_ip: str | None
+    interface_ip: str | None
     proxy_url: str | None
 
     def __post_init__(self):
@@ -64,8 +55,8 @@ class Haapi:
                 "http": self.proxy_url,
                 "https": self.proxy_url,
             }
-        if self.source_ip:
-            adapter = InterfaceAdapter(self.source_ip)
+        if self.interface_ip:
+            adapter = InterfaceAdapter(self.interface_ip)
             self.zaap_session.mount("https://", adapter)
             self.zaap_session.mount("http://", adapter)
         self.zaap_headers = {
@@ -92,7 +83,6 @@ class Haapi:
 
     @retry_internet
     def createToken(self, game_id: int, certif: DecipheredCertifDatas) -> str:
-        # https://haapi.ankama.com/json/Ankama/v5/Account/CreateToken?game=1&certificate_id=407269037&certificate_hash=4c4ab1b3684623f7
         url = ANKAMA_ACCOUNT_CREATE_TOKEN
         params = {
             "game": game_id,

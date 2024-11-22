@@ -1,9 +1,9 @@
 from typing import Any
 
 from cachetools import LRUCache, cached
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QStandardItem
-from PyQt5.QtWidgets import QHeaderView
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QStandardItem
+from PyQt6.QtWidgets import QHeaderView
 from qfluentwidgets import TableWidget
 
 from D3Mapping.d3_mapping.controller.message_mapping_controller import (
@@ -36,16 +36,18 @@ class MessageTable(BaseTableWidget):
         ]
         self.table.set_columns(columns)
 
-        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
-        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Fixed)
-        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Fixed)
-        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.Stretch)
+        header = self.table.horizontalHeader()
+        assert header is not None
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
 
         self.table.setColumnWidth(0, 90)
         self.table.setColumnWidth(1, 10)
         self.table.setColumnWidth(2, 80)
 
-        self.table.setEditTriggers(TableWidget.NoEditTriggers)
+        self.table.setEditTriggers(TableWidget.EditTrigger.NoEditTriggers)
 
     @cached(cache=LRUCache(maxsize=500), key=lambda _, sub_msg_name, __: sub_msg_name)
     def deep_count_fields(self, sub_msg_name: str, dico: Any) -> int:
@@ -98,13 +100,13 @@ class MessageTable(BaseTableWidget):
             count_fields = QStandardItem(count)
 
             content_msg_field = QStandardItem("")
-            content_msg_field.setData(msg_info, Qt.UserRole)
+            content_msg_field.setData(msg_info, Qt.ItemDataRole.UserRole)
 
             if was_send_from_proxy:
-                date_field.setData(GREEN_COLOR, Qt.BackgroundRole)
-                origin_field.setData(GREEN_COLOR, Qt.BackgroundRole)
-                sub_msg_name_field.setData(GREEN_COLOR, Qt.BackgroundRole)
-                count_fields.setData(GREEN_COLOR, Qt.BackgroundRole)
+                date_field.setData(GREEN_COLOR, Qt.ItemDataRole.BackgroundRole)
+                origin_field.setData(GREEN_COLOR, Qt.ItemDataRole.BackgroundRole)
+                sub_msg_name_field.setData(GREEN_COLOR, Qt.ItemDataRole.BackgroundRole)
+                count_fields.setData(GREEN_COLOR, Qt.ItemDataRole.BackgroundRole)
 
             rows_to_add.append(
                 [

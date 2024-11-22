@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLabel, QLineEdit
+from PyQt6.QtWidgets import QLabel, QLineEdit
 
 from src.core.engine.fms.equipment import EquipmentSchema, LineSchema, StatSchema
 from src.gui.components.table.column_info import ColumnInfo

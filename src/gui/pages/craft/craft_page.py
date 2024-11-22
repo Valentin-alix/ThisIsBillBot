@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from PyQt6.QtCore import Qt, pyqtSlot
+from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import FluentIcon, TransparentToolButton
 
 from D3Database.data_center.data_reader import DataReader
@@ -16,18 +16,18 @@ class CraftPage(QWidget):
         self.bot = bot
         recipes: list[RecipeItem] = DataReader().recipes
         self.main_layout = QVBoxLayout()
-        self.main_layout.setAlignment(Qt.AlignTop | Qt.AlignCenter)
+        self.main_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignCenter)
         self.setLayout(self.main_layout)
 
         self.play_btn = TransparentToolButton(FluentIcon.PLAY)
         self.bot.bot_signals.play.connect(self.on_play)
         self.play_btn.clicked.connect(self.on_click_play)
-        self.layout().addWidget(self.play_btn)
+        self.main_layout.addWidget(self.play_btn)
 
         self.stop_btn = TransparentToolButton(FluentIcon.PAUSE)
         self.bot.bot_signals.stop.connect(self.on_stop)
         self.stop_btn.clicked.connect(self.on_click_stop)
-        self.layout().addWidget(self.stop_btn)
+        self.main_layout.addWidget(self.stop_btn)
         self.stop_btn.hide()
 
         self.craft_table = RecipeTable(recipes=[])
@@ -36,8 +36,8 @@ class CraftPage(QWidget):
         self.craft_group.signals.clicked_elem_queue.connect(self.on_added_recipe_queue)
         self.craft_table.signals.removed_recipe.connect(self.on_removed_recipe_queue)
 
-        self.layout().addWidget(self.craft_table)
-        self.layout().addWidget(self.craft_group)
+        self.main_layout.addWidget(self.craft_table)
+        self.main_layout.addWidget(self.craft_group)
 
     @pyqtSlot(object)
     def on_removed_recipe_queue(self, recipe: RecipeItem):

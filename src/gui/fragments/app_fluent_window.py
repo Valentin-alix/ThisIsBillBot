@@ -1,4 +1,6 @@
-from PyQt5.QtWidgets import QHBoxLayout, QWidget
+from typing import cast
+
+from PyQt6.QtWidgets import QHBoxLayout, QStackedWidget, QWidget
 from qfluentwidgets import (
     FluentStyleSheet,
     FluentTitleBar,
@@ -85,14 +87,16 @@ class AppFluentWindow(FluentWindowBase):
             widget=navigation_widget,
             onClick=lambda: self.switchTo(interface),
             position=position,
-            parentRouteKey=parent.objectName() if parent else None,  # type: ignore[arg-type]
+            parentRouteKey=cast(str, parent.objectName() if parent else None),
         )
 
         # initialize selected item
         if self.stackedWidget.count() == 1:
             self.stackedWidget.currentChanged.connect(self._onCurrentInterfaceChanged)
             self.navigationInterface.setCurrentItem(routeKey)
-            qrouter.setDefaultRouteKey(self.stackedWidget, routeKey)  # type: ignore[arg-type]
+            qrouter.setDefaultRouteKey(
+                cast(QStackedWidget, self.stackedWidget), routeKey
+            )
 
         self._updateStackedBackground()
 

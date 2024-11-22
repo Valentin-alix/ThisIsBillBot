@@ -1,7 +1,7 @@
 from logging import Logger
 
-from PyQt5.QtCore import Qt, QThread
-from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from PyQt6.QtCore import Qt, QThread
+from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import FluentIcon, TransparentToolButton
 
 from src.core.signals.bot_signals import BotSignals
@@ -24,7 +24,7 @@ class FmPage(QWidget):
         self.curr_fm_item: FmItem | None = None
 
         self.main_layout = QVBoxLayout()
-        self.main_layout.setAlignment(Qt.AlignTop)
+        self.main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(self.main_layout)
 
         self._setup_action_widget()
@@ -34,16 +34,16 @@ class FmPage(QWidget):
         self.play_btn = TransparentToolButton(FluentIcon.PLAY)
         # self.bot_signals.play.connect(self.on_play)
         # self.play_btn.clicked.connect(self.on_click_play)
-        self.layout().addWidget(self.play_btn)
+        self.main_layout.addWidget(self.play_btn)
 
         self.stop_btn = TransparentToolButton(FluentIcon.PAUSE)
         # self.bot_signals.stop.connect(self.on_stop)
         # self.stop_btn.clicked.connect(self.on_click_stop)
-        self.layout().addWidget(self.stop_btn)
+        self.main_layout.addWidget(self.stop_btn)
         self.stop_btn.hide()
 
     def _setup_content(self) -> None:
         content_widget = QWidget()
-        self.layout().addWidget(content_widget)
+        self.main_layout.addWidget(content_widget)
         self.content_widget_layout = QVBoxLayout()
         content_widget.setLayout(self.content_widget_layout)

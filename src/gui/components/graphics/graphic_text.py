@@ -1,7 +1,7 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QGraphicsTextItem
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QGraphicsTextItem
 
-TEXT_COLOR = Qt.black
+TEXT_COLOR = Qt.GlobalColor.black
 TEXT_SIZE = 9
 
 

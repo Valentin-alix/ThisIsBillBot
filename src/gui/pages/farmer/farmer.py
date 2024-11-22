@@ -1,8 +1,8 @@
 from enum import StrEnum
 from typing import cast
 
-from PyQt5.QtCore import Qt, QThread, pyqtSlot
-from PyQt5.QtWidgets import QHBoxLayout, QStackedWidget, QVBoxLayout, QWidget
+from PyQt6.QtCore import Qt, QThread, pyqtSlot
+from PyQt6.QtWidgets import QHBoxLayout, QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import (
     ComboBox,
     FluentIcon,
@@ -52,9 +52,9 @@ class FarmerWidget(PivotItem):
         super().__init__(*args, **kwargs)
         self.login = login
         self.bot = bot
-        v_layout = QVBoxLayout()
-        v_layout.setAlignment(Qt.AlignTop)
-        self.setLayout(v_layout)
+        self._v_layout = QVBoxLayout()
+        self._v_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.setLayout(self._v_layout)
 
         self.map_pivot_item: PivotItem | None = None
         self.player_pivot_item: PivotItem | None = None
@@ -84,17 +84,18 @@ class FarmerWidget(PivotItem):
 
     def init_top_content(self) -> None:
         top_widget = QWidget()
-        top_widget.setLayout(QHBoxLayout())
+        top_widget_layout = QHBoxLayout()
+        top_widget.setLayout(top_widget_layout)
 
         self.play_btn = TransparentToolButton(FluentIcon.PLAY)
         self.play_btn.clicked.connect(self.on_click_play)
         self.bot.bot_signals.play.connect(self.on_play)
-        top_widget.layout().addWidget(self.play_btn)
+        top_widget_layout.addWidget(self.play_btn)
 
         self.stop_btn = TransparentToolButton(FluentIcon.PAUSE)
         self.stop_btn.clicked.connect(self.on_click_stop)
         self.bot.bot_signals.stop.connect(self.on_stop)
-        top_widget.layout().addWidget(self.stop_btn)
+        top_widget_layout.addWidget(self.stop_btn)
         self.stop_btn.hide()
 
         self.type_action_combo = ComboBox()
@@ -106,7 +107,7 @@ class FarmerWidget(PivotItem):
 
         self.type_action_combo.setCurrentText(FarmActionEnum.AUTO)
         self.type_action_combo.currentIndexChanged.connect(self.on_type_action_changed)
-        top_widget.layout().addWidget(self.type_action_combo)
+        top_widget_layout.addWidget(self.type_action_combo)
 
         self.sub_area_farm_combo = ComboBox()
 
@@ -122,17 +123,17 @@ class FarmerWidget(PivotItem):
                 I18N().name_by_id[area.nameId], userData=area.id
             )
 
-        top_widget.layout().addWidget(self.area_farm_combo)
+        top_widget_layout.addWidget(self.area_farm_combo)
 
-        top_widget.layout().addWidget(self.sub_area_farm_combo)
+        top_widget_layout.addWidget(self.sub_area_farm_combo)
 
-        self.layout().addWidget(top_widget)
+        self._v_layout.addWidget(top_widget)
 
     def init_content(self):
         self.pivot = SegmentedWidget()
-        self.layout().addWidget(self.pivot)
+        self._v_layout.addWidget(self.pivot)
         self.stacked_widget = QStackedWidget(self)
-        self.layout().addWidget(self.stacked_widget)
+        self._v_layout.addWidget(self.stacked_widget)
 
         # stats_tab = StatsTab(
         #     self.bot.game_state.player.character_name,

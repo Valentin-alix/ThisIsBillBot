@@ -9,7 +9,7 @@ from threading import Lock, Thread
 
 from google.protobuf.internal.decoder import _DecodeVarint  # type: ignore
 
-from ankama_launcher_emulator.internet_utils import (
+from ankama_launcher_emulator.utils.internet import (
     has_internet_connection,  # type: ignore
 )
 

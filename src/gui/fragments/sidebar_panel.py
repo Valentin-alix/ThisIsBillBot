@@ -1,8 +1,10 @@
 from typing import Any, Union, cast
 
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
+    QAbstractAnimation,
     QEasingCurve,
     QEvent,
+    QObject,
     QPoint,
     QPropertyAnimation,
     QRect,
@@ -10,8 +12,8 @@ from PyQt5.QtCore import (
     Qt,
     pyqtSignal,
 )
-from PyQt5.QtGui import QColor, QIcon, QPainterPath, QResizeEvent
-from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout, QWidget
+from PyQt6.QtGui import QColor, QIcon, QMouseEvent, QPainterPath, QResizeEvent
+from PyQt6.QtWidgets import QApplication, QFrame, QHBoxLayout, QWidget
 from qfluentwidgets import FluentIconBase, isDarkTheme
 from qfluentwidgets.common.icon import FluentIcon as FIF
 from qfluentwidgets.common.router import qrouter
@@ -93,19 +95,25 @@ class SidebarPanel(QFrame):
 
     def __initWidget(self):
         self.resize(48, self.height())
-        self.setAttribute(Qt.WA_StyledBackground)
-        self.window().installEventFilter(self)
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
+        window = self.window()
+        assert window
+        window.installEventFilter(self)
 
         self.returnButton.hide()
         self.returnButton.setDisabled(True)
 
-        self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.scrollArea.horizontalScrollBar().setEnabled(True)
+        self.scrollArea.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+        self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        hscroll_bar = self.scrollArea.horizontalScrollBar()
+        assert hscroll_bar
+        hscroll_bar.setEnabled(True)
         self.scrollArea.setWidget(self.scrollWidget)
         self.scrollArea.setWidgetResizable(True)
 
-        self.expandAni.setEasingCurve(QEasingCurve.OutQuad)
+        self.expandAni.setEasingCurve(QEasingCurve.Type.OutQuad)
         self.expandAni.setDuration(150)
 
         self.menuButton.clicked.connect(self.toggle)
@@ -140,13 +148,13 @@ class SidebarPanel(QFrame):
         self.vBoxLayout.addWidget(self.scrollArea, 1)
         self.vBoxLayout.addLayout(self.bottomLayout, 0)
 
-        self.vBoxLayout.setAlignment(Qt.AlignTop)
-        self.topLayout.setAlignment(Qt.AlignTop)
-        self.scrollLayout.setAlignment(Qt.AlignTop)
-        self.bottomLayout.setAlignment(Qt.AlignBottom)
+        self.vBoxLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.topLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.scrollLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.bottomLayout.setAlignment(Qt.AlignmentFlag.AlignBottom)
 
-        self.topLayout.addWidget(self.returnButton, 0, Qt.AlignTop)
-        self.topLayout.addWidget(self.menuButton, 0, Qt.AlignTop)
+        self.topLayout.addWidget(self.returnButton, 0, Qt.AlignmentFlag.AlignTop)
+        self.topLayout.addWidget(self.menuButton, 0, Qt.AlignmentFlag.AlignTop)
 
     def _updateAcrylicColor(self):
         if isDarkTheme():
@@ -253,8 +261,8 @@ class SidebarPanel(QFrame):
             widget,
             onClick,
             position,
-            tooltip,  # type: ignore
-            parentRouteKey,  # type: ignore
+            tooltip,
+            parentRouteKey,
         )
 
     def insertItem(
@@ -303,15 +311,15 @@ class SidebarPanel(QFrame):
         if routeKey in self.items:
             return
 
-        w = NavigationTreeWidget(icon, text, selectable, self)  # type: ignore
+        w = NavigationTreeWidget(icon, text, selectable, self)  # pyright: ignore[reportArgumentType]
         self.insertWidget(
             index,
             routeKey,
             w,
             onClick,
             position,
-            tooltip,  # type: ignore
-            parentRouteKey,  # type: ignore
+            tooltip,
+            parentRouteKey,
         )
         return w
 
@@ -417,13 +425,15 @@ class SidebarPanel(QFrame):
         """insert widget to layout"""
         if position == NavigationItemPosition.TOP:
             widget.setParent(self)
-            self.topLayout.insertWidget(index, widget, 0, Qt.AlignTop)
+            self.topLayout.insertWidget(index, widget, 0, Qt.AlignmentFlag.AlignTop)
         elif position == NavigationItemPosition.SCROLL:
             widget.setParent(self.scrollWidget)
-            self.scrollLayout.insertWidget(index, widget, 0, Qt.AlignTop)
+            self.scrollLayout.insertWidget(index, widget, 0, Qt.AlignmentFlag.AlignTop)
         else:
             widget.setParent(self)
-            self.bottomLayout.insertWidget(index, widget, 0, Qt.AlignBottom)
+            self.bottomLayout.insertWidget(
+                index, widget, 0, Qt.AlignmentFlag.AlignBottom
+            )
 
         widget.show()
 
@@ -445,7 +455,7 @@ class SidebarPanel(QFrame):
 
         if isinstance(item.widget, NavigationTreeWidgetBase):
             for child in item.widget.findChildren(
-                NavigationWidget, options=Qt.FindChildrenRecursively
+                NavigationWidget, options=Qt.FindChildOption.FindChildrenRecursively
             ):
                 key = child.property("routeKey")
                 if key is None:
@@ -507,8 +517,10 @@ class SidebarPanel(QFrame):
         # determine the display mode according to the width of window
         # https://learn.microsoft.com/en-us/windows/apps/design/controls/navigationview#default
         expandWidth = self.minimumExpandWidth + self.expandWidth - 322
+        window = self.window()
+        assert window
         if (
-            self.window().width() >= expandWidth and not self.isMinimalEnabled
+            window.width() >= expandWidth and not self.isMinimalEnabled
         ) or not self._isCollapsible:
             self.displayMode = NavigationDisplayMode.EXPAND
         else:
@@ -526,7 +538,9 @@ class SidebarPanel(QFrame):
                 )
 
             if not self._parent.isWindow():
-                pos = self.parent().pos()  # type: ignore
+                parent = self.parent()
+                assert parent
+                pos = parent.pos()  # pyright: ignore[reportAttributeAccessIssue]
                 self.setParent(self.window())
                 self.move(pos)
 
@@ -545,7 +559,7 @@ class SidebarPanel(QFrame):
 
     def collapse(self):
         """collapse navigation panel"""
-        if self.expandAni.state() == QPropertyAnimation.Running:
+        if self.expandAni.state() == QAbstractAnimation.State.Running:
             return
 
         for item in self.items.values():
@@ -634,14 +648,18 @@ class SidebarPanel(QFrame):
         self, flyout: Flyout, widget: NavigationTreeWidget, menu: NavigationFlyoutMenu
     ):
         flyout.view.setFixedSize(menu.size())
-        flyout.setFixedSize(flyout.layout().sizeHint())
+        layout = flyout.layout()
+        assert layout
+        flyout.setFixedSize(layout.sizeHint())
 
         manager: FlyoutAnimationManager = cast(
             FlyoutAnimationManager, flyout.aniManager
         )
         pos = manager.position(widget)
 
-        rect = self.window().geometry()
+        window = self.window()
+        assert window
+        rect = window.geometry()
         w, h = flyout.sizeHint().width() + 5, flyout.sizeHint().height()
         x: int = max(rect.left(), min(pos.x(), rect.right() - w))
         y: int = max(rect.top() + 42, min(pos.y() - 4, rect.bottom() - h + 5))
@@ -650,23 +668,31 @@ class SidebarPanel(QFrame):
     def isCollapsed(self):
         return self.displayMode == NavigationDisplayMode.COMPACT
 
-    def eventFilter(self, obj, e: QEvent):  # type: ignore
-        if obj is not self.window() or not self._isCollapsible:
-            return super().eventFilter(obj, e)
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None):
+        if a0 is not self.window() or not self._isCollapsible:
+            return super().eventFilter(a0, a1)
 
-        if e.type() == QEvent.MouseButtonRelease:
+        assert a1
+
+        if a1.type() == QEvent.Type.MouseButtonRelease:
+            mouse_event = cast(QMouseEvent, a1)
+
             if (
-                not self.geometry().contains(e.pos())  # type: ignore
+                not self.geometry().contains(mouse_event.position().toPoint())
                 and self.displayMode == NavigationDisplayMode.MENU
             ):
                 self.collapse()
-        elif e.type() == QEvent.Resize:
-            w = QResizeEvent(e).size().width()  # type: ignore
+
+        elif a1.type() == QEvent.Type.Resize:
+            resize_event = cast(QResizeEvent, a1)
+            w = resize_event.size().width()
+
             if (
                 w < self.minimumExpandWidth
                 and self.displayMode == NavigationDisplayMode.EXPAND
             ):
                 self.collapse()
+
             elif (
                 w >= self.minimumExpandWidth
                 and self.displayMode == NavigationDisplayMode.COMPACT
@@ -674,7 +700,7 @@ class SidebarPanel(QFrame):
             ):
                 self.expand()
 
-        return super().eventFilter(obj, e)
+        return super().eventFilter(a0, a1)
 
     def _onExpandAniFinished(self):
         if not self.expandAni.property("expand"):
@@ -709,12 +735,12 @@ class SidebarPanel(QFrame):
     def _canDrawAcrylic(self):
         return self.acrylicBrush.isAvailable() and self.isAcrylicEnabled()
 
-    def paintEvent(self, e):  # type: ignore
+    def paintEvent(self, a0):
         if not self._canDrawAcrylic() or self.displayMode != NavigationDisplayMode.MENU:
-            return super().paintEvent(e)
+            return super().paintEvent(a0)
 
         path = QPainterPath()
-        path.setFillRule(Qt.WindingFill)
+        path.setFillRule(Qt.FillRule.WindingFill)
         path.addRoundedRect(0, 1, self.width() - 1, self.height() - 1, 7, 7)
         path.addRect(0, 1, 8, self.height() - 1)
         self.acrylicBrush.setClipPath(path)
@@ -722,4 +748,4 @@ class SidebarPanel(QFrame):
         self._updateAcrylicColor()
         self.acrylicBrush.paint()
 
-        super().paintEvent(e)
+        super().paintEvent(a0)

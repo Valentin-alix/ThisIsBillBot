@@ -4,6 +4,7 @@ from time import sleep
 
 import psutil
 import requests
+from requests.adapters import HTTPAdapter
 
 logger = logging.getLogger()
 
@@ -47,7 +48,28 @@ def has_internet_connection(host="www.google.com", port=80, timeout=5) -> bool:
         return False
 
 
-def get_available_network_interfaces() -> dict[str, str]:
+class InterfaceAdapter(HTTPAdapter):
+    def __init__(self, interface_ip: str, **kwargs):
+        self.interface_ip = interface_ip
+        super().__init__(**kwargs)
+
+    def init_poolmanager(self, *args, **kwargs):
+        kwargs["source_address"] = (self.interface_ip, 0)
+        super().init_poolmanager(*args, **kwargs)
+
+
+def get_public_ip_from_interface(local_ip: str):
+    zaap_session = requests.Session()
+    adapter = InterfaceAdapter(local_ip)
+    zaap_session.mount("https://", adapter)
+    zaap_session.mount("http://", adapter)
+    try:
+        return zaap_session.get("https://api.ipify.org", timeout=5).text
+    except requests.exceptions.ConnectionError:
+        return None
+
+
+def get_available_network_interfaces() -> dict[str, tuple[str, str]]:
     interfaces = {}
     stats = psutil.net_if_stats()
     for iface_name, addrs in psutil.net_if_addrs().items():
@@ -55,6 +77,10 @@ def get_available_network_interfaces() -> dict[str, str]:
             continue
         for addr in addrs:
             if addr.family == socket.AF_INET and addr.address != "127.0.0.1":
-                interfaces[iface_name] = addr.address
+                public_ip = get_public_ip_from_interface(addr.address)
+                if public_ip is None:
+                    continue
+                interfaces[addr.address] = (iface_name, public_ip)
                 break
+
     return interfaces

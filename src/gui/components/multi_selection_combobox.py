@@ -1,7 +1,7 @@
 from typing import Union
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction
-from PyQt5.QtCore import Qt, pyqtSignal, QPoint
+
+from PyQt6.QtCore import QPoint, Qt, pyqtSignal
+from PyQt6.QtGui import QAction, QIcon
 from qfluentwidgets.common import FluentIconBase
 from qfluentwidgets.components import ComboBox
 from qfluentwidgets.components.widgets.combo_box import ComboBoxMenu, ComboItem
@@ -9,7 +9,7 @@ from qfluentwidgets.components.widgets.combo_box import ComboBoxMenu, ComboItem
 
 class StayOpenMenu(ComboBoxMenu):
     def _onItemClicked(self, item):
-        action = item.data(Qt.UserRole)  # type: QAction
+        action = item.data(Qt.ItemDataRole.UserRole)  # type: QAction
         if action not in self._actions or not action.isEnabled():
             return
 
@@ -76,11 +76,11 @@ class MultiSelectComboBox(ComboBox):
         self.dropMenu = menu
 
         # Pour le positionnement, on peut reprendre la méthode originale
-        x = (
-            -menu.width() // 2
-            + menu.layout().contentsMargins().left()
-            + self.width() // 2
+        menu_layout = menu.layout()
+        left_margin = (
+            menu_layout.contentsMargins().left() if menu_layout is not None else 0
         )
+        x = -menu.width() // 2 + left_margin + self.width() // 2
         pd = self.mapToGlobal(QPoint(x, self.height()))
         # Ici, pour simplifier, on n'effectue pas d'animation particulière.
         menu.exec(pd)
@@ -132,7 +132,7 @@ class MultiSelectComboBox(ComboBox):
 
         icon: str | QIcon | FluentIconBase
         """
-        item = ComboItem(text, icon, userData)  # type: ignore
+        item = ComboItem(text, icon, userData)  # pyright: ignore[reportArgumentType]
         self.items.append(item)
 
     # Éventuellement, si tu souhaites autoriser d'autres comportements, tu peux également

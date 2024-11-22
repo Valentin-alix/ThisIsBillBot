@@ -1,9 +1,7 @@
-from ankama_launcher_emulator.internet_utils import (
-    get_available_network_interfaces,
-)
-from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QColor, QIcon
-from PyQt5.QtWidgets import QHBoxLayout
+from ankama_launcher_emulator.utils.internet import get_available_network_interfaces
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtGui import QColor, QIcon
+from PyQt6.QtWidgets import QHBoxLayout
 from qfluentwidgets import (
     BodyLabel,
     FluentIcon,
@@ -158,7 +156,7 @@ class MainWindow(AppFluentWindow):
 
                 self.switch = SwitchButton()
                 self.switch.setChecked(const.DEBUG)
-                layout.addWidget(self.switch, alignment=Qt.AlignRight)
+                layout.addWidget(self.switch, alignment=Qt.AlignmentFlag.AlignRight)
 
         self.debug_widget = DebugSwitchWidget(self)
         self.debug_widget.switch.checkedChanged.connect(self._on_debug_toggled)

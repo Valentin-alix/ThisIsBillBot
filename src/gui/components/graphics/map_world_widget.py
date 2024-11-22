@@ -2,9 +2,9 @@ from collections import defaultdict
 from dataclasses import dataclass
 from math import floor
 
-from PyQt5.QtCore import QRectF, Qt, pyqtSlot
-from PyQt5.QtGui import QColor, QPainter, QPen, QResizeEvent
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import QRectF, Qt, pyqtSlot
+from PyQt6.QtGui import QColor, QPainter, QPen, QResizeEvent
+from PyQt6.QtWidgets import (
     QGraphicsEllipseItem,
     QGraphicsLineItem,
     QGraphicsRectItem,
@@ -28,7 +28,7 @@ HEIGHT_AROUND_CURRENT_MAP = CELL_SIZE * LIMIT_GRID * 2
 
 
 class SquareMap(QGraphicsRectItem):
-    DEFAULT = Qt.white
+    DEFAULT = Qt.GlobalColor.white
 
     def __init__(self):
         self.colors_by_map_id: dict[int, RGBColor] = {}
@@ -75,7 +75,7 @@ class MapCircle(QGraphicsEllipseItem):
             CELL_SIZE // 2,
         )
         self.setZValue(1)
-        self.setBrush(Qt.red)
+        self.setBrush(Qt.GlobalColor.red)
 
 
 @dataclass
@@ -99,7 +99,7 @@ class MapWorldView(QGraphicsView):
         self.map_pos_by_coord: dict[Coord, set[MapPositionsRootItem]] = defaultdict(set)
 
         self.setStyleSheet("border: 0px")
-        self.setAlignment(Qt.AlignTop)
+        self.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.setScene(self._scene)
         self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
@@ -117,7 +117,7 @@ class MapWorldView(QGraphicsView):
             self.world_signals.reset_path.connect(profiled_slot(self.on_reset_path))
             self.world_signals.curr_map_pos.connect(profiled_slot(self.on_curr_map))
 
-    def resizeEvent(self, event: QResizeEvent):
+    def resizeEvent(self, event: QResizeEvent | None):
         self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
         return super().resizeEvent(event)
 
@@ -185,7 +185,7 @@ class MapWorldView(QGraphicsView):
             end_square.x() + CELL_SIZE / 2,
             end_square.y() + CELL_SIZE / 2,
         )
-        pen = QPen(Qt.green)
+        pen = QPen(Qt.GlobalColor.green)
         pen.setWidth(2)
         line_item.setPen(pen)
         self.line_items.append(line_item)
@@ -204,7 +204,7 @@ class MapWorldView(QGraphicsView):
                 end_square.x() + CELL_SIZE / 2,
                 end_square.y() + CELL_SIZE / 2,
             )
-            pen = QPen(Qt.green)
+            pen = QPen(Qt.GlobalColor.green)
             pen.setWidth(2)
             line_item.setPen(pen)
             self.line_items.append(line_item)

@@ -1,8 +1,8 @@
 from functools import partial
 
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import (
+from PyQt6 import QtCore, QtWidgets
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt6.QtWidgets import (
     QHeaderView,
     QTableView,
 )
@@ -23,12 +23,12 @@ class FilterHeaderView(QHeaderView):
         self.signals = HeaderFilterSignals()
         self.line_edits: list[LineEdit] = []
         self.header_filters: list[str] = []
-        self.setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        self.setDefaultAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.setDefaultAlignment(QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.sectionResized.connect(profiled_slot(self.adjust_positions))
-        parent.horizontalScrollBar().valueChanged.connect(
-            profiled_slot(self.adjust_positions)
-        )
+        hsb = parent.horizontalScrollBar()
+        assert hsb is not None
+        hsb.valueChanged.connect(profiled_slot(self.adjust_positions))
 
     @pyqtSlot(int, str)
     def on_new_filter_input(self, index: int, value: str) -> None:
@@ -43,7 +43,7 @@ class FilterHeaderView(QHeaderView):
                 line_edit.setPlaceholderText(col_info.name)
                 line_edit.textChanged.connect(partial(self.on_new_filter_input, index))
                 self.line_edits.append(line_edit)
-            self.setSectionResizeMode(index, QHeaderView.Stretch)
+            self.setSectionResizeMode(index, QHeaderView.ResizeMode.Stretch)
         self.adjust_positions()
 
     def sizeHint(self):

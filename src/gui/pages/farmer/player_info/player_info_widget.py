@@ -1,8 +1,8 @@
 from functools import partial
 from typing import Any
 
-from PyQt5.QtCore import QTimer, Qt
-from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from PyQt6.QtCore import QTimer, Qt
+from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import SingleDirectionScrollArea
 
 from src.core.bot.bot import Bot
@@ -17,14 +17,14 @@ class PlayerInfoWidget(QWidget):
 
         scroll_area = SingleDirectionScrollArea()
         scroll_area.setWidgetResizable(True)
-        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
 
         container_widget = QWidget()
-        v_layout = QVBoxLayout()
-        v_layout.setAlignment(Qt.AlignTop)
-        v_layout.setContentsMargins(0, 0, 0, 0)
-        container_widget.setLayout(v_layout)
+        self.container_layout = QVBoxLayout()
+        self.container_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.container_layout.setContentsMargins(0, 0, 0, 0)
+        container_widget.setLayout(self.container_layout)
 
         scroll_area.setWidget(container_widget)
 
@@ -128,6 +128,6 @@ class PlayerInfoWidget(QWidget):
 
         group_widget = PropertyGroupWidget(key=group_key)
         self.group_by_key[group_key] = group_widget
-        self.layout().addWidget(group_widget)
+        self.container_layout.addWidget(group_widget)
 
         return group_widget

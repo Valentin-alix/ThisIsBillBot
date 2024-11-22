@@ -1,8 +1,8 @@
 import threading
 from collections import defaultdict
 
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import BodyLabel, CardWidget
 
 from src.core.signals.shared_farm_signals import SharedSignals
@@ -17,33 +17,36 @@ class ThreadMonitorWidget(QWidget):
 
         self.shared_signals.thread_count_update.connect(self._on_thread_count_update)
 
-        self.setLayout(QVBoxLayout())
-        self.layout().setAlignment(Qt.AlignTop)
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(8)
+        self._layout = QVBoxLayout()
+        self.setLayout(self._layout)
+        self._layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(8)
 
         self.card = CardWidget()
-        self.card.setLayout(QVBoxLayout())
-        self.card.layout().setContentsMargins(16, 16, 16, 16)
-        self.card.layout().setSpacing(8)
-        self.layout().addWidget(self.card)
+        self._card_layout = QVBoxLayout()
+        self.card.setLayout(self._card_layout)
+        self._card_layout.setContentsMargins(16, 16, 16, 16)
+        self._card_layout.setSpacing(8)
+        self._layout.addWidget(self.card)
 
         self.total_threads_label = BodyLabel("Total threads: 0")
-        self.card.layout().addWidget(self.total_threads_label)
+        self._card_layout.addWidget(self.total_threads_label)
 
         self.bot_threads_label = BodyLabel("Bot manager threads: 0")
-        self.card.layout().addWidget(self.bot_threads_label)
+        self._card_layout.addWidget(self.bot_threads_label)
 
         self.warning_label = BodyLabel("")
         self.warning_label.setStyleSheet("color: #ff6b6b; font-weight: bold;")
         self.warning_label.hide()
-        self.card.layout().addWidget(self.warning_label)
+        self._card_layout.addWidget(self.warning_label)
 
         self.thread_details_container = QWidget()
-        self.thread_details_container.setLayout(QVBoxLayout())
-        self.thread_details_container.layout().setContentsMargins(0, 8, 0, 0)
-        self.thread_details_container.layout().setSpacing(4)
-        self.card.layout().addWidget(self.thread_details_container)
+        self._details_layout = QVBoxLayout()
+        self.thread_details_container.setLayout(self._details_layout)
+        self._details_layout.setContentsMargins(0, 8, 0, 0)
+        self._details_layout.setSpacing(4)
+        self._card_layout.addWidget(self.thread_details_container)
 
         self._timer = QTimer()
         self._timer.setInterval(5000)
@@ -81,10 +84,12 @@ class ThreadMonitorWidget(QWidget):
         self._update_thread_details()
 
     def _update_thread_details(self):
-        while self.thread_details_container.layout().count():
-            child = self.thread_details_container.layout().takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
+        while self._details_layout.count():
+            child = self._details_layout.takeAt(0)
+            if child is not None:
+                widget = child.widget()
+                if widget is not None:
+                    widget.deleteLater()
 
         all_threads = threading.enumerate()
         count_by_thread_type: defaultdict[str, int] = defaultdict(int)
@@ -101,18 +106,18 @@ class ThreadMonitorWidget(QWidget):
             row = QWidget()
             layout = QHBoxLayout()
             row.setLayout(layout)
-            row.layout().setContentsMargins(0, 0, 0, 0)
-            row.layout().setSpacing(8)
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.setSpacing(8)
 
             name_label = BodyLabel(f"{thread_type}:")
-            row.layout().addWidget(name_label)
+            layout.addWidget(name_label)
 
             count_label = BodyLabel(f"{count}")
-            row.layout().addWidget(count_label)
+            layout.addWidget(count_label)
 
             layout.addStretch()
 
-            self.thread_details_container.layout().addWidget(row)
+            self._details_layout.addWidget(row)
 
     def cleanup(self):
         if self._timer.isActive():

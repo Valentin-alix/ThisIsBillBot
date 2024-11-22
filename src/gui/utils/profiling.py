@@ -3,8 +3,8 @@ import inspect
 import threading
 from time import perf_counter
 
-from PyQt5.QtCore import QEvent, QObject
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtCore import QEvent, QObject
+from PyQt6.QtWidgets import QApplication
 
 EVENT_NAMES = {
     value: name for name, value in vars(QEvent).items() if isinstance(value, int)
@@ -43,7 +43,7 @@ def profiled_slot(func, threshold_ms=1):
 
 
 class ProfiledApp(QApplication):
-    def notify(self, receiver: QObject, event: QEvent):  # type: ignore
+    def notify(self, receiver: QObject, event: QEvent):  # pyright: ignore[reportIncompatibleMethodOverride]
         start = perf_counter()
         try:
             return super().notify(receiver, event)

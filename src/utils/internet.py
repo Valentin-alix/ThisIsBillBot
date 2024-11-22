@@ -17,19 +17,22 @@ DEFAULT_LOCAL_IP = None
 
 
 def has_internet_connection(
-    host="www.google.com", port=80, timeout=5, source_ip: str | None = DEFAULT_LOCAL_IP
+    host="www.google.com",
+    port=80,
+    timeout=5,
+    interface_ip: str | None = DEFAULT_LOCAL_IP,
 ) -> bool:
     """
     Host: www.google.com
     OpenPort: 80/tcp
     Service: domain (DNS/TCP)
-    source_ip: Optional source IP to bind the socket to a specific network interface
+    interface_ip: Optional source IP to bind the socket to a specific network interface
     """
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(timeout)
-        if source_ip:
-            sock.bind((source_ip, 0))
+        if interface_ip:
+            sock.bind((interface_ip, 0))
         sock.connect((host, port))
         sock.close()
         return True

@@ -1,6 +1,6 @@
 from typing import Callable
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
 
 class WorkerSignals(QObject):

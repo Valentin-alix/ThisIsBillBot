@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
-from ankama_launcher_emulator.proxy.proxy import (
+from ankama_launcher_emulator.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
 )
 from google.protobuf.message import Message
-from PyQt5.QtCore import QMetaObject, Qt
+from PyQt6.QtCore import QMetaObject, Qt
 
 from D3Mapping.d3_mapping.protocol.protocol import decode_varint_size, encode_msg
 from D3Mapping.d3_mapping.protocol.protocol_game import (
@@ -37,7 +37,7 @@ class GameProxy(Proxy):
         self.bot.event_manager.on_send_game_callback = None
 
         QMetaObject.invokeMethod(
-            self.bot.game_info_signals, "disconnected", Qt.QueuedConnection
+            self.bot.game_info_signals, "disconnected", Qt.ConnectionType.QueuedConnection
         )
 
         if const.DO_INSERT_HUMAN_SESSION:

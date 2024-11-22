@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QSortFilterProxyModel, QModelIndex
+from PyQt6.QtCore import QSortFilterProxyModel, QModelIndex
 
 from src.gui.components.table.column_info import SearchType, FilterInfo
 
@@ -26,9 +26,9 @@ class MultiColumnFilterProxyModel(QSortFilterProxyModel):
             filter_info = self.filter_infos[col_index]
             if not filter_info:
                 continue
-            text: str = (
-                self.sourceModel().index(source_row, col_index, source_parent).data()
-            )
+            source_model = self.sourceModel()
+            assert source_model is not None
+            text: str = source_model.index(source_row, col_index, source_parent).data()
             if filter_info.search_type == SearchType.CONTAINS:
                 if filter_string.lower() not in text.lower():
                     return False

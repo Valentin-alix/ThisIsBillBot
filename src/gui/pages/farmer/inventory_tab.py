@@ -1,5 +1,5 @@
-from PyQt5.QtCore import QSize, pyqtSlot
-from PyQt5.QtWidgets import QListWidgetItem, QVBoxLayout, QWidget
+from PyQt6.QtCore import QSize, pyqtSlot
+from PyQt6.QtWidgets import QListView, QListWidgetItem, QVBoxLayout, QWidget
 from qfluentwidgets import ListWidget, SmoothMode
 
 from D3Database.data_center.data_reader import DataReader
@@ -15,7 +15,6 @@ CARD_HEIGHT = 80
 class InventoryTab(QWidget):
     def __init__(self, bot: Bot):
         super().__init__()
-        self.setLayout(QVBoxLayout())
         self.bot = bot
         self.list_item_by_uid: dict[int, QListWidgetItem] = {}
         self.signals_connected = False
@@ -24,9 +23,9 @@ class InventoryTab(QWidget):
         self.list_widget.scrollDelegate.verticalSmoothScroll.setSmoothMode(
             SmoothMode.NO_SMOOTH
         )
-        self.list_widget.setViewMode(ListWidget.IconMode)
-        self.list_widget.setResizeMode(ListWidget.Adjust)
-        self.list_widget.setMovement(ListWidget.Static)
+        self.list_widget.setViewMode(QListView.ViewMode.IconMode)
+        self.list_widget.setResizeMode(QListView.ResizeMode.Adjust)
+        self.list_widget.setMovement(QListView.Movement.Static)
         self.list_widget.setSpacing(10)
         self.list_widget.setUniformItemSizes(True)
         self.list_widget.setGridSize(QSize(CARD_WIDTH, CARD_HEIGHT))
@@ -35,7 +34,9 @@ class InventoryTab(QWidget):
             "QListWidget { background-color: transparent; border: none; }"
         )
 
-        self.layout().addWidget(self.list_widget)
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+        layout.addWidget(self.list_widget)
 
     @pyqtSlot(ObjectItemInventory)
     def on_added_object_item(self, object_item: ObjectItemInventory):

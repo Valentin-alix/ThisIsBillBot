@@ -1,8 +1,8 @@
 from typing import cast
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import QModelIndex, QObject, Qt, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QStandardItem
+from PyQt6 import QtWidgets
+from PyQt6.QtCore import QModelIndex, QObject, Qt, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import QStandardItem
 
 from D3Database.data_center.data_reader import DataReader
 from D3Database.data_center.i18n import I18N
@@ -26,7 +26,7 @@ class RecipeTable(BaseTableWidget):
             ColumnInfo(name="Bénéfice"),
         ]
         self.table.set_columns(columns)
-        self.table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        self.table.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers)
 
         self.signals = RecipeTableSignals()
         self.widget_item_by_recipe: dict[RecipeItem, QStandardItem] = {}
@@ -44,7 +44,7 @@ class RecipeTable(BaseTableWidget):
         recipe_widget_item = QStandardItem(
             I18N().name_by_id[name_id] if name_id else ""
         )
-        recipe_widget_item.setData(recipe, role=Qt.UserRole)
+        recipe_widget_item.setData(recipe, role=Qt.ItemDataRole.UserRole)
         self.widget_item_by_recipe[recipe] = recipe_widget_item
 
         job_name_widget = QStandardItem(
@@ -65,7 +65,7 @@ class RecipeTable(BaseTableWidget):
         source_index = self.table.proxy_model.mapToSource(model_index)
         model = self.table.item_model
         recipe = cast(
-            RecipeItem, model.data(model.index(source_index.row(), 0), Qt.UserRole)
+            RecipeItem, model.data(model.index(source_index.row(), 0), Qt.ItemDataRole.UserRole)
         )
         model.remove_rows(source_index.row(), 1)
         self.on_remove_recipe(recipe)

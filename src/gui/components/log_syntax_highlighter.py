@@ -1,6 +1,6 @@
 import re
 
-from PyQt5.QtGui import QColor, QFont, QSyntaxHighlighter, QTextCharFormat
+from PyQt6.QtGui import QColor, QFont, QSyntaxHighlighter, QTextCharFormat
 
 
 class LogSyntaxHighlighter(QSyntaxHighlighter):
@@ -21,9 +21,11 @@ class LogSyntaxHighlighter(QSyntaxHighlighter):
 
         self.keyword_format = QTextCharFormat()
         self.keyword_format.setForeground(QColor("#C586C0"))
-        self.keyword_format.setFontWeight(QFont.Bold)
+        self.keyword_format.setFontWeight(QFont.Weight.Bold)
 
-    def highlightBlock(self, text: str):
+    def highlightBlock(self, text: str | None):
+        if text is None:
+            return
         self.setFormat(0, len(text), self.default_format)
         number_pattern = re.compile(r"\b\d+\b")
         for match in number_pattern.finditer(text):

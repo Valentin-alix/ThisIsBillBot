@@ -21,8 +21,22 @@ dependencies = [
     "pysocks>=1.7.1",
     "protobuf==5.28.3",
     "nicegui>=2.0.0",
-    "pyinstall>=0.1.4",
+    "pyqt6-fluent-widgets>=1.11.1",
+    "pyright>=1.1.408",
+    "pyinstaller>=6.19.0",
 ]
 
 [dependency-groups]
-dev = ["black>=24.10.0,<25"]
+dev = [
+    "black>=24.10.0,<25",
+    "frida-tools>=13.7.1",
+]
+
+[tool.pyright]
+exclude = [
+    "**/.venv",
+    "./ankama_launcher_emulator/gen_zaap",
+    "**/__pycache__",
+    "**/.*",
+    "**/node_modules"
+]

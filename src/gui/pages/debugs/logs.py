@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFileDialog, QHBoxLayout, QVBoxLayout, QWidget
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QFileDialog, QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import FluentIcon, PrimaryPushButton
 
 from src.core.signals.global_log_signals import GlobalLogSignals
@@ -25,17 +25,17 @@ class LogsWidget(QWidget):
         top_bar = QWidget()
         hbox_layout = QHBoxLayout()
         top_bar.setLayout(hbox_layout)
-        top_bar.layout().setContentsMargins(0, 0, 0, 0)
+        hbox_layout.setContentsMargins(0, 0, 0, 0)
         hbox_layout.addStretch()
 
         export_btn = PrimaryPushButton(FluentIcon.SAVE, "Exporter les logs")
         export_btn.clicked.connect(self.on_export_logs)
-        top_bar.layout().addWidget(export_btn)
+        hbox_layout.addWidget(export_btn)
 
-        self.layout().addWidget(top_bar)
+        self.v_layout.addWidget(top_bar)
 
         self.logs_table = LogsTable()
-        self.layout().addWidget(self.logs_table)
+        self.v_layout.addWidget(self.logs_table)
 
         log_signals.log_emitted.connect(profiled_slot(self.on_log_emitted))
         self.global_signals.log_emitted.connect(profiled_slot(self.on_log_emitted))
@@ -59,7 +59,7 @@ class LogsWidget(QWidget):
 
         with open(file_path, "w", encoding="utf-8") as file:
             for row in range(row_count):
-                time_text = model.data(model.index(row, 0), Qt.DisplayRole)
-                type_text = model.data(model.index(row, 1), Qt.DisplayRole)
-                msg_text = model.data(model.index(row, 2), Qt.DisplayRole)
+                time_text = model.data(model.index(row, 0), Qt.ItemDataRole.DisplayRole)
+                type_text = model.data(model.index(row, 1), Qt.ItemDataRole.DisplayRole)
+                msg_text = model.data(model.index(row, 2), Qt.ItemDataRole.DisplayRole)
                 file.write(f"[{time_text}] [{type_text}] {msg_text}\n")

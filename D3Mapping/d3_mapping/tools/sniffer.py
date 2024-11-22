@@ -9,8 +9,8 @@ from threading import Thread
 
 from dotenv import load_dotenv
 from pydantic import Field
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication
 from qfluentwidgets import Theme, setTheme, setThemeColor
 from scapy.all import sniff
 from scapy.layers.inet import IP

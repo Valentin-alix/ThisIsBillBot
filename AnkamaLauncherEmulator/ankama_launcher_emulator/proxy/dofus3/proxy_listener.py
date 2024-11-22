@@ -8,10 +8,10 @@ from time import sleep
 
 import socks
 
-from ankama_launcher_emulator.proxy.connection_proxy import (
+from ankama_launcher_emulator.proxy.dofus3.connection_proxy import (
     ConnectionProxy,
 )
-from ankama_launcher_emulator.proxy.proxy import Proxy
+from ankama_launcher_emulator.proxy.dofus3.proxy import Proxy
 
 logger = logging.getLogger()
 
@@ -20,7 +20,7 @@ DOFUS_CONNECTION_PORT = 5555
 
 
 @dataclass
-class ProxyListener:
+class BaseProxyListener:
     socks5_host: str | None = None
     socks5_port: int | None = None
     socks5_username: str | None = None
@@ -30,14 +30,15 @@ class ProxyListener:
     _listener_sockets: list[Socket] = field(default_factory=list, init=False)
     _shutdown_requested: bool = field(default=False, init=False)
     _initial_port: int | None = field(default=None, init=False)
+    _interface_ip: str | None = field(default=None, init=False)
 
     def create_bridge(
         self, client_socket: Socket, server_socket: Socket, host_port: int
     ) -> Proxy | None:
         if host_port == self._initial_port:
             return ConnectionProxy(
-                on_game_connection_callback=lambda target_address: self.start_game_listener(
-                    target_address
+                on_game_connection_callback=lambda target_address: (
+                    self.start_game_listener(target_address, interface_ip=self._interface_ip)
                 ),
                 client_socket=client_socket,
                 server_socket=server_socket,
@@ -69,6 +70,7 @@ class ProxyListener:
         proxy_socket = self.create_server(port)
         bound_port = proxy_socket.getsockname()[1]
         self._initial_port = bound_port
+        self._interface_ip = interface_ip
         Thread(
             target=lambda: self.start_listener(
                 proxy_socket, target_address, forever=True, interface_ip=interface_ip

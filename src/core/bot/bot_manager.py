@@ -7,22 +7,14 @@ from time import sleep
 from ankama_launcher_emulator import (
     AnkamaLauncherHandler,
 )
-from ankama_launcher_emulator.consts import (
-    SOCKS5_HOST,
-    SOCKS5_PASSWORD,
-    SOCKS5_PORT,
-    SOCKS5_USERNAME,
-)
 from ankama_launcher_emulator.decrypter.crypto_helper import (
     CryptoHelper,
 )
-from ankama_launcher_emulator.proxy.proxy_listener import (
-    ProxyListener,
-)
+from src.core.mitm.proxy_listener import ProxyListener
 from ankama_launcher_emulator.server.server import (
     AnkamaLauncherServer,
 )
-from PyQt5.QtCore import QThread
+from PyQt6.QtCore import QThread
 
 from src.controller.bot_config import BotConfigController
 from src.core.bot.bot import Bot
@@ -52,13 +44,7 @@ class BotManager:
         self.bot_by_account_id = self.get_bot_by_account_id()
         self.shared_signals.launch_account.connect(self.on_launch_account)
         self.shared_signals.synchronize_bots.connect(self.on_synchronize_bots)
-        self.proxy_url = "http://090de9c7b643e2e1:x0JriSUK@185.162.130.85:10000"
-        self.proxy_listener = ProxyListener(
-            socks5_host=SOCKS5_HOST,
-            socks5_port=SOCKS5_PORT,
-            socks5_username=SOCKS5_USERNAME,
-            socks5_password=SOCKS5_PASSWORD,
-        )
+        self.proxy_listener = ProxyListener(account_by_id=self.bot_by_account_id)
 
     def on_launch_account(self, login: str):
         self._cleanup_finished_threads()
@@ -136,7 +122,7 @@ class BotManager:
             related_bot.process_manager.pid = self.ankama_launcher.launch_dofus(
                 login,
                 self.proxy_listener,
-                source_ip=bot_config.network_interface if bot_config else None,
+                interface_ip=bot_config.network_interface if bot_config else None,
             )
 
             related_bot.logger.info(f"Pid {related_bot.process_manager.pid}")

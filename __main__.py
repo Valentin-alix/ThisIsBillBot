@@ -4,7 +4,7 @@ import sys
 from time import sleep
 
 from dotenv import load_dotenv
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 from qfluentwidgets import Theme, setTheme, setThemeColor
 
 from src.services.logging.logger import init_global_logging

@@ -1,7 +1,7 @@
 from logging import Logger
 
-from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5.QtWidgets import QFormLayout, QLineEdit, QVBoxLayout, QWidget
+from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtWidgets import QFormLayout, QLineEdit, QVBoxLayout, QWidget
 
 from src.core.engine.fms.equipment import EquipmentSchema, LineSchema, StatSchema
 from src.gui.pages.fm.fm_item.fm_item_table import FmItemTable

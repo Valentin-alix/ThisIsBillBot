@@ -1,8 +1,8 @@
 from functools import partial
 from typing import cast
 
-from PyQt5.QtCore import QModelIndex, Qt, pyqtSlot
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import QModelIndex, Qt, pyqtSlot
+from PyQt6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
     QSizePolicy,
@@ -60,25 +60,28 @@ class SnifferWidget(PivotItem):
     def init_top_content(self):
         top_content = QWidget()
         # prevent top header from expanding in height
-        top_content.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        self.layout().addWidget(top_content)
-        top_content.setLayout(QHBoxLayout())
-        top_content.layout().setContentsMargins(0, 0, 0, 0)
+        top_content.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
+        )
+        self.v_layout.addWidget(top_content)
+        top_content_layout = QHBoxLayout()
+        top_content.setLayout(top_content_layout)
+        top_content_layout.setContentsMargins(0, 0, 0, 0)
         reset_btn = PrimaryPushButton(FluentIcon.DELETE, "Réinitialiser")
         reset_btn.clicked.connect(self.on_reset)
-        top_content.layout().addWidget(reset_btn)
+        top_content_layout.addWidget(reset_btn)
 
         self.play_btn = PrimaryPushButton(FluentIcon.PLAY, "Lancer le sniffer")
         if self.is_playing:
             self.play_btn.hide()
         self.play_btn.clicked.connect(self.on_play)
-        top_content.layout().addWidget(self.play_btn)
+        top_content_layout.addWidget(self.play_btn)
 
         self.stop_btn = PrimaryPushButton(FluentIcon.PAUSE, "Arrêter le sniffer")
         if not self.is_playing:
             self.stop_btn.hide()
         self.stop_btn.clicked.connect(self.on_stop)
-        top_content.layout().addWidget(self.stop_btn)
+        top_content_layout.addWidget(self.stop_btn)
 
         self.rec_start_btn = PrimaryPushButton(
             FluentIcon.MOVIE, "Démarrer enregistrement"
@@ -97,68 +100,78 @@ class SnifferWidget(PivotItem):
         self.rec_save_btn.clicked.connect(self.on_record_save)
 
         if not self.bot.is_fake:
-            top_content.layout().addWidget(self.rec_start_btn)
-            top_content.layout().addWidget(self.rec_stop_btn)
-            top_content.layout().addWidget(self.rec_save_btn)
+            top_content_layout.addWidget(self.rec_start_btn)
+            top_content_layout.addWidget(self.rec_stop_btn)
+            top_content_layout.addWidget(self.rec_save_btn)
 
         if self.bot.is_fake:
             self.rec_replay_btn = PrimaryPushButton(
                 FluentIcon.PLAY, "Rejouer un enregistrement"
             )
             self.rec_replay_btn.clicked.connect(self.on_record_replay)
-            top_content.layout().addWidget(self.rec_replay_btn)
+            top_content_layout.addWidget(self.rec_replay_btn)
 
     def init_content(self):
         content = QWidget()
-        content.setLayout(QHBoxLayout())
-        content.layout().setSpacing(0)
-        content.layout().setContentsMargins(0, 0, 0, 0)
+        content_layout = QHBoxLayout()
+        content.setLayout(content_layout)
+        content_layout.setSpacing(0)
+        content_layout.setContentsMargins(0, 0, 0, 0)
 
         # left side: filter + message table
         self.msg_table = MessageTable()
         self.msg_table.table.clicked.connect(self.on_click_msg)
 
         left_widget = QWidget()
-        left_widget.setLayout(QVBoxLayout())
-        left_widget.layout().setContentsMargins(0, 0, 0, 0)
-        left_widget.layout().setSpacing(0)
+        left_widget_layout = QVBoxLayout()
+        left_widget.setLayout(left_widget_layout)
+        left_widget_layout.setContentsMargins(0, 0, 0, 0)
+        left_widget_layout.setSpacing(0)
 
         wrapper_filter = QWidget()
-        wrapper_filter.setLayout(QHBoxLayout())
+        wrapper_filter_layout = QHBoxLayout()
+        wrapper_filter.setLayout(wrapper_filter_layout)
         # filter bar should not expand vertically
-        wrapper_filter.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        wrapper_filter.layout().setContentsMargins(0, 16, 0, 0)
+        wrapper_filter.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
+        )
+        wrapper_filter_layout.setContentsMargins(0, 16, 0, 0)
         custom_filter = LineEdit()
-        wrapper_filter.layout().addWidget(custom_filter)
+        wrapper_filter_layout.addWidget(custom_filter)
         custom_filter.setPlaceholderText("Contenu")
         custom_filter.textChanged.connect(
             partial(self.msg_table.table.header.on_new_filter_input, 4)
         )
 
-        left_widget.layout().addWidget(wrapper_filter)
-        left_widget.layout().addWidget(self.msg_table)
-        left_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.msg_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        left_widget_layout.addWidget(wrapper_filter)
+        left_widget_layout.addWidget(self.msg_table)
+        left_widget.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
+        self.msg_table.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
 
         # right side: message detail and logs/listeners tabs
         self.msg_detail = MessageDetailWidget()
         self.msg_detail.hide()
         self.msg_detail.quit_btn.clicked.connect(self.on_close_detail)
 
-        self.right_splitter = QSplitter(Qt.Vertical)
+        self.right_splitter = QSplitter(Qt.Orientation.Vertical)
         self.right_splitter.addWidget(self.msg_detail)
 
         if self.bot.log_signals is not None:
             debug_tabs_widget = QWidget()
-            debug_tabs_widget.setLayout(QVBoxLayout())
-            debug_tabs_widget.layout().setContentsMargins(0, 16, 0, 0)
-            debug_tabs_widget.layout().setSpacing(0)
+            debug_tabs_widget_layout = QVBoxLayout()
+            debug_tabs_widget.setLayout(debug_tabs_widget_layout)
+            debug_tabs_widget_layout.setContentsMargins(0, 16, 0, 0)
+            debug_tabs_widget_layout.setSpacing(0)
 
             debug_pivot = SegmentedWidget()
-            debug_tabs_widget.layout().addWidget(debug_pivot)
+            debug_tabs_widget_layout.addWidget(debug_pivot)
 
             debug_stacked = QStackedWidget()
-            debug_tabs_widget.layout().addWidget(debug_stacked)
+            debug_tabs_widget_layout.addWidget(debug_stacked)
 
             logs_widget = LogsWidget(
                 global_signals=self.global_log_signals, log_signals=self.bot.log_signals
@@ -206,7 +219,7 @@ class SnifferWidget(PivotItem):
             self.thread_monitor_widget = None
 
         # main horizontal splitter: left (filter+table) | right (detail+logs)
-        splitter = QSplitter(Qt.Horizontal)
+        splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(left_widget)
         splitter.addWidget(self.right_splitter)
         # equal stretch: each side takes ~50% by default
@@ -222,8 +235,8 @@ class SnifferWidget(PivotItem):
             # enforce equal vertical split when both present
             self.right_splitter.setSizes([300, 150])
 
-        content.layout().addWidget(splitter)
-        self.layout().addWidget(content)
+        content_layout.addWidget(splitter)
+        self.v_layout.addWidget(content)
 
         self.v_layout.setStretch(2, 1)
 
@@ -259,7 +272,8 @@ class SnifferWidget(PivotItem):
         source_index = self.msg_table.table.proxy_model.mapToSource(model_index)
         model = self.msg_table.table.item_model
         msg_infos = cast(
-            MessageInfo, model.data(model.index(source_index.row(), 4), Qt.UserRole)
+            MessageInfo,
+            model.data(model.index(source_index.row(), 4), Qt.ItemDataRole.UserRole),
         )
         self.msg_detail.set_content(msg_infos.msg_json, msg_infos.obf_msg_json)
         self.msg_detail.show()

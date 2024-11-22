@@ -1,8 +1,8 @@
 from abc import abstractmethod
 
-from PyQt5.QtCore import QObject, Qt, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import (
-    QListWidget,
+from PyQt6.QtCore import QObject, Qt, pyqtSignal, pyqtSlot
+from PyQt6.QtWidgets import (
+    QListView,
     QListWidgetItem,
     QWidget,
     QVBoxLayout,
@@ -23,7 +23,8 @@ class GroupList[T](QGroupBox):
         super().__init__(*args, **kwargs)
         self.is_lazy_loaded = is_lazy_loaded
         self.signals = GroupListSignals()
-        self.setLayout(QVBoxLayout())
+        self._layout = QVBoxLayout()
+        self.setLayout(self._layout)
 
         self.input_search: str = ""
         self.widget_by_name: dict[str, QListWidgetItem] = {}
@@ -32,26 +33,27 @@ class GroupList[T](QGroupBox):
         self.setup_list_items(items)
 
     def setup_list_items(self, items: list[T]) -> None:
-        self.list_wid_item.setLayoutMode(QListWidget.Batched)
+        self.list_wid_item.setLayoutMode(QListView.LayoutMode.Batched)
         self.list_wid_item.setBatchSize(10)
         self.list_wid_item.setUniformItemSizes(True)
         for item in items:
             self.add_item(item)
         self.list_wid_item.itemClicked.connect(self.on_click_item_widget)
-        self.layout().addWidget(self.list_wid_item)
+        self._layout.addWidget(self.list_wid_item)
 
         bottom_widget = QWidget()
-        bottom_widget.setLayout(QHBoxLayout())
+        bottom_widget_layout = QHBoxLayout()
+        bottom_widget.setLayout(bottom_widget_layout)
 
         search_item_edit = LineEdit()
         search_item_edit.textChanged.connect(self.on_search_changed)
-        bottom_widget.layout().addWidget(search_item_edit)
+        bottom_widget_layout.addWidget(search_item_edit)
 
-        self.layout().addWidget(bottom_widget)
+        self._layout.addWidget(bottom_widget)
 
     @pyqtSlot(QListWidgetItem)
     def on_click_item_widget(self, item: QListWidgetItem):
-        name = item.data(Qt.UserRole)
+        name = item.data(Qt.ItemDataRole.UserRole)
         elem = self.items_by_name[name]
         self.signals.clicked_elem_queue.emit(elem)
 
@@ -94,7 +96,7 @@ class GroupList[T](QGroupBox):
         if wid_item := self.widget_by_name.get(self.get_name_item(item)):
             return wid_item
         wid_item = QListWidgetItem(self.get_name_item(item))
-        wid_item.setData(Qt.UserRole, self.get_name_item(item))
+        wid_item.setData(Qt.ItemDataRole.UserRole, self.get_name_item(item))
         self.list_wid_item.addItem(wid_item)
         self.widget_by_name[self.get_name_item(item)] = wid_item
         return wid_item

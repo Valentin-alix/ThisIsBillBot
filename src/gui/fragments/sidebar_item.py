@@ -1,8 +1,8 @@
 import os
 
-from PyQt5.QtCore import QMargins, QPoint, QRect, Qt, pyqtSignal
-from PyQt5.QtGui import QColor, QCursor, QIcon, QPainter
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QSpacerItem
+from PyQt6.QtCore import QMargins, QPoint, QRect, Qt, pyqtSignal
+from PyQt6.QtGui import QColor, QCursor, QIcon, QPainter
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QSpacerItem
 from qfluentwidgets import (
     BodyLabel,
     ComboBox,
@@ -40,49 +40,51 @@ class SidebarItem(NavigationWidget):
         self.in_fight: bool = False
         self._is_playing: bool = False
         self.main_layout = QHBoxLayout()
-        self.main_layout.setAlignment(Qt.AlignLeft)
+        self.main_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.setLayout(self.main_layout)
 
         self._left_icon = QLabel()
         self._left_icon.setPixmap(toQIcon(left_icon).pixmap(16))
-        self.layout().addWidget(self._left_icon)
+        self.main_layout.addWidget(self._left_icon)
 
         self._title = BodyLabel(title)
-        self.layout().addWidget(self._title)
+        self.main_layout.addWidget(self._title)
 
-        spacer = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.layout().addItem(spacer)
+        spacer = QSpacerItem(
+            0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+        self.main_layout.addItem(spacer)
 
         self._right_icon = QLabel()
         battle_icon = QIcon(os.path.join(RESOURCE_FOLDER, "icons", "combat.png"))
         self._right_icon.setPixmap(battle_icon.pixmap(16))
         self._right_icon.hide()
-        self.layout().addWidget(self._right_icon)
+        self.main_layout.addWidget(self._right_icon)
 
         self._play_btn = TransparentToolButton(FluentIcon.PLAY)
         self._play_btn.setFixedSize(24, 24)
         self._play_btn.clicked.connect(self.on_click_play)
         self.bot_signals.play.connect(self.on_play)
-        self.layout().addWidget(self._play_btn)
+        self.main_layout.addWidget(self._play_btn)
 
         self._stop_btn = TransparentToolButton(FluentIcon.PAUSE)
         self._stop_btn.setFixedSize(24, 24)
         self._stop_btn.clicked.connect(self.on_click_stop)
         self.bot_signals.stop.connect(self.on_stop)
         self._stop_btn.hide()
-        self.layout().addWidget(self._stop_btn)
+        self.main_layout.addWidget(self._stop_btn)
 
         self._profile_combo = ComboBox()
         self._profile_combo.setFixedWidth(60)
         self._profile_combo.currentIndexChanged.connect(self._on_profile_changed)
-        self.layout().addWidget(self._profile_combo)
+        self.main_layout.addWidget(self._profile_combo)
 
         self._network_combo = ComboBox()
         self._network_combo.setFixedWidth(60)
         self._network_combo.currentIndexChanged.connect(
             self._on_network_interface_changed
         )
-        self.layout().addWidget(self._network_combo)
+        self.main_layout.addWidget(self._network_combo)
 
     def show_battle_icon(self, show: bool):
         self.in_fight = show
@@ -132,7 +134,7 @@ class SidebarItem(NavigationWidget):
         self._title.setText(text)
 
     def populate_network_interfaces(
-        self, interfaces: dict[str, str], selected_ip: str | None
+        self, interfaces: dict[str, tuple[str, str]], selected_ip: str | None
     ):
         self._network_combo.blockSignals(True)
         self._network_combo.clear()
@@ -193,11 +195,11 @@ class SidebarItem(NavigationWidget):
     def paintEvent(self, a0):
         painter = QPainter(self)
         painter.setRenderHints(
-            QPainter.Antialiasing
-            | QPainter.TextAntialiasing
-            | QPainter.SmoothPixmapTransform
+            QPainter.RenderHint.Antialiasing
+            | QPainter.RenderHint.TextAntialiasing
+            | QPainter.RenderHint.SmoothPixmapTransform
         )
-        painter.setPen(Qt.NoPen)
+        painter.setPen(Qt.PenStyle.NoPen)
 
         if self.isPressed:
             painter.setOpacity(0.7)

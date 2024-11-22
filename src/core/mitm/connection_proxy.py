@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable
 
-from ankama_launcher_emulator.proxy.proxy import (
+from ankama_launcher_emulator.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
 )

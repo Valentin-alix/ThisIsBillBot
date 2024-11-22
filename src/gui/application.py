@@ -1,9 +1,8 @@
 import ctypes
 import sys
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QApplication
 
 from src.const import LOGO_FILE
 
@@ -16,5 +15,4 @@ class Application(QApplication):
         if sys.platform == "win32":
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(self.TITLE)
         self.setWindowIcon(QIcon(LOGO_FILE))
-        self.setAttribute(Qt.ApplicationAttribute.AA_DisableWindowContextHelpButton)
         self.setApplicationName(self.TITLE)

@@ -1,6 +1,6 @@
 import inspect
 
-from PyQt5.QtWidgets import QTextEdit, QWidget
+from PyQt6.QtWidgets import QTextEdit, QWidget
 from qfluentwidgets import MessageBoxBase, PushButton, SubtitleLabel
 
 from src.core.events_manager.listener import Listener
@@ -26,7 +26,7 @@ class ListenerDetailsBox(MessageBoxBase):
         Callback Source:
                         """
         if hasattr(listener.callback, "func"):
-            source = inspect.getsource(listener.callback.func)  # type: ignore
+            source = inspect.getsource(listener.callback.func)  # pyright: ignore[reportFunctionMemberAccess]
         else:
             source = inspect.getsource(listener.callback)
         highlighted_code = source

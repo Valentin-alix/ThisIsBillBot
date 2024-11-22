@@ -1,7 +1,7 @@
 from typing import cast
 
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
+from PyQt6.QtCore import QTimer
+from PyQt6.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import PivotItem, SegmentedWidget
 
 from src import const
@@ -19,13 +19,14 @@ class AccountStackedWidget(QWidget):
         self.bot = bot
         self.global_log_signals = global_log_signals
         self.setObjectName(f"{login}_bot")
-        self.setLayout(QVBoxLayout())
+        layout = QVBoxLayout()
+        self.setLayout(layout)
 
         self.pivot = SegmentedWidget()
-        self.layout().addWidget(self.pivot)
+        layout.addWidget(self.pivot)
 
         self.stacked_widget = QStackedWidget(self)
-        self.layout().addWidget(self.stacked_widget)
+        layout.addWidget(self.stacked_widget)
 
         self.sniffer_interface = SnifferWidget(bot, self.global_log_signals)
         self.stacked_widget.addWidget(self.sniffer_interface)

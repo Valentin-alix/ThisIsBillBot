@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from PyQt5.QtCore import QThread
+from PyQt6.QtCore import QThread
 
 from src.gui.utils.run_in_background import run_in_background
 from src.services.replayer import Replayer

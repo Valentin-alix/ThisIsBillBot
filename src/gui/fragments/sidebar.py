@@ -1,7 +1,7 @@
 from typing import Union
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon
 from qfluentwidgets import (
     FluentIconBase,
     NavigationInterface,
@@ -42,7 +42,7 @@ class Sidebar(NavigationInterface):
 
         self.resize(48, self.height())
         self.setMinimumWidth(48)
-        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
     def insertItem(
         self,

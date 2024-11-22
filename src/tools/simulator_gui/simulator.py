@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from dotenv import load_dotenv
 from google.protobuf.json_format import MessageToDict
-from PyQt5.QtCore import QTimer
+from PyQt6.QtCore import QTimer
 
 from D3Database.data_center.data_reader import DataReader
 from D3Database.models.world_graph import Edge

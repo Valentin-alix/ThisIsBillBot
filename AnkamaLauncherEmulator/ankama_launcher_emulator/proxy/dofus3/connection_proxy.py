@@ -3,10 +3,10 @@ from typing import Callable
 
 from google.protobuf.internal.encoder import _VarintBytes  # type: ignore
 
-from ankama_launcher_emulator.proxy.login_message_pb2 import (
+from ankama_launcher_emulator.proxy.dofus3.login_message_pb2 import (
     LoginMessage,
 )
-from ankama_launcher_emulator.proxy.proxy import Proxy
+from ankama_launcher_emulator.proxy.dofus3.proxy import Proxy
 
 
 def _encode_msg(msg: LoginMessage) -> bytes:

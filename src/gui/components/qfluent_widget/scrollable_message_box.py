@@ -1,5 +1,5 @@
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QApplication, QTextEdit, QWidget
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QApplication, QTextEdit, QWidget
 from qfluentwidgets import (
     MessageBoxBase,
     PushButton,
@@ -55,4 +55,5 @@ class ScrollableMessageBox(MessageBoxBase):
 
     def _copy_to_clipboard(self, text: str):
         clipboard = QApplication.clipboard()
+        assert clipboard is not None
         clipboard.setText(text)

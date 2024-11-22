@@ -1,8 +1,8 @@
 from typing import Any
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QBrush, QColor
-from PyQt5.QtWidgets import QHBoxLayout, QTreeWidgetItem, QVBoxLayout, QWidget
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QBrush, QColor
+from PyQt6.QtWidgets import QHBoxLayout, QTreeWidgetItem, QVBoxLayout, QWidget
 from qfluentwidgets import FluentIcon, LineEdit, SmoothMode, TransparentToolButton
 
 from src.gui.components.qfluent_widget.dynamic_tree_widget import DynamicTreeWidget
@@ -11,37 +11,40 @@ from src.gui.components.qfluent_widget.dynamic_tree_widget import DynamicTreeWid
 class MessageDetailWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setLayout(QVBoxLayout())
-        self.layout().setAlignment(Qt.AlignHCenter)
+        self._layout = QVBoxLayout()
+        self.setLayout(self._layout)
+        self._layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
         top_bar = QWidget()
-        top_bar.setLayout(QHBoxLayout())
-        self.layout().addWidget(top_bar)
+        top_bar_layout = QHBoxLayout()
+        top_bar.setLayout(top_bar_layout)
+        self._layout.addWidget(top_bar)
 
         self.quit_btn = TransparentToolButton(FluentIcon.CLOSE)
-        top_bar.layout().addWidget(self.quit_btn)
+        top_bar_layout.addWidget(self.quit_btn)
 
         self.search_bar = LineEdit()
         self.search_bar.setPlaceholderText("Rechercher dans le contenu...")
         self.search_bar.setClearButtonEnabled(True)
         self.search_bar.textChanged.connect(self._on_search_text_changed)
-        top_bar.layout().addWidget(self.search_bar)
+        top_bar_layout.addWidget(self.search_bar)
 
         trees_widget = QWidget()
-        trees_widget.setLayout(QHBoxLayout())
-        self.layout().addWidget(trees_widget)
+        trees_widget_layout = QHBoxLayout()
+        trees_widget.setLayout(trees_widget_layout)
+        self._layout.addWidget(trees_widget)
 
         self.dynamic_tree = DynamicTreeWidget()
         self.dynamic_tree.scrollDelagate.verticalSmoothScroll.setSmoothMode(
             SmoothMode.NO_SMOOTH
         )
-        trees_widget.layout().addWidget(self.dynamic_tree)
+        trees_widget_layout.addWidget(self.dynamic_tree)
 
         self.obf_dynamic_tree = DynamicTreeWidget()
         self.obf_dynamic_tree.scrollDelagate.verticalSmoothScroll.setSmoothMode(
             SmoothMode.NO_SMOOTH
         )
-        trees_widget.layout().addWidget(self.obf_dynamic_tree)
+        trees_widget_layout.addWidget(self.obf_dynamic_tree)
 
     def set_content(
         self,
@@ -81,7 +84,9 @@ class MessageDetailWidget(QWidget):
         tree.collapseAll()
 
         found_items: list[QTreeWidgetItem] = []
-        self._find_matching_items(tree.invisibleRootItem(), search_text, found_items)
+        root = tree.invisibleRootItem()
+        assert root is not None
+        self._find_matching_items(root, search_text, found_items)
 
         for item in found_items:
             item.setBackground(0, QBrush(QColor(255, 255, 0, 100)))
@@ -89,12 +94,16 @@ class MessageDetailWidget(QWidget):
 
     def _find_matching_items(
         self,
-        parent: QTreeWidgetItem,
+        parent: QTreeWidgetItem | None,
         search_text: str,
         found_items: list[QTreeWidgetItem]
     ):
+        if parent is None:
+            return
         for i in range(parent.childCount()):
             child = parent.child(i)
+            if child is None:
+                continue
             if search_text in child.text(0).lower():
                 found_items.append(child)
 
@@ -108,10 +117,16 @@ class MessageDetailWidget(QWidget):
         item.setExpanded(True)
 
     def _reset_tree_highlighting(self, tree: DynamicTreeWidget):
-        self._reset_item_highlighting(tree.invisibleRootItem())
+        root = tree.invisibleRootItem()
+        assert root is not None
+        self._reset_item_highlighting(root)
 
-    def _reset_item_highlighting(self, parent: QTreeWidgetItem):
+    def _reset_item_highlighting(self, parent: QTreeWidgetItem | None):
+        if parent is None:
+            return
         for i in range(parent.childCount()):
             child = parent.child(i)
+            if child is None:
+                continue
             child.setBackground(0, QBrush())
             self._reset_item_highlighting(child)

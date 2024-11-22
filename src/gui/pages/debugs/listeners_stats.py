@@ -1,7 +1,7 @@
 from bisect import bisect_left
 
-from PyQt5.QtCore import QModelIndex, pyqtSlot
-from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from PyQt6.QtCore import QModelIndex, pyqtSlot
+from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import TableWidget
 from qfluentwidgets.components.widgets.model_combo_box import QStandardItem
 
@@ -21,7 +21,7 @@ class ListenersStatsTable(BaseTableWidget):
             ColumnInfo(name="Message Type"),
         ]
         self.table.set_columns(columns)
-        self.table.setEditTriggers(TableWidget.NoEditTriggers)
+        self.table.setEditTriggers(TableWidget.EditTrigger.NoEditTriggers)
         self.listener_to_row: dict[Listener, int] = {}
 
 
@@ -36,7 +36,7 @@ class ListenersStatsWidget(QWidget):
         self.setLayout(layout)
 
         self.stats_table = ListenersStatsTable()
-        self.stats_table.table.setSelectionMode(self.stats_table.table.SingleSelection)
+        self.stats_table.table.setSelectionMode(TableWidget.SelectionMode.SingleSelection)
         self.stats_table.table.clicked.connect(self.on_row_double_clicked)
         layout.addWidget(self.stats_table)
 
