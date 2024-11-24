@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.map_reader import MapReader
-from D3Database.enums.jobs_enum import HARVESTER_JOB_IDS
-from D3Database.grid.map_point import MapPoint
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.map_reader import MapReader
+from d3_database.enums.jobs_enum import HARVESTER_JOB_IDS
+from d3_database.grid.map_point import MapPoint
+from d3_database.protos.non_obf.game.common_pb2 import (
     InteractiveElement,
     StatedElement,
 )

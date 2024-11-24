@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from D3Database.models.datas.map_positions_root import MapPositionsRootItem
+from d3_database.models.datas.map_positions_root import MapPositionsRootItem
 
 
 @dataclass

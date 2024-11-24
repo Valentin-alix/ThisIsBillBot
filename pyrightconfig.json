@@ -1,0 +1,23 @@
+{
+    "typeCheckingMode": "basic",
+    "pythonVersion": "3.12",
+    "useLibraryCodeForTypes": true,
+    "reportMissingTypeStubs": "none",
+    "extraPaths": [
+        "AnkamaLauncherEmulatorPremium",
+        "DBDofusUnity",
+        "DBDofusUnity/proto_mapper_assembly/scripts/ida_tracer_lib/typings",
+        "DBDofusUnity/proto_mapper_assembly/scripts"
+    ],
+    "exclude": [
+        "**/IL2CppDumper",
+        "**/.venv",
+        "DBDofusUnity/Il2CppInspectorRedux",
+        "DBDofusUnity/proto_mapper_assembly/data",
+        "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator/gen_zaap",
+        "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator/proxy/dofus3/login_message_pb2.py",
+        "**/node_modules",
+        "**/__pycache__",
+        "**/.*"
+    ]
+}

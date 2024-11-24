@@ -11,7 +11,7 @@ from google.protobuf.json_format import Parse
 from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
 
-from D3Mapping.d3_mapping.protocol.protocol_game import POOL
+from src.protocol.protocol_game import POOL
 
 GAME_PROTO_PKG = "d3_mapping.resources.protos.game"
 

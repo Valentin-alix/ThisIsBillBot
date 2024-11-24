@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeMoveKamaRequest,
     ExchangeObjectModifyPricedRequest,
@@ -9,7 +9,7 @@ from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeObjectTransferAllFromInventoryRequest,
     ExchangeStartedWithStorageEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+from d3_database.protos.non_obf.game.inventory_pb2 import (
     InventoryContentEvent,
     InventoryWeightEvent,
     ObjectAddedEvent,

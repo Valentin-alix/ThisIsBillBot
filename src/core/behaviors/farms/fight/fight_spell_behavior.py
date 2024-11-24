@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 
-from D3Database.grid.map_point import MapPoint
-from D3Mapping.d3_mapping.resources.protos.game.fight_pb2 import FightEndEvent
-from D3Mapping.d3_mapping.resources.protos.game.game_action_pb2 import (
+from d3_database.grid.map_point import MapPoint
+from d3_database.protos.non_obf.game.fight_pb2 import FightEndEvent
+from d3_database.protos.non_obf.game.game_action_pb2 import (
     GameActionFightCastRequest,
     SequenceEndEvent,
     SequenceType,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.services.human_timings import HumanTimingsService
 

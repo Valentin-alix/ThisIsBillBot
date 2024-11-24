@@ -1,10 +1,13 @@
 from dataclasses import dataclass
 
-from D3Database.enums.category_item_enum import CategoryEnum
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.enums.category_item_enum import CategoryEnum
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidSellerStartedEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.npc_pb2 import NpcGenericActionRequest
+from d3_database.protos.non_obf.game.npc_pb2 import (
+    NpcGenericActionRequest,
+)
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
     EnterSaleHotelBehavior,

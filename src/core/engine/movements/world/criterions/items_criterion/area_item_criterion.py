@@ -1,4 +1,5 @@
-from D3Database.data_center.data_reader import DataReader
+from d3_database.data_center.data_reader import DataReader
+
 from src.core.engine.movements.world.criterions.item_criterion import (
     ItemCriterion,
 )

@@ -1,8 +1,8 @@
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
     InteractiveElement,
     StatedElement,
 )
-from D3Mapping.d3_mapping.resources.protos.game.interactive_element_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
 from src.core.engine.interactives.collectable import Collectable

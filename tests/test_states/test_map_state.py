@@ -1,8 +1,8 @@
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
     ActorPositionInformation,
     EntityDisposition,
 )
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapCurrentEvent,
 )

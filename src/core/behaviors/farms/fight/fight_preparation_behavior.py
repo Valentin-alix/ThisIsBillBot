@@ -2,14 +2,15 @@ import random
 from dataclasses import dataclass, field
 from functools import partial
 
-from D3Database.grid.map_point import MapPoint
-from D3Mapping.d3_mapping.resources.protos.game.context_pb2 import (
+from d3_database.grid.map_point import MapPoint
+from d3_database.protos.non_obf.game.context_pb2 import (
     EntitiesDispositionEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.fight_preparation_pb2 import (
+from d3_database.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPositionRequest,
     FightReadyRequest,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_movement_behavior import FightMovementBehavior
 from src.core.config import (

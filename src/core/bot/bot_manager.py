@@ -4,15 +4,14 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from time import sleep
 
-from ankama_launcher_emulator.decrypter.crypto_helper import (
+from ankama_launcher_emulator_premium.decrypter.crypto_helper import (
     CryptoHelper,
 )
-from ankama_launcher_emulator.gui.utils import Worker, run_in_background
-from ankama_launcher_emulator.server.handler import AnkamaLauncherHandler
-from ankama_launcher_emulator.server.server import (
+from ankama_launcher_emulator_premium.gui.utils import run_in_background
+from ankama_launcher_emulator_premium.server.handler import AnkamaLauncherHandler
+from ankama_launcher_emulator_premium.server.server import (
     AnkamaLauncherServer,
 )
-from PyQt6.QtCore import QThread
 
 from src.controller.bot_config import BotConfigController
 from src.core.bot.bot import Bot
@@ -31,9 +30,7 @@ class BotManager:
     ankama_launcher_handler: AnkamaLauncherHandler = field(
         init=False, default_factory=AnkamaLauncherHandler
     )
-    _thread_worker_runnings: list[tuple[QThread, Worker]] = field(
-        default_factory=list, init=False
-    )
+    _running_task_count: int = field(default=0, init=False)
     _is_lauching_by_login: defaultdict[str, threading.Event] = field(
         default_factory=lambda: defaultdict(threading.Event), init=False
     )
@@ -46,34 +43,21 @@ class BotManager:
         self.proxy_listener = ProxyListener(account_by_id=self.bot_by_account_id)
 
     def on_launch_account(self, login: str):
-        self._cleanup_finished_threads()
-
-        thread, worker = run_in_background(lambda: self.relaunch_account(login))
-
-        worker.success.connect(lambda: self._remove_thread(thread))
-
-        self._thread_worker_runnings.append((thread, worker))
+        self._running_task_count += 1
         self._emit_thread_count()
 
-    def _cleanup_finished_threads(self):
-        self._thread_worker_runnings = [
-            (_thread, _worker)
-            for _thread, _worker in self._thread_worker_runnings
-            if _thread.isRunning()
-        ]
-        self._emit_thread_count()
+        def _on_done(_: object) -> None:
+            self._running_task_count -= 1
+            self._emit_thread_count()
 
-    def _remove_thread(self, thread: QThread):
-        self._thread_worker_runnings = [
-            (_thread, _worker)
-            for _thread, _worker in self._thread_worker_runnings
-            if _thread != thread
-        ]
-        self._emit_thread_count()
+        run_in_background(
+            lambda _: self.relaunch_account(login),
+            on_success=_on_done,
+            on_error=_on_done,
+        )
 
     def _emit_thread_count(self):
-        count = len(self._thread_worker_runnings)
-        self.shared_signals.thread_count_update.emit(count)
+        self.shared_signals.thread_count_update.emit(self._running_task_count)
 
     def relaunch_account(self, login: str, max_retries: int = 3):
         related_bot: Bot = next(
@@ -167,10 +151,6 @@ class BotManager:
         return bot_by_account_id
 
     def shutdown(self) -> None:
-        for thread, _ in self._thread_worker_runnings:
-            thread.quit()
-            thread.wait(5000)
-        self._thread_worker_runnings.clear()
         bots = list(self.bot_by_account_id.values())
         self.safe_stop_bots(bots)
         for bot in bots:

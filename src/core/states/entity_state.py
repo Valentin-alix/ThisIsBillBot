@@ -1,14 +1,15 @@
 from dataclasses import dataclass, field
 from typing import Iterable, cast
 
-from D3Database.enums.characteristic_enum import CharacteristicEnum
-from D3Database.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from d3_database.enums.characteristic_enum import CharacteristicEnum
+from d3_database.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
+from d3_database.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     Direction,
     EntityDisposition,
 )
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import MapObstacle
+from d3_database.protos.non_obf.game.gamemap_pb2 import MapObstacle
+
 from src.core.engine.fights.fight_actor import FightActor
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
 from src.core.engine.monsters.monster_group import (

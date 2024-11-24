@@ -1,9 +1,9 @@
+from d3_database.data_center.data_reader import DataReader
+from d3_database.models.datas.recipe_root import RecipeItem
 from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import FluentIcon, TransparentToolButton
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.models.datas.recipe_root import RecipeItem
 from src.core.bot.bot import Bot
 from src.gui.pages.craft.recipe_group import RecipeGroup
 from src.gui.pages.craft.recipe_table import RecipeTable

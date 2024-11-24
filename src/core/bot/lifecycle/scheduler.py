@@ -11,8 +11,8 @@ import schedule
 SCHEDULE_RANDOM_MINUTES_MIN = 1
 SCHEDULE_RANDOM_MINUTES_MAX = 8
 
-from ankama_launcher_emulator.gui.utils import run_in_background
-from ankama_launcher_emulator.interfaces.deciphered_api_key import (
+from ankama_launcher_emulator_premium.gui.utils import run_in_background
+from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
 
@@ -90,7 +90,7 @@ class BotScheduler(ContextualLogger):
 
         if profile_id is None:
             if self.is_playing_event.is_set():
-                run_in_background(self._planned_stop_bot)
+                run_in_background(lambda _: self._planned_stop_bot())
             return
 
         self._schedule_profile_jobs(profile_id)
@@ -108,7 +108,7 @@ class BotScheduler(ContextualLogger):
                 self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
         elif self.is_playing_event.is_set():
             self.logger.info("Not in playtime, stopping bot...")
-            run_in_background(self._planned_stop_bot)
+            run_in_background(lambda _: self._planned_stop_bot())
 
     def _clear_scheduled_jobs(self):
         """Cancel all scheduled jobs for this bot."""
@@ -144,14 +144,16 @@ class BotScheduler(ContextualLogger):
                 start_job = (
                     day_scheduler()
                     .at(start_time)
-                    .do(lambda: run_in_background(self._planned_restart_bot))
+                    .do(
+                        lambda: run_in_background(lambda _: self._planned_restart_bot())
+                    )
                 )
                 self._scheduled_jobs.append(start_job)
 
                 end_job = (
                     day_scheduler()
                     .at(end_time)
-                    .do(lambda: run_in_background(self._planned_stop_bot))
+                    .do(lambda: run_in_background(lambda _: self._planned_stop_bot()))
                 )
                 self._scheduled_jobs.append(end_job)
 

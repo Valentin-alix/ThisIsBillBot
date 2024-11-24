@@ -1,4 +1,8 @@
-from ankama_launcher_emulator.utils.internet import get_available_network_interfaces
+from typing import Literal
+
+from ankama_launcher_emulator_premium.utils.internet import (
+    get_available_network_interfaces,
+)
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QColor, QIcon
 from PyQt6.QtWidgets import QHBoxLayout
@@ -11,8 +15,6 @@ from qfluentwidgets import (
     SwitchButton,
 )
 from qfluentwidgets.components.navigation import NavigationDisplayMode, NavigationWidget
-
-from typing import Literal
 
 from src import const
 from src.const import LOGO_FILE

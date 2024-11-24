@@ -1,19 +1,22 @@
 from dataclasses import dataclass, field
 from functools import partial
 
-from D3Database.data_center.data_reader import DataReader
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.protos.non_obf.game.common_pb2 import (
+    ObjectItemInventory,
+)
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeObjectMoveRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.guild_chest_pb2 import (
+from d3_database.protos.non_obf.game.guild_chest_pb2 import (
     GuildChestTabSelectRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+from d3_database.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
     StorageInventoryContentEvent,
 )
+
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (

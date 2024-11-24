@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from threading import Timer
 
-from D3Mapping.d3_mapping.resources.protos.connection.login_message_pb2 import (
+from d3_database.protos.non_obf.connection.login_message_pb2 import (
     SelectServerRequest,
 )
 from src.core.frames.frame import Frame

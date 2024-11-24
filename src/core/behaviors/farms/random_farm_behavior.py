@@ -5,11 +5,12 @@ from functools import partial
 from threading import Lock
 from typing import Callable
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.models.world_graph import Edge
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.models.world_graph import Edge
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
+
 from src.const import MIN_DATE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (

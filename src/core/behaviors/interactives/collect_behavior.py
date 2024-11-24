@@ -3,10 +3,11 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from D3Database.grid.map_point import MapPoint
-from D3Mapping.d3_mapping.resources.protos.game.interactive_element_pb2 import (
+from d3_database.grid.map_point import MapPoint
+from d3_database.protos.non_obf.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import (
     InteractiveBehavior,

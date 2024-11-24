@@ -1,5 +1,5 @@
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
 from src.core.engine.fights.effect import (
     get_effect_shield_level_bonus,
     get_life_point_percent_malus,

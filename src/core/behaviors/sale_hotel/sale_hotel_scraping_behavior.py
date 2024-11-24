@@ -2,15 +2,16 @@ from dataclasses import dataclass, field
 from functools import partial
 from random import shuffle
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.enums.category_item_enum import CategoryEnum
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.enums.category_item_enum import CategoryEnum
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidBuyerStartedEvent,
     ExchangeBidHouseSearchRequest,
     ExchangeBidHouseTypeRequest,
     ExchangeTypesExchangerDescriptionForUserEvent,
     ExchangeTypesItemsExchangerDescriptionForUserEvent,
 )
+
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
     EnterSaleHotelBehavior,

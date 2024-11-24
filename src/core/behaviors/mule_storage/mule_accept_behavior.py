@@ -2,10 +2,10 @@ import time
 from dataclasses import dataclass, field
 from threading import Timer
 
-from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import (
+from d3_database.protos.non_obf.game.dialog_pb2 import (
     DialogLeaveRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeAcceptRequest,
     ExchangeKamaModifiedEvent,
     ExchangeLeaveEvent,
@@ -14,10 +14,6 @@ from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeReadyRequest,
     ExchangeRequestedTradeEvent,
     ExchangeStartedWithPodsEvent,
-)
-from src.controller.scraping_d3_api.scraping_d3 import ScrapingD3Controller
-from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.models.character_action_enum import (
-    CharacterActionEnum,
 )
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
@@ -49,15 +45,9 @@ class MuleAcceptBehavior(Behavior):
     _timer_go_scraping: Timer | None = field(init=False, default=None)
 
     def run(self) -> None:
-        ScrapingD3Controller.patch_character_action(
-            self.game_state.player.character_id, CharacterActionEnum.MULE_ACCEPT_BANK
-        )
         self.go_bank_map()
 
     def stop(self) -> None:
-        ScrapingD3Controller.patch_character_action(
-            self.game_state.player.character_id, None
-        )
         return super().stop()
 
     def go_bank_map(self):

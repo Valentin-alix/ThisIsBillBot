@@ -5,17 +5,17 @@ from dataclasses import dataclass, field
 from google.protobuf.message import Message
 from PyQt6.QtCore import QMetaObject, Qt
 
-from D3Mapping.d3_mapping.protocol.protocol import (
+from src.protocol.protocol import (
     decode_varint_size,
     encode_msg,
 )
-from D3Mapping.d3_mapping.protocol.protocol_game import (
+from src.protocol.protocol_game import (
     get_game_msg,
     get_game_msg_info,
     get_obf_game_message_from_msg,
 )
 
-# from D3Mapping.d3_mapping.resources.obf_protos.game.game_messages_pb2 import (
+# from d3_database.protos.obf.game.game_messages_pb2 import (
 #     hcz,
 #     iic,
 #     ipw,
@@ -26,15 +26,15 @@ from D3Mapping.d3_mapping.protocol.protocol_game import (
 #     kll,
 #     ktq,
 # )
-from D3Mapping.d3_mapping.resources.protos.game.character_management_pb2 import (
+from d3_database.protos.non_obf.game.character_management_pb2 import (
     CharacterListEvent,
     CharacterSelectionEvent,
     CharacterSelectionRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.connection_pb2 import (
+from d3_database.protos.non_obf.game.connection_pb2 import (
     IdentificationRequest as GameIdentificationRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.game_message_pb2 import Request
+from d3_database.protos.non_obf.game.game_message_pb2 import Request
 from src.const import MESSAGES_WITH_UID
 from src.core.socket_network.base_client import BaseClient
 

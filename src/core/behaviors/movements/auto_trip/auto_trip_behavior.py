@@ -2,10 +2,11 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from D3Database.models.world_graph import Edge
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.models.world_graph import Edge
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.edge_behavior import EdgeBehavior, EdgeError
 from src.core.behaviors.movements.map_change_behavior import MapChangeError

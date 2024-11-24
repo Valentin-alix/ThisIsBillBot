@@ -3,15 +3,16 @@ name = "bot_dofus_unity"
 version = "0.1.0"
 description = ""
 authors = [{ name = "Valentin Alix", email = "valentin-alix.850@outlook.fr" }]
-requires-python = ">3.12,<3.14"
+requires-python = ">3.12,<3.13"
 readme = "README.md"
 
 dependencies = [
-    "ankama-launcher-emulator",
+    "db-dofus-unity",
+    "ankama-launcher-emulator-premium",
     "scapy>=2.5.0,<3",
     "psutil>=6.0.0,<7",
-    "cachetools>=5.5.0,<6",
-    "msgspec>=0.18.6,<0.19",
+    "cachetools>=7.0.5",
+    "msgspec>=0.20.0",
     "protobuf==5.28.3",
     "sortedcontainers>=2.4.0,<3",
     "proto-schema-parser>=1.4.8,<2",
@@ -20,7 +21,7 @@ dependencies = [
     "python-dotenv>=1.1.0,<2",
     "pulp>=3.2.1,<4",
     "datamodel-code-generator>=0.30.2,<0.31",
-    "openapi-python-client>=0.25.3,<0.26",
+    "openapi-python-client>=0.26",
     "pandas>=2.3.3,<3",
     "scikit-learn>=1.7.2,<2",
     "fastparquet>=2024.11.0,<2025",
@@ -34,7 +35,7 @@ dependencies = [
     "pydantic>=2.11.10",
     "playwright>=1.58.0",
     "pyqt6-fluent-widgets>=1.11.1",
-    
+    "vulture>=2.16",
 ]
 
 [dependency-groups]
@@ -48,7 +49,7 @@ dev = [
     "pyright>=1.1.408",
     "ruff>=0.12.12",
     "PyQt6-stubs>=6.6.0",
-    "types-cachetools>=5.5.0.20240820,<6",
+    "types-cachetools>=5.5.0.20240820",
     "tqdm>=4.66.5,<5",
     "icecream>=2.1.3,<3",
     "pyinstaller>=6.11.1,<7",
@@ -66,11 +67,13 @@ dev = [
 package = false
 
 [tool.uv.sources]
-ankama-launcher-emulator = { workspace = true, editable = true }
+ankama-launcher-emulator-premium = { workspace = true, editable = true }
+db-dofus-unity = { workspace = true, editable = true }
 
 [tool.uv.workspace]
 members = [
-    "AnkamaLauncherEmulator",
+    "AnkamaLauncherEmulatorPremium",
+    "DBDofusUnity",
 ]
 
 [build-system]
@@ -78,7 +81,6 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.poe.tasks]
-genapi = "openapi-python-client generate --url http://31.38.182.64:65472/openapi.json --overwrite --output-path scraping_d3_client --config scraping_d3.yaml"
 check_type = "pyright"
 lint = "ruff check ."
 check = ["lint", "check_type"]
@@ -88,30 +90,13 @@ ignore = ["F841", "E402", "E741"]
 
 [tool.ruff]
 exclude = [
-  "src/controller/scraping_d3_api/scraping_d3_client/scraping_d3_client",
   "tests",
-  "D3Mapping/d3_mapping/resources",
-  "D3Mapping/IL2CppDumper",
-  "AnkamaLauncherEmulator/ankama_launcher_emulator/gen_zaap",
-  "AnkamaLauncherEmulator/ankama_launcher_emulator/proxy/dofus3/login_message*",
+  "DBDofusUnity/proto_mapper_assembly/data",
+  "DBDofusUnity/Il2CppInspectorRedux",
+  "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator/gen_zaap",
+  "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator/proxy/dofus3/login_message*",
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["ALL"]
-
-[tool.pyright]
-venvPath = "."
-extraPaths = ["AnkamaLauncherEmulator"]
-venv = ".venv"
-exclude = [
-  "**/IL2CppDumper",
-  "**/.venv",
-  "AnkamaLauncherEmulator/ankama_launcher_emulator/gen_zaap",
-  "**/node_modules",
-  "**/__pycache__",
-  "**/.*"
-]
-ignore = [
-  "D3Mapping/d3_mapping/resources"
-]
 

@@ -1,7 +1,7 @@
 import time
 
-from D3Database.data_center.world_graph_reader import WorldGraphReader
-from D3Database.models.world_graph import Edge
+from d3_database.data_center.world_graph_reader import WorldGraphReader
+from d3_database.models.world_graph import Edge
 from src.core.engine.weights.weighted_path import WeightedPath
 from tests.setup_factory import GameStateFixture
 

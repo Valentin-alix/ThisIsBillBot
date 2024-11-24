@@ -1,7 +1,7 @@
 import dataclasses
 import datetime
 
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import SellingConditions
+from d3_database.protos.non_obf.game.exchange_pb2 import SellingConditions
 from src.controller.sale_hotel import SaleHotelController
 from src.core.config import get_time_beween_sale_hotel_prices
 from src.core.signals.player_signals import GameInfoSignals

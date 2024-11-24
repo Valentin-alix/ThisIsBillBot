@@ -1,7 +1,7 @@
 from typing import cast
 
-from D3Database.grid.map_point import MapPoint
-from D3Database.models.datas.spell_levels_root import SpellLevelsRootItem
+from d3_database.grid.map_point import MapPoint
+from d3_database.models.datas.spell_levels_root import SpellLevelsRootItem
 from tests.setup_factory import GameStateFixture
 
 

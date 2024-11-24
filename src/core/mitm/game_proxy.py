@@ -1,24 +1,24 @@
 from dataclasses import dataclass
 
-from ankama_launcher_emulator.gui.utils import run_in_background
-from ankama_launcher_emulator.proxy.dofus3.proxy import (
+from ankama_launcher_emulator_premium.gui.utils import run_in_background
+from ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
 )
 from google.protobuf.message import Message
 from PyQt6.QtCore import QMetaObject, Qt
 
-from D3Mapping.d3_mapping.protocol.protocol import decode_varint_size, encode_msg
-from D3Mapping.d3_mapping.protocol.protocol_game import (
-    get_game_msg,
-    get_game_msg_info,
-    get_obf_game_message_from_msg,
-)
-from D3Mapping.d3_mapping.resources.protos.game.game_message_pb2 import Request
+from d3_database.protos.non_obf.game.game_message_pb2 import Request
 from src import const
 from src.const import MESSAGES_WITH_UID
 from src.controller.session_timings import SessionTimingsController
 from src.core.bot.bot import Bot
+from src.protocol.protocol import decode_varint_size, encode_msg
+from src.protocol.protocol_game import (
+    get_game_msg,
+    get_game_msg_info,
+    get_obf_game_message_from_msg,
+)
 
 
 @dataclass
@@ -43,9 +43,7 @@ class GameProxy(Proxy):
         )
 
         if const.DO_INSERT_HUMAN_SESSION:
-            run_in_background(
-                self.session_timings.insert_session_datas, on_success=lambda _: None
-            )
+            run_in_background(lambda _: self.session_timings.insert_session_datas())
 
     def alter_msg_datas(
         self, msg_content_datas: bytes, msg_datas: bytes
@@ -103,15 +101,6 @@ class GameProxy(Proxy):
                 self.session_timings.add_message_timing(
                     clear_sub_msg.__class__.__name__, msg_infos.received_time
                 )
-
-        if not const.DEBUG:
-            self.bot.recorder.record_message_with_clear_and_obf_msg(
-                self.bot.account["apikey"]["login"],
-                self.bot.game_state,
-                clear_sub_msg,
-                obf_sub_msg,
-                from_server,
-            )
 
         if clear_sub_msg is not None:
             self.bot.event_manager.process_msg(clear_sub_msg)

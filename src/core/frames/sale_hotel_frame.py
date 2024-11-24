@@ -1,11 +1,9 @@
 from dataclasses import dataclass
-from threading import Thread
-from typing import Iterable
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.enums.category_item_enum import CategoryEnum
-from D3Database.enums.type_item_enum import TypeItemEnum
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.enums.category_item_enum import CategoryEnum
+from d3_database.enums.type_item_enum import TypeItemEnum
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidHouseItemAddedEvent,
     ExchangeBidHouseItemRemovedEvent,
     ExchangeBidHouseSearchRequest,
@@ -14,21 +12,9 @@ from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeTypesItemsExchangerDescriptionForUserEvent,
     ObjectAveragePricesEvent,
 )
-from src.const import BACKEND_URL
+
 from src.controller.sale_hotel import SaleHotelController
-from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.api.default import (
-    bulk_insert_item_price_history_item_price_history_bulk_insert_post,
-)
-from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.client import (
-    Client,
-)
-from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.models.create_item_price_history_schema import (
-    CreateItemPriceHistorySchema,
-)
-from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.models.quantity_enum import (
-    QuantityEnum,
-)
-from src.core.config import DO_REGISTER_PRICE, get_time_beween_sale_hotel_prices
+from src.core.config import get_time_beween_sale_hotel_prices
 from src.core.engine.items.item import GATHERER_ITEM_GIDS
 from src.core.engine.npcs.npc_info import NpcInfo
 from src.core.frames.frame import Frame
@@ -165,44 +151,8 @@ class SaleHotelFrame(Frame):
             self.game_state.player.server_id,
             [(msg.average_price, msg.object_gid)],
         )
-        self.register_prices(msg.bid_price_for_seller.minimal_prices, msg.object_gid)
 
     def on_exchange_types_item_exchanger_description_for_user_event(
-        self, msg: ExchangeTypesItemsExchangerDescriptionForUserEvent
+        self, _msg: ExchangeTypesItemsExchangerDescriptionForUserEvent
     ):
-        if len(msg.item_descriptions) == 0:
-            return
-        item_description = msg.item_descriptions[0]
-        self.register_prices(item_description.prices, item_description.gid)
-
-    def register_prices(self, prices: Iterable[int], gid: int):
-        if not DO_REGISTER_PRICE:
-            return
-        item_prices_histories: list[CreateItemPriceHistorySchema] = []
-        quantity_by_index: dict[int, QuantityEnum] = {
-            0: QuantityEnum.VALUE_1,
-            1: QuantityEnum.VALUE_10,
-            2: QuantityEnum.VALUE_100,
-            3: QuantityEnum.VALUE_1000,
-        }
-        for index, item_price in enumerate(prices):
-            item_prices_histories.append(
-                CreateItemPriceHistorySchema(
-                    gid=gid,
-                    quantity=quantity_by_index[index],
-                    price=item_price if item_price > 0 else None,
-                    server_id=self.game_state.player.server_id,
-                )
-            )
-
-        def _silent_bulk_insert():
-            try:
-                with Client(base_url=BACKEND_URL) as client:
-                    self.logger.info(f"Insert prices : {prices}")
-                    bulk_insert_item_price_history_item_price_history_bulk_insert_post.sync(
-                        client=client, body=item_prices_histories
-                    )
-            except Exception as err:
-                self.logger.warning(f"bulk_insert_prices failed: {err}")
-
-        Thread(target=_silent_bulk_insert, daemon=True).start()
+        pass

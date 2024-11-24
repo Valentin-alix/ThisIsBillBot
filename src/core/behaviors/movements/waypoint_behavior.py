@@ -2,22 +2,23 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.world_graph_reader import WorldGraphReader
-from D3Database.enums.element_type import ElementTypeEnum
-from D3Database.grid.map_point import MapPoint
-from D3Database.models.world_graph import Vertice
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.world_graph_reader import WorldGraphReader
+from d3_database.enums.element_type import ElementTypeEnum
+from d3_database.grid.map_point import MapPoint
+from d3_database.models.world_graph import Vertice
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.haven_bag_pb2 import (
+from d3_database.protos.non_obf.game.haven_bag_pb2 import (
     HavenBagEnterRequest,
     HavenBagExitRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.teleportation_pb2 import (
+from d3_database.protos.non_obf.game.teleportation_pb2 import (
     Teleporter,
     TeleportRequest,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (

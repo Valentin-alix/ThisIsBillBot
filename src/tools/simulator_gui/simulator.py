@@ -4,18 +4,17 @@ import random
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from d3_database.data_center.data_reader import DataReader
+from d3_database.models.world_graph import Edge
 from dotenv import load_dotenv
 from google.protobuf.json_format import MessageToDict
 from PyQt6.QtCore import QTimer
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.models.world_graph import Edge
-from D3Mapping.d3_mapping.models.message import MessageInfo
-from src.const import RECORDING_FOLDER
 from src.core.bot.bot import Bot
 from src.core.engine.movements.world.edge import draw_edge_path
 from src.core.engine.weights.weight_drawer import draw_weight_on_map
 from src.core.engine.weights.weighted_path import WeightedPath
+from src.protocol.message import MessageInfo
 
 if TYPE_CHECKING:
     from src.gui.main_window import MainWindow
@@ -43,21 +42,6 @@ def base_populate_bot(win, fake_bot: Bot):
         )
         fake_bot.event_manager.process_msg(msg)
         fake_bot.msg_info_signals.msg_info.emit(msg_info, False)
-
-
-def fake_populate_bot(win, fake_bot: Bot):
-    return
-    replay_populate_bot(win, fake_bot)
-    # simulate_received_msg(win, fake_bot)
-    # simulate_weighted_path(fake_bot)
-
-
-def replay_populate_bot(win, fake_bot: Bot):
-    fake_bot.replay_handler.on_replay_requested(
-        os.path.join(RECORDING_FOLDER, "for_mapping.jsonl"),
-        preserve_timing=False,
-        use_obfuscated=True,
-    )
 
 
 def simulate_received_msg(win: "MainWindow", fake_bot: Bot):
@@ -104,12 +88,3 @@ def simulate_weighted_path(fake_bot: Bot):
     )
     draw_weight_on_map({}, fake_bot.world_signals)
     draw_edge_path(fake_bot.world_signals, path)
-
-
-def replay_at_start(fake_bot: Bot):
-    fake_bot.replay_handler.on_replay_requested(
-        os.path.join(RECORDING_FOLDER, "collect_&_fight.jsonl"),
-        preserve_timing=True,
-        speedup=None,
-        use_obfuscated=False,
-    )

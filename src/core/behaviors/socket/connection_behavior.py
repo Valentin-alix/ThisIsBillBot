@@ -1,9 +1,9 @@
 import uuid
 from enum import StrEnum, auto
 
-from ankama_launcher_emulator.haapi.zaap_version import get_client_version
+from ankama_launcher_emulator_premium.haapi.zaap_version import get_client_version
 
-from D3Mapping.d3_mapping.resources.protos.connection.login_message_pb2 import (
+from d3_database.protos.non_obf.connection.login_message_pb2 import (
     IdentificationRequest,
     IdentificationResponse,
     LoginMessage,

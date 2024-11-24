@@ -1,20 +1,21 @@
 from dataclasses import dataclass
 from logging import Logger
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
-from D3Database.data_center.map_reader import MapReader
-from D3Database.enums.characteristic_enum import CharacteristicEnum
-from D3Database.enums.directions import DirectionsEnum
-from D3Database.enums.effect_element import EffectElement, TypeEffect
-from D3Database.grid.map_point import MapPoint
-from D3Database.models.datas.monsters_root import MonsterGrade
-from D3Database.models.datas.spell_levels_root import Effect, SpellLevelsRootItem
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
+from d3_database.data_center.map_reader import MapReader
+from d3_database.enums.characteristic_enum import CharacteristicEnum
+from d3_database.enums.directions import DirectionsEnum
+from d3_database.enums.effect_element import EffectElement, TypeEffect
+from d3_database.grid.map_point import MapPoint
+from d3_database.models.datas.monsters_root import MonsterGrade
+from d3_database.models.datas.spell_levels_root import Effect, SpellLevelsRootItem
+from d3_database.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     SpellModifier,
     SpellModifierType,
 )
+
 from src.core.engine.fights.damage_calculator import DamageCalculator
 from src.core.engine.fights.effect import (
     get_effect_shield_level_bonus,

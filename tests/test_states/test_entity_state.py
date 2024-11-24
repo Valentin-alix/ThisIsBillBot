@@ -1,9 +1,9 @@
-from D3Database.grid.map_point import MapPoint
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from d3_database.grid.map_point import MapPoint
+from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
     ActorPositionInformation,
     EntityDisposition,
 )
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
     MapMovementEvent,
 )

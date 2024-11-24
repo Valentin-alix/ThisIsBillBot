@@ -1,6 +1,7 @@
-from D3Database.data_center.data_reader import DataReader
-from D3Database.enums.area_enum import AreaEnum
-from D3Database.models.datas.map_positions_root import MapPositionsRootItem
+from d3_database.data_center.data_reader import DataReader
+from d3_database.enums.area_enum import AreaEnum
+from d3_database.models.datas.map_positions_root import MapPositionsRootItem
+
 from src.core.engine.movements.waypoint_info import WaypointInfoNode
 from src.core.engine.movements.world.map_position import get_dist_to_maps
 

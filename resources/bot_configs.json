@@ -9,6 +9,6 @@
     "network_interface": null,
     "pc_id": 2,
     "schedule_profile": null,
-    "connection_mode": "socket"
+    "connection_mode": "mitm"
   }
 }

@@ -1,12 +1,12 @@
 from enum import IntEnum
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
-from D3Database.enums.characteristic_enum import CharacteristicEnum
-from D3Database.enums.description_enum import DescriptionEnum
-from D3Database.enums.effect_element import EffectElement, TypeEffect
-from D3Database.models.datas.spell_levels_root import Effect
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
+from d3_database.enums.characteristic_enum import CharacteristicEnum
+from d3_database.enums.description_enum import DescriptionEnum
+from d3_database.enums.effect_element import EffectElement, TypeEffect
+from d3_database.models.datas.spell_levels_root import Effect
+from d3_database.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     Team,
 )

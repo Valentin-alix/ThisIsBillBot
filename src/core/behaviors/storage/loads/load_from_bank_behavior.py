@@ -2,14 +2,15 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from D3Database.data_center.data_reader import DataReader
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeObjectMoveRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+from d3_database.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
+
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,

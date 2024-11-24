@@ -2,13 +2,15 @@ from collections import defaultdict
 from functools import cache
 from math import log1p
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.map_reader import MapReader
-from D3Database.enums.jobs_enum import JobEnum
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.map_reader import MapReader
+from d3_database.enums.jobs_enum import JobEnum
+from d3_database.protos.non_obf.game.common_pb2 import (
+    ObjectItemInventory,
+)
+
 from src.controller.gfx_mapping import GfxMappingController
 from src.controller.sale_hotel import SaleHotelController
-from src.controller.speed_sell_score import SpeedSellScoreController
 from src.core.config import WEIGHT_BY_JOB
 from src.core.engine.monsters.drops import get_rare_gid_with_weight_from_protector_drop
 from src.core.engine.movements.map.map_tools import MapTools
@@ -24,12 +26,8 @@ def get_weight_collectable_for_sale_hotel(
     item_sell_quantity_by_gid: dict[int, int],
 ):
     # we dont care about job lvl, so we dont use the get weight collectable below
-    sells_score_weight = SpeedSellScoreController().get_speed_sell_score_by_gid[
-        item_gid
-    ]
     return (
         avg_price_by_gid.get(item_gid, 1)
-        * sells_score_weight
         * (
             related_object.item.quantity
             if (related_object := storage_object_by_item.get(item_gid))
@@ -112,8 +110,6 @@ def get_basic_weight_collectable(
     if item.level is None or item.id is None:
         return 0
 
-    speed_sell_score_by_gid = SpeedSellScoreController().get_speed_sell_score_by_gid
-
     weight = WEIGHT_BY_JOB[job_id]
     max_job_lvl = 200 if is_sub else 60
     if job_lvl != max_job_lvl:
@@ -123,7 +119,7 @@ def get_basic_weight_collectable(
             * (((max_job_lvl + 1 - job_lvl) ** 2) if job_id != JobEnum.BASE else 1)
         )
 
-    return weight * speed_sell_score_by_gid.get(item_gid, 1.0)
+    return weight
 
 
 @cache

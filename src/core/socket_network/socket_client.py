@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass, field
 
-from ankama_launcher_emulator.haapi.haapi import Haapi
+from ankama_launcher_emulator_premium.haapi.haapi import Haapi
 
 from src.controller.bot_config import BotConfig
 from src.core.bot.bot import Bot

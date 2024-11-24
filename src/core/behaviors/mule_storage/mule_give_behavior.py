@@ -1,9 +1,11 @@
 from dataclasses import dataclass, field
 
-from D3Database.data_center.data_reader import DataReader
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
-from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.protos.non_obf.game.common_pb2 import (
+    ObjectItemInventory,
+)
+from d3_database.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeErrorEvent,
     ExchangeKamaModifiedEvent,
     ExchangeLeaveEvent,
@@ -15,13 +17,18 @@ from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeReadyRequest,
     ExchangeStartedWithPodsEvent,
 )
-from src.controller.scraping_d3_api.scraping_d3 import ScrapingD3Controller
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
-from src.core.config import BASE_RANGE, BOT_MINIMAL_KAMAS, MULE_BANK_MAP_ID
+from src.core.config import (
+    BASE_RANGE,
+    BOT_MINIMAL_KAMAS,
+    MULE_BANK_CHARACTER_IDS,
+    MULE_BANK_MAP_ID,
+)
 from src.core.engine.items.item import GATHERER_ITEM_GIDS, is_exchangeable_item
 from src.core.game_constants import Items
 
@@ -34,9 +41,7 @@ class MuleGiveBehavior(Behavior):
     _mule_bank_character_ids: list[int] = field(init=False, default_factory=list)
 
     def run(self) -> None:
-        ScrapingD3Controller.get_mule_bank_ids(
-            self.game_state.player.server_id, self.on_get_mule_bank_ids
-        )
+        self.on_get_mule_bank_ids(list(MULE_BANK_CHARACTER_IDS))
 
     def on_get_mule_bank_ids(self, _mule_bank_character_ids: list[int]):
         self._mule_bank_character_ids = _mule_bank_character_ids

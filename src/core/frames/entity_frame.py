@@ -1,28 +1,29 @@
 from dataclasses import dataclass
 
-from D3Database.grid.map_point import MapPoint
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from d3_database.grid.map_point import MapPoint
+from d3_database.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     Direction,
     SpawnInformation,
 )
-from D3Mapping.d3_mapping.resources.protos.game.context_pb2 import (
+from d3_database.protos.non_obf.game.context_pb2 import (
     EntitiesDispositionEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.fight_pb2 import (
+from d3_database.protos.non_obf.game.fight_pb2 import (
     FightFighterRefreshEvent,
     FightFighterShowEvent,
     FightSynchronizeEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.game_action_pb2 import (
+from d3_database.protos.non_obf.game.game_action_pb2 import (
     GameActionFightEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
     MapMovementEvent,
     MapMovementRefusedEvent,
     MapTeleportOnSameEvent,
 )
+
 from src.core.engine.monsters.monster_group import (
     AIFighter,
     EntityFighterInformation,

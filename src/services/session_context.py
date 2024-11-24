@@ -25,7 +25,3 @@ class SessionContextService(metaclass=Singleton):
 
     def refresh_energy(self):
         self.energy_level = random.uniform(0.9, 1.1)
-
-    def reset_session(self):
-        self.session_start = datetime.now()
-        self.refresh_energy()

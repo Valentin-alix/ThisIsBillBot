@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import DialogType
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.protos.non_obf.game.common_pb2 import DialogType
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeObjectTransferAllFromInventoryRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+from d3_database.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior

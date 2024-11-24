@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from functools import partial
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
@@ -88,7 +89,7 @@ class DungeonBehavior(Behavior):
     def on_attacker_behavior_finished(
         self,
         error_code: str | None,
-        count_fighted_on_map: int,
+        _count_fighted_on_map: int,
         dungeon_info: DungeonInfo,
     ):
         self.on_new_map(dungeon_info)

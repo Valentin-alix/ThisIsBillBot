@@ -3,41 +3,43 @@ from threading import Lock
 from typing import Callable
 
 import numpy as np
-from scipy.interpolate import interp1d
-
-from D3Database.utils import cache
-from D3Mapping.d3_mapping.resources.protos.game.challenge_pb2 import (
+from d3_database.utils import cache
+from d3_database.protos.non_obf.game.challenge_pb2 import (
     ChallengeModSelectRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.character_pb2 import FreeSoulRequest
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.protos.non_obf.game.character_pb2 import FreeSoulRequest
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeObjectTransferAllFromInventoryRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.fight_pb2 import (
+from d3_database.protos.non_obf.game.fight_pb2 import (
     FightTurnFinishRequest,
     FightTurnStartPlayingEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.fight_preparation_pb2 import (
+from d3_database.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPositionRequest,
     FightReadyRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.game_action_pb2 import (
+from d3_database.protos.non_obf.game.game_action_pb2 import (
     GameActionAcknowledgementRequest,
     GameActionFightCastRequest,
     SequenceEndEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
     MapMovementRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.interactive_element_pb2 import (
+from d3_database.protos.non_obf.game.interactive_element_pb2 import (
     InteractiveUseRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+from d3_database.protos.non_obf.game.inventory_pb2 import (
     StorageInventoryContentEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.roleplay_pb2 import AttackMonsterRequest
+from d3_database.protos.non_obf.game.roleplay_pb2 import (
+    AttackMonsterRequest,
+)
+from scipy.interpolate import interp1d
+
 from src.controller.session_timings import SessionTimingsController
 from src.core.config import BASE_RANGE, ENABLE_SESSION_CONTEXT
 from src.services.session_context import SessionContextService

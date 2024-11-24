@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import MapCurrentEvent
-from D3Mapping.d3_mapping.resources.protos.game.interactive_element_pb2 import (
+from d3_database.protos.non_obf.game.gamemap_pb2 import MapCurrentEvent
+from d3_database.protos.non_obf.game.interactive_element_pb2 import (
     InteractiveUsedEvent,
     InteractiveUseErrorEvent,
     InteractiveUseRequest,

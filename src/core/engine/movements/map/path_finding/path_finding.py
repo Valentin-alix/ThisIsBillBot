@@ -2,12 +2,12 @@ from dataclasses import dataclass, field
 from time import sleep
 from typing import Iterator
 
+from d3_database.data_center.data_reader import DataReader
+from d3_database.enums.directions import DirectionsEnum
+from d3_database.enums.skill_enum import SkillEnum
+from d3_database.grid.map_point import MAP_POINT_BY_COORD, MapPoint
 from sortedcontainers import SortedSet
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.enums.directions import DirectionsEnum
-from D3Database.enums.skill_enum import SkillEnum
-from D3Database.grid.map_point import MAP_POINT_BY_COORD, MapPoint
 from src.core.engine.movements.map.map_data_adapter import DataMapProvider
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath

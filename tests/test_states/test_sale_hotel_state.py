@@ -1,6 +1,6 @@
 import datetime
 
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.exchange_pb2 import (
     ExchangeBidHouseSearchRequest,
     ExchangeBidPriceEvent,
     ExchangeBidSellerStartedEvent,

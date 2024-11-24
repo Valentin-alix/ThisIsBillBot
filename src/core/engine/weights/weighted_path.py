@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from heapq import nlargest
 from typing import Callable
 
-from D3Database.models.world_graph import Edge, Vertice
+from d3_database.models.world_graph import Edge, Vertice
+
 from src.core.engine.movements.world.edge import iter_valid_outgoing_edges
 from src.core.states.game_state import GameState
 

@@ -1,23 +1,24 @@
 from dataclasses import dataclass, field
 from threading import Timer
 
-from D3Mapping.d3_mapping.resources.protos.game.character_management_pb2 import (
+from d3_database.protos.non_obf.game.character_management_pb2 import (
     CharacterSelectionEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.character_pb2 import (
+from d3_database.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicUpgradeRequest,
     CharacterLevelUpEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
-from D3Mapping.d3_mapping.resources.protos.game.teleportation_pb2 import (
+from d3_database.protos.non_obf.game.job_pb2 import (
+    JobExperiencesUpdateEvent,
+)
+from d3_database.protos.non_obf.game.teleportation_pb2 import (
     ZaapKnownListEvent,
 )
-from src.controller.scraping_d3_api.scraping_d3 import ScrapingD3Controller
 from src.core.engine.fights.stats.characteristic import get_max_characteristic_per_point
 from src.core.events_manager.priority import PriorityEnum
 from src.core.frames.frame import Frame
@@ -103,9 +104,6 @@ class PlayerFrame(Frame):
     def on_character_selection_event(self, message: CharacterSelectionEvent):
         if message.HasField("success"):
             self.game_state.player.character_id = message.success.character.id
-            ScrapingD3Controller.create_character(
-                self.game_state.player.character_id, self.game_state.player.server_id
-            )
             self.game_info_signals.connected.emit()
             if message.success.character.HasField("character_basic_information"):
                 self.game_state.player.level = (

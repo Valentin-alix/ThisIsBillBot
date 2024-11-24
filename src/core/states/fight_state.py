@@ -2,15 +2,16 @@ import dataclasses
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from D3Database.enums.characteristic_enum import CharacteristicEnum
-from D3Database.enums.effect_element import EffectElement
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from d3_database.enums.characteristic_enum import CharacteristicEnum
+from d3_database.enums.effect_element import EffectElement
+from d3_database.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
     SpellModifier,
     SpellModifierType,
 )
-from D3Mapping.d3_mapping.resources.protos.game.spell_pb2 import SpellItem
+from d3_database.protos.non_obf.game.spell_pb2 import SpellItem
+
 from src.core.engine.fights.effect import get_effect_elem_by_stat
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
 from src.core.signals.player_signals import GameInfoSignals

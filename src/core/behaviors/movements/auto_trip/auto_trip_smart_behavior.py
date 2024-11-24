@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 from functools import partial
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.enums.area_enum import AreaEnum
-from D3Database.enums.npc_message_id_enum import NpcAskMessageIdEnum
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.enums.area_enum import AreaEnum
+from d3_database.enums.npc_message_id_enum import NpcAskMessageIdEnum
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_explorator_behavior import (
     AutoTripExploratorBehavior,

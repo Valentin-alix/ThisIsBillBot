@@ -3,21 +3,22 @@ from enum import StrEnum, auto
 from functools import partial
 from typing import Callable
 
-from D3Database.data_center.i18n import I18N
-from D3Database.data_center.map_reader import MapReader
-from D3Database.grid.map_point import MapPoint
-from D3Database.models.datas.recipe_root import RecipeItem
-from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.data_center.i18n import I18N
+from d3_database.data_center.map_reader import MapReader
+from d3_database.grid.map_point import MapPoint
+from d3_database.models.datas.recipe_root import RecipeItem
+from d3_database.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeCraftCountModifiedEvent,
     ExchangeCraftCountRequest,
     ExchangeCraftStartedEvent,
     ExchangeReadyRequest,
     ExchangeSetCraftRecipeRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+from d3_database.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
+
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (

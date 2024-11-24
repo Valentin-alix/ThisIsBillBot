@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from D3Database.enums.jobs_enum import JobEnum
-from D3Database.models.datas.recipe_root import RecipeItem
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from d3_database.enums.jobs_enum import JobEnum
+from d3_database.models.datas.recipe_root import RecipeItem
+from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
     ObjectItem,
     ObjectItemInventory,
 )

@@ -1,18 +1,19 @@
 from dataclasses import dataclass
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeObjectMoveRequest,
     ExchangeStartedWithMultiTabStorageEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.guild_member_pb2 import (
+from d3_database.protos.non_obf.game.guild_member_pb2 import (
     GuildMembershipEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+from d3_database.protos.non_obf.game.inventory_pb2 import (
     StorageInventoryContentEvent,
 )
+
 from src.const import STRICT_MODE
 from src.core.frames.frame import Frame
 from src.core.states.guild_chest_state import GuildChestState

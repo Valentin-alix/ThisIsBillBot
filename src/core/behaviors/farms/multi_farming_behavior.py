@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Callable
 
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
 )
 from src.core.behaviors.communication.chat_behavior import ChatBehavior
@@ -140,7 +140,7 @@ class MultiFarmingBehavior(HarvesterBehavior):
         )
 
     def on_attacker_behavior_finished(
-        self, error_code: str | None, count_fighted_on_map: int
+        self, error_code: str | None, _count_fighted_on_map: int
     ):
         self.raise_if_error(error_code)
         self.init_listeners()

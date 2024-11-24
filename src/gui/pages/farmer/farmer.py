@@ -1,6 +1,8 @@
 from enum import StrEnum
 from typing import cast
 
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
 from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtWidgets import QHBoxLayout, QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import (
@@ -11,8 +13,6 @@ from qfluentwidgets import (
     TransparentToolButton,
 )
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
 from src import const
 from src.core.behaviors.behavior_factory import USABLE_BEHAVIORS
 from src.core.bot.bot import Bot
@@ -114,10 +114,10 @@ class FarmerWidget(PivotItem):
 
         for area in sorted(
             DataReader().area_by_id.values(),
-            key=lambda area: I18N().name_by_id[area.nameId],
+            key=lambda area: I18N().name_by_id.get(area.nameId, "Unknown"),
         ):
             self.area_farm_combo.addItem(
-                I18N().name_by_id[area.nameId], userData=area.id
+                I18N().name_by_id.get(area.nameId, "Unknown"), userData=area.id
             )
 
         top_widget_layout.addWidget(self.area_farm_combo)

@@ -1,9 +1,10 @@
 from functools import cache
 from typing import Iterator
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.world_graph_reader import WorldGraphReader
-from D3Database.models.world_graph import Edge, Transition, Vertice
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.world_graph_reader import WorldGraphReader
+from d3_database.models.world_graph import Edge, Transition, Vertice
+
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.movements.world.criterions.consts import CRITERION_WHITE_LIST
 from src.core.engine.movements.world.criterions.group_item_criterion import (

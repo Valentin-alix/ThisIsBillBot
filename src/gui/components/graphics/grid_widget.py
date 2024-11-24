@@ -1,5 +1,10 @@
 import sys
 
+from d3_database.data_center.map_reader import MapReader
+from d3_database.grid.consts import CELL_HEIGHT, CELL_WIDTH
+from d3_database.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
+from d3_database.models.datas.collectionsroot import Collectable
+from d3_database.protos.non_obf.game.common_pb2 import StatedElement
 from PyQt6.QtCore import QPointF, Qt, pyqtSlot
 from PyQt6.QtGui import QColor, QFont, QMouseEvent, QPainter, QPen, QPolygonF
 from PyQt6.QtWidgets import (
@@ -11,11 +16,6 @@ from PyQt6.QtWidgets import (
     QGraphicsView,
 )
 
-from D3Database.data_center.map_reader import MapReader
-from D3Database.grid.consts import CELL_HEIGHT, CELL_WIDTH
-from D3Database.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
-from D3Database.models.datas.collectionsroot import Collectable
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import StatedElement
 from src.core.signals.grid_signals import GridSignals
 from src.core.signals.world_signals import MapSignals
 from src.gui.utils.profiling import profiled_slot

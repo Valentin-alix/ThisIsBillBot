@@ -1,5 +1,6 @@
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
+
 from src.core.engine.npcs.npc_dialog_info import NpcDialogInfo
 from src.core.engine.npcs.npc_info import NpcInfo
 

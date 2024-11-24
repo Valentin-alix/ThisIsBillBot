@@ -4,23 +4,23 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable
 
-from ankama_launcher_emulator.proxy.dofus3.proxy import (
+from ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
 )
 
-from D3Mapping.d3_mapping.protocol.protocol import decode_varint_size, encode_msg
-from D3Mapping.d3_mapping.protocol.protocol_connection import (
-    get_conn_msg,
-    get_conn_msg_info,
-)
-from D3Mapping.d3_mapping.resources.protos.connection.login_message_pb2 import (
+from d3_database.protos.non_obf.connection.login_message_pb2 import (
     IdentificationResponse,
     LoginMessage,
     Request,
 )
 from src.const import DEBUG
 from src.core.bot.bot import Bot
+from src.protocol.protocol import decode_varint_size, encode_msg
+from src.protocol.protocol_connection import (
+    get_conn_msg,
+    get_conn_msg_info,
+)
 
 
 @dataclass
@@ -104,13 +104,6 @@ class ConnectionProxy(Proxy):
                 self.bot.msg_info_signals.msg_info.emit(msg_info, was_send_from_proxy)
 
         if self.bot:
-            self.bot.recorder.record_message_with_clear_and_obf_msg(
-                self.bot.account["apikey"]["login"],
-                self.bot.game_state,
-                msg,
-                msg,
-                from_server,
-            )
             self.bot.event_manager.process_msg(msg)
 
     def send_msg(self, msg: Request):

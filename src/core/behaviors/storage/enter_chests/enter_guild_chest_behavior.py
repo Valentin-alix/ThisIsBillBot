@@ -2,12 +2,13 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from typing import cast
 
-from D3Database.data_center.map_reader import MapReader
-from D3Database.enums.element_type import ElementTypeEnum
-from D3Database.grid.map_point import MapPoint
-from D3Mapping.d3_mapping.resources.protos.game.guild_chest_pb2 import (
+from d3_database.data_center.map_reader import MapReader
+from d3_database.enums.element_type import ElementTypeEnum
+from d3_database.grid.map_point import MapPoint
+from d3_database.protos.non_obf.game.guild_chest_pb2 import (
     GuildChestCurrentListenersAddEvent,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (

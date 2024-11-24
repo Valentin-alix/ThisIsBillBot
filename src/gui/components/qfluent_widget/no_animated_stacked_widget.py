@@ -4,6 +4,7 @@ from qfluentwidgets.window.stacked_widget import StackedWidget
 
 class NoAnimatedStackedWidget(StackedWidget):
     def setCurrentWidget(self, widget, popOut=True):
+        del popOut
         if isinstance(widget, QAbstractScrollArea):
             vsb = widget.verticalScrollBar()
             if vsb is not None:

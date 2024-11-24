@@ -8,8 +8,9 @@ Pour les constantes du jeu, voir src/core/game_constants.py
 import datetime
 from random import uniform
 
-from D3Database.enums.area_enum import AreaEnum, SubAreaEnum
-from D3Database.enums.jobs_enum import JobEnum
+from d3_database.enums.area_enum import AreaEnum, SubAreaEnum
+from d3_database.enums.jobs_enum import JobEnum
+
 from src.core.engine.movements.area_infos import AreaInfo
 from src.core.game_constants import Maps
 
@@ -49,6 +50,7 @@ BOT_MINIMAL_KAMAS: int = 2_000_000
 BOT_KAMA_LIMIT_TO_GIVE: int = 8_000_000
 MULE_BANK_MAP_ID = Maps.ASTRUB_BANK
 MULE_BANK_CHARACTER_LOGIN: set[str] = set()
+MULE_BANK_CHARACTER_IDS: set[int] = set()
 
 # Sale Hotel
 MAX_QUANTITY_ON_SELL = 10_000

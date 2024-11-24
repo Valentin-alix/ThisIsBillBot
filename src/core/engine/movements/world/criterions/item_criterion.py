@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Callable
 
-from D3Database.enums.characteristic_enum import CharacteristicEnum
+from d3_database.enums.characteristic_enum import CharacteristicEnum
+
 from src.core.engine.movements.world.criterions.interface_item_criterion import (
     IItemCriterion,
 )

@@ -1,13 +1,13 @@
 from typing import cast
 
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
+from d3_database.models.datas.recipe_root import RecipeItem
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QModelIndex, QObject, Qt, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QStandardItem
 from PyQt6.QtWidgets import QWidget
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
-from D3Database.models.datas.recipe_root import RecipeItem
 from src.core.engine.crafts.recipes import get_benefice_on_craft_recipe
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget

@@ -1,13 +1,13 @@
 import math
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.enums.directions import DirectionsEnum
-from D3Database.grid.consts import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.enums.directions import DirectionsEnum
+from d3_database.grid.consts import (
     MAP_GRID_WIDTH,
 )
-from D3Database.grid.map_point import MAP_POINT_BY_COORD, MapPoint
-from D3Database.models.maps import Transform
-from D3Database.utils import cache
+from d3_database.grid.map_point import MAP_POINT_BY_COORD, MapPoint
+from d3_database.models.maps import Transform
+from d3_database.utils import cache
 
 
 class MapTools:

@@ -3,7 +3,7 @@ from enum import StrEnum, auto
 from functools import partial
 from typing import Callable
 
-from D3Mapping.d3_mapping.resources.protos.game.npc_pb2 import (
+from d3_database.protos.non_obf.game.npc_pb2 import (
     NpcDialogQuestionEvent,
     NpcDialogReplyRequest,
     NpcGenericActionRequest,

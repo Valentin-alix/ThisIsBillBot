@@ -1,6 +1,6 @@
 """Explicit generators for protobuf messages used in debug GUI.
 
-Each message name present in `D3Mapping.d3_mapping.consts.GAME_VERIFIED_MAPPING_BY_OBF`
+Each message name present in `ProtoMapperAssembly/data/game_mappings.json`
 has a corresponding function `generate_<MessageName>()` in this module. These
 functions create an instance of the protobuf message (if available) and fill
 it with readable random values. The body of each generator calls a small
@@ -27,30 +27,30 @@ from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message
 from langchain_community.vectorstores.falkordb_vector import generate_random_string
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.grid.map_point import MAP_POINT_BY_CELL_ID
-from D3Mapping.d3_mapping import verified_mapping as d3_consts
-from D3Mapping.d3_mapping.resources.protos.game.basic_pb2 import TextInformationEvent
-from D3Mapping.d3_mapping.resources.protos.game.character_management_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.grid.map_point import MAP_POINT_BY_CELL_ID
+from src.protocol.protocol_game import _load_game_mappings
+from ProtoMapperAssembly.data.non_obf.protos.game.basic_pb2 import TextInformationEvent
+from ProtoMapperAssembly.data.non_obf.protos.game.character_management_pb2 import (
     CharacterSelectionEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.character_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.character_pb2 import (
     CharacterCharacteristicsEvent,
     CharacterCharacteristicUpgradeRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.chat_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.chat_pb2 import (
     ChatChannelMessageEvent,
     ChatChannelMessageRequest,
     ChatPrivateMessageRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
     ActorPositionInformation,
 )
-from D3Mapping.d3_mapping.resources.protos.game.context_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.context_pb2 import (
     EntitiesDispositionEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.dialog_pb2 import DialogLeaveRequest
+from ProtoMapperAssembly.data.non_obf.protos.game.exchange_pb2 import (
     ExchangeBidHouseItemAddedEvent,
     ExchangeBidHouseItemRemovedEvent,
     ExchangeBidHousePriceRequest,
@@ -71,24 +71,24 @@ from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeStartedWithMultiTabStorageEvent,
     ExchangeStartedWithStorageEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.fight_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.fight_pb2 import (
     FightLiveStateEvent,
     FightRefreshCharacterStatsEvent,
     FightTurnFinishRequest,
     FightTurnStartPlayingEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.fight_preparation_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.fight_preparation_pb2 import (
     FightPlacementPositionRequest,
     FightPlacementPossiblePositionsEvent,
     FightReadyRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.game_action_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.game_action_pb2 import (
     GameActionAcknowledgementRequest,
     GameActionFightCastRequest,
     GameActionFightEvent,
     SequenceEndEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapChangeRequest,
     MapComplementaryInformationEvent,
@@ -99,25 +99,25 @@ from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
     MapMovementRefusedEvent,
     MapMovementRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.guild_chest_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.guild_chest_pb2 import (
     GuildChestCurrentListenersAddEvent,
     GuildChestTabSelectRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.guild_member_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.guild_member_pb2 import (
     GuildMembershipEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.haven_bag_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.haven_bag_pb2 import (
     HavenBagEnterRequest,
     HavenBagExitRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.interactive_element_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.interactive_element_pb2 import (
     InteractiveUsedEvent,
     InteractiveUseRequest,
     StatedElementUpdatedEvent,
 )
 
 # explicit protobuf imports for typing and direct construction
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.inventory_pb2 import (
     InventoryContentEvent,
     InventoryWeightEvent,
     ObjectAddedEvent,
@@ -125,20 +125,20 @@ from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
     ObjectUseRequest,
     StorageInventoryContentEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.job_pb2 import JobExperiencesUpdateEvent
-from D3Mapping.d3_mapping.resources.protos.game.npc_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.job_pb2 import JobExperiencesUpdateEvent
+from ProtoMapperAssembly.data.non_obf.protos.game.npc_pb2 import (
     NpcDialogQuestionEvent,
     NpcDialogReplyRequest,
     NpcGenericActionRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.roleplay_pb2 import AttackMonsterRequest
-from D3Mapping.d3_mapping.resources.protos.game.spell_pb2 import SpellsEvent
-from D3Mapping.d3_mapping.resources.protos.game.teleportation_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.roleplay_pb2 import AttackMonsterRequest
+from ProtoMapperAssembly.data.non_obf.protos.game.spell_pb2 import SpellsEvent
+from ProtoMapperAssembly.data.non_obf.protos.game.teleportation_pb2 import (
     TeleportRequest,
     ZaapKnownListEvent,
 )
 
-GAME_PROTO_PKG = "d3_mapping.resources.protos.game"
+GAME_PROTO_PKG = "ProtoMapperAssembly.data.non_obf.protos.game"
 
 
 def _discover_proto_modules() -> list[str]:
@@ -200,7 +200,7 @@ def _choose_map_id() -> int:
 
 def _fill_scalar_field(msg: Message, field: FieldDescriptor, value: Any) -> None:
     try:
-        if field.label == FieldDescriptor.LABEL_REPEATED:
+        if field == FieldDescriptor.LABEL_REPEATED:
             getattr(msg, field.name).append(value)
         else:
             setattr(msg, field.name, value)
@@ -216,7 +216,7 @@ def _fill_message_basic(msg: Message, max_recurse: int = 5) -> Message:
     for field in desc.fields:
         try:
             field_name = field.name.lower()
-            if field.label == FieldDescriptor.LABEL_REPEATED:
+            if field == FieldDescriptor.LABEL_REPEATED:
                 count = random.randint(0, 3)
                 for _ in range(count):
                     if field.type == FieldDescriptor.TYPE_MESSAGE:
@@ -707,9 +707,10 @@ def generate_by_name(name: str) -> Message | None:
 
 def missing_generators() -> list[str]:
     missing: list[str] = []
-    for obf, clear in d3_consts.GAME_VERIFIED_MAPPING_BY_OBF.items():
-        if get_generator(clear) is None:
-            missing.append(clear)
+    for namespace in _load_game_mappings():
+        clear_name = namespace[1:]
+        if get_generator(clear_name) is None:
+            missing.append(clear_name)
     return missing
 
 

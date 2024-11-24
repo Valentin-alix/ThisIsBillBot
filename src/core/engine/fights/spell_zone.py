@@ -1,5 +1,6 @@
-from D3Database.grid.map_point import MapPoint
-from D3Database.utils import cache
+from d3_database.grid.map_point import MapPoint
+from d3_database.utils import cache
+
 from src.core.engine.fights.spell_shape import SpellShapeEnum
 from src.core.engine.fights.zones.cone import Cone
 from src.core.engine.fights.zones.cross import Cross

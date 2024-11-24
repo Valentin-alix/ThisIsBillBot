@@ -1,9 +1,10 @@
-from D3Database.data_center.data_reader import DataReader
-from D3Database.enums.effect_element import EffectElement
-from D3Database.grid.map_point import MapPoint
-from D3Database.models.datas.spell_levels_root import Effect, SpellLevelsRootItem
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import SpellModifier
-from D3Mapping.d3_mapping.resources.protos.game.spell_pb2 import SpellItem
+from d3_database.data_center.data_reader import DataReader
+from d3_database.enums.effect_element import EffectElement
+from d3_database.grid.map_point import MapPoint
+from d3_database.models.datas.spell_levels_root import Effect, SpellLevelsRootItem
+from d3_database.protos.non_obf.game.common_pb2 import SpellModifier
+from d3_database.protos.non_obf.game.spell_pb2 import SpellItem
+
 from src.core.engine.fights.zones.cross import Cross
 from src.core.engine.fights.zones.lozenge import Lozenge
 

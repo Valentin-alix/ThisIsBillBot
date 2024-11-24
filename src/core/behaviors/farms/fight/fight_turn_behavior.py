@@ -2,16 +2,17 @@ from dataclasses import dataclass, field
 from functools import partial
 from typing import Callable
 
-from D3Database.enums.characteristic_enum import CharacteristicEnum
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from d3_database.enums.characteristic_enum import CharacteristicEnum
+from d3_database.protos.non_obf.game.common_pb2 import (
     CharacterCharacteristic,
     CharacterCharacteristicDetailed,
 )
-from D3Mapping.d3_mapping.resources.protos.game.fight_pb2 import (
+from d3_database.protos.non_obf.game.fight_pb2 import (
     FightIsTurnReadyEvent,
     FightTurnEndEvent,
     FightTurnFinishRequest,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_movement_behavior import FightMovementBehavior
 from src.core.behaviors.farms.fight.fight_spell_behavior import FightSpellBehavior

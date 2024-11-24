@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 
-from D3Database.models.datas.recipe_root import RecipeItem
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.models.datas.recipe_root import RecipeItem
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeObjectMoveRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+from d3_database.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
+
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )

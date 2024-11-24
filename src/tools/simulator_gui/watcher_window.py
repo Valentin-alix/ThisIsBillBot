@@ -3,7 +3,6 @@ import os
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable
 
 from dotenv import load_dotenv
 from PyQt6.QtCore import QObject, Qt, pyqtSignal
@@ -11,7 +10,6 @@ from PyQt6.QtWidgets import QApplication
 from qfluentwidgets import Theme, setTheme, setThemeColor
 from watchfiles import Change, watch
 
-from src.tools.simulator_gui.simulator import fake_populate_bot
 from tests.fixtures.random_generator import (
     generate_random_bot,
 )
@@ -29,7 +27,6 @@ class ReloadSignaler(QObject):
 
 @dataclass
 class WatcherGui:
-    populate_bot_func: Callable = field(default=fake_populate_bot)
     reload_signaler: ReloadSignaler = field(init=False, default_factory=ReloadSignaler)
 
     def __post_init__(self):
@@ -118,5 +115,4 @@ class WatcherGui:
     def populate_window(self, win):
         for fake_bot in self.fake_bots:
             win.add_account(fake_bot)
-            self.populate_bot_func(win, fake_bot)
         win.splashScreen.finish()

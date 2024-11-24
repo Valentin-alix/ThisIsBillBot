@@ -1,9 +1,9 @@
-from D3Database.enums.characteristic_enum import CharacteristicEnum
-from D3Mapping.d3_mapping.resources.protos.game.character_pb2 import (
+from d3_database.enums.characteristic_enum import CharacteristicEnum
+from ProtoMapperAssembly.data.non_obf.protos.game.character_pb2 import (
     CharacterCharacteristicsEvent,
     UpdateLifePointsEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
     CharacterCharacteristics,
@@ -13,22 +13,22 @@ from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
     SpellModifier,
     SpellModifierType,
 )
-from D3Mapping.d3_mapping.resources.protos.game.fight_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.fight_pb2 import (
     FightTurnFinishRequest,
     FightTurnStartPlayingEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.fight_preparation_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.game_action_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.game_action_pb2 import (
     GameActionFightCastRequest,
     GameActionFightEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.spell_pb2 import SpellItem, SpellsEvent
+from ProtoMapperAssembly.data.non_obf.protos.game.spell_pb2 import SpellItem, SpellsEvent
 from tests.test_states.state_test_base import StateTestBase
 
 

@@ -1,9 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Iterable
 
-from D3Database.data_center.map_reader import MapReader
-from D3Database.enums.characteristic_enum import CharacteristicEnum
-from D3Database.grid.map_point import MapPoint
+from d3_database.data_center.map_reader import MapReader
+from d3_database.enums.characteristic_enum import CharacteristicEnum
+from d3_database.grid.map_point import MapPoint
+
 from src.core.engine.fights.reachable_cells.reachable_mp_node import (
     ReachableMpNode,
 )

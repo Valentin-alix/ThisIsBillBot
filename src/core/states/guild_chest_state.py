@@ -1,10 +1,13 @@
 import dataclasses
 from threading import RLock
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.enums.category_item_enum import CategoryEnum
-from D3Database.enums.type_item_enum import TypeItemEnum
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from d3_database.data_center.data_reader import DataReader
+from d3_database.enums.category_item_enum import CategoryEnum
+from d3_database.enums.type_item_enum import TypeItemEnum
+from d3_database.protos.non_obf.game.common_pb2 import (
+    ObjectItemInventory,
+)
+
 from src.core.config import DO_USE_GUILD_CHEST
 from src.core.engine.items.item import GATHERER_ITEM_GIDS
 from src.core.engine.monsters.drops import PROTECTOR_DROP_ITEM_IDS

@@ -1,8 +1,6 @@
 import unittest
 
-from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.models.quantity_enum import (
-    QuantityEnum,
-)
+from src.core.engine.economy.quantity_enum import QuantityEnum
 from src.core.engine.economy.sale_hotel import get_price_for_sale_hotel
 
 

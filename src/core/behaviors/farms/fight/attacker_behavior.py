@@ -5,10 +5,12 @@ from typing import Callable
 
 from scapy.all import dataclass
 
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.roleplay_pb2 import AttackMonsterRequest
+from d3_database.protos.non_obf.game.roleplay_pb2 import (
+    AttackMonsterRequest,
+)
 from src.controller.forbidden_monster_controller import ForbiddenMonsterController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior

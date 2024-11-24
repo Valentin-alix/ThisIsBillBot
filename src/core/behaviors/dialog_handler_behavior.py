@@ -2,8 +2,8 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Callable
 
-from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import ExchangeLeaveEvent
+from d3_database.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
+from d3_database.protos.non_obf.game.exchange_pb2 import ExchangeLeaveEvent
 from src.core.behaviors.behavior import Behavior
 
 

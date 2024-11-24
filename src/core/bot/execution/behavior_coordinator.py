@@ -2,13 +2,13 @@ from dataclasses import dataclass, field, fields
 from threading import Event
 from typing import Any, Callable
 
-from ankama_launcher_emulator.gui.utils import run_in_background
-from ankama_launcher_emulator.interfaces.deciphered_api_key import (
+from ankama_launcher_emulator_premium.gui.utils import run_in_background
+from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
+from d3_database.models.datas.recipe_root import RecipeItem
 from PyQt6.QtCore import QThread
 
-from D3Database.models.datas.recipe_root import RecipeItem
 from src.controller.bot_config import BotConfig
 from src.core.behaviors.behavior import Behavior, BehaviorState
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
@@ -170,17 +170,3 @@ class BehaviorCoordinator(ContextualLogger):
             for usable_behavior in self.usable_behaviors:
                 if usable_behavior.state == BehaviorState.RUNNING:
                     usable_behavior.stop()
-
-    def force_reset_all_behaviors(self):
-        """
-        Force reset all behaviors to STOPPED state.
-        Used when reconnecting after process kill to ensure clean state.
-        """
-        with self.event_manager.lock:
-            for field_info in fields(self):
-                field_value = getattr(self, field_info.name)
-                if isinstance(field_value, Behavior):
-                    field_value.force_reset()
-
-            for usable_behavior in self.usable_behaviors:
-                usable_behavior.force_reset()

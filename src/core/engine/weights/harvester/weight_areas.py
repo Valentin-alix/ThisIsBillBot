@@ -1,7 +1,10 @@
 import random
 
-from D3Database.data_center.data_reader import DataReader
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from d3_database.data_center.data_reader import DataReader
+from d3_database.protos.non_obf.game.common_pb2 import (
+    ObjectItemInventory,
+)
+
 from src.core.config import AREAS_SUB_WITH_WEIGHT, AREAS_UNSUB_WITH_WEIGHT
 from src.core.engine.movements.area_infos import AreaInfo
 from src.core.engine.weights.harvester.weight_collectable import (

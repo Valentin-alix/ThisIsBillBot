@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from functools import partial
 
-from D3Database.data_center.data_reader import DataReader
+from d3_database.data_center.data_reader import DataReader
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripErrorCode
 from src.core.behaviors.movements.auto_trip.auto_trip_zaap_behavior import (

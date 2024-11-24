@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 
-from D3Database.data_center.world_graph_reader import WorldGraphReader
-from D3Database.models.world_graph import Edge, Vertice
+from d3_database.data_center.world_graph_reader import WorldGraphReader
+from d3_database.models.world_graph import Edge, Vertice
+
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.engine.movements.world.astar_vertice import AstarWorld
 from src.core.states.game_state import GameState

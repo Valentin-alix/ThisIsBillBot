@@ -6,10 +6,7 @@ from PyQt6.QtGui import QStandardItem
 from PyQt6.QtWidgets import QHeaderView, QWidget
 from qfluentwidgets import TableWidget
 
-from D3Mapping.d3_mapping.controller.message_mapping_controller import (
-    MessageMappingController,
-)
-from D3Mapping.d3_mapping.models.message import MessageInfo
+from src.protocol.message import MessageInfo
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
 from src.gui.consts import GREEN_COLOR
@@ -24,9 +21,7 @@ class MessageTable(BaseTableWidget):
         self._batch_timer.setInterval(50)
         self._batch_timer.setSingleShot(True)
         self._batch_timer.timeout.connect(self._flush_pending_messages)
-        self._unmapped_candidates_by_obf = (
-            MessageMappingController.get_unmapped_candidates_by_obf()
-        )
+        self._unmapped_candidates_by_obf: dict[str, list[tuple[str, float]]] = {}
         columns: list[ColumnInfo] = [
             ColumnInfo(name="Heure"),
             ColumnInfo(name="Origine"),

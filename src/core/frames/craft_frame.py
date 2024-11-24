@@ -1,14 +1,15 @@
 from dataclasses import dataclass, field
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.models.datas.recipe_root import RecipeItem
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.models.datas.recipe_root import RecipeItem
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeCraftCountRequest,
     ExchangeCraftStartedEvent,
     ExchangeLeaveEvent,
     ExchangeReadyRequest,
     ExchangeSetCraftRecipeRequest,
 )
+
 from src.core.frames.frame import Frame
 
 

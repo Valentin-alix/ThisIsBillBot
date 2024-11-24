@@ -1,8 +1,11 @@
 import dataclasses
 from dataclasses import dataclass, field
 
-from D3Database.models.datas.recipe_root import RecipeItem
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from d3_database.models.datas.recipe_root import RecipeItem
+from d3_database.protos.non_obf.game.common_pb2 import (
+    ObjectItemInventory,
+)
+
 from src.core.engine.fights.effect import EffectActionEnum
 from src.core.engine.items.item import SetPositionEnum
 from src.core.signals.player_signals import InventorySignals

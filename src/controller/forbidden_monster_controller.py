@@ -2,13 +2,13 @@ import os
 from threading import RLock
 
 import msgspec
-
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
-from D3Database.utils import Singleton
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
+from d3_database.utils import Singleton
+from d3_database.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
 )
+
 from src.const import RESOURCE_FOLDER
 from src.services.logging.logger import Logger
 
@@ -112,9 +112,3 @@ class ForbiddenMonsterController(metaclass=Singleton):
         if len(name_ids) == 1:
             return next(iter(name_ids))
         return None
-
-    def clear_all_defeat_counts(self, logger: Logger):
-        with self._LOCK:
-            self._ensure_file_exists()
-            self._save_data({})
-            logger.info("Cleared all monster defeat counts")

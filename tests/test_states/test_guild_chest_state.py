@@ -1,15 +1,15 @@
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
     ObjectItem,
     ObjectItemInventory,
 )
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.exchange_pb2 import (
     ExchangeObjectMoveRequest,
     ExchangeStartedWithMultiTabStorageEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.guild_member_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.guild_member_pb2 import (
     GuildMembershipEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.inventory_pb2 import (
     StorageInventoryContentEvent,
 )
 from src.core.states.guild_chest_state import CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER

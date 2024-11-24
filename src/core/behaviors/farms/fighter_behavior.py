@@ -60,7 +60,7 @@ class FighterBehavior(BaseFarmBehavior):
         self.on_new_map()
 
     def on_attacker_behavior_finish(
-        self, error_code: str | None, count_fighted_on_map: int
+        self, error_code: str | None, _count_fighted_on_map: int
     ):
         self.raise_if_error(error_code)
         if self.game_state.inventory.is_full_pods:

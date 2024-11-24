@@ -4,8 +4,8 @@ from typing import Any, Callable
 
 from google.protobuf.message import Message
 
-from D3Mapping.d3_mapping.protocol.protocol import decode_varint_size, encode_msg
-from D3Mapping.d3_mapping.protocol.protocol_connection import (
+from src.protocol.protocol import decode_varint_size, encode_msg
+from src.protocol.protocol_connection import (
     get_conn_msg,
     get_conn_msg_info,
 )

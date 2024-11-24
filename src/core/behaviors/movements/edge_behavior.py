@@ -2,14 +2,15 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from D3Database.data_center.map_reader import MapReader
-from D3Database.enums.transition_type import TransitionTypeEnum
-from D3Database.grid.map_point import MapPoint
-from D3Database.models.world_graph import Edge, Transition
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.data_center.map_reader import MapReader
+from d3_database.enums.transition_type import TransitionTypeEnum
+from d3_database.grid.map_point import MapPoint
+from d3_database.models.world_graph import Edge, Transition
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapCurrentEvent,
 )
+
 from src.core.behaviors.behavior import Behavior, BehaviorState
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.interactives.interactive_behavior import (

@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 
-from D3Database.data_center.map_reader import MapReader
-from D3Database.enums.directions import DirectionsEnum
-from D3Database.grid.consts import MAP_COUNT_CELL, MAP_WIDTH
-from D3Database.grid.map_point import MapPoint
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import MapObstacle
+from d3_database.data_center.map_reader import MapReader
+from d3_database.enums.directions import DirectionsEnum
+from d3_database.grid.consts import MAP_COUNT_CELL, MAP_WIDTH
+from d3_database.grid.map_point import MapPoint
+from d3_database.protos.non_obf.game.gamemap_pb2 import MapObstacle
+
 from src.core.states.game_state import GameState
 
 TOLERANCE_ELEVATION: int = 11

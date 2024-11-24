@@ -1,11 +1,12 @@
 import dataclasses
 from dataclasses import dataclass
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.world_graph_reader import WorldGraphReader
-from D3Database.grid.map_point import MapPoint
-from D3Database.models.datas.map_positions_root import MapPositionsRootItem
-from D3Database.models.world_graph import Vertice
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.world_graph_reader import WorldGraphReader
+from d3_database.grid.map_point import MapPoint
+from d3_database.models.datas.map_positions_root import MapPositionsRootItem
+from d3_database.models.world_graph import Vertice
+
 from src.core.engine.movements.world.linked_zone import get_linked_zone_rp
 from src.core.signals.grid_signals import GridSignals
 from src.core.signals.player_signals import GameInfoSignals

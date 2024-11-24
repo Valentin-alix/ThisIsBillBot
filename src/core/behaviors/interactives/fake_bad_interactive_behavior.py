@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from D3Mapping.d3_mapping.resources.protos.game.interactive_element_pb2 import (
+from d3_database.protos.non_obf.game.interactive_element_pb2 import (
     InteractiveUseRequest,
 )
 from src.core.behaviors.behavior import Behavior

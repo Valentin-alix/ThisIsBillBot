@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 
-from D3Database.enums.directions import DirectionsEnum
-from D3Database.grid.map_point import MAP_POINT_BY_COORD, MapPoint
-from D3Database.utils import cache
+from d3_database.enums.directions import DirectionsEnum
+from d3_database.grid.map_point import MAP_POINT_BY_COORD, MapPoint
+from d3_database.utils import cache
+
 from src.core.engine.fights.zones.zone import Zone
 
 

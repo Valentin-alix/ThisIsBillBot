@@ -1,8 +1,9 @@
 from typing import override
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
-from D3Database.models.datas.recipe_root import RecipeItem
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
+from d3_database.models.datas.recipe_root import RecipeItem
+
 from src.gui.components.group_list import GroupList
 
 

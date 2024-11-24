@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-from D3Database.models.datas.recipe_root import RecipeItem
+from d3_database.models.datas.recipe_root import RecipeItem
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.storage.loads.load_recipe_from_bank_chest_behavior import (
     LoadRecipeFromBankChestBehavior,

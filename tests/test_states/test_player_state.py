@@ -1,17 +1,17 @@
 from datetime import datetime, timezone
 
-from D3Mapping.d3_mapping.resources.protos.connection.login_message_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.connection.login_message_pb2 import (
     SelectServerRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.character_management_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.character_management_pb2 import (
     CharacterSelectionEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import Character
-from D3Mapping.d3_mapping.resources.protos.game.job_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import Character
+from ProtoMapperAssembly.data.non_obf.protos.game.job_pb2 import (
     JobExperience,
     JobExperiencesUpdateEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.teleportation_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.teleportation_pb2 import (
     ZaapKnownListEvent,
 )
 from tests.test_states.state_test_base import StateTestBase

@@ -35,12 +35,6 @@ class ScheduleProfileController(metaclass=Singleton):
         profiles = self.get_all_profiles()
         return profiles.get(profile_id)
 
-    def get_slots_for_day(self, profile_id: str, weekday: int) -> list[TimeSlot]:
-        profile = self.get_profile(profile_id)
-        if not profile:
-            return []
-        return profile.slots_by_day.get(str(weekday), [])
-
     def get_profile_display_names(self) -> dict[str, str]:
         profiles = self.get_all_profiles()
         return {

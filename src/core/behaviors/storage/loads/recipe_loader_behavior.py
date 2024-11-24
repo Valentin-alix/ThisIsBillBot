@@ -1,9 +1,12 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
 
-from D3Database.data_center.i18n import I18N
-from D3Database.models.datas.recipe_root import RecipeItem
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import ExchangeLeaveEvent
+from d3_database.data_center.i18n import I18N
+from d3_database.models.datas.recipe_root import RecipeItem
+from d3_database.protos.non_obf.game.exchange_pb2 import (
+    ExchangeLeaveEvent,
+)
+
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
 from src.core.config import BASE_RANGE, USEFUL_UNLOAD

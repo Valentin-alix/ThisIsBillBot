@@ -2,12 +2,15 @@ from dataclasses import dataclass, field
 from functools import partial
 from typing import Callable
 
-from D3Database.data_center.data_reader import DataReader
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import ObjectUseRequest
+from d3_database.protos.non_obf.game.inventory_pb2 import (
+    ObjectUseRequest,
+)
+
 from src.controller.gfx_mapping import GfxMappingController
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmBehavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior

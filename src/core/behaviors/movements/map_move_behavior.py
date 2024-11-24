@@ -2,20 +2,23 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from D3Database.grid.map_point import MapPoint
-from D3Mapping.d3_mapping.resources.protos.game.basic_pb2 import TextInformationEvent
-from D3Mapping.d3_mapping.resources.protos.game.game_action_pb2 import (
+from d3_database.grid.map_point import MapPoint
+from d3_database.protos.non_obf.game.basic_pb2 import (
+    TextInformationEvent,
+)
+from d3_database.protos.non_obf.game.game_action_pb2 import (
     GameActionAcknowledgementRequest,
     SequenceEndEvent,
     SequenceType,
 )
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     MapMovementConfirmRequest,
     MapMovementConfirmResponse,
     MapMovementEvent,
     MapMovementRefusedEvent,
     MapMovementRequest,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.engine.communications.text import TextEnum
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath

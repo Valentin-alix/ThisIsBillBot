@@ -1,11 +1,12 @@
 from collections import defaultdict
 from dataclasses import dataclass
 
-from D3Database.enums.characteristic_enum import CharacteristicEnum
-from D3Database.grid.map_point import MapPoint
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from d3_database.enums.characteristic_enum import CharacteristicEnum
+from d3_database.grid.map_point import MapPoint
+from d3_database.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
 from src.core.engine.fights.reachable_cells.fight_reachable_cells import (

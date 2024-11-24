@@ -1,6 +1,5 @@
+from d3_database.grid.map_point import MapPoint
 from PyQt6.QtCore import QObject, pyqtSignal
-
-from D3Database.grid.map_point import MapPoint
 
 
 class MapSignals(QObject):

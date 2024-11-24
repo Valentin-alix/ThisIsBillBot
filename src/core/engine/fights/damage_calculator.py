@@ -1,9 +1,10 @@
 import math
 from dataclasses import dataclass
 
-from D3Database.enums.characteristic_enum import CharacteristicEnum
-from D3Database.models.datas.monsters_root import MonsterGrade
-from D3Database.models.datas.spell_levels_root import Effect
+from d3_database.enums.characteristic_enum import CharacteristicEnum
+from d3_database.models.datas.monsters_root import MonsterGrade
+from d3_database.models.datas.spell_levels_root import Effect
+
 from src.core.engine.fights.effect import get_stat_by_effect_elem
 from src.core.states.game_state import GameState
 

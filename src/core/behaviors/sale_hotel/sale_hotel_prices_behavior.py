@@ -5,12 +5,14 @@ from enum import StrEnum, auto
 from functools import partial
 from typing import Iterable
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
-from D3Database.enums.category_item_enum import CategoryEnum
-from D3Mapping.d3_mapping.resources.protos.game.basic_pb2 import TextInformationEvent
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItem
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
+from d3_database.enums.category_item_enum import CategoryEnum
+from d3_database.protos.non_obf.game.basic_pb2 import (
+    TextInformationEvent,
+)
+from d3_database.protos.non_obf.game.common_pb2 import ObjectItem
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidHouseItemRemovedEvent,
     ExchangeBidHousePriceRequest,
     ExchangeBidHouseSearchRequest,
@@ -20,13 +22,11 @@ from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
     ExchangeObjectModifyPricedRequest,
     ExchangeObjectMovePricedRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+from d3_database.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
+
 from src.controller.sale_hotel import SaleHotelController
-from src.controller.scraping_d3_api.scraping_d3_client.scraping_d3_client.models.quantity_enum import (
-    QuantityEnum,
-)
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
@@ -45,6 +45,7 @@ from src.core.config import (
     TINY_RANGE,
 )
 from src.core.engine.communications.text import TextEnum
+from src.core.engine.economy.quantity_enum import QuantityEnum
 from src.core.engine.economy.sale_hotel import (
     choose_quantity_to_sell,
     get_item_gids_to_sell,

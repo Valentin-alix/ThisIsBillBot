@@ -2,10 +2,10 @@ import select
 from dataclasses import dataclass
 from socket import AF_INET, SOCK_STREAM, socket
 
-from ankama_launcher_emulator.utils.internet import has_internet_connection
+from ankama_launcher_emulator_premium.utils.internet import has_internet_connection
 
-from D3Mapping.d3_mapping.protocol.protocol import decode_varint_size
 from src.core.bot.bot import Bot
+from src.protocol.protocol import decode_varint_size
 
 
 @dataclass

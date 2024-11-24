@@ -13,9 +13,11 @@ import socket
 import sys
 from pathlib import Path
 
-from D3Mapping.d3_mapping.resources.protos.game.dialog_pb2 import DialogLeaveRequest
-from D3Mapping.d3_mapping.resources.protos.game.fight_pb2 import FightTurnFinishRequest
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
+from d3_database.protos.non_obf.game.fight_pb2 import (
+    FightTurnFinishRequest,
+)
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     MapMovementConfirmRequest,
 )
 
@@ -50,7 +52,6 @@ CONNECTION_SERVERS_IPS: list[str] = [
 
 RESOURCE_FOLDER = os.path.join(Path(__file__).parent.parent, "resources")
 LOGO_FILE = os.path.join(RESOURCE_FOLDER, "icons", "logo.png")
-RECORDING_FOLDER = os.path.join(RESOURCE_FOLDER, "recordings")
 HUMAN_SESSIONS_FILE = os.path.join(RESOURCE_FOLDER, "human_sessions.json")
 LOG_FOLDER: str = os.path.join(RESOURCE_FOLDER, "logs")
 

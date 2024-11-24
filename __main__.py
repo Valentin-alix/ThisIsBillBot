@@ -8,7 +8,6 @@ from PyQt6.QtCore import Qt
 from qfluentwidgets import Theme, setTheme, setThemeColor
 
 from src.services.logging.logger import init_global_logging
-from src.tools.lower_config import set_low_config_for_all
 from src.utils.internet import has_internet_connection
 
 logger = logging.getLogger()
@@ -43,7 +42,6 @@ init_global_logging()
 
 
 def main() -> None:
-    set_low_config_for_all()
     app = Application(sys.argv)
     shared_signals = SharedSignals()
     main_window = MainWindow(title=app.TITLE, shared_signals=shared_signals)

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from D3Database.enums.directions import DirectionsEnum
-from D3Database.grid.map_point import MapPoint
+from d3_database.enums.directions import DirectionsEnum
+from d3_database.grid.map_point import MapPoint
 
 
 @dataclass

@@ -3,7 +3,6 @@ from typing import cast
 
 from PyQt6.QtCore import QModelIndex, Qt, pyqtSlot
 from PyQt6.QtWidgets import (
-    QFileDialog,
     QHBoxLayout,
     QSizePolicy,
     QSplitter,
@@ -19,7 +18,6 @@ from qfluentwidgets import (
     SegmentedWidget,
 )
 
-from D3Mapping.d3_mapping.models.message import MessageInfo
 from src.core.bot.bot import Bot
 from src.core.signals.global_log_signals import GlobalLogSignals
 from src.gui.components.thread_monitor_widget import ThreadMonitorWidget
@@ -28,6 +26,7 @@ from src.gui.pages.debugs.logs import LogsWidget
 from src.gui.pages.debugs.message_detail import MessageDetailWidget
 from src.gui.pages.debugs.message_table import MessageTable
 from src.gui.utils.profiling import profiled_slot
+from src.protocol.message import MessageInfo
 
 
 class SnifferWidget(PivotItem):
@@ -86,34 +85,6 @@ class SnifferWidget(PivotItem):
             self.stop_btn.hide()
         self.stop_btn.clicked.connect(self.on_stop)
         top_content_layout.addWidget(self.stop_btn)
-
-        self.rec_start_btn = PrimaryPushButton(
-            FluentIcon.MOVIE, "Démarrer enregistrement", top_content
-        )
-        self.rec_start_btn.clicked.connect(self.on_record_start)
-
-        self.rec_stop_btn = PrimaryPushButton(
-            FluentIcon.PAUSE, "Arrêter enregistrement", top_content
-        )
-        self.rec_stop_btn.clicked.connect(self.on_record_stop)
-        self.rec_stop_btn.hide()
-
-        self.rec_save_btn = PrimaryPushButton(
-            FluentIcon.SAVE, "Sauvegarder enregistrement", top_content
-        )
-        self.rec_save_btn.clicked.connect(self.on_record_save)
-
-        if not self.bot.is_fake:
-            top_content_layout.addWidget(self.rec_start_btn)
-            top_content_layout.addWidget(self.rec_stop_btn)
-            top_content_layout.addWidget(self.rec_save_btn)
-
-        if self.bot.is_fake:
-            self.rec_replay_btn = PrimaryPushButton(
-                FluentIcon.PLAY, "Rejouer un enregistrement", top_content
-            )
-            self.rec_replay_btn.clicked.connect(self.on_record_replay)
-            top_content_layout.addWidget(self.rec_replay_btn)
 
     def init_content(self):
         content = QWidget(self)
@@ -287,36 +258,3 @@ class SnifferWidget(PivotItem):
     @pyqtSlot()
     def on_close_detail(self):
         self.msg_detail.hide()
-
-    def on_record_start(self):
-        self.bot.recorder.start_session()
-        self.rec_start_btn.hide()
-        self.rec_stop_btn.show()
-
-    def on_record_stop(self):
-        self.bot.recorder.stop_session()
-        self.rec_stop_btn.hide()
-        self.rec_start_btn.show()
-
-    def on_record_save(self):
-        path, _ = QFileDialog.getSaveFileName(
-            self,
-            "Sauvegarder enregistrement",
-            "",
-            "JSONL Files (*.jsonl);;All Files (*)",
-        )
-        if not path:
-            return
-        self.bot.recorder.save(path)
-
-    def on_record_replay(self):
-        path, _ = QFileDialog.getOpenFileName(
-            self,
-            "Choisir un enregistrement",
-            "",
-            "JSONL Files (*.jsonl);;All Files (*)",
-        )
-        if not path:
-            return
-        # emit(path, preserve_timing, speedup, use_obfuscated)
-        self.bot.replay_signals.replay_requested.emit(path, False, None, False)

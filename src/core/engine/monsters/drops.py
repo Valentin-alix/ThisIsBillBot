@@ -1,9 +1,9 @@
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
-from D3Database.enums.type_item_enum import TypeItemEnum
-from D3Database.models.datas.monsters_root import MonsterDrop
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
+from d3_database.enums.type_item_enum import TypeItemEnum
+from d3_database.models.datas.monsters_root import MonsterDrop
+
 from src.controller.sale_hotel import SaleHotelController
-from src.controller.speed_sell_score import SpeedSellScoreController
 from src.core.engine.items.item import GATHERED_ITEM_ID_BY_NAME
 from src.core.game_constants import Items, Monsters
 
@@ -13,7 +13,6 @@ def get_rare_gid_with_weight_from_protector_drop(
     server_id: int = 1,
 ) -> tuple[int | None, float]:
     avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(server_id)
-    speed_sell_score_by_gid = SpeedSellScoreController().get_speed_sell_score_by_gid
 
     res_object_id: int | None = None
     weight: float = 0
@@ -37,10 +36,7 @@ def get_rare_gid_with_weight_from_protector_drop(
                 continue
 
         weight += (
-            drop.percentDropForGrade1
-            / 100
-            * avg_price_by_gid.get(drop.objectId, 1)
-            * speed_sell_score_by_gid.get(drop.objectId, 1.0)
+            drop.percentDropForGrade1 / 100 * avg_price_by_gid.get(drop.objectId, 1)
         )
     return res_object_id, weight
 

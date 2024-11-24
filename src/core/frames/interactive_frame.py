@@ -1,15 +1,16 @@
 from dataclasses import dataclass
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.map_reader import MapReader
-from D3Database.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.map_reader import MapReader
+from d3_database.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.interactive_element_pb2 import (
+from d3_database.protos.non_obf.game.interactive_element_pb2 import (
     InteractiveElementUpdatedEvent,
     StatedElementUpdatedEvent,
 )
+
 from src.controller.gfx_mapping import GfxMappingController
 from src.core.frames.frame import Frame
 

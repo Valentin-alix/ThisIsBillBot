@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from functools import partial
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.enums.category_item_enum import CategoryEnum
-from D3Database.enums.element_type import ElementTypeEnum
+from d3_database.data_center.data_reader import DataReader
+from d3_database.enums.category_item_enum import CategoryEnum
+from d3_database.enums.element_type import ElementTypeEnum
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (

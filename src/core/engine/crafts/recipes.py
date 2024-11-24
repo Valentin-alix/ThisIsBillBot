@@ -1,8 +1,11 @@
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
-from D3Database.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
-from D3Database.models.datas.recipe_root import RecipeItem
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
+from d3_database.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
+from d3_database.models.datas.recipe_root import RecipeItem
+from d3_database.protos.non_obf.game.common_pb2 import (
+    ObjectItemInventory,
+)
+
 from src.controller.sale_hotel import SaleHotelController
 from src.core.config import WEIGHT_BY_JOB
 from src.core.engine.items.item import GATHERER_ITEM_GIDS

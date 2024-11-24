@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 
-from D3Database.data_center.data_reader import DataReader
-from D3Mapping.d3_mapping.resources.protos.game.gamemap_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapChangeRequest,
     MapComplementaryInformationEvent,
     MapCurrentEvent,
     MapMovementConfirmRequest,
 )
+
 from src.core.frames.frame import Frame
 from src.core.signals.world_signals import WorldSignals
 

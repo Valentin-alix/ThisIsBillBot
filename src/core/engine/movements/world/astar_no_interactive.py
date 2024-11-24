@@ -2,9 +2,10 @@ from dataclasses import dataclass
 from time import sleep
 from typing import Iterator
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.enums.transition_type import TransitionTypeEnum
-from D3Database.models.world_graph import Vertice
+from d3_database.data_center.data_reader import DataReader
+from d3_database.enums.transition_type import TransitionTypeEnum
+from d3_database.models.world_graph import Vertice
+
 from src.core.engine.movements.world.astar_vertice import AstarWorld
 from src.core.engine.movements.world.edge import (
     iter_valid_outgoing_edges,

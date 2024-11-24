@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from threading import Event, Timer
 from typing import Callable
 
-from ankama_launcher_emulator.interfaces.deciphered_api_key import (
+from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
 

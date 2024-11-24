@@ -1,6 +1,6 @@
 import threading
 
-from ankama_launcher_emulator.interfaces.deciphered_api_key import (
+from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
 
@@ -109,19 +109,15 @@ from src.core.frames.map_frame import MapFrame
 from src.core.frames.player_frame import PlayerFrame
 from src.core.frames.sale_hotel_frame import SaleHotelFrame
 from src.core.frames.server_frame import ServerFrame
-from src.core.frames.stats_frame import StatsFrame
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.grid_signals import GridSignals
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.message_signals import MessageInfoSignals
 from src.core.signals.player_signals import GameInfoSignals, InventorySignals
-from src.core.signals.replay_signals import ReplaySignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.signals.world_signals import WorldSignals
 from src.core.states.state_factory import StateFactory
 from src.services.logging.logger import Logger
-from src.services.recorder import Recorder
-from src.services.replayer import Replayer
 
 
 class BotFactory:
@@ -132,7 +128,6 @@ class BotFactory:
         harvester_signals = BotSignals()
         game_info_signals = GameInfoSignals()
         msg_info_signals = MessageInfoSignals()
-        replay_signals = ReplaySignals()
         grid_signals = GridSignals()
         inventory_signals = InventorySignals()
         world_signals = WorldSignals()
@@ -267,15 +262,6 @@ class BotFactory:
             _logger=logger,
             is_playing_event=is_playing_event,
         )
-        stats_frame = StatsFrame(
-            event_manager=event_manager,
-            game_info_signals=game_info_signals,
-            game_state=game_state,
-            inventory_signals=inventory_signals,
-            _logger=logger,
-            is_playing_event=is_playing_event,
-        )
-
         # behavior
         map_change_behavior = MapChangeBehavior(
             event_manager=event_manager,
@@ -324,7 +310,6 @@ class BotFactory:
             game_state=game_state,
             attacker=attacker,
         )
-        recorder = Recorder()
         fight_behavior = FightBehavior(
             event_manager=event_manager,
             game_state=game_state,
@@ -332,7 +317,6 @@ class BotFactory:
             path_finding=path_finding,
             _logger=logger,
             fight_turn_behavior=fight_turn_behavior,
-            recorder=recorder,
             login=account["apikey"]["login"],
             shared_signals=shared_signals,
         )
@@ -619,20 +603,11 @@ class BotFactory:
             multi_farming_behavior=multi_farming_behavior,
         )
 
-        replayer = Replayer(
-            game_state=game_state,
-            event_manager=event_manager,
-            msg_info_signals=msg_info_signals,
-            recorder=recorder,
-        )
-
         fake_bad_interactive_behavior = FakeBadInteractiveBehavior(
             _logger=logger, event_manager=event_manager, game_state=game_state
         )
 
         return Bot(
-            recorder=recorder,
-            replayer=replayer,
             usable_behaviors=[
                 mule_give_behavior,
                 mule_accept_kamas_behavior,
@@ -647,7 +622,6 @@ class BotFactory:
             game_info_signals=game_info_signals,
             bot_signals=harvester_signals,
             msg_info_signals=msg_info_signals,
-            replay_signals=replay_signals,
             inventory_signals=inventory_signals,
             event_manager=event_manager,
             harvester_behavior=harvester,
@@ -667,7 +641,6 @@ class BotFactory:
                 guild_chest_frame,
                 sale_hotel_frame,
                 craft_frame,
-                stats_frame,
             ],
             world_signals=world_signals,
             _logger=logger,

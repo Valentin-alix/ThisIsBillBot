@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from typing import Iterator
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.world_graph_reader import WorldGraphReader
-from D3Database.models.world_graph import Edge, Vertice
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.world_graph_reader import WorldGraphReader
+from d3_database.models.world_graph import Edge, Vertice
+
 from src.core.engine.movements.world.edge import iter_valid_outgoing_edges
 from src.core.engine.movements.world.map_position import get_dist_to_maps
 from src.core.signals.world_signals import WorldSignals

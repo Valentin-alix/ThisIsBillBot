@@ -1,15 +1,17 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
-from D3Database.enums.npc_message_id_enum import NpcAskMessageIdEnum
-from D3Mapping.d3_mapping.protocol.protocol_game import is_usable_msg
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from d3_database.enums.npc_message_id_enum import NpcAskMessageIdEnum
+from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeMoveKamaRequest,
 )
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+from d3_database.protos.non_obf.game.inventory_pb2 import (
     StorageInventoryContentEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.npc_pb2 import NpcDialogQuestionEvent
+from d3_database.protos.non_obf.game.npc_pb2 import (
+    NpcDialogQuestionEvent,
+)
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
@@ -21,6 +23,7 @@ from src.core.behaviors.npcs.npc_dialog_behavior import (
 from src.core.config import BASE_RANGE
 from src.core.engine.storage.unload import get_bank_npc_info
 from src.core.game_constants import NPCs
+from src.protocol.protocol_game import is_usable_msg
 
 
 class EnterBankChestErrorCode(StrEnum):

@@ -5,8 +5,9 @@ Valeurs fixes provenant du jeu : map IDs, NPC IDs, skill IDs, etc.
 Pour configurer le comportement du bot, voir src/core/config.py
 """
 
-from D3Database.enums.npc_message_id_enum import NpcAskMessageIdEnum
-from D3Database.models.world_graph import Transition, Vertice
+from d3_database.enums.npc_message_id_enum import NpcAskMessageIdEnum
+from d3_database.models.world_graph import Transition, Vertice
+
 from src.core.engine.dungeons.dungeon_info import DungeonInfo
 from src.core.engine.npcs.npc_dialog_info import ReplyInfo
 from src.core.engine.npcs.npc_info import NpcInfo

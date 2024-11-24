@@ -1,10 +1,10 @@
 import datetime
 import random
 
-from D3Database.data_center.data_reader import DataReader
-from D3Database.data_center.i18n import I18N
-from D3Mapping.d3_mapping.models.message import MessageInfo
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from d3_database.data_center.data_reader import DataReader
+from d3_database.data_center.i18n import I18N
+from src.protocol.message import MessageInfo
+from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
     ObjectItem,
     ObjectItemInventory,
 )

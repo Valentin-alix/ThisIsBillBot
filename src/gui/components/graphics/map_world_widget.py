@@ -2,6 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from math import floor
 
+from d3_database.models.datas.map_positions_root import MapPositionsRootItem
 from PyQt6.QtCore import QRectF, Qt, pyqtSlot
 from PyQt6.QtGui import QColor, QPainter, QPen, QResizeEvent
 from PyQt6.QtWidgets import (
@@ -12,7 +13,6 @@ from PyQt6.QtWidgets import (
     QGraphicsView,
 )
 
-from D3Database.models.datas.map_positions_root import MapPositionsRootItem
 from src.core.signals.world_signals import WorldSignals
 from src.gui.components.graphics.graphic_text import TEXT_SIZE, GraphicText
 from src.gui.utils.profiling import profiled_slot

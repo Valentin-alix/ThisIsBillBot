@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Iterable
 
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from d3_database.protos.non_obf.game.common_pb2 import (
     InteractiveElement,
     StatedElement,
 )

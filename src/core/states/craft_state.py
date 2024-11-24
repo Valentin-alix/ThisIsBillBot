@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-from D3Database.models.datas.recipe_root import RecipeItem
+from d3_database.models.datas.recipe_root import RecipeItem
+
 from src.core.engine.crafts.recipes import get_valid_recipes
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State

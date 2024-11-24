@@ -1,16 +1,16 @@
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
     ObjectItem,
     ObjectItemInventory,
     ObjectUidWithQuantity,
 )
-from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeMoveKamaRequest,
     ExchangeObjectMoveRequest,
     ExchangeObjectTransferAllFromInventoryRequest,
     ExchangeStartedWithStorageEvent,
 )
-from D3Mapping.d3_mapping.resources.protos.game.inventory_pb2 import (
+from ProtoMapperAssembly.data.non_obf.protos.game.inventory_pb2 import (
     InventoryContentEvent,
     InventoryWeightEvent,
     ObjectAddedEvent,

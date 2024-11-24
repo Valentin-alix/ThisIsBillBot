@@ -2,7 +2,7 @@ import datetime
 from dataclasses import dataclass, field
 from threading import Event
 
-from ankama_launcher_emulator.interfaces.deciphered_api_key import (
+from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
 
@@ -20,7 +20,6 @@ from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.execution.process_manager import ProcessManager
 from src.core.bot.lifecycle.connection_handler import ConnectionHandler
 from src.core.bot.lifecycle.scheduler import BotScheduler
-from src.core.bot.replay.replay_handler import ReplayHandler
 from src.core.events_manager.event_manager import EventManager
 from src.core.frames.frame import Frame
 from src.core.signals.bot_signals import BotSignals
@@ -28,13 +27,10 @@ from src.core.signals.grid_signals import GridSignals
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.message_signals import MessageInfoSignals
 from src.core.signals.player_signals import GameInfoSignals, InventorySignals
-from src.core.signals.replay_signals import ReplaySignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.signals.world_signals import WorldSignals
 from src.core.states.game_state import GameState
 from src.services.logging.contextual_logger import ContextualLogger
-from src.services.recorder import Recorder
-from src.services.replayer import Replayer
 
 
 @dataclass
@@ -47,7 +43,6 @@ class Bot(ContextualLogger):
     - BehaviorCoordinator: orchestrates behavior execution
     - ProcessManager: manages process lifecycle
     - BotScheduler: manages scheduling and playtime
-    - ReplayHandler: handles replay functionality
     """
 
     account: DecipheredApiKey
@@ -58,9 +53,6 @@ class Bot(ContextualLogger):
 
     is_fake: bool
 
-    recorder: Recorder
-
-    replay_signals: ReplaySignals
     grid_signals: GridSignals
     bot_signals: BotSignals
     inventory_signals: InventorySignals
@@ -82,7 +74,6 @@ class Bot(ContextualLogger):
 
     usable_behaviors: list[Behavior]
 
-    replayer: Replayer
     is_connected_event: Event
     is_ready_to_play_event: Event
     is_playing_event: Event
@@ -93,7 +84,6 @@ class Bot(ContextualLogger):
     behavior_coordinator: BehaviorCoordinator = field(init=False)
     process_manager: ProcessManager = field(init=False)
     scheduler: BotScheduler = field(init=False)
-    replay_handler: ReplayHandler = field(init=False)
 
     def get_bot_config(self):
         return (
@@ -155,14 +145,10 @@ class Bot(ContextualLogger):
             msg_info_signals=self.msg_info_signals,
             process_manager=self.process_manager,
         )
-        self.replay_handler = ReplayHandler(replayer=self.replayer)
 
         self.game_info_signals.connected.connect(self.connection_handler.on_connected)
         self.game_info_signals.disconnected.connect(
             self.connection_handler.on_disconnected
-        )
-        self.replay_signals.replay_requested.connect(
-            self.replay_handler.on_replay_requested
         )
         self.bot_signals.play.connect(self.behavior_coordinator.on_play)
         self.bot_signals.stop.connect(self.behavior_coordinator.on_stop)

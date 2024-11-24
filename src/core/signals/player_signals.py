@@ -2,7 +2,7 @@ import datetime
 
 from PyQt6.QtCore import QObject, pyqtSignal
 
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import ObjectItemInventory
+from d3_database.protos.non_obf.game.common_pb2 import ObjectItemInventory
 
 
 class GameInfoSignals(QObject):
@@ -25,7 +25,6 @@ class GameInfoSignals(QObject):
     last_time_updated_prices = pyqtSignal(datetime.datetime)
     fight_turn = pyqtSignal(int)
     fight_completed = pyqtSignal(int)
-    resource_harvested = pyqtSignal(int, int)
 
 
 class InventorySignals(QObject):
