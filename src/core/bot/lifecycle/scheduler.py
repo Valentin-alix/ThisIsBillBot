@@ -4,17 +4,17 @@ from dataclasses import dataclass, field
 from datetime import datetime, time
 from threading import Event
 from time import sleep
-from typing import Any, Callable
+from typing import Callable
 
 import schedule
 
 SCHEDULE_RANDOM_MINUTES_MIN = 1
 SCHEDULE_RANDOM_MINUTES_MAX = 8
 
+from ankama_launcher_emulator.gui.utils import run_in_background
 from ankama_launcher_emulator.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
-from PyQt6.QtCore import QThread
 
 from src.controller.bot_config import BotConfig
 from src.controller.schedule_profile_controller import ScheduleProfileController
@@ -24,7 +24,6 @@ from src.core.signals.bot_signals import BotSignals
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.message_signals import MessageInfoSignals
 from src.core.signals.shared_farm_signals import SharedSignals
-from src.gui.utils.run_in_background import run_in_background
 from src.services.logging.contextual_logger import ContextualLogger
 from src.utils.internet import has_internet_connection
 
@@ -61,9 +60,6 @@ class BotScheduler(ContextualLogger):
     behavior_coordinator: BehaviorCoordinator
     process_manager: ProcessManager
 
-    _thread_worker_runnings: list[tuple[QThread, Any]] = field(
-        init=False, default_factory=list
-    )
     _scheduled_jobs: list[schedule.Job] = field(init=False, default_factory=list)
     _randomized_slots_by_day: dict[int, list[RandomizedSlot]] = field(
         init=False, default_factory=dict
@@ -94,9 +90,7 @@ class BotScheduler(ContextualLogger):
 
         if profile_id is None:
             if self.is_playing_event.is_set():
-                self._thread_worker_runnings.append(
-                    run_in_background(self._planned_stop_bot)
-                )
+                run_in_background(self._planned_stop_bot)
             return
 
         self._schedule_profile_jobs(profile_id)
@@ -114,9 +108,7 @@ class BotScheduler(ContextualLogger):
                 self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
         elif self.is_playing_event.is_set():
             self.logger.info("Not in playtime, stopping bot...")
-            self._thread_worker_runnings.append(
-                run_in_background(self._planned_stop_bot)
-            )
+            run_in_background(self._planned_stop_bot)
 
     def _clear_scheduled_jobs(self):
         """Cancel all scheduled jobs for this bot."""
@@ -152,22 +144,14 @@ class BotScheduler(ContextualLogger):
                 start_job = (
                     day_scheduler()
                     .at(start_time)
-                    .do(
-                        lambda: self._thread_worker_runnings.append(
-                            run_in_background(self._planned_restart_bot)
-                        )
-                    )
+                    .do(lambda: run_in_background(self._planned_restart_bot))
                 )
                 self._scheduled_jobs.append(start_job)
 
                 end_job = (
                     day_scheduler()
                     .at(end_time)
-                    .do(
-                        lambda: self._thread_worker_runnings.append(
-                            run_in_background(self._planned_stop_bot)
-                        )
-                    )
+                    .do(lambda: run_in_background(self._planned_stop_bot))
                 )
                 self._scheduled_jobs.append(end_job)
 

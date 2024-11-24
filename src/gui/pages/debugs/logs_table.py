@@ -9,14 +9,16 @@ from qfluentwidgets import TableWidget
 from src.gui.components.qfluent_widget.scrollable_message_box import (
     ScrollableMessageBox,
 )
+from PyQt6.QtWidgets import QWidget
+
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
 from src.services.logging.log_level import LogLevel
 
 
 class LogsTable(BaseTableWidget):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent=parent)
         columns: list[ColumnInfo] = [
             ColumnInfo(name="Heure"),
             ColumnInfo(name="Type"),
@@ -49,10 +51,15 @@ class LogsTable(BaseTableWidget):
     def on_click_row(self, model_index: QModelIndex):
         source_index = self.table.proxy_model.mapToSource(model_index)
         model = self.table.item_model
-        time_text = model.data(model.index(source_index.row(), 0), Qt.ItemDataRole.DisplayRole)
-        type_lvl = model.data(model.index(source_index.row(), 1), Qt.ItemDataRole.DisplayRole)
+        time_text = model.data(
+            model.index(source_index.row(), 0), Qt.ItemDataRole.DisplayRole
+        )
+        type_lvl = model.data(
+            model.index(source_index.row(), 1), Qt.ItemDataRole.DisplayRole
+        )
         msg_text = cast(
-            str, model.data(model.index(source_index.row(), 2), Qt.ItemDataRole.DisplayRole)
+            str,
+            model.data(model.index(source_index.row(), 2), Qt.ItemDataRole.DisplayRole),
         )
         dialog = ScrollableMessageBox(f"Log {type_lvl} à {time_text}", msg_text, self)
         dialog.exec()

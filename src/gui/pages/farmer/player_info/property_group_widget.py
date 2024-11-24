@@ -1,10 +1,12 @@
+from PyQt6.QtWidgets import QWidget
+
 from src.gui.components.group_box import GroupBox
 from src.gui.pages.farmer.player_info.property_widget import PropertyWidget
 
 
 class PropertyGroupWidget(GroupBox):
-    def __init__(self, key: str):
-        super().__init__(key)
+    def __init__(self, key: str, parent: QWidget | None = None):
+        super().__init__(key, parent=parent)
         self.property_by_key: dict[str, PropertyWidget] = {}
 
     def add_or_update_property_label(self, key: str, value: str) -> None:

@@ -58,7 +58,7 @@ class SnifferWidget(PivotItem):
         )
 
     def init_top_content(self):
-        top_content = QWidget()
+        top_content = QWidget(self)
         # prevent top header from expanding in height
         top_content.setSizePolicy(
             QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
@@ -67,35 +67,39 @@ class SnifferWidget(PivotItem):
         top_content_layout = QHBoxLayout()
         top_content.setLayout(top_content_layout)
         top_content_layout.setContentsMargins(0, 0, 0, 0)
-        reset_btn = PrimaryPushButton(FluentIcon.DELETE, "Réinitialiser")
+        reset_btn = PrimaryPushButton(FluentIcon.DELETE, "Réinitialiser", top_content)
         reset_btn.clicked.connect(self.on_reset)
         top_content_layout.addWidget(reset_btn)
 
-        self.play_btn = PrimaryPushButton(FluentIcon.PLAY, "Lancer le sniffer")
+        self.play_btn = PrimaryPushButton(
+            FluentIcon.PLAY, "Lancer le sniffer", top_content
+        )
         if self.is_playing:
             self.play_btn.hide()
         self.play_btn.clicked.connect(self.on_play)
         top_content_layout.addWidget(self.play_btn)
 
-        self.stop_btn = PrimaryPushButton(FluentIcon.PAUSE, "Arrêter le sniffer")
+        self.stop_btn = PrimaryPushButton(
+            FluentIcon.PAUSE, "Arrêter le sniffer", top_content
+        )
         if not self.is_playing:
             self.stop_btn.hide()
         self.stop_btn.clicked.connect(self.on_stop)
         top_content_layout.addWidget(self.stop_btn)
 
         self.rec_start_btn = PrimaryPushButton(
-            FluentIcon.MOVIE, "Démarrer enregistrement"
+            FluentIcon.MOVIE, "Démarrer enregistrement", top_content
         )
         self.rec_start_btn.clicked.connect(self.on_record_start)
 
         self.rec_stop_btn = PrimaryPushButton(
-            FluentIcon.PAUSE, "Arrêter enregistrement"
+            FluentIcon.PAUSE, "Arrêter enregistrement", top_content
         )
         self.rec_stop_btn.clicked.connect(self.on_record_stop)
         self.rec_stop_btn.hide()
 
         self.rec_save_btn = PrimaryPushButton(
-            FluentIcon.SAVE, "Sauvegarder enregistrement"
+            FluentIcon.SAVE, "Sauvegarder enregistrement", top_content
         )
         self.rec_save_btn.clicked.connect(self.on_record_save)
 
@@ -106,29 +110,29 @@ class SnifferWidget(PivotItem):
 
         if self.bot.is_fake:
             self.rec_replay_btn = PrimaryPushButton(
-                FluentIcon.PLAY, "Rejouer un enregistrement"
+                FluentIcon.PLAY, "Rejouer un enregistrement", top_content
             )
             self.rec_replay_btn.clicked.connect(self.on_record_replay)
             top_content_layout.addWidget(self.rec_replay_btn)
 
     def init_content(self):
-        content = QWidget()
+        content = QWidget(self)
         content_layout = QHBoxLayout()
         content.setLayout(content_layout)
         content_layout.setSpacing(0)
         content_layout.setContentsMargins(0, 0, 0, 0)
 
         # left side: filter + message table
-        self.msg_table = MessageTable()
+        self.msg_table = MessageTable(parent=self)
         self.msg_table.table.clicked.connect(self.on_click_msg)
 
-        left_widget = QWidget()
+        left_widget = QWidget(self)
         left_widget_layout = QVBoxLayout()
         left_widget.setLayout(left_widget_layout)
         left_widget_layout.setContentsMargins(0, 0, 0, 0)
         left_widget_layout.setSpacing(0)
 
-        wrapper_filter = QWidget()
+        wrapper_filter = QWidget(left_widget)
         wrapper_filter_layout = QHBoxLayout()
         wrapper_filter.setLayout(wrapper_filter_layout)
         # filter bar should not expand vertically
@@ -136,7 +140,7 @@ class SnifferWidget(PivotItem):
             QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
         )
         wrapper_filter_layout.setContentsMargins(0, 16, 0, 0)
-        custom_filter = LineEdit()
+        custom_filter = LineEdit(wrapper_filter)
         wrapper_filter_layout.addWidget(custom_filter)
         custom_filter.setPlaceholderText("Contenu")
         custom_filter.textChanged.connect(
@@ -153,38 +157,40 @@ class SnifferWidget(PivotItem):
         )
 
         # right side: message detail and logs/listeners tabs
-        self.msg_detail = MessageDetailWidget()
+        self.msg_detail = MessageDetailWidget(parent=self)
         self.msg_detail.hide()
         self.msg_detail.quit_btn.clicked.connect(self.on_close_detail)
 
-        self.right_splitter = QSplitter(Qt.Orientation.Vertical)
+        self.right_splitter = QSplitter(Qt.Orientation.Vertical, self)
         self.right_splitter.addWidget(self.msg_detail)
 
         if self.bot.log_signals is not None:
-            debug_tabs_widget = QWidget()
+            debug_tabs_widget = QWidget(self)
             debug_tabs_widget_layout = QVBoxLayout()
             debug_tabs_widget.setLayout(debug_tabs_widget_layout)
             debug_tabs_widget_layout.setContentsMargins(0, 16, 0, 0)
             debug_tabs_widget_layout.setSpacing(0)
 
-            debug_pivot = SegmentedWidget()
+            debug_pivot = SegmentedWidget(debug_tabs_widget)
             debug_tabs_widget_layout.addWidget(debug_pivot)
 
-            debug_stacked = QStackedWidget()
+            debug_stacked = QStackedWidget(debug_tabs_widget)
             debug_tabs_widget_layout.addWidget(debug_stacked)
 
             logs_widget = LogsWidget(
-                global_signals=self.global_log_signals, log_signals=self.bot.log_signals
+                global_signals=self.global_log_signals,
+                log_signals=self.bot.log_signals,
+                parent=debug_stacked,
             )
             debug_stacked.addWidget(logs_widget)
 
             listeners_widget = ListenersStatsWidget(
-                event_manager=self.bot.event_manager
+                event_manager=self.bot.event_manager, parent=debug_stacked
             )
             debug_stacked.addWidget(listeners_widget)
 
             thread_monitor_widget = ThreadMonitorWidget(
-                shared_signals=self.bot.shared_signals
+                shared_signals=self.bot.shared_signals, parent=debug_stacked
             )
             debug_stacked.addWidget(thread_monitor_widget)
 
@@ -219,7 +225,7 @@ class SnifferWidget(PivotItem):
             self.thread_monitor_widget = None
 
         # main horizontal splitter: left (filter+table) | right (detail+logs)
-        splitter = QSplitter(Qt.Orientation.Horizontal)
+        splitter = QSplitter(Qt.Orientation.Horizontal, self)
         splitter.addWidget(left_widget)
         splitter.addWidget(self.right_splitter)
         # equal stretch: each side takes ~50% by default

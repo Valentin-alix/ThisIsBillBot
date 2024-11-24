@@ -57,8 +57,8 @@ public sealed class Enum : TopLevel, INestableType
                 return false;
 
             HashSet<int> set = [];
-            foreach (EnumField field in Fields)
-                if (!set.Add(field.Id))
+            foreach (EnumField enumField in Fields)
+                if (!set.Add(enumField.Id))
                     return true;
 
             return false;

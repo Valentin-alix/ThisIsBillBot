@@ -45,8 +45,6 @@ public sealed class Protobuf
                 ? """syntax = "proto3";"""
                 : $"""edition = "{Edition}";""");
 
-        writer.WriteLine("import \"google/protobuf/any.proto\";");
-
         if (_imports is not null)
         {
             writer.WriteLine();

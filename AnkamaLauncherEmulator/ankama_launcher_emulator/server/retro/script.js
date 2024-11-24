@@ -17,7 +17,8 @@ recv(function (config) {
     if (Array.isArray(config.proxyIp) && config.proxyIp.length === 4) {
         proxyIp = config.proxyIp;
     }
-    hookConnect()
+    hookConnect();
+    send('hooks_ready');
 });
 
 function hookConnect() {
@@ -49,6 +50,8 @@ function hookConnect() {
 
                 if (
                     retroCdnList.includes(this.addr) ||
+                    this.addr === '127.0.0.1' ||
+                    this.addr === '::1' ||
                     localProxyPort === 0
                 ) {
                     this.shouldSend = false;

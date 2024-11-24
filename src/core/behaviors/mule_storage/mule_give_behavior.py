@@ -17,7 +17,9 @@ from D3Mapping.d3_mapping.resources.protos.game.exchange_pb2 import (
 )
 from src.controller.scraping_d3_api.scraping_d3 import ScrapingD3Controller
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import AutoTripSmartBehavior
+from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
+    AutoTripSmartBehavior,
+)
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.config import BASE_RANGE, BOT_MINIMAL_KAMAS, MULE_BANK_MAP_ID
 from src.core.engine.items.item import GATHERER_ITEM_GIDS, is_exchangeable_item
@@ -32,7 +34,9 @@ class MuleGiveBehavior(Behavior):
     _mule_bank_character_ids: list[int] = field(init=False, default_factory=list)
 
     def run(self) -> None:
-        ScrapingD3Controller.get_mule_bank_ids(self.game_state.player.server_id, self.on_get_mule_bank_ids)
+        ScrapingD3Controller.get_mule_bank_ids(
+            self.game_state.player.server_id, self.on_get_mule_bank_ids
+        )
 
     def on_get_mule_bank_ids(self, _mule_bank_character_ids: list[int]):
         self._mule_bank_character_ids = _mule_bank_character_ids
@@ -60,7 +64,11 @@ class MuleGiveBehavior(Behavior):
 
     def start_exchange_with_mule(self):
         mule_id = next(
-            (actor_id for actor_id in self.game_state.entity.actor_by_id if actor_id in self._mule_bank_character_ids),
+            (
+                actor_id
+                for actor_id in self.game_state.entity.actor_by_id
+                if actor_id in self._mule_bank_character_ids
+            ),
             None,
         )
         if mule_id is None:
@@ -128,9 +136,15 @@ class MuleGiveBehavior(Behavior):
 
         while True:
             current_object = objects_to_unload.pop()
-            curr_obj_weight = DataReader().item_by_id[current_object.item.gid].realWeight or 1
-            self.logger.info(f"treating object {current_object.item.uid} with quantity {current_object.item.quantity}")
-            self.logger.info(f"mule weight remaining : {mule_weight_remaining} curr obj weight : {curr_obj_weight}")
+            curr_obj_weight = (
+                DataReader().item_by_id[current_object.item.gid].realWeight or 1
+            )
+            self.logger.info(
+                f"treating object {current_object.item.uid} with quantity {current_object.item.quantity}"
+            )
+            self.logger.info(
+                f"mule weight remaining : {mule_weight_remaining} curr obj weight : {curr_obj_weight}"
+            )
             max_quantity = min(
                 int(mule_weight_remaining / curr_obj_weight),
                 current_object.item.quantity,
@@ -138,7 +152,10 @@ class MuleGiveBehavior(Behavior):
             if max_quantity == 0:
                 break
             item_to_exchanges.append((current_object, max_quantity))
-            if max_quantity < current_object.item.quantity or len(objects_to_unload) == 0:
+            if (
+                max_quantity < current_object.item.quantity
+                or len(objects_to_unload) == 0
+            ):
                 break
             mule_weight_remaining -= max_quantity * curr_obj_weight
 
@@ -171,7 +188,9 @@ class MuleGiveBehavior(Behavior):
         )
         self.depose_kamas_in_exchange(True)
 
-    def depose_objects_in_exchange(self, item_to_exchanges: list[tuple[ObjectItemInventory, int]]):
+    def depose_objects_in_exchange(
+        self, item_to_exchanges: list[tuple[ObjectItemInventory, int]]
+    ):
         if len(item_to_exchanges) == 0:
             return self.depose_kamas_in_exchange(False)
         next_object, quantity = item_to_exchanges.pop(0)
@@ -183,7 +202,9 @@ class MuleGiveBehavior(Behavior):
             override_on_self=True,
         )
         self._step += 1
-        req = ExchangeObjectMoveRequest(object_uid=next_object.item.uid, quantity=quantity)
+        req = ExchangeObjectMoveRequest(
+            object_uid=next_object.item.uid, quantity=quantity
+        )
         self.send_message_delayed(req, BASE_RANGE)
 
     def depose_kamas_in_exchange(self, did_full_unload: bool):
@@ -212,7 +233,11 @@ class MuleGiveBehavior(Behavior):
     def accept_exchange(self, did_full_unload: bool):
         self.event_manager.on(
             ExchangeLeaveEvent,
-            lambda _: self.finish() if did_full_unload else self.run_timer((10, 15), self.start_exchange_with_mule),
+            lambda _: (
+                self.finish()
+                if did_full_unload
+                else self.run_timer((10, 15), self.start_exchange_with_mule)
+            ),
             originator=self,
             once=True,
             override_on_self=True,

@@ -38,7 +38,9 @@ class BaseProxyListener:
         if host_port == self._initial_port:
             return ConnectionProxy(
                 on_game_connection_callback=lambda target_address: (
-                    self.start_game_listener(target_address, interface_ip=self._interface_ip)
+                    self.start_game_listener(
+                        target_address, interface_ip=self._interface_ip
+                    )
                 ),
                 client_socket=client_socket,
                 server_socket=server_socket,

@@ -21,7 +21,7 @@ from D3Mapping.d3_mapping.controller.message_mapping_controller import (
     MessageMappingController,
 )
 from D3Mapping.d3_mapping.models.message import MessageInfo
-from D3Mapping.d3_mapping.resources.obf_protos.game.game_messages_pb2 import gsr
+from D3Mapping.d3_mapping.resources.obf_protos.game.game_messages_pb2 import guc
 from D3Mapping.d3_mapping.resources.protos.game.game_message_pb2 import GameMessage
 
 POOL: descriptor_pool.DescriptorPool = descriptor_pool.Default()
@@ -65,7 +65,7 @@ def get_obf_game_msg_info(
 
     received_msg_time = datetime.datetime.now()
 
-    game_msg = gsr()
+    game_msg = guc()
     game_msg.ParseFromString(content)
     InstanciedMessageInfoController().add_msg(game_msg, True)
 
@@ -75,7 +75,7 @@ def get_obf_game_msg_info(
         preserving_proto_field_name=True,
     )
     if SHOW_URL:
-        field_name = game_msg.WhichOneof("eyrz")
+        field_name = game_msg.WhichOneof("ezqs")
         root_msg: Message = getattr(game_msg, field_name)
 
         root_msg_any_field: protoAny | None = None
@@ -202,7 +202,7 @@ def get_game_msg_info(
 
 def get_obf_game_message_from_msg(
     root_msg_namespace: str, clear_sub_msg: Message, uid: int | None = None
-) -> Message | None:
+) -> tuple[Message, Message] | None:
     # get related any content
     obf_any_msg = protoAny()
     obf_msg = get_obf_msg_from_clear(clear_sub_msg)
@@ -235,7 +235,7 @@ def get_obf_game_message_from_msg(
         **{obf_game_field_mapping[game_content_field_name]: obf_sub_msg}
     )
 
-    return obf_game_msg
+    return obf_game_msg, obf_sub_msg
 
 
 def get_clear_msg_from_obf(

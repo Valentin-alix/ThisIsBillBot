@@ -13,8 +13,8 @@ from src.gui.components.table.table import BaseTableWidget
 
 
 class ListenersStatsTable(BaseTableWidget):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent=parent)
         columns: list[ColumnInfo] = [
             ColumnInfo(name="Heure d'enregistrement"),
             ColumnInfo(name="Originator"),
@@ -35,8 +35,10 @@ class ListenersStatsWidget(QWidget):
         layout.setSpacing(8)
         self.setLayout(layout)
 
-        self.stats_table = ListenersStatsTable()
-        self.stats_table.table.setSelectionMode(TableWidget.SelectionMode.SingleSelection)
+        self.stats_table = ListenersStatsTable(self)
+        self.stats_table.table.setSelectionMode(
+            TableWidget.SelectionMode.SingleSelection
+        )
         self.stats_table.table.clicked.connect(self.on_row_double_clicked)
         layout.addWidget(self.stats_table)
 

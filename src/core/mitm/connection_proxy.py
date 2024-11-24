@@ -99,7 +99,7 @@ class ConnectionProxy(Proxy):
         _, msg = get_conn_msg(msg_content_datas)
 
         if DEBUG:
-            msg_info = get_conn_msg_info(msg_content_datas, msg, from_server)
+            msg_info = get_conn_msg_info(msg, from_server)
             if self.bot:
                 self.bot.msg_info_signals.msg_info.emit(msg_info, was_send_from_proxy)
 

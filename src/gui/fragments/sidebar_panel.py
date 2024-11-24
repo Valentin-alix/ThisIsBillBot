@@ -68,7 +68,7 @@ class SidebarPanel(QFrame):
         self.acrylicBrush = AcrylicBrush(self, 30)
 
         self.scrollArea = NoAnimatedScrollArea(self)
-        self.scrollWidget = QWidget()
+        self.scrollWidget = QWidget(self)
 
         self.menuButton = NavigationToolButton(FIF.MENU, self)
         self.returnButton = NavigationToolButton(FIF.RETURN, self)

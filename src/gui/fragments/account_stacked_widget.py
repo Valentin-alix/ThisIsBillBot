@@ -13,8 +13,14 @@ from src.gui.pages.farmer.farmer import FarmerWidget
 
 
 class AccountStackedWidget(QWidget):
-    def __init__(self, global_log_signals: GlobalLogSignals, login: str, bot: Bot):
-        super().__init__()
+    def __init__(
+        self,
+        global_log_signals: GlobalLogSignals,
+        login: str,
+        bot: Bot,
+        parent: QWidget | None = None,
+    ):
+        super().__init__(parent=parent)
         self.login = login
         self.bot = bot
         self.global_log_signals = global_log_signals
@@ -22,13 +28,15 @@ class AccountStackedWidget(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        self.pivot = SegmentedWidget()
+        self.pivot = SegmentedWidget(self)
         layout.addWidget(self.pivot)
 
         self.stacked_widget = QStackedWidget(self)
         layout.addWidget(self.stacked_widget)
 
-        self.sniffer_interface = SnifferWidget(bot, self.global_log_signals)
+        self.sniffer_interface = SnifferWidget(
+            bot, self.global_log_signals, parent=self.stacked_widget
+        )
         self.stacked_widget.addWidget(self.sniffer_interface)
         self.sniffer_route = f"{login}_sniffer"
         self.debug_pivot_item = cast(
@@ -42,7 +50,9 @@ class AccountStackedWidget(QWidget):
             ),
         )
 
-        self.harvester_interface = FarmerWidget(login, self.bot)
+        self.harvester_interface = FarmerWidget(
+            login, self.bot, parent=self.stacked_widget
+        )
         self.stacked_widget.addWidget(self.harvester_interface)
         self.harvester_route = f"{login}_harvester"
         self.farmer_pivot_item = cast(
@@ -56,7 +66,7 @@ class AccountStackedWidget(QWidget):
             ),
         )
 
-        self.craft_interface = CraftPage(self.bot)
+        self.craft_interface = CraftPage(self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.craft_interface)
         self.craft_route = f"{login}_craft"
         self.craft_pivot_item = cast(

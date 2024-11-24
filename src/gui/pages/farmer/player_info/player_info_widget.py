@@ -10,17 +10,17 @@ from src.gui.pages.farmer.player_info.property_group_widget import PropertyGroup
 
 
 class PlayerInfoWidget(QWidget):
-    def __init__(self, bot: Bot):
-        super().__init__()
+    def __init__(self, bot: Bot, parent: QWidget | None = None):
+        super().__init__(parent=parent)
 
         self.bot = bot
 
-        scroll_area = SingleDirectionScrollArea()
+        scroll_area = SingleDirectionScrollArea(self)
         scroll_area.setWidgetResizable(True)
         scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
 
-        container_widget = QWidget()
+        container_widget = QWidget(scroll_area)
         self.container_layout = QVBoxLayout()
         self.container_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.container_layout.setContentsMargins(0, 0, 0, 0)

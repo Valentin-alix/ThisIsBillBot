@@ -299,9 +299,15 @@ class Attacker:
             needs_taken_cell = does_spell_need_taken_cell(spell_lvl) or zone_size == 0
 
             spell_id = spell_lvl.spellId
-            modifier_range_min = modifiers_map.get((spell_id, SpellModifierType.RANGE_MIN))
-            modifier_range_max = modifiers_map.get((spell_id, SpellModifierType.RANGE_MAX))
-            modifier_cast_line = modifiers_map.get((spell_id, SpellModifierType.CAST_LINE))
+            modifier_range_min = modifiers_map.get(
+                (spell_id, SpellModifierType.RANGE_MIN)
+            )
+            modifier_range_max = modifiers_map.get(
+                (spell_id, SpellModifierType.RANGE_MAX)
+            )
+            modifier_cast_line = modifiers_map.get(
+                (spell_id, SpellModifierType.CAST_LINE)
+            )
 
             spell_has_targets = False
 

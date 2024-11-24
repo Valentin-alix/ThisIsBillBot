@@ -81,6 +81,7 @@ GAME_VERIFIED_MAPPING_BY_OBF: dict[str, str] = {
     # "jcd": "ExchangeBidHouseTypeRequest",
     # "jeu": "ExchangeTypesExchangerDescriptionForUserEvent",
     # "jet": "ExchangeTypesItemsExchangerDescriptionForUserEvent",
+    "jol": "IdentificationRequest",
 }
 GAME_MAPPING_FIELDS: dict[str, dict[str, str]] = {
     "GameMessage": {"request": "eyry", "event": "eyrx"},

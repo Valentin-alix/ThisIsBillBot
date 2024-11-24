@@ -37,9 +37,11 @@ class AnkamaLauncherHandler:
     def userInfo_get(self, hash: str) -> str:
         logger.info(f"userInfo_get {hash}")
         account_info = get_account_info_by_login(self.infos_by_hash[hash].haapi.login)
-        if account_info is not None:
-            return json.dumps(account_info)
-        raise ValueError("<!> Account info not found in settings !")
+        if account_info is None:
+            account_info = self.infos_by_hash[hash].haapi.signOnWithApiKey(
+                self.infos_by_hash[hash].game_id
+            )
+        return json.dumps(account_info)
 
     @retry_internet
     def settings_get(self, hash: str, key: str) -> str:
@@ -56,10 +58,11 @@ class AnkamaLauncherHandler:
     @retry_internet
     def auth_getGameToken(self, hash: str, gameId: int) -> str:
         logger.info(f"auth_getGameToken {hash}")
-        api_key_data = CryptoHelper.getStoredApiKey(self.infos_by_hash[hash].login)[
-            "apikey"
-        ]
-        certificate_datas = api_key_data.get("certificate")
+        login = self.infos_by_hash[hash].login
+        try:
+            certificate_datas = CryptoHelper.getStoredCertificate(login)["certificate"]
+        except FileNotFoundError:
+            certificate_datas = None
         return self.infos_by_hash[hash].haapi.createToken(gameId, certificate_datas)
 
     @retry_internet

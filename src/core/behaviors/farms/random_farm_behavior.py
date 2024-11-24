@@ -149,7 +149,9 @@ class RandomFarmBehavior(Behavior):
             return self.finish(error_code)
         else:
             self.edge_path.remove(edge)
-        LAST_VISITED_BY_SERVER_AND_MAP[(self.game_state.player.server_id, self.game_state.map.map_id)] = datetime.now()
+        LAST_VISITED_BY_SERVER_AND_MAP[
+            (self.game_state.player.server_id, self.game_state.map.map_id)
+        ] = datetime.now()
         self.event_manager.on(
             MapComplementaryInformationEvent,
             partial(
@@ -171,7 +173,9 @@ class RandomFarmBehavior(Behavior):
             self.edge_path = None
             self.logger.error(error_code)
             return self.finish(error_code)
-        LAST_VISITED_BY_SERVER_AND_MAP[(self.game_state.player.server_id, self.game_state.map.map_id)] = datetime.now()
+        LAST_VISITED_BY_SERVER_AND_MAP[
+            (self.game_state.player.server_id, self.game_state.map.map_id)
+        ] = datetime.now()
         self.finish(error_code)
 
     def get_next_weighted_path(self) -> list[Edge] | None:
@@ -219,7 +223,10 @@ class RandomFarmBehavior(Behavior):
         character_id = self.game_state.player.character_id
         return sum(
             1
-            for (srv_id, char_id), edge_path in EDGE_PATH_BY_SERVER_AND_CHARACTER.items()
+            for (
+                srv_id,
+                char_id,
+            ), edge_path in EDGE_PATH_BY_SERVER_AND_CHARACTER.items()
             if srv_id == server_id and char_id != character_id
             for other_edge in edge_path
             if other_edge == edge

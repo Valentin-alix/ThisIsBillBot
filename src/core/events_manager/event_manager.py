@@ -26,6 +26,9 @@ class EventManager(ContextualLogger):
     on_send_game_callback: Callable[[Any], None] | None = field(
         init=False, default=None
     )
+    on_send_obf_game_callback: Callable[[Any], None] | None = field(
+        init=False, default=None
+    )
     on_send_conn_callback: Callable[[Any], None] | None = field(
         init=False, default=None
     )
@@ -184,6 +187,15 @@ class EventManager(ContextualLogger):
                     f"sending msg {msg.__class__} but on_send_callback is not defined !"
                 )
             self.on_send_game_callback(msg)
+
+    def send_obf_msg(self, msg: Message) -> None:
+        self.logger.debug(f"Sending Obf Game MSG {msg.__class__.__name__}")
+        with self.lock:
+            if self.on_send_obf_game_callback is None:
+                raise AttributeError(
+                    f"sending msg {msg.__class__} but on_send_obf_game_callback is not defined !"
+                )
+            self.on_send_obf_game_callback(msg)
 
     def send_connection_msg(self, msg: Message) -> None:
         self.logger.debug(f"Sending Connection MSG {msg.__class__.__name__}")

@@ -1,6 +1,7 @@
 import json
 import os
 from threading import RLock
+from typing import Literal
 
 from pydantic import BaseModel, RootModel
 
@@ -12,6 +13,7 @@ class BotConfig(BaseModel):
     network_interface: str | None = None
     pc_id: int = int(os.environ.get("PC_ID", 2))
     schedule_profile: str | None = None
+    connection_mode: Literal["mitm", "socket"] = "mitm"
 
 
 class BotConfigs(RootModel):

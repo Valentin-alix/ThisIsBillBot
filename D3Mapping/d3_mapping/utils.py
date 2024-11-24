@@ -16,7 +16,9 @@ def get_local_ip():
         return Socket.getsockname()[0]
 
 
-def get_value_with_len_malus(value: float, len_clear_elems: int, len_obf_elems: int) -> float:
+def get_value_with_len_malus(
+    value: float, len_clear_elems: int, len_obf_elems: int
+) -> float:
     malus = 2 if len_clear_elems > len_obf_elems else 1
     if len_obf_elems - 1 == len_clear_elems:
         return value / 1.1

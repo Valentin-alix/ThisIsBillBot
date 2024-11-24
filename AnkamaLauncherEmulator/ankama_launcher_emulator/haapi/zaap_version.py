@@ -11,8 +11,13 @@ CYTRUS_URL = "https://cytrus.cdn.ankama.com/cytrus.json"
 def get_client_version() -> str:
     response = requests.get(CYTRUS_URL, timeout=10)
     response.raise_for_status()
-    data = response.json()
-    return data["games"]["dofus"]["assets"]["main"]["latest"]
+    data = response.text
+    parts = data.split('"dofus3":"6.0_')
+    if len(parts) > 1:
+        end = parts[1].find('"')
+        if end != -1:
+            return parts[1][:end]
+    raise ValueError("Can't parse client version from cytrus")
 
 
 def get_zaap_version():
@@ -37,3 +42,7 @@ def get_zaap_version():
 
 
 ZAAP_VERSION = get_zaap_version()
+
+
+if __name__ == "__main__":
+    get_client_version()

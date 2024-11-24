@@ -3,6 +3,7 @@ from typing import cast
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QModelIndex, QObject, Qt, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QStandardItem
+from PyQt6.QtWidgets import QWidget
 
 from D3Database.data_center.data_reader import DataReader
 from D3Database.data_center.i18n import I18N
@@ -13,12 +14,14 @@ from src.gui.components.table.table import BaseTableWidget
 
 
 class RecipeTableSignals(QObject):
-    removed_recipe = pyqtSignal(object)
+    removed_recipe = pyqtSignal(RecipeItem)
 
 
 class RecipeTable(BaseTableWidget):
-    def __init__(self, recipes: list[RecipeItem]) -> None:
-        super().__init__()
+    def __init__(
+        self, recipes: list[RecipeItem], parent: QWidget | None = None
+    ) -> None:
+        super().__init__(parent=parent)
         columns: list[ColumnInfo] = [
             ColumnInfo(name="Nom"),
             ColumnInfo(name="Métier"),
@@ -26,9 +29,11 @@ class RecipeTable(BaseTableWidget):
             ColumnInfo(name="Bénéfice"),
         ]
         self.table.set_columns(columns)
-        self.table.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.table.setEditTriggers(
+            QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers
+        )
 
-        self.signals = RecipeTableSignals()
+        self.signals = RecipeTableSignals(parent=self)
         self.widget_item_by_recipe: dict[RecipeItem, QStandardItem] = {}
         for recipe in recipes:
             self.add_recipe(recipe)
@@ -65,7 +70,8 @@ class RecipeTable(BaseTableWidget):
         source_index = self.table.proxy_model.mapToSource(model_index)
         model = self.table.item_model
         recipe = cast(
-            RecipeItem, model.data(model.index(source_index.row(), 0), Qt.ItemDataRole.UserRole)
+            RecipeItem,
+            model.data(model.index(source_index.row(), 0), Qt.ItemDataRole.UserRole),
         )
         model.remove_rows(source_index.row(), 1)
         self.on_remove_recipe(recipe)

@@ -27,9 +27,7 @@ def get_conn_msg(content: bytes) -> tuple[Request | Response | Event, Message]:
     return msg_content, sub_msg_content
 
 
-def get_conn_msg_info(
-    content: bytes, sub_msg: Message, from_server: bool
-) -> MessageInfo:
+def get_conn_msg_info(sub_msg: Message, from_server: bool) -> MessageInfo:
     received_msg_time = datetime.datetime.now()
     msg_json: dict[str, Any] = {}
     sub_msg_name: str = ""

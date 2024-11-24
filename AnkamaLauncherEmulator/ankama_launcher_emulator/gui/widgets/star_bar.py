@@ -3,35 +3,23 @@ import os
 
 from PyQt6.QtCore import Qt, QTimer, QUrl
 from PyQt6.QtGui import QDesktopServices
-from PyQt6.QtWidgets import (
-    QHBoxLayout,
-)
-from qfluentwidgets import (
-    BodyLabel,
-    CardWidget,
-)
+from PyQt6.QtWidgets import QHBoxLayout
+from qfluentwidgets import BodyLabel, CardWidget
 
-from ankama_launcher_emulator.consts import (
-    APP_CONFIG_PATH,
-    GITHUB_URL,
-)
+from ankama_launcher_emulator.consts import APP_CONFIG_PATH, GITHUB_URL
 
 
-class SystemRequirementCard(CardWidget):
+class StarBar(CardWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.infoLabel = BodyLabel(
-            "This tools helped you ? Put a ⭐ on GitHub !", self
-        )
+        self.infoLabel = BodyLabel("This tools helped you ? Put a ⭐ on GitHub !", self)
 
         self.hBoxLayout = QHBoxLayout(self)
-        self.hBoxLayout.setContentsMargins(20, 11, 11, 11)
+        self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.hBoxLayout.setSpacing(15)
 
         self.setFixedHeight(50)
-
-        self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
 
         self.hBoxLayout.addWidget(self.infoLabel, 0, Qt.AlignmentFlag.AlignCenter)
 

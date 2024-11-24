@@ -1,5 +1,7 @@
 import json
 import os
+import re
+import shutil
 from pathlib import Path
 
 if os.name == "nt":
@@ -14,9 +16,12 @@ RELEASE_JSON_PATH = os.path.join(
 if os.path.exists(RELEASE_JSON_PATH):
     with open(RELEASE_JSON_PATH, "r") as file:
         content = json.load(file)
-        DOFUS_PATH = os.path.join(
-            content["location"], "Dofus.exe" if os.name == "nt" else "Dofus"
-        )
+        if not content.get("location"):
+            DOFUS_PATH = "DUMMY_PATH"
+        else:
+            DOFUS_PATH = os.path.join(
+                content["location"], "Dofus.exe" if os.name == "nt" else "Dofus"
+            )
 else:
     DOFUS_PATH = "DUMMY_PATH"
     print("<!> No Dofus path found !")
@@ -28,10 +33,14 @@ RETRO_RELEASE_JSON_PATH = os.path.join(
 )
 if os.path.exists(RETRO_RELEASE_JSON_PATH):
     with open(RETRO_RELEASE_JSON_PATH, "r") as file:
-        content = json.load(file)
-        RETRO_PATH = os.path.join(
-            content["location"], "Dofus Retro.exe" if os.name == "nt" else "DofusRetro"
-        )
+        content: dict = json.load(file)
+        if not content.get("location"):
+            RETRO_PATH = "DUMMY_RETRO_PATH"
+        else:
+            RETRO_PATH = os.path.join(
+                content["location"],
+                "Dofus Retro.exe" if os.name == "nt" else "DofusRetro",
+            )
 else:
     RETRO_PATH = "DUMMY_RETRO_PATH"
     print("<!> No Retro path found !")
@@ -44,8 +53,8 @@ API_KEY_FOLDER_PATH = os.path.join(ZAAP_PATH, "keydata")
 SETTINGS_PATH = os.path.join(ZAAP_PATH, "Settings")
 
 
-PROXY_URL = "http://c11dfd1d285080f6:NnU2okrD@185.162.130.85:10000"
 LAUNCHER_PORT = 26116
+RETRO_TEXT_SOCKET_PORT = 26117
 
 GITHUB_URL = "https://github.com/Valentin-alix/AnkamaLauncherEmulator"
 
@@ -61,3 +70,16 @@ os.makedirs(app_config_dir, exist_ok=True)
 APP_CONFIG_PATH = os.path.join(app_config_dir, "config.json")
 
 RESOURCES = Path(__file__).parent.parent / "resources"
+
+ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+
+CYTRUS_INSTALLED = shutil.which("cytrus-v6") is not None
+
+if "OneDrive" in os.environ:
+    ACCOUNTS_PATH = os.path.join(
+        os.environ["OneDrive"], "BotAccounts", "generated_accounts.json"
+    )
+    EMAILS_PATH = os.path.join(os.environ["OneDrive"], "BotAccounts", "emails.json")
+else:
+    ACCOUNTS_PATH = os.path.join(app_config_dir, "generated_accounts.json")
+    EMAILS_PATH = None

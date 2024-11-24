@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 from icecream import ic
 from tqdm import tqdm
 
+sys.path.append(os.path.join(Path(__file__).parent.parent.parent))
+
 from D3Mapping.d3_mapping.factories.p_mapper_factory import PMapperFactory
 from D3Mapping.d3_mapping.mapping.debug_messages import diff_output_field_mappings
 from D3Mapping.d3_mapping.models.mapping_info import OutputMappingInfo
@@ -20,9 +22,6 @@ from D3Mapping.d3_mapping.verified_mapping import (
 )
 
 load_dotenv(os.path.join(Path(__file__).parent.parent.parent, ".env"))
-
-
-sys.path.append(os.path.join(Path(__file__).parent.parent.parent))
 
 
 from D3Mapping.d3_mapping.consts import (
@@ -238,10 +237,11 @@ def generate_unmapped_candidates():
 
 
 def main():
-    # gen_all_python_from_protoc()
+    # get_protos()
+    gen_all_python_from_obf_protoc()
     # dump_all_used_fields()
-    generate_all_mapping()
-    generate_unmapped_candidates()
+    # generate_all_mapping()
+    # generate_unmapped_candidates()
 
 
 if __name__ == "__main__":

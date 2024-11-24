@@ -8,9 +8,9 @@ from src.gui.pages.fm.fm_item.fm_item_table import FmItemTable
 
 
 class FmItemSignals(QObject):
-    saved_item = pyqtSignal(object)
-    created_item = pyqtSignal(object)
-    deleted_item = pyqtSignal(object)
+    saved_item = pyqtSignal(EquipmentSchema)
+    created_item = pyqtSignal(EquipmentSchema)
+    deleted_item = pyqtSignal(EquipmentSchema)
 
 
 class FmItem(QWidget):
@@ -22,7 +22,7 @@ class FmItem(QWidget):
     ) -> None:
         super().__init__(*args, **kwargs)
         self.logger = logger
-        self.signals = FmItemSignals()
+        self.signals = FmItemSignals(parent=self)
         self.equipment: EquipmentSchema | None = None
 
         self.main_layout = QVBoxLayout()
@@ -59,12 +59,12 @@ class FmItem(QWidget):
         return edited_lines
 
     def _setup_item_content(self):
-        self.label_equip_widget = QWidget()
+        self.label_equip_widget = QWidget(self)
         self.label_equip_layout = QFormLayout()
         self.label_equip_widget.setLayout(self.label_equip_layout)
-        self.label_edit = QLineEdit()
+        self.label_edit = QLineEdit(self.label_equip_widget)
         self.label_equip_layout.addRow("Label", self.label_edit)
         self.main_layout.addWidget(self.label_equip_widget)
 
-        self.fm_item_table: FmItemTable = FmItemTable()
+        self.fm_item_table: FmItemTable = FmItemTable(self)
         self.main_layout.addWidget(self.fm_item_table)

@@ -15,32 +15,32 @@ class MessageDetailWidget(QWidget):
         self.setLayout(self._layout)
         self._layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
-        top_bar = QWidget()
+        top_bar = QWidget(self)
         top_bar_layout = QHBoxLayout()
         top_bar.setLayout(top_bar_layout)
         self._layout.addWidget(top_bar)
 
-        self.quit_btn = TransparentToolButton(FluentIcon.CLOSE)
+        self.quit_btn = TransparentToolButton(FluentIcon.CLOSE, top_bar)
         top_bar_layout.addWidget(self.quit_btn)
 
-        self.search_bar = LineEdit()
+        self.search_bar = LineEdit(top_bar)
         self.search_bar.setPlaceholderText("Rechercher dans le contenu...")
         self.search_bar.setClearButtonEnabled(True)
         self.search_bar.textChanged.connect(self._on_search_text_changed)
         top_bar_layout.addWidget(self.search_bar)
 
-        trees_widget = QWidget()
+        trees_widget = QWidget(self)
         trees_widget_layout = QHBoxLayout()
         trees_widget.setLayout(trees_widget_layout)
         self._layout.addWidget(trees_widget)
 
-        self.dynamic_tree = DynamicTreeWidget()
+        self.dynamic_tree = DynamicTreeWidget(trees_widget)
         self.dynamic_tree.scrollDelagate.verticalSmoothScroll.setSmoothMode(
             SmoothMode.NO_SMOOTH
         )
         trees_widget_layout.addWidget(self.dynamic_tree)
 
-        self.obf_dynamic_tree = DynamicTreeWidget()
+        self.obf_dynamic_tree = DynamicTreeWidget(trees_widget)
         self.obf_dynamic_tree.scrollDelagate.verticalSmoothScroll.setSmoothMode(
             SmoothMode.NO_SMOOTH
         )
@@ -96,7 +96,7 @@ class MessageDetailWidget(QWidget):
         self,
         parent: QTreeWidgetItem | None,
         search_text: str,
-        found_items: list[QTreeWidgetItem]
+        found_items: list[QTreeWidgetItem],
     ):
         if parent is None:
             return

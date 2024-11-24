@@ -20,7 +20,10 @@ def get_rare_gid_with_weight_from_protector_drop(
 
     for drop in drops:
         description = (
-            I18N().name_by_id[DataReader().item_by_id[drop.objectId].descriptionId or 0].lower().replace("s", "")
+            I18N()
+            .name_by_id[DataReader().item_by_id[drop.objectId].descriptionId or 0]
+            .lower()
+            .replace("s", "")
         )
         if drop.objectId in Items.CUSTOM_GATHERER_BY_SAC:
             res_object_id = Items.CUSTOM_GATHERER_BY_SAC[drop.objectId]
@@ -47,5 +50,6 @@ PROTECTOR_DROP_ITEM_IDS = {
     for race in Monsters.PROTECTOR_RACES
     for monster in DataReader().monsters_by_race[race]
     for drop in monster.drops
-    if DataReader().item_by_id[drop.objectId].typeId not in [310, TypeItemEnum.PIERRE_BRUTE]
+    if DataReader().item_by_id[drop.objectId].typeId
+    not in [310, TypeItemEnum.PIERRE_BRUTE]
 }

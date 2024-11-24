@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from ankama_launcher_emulator.gui.utils import run_in_background
 from ankama_launcher_emulator.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
@@ -18,7 +19,6 @@ from src import const
 from src.const import MESSAGES_WITH_UID
 from src.controller.session_timings import SessionTimingsController
 from src.core.bot.bot import Bot
-from src.gui.utils.run_in_background import run_in_background
 
 
 @dataclass
@@ -37,7 +37,9 @@ class GameProxy(Proxy):
         self.bot.event_manager.on_send_game_callback = None
 
         QMetaObject.invokeMethod(
-            self.bot.game_info_signals, "disconnected", Qt.ConnectionType.QueuedConnection
+            self.bot.game_info_signals,
+            "disconnected",
+            Qt.ConnectionType.QueuedConnection,
         )
 
         if const.DO_INSERT_HUMAN_SESSION:
@@ -64,10 +66,11 @@ class GameProxy(Proxy):
         if clear_sub_altered_msg is None:
             return None
         # msg was altered, let's rebuild game msg
-        game_msg = get_obf_game_message_from_msg(
+        obf_info = get_obf_game_message_from_msg(
             root_msg_namespace, clear_sub_altered_msg, expected_uid
         )
-        if game_msg is not None:
+        if obf_info is not None:
+            game_msg, _ = obf_info
             return encode_msg(game_msg)
 
     def on_sent_msg_datas(
@@ -119,10 +122,11 @@ class GameProxy(Proxy):
         else:
             uid = -1
 
-        obf_game_msg = get_obf_game_message_from_msg(
+        obf_info = get_obf_game_message_from_msg(
             Request.DESCRIPTOR.full_name, clear_sub_msg, uid
         )
-        if obf_game_msg is not None:
+        if obf_info is not None:
+            obf_game_msg, _ = obf_info
             self.queue_worker_item.put(
                 (WorkerAction.SEND_SERVER, encode_msg(obf_game_msg), True, False)
             )

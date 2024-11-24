@@ -13,13 +13,13 @@ CARD_HEIGHT = 80
 
 
 class InventoryTab(QWidget):
-    def __init__(self, bot: Bot):
-        super().__init__()
+    def __init__(self, bot: Bot, parent: QWidget | None = None):
+        super().__init__(parent=parent)
         self.bot = bot
         self.list_item_by_uid: dict[int, QListWidgetItem] = {}
         self.signals_connected = False
 
-        self.list_widget = ListWidget()
+        self.list_widget = ListWidget(self)
         self.list_widget.scrollDelegate.verticalSmoothScroll.setSmoothMode(
             SmoothMode.NO_SMOOTH
         )

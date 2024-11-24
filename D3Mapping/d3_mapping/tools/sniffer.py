@@ -3,12 +3,12 @@ import socket
 import sys
 import traceback
 from collections import defaultdict
+from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
 from threading import Thread
 
 from dotenv import load_dotenv
-from pydantic import Field
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication
 from qfluentwidgets import Theme, setTheme, setThemeColor
@@ -17,13 +17,13 @@ from scapy.layers.inet import IP
 from scapy.layers.inet6 import IPv6
 from scapy.packet import Packet, Raw
 
+sys.path.insert(0, os.path.join(Path(__file__).parent.parent.parent.parent))
+
 from src.core.signals.global_log_signals import GlobalLogSignals
 from src.services.logging.logger import init_gui_global_logging
-from src.utils.dataclass_utils import AppModel
 
-load_dotenv(os.path.join(Path(__file__).parent.parent.parent, ".env"))
+load_dotenv(os.path.join(Path(__file__).parent.parent.parent.parent, ".env"))
 
-sys.path.append(os.path.join(Path(__file__).parent.parent.parent))
 
 from D3Mapping.d3_mapping.protocol.protocol import decode_varint_size
 from D3Mapping.d3_mapping.protocol.protocol_connection import (
@@ -46,9 +46,10 @@ DOFUS_CONNECTION_URL = "dofus2-co-production.ankama-games.com"
 CONNECTION_SERVERS_IPS: list[str] = socket.gethostbyname_ex(DOFUS_CONNECTION_URL)[2]
 
 
-class Sniffer(AppModel):
-    buffers: defaultdict[tuple[str, str], bytes] = Field(
-        init=False, default_factory=lambda: defaultdict(lambda: bytes())
+@dataclass
+class Sniffer:
+    buffers: defaultdict[tuple[str, str], bytes] = field(
+        init=False, default_factory=lambda: defaultdict(bytes)
     )
     msg_info_signals: MessageInfoSignals
     from_obfuscated: bool
@@ -102,7 +103,7 @@ class Sniffer(AppModel):
 
     def handle_connection_message(self, content: bytes, from_server: bool):
         _, sub_msg = get_conn_msg(content)
-        msg_infos = get_conn_msg_info(content, sub_msg, from_server)
+        msg_infos = get_conn_msg_info(sub_msg, from_server)
         self.msg_info_signals.msg_info.emit(msg_infos, False)
 
     def handle_game_message(self, content: bytes, from_server: bool):

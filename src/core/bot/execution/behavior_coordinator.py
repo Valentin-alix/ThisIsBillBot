@@ -2,6 +2,7 @@ from dataclasses import dataclass, field, fields
 from threading import Event
 from typing import Any, Callable
 
+from ankama_launcher_emulator.gui.utils import run_in_background
 from ankama_launcher_emulator.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
@@ -20,7 +21,6 @@ from src.core.config import MULE_BANK_CHARACTER_LOGIN
 from src.core.events_manager.event_manager import EventManager
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.shared_farm_signals import SharedSignals
-from src.gui.utils.run_in_background import run_in_background
 from src.services.logging.contextual_logger import ContextualLogger
 
 
@@ -139,18 +139,14 @@ class BehaviorCoordinator(ContextualLogger):
         if not self.is_connected_event.is_set():
             self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
         elif self.is_ready_to_play_event.is_set():
-            self._thread_worker_runnings.append(
-                run_in_background(self._current_bot_action_func)
-            )
+            run_in_background(self._current_bot_action_func)
         else:
             self.logger.info("character is probably connecting, waiting...")
 
     def run_current_bot_action(self):
         """Execute the current bot action or guess the appropriate one."""
         if self._current_bot_action_func is not None:
-            self._thread_worker_runnings.append(
-                run_in_background(self._current_bot_action_func)
-            )
+            run_in_background(self._current_bot_action_func)
         else:
             self.guess_bot_action()
 

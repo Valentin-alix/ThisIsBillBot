@@ -2,296 +2,215 @@
 
 syntax = "proto3";
 
-import "google/protobuf/any.proto";
-
-enum lbq {
-  LBQ_ETWL = 0;
-  LBQ_ETWM = 1;
-  LBQ_ETWN = 2;
-  LBQ_ETWO = 3;
-  LBQ_ETWP = 4;
-  LBQ_ETWQ = 5;
-  LBQ_ETWR = 6;
-}
-
-message lbs {
-  oneof fqix {
-    lbu fqiu = 1;
-    lbw fqiv = 2;
-    lby fqiw = 3;
-  }
-}
-
-message lbu {
-  string fqjb = 1;
-  oneof fqjj {
-    lbz fqjc = 2;
-    lcd fqjd = 3;
-    lcr fqje = 4;
-    ldg fqjf = 5;
-    ldl fqjg = 6;
-    ldq fqjh = 7;
-    ldy fqji = 8;
-  }
-}
-
-message lbw {
-  string fqjn = 1;
-  oneof fqju {
-    lca fqjo = 2;
-    lcq fqjp = 3;
-    lcw fqjq = 4;
-    ldi fqjr = 5;
-    ldx fqjs = 6;
-    lef fqjt = 7;
-  }
-}
-
-message lby {
-  oneof fqjz {
-    lcb fqjy = 1;
-  }
-}
-
-message lbz {
-}
-
-message lca {
-}
-
-message lcb {
-  ldc fqkj = 1;
-}
-
-message lcd {
-  string fqkn = 1;
-  string fqkq = 5;
-  oneof fqkr {
-    lcg fqko = 3;
-    lch fqkp = 4;
-  }
-}
-
-message lcg {
-  string fqla = 1;
-  lce fqlb = 2;
-  message lce {
-    int64 fqkv = 1;
-    string fqkw = 2;
-  }
-}
-
-message lch {
-  string fqlf = 1;
-}
-
-message lcq {
-  oneof fqmn {
-    lcl fqml = 1;
-    lco fqmm = 2;
-  }
-  message lcl {
-    int64 fqlq = 1;
-    string fqlr = 2;
-    string fqls = 3;
-    lcz fqlt = 4;
-    string fqlu = 5;
-    lcj fqlv = 6;
-    optional int32 fqlw = 7;
-    ldj fqly = 8;
-    leg fqlz = 9;
-    message lcj {
-      bool fqlj = 1;
-      bool fqlk = 2;
-      bool fqll = 3;
-      bool fqlm = 4;
-    }
-  }
-  message lco {
-    lcm fqmd = 1;
-    optional string fqme = 2;
-    optional string fqmg = 3;
-    enum lcm {
-      LCM_EUBS = 0;
-      LCM_EUBT = 1;
-      LCM_EUBU = 2;
-      LCM_EUBV = 3;
-      LCM_EUBW = 4;
-      LCM_EUBX = 5;
-      LCM_EUBY = 6;
-      LCM_EUBZ = 7;
-      LCM_EUCA = 8;
-      LCM_EUCB = 9;
-      LCM_EUCC = 10;
-      LCM_EUCD = 11;
-      LCM_EUCE = 12;
-      LCM_EUCF = 13;
-      LCM_EUCG = 14;
-    }
-  }
-}
-
-message lcr {
-  int32 fqmr = 1;
-}
-
-message lcw {
-  oneof fqne {
-    lcu fqnb = 1;
-    lct fqnc = 2;
-  }
-  message lcu {
-    string fqmv = 1;
-    string fqmw = 2;
-    repeated int32 fqmx = 3;
-  }
-  enum lct {
-    LCT_EUDE = 0;
-    LCT_EUDF = 1;
-    LCT_EUDG = 2;
-    LCT_EUDH = 3;
-  }
-}
-
-message lcz {
-  repeated ldc fqnn = 1;
-  repeated lcx fqno = 2;
-  bool fqnp = 3;
-  message lcx {
-    lbq fqni = 1;
-    int32 fqnj = 2;
-  }
-}
-
-message ldc {
-  ldf fqnt = 1;
-  lda fqnu = 2;
-  repeated ldp fqnv = 3;
-  enum lda {
-    LDA_EUEN = 0;
-    LDA_EUEO = 1;
-    LDA_EUEP = 2;
-    LDA_EUEQ = 3;
-  }
-}
-
-message ldf {
-  int32 fqnz = 1;
-  ldd fqoa = 2;
-  lbq fqob = 3;
-  enum ldd {
-    LDD_EUFA = 0;
-    LDD_EUFB = 1;
-  }
-}
-
-message ldg {
-  int64 fqof = 1;
-}
-
-message ldi {
-  oneof fqol {
-    ldj fqoj = 2;
-    ldk fqok = 3;
-  }
-}
-
-message ldj {
-  bool fqop = 1;
-  int64 fqoq = 2;
-  string fqor = 3;
-  string fqos = 4;
-  lcz fqot = 5;
-}
-
-message ldk {
-}
-
-message ldl {
-}
-
-message ldp {
-  string fqpd = 1;
-  ldn fqpe = 2;
-  ldm fqpf = 3;
-  int32 fqpg = 4;
-  string fqph = 5;
-  enum ldn {
-    LDN_EUGP = 0;
-    LDN_EUGQ = 1;
-    LDN_EUGR = 2;
-    LDN_EUGS = 3;
-    LDN_EUGT = 4;
-    LDN_EUGU = 5;
-    LDN_EUGV = 6;
-    LDN_EUGW = 7;
-    LDN_EUGX = 8;
-    LDN_EUGY = 9;
-    LDN_EUGZ = 10;
-    LDN_EUHA = 11;
-    LDN_EUHB = 12;
-    LDN_EUHC = 13;
-    LDN_EUHD = 14;
-    LDN_EUHE = 15;
-    LDN_EUHF = 16;
-    LDN_EUHG = 17;
-    LDN_EUHH = 18;
-  }
-  enum ldm {
-    LDM_EUGN = 0;
-    LDM_EUGO = 1;
-  }
-}
-
-message ldq {
-}
-
-message ldx {
-  oneof fqqb {
-    ldv fqpy = 1;
-    lds fqpz = 2;
-  }
-  message ldv {
-    repeated ldt fqpu = 1;
-    message ldt {
-      string fqpo = 1;
-      string fqpp = 2;
-      repeated int32 fqpq = 3;
-    }
-  }
-  enum lds {
-    LDS_EUHZ = 0;
-    LDS_EUIA = 1;
-  }
-}
-
-message ldy {
-  string fqqf = 1;
-  string fqqg = 2;
-}
-
-message lef {
-  oneof fqqu {
-    lea fqqs = 1;
-    led fqqt = 2;
-  }
-  message lea {
-    repeated int32 fqqk = 1;
-  }
-  message led {
-    leb fqqo = 1;
-    enum leb {
-      LEB_EUJJ = 0;
-      LEB_EUJK = 1;
-      LEB_EUJL = 2;
-      LEB_EUJM = 3;
-    }
-  }
-}
-
 message leg {
-  string fqqy = 1;
-  string fqqz = 2;
-  repeated int32 fqra = 3;
+  lei frcz = 1;
+  lek frda = 2;
+  lem frdb = 3;
+}
+
+message lei {
+  string frdg = 1;
+  len frdh = 2;
+  ler frdi = 3;
+  lff frdj = 4;
+  lfu frdk = 5;
+  lfz frdl = 6;
+  lge frdm = 7;
+  lgm frdn = 8;
+}
+
+message len {
+}
+
+message ler {
+  string fret = 1;
+  leu freu = 3;
+  lev frev = 4;
+  string frew = 5;
+}
+
+message leu {
+  string frfg = 1;
+  les frfh = 2;
+  message les {
+    int64 frfb = 1;
+    string frfc = 2;
+  }
+}
+
+message lev {
+  string frfl = 1;
+}
+
+message lff {
+  int32 frgx = 1;
+}
+
+message lfu {
+  int64 fril = 1;
+}
+
+message lfz {
+}
+
+message lge {
+}
+
+message lgm {
+  string frkl = 1;
+  string frkm = 2;
+}
+
+message lek {
+  string frds = 1;
+  leo frdt = 2;
+  lfe frdu = 3;
+  lfk frdv = 4;
+  lfw frdw = 5;
+  lgl frdx = 6;
+  lgt frdy = 7;
+}
+
+message leo {
+}
+
+message lfe {
+  lez frgr = 1;
+  lfc frgs = 2;
+  message lez {
+    int64 frfw = 1;
+    string frfx = 2;
+    string frfy = 3;
+    lfn frfz = 4;
+    string frga = 5;
+    lex frgb = 6;
+    optional int32 frgc = 7;
+    lfx frge = 8;
+    lgu frgf = 9;
+    message lex {
+      bool frfp = 1;
+      bool frfq = 2;
+      bool frfr = 3;
+      bool frfs = 4;
+    }
+  }
+  message lfc {
+    lfa frgj = 1;
+    optional string frgk = 2;
+    optional string frgm = 3;
+    message lfa {
+    }
+  }
+}
+
+message lfn {
+  repeated lfq frht = 1;
+  repeated lfl frhu = 2;
+  bool frhv = 3;
+  message lfl {
+    lee frho = 1;
+    int32 frhp = 2;
+  }
+}
+
+message lfq {
+  lft frhz = 1;
+  lfo fria = 2;
+  repeated lgd frib = 3;
+  message lfo {
+  }
+}
+
+message lft {
+  int32 frif = 1;
+  lfr frig = 2;
+  lee frih = 3;
+  message lfr {
+  }
+}
+
+message lee {
+}
+
+message lgd {
+  string frjj = 1;
+  lgb frjk = 2;
+  lga frjl = 3;
+  int32 frjm = 4;
+  string frjn = 5;
+  message lgb {
+  }
+  message lga {
+  }
+}
+
+message lfx {
+  bool friv = 1;
+  int64 friw = 2;
+  string frix = 3;
+  string friy = 4;
+  lfn friz = 5;
+}
+
+message lgu {
+  string frle = 1;
+  string frlf = 2;
+  repeated int32 frlg = 3;
+}
+
+message lfk {
+  lfi frhh = 1;
+  optional lfh frhi = 2;
+  message lfi {
+    string frhb = 1;
+    string frhc = 2;
+    repeated int32 frhd = 3;
+  }
+  message lfh {
+  }
+}
+
+message lfw {
+  lfx frip = 2;
+  lfy friq = 3;
+}
+
+message lfy {
+}
+
+message lgl {
+  lgj frke = 1;
+  optional lgg frkf = 2;
+  message lgj {
+    repeated lgh frka = 1;
+    message lgh {
+      string frju = 1;
+      string frjv = 2;
+      repeated int32 frjw = 3;
+    }
+  }
+  message lgg {
+  }
+}
+
+message lgt {
+  lgo frky = 1;
+  lgr frkz = 2;
+  message lgo {
+    repeated int32 frkq = 1;
+  }
+  message lgr {
+    lgp frku = 1;
+    message lgp {
+    }
+  }
+}
+
+message lem {
+  lep fred = 1;
+}
+
+message lep {
+  lfq frep = 1;
 }
 

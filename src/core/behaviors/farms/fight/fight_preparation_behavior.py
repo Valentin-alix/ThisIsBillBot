@@ -91,7 +91,7 @@ class FightPreparationBehavior(Behavior):
                 continue
             self.unregister_listener(
                 EntitiesDispositionEvent,
-                reason="Received entity disposition for requested cell"
+                reason="Received entity disposition for requested cell",
             )
             if self.game_state.player.character_id not in [
                 disposition.entity_id,

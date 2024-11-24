@@ -89,13 +89,21 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
             return self.finish(error_code)
 
         available_tabs = set(self.game_state.guild_chest.tabs)
-        filtered = [(tab, objects) for tab, objects in self.object_to_unload_on_tab if tab in available_tabs]
+        filtered = [
+            (tab, objects)
+            for tab, objects in self.object_to_unload_on_tab
+            if tab in available_tabs
+        ]
         filtered_out_count = len(self.object_to_unload_on_tab) - len(filtered)
         self.object_to_unload_on_tab = filtered
 
         if filtered_out_count > 0:
-            self.logger.warning(f"Filtered out {filtered_out_count} tabs (not accessible)")
-        self.logger.info(f"Starting unload process for {len(self.object_to_unload_on_tab)} accessible tabs")
+            self.logger.warning(
+                f"Filtered out {filtered_out_count} tabs (not accessible)"
+            )
+        self.logger.info(
+            f"Starting unload process for {len(self.object_to_unload_on_tab)} accessible tabs"
+        )
         self.run_timer(BASE_RANGE, self.unload_tab)
 
     def unload_tab(self):
@@ -146,7 +154,9 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
         item_name = format_item_name(next_object.item.gid)
 
         server_id = self.game_state.player.server_id
-        tab_size = GuildChestState.get_tab_size(server_id, self.game_state.guild_chest.tab_number)
+        tab_size = GuildChestState.get_tab_size(
+            server_id, self.game_state.guild_chest.tab_number
+        )
         item_in_chest = GuildChestState.get_item_by_gid(
             server_id,
             self.game_state.guild_chest.tab_number,
@@ -161,7 +171,9 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
                 SMALL_RANGE, lambda: self.unload_object(object_to_unloads)
             )
 
-        self.logger.info(f"Unloading {item_name} x{next_object.item.quantity} ({len(object_to_unloads)} remaining)")
+        self.logger.info(
+            f"Unloading {item_name} x{next_object.item.quantity} ({len(object_to_unloads)} remaining)"
+        )
         req = ExchangeObjectMoveRequest(
             object_uid=next_object.item.uid, quantity=next_object.item.quantity
         )

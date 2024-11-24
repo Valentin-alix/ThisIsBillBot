@@ -9,6 +9,15 @@ from requests.adapters import HTTPAdapter
 logger = logging.getLogger()
 
 
+def raise_for_status_with_content(response: requests.Response):
+    try:
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.HTTPError as err:
+        error_msg = f"HTTP Error: {err} - Response: {response.text}"
+        raise requests.exceptions.HTTPError(error_msg) from err
+
+
 def retry_internet(func):
     def wrapper(*args, **kwargs):
         try_count: int = 3

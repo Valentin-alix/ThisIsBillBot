@@ -4,7 +4,9 @@ from datetime import datetime
 from threading import Event
 
 from src.core.signals.player_signals import GameInfoSignals
-from src.core.states.area_state import CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER
+from src.core.states.area_state import (
+    CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER,
+)
 from src.core.states.state import State
 
 
@@ -14,14 +16,18 @@ class PlayerState(State):
     _server_id: int = dataclasses.field(init=False, default=1)
     is_ready_to_play_event: Event = dataclasses.field(init=False, default_factory=Event)
     _level: int = dataclasses.field(init=False, default=1)
-    _subscription_end_date: datetime = dataclasses.field(init=False, default_factory=lambda: datetime(1975, 1, 1))
+    _subscription_end_date: datetime = dataclasses.field(
+        init=False, default_factory=lambda: datetime(1975, 1, 1)
+    )
     _character_id: int = dataclasses.field(init=False, default=0)
     _character_name: str = dataclasses.field(init=False, default_factory=str)
     waypoint_map_ids: list[int] = dataclasses.field(init=False, default_factory=list)
     jobs_lvl_by_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict)
 
     def clear_state(self):
-        CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER.pop((self.server_id, self.character_id), None)
+        CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER.pop(
+            (self.server_id, self.character_id), None
+        )
         self.server_id = -1
         self.is_ready_to_play_event.clear()
         self.level = 1
@@ -70,7 +76,10 @@ class PlayerState(State):
 
     @property
     def is_sub(self) -> bool:
-        return datetime.now(tz=self.subscription_end_date.tzinfo) < self.subscription_end_date
+        return (
+            datetime.now(tz=self.subscription_end_date.tzinfo)
+            < self.subscription_end_date
+        )
 
     @property
     def limited_lvl(self) -> int:

@@ -98,7 +98,7 @@ class MapMoveBehavior(Behavior):
         ):
             self.unregister_listener(
                 SequenceEndEvent,
-                reason="Movement sequence ended, now waiting for acknowledgement"
+                reason="Movement sequence ended, now waiting for acknowledgement",
             )
             self.event_manager.on(
                 GameActionAcknowledgementRequest,
@@ -128,7 +128,7 @@ class MapMoveBehavior(Behavior):
         if self.game_state.player.character_id == msg.character_id:
             self.unregister_listener(
                 MapMovementEvent,
-                reason="Player movement confirmed, switching to completion listener"
+                reason="Player movement confirmed, switching to completion listener",
             )
             duration = MovementPath.get_total_duration(
                 MovementPath.get_path_elements_from_cells(list(msg.cells)),

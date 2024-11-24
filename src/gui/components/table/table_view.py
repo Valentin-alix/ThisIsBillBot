@@ -30,7 +30,7 @@ class CustomTableModel(QAbstractTableModel):
         max_row_count: int = 5000,
     ):
         super().__init__(parent)
-        self.signals = CustomTableModelSignal()
+        self.signals = CustomTableModelSignal(parent=self)
         self._data = data if data is not None else []
         self._column_count = column_count
         self._max_row_count = max_row_count

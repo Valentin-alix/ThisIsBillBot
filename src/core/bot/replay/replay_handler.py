@@ -1,9 +1,7 @@
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
-from PyQt6.QtCore import QThread
+from ankama_launcher_emulator.gui.utils import run_in_background
 
-from src.gui.utils.run_in_background import run_in_background
 from src.services.replayer import Replayer
 
 
@@ -12,7 +10,6 @@ class ReplayHandler:
     """Handles replay functionality for the bot."""
 
     replayer: Replayer
-    _thread_worker_runnings: list[tuple[QThread, Any]] = field(init=False, default_factory=list)
 
     def on_replay_requested(
         self,
@@ -30,8 +27,8 @@ class ReplayHandler:
             speedup: Speed multiplier for replay (e.g., 2.0 for 2x speed)
             use_obfuscated: If True, replay obfuscated messages instead of clear ones
         """
-        self._thread_worker_runnings.append(
-            run_in_background(
-                self.replayer.get_replay_worker(path, preserve_timing, speedup, use_obfuscated, do_wait_state=True)
+        run_in_background(
+            self.replayer.get_replay_worker(
+                path, preserve_timing, speedup, use_obfuscated, do_wait_state=True
             )
         )

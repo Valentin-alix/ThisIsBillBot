@@ -59,7 +59,8 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
             tab
             for tab, item_gids in GIDS_BY_TAB.items()
             if any(
-                ingredient_id in item_gids and not GuildChestState.tab_exists(server_id, tab)
+                ingredient_id in item_gids
+                and not GuildChestState.tab_exists(server_id, tab)
                 for ingredient_id in all_ingredient_ids
             )
         }
@@ -84,7 +85,9 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
         )
 
     def get_storage_objects_by_gid(self) -> dict:
-        return GuildChestState.get_storage_objects_by_gid(self.game_state.player.server_id)
+        return GuildChestState.get_storage_objects_by_gid(
+            self.game_state.player.server_id
+        )
 
     def reserve_ingredients_for_recipe(
         self, recipe: RecipeItem, max_possible_result_quantity: int

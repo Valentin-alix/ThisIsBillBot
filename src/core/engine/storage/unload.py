@@ -14,4 +14,8 @@ def do_unload_on_mule(game_state: GameState):
 
 
 def get_bank_npc_info(is_sub: bool) -> list[NpcInfo]:
-    return [npc_info for npc_info in NPCs.BANKS if is_sub or MapTools.is_map_allowed_for_unsub(npc_info.npc_map_id)]
+    return [
+        npc_info
+        for npc_info in NPCs.BANKS
+        if is_sub or MapTools.is_map_allowed_for_unsub(npc_info.npc_map_id)
+    ]

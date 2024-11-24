@@ -58,7 +58,7 @@
   "GuildMembershipEvent": [
     {
       "obf_namespace": "iib",
-      "similarity": 0.773
+      "similarity": 0.7738
     },
     {
       "obf_namespace": "kll",
@@ -66,7 +66,7 @@
     },
     {
       "obf_namespace": "kmi",
-      "similarity": 0.7353
+      "similarity": 0.7367
     }
   ],
   "GuildChestCurrentListenersAddEvent": [
@@ -274,7 +274,7 @@
   "ExchangeTypesItemsExchangerDescriptionForUserEvent": [
     {
       "obf_namespace": "jbz",
-      "similarity": 0.9746
+      "similarity": 0.9745
     }
   ]
 }

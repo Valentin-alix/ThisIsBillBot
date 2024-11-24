@@ -1,8 +1,14 @@
 from dataclasses import dataclass, field
 from typing import Iterable
 
-from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import InteractiveElement, StatedElement
-from src.core.engine.interactives.collectable import Collectable, get_stated_element_collectable
+from D3Mapping.d3_mapping.resources.protos.game.common_pb2 import (
+    InteractiveElement,
+    StatedElement,
+)
+from src.core.engine.interactives.collectable import (
+    Collectable,
+    get_stated_element_collectable,
+)
 from src.core.signals.grid_signals import GridSignals
 from src.core.states.map_state import MapState
 from src.core.states.player_state import PlayerState
@@ -27,11 +33,17 @@ class InteractiveState(State):
     grid_signals: GridSignals
     player_state: PlayerState
     map_state: MapState
-    interactive_element_by_id: dict[int, InteractiveElement] = field(init=False, default_factory=dict)
-    stated_element_by_id: dict[int, tuple[StatedElement, Collectable | None]] = field(init=False, default_factory=dict)
+    interactive_element_by_id: dict[int, InteractiveElement] = field(
+        init=False, default_factory=dict
+    )
+    stated_element_by_id: dict[int, tuple[StatedElement, Collectable | None]] = field(
+        init=False, default_factory=dict
+    )
 
     def __post_init__(self) -> None:
-        self.stated_element_by_cell_id: StatedElementByCellIdDict = StatedElementByCellIdDict()
+        self.stated_element_by_cell_id: StatedElementByCellIdDict = (
+            StatedElementByCellIdDict()
+        )
 
     def clear_state(self):
         self.interactive_element_by_id.clear()
@@ -40,7 +52,10 @@ class InteractiveState(State):
     def clear_stated_elements(self) -> None:
         if not self.stated_element_by_id:
             return
-        batch = [(stated_element.cell_id, None, None) for stated_element, _ in self.stated_element_by_id.values()]
+        batch = [
+            (stated_element.cell_id, None, None)
+            for stated_element, _ in self.stated_element_by_id.values()
+        ]
         self.stated_element_by_id.clear()
         self.stated_element_by_cell_id.clear()
         if batch:
@@ -60,7 +75,9 @@ class InteractiveState(State):
                 stated_element,
                 collectable,
             )
-            self.stated_element_by_cell_id[stated_element.cell_id][stated_element.element_id] = (
+            self.stated_element_by_cell_id[stated_element.cell_id][
+                stated_element.element_id
+            ] = (
                 stated_element,
                 collectable,
             )
@@ -84,7 +101,9 @@ class InteractiveState(State):
             stated_element,
             collectable,
         )
-        self.stated_element_by_cell_id[stated_element.cell_id][stated_element.element_id] = (
+        self.stated_element_by_cell_id[stated_element.cell_id][
+            stated_element.element_id
+        ] = (
             stated_element,
             collectable,
         )
@@ -97,10 +116,15 @@ class InteractiveState(State):
                 batch.append((old_cell_id, None, None))
         self.grid_signals.set_stated_element_on_cell_id_batch.emit(batch)
 
-    def get_farmable_collectables(self, excluded_element_ids: set[int] | None = None) -> list[Collectable]:
+    def get_farmable_collectables(
+        self, excluded_element_ids: set[int] | None = None
+    ) -> list[Collectable]:
         farmable_collectables: list[Collectable] = []
         for stated_element, collectable in self.stated_element_by_id.values():
-            if excluded_element_ids is not None and stated_element.element_id in excluded_element_ids:
+            if (
+                excluded_element_ids is not None
+                and stated_element.element_id in excluded_element_ids
+            ):
                 continue
             if not collectable:
                 continue
@@ -108,7 +132,9 @@ class InteractiveState(State):
 
         return farmable_collectables
 
-    def get_stated_element_collectable(self, stated_element: StatedElement) -> Collectable | None:
+    def get_stated_element_collectable(
+        self, stated_element: StatedElement
+    ) -> Collectable | None:
         return get_stated_element_collectable(
             stated_element,
             self.interactive_element_by_id,
@@ -122,7 +148,11 @@ class InteractiveState(State):
             for element in self.interactive_element_by_id.values()
             if (
                 skill := next(
-                    (enabled_skill for enabled_skill in element.enabled_skills if enabled_skill.skill_id == skill_id),
+                    (
+                        enabled_skill
+                        for enabled_skill in element.enabled_skills
+                        if enabled_skill.skill_id == skill_id
+                    ),
                     None,
                 )
             )

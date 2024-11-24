@@ -206,10 +206,14 @@ class FightFrame(Frame):
             unique_name_id = ForbiddenMonsterController().get_unique_name_id_from_group(
                 self.game_state.fight.last_attacked_monster_group
             )
-            self.logger.info(f"Unique monster group name_id attacked : {unique_name_id}")
+            self.logger.info(
+                f"Unique monster group name_id attacked : {unique_name_id}"
+            )
             if unique_name_id is not None:
                 if self.game_state.fight.player_died_in_current_fight:
-                    self.logger.info(f"Increase defeat monster name_id : {unique_name_id}")
+                    self.logger.info(
+                        f"Increase defeat monster name_id : {unique_name_id}"
+                    )
                     ForbiddenMonsterController().increment_defeat_count(
                         unique_name_id, self.logger
                     )

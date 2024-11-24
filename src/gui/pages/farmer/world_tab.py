@@ -6,13 +6,13 @@ from src.gui.components.graphics.map_world_widget import MapWorldView
 
 
 class WorldTab(QWidget):
-    def __init__(self, world_signals: WorldSignals):
-        super().__init__()
+    def __init__(self, world_signals: WorldSignals, parent: QWidget | None = None):
+        super().__init__(parent=parent)
         layout = QVBoxLayout()
         self.setLayout(layout)
-        scroll_area_info = SingleDirectionScrollArea()
+        scroll_area_info = SingleDirectionScrollArea(self)
 
-        content_widget = QWidget()
+        content_widget = QWidget(scroll_area_info)
         content_widget_layout = QHBoxLayout()
         content_widget.setLayout(content_widget_layout)
         world_view = MapWorldView(world_signals=world_signals)

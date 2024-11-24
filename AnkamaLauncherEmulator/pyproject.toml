@@ -24,6 +24,8 @@ dependencies = [
     "pyqt6-fluent-widgets>=1.11.1",
     "pyright>=1.1.408",
     "pyinstaller>=6.19.0",
+    "pydantic>=2.11.10",
+    "playwright>=1.58.0",
 ]
 
 [dependency-groups]

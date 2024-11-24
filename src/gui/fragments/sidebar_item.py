@@ -21,6 +21,7 @@ from src.core.signals.bot_signals import BotSignals
 class SidebarItem(NavigationWidget):
     network_interface_changed = pyqtSignal(str)
     schedule_profile_changed = pyqtSignal(str)
+    connection_mode_changed = pyqtSignal(str)
     play_clicked = pyqtSignal()
     stop_clicked = pyqtSignal()
 
@@ -43,11 +44,11 @@ class SidebarItem(NavigationWidget):
         self.main_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.setLayout(self.main_layout)
 
-        self._left_icon = QLabel()
+        self._left_icon = QLabel(self)
         self._left_icon.setPixmap(toQIcon(left_icon).pixmap(16))
         self.main_layout.addWidget(self._left_icon)
 
-        self._title = BodyLabel(title)
+        self._title = BodyLabel(title, self)
         self.main_layout.addWidget(self._title)
 
         spacer = QSpacerItem(
@@ -55,36 +56,43 @@ class SidebarItem(NavigationWidget):
         )
         self.main_layout.addItem(spacer)
 
-        self._right_icon = QLabel()
+        self._right_icon = QLabel(self)
         battle_icon = QIcon(os.path.join(RESOURCE_FOLDER, "icons", "combat.png"))
         self._right_icon.setPixmap(battle_icon.pixmap(16))
         self._right_icon.hide()
         self.main_layout.addWidget(self._right_icon)
 
-        self._play_btn = TransparentToolButton(FluentIcon.PLAY)
+        self._play_btn = TransparentToolButton(FluentIcon.PLAY, self)
         self._play_btn.setFixedSize(24, 24)
         self._play_btn.clicked.connect(self.on_click_play)
         self.bot_signals.play.connect(self.on_play)
         self.main_layout.addWidget(self._play_btn)
 
-        self._stop_btn = TransparentToolButton(FluentIcon.PAUSE)
+        self._stop_btn = TransparentToolButton(FluentIcon.PAUSE, self)
         self._stop_btn.setFixedSize(24, 24)
         self._stop_btn.clicked.connect(self.on_click_stop)
         self.bot_signals.stop.connect(self.on_stop)
         self._stop_btn.hide()
         self.main_layout.addWidget(self._stop_btn)
 
-        self._profile_combo = ComboBox()
+        self._profile_combo = ComboBox(self)
         self._profile_combo.setFixedWidth(60)
         self._profile_combo.currentIndexChanged.connect(self._on_profile_changed)
         self.main_layout.addWidget(self._profile_combo)
 
-        self._network_combo = ComboBox()
+        self._network_combo = ComboBox(self)
         self._network_combo.setFixedWidth(60)
         self._network_combo.currentIndexChanged.connect(
             self._on_network_interface_changed
         )
         self.main_layout.addWidget(self._network_combo)
+
+        self._mode_combo = ComboBox(self)
+        self._mode_combo.setFixedWidth(60)
+        self._mode_combo.addItem("MITM", userData="mitm")
+        self._mode_combo.addItem("Socket", userData="socket")
+        self._mode_combo.currentIndexChanged.connect(self._on_mode_changed)
+        self.main_layout.addWidget(self._mode_combo)
 
     def show_battle_icon(self, show: bool):
         self.in_fight = show
@@ -107,6 +115,7 @@ class SidebarItem(NavigationWidget):
             self._stop_btn.hide()
             self._profile_combo.hide()
             self._network_combo.hide()
+            self._mode_combo.hide()
         else:
             self.setFixedSize(self.EXPAND_WIDTH, 48)
             self._title.show()
@@ -118,6 +127,7 @@ class SidebarItem(NavigationWidget):
                 self._play_btn.show()
             self._profile_combo.show()
             self._network_combo.show()
+            self._mode_combo.show()
 
         self.update()
 
@@ -139,8 +149,8 @@ class SidebarItem(NavigationWidget):
         self._network_combo.blockSignals(True)
         self._network_combo.clear()
         self._network_combo.addItem("Auto", userData=None)
-        for name, ip in interfaces.items():
-            self._network_combo.addItem(name, userData=ip)
+        for ip, (name, public_ip) in interfaces.items():
+            self._network_combo.addItem(public_ip, userData=ip)
         if selected_ip:
             for i in range(self._network_combo.count()):
                 if self._network_combo.itemData(i) == selected_ip:
@@ -174,6 +184,16 @@ class SidebarItem(NavigationWidget):
     def _on_network_interface_changed(self):
         ip = self._network_combo.currentData()
         self.network_interface_changed.emit(ip if ip else "")
+
+    def populate_connection_mode(self, selected_mode: str):
+        for i in range(self._mode_combo.count()):
+            if self._mode_combo.itemData(i) == selected_mode:
+                self._mode_combo.setCurrentIndex(i)
+                return
+
+    def _on_mode_changed(self):
+        mode = self._mode_combo.currentData()
+        self.connection_mode_changed.emit(mode if mode else "mitm")
 
     def on_click_play(self):
         self.bot_signals.play.emit(True)

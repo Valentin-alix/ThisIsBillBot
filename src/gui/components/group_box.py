@@ -3,14 +3,14 @@ from qfluentwidgets import SubtitleLabel
 
 
 class GroupBox(QFrame):
-    def __init__(self, title: str):
-        super().__init__()
+    def __init__(self, title: str, parent: QWidget | None = None):
+        super().__init__(parent=parent)
 
         layout = QVBoxLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        title_label = SubtitleLabel(text=title)
+        title_label = SubtitleLabel(text=title, parent=self)
         layout.addWidget(title_label)
 
         self.content_layout = QVBoxLayout()

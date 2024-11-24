@@ -4,3 +4,4 @@ poetry.lock
 .idea
 dist
 build
+LauncherSourceCode

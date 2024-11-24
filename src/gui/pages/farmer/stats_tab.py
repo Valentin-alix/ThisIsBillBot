@@ -13,8 +13,13 @@ from src.gui.components.table.table import BaseTableWidget
 
 
 class StatsTab(QWidget):
-    def __init__(self, character_name: str, game_info_signals: GameInfoSignals):
-        super().__init__()
+    def __init__(
+        self,
+        character_name: str,
+        game_info_signals: GameInfoSignals,
+        parent: QWidget | None = None,
+    ):
+        super().__init__(parent=parent)
         self.character_name = character_name
         self.game_info_signals = game_info_signals
         self._server_id: int = 1
@@ -25,13 +30,15 @@ class StatsTab(QWidget):
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
-        self.total_value_label = StrongBodyLabel("Valeur totale récoltée: 0 kamas")
+        self.total_value_label = StrongBodyLabel(
+            "Valeur totale récoltée: 0 kamas", self
+        )
         self._layout.addWidget(self.total_value_label)
 
-        self.total_fights_label = StrongBodyLabel("Nombre total de combats: 0")
+        self.total_fights_label = StrongBodyLabel("Nombre total de combats: 0", self)
         self._layout.addWidget(self.total_fights_label)
 
-        self.table_widget = BaseTableWidget()
+        self.table_widget = BaseTableWidget(parent=self)
         columns = [
             ColumnInfo(name="Ressource"),
             ColumnInfo(name="Quantité"),

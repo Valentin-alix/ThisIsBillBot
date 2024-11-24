@@ -12,15 +12,11 @@ def get_ethernet_ip() -> str | None:
     return None
 
 
-DEFAULT_LOCAL_IP = "192.168.0.117"
-DEFAULT_LOCAL_IP = None
-
-
 def has_internet_connection(
     host="www.google.com",
     port=80,
     timeout=5,
-    interface_ip: str | None = DEFAULT_LOCAL_IP,
+    interface_ip: str | None = None,
 ) -> bool:
     """
     Host: www.google.com

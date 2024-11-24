@@ -7,7 +7,9 @@ from src.core.engine.movements.area_infos import AreaInfo
 from src.core.engine.weights.harvester.weight_collectable import (
     get_map_id_collectable_weight,
 )
-from src.core.states.area_state import CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER
+from src.core.states.area_state import (
+    CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER,
+)
 from src.core.states.game_state import GameState
 from src.services.logging.logger import Logger
 
@@ -86,7 +88,11 @@ def get_random_best_area_info_for_harvester(
 
     server_id = game_state.player.server_id
     server_area_infos = [
-        info for (srv_id, _), info in CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER.items()
+        info
+        for (
+            srv_id,
+            _,
+        ), info in CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER.items()
         if srv_id == server_id
     ]
 

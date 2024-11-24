@@ -7,8 +7,8 @@ from src.gui.components.group_list import GroupList
 
 
 class RecipeGroup(GroupList[RecipeItem]):
-    def __init__(self, recipes: list[RecipeItem]) -> None:
-        super().__init__(items=recipes, is_lazy_loaded=True)
+    def __init__(self, recipes: list[RecipeItem], **kwargs) -> None:
+        super().__init__(items=recipes, is_lazy_loaded=True, **kwargs)
 
     @property
     def recipes(self):

@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QColor, QFont, QMouseEvent, QPixmap
-from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel
+from PyQt6.QtWidgets import QFrame, QGraphicsOpacityEffect, QHBoxLayout, QLabel
 
 COLOR = QColor("#00470E")
 COLOR_ACTIVE = COLOR.lighter(200).name()
@@ -14,7 +14,12 @@ class GameSelectorCard(QFrame):
     clicked = pyqtSignal()
 
     def __init__(
-        self, title: str, logo_path: Path, is_active: bool, available: bool = True, parent=None
+        self,
+        title: str,
+        logo_path: Path,
+        is_active: bool,
+        available: bool = True,
+        parent=None,
     ):
         super().__init__(parent)
         self._available = available
@@ -60,7 +65,6 @@ class GameSelectorCard(QFrame):
         )
         self.setGraphicsEffect(None)
         if not self._available:
-            from PyQt6.QtWidgets import QGraphicsOpacityEffect
             effect = QGraphicsOpacityEffect(self)
             effect.setOpacity(0.45)
             self.setGraphicsEffect(effect)

@@ -6,13 +6,13 @@ from src.gui.components.graphics.grid_widget import GridView
 
 
 class MapTab(QWidget):
-    def __init__(self, grid_signals: GridSignals):
-        super().__init__()
+    def __init__(self, grid_signals: GridSignals, parent: QWidget | None = None):
+        super().__init__(parent=parent)
         layout = QVBoxLayout()
         self.setLayout(layout)
-        scroll_area_info = SingleDirectionScrollArea()
+        scroll_area_info = SingleDirectionScrollArea(self)
 
-        content_widget = QWidget()
+        content_widget = QWidget(scroll_area_info)
         content_widget_layout = QHBoxLayout()
         content_widget.setLayout(content_widget_layout)
 

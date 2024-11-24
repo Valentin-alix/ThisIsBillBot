@@ -1,6 +1,14 @@
 {
   "pcserv_blibli_12_2@outlook.fr": {
+    "network_interface": null,
     "pc_id": 2,
-    "schedule_profile": null
+    "schedule_profile": null,
+    "connection_mode": "mitm"
+  },
+  "ezrealeu44700_main@outlook.com": {
+    "network_interface": null,
+    "pc_id": 2,
+    "schedule_profile": null,
+    "connection_mode": "socket"
   }
 }

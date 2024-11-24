@@ -9,7 +9,7 @@ from qfluentwidgets import (
 )
 
 from ankama_launcher_emulator.decrypter.crypto_helper import CryptoHelper
-from ankama_launcher_emulator.gui.main_window import MainWindow
+from ankama_launcher_emulator.gui.windows.main_window import MainWindow
 from ankama_launcher_emulator.server.handler import AnkamaLauncherHandler
 from ankama_launcher_emulator.server.server import AnkamaLauncherServer
 from ankama_launcher_emulator.utils.internet import get_available_network_interfaces

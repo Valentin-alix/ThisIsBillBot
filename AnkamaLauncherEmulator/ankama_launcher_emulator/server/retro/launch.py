@@ -3,6 +3,7 @@ import logging
 import os
 import socket
 from pathlib import Path
+from threading import Event
 
 import frida
 
@@ -54,13 +55,21 @@ def load_frida_script(
     session = frida.attach(pid)
     script = session.create_script(open(Path(__file__).parent / "script.js").read())
 
+    hooks_ready = Event()
+
     def on_message(message, _data):
         if message.get("type") == "send":
-            child_pid = message["payload"]
-            logger.info(
-                f"Processus enfant détecté, injection Frida sur PID {child_pid}"
-            )
-            load_frida_script(child_pid, port, interface_ip=interface_ip, resume=False)
+            payload = message["payload"]
+            if payload == "hooks_ready":
+                hooks_ready.set()
+            elif isinstance(payload, int):
+                child_pid = payload
+                logger.info(
+                    f"Processus enfant détecté, injection Frida sur PID {child_pid}"
+                )
+                load_frida_script(
+                    child_pid, port, interface_ip=interface_ip, resume=False
+                )
 
     script.on("message", on_message)
     script.load()
@@ -73,4 +82,6 @@ def load_frida_script(
     script.post({"retroCdn": json.loads(RETRO_CDN), "port": port, "proxyIp": proxy_ip})
 
     if resume:
+        if not hooks_ready.wait(timeout=5.0):
+            logger.warning("Frida hooks_ready timeout — resuming anyway")
         frida.resume(pid)

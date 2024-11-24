@@ -15,6 +15,7 @@ from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
+from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.execution.process_manager import ProcessManager
 from src.core.bot.lifecycle.connection_handler import ConnectionHandler
@@ -77,6 +78,7 @@ class Bot(ContextualLogger):
     fight_behavior: FightBehavior
     auto_bot_behavior: AutoBotBehavior
     dungeon_behavior: DungeonBehavior
+    connection_behavior: ConnectionBehavior
 
     usable_behaviors: list[Behavior]
 

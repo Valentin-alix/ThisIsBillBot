@@ -2,6 +2,7 @@ import base64
 import getpass
 import hashlib
 import json
+import logging
 import os
 from typing import Any
 
@@ -21,6 +22,8 @@ from ankama_launcher_emulator.interfaces.deciphered_cert import (
     DecipheredCertifDatas,
     StoredCertificate,
 )
+
+logger = logging.getLogger()
 
 
 class CryptoHelper:
@@ -145,3 +148,24 @@ class CryptoHelper:
         encrypted_json_obj = CryptoHelper.encrypt(json_obj, uuid)
         with open(file_path, "w", encoding="utf-8") as file:
             file.write(encrypted_json_obj)
+
+    @staticmethod
+    def store_api_key(login: str, api_key_data: dict[str, Any]) -> None:
+        file_path = os.path.join(
+            API_KEY_FOLDER_PATH,
+            ".key" + CryptoHelper.createHashFromStringSha(login),
+        )
+        os.makedirs(API_KEY_FOLDER_PATH, exist_ok=True)
+        CryptoHelper.encryptToFile(file_path, api_key_data, Device.getUUID())
+        logger.info(f"[OAuth] API key stored at {file_path}")
+
+    @staticmethod
+    def store_certificate(certif: DecipheredCertifDatas) -> None:
+        login = certif["login"]
+        file_path = os.path.join(
+            CERTIFICATE_FOLDER_PATH,
+            ".certif" + CryptoHelper.createHashFromStringSha(login),
+        )
+        os.makedirs(CERTIFICATE_FOLDER_PATH, exist_ok=True)
+        CryptoHelper.encryptToFile(file_path, certif, Device.getUUID())
+        logger.info(f"[OAuth] Certificate stored at {file_path}")

@@ -58,6 +58,7 @@ from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
 from src.core.behaviors.sale_hotel.sale_hotel_scraping_behavior import (
     SaleHotelScrapingBehavior,
 )
+from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )
@@ -590,6 +591,9 @@ class BotFactory:
             game_state=game_state,
             _logger=logger,
         )
+        connection_behavior = ConnectionBehavior(
+            _logger=logger, event_manager=event_manager, game_state=game_state
+        )
         multi_farming_behavior = MultiFarmingBehavior(
             chat_behavior=chat_behavior,
             mule_give_behavior=mule_give_behavior,
@@ -648,6 +652,7 @@ class BotFactory:
             event_manager=event_manager,
             harvester_behavior=harvester,
             fight_behavior=fight_behavior,
+            connection_behavior=connection_behavior,
             mule_accept_kamas_behavior=mule_accept_kamas_behavior,
             dungeon_behavior=dungeon_behavior,
             frames=[

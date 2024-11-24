@@ -1,7 +1,7 @@
 from enum import StrEnum
 from typing import cast
 
-from PyQt6.QtCore import Qt, QThread, pyqtSlot
+from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtWidgets import QHBoxLayout, QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import (
     ComboBox,
@@ -20,7 +20,6 @@ from src.gui.pages.farmer.inventory_tab import InventoryTab
 from src.gui.pages.farmer.map_tab import MapTab
 from src.gui.pages.farmer.player_tab import PlayerTab
 from src.gui.pages.farmer.world_tab import WorldTab
-from src.gui.utils.run_in_background import Worker
 
 
 class FarmActionEnum(StrEnum):
@@ -39,8 +38,6 @@ class FarmerWidget(PivotItem):
     type_action_combo: ComboBox
     area_farm_combo: ComboBox
     sub_area_farm_combo: ComboBox
-
-    _worker_running: tuple[QThread, Worker] | None = None
 
     def __init__(  # type: ignore[override]
         self,
@@ -83,22 +80,22 @@ class FarmerWidget(PivotItem):
         self.set_debug_tabs_visibility(const.DEBUG)
 
     def init_top_content(self) -> None:
-        top_widget = QWidget()
+        top_widget = QWidget(self)
         top_widget_layout = QHBoxLayout()
         top_widget.setLayout(top_widget_layout)
 
-        self.play_btn = TransparentToolButton(FluentIcon.PLAY)
+        self.play_btn = TransparentToolButton(FluentIcon.PLAY, top_widget)
         self.play_btn.clicked.connect(self.on_click_play)
         self.bot.bot_signals.play.connect(self.on_play)
         top_widget_layout.addWidget(self.play_btn)
 
-        self.stop_btn = TransparentToolButton(FluentIcon.PAUSE)
+        self.stop_btn = TransparentToolButton(FluentIcon.PAUSE, top_widget)
         self.stop_btn.clicked.connect(self.on_click_stop)
         self.bot.bot_signals.stop.connect(self.on_stop)
         top_widget_layout.addWidget(self.stop_btn)
         self.stop_btn.hide()
 
-        self.type_action_combo = ComboBox()
+        self.type_action_combo = ComboBox(top_widget)
         for farm_action in FarmActionEnum:
             self.type_action_combo.addItem(farm_action)
 
@@ -109,9 +106,9 @@ class FarmerWidget(PivotItem):
         self.type_action_combo.currentIndexChanged.connect(self.on_type_action_changed)
         top_widget_layout.addWidget(self.type_action_combo)
 
-        self.sub_area_farm_combo = ComboBox()
+        self.sub_area_farm_combo = ComboBox(top_widget)
 
-        self.area_farm_combo = ComboBox()
+        self.area_farm_combo = ComboBox(top_widget)
         self.area_farm_combo.addItem("")
         self.area_farm_combo.currentIndexChanged.connect(self.on_area_selected)
 
@@ -130,7 +127,7 @@ class FarmerWidget(PivotItem):
         self._v_layout.addWidget(top_widget)
 
     def init_content(self):
-        self.pivot = SegmentedWidget()
+        self.pivot = SegmentedWidget(self)
         self._v_layout.addWidget(self.pivot)
         self.stacked_widget = QStackedWidget(self)
         self._v_layout.addWidget(self.stacked_widget)
@@ -258,7 +255,9 @@ class FarmerWidget(PivotItem):
         if self.map_tab is not None:
             return
 
-        self.map_tab = MapTab(grid_signals=self.bot.grid_signals)
+        self.map_tab = MapTab(
+            grid_signals=self.bot.grid_signals, parent=self.stacked_widget
+        )
         self.stacked_widget.addWidget(self.map_tab)
         self.map_route = f"{self.objectName()}_map_tab"
         self.map_pivot_item = cast(
@@ -270,7 +269,7 @@ class FarmerWidget(PivotItem):
             ),
         )
 
-        self.player_tab = PlayerTab(bot=self.bot)
+        self.player_tab = PlayerTab(bot=self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.player_tab)
         player_route = f"{self.objectName()}_player_tab"
         self.player_pivot_item = cast(
@@ -282,7 +281,9 @@ class FarmerWidget(PivotItem):
             ),
         )
 
-        self.world_tab = WorldTab(world_signals=self.bot.world_signals)
+        self.world_tab = WorldTab(
+            world_signals=self.bot.world_signals, parent=self.stacked_widget
+        )
         self.stacked_widget.addWidget(self.world_tab)
         world_route = f"{self.objectName()}_world_tab"
         self.world_pivot_item = cast(
@@ -294,7 +295,7 @@ class FarmerWidget(PivotItem):
             ),
         )
 
-        self.inventory_tab = InventoryTab(self.bot)
+        self.inventory_tab = InventoryTab(self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.inventory_tab)
         inventory_route = f"{self.objectName()}_inventory_tab"
         self.inventory_pivot_item = cast(

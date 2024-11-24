@@ -4,13 +4,11 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from time import sleep
 
-from ankama_launcher_emulator import (
-    AnkamaLauncherHandler,
-)
 from ankama_launcher_emulator.decrypter.crypto_helper import (
     CryptoHelper,
 )
-from src.core.mitm.proxy_listener import ProxyListener
+from ankama_launcher_emulator.gui.utils import Worker, run_in_background
+from ankama_launcher_emulator.server.handler import AnkamaLauncherHandler
 from ankama_launcher_emulator.server.server import (
     AnkamaLauncherServer,
 )
@@ -19,8 +17,9 @@ from PyQt6.QtCore import QThread
 from src.controller.bot_config import BotConfigController
 from src.core.bot.bot import Bot
 from src.core.bot.bot_factory import BotFactory
+from src.core.mitm.proxy_listener import ProxyListener
 from src.core.signals.shared_farm_signals import SharedSignals
-from src.gui.utils.run_in_background import Worker, run_in_background
+from src.core.socket_network.socket_client import SocketClient
 from src.utils.internet import (
     has_internet_connection,
 )
@@ -51,7 +50,7 @@ class BotManager:
 
         thread, worker = run_in_background(lambda: self.relaunch_account(login))
 
-        worker.signals.function_result.connect(lambda: self._remove_thread(thread))
+        worker.success.connect(lambda: self._remove_thread(thread))
 
         self._thread_worker_runnings.append((thread, worker))
         self._emit_thread_count()
@@ -119,21 +118,25 @@ class BotManager:
                 return related_bot.logger.info("Bot is not in playtime anymore")
 
             related_bot.logger.info("Launch bot")
-            related_bot.process_manager.pid = self.ankama_launcher.launch_dofus(
-                login,
-                self.proxy_listener,
-                interface_ip=bot_config.network_interface if bot_config else None,
-            )
 
-            related_bot.logger.info(f"Pid {related_bot.process_manager.pid}")
-
-            is_sucess = related_bot.wait_for_connection_result(timeout=90)
+            if bot_config and bot_config.connection_mode == "socket":
+                SocketClient(related_bot, bot_config).connect()
+                self._is_lauching_by_login[login].clear()
+                return
+            else:
+                related_bot.process_manager.pid = self.ankama_launcher.launch_dofus(
+                    login,
+                    self.proxy_listener,
+                    interface_ip=bot_config.network_interface if bot_config else None,
+                )
+                related_bot.logger.info(f"Pid {related_bot.process_manager.pid}")
+                is_success = related_bot.wait_for_connection_result(timeout=90)
 
             if related_bot.bot_should_not_play(now):
                 self._is_lauching_by_login[login].clear()
                 return related_bot.logger.info("Bot is not in playtime anymore")
 
-            if is_sucess:
+            if is_success:
                 self._is_lauching_by_login[login].clear()
                 return related_bot.logger.info("Successfully connected")
 

@@ -31,19 +31,19 @@ class FmPage(QWidget):
         self._setup_content()
 
     def _setup_action_widget(self):
-        self.play_btn = TransparentToolButton(FluentIcon.PLAY)
+        self.play_btn = TransparentToolButton(FluentIcon.PLAY, self)
         # self.bot_signals.play.connect(self.on_play)
         # self.play_btn.clicked.connect(self.on_click_play)
         self.main_layout.addWidget(self.play_btn)
 
-        self.stop_btn = TransparentToolButton(FluentIcon.PAUSE)
+        self.stop_btn = TransparentToolButton(FluentIcon.PAUSE, self)
         # self.bot_signals.stop.connect(self.on_stop)
         # self.stop_btn.clicked.connect(self.on_click_stop)
         self.main_layout.addWidget(self.stop_btn)
         self.stop_btn.hide()
 
     def _setup_content(self) -> None:
-        content_widget = QWidget()
+        content_widget = QWidget(self)
         self.main_layout.addWidget(content_widget)
         self.content_widget_layout = QVBoxLayout()
         content_widget.setLayout(self.content_widget_layout)

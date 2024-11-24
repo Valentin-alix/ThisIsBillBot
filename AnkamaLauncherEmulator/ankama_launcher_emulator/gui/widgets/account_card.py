@@ -1,31 +1,45 @@
 import psutil
 from PyQt6.QtCore import QTimer, pyqtSignal
 from PyQt6.QtWidgets import QHBoxLayout, QLabel
-from qfluentwidgets import BodyLabel, CardWidget, ComboBox, LineEdit, PrimaryPushButton
+from qfluentwidgets import BodyLabel, PrimaryPushButton
 
 from ankama_launcher_emulator.gui.consts import GREEN_HEXA
+from ankama_launcher_emulator.gui.widgets.base_account_card import BaseAccountCard
 from ankama_launcher_emulator.utils.proxy import validation_proxy_url
 
 
-class AccountCard(CardWidget):
+class AccountCard(BaseAccountCard):
     launch_requested = pyqtSignal(
         object, object
     )  # (interface_ip: str | None, proxy_url: str | None)
     error_occurred = pyqtSignal(str)
 
     def __init__(
-        self, login: str, all_interface: dict[str, tuple[str, str]], parent=None
+        self,
+        login: str,
+        all_interface: dict[str, tuple[str, str]],
+        parent=None,
+        interface_ip: str | None = None,
+        proxy_url: str | None = None,
     ):
         super().__init__(parent)
         self.login = login
         self._current_pid: int | None = None
-        self._setup_ui(all_interface)
+        self._setup_ui(all_interface, interface_ip, proxy_url)
 
         self._monitor_timer = QTimer(self)
         self._monitor_timer.setInterval(1500)
         self._monitor_timer.timeout.connect(self._check_process)
 
-    def _setup_ui(self, all_interface: dict[str, tuple[str, str]]) -> None:
+    def _settings_key(self) -> str:
+        return self.login
+
+    def _setup_ui(
+        self,
+        all_interface: dict[str, tuple[str, str]],
+        interface_ip: str | None,
+        proxy_url: str | None,
+    ) -> None:
         layout = QHBoxLayout(self)
         layout.setContentsMargins(16, 12, 16, 12)
         layout.setSpacing(12)
@@ -40,21 +54,7 @@ class AccountCard(CardWidget):
 
         layout.addWidget(BodyLabel(self.login), 1)
 
-        self._ip_combo = ComboBox()
-        self._ip_combo.addItem("Auto", userData=None)
-        self._ip_combo.setFixedWidth(200)
-
-        for ip_value, (display_name, public_ip) in all_interface.items():
-            self._ip_combo.addItem(
-                f"{display_name}\t{public_ip}",
-                userData=ip_value,
-            )
-        layout.addWidget(self._ip_combo)
-
-        self._proxy_input = LineEdit()
-        self._proxy_input.setPlaceholderText("Proxy (socks5://user:pass@host:port)")
-        self._proxy_input.setFixedWidth(300)
-        layout.addWidget(self._proxy_input)
+        self._build_network_widgets(layout, all_interface, interface_ip, proxy_url)
 
         self._launch_btn = PrimaryPushButton("Launch")
         self._launch_btn.setFixedWidth(100)
@@ -120,3 +120,7 @@ class AccountCard(CardWidget):
 
     def set_launch_enabled(self, enabled: bool) -> None:
         self._launch_btn.setEnabled(enabled)
+
+    @property
+    def is_running(self) -> bool:
+        return self._current_pid is not None

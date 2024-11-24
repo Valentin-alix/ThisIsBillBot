@@ -10,28 +10,30 @@ from src.gui.pages.craft.recipe_table import RecipeTable
 
 
 class CraftPage(QWidget):
-    def __init__(self, bot: Bot):
-        super().__init__()
+    def __init__(self, bot: Bot, parent: QWidget | None = None):
+        super().__init__(parent=parent)
 
         self.bot = bot
         recipes: list[RecipeItem] = DataReader().recipes
         self.main_layout = QVBoxLayout()
-        self.main_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignCenter)
+        self.main_layout.setAlignment(
+            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignCenter
+        )
         self.setLayout(self.main_layout)
 
-        self.play_btn = TransparentToolButton(FluentIcon.PLAY)
+        self.play_btn = TransparentToolButton(FluentIcon.PLAY, self)
         self.bot.bot_signals.play.connect(self.on_play)
         self.play_btn.clicked.connect(self.on_click_play)
         self.main_layout.addWidget(self.play_btn)
 
-        self.stop_btn = TransparentToolButton(FluentIcon.PAUSE)
+        self.stop_btn = TransparentToolButton(FluentIcon.PAUSE, self)
         self.bot.bot_signals.stop.connect(self.on_stop)
         self.stop_btn.clicked.connect(self.on_click_stop)
         self.main_layout.addWidget(self.stop_btn)
         self.stop_btn.hide()
 
-        self.craft_table = RecipeTable(recipes=[])
-        self.craft_group = RecipeGroup(recipes=recipes)
+        self.craft_table = RecipeTable(recipes=[], parent=self)
+        self.craft_group = RecipeGroup(recipes=recipes, parent=self)
 
         self.craft_group.signals.clicked_elem_queue.connect(self.on_added_recipe_queue)
         self.craft_table.signals.removed_recipe.connect(self.on_removed_recipe_queue)

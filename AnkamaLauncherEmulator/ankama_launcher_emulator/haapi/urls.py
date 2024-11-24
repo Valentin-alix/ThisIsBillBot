@@ -1,3 +1,5 @@
+from urllib.parse import urlencode
+
 HAAPI_HOST = "haapi.ankama.com"
 
 HAAPI_URL = f"https://{HAAPI_HOST}/"
@@ -23,6 +25,9 @@ ANKAMA_ACCOUNT_SET_IDENTITY_WITH_API_KEY = (
 )
 ANKAMA_ACCOUNT_STATUS = HAAPI_URL + "json/Ankama/v5/Account/Status"
 ANKAMA_API_CREATE_API_KEY = HAAPI_URL + "json/Ankama/v5/Api/CreateApiKey"
+ANKAMA_API_CREATE_API_KEY_FROM_TOKEN = (
+    HAAPI_URL + "json/Ankama/v5/Api/CreateApiKeyFromToken"
+)
 ANKAMA_API_DELETE_API_KEY = HAAPI_URL + "json/Ankama/v5/Api/DeleteApiKey"
 ANKAMA_API_REFRESH_API_KEY = HAAPI_URL + "json/Ankama/v5/Api/RefreshApiKey"
 ANKAMA_CMS_ITEMS_GET = HAAPI_URL + "json/Ankama/v5/Cms/Items/Get"
@@ -54,6 +59,7 @@ ANKAMA_PROVIDER_API_KEY_LOGIN = HAAPI_URL + "json/Ankama/v5/Provider/ApiKeyLogin
 ANKAMA_PROVIDER_GHOST_CREATE = HAAPI_URL + "json/Ankama/v5/Provider/ApiKeyGhostCreate"
 ANKAMA_SHIELD_SECURITY_CODE = HAAPI_URL + "json/Ankama/v5/Shield/SecurityCode"
 ANKAMA_SHIELD_VALIDATE_CODE = HAAPI_URL + "json/Ankama/v5/Shield/ValidateCode"
+ANKAMA_SHIELD_VALIDATE_OTP = HAAPI_URL + "json/Ankama/v5/Shield/ValidateOtp"
 ANKAMA_SHOP_ARTICLES_LIST_BY_CATEGORY = (
     HAAPI_URL + "json/Ankama/v5/Shop/ArticlesListByCategory"
 )
@@ -63,3 +69,16 @@ ANKAMA_SHOP_ARTICLE_LIST_BY_ID = HAAPI_URL + "json/Ankama/v5/Shop/ArticlesListBy
 ANKAMA_VOD_ACCESS_TOKEN_GET = (
     HAAPI_URL + "json/Ankama/v5/Vod/AccessToken/GetAccessToken"
 )
+REGISTER_FORM_URL = "https://auth.ankama.com/register/ankama/form"
+ORIGIN_TRACKER = "https://www.ankama-launcher.com/dofus"
+REDIRECT_URI = "https://auth.ankama.com/login-authorized"
+
+
+def build_register_url() -> str:
+    params = urlencode(
+        {
+            "origin_tracker": ORIGIN_TRACKER,
+            "redirect_uri": REDIRECT_URI,
+        }
+    )
+    return f"{REGISTER_FORM_URL}?{params}"

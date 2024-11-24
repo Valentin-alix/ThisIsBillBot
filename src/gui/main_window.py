@@ -12,6 +12,8 @@ from qfluentwidgets import (
 )
 from qfluentwidgets.components.navigation import NavigationDisplayMode, NavigationWidget
 
+from typing import Literal
+
 from src import const
 from src.const import LOGO_FILE
 from src.controller.bot_config import BotConfig, BotConfigController
@@ -90,6 +92,12 @@ class MainWindow(AppFluentWindow):
             lambda ip: self._on_network_interface_changed(login, ip)
         )
 
+        selected_mode = current_config.connection_mode if current_config else "mitm"
+        navigation_widget.populate_connection_mode(selected_mode)
+        navigation_widget.connection_mode_changed.connect(
+            lambda mode: self._on_connection_mode_changed(login, mode)
+        )
+
         account.game_info_signals.character_name.connect(navigation_widget.set_title)
 
         account.game_info_signals.in_fight.connect(navigation_widget.show_battle_icon)
@@ -109,9 +117,8 @@ class MainWindow(AppFluentWindow):
         configs = BotConfigController().get_bot_config_by_login()
         existing_config = configs.get(login)
         if existing_config:
-            updated_config = BotConfig(
-                network_interface=existing_config.network_interface,
-                schedule_profile=profile,
+            updated_config = existing_config.model_copy(
+                update={"schedule_profile": profile}
             )
         else:
             updated_config = BotConfig(schedule_profile=profile)
@@ -125,14 +132,23 @@ class MainWindow(AppFluentWindow):
         configs = BotConfigController().get_bot_config_by_login()
         existing_config = configs.get(login)
         if existing_config:
-            updated_config = BotConfig(
-                network_interface=ip if ip else None,
-                schedule_profile=existing_config.schedule_profile,
+            updated_config = existing_config.model_copy(
+                update={"network_interface": ip if ip else None}
             )
         else:
-            updated_config = BotConfig(
-                network_interface=ip if ip else None,
+            updated_config = BotConfig(network_interface=ip if ip else None)
+        BotConfigController().update_bot_config_by_login(updated_config, login)
+
+    def _on_connection_mode_changed(self, login: str, mode: str):
+        typed_mode: Literal["mitm", "socket"] = "socket" if mode == "socket" else "mitm"
+        configs = BotConfigController().get_bot_config_by_login()
+        existing_config = configs.get(login)
+        if existing_config:
+            updated_config = existing_config.model_copy(
+                update={"connection_mode": typed_mode}
             )
+        else:
+            updated_config = BotConfig(connection_mode=typed_mode)
         BotConfigController().update_bot_config_by_login(updated_config, login)
 
     def _init_debug_button(self):

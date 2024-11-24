@@ -22,19 +22,19 @@ class LogsWidget(QWidget):
         self.global_signals = global_signals
         self.setLayout(self.v_layout)
 
-        top_bar = QWidget()
+        top_bar = QWidget(self)
         hbox_layout = QHBoxLayout()
         top_bar.setLayout(hbox_layout)
         hbox_layout.setContentsMargins(0, 0, 0, 0)
         hbox_layout.addStretch()
 
-        export_btn = PrimaryPushButton(FluentIcon.SAVE, "Exporter les logs")
+        export_btn = PrimaryPushButton(FluentIcon.SAVE, "Exporter les logs", top_bar)
         export_btn.clicked.connect(self.on_export_logs)
         hbox_layout.addWidget(export_btn)
 
         self.v_layout.addWidget(top_bar)
 
-        self.logs_table = LogsTable()
+        self.logs_table = LogsTable(parent=self)
         self.v_layout.addWidget(self.logs_table)
 
         log_signals.log_emitted.connect(profiled_slot(self.on_log_emitted))

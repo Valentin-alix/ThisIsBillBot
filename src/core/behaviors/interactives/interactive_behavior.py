@@ -20,7 +20,6 @@ class InteractiveError(StrEnum):
     USE_ERROR = auto()
 
 
-
 @dataclass
 class InteractiveBehavior(Behavior):
     map_move_behavior: MapMoveBehavior

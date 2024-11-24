@@ -22,14 +22,14 @@ class GroupList[T](QGroupBox):
     ) -> None:
         super().__init__(*args, **kwargs)
         self.is_lazy_loaded = is_lazy_loaded
-        self.signals = GroupListSignals()
+        self.signals = GroupListSignals(parent=self)
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
         self.input_search: str = ""
         self.widget_by_name: dict[str, QListWidgetItem] = {}
         self.items_by_name: dict[str, T] = {}
-        self.list_wid_item = ListWidget()
+        self.list_wid_item = ListWidget(self)
         self.setup_list_items(items)
 
     def setup_list_items(self, items: list[T]) -> None:
@@ -41,11 +41,11 @@ class GroupList[T](QGroupBox):
         self.list_wid_item.itemClicked.connect(self.on_click_item_widget)
         self._layout.addWidget(self.list_wid_item)
 
-        bottom_widget = QWidget()
+        bottom_widget = QWidget(self)
         bottom_widget_layout = QHBoxLayout()
         bottom_widget.setLayout(bottom_widget_layout)
 
-        search_item_edit = LineEdit()
+        search_item_edit = LineEdit(bottom_widget)
         search_item_edit.textChanged.connect(self.on_search_changed)
         bottom_widget_layout.addWidget(search_item_edit)
 

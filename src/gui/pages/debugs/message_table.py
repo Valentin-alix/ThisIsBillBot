@@ -3,7 +3,7 @@ from typing import Any
 from cachetools import LRUCache, cached
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QStandardItem
-from PyQt6.QtWidgets import QHeaderView
+from PyQt6.QtWidgets import QHeaderView, QWidget
 from qfluentwidgets import TableWidget
 
 from D3Mapping.d3_mapping.controller.message_mapping_controller import (
@@ -17,10 +17,10 @@ from src.gui.pages.debugs.message_filter_proxy import MessageFilterProxyModel
 
 
 class MessageTable(BaseTableWidget):
-    def __init__(self) -> None:
-        super().__init__(proxy_model=MessageFilterProxyModel())
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(proxy_model=MessageFilterProxyModel(), parent=parent)
         self._pending_messages: list[tuple[MessageInfo, bool]] = []
-        self._batch_timer = QTimer()
+        self._batch_timer = QTimer(self)
         self._batch_timer.setInterval(50)
         self._batch_timer.setSingleShot(True)
         self._batch_timer.timeout.connect(self._flush_pending_messages)
@@ -78,9 +78,7 @@ class MessageTable(BaseTableWidget):
 
             display_name = msg_info.sub_msg_name
             if msg_info.msg_json is None:
-                candidates = self._unmapped_candidates_by_obf.get(
-                    msg_info.sub_msg_name
-                )
+                candidates = self._unmapped_candidates_by_obf.get(msg_info.sub_msg_name)
                 if candidates:
                     candidates_str = ", ".join(
                         f"{name} ({sim:.0%})" for name, sim in candidates

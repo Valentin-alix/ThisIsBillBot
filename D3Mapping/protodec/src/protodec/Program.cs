@@ -194,7 +194,7 @@ internal sealed class Commands
             using StreamWriter       streamWriter = new(outPath);
             using IndentedTextWriter indentWriter = new(streamWriter, indent);
 
-            ctx.WriteAllTo(logger, indentWriter);
+            ctx.WriteAllTo(indentWriter);
         }
     }
 

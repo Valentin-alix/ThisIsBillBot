@@ -14,7 +14,9 @@ from src.core.states.state import State
 
 # Global dict shared across all bots for guild chest items, keyed by server_id
 # server_id -> tab -> gid -> ObjectItemInventory
-CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER: dict[int, dict[int, dict[int, ObjectItemInventory]]] = {}
+CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER: dict[
+    int, dict[int, dict[int, ObjectItemInventory]]
+] = {}
 # Reserved quantities per server per tab per gid per bot_name to prevent race conditions
 # server_id -> tab -> gid -> bot_name -> quantity
 RESERVED_QUANTITIES_BY_SERVER: dict[int, dict[int, dict[int, dict[str, int]]]] = {}
@@ -82,7 +84,9 @@ class GuildChestState(State):
         )
 
     @staticmethod
-    def set_tab_content(server_id: int, tab_number: int, objects: list[ObjectItemInventory]):
+    def set_tab_content(
+        server_id: int, tab_number: int, objects: list[ObjectItemInventory]
+    ):
         with CHEST_LOCK:
             if server_id not in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER:
                 CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[server_id] = {}
@@ -91,7 +95,9 @@ class GuildChestState(State):
             }
 
     @staticmethod
-    def get_item_by_uid(server_id: int, tab_number: int, object_uid: int) -> ObjectItemInventory | None:
+    def get_item_by_uid(
+        server_id: int, tab_number: int, object_uid: int
+    ) -> ObjectItemInventory | None:
         with CHEST_LOCK:
             if server_id not in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER:
                 return None
@@ -100,14 +106,18 @@ class GuildChestState(State):
             return next(
                 (
                     item
-                    for item in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[server_id][tab_number].values()
+                    for item in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[server_id][
+                        tab_number
+                    ].values()
                     if item.item.uid == object_uid
                 ),
                 None,
             )
 
     @staticmethod
-    def update_item_quantity(server_id: int, tab_number: int, object_uid: int, quantity_delta: int):
+    def update_item_quantity(
+        server_id: int, tab_number: int, object_uid: int, quantity_delta: int
+    ):
         with CHEST_LOCK:
             if server_id not in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER:
                 return
@@ -117,7 +127,9 @@ class GuildChestState(State):
             item = next(
                 (
                     item
-                    for item in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[server_id][tab_number].values()
+                    for item in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[server_id][
+                        tab_number
+                    ].values()
                     if item.item.uid == object_uid
                 ),
                 None,
@@ -130,10 +142,14 @@ class GuildChestState(State):
             item.item.quantity = new_quantity
 
             if new_quantity == 0:
-                CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[server_id][tab_number].pop(item.item.gid)
+                CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[server_id][tab_number].pop(
+                    item.item.gid
+                )
 
     @staticmethod
-    def get_item_by_gid(server_id: int, tab_number: int, gid: int) -> ObjectItemInventory | None:
+    def get_item_by_gid(
+        server_id: int, tab_number: int, gid: int
+    ) -> ObjectItemInventory | None:
         with CHEST_LOCK:
             if server_id not in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER:
                 return None
@@ -148,7 +164,9 @@ class GuildChestState(State):
                 return {}
             return {
                 gid: obj
-                for object_by_gid in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[server_id].values()
+                for object_by_gid in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[
+                    server_id
+                ].values()
                 for gid, obj in object_by_gid.items()
             }
 
@@ -161,7 +179,9 @@ class GuildChestState(State):
                 tab = GuildChestState.get_tab_for_gid(server_id, gid)
                 if tab is None:
                     continue
-                available_quantity = GuildChestState.get_available_quantity(server_id, tab, gid)
+                available_quantity = GuildChestState.get_available_quantity(
+                    server_id, tab, gid
+                )
                 if available_quantity > 0:
                     item_copy = type(item)()
                     item_copy.CopyFrom(item)
@@ -212,11 +232,15 @@ class GuildChestState(State):
             if gid not in RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number]:
                 return total_quantity
 
-            reserved = sum(RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number][gid].values())
+            reserved = sum(
+                RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number][gid].values()
+            )
             return max(0, total_quantity - reserved)
 
     @staticmethod
-    def reserve_quantity(server_id: int, tab_number: int, gid: int, quantity: int, bot_name: str):
+    def reserve_quantity(
+        server_id: int, tab_number: int, gid: int, quantity: int, bot_name: str
+    ):
         with CHEST_LOCK:
             if server_id not in RESERVED_QUANTITIES_BY_SERVER:
                 RESERVED_QUANTITIES_BY_SERVER[server_id] = {}
@@ -225,11 +249,17 @@ class GuildChestState(State):
             if gid not in RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number]:
                 RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number][gid] = {}
 
-            current_reserved = RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number][gid].get(bot_name, 0)
-            RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number][gid][bot_name] = current_reserved + quantity
+            current_reserved = RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number][
+                gid
+            ].get(bot_name, 0)
+            RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number][gid][bot_name] = (
+                current_reserved + quantity
+            )
 
     @staticmethod
-    def release_reservation(server_id: int, tab_number: int, gid: int, quantity: int, bot_name: str):
+    def release_reservation(
+        server_id: int, tab_number: int, gid: int, quantity: int, bot_name: str
+    ):
         with CHEST_LOCK:
             if server_id not in RESERVED_QUANTITIES_BY_SERVER:
                 return
@@ -237,10 +267,15 @@ class GuildChestState(State):
                 return
             if gid not in RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number]:
                 return
-            if bot_name not in RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number][gid]:
+            if (
+                bot_name
+                not in RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number][gid]
+            ):
                 return
 
-            current = RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number][gid][bot_name]
+            current = RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number][gid][
+                bot_name
+            ]
             new_quantity = max(0, current - quantity)
 
             if new_quantity == 0:
@@ -250,7 +285,9 @@ class GuildChestState(State):
                 if len(RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number]) == 0:
                     RESERVED_QUANTITIES_BY_SERVER[server_id].pop(tab_number)
             else:
-                RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number][gid][bot_name] = new_quantity
+                RESERVED_QUANTITIES_BY_SERVER[server_id][tab_number][gid][bot_name] = (
+                    new_quantity
+                )
 
     @staticmethod
     def clear_all_reservations_for_bot(server_id: int, bot_name: str):

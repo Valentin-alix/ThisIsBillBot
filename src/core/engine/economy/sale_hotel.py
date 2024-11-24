@@ -72,12 +72,14 @@ def get_item_gids_to_sell(
     logger.info(f"count item to sell : {len(item_gids_to_sell)}")
 
     item_gids_to_sell.sort(
-        key=lambda item_gid: random.uniform(0.95, 1.05)
-        * get_weight_collectable_for_sale_hotel(
-            item_gid,
-            avg_price_by_gid,
-            item_by_gid_in_storage,
-            item_sell_quantity_by_gid,
+        key=lambda item_gid: (
+            random.uniform(0.95, 1.05)
+            * get_weight_collectable_for_sale_hotel(
+                item_gid,
+                avg_price_by_gid,
+                item_by_gid_in_storage,
+                item_sell_quantity_by_gid,
+            )
         ),
         reverse=True,
     )
