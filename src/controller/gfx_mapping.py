@@ -3,7 +3,7 @@ from threading import RLock
 
 import msgspec
 from cachetools import TTLCache, cached
-from d3_database.enums.jobs_enum import JobEnum
+from dofus_unity_reader.enums.jobs_enum import JobEnum
 
 from src.const import RESOURCE_FOLDER
 from src.utils.metaclasses.singleton import Singleton

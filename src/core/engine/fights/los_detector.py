@@ -1,7 +1,7 @@
 from typing import Iterable
 
-from d3_database.data_center.map_reader import MapReader
-from d3_database.grid.map_point import MapPoint
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.engine.movements.map.map_tools import MapTools
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, ParamSpec, Generic
+from typing import Callable, Generic, ParamSpec
 
 P = ParamSpec("P")
 

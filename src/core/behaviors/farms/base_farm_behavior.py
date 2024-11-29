@@ -110,6 +110,9 @@ class BaseFarmBehavior(Behavior, ABC):
         if not DO_SALE_HOTEL:
             return self.on_new_map()
 
+        def on_sale_hotel_prices_finished(_error_code: object) -> None:
+            self.on_new_map()
+
         self.sale_hotel_prices_behavior.start(
-            callback=lambda _: self.on_new_map(), parent=self
+            callback=on_sale_hotel_prices_finished, parent=self
         )

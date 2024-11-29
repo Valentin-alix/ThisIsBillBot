@@ -1,7 +1,7 @@
 from functools import cached_property
 
 from langchain.agents import create_agent
-from langchain.messages import HumanMessage
+from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 
 from src.utils.metaclasses.singleton import Singleton
@@ -28,8 +28,8 @@ class ClassifierChat(metaclass=Singleton):
                                     """
                     )
                 ]
-            }
+            },
         )
 
-        answer = result["messages"][-1].content.strip().lower()
-        return answer == "oui"
+        answer = result["messages"][-1].content
+        return answer.strip().lower() == "oui"

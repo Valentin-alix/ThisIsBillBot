@@ -37,14 +37,20 @@ class AutoBotBehavior(Behavior):
 
     _area_id: int | None = field(init=False, default=None)
     _sub_area_id: int | None = field(init=False, default=None)
-    _previous_area_info_played: list[AreaInfo] = field(init=False, default_factory=list)
+    _previous_area_info_played: list[AreaInfo] = field(
+        init=False, default_factory=list[AreaInfo]
+    )
 
-    def run(self, area_id: int | None = None, sub_area_id: int | None = None) -> None:
+    def run(
+        self,
+        area_id: int | None = None,
+        sub_area_id: int | None = None,
+    ) -> None:
         self._area_id = area_id
         self._sub_area_id = sub_area_id
         self.play()
 
-    def play(self):
+    def play(self) -> None:
         if (
             self.game_state.player.level < LVL_LIMIT_FOR_HARVEST
             or self.game_state.inventory.kamas < KAMAS_LIMIT_FOR_HARVEST
@@ -53,7 +59,7 @@ class AutoBotBehavior(Behavior):
         else:
             self.play_multi_farming()
 
-    def play_multi_farming(self):
+    def play_multi_farming(self) -> None:
         datetime_start_played = datetime.now()
 
         def stop_multi_farming_condition():
@@ -82,12 +88,12 @@ class AutoBotBehavior(Behavior):
             parent=self,
         )
 
-    def on_multi_farming_behavior_finished(self, error_code: str | None):
+    def on_multi_farming_behavior_finished(self, error_code: str | None) -> None:
         if error_code is BaseFarmingErrorCode.STOP_CONDITION_TRIGGERED:
             return self.play_multi_farming()
         self.finish(error_code)
 
-    def play_fighter(self):
+    def play_fighter(self) -> None:
         datetime_start_played = datetime.now()
 
         def stop_condition_fighter() -> bool:
@@ -117,7 +123,7 @@ class AutoBotBehavior(Behavior):
             parent=self,
         )
 
-    def on_fighter_behavior_finished(self, error_code: str | None):
+    def on_fighter_behavior_finished(self, error_code: str | None) -> None:
         if error_code is BaseFarmingErrorCode.STOP_CONDITION_TRIGGERED:
             return self.play()
         self.finish(error_code)

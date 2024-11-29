@@ -1,14 +1,19 @@
-from typing import Any
+from __future__ import annotations
 
+from typing import TypeAlias
 
-def flatten_json(_json: dict | list | Any, parent_key="", sep="."):
+JSONValue: TypeAlias = str | int | float | bool | None | list["JSONValue"] | dict[str, "JSONValue"]
+
+def flatten_json(json_value: JSONValue, parent_key: str = "", sep: str = ".") -> str:
     human_value: str = ""
-    if isinstance(_json, dict):
-        for sub_key, sub_value in _json.items():
-            human_value += f" {flatten_json(sub_value, sub_key, sep=sep)}"
-    elif isinstance(_json, list):
-        for sub_index, sub_value in enumerate(_json):
-            human_value += f" {flatten_json(sub_value, str(sub_index), sep=sep)}"
+    if isinstance(json_value, dict):
+        for sub_key, sub_value in json_value.items():
+            child_key = f"{parent_key}{sep}{sub_key}" if parent_key else sub_key
+            human_value += f" {flatten_json(sub_value, child_key, sep=sep)}"
+    elif isinstance(json_value, list):
+        for sub_index, sub_value in enumerate(json_value):
+            child_key = f"{parent_key}{sep}{sub_index}" if parent_key else str(sub_index)
+            human_value += f" {flatten_json(sub_value, child_key, sep=sep)}"
     else:
-        human_value += f" {parent_key} = {_json}"
+        human_value += f" {parent_key} = {json_value}"
     return human_value

@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from functools import partial
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.enums.area_enum import AreaEnum
-from d3_database.enums.npc_message_id_enum import NpcAskMessageIdEnum
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.enums.area_enum import AreaEnum
+from dofus_unity_reader.enums.npc_message_id_enum import NpcAskMessageIdEnum
+from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
 

@@ -8,8 +8,8 @@ Pour les constantes du jeu, voir src/core/game_constants.py
 import datetime
 from random import uniform
 
-from d3_database.enums.area_enum import AreaEnum, SubAreaEnum
-from d3_database.enums.jobs_enum import JobEnum
+from dofus_unity_reader.enums.area_enum import AreaEnum, SubAreaEnum
+from dofus_unity_reader.enums.jobs_enum import JobEnum
 
 from src.core.engine.movements.area_infos import AreaInfo
 from src.core.game_constants import Maps

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from d3_database.models.datas.recipe_root import RecipeItem
+from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.engine.crafts.recipes import get_valid_recipes
 from src.core.states.player_state import PlayerState

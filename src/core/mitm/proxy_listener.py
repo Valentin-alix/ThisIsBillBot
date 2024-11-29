@@ -17,10 +17,27 @@ from src.utils.pids import get_pid_by_local_and_remote_port
 logger = logging.getLogger()
 
 
-@dataclass
+@dataclass(init=False)
 class ProxyListener(BaseProxyListener):
-    account_by_id: dict[int, Bot] = field(default_factory=dict)
-    account_by_port: dict[int, Bot] = field(init=False, default_factory=dict)
+    account_by_id: dict[int, Bot]
+    account_by_port: dict[int, Bot] = field(init=False)
+
+    def __init__(
+        self,
+        account_by_id: dict[int, Bot],
+        socks5_host: str | None = None,
+        socks5_port: int | None = None,
+        socks5_username: str | None = None,
+        socks5_password: str | None = None,
+    ) -> None:
+        super().__init__(
+            socks5_host=socks5_host,
+            socks5_port=socks5_port,
+            socks5_username=socks5_username,
+            socks5_password=socks5_password,
+        )
+        self.account_by_id = account_by_id
+        self.account_by_port = {}
 
     def create_bridge(
         self, client_socket: Socket, server_socket: Socket, host_port: int

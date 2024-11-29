@@ -1,7 +1,7 @@
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.i18n import I18N
-from d3_database.enums.type_item_enum import TypeItemEnum
-from d3_database.models.datas.monsters_root import MonsterDrop
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.enums.type_item_enum import TypeItemEnum
+from dofus_unity_reader.models.datas.monsters_root import MonsterDrop
 
 from src.controller.sale_hotel import SaleHotelController
 from src.core.engine.items.item import GATHERED_ITEM_ID_BY_NAME

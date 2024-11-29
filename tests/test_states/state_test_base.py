@@ -1,5 +1,4 @@
 import unittest
-from typing import Callable
 
 from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
     DecipheredApiKey,

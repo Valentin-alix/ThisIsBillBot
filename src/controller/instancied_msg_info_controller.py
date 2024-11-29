@@ -10,7 +10,7 @@ from typing import Any
 
 # don't remove below import, otherwise to_parquet in atexit shutdown is gonna boum boum
 import pandas as pd
-from d3_database.utils import Singleton
+from utils import Singleton
 from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message
 from pandas import DataFrame

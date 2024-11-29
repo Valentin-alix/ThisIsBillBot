@@ -1,12 +1,12 @@
+from bisect import insort
 from dataclasses import dataclass, field
 from time import sleep
 from typing import Iterator
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.enums.directions import DirectionsEnum
-from d3_database.enums.skill_enum import SkillEnum
-from d3_database.grid.map_point import MAP_POINT_BY_COORD, MapPoint
-from sortedcontainers import SortedSet
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.enums.directions import DirectionsEnum
+from dofus_unity_reader.enums.skill_enum import SkillEnum
+from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
 
 from src.core.engine.movements.map.map_data_adapter import DataMapProvider
 from src.core.engine.movements.map.map_tools import MapTools
@@ -35,16 +35,32 @@ class Pathfinding:
     allow_trough_entity: bool = field(init=False, default=True)
     avoid_obstacles: bool = field(init=False, default=True)
     heuristic_scale: int = field(init=False, default=HEURISTIC_SCALE)
-    node_by_coord: dict[tuple[int, int], NodeMapPoint] = field(
-        init=False, default_factory=dict
-    )
-    open_list: SortedSet = field(init=False, default_factory=SortedSet)
-    is_coord_closed: set[tuple[int, int]] = field(init=False, default_factory=set)
-    occupied_cell_ids: set[int] = field(init=False, default_factory=set)
-    end_columns: set[int] = field(init=False, default_factory=set)
-    end_lines: set[int] = field(init=False, default_factory=set)
-    end_x_coords: set[int] = field(init=False, default_factory=set)
-    end_y_coords: set[int] = field(init=False, default_factory=set)
+    node_by_coord: dict[tuple[int, int], NodeMapPoint] = field(init=False)
+    open_list: list[NodeMapPoint] = field(init=False)
+    is_coord_closed: set[tuple[int, int]] = field(init=False)
+    occupied_cell_ids: set[int] = field(init=False)
+    end_columns: set[int] = field(init=False)
+    end_lines: set[int] = field(init=False)
+    end_x_coords: set[int] = field(init=False)
+    end_y_coords: set[int] = field(init=False)
+
+    def __post_init__(self) -> None:
+        node_by_coord: dict[tuple[int, int], NodeMapPoint] = {}
+        open_list: list[NodeMapPoint] = []
+        is_coord_closed: set[tuple[int, int]] = set()
+        occupied_cell_ids: set[int] = set()
+        end_columns: set[int] = set()
+        end_lines: set[int] = set()
+        end_x_coords: set[int] = set()
+        end_y_coords: set[int] = set()
+        self.node_by_coord = node_by_coord
+        self.open_list = open_list
+        self.is_coord_closed = is_coord_closed
+        self.occupied_cell_ids = occupied_cell_ids
+        self.end_columns = end_columns
+        self.end_lines = end_lines
+        self.end_x_coords = end_x_coords
+        self.end_y_coords = end_y_coords
 
     def get_interactive_near_path(
         self,
@@ -134,10 +150,10 @@ class Pathfinding:
         )
 
         closest_node: NodeMapPoint = start_node
-        self.open_list.add(start_node)
+        insort(self.open_list, start_node)
         start_node.in_open_set = True
         while self.open_list:
-            curr_node = self.open_list.pop(0)
+            curr_node: NodeMapPoint = self.open_list.pop(0)
             curr_node.in_open_set = False
             if self.debug_signals and curr_node.mp is not start:
                 self.debug_signals.green_cell.emit(curr_node.mp)
@@ -170,7 +186,7 @@ class Pathfinding:
                 if node.cost_to_end < closest_node.cost_to_end:
                     closest_node = node
 
-                self.open_list.add(node)
+                insort(self.open_list, node)
                 node.in_open_set = True
 
         mov_path = self.build_path(start, closest_node)
@@ -179,7 +195,7 @@ class Pathfinding:
     def get_heuristic_to_end(self, mp: MapPoint, ends: set[MapPoint]) -> float:
         return min(end.distance_to_map_point(mp) for end in ends)
 
-    def is_goal_reached(self, curr_node: NodeMapPoint, ends: set[MapPoint]):
+    def is_goal_reached(self, curr_node: NodeMapPoint, ends: set[MapPoint]) -> bool:
         return curr_node.mp in ends
 
     def is_cell_on_ends_column(self, map_point: MapPoint) -> bool:
@@ -272,7 +288,7 @@ class Pathfinding:
 
         return movement_cost
 
-    def get_map_point_weight(self, mp: MapPoint, ends: set[MapPoint]):
+    def get_map_point_weight(self, mp: MapPoint, ends: set[MapPoint]) -> float:
         """get weight of map point"""
         if mp in ends:
             return 1
@@ -298,7 +314,7 @@ class Pathfinding:
 
         return point_weight
 
-    def build_path(self, start: MapPoint, closest_node: NodeMapPoint):
+    def build_path(self, start: MapPoint, closest_node: NodeMapPoint) -> MovementPath:
         path: list[PathElement] = []
 
         cursor: NodeMapPoint | None = closest_node

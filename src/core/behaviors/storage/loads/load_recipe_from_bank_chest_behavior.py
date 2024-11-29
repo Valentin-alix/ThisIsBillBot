@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 
-from d3_database.models.datas.recipe_root import RecipeItem
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeObjectMoveRequest,
 )
-from d3_database.protos.non_obf.game.inventory_pb2 import (
+from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
+from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
@@ -26,7 +27,7 @@ class LoadRecipeFromBankChestBehavior(RecipeLoaderBehavior):
             callback=self.on_entered_storage, parent=self
         )
 
-    def on_entered_storage(self, error_code: str | None):
+    def on_entered_storage(self, error_code: str | None) -> None:
         if error_code is not None:
             return self.finish(
                 error_code=error_code,
@@ -35,7 +36,7 @@ class LoadRecipeFromBankChestBehavior(RecipeLoaderBehavior):
             )
         self.load_recipe()
 
-    def get_storage_objects_by_gid(self) -> dict:
+    def get_storage_objects_by_gid(self) -> dict[int, ObjectItemInventory]:
         return self.game_state.inventory.bank_object_by_gid
 
     def load_ingredients_for_recipe(
@@ -50,13 +51,13 @@ class LoadRecipeFromBankChestBehavior(RecipeLoaderBehavior):
         self,
         ingredient_id_with_quantity: list[tuple[int, int]],
         max_possible_result_quantity: int,
-    ):
+    ) -> None:
         if len(ingredient_id_with_quantity) == 0:
             return self.load_recipe()
         ingredient_id, quantity = ingredient_id_with_quantity.pop()
         self.event_manager.on(
             InventoryWeightEvent,
-            callback=lambda _: self.load_ingredient(
+            callback=lambda _event: self.load_ingredient(
                 ingredient_id_with_quantity, max_possible_result_quantity
             ),
             originator=self,

@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.enums.category_item_enum import CategoryEnum
-from d3_database.enums.type_item_enum import TypeItemEnum
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.enums.category_item_enum import CategoryEnum
+from dofus_unity_reader.enums.type_item_enum import TypeItemEnum
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidHouseItemAddedEvent,
     ExchangeBidHouseItemRemovedEvent,
     ExchangeBidHouseSearchRequest,

@@ -2,10 +2,10 @@ from collections import defaultdict
 from functools import cache
 from math import log1p
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.map_reader import MapReader
-from d3_database.enums.jobs_enum import JobEnum
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.enums.jobs_enum import JobEnum
+from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
 

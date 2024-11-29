@@ -1,7 +1,13 @@
-class Singleton(type):
-    _instances: dict[type, object] = {}
+from typing import Any, TypeVar, cast
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super().__call__(*args, **kwargs)
-        return cls._instances[cls]
+
+T = TypeVar("T")
+
+
+class Singleton(type):
+    _instances: dict[type[Any], object] = {}
+
+    def __call__(cls: type[T], *args: object, **kwargs: object) -> T:
+        if cls not in Singleton._instances:
+            Singleton._instances[cls] = super().__call__(*args, **kwargs)
+        return cast(T, Singleton._instances[cls])

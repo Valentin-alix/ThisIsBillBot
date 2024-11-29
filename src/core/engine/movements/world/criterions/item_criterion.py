@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Callable
 
-from d3_database.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
 
 from src.core.engine.movements.world.criterions.interface_item_criterion import (
     IItemCriterion,

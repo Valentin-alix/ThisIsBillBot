@@ -1,16 +1,17 @@
 from dataclasses import dataclass, field
 
-from d3_database.models.datas.recipe_root import RecipeItem
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeObjectMoveRequest,
 )
-from d3_database.protos.non_obf.game.guild_chest_pb2 import (
+from datas.protos.non_obf.game.guild_chest_pb2 import (
     GuildChestCurrentListenersAddEvent,
     GuildChestTabSelectRequest,
 )
-from d3_database.protos.non_obf.game.inventory_pb2 import (
+from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
+from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestBehavior,
@@ -41,7 +42,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
             parent=self,
         )
 
-    def on_entered_storage(self, error_code: str | None):
+    def on_entered_storage(self, error_code: str | None) -> None:
         if error_code is not None:
             self.logger.error(error_code)
             return self.finish(
@@ -68,7 +69,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
         self.logger.info(f"Tabs to discover : {tab_to_discovers}")
         self.discover_tabs(tab_to_discovers)
 
-    def discover_tabs(self, tabs: set[int]):
+    def discover_tabs(self, tabs: set[int]) -> None:
         if len(tabs) == 0:
             return self.load_recipe()
 
@@ -85,7 +86,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
             SMALL_RANGE,
         )
 
-    def get_storage_objects_by_gid(self) -> dict:
+    def get_storage_objects_by_gid(self) -> dict[int, ObjectItemInventory]:
         return GuildChestState.get_storage_objects_by_gid(
             self.game_state.player.server_id
         )
@@ -110,7 +111,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
             )
 
     def load_ingredients_for_recipe(
-        self, recipe, max_possible_result_quantity: int
+        self, recipe: RecipeItem, max_possible_result_quantity: int
     ) -> None:
         server_id = self.game_state.player.server_id
         ingredients_infos: list[IngredientsInfo] = []
@@ -140,7 +141,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
         self,
         ingredients_infos: list[IngredientsInfo],
         max_possible_result_quantity: int,
-    ):
+    ) -> None:
         if len(ingredients_infos) == 0:
             return self.load_recipe()
 
@@ -169,7 +170,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
         ingredient_info: IngredientsInfo,
         ingredients_infos: list[IngredientsInfo],
         max_possible_result_quantity: int,
-    ):
+    ) -> None:
         self.event_manager.on(
             InventoryWeightEvent,
             callback=lambda _: self.on_ingredient_loaded(
@@ -203,7 +204,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
         ingredient_info: IngredientsInfo,
         ingredients_infos: list[IngredientsInfo],
         max_possible_result_quantity: int,
-    ):
+    ) -> None:
         total_quantity = ingredient_info.quantity * max_possible_result_quantity
         GuildChestState.release_reservation(
             self.game_state.player.server_id,
@@ -214,7 +215,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
         )
         self.load_ingredient(ingredients_infos, max_possible_result_quantity)
 
-    def abort_current_recipe(self):
+    def abort_current_recipe(self) -> None:
         if self._current_recipe_being_loaded is None:
             return self.load_recipe()
 
@@ -255,7 +256,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
 
         self.load_recipe()
 
-    def clear_behavior(self):
+    def clear_behavior(self) -> None:
         GuildChestState.clear_all_reservations_for_bot(
             self.game_state.player.server_id,
             self.game_state.player.character_name,

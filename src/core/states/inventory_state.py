@@ -1,10 +1,10 @@
 import dataclasses
 from dataclasses import dataclass, field
 
-from d3_database.models.datas.recipe_root import RecipeItem
-from d3_database.protos.non_obf.game.common_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
+from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.engine.fights.effect import EffectActionEnum
 from src.core.engine.items.item import SetPositionEnum
@@ -24,12 +24,12 @@ class InventoryState(State):
     _kamas: int = dataclasses.field(init=False, default=500_000)
     _inventory_weight: int = dataclasses.field(init=False, default=0)
     _weight_max: int = dataclasses.field(init=False, default=1)
-    bank_object_by_gid: dict[int, ObjectItemInventory] = dataclasses.field(
-        init=False, default_factory=dict
-    )
+    bank_object_by_gid: dict[int, ObjectItemInventory] = dataclasses.field(init=False)
     objects_by_uid: ObjectByUid = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        bank_object_by_gid: dict[int, ObjectItemInventory] = {}
+        self.bank_object_by_gid = bank_object_by_gid
         self.objects_by_uid = ObjectByUid()
 
     def clear_state(self):
@@ -102,7 +102,7 @@ class InventoryState(State):
         self._kamas = value
         self.inventory_signals.kamas.emit(value)
 
-    def has_weapon_hunter(self):
+    def has_weapon_hunter(self) -> bool:
         return any(
             object.position == SetPositionEnum.ARME
             for object in self.objects_by_uid.values()
@@ -121,7 +121,7 @@ class InventoryState(State):
 
         return get_valid_recipes(self.logger, self.player_state.jobs_lvl_by_id, recipes)
 
-    def get_object_item_by_gid(self, gid: int):
+    def get_object_item_by_gid(self, gid: int) -> ObjectItemInventory | None:
         return next(
             (obj for obj in self.objects_by_uid.values() if obj.item.gid == gid), None
         )

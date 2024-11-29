@@ -1,7 +1,8 @@
 import time
 
-from d3_database.data_center.world_graph_reader import WorldGraphReader
-from d3_database.models.world_graph import Edge
+from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from dofus_unity_reader.models.world_graph import Edge
+
 from src.core.engine.weights.weighted_path import WeightedPath
 from tests.setup_factory import GameStateFixture
 
@@ -50,7 +51,7 @@ class TestWeightedPath(GameStateFixture):
             self.weight_by_map_id.clear()
 
             start = time.perf_counter()
-            path, total_weight = self.weighted_path.beam_search_path(
+            _, total_weight = self.weighted_path.beam_search_path(
                 start_vertex=self.start_vertex,
                 get_weight_by_edge_func=self.get_weight_func,
                 weight_by_map_id=self.weight_by_map_id,
@@ -63,7 +64,6 @@ class TestWeightedPath(GameStateFixture):
             total_weight_sum += total_weight
 
         avg_time = total_time / iterations
-        avg_weight = total_weight_sum / iterations
 
         assert avg_time < 1.0
 
@@ -73,7 +73,6 @@ class TestWeightedPath(GameStateFixture):
         for width in beam_widths:
             self.weight_by_map_id.clear()
 
-            start = time.perf_counter()
             path, total_weight = self.weighted_path.beam_search_path(
                 start_vertex=self.start_vertex,
                 get_weight_by_edge_func=self.get_weight_func,
@@ -81,7 +80,6 @@ class TestWeightedPath(GameStateFixture):
                 depth=20,
                 beam_width=width,
             )
-            elapsed = time.perf_counter() - start
 
     def test_revisit_penalty_beam_search(self):
         path, total_weight = self.weighted_path.beam_search_path(

@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from d3_database.grid.map_point import MapPoint
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from dofus_unity_reader.grid.map_point import MapPoint
+from datas.protos.non_obf.game.gamemap_pb2 import (
     MapChangeRequest,
     MapCurrentEvent,
     MapMovementRefusedEvent,

@@ -5,11 +5,11 @@ from functools import partial
 from threading import Lock
 from typing import Callable
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.models.world_graph import Edge
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
+from dofus_unity_reader.models.world_graph import Edge
 
 from src.const import MIN_DATE
 from src.core.behaviors.behavior import Behavior
@@ -34,20 +34,20 @@ class RandomFarmBehavior(Behavior):
     weighted_path: WeightedPath
     world_signals: WorldSignals
     additional_weight_by_map_id: dict[int, float] = field(
-        default_factory=dict, init=False
+        default_factory=dict[int, float], init=False
     )
     get_additional_weight_by_map_id: Callable[[int], float] = field(
         init=False, default=lambda _: 0
     )
-    map_ids: set[int] = field(default_factory=set, init=False)
+    map_ids: set[int] = field(default_factory=set[int], init=False)
     _edge_path: list[Edge] | None = field(default=None, init=False)
 
     @property
-    def edge_path(self):
+    def edge_path(self) -> list[Edge] | None:
         return self._edge_path
 
     @edge_path.setter
-    def edge_path(self, value: list[Edge] | None):
+    def edge_path(self, value: list[Edge] | None) -> None:
         self._edge_path = value
         key = (self.game_state.player.server_id, self.game_state.player.character_id)
         if value is None:
@@ -60,7 +60,7 @@ class RandomFarmBehavior(Behavior):
         area_id: int | None,
         sub_area_id: int | None,
         get_additional_weight_by_map_id: Callable[[int], float],
-    ):
+    ) -> None:
         self.get_additional_weight_by_map_id = get_additional_weight_by_map_id
         self.additional_weight_by_map_id.clear()
         self.edge_path = None
@@ -71,7 +71,7 @@ class RandomFarmBehavior(Behavior):
         self.edge_path = None
         return super().stop()
 
-    def run(self):
+    def run(self) -> None:
         if self._should_go_to_area():
             self.edge_path = None
             self.logger.info("go to area for farm")
@@ -107,7 +107,7 @@ class RandomFarmBehavior(Behavior):
     def _is_edge_path_empty(self) -> bool:
         return self.edge_path is None or len(self.edge_path) == 0
 
-    def _recalculate_edge_path(self):
+    def _recalculate_edge_path(self) -> None:
         self.logger.info("Empty edge path, recalculating")
         with PATH_LOCK:
             self.edge_path = None
@@ -142,7 +142,7 @@ class RandomFarmBehavior(Behavior):
             return map_ids
         return set(DataReader().sub_area_by_id[self.game_state.map.sub_area_id].mapIds)
 
-    def on_edge_behavior_finished(self, error_code: str | None, edge: Edge):
+    def on_edge_behavior_finished(self, error_code: str | None, edge: Edge) -> None:
         if self.edge_path is None:
             raise ValueError("edge path should not be none")
         if error_code is not None:
@@ -166,10 +166,10 @@ class RandomFarmBehavior(Behavior):
 
     def on_map_complementary_information_event_after_edge(
         self, msg: MapComplementaryInformationEvent, error_code: str | None
-    ):
+    ) -> None:
         self.finish(error_code)
 
-    def on_auto_trip_world_behavior_finished(self, error_code: str | None):
+    def on_auto_trip_world_behavior_finished(self, error_code: str | None) -> None:
         if error_code is not None:
             self.edge_path = None
             self.logger.error(error_code)

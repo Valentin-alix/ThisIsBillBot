@@ -1,11 +1,11 @@
 import dataclasses
 from dataclasses import dataclass
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.world_graph_reader import WorldGraphReader
-from d3_database.grid.map_point import MapPoint
-from d3_database.models.datas.map_positions_root import MapPositionsRootItem
-from d3_database.models.world_graph import Vertice
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from dofus_unity_reader.grid.map_point import MapPoint
+from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
+from dofus_unity_reader.models.world_graph import Vertice
 
 from src.core.engine.movements.world.linked_zone import get_linked_zone_rp
 from src.core.signals.grid_signals import GridSignals

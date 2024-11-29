@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from d3_database.grid.map_point import MapPoint
+from dofus_unity_reader.grid.map_point import MapPoint
 
 
 @dataclass

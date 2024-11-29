@@ -1,11 +1,12 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
 
-from d3_database.data_center.i18n import I18N
-from d3_database.models.datas.recipe_root import RecipeItem
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from dofus_unity_reader.data_center.i18n import I18N
+from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
 )
+from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
@@ -20,9 +21,11 @@ from src.core.engine.crafts.recipes import (
 class RecipeLoaderBehavior(DialogHandlerBehavior):
     unload_behavior: UnloadBehavior
 
-    _remaining_recipes: list[RecipeItem] = field(init=False, default_factory=list)
+    _remaining_recipes: list[RecipeItem] = field(
+        init=False, default_factory=list[RecipeItem]
+    )
     _loaded_recipes_infos: list[tuple[RecipeItem, int]] = field(
-        init=False, default_factory=list
+        init=False, default_factory=list[tuple[RecipeItem, int]]
     )
 
     @abstractmethod
@@ -30,7 +33,7 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
         pass
 
     @abstractmethod
-    def get_storage_objects_by_gid(self) -> dict:
+    def get_storage_objects_by_gid(self) -> dict[int, ObjectItemInventory]:
         pass
 
     @abstractmethod
@@ -49,7 +52,7 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
             )
         self.on_unloaded()
 
-    def on_unload_behavior_finished(self, error_code: str | None):
+    def on_unload_behavior_finished(self, error_code: str | None) -> None:
         if error_code is not None:
             return self.finish(
                 error_code=error_code,
@@ -58,10 +61,10 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
             )
         self.on_unloaded()
 
-    def on_unloaded(self):
+    def on_unloaded(self) -> None:
         self.run_timer(BASE_RANGE, self.enter_storage)
 
-    def load_recipe(self):
+    def load_recipe(self) -> None:
         if len(self._remaining_recipes) == 0:
             return self.on_full_loaded()
 
@@ -98,7 +101,7 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
     ) -> None:
         pass
 
-    def on_full_loaded(self):
+    def on_full_loaded(self) -> None:
         self.event_manager.on(
             ExchangeLeaveEvent,
             callback=lambda _: self.finish(
@@ -110,5 +113,5 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
         )
         self.run_timer(BASE_RANGE, self.leave_all_dialogs)
 
-    def leave_all_dialogs(self):
+    def leave_all_dialogs(self) -> None:
         self.leave_dialog()

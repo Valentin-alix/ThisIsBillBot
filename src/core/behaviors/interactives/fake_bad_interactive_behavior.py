@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 
-from d3_database.protos.non_obf.game.interactive_element_pb2 import (
+from datas.protos.non_obf.game.interactive_element_pb2 import (
     InteractiveUseRequest,
 )
+
 from src.core.behaviors.behavior import Behavior
 
 

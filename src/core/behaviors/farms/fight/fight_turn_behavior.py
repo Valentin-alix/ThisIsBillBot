@@ -1,13 +1,12 @@
 from dataclasses import dataclass, field
-from functools import partial
 from typing import Callable
 
-from d3_database.enums.characteristic_enum import CharacteristicEnum
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from datas.protos.non_obf.game.common_pb2 import (
     CharacterCharacteristic,
     CharacterCharacteristicDetailed,
 )
-from d3_database.protos.non_obf.game.fight_pb2 import (
+from datas.protos.non_obf.game.fight_pb2 import (
     FightIsTurnReadyEvent,
     FightTurnEndEvent,
     FightTurnFinishRequest,
@@ -46,7 +45,7 @@ class FightTurnBehavior(Behavior):
         )
         self.find_and_do_attack()
 
-    def find_and_do_attack(self):
+    def find_and_do_attack(self) -> None:
         attack_info = self.attacker.find_best_attack_from_mp()
         if attack_info is None:
             self.logger.info(f"Breed id : {self.game_state.fight.breed_id}")
@@ -56,14 +55,17 @@ class FightTurnBehavior(Behavior):
             else:
                 run_away = False
 
-            return self.fight_movement_behavior.start(
-                callback=partial(
-                    self.on_fight_movement_behavior_finished,
+            def on_movement_finished(error_code: str | None) -> None:
+                self.on_fight_movement_behavior_finished(
+                    error_code,
                     callback=lambda: self.run_timer(
                         HumanTimingsService().get_timing_before_pass_turn(),
                         self.pass_turn,
                     ),
-                ),
+                )
+
+            return self.fight_movement_behavior.start(
+                callback=on_movement_finished,
                 parent=self,
                 run_away=run_away,
             )
@@ -78,9 +80,9 @@ class FightTurnBehavior(Behavior):
             allow_trough_entity=False,
         )
 
-        self.fight_movement_behavior.start(
-            callback=partial(
-                self.on_fight_movement_behavior_finished,
+        def on_attack_movement_finished(error_code: str | None) -> None:
+            self.on_fight_movement_behavior_finished(
+                error_code,
                 callback=lambda: self.run_timer(
                     HumanTimingsService().get_timing_attack_finish_after_movement_or_attack(),
                     lambda: self.fight_spell_behavior.start(
@@ -90,14 +92,17 @@ class FightTurnBehavior(Behavior):
                         callback=self.on_fight_spell_behavior_finished,
                     ),
                 ),
-            ),
+            )
+
+        self.fight_movement_behavior.start(
+            callback=on_attack_movement_finished,
             parent=self,
             move_path=move_path,
         )
 
     def on_fight_movement_behavior_finished(
         self, error_code: str | None, callback: Callable[[], None]
-    ):
+    ) -> None:
         if error_code is MapMoveError.CANCELED_MOVEMENT:
             return self.find_and_do_attack()
         if error_code is MapMoveError.REFUSED:
@@ -122,10 +127,10 @@ class FightTurnBehavior(Behavior):
             return self.pass_turn()
         callback()
 
-    def on_fight_spell_behavior_finished(self, error_code: str | None):
+    def on_fight_spell_behavior_finished(self, error_code: str | None) -> None:
         self.raise_if_error(error_code)
         self.find_and_do_attack()
 
-    def pass_turn(self):
+    def pass_turn(self) -> None:
         req = FightTurnFinishRequest()
         self.event_manager.send(req)

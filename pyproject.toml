@@ -86,17 +86,14 @@ lint = "ruff check ."
 check = ["lint", "check_type"]
 
 [tool.ruff.lint]
-ignore = ["F841", "E402", "E741"]
+ignore = ["E402"]
 
 [tool.ruff]
 exclude = [
-  "tests",
-  "DBDofusUnity/proto_mapper_assembly/data",
+  "DBDofusUnity/datas",
   "DBDofusUnity/Il2CppInspectorRedux",
-  "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator/gen_zaap",
-  "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator/proxy/dofus3/login_message*",
+  "DBDofusUnity/protodec",
+  "DBDofusUnity/UABEA",
+  "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator_premium/gen_zaap",
+  "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator_premium/proxy/dofus3/login_message*",
 ]
-
-[tool.ruff.lint.per-file-ignores]
-"**/__init__.py" = ["ALL"]
-

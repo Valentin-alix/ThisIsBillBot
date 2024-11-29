@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from d3_database.models.datas.map_positions_root import MapPositionsRootItem
+from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
 
 
 @dataclass

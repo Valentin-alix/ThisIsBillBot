@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from functools import partial
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.i18n import I18N
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
 
@@ -53,7 +53,7 @@ class DungeonBehavior(Behavior):
 
     def on_auto_trip_smart_behavior_to_entrance_finished(
         self, error_code: str | None, dungeon_info: DungeonInfo
-    ):
+    ) -> None:
         if error_code is not None:
             return self.exit_dungeon(dungeon_info)
 
@@ -65,7 +65,7 @@ class DungeonBehavior(Behavior):
 
     def on_npc_dialog_behavior_finished(
         self, error_code: str | None, dungeon_info: DungeonInfo
-    ):
+    ) -> None:
         self.event_manager.on(
             MapComplementaryInformationEvent,
             lambda _: self.on_new_map(dungeon_info),
@@ -73,13 +73,17 @@ class DungeonBehavior(Behavior):
             once=True,
         )
 
-    def on_new_map(self, dungeon_info: DungeonInfo):
+    def on_new_map(self, dungeon_info: DungeonInfo) -> None:
         if self.game_state.map.map_id not in dungeon_info.dungeon.mapIds:
             return self.exit_dungeon(dungeon_info)
+
+        def get_lvl_limit(_: int) -> float:
+            return float("inf")
+
         self.attacker_behavior.start(
             count_fight_limit=1,
             wait_for_group=True,
-            get_lvl_limit=lambda _: float("inf"),
+            get_lvl_limit=get_lvl_limit,
             callback=partial(
                 self.on_attacker_behavior_finished, dungeon_info=dungeon_info
             ),
@@ -91,10 +95,10 @@ class DungeonBehavior(Behavior):
         error_code: str | None,
         _count_fighted_on_map: int,
         dungeon_info: DungeonInfo,
-    ):
+    ) -> None:
         self.on_new_map(dungeon_info)
 
-    def exit_dungeon(self, dungeon_info: DungeonInfo):
+    def exit_dungeon(self, dungeon_info: DungeonInfo) -> None:
         map_name_id = DataReader().map_pos_by_map_id[self.game_state.map.map_id].nameId
         title_map = (
             I18N().name_by_id[map_name_id] if map_name_id in I18N().name_by_id else ""
@@ -117,5 +121,5 @@ class DungeonBehavior(Behavior):
         else:
             self.finish()
 
-    def on_new_map_after_exit_dungeon(self, msg: MapComplementaryInformationEvent):
+    def on_new_map_after_exit_dungeon(self, msg: MapComplementaryInformationEvent) -> None:
         self.finish()

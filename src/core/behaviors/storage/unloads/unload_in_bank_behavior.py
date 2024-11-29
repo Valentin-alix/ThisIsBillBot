@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 
-from d3_database.protos.non_obf.game.common_pb2 import DialogType
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import DialogType
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeObjectTransferAllFromInventoryRequest,
 )
-from d3_database.protos.non_obf.game.inventory_pb2 import (
+from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
+
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
@@ -25,7 +26,7 @@ class UnloadInBankBehavior(DialogHandlerBehavior):
     auto_trip_world_behavior: AutoTripSmartBehavior
     enter_bank_chest_behavior: EnterBankChestBehavior
 
-    def run(self):
+    def run(self) -> None:
         if self.game_state.inventory.pod_percentage < USEFUL_UNLOAD:
             self.logger.info(
                 f"Pod usage {self.game_state.inventory.pod_percentage}% below threshold {USEFUL_UNLOAD}%, skipping unload"
@@ -39,7 +40,7 @@ class UnloadInBankBehavior(DialogHandlerBehavior):
             callback=self.on_enter_bank_chest_behavior, parent=self
         )
 
-    def on_enter_bank_chest_behavior(self, error_code: str | None):
+    def on_enter_bank_chest_behavior(self, error_code: str | None) -> None:
         if error_code is not None:
             self.logger.error(f"Failed to enter bank: {error_code}")
             return self.finish()
@@ -61,7 +62,7 @@ class UnloadInBankBehavior(DialogHandlerBehavior):
             lambda: self.event_manager.send(request),
         )
 
-    def on_inventory_weight_event(self, msg: InventoryWeightEvent):
+    def on_inventory_weight_event(self, msg: InventoryWeightEvent) -> None:
         self.logger.info(
             f"Transfer complete, new pod usage: {self.game_state.inventory.pod_percentage}%"
         )
@@ -70,8 +71,9 @@ class UnloadInBankBehavior(DialogHandlerBehavior):
             lambda: self.leave_dialog(on_leave_callback=self.on_exchange_leave_event),
         )
 
-    def on_exchange_leave_event(self, msg: ExchangeLeaveEvent):
-        if msg.dialog_type != DialogType.DIALOG_EXCHANGE:
-            raise UnexpectedStateException(msg.dialog_type)
+    def on_exchange_leave_event(self, msg: ExchangeLeaveEvent) -> None:
+        dialog_type = msg.dialog_type
+        if dialog_type != DialogType.DIALOG_EXCHANGE:
+            raise UnexpectedStateException(dialog_type)
         self.logger.info("Bank unload completed successfully")
         self.finish()

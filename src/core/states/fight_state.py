@@ -2,15 +2,15 @@ import dataclasses
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from d3_database.enums.characteristic_enum import CharacteristicEnum
-from d3_database.enums.effect_element import EffectElement
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.enums.effect_element import EffectElement
+from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
     SpellModifier,
     SpellModifierType,
 )
-from d3_database.protos.non_obf.game.spell_pb2 import SpellItem
+from datas.protos.non_obf.game.spell_pb2 import SpellItem
 
 from src.core.engine.fights.effect import get_effect_elem_by_stat
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
@@ -27,19 +27,17 @@ class FightState(State):
     game_info_signals: GameInfoSignals
 
     is_map_fight_initialized: bool = field(init=False, default=False)
-    fight_placement_possible_positions: list[int] = field(
-        default_factory=list, init=False
-    )
-    _is_our_turn: bool = field(default=False, init=False)
-    spells: list[SpellItem] = dataclasses.field(init=False, default_factory=list)
+    fight_placement_possible_positions: list[int] = field(init=False)
+    _is_our_turn: bool = field(init=False, default=False)
+    spells: list[SpellItem] = dataclasses.field(init=False)
     modifier_by_type_and_spell_id: dict[
         tuple[int, SpellModifierType], SpellModifier
-    ] = dataclasses.field(init=False, default_factory=dict)
+    ] = dataclasses.field(init=False)
     count_casted_by_spell_id_on_current_turn: dict[int, int] = dataclasses.field(
-        default_factory=lambda: defaultdict(int), init=False
+        init=False
     )
     characteristic_by_id: dict[int, CharacterCharacteristic] = dataclasses.field(
-        init=False, default_factory=dict
+        init=False
     )
     _breed_id: int = dataclasses.field(init=False, default=0)
     _in_fight: bool = dataclasses.field(init=False, default=False)
@@ -50,6 +48,22 @@ class FightState(State):
         ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor | None
     ) = dataclasses.field(init=False, default=None)
     _player_died_in_current_fight: bool = dataclasses.field(init=False, default=False)
+
+    def __post_init__(self) -> None:
+        fight_placement_possible_positions: list[int] = []
+        spells: list[SpellItem] = []
+        modifier_by_type_and_spell_id: dict[
+            tuple[int, SpellModifierType], SpellModifier
+        ] = {}
+        count_casted_by_spell_id_on_current_turn: dict[int, int] = defaultdict(int)
+        characteristic_by_id: dict[int, CharacterCharacteristic] = {}
+        self.fight_placement_possible_positions = fight_placement_possible_positions
+        self.spells = spells
+        self.modifier_by_type_and_spell_id = modifier_by_type_and_spell_id
+        self.count_casted_by_spell_id_on_current_turn = (
+            count_casted_by_spell_id_on_current_turn
+        )
+        self.characteristic_by_id = characteristic_by_id
 
     def clear_state(self):
         self.is_map_fight_initialized = False

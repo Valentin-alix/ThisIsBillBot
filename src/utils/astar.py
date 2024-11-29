@@ -1,7 +1,8 @@
-from abc import ABC, abstractmethod
-from typing import Any, Callable, Generic, Iterator, TypeVar
+from __future__ import annotations
 
-import sortedcontainers
+from abc import ABC, abstractmethod
+from bisect import insort
+from typing import Generic, Iterator, Protocol, TypeVar, cast
 
 T = TypeVar("T")
 
@@ -16,10 +17,17 @@ class Node(Generic[T]):
         "in_open_set",
     )
 
+    parent: Node[T] | None
+    data: T
+    cost_to_node: float
+    total_cost: float
+    closed: bool
+    in_open_set: bool
+
     def __init__(
         self,
         data: T,
-        parent: "Node[T]|None" = None,
+        parent: Node[T] | None = None,
         cost_to_node: float = float("inf"),
         total_cost: float = float("inf"),
         closed: bool = False,
@@ -32,69 +40,71 @@ class Node(Generic[T]):
         self.closed = closed
         self.in_open_set = in_open_set
 
-    def __eq__(self, value: Any) -> bool:
-        return isinstance(value, Node) and self.data == value.data
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Node):
+            return False
+        return self.data == cast(Node[T], other).data
 
     def __hash__(self) -> int:
-        return self.data.__hash__()
+        return hash(self.data)
 
-    def __lt__(self, other: "Node[T]") -> bool:
+    def __lt__(self, other: Node[T]) -> bool:
         return self.total_cost < other.total_cost
 
 
 class SearchNodeDict(dict[T, Node[T]]):
-    def __missing__(self, key) -> Node[T]:
+    def __missing__(self, key: T) -> Node[T]:
         value = Node(data=key)
-        self.__setitem__(key, value)
+        self[key] = value
         return value
 
 
-SNType = TypeVar("SNType", bound=Node)
-
-
-class OpenSet(Generic[SNType]):
+class OpenSet(Generic[T]):
     def __init__(self) -> None:
-        self.sorted_list = sortedcontainers.SortedList(key=lambda x: x.total_cost)
+        self.sorted_list: list[Node[T]] = []
 
-    def push(self, item: SNType) -> None:
+    def push(self, item: Node[T]) -> None:
         item.in_open_set = True
-        self.sorted_list.add(item)
+        insort(self.sorted_list, item)
 
-    def pop(self) -> SNType:
+    def pop(self) -> Node[T]:
         item = self.sorted_list.pop(0)
         item.in_open_set = False
         return item
 
-    def remove(self, item: SNType) -> None:
+    def remove(self, item: Node[T]) -> None:
         self.sorted_list.remove(item)
         item.in_open_set = False
 
     def __len__(self) -> int:
         return len(self.sorted_list)
 
+    def __bool__(self) -> bool:
+        return bool(self.sorted_list)
+
 
 class Astar(ABC, Generic[T]):
     __slots__ = ()
 
     @abstractmethod
-    def get_neighbors(self, data: T) -> Iterator["T"]: ...
+    def get_neighbors(self, data: T) -> Iterator[T]:
+        raise NotImplementedError
 
     @abstractmethod
-    def get_dist(self, current: T, ends: "set[T]") -> float: ...
+    def get_dist(self, current: T, ends: set[T]) -> float:
+        raise NotImplementedError
 
-    def reconstruct_path(self, node: Node[T], do_reverse: bool) -> list:
-        def iter_path():
-            current: Node[T] | None = node
-            path: list[T] = []
-            while current:
-                path.append(current.data)
-                current = current.parent
-            return path
+    def reconstruct_path(self, node: Node[T], do_reverse: bool) -> list[T]:
+        current: Node[T] | None = node
+        path: list[T] = []
+
+        while current is not None:
+            path.append(current.data)
+            current = current.parent
 
         if do_reverse:
-            return iter_path()
-        else:
-            return iter_path()[::-1]
+            return path
+        return path[::-1]
 
     def is_goal_reached(self, current: T, ends: set[T]) -> bool:
         return current in ends
@@ -106,14 +116,16 @@ class Astar(ABC, Generic[T]):
         heuristic_scale: float = 1,
         do_reverse: bool = False,
         max_iteration: int = 9999,
-    ) -> list | None:
-        open_set: OpenSet[Node[T]] = OpenSet()
+    ) -> list[T] | None:
+        open_set: OpenSet[T] = OpenSet()
 
-        start_node: Node[T] = Node(
-            data=start, cost_to_node=0, total_cost=self.get_dist(start, ends)
+        start_node = Node(
+            data=start,
+            cost_to_node=0,
+            total_cost=self.get_dist(start, ends),
         )
 
-        search_node_dict = SearchNodeDict()
+        search_node_dict = SearchNodeDict[T]()
         search_node_dict[start] = start_node
         open_set.push(start_node)
 
@@ -131,12 +143,15 @@ class Astar(ABC, Generic[T]):
             ):
                 if node.closed:
                     continue
+
                 try:
                     cost_to_node = current_node.cost_to_node + self.get_dist(
-                        current_node.data, {node.data}
+                        current_node.data,
+                        {node.data},
                     )
                 except KeyError:
                     continue
+
                 if cost_to_node >= node.cost_to_node:
                     continue
 
@@ -154,27 +169,43 @@ class Astar(ABC, Generic[T]):
         return None
 
 
-U = TypeVar("U")
+PathT = TypeVar("PathT")
+
+
+def _default_is_goal_reached(current: PathT, ends: set[PathT]) -> bool:
+    return current in ends
+
+
+class NeighborProvider(Protocol[T]):
+    def __call__(self, node: T) -> Iterator[T]: ...
+
+
+class DistanceProvider(Protocol[T]):
+    def __call__(self, current: T, ends: set[T]) -> float: ...
+
+
+class GoalReachedProvider(Protocol[T]):
+    def __call__(self, current: T, ends: set[T]) -> bool: ...
 
 
 def find_path(
-    start: U,
-    ends: set[U],
-    get_neighbors_func: Callable[[U], Iterator[U]],
-    distance_between_func: Callable[[U, set[U]], float],
-    is_goal_reached_func: Callable[[U, set[U]], bool] = lambda curr, ends: curr in ends,
+    start: PathT,
+    ends: set[PathT],
+    get_neighbors_func: NeighborProvider[PathT],
+    distance_between_func: DistanceProvider[PathT],
+    is_goal_reached_func: GoalReachedProvider[PathT] = _default_is_goal_reached,
     do_reverse: bool = False,
-) -> list[U] | None:
-    """A non-class version of the path finding algorithm"""
+) -> list[PathT] | None:
+    """A non-class version of the path finding algorithm."""
 
-    class FindPath(Astar):
-        def get_dist(self, current: U, ends: set[U]) -> float:
+    class FindPath(Astar[T]):
+        def get_dist(self, current: PathT, ends: set[PathT]) -> float:
             return distance_between_func(current, ends)
 
-        def get_neighbors(self, data: U) -> Iterator[U]:
+        def get_neighbors(self, data: PathT) -> Iterator[PathT]:
             return get_neighbors_func(data)
 
-        def is_goal_reached(self, current: U, ends: set[U]) -> bool:
+        def is_goal_reached(self, current: PathT, ends: set[PathT]) -> bool:
             return is_goal_reached_func(current, ends)
 
-    return FindPath().find_path(start, ends, do_reverse)
+    return FindPath[PathT]().find_path(start, ends, do_reverse=do_reverse)

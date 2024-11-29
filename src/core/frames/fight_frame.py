@@ -1,29 +1,30 @@
 from dataclasses import dataclass
 
-from d3_database.protos.non_obf.game.character_pb2 import (
+from datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicsEvent,
     UpdateLifePointsEvent,
 )
-from d3_database.protos.non_obf.game.fight_pb2 import (
+from datas.protos.non_obf.game.fight_pb2 import (
     FightLiveStateEvent,
     FightRefreshCharacterStatsEvent,
     FightTurnFinishRequest,
     FightTurnStartPlayingEvent,
 )
-from d3_database.protos.non_obf.game.fight_preparation_pb2 import (
+from datas.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
 )
-from d3_database.protos.non_obf.game.game_action_pb2 import (
+from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightCastRequest,
     GameActionFightEvent,
 )
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
 )
-from d3_database.protos.non_obf.game.spell_pb2 import (
+from datas.protos.non_obf.game.spell_pb2 import (
     SpellsEvent,
 )
+
 from src.controller.forbidden_monster_controller import ForbiddenMonsterController
 from src.core.frames.frame import Frame
 

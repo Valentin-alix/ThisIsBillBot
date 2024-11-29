@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.models.world_graph import Vertice
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.models.world_graph import Vertice
 
 from src.core.engine.movements.map.map_position_flags import allow_teleport_to
 from src.core.engine.movements.world.astar_vertice import AstarWorld

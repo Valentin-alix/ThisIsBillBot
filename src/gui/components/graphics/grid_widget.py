@@ -1,10 +1,10 @@
 import sys
 
-from d3_database.data_center.map_reader import MapReader
-from d3_database.grid.consts import CELL_HEIGHT, CELL_WIDTH
-from d3_database.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
-from d3_database.models.datas.collectionsroot import Collectable
-from d3_database.protos.non_obf.game.common_pb2 import StatedElement
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.grid.consts import CELL_HEIGHT, CELL_WIDTH
+from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
+from datas.protos.non_obf.game.common_pb2 import StatedElement
+from dofus_unity_reader.models.datas.collectionsroot import Collectable
 from PyQt6.QtCore import QPointF, Qt, pyqtSlot
 from PyQt6.QtGui import QColor, QFont, QMouseEvent, QPainter, QPen, QPolygonF
 from PyQt6.QtWidgets import (

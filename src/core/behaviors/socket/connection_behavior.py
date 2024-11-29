@@ -2,8 +2,7 @@ import uuid
 from enum import StrEnum, auto
 
 from ankama_launcher_emulator_premium.haapi.zaap_version import get_client_version
-
-from d3_database.protos.non_obf.connection.login_message_pb2 import (
+from datas.protos.non_obf.connection.login_message_pb2 import (
     IdentificationRequest,
     IdentificationResponse,
     LoginMessage,
@@ -12,6 +11,7 @@ from d3_database.protos.non_obf.connection.login_message_pb2 import (
     SelectServerResponse,
     TokenRequest,
 )
+
 from src.core.behaviors.behavior import Behavior
 
 

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from heapq import nlargest
 from typing import Callable
 
-from d3_database.models.world_graph import Edge, Vertice
+from dofus_unity_reader.models.world_graph import Edge, Vertice
 
 from src.core.engine.movements.world.edge import iter_valid_outgoing_edges
 from src.core.states.game_state import GameState
@@ -17,7 +17,7 @@ class WeightedPath:
         edge: Edge,
         get_weight_by_edge_func: Callable[[Edge], float],
         weight_by_map_id: dict[int, float],
-    ):
+    ) -> float:
         if weight_by_map_id.get(edge.m_to.m_mapId) is None:
             weight_by_map_id[edge.m_to.m_mapId] = get_weight_by_edge_func(edge)
         return weight_by_map_id[edge.m_to.m_mapId]
@@ -40,7 +40,7 @@ class WeightedPath:
         ]
 
         for _ in range(depth):
-            candidates = []
+            candidates: list[tuple[Vertice, list[Edge], float, tuple[int, ...]]] = []
 
             for vertice, path, score, visited in beam:
                 for edge in iter_valid_outgoing_edges(vertice, self.game_state):

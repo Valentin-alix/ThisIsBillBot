@@ -1,17 +1,17 @@
 from datetime import datetime, timezone
 
-from ProtoMapperAssembly.data.non_obf.protos.connection.login_message_pb2 import (
+from datas.protos.non_obf.connection.login_message_pb2 import (
     SelectServerRequest,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.character_management_pb2 import (
+from datas.protos.non_obf.game.character_management_pb2 import (
     CharacterSelectionEvent,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import Character
-from ProtoMapperAssembly.data.non_obf.protos.game.job_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import Character
+from datas.protos.non_obf.game.job_pb2 import (
     JobExperience,
     JobExperiencesUpdateEvent,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.teleportation_pb2 import (
+from datas.protos.non_obf.game.teleportation_pb2 import (
     ZaapKnownListEvent,
 )
 from tests.test_states.state_test_base import StateTestBase

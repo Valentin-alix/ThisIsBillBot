@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.map_reader import MapReader
-from d3_database.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
+from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from d3_database.protos.non_obf.game.interactive_element_pb2 import (
+from datas.protos.non_obf.game.interactive_element_pb2 import (
     InteractiveElementUpdatedEvent,
     StatedElementUpdatedEvent,
 )

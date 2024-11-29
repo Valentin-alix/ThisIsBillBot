@@ -2,22 +2,22 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.world_graph_reader import WorldGraphReader
-from d3_database.enums.element_type import ElementTypeEnum
-from d3_database.grid.map_point import MapPoint
-from d3_database.models.world_graph import Vertice
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from dofus_unity_reader.enums.element_type import ElementTypeEnum
+from dofus_unity_reader.grid.map_point import MapPoint
+from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from d3_database.protos.non_obf.game.haven_bag_pb2 import (
+from datas.protos.non_obf.game.haven_bag_pb2 import (
     HavenBagEnterRequest,
     HavenBagExitRequest,
 )
-from d3_database.protos.non_obf.game.teleportation_pb2 import (
+from datas.protos.non_obf.game.teleportation_pb2 import (
     Teleporter,
     TeleportRequest,
 )
+from dofus_unity_reader.models.world_graph import Vertice
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeMoveKamaRequest,
     ExchangeObjectModifyPricedRequest,
@@ -9,7 +9,7 @@ from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeObjectTransferAllFromInventoryRequest,
     ExchangeStartedWithStorageEvent,
 )
-from d3_database.protos.non_obf.game.inventory_pb2 import (
+from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryContentEvent,
     InventoryWeightEvent,
     ObjectAddedEvent,
@@ -17,6 +17,7 @@ from d3_database.protos.non_obf.game.inventory_pb2 import (
     ObjectUseRequest,
     StorageInventoryContentEvent,
 )
+
 from src.core.frames.frame import Frame
 
 

@@ -1,18 +1,19 @@
 from enum import IntEnum
+from typing import Callable
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.i18n import I18N
-from d3_database.enums.characteristic_enum import CharacteristicEnum
-from d3_database.enums.description_enum import DescriptionEnum
-from d3_database.enums.effect_element import EffectElement, TypeEffect
-from d3_database.models.datas.spell_levels_root import Effect
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.enums.description_enum import DescriptionEnum
+from dofus_unity_reader.enums.effect_element import EffectElement, TypeEffect
+from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     Team,
 )
+from dofus_unity_reader.models.datas.spell_levels_root import Effect
 
 
-def get_effect_elem_by_stat(stat_id: int):
+def get_effect_elem_by_stat(stat_id: int) -> EffectElement:
     match stat_id:
         case CharacteristicEnum.CHANCE:
             return EffectElement.CHANCE
@@ -26,7 +27,7 @@ def get_effect_elem_by_stat(stat_id: int):
             raise ValueError(f"Unknown primary stat : {stat_id} for elem")
 
 
-def get_stat_by_effect_elem(elem: int):
+def get_stat_by_effect_elem(elem: int) -> CharacteristicEnum:
     match elem:
         case EffectElement.CHANCE:
             return CharacteristicEnum.CHANCE
@@ -68,7 +69,7 @@ def is_included_by_mask(
     caster_team: Team,
     masks: list[str],
     target_actor: ActorPositionInformation,
-):
+) -> bool:
     if target_actor.actor_id == caster_id:
         if any(char in masks for char in ("c", "C", "a")):
             return True
@@ -79,7 +80,7 @@ def is_included_by_mask(
 
     is_summoned_target = False
 
-    conditions = {
+    conditions: dict[str, Callable[[], bool]] = {
         "A": lambda: not is_same_team,
         "D": lambda: not is_same_team,
         "H": lambda: not is_same_team and not is_summoned_target,

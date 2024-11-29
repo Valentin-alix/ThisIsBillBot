@@ -13,13 +13,14 @@ import socket
 import sys
 from pathlib import Path
 
-from d3_database.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
-from d3_database.protos.non_obf.game.fight_pb2 import (
+from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
+from datas.protos.non_obf.game.fight_pb2 import (
     FightTurnFinishRequest,
 )
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from datas.protos.non_obf.game.gamemap_pb2 import (
     MapMovementConfirmRequest,
 )
+from google.protobuf.message import Message
 
 ENV_PATH = os.path.join(Path(__file__).parent.parent, ".env")
 
@@ -66,7 +67,7 @@ FAKE_INFINITY_VALUE = 99999
 # MESSAGES PROTOBUF
 # ============================================================================
 
-MESSAGES_WITH_UID = [
+MESSAGES_WITH_UID: list[type[Message]] = [
     MapMovementConfirmRequest,
     DialogLeaveRequest,
     FightTurnFinishRequest,

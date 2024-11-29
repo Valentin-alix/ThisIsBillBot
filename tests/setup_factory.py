@@ -1,10 +1,10 @@
 import unittest
 from typing import Iterable
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.enums.breed import Breed
-from d3_database.enums.characteristic_enum import CharacteristicEnum
-from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.enums.breed import Breed
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
     CharacterCharacteristicValue,
@@ -13,7 +13,7 @@ from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
     SpawnInformation,
     Team,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.spell_pb2 import SpellItem
+from datas.protos.non_obf.game.spell_pb2 import SpellItem
 from src.core.engine.fights.attack import Attacker
 from src.core.engine.fights.damage_calculator import DamageCalculator
 from src.core.engine.fights.reachable_cells.fight_reachable_cells import (

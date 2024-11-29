@@ -1,14 +1,14 @@
 from dataclasses import dataclass, field
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.models.datas.recipe_root import RecipeItem
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeCraftCountRequest,
     ExchangeCraftStartedEvent,
     ExchangeLeaveEvent,
     ExchangeReadyRequest,
     ExchangeSetCraftRecipeRequest,
 )
+from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.frames.frame import Frame
 
@@ -44,9 +44,10 @@ class CraftFrame(Frame):
     def on_exchange_set_craft_recipe_request(self, msg: ExchangeSetCraftRecipeRequest):
         self._requested_craft_count = 1
         recipe_gid = msg.object_uid
-        self._current_recipe = DataReader().recipe_by_result_id[recipe_gid]
+        current_recipe = DataReader().recipe_by_result_id[recipe_gid]
+        self._current_recipe = current_recipe
         self.logger.info(
-            f"Recipe selected: {self._current_recipe.resultId} with ingredients {self._current_recipe.ingredientIds}"
+            f"Recipe selected: {current_recipe.resultId} with ingredients {current_recipe.ingredientIds}"
         )
         self.event_manager.on(
             ExchangeCraftCountRequest,

@@ -1,6 +1,8 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
+from types import TracebackType
+from collections.abc import Mapping
 
 from src.const import LOG_FOLDER
 from src.core.signals.global_log_signals import GlobalLogSignals
@@ -43,6 +45,23 @@ class Logger(logging.Logger):
         file_handler.setFormatter(file_formatter)
         self.addHandler(file_handler)
 
-    def log(self, level: int, msg: object, *args, **kwargs) -> None:
+    def log(
+        self,
+        level: int,
+        msg: object,
+        *args: object,
+        exc_info: bool | BaseException | tuple[type[BaseException], BaseException, TracebackType | None] | tuple[None, None, None] | None = None,
+        stack_info: bool = False,
+        stacklevel: int = 1,
+        extra: Mapping[str, object] | None = None,
+    ) -> None:
         self.log_signals.log_emitted.emit(LogLevel(level), msg)
-        return super().log(level, str(msg), *args, **kwargs)
+        return super().log(
+            level,
+            str(msg),
+            *args,
+            exc_info=exc_info,
+            stack_info=stack_info,
+            stacklevel=stacklevel,
+            extra=extra,
+        )

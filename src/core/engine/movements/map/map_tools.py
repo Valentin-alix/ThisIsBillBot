@@ -1,13 +1,13 @@
 import math
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.enums.directions import DirectionsEnum
-from d3_database.grid.consts import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.enums.directions import DirectionsEnum
+from dofus_unity_reader.grid.consts import (
     MAP_GRID_WIDTH,
 )
-from d3_database.grid.map_point import MAP_POINT_BY_COORD, MapPoint
-from d3_database.models.maps import Transform
-from d3_database.utils import cache
+from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
+from utils import cache
+from dofus_unity_reader.models.maps import Transform
 
 
 class MapTools:

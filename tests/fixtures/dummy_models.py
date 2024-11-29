@@ -13,14 +13,14 @@ class MiniGameState:
 
 
 class DummyEventManager:
-    def __init__(self):
-        self.received = []
+    def __init__(self) -> None:
+        self.received: list[object] = []
 
-    def process_msg(self, msg):
+    def process_msg(self, msg: object) -> None:
         self.received.append(msg)
 
 
 class DummyBot:
-    def __init__(self):
-        self.event_manager = DummyEventManager()
-        self.game_state = MiniGameState()
+    def __init__(self) -> None:
+        self.event_manager: DummyEventManager = DummyEventManager()
+        self.game_state: MiniGameState = MiniGameState()

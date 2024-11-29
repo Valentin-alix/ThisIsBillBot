@@ -1,7 +1,6 @@
 from dataclasses import dataclass
-from typing import Any
 
-from d3_database.grid.map_point import MapPoint
+from dofus_unity_reader.grid.map_point import MapPoint
 
 
 @dataclass
@@ -14,7 +13,7 @@ class NodeMapPoint:
     in_open_set: bool = False
     is_closed: bool = False
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return isinstance(other, NodeMapPoint) and self.mp.cell_id == other.mp.cell_id
 
     def __hash__(self) -> int:

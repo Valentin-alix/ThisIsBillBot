@@ -1,17 +1,17 @@
 from dataclasses import dataclass
 from functools import partial
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.i18n import I18N
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeObjectMoveRequest,
 )
-from d3_database.protos.non_obf.game.guild_chest_pb2 import (
+from datas.protos.non_obf.game.guild_chest_pb2 import (
     GuildChestCurrentListenersAddEvent,
     GuildChestTabSelectRequest,
 )
-from d3_database.protos.non_obf.game.inventory_pb2 import (
+from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
 
@@ -57,12 +57,12 @@ class LoadFromGuildChestBehavior(DialogHandlerBehavior):
 
     def on_unload_behavior_finished(
         self, error_code: str | None, load_items_infos: list[LoadItemInfo]
-    ):
+    ) -> None:
         if error_code is not None:
             return self.finish(error_code)
         self.on_unloaded(load_items_infos)
 
-    def on_unloaded(self, load_items_infos: list[LoadItemInfo]):
+    def on_unloaded(self, load_items_infos: list[LoadItemInfo]) -> None:
         self.run_timer(
             BASE_RANGE,
             lambda: self.enter_guild_chest_behavior.start(
@@ -76,12 +76,12 @@ class LoadFromGuildChestBehavior(DialogHandlerBehavior):
 
     def on_entered_guild_chest_behavior(
         self, error_code: str | None, load_items_infos: list[LoadItemInfo]
-    ):
+    ) -> None:
         if error_code is not None:
             return self.finish(error_code=error_code, load_items_infos=load_items_infos)
         self.load_item(load_items_infos)
 
-    def load_item(self, load_items_infos: list[LoadItemInfo]):
+    def load_item(self, load_items_infos: list[LoadItemInfo]) -> None:
         if len(load_items_infos) == 0:
             self.event_manager.on(
                 ExchangeLeaveEvent,
@@ -167,7 +167,7 @@ class LoadFromGuildChestBehavior(DialogHandlerBehavior):
         )
         self.send_message_delayed(req, SMALL_RANGE)
 
-    def go_to_tab(self, tab_number: int, load_items_infos: list[LoadItemInfo]):
+    def go_to_tab(self, tab_number: int, load_items_infos: list[LoadItemInfo]) -> None:
         self.event_manager.on(
             GuildChestCurrentListenersAddEvent,
             lambda _: self.load_item(load_items_infos=load_items_infos),
@@ -184,7 +184,7 @@ class LoadFromGuildChestBehavior(DialogHandlerBehavior):
 
     def on_item_loaded(
         self, tab: int, gid: int, quantity: int, load_items_infos: list[LoadItemInfo]
-    ):
+    ) -> None:
         GuildChestState.release_reservation(
             self.game_state.player.server_id,
             tab,
@@ -194,10 +194,10 @@ class LoadFromGuildChestBehavior(DialogHandlerBehavior):
         )
         self.load_item(load_items_infos)
 
-    def leave_all_dialogs(self):
+    def leave_all_dialogs(self) -> None:
         self.leave_dialog()
 
-    def clear_behavior(self):
+    def clear_behavior(self) -> None:
         GuildChestState.clear_all_reservations_for_bot(
             self.game_state.player.server_id,
             self.game_state.player.character_name,

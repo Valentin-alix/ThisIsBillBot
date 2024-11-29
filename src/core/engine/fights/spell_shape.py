@@ -8,7 +8,7 @@ class SpellShapeEnum(IntEnum):
     P = 80
     D = 68
     C = 67
-    O = 79
+    O_CHAR = 79
     Q = 81
     V = 86
     W = 87
@@ -18,7 +18,7 @@ class SpellShapeEnum(IntEnum):
     slash = 47
     minus = 45
     G = 71
-    I = 73
+    I_CHAR = 73
     U = 85
     A = 65
     a = 97
@@ -26,7 +26,7 @@ class SpellShapeEnum(IntEnum):
     Z = 90
     semicolon = 59
     empty = 32
-    l = 108
+    lower_l = 108
     R = 82
     F = 70
     UNKNOWN = 0

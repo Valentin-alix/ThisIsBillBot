@@ -2,10 +2,10 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from d3_database.models.world_graph import Edge
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
+from dofus_unity_reader.models.world_graph import Edge
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.edge_behavior import EdgeBehavior, EdgeError
@@ -39,7 +39,7 @@ class AutoTripBehavior(Behavior):
         edge_path: list[Edge] | None = None,
         from_auto_trip_zaap_behavior: bool = False,
         retry: int = 3,
-    ):
+    ) -> None:
         if self.game_state.map.is_in_map_transition:
             return self.event_manager.on(
                 MapComplementaryInformationEvent,
@@ -79,7 +79,7 @@ class AutoTripBehavior(Behavior):
 
         self.process_edge()
 
-    def process_edge(self):
+    def process_edge(self) -> None:
         if self.auto_trip_edges is None or len(self.auto_trip_edges) == 0:
             self.logger.info("Empty auto trip edge")
             return self.finish()
@@ -89,7 +89,7 @@ class AutoTripBehavior(Behavior):
             callback=self.on_edge_behavior_finished, parent=self, edge=edge
         )
 
-    def on_edge_behavior_finished(self, error_code: str | None):
+    def on_edge_behavior_finished(self, error_code: str | None) -> None:
         if error_code is EdgeError.NO_VALID_TRANSITION:
             return self.run(map_ids=self.target_map_ids)
         elif (
@@ -110,7 +110,7 @@ class AutoTripBehavior(Behavior):
 
     def on_map_complementary_information_event_after_edge(
         self, msg: MapComplementaryInformationEvent, error_code: str | None
-    ):
+    ) -> None:
         if error_code is not None:
             return self.finish(error_code)
         self.process_edge()

@@ -1,23 +1,23 @@
 from dataclasses import dataclass
 
-from d3_database.grid.map_point import MapPoint
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.grid.map_point import MapPoint
+from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     Direction,
     SpawnInformation,
 )
-from d3_database.protos.non_obf.game.context_pb2 import (
+from datas.protos.non_obf.game.context_pb2 import (
     EntitiesDispositionEvent,
 )
-from d3_database.protos.non_obf.game.fight_pb2 import (
+from datas.protos.non_obf.game.fight_pb2 import (
     FightFighterRefreshEvent,
     FightFighterShowEvent,
     FightSynchronizeEvent,
 )
-from d3_database.protos.non_obf.game.game_action_pb2 import (
+from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightEvent,
 )
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
     MapMovementEvent,
     MapMovementRefusedEvent,
@@ -119,36 +119,49 @@ class EntityFrame(Frame):
                     msg.source_id
                 ].actor_information.fighter.spawn_information.team
                 for summon in msg.summons.summons_by_context_information.summons:
-                    entity_info = {}
-                    if summon.spawn_information.HasField("monster"):
-                        entity_info["ai_fighter"] = AIFighter(
-                            monster_fighter_information=MonsterFighter(
-                                monster_gid=summon.spawn_information.monster.monster_gid,
-                                creature_grade=summon.spawn_information.monster.grade,
-                            )
-                        )
-                    elif summon.spawn_information.HasField("character"):
-                        entity_info["named_fighter"] = NamedFighterInformation(
-                            name=summon.spawn_information.character.name
-                        )
-                    elif summon.spawn_information.HasField("companion"):
-                        entity_info["entity_fighter"] = EntityFighterInformation(
-                            entity_model_id=summon.spawn_information.companion.model_id,
-                            master_id=summon.spawn_information.companion.owner_id,
-                            level=summon.spawn_information.companion.level,
-                        )
                     for sub_summon in summon.summons:
+                        spawn_information = SpawnInformation(
+                            team=related_team,
+                            alive=sub_summon.alive,
+                            position=sub_summon.position,
+                        )
+                        if summon.spawn_information.HasField("monster"):
+                            fighter_information = ActorPositionInformation.ActorInformation.FightFighterInformation(
+                                spawn_information=spawn_information,
+                                ai_fighter=AIFighter(
+                                    monster_fighter_information=MonsterFighter(
+                                        monster_gid=summon.spawn_information.monster.monster_gid,
+                                        creature_grade=summon.spawn_information.monster.grade,
+                                    )
+                                ),
+                                stats=summon.characteristics,
+                            )
+                        elif summon.spawn_information.HasField("character"):
+                            fighter_information = ActorPositionInformation.ActorInformation.FightFighterInformation(
+                                spawn_information=spawn_information,
+                                named_fighter=NamedFighterInformation(
+                                    name=summon.spawn_information.character.name
+                                ),
+                                stats=summon.characteristics,
+                            )
+                        elif summon.spawn_information.HasField("companion"):
+                            fighter_information = ActorPositionInformation.ActorInformation.FightFighterInformation(
+                                spawn_information=spawn_information,
+                                entity_fighter=EntityFighterInformation(
+                                    entity_model_id=summon.spawn_information.companion.model_id,
+                                    master_id=summon.spawn_information.companion.owner_id,
+                                    level=summon.spawn_information.companion.level,
+                                ),
+                                stats=summon.characteristics,
+                            )
+                        else:
+                            fighter_information = ActorPositionInformation.ActorInformation.FightFighterInformation(
+                                spawn_information=spawn_information,
+                                stats=summon.characteristics,
+                            )
                         related_actor_pos_information = ActorPositionInformation(
                             actor_information=ActorPositionInformation.ActorInformation(
-                                fighter=ActorPositionInformation.ActorInformation.FightFighterInformation(
-                                    spawn_information=SpawnInformation(
-                                        team=related_team,
-                                        alive=sub_summon.alive,
-                                        position=sub_summon.position,
-                                    ),
-                                    **entity_info,
-                                    stats=summon.characteristics,
-                                )
+                                fighter=fighter_information
                             ),
                             actor_id=sub_summon.position.actor_id,
                             disposition=sub_summon.position.disposition,

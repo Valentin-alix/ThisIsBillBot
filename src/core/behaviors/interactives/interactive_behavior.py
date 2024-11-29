@@ -2,12 +2,13 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from d3_database.protos.non_obf.game.gamemap_pb2 import MapCurrentEvent
-from d3_database.protos.non_obf.game.interactive_element_pb2 import (
+from datas.protos.non_obf.game.gamemap_pb2 import MapCurrentEvent
+from datas.protos.non_obf.game.interactive_element_pb2 import (
     InteractiveUsedEvent,
     InteractiveUseErrorEvent,
     InteractiveUseRequest,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
@@ -30,7 +31,7 @@ class InteractiveBehavior(Behavior):
         move_path: MovementPath | None,
         element_id: int,
         skill_instance_uid: int,
-    ):
+    ) -> None:
         if self.game_state.map.is_in_map_transition:
             return self.finish()
         if (

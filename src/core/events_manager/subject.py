@@ -11,18 +11,23 @@ P = ParamSpec("P")
 class Subject(Generic[P]):
     """observer pattern"""
 
-    _lock: RLock = field(init=False, default_factory=RLock)
-    _observers: list[Observer[P]] = field(init=False, default_factory=list)
+    _lock: RLock = field(init=False)
+    _observers: list[Observer[P]] = field(init=False)
+
+    def __post_init__(self) -> None:
+        self._lock = RLock()
+        observers: list[Observer[P]] = []
+        self._observers = observers
 
     def connect(
         self, callback: Callable[P, None], originator: object, once: bool = False
-    ):
+    ) -> None:
         with self._lock:
             self._observers.append(
                 Observer(callback=callback, originator=originator, once=once)
             )
 
-    def disconnect_originator(self, originator: object):
+    def disconnect_originator(self, originator: object) -> None:
         with self._lock:
             self._observers = [
                 observer
@@ -30,7 +35,7 @@ class Subject(Generic[P]):
                 if observer.originator != originator
             ]
 
-    def emit(self, *args: P.args, **kwargs: P.kwargs):
+    def emit(self, *args: P.args, **kwargs: P.kwargs) -> None:
         with self._lock:
             observers = self._observers[::]
             for observer in observers:

@@ -1,6 +1,7 @@
+from collections.abc import Iterable, Mapping
 from dataclasses import MISSING, fields, is_dataclass
 from datetime import datetime
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, TypeAlias, TypeVar, cast
 
 from google.protobuf.json_format import MessageToJson
 from google.protobuf.message import Message
@@ -12,15 +13,19 @@ class AppModel(BaseModel):
 
 
 F = TypeVar("F", bound=Callable[..., Any])
+SerializedValue: TypeAlias = str | int | float | bool | None | list["SerializedValue"] | dict[str, "SerializedValue"]
 
 
 def ValidatedCall(func: F) -> F:
-    return validate_call(
-        func, config=ConfigDict(arbitrary_types_allowed=True, validate_return=True)
-    )  # type: ignore
+    return cast(
+        F,
+        validate_call(
+            config=ConfigDict(arbitrary_types_allowed=True, validate_return=True)
+        )(func),
+    )
 
 
-def reset_fields_to_default(instance: Any, include_fields: list[str]):
+def reset_fields_to_default(instance: Any, include_fields: list[str]) -> None:
     for field in fields(instance):
         if field.name not in include_fields:
             continue
@@ -30,19 +35,19 @@ def reset_fields_to_default(instance: Any, include_fields: list[str]):
             setattr(instance, field.name, field.default_factory())
 
 
-def dataclass_to_dict(obj: object) -> dict[str, Any]:
-    result: dict[str, Any] = {}
+def dataclass_to_dict(obj: object) -> dict[str, SerializedValue]:
+    result: dict[str, SerializedValue] = {}
     assert is_dataclass(obj)
     for field in fields(obj):
         name = field.name
-        val = getattr(obj, name)
-        serialized_value = _serialize_value(val)
+        value = getattr(obj, name)
+        serialized_value = _serialize_value(value)
         if serialized_value is not None:
-            result[name] = _serialize_value(val)
+            result[name] = serialized_value
     return result
 
 
-def _serialize_value(value: Any) -> Any:
+def _serialize_value(value: object) -> SerializedValue | None:
     if value is None:
         return None
     if isinstance(value, Message):
@@ -58,8 +63,19 @@ def _serialize_value(value: Any) -> Any:
         return value.decode("utf-8", errors="ignore")
     if is_dataclass(value):
         return dataclass_to_dict(value)
-    if isinstance(value, dict):
-        return {str(k): _serialize_value(val) for k, val in value.items()}
+    if isinstance(value, Mapping):
+        mapping_value = cast(Mapping[object, object], value)
+        serialized_dict: dict[str, SerializedValue] = {}
+        for key, item in mapping_value.items():
+            serialized_item = _serialize_value(item)
+            if serialized_item is not None:
+                serialized_dict[str(key)] = serialized_item
+        return serialized_dict
     if isinstance(value, (list, tuple, set)):
-        return [_serialize_value(x) for x in value]
+        serialized_list: list[SerializedValue] = []
+        for item in cast(Iterable[object], value):
+            serialized_item = _serialize_value(item)
+            if serialized_item is not None:
+                serialized_list.append(serialized_item)
+        return serialized_list
     return None

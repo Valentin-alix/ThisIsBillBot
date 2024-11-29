@@ -1,24 +1,25 @@
 from dataclasses import dataclass, field
 from threading import Timer
 
-from d3_database.protos.non_obf.game.character_management_pb2 import (
+from datas.protos.non_obf.game.character_management_pb2 import (
     CharacterSelectionEvent,
 )
-from d3_database.protos.non_obf.game.character_pb2 import (
+from datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicUpgradeRequest,
     CharacterLevelUpEvent,
 )
-from d3_database.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
+from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
 )
-from d3_database.protos.non_obf.game.job_pb2 import (
+from datas.protos.non_obf.game.job_pb2 import (
     JobExperiencesUpdateEvent,
 )
-from d3_database.protos.non_obf.game.teleportation_pb2 import (
+from datas.protos.non_obf.game.teleportation_pb2 import (
     ZaapKnownListEvent,
 )
+
 from src.core.engine.fights.stats.characteristic import get_max_characteristic_per_point
 from src.core.events_manager.priority import PriorityEnum
 from src.core.frames.frame import Frame

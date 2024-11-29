@@ -39,16 +39,16 @@ class BehaviorState(Enum):
 class Behavior(ABC, ContextualLogger):
     event_manager: EventManager
     game_state: GameState
-    callback: Callable | None = field(init=False, default=None)
+    callback: Callable[..., None] | None = field(init=False, default=None)
     parent: "Behavior|None" = field(init=False, default=None)
 
     _state: BehaviorState = field(init=False, default=BehaviorState.STOPPED)
     _state_lock: Lock = field(init=False, default_factory=Lock)
-    children: "list[Behavior]" = field(init=False, default_factory=list)
-    timers: list[Timer] = field(init=False, default_factory=list)
+    children: list["Behavior"] = field(init=False, default_factory=list["Behavior"])
+    timers: list[Timer] = field(init=False, default_factory=list[Timer])
 
     @abstractmethod
-    def run(self, *args, **kwargs) -> None: ...
+    def run(self, *args: object, **kwargs: object) -> None: ...
 
     def _transition(
         self, from_states: set[BehaviorState], to_state: BehaviorState, reason: str = ""
@@ -92,10 +92,10 @@ class Behavior(ABC, ContextualLogger):
 
     def start(
         self,
-        callback: Callable | None,
+        callback: Callable[..., None] | None,
         parent: "Behavior|None",
-        *args,
-        **kwargs,
+        *args: object,
+        **kwargs: object,
     ) -> None:
         self._transition(
             {BehaviorState.STOPPED},
@@ -128,7 +128,9 @@ class Behavior(ABC, ContextualLogger):
             )
             self.run(*args, **kwargs)
 
-    def send_message_delayed(self, message, delay: tuple[float, float] | float) -> None:
+    def send_message_delayed(
+        self, message: Message, delay: tuple[float, float] | float
+    ) -> None:
         self.run_timer(delay, lambda: self.event_manager.send(message))
 
     def run_timer(
@@ -142,7 +144,7 @@ class Behavior(ABC, ContextualLogger):
         self.timers.append(timer)
         timer.start()
 
-    def run_timed_func(self, func: Callable[[], None]):
+    def run_timed_func(self, func: Callable[[], None]) -> None:
         with self.event_manager.lock:
             with self._state_lock:
                 if self._state != BehaviorState.RUNNING:
@@ -200,7 +202,7 @@ class Behavior(ABC, ContextualLogger):
             self.parent = None
             self.callback = None
 
-    def clear_behavior(self):
+    def clear_behavior(self) -> None:
         with self.event_manager.lock:
             for timer in self.timers:
                 timer.cancel()
@@ -213,7 +215,9 @@ class Behavior(ABC, ContextualLogger):
                 child = self.children.pop()
                 child.stop()
 
-    def finish(self, error_code: str | None = None, *args, **kwargs) -> None:
+    def finish(
+        self, error_code: str | None = None, *args: object, **kwargs: object
+    ) -> None:
         with self._state_lock:
             if self._state not in {BehaviorState.RUNNING, BehaviorState.STARTING}:
                 error = f"finish() called in state {self._state.name}"
@@ -250,6 +254,6 @@ class Behavior(ABC, ContextualLogger):
             )
         self.event_manager.clear_listener_by_origin_and_type(event_type, self)
 
-    def raise_if_error(self, error_code: str | None):
+    def raise_if_error(self, error_code: str | None) -> None:
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)

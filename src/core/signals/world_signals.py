@@ -1,4 +1,4 @@
-from d3_database.grid.map_point import MapPoint
+from dofus_unity_reader.grid.map_point import MapPoint
 from PyQt6.QtCore import QObject, pyqtSignal
 
 

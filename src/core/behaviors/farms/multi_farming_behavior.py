@@ -3,9 +3,10 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Callable
 
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
 )
+
 from src.core.behaviors.communication.chat_behavior import ChatBehavior
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
@@ -42,7 +43,7 @@ class MultiFarmingBehavior(HarvesterBehavior):
         area_id: int | None,
         sub_area_id: int | None,
         is_stopped_at_new_map_condition: Callable[[], bool] | None = None,
-    ):
+    ) -> None:
         self._next_time_chat = datetime.now() + get_time_between_random_chat()
         self._next_time_attacker = datetime.now() + get_time_between_attacker()
         self._next_time_dungeon = datetime.now() + get_time_between_dungeon()
@@ -57,7 +58,7 @@ class MultiFarmingBehavior(HarvesterBehavior):
             self.logger.info(f"Taking an AFK break: {afk_duration:.0f}s")
             return self.idle_behavior.start(
                 duration=afk_duration,
-                callback=lambda _: self._continue_on_new_map(),
+                callback=self._continue_on_new_map,
                 parent=self,
             )
 

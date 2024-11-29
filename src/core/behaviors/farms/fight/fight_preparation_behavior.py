@@ -2,11 +2,9 @@ import random
 from dataclasses import dataclass, field
 from functools import partial
 
-from d3_database.grid.map_point import MapPoint
-from d3_database.protos.non_obf.game.context_pb2 import (
-    EntitiesDispositionEvent,
-)
-from d3_database.protos.non_obf.game.fight_preparation_pb2 import (
+from dofus_unity_reader.grid.map_point import MapPoint
+from datas.protos.non_obf.game.context_pb2 import EntitiesDispositionEvent
+from datas.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPositionRequest,
     FightReadyRequest,
 )
@@ -28,7 +26,7 @@ class FightPreparationBehavior(Behavior):
     _has_repositioned: bool = field(init=False, default=False)
     _has_done_non_optimal_move: bool = field(init=False, default=False)
 
-    def run(self):
+    def run(self) -> None:
         self._has_repositioned = False
         self._has_done_non_optimal_move = False
         self.event_manager.on(
@@ -36,7 +34,7 @@ class FightPreparationBehavior(Behavior):
         )
         self.position_player()
 
-    def position_player(self):
+    def position_player(self) -> None:
         near_possible_cell_id = self.get_near_placement_cell_id()
         self.logger.info(f"found near cell id to enemy : {near_possible_cell_id}")
 
@@ -59,7 +57,7 @@ class FightPreparationBehavior(Behavior):
         else:
             self.on_player_placement_done()
 
-    def send_fight_placement_position(self, cell_id: int):
+    def send_fight_placement_position(self, cell_id: int) -> None:
         if self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(cell_id):
             if cell_id == self.game_state.map.map_point.cell_id:
                 return self.on_player_placement_done()
@@ -86,9 +84,9 @@ class FightPreparationBehavior(Behavior):
 
     def on_entity_disposition_event(
         self, msg: EntitiesDispositionEvent, requested_cell_id: int
-    ):
+    ) -> None:
         for disposition in msg.dispositions:
-            if not disposition.cell_id == requested_cell_id:
+            if disposition.cell_id != requested_cell_id:
                 continue
             self.unregister_listener(
                 EntitiesDispositionEvent,
@@ -102,7 +100,7 @@ class FightPreparationBehavior(Behavior):
 
             self.on_player_placement_done()
 
-    def on_player_placement_done(self):
+    def on_player_placement_done(self) -> None:
         if (
             not self._has_repositioned
             and random.random() < PLACEMENT_REPOSITIONING_PROBABILITY
@@ -123,9 +121,7 @@ class FightPreparationBehavior(Behavior):
     def get_near_placement_cell_id(self) -> int:
         min_dist_possible_cell_id: tuple[int, float] | None = None
 
-        for (
-            possible_cell_id
-        ) in self.game_state.fight.fight_placement_possible_positions:
+        for possible_cell_id in self.game_state.fight.fight_placement_possible_positions:
             if (
                 self.game_state.map.map_point.cell_id != possible_cell_id
                 and self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(
@@ -134,10 +130,8 @@ class FightPreparationBehavior(Behavior):
             ):
                 continue
             mp_point_possible_cell = MapPoint.from_cell_id(possible_cell_id)
-            near_enemy_with_dist = (
-                self.fight_movement_behavior.find_near_enemy_with_dist(
-                    mp_point_possible_cell
-                )
+            near_enemy_with_dist = self.fight_movement_behavior.find_near_enemy_with_dist(
+                mp_point_possible_cell
             )
             if near_enemy_with_dist is None:
                 continue
@@ -149,9 +143,7 @@ class FightPreparationBehavior(Behavior):
                 min_dist_possible_cell_id = (possible_cell_id, cost_path)
 
         if min_dist_possible_cell_id is None:
-            raise ValueError(
-                "There should be at least one possible placement position."
-            )
+            raise ValueError("There should be at least one possible placement position.")
 
         return min_dist_possible_cell_id[0]
 

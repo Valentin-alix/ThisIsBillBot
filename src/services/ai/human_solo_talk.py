@@ -1,7 +1,6 @@
 import logging
 import traceback
 from functools import cached_property
-from typing import cast
 
 from dotenv import load_dotenv
 from langchain.agents import create_agent
@@ -45,7 +44,7 @@ class HumanSoloTalk(metaclass=Singleton):
                 {"messages": [HumanMessage(content="dit une phrase")]},
                 config={"configurable": {"thread_id": sender_name.__hash__()}},
             )
-            return cast(str, ai_msg["messages"][-1].content)
+            return ai_msg["messages"][-1].content
         except (APIConnectionError, OpenAIError):
             logger.error(traceback.format_exc())
             return None

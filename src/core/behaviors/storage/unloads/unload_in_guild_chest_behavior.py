@@ -1,18 +1,18 @@
 from dataclasses import dataclass, field
 from functools import partial
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeObjectMoveRequest,
 )
-from d3_database.protos.non_obf.game.guild_chest_pb2 import (
+from datas.protos.non_obf.game.guild_chest_pb2 import (
     GuildChestTabSelectRequest,
 )
-from d3_database.protos.non_obf.game.inventory_pb2 import (
+from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
     StorageInventoryContentEvent,
 )
@@ -41,10 +41,10 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
     enter_guild_chest_behavior: EnterGuildChestBehavior
 
     object_to_unload_on_tab: list[tuple[int, list[ObjectItemInventory]]] = field(
-        init=False, default_factory=list
+        init=False, default_factory=list[tuple[int, list[ObjectItemInventory]]]
     )
 
-    def run(self, unload_item_id_by_tab: dict[int, set[int]]):
+    def run(self, unload_item_id_by_tab: dict[int, set[int]]) -> None:
         object_by_gid_in_inventory = {
             object.item.gid: object
             for object in self.game_state.inventory.objects_by_uid.values()
@@ -87,7 +87,7 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
             callback=self.on_enter_guild_chest_behavior_finished, parent=self
         )
 
-    def on_enter_guild_chest_behavior_finished(self, error_code: str | None):
+    def on_enter_guild_chest_behavior_finished(self, error_code: str | None) -> None:
         if error_code is not None:
             return self.finish(error_code)
 
@@ -109,7 +109,7 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
         )
         self.run_timer(BASE_RANGE, self.unload_tab)
 
-    def unload_tab(self):
+    def unload_tab(self) -> None:
         if len(self.object_to_unload_on_tab) == 0:
             return self.run_timer(BASE_RANGE, self.on_all_unloaded)
         tab, object_to_unloads = self.object_to_unload_on_tab.pop()
@@ -136,10 +136,10 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
         self,
         msg: StorageInventoryContentEvent,
         object_to_unloads: list[ObjectItemInventory],
-    ):
+    ) -> None:
         self.run_timer(SMALL_RANGE, lambda: self.unload_object(object_to_unloads))
 
-    def unload_object(self, object_to_unloads: list[ObjectItemInventory]):
+    def unload_object(self, object_to_unloads: list[ObjectItemInventory]) -> None:
         if len(object_to_unloads) == 0:
             self.logger.info("Finished unloading current tab")
             return self.run_timer(BASE_RANGE, self.unload_tab)
@@ -184,18 +184,18 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
 
     def on_inventory_weight_event(
         self, msg: InventoryWeightEvent, object_to_unloads: list[ObjectItemInventory]
-    ):
+    ) -> None:
         self.run_timer(SMALL_RANGE, lambda: self.unload_object(object_to_unloads))
 
-    def on_all_unloaded(self):
+    def on_all_unloaded(self) -> None:
         self.event_manager.on(
             ExchangeLeaveEvent,
-            callback=lambda _: self.finish(),
+            callback=lambda _event: self.finish(),
             originator=self,
             once=True,
             override_on_self=True,
         )
         self.leave_all_dialogs()
 
-    def leave_all_dialogs(self):
+    def leave_all_dialogs(self) -> None:
         self.leave_dialog()

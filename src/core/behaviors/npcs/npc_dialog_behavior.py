@@ -3,11 +3,12 @@ from enum import StrEnum, auto
 from functools import partial
 from typing import Callable
 
-from d3_database.protos.non_obf.game.npc_pb2 import (
+from datas.protos.non_obf.game.npc_pb2 import (
     NpcDialogQuestionEvent,
     NpcDialogReplyRequest,
     NpcGenericActionRequest,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.config import ON_NEW_MAP_BEFORE_ACTION
 from src.core.engine.npcs.npc_dialog_info import NpcDialogInfo, ReplyInfo

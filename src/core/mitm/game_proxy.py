@@ -5,10 +5,10 @@ from ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
 )
+from datas.protos.non_obf.game.game_message_pb2 import Request
 from google.protobuf.message import Message
 from PyQt6.QtCore import QMetaObject, Qt
 
-from d3_database.protos.non_obf.game.game_message_pb2 import Request
 from src import const
 from src.const import MESSAGES_WITH_UID
 from src.controller.session_timings import SessionTimingsController
@@ -33,7 +33,7 @@ class GameProxy(Proxy):
             self.bot.account["apikey"]["login"]
         )
 
-    def on_close(self):
+    def on_close(self) -> None:
         self.bot.event_manager.on_send_game_callback = None
 
         QMetaObject.invokeMethod(
@@ -105,7 +105,7 @@ class GameProxy(Proxy):
         if clear_sub_msg is not None:
             self.bot.event_manager.process_msg(clear_sub_msg)
 
-    def send_msg(self, clear_sub_msg: Message):
+    def send_msg(self, clear_sub_msg: Message) -> None:
         if clear_sub_msg.__class__ in MESSAGES_WITH_UID:
             uid = self.uid + 1
         else:

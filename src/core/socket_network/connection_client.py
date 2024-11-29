@@ -1,17 +1,17 @@
 import threading
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Callable
 
 from google.protobuf.message import Message
 
+from src.const import DOFUS_CONNECTION_URL
+from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
+from src.core.socket_network.base_client import BaseClient
 from src.protocol.protocol import decode_varint_size, encode_msg
 from src.protocol.protocol_connection import (
     get_conn_msg,
     get_conn_msg_info,
 )
-from src.const import DOFUS_CONNECTION_URL
-from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
-from src.core.socket_network.base_client import BaseClient
 
 LOGIN_SERVER_PORT = 5555
 
@@ -21,8 +21,8 @@ class ConnectionClient(BaseClient):
     connection_behavior: ConnectionBehavior
 
     def connect(
-        self, game_token: str, callback: Callable[[str | None, str, int, str], Any]
-    ):
+        self, game_token: str, callback: Callable[[str | None, str, int, str], None]
+    ) -> None:
         """Authenticate against the login server and retrieve game server coordinates."""
         self.client_socket.connect((DOFUS_CONNECTION_URL, LOGIN_SERVER_PORT))
         self.bot.event_manager.on_send_conn_callback = self.send_msg

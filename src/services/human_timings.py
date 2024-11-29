@@ -3,39 +3,39 @@ from threading import Lock
 from typing import Callable
 
 import numpy as np
-from d3_database.utils import cache
-from d3_database.protos.non_obf.game.challenge_pb2 import (
+from utils import cache
+from datas.protos.non_obf.game.challenge_pb2 import (
     ChallengeModSelectRequest,
 )
-from d3_database.protos.non_obf.game.character_pb2 import FreeSoulRequest
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from datas.protos.non_obf.game.character_pb2 import FreeSoulRequest
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeObjectTransferAllFromInventoryRequest,
 )
-from d3_database.protos.non_obf.game.fight_pb2 import (
+from datas.protos.non_obf.game.fight_pb2 import (
     FightTurnFinishRequest,
     FightTurnStartPlayingEvent,
 )
-from d3_database.protos.non_obf.game.fight_preparation_pb2 import (
+from datas.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPositionRequest,
     FightReadyRequest,
 )
-from d3_database.protos.non_obf.game.game_action_pb2 import (
+from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionAcknowledgementRequest,
     GameActionFightCastRequest,
     SequenceEndEvent,
 )
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
     MapMovementRequest,
 )
-from d3_database.protos.non_obf.game.interactive_element_pb2 import (
+from datas.protos.non_obf.game.interactive_element_pb2 import (
     InteractiveUseRequest,
 )
-from d3_database.protos.non_obf.game.inventory_pb2 import (
+from datas.protos.non_obf.game.inventory_pb2 import (
     StorageInventoryContentEvent,
 )
-from d3_database.protos.non_obf.game.roleplay_pb2 import (
+from datas.protos.non_obf.game.roleplay_pb2 import (
     AttackMonsterRequest,
 )
 from scipy.interpolate import interp1d
@@ -61,7 +61,7 @@ def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 5) -> flo
 
 def get_random_range(
     range_time: tuple[float, float], is_weighted: bool = True, coeff: float = 5
-):
+) -> float:
     if is_weighted:
         wait_time = pick_random_weighted_time(*range_time, coeff)
     else:
@@ -98,15 +98,15 @@ class HumanTimingsService(metaclass=Singleton):
             quantiles = np.linspace(0, 1, len(all_deltas))
             inverse_cdf = interp1d(quantiles, sorted_deltas, fill_value="extrapolate")
 
-            def sampler():
+            def sampler() -> float:
                 return float(inverse_cdf(np.random.rand())) / INVERSED_COEFF
 
             return sampler
 
-    def get_human_timing(self, all_deltas: list[float]):
+    def get_human_timing(self, all_deltas: list[float]) -> Callable[[], float]:
         return self.build_empirical_sampler(all_deltas)
 
-    def get_timing_before_pass_turn(self):
+    def get_timing_before_pass_turn(self) -> float:
         @cache
         def get_timing_func():
             deltas: list[float] = []
@@ -133,7 +133,7 @@ class HumanTimingsService(metaclass=Singleton):
 
         return get_timing_func()()
 
-    def get_timing_before_playing_turn(self):
+    def get_timing_before_playing_turn(self) -> float:
         @cache
         def get_timing_func():
             deltas: list[float] = []
@@ -158,7 +158,7 @@ class HumanTimingsService(metaclass=Singleton):
 
         return get_timing_func()()
 
-    def get_timing_before_preparation_placement(self):
+    def get_timing_before_preparation_placement(self) -> float:
         @cache
         def get_timing_func():
             deltas: list[float] = []
@@ -183,7 +183,7 @@ class HumanTimingsService(metaclass=Singleton):
 
         return get_timing_func()()
 
-    def get_timing_before_preparation_ready(self):
+    def get_timing_before_preparation_ready(self) -> float:
         @cache
         def get_timing_func():
             deltas: list[float] = []
@@ -210,7 +210,7 @@ class HumanTimingsService(metaclass=Singleton):
 
         return get_timing_func()()
 
-    def get_timing_attack_finish_after_movement_or_attack(self):
+    def get_timing_attack_finish_after_movement_or_attack(self) -> float:
         @cache
         def get_timing_func():
             deltas: list[float] = []
@@ -237,7 +237,7 @@ class HumanTimingsService(metaclass=Singleton):
 
         return get_timing_func()()
 
-    def get_timing_free_soul(self):
+    def get_timing_free_soul(self) -> float:
         @cache
         def get_timing_func():
             deltas: list[float] = []
@@ -262,7 +262,7 @@ class HumanTimingsService(metaclass=Singleton):
 
         return get_timing_func()()
 
-    def get_timing_collect_on_new_map(self):
+    def get_timing_collect_on_new_map(self) -> float:
         @cache
         def get_timing_func():
             deltas: list[float] = []
@@ -302,7 +302,7 @@ class HumanTimingsService(metaclass=Singleton):
 
         return get_timing_func()()
 
-    def get_timing_attack_on_new_map(self):
+    def get_timing_attack_on_new_map(self) -> float:
         @cache
         def get_timing_func():
             deltas: list[float] = []
@@ -342,7 +342,7 @@ class HumanTimingsService(metaclass=Singleton):
 
         return get_timing_func()()
 
-    def get_timing_unload_on_bank(self):
+    def get_timing_unload_on_bank(self) -> float:
         @cache
         def get_timing_func():
             deltas: list[float] = []

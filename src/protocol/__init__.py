@@ -1,14 +1,12 @@
 import importlib
 import os
 import sys
-from pathlib import Path
 
+from consts import PROTOS_ROOT
 from google.protobuf.message import Message
 
-from d3_database.consts import D3_PROTOS
-
-_OBFUSCATED_PROTOS = str(D3_PROTOS / "obf" / "protos" / "game")
-_PROTO_GAME_PATH = str(D3_PROTOS / "non_obf" / "protos" / "game")
+_OBFUSCATED_PROTOS = str(PROTOS_ROOT / "obf" / "game")
+_PROTO_GAME_PATH = str(PROTOS_ROOT / "non_obf" / "game")
 
 
 def import_and_get_all_msg_from_folder(folder_path: str):

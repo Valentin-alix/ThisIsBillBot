@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from d3_database.data_center.world_graph_reader import WorldGraphReader
-from d3_database.models.world_graph import Edge, Vertice
+from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from dofus_unity_reader.models.world_graph import Vertice
 
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.engine.movements.world.astar_vertice import AstarWorld
@@ -17,7 +17,7 @@ class WorldPathFinder:
 
     def find_path(
         self, src_vertex: Vertice, dst_map_ids: set[int], linked_zone: int | None = None
-    ) -> list[Edge] | None:
+    ) -> list[Vertice] | None:
         dst_vertexes: set[Vertice]
         if linked_zone is not None:
             dst_vertexes = {
@@ -38,5 +38,4 @@ class WorldPathFinder:
 
         if len(dst_vertexes) == 0:
             return None
-        path = self.astar_world.find_path(start=src_vertex, ends=dst_vertexes)
-        return path
+        return self.astar_world.find_path(start=src_vertex, ends=dst_vertexes)

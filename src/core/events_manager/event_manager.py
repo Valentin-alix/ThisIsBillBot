@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
 from threading import _RLock as RLock
-from typing import Any, Callable, Type, TypeVar
+from typing import Callable, TypeVar, cast
 
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
@@ -17,35 +17,40 @@ T = TypeVar("T", bound=Message)
 
 @dataclass
 class EventManager(ContextualLogger):
-    modifier_by_type_msg: dict[Type[Message], Modifier] = field(
-        init=False, default_factory=dict
+    modifier_by_type_msg: dict[type[Message], Modifier[Message]] = field(init=False)
+    listeners_by_type_msg: defaultdict[type[Message], list[Listener[Message]]] = field(
+        init=False
     )
-    listeners_by_type_msg: defaultdict[Type[Message], list[Listener]] = field(
-        init=False, default_factory=lambda: defaultdict(list)
-    )
-    on_send_game_callback: Callable[[Any], None] | None = field(
+    on_send_game_callback: Callable[[Message], None] | None = field(
         init=False, default=None
     )
-    on_send_obf_game_callback: Callable[[Any], None] | None = field(
+    on_send_obf_game_callback: Callable[[Message], None] | None = field(
         init=False, default=None
     )
-    on_send_conn_callback: Callable[[Any], None] | None = field(
+    on_send_conn_callback: Callable[[Message], None] | None = field(
         init=False, default=None
     )
-    lock: RLock = field(init=False, default_factory=RLock)
-    signals: EventManagerSignals = field(
-        init=False, default_factory=EventManagerSignals
-    )
+    lock: RLock = field(init=False)
+    signals: EventManagerSignals = field(init=False)
+
+    def __post_init__(self) -> None:
+        modifier_by_type_msg: dict[type[Message], Modifier[Message]] = {}
+        listeners_by_type_msg: defaultdict[type[Message], list[Listener[Message]]] = (
+            defaultdict(list)
+        )
+        self.modifier_by_type_msg = modifier_by_type_msg
+        self.listeners_by_type_msg = listeners_by_type_msg
+        self.lock = RLock()
+        self.signals = EventManagerSignals()
 
     def clear_listener_by_origin(self, originator: object) -> None:
         self.logger.info(f"Clearing all listener from {originator.__class__.__name__}")
         with self.lock:
-            listeners_to_remove: list[Listener] = []
+            listeners_to_remove: list[Listener[Message]] = []
             for listeners in self.listeners_by_type_msg.values():
                 for listener in listeners:
-                    if not listener.originator == originator:
-                        continue
-                    listeners_to_remove.append(listener)
+                    if listener.originator == originator:
+                        listeners_to_remove.append(listener)
 
             for listener in listeners_to_remove:
                 listener.delete()
@@ -61,7 +66,7 @@ class EventManager(ContextualLogger):
             f"Clearing listeners {msg_type.__name__} from {originator.__class__.__name__}"
         )
         with self.lock:
-            listeners_to_remove: list[Listener] = []
+            listeners_to_remove: list[Listener[Message]] = []
             for listener in self.listeners_by_type_msg[msg_type]:
                 if listener.originator == originator:
                     listeners_to_remove.append(listener)
@@ -81,28 +86,27 @@ class EventManager(ContextualLogger):
             related_listeners = self.listeners_by_type_msg.get(msg.__class__, [])
             related_listeners.sort(key=lambda listener: listener.priority)
 
-            listeners_to_remove: list[Listener] = []
+            listeners_to_remove: list[Listener[Message]] = []
             for listener in related_listeners[::]:
                 if listener.once:
                     listeners_to_remove.append(listener)
                 listener.callback(msg)
 
             for listener in listeners_to_remove:
-                # check if listener is not deleted since callback method
                 if listener in related_listeners:
                     listener.delete()
                     related_listeners.remove(listener)
 
     def alter_msg(self, msg: Message) -> tuple[Message | None, bool]:
         with self.lock:
-            modifier = self.modifier_by_type_msg.get(msg.__class__, None)
+            modifier = self.modifier_by_type_msg.get(msg.__class__)
             if modifier is None:
                 return msg, False
             return modifier.callback(msg), True
 
     def before(
         self,
-        msg_type: Type[T],
+        msg_type: type[T],
         callback: Callable[[T], T | None],
         originator: object,
     ) -> None:
@@ -111,11 +115,10 @@ class EventManager(ContextualLogger):
                 self.logger.warning(
                     f"Overriding modifier for {msg_type.__name__} (originator: {originator.__class__.__name__})"
                 )
-            self.modifier_by_type_msg[msg_type] = Modifier[T](
-                callback=callback, originator=originator
-            )
+            modifier = Modifier(callback=callback, originator=originator)
+            self.modifier_by_type_msg[msg_type] = cast(Modifier[Message], modifier)
 
-    def prevent(self, msg_type: Type[Message], originator: object):
+    def prevent(self, msg_type: type[Message], originator: object) -> None:
         with self.lock:
             if msg_type in self.modifier_by_type_msg:
                 self.logger.warning(
@@ -137,22 +140,22 @@ class EventManager(ContextualLogger):
             }
 
     def clear_modifier_by_origin_and_type(
-        self, msg_type: Type[Message], originator: object
+        self, msg_type: type[Message], originator: object
     ) -> None:
         with self.lock:
-            modifier = self.modifier_by_type_msg.get(msg_type, None)
-            if modifier and modifier.originator == originator:
+            modifier = self.modifier_by_type_msg.get(msg_type)
+            if modifier is not None and modifier.originator == originator:
                 del self.modifier_by_type_msg[msg_type]
 
     def on(
         self,
-        msg_type: Type[T],
-        callback: Callable[[T], Any],
+        msg_type: type[T],
+        callback: Callable[[T], None],
         originator: object,
         once: bool = False,
         priority: PriorityEnum = PriorityEnum.NORMAL,
         timeout: float | None = None,
-        on_timeout: Callable[[], Any] | None = None,
+        on_timeout: Callable[[], None] | None = None,
         override_on_self: bool = False,
     ) -> None:
         self.logger.info(
@@ -165,6 +168,7 @@ class EventManager(ContextualLogger):
         with self.lock:
             if override_on_self:
                 self.clear_listener_by_origin_and_type(msg_type, originator)
+
             new_listener = Listener(
                 msg_type=msg_type,
                 callback=callback,
@@ -175,7 +179,9 @@ class EventManager(ContextualLogger):
                 on_timeout=on_timeout,
                 logger=self.logger,
             )
-            self.listeners_by_type_msg[msg_type].append(new_listener)
+            self.listeners_by_type_msg[msg_type].append(
+                cast(Listener[Message], new_listener)
+            )
 
         self.signals.listeners_added.emit([new_listener])
 

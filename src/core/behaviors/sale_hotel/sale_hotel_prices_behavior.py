@@ -5,14 +5,14 @@ from enum import StrEnum, auto
 from functools import partial
 from typing import Iterable
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.i18n import I18N
-from d3_database.enums.category_item_enum import CategoryEnum
-from d3_database.protos.non_obf.game.basic_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.enums.category_item_enum import CategoryEnum
+from datas.protos.non_obf.game.basic_pb2 import (
     TextInformationEvent,
 )
-from d3_database.protos.non_obf.game.common_pb2 import ObjectItem
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import ObjectItem
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidHouseItemRemovedEvent,
     ExchangeBidHousePriceRequest,
     ExchangeBidHouseSearchRequest,
@@ -22,7 +22,7 @@ from d3_database.protos.non_obf.game.exchange_pb2 import (
     ExchangeObjectModifyPricedRequest,
     ExchangeObjectMovePricedRequest,
 )
-from d3_database.protos.non_obf.game.inventory_pb2 import (
+from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
 
@@ -71,7 +71,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
     load_from_bank_behavior: LoadFromBankBehavior
 
     categories: set[CategoryEnum] = field(
-        init=False, default_factory=lambda: set(CategoryEnum)
+        init=False, default_factory=set[CategoryEnum]
     )
     _curr_category: CategoryEnum = field(init=False, default=CategoryEnum.RESOURCES)
 
@@ -87,7 +87,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
 
         self.sell_next_category()
 
-    def sell_next_category(self):
+    def sell_next_category(self) -> None:
         if len(self.categories) == 0:
             return self.finish()
 
@@ -142,7 +142,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
 
     def load_items(
         self, load_items_infos: list[LoadItemInfo], item_gids_to_sell: list[int]
-    ):
+    ) -> None:
         self.logger.info(f"Gonna load and sell : {load_items_infos}")
         if self.game_state.guild_chest.can_access_guild_chest:
             self.load_from_guild_chest_behavior.start(
@@ -166,7 +166,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         error_code: str | None,
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
-    ):
+    ) -> None:
         if error_code is not None:
             return self.finish(error_code)
 
@@ -186,7 +186,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         items: Iterable[ExchangeBidSellerStartedEvent.ItemToSellInBid],
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
-    ):
+    ) -> None:
         self.raise_if_error(error_code)
         self.sell_inventory(
             items=items,
@@ -199,7 +199,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         items: Iterable[ExchangeBidSellerStartedEvent.ItemToSellInBid],
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
-    ):
+    ) -> None:
         item_to_sells_in_inventory = [
             object.item
             for object in self.game_state.inventory.objects_by_uid.values()
@@ -221,7 +221,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         item_ids_to_sell: list[int],
         items: Iterable[ExchangeBidSellerStartedEvent.ItemToSellInBid],
         load_items_infos: list[LoadItemInfo],
-    ):
+    ) -> None:
         while True:
             if len(item_to_sells_in_inventory) == 0:
                 if len(load_items_infos) == 0:
@@ -264,6 +264,11 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         )
         self.run_timer(SMALL_RANGE, lambda: self.open_item(next_item.gid))
 
+    def _on_load_items_after_empty_inventory(
+        self, _error_code: str | None, load_items_infos: list[LoadItemInfo], item_ids_to_sell: list[int]
+    ) -> None:
+        self.load_items(load_items_infos, item_ids_to_sell)
+
     def open_item(self, item_gid: int):
         if self.game_state.sale_hotel.current_search_item_gid is not None:
             req = ExchangeBidHouseSearchRequest(
@@ -282,7 +287,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         items: Iterable[ExchangeBidSellerStartedEvent.ItemToSellInBid],
         load_items_infos: list[LoadItemInfo],
         next_item: ObjectItem,
-    ):
+    ) -> None:
         if not msg.follow:
             return
         self.unregister_listener(
@@ -313,7 +318,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         items: Iterable[ExchangeBidSellerStartedEvent.ItemToSellInBid],
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
-    ):
+    ) -> None:
         self.create_price(
             list(msg.bid_price_for_seller.minimal_prices),
             item,
@@ -331,7 +336,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         items: Iterable[ExchangeBidSellerStartedEvent.ItemToSellInBid],
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
-    ):
+    ) -> None:
         server_id = self.game_state.player.server_id
         avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(server_id)
 
@@ -425,7 +430,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         self,
         msg: TextInformationEvent,
         items: Iterable[ExchangeBidSellerStartedEvent.ItemToSellInBid],
-    ):
+    ) -> None:
         if msg.message_id != TextEnum.FULL_PLACE_SALE_HOTEL:
             return
         self.unregister_listener(
@@ -449,7 +454,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         items: Iterable[ExchangeBidSellerStartedEvent.ItemToSellInBid],
         load_items_infos: list[LoadItemInfo],
         item_ids_to_sell: list[int],
-    ):
+    ) -> None:
         self.logger.info("Successfully created price, move on to next item quantity")
         self.create_price(
             minimal_prices=minimal_prices,
@@ -462,11 +467,11 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
 
     def update_all_prices(
         self, items: list[ExchangeBidSellerStartedEvent.ItemToSellInBid]
-    ):
+    ) -> None:
         if len(items) == 0:
             self.event_manager.on(
                 ExchangeLeaveEvent,
-                lambda _: self.sell_next_category(),
+                callback=self._on_exchange_leave_for_price_update,
                 originator=self,
                 once=True,
             )
@@ -477,7 +482,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
 
     def update_item_price(
         self, item_gid: int, items: list[ExchangeBidSellerStartedEvent.ItemToSellInBid]
-    ):
+    ) -> None:
         self.event_manager.on(
             ExchangeBidPriceEvent,
             partial(
@@ -495,7 +500,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         self,
         msg: ExchangeBidPriceEvent,
         items: list[ExchangeBidSellerStartedEvent.ItemToSellInBid],
-    ):
+    ) -> None:
         price_for_one = get_price_for_sale_hotel(
             list(msg.bid_price_for_seller.minimal_prices), QuantityEnum.VALUE_1
         )
@@ -585,7 +590,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         msg: ExchangeBidHouseItemRemovedEvent,
         target_uid: int,
         items: list[ExchangeBidSellerStartedEvent.ItemToSellInBid],
-    ):
+    ) -> None:
         if msg.sell_id != target_uid:
             return
         self.unregister_listener(
@@ -595,5 +600,8 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         self.logger.info("Update all prices after item removed")
         self.run_timer(BASE_RANGE, lambda: self.update_all_prices(items))
 
-    def leave_all_dialogs(self):
+    def leave_all_dialogs(self) -> None:
         self.leave_dialog()
+
+    def _on_exchange_leave_for_price_update(self, _msg: ExchangeLeaveEvent) -> None:
+        self.sell_next_category()

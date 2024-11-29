@@ -1,6 +1,6 @@
-from d3_database.data_center.data_reader import DataReader
-from d3_database.enums.area_enum import AreaEnum
-from d3_database.models.datas.map_positions_root import MapPositionsRootItem
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.enums.area_enum import AreaEnum
+from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
 
 from src.const import FAKE_INFINITY_VALUE
 

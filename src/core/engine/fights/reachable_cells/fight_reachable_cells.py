@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 from typing import Iterable
 
-from d3_database.data_center.map_reader import MapReader
-from d3_database.enums.characteristic_enum import CharacteristicEnum
-from d3_database.grid.map_point import MapPoint
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.engine.fights.reachable_cells.reachable_mp_node import (
     ReachableMpNode,
@@ -17,11 +17,17 @@ class FightReachableCells:
     game_state: GameState
     debug_signals: MapSignals | None = None
 
-    reachable_cost_by_mp: dict[MapPoint, int] = field(init=False, default_factory=dict)
-    node_by_mp: dict[MapPoint, ReachableMpNode] = field(
-        init=False, default_factory=dict
-    )
-    open_node: set[ReachableMpNode] = field(init=False, default_factory=set)
+    reachable_cost_by_mp: dict[MapPoint, int] = field(init=False)
+    node_by_mp: dict[MapPoint, ReachableMpNode] = field(init=False)
+    open_node: set[ReachableMpNode] = field(init=False)
+
+    def __post_init__(self) -> None:
+        reachable_cost_by_mp: dict[MapPoint, int] = {}
+        node_by_mp: dict[MapPoint, ReachableMpNode] = {}
+        open_node: set[ReachableMpNode] = set()
+        self.reachable_cost_by_mp = reachable_cost_by_mp
+        self.node_by_mp = node_by_mp
+        self.open_node = open_node
 
     def search(
         self, enemies_mp: set[MapPoint], entities_mp: Iterable[MapPoint]
@@ -40,7 +46,7 @@ class FightReachableCells:
         )
 
         while self.open_node:
-            node = self.open_node.pop()
+            node: ReachableMpNode = self.open_node.pop()
             remaining_pm_no_tackle = node.best_remaining_pm_no_tackle - 1
             if remaining_pm_no_tackle < 0 or enemies_mp & node.mp.side_map_points:
                 continue

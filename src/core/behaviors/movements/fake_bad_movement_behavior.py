@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-from d3_database.protos.non_obf.game.gamemap_pb2 import MapMovementRequest
+from datas.protos.non_obf.game.gamemap_pb2 import MapMovementRequest
+
 from src.core.behaviors.behavior import Behavior
 
 

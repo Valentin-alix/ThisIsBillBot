@@ -1,8 +1,8 @@
 from enum import StrEnum
 from typing import cast
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.i18n import I18N
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
 from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtWidgets import QHBoxLayout, QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import (

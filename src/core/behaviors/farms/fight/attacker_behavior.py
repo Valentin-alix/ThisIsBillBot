@@ -1,14 +1,12 @@
 import random
-from dataclasses import field
+from dataclasses import dataclass, field
 from functools import partial
 from typing import Callable
 
-from scapy.all import dataclass
-
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
 )
-from d3_database.protos.non_obf.game.roleplay_pb2 import (
+from datas.protos.non_obf.game.roleplay_pb2 import (
     AttackMonsterRequest,
 )
 from src.controller.forbidden_monster_controller import ForbiddenMonsterController

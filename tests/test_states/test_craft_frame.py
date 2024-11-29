@@ -1,8 +1,8 @@
-from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import (
     ObjectItem,
     ObjectItemInventory,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.exchange_pb2 import (
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeCraftCountRequest,
     ExchangeCraftStartedEvent,
     ExchangeLeaveEvent,

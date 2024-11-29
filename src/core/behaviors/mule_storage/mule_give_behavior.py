@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
-from d3_database.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeErrorEvent,
     ExchangeKamaModifiedEvent,
     ExchangeLeaveEvent,
@@ -38,12 +38,14 @@ class MuleGiveBehavior(Behavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
 
     _step: int = field(init=False, default=0)
-    _mule_bank_character_ids: list[int] = field(init=False, default_factory=list)
+    _mule_bank_character_ids: list[int] = field(
+        init=False, default_factory=list[int]
+    )
 
     def run(self) -> None:
         self.on_get_mule_bank_ids(list(MULE_BANK_CHARACTER_IDS))
 
-    def on_get_mule_bank_ids(self, _mule_bank_character_ids: list[int]):
+    def on_get_mule_bank_ids(self, _mule_bank_character_ids: list[int]) -> None:
         self._mule_bank_character_ids = _mule_bank_character_ids
         if len(self._mule_bank_character_ids) == 0:
             self.logger.error("Mule bank character is not defined !")
@@ -53,21 +55,21 @@ class MuleGiveBehavior(Behavior):
             return self.finish()
         self.go_to_mule()
 
-    def go_to_mule(self):
+    def go_to_mule(self) -> None:
         self.auto_trip_smart_behavior.start(
             map_ids={MULE_BANK_MAP_ID},
             callback=self.on_auto_trip_smart_behavior_finished,
             parent=self,
         )
 
-    def on_auto_trip_smart_behavior_finished(self, error_code: str | None):
+    def on_auto_trip_smart_behavior_finished(self, error_code: str | None) -> None:
         if error_code is not None:
             if error_code is MapChangeError.UNEXPECTED_NEW_MAP:
                 return self.run_timer((2, 4), self.go_to_mule)
             self.raise_if_error(error_code)
         self.start_exchange_with_mule()
 
-    def start_exchange_with_mule(self):
+    def start_exchange_with_mule(self) -> None:
         mule_id = next(
             (
                 actor_id
@@ -97,7 +99,7 @@ class MuleGiveBehavior(Behavior):
         req = ExchangePlayerRequest(target_id=mule_id)
         self.send_message_delayed(req, BASE_RANGE)
 
-    def on_exchange_started_with_pods_event(self, msg: ExchangeStartedWithPodsEvent):
+    def on_exchange_started_with_pods_event(self, msg: ExchangeStartedWithPodsEvent) -> None:
         self._step = 0
         if self.game_state.player.is_sub:
             return self.depose_kamas_in_exchange(True)
@@ -169,7 +171,7 @@ class MuleGiveBehavior(Behavior):
 
         self.depose_objects_in_exchange(item_to_exchanges)
 
-    def depose_all_objects_in_exchange(self):
+    def depose_all_objects_in_exchange(self) -> None:
         self.event_manager.on(
             ExchangeObjectsAddedEvent,
             callback=self.on_objects_deposed_after_transfer_all,
@@ -182,11 +184,11 @@ class MuleGiveBehavior(Behavior):
         req = ExchangeObjectTransferAllFromInventoryRequest()
         self.send_message_delayed(req, BASE_RANGE)
 
-    def on_objects_deposed_after_transfer_all(self, msg: ExchangeObjectsAddedEvent):
+    def on_objects_deposed_after_transfer_all(self, msg: ExchangeObjectsAddedEvent) -> None:
         self._step += 1
         self.depose_kamas_in_exchange(True)
 
-    def on_timeout_deposed_all_objects_in_exchange(self):
+    def on_timeout_deposed_all_objects_in_exchange(self) -> None:
         self.unregister_listener(
             ExchangeObjectsAddedEvent,
             reason="Timeout waiting for exchange objects, proceeding with kamas",
@@ -195,7 +197,7 @@ class MuleGiveBehavior(Behavior):
 
     def depose_objects_in_exchange(
         self, item_to_exchanges: list[tuple[ObjectItemInventory, int]]
-    ):
+    ) -> None:
         if len(item_to_exchanges) == 0:
             return self.depose_kamas_in_exchange(False)
         next_object, quantity = item_to_exchanges.pop(0)
@@ -212,7 +214,7 @@ class MuleGiveBehavior(Behavior):
         )
         self.send_message_delayed(req, BASE_RANGE)
 
-    def depose_kamas_in_exchange(self, did_full_unload: bool):
+    def depose_kamas_in_exchange(self, did_full_unload: bool) -> None:
         kamas_to_gives = self.game_state.inventory.kamas - BOT_MINIMAL_KAMAS
         if kamas_to_gives <= 0:
             if self._step == 0:
@@ -235,7 +237,7 @@ class MuleGiveBehavior(Behavior):
         move_kama_req = ExchangeMoveKamaRequest(quantity=kamas_to_gives)
         self.send_message_delayed(move_kama_req, BASE_RANGE)
 
-    def accept_exchange(self, did_full_unload: bool):
+    def accept_exchange(self, did_full_unload: bool) -> None:
         self.event_manager.on(
             ExchangeLeaveEvent,
             lambda _: (

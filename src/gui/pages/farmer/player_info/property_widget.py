@@ -16,10 +16,11 @@ class PropertyWidget(QWidget):
 
     def set_content_value(self, value: str):
         if self.label_widget is None:
-            self.label_widget = BodyLabel(text=value, parent=self)
-            self.label_widget.setTextInteractionFlags(
+            label_widget = BodyLabel(text=value, parent=self)
+            label_widget.setTextInteractionFlags(
                 Qt.TextInteractionFlag.TextSelectableByMouse
             )
-            self._hbox_layout.addWidget(self.label_widget)
+            self._hbox_layout.addWidget(label_widget)
+            self.label_widget = label_widget
         else:
             self.label_widget.setText(value)

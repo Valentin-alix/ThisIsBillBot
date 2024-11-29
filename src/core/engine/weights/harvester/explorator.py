@@ -1,4 +1,4 @@
-from d3_database.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.data_reader import DataReader
 
 from src.controller.gfx_mapping import GfxMappingController
 

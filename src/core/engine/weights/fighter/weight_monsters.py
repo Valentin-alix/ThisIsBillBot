@@ -1,4 +1,4 @@
-from scapy.all import dataclass
+from dataclasses import dataclass
 
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
 from src.core.states.game_state import GameState

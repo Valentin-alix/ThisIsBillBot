@@ -1,9 +1,9 @@
-from d3_database.enums.characteristic_enum import CharacteristicEnum
-from ProtoMapperAssembly.data.non_obf.protos.game.character_pb2 import (
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicsEvent,
     UpdateLifePointsEvent,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
     CharacterCharacteristics,
@@ -13,22 +13,22 @@ from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
     SpellModifier,
     SpellModifierType,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.fight_pb2 import (
+from datas.protos.non_obf.game.fight_pb2 import (
     FightTurnFinishRequest,
     FightTurnStartPlayingEvent,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.fight_preparation_pb2 import (
+from datas.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.game_action_pb2 import (
+from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightCastRequest,
     GameActionFightEvent,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.gamemap_pb2 import (
+from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.spell_pb2 import SpellItem, SpellsEvent
+from datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
 from tests.test_states.state_test_base import StateTestBase
 
 

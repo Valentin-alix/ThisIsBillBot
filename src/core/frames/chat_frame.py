@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 
-from d3_database.protos.non_obf.game.chat_pb2 import (
+from datas.protos.non_obf.game.chat_pb2 import (
     Channel,
     ChatChannelMessageEvent,
     ChatPrivateMessageRequest,
 )
+
 from src.core.frames.frame import Frame
 from src.services.ai.human_response import HumanResponse
 

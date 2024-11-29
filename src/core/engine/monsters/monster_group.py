@@ -1,8 +1,8 @@
 from logging import Logger
 
-from d3_database.enums.monster_gid_enum import MonsterGidEnum
-from d3_database.grid.map_point import MapPoint
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.enums.monster_gid_enum import MonsterGidEnum
+from dofus_unity_reader.grid.map_point import MapPoint
+from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
 )
 

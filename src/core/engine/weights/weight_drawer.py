@@ -1,14 +1,17 @@
-from d3_database.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
 
 from src.core.signals.world_signals import WorldSignals
 
 
-def draw_weight_on_map(weight_by_map_id: dict[int, float], world_signals: WorldSignals):
+def draw_weight_on_map(
+    weight_by_map_id: dict[int, float], world_signals: WorldSignals
+) -> None:
     if len(weight_by_map_id) == 0:
         return
     max_weight = max(weight_by_map_id.values())
     world_signals.reset_weight.emit()
-    batch: list[tuple] = []
+    batch: list[tuple[MapPositionsRootItem, tuple[int, int, int]]] = []
     for map_id, weight in weight_by_map_id.items():
         if map_id not in DataReader().map_pos_by_map_id:
             continue

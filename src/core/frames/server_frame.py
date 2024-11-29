@@ -1,9 +1,10 @@
 from dataclasses import dataclass, field
 from threading import Timer
 
-from d3_database.protos.non_obf.connection.login_message_pb2 import (
+from datas.protos.non_obf.connection.login_message_pb2 import (
     SelectServerRequest,
 )
+
 from src.core.frames.frame import Frame
 
 INTERVAL_HANDSHAKE = 10

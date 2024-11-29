@@ -1,4 +1,3 @@
-import os
 import socket
 import sys
 import traceback
@@ -12,19 +11,23 @@ from dotenv import load_dotenv
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication
 from qfluentwidgets import Theme, setTheme, setThemeColor
-from scapy.all import sniff
 from scapy.layers.inet import IP
 from scapy.layers.inet6 import IPv6
 from scapy.packet import Packet, Raw
+from scapy.sendrecv import sniff
 
-sys.path.insert(0, os.path.join(Path(__file__).parent.parent.parent.parent))
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.utils.runtime_paths import configure_project_import_paths
+
+configure_project_import_paths(PROJECT_ROOT)
+load_dotenv(PROJECT_ROOT / ".env")
 
 from src.core.signals.global_log_signals import GlobalLogSignals
-from src.services.logging.logger import init_gui_global_logging
-
-load_dotenv(os.path.join(Path(__file__).parent.parent.parent.parent, ".env"))
-
-
+from src.core.signals.message_signals import MessageInfoSignals
+from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
+from src.gui.pages.debugs.sniffer import SnifferWidget
 from src.protocol.protocol import decode_varint_size
 from src.protocol.protocol_connection import (
     get_conn_msg,
@@ -34,10 +37,8 @@ from src.protocol.protocol_game import (
     get_game_msg,
     get_game_msg_info,
 )
+from src.services.logging.logger import init_gui_global_logging
 from src.utils.network import get_local_ip
-from src.core.signals.message_signals import MessageInfoSignals
-from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
-from src.gui.pages.debugs.sniffer import SnifferWidget
 from tests.fixtures.random_generator import generate_random_bot
 
 FILTER_DOFUS = "tcp port 5555"

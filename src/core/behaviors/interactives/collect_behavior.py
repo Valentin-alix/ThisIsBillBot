@@ -3,8 +3,8 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from d3_database.grid.map_point import MapPoint
-from d3_database.protos.non_obf.game.interactive_element_pb2 import (
+from dofus_unity_reader.grid.map_point import MapPoint
+from datas.protos.non_obf.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
 
@@ -41,14 +41,14 @@ class CollectBehavior(Behavior):
 
     is_first_action: bool = field(init=False, default=False)
 
-    excluded_element_ids: set[int] = field(init=False, default_factory=set)
+    excluded_element_ids: set[int] = field(init=False, default_factory=set[int])
 
     def run(self) -> None:
         self.excluded_element_ids.clear()
         self.is_first_action = True
         self.collect_map()
 
-    def collect_map(self):
+    def collect_map(self) -> None:
         if self.game_state.inventory.is_full_pods:
             return self.finish(CollectError.FULL_PODS)
 
@@ -74,7 +74,7 @@ class CollectBehavior(Behavior):
         else:
             self.collect(move_path, collectable)
 
-    def collect(self, move_path: MovementPath, collectable: Collectable):
+    def collect(self, move_path: MovementPath, collectable: Collectable) -> None:
         self.logger.info(f"Collecting at {move_path.end}")
 
         self.interactive_behavior.start(
@@ -89,7 +89,7 @@ class CollectBehavior(Behavior):
 
     def on_interactive_behavior_finished(
         self, error_code: str | None, collectable: Collectable
-    ):
+    ) -> None:
         if error_code in [InteractiveError.USE_ERROR, MapMoveError.REFUSED]:
             self.unregister_listener(
                 StatedElementUpdatedEvent,
@@ -112,7 +112,7 @@ class CollectBehavior(Behavior):
 
     def on_stated_element_updated_event(
         self, msg: StatedElementUpdatedEvent, element_id: int
-    ):
+    ) -> None:
         if (
             msg.stated_element.element_id == element_id
             and msg.stated_element.state == 1
@@ -128,7 +128,7 @@ class CollectBehavior(Behavior):
             else:
                 self.collect_map()
 
-    def _do_look_around(self, move_path: MovementPath, collectable: Collectable):
+    def _do_look_around(self, move_path: MovementPath, collectable: Collectable) -> None:
         adjacent_cell = self._get_random_walkable_cell_nearby()
         if adjacent_cell is None:
             return self.run_timer(
@@ -146,11 +146,14 @@ class CollectBehavior(Behavior):
                 lambda: self.collect(move_path, collectable),
             )
 
-        self.interactive_behavior.map_move_behavior.start(
-            callback=lambda _: self.run_timer(
+        def on_look_around_finished(_error_code: str | None) -> None:
+            self.run_timer(
                 random.uniform(*LOOK_AROUND_PAUSE_RANGE),
                 lambda: self.collect(move_path, collectable),
-            ),
+            )
+
+        self.interactive_behavior.map_move_behavior.start(
+            callback=on_look_around_finished,
             parent=self,
             move_path=look_path,
         )

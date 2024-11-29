@@ -27,17 +27,6 @@ from src.core.signals.shared_farm_signals import SharedSignals
 from src.services.logging.contextual_logger import ContextualLogger
 from src.utils.internet import has_internet_connection
 
-DAY_SCHEDULERS = {
-    0: lambda: schedule.every().monday,
-    1: lambda: schedule.every().tuesday,
-    2: lambda: schedule.every().wednesday,
-    3: lambda: schedule.every().thursday,
-    4: lambda: schedule.every().friday,
-    5: lambda: schedule.every().saturday,
-    6: lambda: schedule.every().sunday,
-}
-
-
 @dataclass
 class RandomizedSlot:
     start: str
@@ -60,12 +49,12 @@ class BotScheduler(ContextualLogger):
     behavior_coordinator: BehaviorCoordinator
     process_manager: ProcessManager
 
-    _scheduled_jobs: list[schedule.Job] = field(init=False, default_factory=list)
+    _scheduled_jobs: list[schedule.Job] = field(init=False, default_factory=list[schedule.Job])
     _randomized_slots_by_day: dict[int, list[RandomizedSlot]] = field(
-        init=False, default_factory=dict
+        init=False, default_factory=dict[int, list[RandomizedSlot]]
     )
 
-    def start(self):
+    def start(self) -> None:
         """Start the bot scheduler if bot config exists."""
         config = self.get_bot_config()
         if config is None or config.schedule_profile is None:
@@ -78,7 +67,7 @@ class BotScheduler(ContextualLogger):
             self.bot_signals.play.emit(False)
             self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
 
-    def update_profile(self, profile_id: str | None):
+    def update_profile(self, profile_id: str | None) -> None:
         """Update the schedule profile and reschedule jobs."""
         config = self.get_bot_config()
         if config is None:
@@ -90,7 +79,7 @@ class BotScheduler(ContextualLogger):
 
         if profile_id is None:
             if self.is_playing_event.is_set():
-                run_in_background(lambda _: self._planned_stop_bot())
+                run_in_background(self._planned_stop_bot_task)
             return
 
         self._schedule_profile_jobs(profile_id)
@@ -108,16 +97,16 @@ class BotScheduler(ContextualLogger):
                 self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
         elif self.is_playing_event.is_set():
             self.logger.info("Not in playtime, stopping bot...")
-            run_in_background(lambda _: self._planned_stop_bot())
+            run_in_background(self._planned_stop_bot_task)
 
-    def _clear_scheduled_jobs(self):
+    def _clear_scheduled_jobs(self) -> None:
         """Cancel all scheduled jobs for this bot."""
         for job in self._scheduled_jobs:
             schedule.cancel_job(job)
         self._scheduled_jobs.clear()
         self._randomized_slots_by_day.clear()
 
-    def _schedule_profile_jobs(self, profile_id: str):
+    def _schedule_profile_jobs(self, profile_id: str) -> None:
         """Setup scheduled tasks for each time slot in the profile."""
         profile = ScheduleProfileController().get_profile(profile_id)
         if not profile:
@@ -125,7 +114,6 @@ class BotScheduler(ContextualLogger):
 
         for day_str, slots in profile.slots_by_day.items():
             day = int(day_str)
-            day_scheduler = DAY_SCHEDULERS[day]
             self._randomized_slots_by_day[day] = []
 
             for slot in slots:
@@ -141,30 +129,22 @@ class BotScheduler(ContextualLogger):
                     f"end={end_time} (was {slot.end})"
                 )
 
-                start_job = (
-                    day_scheduler()
-                    .at(start_time)
-                    .do(
-                        lambda: run_in_background(lambda _: self._planned_restart_bot())
-                    )
+                start_job = _get_day_scheduler(day).at(start_time).do(
+                    lambda: run_in_background(self._planned_restart_bot_task)
                 )
                 self._scheduled_jobs.append(start_job)
 
-                end_job = (
-                    day_scheduler()
-                    .at(end_time)
-                    .do(lambda: run_in_background(lambda _: self._planned_stop_bot()))
+                end_job = _get_day_scheduler(day).at(end_time).do(
+                    lambda: run_in_background(self._planned_stop_bot_task)
                 )
                 self._scheduled_jobs.append(end_job)
 
-        midnight_job = (
-            schedule.every()
-            .day.at("00:00")
-            .do(lambda: self._reschedule_with_new_random_times(profile_id))
+        midnight_job = schedule.every().day.at("00:00").do(
+            lambda: self._reschedule_with_new_random_times(profile_id)
         )
         self._scheduled_jobs.append(midnight_job)
 
-    def _reschedule_with_new_random_times(self, profile_id: str):
+    def _reschedule_with_new_random_times(self, profile_id: str) -> None:
         """Reschedule all jobs with new random times (called daily at midnight)."""
         self.logger.info("Midnight reschedule: generating new random times")
         self._clear_scheduled_jobs()
@@ -201,7 +181,7 @@ class BotScheduler(ContextualLogger):
 
         return False
 
-    def _planned_stop_bot(self):
+    def _planned_stop_bot(self) -> None:
         self.logger.info("Stopping bot")
         if self.is_playing_event.is_set():
             if self.behavior_coordinator:
@@ -212,7 +192,7 @@ class BotScheduler(ContextualLogger):
         else:
             self.logger.info("Bot is not playing, dont stop")
 
-    def _planned_restart_bot(self):
+    def _planned_restart_bot(self) -> None:
         self.logger.info("Restarting bot")
         while not has_internet_connection():
             self.logger.info("waiting for internet connection to be up in restart bot")
@@ -227,12 +207,20 @@ class BotScheduler(ContextualLogger):
         else:
             self.logger.info("Bot is playing, dont restart")
 
+    def _planned_stop_bot_task(self, _progress_callback: Callable[[str], None]) -> None:
+        self._planned_stop_bot()
 
-def run_continuously(interval=1):
+    def _planned_restart_bot_task(
+        self, _progress_callback: Callable[[str], None]
+    ) -> None:
+        self._planned_restart_bot()
+
+
+def run_continuously(interval: int = 1) -> threading.Event:
     cease_continuous_run = threading.Event()
 
     class ScheduleThread(threading.Thread):
-        def run(self):
+        def run(self) -> None:
             while not cease_continuous_run.is_set():
                 schedule.run_pending()
                 sleep(interval)
@@ -266,3 +254,23 @@ def _subtract_random_minutes(time_str: str) -> str:
     new_hours = (total_minutes // 60) % 24
     new_minutes = total_minutes % 60
     return f"{new_hours:02d}:{new_minutes:02d}"
+
+
+def _get_day_scheduler(day: int) -> schedule.Job:
+    match day:
+        case 0:
+            return schedule.every().monday
+        case 1:
+            return schedule.every().tuesday
+        case 2:
+            return schedule.every().wednesday
+        case 3:
+            return schedule.every().thursday
+        case 4:
+            return schedule.every().friday
+        case 5:
+            return schedule.every().saturday
+        case 6:
+            return schedule.every().sunday
+        case _:
+            raise ValueError(f"Unknown day index: {day}")

@@ -3,9 +3,9 @@ from collections import defaultdict
 from statistics import median
 from typing import cast
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.enums.category_item_enum import CategoryEnum
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.enums.category_item_enum import CategoryEnum
+from datas.protos.non_obf.game.common_pb2 import (
     ObjectItem,
     ObjectItemInventory,
 )

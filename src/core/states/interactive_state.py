@@ -1,10 +1,11 @@
 from dataclasses import dataclass, field
 from typing import Iterable
 
-from d3_database.protos.non_obf.game.common_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import (
     InteractiveElement,
     StatedElement,
 )
+
 from src.core.engine.interactives.collectable import (
     Collectable,
     get_stated_element_collectable,
@@ -22,7 +23,7 @@ class StatedElementByIdDict(dict[int, tuple[StatedElement, Collectable | None]])
 
 
 class StatedElementByCellIdDict(dict[int, StatedElementByIdDict]):
-    def __missing__(self, key) -> StatedElementByIdDict:
+    def __missing__(self, key: int) -> StatedElementByIdDict:
         value = StatedElementByIdDict(cell_id=key)
         self.__setitem__(key, value)
         return value
@@ -33,14 +34,16 @@ class InteractiveState(State):
     grid_signals: GridSignals
     player_state: PlayerState
     map_state: MapState
-    interactive_element_by_id: dict[int, InteractiveElement] = field(
-        init=False, default_factory=dict
-    )
+    interactive_element_by_id: dict[int, InteractiveElement] = field(init=False)
     stated_element_by_id: dict[int, tuple[StatedElement, Collectable | None]] = field(
-        init=False, default_factory=dict
+        init=False
     )
 
     def __post_init__(self) -> None:
+        interactive_element_by_id: dict[int, InteractiveElement] = {}
+        stated_element_by_id: dict[int, tuple[StatedElement, Collectable | None]] = {}
+        self.interactive_element_by_id = interactive_element_by_id
+        self.stated_element_by_id = stated_element_by_id
         self.stated_element_by_cell_id: StatedElementByCellIdDict = (
             StatedElementByCellIdDict()
         )
@@ -142,7 +145,9 @@ class InteractiveState(State):
             self.player_state.jobs_lvl_by_id,
         )
 
-    def get_element_and_skill_by_skill_id(self, skill_id: int):
+    def get_element_and_skill_by_skill_id(
+        self, skill_id: int
+    ) -> tuple[InteractiveElement, InteractiveElement.InteractiveElementSkill]:
         related_element, related_skill = next(
             (element, skill)
             for element in self.interactive_element_by_id.values()

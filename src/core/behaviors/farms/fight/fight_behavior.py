@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 
-from d3_database.protos.non_obf.game.fight_pb2 import (
+from datas.protos.non_obf.game.fight_pb2 import (
     FightTurnStartPlayingEvent,
 )
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
 )
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_preparation_behavior import (
     FightPreparationBehavior,
@@ -27,7 +28,7 @@ class FightBehavior(Behavior):
     shared_signals: SharedSignals
     login: str
 
-    def run(self):
+    def run(self) -> None:
         self.run_timer(FIGHT_TIMEOUT_SECONDS, self.on_fight_timeout)
         self.event_manager.on(
             MapComplementaryInformationEvent,

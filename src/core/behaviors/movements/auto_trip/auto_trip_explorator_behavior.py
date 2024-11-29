@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from functools import partial
 
-from d3_database.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.data_reader import DataReader
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripErrorCode

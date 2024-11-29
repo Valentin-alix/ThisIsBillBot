@@ -4,8 +4,8 @@ import random
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.models.world_graph import Edge
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.models.world_graph import Edge
 from dotenv import load_dotenv
 from google.protobuf.json_format import MessageToDict
 from PyQt6.QtCore import QTimer

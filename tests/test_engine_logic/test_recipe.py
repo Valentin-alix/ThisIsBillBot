@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from d3_database.enums.jobs_enum import JobEnum
-from d3_database.models.datas.recipe_root import RecipeItem
-from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
+from dofus_unity_reader.enums.jobs_enum import JobEnum
+from dofus_unity_reader.models.datas.recipe_root import RecipeItem
+from datas.protos.non_obf.game.common_pb2 import (
     ObjectItem,
     ObjectItemInventory,
 )
@@ -141,7 +141,9 @@ class TestRecipesReal(unittest.TestCase):
     # get_benefice_on_craft_recipe
     # ------------------------------------------------------------------
     @patch("src.core.engine.crafts.recipes.SaleHotelController")
-    def test_get_benefice_on_craft_recipe_profitable(self, mock_controller_class):
+    def test_get_benefice_on_craft_recipe_profitable(
+        self, mock_controller_class: MagicMock
+    ):
         mock_controller = MagicMock()
         mock_controller_class.return_value = mock_controller
         mock_controller.get_avg_price_by_gid.return_value = {
@@ -172,7 +174,7 @@ class TestRecipesReal(unittest.TestCase):
         self.assertAlmostEqual(profit_percent, 0.65)
 
     @patch("src.core.engine.crafts.recipes.SaleHotelController")
-    def test_get_benefice_on_craft_recipe_loss(self, mock_controller_class):
+    def test_get_benefice_on_craft_recipe_loss(self, mock_controller_class: MagicMock):
         mock_controller = MagicMock()
         mock_controller_class.return_value = mock_controller
         mock_controller.get_avg_price_by_gid.return_value = {
@@ -203,7 +205,9 @@ class TestRecipesReal(unittest.TestCase):
         self.assertAlmostEqual(profit_percent, -0.1)
 
     @patch("src.core.engine.crafts.recipes.SaleHotelController")
-    def test_get_benefice_on_craft_recipe_no_result_price(self, mock_controller_class):
+    def test_get_benefice_on_craft_recipe_no_result_price(
+        self, mock_controller_class: MagicMock
+    ):
         mock_controller = MagicMock()
         mock_controller_class.return_value = mock_controller
         mock_controller.get_avg_price_by_gid.return_value = {
@@ -229,7 +233,7 @@ class TestRecipesReal(unittest.TestCase):
 
     @patch("src.core.engine.crafts.recipes.SaleHotelController")
     def test_get_benefice_on_craft_recipe_missing_ingredient_price(
-        self, mock_controller_class
+        self, mock_controller_class: MagicMock
     ):
         mock_controller = MagicMock()
         mock_controller_class.return_value = mock_controller
@@ -255,7 +259,9 @@ class TestRecipesReal(unittest.TestCase):
         self.assertEqual(profit_percent, 0)
 
     @patch("src.core.engine.crafts.recipes.SaleHotelController")
-    def test_get_benefice_on_craft_recipe_zero_profit(self, mock_controller_class):
+    def test_get_benefice_on_craft_recipe_zero_profit(
+        self, mock_controller_class: MagicMock
+    ):
         mock_controller = MagicMock()
         mock_controller_class.return_value = mock_controller
         mock_controller.get_avg_price_by_gid.return_value = {
@@ -287,7 +293,7 @@ class TestRecipesReal(unittest.TestCase):
 
     @patch("src.core.engine.crafts.recipes.SaleHotelController")
     def test_get_benefice_on_craft_recipe_single_ingredient(
-        self, mock_controller_class
+        self, mock_controller_class: MagicMock
     ):
         mock_controller = MagicMock()
         mock_controller_class.return_value = mock_controller
@@ -319,7 +325,7 @@ class TestRecipesReal(unittest.TestCase):
 
     @patch("src.core.engine.crafts.recipes.SaleHotelController")
     def test_get_benefice_on_craft_recipe_multiple_ingredients(
-        self, mock_controller_class
+        self, mock_controller_class: MagicMock
     ):
         mock_controller = MagicMock()
         mock_controller_class.return_value = mock_controller

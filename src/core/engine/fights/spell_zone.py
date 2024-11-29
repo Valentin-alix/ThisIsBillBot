@@ -1,5 +1,5 @@
-from d3_database.grid.map_point import MapPoint
-from d3_database.utils import cache
+from dofus_unity_reader.grid.map_point import MapPoint
+from utils import cache
 
 from src.core.engine.fights.spell_shape import SpellShapeEnum
 from src.core.engine.fights.zones.cone import Cone
@@ -26,7 +26,7 @@ def get_zone_mps(
             return Cross(shape=shape, alternative_size=alternative_size, size=size)
         case SpellShapeEnum.L:
             return Line(alternative_size=0, size=size)
-        case SpellShapeEnum.l:
+        case SpellShapeEnum.lower_l:
             return Line(
                 alternative_size=alternative_size,
                 size=size,
@@ -37,7 +37,7 @@ def get_zone_mps(
             return Cross(shape=shape, alternative_size=0, size=size)
         case SpellShapeEnum.C:
             return Lozenge(alternative_size=alternative_size, size=size)
-        case SpellShapeEnum.O:
+        case SpellShapeEnum.O_CHAR:
             return Lozenge(alternative_size=size, size=size)
         case SpellShapeEnum.Q:
             return Cross(
@@ -85,7 +85,7 @@ def get_zone_mps(
             )
         case SpellShapeEnum.G:
             return Square(min_radius=0, size=size, is_diagonal_free=False)
-        case SpellShapeEnum.I:
+        case SpellShapeEnum.I_CHAR:
             return Lozenge(alternative_size=size, size=63)
         case SpellShapeEnum.U:
             return HalfLozenge(alternative_size=0, size=size)

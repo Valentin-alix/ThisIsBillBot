@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from threading import Timer
-from typing import Callable, Type, TypeVar
+from typing import Callable, TypeVar
 
 from google.protobuf.message import Message
 
@@ -13,7 +13,7 @@ T = TypeVar("T", bound=Message)
 
 @dataclass
 class Listener[T]:
-    msg_type: Type[T]
+    msg_type: type[T]
     callback: Callable[[T], None]
     originator: object
     logger: Logger
@@ -27,17 +27,15 @@ class Listener[T]:
     _context: str = field(init=False, default="")
     registered_at: datetime = field(init=False, default_factory=datetime.now)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._context = f"{self.originator.__class__.__name__}:{self.msg_type.__name__}"
-        if self.timeout and self.on_timeout is not None:
-            if self.on_timeout is None:
-                raise ValueError("timeout is defined but not function on_timeout !")
+        if self.timeout is not None and self.on_timeout is not None:
             self._timeout_timer = Timer(
                 interval=self.timeout, function=self.on_timeout_callback
             )
             self._timeout_timer.start()
 
-    def on_timeout_callback(self):
+    def on_timeout_callback(self) -> None:
         if self._deleted:
             self.logger.info(
                 f"{self._context} : On timeout callback called but listener is deleted"
@@ -48,13 +46,13 @@ class Listener[T]:
         self.logger.info(f"{self._context} : Calling on timeout")
         self.on_timeout()
 
-    def delete(self):
+    def delete(self) -> None:
         if self._deleted:
             raise ValueError("listener is already deleted !")
         if self._timeout_timer is not None:
             self._timeout_timer.cancel()
 
-    def __lt__(self, other: "Listener") -> bool:
+    def __lt__(self, other: "Listener[T]") -> bool:
         return self.priority < other.priority
 
     def __hash__(self) -> int:

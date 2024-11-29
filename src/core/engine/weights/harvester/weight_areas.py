@@ -1,7 +1,7 @@
 import random
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
 

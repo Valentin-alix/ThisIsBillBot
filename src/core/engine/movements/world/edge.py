@@ -1,9 +1,10 @@
 from functools import cache
 from typing import Iterator
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.world_graph_reader import WorldGraphReader
-from d3_database.models.world_graph import Edge, Transition, Vertice
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
+from dofus_unity_reader.models.world_graph import Edge, Transition, Vertice
 
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.movements.world.criterions.consts import CRITERION_WHITE_LIST
@@ -18,7 +19,7 @@ from src.core.signals.world_signals import WorldSignals
 from src.core.states.game_state import GameState
 
 
-def remove_forbidden_edge_transition_by_map_id(map_id: int):
+def remove_forbidden_edge_transition_by_map_id(map_id: int) -> None:
     for (
         vertice_from,
         vertice_to,
@@ -101,9 +102,9 @@ def iter_valid_outgoing_edges(
         yield edge
 
 
-def draw_edge_path(world_signals: WorldSignals, edges: list[Edge]):
+def draw_edge_path(world_signals: WorldSignals, edges: list[Edge]) -> None:
     world_signals.reset_path.emit()
-    batch: list[tuple] = []
+    batch: list[tuple[MapPositionsRootItem, MapPositionsRootItem]] = []
     for edge in edges:
         start_map_pos = DataReader().map_pos_by_map_id[edge.m_from.m_mapId]
         end_map_pos = DataReader().map_pos_by_map_id[edge.m_to.m_mapId]

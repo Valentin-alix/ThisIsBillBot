@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto
-from typing import cast
 
-from d3_database.data_center.map_reader import MapReader
-from d3_database.enums.element_type import ElementTypeEnum
-from d3_database.grid.map_point import MapPoint
-from d3_database.protos.non_obf.game.guild_chest_pb2 import (
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.enums.element_type import ElementTypeEnum
+from dofus_unity_reader.grid.map_point import MapPoint
+from datas.protos.non_obf.game.guild_chest_pb2 import (
     GuildChestCurrentListenersAddEvent,
 )
 
@@ -51,10 +50,12 @@ class EnterGuildChestBehavior(Behavior):
         ref_data = MapReader().get_ref_data_by_element_id_by_map_id(
             self.game_state.map.map_id
         )[chest_interactive.element_id]
+        if ref_data.cellId is None:
+            raise ValueError("Guild chest cell id is missing")
 
         move_path_to_chest = self.path_finding.find_path(
             self.game_state.map.map_point,
-            {MapPoint.from_cell_id(cast(int, ref_data.cellId))},
+            {MapPoint.from_cell_id(ref_data.cellId)},
         )
 
         self.run_timer(

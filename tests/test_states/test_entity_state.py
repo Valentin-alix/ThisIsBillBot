@@ -1,9 +1,11 @@
-from d3_database.grid.map_point import MapPoint
-from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
+from collections.abc import Mapping
+
+from dofus_unity_reader.grid.map_point import MapPoint
+from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     EntityDisposition,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.gamemap_pb2 import (
+from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
     MapMovementEvent,
 )
@@ -89,7 +91,7 @@ class TestEntityState(StateTestBase):
 
         assert isinstance(self.game_state.entity.actors_on_mp, ActorByMpDict)
 
-        state_dict = dataclass_to_dict(self.game_state.entity)
+        state_dict: Mapping[str, object] = dataclass_to_dict(self.game_state.entity)
 
         apply_dict_to_dataclass(self.game_state.entity, state_dict)
 

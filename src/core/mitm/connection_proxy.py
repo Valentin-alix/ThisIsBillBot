@@ -2,18 +2,19 @@ import os
 import signal
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Callable
+from typing import Callable, cast
 
 from ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
 )
-
-from d3_database.protos.non_obf.connection.login_message_pb2 import (
+from datas.protos.non_obf.connection.login_message_pb2 import (
     IdentificationResponse,
     LoginMessage,
     Request,
 )
+from google.protobuf.message import Message
+
 from src.const import DEBUG
 from src.core.bot.bot import Bot
 from src.protocol.protocol import decode_varint_size, encode_msg
@@ -32,7 +33,9 @@ class ConnectionProxy(Proxy):
     def __post_init__(self):
         super().__post_init__()
         if self.bot:
-            self.bot.event_manager.on_send_conn_callback = self.send_msg
+            self.bot.event_manager.on_send_conn_callback = cast(
+                Callable[[Message], None], self.send_msg
+            )
 
     def on_close(self) -> None:
         if self.bot:
@@ -93,7 +96,7 @@ class ConnectionProxy(Proxy):
 
     def on_sent_msg_datas(
         self, msg_datas: bytes, was_send_from_proxy: bool, from_server: bool
-    ):
+    ) -> None:
         size, pos = decode_varint_size(msg_datas)
         msg_content_datas = msg_datas[pos : pos + size]
         _, msg = get_conn_msg(msg_content_datas)
@@ -106,7 +109,7 @@ class ConnectionProxy(Proxy):
         if self.bot:
             self.bot.event_manager.process_msg(msg)
 
-    def send_msg(self, msg: Request):
+    def send_msg(self, msg: Request) -> None:
         conn_msg = LoginMessage(request=msg)
         self.queue_worker_item.put(
             (WorkerAction.SEND_SERVER, encode_msg(conn_msg), True, False)

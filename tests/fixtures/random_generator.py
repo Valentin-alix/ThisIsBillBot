@@ -1,10 +1,10 @@
 import datetime
 import random
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.i18n import I18N
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
 from src.protocol.message import MessageInfo
-from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import (
     ObjectItem,
     ObjectItemInventory,
 )

@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.map_reader import MapReader
-from d3_database.enums.jobs_enum import HARVESTER_JOB_IDS
-from d3_database.grid.map_point import MapPoint
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.enums.jobs_enum import HARVESTER_JOB_IDS
+from dofus_unity_reader.grid.map_point import MapPoint
+from datas.protos.non_obf.game.common_pb2 import (
     InteractiveElement,
     StatedElement,
 )

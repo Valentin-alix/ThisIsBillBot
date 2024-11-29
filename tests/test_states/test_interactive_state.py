@@ -1,8 +1,8 @@
-from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import (
     InteractiveElement,
     StatedElement,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.interactive_element_pb2 import (
+from datas.protos.non_obf.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
 from src.core.engine.interactives.collectable import Collectable

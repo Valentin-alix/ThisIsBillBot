@@ -2,12 +2,12 @@ from dataclasses import dataclass, field
 from functools import partial
 from typing import Callable
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.protos.non_obf.game.gamemap_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
 )
-from d3_database.protos.non_obf.game.inventory_pb2 import (
+from datas.protos.non_obf.game.inventory_pb2 import (
     ObjectUseRequest,
 )
 
@@ -34,14 +34,16 @@ class HarvesterBehavior(BaseFarmBehavior):
     collect_behavior: CollectBehavior
     fight_behavior: FightBehavior
 
-    map_ids_to_explore: set[int] = field(init=False, default_factory=set)
+    map_ids_to_explore: set[int] = field(
+        init=False, default_factory=set[int]
+    )
 
     def run(
         self,
         area_id: int | None,
         sub_area_id: int | None,
         is_stopped_at_new_map_condition: Callable[[], bool] | None = None,
-    ):
+    ) -> None:
         area_name = DataReader().area_by_id[area_id].nameId if area_id else "Unknown"
         subarea_name = (
             DataReader().sub_area_by_id[sub_area_id].nameId
@@ -77,17 +79,17 @@ class HarvesterBehavior(BaseFarmBehavior):
             return self.on_full_pods()
         self.on_new_map()
 
-    def init_listeners(self):
+    def init_listeners(self) -> None:
         self.event_manager.on(
             FightMapInformationEvent, lambda _: self.on_fight_aggro(), originator=self
         )
 
-    def run_next_step(self):
+    def run_next_step(self) -> None:
         self.random_farm_behavior.start(
             callback=self.on_random_farm_behavior_finished, parent=self
         )
 
-    def on_random_farm_behavior_finished(self, error_code: str | None):
+    def on_random_farm_behavior_finished(self, error_code: str | None) -> None:
         if error_code is EdgeError.NO_VALID_TRANSITION:
             return self.run_next_step()
         elif error_code in [
@@ -98,7 +100,7 @@ class HarvesterBehavior(BaseFarmBehavior):
         self.raise_if_error(error_code)
         self.on_new_map()
 
-    def on_unexpected_new_map(self):
+    def on_unexpected_new_map(self) -> None:
         self.event_manager.on(
             MapComplementaryInformationEvent,
             callback=lambda _: self.on_new_map(),
@@ -107,7 +109,7 @@ class HarvesterBehavior(BaseFarmBehavior):
             override_on_self=True,
         )
 
-    def on_new_map(self):
+    def on_new_map(self) -> None:
         if self.game_state.map.map_id in self.map_ids_to_explore:
             remaining = len(self.map_ids_to_explore) - 1
             self.logger.info(
@@ -129,7 +131,7 @@ class HarvesterBehavior(BaseFarmBehavior):
         else:
             self.run_next_step()
 
-    def on_collect_behavior_finished(self, error_code: str | None):
+    def on_collect_behavior_finished(self, error_code: str | None) -> None:
         if error_code == CollectError.FULL_PODS:
             return self.on_full_pods()
         if error_code == MapChangeError.UNEXPECTED_NEW_MAP:
@@ -137,7 +139,7 @@ class HarvesterBehavior(BaseFarmBehavior):
         self.raise_if_error(error_code)
         self.run_next_step()
 
-    def on_fight_aggro(self):
+    def on_fight_aggro(self) -> None:
         with self.event_manager.lock:
             self.clear_behavior()
             self.init_listeners()
@@ -145,11 +147,11 @@ class HarvesterBehavior(BaseFarmBehavior):
                 callback=self.on_fight_behavior_finished, parent=self
             )
 
-    def on_fight_behavior_finished(self, error_code: str | None):
+    def on_fight_behavior_finished(self, error_code: str | None) -> None:
         self.raise_if_error(error_code)
         self.purge_inventory()
 
-    def purge_inventory(self):
+    def purge_inventory(self) -> None:
         self.logger.info("Purging inventory from harvest bags")
         for object in self.game_state.inventory.objects_by_uid.values():
             # clear inventory from resource bag
@@ -171,7 +173,7 @@ class HarvesterBehavior(BaseFarmBehavior):
 
         self.run_timer(BASE_RANGE, self.on_fight_end_after_purge)
 
-    def on_fight_end_after_purge(self):
+    def on_fight_end_after_purge(self) -> None:
         self.logger.info("Purge of harvest bag is finished, let's continue")
         if self.game_state.inventory.is_full_pods:
             return self.on_full_pods()

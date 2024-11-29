@@ -3,21 +3,21 @@ from enum import StrEnum, auto
 from functools import partial
 from typing import Callable
 
-from d3_database.data_center.i18n import I18N
-from d3_database.data_center.map_reader import MapReader
-from d3_database.grid.map_point import MapPoint
-from d3_database.models.datas.recipe_root import RecipeItem
-from d3_database.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeCraftCountModifiedEvent,
     ExchangeCraftCountRequest,
     ExchangeCraftStartedEvent,
     ExchangeReadyRequest,
     ExchangeSetCraftRecipeRequest,
 )
-from d3_database.protos.non_obf.game.inventory_pb2 import (
+from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
+from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.grid.map_point import MapPoint
+from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
@@ -46,9 +46,11 @@ class CraftBehavior(DialogHandlerBehavior):
     _stop_craft_recipe_condition: Callable[[RecipeItem], bool] | None = field(
         init=False, default=None
     )
-    _remaining_recipes: list[RecipeItem] = field(init=False, default_factory=list)
+    _remaining_recipes: list[RecipeItem] = field(
+        init=False, default_factory=list[RecipeItem]
+    )
     _loaded_recipes_infos: list[tuple[RecipeItem, int]] = field(
-        init=False, default_factory=list
+        init=False, default_factory=list[tuple[RecipeItem, int]]
     )
 
     def run(
@@ -91,7 +93,7 @@ class CraftBehavior(DialogHandlerBehavior):
         error_code: str | None,
         loaded_recipes_infos: list[tuple[RecipeItem, int]],
         remaining_recipes: list[RecipeItem],
-    ):
+    ) -> None:
         if error_code is not None:
             return self.finish(error_code)
 
@@ -103,7 +105,7 @@ class CraftBehavior(DialogHandlerBehavior):
 
         self.process_next_loaded_recipe_skill()
 
-    def process_next_loaded_recipe_skill(self):
+    def process_next_loaded_recipe_skill(self) -> None:
         if len(self._loaded_recipes_infos) == 0:
             return self.process_remaining_recipes()
 
@@ -122,7 +124,7 @@ class CraftBehavior(DialogHandlerBehavior):
 
     def go_and_craft_on_skill(
         self, recipes_infos: list[tuple[RecipeItem, int]], skill_id: int
-    ):
+    ) -> None:
         related_map_ids = Skills.MAP_BY_SKILL[skill_id]
         if not self.game_state.player.is_sub:
             related_map_ids = {
@@ -156,7 +158,7 @@ class CraftBehavior(DialogHandlerBehavior):
         error_code: str | None,
         recipes_infos: list[tuple[RecipeItem, int]],
         skill_id: int,
-    ):
+    ) -> None:
         self.raise_if_error(error_code)
 
         related_element, related_skill = (
@@ -189,7 +191,7 @@ class CraftBehavior(DialogHandlerBehavior):
 
     def on_interactive_behavior_finished(
         self, error_code: str | None, recipes_infos: list[tuple[RecipeItem, int]]
-    ):
+    ) -> None:
         self.raise_if_error(error_code)
 
         self.event_manager.on(
@@ -204,10 +206,12 @@ class CraftBehavior(DialogHandlerBehavior):
         self,
         msg: ExchangeCraftStartedEvent,
         recipes_infos: list[tuple[RecipeItem, int]],
-    ):
+    ) -> None:
         self.craft_recipe_in_same_skill(recipes_infos)
 
-    def craft_recipe_in_same_skill(self, recipes_infos: list[tuple[RecipeItem, int]]):
+    def craft_recipe_in_same_skill(
+        self, recipes_infos: list[tuple[RecipeItem, int]]
+    ) -> None:
         if len(recipes_infos) == 0:
             return self.on_all_crafted_for_skill_in_inventory()
 
@@ -238,7 +242,7 @@ class CraftBehavior(DialogHandlerBehavior):
         recipes_infos: list[tuple[RecipeItem, int]],
         max_possible_result_quantity: int,
         gid: int,
-    ):
+    ) -> None:
         self.unregister_listener(DialogLeaveRequest)
         self.event_manager.on(
             ExchangeCraftCountModifiedEvent,
@@ -261,7 +265,7 @@ class CraftBehavior(DialogHandlerBehavior):
         msg: ExchangeCraftCountModifiedEvent,
         recipes_infos: list[tuple[RecipeItem, int]],
         gid: int,
-    ):
+    ) -> None:
         self.event_manager.on(
             InventoryWeightEvent,
             lambda _: self.craft_recipe_in_same_skill(recipes_infos),
@@ -274,11 +278,11 @@ class CraftBehavior(DialogHandlerBehavior):
         req = ExchangeReadyRequest(ready=True, step=6)
         self.send_message_delayed(req, SMALL_RANGE)
 
-    def on_all_crafted_for_skill_in_inventory(self):
+    def on_all_crafted_for_skill_in_inventory(self) -> None:
         self.leave_dialog(
             on_leave_callback=lambda _: self.process_next_loaded_recipe_skill()
         )
 
-    def on_timeout_exchange_ready(self, gid: int):
+    def on_timeout_exchange_ready(self, gid: int) -> None:
         FORBIDDEN_CRAFT_IDS.add(gid)
         self.leave_dialog(on_leave_callback=lambda _: self.finish())

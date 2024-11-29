@@ -1,14 +1,14 @@
 from dataclasses import dataclass, field
 from typing import Iterable, cast
 
-from d3_database.enums.characteristic_enum import CharacteristicEnum
-from d3_database.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
+from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     Direction,
     EntityDisposition,
 )
-from d3_database.protos.non_obf.game.gamemap_pb2 import MapObstacle
+from datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
 
 from src.core.engine.fights.fight_actor import FightActor
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
@@ -30,7 +30,7 @@ class ActorByIdDict(dict[int, ActorPositionInformation]):
 
 
 class ActorByMpDict(dict[MapPoint, ActorByIdDict]):
-    def __missing__(self, key) -> ActorByIdDict:
+    def __missing__(self, key: MapPoint) -> ActorByIdDict:
         value = ActorByIdDict(map_point=key)
         self.__setitem__(key, value)
         return value
@@ -43,16 +43,18 @@ class ActorByMpDict(dict[MapPoint, ActorByIdDict]):
 @dataclass
 class EntityState(State):
     grid_signals: GridSignals
-    actor_by_id: dict[int, ActorPositionInformation] = field(
-        init=False, default_factory=dict
-    )
-    actor_fight_by_id: dict[int, FightActor] = field(init=False, default_factory=dict)
-    obstacle_on_cell_id: dict[int, MapObstacle] = field(
-        init=False, default_factory=dict
-    )
+    actor_by_id: dict[int, ActorPositionInformation] = field(init=False)
+    actor_fight_by_id: dict[int, FightActor] = field(init=False)
+    obstacle_on_cell_id: dict[int, MapObstacle] = field(init=False)
     actors_on_mp: ActorByMpDict = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        actor_by_id: dict[int, ActorPositionInformation] = {}
+        actor_fight_by_id: dict[int, FightActor] = {}
+        obstacle_on_cell_id: dict[int, MapObstacle] = {}
+        self.actor_by_id = actor_by_id
+        self.actor_fight_by_id = actor_fight_by_id
+        self.obstacle_on_cell_id = obstacle_on_cell_id
         self.actors_on_mp = ActorByMpDict()
         self.grid_signals.cell_id_clicked.connect(self.on_cell_id_clicked)
 
@@ -81,7 +83,7 @@ class EntityState(State):
         for cell_id in removed_cell_ids:
             del self.obstacle_on_cell_id[cell_id]
 
-        batch = [(cell_id, True) for cell_id in new_cell_ids]
+        batch: list[tuple[int, bool]] = [(cell_id, True) for cell_id in new_cell_ids]
         batch.extend((cell_id, False) for cell_id in removed_cell_ids)
         if batch:
             self.grid_signals.set_obstacle_on_cell_id_batch.emit(batch)
@@ -89,7 +91,9 @@ class EntityState(State):
     def clear_obstacles(self):
         if not self.obstacle_on_cell_id:
             return
-        batch = [(cell_id, False) for cell_id in self.obstacle_on_cell_id.keys()]
+        batch: list[tuple[int, bool]] = [
+            (cell_id, False) for cell_id in self.obstacle_on_cell_id.keys()
+        ]
         self.obstacle_on_cell_id.clear()
         self.grid_signals.set_obstacle_on_cell_id_batch.emit(batch)
 
@@ -222,7 +226,7 @@ class EntityState(State):
         if not cell_ids:
             return
         if all_zero:
-            batch = [(cell_id, 0) for cell_id in cell_ids]
+            batch: list[tuple[int, int]] = [(cell_id, 0) for cell_id in cell_ids]
         else:
             batch = [
                 (cell_id, self._count_actors_on_cell(cell_id)) for cell_id in cell_ids
@@ -237,7 +241,9 @@ class EntityState(State):
 
     # ==================== Query Methods ====================
 
-    def get_first_actor_on_cell_id(self, cell_id: int):
+    def get_first_actor_on_cell_id(
+        self, cell_id: int
+    ) -> ActorPositionInformation | None:
         actor_on_mp = self.actors_on_mp.get(MapPoint.from_cell_id(cell_id))
         if actor_on_mp:
             return next(iter(actor_on_mp.values()))

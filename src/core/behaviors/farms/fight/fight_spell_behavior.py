@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from d3_database.grid.map_point import MapPoint
-from d3_database.protos.non_obf.game.fight_pb2 import FightEndEvent
-from d3_database.protos.non_obf.game.game_action_pb2 import (
+from dofus_unity_reader.grid.map_point import MapPoint
+from datas.protos.non_obf.game.fight_pb2 import FightEndEvent
+from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightCastRequest,
     SequenceEndEvent,
     SequenceType,
@@ -14,7 +14,11 @@ from src.services.human_timings import HumanTimingsService
 
 @dataclass
 class FightSpellBehavior(Behavior):
-    def run(self, spell_id: int, target_mp: MapPoint):
+    def run(
+        self,
+        spell_id: int,
+        target_mp: MapPoint,
+    ) -> None:
         self.event_manager.on(
             FightEndEvent, lambda _: self.finish(), originator=self, once=True
         )

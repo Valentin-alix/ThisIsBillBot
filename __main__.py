@@ -1,13 +1,19 @@
 import logging
-import os
 import sys
+from pathlib import Path
 from time import sleep
 
 from dotenv import load_dotenv
 from PyQt6.QtCore import Qt
 from qfluentwidgets import Theme, setTheme, setThemeColor
 
-from src.services.logging.logger import init_global_logging
+from src.utils.runtime_paths import configure_project_import_paths
+
+if hasattr(sys, "_MEIPASS"):
+    configure_project_import_paths(Path(sys._MEIPASS))  # type: ignore[attr-defined]
+else:
+    configure_project_import_paths(Path(__file__).resolve().parent)
+
 from src.utils.internet import has_internet_connection
 
 logger = logging.getLogger()
@@ -18,25 +24,12 @@ while not has_internet_connection():
 
 load_dotenv()
 
-
-if hasattr(sys, "_MEIPASS"):
-    base_path = sys._MEIPASS  # type: ignore
-    sys.path.append(
-        os.path.join(
-            base_path, "D3Mapping", "d3_mapping", "resources", "protos", "game"
-        )
-    )
-    sys.path.append(
-        os.path.join(
-            base_path, "D3Mapping", "d3_mapping", "resources", "protos", "connection"
-        )
-    )
-
 from src.core.bot.bot_manager import BotManager  # noqa: E402
 from src.core.bot.lifecycle.scheduler import run_continuously  # noqa: E402
 from src.core.signals.shared_farm_signals import SharedSignals  # noqa: E402
 from src.gui.application import Application  # noqa: E402
 from src.gui.main_window import MainWindow  # noqa: E402
+from src.services.logging.logger import init_global_logging  # noqa: E402
 
 init_global_logging()
 

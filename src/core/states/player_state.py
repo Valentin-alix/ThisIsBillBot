@@ -14,15 +14,22 @@ from src.core.states.state import State
 class PlayerState(State):
     game_info_signals: GameInfoSignals
     _server_id: int = dataclasses.field(init=False, default=1)
-    is_ready_to_play_event: Event = dataclasses.field(init=False, default_factory=Event)
+    is_ready_to_play_event: Event = dataclasses.field(init=False)
     _level: int = dataclasses.field(init=False, default=1)
     _subscription_end_date: datetime = dataclasses.field(
         init=False, default_factory=lambda: datetime(1975, 1, 1)
     )
     _character_id: int = dataclasses.field(init=False, default=0)
     _character_name: str = dataclasses.field(init=False, default_factory=str)
-    waypoint_map_ids: list[int] = dataclasses.field(init=False, default_factory=list)
-    jobs_lvl_by_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict)
+    waypoint_map_ids: list[int] = dataclasses.field(init=False)
+    jobs_lvl_by_id: dict[int, int] = dataclasses.field(init=False)
+
+    def __post_init__(self) -> None:
+        self.is_ready_to_play_event = Event()
+        waypoint_map_ids: list[int] = []
+        jobs_lvl_by_id: dict[int, int] = {}
+        self.waypoint_map_ids = waypoint_map_ids
+        self.jobs_lvl_by_id = jobs_lvl_by_id
 
     def clear_state(self):
         CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER.pop(

@@ -1,10 +1,10 @@
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.i18n import I18N
-from d3_database.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
-from d3_database.models.datas.recipe_root import RecipeItem
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
+from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
+from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.controller.sale_hotel import SaleHotelController
 from src.core.config import WEIGHT_BY_JOB
@@ -108,7 +108,7 @@ def get_max_possible_result_quantity(
     inventory_weight: int,
     weight_for_one_result: int,
     max_result_quantity: int,
-):
+) -> int:
     player_weight = weight_max - inventory_weight
     max_possible_result_quantity = min(
         player_weight // weight_for_one_result, max_result_quantity
@@ -127,7 +127,7 @@ def get_valid_recipes(
 
     This is the canonical implementation - states should delegate to this function.
     """
-    valid_recipes = []
+    valid_recipes: list[RecipeItem] = []
     for recipe in recipes:
         # Filter forbidden crafts
         if recipe.resultId in FORBIDDEN_CRAFT_IDS:
@@ -144,7 +144,9 @@ def get_valid_recipes(
     return valid_recipes
 
 
-def get_recipes_for_job_lvl_upor_benefice(is_sub: bool, jobs_lvl_by_id: dict[int, int]):
+def get_recipes_for_job_lvl_upor_benefice(
+    is_sub: bool, jobs_lvl_by_id: dict[int, int]
+) -> list[RecipeItem]:
     recipes: list[RecipeItem] = []
     for recipe in DataReader().recipes:
         if is_not_valid_recipe_for_lvl_up_job_or_benefice(

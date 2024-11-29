@@ -1,19 +1,22 @@
 from dataclasses import dataclass
 from logging import Logger
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.i18n import I18N
-from d3_database.data_center.map_reader import MapReader
-from d3_database.enums.characteristic_enum import CharacteristicEnum
-from d3_database.enums.directions import DirectionsEnum
-from d3_database.enums.effect_element import EffectElement, TypeEffect
-from d3_database.grid.map_point import MapPoint
-from d3_database.models.datas.monsters_root import MonsterGrade
-from d3_database.models.datas.spell_levels_root import Effect, SpellLevelsRootItem
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.enums.directions import DirectionsEnum
+from dofus_unity_reader.enums.effect_element import EffectElement, TypeEffect
+from dofus_unity_reader.grid.map_point import MapPoint
+from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     SpellModifier,
     SpellModifierType,
+)
+from dofus_unity_reader.models.datas.monsters_root import MonsterGrade
+from dofus_unity_reader.models.datas.spell_levels_root import (
+    Effect,
+    SpellLevelsRootItem,
 )
 
 from src.core.engine.fights.damage_calculator import DamageCalculator
@@ -126,7 +129,7 @@ class Attacker:
     def _prepare_enemies_data(
         self, enemies: list[ActorPositionInformation]
     ) -> list[EnemyData]:
-        enemies_data = []
+        enemies_data: list[EnemyData] = []
         for enemy in enemies:
             enemy_mp = MapPoint.from_cell_id(enemy.disposition.cell_id)
             if enemy.actor_id in self.game_state.entity.actor_fight_by_id:
@@ -411,7 +414,7 @@ class Attacker:
             )
             return best_attack[2], best_attack[3], best_attack[4]
 
-        rejection_parts = []
+        rejection_parts: list[str] = []
         if spells_without_targets > 0:
             rejection_parts.append(f"{spells_without_targets} spells without targets")
 

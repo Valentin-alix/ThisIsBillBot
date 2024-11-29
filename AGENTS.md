@@ -16,6 +16,8 @@ After any code change:
   - `uv run ruff check . --fix`
   - `uv run pyright`
 
+- DO NOT ignore ruff rule or pyright rule to make check passed.
+
 - If behavior changed:
   - update existing tests
 
@@ -45,6 +47,15 @@ After any code change:
 - Use `X | None` instead of `Optional[X]`
 - Avoid `Any` unless strictly unavoidable (must be justified)
 - Prefer explicit typed structures over untyped dicts
+- DO NOT silence typing errors with casts or Protocol hacks; fix the type surface or add stubs
+- Treat optionality as part of the contract; never cast away `None`
+- `object` is FORBIDDEN as a type placeholder; it provides no usable type information
+- DO NOT use `cast()` to force a type; fix the source type or introduce proper narrowing
+- `cast()` is only allowed at a strict boundary (FFI, external lib, deserialization) and must be justified
+- Replace unsafe casts with:
+  - explicit type narrowing (`isinstance`)
+  - validated constructors
+  - typed adapters or stubs
 
 ### Naming
 
@@ -76,8 +87,28 @@ After any code change:
 - Avoid deep nesting (>3 levels)
 - Keep helper ordering stable during refactors
 - Do NOT reintroduce dead compatibility layers or legacy shims
+- Do NOT add generic wrappers (*args/**kwargs) unless forwarding to a real API
+- Prefer direct attribute access; use `getattr` only when absence is expected
 
 ### Caching
 
 - Use `@functools.cache` or `@cached_property` ONLY for pure functions (no side effects, deterministic inputs)
 - Do NOT implement custom caching unless strictly necessary and justified
+
+## Tooling Constraints
+
+- Do NOT change application code to satisfy broken third-party typing
+- Fix via stubs or configuration first
+- Verification commands MUST be non-mutating (no hidden behavior changes)
+
+## API Discipline
+
+- Keep the narrowest valid signature; do NOT widen for convenience
+- Do NOT change shared interfaces without updating all implementations
+- Optional values must be handled explicitly at boundaries
+
+## Code Quality Rules
+
+- Do NOT introduce helpers only to satisfy the type checker
+- Prefer a single boundary adapter over scattered casts
+- Tests MUST validate runtime behavior, not typing or lint output

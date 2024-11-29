@@ -1,16 +1,16 @@
-from ProtoMapperAssembly.data.non_obf.protos.game.common_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import (
     ObjectItem,
     ObjectItemInventory,
     ObjectUidWithQuantity,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.exchange_pb2 import (
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeMoveKamaRequest,
     ExchangeObjectMoveRequest,
     ExchangeObjectTransferAllFromInventoryRequest,
     ExchangeStartedWithStorageEvent,
 )
-from ProtoMapperAssembly.data.non_obf.protos.game.inventory_pb2 import (
+from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryContentEvent,
     InventoryWeightEvent,
     ObjectAddedEvent,

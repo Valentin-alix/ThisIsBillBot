@@ -22,12 +22,14 @@ class Frame(ContextualLogger):
 
     priority: PriorityEnum = field(default=PriorityEnum.FRAME, init=False)
 
-    _timers: list[Timer] = field(default_factory=list, init=False)
+    _timers: list[Timer] = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        timers: list[Timer] = []
+        self._timers = timers
         self.game_info_signals.disconnected.connect(self.on_disconnected)
 
-    def on_disconnected(self):
+    def on_disconnected(self) -> None:
         for field_name in dir(self):
             if field_name.startswith("__"):
                 continue
@@ -46,7 +48,7 @@ class Frame(ContextualLogger):
         self._timers.append(timer)
         timer.start()
 
-    def run_timed_func(self, func: Callable[[], None]):
+    def run_timed_func(self, func: Callable[[], None]) -> None:
         with self.event_manager.lock:
             func()
 

@@ -1,5 +1,3 @@
-from typing import Any
-
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.fake_bad_interactive_behavior import (
     FakeBadInteractiveBehavior,
@@ -17,7 +15,7 @@ from src.core.behaviors.sale_hotel.sale_hotel_scraping_behavior import (
     SaleHotelScrapingBehavior,
 )
 
-type Instruction = tuple[Behavior, dict[str, Any]]
+type Instruction = tuple[Behavior, dict[str, object]]
 
 
 USABLE_BEHAVIORS: list[type[Behavior]] = [

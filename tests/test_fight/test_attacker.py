@@ -1,7 +1,7 @@
 from typing import cast
 
-from d3_database.grid.map_point import MapPoint
-from d3_database.models.datas.spell_levels_root import SpellLevelsRootItem
+from dofus_unity_reader.grid.map_point import MapPoint
+from dofus_unity_reader.models.datas.spell_levels_root import SpellLevelsRootItem
 from tests.setup_factory import GameStateFixture
 
 

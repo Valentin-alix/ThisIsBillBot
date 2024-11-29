@@ -1,4 +1,4 @@
-from d3_database.protos.non_obf.game.common_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import (
     CharacterCharacteristic,
 )
 

@@ -5,6 +5,8 @@ from functools import cache
 from pathlib import Path
 from typing import Any, Mapping, cast
 
+from consts import GAME_MAPPINGS_JSON_FILE
+from datas.protos.non_obf.game.game_message_pb2 import GameMessage
 from google.protobuf import descriptor_pool
 from google.protobuf.any_pb2 import Any as protoAny
 from google.protobuf.descriptor import Descriptor, FieldDescriptor
@@ -16,16 +18,13 @@ from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
 
-from d3_database.consts import D3_GAME_MAPPINGS
-from d3_database.protos.non_obf.game.game_message_pb2 import GameMessage
-from d3_database.protos.obf.game.game_messages_pb2 import gui
 from src.controller.instancied_msg_info_controller import (
     InstanciedMessageInfoController,
 )
 from src.protocol.message import MessageInfo
 
 TYPE_URL_PREFIX = "type.ankama.com/"
-_GAME_MAPPINGS_PATH = Path(D3_GAME_MAPPINGS)
+_GAME_MAPPINGS_PATH = Path(GAME_MAPPINGS_JSON_FILE)
 
 POOL: descriptor_pool.DescriptorPool = descriptor_pool.Default()
 
@@ -71,7 +70,10 @@ def get_obf_game_msg_info(
 
     received_msg_time = datetime.datetime.now()
 
-    game_msg = gui()
+    obf_game_type_url, _ = get_mapping_proto_to_obf()[GameMessage.DESCRIPTOR.full_name]
+    game_msg_type = GetMessageClass(POOL.FindMessageTypeByName(obf_game_type_url))
+
+    game_msg = game_msg_type()
     game_msg.ParseFromString(content)
     InstanciedMessageInfoController().add_msg(game_msg, True)
 
@@ -81,7 +83,8 @@ def get_obf_game_msg_info(
         preserving_proto_field_name=True,
     )
     if SHOW_URL:
-        field_name = game_msg.WhichOneof("ezqs")
+        root_oneof = game_msg.DESCRIPTOR.oneofs[0].name
+        field_name = game_msg.WhichOneof(root_oneof)
         root_msg: Message = getattr(game_msg, field_name)
 
         root_msg_any_field: protoAny | None = None

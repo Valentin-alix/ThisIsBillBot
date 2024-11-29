@@ -2,15 +2,15 @@ import datetime
 import traceback
 from typing import Any
 
-from google.protobuf.json_format import MessageToDict
-from google.protobuf.message import DecodeError, Message
-
-from d3_database.protos.non_obf.connection.login_message_pb2 import (
+from datas.protos.non_obf.connection.login_message_pb2 import (
     Event,
     LoginMessage,
     Request,
     Response,
 )
+from google.protobuf.json_format import MessageToDict
+from google.protobuf.message import DecodeError, Message
+
 from src.protocol.message import MessageInfo
 
 

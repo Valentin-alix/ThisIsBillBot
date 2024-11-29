@@ -1,8 +1,7 @@
 from functools import cached_property
-from typing import cast
 
 from langchain.agents import create_agent
-from langchain.messages import HumanMessage
+from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from openai import APIConnectionError, OpenAIError
@@ -39,16 +38,15 @@ class HumanResponse(metaclass=Singleton):
     def get_human_response_to_private_msg(
         self, msg: str, sender_name: str, from_name: str
     ) -> str | None:
-        agent = self.response_agent
         try:
             if not ClassifierChat().llm_should_respond(msg):
                 return None
-            ai_msg = agent.invoke(
+            ai_msg = self.response_agent.invoke(
                 {"messages": [HumanMessage(content=msg)]},
                 config={
                     "configurable": {"thread_id": (sender_name, from_name).__hash__()}
                 },
             )
-            return cast(str, ai_msg["messages"][-1].content)
+            return ai_msg["messages"][-1].content
         except (APIConnectionError, OpenAIError):
             return None

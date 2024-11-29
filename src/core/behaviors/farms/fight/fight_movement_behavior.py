@@ -1,9 +1,9 @@
 from collections import defaultdict
 from dataclasses import dataclass
 
-from d3_database.enums.characteristic_enum import CharacteristicEnum
-from d3_database.grid.map_point import MapPoint
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.grid.map_point import MapPoint
+from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
 )
 
@@ -23,7 +23,9 @@ class FightMovementBehavior(Behavior):
     fight_reachable_cells: FightReachableCells
 
     def run(
-        self, move_path: MovementPath | None = None, run_away: bool = False
+        self,
+        move_path: MovementPath | None = None,
+        run_away: bool = False,
     ) -> None:
         if move_path is None:
             if run_away:

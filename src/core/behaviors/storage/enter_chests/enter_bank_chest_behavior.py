@@ -1,14 +1,14 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
-from d3_database.enums.npc_message_id_enum import NpcAskMessageIdEnum
-from d3_database.protos.non_obf.game.exchange_pb2 import (
+from dofus_unity_reader.enums.npc_message_id_enum import NpcAskMessageIdEnum
+from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeMoveKamaRequest,
 )
-from d3_database.protos.non_obf.game.inventory_pb2 import (
+from datas.protos.non_obf.game.inventory_pb2 import (
     StorageInventoryContentEvent,
 )
-from d3_database.protos.non_obf.game.npc_pb2 import (
+from datas.protos.non_obf.game.npc_pb2 import (
     NpcDialogQuestionEvent,
 )
 

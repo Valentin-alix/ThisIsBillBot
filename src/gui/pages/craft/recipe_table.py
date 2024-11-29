@@ -1,8 +1,8 @@
 from typing import cast
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.i18n import I18N
-from d3_database.models.datas.recipe_root import RecipeItem
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QModelIndex, QObject, Qt, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QStandardItem

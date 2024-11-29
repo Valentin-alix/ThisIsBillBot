@@ -2,10 +2,10 @@ import os
 from threading import RLock
 
 import msgspec
-from d3_database.data_center.data_reader import DataReader
-from d3_database.data_center.i18n import I18N
-from d3_database.utils import Singleton
-from d3_database.protos.non_obf.game.common_pb2 import (
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from utils import Singleton
+from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
 )
 

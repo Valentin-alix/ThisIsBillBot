@@ -1,8 +1,7 @@
 import datetime
 
+from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
 from PyQt6.QtCore import QObject, pyqtSignal
-
-from d3_database.protos.non_obf.game.common_pb2 import ObjectItemInventory
 
 
 class GameInfoSignals(QObject):

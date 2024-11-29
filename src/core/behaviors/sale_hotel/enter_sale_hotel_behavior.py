@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from functools import partial
 
-from d3_database.data_center.data_reader import DataReader
-from d3_database.enums.category_item_enum import CategoryEnum
-from d3_database.enums.element_type import ElementTypeEnum
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.enums.category_item_enum import CategoryEnum
+from dofus_unity_reader.enums.element_type import ElementTypeEnum
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
@@ -43,7 +43,7 @@ class EnterSaleHotelBehavior(Behavior):
             parent=self,
         )
 
-    def on_auto_trip_smart_behavior(self, error_code: str | None, npc_info: NpcInfo):
+    def on_auto_trip_smart_behavior(self, error_code: str | None, npc_info: NpcInfo) -> None:
         self.raise_if_error(error_code)
         sale_hotel_interactive = next(
             interactive
@@ -54,6 +54,9 @@ class EnterSaleHotelBehavior(Behavior):
                 ElementTypeEnum.CONSUMABLE_SALE_HOTEL,
             ]
         )
+        def on_interactive_finished(_error_code: str | None) -> None:
+            self.finish(npc_info=npc_info)
+
         self.run_timer(
             BASE_RANGE,
             lambda: self.interactive_behavior.start(
@@ -62,7 +65,7 @@ class EnterSaleHotelBehavior(Behavior):
                 skill_instance_uid=sale_hotel_interactive.enabled_skills[
                     0
                 ].skill_instance_uid,
-                callback=lambda _: self.finish(npc_info=npc_info),
+                callback=on_interactive_finished,
                 parent=self,
             ),
         )
