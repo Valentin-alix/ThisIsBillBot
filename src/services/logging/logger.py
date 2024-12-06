@@ -50,7 +50,11 @@ class Logger(logging.Logger):
         level: int,
         msg: object,
         *args: object,
-        exc_info: bool | BaseException | tuple[type[BaseException], BaseException, TracebackType | None] | tuple[None, None, None] | None = None,
+        exc_info: bool
+        | BaseException
+        | tuple[type[BaseException], BaseException, TracebackType | None]
+        | tuple[None, None, None]
+        | None = None,
         stack_info: bool = False,
         stacklevel: int = 1,
         extra: Mapping[str, object] | None = None,

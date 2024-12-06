@@ -6,6 +6,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from functools import cached_property
 from threading import RLock
+from types import TracebackType
 from typing import Any
 
 # don't remove below import, otherwise to_parquet in atexit shutdown is gonna boum boum
@@ -20,14 +21,22 @@ BASE_FILENAME = "instancied_msg_infos"
 PATH_BOT_SHARED_DATAS = os.path.join(os.environ["HOME"], "OneDrive", "BotSharedDatas")
 
 MAX_COUNT_BY_NAME = 1_500
+SerializedContent = dict[str, Any]
+ParquetRow = dict[str, str | SerializedContent]
+RowsByName = dict[str, list[ParquetRow]]
+
+
+def _is_repeated_field(field_descriptor: object) -> bool:
+    return getattr(field_descriptor, "label") == FieldDescriptor.LABEL_REPEATED
 
 
 @dataclass
 class InstanciedMessageInfoController(metaclass=Singleton):
     _df: DataFrame | None = field(init=False, default=None)
     _lock: RLock = field(init=False, default_factory=RLock)
-    _rows_to_add_by_name: dict[str, list[dict]] = field(
-        init=False, default_factory=lambda: defaultdict(list)
+    _rows_to_add_by_name: RowsByName = field(
+        init=False,
+        default_factory=lambda: defaultdict(list),
     )
     _total_pending_rows: int = field(init=False, default=0)
 
@@ -41,7 +50,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
         return self._df
 
     @cached_property
-    def path_msg_infos(self):
+    def path_msg_infos(self) -> str:
         if os.path.exists(PATH_BOT_SHARED_DATAS):
             return os.path.join(
                 PATH_BOT_SHARED_DATAS,
@@ -52,11 +61,11 @@ class InstanciedMessageInfoController(metaclass=Singleton):
             return "DUMMY_PATH"
 
     @df.setter
-    def df(self, value: DataFrame):
+    def df(self, value: DataFrame) -> None:
         self._df = value
 
     @cached_property
-    def get_shared_content_df(self):
+    def get_shared_content_df(self) -> DataFrame:
         parquet_files = [
             os.path.join(PATH_BOT_SHARED_DATAS, file)
             for file in os.listdir(PATH_BOT_SHARED_DATAS)
@@ -73,10 +82,12 @@ class InstanciedMessageInfoController(metaclass=Singleton):
         return df
 
     @cached_property
-    def get_count_by_name_in_df(self):
-        return self.df["name"].value_counts().to_dict()
+    def get_count_by_name_in_df(self) -> dict[str, int]:
+        return {
+            str(name): count for name, count in self.df["name"].value_counts().to_dict().items()
+        }
 
-    def get_df_from_file(self):
+    def get_df_from_file(self) -> DataFrame:
         with self._lock:
             if not os.path.exists(self.path_msg_infos):
                 return DataFrame(columns=["name", "content"])
@@ -85,7 +96,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
                 df_from_file = df_from_file.groupby("name").head(MAX_COUNT_BY_NAME)
                 return df_from_file
 
-    def clear(self):
+    def clear(self) -> None:
         with self._lock:
             self.df = self.df.head(0)
             for filename in os.listdir(PATH_BOT_SHARED_DATAS):
@@ -93,7 +104,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
                     continue
                 os.remove(os.path.join(PATH_BOT_SHARED_DATAS, filename))
 
-    def add_msg(self, msg: Message, from_server: bool):
+    def add_msg(self, msg: Message, from_server: bool) -> None:
         with self._lock:
             try:
                 self._update_msg_infos_content(msg, from_server)
@@ -104,15 +115,15 @@ class InstanciedMessageInfoController(metaclass=Singleton):
 
     def _update_msg_infos_content(
         self, msg: Message, from_server: bool
-    ) -> dict[str, Any]:
+    ) -> SerializedContent:
         name = msg.DESCRIPTOR.full_name
         is_any_msg = name == "google.protobuf.Any"
-        value_by_field: dict[str, Any] = {}
+        value_by_field: SerializedContent = {}
         for _field in msg.DESCRIPTOR.fields:
             if is_any_msg and _field.name == "value":
                 continue
             value = getattr(msg, _field.name)
-            if _field == FieldDescriptor.LABEL_REPEATED:
+            if _is_repeated_field(_field):
                 is_map_field = (
                     _field.message_type and _field.message_type.GetOptions().map_entry
                 )
@@ -120,7 +131,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
                     value_by_field[_field.name] = {} if is_map_field else []
                 else:
                     if _field.type == FieldDescriptor.TYPE_MESSAGE:
-                        sub_values: list = []
+                        sub_values: list[SerializedContent] = []
                         for sub_value in value:
                             _value = self._update_msg_infos_content(
                                 value[sub_value] if is_map_field else sub_value,
@@ -144,7 +155,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
                     value_by_field[_field.name] = value
 
         if name != "google.protobuf.Any":
-            row = {"name": name, "content": value_by_field}
+            row: ParquetRow = {"name": name, "content": value_by_field}
             if (
                 self.get_count_by_name_in_df.get(name, 0)
                 + len(self._rows_to_add_by_name.get(name, []))
@@ -155,7 +166,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
 
         return value_by_field
 
-    def _write_msg_info_content(self):
+    def _write_msg_info_content(self) -> None:
         with self._lock:
             if len(self._rows_to_add_by_name) == 0:
                 return
@@ -175,16 +186,20 @@ class InstanciedMessageInfoController(metaclass=Singleton):
             self._total_pending_rows = 0
 
 
-def on_exit(*args):
+def on_exit(*args: object) -> None:
     InstanciedMessageInfoController()._write_msg_info_content()
 
 
 default_excepthook = sys.excepthook
 
 
-def on_except_hook(type, value, traceback):
+def on_except_hook(
+    exc_type: type[BaseException],
+    value: BaseException,
+    traceback: TracebackType | None,
+) -> None:
     on_exit()
-    default_excepthook(type, value, traceback)
+    default_excepthook(exc_type, value, traceback)
 
 
 sys.excepthook = on_except_hook

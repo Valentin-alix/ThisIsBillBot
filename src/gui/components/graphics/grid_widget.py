@@ -6,7 +6,15 @@ from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 from datas.protos.non_obf.game.common_pb2 import StatedElement
 from dofus_unity_reader.models.datas.collectionsroot import Collectable
 from PyQt6.QtCore import QPointF, Qt, pyqtSlot
-from PyQt6.QtGui import QColor, QFont, QMouseEvent, QPainter, QPen, QPolygonF
+from PyQt6.QtGui import (
+    QColor,
+    QFont,
+    QMouseEvent,
+    QPainter,
+    QPen,
+    QPolygonF,
+    QResizeEvent,
+)
 from PyQt6.QtWidgets import (
     QApplication,
     QGraphicsEllipseItem,
@@ -195,7 +203,7 @@ class GridView(QGraphicsView):
 
         self.setUpdatesEnabled(True)
 
-    def on_resize(self, event):
+    def on_resize(self, event: QResizeEvent | None) -> None:
         self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
         super().resizeEvent(event)
 

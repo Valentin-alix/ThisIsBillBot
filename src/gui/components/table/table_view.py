@@ -6,6 +6,7 @@ from PyQt6.QtCore import (
     pyqtSignal,
     pyqtSlot,
 )
+from PyQt6.QtGui import QResizeEvent
 from PyQt6.QtGui import QBrush, QStandardItem
 from PyQt6.QtWidgets import QAbstractItemView
 from qfluentwidgets import SingleDirectionScrollArea, SmoothMode, TableView
@@ -26,22 +27,24 @@ class CustomTableModel(QAbstractTableModel):
         self,
         data: list[list[QStandardItem]] | None = None,
         column_count: int = 0,
-        parent=None,
+        parent: QObject | None = None,
         max_row_count: int = 5000,
-    ):
+    ) -> None:
         super().__init__(parent)
         self.signals = CustomTableModelSignal(parent=self)
         self._data = data if data is not None else []
         self._column_count = column_count
         self._max_row_count = max_row_count
 
-    def rowCount(self, parent=None, *args, **kwargs) -> int:
+    def rowCount(self, parent: QModelIndex | None = None) -> int:
         return len(self._data)
 
-    def columnCount(self, parent=None) -> int:
+    def columnCount(self, parent: QModelIndex | None = None) -> int:
         return self._column_count
 
-    def data(self, index: QModelIndex, role: int | None = None):
+    def data(
+        self, index: QModelIndex, role: int | None = None
+    ) -> str | QBrush | object | None:
         if not index.isValid():
             return None
 
@@ -57,11 +60,11 @@ class CustomTableModel(QAbstractTableModel):
 
         return None
 
-    def set_column_count(self, count: int):
+    def set_column_count(self, count: int) -> None:
         self._column_count = count
         self.layoutChanged.emit()
 
-    def append_row(self, row_data: list[QStandardItem]):
+    def append_row(self, row_data: list[QStandardItem]) -> None:
         row_index = len(self._data)
         self.beginInsertRows(QModelIndex(), row_index, row_index)
         self._data.append(row_data)
@@ -70,7 +73,7 @@ class CustomTableModel(QAbstractTableModel):
         if len(self._data) > self._max_row_count:
             self.signals.max_row_reached.emit()
 
-    def append_rows(self, rows: list[list[QStandardItem]]):
+    def append_rows(self, rows: list[list[QStandardItem]]) -> None:
         if not rows:
             return
         start = len(self._data)
@@ -82,12 +85,12 @@ class CustomTableModel(QAbstractTableModel):
         if len(self._data) > self._max_row_count:
             self.signals.max_row_reached.emit()
 
-    def remove_rows(self, row: int, count: int):
+    def remove_rows(self, row: int, count: int) -> None:
         self.beginRemoveRows(QModelIndex(), row, row + count - 1)
         del self._data[row : row + count]
         self.endRemoveRows()
 
-    def clear_all(self):
+    def clear_all(self) -> None:
         self.remove_rows(0, len(self._data))
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlag:
@@ -110,7 +113,7 @@ class CustomTableModel(QAbstractTableModel):
 
     def update_row_cells(
         self, row: int, col_start: int, col_end: int, values: list[str]
-    ):
+    ) -> None:
         if row < 0 or row >= len(self._data):
             return
         for i, value in enumerate(values):
@@ -173,7 +176,7 @@ class CustomTableView(TableView):
         self.item_model.remove_rows(0, 500)
         scroll_bar.setValue(old_scroll_position)
 
-    def resizeEvent(self, e):
+    def resizeEvent(self, e: QResizeEvent | None) -> None:
         self.setUpdatesEnabled(False)
         super().resizeEvent(e)
         self.setUpdatesEnabled(True)
@@ -190,11 +193,11 @@ class CustomTableView(TableView):
     def filter_rows(self, header_filters: list[str]) -> None:
         self.proxy_model.set_filters(header_filters)
 
-    def append_row(self, row: list[QStandardItem]):
+    def append_row(self, row: list[QStandardItem]) -> None:
         model = self.item_model
         model.append_row(row)
 
-    def keep_scroll_position(self):
+    def keep_scroll_position(self) -> None:
         vsb = self.verticalScrollBar()
         assert vsb is not None
         if vsb.value() == vsb.maximum():

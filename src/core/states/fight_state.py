@@ -27,17 +27,24 @@ class FightState(State):
     game_info_signals: GameInfoSignals
 
     is_map_fight_initialized: bool = field(init=False, default=False)
-    fight_placement_possible_positions: list[int] = field(init=False)
+    fight_placement_possible_positions: list[int] = field(
+        init=False, default_factory=list[int]
+    )
     _is_our_turn: bool = field(init=False, default=False)
-    spells: list[SpellItem] = dataclasses.field(init=False)
+    spells: list[SpellItem] = dataclasses.field(
+        init=False, default_factory=list[SpellItem]
+    )
     modifier_by_type_and_spell_id: dict[
         tuple[int, SpellModifierType], SpellModifier
-    ] = dataclasses.field(init=False)
+    ] = dataclasses.field(
+        init=False,
+        default_factory=dict[tuple[int, SpellModifierType], SpellModifier],
+    )
     count_casted_by_spell_id_on_current_turn: dict[int, int] = dataclasses.field(
-        init=False
+        init=False, default_factory=lambda: defaultdict(int)
     )
     characteristic_by_id: dict[int, CharacterCharacteristic] = dataclasses.field(
-        init=False
+        init=False, default_factory=dict[int, CharacterCharacteristic]
     )
     _breed_id: int = dataclasses.field(init=False, default=0)
     _in_fight: bool = dataclasses.field(init=False, default=False)
@@ -48,22 +55,6 @@ class FightState(State):
         ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor | None
     ) = dataclasses.field(init=False, default=None)
     _player_died_in_current_fight: bool = dataclasses.field(init=False, default=False)
-
-    def __post_init__(self) -> None:
-        fight_placement_possible_positions: list[int] = []
-        spells: list[SpellItem] = []
-        modifier_by_type_and_spell_id: dict[
-            tuple[int, SpellModifierType], SpellModifier
-        ] = {}
-        count_casted_by_spell_id_on_current_turn: dict[int, int] = defaultdict(int)
-        characteristic_by_id: dict[int, CharacterCharacteristic] = {}
-        self.fight_placement_possible_positions = fight_placement_possible_positions
-        self.spells = spells
-        self.modifier_by_type_and_spell_id = modifier_by_type_and_spell_id
-        self.count_casted_by_spell_id_on_current_turn = (
-            count_casted_by_spell_id_on_current_turn
-        )
-        self.characteristic_by_id = characteristic_by_id
 
     def clear_state(self):
         self.is_map_fight_initialized = False

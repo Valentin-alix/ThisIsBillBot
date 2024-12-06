@@ -1,5 +1,6 @@
 from typing import cast
 
+from PyQt6.QtGui import QResizeEvent
 from PyQt6.QtWidgets import QHBoxLayout, QStackedWidget, QWidget
 from qfluentwidgets import (
     FluentStyleSheet,
@@ -19,7 +20,7 @@ from src.gui.fragments.sidebar import Sidebar
 class AppFluentWindow(FluentWindowBase):
     """Fluent window"""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
 
         self.stackedWidget = NoAnimatedStackedWidget()
@@ -45,10 +46,10 @@ class AppFluentWindow(FluentWindowBase):
         self,
         interface: QWidget,
         navigation_widget: NavigationWidget,
-        position=NavigationItemPosition.TOP,
-        parent=None,
-        isTransparent=False,
-    ):
+        position: NavigationItemPosition = NavigationItemPosition.TOP,
+        parent: QWidget | None = None,
+        isTransparent: bool = False,
+    ) -> None:
         """add widget, the object name of `interface` should be set already
         before calling this method
 
@@ -100,6 +101,6 @@ class AppFluentWindow(FluentWindowBase):
 
         self._updateStackedBackground()
 
-    def resizeEvent(self, e):
+    def resizeEvent(self, e: QResizeEvent | None) -> None:
         self.titleBar.move(46, 0)
         self.titleBar.resize(self.width() - 46, self.titleBar.height())

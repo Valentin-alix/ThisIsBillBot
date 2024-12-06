@@ -11,6 +11,8 @@ from PyQt6.QtWidgets import (
     QGraphicsRectItem,
     QGraphicsScene,
     QGraphicsView,
+    QStyleOptionGraphicsItem,
+    QWidget,
 )
 
 from src.core.signals.world_signals import WorldSignals
@@ -49,9 +51,14 @@ class SquareMap(QGraphicsRectItem):
         pen.setWidth(0)
         self.setPen(pen)
 
-    def paint(self, painter: QPainter, *args, **kwargs):
+    def paint(
+        self,
+        painter: QPainter,
+        option: QStyleOptionGraphicsItem,
+        widget: QWidget | None = None,
+    ) -> None:
         if len(self.colors_by_map_id) == 0:
-            return super().paint(painter, *args, **kwargs)
+            return super().paint(painter, option, widget)
 
         all_colors = set(self.colors_by_map_id.values())
         divided_height = floor(self.boundingRect().height() / len(all_colors))

@@ -9,8 +9,8 @@ from src.gui.components.qfluent_widget.dynamic_tree_widget import DynamicTreeWid
 
 
 class MessageDetailWidget(QWidget):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent=parent)
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
         self._layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
@@ -50,7 +50,7 @@ class MessageDetailWidget(QWidget):
         self,
         msg_json: dict[str, Any] | None,
         obf_msg_json: dict[str, Any] | None,
-    ):
+    ) -> None:
         if msg_json is not None:
             self.dynamic_tree.show()
             self.dynamic_tree.set_content(msg_json)
@@ -62,7 +62,7 @@ class MessageDetailWidget(QWidget):
         else:
             self.obf_dynamic_tree.hide()
 
-    def _on_search_text_changed(self, text: str):
+    def _on_search_text_changed(self, text: str) -> None:
         text = text.strip()
         if not text:
             self._clear_search()
@@ -70,7 +70,7 @@ class MessageDetailWidget(QWidget):
             self._search_and_expand(self.dynamic_tree, text.lower())
             self._search_and_expand(self.obf_dynamic_tree, text.lower())
 
-    def _clear_search(self):
+    def _clear_search(self) -> None:
         self._reset_tree_highlighting(self.dynamic_tree)
         self._reset_tree_highlighting(self.obf_dynamic_tree)
 
@@ -79,7 +79,7 @@ class MessageDetailWidget(QWidget):
         self.obf_dynamic_tree.collapseAll()
         self.obf_dynamic_tree.expandToDepth(1)
 
-    def _search_and_expand(self, tree: DynamicTreeWidget, search_text: str):
+    def _search_and_expand(self, tree: DynamicTreeWidget, search_text: str) -> None:
         self._reset_tree_highlighting(tree)
         tree.collapseAll()
 
@@ -97,7 +97,7 @@ class MessageDetailWidget(QWidget):
         parent: QTreeWidgetItem | None,
         search_text: str,
         found_items: list[QTreeWidgetItem],
-    ):
+    ) -> None:
         if parent is None:
             return
         for i in range(parent.childCount()):
@@ -109,19 +109,19 @@ class MessageDetailWidget(QWidget):
 
             self._find_matching_items(child, search_text, found_items)
 
-    def _expand_to_item(self, item: QTreeWidgetItem):
+    def _expand_to_item(self, item: QTreeWidgetItem) -> None:
         parent = item.parent()
         while parent is not None:
             parent.setExpanded(True)
             parent = parent.parent()
         item.setExpanded(True)
 
-    def _reset_tree_highlighting(self, tree: DynamicTreeWidget):
+    def _reset_tree_highlighting(self, tree: DynamicTreeWidget) -> None:
         root = tree.invisibleRootItem()
         assert root is not None
         self._reset_item_highlighting(root)
 
-    def _reset_item_highlighting(self, parent: QTreeWidgetItem | None):
+    def _reset_item_highlighting(self, parent: QTreeWidgetItem | None) -> None:
         if parent is None:
             return
         for i in range(parent.childCount()):

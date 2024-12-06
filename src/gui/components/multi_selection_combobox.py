@@ -1,15 +1,16 @@
-from typing import Union
+from typing import Any, cast, Union
 
 from PyQt6.QtCore import QPoint, Qt, pyqtSignal
 from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtWidgets import QWidget
 from qfluentwidgets.common import FluentIconBase
 from qfluentwidgets.components import ComboBox
 from qfluentwidgets.components.widgets.combo_box import ComboBoxMenu, ComboItem
 
 
 class StayOpenMenu(ComboBoxMenu):
-    def _onItemClicked(self, item):
-        action = item.data(Qt.ItemDataRole.UserRole)  # type: QAction
+    def _onItemClicked(self, item: Any) -> None:
+        action = cast(QAction, item.data(Qt.ItemDataRole.UserRole))
         if action not in self._actions or not action.isEnabled():
             return
 
@@ -35,20 +36,20 @@ class MultiSelectComboBox(ComboBox):
 
     selectionChanged = pyqtSignal(list)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.selectedIndices = set()
+        self.selectedIndices: set[int] = set()
 
-    def _createComboMenu(self):
+    def _createComboMenu(self) -> StayOpenMenu:
         return StayOpenMenu(self)
 
-    def selectedItemsData(self):
+    def selectedItemsData(self) -> list[Any]:
         """
         Retourne une liste contenant la donnée (userData) de chaque item sélectionné.
         """
         return [self.items[i].userData for i in sorted(self.selectedIndices)]
 
-    def _showComboMenu(self):
+    def _showComboMenu(self) -> None:
         """Affiche un menu déroulant dont les actions sont checkable."""
         if not self.items:
             return
@@ -60,9 +61,7 @@ class MultiSelectComboBox(ComboBox):
             action = QAction(item.icon, item.text, menu)
             action.setCheckable(True)
             action.setChecked(i in self.selectedIndices)
-            action.toggled.connect(
-                lambda checked, index=i: self._onItemToggled(index, checked)
-            )
+            action.toggled.connect(self._build_toggle_handler(i))
             menu.addAction(action)
 
         # Optionnel : ajuster la largeur minimale du menu pour être au moins celle du ComboBox
@@ -87,7 +86,16 @@ class MultiSelectComboBox(ComboBox):
         # Une fois le menu fermé, on nettoie la référence.
         self.dropMenu = None
 
-    def _onItemToggled(self, index, checked):
+    def _onDropMenuClosed(self) -> None:
+        self.dropMenu = None
+
+    def _build_toggle_handler(self, index: int) -> Any:
+        def _handle_toggle(checked: bool) -> None:
+            self._onItemToggled(index, checked)
+
+        return _handle_toggle
+
+    def _onItemToggled(self, index: int, checked: bool) -> None:
         """Met à jour la sélection lors du clic sur une action checkable."""
         if checked:
             self.selectedIndices.add(index)
@@ -98,7 +106,7 @@ class MultiSelectComboBox(ComboBox):
         selected_texts = [self.items[i].text for i in sorted(self.selectedIndices)]
         self.selectionChanged.emit(selected_texts)
 
-    def _updateDisplayText(self):
+    def _updateDisplayText(self) -> None:
         """Met à jour le texte affiché sur le ComboBox."""
         if self.selectedIndices:
             texts = [self.items[i].text for i in sorted(self.selectedIndices)]
@@ -109,7 +117,7 @@ class MultiSelectComboBox(ComboBox):
         self.setText(display_text)
 
     # Pour éviter le comportement de sélection simple, on surcharge _onItemClicked
-    def _onItemClicked(self, index):
+    def _onItemClicked(self, index: int) -> None:
         """
         Dans la version multi-sélection, un clic ne doit pas remplacer l'intégralité de la sélection.
         On n'utilise donc pas le comportement de la méthode d'origine.
@@ -121,8 +129,8 @@ class MultiSelectComboBox(ComboBox):
         self,
         text: str,
         icon: Union[str, QIcon, FluentIconBase] | None = None,
-        userData=None,
-    ):
+        userData: Any = None,
+    ) -> None:
         """add item
 
         Parameters

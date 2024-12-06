@@ -1,5 +1,6 @@
 import inspect
 
+from google.protobuf.message import Message
 from PyQt6.QtWidgets import QTextEdit, QWidget
 from qfluentwidgets import MessageBoxBase, PushButton, SubtitleLabel
 
@@ -7,7 +8,7 @@ from src.core.events_manager.listener import Listener
 
 
 class ListenerDetailsBox(MessageBoxBase):
-    def __init__(self, listener: Listener, parent: QWidget):
+    def __init__(self, listener: Listener[Message], parent: QWidget) -> None:
         super().__init__(parent=parent)
         self.title_label = SubtitleLabel("Listener Details", parent=self)
         originator_name = listener.originator.__class__.__name__

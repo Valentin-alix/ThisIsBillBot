@@ -17,7 +17,9 @@ from datas.protos.non_obf.game.inventory_pb2 import (
     ObjectQuantityEvent,
     StorageInventoryContentEvent,
 )
-from tests.test_states.state_test_base import StateTestBase
+from src.core.bot.bot_factory import BotFactory
+from src.core.signals.shared_farm_signals import SharedSignals
+from tests.test_states.state_test_base import StateTestBase, TEST_ACCOUNT
 
 
 class TestInventoryState(StateTestBase):
@@ -26,6 +28,20 @@ class TestInventoryState(StateTestBase):
         assert self.game_state.inventory.inventory_weight == 0
         assert self.game_state.inventory.weight_max == 1
         assert len(self.game_state.inventory.objects_by_uid) == 0
+
+    def test_collection_fields_are_not_shared_between_instances(self):
+        other_bot = BotFactory.create_bot(
+            SharedSignals(), account=TEST_ACCOUNT, is_fake=True
+        )
+
+        assert (
+            self.game_state.inventory.bank_object_by_gid
+            is not other_bot.game_state.inventory.bank_object_by_gid
+        )
+        assert (
+            self.game_state.inventory.objects_by_uid
+            is not other_bot.game_state.inventory.objects_by_uid
+        )
 
     def test_clear_state_resets_values(self):
         self.game_state.inventory.kamas = 1_000_000

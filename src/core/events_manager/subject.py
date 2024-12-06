@@ -12,12 +12,10 @@ class Subject(Generic[P]):
     """observer pattern"""
 
     _lock: RLock = field(init=False)
-    _observers: list[Observer[P]] = field(init=False)
+    _observers: list[Observer[P]] = field(init=False, default_factory=list[Observer[P]])
 
     def __post_init__(self) -> None:
         self._lock = RLock()
-        observers: list[Observer[P]] = []
-        self._observers = observers
 
     def connect(
         self, callback: Callable[P, None], originator: object, once: bool = False

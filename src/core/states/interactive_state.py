@@ -34,19 +34,16 @@ class InteractiveState(State):
     grid_signals: GridSignals
     player_state: PlayerState
     map_state: MapState
-    interactive_element_by_id: dict[int, InteractiveElement] = field(init=False)
-    stated_element_by_id: dict[int, tuple[StatedElement, Collectable | None]] = field(
-        init=False
+    interactive_element_by_id: dict[int, InteractiveElement] = field(
+        init=False, default_factory=dict[int, InteractiveElement]
     )
-
-    def __post_init__(self) -> None:
-        interactive_element_by_id: dict[int, InteractiveElement] = {}
-        stated_element_by_id: dict[int, tuple[StatedElement, Collectable | None]] = {}
-        self.interactive_element_by_id = interactive_element_by_id
-        self.stated_element_by_id = stated_element_by_id
-        self.stated_element_by_cell_id: StatedElementByCellIdDict = (
-            StatedElementByCellIdDict()
-        )
+    stated_element_by_id: dict[int, tuple[StatedElement, Collectable | None]] = field(
+        init=False,
+        default_factory=dict[int, tuple[StatedElement, Collectable | None]],
+    )
+    stated_element_by_cell_id: StatedElementByCellIdDict = field(
+        init=False, default_factory=StatedElementByCellIdDict
+    )
 
     def clear_state(self):
         self.interactive_element_by_id.clear()

@@ -70,9 +70,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
     load_from_guild_chest_behavior: LoadFromGuildChestBehavior
     load_from_bank_behavior: LoadFromBankBehavior
 
-    categories: set[CategoryEnum] = field(
-        init=False, default_factory=set[CategoryEnum]
-    )
+    categories: set[CategoryEnum] = field(init=False, default_factory=set[CategoryEnum])
     _curr_category: CategoryEnum = field(init=False, default=CategoryEnum.RESOURCES)
 
     def run(self) -> None:
@@ -265,7 +263,10 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         self.run_timer(SMALL_RANGE, lambda: self.open_item(next_item.gid))
 
     def _on_load_items_after_empty_inventory(
-        self, _error_code: str | None, load_items_infos: list[LoadItemInfo], item_ids_to_sell: list[int]
+        self,
+        _error_code: str | None,
+        load_items_infos: list[LoadItemInfo],
+        item_ids_to_sell: list[int],
     ) -> None:
         self.load_items(load_items_infos, item_ids_to_sell)
 

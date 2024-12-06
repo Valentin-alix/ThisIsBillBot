@@ -8,7 +8,10 @@ from dofus_unity_reader.enums.jobs_enum import JobEnum
 from src.const import RESOURCE_FOLDER
 from src.utils.metaclasses.singleton import Singleton
 
-TTL_CACHE = TTLCache(maxsize=100, ttl=60 * 60 * 3 * 1000)
+TTL_CACHE: TTLCache[object, dict[int, tuple[int, int]]] = TTLCache(
+    maxsize=100,
+    ttl=60 * 60 * 3 * 1000,
+)
 
 
 class GfxMappingController(metaclass=Singleton):
@@ -50,7 +53,7 @@ class GfxMappingController(metaclass=Singleton):
             content = msgspec.json.decode(file.read(), type=set[int])
         return content
 
-    def add_map_id_checked(self, map_id: int):
+    def add_map_id_checked(self, map_id: int) -> None:
         with self._COLLECTABLE_MAP_CHECKED_LOCK:
             content = self.get_map_ids_checked()
             if map_id in content:

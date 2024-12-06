@@ -43,7 +43,9 @@ class EnterSaleHotelBehavior(Behavior):
             parent=self,
         )
 
-    def on_auto_trip_smart_behavior(self, error_code: str | None, npc_info: NpcInfo) -> None:
+    def on_auto_trip_smart_behavior(
+        self, error_code: str | None, npc_info: NpcInfo
+    ) -> None:
         self.raise_if_error(error_code)
         sale_hotel_interactive = next(
             interactive
@@ -54,6 +56,7 @@ class EnterSaleHotelBehavior(Behavior):
                 ElementTypeEnum.CONSUMABLE_SALE_HOTEL,
             ]
         )
+
         def on_interactive_finished(_error_code: str | None) -> None:
             self.finish(npc_info=npc_info)
 

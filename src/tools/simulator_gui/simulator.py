@@ -31,7 +31,7 @@ from tests.fixtures.random_generator import (
 load_dotenv(os.path.join(Path(__file__).parent.parent, ".env"))
 
 
-def base_populate_bot(win, fake_bot: Bot):
+def base_populate_bot(win: "MainWindow", fake_bot: Bot) -> None:
     for msg in generate_random_fake_game_message():
         msg_info = MessageInfo(
             received_time=datetime.datetime.now(),
@@ -44,7 +44,7 @@ def base_populate_bot(win, fake_bot: Bot):
         fake_bot.msg_info_signals.msg_info.emit(msg_info, False)
 
 
-def simulate_received_msg(win: "MainWindow", fake_bot: Bot):
+def simulate_received_msg(win: "MainWindow", fake_bot: Bot) -> None:
     for _ in range(random.randint(1, 2)):
         try:
             if not win.isActiveWindow():
@@ -59,7 +59,7 @@ def simulate_received_msg(win: "MainWindow", fake_bot: Bot):
     QTimer.singleShot(delay_ms, lambda: simulate_received_msg(win, fake_bot))
 
 
-def simulate_weighted_path(fake_bot: Bot):
+def simulate_weighted_path(fake_bot: Bot) -> None:
     map_ids = DataReader().map_ids_by_sub_area_id[
         DataReader().map_pos_by_map_id[fake_bot.game_state.map.map_id].subAreaId
     ]
@@ -81,7 +81,7 @@ def simulate_weighted_path(fake_bot: Bot):
 
         return weight
 
-    path, weight = WeightedPath(game_state=fake_bot.game_state).beam_search_path(
+    path, _weight = WeightedPath(game_state=fake_bot.game_state).beam_search_path(
         fake_bot.game_state.map.curr_vertex,
         get_weight_by_edge,
         {},

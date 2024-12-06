@@ -24,13 +24,10 @@ class InventoryState(State):
     _kamas: int = dataclasses.field(init=False, default=500_000)
     _inventory_weight: int = dataclasses.field(init=False, default=0)
     _weight_max: int = dataclasses.field(init=False, default=1)
-    bank_object_by_gid: dict[int, ObjectItemInventory] = dataclasses.field(init=False)
-    objects_by_uid: ObjectByUid = field(init=False)
-
-    def __post_init__(self) -> None:
-        bank_object_by_gid: dict[int, ObjectItemInventory] = {}
-        self.bank_object_by_gid = bank_object_by_gid
-        self.objects_by_uid = ObjectByUid()
+    bank_object_by_gid: dict[int, ObjectItemInventory] = dataclasses.field(
+        init=False, default_factory=dict[int, ObjectItemInventory]
+    )
+    objects_by_uid: ObjectByUid = field(init=False, default_factory=ObjectByUid)
 
     def clear_state(self):
         self.kamas = 0

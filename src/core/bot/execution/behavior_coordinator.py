@@ -128,9 +128,7 @@ class BehaviorCoordinator(ContextualLogger):
             )
         )
 
-    def play_action(
-        self, func: Callable[[Callable[[str], None]], None]
-    ) -> None:
+    def play_action(self, func: Callable[[Callable[[str], None]], None]) -> None:
         """Setup and execute a bot action."""
         self.stop_behaviors()
         self._current_bot_action_func = func

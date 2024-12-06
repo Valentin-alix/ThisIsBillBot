@@ -27,6 +27,7 @@ from src.core.signals.shared_farm_signals import SharedSignals
 from src.services.logging.contextual_logger import ContextualLogger
 from src.utils.internet import has_internet_connection
 
+
 @dataclass
 class RandomizedSlot:
     start: str
@@ -49,7 +50,9 @@ class BotScheduler(ContextualLogger):
     behavior_coordinator: BehaviorCoordinator
     process_manager: ProcessManager
 
-    _scheduled_jobs: list[schedule.Job] = field(init=False, default_factory=list[schedule.Job])
+    _scheduled_jobs: list[schedule.Job] = field(
+        init=False, default_factory=list[schedule.Job]
+    )
     _randomized_slots_by_day: dict[int, list[RandomizedSlot]] = field(
         init=False, default_factory=dict[int, list[RandomizedSlot]]
     )
@@ -129,18 +132,24 @@ class BotScheduler(ContextualLogger):
                     f"end={end_time} (was {slot.end})"
                 )
 
-                start_job = _get_day_scheduler(day).at(start_time).do(
-                    lambda: run_in_background(self._planned_restart_bot_task)
+                start_job = (
+                    _get_day_scheduler(day)
+                    .at(start_time)
+                    .do(lambda: run_in_background(self._planned_restart_bot_task))
                 )
                 self._scheduled_jobs.append(start_job)
 
-                end_job = _get_day_scheduler(day).at(end_time).do(
-                    lambda: run_in_background(self._planned_stop_bot_task)
+                end_job = (
+                    _get_day_scheduler(day)
+                    .at(end_time)
+                    .do(lambda: run_in_background(self._planned_stop_bot_task))
                 )
                 self._scheduled_jobs.append(end_job)
 
-        midnight_job = schedule.every().day.at("00:00").do(
-            lambda: self._reschedule_with_new_random_times(profile_id)
+        midnight_job = (
+            schedule.every()
+            .day.at("00:00")
+            .do(lambda: self._reschedule_with_new_random_times(profile_id))
         )
         self._scheduled_jobs.append(midnight_job)
 

@@ -5,8 +5,10 @@ from datas.protos.non_obf.game.common_pb2 import (
 from datas.protos.non_obf.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
+from src.core.bot.bot_factory import BotFactory
 from src.core.engine.interactives.collectable import Collectable
-from tests.test_states.state_test_base import StateTestBase
+from src.core.signals.shared_farm_signals import SharedSignals
+from tests.test_states.state_test_base import StateTestBase, TEST_ACCOUNT
 
 
 def get_fake_collectable(element_id: int):
@@ -26,6 +28,24 @@ class TestInteractiveState(StateTestBase):
     def test_initial_state(self):
         assert len(self.game_state.interactive.interactive_element_by_id) == 0
         assert len(self.game_state.interactive.stated_element_by_id) == 0
+
+    def test_collection_fields_are_not_shared_between_instances(self):
+        other_bot = BotFactory.create_bot(
+            SharedSignals(), account=TEST_ACCOUNT, is_fake=True
+        )
+
+        assert (
+            self.game_state.interactive.interactive_element_by_id
+            is not other_bot.game_state.interactive.interactive_element_by_id
+        )
+        assert (
+            self.game_state.interactive.stated_element_by_id
+            is not other_bot.game_state.interactive.stated_element_by_id
+        )
+        assert (
+            self.game_state.interactive.stated_element_by_cell_id
+            is not other_bot.game_state.interactive.stated_element_by_cell_id
+        )
 
     def test_clear_state_resets_values(self):
         self.game_state.interactive.interactive_element_by_id[1] = InteractiveElement(

@@ -34,8 +34,6 @@ class TestWeightedPath(GameStateFixture):
             beam_width=20,
         )
 
-        assert isinstance(path, list)
-        assert isinstance(total_weight, float)
         assert len(path) <= 10
         assert total_weight >= 0
 
@@ -80,6 +78,9 @@ class TestWeightedPath(GameStateFixture):
                 depth=20,
                 beam_width=width,
             )
+
+            assert len(path) <= 20
+            assert total_weight >= 0
 
     def test_revisit_penalty_beam_search(self):
         path, total_weight = self.weighted_path.beam_search_path(

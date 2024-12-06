@@ -9,13 +9,37 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
     MapMovementEvent,
 )
+from src.core.bot.bot_factory import BotFactory
+from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.states.entity_state import ActorByMpDict
 from src.utils.dataclass_utils import dataclass_to_dict
 from src.utils.protobuf_utils import apply_dict_to_dataclass
-from tests.test_states.state_test_base import StateTestBase
+from tests.test_states.state_test_base import StateTestBase, TEST_ACCOUNT
 
 
 class TestEntityState(StateTestBase):
+    def test_collection_fields_are_not_shared_between_instances(self):
+        other_bot = BotFactory.create_bot(
+            SharedSignals(), account=TEST_ACCOUNT, is_fake=True
+        )
+
+        assert (
+            self.game_state.entity.actor_by_id
+            is not other_bot.game_state.entity.actor_by_id
+        )
+        assert (
+            self.game_state.entity.actor_fight_by_id
+            is not other_bot.game_state.entity.actor_fight_by_id
+        )
+        assert (
+            self.game_state.entity.obstacle_on_cell_id
+            is not other_bot.game_state.entity.obstacle_on_cell_id
+        )
+        assert (
+            self.game_state.entity.actors_on_mp
+            is not other_bot.game_state.entity.actors_on_mp
+        )
+
     def test_set_actors_from_map_complementary_info(self):
         actor = ActorPositionInformation(
             actor_id=123,

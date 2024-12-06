@@ -1,9 +1,9 @@
-from PyQt6.QtWidgets import QAbstractScrollArea
+from PyQt6.QtWidgets import QAbstractScrollArea, QWidget
 from qfluentwidgets.window.stacked_widget import StackedWidget
 
 
 class NoAnimatedStackedWidget(StackedWidget):
-    def setCurrentWidget(self, widget, popOut=True):
+    def setCurrentWidget(self, widget: QWidget, popOut: bool = True) -> None:
         del popOut
         if isinstance(widget, QAbstractScrollArea):
             vsb = widget.verticalScrollBar()

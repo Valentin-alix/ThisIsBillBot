@@ -121,7 +121,9 @@ class FightPreparationBehavior(Behavior):
     def get_near_placement_cell_id(self) -> int:
         min_dist_possible_cell_id: tuple[int, float] | None = None
 
-        for possible_cell_id in self.game_state.fight.fight_placement_possible_positions:
+        for (
+            possible_cell_id
+        ) in self.game_state.fight.fight_placement_possible_positions:
             if (
                 self.game_state.map.map_point.cell_id != possible_cell_id
                 and self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(
@@ -130,8 +132,10 @@ class FightPreparationBehavior(Behavior):
             ):
                 continue
             mp_point_possible_cell = MapPoint.from_cell_id(possible_cell_id)
-            near_enemy_with_dist = self.fight_movement_behavior.find_near_enemy_with_dist(
-                mp_point_possible_cell
+            near_enemy_with_dist = (
+                self.fight_movement_behavior.find_near_enemy_with_dist(
+                    mp_point_possible_cell
+                )
             )
             if near_enemy_with_dist is None:
                 continue
@@ -143,7 +147,9 @@ class FightPreparationBehavior(Behavior):
                 min_dist_possible_cell_id = (possible_cell_id, cost_path)
 
         if min_dist_possible_cell_id is None:
-            raise ValueError("There should be at least one possible placement position.")
+            raise ValueError(
+                "There should be at least one possible placement position."
+            )
 
         return min_dist_possible_cell_id[0]
 

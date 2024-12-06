@@ -43,19 +43,18 @@ class ActorByMpDict(dict[MapPoint, ActorByIdDict]):
 @dataclass
 class EntityState(State):
     grid_signals: GridSignals
-    actor_by_id: dict[int, ActorPositionInformation] = field(init=False)
-    actor_fight_by_id: dict[int, FightActor] = field(init=False)
-    obstacle_on_cell_id: dict[int, MapObstacle] = field(init=False)
-    actors_on_mp: ActorByMpDict = field(init=False)
+    actor_by_id: dict[int, ActorPositionInformation] = field(
+        init=False, default_factory=dict[int, ActorPositionInformation]
+    )
+    actor_fight_by_id: dict[int, FightActor] = field(
+        init=False, default_factory=dict[int, FightActor]
+    )
+    obstacle_on_cell_id: dict[int, MapObstacle] = field(
+        init=False, default_factory=dict[int, MapObstacle]
+    )
+    actors_on_mp: ActorByMpDict = field(init=False, default_factory=ActorByMpDict)
 
     def __post_init__(self) -> None:
-        actor_by_id: dict[int, ActorPositionInformation] = {}
-        actor_fight_by_id: dict[int, FightActor] = {}
-        obstacle_on_cell_id: dict[int, MapObstacle] = {}
-        self.actor_by_id = actor_by_id
-        self.actor_fight_by_id = actor_fight_by_id
-        self.obstacle_on_cell_id = obstacle_on_cell_id
-        self.actors_on_mp = ActorByMpDict()
         self.grid_signals.cell_id_clicked.connect(self.on_cell_id_clicked)
 
     def on_cell_id_clicked(self, cell_id: int):

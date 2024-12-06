@@ -1,9 +1,12 @@
 from bisect import bisect_left
+from datetime import datetime
 
 from PyQt6.QtCore import QModelIndex, pyqtSlot
 from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import TableWidget
 from qfluentwidgets.components.widgets.model_combo_box import QStandardItem
+
+from google.protobuf.message import Message
 
 from src.core.events_manager.event_manager import EventManager
 from src.core.events_manager.listener import Listener
@@ -22,12 +25,14 @@ class ListenersStatsTable(BaseTableWidget):
         ]
         self.table.set_columns(columns)
         self.table.setEditTriggers(TableWidget.EditTrigger.NoEditTriggers)
-        self.listener_to_row: dict[Listener, int] = {}
+        self.listener_to_row: dict[Listener[Message], int] = {}
 
 
 class ListenersStatsWidget(QWidget):
-    def __init__(self, event_manager: EventManager, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self, event_manager: EventManager, parent: QWidget | None = None
+    ) -> None:
+        super().__init__(parent)
         self.event_manager = event_manager
 
         layout = QVBoxLayout()
@@ -42,19 +47,19 @@ class ListenersStatsWidget(QWidget):
         self.stats_table.table.clicked.connect(self.on_row_double_clicked)
         layout.addWidget(self.stats_table)
 
-        self.sorted_listeners: list[Listener] = []
+        self.sorted_listeners: list[Listener[Message]] = []
 
         self.event_manager.signals.listeners_added.connect(self.on_listeners_added)
         self.event_manager.signals.listeners_removed.connect(self.on_listeners_removed)
 
         self.init()
 
-    def init(self):
+    def init(self) -> None:
         self.stats_table.listener_to_row.clear()
         self.stats_table.table.item_model.clear_all()
         self.sorted_listeners.clear()
 
-        all_listeners: list[Listener] = []
+        all_listeners: list[Listener[Message]] = []
         for listeners in self.event_manager.listeners_by_type_msg.values():
             all_listeners.extend(listeners)
 
@@ -63,13 +68,15 @@ class ListenersStatsWidget(QWidget):
         for row_index, listener in enumerate(self.sorted_listeners):
             self.add_listener_at_index(listener, row_index)
 
-    def get_sort_key(self, listener: Listener) -> tuple:
+    def get_sort_key(self, listener: Listener[Message]) -> tuple[datetime, str]:
         return (
             listener.registered_at,
             listener.originator.__class__.__name__,
         )
 
-    def add_listener_at_index(self, listener: Listener, row_index: int):
+    def add_listener_at_index(
+        self, listener: Listener[Message], row_index: int
+    ) -> None:
         timestamp_str = listener.registered_at.strftime("%H:%M:%S.%f")[:-3]
         originator_str = listener.originator.__class__.__name__
         type_str = listener.msg_type.__name__
@@ -90,7 +97,7 @@ class ListenersStatsWidget(QWidget):
                 self.stats_table.listener_to_row[listener_obj] = old_row + 1
 
     @pyqtSlot(list)
-    def on_listeners_added(self, added_listeners: list[Listener]):
+    def on_listeners_added(self, added_listeners: list[Listener[Message]]) -> None:
         for listener in added_listeners:
             sort_key = self.get_sort_key(listener)
             keys = [
@@ -103,7 +110,7 @@ class ListenersStatsWidget(QWidget):
             self.add_listener_at_index(listener, insert_index)
 
     @pyqtSlot(list)
-    def on_listeners_removed(self, removed_listeners: list[Listener]):
+    def on_listeners_removed(self, removed_listeners: list[Listener[Message]]) -> None:
         removed_set = set(removed_listeners)
         rows_to_remove: list[int] = []
 
@@ -129,7 +136,7 @@ class ListenersStatsWidget(QWidget):
             if listener_obj not in removed_set
         ]
 
-    def on_row_double_clicked(self, proxy_index):
+    def on_row_double_clicked(self, proxy_index: QModelIndex) -> None:
         source_index = self.stats_table.table.proxy_model.mapToSource(proxy_index)
         row = source_index.row()
 

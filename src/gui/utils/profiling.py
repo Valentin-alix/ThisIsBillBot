@@ -1,35 +1,30 @@
 import functools
-import inspect
 import threading
 from time import perf_counter
+from typing import Callable, Final, ParamSpec, TypeVar
 
 from PyQt6.QtCore import QEvent, QObject
 from PyQt6.QtWidgets import QApplication
+
+P = ParamSpec("P")
+R = TypeVar("R")
 
 EVENT_NAMES = {
     value: name for name, value in vars(QEvent).items() if isinstance(value, int)
 }
 
-PROFILING_ENABLED = False
+PROFILING_ENABLED: Final = False
 
 
-def profiled_slot(func, threshold_ms=1):
+def profiled_slot(func: Callable[P, R], threshold_ms: int = 1) -> Callable[P, R]:
     if not PROFILING_ENABLED:
         return func
 
-    sig = inspect.signature(func)
-    params = list(sig.parameters.values())
-
-    max_args = sum(
-        p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD) for p in params
-    )
-
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         start = perf_counter()
-        call_args = args[:max_args]
         try:
-            return func(*call_args, **kwargs)
+            return func(*args, **kwargs)
         finally:
             dt = (perf_counter() - start) * 1000
             if dt >= threshold_ms:
@@ -43,7 +38,7 @@ def profiled_slot(func, threshold_ms=1):
 
 
 class ProfiledApp(QApplication):
-    def notify(self, receiver: QObject, event: QEvent):  # pyright: ignore[reportIncompatibleMethodOverride]
+    def notify(self, receiver: QObject, event: QEvent):
         start = perf_counter()
         try:
             return super().notify(receiver, event)
@@ -51,7 +46,7 @@ class ProfiledApp(QApplication):
             duration = perf_counter() - start
             self._profile_event(receiver, event, duration)
 
-    def _profile_event(self, receiver, event, duration):
+    def _profile_event(self, receiver: QObject, event: QEvent, duration: float) -> None:
         if duration > 0.5:
             event_name = EVENT_NAMES.get(event.type(), str(event.type()))
             if hasattr(receiver, "objectName"):

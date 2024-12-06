@@ -121,5 +121,7 @@ class DungeonBehavior(Behavior):
         else:
             self.finish()
 
-    def on_new_map_after_exit_dungeon(self, msg: MapComplementaryInformationEvent) -> None:
+    def on_new_map_after_exit_dungeon(
+        self, msg: MapComplementaryInformationEvent
+    ) -> None:
         self.finish()

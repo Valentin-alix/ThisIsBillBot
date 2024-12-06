@@ -34,9 +34,7 @@ class HarvesterBehavior(BaseFarmBehavior):
     collect_behavior: CollectBehavior
     fight_behavior: FightBehavior
 
-    map_ids_to_explore: set[int] = field(
-        init=False, default_factory=set[int]
-    )
+    map_ids_to_explore: set[int] = field(init=False, default_factory=set[int])
 
     def run(
         self,

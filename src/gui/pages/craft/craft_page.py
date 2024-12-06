@@ -10,7 +10,7 @@ from src.gui.pages.craft.recipe_table import RecipeTable
 
 
 class CraftPage(QWidget):
-    def __init__(self, bot: Bot, parent: QWidget | None = None):
+    def __init__(self, bot: Bot, parent: QWidget | None = None) -> None:
         super().__init__(parent=parent)
 
         self.bot = bot
@@ -52,7 +52,7 @@ class CraftPage(QWidget):
         self.bot.logger.info(f"Added recipe for result {recipe.resultId}")
 
     @pyqtSlot(bool)
-    def on_play(self, _):
+    def on_play(self, _: bool) -> None:
         self.stop_btn.show()
         self.play_btn.hide()
 

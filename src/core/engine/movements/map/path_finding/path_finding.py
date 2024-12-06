@@ -35,32 +35,20 @@ class Pathfinding:
     allow_trough_entity: bool = field(init=False, default=True)
     avoid_obstacles: bool = field(init=False, default=True)
     heuristic_scale: int = field(init=False, default=HEURISTIC_SCALE)
-    node_by_coord: dict[tuple[int, int], NodeMapPoint] = field(init=False)
-    open_list: list[NodeMapPoint] = field(init=False)
-    is_coord_closed: set[tuple[int, int]] = field(init=False)
-    occupied_cell_ids: set[int] = field(init=False)
-    end_columns: set[int] = field(init=False)
-    end_lines: set[int] = field(init=False)
-    end_x_coords: set[int] = field(init=False)
-    end_y_coords: set[int] = field(init=False)
-
-    def __post_init__(self) -> None:
-        node_by_coord: dict[tuple[int, int], NodeMapPoint] = {}
-        open_list: list[NodeMapPoint] = []
-        is_coord_closed: set[tuple[int, int]] = set()
-        occupied_cell_ids: set[int] = set()
-        end_columns: set[int] = set()
-        end_lines: set[int] = set()
-        end_x_coords: set[int] = set()
-        end_y_coords: set[int] = set()
-        self.node_by_coord = node_by_coord
-        self.open_list = open_list
-        self.is_coord_closed = is_coord_closed
-        self.occupied_cell_ids = occupied_cell_ids
-        self.end_columns = end_columns
-        self.end_lines = end_lines
-        self.end_x_coords = end_x_coords
-        self.end_y_coords = end_y_coords
+    node_by_coord: dict[tuple[int, int], NodeMapPoint] = field(
+        init=False, default_factory=dict[tuple[int, int], NodeMapPoint]
+    )
+    open_list: list[NodeMapPoint] = field(
+        init=False, default_factory=list[NodeMapPoint]
+    )
+    is_coord_closed: set[tuple[int, int]] = field(
+        init=False, default_factory=set[tuple[int, int]]
+    )
+    occupied_cell_ids: set[int] = field(init=False, default_factory=set[int])
+    end_columns: set[int] = field(init=False, default_factory=set[int])
+    end_lines: set[int] = field(init=False, default_factory=set[int])
+    end_x_coords: set[int] = field(init=False, default_factory=set[int])
+    end_y_coords: set[int] = field(init=False, default_factory=set[int])
 
     def get_interactive_near_path(
         self,

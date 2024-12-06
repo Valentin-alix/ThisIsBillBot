@@ -22,11 +22,9 @@ class Frame(ContextualLogger):
 
     priority: PriorityEnum = field(default=PriorityEnum.FRAME, init=False)
 
-    _timers: list[Timer] = field(init=False)
+    _timers: list[Timer] = field(init=False, default_factory=list[Timer])
 
     def __post_init__(self) -> None:
-        timers: list[Timer] = []
-        self._timers = timers
         self.game_info_signals.disconnected.connect(self.on_disconnected)
 
     def on_disconnected(self) -> None:

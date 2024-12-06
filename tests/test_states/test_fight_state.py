@@ -29,10 +29,35 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
 from datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
-from tests.test_states.state_test_base import StateTestBase
+from src.core.bot.bot_factory import BotFactory
+from src.core.signals.shared_farm_signals import SharedSignals
+from tests.test_states.state_test_base import StateTestBase, TEST_ACCOUNT
 
 
 class TestFightState(StateTestBase):
+    def test_collection_fields_are_not_shared_between_instances(self):
+        other_bot = BotFactory.create_bot(
+            SharedSignals(), account=TEST_ACCOUNT, is_fake=True
+        )
+
+        assert (
+            self.game_state.fight.fight_placement_possible_positions
+            is not other_bot.game_state.fight.fight_placement_possible_positions
+        )
+        assert self.game_state.fight.spells is not other_bot.game_state.fight.spells
+        assert (
+            self.game_state.fight.modifier_by_type_and_spell_id
+            is not other_bot.game_state.fight.modifier_by_type_and_spell_id
+        )
+        assert (
+            self.game_state.fight.count_casted_by_spell_id_on_current_turn
+            is not other_bot.game_state.fight.count_casted_by_spell_id_on_current_turn
+        )
+        assert (
+            self.game_state.fight.characteristic_by_id
+            is not other_bot.game_state.fight.characteristic_by_id
+        )
+
     def test_fight_starting_clears_counters(self):
         self.game_state.fight.count_casted_by_spell_id_on_current_turn[123] = 5
         self.game_state.fight.modifier_by_type_and_spell_id[

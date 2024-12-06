@@ -3,13 +3,16 @@ from typing import override
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.i18n import I18N
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem
+from PyQt6.QtWidgets import QWidget
 
 from src.gui.components.group_list import GroupList
 
 
 class RecipeGroup(GroupList[RecipeItem]):
-    def __init__(self, recipes: list[RecipeItem], **kwargs) -> None:
-        super().__init__(items=recipes, is_lazy_loaded=True, **kwargs)
+    def __init__(
+        self, recipes: list[RecipeItem], parent: QWidget | None = None
+    ) -> None:
+        super().__init__(items=recipes, is_lazy_loaded=True, parent=parent)
 
     @property
     def recipes(self):

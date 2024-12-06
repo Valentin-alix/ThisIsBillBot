@@ -15,9 +15,9 @@ class LineAstar(Astar[int]):
 
 class TestAstar(unittest.TestCase):
     def test_find_path_helper_honors_do_reverse(self) -> None:
-        def get_neighbors(current: int) -> Iterator[int]:
-            if current < 3:
-                yield current + 1
+        def get_neighbors(node: int) -> Iterator[int]:
+            if node < 3:
+                yield node + 1
 
         def get_distance(current: int, ends: set[int]) -> float:
             return min(abs(current - end) for end in ends)
@@ -33,7 +33,8 @@ class TestAstar(unittest.TestCase):
         self.assertEqual(path, [3, 2, 1])
 
     def test_find_path_helper_returns_none_when_unreachable(self) -> None:
-        def get_neighbors(_: int) -> Iterator[int]:
+        def get_neighbors(node: int) -> Iterator[int]:
+            del node
             yield from ()
 
         def get_distance(current: int, ends: set[int]) -> float:

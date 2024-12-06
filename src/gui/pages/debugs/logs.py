@@ -13,9 +13,12 @@ from src.services.logging.log_level import LogLevel
 
 class LogsWidget(QWidget):
     def __init__(
-        self, global_signals: GlobalLogSignals, log_signals: LogSignals, *args, **kwargs
-    ):
-        super().__init__(*args, **kwargs)
+        self,
+        global_signals: GlobalLogSignals,
+        log_signals: LogSignals,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent=parent)
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(4, 4, 4, 4)
         self.v_layout.setSpacing(4)
@@ -40,10 +43,10 @@ class LogsWidget(QWidget):
         log_signals.log_emitted.connect(profiled_slot(self.on_log_emitted))
         self.global_signals.log_emitted.connect(profiled_slot(self.on_log_emitted))
 
-    def on_log_emitted(self, log_level: LogLevel, msg: str):
+    def on_log_emitted(self, log_level: LogLevel, msg: str) -> None:
         self.logs_table.add_row(log_level, msg)
 
-    def on_export_logs(self):
+    def on_export_logs(self) -> None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         default_filename = f"logs_{timestamp}.txt"
 

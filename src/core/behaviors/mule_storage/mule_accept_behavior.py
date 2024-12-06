@@ -68,12 +68,11 @@ class MuleAcceptBehavior(Behavior):
             )
 
         if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
+
             def on_unload_finished(_error_code: str | None) -> None:
                 self.stand_ready_for_exchanges()
 
-            self.unload_behavior.start(
-                callback=on_unload_finished, parent=self
-            )
+            self.unload_behavior.start(callback=on_unload_finished, parent=self)
         else:
             self.stand_ready_for_exchanges()
 
@@ -98,6 +97,7 @@ class MuleAcceptBehavior(Behavior):
             ExchangeRequestedTradeEvent,
             reason="Inactivity timeout, switching to scraping mode",
         )
+
         def on_scraping_finished(_error_code: str | None) -> None:
             self.go_bank_map()
 
@@ -105,7 +105,9 @@ class MuleAcceptBehavior(Behavior):
             callback=on_scraping_finished, parent=self
         )
 
-    def on_exchange_requested_trade_event(self, msg: ExchangeRequestedTradeEvent) -> None:
+    def on_exchange_requested_trade_event(
+        self, msg: ExchangeRequestedTradeEvent
+    ) -> None:
         if self._timer_go_scraping:
             self._timer_go_scraping.cancel()
             self._timer_go_scraping = None
@@ -120,7 +122,9 @@ class MuleAcceptBehavior(Behavior):
         )
         self.send_message_delayed(ExchangeAcceptRequest(), BASE_RANGE)
 
-    def on_exchange_started_with_pods_event(self, msg: ExchangeStartedWithPodsEvent) -> None:
+    def on_exchange_started_with_pods_event(
+        self, msg: ExchangeStartedWithPodsEvent
+    ) -> None:
         self.event_manager.on(
             ExchangeLeaveEvent,
             self.on_exchange_leave_event,

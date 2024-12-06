@@ -1,11 +1,12 @@
+from functools import partial
 from typing import Literal
 
 from ankama_launcher_emulator_premium.utils.internet import (
     get_available_network_interfaces,
 )
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtGui import QColor, QIcon
-from PyQt6.QtWidgets import QHBoxLayout
+from PyQt6.QtGui import QCloseEvent, QColor, QIcon
+from PyQt6.QtWidgets import QHBoxLayout, QWidget
 from qfluentwidgets import (
     BodyLabel,
     FluentIcon,
@@ -57,11 +58,11 @@ class MainWindow(AppFluentWindow):
         self._init_sync_button()
         self.shared_signals.new_bot_added.connect(self.add_account)
 
-    def init_accounts(self, account_by_id: dict[int, Bot]):
+    def init_accounts(self, account_by_id: dict[int, Bot]) -> None:
         for account in account_by_id.values():
             self.add_account(account)
 
-    def add_account(self, account: Bot):
+    def add_account(self, account: Bot) -> None:
         login = account.account["apikey"]["login"]
         self.bots_by_login[login] = account
 
@@ -84,20 +85,20 @@ class MainWindow(AppFluentWindow):
         selected_profile = current_config.schedule_profile if current_config else None
         navigation_widget.populate_schedule_profiles(profiles, selected_profile)
         navigation_widget.schedule_profile_changed.connect(
-            lambda profile_id: self._on_schedule_profile_changed(login, profile_id)
+            partial(self._on_schedule_profile_changed, login)
         )
 
         interfaces = get_available_network_interfaces()
         selected_ip = current_config.network_interface if current_config else None
         navigation_widget.populate_network_interfaces(interfaces, selected_ip)
         navigation_widget.network_interface_changed.connect(
-            lambda ip: self._on_network_interface_changed(login, ip)
+            partial(self._on_network_interface_changed, login)
         )
 
         selected_mode = current_config.connection_mode if current_config else "mitm"
         navigation_widget.populate_connection_mode(selected_mode)
         navigation_widget.connection_mode_changed.connect(
-            lambda mode: self._on_connection_mode_changed(login, mode)
+            partial(self._on_connection_mode_changed, login)
         )
 
         account.game_info_signals.character_name.connect(navigation_widget.set_title)
@@ -113,7 +114,7 @@ class MainWindow(AppFluentWindow):
             lambda: navigation_widget.set_title(login)
         )
 
-    def _on_schedule_profile_changed(self, login: str, profile_id: str):
+    def _on_schedule_profile_changed(self, login: str, profile_id: str) -> None:
         profile = profile_id if profile_id else None
 
         configs = BotConfigController().get_bot_config_by_login()
@@ -130,7 +131,7 @@ class MainWindow(AppFluentWindow):
         if bot:
             bot.scheduler.update_profile(profile)
 
-    def _on_network_interface_changed(self, login: str, ip: str):
+    def _on_network_interface_changed(self, login: str, ip: str) -> None:
         configs = BotConfigController().get_bot_config_by_login()
         existing_config = configs.get(login)
         if existing_config:
@@ -141,7 +142,7 @@ class MainWindow(AppFluentWindow):
             updated_config = BotConfig(network_interface=ip if ip else None)
         BotConfigController().update_bot_config_by_login(updated_config, login)
 
-    def _on_connection_mode_changed(self, login: str, mode: str):
+    def _on_connection_mode_changed(self, login: str, mode: str) -> None:
         typed_mode: Literal["mitm", "socket"] = "socket" if mode == "socket" else "mitm"
         configs = BotConfigController().get_bot_config_by_login()
         existing_config = configs.get(login)
@@ -153,9 +154,9 @@ class MainWindow(AppFluentWindow):
             updated_config = BotConfig(connection_mode=typed_mode)
         BotConfigController().update_bot_config_by_login(updated_config, login)
 
-    def _init_debug_button(self):
+    def _init_debug_button(self) -> None:
         class DebugSwitchWidget(NavigationWidget):
-            def __init__(self, parent=None):
+            def __init__(self, parent: QWidget | None = None) -> None:
                 super().__init__(isSelectable=False, parent=parent)
                 self.setFixedHeight(48)
                 layout = QHBoxLayout(self)
@@ -185,21 +186,21 @@ class MainWindow(AppFluentWindow):
             position=NavigationItemPosition.BOTTOM,
         )
 
-    def _on_debug_toggled(self, checked: bool):
+    def _on_debug_toggled(self, checked: bool) -> None:
         const.DEBUG = checked
 
         for account_widget in self.account_widgets:
             account_widget.set_debug_visibility(checked)
 
-    def _init_sync_button(self):
-        def manage_visibility_sync_btn(display_mode: NavigationDisplayMode):
+    def _init_sync_button(self) -> None:
+        def manage_visibility_sync_btn(display_mode: NavigationDisplayMode) -> None:
             if display_mode == NavigationDisplayMode.COMPACT:
                 self.sync_widget.hide()
             else:
                 self.sync_widget.show()
 
         class SyncButtonWidget(NavigationWidget):
-            def __init__(self, parent=None):
+            def __init__(self, parent: QWidget | None = None) -> None:
                 super().__init__(isSelectable=False, parent=parent)
                 layout = QHBoxLayout(self)
                 layout.setContentsMargins(12, 0, 12, 0)
@@ -218,6 +219,6 @@ class MainWindow(AppFluentWindow):
             position=NavigationItemPosition.BOTTOM,
         )
 
-    def closeEvent(self, *args, **kwargs):
+    def closeEvent(self, event: QCloseEvent | None) -> None:
         self.shared_signals.closed.emit()
-        return super().closeEvent(*args, **kwargs)
+        super().closeEvent(event)

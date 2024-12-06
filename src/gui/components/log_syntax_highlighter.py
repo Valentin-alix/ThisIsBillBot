@@ -1,11 +1,17 @@
 import re
 
-from PyQt6.QtGui import QColor, QFont, QSyntaxHighlighter, QTextCharFormat
+from PyQt6.QtGui import (
+    QColor,
+    QFont,
+    QSyntaxHighlighter,
+    QTextCharFormat,
+    QTextDocument,
+)
 
 
 class LogSyntaxHighlighter(QSyntaxHighlighter):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, document: QTextDocument | None = None) -> None:
+        super().__init__(document)
 
         self.default_format = QTextCharFormat()
         self.default_format.setForeground(QColor("#D4D4D4"))

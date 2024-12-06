@@ -1,16 +1,22 @@
 import datetime
+import json
 import random
 
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.i18n import I18N
-from src.protocol.message import MessageInfo
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItem,
     ObjectItemInventory,
 )
+from src.core.bot.bot import Bot
 from src.core.bot.bot_factory import BotFactory
 from src.core.signals.shared_farm_signals import SharedSignals
+from src.protocol.message import MessageInfo
 from src.services.logging.logger import Logger
+
+type LogPayloadScalar = str | int | float | bool
+type LogPayloadNested = dict[str, LogPayloadScalar]
+type LogPayloadValue = LogPayloadScalar | LogPayloadNested
 
 
 def generate_random_message_info() -> MessageInfo:
@@ -48,7 +54,7 @@ def generate_random_messages(count: int) -> list[MessageInfo]:
     return [generate_random_message_info() for _ in range(count)]
 
 
-def generate_random_bot():
+def generate_random_bot() -> Bot:
     login = f"CertUser{random.randint(1, 10_000)}"
     return BotFactory.create_bot(
         SharedSignals(),
@@ -99,7 +105,7 @@ def generate_random_log(logger: Logger) -> None:
 
     lvl = random.choice(levels)
     tpl = random.choice(templates)
-    payload = {
+    payload: dict[str, LogPayloadValue] = {
         "user": f"user{random.randint(1, 1000)}",
         "action": random.choice(["login", "logout", "buy", "sell", "update"]),
         "res": random.choice(["inventory", "profile", "map", "bank"]),
@@ -121,27 +127,27 @@ def generate_random_log(logger: Logger) -> None:
     }
 
     # ensure complex fields are rendered as readable strings (no raw dicts)
-    payload_for_format = payload.copy()
-    if isinstance(payload_for_format.get("payload"), dict):
-        try:
-            import json
+    payload_for_format: dict[str, LogPayloadScalar] = {}
+    for key, value in payload.items():
+        if isinstance(value, dict):
+            try:
+                payload_for_format[key] = json.dumps(value, separators=(",", ":"))
+            except Exception:
+                payload_for_format[key] = str(value)
+            continue
 
-            payload_for_format["payload"] = json.dumps(
-                payload_for_format["payload"], separators=(",", ":")
-            )
-        except Exception:
-            payload_for_format["payload"] = str(payload_for_format["payload"])
+        payload_for_format[key] = value
 
     try:
         msg_text = tpl.format(**payload_for_format)
     except Exception:
         # fallback: produce a human readable sentence from keys
-        parts = [f"{k}={v}" for k, v in payload_for_format.items()]
+        parts = [f"{key}={value}" for key, value in payload_for_format.items()]
         msg_text = " ".join(parts)
 
     if lvl == "error" and random.random() < 0.25:
         try:
-            raise RuntimeError(f"Simulated error for {payload.get('id')}")
+            raise RuntimeError(f"Simulated error for {payload['id']}")
         except Exception:
             tb = traceback.format_exc()
             logger.error(f"{msg_text}\n{tb}")

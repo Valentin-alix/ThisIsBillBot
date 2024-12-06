@@ -7,7 +7,6 @@ from langchain_core.tools import BaseTool
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.base import BaseCheckpointSaver
 
-
 class AgentGraph:
     def invoke(
         self,
@@ -15,7 +14,6 @@ class AgentGraph:
         config: RunnableConfig | None = None,
         **kwargs: Any,
     ) -> dict[str, list[BaseMessage]]: ...
-
 
 def create_agent(
     model: str | BaseChatModel,

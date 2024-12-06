@@ -82,7 +82,10 @@ class TestGuildChestState(StateTestBase):
         assert 1 in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID]
         assert 100 in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1]
         assert 200 in CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1]
-        assert CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1][100].item.quantity == 10
+        assert (
+            CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1][100].item.quantity
+            == 10
+        )
 
     def test_exchange_object_move_from_inventory_to_chest(self):
         self.game_state.guild_chest.tab_number = 1
@@ -103,7 +106,10 @@ class TestGuildChestState(StateTestBase):
         msg_move = ExchangeObjectMoveRequest(object_uid=1, quantity=3)
         self.inject(msg_move)
 
-        assert CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1][100].item.quantity == 8
+        assert (
+            CHEST_OBJECT_BY_GID_BY_TAB_BY_SERVER[TEST_SERVER_ID][1][100].item.quantity
+            == 8
+        )
 
     def test_exchange_object_move_removes_item_when_quantity_zero(self):
         self.game_state.guild_chest.tab_number = 1

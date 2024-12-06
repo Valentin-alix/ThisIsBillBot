@@ -13,7 +13,15 @@ class AppModel(BaseModel):
 
 
 F = TypeVar("F", bound=Callable[..., Any])
-SerializedValue: TypeAlias = str | int | float | bool | None | list["SerializedValue"] | dict[str, "SerializedValue"]
+SerializedValue: TypeAlias = (
+    str
+    | int
+    | float
+    | bool
+    | None
+    | list["SerializedValue"]
+    | dict[str, "SerializedValue"]
+)
 
 
 def ValidatedCall(func: F) -> F:

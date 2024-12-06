@@ -38,9 +38,7 @@ class MuleGiveBehavior(Behavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
 
     _step: int = field(init=False, default=0)
-    _mule_bank_character_ids: list[int] = field(
-        init=False, default_factory=list[int]
-    )
+    _mule_bank_character_ids: list[int] = field(init=False, default_factory=list[int])
 
     def run(self) -> None:
         self.on_get_mule_bank_ids(list(MULE_BANK_CHARACTER_IDS))
@@ -99,7 +97,9 @@ class MuleGiveBehavior(Behavior):
         req = ExchangePlayerRequest(target_id=mule_id)
         self.send_message_delayed(req, BASE_RANGE)
 
-    def on_exchange_started_with_pods_event(self, msg: ExchangeStartedWithPodsEvent) -> None:
+    def on_exchange_started_with_pods_event(
+        self, msg: ExchangeStartedWithPodsEvent
+    ) -> None:
         self._step = 0
         if self.game_state.player.is_sub:
             return self.depose_kamas_in_exchange(True)
@@ -184,7 +184,9 @@ class MuleGiveBehavior(Behavior):
         req = ExchangeObjectTransferAllFromInventoryRequest()
         self.send_message_delayed(req, BASE_RANGE)
 
-    def on_objects_deposed_after_transfer_all(self, msg: ExchangeObjectsAddedEvent) -> None:
+    def on_objects_deposed_after_transfer_all(
+        self, msg: ExchangeObjectsAddedEvent
+    ) -> None:
         self._step += 1
         self.depose_kamas_in_exchange(True)
 

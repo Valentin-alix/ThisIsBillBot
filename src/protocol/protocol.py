@@ -1,8 +1,6 @@
 import socket as socket_module
 
 from google.protobuf.descriptor import Descriptor
-from google.protobuf.internal.decoder import _DecodeVarint  # type: ignore
-from google.protobuf.internal.encoder import _VarintBytes  # type: ignore
 from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
 
@@ -10,12 +8,27 @@ from src.protocol.protocol_game import POOL
 
 
 def decode_varint_size(data: bytes) -> tuple[int, int]:
-    size, new_pos = _DecodeVarint(data, 0)
-    return size, new_pos
+    size = 0
+    shift = 0
+    for index, byte in enumerate(data):
+        size |= (byte & 0x7F) << shift
+        if not (byte & 0x80):
+            return size, index + 1
+        shift += 7
+    raise ValueError("Incomplete varint payload")
 
 
 def encode_varint(value: int) -> bytes:
-    return _VarintBytes(value)
+    if value < 0:
+        raise ValueError("Varint encoding only supports non-negative integers")
+
+    encoded = bytearray()
+    remaining = value
+    while remaining >= 0x80:
+        encoded.append((remaining & 0x7F) | 0x80)
+        remaining >>= 7
+    encoded.append(remaining)
+    return bytes(encoded)
 
 
 def encode_msg(msg: Message) -> bytes:

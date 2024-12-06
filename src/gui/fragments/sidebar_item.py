@@ -1,8 +1,8 @@
 import os
 
 from PyQt6.QtCore import QMargins, QPoint, QRect, Qt, pyqtSignal
-from PyQt6.QtGui import QColor, QCursor, QIcon, QPainter
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QSpacerItem
+from PyQt6.QtGui import QColor, QCursor, QIcon, QPaintEvent, QPainter
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QSpacerItem, QWidget
 from qfluentwidgets import (
     BodyLabel,
     ComboBox,
@@ -31,8 +31,8 @@ class SidebarItem(NavigationWidget):
         left_icon: FluentIcon | QIcon,
         title: str,
         isSelectable: bool,
-        parent=None,
-    ):
+        parent: QWidget | None = None,
+    ) -> None:
         super().__init__(
             isSelectable=isSelectable,
             parent=parent,
@@ -94,14 +94,14 @@ class SidebarItem(NavigationWidget):
         self._mode_combo.currentIndexChanged.connect(self._on_mode_changed)
         self.main_layout.addWidget(self._mode_combo)
 
-    def show_battle_icon(self, show: bool):
+    def show_battle_icon(self, show: bool) -> None:
         self.in_fight = show
         if show:
             self._right_icon.show()
         else:
             self._right_icon.hide()
 
-    def setCompacted(self, isCompacted: bool):
+    def setCompacted(self, isCompacted: bool) -> None:
         """set whether the widget is compacted"""
         if isCompacted == self.isCompacted:
             return
@@ -131,21 +131,21 @@ class SidebarItem(NavigationWidget):
 
         self.update()
 
-    def _margins(self):
+    def _margins(self) -> QMargins:
         return QMargins(0, 0, 0, 0)
 
-    def _canDrawIndicator(self):
+    def _canDrawIndicator(self) -> bool:
         return self.isSelected
 
-    def set_left_icon(self, icon: QIcon | FluentIcon):
+    def set_left_icon(self, icon: QIcon | FluentIcon) -> None:
         self._left_icon.setPixmap(toQIcon(icon).pixmap(16))
 
-    def set_title(self, text: str):
+    def set_title(self, text: str) -> None:
         self._title.setText(text)
 
     def populate_network_interfaces(
         self, interfaces: dict[str, tuple[str, str]], selected_ip: str | None
-    ):
+    ) -> None:
         self._network_combo.blockSignals(True)
         self._network_combo.clear()
         self._network_combo.addItem("Auto", userData=None)
@@ -162,7 +162,7 @@ class SidebarItem(NavigationWidget):
 
     def populate_schedule_profiles(
         self, profiles: dict[str, str], selected_profile: str | None
-    ):
+    ) -> None:
         self._profile_combo.blockSignals(True)
         self._profile_combo.clear()
         self._profile_combo.addItem("Vide", userData=None)
@@ -177,42 +177,42 @@ class SidebarItem(NavigationWidget):
             self._profile_combo.setCurrentIndex(0)
         self._profile_combo.blockSignals(False)
 
-    def _on_profile_changed(self):
+    def _on_profile_changed(self) -> None:
         profile_id = self._profile_combo.currentData()
         self.schedule_profile_changed.emit(profile_id if profile_id else "")
 
-    def _on_network_interface_changed(self):
+    def _on_network_interface_changed(self) -> None:
         ip = self._network_combo.currentData()
         self.network_interface_changed.emit(ip if ip else "")
 
-    def populate_connection_mode(self, selected_mode: str):
+    def populate_connection_mode(self, selected_mode: str) -> None:
         for i in range(self._mode_combo.count()):
             if self._mode_combo.itemData(i) == selected_mode:
                 self._mode_combo.setCurrentIndex(i)
                 return
 
-    def _on_mode_changed(self):
+    def _on_mode_changed(self) -> None:
         mode = self._mode_combo.currentData()
         self.connection_mode_changed.emit(mode if mode else "mitm")
 
-    def on_click_play(self):
+    def on_click_play(self) -> None:
         self.bot_signals.play.emit(True)
         self.bot_signals.play_auto_bot.emit()
 
-    def on_click_stop(self):
+    def on_click_stop(self) -> None:
         self.bot_signals.stop.emit()
 
-    def on_play(self, _):
+    def on_play(self, _: bool) -> None:
         self._is_playing = True
         self._stop_btn.show()
         self._play_btn.hide()
 
-    def on_stop(self):
+    def on_stop(self) -> None:
         self._is_playing = False
         self._play_btn.show()
         self._stop_btn.hide()
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         painter = QPainter(self)
         painter.setRenderHints(
             QPainter.RenderHint.Antialiasing

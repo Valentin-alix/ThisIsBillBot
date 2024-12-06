@@ -17,9 +17,11 @@ T = TypeVar("T", bound=Message)
 
 @dataclass
 class EventManager(ContextualLogger):
-    modifier_by_type_msg: dict[type[Message], Modifier[Message]] = field(init=False)
+    modifier_by_type_msg: dict[type[Message], Modifier[Message]] = field(
+        init=False, default_factory=dict[type[Message], Modifier[Message]]
+    )
     listeners_by_type_msg: defaultdict[type[Message], list[Listener[Message]]] = field(
-        init=False
+        init=False, default_factory=lambda: defaultdict(list)
     )
     on_send_game_callback: Callable[[Message], None] | None = field(
         init=False, default=None
@@ -34,12 +36,6 @@ class EventManager(ContextualLogger):
     signals: EventManagerSignals = field(init=False)
 
     def __post_init__(self) -> None:
-        modifier_by_type_msg: dict[type[Message], Modifier[Message]] = {}
-        listeners_by_type_msg: defaultdict[type[Message], list[Listener[Message]]] = (
-            defaultdict(list)
-        )
-        self.modifier_by_type_msg = modifier_by_type_msg
-        self.listeners_by_type_msg = listeners_by_type_msg
         self.lock = RLock()
         self.signals = EventManagerSignals()
 

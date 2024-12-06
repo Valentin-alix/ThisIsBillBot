@@ -17,17 +17,15 @@ class FightReachableCells:
     game_state: GameState
     debug_signals: MapSignals | None = None
 
-    reachable_cost_by_mp: dict[MapPoint, int] = field(init=False)
-    node_by_mp: dict[MapPoint, ReachableMpNode] = field(init=False)
-    open_node: set[ReachableMpNode] = field(init=False)
-
-    def __post_init__(self) -> None:
-        reachable_cost_by_mp: dict[MapPoint, int] = {}
-        node_by_mp: dict[MapPoint, ReachableMpNode] = {}
-        open_node: set[ReachableMpNode] = set()
-        self.reachable_cost_by_mp = reachable_cost_by_mp
-        self.node_by_mp = node_by_mp
-        self.open_node = open_node
+    reachable_cost_by_mp: dict[MapPoint, int] = field(
+        init=False, default_factory=dict[MapPoint, int]
+    )
+    node_by_mp: dict[MapPoint, ReachableMpNode] = field(
+        init=False, default_factory=dict[MapPoint, ReachableMpNode]
+    )
+    open_node: set[ReachableMpNode] = field(
+        init=False, default_factory=set[ReachableMpNode]
+    )
 
     def search(
         self, enemies_mp: set[MapPoint], entities_mp: Iterable[MapPoint]

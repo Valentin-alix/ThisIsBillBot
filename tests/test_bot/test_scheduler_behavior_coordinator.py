@@ -60,7 +60,9 @@ def _build_behavior_coordinator_stubs() -> dict[str, types.ModuleType]:
         def logger(self) -> object:
             return self._logger
 
-    contextual_logger_module = types.ModuleType("src.services.logging.contextual_logger")
+    contextual_logger_module = types.ModuleType(
+        "src.services.logging.contextual_logger"
+    )
     setattr(contextual_logger_module, "ContextualLogger", ContextualLogger)
 
     class FakeBehavior:
@@ -149,8 +151,12 @@ def _build_scheduler_stubs() -> dict[str, types.ModuleType]:
             del profile_id
             return None
 
-    schedule_profile_module = types.ModuleType("src.controller.schedule_profile_controller")
-    setattr(schedule_profile_module, "ScheduleProfileController", ScheduleProfileController)
+    schedule_profile_module = types.ModuleType(
+        "src.controller.schedule_profile_controller"
+    )
+    setattr(
+        schedule_profile_module, "ScheduleProfileController", ScheduleProfileController
+    )
 
     @dataclass
     class ContextualLogger:
@@ -160,7 +166,9 @@ def _build_scheduler_stubs() -> dict[str, types.ModuleType]:
         def logger(self) -> object:
             return self._logger
 
-    contextual_logger_module = types.ModuleType("src.services.logging.contextual_logger")
+    contextual_logger_module = types.ModuleType(
+        "src.services.logging.contextual_logger"
+    )
     setattr(contextual_logger_module, "ContextualLogger", ContextualLogger)
 
     behavior_coordinator_module = types.ModuleType(
@@ -290,10 +298,12 @@ class TestBotScheduler(unittest.TestCase):
             slots_by_day={"0": [SimpleNamespace(start="10:00", end="11:00")]}
         )
 
-        with patch.object(
-            module.ScheduleProfileController, "get_profile", return_value=profile
-        ), patch.object(module, "_add_random_minutes", return_value="10:03"), patch.object(
-            module, "_subtract_random_minutes", return_value="10:57"
+        with (
+            patch.object(
+                module.ScheduleProfileController, "get_profile", return_value=profile
+            ),
+            patch.object(module, "_add_random_minutes", return_value="10:03"),
+            patch.object(module, "_subtract_random_minutes", return_value="10:57"),
         ):
             bot_scheduler._schedule_profile_jobs("weekday")
 

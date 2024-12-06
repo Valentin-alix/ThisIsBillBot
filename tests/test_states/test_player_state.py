@@ -14,7 +14,9 @@ from datas.protos.non_obf.game.job_pb2 import (
 from datas.protos.non_obf.game.teleportation_pb2 import (
     ZaapKnownListEvent,
 )
-from tests.test_states.state_test_base import StateTestBase
+from src.core.bot.bot_factory import BotFactory
+from src.core.signals.shared_farm_signals import SharedSignals
+from tests.test_states.state_test_base import StateTestBase, TEST_ACCOUNT
 
 
 class TestPlayerState(StateTestBase):
@@ -25,6 +27,20 @@ class TestPlayerState(StateTestBase):
         assert len(self.game_state.player.waypoint_map_ids) == 0
         assert len(self.game_state.player.jobs_lvl_by_id) == 0
         assert self.game_state.player.server_id == 1
+
+    def test_collection_fields_are_not_shared_between_instances(self):
+        other_bot = BotFactory.create_bot(
+            SharedSignals(), account=TEST_ACCOUNT, is_fake=True
+        )
+
+        assert (
+            self.game_state.player.waypoint_map_ids
+            is not other_bot.game_state.player.waypoint_map_ids
+        )
+        assert (
+            self.game_state.player.jobs_lvl_by_id
+            is not other_bot.game_state.player.jobs_lvl_by_id
+        )
 
     def test_clear_state_resets_values(self):
         self.game_state.player.level = 200

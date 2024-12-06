@@ -1,4 +1,4 @@
-from typing import Any
+from typing import TypeAlias
 
 from cachetools import LRUCache, cached
 from PyQt6.QtCore import Qt, QTimer
@@ -11,6 +11,16 @@ from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
 from src.gui.consts import GREEN_COLOR
 from src.gui.pages.debugs.message_filter_proxy import MessageFilterProxyModel
+
+MessageTreeValue: TypeAlias = (
+    str | int | float | bool | None | dict[str, "MessageTreeValue"] | list["MessageTreeValue"]
+)
+
+
+def _deep_count_fields_cache_key(
+    _: "MessageTable", sub_msg_name: str, __: MessageTreeValue
+) -> str:
+    return sub_msg_name
 
 
 class MessageTable(BaseTableWidget):
@@ -44,8 +54,8 @@ class MessageTable(BaseTableWidget):
 
         self.table.setEditTriggers(TableWidget.EditTrigger.NoEditTriggers)
 
-    @cached(cache=LRUCache(maxsize=500), key=lambda _, sub_msg_name, __: sub_msg_name)
-    def deep_count_fields(self, sub_msg_name: str, dico: Any) -> int:
+    @cached(cache=LRUCache[str, int](maxsize=500), key=_deep_count_fields_cache_key)
+    def deep_count_fields(self, sub_msg_name: str, dico: MessageTreeValue) -> int:
         if not isinstance(dico, dict):
             return 1
         count = len(dico)
@@ -57,16 +67,16 @@ class MessageTable(BaseTableWidget):
                     count += self.deep_count_fields(sub_msg_name, value_part)
         return count
 
-    def add_row(self, msg_info: MessageInfo, was_send_from_proxy: bool):
+    def add_row(self, msg_info: MessageInfo, was_send_from_proxy: bool) -> None:
         self._pending_messages.append((msg_info, was_send_from_proxy))
         if not self._batch_timer.isActive():
             self._batch_timer.start()
 
-    def _flush_pending_messages(self):
+    def _flush_pending_messages(self) -> None:
         if not self._pending_messages:
             return
 
-        rows_to_add = []
+        rows_to_add: list[list[QStandardItem]] = []
         for msg_info, was_send_from_proxy in self._pending_messages:
             date_field = QStandardItem(msg_info.received_time.strftime("%H:%M:%S"))
             origin_field = QStandardItem("S" if msg_info.from_server else "C")

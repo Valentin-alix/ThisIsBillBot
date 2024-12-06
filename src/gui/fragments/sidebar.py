@@ -1,7 +1,8 @@
-from typing import Union
+from typing import Callable, Union
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QWidget
 from qfluentwidgets import (
     FluentIconBase,
     NavigationInterface,
@@ -15,8 +16,12 @@ from src.gui.fragments.sidebar_panel import SidebarPanel
 
 class Sidebar(NavigationInterface):
     def __init__(
-        self, parent=None, showMenuButton=True, showReturnButton=False, collapsible=True
-    ):
+        self,
+        parent: QWidget | None = None,
+        showMenuButton: bool = True,
+        showReturnButton: bool = False,
+        collapsible: bool = True,
+    ) -> None:
         """
         Parameters
         ----------
@@ -50,9 +55,9 @@ class Sidebar(NavigationInterface):
         routeKey: str,
         icon: Union[str, QIcon, FluentIconBase],
         text: str,
-        onClick=None,
-        selectable=True,
-        position=NavigationItemPosition.TOP,
+        onClick: Callable[[], None] | None = None,
+        selectable: bool = True,
+        position: NavigationItemPosition = NavigationItemPosition.TOP,
         tooltip: str | None = None,
         parentRouteKey: str | None = None,
     ) -> NavigationTreeWidget:
@@ -106,11 +111,11 @@ class Sidebar(NavigationInterface):
         index: int,
         routeKey: str,
         widget: NavigationWidget,
-        onClick=None,
-        position=NavigationItemPosition.TOP,
+        onClick: Callable[[], None] | None = None,
+        position: NavigationItemPosition = NavigationItemPosition.TOP,
         tooltip: str | None = None,
         parentRouteKey: str | None = None,
-    ):
+    ) -> None:
         """insert custom widget
 
         Parameters

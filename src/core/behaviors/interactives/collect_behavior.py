@@ -128,7 +128,9 @@ class CollectBehavior(Behavior):
             else:
                 self.collect_map()
 
-    def _do_look_around(self, move_path: MovementPath, collectable: Collectable) -> None:
+    def _do_look_around(
+        self, move_path: MovementPath, collectable: Collectable
+    ) -> None:
         adjacent_cell = self._get_random_walkable_cell_nearby()
         if adjacent_cell is None:
             return self.run_timer(

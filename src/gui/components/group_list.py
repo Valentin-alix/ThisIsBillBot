@@ -18,9 +18,12 @@ class GroupListSignals(QObject):
 
 class GroupList[T](QGroupBox):
     def __init__(
-        self, items: list[T], is_lazy_loaded: bool = False, *args, **kwargs
+        self,
+        items: list[T],
+        is_lazy_loaded: bool = False,
+        parent: QWidget | None = None,
     ) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(parent)
         self.is_lazy_loaded = is_lazy_loaded
         self.signals = GroupListSignals(parent=self)
         self._layout = QVBoxLayout()

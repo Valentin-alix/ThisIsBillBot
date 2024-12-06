@@ -48,21 +48,21 @@ CONNECTION_SERVERS_IPS: list[str] = socket.gethostbyname_ex(DOFUS_CONNECTION_URL
 
 @dataclass
 class Sniffer:
-    buffers: defaultdict[tuple[str, str], bytes] = field(
+    buffers: dict[tuple[str, str], bytes] = field(
         init=False, default_factory=lambda: defaultdict(bytes)
     )
     msg_info_signals: MessageInfoSignals
     from_obfuscated: bool
 
-    def launch_sniffer(self):
+    def launch_sniffer(self) -> None:
         print("Starting sniffer")
         sniff(prn=self.on_receive, store=False, filter=FILTER_DOFUS)
 
     @cached_property
-    def local_ip(self):
+    def local_ip(self) -> str:
         return get_local_ip()
 
-    def on_receive(self, packet: Packet):
+    def on_receive(self, packet: Packet) -> None:
         if Raw not in packet:
             return
 
@@ -101,12 +101,12 @@ class Sniffer:
 
             self.buffers[tunnel] = self.buffers[tunnel][pos + size :]
 
-    def handle_connection_message(self, content: bytes, from_server: bool):
+    def handle_connection_message(self, content: bytes, from_server: bool) -> None:
         _, sub_msg = get_conn_msg(content)
         msg_infos = get_conn_msg_info(sub_msg, from_server)
         self.msg_info_signals.msg_info.emit(msg_infos, False)
 
-    def handle_game_message(self, content: bytes, from_server: bool):
+    def handle_game_message(self, content: bytes, from_server: bool) -> None:
         try:
             # msg_infos = get_obf_game_msg_info(content, from_server, True)
             # self.msg_info_signals.msg_info.emit(msg_infos, False)
@@ -120,7 +120,7 @@ class Sniffer:
             print(traceback.format_exc())
 
 
-def main():
+def main() -> None:
     app = QApplication(sys.argv)
     bot = generate_random_bot()
     bot.is_fake = False

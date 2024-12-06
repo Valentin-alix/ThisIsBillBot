@@ -8,7 +8,7 @@ from tests.fixtures.random_proto_generators import (
 )
 
 
-def generate_new_map_msgs():
+def generate_new_map_msgs() -> list[Message]:
     map_current_event = generate_MapCurrentEvent()
     return [
         map_current_event,
@@ -17,7 +17,7 @@ def generate_new_map_msgs():
 
 
 def generate_random_fake_game_message() -> list[Message]:
-    msgs = [
+    msgs: list[Message] = [
         generate_CharacterSelectionEvent(),
         *[generate_ObjectAddedEvent() for _ in range(100)],
     ]

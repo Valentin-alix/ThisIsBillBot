@@ -88,7 +88,9 @@ def _convert_from_serialized(value: object) -> object:
             msg = GetMessageClass(msg_descriptor)()
             content = mapping_value.get("content")
             if not isinstance(content, str):
-                raise TypeError("Serialized protobuf payload must contain a JSON string")
+                raise TypeError(
+                    "Serialized protobuf payload must contain a JSON string"
+                )
             Parse(content, msg)
             return msg
         converted_dict: dict[object, object] = {}

@@ -21,15 +21,15 @@ class PlayerState(State):
     )
     _character_id: int = dataclasses.field(init=False, default=0)
     _character_name: str = dataclasses.field(init=False, default_factory=str)
-    waypoint_map_ids: list[int] = dataclasses.field(init=False)
-    jobs_lvl_by_id: dict[int, int] = dataclasses.field(init=False)
+    waypoint_map_ids: list[int] = dataclasses.field(
+        init=False, default_factory=list[int]
+    )
+    jobs_lvl_by_id: dict[int, int] = dataclasses.field(
+        init=False, default_factory=dict[int, int]
+    )
 
     def __post_init__(self) -> None:
         self.is_ready_to_play_event = Event()
-        waypoint_map_ids: list[int] = []
-        jobs_lvl_by_id: dict[int, int] = {}
-        self.waypoint_map_ids = waypoint_map_ids
-        self.jobs_lvl_by_id = jobs_lvl_by_id
 
     def clear_state(self):
         CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER.pop(

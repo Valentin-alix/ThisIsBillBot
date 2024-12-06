@@ -36,4 +36,3 @@ class StateTestBase(unittest.TestCase):
     def inject(self, msg: Message):
         """Inject a message as if the server sent it."""
         self.event_manager.process_msg(msg)
-

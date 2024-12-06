@@ -39,10 +39,9 @@ class SnifferWidget(PivotItem):
         self,
         bot: Bot,
         global_log_signals: GlobalLogSignals,
-        *args,
-        **kwargs,
-    ):
-        super().__init__(*args, **kwargs)
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
         self.bot = bot
         self.global_log_signals = global_log_signals
         self.is_playing: bool = True
@@ -56,7 +55,7 @@ class SnifferWidget(PivotItem):
             profiled_slot(self.on_receive_msg_info)
         )
 
-    def init_top_content(self):
+    def init_top_content(self) -> None:
         top_content = QWidget(self)
         # prevent top header from expanding in height
         top_content.setSizePolicy(
@@ -86,7 +85,7 @@ class SnifferWidget(PivotItem):
         self.stop_btn.clicked.connect(self.on_stop)
         top_content_layout.addWidget(self.stop_btn)
 
-    def init_content(self):
+    def init_content(self) -> None:
         content = QWidget(self)
         content_layout = QHBoxLayout()
         content.setLayout(content_layout)
@@ -173,9 +172,8 @@ class SnifferWidget(PivotItem):
             debug_pivot.addItem(
                 routeKey="listeners",
                 text="Listeners",
-                onClick=lambda: (
-                    debug_stacked.setCurrentWidget(listeners_widget),
-                    listeners_widget.init(),
+                onClick=lambda: self._show_listeners_tab(
+                    debug_stacked, listeners_widget
                 ),
             )
             debug_pivot.addItem(
@@ -218,24 +216,24 @@ class SnifferWidget(PivotItem):
         self.v_layout.setStretch(2, 1)
 
     @pyqtSlot(MessageInfo, bool)
-    def on_receive_msg_info(self, msg_info: MessageInfo, was_send_from_proxy: bool):
+    def on_receive_msg_info(self, msg_info: MessageInfo, was_send_from_proxy: bool) -> None:
         if self.is_playing:
             self.msg_table.add_row(msg_info, was_send_from_proxy)
 
     @pyqtSlot()
-    def on_play(self):
+    def on_play(self) -> None:
         self.is_playing = True
         self.play_btn.hide()
         self.stop_btn.show()
 
     @pyqtSlot()
-    def on_stop(self):
+    def on_stop(self) -> None:
         self.is_playing = False
         self.stop_btn.hide()
         self.play_btn.show()
 
     @pyqtSlot()
-    def on_reset(self):
+    def on_reset(self) -> None:
         self.msg_table.table.item_model.remove_rows(
             0, len(self.msg_table.table.item_model._data)
         )
@@ -245,7 +243,7 @@ class SnifferWidget(PivotItem):
             )
 
     @pyqtSlot(QModelIndex)
-    def on_click_msg(self, model_index: QModelIndex):
+    def on_click_msg(self, model_index: QModelIndex) -> None:
         source_index = self.msg_table.table.proxy_model.mapToSource(model_index)
         model = self.msg_table.table.item_model
         msg_infos = cast(
@@ -256,5 +254,13 @@ class SnifferWidget(PivotItem):
         self.msg_detail.show()
 
     @pyqtSlot()
-    def on_close_detail(self):
+    def on_close_detail(self) -> None:
         self.msg_detail.hide()
+
+    def _show_listeners_tab(
+        self,
+        debug_stacked: QStackedWidget,
+        listeners_widget: ListenersStatsWidget,
+    ) -> None:
+        debug_stacked.setCurrentWidget(listeners_widget)
+        listeners_widget.init()

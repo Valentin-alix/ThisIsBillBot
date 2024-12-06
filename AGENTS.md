@@ -87,7 +87,6 @@ After any code change:
 - Avoid deep nesting (>3 levels)
 - Keep helper ordering stable during refactors
 - Do NOT reintroduce dead compatibility layers or legacy shims
-- Do NOT add generic wrappers (*args/**kwargs) unless forwarding to a real API
 - Prefer direct attribute access; use `getattr` only when absence is expected
 
 ### Caching

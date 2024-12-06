@@ -1,3 +1,4 @@
+from PyQt6.QtWidgets import QWidget
 from qfluentwidgets import SingleDirectionScrollArea
 
 from src.gui.components.table.column_info import ColumnInfo
@@ -7,9 +8,11 @@ from src.gui.components.table.table_view import CustomTableView
 
 class BaseTableWidget(SingleDirectionScrollArea):
     def __init__(
-        self, proxy_model: MultiColumnFilterProxyModel | None = None, *args, **kwargs
+        self,
+        proxy_model: MultiColumnFilterProxyModel | None = None,
+        parent: QWidget | None = None,
     ) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(parent)
 
         self.columns_infos: list[ColumnInfo] = []
         self.table = CustomTableView(parent=self, proxy_model=proxy_model)

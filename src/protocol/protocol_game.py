@@ -1,19 +1,16 @@
 import datetime
 import json
 import traceback
+from collections.abc import Callable, Mapping
 from functools import cache
 from pathlib import Path
-from typing import Any, Mapping, cast
+from typing import Any, cast
 
 from consts import GAME_MAPPINGS_JSON_FILE
 from datas.protos.non_obf.game.game_message_pb2 import GameMessage
 from google.protobuf import descriptor_pool
 from google.protobuf.any_pb2 import Any as protoAny
 from google.protobuf.descriptor import Descriptor, FieldDescriptor
-from google.protobuf.internal.containers import (
-    RepeatedCompositeFieldContainer,
-    ScalarMap,
-)
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
@@ -27,39 +24,91 @@ TYPE_URL_PREFIX = "type.ankama.com/"
 _GAME_MAPPINGS_PATH = Path(GAME_MAPPINGS_JSON_FILE)
 
 POOL: descriptor_pool.DescriptorPool = descriptor_pool.Default()
+FieldMappingToReal = Mapping[str, str | None]
+FieldMappingToObf = Mapping[str, str]
+RawGameMappings = dict[str, object]
+ProtoToRealMapping = Mapping[str, tuple[str, FieldMappingToReal]]
+ProtoToObfMapping = Mapping[str, tuple[str, FieldMappingToObf]]
+MessageTransformer = Callable[[Message], Message]
+
+
+def _get_mapping_info(mapping_value: Any) -> dict[str, object]:
+    if not isinstance(mapping_value, dict):
+        raise TypeError("Invalid mapping info")
+    raw_mapping = cast(dict[object, object], mapping_value)
+    typed_mapping: dict[str, object] = {}
+    for raw_key, raw_value in raw_mapping.items():
+        typed_mapping[str(raw_key)] = raw_value
+    return typed_mapping
+
+
+def _get_mapping_namespace(mapping_info: dict[str, object]) -> str:
+    namespace = mapping_info["obf_msg_namespace"]
+    if not isinstance(namespace, str):
+        raise TypeError("Invalid obfuscated namespace")
+    return namespace
+
+
+def _get_field_mapping_to_real(mapping_info: dict[str, object]) -> dict[str, str | None]:
+    raw_field_mapping = mapping_info["field_mapping"]
+    if not isinstance(raw_field_mapping, dict):
+        raise TypeError("Invalid field mapping")
+
+    typed_raw_field_mapping = cast(dict[object, object], raw_field_mapping)
+    field_mapping: dict[str, str | None] = {}
+    for raw_key_obj, raw_value_obj in typed_raw_field_mapping.items():
+        if not isinstance(raw_key_obj, str):
+            raise TypeError("Invalid field mapping key")
+        if raw_value_obj is not None and not isinstance(raw_value_obj, str):
+            raise TypeError("Invalid field mapping value")
+        field_mapping[raw_key_obj] = raw_value_obj
+    return field_mapping
+
+
+def _is_repeated_field(field_descriptor: FieldDescriptor) -> bool:
+    return getattr(field_descriptor, "label") == FieldDescriptor.LABEL_REPEATED
 
 
 @cache
-def _load_game_mappings() -> dict:
+def _load_game_mappings() -> RawGameMappings:
     with open(_GAME_MAPPINGS_PATH) as f:
-        return json.load(f)
+        raw_mappings: Any = json.load(f)
+    if not isinstance(raw_mappings, dict):
+        raise TypeError("Invalid game mappings payload")
+    typed_raw_mappings = cast(dict[object, object], raw_mappings)
+    typed_mappings: RawGameMappings = {}
+    for raw_key, raw_value in typed_raw_mappings.items():
+        typed_mappings[str(raw_key)] = raw_value
+    return typed_mappings
 
 
-def get_mapping_proto_to_real() -> Mapping[str, tuple[str, Mapping[str, str | None]]]:
+def get_mapping_proto_to_real() -> ProtoToRealMapping:
     return {
-        info["obf_msg_namespace"]: (
+        _get_mapping_namespace(info): (
             clear_namespace[1:],
-            info["field_mapping"],
+            _get_field_mapping_to_real(info),
         )
-        for clear_namespace, info in _load_game_mappings().items()
+        for clear_namespace, raw_info in _load_game_mappings().items()
+        for info in [_get_mapping_info(raw_info)]
     }
 
 
-def get_mapping_proto_to_obf() -> Mapping[str, tuple[str, Mapping[str, str]]]:
+def get_mapping_proto_to_obf() -> ProtoToObfMapping:
     return {
         clear_namespace[1:]: (
-            info["obf_msg_namespace"],
+            _get_mapping_namespace(info),
             {
                 clear_field: obf_field
-                for obf_field, clear_field in info["field_mapping"].items()
+                for obf_field, clear_field in _get_field_mapping_to_real(info).items()
                 if clear_field is not None
             },
         )
-        for clear_namespace, info in _load_game_mappings().items()
+        for clear_namespace, raw_info in _load_game_mappings().items()
+        for info in [_get_mapping_info(raw_info)]
     }
 
 
-def is_usable_msg(msg_name: str):
+def is_usable_msg(msg_name: str) -> bool:
     return msg_name in get_mapping_proto_to_obf()
 
 
@@ -227,7 +276,7 @@ def get_obf_game_message_from_msg(
         root_msg_namespace
     ]
     obf_sub_msg_type = GetMessageClass(POOL.FindMessageTypeByName(obf_sub_type_url))
-    sub_msg_values: dict = {obf_sub_field_mapping["content"]: obf_any_msg}
+    sub_msg_values: dict[str, Message | int] = {obf_sub_field_mapping["content"]: obf_any_msg}
     if "uid" in obf_sub_field_mapping:
         sub_msg_values[obf_sub_field_mapping["uid"]] = uid or -1
     obf_sub_msg = obf_sub_msg_type(**sub_msg_values)
@@ -267,8 +316,9 @@ def get_msg_transformer_to_clear(msg_full_name: str):
 
 
 def get_msg_transformer(
-    msg_full_name: str, msg_mappings: Mapping[str, tuple[str, Mapping[str, str | None]]]
-):
+    msg_full_name: str,
+    msg_mappings: ProtoToRealMapping | ProtoToObfMapping,
+) -> MessageTransformer | None:
     related_mapping = msg_mappings.get(msg_full_name)
     if not related_mapping:
         return None
@@ -278,7 +328,7 @@ def get_msg_transformer(
     output_msg_descriptor: Descriptor = POOL.FindMessageTypeByName(output_msg_name)
     output_msg_type = GetMessageClass(output_msg_descriptor)
 
-    def transformer(msg: Message):
+    def transformer(msg: Message) -> Message:
         output_msg = output_msg_type()
         for msg_field, msg_field_value in msg.ListFields():
             output_msg_field_name = field_mapping.get(msg_field.name)
@@ -304,9 +354,9 @@ def set_field_from_mapping_field(
     msg_field_value: Any,
     output_msg: Message,
     output_msg_field_name: str,
-    msg_mappings: Mapping[str, tuple[str, Mapping[str, str | None]]],
-):
-    if msg_field == FieldDescriptor.LABEL_REPEATED:
+    msg_mappings: ProtoToRealMapping | ProtoToObfMapping,
+) -> None:
+    if _is_repeated_field(msg_field):
         output_field_value = getattr(output_msg, output_msg_field_name)
         is_map_field = (
             msg_field.message_type and msg_field.message_type.GetOptions().map_entry
@@ -330,16 +380,13 @@ def set_field_from_mapping_field(
                     output_field_value.append(sub_output_msg)
         else:
             if is_map_field:
-                output_field_value = cast(ScalarMap, output_field_value)
                 output_field_value.MergeFrom(msg_field_value)
             else:
-                output_field_value = cast(
-                    RepeatedCompositeFieldContainer, output_field_value
-                )
                 output_field_value.extend(msg_field_value)
 
     elif msg_field.type == FieldDescriptor.TYPE_MESSAGE:
-        msg_field_value = cast(Message, msg_field_value)
+        if not isinstance(msg_field_value, Message):
+            return
         output_field_value = getattr(output_msg, output_msg_field_name)
 
         sub_transformer = get_msg_transformer(

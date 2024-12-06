@@ -1,4 +1,4 @@
-from typing import Any, Union, cast
+from typing import Any, Callable, Union, cast
 
 from PyQt6.QtCore import (
     QAbstractAnimation,
@@ -57,7 +57,7 @@ class SidebarPanel(QFrame):
 
     displayModeChanged = pyqtSignal(NavigationDisplayMode)
 
-    def __init__(self, parent: QWidget, isMinimalEnabled=False):
+    def __init__(self, parent: QWidget, isMinimalEnabled: bool = False) -> None:
         super().__init__(parent=parent)
         self._parent = parent
         self._isMenuButtonVisible = True
@@ -93,7 +93,7 @@ class SidebarPanel(QFrame):
 
         self.__initWidget()
 
-    def __initWidget(self):
+    def __initWidget(self) -> None:
         self.resize(48, self.height())
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
         window = self.window()
@@ -134,7 +134,7 @@ class SidebarPanel(QFrame):
         FluentStyleSheet.NAVIGATION_INTERFACE.apply(self.scrollWidget)
         self.__initLayout()
 
-    def __initLayout(self):
+    def __initLayout(self) -> None:
         self.vBoxLayout.setContentsMargins(0, 5, 0, 5)
         self.topLayout.setContentsMargins(4, 0, 4, 0)
         self.bottomLayout.setContentsMargins(4, 0, 4, 0)
@@ -156,7 +156,7 @@ class SidebarPanel(QFrame):
         self.topLayout.addWidget(self.returnButton, 0, Qt.AlignmentFlag.AlignTop)
         self.topLayout.addWidget(self.menuButton, 0, Qt.AlignmentFlag.AlignTop)
 
-    def _updateAcrylicColor(self):
+    def _updateAcrylicColor(self) -> None:
         if isDarkTheme():
             tintColor = QColor(32, 32, 32, 200)
             luminosityColor = QColor(0, 0, 0, 0)
@@ -167,7 +167,7 @@ class SidebarPanel(QFrame):
         self.acrylicBrush.tintColor = tintColor
         self.acrylicBrush.luminosityColor = luminosityColor
 
-    def widget(self, routeKey: str):
+    def widget(self, routeKey: str) -> NavigationWidget:
         if routeKey not in self.items:
             raise ValueError(f"`{routeKey}` is illegal.")
 
@@ -178,12 +178,12 @@ class SidebarPanel(QFrame):
         routeKey: str,
         icon: Union[str, QIcon, FluentIconBase],
         text: str,
-        onClick=None,
-        selectable=True,
-        position=NavigationItemPosition.TOP,
+        onClick: Callable[[], None] | None = None,
+        selectable: bool = True,
+        position: NavigationItemPosition = NavigationItemPosition.TOP,
         tooltip: str | None = None,
         parentRouteKey: str | None = None,
-    ):
+    ) -> NavigationTreeWidget | None:
         """add navigation item
 
         Parameters
@@ -228,11 +228,11 @@ class SidebarPanel(QFrame):
         self,
         routeKey: str,
         widget: NavigationWidget,
-        onClick=None,
-        position=NavigationItemPosition.TOP,
+        onClick: Callable[[], None] | None = None,
+        position: NavigationItemPosition = NavigationItemPosition.TOP,
         tooltip: str | None = None,
         parentRouteKey: str | None = None,
-    ):
+    ) -> None:
         """add custom widget
 
         Parameters
@@ -271,12 +271,12 @@ class SidebarPanel(QFrame):
         routeKey: str,
         icon: Union[str, QIcon, FluentIconBase],
         text: str,
-        onClick=None,
-        selectable=True,
-        position=NavigationItemPosition.TOP,
+        onClick: Callable[[], None] | None = None,
+        selectable: bool = True,
+        position: NavigationItemPosition = NavigationItemPosition.TOP,
         tooltip: str | None = None,
-        parentRouteKey=None,
-    ):
+        parentRouteKey: str | None = None,
+    ) -> NavigationTreeWidget | None:
         """insert navigation tree item
 
         Parameters
@@ -328,11 +328,11 @@ class SidebarPanel(QFrame):
         index: int,
         routeKey: str,
         widget: NavigationWidget,
-        onClick=None,
-        position=NavigationItemPosition.TOP,
-        tooltip: str | None = None,  # type: ignore[assignment]
-        parentRouteKey: str | None = None,  # type: ignore[assignment]
-    ):
+        onClick: Callable[[], None] | None = None,
+        position: NavigationItemPosition = NavigationItemPosition.TOP,
+        tooltip: str | None = None,
+        parentRouteKey: str | None = None,
+    ) -> None:
         """insert custom widget
 
         Parameters
@@ -363,11 +363,15 @@ class SidebarPanel(QFrame):
 
         self._registerWidget(routeKey, parentRouteKey, widget, onClick, tooltip)
         if parentRouteKey:
-            self.widget(parentRouteKey).insertChild(index, widget)
+            cast(NavigationTreeWidgetBase, self.widget(parentRouteKey)).insertChild(
+                index, widget
+            )
         else:
             self._insertWidgetToLayout(index, widget, position)
 
-    def addSeparator(self, position=NavigationItemPosition.TOP):
+    def addSeparator(
+        self, position: NavigationItemPosition = NavigationItemPosition.TOP
+    ) -> None:
         """add separator
 
         Parameters
@@ -377,7 +381,9 @@ class SidebarPanel(QFrame):
         """
         self.insertSeparator(-1, position)
 
-    def insertSeparator(self, index: int, position=NavigationItemPosition.TOP):
+    def insertSeparator(
+        self, index: int, position: NavigationItemPosition = NavigationItemPosition.TOP
+    ) -> None:
         """add separator
 
         Parameters
@@ -388,7 +394,7 @@ class SidebarPanel(QFrame):
         position: NavigationPostion
             where to add the separator
         """
-        separator = NavigationSeparator(self)
+        separator = NavigationSeparator(parent=self)
         self._insertWidgetToLayout(index, separator, position)
 
     def _registerWidget(
@@ -396,9 +402,9 @@ class SidebarPanel(QFrame):
         routeKey: str,
         parentRouteKey: str | None,
         widget: NavigationWidget,
-        onClick,
+        onClick: Callable[[], None] | None,
         tooltip: str | None,
-    ):
+    ) -> None:
         """register widget"""
         widget.clicked.connect(self._onWidgetClicked)
 
@@ -437,7 +443,7 @@ class SidebarPanel(QFrame):
 
         widget.show()
 
-    def removeWidget(self, routeKey: str):
+    def removeWidget(self, routeKey: str) -> None:
         """remove widget
 
         Parameters
@@ -451,7 +457,9 @@ class SidebarPanel(QFrame):
         item = self.items.pop(routeKey)
 
         if item.parentRouteKey is not None:
-            self.widget(item.parentRouteKey).removeChild(item.widget)
+            cast(NavigationTreeWidgetBase, self.widget(item.parentRouteKey)).removeChild(
+                item.widget
+            )
 
         if isinstance(item.widget, NavigationTreeWidgetBase):
             for child in item.widget.findChildren(
@@ -468,22 +476,22 @@ class SidebarPanel(QFrame):
         item.widget.deleteLater()
         self.history.remove(routeKey)
 
-    def setMenuButtonVisible(self, isVisible: bool):
+    def setMenuButtonVisible(self, isVisible: bool) -> None:
         """set whether the menu button is visible"""
         self._isMenuButtonVisible = isVisible
         self.menuButton.setVisible(isVisible)
 
-    def setReturnButtonVisible(self, isVisible: bool):
+    def setReturnButtonVisible(self, isVisible: bool) -> None:
         """set whether the return button is visible"""
         self._isReturnButtonVisible = isVisible
         self.returnButton.setVisible(isVisible)
 
-    def setCollapsible(self, on: bool):
+    def setCollapsible(self, on: bool) -> None:
         self._isCollapsible = on
         if not on and self.displayMode != NavigationDisplayMode.EXPAND:
             self.expand(False)
 
-    def setExpandWidth(self, width: int):
+    def setExpandWidth(self, width: int) -> None:
         """set the maximum width"""
         if width <= 42:
             return
@@ -491,11 +499,11 @@ class SidebarPanel(QFrame):
         self.expandWidth = width
         NavigationWidget.EXPAND_WIDTH = width - 10  # type: ignore
 
-    def setMinimumExpandWidth(self, width: int):
+    def setMinimumExpandWidth(self, width: int) -> None:
         """Set the minimum window width that allows panel to be expanded"""
         self.minimumExpandWidth = width
 
-    def setAcrylicEnabled(self, isEnabled: bool):
+    def setAcrylicEnabled(self, isEnabled: bool) -> None:
         if isEnabled == self.isAcrylicEnabled():
             return
 
@@ -504,11 +512,11 @@ class SidebarPanel(QFrame):
         self.setStyle(QApplication.style())
         self.update()
 
-    def isAcrylicEnabled(self):
+    def isAcrylicEnabled(self) -> bool:
         """whether the acrylic effect is enabled"""
         return self._isAcrylicEnabled
 
-    def expand(self, useAni=True):
+    def expand(self, useAni: bool = True) -> None:
         """expand navigation panel"""
         self._setWidgetCompacted(False)
         self.expandAni.setProperty("expand", True)
@@ -538,9 +546,9 @@ class SidebarPanel(QFrame):
                 )
 
             if not self._parent.isWindow():
-                parent = self.parent()
+                parent = self.parentWidget()
                 assert parent
-                pos = parent.pos()  # pyright: ignore[reportAttributeAccessIssue]
+                pos = parent.pos()
                 self.setParent(self.window())
                 self.move(pos)
 
@@ -557,7 +565,7 @@ class SidebarPanel(QFrame):
             self.resize(self.expandWidth, self.height())
             self._onExpandAniFinished()
 
-    def collapse(self):
+    def collapse(self) -> None:
         """collapse navigation panel"""
         if self.expandAni.state() == QAbstractAnimation.State.Running:
             return
@@ -576,7 +584,7 @@ class SidebarPanel(QFrame):
 
         self.menuButton.setToolTip(self.tr("Open Navigation"))
 
-    def toggle(self):
+    def toggle(self) -> None:
         """toggle navigation panel"""
         if self.displayMode in [
             NavigationDisplayMode.COMPACT,
@@ -586,7 +594,7 @@ class SidebarPanel(QFrame):
         else:
             self.collapse()
 
-    def setCurrentItem(self, routeKey: str):
+    def setCurrentItem(self, routeKey: str) -> None:
         """set current selected item
 
         Parameters
@@ -600,7 +608,7 @@ class SidebarPanel(QFrame):
         for k, item in self.items.items():
             item.widget.setSelected(k == routeKey)
 
-    def _onWidgetClicked(self):
+    def _onWidgetClicked(self) -> None:
         widget = cast(NavigationTreeWidget, self.sender())
         if not widget.isSelectable:
             return self._showFlyoutNavigationMenu(widget)
@@ -613,7 +621,7 @@ class SidebarPanel(QFrame):
         elif self.isCollapsed():
             self._showFlyoutNavigationMenu(widget)
 
-    def _showFlyoutNavigationMenu(self, widget: NavigationTreeWidget):
+    def _showFlyoutNavigationMenu(self, widget: NavigationTreeWidget) -> None:
         """show flyout navigation menu"""
         if not (self.isCollapsed() and isinstance(widget, NavigationTreeWidget)):
             return
@@ -646,7 +654,7 @@ class SidebarPanel(QFrame):
 
     def _adjustFlyoutMenuSize(
         self, flyout: Flyout, widget: NavigationTreeWidget, menu: NavigationFlyoutMenu
-    ):
+    ) -> None:
         flyout.view.setFixedSize(menu.size())
         layout = flyout.layout()
         assert layout
@@ -665,10 +673,10 @@ class SidebarPanel(QFrame):
         y: int = max(rect.top() + 42, min(pos.y() - 4, rect.bottom() - h + 5))
         flyout.move(x, y)
 
-    def isCollapsed(self):
+    def isCollapsed(self) -> bool:
         return self.displayMode == NavigationDisplayMode.COMPACT
 
-    def eventFilter(self, a0: QObject | None, a1: QEvent | None):
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a0 is not self.window() or not self._isCollapsible:
             return super().eventFilter(a0, a1)
 
@@ -702,7 +710,7 @@ class SidebarPanel(QFrame):
 
         return super().eventFilter(a0, a1)
 
-    def _onExpandAniFinished(self):
+    def _onExpandAniFinished(self) -> None:
         if not self.expandAni.property("expand"):
             if self.isMinimalEnabled:
                 self.displayMode = NavigationDisplayMode.MINIMAL
@@ -727,15 +735,15 @@ class SidebarPanel(QFrame):
                 self.move(0, 0)
                 self.show()
 
-    def _setWidgetCompacted(self, isCompacted: bool):
+    def _setWidgetCompacted(self, isCompacted: bool) -> None:
         """set whether the navigation widget is compacted"""
         for item in self.findChildren(NavigationWidget):
             item.setCompacted(isCompacted)
 
-    def _canDrawAcrylic(self):
+    def _canDrawAcrylic(self) -> bool:
         return self.acrylicBrush.isAvailable() and self.isAcrylicEnabled()
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0: Any) -> None:
         if not self._canDrawAcrylic() or self.displayMode != NavigationDisplayMode.MENU:
             return super().paintEvent(a0)
 

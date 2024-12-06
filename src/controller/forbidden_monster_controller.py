@@ -18,12 +18,12 @@ class ForbiddenMonsterController(metaclass=Singleton):
     _FILE_PATH = os.path.join(RESOURCE_FOLDER, "forbidden_monster_race.json")
     _DEFEAT_THRESHOLD = 5
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._ensure_file_exists()
 
-    def _ensure_file_exists(self):
+    def _ensure_file_exists(self) -> None:
         if not os.path.exists(self._FILE_PATH):
-            default_data = {"defeat_count_by_name": {}}
+            default_data: dict[str, dict[str, int]] = {"defeat_count_by_name": {}}
             with open(self._FILE_PATH, "wb+") as file:
                 file.write(msgspec.json.encode(default_data))
 
@@ -32,13 +32,13 @@ class ForbiddenMonsterController(metaclass=Singleton):
             data = msgspec.json.decode(file.read())
             return data.get("defeat_count_by_name", {})
 
-    def _save_data(self, defeat_count_by_name: dict[str, int]):
+    def _save_data(self, defeat_count_by_name: dict[str, int]) -> None:
         with open(self._FILE_PATH, "wb") as file:
             file.write(
                 msgspec.json.encode({"defeat_count_by_name": defeat_count_by_name})
             )
 
-    def increment_defeat_count(self, name_id: int, logger: Logger):
+    def increment_defeat_count(self, name_id: int, logger: Logger) -> None:
         with self._LOCK:
             self._ensure_file_exists()
             defeat_count_by_name = self._load_data()
@@ -57,7 +57,7 @@ class ForbiddenMonsterController(metaclass=Singleton):
                     f"Monster name_id {name_id} defeat count: {new_count}/{self._DEFEAT_THRESHOLD}"
                 )
 
-    def reset_defeat_count(self, name_id: int, logger: Logger):
+    def reset_defeat_count(self, name_id: int, logger: Logger) -> None:
         with self._LOCK:
             self._ensure_file_exists()
             defeat_count_by_name = self._load_data()

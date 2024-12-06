@@ -71,9 +71,7 @@ class TestCraftFrame(StateTestBase):
         """Test that ingredients are removed from inventory when quantity reaches 0."""
         # Setup: Add exact amount of ingredients needed
         # Using recipe 49: ingredientIds=[1673, 377], quantities=[1, 3]
-        ingredient_1 = ObjectItemInventory(
-            item=ObjectItem(uid=1, gid=1673, quantity=3)
-        )
+        ingredient_1 = ObjectItemInventory(item=ObjectItem(uid=1, gid=1673, quantity=3))
         ingredient_2 = ObjectItemInventory(item=ObjectItem(uid=2, gid=377, quantity=9))
         self.game_state.inventory.add_object(ingredient_1)
         self.game_state.inventory.add_object(ingredient_2)
@@ -97,12 +95,8 @@ class TestCraftFrame(StateTestBase):
     def test_craft_with_multiple_quantity_ingredients(self):
         """Test crafting with recipe requiring multiple quantities of ingredients."""
         # Using recipe 55: ingredientIds=[364, 300, 2659], quantities=[4, 4, 4]
-        ingredient_1 = ObjectItemInventory(
-            item=ObjectItem(uid=1, gid=364, quantity=20)
-        )
-        ingredient_2 = ObjectItemInventory(
-            item=ObjectItem(uid=2, gid=300, quantity=20)
-        )
+        ingredient_1 = ObjectItemInventory(item=ObjectItem(uid=1, gid=364, quantity=20))
+        ingredient_2 = ObjectItemInventory(item=ObjectItem(uid=2, gid=300, quantity=20))
         ingredient_3 = ObjectItemInventory(
             item=ObjectItem(uid=3, gid=2659, quantity=20)
         )

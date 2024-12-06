@@ -43,10 +43,9 @@ class FarmerWidget(PivotItem):
         self,
         login: str,
         bot: Bot,
-        *args,
-        **kwargs,
-    ):
-        super().__init__(*args, **kwargs)
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
         self.login = login
         self.bot = bot
         self._v_layout = QVBoxLayout()
@@ -126,7 +125,7 @@ class FarmerWidget(PivotItem):
 
         self._v_layout.addWidget(top_widget)
 
-    def init_content(self):
+    def init_content(self) -> None:
         self.pivot = SegmentedWidget(self)
         self._v_layout.addWidget(self.pivot)
         self.stacked_widget = QStackedWidget(self)
@@ -196,7 +195,7 @@ class FarmerWidget(PivotItem):
             )
 
     @pyqtSlot(bool)
-    def on_play(self, _):
+    def on_play(self, _: bool) -> None:
         self.stop_btn.show()
         self.play_btn.hide()
         self.type_action_combo.setDisabled(True)
@@ -204,26 +203,26 @@ class FarmerWidget(PivotItem):
         self.sub_area_farm_combo.setDisabled(True)
 
     @pyqtSlot(object, object)
-    def on_play_harvester(self, area_id: int | None, sub_area_id: int | None):
+    def on_play_harvester(self, area_id: int | None, sub_area_id: int | None) -> None:
         self.type_action_combo.setCurrentText(FarmActionEnum.HARVESTER)
         self.on_played_zone(area_id, sub_area_id)
 
     @pyqtSlot(object, object)
-    def on_play_fighter(self, area_id: int | None, sub_area_id: int | None, *args):
+    def on_play_fighter(self, area_id: int | None, sub_area_id: int | None) -> None:
         self.type_action_combo.setCurrentText(FarmActionEnum.FIGHTER)
         self.on_played_zone(area_id, sub_area_id)
 
     @pyqtSlot()
-    def on_play_auto(self):
+    def on_play_auto(self) -> None:
         self.type_action_combo.setCurrentText(FarmActionEnum.AUTO)
         self.on_played_zone(None, None)
 
     @pyqtSlot(object)
-    def on_play_craft(self, _):
+    def on_play_craft(self, _: object) -> None:
         self.type_action_combo.addItem(CraftActionEnum.CRAFTER)
         self.type_action_combo.setCurrentText(CraftActionEnum.CRAFTER)
 
-    def on_played_zone(self, area_id: int | None, sub_area_id: int | None):
+    def on_played_zone(self, area_id: int | None, sub_area_id: int | None) -> None:
         if area_id is not None:
             self.area_farm_combo.setCurrentIndex(self.area_farm_combo.findData(area_id))
         else:
@@ -237,7 +236,7 @@ class FarmerWidget(PivotItem):
             self.sub_area_farm_combo.setCurrentText("")
 
     @pyqtSlot()
-    def on_stop(self):
+    def on_stop(self) -> None:
         self.play_btn.show()
         self.stop_btn.hide()
         index_crafter = self.type_action_combo.findText(CraftActionEnum.CRAFTER)
@@ -248,7 +247,7 @@ class FarmerWidget(PivotItem):
         self.sub_area_farm_combo.setDisabled(False)
 
     @pyqtSlot()
-    def on_click_stop(self):
+    def on_click_stop(self) -> None:
         self.bot.bot_signals.stop.emit()
 
     def _create_debug_tabs(self) -> None:
