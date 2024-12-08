@@ -9,8 +9,9 @@ from qfluentwidgets import Theme, setTheme, setThemeColor
 
 from src.utils.runtime_paths import configure_project_import_paths
 
-if hasattr(sys, "_MEIPASS"):
-    configure_project_import_paths(Path(sys._MEIPASS))  # type: ignore[attr-defined]
+meipass = getattr(sys, "_MEIPASS", None)
+if isinstance(meipass, str):
+    configure_project_import_paths(Path(meipass))
 else:
     configure_project_import_paths(Path(__file__).resolve().parent)
 

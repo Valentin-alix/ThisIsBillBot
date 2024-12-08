@@ -1,8 +1,8 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from threading import Lock, Timer
-from typing import Callable
+from typing import Callable, ParamSpec, Protocol, overload
 
 from google.protobuf.message import Message
 
@@ -35,6 +35,13 @@ class BehaviorState(Enum):
     STOPPING = auto()
 
 
+RunParams = ParamSpec("RunParams")
+
+
+class RunnableBehavior(Protocol[RunParams]):
+    def run(self, *args: RunParams.args, **kwargs: RunParams.kwargs) -> None: ...
+
+
 @dataclass
 class Behavior(ABC, ContextualLogger):
     event_manager: EventManager
@@ -46,9 +53,6 @@ class Behavior(ABC, ContextualLogger):
     _state_lock: Lock = field(init=False, default_factory=Lock)
     children: list["Behavior"] = field(init=False, default_factory=list["Behavior"])
     timers: list[Timer] = field(init=False, default_factory=list[Timer])
-
-    @abstractmethod
-    def run(self, *args: object, **kwargs: object) -> None: ...
 
     def _transition(
         self, from_states: set[BehaviorState], to_state: BehaviorState, reason: str = ""
@@ -90,6 +94,26 @@ class Behavior(ABC, ContextualLogger):
         with self._state_lock:
             return self._state
 
+    @overload
+    def start(
+        self: RunnableBehavior[RunParams],
+        callback: Callable[..., None] | None,
+        parent: "Behavior|None",
+        *args: RunParams.args,
+        **kwargs: RunParams.kwargs,
+    ) -> None:
+        ...
+
+    @overload
+    def start(
+        self,
+        callback: Callable[..., None] | None,
+        parent: "Behavior|None",
+        *args: object,
+        **kwargs: object,
+    ) -> None:
+        ...
+
     def start(
         self,
         callback: Callable[..., None] | None,
@@ -126,7 +150,11 @@ class Behavior(ABC, ContextualLogger):
                 BehaviorState.RUNNING,
                 reason="setup complete, entering run()",
             )
-            self.run(*args, **kwargs)
+
+            run_method = getattr(self, "run", None)
+            if not callable(run_method):
+                raise TypeError(f"{self.__class__.__name__} must define a run() method")
+            run_method(*args, **kwargs)
 
     def send_message_delayed(
         self, message: Message, delay: tuple[float, float] | float

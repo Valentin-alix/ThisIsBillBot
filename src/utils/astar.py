@@ -5,6 +5,7 @@ from bisect import insort
 from typing import Generic, Iterator, Protocol, TypeVar, cast
 
 T = TypeVar("T")
+PathResultT = TypeVar("PathResultT")
 
 
 class Node(Generic[T]):
@@ -43,7 +44,8 @@ class Node(Generic[T]):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Node):
             return False
-        return self.data == cast(Node[T], other).data
+        other_node = cast(Node[T], other)
+        return self.data == other_node.data
 
     def __hash__(self) -> int:
         return hash(self.data)
@@ -83,7 +85,7 @@ class OpenSet(Generic[T]):
         return bool(self.sorted_list)
 
 
-class Astar(ABC, Generic[T]):
+class Astar(ABC, Generic[T, PathResultT]):
     __slots__ = ()
 
     @abstractmethod
@@ -94,17 +96,9 @@ class Astar(ABC, Generic[T]):
     def get_dist(self, current: T, ends: set[T]) -> float:
         raise NotImplementedError
 
-    def reconstruct_path(self, node: Node[T], do_reverse: bool) -> list[T]:
-        current: Node[T] | None = node
-        path: list[T] = []
-
-        while current is not None:
-            path.append(current.data)
-            current = current.parent
-
-        if do_reverse:
-            return path
-        return path[::-1]
+    @abstractmethod
+    def reconstruct_path(self, node: Node[T], do_reverse: bool) -> list[PathResultT]:
+        raise NotImplementedError
 
     def is_goal_reached(self, current: T, ends: set[T]) -> bool:
         return current in ends
@@ -116,7 +110,7 @@ class Astar(ABC, Generic[T]):
         heuristic_scale: float = 1,
         do_reverse: bool = False,
         max_iteration: int = 9999,
-    ) -> list[T] | None:
+    ) -> list[PathResultT] | None:
         open_set: OpenSet[T] = OpenSet()
 
         start_node = Node(
@@ -169,7 +163,22 @@ class Astar(ABC, Generic[T]):
         return None
 
 
+class DataAstar(Astar[T, T], ABC):
+    def reconstruct_path(self, node: Node[T], do_reverse: bool) -> list[T]:
+        current: Node[T] | None = node
+        path: list[T] = []
+
+        while current is not None:
+            path.append(current.data)
+            current = current.parent
+
+        if do_reverse:
+            return path
+        return path[::-1]
+
+
 PathT = TypeVar("PathT")
+CallablePathT = TypeVar("CallablePathT")
 
 
 def _default_is_goal_reached(current: PathT, ends: set[PathT]) -> bool:
@@ -188,6 +197,29 @@ class GoalReachedProvider(Protocol[T]):
     def __call__(self, current: T, ends: set[T]) -> bool: ...
 
 
+class _CallableAstar(DataAstar[CallablePathT]):
+    def __init__(
+        self,
+        get_neighbors_func: NeighborProvider[CallablePathT],
+        distance_between_func: DistanceProvider[CallablePathT],
+        is_goal_reached_func: GoalReachedProvider[CallablePathT],
+    ) -> None:
+        self._get_neighbors_func = get_neighbors_func
+        self._distance_between_func = distance_between_func
+        self._is_goal_reached_func = is_goal_reached_func
+
+    def get_dist(self, current: CallablePathT, ends: set[CallablePathT]) -> float:
+        return self._distance_between_func(current, ends)
+
+    def get_neighbors(self, data: CallablePathT) -> Iterator[CallablePathT]:
+        return self._get_neighbors_func(data)
+
+    def is_goal_reached(
+        self, current: CallablePathT, ends: set[CallablePathT]
+    ) -> bool:
+        return self._is_goal_reached_func(current, ends)
+
+
 def find_path(
     start: PathT,
     ends: set[PathT],
@@ -197,15 +229,9 @@ def find_path(
     do_reverse: bool = False,
 ) -> list[PathT] | None:
     """A non-class version of the path finding algorithm."""
-
-    class FindPath(Astar[T]):
-        def get_dist(self, current: PathT, ends: set[PathT]) -> float:
-            return distance_between_func(current, ends)
-
-        def get_neighbors(self, data: PathT) -> Iterator[PathT]:
-            return get_neighbors_func(data)
-
-        def is_goal_reached(self, current: PathT, ends: set[PathT]) -> bool:
-            return is_goal_reached_func(current, ends)
-
-    return FindPath[PathT]().find_path(start, ends, do_reverse=do_reverse)
+    astar = _CallableAstar(
+        get_neighbors_func,
+        distance_between_func,
+        is_goal_reached_func,
+    )
+    return astar.find_path(start, ends, do_reverse=do_reverse)

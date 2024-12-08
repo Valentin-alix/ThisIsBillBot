@@ -1,10 +1,8 @@
 class _Processor:
     Name: str
 
-
 class _WMIClient:
     def Win32_Processor(self) -> list[_Processor]: ...
-
 
 def WMI(
     computer: str = "",

@@ -1,6 +1,7 @@
 import unittest
 
 from src.protocol.protocol import decode_varint_size, encode_varint
+from src.protocol.protocol_game import get_msg_transformer
 
 
 class ProtocolVarintTests(unittest.TestCase):
@@ -28,3 +29,15 @@ class ProtocolVarintTests(unittest.TestCase):
     def test_decode_varint_size_rejects_incomplete_payloads(self) -> None:
         with self.assertRaises(ValueError):
             decode_varint_size(b"\x80")
+
+
+class ProtocolGameTransformerTests(unittest.TestCase):
+    def test_get_msg_transformer_returns_none_when_target_descriptor_is_missing(
+        self,
+    ) -> None:
+        transformer = get_msg_transformer(
+            "source.message",
+            {"source.message": ("missing.message", {})},
+        )
+
+        self.assertIsNone(transformer)

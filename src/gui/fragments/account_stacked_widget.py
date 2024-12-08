@@ -1,5 +1,3 @@
-from typing import cast
-
 from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import PivotItem, SegmentedWidget
@@ -13,13 +11,19 @@ from src.gui.pages.farmer.farmer import FarmerWidget
 
 
 class AccountStackedWidget(QWidget):
+    @staticmethod
+    def _require_pivot_item(item: PivotItem | None, route_key: str) -> PivotItem:
+        if item is None:
+            raise ValueError(f"Segmented route `{route_key}` is already registered")
+        return item
+
     def __init__(
         self,
         global_log_signals: GlobalLogSignals,
         login: str,
         bot: Bot,
         parent: QWidget | None = None,
-    ):
+    ) -> None:
         super().__init__(parent=parent)
         self.login = login
         self.bot = bot
@@ -39,8 +43,7 @@ class AccountStackedWidget(QWidget):
         )
         self.stacked_widget.addWidget(self.sniffer_interface)
         self.sniffer_route = f"{login}_sniffer"
-        self.debug_pivot_item = cast(
-            PivotItem,
+        self.debug_pivot_item = self._require_pivot_item(
             self.pivot.addItem(
                 routeKey=self.sniffer_route,
                 text="Debug",
@@ -48,6 +51,7 @@ class AccountStackedWidget(QWidget):
                     self.sniffer_interface
                 ),
             ),
+            self.sniffer_route,
         )
 
         self.harvester_interface = FarmerWidget(
@@ -55,8 +59,7 @@ class AccountStackedWidget(QWidget):
         )
         self.stacked_widget.addWidget(self.harvester_interface)
         self.harvester_route = f"{login}_harvester"
-        self.farmer_pivot_item = cast(
-            PivotItem,
+        self.farmer_pivot_item = self._require_pivot_item(
             self.pivot.addItem(
                 routeKey=self.harvester_route,
                 text="Farmer",
@@ -64,13 +67,13 @@ class AccountStackedWidget(QWidget):
                     self.harvester_interface
                 ),
             ),
+            self.harvester_route,
         )
 
         self.craft_interface = CraftPage(self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.craft_interface)
         self.craft_route = f"{login}_craft"
-        self.craft_pivot_item = cast(
-            PivotItem,
+        self.craft_pivot_item = self._require_pivot_item(
             self.pivot.addItem(
                 routeKey=self.craft_route,
                 text="Craft",
@@ -78,6 +81,7 @@ class AccountStackedWidget(QWidget):
                     self.craft_interface
                 ),
             ),
+            self.craft_route,
         )
 
         self.is_debug_visible = None
@@ -96,7 +100,7 @@ class AccountStackedWidget(QWidget):
 
         QTimer.singleShot(0, lambda: self.set_page_after_debug(is_visible))
 
-    def set_page_after_debug(self, is_visible: bool):
+    def set_page_after_debug(self, is_visible: bool) -> None:
         if is_visible:
             if self.pivot.currentRouteKey() == self.sniffer_route:
                 self.farmer_pivot_item.click()

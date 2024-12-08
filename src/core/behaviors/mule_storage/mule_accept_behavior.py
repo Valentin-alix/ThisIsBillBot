@@ -1,6 +1,4 @@
-import time
 from dataclasses import dataclass, field
-from threading import Timer
 
 from datas.protos.non_obf.game.dialog_pb2 import (
     DialogLeaveRequest,
@@ -23,9 +21,6 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
-from src.core.behaviors.sale_hotel.sale_hotel_scraping_behavior import (
-    SaleHotelScrapingBehavior,
-)
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
 from src.core.config import (
     BASE_RANGE,
@@ -39,17 +34,11 @@ class MuleAcceptBehavior(Behavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
     unload_behavior: UnloadBehavior
     sale_hotel_prices_behavior: SaleHotelPricesBehavior
-    sale_hotel_scraping_behavior: SaleHotelScrapingBehavior
 
     _step: int = field(init=False, default=0)
-    _time_since_activity: float = field(init=False, default_factory=time.perf_counter)
-    _timer_go_scraping: Timer | None = field(init=False, default=None)
 
     def run(self) -> None:
         self.go_bank_map()
-
-    def stop(self) -> None:
-        return super().stop()
 
     def go_bank_map(self) -> None:
         def on_bank_map_reached(_error_code: str | None) -> None:
@@ -81,9 +70,6 @@ class MuleAcceptBehavior(Behavior):
         self.go_bank_map()
 
     def stand_ready_for_exchanges(self) -> None:
-        self._time_since_activity = time.perf_counter()
-        self._timer_go_scraping = Timer(60 * 14, self.on_inactivity_go_scraping)
-        self._timer_go_scraping.start()
         self.event_manager.on(
             ExchangeRequestedTradeEvent,
             self.on_exchange_requested_trade_event,
@@ -92,26 +78,9 @@ class MuleAcceptBehavior(Behavior):
             override_on_self=True,
         )
 
-    def on_inactivity_go_scraping(self) -> None:
-        self.unregister_listener(
-            ExchangeRequestedTradeEvent,
-            reason="Inactivity timeout, switching to scraping mode",
-        )
-
-        def on_scraping_finished(_error_code: str | None) -> None:
-            self.go_bank_map()
-
-        self.sale_hotel_scraping_behavior.start(
-            callback=on_scraping_finished, parent=self
-        )
-
     def on_exchange_requested_trade_event(
         self, msg: ExchangeRequestedTradeEvent
     ) -> None:
-        if self._timer_go_scraping:
-            self._timer_go_scraping.cancel()
-            self._timer_go_scraping = None
-
         self.logger.info("on requested trade event, let's accept")
         self.event_manager.on(
             ExchangeStartedWithPodsEvent,

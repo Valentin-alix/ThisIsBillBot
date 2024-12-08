@@ -1,4 +1,4 @@
-from typing import cast
+from collections.abc import KeysView
 
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.i18n import I18N
@@ -11,6 +11,12 @@ from PyQt6.QtWidgets import QWidget
 from src.core.engine.crafts.recipes import get_benefice_on_craft_recipe
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
+
+
+def _require_recipe_item(value: object) -> RecipeItem:
+    if not isinstance(value, RecipeItem):
+        raise TypeError("Expected a RecipeItem payload in the recipe table model")
+    return value
 
 
 class RecipeTableSignals(QObject):
@@ -41,7 +47,7 @@ class RecipeTable(BaseTableWidget):
         self.table.clicked.connect(self.on_click_recipe)
 
     @property
-    def recipes(self):
+    def recipes(self) -> KeysView[RecipeItem]:
         return self.widget_item_by_recipe.keys()
 
     def add_recipe(self, recipe: RecipeItem) -> None:
@@ -66,12 +72,11 @@ class RecipeTable(BaseTableWidget):
         )
 
     @pyqtSlot(QModelIndex)
-    def on_click_recipe(self, model_index: QModelIndex):
+    def on_click_recipe(self, model_index: QModelIndex) -> None:
         source_index = self.table.proxy_model.mapToSource(model_index)
         model = self.table.item_model
-        recipe = cast(
-            RecipeItem,
-            model.data(model.index(source_index.row(), 0), Qt.ItemDataRole.UserRole),
+        recipe = _require_recipe_item(
+            model.data(model.index(source_index.row(), 0), Qt.ItemDataRole.UserRole)
         )
         model.remove_rows(source_index.row(), 1)
         self.on_remove_recipe(recipe)

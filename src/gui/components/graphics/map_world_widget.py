@@ -53,10 +53,12 @@ class SquareMap(QGraphicsRectItem):
 
     def paint(
         self,
-        painter: QPainter,
-        option: QStyleOptionGraphicsItem,
+        painter: QPainter | None,
+        option: QStyleOptionGraphicsItem | None,
         widget: QWidget | None = None,
     ) -> None:
+        if painter is None or option is None:
+            return
         if len(self.colors_by_map_id) == 0:
             return super().paint(painter, option, widget)
 
@@ -124,7 +126,7 @@ class MapWorldView(QGraphicsView):
             self.world_signals.reset_path.connect(profiled_slot(self.on_reset_path))
             self.world_signals.curr_map_pos.connect(profiled_slot(self.on_curr_map))
 
-    def resizeEvent(self, event: QResizeEvent | None):
+    def resizeEvent(self, event: QResizeEvent | None) -> None:
         self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
         return super().resizeEvent(event)
 

@@ -3,11 +3,9 @@ from threading import Lock
 from typing import Callable
 
 import numpy as np
-from utils import cache
 from datas.protos.non_obf.game.challenge_pb2 import (
     ChallengeModSelectRequest,
 )
-from datas.protos.non_obf.game.character_pb2 import FreeSoulRequest
 from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeObjectTransferAllFromInventoryRequest,
 )
@@ -44,6 +42,7 @@ from src.controller.session_timings import SessionTimingsController
 from src.core.config import BASE_RANGE, ENABLE_SESSION_CONTEXT
 from src.services.session_context import SessionContextService
 from src.utils.metaclasses.singleton import Singleton
+from utils import cache
 
 TIMING_LOCK = Lock()
 
@@ -241,23 +240,6 @@ class HumanTimingsService(metaclass=Singleton):
         @cache
         def get_timing_func():
             deltas: list[float] = []
-
-            for (
-                msgs_timings
-            ) in SessionTimingsController.get_message_timings_by_session().values():
-                msg_target_timestamp: float | None = None
-                for msg_timing in sorted(
-                    msgs_timings, key=lambda elem: elem.timestamp, reverse=True
-                ):
-                    if msg_timing.name == FreeSoulRequest.__name__:
-                        msg_target_timestamp = msg_timing.timestamp
-                        continue
-                    if msg_target_timestamp and msg_timing.name in [
-                        MapComplementaryInformationEvent.__name__
-                    ]:
-                        deltas.append(msg_target_timestamp - msg_timing.timestamp)
-                        msg_target_timestamp = None
-
             return self.get_human_timing(deltas)
 
         return get_timing_func()()

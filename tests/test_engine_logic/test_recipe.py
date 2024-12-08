@@ -20,15 +20,18 @@ from src.services.logging.logger import Logger
 
 
 class TestRecipesReal(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.logger = Logger(LogSignals(), "test")
         self.jobs_lvl_by_id: dict[int, int] = {JobEnum.PEASANT: 1, JobEnum.ALCHEMIST: 5}
+
+    def tearDown(self) -> None:
+        self.logger.close()
 
     # ------------------------------------------------------------------
     # is_not_valid_recipe_for_lvl_up_job
     # ------------------------------------------------------------------
-    def test_is_not_valid_recipe_for_lvl_up_job(self):
-        # Use real valid recipe from DataReader: Peasant level 1 recipe with gatherable ingredients
+    def test_is_not_valid_recipe_for_lvl_up_job(self) -> None:
+        # Use a real Peasant level 1 recipe with gatherable ingredients.
         recipe = RecipeItem(
             resultId=468,
             resultNameId="521785",
@@ -52,8 +55,8 @@ class TestRecipesReal(unittest.TestCase):
     # ------------------------------------------------------------------
     # get_max_result_quantity
     # ------------------------------------------------------------------
-    def test_get_max_result_quantity(self):
-        # Using real item GIDs: 44 (weight=1), 49 (weight=5)
+    def test_get_max_result_quantity(self) -> None:
+        # Use real item GIDs: 44 (weight=1), 49 (weight=5).
         item1 = ObjectItem(uid=1, gid=44, quantity=10)
         item2 = ObjectItem(uid=2, gid=49, quantity=4)
         inventory = {
@@ -81,7 +84,7 @@ class TestRecipesReal(unittest.TestCase):
     # ------------------------------------------------------------------
     # get_max_possible_result_quantity
     # ------------------------------------------------------------------
-    def test_get_max_possible_result_quantity(self):
+    def test_get_max_possible_result_quantity(self) -> None:
         result = get_max_possible_result_quantity(
             weight_max=100,
             inventory_weight=60,
@@ -93,7 +96,7 @@ class TestRecipesReal(unittest.TestCase):
     # ------------------------------------------------------------------
     # get_valid_recipes
     # ------------------------------------------------------------------
-    def test_get_valid_recipes(self):
+    def test_get_valid_recipes(self) -> None:
         # Recette interdite
         forbidden_id = next(iter(FORBIDDEN_CRAFT_IDS))
         forbidden_recipe = RecipeItem(

@@ -11,9 +11,6 @@ from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
-from src.core.behaviors.sale_hotel.sale_hotel_scraping_behavior import (
-    SaleHotelScrapingBehavior,
-)
 
 type Instruction = tuple[Behavior, dict[str, object]]
 
@@ -23,7 +20,6 @@ USABLE_BEHAVIORS: list[type[Behavior]] = [
     MuleAcceptBehavior,
     DungeonBehavior,
     SaleHotelPricesBehavior,
-    SaleHotelScrapingBehavior,
     FakeBadMovementBehavior,
     FakeBadInteractiveBehavior,
 ]

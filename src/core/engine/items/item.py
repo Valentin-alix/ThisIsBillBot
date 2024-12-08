@@ -3,19 +3,7 @@ from enum import IntEnum
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.i18n import I18N
 from dofus_unity_reader.enums.item_enum import ItemEnum
-from datas.protos.non_obf.game.common_pb2 import (
-    ObjectItemInventory,
-)
 from dofus_unity_reader.models.datas.items_root import ItemsRootItem
-
-from src.core.engine.fights.effect import EffectActionEnum
-
-
-def is_weapon_hunter(object: ObjectItemInventory):
-    return any(
-        effect.action == EffectActionEnum.WEAPON_HUNTER
-        for effect in object.item.effects
-    )
 
 
 def is_exchangeable_item(item: ItemsRootItem):

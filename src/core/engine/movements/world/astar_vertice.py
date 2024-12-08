@@ -13,7 +13,7 @@ from src.utils.astar import Astar, Node, OpenSet, SearchNodeDict
 
 
 @dataclass
-class AstarWorld(Astar[Vertice]):
+class AstarWorld(Astar[Vertice, Edge]):
     game_state: GameState
     world_signals: WorldSignals | None = None
 

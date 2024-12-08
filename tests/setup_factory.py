@@ -38,7 +38,7 @@ from src.services.logging.logger import Logger
 
 
 class GameStateFixture(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.game_info_signals = GameInfoSignals()
         self.grid_signals = GridSignals()
         self.log_signals = LogSignals()
@@ -75,6 +75,9 @@ class GameStateFixture(unittest.TestCase):
             astar_world=astar_world,
         )
 
+    def tearDown(self) -> None:
+        self.logger.close()
+
     def set_game_state(
         self,
         player_cell_id: int,
@@ -82,7 +85,7 @@ class GameStateFixture(unittest.TestCase):
         include_spell_ids: Iterable[int] | None = None,
         map_id: int = 88090898,
         movement_point: int = 5,
-    ):
+    ) -> None:
         player_id = -1
         self.game_state.map.map_id = map_id
         self.game_state.player.character_id = player_id

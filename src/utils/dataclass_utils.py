@@ -1,18 +1,23 @@
-from collections.abc import Iterable, Mapping
 from dataclasses import MISSING, fields, is_dataclass
 from datetime import datetime
-from typing import Any, Callable, TypeAlias, TypeVar, cast
+from typing import Any, TypeAlias, TypeGuard, TypedDict, cast
 
 from google.protobuf.json_format import MessageToJson
 from google.protobuf.message import Message
-from pydantic import BaseModel, ConfigDict, validate_call
+from pydantic import BaseModel, ConfigDict
+
+from src.utils.type_guards import to_object_dict, to_object_list, to_str_object_dict
 
 
 class AppModel(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-F = TypeVar("F", bound=Callable[..., Any])
+class SerializedProtoMessagePayload(TypedDict):
+    msg_full_name: str
+    content: str
+
+
 SerializedValue: TypeAlias = (
     str
     | int
@@ -24,13 +29,23 @@ SerializedValue: TypeAlias = (
 )
 
 
-def ValidatedCall(func: F) -> F:
-    return cast(
-        F,
-        validate_call(
-            config=ConfigDict(arbitrary_types_allowed=True, validate_return=True)
-        )(func),
-    )
+def is_serialized_value(value: object) -> TypeGuard[SerializedValue]:
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return True
+    typed_list = to_object_list(value)
+    if typed_list is not None:
+        return all(is_serialized_value(item) for item in typed_list)
+    typed_dict = to_str_object_dict(value)
+    if typed_dict is None:
+        return False
+    return all(is_serialized_value(item) for item in typed_dict.values())
+
+
+def is_serialized_content(value: object) -> TypeGuard[dict[str, SerializedValue]]:
+    typed_dict = to_str_object_dict(value)
+    if typed_dict is None:
+        return False
+    return all(is_serialized_value(item) for item in typed_dict.values())
 
 
 def reset_fields_to_default(instance: Any, include_fields: list[str]) -> None:
@@ -59,10 +74,11 @@ def _serialize_value(value: object) -> SerializedValue | None:
     if value is None:
         return None
     if isinstance(value, Message):
-        return {
+        payload: dict[str, SerializedValue] = {
             "msg_full_name": value.DESCRIPTOR.full_name,
             "content": MessageToJson(value, preserving_proto_field_name=True),
         }
+        return payload
     if isinstance(value, (str, int, float, bool)):
         return value
     if isinstance(value, datetime):
@@ -71,17 +87,26 @@ def _serialize_value(value: object) -> SerializedValue | None:
         return value.decode("utf-8", errors="ignore")
     if is_dataclass(value):
         return dataclass_to_dict(value)
-    if isinstance(value, Mapping):
-        mapping_value = cast(Mapping[object, object], value)
+    typed_mapping = to_object_dict(value)
+    if typed_mapping is not None:
         serialized_dict: dict[str, SerializedValue] = {}
-        for key, item in mapping_value.items():
+        for key, item in typed_mapping.items():
             serialized_item = _serialize_value(item)
             if serialized_item is not None:
                 serialized_dict[str(key)] = serialized_item
         return serialized_dict
-    if isinstance(value, (list, tuple, set)):
+    typed_list = to_object_list(value)
+    if typed_list is not None:
         serialized_list: list[SerializedValue] = []
-        for item in cast(Iterable[object], value):
+        for item in typed_list:
+            serialized_item = _serialize_value(item)
+            if serialized_item is not None:
+                serialized_list.append(serialized_item)
+        return serialized_list
+    if isinstance(value, (tuple, set)):
+        serialized_list = []
+        typed_iterable = cast(tuple[object, ...] | set[object], value)
+        for item in typed_iterable:
             serialized_item = _serialize_value(item)
             if serialized_item is not None:
                 serialized_list.append(serialized_item)

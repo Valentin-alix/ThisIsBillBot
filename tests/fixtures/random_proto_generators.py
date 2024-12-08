@@ -21,7 +21,7 @@ import importlib
 import pkgutil
 import random
 import string
-from typing import Any, Callable, cast
+from typing import Any, Callable, TypeVar
 
 from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message
@@ -139,6 +139,7 @@ from datas.protos.non_obf.game.teleportation_pb2 import (
 )
 
 GAME_PROTO_PKG = "datas.protos.non_obf.game"
+MessageT = TypeVar("MessageT", bound=Message)
 
 
 def _discover_proto_modules() -> list[str]:
@@ -258,11 +259,8 @@ def _fill_field(msg: Message, field: Any, field_name: str):
             _fill_scalar_field(msg, field, random.choice([True, False]))
 
 
-def _create_and_fill(name: str) -> Message:
-    cls = _find_message_class(name)
-    if cls is None:
-        raise RuntimeError(f"protobuf class for {name} not found")
-    msg = cls()
+def _create_and_fill_typed(message_type: type[MessageT]) -> MessageT:
+    msg = message_type()
     _fill_message_basic(msg)
     return msg
 
@@ -274,49 +272,42 @@ def _create_and_fill(name: str) -> Message:
 
 def generate_SpellsEvent() -> SpellsEvent:
     """Generate a `SpellsEvent` message."""
-    return cast(SpellsEvent, _create_and_fill("SpellsEvent"))
+    return _create_and_fill_typed(SpellsEvent)
 
 
 def generate_InventoryContentEvent() -> InventoryContentEvent:
     """Generate a `InventoryContentEvent` message."""
-    return cast(InventoryContentEvent, _create_and_fill("InventoryContentEvent"))
+    return _create_and_fill_typed(InventoryContentEvent)
 
 
 def generate_CharacterCharacteristicsEvent() -> CharacterCharacteristicsEvent:
-    return cast(
-        CharacterCharacteristicsEvent, _create_and_fill("CharacterCharacteristicsEvent")
-    )
+    return _create_and_fill_typed(CharacterCharacteristicsEvent)
 
 
 def generate_CharacterSelectionEvent() -> CharacterSelectionEvent:
-    return cast(CharacterSelectionEvent, _create_and_fill("CharacterSelectionEvent"))
+    return _create_and_fill_typed(CharacterSelectionEvent)
 
 
 def generate_InventoryWeightEvent() -> InventoryWeightEvent:
-    return cast(InventoryWeightEvent, _create_and_fill("InventoryWeightEvent"))
+    return _create_and_fill_typed(InventoryWeightEvent)
 
 
 def generate_ZaapKnownListEvent() -> ZaapKnownListEvent:
-    return cast(ZaapKnownListEvent, _create_and_fill("ZaapKnownListEvent"))
+    return _create_and_fill_typed(ZaapKnownListEvent)
 
 
 def generate_JobExperiencesUpdateEvent() -> JobExperiencesUpdateEvent:
-    return cast(
-        JobExperiencesUpdateEvent, _create_and_fill("JobExperiencesUpdateEvent")
-    )
+    return _create_and_fill_typed(JobExperiencesUpdateEvent)
 
 
 def generate_CharacterCharacteristicUpgradeRequest() -> (
     CharacterCharacteristicUpgradeRequest
 ):
-    return cast(
-        CharacterCharacteristicUpgradeRequest,
-        _create_and_fill("CharacterCharacteristicUpgradeRequest"),
-    )
+    return _create_and_fill_typed(CharacterCharacteristicUpgradeRequest)
 
 
 def generate_MapCurrentEvent() -> MapCurrentEvent:
-    return cast(MapCurrentEvent, _create_and_fill("MapCurrentEvent"))
+    return _create_and_fill_typed(MapCurrentEvent)
 
 
 def generate_basicActorPositionInformation() -> ActorPositionInformation:
@@ -335,9 +326,8 @@ def generate_basicActorPositionInformation() -> ActorPositionInformation:
 def generate_MapComplementaryInformationEvent(
     map_id: int | None = None,
 ) -> MapComplementaryInformationEvent:
-    map_complementary_information_event = cast(
+    map_complementary_information_event = _create_and_fill_typed(
         MapComplementaryInformationEvent,
-        _create_and_fill("MapComplementaryInformationEvent"),
     )
     if map_id:
         map_complementary_information_event.map_id = map_id
@@ -349,352 +339,268 @@ def generate_MapComplementaryInformationEvent(
 
 
 def generate_MapMovementRequest() -> MapMovementRequest:
-    return cast(MapMovementRequest, _create_and_fill("MapMovementRequest"))
+    return _create_and_fill_typed(MapMovementRequest)
 
 
 def generate_MapMovementEvent() -> MapMovementEvent:
-    return cast(MapMovementEvent, _create_and_fill("MapMovementEvent"))
+    return _create_and_fill_typed(MapMovementEvent)
 
 
 def generate_MapMovementConfirmRequest() -> MapMovementConfirmRequest:
-    return cast(
-        MapMovementConfirmRequest,
-        _create_and_fill("MapMovementConfirmRequest"),
-    )
+    return _create_and_fill_typed(MapMovementConfirmRequest)
 
 
 def generate_MapMovementConfirmResponse() -> MapMovementConfirmResponse:
-    return cast(
-        MapMovementConfirmResponse,
-        _create_and_fill("MapMovementConfirmResponse"),
-    )
+    return _create_and_fill_typed(MapMovementConfirmResponse)
 
 
 def generate_MapChangeRequest() -> MapChangeRequest:
-    return cast(MapChangeRequest, _create_and_fill("MapChangeRequest"))
+    return _create_and_fill_typed(MapChangeRequest)
 
 
 def generate_InteractiveUseRequest() -> InteractiveUseRequest:
-    return cast(InteractiveUseRequest, _create_and_fill("InteractiveUseRequest"))
+    return _create_and_fill_typed(InteractiveUseRequest)
 
 
 def generate_StatedElementUpdatedEvent() -> StatedElementUpdatedEvent:
-    return cast(
-        StatedElementUpdatedEvent,
-        _create_and_fill("StatedElementUpdatedEvent"),
-    )
+    return _create_and_fill_typed(StatedElementUpdatedEvent)
 
 
 def generate_InteractiveUsedEvent() -> InteractiveUsedEvent:
-    return cast(InteractiveUsedEvent, _create_and_fill("InteractiveUsedEvent"))
+    return _create_and_fill_typed(InteractiveUsedEvent)
 
 
 def generate_NpcGenericActionRequest() -> NpcGenericActionRequest:
-    return cast(NpcGenericActionRequest, _create_and_fill("NpcGenericActionRequest"))
+    return _create_and_fill_typed(NpcGenericActionRequest)
 
 
 def generate_NpcDialogQuestionEvent() -> NpcDialogQuestionEvent:
-    return cast(NpcDialogQuestionEvent, _create_and_fill("NpcDialogQuestionEvent"))
+    return _create_and_fill_typed(NpcDialogQuestionEvent)
 
 
 def generate_NpcDialogReplyRequest() -> NpcDialogReplyRequest:
-    return cast(NpcDialogReplyRequest, _create_and_fill("NpcDialogReplyRequest"))
+    return _create_and_fill_typed(NpcDialogReplyRequest)
 
 
 def generate_ExchangeStartedWithStorageEvent() -> ExchangeStartedWithStorageEvent:
-    return cast(
-        ExchangeStartedWithStorageEvent,
-        _create_and_fill("ExchangeStartedWithStorageEvent"),
-    )
+    return _create_and_fill_typed(ExchangeStartedWithStorageEvent)
 
 
 def generate_StorageInventoryContentEvent() -> StorageInventoryContentEvent:
-    return cast(
-        StorageInventoryContentEvent,
-        _create_and_fill("StorageInventoryContentEvent"),
-    )
+    return _create_and_fill_typed(StorageInventoryContentEvent)
 
 
 def generate_ExchangeObjectTransferAllFromInventoryRequest() -> (
     ExchangeObjectTransferAllFromInventoryRequest
 ):
-    return cast(
-        ExchangeObjectTransferAllFromInventoryRequest,
-        _create_and_fill("ExchangeObjectTransferAllFromInventoryRequest"),
-    )
+    return _create_and_fill_typed(ExchangeObjectTransferAllFromInventoryRequest)
 
 
 def generate_ExchangeObjectMoveRequest() -> ExchangeObjectMoveRequest:
-    return cast(
-        ExchangeObjectMoveRequest,
-        _create_and_fill("ExchangeObjectMoveRequest"),
-    )
+    return _create_and_fill_typed(ExchangeObjectMoveRequest)
 
 
 def generate_ObjectAddedEvent() -> ObjectAddedEvent:
-    return cast(ObjectAddedEvent, _create_and_fill("ObjectAddedEvent"))
+    return _create_and_fill_typed(ObjectAddedEvent)
 
 
 def generate_ObjectQuantityEvent() -> ObjectQuantityEvent:
-    return cast(ObjectQuantityEvent, _create_and_fill("ObjectQuantityEvent"))
+    return _create_and_fill_typed(ObjectQuantityEvent)
 
 
 def generate_ExchangeMoveKamaRequest() -> ExchangeMoveKamaRequest:
-    return cast(ExchangeMoveKamaRequest, _create_and_fill("ExchangeMoveKamaRequest"))
+    return _create_and_fill_typed(ExchangeMoveKamaRequest)
 
 
 def generate_DialogLeaveRequest() -> DialogLeaveRequest:
-    return cast(DialogLeaveRequest, _create_and_fill("DialogLeaveRequest"))
+    return _create_and_fill_typed(DialogLeaveRequest)
 
 
 def generate_ExchangeLeaveEvent() -> ExchangeLeaveEvent:
-    return cast(ExchangeLeaveEvent, _create_and_fill("ExchangeLeaveEvent"))
+    return _create_and_fill_typed(ExchangeLeaveEvent)
 
 
 def generate_HavenBagEnterRequest() -> HavenBagEnterRequest:
-    return cast(HavenBagEnterRequest, _create_and_fill("HavenBagEnterRequest"))
+    return _create_and_fill_typed(HavenBagEnterRequest)
 
 
 def generate_HavenBagExitRequest() -> HavenBagExitRequest:
-    return cast(HavenBagExitRequest, _create_and_fill("HavenBagExitRequest"))
+    return _create_and_fill_typed(HavenBagExitRequest)
 
 
 def generate_ObjectUseRequest() -> ObjectUseRequest:
-    return cast(ObjectUseRequest, _create_and_fill("ObjectUseRequest"))
+    return _create_and_fill_typed(ObjectUseRequest)
 
 
 def generate_TeleportRequest() -> TeleportRequest:
-    return cast(TeleportRequest, _create_and_fill("TeleportRequest"))
+    return _create_and_fill_typed(TeleportRequest)
 
 
 def generate_ExchangeBidSellerStartedEvent() -> ExchangeBidSellerStartedEvent:
-    return cast(
-        ExchangeBidSellerStartedEvent,
-        _create_and_fill("ExchangeBidSellerStartedEvent"),
-    )
+    return _create_and_fill_typed(ExchangeBidSellerStartedEvent)
 
 
 def generate_ExchangeBidHouseSearchRequest() -> ExchangeBidHouseSearchRequest:
-    return cast(
-        ExchangeBidHouseSearchRequest,
-        _create_and_fill("ExchangeBidHouseSearchRequest"),
-    )
+    return _create_and_fill_typed(ExchangeBidHouseSearchRequest)
 
 
 def generate_ExchangeBidHousePriceRequest() -> ExchangeBidHousePriceRequest:
-    return cast(
-        ExchangeBidHousePriceRequest,
-        _create_and_fill("ExchangeBidHousePriceRequest"),
-    )
+    return _create_and_fill_typed(ExchangeBidHousePriceRequest)
 
 
 def generate_ExchangeBidPriceEvent() -> ExchangeBidPriceEvent:
-    return cast(ExchangeBidPriceEvent, _create_and_fill("ExchangeBidPriceEvent"))
+    return _create_and_fill_typed(ExchangeBidPriceEvent)
 
 
 def generate_ExchangeObjectMovePricedRequest() -> ExchangeObjectMovePricedRequest:
-    return cast(
-        ExchangeObjectMovePricedRequest,
-        _create_and_fill("ExchangeObjectMovePricedRequest"),
-    )
+    return _create_and_fill_typed(ExchangeObjectMovePricedRequest)
 
 
 def generate_ExchangeObjectModifyPricedRequest() -> ExchangeObjectModifyPricedRequest:
-    return cast(
-        ExchangeObjectModifyPricedRequest,
-        _create_and_fill("ExchangeObjectModifyPricedRequest"),
-    )
+    return _create_and_fill_typed(ExchangeObjectModifyPricedRequest)
 
 
 def generate_ExchangeBidHouseItemAddedEvent() -> ExchangeBidHouseItemAddedEvent:
-    return cast(
-        ExchangeBidHouseItemAddedEvent,
-        _create_and_fill("ExchangeBidHouseItemAddedEvent"),
-    )
+    return _create_and_fill_typed(ExchangeBidHouseItemAddedEvent)
 
 
 def generate_ExchangeBidHouseItemRemovedEvent() -> ExchangeBidHouseItemRemovedEvent:
-    return cast(
-        ExchangeBidHouseItemRemovedEvent,
-        _create_and_fill("ExchangeBidHouseItemRemovedEvent"),
-    )
+    return _create_and_fill_typed(ExchangeBidHouseItemRemovedEvent)
 
 
 def generate_TextInformationEvent() -> TextInformationEvent:
-    return cast(TextInformationEvent, _create_and_fill("TextInformationEvent"))
+    return _create_and_fill_typed(TextInformationEvent)
 
 
 def generate_AttackMonsterRequest() -> AttackMonsterRequest:
-    return cast(AttackMonsterRequest, _create_and_fill("AttackMonsterRequest"))
+    return _create_and_fill_typed(AttackMonsterRequest)
 
 
 def generate_FightMapInformationEvent() -> FightMapInformationEvent:
-    return cast(
-        FightMapInformationEvent,
-        _create_and_fill("FightMapInformationEvent"),
-    )
+    return _create_and_fill_typed(FightMapInformationEvent)
 
 
 def generate_FightPlacementPossiblePositionsEvent() -> (
     FightPlacementPossiblePositionsEvent
 ):
-    return cast(
-        FightPlacementPossiblePositionsEvent,
-        _create_and_fill("FightPlacementPossiblePositionsEvent"),
-    )
+    return _create_and_fill_typed(FightPlacementPossiblePositionsEvent)
 
 
 def generate_FightPlacementPositionRequest() -> FightPlacementPositionRequest:
-    return cast(
-        FightPlacementPositionRequest,
-        _create_and_fill("FightPlacementPositionRequest"),
-    )
+    return _create_and_fill_typed(FightPlacementPositionRequest)
 
 
 def generate_FightReadyRequest() -> FightReadyRequest:
-    return cast(FightReadyRequest, _create_and_fill("FightReadyRequest"))
+    return _create_and_fill_typed(FightReadyRequest)
 
 
 def generate_FightTurnStartPlayingEvent() -> FightTurnStartPlayingEvent:
-    return cast(
-        FightTurnStartPlayingEvent,
-        _create_and_fill("FightTurnStartPlayingEvent"),
-    )
+    return _create_and_fill_typed(FightTurnStartPlayingEvent)
 
 
 def generate_GameActionFightEvent() -> GameActionFightEvent:
-    return cast(GameActionFightEvent, _create_and_fill("GameActionFightEvent"))
+    return _create_and_fill_typed(GameActionFightEvent)
 
 
 def generate_GameActionFightCastRequest() -> GameActionFightCastRequest:
-    return cast(
-        GameActionFightCastRequest,
-        _create_and_fill("GameActionFightCastRequest"),
-    )
+    return _create_and_fill_typed(GameActionFightCastRequest)
 
 
 def generate_SequenceEndEvent() -> SequenceEndEvent:
-    return cast(SequenceEndEvent, _create_and_fill("SequenceEndEvent"))
+    return _create_and_fill_typed(SequenceEndEvent)
 
 
 def generate_GameActionAcknowledgementRequest() -> GameActionAcknowledgementRequest:
-    return cast(
-        GameActionAcknowledgementRequest,
-        _create_and_fill("GameActionAcknowledgementRequest"),
-    )
+    return _create_and_fill_typed(GameActionAcknowledgementRequest)
 
 
 def generate_FightLiveStateEvent() -> FightLiveStateEvent:
-    return cast(FightLiveStateEvent, _create_and_fill("FightLiveStateEvent"))
+    return _create_and_fill_typed(FightLiveStateEvent)
 
 
 def generate_FightTurnFinishRequest() -> FightTurnFinishRequest:
-    return cast(FightTurnFinishRequest, _create_and_fill("FightTurnFinishRequest"))
+    return _create_and_fill_typed(FightTurnFinishRequest)
 
 
 def generate_EntitiesDispositionEvent() -> EntitiesDispositionEvent:
-    return cast(
-        EntitiesDispositionEvent,
-        _create_and_fill("EntitiesDispositionEvent"),
-    )
+    return _create_and_fill_typed(EntitiesDispositionEvent)
 
 
 def generate_FightRefreshCharacterStatsEvent() -> FightRefreshCharacterStatsEvent:
-    return cast(
-        FightRefreshCharacterStatsEvent,
-        _create_and_fill("FightRefreshCharacterStatsEvent"),
-    )
+    return _create_and_fill_typed(FightRefreshCharacterStatsEvent)
 
 
 def generate_MapMovementRefusedEvent() -> MapMovementRefusedEvent:
-    return cast(MapMovementRefusedEvent, _create_and_fill("MapMovementRefusedEvent"))
+    return _create_and_fill_typed(MapMovementRefusedEvent)
 
 
 def generate_ChatChannelMessageRequest() -> ChatChannelMessageRequest:
-    return cast(
-        ChatChannelMessageRequest,
-        _create_and_fill("ChatChannelMessageRequest"),
-    )
+    return _create_and_fill_typed(ChatChannelMessageRequest)
 
 
 def generate_ChatPrivateMessageRequest() -> ChatPrivateMessageRequest:
-    return cast(
-        ChatPrivateMessageRequest,
-        _create_and_fill("ChatPrivateMessageRequest"),
-    )
+    return _create_and_fill_typed(ChatPrivateMessageRequest)
 
 
 def generate_ChatChannelMessageEvent() -> ChatChannelMessageEvent:
-    return cast(
-        ChatChannelMessageEvent,
-        _create_and_fill("ChatChannelMessageEvent"),
-    )
+    return _create_and_fill_typed(ChatChannelMessageEvent)
 
 
 def generate_GuildMembershipEvent() -> GuildMembershipEvent:
-    return cast(GuildMembershipEvent, _create_and_fill("GuildMembershipEvent"))
+    return _create_and_fill_typed(GuildMembershipEvent)
 
 
 def generate_GuildChestCurrentListenersAddEvent() -> GuildChestCurrentListenersAddEvent:
-    return cast(
-        GuildChestCurrentListenersAddEvent,
-        _create_and_fill("GuildChestCurrentListenersAddEvent"),
-    )
+    return _create_and_fill_typed(GuildChestCurrentListenersAddEvent)
 
 
 def generate_ExchangeStartedWithMultiTabStorageEvent() -> (
     ExchangeStartedWithMultiTabStorageEvent
 ):
-    return cast(
-        ExchangeStartedWithMultiTabStorageEvent,
-        _create_and_fill("ExchangeStartedWithMultiTabStorageEvent"),
-    )
+    return _create_and_fill_typed(ExchangeStartedWithMultiTabStorageEvent)
 
 
 def generate_GuildChestTabSelectRequest() -> GuildChestTabSelectRequest:
-    return cast(
-        GuildChestTabSelectRequest,
-        _create_and_fill("GuildChestTabSelectRequest"),
-    )
+    return _create_and_fill_typed(GuildChestTabSelectRequest)
 
 
 def generate_ExchangeCraftStartedEvent() -> ExchangeCraftStartedEvent:
-    return cast(
-        ExchangeCraftStartedEvent,
-        _create_and_fill("ExchangeCraftStartedEvent"),
-    )
+    return _create_and_fill_typed(ExchangeCraftStartedEvent)
 
 
 def generate_ExchangeSetCraftRecipeRequest() -> ExchangeSetCraftRecipeRequest:
-    return cast(
-        ExchangeSetCraftRecipeRequest,
-        _create_and_fill("ExchangeSetCraftRecipeRequest"),
-    )
+    return _create_and_fill_typed(ExchangeSetCraftRecipeRequest)
 
 
 def generate_ExchangeCraftCountRequest() -> ExchangeCraftCountRequest:
-    return cast(
-        ExchangeCraftCountRequest,
-        _create_and_fill("ExchangeCraftCountRequest"),
-    )
+    return _create_and_fill_typed(ExchangeCraftCountRequest)
 
 
 def generate_ExchangeCraftCountModifiedEvent() -> ExchangeCraftCountModifiedEvent:
-    return cast(
-        ExchangeCraftCountModifiedEvent,
-        _create_and_fill("ExchangeCraftCountModifiedEvent"),
-    )
+    return _create_and_fill_typed(ExchangeCraftCountModifiedEvent)
 
 
 def generate_ExchangeReadyRequest() -> ExchangeReadyRequest:
-    return cast(ExchangeReadyRequest, _create_and_fill("ExchangeReadyRequest"))
+    return _create_and_fill_typed(ExchangeReadyRequest)
 
 
 # utility helpers
 def get_generator(name: str) -> Callable[[], Message] | None:
-    fn = globals().get(f"generate_{name}")
-    if callable(fn):
-        return fn  # type: ignore
+    candidate = globals().get(f"generate_{name}")
+    if not callable(candidate):
+        return None
+
+    def generator() -> Message:
+        result = candidate()
+        if not isinstance(result, Message):
+            raise TypeError(f"Generator generate_{name} returned {type(result)!r}")
+        return result
+
+    if _find_message_class(name) is None:
+        return None
+
+    if callable(candidate):
+        return generator
     return None
 
 

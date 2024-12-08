@@ -32,6 +32,7 @@ class TestPlayerState(StateTestBase):
         other_bot = BotFactory.create_bot(
             SharedSignals(), account=TEST_ACCOUNT, is_fake=True
         )
+        self.addCleanup(other_bot._logger.close)
 
         assert (
             self.game_state.player.waypoint_map_ids

@@ -1,10 +1,20 @@
+from functools import partial
 import inspect
+from typing import Callable
 
 from google.protobuf.message import Message
 from PyQt6.QtWidgets import QTextEdit, QWidget
 from qfluentwidgets import MessageBoxBase, PushButton, SubtitleLabel
 
 from src.core.events_manager.listener import Listener
+
+
+def _get_callback_source_target(
+    callback: Callable[..., object],
+) -> Callable[..., object]:
+    if isinstance(callback, partial):
+        return callback.func
+    return callback
 
 
 class ListenerDetailsBox(MessageBoxBase):
@@ -26,10 +36,7 @@ class ListenerDetailsBox(MessageBoxBase):
 
         Callback Source:
                         """
-        if hasattr(listener.callback, "func"):
-            source = inspect.getsource(listener.callback.func)  # pyright: ignore[reportFunctionMemberAccess]
-        else:
-            source = inspect.getsource(listener.callback)
+        source = inspect.getsource(_get_callback_source_target(listener.callback))
         highlighted_code = source
         html_content = f"""
         <html>

@@ -100,7 +100,7 @@ class Sidebar(NavigationInterface):
             onClick,
             selectable,
             position,
-            tooltip,  # type: ignore
+            tooltip,
             parentRouteKey,
         )
         assert _widget
@@ -147,7 +147,7 @@ class Sidebar(NavigationInterface):
             widget,
             onClick,
             position,
-            tooltip,  # type: ignore
-            parentRouteKey,  # type: ignore
+            tooltip,
+            parentRouteKey,
         )
         # self.setMinimumHeight(self.panel.layoutMinHeight())

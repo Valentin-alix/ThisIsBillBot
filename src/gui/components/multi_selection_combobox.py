@@ -1,4 +1,4 @@
-from typing import Any, cast, Union
+from typing import Any, Callable, Union
 
 from PyQt6.QtCore import QPoint, Qt, pyqtSignal
 from PyQt6.QtGui import QAction, QIcon
@@ -10,7 +10,9 @@ from qfluentwidgets.components.widgets.combo_box import ComboBoxMenu, ComboItem
 
 class StayOpenMenu(ComboBoxMenu):
     def _onItemClicked(self, item: Any) -> None:
-        action = cast(QAction, item.data(Qt.ItemDataRole.UserRole))
+        action = item.data(Qt.ItemDataRole.UserRole)
+        if not isinstance(action, QAction):
+            return
         if action not in self._actions or not action.isEnabled():
             return
 
@@ -89,7 +91,7 @@ class MultiSelectComboBox(ComboBox):
     def _onDropMenuClosed(self) -> None:
         self.dropMenu = None
 
-    def _build_toggle_handler(self, index: int) -> Any:
+    def _build_toggle_handler(self, index: int) -> Callable[[bool], None]:
         def _handle_toggle(checked: bool) -> None:
             self._onItemToggled(index, checked)
 
@@ -140,7 +142,7 @@ class MultiSelectComboBox(ComboBox):
 
         icon: str | QIcon | FluentIconBase
         """
-        item = ComboItem(text, icon, userData)  # pyright: ignore[reportArgumentType]
+        item = ComboItem(text, icon, userData)
         self.items.append(item)
 
     # Éventuellement, si tu souhaites autoriser d'autres comportements, tu peux également

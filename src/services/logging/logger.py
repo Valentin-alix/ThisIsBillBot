@@ -11,7 +11,7 @@ from src.services.logging.global_handler import GlobalSignalHandler
 from src.services.logging.log_level import LogLevel
 
 
-def init_global_logging():
+def init_global_logging() -> None:
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     handler = logging.StreamHandler()
@@ -44,6 +44,13 @@ class Logger(logging.Logger):
         file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         file_handler.setFormatter(file_formatter)
         self.addHandler(file_handler)
+
+    def close(self) -> None:
+        handlers = list(self.handlers)
+        for handler in handlers:
+            self.removeHandler(handler)
+            handler.flush()
+            handler.close()
 
     def log(
         self,

@@ -1,7 +1,5 @@
-from typing import cast
-
 from PyQt6.QtGui import QResizeEvent
-from PyQt6.QtWidgets import QHBoxLayout, QStackedWidget, QWidget
+from PyQt6.QtWidgets import QHBoxLayout, QWidget
 from qfluentwidgets import (
     FluentStyleSheet,
     FluentTitleBar,
@@ -88,19 +86,17 @@ class AppFluentWindow(FluentWindowBase):
             widget=navigation_widget,
             onClick=lambda: self.switchTo(interface),
             position=position,
-            parentRouteKey=cast(str, parent.objectName() if parent else None),
+            parentRouteKey=parent.objectName() if parent else None,
         )
 
         # initialize selected item
         if self.stackedWidget.count() == 1:
             self.stackedWidget.currentChanged.connect(self._onCurrentInterfaceChanged)
             self.navigationInterface.setCurrentItem(routeKey)
-            qrouter.setDefaultRouteKey(
-                cast(QStackedWidget, self.stackedWidget), routeKey
-            )
+            qrouter.setDefaultRouteKey(self.stackedWidget, routeKey)
 
         self._updateStackedBackground()
 
-    def resizeEvent(self, e: QResizeEvent | None) -> None:
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
         self.titleBar.move(46, 0)
         self.titleBar.resize(self.width() - 46, self.titleBar.height())

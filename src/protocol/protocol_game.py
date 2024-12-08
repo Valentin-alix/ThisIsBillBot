@@ -4,7 +4,7 @@ import traceback
 from collections.abc import Callable, Mapping
 from functools import cache
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from consts import GAME_MAPPINGS_JSON_FILE
 from datas.protos.non_obf.game.game_message_pb2 import GameMessage
@@ -19,6 +19,7 @@ from src.controller.instancied_msg_info_controller import (
     InstanciedMessageInfoController,
 )
 from src.protocol.message import MessageInfo
+from src.utils.type_guards import to_str_object_dict
 
 TYPE_URL_PREFIX = "type.ankama.com/"
 _GAME_MAPPINGS_PATH = Path(GAME_MAPPINGS_JSON_FILE)
@@ -33,12 +34,9 @@ MessageTransformer = Callable[[Message], Message]
 
 
 def _get_mapping_info(mapping_value: Any) -> dict[str, object]:
-    if not isinstance(mapping_value, dict):
+    typed_mapping = to_str_object_dict(mapping_value)
+    if typed_mapping is None:
         raise TypeError("Invalid mapping info")
-    raw_mapping = cast(dict[object, object], mapping_value)
-    typed_mapping: dict[str, object] = {}
-    for raw_key, raw_value in raw_mapping.items():
-        typed_mapping[str(raw_key)] = raw_value
     return typed_mapping
 
 
@@ -49,16 +47,16 @@ def _get_mapping_namespace(mapping_info: dict[str, object]) -> str:
     return namespace
 
 
-def _get_field_mapping_to_real(mapping_info: dict[str, object]) -> dict[str, str | None]:
+def _get_field_mapping_to_real(
+    mapping_info: dict[str, object],
+) -> dict[str, str | None]:
     raw_field_mapping = mapping_info["field_mapping"]
-    if not isinstance(raw_field_mapping, dict):
+    typed_raw_field_mapping = to_str_object_dict(raw_field_mapping)
+    if typed_raw_field_mapping is None:
         raise TypeError("Invalid field mapping")
 
-    typed_raw_field_mapping = cast(dict[object, object], raw_field_mapping)
     field_mapping: dict[str, str | None] = {}
     for raw_key_obj, raw_value_obj in typed_raw_field_mapping.items():
-        if not isinstance(raw_key_obj, str):
-            raise TypeError("Invalid field mapping key")
         if raw_value_obj is not None and not isinstance(raw_value_obj, str):
             raise TypeError("Invalid field mapping value")
         field_mapping[raw_key_obj] = raw_value_obj
@@ -72,13 +70,10 @@ def _is_repeated_field(field_descriptor: FieldDescriptor) -> bool:
 @cache
 def _load_game_mappings() -> RawGameMappings:
     with open(_GAME_MAPPINGS_PATH) as f:
-        raw_mappings: Any = json.load(f)
-    if not isinstance(raw_mappings, dict):
+        raw_mappings: object = json.load(f)
+    typed_mappings = to_str_object_dict(raw_mappings)
+    if typed_mappings is None:
         raise TypeError("Invalid game mappings payload")
-    typed_raw_mappings = cast(dict[object, object], raw_mappings)
-    typed_mappings: RawGameMappings = {}
-    for raw_key, raw_value in typed_raw_mappings.items():
-        typed_mappings[str(raw_key)] = raw_value
     return typed_mappings
 
 
@@ -276,7 +271,9 @@ def get_obf_game_message_from_msg(
         root_msg_namespace
     ]
     obf_sub_msg_type = GetMessageClass(POOL.FindMessageTypeByName(obf_sub_type_url))
-    sub_msg_values: dict[str, Message | int] = {obf_sub_field_mapping["content"]: obf_any_msg}
+    sub_msg_values: dict[str, Message | int] = {
+        obf_sub_field_mapping["content"]: obf_any_msg
+    }
     if "uid" in obf_sub_field_mapping:
         sub_msg_values[obf_sub_field_mapping["uid"]] = uid or -1
     obf_sub_msg = obf_sub_msg_type(**sub_msg_values)
@@ -325,7 +322,10 @@ def get_msg_transformer(
 
     output_msg_name, field_mapping = related_mapping
 
-    output_msg_descriptor: Descriptor = POOL.FindMessageTypeByName(output_msg_name)
+    try:
+        output_msg_descriptor: Descriptor = POOL.FindMessageTypeByName(output_msg_name)
+    except KeyError:
+        return None
     output_msg_type = GetMessageClass(output_msg_descriptor)
 
     def transformer(msg: Message) -> Message:

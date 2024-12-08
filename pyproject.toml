@@ -36,6 +36,7 @@ dependencies = [
     "playwright>=1.58.0",
     "pyqt6-fluent-widgets>=1.11.1",
     "vulture>=2.16",
+    "pyarrow-stubs>=20.0.0.20251215",
 ]
 
 [dependency-groups]
@@ -81,6 +82,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.poe.tasks]
+dead_code = "vulture src AnkamaLauncherEmulatorPremium/ankama_launcher_emulator_premium scripts/vulture_whitelist.py --exclude \"*gen_zaap*,*proxy/dofus3/login_message_pb2.py\" --min-confidence 80"
 check_type = "pyright"
 lint = "ruff check ."
 check = ["lint", "check_type"]

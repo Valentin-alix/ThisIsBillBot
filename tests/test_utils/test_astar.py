@@ -1,16 +1,7 @@
 import unittest
 from typing import Iterator
 
-from src.utils.astar import Astar, find_path
-
-
-class LineAstar(Astar[int]):
-    def get_neighbors(self, data: int) -> Iterator[int]:
-        if data < 3:
-            yield data + 1
-
-    def get_dist(self, current: int, ends: set[int]) -> float:
-        return min(abs(current - end) for end in ends)
+from src.utils.astar import find_path
 
 
 class TestAstar(unittest.TestCase):

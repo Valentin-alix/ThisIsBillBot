@@ -1,4 +1,4 @@
-from typing import Any, Callable, Union, cast
+from typing import Any, Callable, Union
 
 from PyQt6.QtCore import (
     QAbstractAnimation,
@@ -40,7 +40,6 @@ from qfluentwidgets.components.navigation.navigation_widget import NavigationToo
 from qfluentwidgets.components.widgets.acrylic_label import AcrylicBrush
 from qfluentwidgets.components.widgets.flyout import (
     Flyout,
-    FlyoutAnimationManager,
     FlyoutAnimationType,
     FlyoutViewBase,
     SlideRightFlyoutAnimationManager,
@@ -78,7 +77,7 @@ class SidebarPanel(QFrame):
         self.bottomLayout = NavigationItemLayout()
         self.scrollLayout = NavigationItemLayout(self.scrollWidget)
 
-        self.items: dict[str, Any] = {}
+        self.items: dict[str, NavigationItem] = {}
         self.history = qrouter
 
         self.expandAni = QPropertyAnimation(self, b"geometry", self)
@@ -311,7 +310,7 @@ class SidebarPanel(QFrame):
         if routeKey in self.items:
             return
 
-        w = NavigationTreeWidget(icon, text, selectable, self)  # pyright: ignore[reportArgumentType]
+        w = NavigationTreeWidget(icon, text, selectable, self)
         self.insertWidget(
             index,
             routeKey,
@@ -363,9 +362,12 @@ class SidebarPanel(QFrame):
 
         self._registerWidget(routeKey, parentRouteKey, widget, onClick, tooltip)
         if parentRouteKey:
-            cast(NavigationTreeWidgetBase, self.widget(parentRouteKey)).insertChild(
-                index, widget
-            )
+            parent_widget = self.widget(parentRouteKey)
+            if not isinstance(parent_widget, NavigationTreeWidgetBase):
+                raise TypeError(
+                    f"Navigation parent `{parentRouteKey}` must be a tree widget"
+                )
+            parent_widget.insertChild(index, widget)
         else:
             self._insertWidgetToLayout(index, widget, position)
 
@@ -413,7 +415,7 @@ class SidebarPanel(QFrame):
 
         widget.setProperty("routeKey", routeKey)
         widget.setProperty("parentRouteKey", parentRouteKey)
-        self.items[routeKey] = NavigationItem(routeKey, parentRouteKey or "", widget)
+        self.items[routeKey] = NavigationItem(routeKey, parentRouteKey, widget)
 
         if self.displayMode in [
             NavigationDisplayMode.EXPAND,
@@ -427,7 +429,7 @@ class SidebarPanel(QFrame):
 
     def _insertWidgetToLayout(
         self, index: int, widget: NavigationWidget, position: NavigationItemPosition
-    ):
+    ) -> None:
         """insert widget to layout"""
         if position == NavigationItemPosition.TOP:
             widget.setParent(self)
@@ -456,10 +458,13 @@ class SidebarPanel(QFrame):
 
         item = self.items.pop(routeKey)
 
-        if item.parentRouteKey is not None:
-            cast(NavigationTreeWidgetBase, self.widget(item.parentRouteKey)).removeChild(
-                item.widget
-            )
+        if item.parentRouteKey:
+            parent_widget = self.widget(item.parentRouteKey)
+            if not isinstance(parent_widget, NavigationTreeWidgetBase):
+                raise TypeError(
+                    f"Navigation parent `{item.parentRouteKey}` must be a tree widget"
+                )
+            parent_widget.removeChild(item.widget)
 
         if isinstance(item.widget, NavigationTreeWidgetBase):
             for child in item.widget.findChildren(
@@ -497,7 +502,7 @@ class SidebarPanel(QFrame):
             return
 
         self.expandWidth = width
-        NavigationWidget.EXPAND_WIDTH = width - 10  # type: ignore
+        NavigationWidget.EXPAND_WIDTH = width - 10
 
     def setMinimumExpandWidth(self, width: int) -> None:
         """Set the minimum window width that allows panel to be expanded"""
@@ -609,8 +614,12 @@ class SidebarPanel(QFrame):
             item.widget.setSelected(k == routeKey)
 
     def _onWidgetClicked(self) -> None:
-        widget = cast(NavigationTreeWidget, self.sender())
+        widget = self.sender()
+        if not isinstance(widget, NavigationWidget):
+            return
         if not widget.isSelectable:
+            if not isinstance(widget, NavigationTreeWidget):
+                return
             return self._showFlyoutNavigationMenu(widget)
 
         self.setCurrentItem(widget.property("routeKey"))
@@ -618,7 +627,7 @@ class SidebarPanel(QFrame):
         isLeaf = not isinstance(widget, NavigationTreeWidgetBase) or widget.isLeaf()
         if self.displayMode == NavigationDisplayMode.MENU and isLeaf:
             self.collapse()
-        elif self.isCollapsed():
+        elif self.isCollapsed() and isinstance(widget, NavigationTreeWidget):
             self._showFlyoutNavigationMenu(widget)
 
     def _showFlyoutNavigationMenu(self, widget: NavigationTreeWidget) -> None:
@@ -660,10 +669,7 @@ class SidebarPanel(QFrame):
         assert layout
         flyout.setFixedSize(layout.sizeHint())
 
-        manager: FlyoutAnimationManager = cast(
-            FlyoutAnimationManager, flyout.aniManager
-        )
-        pos = manager.position(widget)
+        pos = flyout.aniManager.position(widget)
 
         window = self.window()
         assert window
@@ -683,17 +689,19 @@ class SidebarPanel(QFrame):
         assert a1
 
         if a1.type() == QEvent.Type.MouseButtonRelease:
-            mouse_event = cast(QMouseEvent, a1)
+            if not isinstance(a1, QMouseEvent):
+                return super().eventFilter(a0, a1)
 
             if (
-                not self.geometry().contains(mouse_event.position().toPoint())
+                not self.geometry().contains(a1.position().toPoint())
                 and self.displayMode == NavigationDisplayMode.MENU
             ):
                 self.collapse()
 
         elif a1.type() == QEvent.Type.Resize:
-            resize_event = cast(QResizeEvent, a1)
-            w = resize_event.size().width()
+            if not isinstance(a1, QResizeEvent):
+                return super().eventFilter(a0, a1)
+            w = a1.size().width()
 
             if (
                 w < self.minimumExpandWidth

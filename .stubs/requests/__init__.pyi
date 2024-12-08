@@ -2,26 +2,21 @@ from collections.abc import Mapping
 
 from .adapters import HTTPAdapter
 
-
 class HTTPError(Exception): ...
 class ConnectionError(Exception): ...
 class Timeout(Exception): ...
-
 
 class _Exceptions:
     HTTPError: type[HTTPError]
     ConnectionError: type[ConnectionError]
     Timeout: type[Timeout]
 
-
 exceptions: _Exceptions
-
 
 class Response:
     text: str
     def raise_for_status(self) -> None: ...
     def json(self) -> object: ...
-
 
 class Session:
     proxies: dict[str, str]

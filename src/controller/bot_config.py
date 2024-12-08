@@ -9,9 +9,19 @@ from src.const import RESOURCE_FOLDER
 from src.utils.metaclasses.singleton import Singleton
 
 
+def _read_int_env(name: str, default: int) -> int:
+    raw_value = os.environ.get(name)
+    if raw_value is None:
+        return default
+    try:
+        return int(raw_value)
+    except ValueError:
+        return default
+
+
 class BotConfig(BaseModel):
     network_interface: str | None = None
-    pc_id: int = int(os.environ.get("PC_ID", 2))
+    pc_id: int = _read_int_env("PC_ID", 2)
     schedule_profile: str | None = None
     connection_mode: Literal["mitm", "socket"] = "mitm"
 
@@ -30,10 +40,11 @@ class BotConfigController(metaclass=Singleton):
 
     def get_bot_config_by_login(self) -> dict[str, BotConfig]:
         with self._BOT_CONFIG_LOCK:
+            current_pc_id = _read_int_env("PC_ID", -1)
             return {
                 key: value
                 for key, value in self._get_all_configs().items()
-                if value.pc_id == int(os.environ.get("PC_ID", -1))
+                if value.pc_id == current_pc_id
             }
 
     def update_bot_config_by_login(self, bot_config: BotConfig, login: str):

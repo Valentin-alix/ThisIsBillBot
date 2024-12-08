@@ -1,5 +1,4 @@
 from functools import partial
-from typing import cast
 
 from PyQt6.QtCore import QModelIndex, Qt, pyqtSlot
 from PyQt6.QtWidgets import (
@@ -13,7 +12,6 @@ from PyQt6.QtWidgets import (
 from qfluentwidgets import (
     FluentIcon,
     LineEdit,
-    PivotItem,
     PrimaryPushButton,
     SegmentedWidget,
 )
@@ -29,13 +27,19 @@ from src.gui.utils.profiling import profiled_slot
 from src.protocol.message import MessageInfo
 
 
-class SnifferWidget(PivotItem):
+def _require_message_info(value: object) -> MessageInfo:
+    if not isinstance(value, MessageInfo):
+        raise TypeError("Expected a MessageInfo payload in the message table model")
+    return value
+
+
+class SnifferWidget(QWidget):
     msg_table: MessageTable
     msg_detail: MessageDetailWidget
     play_btn: PrimaryPushButton
     stop_btn: PrimaryPushButton
 
-    def __init__(  # type: ignore[override]
+    def __init__(
         self,
         bot: Bot,
         global_log_signals: GlobalLogSignals,
@@ -216,7 +220,9 @@ class SnifferWidget(PivotItem):
         self.v_layout.setStretch(2, 1)
 
     @pyqtSlot(MessageInfo, bool)
-    def on_receive_msg_info(self, msg_info: MessageInfo, was_send_from_proxy: bool) -> None:
+    def on_receive_msg_info(
+        self, msg_info: MessageInfo, was_send_from_proxy: bool
+    ) -> None:
         if self.is_playing:
             self.msg_table.add_row(msg_info, was_send_from_proxy)
 
@@ -246,9 +252,8 @@ class SnifferWidget(PivotItem):
     def on_click_msg(self, model_index: QModelIndex) -> None:
         source_index = self.msg_table.table.proxy_model.mapToSource(model_index)
         model = self.msg_table.table.item_model
-        msg_infos = cast(
-            MessageInfo,
-            model.data(model.index(source_index.row(), 4), Qt.ItemDataRole.UserRole),
+        msg_infos = _require_message_info(
+            model.data(model.index(source_index.row(), 4), Qt.ItemDataRole.UserRole)
         )
         self.msg_detail.set_content(msg_infos.msg_json, msg_infos.obf_msg_json)
         self.msg_detail.show()

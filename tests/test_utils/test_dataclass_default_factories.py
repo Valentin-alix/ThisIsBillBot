@@ -29,6 +29,7 @@ def create_game_state_fixture() -> tuple[GameState, Logger]:
 class TestDataclassDefaultFactories(unittest.TestCase):
     def test_pathfinding_collections_are_not_shared_between_instances(self) -> None:
         game_state, logger = create_game_state_fixture()
+        self.addCleanup(logger.close)
         pathfinding = Pathfinding(
             data_map_provider=DataMapProvider(game_state=game_state),
             game_state=game_state,
@@ -52,7 +53,8 @@ class TestDataclassDefaultFactories(unittest.TestCase):
     def test_fight_reachable_cells_collections_are_not_shared_between_instances(
         self,
     ) -> None:
-        game_state, _ = create_game_state_fixture()
+        game_state, logger = create_game_state_fixture()
+        self.addCleanup(logger.close)
         fight_reachable_cells = FightReachableCells(game_state=game_state)
         other_reachable_cells = FightReachableCells(game_state=game_state)
 
@@ -65,6 +67,7 @@ class TestDataclassDefaultFactories(unittest.TestCase):
 
     def test_event_manager_collections_are_not_shared_between_instances(self) -> None:
         logger = Logger(log_signals=LogSignals(), title="event-manager-test")
+        self.addCleanup(logger.close)
         event_manager = EventManager(_logger=logger)
         other_event_manager = EventManager(_logger=logger)
 

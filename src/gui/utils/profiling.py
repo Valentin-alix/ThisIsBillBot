@@ -38,15 +38,22 @@ def profiled_slot(func: Callable[P, R], threshold_ms: int = 1) -> Callable[P, R]
 
 
 class ProfiledApp(QApplication):
-    def notify(self, receiver: QObject, event: QEvent):
+    def notify(self, a0: QObject | None, a1: QEvent | None) -> bool:
         start = perf_counter()
         try:
-            return super().notify(receiver, event)
+            return super().notify(a0, a1)
         finally:
             duration = perf_counter() - start
-            self._profile_event(receiver, event, duration)
+            self._profile_event(a0, a1, duration)
 
-    def _profile_event(self, receiver: QObject, event: QEvent, duration: float) -> None:
+    def _profile_event(
+        self,
+        receiver: QObject | None,
+        event: QEvent | None,
+        duration: float,
+    ) -> None:
+        if receiver is None or event is None:
+            return
         if duration > 0.5:
             event_name = EVENT_NAMES.get(event.type(), str(event.type()))
             if hasattr(receiver, "objectName"):

@@ -24,174 +24,115 @@ class TestAttacker(GameStateFixture):
 
 
 class TestIsBetterAttack(GameStateFixture):
-    def test_higher_weight_is_better(self):
+    def test_weight_is_the_primary_tie_breaker(self):
         current_best = cast(
             tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
             (10.0, 3, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(200)),
         )
+        cases = [
+            ("higher_weight", 15.0, 3, 200, current_best, True),
+            ("lower_weight", 5.0, 3, 200, current_best, False),
+            (
+                "weight_beats_remaining_pm",
+                15.0,
+                2,
+                200,
+                cast(
+                    tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
+                    (10.0, 5, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(200)),
+                ),
+                True,
+            ),
+            (
+                "weight_beats_distance",
+                15.0,
+                3,
+                102,
+                cast(
+                    tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
+                    (10.0, 3, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(110)),
+                ),
+                True,
+            ),
+        ]
 
-        is_better = self.attacker._is_better_attack(
-            weight=15.0,
-            remaining_pm=3,
-            from_mp=MapPoint.from_cell_id(100),
-            target_mp=MapPoint.from_cell_id(200),
-            current_best=current_best,
-        )
+        for name, weight, remaining_pm, target_cell_id, best_so_far, expected in cases:
+            with self.subTest(case=name):
+                is_better = self.attacker._is_better_attack(
+                    weight=weight,
+                    remaining_pm=remaining_pm,
+                    from_mp=MapPoint.from_cell_id(100),
+                    target_mp=MapPoint.from_cell_id(target_cell_id),
+                    current_best=best_so_far,
+                )
 
-        assert is_better is True
+                assert is_better is expected
 
-    def test_lower_weight_is_worse(self):
+    def test_remaining_pm_breaks_weight_ties_before_distance(self):
         current_best = cast(
             tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
             (10.0, 3, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(200)),
         )
+        cases = [
+            ("more_remaining_pm", 4, 200, current_best, True),
+            ("less_remaining_pm", 2, 200, current_best, False),
+            (
+                "remaining_pm_beats_distance",
+                4,
+                102,
+                cast(
+                    tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
+                    (10.0, 2, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(110)),
+                ),
+                True,
+            ),
+        ]
 
-        is_better = self.attacker._is_better_attack(
-            weight=5.0,
-            remaining_pm=3,
-            from_mp=MapPoint.from_cell_id(100),
-            target_mp=MapPoint.from_cell_id(200),
-            current_best=current_best,
-        )
+        for name, remaining_pm, target_cell_id, best_so_far, expected in cases:
+            with self.subTest(case=name):
+                is_better = self.attacker._is_better_attack(
+                    weight=10.0,
+                    remaining_pm=remaining_pm,
+                    from_mp=MapPoint.from_cell_id(100),
+                    target_mp=MapPoint.from_cell_id(target_cell_id),
+                    current_best=best_so_far,
+                )
 
-        assert is_better is False
+                assert is_better is expected
 
-    def test_same_weight_more_remaining_pm_is_better(self):
-        """Plus de PM restants = meilleur (moins utilisé de PM pour se déplacer)"""
-        current_best = cast(
-            tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
-            (10.0, 3, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(200)),
-        )
+    def test_distance_breaks_final_ties(self):
+        cases = [
+            ("farther_is_better", 102, 105, True),
+            ("closer_is_worse", 105, 102, False),
+            ("same_distance_keeps_current", 105, 105, False),
+        ]
 
-        is_better = self.attacker._is_better_attack(
-            weight=10.0,
-            remaining_pm=4,
-            from_mp=MapPoint.from_cell_id(100),
-            target_mp=MapPoint.from_cell_id(200),
-            current_best=current_best,
-        )
+        for name, current_target_cell_id, candidate_target_cell_id, expected in cases:
+            with self.subTest(case=name):
+                current_best = cast(
+                    tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
+                    (
+                        10.0,
+                        3,
+                        MapPoint.from_cell_id(100),
+                        None,
+                        MapPoint.from_cell_id(current_target_cell_id),
+                    ),
+                )
 
-        assert is_better is True
+                is_better = self.attacker._is_better_attack(
+                    weight=10.0,
+                    remaining_pm=3,
+                    from_mp=MapPoint.from_cell_id(100),
+                    target_mp=MapPoint.from_cell_id(candidate_target_cell_id),
+                    current_best=current_best,
+                )
 
-    def test_same_weight_less_remaining_pm_is_worse(self):
-        """Moins de PM restants = pire (plus utilisé de PM pour se déplacer)"""
-        current_best = cast(
-            tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
-            (10.0, 3, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(200)),
-        )
-
-        is_better = self.attacker._is_better_attack(
-            weight=10.0,
-            remaining_pm=2,
-            from_mp=MapPoint.from_cell_id(100),
-            target_mp=MapPoint.from_cell_id(200),
-            current_best=current_best,
-        )
-
-        assert is_better is False
-
-    def test_same_weight_same_pm_farther_distance_is_better(self):
-        current_best = cast(
-            tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
-            (10.0, 3, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(102)),
-        )
-
-        is_better = self.attacker._is_better_attack(
-            weight=10.0,
-            remaining_pm=3,
-            from_mp=MapPoint.from_cell_id(100),
-            target_mp=MapPoint.from_cell_id(105),
-            current_best=current_best,
-        )
-
-        assert is_better is True
-
-    def test_same_weight_same_pm_closer_distance_is_worse(self):
-        current_best = cast(
-            tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
-            (10.0, 3, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(105)),
-        )
-
-        is_better = self.attacker._is_better_attack(
-            weight=10.0,
-            remaining_pm=3,
-            from_mp=MapPoint.from_cell_id(100),
-            target_mp=MapPoint.from_cell_id(102),
-            current_best=current_best,
-        )
-
-        assert is_better is False
-
-    def test_same_weight_same_pm_same_distance_keeps_current(self):
-        current_best = cast(
-            tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
-            (10.0, 3, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(105)),
-        )
-
-        is_better = self.attacker._is_better_attack(
-            weight=10.0,
-            remaining_pm=3,
-            from_mp=MapPoint.from_cell_id(100),
-            target_mp=MapPoint.from_cell_id(105),
-            current_best=current_best,
-        )
-
-        assert is_better is False
-
-    def test_priority_weight_over_pm_remaining(self):
-        """Un meilleur weight est prioritaire même si moins de PM restants"""
-        current_best = cast(
-            tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
-            (10.0, 5, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(200)),
-        )
-
-        is_better = self.attacker._is_better_attack(
-            weight=15.0,
-            remaining_pm=2,
-            from_mp=MapPoint.from_cell_id(100),
-            target_mp=MapPoint.from_cell_id(200),
-            current_best=current_best,
-        )
-
-        assert is_better is True
-
-    def test_priority_weight_over_distance(self):
-        current_best = cast(
-            tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
-            (10.0, 3, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(110)),
-        )
-
-        is_better = self.attacker._is_better_attack(
-            weight=15.0,
-            remaining_pm=3,
-            from_mp=MapPoint.from_cell_id(100),
-            target_mp=MapPoint.from_cell_id(102),
-            current_best=current_best,
-        )
-
-        assert is_better is True
-
-    def test_priority_pm_remaining_over_distance(self):
-        """Plus de PM restants est prioritaire sur la distance"""
-        current_best = cast(
-            tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
-            (10.0, 2, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(110)),
-        )
-
-        is_better = self.attacker._is_better_attack(
-            weight=10.0,
-            remaining_pm=4,
-            from_mp=MapPoint.from_cell_id(100),
-            target_mp=MapPoint.from_cell_id(102),
-            current_best=current_best,
-        )
-
-        assert is_better is True
+                assert is_better is expected
 
 
 class TestAttackPositioning(GameStateFixture):
     def test_detailed_attack_positions(self):
-        """Test détaillé pour voir toutes les positions possibles"""
         self.set_game_state(
             player_cell_id=100,
             enemy_cell_ids=[150],

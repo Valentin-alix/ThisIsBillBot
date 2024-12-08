@@ -6,8 +6,6 @@ from datas.protos.non_obf.game.common_pb2 import (
 )
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
-from src.core.engine.fights.effect import EffectActionEnum
-from src.core.engine.items.item import SetPositionEnum
 from src.core.signals.player_signals import InventorySignals
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State
@@ -98,16 +96,6 @@ class InventoryState(State):
     def kamas(self, value: int):
         self._kamas = value
         self.inventory_signals.kamas.emit(value)
-
-    def has_weapon_hunter(self) -> bool:
-        return any(
-            object.position == SetPositionEnum.ARME
-            for object in self.objects_by_uid.values()
-            if any(
-                effect.action == EffectActionEnum.WEAPON_HUNTER
-                for effect in object.item.effects
-            )
-        )
 
     def get_valid_recipes(
         self,

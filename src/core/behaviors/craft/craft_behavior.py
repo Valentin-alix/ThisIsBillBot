@@ -164,12 +164,15 @@ class CraftBehavior(DialogHandlerBehavior):
         related_element, related_skill = (
             self.game_state.interactive.get_element_and_skill_by_skill_id(skill_id)
         )
+        ref_data = MapReader().get_ref_data_by_element_id_by_map_id(
+            self.game_state.map.map_id
+        )[related_element.element_id]
+        if ref_data.cellId is None:
+            raise ValueError(
+                f"Missing cell id for interactive element {related_element.element_id}"
+            )
         element_mp = MapPoint.from_cell_id(
-            MapReader()
-            .get_ref_data_by_element_id_by_map_id(self.game_state.map.map_id)[
-                related_element.element_id
-            ]
-            .cellId  # type: ignore
+            ref_data.cellId
         )
         move_path = self.pathfinding.find_path(
             self.game_state.map.map_point, {element_mp}

@@ -219,6 +219,6 @@ class MainWindow(AppFluentWindow):
             position=NavigationItemPosition.BOTTOM,
         )
 
-    def closeEvent(self, event: QCloseEvent | None) -> None:
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.shared_signals.closed.emit()
-        super().closeEvent(event)
+        super().closeEvent(a0)

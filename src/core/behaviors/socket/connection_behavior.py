@@ -1,4 +1,5 @@
 import uuid
+from dataclasses import dataclass
 from enum import StrEnum, auto
 
 from ankama_launcher_emulator_premium.haapi.zaap_version import get_client_version
@@ -11,6 +12,7 @@ from datas.protos.non_obf.connection.login_message_pb2 import (
     SelectServerResponse,
     TokenRequest,
 )
+from google.protobuf.json_format import MessageToDict
 
 from src.core.behaviors.behavior import Behavior
 
@@ -20,6 +22,7 @@ class ConnectionErrorCode(StrEnum):
     SELECT_SERVER_FAILED = auto()
 
 
+@dataclass
 class ConnectionBehavior(Behavior):
     def run(self, game_token: str) -> None:
         return self.connect(game_token)
@@ -32,7 +35,7 @@ class ConnectionBehavior(Behavior):
 
         identification = IdentificationRequest(
             device_identifier=str(uuid.uuid4()),
-            client_version=client_version,
+            client_version=client_version[4:],
             tokenRequest=TokenRequest(token=game_token),
         )
         self.event_manager.send_connection_msg(
@@ -53,7 +56,9 @@ class ConnectionBehavior(Behavior):
             return self.finish(ConnectionErrorCode.IDENTIFICATION_FAILED)
 
         server_id = next(
-            server_info.server.id for server_info in msg.success.server_list.servers
+            server_info.server.id
+            for server_info in msg.success.server_list.servers
+            if len(server_info.characters) > 0
         )
         self.logger.info(f"Selected server id={server_id}")
 
@@ -73,7 +78,7 @@ class ConnectionBehavior(Behavior):
 
     def on_select_server_response(self, msg: SelectServerResponse):
         if msg.HasField("error"):
-            self.logger.error(f"SelectServer failed: {msg.error}")
+            self.logger.error(f"SelectServer failed: {MessageToDict(msg)}")
             return self.finish(ConnectionErrorCode.SELECT_SERVER_FAILED)
         self.logger.info(f"Game server: {msg.success.host}:{msg.success.ports[0]}")
         self.finish(None, msg.success.host, msg.success.ports[0], msg.success.token)

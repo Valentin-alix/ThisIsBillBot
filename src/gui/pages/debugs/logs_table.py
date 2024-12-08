@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import cast
 
 from PyQt6.QtCore import QModelIndex, Qt, pyqtSlot
 from PyQt6.QtGui import QStandardItem
@@ -14,6 +13,12 @@ from PyQt6.QtWidgets import QWidget
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
 from src.services.logging.log_level import LogLevel
+
+
+def _require_display_text(value: object) -> str:
+    if not isinstance(value, str):
+        raise TypeError("Expected a string display value in the logs table model")
+    return value
 
 
 class LogsTable(BaseTableWidget):
@@ -39,7 +44,7 @@ class LogsTable(BaseTableWidget):
 
         self.table.clicked.connect(self.on_click_row)
 
-    def add_row(self, level: LogLevel, msg: str):
+    def add_row(self, level: LogLevel, msg: str) -> None:
         type_text = QStandardItem(level.name)
         msg_text = QStandardItem(msg)
         time_text = QStandardItem(datetime.now().strftime("%H:%M:%S"))
@@ -48,7 +53,7 @@ class LogsTable(BaseTableWidget):
         self.table.append_row([time_text, type_text, msg_text])
 
     @pyqtSlot(QModelIndex)
-    def on_click_row(self, model_index: QModelIndex):
+    def on_click_row(self, model_index: QModelIndex) -> None:
         source_index = self.table.proxy_model.mapToSource(model_index)
         model = self.table.item_model
         time_text = model.data(
@@ -57,9 +62,10 @@ class LogsTable(BaseTableWidget):
         type_lvl = model.data(
             model.index(source_index.row(), 1), Qt.ItemDataRole.DisplayRole
         )
-        msg_text = cast(
-            str,
-            model.data(model.index(source_index.row(), 2), Qt.ItemDataRole.DisplayRole),
+        msg_text = _require_display_text(
+            model.data(
+                model.index(source_index.row(), 2), Qt.ItemDataRole.DisplayRole
+            )
         )
         dialog = ScrollableMessageBox(f"Log {type_lvl} à {time_text}", msg_text, self)
         dialog.exec()

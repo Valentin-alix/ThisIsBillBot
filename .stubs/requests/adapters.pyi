@@ -1,6 +1,5 @@
 from urllib3 import Retry
 
-
 class HTTPAdapter:
     def __init__(
         self,

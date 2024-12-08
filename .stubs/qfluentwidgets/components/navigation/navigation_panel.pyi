@@ -14,10 +14,10 @@ class NavigationDisplayMode(Enum):
 
 class NavigationItem:
     routeKey: str
-    parentRouteKey: str
+    parentRouteKey: str | None
     widget: NavigationWidget
     def __init__(
-        self, routeKey: str, parentRouteKey: str, widget: NavigationWidget
+        self, routeKey: str, parentRouteKey: str | None, widget: NavigationWidget
     ) -> None: ...
 
 class NavigationItemLayout(QVBoxLayout):
@@ -51,7 +51,7 @@ class NavigationPanel(QWidget):
         position: NavigationDisplayMode | Any = ...,
         tooltip: str | None = None,
         parentRouteKey: str | None = None,
-    ) -> Any: ...
+    ) -> NavigationTreeWidgetBase | None: ...
     def insertWidget(
         self,
         index: int,

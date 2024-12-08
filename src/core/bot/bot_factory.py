@@ -55,10 +55,8 @@ from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
 from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
-from src.core.behaviors.sale_hotel.sale_hotel_scraping_behavior import (
-    SaleHotelScrapingBehavior,
-)
 from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
+from src.core.behaviors.socket.handshake_behavior import HandshakeBehavior
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )
@@ -547,12 +545,6 @@ class BotFactory:
         fake_bad_movement_behavior = FakeBadMovementBehavior(
             event_manager=event_manager, game_state=game_state, _logger=logger
         )
-        sale_hotel_scraping_behavior = SaleHotelScrapingBehavior(
-            event_manager=event_manager,
-            enter_sale_hotel_behavior=enter_sale_hotel_behavior,
-            game_state=game_state,
-            _logger=logger,
-        )
         mule_accept_kamas_behavior = MuleAcceptBehavior(
             event_manager=event_manager,
             game_state=game_state,
@@ -560,7 +552,6 @@ class BotFactory:
             auto_trip_smart_behavior=auto_trip_world_behavior,
             unload_behavior=unload_behavior,
             sale_hotel_prices_behavior=sale_hotel_prices_behavior,
-            sale_hotel_scraping_behavior=sale_hotel_scraping_behavior,
         )
         dungeon_behavior = DungeonBehavior(
             event_manager=event_manager,
@@ -576,6 +567,9 @@ class BotFactory:
             _logger=logger,
         )
         connection_behavior = ConnectionBehavior(
+            _logger=logger, event_manager=event_manager, game_state=game_state
+        )
+        handshake_behavior = HandshakeBehavior(
             _logger=logger, event_manager=event_manager, game_state=game_state
         )
         multi_farming_behavior = MultiFarmingBehavior(
@@ -613,7 +607,6 @@ class BotFactory:
                 mule_accept_kamas_behavior,
                 dungeon_behavior,
                 sale_hotel_prices_behavior,
-                sale_hotel_scraping_behavior,
                 fake_bad_movement_behavior,
                 fake_bad_interactive_behavior,
             ],
@@ -627,6 +620,7 @@ class BotFactory:
             harvester_behavior=harvester,
             fight_behavior=fight_behavior,
             connection_behavior=connection_behavior,
+            handshake_behavior=handshake_behavior,
             mule_accept_kamas_behavior=mule_accept_kamas_behavior,
             dungeon_behavior=dungeon_behavior,
             frames=[

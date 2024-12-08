@@ -13,7 +13,13 @@ from src.gui.consts import GREEN_COLOR
 from src.gui.pages.debugs.message_filter_proxy import MessageFilterProxyModel
 
 MessageTreeValue: TypeAlias = (
-    str | int | float | bool | None | dict[str, "MessageTreeValue"] | list["MessageTreeValue"]
+    str
+    | int
+    | float
+    | bool
+    | None
+    | dict[str, "MessageTreeValue"]
+    | list["MessageTreeValue"]
 )
 
 

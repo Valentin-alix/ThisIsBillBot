@@ -24,13 +24,29 @@ from google.protobuf.message import Message
 
 ENV_PATH = os.path.join(Path(__file__).parent.parent, ".env")
 
+_TRUE_ENV_VALUES = {"1", "true", "yes", "on", "debug"}
+_FALSE_ENV_VALUES = {"0", "false", "no", "off", "release"}
+
+
+def _read_bool_env(name: str, default: bool) -> bool:
+    raw_value = os.environ.get(name)
+    if raw_value is None:
+        return default
+    normalized = raw_value.strip().lower()
+    if normalized in _TRUE_ENV_VALUES:
+        return True
+    if normalized in _FALSE_ENV_VALUES:
+        return False
+    error = f"Unsupported boolean env value for {name}: {raw_value!r}"
+    raise ValueError(error)
+
 # ============================================================================
 # SYSTÈME
 # ============================================================================
 
 IS_IN_PYINSTALLER = hasattr(sys, "_MEIPASS")
-DEBUG = bool(int(os.environ.get("DEBUG", 1)))
-STRICT_MODE = bool(int(os.environ.get("STRICT_MODE", 0)))
+DEBUG = _read_bool_env("DEBUG", True)
+STRICT_MODE = _read_bool_env("STRICT_MODE", False)
 DO_INSERT_HUMAN_SESSION = False
 
 # ============================================================================

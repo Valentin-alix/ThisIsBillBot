@@ -26,13 +26,14 @@ TEST_ACCOUNT: DecipheredApiKey = {
 class StateTestBase(unittest.TestCase):
     """Base class for testing States via message injection."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.bot = BotFactory.create_bot(
             SharedSignals(), account=TEST_ACCOUNT, is_fake=True
         )
+        self.addCleanup(self.bot._logger.close)
         self.game_state = self.bot.game_state
         self.event_manager = self.bot.event_manager
 
-    def inject(self, msg: Message):
+    def inject(self, msg: Message) -> None:
         """Inject a message as if the server sent it."""
         self.event_manager.process_msg(msg)

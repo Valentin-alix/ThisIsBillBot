@@ -1,29 +1,40 @@
 import atexit
+import json
 import os
 import signal
 import sys
-from collections import defaultdict
 from dataclasses import dataclass, field
 from functools import cached_property
 from threading import RLock
 from types import TracebackType
-from typing import Any
 
-# don't remove below import, otherwise to_parquet in atexit shutdown is gonna boum boum
-import pandas as pd
-from utils import Singleton
 from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message
-from pandas import DataFrame
+
+from src.utils.dataclass_utils import SerializedValue, is_serialized_content
+from src.utils.type_guards import to_object_list, to_str_object_dict
+from utils import Singleton
 
 BASE_FILENAME = "instancied_msg_infos"
 
-PATH_BOT_SHARED_DATAS = os.path.join(os.environ["HOME"], "OneDrive", "BotSharedDatas")
+
+def _get_home_directory() -> str:
+    home_directory = os.environ.get("HOME") or os.environ.get("USERPROFILE")
+    if home_directory:
+        return home_directory
+    return os.getcwd()
+
+
+PATH_BOT_SHARED_DATAS = os.path.join(
+    _get_home_directory(),
+    "OneDrive",
+    "BotSharedDatas",
+)
 
 MAX_COUNT_BY_NAME = 1_500
-SerializedContent = dict[str, Any]
-ParquetRow = dict[str, str | SerializedContent]
-RowsByName = dict[str, list[ParquetRow]]
+
+SerializedContent = dict[str, SerializedValue]
+ContentByName = dict[str, list[SerializedContent]]
 
 
 def _is_repeated_field(field_descriptor: object) -> bool:
@@ -32,86 +43,62 @@ def _is_repeated_field(field_descriptor: object) -> bool:
 
 @dataclass
 class InstanciedMessageInfoController(metaclass=Singleton):
-    _df: DataFrame | None = field(init=False, default=None)
+    _content_by_name: ContentByName | None = field(init=False, default=None)
     _lock: RLock = field(init=False, default_factory=RLock)
-    _rows_to_add_by_name: RowsByName = field(
-        init=False,
-        default_factory=lambda: defaultdict(list),
-    )
-    _total_pending_rows: int = field(init=False, default=0)
 
     def __hash__(self) -> int:
         return 0
-
-    @property
-    def df(self) -> DataFrame:
-        if self._df is None:
-            self._df = self.get_df_from_file()
-        return self._df
 
     @cached_property
     def path_msg_infos(self) -> str:
         if os.path.exists(PATH_BOT_SHARED_DATAS):
             return os.path.join(
                 PATH_BOT_SHARED_DATAS,
-                f"instancied_msg_infos_{os.environ['PC_ID']}.parquet",
+                f"{BASE_FILENAME}_{os.environ['PC_ID']}.json",
             )
         else:
             print("<!> Shared datas folder not found")
             return "DUMMY_PATH"
 
-    @df.setter
-    def df(self, value: DataFrame) -> None:
-        self._df = value
+    @property
+    def content_by_name(self) -> ContentByName:
+        if self._content_by_name is None:
+            self._content_by_name = self._load_from_file()
+        return self._content_by_name
 
-    @cached_property
-    def get_shared_content_df(self) -> DataFrame:
-        parquet_files = [
-            os.path.join(PATH_BOT_SHARED_DATAS, file)
-            for file in os.listdir(PATH_BOT_SHARED_DATAS)
-            if file.startswith(BASE_FILENAME) and file.endswith(".parquet")
-        ]
-
-        if not parquet_files:
-            return DataFrame(columns=["name", "content"]).set_index("name")
-
-        dfs = [pd.read_parquet(file) for file in parquet_files]
-        df = pd.concat(dfs, ignore_index=True)
-        df = df.groupby("name").head(MAX_COUNT_BY_NAME)
-        df = df.set_index("name")
-        return df
-
-    @cached_property
-    def get_count_by_name_in_df(self) -> dict[str, int]:
-        return {
-            str(name): count for name, count in self.df["name"].value_counts().to_dict().items()
-        }
-
-    def get_df_from_file(self) -> DataFrame:
-        with self._lock:
-            if not os.path.exists(self.path_msg_infos):
-                return DataFrame(columns=["name", "content"])
-            else:
-                df_from_file = pd.read_parquet(self.path_msg_infos)
-                df_from_file = df_from_file.groupby("name").head(MAX_COUNT_BY_NAME)
-                return df_from_file
-
-    def clear(self) -> None:
-        with self._lock:
-            self.df = self.df.head(0)
-            for filename in os.listdir(PATH_BOT_SHARED_DATAS):
-                if BASE_FILENAME not in filename:
-                    continue
-                os.remove(os.path.join(PATH_BOT_SHARED_DATAS, filename))
+    def _load_from_file(self) -> ContentByName:
+        if not os.path.exists(self.path_msg_infos):
+            return {}
+        try:
+            with open(self.path_msg_infos, encoding="utf-8") as file_handle:
+                raw: object = json.load(file_handle)
+        except (OSError, json.JSONDecodeError) as err:
+            print(f"<!> Failed to read msg infos '{self.path_msg_infos}': {err}")
+            return {}
+        typed_raw = to_str_object_dict(raw)
+        if typed_raw is None:
+            return {}
+        loaded: ContentByName = {}
+        for key, value in typed_raw.items():
+            value_list = to_object_list(value)
+            if value_list is None:
+                continue
+            entries: list[SerializedContent] = [
+                entry for entry in value_list if is_serialized_content(entry)
+            ]
+            if entries:
+                loaded[key] = entries[:MAX_COUNT_BY_NAME]
+        return loaded
 
     def add_msg(self, msg: Message, from_server: bool) -> None:
         with self._lock:
             try:
                 self._update_msg_infos_content(msg, from_server)
-            except Exception:
-                return
-            if self._total_pending_rows > 500_000:
-                self._write_msg_info_content()
+            except (AttributeError, KeyError, TypeError, ValueError) as err:
+                print(
+                    f"<!> Failed to serialize runtime message "
+                    f"'{msg.DESCRIPTOR.full_name}': {err}"
+                )
 
     def _update_msg_infos_content(
         self, msg: Message, from_server: bool
@@ -131,7 +118,7 @@ class InstanciedMessageInfoController(metaclass=Singleton):
                     value_by_field[_field.name] = {} if is_map_field else []
                 else:
                     if _field.type == FieldDescriptor.TYPE_MESSAGE:
-                        sub_values: list[SerializedContent] = []
+                        sub_values: list[SerializedValue] = []
                         for sub_value in value:
                             _value = self._update_msg_infos_content(
                                 value[sub_value] if is_map_field else sub_value,
@@ -155,35 +142,21 @@ class InstanciedMessageInfoController(metaclass=Singleton):
                     value_by_field[_field.name] = value
 
         if name != "google.protobuf.Any":
-            row: ParquetRow = {"name": name, "content": value_by_field}
-            if (
-                self.get_count_by_name_in_df.get(name, 0)
-                + len(self._rows_to_add_by_name.get(name, []))
-                < MAX_COUNT_BY_NAME
-            ):
-                self._rows_to_add_by_name[name].append(row)
-                self._total_pending_rows += 1
+            existing = self.content_by_name.setdefault(name, [])
+            if len(existing) < MAX_COUNT_BY_NAME:
+                existing.append(value_by_field)
 
         return value_by_field
 
     def _write_msg_info_content(self) -> None:
         with self._lock:
-            if len(self._rows_to_add_by_name) == 0:
+            if self._content_by_name is None or not self._content_by_name:
+                return
+            if self.path_msg_infos == "DUMMY_PATH":
                 return
             print("writing msg info contents...")
-            new_df = pd.DataFrame(
-                [
-                    row_to_add
-                    for rows_to_add in self._rows_to_add_by_name.values()
-                    for row_to_add in rows_to_add
-                ]
-            )
-            self.df = pd.concat([self.df, new_df], ignore_index=True)
-            self.df.to_parquet(self.path_msg_infos, index=False)
-            if hasattr(self, "get_count_by_name_in_df"):
-                del self.get_count_by_name_in_df
-            self._rows_to_add_by_name.clear()
-            self._total_pending_rows = 0
+            with open(self.path_msg_infos, "w", encoding="utf-8") as file_handle:
+                json.dump(self._content_by_name, file_handle, separators=(",", ":"))
 
 
 def on_exit(*args: object) -> None:
@@ -209,4 +182,8 @@ atexit.register(on_exit)
 
 
 if __name__ == "__main__":
-    print(InstanciedMessageInfoController().get_shared_content_df.head())
+    for (
+        message_name,
+        sample_entries,
+    ) in InstanciedMessageInfoController().content_by_name.items():
+        print(f"{message_name}: {len(sample_entries)}")

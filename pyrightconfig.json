@@ -4,7 +4,7 @@
     "useLibraryCodeForTypes": true,
     "stubPath": ".stubs",
     "reportMissingTypeStubs": "none",
-    "reportIncompatibleMethodOverride": "none",
+    "reportIncompatibleMethodOverride": "error",
     "reportUnknownVariableType": "error",
     "reportUnknownMemberType": "error",
     "reportUnknownArgumentType": "error",
@@ -20,7 +20,6 @@
         "DBDofusUnity/datas/protos/non_obf/game",
         "DBDofusUnity/datas/protos/non_obf/connection",
         "DBDofusUnity/proto_mapper_assembly/scripts/ida_tracer_lib/typings",
-        "DBDofusUnity/proto_mapper_assembly/scripts",
         "AnkamaLauncherEmulatorPremium",
         "DBDofusUnity"
     ],

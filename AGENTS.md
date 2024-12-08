@@ -1,14 +1,17 @@
-# Repository Guidelines
+## Repository Guidelines
 
 ## Build, Test, and Development Commands
+
 Use `uv` for local execution:
 
-- `uv sync` installs the locked Python 3.12 environment.
-- `uv run ruff check . --fix` applies lint fixes.
-- `uv run pyright` runs static type checks.
-- `uv run coverage run --source=src -m unittest discover -s tests` executes the test suite.
+- `uv sync` installs the locked Python 3.12 environment
+- `uv run ruff check . --fix` applies lint fixes
+- `uv run pyright` runs static type checks
+- `uv run coverage run --source=src -m unittest discover -s tests` executes the test suite
 
-## Code policy
+---
+
+## Code Policy
 
 After any code change:
 
@@ -16,12 +19,12 @@ After any code change:
   - `uv run ruff check . --fix`
   - `uv run pyright`
 
-- DO NOT ignore ruff rule or pyright rule to make check passed.
+- DO NOT ignore ruff or pyright rules to make checks pass
 
 - If behavior changed:
   - update existing tests
 
-- If new logic is introduced (function, branch, condition, or bug fix):
+- If new logic is introduced (function, branch, condition, bug fix):
   - add tests covering:
     - happy path
     - edge cases
@@ -35,79 +38,168 @@ After any code change:
   - smallest relevant tests first
   - then full suite if changes are broad
 
+---
+
+## Behavioral Guidelines
+
+### 1. Think Before Coding
+
+- State assumptions explicitly
+- If multiple interpretations exist, list them
+- If unclear → STOP and ask
+- Do not guess missing requirements
+- Challenge unnecessary complexity
+
+---
+
+### 2. Simplicity First
+
+- Write the minimum code that solves the problem
+- No speculative abstractions
+- No premature generalization
+- No configurability unless required
+- No handling of impossible scenarios
+
+Rule:
+> If 200 lines can be 50 → rewrite
+
+---
+
+### 3. Surgical Changes
+
+- Modify ONLY what is required
+- Do NOT refactor unrelated code
+- Match existing style
+- Do NOT clean unrelated code
+
+Allowed:
+- Remove unused code introduced by YOUR changes
+
+Forbidden:
+- Removing pre-existing dead code
+
+---
+
+### 4. Goal-Driven Execution
+
+Each task must map to verifiable outcomes:
+
+Examples:
+
+- "Fix bug" → write failing test → fix → test passes
+- "Add validation" → write invalid-case tests → implement
+- "Refactor" → tests pass before and after
+
+For multi-step tasks:
+
+1. Step → verification
+2. Step → verification
+3. Step → verification
+
+---
+
 ## Coding Style & Naming Conventions
 
-- Target: Python 3.12
-- Indentation: 4 spaces, no tabs
-- Line length: 110 (enforced by ruff)
+- Python 3.12
+- Indentation: 4 spaces
+- Line length: 110
 
 ### Typing
 
-- All functions MUST have full type annotations (args + return)
-- Use `X | None` instead of `Optional[X]`
-- Avoid `Any` unless strictly unavoidable (must be justified)
-- Prefer explicit typed structures over untyped dicts
-- DO NOT silence typing errors with casts or Protocol hacks; fix the type surface or add stubs
-- Treat optionality as part of the contract; never cast away `None`
-- `object` is FORBIDDEN as a type placeholder; it provides no usable type information
-- DO NOT use `cast()` to force a type; fix the source type or introduce proper narrowing
-- `cast()` is only allowed at a strict boundary (FFI, external lib, deserialization) and must be justified
-- Replace unsafe casts with:
-  - explicit type narrowing (`isinstance`)
-  - validated constructors
-  - typed adapters or stubs
+- All functions MUST have full type annotations
+- Use `X | None`, not `Optional[X]`
+- Avoid `Any` unless strictly justified
+- `object` is FORBIDDEN
+- Do NOT use `cast()` unless:
+  - boundary case (FFI / external / deserialization)
+  - explicitly justified
+
+Replace casts with:
+- `isinstance`
+- validated constructors
+- typed adapters / stubs
+
+- Do NOT silence typing errors
+- Fix the type surface instead
+
+---
 
 ### Naming
 
-- Modules / functions / variables: `snake_case`
-- Classes: `PascalCase`
-- Constants: `UPPER_SNAKE_CASE`
-- Single-letter variable names are forbidden
+- snake_case → functions, variables, modules
+- PascalCase → classes
+- UPPER_SNAKE_CASE → constants
+- Single-letter names are forbidden
 
-### Mutability & Data Handling
+---
+
+## Mutability & Data Handling
 
 - No implicit mutation of inputs
-- Functions must not modify arguments unless explicitly documented
-- Prefer returning new values over in-place modification
+- Do not modify arguments unless explicitly documented
+- Prefer returning new values
 
-### Error Handling
+---
 
-- Fail fast: raise explicit exceptions
-- Do NOT silently fallback or swallow errors
-- Do NOT return `None` for error cases unless part of the type contract
+## Error Handling
 
-### Dict usage
+- Fail fast with explicit exceptions
+- No silent fallback
+- No swallowing errors
+- Do NOT return `None` unless part of the contract
 
-- Use `dict[key]` when the key is expected to exist
-- Use `.get()` ONLY when absence is expected and explicitly handled
+---
 
-### Functions & Structure
+## Dict Usage
 
-- Prefer small, composable functions
-- Avoid deep nesting (>3 levels)
-- Keep helper ordering stable during refactors
-- Do NOT reintroduce dead compatibility layers or legacy shims
-- Prefer direct attribute access; use `getattr` only when absence is expected
+- Use `dict[key]` when key must exist
+- Use `.get()` only when absence is expected and handled
 
-### Caching
+---
 
-- Use `@functools.cache` or `@cached_property` ONLY for pure functions (no side effects, deterministic inputs)
-- Do NOT implement custom caching unless strictly necessary and justified
+## Functions & Structure
+
+- Small, composable functions
+- Max nesting depth: 3
+- Stable helper ordering during refactors
+- No legacy shims or compatibility layers
+- Prefer direct attribute access
+- `getattr` only if absence is expected
+
+---
+
+## Caching
+
+- Only for pure functions:
+  - `@functools.cache`
+  - `@cached_property`
+
+- No custom caching unless justified
+
+---
 
 ## Tooling Constraints
 
-- Do NOT change application code to satisfy broken third-party typing
-- Fix via stubs or configuration first
-- Verification commands MUST be non-mutating (no hidden behavior changes)
+- Do NOT modify application code to satisfy broken third-party typing
+- Fix via:
+  - stubs
+  - configuration
+
+- Verification commands MUST be non-mutating
+
+---
 
 ## API Discipline
 
-- Keep the narrowest valid signature; do NOT widen for convenience
-- Do NOT change shared interfaces without updating all implementations
-- Optional values must be handled explicitly at boundaries
+- Keep the narrowest valid signature
+- Do NOT widen interfaces for convenience
+- Update all implementations if interface changes
+- Handle optional values explicitly at boundaries
+
+---
 
 ## Code Quality Rules
 
-- Do NOT introduce helpers only to satisfy the type checker
-- Prefer a single boundary adapter over scattered casts
-- Tests MUST validate runtime behavior, not typing or lint output
+- No helpers created only for type checker satisfaction
+- Prefer single boundary adapters over scattered casts
+- Tests validate runtime behavior ONLY (not lint/type output)
