@@ -6,7 +6,6 @@ Pour configurer le comportement du bot, voir src/core/config.py
 """
 
 from dofus_unity_reader.enums.npc_message_id_enum import NpcAskMessageIdEnum
-from dofus_unity_reader.models.world_graph import Transition, Vertice
 
 from src.core.engine.dungeons.dungeon_info import DungeonInfo
 from src.core.engine.npcs.npc_dialog_info import ReplyInfo
@@ -169,15 +168,3 @@ class Dungeons:
     GRANGE_TOURNESOL = DungeonInfo(name="Tournesol Affamé", key_name="Clef des Champs")
     BOUFTOU_ROYAL = DungeonInfo(name="Bouftou Royal", key_name="Cour du Bouftou Royal")
     ALL = [GRANGE_TOURNESOL, BOUFTOU_ROYAL]
-
-
-# ============================================================================
-# PATHFINDING
-# ============================================================================
-
-
-class PathfindingConst:
-    """Constantes pour le pathfinding"""
-
-    FORBIDDEN_EDGE_TRANSITION: set[tuple[Vertice, Vertice, Transition]] = set()
-    EXCLUDED_ELEMENT_IDS: set[int] = set()

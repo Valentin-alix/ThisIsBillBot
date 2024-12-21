@@ -98,7 +98,10 @@ class ConnectionHandler(ContextualLogger):
         ):
             raise ValueError("An action should be provided if is_playing_event is set")
 
-        remove_forbidden_edge_transition_by_map_id(self.game_state.map.map_id)
+        remove_forbidden_edge_transition_by_map_id(
+            self.game_state.map.map_id,
+            self.game_state.map.forbidden_edge_transitions,
+        )
 
         def on_fight_behavior_finished(error_code: str | None):
             if error_code is not None:

@@ -40,6 +40,7 @@ def _read_bool_env(name: str, default: bool) -> bool:
     error = f"Unsupported boolean env value for {name}: {raw_value!r}"
     raise ValueError(error)
 
+
 # ============================================================================
 # SYSTÈME
 # ============================================================================

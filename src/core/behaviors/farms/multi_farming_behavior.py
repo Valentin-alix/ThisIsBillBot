@@ -58,10 +58,13 @@ class MultiFarmingBehavior(HarvesterBehavior):
             self.logger.info(f"Taking an AFK break: {afk_duration:.0f}s")
             return self.idle_behavior.start(
                 duration=afk_duration,
-                callback=self._continue_on_new_map,
+                callback=self.on_idle_behavior_finished,
                 parent=self,
             )
 
+        self._continue_on_new_map()
+
+    def on_idle_behavior_finished(self, error_code: str | None):
         self._continue_on_new_map()
 
     def _continue_on_new_map(self):
@@ -141,7 +144,7 @@ class MultiFarmingBehavior(HarvesterBehavior):
         )
 
     def on_attacker_behavior_finished(
-        self, error_code: str | None, _count_fighted_on_map: int
+        self, error_code: str | None, count_fighted_on_map: int
     ):
         self.raise_if_error(error_code)
         self.init_listeners()

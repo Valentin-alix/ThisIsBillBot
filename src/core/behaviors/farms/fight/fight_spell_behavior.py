@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 
-from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.fight_pb2 import FightEndEvent
 from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightCastRequest,
     SequenceEndEvent,
     SequenceType,
 )
+from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
 from src.services.human_timings import HumanTimingsService

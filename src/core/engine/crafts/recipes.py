@@ -116,21 +116,15 @@ def get_max_possible_result_quantity(
     return max_possible_result_quantity
 
 
-FORBIDDEN_CRAFT_IDS: set[int] = {60}
-
-
 def get_valid_recipes(
-    logger: Logger, jobs_lvl_by_id: dict[int, int], recipes: list[RecipeItem]
+    logger: Logger,
+    jobs_lvl_by_id: dict[int, int],
+    recipes: list[RecipeItem],
+    forbidden_craft_ids: set[int],
 ) -> list[RecipeItem]:
-    """
-    Filter recipes based on job level requirements and forbidden crafts.
-
-    This is the canonical implementation - states should delegate to this function.
-    """
     valid_recipes: list[RecipeItem] = []
     for recipe in recipes:
-        # Filter forbidden crafts
-        if recipe.resultId in FORBIDDEN_CRAFT_IDS:
+        if recipe.resultId in forbidden_craft_ids:
             continue
 
         skill_data = DataReader().skill_by_id[recipe.skillId]

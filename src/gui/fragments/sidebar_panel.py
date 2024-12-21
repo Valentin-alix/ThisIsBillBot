@@ -81,7 +81,6 @@ class SidebarPanel(QFrame):
         self.history = qrouter
 
         self.expandAni = QPropertyAnimation(self, b"geometry", self)
-        self.expandWidth = 322
         self.minimumExpandWidth = 1
 
         self.isMinimalEnabled = isMinimalEnabled

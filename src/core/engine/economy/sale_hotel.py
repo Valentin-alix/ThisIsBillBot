@@ -3,12 +3,12 @@ from collections import defaultdict
 from statistics import median
 from typing import cast
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.category_item_enum import CategoryEnum
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItem,
     ObjectItemInventory,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.enums.category_item_enum import CategoryEnum
 
 from src.core.config import MAX_QUANTITY_ON_SELL
 from src.core.engine.economy.quantity_enum import (
@@ -32,19 +32,12 @@ def get_item_gids_to_sell(
     category: CategoryEnum,
     logger: Logger,
     avg_price_by_gid: dict[int, float],
-    guild_chest_object_by_gid_by_tab: dict[int, dict[int, ObjectItemInventory]]
-    | None = None,
+    guild_chest_items_by_gid: dict[int, ObjectItemInventory] | None = None,
 ):
     if can_access_guild_chest:
-        if guild_chest_object_by_gid_by_tab is None:
-            raise ValueError(
-                "guild_chest_object_by_gid_by_tab required when can_access_guild_chest=True"
-            )
-        item_by_gid_in_storage = {
-            gid: item
-            for tab in guild_chest_object_by_gid_by_tab.values()
-            for gid, item in tab.items()
-        }
+        if guild_chest_items_by_gid is None:
+            raise ValueError("guild_chest_items_by_gid required when can_access_guild_chest=True")
+        item_by_gid_in_storage = guild_chest_items_by_gid
     else:
         item_by_gid_in_storage = bank_object_by_gid
 
@@ -91,13 +84,15 @@ def get_item_gids_to_sell(
 def is_interesting_item_to_sell(
     object_item: ObjectItem,
     avg_price_by_gid: dict[int, float],
+    available_quantity: int | None = None,
 ):
-    if object_item.quantity <= 0:
+    qty = available_quantity if available_quantity is not None else object_item.quantity
+    if qty <= 0:
         return False
     avg_price = avg_price_by_gid.get(object_item.gid, 1)
-    if avg_price < 500 and object_item.quantity < 100:
+    if avg_price < 500 and qty < 100:
         return False
-    elif avg_price < 5_000 and object_item.quantity < 10:
+    elif avg_price < 5_000 and qty < 10:
         return False
     return True
 
@@ -105,18 +100,20 @@ def is_interesting_item_to_sell(
 def choose_quantity_to_sell(
     item: ObjectItem,
     avg_price_by_gid: dict[int, float],
+    available_quantity: int | None = None,
 ):
+    qty = available_quantity if available_quantity is not None else item.quantity
     if item.gid in PROTECTOR_DROP_ITEM_IDS:
         return QuantityEnum.VALUE_1, QuantityIndex.ONE
 
-    avg_price = avg_price_by_gid[item.gid]
-    if item.quantity >= 1000 and avg_price < 1_000:
+    avg_price = avg_price_by_gid.get(item.gid, 1)
+    if qty >= 1000 and avg_price < 1_000:
         quantity_to_sell = QuantityEnum.VALUE_1000
         quantity_index = QuantityIndex.THOUSAND
-    elif item.quantity >= 100 and avg_price < 10_000:
+    elif qty >= 100 and avg_price < 10_000:
         quantity_to_sell = QuantityEnum.VALUE_100
         quantity_index = QuantityIndex.HUNDRED
-    elif item.quantity >= 10 and avg_price < 100_000:
+    elif qty >= 10 and avg_price < 100_000:
         quantity_to_sell = QuantityEnum.VALUE_10
         quantity_index = QuantityIndex.TEN
     else:

@@ -1,17 +1,17 @@
+import datetime
 from dataclasses import dataclass
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.category_item_enum import CategoryEnum
-from dofus_unity_reader.enums.type_item_enum import TypeItemEnum
 from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidHouseItemAddedEvent,
     ExchangeBidHouseItemRemovedEvent,
     ExchangeBidHouseSearchRequest,
     ExchangeBidPriceEvent,
     ExchangeBidSellerStartedEvent,
-    ExchangeTypesItemsExchangerDescriptionForUserEvent,
     ObjectAveragePricesEvent,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.enums.category_item_enum import CategoryEnum
+from dofus_unity_reader.enums.type_item_enum import TypeItemEnum
 
 from src.controller.sale_hotel import SaleHotelController
 from src.core.config import get_time_beween_sale_hotel_prices
@@ -86,17 +86,12 @@ class SaleHotelFrame(Frame):
             originator=self,
             priority=self.priority,
         )
-        self.event_manager.on(
-            ExchangeTypesItemsExchangerDescriptionForUserEvent,
-            callback=self.on_exchange_types_item_exchanger_description_for_user_event,
-            originator=self,
-            priority=self.priority,
-        )
 
     def on_exchange_bid_seller_started_event(self, msg: ExchangeBidSellerStartedEvent):
         self.game_state.sale_hotel.timedelta_for_next_sale_hotel_prices = (
             get_time_beween_sale_hotel_prices()
         )
+        self.game_state.sale_hotel.last_time_updated_prices = datetime.datetime.now()
         self.game_state.sale_hotel.bid_seller_condition = msg.selling_conditions
         SaleHotelController().update_hdv(
             self.game_state.player.server_id,
@@ -151,8 +146,3 @@ class SaleHotelFrame(Frame):
             self.game_state.player.server_id,
             [(msg.average_price, msg.object_gid)],
         )
-
-    def on_exchange_types_item_exchanger_description_for_user_event(
-        self, _msg: ExchangeTypesItemsExchangerDescriptionForUserEvent
-    ):
-        pass

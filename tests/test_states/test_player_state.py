@@ -3,6 +3,9 @@ from datetime import datetime, timezone
 from datas.protos.non_obf.connection.login_message_pb2 import (
     SelectServerRequest,
 )
+from datas.protos.non_obf.game.account_pb2 import (
+    AccountInformationUpdateEvent,
+)
 from datas.protos.non_obf.game.character_management_pb2 import (
     CharacterSelectionEvent,
 )
@@ -149,6 +152,22 @@ class TestPlayerState(StateTestBase):
         self.game_state.player.subscription_end_date = new_date
 
         assert self.game_state.player.subscription_end_date == new_date
+
+    def test_account_information_update_event_sets_subscription_end_date_from_seconds(self):
+        self.inject(AccountInformationUpdateEvent(subscription_end_date=1_735_689_600))
+
+        assert self.game_state.player.subscription_end_date == datetime(
+            2025, 1, 1, tzinfo=timezone.utc
+        )
+
+    def test_account_information_update_event_sets_subscription_end_date_from_milliseconds(self):
+        self.inject(
+            AccountInformationUpdateEvent(subscription_end_date=1_735_689_600_000)
+        )
+
+        assert self.game_state.player.subscription_end_date == datetime(
+            2025, 1, 1, tzinfo=timezone.utc
+        )
 
     def test_multiple_job_updates_accumulate(self):
         experiences1 = [JobExperience(job_id=1, job_level=50)]

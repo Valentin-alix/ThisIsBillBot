@@ -1,11 +1,11 @@
 import dataclasses
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
 from dofus_unity_reader.grid.map_point import MapPoint
 from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
-from dofus_unity_reader.models.world_graph import Vertice
+from dofus_unity_reader.models.world_graph import Transition, Vertice
 
 from src.core.engine.movements.world.linked_zone import get_linked_zone_rp
 from src.core.signals.grid_signals import GridSignals
@@ -24,11 +24,17 @@ class MapState(State):
     _is_in_map_transition: bool = dataclasses.field(init=False, default=False)
     _map_id: int = dataclasses.field(init=False, default=0)
     _is_in_haven_bag: bool = dataclasses.field(init=False, default=False)
+    excluded_element_ids: set[int] = field(init=False, default_factory=set[int])
+    forbidden_edge_transitions: set[tuple[Vertice, Vertice, Transition]] = field(
+        init=False, default_factory=set[tuple[Vertice, Vertice, Transition]]
+    )
 
     def clear_state(self):
         self.is_in_map_transition = False
         self._map_id = 0
         self.is_in_haven_bag = False
+        self.excluded_element_ids.clear()
+        self.forbidden_edge_transitions.clear()
 
     @property
     def is_in_map_transition(self) -> int:

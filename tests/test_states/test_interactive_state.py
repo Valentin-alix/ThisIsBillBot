@@ -3,6 +3,9 @@ from datas.protos.non_obf.game.common_pb2 import (
     StatedElement,
 )
 from datas.protos.non_obf.game.interactive_element_pb2 import (
+    InteractiveElementUpdatedEvent,
+    InteractiveMapUpdateEvent,
+    StatedMapUpdateEvent,
     StatedElementUpdatedEvent,
 )
 from src.core.bot.bot_factory import BotFactory
@@ -81,6 +84,47 @@ class TestInteractiveState(StateTestBase):
         assert 10 in self.game_state.interactive.stated_element_by_id
         stored_element, _ = self.game_state.interactive.stated_element_by_id[10]
         assert stored_element.state == 2
+
+    def test_interactive_element_updated_adds_new_element(self):
+        interactive_element = InteractiveElement(element_id=99, element_type_id=7)
+
+        self.inject(
+            InteractiveElementUpdatedEvent(interactive_element=interactive_element)
+        )
+
+        assert self.game_state.interactive.interactive_element_by_id[99] == interactive_element
+
+    def test_interactive_map_update_merges_elements(self):
+        self.game_state.interactive.interactive_element_by_id[1] = InteractiveElement(
+            element_id=1, element_type_id=1
+        )
+
+        self.inject(
+            InteractiveMapUpdateEvent(
+                interactive_elements=[
+                    InteractiveElement(element_id=2, element_type_id=2),
+                    InteractiveElement(element_id=3, element_type_id=3),
+                ]
+            )
+        )
+
+        assert set(self.game_state.interactive.interactive_element_by_id) == {1, 2, 3}
+
+    def test_stated_map_update_replaces_snapshot(self):
+        self.game_state.interactive.set_stated_elements(
+            [StatedElement(element_id=10, cell_id=100, on_current_map=True)]
+        )
+
+        self.inject(
+            StatedMapUpdateEvent(
+                stated_elements=[
+                    StatedElement(element_id=20, cell_id=200, on_current_map=True)
+                ]
+            )
+        )
+
+        assert 10 not in self.game_state.interactive.stated_element_by_id
+        assert 20 in self.game_state.interactive.stated_element_by_id
 
     def test_stated_element_by_cell_id_indexing(self):
         stated_elements = [

@@ -3,19 +3,17 @@ from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
     ObjectUidWithQuantity,
 )
-from datas.protos.non_obf.game.exchange_pb2 import (
-    ExchangeLeaveEvent,
-    ExchangeMoveKamaRequest,
-    ExchangeObjectMoveRequest,
-    ExchangeObjectTransferAllFromInventoryRequest,
-    ExchangeStartedWithStorageEvent,
-)
 from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryContentEvent,
     InventoryWeightEvent,
+    KamasUpdateEvent,
     ObjectAddedEvent,
+    ObjectDeletedEvent,
+    ObjectModifiedEvent,
     ObjectQuantityEvent,
-    StorageInventoryContentEvent,
+    ObjectsAddedEvent,
+    ObjectsDeletedEvent,
+    ObjectsQuantityEvent,
 )
 from src.core.bot.bot_factory import BotFactory
 from src.core.signals.shared_farm_signals import SharedSignals
@@ -80,6 +78,37 @@ class TestInventoryState(StateTestBase):
         assert 1 in self.game_state.inventory.objects_by_uid
         assert self.game_state.inventory.objects_by_uid[1].item.quantity == 10
 
+    def test_objects_added_event_adds_multiple_objects(self):
+        self.inject(
+            ObjectsAddedEvent(
+                objects=[
+                    ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10)),
+                    ObjectItemInventory(item=ObjectItem(uid=2, gid=200, quantity=5)),
+                ]
+            )
+        )
+
+        assert set(self.game_state.inventory.objects_by_uid) == {1, 2}
+
+    def test_object_deleted_event_removes_object(self):
+        obj = ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))
+        self.game_state.inventory.add_object(obj)
+
+        self.inject(ObjectDeletedEvent(object_uid=1))
+
+        assert 1 not in self.game_state.inventory.objects_by_uid
+
+    def test_objects_deleted_event_removes_multiple_objects(self):
+        objects = [
+            ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10)),
+            ObjectItemInventory(item=ObjectItem(uid=2, gid=200, quantity=5)),
+        ]
+        self.game_state.inventory.add_objects(objects)
+
+        self.inject(ObjectsDeletedEvent(objects_uid=[1, 2]))
+
+        assert len(self.game_state.inventory.objects_by_uid) == 0
+
     def test_object_quantity_event_updates_quantity(self):
         obj = ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))
         self.game_state.inventory.add_object(obj)
@@ -91,6 +120,39 @@ class TestInventoryState(StateTestBase):
         self.inject(msg)
 
         assert self.game_state.inventory.objects_by_uid[1].item.quantity == 25
+
+    def test_objects_quantity_event_updates_multiple_quantities(self):
+        self.game_state.inventory.add_objects(
+            [
+                ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10)),
+                ObjectItemInventory(item=ObjectItem(uid=2, gid=200, quantity=5)),
+            ]
+        )
+
+        self.inject(
+            ObjectsQuantityEvent(
+                object=[
+                    ObjectUidWithQuantity(object_uid=1, quantity=12),
+                    ObjectUidWithQuantity(object_uid=2, quantity=8),
+                ]
+            )
+        )
+
+        assert self.game_state.inventory.objects_by_uid[1].item.quantity == 12
+        assert self.game_state.inventory.objects_by_uid[2].item.quantity == 8
+
+    def test_object_modified_event_replaces_object(self):
+        self.game_state.inventory.add_object(
+            ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))
+        )
+
+        self.inject(
+            ObjectModifiedEvent(
+                object=ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=99))
+            )
+        )
+
+        assert self.game_state.inventory.objects_by_uid[1].item.quantity == 99
 
     def test_inventory_weight_event_updates_weight(self):
         msg = InventoryWeightEvent(inventory_weight=500, weight_max=2000)
@@ -118,31 +180,10 @@ class TestInventoryState(StateTestBase):
 
         assert self.game_state.inventory.is_full_pods is False
 
-    def test_exchange_transfer_all_clears_inventory(self):
-        obj = ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))
-        self.game_state.inventory.add_object(obj)
-
-        msg = ExchangeObjectTransferAllFromInventoryRequest()
-
-        self.inject(msg)
-
-        assert len(self.game_state.inventory.objects_by_uid) == 0
-
-    def test_exchange_move_kama_adds_kamas(self):
+    def test_kamas_update_event_sets_kamas(self):
         self.game_state.inventory.kamas = 1000
 
-        msg = ExchangeMoveKamaRequest(quantity=-500)
-
-        self.inject(msg)
-
-        assert self.game_state.inventory.kamas == 1500
-
-    def test_exchange_move_kama_removes_kamas(self):
-        self.game_state.inventory.kamas = 1000
-
-        msg = ExchangeMoveKamaRequest(quantity=300)
-
-        self.inject(msg)
+        self.inject(KamasUpdateEvent(quantity=700))
 
         assert self.game_state.inventory.kamas == 700
 
@@ -191,58 +232,6 @@ class TestInventoryState(StateTestBase):
 
         assert 1 not in self.game_state.inventory.objects_by_uid
         assert 2 in self.game_state.inventory.objects_by_uid
-
-    def test_bank_storage_content_sets_bank_objects(self):
-        msg_start = ExchangeStartedWithStorageEvent(storage_max_slot=20000)
-        self.inject(msg_start)
-
-        objects = [
-            ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10)),
-            ObjectItemInventory(item=ObjectItem(uid=2, gid=200, quantity=5)),
-        ]
-        msg_content = StorageInventoryContentEvent(objects=objects)
-
-        self.inject(msg_content)
-
-        assert len(self.game_state.inventory.bank_object_by_gid) == 2
-        assert 100 in self.game_state.inventory.bank_object_by_gid
-        assert 200 in self.game_state.inventory.bank_object_by_gid
-
-    def test_exchange_move_on_bank_updates_quantity(self):
-        msg_start = ExchangeStartedWithStorageEvent(storage_max_slot=20000)
-        self.inject(msg_start)
-
-        bank_objects = [
-            ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10)),
-        ]
-        msg_content = StorageInventoryContentEvent(objects=bank_objects)
-        self.inject(msg_content)
-
-        msg_move = ExchangeObjectMoveRequest(object_uid=1, quantity=5)
-        self.inject(msg_move)
-
-        assert self.game_state.inventory.bank_object_by_gid[100].item.quantity == 15
-
-    def test_exchange_move_on_bank_removes_when_zero(self):
-        msg_start = ExchangeStartedWithStorageEvent(storage_max_slot=20000)
-        self.inject(msg_start)
-
-        bank_objects = [
-            ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10)),
-        ]
-        msg_content = StorageInventoryContentEvent(objects=bank_objects)
-        self.inject(msg_content)
-
-        msg_move = ExchangeObjectMoveRequest(object_uid=1, quantity=-10)
-        self.inject(msg_move)
-
-        assert 100 not in self.game_state.inventory.bank_object_by_gid
-
-    def test_exchange_leave_clears_bank_listeners(self):
-        msg_start = ExchangeStartedWithStorageEvent(storage_max_slot=20000)
-        self.inject(msg_start)
-
-        self.inject(ExchangeLeaveEvent())
 
     def test_clear_inventory_method(self):
         obj = ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))

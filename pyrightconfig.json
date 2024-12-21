@@ -24,20 +24,11 @@
         "DBDofusUnity"
     ],
     "ignore": [
-        "DBDofusUnity/datas/proto_mapper/**",
-        "DBDofusUnity/datas/protos/obf/**",
         "DBDofusUnity/datas/protos/non_obf/**",
-        "DBDofusUnity/dofus_unity_reader/models/datas/**",
-        "DBDofusUnity/Il2CppInspectorRedux/**",
-        "DBDofusUnity/protodec/**",
-        "DBDofusUnity/UABEA/**",
-        "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator_premium/gen_zaap/**",
-        "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator_premium/proxy/dofus3/login_message_pb2.py",
-        "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator_premium/proxy/dofus3/login_message_pb2.pyi"
+        "DBDofusUnity/dofus_unity_reader/models/datas/**"
     ],
     "exclude": [
-        "DBDofusUnity/datas/proto_mapper",
-        "DBDofusUnity/datas/protos/obf",
+        "DBDofusUnity/datas",
         "DBDofusUnity/Il2CppInspectorRedux",
         "DBDofusUnity/protodec",
         "DBDofusUnity/UABEA",

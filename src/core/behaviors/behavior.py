@@ -101,8 +101,7 @@ class Behavior(ABC, ContextualLogger):
         parent: "Behavior|None",
         *args: RunParams.args,
         **kwargs: RunParams.kwargs,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @overload
     def start(
@@ -111,8 +110,7 @@ class Behavior(ABC, ContextualLogger):
         parent: "Behavior|None",
         *args: object,
         **kwargs: object,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def start(
         self,

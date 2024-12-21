@@ -63,9 +63,7 @@ class LogsTable(BaseTableWidget):
             model.index(source_index.row(), 1), Qt.ItemDataRole.DisplayRole
         )
         msg_text = _require_display_text(
-            model.data(
-                model.index(source_index.row(), 2), Qt.ItemDataRole.DisplayRole
-            )
+            model.data(model.index(source_index.row(), 2), Qt.ItemDataRole.DisplayRole)
         )
         dialog = ScrollableMessageBox(f"Log {type_lvl} à {time_text}", msg_text, self)
         dialog.exec()

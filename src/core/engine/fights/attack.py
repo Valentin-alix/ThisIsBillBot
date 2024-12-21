@@ -1,18 +1,18 @@
 from dataclasses import dataclass
 from logging import Logger
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
-from dofus_unity_reader.enums.directions import DirectionsEnum
-from dofus_unity_reader.enums.effect_element import EffectElement, TypeEffect
-from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     SpellModifier,
     SpellModifierType,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.enums.directions import DirectionsEnum
+from dofus_unity_reader.enums.effect_element import TypeEffect
+from dofus_unity_reader.grid.map_point import MapPoint
 from dofus_unity_reader.models.datas.monsters_root import MonsterGrade
 from dofus_unity_reader.models.datas.spell_levels_root import (
     Effect,
@@ -206,7 +206,7 @@ class Attacker:
         self,
     ) -> list[tuple[SpellLevelsRootItem, Effect, SpellModifiers]]:
         valuable_spells = get_damage_spells(
-            self.game_state.fight.spells, EffectElement.CHANCE, EffectElement.CHANCE
+            self.game_state.fight.spells, *self.game_state.fight.primary_and_second_elem
         )
 
         rejection_stats = {

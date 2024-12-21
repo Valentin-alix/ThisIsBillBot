@@ -5,7 +5,7 @@
 Use `uv` for local execution:
 
 - `uv sync` installs the locked Python 3.12 environment
-- `uv run ruff check . --fix` applies lint fixes
+- `uv run ruff check . --fix` runs lint checks
 - `uv run pyright` runs static type checks
 - `uv run coverage run --source=src -m unittest discover -s tests` executes the test suite
 
@@ -15,8 +15,12 @@ Use `uv` for local execution:
 
 After any code change:
 
-- ALWAYS run:
-  - `uv run ruff check . --fix`
+- ALWAYS run the smallest relevant verification first:
+  - targeted tests for the changed area
+  - targeted lint or type checks when the tooling supports it
+
+- Run full-repo checks when changes are broad or before final handoff:
+  - `uv run ruff check .`
   - `uv run pyright`
 
 - DO NOT ignore ruff or pyright rules to make checks pass
@@ -36,6 +40,7 @@ After any code change:
 
 - Run:
   - smallest relevant tests first
+  - then broader repo checks if changes are broad
   - then full suite if changes are broad
 
 ---
@@ -62,21 +67,6 @@ After any code change:
 
 Rule:
 > If 200 lines can be 50 → rewrite
-
----
-
-### 3. Surgical Changes
-
-- Modify ONLY what is required
-- Do NOT refactor unrelated code
-- Match existing style
-- Do NOT clean unrelated code
-
-Allowed:
-- Remove unused code introduced by YOUR changes
-
-Forbidden:
-- Removing pre-existing dead code
 
 ---
 
@@ -183,9 +173,6 @@ Replace casts with:
 - Do NOT modify application code to satisfy broken third-party typing
 - Fix via:
   - stubs
-  - configuration
-
-- Verification commands MUST be non-mutating
 
 ---
 
@@ -194,12 +181,3 @@ Replace casts with:
 - Keep the narrowest valid signature
 - Do NOT widen interfaces for convenience
 - Update all implementations if interface changes
-- Handle optional values explicitly at boundaries
-
----
-
-## Code Quality Rules
-
-- No helpers created only for type checker satisfaction
-- Prefer single boundary adapters over scattered casts
-- Tests validate runtime behavior ONLY (not lint/type output)

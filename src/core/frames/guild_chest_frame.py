@@ -1,26 +1,24 @@
 from dataclasses import dataclass
+from typing import Iterable, override
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
+from datas.protos.non_obf.game.common_pb2 import (
+    ObjectItemInventory,
+)
 from datas.protos.non_obf.game.exchange_pb2 import (
-    ExchangeLeaveEvent,
-    ExchangeObjectMoveRequest,
     ExchangeStartedWithMultiTabStorageEvent,
 )
 from datas.protos.non_obf.game.guild_member_pb2 import (
     GuildMembershipEvent,
 )
 from datas.protos.non_obf.game.inventory_pb2 import (
-    StorageInventoryContentEvent,
+    MultiTabStorageEvent,
 )
 
-from src.const import STRICT_MODE
-from src.core.frames.frame import Frame
-from src.core.states.guild_chest_state import GuildChestState
+from src.core.frames.mixin_storage import MixinStorage
 
 
 @dataclass
-class GuildChestFrame(Frame):
+class GuildChestFrame(MixinStorage):
     def __post_init__(self):
         self.event_manager.on(
             ExchangeStartedWithMultiTabStorageEvent,
@@ -34,6 +32,12 @@ class GuildChestFrame(Frame):
             originator=self,
             priority=self.priority,
         )
+        self.event_manager.on(
+            MultiTabStorageEvent,
+            self.on_multi_tab_storage_event,
+            originator=self,
+            priority=self.priority,
+        )
 
     def on_exchange_started_with_multi_tab_storage_event(
         self, msg: ExchangeStartedWithMultiTabStorageEvent
@@ -42,62 +46,35 @@ class GuildChestFrame(Frame):
             msg.tab_number = msg.storage_max_slot
 
         self.game_state.guild_chest.tab_number = msg.tab_number
-        self.event_manager.on(
-            StorageInventoryContentEvent,
-            callback=self.on_storage_inventory_content_after_tab_storage,
-            originator=self,
-            once=True,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            ExchangeObjectMoveRequest,
-            self.on_exchange_move_request_on_guild_chest,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            ExchangeLeaveEvent,
-            self.on_exchange_leave_guild_chest_event,
-            originator=self,
-            once=True,
-            priority=self.priority,
-        )
+        self.on_opened_storage()
 
-    def on_storage_inventory_content_after_tab_storage(
-        self, msg: StorageInventoryContentEvent
-    ):
-        GuildChestState.set_tab_content(
-            self.game_state.player.server_id,
+    @override
+    def set_objects(self, objects_item_inventory: Iterable[ObjectItemInventory]):
+        self.game_state.guild_chest.storage.set_tab_content(
             self.game_state.guild_chest.tab_number,
-            list(msg.objects),
+            list(objects_item_inventory),
         )
         self.logger.info(
             f"New storage for tab number : {self.game_state.guild_chest.tab_number}"
         )
 
-    def on_exchange_move_request_on_guild_chest(self, msg: ExchangeObjectMoveRequest):
-        GuildChestState.update_item_quantity(
-            self.game_state.player.server_id,
+    @override
+    def set_object(self, object_item_inventory: ObjectItemInventory) -> None:
+        self.game_state.guild_chest.storage.set_item(
             self.game_state.guild_chest.tab_number,
-            msg.object_uid,
-            msg.quantity,
+            object_item_inventory,
         )
-        inventory_item = self.game_state.inventory.objects_by_uid.get(msg.object_uid)
-        if inventory_item is not None:
-            inventory_item.item.quantity -= msg.quantity
-            if inventory_item.item.quantity < 0:
-                error = f"item {I18N().name_by_id[DataReader().item_by_id[inventory_item.item.gid].nameId]} quantity is {inventory_item.item.quantity}"
-                if STRICT_MODE:
-                    raise ValueError(error)
-                self.logger.error(error)
 
-            if inventory_item.item.quantity <= 0:
-                self.game_state.inventory.objects_by_uid.pop(inventory_item.item.uid)
-
-    def on_exchange_leave_guild_chest_event(self, msg: ExchangeLeaveEvent):
-        self.unregister_listener(ExchangeObjectMoveRequest)
-        self.unregister_listener(StorageInventoryContentEvent)
+    @override
+    def remove_object(self, uid: int) -> None:
+        self.game_state.guild_chest.storage.remove_item_by_uid(
+            self.game_state.guild_chest.tab_number,
+            uid,
+        )
 
     def on_guild_members_ship_event(self, msg: GuildMembershipEvent):
         self.game_state.guild_chest.has_guild = True
         self.game_state.guild_chest.rank_id = msg.rank_id
+
+    def on_multi_tab_storage_event(self, msg: MultiTabStorageEvent):
+        self.game_state.guild_chest.tabs = [tab.tab_number for tab in msg.tabs]

@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
-from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.signals.player_signals import InventorySignals
 from src.core.states.player_state import PlayerState
@@ -96,15 +95,6 @@ class InventoryState(State):
     def kamas(self, value: int):
         self._kamas = value
         self.inventory_signals.kamas.emit(value)
-
-    def get_valid_recipes(
-        self,
-        recipes: list[RecipeItem],
-    ) -> list[RecipeItem]:
-        """Delegate to logic layer for recipe validation."""
-        from src.core.engine.crafts.recipes import get_valid_recipes
-
-        return get_valid_recipes(self.logger, self.player_state.jobs_lvl_by_id, recipes)
 
     def get_object_item_by_gid(self, gid: int) -> ObjectItemInventory | None:
         return next(

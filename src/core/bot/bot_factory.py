@@ -1,3 +1,4 @@
+import random
 import threading
 
 from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
@@ -96,6 +97,7 @@ from src.core.engine.movements.world.astar_vertice import AstarWorld
 from src.core.engine.movements.world.world_path_finder import WorldPathFinder
 from src.core.engine.weights.weighted_path import WeightedPath
 from src.core.events_manager.event_manager import EventManager
+from src.core.frames.bank_chest_frame import BankChestFrame
 from src.core.frames.chat_frame import ChatFrame
 from src.core.frames.craft_frame import CraftFrame
 from src.core.frames.entity_frame import EntityFrame
@@ -185,6 +187,14 @@ class BotFactory:
             game_info_signals=game_info_signals,
             inventory_signals=inventory_signals,
             _logger=logger,
+            is_playing_event=is_playing_event,
+        )
+        bank_chest_frame = BankChestFrame(
+            _logger=logger,
+            event_manager=event_manager,
+            game_state=game_state,
+            game_info_signals=game_info_signals,
+            inventory_signals=inventory_signals,
             is_playing_event=is_playing_event,
         )
         interactive_frame = InteractiveFrame(
@@ -635,6 +645,7 @@ class BotFactory:
                 guild_chest_frame,
                 sale_hotel_frame,
                 craft_frame,
+                bank_chest_frame,
             ],
             world_signals=world_signals,
             _logger=logger,
@@ -649,3 +660,28 @@ class BotFactory:
             is_connected_event=is_connected_event,
             is_fake=is_fake,
         )
+
+
+def generate_random_bot() -> Bot:
+    login = f"CertUser{random.randint(1, 10_000)}"
+    return BotFactory.create_bot(
+        SharedSignals(),
+        account={
+            "apikeyFile": "/path/to/apikey/file.json",
+            "apikey": {
+                "key": "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6",
+                "provider": "ankama",
+                "refreshToken": "X1Y2Z3A4B5C6D7E8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9",
+                "isStayLoggedIn": True,
+                "accountId": 482395,
+                "login": login,
+                "certificate": {
+                    "id": 4321,
+                    "encodedCertificate": "ABCD1234EFGH5678IJKL9012MNOP3456QRST7890UVWX1234YZAB5678CDEF9012",
+                    "login": login,
+                },
+                "refreshDate": 1762825632,
+            },
+        },
+        is_fake=True,
+    )

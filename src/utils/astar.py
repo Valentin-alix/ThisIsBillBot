@@ -214,9 +214,7 @@ class _CallableAstar(DataAstar[CallablePathT]):
     def get_neighbors(self, data: CallablePathT) -> Iterator[CallablePathT]:
         return self._get_neighbors_func(data)
 
-    def is_goal_reached(
-        self, current: CallablePathT, ends: set[CallablePathT]
-    ) -> bool:
+    def is_goal_reached(self, current: CallablePathT, ends: set[CallablePathT]) -> bool:
         return self._is_goal_reached_func(current, ends)
 
 

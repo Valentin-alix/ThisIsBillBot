@@ -32,7 +32,7 @@ GATHERER_ITEM_GIDS: set[int] = {
 
 GATHERED_ITEM_ID_BY_NAME = {
     I18N()
-    .name_by_id[DataReader().item_by_id[item_id].nameId or 0]
+    .name_by_id[DataReader().item_by_id[item_id].nameId]
     .lower()
     .replace("s", "")
     .replace(" ", ""): item_id

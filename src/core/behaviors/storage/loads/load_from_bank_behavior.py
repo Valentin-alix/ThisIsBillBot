@@ -1,8 +1,6 @@
-from dataclasses import dataclass
-from enum import StrEnum, auto
+from dataclasses import dataclass, field
 from functools import partial
 
-from dofus_unity_reader.data_center.data_reader import DataReader
 from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
     ExchangeObjectMoveRequest,
@@ -15,92 +13,105 @@ from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )
-from src.core.behaviors.storage.loads.load_from_guild_chest_behavior import LoadItemInfo
+from src.core.behaviors.storage.loads.load_item_request import (
+    LoadItemInfo,
+    PendingLoadItem,
+    get_portable_quantity,
+)
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
 from src.core.config import BASE_RANGE, SMALL_RANGE, USEFUL_UNLOAD
-
-
-class LoadFromBankError(StrEnum):
-    NOT_ENOUGH_LVL = auto()
-    NOT_ENOUGH_KAMAS = auto()
 
 
 @dataclass
 class LoadFromBankBehavior(DialogHandlerBehavior):
     enter_bank_behavior: EnterBankChestBehavior
     unload_behavior: UnloadBehavior
+    _pending_load_items: list[PendingLoadItem] = field(
+        init=False, default_factory=lambda: []
+    )
 
     def run(self, load_items_infos: list[LoadItemInfo]) -> None:
+        self._pending_load_items = [
+            PendingLoadItem.from_request(load_item_info)
+            for load_item_info in load_items_infos
+        ]
         if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
             return self.unload_behavior.start(
                 callback=partial(
                     self.on_unload_behavior_finished,
-                    load_items_infos=load_items_infos,
                 ),
                 parent=self,
             )
-        self.on_unloaded(load_items_infos)
+        self.on_unloaded()
 
     def on_unload_behavior_finished(
-        self, error_code: str | None, load_items_infos: list[LoadItemInfo]
-    ):
+        self,
+        error_code: str | None,
+    ) -> None:
         if error_code is not None:
             return self.finish(error_code)
-        self.on_unloaded(load_items_infos)
+        self.on_unloaded()
 
-    def on_unloaded(self, load_items_infos: list[LoadItemInfo]):
+    def on_unloaded(self) -> None:
         self.run_timer(
             BASE_RANGE,
             lambda: self.enter_bank_behavior.start(
-                callback=partial(
-                    self.on_entered_bank_behavior,
-                    load_items_infos=load_items_infos,
-                ),
+                callback=self.on_entered_bank_behavior,
                 parent=self,
             ),
         )
 
     def on_entered_bank_behavior(
-        self, error_code: str | None, load_items_infos: list[LoadItemInfo]
-    ):
+        self,
+        error_code: str | None,
+    ) -> None:
         if error_code is not None:
-            return self.finish(error_code=error_code, load_items_infos=load_items_infos)
-        self.load_item(load_items_infos)
+            return self.finish(
+                error_code=error_code,
+                load_items_infos=self._build_remaining_requests(),
+            )
+        self.load_item()
 
-    def load_item(self, load_items_infos: list[LoadItemInfo]):
-        if len(load_items_infos) == 0:
+    def load_item(self) -> None:
+        if len(self._pending_load_items) == 0:
             self.event_manager.on(
                 ExchangeLeaveEvent,
-                callback=lambda _: self.finish(load_items_infos=load_items_infos),
+                callback=lambda _: self.finish(
+                    load_items_infos=self._build_remaining_requests()
+                ),
                 originator=self,
                 once=True,
                 override_on_self=True,
             )
             return self.run_timer(BASE_RANGE, self.leave_all_dialogs)
 
-        load_item_info = load_items_infos[0]
+        current_load = self._pending_load_items[0]
         related_item = self.game_state.inventory.bank_object_by_gid.get(
-            load_item_info.item_gid, None
+            current_load.item_gid,
+            None,
         )
         if related_item is None:
-            load_items_infos.remove(load_item_info)
-            return self.on_item_loaded(load_items_infos)
+            self._pending_load_items.pop(0)
+            return self.on_item_loaded()
 
         quantity_to_unload = min(
-            load_item_info.remaining_quantity, related_item.item.quantity
+            current_load.remaining_quantity,
+            related_item.item.quantity,
         )
         if quantity_to_unload == 0:
-            load_items_infos.remove(load_item_info)
-            return self.on_item_loaded(load_items_infos)
+            self._pending_load_items.pop(0)
+            return self.on_item_loaded()
 
-        portable_quantity = (
-            self.game_state.inventory.weight_max
-            - self.game_state.inventory.inventory_weight
-        ) // (DataReader().item_by_id[load_item_info.item_gid].realWeight or 1)
+        portable_quantity = get_portable_quantity(
+            self.game_state,
+            current_load.item_gid,
+        )
         if portable_quantity == 0:
             self.event_manager.on(
                 ExchangeLeaveEvent,
-                callback=lambda _: self.finish(load_items_infos=load_items_infos),
+                callback=lambda _: self.finish(
+                    load_items_infos=self._build_remaining_requests()
+                ),
                 originator=self,
                 once=True,
                 override_on_self=True,
@@ -108,13 +119,13 @@ class LoadFromBankBehavior(DialogHandlerBehavior):
             return self.run_timer(BASE_RANGE, self.leave_all_dialogs)
 
         valid_quantity = min(portable_quantity, quantity_to_unload)
-        load_item_info.remaining_quantity -= valid_quantity
-        if load_item_info.remaining_quantity < 100:
-            load_items_infos.remove(load_item_info)
+        current_load.remaining_quantity -= valid_quantity
+        if current_load.remaining_quantity < 100:
+            self._pending_load_items.pop(0)
 
         self.event_manager.on(
             InventoryWeightEvent,
-            callback=lambda _: self.on_item_loaded(load_items_infos),
+            callback=lambda _: self.on_item_loaded(),
             originator=self,
             once=True,
             override_on_self=True,
@@ -125,8 +136,11 @@ class LoadFromBankBehavior(DialogHandlerBehavior):
         )
         self.send_message_delayed(req, SMALL_RANGE)
 
-    def on_item_loaded(self, load_items_infos: list[LoadItemInfo]):
-        self.load_item(load_items_infos)
+    def on_item_loaded(self) -> None:
+        self.load_item()
 
-    def leave_all_dialogs(self):
+    def _build_remaining_requests(self) -> list[LoadItemInfo]:
+        return [load_item.to_request() for load_item in self._pending_load_items]
+
+    def leave_all_dialogs(self) -> None:
         self.leave_dialog()

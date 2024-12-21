@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from datas.protos.non_obf.game.fight_pb2 import (
+    FightIsTurnReadyEvent,
     FightTurnStartPlayingEvent,
 )
 from datas.protos.non_obf.game.gamemap_pb2 import (
@@ -48,7 +49,7 @@ class FightBehavior(Behavior):
 
     def on_fight_map_initialized(self):
         self.event_manager.on(
-            FightTurnStartPlayingEvent,
+            [FightTurnStartPlayingEvent, FightIsTurnReadyEvent],
             lambda _: self.on_player_turn(),
             originator=self,
         )

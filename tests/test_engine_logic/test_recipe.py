@@ -8,7 +8,6 @@ from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
 from src.core.engine.crafts.recipes import (
-    FORBIDDEN_CRAFT_IDS,
     get_benefice_on_craft_recipe,
     get_max_possible_result_quantity,
     get_max_result_quantity,
@@ -97,10 +96,11 @@ class TestRecipesReal(unittest.TestCase):
     # get_valid_recipes
     # ------------------------------------------------------------------
     def test_get_valid_recipes(self) -> None:
+        forbidden_craft_ids: set[int] = {60}
+
         # Recette interdite
-        forbidden_id = next(iter(FORBIDDEN_CRAFT_IDS))
         forbidden_recipe = RecipeItem(
-            resultId=forbidden_id,
+            resultId=60,
             resultNameId="1",
             resultTypeId=0,
             resultLevel=1,
@@ -109,7 +109,9 @@ class TestRecipesReal(unittest.TestCase):
             jobId=JobEnum.WOODCUTTER,
             skillId=6,  # Valid skill ID with parent job WOODCUTTER (2)
         )
-        valid = get_valid_recipes(self.logger, self.jobs_lvl_by_id, [forbidden_recipe])
+        valid = get_valid_recipes(
+            self.logger, self.jobs_lvl_by_id, [forbidden_recipe], forbidden_craft_ids
+        )
         assert valid == []
 
         # Recette valide pour ALCHEMIST (niveau 5)
@@ -123,7 +125,9 @@ class TestRecipesReal(unittest.TestCase):
             jobId=JobEnum.ALCHEMIST,
             skillId=23,  # Valid skill ID for ALCHEMIST
         )
-        valid2 = get_valid_recipes(self.logger, self.jobs_lvl_by_id, [valid_recipe])
+        valid2 = get_valid_recipes(
+            self.logger, self.jobs_lvl_by_id, [valid_recipe], set()
+        )
         assert valid2 == [valid_recipe]
 
         # Recette invalide car le niveau du job est insuffisant
@@ -137,7 +141,9 @@ class TestRecipesReal(unittest.TestCase):
             jobId=JobEnum.ALCHEMIST,
             skillId=23,
         )
-        valid3 = get_valid_recipes(self.logger, self.jobs_lvl_by_id, [invalid_recipe])
+        valid3 = get_valid_recipes(
+            self.logger, self.jobs_lvl_by_id, [invalid_recipe], set()
+        )
         assert valid3 == []
 
     # ------------------------------------------------------------------

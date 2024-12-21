@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.basic_pb2 import (
     TextInformationEvent,
 )
@@ -18,6 +17,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
     MapMovementRefusedEvent,
     MapMovementRequest,
 )
+from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
 from src.core.engine.communications.text import TextEnum

@@ -145,7 +145,7 @@ class EventManager(ContextualLogger):
 
     def on(
         self,
-        msg_type: type[T],
+        msg_type: type[T] | list[type[T]],
         callback: Callable[[T], None],
         originator: object,
         once: bool = False,
@@ -154,32 +154,36 @@ class EventManager(ContextualLogger):
         on_timeout: Callable[[], None] | None = None,
         override_on_self: bool = False,
     ) -> None:
-        self.logger.info(
-            f"Adding listener {msg_type.__name__} from {originator.__class__.__name__}"
-        )
-        if (timeout is None) != (on_timeout is None):
-            raise ValueError(
-                f"Incoherent timeout is {timeout} but on timeout definition : {on_timeout is not None}"
-            )
-        with self.lock:
-            if override_on_self:
-                self.clear_listener_by_origin_and_type(msg_type, originator)
+        if not isinstance(msg_type, list):
+            msg_type = [msg_type]
 
-            new_listener = Listener(
-                msg_type=msg_type,
-                callback=callback,
-                once=once,
-                originator=originator,
-                priority=priority,
-                timeout=timeout,
-                on_timeout=on_timeout,
-                logger=self.logger,
+        for part_msg_type in msg_type:
+            self.logger.info(
+                f"Adding listener {part_msg_type.__name__} from {originator.__class__.__name__}"
             )
-            self.listeners_by_type_msg[msg_type].append(
-                cast(Listener[Message], new_listener)
-            )
+            if (timeout is None) != (on_timeout is None):
+                raise ValueError(
+                    f"Incoherent timeout is {timeout} but on timeout definition : {on_timeout is not None}"
+                )
+            with self.lock:
+                if override_on_self:
+                    self.clear_listener_by_origin_and_type(part_msg_type, originator)
 
-        self.signals.listeners_added.emit([new_listener])
+                new_listener = Listener(
+                    msg_type=part_msg_type,
+                    callback=callback,
+                    once=once,
+                    originator=originator,
+                    priority=priority,
+                    timeout=timeout,
+                    on_timeout=on_timeout,
+                    logger=self.logger,
+                )
+                self.listeners_by_type_msg[part_msg_type].append(
+                    cast(Listener[Message], new_listener)
+                )
+
+            self.signals.listeners_added.emit([new_listener])
 
     def send(self, msg: Message) -> None:
         self.logger.debug(f"Sending Game MSG {msg.__class__.__name__}")

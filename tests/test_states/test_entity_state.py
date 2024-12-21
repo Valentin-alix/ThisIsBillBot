@@ -3,11 +3,20 @@ from collections.abc import Mapping
 from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
+    Direction,
     EntityDisposition,
 )
+from datas.protos.non_obf.game.context_pb2 import (
+    ContextRemoveElementEvent,
+    ContextRemoveElementsEvent,
+)
 from datas.protos.non_obf.game.gamemap_pb2 import (
+    GameRolePlayShowActorsEvent,
+    MapChangeOrientationEvent,
     MapComplementaryInformationEvent,
     MapMovementEvent,
+    MapObstacle,
+    MapObstacleUpdateEvent,
 )
 from src.core.bot.bot_factory import BotFactory
 from src.core.signals.shared_farm_signals import SharedSignals
@@ -76,6 +85,83 @@ class TestEntityState(StateTestBase):
         )
 
         assert self.game_state.entity.actor_by_id[789].disposition.cell_id == 130
+
+    def test_context_remove_element_event_removes_actor(self):
+        actor = ActorPositionInformation(
+            actor_id=789, disposition=EntityDisposition(cell_id=100, entity_id=789)
+        )
+        self.inject(MapComplementaryInformationEvent(actors=[actor]))
+
+        self.inject(ContextRemoveElementEvent(element_id=789))
+
+        assert 789 not in self.game_state.entity.actor_by_id
+
+    def test_context_remove_elements_event_removes_multiple_actors(self):
+        actors = [
+            ActorPositionInformation(
+                actor_id=1, disposition=EntityDisposition(cell_id=100, entity_id=1)
+            ),
+            ActorPositionInformation(
+                actor_id=2, disposition=EntityDisposition(cell_id=101, entity_id=2)
+            ),
+        ]
+        self.inject(MapComplementaryInformationEvent(actors=actors))
+
+        self.inject(ContextRemoveElementsEvent(element_id=[1, 2]))
+
+        assert len(self.game_state.entity.actor_by_id) == 0
+
+    def test_game_role_play_show_actors_event_adds_partial_actors(self):
+        self.inject(
+            GameRolePlayShowActorsEvent(
+                actors=[
+                    ActorPositionInformation(
+                        actor_id=33,
+                        disposition=EntityDisposition(cell_id=120, entity_id=33),
+                    )
+                ]
+            )
+        )
+
+        assert self.game_state.entity.actor_by_id[33].disposition.cell_id == 120
+
+    def test_map_obstacle_update_event_updates_obstacles(self):
+        self.inject(
+            MapObstacleUpdateEvent(
+                obstacles=[
+                    MapObstacle(
+                        cell_id=100, state=MapObstacle.ObstacleState.OBSTACLE_CLOSED
+                    ),
+                    MapObstacle(
+                        cell_id=101, state=MapObstacle.ObstacleState.OBSTACLE_CLOSED
+                    ),
+                ]
+            )
+        )
+
+        assert set(self.game_state.entity.obstacle_on_cell_id) == {100, 101}
+
+    def test_map_change_orientation_event_updates_actor_direction(self):
+        actor = ActorPositionInformation(
+            actor_id=789,
+            disposition=EntityDisposition(
+                cell_id=100,
+                entity_id=789,
+                direction=Direction.DIRECTION_EAST,
+            ),
+        )
+        self.inject(MapComplementaryInformationEvent(actors=[actor]))
+
+        self.inject(
+            MapChangeOrientationEvent(
+                actor_id=789, direction=Direction.DIRECTION_NORTH_EAST
+            )
+        )
+
+        assert (
+            self.game_state.entity.actor_by_id[789].disposition.direction
+            == Direction.DIRECTION_NORTH_EAST
+        )
 
     def test_actors_on_mp_updated(self):
         actor = ActorPositionInformation(

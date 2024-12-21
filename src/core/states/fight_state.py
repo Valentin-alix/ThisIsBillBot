@@ -2,8 +2,6 @@ import dataclasses
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
-from dofus_unity_reader.enums.effect_element import EffectElement
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
@@ -11,6 +9,8 @@ from datas.protos.non_obf.game.common_pb2 import (
     SpellModifierType,
 )
 from datas.protos.non_obf.game.spell_pb2 import SpellItem
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.enums.effect_element import EffectElement
 
 from src.core.engine.fights.effect import get_effect_elem_by_stat
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
@@ -129,7 +129,7 @@ class FightState(State):
         self.game_info_signals.in_fight.emit(self._in_fight)
 
     @property
-    def ordered_stat(self) -> list[int]:
+    def ordered_stat(self) -> list[CharacteristicEnum]:
         dmg_stats: list[CharacteristicEnum] = [
             CharacteristicEnum.AGILITY,
             CharacteristicEnum.STRENGTH,

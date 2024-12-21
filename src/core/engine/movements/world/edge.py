@@ -1,4 +1,3 @@
-from functools import cache
 from typing import Iterator
 
 from dofus_unity_reader.data_center.data_reader import DataReader
@@ -14,34 +13,36 @@ from src.core.engine.movements.world.criterions.group_item_criterion import (
 from src.core.engine.movements.world.criterions.interface_item_criterion import (
     IItemCriterion,
 )
-from src.core.game_constants import Maps, PathfindingConst
+from src.core.game_constants import Maps
 from src.core.signals.world_signals import WorldSignals
 from src.core.states.game_state import GameState
+from utils import cache
 
 
-def remove_forbidden_edge_transition_by_map_id(map_id: int) -> None:
+def remove_forbidden_edge_transition_by_map_id(
+    map_id: int,
+    forbidden_edge_transitions: set[tuple[Vertice, Vertice, Transition]],
+) -> None:
     for (
         vertice_from,
         vertice_to,
         transition,
-    ) in PathfindingConst.FORBIDDEN_EDGE_TRANSITION.copy():
+    ) in forbidden_edge_transitions.copy():
         if vertice_from.m_mapId == map_id:
-            PathfindingConst.FORBIDDEN_EDGE_TRANSITION.remove(
-                (vertice_from, vertice_to, transition)
-            )
+            forbidden_edge_transitions.remove((vertice_from, vertice_to, transition))
 
 
 def get_valid_transition(
     edge: Edge, transitions: list[Transition], game_state: GameState
 ) -> Transition | None:
     for transition, criterion in _get_transition_to_valid_criterions(
-        edge, tuple(transitions)
+        tuple(transitions)
     ):
         if (
             edge.m_from,
             edge.m_to,
             transition,
-        ) in PathfindingConst.FORBIDDEN_EDGE_TRANSITION:
+        ) in game_state.map.forbidden_edge_transitions:
             continue
         if not criterion or criterion.is_respected(game_state):
             return transition
@@ -50,16 +51,10 @@ def get_valid_transition(
 
 @cache
 def _get_transition_to_valid_criterions(
-    edge: Edge, transitions: tuple[Transition]
+    transitions: tuple[Transition],
 ) -> list[tuple[Transition, IItemCriterion | None]]:
     transitions_with_criterion: list[tuple[Transition, IItemCriterion | None]] = []
     for transition in transitions:
-        if (
-            edge.m_from,
-            edge.m_to,
-            transition,
-        ) in PathfindingConst.FORBIDDEN_EDGE_TRANSITION:
-            continue
         if len(transition.m_criterion) == 0:
             transitions_with_criterion.append((transition, None))
         if (

@@ -8,6 +8,8 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
 )
 from datas.protos.non_obf.game.interactive_element_pb2 import (
     InteractiveElementUpdatedEvent,
+    InteractiveMapUpdateEvent,
+    StatedMapUpdateEvent,
     StatedElementUpdatedEvent,
 )
 
@@ -21,6 +23,24 @@ class InteractiveFrame(Frame):
         self.event_manager.on(
             MapComplementaryInformationEvent,
             self.on_map_complementary_information_event,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            InteractiveMapUpdateEvent,
+            self.on_interactive_map_update_event,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            StatedMapUpdateEvent,
+            self.on_stated_map_update_event,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            InteractiveElementUpdatedEvent,
+            self.on_interactive_element_updated_event,
             originator=self,
             priority=self.priority,
         )
@@ -72,6 +92,15 @@ class InteractiveFrame(Frame):
                 )
         GfxMappingController().add_multiple_item_job_by_gfx(item_and_job_by_gfx_array)
         GfxMappingController().add_map_id_checked(message.map_id)
+
+    def on_interactive_map_update_event(self, msg: InteractiveMapUpdateEvent):
+        for interactive_element in msg.interactive_elements:
+            self.game_state.interactive.interactive_element_by_id[
+                interactive_element.element_id
+            ] = interactive_element
+
+    def on_stated_map_update_event(self, msg: StatedMapUpdateEvent):
+        self.game_state.interactive.set_stated_elements(msg.stated_elements)
 
     def on_interactive_element_updated_event(self, msg: InteractiveElementUpdatedEvent):
         self.game_state.interactive.interactive_element_by_id[

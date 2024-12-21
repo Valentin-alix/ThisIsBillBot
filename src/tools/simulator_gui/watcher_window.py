@@ -12,11 +12,9 @@ from qfluentwidgets import Theme, setTheme, setThemeColor
 from watchfiles import Change, watch
 
 from src.core.bot.bot import Bot
-from tests.fixtures.random_generator import (
-    generate_random_bot,
-)
+from src.core.bot.bot_factory import generate_random_bot
 
-load_dotenv(os.path.join(Path(__file__).parent.parent, ".env"))
+load_dotenv(os.path.join(Path(__file__).parent.parent.parent, ".env"))
 
 import src.core.signals.shared_farm_signals as gui_shared_farm_signals
 import src.gui.main_window as gui_main_window
@@ -83,7 +81,10 @@ class WatcherGui:
             if name.startswith("src.gui"):
                 purge_names.append(name)
                 continue
-            mod_file = mod.__file__ if isinstance(mod, ModuleType) else None
+            try:
+                mod_file = mod.__file__ if isinstance(mod, ModuleType) else None
+            except AttributeError:
+                continue
             if not mod_file:
                 continue
             norm = os.path.normpath(mod_file)

@@ -5,12 +5,8 @@ from threading import RLock
 from unittest.mock import create_autospec
 
 from datas.protos.non_obf.game.character_management_pb2 import (
-    CharacterForceSelectionEvent,
-    CharacterForceSelectionReadyRequest,
     CharacterListEvent,
     CharacterListRequest,
-    CharacterLoadingCompleteEvent,
-    CharacterSelectionEvent,
     CharacterSelectionRequest,
 )
 from datas.protos.non_obf.game.common_pb2 import Character
@@ -18,14 +14,7 @@ from datas.protos.non_obf.game.connection_pb2 import (
     AuthenticationTicketAcceptedEvent,
     IdentificationRequest as GameIdentificationRequest,
 )
-from datas.protos.non_obf.game.context_pb2 import (
-    ContextCreationRequest,
-    ContextReadyRequest,
-)
-from datas.protos.non_obf.game.gamemap_pb2 import (
-    MapCurrentEvent,
-    MapCurrentInstanceEvent,
-)
+from datas.protos.non_obf.game.client_verification_pb2 import ServerVerificationEvent
 from google.protobuf.message import Message
 
 from src.core.behaviors.behavior import BehaviorState
@@ -115,113 +104,37 @@ class HandshakeBehaviorTests(unittest.TestCase):
         self.assertEqual(sent_message.ticket_key, "ticket")
         self.assertEqual(sent_message.language_code, "fr")
         self.assertIn(AuthenticationTicketAcceptedEvent, self.listeners_by_type)
-        self.assertIn(CharacterListEvent, self.listeners_by_type)
-        self.assertIn(CharacterLoadingCompleteEvent, self.listeners_by_type)
-        self.assertIn(MapCurrentEvent, self.listeners_by_type)
-        self.assertIn(MapCurrentInstanceEvent, self.listeners_by_type)
+        self.assertNotIn(CharacterListEvent, self.listeners_by_type)
 
     def test_authentication_ticket_accepted_requests_character_list(self) -> None:
         self.behavior.on_authentication_ticket_accepted_event(
             AuthenticationTicketAcceptedEvent()
         )
 
+        self.assertEqual(self.sent_messages, [])
+        self.assertIn(ServerVerificationEvent, self.listeners_by_type)
+
+    def test_server_verification_requests_character_list(self) -> None:
+        self.behavior.on_server_verification_event(ServerVerificationEvent())
+
         self.assertEqual(len(self.sent_messages), 1)
         assert isinstance(self.sent_messages[0], CharacterListRequest)
+        self.assertIn(CharacterListEvent, self.listeners_by_type)
 
     def test_character_list_selects_first_character(self) -> None:
+        self.behavior.on_server_verification_event(ServerVerificationEvent())
         message = CharacterListEvent(characters=[Character(id=42), Character(id=99)])
 
         self.behavior.on_character_list_event(message)
 
-        self.assertEqual(len(self.sent_messages), 1)
-        sent_message = self.sent_messages[0]
+        self.assertEqual(len(self.sent_messages), 3)
+        sent_message = self.sent_messages[1]
         assert isinstance(sent_message, CharacterSelectionRequest)
         self.assertEqual(sent_message.character_id, 42)
 
     def test_character_list_without_characters_raises(self) -> None:
         with self.assertRaisesRegex(ValueError, "has no characters"):
             self.behavior.on_character_list_event(CharacterListEvent())
-
-    def test_character_force_selection_sends_ready_request(self) -> None:
-        self.behavior.on_character_force_selection_event(
-            CharacterForceSelectionEvent(character_id=42)
-        )
-
-        self.assertEqual(len(self.sent_messages), 1)
-        assert isinstance(self.sent_messages[0], CharacterForceSelectionReadyRequest)
-
-    def test_character_selection_error_raises(self) -> None:
-        message = CharacterSelectionEvent()
-        message.error.SetInParent()
-
-        with self.assertRaisesRegex(ValueError, "failed"):
-            self.behavior.on_character_selection_event(message)
-
-    def test_character_loading_complete_requests_context_creation(self) -> None:
-        self.behavior.on_character_loading_complete_event(
-            CharacterLoadingCompleteEvent()
-        )
-
-        self.assertEqual(len(self.sent_messages), 1)
-        assert isinstance(self.sent_messages[0], ContextCreationRequest)
-
-    def test_map_current_after_loading_sends_context_ready_and_finishes(self) -> None:
-        self.behavior.start(ticket="ticket", callback=None, parent=None)
-        self.behavior.on_character_loading_complete_event(
-            CharacterLoadingCompleteEvent()
-        )
-        self.behavior.on_map_current_event(MapCurrentEvent(map_id=12345))
-
-        self.assertEqual(len(self.sent_messages), 3)
-        sent_message = self.sent_messages[2]
-        assert isinstance(sent_message, ContextReadyRequest)
-        self.assertEqual(sent_message.map_id, 12345)
-        self.assertEqual(self.behavior.state, BehaviorState.STOPPED)
-
-    def test_map_current_instance_after_loading_sends_context_ready(self) -> None:
-        self.behavior.start(ticket="ticket", callback=None, parent=None)
-        self.behavior.on_character_loading_complete_event(
-            CharacterLoadingCompleteEvent()
-        )
-        self.behavior.on_map_current_instance_event(
-            MapCurrentInstanceEvent(map_id=12345, instantiate_map_id=67890)
-        )
-
-        self.assertEqual(len(self.sent_messages), 3)
-        sent_message = self.sent_messages[2]
-        assert isinstance(sent_message, ContextReadyRequest)
-        self.assertEqual(sent_message.map_id, 12345)
-
-    def test_context_ready_waits_for_loading_when_map_arrives_first(self) -> None:
-        self.behavior.start(ticket="ticket", callback=None, parent=None)
-        self.behavior.on_map_current_event(MapCurrentEvent(map_id=12345))
-
-        self.assertEqual(len(self.sent_messages), 1)
-
-        self.behavior.on_character_loading_complete_event(
-            CharacterLoadingCompleteEvent()
-        )
-
-        self.assertEqual(len(self.sent_messages), 3)
-        sent_message = self.sent_messages[2]
-        assert isinstance(sent_message, ContextReadyRequest)
-        self.assertEqual(sent_message.map_id, 12345)
-
-    def test_context_ready_is_sent_only_once(self) -> None:
-        self.behavior.start(ticket="ticket", callback=None, parent=None)
-        self.behavior.on_character_loading_complete_event(
-            CharacterLoadingCompleteEvent()
-        )
-        self.behavior.on_map_current_event(MapCurrentEvent(map_id=12345))
-        self.behavior.on_map_current_instance_event(
-            MapCurrentInstanceEvent(map_id=54321, instantiate_map_id=67890)
-        )
-
-        sent_context_ready = [
-            msg for msg in self.sent_messages if isinstance(msg, ContextReadyRequest)
-        ]
-        self.assertEqual(len(sent_context_ready), 1)
-        self.assertEqual(sent_context_ready[0].map_id, 12345)
 
 
 if __name__ == "__main__":

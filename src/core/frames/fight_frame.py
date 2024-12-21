@@ -4,9 +4,13 @@ from datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicsEvent,
     UpdateLifePointsEvent,
 )
+from datas.protos.non_obf.game.common_pb2 import FightOutcome, Team
 from datas.protos.non_obf.game.fight_pb2 import (
+    FightEndEvent,
+    FightIsTurnReadyEvent,
     FightLiveStateEvent,
     FightRefreshCharacterStatsEvent,
+    FightTurnEndEvent,
     FightTurnFinishRequest,
     FightTurnStartPlayingEvent,
 )
@@ -19,7 +23,6 @@ from datas.protos.non_obf.game.game_action_pb2 import (
 )
 from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
-    MapComplementaryInformationEvent,
 )
 from datas.protos.non_obf.game.spell_pb2 import (
     SpellsEvent,
@@ -35,12 +38,6 @@ class FightFrame(Frame):
         self.event_manager.on(
             FightPlacementPossiblePositionsEvent,
             self.on_fight_placement_position_request,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            MapComplementaryInformationEvent,
-            self.on_map_complementary_information_event,
             originator=self,
             priority=self.priority,
         )
@@ -68,7 +65,7 @@ class FightFrame(Frame):
             originator=self,
         )
         self.event_manager.on(
-            FightTurnStartPlayingEvent,
+            [FightTurnStartPlayingEvent, FightIsTurnReadyEvent],
             self.on_fight_turn_start_playing_event,
             originator=self,
             priority=self.priority,
@@ -115,21 +112,20 @@ class FightFrame(Frame):
             originator=self,
             priority=self.priority,
         )
+        self.event_manager.on(
+            FightTurnEndEvent,
+            self.on_fight_turn_end_event,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            FightEndEvent,
+            self.on_fight_end_event,
+            originator=self,
+            priority=self.priority,
+        )
 
     def on_fight_live_state_event(self, msg: FightLiveStateEvent):
-        player_entity_state = next(
-            (
-                entity_state
-                for entity_state in msg.entities_states
-                if entity_state.entity_id == self.game_state.player.character_id
-            ),
-            None,
-        )
-        player_is_dead = player_entity_state is None or player_entity_state.is_dead
-
-        if player_is_dead:
-            self.game_state.fight.set_player_died_in_current_fight(True)
-
         for actor_id in list(self.game_state.entity.actor_by_id.keys()):
             related_entity_state = next(
                 (
@@ -191,7 +187,9 @@ class FightFrame(Frame):
             return None
         return msg
 
-    def on_fight_turn_start_playing_event(self, msg: FightTurnStartPlayingEvent):
+    def on_fight_turn_start_playing_event(
+        self, msg: FightTurnStartPlayingEvent | FightIsTurnReadyEvent
+    ):
         self.game_state.fight.count_casted_by_spell_id_on_current_turn.clear()
         self.game_state.fight.is_our_turn = True
         self.game_state.fight.fight_turn += 1
@@ -199,36 +197,6 @@ class FightFrame(Frame):
     def on_fight_turn_finish_request(self, msg: FightTurnFinishRequest):
         self.game_state.fight.count_casted_by_spell_id_on_current_turn.clear()
         self.game_state.fight.is_our_turn = False
-
-    def on_map_complementary_information_event(
-        self, msg: MapComplementaryInformationEvent
-    ):
-        if self.game_state.fight.last_attacked_monster_group is not None:
-            unique_name_id = ForbiddenMonsterController().get_unique_name_id_from_group(
-                self.game_state.fight.last_attacked_monster_group
-            )
-            self.logger.info(
-                f"Unique monster group name_id attacked : {unique_name_id}"
-            )
-            if unique_name_id is not None:
-                if self.game_state.fight.player_died_in_current_fight:
-                    self.logger.info(
-                        f"Increase defeat monster name_id : {unique_name_id}"
-                    )
-                    ForbiddenMonsterController().increment_defeat_count(
-                        unique_name_id, self.logger
-                    )
-                else:
-                    ForbiddenMonsterController().reset_defeat_count(
-                        unique_name_id, self.logger
-                    )
-
-        self.game_state.fight.is_our_turn = False
-        self.game_state.fight.in_fight = False
-        self.game_state.fight.fight_turn = 0
-        self.game_state.fight.is_map_fight_initialized = False
-        self.game_state.fight.set_last_attacked_monster_group(None)
-        self.game_state.fight.set_player_died_in_current_fight(False)
 
     def on_update_life_points_event(self, msg: UpdateLifePointsEvent):
         self.game_state.fight.life_point = msg.life_points
@@ -259,4 +227,40 @@ class FightFrame(Frame):
         self.game_state.fight.modifier_by_type_and_spell_id.clear()
         self.game_state.fight.in_fight = True
         self.game_state.fight.is_map_fight_initialized = True
-        self.game_state.fight.set_player_died_in_current_fight(False)
+
+    def on_fight_turn_end_event(self, msg: FightTurnEndEvent):
+        if msg.character_id != self.game_state.player.character_id:
+            return
+        self.game_state.fight.count_casted_by_spell_id_on_current_turn.clear()
+        self.game_state.fight.is_our_turn = False
+
+    def on_fight_end_event(self, msg: FightEndEvent):
+        self.game_state.fight.count_casted_by_spell_id_on_current_turn.clear()
+        self.game_state.fight.modifier_by_type_and_spell_id.clear()
+        self.game_state.fight.is_our_turn = False
+        self.game_state.fight.in_fight = False
+        self.game_state.fight.fight_turn = 0
+        self.game_state.fight.is_map_fight_initialized = False
+
+        if not self.game_state.fight.last_attacked_monster_group:
+            return
+
+        unique_name_id = ForbiddenMonsterController().get_unique_name_id_from_group(
+            self.game_state.fight.last_attacked_monster_group
+        )
+        if not unique_name_id:
+            return
+        self.logger.info(f"Unique monster group name_id attacked : {unique_name_id}")
+
+        did_won = next(
+            team_outcome.outcome == FightOutcome.RESULT_VICTORY
+            for team_outcome in msg.named_party_teams_outcomes
+            if team_outcome.team.team == Team.TEAM_CHALLENGER
+        )
+        if did_won:
+            return ForbiddenMonsterController().reset_defeat_count(
+                unique_name_id, self.logger
+            )
+        ForbiddenMonsterController().increment_defeat_count(unique_name_id, self.logger)
+
+        self.game_state.fight.set_last_attacked_monster_group(None)

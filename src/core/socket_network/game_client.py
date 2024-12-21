@@ -4,9 +4,9 @@ from dataclasses import dataclass, field
 from datas.protos.non_obf.game.game_message_pb2 import Request
 from google.protobuf.message import Message
 from PyQt6.QtCore import QMetaObject, Qt
-from src.core.behaviors.behavior import BehaviorState
 
 from src.const import MESSAGES_WITH_UID
+from src.core.behaviors.behavior import BehaviorState
 from src.core.socket_network.base_client import BaseClient
 from src.protocol.protocol import (
     decode_varint_size,

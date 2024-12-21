@@ -14,6 +14,8 @@ from datas.protos.non_obf.game.common_pb2 import (
     SpellModifierType,
 )
 from datas.protos.non_obf.game.fight_pb2 import (
+    FightEndEvent,
+    FightTurnEndEvent,
     FightTurnFinishRequest,
     FightTurnStartPlayingEvent,
 )
@@ -234,3 +236,27 @@ class TestFightState(StateTestBase):
 
         assert self.game_state.fight.fight_turn == 3
         assert self.game_state.fight.is_our_turn is True
+
+    def test_fight_turn_end_event_clears_our_turn_for_player(self):
+        self.game_state.player.character_id = 123
+        self.game_state.fight.is_our_turn = True
+        self.game_state.fight.count_casted_by_spell_id_on_current_turn[42] = 1
+
+        self.inject(FightTurnEndEvent(character_id=123))
+
+        assert self.game_state.fight.is_our_turn is False
+        assert len(self.game_state.fight.count_casted_by_spell_id_on_current_turn) == 0
+
+    def test_fight_end_event_resets_fight_flags(self):
+        self.game_state.fight.in_fight = True
+        self.game_state.fight.is_our_turn = True
+        self.game_state.fight.fight_turn = 3
+        self.game_state.fight.is_map_fight_initialized = True
+        self.game_state.fight.count_casted_by_spell_id_on_current_turn[42] = 1
+
+        self.inject(FightEndEvent())
+
+        assert self.game_state.fight.in_fight is False
+        assert self.game_state.fight.is_our_turn is False
+        assert self.game_state.fight.fight_turn == 0
+        assert self.game_state.fight.is_map_fight_initialized is False

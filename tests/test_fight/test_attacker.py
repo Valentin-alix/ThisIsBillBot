@@ -39,7 +39,13 @@ class TestIsBetterAttack(GameStateFixture):
                 200,
                 cast(
                     tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
-                    (10.0, 5, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(200)),
+                    (
+                        10.0,
+                        5,
+                        MapPoint.from_cell_id(100),
+                        None,
+                        MapPoint.from_cell_id(200),
+                    ),
                 ),
                 True,
             ),
@@ -50,7 +56,13 @@ class TestIsBetterAttack(GameStateFixture):
                 102,
                 cast(
                     tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
-                    (10.0, 3, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(110)),
+                    (
+                        10.0,
+                        3,
+                        MapPoint.from_cell_id(100),
+                        None,
+                        MapPoint.from_cell_id(110),
+                    ),
                 ),
                 True,
             ),
@@ -82,7 +94,13 @@ class TestIsBetterAttack(GameStateFixture):
                 102,
                 cast(
                     tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
-                    (10.0, 2, MapPoint.from_cell_id(100), None, MapPoint.from_cell_id(110)),
+                    (
+                        10.0,
+                        2,
+                        MapPoint.from_cell_id(100),
+                        None,
+                        MapPoint.from_cell_id(110),
+                    ),
                 ),
                 True,
             ),

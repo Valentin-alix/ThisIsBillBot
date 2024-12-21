@@ -35,7 +35,9 @@ class ProtobufUtilsTests(unittest.TestCase):
 
         self.assertEqual(state.nested.value, 7)
 
-    def test_apply_dict_to_dataclass_rejects_invalid_serialized_proto_payload(self) -> None:
+    def test_apply_dict_to_dataclass_rejects_invalid_serialized_proto_payload(
+        self,
+    ) -> None:
         state = SampleState()
 
         with self.assertRaises(TypeError):

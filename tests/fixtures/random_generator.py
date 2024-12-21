@@ -2,15 +2,13 @@ import datetime
 import json
 import random
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItem,
     ObjectItemInventory,
 )
-from src.core.bot.bot import Bot
-from src.core.bot.bot_factory import BotFactory
-from src.core.signals.shared_farm_signals import SharedSignals
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+
 from src.protocol.message import MessageInfo
 from src.services.logging.logger import Logger
 
@@ -52,31 +50,6 @@ def generate_random_message_info() -> MessageInfo:
 
 def generate_random_messages(count: int) -> list[MessageInfo]:
     return [generate_random_message_info() for _ in range(count)]
-
-
-def generate_random_bot() -> Bot:
-    login = f"CertUser{random.randint(1, 10_000)}"
-    return BotFactory.create_bot(
-        SharedSignals(),
-        account={
-            "apikeyFile": "/path/to/apikey/file.json",
-            "apikey": {
-                "key": "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6",
-                "provider": "ankama",
-                "refreshToken": "X1Y2Z3A4B5C6D7E8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9",
-                "isStayLoggedIn": True,
-                "accountId": 482395,
-                "login": login,
-                "certificate": {
-                    "id": 4321,
-                    "encodedCertificate": "ABCD1234EFGH5678IJKL9012MNOP3456QRST7890UVWX1234YZAB5678CDEF9012",
-                    "login": login,
-                },
-                "refreshDate": 1762825632,
-            },
-        },
-        is_fake=True,
-    )
 
 
 def generate_random_log(logger: Logger) -> None:

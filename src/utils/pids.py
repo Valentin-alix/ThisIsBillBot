@@ -17,9 +17,6 @@ def get_pid_by_local_and_remote_port(local_port: int, remote_port: int) -> int |
         remote_address: object = conn.raddr
         if not _has_port(local_address) or not _has_port(remote_address):
             continue
-        if (
-            local_address.port == local_port
-            and remote_address.port == remote_port
-        ):
+        if local_address.port == local_port and remote_address.port == remote_port:
             return conn.pid
     return None

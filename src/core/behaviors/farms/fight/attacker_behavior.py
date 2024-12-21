@@ -9,6 +9,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
 from datas.protos.non_obf.game.roleplay_pb2 import (
     AttackMonsterRequest,
 )
+
 from src.controller.forbidden_monster_controller import ForbiddenMonsterController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
@@ -41,11 +42,12 @@ class AttackerBehavior(Behavior):
         self,
         count_fight_limit: int | None = 10,
         wait_for_group: bool = False,
-        get_lvl_limit: Callable[[int], float] = lambda level: level * 1.5 + 5,
+        get_lvl_limit: Callable[[int], float] | None = None,
         force_attack: bool = False,
     ) -> None:
         self._force_attack = force_attack
-        self._get_lvl_limit = get_lvl_limit
+        if get_lvl_limit:
+            self._get_lvl_limit = get_lvl_limit
         self._wait_for_group = wait_for_group
         self._count_fighted_on_map = 0
         self._count_fight_limit = count_fight_limit

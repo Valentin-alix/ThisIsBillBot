@@ -18,12 +18,13 @@ def get_rare_gid_with_weight_from_protector_drop(
     weight: float = 0
 
     for drop in drops:
-        description = (
-            I18N()
-            .name_by_id[DataReader().item_by_id[drop.objectId].descriptionId or 0]
-            .lower()
-            .replace("s", "")
-        )
+        if not (
+            item_description := DataReader().item_by_id[drop.objectId].descriptionId
+        ):
+            continue
+        if item_description not in I18N().name_by_id:
+            continue
+        description = I18N().name_by_id[item_description].lower().replace("s", "")
         if drop.objectId in Items.CUSTOM_GATHERER_BY_SAC:
             res_object_id = Items.CUSTOM_GATHERER_BY_SAC[drop.objectId]
         elif description.startswith("cet énorme"):

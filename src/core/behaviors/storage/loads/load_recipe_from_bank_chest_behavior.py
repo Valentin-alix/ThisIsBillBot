@@ -42,23 +42,28 @@ class LoadRecipeFromBankChestBehavior(RecipeLoaderBehavior):
     def load_ingredients_for_recipe(
         self, recipe: RecipeItem, max_possible_result_quantity: int
     ) -> None:
-        ingredient_id_with_quantity = list(zip(recipe.ingredientIds, recipe.quantities))
+        ingredient_id_with_quantity = tuple(
+            zip(recipe.ingredientIds, recipe.quantities)
+        )
         if len(ingredient_id_with_quantity) == 0:
             return self.load_recipe()
-        self.load_ingredient(ingredient_id_with_quantity, max_possible_result_quantity)
+        self.load_ingredient(ingredient_id_with_quantity, 0, max_possible_result_quantity)
 
     def load_ingredient(
         self,
-        ingredient_id_with_quantity: list[tuple[int, int]],
+        ingredient_id_with_quantity: tuple[tuple[int, int], ...],
+        ingredient_index: int,
         max_possible_result_quantity: int,
     ) -> None:
-        if len(ingredient_id_with_quantity) == 0:
+        if ingredient_index >= len(ingredient_id_with_quantity):
             return self.load_recipe()
-        ingredient_id, quantity = ingredient_id_with_quantity.pop()
+        ingredient_id, quantity = ingredient_id_with_quantity[ingredient_index]
         self.event_manager.on(
             InventoryWeightEvent,
             callback=lambda _event: self.load_ingredient(
-                ingredient_id_with_quantity, max_possible_result_quantity
+                ingredient_id_with_quantity,
+                ingredient_index + 1,
+                max_possible_result_quantity,
             ),
             originator=self,
             once=True,

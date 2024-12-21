@@ -1,7 +1,7 @@
 import os
 
 from PyQt6.QtCore import QMargins, QPoint, QRect, Qt, pyqtSignal
-from PyQt6.QtGui import QColor, QCursor, QIcon, QPaintEvent, QPainter
+from PyQt6.QtGui import QColor, QCursor, QIcon, QPainter, QPaintEvent
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QSpacerItem, QWidget
 from qfluentwidgets import (
     BodyLabel,
@@ -76,19 +76,19 @@ class SidebarItem(NavigationWidget):
         self.main_layout.addWidget(self._stop_btn)
 
         self._profile_combo = ComboBox(self)
-        self._profile_combo.setFixedWidth(60)
+        self._profile_combo.setFixedWidth(100)
         self._profile_combo.currentIndexChanged.connect(self._on_profile_changed)
         self.main_layout.addWidget(self._profile_combo)
 
         self._network_combo = ComboBox(self)
-        self._network_combo.setFixedWidth(60)
+        self._network_combo.setFixedWidth(100)
         self._network_combo.currentIndexChanged.connect(
             self._on_network_interface_changed
         )
         self.main_layout.addWidget(self._network_combo)
 
         self._mode_combo = ComboBox(self)
-        self._mode_combo.setFixedWidth(60)
+        self._mode_combo.setFixedWidth(100)
         self._mode_combo.addItem("MITM", userData="mitm")
         self._mode_combo.addItem("Socket", userData="socket")
         self._mode_combo.currentIndexChanged.connect(self._on_mode_changed)

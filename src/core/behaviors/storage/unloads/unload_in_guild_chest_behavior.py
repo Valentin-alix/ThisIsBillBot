@@ -30,7 +30,6 @@ from src.core.engine.items.item import is_exchangeable_item
 from src.core.engine.items.item_formatter import format_item_name
 from src.core.engine.items.item_type import ItemTypeEnum
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
-from src.core.states.guild_chest_state import GuildChestState
 
 
 @dataclass
@@ -156,12 +155,9 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
         next_object = object_to_unloads.pop()
         item_name = format_item_name(next_object.item.gid)
 
-        server_id = self.game_state.player.server_id
-        tab_size = GuildChestState.get_tab_size(
-            server_id, self.game_state.guild_chest.tab_number
-        )
-        item_in_chest = GuildChestState.get_item_by_gid(
-            server_id,
+        storage = self.game_state.guild_chest.storage
+        tab_size = storage.get_tab_size(self.game_state.guild_chest.tab_number)
+        item_in_chest = storage.get_item_by_gid(
             self.game_state.guild_chest.tab_number,
             next_object.item.gid,
         )

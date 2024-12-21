@@ -24,6 +24,7 @@ from src.utils.runtime_paths import configure_project_import_paths
 configure_project_import_paths(PROJECT_ROOT)
 load_dotenv(PROJECT_ROOT / ".env")
 
+from src.core.bot.bot_factory import generate_random_bot
 from src.core.signals.global_log_signals import GlobalLogSignals
 from src.core.signals.message_signals import MessageInfoSignals
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
@@ -39,7 +40,6 @@ from src.protocol.protocol_game import (
 )
 from src.services.logging.logger import init_gui_global_logging
 from src.utils.network import get_local_ip
-from tests.fixtures.random_generator import generate_random_bot
 
 FILTER_DOFUS = "tcp port 5555"
 DOFUS_CONNECTION_URL = "dofus2-co-production.ankama-games.com"
