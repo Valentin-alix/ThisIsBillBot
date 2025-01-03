@@ -1,6 +1,9 @@
 import json
 import os
+from pathlib import Path
+from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
 
 from google.protobuf.field_mask_pb2 import FieldMask
 
@@ -32,7 +35,7 @@ class InstanciedMessageInfoControllerTests(unittest.TestCase):
         message = FieldMask(paths=["alpha", "beta"])
 
         serialized = self.controller._update_msg_infos_content(
-            message, from_server=False
+            message, from_server=False, is_game_msg=True, is_root_msg=True
         )
 
         self.assertEqual(serialized["paths"], ["alpha", "beta"])
@@ -45,7 +48,7 @@ class InstanciedMessageInfoControllerTests(unittest.TestCase):
         message = FieldMask()
 
         serialized = self.controller._update_msg_infos_content(
-            message, from_server=False
+            message, from_server=False, is_game_msg=True, is_root_msg=True
         )
 
         self.assertEqual(serialized["paths"], [])
@@ -57,7 +60,9 @@ class InstanciedMessageInfoControllerTests(unittest.TestCase):
             {"paths": []} for _ in range(MAX_COUNT_BY_NAME)
         ]
 
-        self.controller.add_msg(FieldMask(paths=["extra"]), from_server=False)
+        self.controller.add_msg(
+            FieldMask(paths=["extra"]), from_server=False, is_game_msg=True
+        )
 
         self.assertEqual(len(self.controller._content_by_name[name]), MAX_COUNT_BY_NAME)
 
@@ -130,10 +135,33 @@ class InstanciedMessageInfoControllerTests(unittest.TestCase):
         vars(self.controller)["path_msg_infos"] = TEST_PATH
         self.controller._content_by_name = None
 
-        self.controller.add_msg(FieldMask(paths=["alpha"]), from_server=False)
+        self.controller.add_msg(
+            FieldMask(paths=["alpha"]), from_server=False, is_game_msg=True
+        )
 
         assert self.controller._content_by_name is not None
         self.assertEqual(
             self.controller._content_by_name[FieldMask.DESCRIPTOR.full_name],
-            [{"paths": ["alpha"]}],
+            [
+                {
+                    "from_server": False,
+                    "is_game_msg": True,
+                    "is_root_msg": True,
+                    "paths": ["alpha"],
+                }
+            ],
         )
+
+    def test_path_msg_infos_uses_bot_shared_datas_dir_env(self) -> None:
+        with TemporaryDirectory() as tmp_dir:
+            shared_datas_dir = Path(tmp_dir)
+            with patch.dict(
+                os.environ,
+                {"BOT_SHARED_DATAS_DIR": str(shared_datas_dir), "PC_ID": "envtest"},
+            ):
+                vars(self.controller).pop("path_msg_infos", None)
+
+                self.assertEqual(
+                    self.controller.path_msg_infos,
+                    str(shared_datas_dir / "instancied_msg_infos_envtest.json"),
+                )

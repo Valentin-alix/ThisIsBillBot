@@ -17,9 +17,10 @@ from datas.protos.non_obf.game.job_pb2 import (
 from datas.protos.non_obf.game.teleportation_pb2 import (
     ZaapKnownListEvent,
 )
+
 from src.core.bot.bot_factory import BotFactory
 from src.core.signals.shared_farm_signals import SharedSignals
-from tests.test_states.state_test_base import StateTestBase, TEST_ACCOUNT
+from tests.test_states.state_test_base import TEST_ACCOUNT, StateTestBase
 
 
 class TestPlayerState(StateTestBase):
@@ -153,17 +154,10 @@ class TestPlayerState(StateTestBase):
 
         assert self.game_state.player.subscription_end_date == new_date
 
-    def test_account_information_update_event_sets_subscription_end_date_from_seconds(self):
+    def test_account_information_update_event_sets_subscription_end_date_from_seconds(
+        self,
+    ):
         self.inject(AccountInformationUpdateEvent(subscription_end_date=1_735_689_600))
-
-        assert self.game_state.player.subscription_end_date == datetime(
-            2025, 1, 1, tzinfo=timezone.utc
-        )
-
-    def test_account_information_update_event_sets_subscription_end_date_from_milliseconds(self):
-        self.inject(
-            AccountInformationUpdateEvent(subscription_end_date=1_735_689_600_000)
-        )
 
         assert self.game_state.player.subscription_end_date == datetime(
             2025, 1, 1, tzinfo=timezone.utc

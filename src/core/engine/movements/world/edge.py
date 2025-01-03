@@ -16,7 +16,7 @@ from src.core.engine.movements.world.criterions.interface_item_criterion import 
 from src.core.game_constants import Maps
 from src.core.signals.world_signals import WorldSignals
 from src.core.states.game_state import GameState
-from utils import cache
+from python_utils.cache import cache
 
 
 def remove_forbidden_edge_transition_by_map_id(

@@ -42,7 +42,9 @@ class TestCraftAndStorageBehavior(StateTestBase):
             if isinstance(behavior, SaleHotelPricesBehavior)
         )
 
-    def _build_recipe(self, result_id: int, result_name_id: str, skill_id: int) -> RecipeItem:
+    def _build_recipe(
+        self, result_id: int, result_name_id: str, skill_id: int
+    ) -> RecipeItem:
         return RecipeItem(
             resultId=result_id,
             resultNameId=result_name_id,
@@ -108,7 +110,9 @@ class TestCraftAndStorageBehavior(StateTestBase):
 
         assert request == LoadItemInfo(item_gid=303, remaining_quantity=150, tab=0)
 
-    def test_load_from_guild_chest_behavior_does_not_mutate_input_requests(self) -> None:
+    def test_load_from_guild_chest_behavior_does_not_mutate_input_requests(
+        self,
+    ) -> None:
         load_from_guild_chest_behavior = (
             self.sale_hotel_behavior.load_from_guild_chest_behavior
         )
@@ -140,9 +144,7 @@ class TestCraftAndStorageBehavior(StateTestBase):
         assert request == LoadItemInfo(item_gid=303, remaining_quantity=150, tab=1)
 
     def test_abort_current_recipe_releases_guild_chest_reservations(self) -> None:
-        load_recipe_behavior = (
-            self.bot.craft_behavior.load_recipe_behavior.load_recipe_from_guild_chest_behavior
-        )
+        load_recipe_behavior = self.bot.craft_behavior.load_recipe_behavior.load_recipe_from_guild_chest_behavior
         self.game_state.guild_chest.storage.set_tab_content(
             1,
             [ObjectItemInventory(item=ObjectItem(uid=1, gid=303, quantity=10))],
@@ -163,7 +165,9 @@ class TestCraftAndStorageBehavior(StateTestBase):
         with patch.object(load_recipe_behavior, "load_recipe"):
             load_recipe_behavior.reserve_ingredients_for_recipe(recipe, 3)
 
-            assert self.game_state.guild_chest.storage.get_available_quantity(1, 303) == 4
+            assert (
+                self.game_state.guild_chest.storage.get_available_quantity(1, 303) == 4
+            )
 
             load_recipe_behavior.abort_current_recipe()
 

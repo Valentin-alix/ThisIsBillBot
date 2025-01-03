@@ -28,13 +28,18 @@ class BankChestFrame(MixinStorage):
 
     @override
     def set_objects(self, objects_item_inventory: Iterable[ObjectItemInventory]):
+        objects = list(objects_item_inventory)
         self.game_state.inventory.bank_object_by_gid = {
-            item.item.gid: item for item in objects_item_inventory
+            item.item.gid: item for item in objects
         }
+        self.game_state.inventory.inventory_signals.bank_refreshed.emit(objects)
 
     @override
     def set_object(self, object_item_inventory: ObjectItemInventory):
-        self.game_state.inventory.bank_object_by_gid[object_item_inventory.item.uid] = (
+        self.game_state.inventory.bank_object_by_gid[object_item_inventory.item.gid] = (
+            object_item_inventory
+        )
+        self.game_state.inventory.inventory_signals.bank_item_updated.emit(
             object_item_inventory
         )
 
@@ -47,3 +52,4 @@ class BankChestFrame(MixinStorage):
         if gid_to_delete is None:
             raise ValueError(f"{uid} not found in bank storage")
         del self.game_state.inventory.bank_object_by_gid[gid_to_delete]
+        self.game_state.inventory.inventory_signals.bank_item_removed.emit(uid)

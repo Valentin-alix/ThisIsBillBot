@@ -4,7 +4,7 @@ from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 
-from src.utils.metaclasses.singleton import Singleton
+from python_utils.singleton import Singleton
 
 
 class ClassifierChat(metaclass=Singleton):

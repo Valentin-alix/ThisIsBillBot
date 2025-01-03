@@ -37,6 +37,7 @@ from src.protocol.protocol_connection import (
 from src.protocol.protocol_game import (
     get_game_msg,
     get_game_msg_info,
+    get_obf_game_msg_info,
 )
 from src.services.logging.logger import init_gui_global_logging
 from src.utils.network import get_local_ip
@@ -108,9 +109,9 @@ class Sniffer:
 
     def handle_game_message(self, content: bytes, from_server: bool) -> None:
         try:
-            # msg_infos = get_obf_game_msg_info(content, from_server, True)
-            # self.msg_info_signals.msg_info.emit(msg_infos, False)
-            # return
+            msg_infos = get_obf_game_msg_info(content, from_server, True)
+            self.msg_info_signals.msg_info.emit(msg_infos, False)
+            return
             _, clear_sub_msg, obf_sub_msg, uid_value = get_game_msg(content, True)
             msg_infos = get_game_msg_info(
                 clear_sub_msg, obf_sub_msg, uid_value, from_server, True

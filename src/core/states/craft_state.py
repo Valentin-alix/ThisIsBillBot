@@ -17,5 +17,8 @@ class CraftState(State):
         recipes: list[RecipeItem],
     ) -> list[RecipeItem]:
         return get_valid_recipes(
-            self.logger, self.player_state.jobs_lvl_by_id, recipes, self.forbidden_craft_ids
+            self.logger,
+            self.player_state.jobs_lvl_by_id,
+            recipes,
+            self.forbidden_craft_ids,
         )

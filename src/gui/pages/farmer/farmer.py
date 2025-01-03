@@ -15,6 +15,7 @@ from qfluentwidgets import (
 from src import const
 from src.core.behaviors.behavior_factory import USABLE_BEHAVIORS
 from src.core.bot.bot import Bot
+from src.gui.pages.farmer.bank_tab import BankTab
 from src.gui.pages.farmer.inventory_tab import InventoryTab
 from src.gui.pages.farmer.map_tab import MapTab
 from src.gui.pages.farmer.player_tab import PlayerTab
@@ -55,12 +56,14 @@ class FarmerWidget(QWidget):
         self.player_pivot_item: PivotItem | None = None
         self.world_pivot_item: PivotItem | None = None
         self.inventory_pivot_item: PivotItem | None = None
+        self.bank_pivot_item: PivotItem | None = None
         self.is_debug_tabs_visible: bool | None = None
 
         self.map_tab: MapTab | None = None
         self.player_tab: PlayerTab | None = None
         self.world_tab: WorldTab | None = None
         self.inventory_tab: InventoryTab | None = None
+        self.bank_tab: BankTab | None = None
 
         self.init_top_content()
         self.init_content()
@@ -294,10 +297,16 @@ class FarmerWidget(QWidget):
             inventory_tab,
         )
 
+        bank_tab = BankTab(self.bot, parent=self.stacked_widget)
+        self.stacked_widget.addWidget(bank_tab)
+        bank_route = f"{self.objectName()}_bank_tab"
+        self.bank_pivot_item = self._add_debug_tab(bank_route, "Banque", bank_tab)
+
         self.map_tab = map_tab
         self.player_tab = player_tab
         self.world_tab = world_tab
         self.inventory_tab = inventory_tab
+        self.bank_tab = bank_tab
 
     def set_debug_tabs_visibility(self, is_visible: bool) -> None:
         if self.is_debug_tabs_visible == is_visible:
@@ -314,6 +323,8 @@ class FarmerWidget(QWidget):
                 self.world_pivot_item.setVisible(True)
             if self.inventory_pivot_item is not None:
                 self.inventory_pivot_item.setVisible(True)
+            if self.bank_pivot_item is not None:
+                self.bank_pivot_item.setVisible(True)
             if self.map_tab is not None:
                 self.map_tab.setUpdatesEnabled(True)
             if self.player_tab is not None:
@@ -323,6 +334,9 @@ class FarmerWidget(QWidget):
             if self.inventory_tab is not None:
                 self.inventory_tab.setUpdatesEnabled(True)
                 self.inventory_tab.connect_signals()
+            if self.bank_tab is not None:
+                self.bank_tab.setUpdatesEnabled(True)
+                self.bank_tab.connect_signals()
             self.pivot.setCurrentItem(self.map_route)
             assert self.map_tab
             self.stacked_widget.setCurrentWidget(self.map_tab)
@@ -335,6 +349,8 @@ class FarmerWidget(QWidget):
                 self.world_pivot_item.setVisible(False)
             if self.inventory_pivot_item is not None:
                 self.inventory_pivot_item.setVisible(False)
+            if self.bank_pivot_item is not None:
+                self.bank_pivot_item.setVisible(False)
             if self.map_tab is not None:
                 self.map_tab.setUpdatesEnabled(False)
             if self.player_tab is not None:
@@ -344,3 +360,6 @@ class FarmerWidget(QWidget):
             if self.inventory_tab is not None:
                 self.inventory_tab.setUpdatesEnabled(False)
                 self.inventory_tab.disconnect_signals()
+            if self.bank_tab is not None:
+                self.bank_tab.setUpdatesEnabled(False)
+                self.bank_tab.disconnect_signals()

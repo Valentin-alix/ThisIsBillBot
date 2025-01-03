@@ -1,5 +1,5 @@
 from dofus_unity_reader.grid.map_point import MapPoint
-from utils import cache
+from python_utils.cache import cache
 
 from src.core.engine.fights.spell_shape import SpellShapeEnum
 from src.core.engine.fights.zones.cone import Cone

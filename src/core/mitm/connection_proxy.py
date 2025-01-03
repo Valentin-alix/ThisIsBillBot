@@ -1,5 +1,3 @@
-import os
-import signal
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable, cast
@@ -22,6 +20,10 @@ from src.protocol.protocol_connection import (
     get_conn_msg,
     get_conn_msg_info,
 )
+
+
+class ClientVersionOutdatedError(RuntimeError):
+    pass
 
 
 @dataclass
@@ -90,7 +92,7 @@ class ConnectionProxy(Proxy):
                     msg.response.identification.error.reason
                     == IdentificationResponse.Error.Reason.OUTDATED_CLIENT_VERSION
                 ):
-                    os.kill(os.getpid(), signal.SIGTERM)
+                    raise ClientVersionOutdatedError("Dofus client version is outdated")
 
         return msg_datas
 

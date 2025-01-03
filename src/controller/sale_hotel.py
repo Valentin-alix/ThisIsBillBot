@@ -6,7 +6,7 @@ import msgspec
 from cachetools import TTLCache, cached
 
 from src.const import RESOURCE_FOLDER
-from src.utils.metaclasses.singleton import Singleton
+from python_utils.singleton import Singleton
 
 SALE_HOTEL_FOLDER = os.path.join(RESOURCE_FOLDER, "sale_hotel")
 

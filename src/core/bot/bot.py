@@ -16,7 +16,9 @@ from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
 from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
+from src.core.behaviors.socket.game_session_behavior import GameSessionBehavior
 from src.core.behaviors.socket.handshake_behavior import HandshakeBehavior
+from src.core.behaviors.socket.heartbeat_behavior import HearthBeatBehavior
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.execution.process_manager import ProcessManager
 from src.core.bot.lifecycle.connection_handler import ConnectionHandler
@@ -72,7 +74,9 @@ class Bot(ContextualLogger):
     auto_bot_behavior: AutoBotBehavior
     dungeon_behavior: DungeonBehavior
     connection_behavior: ConnectionBehavior
+    game_session_behavior: GameSessionBehavior
     handshake_behavior: HandshakeBehavior
+    hearthbeat_behavior: HearthBeatBehavior
 
     usable_behaviors: list[Behavior]
 

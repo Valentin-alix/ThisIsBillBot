@@ -3,7 +3,7 @@ from math import floor
 
 from dofus_unity_reader.enums.directions import DirectionsEnum
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
-from utils import cache
+from python_utils.cache import cache
 
 from src.core.engine.fights.zones.zone import Zone
 

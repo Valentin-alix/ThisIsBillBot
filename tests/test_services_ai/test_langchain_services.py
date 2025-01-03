@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 from src.services.ai.human_response import HumanResponse
 from src.services.ai.human_solo_talk import HumanSoloTalk
 from src.services.ai.llm_classifier import ClassifierChat
-from src.utils.metaclasses.singleton import Singleton
+from python_utils.singleton import Singleton
 
 
 class TestLangchainServices(unittest.TestCase):

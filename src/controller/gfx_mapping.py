@@ -6,7 +6,7 @@ from cachetools import TTLCache, cached
 from dofus_unity_reader.enums.jobs_enum import JobEnum
 
 from src.const import RESOURCE_FOLDER
-from src.utils.metaclasses.singleton import Singleton
+from python_utils.singleton import Singleton
 
 TTL_CACHE: TTLCache[object, dict[int, tuple[int, int]]] = TTLCache(
     maxsize=100,

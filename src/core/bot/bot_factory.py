@@ -57,7 +57,9 @@ from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
     SaleHotelPricesBehavior,
 )
 from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
+from src.core.behaviors.socket.game_session_behavior import GameSessionBehavior
 from src.core.behaviors.socket.handshake_behavior import HandshakeBehavior
+from src.core.behaviors.socket.heartbeat_behavior import HearthBeatBehavior
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )
@@ -610,6 +612,12 @@ class BotFactory:
         fake_bad_interactive_behavior = FakeBadInteractiveBehavior(
             _logger=logger, event_manager=event_manager, game_state=game_state
         )
+        hearthbeat_behavior = HearthBeatBehavior(
+            _logger=logger, event_manager=event_manager, game_state=game_state
+        )
+        game_session_behavior = GameSessionBehavior(
+            _logger=logger, event_manager=event_manager, game_state=game_state
+        )
 
         return Bot(
             usable_behaviors=[
@@ -630,9 +638,11 @@ class BotFactory:
             harvester_behavior=harvester,
             fight_behavior=fight_behavior,
             connection_behavior=connection_behavior,
+            game_session_behavior=game_session_behavior,
             handshake_behavior=handshake_behavior,
             mule_accept_kamas_behavior=mule_accept_kamas_behavior,
             dungeon_behavior=dungeon_behavior,
+            hearthbeat_behavior=hearthbeat_behavior,
             frames=[
                 map_frame,
                 player_frame,

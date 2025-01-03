@@ -35,3 +35,6 @@ class InventorySignals(QObject):
     inventory_weight = pyqtSignal(int)
     weight_max = pyqtSignal(int)
     kamas = pyqtSignal(int)
+    bank_refreshed = pyqtSignal(list)  # list[ObjectItemInventory]
+    bank_item_updated = pyqtSignal(ObjectItemInventory)
+    bank_item_removed = pyqtSignal(int)  # uid

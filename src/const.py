@@ -10,9 +10,9 @@ Pour la configuration du bot, voir src/core/config.py
 import datetime
 import os
 import socket
-import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
 from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
 from datas.protos.non_obf.game.fight_pb2 import (
     FightTurnFinishRequest,
@@ -23,6 +23,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
 from google.protobuf.message import Message
 
 ENV_PATH = os.path.join(Path(__file__).parent.parent, ".env")
+load_dotenv(ENV_PATH)
 
 _TRUE_ENV_VALUES = {"1", "true", "yes", "on", "debug"}
 _FALSE_ENV_VALUES = {"0", "false", "no", "off", "release"}
@@ -45,7 +46,6 @@ def _read_bool_env(name: str, default: bool) -> bool:
 # SYSTÈME
 # ============================================================================
 
-IS_IN_PYINSTALLER = hasattr(sys, "_MEIPASS")
 DEBUG = _read_bool_env("DEBUG", True)
 STRICT_MODE = _read_bool_env("STRICT_MODE", False)
 DO_INSERT_HUMAN_SESSION = False

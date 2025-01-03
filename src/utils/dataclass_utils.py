@@ -6,7 +6,7 @@ from google.protobuf.json_format import MessageToJson
 from google.protobuf.message import Message
 from pydantic import BaseModel, ConfigDict
 
-from src.utils.type_guards import to_object_dict, to_object_list, to_str_object_dict
+from python_utils.json_types import to_object_dict, to_object_list, to_str_object_dict
 
 
 class AppModel(BaseModel):

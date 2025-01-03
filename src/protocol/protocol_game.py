@@ -19,7 +19,7 @@ from src.controller.instancied_msg_info_controller import (
     InstanciedMessageInfoController,
 )
 from src.protocol.message import MessageInfo
-from src.utils.type_guards import to_str_object_dict
+from python_utils.json_types import to_str_object_dict
 
 TYPE_URL_PREFIX = "type.ankama.com/"
 _GAME_MAPPINGS_PATH = Path(GAME_MAPPINGS_JSON_FILE)
@@ -119,7 +119,9 @@ def get_obf_game_msg_info(
 
     game_msg = game_msg_type()
     game_msg.ParseFromString(content)
-    InstanciedMessageInfoController().add_msg(game_msg, True)
+    InstanciedMessageInfoController().add_msg(
+        msg=game_msg, from_server=None, is_game_msg=True
+    )
 
     msg_json = MessageToDict(
         game_msg,
@@ -150,7 +152,7 @@ def get_obf_game_msg_info(
 
         if do_dump_values:
             InstanciedMessageInfoController().add_msg(
-                sub_msg_content_unpacked, from_server
+                msg=sub_msg_content_unpacked, from_server=from_server, is_game_msg=False
             )
     else:
         type_url = game_msg.__class__.__name__
@@ -177,7 +179,9 @@ def get_game_msg(
     msg.ParseFromString(content)
 
     if do_dump_values:
-        InstanciedMessageInfoController().add_msg(msg, True)
+        InstanciedMessageInfoController().add_msg(
+            msg, from_server=None, is_game_msg=True
+        )
 
     msg_one_of = next(
         obf_field
@@ -224,7 +228,9 @@ def get_game_msg_info(
     received_msg_time = datetime.datetime.now()
 
     if do_dump_values:
-        InstanciedMessageInfoController().add_msg(obf_sub_msg, from_server)
+        InstanciedMessageInfoController().add_msg(
+            msg=obf_sub_msg, from_server=from_server, is_game_msg=False
+        )
 
     if clear_sub_msg is not None:
         msg_json = MessageToDict(

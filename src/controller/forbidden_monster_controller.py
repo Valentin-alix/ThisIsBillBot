@@ -4,7 +4,7 @@ from threading import RLock
 import msgspec
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.i18n import I18N
-from utils import Singleton
+from python_utils.singleton import Singleton
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
 )

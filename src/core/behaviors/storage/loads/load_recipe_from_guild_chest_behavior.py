@@ -74,8 +74,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
             tab
             for tab, item_gids in GIDS_BY_TAB.items()
             if any(
-                ingredient_id in item_gids
-                and not storage.tab_exists(tab)
+                ingredient_id in item_gids and not storage.tab_exists(tab)
                 for ingredient_id in all_ingredient_ids
             )
         )

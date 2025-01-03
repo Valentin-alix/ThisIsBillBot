@@ -5,7 +5,7 @@ from threading import RLock
 from pydantic import BaseModel
 
 from src.const import RESOURCE_FOLDER
-from src.utils.metaclasses.singleton import Singleton
+from python_utils.singleton import Singleton
 
 
 class TimeSlot(BaseModel):

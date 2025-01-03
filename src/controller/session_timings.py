@@ -1,7 +1,7 @@
 from datetime import datetime
 from threading import RLock
 
-from utils import cache
+from python_utils.cache import cache
 from pydantic import BaseModel, RootModel
 
 from src.const import HUMAN_SESSIONS_FILE

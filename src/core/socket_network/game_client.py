@@ -28,9 +28,12 @@ class GameClient(BaseClient):
         self.bot.logger.info(f"[GameClient] Connected to {host}:{port}")
         self.bot.event_manager.on_send_game_callback = self.send_msg
         self.bot.event_manager.on_send_obf_game_callback = self.send_obf_msg
+        self.bot.event_manager.is_socket_mode = True
 
         threading.Thread(target=self.loop, daemon=True).start()
+        self.bot.game_session_behavior.start(callback=None, parent=None)
         self.bot.handshake_behavior.start(ticket=ticket, callback=None, parent=None)
+        self.bot.hearthbeat_behavior.start(callback=None, parent=None)
 
     def on_received_msg_datas(self, msg_datas: bytes) -> None:
         size, pos = decode_varint_size(msg_datas)
@@ -57,6 +60,9 @@ class GameClient(BaseClient):
         self.client_socket.sendall(encode_msg(obf_msg))
 
     def on_close(self) -> None:
+        self.bot.hearthbeat_behavior.stop()
+        self.bot.game_session_behavior.stop()
+        self.bot.event_manager.is_socket_mode = False
         self.bot.event_manager.on_send_game_callback = None
         self.bot.event_manager.on_send_obf_game_callback = None
         QMetaObject.invokeMethod(

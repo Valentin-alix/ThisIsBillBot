@@ -10,7 +10,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from openai import APIConnectionError, OpenAIError
 
 from src.const import ENV_PATH
-from src.utils.metaclasses.singleton import Singleton
+from python_utils.singleton import Singleton
 
 load_dotenv(ENV_PATH)
 

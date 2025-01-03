@@ -36,7 +36,9 @@ def get_item_gids_to_sell(
 ):
     if can_access_guild_chest:
         if guild_chest_items_by_gid is None:
-            raise ValueError("guild_chest_items_by_gid required when can_access_guild_chest=True")
+            raise ValueError(
+                "guild_chest_items_by_gid required when can_access_guild_chest=True"
+            )
         item_by_gid_in_storage = guild_chest_items_by_gid
     else:
         item_by_gid_in_storage = bank_object_by_gid

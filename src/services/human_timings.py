@@ -41,8 +41,8 @@ from scipy.interpolate import interp1d
 from src.controller.session_timings import SessionTimingsController
 from src.core.config import BASE_RANGE, ENABLE_SESSION_CONTEXT
 from src.services.session_context import SessionContextService
-from src.utils.metaclasses.singleton import Singleton
-from utils import cache
+from python_utils.singleton import Singleton
+from python_utils.cache import cache
 
 TIMING_LOCK = Lock()
 

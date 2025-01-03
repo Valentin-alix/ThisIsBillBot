@@ -13,7 +13,7 @@ from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
 
 from src.protocol.protocol_game import POOL
-from src.utils.type_guards import to_object_dict, to_object_list, to_str_object_dict
+from python_utils.json_types import to_object_dict, to_object_list, to_str_object_dict
 
 GAME_PROTO_PKG = "d3_mapping.resources.protos.game"
 

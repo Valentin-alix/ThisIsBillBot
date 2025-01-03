@@ -36,10 +36,13 @@ class ConnectionBehavior(Behavior):
         identification = IdentificationRequest(
             device_identifier=str(uuid.uuid4()),
             client_version=client_version[4:],
-            tokenRequest=TokenRequest(token=game_token),
+            tokenRequest=TokenRequest(
+                token=game_token,
+                shield=TokenRequest.Shield(certificateId=0, certificateHash=""),
+            ),
         )
         self.event_manager.send_connection_msg(
-            LoginMessage(request=Request(identification=identification))
+            LoginMessage(request=Request(uuid="0", identification=identification))
         )
         self.logger.info("Sent IdentificationRequest")
 
@@ -64,7 +67,9 @@ class ConnectionBehavior(Behavior):
 
         self.event_manager.send_connection_msg(
             LoginMessage(
-                request=Request(selectServer=SelectServerRequest(server=server_id))
+                request=Request(
+                    uuid="1", selectServer=SelectServerRequest(server=server_id)
+                )
             )
         )
         self.logger.info("Sent SelectServerRequest")

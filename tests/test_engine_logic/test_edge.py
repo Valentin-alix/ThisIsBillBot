@@ -39,19 +39,10 @@ class _Criterion:
 
 
 class TestEdge(GameStateFixture):
-    def setUp(self) -> None:
-        super().setUp()
-        _get_transition_to_valid_criterions.cache_clear()
-
-    def tearDown(self) -> None:
-        _get_transition_to_valid_criterions.cache_clear()
-        super().tearDown()
-
     @patch("src.core.engine.movements.world.edge.GroupItemCriterion")
     def test_get_transition_to_valid_criterions_skips_invalid_criterions(
         self, mock_group_criterion: MagicMock
     ) -> None:
-        edge = _make_edge(10)
         empty_transition = _make_transition("", 1)
         invalid_transition = _make_transition("ZZ>0", 2)
         valid_transition = _make_transition("Ad>0", 3)
@@ -59,7 +50,6 @@ class TestEdge(GameStateFixture):
         mock_group_criterion.return_value = criterion
 
         result = _get_transition_to_valid_criterions(
-            edge,
             (empty_transition, invalid_transition, valid_transition),
         )
 

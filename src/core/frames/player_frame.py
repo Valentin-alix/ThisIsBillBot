@@ -21,6 +21,7 @@ from datas.protos.non_obf.game.job_pb2 import (
 from datas.protos.non_obf.game.teleportation_pb2 import (
     ZaapKnownListEvent,
 )
+from dofus_unity_reader.enums.effect_element import EffectElement
 
 from src.core.engine.fights.stats.characteristic import get_max_characteristic_per_point
 from src.core.events_manager.priority import PriorityEnum
@@ -98,9 +99,18 @@ class PlayerFrame(Frame):
     def on_character_level_up_event(self, msg: CharacterLevelUpEvent):
         self.game_state.player.level = msg.new_level
         if self.is_playing_event.is_set():
-            chance = get_max_characteristic_per_point(msg.new_level)
-            self.logger.info(f"New amount of base chance : {chance}")
-            req = CharacterCharacteristicUpgradeRequest(chance=chance)
+            char = get_max_characteristic_per_point(msg.new_level)
+            self.logger.info(f"New amount of base char : {char}")
+            prim_elem = self.game_state.fight.primary_and_second_elem[0]
+            match prim_elem:
+                case EffectElement.STRENGTH:
+                    req = CharacterCharacteristicUpgradeRequest(strength=char)
+                case EffectElement.INTELLIGENCE:
+                    req = CharacterCharacteristicUpgradeRequest(intelligence=char)
+                case EffectElement.CHANCE:
+                    req = CharacterCharacteristicUpgradeRequest(chance=char)
+                case _:
+                    req = CharacterCharacteristicUpgradeRequest(agility=char)
             self.event_manager.send(req)
 
     def on_job_experiences_update_event(self, message: JobExperiencesUpdateEvent):

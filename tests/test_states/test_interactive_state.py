@@ -92,7 +92,10 @@ class TestInteractiveState(StateTestBase):
             InteractiveElementUpdatedEvent(interactive_element=interactive_element)
         )
 
-        assert self.game_state.interactive.interactive_element_by_id[99] == interactive_element
+        assert (
+            self.game_state.interactive.interactive_element_by_id[99]
+            == interactive_element
+        )
 
     def test_interactive_map_update_merges_elements(self):
         self.game_state.interactive.interactive_element_by_id[1] = InteractiveElement(

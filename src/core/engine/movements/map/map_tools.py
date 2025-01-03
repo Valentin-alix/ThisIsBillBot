@@ -6,7 +6,7 @@ from dofus_unity_reader.grid.consts import (
     MAP_GRID_WIDTH,
 )
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
-from utils import cache
+from python_utils.cache import cache
 from dofus_unity_reader.models.maps import Transform
 
 

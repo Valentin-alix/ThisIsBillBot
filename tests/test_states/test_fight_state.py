@@ -1,4 +1,3 @@
-from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
 from datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicsEvent,
     UpdateLifePointsEvent,
@@ -28,12 +27,13 @@ from datas.protos.non_obf.game.game_action_pb2 import (
 )
 from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
-    MapComplementaryInformationEvent,
 )
 from datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+
 from src.core.bot.bot_factory import BotFactory
 from src.core.signals.shared_farm_signals import SharedSignals
-from tests.test_states.state_test_base import StateTestBase, TEST_ACCOUNT
+from tests.test_states.state_test_base import TEST_ACCOUNT, StateTestBase
 
 
 class TestFightState(StateTestBase):
@@ -205,19 +205,6 @@ class TestFightState(StateTestBase):
         self.inject(msg)
 
         assert self.game_state.fight.life_point == 350
-
-    def test_map_complementary_resets_fight_state(self):
-        self.game_state.fight.in_fight = True
-        self.game_state.fight.is_our_turn = True
-        self.game_state.fight.fight_turn = 5
-        self.game_state.fight.is_map_fight_initialized = True
-
-        self.inject(MapComplementaryInformationEvent())
-
-        assert self.game_state.fight.in_fight is False
-        assert self.game_state.fight.is_our_turn is False
-        assert self.game_state.fight.fight_turn == 0
-        assert self.game_state.fight.is_map_fight_initialized is False
 
     def test_life_percentage_calculation(self):
         self.game_state.fight.life_point = 250

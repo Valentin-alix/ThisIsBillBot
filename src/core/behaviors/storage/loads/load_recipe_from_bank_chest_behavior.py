@@ -47,7 +47,9 @@ class LoadRecipeFromBankChestBehavior(RecipeLoaderBehavior):
         )
         if len(ingredient_id_with_quantity) == 0:
             return self.load_recipe()
-        self.load_ingredient(ingredient_id_with_quantity, 0, max_possible_result_quantity)
+        self.load_ingredient(
+            ingredient_id_with_quantity, 0, max_possible_result_quantity
+        )
 
     def load_ingredient(
         self,

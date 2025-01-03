@@ -1,7 +1,10 @@
+import json
+from datetime import datetime
 from functools import partial
 
 from PyQt6.QtCore import QModelIndex, Qt, pyqtSlot
 from PyQt6.QtWidgets import (
+    QFileDialog,
     QHBoxLayout,
     QSizePolicy,
     QSplitter,
@@ -18,7 +21,6 @@ from qfluentwidgets import (
 
 from src.core.bot.bot import Bot
 from src.core.signals.global_log_signals import GlobalLogSignals
-from src.gui.components.thread_monitor_widget import ThreadMonitorWidget
 from src.gui.pages.debugs.listeners_stats import ListenersStatsWidget
 from src.gui.pages.debugs.logs import LogsWidget
 from src.gui.pages.debugs.message_detail import MessageDetailWidget
@@ -31,6 +33,14 @@ def _require_message_info(value: object) -> MessageInfo:
     if not isinstance(value, MessageInfo):
         raise TypeError("Expected a MessageInfo payload in the message table model")
     return value
+
+
+def _parse_sub_msg_name(sub_msg_name: str) -> tuple[str | None, str]:
+    """Returns (obf_type, decoded_type). obf_type is None for connection messages."""
+    if " -> " in sub_msg_name:
+        obf, decoded = sub_msg_name.split(" -> ", 1)
+        return obf, decoded
+    return None, sub_msg_name
 
 
 class SnifferWidget(QWidget):
@@ -88,6 +98,12 @@ class SnifferWidget(QWidget):
             self.stop_btn.hide()
         self.stop_btn.clicked.connect(self.on_stop)
         top_content_layout.addWidget(self.stop_btn)
+
+        export_btn = PrimaryPushButton(
+            FluentIcon.SAVE, "Exporter les messages", top_content
+        )
+        export_btn.clicked.connect(self.on_export_messages)
+        top_content_layout.addWidget(export_btn)
 
     def init_content(self) -> None:
         content = QWidget(self)
@@ -163,11 +179,6 @@ class SnifferWidget(QWidget):
             )
             debug_stacked.addWidget(listeners_widget)
 
-            thread_monitor_widget = ThreadMonitorWidget(
-                shared_signals=self.bot.shared_signals, parent=debug_stacked
-            )
-            debug_stacked.addWidget(thread_monitor_widget)
-
             debug_pivot.addItem(
                 routeKey="logs",
                 text="Logs",
@@ -180,22 +191,15 @@ class SnifferWidget(QWidget):
                     debug_stacked, listeners_widget
                 ),
             )
-            debug_pivot.addItem(
-                routeKey="threads",
-                text="Threads",
-                onClick=lambda: debug_stacked.setCurrentWidget(thread_monitor_widget),
-            )
             debug_pivot.setCurrentItem("logs")
 
             self.right_splitter.addWidget(debug_tabs_widget)
 
             self.logs_widget = logs_widget
             self.listeners_widget = listeners_widget
-            self.thread_monitor_widget = thread_monitor_widget
         else:
             self.logs_widget = None
             self.listeners_widget = None
-            self.thread_monitor_widget = None
 
         # main horizontal splitter: left (filter+table) | right (detail+logs)
         splitter = QSplitter(Qt.Orientation.Horizontal, self)
@@ -237,6 +241,39 @@ class SnifferWidget(QWidget):
         self.is_playing = False
         self.stop_btn.hide()
         self.play_btn.show()
+
+    @pyqtSlot()
+    def on_export_messages(self) -> None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        default_filename = f"sniffer_{timestamp}.json"
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Exporter les messages", default_filename, "Fichiers JSON (*.json)"
+        )
+        if not file_path:
+            return
+
+        model = self.msg_table.table.item_model
+        entries: list[dict[str, object]] = []
+
+        for row in range(model.rowCount()):
+            msg_info = _require_message_info(
+                model.data(model.index(row, 4), Qt.ItemDataRole.UserRole)
+            )
+            obf_type, decoded_type = _parse_sub_msg_name(msg_info.sub_msg_name)
+            entries.append(
+                {
+                    "heure": msg_info.received_time.strftime("%H:%M:%S"),
+                    "origine": "Serveur" if msg_info.from_server else "Client",
+                    "type_non_obfusque": decoded_type,
+                    "type_obfusque": obf_type,
+                    "contenu_obfusque": msg_info.obf_msg_json,
+                    "contenu_non_obfusque": msg_info.msg_json,
+                }
+            )
+
+        with open(file_path, "w", encoding="utf-8") as file:
+            json.dump(entries, file, ensure_ascii=False, indent=2)
 
     @pyqtSlot()
     def on_reset(self) -> None:

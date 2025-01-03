@@ -8,14 +8,13 @@ from PyQt6.QtWidgets import QListView, QListWidgetItem, QVBoxLayout, QWidget
 from qfluentwidgets import ListWidget, SmoothMode
 
 from src.core.bot.bot import Bot
-from src.core.game_constants import Items
 from src.gui.utils.profiling import profiled_slot
 
 CARD_WIDTH = 150
 CARD_HEIGHT = 80
 
 
-class InventoryTab(QWidget):
+class BankTab(QWidget):
     def __init__(self, bot: Bot, parent: QWidget | None = None):
         super().__init__(parent=parent)
         self.bot = bot
@@ -42,40 +41,24 @@ class InventoryTab(QWidget):
         self.setLayout(layout)
         layout.addWidget(self.list_widget)
 
-    @pyqtSlot(ObjectItemInventory)
-    def on_added_object_item(self, object_item: ObjectItemInventory):
-        if object_item.position != Items.INVENTORY_EQUIPMENT_POSITION:
-            return
-        self.items_by_uid[object_item.item.uid] = object_item
-        self._rebuild_sorted_list()
-
     @pyqtSlot(list)
-    def on_added_object_items_batch(self, objects: list[ObjectItemInventory]):
+    def on_bank_refreshed(self, objects: list[ObjectItemInventory]):
+        self.items_by_uid.clear()
         for object_item in objects:
-            if object_item.position != Items.INVENTORY_EQUIPMENT_POSITION:
-                continue
             self.items_by_uid[object_item.item.uid] = object_item
         self._rebuild_sorted_list()
 
+    @pyqtSlot(ObjectItemInventory)
+    def on_bank_item_updated(self, object_item: ObjectItemInventory):
+        self.items_by_uid[object_item.item.uid] = object_item
+        self._rebuild_sorted_list()
+
     @pyqtSlot(int)
-    def on_deleted_object_item_uid(self, uid: int):
+    def on_bank_item_removed(self, uid: int):
         if uid not in self.items_by_uid:
             return
         del self.items_by_uid[uid]
         self._rebuild_sorted_list()
-
-    @pyqtSlot(ObjectItemInventory)
-    def on_updated_object_item(self, object_item: ObjectItemInventory):
-        if object_item.item.uid not in self.items_by_uid:
-            return
-        self.items_by_uid[object_item.item.uid] = object_item
-        self._rebuild_sorted_list()
-
-    @pyqtSlot()
-    def on_clear_inventory(self):
-        self.items_by_uid.clear()
-        self.list_widget.clear()
-        self.list_item_by_uid.clear()
 
     def _rebuild_sorted_list(self) -> None:
         self.list_widget.setUpdatesEnabled(False)
@@ -105,51 +88,39 @@ class InventoryTab(QWidget):
     def connect_signals(self) -> None:
         if self.signals_connected:
             return
-        self.bot.inventory_signals.added_object_item.connect(
-            profiled_slot(self.on_added_object_item)
+        self.bot.inventory_signals.bank_refreshed.connect(
+            profiled_slot(self.on_bank_refreshed)
         )
-        self.bot.inventory_signals.added_object_items_batch.connect(
-            profiled_slot(self.on_added_object_items_batch)
+        self.bot.inventory_signals.bank_item_updated.connect(
+            profiled_slot(self.on_bank_item_updated)
         )
-        self.bot.inventory_signals.updated_object_item.connect(
-            profiled_slot(self.on_updated_object_item)
-        )
-        self.bot.inventory_signals.deleted_object_item_uid.connect(
-            profiled_slot(self.on_deleted_object_item_uid)
-        )
-        self.bot.inventory_signals.clear_inventory.connect(
-            profiled_slot(self.on_clear_inventory)
+        self.bot.inventory_signals.bank_item_removed.connect(
+            profiled_slot(self.on_bank_item_removed)
         )
         self.signals_connected = True
-        self._resync_inventory()
+        self._resync_bank()
 
     def disconnect_signals(self) -> None:
         if not self.signals_connected:
             return
-        self.bot.inventory_signals.added_object_item.disconnect(
-            profiled_slot(self.on_added_object_item)
+        self.bot.inventory_signals.bank_refreshed.disconnect(
+            profiled_slot(self.on_bank_refreshed)
         )
-        self.bot.inventory_signals.added_object_items_batch.disconnect(
-            profiled_slot(self.on_added_object_items_batch)
+        self.bot.inventory_signals.bank_item_updated.disconnect(
+            profiled_slot(self.on_bank_item_updated)
         )
-        self.bot.inventory_signals.updated_object_item.disconnect(
-            profiled_slot(self.on_updated_object_item)
-        )
-        self.bot.inventory_signals.deleted_object_item_uid.disconnect(
-            profiled_slot(self.on_deleted_object_item_uid)
-        )
-        self.bot.inventory_signals.clear_inventory.disconnect(
-            profiled_slot(self.on_clear_inventory)
+        self.bot.inventory_signals.bank_item_removed.disconnect(
+            profiled_slot(self.on_bank_item_removed)
         )
         self.signals_connected = False
         self.items_by_uid.clear()
         self.list_widget.clear()
         self.list_item_by_uid.clear()
 
-    def _resync_inventory(self) -> None:
+    def _resync_bank(self) -> None:
         self.items_by_uid.clear()
         self.list_widget.clear()
         self.list_item_by_uid.clear()
-        inventory_items = list(self.bot.game_state.inventory.objects_by_uid.values())
-        if inventory_items:
-            self.on_added_object_items_batch(inventory_items)
+        bank_items = list(self.bot.game_state.inventory.bank_object_by_gid.values())
+        if bank_items:
+            self.on_bank_refreshed(bank_items)

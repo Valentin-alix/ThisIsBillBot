@@ -6,7 +6,7 @@ from typing import Literal
 from pydantic import BaseModel, RootModel
 
 from src.const import RESOURCE_FOLDER
-from src.utils.metaclasses.singleton import Singleton
+from python_utils.singleton import Singleton
 
 
 def _read_int_env(name: str, default: int) -> int:

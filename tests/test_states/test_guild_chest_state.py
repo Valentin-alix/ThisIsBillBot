@@ -102,7 +102,9 @@ class TestGuildChestState(StateTestBase):
         assert self.game_state.guild_chest.tabs == [2, 4]
 
     def test_storage_inventory_content_populates_chest(self):
-        self.inject(ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100))
+        self.inject(
+            ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100)
+        )
 
         objects = [
             ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10)),
@@ -120,7 +122,9 @@ class TestGuildChestState(StateTestBase):
             1, [ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=5))]
         )
 
-        self.inject(ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100))
+        self.inject(
+            ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100)
+        )
         self.inject(
             StorageObjectUpdateEvent(
                 object=ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=8))
@@ -135,7 +139,9 @@ class TestGuildChestState(StateTestBase):
         self.game_state.guild_chest.tab_number = 1
         self.storage().set_tab_content(1, [])
 
-        self.inject(ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100))
+        self.inject(
+            ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100)
+        )
         self.inject(
             StorageObjectUpdateEvent(
                 object=ObjectItemInventory(item=ObjectItem(uid=2, gid=200, quantity=7))
@@ -152,7 +158,9 @@ class TestGuildChestState(StateTestBase):
             1, [ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=5))]
         )
 
-        self.inject(ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100))
+        self.inject(
+            ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100)
+        )
         self.inject(
             StorageObjectsUpdateEvent(
                 objects=[
@@ -171,7 +179,9 @@ class TestGuildChestState(StateTestBase):
             1, [ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=5))]
         )
 
-        self.inject(ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100))
+        self.inject(
+            ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100)
+        )
         self.inject(StorageObjectRemovedEvent(object_uid=1))
 
         assert self.storage().get_item_by_gid(1, 100) is None
@@ -186,7 +196,9 @@ class TestGuildChestState(StateTestBase):
             ],
         )
 
-        self.inject(ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100))
+        self.inject(
+            ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100)
+        )
         self.inject(StorageObjectsRemovedEvent(objects_uid=[1, 2]))
 
         assert self.storage().get_item_by_gid(1, 100) is None
@@ -290,19 +302,27 @@ class TestGuildChestState(StateTestBase):
         assert self.game_state.guild_chest.can_access_guild_chest is False
 
     def test_multiple_tabs_storage(self):
-        self.inject(ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100))
+        self.inject(
+            ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100)
+        )
         self.inject(
             StorageInventoryContentEvent(
-                objects=[ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))]
+                objects=[
+                    ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))
+                ]
             )
         )
 
         assert self.storage().get_item_by_gid(1, 100) is not None
 
-        self.inject(ExchangeStartedWithMultiTabStorageEvent(tab_number=2, storage_max_slot=100))
+        self.inject(
+            ExchangeStartedWithMultiTabStorageEvent(tab_number=2, storage_max_slot=100)
+        )
         self.inject(
             StorageInventoryContentEvent(
-                objects=[ObjectItemInventory(item=ObjectItem(uid=2, gid=200, quantity=20))]
+                objects=[
+                    ObjectItemInventory(item=ObjectItem(uid=2, gid=200, quantity=20))
+                ]
             )
         )
 
@@ -312,10 +332,14 @@ class TestGuildChestState(StateTestBase):
     def test_two_bots_same_server_share_guild_chest_updates_on_same_tab(self):
         other_bot = self.create_other_bot("OtherBotGuildChest", TEST_SERVER_ID)
 
-        self.inject(ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100))
+        self.inject(
+            ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100)
+        )
         self.inject(
             StorageInventoryContentEvent(
-                objects=[ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))]
+                objects=[
+                    ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))
+                ]
             )
         )
 
@@ -337,10 +361,14 @@ class TestGuildChestState(StateTestBase):
     def test_two_bots_same_server_keep_independent_local_tab_numbers(self):
         other_bot = self.create_other_bot("OtherBotGuildTabs", TEST_SERVER_ID)
 
-        self.inject(ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100))
+        self.inject(
+            ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100)
+        )
         self.inject(
             StorageInventoryContentEvent(
-                objects=[ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))]
+                objects=[
+                    ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))
+                ]
             )
         )
 
@@ -349,7 +377,9 @@ class TestGuildChestState(StateTestBase):
         )
         other_bot.event_manager.process_msg(
             StorageInventoryContentEvent(
-                objects=[ObjectItemInventory(item=ObjectItem(uid=2, gid=200, quantity=20))]
+                objects=[
+                    ObjectItemInventory(item=ObjectItem(uid=2, gid=200, quantity=20))
+                ]
             )
         )
 
@@ -361,10 +391,14 @@ class TestGuildChestState(StateTestBase):
     def test_two_bots_same_server_share_removal_on_same_tab(self):
         other_bot = self.create_other_bot("OtherBotGuildRemove", TEST_SERVER_ID)
 
-        self.inject(ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100))
+        self.inject(
+            ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100)
+        )
         self.inject(
             StorageInventoryContentEvent(
-                objects=[ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))]
+                objects=[
+                    ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))
+                ]
             )
         )
 
@@ -379,10 +413,14 @@ class TestGuildChestState(StateTestBase):
         other_server_id = 2
         other_bot = self.create_other_bot("OtherBotGuildIsolation", other_server_id)
 
-        self.inject(ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100))
+        self.inject(
+            ExchangeStartedWithMultiTabStorageEvent(tab_number=1, storage_max_slot=100)
+        )
         self.inject(
             StorageInventoryContentEvent(
-                objects=[ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))]
+                objects=[
+                    ObjectItemInventory(item=ObjectItem(uid=1, gid=100, quantity=10))
+                ]
             )
         )
 
@@ -391,7 +429,9 @@ class TestGuildChestState(StateTestBase):
         )
         other_bot.event_manager.process_msg(
             StorageInventoryContentEvent(
-                objects=[ObjectItemInventory(item=ObjectItem(uid=2, gid=200, quantity=7))]
+                objects=[
+                    ObjectItemInventory(item=ObjectItem(uid=2, gid=200, quantity=7))
+                ]
             )
         )
 

@@ -7,7 +7,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from openai import APIConnectionError, OpenAIError
 
 from src.services.ai.llm_classifier import ClassifierChat
-from src.utils.metaclasses.singleton import Singleton
+from python_utils.singleton import Singleton
 
 
 class HumanResponse(metaclass=Singleton):
