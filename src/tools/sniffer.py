@@ -19,10 +19,11 @@ from scapy.sendrecv import sniff
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.const import ENV_PATH
 from src.utils.runtime_paths import configure_project_import_paths
 
 configure_project_import_paths(PROJECT_ROOT)
-load_dotenv(PROJECT_ROOT / ".env")
+load_dotenv(ENV_PATH)
 
 from src.core.bot.bot_factory import generate_random_bot
 from src.core.signals.global_log_signals import GlobalLogSignals

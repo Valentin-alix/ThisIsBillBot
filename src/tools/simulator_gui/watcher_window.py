@@ -2,7 +2,6 @@ import importlib
 import os
 import sys
 from dataclasses import dataclass, field
-from pathlib import Path
 from types import ModuleType
 
 from dotenv import load_dotenv
@@ -11,10 +10,11 @@ from PyQt6.QtWidgets import QApplication
 from qfluentwidgets import Theme, setTheme, setThemeColor
 from watchfiles import Change, watch
 
+from src.const import ENV_PATH
 from src.core.bot.bot import Bot
 from src.core.bot.bot_factory import generate_random_bot
 
-load_dotenv(os.path.join(Path(__file__).parent.parent.parent, ".env"))
+load_dotenv(ENV_PATH)
 
 import src.core.signals.shared_farm_signals as gui_shared_farm_signals
 import src.gui.main_window as gui_main_window

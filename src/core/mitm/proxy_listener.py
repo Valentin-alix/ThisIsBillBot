@@ -12,7 +12,6 @@ from src.controller.bot_config import BotConfigController
 from src.core.bot.bot import Bot
 from src.core.mitm.connection_proxy import ConnectionProxy
 from src.core.mitm.game_proxy import GameProxy
-from src.utils.pids import get_pid_by_local_and_remote_port
 
 logger = logging.getLogger()
 
@@ -21,6 +20,7 @@ logger = logging.getLogger()
 class ProxyListener(BaseProxyListener):
     account_by_id: dict[int, Bot]
     account_by_port: dict[int, Bot] = field(init=False)
+    _account_by_connection_port: dict[int, Bot] = field(init=False)
 
     def __init__(
         self,
@@ -38,27 +38,28 @@ class ProxyListener(BaseProxyListener):
         )
         self.account_by_id = account_by_id
         self.account_by_port = {}
+        self._account_by_connection_port = {}
+
+    def on_connection_port_assigned(self, login: str, connection_port: int) -> None:
+        related_bot = next(
+            (
+                bot
+                for bot in self.account_by_id.values()
+                if bot.account["apikey"]["login"] == login
+            ),
+            None,
+        )
+        if related_bot is not None:
+            self._account_by_connection_port[connection_port] = related_bot
 
     def create_bridge(
         self, client_socket: Socket, server_socket: Socket, host_port: int
     ) -> Proxy | None:
         if server_socket.getpeername()[0] in CONNECTION_SERVERS_IPS:
-            local_port = client_socket.getpeername()[1]
-            related_pid = get_pid_by_local_and_remote_port(
-                local_port=local_port, remote_port=host_port
-            )
-            if related_pid is None:
-                logger.warning("Did not found related pid")
+            related_bot = self._account_by_connection_port.get(host_port)
+            if related_bot is None:
+                logger.warning("Did not find bot for connection port %d", host_port)
                 return None
-
-            related_bot = next(
-                (
-                    bot
-                    for bot in self.account_by_id.values()
-                    if bot.process_manager.pid == related_pid
-                ),
-                None,
-            )
 
             def on_game_connection_callback(
                 target_address: tuple[str, int], bot: Bot
