@@ -56,6 +56,9 @@ class BotManager:
             on_error=_on_done,
         )
 
+    def on_progress_installing(self, text: str):
+        print(f"In progress : {text}")
+
     def _emit_thread_count(self):
         self.shared_signals.thread_count_update.emit(self._running_task_count)
 
@@ -112,6 +115,7 @@ class BotManager:
                     login,
                     self.proxy_listener,
                     interface_ip=bot_config.network_interface if bot_config else None,
+                    on_progress=self.on_progress_installing,
                 )
                 related_bot.logger.info(f"Pid {related_bot.process_manager.pid}")
                 is_success = related_bot.wait_for_connection_result(timeout=90)

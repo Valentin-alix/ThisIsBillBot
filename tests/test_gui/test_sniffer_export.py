@@ -1,6 +1,12 @@
+import datetime
 import unittest
 
-from src.gui.pages.debugs.sniffer import _parse_sub_msg_name
+from src.gui.pages.debugs.sniffer import (
+    _extract_obf_msg_name_for_pinned_pair,
+    _extract_pinned_pair_names_for_fields,
+    _parse_sub_msg_name,
+)
+from src.protocol.message import MessageInfo
 
 
 class TestParseSubMsgName(unittest.TestCase):
@@ -23,3 +29,63 @@ class TestParseSubMsgName(unittest.TestCase):
         obf, decoded = _parse_sub_msg_name("a -> b -> c")
         self.assertEqual(obf, "a")
         self.assertEqual(decoded, "b -> c")
+
+
+class TestPinnedPairHelpers(unittest.TestCase):
+    def test_extract_obf_msg_name_from_decoded_game_message(self) -> None:
+        msg_info = MessageInfo(
+            received_time=datetime.datetime.now(),
+            from_server=True,
+            sub_msg_name="abc -> InventoryContentEvent",
+            obf_msg_json={},
+        )
+
+        self.assertEqual(_extract_obf_msg_name_for_pinned_pair(msg_info), "abc")
+
+    def test_extract_obf_msg_name_from_unmapped_game_message(self) -> None:
+        msg_info = MessageInfo(
+            received_time=datetime.datetime.now(),
+            from_server=True,
+            sub_msg_name="abc",
+            obf_msg_json={},
+        )
+
+        self.assertEqual(_extract_obf_msg_name_for_pinned_pair(msg_info), "abc")
+
+    def test_extract_obf_msg_name_ignores_non_obf_only_message(self) -> None:
+        msg_info = MessageInfo(
+            received_time=datetime.datetime.now(),
+            from_server=True,
+            sub_msg_name="LoginQuestion",
+            msg_json={},
+        )
+
+        self.assertIsNone(_extract_obf_msg_name_for_pinned_pair(msg_info))
+
+    def test_extract_pinned_pair_names_for_fields_from_mapped_game_message(
+        self,
+    ) -> None:
+        msg_info = MessageInfo(
+            received_time=datetime.datetime.now(),
+            from_server=True,
+            sub_msg_name="abc -> InventoryContentEvent",
+            msg_json={},
+            obf_msg_json={},
+        )
+
+        self.assertEqual(
+            _extract_pinned_pair_names_for_fields(msg_info),
+            ("abc", "InventoryContentEvent"),
+        )
+
+    def test_extract_pinned_pair_names_for_fields_requires_clear_content(
+        self,
+    ) -> None:
+        msg_info = MessageInfo(
+            received_time=datetime.datetime.now(),
+            from_server=True,
+            sub_msg_name="abc -> InventoryContentEvent",
+            obf_msg_json={},
+        )
+
+        self.assertIsNone(_extract_pinned_pair_names_for_fields(msg_info))

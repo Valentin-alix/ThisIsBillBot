@@ -3,7 +3,13 @@ from typing import Any
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush, QColor
 from PyQt6.QtWidgets import QHBoxLayout, QTreeWidgetItem, QVBoxLayout, QWidget
-from qfluentwidgets import FluentIcon, LineEdit, SmoothMode, TransparentToolButton
+from qfluentwidgets import (
+    FluentIcon,
+    LineEdit,
+    PrimaryPushButton,
+    SmoothMode,
+    TransparentToolButton,
+)
 
 from src.gui.components.qfluent_widget.dynamic_tree_widget import DynamicTreeWidget
 
@@ -22,6 +28,11 @@ class MessageDetailWidget(QWidget):
 
         self.quit_btn = TransparentToolButton(FluentIcon.CLOSE, top_bar)
         top_bar_layout.addWidget(self.quit_btn)
+
+        self.lock_pinned_fields_btn = PrimaryPushButton(
+            FluentIcon.PIN, "Lock pinned fields", top_bar
+        )
+        top_bar_layout.addWidget(self.lock_pinned_fields_btn)
 
         self.search_bar = LineEdit(top_bar)
         self.search_bar.setPlaceholderText("Rechercher dans le contenu...")
@@ -61,6 +72,16 @@ class MessageDetailWidget(QWidget):
             self.obf_dynamic_tree.set_content(obf_msg_json)
         else:
             self.obf_dynamic_tree.hide()
+        self.lock_pinned_fields_btn.setEnabled(
+            msg_json is not None and obf_msg_json is not None
+        )
+
+    def selected_pinned_fields(self) -> tuple[str, str] | None:
+        non_obf_field = self.dynamic_tree.selected_root_field_name()
+        obf_field = self.obf_dynamic_tree.selected_root_field_name()
+        if non_obf_field is None or obf_field is None:
+            return None
+        return obf_field, non_obf_field
 
     def _on_search_text_changed(self, text: str) -> None:
         text = text.strip()

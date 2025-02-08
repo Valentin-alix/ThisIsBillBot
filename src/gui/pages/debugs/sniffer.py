@@ -1,11 +1,14 @@
 import json
 from datetime import datetime
 from functools import partial
+from typing import Any, cast
 
-from PyQt6.QtCore import QModelIndex, Qt, pyqtSlot
+from PyQt6.QtCore import QModelIndex, QStringListModel, Qt, pyqtSlot
 from PyQt6.QtWidgets import (
+    QCompleter,
     QFileDialog,
     QHBoxLayout,
+    QMessageBox,
     QSizePolicy,
     QSplitter,
     QStackedWidget,
@@ -15,8 +18,15 @@ from PyQt6.QtWidgets import (
 from qfluentwidgets import (
     FluentIcon,
     LineEdit,
+    MessageBoxBase,
     PrimaryPushButton,
     SegmentedWidget,
+    SubtitleLabel,
+)
+from consts import PINNED_PAIRS_FILE
+from proto_mapper_assembly.interfaces.pinned_pairs import (
+    upsert_pinned_field_mapping,
+    upsert_pinned_pair,
 )
 
 from src.core.bot.bot import Bot
@@ -27,6 +37,7 @@ from src.gui.pages.debugs.message_detail import MessageDetailWidget
 from src.gui.pages.debugs.message_table import MessageTable
 from src.gui.utils.profiling import profiled_slot
 from src.protocol.message import MessageInfo
+from src.protocol.message_names import load_non_obf_game_message_names
 
 
 def _require_message_info(value: object) -> MessageInfo:
@@ -41,6 +52,62 @@ def _parse_sub_msg_name(sub_msg_name: str) -> tuple[str | None, str]:
         obf, decoded = sub_msg_name.split(" -> ", 1)
         return obf, decoded
     return None, sub_msg_name
+
+
+def _extract_obf_msg_name_for_pinned_pair(msg_info: MessageInfo) -> str | None:
+    if msg_info.obf_msg_json is None:
+        return None
+    obf_msg_name, _ = _parse_sub_msg_name(msg_info.sub_msg_name)
+    return obf_msg_name or msg_info.sub_msg_name
+
+
+def _extract_pinned_pair_names_for_fields(
+    msg_info: MessageInfo,
+) -> tuple[str, str] | None:
+    if msg_info.msg_json is None or msg_info.obf_msg_json is None:
+        return None
+    obf_msg_name, non_obf_msg_name = _parse_sub_msg_name(msg_info.sub_msg_name)
+    if obf_msg_name is None:
+        return None
+    return obf_msg_name, non_obf_msg_name
+
+
+class PinnedPairMessageBox(MessageBoxBase):
+    def __init__(
+        self,
+        obf_msg_name: str,
+        non_obf_msg_names: list[str],
+        parent: QWidget,
+    ) -> None:
+        super().__init__(parent=parent)
+        self._valid_non_obf_msg_names = set(non_obf_msg_names)
+        self.title_label = SubtitleLabel(f"pinne pair for {obf_msg_name}", parent=self)
+        self.message_name_edit = LineEdit(self)
+        self.message_name_edit.setPlaceholderText("Nom du message non obfusqué")
+        self.message_name_edit.setMinimumWidth(420)
+
+        completer = QCompleter(self)
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        completer.setFilterMode(Qt.MatchFlag.MatchContains)
+        completer.setModel(QStringListModel(non_obf_msg_names, completer))
+        self.message_name_edit.setCompleter(completer)
+
+        cast(Any, self).yesButton.setText("Sauvegarder")
+        cast(Any, self).cancelButton.setText("Annuler")
+
+        self.viewLayout.addWidget(self.title_label)
+        self.viewLayout.addWidget(self.message_name_edit)
+
+    @property
+    def non_obf_msg_name(self) -> str:
+        return self.message_name_edit.text().strip()
+
+    def validate(self) -> bool:
+        if self.non_obf_msg_name in self._valid_non_obf_msg_names:
+            return True
+        self.message_name_edit.setFocus()
+        self.message_name_edit.selectAll()
+        return False
 
 
 class SnifferWidget(QWidget):
@@ -59,6 +126,7 @@ class SnifferWidget(QWidget):
         self.bot = bot
         self.global_log_signals = global_log_signals
         self.is_playing: bool = True
+        self._current_detail_msg_info: MessageInfo | None = None
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(4, 4, 4, 4)
         self.v_layout.setSpacing(0)
@@ -115,6 +183,7 @@ class SnifferWidget(QWidget):
         # left side: filter + message table
         self.msg_table = MessageTable(parent=self)
         self.msg_table.table.clicked.connect(self.on_click_msg)
+        self.msg_table.table.doubleClicked.connect(self.on_double_click_msg)
 
         left_widget = QWidget(self)
         left_widget_layout = QVBoxLayout()
@@ -150,6 +219,9 @@ class SnifferWidget(QWidget):
         self.msg_detail = MessageDetailWidget(parent=self)
         self.msg_detail.hide()
         self.msg_detail.quit_btn.clicked.connect(self.on_close_detail)
+        self.msg_detail.lock_pinned_fields_btn.clicked.connect(
+            self.on_lock_pinned_fields
+        )
 
         self.right_splitter = QSplitter(Qt.Orientation.Vertical, self)
         self.right_splitter.addWidget(self.msg_detail)
@@ -292,12 +364,73 @@ class SnifferWidget(QWidget):
         msg_infos = _require_message_info(
             model.data(model.index(source_index.row(), 4), Qt.ItemDataRole.UserRole)
         )
+        self._current_detail_msg_info = msg_infos
         self.msg_detail.set_content(msg_infos.msg_json, msg_infos.obf_msg_json)
         self.msg_detail.show()
 
+    @pyqtSlot(QModelIndex)
+    def on_double_click_msg(self, model_index: QModelIndex) -> None:
+        source_index = self.msg_table.table.proxy_model.mapToSource(model_index)
+        model = self.msg_table.table.item_model
+        msg_info = _require_message_info(
+            model.data(model.index(source_index.row(), 4), Qt.ItemDataRole.UserRole)
+        )
+        obf_msg_name = _extract_obf_msg_name_for_pinned_pair(msg_info)
+        if obf_msg_name is None:
+            return
+
+        dialog = PinnedPairMessageBox(
+            obf_msg_name, load_non_obf_game_message_names(), self
+        )
+        if dialog.exec():
+            upsert_pinned_pair(
+                PINNED_PAIRS_FILE, obf_msg_name, dialog.non_obf_msg_name
+            )
+
     @pyqtSlot()
     def on_close_detail(self) -> None:
+        self._current_detail_msg_info = None
         self.msg_detail.hide()
+
+    @pyqtSlot()
+    def on_lock_pinned_fields(self) -> None:
+        if self._current_detail_msg_info is None:
+            return
+
+        message_pair = _extract_pinned_pair_names_for_fields(
+            self._current_detail_msg_info
+        )
+        if message_pair is None:
+            QMessageBox.warning(
+                self,
+                "Pinned fields",
+                "Impossible de verrouiller les champs pour ce message.",
+            )
+            return
+
+        fields = self.msg_detail.selected_pinned_fields()
+        if fields is None:
+            QMessageBox.warning(
+                self,
+                "Pinned fields",
+                "Sélectionne un champ racine dans chaque tree.",
+            )
+            return
+
+        obf_msg_name, non_obf_msg_name = message_pair
+        obf_field_name, non_obf_field_name = fields
+        upsert_pinned_field_mapping(
+            PINNED_PAIRS_FILE,
+            obf_msg_name,
+            non_obf_msg_name,
+            obf_field_name,
+            non_obf_field_name,
+        )
+        QMessageBox.information(
+            self,
+            "Pinned fields",
+            f"{obf_field_name} -> {non_obf_field_name} verrouillé.",
+        )
 
     def _show_listeners_tab(
         self,
