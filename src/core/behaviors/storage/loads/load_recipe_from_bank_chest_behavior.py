@@ -37,7 +37,7 @@ class LoadRecipeFromBankChestBehavior(RecipeLoaderBehavior):
         self.load_recipe()
 
     def get_storage_objects_by_gid(self) -> dict[int, ObjectItemInventory]:
-        return self.game_state.inventory.bank_object_by_gid
+        return self.game_state.inventory.get_bank_objects_by_gid()
 
     def load_ingredients_for_recipe(
         self, recipe: RecipeItem, max_possible_result_quantity: int
@@ -70,10 +70,13 @@ class LoadRecipeFromBankChestBehavior(RecipeLoaderBehavior):
             originator=self,
             once=True,
         )
+        ingredient_item = self.game_state.inventory.get_bank_object_by_gid(
+            ingredient_id
+        )
+        if ingredient_item is None:
+            return self.load_recipe()
         req = ExchangeObjectMoveRequest(
-            object_uid=self.game_state.inventory.bank_object_by_gid[
-                ingredient_id
-            ].item.uid,
+            object_uid=ingredient_item.item.uid,
             quantity=-quantity * max_possible_result_quantity,
         )
         self.send_message_delayed(req, SMALL_RANGE)

@@ -86,9 +86,8 @@ class LoadFromBankBehavior(DialogHandlerBehavior):
             return self.run_timer(BASE_RANGE, self.leave_all_dialogs)
 
         current_load = self._pending_load_items[0]
-        related_item = self.game_state.inventory.bank_object_by_gid.get(
-            current_load.item_gid,
-            None,
+        related_item = self.game_state.inventory.get_bank_object_by_gid(
+            current_load.item_gid
         )
         if related_item is None:
             self._pending_load_items.pop(0)

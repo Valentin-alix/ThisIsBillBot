@@ -161,6 +161,69 @@ class TestFightState(StateTestBase):
         assert CharacteristicEnum.AGILITY in self.game_state.fight.characteristic_by_id
         assert CharacteristicEnum.STRENGTH in self.game_state.fight.characteristic_by_id
 
+    def test_update_action_points_characteristic_emits_signal(self):
+        received: list[int] = []
+        self.bot.game_info_signals.action_points.connect(received.append)
+        characteristic = CharacterCharacteristic(
+            characteristic_id=CharacteristicEnum.ACTION_POINTS,
+            value=CharacterCharacteristicValue(total=12),
+        )
+
+        self.game_state.fight.update_characteristic(characteristic)
+
+        assert received == [12]
+
+    def test_update_movement_points_characteristic_emits_signal(self):
+        received: list[int] = []
+        self.bot.game_info_signals.movement_points.connect(received.append)
+        characteristic = CharacterCharacteristic(
+            characteristic_id=CharacteristicEnum.MOVEMENT_POINTS,
+            value=CharacterCharacteristicValue(total=6),
+        )
+
+        self.game_state.fight.update_characteristic(characteristic)
+
+        assert received == [6]
+
+    def test_clear_state_clears_characteristics(self):
+        self.game_state.fight.characteristic_by_id[CharacteristicEnum.AGILITY] = (
+            CharacterCharacteristic(
+                characteristic_id=CharacteristicEnum.AGILITY,
+                value=CharacterCharacteristicValue(total=500),
+            )
+        )
+
+        self.game_state.fight.clear_state()
+
+        assert len(self.game_state.fight.characteristic_by_id) == 0
+
+    def test_character_characteristics_event_emits_action_and_movement_points(self):
+        received_action_points: list[int] = []
+        received_movement_points: list[int] = []
+        self.bot.game_info_signals.action_points.connect(received_action_points.append)
+        self.bot.game_info_signals.movement_points.connect(
+            received_movement_points.append
+        )
+        msg = CharacterCharacteristicsEvent(
+            stats=CharacterCharacteristics(
+                characteristics=[
+                    CharacterCharacteristic(
+                        characteristic_id=CharacteristicEnum.ACTION_POINTS,
+                        value=CharacterCharacteristicValue(total=12),
+                    ),
+                    CharacterCharacteristic(
+                        characteristic_id=CharacteristicEnum.MOVEMENT_POINTS,
+                        value=CharacterCharacteristicValue(total=6),
+                    ),
+                ]
+            )
+        )
+
+        self.inject(msg)
+
+        assert received_action_points == [12]
+        assert received_movement_points == [6]
+
     def test_update_life_points_sets_life(self):
         msg = UpdateLifePointsEvent(life_points=500, max_life_points=1000)
 

@@ -73,6 +73,12 @@ class PlayerInfoWidget(QWidget):
         self.bot.game_info_signals.max_life_point.connect(
             partial(self.on_received_property, "Combat", "Vie maximum")
         )
+        self.bot.game_info_signals.action_points.connect(
+            partial(self.on_received_property, "Combat", "PA")
+        )
+        self.bot.game_info_signals.movement_points.connect(
+            partial(self.on_received_property, "Combat", "PM")
+        )
         self.bot.inventory_signals.inventory_weight.connect(
             self.on_inventory_weight_updated
         )

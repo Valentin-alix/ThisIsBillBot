@@ -1,4 +1,4 @@
-from typing import Callable, TypeAlias
+from typing import Callable, TypeAlias, cast
 
 from PyQt6.QtCore import QPoint, Qt
 from PyQt6.QtGui import QKeyEvent, QKeySequence
@@ -13,6 +13,8 @@ TreeValue: TypeAlias = (
 class DynamicTreeWidget(TreeWidget):
     FIELD_NAME_ROLE = Qt.ItemDataRole.UserRole
     IS_ROOT_FIELD_ROLE = Qt.ItemDataRole.UserRole + 1
+    IS_FIELD_ROLE = Qt.ItemDataRole.UserRole + 2
+    FIELD_PATH_ROLE = Qt.ItemDataRole.UserRole + 3
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -60,6 +62,20 @@ class DynamicTreeWidget(TreeWidget):
         self.expandToDepth(1)
         self.setUpdatesEnabled(True)
 
+    def selected_field_path(self) -> tuple[str, ...] | None:
+        item = self.currentItem()
+        if item is None:
+            return None
+        if item.data(0, self.IS_FIELD_ROLE) is not True:
+            return None
+        field_path: object = item.data(0, self.FIELD_PATH_ROLE)
+        if not isinstance(field_path, tuple):
+            return None
+        path_parts = cast(tuple[object, ...], field_path)
+        if not all(isinstance(path_part, str) for path_part in path_parts):
+            return None
+        return cast(tuple[str, ...], path_parts)
+
     def selected_root_field_name(self) -> str | None:
         item = self.currentItem()
         if item is None:
@@ -75,15 +91,23 @@ class DynamicTreeWidget(TreeWidget):
         get_display_value: Callable[[TreeValue], str | None] | None,
         parent: QTreeWidgetItem | None = None,
         base_qtree: TreeWidget | None = None,
+        field_path: tuple[str, ...] = (),
     ) -> None:
         if not isinstance(values, dict):
             widget_item = QTreeWidgetItem([f"{values}"])
-            widget_item.setData(0, self.IS_ROOT_FIELD_ROLE, False)
+            self._set_item_field_data(
+                widget_item,
+                field_name=None,
+                field_path=field_path,
+                is_root_field=False,
+                is_field=False,
+            )
             if parent is not None:
                 parent.addChild(widget_item)
         else:
             for key, value in values.items():
                 is_root_field = parent is None and base_qtree is not None
+                current_field_path = (*field_path, key)
                 if get_display_value:
                     display_value = get_display_value(value)
                     if display_value is not None:
@@ -91,19 +115,84 @@ class DynamicTreeWidget(TreeWidget):
                 if isinstance(value, dict):
                     widget_item = QTreeWidgetItem([f"{key}"])
                     self._deep_tree_from_message_dict(
-                        value, get_display_value, widget_item
+                        value,
+                        get_display_value,
+                        widget_item,
+                        field_path=current_field_path,
                     )
                 elif isinstance(value, list):
                     widget_item = QTreeWidgetItem([f"{key}"])
                     for index, _value in enumerate(value):
-                        self._deep_tree_from_message_dict(
-                            {str(index): _value}, get_display_value, widget_item
+                        index_item = self._list_index_item(
+                            index, _value, get_display_value, current_field_path
                         )
+                        widget_item.addChild(index_item)
                 else:
                     widget_item = QTreeWidgetItem([f"{key} = {value}"])
-                widget_item.setData(0, self.FIELD_NAME_ROLE, key)
-                widget_item.setData(0, self.IS_ROOT_FIELD_ROLE, is_root_field)
+                self._set_item_field_data(
+                    widget_item,
+                    field_name=key,
+                    field_path=current_field_path,
+                    is_root_field=is_root_field,
+                    is_field=True,
+                )
                 if parent is not None:
                     parent.addChild(widget_item)
                 elif base_qtree is not None:
                     base_qtree.addTopLevelItem(widget_item)
+
+    def _list_index_item(
+        self,
+        index: int,
+        value: TreeValue,
+        get_display_value: Callable[[TreeValue], str | None] | None,
+        field_path: tuple[str, ...],
+    ) -> QTreeWidgetItem:
+        if get_display_value:
+            display_value = get_display_value(value)
+            if display_value is not None:
+                value = display_value
+
+        if isinstance(value, dict):
+            index_item = QTreeWidgetItem([f"{index}"])
+            self._deep_tree_from_message_dict(
+                value,
+                get_display_value,
+                index_item,
+                field_path=field_path,
+            )
+        elif isinstance(value, list):
+            index_item = QTreeWidgetItem([f"{index}"])
+            for child_index, child_value in enumerate(value):
+                index_item.addChild(
+                    self._list_index_item(
+                        child_index,
+                        child_value,
+                        get_display_value,
+                        field_path,
+                    )
+                )
+        else:
+            index_item = QTreeWidgetItem([f"{index} = {value}"])
+
+        self._set_item_field_data(
+            index_item,
+            field_name=None,
+            field_path=field_path,
+            is_root_field=False,
+            is_field=False,
+        )
+        return index_item
+
+    def _set_item_field_data(
+        self,
+        item: QTreeWidgetItem,
+        field_name: str | None,
+        field_path: tuple[str, ...],
+        is_root_field: bool,
+        is_field: bool,
+    ) -> None:
+        item.setData(0, self.FIELD_NAME_ROLE, field_name)
+        item.setData(0, self.FIELD_PATH_ROLE, field_path)
+        item.setData(0, self.IS_ROOT_FIELD_ROLE, is_root_field)
+        item.setData(0, self.IS_FIELD_ROLE, is_field)

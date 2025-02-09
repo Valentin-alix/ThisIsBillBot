@@ -19,7 +19,7 @@ class TestWeightAreas(GameStateFixture):
         )
         self.game_state.player.jobs_lvl_by_id = {}
         self.game_state.player.server_id = 1
-        self.game_state.inventory.bank_object_by_gid = {}
+        self.game_state.inventory.bank_objects_by_uid = {}
 
     def test_is_valid_area_info_to_harvest_applies_all_filters(self) -> None:
         area_info = AreaInfo(

@@ -23,13 +23,6 @@ import random
 import string
 from typing import Any, Callable, TypeVar
 
-from google.protobuf.descriptor import FieldDescriptor
-from google.protobuf.message import Message
-from langchain_community.vectorstores.falkordb_vector import generate_random_string
-
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID
-from src.protocol.protocol_game import _load_game_mappings
 from datas.protos.non_obf.game.basic_pb2 import TextInformationEvent
 from datas.protos.non_obf.game.character_management_pb2 import (
     CharacterSelectionEvent,
@@ -137,6 +130,13 @@ from datas.protos.non_obf.game.teleportation_pb2 import (
     TeleportRequest,
     ZaapKnownListEvent,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID
+from google.protobuf.descriptor import FieldDescriptor
+from google.protobuf.message import Message
+from langchain_community.vectorstores.falkordb_vector import generate_random_string
+
+from src.protocol.protocol_game import _load_game_mappings
 
 GAME_PROTO_PKG = "datas.protos.non_obf.game"
 MessageT = TypeVar("MessageT", bound=Message)

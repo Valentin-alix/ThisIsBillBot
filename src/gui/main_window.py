@@ -57,6 +57,7 @@ class MainWindow(AppFluentWindow):
         self._init_debug_button()
         self._init_sync_button()
         self.shared_signals.new_bot_added.connect(self.add_account)
+        self.shared_signals.bot_removed.connect(self.remove_account)
 
     def init_accounts(self, account_by_id: dict[int, Bot]) -> None:
         for account in account_by_id.values():
@@ -113,6 +114,27 @@ class MainWindow(AppFluentWindow):
         account.game_info_signals.disconnected.connect(
             lambda: navigation_widget.set_title(login)
         )
+
+    def remove_account(self, account: Bot) -> None:
+        login = account.account["apikey"]["login"]
+        self.bots_by_login.pop(login, None)
+
+        account_widget = next(
+            (widget for widget in self.account_widgets if widget.objectName() == login),
+            None,
+        )
+        if account_widget is None:
+            return
+
+        self.account_widgets.remove(account_widget)
+        self.removeWidget(login, account_widget)
+        account_widget.deleteLater()
+
+        if self.account_widgets:
+            self.switchTo(self.account_widgets[0])
+            self.navigationInterface.setCurrentItem(
+                self.account_widgets[0].objectName()
+            )
 
     def _on_schedule_profile_changed(self, login: str, profile_id: str) -> None:
         profile = profile_id if profile_id else None

@@ -97,6 +97,11 @@ class AppFluentWindow(FluentWindowBase):
 
         self._updateStackedBackground()
 
+    def removeWidget(self, routeKey: str, interface: QWidget) -> None:
+        self.navigationInterface.panel.removeWidget(routeKey)
+        self.stackedWidget.removeWidget(interface)
+        self._updateStackedBackground()
+
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         self.titleBar.move(46, 0)
         self.titleBar.resize(self.width() - 46, self.titleBar.height())

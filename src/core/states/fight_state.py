@@ -78,6 +78,11 @@ class FightState(State):
 
     def update_characteristic(self, characteristic: CharacterCharacteristic) -> None:
         self.characteristic_by_id[characteristic.characteristic_id] = characteristic
+        value = get_stat_by_id(characteristic)
+        if characteristic.characteristic_id == CharacteristicEnum.ACTION_POINTS:
+            self.game_info_signals.action_points.emit(value)
+        elif characteristic.characteristic_id == CharacteristicEnum.MOVEMENT_POINTS:
+            self.game_info_signals.movement_points.emit(value)
 
     @property
     def breed_id(self):

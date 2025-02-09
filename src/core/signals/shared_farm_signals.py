@@ -7,3 +7,4 @@ class SharedSignals(QObject):
     thread_count_update = pyqtSignal(int)  # bot_manager thread count
     synchronize_bots = pyqtSignal()
     new_bot_added = pyqtSignal(object)
+    bot_removed = pyqtSignal(object)

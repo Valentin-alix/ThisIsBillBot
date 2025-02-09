@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from datas.protos.non_obf.game.fight_pb2 import (
-    FightIsTurnReadyEvent,
     FightTurnStartPlayingEvent,
 )
 from datas.protos.non_obf.game.gamemap_pb2 import (
@@ -9,7 +8,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
 
-from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.behavior import Behavior, BehaviorState
 from src.core.behaviors.farms.fight.fight_preparation_behavior import (
     FightPreparationBehavior,
 )
@@ -49,8 +48,8 @@ class FightBehavior(Behavior):
 
     def on_fight_map_initialized(self):
         self.event_manager.on(
-            [FightTurnStartPlayingEvent, FightIsTurnReadyEvent],
-            lambda _: self.on_player_turn(),
+            FightTurnStartPlayingEvent,
+            self.on_player_turn_event,
             originator=self,
         )
         if self.game_state.fight.is_our_turn:
@@ -70,13 +69,31 @@ class FightBehavior(Behavior):
     def on_fight_preparation_behavior_finish(self, error_code: str | None):
         self.raise_if_error(error_code)
 
+    def on_player_turn_event(self, msg: FightTurnStartPlayingEvent) -> None:
+        self.on_player_turn()
+
     def on_player_turn(self):
+        if not self._can_start_fight_turn():
+            return
         if self.game_state.fight.fight_turn > 100:
             self.logger.error("Bot Might be stuck")
             self.shared_signals.launch_account.emit(self.login)
         self.run_timer(
             HumanTimingsService().get_timing_before_playing_turn(),
-            lambda: self.fight_turn_behavior.start(callback=None, parent=self),
+            self._start_fight_turn_if_still_valid,
+        )
+
+    def _start_fight_turn_if_still_valid(self) -> None:
+        if not self._can_start_fight_turn():
+            return
+        self.fight_turn_behavior.start(callback=None, parent=self)
+
+    def _can_start_fight_turn(self) -> bool:
+        return (
+            self.game_state.fight.in_fight
+            and self.game_state.player.character_id
+            in self.game_state.entity.actor_by_id
+            and self.fight_turn_behavior.state == BehaviorState.STOPPED
         )
 
     def on_fight_timeout(self):

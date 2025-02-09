@@ -103,7 +103,7 @@ def get_random_best_area_info_for_harvester(
         if area_info.sub_area_id:
             weight = get_weight_harvester_sub_area(
                 game_state.player.jobs_lvl_by_id,
-                game_state.inventory.bank_object_by_gid,
+                game_state.inventory.get_bank_objects_by_gid(),
                 area_info.sub_area_id,
                 game_state.player.is_sub,
                 server_id,
@@ -113,7 +113,7 @@ def get_random_best_area_info_for_harvester(
                 game_state.player.jobs_lvl_by_id,
                 area_info.area_id,
                 game_state.player.is_sub,
-                game_state.inventory.bank_object_by_gid,
+                game_state.inventory.get_bank_objects_by_gid(),
                 server_id,
             )
         count_area_already_playing = server_area_infos.count(area_info)

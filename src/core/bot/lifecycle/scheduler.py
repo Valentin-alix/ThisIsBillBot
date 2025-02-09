@@ -70,6 +70,9 @@ class BotScheduler(ContextualLogger):
             self.bot_signals.play.emit(False)
             self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
 
+    def stop(self) -> None:
+        self._clear_scheduled_jobs()
+
     def update_profile(self, profile_id: str | None) -> None:
         """Update the schedule profile and reschedule jobs."""
         config = self.get_bot_config()

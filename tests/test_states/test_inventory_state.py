@@ -33,8 +33,8 @@ class TestInventoryState(StateTestBase):
         )
 
         assert (
-            self.game_state.inventory.bank_object_by_gid
-            is not other_bot.game_state.inventory.bank_object_by_gid
+            self.game_state.inventory.bank_objects_by_uid
+            is not other_bot.game_state.inventory.bank_objects_by_uid
         )
         assert (
             self.game_state.inventory.objects_by_uid

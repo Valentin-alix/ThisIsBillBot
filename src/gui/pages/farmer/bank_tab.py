@@ -121,6 +121,6 @@ class BankTab(QWidget):
         self.items_by_uid.clear()
         self.list_widget.clear()
         self.list_item_by_uid.clear()
-        bank_items = list(self.bot.game_state.inventory.bank_object_by_gid.values())
+        bank_items = list(self.bot.game_state.inventory.bank_objects_by_uid.values())
         if bank_items:
             self.on_bank_refreshed(bank_items)

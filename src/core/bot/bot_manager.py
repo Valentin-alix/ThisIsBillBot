@@ -63,11 +63,18 @@ class BotManager:
         self.shared_signals.thread_count_update.emit(self._running_task_count)
 
     def relaunch_account(self, login: str, max_retries: int = 3):
-        related_bot: Bot = next(
-            bot
-            for _, bot in self.bot_by_account_id.items()
-            if bot.account["apikey"]["login"] == login
+        related_bot = next(
+            (
+                bot
+                for _, bot in self.bot_by_account_id.items()
+                if bot.account["apikey"]["login"] == login
+            ),
+            None,
         )
+        if related_bot is None:
+            self._is_lauching_by_login.pop(login, None)
+            return None
+
         if self._is_lauching_by_login[login].is_set():
             return related_bot.logger.warning(
                 "Bot is already launching, don't launch twice."
@@ -162,9 +169,28 @@ class BotManager:
             bot.process_manager.kill_process()
         self.proxy_listener.shutdown()
 
+    def _cleanup_removed_bot(self, bot: Bot) -> None:
+        login = bot.account["apikey"]["login"]
+        bot.scheduler.stop()
+        bot.is_playing_event.clear()
+        bot.behavior_coordinator.stop_behaviors()
+        bot.connection_handler.cleanup()
+        bot.process_manager.kill_process()
+        self._is_lauching_by_login.pop(login, None)
+
     def on_synchronize_bots(self) -> None:
-        for account in CryptoHelper.getStoredApiKeys():
-            account_id = account["apikey"]["accountId"]
+        account_by_id = {
+            account["apikey"]["accountId"]: account
+            for account in CryptoHelper.getStoredApiKeys()
+        }
+
+        removed_account_ids = set(self.bot_by_account_id) - set(account_by_id)
+        for account_id in removed_account_ids:
+            removed_bot = self.bot_by_account_id.pop(account_id)
+            self._cleanup_removed_bot(removed_bot)
+            self.shared_signals.bot_removed.emit(removed_bot)
+
+        for account_id, account in account_by_id.items():
             if account_id not in self.bot_by_account_id:
                 new_bot = BotFactory.create_bot(
                     shared_signals=self.shared_signals,

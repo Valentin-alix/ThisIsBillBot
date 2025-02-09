@@ -27,13 +27,13 @@ from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
 )
-from src.core.behaviors.storage.loads.load_item_request import LoadItemInfo
 from src.core.behaviors.storage.loads.load_from_bank_behavior import (
     LoadFromBankBehavior,
 )
 from src.core.behaviors.storage.loads.load_from_guild_chest_behavior import (
     LoadFromGuildChestBehavior,
 )
+from src.core.behaviors.storage.loads.load_item_request import LoadItemInfo
 from src.core.config import (
     BASE_RANGE,
     MIN_KAMAS_TO_GO_SALE_HOTEL,
@@ -107,7 +107,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         self._item_ids_to_sell = get_item_gids_to_sell(
             self.game_state.guild_chest.can_access_guild_chest,
             self.game_state.player.is_sub,
-            self.game_state.inventory.bank_object_by_gid,
+            self.game_state.inventory.get_bank_objects_by_gid(),
             item_sell_quantity_by_gid,
             self._curr_category,
             self.logger,

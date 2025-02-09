@@ -56,7 +56,7 @@ class Behavior(ABC, ContextualLogger):
 
     def _transition(
         self, from_states: set[BehaviorState], to_state: BehaviorState, reason: str = ""
-    ) -> None:
+    ) -> bool:
         """
         Atomic state transition with validation.
 
@@ -79,7 +79,7 @@ class Behavior(ABC, ContextualLogger):
                 if STRICT_MODE:
                     raise BehaviorLifecycleError(error)
                 self.logger.error(error)
-                return
+                return False
 
             old_state = self._state
             self._state = to_state
@@ -87,6 +87,7 @@ class Behavior(ABC, ContextualLogger):
                 f"State transition: {old_state.name} -> {to_state.name}"
                 + (f" ({reason})" if reason else "")
             )
+            return True
 
     @property
     def state(self) -> BehaviorState:
@@ -119,11 +120,12 @@ class Behavior(ABC, ContextualLogger):
         *args: object,
         **kwargs: object,
     ) -> None:
-        self._transition(
+        if not self._transition(
             {BehaviorState.STOPPED},
             BehaviorState.STARTING,
             reason=f"start() called with parent={parent.__class__.__name__ if parent else None}",
-        )
+        ):
+            return
 
         with self.event_manager.lock:
             if parent and parent.state != BehaviorState.RUNNING:
@@ -143,11 +145,12 @@ class Behavior(ABC, ContextualLogger):
                 self.parent.children.append(self)
             self.callback = callback
 
-            self._transition(
+            if not self._transition(
                 {BehaviorState.STARTING},
                 BehaviorState.RUNNING,
                 reason="setup complete, entering run()",
-            )
+            ):
+                return
 
             run_method = getattr(self, "run", None)
             if not callable(run_method):

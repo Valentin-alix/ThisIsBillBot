@@ -3,6 +3,7 @@ from datetime import datetime
 from functools import partial
 from typing import Any, cast
 
+from google.protobuf.descriptor import Descriptor
 from PyQt6.QtCore import QModelIndex, QStringListModel, Qt, pyqtSlot
 from PyQt6.QtWidgets import (
     QCompleter,
@@ -33,11 +34,15 @@ from src.core.bot.bot import Bot
 from src.core.signals.global_log_signals import GlobalLogSignals
 from src.gui.pages.debugs.listeners_stats import ListenersStatsWidget
 from src.gui.pages.debugs.logs import LogsWidget
-from src.gui.pages.debugs.message_detail import MessageDetailWidget
+from src.gui.pages.debugs.message_detail import MessageDetailWidget, SelectedPinnedField
 from src.gui.pages.debugs.message_table import MessageTable
 from src.gui.utils.profiling import profiled_slot
 from src.protocol.message import MessageInfo
-from src.protocol.message_names import load_non_obf_game_message_names
+from src.protocol.message_names import (
+    find_non_obf_game_message_descriptor,
+    load_non_obf_game_message_names,
+)
+from src.protocol.protocol_game import POOL
 
 
 def _require_message_info(value: object) -> MessageInfo:
@@ -70,6 +75,35 @@ def _extract_pinned_pair_names_for_fields(
     if obf_msg_name is None:
         return None
     return obf_msg_name, non_obf_msg_name
+
+
+def _find_obf_game_message_descriptor(name: str | None) -> Descriptor | None:
+    if name is None:
+        return None
+    try:
+        return POOL.FindMessageTypeByName(name)
+    except KeyError:
+        return None
+
+
+def _resolve_pinned_field_message_pair(
+    root_message_pair: tuple[str, str],
+    obf_field: SelectedPinnedField,
+    non_obf_field: SelectedPinnedField,
+) -> tuple[str, str] | None:
+    if len(obf_field.path) == 1 and len(non_obf_field.path) == 1:
+        return root_message_pair
+    if len(obf_field.path) == 1 or len(non_obf_field.path) == 1:
+        return None
+    if (
+        obf_field.container_descriptor is None
+        or non_obf_field.container_descriptor is None
+    ):
+        return None
+    return (
+        obf_field.container_descriptor.full_name,
+        non_obf_field.container_descriptor.name,
+    )
 
 
 class PinnedPairMessageBox(MessageBoxBase):
@@ -365,7 +399,13 @@ class SnifferWidget(QWidget):
             model.data(model.index(source_index.row(), 4), Qt.ItemDataRole.UserRole)
         )
         self._current_detail_msg_info = msg_infos
-        self.msg_detail.set_content(msg_infos.msg_json, msg_infos.obf_msg_json)
+        obf_msg_name, non_obf_msg_name = _parse_sub_msg_name(msg_infos.sub_msg_name)
+        self.msg_detail.set_content(
+            msg_infos.msg_json,
+            msg_infos.obf_msg_json,
+            find_non_obf_game_message_descriptor(non_obf_msg_name),
+            _find_obf_game_message_descriptor(obf_msg_name or msg_infos.sub_msg_name),
+        )
         self.msg_detail.show()
 
     @pyqtSlot(QModelIndex)
@@ -383,9 +423,7 @@ class SnifferWidget(QWidget):
             obf_msg_name, load_non_obf_game_message_names(), self
         )
         if dialog.exec():
-            upsert_pinned_pair(
-                PINNED_PAIRS_FILE, obf_msg_name, dialog.non_obf_msg_name
-            )
+            upsert_pinned_pair(PINNED_PAIRS_FILE, obf_msg_name, dialog.non_obf_msg_name)
 
     @pyqtSlot()
     def on_close_detail(self) -> None:
@@ -417,15 +455,28 @@ class SnifferWidget(QWidget):
             )
             return
 
-        obf_msg_name, non_obf_msg_name = message_pair
-        obf_field_name, non_obf_field_name = fields
+        obf_field, non_obf_field = fields
+        resolved_message_pair = _resolve_pinned_field_message_pair(
+            message_pair, obf_field, non_obf_field
+        )
+        if resolved_message_pair is None:
+            QMessageBox.warning(
+                self,
+                "Pinned fields",
+                "Les champs selectionnes ne ciblent pas une paire de types compatible.",
+            )
+            return
+
+        obf_msg_name, non_obf_msg_name = resolved_message_pair
         upsert_pinned_field_mapping(
             PINNED_PAIRS_FILE,
             obf_msg_name,
             non_obf_msg_name,
-            obf_field_name,
-            non_obf_field_name,
+            obf_field.field_name,
+            non_obf_field.field_name,
         )
+        obf_field_name = obf_field.path_label
+        non_obf_field_name = non_obf_field.path_label
         QMessageBox.information(
             self,
             "Pinned fields",

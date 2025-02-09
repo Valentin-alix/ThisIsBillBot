@@ -61,9 +61,7 @@ class PlayerFrame(Frame):
             CharacterLevelUpEvent, self.on_character_level_up_event, originator=self
         )
         self.event_manager.before(
-            DialogLeaveRequest,
-            self.before_dialog_leave_request,
-            originator=self,
+            DialogLeaveRequest, self.before_dialog_leave_request, originator=self
         )
 
         self.game_info_signals.connected.connect(self.on_connected)

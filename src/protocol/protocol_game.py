@@ -2,7 +2,6 @@ import datetime
 import json
 import traceback
 from collections.abc import Callable, Mapping
-from functools import cache
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +30,9 @@ RawGameMappings = dict[str, object]
 ProtoToRealMapping = Mapping[str, tuple[str, FieldMappingToReal]]
 ProtoToObfMapping = Mapping[str, tuple[str, FieldMappingToObf]]
 MessageTransformer = Callable[[Message], Message]
+
+_cached_game_mappings: RawGameMappings | None = None
+_cached_game_mappings_mtime_ns: int | None = None
 
 
 def _get_mapping_info(mapping_value: Any) -> dict[str, object]:
@@ -67,13 +69,24 @@ def _is_repeated_field(field_descriptor: FieldDescriptor) -> bool:
     return getattr(field_descriptor, "label") == FieldDescriptor.LABEL_REPEATED
 
 
-@cache
 def _load_game_mappings() -> RawGameMappings:
+    global _cached_game_mappings, _cached_game_mappings_mtime_ns
+
+    current_mtime_ns = _GAME_MAPPINGS_PATH.stat().st_mtime_ns
+    if (
+        _cached_game_mappings is not None
+        and _cached_game_mappings_mtime_ns == current_mtime_ns
+    ):
+        return _cached_game_mappings
+
     with open(_GAME_MAPPINGS_PATH) as f:
         raw_mappings: object = json.load(f)
     typed_mappings = to_str_object_dict(raw_mappings)
     if typed_mappings is None:
         raise TypeError("Invalid game mappings payload")
+
+    _cached_game_mappings = typed_mappings
+    _cached_game_mappings_mtime_ns = current_mtime_ns
     return typed_mappings
 
 

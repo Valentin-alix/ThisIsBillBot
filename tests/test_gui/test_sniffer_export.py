@@ -5,7 +5,9 @@ from src.gui.pages.debugs.sniffer import (
     _extract_obf_msg_name_for_pinned_pair,
     _extract_pinned_pair_names_for_fields,
     _parse_sub_msg_name,
+    _resolve_pinned_field_message_pair,
 )
+from src.gui.pages.debugs.message_detail import SelectedPinnedField
 from src.protocol.message import MessageInfo
 
 
@@ -89,3 +91,15 @@ class TestPinnedPairHelpers(unittest.TestCase):
         )
 
         self.assertIsNone(_extract_pinned_pair_names_for_fields(msg_info))
+
+    def test_resolve_pinned_field_message_pair_uses_root_pair_for_root_fields(
+        self,
+    ) -> None:
+        self.assertEqual(
+            _resolve_pinned_field_message_pair(
+                ("obf.Msg", "ClearMsg"),
+                SelectedPinnedField(None, "a", ("a",)),
+                SelectedPinnedField(None, "field_a", ("field_a",)),
+            ),
+            ("obf.Msg", "ClearMsg"),
+        )

@@ -87,7 +87,7 @@ class TestCraftAndStorageBehavior(StateTestBase):
         load_from_bank_behavior = self.sale_hotel_behavior.load_from_bank_behavior
         self.game_state.inventory.weight_max = 1000
         self.game_state.inventory.inventory_weight = 0
-        self.game_state.inventory.bank_object_by_gid[303] = ObjectItemInventory(
+        self.game_state.inventory.bank_objects_by_uid[1] = ObjectItemInventory(
             item=ObjectItem(uid=1, gid=303, quantity=150)
         )
         request = LoadItemInfo(item_gid=303, remaining_quantity=150, tab=0)

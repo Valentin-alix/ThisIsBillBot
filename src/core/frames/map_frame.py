@@ -109,7 +109,7 @@ class MapFrame(Frame):
         return msg
 
     def before_map_change_request(self, msg: MapChangeRequest):
-        self.logger.info("Before map change request")
         if not self.game_state.player.is_sub:
+            self.logger.info("Before map change request")
             msg.auto_pilot = False
         return msg

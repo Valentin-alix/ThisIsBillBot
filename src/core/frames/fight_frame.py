@@ -7,8 +7,6 @@ from datas.protos.non_obf.game.character_pb2 import (
 from datas.protos.non_obf.game.common_pb2 import FightOutcome, Team
 from datas.protos.non_obf.game.fight_pb2 import (
     FightEndEvent,
-    FightIsTurnReadyEvent,
-    FightLiveStateEvent,
     FightRefreshCharacterStatsEvent,
     FightTurnEndEvent,
     FightTurnFinishRequest,
@@ -65,14 +63,8 @@ class FightFrame(Frame):
             originator=self,
         )
         self.event_manager.on(
-            [FightTurnStartPlayingEvent, FightIsTurnReadyEvent],
+            FightTurnStartPlayingEvent,
             self.on_fight_turn_start_playing_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            FightLiveStateEvent,
-            self.on_fight_live_state_event,
             originator=self,
             priority=self.priority,
         )
@@ -91,12 +83,6 @@ class FightFrame(Frame):
         self.event_manager.on(
             FightRefreshCharacterStatsEvent,
             self.on_fight_refresh_character_stats_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            CharacterCharacteristicsEvent,
-            self.on_character_characteristics_event,
             originator=self,
             priority=self.priority,
         )
@@ -124,21 +110,6 @@ class FightFrame(Frame):
             originator=self,
             priority=self.priority,
         )
-
-    def on_fight_live_state_event(self, msg: FightLiveStateEvent):
-        for actor_id in list(self.game_state.entity.actor_by_id.keys()):
-            related_entity_state = next(
-                (
-                    entity_state
-                    for entity_state in msg.entities_states
-                    if entity_state.entity_id == actor_id
-                ),
-                None,
-            )
-            if self.game_state.player.character_id != actor_id and (
-                not related_entity_state or related_entity_state.is_dead
-            ):
-                self.game_state.entity.remove_actor(actor_id)
 
     def on_fight_placement_position_request(
         self, msg: FightPlacementPossiblePositionsEvent
@@ -187,9 +158,7 @@ class FightFrame(Frame):
             return None
         return msg
 
-    def on_fight_turn_start_playing_event(
-        self, msg: FightTurnStartPlayingEvent | FightIsTurnReadyEvent
-    ):
+    def on_fight_turn_start_playing_event(self, msg: FightTurnStartPlayingEvent):
         self.game_state.fight.count_casted_by_spell_id_on_current_turn.clear()
         self.game_state.fight.is_our_turn = True
         self.game_state.fight.fight_turn += 1
@@ -253,10 +222,23 @@ class FightFrame(Frame):
         self.logger.info(f"Unique monster group name_id attacked : {unique_name_id}")
 
         did_won = next(
-            team_outcome.outcome == FightOutcome.RESULT_VICTORY
-            for team_outcome in msg.named_party_teams_outcomes
-            if team_outcome.team.team == Team.TEAM_CHALLENGER
+            (
+                team_outcome.outcome == FightOutcome.RESULT_VICTORY
+                for team_outcome in msg.named_party_teams_outcomes
+                if team_outcome.team.team == Team.TEAM_CHALLENGER
+            ),
+            None,
         )
+        if did_won is None:
+            did_won = next(
+                (
+                    res.outcome == FightOutcome.RESULT_VICTORY
+                    for res in msg.results
+                    if self.game_state.player.character_id
+                    == res.fighter_list_entry.fighter_id
+                )
+            )
+
         if did_won:
             return ForbiddenMonsterController().reset_defeat_count(
                 unique_name_id, self.logger

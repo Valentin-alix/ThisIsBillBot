@@ -29,27 +29,23 @@ class BankChestFrame(MixinStorage):
     @override
     def set_objects(self, objects_item_inventory: Iterable[ObjectItemInventory]):
         objects = list(objects_item_inventory)
-        self.game_state.inventory.bank_object_by_gid = {
-            item.item.gid: item for item in objects
+        self.game_state.inventory.bank_objects_by_uid = {
+            item.item.uid: item for item in objects
         }
         self.game_state.inventory.inventory_signals.bank_refreshed.emit(objects)
 
     @override
     def set_object(self, object_item_inventory: ObjectItemInventory):
-        self.game_state.inventory.bank_object_by_gid[object_item_inventory.item.gid] = (
-            object_item_inventory
-        )
+        self.game_state.inventory.bank_objects_by_uid[
+            object_item_inventory.item.uid
+        ] = object_item_inventory
         self.game_state.inventory.inventory_signals.bank_item_updated.emit(
             object_item_inventory
         )
 
     @override
     def remove_object(self, uid: int):
-        gid_to_delete: int | None = None
-        for gid, object_item in self.game_state.inventory.bank_object_by_gid.items():
-            if object_item.item.uid == uid:
-                gid_to_delete = gid
-        if gid_to_delete is None:
+        if uid not in self.game_state.inventory.bank_objects_by_uid:
             raise ValueError(f"{uid} not found in bank storage")
-        del self.game_state.inventory.bank_object_by_gid[gid_to_delete]
+        del self.game_state.inventory.bank_objects_by_uid[uid]
         self.game_state.inventory.inventory_signals.bank_item_removed.emit(uid)

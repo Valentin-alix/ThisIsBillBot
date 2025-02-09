@@ -24,6 +24,8 @@ class GameInfoSignals(QObject):
     last_time_updated_prices = pyqtSignal(datetime.datetime)
     fight_turn = pyqtSignal(int)
     fight_completed = pyqtSignal(int)
+    action_points = pyqtSignal(int)
+    movement_points = pyqtSignal(int)
 
 
 class InventorySignals(QObject):
