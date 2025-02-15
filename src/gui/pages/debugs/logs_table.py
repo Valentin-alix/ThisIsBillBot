@@ -47,7 +47,9 @@ class LogsTable(BaseTableWidget):
     def add_row(self, level: LogLevel, msg: str) -> None:
         type_text = QStandardItem(level.name)
         msg_text = QStandardItem(msg)
-        time_text = QStandardItem(datetime.now().strftime("%H:%M:%S"))
+        logged_at = datetime.now()
+        time_text = QStandardItem(logged_at.strftime("%H:%M:%S"))
+        time_text.setData(logged_at, Qt.ItemDataRole.UserRole)
 
         # use buffered append to insert logs in batches
         self.table.append_row([time_text, type_text, msg_text])

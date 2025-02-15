@@ -226,7 +226,9 @@ class MainWindow(AppFluentWindow):
                 super().__init__(isSelectable=False, parent=parent)
                 layout = QHBoxLayout(self)
                 layout.setContentsMargins(12, 0, 12, 0)
-                self.button = PrimaryPushButton(FluentIcon.SYNC, "Sync")
+                self.button = PrimaryPushButton(
+                    FluentIcon.SYNC, "Synchronisez les comptes"
+                )
                 layout.addWidget(self.button)
 
         self.sync_widget = SyncButtonWidget(self)

@@ -101,15 +101,15 @@ class MapFrame(Frame):
         self.game_state.map.is_in_map_transition = False
 
     def before_map_movement_confirm_request(self, msg: MapMovementConfirmRequest):
-        self.logger.info(
-            f"Before map movement confirm request, is playing: {self.is_playing_event.is_set()}"
-        )
         if self.is_playing_event.is_set():
+            self.logger.info(
+                "Canceling client map movement confirm response to avoid duplicate"
+            )
             return None
         return msg
 
     def before_map_change_request(self, msg: MapChangeRequest):
         if not self.game_state.player.is_sub:
-            self.logger.info("Before map change request")
+            self.logger.info("Altering map change request auto_pilot set to False")
             msg.auto_pilot = False
         return msg

@@ -10,5 +10,17 @@
     "pc_id": 2,
     "schedule_profile": null,
     "connection_mode": "mitm"
+  },
+  "CertUser3820": {
+    "network_interface": null,
+    "pc_id": 2,
+    "schedule_profile": null,
+    "connection_mode": "mitm"
+  },
+  "CertUser4858": {
+    "network_interface": null,
+    "pc_id": 2,
+    "schedule_profile": null,
+    "connection_mode": "socket"
   }
 }

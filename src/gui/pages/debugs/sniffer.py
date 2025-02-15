@@ -1,9 +1,14 @@
 import json
 from datetime import datetime
 from functools import partial
-from typing import Any, cast
+from typing import Any, Literal, TypedDict, cast
 
+from consts import PINNED_PAIRS_FILE
 from google.protobuf.descriptor import Descriptor
+from proto_mapper_assembly.interfaces.pinned_pairs import (
+    upsert_pinned_field_mapping,
+    upsert_pinned_pair,
+)
 from PyQt6.QtCore import QModelIndex, QStringListModel, Qt, pyqtSlot
 from PyQt6.QtWidgets import (
     QCompleter,
@@ -23,11 +28,6 @@ from qfluentwidgets import (
     PrimaryPushButton,
     SegmentedWidget,
     SubtitleLabel,
-)
-from consts import PINNED_PAIRS_FILE
-from proto_mapper_assembly.interfaces.pinned_pairs import (
-    upsert_pinned_field_mapping,
-    upsert_pinned_pair,
 )
 
 from src.core.bot.bot import Bot
@@ -49,6 +49,32 @@ def _require_message_info(value: object) -> MessageInfo:
     if not isinstance(value, MessageInfo):
         raise TypeError("Expected a MessageInfo payload in the message table model")
     return value
+
+
+def _require_datetime(value: object) -> datetime:
+    if not isinstance(value, datetime):
+        raise TypeError("Expected a datetime payload in the logs table model")
+    return value
+
+
+class DebugLogEntry(TypedDict):
+    categorie: Literal["log"]
+    datetime: str
+    niveau: str
+    message: str
+
+
+class DebugMessageEntry(TypedDict):
+    categorie: Literal["message"]
+    datetime: str
+    origine: str
+    type_non_obfusque: str
+    type_obfusque: str | None
+    contenu_obfusque: dict[str, Any] | None
+    contenu_non_obfusque: dict[str, Any] | None
+
+
+DebugEntry = DebugLogEntry | DebugMessageEntry
 
 
 def _parse_sub_msg_name(sub_msg_name: str) -> tuple[str | None, str]:
@@ -75,6 +101,28 @@ def _extract_pinned_pair_names_for_fields(
     if obf_msg_name is None:
         return None
     return obf_msg_name, non_obf_msg_name
+
+
+def _debug_message_entry(msg_info: MessageInfo) -> DebugMessageEntry:
+    obf_type, decoded_type = _parse_sub_msg_name(msg_info.sub_msg_name)
+    return {
+        "categorie": "message",
+        "datetime": msg_info.received_time.isoformat(),
+        "origine": "Serveur" if msg_info.from_server else "Client",
+        "type_non_obfusque": decoded_type,
+        "type_obfusque": obf_type,
+        "contenu_obfusque": msg_info.obf_msg_json,
+        "contenu_non_obfusque": msg_info.msg_json,
+    }
+
+
+def _debug_log_entry(logged_at: datetime, level: str, message: str) -> DebugLogEntry:
+    return {
+        "categorie": "log",
+        "datetime": logged_at.isoformat(),
+        "niveau": level,
+        "message": message,
+    }
 
 
 def _find_obf_game_message_descriptor(name: str | None) -> Descriptor | None:
@@ -201,10 +249,8 @@ class SnifferWidget(QWidget):
         self.stop_btn.clicked.connect(self.on_stop)
         top_content_layout.addWidget(self.stop_btn)
 
-        export_btn = PrimaryPushButton(
-            FluentIcon.SAVE, "Exporter les messages", top_content
-        )
-        export_btn.clicked.connect(self.on_export_messages)
+        export_btn = PrimaryPushButton(FluentIcon.SAVE, "Exporter debug", top_content)
+        export_btn.clicked.connect(self.on_export_debug)
         top_content_layout.addWidget(export_btn)
 
     def init_content(self) -> None:
@@ -349,34 +395,43 @@ class SnifferWidget(QWidget):
         self.play_btn.show()
 
     @pyqtSlot()
-    def on_export_messages(self) -> None:
+    def on_export_debug(self) -> None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        default_filename = f"sniffer_{timestamp}.json"
+        default_filename = f"debug_{timestamp}.json"
 
         file_path, _ = QFileDialog.getSaveFileName(
-            self, "Exporter les messages", default_filename, "Fichiers JSON (*.json)"
+            self, "Exporter debug", default_filename, "Fichiers JSON (*.json)"
         )
         if not file_path:
             return
 
-        model = self.msg_table.table.item_model
-        entries: list[dict[str, object]] = []
-
-        for row in range(model.rowCount()):
+        entries: list[DebugEntry] = []
+        msg_model = self.msg_table.table.item_model
+        for row in range(msg_model.rowCount()):
             msg_info = _require_message_info(
-                model.data(model.index(row, 4), Qt.ItemDataRole.UserRole)
+                msg_model.data(msg_model.index(row, 4), Qt.ItemDataRole.UserRole)
             )
-            obf_type, decoded_type = _parse_sub_msg_name(msg_info.sub_msg_name)
-            entries.append(
-                {
-                    "heure": msg_info.received_time.strftime("%H:%M:%S"),
-                    "origine": "Serveur" if msg_info.from_server else "Client",
-                    "type_non_obfusque": decoded_type,
-                    "type_obfusque": obf_type,
-                    "contenu_obfusque": msg_info.obf_msg_json,
-                    "contenu_non_obfusque": msg_info.msg_json,
-                }
-            )
+            entries.append(_debug_message_entry(msg_info))
+
+        if self.logs_widget is not None:
+            log_model = self.logs_widget.logs_table.table.item_model
+            for row in range(log_model.rowCount()):
+                logged_at = _require_datetime(
+                    log_model.data(log_model.index(row, 0), Qt.ItemDataRole.UserRole)
+                )
+                level = log_model.data(
+                    log_model.index(row, 1), Qt.ItemDataRole.DisplayRole
+                )
+                message = log_model.data(
+                    log_model.index(row, 2), Qt.ItemDataRole.DisplayRole
+                )
+                if not isinstance(level, str) or not isinstance(message, str):
+                    raise TypeError(
+                        "Expected string log values in the logs table model"
+                    )
+                entries.append(_debug_log_entry(logged_at, level, message))
+
+        entries.sort(key=lambda entry: entry["datetime"])
 
         with open(file_path, "w", encoding="utf-8") as file:
             json.dump(entries, file, ensure_ascii=False, indent=2)

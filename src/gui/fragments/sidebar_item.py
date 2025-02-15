@@ -2,7 +2,14 @@ import os
 
 from PyQt6.QtCore import QMargins, QPoint, QRect, Qt, pyqtSignal
 from PyQt6.QtGui import QColor, QCursor, QIcon, QPainter, QPaintEvent
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QSpacerItem, QWidget
+from PyQt6.QtWidgets import (
+    QHBoxLayout,
+    QLabel,
+    QSizePolicy,
+    QSpacerItem,
+    QVBoxLayout,
+    QWidget,
+)
 from qfluentwidgets import (
     BodyLabel,
     ComboBox,
@@ -40,59 +47,69 @@ class SidebarItem(NavigationWidget):
         self.bot_signals = bot_signals
         self.in_fight: bool = False
         self._is_playing: bool = False
-        self.main_layout = QHBoxLayout()
+        self.main_layout = QVBoxLayout()
         self.main_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+
+        self.header_layout = QHBoxLayout()
+        self.header_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.header_layout.setContentsMargins(4, 0, 12, 0)
+
+        self.controls_layout = QHBoxLayout()
+        self.controls_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+
         self.setLayout(self.main_layout)
+        self.main_layout.addLayout(self.header_layout)
+        self.main_layout.addLayout(self.controls_layout)
 
         self._left_icon = QLabel(self)
         self._left_icon.setPixmap(toQIcon(left_icon).pixmap(16))
-        self.main_layout.addWidget(self._left_icon)
+        self.header_layout.addWidget(self._left_icon)
 
         self._title = BodyLabel(title, self)
-        self.main_layout.addWidget(self._title)
+        self.header_layout.addWidget(self._title)
 
         spacer = QSpacerItem(
             0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
         )
-        self.main_layout.addItem(spacer)
+        self.header_layout.addItem(spacer)
 
         self._right_icon = QLabel(self)
         battle_icon = QIcon(os.path.join(RESOURCE_FOLDER, "icons", "combat.png"))
         self._right_icon.setPixmap(battle_icon.pixmap(16))
         self._right_icon.hide()
-        self.main_layout.addWidget(self._right_icon)
+        self.header_layout.addWidget(self._right_icon)
 
         self._play_btn = TransparentToolButton(FluentIcon.PLAY, self)
         self._play_btn.setFixedSize(24, 24)
         self._play_btn.clicked.connect(self.on_click_play)
         self.bot_signals.play.connect(self.on_play)
-        self.main_layout.addWidget(self._play_btn)
+        self.header_layout.addWidget(self._play_btn)
 
         self._stop_btn = TransparentToolButton(FluentIcon.PAUSE, self)
         self._stop_btn.setFixedSize(24, 24)
         self._stop_btn.clicked.connect(self.on_click_stop)
         self.bot_signals.stop.connect(self.on_stop)
         self._stop_btn.hide()
-        self.main_layout.addWidget(self._stop_btn)
+        self.header_layout.addWidget(self._stop_btn)
 
         self._profile_combo = ComboBox(self)
         self._profile_combo.setFixedWidth(100)
         self._profile_combo.currentIndexChanged.connect(self._on_profile_changed)
-        self.main_layout.addWidget(self._profile_combo)
+        self.controls_layout.addWidget(self._profile_combo)
 
         self._network_combo = ComboBox(self)
         self._network_combo.setFixedWidth(100)
         self._network_combo.currentIndexChanged.connect(
             self._on_network_interface_changed
         )
-        self.main_layout.addWidget(self._network_combo)
+        self.controls_layout.addWidget(self._network_combo)
 
         self._mode_combo = ComboBox(self)
         self._mode_combo.setFixedWidth(100)
-        self._mode_combo.addItem("MITM", userData="mitm")
+        self._mode_combo.addItem("Mitm", userData="mitm")
         self._mode_combo.addItem("Socket", userData="socket")
         self._mode_combo.currentIndexChanged.connect(self._on_mode_changed)
-        self.main_layout.addWidget(self._mode_combo)
+        self.controls_layout.addWidget(self._mode_combo)
 
     def show_battle_icon(self, show: bool) -> None:
         self.in_fight = show
@@ -108,6 +125,7 @@ class SidebarItem(NavigationWidget):
 
         self.isCompacted = isCompacted
         if isCompacted:
+            self.header_layout.setContentsMargins(0, 0, 0, 0)
             self.setFixedSize(40, 48)
             self._title.hide()
             self._right_icon.hide()
@@ -117,7 +135,8 @@ class SidebarItem(NavigationWidget):
             self._network_combo.hide()
             self._mode_combo.hide()
         else:
-            self.setFixedSize(self.EXPAND_WIDTH, 48)
+            self.header_layout.setContentsMargins(4, 0, 12, 0)
+            self.setFixedSize(self.EXPAND_WIDTH, 96)
             self._title.show()
             if self.in_fight:
                 self._right_icon.show()
@@ -238,7 +257,9 @@ class SidebarItem(NavigationWidget):
 
             # draw indicator
             painter.setBrush(themeColor())
-            painter.drawRoundedRect(pl, 10, 3, 16, 1.5, 1.5)
+            indicator_height = max(16, int(self.height() * 0.65))
+            indicator_top = (self.height() - indicator_height) // 2
+            painter.drawRoundedRect(pl, indicator_top, 3, indicator_height, 1.5, 1.5)
         elif self.isEnter and self.isEnabled() and globalRect.contains(QCursor.pos()):
             painter.setBrush(QColor(c, c, c, 10))
             painter.drawRoundedRect(self.rect(), 5, 5)

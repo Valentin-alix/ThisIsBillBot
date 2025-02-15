@@ -3,7 +3,6 @@ from dataclasses import dataclass, field
 from threading import _RLock as RLock
 from typing import Callable, TypeVar, cast
 
-from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 
 from src.core.events_manager.listener import Listener
@@ -76,9 +75,6 @@ class EventManager(ContextualLogger):
             self.signals.listeners_removed.emit(listeners_to_remove)
 
     def process_msg(self, msg: Message) -> None:
-        self.logger.debug(
-            f"Received msg {msg.__class__.__name__}, content : {MessageToDict(msg)}"
-        )
         with self.lock:
             related_listeners = self.listeners_by_type_msg.get(msg.__class__, [])
             related_listeners.sort(key=lambda listener: listener.priority)
