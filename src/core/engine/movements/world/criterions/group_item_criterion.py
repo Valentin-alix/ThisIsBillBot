@@ -6,7 +6,7 @@ from src.core.engine.movements.world.criterions.interface_item_criterion import 
 from src.core.engine.movements.world.criterions.item_criterion_factory import (
     ItemCriterionFactory,
 )
-from src.core.states.game_state import GameState
+from src.core.engine.contexts import CriterionContext
 
 
 @dataclass
@@ -75,7 +75,7 @@ class GroupItemCriterion(IItemCriterion):
                 return pos
         return len(self.criterion)
 
-    def is_respected(self, game_state: GameState) -> bool:
+    def is_respected(self, context: CriterionContext) -> bool:
         if len(self.items_criterion) == 0:
             return True
 
@@ -83,16 +83,16 @@ class GroupItemCriterion(IItemCriterion):
             item_criterion = self.items_criterion[0]
             if item_criterion is None:
                 return False
-            return item_criterion.is_respected(game_state)
+            return item_criterion.is_respected(context)
 
         if len(self.operators) > 0 and self.operators[0] == "|":
             for criterion in self.items_criterion:
-                if criterion is not None and criterion.is_respected(game_state):
+                if criterion is not None and criterion.is_respected(context):
                     return True
             return False
 
         for criterion in self.items_criterion:
-            if criterion is None or not criterion.is_respected(game_state):
+            if criterion is None or not criterion.is_respected(context):
                 return False
 
         return True

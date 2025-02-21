@@ -140,7 +140,9 @@ class CollectBehavior(Behavior):
 
         self.logger.debug(f"Looking around at cell {adjacent_cell.cell_id}")
         look_path = self.path_finding.find_path(
-            self.game_state.map.map_point, {adjacent_cell}
+            self.game_state.get_map_movement_context(),
+            self.game_state.map.map_point,
+            {adjacent_cell},
         )
         if look_path.end.cell_id != adjacent_cell.cell_id:
             return self.run_timer(
@@ -180,7 +182,9 @@ class CollectBehavior(Behavior):
             frontier = next_frontier
 
         for mp in candidates:
-            path = self.path_finding.find_path(current_mp, {mp})
+            path = self.path_finding.find_path(
+                self.game_state.get_map_movement_context(), current_mp, {mp}
+            )
             if path.end.cell_id == mp.cell_id:
                 reachable_cells.append(mp)
 
@@ -195,6 +199,7 @@ class CollectBehavior(Behavior):
         near_coll_info: tuple[MovementPath, Collectable, float] | None = None
         for collectable in collectables:
             coll_move_path = self.path_finding.get_interactive_near_path(
+                self.game_state.get_map_movement_context(),
                 self.game_state.map.map_point,
                 collectable.mp,
                 skill_ids=[collectable.skill.skill_id],

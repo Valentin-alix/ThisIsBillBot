@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Callable
 
-from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
 from datas.protos.non_obf.game.common_pb2 import (
     CharacterCharacteristic,
     CharacterCharacteristicDetailed,
@@ -11,6 +10,7 @@ from datas.protos.non_obf.game.fight_pb2 import (
     FightTurnEndEvent,
     FightTurnFinishRequest,
 )
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_movement_behavior import FightMovementBehavior
@@ -46,9 +46,11 @@ class FightTurnBehavior(Behavior):
         self.find_and_do_attack()
 
     def find_and_do_attack(self) -> None:
-        attack_info = self.attacker.find_best_attack_from_mp()
+        attack_info = self.attacker.find_best_attack_from_mp(
+            self.game_state.get_attack_context()
+        )
         if attack_info is None:
-            self.logger.info(f"Breed id : {self.game_state.fight.breed_id}")
+            self.logger.info("Attack not found")
             if DO_RUNAWAY_AFTER_ATK and self.did_attack:
                 self.logger.info("Go go run away")
                 run_away = True
@@ -74,6 +76,7 @@ class FightTurnBehavior(Behavior):
         move_mp, spell_lvl, attack_mp = attack_info
 
         move_path = self.path_finding.find_path(
+            self.game_state.get_map_movement_context(),
             self.game_state.map.map_point,
             {move_mp},
             allow_diag=False,

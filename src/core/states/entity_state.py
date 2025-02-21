@@ -1,16 +1,15 @@
 from dataclasses import dataclass, field
 from typing import Iterable, cast
 
-from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
-from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     Direction,
     EntityDisposition,
 )
 from datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 
-from src.core.engine.fights.fight_actor import FightActor
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
 from src.core.engine.monsters.monster_group import (
     MonsterGroup,
@@ -38,6 +37,12 @@ class ActorByMpDict(dict[MapPoint, ActorByIdDict]):
     def is_entity_actor_on_cell_id(self, cell_id: int) -> bool:
         actors_on_mp = self.get(MapPoint.from_cell_id(cell_id))
         return actors_on_mp is not None and len(actors_on_mp) > 0
+
+
+@dataclass
+class FightActor:
+    life_point: int
+    is_summoned: bool
 
 
 @dataclass

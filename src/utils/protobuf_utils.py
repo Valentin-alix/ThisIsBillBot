@@ -3,7 +3,6 @@ from __future__ import annotations
 import importlib
 import pkgutil
 from collections.abc import Mapping
-from dataclasses import is_dataclass
 from datetime import datetime
 from typing import TypedDict, cast
 
@@ -11,9 +10,9 @@ from google.protobuf.descriptor import Descriptor
 from google.protobuf.json_format import Parse
 from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
+from python_utils.json_types import to_object_list, to_str_object_dict
 
 from src.protocol.protocol_game import POOL
-from python_utils.json_types import to_object_dict, to_object_list, to_str_object_dict
 
 GAME_PROTO_PKG = "d3_mapping.resources.protos.game"
 
@@ -133,29 +132,3 @@ def _restore_dict_instance(
 
     restored.update(data)
     return restored
-
-
-def apply_dict_to_dataclass(obj: object, data: Mapping[str, object]) -> None:
-    for key, value in data.items():
-        if hasattr(obj, key):
-            current = getattr(obj, key)
-            nested_value = to_str_object_dict(value)
-            if is_dataclass(current) and nested_value is not None:
-                apply_dict_to_dataclass(current, nested_value)
-            else:
-                converted_value: object = _convert_from_serialized(value)
-                typed_current = to_object_dict(current)
-                typed_converted_value = to_object_dict(converted_value)
-                if typed_current is not None and typed_converted_value is not None:
-                    if type(current) is not dict:
-                        current_object = cast(object, current)
-                        current_class = type(current_object)
-                        converted_value = _restore_dict_instance(
-                            current_class,
-                            typed_current,
-                            typed_converted_value,
-                        )
-                setattr(obj, key, converted_value)
-        else:
-            # create attribute if missing
-            setattr(obj, key, _convert_from_serialized(value))

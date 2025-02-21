@@ -1,8 +1,12 @@
+import atexit
 import datetime
 import json
+import signal
+import sys
 import traceback
 from collections.abc import Callable, Mapping
 from pathlib import Path
+from types import TracebackType
 from typing import Any
 
 from consts import GAME_MAPPINGS_JSON_FILE
@@ -13,17 +17,36 @@ from google.protobuf.descriptor import Descriptor, FieldDescriptor
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
-
-from src.controller.instancied_msg_info_controller import (
-    InstanciedMessageInfoController,
-)
-from src.protocol.message import MessageInfo
+from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 from python_utils.json_types import to_str_object_dict
+
+from src.protocol.message import MessageInfo
 
 TYPE_URL_PREFIX = "type.ankama.com/"
 _GAME_MAPPINGS_PATH = Path(GAME_MAPPINGS_JSON_FILE)
 
+
+def _on_exit(*_: object) -> None:
+    RuntimeDataStore().write_captured_content()
+
+
+_default_excepthook = sys.excepthook
+
+
+def _on_except_hook(
+    exc_type: type[BaseException], value: BaseException, tb: TracebackType | None
+) -> None:
+    _on_exit()
+    _default_excepthook(exc_type, value, tb)
+
+
+sys.excepthook = _on_except_hook
+signal.signal(signal.SIGTERM, _on_exit)
+signal.signal(signal.SIGINT, _on_exit)
+atexit.register(_on_exit)
+
 POOL: descriptor_pool.DescriptorPool = descriptor_pool.Default()
+
 FieldMappingToReal = Mapping[str, str | None]
 FieldMappingToObf = Mapping[str, str]
 RawGameMappings = dict[str, object]
@@ -132,9 +155,7 @@ def get_obf_game_msg_info(
 
     game_msg = game_msg_type()
     game_msg.ParseFromString(content)
-    InstanciedMessageInfoController().add_msg(
-        msg=game_msg, from_server=None, is_game_msg=True
-    )
+    RuntimeDataStore().add_msg(msg=game_msg, from_server=None, is_game_msg=True)
 
     msg_json = MessageToDict(
         game_msg,
@@ -164,7 +185,7 @@ def get_obf_game_msg_info(
         root_msg_any_field.Unpack(sub_msg_content_unpacked)
 
         if do_dump_values:
-            InstanciedMessageInfoController().add_msg(
+            RuntimeDataStore().add_msg(
                 msg=sub_msg_content_unpacked, from_server=from_server, is_game_msg=False
             )
     else:
@@ -192,9 +213,7 @@ def get_game_msg(
     msg.ParseFromString(content)
 
     if do_dump_values:
-        InstanciedMessageInfoController().add_msg(
-            msg, from_server=None, is_game_msg=True
-        )
+        RuntimeDataStore().add_msg(msg, from_server=None, is_game_msg=True)
 
     msg_one_of = next(
         obf_field
@@ -241,7 +260,7 @@ def get_game_msg_info(
     received_msg_time = datetime.datetime.now()
 
     if do_dump_values:
-        InstanciedMessageInfoController().add_msg(
+        RuntimeDataStore().add_msg(
             msg=obf_sub_msg, from_server=from_server, is_game_msg=False
         )
 

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from functools import partial
 from typing import Callable
 
 from dofus_unity_reader.data_center.data_reader import DataReader
@@ -63,10 +62,13 @@ class HarvesterBehavior(BaseFarmBehavior):
         self.random_farm_behavior.init_random_farm(
             area_id,
             sub_area_id,
-            partial(
-                get_harvester_additional_weight_by_map_id,
-                map_ids_to_explore=self.map_ids_to_explore,
-                game_state=self.game_state,
+            lambda map_id: get_harvester_additional_weight_by_map_id(
+                map_id,
+                self.map_ids_to_explore,
+                self.game_state.player.jobs_lvl_by_id,
+                self.game_state.guild_chest.storage.get_all_items_by_gid(),
+                self.game_state.player.is_sub,
+                self.game_state.player.server_id,
             ),
         )
         self.init_listeners()

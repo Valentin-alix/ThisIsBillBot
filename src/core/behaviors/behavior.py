@@ -1,4 +1,3 @@
-from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from threading import Lock, Timer
@@ -11,7 +10,7 @@ from src.core.events_manager.event_manager import EventManager
 from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
 from src.services.human_timings import get_random_range
-from src.services.logging.contextual_logger import ContextualLogger
+from src.services.logging_utils.contextual_logger import ContextualLogger
 
 
 class BehaviorLifecycleError(Exception):
@@ -43,7 +42,7 @@ class RunnableBehavior(Protocol[RunParams]):
 
 
 @dataclass
-class Behavior(ABC, ContextualLogger):
+class Behavior(ContextualLogger):
     event_manager: EventManager
     game_state: GameState
     callback: Callable[..., None] | None = field(init=False, default=None)

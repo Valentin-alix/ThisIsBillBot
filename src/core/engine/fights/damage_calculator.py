@@ -1,59 +1,58 @@
 import math
 from dataclasses import dataclass
 
+from datas.protos.non_obf.game.common_pb2 import (
+    CharacterCharacteristic,
+)
 from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
 from dofus_unity_reader.models.datas.monsters_root import MonsterGrade
 from dofus_unity_reader.models.datas.spell_levels_root import Effect
 
 from src.core.engine.fights.effect import get_stat_by_effect_elem
-from src.core.states.game_state import GameState
+from src.core.engine.fights.stats.characteristic import get_stat_by_id
 
 
 @dataclass
 class DamageCalculator:
-    game_state: GameState
-
     def get_damage_effect(
-        self, effect: Effect, monster_grade: MonsterGrade | None
+        self,
+        effect: Effect,
+        monster_grade: MonsterGrade,
+        characteristic_by_id: dict[int, CharacterCharacteristic],
     ) -> int:
+        """Predict how much dmg an Effect will do to a monster"""
         related_stat = get_stat_by_effect_elem(effect.effectElement)
-        stat_char = self.game_state.fight.get_stat_by_id(related_stat)
-        power = 0
-        fixed_damage = self.game_state.fight.get_stat_by_id(
-            CharacteristicEnum.ALL_DAMAGES_BONUS
-        )
+
+        power = get_stat_by_id(characteristic_by_id.get(CharacteristicEnum.POWER))
+
         match related_stat:
             case CharacteristicEnum.CHANCE:
-                resistance_stat_percent = (
-                    monster_grade.waterResistance if monster_grade else 0
-                )
-                fixed_damage_stat = self.game_state.fight.get_stat_by_id(
-                    CharacteristicEnum.WATER_DAMAGE_BONUS
+                resistance_stat_percent = monster_grade.waterResistance
+                fixed_damage_stat = get_stat_by_id(
+                    characteristic_by_id.get((CharacteristicEnum.WATER_DAMAGE_BONUS))
                 )
             case CharacteristicEnum.AGILITY:
-                resistance_stat_percent = (
-                    monster_grade.airResistance if monster_grade else 0
-                )
-                fixed_damage_stat = self.game_state.fight.get_stat_by_id(
-                    CharacteristicEnum.AIR_DAMAGE_BONUS
+                resistance_stat_percent = monster_grade.airResistance
+                fixed_damage_stat = get_stat_by_id(
+                    characteristic_by_id.get((CharacteristicEnum.AIR_DAMAGE_BONUS))
                 )
             case CharacteristicEnum.STRENGTH:
-                resistance_stat_percent = (
-                    monster_grade.airResistance if monster_grade else 0
-                )
-                fixed_damage_stat = self.game_state.fight.get_stat_by_id(
-                    CharacteristicEnum.EARTH_DAMAGE_BONUS
+                resistance_stat_percent = monster_grade.airResistance
+                fixed_damage_stat = get_stat_by_id(
+                    characteristic_by_id.get((CharacteristicEnum.EARTH_DAMAGE_BONUS))
                 )
             case CharacteristicEnum.INTELLIGENCE:
-                resistance_stat_percent = (
-                    monster_grade.fireResistance if monster_grade else 0
-                )
-                fixed_damage_stat = self.game_state.fight.get_stat_by_id(
-                    CharacteristicEnum.FIRE_DAMAGE_BONUS
+                resistance_stat_percent = monster_grade.fireResistance
+                fixed_damage_stat = get_stat_by_id(
+                    characteristic_by_id.get((CharacteristicEnum.FIRE_DAMAGE_BONUS))
                 )
             case _:
-                resistance_stat_percent = 0
-                fixed_damage_stat = 0
+                return 0
+
+        stat_char = get_stat_by_id(characteristic_by_id.get((related_stat)))
+        fixed_damage = get_stat_by_id(
+            characteristic_by_id.get((CharacteristicEnum.ALL_DAMAGES_BONUS))
+        )
 
         damage = (
             effect.diceNum * (100 + stat_char + power) / 100

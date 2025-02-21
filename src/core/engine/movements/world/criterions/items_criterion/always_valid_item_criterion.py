@@ -1,9 +1,9 @@
+from src.core.engine.contexts import CriterionContext
 from src.core.engine.movements.world.criterions.item_criterion import (
     ItemCriterion,
 )
-from src.core.states.game_state import GameState
 
 
 class AlwaysValidItemCriterion(ItemCriterion):
-    def is_respected(self, game_state: GameState) -> bool:
+    def is_respected(self, context: CriterionContext) -> bool:
         return True

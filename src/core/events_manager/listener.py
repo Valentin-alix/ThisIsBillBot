@@ -6,7 +6,7 @@ from typing import Callable, TypeVar
 from google.protobuf.message import Message
 
 from src.core.events_manager.priority import PriorityEnum
-from src.services.logging.logger import Logger
+from src.services.logging_utils.loggers import BotLogger
 
 T = TypeVar("T", bound=Message)
 
@@ -16,7 +16,7 @@ class Listener[T]:
     msg_type: type[T]
     callback: Callable[[T], None]
     originator: object
-    logger: Logger
+    logger: BotLogger
     once: bool = field(default=False)
     priority: int = field(default=PriorityEnum.NORMAL)
     timeout: float | None = None

@@ -1,10 +1,9 @@
-from enum import IntEnum
+from enum import IntEnum, auto
 
 from src.core.config import BOT_KAMA_LIMIT_TO_GIVE
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.npcs.npc_info import NpcInfo
 from src.core.game_constants import NPCs
-from src.core.states.game_state import GameState
 
 
 class CharacterInventoryPositionEnum(IntEnum):
@@ -78,11 +77,18 @@ class CharacterInventoryPositionEnum(IntEnum):
     InventoryPositionNotEquiped = 63
 
 
-def do_unload_on_mule(game_state: GameState):
-    return game_state.inventory.kamas > BOT_KAMA_LIMIT_TO_GIVE or (
-        not game_state.player.is_sub
-        and game_state.sale_hotel.is_full_object_in_sale_hotel
-        and not game_state.sale_hotel.should_update_price
+class ActionEnum(IntEnum):
+    LINKED_TO_CHARACTER = auto()
+
+
+def do_unload_on_mule(
+    kamas: int,
+    is_sub: bool,
+    is_full_object_in_sale_hotel: bool,
+    should_update_price: bool,
+) -> bool:
+    return kamas > BOT_KAMA_LIMIT_TO_GIVE or (
+        not is_sub and is_full_object_in_sale_hotel and not should_update_price
     )
 
 

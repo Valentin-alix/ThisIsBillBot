@@ -2,17 +2,15 @@ from datetime import datetime
 
 from PyQt6.QtCore import QModelIndex, Qt, pyqtSlot
 from PyQt6.QtGui import QStandardItem
-from PyQt6.QtWidgets import QHeaderView
+from PyQt6.QtWidgets import QHeaderView, QWidget
 from qfluentwidgets import TableWidget
 
 from src.gui.components.qfluent_widget.scrollable_message_box import (
     ScrollableMessageBox,
 )
-from PyQt6.QtWidgets import QWidget
-
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
-from src.services.logging.log_level import LogLevel
+from src.services.logging_utils.log_level import LogLevel
 
 
 def _require_display_text(value: object) -> str:

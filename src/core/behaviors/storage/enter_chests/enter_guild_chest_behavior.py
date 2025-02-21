@@ -54,6 +54,7 @@ class EnterGuildChestBehavior(Behavior):
             raise ValueError("Guild chest cell id is missing")
 
         move_path_to_chest = self.path_finding.find_path(
+            self.game_state.get_map_movement_context(),
             self.game_state.map.map_point,
             {MapPoint.from_cell_id(ref_data.cellId)},
         )

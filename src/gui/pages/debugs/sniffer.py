@@ -5,7 +5,7 @@ from typing import Any, Literal, TypedDict, cast
 
 from consts import PINNED_PAIRS_FILE
 from google.protobuf.descriptor import Descriptor
-from proto_mapper_assembly.interfaces.pinned_pairs import (
+from proto_mapper_assembly.controllers.pinned_pairs import (
     upsert_pinned_field_mapping,
     upsert_pinned_pair,
 )
@@ -31,7 +31,7 @@ from qfluentwidgets import (
 )
 
 from src.core.bot.bot import Bot
-from src.core.signals.global_log_signals import GlobalLogSignals
+from src.core.signals.log_signals import LogSignals
 from src.gui.pages.debugs.listeners_stats import ListenersStatsWidget
 from src.gui.pages.debugs.logs import LogsWidget
 from src.gui.pages.debugs.message_detail import MessageDetailWidget, SelectedPinnedField
@@ -201,7 +201,7 @@ class SnifferWidget(QWidget):
     def __init__(
         self,
         bot: Bot,
-        global_log_signals: GlobalLogSignals,
+        global_log_signals: LogSignals,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)

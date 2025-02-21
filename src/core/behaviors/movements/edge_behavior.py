@@ -51,7 +51,9 @@ class EdgeBehavior(Behavior):
                 f"probably in transition to map id"
             )
             return self.finish(EdgeError.INVALID_STARTING_MAP)
-        transition = get_valid_transition(edge, edge.m_transitions, self.game_state)
+        transition = get_valid_transition(
+            edge, edge.m_transitions, self.game_state.get_world_transition_context()
+        )
         if transition is None:
             return self.finish(EdgeError.NO_VALID_TRANSITION)
 
@@ -135,6 +137,7 @@ class EdgeBehavior(Behavior):
             return self.run_timer(BASE_RANGE, lambda: self.run(edge))
 
         move_path_interactive = self.path_finding.get_interactive_near_path(
+            context=self.game_state.get_map_movement_context(),
             player_mp=self.game_state.map.map_point,
             element_mp=MapPoint.from_cell_id(transition.m_cellId),
             skill_ids=[related_skill.skill_id],
@@ -204,6 +207,7 @@ class EdgeBehavior(Behavior):
 
     def use_map_action_transition(self, edge: Edge, transition: Transition):
         move_path = self.path_finding.find_path(
+            self.game_state.get_map_movement_context(),
             self.game_state.map.map_point,
             {MapPoint.from_cell_id(transition.m_cellId)},
         )
@@ -258,6 +262,7 @@ class EdgeBehavior(Behavior):
 
     def use_map_change_transition(self, edge: Edge, transition: Transition):
         move_path = self.path_finding.find_path(
+            self.game_state.get_map_movement_context(),
             self.game_state.map.map_point,
             {MapPoint.from_cell_id(transition.m_cellId)},
         )

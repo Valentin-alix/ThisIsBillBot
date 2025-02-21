@@ -58,7 +58,9 @@ class ProxyListener(BaseProxyListener):
         if server_socket.getpeername()[0] in CONNECTION_SERVERS_IPS:
             related_bot = self._account_by_connection_port.get(host_port)
             if related_bot is None:
-                logger.warning("Did not find bot for connection port %d", host_port)
+                logger.warning(
+                    "Did not find bot for connection port %d", host_port
+                )
                 return None
 
             def on_game_connection_callback(

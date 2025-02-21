@@ -60,7 +60,12 @@ class BaseFarmBehavior(Behavior, ABC):
         return False
 
     def on_full_pods(self):
-        if do_unload_on_mule(self.game_state):
+        if do_unload_on_mule(
+            self.game_state.inventory.kamas,
+            self.game_state.player.is_sub,
+            self.game_state.sale_hotel.is_full_object_in_sale_hotel,
+            self.game_state.sale_hotel.should_update_price,
+        ):
             self.mule_give_behavior.start(
                 callback=self.on_unloaded_on_mule_finished, parent=self
             )

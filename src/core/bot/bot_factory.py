@@ -119,7 +119,7 @@ from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.signals.world_signals import WorldSignals
 from src.core.states.state_factory import StateFactory
-from src.services.logging.logger import Logger
+from src.services.logging_utils.loggers import BotLogger
 
 
 class BotFactory:
@@ -139,7 +139,7 @@ class BotFactory:
         is_connected_event = threading.Event()
         is_ready_to_play_event = threading.Event()
 
-        logger = Logger(title=account["apikey"]["login"], log_signals=log_signals)
+        logger = BotLogger(title=account["apikey"]["login"], log_signals=log_signals)
 
         event_manager = EventManager(_logger=logger)
 
@@ -152,24 +152,21 @@ class BotFactory:
         )
 
         # logic
-        data_map_provider = DataMapProvider(game_state=game_state)
+        data_map_provider = DataMapProvider()
         path_finding = Pathfinding(
             data_map_provider=data_map_provider,
-            game_state=game_state,
             logger=logger,
         )
-        astar_world = AstarWorld(game_state=game_state)
+        astar_world = AstarWorld()
         world_path_finder = WorldPathFinder(
             path_finding=path_finding,
-            game_state=game_state,
             astar_world=astar_world,
         )
-        fight_reachable_cells = FightReachableCells(game_state=game_state)
-        damage_calculator = DamageCalculator(game_state=game_state)
+        fight_reachable_cells = FightReachableCells()
+        damage_calculator = DamageCalculator()
         attacker = Attacker(
-            game_state=game_state,
             path_finding=path_finding,
-            logger=logger,
+            _logger=logger,
             fight_reachable_cells=fight_reachable_cells,
             damage_calculator=damage_calculator,
         )
@@ -353,7 +350,7 @@ class BotFactory:
             game_state=game_state,
             _logger=logger,
         )
-        astar_allow_havre_sac = AstarAllowHavreSac(game_state=game_state)
+        astar_allow_havre_sac = AstarAllowHavreSac()
         waypoint_behavior = WaypointBehavior(
             event_manager=event_manager,
             interactive_behavior=interactive_behavior,
@@ -474,7 +471,7 @@ class BotFactory:
             load_from_guild_chest_behavior=load_from_guild_chest_behavior,
         )
 
-        weighted_path = WeightedPath(game_state=game_state)
+        weighted_path = WeightedPath()
         random_farm_behavior = RandomFarmBehavior(
             event_manager=event_manager,
             game_state=game_state,

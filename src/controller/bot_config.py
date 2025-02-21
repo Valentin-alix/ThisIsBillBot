@@ -3,27 +3,20 @@ import os
 from threading import RLock
 from typing import Literal
 
+from consts import PC_ID
 from pydantic import BaseModel, RootModel
-
-from src.const import RESOURCE_FOLDER
 from python_utils.singleton import Singleton
 
-
-def _read_int_env(name: str, default: int) -> int:
-    raw_value = os.environ.get(name)
-    if raw_value is None:
-        return default
-    try:
-        return int(raw_value)
-    except ValueError:
-        return default
+from src.const import RESOURCE_FOLDER
+from src.services.hardware_identity import generate_hardware_id
 
 
 class BotConfig(BaseModel):
     network_interface: str | None = None
-    pc_id: int = _read_int_env("PC_ID", 2)
+    pc_id: int = PC_ID
     schedule_profile: str | None = None
     connection_mode: Literal["mitm", "socket"] = "mitm"
+    hardware_id: str | None = None
 
 
 class BotConfigs(RootModel):
@@ -38,18 +31,34 @@ class BotConfigController(metaclass=Singleton):
         with open(self._BOT_CONFIG_PATH, "r") as file:
             return BotConfigs.model_validate(json.load(file)).root
 
+    def _write_all_configs(self, bot_configs: dict[str, BotConfig]) -> None:
+        with open(self._BOT_CONFIG_PATH, "w") as file:
+            json.dump(BotConfigs(root=bot_configs).model_dump(), file, indent=2)
+
     def get_bot_config_by_login(self) -> dict[str, BotConfig]:
         with self._BOT_CONFIG_LOCK:
-            current_pc_id = _read_int_env("PC_ID", -1)
             return {
                 key: value
                 for key, value in self._get_all_configs().items()
-                if value.pc_id == current_pc_id
+                if value.pc_id == PC_ID
             }
 
     def update_bot_config_by_login(self, bot_config: BotConfig, login: str):
         with self._BOT_CONFIG_LOCK:
             all_configs = self._get_all_configs()
             all_configs[login] = bot_config
-            with open(self._BOT_CONFIG_PATH, "w") as file:
-                json.dump(BotConfigs(root=all_configs).model_dump(), file, indent=2)
+            self._write_all_configs(all_configs)
+
+    def get_or_create_hardware_id(self, login: str) -> str:
+        with self._BOT_CONFIG_LOCK:
+            all_configs = self._get_all_configs()
+            bot_config = all_configs.get(login, BotConfig())
+            if bot_config.hardware_id is not None:
+                return bot_config.hardware_id
+
+            hardware_id = generate_hardware_id()
+            all_configs[login] = bot_config.model_copy(
+                update={"hardware_id": hardware_id}
+            )
+            self._write_all_configs(all_configs)
+            return hardware_id

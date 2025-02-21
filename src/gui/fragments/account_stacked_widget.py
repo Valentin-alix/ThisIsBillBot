@@ -4,7 +4,7 @@ from qfluentwidgets import PivotItem, SegmentedWidget
 
 from src import const
 from src.core.bot.bot import Bot
-from src.core.signals.global_log_signals import GlobalLogSignals
+from src.core.signals.log_signals import LogSignals
 from src.gui.pages.craft.craft_page import CraftPage
 from src.gui.pages.debugs.sniffer import SnifferWidget
 from src.gui.pages.farmer.farmer import FarmerWidget
@@ -19,7 +19,7 @@ class AccountStackedWidget(QWidget):
 
     def __init__(
         self,
-        global_log_signals: GlobalLogSignals,
+        global_log_signals: LogSignals,
         login: str,
         bot: Bot,
         parent: QWidget | None = None,

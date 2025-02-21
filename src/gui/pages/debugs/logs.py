@@ -1,16 +1,15 @@
 from PyQt6.QtWidgets import QVBoxLayout, QWidget
 
-from src.core.signals.global_log_signals import GlobalLogSignals
 from src.core.signals.log_signals import LogSignals
 from src.gui.pages.debugs.logs_table import LogsTable
 from src.gui.utils.profiling import profiled_slot
-from src.services.logging.log_level import LogLevel
+from src.services.logging_utils.log_level import LogLevel
 
 
 class LogsWidget(QWidget):
     def __init__(
         self,
-        global_signals: GlobalLogSignals,
+        global_signals: LogSignals,
         log_signals: LogSignals,
         parent: QWidget | None = None,
     ) -> None:

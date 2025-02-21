@@ -10,7 +10,7 @@ from src.core.states.inventory_state import InventoryState
 from src.core.states.map_state import MapState
 from src.core.states.player_state import PlayerState
 from src.core.states.sale_hotel_state import SaleHotelState
-from src.services.logging.logger import Logger
+from src.services.logging_utils.loggers import BotLogger
 
 
 class StateFactory:
@@ -19,7 +19,7 @@ class StateFactory:
         inventory_signals: InventorySignals,
         game_info_signals: GameInfoSignals,
         grid_signals: GridSignals,
-        logger: Logger,
+        logger: BotLogger,
     ):
         entity_state = EntityState(grid_signals=grid_signals, _logger=logger)
         player_state = PlayerState(game_info_signals=game_info_signals, _logger=logger)

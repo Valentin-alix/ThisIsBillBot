@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from dofus_unity_reader.data_center.map_reader import MapReader
 from dofus_unity_reader.enums.directions import DirectionsEnum
@@ -6,35 +6,40 @@ from dofus_unity_reader.grid.consts import MAP_COUNT_CELL, MAP_WIDTH
 from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
 
-from src.core.states.game_state import GameState
+from src.core.engine.contexts import MapMovementContext
 
 TOLERANCE_ELEVATION: int = 11
 
 
 @dataclass
 class DataMapProvider:
-    game_state: GameState
+    context: MapMovementContext | None = field(init=False, default=None)
+
+    def set_context(self, context: MapMovementContext) -> None:
+        self.context = context
+
+    def _get_context(self) -> MapMovementContext:
+        if self.context is None:
+            raise RuntimeError("Map movement context must be set before pathing")
+        return self.context
 
     @property
     def map_data(self):
-        return MapReader().map_by_id(self.game_state.map.map_id)
+        return MapReader().map_by_id(self._get_context().map_id)
 
     def get_cell_data(self, cell_id: int):
         return self.map_data.mapData.cellsData[cell_id]
 
     def can_reach_mp(self, from_mp: MapPoint, to_mp: MapPoint) -> bool:
         """check if mps are on same level"""
+        context = self._get_context()
         from_mp_data = MapReader().get_cell_data_by_cell_id(
-            self.game_state.map.map_id, from_mp.cell_id
+            context.map_id, from_mp.cell_id
         )
-        to_mp_data = MapReader().get_cell_data_by_cell_id(
-            self.game_state.map.map_id, to_mp.cell_id
-        )
+        to_mp_data = MapReader().get_cell_data_by_cell_id(context.map_id, to_mp.cell_id)
         dif_floor = abs(from_mp_data.floor - to_mp_data.floor)
 
-        if MapReader().is_map_using_new_movement_system(
-            self.game_state.map.map_id
-        ) and (
+        if MapReader().is_map_using_new_movement_system(context.map_id) and (
             (to_mp_data.moveZone != from_mp_data.moveZone and dif_floor > 0)
             or (
                 to_mp_data.moveZone == from_mp_data.moveZone
@@ -52,9 +57,10 @@ class DataMapProvider:
         allow_through_entity: bool = True,
         avoid_obstacle: bool = True,
     ):
+        context = self._get_context()
         cell_data = self.get_cell_data(map_point.cell_id)
         mov = bool(cell_data.mov) and not (
-            self.game_state.fight.in_fight and cell_data.nonWalkableDuringFight
+            context.in_fight and cell_data.nonWalkableDuringFight
         )
         if not mov:
             return False
@@ -66,9 +72,7 @@ class DataMapProvider:
                 return False
 
         if avoid_obstacle:
-            related_obstacle = self.game_state.entity.obstacle_on_cell_id.get(
-                map_point.cell_id
-            )
+            related_obstacle = context.obstacle_on_cell_id.get(map_point.cell_id)
             if (
                 related_obstacle
                 and not related_obstacle.state == MapObstacle.OBSTACLE_OPENED
@@ -76,9 +80,7 @@ class DataMapProvider:
                 return False
 
         if not allow_through_entity:
-            if self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(
-                map_point.cell_id
-            ):
+            if map_point.cell_id in context.occupied_cell_ids:
                 return False
 
         return True
@@ -97,9 +99,8 @@ class DataMapProvider:
                 weight += 11 + abs(speed)
 
         else:
-            if self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(
-                mp.cell_id
-            ):
+            context = self._get_context()
+            if mp.cell_id in context.occupied_cell_ids:
                 weight += 0.3
 
             coords: list[tuple[int, int]] = [
@@ -109,8 +110,8 @@ class DataMapProvider:
                 (mp.x, mp.y - 1),
             ]
             for coord_x, coord_y in coords:
-                if self.game_state.entity.actors_on_mp.is_entity_actor_on_cell_id(
-                    MapPoint.from_coords(coord_x, coord_y).cell_id
+                if MapPoint.from_coords(coord_x, coord_y).cell_id in (
+                    context.occupied_cell_ids
                 ):
                     weight += 0.3
 

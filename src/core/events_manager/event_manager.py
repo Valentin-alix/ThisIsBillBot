@@ -9,7 +9,7 @@ from src.core.events_manager.listener import Listener
 from src.core.events_manager.modifier import Modifier
 from src.core.events_manager.priority import PriorityEnum
 from src.core.signals.event_manager_signals import EventManagerSignals
-from src.services.logging.contextual_logger import ContextualLogger
+from src.services.logging_utils.contextual_logger import ContextualLogger
 
 T = TypeVar("T", bound=Message)
 
@@ -32,12 +32,10 @@ class EventManager(ContextualLogger):
         init=False, default=None
     )
     is_socket_mode: bool = field(init=False, default=False)
-    lock: RLock = field(init=False)
-    signals: EventManagerSignals = field(init=False)
-
-    def __post_init__(self) -> None:
-        self.lock = RLock()
-        self.signals = EventManagerSignals()
+    lock: RLock = field(init=False, default_factory=RLock)
+    signals: EventManagerSignals = field(
+        init=False, default_factory=EventManagerSignals
+    )
 
     def clear_listener_by_origin(self, originator: object) -> None:
         self.logger.info(f"Clearing all listener from {originator.__class__.__name__}")

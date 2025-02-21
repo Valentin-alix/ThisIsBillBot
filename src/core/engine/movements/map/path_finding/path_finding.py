@@ -8,14 +8,14 @@ from dofus_unity_reader.enums.directions import DirectionsEnum
 from dofus_unity_reader.enums.skill_enum import SkillEnum
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
 
+from src.core.engine.contexts import MapMovementContext
 from src.core.engine.movements.map.map_data_adapter import DataMapProvider
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
 from src.core.engine.movements.map.path_finding.node_map_point import NodeMapPoint
 from src.core.engine.movements.map.path_finding.path_element import PathElement
 from src.core.signals.world_signals import MapSignals
-from src.core.states.game_state import GameState
-from src.services.logging.logger import Logger
+from src.services.logging_utils.loggers import BotLogger
 
 HV_COST: int = 10
 DIAG_COST: int = 15
@@ -27,8 +27,7 @@ DEBUG_WAIT_TIME: float = 0.01
 @dataclass
 class Pathfinding:
     data_map_provider: DataMapProvider
-    game_state: GameState
-    logger: Logger
+    logger: BotLogger
     debug_signals: MapSignals | None = None
 
     allow_diag: bool = field(init=False, default=True)
@@ -52,11 +51,13 @@ class Pathfinding:
 
     def get_interactive_near_path(
         self,
+        context: MapMovementContext,
         player_mp: MapPoint,
         element_mp: MapPoint,
         skill_ids: list[int],
     ) -> MovementPath | None:
         """get near path for using interactive element"""
+        self.data_map_provider.set_context(context)
         minimal_range = 63
         for skill_id in skill_ids:
             skill_data = DataReader().skill_by_id[skill_id]
@@ -67,7 +68,9 @@ class Pathfinding:
 
         if SkillEnum.EXIT in skill_ids:
             near_mps = element_mp.side_map_points
-            path_to_element = self.find_path(start=player_mp, ends=near_mps)
+            path_to_element = self.find_path(
+                context=context, start=player_mp, ends=near_mps
+            )
             if path_to_element.end in near_mps:
                 return path_to_element
 
@@ -81,7 +84,9 @@ class Pathfinding:
         if len(near_mps) == 0:
             near_mps = {element_mp}
 
-        path_to_element = self.find_path(start=player_mp, ends=near_mps)
+        path_to_element = self.find_path(
+            context=context, start=player_mp, ends=near_mps
+        )
         if path_to_element.end.distance_to_map_point(element_mp) - 1 > minimal_range:
             return None
 
@@ -97,6 +102,7 @@ class Pathfinding:
 
     def find_path(
         self,
+        context: MapMovementContext,
         start: MapPoint,
         ends: set[MapPoint],
         allow_diag: bool = True,
@@ -104,6 +110,7 @@ class Pathfinding:
         avoid_obstacles: bool = True,
         heuristic_scale: int = HEURISTIC_SCALE,
     ) -> MovementPath:
+        self.data_map_provider.set_context(context)
         if self.debug_signals:
             self.debug_signals.white_cell.emit(start)
             self.debug_signals.red_cells.emit(ends)
@@ -117,11 +124,7 @@ class Pathfinding:
         self.node_by_coord.clear()
         self.is_coord_closed.clear()
 
-        self.occupied_cell_ids = {
-            actor.disposition.cell_id
-            for actor in self.game_state.entity.actor_by_id.values()
-            if actor.disposition.cell_id != -1
-        }
+        self.occupied_cell_ids = set(context.occupied_cell_ids)
 
         self.end_columns = {end.x + end.y for end in ends}
         self.end_lines = {end.x - end.y for end in ends}

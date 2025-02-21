@@ -16,6 +16,9 @@ from scapy.layers.inet6 import IPv6
 from scapy.packet import Packet, Raw
 from scapy.sendrecv import sniff
 
+from src.core.signals.log_signals import LogSignals
+from src.services.logging_utils.loggers import configure_root_logger, init_root_gui_logging
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -26,7 +29,6 @@ configure_project_import_paths(PROJECT_ROOT)
 load_dotenv(ENV_PATH)
 
 from src.core.bot.bot_factory import generate_random_bot
-from src.core.signals.global_log_signals import GlobalLogSignals
 from src.core.signals.message_signals import MessageInfoSignals
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
 from src.gui.pages.debugs.sniffer import SnifferWidget
@@ -40,7 +42,6 @@ from src.protocol.protocol_game import (
     get_game_msg_info,
     get_obf_game_msg_info,
 )
-from src.services.logging.logger import init_gui_global_logging
 from src.utils.network import get_local_ip
 
 FILTER_DOFUS = "tcp port 5555"
@@ -123,13 +124,14 @@ class Sniffer:
 
 
 def main() -> None:
+    configure_root_logger()
     app = QApplication(sys.argv)
     bot = generate_random_bot()
     bot.is_fake = False
     sniffer = Sniffer(msg_info_signals=bot.msg_info_signals, from_obfuscated=True)
     Thread(target=sniffer.launch_sniffer, daemon=True).start()
-    global_signals = GlobalLogSignals()
-    init_gui_global_logging(global_signals)
+    global_signals = LogSignals()
+    init_root_gui_logging(global_signals)
     sniffer_widget = SnifferWidget(bot, global_signals)
     sniffer_widget.resize(BASE_WIDTH, BASE_HEIGHT)
     sniffer_widget.show()

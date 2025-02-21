@@ -9,7 +9,7 @@ from src.core.events_manager.priority import PriorityEnum
 from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.states.game_state import GameState
 from src.services.human_timings import get_random_range
-from src.services.logging.contextual_logger import ContextualLogger
+from src.services.logging_utils.contextual_logger import ContextualLogger
 
 
 @dataclass

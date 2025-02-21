@@ -1,4 +1,3 @@
-import logging
 import sys
 from pathlib import Path
 from time import sleep
@@ -7,6 +6,7 @@ from dotenv import load_dotenv
 from PyQt6.QtCore import Qt
 from qfluentwidgets import Theme, setTheme, setThemeColor
 
+from src.services.logging_utils.loggers import configure_root_logger
 from src.utils.runtime_paths import configure_project_import_paths
 
 meipass = getattr(sys, "_MEIPASS", None)
@@ -16,8 +16,6 @@ else:
     configure_project_import_paths(Path(__file__).resolve().parent)
 
 from src.utils.internet import has_internet_connection
-
-logger = logging.getLogger()
 
 while not has_internet_connection():
     print("waiting for internet connection")
@@ -30,12 +28,11 @@ from src.core.bot.lifecycle.scheduler import run_continuously  # noqa: E402
 from src.core.signals.shared_farm_signals import SharedSignals  # noqa: E402
 from src.gui.application import Application  # noqa: E402
 from src.gui.main_window import MainWindow  # noqa: E402
-from src.services.logging.logger import init_global_logging  # noqa: E402
-
-init_global_logging()
 
 
 def main() -> None:
+    configure_root_logger()
+
     app = Application(sys.argv)
     shared_signals = SharedSignals()
     main_window = MainWindow(title=app.TITLE, shared_signals=shared_signals)

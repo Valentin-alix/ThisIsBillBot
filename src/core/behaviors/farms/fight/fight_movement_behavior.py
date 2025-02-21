@@ -74,6 +74,7 @@ class FightMovementBehavior(Behavior):
                 enemies_by_mp[side_mp_enemy].append(enemy)
 
         move_path = self.path_finding.find_path(
+            self.game_state.get_map_movement_context(),
             start,
             set(enemies_by_mp.keys()),
             allow_trough_entity=False,
@@ -117,7 +118,11 @@ class FightMovementBehavior(Behavior):
 
         self.logger.info(f"enemies mp : {enemies_mp}")
 
-        reachable_mps = self.fight_reachable_cells.search(enemies_mp, entities_mp)
+        reachable_mps = self.fight_reachable_cells.search(
+            self.game_state.get_fight_reachable_context(),
+            enemies_mp,
+            entities_mp,
+        )
         if len(reachable_mps) == 0:
             return None
 
@@ -140,6 +145,7 @@ class FightMovementBehavior(Behavior):
         self.logger.info(f"Found safest cell : {mp_with_safest_coeff}")
 
         move_path = self.path_finding.find_path(
+            self.game_state.get_map_movement_context(),
             self.game_state.map.map_point,
             {mp_with_safest_coeff[0]},
             allow_trough_entity=False,

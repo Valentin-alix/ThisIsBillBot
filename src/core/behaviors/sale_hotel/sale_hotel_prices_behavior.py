@@ -362,7 +362,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
     def update_item_price(self, item_gid: int) -> None:
         self.event_manager.on(
             ExchangeBidPriceEvent,
-            self.on_exchange_bid_price_event,
+            partial(self.on_exchange_bid_price_event, item_gid=item_gid),
             originator=self,
             once=True,
         )
@@ -370,15 +370,15 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
         req = ExchangeBidHousePriceRequest(object_gid=item_gid)
         self.send_message_delayed(req, SMALL_RANGE)
 
-    def on_exchange_bid_price_event(self, msg: ExchangeBidPriceEvent) -> None:
+    def on_exchange_bid_price_event(
+        self, msg: ExchangeBidPriceEvent, item_gid: int
+    ) -> None:
         prices_by_quantity = self._compute_prices_by_quantity(
-            list(msg.bid_price_for_seller.minimal_prices), msg.object_gid
+            list(msg.bid_price_for_seller.minimal_prices), item_gid
         )
 
         related_items = [
-            item
-            for item in self._items_in_sale_hotel
-            if item.item.gid == msg.object_gid
+            item for item in self._items_in_sale_hotel if item.item.gid == item_gid
         ]
         price_cost: float = 0
         requests_modify_price: list[ExchangeObjectModifyPricedRequest] = []

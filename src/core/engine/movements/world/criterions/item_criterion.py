@@ -3,137 +3,137 @@ from typing import Callable
 
 from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
 
+from src.core.engine.contexts import CriterionContext
 from src.core.engine.movements.world.criterions.interface_item_criterion import (
     IItemCriterion,
 )
 from src.core.engine.movements.world.criterions.item_criterion_operator import (
     ItemCriterionOperator,
 )
-from src.core.states.game_state import GameState
 
 
-def _get_criterion_handlers() -> dict[str, Callable[[GameState], int]]:
+def _get_criterion_handlers() -> dict[str, Callable[[CriterionContext], int]]:
     return {
         "Ca": lambda gs: (
-            gs.fight.characteristic_by_id[CharacteristicEnum.AGILITY].detailed.base
+            gs.fight_characteristic_by_id[CharacteristicEnum.AGILITY].detailed.base
         ),
         "CA": lambda gs: (
             (
-                s := gs.fight.characteristic_by_id[CharacteristicEnum.AGILITY]
+                s := gs.fight_characteristic_by_id[CharacteristicEnum.AGILITY]
             ).detailed.base
             + s.detailed.additional
         ),
         "Cc": lambda gs: (
-            gs.fight.characteristic_by_id[CharacteristicEnum.CHANCE].detailed.base
+            gs.fight_characteristic_by_id[CharacteristicEnum.CHANCE].detailed.base
         ),
         "CC": lambda gs: (
             (
-                s := gs.fight.characteristic_by_id[CharacteristicEnum.CHANCE]
+                s := gs.fight_characteristic_by_id[CharacteristicEnum.CHANCE]
             ).detailed.base
             + s.detailed.additional
         ),
         "Ce": lambda gs: (
-            gs.fight.characteristic_by_id[
+            gs.fight_characteristic_by_id[
                 CharacteristicEnum.ENERGY_POINTS
             ].detailed.base
         ),
         "CE": lambda gs: (
             (
-                s := gs.fight.characteristic_by_id[CharacteristicEnum.MAX_ENERGY_POINTS]
+                s := gs.fight_characteristic_by_id[CharacteristicEnum.MAX_ENERGY_POINTS]
             ).detailed.base
             + s.detailed.additional
         ),
         "CH": lambda gs: (
             (
-                s := gs.fight.characteristic_by_id[CharacteristicEnum.HONOUR_POINTS]
+                s := gs.fight_characteristic_by_id[CharacteristicEnum.HONOUR_POINTS]
             ).detailed.base
             + s.detailed.additional
         ),
         "Ci": lambda gs: (
-            gs.fight.characteristic_by_id[CharacteristicEnum.INTELLIGENCE].detailed.base
+            gs.fight_characteristic_by_id[CharacteristicEnum.INTELLIGENCE].detailed.base
         ),
         "CI": lambda gs: (
             (
-                s := gs.fight.characteristic_by_id[CharacteristicEnum.INTELLIGENCE]
+                s := gs.fight_characteristic_by_id[CharacteristicEnum.INTELLIGENCE]
             ).detailed.base
             + s.detailed.additional
         ),
         "CM": lambda gs: (
             (
-                s := gs.fight.characteristic_by_id[CharacteristicEnum.MOVEMENT_POINTS]
+                s := gs.fight_characteristic_by_id[CharacteristicEnum.MOVEMENT_POINTS]
             ).detailed.base
             + s.detailed.additional
         ),
         "CP": lambda gs: (
             (
-                s := gs.fight.characteristic_by_id[CharacteristicEnum.ACTION_POINTS]
+                s := gs.fight_characteristic_by_id[CharacteristicEnum.ACTION_POINTS]
             ).detailed.base
             + s.detailed.additional
         ),
         "Cs": lambda gs: (
-            gs.fight.characteristic_by_id[CharacteristicEnum.STRENGTH].detailed.base
+            gs.fight_characteristic_by_id[CharacteristicEnum.STRENGTH].detailed.base
         ),
         "CS": lambda gs: (
             (
-                s := gs.fight.characteristic_by_id[CharacteristicEnum.STRENGTH]
+                s := gs.fight_characteristic_by_id[CharacteristicEnum.STRENGTH]
             ).detailed.base
             + s.detailed.additional
         ),
         "Cv": lambda gs: (
-            gs.fight.characteristic_by_id[CharacteristicEnum.VITALITY].detailed.base
+            gs.fight_characteristic_by_id[CharacteristicEnum.VITALITY].detailed.base
         ),
         "CV": lambda gs: (
             (
-                s := gs.fight.characteristic_by_id[CharacteristicEnum.VITALITY]
+                s := gs.fight_characteristic_by_id[CharacteristicEnum.VITALITY]
             ).detailed.base
             + s.detailed.additional
         ),
         "Cw": lambda gs: (
-            gs.fight.characteristic_by_id[CharacteristicEnum.WISDOM].detailed.base
+            gs.fight_characteristic_by_id[CharacteristicEnum.WISDOM].detailed.base
         ),
         "CW": lambda gs: (
             (
-                s := gs.fight.characteristic_by_id[CharacteristicEnum.WISDOM]
+                s := gs.fight_characteristic_by_id[CharacteristicEnum.WISDOM]
             ).detailed.base
             + s.detailed.additional
         ),
         "Ct": lambda gs: (
             (
-                s := gs.fight.characteristic_by_id[CharacteristicEnum.TACKLE_EVADE]
+                s := gs.fight_characteristic_by_id[CharacteristicEnum.TACKLE_EVADE]
             ).detailed.base
             + s.detailed.additional
         ),
         "CT": lambda gs: (
             (
-                s := gs.fight.characteristic_by_id[CharacteristicEnum.TACKLE_BLOCK]
+                s := gs.fight_characteristic_by_id[CharacteristicEnum.TACKLE_BLOCK]
             ).detailed.base
             + s.detailed.additional
         ),
         "ca": lambda gs: (
-            gs.fight.characteristic_by_id[
+            gs.fight_characteristic_by_id[
                 CharacteristicEnum.AGILITY
             ].detailed.additional
         ),
         "cc": lambda gs: (
-            gs.fight.characteristic_by_id[CharacteristicEnum.CHANCE].detailed.additional
+            gs.fight_characteristic_by_id[CharacteristicEnum.CHANCE].detailed.additional
         ),
         "ci": lambda gs: (
-            gs.fight.characteristic_by_id[
+            gs.fight_characteristic_by_id[
                 CharacteristicEnum.INTELLIGENCE
             ].detailed.additional
         ),
         "cs": lambda gs: (
-            gs.fight.characteristic_by_id[
+            gs.fight_characteristic_by_id[
                 CharacteristicEnum.STRENGTH
             ].detailed.additional
         ),
         "cv": lambda gs: (
-            gs.fight.characteristic_by_id[
+            gs.fight_characteristic_by_id[
                 CharacteristicEnum.VITALITY
             ].detailed.additional
         ),
         "cw": lambda gs: (
-            gs.fight.characteristic_by_id[CharacteristicEnum.WISDOM].detailed.additional
+            gs.fight_characteristic_by_id[CharacteristicEnum.WISDOM].detailed.additional
         ),
     }
 
@@ -153,9 +153,9 @@ class ItemCriterion(IItemCriterion):
     def __post_init__(self):
         self.get_infos()
 
-    def is_respected(self, game_state: GameState) -> bool:
+    def is_respected(self, context: CriterionContext) -> bool:
         return self.item_operator.compare(
-            self.get_criterion(game_state),
+            self.get_criterion(context),
             self.criterion_value,
         )
 
@@ -176,12 +176,12 @@ class ItemCriterion(IItemCriterion):
             self.criterion_value_text = parts[1]
             break
 
-    def get_criterion(self, game_state: GameState) -> int:
-        if len(game_state.fight.characteristic_by_id.keys()) == 0:
+    def get_criterion(self, context: CriterionContext) -> int:
+        if len(context.fight_characteristic_by_id.keys()) == 0:
             return 0
 
         handler = CRITERION_HANDLERS.get(self.criterion_ref)
         if handler is None:
             return 0
 
-        return handler(game_state)
+        return handler(context)

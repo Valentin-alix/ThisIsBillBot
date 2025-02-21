@@ -9,11 +9,15 @@ from datas.protos.non_obf.game.common_pb2 import (
     SpellModifierType,
 )
 from datas.protos.non_obf.game.spell_pb2 import SpellItem
+from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
 from dofus_unity_reader.enums.effect_element import EffectElement
+from dofus_unity_reader.grid.map_point import MapPoint
 
+from src.core.engine.fights.attack import EnemyData
 from src.core.engine.fights.effect import get_effect_elem_by_stat
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
+from src.core.engine.monsters.monster_group import MonsterFighter
 from src.core.signals.player_signals import GameInfoSignals
 from src.core.states.entity_state import EntityState
 from src.core.states.player_state import PlayerState
@@ -170,6 +174,37 @@ class FightState(State):
         self.logger.info(f"Found {len(enemies)} enemies")
 
         return enemies
+
+    def get_enemies_data(
+        self, enemies: list[ActorPositionInformation]
+    ) -> list[EnemyData]:
+        enemies_data: list[EnemyData] = []
+        for enemy in enemies:
+            enemy_mp = MapPoint.from_cell_id(enemy.disposition.cell_id)
+            actor_fight = self.entity_state.actor_fight_by_id[enemy.actor_id]
+            life_point = actor_fight.life_point
+            is_summoned = actor_fight.is_summoned
+
+            monster_info: MonsterFighter = (
+                enemy.actor_information.fighter.ai_fighter.monster_fighter_information
+            )
+            monster_id = monster_info.monster_gid
+
+            monster = DataReader().monsters_by_id[monster_id]
+            monster_grade = monster.grades[monster_info.creature_grade - 1]
+            max_life_point = monster_grade.lifePoints
+
+            enemies_data.append(
+                EnemyData(
+                    actor=enemy,
+                    map_point=enemy_mp,
+                    life_point=life_point,
+                    max_life_point=max_life_point,
+                    is_summoned=is_summoned,
+                    monster_grade=monster_grade,
+                )
+            )
+        return enemies_data
 
     def set_last_attacked_monster_group(
         self,

@@ -1,18 +1,11 @@
 from dataclasses import dataclass, field
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from datas.protos.non_obf.game.common_pb2 import (
-    ObjectItemInventory,
-)
 from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
 from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeErrorEvent,
     ExchangeKamaModifiedEvent,
     ExchangeLeaveEvent,
     ExchangeMoveKamaRequest,
-    ExchangeObjectMoveRequest,
-    ExchangeObjectsAddedEvent,
-    ExchangeObjectTransferAllFromInventoryRequest,
     ExchangePlayerRequest,
     ExchangeReadyRequest,
     ExchangeStartedWithPodsEvent,
@@ -29,8 +22,6 @@ from src.core.config import (
     MULE_BANK_CHARACTER_IDS,
     MULE_BANK_MAP_ID,
 )
-from src.core.engine.items.item import GATHERER_ITEM_GIDS, is_exchangeable_item
-from src.core.game_constants import Items
 
 
 @dataclass
@@ -101,133 +92,18 @@ class MuleGiveBehavior(Behavior):
         self, msg: ExchangeStartedWithPodsEvent
     ) -> None:
         self._step = 0
-        if self.game_state.player.is_sub:
-            return self.depose_kamas_in_exchange(True)
-
-        possible_mule_weight = [
-            msg.first_character_current_weight,
-            msg.second_character_current_weight,
-            msg.first_character_max_weight,
-            msg.second_character_max_weight,
-        ]
-        possible_mule_weight.remove(self.game_state.inventory.weight_max)
-        possible_mule_weight.remove(self.game_state.inventory.inventory_weight)
-
-        mule_weight = min(possible_mule_weight)
-        max_weight_mule = max(possible_mule_weight)
-
-        mule_weight_remaining = max_weight_mule - mule_weight
-
-        self.logger.info(
-            f"Mule weight remaining : {mule_weight_remaining} with max {max_weight_mule} and curr {mule_weight}"
-        )
-
-        assert mule_weight_remaining >= 0
-
-        if self.game_state.inventory.inventory_weight < mule_weight_remaining:
-            return self.depose_all_objects_in_exchange()
-
-        objects_to_unload = sorted(
-            [
-                object
-                for object in self.game_state.inventory.objects_by_uid.values()
-                if is_exchangeable_item(DataReader().item_by_id[object.item.gid])
-                and object.position == Items.INVENTORY_EQUIPMENT_POSITION
-            ],
-            key=lambda object: object.item.gid in GATHERER_ITEM_GIDS,
-        )
-        if len(objects_to_unload) == 0:
-            return self.depose_kamas_in_exchange(True)
-
-        item_to_exchanges: list[tuple[ObjectItemInventory, int]] = []
-
-        while True:
-            current_object = objects_to_unload.pop()
-            curr_obj_weight = (
-                DataReader().item_by_id[current_object.item.gid].realWeight or 1
-            )
-            self.logger.info(
-                f"treating object {current_object.item.uid} with quantity {current_object.item.quantity}"
-            )
-            self.logger.info(
-                f"mule weight remaining : {mule_weight_remaining} curr obj weight : {curr_obj_weight}"
-            )
-            max_quantity = min(
-                int(mule_weight_remaining / curr_obj_weight),
-                current_object.item.quantity,
-            )
-            if max_quantity == 0:
-                break
-            item_to_exchanges.append((current_object, max_quantity))
-            if (
-                max_quantity < current_object.item.quantity
-                or len(objects_to_unload) == 0
-            ):
-                break
-            mule_weight_remaining -= max_quantity * curr_obj_weight
-
-        if len(item_to_exchanges) == 0:
-            return self.depose_kamas_in_exchange(False)
-
-        self.depose_objects_in_exchange(item_to_exchanges)
-
-    def depose_all_objects_in_exchange(self) -> None:
-        self.event_manager.on(
-            ExchangeObjectsAddedEvent,
-            callback=self.on_objects_deposed_after_transfer_all,
-            originator=self,
-            once=True,
-            override_on_self=True,
-            timeout=8,
-            on_timeout=self.on_timeout_deposed_all_objects_in_exchange,
-        )
-        req = ExchangeObjectTransferAllFromInventoryRequest()
-        self.send_message_delayed(req, BASE_RANGE)
-
-    def on_objects_deposed_after_transfer_all(
-        self, msg: ExchangeObjectsAddedEvent
-    ) -> None:
-        self._step += 1
-        self.depose_kamas_in_exchange(True)
-
-    def on_timeout_deposed_all_objects_in_exchange(self) -> None:
-        self.unregister_listener(
-            ExchangeObjectsAddedEvent,
-            reason="Timeout waiting for exchange objects, proceeding with kamas",
-        )
-        self.depose_kamas_in_exchange(True)
-
-    def depose_objects_in_exchange(
-        self, item_to_exchanges: list[tuple[ObjectItemInventory, int]]
-    ) -> None:
-        if len(item_to_exchanges) == 0:
-            return self.depose_kamas_in_exchange(False)
-        next_object, quantity = item_to_exchanges.pop(0)
-        self.event_manager.on(
-            ExchangeObjectsAddedEvent,
-            callback=lambda _: self.depose_objects_in_exchange(item_to_exchanges),
-            originator=self,
-            once=True,
-            override_on_self=True,
-        )
-        self._step += 1
-        req = ExchangeObjectMoveRequest(
-            object_uid=next_object.item.uid, quantity=quantity
-        )
-        self.send_message_delayed(req, BASE_RANGE)
+        return self.depose_kamas_in_exchange(True)
 
     def depose_kamas_in_exchange(self, did_full_unload: bool) -> None:
         kamas_to_gives = self.game_state.inventory.kamas - BOT_MINIMAL_KAMAS
         if kamas_to_gives <= 0:
-            if self._step == 0:
-                self.event_manager.on(
-                    ExchangeLeaveEvent,
-                    callback=lambda _: self.finish(),
-                    originator=self,
-                )
-                req = DialogLeaveRequest()
-                return self.send_message_delayed(req, BASE_RANGE)
-            return self.accept_exchange(did_full_unload)
+            self.event_manager.on(
+                ExchangeLeaveEvent,
+                callback=lambda _: self.finish(),
+                originator=self,
+            )
+            req = DialogLeaveRequest()
+            return self.send_message_delayed(req, BASE_RANGE)
         self.event_manager.on(
             ExchangeKamaModifiedEvent,
             lambda _: self.accept_exchange(did_full_unload),

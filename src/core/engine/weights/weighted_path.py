@@ -4,14 +4,12 @@ from typing import Callable
 
 from dofus_unity_reader.models.world_graph import Edge, Vertice
 
+from src.core.engine.contexts import WorldTransitionContext
 from src.core.engine.movements.world.edge import iter_valid_outgoing_edges
-from src.core.states.game_state import GameState
 
 
 @dataclass
 class WeightedPath:
-    game_state: GameState
-
     def get_weight_edge(
         self,
         edge: Edge,
@@ -25,6 +23,7 @@ class WeightedPath:
     def beam_search_path(
         self,
         start_vertex: Vertice,
+        context: WorldTransitionContext,
         get_weight_by_edge_func: Callable[[Edge], float],
         weight_by_map_id: dict[int, float],
         depth: int = 25,
@@ -43,7 +42,7 @@ class WeightedPath:
             candidates: list[tuple[Vertice, list[Edge], float, tuple[int, ...]]] = []
 
             for vertice, path, score, visited in beam:
-                for edge in iter_valid_outgoing_edges(vertice, self.game_state):
+                for edge in iter_valid_outgoing_edges(vertice, context):
                     base_weight = self.get_weight_edge(
                         edge,
                         get_weight_by_edge_func,

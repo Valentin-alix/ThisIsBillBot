@@ -55,8 +55,12 @@ class WaypointBehavior(Behavior):
                 for dst in dst_map_ids
                 for vertex in WorldGraphReader().get_vertexes(dst)
             }
+            self.astar_allow_havre_sac.set_context(
+                self.game_state.get_world_path_context()
+            )
             path = self.astar_allow_havre_sac.find_path(
-                start=self.game_state.map.curr_vertex, ends=dst_vertex
+                start=self.game_state.map.curr_vertex,
+                ends=dst_vertex,
             )
             if path is None:
                 return self.finish(WaypointErrorCode.UNREACHABLE_HAVRE_MAP)
@@ -111,7 +115,11 @@ class WaypointBehavior(Behavior):
         mp_zaap = MapPoint.from_cell_id(
             self.game_state.interactive.stated_element_by_id[zaap.element_id][0].cell_id
         )
-        move_path = self.pathfinding.find_path(self.game_state.map.map_point, {mp_zaap})
+        move_path = self.pathfinding.find_path(
+            self.game_state.get_map_movement_context(),
+            self.game_state.map.map_point,
+            {mp_zaap},
+        )
         self.run_timer(
             BASE_RANGE,
             lambda: self.interactive_behavior.start(

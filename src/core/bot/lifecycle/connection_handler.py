@@ -18,7 +18,7 @@ from src.core.game_constants import Dungeons
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
-from src.services.logging.contextual_logger import ContextualLogger
+from src.services.logging_utils.contextual_logger import ContextualLogger
 
 
 @dataclass

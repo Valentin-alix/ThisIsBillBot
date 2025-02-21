@@ -120,8 +120,6 @@ class GuildChestStorage:
                 for gid, item in items_by_gid.items():
                     reserved = sum(reservations_by_gid.get(gid, {}).values())
                     available = max(0, item.item.quantity - reserved)
-                    if available <= 0:
-                        continue
                     item_copy = type(item)()
                     item_copy.CopyFrom(item)
                     item_copy.item.quantity = available

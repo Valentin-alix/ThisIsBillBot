@@ -76,7 +76,9 @@ class InteractiveBehavior(Behavior):
                 return self.finish()
 
             move_path = self.path_finding.find_path(
-                self.game_state.map.map_point, {old_move_path.end}
+                self.game_state.get_map_movement_context(),
+                self.game_state.map.map_point,
+                {old_move_path.end},
             )
             self.logger.warning(
                 "Invalid starting point or canceled movement, let's retry interactive"

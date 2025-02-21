@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from functools import partial
 from typing import Callable
 
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmBehavior
@@ -29,7 +28,9 @@ class FighterBehavior(BaseFarmBehavior):
         self.random_farm_behavior.init_random_farm(
             area_id,
             sub_area_id,
-            partial(get_additional_weight_by_map_id, game_state=self.game_state),
+            lambda map_id: get_additional_weight_by_map_id(
+                map_id, self.game_state.player.level
+            ),
         )
         self.on_new_map()
 

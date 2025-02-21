@@ -14,6 +14,7 @@ from src.core.config import (
     get_time_beween_areas,
 )
 from src.core.engine.movements.area_infos import AreaInfo
+from src.core.engine.contexts import HarvesterAreaContext
 from src.core.engine.weights.harvester.weight_areas import (
     get_random_best_area_info_for_harvester,
 )
@@ -40,6 +41,19 @@ class AutoBotBehavior(Behavior):
     _previous_area_info_played: list[AreaInfo] = field(
         init=False, default_factory=list[AreaInfo]
     )
+
+    def get_harvester_area_context(self) -> HarvesterAreaContext:
+        return HarvesterAreaContext(
+            player_level=self.game_state.player.level,
+            player_waypoint_map_ids=frozenset(self.game_state.player.waypoint_map_ids),
+            player_is_sub=self.game_state.player.is_sub,
+            player_server_id=self.game_state.player.server_id,
+            player_jobs_lvl_by_id=self.game_state.player.jobs_lvl_by_id,
+            bank_storage_by_gid=self.game_state.inventory.get_bank_objects_by_gid(),
+            current_area_infos_by_server_and_character=(
+                CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER
+            ),
+        )
 
     def run(
         self,
@@ -69,7 +83,7 @@ class AutoBotBehavior(Behavior):
             area_info = get_random_best_area_info_for_harvester(
                 self._area_id,
                 self._sub_area_id,
-                self.game_state,
+                self.get_harvester_area_context(),
                 self._previous_area_info_played,
                 self.logger,
             )
@@ -108,7 +122,7 @@ class AutoBotBehavior(Behavior):
         area_info = get_random_best_area_info_for_harvester(
             self._area_id,
             self._sub_area_id,
-            self.game_state,
+            self.get_harvester_area_context(),
             self._previous_area_info_played,
             self.logger,
         )

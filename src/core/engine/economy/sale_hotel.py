@@ -21,7 +21,7 @@ from src.core.engine.weights.harvester.weight_collectable import (
     get_weight_collectable_for_sale_hotel,
 )
 from src.core.frames.sale_hotel_frame import SELLABLE_ITEMS
-from src.services.logging.logger import Logger
+from src.services.logging_utils.loggers import BotLogger
 
 
 def get_item_gids_to_sell(
@@ -30,7 +30,7 @@ def get_item_gids_to_sell(
     bank_object_by_gid: dict[int, ObjectItemInventory],
     item_sell_quantity_by_gid: defaultdict[int, int],
     category: CategoryEnum,
-    logger: Logger,
+    logger: BotLogger,
     avg_price_by_gid: dict[int, float],
     guild_chest_items_by_gid: dict[int, ObjectItemInventory] | None = None,
 ):

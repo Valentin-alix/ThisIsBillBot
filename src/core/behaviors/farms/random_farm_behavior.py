@@ -183,6 +183,7 @@ class RandomFarmBehavior(Behavior):
         cached_weight_by_map_id: dict[int, float] = {}
         path = self.weighted_path.beam_search_path(
             start_vertex=self.game_state.map.curr_vertex,
+            context=self.game_state.get_world_transition_context(),
             get_weight_by_edge_func=self.get_weight_edge,
             weight_by_map_id=cached_weight_by_map_id,
         )[0]

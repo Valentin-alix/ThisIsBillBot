@@ -33,7 +33,7 @@ from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.signals.world_signals import WorldSignals
 from src.core.states.game_state import GameState
-from src.services.logging.contextual_logger import ContextualLogger
+from src.services.logging_utils.contextual_logger import ContextualLogger
 
 
 @dataclass

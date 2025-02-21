@@ -1,9 +1,9 @@
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.controller.sale_hotel import SaleHotelController
@@ -12,7 +12,7 @@ from src.core.engine.items.item import GATHERER_ITEM_GIDS
 from src.core.engine.items.item_type import ItemTypeEnum
 from src.core.game_constants import Skills
 from src.core.states.guild_chest_state import GIDS_BY_TAB
-from src.services.logging.logger import Logger
+from src.services.logging_utils.loggers import BotLogger
 
 
 def get_benefice_on_craft_recipe(
@@ -65,7 +65,7 @@ def is_not_valid_recipe_for_lvl_up_job_or_benefice(
 
 
 def get_max_result_quantity(
-    logger: Logger,
+    logger: BotLogger,
     storage_object_by_gid: dict[int, ObjectItemInventory],
     recipe: RecipeItem,
 ) -> tuple[int, int]:
@@ -117,7 +117,7 @@ def get_max_possible_result_quantity(
 
 
 def get_valid_recipes(
-    logger: Logger,
+    logger: BotLogger,
     jobs_lvl_by_id: dict[int, int],
     recipes: list[RecipeItem],
     forbidden_craft_ids: set[int],

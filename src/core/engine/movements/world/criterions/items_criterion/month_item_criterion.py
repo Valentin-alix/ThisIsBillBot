@@ -1,11 +1,11 @@
 import datetime
 
+from src.core.engine.contexts import CriterionContext
 from src.core.engine.movements.world.criterions.item_criterion import (
     ItemCriterion,
 )
-from src.core.states.game_state import GameState
 
 
 class MonthItemCriterion(ItemCriterion):
-    def get_criterion(self, game_state: GameState) -> int:
+    def get_criterion(self, context: CriterionContext) -> int:
         return datetime.datetime.now().month - 1

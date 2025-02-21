@@ -1,11 +1,10 @@
-from dataclasses import MISSING, fields, is_dataclass
+from dataclasses import fields, is_dataclass
 from datetime import datetime
-from typing import Any, TypeAlias, TypeGuard, TypedDict, cast
+from typing import TypeAlias, TypedDict, TypeGuard, cast
 
 from google.protobuf.json_format import MessageToJson
 from google.protobuf.message import Message
 from pydantic import BaseModel, ConfigDict
-
 from python_utils.json_types import to_object_dict, to_object_list, to_str_object_dict
 
 
@@ -46,16 +45,6 @@ def is_serialized_content(value: object) -> TypeGuard[dict[str, SerializedValue]
     if typed_dict is None:
         return False
     return all(is_serialized_value(item) for item in typed_dict.values())
-
-
-def reset_fields_to_default(instance: Any, include_fields: list[str]) -> None:
-    for field in fields(instance):
-        if field.name not in include_fields:
-            continue
-        if field.default is not MISSING:
-            setattr(instance, field.name, field.default)
-        elif field.default_factory is not MISSING:
-            setattr(instance, field.name, field.default_factory())
 
 
 def dataclass_to_dict(obj: object) -> dict[str, SerializedValue]:

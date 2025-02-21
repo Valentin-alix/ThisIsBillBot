@@ -1,10 +1,9 @@
-import unittest
 from typing import Iterator
 
 from src.utils.astar import find_path
 
 
-class TestAstar(unittest.TestCase):
+class TestAstar:
     def test_find_path_helper_honors_do_reverse(self) -> None:
         def get_neighbors(node: int) -> Iterator[int]:
             if node < 3:
@@ -21,7 +20,7 @@ class TestAstar(unittest.TestCase):
             do_reverse=True,
         )
 
-        self.assertEqual(path, [3, 2, 1])
+        assert path == [3, 2, 1]
 
     def test_find_path_helper_returns_none_when_unreachable(self) -> None:
         def get_neighbors(node: int) -> Iterator[int]:
@@ -33,4 +32,4 @@ class TestAstar(unittest.TestCase):
 
         path = find_path(1, {3}, get_neighbors, get_distance)
 
-        self.assertIsNone(path)
+        assert path is None

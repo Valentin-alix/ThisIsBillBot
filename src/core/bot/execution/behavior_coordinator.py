@@ -20,7 +20,7 @@ from src.core.config import MULE_BANK_CHARACTER_LOGIN
 from src.core.events_manager.event_manager import EventManager
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.shared_farm_signals import SharedSignals
-from src.services.logging.contextual_logger import ContextualLogger
+from src.services.logging_utils.contextual_logger import ContextualLogger
 
 
 @dataclass

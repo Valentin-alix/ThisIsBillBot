@@ -4,7 +4,9 @@ from dataclasses import dataclass, field
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
 
+from src.core.engine.storage.unload import ActionEnum, CharacterInventoryPositionEnum
 from src.core.signals.player_signals import InventorySignals
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State
@@ -25,6 +27,19 @@ class InventoryState(State):
         init=False, default_factory=dict[int, ObjectItemInventory]
     )
     objects_by_uid: ObjectByUid = field(init=False, default_factory=ObjectByUid)
+
+    def get_unlinked_objects(self) -> list[ObjectItemInventory]:
+        return [
+            object
+            for object in self.objects_by_uid.values()
+            if object.position
+            == CharacterInventoryPositionEnum.InventoryPositionNotEquiped.value
+            and all(
+                effect.action != ActionEnum.LINKED_TO_CHARACTER
+                for effect in object.item.effects
+            )
+            and not DataReader().item_by_id[object.item.gid].realWeight == 0
+        ]
 
     def get_bank_objects_by_gid(self) -> dict[int, ObjectItemInventory]:
         objects_by_gid: dict[int, ObjectItemInventory] = {}

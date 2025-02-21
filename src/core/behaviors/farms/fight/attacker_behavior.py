@@ -166,6 +166,7 @@ class AttackerBehavior(Behavior):
             ):
                 continue
             move_path_to_group = self.path_finding.find_path(
+                self.game_state.get_map_movement_context(),
                 self.game_state.map.map_point,
                 {mp_group},
             )
@@ -185,7 +186,11 @@ class AttackerBehavior(Behavior):
         return random.choices(
             monster_group_infos,
             [
-                get_weight_monster_group_info(monster_group_info, self.game_state)
+                get_weight_monster_group_info(
+                    monster_group_info,
+                    self.game_state.inventory.inventory_weight,
+                    self.game_state.inventory.weight_max,
+                )
                 for monster_group_info in monster_group_infos
             ],
         )[0]

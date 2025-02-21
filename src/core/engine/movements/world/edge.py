@@ -6,6 +6,7 @@ from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootI
 from dofus_unity_reader.models.world_graph import Edge, Transition, Vertice
 
 from src.core.engine.movements.map.map_tools import MapTools
+from src.core.engine.contexts import WorldTransitionContext
 from src.core.engine.movements.world.criterions.consts import CRITERION_WHITE_LIST
 from src.core.engine.movements.world.criterions.group_item_criterion import (
     GroupItemCriterion,
@@ -15,7 +16,6 @@ from src.core.engine.movements.world.criterions.interface_item_criterion import 
 )
 from src.core.game_constants import Maps
 from src.core.signals.world_signals import WorldSignals
-from src.core.states.game_state import GameState
 from python_utils.cache import cache
 
 
@@ -33,7 +33,7 @@ def remove_forbidden_edge_transition_by_map_id(
 
 
 def get_valid_transition(
-    edge: Edge, transitions: list[Transition], game_state: GameState
+    edge: Edge, transitions: list[Transition], context: WorldTransitionContext
 ) -> Transition | None:
     for transition, criterion in _get_transition_to_valid_criterions(
         tuple(transitions)
@@ -42,9 +42,9 @@ def get_valid_transition(
             edge.m_from,
             edge.m_to,
             transition,
-        ) in game_state.map.forbidden_edge_transitions:
+        ) in context.forbidden_edge_transitions:
             continue
-        if not criterion or criterion.is_respected(game_state):
+        if not criterion or criterion.is_respected(context.criterion):
             return transition
     return None
 
@@ -69,28 +69,26 @@ def _get_transition_to_valid_criterions(
     return transitions_with_criterion
 
 
-def edge_has_valid_transition(edge: Edge, game_state: GameState) -> bool:
+def edge_has_valid_transition(edge: Edge, context: WorldTransitionContext) -> bool:
     return (
-        get_valid_transition(
-            edge=edge, transitions=edge.m_transitions, game_state=game_state
-        )
+        get_valid_transition(edge=edge, transitions=edge.m_transitions, context=context)
         is not None
     )
 
 
 def iter_valid_outgoing_edges(
-    vertice: Vertice, game_state: GameState
+    vertice: Vertice, context: WorldTransitionContext
 ) -> Iterator[Edge]:
     edges = WorldGraphReader().get_outgoing_edges_from_vertex(vertice)
     for edge in edges:
         if edge.m_to.m_mapId in Maps.FORBIDDEN:
             continue
         try:
-            if not game_state.player.is_sub and not MapTools.is_map_allowed_for_unsub(
+            if not context.criterion.is_sub and not MapTools.is_map_allowed_for_unsub(
                 edge.m_to.m_mapId
             ):
                 continue
-            if not edge_has_valid_transition(edge, game_state):
+            if not edge_has_valid_transition(edge, context):
                 continue
         except KeyError:
             continue

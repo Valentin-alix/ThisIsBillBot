@@ -1,7 +1,7 @@
+from src.core.engine.contexts import CriterionContext
 from src.core.engine.movements.world.criterions.item_criterion import (
     ItemCriterion,
 )
-from src.core.states.game_state import GameState
 
 
 class JobItemCriterion(ItemCriterion):
@@ -36,19 +36,17 @@ class JobItemCriterion(ItemCriterion):
             self.job_id = int(self.criterion_value)
             self.job_lvl = -1
 
-    def is_respected(self, game_state: GameState) -> bool:
+    def is_respected(self, context: CriterionContext) -> bool:
         if self.jobs_count > 0:
             if self.job_id is None:
                 known_job_count = 0
-                for player_job_lvl in game_state.player.jobs_lvl_by_id.values():
+                for player_job_lvl in context.player_jobs_lvl_by_id.values():
                     if self.job_lvl == -1 or player_job_lvl > self.job_lvl:
                         known_job_count += 1
                     if known_job_count >= self.jobs_count:
                         return True
             else:
-                related_player_job_lvl = game_state.player.jobs_lvl_by_id.get(
-                    self.job_id
-                )
+                related_player_job_lvl = context.player_jobs_lvl_by_id.get(self.job_id)
                 if related_player_job_lvl is None:
                     return False
                 if self.job_lvl == -1 or related_player_job_lvl > self.job_lvl:

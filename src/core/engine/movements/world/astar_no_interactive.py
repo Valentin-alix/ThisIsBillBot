@@ -20,7 +20,7 @@ class AstarNoInteractive(AstarWorld):
             self.world_signals.color_pos.emit(map_data, (0, 255, 0))
             sleep(0.01)
 
-        for edge in iter_valid_outgoing_edges(data, game_state=self.game_state):
+        for edge in iter_valid_outgoing_edges(data, self._get_context().transition):
             transition_type = edge.m_transitions[0].m_type
             if transition_type not in [
                 TransitionTypeEnum.MAP_ACTION,

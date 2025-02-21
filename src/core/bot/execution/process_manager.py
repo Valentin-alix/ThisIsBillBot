@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 import psutil
 
-from src.services.logging.contextual_logger import ContextualLogger
+from src.services.logging_utils.contextual_logger import ContextualLogger
 
 
 @dataclass

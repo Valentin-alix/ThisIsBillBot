@@ -1,10 +1,10 @@
+from src.core.engine.contexts import CriterionContext
 from src.core.engine.movements.world.criterions.item_criterion import (
     ItemCriterion,
 )
 from src.core.engine.movements.world.criterions.item_criterion_operator import (
     ItemCriterionOperator,
 )
-from src.core.states.game_state import GameState
 
 
 class ObjectItemCriterion(ItemCriterion):
@@ -16,9 +16,9 @@ class ObjectItemCriterion(ItemCriterion):
             self.criterion_value = int(item_id_and_quantity[0])
             self._criterion_value_quantity = int(item_id_and_quantity[1])
 
-    def is_respected(self, game_state: GameState) -> bool:
+    def is_respected(self, context: CriterionContext) -> bool:
         item_quantity: int = 0
-        for _object in game_state.inventory.objects_by_uid.values():
+        for _object in context.inventory_objects_by_uid.values():
             if _object.item.gid == self.criterion_value:
                 item_quantity = _object.item.quantity
                 break

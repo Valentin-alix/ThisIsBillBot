@@ -12,7 +12,6 @@ import os
 import socket
 from pathlib import Path
 
-from dotenv import load_dotenv
 from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
 from datas.protos.non_obf.game.fight_pb2 import (
     FightTurnFinishRequest,
@@ -20,6 +19,7 @@ from datas.protos.non_obf.game.fight_pb2 import (
 from datas.protos.non_obf.game.gamemap_pb2 import (
     MapMovementConfirmRequest,
 )
+from dotenv import load_dotenv
 from google.protobuf.message import Message
 
 ENV_PATH = os.path.join(Path(__file__).parent.parent, ".env")

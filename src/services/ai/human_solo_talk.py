@@ -8,9 +8,10 @@ from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from openai import APIConnectionError, OpenAIError
+from python_utils.singleton import Singleton
 
 from src.const import ENV_PATH
-from python_utils.singleton import Singleton
+from src.services.logging_utils.loggers import configure_root_logger
 
 load_dotenv(ENV_PATH)
 
@@ -51,4 +52,5 @@ class HumanSoloTalk(metaclass=Singleton):
 
 
 if __name__ == "__main__":
+    configure_root_logger()
     print(HumanSoloTalk().get_solo_human_talk_in_general_msg("yolo"))

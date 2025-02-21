@@ -24,7 +24,7 @@ from src.core.signals.bot_signals import BotSignals
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.message_signals import MessageInfoSignals
 from src.core.signals.shared_farm_signals import SharedSignals
-from src.services.logging.contextual_logger import ContextualLogger
+from src.services.logging_utils.contextual_logger import ContextualLogger
 from src.utils.internet import has_internet_connection
 
 

@@ -1,5 +1,15 @@
 from dataclasses import dataclass
 
+from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+
+from src.core.engine.contexts import (
+    AttackContext,
+    CriterionContext,
+    FightReachableContext,
+    MapMovementContext,
+    WorldPathContext,
+    WorldTransitionContext,
+)
 from src.core.states.craft_state import CraftState
 from src.core.states.entity_state import EntityState
 from src.core.states.fight_state import FightState
@@ -22,3 +32,83 @@ class GameState:
     guild_chest: GuildChestState
     sale_hotel: SaleHotelState
     craft: CraftState
+
+    def get_map_movement_context(self) -> MapMovementContext:
+        return MapMovementContext(
+            map_id=self.map.map_id,
+            in_fight=self.fight.in_fight,
+            obstacle_on_cell_id=self.entity.obstacle_on_cell_id,
+            occupied_cell_ids=frozenset(
+                actor.disposition.cell_id
+                for actor in self.entity.actor_by_id.values()
+                if actor.disposition.cell_id != -1
+            ),
+        )
+
+    def get_criterion_context(self) -> CriterionContext:
+        return CriterionContext(
+            is_sub=self.player.is_sub,
+            player_level=self.player.level,
+            player_limited_level=self.player.limited_lvl,
+            player_subscription_end_date=self.player.subscription_end_date,
+            player_jobs_lvl_by_id=self.player.jobs_lvl_by_id,
+            player_waypoint_map_ids=frozenset(self.player.waypoint_map_ids),
+            player_server_id=self.player.server_id,
+            player_character_id=self.player.character_id,
+            map_id=self.map.map_id,
+            sub_area_id=self.map.sub_area_id,
+            fight_breed_id=self.fight.breed_id,
+            fight_characteristic_by_id=self.fight.characteristic_by_id,
+            inventory_objects_by_uid=self.inventory.objects_by_uid,
+            positive_actor_count=sum(
+                1 for actor_id in self.entity.actor_by_id if actor_id > 0
+            ),
+        )
+
+    def get_world_transition_context(self) -> WorldTransitionContext:
+        return WorldTransitionContext(
+            criterion=self.get_criterion_context(),
+            forbidden_edge_transitions=frozenset(self.map.forbidden_edge_transitions),
+        )
+
+    def get_world_path_context(self) -> WorldPathContext:
+        return WorldPathContext(
+            transition=self.get_world_transition_context(),
+            current_map_pos=self.map.map_pos,
+        )
+
+    def get_fight_reachable_context(self) -> FightReachableContext:
+        return FightReachableContext(
+            map_id=self.map.map_id,
+            player_map_point=self.map.map_point,
+            movement_points=self.fight.get_stat_by_id(
+                CharacteristicEnum.MOVEMENT_POINTS
+            ),
+        )
+
+    def get_attack_context(self) -> AttackContext:
+        enemies = self.fight.get_enemies(self.player.character_id)
+        return AttackContext(
+            map_id=self.map.map_id,
+            player_map_point=self.map.map_point,
+            player_character_id=self.player.character_id,
+            player_level=self.player.level,
+            actor_by_id=self.entity.actor_by_id,
+            enemy_actors=enemies,
+            enemies_data=self.fight.get_enemies_data(enemies),
+            spells=self.fight.spells,
+            primary_and_second_elem=self.fight.primary_and_second_elem,
+            modifier_by_type_and_spell_id=self.fight.modifier_by_type_and_spell_id,
+            count_casted_by_spell_id_on_current_turn=(
+                self.fight.count_casted_by_spell_id_on_current_turn
+            ),
+            characteristic_by_id=self.fight.characteristic_by_id,
+            action_points=self.fight.get_stat_by_id(CharacteristicEnum.ACTION_POINTS),
+            movement_points=self.fight.get_stat_by_id(
+                CharacteristicEnum.MOVEMENT_POINTS
+            ),
+            range=self.fight.get_stat_by_id(CharacteristicEnum.RANGE),
+            life_point=self.fight.life_point,
+            max_life_point=self.fight.max_life_point,
+            life_percentage=self.fight.life_percentage,
+        )

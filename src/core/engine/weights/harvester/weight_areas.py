@@ -1,20 +1,17 @@
 import random
 
-from dofus_unity_reader.data_center.data_reader import DataReader
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
 
 from src.core.config import AREAS_SUB_WITH_WEIGHT, AREAS_UNSUB_WITH_WEIGHT
+from src.core.engine.contexts import HarvesterAreaContext
 from src.core.engine.movements.area_infos import AreaInfo
 from src.core.engine.weights.harvester.weight_collectable import (
     get_map_id_collectable_weight,
 )
-from src.core.states.area_state import (
-    CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER,
-)
-from src.core.states.game_state import GameState
-from src.services.logging.logger import Logger
+from src.services.logging_utils.loggers import BotLogger
 
 
 def get_weight_harvester_area(
@@ -59,14 +56,14 @@ def get_weight_harvester_sub_area(
 
 def is_valid_area_info_to_harvest(
     area_info: AreaInfo,
-    game_state: GameState,
+    context: HarvesterAreaContext,
     weight_by_areas_info: dict[AreaInfo, float],
 ):
     return (
-        game_state.player.level >= area_info.min_lvl
+        context.player_level >= area_info.min_lvl
         and (
             area_info.waypoint_id_needed is None
-            or area_info.waypoint_id_needed in game_state.player.waypoint_map_ids
+            or area_info.waypoint_id_needed in context.player_waypoint_map_ids
         )
         and weight_by_areas_info[area_info] > 0
     )
@@ -75,45 +72,45 @@ def is_valid_area_info_to_harvest(
 def get_random_best_area_info_for_harvester(
     old_area_id: int | None,
     old_sub_area_id: int | None,
-    game_state: GameState,
+    context: HarvesterAreaContext,
     previous_area_info_played: list[AreaInfo],
-    logger: Logger,
+    logger: BotLogger,
 ) -> AreaInfo:
     if old_area_id is not None:
         return AreaInfo(area_id=old_area_id, sub_area_id=old_sub_area_id)
 
-    if game_state.player.is_sub:
+    if context.player_is_sub:
         areas_with_weight = AREAS_SUB_WITH_WEIGHT
     else:
         areas_with_weight = AREAS_UNSUB_WITH_WEIGHT
 
     weight_by_areas_info: dict[AreaInfo, float] = {}
 
-    server_id = game_state.player.server_id
+    server_id = context.player_server_id
     server_area_infos = [
         info
         for (
             srv_id,
             _,
-        ), info in CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER.items()
+        ), info in context.current_area_infos_by_server_and_character.items()
         if srv_id == server_id
     ]
 
     for area_info in areas_with_weight:
         if area_info.sub_area_id:
             weight = get_weight_harvester_sub_area(
-                game_state.player.jobs_lvl_by_id,
-                game_state.inventory.get_bank_objects_by_gid(),
+                dict(context.player_jobs_lvl_by_id),
+                dict(context.bank_storage_by_gid),
                 area_info.sub_area_id,
-                game_state.player.is_sub,
+                context.player_is_sub,
                 server_id,
             )
         else:
             weight = get_weight_harvester_area(
-                game_state.player.jobs_lvl_by_id,
+                dict(context.player_jobs_lvl_by_id),
                 area_info.area_id,
-                game_state.player.is_sub,
-                game_state.inventory.get_bank_objects_by_gid(),
+                context.player_is_sub,
+                dict(context.bank_storage_by_gid),
                 server_id,
             )
         count_area_already_playing = server_area_infos.count(area_info)
@@ -126,13 +123,13 @@ def get_random_best_area_info_for_harvester(
     areas_infos = [
         area_info
         for area_info in areas_with_weight
-        if is_valid_area_info_to_harvest(area_info, game_state, weight_by_areas_info)
+        if is_valid_area_info_to_harvest(area_info, context, weight_by_areas_info)
     ]
 
     areas_weights = [
         (weight_by_areas_info[area_info])
         for area_info in areas_with_weight
-        if is_valid_area_info_to_harvest(area_info, game_state, weight_by_areas_info)
+        if is_valid_area_info_to_harvest(area_info, context, weight_by_areas_info)
     ]
 
     logger.info(f"Area infos : {repr(areas_infos)} | Weight : {areas_weights}")

@@ -1,31 +1,40 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Iterator
 
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
 from dofus_unity_reader.models.world_graph import Edge, Vertice
 
+from src.core.engine.contexts import WorldPathContext
 from src.core.engine.movements.world.edge import iter_valid_outgoing_edges
 from src.core.engine.movements.world.map_position import get_dist_to_maps
 from src.core.signals.world_signals import WorldSignals
-from src.core.states.game_state import GameState
 from src.utils.astar import Astar, Node, OpenSet, SearchNodeDict
 
 
 @dataclass
 class AstarWorld(Astar[Vertice, Edge]):
-    game_state: GameState
     world_signals: WorldSignals | None = None
+    context: WorldPathContext | None = field(init=False, default=None)
+
+    def _get_context(self) -> WorldPathContext:
+        if self.context is None:
+            raise RuntimeError("World path context must be set before pathing")
+        return self.context
+
+    def set_context(self, context: WorldPathContext) -> None:
+        self.context = context
 
     def get_neighbors(self, data: Vertice) -> Iterator[Vertice]:
+        context = self._get_context()
         if self.world_signals:
             map_data = DataReader().map_pos_by_map_id[data.m_mapId]
             if (
-                map_data.posX != self.game_state.map.map_pos.posX
-                or map_data.posY != self.game_state.map.map_pos.posY
+                map_data.posX != context.current_map_pos.posX
+                or map_data.posY != context.current_map_pos.posY
             ):
                 self.world_signals.color_pos.emit(map_data, (0, 255, 0))
-        for edge in iter_valid_outgoing_edges(data, game_state=self.game_state):
+        for edge in iter_valid_outgoing_edges(data, context.transition):
             yield edge.m_to
 
     def get_dist(self, current: Vertice, ends: "set[Vertice]") -> float:

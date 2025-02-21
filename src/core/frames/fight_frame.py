@@ -4,7 +4,7 @@ from datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicsEvent,
     UpdateLifePointsEvent,
 )
-from datas.protos.non_obf.game.common_pb2 import FightOutcome, Team
+from datas.protos.non_obf.game.common_pb2 import FightOutcome
 from datas.protos.non_obf.game.fight_pb2 import (
     FightEndEvent,
     FightRefreshCharacterStatsEvent,
@@ -223,22 +223,12 @@ class FightFrame(Frame):
 
         did_won = next(
             (
-                team_outcome.outcome == FightOutcome.RESULT_VICTORY
-                for team_outcome in msg.named_party_teams_outcomes
-                if team_outcome.team.team == Team.TEAM_CHALLENGER
-            ),
-            None,
-        )
-        if did_won is None:
-            did_won = next(
-                (
-                    res.outcome == FightOutcome.RESULT_VICTORY
-                    for res in msg.results
-                    if self.game_state.player.character_id
-                    == res.fighter_list_entry.fighter_id
-                )
+                res.outcome == FightOutcome.RESULT_VICTORY
+                for res in msg.results
+                if self.game_state.player.character_id
+                == res.fighter_list_entry.fighter_id
             )
-
+        )
         if did_won:
             return ForbiddenMonsterController().reset_defeat_count(
                 unique_name_id, self.logger

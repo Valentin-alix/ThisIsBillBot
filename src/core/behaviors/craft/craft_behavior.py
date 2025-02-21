@@ -180,7 +180,9 @@ class CraftBehavior(DialogHandlerBehavior):
             )
         element_mp = MapPoint.from_cell_id(ref_data.cellId)
         move_path = self.pathfinding.find_path(
-            self.game_state.map.map_point, {element_mp}
+            self.game_state.get_map_movement_context(),
+            self.game_state.map.map_point,
+            {element_mp},
         )
 
         self.run_timer(

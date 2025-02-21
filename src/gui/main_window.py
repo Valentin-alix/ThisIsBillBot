@@ -22,13 +22,13 @@ from src.const import LOGO_FILE
 from src.controller.bot_config import BotConfig, BotConfigController
 from src.controller.schedule_profile_controller import ScheduleProfileController
 from src.core.bot.bot import Bot
-from src.core.signals.global_log_signals import GlobalLogSignals
+from src.core.signals.log_signals import LogSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
 from src.gui.fragments.account_stacked_widget import AccountStackedWidget
 from src.gui.fragments.app_fluent_window import AppFluentWindow
 from src.gui.fragments.sidebar_item import SidebarItem
-from src.services.logging.logger import init_gui_global_logging
+from src.services.logging_utils.loggers import init_root_gui_logging
 
 
 class MainWindow(AppFluentWindow):
@@ -38,8 +38,8 @@ class MainWindow(AppFluentWindow):
     def __init__(self, title: str, shared_signals: SharedSignals) -> None:
         super().__init__(parent=None)
 
-        self.global_log_signals = GlobalLogSignals()
-        init_gui_global_logging(self.global_log_signals)
+        self.global_log_signals = LogSignals()
+        init_root_gui_logging(self.global_log_signals)
 
         self.title = title
         self.shared_signals = shared_signals
