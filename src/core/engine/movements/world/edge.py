@@ -2,21 +2,21 @@ from typing import Iterator
 
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from dofus_unity_reader.game_constants.map_id import FORBIDDEN_MAP_IDS
 from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
 from dofus_unity_reader.models.world_graph import Edge, Transition, Vertice
+from python_utils.cache import cache
 
-from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.contexts import WorldTransitionContext
-from src.core.engine.movements.world.criterions.consts import CRITERION_WHITE_LIST
+from src.core.engine.movements.map.map_tools import MapTools
+from dofus_unity_reader.game_constants.transition_type import CRITERION_WHITE_LIST
 from src.core.engine.movements.world.criterions.group_item_criterion import (
     GroupItemCriterion,
 )
 from src.core.engine.movements.world.criterions.interface_item_criterion import (
     IItemCriterion,
 )
-from src.core.game_constants import Maps
 from src.core.signals.world_signals import WorldSignals
-from python_utils.cache import cache
 
 
 def remove_forbidden_edge_transition_by_map_id(
@@ -81,7 +81,7 @@ def iter_valid_outgoing_edges(
 ) -> Iterator[Edge]:
     edges = WorldGraphReader().get_outgoing_edges_from_vertex(vertice)
     for edge in edges:
-        if edge.m_to.m_mapId in Maps.FORBIDDEN:
+        if edge.m_to.m_mapId in FORBIDDEN_MAP_IDS:
             continue
         try:
             if not context.criterion.is_sub and not MapTools.is_map_allowed_for_unsub(

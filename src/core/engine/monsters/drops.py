@@ -1,11 +1,10 @@
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.enums.type_item_enum import TypeItemEnum
+from dofus_unity_reader.game_constants.item import CUSTOM_GATHERER_BY_SAC
 from dofus_unity_reader.models.datas.monsters_root import MonsterDrop
 
 from src.controller.sale_hotel import SaleHotelController
 from src.core.engine.items.item import GATHERED_ITEM_ID_BY_NAME
-from src.core.game_constants import Items, Monsters
 
 
 def get_rare_gid_with_weight_from_protector_drop(
@@ -25,8 +24,8 @@ def get_rare_gid_with_weight_from_protector_drop(
         if item_description not in I18N().name_by_id:
             continue
         description = I18N().name_by_id[item_description].lower().replace("s", "")
-        if drop.objectId in Items.CUSTOM_GATHERER_BY_SAC:
-            res_object_id = Items.CUSTOM_GATHERER_BY_SAC[drop.objectId]
+        if drop.objectId in CUSTOM_GATHERER_BY_SAC:
+            res_object_id = CUSTOM_GATHERER_BY_SAC[drop.objectId]
         elif description.startswith("cet énorme"):
             cleaned_desc = "".join(description.replace(".", "").split(" ")[-4:])
             for item_name, item_gid in GATHERED_ITEM_ID_BY_NAME.items():
@@ -40,13 +39,3 @@ def get_rare_gid_with_weight_from_protector_drop(
             drop.percentDropForGrade1 / 100 * avg_price_by_gid.get(drop.objectId, 1)
         )
     return res_object_id, weight
-
-
-PROTECTOR_DROP_ITEM_IDS = {
-    drop.objectId
-    for race in Monsters.PROTECTOR_RACES
-    for monster in DataReader().monsters_by_race[race]
-    for drop in monster.drops
-    if DataReader().item_by_id[drop.objectId].typeId
-    not in [310, TypeItemEnum.PIERRE_BRUTE]
-}

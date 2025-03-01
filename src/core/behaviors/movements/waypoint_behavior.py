@@ -2,10 +2,6 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
-from dofus_unity_reader.enums.element_type import ElementTypeEnum
-from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
@@ -17,6 +13,10 @@ from datas.protos.non_obf.game.teleportation_pb2 import (
     Teleporter,
     TeleportRequest,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from dofus_unity_reader.game_constants.element_type import ElementTypeEnum
+from dofus_unity_reader.grid.map_point import MapPoint
 from dofus_unity_reader.models.world_graph import Vertice
 
 from src.core.behaviors.behavior import Behavior

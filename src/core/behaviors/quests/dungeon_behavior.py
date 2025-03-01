@@ -1,10 +1,14 @@
 from dataclasses import dataclass
 from functools import partial
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
 from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
+)
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.game_constants.dungeon_info import (
+    PLAYABLE_DUNGEONS,
+    DungeonInfo,
 )
 
 from src.core.behaviors.behavior import Behavior
@@ -15,8 +19,6 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.core.config import ON_NEW_MAP_BEFORE_ACTION
 from src.core.engine.dungeons.dungeon_access import do_have_key_access_to_dungeon
-from src.core.engine.dungeons.dungeon_info import DungeonInfo
-from src.core.game_constants import Dungeons
 
 
 @dataclass
@@ -30,7 +32,7 @@ class DungeonBehavior(Behavior):
             dungeon_info = next(
                 (
                     _dungeon_info
-                    for _dungeon_info in Dungeons.ALL
+                    for _dungeon_info in PLAYABLE_DUNGEONS
                     if do_have_key_access_to_dungeon(
                         _dungeon_info,
                         self.game_state.inventory.objects_by_uid,

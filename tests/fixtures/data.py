@@ -1,5 +1,5 @@
-from dofus_unity_reader.enums.effect_element import EffectElement
-from dofus_unity_reader.enums.jobs_enum import JobEnum
+from dofus_unity_reader.game_constants.characteristic import EffectElement
+from dofus_unity_reader.game_constants.job import JobEnum
 from dofus_unity_reader.models.datas.effects_root import EffectsRootItem
 from dofus_unity_reader.models.datas.item_type_root import ItemTypeData
 from dofus_unity_reader.models.datas.items_root import ItemsRootItemStrict

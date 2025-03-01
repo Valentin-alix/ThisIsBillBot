@@ -1,84 +1,7 @@
-from enum import IntEnum, auto
+from dofus_unity_reader.game_constants.npc import BANK_NPCS, NpcInfo
 
 from src.core.config import BOT_KAMA_LIMIT_TO_GIVE
 from src.core.engine.movements.map.map_tools import MapTools
-from src.core.engine.npcs.npc_info import NpcInfo
-from src.core.game_constants import NPCs
-
-
-class CharacterInventoryPositionEnum(IntEnum):
-    AccessoryPositionHat = 6
-
-    AccessoryPositionCape = 7
-
-    AccessoryPositionBelt = 3
-
-    AccessoryPositionBoots = 5
-
-    AccessoryPositionAmulet = 0
-
-    AccessoryPositionShield = 15
-
-    AccessoryPositionWeapon = 1
-
-    AccessoryPositionPets = 8
-
-    AccessoryPositionRideHarness = 29
-
-    InventoryPositionRingLeft = 2
-
-    InventoryPositionRingRight = 4
-
-    InventoryPositionDofus1 = 9
-
-    InventoryPositionDofus2 = 10
-
-    InventoryPositionDofus3 = 11
-
-    InventoryPositionDofus4 = 12
-
-    InventoryPositionDofus5 = 13
-
-    InventoryPositionDofus6 = 14
-
-    InventoryPositionMount = 16
-
-    InventoryPositionMutation = 20
-
-    InventoryPositionBoostFood = 21
-
-    InventoryPositionFirstBonus = 22
-
-    InventoryPositionSecondBonus = 23
-
-    InventoryPositionFirstMalus = 24
-
-    InventoryPositionSecondMalus = 25
-
-    InventoryPositionRoleplayBuffer = 26
-
-    InventoryPositionFollower = 27
-
-    InventoryPositionEntity = 28
-
-    InventoryPositionCostume = 30
-
-    InventoryPositionConsumable = 31
-    InventoryPositionDofus7 = 32
-    InventoryPositionDofus8 = 33
-    InventoryPositionDofus9 = 34
-    InventoryPositionDofus10 = 35
-    InventoryPositionDofus11 = 36
-    InventoryPositionDofus12 = 37
-    InventoryPositionPlastron = 38
-    InventoryPositionEmbleme = 39
-    InventoryPositionTalisman = 40
-
-    InventoryPositionNotEquiped = 63
-
-
-class ActionEnum(IntEnum):
-    LINKED_TO_CHARACTER = auto()
 
 
 def do_unload_on_mule(
@@ -95,6 +18,6 @@ def do_unload_on_mule(
 def get_bank_npc_info(is_sub: bool) -> list[NpcInfo]:
     return [
         npc_info
-        for npc_info in NPCs.BANKS
+        for npc_info in BANK_NPCS
         if is_sub or MapTools.is_map_allowed_for_unsub(npc_info.npc_map_id)
     ]

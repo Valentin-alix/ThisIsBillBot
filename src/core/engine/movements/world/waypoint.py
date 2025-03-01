@@ -1,11 +1,19 @@
+from dataclasses import dataclass
+
 from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.area_enum import AreaEnum
+from dofus_unity_reader.game_constants.area import AreaEnum
 from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
 
-from src.core.engine.movements.waypoint_info import WaypointInfoNode
 from src.core.engine.movements.world.map_position import get_dist_to_maps
 
 ADDITIONAL_WEIGHT_WAYPOINT = 2
+
+
+@dataclass
+class WaypointInfoNode:
+    map_id: int
+    map_position: MapPositionsRootItem
+    dist_to_target: float
 
 
 def get_near_waypoint(

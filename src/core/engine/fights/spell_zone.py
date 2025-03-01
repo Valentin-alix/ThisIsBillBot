@@ -1,7 +1,7 @@
+from dofus_unity_reader.game_constants.spell_shape_enum import SpellShapeEnum
 from dofus_unity_reader.grid.map_point import MapPoint
 from python_utils.cache import cache
 
-from src.core.engine.fights.spell_shape import SpellShapeEnum
 from src.core.engine.fights.zones.cone import Cone
 from src.core.engine.fights.zones.cross import Cross
 from src.core.engine.fights.zones.fork import Fork

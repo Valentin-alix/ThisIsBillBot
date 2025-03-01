@@ -1,26 +1,26 @@
 from dataclasses import dataclass
 
-from dofus_unity_reader.enums.category_item_enum import CategoryEnum
 from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidSellerStartedEvent,
 )
 from datas.protos.non_obf.game.npc_pb2 import (
     NpcGenericActionRequest,
 )
+from dofus_unity_reader.game_constants.item import CategoryItemEnum
+from dofus_unity_reader.game_constants.npc import NpcInfo
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
     EnterSaleHotelBehavior,
 )
 from src.core.config import BASE_RANGE
-from src.core.engine.npcs.npc_info import NpcInfo
 
 
 @dataclass
 class EnterSaleHotelSellBehavior(Behavior):
     enter_sale_hotel_behavior: EnterSaleHotelBehavior
 
-    def run(self, category: CategoryEnum) -> None:
+    def run(self, category: CategoryItemEnum) -> None:
         self.enter_sale_hotel_behavior.start(
             callback=self.on_entered_sale_hotel_behavior_finished,
             parent=self,

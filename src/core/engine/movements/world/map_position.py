@@ -1,5 +1,5 @@
 from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.area_enum import AreaEnum
+from dofus_unity_reader.game_constants.area import AreaEnum
 from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
 
 from src.const import FAKE_INFINITY_VALUE

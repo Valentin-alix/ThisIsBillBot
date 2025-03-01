@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from dofus_unity_reader.enums.directions import DirectionsEnum
+from dofus_unity_reader.game_constants.directions import DirectionsEnum
 from dofus_unity_reader.grid.map_point import MapPoint
 
 

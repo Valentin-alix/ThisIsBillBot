@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dofus_unity_reader.enums.directions import DirectionsEnum
+from dofus_unity_reader.game_constants.directions import DirectionsEnum
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
 from python_utils.cache import cache
 

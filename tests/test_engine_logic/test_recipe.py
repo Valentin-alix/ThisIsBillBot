@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from datas.protos.non_obf.game.common_pb2 import ObjectItem, ObjectItemInventory
-from dofus_unity_reader.enums.jobs_enum import JobEnum
+from dofus_unity_reader.game_constants.job import JobEnum
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.engine.crafts.recipes import (

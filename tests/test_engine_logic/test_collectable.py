@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from datas.protos.non_obf.game.common_pb2 import InteractiveElement, StatedElement
-from dofus_unity_reader.enums.jobs_enum import JobEnum
+from dofus_unity_reader.game_constants.job import JobEnum
 from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.engine.interactives.collectable import (

@@ -1,15 +1,17 @@
-from enum import IntEnum
 from typing import Callable
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
-from dofus_unity_reader.enums.description_enum import DescriptionEnum
-from dofus_unity_reader.enums.effect_element import EffectElement, TypeEffect
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     Team,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.game_constants.characteristic import (
+    CharacteristicEnum,
+    EffectElement,
+    TypeEffect,
+)
+from dofus_unity_reader.game_constants.description import DescriptionEnum
 from dofus_unity_reader.models.datas.spell_levels_root import Effect
 
 
@@ -103,5 +105,3 @@ def is_included_by_mask(
     return any(conditions.get(mask, lambda: False)() for mask in masks)
 
 
-class EffectActionEnum(IntEnum):
-    WEAPON_HUNTER = 795

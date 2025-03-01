@@ -3,7 +3,7 @@ Constantes système et infrastructure du bot.
 Configuration de l'environnement d'exécution, chemins, connexions réseau.
 
 ⚠️ Ces valeurs concernent le système d'exécution, pas le jeu Dofus.
-Pour les constantes du jeu, voir src/core/game_constants.py
+Pour les constantes du jeu, voir DBDofusUnity/dofus_unity_reader/enums/.
 Pour la configuration du bot, voir src/core/config.py
 """
 

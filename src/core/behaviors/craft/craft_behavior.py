@@ -15,6 +15,7 @@ from datas.protos.non_obf.game.inventory_pb2 import (
 )
 from dofus_unity_reader.data_center.i18n import I18N
 from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.game_constants.skill import MAP_IDS_BY_SKILL
 from dofus_unity_reader.grid.map_point import MapPoint
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
@@ -27,7 +28,6 @@ from src.core.behaviors.storage.loads.load_recipe_behavior import LoadRecipeBeha
 from src.core.config import BASE_RANGE, SMALL_RANGE
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
-from src.core.game_constants import Skills
 
 
 @dataclass(frozen=True)
@@ -128,7 +128,7 @@ class CraftBehavior(DialogHandlerBehavior):
     def go_and_craft_on_skill(
         self, recipes_infos: list[LoadedRecipeInfo], skill_id: int
     ) -> None:
-        related_map_ids = Skills.MAP_BY_SKILL[skill_id]
+        related_map_ids = MAP_IDS_BY_SKILL[skill_id]
         if not self.game_state.player.is_sub:
             related_map_ids = {
                 map_id

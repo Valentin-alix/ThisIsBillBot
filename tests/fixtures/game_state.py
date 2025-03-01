@@ -11,8 +11,8 @@ from common_pb2 import (
     Team,
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.breed import Breed
-from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.game_constants.breed import Breed
+from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 from spell_pb2 import SpellItem
 
 from src.core.engine.fights.attack import Attacker

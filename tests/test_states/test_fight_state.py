@@ -28,7 +28,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
 )
 from datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
-from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 
 from src.core.bot.bot import Bot
 

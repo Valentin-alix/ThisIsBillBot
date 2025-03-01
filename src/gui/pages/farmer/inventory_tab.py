@@ -1,18 +1,17 @@
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
 from PyQt6.QtCore import QSize, pyqtSlot
 from PyQt6.QtWidgets import QListView, QListWidgetItem, QVBoxLayout, QWidget
 from qfluentwidgets import ListWidget, SmoothMode
 
 from src.core.bot.bot import Bot
-from src.core.game_constants import Items
 from src.gui.utils.profiling import profiled_slot
 
 CARD_WIDTH = 150
-CARD_HEIGHT = 80
+CARD_HEIGHT = 120
 
 
 class InventoryTab(QWidget):
@@ -44,16 +43,12 @@ class InventoryTab(QWidget):
 
     @pyqtSlot(ObjectItemInventory)
     def on_added_object_item(self, object_item: ObjectItemInventory):
-        if object_item.position != Items.INVENTORY_EQUIPMENT_POSITION:
-            return
         self.items_by_uid[object_item.item.uid] = object_item
         self._rebuild_sorted_list()
 
     @pyqtSlot(list)
     def on_added_object_items_batch(self, objects: list[ObjectItemInventory]):
         for object_item in objects:
-            if object_item.position != Items.INVENTORY_EQUIPMENT_POSITION:
-                continue
             self.items_by_uid[object_item.item.uid] = object_item
         self._rebuild_sorted_list()
 
@@ -100,7 +95,7 @@ class InventoryTab(QWidget):
             )
         else:
             item_name = f"Item {object_item.item.gid}"
-        return f"{item_name} \n\n {object_item.item.quantity}"
+        return f"{item_name} \n\n Pos : {object_item.position} \n\n {object_item.item.quantity}"
 
     def connect_signals(self) -> None:
         if self.signals_connected:

@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from functools import partial
 
-from dofus_unity_reader.data_center.data_reader import DataReader
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
@@ -16,6 +15,8 @@ from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
     StorageInventoryContentEvent,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.game_constants.item import ItemTypeEnum
 
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
@@ -28,7 +29,6 @@ from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
 from src.core.config import BASE_RANGE, SMALL_RANGE
 from src.core.engine.items.item import is_exchangeable_item
 from src.core.engine.items.item_formatter import format_item_name
-from src.core.engine.items.item_type import ItemTypeEnum
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 
 

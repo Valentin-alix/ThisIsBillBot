@@ -5,43 +5,55 @@ from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidHouseItemAddedEvent,
     ExchangeBidHouseItemRemovedEvent,
     ExchangeBidHouseSearchRequest,
+    ExchangeBidHouseTypeRequest,
     ExchangeBidPriceEvent,
     ExchangeBidSellerStartedEvent,
     ObjectAveragePricesEvent,
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.category_item_enum import CategoryEnum
-from dofus_unity_reader.enums.type_item_enum import TypeItemEnum
+from dofus_unity_reader.game_constants.item import (
+    GATHERER_ITEM_GIDS,
+    CategoryItemEnum,
+    ItemTypeEnum,
+)
+from dofus_unity_reader.game_constants.npc import (
+    ASTRUB_SALE_HOTEL_COM_SELL_NPC,
+    ASTRUB_SALE_HOTEL_EQUIPMENT_BUY_NPC,
+    ASTRUB_SALE_HOTEL_RES_SELL_NPC,
+    BONTA_SALE_HOTEL_COM_SELL_NPC,
+    BONTA_SALE_HOTEL_RES_SELL_NPC,
+    NpcInfo,
+)
 
 from src.controller.sale_hotel import SaleHotelController
 from src.core.config import get_time_beween_sale_hotel_prices
-from src.core.engine.items.item import GATHERER_ITEM_GIDS
-from src.core.engine.npcs.npc_info import NpcInfo
 from src.core.frames.frame import Frame
-from src.core.game_constants import NPCs
 
 # Items vendables
 SELLABLE_ITEMS = (
     GATHERER_ITEM_GIDS
-    | DataReader().item_ids_by_type_id[TypeItemEnum.SUBSTRAT]
-    | DataReader().item_ids_by_type_id[TypeItemEnum.ALLIAGE]
+    | DataReader().item_ids_by_type_id[ItemTypeEnum.SUBSTRAT]
+    | DataReader().item_ids_by_type_id[ItemTypeEnum.ALLIAGE]
 )
 # Hôtels de vente par catégorie
-SALE_HOTELS_BY_CATEGORY: dict[CategoryEnum, list[NpcInfo]] = {
-    CategoryEnum.RESOURCES: [
-        NPCs.BONTA_SALE_HOTEL_RES_SELL,
-        NPCs.ASTRUB_SALE_HOTEL_RES_SELL,
+SALE_HOTELS_BY_CATEGORY: dict[CategoryItemEnum, list[NpcInfo]] = {
+    CategoryItemEnum.RESOURCES: [
+        BONTA_SALE_HOTEL_RES_SELL_NPC,
+        ASTRUB_SALE_HOTEL_RES_SELL_NPC,
     ],
-    CategoryEnum.CONSUMABLES: [
-        NPCs.BONTA_SALE_HOTEL_COM_SELL,
-        NPCs.ASTRUB_SALE_HOTEL_COM_SELL,
+    CategoryItemEnum.CONSUMABLES: [
+        BONTA_SALE_HOTEL_COM_SELL_NPC,
+        ASTRUB_SALE_HOTEL_COM_SELL_NPC,
+    ],
+    CategoryItemEnum.EQUIPMENT: [
+        ASTRUB_SALE_HOTEL_EQUIPMENT_BUY_NPC,
     ],
 }
 UNSUB_SALE_HOTEL = [
-    NPCs.ASTRUB_SALE_HOTEL_COM_SELL,
-    NPCs.ASTRUB_SALE_HOTEL_RES_SELL,
+    ASTRUB_SALE_HOTEL_COM_SELL_NPC,
+    ASTRUB_SALE_HOTEL_RES_SELL_NPC,
 ]
-SUB_SALE_HOTEL = [NPCs.BONTA_SALE_HOTEL_RES_SELL]
+SUB_SALE_HOTEL = [BONTA_SALE_HOTEL_RES_SELL_NPC]
 
 
 @dataclass
@@ -86,6 +98,12 @@ class SaleHotelFrame(Frame):
             originator=self,
             priority=self.priority,
         )
+        self.event_manager.on(
+            ExchangeBidHouseTypeRequest,
+            self.on_exchange_bid_house_type_request,
+            originator=self,
+            priority=self.priority,
+        )
 
     def on_exchange_bid_seller_started_event(self, msg: ExchangeBidSellerStartedEvent):
         self.game_state.sale_hotel.timedelta_for_next_sale_hotel_prices = (
@@ -122,6 +140,12 @@ class SaleHotelFrame(Frame):
             self.game_state.player.character_id,
             msg.sell_id,
         )
+
+    def on_exchange_bid_house_type_request(self, msg: ExchangeBidHouseTypeRequest):
+        if msg.follow:
+            self.game_state.sale_hotel.current_search_type_id = msg.type_id
+        else:
+            self.game_state.sale_hotel.current_search_type_id = None
 
     def on_exchange_bid_house_search_request(self, msg: ExchangeBidHouseSearchRequest):
         if msg.follow:

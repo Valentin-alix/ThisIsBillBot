@@ -8,15 +8,15 @@ from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.category_item_enum import CategoryEnum
-
-from src.core.config import MAX_QUANTITY_ON_SELL
-from src.core.engine.economy.quantity_enum import (
+from dofus_unity_reader.game_constants.item import CategoryItemEnum
+from dofus_unity_reader.game_constants.monster import PROTECTOR_DROP_ITEM_IDS
+from dofus_unity_reader.game_constants.sale_hotel import (
     QUANTITY_INDEX_BY_QUANTITY,
     QuantityEnum,
     QuantityIndex,
 )
-from src.core.engine.monsters.drops import PROTECTOR_DROP_ITEM_IDS
+
+from src.core.config import MAX_QUANTITY_ON_SELL
 from src.core.engine.weights.harvester.weight_collectable import (
     get_weight_collectable_for_sale_hotel,
 )
@@ -29,7 +29,7 @@ def get_item_gids_to_sell(
     is_sub: bool,
     bank_object_by_gid: dict[int, ObjectItemInventory],
     item_sell_quantity_by_gid: defaultdict[int, int],
-    category: CategoryEnum,
+    category: CategoryItemEnum,
     logger: BotLogger,
     avg_price_by_gid: dict[int, float],
     guild_chest_items_by_gid: dict[int, ObjectItemInventory] | None = None,

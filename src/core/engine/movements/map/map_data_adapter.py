@@ -1,10 +1,10 @@
 from dataclasses import dataclass, field
 
+from datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
 from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.enums.directions import DirectionsEnum
+from dofus_unity_reader.game_constants.directions import DirectionsEnum
 from dofus_unity_reader.grid.consts import MAP_COUNT_CELL, MAP_WIDTH
 from dofus_unity_reader.grid.map_point import MapPoint
-from datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
 
 from src.core.engine.contexts import MapMovementContext
 

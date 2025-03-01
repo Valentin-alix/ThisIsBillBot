@@ -8,6 +8,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
 )
 
 from src.core.behaviors.communication.chat_behavior import ChatBehavior
+from src.core.behaviors.equipment.auto_equipment_behavior import AutoEquipmentBehavior
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.idle_behavior import IdleBehavior
@@ -33,6 +34,7 @@ class MultiFarmingBehavior(HarvesterBehavior):
     dungeon_behavior: DungeonBehavior
     chat_behavior: ChatBehavior
     idle_behavior: IdleBehavior
+    auto_equipment_behavior: AutoEquipmentBehavior
 
     _next_time_chat: datetime = field(init=False, default_factory=datetime.now)
     _next_time_attacker: datetime = field(init=False, default_factory=datetime.now)
@@ -153,3 +155,12 @@ class MultiFarmingBehavior(HarvesterBehavior):
     def on_fight_aggro(self):
         self._next_time_attacker = datetime.now() + get_time_between_attacker()
         return super().on_fight_aggro()
+
+    def on_full_pods(self):
+        self.auto_equipment_behavior.start(
+            callback=self.on_auto_equipment_behavior_finished, parent=self
+        )
+
+    def on_auto_equipment_behavior_finished(self, error_code: str | None):
+        self.raise_if_error(error_code)
+        return super().on_full_pods()

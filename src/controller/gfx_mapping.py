@@ -3,10 +3,10 @@ from threading import RLock
 
 import msgspec
 from cachetools import TTLCache, cached
-from dofus_unity_reader.enums.jobs_enum import JobEnum
+from dofus_unity_reader.game_constants.job import JobEnum
+from python_utils.singleton import Singleton
 
 from src.const import RESOURCE_FOLDER
-from python_utils.singleton import Singleton
 
 TTL_CACHE: TTLCache[object, dict[int, tuple[int, int]]] = TTLCache(
     maxsize=100,

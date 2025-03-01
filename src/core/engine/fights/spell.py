@@ -1,8 +1,8 @@
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.effect_element import EffectElement
-from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.common_pb2 import SpellModifier
 from datas.protos.non_obf.game.spell_pb2 import SpellItem
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.game_constants.characteristic import EffectElement
+from dofus_unity_reader.grid.map_point import MapPoint
 from dofus_unity_reader.models.datas.spell_levels_root import (
     Effect,
     SpellLevelsRootItem,

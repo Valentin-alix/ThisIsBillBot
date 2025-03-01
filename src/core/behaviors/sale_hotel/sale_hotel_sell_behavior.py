@@ -20,7 +20,11 @@ from datas.protos.non_obf.game.inventory_pb2 import (
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.enums.category_item_enum import CategoryEnum
+from dofus_unity_reader.game_constants.item import CategoryItemEnum
+from dofus_unity_reader.game_constants.sale_hotel import (
+    SALE_HOTEL_LISTING_FEE,
+    QuantityEnum,
+)
 
 from src.controller.sale_hotel import SaleHotelController
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
@@ -37,11 +41,9 @@ from src.core.behaviors.storage.loads.load_item_request import LoadItemInfo
 from src.core.config import (
     BASE_RANGE,
     MIN_KAMAS_TO_GO_SALE_HOTEL,
-    SALE_HOTEL_LISTING_FEE,
     SMALL_RANGE,
     TINY_RANGE,
 )
-from src.core.engine.economy.quantity_enum import QuantityEnum
 from src.core.engine.economy.sale_hotel import (
     choose_quantity_to_sell,
     get_item_gids_to_sell,
@@ -58,13 +60,17 @@ class SaleHotelErrorCode(StrEnum):
 
 
 @dataclass
-class SaleHotelPricesBehavior(DialogHandlerBehavior):
+class SaleHotelSellBehavior(DialogHandlerBehavior):
     enter_sale_hotel_sell_behavior: EnterSaleHotelSellBehavior
     load_from_guild_chest_behavior: LoadFromGuildChestBehavior
     load_from_bank_behavior: LoadFromBankBehavior
 
-    categories: set[CategoryEnum] = field(init=False, default_factory=set[CategoryEnum])
-    _curr_category: CategoryEnum = field(init=False, default=CategoryEnum.RESOURCES)
+    categories: set[CategoryItemEnum] = field(
+        init=False, default_factory=set[CategoryItemEnum]
+    )
+    _curr_category: CategoryItemEnum = field(
+        init=False, default=CategoryItemEnum.RESOURCES
+    )
     _remaining_quantity_by_uid: dict[int, int] = field(
         init=False, default_factory=dict[int, int]
     )
@@ -81,7 +87,7 @@ class SaleHotelPricesBehavior(DialogHandlerBehavior):
     )
 
     def run(self) -> None:
-        self.categories = {CategoryEnum.RESOURCES, CategoryEnum.CONSUMABLES}
+        self.categories = {CategoryItemEnum.RESOURCES, CategoryItemEnum.CONSUMABLES}
 
         if self.game_state.inventory.kamas < MIN_KAMAS_TO_GO_SALE_HOTEL:
             self.logger.warning(

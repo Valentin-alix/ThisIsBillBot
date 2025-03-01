@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from threading import Lock
 
+from dofus_unity_reader.game_constants.area import AreaInfo
+
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmingErrorCode
 from src.core.behaviors.farms.fighter_behavior import FighterBehavior
@@ -13,7 +15,6 @@ from src.core.config import (
     LVL_LIMIT_FOR_HARVEST,
     get_time_beween_areas,
 )
-from src.core.engine.movements.area_infos import AreaInfo
 from src.core.engine.contexts import HarvesterAreaContext
 from src.core.engine.weights.harvester.weight_areas import (
     get_random_best_area_info_for_harvester,

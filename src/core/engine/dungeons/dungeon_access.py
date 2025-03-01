@@ -1,16 +1,18 @@
 from logging import Logger
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.game_constants.dungeon_info import (
+    PLAYABLE_DUNGEONS,
+    DungeonInfo,
+)
+from dofus_unity_reader.game_constants.item import ItemEnum, ItemTypeEnum
 
 from src.core.config import DUNGEON_OFFSET_LVL
-from src.core.engine.dungeons.dungeon_info import DungeonInfo
-from src.core.engine.items.item_type import ItemTypeEnum
 from src.core.engine.movements.map.map_tools import MapTools
-from src.core.game_constants import Dungeons, Items
 
 
 def do_have_key_access_to_dungeon(
@@ -21,7 +23,7 @@ def do_have_key_access_to_dungeon(
     related_king_ring_item = next(
         object.item
         for object in objects_by_uid.values()
-        if object.item.gid == Items.KEY_RING
+        if object.item.gid == ItemEnum.KEY_RING
     )
     related_item_key_ids = [
         item.id
@@ -54,7 +56,7 @@ def get_valid_dungeon_infos(
 ):
     return [
         dungeon_info
-        for dungeon_info in Dungeons.ALL
+        for dungeon_info in PLAYABLE_DUNGEONS
         if dungeon_info.dungeon.optimalPlayerLevel + DUNGEON_OFFSET_LVL < level
         and (
             is_sub

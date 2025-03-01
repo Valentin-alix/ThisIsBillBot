@@ -3,14 +3,13 @@ from datas.protos.non_obf.game.common_pb2 import (
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
+from dofus_unity_reader.game_constants.item import GATHERER_ITEM_GIDS, ItemTypeEnum
+from dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS, JobEnum
+from dofus_unity_reader.game_constants.skill import MAP_IDS_BY_SKILL
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.controller.sale_hotel import SaleHotelController
 from src.core.config import WEIGHT_BY_JOB
-from src.core.engine.items.item import GATHERER_ITEM_GIDS
-from src.core.engine.items.item_type import ItemTypeEnum
-from src.core.game_constants import Skills
 from src.core.states.guild_chest_state import GIDS_BY_TAB
 from src.services.logging_utils.loggers import BotLogger
 
@@ -37,7 +36,7 @@ def is_not_valid_recipe_for_lvl_up_job_or_benefice(
     if current_job_lvl is None or current_job_lvl >= max_job_lvl:
         # insufficient lvl
         return True
-    if recipe.skillId not in Skills.MAP_BY_SKILL:
+    if recipe.skillId not in MAP_IDS_BY_SKILL:
         # not configured craft
         return True
     result_item = DataReader().item_by_id[recipe.resultId]

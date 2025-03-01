@@ -9,8 +9,9 @@ from datas.protos.non_obf.game.common_pb2 import (
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.i18n import I18N
 from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.enums.directions import DirectionsEnum
-from dofus_unity_reader.enums.effect_element import TypeEffect
+from dofus_unity_reader.game_constants.characteristic import TypeEffect
+from dofus_unity_reader.game_constants.directions import DirectionsEnum
+from dofus_unity_reader.game_constants.spell_shape_enum import SpellShapeEnum
 from dofus_unity_reader.grid.map_point import MapPoint
 from dofus_unity_reader.models.datas.monsters_root import MonsterGrade
 from dofus_unity_reader.models.datas.spell_levels_root import (
@@ -36,7 +37,6 @@ from src.core.engine.fights.spell import (
     get_possible_mp_spell,
 )
 from src.core.engine.fights.spell_modifier import SpellModifiers
-from src.core.engine.fights.spell_shape import SpellShapeEnum
 from src.core.engine.fights.spell_zone import get_zone_mps
 from src.core.engine.fights.zones.zone import Zone
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding

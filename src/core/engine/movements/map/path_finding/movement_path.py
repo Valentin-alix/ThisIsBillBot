@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dofus_unity_reader.enums.directions import DirectionsEnum
+from dofus_unity_reader.game_constants.directions import DirectionsEnum
 from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.engine.movements.map.path_finding.path_element import PathElement

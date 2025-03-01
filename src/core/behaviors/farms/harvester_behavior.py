@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Callable
 
-from dofus_unity_reader.data_center.data_reader import DataReader
 from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
@@ -9,6 +8,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
 from datas.protos.non_obf.game.inventory_pb2 import (
     ObjectUseRequest,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
 
 from src.controller.gfx_mapping import GfxMappingController
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmBehavior

@@ -24,6 +24,7 @@ class SaleHotelState(State):
         init=False, default=None
     )
     current_search_item_gid: int | None = dataclasses.field(init=False, default=None)
+    current_search_type_id: int | None = dataclasses.field(init=False, default=None)
 
     def clear_state(self):
         self.bid_seller_condition = None

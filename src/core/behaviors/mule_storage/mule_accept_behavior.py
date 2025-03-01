@@ -18,8 +18,8 @@ from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
-from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
-    SaleHotelPricesBehavior,
+from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import (
+    SaleHotelSellBehavior,
 )
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
 from src.core.config import (
@@ -33,7 +33,7 @@ from src.core.config import (
 class MuleAcceptBehavior(Behavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
     unload_behavior: UnloadBehavior
-    sale_hotel_prices_behavior: SaleHotelPricesBehavior
+    sale_hotel_prices_behavior: SaleHotelSellBehavior
 
     _step: int = field(init=False, default=0)
 

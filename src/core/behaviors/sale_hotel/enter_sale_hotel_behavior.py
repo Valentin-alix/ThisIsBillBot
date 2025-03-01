@@ -2,8 +2,9 @@ from dataclasses import dataclass
 from functools import partial
 
 from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.category_item_enum import CategoryEnum
-from dofus_unity_reader.enums.element_type import ElementTypeEnum
+from dofus_unity_reader.game_constants.element_type import ElementTypeEnum
+from dofus_unity_reader.game_constants.item import CategoryItemEnum
+from dofus_unity_reader.game_constants.npc import NpcInfo
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
@@ -13,7 +14,6 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 from src.core.config import BASE_RANGE
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.movements.world.map_position import get_dist_to_maps
-from src.core.engine.npcs.npc_info import NpcInfo
 from src.core.frames.sale_hotel_frame import SALE_HOTELS_BY_CATEGORY
 
 
@@ -22,7 +22,7 @@ class EnterSaleHotelBehavior(Behavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
     interactive_behavior: InteractiveBehavior
 
-    def run(self, category: CategoryEnum) -> None:
+    def run(self, category: CategoryItemEnum) -> None:
         curr_map_pos = DataReader().map_pos_by_map_id[self.game_state.map.map_id]
         near_acessible_sale_hotel = min(
             [
@@ -54,6 +54,7 @@ class EnterSaleHotelBehavior(Behavior):
             in [
                 ElementTypeEnum.RESOURCE_SALE_HOTEL,
                 ElementTypeEnum.CONSUMABLE_SALE_HOTEL,
+                ElementTypeEnum.EQUIPMENT_SALE_HOTEL,
             ]
         )
 

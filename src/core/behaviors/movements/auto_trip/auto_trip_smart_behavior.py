@@ -1,11 +1,15 @@
 from dataclasses import dataclass
 from functools import partial
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.area_enum import AreaEnum
-from dofus_unity_reader.enums.npc_message_id_enum import NpcAskMessageIdEnum
 from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
+)
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.game_constants.area import AreaEnum
+from dofus_unity_reader.game_constants.npc import (
+    NpcAskMessageIdEnum,
+    NpcInfo,
+    ReplyInfo,
 )
 
 from src.core.behaviors.behavior import Behavior
@@ -13,8 +17,6 @@ from src.core.behaviors.movements.auto_trip.auto_trip_explorator_behavior import
     AutoTripExploratorBehavior,
 )
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
-from src.core.engine.npcs.npc_dialog_info import ReplyInfo
-from src.core.engine.npcs.npc_info import NpcInfo
 
 NPC_PORTAL_INCARNAM = NpcInfo(
     npc_map_id=153880835,

@@ -1,17 +1,17 @@
 from dataclasses import dataclass
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.enums.jobs_enum import HARVESTER_JOB_IDS, JobEnum
 from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
 from datas.protos.non_obf.game.interactive_element_pb2 import (
     InteractiveElementUpdatedEvent,
     InteractiveMapUpdateEvent,
-    StatedMapUpdateEvent,
     StatedElementUpdatedEvent,
+    StatedMapUpdateEvent,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS, JobEnum
 
 from src.controller.gfx_mapping import GfxMappingController
 from src.core.frames.frame import Frame

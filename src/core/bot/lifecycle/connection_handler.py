@@ -6,6 +6,7 @@ from typing import Callable
 from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
+from dofus_unity_reader.game_constants.dungeon_info import PLAYABLE_DUNGEONS
 
 from src.controller.bot_config import BotConfig
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
@@ -14,7 +15,6 @@ from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.engine.movements.world.edge import (
     remove_forbidden_edge_transition_by_map_id,
 )
-from src.core.game_constants import Dungeons
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
@@ -121,7 +121,7 @@ class ConnectionHandler(ContextualLogger):
             ):
                 self.behavior_coordinator.run_current_bot_action()
 
-        for dungeon_info in Dungeons.ALL:
+        for dungeon_info in PLAYABLE_DUNGEONS:
             if (
                 self.game_state.map.map_id in dungeon_info.dungeon.mapIds
                 or self.game_state.map.map_id == dungeon_info.dungeon.exitMapId

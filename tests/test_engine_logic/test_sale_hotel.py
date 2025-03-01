@@ -4,9 +4,12 @@ from unittest.mock import MagicMock
 
 import pytest
 from datas.protos.non_obf.game.common_pb2 import ObjectItem, ObjectItemInventory
-from dofus_unity_reader.enums.category_item_enum import CategoryEnum
+from dofus_unity_reader.game_constants.item import CategoryItemEnum
+from dofus_unity_reader.game_constants.sale_hotel import (
+    QuantityEnum,
+    QuantityIndex,
+)
 
-from src.core.engine.economy.quantity_enum import QuantityEnum, QuantityIndex
 from src.core.engine.economy.sale_hotel import (
     choose_quantity_to_sell,
     get_item_gids_to_sell,
@@ -96,7 +99,7 @@ class TestSaleHotel:
                 is_sub=True,
                 bank_object_by_gid={},
                 item_sell_quantity_by_gid=defaultdict(int),
-                category=CategoryEnum.RESOURCES,
+                category=CategoryItemEnum.RESOURCES,
                 logger=logger,
                 avg_price_by_gid={},
             )
@@ -119,11 +122,11 @@ class TestSaleHotel:
             item_type_by_id={
                 1: make_item_type_data(
                     type_id=1,
-                    category_id=CategoryEnum.RESOURCES,
+                    category_id=CategoryItemEnum.RESOURCES,
                 ),
                 2: make_item_type_data(
                     type_id=2,
-                    category_id=CategoryEnum.EQUIPMENT,
+                    category_id=CategoryItemEnum.EQUIPMENT,
                 ),
             },
         )
@@ -142,7 +145,7 @@ class TestSaleHotel:
                 105: make_inventory_item(105, 1),
             },
             item_sell_quantity_by_gid=defaultdict(int),
-            category=CategoryEnum.RESOURCES,
+            category=CategoryItemEnum.RESOURCES,
             logger=logger,
             avg_price_by_gid={
                 100: 600.0,
@@ -170,7 +173,7 @@ class TestSaleHotel:
             item_type_by_id={
                 1: make_item_type_data(
                     type_id=1,
-                    category_id=CategoryEnum.RESOURCES,
+                    category_id=CategoryItemEnum.RESOURCES,
                 ),
             },
         )
@@ -187,7 +190,7 @@ class TestSaleHotel:
             is_sub=True,
             bank_object_by_gid={999: make_inventory_item(999, 100)},
             item_sell_quantity_by_gid=defaultdict(int),
-            category=CategoryEnum.RESOURCES,
+            category=CategoryItemEnum.RESOURCES,
             logger=logger,
             avg_price_by_gid={
                 200: 1000.0,

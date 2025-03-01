@@ -3,7 +3,7 @@ from time import sleep
 from typing import Iterator
 
 from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.transition_type import TransitionTypeEnum
+from dofus_unity_reader.game_constants.transition_type import TransitionTypeEnum
 from dofus_unity_reader.models.world_graph import Vertice
 
 from src.core.engine.movements.world.astar_vertice import AstarWorld

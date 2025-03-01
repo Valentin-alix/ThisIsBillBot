@@ -4,8 +4,8 @@ from time import sleep
 from typing import Iterator
 
 from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.directions import DirectionsEnum
-from dofus_unity_reader.enums.skill_enum import SkillEnum
+from dofus_unity_reader.game_constants.directions import DirectionsEnum
+from dofus_unity_reader.game_constants.skill import SkillEnum
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
 
 from src.core.engine.contexts import MapMovementContext

@@ -10,8 +10,10 @@ from datas.protos.non_obf.game.common_pb2 import (
 )
 from datas.protos.non_obf.game.spell_pb2 import SpellItem
 from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
-from dofus_unity_reader.enums.effect_element import EffectElement
+from dofus_unity_reader.game_constants.characteristic import (
+    CharacteristicEnum,
+    EffectElement,
+)
 from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.engine.fights.attack import EnemyData

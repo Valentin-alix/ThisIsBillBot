@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from dofus_unity_reader.enums.directions import DirectionsEnum
+from dofus_unity_reader.game_constants.directions import DirectionsEnum
+from dofus_unity_reader.game_constants.spell_shape_enum import SpellShapeEnum
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
 from python_utils.cache import cache
 
-from src.core.engine.fights.spell_shape import SpellShapeEnum
 from src.core.engine.fights.zones.zone import Zone
 from src.core.signals.grid_signals import GridSignals
 from src.core.signals.player_signals import GameInfoSignals

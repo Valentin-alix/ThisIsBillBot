@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datas.protos.non_obf.game.common_pb2 import (
     CharacterCharacteristic,
 )
-from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 from dofus_unity_reader.models.datas.monsters_root import MonsterGrade
 from dofus_unity_reader.models.datas.spell_levels_root import Effect
 

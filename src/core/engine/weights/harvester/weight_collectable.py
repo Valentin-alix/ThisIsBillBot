@@ -2,19 +2,19 @@ from collections import defaultdict
 from functools import cache
 from math import log1p
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.enums.jobs_enum import JobEnum
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.game_constants.job import JobEnum
+from dofus_unity_reader.game_constants.monster import PROTECTOR_RACES
 
 from src.controller.gfx_mapping import GfxMappingController
 from src.controller.sale_hotel import SaleHotelController
 from src.core.config import WEIGHT_BY_JOB
 from src.core.engine.monsters.drops import get_rare_gid_with_weight_from_protector_drop
 from src.core.engine.movements.map.map_tools import MapTools
-from src.core.game_constants import Monsters
 
 PRICE_EXPONENT = 1.1
 
@@ -125,7 +125,7 @@ def get_basic_weight_collectable(
 @cache
 def get_rare_drop_weight_by_collectable_gid() -> dict[int, float]:
     drop_weight_by_res_id: dict[int, float] = defaultdict(float)
-    for race in Monsters.PROTECTOR_RACES:
+    for race in PROTECTOR_RACES:
         for monster in DataReader().monsters_by_race[race]:
             res_object_id, curr_weight = get_rare_gid_with_weight_from_protector_drop(
                 monster.drops

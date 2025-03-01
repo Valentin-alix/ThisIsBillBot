@@ -21,7 +21,7 @@ from datas.protos.non_obf.game.job_pb2 import (
 from datas.protos.non_obf.game.teleportation_pb2 import (
     ZaapKnownListEvent,
 )
-from dofus_unity_reader.enums.effect_element import EffectElement
+from dofus_unity_reader.game_constants.characteristic import EffectElement
 
 from src.core.engine.fights.stats.characteristic import get_max_characteristic_per_point
 from src.core.events_manager.priority import PriorityEnum

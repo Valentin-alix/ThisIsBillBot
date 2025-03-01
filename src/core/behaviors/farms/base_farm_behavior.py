@@ -8,8 +8,8 @@ from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
-from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
-    SaleHotelPricesBehavior,
+from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import (
+    SaleHotelSellBehavior,
 )
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestError,
@@ -33,7 +33,7 @@ class BaseFarmBehavior(Behavior, ABC):
 
     random_farm_behavior: RandomFarmBehavior
     unload_behavior: UnloadBehavior
-    sale_hotel_prices_behavior: SaleHotelPricesBehavior
+    sale_hotel_prices_behavior: SaleHotelSellBehavior
     mule_give_behavior: MuleGiveBehavior
     craft_behavior: CraftBehavior
 
@@ -83,11 +83,11 @@ class BaseFarmBehavior(Behavior, ABC):
             self.logger.error("Can't unload")
             return self.finish(error_code)
         if self.game_state.sale_hotel.should_update_price:
-            self.on_interesting_amount_of_farming_done()
+            self.on_time_to_update_price()
         else:
             self.on_new_map()
 
-    def on_interesting_amount_of_farming_done(self):
+    def on_time_to_update_price(self):
         if not DO_CRAFT:
             return self.on_craft_behavior_finished(None)
 

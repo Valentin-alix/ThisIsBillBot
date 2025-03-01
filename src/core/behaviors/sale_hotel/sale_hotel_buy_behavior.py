@@ -1,0 +1,162 @@
+from collections import defaultdict
+from dataclasses import dataclass, field
+from functools import partial
+
+from common_pb2 import ObjectItemInventory
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.game_constants.item import CategoryItemEnum
+from dofus_unity_reader.game_constants.npc import NpcInfo
+from exchange_pb2 import (
+    ExchangeBidHouseBuyRequest,
+    ExchangeBidHouseBuyResultEvent,
+    ExchangeBidHouseSearchRequest,
+    ExchangeBidHouseTypeRequest,
+    ExchangeTypesExchangerDescriptionForUserEvent,
+    ExchangeTypesItemsExchangerDescriptionForUserEvent,
+)
+from pydantic import BaseModel
+
+from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
+from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
+    EnterSaleHotelBehavior,
+)
+from src.core.config import BASE_RANGE, BIG_RANGE, SMALL_RANGE
+
+
+class ItemToBuyInfo(BaseModel):
+    item_gid: int
+    max_kamas: int
+
+
+@dataclass
+class SaleHotelBuyBehavior(DialogHandlerBehavior):
+    enter_sale_hotel_behavior: EnterSaleHotelBehavior
+
+    _current_grouped_item_infos_by_type: dict[int, list[ItemToBuyInfo]] = field(
+        init=False, default_factory=dict[int, list[ItemToBuyInfo]]
+    )
+    _current_item_infos: list[ItemToBuyInfo] = field(
+        init=False, default_factory=list[ItemToBuyInfo]
+    )
+    _bought_item: list[ObjectItemInventory] = field(
+        init=False, default_factory=list[ObjectItemInventory]
+    )
+
+    def run(self, item_infos_to_buy: list[ItemToBuyInfo], category: CategoryItemEnum):
+        self._bought_item.clear()
+        self._current_item_infos.clear()
+        self._current_grouped_item_infos_by_type = defaultdict(list)
+        for item_info in item_infos_to_buy:
+            self._current_grouped_item_infos_by_type[
+                DataReader().item_by_id[item_info.item_gid].typeId
+            ].append(item_info)
+
+        self.enter_sale_hotel_behavior.start(
+            callback=self.on_enter_sale_hotel_behavior_finished,
+            parent=self,
+            category=category,
+        )
+
+    def on_enter_sale_hotel_behavior_finished(
+        self, error_code: str | None, npc_info: NpcInfo
+    ):
+        self.raise_if_error(error_code)
+        self.buy_next_type_item()
+
+    def buy_next_type_item(self):
+        if len(self._current_grouped_item_infos_by_type) == 0:
+            return self.exit_and_finish()
+
+        type_id, gids = self._current_grouped_item_infos_by_type.popitem()
+        self._current_item_infos = gids
+        self.event_manager.on(
+            ExchangeTypesExchangerDescriptionForUserEvent,
+            self.on_exchange_types_exchanger_description_for_user_event,
+            originator=self,
+            once=True,
+        )
+        if self.game_state.sale_hotel.current_search_type_id is not None:
+            req = ExchangeBidHouseTypeRequest(
+                type_id=self.game_state.sale_hotel.current_search_type_id, follow=False
+            )
+            self.event_manager.send(req)
+        req = ExchangeBidHouseTypeRequest(type_id=type_id, follow=True)
+        self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(req))
+
+    def on_exchange_types_exchanger_description_for_user_event(
+        self, msg: ExchangeTypesExchangerDescriptionForUserEvent
+    ):
+        self.buy_next_item()
+
+    def buy_next_item(self):
+        if len(self._current_item_infos) == 0:
+            return self.buy_next_type_item()
+
+        item_info = self._current_item_infos.pop()
+
+        self.event_manager.on(
+            ExchangeTypesItemsExchangerDescriptionForUserEvent,
+            callback=partial(
+                self.on_exchange_types_items_exchanger_description_for_user_event,
+                item_info=item_info,
+            ),
+            originator=self,
+            once=True,
+        )
+        if self.game_state.sale_hotel.current_search_item_gid is not None:
+            req = ExchangeBidHouseSearchRequest(
+                object_gid=self.game_state.sale_hotel.current_search_item_gid,
+                follow=False,
+            )
+            self.event_manager.send(req)
+        req = ExchangeBidHouseSearchRequest(object_gid=item_info.item_gid, follow=True)
+        self.run_timer(BIG_RANGE, lambda: self.event_manager.send(req))
+
+    def on_exchange_types_items_exchanger_description_for_user_event(
+        self,
+        msg: ExchangeTypesItemsExchangerDescriptionForUserEvent,
+        item_info: ItemToBuyInfo,
+    ):
+        if len(msg.item_descriptions) == 0:
+            return self.buy_next_item()
+
+        cheaper_item = min(msg.item_descriptions, key=lambda elem: elem.prices[0])
+
+        if (
+            cheaper_item.prices[0] == 0
+            or cheaper_item.prices[0] > self.game_state.inventory.kamas
+            or cheaper_item.prices[0] > item_info.max_kamas
+        ):
+            return self.buy_next_item()
+
+        self.event_manager.on(
+            ExchangeBidHouseBuyResultEvent,
+            callback=partial(
+                self.exchange_bid_house_buy_result_event, gid=item_info.item_gid
+            ),
+            originator=self,
+            once=True,
+        )
+
+        req = ExchangeBidHouseBuyRequest(
+            bid_item_uid=cheaper_item.uid, quantity=1, price=cheaper_item.prices[0]
+        )
+        self.run_timer(BIG_RANGE, lambda: self.event_manager.send(req))
+
+    def exchange_bid_house_buy_result_event(
+        self, msg: ExchangeBidHouseBuyResultEvent, gid: int
+    ):
+        if msg.bought:
+            self.logger.info("SUCESS, item bought")
+            related_item_inv = self.game_state.inventory.get_object_item_by_gid(gid)
+            assert related_item_inv
+            self._bought_item.append(related_item_inv)
+        self.buy_next_item()
+
+    def exit_and_finish(self):
+        self.run_timer(
+            BASE_RANGE,
+            lambda: self.leave_dialog(
+                lambda _: self.finish(bought_item=self._bought_item)
+            ),
+        )

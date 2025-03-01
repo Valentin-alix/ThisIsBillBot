@@ -1,6 +1,6 @@
 import pytest
+from dofus_unity_reader.game_constants.sale_hotel import QuantityEnum
 
-from src.core.engine.economy.quantity_enum import QuantityEnum
 from src.core.engine.economy.sale_hotel import get_price_for_sale_hotel
 
 

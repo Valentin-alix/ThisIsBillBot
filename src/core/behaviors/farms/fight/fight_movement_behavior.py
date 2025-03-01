@@ -1,11 +1,11 @@
 from collections import defaultdict
 from dataclasses import dataclass
 
-from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
-from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
 )
+from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
+from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior

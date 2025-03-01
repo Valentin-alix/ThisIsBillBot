@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
-from dofus_unity_reader.enums.npc_message_id_enum import NpcAskMessageIdEnum
 from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeMoveKamaRequest,
 )
@@ -10,6 +9,10 @@ from datas.protos.non_obf.game.inventory_pb2 import (
 )
 from datas.protos.non_obf.game.npc_pb2 import (
     NpcDialogQuestionEvent,
+)
+from dofus_unity_reader.game_constants.npc import (
+    BANK_NPCS,
+    NpcAskMessageIdEnum,
 )
 
 from src.core.behaviors.behavior import Behavior
@@ -22,7 +25,6 @@ from src.core.behaviors.npcs.npc_dialog_behavior import (
 )
 from src.core.config import BASE_RANGE
 from src.core.engine.storage.unload import get_bank_npc_info
-from src.core.game_constants import NPCs
 from src.protocol.protocol_game import is_usable_msg
 
 
@@ -63,7 +65,7 @@ class EnterBankChestBehavior(Behavior):
             parent=self,
             npc_dialog_info=next(
                 bank
-                for bank in NPCs.BANKS
+                for bank in BANK_NPCS
                 if bank.npc_map_id == self.game_state.map.map_id
             ),
             is_forbidden_msg_callback=is_forbidden_msg_callback,

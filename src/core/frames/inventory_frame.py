@@ -7,6 +7,7 @@ from datas.protos.non_obf.game.inventory_pb2 import (
     ObjectAddedEvent,
     ObjectDeletedEvent,
     ObjectModifiedEvent,
+    ObjectMovementEvent,
     ObjectQuantityEvent,
     ObjectsAddedEvent,
     ObjectsDeletedEvent,
@@ -82,6 +83,12 @@ class InventoryFrame(Frame):
             originator=self,
             priority=self.priority,
         )
+        self.event_manager.on(
+            ObjectMovementEvent,
+            self.on_object_movement_event,
+            originator=self,
+            priority=self.priority,
+        )
 
     def on_object_quantity_event(self, message: ObjectQuantityEvent):
         self.game_state.inventory.objects_by_uid[
@@ -129,3 +136,7 @@ class InventoryFrame(Frame):
     def on_object_modified_event(self, msg: ObjectModifiedEvent):
         self.game_state.inventory.objects_by_uid[msg.object.item.uid] = msg.object
         self.inventory_signals.updated_object_item.emit(msg.object)
+
+    def on_object_movement_event(self, msg: ObjectMovementEvent):
+        # quand on equippe l'objet ca lance ce msg puis un ObjectAddedEvent, donc on peux delete l'objet
+        self.game_state.inventory.remove_object(msg.object_uid)

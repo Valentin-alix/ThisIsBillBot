@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.enums.jobs_enum import HARVESTER_JOB_IDS
-from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.common_pb2 import (
     InteractiveElement,
     StatedElement,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS
+from dofus_unity_reader.grid.map_point import MapPoint
 
 
 @dataclass

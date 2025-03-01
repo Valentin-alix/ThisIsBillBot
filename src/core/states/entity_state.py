@@ -7,7 +7,8 @@ from datas.protos.non_obf.game.common_pb2 import (
     EntityDisposition,
 )
 from datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
-from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
+from dofus_unity_reader.game_constants.npc import NpcDialogInfo
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
@@ -17,7 +18,6 @@ from src.core.engine.monsters.monster_group import (
     get_monster_groups,
     is_valid_monster_group,
 )
-from src.core.engine.npcs.npc_dialog_info import NpcDialogInfo
 from src.core.signals.grid_signals import GridSignals
 from src.core.states.state import State
 

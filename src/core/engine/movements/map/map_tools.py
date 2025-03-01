@@ -1,13 +1,13 @@
 import math
 
 from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.enums.directions import DirectionsEnum
+from dofus_unity_reader.game_constants.directions import DirectionsEnum
 from dofus_unity_reader.grid.consts import (
     MAP_GRID_WIDTH,
 )
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
-from python_utils.cache import cache
 from dofus_unity_reader.models.maps import Transform
+from python_utils.cache import cache
 
 
 class MapTools:

@@ -1,10 +1,10 @@
 from logging import Logger
 
-from dofus_unity_reader.enums.monster_gid_enum import MonsterGidEnum
-from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
 )
+from dofus_unity_reader.game_constants.monster import MonsterGidEnum
+from dofus_unity_reader.grid.map_point import MapPoint
 
 
 def get_level_monster_group(

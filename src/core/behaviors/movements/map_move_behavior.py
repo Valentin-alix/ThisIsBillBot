@@ -17,10 +17,10 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
     MapMovementRefusedEvent,
     MapMovementRequest,
 )
+from dofus_unity_reader.game_constants.text_enum import TextEnum
 from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
-from src.core.engine.communications.text import TextEnum
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 

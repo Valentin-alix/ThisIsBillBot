@@ -7,6 +7,7 @@ from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
 
 from src.core.behaviors.communication.chat_behavior import ChatBehavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
+from src.core.behaviors.equipment.auto_equipment_behavior import AutoEquipmentBehavior
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
@@ -53,8 +54,9 @@ from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
 )
-from src.core.behaviors.sale_hotel.sale_hotel_prices_behavior import (
-    SaleHotelPricesBehavior,
+from src.core.behaviors.sale_hotel.sale_hotel_buy_behavior import SaleHotelBuyBehavior
+from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import (
+    SaleHotelSellBehavior,
 )
 from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
 from src.core.behaviors.socket.game_session_behavior import GameSessionBehavior
@@ -434,6 +436,19 @@ class BotFactory:
             enter_sale_hotel_behavior=enter_sale_hotel_behavior,
         )
 
+        sale_hotel_buy_behavior = SaleHotelBuyBehavior(
+            _logger=logger,
+            event_manager=event_manager,
+            game_state=game_state,
+            enter_sale_hotel_behavior=enter_sale_hotel_behavior,
+        )
+        auto_equipment_behavior = AutoEquipmentBehavior(
+            _logger=logger,
+            event_manager=event_manager,
+            game_state=game_state,
+            sale_hotel_buy_behavior=sale_hotel_buy_behavior,
+        )
+
         unload_behavior = UnloadBehavior(
             event_manager=event_manager,
             game_state=game_state,
@@ -462,7 +477,7 @@ class BotFactory:
             game_state=game_state,
             enter_bank_behavior=enter_bank_chest_behavior,
         )
-        sale_hotel_prices_behavior = SaleHotelPricesBehavior(
+        sale_hotel_prices_behavior = SaleHotelSellBehavior(
             event_manager=event_manager,
             game_state=game_state,
             _logger=logger,
@@ -596,6 +611,7 @@ class BotFactory:
             craft_behavior=craft_behavior,
             dungeon_behavior=dungeon_behavior,
             idle_behavior=idle_behavior,
+            auto_equipment_behavior=auto_equipment_behavior,
         )
         auto_bot_behavior = AutoBotBehavior(
             event_manager=event_manager,
@@ -622,6 +638,7 @@ class BotFactory:
                 mule_accept_kamas_behavior,
                 dungeon_behavior,
                 sale_hotel_prices_behavior,
+                auto_equipment_behavior,
                 fake_bad_movement_behavior,
                 fake_bad_interactive_behavior,
             ],

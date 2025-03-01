@@ -10,7 +10,7 @@ from datas.protos.non_obf.game.fight_pb2 import (
     FightTurnEndEvent,
     FightTurnFinishRequest,
 )
-from dofus_unity_reader.enums.characteristic_enum import CharacteristicEnum
+from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_movement_behavior import FightMovementBehavior

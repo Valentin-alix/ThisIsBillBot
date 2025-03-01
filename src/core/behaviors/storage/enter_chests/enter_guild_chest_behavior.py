@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.enums.element_type import ElementTypeEnum
-from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.guild_chest_pb2 import (
     GuildChestCurrentListenersAddEvent,
 )
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.game_constants.element_type import ElementTypeEnum
+from dofus_unity_reader.game_constants.map_id import BANK_MAP_IDS
+from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
@@ -15,7 +16,6 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 )
 from src.core.config import BASE_RANGE
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
-from src.core.game_constants import Maps
 
 
 class EnterGuildChestError(StrEnum):
@@ -35,7 +35,7 @@ class EnterGuildChestBehavior(Behavior):
         self.auto_trip_world_behavior.start(
             callback=self.on_bank_map,
             parent=self,
-            map_ids=set(Maps.BANKS),
+            map_ids=set(BANK_MAP_IDS),
         )
 
     def on_bank_map(self, error_code: str | None):
