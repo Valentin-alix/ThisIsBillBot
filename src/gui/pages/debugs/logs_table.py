@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from PyQt6.QtCore import QModelIndex, Qt, pyqtSlot
+from PyQt6.QtCore import QModelIndex, Qt, QTimer, pyqtSlot
 from PyQt6.QtGui import QStandardItem
 from PyQt6.QtWidgets import QHeaderView, QWidget
 from qfluentwidgets import TableWidget
@@ -41,16 +41,39 @@ class LogsTable(BaseTableWidget):
         self.table.setEditTriggers(TableWidget.EditTrigger.NoEditTriggers)
 
         self.table.clicked.connect(self.on_click_row)
+        self._pending_rows: list[tuple[LogLevel, str, datetime]] = []
+        self._batch_timer = QTimer(self)
+        self._batch_timer.setInterval(50)
+        self._batch_timer.setSingleShot(True)
+        self._batch_timer.timeout.connect(self._flush_pending_rows)
 
     def add_row(self, level: LogLevel, msg: str) -> None:
-        type_text = QStandardItem(level.name)
-        msg_text = QStandardItem(msg)
-        logged_at = datetime.now()
-        time_text = QStandardItem(logged_at.strftime("%H:%M:%S"))
-        time_text.setData(logged_at, Qt.ItemDataRole.UserRole)
+        self._pending_rows.append((level, msg, datetime.now()))
+        if not self._batch_timer.isActive():
+            self._batch_timer.start()
 
-        # use buffered append to insert logs in batches
-        self.table.append_row([time_text, type_text, msg_text])
+    def flush_pending_rows(self) -> None:
+        self._flush_pending_rows()
+
+    def clear(self) -> None:
+        self._batch_timer.stop()
+        self._pending_rows.clear()
+        self.table.item_model.clear_all()
+
+    def _flush_pending_rows(self) -> None:
+        if not self._pending_rows:
+            return
+
+        rows: list[list[QStandardItem]] = []
+        for level, msg, logged_at in self._pending_rows:
+            type_text = QStandardItem(level.name)
+            msg_text = QStandardItem(msg)
+            time_text = QStandardItem(logged_at.strftime("%H:%M:%S"))
+            time_text.setData(logged_at, Qt.ItemDataRole.UserRole)
+            rows.append([time_text, type_text, msg_text])
+
+        self.table.item_model.append_rows(rows)
+        self._pending_rows.clear()
 
     @pyqtSlot(QModelIndex)
     def on_click_row(self, model_index: QModelIndex) -> None:

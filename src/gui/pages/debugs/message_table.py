@@ -78,6 +78,14 @@ class MessageTable(BaseTableWidget):
         if not self._batch_timer.isActive():
             self._batch_timer.start()
 
+    def flush_pending_messages(self) -> None:
+        self._flush_pending_messages()
+
+    def clear(self) -> None:
+        self._batch_timer.stop()
+        self._pending_messages.clear()
+        self.table.item_model.clear_all()
+
     def _flush_pending_messages(self) -> None:
         if not self._pending_messages:
             return

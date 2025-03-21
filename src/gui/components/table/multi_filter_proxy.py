@@ -1,6 +1,6 @@
-from PyQt6.QtCore import QSortFilterProxyModel, QModelIndex
+from PyQt6.QtCore import QModelIndex, QSortFilterProxyModel
 
-from src.gui.components.table.column_info import SearchType, FilterInfo
+from src.gui.components.table.column_info import FilterInfo, SearchType
 
 
 class MultiColumnFilterProxyModel(QSortFilterProxyModel):
@@ -23,6 +23,8 @@ class MultiColumnFilterProxyModel(QSortFilterProxyModel):
 
     def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex):
         for col_index, filter_string in enumerate(self.header_filters):
+            if not filter_string:
+                continue
             filter_info = self.filter_infos[col_index]
             if not filter_info:
                 continue

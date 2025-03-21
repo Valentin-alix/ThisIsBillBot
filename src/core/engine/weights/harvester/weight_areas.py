@@ -3,12 +3,12 @@ import random
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.area import (
+from dofus_unity_reader.data_center.area_info import (
     AREAS_SUB_WITH_WEIGHT,
     AREAS_UNSUB_WITH_WEIGHT,
     AreaInfo,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
 
 from src.core.engine.contexts import HarvesterAreaContext
 from src.core.engine.weights.harvester.weight_collectable import (

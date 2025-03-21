@@ -6,11 +6,17 @@ from typing import Callable
 from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
-from dofus_unity_reader.game_constants.dungeon_info import PLAYABLE_DUNGEONS
+from common_pb2 import Character
+from dofus_unity_reader.data_center.dungeon_info import PLAYABLE_DUNGEONS
+from dofus_unity_reader.game_constants.map_id import MapIdEnum
 
 from src.controller.bot_config import BotConfig
+from src.core.behaviors.account.character_creation_behavior import (
+    CharacterCreationBehavior,
+)
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
+from src.core.behaviors.quests.tutorial_behavior import TutorialBehavior
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.engine.movements.world.edge import (
     remove_forbidden_edge_transition_by_map_id,
@@ -31,6 +37,8 @@ class ConnectionHandler(ContextualLogger):
     game_state: GameState
     dungeon_behavior: DungeonBehavior
     fight_behavior: FightBehavior
+    character_creation_behavior: CharacterCreationBehavior
+    tutorial_behavior: TutorialBehavior
     account: DecipheredApiKey
     shared_signals: SharedSignals
     get_bot_config: Callable[[], BotConfig | None]
@@ -46,8 +54,16 @@ class ConnectionHandler(ContextualLogger):
             self._timer.cancel()
             self._timer = None
 
-    def on_connected(self):
+    def on_connected(self, characters: list[Character]):
         self.is_connected_event.set()
+        if len(characters) == 0 and self.is_playing_event.is_set():
+            self.character_creation_behavior.start(
+                callback=self.on_character_creation_behavior_finished, parent=None
+            )
+
+    def on_character_creation_behavior_finished(self, error_code: str | None):
+        if error_code is not None:
+            raise UnhandledErrorCodeException(error_code)
 
     def on_disconnected(self):
         """Handle bot disconnection event and trigger reconnection if playing."""
@@ -121,6 +137,20 @@ class ConnectionHandler(ContextualLogger):
             ):
                 self.behavior_coordinator.run_current_bot_action()
 
+        def on_tutorial_behavior_finished(error_code: str | None):
+            if error_code is not None:
+                raise UnhandledErrorCodeException(error_code)
+            if (
+                self.behavior_coordinator
+                and self.behavior_coordinator.is_playing_event.is_set()
+            ):
+                self.behavior_coordinator.run_current_bot_action()
+
+        if self.game_state.map.map_id == MapIdEnum.TUTORIAL_STARTING_MAP:
+            return self.tutorial_behavior.start(
+                callback=on_tutorial_behavior_finished, parent=None
+            )
+
         for dungeon_info in PLAYABLE_DUNGEONS:
             if (
                 self.game_state.map.map_id in dungeon_info.dungeon.mapIds
@@ -137,9 +167,5 @@ class ConnectionHandler(ContextualLogger):
                 callback=on_fight_behavior_finished,
                 parent=None,
             )
-        else:
-            if (
-                self.behavior_coordinator
-                and self.behavior_coordinator.is_playing_event.is_set()
-            ):
-                self.behavior_coordinator.run_current_bot_action()
+        elif self.behavior_coordinator.is_playing_event.is_set():
+            self.behavior_coordinator.run_current_bot_action()

@@ -7,6 +7,9 @@ from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
 )
 
 from src.controller.bot_config import BotConfigController
+from src.core.behaviors.account.character_creation_behavior import (
+    CharacterCreationBehavior,
+)
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
@@ -15,6 +18,7 @@ from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
+from src.core.behaviors.quests.tutorial_behavior import TutorialBehavior
 from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
 from src.core.behaviors.socket.game_session_behavior import GameSessionBehavior
 from src.core.behaviors.socket.handshake_behavior import HandshakeBehavior
@@ -77,6 +81,8 @@ class Bot(ContextualLogger):
     game_session_behavior: GameSessionBehavior
     handshake_behavior: HandshakeBehavior
     hearthbeat_behavior: HearthBeatBehavior
+    character_creation_behavior: CharacterCreationBehavior
+    tutorial_behavior: TutorialBehavior
 
     usable_behaviors: list[Behavior]
 
@@ -124,6 +130,7 @@ class Bot(ContextualLogger):
             usable_behaviors=self.usable_behaviors,
             bot_signals=self.bot_signals,
         )
+
         self.connection_handler = ConnectionHandler(
             is_ready_to_play_event=self.is_ready_to_play_event,
             is_playing_event=self.is_playing_event,
@@ -136,6 +143,8 @@ class Bot(ContextualLogger):
             get_bot_config=self.get_bot_config,
             behavior_coordinator=self.behavior_coordinator,
             is_connected_event=self.is_connected_event,
+            tutorial_behavior=self.tutorial_behavior,
+            character_creation_behavior=self.character_creation_behavior,
         )
 
         self.process_manager = ProcessManager(_logger=self.logger)

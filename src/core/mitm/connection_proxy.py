@@ -7,10 +7,14 @@ from ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
     WorkerAction,
 )
 from datas.protos.non_obf.connection.login_message_pb2 import (
+    CharacterInformation,
     IdentificationResponse,
     LoginMessage,
     Request,
+    Server,
+    ServerInformation,
 )
+from dofus_unity_reader.game_constants.server import ServerEnum
 from google.protobuf.message import Message
 
 from src.const import DEBUG
@@ -72,6 +76,31 @@ class ConnectionProxy(Proxy):
                 msg.response.identification.success.ClearField(
                     "fight_reconnection_server_id"
                 )
+                is_new_account = all(
+                    len(server_info.characters) == 0
+                    for server_info in msg.response.identification.success.server_list.servers
+                )
+                if is_new_account:
+                    print(is_new_account)
+                    servers = msg.response.identification.success.server_list.servers
+                    for server in list(servers):
+                        if server.server.id == ServerEnum.BRIAL:
+                            servers.remove(server)
+
+                    # juste pour que le client initie quand meme la connection au serveur brial si ya pas de perso
+                    fake_character = CharacterInformation(
+                        name="unprank",
+                        breed=CharacterInformation.Breed.IOP,
+                        gender=CharacterInformation.Gender.MALE,
+                        level=1,
+                        last_connection_date="2026-05-17T21:24:14.574+02:00",
+                    )
+                    msg.response.identification.success.server_list.servers.append(
+                        ServerInformation(
+                            server=Server(id=ServerEnum.BRIAL, mono_account=True),
+                            characters=[fake_character],
+                        )
+                    )
                 if self.bot:
                     self.bot.game_state.player.subscription_end_date = (
                         datetime.fromisoformat(

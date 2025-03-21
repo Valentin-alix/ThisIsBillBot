@@ -396,6 +396,10 @@ class SnifferWidget(QWidget):
 
     @pyqtSlot()
     def on_export_debug(self) -> None:
+        self.msg_table.flush_pending_messages()
+        if self.logs_widget is not None:
+            self.logs_widget.logs_table.flush_pending_rows()
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         default_filename = f"debug_{timestamp}.json"
 
@@ -438,13 +442,9 @@ class SnifferWidget(QWidget):
 
     @pyqtSlot()
     def on_reset(self) -> None:
-        self.msg_table.table.item_model.remove_rows(
-            0, len(self.msg_table.table.item_model._data)
-        )
+        self.msg_table.clear()
         if self.logs_widget:
-            self.logs_widget.logs_table.table.item_model.remove_rows(
-                0, len(self.logs_widget.logs_table.table.item_model._data)
-            )
+            self.logs_widget.logs_table.clear()
 
     @pyqtSlot(QModelIndex)
     def on_click_msg(self, model_index: QModelIndex) -> None:

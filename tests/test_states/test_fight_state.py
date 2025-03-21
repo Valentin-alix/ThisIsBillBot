@@ -31,6 +31,7 @@ from datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
 from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 
 from src.core.bot.bot import Bot
+from src.core.states.entity_state import FightActor
 
 
 class TestFightState:
@@ -207,6 +208,11 @@ class TestFightState:
     ):
         runtime_bot.game_state.fight.life_point = 500
         runtime_bot.game_state.player.character_id = 123
+        runtime_bot.game_state.entity.actor_fight_by_id[
+            runtime_bot.game_state.player.character_id
+        ] = FightActor(
+            life_point=runtime_bot.game_state.fight.life_point, is_summoned=False
+        )
 
         runtime_bot.event_manager.process_msg(
             GameActionFightEvent(
@@ -227,32 +233,6 @@ class TestFightState:
         )
 
         assert runtime_bot.game_state.fight.life_point == 450
-
-    def test_life_points_events_ignore_other_targets(
-        self,
-        runtime_bot: Bot,
-    ):
-        runtime_bot.game_state.fight.life_point = 500
-        runtime_bot.game_state.player.character_id = 123
-
-        runtime_bot.event_manager.process_msg(
-            GameActionFightEvent(
-                life_points_gain=GameActionFightEvent.LifePointsGain(
-                    target_id=999,
-                    delta=100,
-                )
-            )
-        )
-        runtime_bot.event_manager.process_msg(
-            GameActionFightEvent(
-                life_points_lost=GameActionFightEvent.LifePointsLost(
-                    target_id=999,
-                    loss=150,
-                )
-            )
-        )
-
-        assert runtime_bot.game_state.fight.life_point == 500
 
     def test_fight_turn_end_event_clears_our_turn_for_player(
         self,

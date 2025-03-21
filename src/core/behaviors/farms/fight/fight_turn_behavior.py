@@ -16,7 +16,7 @@ from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_movement_behavior import FightMovementBehavior
 from src.core.behaviors.farms.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
-from src.core.engine.fights.attack import Attacker
+from src.core.engine.fights.attack.attacker import Attacker
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.services.human_timings import HumanTimingsService
 

@@ -2,8 +2,10 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from threading import Timer
 
+from common_pb2 import Character
 from datas.protos.non_obf.game.account_pb2 import AccountInformationUpdateEvent
 from datas.protos.non_obf.game.character_management_pb2 import (
+    CharacterListEvent,
     CharacterSelectionEvent,
 )
 from datas.protos.non_obf.game.character_pb2 import (
@@ -63,6 +65,12 @@ class PlayerFrame(Frame):
         self.event_manager.before(
             DialogLeaveRequest, self.before_dialog_leave_request, originator=self
         )
+        self.event_manager.on(
+            CharacterListEvent,
+            self.on_character_list_event,
+            originator=self,
+            priority=self.priority,
+        )
 
         self.game_info_signals.connected.connect(self.on_connected)
         self.game_info_signals.disconnected.connect(self.on_disconnected)
@@ -70,7 +78,7 @@ class PlayerFrame(Frame):
             self.game_state.player.is_ready_to_play_event.set
         )
 
-    def on_connected(self):
+    def on_connected(self, _: list[Character]):
         def on_map_init_after_connected():
             self.run_timer(3, self.game_info_signals.is_ready_to_play.emit)
             self.unregister_listener(MapComplementaryInformationEvent)
@@ -124,10 +132,12 @@ class PlayerFrame(Frame):
             timestamp, tz=UTC
         )
 
+    def on_character_list_event(self, msg: CharacterListEvent):
+        self.game_info_signals.connected.emit(msg.characters)
+
     def on_character_selection_event(self, message: CharacterSelectionEvent):
         if message.HasField("success"):
             self.game_state.player.character_id = message.success.character.id
-            self.game_info_signals.connected.emit()
             if message.success.character.HasField("character_basic_information"):
                 self.game_state.player.level = (
                     message.success.character.character_basic_information.level

@@ -172,16 +172,21 @@ class FightFrame(Frame):
         self.game_state.fight.max_life_point = msg.max_life_points
 
     def on_game_action_fight_event(self, msg: GameActionFightEvent):
-        if (
-            msg.HasField("life_points_gain")
-            and msg.life_points_gain.target_id == self.game_state.player.character_id
-        ):
-            self.game_state.fight.life_point += msg.life_points_gain.delta
-        if (
-            msg.HasField("life_points_lost")
-            and msg.life_points_lost.target_id == self.game_state.player.character_id
-        ):
-            self.game_state.fight.life_point -= msg.life_points_lost.loss
+        if msg.HasField("life_points_gain"):
+            if msg.life_points_gain.target_id == self.game_state.player.character_id:
+                self.game_state.fight.life_point += msg.life_points_gain.delta
+            else:
+                self.game_state.entity.actor_fight_by_id[
+                    msg.life_points_gain.target_id
+                ].life_point += msg.life_points_gain.delta
+
+        if msg.HasField("life_points_lost"):
+            if msg.life_points_lost.target_id == self.game_state.player.character_id:
+                self.game_state.fight.life_point -= msg.life_points_lost.loss
+            else:
+                self.game_state.entity.actor_fight_by_id[
+                    msg.life_points_lost.target_id
+                ].life_point -= msg.life_points_lost.loss
 
     def on_fight_refresh_character_stats_event(
         self, msg: FightRefreshCharacterStatsEvent

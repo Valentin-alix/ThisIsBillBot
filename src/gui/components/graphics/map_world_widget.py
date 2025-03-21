@@ -177,9 +177,11 @@ class MapWorldView(QGraphicsView):
 
     @pyqtSlot(list)
     def on_color_pos_batch(self, items: list[tuple[MapPositionsRootItem, RGBColor]]):
+        self.setUpdatesEnabled(False)
         for map_pos, color in items:
             square_cell = self.get_or_create_map(map_pos)
             square_cell.add_color(map_pos.id, color)
+        self.setUpdatesEnabled(True)
 
     @pyqtSlot(MapPositionsRootItem, MapPositionsRootItem)
     def on_arrow_pos(
@@ -204,6 +206,7 @@ class MapWorldView(QGraphicsView):
     def on_arrow_pos_batch(
         self, items: list[tuple[MapPositionsRootItem, MapPositionsRootItem]]
     ):
+        self.setUpdatesEnabled(False)
         for map_pos_start, map_pos_end in items:
             start_square = self.get_or_create_map(map_pos_start)
             end_square = self.get_or_create_map(map_pos_end)
@@ -218,14 +221,19 @@ class MapWorldView(QGraphicsView):
             line_item.setPen(pen)
             self.line_items.append(line_item)
             self._scene.addItem(line_item)
+        self.setUpdatesEnabled(True)
 
     @pyqtSlot()
     def on_reset_path(self):
+        self.setUpdatesEnabled(False)
         while self.line_items:
             line_item = self.line_items.pop()
             self._scene.removeItem(line_item)
+        self.setUpdatesEnabled(True)
 
     @pyqtSlot()
     def on_reset_weight(self):
+        self.setUpdatesEnabled(False)
         for square in self.square_by_coord.values():
             square.reset_color()
+        self.setUpdatesEnabled(True)

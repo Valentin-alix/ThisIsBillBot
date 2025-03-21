@@ -16,7 +16,7 @@ from dofus_unity_reader.game_constants.characteristic import (
 )
 from dofus_unity_reader.grid.map_point import MapPoint
 
-from src.core.engine.fights.attack import EnemyData
+from src.core.engine.fights.attack.models import EnemyData
 from src.core.engine.fights.effect import get_effect_elem_by_stat
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
 from src.core.engine.monsters.monster_group import MonsterFighter
@@ -142,10 +142,10 @@ class FightState(State):
     @property
     def ordered_stat(self) -> list[CharacteristicEnum]:
         dmg_stats: list[CharacteristicEnum] = [
+            CharacteristicEnum.CHANCE,
             CharacteristicEnum.AGILITY,
             CharacteristicEnum.STRENGTH,
             CharacteristicEnum.INTELLIGENCE,
-            CharacteristicEnum.CHANCE,
         ]
         return list(sorted(dmg_stats, key=self.get_stat_by_id, reverse=True))
 
@@ -171,7 +171,6 @@ class FightState(State):
             actor
             for actor in self.entity_state.actor_by_id.values()
             if actor.actor_id != character_id and actor.disposition.cell_id != -1
-            # and actor.actor_id in self.actor_fight_by_id
         ]
         self.logger.info(f"Found {len(enemies)} enemies")
 

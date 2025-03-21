@@ -9,11 +9,7 @@ from qfluentwidgets import Theme, setTheme, setThemeColor
 from src.services.logging_utils.loggers import configure_root_logger
 from src.utils.runtime_paths import configure_project_import_paths
 
-meipass = getattr(sys, "_MEIPASS", None)
-if isinstance(meipass, str):
-    configure_project_import_paths(Path(meipass))
-else:
-    configure_project_import_paths(Path(__file__).resolve().parent)
+configure_project_import_paths(Path(__file__).resolve().parent)
 
 from src.utils.internet import has_internet_connection
 

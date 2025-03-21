@@ -138,5 +138,4 @@ class InventoryFrame(Frame):
         self.inventory_signals.updated_object_item.emit(msg.object)
 
     def on_object_movement_event(self, msg: ObjectMovementEvent):
-        # quand on equippe l'objet ca lance ce msg puis un ObjectAddedEvent, donc on peux delete l'objet
-        self.game_state.inventory.remove_object(msg.object_uid)
+        self.game_state.inventory.objects_by_uid[msg.object_uid].position = msg.position

@@ -5,7 +5,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 
 
 class GameInfoSignals(QObject):
-    connected = pyqtSignal()
+    connected = pyqtSignal(object)
     disconnected = pyqtSignal()
     is_ready_to_play = pyqtSignal()
     breed_id = pyqtSignal(int)

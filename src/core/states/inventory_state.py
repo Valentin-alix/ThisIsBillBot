@@ -5,11 +5,11 @@ from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
-
 from dofus_unity_reader.game_constants.inventory_position import (
     ActionEnum,
     CharacterInventoryPositionEnum,
 )
+
 from src.core.signals.player_signals import InventorySignals
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State
@@ -30,18 +30,6 @@ class InventoryState(State):
         init=False, default_factory=dict[int, ObjectItemInventory]
     )
     objects_by_uid: ObjectByUid = field(init=False, default_factory=ObjectByUid)
-
-    def get_equipment_on_position(
-        self, position: CharacterInventoryPositionEnum
-    ) -> ObjectItemInventory | None:
-        return next(
-            (
-                object
-                for object in self.objects_by_uid.values()
-                if object.position == position
-            ),
-            None,
-        )
 
     def get_unlinked_objects(self) -> list[ObjectItemInventory]:
         return [

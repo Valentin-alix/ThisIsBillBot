@@ -6,8 +6,7 @@ from PyQt6.QtCore import (
     pyqtSignal,
     pyqtSlot,
 )
-from PyQt6.QtGui import QResizeEvent
-from PyQt6.QtGui import QBrush, QStandardItem
+from PyQt6.QtGui import QBrush, QResizeEvent, QStandardItem
 from PyQt6.QtWidgets import QAbstractItemView
 from qfluentwidgets import SingleDirectionScrollArea, SmoothMode, TableView
 
@@ -163,9 +162,6 @@ class CustomTableView(TableView):
         proxy_model_set = self.model()
         assert proxy_model_set is not None
         proxy_model_set.rowsInserted.connect(profiled_slot(self.keep_scroll_position))
-        self.item_model.signals.batched_rows.connect(
-            profiled_slot(self.keep_scroll_position)
-        )
         self.header.signals.new_filter_input.connect(self.filter_rows)
 
     @pyqtSlot()
@@ -173,7 +169,10 @@ class CustomTableView(TableView):
         scroll_bar = self.scroll_bar.verticalScrollBar()
         assert scroll_bar is not None
         old_scroll_position = scroll_bar.value()
-        self.item_model.remove_rows(0, 500)
+        overflow = self.item_model.rowCount() - self.item_model._max_row_count
+        self.item_model.remove_rows(
+            0, min(self.item_model.rowCount(), max(500, overflow))
+        )
         scroll_bar.setValue(old_scroll_position)
 
     def resizeEvent(self, e: QResizeEvent | None) -> None:

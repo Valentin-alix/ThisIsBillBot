@@ -4,15 +4,13 @@ from threading import _RLock as RLock
 
 import msgspec
 from cachetools import TTLCache, cached
+from python_utils.singleton import Singleton
 
 from src.const import RESOURCE_FOLDER
-from python_utils.singleton import Singleton
 
 SALE_HOTEL_FOLDER = os.path.join(RESOURCE_FOLDER, "sale_hotel")
 
-AVG_PRICE_CACHE: TTLCache[int, dict[int, float]] = TTLCache(
-    maxsize=100, ttl=60 * 60 * 3 * 1000
-)
+AVG_PRICE_CACHE = TTLCache[int, dict[int, float]](maxsize=100, ttl=60 * 60 * 3 * 1000)
 
 
 class SaleHotelController(metaclass=Singleton):

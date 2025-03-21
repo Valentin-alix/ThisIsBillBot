@@ -380,7 +380,7 @@ def get_msg_transformer(
                     output_msg_field_name,
                     msg_mappings,
                 )
-            except (AttributeError, ValueError, OverflowError):
+            except (AttributeError, ValueError, OverflowError, TypeError):
                 pass
         return output_msg
 

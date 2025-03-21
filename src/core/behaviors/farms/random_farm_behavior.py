@@ -2,13 +2,13 @@ import random
 from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
-from threading import Lock
+from threading import RLock
 from typing import Callable
 
-from dofus_unity_reader.data_center.data_reader import DataReader
 from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
+from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.models.world_graph import Edge
 
 from src.const import MIN_DATE
@@ -22,7 +22,7 @@ from src.core.engine.weights.weight_drawer import draw_weight_on_map
 from src.core.engine.weights.weighted_path import WeightedPath
 from src.core.signals.world_signals import WorldSignals
 
-PATH_LOCK = Lock()
+PATH_LOCK = RLock()
 LAST_VISITED_BY_SERVER_AND_MAP: dict[tuple[int, int], datetime] = {}
 EDGE_PATH_BY_SERVER_AND_CHARACTER: dict[tuple[int, int], list[Edge]] = {}
 

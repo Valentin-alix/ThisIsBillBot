@@ -1,9 +1,9 @@
 import sys
 
+from datas.protos.non_obf.game.common_pb2 import StatedElement
 from dofus_unity_reader.data_center.map_reader import MapReader
 from dofus_unity_reader.grid.consts import CELL_HEIGHT, CELL_WIDTH
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
-from datas.protos.non_obf.game.common_pb2 import StatedElement
 from dofus_unity_reader.models.datas.collectionsroot import Collectable
 from PyQt6.QtCore import QPointF, Qt, pyqtSlot
 from PyQt6.QtGui import (
@@ -222,6 +222,7 @@ class GridView(QGraphicsView):
 
     @pyqtSlot(int)
     def on_new_map_id(self, map_id: int):
+        self.setUpdatesEnabled(False)
         for cell_data in MapReader().map_by_id(map_id).mapData.cellsData:
             mp = MapPoint.from_cell_id(cell_data.cellNumber)
             cell_square = self.cell_square_by_coord[(mp.x, mp.y)]
@@ -231,6 +232,7 @@ class GridView(QGraphicsView):
                 cell_square.setBrush(SquareCell.BLOCK)
             else:
                 cell_square.setBrush(SquareCell.EMPTY)
+        self.setUpdatesEnabled(True)
 
     @pyqtSlot(list)
     def on_new_count_actor_on_cell_id_batch(self, items: list[tuple[int, int]]):

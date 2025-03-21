@@ -21,8 +21,10 @@ class StateFactory:
         grid_signals: GridSignals,
         logger: BotLogger,
     ):
-        entity_state = EntityState(grid_signals=grid_signals, _logger=logger)
         player_state = PlayerState(game_info_signals=game_info_signals, _logger=logger)
+        entity_state = EntityState(
+            grid_signals=grid_signals, _logger=logger, player_state=player_state
+        )
         inventory_state = InventoryState(
             inventory_signals=inventory_signals,
             _logger=logger,

@@ -271,7 +271,11 @@ class FarmerWidget(QWidget):
         if self.map_tab is not None:
             return
 
-        map_tab = MapTab(grid_signals=self.bot.grid_signals, parent=self.stacked_widget)
+        map_tab = MapTab(
+            grid_signals=self.bot.grid_signals,
+            game_state=self.bot.game_state,
+            parent=self.stacked_widget,
+        )
         self.stacked_widget.addWidget(map_tab)
         self.map_route = f"{self.objectName()}_map_tab"
         self.map_pivot_item = self._add_debug_tab(self.map_route, "Map", map_tab)

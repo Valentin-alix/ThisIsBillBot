@@ -8,7 +8,7 @@ from python_utils.singleton import Singleton
 
 from src.const import RESOURCE_FOLDER
 
-TTL_CACHE: TTLCache[object, dict[int, tuple[int, int]]] = TTLCache(
+TTL_CACHE = TTLCache[object, dict[int, tuple[int, int]]](
     maxsize=100,
     ttl=60 * 60 * 3 * 1000,
 )

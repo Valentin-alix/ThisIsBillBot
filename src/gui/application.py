@@ -8,7 +8,7 @@ from src.const import LOGO_FILE
 
 
 class Application(QApplication):
-    TITLE = "Bot Dofus 3"
+    TITLE = "Voldemort"
 
     def __init__(self, argv: list[str]) -> None:
         super().__init__(argv)

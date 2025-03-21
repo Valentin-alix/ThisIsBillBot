@@ -4,19 +4,22 @@ from statistics import median
 from typing import cast
 
 from datas.protos.non_obf.game.common_pb2 import (
+    ObjectEffect,
     ObjectItem,
     ObjectItemInventory,
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.item import CategoryItemEnum
-from dofus_unity_reader.game_constants.monster import PROTECTOR_DROP_ITEM_IDS
 from dofus_unity_reader.game_constants.sale_hotel import (
     QUANTITY_INDEX_BY_QUANTITY,
     QuantityEnum,
     QuantityIndex,
 )
+from exchange_pb2 import ExchangeTypesItemsExchangerDescriptionForUserEvent
+from pydantic import BaseModel
 
 from src.core.config import MAX_QUANTITY_ON_SELL
+from src.core.engine.items.item import PROTECTOR_DROP_ITEM_IDS
 from src.core.engine.weights.harvester.weight_collectable import (
     get_weight_collectable_for_sale_hotel,
 )
@@ -184,3 +187,31 @@ def get_price_for_sale_hotel(
     )
 
     return int(min(cleaned_unit_price * target_lot, curr_min_price_lot))
+
+
+class ItemToBuyInfo(BaseModel):
+    item_gid: int
+    max_kamas: int
+
+    def is_valid_item_to_buy(
+        self,
+        kamas: int,
+        bid_object: ExchangeTypesItemsExchangerDescriptionForUserEvent.BidExchangerObject,
+    ) -> bool:
+        if (
+            bid_object.prices[0] == 0
+            or bid_object.prices[0] > kamas
+            or bid_object.prices[0] > self.max_kamas
+        ):
+            return False
+        bid_object_effect_by_id: dict[int, ObjectEffect] = {
+            object_effect.action: object_effect for object_effect in bid_object.effects
+        }
+        for item_effect in DataReader().get_item_effects_by_gid(self.item_gid):
+            object_effect = bid_object_effect_by_id.get(item_effect.effectId)
+            if not object_effect:
+                return False
+            if object_effect.value_int < item_effect.diceNum:
+                return False
+
+        return True

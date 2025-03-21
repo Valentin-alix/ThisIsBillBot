@@ -12,7 +12,6 @@ from datas.protos.non_obf.game.exchange_pb2 import (
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.item import (
-    GATHERER_ITEM_GIDS,
     CategoryItemEnum,
     ItemTypeEnum,
 )
@@ -27,6 +26,7 @@ from dofus_unity_reader.game_constants.npc import (
 
 from src.controller.sale_hotel import SaleHotelController
 from src.core.config import get_time_beween_sale_hotel_prices
+from src.core.engine.items.item import GATHERER_ITEM_GIDS
 from src.core.frames.frame import Frame
 
 # Items vendables

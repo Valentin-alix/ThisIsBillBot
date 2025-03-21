@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from threading import Lock
+from threading import RLock
 
-from dofus_unity_reader.game_constants.area import AreaInfo
+from dofus_unity_reader.data_center.area_info import AreaInfo
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmingErrorCode
@@ -23,7 +23,7 @@ from src.core.states.area_state import (
     CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER,
 )
 
-AREA_CHOICE_LOCK = Lock()
+AREA_CHOICE_LOCK = RLock()
 
 
 @dataclass

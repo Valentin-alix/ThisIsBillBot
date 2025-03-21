@@ -5,11 +5,8 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.dungeon_info import PLAYABLE_DUNGEONS, DungeonInfo
 from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.game_constants.dungeon_info import (
-    PLAYABLE_DUNGEONS,
-    DungeonInfo,
-)
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
@@ -18,7 +15,9 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 )
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.core.config import ON_NEW_MAP_BEFORE_ACTION
-from src.core.engine.dungeons.dungeon_access import do_have_key_access_to_dungeon
+from src.core.engine.dungeons.dungeon_access import (
+    do_have_key_access_to_dungeon,
+)
 
 
 @dataclass

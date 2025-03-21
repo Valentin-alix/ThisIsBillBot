@@ -1,5 +1,5 @@
 import random
-from threading import Lock
+from threading import RLock
 from typing import Callable
 
 import numpy as np
@@ -36,15 +36,15 @@ from datas.protos.non_obf.game.inventory_pb2 import (
 from datas.protos.non_obf.game.roleplay_pb2 import (
     AttackMonsterRequest,
 )
+from python_utils.cache import cache
+from python_utils.singleton import Singleton
 from scipy.interpolate import interp1d
 
 from src.controller.session_timings import SessionTimingsController
 from src.core.config import BASE_RANGE, ENABLE_SESSION_CONTEXT
 from src.services.session_context import SessionContextService
-from python_utils.singleton import Singleton
-from python_utils.cache import cache
 
-TIMING_LOCK = Lock()
+TIMING_LOCK = RLock()
 
 INVERSED_COEFF = 1.5
 

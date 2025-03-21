@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Any, cast
 
+from google.protobuf.descriptor import Descriptor, FieldDescriptor
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush, QColor
 from PyQt6.QtWidgets import QHBoxLayout, QTreeWidgetItem, QVBoxLayout, QWidget
-from google.protobuf.descriptor import Descriptor, FieldDescriptor
 from qfluentwidgets import (
     FluentIcon,
     LineEdit,
@@ -16,6 +16,8 @@ from qfluentwidgets import (
 from src.gui.components.qfluent_widget.dynamic_tree_widget import DynamicTreeWidget
 
 ABSENT_FIELD_DISPLAY_VALUE = "<absent>"
+
+MAX_DEPTH = 10
 
 
 @dataclass(frozen=True)
@@ -32,6 +34,7 @@ class SelectedPinnedField:
 def complete_message_tree_content(
     content: dict[str, Any],
     descriptor: Descriptor | None,
+    depth: int,
 ) -> dict[str, Any]:
     if descriptor is None:
         return content
@@ -40,10 +43,12 @@ def complete_message_tree_content(
     for field_descriptor in descriptor.fields:
         field_name = field_descriptor.name
         if field_name not in content:
-            completed[field_name] = ABSENT_FIELD_DISPLAY_VALUE
+            if depth > MAX_DEPTH:
+                continue
+            completed[field_name] = _absent_value_for_field(field_descriptor, depth)
             continue
         completed[field_name] = _complete_message_tree_value(
-            content[field_name], field_descriptor
+            content[field_name], field_descriptor, depth
         )
 
     for field_name, value in content.items():
@@ -53,7 +58,18 @@ def complete_message_tree_content(
     return completed
 
 
-def _complete_message_tree_value(value: Any, field_descriptor: FieldDescriptor) -> Any:
+def _absent_value_for_field(field_descriptor: FieldDescriptor, depth: int) -> Any:
+    message_type = _message_field_descriptor(field_descriptor)
+    if message_type is None:
+        return ABSENT_FIELD_DISPLAY_VALUE
+    if getattr(field_descriptor, "label") == FieldDescriptor.LABEL_REPEATED:
+        return [complete_message_tree_content({}, message_type, depth=depth + 1)]
+    return complete_message_tree_content({}, message_type, depth=depth + 1)
+
+
+def _complete_message_tree_value(
+    value: Any, field_descriptor: FieldDescriptor, depth: int
+) -> Any:
     message_type = cast(Descriptor | None, field_descriptor.message_type)
     if message_type is None or field_descriptor.type != FieldDescriptor.TYPE_MESSAGE:
         return value
@@ -63,14 +79,18 @@ def _complete_message_tree_value(value: Any, field_descriptor: FieldDescriptor) 
             return value
         value_items = cast(list[Any], value)
         return [
-            complete_message_tree_content(cast(dict[str, Any], item), message_type)
+            complete_message_tree_content(
+                cast(dict[str, Any], item), message_type, depth
+            )
             if isinstance(item, dict)
             else item
             for item in value_items
         ]
 
     if isinstance(value, dict):
-        return complete_message_tree_content(cast(dict[str, Any], value), message_type)
+        return complete_message_tree_content(
+            cast(dict[str, Any], value), message_type, depth
+        )
     return value
 
 
@@ -204,7 +224,7 @@ class MessageDetailWidget(QWidget):
             return None
         if not self.show_absent_fields_btn.isChecked():
             return content
-        return complete_message_tree_content(content, descriptor)
+        return complete_message_tree_content(content, descriptor, 0)
 
     def _on_show_absent_fields_clicked(self) -> None:
         if self.show_absent_fields_btn.isChecked():

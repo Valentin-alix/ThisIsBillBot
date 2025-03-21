@@ -1,7 +1,6 @@
-from bisect import bisect_left
 from datetime import datetime
 
-from PyQt6.QtCore import QModelIndex, pyqtSlot
+from PyQt6.QtCore import QModelIndex, QTimer, pyqtSlot
 from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import TableWidget
 from qfluentwidgets.components.widgets.model_combo_box import QStandardItem
@@ -52,6 +51,11 @@ class ListenersStatsWidget(QWidget):
         self.event_manager.signals.listeners_added.connect(self.on_listeners_added)
         self.event_manager.signals.listeners_removed.connect(self.on_listeners_removed)
 
+        self._rebuild_timer = QTimer(self)
+        self._rebuild_timer.setInterval(50)
+        self._rebuild_timer.setSingleShot(True)
+        self._rebuild_timer.timeout.connect(self.init)
+
         self.init()
 
     def init(self) -> None:
@@ -98,43 +102,17 @@ class ListenersStatsWidget(QWidget):
 
     @pyqtSlot(list)
     def on_listeners_added(self, added_listeners: list[Listener[Message]]) -> None:
-        for listener in added_listeners:
-            sort_key = self.get_sort_key(listener)
-            keys = [
-                self.get_sort_key(listener_obj)
-                for listener_obj in self.sorted_listeners
-            ]
-            insert_index = bisect_left(keys, sort_key)
-
-            self.sorted_listeners.insert(insert_index, listener)
-            self.add_listener_at_index(listener, insert_index)
+        if added_listeners:
+            self._schedule_rebuild()
 
     @pyqtSlot(list)
     def on_listeners_removed(self, removed_listeners: list[Listener[Message]]) -> None:
-        removed_set = set(removed_listeners)
-        rows_to_remove: list[int] = []
+        if removed_listeners:
+            self._schedule_rebuild()
 
-        for listener in removed_listeners:
-            if listener in self.stats_table.listener_to_row:
-                row = self.stats_table.listener_to_row[listener]
-                rows_to_remove.append(row)
-
-        for row in sorted(rows_to_remove, reverse=True):
-            self.stats_table.table.item_model.remove_rows(row, 1)
-
-            for listener_obj, listener_row in list(
-                self.stats_table.listener_to_row.items()
-            ):
-                if listener_row == row:
-                    del self.stats_table.listener_to_row[listener_obj]
-                elif listener_row > row:
-                    self.stats_table.listener_to_row[listener_obj] = listener_row - 1
-
-        self.sorted_listeners = [
-            listener_obj
-            for listener_obj in self.sorted_listeners
-            if listener_obj not in removed_set
-        ]
+    def _schedule_rebuild(self) -> None:
+        if not self._rebuild_timer.isActive():
+            self._rebuild_timer.start()
 
     def on_row_double_clicked(self, proxy_index: QModelIndex) -> None:
         source_index = self.stats_table.table.proxy_model.mapToSource(proxy_index)

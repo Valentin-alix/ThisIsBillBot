@@ -5,6 +5,9 @@ from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
     DecipheredApiKey,
 )
 
+from src.core.behaviors.account.character_creation_behavior import (
+    CharacterCreationBehavior,
+)
 from src.core.behaviors.communication.chat_behavior import ChatBehavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.equipment.auto_equipment_behavior import AutoEquipmentBehavior
@@ -48,6 +51,7 @@ from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehav
 from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
+from src.core.behaviors.quests.tutorial_behavior import TutorialBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
     EnterSaleHotelBehavior,
 )
@@ -89,7 +93,7 @@ from src.core.behaviors.storage.unloads.unload_in_guild_chest_behavior import (
     UnloadInGuildChestBehavior,
 )
 from src.core.bot.bot import Bot
-from src.core.engine.fights.attack import Attacker
+from src.core.engine.fights.attack.attacker import Attacker
 from src.core.engine.fights.damage_calculator import DamageCalculator
 from src.core.engine.fights.reachable_cells.fight_reachable_cells import (
     FightReachableCells,
@@ -596,6 +600,12 @@ class BotFactory:
         handshake_behavior = HandshakeBehavior(
             _logger=logger, event_manager=event_manager, game_state=game_state
         )
+        character_creation_behavior = CharacterCreationBehavior(
+            _logger=logger, event_manager=event_manager, game_state=game_state
+        )
+        tutorial_behavior = TutorialBehavior(
+            _logger=logger, event_manager=event_manager, game_state=game_state
+        )
         multi_farming_behavior = MultiFarmingBehavior(
             chat_behavior=chat_behavior,
             mule_give_behavior=mule_give_behavior,
@@ -683,6 +693,8 @@ class BotFactory:
             is_ready_to_play_event=is_ready_to_play_event,
             is_connected_event=is_connected_event,
             is_fake=is_fake,
+            character_creation_behavior=character_creation_behavior,
+            tutorial_behavior=tutorial_behavior,
         )
 
 

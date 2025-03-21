@@ -19,6 +19,7 @@ from src.core.engine.monsters.monster_group import (
     is_valid_monster_group,
 )
 from src.core.signals.grid_signals import GridSignals
+from src.core.states.player_state import PlayerState
 from src.core.states.state import State
 
 
@@ -47,6 +48,7 @@ class FightActor:
 
 @dataclass
 class EntityState(State):
+    player_state: PlayerState
     grid_signals: GridSignals
     actor_by_id: dict[int, ActorPositionInformation] = field(
         init=False, default_factory=dict[int, ActorPositionInformation]
@@ -58,16 +60,6 @@ class EntityState(State):
         init=False, default_factory=dict[int, MapObstacle]
     )
     actors_on_mp: ActorByMpDict = field(init=False, default_factory=ActorByMpDict)
-
-    def __post_init__(self) -> None:
-        self.grid_signals.cell_id_clicked.connect(self.on_cell_id_clicked)
-
-    def on_cell_id_clicked(self, cell_id: int):
-        actors_on_mp = self.actors_on_mp.get(MapPoint.from_cell_id(cell_id))
-        if actors_on_mp is None or len(actors_on_mp) == 0:
-            self.logger.debug(f"No actor on {cell_id}")
-            return
-        self.logger.debug(f"Actors on cell {cell_id}: {list(actors_on_mp.values())}")
 
     def clear_state(self):
         self.clear_actors()
@@ -192,7 +184,7 @@ class EntityState(State):
                 ),
                 None,
             )
-            if life_stat:
+            if life_stat and actor.actor_id != self.player_state.character_id:
                 self.actor_fight_by_id[actor.actor_id] = FightActor(
                     life_point=get_stat_by_id(life_stat), is_summoned=is_summoned
                 )

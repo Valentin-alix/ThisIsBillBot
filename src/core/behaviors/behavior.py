@@ -1,11 +1,10 @@
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from threading import Lock, Timer
+from threading import RLock, Timer
 from typing import Callable, ParamSpec, Protocol, overload
 
 from google.protobuf.message import Message
 
-from src.const import STRICT_MODE
 from src.core.events_manager.event_manager import EventManager
 from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
@@ -49,7 +48,7 @@ class Behavior(ContextualLogger):
     parent: "Behavior|None" = field(init=False, default=None)
 
     _state: BehaviorState = field(init=False, default=BehaviorState.STOPPED)
-    _state_lock: Lock = field(init=False, default_factory=Lock)
+    _state_lock: RLock = field(init=False, default_factory=RLock)
     children: list["Behavior"] = field(init=False, default_factory=list["Behavior"])
     timers: list[Timer] = field(init=False, default_factory=list[Timer])
 
@@ -75,8 +74,6 @@ class Behavior(ContextualLogger):
                     f"Expected current state in {[s.name for s in from_states]}. "
                     f"Reason: {reason}"
                 )
-                if STRICT_MODE:
-                    raise BehaviorLifecycleError(error)
                 self.logger.error(error)
                 return False
 
@@ -105,11 +102,11 @@ class Behavior(ContextualLogger):
 
     @overload
     def start(
-        self,
+        self: RunnableBehavior[RunParams],
         callback: Callable[..., None] | None,
         parent: "Behavior|None",
-        *args: object,
-        **kwargs: object,
+        *args: RunParams.args,
+        **kwargs: RunParams.kwargs,
     ) -> None: ...
 
     def start(
@@ -133,9 +130,6 @@ class Behavior(ContextualLogger):
                     f"parent {parent.__class__.__name__} in state {parent.state.name}, "
                     f"expected RUNNING"
                 )
-                if STRICT_MODE:
-                    raise BehaviorLifecycleError(error)
-
                 self.logger.error(error)
                 return
 
@@ -151,6 +145,7 @@ class Behavior(ContextualLogger):
             ):
                 return
 
+            self.logger.info(f"Starting {self.__class__.__name__}")
             run_method = getattr(self, "run", None)
             if not callable(run_method):
                 raise TypeError(f"{self.__class__.__name__} must define a run() method")
@@ -179,8 +174,6 @@ class Behavior(ContextualLogger):
                     error = (
                         f"Timer fired but behavior in state {self.state.name}, ignoring"
                     )
-                    if STRICT_MODE:
-                        raise BehaviorLifecycleError(error)
                     self.logger.error(error)
                     return
             func()
@@ -189,15 +182,11 @@ class Behavior(ContextualLogger):
         with self._state_lock:
             if self._state == BehaviorState.STOPPED:
                 error = "Already stopped, ignoring"
-                if STRICT_MODE:
-                    raise BehaviorStateError(error)
                 self.logger.error(error)
                 return
 
             if self._state == BehaviorState.STOPPING:
                 error = "Already stopping, ignoring"
-                if STRICT_MODE:
-                    raise BehaviorStateError(error)
                 self.logger.error(error)
                 return
 

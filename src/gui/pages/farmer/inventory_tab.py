@@ -3,12 +3,11 @@ from datas.protos.non_obf.game.common_pb2 import (
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.i18n import I18N
-from PyQt6.QtCore import QSize, pyqtSlot
+from PyQt6.QtCore import QSize, QTimer, pyqtSlot
 from PyQt6.QtWidgets import QListView, QListWidgetItem, QVBoxLayout, QWidget
 from qfluentwidgets import ListWidget, SmoothMode
 
 from src.core.bot.bot import Bot
-from src.gui.utils.profiling import profiled_slot
 
 CARD_WIDTH = 150
 CARD_HEIGHT = 120
@@ -21,6 +20,10 @@ class InventoryTab(QWidget):
         self.items_by_uid: dict[int, ObjectItemInventory] = {}
         self.list_item_by_uid: dict[int, QListWidgetItem] = {}
         self.signals_connected = False
+        self._rebuild_timer = QTimer(self)
+        self._rebuild_timer.setInterval(50)
+        self._rebuild_timer.setSingleShot(True)
+        self._rebuild_timer.timeout.connect(self._rebuild_sorted_list)
 
         self.list_widget = ListWidget(self)
         self.list_widget.scrollDelegate.verticalSmoothScroll.setSmoothMode(
@@ -44,33 +47,38 @@ class InventoryTab(QWidget):
     @pyqtSlot(ObjectItemInventory)
     def on_added_object_item(self, object_item: ObjectItemInventory):
         self.items_by_uid[object_item.item.uid] = object_item
-        self._rebuild_sorted_list()
+        self._schedule_rebuild()
 
     @pyqtSlot(list)
     def on_added_object_items_batch(self, objects: list[ObjectItemInventory]):
         for object_item in objects:
             self.items_by_uid[object_item.item.uid] = object_item
-        self._rebuild_sorted_list()
+        self._schedule_rebuild()
 
     @pyqtSlot(int)
     def on_deleted_object_item_uid(self, uid: int):
         if uid not in self.items_by_uid:
             return
         del self.items_by_uid[uid]
-        self._rebuild_sorted_list()
+        self._schedule_rebuild()
 
     @pyqtSlot(ObjectItemInventory)
     def on_updated_object_item(self, object_item: ObjectItemInventory):
         if object_item.item.uid not in self.items_by_uid:
             return
         self.items_by_uid[object_item.item.uid] = object_item
-        self._rebuild_sorted_list()
+        self._schedule_rebuild()
 
     @pyqtSlot()
     def on_clear_inventory(self):
         self.items_by_uid.clear()
+        self._rebuild_timer.stop()
         self.list_widget.clear()
         self.list_item_by_uid.clear()
+
+    def _schedule_rebuild(self) -> None:
+        if not self._rebuild_timer.isActive():
+            self._rebuild_timer.start()
 
     def _rebuild_sorted_list(self) -> None:
         self.list_widget.setUpdatesEnabled(False)
@@ -100,21 +108,17 @@ class InventoryTab(QWidget):
     def connect_signals(self) -> None:
         if self.signals_connected:
             return
-        self.bot.inventory_signals.added_object_item.connect(
-            profiled_slot(self.on_added_object_item)
-        )
+        self.bot.inventory_signals.added_object_item.connect(self.on_added_object_item)
         self.bot.inventory_signals.added_object_items_batch.connect(
-            profiled_slot(self.on_added_object_items_batch)
+            self.on_added_object_items_batch
         )
         self.bot.inventory_signals.updated_object_item.connect(
-            profiled_slot(self.on_updated_object_item)
+            self.on_updated_object_item
         )
         self.bot.inventory_signals.deleted_object_item_uid.connect(
-            profiled_slot(self.on_deleted_object_item_uid)
+            self.on_deleted_object_item_uid
         )
-        self.bot.inventory_signals.clear_inventory.connect(
-            profiled_slot(self.on_clear_inventory)
-        )
+        self.bot.inventory_signals.clear_inventory.connect(self.on_clear_inventory)
         self.signals_connected = True
         self._resync_inventory()
 
@@ -122,22 +126,21 @@ class InventoryTab(QWidget):
         if not self.signals_connected:
             return
         self.bot.inventory_signals.added_object_item.disconnect(
-            profiled_slot(self.on_added_object_item)
+            self.on_added_object_item
         )
         self.bot.inventory_signals.added_object_items_batch.disconnect(
-            profiled_slot(self.on_added_object_items_batch)
+            self.on_added_object_items_batch
         )
         self.bot.inventory_signals.updated_object_item.disconnect(
-            profiled_slot(self.on_updated_object_item)
+            self.on_updated_object_item
         )
         self.bot.inventory_signals.deleted_object_item_uid.disconnect(
-            profiled_slot(self.on_deleted_object_item_uid)
+            self.on_deleted_object_item_uid
         )
-        self.bot.inventory_signals.clear_inventory.disconnect(
-            profiled_slot(self.on_clear_inventory)
-        )
+        self.bot.inventory_signals.clear_inventory.disconnect(self.on_clear_inventory)
         self.signals_connected = False
         self.items_by_uid.clear()
+        self._rebuild_timer.stop()
         self.list_widget.clear()
         self.list_item_by_uid.clear()
 

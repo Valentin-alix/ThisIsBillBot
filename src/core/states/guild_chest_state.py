@@ -2,13 +2,12 @@ import dataclasses
 
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.item import (
-    GATHERER_ITEM_GIDS,
     CategoryItemEnum,
     ItemTypeEnum,
 )
-from dofus_unity_reader.game_constants.monster import PROTECTOR_DROP_ITEM_IDS
 
 from src.core.config import DO_USE_GUILD_CHEST
+from src.core.engine.items.item import GATHERER_ITEM_GIDS, PROTECTOR_DROP_ITEM_IDS
 from src.core.signals.player_signals import GameInfoSignals
 from src.core.states.guild_chest_storage import GuildChestStorage
 from src.core.states.player_state import PlayerState

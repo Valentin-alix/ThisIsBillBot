@@ -14,14 +14,14 @@ from datas.protos.non_obf.game.common_pb2 import (
 )
 from datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
 from datas.protos.non_obf.game.spell_pb2 import SpellItem
-from dofus_unity_reader.game_constants.area import AreaInfo
+from dofus_unity_reader.data_center.area_info import AreaInfo
 from dofus_unity_reader.game_constants.characteristic import EffectElement
 from dofus_unity_reader.grid.map_point import MapPoint
 from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
 from dofus_unity_reader.models.world_graph import Transition, Vertice
 
 if TYPE_CHECKING:
-    from src.core.engine.fights.attack import EnemyData
+    from src.core.engine.fights.attack.models import EnemyData
 
 
 @dataclass(frozen=True)

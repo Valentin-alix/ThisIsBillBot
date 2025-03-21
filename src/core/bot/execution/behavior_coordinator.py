@@ -60,10 +60,9 @@ class BehaviorCoordinator(ContextualLogger):
         self.is_playing_event.set()
 
     def on_stop(self):
-        self.logger.info("Full Stop")
         self.is_playing_event.clear()
         self._current_bot_action_func = None
-        self.stop_behaviors()
+        run_in_background(lambda _progress_callback: self.stop_behaviors())
 
     def on_play_usable_behavior(self, behavior_class_name: str):
         """Execute a usable behavior by class name."""
@@ -73,8 +72,9 @@ class BehaviorCoordinator(ContextualLogger):
             if behavior.__class__.__name__ == behavior_class_name
         )
         self.play_action(
-            lambda _progress_callback: related_behavior.start(
-                callback=lambda *_args: self.bot_signals.stop.emit(), parent=None
+            lambda _progress_callback: related_behavior.start(  # type: ignore
+                callback=lambda *_args: self.bot_signals.stop.emit(),  # type: ignore
+                parent=None,
             )
         )
 
@@ -142,8 +142,10 @@ class BehaviorCoordinator(ContextualLogger):
     def run_current_bot_action(self) -> None:
         """Execute the current bot action or guess the appropriate one."""
         if self._current_bot_action_func is not None:
+            self.logger.info("Running current bot action")
             run_in_background(self._current_bot_action_func)
         else:
+            self.logger.info("Guess bot action")
             self.guess_bot_action()
 
     def guess_bot_action(self) -> None:

@@ -11,11 +11,11 @@ from common_pb2 import (
     Team,
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.breed import Breed
+from dofus_unity_reader.game_constants.breed import BreedEnum
 from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 from spell_pb2 import SpellItem
 
-from src.core.engine.fights.attack import Attacker
+from src.core.engine.fights.attack.attacker import Attacker
 from src.core.engine.fights.damage_calculator import DamageCalculator
 from src.core.engine.fights.reachable_cells.fight_reachable_cells import (
     FightReachableCells,
@@ -130,7 +130,7 @@ def set_game_state(
 
     game_state.map.map_id = map_id
     game_state.player.character_id = player_id
-    game_state.fight.breed_id = Breed.CRA
+    game_state.fight.breed_id = BreedEnum.CRA
     game_state.player.level = 200
 
     characteristics: dict[CharacteristicEnum, int] = {

@@ -14,18 +14,13 @@ from exchange_pb2 import (
     ExchangeTypesExchangerDescriptionForUserEvent,
     ExchangeTypesItemsExchangerDescriptionForUserEvent,
 )
-from pydantic import BaseModel
 
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
     EnterSaleHotelBehavior,
 )
 from src.core.config import BASE_RANGE, BIG_RANGE, SMALL_RANGE
-
-
-class ItemToBuyInfo(BaseModel):
-    item_gid: int
-    max_kamas: int
+from src.core.engine.economy.sale_hotel import ItemToBuyInfo
 
 
 @dataclass
@@ -122,10 +117,8 @@ class SaleHotelBuyBehavior(DialogHandlerBehavior):
 
         cheaper_item = min(msg.item_descriptions, key=lambda elem: elem.prices[0])
 
-        if (
-            cheaper_item.prices[0] == 0
-            or cheaper_item.prices[0] > self.game_state.inventory.kamas
-            or cheaper_item.prices[0] > item_info.max_kamas
+        if not item_info.is_valid_item_to_buy(
+            self.game_state.inventory.kamas, cheaper_item
         ):
             return self.buy_next_item()
 

@@ -4,7 +4,7 @@ from typing import Literal
 from ankama_launcher_emulator_premium.utils.internet import (
     get_available_network_interfaces,
 )
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QCloseEvent, QColor, QIcon
 from PyQt6.QtWidgets import QHBoxLayout, QWidget
 from qfluentwidgets import (
@@ -13,11 +13,9 @@ from qfluentwidgets import (
     NavigationItemPosition,
     PrimaryPushButton,
     SplashScreen,
-    SwitchButton,
 )
 from qfluentwidgets.components.navigation import NavigationDisplayMode, NavigationWidget
 
-from src import const
 from src.const import LOGO_FILE
 from src.controller.bot_config import BotConfig, BotConfigController
 from src.controller.schedule_profile_controller import ScheduleProfileController
@@ -190,29 +188,13 @@ class MainWindow(AppFluentWindow):
                 )
                 layout.addWidget(icon_label)
 
-                text_label = BodyLabel("Debug")
-                layout.addWidget(text_label)
-
-                layout.addStretch()
-
-                self.switch = SwitchButton()
-                self.switch.setChecked(const.DEBUG)
-                layout.addWidget(self.switch, alignment=Qt.AlignmentFlag.AlignRight)
-
         self.debug_widget = DebugSwitchWidget(self)
-        self.debug_widget.switch.checkedChanged.connect(self._on_debug_toggled)
 
         self.navigationInterface.addWidget(
             routeKey="debug_toggle",
             widget=self.debug_widget,
             position=NavigationItemPosition.BOTTOM,
         )
-
-    def _on_debug_toggled(self, checked: bool) -> None:
-        const.DEBUG = checked
-
-        for account_widget in self.account_widgets:
-            account_widget.set_debug_visibility(checked)
 
     def _init_sync_button(self) -> None:
         def manage_visibility_sync_btn(display_mode: NavigationDisplayMode) -> None:
