@@ -155,6 +155,6 @@ class MapTools:
     def is_map_allowed_for_unsub(map_id: int) -> bool:
         return (
             DataReader()
-            .sub_area_by_id[DataReader().map_pos_by_map_id[map_id].subAreaId]
+            .sub_area_by_id[DataReader().map_info_by_map_id[map_id].subAreaId]
             .basicAccountAllowed
         ) == 1

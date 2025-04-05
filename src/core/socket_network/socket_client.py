@@ -19,16 +19,16 @@ class SocketClient:
 
     def connect(self) -> None:
         logger.info(
-            f"Connecting socket client {self.bot.account['apikey']['login']}"
+            f"Connecting socket client {self.bot.account.apikey.login}"
         )
         account = self.bot.account
         interface_ip = self.bot_config.network_interface if self.bot_config else None
         game_token = Haapi(
-            api_key=account["apikey"]["key"],
-            login=account["apikey"]["login"],
+            api_key=account.apikey.key,
+            login=account.apikey.login,
             interface_ip=interface_ip,
             proxy_url=None,
-        ).createToken(1, account["apikey"]["certificate"])
+        ).createToken(1, account.apikey.certificate)
         logger.info(f"got game token {game_token}")
         self._connection_client = ConnectionClient(
             bot=self.bot, connection_behavior=self.bot.connection_behavior

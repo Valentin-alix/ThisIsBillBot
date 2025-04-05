@@ -9,7 +9,7 @@ from datas.protos.non_obf.game.haven_bag_pb2 import (
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.area import AreaEnum
-from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
+from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
@@ -44,7 +44,7 @@ class AutoTripZaapBehavior(Behavior):
                 callback=self.finish, parent=self, map_ids=map_ids
             )
 
-        dst_map_pos = [DataReader().map_pos_by_map_id[map_id] for map_id in map_ids]
+        dst_map_pos = [DataReader().map_info_by_map_id[map_id] for map_id in map_ids]
         dist_player_to_ends = get_dist_to_maps(self.game_state.map.map_pos, dst_map_pos)
 
         self.logger.info(
@@ -83,14 +83,16 @@ class AutoTripZaapBehavior(Behavior):
         self,
         error_code: str | None,
         map_ids: set[int],
-        ends_pos: list[MapPositionsRootItem],
+        ends_pos: list[MapInformationRootItem],
     ):
         if error_code is WaypointErrorCode.UNREACHABLE_HAVRE_MAP:
             self.walk_to_map_ids(map_ids, ends_pos)
         self.raise_if_error(error_code)
         self.walk_to_map_ids(map_ids, ends_pos)
 
-    def walk_to_map_ids(self, map_ids: set[int], ends_pos: list[MapPositionsRootItem]):
+    def walk_to_map_ids(
+        self, map_ids: set[int], ends_pos: list[MapInformationRootItem]
+    ):
         self.auto_trip_behavior.start(
             parent=self,
             map_ids=map_ids,
@@ -103,7 +105,7 @@ class AutoTripZaapBehavior(Behavior):
         self,
         error_code: str | None,
         map_ids: set[int],
-        ends_pos: list[MapPositionsRootItem],
+        ends_pos: list[MapInformationRootItem],
     ):
         if error_code is AutoTripErrorCode.PATH_NOT_FOUND:
             self.logger.info("Path not found, try to use waypoint")

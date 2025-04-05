@@ -31,7 +31,7 @@ def _read_bool_env(name: str, default: bool) -> bool:
     if raw_value is None:
         return default
     normalized = raw_value.strip().lower()
-    return bool(normalized)
+    return bool(int(normalized))
 
 
 # ============================================================================

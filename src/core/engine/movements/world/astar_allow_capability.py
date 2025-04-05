@@ -10,5 +10,5 @@ from src.core.engine.movements.world.astar_vertice import AstarWorld
 @dataclass
 class AstarAllowHavreSac(AstarWorld):
     def is_goal_reached(self, current: Vertice, ends: set[Vertice]) -> bool:
-        curr_map_pos = DataReader().map_pos_by_map_id[current.m_mapId]
+        curr_map_pos = DataReader().map_info_by_map_id[current.m_mapId]
         return allow_teleport_to(curr_map_pos.m_flags)

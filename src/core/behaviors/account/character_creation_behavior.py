@@ -7,7 +7,7 @@ from character_management_pb2 import (
     CharacterNameSuggestionEvent,
     CharacterNameSuggestionRequest,
 )
-from common_pb2 import CharacterRemodelingInformation, Gender
+from datas.protos.non_obf.game.common_pb2 import CharacterRemodelingInformation, Gender
 from dofus_unity_reader.game_constants.breed import BreedEnum
 from gamemap_pb2 import MapComplementaryInformationEvent
 
@@ -24,12 +24,7 @@ class CharacterCreationBehavior(Behavior):
             originator=self,
             once=True,
         )
-
-        def name_request():
-            req = CharacterNameSuggestionRequest()
-            self.event_manager.send(req)
-
-        self.run_timer(BIG_RANGE, name_request)
+        self.send_message_delayed(CharacterNameSuggestionRequest(), BIG_RANGE)
 
     def on_character_name_suggestion_event(self, msg: CharacterNameSuggestionEvent):
         self.event_manager.on(
@@ -46,7 +41,7 @@ class CharacterCreationBehavior(Behavior):
                 unknown=27,
             )
         )
-        self.run_timer(VERY_BIG_RANGE, lambda: self.event_manager.send(req))
+        self.send_message_delayed(req, VERY_BIG_RANGE)
 
     def on_character_list_event(self, msg: CharacterListEvent):
         self.event_manager.on(

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.area import AreaEnum
-from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
+from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
 
 from src.core.engine.movements.world.map_position import get_dist_to_maps
 
@@ -12,14 +12,14 @@ ADDITIONAL_WEIGHT_WAYPOINT = 2
 @dataclass
 class WaypointInfoNode:
     map_id: int
-    map_position: MapPositionsRootItem
+    map_position: MapInformationRootItem
     dist_to_target: float
 
 
 def get_near_waypoint(
     available_waypoint_map_ids: list[int],
     dist_player_to_ends: float | None,
-    ends_pos: list[MapPositionsRootItem],
+    ends_pos: list[MapInformationRootItem],
     check_owned: bool,
 ):
     near_waypoint: WaypointInfoNode | None = None
@@ -29,7 +29,7 @@ def get_near_waypoint(
             continue
         if check_owned and waypoint.mapId not in available_waypoint_map_ids:
             continue
-        map_waypoint_pos = DataReader().map_pos_by_map_id[waypoint.mapId]
+        map_waypoint_pos = DataReader().map_info_by_map_id[waypoint.mapId]
         if (
             DataReader().sub_area_by_id[map_waypoint_pos.subAreaId].areaId
             == AreaEnum.INCARNAM

@@ -16,11 +16,12 @@ from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.engine.weights.fighter.weight_monsters import (
-    MonsterGroupInfo,
-    get_weight_monster_group_info,
+    MonsterGroupToAttack,
+    get_weight_monster_group_grp_to_attack,
 )
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.player_signals import GameInfoSignals
+from src.core.states.fight_state import LastAtkInfo
 from src.services.human_timings import HumanTimingsService
 
 
@@ -97,10 +98,10 @@ class AttackerBehavior(Behavior):
         ) and related_actor.actor_information.role_play_actor.HasField(
             "monster_group_actor"
         ):
-            monster_group = (
-                related_actor.actor_information.role_play_actor.monster_group_actor
+            self.game_state.fight.last_atk_info = LastAtkInfo(
+                monster_group_info=related_actor.actor_information.role_play_actor.monster_group_actor,
+                from_map_id=self.game_state.map.map_id,
             )
-            self.game_state.fight.set_last_attacked_monster_group(monster_group)
 
         self.event_manager.on(
             msg_type=FightMapInformationEvent,
@@ -134,8 +135,8 @@ class AttackerBehavior(Behavior):
 
     def get_next_enemy(
         self, excluded_group_actor_id: int | None = None
-    ) -> MonsterGroupInfo | None:
-        monster_group_infos: list[MonsterGroupInfo] = []
+    ) -> MonsterGroupToAttack | None:
+        monster_group_infos: list[MonsterGroupToAttack] = []
         for (
             actor_id,
             mp_group,
@@ -173,7 +174,7 @@ class AttackerBehavior(Behavior):
             if move_path_to_group.end != mp_group:
                 continue
             monster_group_infos.append(
-                MonsterGroupInfo(
+                MonsterGroupToAttack(
                     actor_id=actor_id,
                     move_path=move_path_to_group,
                     level=monster_group_lvl,
@@ -186,7 +187,7 @@ class AttackerBehavior(Behavior):
         return random.choices(
             monster_group_infos,
             [
-                get_weight_monster_group_info(
+                get_weight_monster_group_grp_to_attack(
                     monster_group_info,
                     self.game_state.inventory.inventory_weight,
                     self.game_state.inventory.weight_max,

@@ -11,6 +11,7 @@ from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 from dofus_unity_reader.game_constants.npc import NpcDialogInfo
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 
+from src import const
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
 from src.core.engine.monsters.monster_group import (
     MonsterGroup,
@@ -81,7 +82,7 @@ class EntityState(State):
 
         batch: list[tuple[int, bool]] = [(cell_id, True) for cell_id in new_cell_ids]
         batch.extend((cell_id, False) for cell_id in removed_cell_ids)
-        if batch:
+        if batch and const.DEBUG:
             self.grid_signals.set_obstacle_on_cell_id_batch.emit(batch)
 
     def clear_obstacles(self):
@@ -91,7 +92,8 @@ class EntityState(State):
             (cell_id, False) for cell_id in self.obstacle_on_cell_id.keys()
         ]
         self.obstacle_on_cell_id.clear()
-        self.grid_signals.set_obstacle_on_cell_id_batch.emit(batch)
+        if const.DEBUG:
+            self.grid_signals.set_obstacle_on_cell_id_batch.emit(batch)
 
     # ==================== Actors ====================
 
@@ -219,7 +221,7 @@ class EntityState(State):
     # ==================== Signal Emission ====================
 
     def _emit_actor_counts(self, cell_ids: set[int], all_zero: bool = False):
-        if not cell_ids:
+        if not cell_ids or not const.DEBUG:
             return
         if all_zero:
             batch: list[tuple[int, int]] = [(cell_id, 0) for cell_id in cell_ids]

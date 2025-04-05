@@ -1,9 +1,6 @@
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
 from threading import Timer
 
-from common_pb2 import Character
-from datas.protos.non_obf.game.account_pb2 import AccountInformationUpdateEvent
 from datas.protos.non_obf.game.character_management_pb2 import (
     CharacterListEvent,
     CharacterSelectionEvent,
@@ -12,6 +9,7 @@ from datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicUpgradeRequest,
     CharacterLevelUpEvent,
 )
+from datas.protos.non_obf.game.common_pb2 import Character
 from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
 from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
@@ -38,12 +36,6 @@ class PlayerFrame(Frame):
         self.event_manager.on(
             JobExperiencesUpdateEvent,
             self.on_job_experiences_update_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            AccountInformationUpdateEvent,
-            self.on_account_information_update_event,
             originator=self,
             priority=self.priority,
         )
@@ -125,12 +117,6 @@ class PlayerFrame(Frame):
             self.game_state.player.jobs_lvl_by_id[job_xp.job_id] = max(
                 (job_xp.job_level // 10) * 10, 1
             )
-
-    def on_account_information_update_event(self, msg: AccountInformationUpdateEvent):
-        timestamp = msg.subscription_end_date
-        self.game_state.player.subscription_end_date = datetime.fromtimestamp(
-            timestamp, tz=UTC
-        )
 
     def on_character_list_event(self, msg: CharacterListEvent):
         self.game_info_signals.connected.emit(msg.characters)

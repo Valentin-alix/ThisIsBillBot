@@ -7,6 +7,7 @@ from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeStartedWithStorageEvent,
 )
 
+from src import const
 from src.core.frames.mixin_storage import MixinStorage
 
 
@@ -32,20 +33,23 @@ class BankChestFrame(MixinStorage):
         self.game_state.inventory.bank_objects_by_uid = {
             item.item.uid: item for item in objects
         }
-        self.game_state.inventory.inventory_signals.bank_refreshed.emit(objects)
+        if const.DEBUG:
+            self.game_state.inventory.inventory_signals.bank_refreshed.emit(objects)
 
     @override
     def set_object(self, object_item_inventory: ObjectItemInventory):
         self.game_state.inventory.bank_objects_by_uid[
             object_item_inventory.item.uid
         ] = object_item_inventory
-        self.game_state.inventory.inventory_signals.bank_item_updated.emit(
-            object_item_inventory
-        )
+        if const.DEBUG:
+            self.game_state.inventory.inventory_signals.bank_item_updated.emit(
+                object_item_inventory
+            )
 
     @override
     def remove_object(self, uid: int):
         if uid not in self.game_state.inventory.bank_objects_by_uid:
             raise ValueError(f"{uid} not found in bank storage")
         del self.game_state.inventory.bank_objects_by_uid[uid]
-        self.game_state.inventory.inventory_signals.bank_item_removed.emit(uid)
+        if const.DEBUG:
+            self.game_state.inventory.inventory_signals.bank_item_removed.emit(uid)

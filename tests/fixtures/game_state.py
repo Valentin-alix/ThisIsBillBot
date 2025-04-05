@@ -1,7 +1,9 @@
+import os
+import tempfile
 from dataclasses import dataclass
 from typing import Iterable
 
-from common_pb2 import (
+from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
     CharacterCharacteristicValue,
@@ -10,10 +12,10 @@ from common_pb2 import (
     SpawnInformation,
     Team,
 )
+from datas.protos.non_obf.game.spell_pb2 import SpellItem
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.breed import BreedEnum
 from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
-from spell_pb2 import SpellItem
 
 from src.core.engine.fights.attack.attacker import Attacker
 from src.core.engine.fights.damage_calculator import DamageCalculator
@@ -36,6 +38,7 @@ from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.signals.world_signals import WorldSignals
 from src.core.states.game_state import GameState
 from src.core.states.state_factory import StateFactory
+from src.services.debug_recorder import DebugRecorder
 from src.services.logging_utils.loggers import BotLogger
 
 
@@ -63,9 +66,13 @@ def make_game_state_ctx() -> GameStateContext:
     world_signals = WorldSignals()
     inventory_signals = InventorySignals()
 
+    debug_recorder = DebugRecorder(
+        file_path=os.path.join(tempfile.gettempdir(), "gamestatefixture.debug.jsonl")
+    )
     logger = BotLogger(
         log_signals=log_signals,
         title="gamestatefixture",
+        debug_recorder=debug_recorder,
     )
 
     game_state = StateFactory.create_game_state(
@@ -73,6 +80,7 @@ def make_game_state_ctx() -> GameStateContext:
         game_info_signals=game_info_signals,
         grid_signals=grid_signals,
         logger=logger,
+        login="yolo",
     )
 
     damage_calculator = DamageCalculator()

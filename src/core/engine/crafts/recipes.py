@@ -41,7 +41,7 @@ def is_not_valid_recipe_for_lvl_up_job_or_benefice(
         # not configured craft
         return True
     result_item = DataReader().item_by_id[recipe.resultId]
-    if result_item.craftConditional not in ["", None]:
+    if result_item.craftConditionalCriterion not in ["", None]:
         # the item need a condition, like a quest completed or something
         return True
     if recipe.jobId not in HARVESTER_JOB_IDS and recipe.jobId != JobEnum.CHASSEUR:

@@ -4,6 +4,7 @@ from typing import Callable
 
 from google.protobuf.message import Message
 
+from src import const
 from src.const import DOFUS_CONNECTION_URL
 from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
 from src.core.socket_network.base_client import BaseClient
@@ -35,8 +36,9 @@ class ConnectionClient(BaseClient):
     def send_msg(self, msg: Message) -> None:
         try:
             self.client_socket.sendall(encode_msg(msg))
-            msg_info = get_conn_msg_info(msg, False)
-            self.bot.msg_info_signals.msg_info.emit(msg_info, True)
+            if const.DEBUG:
+                msg_info = get_conn_msg_info(msg, False)
+                self.bot.msg_info_signals.msg_info.emit(msg_info, True)
         except OSError as err:
             self.bot.logger.error(f"send error: {err}")
             self.close()
@@ -44,8 +46,9 @@ class ConnectionClient(BaseClient):
     def on_received_msg_datas(self, msg_datas: bytes) -> None:
         size, pos = decode_varint_size(msg_datas)
         msg = get_conn_msg(msg_datas[pos : pos + size])[1]
-        msg_info = get_conn_msg_info(msg, True)
-        self.bot.msg_info_signals.msg_info.emit(msg_info, False)
+        if const.DEBUG:
+            msg_info = get_conn_msg_info(msg, True)
+            self.bot.msg_info_signals.msg_info.emit(msg_info, False)
         self.bot.event_manager.process_msg(msg)
 
     def on_close(self) -> None:

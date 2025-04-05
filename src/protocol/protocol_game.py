@@ -5,6 +5,7 @@ import signal
 import sys
 import traceback
 from collections.abc import Callable, Mapping
+from functools import cache
 from pathlib import Path
 from types import TracebackType
 from typing import Any
@@ -113,6 +114,7 @@ def _load_game_mappings() -> RawGameMappings:
     return typed_mappings
 
 
+@cache
 def get_mapping_proto_to_real() -> ProtoToRealMapping:
     return {
         _get_mapping_namespace(info): (
@@ -124,6 +126,7 @@ def get_mapping_proto_to_real() -> ProtoToRealMapping:
     }
 
 
+@cache
 def get_mapping_proto_to_obf() -> ProtoToObfMapping:
     return {
         clear_namespace[1:]: (

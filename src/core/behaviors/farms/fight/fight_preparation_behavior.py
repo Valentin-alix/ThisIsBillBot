@@ -2,12 +2,12 @@ import random
 from dataclasses import dataclass, field
 from functools import partial
 
-from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.context_pb2 import EntitiesDispositionEvent
 from datas.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPositionRequest,
     FightReadyRequest,
 )
+from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_movement_behavior import FightMovementBehavior
@@ -76,10 +76,8 @@ class FightPreparationBehavior(Behavior):
             cell_id=cell_id,
             entity_id=self.game_state.player.character_id,
         )
-
-        self.run_timer(
-            HumanTimingsService().get_timing_before_preparation_placement(),
-            lambda: self.event_manager.send(request),
+        self.send_message_delayed(
+            request, HumanTimingsService().get_timing_before_preparation_placement()
         )
 
     def on_entity_disposition_event(
@@ -113,9 +111,8 @@ class FightPreparationBehavior(Behavior):
             )
 
         request = FightReadyRequest(is_ready=True)
-        self.run_timer(
-            HumanTimingsService().get_timing_before_preparation_ready(),
-            lambda: self.event_manager.send(request),
+        self.send_message_delayed(
+            request, HumanTimingsService().get_timing_before_preparation_ready()
         )
 
     def get_near_placement_cell_id(self) -> int:

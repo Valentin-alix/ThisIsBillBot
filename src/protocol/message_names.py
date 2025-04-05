@@ -1,34 +1,33 @@
 import importlib
 import pkgutil
 from functools import cache
-from typing import cast
 
 from google.protobuf.descriptor import Descriptor
-from google.protobuf.message import Message
 
 
 @cache
-def load_non_obf_game_message_names() -> list[str]:
-    return sorted(_load_non_obf_game_message_class_names())
+def load_non_obf_game_message_full_names() -> list[str]:
+    return sorted(_load_non_obf_game_message_full_names())
 
 
 @cache
-def _load_non_obf_game_message_class_names() -> frozenset[str]:
-    return frozenset(_discover_non_obf_game_message_descriptors()[0])
+def _load_non_obf_game_message_full_names() -> frozenset[str]:
+    return frozenset(
+        build_non_obf_game_message_pinned_name(descriptor)
+        for lookup_name, descriptor in _load_non_obf_game_message_descriptors_by_name().items()
+        if lookup_name == descriptor.full_name
+    )
 
 
 @cache
 def _load_non_obf_game_message_descriptors_by_name() -> dict[str, Descriptor]:
-    return _discover_non_obf_game_message_descriptors()[1]
+    return _discover_non_obf_game_message_descriptors_by_name()
 
 
 @cache
-def _discover_non_obf_game_message_descriptors() -> tuple[
-    set[str], dict[str, Descriptor]
-]:
+def _discover_non_obf_game_message_descriptors_by_name() -> dict[str, Descriptor]:
     import datas.protos.non_obf.game as game_pkg
 
-    class_names: set[str] = set()
     descriptors: dict[str, Descriptor] = {}
     for module_info in pkgutil.walk_packages(
         game_pkg.__path__, f"{game_pkg.__name__}."
@@ -36,18 +35,38 @@ def _discover_non_obf_game_message_descriptors() -> tuple[
         if module_info.ispkg or module_info.name.endswith(".__init__"):
             continue
         module = importlib.import_module(module_info.name)
-        for attribute_name in dir(module):
-            attribute = getattr(module, attribute_name)
-            if (
-                isinstance(attribute, type)
-                and issubclass(attribute, Message)
-                and getattr(attribute, "DESCRIPTOR", None) is not None
-            ):
-                descriptor = cast(Descriptor, attribute.DESCRIPTOR)
-                class_names.add(attribute.__name__)
-                descriptors[attribute.__name__] = descriptor
-                descriptors[descriptor.full_name] = descriptor
-    return class_names, descriptors
+        for descriptor in module.DESCRIPTOR.message_types_by_name.values():
+            _record_non_obf_game_message_descriptor(
+                descriptors, descriptor, is_top_level=True
+            )
+    return descriptors
+
+
+def _record_non_obf_game_message_descriptor(
+    descriptors: dict[str, Descriptor],
+    descriptor: Descriptor,
+    *,
+    is_top_level: bool,
+) -> None:
+    if is_top_level:
+        descriptors[descriptor.name] = descriptor
+    descriptors[descriptor.full_name] = descriptor
+    descriptors[build_non_obf_game_message_pinned_name(descriptor)] = descriptor
+    for nested_descriptor in descriptor.nested_types:
+        _record_non_obf_game_message_descriptor(
+            descriptors, nested_descriptor, is_top_level=False
+        )
+
+
+def build_non_obf_game_message_pinned_name(descriptor: Descriptor) -> str:
+    return ".".join(
+        _normalize_non_obf_game_message_name_part(name_part)
+        for name_part in descriptor.full_name.split(".")
+    )
+
+
+def _normalize_non_obf_game_message_name_part(name_part: str) -> str:
+    return f"{name_part[:1].upper()}{name_part[1:]}" if name_part else name_part
 
 
 def find_non_obf_game_message_descriptor(name: str) -> Descriptor | None:

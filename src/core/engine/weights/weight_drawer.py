@@ -1,5 +1,5 @@
 from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
+from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
 
 from src.core.signals.world_signals import WorldSignals
 
@@ -11,11 +11,11 @@ def draw_weight_on_map(
         return
     max_weight = max(weight_by_map_id.values())
     world_signals.reset_weight.emit()
-    batch: list[tuple[MapPositionsRootItem, tuple[int, int, int]]] = []
+    batch: list[tuple[MapInformationRootItem, tuple[int, int, int]]] = []
     for map_id, weight in weight_by_map_id.items():
-        if map_id not in DataReader().map_pos_by_map_id:
+        if map_id not in DataReader().map_info_by_map_id:
             continue
-        map_data = DataReader().map_pos_by_map_id[map_id]
+        map_data = DataReader().map_info_by_map_id[map_id]
         weight_color = int(255 * (weight / max_weight))
         batch.append((map_data, (255, 255 - weight_color, 0)))
     if batch:

@@ -16,7 +16,7 @@ from src.core.engine.movements.world.edge import (
 class AstarNoInteractive(AstarWorld):
     def get_neighbors(self, data: Vertice) -> Iterator[Vertice]:
         if self.world_signals:
-            map_data = DataReader().map_pos_by_map_id[data.m_mapId]
+            map_data = DataReader().map_info_by_map_id[data.m_mapId]
             self.world_signals.color_pos.emit(map_data, (0, 255, 0))
             sleep(0.01)
 

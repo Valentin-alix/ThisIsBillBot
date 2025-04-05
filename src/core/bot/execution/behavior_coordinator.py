@@ -3,8 +3,8 @@ from threading import Event
 from typing import Callable
 
 from ankama_launcher_emulator_premium.gui.utils import run_in_background
-from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
-    DecipheredApiKey,
+from ankama_launcher_emulator_premium.interfaces.credentials import (
+    StoredApiKey,
 )
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
@@ -45,7 +45,7 @@ class BehaviorCoordinator(ContextualLogger):
     bot_signals: BotSignals
     shared_signals: SharedSignals
 
-    account: DecipheredApiKey
+    account: StoredApiKey
     get_bot_config: Callable[[], BotConfig | None]
 
     _current_bot_action_func: Callable[[Callable[[str], None]], None] | None = field(
@@ -133,7 +133,7 @@ class BehaviorCoordinator(ContextualLogger):
         self.stop_behaviors()
         self._current_bot_action_func = func
         if not self.is_connected_event.is_set():
-            self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
+            self.shared_signals.launch_account.emit(self.account.apikey.login)
         elif self.is_ready_to_play_event.is_set():
             run_in_background(self._current_bot_action_func)
         else:
@@ -142,15 +142,13 @@ class BehaviorCoordinator(ContextualLogger):
     def run_current_bot_action(self) -> None:
         """Execute the current bot action or guess the appropriate one."""
         if self._current_bot_action_func is not None:
-            self.logger.info("Running current bot action")
             run_in_background(self._current_bot_action_func)
         else:
-            self.logger.info("Guess bot action")
             self.guess_bot_action()
 
     def guess_bot_action(self) -> None:
         """Determine and trigger the appropriate bot action based on configuration."""
-        if self.account["apikey"]["login"] in MULE_BANK_CHARACTER_LOGIN:
+        if self.account.apikey.login in MULE_BANK_CHARACTER_LOGIN:
             self.bot_signals.play_mule_kamas.emit()
         elif self.get_bot_config() is not None:
             self.bot_signals.play_auto_bot.emit()

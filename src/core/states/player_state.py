@@ -3,6 +3,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from threading import Event
 
+from ankama_launcher_emulator_premium.haapi.haapi import get_game_sub_info_by_login
+
+from src import const
 from src.core.signals.player_signals import GameInfoSignals
 from src.core.states.area_state import (
     CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER,
@@ -13,12 +16,10 @@ from src.core.states.state import State
 @dataclass
 class PlayerState(State):
     game_info_signals: GameInfoSignals
+    login: str
     _server_id: int = dataclasses.field(init=False, default=1)
     is_ready_to_play_event: Event = dataclasses.field(init=False)
     _level: int = dataclasses.field(init=False, default=1)
-    _subscription_end_date: datetime = dataclasses.field(
-        init=False, default_factory=lambda: datetime(1975, 1, 1)
-    )
     _character_id: int = dataclasses.field(init=False, default=0)
     _character_name: str = dataclasses.field(init=False, default_factory=str)
     waypoint_map_ids: list[int] = dataclasses.field(
@@ -38,7 +39,6 @@ class PlayerState(State):
         self.server_id = -1
         self.is_ready_to_play_event.clear()
         self.level = 1
-        self.subscription_end_date = datetime(1975, 1, 1)
         self.character_id = 0
         self.character_name = ""
         self.waypoint_map_ids.clear()
@@ -50,17 +50,23 @@ class PlayerState(State):
 
     @level.setter
     def level(self, value: int):
+        if value == self._level:
+            return
         self._level = value
-        self.game_info_signals.level.emit(value)
+        if const.DEBUG:
+            self.game_info_signals.level.emit(value)
 
     @property
-    def subscription_end_date(self):
-        return self._subscription_end_date
+    def subscription_end_date(self) -> datetime:
+        game_sub = get_game_sub_info_by_login(self.login)
+        if const.DEBUG:
+            self.game_info_signals.subscription_end_date.emit(game_sub.end_of_subscribe)
+        return game_sub.end_of_subscribe or const.MIN_DATE
 
-    @subscription_end_date.setter
-    def subscription_end_date(self, value: datetime):
-        self._subscription_end_date = value
-        self.game_info_signals.subscription_end_date.emit(value)
+    @property
+    def is_sub(self) -> bool:
+        sub_date = self.subscription_end_date
+        return datetime.now(tz=sub_date.tzinfo) < sub_date
 
     @property
     def character_id(self):
@@ -69,7 +75,8 @@ class PlayerState(State):
     @character_id.setter
     def character_id(self, value: int):
         self._character_id = value
-        self.game_info_signals.character_id.emit(value)
+        if const.DEBUG:
+            self.game_info_signals.character_id.emit(value)
 
     @property
     def character_name(self):
@@ -82,13 +89,6 @@ class PlayerState(State):
         self.game_info_signals.character_name.emit(value)
 
     @property
-    def is_sub(self) -> bool:
-        return (
-            datetime.now(tz=self.subscription_end_date.tzinfo)
-            < self.subscription_end_date
-        )
-
-    @property
     def limited_lvl(self) -> int:
         return min(self.level, 200)
 
@@ -99,4 +99,5 @@ class PlayerState(State):
     @server_id.setter
     def server_id(self, value: int):
         self._server_id = value
-        self.game_info_signals.server_id.emit(value)
+        if const.DEBUG:
+            self.game_info_signals.server_id.emit(value)

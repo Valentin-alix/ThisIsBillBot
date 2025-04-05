@@ -1,10 +1,14 @@
+import os
 import random
 import threading
 
-from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
+from ankama_launcher_emulator_premium.interfaces.credentials import (
     DecipheredApiKey,
+    DecipheredCertif,
+    StoredApiKey,
 )
 
+from src.const import LOG_FOLDER
 from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
 )
@@ -125,13 +129,14 @@ from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.signals.world_signals import WorldSignals
 from src.core.states.state_factory import StateFactory
+from src.services.debug_recorder import DebugRecorder
 from src.services.logging_utils.loggers import BotLogger
 
 
 class BotFactory:
     @staticmethod
     def create_bot(
-        shared_signals: SharedSignals, account: DecipheredApiKey, is_fake: bool = False
+        shared_signals: SharedSignals, account: StoredApiKey, is_fake: bool = False
     ):
         harvester_signals = BotSignals()
         game_info_signals = GameInfoSignals()
@@ -145,7 +150,13 @@ class BotFactory:
         is_connected_event = threading.Event()
         is_ready_to_play_event = threading.Event()
 
-        logger = BotLogger(title=account["apikey"]["login"], log_signals=log_signals)
+        title = account.apikey.login
+        debug_recorder = DebugRecorder(
+            file_path=os.path.join(LOG_FOLDER, f"{title}.debug.jsonl")
+        )
+        logger = BotLogger(
+            title=title, log_signals=log_signals, debug_recorder=debug_recorder
+        )
 
         event_manager = EventManager(_logger=logger)
 
@@ -155,6 +166,7 @@ class BotFactory:
             game_info_signals=game_info_signals,
             grid_signals=grid_signals,
             logger=logger,
+            login=account.apikey.login,
         )
 
         # logic
@@ -330,7 +342,7 @@ class BotFactory:
             path_finding=path_finding,
             _logger=logger,
             fight_turn_behavior=fight_turn_behavior,
-            login=account["apikey"]["login"],
+            login=account.apikey.login,
             shared_signals=shared_signals,
         )
         edge_behavior = EdgeBehavior(
@@ -695,6 +707,7 @@ class BotFactory:
             is_fake=is_fake,
             character_creation_behavior=character_creation_behavior,
             tutorial_behavior=tutorial_behavior,
+            debug_recorder=debug_recorder,
         )
 
 
@@ -702,22 +715,25 @@ def generate_random_bot() -> Bot:
     login = f"CertUser{random.randint(1, 10_000)}"
     return BotFactory.create_bot(
         SharedSignals(),
-        account={
-            "apikeyFile": "/path/to/apikey/file.json",
-            "apikey": {
-                "key": "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6",
-                "provider": "ankama",
-                "refreshToken": "X1Y2Z3A4B5C6D7E8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9",
-                "isStayLoggedIn": True,
-                "accountId": 482395,
-                "login": login,
-                "certificate": {
-                    "id": 4321,
-                    "encodedCertificate": "ABCD1234EFGH5678IJKL9012MNOP3456QRST7890UVWX1234YZAB5678CDEF9012",
-                    "login": login,
-                },
-                "refreshDate": 1762825632,
-            },
-        },
+        account=StoredApiKey(
+            apikeyFile="/path/to/apikey/file.json",
+            apikey=DecipheredApiKey(
+                key="A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6",
+                provider="ankama",
+                refreshToken="X1Y2Z3A4B5C6D7E8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9",
+                isStayLoggedIn=True,
+                accountId=482395,
+                login=login,
+                certificate=DecipheredCertif(
+                    id=4321,
+                    encodedCertificate=(
+                        "ABCD1234EFGH5678IJKL9012MNOP3456QRST7890"
+                        "UVWX1234YZAB5678CDEF9012"
+                    ),
+                    login=login,
+                ),
+                refreshDate=1762825632,
+            ),
+        ),
         is_fake=True,
     )

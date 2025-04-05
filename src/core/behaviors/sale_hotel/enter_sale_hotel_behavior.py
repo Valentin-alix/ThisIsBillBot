@@ -23,7 +23,7 @@ class EnterSaleHotelBehavior(Behavior):
     interactive_behavior: InteractiveBehavior
 
     def run(self, category: CategoryItemEnum) -> None:
-        curr_map_pos = DataReader().map_pos_by_map_id[self.game_state.map.map_id]
+        curr_map_pos = DataReader().map_info_by_map_id[self.game_state.map.map_id]
         near_acessible_sale_hotel = min(
             [
                 npc_info
@@ -32,7 +32,7 @@ class EnterSaleHotelBehavior(Behavior):
                 != MapTools.is_map_allowed_for_unsub(npc_info.npc_map_id)
             ],
             key=lambda npc_info: get_dist_to_maps(
-                curr_map_pos, [DataReader().map_pos_by_map_id[npc_info.npc_map_id]]
+                curr_map_pos, [DataReader().map_info_by_map_id[npc_info.npc_map_id]]
             ),
         )
         self.auto_trip_smart_behavior.start(

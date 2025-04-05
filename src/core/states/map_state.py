@@ -4,9 +4,10 @@ from dataclasses import dataclass, field
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
 from dofus_unity_reader.grid.map_point import MapPoint
-from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
+from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
 from dofus_unity_reader.models.world_graph import Transition, Vertice
 
+from src import const
 from src.core.engine.movements.world.linked_zone import get_linked_zone_rp
 from src.core.signals.grid_signals import GridSignals
 from src.core.signals.player_signals import GameInfoSignals
@@ -43,7 +44,8 @@ class MapState(State):
     @is_in_map_transition.setter
     def is_in_map_transition(self, value: bool):
         self._is_in_map_transition = value
-        self.grid_signals.is_in_map_transition.emit(value)
+        if const.DEBUG:
+            self.grid_signals.is_in_map_transition.emit(value)
 
     @property
     def map_id(self) -> int:
@@ -52,11 +54,12 @@ class MapState(State):
     @map_id.setter
     def map_id(self, value: int):
         self._map_id = value
-        self.grid_signals.new_map_id.emit(self._map_id)
+        if const.DEBUG:
+            self.grid_signals.new_map_id.emit(self._map_id)
 
     @property
-    def map_pos(self) -> MapPositionsRootItem:
-        return DataReader().map_pos_by_map_id[self.map_id]
+    def map_pos(self) -> MapInformationRootItem:
+        return DataReader().map_info_by_map_id[self.map_id]
 
     @property
     def sub_area_id(self):
@@ -69,7 +72,8 @@ class MapState(State):
     @is_in_haven_bag.setter
     def is_in_haven_bag(self, value: bool):
         self._is_in_haven_bag = value
-        self.game_info_signals.is_in_haven_bag.emit(value)
+        if const.DEBUG:
+            self.game_info_signals.is_in_haven_bag.emit(value)
 
     @property
     def map_point(self):

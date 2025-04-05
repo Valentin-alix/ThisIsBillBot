@@ -19,7 +19,6 @@ from datas.protos.non_obf.game.fight_preparation_pb2 import (
 )
 from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionAcknowledgementRequest,
-    GameActionFightCastRequest,
     SequenceEndEvent,
 )
 from datas.protos.non_obf.game.gamemap_pb2 import (
@@ -132,31 +131,6 @@ class HumanTimingsService(metaclass=Singleton):
 
         return get_timing_func()()
 
-    def get_timing_before_playing_turn(self) -> float:
-        @cache
-        def get_timing_func():
-            deltas: list[float] = []
-
-            for (
-                msgs_timings
-            ) in SessionTimingsController.get_message_timings_by_session().values():
-                msg_target_timestamp: float | None = None
-                for msg_timing in sorted(msgs_timings, key=lambda elem: elem.timestamp):
-                    if msg_timing.name == FightTurnStartPlayingEvent.__name__:
-                        msg_target_timestamp = msg_timing.timestamp
-                        continue
-                    if msg_target_timestamp and msg_timing.name in [
-                        MapMovementRequest.__name__,
-                        GameActionFightCastRequest.__name__,
-                        FightTurnFinishRequest.__name__,
-                    ]:
-                        deltas.append(msg_timing.timestamp - msg_target_timestamp)
-                        msg_target_timestamp = None
-
-            return self.get_human_timing(deltas)
-
-        return get_timing_func()()
-
     def get_timing_before_preparation_placement(self) -> float:
         @cache
         def get_timing_func():
@@ -201,33 +175,6 @@ class HumanTimingsService(metaclass=Singleton):
                         FightMapInformationEvent.__name__,
                         FightPlacementPositionRequest.__name__,
                         ChallengeModSelectRequest.__name__,
-                    ]:
-                        deltas.append(msg_target_timestamp - msg_timing.timestamp)
-                        msg_target_timestamp = None
-
-            return self.get_human_timing(deltas)
-
-        return get_timing_func()()
-
-    def get_timing_attack_finish_after_movement_or_attack(self) -> float:
-        @cache
-        def get_timing_func():
-            deltas: list[float] = []
-
-            for (
-                msgs_timings
-            ) in SessionTimingsController.get_message_timings_by_session().values():
-                msg_target_timestamp: float | None = None
-                for msg_timing in sorted(
-                    msgs_timings, key=lambda elem: elem.timestamp, reverse=True
-                ):
-                    if msg_timing.name == GameActionFightCastRequest.__name__:
-                        msg_target_timestamp = msg_timing.timestamp
-                        continue
-                    if msg_target_timestamp and msg_timing.name in [
-                        GameActionAcknowledgementRequest.__name__,
-                        FightTurnStartPlayingEvent.__name__,
-                        GameActionFightCastRequest.__name__,
                     ]:
                         deltas.append(msg_target_timestamp - msg_timing.timestamp)
                         msg_target_timestamp = None

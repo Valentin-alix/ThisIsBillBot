@@ -3,6 +3,7 @@ import datetime
 
 from datas.protos.non_obf.game.exchange_pb2 import SellingConditions
 
+from src import const
 from src.controller.sale_hotel import SaleHotelController
 from src.core.config import get_time_beween_sale_hotel_prices
 from src.core.signals.player_signals import GameInfoSignals
@@ -45,7 +46,8 @@ class SaleHotelState(State):
     @last_time_updated_prices.setter
     def last_time_updated_prices(self, value: datetime.datetime):
         self._last_time_updated_prices = value
-        self.game_info_signals.last_time_updated_prices.emit(value)
+        if const.DEBUG:
+            self.game_info_signals.last_time_updated_prices.emit(value)
 
     @property
     def is_full_object_in_sale_hotel(self):

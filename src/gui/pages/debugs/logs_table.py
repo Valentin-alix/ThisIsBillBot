@@ -52,9 +52,6 @@ class LogsTable(BaseTableWidget):
         if not self._batch_timer.isActive():
             self._batch_timer.start()
 
-    def flush_pending_rows(self) -> None:
-        self._flush_pending_rows()
-
     def clear(self) -> None:
         self._batch_timer.stop()
         self._pending_rows.clear()

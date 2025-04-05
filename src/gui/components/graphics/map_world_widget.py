@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from math import floor
 
-from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
+from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
 from PyQt6.QtCore import QRectF, Qt, pyqtSlot
 from PyQt6.QtGui import QColor, QPainter, QPen, QResizeEvent
 from PyQt6.QtWidgets import (
@@ -90,7 +90,7 @@ class MapCircle(QGraphicsEllipseItem):
 @dataclass
 class CurrMapInfo:
     state: MapCircle
-    map_pos: MapPositionsRootItem
+    map_pos: MapInformationRootItem
 
 
 class MapWorldView(QGraphicsView):
@@ -105,7 +105,9 @@ class MapWorldView(QGraphicsView):
         self.line_items: list[QGraphicsLineItem] = []
         self._scene: QGraphicsScene = QGraphicsScene()
         self.square_by_coord: dict[Coord, SquareMap] = {}
-        self.map_pos_by_coord: dict[Coord, set[MapPositionsRootItem]] = defaultdict(set)
+        self.map_pos_by_coord: dict[Coord, set[MapInformationRootItem]] = defaultdict(
+            set
+        )
 
         self.setStyleSheet("border: 0px")
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -130,8 +132,8 @@ class MapWorldView(QGraphicsView):
         self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
         return super().resizeEvent(event)
 
-    @pyqtSlot(MapPositionsRootItem)
-    def on_curr_map(self, map_pos: MapPositionsRootItem):
+    @pyqtSlot(MapInformationRootItem)
+    def on_curr_map(self, map_pos: MapInformationRootItem):
         coord = map_pos.posX, map_pos.posY
         if self.curr_map_info is None:
             state = MapCircle()
@@ -149,7 +151,7 @@ class MapWorldView(QGraphicsView):
         )
         self.centerOn(x, y)
 
-    def get_or_create_map(self, map_pos: MapPositionsRootItem) -> SquareMap:
+    def get_or_create_map(self, map_pos: MapInformationRootItem) -> SquareMap:
         coord = map_pos.posX, map_pos.posY
         if coord not in self.square_by_coord:
             self.map_pos_by_coord[coord].add(map_pos)
@@ -170,22 +172,22 @@ class MapWorldView(QGraphicsView):
     def get_pos_by_coord(self, coord: Coord) -> tuple[int, int]:
         return coord[0] * CELL_SIZE, coord[1] * CELL_SIZE
 
-    @pyqtSlot(MapPositionsRootItem, tuple)
-    def on_color_pos(self, map_pos: MapPositionsRootItem, color: RGBColor):
+    @pyqtSlot(MapInformationRootItem, tuple)
+    def on_color_pos(self, map_pos: MapInformationRootItem, color: RGBColor):
         square_cell = self.get_or_create_map(map_pos)
         square_cell.add_color(map_pos.id, color)
 
     @pyqtSlot(list)
-    def on_color_pos_batch(self, items: list[tuple[MapPositionsRootItem, RGBColor]]):
+    def on_color_pos_batch(self, items: list[tuple[MapInformationRootItem, RGBColor]]):
         self.setUpdatesEnabled(False)
         for map_pos, color in items:
             square_cell = self.get_or_create_map(map_pos)
             square_cell.add_color(map_pos.id, color)
         self.setUpdatesEnabled(True)
 
-    @pyqtSlot(MapPositionsRootItem, MapPositionsRootItem)
+    @pyqtSlot(MapInformationRootItem, MapInformationRootItem)
     def on_arrow_pos(
-        self, map_pos_start: MapPositionsRootItem, map_pos_end: MapPositionsRootItem
+        self, map_pos_start: MapInformationRootItem, map_pos_end: MapInformationRootItem
     ):
         """draw line from start to end pos"""
         start_square = self.get_or_create_map(map_pos_start)
@@ -204,7 +206,7 @@ class MapWorldView(QGraphicsView):
 
     @pyqtSlot(list)
     def on_arrow_pos_batch(
-        self, items: list[tuple[MapPositionsRootItem, MapPositionsRootItem]]
+        self, items: list[tuple[MapInformationRootItem, MapInformationRootItem]]
     ):
         self.setUpdatesEnabled(False)
         for map_pos_start, map_pos_end in items:

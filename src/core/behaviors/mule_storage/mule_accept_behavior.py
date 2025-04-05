@@ -132,12 +132,8 @@ class MuleAcceptBehavior(Behavior):
             originator=self,
             override_on_self=True,
         )
-        self.run_timer(
-            BASE_RANGE,
-            lambda: self.event_manager.send(
-                ExchangeReadyRequest(ready=True, step=self._step)
-            ),
-        )
+        req = ExchangeReadyRequest(ready=True, step=self._step)
+        self.send_message_delayed(req, BASE_RANGE)
 
     def on_exchange_requested_trade_event_during_unload(
         self, msg: ExchangeRequestedTradeEvent

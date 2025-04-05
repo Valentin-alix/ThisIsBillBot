@@ -14,6 +14,7 @@ from datas.protos.non_obf.game.inventory_pb2 import (
     ObjectsQuantityEvent,
 )
 
+from src import const
 from src.core.frames.frame import Frame
 
 
@@ -94,9 +95,10 @@ class InventoryFrame(Frame):
         self.game_state.inventory.objects_by_uid[
             message.object.object_uid
         ].item.quantity = message.object.quantity
-        self.inventory_signals.updated_object_item.emit(
-            self.game_state.inventory.objects_by_uid[message.object.object_uid]
-        )
+        if const.DEBUG:
+            self.inventory_signals.updated_object_item.emit(
+                self.game_state.inventory.objects_by_uid[message.object.object_uid]
+            )
 
     def on_inventory_content_event(self, msg: InventoryContentEvent):
         self.game_state.inventory.set_objects(list(msg.objects))
@@ -127,15 +129,17 @@ class InventoryFrame(Frame):
             self.game_state.inventory.objects_by_uid[
                 object_with_quantity.object_uid
             ].item.quantity = object_with_quantity.quantity
-            self.inventory_signals.updated_object_item.emit(
-                self.game_state.inventory.objects_by_uid[
-                    object_with_quantity.object_uid
-                ]
-            )
+            if const.DEBUG:
+                self.inventory_signals.updated_object_item.emit(
+                    self.game_state.inventory.objects_by_uid[
+                        object_with_quantity.object_uid
+                    ]
+                )
 
     def on_object_modified_event(self, msg: ObjectModifiedEvent):
         self.game_state.inventory.objects_by_uid[msg.object.item.uid] = msg.object
-        self.inventory_signals.updated_object_item.emit(msg.object)
+        if const.DEBUG:
+            self.inventory_signals.updated_object_item.emit(msg.object)
 
     def on_object_movement_event(self, msg: ObjectMovementEvent):
         self.game_state.inventory.objects_by_uid[msg.object_uid].position = msg.position

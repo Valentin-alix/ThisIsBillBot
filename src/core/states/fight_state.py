@@ -1,6 +1,7 @@
 import dataclasses
 from collections import defaultdict
 from dataclasses import dataclass, field
+from typing import NamedTuple
 
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
@@ -10,12 +11,14 @@ from datas.protos.non_obf.game.common_pb2 import (
 )
 from datas.protos.non_obf.game.spell_pb2 import SpellItem
 from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.game_constants.breed import BreedEnum
 from dofus_unity_reader.game_constants.characteristic import (
     CharacteristicEnum,
     EffectElement,
 )
 from dofus_unity_reader.grid.map_point import MapPoint
 
+from src import const
 from src.core.engine.fights.attack.models import EnemyData
 from src.core.engine.fights.effect import get_effect_elem_by_stat
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
@@ -26,13 +29,19 @@ from src.core.states.player_state import PlayerState
 from src.core.states.state import State
 
 
+class LastAtkInfo(NamedTuple):
+    monster_group_info: (
+        ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor
+    )
+    from_map_id: int  # ca sert a déterminer si on a perdu => si la map est différente après le fight alors ui on a perdu
+
+
 @dataclass
 class FightState(State):
     player_state: PlayerState
     entity_state: EntityState
     game_info_signals: GameInfoSignals
 
-    is_map_fight_initialized: bool = field(init=False, default=False)
     fight_placement_possible_positions: list[int] = field(
         init=False, default_factory=list[int]
     )
@@ -57,13 +66,9 @@ class FightState(State):
     _fight_turn: int = dataclasses.field(init=False, default=0)
     _life_point: int = dataclasses.field(init=False, default=1)
     _max_life_point: int = dataclasses.field(init=False, default=1)
-    _last_attacked_monster_group: (
-        ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor | None
-    ) = dataclasses.field(init=False, default=None)
-    _player_died_in_current_fight: bool = dataclasses.field(init=False, default=False)
+    last_atk_info: LastAtkInfo | None = dataclasses.field(init=False, default=None)
 
     def clear_state(self):
-        self.is_map_fight_initialized = False
         self.fight_placement_possible_positions.clear()
         self.is_our_turn = False
         self.spells.clear()
@@ -75,15 +80,29 @@ class FightState(State):
         self.fight_turn = 0
         self.life_point = 1
         self.max_life_point = 1
-        self._last_attacked_monster_group = None
-        self._player_died_in_current_fight = False
+        self.last_atk_info = None
 
     def get_stat_by_id(self, characteristic: int) -> int:
         value = get_stat_by_id(self.characteristic_by_id.get(characteristic))
         return value
 
+    def sync_life_points_from_characteristics(self) -> None:
+        assert CharacteristicEnum.LIFE_POINTS in self.characteristic_by_id
+        assert CharacteristicEnum.VITALITY in self.characteristic_by_id
+        assert CharacteristicEnum.CUR_LIFE in self.characteristic_by_id
+
+        life_points = self.get_stat_by_id(CharacteristicEnum.LIFE_POINTS)
+        vitality = self.get_stat_by_id(CharacteristicEnum.VITALITY)
+        current_life_delta = self.get_stat_by_id(CharacteristicEnum.CUR_LIFE)
+
+        max_life_point = life_points + vitality
+        self.max_life_point = max_life_point
+        self.life_point = max_life_point + current_life_delta
+
     def update_characteristic(self, characteristic: CharacterCharacteristic) -> None:
         self.characteristic_by_id[characteristic.characteristic_id] = characteristic
+        if not const.DEBUG:
+            return
         value = get_stat_by_id(characteristic)
         if characteristic.characteristic_id == CharacteristicEnum.ACTION_POINTS:
             self.game_info_signals.action_points.emit(value)
@@ -97,16 +116,8 @@ class FightState(State):
     @breed_id.setter
     def breed_id(self, value: int):
         self._breed_id = value
-        self.game_info_signals.breed_id.emit(value)
-
-    @property
-    def max_life_point(self):
-        return max(self._max_life_point, 1)
-
-    @max_life_point.setter
-    def max_life_point(self, value: int):
-        self.game_info_signals.max_life_point.emit(value)
-        self._max_life_point = value
+        if const.DEBUG:
+            self.game_info_signals.breed_id.emit(value)
 
     @property
     def life_percentage(self):
@@ -118,17 +129,31 @@ class FightState(State):
 
     @fight_turn.setter
     def fight_turn(self, value: int):
-        self.game_info_signals.fight_turn.emit(value)
         self._fight_turn = value
+        if const.DEBUG:
+            self.game_info_signals.fight_turn.emit(value)
+
+    @property
+    def max_life_point(self):
+        return self._max_life_point
+
+    @max_life_point.setter
+    def max_life_point(self, value: int):
+        assert value > 0
+        self._max_life_point = value
+        if const.DEBUG:
+            self.game_info_signals.max_life_point.emit(value)
 
     @property
     def life_point(self):
-        return max(self._life_point, 1)
+        return self._life_point
 
     @life_point.setter
     def life_point(self, value: int):
-        self.game_info_signals.life_point.emit(value)
+        assert value >= 0
         self._life_point = value
+        if const.DEBUG:
+            self.game_info_signals.life_point.emit(self._life_point)
 
     @property
     def in_fight(self):
@@ -141,13 +166,32 @@ class FightState(State):
 
     @property
     def ordered_stat(self) -> list[CharacteristicEnum]:
+        def _secondary_sort_stat(char_id: int) -> bool:
+            if self.breed_id == BreedEnum.XELOR:
+                return char_id == CharacteristicEnum.INTELLIGENCE
+            elif self.breed_id in [BreedEnum.IOP, BreedEnum.SACRIER]:
+                return char_id == CharacteristicEnum.CHANCE
+            elif self.breed_id == BreedEnum.CRA:
+                return char_id == CharacteristicEnum.AGILITY
+            return False
+
         dmg_stats: list[CharacteristicEnum] = [
             CharacteristicEnum.CHANCE,
             CharacteristicEnum.AGILITY,
             CharacteristicEnum.STRENGTH,
             CharacteristicEnum.INTELLIGENCE,
         ]
-        return list(sorted(dmg_stats, key=self.get_stat_by_id, reverse=True))
+        return list(
+            sorted(
+                dmg_stats,
+                key=lambda char_id: (
+                    self.get_stat_by_id(char_id),
+                    _secondary_sort_stat,
+                    (char_id),
+                ),
+                reverse=True,
+            )
+        )
 
     @property
     def primary_and_second_elem(self) -> tuple[EffectElement, EffectElement]:
@@ -164,7 +208,8 @@ class FightState(State):
     @is_our_turn.setter
     def is_our_turn(self, value: bool):
         self._is_our_turn = value
-        self.game_info_signals.is_our_turn.emit(value)
+        if const.DEBUG:
+            self.game_info_signals.is_our_turn.emit(value)
 
     def get_enemies(self, character_id: int) -> list[ActorPositionInformation]:
         enemies = [
@@ -172,7 +217,7 @@ class FightState(State):
             for actor in self.entity_state.actor_by_id.values()
             if actor.actor_id != character_id and actor.disposition.cell_id != -1
         ]
-        self.logger.info(f"Found {len(enemies)} enemies")
+        self.logger.debug(f"Found {len(enemies)} enemies")
 
         return enemies
 
@@ -206,25 +251,3 @@ class FightState(State):
                 )
             )
         return enemies_data
-
-    def set_last_attacked_monster_group(
-        self,
-        monster_group: ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor
-        | None,
-    ):
-        self._last_attacked_monster_group = monster_group
-
-    @property
-    def last_attacked_monster_group(
-        self,
-    ) -> (
-        ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor | None
-    ):
-        return self._last_attacked_monster_group
-
-    def set_player_died_in_current_fight(self, died: bool):
-        self._player_died_in_current_fight = died
-
-    @property
-    def player_died_in_current_fight(self) -> bool:
-        return self._player_died_in_current_fight

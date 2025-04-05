@@ -164,10 +164,7 @@ class HarvesterBehavior(BaseFarmBehavior):
                 def use_harvest_bag():
                     req = ObjectUseRequest(object_uid=object.item.uid)
                     self.event_manager.send(req)
-                    self.run_timer(
-                        BASE_RANGE,
-                        lambda: self.purge_inventory(),
-                    )
+                    self.run_timer(BASE_RANGE, lambda: self.purge_inventory())
 
                 return self.run_timer(BASE_RANGE, use_harvest_bag)
 

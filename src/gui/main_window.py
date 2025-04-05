@@ -8,7 +8,6 @@ from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QCloseEvent, QColor, QIcon
 from PyQt6.QtWidgets import QHBoxLayout, QWidget
 from qfluentwidgets import (
-    BodyLabel,
     FluentIcon,
     NavigationItemPosition,
     PrimaryPushButton,
@@ -16,6 +15,7 @@ from qfluentwidgets import (
 )
 from qfluentwidgets.components.navigation import NavigationDisplayMode, NavigationWidget
 
+from src import const
 from src.const import LOGO_FILE
 from src.controller.bot_config import BotConfig, BotConfigController
 from src.controller.schedule_profile_controller import ScheduleProfileController
@@ -37,7 +37,8 @@ class MainWindow(AppFluentWindow):
         super().__init__(parent=None)
 
         self.global_log_signals = LogSignals()
-        init_root_gui_logging(self.global_log_signals)
+        if const.DEBUG:
+            init_root_gui_logging(self.global_log_signals)
 
         self.title = title
         self.shared_signals = shared_signals
@@ -52,7 +53,6 @@ class MainWindow(AppFluentWindow):
 
         self.account_widgets: list[AccountStackedWidget] = []
         self.bots_by_login: dict[str, Bot] = {}
-        self._init_debug_button()
         self._init_sync_button()
         self.shared_signals.new_bot_added.connect(self.add_account)
         self.shared_signals.bot_removed.connect(self.remove_account)
@@ -62,7 +62,7 @@ class MainWindow(AppFluentWindow):
             self.add_account(account)
 
     def add_account(self, account: Bot) -> None:
-        login = account.account["apikey"]["login"]
+        login = account.account.apikey.login
         self.bots_by_login[login] = account
 
         account_widget = AccountStackedWidget(self.global_log_signals, login, account)
@@ -114,7 +114,7 @@ class MainWindow(AppFluentWindow):
         )
 
     def remove_account(self, account: Bot) -> None:
-        login = account.account["apikey"]["login"]
+        login = account.account.apikey.login
         self.bots_by_login.pop(login, None)
 
         account_widget = next(
@@ -173,28 +173,6 @@ class MainWindow(AppFluentWindow):
         else:
             updated_config = BotConfig(connection_mode=typed_mode)
         BotConfigController().update_bot_config_by_login(updated_config, login)
-
-    def _init_debug_button(self) -> None:
-        class DebugSwitchWidget(NavigationWidget):
-            def __init__(self, parent: QWidget | None = None) -> None:
-                super().__init__(isSelectable=False, parent=parent)
-                self.setFixedHeight(48)
-                layout = QHBoxLayout(self)
-                layout.setContentsMargins(12, 8, 12, 8)
-
-                icon_label = BodyLabel()
-                icon_label.setPixmap(
-                    FluentIcon.CODE.icon(color=QColor(255, 255, 255)).pixmap(16, 16)
-                )
-                layout.addWidget(icon_label)
-
-        self.debug_widget = DebugSwitchWidget(self)
-
-        self.navigationInterface.addWidget(
-            routeKey="debug_toggle",
-            widget=self.debug_widget,
-            position=NavigationItemPosition.BOTTOM,
-        )
 
     def _init_sync_button(self) -> None:
         def manage_visibility_sync_btn(display_mode: NavigationDisplayMode) -> None:

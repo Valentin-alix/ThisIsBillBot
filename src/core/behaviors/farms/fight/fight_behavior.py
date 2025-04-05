@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from datas.protos.non_obf.game.fight_pb2 import (
-    FightTurnStartPlayingEvent,
+    FightTurnEvent,
 )
 from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
@@ -13,9 +13,9 @@ from src.core.behaviors.farms.fight.fight_preparation_behavior import (
     FightPreparationBehavior,
 )
 from src.core.behaviors.farms.fight.fight_turn_behavior import FightTurnBehavior
+from src.core.config import BETWEEN_ACTION_RANGE
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.signals.shared_farm_signals import SharedSignals
-from src.services.human_timings import HumanTimingsService
 
 FIGHT_TIMEOUT_SECONDS = 30 * 60
 
@@ -36,7 +36,7 @@ class FightBehavior(Behavior):
             originator=self,
             once=True,
         )
-        if self.game_state.fight.is_map_fight_initialized:
+        if not self.game_state.map.is_in_map_transition:
             self.on_fight_map_initialized()
         else:
             self.event_manager.on(
@@ -48,7 +48,7 @@ class FightBehavior(Behavior):
 
     def on_fight_map_initialized(self):
         self.event_manager.on(
-            FightTurnStartPlayingEvent,
+            FightTurnEvent,
             self.on_player_turn_event,
             originator=self,
         )
@@ -69,7 +69,9 @@ class FightBehavior(Behavior):
     def on_fight_preparation_behavior_finish(self, error_code: str | None):
         self.raise_if_error(error_code)
 
-    def on_player_turn_event(self, msg: FightTurnStartPlayingEvent) -> None:
+    def on_player_turn_event(self, msg: FightTurnEvent) -> None:
+        if msg.character_id != self.game_state.player.character_id:
+            return
         self.on_player_turn()
 
     def on_player_turn(self):
@@ -78,10 +80,7 @@ class FightBehavior(Behavior):
         if self.game_state.fight.fight_turn > 100:
             self.logger.error("Bot Might be stuck")
             self.shared_signals.launch_account.emit(self.login)
-        self.run_timer(
-            HumanTimingsService().get_timing_before_playing_turn(),
-            self._start_fight_turn_if_still_valid,
-        )
+        self.run_timer(BETWEEN_ACTION_RANGE, self._start_fight_turn_if_still_valid)
 
     def _start_fight_turn_if_still_valid(self) -> None:
         if not self._can_start_fight_turn():

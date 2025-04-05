@@ -1,6 +1,3 @@
-from ankama_launcher_emulator_premium.gui.widgets.unregistered_account_card import (
-    UnregisteredAccountCard,
-)
 from src.gui.components.log_syntax_highlighter import LogSyntaxHighlighter
 from src.gui.components.multi_selection_combobox import (
     MultiSelectComboBox,
@@ -34,5 +31,4 @@ _ = (
     SidebarPanel.setMinimumExpandWidth,
     SidebarPanel.setAcrylicEnabled,
     ScrollableMessageBox,
-    UnregisteredAccountCard,
 )

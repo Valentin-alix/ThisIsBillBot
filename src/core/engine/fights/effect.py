@@ -103,5 +103,3 @@ def is_included_by_mask(
     }
 
     return any(conditions.get(mask, lambda: False)() for mask in masks)
-
-

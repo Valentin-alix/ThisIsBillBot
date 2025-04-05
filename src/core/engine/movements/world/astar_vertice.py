@@ -28,7 +28,7 @@ class AstarWorld(Astar[Vertice, Edge]):
     def get_neighbors(self, data: Vertice) -> Iterator[Vertice]:
         context = self._get_context()
         if self.world_signals:
-            map_data = DataReader().map_pos_by_map_id[data.m_mapId]
+            map_data = DataReader().map_info_by_map_id[data.m_mapId]
             if (
                 map_data.posX != context.current_map_pos.posX
                 or map_data.posY != context.current_map_pos.posY
@@ -38,8 +38,8 @@ class AstarWorld(Astar[Vertice, Edge]):
             yield edge.m_to
 
     def get_dist(self, current: Vertice, ends: "set[Vertice]") -> float:
-        curr_map_pos = DataReader().map_pos_by_map_id[current.m_mapId]
-        ends_map_pos = [DataReader().map_pos_by_map_id[end.m_mapId] for end in ends]
+        curr_map_pos = DataReader().map_info_by_map_id[current.m_mapId]
+        ends_map_pos = [DataReader().map_info_by_map_id[end.m_mapId] for end in ends]
         cost_to_ends = get_dist_to_maps(curr_map_pos, ends_map_pos)
         return cost_to_ends
 

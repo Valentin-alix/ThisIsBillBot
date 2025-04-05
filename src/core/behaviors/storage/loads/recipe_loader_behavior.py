@@ -1,11 +1,11 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
 
-from dofus_unity_reader.data_center.i18n import I18N
 from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
 from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
 )
+from dofus_unity_reader.data_center.i18n import I18N
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior

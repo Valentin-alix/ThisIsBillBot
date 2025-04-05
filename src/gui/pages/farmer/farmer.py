@@ -57,8 +57,6 @@ class FarmerWidget(QWidget):
         self.world_pivot_item: PivotItem | None = None
         self.inventory_pivot_item: PivotItem | None = None
         self.bank_pivot_item: PivotItem | None = None
-        self.is_debug_tabs_visible: bool | None = None
-
         self.map_tab: MapTab | None = None
         self.player_tab: PlayerTab | None = None
         self.world_tab: WorldTab | None = None
@@ -66,19 +64,15 @@ class FarmerWidget(QWidget):
         self.bank_tab: BankTab | None = None
 
         self.init_top_content()
-        self.init_content()
 
-        self.pivot: SegmentedWidget
-        self.stacked_widget: QStackedWidget
-
-        self._create_debug_tabs()
+        if const.DEBUG:
+            self.init_content()
+            self._create_debug_tabs()
 
         self.bot.bot_signals.play_harvester.connect(self.on_play_harvester)
         self.bot.bot_signals.play_crafter.connect(self.on_play_craft)
         self.bot.bot_signals.play_auto_bot.connect(self.on_play_auto)
         self.bot.bot_signals.play_fighter.connect(self.on_play_fighter)
-
-        self.set_debug_tabs_visibility(const.DEBUG)
 
     def init_top_content(self) -> None:
         top_widget = QWidget(self)
@@ -268,102 +262,44 @@ class FarmerWidget(QWidget):
         return pivot_item
 
     def _create_debug_tabs(self) -> None:
-        if self.map_tab is not None:
-            return
-
-        map_tab = MapTab(
+        self.map_tab = MapTab(
             grid_signals=self.bot.grid_signals,
             game_state=self.bot.game_state,
             parent=self.stacked_widget,
         )
-        self.stacked_widget.addWidget(map_tab)
+        self.stacked_widget.addWidget(self.map_tab)
         self.map_route = f"{self.objectName()}_map_tab"
-        self.map_pivot_item = self._add_debug_tab(self.map_route, "Map", map_tab)
+        self.map_pivot_item = self._add_debug_tab(self.map_route, "Map", self.map_tab)
 
-        player_tab = PlayerTab(bot=self.bot, parent=self.stacked_widget)
-        self.stacked_widget.addWidget(player_tab)
+        self.player_tab = PlayerTab(bot=self.bot, parent=self.stacked_widget)
+        self.stacked_widget.addWidget(self.player_tab)
         player_route = f"{self.objectName()}_player_tab"
-        self.player_pivot_item = self._add_debug_tab(player_route, "Joueur", player_tab)
+        self.player_pivot_item = self._add_debug_tab(
+            player_route, "Joueur", self.player_tab
+        )
 
-        world_tab = WorldTab(
+        self.world_tab = WorldTab(
             world_signals=self.bot.world_signals, parent=self.stacked_widget
         )
-        self.stacked_widget.addWidget(world_tab)
+        self.stacked_widget.addWidget(self.world_tab)
         world_route = f"{self.objectName()}_world_tab"
-        self.world_pivot_item = self._add_debug_tab(world_route, "Monde", world_tab)
-
-        inventory_tab = InventoryTab(self.bot, parent=self.stacked_widget)
-        self.stacked_widget.addWidget(inventory_tab)
-        inventory_route = f"{self.objectName()}_inventory_tab"
-        self.inventory_pivot_item = self._add_debug_tab(
-            inventory_route,
-            "Inventaire",
-            inventory_tab,
+        self.world_pivot_item = self._add_debug_tab(
+            world_route, "Monde", self.world_tab
         )
 
-        bank_tab = BankTab(self.bot, parent=self.stacked_widget)
-        self.stacked_widget.addWidget(bank_tab)
+        self.inventory_tab = InventoryTab(self.bot, parent=self.stacked_widget)
+        self.stacked_widget.addWidget(self.inventory_tab)
+        inventory_route = f"{self.objectName()}_inventory_tab"
+        self.inventory_pivot_item = self._add_debug_tab(
+            inventory_route, "Inventaire", self.inventory_tab
+        )
+
+        self.bank_tab = BankTab(self.bot, parent=self.stacked_widget)
+        self.stacked_widget.addWidget(self.bank_tab)
         bank_route = f"{self.objectName()}_bank_tab"
-        self.bank_pivot_item = self._add_debug_tab(bank_route, "Banque", bank_tab)
+        self.bank_pivot_item = self._add_debug_tab(bank_route, "Banque", self.bank_tab)
 
-        self.map_tab = map_tab
-        self.player_tab = player_tab
-        self.world_tab = world_tab
-        self.inventory_tab = inventory_tab
-        self.bank_tab = bank_tab
-
-    def set_debug_tabs_visibility(self, is_visible: bool) -> None:
-        if self.is_debug_tabs_visible == is_visible:
-            return
-
-        self.is_debug_tabs_visible = is_visible
-
-        if is_visible:
-            if self.map_pivot_item is not None:
-                self.map_pivot_item.setVisible(True)
-            if self.player_pivot_item is not None:
-                self.player_pivot_item.setVisible(True)
-            if self.world_pivot_item is not None:
-                self.world_pivot_item.setVisible(True)
-            if self.inventory_pivot_item is not None:
-                self.inventory_pivot_item.setVisible(True)
-            if self.bank_pivot_item is not None:
-                self.bank_pivot_item.setVisible(True)
-            if self.map_tab is not None:
-                self.map_tab.setUpdatesEnabled(True)
-            if self.player_tab is not None:
-                self.player_tab.setUpdatesEnabled(True)
-            if self.world_tab is not None:
-                self.world_tab.setUpdatesEnabled(True)
-            if self.inventory_tab is not None:
-                self.inventory_tab.setUpdatesEnabled(True)
-                self.inventory_tab.connect_signals()
-            if self.bank_tab is not None:
-                self.bank_tab.setUpdatesEnabled(True)
-                self.bank_tab.connect_signals()
-            self.pivot.setCurrentItem(self.map_route)
-            assert self.map_tab
-            self.stacked_widget.setCurrentWidget(self.map_tab)
-        else:
-            if self.map_pivot_item is not None:
-                self.map_pivot_item.setVisible(False)
-            if self.player_pivot_item is not None:
-                self.player_pivot_item.setVisible(False)
-            if self.world_pivot_item is not None:
-                self.world_pivot_item.setVisible(False)
-            if self.inventory_pivot_item is not None:
-                self.inventory_pivot_item.setVisible(False)
-            if self.bank_pivot_item is not None:
-                self.bank_pivot_item.setVisible(False)
-            if self.map_tab is not None:
-                self.map_tab.setUpdatesEnabled(False)
-            if self.player_tab is not None:
-                self.player_tab.setUpdatesEnabled(False)
-            if self.world_tab is not None:
-                self.world_tab.setUpdatesEnabled(False)
-            if self.inventory_tab is not None:
-                self.inventory_tab.setUpdatesEnabled(False)
-                self.inventory_tab.disconnect_signals()
-            if self.bank_tab is not None:
-                self.bank_tab.setUpdatesEnabled(False)
-                self.bank_tab.disconnect_signals()
+        self.inventory_tab.connect_signals()
+        self.bank_tab.connect_signals()
+        self.pivot.setCurrentItem(self.map_route)
+        self.stacked_widget.setCurrentWidget(self.map_tab)

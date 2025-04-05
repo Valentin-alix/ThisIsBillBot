@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from functools import partial
 
-from common_pb2 import ObjectItemInventory
+from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.item import CategoryItemEnum
 from dofus_unity_reader.game_constants.npc import NpcInfo
@@ -76,7 +76,7 @@ class SaleHotelBuyBehavior(DialogHandlerBehavior):
             )
             self.event_manager.send(req)
         req = ExchangeBidHouseTypeRequest(type_id=type_id, follow=True)
-        self.run_timer(SMALL_RANGE, lambda: self.event_manager.send(req))
+        self.send_message_delayed(req, SMALL_RANGE)
 
     def on_exchange_types_exchanger_description_for_user_event(
         self, msg: ExchangeTypesExchangerDescriptionForUserEvent

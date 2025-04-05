@@ -271,8 +271,7 @@ class CraftBehavior(DialogHandlerBehavior):
             override_on_self=True,
         )
         self.send_message_delayed(
-            ExchangeCraftCountRequest(count=max_possible_result_quantity),
-            BASE_RANGE,
+            ExchangeCraftCountRequest(count=max_possible_result_quantity), BASE_RANGE
         )
 
     def on_exchange_craft_count_modified_event(

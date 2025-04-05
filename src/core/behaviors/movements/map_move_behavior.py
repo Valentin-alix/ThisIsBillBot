@@ -8,7 +8,6 @@ from datas.protos.non_obf.game.basic_pb2 import (
 from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionAcknowledgementRequest,
     SequenceEndEvent,
-    SequenceType,
 )
 from datas.protos.non_obf.game.gamemap_pb2 import (
     MapMovementConfirmRequest,
@@ -31,6 +30,7 @@ class MapMoveError(StrEnum):
     REFUSED = auto()
     CELL_TAKEN = auto()
     UNEXPECTED_NEW_MAP = auto()
+    PLAYER_DEAD = auto()
 
 
 @dataclass
@@ -38,6 +38,7 @@ class MapMoveBehavior(Behavior):
     path_finding: Pathfinding
 
     _cell_is_taken: bool = field(init=False, default=False)
+    _pending_fight_movement_action_id: int | None = field(init=False, default=None)
 
     def run(self, move_path: MovementPath):
         self.logger.info(f"Going to : {move_path.end}")
@@ -53,12 +54,16 @@ class MapMoveBehavior(Behavior):
         key_cells = move_path.get_key_cells()
         if self.game_state.fight.in_fight:
             self._cell_is_taken = False
+            self._pending_fight_movement_action_id = None
             self.event_manager.on(
                 TextInformationEvent, self.on_text_information_event, originator=self
             )
             self.event_manager.on(
-                SequenceEndEvent,
-                partial(self.on_sequence_end_event, end_mp=move_path.end),
+                MapMovementEvent,
+                callback=partial(
+                    self.on_fight_map_movement_event,
+                    end_mp=move_path.end,
+                ),
                 originator=self,
             )
         else:
@@ -94,32 +99,37 @@ class MapMoveBehavior(Behavior):
         ):
             self._cell_is_taken = True
 
-    def on_sequence_end_event(self, msg: SequenceEndEvent, end_mp: MapPoint):
-        if (
-            msg.sequence_type == SequenceType.MOVE
-            and msg.author_id == self.game_state.player.character_id
-        ):
-            self.unregister_listener(
-                SequenceEndEvent,
-                reason="Movement sequence ended, now waiting for acknowledgement",
-            )
-            self.event_manager.on(
-                GameActionAcknowledgementRequest,
-                partial(
-                    self.on_game_action_acknowledgement_request,
-                    target_action_id=msg.action_id,
-                    end_mp=end_mp,
-                ),
-                originator=self,
-            )
+    def on_fight_map_movement_event(self, msg: MapMovementEvent, end_mp: MapPoint):
+        if msg.character_id != self.game_state.player.character_id:
+            return
+        self.unregister_listener(
+            MapMovementEvent,
+            reason="Fight movement started, now waiting for sequence end",
+        )
+        self.event_manager.on(
+            SequenceEndEvent,
+            self.on_sequence_end_event,
+            originator=self,
+        )
+        self.event_manager.on(
+            GameActionAcknowledgementRequest,
+            partial(
+                self.on_game_action_acknowledgement_request,
+                end_mp=end_mp,
+            ),
+            originator=self,
+        )
+
+    def on_sequence_end_event(self, msg: SequenceEndEvent):
+        if msg.author_id == self.game_state.player.character_id:
+            self._pending_fight_movement_action_id = msg.action_id
 
     def on_game_action_acknowledgement_request(
         self,
         msg: GameActionAcknowledgementRequest,
-        target_action_id: int,
         end_mp: MapPoint,
     ):
-        if msg.action_id == target_action_id:
+        if msg.valid and msg.action_id == self._pending_fight_movement_action_id:
             if self._cell_is_taken:
                 return self.finish(MapMoveError.CELL_TAKEN)
             if self.game_state.map.map_point != end_mp:
@@ -151,11 +161,7 @@ class MapMoveBehavior(Behavior):
                 originator=self,
                 once=True,
             )
-            self.run_timer(duration, self.send_map_movement_confirm)
-
-    def send_map_movement_confirm(self):
-        req = MapMovementConfirmRequest()
-        self.event_manager.send(req)
+            self.send_message_delayed(MapMovementConfirmRequest(), duration)
 
     def on_map_movement_refused_event_after_request(
         self, msg: MapMovementRefusedEvent, start_mp: MapPoint

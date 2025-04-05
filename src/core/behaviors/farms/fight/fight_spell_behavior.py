@@ -1,10 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from datas.protos.non_obf.game.fight_pb2 import FightEndEvent
 from datas.protos.non_obf.game.game_action_pb2 import (
+    GameActionAcknowledgementRequest,
     GameActionFightCastRequest,
     SequenceEndEvent,
-    SequenceType,
 )
 from dofus_unity_reader.grid.map_point import MapPoint
 
@@ -14,30 +13,37 @@ from src.services.human_timings import HumanTimingsService
 
 @dataclass
 class FightSpellBehavior(Behavior):
+    _pending_spell_action_id: int | None = field(init=False, default=None)
+
     def run(
         self,
         spell_id: int,
         target_mp: MapPoint,
     ) -> None:
-        self.event_manager.on(
-            FightEndEvent, lambda _: self.finish(), originator=self, once=True
-        )
+        self._pending_spell_action_id = None
         self.launch_spell_on_cell_id(spell_id, target_mp.cell_id)
 
     def launch_spell_on_cell_id(self, spell_id: int, cell_id: int):
         self.event_manager.on(
             SequenceEndEvent, self.on_sequence_end_event, originator=self
         )
+        self.event_manager.on(
+            GameActionAcknowledgementRequest,
+            self.on_game_action_acknowledgement_request,
+            originator=self,
+        )
         req = GameActionFightCastRequest(spell_id=spell_id, cell=cell_id)
 
-        self.run_timer(
-            HumanTimingsService().get_micro_jitter("spell_cast"),
-            lambda: self.event_manager.send(req),
+        self.send_message_delayed(
+            req, HumanTimingsService().get_micro_jitter("spell_cast")
         )
 
     def on_sequence_end_event(self, msg: SequenceEndEvent):
-        if (
-            msg.sequence_type == SequenceType.SPELL
-            and msg.author_id == self.game_state.player.character_id
-        ):
+        if msg.author_id == self.game_state.player.character_id:
+            self._pending_spell_action_id = msg.action_id
+
+    def on_game_action_acknowledgement_request(
+        self, msg: GameActionAcknowledgementRequest
+    ) -> None:
+        if msg.valid and msg.action_id == self._pending_spell_action_id:
             self.finish()

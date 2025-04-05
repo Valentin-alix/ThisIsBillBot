@@ -22,7 +22,7 @@ class AutoTripExploratorBehavior(Behavior):
         if not self.game_state.player.is_sub:
             return self.on_explored_near_zaap(map_ids=map_ids)
 
-        ends_pos = [DataReader().map_pos_by_map_id[map_id] for map_id in map_ids]
+        ends_pos = [DataReader().map_info_by_map_id[map_id] for map_id in map_ids]
         dist_player_to_ends = get_dist_to_maps(self.game_state.map.map_pos, ends_pos)
         # discover near waypoint & go dst
         near_waypoint = get_near_waypoint(

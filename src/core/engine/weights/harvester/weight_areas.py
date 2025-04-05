@@ -54,7 +54,10 @@ def get_weight_harvester_sub_area(
             is_sub,
             server_id,
         )
-    return int(weight / len(DataReader().map_ids_by_sub_area_id[sub_area_id]))
+    count_map = len(DataReader().map_ids_by_sub_area_id[sub_area_id])
+    if count_map == 0:
+        return 0
+    return int(weight / count_map)
 
 
 def is_valid_area_info_to_harvest(

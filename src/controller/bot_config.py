@@ -3,12 +3,14 @@ import os
 from threading import RLock
 from typing import Literal
 
+from ankama_launcher_emulator_premium.decrypter.hardware_identity import (
+    generate_hardware_id,
+)
 from consts import PC_ID
 from pydantic import BaseModel, RootModel
 from python_utils.singleton import Singleton
 
 from src.const import RESOURCE_FOLDER
-from src.services.hardware_identity import generate_hardware_id
 
 
 class BotConfig(BaseModel):
@@ -17,6 +19,9 @@ class BotConfig(BaseModel):
     schedule_profile: str | None = None
     connection_mode: Literal["mitm", "socket"] = "mitm"
     hardware_id: str | None = None
+    auto_subscribe: bool = False
+    subscribe_proxy: str | None = None
+    subscribe_server_name: str | None = None
 
 
 class BotConfigs(RootModel):

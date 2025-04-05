@@ -29,9 +29,7 @@ class GameProxy(Proxy):
         super().__post_init__()
         self.bot.event_manager.on_send_game_callback = self.send_msg
         self.uid: int = 1
-        self.session_timings = SessionTimingsController(
-            self.bot.account["apikey"]["login"]
-        )
+        self.session_timings = SessionTimingsController(self.bot.account.apikey.login)
 
     def on_close(self) -> None:
         self.bot.event_manager.on_send_game_callback = None
@@ -83,16 +81,19 @@ class GameProxy(Proxy):
         if uid is not None and uid != -1:
             self.uid = uid
 
-        if const.DEBUG or const.DEBUG:
+        self.bot.debug_recorder.record_game_message(
+            clear_sub_msg, obf_sub_msg, uid, from_server
+        )
+
+        if const.DEBUG:
             msg_infos = get_game_msg_info(
                 clear_sub_msg,
                 obf_sub_msg,
                 uid,
                 from_server,
-                const.DEBUG and not was_send_from_proxy,
+                not was_send_from_proxy,
             )
-            if const.DEBUG:
-                self.bot.msg_info_signals.msg_info.emit(msg_infos, was_send_from_proxy)
+            self.bot.msg_info_signals.msg_info.emit(msg_infos, was_send_from_proxy)
             if (
                 const.DO_INSERT_HUMAN_SESSION
                 and clear_sub_msg is not None

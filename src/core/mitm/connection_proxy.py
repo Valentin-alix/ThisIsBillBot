@@ -102,11 +102,6 @@ class ConnectionProxy(Proxy):
                         )
                     )
                 if self.bot:
-                    self.bot.game_state.player.subscription_end_date = (
-                        datetime.fromisoformat(
-                            msg.response.identification.success.subscription_end_date
-                        )
-                    )
                     msg.response.identification.success.subscription_end_date = (
                         datetime(year=2030, month=12, day=25).isoformat()
                     )
@@ -131,6 +126,9 @@ class ConnectionProxy(Proxy):
         size, pos = decode_varint_size(msg_datas)
         msg_content_datas = msg_datas[pos : pos + size]
         _, msg = get_conn_msg(msg_content_datas)
+
+        if self.bot:
+            self.bot.debug_recorder.record_conn_message(msg, from_server)
 
         if DEBUG:
             msg_info = get_conn_msg_info(msg, from_server)

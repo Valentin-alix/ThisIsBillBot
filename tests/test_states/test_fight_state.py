@@ -1,21 +1,14 @@
 from datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicsEvent,
-    UpdateLifePointsEvent,
 )
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
+    CharacterCharacteristicDetailed,
     CharacterCharacteristics,
     CharacterCharacteristicValue,
     EntityDisposition,
     FightStartingPositions,
-    SpellModifier,
-    SpellModifierType,
-)
-from datas.protos.non_obf.game.fight_pb2 import (
-    FightEndEvent,
-    FightTurnEndEvent,
-    FightTurnStartPlayingEvent,
 )
 from datas.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
@@ -24,34 +17,16 @@ from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightCastRequest,
     GameActionFightEvent,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import (
-    FightMapInformationEvent,
-)
 from datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
 from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
+from pytest import MonkeyPatch
 
+from src import const
 from src.core.bot.bot import Bot
 from src.core.states.entity_state import FightActor
 
 
 class TestFightState:
-    def test_fight_map_information_then_turn_start_clears_start_fight_state(
-        self,
-        runtime_bot: Bot,
-    ):
-        runtime_bot.game_state.fight.count_casted_by_spell_id_on_current_turn[123] = 5
-        runtime_bot.game_state.fight.modifier_by_type_and_spell_id[
-            (1, SpellModifierType.RANGE)
-        ] = SpellModifier()
-
-        runtime_bot.event_manager.process_msg(FightMapInformationEvent())
-        runtime_bot.event_manager.process_msg(FightTurnStartPlayingEvent())
-
-        assert (
-            runtime_bot.game_state.fight.count_casted_by_spell_id_on_current_turn == {}
-        )
-        assert runtime_bot.game_state.fight.modifier_by_type_and_spell_id == {}
-
     def test_spells_event_sets_spells(
         self,
         runtime_bot: Bot,
@@ -69,18 +44,6 @@ class TestFightState:
             100,
             200,
         ]
-
-    def test_fight_turn_start_playing_sets_our_turn_and_increments(
-        self,
-        runtime_bot: Bot,
-    ):
-        runtime_bot.game_state.fight.is_our_turn = False
-        runtime_bot.game_state.fight.fight_turn = 0
-
-        runtime_bot.event_manager.process_msg(FightTurnStartPlayingEvent())
-
-        assert runtime_bot.game_state.fight.is_our_turn is True
-        assert runtime_bot.game_state.fight.fight_turn == 1
 
     def test_fight_placement_positions_for_challenger(
         self,
@@ -127,7 +90,9 @@ class TestFightState:
     def test_character_characteristics_event_sets_stats_and_emits_points(
         self,
         runtime_bot: Bot,
+        monkeypatch: MonkeyPatch,
     ):
+        monkeypatch.setattr(const, "DEBUG", True)
         received_action_points: list[int] = []
         received_movement_points: list[int] = []
 
@@ -166,19 +131,31 @@ class TestFightState:
         assert received_action_points == [12]
         assert received_movement_points == [6]
 
-    def test_update_life_points_event_sets_life(
+    def test_character_characteristics_event_syncs_life_points(
         self,
         runtime_bot: Bot,
     ):
         runtime_bot.event_manager.process_msg(
-            UpdateLifePointsEvent(
-                life_points=500,
-                max_life_points=1000,
+            CharacterCharacteristicsEvent(
+                stats=CharacterCharacteristics(
+                    characteristics=[
+                        self._detailed_characteristic(
+                            CharacteristicEnum.LIFE_POINTS, base=245
+                        ),
+                        self._detailed_characteristic(
+                            CharacteristicEnum.VITALITY,
+                            objects_and_mount_bonus=55,
+                        ),
+                        self._detailed_characteristic(
+                            CharacteristicEnum.CUR_LIFE, base=0
+                        ),
+                    ]
+                )
             )
         )
 
-        assert runtime_bot.game_state.fight.life_point == 500
-        assert runtime_bot.game_state.fight.max_life_point == 1000
+        assert runtime_bot.game_state.fight.life_point == 300
+        assert runtime_bot.game_state.fight.max_life_point == 300
 
     def test_game_action_fight_cast_request_increments_count_by_spell_id(
         self,
@@ -234,40 +211,75 @@ class TestFightState:
 
         assert runtime_bot.game_state.fight.life_point == 450
 
-    def test_fight_turn_end_event_clears_our_turn_for_player(
+    def test_life_points_lost_death_and_cur_life_sync_update_player_life(
         self,
         runtime_bot: Bot,
     ):
-        runtime_bot.game_state.player.character_id = 123
-        runtime_bot.game_state.fight.is_our_turn = True
-        runtime_bot.game_state.fight.count_casted_by_spell_id_on_current_turn[42] = 1
-
-        runtime_bot.event_manager.process_msg(FightTurnEndEvent(character_id=123))
-
-        assert runtime_bot.game_state.fight.is_our_turn is False
-        assert (
-            runtime_bot.game_state.fight.count_casted_by_spell_id_on_current_turn == {}
+        runtime_bot.game_state.player.character_id = 8921612638
+        runtime_bot.event_manager.process_msg(
+            CharacterCharacteristicsEvent(
+                stats=CharacterCharacteristics(
+                    characteristics=[
+                        self._detailed_characteristic(
+                            CharacteristicEnum.LIFE_POINTS, base=245
+                        ),
+                        self._detailed_characteristic(
+                            CharacteristicEnum.VITALITY,
+                            objects_and_mount_bonus=55,
+                        ),
+                        self._detailed_characteristic(
+                            CharacteristicEnum.CUR_LIFE, base=0
+                        ),
+                    ]
+                )
+            )
         )
 
-    def test_fight_end_event_resets_fight_flags(
-        self,
-        runtime_bot: Bot,
-    ):
-        runtime_bot.game_state.fight.in_fight = True
-        runtime_bot.game_state.fight.is_our_turn = True
-        runtime_bot.game_state.fight.fight_turn = 3
-        runtime_bot.game_state.fight.is_map_fight_initialized = True
-        runtime_bot.game_state.fight.count_casted_by_spell_id_on_current_turn[42] = 1
-
-        runtime_bot.event_manager.process_msg(FightEndEvent())
-
-        assert runtime_bot.game_state.fight.in_fight is False
-        assert runtime_bot.game_state.fight.is_our_turn is False
-        assert runtime_bot.game_state.fight.fight_turn == 0
-        assert runtime_bot.game_state.fight.is_map_fight_initialized is False
-        assert (
-            runtime_bot.game_state.fight.count_casted_by_spell_id_on_current_turn == {}
+        runtime_bot.event_manager.process_msg(
+            GameActionFightEvent(
+                life_points_lost=GameActionFightEvent.LifePointsLost(
+                    target_id=8921612638,
+                    loss=7,
+                    permanent_damages=1,
+                    element_id=0,
+                )
+            )
         )
+
+        assert runtime_bot.game_state.fight.life_point == 293
+
+        runtime_bot.event_manager.process_msg(
+            GameActionFightEvent(
+                death=GameActionFightEvent.Death(
+                    target_id=8921612638,
+                    source_id=0,
+                )
+            )
+        )
+
+        assert runtime_bot.game_state.fight.life_point == 0
+
+        runtime_bot.event_manager.process_msg(
+            CharacterCharacteristicsEvent(
+                stats=CharacterCharacteristics(
+                    characteristics=[
+                        self._detailed_characteristic(
+                            CharacteristicEnum.LIFE_POINTS, base=245
+                        ),
+                        self._detailed_characteristic(
+                            CharacteristicEnum.VITALITY,
+                            objects_and_mount_bonus=55,
+                        ),
+                        self._detailed_characteristic(
+                            CharacteristicEnum.CUR_LIFE, base=-150
+                        ),
+                    ]
+                )
+            )
+        )
+
+        assert runtime_bot.game_state.fight.life_point == 150
+        assert runtime_bot.game_state.fight.max_life_point == 300
 
     def _set_player_actor_cell(
         self,
@@ -284,4 +296,19 @@ class TestFightState:
                     entity_id=1,
                 ),
             )
+        )
+
+    def _detailed_characteristic(
+        self,
+        characteristic_id: CharacteristicEnum,
+        *,
+        base: int = 0,
+        objects_and_mount_bonus: int = 0,
+    ) -> CharacterCharacteristic:
+        return CharacterCharacteristic(
+            characteristic_id=characteristic_id,
+            detailed=CharacterCharacteristicDetailed(
+                base=base,
+                objects_and_mount_bonus=objects_and_mount_bonus,
+            ),
         )

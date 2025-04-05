@@ -2,8 +2,8 @@ import datetime
 from dataclasses import dataclass, field
 from threading import Event
 
-from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
-    DecipheredApiKey,
+from ankama_launcher_emulator_premium.interfaces.credentials import (
+    StoredApiKey,
 )
 
 from src.controller.bot_config import BotConfigController
@@ -37,6 +37,7 @@ from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.signals.world_signals import WorldSignals
 from src.core.states.game_state import GameState
+from src.services.debug_recorder import DebugRecorder
 from src.services.logging_utils.contextual_logger import ContextualLogger
 
 
@@ -52,7 +53,7 @@ class Bot(ContextualLogger):
     - BotScheduler: manages scheduling and playtime
     """
 
-    account: DecipheredApiKey
+    account: StoredApiKey
 
     event_manager: EventManager
 
@@ -67,6 +68,8 @@ class Bot(ContextualLogger):
     msg_info_signals: MessageInfoSignals
     world_signals: WorldSignals
     log_signals: LogSignals
+
+    debug_recorder: DebugRecorder
 
     frames: list[Frame]
 
@@ -101,11 +104,11 @@ class Bot(ContextualLogger):
         return (
             BotConfigController()
             .get_bot_config_by_login()
-            .get(self.account["apikey"]["login"])
+            .get(self.account.apikey.login)
         )
 
     def __str__(self):
-        return self.account["apikey"]["login"]
+        return self.account.apikey.login
 
     def __repr__(self):
         return self.__str__()

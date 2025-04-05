@@ -1,11 +1,6 @@
-from datetime import datetime, timezone
-
 import pytest
 from datas.protos.non_obf.connection.login_message_pb2 import (
     SelectServerRequest,
-)
-from datas.protos.non_obf.game.account_pb2 import (
-    AccountInformationUpdateEvent,
 )
 from datas.protos.non_obf.game.character_management_pb2 import (
     CharacterSelectionEvent,
@@ -103,23 +98,6 @@ class TestPlayerState:
         assert runtime_bot.game_state.player.server_id == 42
 
     @pytest.mark.parametrize(
-        ("subscription_end_date", "expected"),
-        [
-            (datetime(2099, 12, 31, tzinfo=timezone.utc), True),
-            (datetime(2020, 1, 1, tzinfo=timezone.utc), False),
-        ],
-    )
-    def test_is_sub(
-        self,
-        runtime_bot: Bot,
-        subscription_end_date: datetime,
-        expected: bool,
-    ):
-        runtime_bot.game_state.player.subscription_end_date = subscription_end_date
-
-        assert runtime_bot.game_state.player.is_sub is expected
-
-    @pytest.mark.parametrize(
         ("level", "expected"),
         [
             (150, 150),
@@ -136,21 +114,6 @@ class TestPlayerState:
         runtime_bot.game_state.player.level = level
 
         assert runtime_bot.game_state.player.limited_lvl == expected
-
-    def test_account_information_update_event_sets_subscription_end_date_from_seconds(
-        self,
-        runtime_bot: Bot,
-    ):
-        runtime_bot.event_manager.process_msg(
-            AccountInformationUpdateEvent(subscription_end_date=1_735_689_600)
-        )
-
-        assert runtime_bot.game_state.player.subscription_end_date == datetime(
-            2025,
-            1,
-            1,
-            tzinfo=timezone.utc,
-        )
 
     def test_zaap_list_update_replaces_previous(
         self,

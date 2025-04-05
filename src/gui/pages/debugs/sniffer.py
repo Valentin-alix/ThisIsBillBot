@@ -1,7 +1,6 @@
-import json
-from datetime import datetime
 from functools import partial
-from typing import Any, Literal, TypedDict, cast
+from pathlib import Path
+from typing import Any, cast
 
 from consts import PINNED_PAIRS_FILE
 from google.protobuf.descriptor import Descriptor
@@ -12,7 +11,6 @@ from proto_mapper_assembly.controllers.pinned_pairs import (
 from PyQt6.QtCore import QModelIndex, QStringListModel, Qt, pyqtSlot
 from PyQt6.QtWidgets import (
     QCompleter,
-    QFileDialog,
     QHBoxLayout,
     QMessageBox,
     QSizePolicy,
@@ -39,8 +37,9 @@ from src.gui.pages.debugs.message_table import MessageTable
 from src.gui.utils.profiling import profiled_slot
 from src.protocol.message import MessageInfo
 from src.protocol.message_names import (
+    build_non_obf_game_message_pinned_name,
     find_non_obf_game_message_descriptor,
-    load_non_obf_game_message_names,
+    load_non_obf_game_message_full_names,
 )
 from src.protocol.protocol_game import POOL
 
@@ -49,32 +48,6 @@ def _require_message_info(value: object) -> MessageInfo:
     if not isinstance(value, MessageInfo):
         raise TypeError("Expected a MessageInfo payload in the message table model")
     return value
-
-
-def _require_datetime(value: object) -> datetime:
-    if not isinstance(value, datetime):
-        raise TypeError("Expected a datetime payload in the logs table model")
-    return value
-
-
-class DebugLogEntry(TypedDict):
-    categorie: Literal["log"]
-    datetime: str
-    niveau: str
-    message: str
-
-
-class DebugMessageEntry(TypedDict):
-    categorie: Literal["message"]
-    datetime: str
-    origine: str
-    type_non_obfusque: str
-    type_obfusque: str | None
-    contenu_obfusque: dict[str, Any] | None
-    contenu_non_obfusque: dict[str, Any] | None
-
-
-DebugEntry = DebugLogEntry | DebugMessageEntry
 
 
 def _parse_sub_msg_name(sub_msg_name: str) -> tuple[str | None, str]:
@@ -100,29 +73,11 @@ def _extract_pinned_pair_names_for_fields(
     obf_msg_name, non_obf_msg_name = _parse_sub_msg_name(msg_info.sub_msg_name)
     if obf_msg_name is None:
         return None
-    return obf_msg_name, non_obf_msg_name
-
-
-def _debug_message_entry(msg_info: MessageInfo) -> DebugMessageEntry:
-    obf_type, decoded_type = _parse_sub_msg_name(msg_info.sub_msg_name)
-    return {
-        "categorie": "message",
-        "datetime": msg_info.received_time.isoformat(),
-        "origine": "Serveur" if msg_info.from_server else "Client",
-        "type_non_obfusque": decoded_type,
-        "type_obfusque": obf_type,
-        "contenu_obfusque": msg_info.obf_msg_json,
-        "contenu_non_obfusque": msg_info.msg_json,
-    }
-
-
-def _debug_log_entry(logged_at: datetime, level: str, message: str) -> DebugLogEntry:
-    return {
-        "categorie": "log",
-        "datetime": logged_at.isoformat(),
-        "niveau": level,
-        "message": message,
-    }
+    non_obf_descriptor = find_non_obf_game_message_descriptor(non_obf_msg_name)
+    assert non_obf_descriptor is not None, (
+        f"Missing non-obfuscated descriptor for pinned message {non_obf_msg_name!r}"
+    )
+    return obf_msg_name, build_non_obf_game_message_pinned_name(non_obf_descriptor)
 
 
 def _find_obf_game_message_descriptor(name: str | None) -> Descriptor | None:
@@ -150,8 +105,46 @@ def _resolve_pinned_field_message_pair(
         return None
     return (
         obf_field.container_descriptor.full_name,
-        non_obf_field.container_descriptor.name,
+        build_non_obf_game_message_pinned_name(non_obf_field.container_descriptor),
     )
+
+
+def _resolve_child_pinned_message_pair(
+    obf_field: SelectedPinnedField,
+    non_obf_field: SelectedPinnedField,
+) -> tuple[str, str] | None:
+    obf_message_descriptor = obf_field.message_descriptor
+    non_obf_message_descriptor = non_obf_field.message_descriptor
+    if obf_message_descriptor is None or non_obf_message_descriptor is None:
+        return None
+    return (
+        obf_message_descriptor.full_name,
+        build_non_obf_game_message_pinned_name(non_obf_message_descriptor),
+    )
+
+
+def _upsert_pinned_field_mapping_with_child_pair(
+    path: Path,
+    resolved_message_pair: tuple[str, str],
+    obf_field: SelectedPinnedField,
+    non_obf_field: SelectedPinnedField,
+) -> None:
+    obf_msg_name, non_obf_msg_name = resolved_message_pair
+    upsert_pinned_field_mapping(
+        path,
+        obf_msg_name,
+        non_obf_msg_name,
+        obf_field.field_name,
+        non_obf_field.field_name,
+    )
+    child_message_pair = _resolve_child_pinned_message_pair(obf_field, non_obf_field)
+    if child_message_pair is not None:
+        child_obf_msg_name, child_non_obf_msg_name = child_message_pair
+        upsert_pinned_pair(
+            path,
+            child_obf_msg_name,
+            child_non_obf_msg_name,
+        )
 
 
 class PinnedPairMessageBox(MessageBoxBase):
@@ -248,10 +241,6 @@ class SnifferWidget(QWidget):
             self.stop_btn.hide()
         self.stop_btn.clicked.connect(self.on_stop)
         top_content_layout.addWidget(self.stop_btn)
-
-        export_btn = PrimaryPushButton(FluentIcon.SAVE, "Exporter debug", top_content)
-        export_btn.clicked.connect(self.on_export_debug)
-        top_content_layout.addWidget(export_btn)
 
     def init_content(self) -> None:
         content = QWidget(self)
@@ -395,52 +384,6 @@ class SnifferWidget(QWidget):
         self.play_btn.show()
 
     @pyqtSlot()
-    def on_export_debug(self) -> None:
-        self.msg_table.flush_pending_messages()
-        if self.logs_widget is not None:
-            self.logs_widget.logs_table.flush_pending_rows()
-
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        default_filename = f"debug_{timestamp}.json"
-
-        file_path, _ = QFileDialog.getSaveFileName(
-            self, "Exporter debug", default_filename, "Fichiers JSON (*.json)"
-        )
-        if not file_path:
-            return
-
-        entries: list[DebugEntry] = []
-        msg_model = self.msg_table.table.item_model
-        for row in range(msg_model.rowCount()):
-            msg_info = _require_message_info(
-                msg_model.data(msg_model.index(row, 4), Qt.ItemDataRole.UserRole)
-            )
-            entries.append(_debug_message_entry(msg_info))
-
-        if self.logs_widget is not None:
-            log_model = self.logs_widget.logs_table.table.item_model
-            for row in range(log_model.rowCount()):
-                logged_at = _require_datetime(
-                    log_model.data(log_model.index(row, 0), Qt.ItemDataRole.UserRole)
-                )
-                level = log_model.data(
-                    log_model.index(row, 1), Qt.ItemDataRole.DisplayRole
-                )
-                message = log_model.data(
-                    log_model.index(row, 2), Qt.ItemDataRole.DisplayRole
-                )
-                if not isinstance(level, str) or not isinstance(message, str):
-                    raise TypeError(
-                        "Expected string log values in the logs table model"
-                    )
-                entries.append(_debug_log_entry(logged_at, level, message))
-
-        entries.sort(key=lambda entry: entry["datetime"])
-
-        with open(file_path, "w", encoding="utf-8") as file:
-            json.dump(entries, file, ensure_ascii=False, indent=2)
-
-    @pyqtSlot()
     def on_reset(self) -> None:
         self.msg_table.clear()
         if self.logs_widget:
@@ -475,7 +418,7 @@ class SnifferWidget(QWidget):
             return
 
         dialog = PinnedPairMessageBox(
-            obf_msg_name, load_non_obf_game_message_names(), self
+            obf_msg_name, load_non_obf_game_message_full_names(), self
         )
         if dialog.exec():
             upsert_pinned_pair(PINNED_PAIRS_FILE, obf_msg_name, dialog.non_obf_msg_name)
@@ -522,13 +465,11 @@ class SnifferWidget(QWidget):
             )
             return
 
-        obf_msg_name, non_obf_msg_name = resolved_message_pair
-        upsert_pinned_field_mapping(
+        _upsert_pinned_field_mapping_with_child_pair(
             PINNED_PAIRS_FILE,
-            obf_msg_name,
-            non_obf_msg_name,
-            obf_field.field_name,
-            non_obf_field.field_name,
+            resolved_message_pair,
+            obf_field,
+            non_obf_field,
         )
         obf_field_name = obf_field.path_label
         non_obf_field_name = non_obf_field.path_label

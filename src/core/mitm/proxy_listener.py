@@ -45,7 +45,7 @@ class ProxyListener(BaseProxyListener):
             (
                 bot
                 for bot in self.account_by_id.values()
-                if bot.account["apikey"]["login"] == login
+                if bot.account.apikey.login == login
             ),
             None,
         )
@@ -89,7 +89,7 @@ class ProxyListener(BaseProxyListener):
     def get_bot_network_interface(self, bot: Bot | None) -> str | None:
         if bot is None:
             return None
-        login = bot.account["apikey"]["login"]
+        login = bot.account.apikey.login
         configs = BotConfigController().get_bot_config_by_login()
         config = configs.get(login)
         return config.network_interface if config else None

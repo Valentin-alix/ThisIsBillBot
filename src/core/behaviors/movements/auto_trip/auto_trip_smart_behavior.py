@@ -44,14 +44,14 @@ class AutoTripSmartBehavior(Behavior):
         from_area_id = (
             DataReader()
             .sub_area_by_id[
-                DataReader().map_pos_by_map_id[self.game_state.map.map_id].subAreaId
+                DataReader().map_info_by_map_id[self.game_state.map.map_id].subAreaId
             ]
             .areaId
         )
         to_area_id = (
             DataReader()
             .sub_area_by_id[
-                DataReader().map_pos_by_map_id[next(iter(map_ids))].subAreaId
+                DataReader().map_info_by_map_id[next(iter(map_ids))].subAreaId
             ]
             .areaId
         )

@@ -23,6 +23,7 @@ MAX_DEPTH = 10
 @dataclass(frozen=True)
 class SelectedPinnedField:
     container_descriptor: Descriptor | None
+    field_descriptor: FieldDescriptor | None
     field_name: str
     path: tuple[str, ...]
 
@@ -30,15 +31,18 @@ class SelectedPinnedField:
     def path_label(self) -> str:
         return ".".join(self.path)
 
+    @property
+    def message_descriptor(self) -> Descriptor | None:
+        if self.field_descriptor is None:
+            return None
+        return _message_field_descriptor(self.field_descriptor)
+
 
 def complete_message_tree_content(
     content: dict[str, Any],
-    descriptor: Descriptor | None,
+    descriptor: Descriptor,
     depth: int,
 ) -> dict[str, Any]:
-    if descriptor is None:
-        return content
-
     completed: dict[str, Any] = {}
     for field_descriptor in descriptor.fields:
         field_name = field_descriptor.name
@@ -62,7 +66,7 @@ def _absent_value_for_field(field_descriptor: FieldDescriptor, depth: int) -> An
     message_type = _message_field_descriptor(field_descriptor)
     if message_type is None:
         return ABSENT_FIELD_DISPLAY_VALUE
-    if getattr(field_descriptor, "label") == FieldDescriptor.LABEL_REPEATED:
+    if _is_repeated_field(field_descriptor):
         return [complete_message_tree_content({}, message_type, depth=depth + 1)]
     return complete_message_tree_content({}, message_type, depth=depth + 1)
 
@@ -70,11 +74,11 @@ def _absent_value_for_field(field_descriptor: FieldDescriptor, depth: int) -> An
 def _complete_message_tree_value(
     value: Any, field_descriptor: FieldDescriptor, depth: int
 ) -> Any:
-    message_type = cast(Descriptor | None, field_descriptor.message_type)
-    if message_type is None or field_descriptor.type != FieldDescriptor.TYPE_MESSAGE:
+    message_type = _message_field_descriptor(field_descriptor)
+    if message_type is None:
         return value
 
-    if getattr(field_descriptor, "label") == FieldDescriptor.LABEL_REPEATED:
+    if _is_repeated_field(field_descriptor):
         if not isinstance(value, list):
             return value
         value_items = cast(list[Any], value)
@@ -112,10 +116,12 @@ def resolve_selected_pinned_field(
         container_descriptor = next_descriptor
 
     field_name = field_path[-1]
-    if field_name not in container_descriptor.fields_by_name:
+    field_descriptor = container_descriptor.fields_by_name.get(field_name)
+    if field_descriptor is None:
         return None
     return SelectedPinnedField(
         container_descriptor=container_descriptor,
+        field_descriptor=field_descriptor,
         field_name=field_name,
         path=field_path,
     )
@@ -124,7 +130,11 @@ def resolve_selected_pinned_field(
 def _message_field_descriptor(field_descriptor: FieldDescriptor) -> Descriptor | None:
     if field_descriptor.type != FieldDescriptor.TYPE_MESSAGE:
         return None
-    return cast(Descriptor | None, field_descriptor.message_type)
+    return field_descriptor.message_type
+
+
+def _is_repeated_field(field_descriptor: FieldDescriptor) -> bool:
+    return getattr(field_descriptor, "label") == FieldDescriptor.LABEL_REPEATED
 
 
 class MessageDetailWidget(QWidget):
@@ -224,6 +234,8 @@ class MessageDetailWidget(QWidget):
             return None
         if not self.show_absent_fields_btn.isChecked():
             return content
+        if descriptor is None:
+            return content
         return complete_message_tree_content(content, descriptor, 0)
 
     def _on_show_absent_fields_clicked(self) -> None:
@@ -261,6 +273,7 @@ class MessageDetailWidget(QWidget):
                 return None
             return SelectedPinnedField(
                 container_descriptor=None,
+                field_descriptor=None,
                 field_name=field_path[0],
                 path=field_path,
             )

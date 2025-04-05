@@ -36,6 +36,7 @@ def make_skill_data(
         availableInHouse=0,
         clientDisplay=0,
         levelMin=level_min,
+        allowMarking=0,
     )
 
 
@@ -44,6 +45,7 @@ def make_item_data(
     gid: int = 1,
     type_id: int | None = 1,
     level: int | None = 1,
+    craft_conditional_criterion: str | None = None,
 ) -> ItemsRootItemStrict:
     return ItemsRootItemStrict(
         m_flags=0,
@@ -51,6 +53,7 @@ def make_item_data(
         typeId=type_id,
         nameId=0,
         level=level,
+        craftConditionalCriterion=craft_conditional_criterion,
     )
 
 
@@ -65,6 +68,9 @@ def make_item_type_data(
         superTypeId=0,
         categoryId=category_id,
         isInEncyclopedia=0,
+        craftXpRatio=0,
+        evolutiveTypeId=0,
+        rawZone="",
     )
 
 
@@ -77,6 +83,9 @@ def make_zone_descr() -> ZoneDescr:
         damageDecreaseStepPercent=0,
         maxDamageDecreaseApplyCount=0,
         isStopAtTarget=0,
+        forcedDirection=0,
+        includeCarried=0,
+        onlyAffectIfInSightLine=0,
     )
 
 
@@ -168,6 +177,7 @@ def make_effect_data(characteristic_operator: str = "") -> EffectsRootItem:
         textIconReferenceId=0,
         effectTriggerDuration=0,
         actionFiltersId=[],
+        parametersFixed=0,
     )
 
 

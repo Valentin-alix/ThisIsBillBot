@@ -16,6 +16,8 @@ from ankama_launcher_emulator_premium.server.server import (
 from src.controller.bot_config import BotConfigController
 from src.core.bot.bot import Bot
 from src.core.bot.bot_factory import BotFactory
+from src.core.bot.lifecycle.account_scheduler import AccountScheduler
+from src.core.bot.lifecycle.subscription_scheduler import SubscriptionScheduler
 from src.core.mitm.proxy_listener import ProxyListener
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.socket_network.socket_client import SocketClient
@@ -41,6 +43,10 @@ class BotManager:
         self.shared_signals.launch_account.connect(self.on_launch_account)
         self.shared_signals.synchronize_bots.connect(self.on_synchronize_bots)
         self.proxy_listener = ProxyListener(account_by_id=self.bot_by_account_id)
+        self.subscription_scheduler = SubscriptionScheduler()
+        # self.subscription_scheduler.start()
+        self.account_scheduler = AccountScheduler()
+        # self.account_scheduler.start()
 
     def on_launch_account(self, login: str):
         self._running_task_count += 1
@@ -67,7 +73,7 @@ class BotManager:
             (
                 bot
                 for _, bot in self.bot_by_account_id.items()
-                if bot.account["apikey"]["login"] == login
+                if bot.account.apikey.login == login
             ),
             None,
         )
@@ -85,7 +91,7 @@ class BotManager:
         bot_config = (
             BotConfigController()
             .get_bot_config_by_login()
-            .get(related_bot.account["apikey"]["login"])
+            .get(related_bot.account.apikey.login)
         )
 
         for attempt in range(max_retries):
@@ -154,7 +160,7 @@ class BotManager:
     def get_bot_by_account_id(self) -> dict[int, Bot]:
         bot_by_account_id: dict[int, Bot] = {}
         for account in CryptoHelper.getStoredApiKeys():
-            account_id = account["apikey"]["accountId"]
+            account_id = account.apikey.accountId
             bot_by_account_id[account_id] = BotFactory.create_bot(
                 shared_signals=self.shared_signals,
                 account=account,
@@ -162,6 +168,8 @@ class BotManager:
         return bot_by_account_id
 
     def shutdown(self) -> None:
+        # self.subscription_scheduler.stop()
+        # self.account_scheduler.stop()
         bots = list(self.bot_by_account_id.values())
         self.safe_stop_bots(bots)
         for bot in bots:
@@ -170,7 +178,7 @@ class BotManager:
         self.proxy_listener.shutdown()
 
     def _cleanup_removed_bot(self, bot: Bot) -> None:
-        login = bot.account["apikey"]["login"]
+        login = bot.account.apikey.login
         bot.scheduler.stop()
         bot.is_playing_event.clear()
         bot.behavior_coordinator.stop_behaviors()
@@ -180,7 +188,7 @@ class BotManager:
 
     def on_synchronize_bots(self) -> None:
         account_by_id = {
-            account["apikey"]["accountId"]: account
+            account.apikey.accountId: account
             for account in CryptoHelper.getStoredApiKeys()
         }
 

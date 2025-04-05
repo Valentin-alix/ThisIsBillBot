@@ -3,10 +3,10 @@ from dataclasses import dataclass, field
 from threading import Event, Timer
 from typing import Callable
 
-from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
-    DecipheredApiKey,
+from ankama_launcher_emulator_premium.interfaces.credentials import (
+    StoredApiKey,
 )
-from common_pb2 import Character
+from datas.protos.non_obf.game.common_pb2 import Character
 from dofus_unity_reader.data_center.dungeon_info import PLAYABLE_DUNGEONS
 from dofus_unity_reader.game_constants.map_id import MapIdEnum
 
@@ -39,7 +39,7 @@ class ConnectionHandler(ContextualLogger):
     fight_behavior: FightBehavior
     character_creation_behavior: CharacterCreationBehavior
     tutorial_behavior: TutorialBehavior
-    account: DecipheredApiKey
+    account: StoredApiKey
     shared_signals: SharedSignals
     get_bot_config: Callable[[], BotConfig | None]
 
@@ -100,7 +100,7 @@ class ConnectionHandler(ContextualLogger):
 
     def _emit_relaunch(self):
         if self.is_playing_event.is_set():
-            self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
+            self.shared_signals.launch_account.emit(self.account.apikey.login)
 
     def on_ready_to_play(self):
         """Handle ready to play event and start appropriate behavior."""

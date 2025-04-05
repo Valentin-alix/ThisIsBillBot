@@ -1,4 +1,3 @@
-import traceback
 from dataclasses import dataclass
 
 from datas.protos.non_obf.game.common_pb2 import (
@@ -315,15 +314,12 @@ class EntityFrame(Frame):
         self.game_state.entity.set_actor(msg.information)
 
     def on_map_teleport_on_same_event(self, msg: MapTeleportOnSameEvent):
-        try:
-            old_direction = self.game_state.entity.actor_by_id[
-                msg.player_id
-            ].disposition.direction
-            self.game_state.entity.update_actor_disposition(
-                msg.player_id, direction=old_direction, cell_id=msg.cell_id
-            )
-        except KeyError:
-            self.logger.warning(traceback.format_exc())
+        old_direction = self.game_state.entity.actor_by_id[
+            msg.player_id
+        ].disposition.direction
+        self.game_state.entity.update_actor_disposition(
+            msg.player_id, direction=old_direction, cell_id=msg.cell_id
+        )
 
     def on_map_movement_refused_event(self, msg: MapMovementRefusedEvent):
         if self.game_state.map.is_in_map_transition:

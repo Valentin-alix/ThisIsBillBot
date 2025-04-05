@@ -6,8 +6,7 @@ from datas.protos.non_obf.game.common_pb2 import (
     CharacterCharacteristicDetailed,
 )
 from datas.protos.non_obf.game.fight_pb2 import (
-    FightIsTurnReadyEvent,
-    FightTurnEndEvent,
+    FightTurnEvent,
     FightTurnFinishRequest,
 )
 from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
@@ -16,6 +15,7 @@ from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_movement_behavior import FightMovementBehavior
 from src.core.behaviors.farms.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
+from src.core.config import BETWEEN_ACTION_RANGE
 from src.core.engine.fights.attack.attacker import Attacker
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.services.human_timings import HumanTimingsService
@@ -34,15 +34,7 @@ class FightTurnBehavior(Behavior):
 
     def run(self) -> None:
         self.did_attack = False
-        self.event_manager.on(
-            FightTurnFinishRequest, lambda _: self.finish(), originator=self
-        )
-        self.event_manager.on(
-            FightTurnEndEvent, lambda _: self.finish(), originator=self
-        )
-        self.event_manager.on(
-            FightIsTurnReadyEvent, lambda _: self.finish(), originator=self
-        )
+        self.event_manager.on(FightTurnEvent, lambda _: self.finish(), originator=self)
         self.find_and_do_attack()
 
     def find_and_do_attack(self) -> None:
@@ -87,7 +79,7 @@ class FightTurnBehavior(Behavior):
             self.on_fight_movement_behavior_finished(
                 error_code,
                 callback=lambda: self.run_timer(
-                    HumanTimingsService().get_timing_attack_finish_after_movement_or_attack(),
+                    BETWEEN_ACTION_RANGE,
                     lambda: self.fight_spell_behavior.start(
                         spell_id=spell_lvl.spellId,
                         target_mp=attack_mp,
@@ -106,6 +98,8 @@ class FightTurnBehavior(Behavior):
     def on_fight_movement_behavior_finished(
         self, error_code: str | None, callback: Callable[[], None]
     ) -> None:
+        if error_code is MapMoveError.PLAYER_DEAD:
+            return self.finish(error_code)
         if error_code is MapMoveError.CANCELED_MOVEMENT:
             return self.find_and_do_attack()
         if error_code is MapMoveError.REFUSED:

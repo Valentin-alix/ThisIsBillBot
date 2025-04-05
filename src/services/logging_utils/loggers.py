@@ -1,9 +1,8 @@
 import logging
-import os
-from logging.handlers import RotatingFileHandler
 
-from src.const import LOG_FOLDER
+from src import const
 from src.core.signals.log_signals import LogSignals
+from src.services.debug_recorder import DebugRecorder, DebugRecorderLogHandler
 from src.services.logging_utils.filters import ContextFallbackFilter
 from src.services.logging_utils.handlers import LogSignalHandler
 
@@ -30,7 +29,12 @@ def init_root_gui_logging(signals: LogSignals) -> logging.Logger:
 class BotLogger(logging.Logger):
     """specific bot logger, title is only used for filename"""
 
-    def __init__(self, log_signals: LogSignals, title: str) -> None:
+    def __init__(
+        self,
+        log_signals: LogSignals,
+        title: str,
+        debug_recorder: DebugRecorder,
+    ) -> None:
         super().__init__(name=title)
         self.title = title
         self.log_signals = log_signals
@@ -38,19 +42,14 @@ class BotLogger(logging.Logger):
         filter = ContextFallbackFilter()
         self.addFilter(filter)
 
-        file_handler = RotatingFileHandler(
-            f"{os.path.join(LOG_FOLDER, title)}.log",
-            maxBytes=1024 * 1024 * 1024,
-            backupCount=1,
+        self.debug_recorder_handler = DebugRecorderLogHandler(debug_recorder)
+        self.debug_recorder_handler.setFormatter(
+            logging.Formatter("[%(context)s] %(message)s")
         )
-        self.formatter = logging.Formatter(
-            "%(asctime)s - [%(context)s] %(levelname)s - %(message)s"
-        )
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(self.formatter)
-        self.addHandler(file_handler)
+        self.addHandler(self.debug_recorder_handler)
 
         self.gui_formatter = logging.Formatter("[%(context)s] - %(message)s")
-        self.log_signal_handler = LogSignalHandler(log_signals)
-        self.log_signal_handler.setFormatter(self.gui_formatter)
-        self.addHandler(self.log_signal_handler)
+        if const.DEBUG:
+            self.log_signal_handler = LogSignalHandler(log_signals)
+            self.log_signal_handler.setFormatter(self.gui_formatter)
+            self.addHandler(self.log_signal_handler)

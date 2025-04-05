@@ -1,0 +1,228 @@
+from threading import Event
+
+from google.protobuf.message import Message
+import pytest
+
+from datas.protos.non_obf.game.game_action_pb2 import (
+    GameActionFightEvent,
+    GameActionAcknowledgementRequest,
+    SequenceEndEvent,
+)
+from datas.protos.non_obf.game.gamemap_pb2 import MapMovementEvent
+from dofus_unity_reader.grid.map_point import MapPoint
+
+from src.core.behaviors.behavior import BehaviorState
+from src.core.behaviors.farms.fight.fight_movement_behavior import (
+    FightMovementBehavior,
+)
+from src.core.behaviors.farms.fight.fight_spell_behavior import FightSpellBehavior
+from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
+from src.core.engine.movements.map.path_finding.movement_path import MovementPath
+from src.core.events_manager.event_manager import EventManager
+from src.core.frames.entity_frame import EntityFrame
+from src.core.states.game_state import GameState
+from src.services.human_timings import HumanTimingsService
+from tests.fixtures.game_state import GameStateContext, set_game_state
+
+
+PLAYER_ID = -1
+OTHER_FIGHTER_ID = -2
+
+
+def _make_event_manager(game_state_ctx: GameStateContext) -> EventManager:
+    event_manager = EventManager(_logger=game_state_ctx.logger)
+    sent_messages: list[Message] = []
+    event_manager.on_send_game_callback = sent_messages.append
+    return event_manager
+
+
+def _register_entity_frame(
+    event_manager: EventManager, game_state_ctx: GameStateContext
+) -> None:
+    EntityFrame(
+        event_manager=event_manager,
+        game_state=game_state_ctx.game_state,
+        game_info_signals=game_state_ctx.game_info_signals,
+        inventory_signals=game_state_ctx.inventory_signals,
+        is_playing_event=Event(),
+        _logger=game_state_ctx.logger,
+    )
+
+
+def _make_fight_move_path(start_cell_id: int, end_cell_id: int) -> MovementPath:
+    path_elements = MovementPath.get_path_elements_from_cells(
+        [start_cell_id, end_cell_id]
+    )
+    return MovementPath(
+        start=MapPoint.from_cell_id(start_cell_id),
+        end=MapPoint.from_cell_id(end_cell_id),
+        path=path_elements,
+    )
+
+
+def _set_player_cell(game_state: GameState, cell_id: int) -> None:
+    actor = game_state.entity.actor_by_id[PLAYER_ID]
+    game_state.entity.update_actor_disposition(
+        actor_id=PLAYER_ID,
+        direction=actor.disposition.direction,
+        cell_id=cell_id,
+    )
+
+
+def _get_delayed_micro_jitter(service: HumanTimingsService, action_name: str) -> float:
+    del service, action_name
+    return 60.0
+
+
+class TestFightActionAcknowledgement:
+    def test_fight_movement_stops_when_player_dies_before_late_ack(
+        self, game_state_ctx: GameStateContext
+    ) -> None:
+        set_game_state(game_state_ctx.game_state, player_cell_id=345, enemy_cell_ids=[])
+        game_state_ctx.game_state.fight.in_fight = True
+        event_manager = _make_event_manager(game_state_ctx)
+        _register_entity_frame(event_manager, game_state_ctx)
+        map_move_behavior = MapMoveBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            path_finding=game_state_ctx.pathfinding,
+            _logger=game_state_ctx.logger,
+        )
+        fight_movement_behavior = FightMovementBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            map_move_behavior=map_move_behavior,
+            path_finding=game_state_ctx.pathfinding,
+            fight_reachable_cells=game_state_ctx.fight_reachable_cells,
+            _logger=game_state_ctx.logger,
+        )
+        finished_error_codes: list[str | None] = []
+
+        fight_movement_behavior.start(
+            callback=finished_error_codes.append,
+            parent=None,
+            move_path=_make_fight_move_path(345, 358),
+        )
+
+        event_manager.process_msg(
+            MapMovementEvent(cells=[345, 358], character_id=PLAYER_ID)
+        )
+        event_manager.process_msg(SequenceEndEvent(action_id=12, author_id=PLAYER_ID))
+        event_manager.process_msg(
+            GameActionFightEvent(
+                source_id=OTHER_FIGHTER_ID,
+                death=GameActionFightEvent.Death(
+                    source_id=OTHER_FIGHTER_ID,
+                    target_id=PLAYER_ID,
+                ),
+            )
+        )
+
+        assert PLAYER_ID not in game_state_ctx.game_state.entity.actor_by_id
+        assert finished_error_codes == [MapMoveError.PLAYER_DEAD]
+        assert fight_movement_behavior.state == BehaviorState.STOPPED
+        assert map_move_behavior.state == BehaviorState.STOPPED
+
+        event_manager.process_msg(
+            GameActionAcknowledgementRequest(valid=True, action_id=12)
+        )
+
+        assert finished_error_codes == [MapMoveError.PLAYER_DEAD]
+
+    def test_fight_movement_finishes_on_latest_player_ack_without_sequence_type(
+        self, game_state_ctx: GameStateContext
+    ) -> None:
+        set_game_state(game_state_ctx.game_state, player_cell_id=399, enemy_cell_ids=[])
+        game_state_ctx.game_state.fight.in_fight = True
+        event_manager = _make_event_manager(game_state_ctx)
+        movement_behavior = MapMoveBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            path_finding=game_state_ctx.pathfinding,
+            _logger=game_state_ctx.logger,
+        )
+        finished_error_codes: list[str | None] = []
+
+        movement_behavior.start(
+            callback=finished_error_codes.append,
+            parent=None,
+            move_path=_make_fight_move_path(399, 412),
+        )
+
+        event_manager.process_msg(
+            MapMovementEvent(cells=[399, 412], character_id=PLAYER_ID)
+        )
+        _set_player_cell(game_state_ctx.game_state, 412)
+        event_manager.process_msg(
+            SequenceEndEvent(
+                action_id=6,
+                author_id=PLAYER_ID,
+                sequence_type="SPELL",
+            )
+        )
+        event_manager.process_msg(
+            SequenceEndEvent(
+                action_id=8,
+                author_id=PLAYER_ID,
+                sequence_type="SPELL",
+            )
+        )
+        event_manager.process_msg(
+            GameActionAcknowledgementRequest(valid=True, action_id=6)
+        )
+
+        assert finished_error_codes == []
+        assert movement_behavior.state == BehaviorState.RUNNING
+
+        event_manager.process_msg(
+            GameActionAcknowledgementRequest(valid=True, action_id=8)
+        )
+
+        assert finished_error_codes == [None]
+        assert movement_behavior.state == BehaviorState.STOPPED
+
+    def test_spell_finishes_on_latest_player_ack_and_ignores_other_authors(
+        self, game_state_ctx: GameStateContext, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(
+            HumanTimingsService,
+            "get_micro_jitter",
+            _get_delayed_micro_jitter,
+        )
+        set_game_state(game_state_ctx.game_state, player_cell_id=399, enemy_cell_ids=[])
+        event_manager = _make_event_manager(game_state_ctx)
+        spell_behavior = FightSpellBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            _logger=game_state_ctx.logger,
+        )
+        finished_error_codes: list[str | None] = []
+
+        spell_behavior.start(
+            callback=finished_error_codes.append,
+            parent=None,
+            spell_id=13242,
+            target_mp=MapPoint.from_cell_id(383),
+        )
+
+        event_manager.process_msg(
+            SequenceEndEvent(action_id=12, author_id=OTHER_FIGHTER_ID)
+        )
+        event_manager.process_msg(
+            GameActionAcknowledgementRequest(valid=True, action_id=12)
+        )
+        event_manager.process_msg(SequenceEndEvent(action_id=6, author_id=PLAYER_ID))
+        event_manager.process_msg(SequenceEndEvent(action_id=16, author_id=PLAYER_ID))
+        event_manager.process_msg(
+            GameActionAcknowledgementRequest(valid=True, action_id=6)
+        )
+
+        assert finished_error_codes == []
+        assert spell_behavior.state == BehaviorState.RUNNING
+
+        event_manager.process_msg(
+            GameActionAcknowledgementRequest(valid=True, action_id=16)
+        )
+
+        assert finished_error_codes == [None]
+        assert spell_behavior.state == BehaviorState.STOPPED

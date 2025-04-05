@@ -18,8 +18,7 @@ class ChatBehavior(Behavior):
                 self.game_state.player.character_name
             )
         if content is None:
-            self.logger.error("Did not get content from openapi ?!")
-            return
+            return self.logger.error("OpenAI API not reachable")
         req = ChatChannelMessageRequest(content=content, channel=channel)
         self.event_manager.send(req)
         self.finish()

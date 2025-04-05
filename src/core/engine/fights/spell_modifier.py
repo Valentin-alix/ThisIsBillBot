@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from common_pb2 import SpellModifier, SpellModifierType
+from datas.protos.non_obf.game.common_pb2 import SpellModifier, SpellModifierType
 from dofus_unity_reader.models.datas.spell_levels_root import SpellLevelsRootItem
 
 from src.core.engine.fights.spell import (

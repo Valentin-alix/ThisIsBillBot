@@ -145,7 +145,7 @@ class Behavior(ContextualLogger):
             ):
                 return
 
-            self.logger.info(f"Starting {self.__class__.__name__}")
+            self.logger.debug(f"Starting {self.__class__.__name__}")
             run_method = getattr(self, "run", None)
             if not callable(run_method):
                 raise TypeError(f"{self.__class__.__name__} must define a run() method")

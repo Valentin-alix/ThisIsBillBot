@@ -4,11 +4,12 @@ from dataclasses import dataclass
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
 )
+from datas.protos.non_obf.game.game_action_pb2 import GameActionFightEvent
 from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
+from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
 from src.core.engine.fights.reachable_cells.fight_reachable_cells import (
     FightReachableCells,
 )
@@ -27,6 +28,12 @@ class FightMovementBehavior(Behavior):
         move_path: MovementPath | None = None,
         run_away: bool = False,
     ) -> None:
+        self.event_manager.on(
+            GameActionFightEvent,
+            self.on_game_action_fight_event,
+            originator=self,
+        )
+
         if move_path is None:
             if run_away:
                 move_path = self.find_safest_path()
@@ -57,6 +64,13 @@ class FightMovementBehavior(Behavior):
         self.map_move_behavior.start(
             parent=self, move_path=move_path, callback=self.finish
         )
+
+    def on_game_action_fight_event(self, msg: GameActionFightEvent) -> None:
+        if not msg.HasField("death"):
+            return
+        if msg.death.target_id != self.game_state.player.character_id:
+            return
+        self.finish(MapMoveError.PLAYER_DEAD)
 
     def find_near_enemy_with_dist(
         self, start: MapPoint

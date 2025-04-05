@@ -47,7 +47,7 @@ class WaypointBehavior(Behavior):
     def run(self, map_id: int, dst_map_ids: set[int]) -> None:
         if self.game_state.map.is_in_haven_bag:
             return self.go_and_use_waypoint(map_id)
-        map_data = DataReader().map_pos_by_map_id[self.game_state.map.map_id]
+        map_data = DataReader().map_info_by_map_id[self.game_state.map.map_id]
         self.event_manager.prevent(HavenBagEnterRequest, originator=self)
         if not allow_teleport_to(map_data.m_flags):
             dst_vertex: set[Vertice] = {

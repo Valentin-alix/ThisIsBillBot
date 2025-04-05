@@ -51,6 +51,7 @@ class Listener[T]:
             raise ValueError("listener is already deleted !")
         if self._timeout_timer is not None:
             self._timeout_timer.cancel()
+        self._deleted = True
 
     def __lt__(self, other: "Listener[T]") -> bool:
         return self.priority < other.priority

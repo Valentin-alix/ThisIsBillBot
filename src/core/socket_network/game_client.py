@@ -5,6 +5,7 @@ from datas.protos.non_obf.game.game_message_pb2 import Request
 from google.protobuf.message import Message
 from PyQt6.QtCore import QMetaObject, Qt
 
+from src import const
 from src.const import MESSAGES_WITH_UID
 from src.core.behaviors.behavior import BehaviorState
 from src.core.socket_network.base_client import BaseClient
@@ -40,8 +41,9 @@ class GameClient(BaseClient):
         _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(
             msg_datas[pos : pos + size], False
         )
-        msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, True, False)
-        self.bot.msg_info_signals.msg_info.emit(msg_infos, False)
+        if const.DEBUG:
+            msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, True, False)
+            self.bot.msg_info_signals.msg_info.emit(msg_infos, False)
         if clear_sub_msg:
             self.bot.event_manager.process_msg(clear_sub_msg)
 
@@ -53,8 +55,11 @@ class GameClient(BaseClient):
         if obf_info is not None:
             obf_game_msg, obf_sub_msg = obf_info
             self.client_socket.sendall(encode_msg(obf_game_msg))
-            msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, False, False)
-            self.bot.msg_info_signals.msg_info.emit(msg_infos, True)
+            if const.DEBUG:
+                msg_infos = get_game_msg_info(
+                    clear_sub_msg, obf_sub_msg, uid, False, False
+                )
+                self.bot.msg_info_signals.msg_info.emit(msg_infos, True)
 
     def send_obf_msg(self, obf_msg: Message) -> None:
         self.client_socket.sendall(encode_msg(obf_msg))

@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
-from common_pb2 import ObjectItemInventory
+from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
 from dofus_unity_reader.game_constants.item import CategoryItemEnum
 from inventory_pb2 import InventoryWeightEvent, ObjectSetPositionRequest
 
@@ -54,7 +54,9 @@ class AutoEquipmentBehavior(Behavior):
 
     def get_item_gids_to_equip(self) -> list[ItemToBuyInfo]:
         set_on_level = get_current_best_set(
-            self.game_state.player.level, self.game_state.player.is_sub
+            self.game_state.fight.primary_and_second_elem[0],
+            self.game_state.player.level,
+            self.game_state.player.is_sub,
         )
         if not set_on_level:
             self.logger.info("No available set")
@@ -95,7 +97,7 @@ class AutoEquipmentBehavior(Behavior):
             quantity=1,
             position=self._chosen_set.position_by_item_id[item_inventory.item.gid],
         )
-        self.run_timer(BASE_RANGE, lambda: self.event_manager.send(req))
+        self.send_message_delayed(req, BASE_RANGE)
 
     def on_inventory_weight_event_after_equipped(self, msg: InventoryWeightEvent):
         self.equip_next_item()

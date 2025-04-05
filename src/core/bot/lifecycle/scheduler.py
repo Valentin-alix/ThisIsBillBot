@@ -12,8 +12,8 @@ SCHEDULE_RANDOM_MINUTES_MIN = 1
 SCHEDULE_RANDOM_MINUTES_MAX = 8
 
 from ankama_launcher_emulator_premium.gui.utils import run_in_background
-from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
-    DecipheredApiKey,
+from ankama_launcher_emulator_premium.interfaces.credentials import (
+    StoredApiKey,
 )
 
 from src.controller.bot_config import BotConfig
@@ -38,7 +38,7 @@ class RandomizedSlot:
 class BotScheduler(ContextualLogger):
     """Handles bot scheduling and playtime management."""
 
-    account: DecipheredApiKey
+    account: StoredApiKey
     bot_signals: BotSignals
     shared_signals: SharedSignals
     log_signals: LogSignals
@@ -68,7 +68,7 @@ class BotScheduler(ContextualLogger):
         now = datetime.now()
         if self.is_in_randomized_playtime(now):
             self.bot_signals.play.emit(False)
-            self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
+            self.shared_signals.launch_account.emit(self.account.apikey.login)
 
     def stop(self) -> None:
         self._clear_scheduled_jobs()
@@ -100,7 +100,7 @@ class BotScheduler(ContextualLogger):
             if not self.is_playing_event.is_set():
                 self.logger.info("Starting bot...")
                 self.bot_signals.play.emit(False)
-                self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
+                self.shared_signals.launch_account.emit(self.account.apikey.login)
         elif self.is_playing_event.is_set():
             self.logger.info("Not in playtime, stopping bot...")
             run_in_background(self._planned_stop_bot_task)
@@ -215,7 +215,7 @@ class BotScheduler(ContextualLogger):
 
         if not self.is_playing_event.is_set():
             self.bot_signals.play.emit(False)
-            self.shared_signals.launch_account.emit(self.account["apikey"]["login"])
+            self.shared_signals.launch_account.emit(self.account.apikey.login)
         else:
             self.logger.info("Bot is playing, dont restart")
 

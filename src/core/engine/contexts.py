@@ -17,7 +17,7 @@ from datas.protos.non_obf.game.spell_pb2 import SpellItem
 from dofus_unity_reader.data_center.area_info import AreaInfo
 from dofus_unity_reader.game_constants.characteristic import EffectElement
 from dofus_unity_reader.grid.map_point import MapPoint
-from dofus_unity_reader.models.datas.map_positions_root import MapPositionsRootItem
+from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
 from dofus_unity_reader.models.world_graph import Transition, Vertice
 
 if TYPE_CHECKING:
@@ -59,7 +59,7 @@ class WorldTransitionContext:
 @dataclass(frozen=True)
 class WorldPathContext:
     transition: WorldTransitionContext
-    current_map_pos: MapPositionsRootItem
+    current_map_pos: MapInformationRootItem
 
 
 @dataclass(frozen=True)

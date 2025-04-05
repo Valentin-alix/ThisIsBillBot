@@ -100,7 +100,7 @@ class DungeonBehavior(Behavior):
         self.on_new_map(dungeon_info)
 
     def exit_dungeon(self, dungeon_info: DungeonInfo) -> None:
-        map_name_id = DataReader().map_pos_by_map_id[self.game_state.map.map_id].nameId
+        map_name_id = DataReader().map_info_by_map_id[self.game_state.map.map_id].nameId
         title_map = (
             I18N().name_by_id[map_name_id] if map_name_id in I18N().name_by_id else ""
         )

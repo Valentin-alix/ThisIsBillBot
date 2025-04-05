@@ -23,7 +23,7 @@ def get_map_ids_to_explore(map_ids: set[int]) -> set[int]:
     for map_id in map_ids:
         if map_id in map_ids_checked:
             continue
-        sub_area = DataReader().map_pos_by_map_id[map_id].subAreaId
+        sub_area = DataReader().map_info_by_map_id[map_id].subAreaId
         harvestable_items_sub_area = DataReader().sub_area_by_id[sub_area].harvestables
         for item in harvestable_items_sub_area:
             if item not in item_knows and item in DataReader().gathered_item_ids:

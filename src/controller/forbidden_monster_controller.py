@@ -16,7 +16,7 @@ from src.services.logging_utils.loggers import BotLogger
 class ForbiddenMonsterController(metaclass=Singleton):
     _LOCK = RLock()
     _FILE_PATH = os.path.join(RESOURCE_FOLDER, "forbidden_monster_race.json")
-    _DEFEAT_THRESHOLD = 5
+    _DEFEAT_THRESHOLD = 6
 
     def __init__(self) -> None:
         self._ensure_file_exists()

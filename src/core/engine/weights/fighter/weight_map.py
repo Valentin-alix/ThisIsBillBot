@@ -6,7 +6,7 @@ from src.core.engine.movements.map.map_position_flags import (
 
 
 def get_additional_weight_by_map_id(map_id: int, player_level: int):
-    map_pos_data = DataReader().map_pos_by_map_id[map_id]
+    map_pos_data = DataReader().map_info_by_map_id[map_id]
     m_flags = map_pos_data.m_flags
     if not allow_monster_agression(m_flags):
         weight = 0

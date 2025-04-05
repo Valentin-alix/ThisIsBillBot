@@ -4,8 +4,8 @@ from typing import Iterator
 from unittest.mock import MagicMock
 
 import pytest
-from ankama_launcher_emulator_premium.interfaces.deciphered_api_key import (
-    DecipheredApiKey,
+from ankama_launcher_emulator_premium.interfaces.credentials import (
+    StoredApiKey,
 )
 from proto_mapper_assembly.runtime import runtime_store
 from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
@@ -44,7 +44,7 @@ def bot_scheduler() -> BotScheduler:
 
 @pytest.fixture(autouse=True)
 def logger(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> MagicMock:
-    monkeypatch.setattr("src.services.logging_utils.loggers.LOG_FOLDER", tmp_path)
+    monkeypatch.setattr("src.const.LOG_FOLDER", tmp_path)
     return MagicMock()
 
 
@@ -67,7 +67,7 @@ def runtime_data_store(
 
 
 @pytest.fixture
-def account() -> DecipheredApiKey:
+def account() -> StoredApiKey:
     return make_account("TestBot", 1)
 
 

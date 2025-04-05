@@ -1,4 +1,3 @@
-from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import PivotItem, SegmentedWidget
 
@@ -38,21 +37,9 @@ class AccountStackedWidget(QWidget):
         self.stacked_widget = QStackedWidget(self)
         layout.addWidget(self.stacked_widget)
 
-        self.sniffer_interface = SnifferWidget(
-            bot, self.global_log_signals, parent=self.stacked_widget
-        )
-        self.stacked_widget.addWidget(self.sniffer_interface)
-        self.sniffer_route = f"{login}_sniffer"
-        self.debug_pivot_item = self._require_pivot_item(
-            self.pivot.addItem(
-                routeKey=self.sniffer_route,
-                text="Debug",
-                onClick=lambda: self.stacked_widget.setCurrentWidget(
-                    self.sniffer_interface
-                ),
-            ),
-            self.sniffer_route,
-        )
+        self.debug_pivot_item: PivotItem | None = None
+        if const.DEBUG:
+            self._init_debug_interface()
 
         self.harvester_interface = FarmerWidget(
             login, self.bot, parent=self.stacked_widget
@@ -84,28 +71,26 @@ class AccountStackedWidget(QWidget):
             self.craft_route,
         )
 
-        self.is_debug_visible = None
-        self.set_debug_visibility(const.DEBUG)
+        self._select_initial_page()
 
-    def set_debug_visibility(self, is_visible: bool) -> None:
-        if self.is_debug_visible == is_visible:
-            return
+    def _init_debug_interface(self) -> None:
+        sniffer_interface = SnifferWidget(
+            self.bot, self.global_log_signals, parent=self.stacked_widget
+        )
+        self.stacked_widget.addWidget(sniffer_interface)
+        self.sniffer_route = f"{self.login}_sniffer"
+        self.debug_pivot_item = self._require_pivot_item(
+            self.pivot.addItem(
+                routeKey=self.sniffer_route,
+                text="Debug",
+                onClick=lambda: self.stacked_widget.setCurrentWidget(sniffer_interface),
+            ),
+            self.sniffer_route,
+        )
 
-        self.is_debug_visible = is_visible
-
-        if self.debug_pivot_item is not None:
-            self.debug_pivot_item.setVisible(is_visible)
-
-        self.harvester_interface.set_debug_tabs_visibility(is_visible)
-
-        QTimer.singleShot(0, lambda: self.set_page_after_debug(is_visible))
-
-    def set_page_after_debug(self, is_visible: bool) -> None:
-        if is_visible:
-            if self.pivot.currentRouteKey() == self.sniffer_route:
-                self.farmer_pivot_item.click()
+    def _select_initial_page(self) -> None:
+        if const.DEBUG:
+            assert self.debug_pivot_item
             self.debug_pivot_item.click()
         else:
-            if self.pivot.currentRouteKey() == self.harvester_route:
-                self.craft_pivot_item.click()
             self.farmer_pivot_item.click()

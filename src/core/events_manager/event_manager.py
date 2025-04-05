@@ -5,6 +5,7 @@ from typing import Callable, TypeVar, cast
 
 from google.protobuf.message import Message
 
+from src import const
 from src.core.events_manager.listener import Listener
 from src.core.events_manager.modifier import Modifier
 from src.core.events_manager.priority import PriorityEnum
@@ -38,7 +39,7 @@ class EventManager(ContextualLogger):
     )
 
     def clear_listener_by_origin(self, originator: object) -> None:
-        self.logger.info(f"Clearing all listener from {originator.__class__.__name__}")
+        self.logger.debug(f"Clearing all listener from {originator.__class__.__name__}")
         with self.lock:
             listeners_to_remove: list[Listener[Message]] = []
             for listeners in self.listeners_by_type_msg.values():
@@ -50,7 +51,7 @@ class EventManager(ContextualLogger):
                 listener.delete()
                 self.listeners_by_type_msg[listener.msg_type].remove(listener)
 
-        if listeners_to_remove:
+        if listeners_to_remove and const.DEBUG:
             self.signals.listeners_removed.emit(listeners_to_remove)
 
     def clear_listener_by_origin_and_type(
@@ -69,19 +70,27 @@ class EventManager(ContextualLogger):
                 listener.delete()
                 self.listeners_by_type_msg[msg_type].remove(listener)
 
-        if listeners_to_remove:
+        if listeners_to_remove and const.DEBUG:
             self.signals.listeners_removed.emit(listeners_to_remove)
 
     def process_msg(self, msg: Message) -> None:
         with self.lock:
-            related_listeners = self.listeners_by_type_msg.get(msg.__class__, [])
-            related_listeners.sort(key=lambda listener: listener.priority)
+            related_listeners = self.listeners_by_type_msg.get(msg.__class__)
+            if not related_listeners:
+                return
 
             listeners_to_remove: list[Listener[Message]] = []
-            for listener in related_listeners[::]:
+            for listener in list(related_listeners):
                 if listener.once:
                     listeners_to_remove.append(listener)
-                listener.callback(msg)
+                try:
+                    listener.callback(msg)
+                except Exception:
+                    self.logger.exception(
+                        f"Listener {listener.originator.__class__.__name__} "
+                        f"raised while handling {msg.__class__.__name__}; "
+                        "continuing dispatch"
+                    )
 
             for listener in listeners_to_remove:
                 if listener in related_listeners:
@@ -153,7 +162,7 @@ class EventManager(ContextualLogger):
             msg_type = [msg_type]
 
         for part_msg_type in msg_type:
-            self.logger.info(
+            self.logger.debug(
                 f"Adding listener {part_msg_type.__name__} from {originator.__class__.__name__}"
             )
             if (timeout is None) != (on_timeout is None):
@@ -174,11 +183,12 @@ class EventManager(ContextualLogger):
                     on_timeout=on_timeout,
                     logger=self.logger,
                 )
-                self.listeners_by_type_msg[part_msg_type].append(
-                    cast(Listener[Message], new_listener)
-                )
+                listeners = self.listeners_by_type_msg[part_msg_type]
+                listeners.append(cast(Listener[Message], new_listener))
+                listeners.sort(key=lambda listener: listener.priority)
 
-            self.signals.listeners_added.emit([new_listener])
+            if const.DEBUG:
+                self.signals.listeners_added.emit([new_listener])
 
     def send(self, msg: Message) -> None:
         self.logger.debug(f"Sending Game MSG {msg.__class__.__name__}")
