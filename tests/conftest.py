@@ -7,9 +7,11 @@ import pytest
 from ankama_launcher_emulator_premium.interfaces.credentials import (
     StoredApiKey,
 )
+from ankama_launcher_emulator_premium.interfaces.zaap_files import GameSubscription
 from proto_mapper_assembly.runtime import runtime_store
 from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
+from src.const import MIN_DATE
 from src.core.bot.bot import Bot
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.lifecycle.scheduler import BotScheduler
@@ -48,6 +50,24 @@ def logger(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> MagicMock:
     return MagicMock()
 
 
+@pytest.fixture(autouse=True)
+def game_sub_info_mock(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fake_get_game_sub_info(login: str):
+        return GameSubscription(
+            isFreeToPlay=True,
+            isFormerSubscriber=False,
+            isSubscribed=False,
+            totalPlayTime=0,
+            endOfSubscribe=MIN_DATE,
+            id=1,
+        )
+
+    monkeypatch.setattr(
+        "src.core.states.player_state.get_game_sub_info_by_login",
+        fake_get_game_sub_info,
+    )
+
+
 @pytest.fixture
 def tmp_json_path(tmp_path: Path) -> Path:
     return tmp_path / f"{uuid.uuid4()}.json"
@@ -77,7 +97,7 @@ def game_state_ctx() -> GameStateContext:
 
 
 @pytest.fixture
-def runtime_bot() -> Bot:
+def runtime_bot(game_sub_info_mock: None) -> Bot:
     return make_runtime_bot("TEST", 1)
 
 

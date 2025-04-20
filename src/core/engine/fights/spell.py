@@ -1,3 +1,4 @@
+from common_pb2 import SpellModifierType
 from datas.protos.non_obf.game.common_pb2 import SpellModifier
 from datas.protos.non_obf.game.spell_pb2 import SpellItem
 from dofus_unity_reader.data_center.data_reader import DataReader
@@ -10,6 +11,8 @@ from dofus_unity_reader.models.datas.spell_levels_root import (
 
 from src.core.engine.fights.zones.cross import Cross
 from src.core.engine.fights.zones.lozenge import Lozenge
+
+ModifierMap = dict[tuple[int, SpellModifierType], SpellModifier]
 
 
 def get_max_range_spell(
@@ -133,11 +136,9 @@ def get_damage_spells(
         spell_lvl = DataReader().spell_lvl_by_spell_id[spell.spell_id][
             spell.spell_level - 1
         ]
-        if (
-            spell_lvl.statesCriterion != ""
-            or spell_lvl.globalCooldown != 0
-            or spell_lvl.initialCooldown != 0
-        ):
+        # Cooldown availability is handled per-turn in is_spell_valid_for_turn,
+        # which has the fight-turn context (statesCriterion stays excluded here).
+        if spell_lvl.statesCriterion != "":
             continue
         for effect in spell_lvl.effects:
             data_effect = DataReader().effect_by_id[effect.effectId]
@@ -154,3 +155,13 @@ def get_damage_spells(
                 break
 
     return spell_levels
+
+
+def spell_modifier_value(
+    spell_id: int, modifier_type: SpellModifierType, modifiers: ModifierMap | None
+) -> int:
+    if not modifiers:
+        return 0
+    modifier = modifiers.get((spell_id, modifier_type))
+    # `.context` = effective modifier value, additive for DAMAGE/BASE_DAMAGE.
+    return modifier.context if modifier else 0

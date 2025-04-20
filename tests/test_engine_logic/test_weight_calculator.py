@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 
 import msgspec
 import pytest
+from datas.protos.non_obf.game.common_pb2 import FightInvisibilityState
 from dofus_unity_reader.game_constants.characteristic import (
     EffectElement,
     TypeEffect,
@@ -15,6 +16,7 @@ from dofus_unity_reader.models.datas.spell_levels_root import (
 )
 
 from src.core.engine.contexts import AttackContext
+from src.core.engine.fights import effect as effect_module
 from src.core.engine.fights.attack import weight_calculator
 from src.core.engine.fights.attack.models import EnemyData
 from src.core.engine.fights.attack.weight_calculator import calculate_attack_weight
@@ -22,11 +24,19 @@ from src.core.engine.fights.spell_modifier import SpellModifiers
 from tests.fixtures.data import make_spell_effect, make_spell_level, make_zone_descr
 
 
+def _make_actor(*, actor_id: int, cell_id: int) -> object:
+    return SimpleNamespace(
+        actor_id=actor_id, disposition=SimpleNamespace(cell_id=cell_id)
+    )
+
+
 def _make_context(
     *,
     life_point: int = 1000,
     max_life_point: int = 1000,
     player_level: int = 200,
+    actor_by_id: dict[int, object] | None = None,
+    enemy_actors: list[object] | None = None,
 ) -> AttackContext:
     return cast(
         AttackContext,
@@ -36,6 +46,12 @@ def _make_context(
             life_percentage=life_point / max_life_point,
             player_level=player_level,
             characteristic_by_id={},
+            primary_elem=EffectElement.STRENGTH,
+            player_map_point=MapPoint.from_cell_id(0),
+            modifier_by_type_and_spell_id={},
+            player_character_id=1,
+            actor_by_id=actor_by_id or {},
+            enemy_actors=enemy_actors or [],
         ),
     )
 
@@ -50,6 +66,8 @@ def _make_enemy(
     life_point: int = 500,
     max_life_point: int = 500,
     is_summoned: bool = False,
+    invisibility: FightInvisibilityState = FightInvisibilityState.VISIBLE,
+    state_ids: frozenset[int] = frozenset(),
 ) -> EnemyData:
     return EnemyData(
         actor=MagicMock(),
@@ -58,6 +76,8 @@ def _make_enemy(
         max_life_point=max_life_point,
         is_summoned=is_summoned,
         monster_grade=MagicMock(),
+        invisibility=invisibility,
+        state_ids=state_ids,
     )
 
 
@@ -113,9 +133,11 @@ def patch_singletons(monkeypatch: pytest.MonkeyPatch) -> dict[str, str]:
     """Stub the DataReader / I18N singletons the calculator uses for life-steal detection."""
     state: dict[str, str] = {"description": "physical damage"}
 
-    fake_data_effect = SimpleNamespace(descriptionId=42)
+    fake_data_effect = SimpleNamespace(descriptionId=42, characteristicOperator="")
     fake_data_reader = SimpleNamespace(effect_by_id={1: fake_data_effect})
     monkeypatch.setattr(weight_calculator, "DataReader", lambda: fake_data_reader)
+    # is_push_effect / is_heal_effect live in the effect module and use its DataReader.
+    monkeypatch.setattr(effect_module, "DataReader", lambda: fake_data_reader)
     monkeypatch.setattr(
         weight_calculator,
         "I18N",
@@ -326,3 +348,121 @@ class TestCalculateAttackWeight:
         assert weight_summon == pytest.approx(75.0)  # pyright: ignore[reportUnknownMemberType]
         assert weight_regular == pytest.approx(200.0)  # pyright: ignore[reportUnknownMemberType]
         assert weight_summon < weight_regular
+
+    def test_invulnerable_enemy_is_not_targeted(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Damage on a fully invulnerable target is wasted -> zero weight."""
+        _stub_no_type_effect(monkeypatch)
+
+        effect = _make_effect()
+        spell_lvl = _make_spell([effect])
+
+        damage_calculator = MagicMock()
+        damage_calculator.get_damage_effect.return_value = 1000
+
+        enemy = _make_enemy(cell_id=1, state_ids=frozenset({56}))
+        weight = calculate_attack_weight(
+            damage_calculator=damage_calculator,
+            context=_make_context(),
+            impact_mps={enemy.map_point},
+            spell_lvl=spell_lvl,
+            effect=effect,
+            target_mp=MapPoint.from_cell_id(0),
+            enemies_data=[enemy],
+            modifiers=_make_modifiers(ap_cost=1),
+        )
+
+        assert weight == 0.0
+
+    def test_invisible_enemy_is_not_targeted(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """An invisible (non-detected) target cannot be reliably hit -> zero weight."""
+        _stub_no_type_effect(monkeypatch)
+
+        effect = _make_effect()
+        spell_lvl = _make_spell([effect])
+
+        damage_calculator = MagicMock()
+        damage_calculator.get_damage_effect.return_value = 1000
+
+        enemy = _make_enemy(
+            cell_id=1, invisibility=FightInvisibilityState.INVISIBLE
+        )
+        weight = calculate_attack_weight(
+            damage_calculator=damage_calculator,
+            context=_make_context(),
+            impact_mps={enemy.map_point},
+            spell_lvl=spell_lvl,
+            effect=effect,
+            target_mp=MapPoint.from_cell_id(0),
+            enemies_data=[enemy],
+            modifiers=_make_modifiers(ap_cost=1),
+        )
+
+        assert weight == 0.0
+
+    def test_bi_element_spell_sums_both_damage_effects(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A spell with two co-zone damage effects is valued by their sum."""
+        _stub_no_type_effect(monkeypatch)
+
+        effect_str = _make_effect()
+        effect_int = msgspec.structs.replace(
+            effect_str, effectElement=EffectElement.INTELLIGENCE
+        )
+        spell_lvl = _make_spell([effect_str, effect_int])
+
+        damage_calculator = MagicMock()
+        damage_calculator.get_damage_effect.return_value = 100
+
+        enemy = _make_enemy(cell_id=1, life_point=1000, max_life_point=1000)
+        weight = calculate_attack_weight(
+            damage_calculator=damage_calculator,
+            context=_make_context(),
+            impact_mps={enemy.map_point},
+            spell_lvl=spell_lvl,
+            effect=effect_str,
+            target_mp=MapPoint.from_cell_id(0),
+            enemies_data=[enemy],
+            modifiers=_make_modifiers(ap_cost=1),
+        )
+
+        # two effects x 100 = 200 damage; efficiency 200 / 1.0, no kill -> 200
+        assert weight == pytest.approx(200.0)  # pyright: ignore[reportUnknownMemberType]
+
+    def test_ally_in_aoe_penalises_weight(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """An AoE catching an ally is strongly down-weighted."""
+        _stub_no_type_effect(monkeypatch)
+
+        effect = _make_effect()
+        spell_lvl = _make_spell([effect])
+
+        damage_calculator = MagicMock()
+        damage_calculator.get_damage_effect.return_value = 100
+
+        enemy = _make_enemy(cell_id=1, life_point=1000, max_life_point=1000)
+        ally = _make_actor(actor_id=3, cell_id=2)
+        enemy_actor = _make_actor(actor_id=2, cell_id=1)
+        context = _make_context(
+            actor_by_id={2: enemy_actor, 3: ally},
+            enemy_actors=[enemy_actor],
+        )
+
+        weight = calculate_attack_weight(
+            damage_calculator=damage_calculator,
+            context=context,
+            impact_mps={MapPoint.from_cell_id(1), MapPoint.from_cell_id(2)},
+            spell_lvl=spell_lvl,
+            effect=effect,
+            target_mp=MapPoint.from_cell_id(1),
+            enemies_data=[enemy],
+            modifiers=_make_modifiers(ap_cost=1),
+        )
+
+        # base weight 100, one ally hit -> x0.1 -> 10
+        assert weight == pytest.approx(10.0)  # pyright: ignore[reportUnknownMemberType]

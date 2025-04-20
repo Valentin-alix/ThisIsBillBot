@@ -1,5 +1,7 @@
 from collections import defaultdict
+from typing import Callable
 
+from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.models.datas.spell_levels_root import (
     Effect,
     SpellLevelsRootItem,
@@ -54,6 +56,43 @@ def get_valid_spells_for_turn(
     return valid_spell_levels
 
 
+def collect_castable_spells(
+    context: AttackContext,
+    effect_predicate: Callable[[Effect], bool],
+    *,
+    skip_already_cast: bool = False,
+) -> list[tuple[SpellLevelsRootItem, Effect, SpellModifiers]]:
+    """Castable spells owning an effect that matches ``effect_predicate``.
+
+    Shared collector for role-specific selection (heal, self-buff, ...): resolves
+    the spell level, finds a matching effect, builds modifiers and gates on
+    ``is_spell_valid_for_turn``. ``skip_already_cast`` drops spells already cast
+    this fight (anti-redundancy for one-shot buffs).
+    """
+    rejection_stats: dict[RejectionStat, int] = defaultdict(int)
+    valid: list[tuple[SpellLevelsRootItem, Effect, SpellModifiers]] = []
+    modifiers_map = context.modifier_by_type_and_spell_id
+
+    for spell in context.spells:
+        if not spell.spell_id:
+            continue
+        if skip_already_cast and spell.spell_id in context.last_cast_turn_by_spell_id:
+            continue
+        spell_lvl = DataReader().spell_lvl_by_spell_id[spell.spell_id][
+            spell.spell_level - 1
+        ]
+        matched = next(
+            (effect for effect in spell_lvl.effects if effect_predicate(effect)), None
+        )
+        if matched is None:
+            continue
+        modifiers = SpellModifiers.from_spell(context.range, spell_lvl, modifiers_map)
+        if is_spell_valid_for_turn(context, spell_lvl, modifiers, rejection_stats):
+            valid.append((spell_lvl, matched, modifiers))
+
+    return valid
+
+
 def is_spell_valid_for_turn(
     context: AttackContext,
     spell_lvl: SpellLevelsRootItem,
@@ -67,11 +106,18 @@ def is_spell_valid_for_turn(
         rejection_stats[RejectionStat.INSUFICIENT_AP] += 1
         return False
 
-    if spell_lvl.initialCooldown != 0:
+    # Spell unavailable for the first `initialCooldown` turns of the fight.
+    if spell_lvl.initialCooldown != 0 and context.fight_turn <= spell_lvl.initialCooldown:
         rejection_stats[RejectionStat.INITIAL_COOLDOWN] += 1
         return False
 
-    if spell_lvl.globalCooldown != 0:
+    # Spell still recharging since its last cast (globalCooldown is in player turns).
+    last_cast_turn = context.last_cast_turn_by_spell_id.get(spell_lvl.spellId)
+    if (
+        spell_lvl.globalCooldown != 0
+        and last_cast_turn is not None
+        and context.fight_turn - last_cast_turn < spell_lvl.globalCooldown
+    ):
         rejection_stats[RejectionStat.GLOBAL_COOLDOWN] += 1
         return False
 

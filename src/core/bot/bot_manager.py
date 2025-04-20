@@ -17,10 +17,12 @@ from src.controller.bot_config import BotConfigController
 from src.core.bot.bot import Bot
 from src.core.bot.bot_factory import BotFactory
 from src.core.bot.lifecycle.account_scheduler import AccountScheduler
-from src.core.bot.lifecycle.subscription_scheduler import SubscriptionScheduler
 from src.core.mitm.proxy_listener import ProxyListener
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.socket_network.socket_client import SocketClient
+from ankama_launcher_emulator_premium.utils.internet import (
+    get_available_network_interfaces,
+)
 from src.utils.internet import (
     has_internet_connection,
 )
@@ -43,10 +45,10 @@ class BotManager:
         self.shared_signals.launch_account.connect(self.on_launch_account)
         self.shared_signals.synchronize_bots.connect(self.on_synchronize_bots)
         self.proxy_listener = ProxyListener(account_by_id=self.bot_by_account_id)
-        self.subscription_scheduler = SubscriptionScheduler()
-        # self.subscription_scheduler.start()
-        self.account_scheduler = AccountScheduler()
-        # self.account_scheduler.start()
+        self.account_scheduler = AccountScheduler(
+            on_accounts_synchronized=self.shared_signals.synchronize_bots.emit
+        )
+        self.account_scheduler.start()
 
     def on_launch_account(self, login: str):
         self._running_task_count += 1
@@ -168,8 +170,7 @@ class BotManager:
         return bot_by_account_id
 
     def shutdown(self) -> None:
-        # self.subscription_scheduler.stop()
-        # self.account_scheduler.stop()
+        self.account_scheduler.stop()
         bots = list(self.bot_by_account_id.values())
         self.safe_stop_bots(bots)
         for bot in bots:
@@ -200,6 +201,18 @@ class BotManager:
 
         for account_id, account in account_by_id.items():
             if account_id not in self.bot_by_account_id:
+                login = account.apikey.login
+                existing_config = (
+                    BotConfigController().get_bot_config_by_login().get(login)
+                )
+                if existing_config is None or existing_config.schedule_profile is None:
+                    BotConfigController().assign_least_used_profile(login)
+                if existing_config is None or existing_config.network_interface is None:
+                    available_ips = list(get_available_network_interfaces().keys())
+                    BotConfigController().assign_least_used_network_interface(
+                        login, available_ips
+                    )
+
                 new_bot = BotFactory.create_bot(
                     shared_signals=self.shared_signals,
                     account=account,

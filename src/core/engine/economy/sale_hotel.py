@@ -209,9 +209,7 @@ class ItemToBuyInfo(BaseModel):
         }
         for item_effect in DataReader().get_item_effects_by_gid(self.item_gid):
             object_effect = bid_object_effect_by_id.get(item_effect.effectId)
-            if not object_effect:
-                return False
-            if object_effect.value_int < item_effect.diceNum:
+            if object_effect and object_effect.value_int < item_effect.diceNum:
                 return False
 
         return True

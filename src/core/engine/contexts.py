@@ -80,8 +80,11 @@ class AttackContext:
     enemies_data: list["EnemyData"]
     spells: list[SpellItem]
     primary_and_second_elem: tuple[EffectElement, EffectElement]
+    primary_elem: EffectElement
     modifier_by_type_and_spell_id: dict[tuple[int, SpellModifierType], SpellModifier]
     count_casted_by_spell_id_on_current_turn: dict[int, int]
+    last_cast_turn_by_spell_id: dict[int, int]
+    fight_turn: int
     characteristic_by_id: dict[int, CharacterCharacteristic]
     action_points: int
     movement_points: int

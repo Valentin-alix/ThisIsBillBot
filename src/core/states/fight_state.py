@@ -58,6 +58,10 @@ class FightState(State):
     count_casted_by_spell_id_on_current_turn: dict[int, int] = dataclasses.field(
         init=False, default_factory=lambda: defaultdict(int)
     )
+    # spell_id -> last fight_turn it was cast on (for real cooldown tracking).
+    last_cast_turn_by_spell_id: dict[int, int] = dataclasses.field(
+        init=False, default_factory=dict[int, int]
+    )
     characteristic_by_id: dict[int, CharacterCharacteristic] = dataclasses.field(
         init=False, default_factory=dict[int, CharacterCharacteristic]
     )
@@ -74,6 +78,7 @@ class FightState(State):
         self.spells.clear()
         self.modifier_by_type_and_spell_id.clear()
         self.count_casted_by_spell_id_on_current_turn.clear()
+        self.last_cast_turn_by_spell_id.clear()
         self.characteristic_by_id.clear()
         self.breed_id = 0
         self.in_fight = False
@@ -202,6 +207,10 @@ class FightState(State):
         )
 
     @property
+    def primary_elem(self) -> EffectElement:
+        return self.primary_and_second_elem[0]
+
+    @property
     def is_our_turn(self) -> bool:
         return self._is_our_turn
 
@@ -212,10 +221,20 @@ class FightState(State):
             self.game_info_signals.is_our_turn.emit(value)
 
     def get_enemies(self, character_id: int) -> list[ActorPositionInformation]:
+        player_actor = self.entity_state.actor_by_id.get(character_id)
+        if player_actor is None:
+            self.logger.warning(
+                f"Player {character_id} not in actors, return empty enemies"
+            )
+            return []
+
+        player_team = player_actor.actor_information.fighter.spawn_information.team
         enemies = [
             actor
             for actor in self.entity_state.actor_by_id.values()
-            if actor.actor_id != character_id and actor.disposition.cell_id != -1
+            if actor.disposition.cell_id != -1
+            and actor.actor_information.HasField("fighter")
+            and actor.actor_information.fighter.spawn_information.team != player_team
         ]
         self.logger.debug(f"Found {len(enemies)} enemies")
 
@@ -227,7 +246,12 @@ class FightState(State):
         enemies_data: list[EnemyData] = []
         for enemy in enemies:
             enemy_mp = MapPoint.from_cell_id(enemy.disposition.cell_id)
-            actor_fight = self.entity_state.actor_fight_by_id[enemy.actor_id]
+            actor_fight = self.entity_state.actor_fight_by_id.get(enemy.actor_id)
+            if not actor_fight:
+                self.logger.error(
+                    f"Wtf ? {enemy.actor_id} not found in actor fight by id"
+                )
+                continue
             life_point = actor_fight.life_point
             is_summoned = actor_fight.is_summoned
 
@@ -248,6 +272,8 @@ class FightState(State):
                     max_life_point=max_life_point,
                     is_summoned=is_summoned,
                     monster_grade=monster_grade,
+                    invisibility=actor_fight.invisibility,
+                    state_ids=actor_fight.state_ids,
                 )
             )
         return enemies_data

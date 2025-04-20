@@ -11,11 +11,8 @@ from src.core.behaviors.sale_hotel.sale_hotel_buy_behavior import (
 )
 from src.core.config import BASE_RANGE
 from src.core.engine.economy.sale_hotel import ItemToBuyInfo
-from src.core.engine.items.equipment import (
-    SetOnLevel,
-    get_current_best_set,
-    get_item_gids_to_buy,
-)
+from src.core.engine.items.equipment import get_current_best_set, get_item_gids_to_buy
+from src.core.engine.items.set_infos import SetOnLevel
 
 
 @dataclass

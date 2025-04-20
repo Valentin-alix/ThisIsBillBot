@@ -1,0 +1,35 @@
+{
+    "addMountButton": {
+        "value": false
+    },
+    "challengeIsRandom": {
+        "value": true
+    },
+    "hideCompletedAchievements": {
+        "value": true
+    },
+    "hideCompletedMissions": {
+        "value": true
+    },
+    "lootFilterConsumables": {
+        "value": false
+    },
+    "lootFilterCosmetics": {
+        "value": false
+    },
+    "lootFilterEquipments": {
+        "value": false
+    },
+    "lootFilterQuestsItems": {
+        "value": false
+    },
+    "lootFilterResources": {
+        "value": false
+    },
+    "showUnavailableHunts": {
+        "value": false
+    },
+    "warnAllianceMemberConnection": {
+        "value": false
+    }
+}

@@ -11,6 +11,7 @@ from pydantic import BaseModel, RootModel
 from python_utils.singleton import Singleton
 
 from src.const import RESOURCE_FOLDER
+from src.controller.schedule_profile_controller import ScheduleProfileController
 
 
 class BotConfig(BaseModel):
@@ -19,7 +20,7 @@ class BotConfig(BaseModel):
     schedule_profile: str | None = None
     connection_mode: Literal["mitm", "socket"] = "mitm"
     hardware_id: str | None = None
-    auto_subscribe: bool = False
+    auto_subscribe: bool = True
     subscribe_proxy: str | None = None
     subscribe_server_name: str | None = None
 
@@ -53,6 +54,53 @@ class BotConfigController(metaclass=Singleton):
             all_configs = self._get_all_configs()
             all_configs[login] = bot_config
             self._write_all_configs(all_configs)
+
+    def assign_least_used_profile(self, login: str) -> str:
+        """Assign the least represented schedule profile to ``login`` and persist it.
+
+        Balances accounts across the available profiles so new accounts auto-launch
+        on a spread of playtime slots. Returns the chosen profile id.
+        """
+        profiles = ScheduleProfileController().get_all_profiles()
+        if not profiles:
+            raise ValueError("Did not found any profile")
+        with self._BOT_CONFIG_LOCK:
+            all_configs = self._get_all_configs()
+            counts = {profile_id: 0 for profile_id in profiles}
+            for config in all_configs.values():
+                if config.pc_id == PC_ID and config.schedule_profile in counts:
+                    counts[config.schedule_profile] += 1
+            chosen = min(sorted(counts), key=lambda profile_id: counts[profile_id])
+            existing = all_configs.get(login, BotConfig())
+            all_configs[login] = existing.model_copy(
+                update={"schedule_profile": chosen}
+            )
+            self._write_all_configs(all_configs)
+        return chosen
+
+    def assign_least_used_network_interface(
+        self, login: str, available_interfaces: list[str]
+    ) -> str | None:
+        """Assign the least represented network interface to ``login`` and persist it.
+
+        Balances accounts across available interfaces. Returns the chosen IP, or
+        None when no interfaces are available.
+        """
+        if not available_interfaces:
+            return None
+        with self._BOT_CONFIG_LOCK:
+            all_configs = self._get_all_configs()
+            counts = {ip: 0 for ip in available_interfaces}
+            for config in all_configs.values():
+                if config.pc_id == PC_ID and config.network_interface in counts:
+                    counts[config.network_interface] += 1
+            chosen = min(sorted(counts), key=lambda ip: counts[ip])
+            existing = all_configs.get(login, BotConfig())
+            all_configs[login] = existing.model_copy(
+                update={"network_interface": chosen}
+            )
+            self._write_all_configs(all_configs)
+        return chosen
 
     def get_or_create_hardware_id(self, login: str) -> str:
         with self._BOT_CONFIG_LOCK:

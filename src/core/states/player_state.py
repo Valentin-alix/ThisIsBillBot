@@ -60,7 +60,9 @@ class PlayerState(State):
     def subscription_end_date(self) -> datetime:
         game_sub = get_game_sub_info_by_login(self.login)
         if const.DEBUG:
-            self.game_info_signals.subscription_end_date.emit(game_sub.end_of_subscribe)
+            self.game_info_signals.subscription_end_date.emit(
+                game_sub.end_of_subscribe or const.MIN_DATE
+            )
         return game_sub.end_of_subscribe or const.MIN_DATE
 
     @property

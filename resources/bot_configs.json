@@ -3,24 +3,80 @@
     "network_interface": null,
     "pc_id": 2,
     "schedule_profile": null,
-    "connection_mode": "mitm"
+    "connection_mode": "mitm",
+    "hardware_id": null,
+    "auto_subscribe": true,
+    "subscribe_proxy": null,
+    "subscribe_server_name": null
   },
   "ezrealeu44700_main@outlook.com": {
     "network_interface": null,
     "pc_id": 2,
-    "schedule_profile": null,
-    "connection_mode": "mitm"
+    "schedule_profile": "A",
+    "connection_mode": "mitm",
+    "hardware_id": null,
+    "auto_subscribe": true,
+    "subscribe_proxy": null,
+    "subscribe_server_name": null
   },
-  "CertUser3820": {
+  "renaissance.hehe1@outlook.fr": {
     "network_interface": null,
     "pc_id": 2,
-    "schedule_profile": null,
-    "connection_mode": "mitm"
+    "schedule_profile": "A",
+    "connection_mode": "mitm",
+    "hardware_id": null,
+    "auto_subscribe": true,
+    "subscribe_proxy": null,
+    "subscribe_server_name": null
   },
-  "CertUser4858": {
+  "renaissance.hehe@outlook.fr": {
     "network_interface": null,
     "pc_id": 2,
-    "schedule_profile": null,
-    "connection_mode": "socket"
+    "schedule_profile": "B",
+    "connection_mode": "mitm",
+    "hardware_id": null,
+    "auto_subscribe": true,
+    "subscribe_proxy": null,
+    "subscribe_server_name": null
+  },
+  "renaissance.hzhz@outlook.fr": {
+    "network_interface": null,
+    "pc_id": 2,
+    "schedule_profile": "C",
+    "connection_mode": "mitm",
+    "hardware_id": null,
+    "auto_subscribe": true,
+    "subscribe_proxy": null,
+    "subscribe_server_name": null
+  },
+  "renaissance.haha@outlook.fr": {
+    "network_interface": null,
+    "pc_id": 2,
+    "schedule_profile": "E",
+    "connection_mode": "mitm",
+    "hardware_id": null,
+    "auto_subscribe": true,
+    "subscribe_proxy": null,
+    "subscribe_server_name": null
+  },
+  "renaissance.haha1@outlook.fr": {
+    "network_interface": null,
+    "pc_id": 2,
+    "schedule_profile": "A",
+    "connection_mode": "mitm",
+    "hardware_id": null,
+    "auto_subscribe": true,
+    "subscribe_proxy": null,
+    "subscribe_server_name": null
+  },
+  "renaissance.haha2@outlook.fr": {
+    "network_interface": "192.168.1.156",
+    "pc_id": 2,
+    "schedule_profile": "B",
+    "connection_mode": "mitm",
+    "hardware_id": null,
+    "auto_subscribe": true,
+    "subscribe_proxy": null,
+    "subscribe_server_name": null
   }
 }

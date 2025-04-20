@@ -46,7 +46,7 @@ class EdgeBehavior(Behavior):
         if edge.m_to.m_mapId == self.game_state.map.map_id:
             return self.finish()
         if edge.m_from.m_mapId != self.game_state.map.map_id:
-            self.logger.error(
+            self.logger.warning(
                 f"edge from map id {edge.m_from.m_mapId} is not current map id : {self.game_state.map.map_id},"
                 f"probably in transition to map id"
             )

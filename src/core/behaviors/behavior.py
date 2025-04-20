@@ -171,10 +171,9 @@ class Behavior(ContextualLogger):
         with self.event_manager.lock:
             with self._state_lock:
                 if self._state != BehaviorState.RUNNING:
-                    error = (
+                    self.logger.warning(
                         f"Timer fired but behavior in state {self.state.name}, ignoring"
                     )
-                    self.logger.error(error)
                     return
             func()
 

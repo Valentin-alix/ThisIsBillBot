@@ -12,7 +12,111 @@ from dofus_unity_reader.game_constants.characteristic import (
     TypeEffect,
 )
 from dofus_unity_reader.game_constants.description import DescriptionEnum
-from dofus_unity_reader.models.datas.spell_levels_root import Effect
+from dofus_unity_reader.models.datas.spell_levels_root import (
+    Effect,
+    SpellLevelsRootItem,
+)
+
+# Effect.effectElement: 5 == "best element of the caster"
+BEST_ELEMENT = 5
+
+
+def _has_description(effect: Effect, description_ids: frozenset[int]) -> bool:
+    """Whether the effect's definition descriptionId is in ``description_ids``.
+
+    descriptionId is a stable, numeric, language-agnostic effect-role signal.
+    """
+    return DataReader().effect_by_id[effect.effectId].descriptionId in description_ids
+
+
+HEAL_DESCRIPTION_IDS: frozenset[int] = frozenset(
+    {
+        DescriptionEnum.HEAL_FLAT_LIFE,
+        DescriptionEnum.HEAL_PERCENT_MAX_LIFE,
+        DescriptionEnum.HEAL_FIXED,
+        DescriptionEnum.HEAL_PLAIN,
+        DescriptionEnum.HEAL_SINGLE,
+        DescriptionEnum.HEAL_WATER,
+        DescriptionEnum.HEAL_AIR,
+        DescriptionEnum.HEAL_EARTH,
+        DescriptionEnum.HEAL_NEUTRAL,
+        DescriptionEnum.HEAL_BEST_ELEMENT,
+        DescriptionEnum.HEAL_FIRE,
+        DescriptionEnum.HEAL_ELEMENTAL,
+    }
+)
+
+
+def is_heal_effect(effect: Effect) -> bool:
+    """Whether an effect directly restores life points.
+
+    ``category`` alone is not a reliable discriminator: heals span categories 0
+    and 2, and category 2 also contains damage-conditional heals we exclude.
+    """
+    return _has_description(effect, HEAL_DESCRIPTION_IDS)
+
+
+# "Repousse de N cases" effects that deal collision damage (push distance =
+# effect.diceNum). Excludes the "(sans dommages)" and the pull ("Attire") variants.
+PUSH_DESCRIPTION_IDS: frozenset[int] = frozenset(
+    {
+        DescriptionEnum.PUSH,
+        DescriptionEnum.PUSH_ALT,
+        DescriptionEnum.PUSH_FORCED,
+        DescriptionEnum.PUSH_FORCED_ALT,
+    }
+)
+
+
+def is_push_effect(effect: Effect) -> bool:
+    """Whether an effect pushes the target away and can deal collision damage."""
+    return _has_description(effect, PUSH_DESCRIPTION_IDS)
+
+
+# Positive self-buff effects worth casting before attacking (boost damage output
+# or AP). Their malus counterparts have distinct descriptionIds (leading "-").
+OFFENSIVE_SELF_BUFF_DESCRIPTION_IDS: frozenset[int] = frozenset(
+    {
+        DescriptionEnum.BUFF_POWER,
+        DescriptionEnum.BUFF_SPELL_POWER,
+        DescriptionEnum.BUFF_DAMAGE,
+        DescriptionEnum.BUFF_ACTION_POINTS,
+    }
+)
+
+
+def is_offensive_self_buff_effect(effect: Effect) -> bool:
+    """Whether an effect is a beneficial offensive buff (Power/Damage/AP gain)."""
+    return _has_description(effect, OFFENSIVE_SELF_BUFF_DESCRIPTION_IDS)
+
+
+# Shield effects (flat, %-of-level, %-of-max-life) — a defensive buff.
+SHIELD_DESCRIPTION_IDS: frozenset[int] = frozenset(
+    {
+        DescriptionEnum.SHIELD_FLAT,
+        DescriptionEnum.SHIELD_PERCENT_LEVEL,
+        DescriptionEnum.SHIELD_PERCENT_MAX_LIFE,
+    }
+)
+
+
+def is_self_shield_effect(effect: Effect) -> bool:
+    """Whether an effect grants a damage-absorbing shield."""
+    return _has_description(effect, SHIELD_DESCRIPTION_IDS)
+
+
+def resolve_effect_element(
+    effect_element: int, primary_elem: EffectElement
+) -> int | None:
+    """Resolve ``effectElement`` to a concrete element id, or None if non-damage.
+
+    The "best element" sentinel (5) is mapped to the caster's primary element.
+    """
+    if effect_element == BEST_ELEMENT:
+        return primary_elem
+    if effect_element in EffectElement:
+        return effect_element
+    return None
 
 
 def get_effect_elem_by_stat(stat_id: int) -> EffectElement:
@@ -27,20 +131,6 @@ def get_effect_elem_by_stat(stat_id: int) -> EffectElement:
             return EffectElement.AGILITY
         case _:
             raise ValueError(f"Unknown primary stat : {stat_id} for elem")
-
-
-def get_stat_by_effect_elem(elem: int) -> CharacteristicEnum:
-    match elem:
-        case EffectElement.CHANCE:
-            return CharacteristicEnum.CHANCE
-        case EffectElement.STRENGTH:
-            return CharacteristicEnum.STRENGTH
-        case EffectElement.INTELLIGENCE:
-            return CharacteristicEnum.INTELLIGENCE
-        case EffectElement.AGILITY:
-            return CharacteristicEnum.AGILITY
-        case _:
-            raise ValueError(f"Unknown elem : {elem} for stat")
 
 
 def get_type_effect(spell_id: int, effect: Effect) -> TypeEffect | None:
@@ -103,3 +193,27 @@ def is_included_by_mask(
     }
 
     return any(conditions.get(mask, lambda: False)() for mask in masks)
+
+
+def get_critical_effect(spell_lvl: SpellLevelsRootItem, effect: Effect) -> Effect:
+    for crit_effect in spell_lvl.criticalEffect:
+        if crit_effect.effectElement == effect.effectElement:
+            return crit_effect
+    return effect
+
+
+def base_roll(effect: Effect) -> float:
+    """Average roll: diceNum=min, diceSide=max, value=fixed when both dice are 0."""
+    if effect.diceNum == 0 and effect.diceSide == 0:
+        return float(effect.value)
+    if effect.diceSide > effect.diceNum:
+        return (effect.diceNum + effect.diceSide) / 2
+    return float(effect.diceNum)
+
+
+# targetMask characters that include the caster itself.
+_SELF_MASK_CHARS = ("C", "c", "a")
+
+
+def can_self_cast(effect: Effect) -> bool:
+    return any(char in effect.targetMask for char in _SELF_MASK_CHARS)

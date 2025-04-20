@@ -1,15 +1,14 @@
 from threading import Event
 
-from google.protobuf.message import Message
 import pytest
-
 from datas.protos.non_obf.game.game_action_pb2 import (
-    GameActionFightEvent,
     GameActionAcknowledgementRequest,
+    GameActionFightEvent,
     SequenceEndEvent,
 )
 from datas.protos.non_obf.game.gamemap_pb2 import MapMovementEvent
 from dofus_unity_reader.grid.map_point import MapPoint
+from google.protobuf.message import Message
 
 from src.core.behaviors.behavior import BehaviorState
 from src.core.behaviors.farms.fight.fight_movement_behavior import (
@@ -23,7 +22,6 @@ from src.core.frames.entity_frame import EntityFrame
 from src.core.states.game_state import GameState
 from src.services.human_timings import HumanTimingsService
 from tests.fixtures.game_state import GameStateContext, set_game_state
-
 
 PLAYER_ID = -1
 OTHER_FIGHTER_ID = -2

@@ -1,0 +1,116 @@
+{
+    "allowAnimsFun": {
+        "value": false
+    },
+    "maxEffectCount": {
+        "value": 0
+    },
+    "renderingScale": {
+        "value": {
+            "isMute": false,
+            "value": 25
+        }
+    },
+    "allowSpellEffects": {
+        "value": false
+    },
+    "animateFightPreviewTooltips": {
+        "value": false
+    },
+    "autoFocusApp": {
+        "value": 0
+    },
+    "buffsUISizedAutomatically": {
+        "value": false
+    },
+    "creatureModeFight": {
+        "value": true
+    },
+    "creatureModeRoleplay": {
+        "value": true
+    },
+    "creaturesMode": {
+        "value": 0
+    },
+    "displayAvailableDrop": {
+        "value": false
+    },
+    "displayOutfitLook": {
+        "value": false
+    },
+    "displayUnavailableCosmeticItems": {
+        "value": false
+    },
+    "hideBlackBorder": {
+        "value": true
+    },
+    "letLivingObjectTalk": {
+        "value": false
+    },
+    "seePings": {
+        "value": false
+    },
+    "showAlignmentWings": {
+        "value": false
+    },
+    "showDamagesPreview": {
+        "value": false
+    },
+    "showLogPvDetails": {
+        "value": false
+    },
+    "showMapGrid": {
+        "value": false
+    },
+    "showMiniMapGrid": {
+        "value": false
+    },
+    "showMovePreview": {
+        "value": false
+    },
+    "showMovementArea": {
+        "value": false
+    },
+    "showMovementDistance": {
+        "value": false
+    },
+    "showPermanentTargetsTooltips": {
+        "value": false
+    },
+    "showTurnsRemaining": {
+        "value": false
+    },
+    "spectatorAutoShowCurrentFighterInfo": {
+        "value": false
+    },
+    "timelineFollowPlayingEntity": {
+        "value": false
+    },
+    "timelineShowDeadFighters": {
+        "value": false
+    },
+    "timelineShowFightersOrder": {
+        "value": false
+    },
+    "timelineShowSummonedFighters": {
+        "value": false
+    },
+    "timelineSizedAutomatically": {
+        "value": true
+    },
+    "toggleEntityIcons": {
+        "value": false
+    },
+    "transparentOverlayMode": {
+        "value": false
+    },
+    "transparentOverlayModeFight": {
+        "value": false
+    },
+    "turnPicture": {
+        "value": false
+    },
+    "worldmapMenuIsHidden": {
+        "value": true
+    }
+}

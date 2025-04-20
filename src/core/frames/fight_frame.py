@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 
 from datas.protos.non_obf.game.character_pb2 import CharacterCharacteristicsEvent
+from datas.protos.non_obf.game.common_pb2 import (
+    FightInvisibilityState,
+    FightRemovableEffect,
+)
 from datas.protos.non_obf.game.fight_pb2 import (
     FightRefreshCharacterStatsEvent,
     FightTurnEvent,
@@ -115,6 +119,9 @@ class FightFrame(Frame):
             )
             + 1
         )
+        self.game_state.fight.last_cast_turn_by_spell_id[message.spell_id] = (
+            self.game_state.fight.fight_turn
+        )
 
     def on_character_characteristics_event(
         self, message: CharacterCharacteristicsEvent
@@ -146,17 +153,58 @@ class FightFrame(Frame):
             if msg.life_points_gain.target_id == self.game_state.player.character_id:
                 self.game_state.fight.life_point += msg.life_points_gain.delta
             else:
-                self.game_state.entity.actor_fight_by_id[
+                actor_fight = self.game_state.entity.actor_fight_by_id.get(
                     msg.life_points_gain.target_id
-                ].life_point += msg.life_points_gain.delta
+                )
+                if actor_fight is not None:
+                    actor_fight.life_point += msg.life_points_gain.delta
 
         if msg.HasField("life_points_lost"):
             if msg.life_points_lost.target_id == self.game_state.player.character_id:
                 self.game_state.fight.life_point -= msg.life_points_lost.loss
             else:
-                self.game_state.entity.actor_fight_by_id[
+                actor_fight = self.game_state.entity.actor_fight_by_id.get(
                     msg.life_points_lost.target_id
-                ].life_point -= msg.life_points_lost.loss
+                )
+                if actor_fight is not None:
+                    actor_fight.life_point -= msg.life_points_lost.loss
+
+        if msg.HasField("removable_effect"):
+            self._handle_removable_effect(msg.removable_effect.effect)
+
+        if msg.HasField("spell_remove"):
+            self.game_state.entity.remove_fight_actor_effect(
+                msg.spell_remove.target_id, msg.spell_remove.effect_remove.effect
+            )
+
+        if msg.HasField("invisibility"):
+            self.game_state.entity.set_fight_actor_invisibility(
+                msg.invisibility.target_id, msg.invisibility.invisibility_state
+            )
+
+        if msg.HasField("invisible_detected"):
+            self.game_state.entity.set_fight_actor_invisibility(
+                msg.invisible_detected.target_id, FightInvisibilityState.DETECTED
+            )
+
+    def _handle_removable_effect(self, effect: FightRemovableEffect) -> None:
+        """Track state-applying buffs/debuffs on a fighter by effect uid.
+
+        A still-active effect (REALLY_NOT_DISSIPATED) carrying a state id is
+        recorded; any other dissipation state (or a later removal) drops it.
+        """
+        state_id = effect.temporary_boost_effect.state_id
+        if (
+            effect.dissipation_state == FightRemovableEffect.REALLY_NOT_DISSIPATED
+            and state_id
+        ):
+            self.game_state.entity.set_fight_actor_effect(
+                effect.target_id, effect.uid, state_id
+            )
+        else:
+            self.game_state.entity.remove_fight_actor_effect(
+                effect.target_id, effect.uid
+            )
 
     def on_fight_refresh_character_stats_event(
         self, msg: FightRefreshCharacterStatsEvent
@@ -169,6 +217,7 @@ class FightFrame(Frame):
 
     def on_fight_map_information_event(self, msg: FightMapInformationEvent):
         self.game_state.fight.count_casted_by_spell_id_on_current_turn.clear()
+        self.game_state.fight.last_cast_turn_by_spell_id.clear()
         self.game_state.fight.modifier_by_type_and_spell_id.clear()
         self.game_state.fight.in_fight = True
 

@@ -5,6 +5,7 @@ from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     Direction,
     EntityDisposition,
+    FightInvisibilityState,
 )
 from datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
 from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
@@ -45,6 +46,12 @@ class ActorByMpDict(dict[MapPoint, ActorByIdDict]):
 class FightActor:
     life_point: int
     is_summoned: bool
+    invisibility: FightInvisibilityState = FightInvisibilityState.VISIBLE
+    state_id_by_effect_uid: dict[int, int] = field(default_factory=dict[int, int])
+
+    @property
+    def state_ids(self) -> frozenset[int]:
+        return frozenset(self.state_id_by_effect_uid.values())
 
 
 @dataclass
@@ -187,9 +194,33 @@ class EntityState(State):
                 None,
             )
             if life_stat and actor.actor_id != self.player_state.character_id:
+                previous = self.actor_fight_by_id.get(actor.actor_id)
                 self.actor_fight_by_id[actor.actor_id] = FightActor(
-                    life_point=get_stat_by_id(life_stat), is_summoned=is_summoned
+                    life_point=get_stat_by_id(life_stat),
+                    is_summoned=is_summoned,
+                    invisibility=(
+                        previous.invisibility
+                        if previous
+                        else FightInvisibilityState.VISIBLE
+                    ),
+                    state_id_by_effect_uid=previous.state_id_by_effect_uid.copy()
+                    if previous
+                    else {},
                 )
+
+    def set_fight_actor_effect(self, target_id: int, uid: int, state_id: int) -> None:
+        actor_fight = self.actor_fight_by_id[target_id]
+        actor_fight.state_id_by_effect_uid[uid] = state_id
+
+    def remove_fight_actor_effect(self, target_id: int, uid: int) -> None:
+        actor_fight = self.actor_fight_by_id[target_id]
+        actor_fight.state_id_by_effect_uid.pop(uid, None)
+
+    def set_fight_actor_invisibility(
+        self, target_id: int, invisibility: FightInvisibilityState
+    ) -> None:
+        actor_fight = self.actor_fight_by_id[target_id]
+        actor_fight.invisibility = invisibility
 
     def _delete_actor_data(self, actor_id: int):
         self.actor_by_id.pop(actor_id, None)

@@ -303,12 +303,12 @@ class EntityFrame(Frame):
         )
 
     def on_fight_synchronize_event(self, msg: FightSynchronizeEvent):
-        for actor in msg.fighters:
-            if not actor.actor_information.fighter.spawn_information.alive:
-                self.game_state.entity.remove_actor(actor.actor_id)
-                self.logger.info("Actor is not alive, let's remove it")
-            else:
-                self.game_state.entity.set_actors(msg.fighters)
+        alive_fighters = [
+            actor
+            for actor in msg.fighters
+            if actor.actor_information.fighter.spawn_information.alive
+        ]
+        self.game_state.entity.set_actors(alive_fighters)
 
     def on_fight_fighter_show_event(self, msg: FightFighterShowEvent):
         self.game_state.entity.set_actor(msg.information)

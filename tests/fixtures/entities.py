@@ -53,6 +53,23 @@ def make_fight_actor(actor_id: int, team: Team) -> ActorPositionInformation:
     )
 
 
+def make_fighter(
+    actor_id: int,
+    cell_id: int,
+    alive: bool = True,
+    team: Team = Team.TEAM_DEFENDER,
+) -> ActorPositionInformation:
+    return ActorPositionInformation(
+        actor_id=actor_id,
+        disposition=EntityDisposition(cell_id=cell_id, entity_id=actor_id),
+        actor_information=ActorPositionInformation.ActorInformation(
+            fighter=ActorPositionInformation.ActorInformation.FightFighterInformation(
+                spawn_information=SpawnInformation(team=team, alive=alive)
+            )
+        ),
+    )
+
+
 def make_actor(
     actor_id: int,
     cell_id: int,

@@ -98,10 +98,13 @@ class GameState:
             enemies_data=self.fight.get_enemies_data(enemies),
             spells=self.fight.spells,
             primary_and_second_elem=self.fight.primary_and_second_elem,
+            primary_elem=self.fight.primary_elem,
             modifier_by_type_and_spell_id=self.fight.modifier_by_type_and_spell_id,
             count_casted_by_spell_id_on_current_turn=(
                 self.fight.count_casted_by_spell_id_on_current_turn
             ),
+            last_cast_turn_by_spell_id=self.fight.last_cast_turn_by_spell_id,
+            fight_turn=self.fight.fight_turn,
             characteristic_by_id=self.fight.characteristic_by_id,
             action_points=self.fight.get_stat_by_id(CharacteristicEnum.ACTION_POINTS),
             movement_points=self.fight.get_stat_by_id(

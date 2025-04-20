@@ -1,3 +1,7 @@
+from datas.protos.non_obf.game.common_pb2 import (
+    CharacterCharacteristic,
+    CharacterCharacteristicValue,
+)
 from dofus_unity_reader.game_constants.characteristic import EffectElement
 from dofus_unity_reader.game_constants.job import JobEnum
 from dofus_unity_reader.models.datas.effects_root import EffectsRootItem
@@ -72,6 +76,19 @@ def make_item_type_data(
         evolutiveTypeId=0,
         rawZone="",
     )
+
+
+def make_characteristics(
+    values: dict[int, int],
+) -> dict[int, CharacterCharacteristic]:
+    """Build a characteristic_by_id map from {characteristic_id: total} values."""
+    return {
+        characteristic_id: CharacterCharacteristic(
+            characteristic_id=characteristic_id,
+            value=CharacterCharacteristicValue(total=value),
+        )
+        for characteristic_id, value in values.items()
+    }
 
 
 def make_zone_descr() -> ZoneDescr:
