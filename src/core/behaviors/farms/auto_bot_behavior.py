@@ -3,6 +3,7 @@ from datetime import datetime
 from threading import RLock
 
 from dofus_unity_reader.data_center.area_info import AreaInfo
+from dofus_unity_reader.data_center.data_reader import DataReader
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmingErrorCode
@@ -16,6 +17,10 @@ from src.core.config import (
     get_time_beween_areas,
 )
 from src.core.engine.contexts import HarvesterAreaContext
+from src.core.engine.weights.fighter.set_drop import (
+    choose_set_drop_sub_area_id,
+    get_missing_set_drop_sub_area_ids,
+)
 from src.core.engine.weights.harvester.weight_areas import (
     get_random_best_area_info_for_harvester,
 )
@@ -66,6 +71,9 @@ class AutoBotBehavior(Behavior):
         self.play()
 
     def play(self) -> None:
+        if not self.game_state.player.can_use_bank:
+            self.logger.info("No bank access: fighting only (no harvest)")
+            return self.play_fighter()
         if (
             self.game_state.player.level < LVL_LIMIT_FOR_HARVEST
             or self.game_state.inventory.kamas < KAMAS_LIMIT_FOR_HARVEST
@@ -120,14 +128,7 @@ class AutoBotBehavior(Behavior):
                 and self.game_state.inventory.kamas >= KAMAS_LIMIT_FOR_HARVEST
             ) or datetime_start_played + get_time_beween_areas() < datetime.now()
 
-        area_info = get_random_best_area_info_for_harvester(
-            self._area_id,
-            self._sub_area_id,
-            self.get_harvester_area_context(),
-            self._previous_area_info_played,
-            self.logger,
-        )
-
+        area_info = self._get_fighter_area_info()
         self._previous_area_info_played.append(area_info)
 
         self.fighter_behavior.start(
@@ -136,6 +137,39 @@ class AutoBotBehavior(Behavior):
             is_stopped_at_new_map_condition=stop_condition_fighter,
             callback=self.on_fighter_behavior_finished,
             parent=self,
+        )
+
+    def _get_fighter_area_info(self) -> AreaInfo:
+        if self._area_id is None:
+            set_drop_sub_area_id = choose_set_drop_sub_area_id(
+                get_missing_set_drop_sub_area_ids(
+                    self.game_state.fight.primary_and_second_elem[0],
+                    self.game_state.player.level,
+                    self.game_state.player.is_sub,
+                    self.game_state.inventory.objects_by_uid,
+                ),
+                self.game_state.player.level,
+                [
+                    area_info.sub_area_id
+                    for area_info in self._previous_area_info_played
+                    if area_info.sub_area_id is not None
+                ],
+            )
+            if set_drop_sub_area_id is not None:
+                self.logger.info(
+                    f"Gearing: farming sub-area {set_drop_sub_area_id} for set drops"
+                )
+                return AreaInfo(
+                    area_id=DataReader().sub_area_by_id[set_drop_sub_area_id].areaId,
+                    sub_area_id=set_drop_sub_area_id,
+                )
+
+        return get_random_best_area_info_for_harvester(
+            self._area_id,
+            self._sub_area_id,
+            self.get_harvester_area_context(),
+            self._previous_area_info_played,
+            self.logger,
         )
 
     def on_fighter_behavior_finished(self, error_code: str | None) -> None:

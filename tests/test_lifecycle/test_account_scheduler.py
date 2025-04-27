@@ -92,8 +92,10 @@ def _make_scheduler(
     return scheduler
 
 
-def _sub_config(*, auto_subscribe: bool = True, proxy: str | None = None) -> BotConfig:
-    return BotConfig(auto_subscribe=auto_subscribe, subscribe_proxy=proxy)
+def _sub_config(
+    *, auto_subscribe: bool = True, interface_ip: str | None = None
+) -> BotConfig:
+    return BotConfig(auto_subscribe=auto_subscribe, network_interface=interface_ip)
 
 
 class TestNextOperation:
@@ -119,11 +121,14 @@ class TestNextOperation:
 
         scheduler = _make_scheduler(
             quota=True,
-            configs={"sub@x.com": _sub_config(proxy="http://p")},
+            configs={"sub@x.com": _sub_config(interface_ip="192.168.1.50")},
             subscribe_info={"sub@x.com": _FakeSubscribeInfo(active_beyond_threshold=False)},
         )
         operation = scheduler._next_operation()
-        assert operation == _SubscribeOp("sub@x.com", account_scheduler_module.SubscribeOptions(proxy="http://p"))
+        assert operation == _SubscribeOp(
+            "sub@x.com",
+            account_scheduler_module.SubscribeOptions(interface_ip="192.168.1.50"),
+        )
 
     def test_register_when_no_auth_or_subscription_pending(
         self, monkeypatch: pytest.MonkeyPatch
@@ -175,7 +180,7 @@ class TestNextSubscriptionTarget:
             subscribe_info={"ok@x.com": _FakeSubscribeInfo(active_beyond_threshold=False)},
         )
         assert scheduler._next_subscription_target() == _SubscribeOp(
-            "ok@x.com", account_scheduler_module.SubscribeOptions(proxy=None)
+            "ok@x.com", account_scheduler_module.SubscribeOptions(interface_ip=None)
         )
 
 

@@ -21,7 +21,6 @@ class BotConfig(BaseModel):
     connection_mode: Literal["mitm", "socket"] = "mitm"
     hardware_id: str | None = None
     auto_subscribe: bool = True
-    subscribe_proxy: str | None = None
     subscribe_server_name: str | None = None
 
 

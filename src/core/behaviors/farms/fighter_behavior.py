@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from typing import Callable
 
+from src.core.behaviors.equipment.auto_equipment_behavior import (
+    AutoEquipmentBehavior,
+)
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmBehavior
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.movements.edge_behavior import EdgeError
@@ -17,6 +20,16 @@ class FighterBehavior(BaseFarmBehavior):
     map_move_behavior: MapMoveBehavior
     path_finding: Pathfinding
     attacker_behavior: AttackerBehavior
+    auto_equipment_behavior: AutoEquipmentBehavior
+
+    def on_full_pods(self):
+        self.auto_equipment_behavior.start(
+            callback=self.on_auto_equipment_finished, parent=self
+        )
+
+    def on_auto_equipment_finished(self, error_code: str | None) -> None:
+        self.raise_if_error(error_code)
+        super().on_full_pods()
 
     def run(
         self,

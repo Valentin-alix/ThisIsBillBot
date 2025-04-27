@@ -60,6 +60,9 @@ class BaseFarmBehavior(Behavior, ABC):
         return False
 
     def on_full_pods(self):
+        if not self.game_state.player.can_use_bank:
+            self.logger.info("No bank access: skipping unload, moving to next map")
+            return self.run_next_step()
         if do_unload_on_mule(
             self.game_state.inventory.kamas,
             self.game_state.player.is_sub,

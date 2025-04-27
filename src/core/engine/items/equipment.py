@@ -1,9 +1,62 @@
+from collections.abc import Iterable
+
 from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
-from dofus_unity_reader.game_constants.characteristic import EffectElement
+from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.game_constants.characteristic import (
+    CharacteristicEnum,
+    EffectElement,
+)
 
 from src.core.engine.economy.sale_hotel import ItemToBuyInfo
+from src.core.engine.fights.damage_calculator import ELEMENT_INFO_BY_ID
 from src.core.engine.items import set_infos
 from src.core.engine.items.item import get_equipment_on_position
+
+_BASE_ROLL_WEIGHT: dict[int, float] = {
+    CharacteristicEnum.ACTION_POINTS: 50.0,
+    CharacteristicEnum.MOVEMENT_POINTS: 20.0,
+    CharacteristicEnum.RANGE: 6.0,
+    CharacteristicEnum.POWER: 4.0,
+    CharacteristicEnum.ALL_DAMAGES_BONUS: 4.0,
+    CharacteristicEnum.DAMAGES_FACTOR: 4.0,
+    CharacteristicEnum.DAMAGES_PERCENT_SPELL: 4.0,
+    CharacteristicEnum.CRITICAL_DAMAGE_BONUS: 3.5,
+    CharacteristicEnum.CRITICAL_HIT: 3.0,
+    CharacteristicEnum.WISDOM: 1.5,
+    CharacteristicEnum.VITALITY: 1.0,
+}
+_PRIMARY_FLAT_DAMAGE_WEIGHT = 6.0
+_PRIMARY_SCALING_WEIGHT = 3.0
+_DEFAULT_ROLL_WEIGHT = 0.5
+
+
+def _roll_weight_by_characteristic(primary_elem: EffectElement) -> dict[int, float]:
+    element_info = ELEMENT_INFO_BY_ID[primary_elem]
+    weights = dict(_BASE_ROLL_WEIGHT)
+    weights[element_info.flat_damage_bonus] = _PRIMARY_FLAT_DAMAGE_WEIGHT
+    weights[element_info.scaling_stat] = _PRIMARY_SCALING_WEIGHT
+    return weights
+
+
+def roll_score(object_item: ObjectItemInventory, primary_elem: EffectElement) -> float:
+    weights = _roll_weight_by_characteristic(primary_elem)
+    effect_by_id = DataReader().effect_by_id
+    score = 0.0
+    for effect in object_item.item.effects:
+        effect_data = effect_by_id.get(effect.action)
+        characteristic = effect_data.characteristic if effect_data else -1
+        score += weights.get(characteristic, _DEFAULT_ROLL_WEIGHT) * effect.value_int
+    return score
+
+
+def get_best_roll(
+    object_items: Iterable[ObjectItemInventory], primary_elem: EffectElement
+) -> ObjectItemInventory | None:
+    return max(
+        object_items,
+        key=lambda object_item: roll_score(object_item, primary_elem),
+        default=None,
+    )
 
 
 def get_current_best_set(

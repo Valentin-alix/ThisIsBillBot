@@ -26,6 +26,7 @@ class GameClient(BaseClient):
 
     def connect(self, host: str, port: int, ticket: str) -> None:
         self.client_socket.connect((host, port))
+        self.bot.event_manager.request_disconnect_callback = self.close
         self.bot.logger.info(f"[GameClient] Connected to {host}:{port}")
         self.bot.event_manager.on_send_game_callback = self.send_msg
         self.bot.event_manager.on_send_obf_game_callback = self.send_obf_msg
@@ -65,6 +66,8 @@ class GameClient(BaseClient):
         self.client_socket.sendall(encode_msg(obf_msg))
 
     def on_close(self) -> None:
+        if self.bot.event_manager.request_disconnect_callback is self.close:
+            self.bot.event_manager.request_disconnect_callback = None
         self.bot.hearthbeat_behavior.stop()
         self.bot.game_session_behavior.stop()
         self.bot.event_manager.is_socket_mode = False

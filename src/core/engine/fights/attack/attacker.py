@@ -200,7 +200,9 @@ class Attacker(ContextualLogger):
                 DataReader().spell_by_id[best_attack.spell_lvl.spellId].nameId
             ]
             self.logger.info(
-                f"Attack found: {best_spell_name} (weight: {best_attack.total_weight:.2f}, {total_candidates} targets evaluated)"
+                f"Attack found: {best_spell_name} -> cell {best_attack.targetable_mp.cell_id} "
+                f"from cell {best_attack.movable_mp.cell_id} "
+                f"(weight: {best_attack.total_weight:.2f}, {total_candidates} targets evaluated)"
             )
             return (
                 best_attack.movable_mp,

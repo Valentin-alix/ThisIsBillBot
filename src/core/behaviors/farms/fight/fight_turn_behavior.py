@@ -38,6 +38,12 @@ class FightTurnBehavior(Behavior):
 
     def run(self) -> None:
         self.did_attack = False
+        context = self.game_state.get_attack_context()
+        self.logger.info(
+            f"Turn {context.fight_turn}: HP {context.life_point}/{context.max_life_point}, "
+            f"AP {context.action_points}, MP {context.movement_points}, "
+            f"{len(context.enemy_actors)} enemies"
+        )
         self.event_manager.on(FightTurnEvent, lambda _: self.finish(), originator=self)
         self.try_self_buff_or_continue()
 

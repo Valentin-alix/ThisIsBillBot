@@ -40,6 +40,12 @@ KAMAS_LIMIT_FOR_HARVEST = 5_000
 # Storage
 USEFUL_UNLOAD = 0.15
 
+# Reliability / anti-stuck
+# message_id of the "you are busy" error TextInformationEvent. Capture it via the debug
+# message table then set it here; while None the anti-stuck safeguard stays dormant.
+OCCUPIED_MESSAGE_ID: int | None = None
+OCCUPIED_STUCK_LIMIT = 2  # consecutive "occupied" errors before forcing a reconnect
+
 # Mule
 BOT_MINIMAL_KAMAS: int = 2_000_000
 BOT_KAMA_LIMIT_TO_GIVE: int = 8_000_000

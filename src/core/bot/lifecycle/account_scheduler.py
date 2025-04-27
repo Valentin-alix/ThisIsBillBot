@@ -125,7 +125,7 @@ class AccountScheduler:
             info = self.subscribe_service.storage.get_subscribe_info(login)
             if not info.is_active_beyond_threshold():
                 return _SubscribeOp(
-                    login, SubscribeOptions(proxy=config.subscribe_proxy)
+                    login, SubscribeOptions(interface_ip=config.network_interface)
                 )
         return None
 

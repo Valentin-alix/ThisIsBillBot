@@ -458,13 +458,6 @@ class BotFactory:
             game_state=game_state,
             enter_sale_hotel_behavior=enter_sale_hotel_behavior,
         )
-        auto_equipment_behavior = AutoEquipmentBehavior(
-            _logger=logger,
-            event_manager=event_manager,
-            game_state=game_state,
-            sale_hotel_buy_behavior=sale_hotel_buy_behavior,
-        )
-
         unload_behavior = UnloadBehavior(
             event_manager=event_manager,
             game_state=game_state,
@@ -492,6 +485,13 @@ class BotFactory:
             unload_behavior=unload_behavior,
             game_state=game_state,
             enter_bank_behavior=enter_bank_chest_behavior,
+        )
+        auto_equipment_behavior = AutoEquipmentBehavior(
+            _logger=logger,
+            event_manager=event_manager,
+            game_state=game_state,
+            sale_hotel_buy_behavior=sale_hotel_buy_behavior,
+            load_from_bank_behavior=load_from_bank_behavior,
         )
         sale_hotel_prices_behavior = SaleHotelSellBehavior(
             event_manager=event_manager,
@@ -577,6 +577,7 @@ class BotFactory:
             craft_behavior=craft_behavior,
             sale_hotel_prices_behavior=sale_hotel_prices_behavior,
             mule_give_behavior=mule_give_behavior,
+            auto_equipment_behavior=auto_equipment_behavior,
         )
 
         chat_behavior = ChatBehavior(

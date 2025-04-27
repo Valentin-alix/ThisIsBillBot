@@ -36,7 +36,7 @@ class _ElementInfo:
     flat_damage_bonus: CharacteristicEnum
 
 
-_ELEMENT_INFO_BY_ID: dict[int, _ElementInfo] = {
+ELEMENT_INFO_BY_ID: dict[int, _ElementInfo] = {
     EffectElement.NEUTRAL_ELEMENT: _ElementInfo(
         CharacteristicEnum.STRENGTH, CharacteristicEnum.NEUTRAL_DAMAGE_BONUS
     ),
@@ -89,7 +89,7 @@ def _percent_factor(
 
     ``bonus`` = element stat + Power + spell %% damage
     """
-    info = _ELEMENT_INFO_BY_ID[element_id]
+    info = ELEMENT_INFO_BY_ID[element_id]
     bonus = (
         get_stat_by_id(characteristic_by_id.get(info.scaling_stat))
         + get_stat_by_id(characteristic_by_id.get(CharacteristicEnum.POWER))
@@ -107,7 +107,7 @@ def _flat_bonus(
     is_critical: bool,
 ) -> int:
     """Flat damage bonus: all-damage + per-element (+ critical bonus on crit)."""
-    info = _ELEMENT_INFO_BY_ID[element_id]
+    info = ELEMENT_INFO_BY_ID[element_id]
     flat = get_stat_by_id(
         characteristic_by_id.get(CharacteristicEnum.ALL_DAMAGES_BONUS)
     ) + get_stat_by_id(characteristic_by_id.get(info.flat_damage_bonus))

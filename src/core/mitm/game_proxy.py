@@ -28,11 +28,14 @@ class GameProxy(Proxy):
     def __post_init__(self):
         super().__post_init__()
         self.bot.event_manager.on_send_game_callback = self.send_msg
+        self.bot.event_manager.request_disconnect_callback = self.close
         self.uid: int = 1
         self.session_timings = SessionTimingsController(self.bot.account.apikey.login)
 
     def on_close(self) -> None:
         self.bot.event_manager.on_send_game_callback = None
+        if self.bot.event_manager.request_disconnect_callback is self.close:
+            self.bot.event_manager.request_disconnect_callback = None
 
         QMetaObject.invokeMethod(
             self.bot.game_info_signals,

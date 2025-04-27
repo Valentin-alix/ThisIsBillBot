@@ -153,21 +153,17 @@ class FightFrame(Frame):
             if msg.life_points_gain.target_id == self.game_state.player.character_id:
                 self.game_state.fight.life_point += msg.life_points_gain.delta
             else:
-                actor_fight = self.game_state.entity.actor_fight_by_id.get(
+                self.game_state.entity.actor_fight_by_id[
                     msg.life_points_gain.target_id
-                )
-                if actor_fight is not None:
-                    actor_fight.life_point += msg.life_points_gain.delta
+                ].life_point += msg.life_points_gain.delta
 
         if msg.HasField("life_points_lost"):
             if msg.life_points_lost.target_id == self.game_state.player.character_id:
                 self.game_state.fight.life_point -= msg.life_points_lost.loss
             else:
-                actor_fight = self.game_state.entity.actor_fight_by_id.get(
+                self.game_state.entity.actor_fight_by_id[
                     msg.life_points_lost.target_id
-                )
-                if actor_fight is not None:
-                    actor_fight.life_point -= msg.life_points_lost.loss
+                ].life_point -= msg.life_points_lost.loss
 
         if msg.HasField("removable_effect"):
             self._handle_removable_effect(msg.removable_effect.effect)
@@ -188,11 +184,7 @@ class FightFrame(Frame):
             )
 
     def _handle_removable_effect(self, effect: FightRemovableEffect) -> None:
-        """Track state-applying buffs/debuffs on a fighter by effect uid.
-
-        A still-active effect (REALLY_NOT_DISSIPATED) carrying a state id is
-        recorded; any other dissipation state (or a later removal) drops it.
-        """
+        # Only track state-carrying effects; pure stat boosts (state_id 0) are ignored.
         state_id = effect.temporary_boost_effect.state_id
         if (
             effect.dissipation_state == FightRemovableEffect.REALLY_NOT_DISSIPATED
@@ -220,6 +212,7 @@ class FightFrame(Frame):
         self.game_state.fight.last_cast_turn_by_spell_id.clear()
         self.game_state.fight.modifier_by_type_and_spell_id.clear()
         self.game_state.fight.in_fight = True
+        self.logger.debug("Fight start: cleared per-fight cooldown/cast tracking")
 
     def on_fight_turn_event(self, msg: FightTurnEvent):
         self.game_state.fight.fight_placement_possible_positions.clear()

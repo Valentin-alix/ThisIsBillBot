@@ -32,6 +32,9 @@ class EventManager(ContextualLogger):
     on_send_conn_callback: Callable[[Message], None] | None = field(
         init=False, default=None
     )
+    request_disconnect_callback: Callable[[], None] | None = field(
+        init=False, default=None
+    )
     is_socket_mode: bool = field(init=False, default=False)
     lock: RLock = field(init=False, default_factory=RLock)
     signals: EventManagerSignals = field(
