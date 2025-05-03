@@ -1,7 +1,10 @@
-import uuid
+import hashlib
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
+from ankama_launcher_emulator_premium.decrypter.hardware_identity import (
+    generate_hardware_id,
+)
 from ankama_launcher_emulator_premium.haapi.zaap_version import get_client_version
 from datas.protos.non_obf.connection.login_message_pb2 import (
     IdentificationRequest,
@@ -32,9 +35,12 @@ class ConnectionBehavior(Behavior):
 
         client_version = get_client_version()
         self.logger.info(f"Client version: {client_version}")
+        device_identifier = (
+            hashlib.sha256(generate_hardware_id().encode()).hexdigest().upper()
+        )
 
         identification = IdentificationRequest(
-            device_identifier=str(uuid.uuid4()),
+            device_identifier=device_identifier,
             client_version=client_version[4:],
             tokenRequest=TokenRequest(
                 token=game_token,

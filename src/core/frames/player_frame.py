@@ -9,7 +9,6 @@ from datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicUpgradeRequest,
     CharacterLevelUpEvent,
 )
-from datas.protos.non_obf.game.common_pb2 import Character
 from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
 from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
@@ -64,13 +63,12 @@ class PlayerFrame(Frame):
             priority=self.priority,
         )
 
-        self.game_info_signals.connected.connect(self.on_connected)
         self.game_info_signals.disconnected.connect(self.on_disconnected)
         self.game_info_signals.is_ready_to_play.connect(
             self.game_state.player.is_ready_to_play_event.set
         )
 
-    def on_connected(self, _: list[Character]):
+    def _register_ready_to_play_trigger(self):
         def on_map_init_after_connected():
             self.run_timer(3, self.game_info_signals.is_ready_to_play.emit)
             self.unregister_listener(MapComplementaryInformationEvent)
@@ -119,6 +117,7 @@ class PlayerFrame(Frame):
             )
 
     def on_character_list_event(self, msg: CharacterListEvent):
+        self._register_ready_to_play_trigger()
         self.game_info_signals.connected.emit(msg.characters)
 
     def on_character_selection_event(self, message: CharacterSelectionEvent):

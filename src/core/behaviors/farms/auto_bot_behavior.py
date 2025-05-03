@@ -3,7 +3,6 @@ from datetime import datetime
 from threading import RLock
 
 from dofus_unity_reader.data_center.area_info import AreaInfo
-from dofus_unity_reader.data_center.data_reader import DataReader
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmingErrorCode
@@ -11,6 +10,7 @@ from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.farms.multi_farming_behavior import MultiFarmingBehavior
 from src.core.config import (
+    BASE_RANGE,
     DO_FIGHTER,
     KAMAS_LIMIT_FOR_HARVEST,
     LVL_LIMIT_FOR_HARVEST,
@@ -18,7 +18,7 @@ from src.core.config import (
 )
 from src.core.engine.contexts import HarvesterAreaContext
 from src.core.engine.weights.fighter.set_drop import (
-    choose_set_drop_sub_area_id,
+    choose_set_drop_area_info,
     get_missing_set_drop_sub_area_ids,
 )
 from src.core.engine.weights.harvester.weight_areas import (
@@ -113,7 +113,7 @@ class AutoBotBehavior(Behavior):
 
     def on_multi_farming_behavior_finished(self, error_code: str | None) -> None:
         if error_code is BaseFarmingErrorCode.STOP_CONDITION_TRIGGERED:
-            return self.play_multi_farming()
+            return self.run_timer(BASE_RANGE, self.play_multi_farming)
         self.finish(error_code)
 
     def play_fighter(self) -> None:
@@ -123,10 +123,15 @@ class AutoBotBehavior(Behavior):
             self.logger.info(
                 f"Checking condition with current lvl : {self.game_state.player.level} and kamas {self.game_state.inventory.kamas}"
             )
-            return (
-                self.game_state.player.level >= LVL_LIMIT_FOR_HARVEST
+            reached_harvest_threshold = (
+                self.game_state.player.can_use_bank
+                and self.game_state.player.level >= LVL_LIMIT_FOR_HARVEST
                 and self.game_state.inventory.kamas >= KAMAS_LIMIT_FOR_HARVEST
-            ) or datetime_start_played + get_time_beween_areas() < datetime.now()
+            )
+            time_to_rotate_area = (
+                datetime_start_played + get_time_beween_areas() < datetime.now()
+            )
+            return reached_harvest_threshold or time_to_rotate_area
 
         area_info = self._get_fighter_area_info()
         self._previous_area_info_played.append(area_info)
@@ -141,28 +146,22 @@ class AutoBotBehavior(Behavior):
 
     def _get_fighter_area_info(self) -> AreaInfo:
         if self._area_id is None:
-            set_drop_sub_area_id = choose_set_drop_sub_area_id(
+            player = self.game_state.player
+            set_drop_area_info = choose_set_drop_area_info(
                 get_missing_set_drop_sub_area_ids(
                     self.game_state.fight.primary_and_second_elem[0],
-                    self.game_state.player.level,
-                    self.game_state.player.is_sub,
+                    player.level,
+                    player.is_sub,
                     self.game_state.inventory.objects_by_uid,
                 ),
-                self.game_state.player.level,
-                [
-                    area_info.sub_area_id
-                    for area_info in self._previous_area_info_played
-                    if area_info.sub_area_id is not None
-                ],
+                player.level,
+                player.is_sub,
+                frozenset(player.waypoint_map_ids),
+                self._previous_area_info_played,
             )
-            if set_drop_sub_area_id is not None:
-                self.logger.info(
-                    f"Gearing: farming sub-area {set_drop_sub_area_id} for set drops"
-                )
-                return AreaInfo(
-                    area_id=DataReader().sub_area_by_id[set_drop_sub_area_id].areaId,
-                    sub_area_id=set_drop_sub_area_id,
-                )
+            if set_drop_area_info is not None:
+                self.logger.info(f"Gearing: farming {set_drop_area_info} for set drops")
+                return set_drop_area_info
 
         return get_random_best_area_info_for_harvester(
             self._area_id,
@@ -174,5 +173,5 @@ class AutoBotBehavior(Behavior):
 
     def on_fighter_behavior_finished(self, error_code: str | None) -> None:
         if error_code is BaseFarmingErrorCode.STOP_CONDITION_TRIGGERED:
-            return self.play()
+            return self.run_timer(BASE_RANGE, self.play)
         self.finish(error_code)

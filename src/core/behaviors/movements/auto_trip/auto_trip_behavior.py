@@ -22,6 +22,9 @@ class AutoTripErrorCode(StrEnum):
     PATH_NOT_FOUND = auto()
 
 
+_MAX_REPLAN_ON_DESYNC = 8
+
+
 @dataclass
 class AutoTripBehavior(Behavior):
     """auto trip by walking"""
@@ -32,6 +35,7 @@ class AutoTripBehavior(Behavior):
 
     auto_trip_edges: list[Edge] | None = field(default=None, init=False)
     target_map_ids: set[int] | None = field(default=None, init=False)
+    _replan_on_desync: int = field(default=0, init=False)
 
     def run(
         self,
@@ -92,13 +96,24 @@ class AutoTripBehavior(Behavior):
         )
 
     def on_edge_behavior_finished(self, error_code: str | None) -> None:
-        if error_code is EdgeError.NO_VALID_TRANSITION:
+        if error_code in (
+            EdgeError.NO_VALID_TRANSITION,
+            EdgeError.INVALID_STARTING_MAP,
+        ):
+            self._replan_on_desync += 1
+            if self._replan_on_desync > _MAX_REPLAN_ON_DESYNC:
+                self.logger.warning(
+                    f"Too many consecutive replans ({self._replan_on_desync}); "
+                    "aborting trip"
+                )
+                return self.finish(error_code)
             return self.run(map_ids=self.target_map_ids)
         elif (
             error_code is not None and error_code is not MapMoveError.UNEXPECTED_NEW_MAP
         ):
             return self.finish(error_code)
 
+        self._replan_on_desync = 0
         self.event_manager.on(
             MapComplementaryInformationEvent,
             partial(

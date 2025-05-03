@@ -3,11 +3,12 @@ from typing import Callable, cast
 
 import pytest
 from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
+from dofus_unity_reader.data_center.area_info import AreaInfo
 from dofus_unity_reader.game_constants.characteristic import EffectElement
 
 from src.core.engine.weights.fighter import set_drop
 from src.core.engine.weights.fighter.set_drop import (
-    choose_set_drop_sub_area_id,
+    choose_set_drop_area_info,
     get_missing_set_drop_sub_area_ids,
 )
 
@@ -102,32 +103,89 @@ class TestMissingSetDropSubAreaIds:
         assert result == frozenset()
 
 
-class TestChooseSetDropSubAreaId:
-    def _patch_sub_areas(
-        self, monkeypatch: pytest.MonkeyPatch, level_by_id: dict[int, int]
+def _sub_area(dungeon_id: int = 0, on_world_map: int = 1) -> SimpleNamespace:
+    return SimpleNamespace(dungeonId=dungeon_id, displayOnWorldMap=on_world_map)
+
+
+class TestChooseSetDropAreaInfo:
+    # Curated candidates: an area-level one (area 1 covers sub-areas 11/12),
+    # a curated sub-area one (sub-area 22), and a high-level area (area 3).
+    AREA_LEVEL = AreaInfo(area_id=1, min_lvl=1)
+    SUB_AREA_LEVEL = AreaInfo(area_id=2, sub_area_id=22, min_lvl=1)
+    HIGH_LEVEL = AreaInfo(area_id=3, min_lvl=50)
+
+    def _patch(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        sub_area_by_id: dict[int, SimpleNamespace] | None = None,
     ) -> None:
-        sub_area_by_id = {
-            sub_area_id: SimpleNamespace(level=level, areaId=1)
-            for sub_area_id, level in level_by_id.items()
-        }
+        candidates = [self.AREA_LEVEL, self.SUB_AREA_LEVEL, self.HIGH_LEVEL]
+        monkeypatch.setattr(set_drop, "AREAS_SUB_WITH_WEIGHT", candidates)
+        monkeypatch.setattr(set_drop, "AREAS_UNSUB_WITH_WEIGHT", candidates)
         monkeypatch.setattr(
-            set_drop, "DataReader", _reader(sub_area_by_id=sub_area_by_id)
+            set_drop,
+            "DataReader",
+            _reader(
+                sub_areas_by_area_id={1: {11, 12}, 2: {22}, 3: {33}},
+                sub_area_by_id=sub_area_by_id
+                or {
+                    11: _sub_area(),
+                    12: _sub_area(),
+                    22: _sub_area(),
+                    33: _sub_area(),
+                },
+            ),
         )
 
-    def test_picks_highest_reachable_level(
+    def test_narrows_area_level_candidate_to_drop_sub_area(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        self._patch_sub_areas(monkeypatch, {11: 10, 33: 18})
-        assert choose_set_drop_sub_area_id(frozenset({11, 33}), 20, []) == 33
+        self._patch(monkeypatch)
+        # area-level candidate (area 1) narrows to the covered drop sub-area 11.
+        assert choose_set_drop_area_info(
+            frozenset({11}), 20, True, frozenset(), []
+        ) == AreaInfo(area_id=1, sub_area_id=11, min_lvl=1)
 
-    def test_excludes_over_level_sub_areas(
+    def test_matches_curated_sub_area_candidate(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        self._patch_sub_areas(monkeypatch, {11: 10, 22: 50})
-        assert choose_set_drop_sub_area_id(frozenset({11, 22}), 20, []) == 11
+        self._patch(monkeypatch)
+        assert (
+            choose_set_drop_area_info(frozenset({22}), 20, True, frozenset(), [])
+            == self.SUB_AREA_LEVEL
+        )
 
-    def test_none_when_nothing_reachable(
+    def test_skips_dungeon_drop_sub_area(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        self._patch_sub_areas(monkeypatch, {22: 50})
-        assert choose_set_drop_sub_area_id(frozenset({22}), 5, []) is None
+        # sub-area 11 drops the piece but is a dungeon -> not reachable -> skipped.
+        self._patch(
+            monkeypatch,
+            sub_area_by_id={11: _sub_area(dungeon_id=42), 12: _sub_area()},
+        )
+        assert (
+            choose_set_drop_area_info(frozenset({11}), 20, True, frozenset(), []) is None
+        )
+
+    def test_excludes_over_level_candidate(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        self._patch(monkeypatch)
+        # 33 only drops in the min_lvl=50 area -> unreachable for a level-20 player.
+        assert (
+            choose_set_drop_area_info(frozenset({33}), 20, True, frozenset(), []) is None
+        )
+
+    def test_none_when_no_candidate_covers(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        self._patch(monkeypatch)
+        assert (
+            choose_set_drop_area_info(frozenset({99}), 20, True, frozenset(), []) is None
+        )
+
+    def test_none_when_no_missing(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        self._patch(monkeypatch)
+        assert (
+            choose_set_drop_area_info(frozenset(), 20, True, frozenset(), []) is None
+        )

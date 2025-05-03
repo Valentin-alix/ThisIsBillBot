@@ -83,9 +83,16 @@ class EdgeBehavior(Behavior):
         if self.fight_behavior.state != BehaviorState.STOPPED:
             self.logger.info("FightBehavior is not in state stopped, don't start")
             return
-        self.fight_behavior.start(
-            partial(self.on_fight_behavior_finished, edge=edge), parent=self
-        )
+        with self.event_manager.lock:
+            self.clear_behavior()
+            self.event_manager.on(
+                FightMapInformationEvent,
+                partial(self.on_fight_map_information_event, edge=edge),
+                originator=self,
+            )
+            self.fight_behavior.start(
+                partial(self.on_fight_behavior_finished, edge=edge), parent=self
+            )
 
     def on_fight_behavior_finished(self, edge: Edge, error_code: str | None):
         self.run_timer(BIG_RANGE, lambda: self.run(edge))

@@ -123,6 +123,8 @@ class AccountScheduler:
             if not config.auto_subscribe:
                 continue
             info = self.subscribe_service.storage.get_subscribe_info(login)
+            if info is None:
+                continue
             if not info.is_active_beyond_threshold():
                 return _SubscribeOp(
                     login, SubscribeOptions(interface_ip=config.network_interface)

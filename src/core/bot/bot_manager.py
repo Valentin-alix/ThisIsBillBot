@@ -2,7 +2,11 @@ import threading
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
-from time import sleep
+from time import monotonic, sleep
+
+# Minimum spacing between two Dofus client launches: launching several native
+# clients at once segfaults the launcher, so they are staggered.
+LAUNCH_SPACING_SECONDS = 1.0
 
 from ankama_launcher_emulator_premium.decrypter.crypto_helper import (
     CryptoHelper,
@@ -38,6 +42,15 @@ class BotManager:
     _is_lauching_by_login: defaultdict[str, threading.Event] = field(
         default_factory=lambda: defaultdict(threading.Event), init=False
     )
+    _launch_lock: threading.Lock = field(default_factory=threading.Lock, init=False)
+    _last_launch_time: float = field(default=0.0, init=False)
+
+    def _wait_launch_slot(self) -> None:
+        with self._launch_lock:
+            wait = self._last_launch_time + LAUNCH_SPACING_SECONDS - monotonic()
+            if wait > 0:
+                sleep(wait)
+            self._last_launch_time = monotonic()
 
     def __post_init__(self):
         self.ankama_launcher = AnkamaLauncherServer(self.ankama_launcher_handler)
@@ -120,6 +133,7 @@ class BotManager:
                 return related_bot.logger.info("Bot is not in playtime anymore")
 
             related_bot.logger.info("Launch bot")
+            self._wait_launch_slot()
 
             if bot_config and bot_config.connection_mode == "socket":
                 SocketClient(related_bot, bot_config).connect()

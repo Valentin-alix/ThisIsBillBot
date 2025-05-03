@@ -55,8 +55,8 @@ class _FakeStorage:
     def __init__(self, info_by_login: dict[str, _FakeSubscribeInfo]) -> None:
         self._info_by_login = info_by_login
 
-    def get_subscribe_info(self, login: str) -> _FakeSubscribeInfo:
-        return self._info_by_login[login]
+    def get_subscribe_info(self, login: str) -> _FakeSubscribeInfo | None:
+        return self._info_by_login.get(login)
 
 
 class _FakeSubscribeService:
@@ -99,7 +99,23 @@ def _sub_config(
 
 
 class TestNextOperation:
-    def test_auth_is_preferred_over_everything(
+    def test_subscription_is_preferred_over_everything(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(MODULE + ".load_available_generated_accounts", lambda: ["acc"])
+        monkeypatch.setattr(MODULE + ".count_available_emails", lambda: 5)
+
+        scheduler = _make_scheduler(
+            quota=True,
+            configs={"sub@x.com": _sub_config(interface_ip="192.168.1.50")},
+            subscribe_info={"sub@x.com": _FakeSubscribeInfo(active_beyond_threshold=False)},
+        )
+        assert scheduler._next_operation() == _SubscribeOp(
+            "sub@x.com",
+            account_scheduler_module.SubscribeOptions(interface_ip="192.168.1.50"),
+        )
+
+    def test_auth_is_preferred_over_register(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(MODULE + ".load_available_generated_accounts", lambda: ["acc"])
@@ -108,7 +124,7 @@ class TestNextOperation:
         scheduler = _make_scheduler(
             quota=True,
             configs={"sub@x.com": _sub_config()},
-            subscribe_info={"sub@x.com": _FakeSubscribeInfo(active_beyond_threshold=False)},
+            subscribe_info={"sub@x.com": _FakeSubscribeInfo(active_beyond_threshold=True)},
         )
         assert scheduler._next_operation() == _AuthOp()
 
@@ -169,14 +185,14 @@ class TestNextSubscriptionTarget:
         )
         assert scheduler._next_subscription_target() is None
 
-    def test_failing_account_is_skipped_and_next_is_evaluated(self) -> None:
+    def test_account_without_local_record_is_skipped(self) -> None:
         scheduler = _make_scheduler(
             quota=True,
             configs={
                 "boom@x.com": _sub_config(),
                 "ok@x.com": _sub_config(),
             },
-            # "boom@x.com" missing from storage -> KeyError -> skipped.
+            # "boom@x.com" has not signed on yet -> no local record -> None -> skipped.
             subscribe_info={"ok@x.com": _FakeSubscribeInfo(active_beyond_threshold=False)},
         )
         assert scheduler._next_subscription_target() == _SubscribeOp(

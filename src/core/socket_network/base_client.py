@@ -20,6 +20,8 @@ class BaseClient:
         active = True
         try:
             while active:
+                if self.client_socket.fileno() == -1:
+                    break
                 rlist, wlist, xlist = select.select(
                     [self.client_socket], [], [self.client_socket]
                 )

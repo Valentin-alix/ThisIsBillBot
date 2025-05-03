@@ -1,10 +1,13 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
+from datas.protos.non_obf.game.anomaly_pb2 import AnomalySubareaInformationRequest
+from datas.protos.non_obf.game.context_pb2 import ContextReadyRequest
 from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapChangeRequest,
     MapComplementaryInformationEvent,
     MapCurrentEvent,
+    MapInformationRequest,
     MapMovementConfirmRequest,
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
@@ -17,6 +20,8 @@ from src.core.signals.world_signals import WorldSignals
 @dataclass
 class MapFrame(Frame):
     world_signals: WorldSignals
+
+    _anomaly_info_requested: bool = field(init=False, default=False)
 
     def __post_init__(self):
         self.game_info_signals.disconnected.connect(self.game_state.map.clear_state)
@@ -67,6 +72,13 @@ class MapFrame(Frame):
         self.game_state.entity.clear_obstacles()
         self.game_state.interactive.clear_stated_elements()
         self.game_state.map.is_in_map_transition = True
+
+        if self.event_manager.is_socket_mode:
+            if not self._anomaly_info_requested:
+                self._anomaly_info_requested = True
+                self.event_manager.send(AnomalySubareaInformationRequest())
+            self.event_manager.send(ContextReadyRequest(map_id=msg.map_id))
+            self.event_manager.send(MapInformationRequest(map_id=msg.map_id))
 
     def on_fight_map_information_event(self, msg: FightMapInformationEvent):
         self.game_state.map.is_in_haven_bag = False

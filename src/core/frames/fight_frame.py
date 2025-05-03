@@ -7,6 +7,7 @@ from datas.protos.non_obf.game.common_pb2 import (
 )
 from datas.protos.non_obf.game.fight_pb2 import (
     FightRefreshCharacterStatsEvent,
+    FightSynchronizeEvent,
     FightTurnEvent,
     FightTurnFinishRequest,
 )
@@ -64,6 +65,12 @@ class FightFrame(Frame):
         self.event_manager.on(
             GameActionFightEvent,
             self.on_game_action_fight_event,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            FightSynchronizeEvent,
+            self.on_fight_synchronize_event,
             originator=self,
             priority=self.priority,
         )
@@ -165,20 +172,30 @@ class FightFrame(Frame):
                     msg.life_points_lost.target_id
                 ].life_point -= msg.life_points_lost.loss
 
-        if msg.HasField("removable_effect"):
+        # Effects/invisibility are tracked only for non-player fighters (the player
+        # is kept out of actor_fight_by_id, its state lives in game_state.fight).
+        player_id = self.game_state.player.character_id
+
+        if (
+            msg.HasField("removable_effect")
+            and msg.removable_effect.effect.target_id != player_id
+        ):
             self._handle_removable_effect(msg.removable_effect.effect)
 
-        if msg.HasField("spell_remove"):
+        if msg.HasField("spell_remove") and msg.spell_remove.target_id != player_id:
             self.game_state.entity.remove_fight_actor_effect(
                 msg.spell_remove.target_id, msg.spell_remove.effect_remove.effect
             )
 
-        if msg.HasField("invisibility"):
+        if msg.HasField("invisibility") and msg.invisibility.target_id != player_id:
             self.game_state.entity.set_fight_actor_invisibility(
                 msg.invisibility.target_id, msg.invisibility.invisibility_state
             )
 
-        if msg.HasField("invisible_detected"):
+        if (
+            msg.HasField("invisible_detected")
+            and msg.invisible_detected.target_id != player_id
+        ):
             self.game_state.entity.set_fight_actor_invisibility(
                 msg.invisible_detected.target_id, FightInvisibilityState.DETECTED
             )
@@ -197,6 +214,17 @@ class FightFrame(Frame):
             self.game_state.entity.remove_fight_actor_effect(
                 effect.target_id, effect.uid
             )
+
+    def on_fight_synchronize_event(self, msg: FightSynchronizeEvent):
+        player_id = self.game_state.player.character_id
+        player_fighter = next(
+            actor for actor in msg.fighters if actor.actor_id == player_id
+        )
+        for characteristic in (
+            player_fighter.actor_information.fighter.stats.characteristics
+        ):
+            self.game_state.fight.update_characteristic(characteristic)
+        self.game_state.fight.sync_life_points_from_characteristics()
 
     def on_fight_refresh_character_stats_event(
         self, msg: FightRefreshCharacterStatsEvent
