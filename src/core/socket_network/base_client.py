@@ -8,13 +8,19 @@ from src.core.bot.bot import Bot
 from src.protocol.protocol import decode_varint_size
 
 
-@dataclass
+@dataclass(kw_only=True)
 class BaseClient:
     bot: Bot
+    interface_ip: str | None = None
 
     def __post_init__(self) -> None:
         self.client_socket: socket = socket(AF_INET, SOCK_STREAM)
         self.buffer = bytes()
+
+    def connect_socket(self, host: str, port: int) -> None:
+        if self.interface_ip is not None:
+            self.client_socket.bind((self.interface_ip, 0))
+        self.client_socket.connect((host, port))
 
     def loop(self) -> None:
         active = True

@@ -1,11 +1,11 @@
-import hashlib
 from dataclasses import dataclass
+from datetime import datetime
 from enum import StrEnum, auto
 
-from ankama_launcher_emulator_premium.decrypter.hardware_identity import (
-    generate_hardware_id,
-)
 from ankama_launcher_emulator_premium.haapi.zaap_version import get_client_version
+from ankama_launcher_emulator_premium.web.subscription.storage import (
+    SubscriptionExpirationStorage,
+)
 from datas.protos.non_obf.connection.login_message_pb2 import (
     IdentificationRequest,
     IdentificationResponse,
@@ -17,6 +17,7 @@ from datas.protos.non_obf.connection.login_message_pb2 import (
 )
 from google.protobuf.json_format import MessageToDict
 
+from src.controller.bot_config import BotConfigController
 from src.core.behaviors.behavior import Behavior
 
 
@@ -35,8 +36,9 @@ class ConnectionBehavior(Behavior):
 
         client_version = get_client_version()
         self.logger.info(f"Client version: {client_version}")
-        device_identifier = (
-            hashlib.sha256(generate_hardware_id().encode()).hexdigest().upper()
+
+        device_identifier = BotConfigController().get_or_create_hardware_id(
+            self.game_state.player.login
         )
 
         identification = IdentificationRequest(
@@ -63,7 +65,10 @@ class ConnectionBehavior(Behavior):
         if not msg.HasField("success"):
             self.logger.error(f"Identification failed: {msg}")
             return self.finish(ConnectionErrorCode.IDENTIFICATION_FAILED)
-
+        SubscriptionExpirationStorage().record_expiration(
+            self.game_state.player.login,
+            datetime.fromisoformat(msg.success.subscription_end_date),
+        )
         server_id = next(
             server_info.server.id
             for server_info in msg.success.server_list.servers

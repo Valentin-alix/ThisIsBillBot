@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
+from datas.protos.non_obf.game.dialog_pb2 import (
+    DialogLeaveEvent,
+    DialogLeaveRequest,
+)
 from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeMoveKamaRequest,
 )
@@ -73,13 +77,25 @@ class EnterBankChestBehavior(Behavior):
 
     def on_npc_dialog_behavior_finished(self, error_code: str | None):
         if error_code is NpcDialogErrorCode.FORBIDDEN_CONDITION:
-            return self.finish(error_code)
+            return self.close_dialog_for_not_enough_kamas()
         self.event_manager.on(
             StorageInventoryContentEvent,
             self.on_storage_inventory_content_event,
             originator=self,
             once=True,
         )
+
+    def close_dialog_for_not_enough_kamas(self) -> None:
+        self.event_manager.on(
+            DialogLeaveEvent,
+            self.on_dialog_leave_after_not_enough_kamas,
+            originator=self,
+            once=True,
+        )
+        self.event_manager.send(DialogLeaveRequest())
+
+    def on_dialog_leave_after_not_enough_kamas(self, _: DialogLeaveEvent) -> None:
+        self.finish(EnterBankChestErrorCode.NOT_ENOUGH_KAMAS)
 
     def on_storage_inventory_content_event(self, msg: StorageInventoryContentEvent):
         if not is_usable_msg(ExchangeMoveKamaRequest.DESCRIPTOR.full_name):

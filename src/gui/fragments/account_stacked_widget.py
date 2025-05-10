@@ -71,6 +71,9 @@ class AccountStackedWidget(QWidget):
             self.craft_route,
         )
 
+        for pivot_item in self.pivot.items.values():
+            pivot_item.setFixedHeight(40)
+
         self._select_initial_page()
 
     def _init_debug_interface(self) -> None:

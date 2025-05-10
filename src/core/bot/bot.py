@@ -25,6 +25,7 @@ from src.core.behaviors.socket.handshake_behavior import HandshakeBehavior
 from src.core.behaviors.socket.heartbeat_behavior import HearthBeatBehavior
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.execution.process_manager import ProcessManager
+from src.core.bot.execution.watchdog import StuckWatchdog
 from src.core.bot.lifecycle.connection_handler import ConnectionHandler
 from src.core.bot.lifecycle.scheduler import BotScheduler
 from src.core.events_manager.event_manager import EventManager
@@ -99,6 +100,7 @@ class Bot(ContextualLogger):
     behavior_coordinator: BehaviorCoordinator = field(init=False)
     process_manager: ProcessManager = field(init=False)
     scheduler: BotScheduler = field(init=False)
+    watchdog: StuckWatchdog = field(init=False)
 
     def get_bot_config(self):
         return (
@@ -144,10 +146,21 @@ class Bot(ContextualLogger):
             account=self.account,
             shared_signals=self.shared_signals,
             get_bot_config=self.get_bot_config,
+            event_manager=self.event_manager,
             behavior_coordinator=self.behavior_coordinator,
             is_connected_event=self.is_connected_event,
             tutorial_behavior=self.tutorial_behavior,
             character_creation_behavior=self.character_creation_behavior,
+        )
+
+        self.watchdog = StuckWatchdog(
+            _logger=self.logger,
+            event_manager=self.event_manager,
+            game_state=self.game_state,
+            is_playing_event=self.is_playing_event,
+            get_running_top_level_behaviors=(
+                self.behavior_coordinator.running_top_level_behaviors
+            ),
         )
 
         self.process_manager = ProcessManager(_logger=self.logger)
@@ -162,6 +175,7 @@ class Bot(ContextualLogger):
             log_signals=self.log_signals,
             msg_info_signals=self.msg_info_signals,
             process_manager=self.process_manager,
+            event_manager=self.event_manager,
         )
 
         self.game_info_signals.connected.connect(self.connection_handler.on_connected)

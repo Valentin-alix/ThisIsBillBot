@@ -98,9 +98,12 @@ class FightTurnBehavior(Behavior):
         )
 
     def find_and_do_attack(self) -> None:
-        attack_info = self.attacker.find_best_attack_from_mp(
-            self.game_state.get_attack_context()
-        )
+        context = self.game_state.get_attack_context()
+        if not context.enemy_actors:
+            self.logger.info("No enemies left, passing turn")
+            return self.pass_turn()
+
+        attack_info = self.attacker.find_best_attack_from_mp(context)
         if attack_info is None:
             self.logger.info("Attack not found")
             if DO_RUNAWAY_AFTER_ATK and self.did_attack:

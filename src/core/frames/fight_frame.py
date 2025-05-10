@@ -5,6 +5,7 @@ from datas.protos.non_obf.game.common_pb2 import (
     FightInvisibilityState,
     FightRemovableEffect,
 )
+from datas.protos.non_obf.game.context_pb2 import ContextCreationEvent
 from datas.protos.non_obf.game.fight_pb2 import (
     FightRefreshCharacterStatsEvent,
     FightSynchronizeEvent,
@@ -25,6 +26,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
 from datas.protos.non_obf.game.spell_pb2 import (
     SpellsEvent,
 )
+from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 
 from src.controller.forbidden_monster_controller import ForbiddenMonsterController
 from src.core.frames.frame import Frame
@@ -98,6 +100,17 @@ class FightFrame(Frame):
             originator=self,
             priority=self.priority,
         )
+        self.event_manager.on(
+            ContextCreationEvent,
+            self.on_context_creation_event,
+            originator=self,
+            priority=self.priority,
+        )
+
+    def on_context_creation_event(self, msg: ContextCreationEvent):
+        self.game_state.fight.in_fight = (
+            msg.context == ContextCreationEvent.GameContext.FIGHT
+        )
 
     def on_fight_placement_position_request(
         self, msg: FightPlacementPossiblePositionsEvent
@@ -141,12 +154,14 @@ class FightFrame(Frame):
 
         for stat in message.stats.characteristics:
             self.game_state.fight.update_characteristic(stat)
+        hp_before = self.game_state.fight.life_point
         self.game_state.fight.sync_life_points_from_characteristics()
+        self._log_life_resync("CharacterCharacteristicsEvent", hp_before)
 
     def before_fight_turn_finish_request(
         self, msg: FightTurnFinishRequest
     ) -> FightTurnFinishRequest | None:
-        if self.is_playing_event.is_set() and msg.is_active:
+        if self.is_playing_event.is_set():
             return None
         return msg
 
@@ -154,20 +169,68 @@ class FightFrame(Frame):
         if msg.HasField("death") and (
             msg.death.target_id == self.game_state.player.character_id
         ):
+            hp_before = self.game_state.fight.life_point
+            self.logger.info(
+                "Player HP death event: "
+                f"hp_before={hp_before}, source_id={msg.source_id}, "
+                f"death_source_id={msg.death.source_id}, target_id={msg.death.target_id}"
+            )
             self.game_state.fight.life_point = 0
+            self.logger.info("Player HP death applied: hp_after=0")
 
         if msg.HasField("life_points_gain"):
             if msg.life_points_gain.target_id == self.game_state.player.character_id:
-                self.game_state.fight.life_point += msg.life_points_gain.delta
+                hp_before = self.game_state.fight.life_point
+                hp_after = hp_before + msg.life_points_gain.delta
+                self.logger.info(
+                    "Player HP gain event: "
+                    f"hp_before={hp_before}, delta={msg.life_points_gain.delta}, "
+                    f"hp_after={hp_after}, source_id={msg.source_id}, "
+                    f"target_id={msg.life_points_gain.target_id}"
+                )
+                self.game_state.fight.life_point = hp_after
             else:
+                if (
+                    msg.life_points_gain.target_id
+                    not in self.game_state.entity.actor_fight_by_id
+                ):
+                    self.logger.error(
+                        "Non-player HP gain targets missing fight actor: "
+                        f"target_id={msg.life_points_gain.target_id}, "
+                        f"delta={msg.life_points_gain.delta}, source_id={msg.source_id}"
+                    )
                 self.game_state.entity.actor_fight_by_id[
                     msg.life_points_gain.target_id
                 ].life_point += msg.life_points_gain.delta
 
         if msg.HasField("life_points_lost"):
             if msg.life_points_lost.target_id == self.game_state.player.character_id:
-                self.game_state.fight.life_point -= msg.life_points_lost.loss
+                hp_before = self.game_state.fight.life_point
+                hp_after = hp_before - msg.life_points_lost.loss
+                log_message = (
+                    "Player HP loss event: "
+                    f"hp_before={hp_before}, loss={msg.life_points_lost.loss}, "
+                    f"shield_loss={msg.life_points_lost.shield_loss}, "
+                    f"permanent_damages={msg.life_points_lost.permanent_damages}, "
+                    f"element_id={msg.life_points_lost.element_id}, "
+                    f"hp_after={hp_after}, source_id={msg.source_id}, "
+                    f"target_id={msg.life_points_lost.target_id}"
+                )
+                if hp_after < 0:
+                    self.logger.error(f"{log_message} (would violate HP invariant)")
+                else:
+                    self.logger.info(log_message)
+                self.game_state.fight.life_point = hp_after
             else:
+                if (
+                    msg.life_points_lost.target_id
+                    not in self.game_state.entity.actor_fight_by_id
+                ):
+                    self.logger.error(
+                        "Non-player HP loss targets missing fight actor: "
+                        f"target_id={msg.life_points_lost.target_id}, "
+                        f"loss={msg.life_points_lost.loss}, source_id={msg.source_id}"
+                    )
                 self.game_state.entity.actor_fight_by_id[
                     msg.life_points_lost.target_id
                 ].life_point -= msg.life_points_lost.loss
@@ -220,20 +283,46 @@ class FightFrame(Frame):
         player_fighter = next(
             actor for actor in msg.fighters if actor.actor_id == player_id
         )
-        for characteristic in (
-            player_fighter.actor_information.fighter.stats.characteristics
-        ):
+        for (
+            characteristic
+        ) in player_fighter.actor_information.fighter.stats.characteristics:
             self.game_state.fight.update_characteristic(characteristic)
+        hp_before = self.game_state.fight.life_point
         self.game_state.fight.sync_life_points_from_characteristics()
+        self._log_life_resync("FightSynchronizeEvent", hp_before)
 
     def on_fight_refresh_character_stats_event(
         self, msg: FightRefreshCharacterStatsEvent
     ):
         if self.game_state.player.character_id != msg.fighter_id:
             return
+        has_life_stat = False
         for characteristic in msg.stats.characteristics:
             self.game_state.fight.update_characteristic(characteristic)
+            if characteristic.characteristic_id in _LIFE_CHARACTERISTIC_IDS:
+                has_life_stat = True
+        if not has_life_stat:
+            return
+        hp_before = self.game_state.fight.life_point
         self.game_state.fight.sync_life_points_from_characteristics()
+        self._log_life_resync("FightRefreshCharacterStatsEvent", hp_before)
+
+    def _log_life_resync(self, source_event: str, hp_before: int) -> None:
+        life_points = self.game_state.fight.get_stat_by_id(
+            CharacteristicEnum.LIFE_POINTS
+        )
+        vitality = self.game_state.fight.get_stat_by_id(CharacteristicEnum.VITALITY)
+        current_life_delta = self.game_state.fight.get_stat_by_id(
+            CharacteristicEnum.CUR_LIFE
+        )
+        self.logger.info(
+            "Player HP resync: "
+            f"source={source_event}, hp_before={hp_before}, "
+            f"life_points={life_points}, vitality={vitality}, "
+            f"cur_life={current_life_delta}, "
+            f"hp_after={self.game_state.fight.life_point}, "
+            f"max_hp_after={self.game_state.fight.max_life_point}"
+        )
 
     def on_fight_map_information_event(self, msg: FightMapInformationEvent):
         self.game_state.fight.count_casted_by_spell_id_on_current_turn.clear()
@@ -282,3 +371,10 @@ class FightFrame(Frame):
                 )
 
         self.game_state.fight.last_atk_info = None
+
+
+_LIFE_CHARACTERISTIC_IDS = {
+    CharacteristicEnum.LIFE_POINTS,
+    CharacteristicEnum.VITALITY,
+    CharacteristicEnum.CUR_LIFE,
+}

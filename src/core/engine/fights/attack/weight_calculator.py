@@ -19,6 +19,7 @@ from src.core.engine.fights.attack.models import AttackWeights, EnemyData
 from src.core.engine.fights.attack.push import estimate_collision_damage
 from src.core.engine.fights.damage_calculator import DamageCalculator
 from src.core.engine.fights.effect import (
+    can_target_enemy,
     get_effect_shield_level_bonus,
     get_life_point_percent_malus,
     get_type_effect,
@@ -143,7 +144,8 @@ def _spell_damage_effects(
     return [
         effect
         for effect in _co_zone_effects(spell_lvl, representative)
-        if resolve_effect_element(effect.effectElement, primary_elem) is not None
+        if can_target_enemy(effect)
+        and resolve_effect_element(effect.effectElement, primary_elem) is not None
         and DataReader().effect_by_id[effect.effectId].characteristicOperator == ""
     ]
 

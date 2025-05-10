@@ -1,7 +1,9 @@
+import time
 from collections import defaultdict
 from dataclasses import dataclass, field
+from datetime import datetime
 from threading import _RLock as RLock
-from typing import Callable, TypeVar, cast
+from typing import Any, Callable, NamedTuple, TypeVar, cast
 
 from google.protobuf.message import Message
 
@@ -10,13 +12,20 @@ from src.core.events_manager.listener import Listener
 from src.core.events_manager.modifier import Modifier
 from src.core.events_manager.priority import PriorityEnum
 from src.core.signals.event_manager_signals import EventManagerSignals
+from src.services.debug_recorder import DebugRecorder
 from src.services.logging_utils.contextual_logger import ContextualLogger
 
 T = TypeVar("T", bound=Message)
 
 
+class ServerTextInformationError(NamedTuple):
+    message_id: int
+    parameters: tuple[str, ...]
+
+
 @dataclass
 class EventManager(ContextualLogger):
+    debug_recorder: DebugRecorder | None = None
     modifier_by_type_msg: dict[type[Message], Modifier[Message]] = field(
         init=False, default_factory=dict[type[Message], Modifier[Message]]
     )
@@ -35,11 +44,40 @@ class EventManager(ContextualLogger):
     request_disconnect_callback: Callable[[], None] | None = field(
         init=False, default=None
     )
+    last_text_information_error: ServerTextInformationError | None = field(
+        init=False, default=None
+    )
     is_socket_mode: bool = field(init=False, default=False)
     lock: RLock = field(init=False, default_factory=RLock)
     signals: EventManagerSignals = field(
         init=False, default_factory=EventManagerSignals
     )
+    last_activity_monotonic: float = field(init=False, default_factory=time.monotonic)
+    last_message_name: str | None = field(init=False, default=None)
+
+    def mark_activity(self) -> None:
+        self.last_activity_monotonic = time.monotonic()
+
+    def listeners_debug_snapshot(self) -> list[dict[str, Any]]:
+        """Snapshot of registered listeners with their age, sorted oldest
+        first. Long-lived listeners without a timeout are the prime suspects
+        for an infinite wait."""
+        now = datetime.now()
+        snapshot: list[dict[str, Any]] = []
+        with self.lock:
+            for listeners in self.listeners_by_type_msg.values():
+                for listener in listeners:
+                    age_s = round((now - listener.registered_at).total_seconds(), 1)
+                    snapshot.append(
+                        {
+                            "msg_type": listener.msg_type.__name__,
+                            "originator": listener.originator.__class__.__name__,
+                            "age_s": age_s,
+                            "without_timeout": listener.timeout is None,
+                        }
+                    )
+        snapshot.sort(key=lambda entry: float(entry["age_s"]), reverse=True)
+        return snapshot
 
     def clear_listener_by_origin(self, originator: object) -> None:
         self.logger.debug(f"Clearing all listener from {originator.__class__.__name__}")
@@ -78,12 +116,20 @@ class EventManager(ContextualLogger):
 
     def process_msg(self, msg: Message) -> None:
         with self.lock:
+            self.last_message_name = msg.__class__.__name__
             related_listeners = self.listeners_by_type_msg.get(msg.__class__)
             if not related_listeners:
                 return
 
             listeners_to_remove: list[Listener[Message]] = []
             for listener in list(related_listeners):
+                if listener not in related_listeners or listener._deleted:
+                    self.logger.warning(
+                        "Skipping listener removed during dispatch: "
+                        f"originator={listener.originator.__class__.__name__}, "
+                        f"msg_type={msg.__class__.__name__}"
+                    )
+                    continue
                 if listener.once:
                     listeners_to_remove.append(listener)
                 try:

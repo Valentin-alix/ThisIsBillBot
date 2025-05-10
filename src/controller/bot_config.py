@@ -1,7 +1,8 @@
 import json
+import logging
 import os
 from threading import RLock
-from typing import Literal
+from typing import ClassVar, Literal
 
 from ankama_launcher_emulator_premium.decrypter.hardware_identity import (
     generate_hardware_id,
@@ -12,25 +13,28 @@ from python_utils.singleton import Singleton
 
 from src.const import RESOURCE_FOLDER
 from src.controller.schedule_profile_controller import ScheduleProfileController
+from src.exceptions import UnavailableNetworkInterface
 
 
 class BotConfig(BaseModel):
-    network_interface: str | None = None
     pc_id: int = PC_ID
     schedule_profile: str | None = None
-    connection_mode: Literal["mitm", "socket"] = "mitm"
+    connection_mode: Literal["mitm", "socket"] = "socket"
     hardware_id: str | None = None
-    auto_subscribe: bool = True
-    subscribe_server_name: str | None = None
 
 
 class BotConfigs(RootModel):
     root: dict[str, BotConfig]
 
 
+logger = logging.getLogger()
+
+
 class BotConfigController(metaclass=Singleton):
+    use_bot_config_json: ClassVar[bool] = True
     _BOT_CONFIG_LOCK = RLock()
     _BOT_CONFIG_PATH = os.path.join(RESOURCE_FOLDER, "bot_configs.json")
+    _all_configs: dict[str, BotConfig] = {}
 
     def _get_all_configs(self) -> dict[str, BotConfig]:
         with open(self._BOT_CONFIG_PATH, "r") as file:
@@ -41,6 +45,8 @@ class BotConfigController(metaclass=Singleton):
             json.dump(BotConfigs(root=bot_configs).model_dump(), file, indent=2)
 
     def get_bot_config_by_login(self) -> dict[str, BotConfig]:
+        if not self.use_bot_config_json:
+            return self._all_configs
         with self._BOT_CONFIG_LOCK:
             return {
                 key: value
@@ -49,6 +55,10 @@ class BotConfigController(metaclass=Singleton):
             }
 
     def update_bot_config_by_login(self, bot_config: BotConfig, login: str):
+        if not self.use_bot_config_json:
+            logger.info(f"Assigning {bot_config} for {login}")
+            self._all_configs[login] = bot_config
+            return
         with self._BOT_CONFIG_LOCK:
             all_configs = self._get_all_configs()
             all_configs[login] = bot_config
@@ -77,29 +87,33 @@ class BotConfigController(metaclass=Singleton):
             self._write_all_configs(all_configs)
         return chosen
 
-    def assign_least_used_network_interface(
-        self, login: str, available_interfaces: list[str]
+    def resolve_bot_network_interface(
+        self, config: BotConfig | None, available_interfaces: list[str]
     ) -> str | None:
-        """Assign the least represented network interface to ``login`` and persist it.
-
-        Balances accounts across available interfaces. Returns the chosen IP, or
-        None when no interfaces are available.
-        """
-        if not available_interfaces:
+        if config is None:
             return None
-        with self._BOT_CONFIG_LOCK:
-            all_configs = self._get_all_configs()
-            counts = {ip: 0 for ip in available_interfaces}
-            for config in all_configs.values():
-                if config.pc_id == PC_ID and config.network_interface in counts:
-                    counts[config.network_interface] += 1
-            chosen = min(sorted(counts), key=lambda ip: counts[ip])
-            existing = all_configs.get(login, BotConfig())
-            all_configs[login] = existing.model_copy(
-                update={"network_interface": chosen}
+        return self.resolve_profile_network_interface(
+            config.schedule_profile, available_interfaces
+        )
+
+    def resolve_profile_network_interface(
+        self, profile_id: str | None, available_interfaces: list[str]
+    ) -> str | None:
+        if profile_id is None:
+            return None
+        profile = ScheduleProfileController().get_profile(profile_id)
+        if profile is None or profile.network_interface_index is None:
+            return None
+        interface_index = profile.network_interface_index
+        if interface_index < 1 or interface_index > len(available_interfaces):
+            msg = (
+                f"Profile {profile_id} requires network interface index "
+                f"{interface_index}, but only {len(available_interfaces)} "
+                "interfaces are available"
             )
-            self._write_all_configs(all_configs)
-        return chosen
+            logger.error(msg)
+            raise UnavailableNetworkInterface(msg)
+        return available_interfaces[interface_index - 1]
 
     def get_or_create_hardware_id(self, login: str) -> str:
         with self._BOT_CONFIG_LOCK:

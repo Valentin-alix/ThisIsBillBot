@@ -43,7 +43,44 @@ class DebugMessageEntry(TypedDict):
     contenu_non_obfusque: dict[str, Any] | None
 
 
-DebugEntry = DebugLogEntry | DebugMessageEntry
+class DebugBehaviorEntry(TypedDict):
+    categorie: Literal["behavior"]
+    datetime: str
+    behavior: str
+    event: str  # "start" | "transition" | "finish" | "stop"
+    from_state: str | None
+    to_state: str | None
+    error_code: str | None
+    parent: str | None
+    reason: str
+    tree: list[str]
+
+
+class DebugStateEntry(TypedDict):
+    categorie: Literal["state"]
+    datetime: str
+    trigger: str
+    snapshot: dict[str, Any]
+
+
+class DebugStuckEntry(TypedDict):
+    categorie: Literal["stuck"]
+    datetime: str
+    reason: str
+    seconds_since_progress: float
+    tree: list[str]
+    snapshot: dict[str, Any]
+    listeners: list[dict[str, Any]]
+    last_message: str | None
+
+
+DebugEntry = (
+    DebugLogEntry
+    | DebugMessageEntry
+    | DebugBehaviorEntry
+    | DebugStateEntry
+    | DebugStuckEntry
+)
 
 
 def _parse_sub_msg_name(sub_msg_name: str) -> tuple[str | None, str]:
@@ -76,7 +113,38 @@ class _ConnMsgRaw:
     from_server: bool
 
 
-_RawEntry = _LogRaw | _GameMsgRaw | _ConnMsgRaw
+@dataclass(slots=True)
+class _BehaviorRaw:
+    recorded_at: datetime
+    behavior: str
+    event: str
+    from_state: str | None
+    to_state: str | None
+    error_code: str | None
+    parent: str | None
+    reason: str
+    tree: list[str]
+
+
+@dataclass(slots=True)
+class _StateRaw:
+    recorded_at: datetime
+    trigger: str
+    snapshot: dict[str, Any]
+
+
+@dataclass(slots=True)
+class _StuckRaw:
+    recorded_at: datetime
+    reason: str
+    seconds_since_progress: float
+    tree: list[str]
+    snapshot: dict[str, Any]
+    listeners: list[dict[str, Any]]
+    last_message: str | None
+
+
+_RawEntry = _LogRaw | _GameMsgRaw | _ConnMsgRaw | _BehaviorRaw | _StateRaw | _StuckRaw
 
 
 _MAX_BUFFER = 100
@@ -117,6 +185,55 @@ class DebugRecorder:
 
     def record_conn_message(self, sub_msg: Message, from_server: bool) -> None:
         self._queue.put(_ConnMsgRaw(datetime.now(), sub_msg, from_server))
+
+    def record_behavior(
+        self,
+        behavior: str,
+        event: str,
+        tree: list[str],
+        from_state: str | None = None,
+        to_state: str | None = None,
+        error_code: str | None = None,
+        parent: str | None = None,
+        reason: str = "",
+    ) -> None:
+        self._queue.put(
+            _BehaviorRaw(
+                datetime.now(),
+                behavior,
+                event,
+                from_state,
+                to_state,
+                error_code,
+                parent,
+                reason,
+                tree,
+            )
+        )
+
+    def record_state(self, trigger: str, snapshot: dict[str, Any]) -> None:
+        self._queue.put(_StateRaw(datetime.now(), trigger, snapshot))
+
+    def record_stuck(
+        self,
+        reason: str,
+        seconds_since_progress: float,
+        tree: list[str],
+        snapshot: dict[str, Any],
+        listeners: list[dict[str, Any]],
+        last_message: str | None,
+    ) -> None:
+        self._queue.put(
+            _StuckRaw(
+                datetime.now(),
+                reason,
+                seconds_since_progress,
+                tree,
+                snapshot,
+                listeners,
+                last_message,
+            )
+        )
 
     def stop(self) -> None:
         if self._stop_event.is_set():
@@ -169,6 +286,37 @@ def _build_entry(raw: _RawEntry) -> DebugEntry:
             niveau=raw.level,
             message=raw.message,
         )
+    if isinstance(raw, _BehaviorRaw):
+        return DebugBehaviorEntry(
+            categorie="behavior",
+            datetime=raw.recorded_at.isoformat(),
+            behavior=raw.behavior,
+            event=raw.event,
+            from_state=raw.from_state,
+            to_state=raw.to_state,
+            error_code=raw.error_code,
+            parent=raw.parent,
+            reason=raw.reason,
+            tree=raw.tree,
+        )
+    if isinstance(raw, _StateRaw):
+        return DebugStateEntry(
+            categorie="state",
+            datetime=raw.recorded_at.isoformat(),
+            trigger=raw.trigger,
+            snapshot=raw.snapshot,
+        )
+    if isinstance(raw, _StuckRaw):
+        return DebugStuckEntry(
+            categorie="stuck",
+            datetime=raw.recorded_at.isoformat(),
+            reason=raw.reason,
+            seconds_since_progress=raw.seconds_since_progress,
+            tree=raw.tree,
+            snapshot=raw.snapshot,
+            listeners=raw.listeners,
+            last_message=raw.last_message,
+        )
     if isinstance(raw, _GameMsgRaw):
         msg_info = get_game_msg_info(
             raw.clear_sub_msg, raw.obf_sub_msg, raw.uid, raw.from_server, False
@@ -184,6 +332,7 @@ def _build_entry(raw: _RawEntry) -> DebugEntry:
             contenu_non_obfusque=msg_info.msg_json,
         )
     # _ConnMsgRaw
+    assert isinstance(raw, _ConnMsgRaw)
     msg_info = get_conn_msg_info(raw.sub_msg, raw.from_server)
     obf_type, decoded_type = _parse_sub_msg_name(msg_info.sub_msg_name)
     return DebugMessageEntry(

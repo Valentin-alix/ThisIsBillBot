@@ -1,9 +1,6 @@
 from functools import partial
 from typing import Literal
 
-from ankama_launcher_emulator_premium.utils.internet import (
-    get_available_network_interfaces,
-)
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QCloseEvent, QColor, QIcon
 from PyQt6.QtWidgets import QHBoxLayout, QWidget
@@ -87,20 +84,17 @@ class MainWindow(AppFluentWindow):
             partial(self._on_schedule_profile_changed, login)
         )
 
-        interfaces = get_available_network_interfaces()
-        selected_ip = current_config.network_interface if current_config else None
-        navigation_widget.populate_network_interfaces(interfaces, selected_ip)
-        navigation_widget.network_interface_changed.connect(
-            partial(self._on_network_interface_changed, login)
-        )
-
         selected_mode = current_config.connection_mode if current_config else "mitm"
         navigation_widget.populate_connection_mode(selected_mode)
         navigation_widget.connection_mode_changed.connect(
             partial(self._on_connection_mode_changed, login)
         )
 
-        account.game_info_signals.character_name.connect(navigation_widget.set_title)
+        account.game_info_signals.character_name.connect(
+            lambda name: navigation_widget.set_title(  # type: ignore
+                f"{account.account.apikey.login.split('@')[0]} : {name}"
+            )  # type: ignore
+        )
 
         account.game_info_signals.in_fight.connect(navigation_widget.show_battle_icon)
         account.game_info_signals.is_ready_to_play.connect(
@@ -150,17 +144,6 @@ class MainWindow(AppFluentWindow):
         bot = self.bots_by_login.get(login)
         if bot:
             bot.scheduler.update_profile(profile)
-
-    def _on_network_interface_changed(self, login: str, ip: str) -> None:
-        configs = BotConfigController().get_bot_config_by_login()
-        existing_config = configs.get(login)
-        if existing_config:
-            updated_config = existing_config.model_copy(
-                update={"network_interface": ip if ip else None}
-            )
-        else:
-            updated_config = BotConfig(network_interface=ip if ip else None)
-        BotConfigController().update_bot_config_by_login(updated_config, login)
 
     def _on_connection_mode_changed(self, login: str, mode: str) -> None:
         typed_mode: Literal["mitm", "socket"] = "socket" if mode == "socket" else "mitm"

@@ -1,7 +1,10 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from datas.protos.non_obf.game.anomaly_pb2 import AnomalySubareaInformationRequest
-from datas.protos.non_obf.game.context_pb2 import ContextReadyRequest
+from datas.protos.non_obf.game.context_pb2 import (
+    ContextCreationEvent,
+    ContextReadyRequest,
+)
 from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapChangeRequest,
@@ -21,10 +24,14 @@ from src.core.signals.world_signals import WorldSignals
 class MapFrame(Frame):
     world_signals: WorldSignals
 
-    _anomaly_info_requested: bool = field(init=False, default=False)
-
     def __post_init__(self):
         self.game_info_signals.disconnected.connect(self.game_state.map.clear_state)
+        self.event_manager.on(
+            ContextCreationEvent,
+            self.on_context_creation_event,
+            originator=self,
+            priority=self.priority,
+        )
         self.event_manager.on(
             MapComplementaryInformationEvent,
             self.on_map_complementary_information_event,
@@ -74,11 +81,17 @@ class MapFrame(Frame):
         self.game_state.map.is_in_map_transition = True
 
         if self.event_manager.is_socket_mode:
-            if not self._anomaly_info_requested:
-                self._anomaly_info_requested = True
+            if not self.game_state.map._anomaly_info_requested:
+                self.game_state.map._anomaly_info_requested = True
                 self.event_manager.send(AnomalySubareaInformationRequest())
             self.event_manager.send(ContextReadyRequest(map_id=msg.map_id))
-            self.event_manager.send(MapInformationRequest(map_id=msg.map_id))
+            if not self.game_state.map._is_fight_context:
+                self.event_manager.send(MapInformationRequest(map_id=msg.map_id))
+
+    def on_context_creation_event(self, msg: ContextCreationEvent):
+        self.game_state.map._is_fight_context = (
+            msg.context == ContextCreationEvent.FIGHT
+        )
 
     def on_fight_map_information_event(self, msg: FightMapInformationEvent):
         self.game_state.map.is_in_haven_bag = False

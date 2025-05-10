@@ -7,6 +7,9 @@ from ankama_launcher_emulator_premium.interfaces.zaap_files import GameSubscript
 
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmingErrorCode
+from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
+    EnterBankChestErrorCode,
+)
 from tests.fixtures.bot_runtime import EventManagerLockFake
 from tests.fixtures.game_state import GameStateContext
 
@@ -58,11 +61,25 @@ def test_restart_after_stop_condition_is_deferred_not_recursive(
     behavior = _make_auto_bot(game_state_ctx)
     behavior.play = Mock()  # type: ignore[method-assign]
 
-    behavior.on_fighter_behavior_finished(
-        BaseFarmingErrorCode.STOP_CONDITION_TRIGGERED
-    )
+    behavior.on_fighter_behavior_finished(BaseFarmingErrorCode.STOP_CONDITION_TRIGGERED)
 
     behavior.play.assert_not_called()
+    assert len(behavior.timers) == 1
+    assert isinstance(behavior.timers[0], Timer)
+    _cancel_timers(behavior)
+
+
+def test_not_enough_kamas_in_multi_farming_switches_to_fighter_on_timer(
+    game_state_ctx: GameStateContext,
+) -> None:
+    behavior = _make_auto_bot(game_state_ctx)
+    behavior.play_fighter = Mock()  # type: ignore[method-assign]
+
+    behavior.on_multi_farming_behavior_finished(
+        EnterBankChestErrorCode.NOT_ENOUGH_KAMAS
+    )
+
+    behavior.play_fighter.assert_not_called()
     assert len(behavior.timers) == 1
     assert isinstance(behavior.timers[0], Timer)
     _cancel_timers(behavior)
@@ -75,7 +92,7 @@ def test_no_bank_fighter_does_not_stop_immediately_when_leveled(
     its stop condition immediately (which previously caused the tight restart
     loop / RecursionError)."""
     # autouse game_sub_info_mock leaves the player not subscribed -> no bank.
-    assert game_state_ctx.game_state.player.can_use_bank is False
+    assert game_state_ctx.game_state.inventory.can_use_bank is False
     game_state_ctx.game_state.player.level = 200
     game_state_ctx.game_state.inventory.kamas = 1_000_000
 
@@ -98,7 +115,7 @@ def test_with_bank_fighter_still_stops_on_harvest_threshold(
     """With bank access, reaching the level/kamas thresholds must still trigger the
     stop condition (so the bot switches to harvesting) -- unchanged behavior."""
     _set_subscribed(monkeypatch, subscribed=True)
-    assert game_state_ctx.game_state.player.can_use_bank is True
+    assert game_state_ctx.game_state.inventory.can_use_bank is True
     game_state_ctx.game_state.player.level = 200
     game_state_ctx.game_state.inventory.kamas = 1_000_000
 

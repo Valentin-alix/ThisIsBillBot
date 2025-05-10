@@ -1,8 +1,11 @@
+import logging
 import threading
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from time import monotonic, sleep
+
+from src.exceptions import UnavailableNetworkInterface
 
 # Minimum spacing between two Dofus client launches: launching several native
 # clients at once segfaults the launcher, so they are staggered.
@@ -16,6 +19,9 @@ from ankama_launcher_emulator_premium.server.handler import AnkamaLauncherHandle
 from ankama_launcher_emulator_premium.server.server import (
     AnkamaLauncherServer,
 )
+from ankama_launcher_emulator_premium.utils.internet import (
+    get_available_network_interfaces,
+)
 
 from src.controller.bot_config import BotConfigController
 from src.core.bot.bot import Bot
@@ -24,12 +30,11 @@ from src.core.bot.lifecycle.account_scheduler import AccountScheduler
 from src.core.mitm.proxy_listener import ProxyListener
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.socket_network.socket_client import SocketClient
-from ankama_launcher_emulator_premium.utils.internet import (
-    get_available_network_interfaces,
-)
 from src.utils.internet import (
     has_internet_connection,
 )
+
+logger = logging.getLogger()
 
 
 @dataclass
@@ -59,9 +64,25 @@ class BotManager:
         self.shared_signals.synchronize_bots.connect(self.on_synchronize_bots)
         self.proxy_listener = ProxyListener(account_by_id=self.bot_by_account_id)
         self.account_scheduler = AccountScheduler(
-            on_accounts_synchronized=self.shared_signals.synchronize_bots.emit
+            on_accounts_synchronized=self.shared_signals.synchronize_bots.emit,
+            on_subscribed=self.on_subscribed,
         )
         self.account_scheduler.start()
+
+    def on_subscribed(self, login: str):
+        related_bot = next(
+            (
+                bot
+                for bot in self.bot_by_account_id.values()
+                if bot.account.apikey.login == login
+            ),
+            None,
+        )
+        if not related_bot:
+            logger.error(f"bot {login} not found in bot by account id ?")
+            return
+        if related_bot.is_playing_event.is_set():
+            self.shared_signals.launch_account.emit(login)
 
     def on_launch_account(self, login: str):
         self._running_task_count += 1
@@ -103,11 +124,25 @@ class BotManager:
 
         self._is_lauching_by_login[login].set()
 
+        related_bot.process_manager.kill_process()
+
         bot_config = (
             BotConfigController()
             .get_bot_config_by_login()
             .get(related_bot.account.apikey.login)
         )
+        available_ips = list(get_available_network_interfaces().keys())
+        try:
+            interface_ip = BotConfigController().resolve_bot_network_interface(
+                bot_config, available_ips
+            )
+        except UnavailableNetworkInterface:
+            related_bot.logger.error(
+                "No network interface available for this bot, stopping."
+            )
+            related_bot.is_playing_event.clear()
+            self._is_lauching_by_login[login].clear()
+            return
 
         for attempt in range(max_retries):
             if not related_bot.is_playing_event.is_set():
@@ -122,8 +157,6 @@ class BotManager:
 
             now = datetime.now()
 
-            related_bot.process_manager.kill_process()
-
             while not has_internet_connection():
                 related_bot.logger.info("waiting for internet connection to be up")
                 sleep(1)
@@ -136,14 +169,14 @@ class BotManager:
             self._wait_launch_slot()
 
             if bot_config and bot_config.connection_mode == "socket":
-                SocketClient(related_bot, bot_config).connect()
+                SocketClient(related_bot, bot_config, interface_ip).connect()
                 self._is_lauching_by_login[login].clear()
                 return
             else:
                 related_bot.process_manager.pid = self.ankama_launcher.launch_dofus(
                     login,
                     self.proxy_listener,
-                    interface_ip=bot_config.network_interface if bot_config else None,
+                    interface_ip=interface_ip,
                     on_progress=self.on_progress_installing,
                 )
                 related_bot.logger.info(f"Pid {related_bot.process_manager.pid}")
@@ -216,16 +249,16 @@ class BotManager:
         for account_id, account in account_by_id.items():
             if account_id not in self.bot_by_account_id:
                 login = account.apikey.login
-                existing_config = (
-                    BotConfigController().get_bot_config_by_login().get(login)
-                )
-                if existing_config is None or existing_config.schedule_profile is None:
-                    BotConfigController().assign_least_used_profile(login)
-                if existing_config is None or existing_config.network_interface is None:
-                    available_ips = list(get_available_network_interfaces().keys())
-                    BotConfigController().assign_least_used_network_interface(
-                        login, available_ips
+                if BotConfigController.use_bot_config_json:
+                    bot_config_controller = BotConfigController()
+                    existing_config = (
+                        bot_config_controller.get_bot_config_by_login().get(login)
                     )
+                    if (
+                        existing_config is None
+                        or existing_config.schedule_profile is None
+                    ):
+                        bot_config_controller.assign_least_used_profile(login)
 
                 new_bot = BotFactory.create_bot(
                     shared_signals=self.shared_signals,

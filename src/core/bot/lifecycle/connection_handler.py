@@ -21,10 +21,18 @@ from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.engine.movements.world.edge import (
     remove_forbidden_edge_transition_by_map_id,
 )
+from src.core.events_manager.event_manager import (
+    EventManager,
+    ServerTextInformationError,
+)
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
 from src.services.logging_utils.contextual_logger import ContextualLogger
+
+
+def _format_server_error(server_error: ServerTextInformationError) -> str:
+    return f"id={server_error.message_id} params={list(server_error.parameters)!r}"
 
 
 @dataclass
@@ -42,6 +50,7 @@ class ConnectionHandler(ContextualLogger):
     account: StoredApiKey
     shared_signals: SharedSignals
     get_bot_config: Callable[[], BotConfig | None]
+    event_manager: EventManager
 
     behavior_coordinator: BehaviorCoordinator
 
@@ -84,6 +93,12 @@ class ConnectionHandler(ContextualLogger):
         self._last_disconnect_time = current_time
 
         if self._reconnect_attempts >= 3:
+            server_error = self.event_manager.last_text_information_error
+            if server_error is not None:
+                self.logger.warning(
+                    "Dernière erreur serveur avant arrêt pour déconnexions rapides: "
+                    f"{_format_server_error(server_error)}"
+                )
             self.logger.warning(
                 f"Trop de déconnexions rapides ({self._reconnect_attempts}), arrêt du bot"
             )

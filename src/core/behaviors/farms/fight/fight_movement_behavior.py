@@ -131,6 +131,9 @@ class FightMovementBehavior(Behavior):
         }
 
         self.logger.info(f"enemies mp : {enemies_mp}")
+        if not enemies_mp:
+            self.logger.info("No enemies left, no safe path to compute")
+            return None
 
         reachable_mps = self.fight_reachable_cells.search(
             self.game_state.get_fight_reachable_context(),

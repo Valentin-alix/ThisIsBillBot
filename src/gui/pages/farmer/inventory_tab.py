@@ -1,16 +1,33 @@
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.game_constants.inventory_position import (
+    CharacterInventoryPositionEnum,
+)
 from PyQt6.QtCore import QSize, QTimer, pyqtSlot
-from PyQt6.QtWidgets import QListView, QListWidgetItem, QVBoxLayout, QWidget
-from qfluentwidgets import ListWidget, SmoothMode
+from PyQt6.QtWidgets import (
+    QHBoxLayout,
+    QListView,
+    QListWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
+from qfluentwidgets import BodyLabel, ListWidget, SmoothMode
 
 from src.core.bot.bot import Bot
+from src.gui.pages.farmer.equipment_panel_widget import (
+    EquipmentPanelWidget,
+    get_item_name,
+)
 
 CARD_WIDTH = 150
 CARD_HEIGHT = 120
+CARD_SPACING = 10
+BAG_MAX_COLUMNS = 3
+# Largeur pour afficher au plus 3 colonnes (cellule + espacement + barre de scroll).
+BAG_MAX_WIDTH = BAG_MAX_COLUMNS * (CARD_WIDTH + CARD_SPACING) + CARD_SPACING + 20
+
+_NOT_EQUIPED = int(CharacterInventoryPositionEnum.InventoryPositionNotEquiped)
 
 
 class InventoryTab(QWidget):
@@ -20,10 +37,14 @@ class InventoryTab(QWidget):
         self.items_by_uid: dict[int, ObjectItemInventory] = {}
         self.list_item_by_uid: dict[int, QListWidgetItem] = {}
         self.signals_connected = False
+        self.inventory_weight: int = 0
+        self.weight_max: int = 0
         self._rebuild_timer = QTimer(self)
         self._rebuild_timer.setInterval(50)
         self._rebuild_timer.setSingleShot(True)
         self._rebuild_timer.timeout.connect(self._rebuild_sorted_list)
+
+        self.equipment_panel = EquipmentPanelWidget(self)
 
         self.list_widget = ListWidget(self)
         self.list_widget.scrollDelegate.verticalSmoothScroll.setSmoothMode(
@@ -32,17 +53,30 @@ class InventoryTab(QWidget):
         self.list_widget.setViewMode(QListView.ViewMode.IconMode)
         self.list_widget.setResizeMode(QListView.ResizeMode.Adjust)
         self.list_widget.setMovement(QListView.Movement.Static)
-        self.list_widget.setSpacing(10)
+        self.list_widget.setSpacing(CARD_SPACING)
         self.list_widget.setUniformItemSizes(True)
         self.list_widget.setGridSize(QSize(CARD_WIDTH, CARD_HEIGHT))
-
+        # Au plus 3 colonnes pour laisser la place au panneau d'équipement.
+        self.list_widget.setMaximumWidth(BAG_MAX_WIDTH)
         self.list_widget.setStyleSheet(
             "QListWidget { background-color: transparent; border: none; }"
         )
 
+        self.kamas_label = BodyLabel(text="Kamas : 0", parent=self)
+        self.weight_label = BodyLabel(text="Poids : 0/0", parent=self)
+        bottom_layout = QHBoxLayout()
+        bottom_layout.addWidget(self.kamas_label)
+        bottom_layout.addWidget(self.weight_label)
+        bottom_layout.addStretch(1)
+
+        content_layout = QHBoxLayout()
+        content_layout.addWidget(self.equipment_panel, 1)
+        content_layout.addWidget(self.list_widget, 1)
+
         layout = QVBoxLayout()
         self.setLayout(layout)
-        layout.addWidget(self.list_widget)
+        layout.addLayout(content_layout, 1)
+        layout.addLayout(bottom_layout, 0)
 
     @pyqtSlot(ObjectItemInventory)
     def on_added_object_item(self, object_item: ObjectItemInventory):
@@ -75,17 +109,45 @@ class InventoryTab(QWidget):
         self._rebuild_timer.stop()
         self.list_widget.clear()
         self.list_item_by_uid.clear()
+        self.equipment_panel.set_items({})
+
+    @pyqtSlot(int)
+    def on_kamas_updated(self, kamas: int):
+        self.kamas_label.setText(f"Kamas : {kamas}")
+
+    @pyqtSlot(int)
+    def on_inventory_weight_updated(self, inventory_weight: int):
+        self.inventory_weight = inventory_weight
+        self._refresh_weight_label()
+
+    @pyqtSlot(int)
+    def on_weight_max_updated(self, weight_max: int):
+        self.weight_max = weight_max
+        self._refresh_weight_label()
+
+    def _refresh_weight_label(self) -> None:
+        self.weight_label.setText(f"Poids : {self.inventory_weight}/{self.weight_max}")
 
     def _schedule_rebuild(self) -> None:
         if not self._rebuild_timer.isActive():
             self._rebuild_timer.start()
 
     def _rebuild_sorted_list(self) -> None:
+        equipped_by_position: dict[int, ObjectItemInventory] = {}
+        bag_items: list[ObjectItemInventory] = []
+        for object_item in self.items_by_uid.values():
+            if object_item.position == _NOT_EQUIPED:
+                bag_items.append(object_item)
+            else:
+                equipped_by_position[object_item.position] = object_item
+
+        self.equipment_panel.set_items(equipped_by_position)
+
         self.list_widget.setUpdatesEnabled(False)
         self.list_widget.clear()
         self.list_item_by_uid.clear()
         sorted_items = sorted(
-            self.items_by_uid.values(), key=lambda obj: obj.item.quantity, reverse=True
+            bag_items, key=lambda obj: obj.item.quantity, reverse=True
         )
         for object_item in sorted_items:
             list_item = QListWidgetItem()
@@ -96,13 +158,7 @@ class InventoryTab(QWidget):
         self.list_widget.setUpdatesEnabled(True)
 
     def _get_item_text(self, object_item: ObjectItemInventory) -> str:
-        item_data = DataReader().item_by_id.get(object_item.item.gid)
-        if item_data and item_data.nameId:
-            item_name = I18N().name_by_id.get(
-                item_data.nameId, f"Item {object_item.item.gid}"
-            )
-        else:
-            item_name = f"Item {object_item.item.gid}"
+        item_name = get_item_name(object_item)
         return f"{item_name} \n\n Pos : {object_item.position} \n\n {object_item.item.quantity}"
 
     def connect_signals(self) -> None:
@@ -119,6 +175,11 @@ class InventoryTab(QWidget):
             self.on_deleted_object_item_uid
         )
         self.bot.inventory_signals.clear_inventory.connect(self.on_clear_inventory)
+        self.bot.inventory_signals.inventory_weight.connect(
+            self.on_inventory_weight_updated
+        )
+        self.bot.inventory_signals.weight_max.connect(self.on_weight_max_updated)
+        self.bot.inventory_signals.kamas.connect(self.on_kamas_updated)
         self.signals_connected = True
         self._resync_inventory()
 
@@ -138,11 +199,17 @@ class InventoryTab(QWidget):
             self.on_deleted_object_item_uid
         )
         self.bot.inventory_signals.clear_inventory.disconnect(self.on_clear_inventory)
+        self.bot.inventory_signals.inventory_weight.disconnect(
+            self.on_inventory_weight_updated
+        )
+        self.bot.inventory_signals.weight_max.disconnect(self.on_weight_max_updated)
+        self.bot.inventory_signals.kamas.disconnect(self.on_kamas_updated)
         self.signals_connected = False
         self.items_by_uid.clear()
         self._rebuild_timer.stop()
         self.list_widget.clear()
         self.list_item_by_uid.clear()
+        self.equipment_panel.set_items({})
 
     def _resync_inventory(self) -> None:
         self.items_by_uid.clear()

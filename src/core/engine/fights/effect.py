@@ -214,6 +214,13 @@ def base_roll(effect: Effect) -> float:
 # targetMask characters that include the caster itself.
 _SELF_MASK_CHARS = ("C", "c", "a")
 
+# targetMask characters that can apply to enemy fighters.
+_ENEMY_MASK_CHARS = frozenset({"A", "D", "H", "I", "J", "L", "M", "S"})
+
 
 def can_self_cast(effect: Effect) -> bool:
     return any(char in effect.targetMask for char in _SELF_MASK_CHARS)
+
+
+def can_target_enemy(effect: Effect) -> bool:
+    return any(char in _ENEMY_MASK_CHARS for char in effect.targetMask)

@@ -1,6 +1,9 @@
 import secrets
 from dataclasses import dataclass, field
+from datetime import datetime
+from math import floor
 
+from connection_pb2 import PongEvent
 from datas.protos.non_obf.game.basic_pb2 import (
     BasicLatencyStatsEvent,
     BasicLatencyStatsRequest,
@@ -28,6 +31,7 @@ from datas.protos.non_obf.game.common_pb2 import (
 from datas.protos.non_obf.game.context_pb2 import ContextCreationEvent
 from datas.protos.non_obf.game.fight_pb2 import (
     FightIsTurnReadyEvent,
+    FightTurnFinishRequest,
     FightTurnReadyRequest,
 )
 from datas.protos.non_obf.game.game_action_pb2 import (
@@ -81,7 +85,7 @@ class GameSessionBehavior(Behavior):
             BasicLatencyStatsEvent, self._on_basic_latency, originator=self
         )
         self.event_manager.on(
-            ContextCreationEvent, self._on_context_creation, originator=self
+            ContextCreationEvent, self._on_context_creation_event, originator=self
         )
         self.event_manager.on(
             SequenceStartEvent, self._on_sequence_start, originator=self
@@ -91,10 +95,14 @@ class GameSessionBehavior(Behavior):
             FightIsTurnReadyEvent, self._on_fight_is_turn_ready, originator=self
         )
         self.event_manager.on(
+            FightTurnFinishRequest, self._on_fight_turn_finish, originator=self
+        )
+        self.event_manager.on(
             FightMapInformationEvent,
             self._on_fight_map_information,
             originator=self,
         )
+        self.event_manager.on(PongEvent, self.on_pong_event, originator=self)
 
     def _on_server_verification(self, _msg: ServerVerificationEvent) -> None:
         self._cvlg = secrets.randbits(512) % _DH_P
@@ -117,7 +125,7 @@ class GameSessionBehavior(Behavior):
         client_id = pow(_DH_G, self._cvlg, _DH_P)
         self.event_manager.send(ClientIdRequest(id=str(client_id)))
 
-    def _on_context_creation(self, msg: ContextCreationEvent) -> None:
+    def _on_context_creation_event(self, msg: ContextCreationEvent) -> None:
         if self._player_status_sent:
             return
         self._player_status_sent = True
@@ -132,31 +140,50 @@ class GameSessionBehavior(Behavior):
         self._sequence_number += 1
 
     def _on_basic_latency(self, msg: BasicLatencyStatsEvent) -> None:
-        self.event_manager.send(BasicLatencyStatsRequest(latency=0))
+        if self.game_state.server.latency is None:
+            self.logger.error(
+                "BasicLatencyStatsEvent received before latency was measured: "
+                f"sent_datetime_ping_request={self.game_state.server.sent_datetime_ping_request}"
+            )
+        assert self.game_state.server.latency is not None
+        self.event_manager.send(
+            BasicLatencyStatsRequest(latency=self.game_state.server.latency)
+        )
 
     def _on_sequence_start(self, msg: SequenceStartEvent) -> None:
         self._fight_sequence_depth += 1
 
     def _on_sequence_end(self, msg: SequenceEndEvent) -> None:
-        self._fight_sequence_depth -= 1
+        if self._fight_sequence_depth <= 0:
+            self.logger.warning(
+                "SequenceEndEvent received without matching SequenceStartEvent: "
+                f"author_id={msg.author_id}, action_id={msg.action_id}"
+            )
+            self._fight_sequence_depth = 0
+        else:
+            self._fight_sequence_depth -= 1
         if self._fight_sequence_depth > 0:
             return
         self._fight_sequence_depth = 0
-        self.run_timer(_ACK_DELAY, lambda: self._send_action_ack(msg.action_id))
         if self._turn_ready_pending:
             self._turn_ready_pending = False
             self.run_timer(_TURN_READY_DELAY, self._send_turn_ready)
+        if msg.author_id != self.game_state.player.character_id:
+            return
+        self.run_timer(_ACK_DELAY, lambda: self._send_action_ack(msg.action_id))
 
     def _send_action_ack(self, action_id: int) -> None:
         ack = GameActionAcknowledgementRequest(valid=True, action_id=action_id)
         self.event_manager.send(ack)
-        self.event_manager.process_msg(ack)
 
     def _on_fight_is_turn_ready(self, msg: FightIsTurnReadyEvent) -> None:
-        if msg.character_id != self.game_state.player.character_id:
-            return
         if self._fight_sequence_depth > 0:
             self._turn_ready_pending = True
+            return
+        self.run_timer(_TURN_READY_DELAY, self._send_turn_ready)
+
+    def _on_fight_turn_finish(self, msg: FightTurnFinishRequest) -> None:
+        if self.game_state.get_attack_context().enemy_actors:
             return
         self.run_timer(_TURN_READY_DELAY, self._send_turn_ready)
 
@@ -172,3 +199,13 @@ class GameSessionBehavior(Behavior):
                 challenge_bonus=ChallengeBonus.CHALLENGE_DROP_BONUS
             )
         )
+
+    def on_pong_event(self, msg: PongEvent):
+        sent_datetime_ping_request = self.game_state.server.sent_datetime_ping_request
+        if sent_datetime_ping_request is None:
+            self.logger.error("PongEvent received without pending PingRequest")
+            raise ValueError("latency should not be None :")
+        self.game_state.server.latency = floor(
+            (datetime.now() - sent_datetime_ping_request).total_seconds() * 1_000
+        )
+        self.game_state.server.sent_datetime_ping_request = None

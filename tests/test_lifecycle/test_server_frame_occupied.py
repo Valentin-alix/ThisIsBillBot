@@ -13,8 +13,12 @@ OCCUPIED_ID = 999
 _ERROR = TextInformationEvent.TextInformationType.TEXT_INFORMATION_ERROR
 
 
-def _occupied_event(message_id: int = OCCUPIED_ID) -> TextInformationEvent:
-    return TextInformationEvent(message_type=_ERROR, message_id=message_id)
+def _occupied_event(
+    message_id: int = OCCUPIED_ID, parameters: list[str] | None = None
+) -> TextInformationEvent:
+    event = TextInformationEvent(message_type=_ERROR, message_id=message_id)
+    event.parameters.extend(parameters or [])
+    return event
 
 
 def _build_frame(ctx: GameStateContext) -> tuple[EventManager, list[int]]:
@@ -50,9 +54,7 @@ class TestOccupiedStuckCounter:
         event_manager.process_msg(_occupied_event())
         assert disconnect_calls == [1]
 
-    def test_map_change_resets_counter(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_map_change_resets_counter(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(server_frame_module, "OCCUPIED_MESSAGE_ID", OCCUPIED_ID)
         monkeypatch.setattr(server_frame_module, "OCCUPIED_STUCK_LIMIT", 2)
         ctx = make_game_state_ctx()
@@ -66,9 +68,7 @@ class TestOccupiedStuckCounter:
 
         assert disconnect_calls == []
 
-    def test_ignores_other_message_ids(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_ignores_other_message_ids(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(server_frame_module, "OCCUPIED_MESSAGE_ID", OCCUPIED_ID)
         monkeypatch.setattr(server_frame_module, "OCCUPIED_STUCK_LIMIT", 2)
         ctx = make_game_state_ctx()
@@ -78,6 +78,20 @@ class TestOccupiedStuckCounter:
             event_manager.process_msg(_occupied_event(message_id=OCCUPIED_ID + 1))
 
         assert disconnect_calls == []
+
+    def test_records_last_text_error_for_disconnect_diagnostics(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(server_frame_module, "OCCUPIED_MESSAGE_ID", OCCUPIED_ID)
+        ctx = make_game_state_ctx()
+        event_manager, disconnect_calls = _build_frame(ctx)
+
+        event_manager.process_msg(_occupied_event(message_id=89, parameters=["name"]))
+
+        assert disconnect_calls == []
+        assert event_manager.last_text_information_error is not None
+        assert event_manager.last_text_information_error.message_id == 89
+        assert event_manager.last_text_information_error.parameters == ("name",)
 
     def test_dormant_when_id_not_configured(
         self, monkeypatch: pytest.MonkeyPatch

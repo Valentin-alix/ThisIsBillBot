@@ -1,6 +1,11 @@
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
+    CharacterCharacteristic,
+    CharacterCharacteristicValue,
     Direction,
+    EntityDisposition,
+    FightCharacteristics,
+    SpawnInformation,
     Team,
 )
 from datas.protos.non_obf.game.context_pb2 import (
@@ -9,6 +14,10 @@ from datas.protos.non_obf.game.context_pb2 import (
 )
 from datas.protos.non_obf.game.fight_pb2 import (
     FightSynchronizeEvent,
+)
+from datas.protos.non_obf.game.game_action_pb2 import (
+    EntitySpawnInformation,
+    GameActionFightEvent,
 )
 from datas.protos.non_obf.game.gamemap_pb2 import (
     GameRolePlayShowActorsEvent,
@@ -21,6 +30,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
 from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.bot.bot import Bot
+from src.core.states.entity_state import FightActor
 from tests.fixtures.entities import make_actor, make_fighter
 
 
@@ -202,6 +212,86 @@ class TestEntityState:
             for enemy in runtime_bot.game_state.fight.get_enemies(character_id=0)
         }
         assert 204 not in enemy_cells
+
+    def test_context_summons_create_fight_actors_before_life_loss(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        runtime_bot.game_state.entity.actor_by_id[-3] = make_fighter(
+            actor_id=-3,
+            cell_id=291,
+            team=Team.TEAM_DEFENDER,
+        )
+        runtime_bot.game_state.entity.actor_fight_by_id[-3] = FightActor(
+            life_point=120,
+            is_summoned=False,
+        )
+
+        runtime_bot.event_manager.process_msg(
+            GameActionFightEvent(
+                action_id=181,
+                source_id=-3,
+                summons=GameActionFightEvent.Summons(
+                    summons_by_context_information=GameActionFightEvent.Summons.SummonsByContextInformation(
+                        summons=[
+                            GameActionFightEvent.Summons.SummonsByContextInformation.SummonContextInformation(
+                                spawn_information=EntitySpawnInformation(
+                                    monster=EntitySpawnInformation.Monster(
+                                        monster_gid=5232,
+                                        grade=1,
+                                    )
+                                ),
+                                wave=0,
+                                characteristics=FightCharacteristics(
+                                    summoned=True,
+                                    summoner=-3,
+                                    characteristics=[
+                                        CharacterCharacteristic(
+                                            characteristic_id=0,
+                                            value=CharacterCharacteristicValue(
+                                                total=75
+                                            ),
+                                        )
+                                    ],
+                                ),
+                                summons=[
+                                    SpawnInformation(
+                                        alive=True,
+                                        team=Team.TEAM_DEFENDER,
+                                        position=ActorPositionInformation(
+                                            actor_id=-11,
+                                            disposition=EntityDisposition(
+                                                cell_id=329,
+                                                direction=Direction.DIRECTION_EAST,
+                                                entity_id=-11,
+                                            ),
+                                        ),
+                                    )
+                                ],
+                            )
+                        ]
+                    )
+                ),
+            )
+        )
+
+        runtime_bot.event_manager.process_msg(
+            GameActionFightEvent(
+                action_id=96,
+                source_id=71808188767,
+                life_points_lost=GameActionFightEvent.LifePointsLost(
+                    target_id=-11,
+                    loss=70,
+                    permanent_damages=3,
+                    element_id=7,
+                ),
+            )
+        )
+
+        assert runtime_bot.game_state.entity.actor_by_id[-11].disposition.cell_id == 329
+        actor_fight = runtime_bot.game_state.entity.actor_fight_by_id[-11]
+        assert actor_fight.is_summoned is True
+        assert actor_fight.life_point == 5
 
     def test_get_enemies_only_returns_other_teams(
         self,

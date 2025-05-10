@@ -264,6 +264,7 @@ class FarmerWidget(QWidget):
     def _create_debug_tabs(self) -> None:
         self.map_tab = MapTab(
             grid_signals=self.bot.grid_signals,
+            game_info_signals=self.bot.game_info_signals,
             game_state=self.bot.game_state,
             parent=self.stacked_widget,
         )
@@ -301,5 +302,7 @@ class FarmerWidget(QWidget):
 
         self.inventory_tab.connect_signals()
         self.bank_tab.connect_signals()
+        for pivot_item in self.pivot.items.values():
+            pivot_item.setFixedHeight(40)
         self.pivot.setCurrentItem(self.map_route)
         self.stacked_widget.setCurrentWidget(self.map_tab)

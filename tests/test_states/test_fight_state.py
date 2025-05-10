@@ -1,3 +1,6 @@
+from unittest.mock import MagicMock
+
+import pytest
 from datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicsEvent,
 )
@@ -8,22 +11,31 @@ from datas.protos.non_obf.game.common_pb2 import (
     CharacterCharacteristics,
     CharacterCharacteristicValue,
     EntityDisposition,
+    FightCharacteristics,
     FightStartingPositions,
+    Team,
 )
 from datas.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
 )
+from datas.protos.non_obf.game.fight_pb2 import FightRefreshCharacterStatsEvent
 from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightCastRequest,
     GameActionFightEvent,
 )
 from datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
-from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
+from dofus_unity_reader.game_constants.breed import BreedEnum
+from dofus_unity_reader.game_constants.characteristic import (
+    CharacteristicEnum,
+    EffectElement,
+)
 from pytest import MonkeyPatch
 
 from src import const
 from src.core.bot.bot import Bot
+from src.core.frames.fight_frame import FightFrame
 from src.core.states.entity_state import FightActor
+from tests.fixtures.entities import make_fighter
 
 
 class TestFightState:
@@ -131,10 +143,39 @@ class TestFightState:
         assert received_action_points == [12]
         assert received_movement_points == [6]
 
+    def test_ordered_stat_uses_breed_tie_breaker(
+        self,
+        runtime_bot: Bot,
+    ):
+        runtime_bot.game_state.fight.breed_id = BreedEnum.SACRIER
+        runtime_bot.event_manager.process_msg(
+            CharacterCharacteristicsEvent(
+                stats=CharacterCharacteristics(
+                    characteristics=[
+                        self._detailed_characteristic(
+                            CharacteristicEnum.CHANCE, base=100
+                        ),
+                        self._detailed_characteristic(
+                            CharacteristicEnum.INTELLIGENCE, base=100
+                        ),
+                    ]
+                )
+            )
+        )
+
+        assert runtime_bot.game_state.fight.primary_and_second_elem == (
+            EffectElement.CHANCE,
+            EffectElement.INTELLIGENCE,
+        )
+
     def test_character_characteristics_event_syncs_life_points(
         self,
         runtime_bot: Bot,
     ):
+        fight_frame = self._get_fight_frame(runtime_bot)
+        logger = MagicMock()
+        fight_frame.logger = logger
+
         runtime_bot.event_manager.process_msg(
             CharacterCharacteristicsEvent(
                 stats=CharacterCharacteristics(
@@ -156,6 +197,112 @@ class TestFightState:
 
         assert runtime_bot.game_state.fight.life_point == 300
         assert runtime_bot.game_state.fight.max_life_point == 300
+        logger.info.assert_called_with(
+            "Player HP resync: source=CharacterCharacteristicsEvent, "
+            "hp_before=1, life_points=245, vitality=55, cur_life=0, "
+            "hp_after=300, max_hp_after=300"
+        )
+
+    def test_fight_refresh_without_life_stat_keeps_current_player_life(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        fight_frame = self._get_fight_frame(runtime_bot)
+        logger = MagicMock()
+        fight_frame.logger = logger
+        runtime_bot.game_state.player.character_id = 8921612638
+        runtime_bot.event_manager.process_msg(
+            CharacterCharacteristicsEvent(
+                stats=CharacterCharacteristics(
+                    characteristics=[
+                        self._detailed_characteristic(
+                            CharacteristicEnum.LIFE_POINTS, base=245
+                        ),
+                        self._detailed_characteristic(
+                            CharacteristicEnum.VITALITY,
+                            objects_and_mount_bonus=55,
+                        ),
+                        self._detailed_characteristic(
+                            CharacteristicEnum.CUR_LIFE, base=0
+                        ),
+                    ]
+                )
+            )
+        )
+        runtime_bot.game_state.fight.life_point = 245
+        logger.reset_mock()
+
+        runtime_bot.event_manager.process_msg(
+            FightRefreshCharacterStatsEvent(
+                fighter_id=8921612638,
+                stats=FightCharacteristics(
+                    characteristics=[
+                        self._detailed_characteristic(
+                            CharacteristicEnum.ACTION_POINTS, base=12
+                        )
+                    ]
+                ),
+            )
+        )
+
+        assert runtime_bot.game_state.fight.life_point == 245
+        assert (
+            runtime_bot.game_state.fight.get_stat_by_id(
+                CharacteristicEnum.ACTION_POINTS
+            )
+            == 12
+        )
+        logger.info.assert_not_called()
+
+    def test_fight_refresh_with_cur_life_resyncs_player_life(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        fight_frame = self._get_fight_frame(runtime_bot)
+        logger = MagicMock()
+        fight_frame.logger = logger
+        runtime_bot.game_state.player.character_id = 8921612638
+        runtime_bot.event_manager.process_msg(
+            CharacterCharacteristicsEvent(
+                stats=CharacterCharacteristics(
+                    characteristics=[
+                        self._detailed_characteristic(
+                            CharacteristicEnum.LIFE_POINTS, base=245
+                        ),
+                        self._detailed_characteristic(
+                            CharacteristicEnum.VITALITY,
+                            objects_and_mount_bonus=55,
+                        ),
+                        self._detailed_characteristic(
+                            CharacteristicEnum.CUR_LIFE, base=0
+                        ),
+                    ]
+                )
+            )
+        )
+        runtime_bot.game_state.fight.life_point = 200
+        logger.reset_mock()
+
+        runtime_bot.event_manager.process_msg(
+            FightRefreshCharacterStatsEvent(
+                fighter_id=8921612638,
+                stats=FightCharacteristics(
+                    characteristics=[
+                        self._detailed_characteristic(
+                            CharacteristicEnum.CUR_LIFE, base=-55
+                        )
+                    ]
+                ),
+            )
+        )
+
+        assert runtime_bot.game_state.fight.life_point == 245
+        assert runtime_bot.game_state.fight.max_life_point == 300
+        logger.info.assert_called_once_with(
+            "Player HP resync: source=FightRefreshCharacterStatsEvent, "
+            "hp_before=200, life_points=245, vitality=55, cur_life=-55, "
+            "hp_after=245, max_hp_after=300"
+        )
 
     def test_game_action_fight_cast_request_increments_count_by_spell_id(
         self,
@@ -210,6 +357,134 @@ class TestFightState:
         )
 
         assert runtime_bot.game_state.fight.life_point == 450
+
+    def test_negative_player_life_loss_logs_diagnostic_before_assertion(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        fight_frame = self._get_fight_frame(runtime_bot)
+        logger = MagicMock()
+        fight_frame.logger = logger
+        runtime_bot.game_state.player.character_id = 123
+        runtime_bot.game_state.fight.life_point = 10
+
+        with pytest.raises(AssertionError):
+            fight_frame.on_game_action_fight_event(
+                GameActionFightEvent(
+                    source_id=456,
+                    life_points_lost=GameActionFightEvent.LifePointsLost(
+                        target_id=123,
+                        loss=25,
+                        permanent_damages=3,
+                        element_id=2,
+                        shield_loss=4,
+                    ),
+                )
+            )
+
+        logger.error.assert_called_once_with(
+            "Player HP loss event: hp_before=10, loss=25, shield_loss=4, "
+            "permanent_damages=3, element_id=2, hp_after=-15, source_id=456, "
+            "target_id=123 (would violate HP invariant)"
+        )
+
+    def test_enemy_without_monster_data_raises_diagnostic_assertion(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        runtime_bot.game_state.player.character_id = 123
+        runtime_bot.game_state.entity.set_actor(
+            make_fighter(123, 100, team=Team.TEAM_CHALLENGER)
+        )
+        runtime_bot.game_state.entity.set_actor(
+            make_fighter(-1, 200, team=Team.TEAM_DEFENDER)
+        )
+        runtime_bot.game_state.entity.actor_fight_by_id[-1] = FightActor(
+            life_point=10,
+            is_summoned=False,
+        )
+
+        with pytest.raises(AssertionError) as assertion:
+            runtime_bot.game_state.get_attack_context()
+
+        message = str(assertion.value)
+        assert "Enemy fighter has no known monster data" in message
+        assert "actor_id=-1" in message
+        assert "monster_gid=0" in message
+        assert "fighter_kind=unknown" in message
+
+    def test_missing_life_characteristic_logs_before_assertion(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        logger = MagicMock()
+        runtime_bot.game_state.fight.logger = logger
+        runtime_bot.game_state.fight.update_characteristic(
+            self._detailed_characteristic(CharacteristicEnum.LIFE_POINTS, base=245)
+        )
+        runtime_bot.game_state.fight.update_characteristic(
+            self._detailed_characteristic(
+                CharacteristicEnum.VITALITY,
+                objects_and_mount_bonus=55,
+            )
+        )
+
+        with pytest.raises(AssertionError):
+            runtime_bot.game_state.fight.sync_life_points_from_characteristics()
+
+        log_message = logger.error.call_args.args[0]
+        assert log_message.startswith("Cannot sync player HP from characteristics: ")
+        assert "available_characteristic_ids=" in log_message
+
+    def test_invalid_life_characteristic_sync_logs_before_assertion(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        logger = MagicMock()
+        runtime_bot.game_state.fight.logger = logger
+        runtime_bot.game_state.fight.update_characteristic(
+            self._detailed_characteristic(CharacteristicEnum.LIFE_POINTS, base=245)
+        )
+        runtime_bot.game_state.fight.update_characteristic(
+            self._detailed_characteristic(CharacteristicEnum.VITALITY)
+        )
+        runtime_bot.game_state.fight.update_characteristic(
+            self._detailed_characteristic(CharacteristicEnum.CUR_LIFE, base=-300)
+        )
+
+        with pytest.raises(AssertionError):
+            runtime_bot.game_state.fight.sync_life_points_from_characteristics()
+
+        logger.error.assert_called_once_with(
+            "Player HP characteristic sync would violate invariants: "
+            "life_points=245, vitality=0, cur_life=-300, "
+            "max_life_point=245, life_point=-55"
+        )
+
+    def test_missing_non_player_fight_actor_logs_before_key_error(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        fight_frame = self._get_fight_frame(runtime_bot)
+        logger = MagicMock()
+        fight_frame.logger = logger
+        runtime_bot.game_state.player.character_id = 123
+
+        with pytest.raises(KeyError):
+            fight_frame.on_game_action_fight_event(
+                GameActionFightEvent(
+                    source_id=123,
+                    life_points_lost=GameActionFightEvent.LifePointsLost(
+                        target_id=-11,
+                        loss=70,
+                    ),
+                )
+            )
+
+        logger.error.assert_called_once_with(
+            "Non-player HP loss targets missing fight actor: "
+            "target_id=-11, loss=70, source_id=123"
+        )
 
     def test_life_points_lost_death_and_cur_life_sync_update_player_life(
         self,
@@ -297,6 +572,13 @@ class TestFightState:
                 ),
             )
         )
+
+    @staticmethod
+    def _get_fight_frame(runtime_bot: Bot) -> FightFrame:
+        fight_frame = next(
+            frame for frame in runtime_bot.frames if isinstance(frame, FightFrame)
+        )
+        return fight_frame
 
     def _detailed_characteristic(
         self,

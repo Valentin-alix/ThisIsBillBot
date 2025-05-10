@@ -4,6 +4,7 @@ from unittest.mock import Mock
 
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.lifecycle.scheduler import BotScheduler
+from src.core.events_manager.event_manager import EventManager
 from tests.fixtures.accounts import make_account
 
 
@@ -65,6 +66,7 @@ def make_bot_scheduler() -> BotScheduler:
         get_bot_config=Mock(return_value=None),
         behavior_coordinator=Mock(),
         process_manager=Mock(),
+        event_manager=EventManager(_logger=Mock()),
     )
 
 

@@ -83,6 +83,12 @@ class Behavior(ContextualLogger):
                 f"State transition: {old_state.name} -> {to_state.name}"
                 + (f" ({reason})" if reason else "")
             )
+            self._record_behavior_event(
+                "transition",
+                from_state=old_state.name,
+                to_state=to_state.name,
+                reason=reason,
+            )
             return True
 
     @property
@@ -146,6 +152,8 @@ class Behavior(ContextualLogger):
                 return
 
             self.logger.debug(f"Starting {self.__class__.__name__}")
+            if self.parent is None:
+                self._record_state_snapshot(f"{self.__class__.__name__}.start")
             run_method = getattr(self, "run", None)
             if not callable(run_method):
                 raise TypeError(f"{self.__class__.__name__} must define a run() method")
@@ -246,6 +254,10 @@ class Behavior(ContextualLogger):
         if error_code is not None:
             self.logger.warning(f"Finished with error: {error_code}")
 
+        self._record_behavior_event("finish", error_code=error_code)
+        if self.parent is None:
+            self._record_state_snapshot(f"{self.__class__.__name__}.finish")
+
         self.stop()
 
         if callback:
@@ -273,3 +285,56 @@ class Behavior(ContextualLogger):
     def raise_if_error(self, error_code: str | None) -> None:
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
+
+    def behavior_tree_snapshot(self) -> list[str]:
+        """Indented snapshot of the running behavior tree, rooted at the
+        top-most parent, with ``<-`` marking the current behavior."""
+        root = self
+        while root.parent is not None:
+            root = root.parent
+
+        lines: list[str] = []
+
+        def walk(behavior: "Behavior", depth: int) -> None:
+            marker = " <-" if behavior is self else ""
+            lines.append(
+                "  " * depth
+                + f"{behavior.__class__.__name__}[{behavior.state.name}]"
+                + marker
+            )
+            for child in list(behavior.children):
+                walk(child, depth + 1)
+
+        walk(root, 0)
+        return lines
+
+    def _record_behavior_event(
+        self,
+        event: str,
+        from_state: str | None = None,
+        to_state: str | None = None,
+        error_code: str | None = None,
+        reason: str = "",
+    ) -> None:
+        self.event_manager.mark_activity()
+        recorder = self.event_manager.debug_recorder
+        if recorder is None:
+            return
+        recorder.record_behavior(
+            behavior=self.__class__.__name__,
+            event=event,
+            tree=self.behavior_tree_snapshot(),
+            from_state=from_state,
+            to_state=to_state,
+            error_code=error_code,
+            parent=self.parent.__class__.__name__ if self.parent else None,
+            reason=reason,
+        )
+
+    def _record_state_snapshot(self, trigger: str) -> None:
+        recorder = self.event_manager.debug_recorder
+        if recorder is None:
+            return
+        recorder.record_state(
+            trigger=trigger, snapshot=self.game_state.debug_snapshot()
+        )

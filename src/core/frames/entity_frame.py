@@ -177,6 +177,13 @@ class EntityFrame(Frame):
                 msg.source_id
             ].actor_information.fighter.spawn_information.team
             for summon in msg.summons.summons_by_context_information.summons:
+                if not summon.summons:
+                    self.logger.warning(
+                        "Fight summons context has no spawned positions: "
+                        f"source_id={msg.source_id}, action_id={msg.action_id}, "
+                        f"wave={summon.wave}, summoned={summon.characteristics.summoned}, "
+                        f"summoner={summon.characteristics.summoner}"
+                    )
                 for sub_summon in summon.summons:
                     spawn_information = SpawnInformation(
                         team=related_team,

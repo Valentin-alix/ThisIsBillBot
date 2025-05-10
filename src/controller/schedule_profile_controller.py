@@ -15,6 +15,7 @@ class TimeSlot(BaseModel):
 
 class ScheduleProfile(BaseModel):
     name_fr: str
+    network_interface_index: int | None = None
     slots_by_day: dict[str, list[TimeSlot]]
 
 

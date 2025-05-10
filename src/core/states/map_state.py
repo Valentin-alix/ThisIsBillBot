@@ -29,6 +29,8 @@ class MapState(State):
     forbidden_edge_transitions: set[tuple[Vertice, Vertice, Transition]] = field(
         init=False, default_factory=set[tuple[Vertice, Vertice, Transition]]
     )
+    _anomaly_info_requested: bool = field(init=False, default=False)
+    _is_fight_context: bool = field(init=False, default=False)
 
     def clear_state(self):
         self.is_in_map_transition = False
@@ -36,6 +38,8 @@ class MapState(State):
         self.is_in_haven_bag = False
         self.excluded_element_ids.clear()
         self.forbidden_edge_transitions.clear()
+        self._anomaly_info_requested = False
+        self._is_fight_context = False
 
     @property
     def is_in_map_transition(self) -> int:

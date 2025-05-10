@@ -153,7 +153,7 @@ class CollectBehavior(Behavior):
         def on_look_around_finished(_error_code: str | None) -> None:
             self.run_timer(
                 random.uniform(*LOOK_AROUND_PAUSE_RANGE),
-                lambda: self.collect(move_path, collectable),
+                lambda: self._collect_after_look_around(collectable),
             )
 
         self.interactive_behavior.map_move_behavior.start(
@@ -161,6 +161,14 @@ class CollectBehavior(Behavior):
             parent=self,
             move_path=look_path,
         )
+
+    def _collect_after_look_around(self, collectable: Collectable) -> None:
+        collectable_info = self.get_near_collectable([collectable])
+        if collectable_info is None:
+            return self.collect_map()
+
+        move_path, fresh_collectable = collectable_info
+        self.collect(move_path, fresh_collectable)
 
     def _get_random_walkable_cell_nearby(self) -> MapPoint | None:
         current_mp = self.game_state.map.map_point

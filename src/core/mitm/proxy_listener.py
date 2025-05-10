@@ -6,12 +6,16 @@ from ankama_launcher_emulator_premium.proxy.dofus3.proxy import Proxy
 from ankama_launcher_emulator_premium.proxy.dofus3.proxy_listener import (
     ProxyListener as BaseProxyListener,
 )
+from ankama_launcher_emulator_premium.utils.internet import (
+    get_available_network_interfaces,
+)
 
 from src.const import CONNECTION_SERVERS_IPS
 from src.controller.bot_config import BotConfigController
 from src.core.bot.bot import Bot
 from src.core.mitm.connection_proxy import ConnectionProxy
 from src.core.mitm.game_proxy import GameProxy
+from src.exceptions import UnavailableNetworkInterface
 
 logger = logging.getLogger()
 
@@ -58,9 +62,7 @@ class ProxyListener(BaseProxyListener):
         if server_socket.getpeername()[0] in CONNECTION_SERVERS_IPS:
             related_bot = self._account_by_connection_port.get(host_port)
             if related_bot is None:
-                logger.warning(
-                    "Did not find bot for connection port %d", host_port
-                )
+                logger.warning("Did not find bot for connection port %d", host_port)
                 return None
 
             def on_game_connection_callback(
@@ -92,4 +94,11 @@ class ProxyListener(BaseProxyListener):
         login = bot.account.apikey.login
         configs = BotConfigController().get_bot_config_by_login()
         config = configs.get(login)
-        return config.network_interface if config else None
+        available_ips = list(get_available_network_interfaces().keys())
+        try:
+            return BotConfigController().resolve_bot_network_interface(
+                config, available_ips
+            )
+        except UnavailableNetworkInterface:
+            bot.logger.error("No network interface available for this profile")
+            return None

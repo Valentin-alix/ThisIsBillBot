@@ -10,6 +10,7 @@ from src.core.states.inventory_state import InventoryState
 from src.core.states.map_state import MapState
 from src.core.states.player_state import PlayerState
 from src.core.states.sale_hotel_state import SaleHotelState
+from src.core.states.server_state import ServerState
 from src.services.logging_utils.loggers import BotLogger
 
 
@@ -64,6 +65,7 @@ class StateFactory:
             map_state=map_state,
         )
         craft_state = CraftState(_logger=logger, player_state=player_state)
+        server_state = ServerState(_logger=logger)
         game_state = GameState(
             entity=entity_state,
             fight=fight_state,
@@ -74,5 +76,6 @@ class StateFactory:
             guild_chest=guild_chest_state,
             sale_hotel=sale_hotel_state,
             craft=craft_state,
+            server=server_state,
         )
         return game_state

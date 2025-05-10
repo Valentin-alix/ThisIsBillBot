@@ -26,7 +26,6 @@ from src.core.signals.bot_signals import BotSignals
 
 
 class SidebarItem(NavigationWidget):
-    network_interface_changed = pyqtSignal(str)
     schedule_profile_changed = pyqtSignal(str)
     connection_mode_changed = pyqtSignal(str)
     play_clicked = pyqtSignal()
@@ -93,19 +92,12 @@ class SidebarItem(NavigationWidget):
         self.header_layout.addWidget(self._stop_btn)
 
         self._profile_combo = ComboBox(self)
-        self._profile_combo.setFixedWidth(100)
+        self._profile_combo.setFixedWidth(150)
         self._profile_combo.currentIndexChanged.connect(self._on_profile_changed)
         self.controls_layout.addWidget(self._profile_combo)
 
-        self._network_combo = ComboBox(self)
-        self._network_combo.setFixedWidth(100)
-        self._network_combo.currentIndexChanged.connect(
-            self._on_network_interface_changed
-        )
-        self.controls_layout.addWidget(self._network_combo)
-
         self._mode_combo = ComboBox(self)
-        self._mode_combo.setFixedWidth(100)
+        self._mode_combo.setFixedWidth(150)
         self._mode_combo.addItem("Mitm", userData="mitm")
         self._mode_combo.addItem("Socket", userData="socket")
         self._mode_combo.currentIndexChanged.connect(self._on_mode_changed)
@@ -132,7 +124,6 @@ class SidebarItem(NavigationWidget):
             self._play_btn.hide()
             self._stop_btn.hide()
             self._profile_combo.hide()
-            self._network_combo.hide()
             self._mode_combo.hide()
         else:
             self.header_layout.setContentsMargins(4, 0, 12, 0)
@@ -145,7 +136,6 @@ class SidebarItem(NavigationWidget):
             else:
                 self._play_btn.show()
             self._profile_combo.show()
-            self._network_combo.show()
             self._mode_combo.show()
 
         self.update()
@@ -161,23 +151,6 @@ class SidebarItem(NavigationWidget):
 
     def set_title(self, text: str) -> None:
         self._title.setText(text)
-
-    def populate_network_interfaces(
-        self, interfaces: dict[str, tuple[str, str]], selected_ip: str | None
-    ) -> None:
-        self._network_combo.blockSignals(True)
-        self._network_combo.clear()
-        self._network_combo.addItem("Auto", userData=None)
-        for ip, (name, public_ip) in interfaces.items():
-            self._network_combo.addItem(public_ip, userData=ip)
-        if selected_ip:
-            for i in range(self._network_combo.count()):
-                if self._network_combo.itemData(i) == selected_ip:
-                    self._network_combo.setCurrentIndex(i)
-                    break
-        else:
-            self._network_combo.setCurrentIndex(0)
-        self._network_combo.blockSignals(False)
 
     def populate_schedule_profiles(
         self, profiles: dict[str, str], selected_profile: str | None
@@ -199,10 +172,6 @@ class SidebarItem(NavigationWidget):
     def _on_profile_changed(self) -> None:
         profile_id = self._profile_combo.currentData()
         self.schedule_profile_changed.emit(profile_id if profile_id else "")
-
-    def _on_network_interface_changed(self) -> None:
-        ip = self._network_combo.currentData()
-        self.network_interface_changed.emit(ip if ip else "")
 
     def populate_connection_mode(self, selected_mode: str) -> None:
         for i in range(self._mode_combo.count()):

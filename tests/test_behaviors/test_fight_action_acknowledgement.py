@@ -6,7 +6,8 @@ from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightEvent,
     SequenceEndEvent,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import MapMovementEvent
+from datas.protos.non_obf.game.gamemap_pb2 import MapMovementEvent, MapMovementRequest
+from datas.protos.non_obf.game.fight_pb2 import FightTurnFinishRequest
 from dofus_unity_reader.grid.map_point import MapPoint
 from google.protobuf.message import Message
 
@@ -15,6 +16,7 @@ from src.core.behaviors.farms.fight.fight_movement_behavior import (
     FightMovementBehavior,
 )
 from src.core.behaviors.farms.fight.fight_spell_behavior import FightSpellBehavior
+from src.core.behaviors.farms.fight.fight_turn_behavior import FightTurnBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
 from src.core.events_manager.event_manager import EventManager
@@ -224,3 +226,86 @@ class TestFightActionAcknowledgement:
 
         assert finished_error_codes == [None]
         assert spell_behavior.state == BehaviorState.STOPPED
+
+    def test_fight_turn_passes_without_runaway_when_no_enemies_remain(
+        self, game_state_ctx: GameStateContext
+    ) -> None:
+        set_game_state(game_state_ctx.game_state, player_cell_id=344, enemy_cell_ids=[])
+        game_state_ctx.game_state.fight.in_fight = True
+        event_manager = _make_event_manager(game_state_ctx)
+        sent_messages: list[Message] = []
+        event_manager.on_send_game_callback = sent_messages.append
+        map_move_behavior = MapMoveBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            path_finding=game_state_ctx.pathfinding,
+            _logger=game_state_ctx.logger,
+        )
+        fight_movement_behavior = FightMovementBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            map_move_behavior=map_move_behavior,
+            path_finding=game_state_ctx.pathfinding,
+            fight_reachable_cells=game_state_ctx.fight_reachable_cells,
+            _logger=game_state_ctx.logger,
+        )
+        fight_spell_behavior = FightSpellBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            _logger=game_state_ctx.logger,
+        )
+        fight_turn_behavior = FightTurnBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            fight_movement_behavior=fight_movement_behavior,
+            path_finding=game_state_ctx.pathfinding,
+            fight_spell_behavior=fight_spell_behavior,
+            attacker=game_state_ctx.attacker,
+            _logger=game_state_ctx.logger,
+        )
+        fight_turn_behavior.did_attack = True
+
+        fight_turn_behavior.find_and_do_attack()
+
+        assert [type(sent_message) for sent_message in sent_messages] == [
+            FightTurnFinishRequest
+        ]
+        assert map_move_behavior.state == BehaviorState.STOPPED
+
+    def test_runaway_finishes_without_movement_when_no_enemies_remain(
+        self, game_state_ctx: GameStateContext
+    ) -> None:
+        set_game_state(game_state_ctx.game_state, player_cell_id=344, enemy_cell_ids=[])
+        game_state_ctx.game_state.fight.in_fight = True
+        event_manager = _make_event_manager(game_state_ctx)
+        sent_messages: list[Message] = []
+        event_manager.on_send_game_callback = sent_messages.append
+        map_move_behavior = MapMoveBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            path_finding=game_state_ctx.pathfinding,
+            _logger=game_state_ctx.logger,
+        )
+        fight_movement_behavior = FightMovementBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            map_move_behavior=map_move_behavior,
+            path_finding=game_state_ctx.pathfinding,
+            fight_reachable_cells=game_state_ctx.fight_reachable_cells,
+            _logger=game_state_ctx.logger,
+        )
+        finished_error_codes: list[str | None] = []
+
+        fight_movement_behavior.start(
+            callback=finished_error_codes.append,
+            parent=None,
+            run_away=True,
+        )
+
+        assert finished_error_codes == [None]
+        assert not any(
+            isinstance(sent_message, MapMovementRequest)
+            for sent_message in sent_messages
+        )
+        assert fight_movement_behavior.state == BehaviorState.STOPPED
+        assert map_move_behavior.state == BehaviorState.STOPPED

@@ -20,6 +20,7 @@ from src.controller.bot_config import BotConfig
 from src.controller.schedule_profile_controller import ScheduleProfileController
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.execution.process_manager import ProcessManager
+from src.core.events_manager.event_manager import EventManager
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.message_signals import MessageInfoSignals
@@ -49,6 +50,7 @@ class BotScheduler(ContextualLogger):
 
     behavior_coordinator: BehaviorCoordinator
     process_manager: ProcessManager
+    event_manager: EventManager
 
     _scheduled_jobs: list[schedule.Job] = field(
         init=False, default_factory=list[schedule.Job]
@@ -199,6 +201,12 @@ class BotScheduler(ContextualLogger):
             if self.behavior_coordinator:
                 self.behavior_coordinator.stop_behaviors()
             self.bot_signals.stop.emit()
+            if self.event_manager.is_socket_mode:
+                request_disconnect = self.event_manager.request_disconnect_callback
+                assert request_disconnect is not None, (
+                    "Socket mode must define a request_disconnect_callback"
+                )
+                request_disconnect()
             if self.process_manager:
                 self.process_manager.kill_process()
         else:

@@ -60,7 +60,7 @@ class AutoEquipmentBehavior(Behavior):
 
         self._needed_gids = [info.item_gid for info in item_infos_to_equip]
         inventory = self.game_state.inventory
-        can_bank = self.game_state.player.can_use_bank
+        can_bank = self.game_state.inventory.can_use_bank
         primary_elem = self.game_state.fight.primary_and_second_elem[0]
 
         load_from_bank: list[LoadItemInfo] = []
@@ -92,7 +92,9 @@ class AutoEquipmentBehavior(Behavior):
                 > roll_score(inv_best, primary_elem)
             ):
                 load_from_bank.append(
-                    LoadItemInfo(item_gid=gid, remaining_quantity=len(bank_items), tab=0)
+                    LoadItemInfo(
+                        item_gid=gid, remaining_quantity=len(bank_items), tab=0
+                    )
                 )
             elif inv_best is None:
                 self._to_buy.append(info)

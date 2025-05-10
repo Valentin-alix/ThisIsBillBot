@@ -158,7 +158,7 @@ class BotFactory:
             title=title, log_signals=log_signals, debug_recorder=debug_recorder
         )
 
-        event_manager = EventManager(_logger=logger)
+        event_manager = EventManager(_logger=logger, debug_recorder=debug_recorder)
 
         # state
         game_state = StateFactory.create_game_state(

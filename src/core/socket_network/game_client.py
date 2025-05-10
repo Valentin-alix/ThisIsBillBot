@@ -25,7 +25,7 @@ class GameClient(BaseClient):
     uid: int = field(init=False, default=1)
 
     def connect(self, host: str, port: int, ticket: str) -> None:
-        self.client_socket.connect((host, port))
+        self.connect_socket(host, port)
         self.bot.event_manager.request_disconnect_callback = self.close
         self.bot.logger.info(f"[GameClient] Connected to {host}:{port}")
         self.bot.event_manager.on_send_game_callback = self.send_msg
@@ -42,6 +42,9 @@ class GameClient(BaseClient):
         _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(
             msg_datas[pos : pos + size], False
         )
+        self.bot.debug_recorder.record_game_message(
+            clear_sub_msg, obf_sub_msg, uid, True
+        )
         if const.DEBUG:
             msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, True, False)
             self.bot.msg_info_signals.msg_info.emit(msg_infos, False)
@@ -49,6 +52,8 @@ class GameClient(BaseClient):
             self.bot.event_manager.process_msg(clear_sub_msg)
 
     def send_msg(self, clear_sub_msg: Message) -> None:
+        if self.client_socket.fileno() == -1:
+            return
         uid = self.uid + 1 if type(clear_sub_msg) in MESSAGES_WITH_UID else -1
         obf_info = get_obf_game_message_from_msg(
             Request.DESCRIPTOR.full_name, clear_sub_msg, uid
@@ -56,6 +61,10 @@ class GameClient(BaseClient):
         if obf_info is not None:
             obf_game_msg, obf_sub_msg = obf_info
             self.client_socket.sendall(encode_msg(obf_game_msg))
+            self.bot.debug_recorder.record_game_message(
+                clear_sub_msg, obf_sub_msg, uid, False
+            )
+            self.bot.event_manager.process_msg(clear_sub_msg)
             if const.DEBUG:
                 msg_infos = get_game_msg_info(
                     clear_sub_msg, obf_sub_msg, uid, False, False
@@ -63,6 +72,8 @@ class GameClient(BaseClient):
                 self.bot.msg_info_signals.msg_info.emit(msg_infos, True)
 
     def send_obf_msg(self, obf_msg: Message) -> None:
+        if self.client_socket.fileno() == -1:
+            return
         self.client_socket.sendall(encode_msg(obf_msg))
 
     def on_close(self) -> None:

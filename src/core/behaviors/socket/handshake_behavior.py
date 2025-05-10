@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 from typing import cast
 
-from datas.protos.non_obf.game.alliance_information_pb2 import AllianceMotdSetRequest
 from datas.protos.non_obf.game.bak_pb2 import BakApiTokenRequest
-from datas.protos.non_obf.game.breach_pb2 import BreachRoomUnlockRequest
 from datas.protos.non_obf.game.character_management_pb2 import (
     CharacterListEvent,
     CharacterListRequest,
@@ -19,7 +17,7 @@ from datas.protos.non_obf.game.connection_pb2 import (
 )
 from datas.protos.non_obf.game.contact_pb2 import (
     AcquaintanceListRequest,
-    BlockListRequest,
+    ContactWarnOnAchievementCompleteSetRequest,
     ContactWarnOnPermanentDeathSetRequest,
     FriendListRequest,
     FriendSetStatusShareRequest,
@@ -28,13 +26,13 @@ from datas.protos.non_obf.game.contact_pb2 import (
 )
 from datas.protos.non_obf.game.context_pb2 import ContextCreationRequest
 from datas.protos.non_obf.game.guild_information_pb2 import GuildInformationRequest
-from datas.protos.non_obf.game.guild_rank_pb2 import GuildRankRemoveRequest
 from datas.protos.non_obf.game.social_pb2 import SpouseInformationRequest
-from datas.protos.non_obf.game.taxcollector_pb2 import (
-    TaxCollectorPresetSpellAddRequest,
-)
 
 from src.core.behaviors.behavior import Behavior
+from src.services.human_timings import get_random_range
+
+_POST_LOAD_DELAY: tuple[float, float] = (1.0, 1.3)
+_CONTEXT_CREATION_DELAY: tuple[float, float] = (0.25, 0.4)
 
 _CHANNELS_ENABLED: list[Channel] = [
     Channel.SALES,
@@ -100,41 +98,49 @@ class HandshakeBehavior(Behavior):
         )
 
     def on_character_loading_complete_event(
-        self, msg: CharacterLoadingCompleteEvent
+        self, _msg: CharacterLoadingCompleteEvent
     ) -> None:
+        self.run_timer(
+            get_random_range(_POST_LOAD_DELAY, is_weighted=False),
+            self._send_post_load_batch,
+        )
+
+    def _send_post_load_batch(self) -> None:
+        info_type = GuildInformationRequest.InformationType
         self.event_manager.send(FriendListRequest())
         self.event_manager.send(AcquaintanceListRequest())
-        self.event_manager.send(AllianceMotdSetRequest())
+        self.event_manager.send(SpouseInformationRequest())
         self.event_manager.send(
-            GuildInformationRequest(
-                information_type=GuildInformationRequest.InformationType.INFO_PADDOCKS
-            )
+            GuildInformationRequest(information_type=info_type.INFO_PADDOCKS)
         )
-        self.event_manager.send(GuildRankRemoveRequest())
+        self.event_manager.send(
+            GuildInformationRequest(information_type=info_type.INFO_HOUSES)
+        )
+        self.event_manager.send(
+            ContactWarnOnAchievementCompleteSetRequest(enable=False)
+        )
+        self.event_manager.send(FriendSetWarnOnConnectionRequest(enable=False))
         self.event_manager.send(FriendSetWarnOnLevelGainRequest(enable=False))
-        self.event_manager.send(FriendSetWarnOnConnectionRequest())
-        self.event_manager.send(ContactWarnOnPermanentDeathSetRequest())
+        self.event_manager.send(ContactWarnOnPermanentDeathSetRequest(enable=False))
         self.event_manager.send(FriendSetStatusShareRequest(share=False))
         self.event_manager.send(
-            GuildInformationRequest(
-                information_type=GuildInformationRequest.InformationType.INFO_PADDOCKS
-            )
+            GuildInformationRequest(information_type=info_type.INFO_PADDOCKS)
         )
         self.event_manager.send(
-            GuildInformationRequest(
-                information_type=GuildInformationRequest.InformationType.INFO_GENERAL
-            )
+            GuildInformationRequest(information_type=info_type.INFO_HOUSES)
         )
-        self.event_manager.send(TaxCollectorPresetSpellAddRequest())
 
+        self.run_timer(
+            get_random_range(_CONTEXT_CREATION_DELAY, is_weighted=False),
+            self._send_context_creation,
+        )
+
+    def _send_context_creation(self) -> None:
         self.event_manager.send(ContextCreationRequest())
-        self.event_manager.send(BlockListRequest())
-        self.event_manager.send(BreachRoomUnlockRequest())
         self.event_manager.send(
             SubscribeMultipleChannelRequest(
                 channel_enabled=_CHANNELS_ENABLED,
                 channel_disabled=_CHANNELS_DISABLED,
             )
         )
-        self.event_manager.send(SpouseInformationRequest())
         self.finish(None)

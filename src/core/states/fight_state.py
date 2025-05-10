@@ -92,6 +92,22 @@ class FightState(State):
         return value
 
     def sync_life_points_from_characteristics(self) -> None:
+        required_characteristic_ids = {
+            CharacteristicEnum.LIFE_POINTS,
+            CharacteristicEnum.VITALITY,
+            CharacteristicEnum.CUR_LIFE,
+        }
+        missing_characteristic_ids = [
+            characteristic_id
+            for characteristic_id in required_characteristic_ids
+            if characteristic_id not in self.characteristic_by_id
+        ]
+        if missing_characteristic_ids:
+            self.logger.error(
+                "Cannot sync player HP from characteristics: "
+                f"missing_characteristic_ids={missing_characteristic_ids}, "
+                f"available_characteristic_ids={list(self.characteristic_by_id)}"
+            )
         assert CharacteristicEnum.LIFE_POINTS in self.characteristic_by_id
         assert CharacteristicEnum.VITALITY in self.characteristic_by_id
         assert CharacteristicEnum.CUR_LIFE in self.characteristic_by_id
@@ -101,8 +117,16 @@ class FightState(State):
         current_life_delta = self.get_stat_by_id(CharacteristicEnum.CUR_LIFE)
 
         max_life_point = life_points + vitality
+        synced_life_point = max_life_point + current_life_delta
+        if max_life_point <= 0 or synced_life_point < 0:
+            self.logger.error(
+                "Player HP characteristic sync would violate invariants: "
+                f"life_points={life_points}, vitality={vitality}, "
+                f"cur_life={current_life_delta}, max_life_point={max_life_point}, "
+                f"life_point={synced_life_point}"
+            )
         self.max_life_point = max_life_point
-        self.life_point = max_life_point + current_life_delta
+        self.life_point = synced_life_point
 
     def update_characteristic(self, characteristic: CharacterCharacteristic) -> None:
         self.characteristic_by_id[characteristic.characteristic_id] = characteristic
@@ -191,7 +215,7 @@ class FightState(State):
                 dmg_stats,
                 key=lambda char_id: (
                     self.get_stat_by_id(char_id),
-                    _secondary_sort_stat,
+                    _secondary_sort_stat(char_id),
                     (char_id),
                 ),
                 reverse=True,
@@ -259,6 +283,14 @@ class FightState(State):
                 enemy.actor_information.fighter.ai_fighter.monster_fighter_information
             )
             monster_id = monster_info.monster_gid
+            assert monster_id in DataReader().monsters_by_id, (
+                "Enemy fighter has no known monster data: "
+                f"actor_id={enemy.actor_id}, "
+                f"team={enemy.actor_information.fighter.spawn_information.team}, "
+                f"fighter_kind={_fighter_kind(enemy)}, "
+                f"monster_gid={monster_id}, "
+                f"creature_grade={monster_info.creature_grade}"
+            )
 
             monster = DataReader().monsters_by_id[monster_id]
             monster_grade = monster.grades[monster_info.creature_grade - 1]
@@ -277,3 +309,17 @@ class FightState(State):
                 )
             )
         return enemies_data
+
+
+def _fighter_kind(enemy: ActorPositionInformation) -> str:
+    fighter = enemy.actor_information.fighter
+    if fighter.HasField("ai_fighter"):
+        ai_fighter = fighter.ai_fighter
+        if ai_fighter.HasField("monster_fighter_information"):
+            return "ai_monster"
+        return "ai_fighter"
+    if fighter.HasField("named_fighter"):
+        return "named_fighter"
+    if fighter.HasField("entity_fighter"):
+        return "entity_fighter"
+    return "unknown"

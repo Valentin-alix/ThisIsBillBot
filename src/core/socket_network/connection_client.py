@@ -25,7 +25,7 @@ class ConnectionClient(BaseClient):
         self, game_token: str, callback: Callable[[str | None, str, int, str], None]
     ) -> None:
         """Authenticate against the login server and retrieve game server coordinates."""
-        self.client_socket.connect((DOFUS_CONNECTION_URL, LOGIN_SERVER_PORT))
+        self.connect_socket(DOFUS_CONNECTION_URL, LOGIN_SERVER_PORT)
         self.bot.event_manager.on_send_conn_callback = self.send_msg
         self.bot.logger.info(f"Connected to {DOFUS_CONNECTION_URL}:{LOGIN_SERVER_PORT}")
         threading.Thread(target=self.loop, daemon=True).start()

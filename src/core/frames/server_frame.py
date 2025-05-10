@@ -12,6 +12,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
 )
 
 from src.core.config import OCCUPIED_MESSAGE_ID, OCCUPIED_STUCK_LIMIT
+from src.core.events_manager.event_manager import ServerTextInformationError
 from src.core.frames.frame import Frame
 
 INTERVAL_HANDSHAKE = 10
@@ -67,6 +68,10 @@ class ServerFrame(Frame):
         # Lets us capture the real "occupied" message id from the logs.
         self.logger.debug(
             f"TextInformation error id={msg.message_id} params={msg.parameters}"
+        )
+        self.event_manager.last_text_information_error = ServerTextInformationError(
+            message_id=msg.message_id,
+            parameters=tuple(str(parameter) for parameter in msg.parameters),
         )
 
         if OCCUPIED_MESSAGE_ID is None or msg.message_id != OCCUPIED_MESSAGE_ID:

@@ -1,82 +1,62 @@
 {
   "pcserv_blibli_12_2@outlook.fr": {
-    "network_interface": null,
     "pc_id": 2,
     "schedule_profile": null,
     "connection_mode": "socket",
-    "hardware_id": null,
-    "auto_subscribe": true,
-    "subscribe_proxy": null,
-    "subscribe_server_name": null
+    "hardware_id": null
   },
   "ezrealeu44700_main@outlook.com": {
-    "network_interface": null,
     "pc_id": 2,
     "schedule_profile": "A",
     "connection_mode": "socket",
-    "hardware_id": null,
-    "auto_subscribe": true,
-    "subscribe_proxy": null,
-    "subscribe_server_name": null
+    "hardware_id": "427548B2FDA7A24B16B5B971EF5F5493853A4862746C3F0C89648C58AA8ED450"
   },
   "renaissance.hehe1@outlook.fr": {
-    "network_interface": null,
     "pc_id": 2,
     "schedule_profile": "A",
     "connection_mode": "socket",
-    "hardware_id": null,
-    "auto_subscribe": true,
-    "subscribe_proxy": null,
-    "subscribe_server_name": null
+    "hardware_id": "93798AC4DFD217DBFE8DA54BFE05AD3729AB0E018432A9CFE300507A1B9732B1"
   },
   "renaissance.hehe@outlook.fr": {
-    "network_interface": null,
     "pc_id": 2,
     "schedule_profile": "B",
     "connection_mode": "socket",
-    "hardware_id": null,
-    "auto_subscribe": true,
-    "subscribe_proxy": null,
-    "subscribe_server_name": null
+    "hardware_id": null
   },
   "renaissance.hzhz@outlook.fr": {
-    "network_interface": null,
     "pc_id": 2,
-    "schedule_profile": "C",
+    "schedule_profile": "B",
     "connection_mode": "socket",
-    "hardware_id": null,
-    "auto_subscribe": true,
-    "subscribe_proxy": null,
-    "subscribe_server_name": null
+    "hardware_id": "35D9F1DF1ABFD2BB97B4856BB1A487C6A10737CF4CD4FBAD632DE33336937C79"
   },
   "renaissance.haha@outlook.fr": {
-    "network_interface": null,
     "pc_id": 2,
-    "schedule_profile": "E",
+    "schedule_profile": "B",
     "connection_mode": "socket",
-    "hardware_id": null,
-    "auto_subscribe": true,
-    "subscribe_proxy": null,
-    "subscribe_server_name": null
+    "hardware_id": "799A44EC67AEE1B501EDA8D047E02B846846D93956A80F7CFBA80409EDA2E2C1"
   },
   "renaissance.haha1@outlook.fr": {
-    "network_interface": null,
     "pc_id": 2,
     "schedule_profile": "A",
     "connection_mode": "socket",
-    "hardware_id": null,
-    "auto_subscribe": true,
-    "subscribe_proxy": null,
-    "subscribe_server_name": null
+    "hardware_id": "294F48DCD785AE727D21C7901430136B8775C152C079CD625E94F582E6AA3C89"
   },
   "renaissance.haha2@outlook.fr": {
-    "network_interface": "192.168.1.156",
     "pc_id": 2,
     "schedule_profile": "B",
     "connection_mode": "socket",
-    "hardware_id": null,
-    "auto_subscribe": true,
-    "subscribe_proxy": null,
-    "subscribe_server_name": null
+    "hardware_id": "0662354B3D1112B4DAE2422B96EE580AFFFF559C882E28778515E3DC6366ABC0"
+  },
+  "renaissance.hehe2@outlook.fr": {
+    "pc_id": 2,
+    "schedule_profile": "A",
+    "connection_mode": "socket",
+    "hardware_id": "6B4F4557F69904E635FA8389F07D60663B30B80151B8D44A094985C77AEB25CD"
+  },
+  "renaissance.hehe3@outlook.fr": {
+    "pc_id": 2,
+    "schedule_profile": "A",
+    "connection_mode": "socket",
+    "hardware_id": null
   }
 }

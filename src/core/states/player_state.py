@@ -75,10 +75,6 @@ class PlayerState(State):
         return get_game_sub_info_by_login(self.login).is_former_subscriber
 
     @property
-    def can_use_bank(self) -> bool:
-        return self.is_sub or self.is_former_sub
-
-    @property
     def character_id(self):
         return self._character_id
 

@@ -155,14 +155,21 @@ class BehaviorCoordinator(ContextualLogger):
 
     def stop_behaviors(self) -> None:
         with self.event_manager.lock:
-            for field_info in fields(self):
-                field_value = getattr(self, field_info.name)
-                if (
-                    isinstance(field_value, Behavior)
-                    and field_value.state == BehaviorState.RUNNING
-                ):
-                    field_value.stop()
+            for behavior in self.running_top_level_behaviors():
+                behavior.stop()
 
-            for usable_behavior in self.usable_behaviors:
-                if usable_behavior.state == BehaviorState.RUNNING:
-                    usable_behavior.stop()
+    def running_top_level_behaviors(self) -> list[Behavior]:
+        """Top-level (parent-less) action behaviors currently RUNNING."""
+        running: list[Behavior] = []
+        for field_info in fields(self):
+            field_value = getattr(self, field_info.name)
+            if (
+                isinstance(field_value, Behavior)
+                and field_value.state == BehaviorState.RUNNING
+            ):
+                running.append(field_value)
+
+        for usable_behavior in self.usable_behaviors:
+            if usable_behavior.state == BehaviorState.RUNNING:
+                running.append(usable_behavior)
+        return running

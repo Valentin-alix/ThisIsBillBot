@@ -51,6 +51,11 @@ class EdgeBehavior(Behavior):
                 f"probably in transition to map id"
             )
             return self.finish(EdgeError.INVALID_STARTING_MAP)
+        self.event_manager.on(
+            MapCurrentEvent,
+            partial(self.on_map_current_event, expected_map_id=edge.m_to.m_mapId),
+            originator=self,
+        )
         transition = get_valid_transition(
             edge, edge.m_transitions, self.game_state.get_world_transition_context()
         )
@@ -262,6 +267,9 @@ class EdgeBehavior(Behavior):
             self.raise_if_error(error_code)
 
     def on_map_current_event(self, msg: MapCurrentEvent, expected_map_id: int):
+        if self.game_state.fight.in_fight:
+            # FightMapInformationEvent is gonna handle that
+            return
         error_code = (
             MapChangeError.UNEXPECTED_NEW_MAP if msg.map_id != expected_map_id else None
         )
@@ -332,7 +340,7 @@ class EdgeBehavior(Behavior):
             self.logger.error("refused or timeout map change")
             self.handle_invalid_transition(edge, transition)
             return self.run_timer((1, 10), lambda: self.run(edge))
-        self.finish(error_code)
+        self.raise_if_error(error_code)
 
     def handle_invalid_transition(self, edge: Edge, transition: Transition):
         self.logger.error(f"Forbidden edge : {edge} with transition : {transition}")

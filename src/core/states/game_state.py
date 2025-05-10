@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 
@@ -19,6 +20,7 @@ from src.core.states.inventory_state import InventoryState
 from src.core.states.map_state import MapState
 from src.core.states.player_state import PlayerState
 from src.core.states.sale_hotel_state import SaleHotelState
+from src.core.states.server_state import ServerState
 
 
 @dataclass
@@ -32,6 +34,34 @@ class GameState:
     guild_chest: GuildChestState
     sale_hotel: SaleHotelState
     craft: CraftState
+    server: ServerState
+
+    def debug_snapshot(self) -> dict[str, Any]:
+        """Flat snapshot of the most relevant state for debugging."""
+        snapshot: dict[str, Any] = {
+            "map_id": self.map.map_id,
+            "in_map_transition": bool(self.map.is_in_map_transition),
+            "in_haven_bag": self.map.is_in_haven_bag,
+            "character_name": self.player.character_name,
+            "character_id": self.player.character_id,
+            "level": self.player.level,
+            "server_id": self.player.server_id,
+            "in_fight": self.fight.in_fight,
+            "is_our_turn": self.fight.is_our_turn,
+            "fight_turn": self.fight.fight_turn,
+            "life_point": self.fight.life_point,
+            "max_life_point": self.fight.max_life_point,
+            "kamas": self.inventory.kamas,
+            "inventory_weight": self.inventory.inventory_weight,
+            "weight_max": self.inventory.weight_max,
+            "actor_count": len(self.entity.actor_by_id),
+        }
+        try:
+            snapshot["sub_area_id"] = self.map.sub_area_id
+            snapshot["cell_id"] = self.map.map_point.cell_id
+        except KeyError:
+            pass
+        return snapshot
 
     def get_map_movement_context(self) -> MapMovementContext:
         return MapMovementContext(

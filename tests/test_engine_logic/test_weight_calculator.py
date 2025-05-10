@@ -90,6 +90,7 @@ def _make_effect(*, step_percent: int = 0, max_apply: int = 0) -> Effect:
     return msgspec.structs.replace(
         make_spell_effect(effect_id=1, effect_element=EffectElement.STRENGTH),
         zoneDescr=zone,
+        targetMask="A",
     )
 
 
@@ -432,6 +433,63 @@ class TestCalculateAttackWeight:
 
         # two effects x 100 = 200 damage; efficiency 200 / 1.0, no kill -> 200
         assert weight == pytest.approx(200.0)  # pyright: ignore[reportUnknownMemberType]
+
+    def test_ally_only_effect_is_not_counted_as_enemy_damage(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Absorption-like ally transfer effects must not inflate attack weight."""
+        _stub_no_type_effect(monkeypatch)
+
+        enemy_damage_effect = _make_effect()
+        ally_transfer_effect = msgspec.structs.replace(
+            enemy_damage_effect,
+            effectElement=EffectElement.CHANCE,
+            targetMask="a",
+        )
+        spell_lvl = _make_spell([enemy_damage_effect, ally_transfer_effect])
+
+        damage_calculator = MagicMock()
+        damage_calculator.get_damage_effect.return_value = 100
+
+        enemy = _make_enemy(cell_id=1, life_point=1000, max_life_point=1000)
+        weight = calculate_attack_weight(
+            damage_calculator=damage_calculator,
+            context=_make_context(),
+            impact_mps={enemy.map_point},
+            spell_lvl=spell_lvl,
+            effect=enemy_damage_effect,
+            target_mp=MapPoint.from_cell_id(0),
+            enemies_data=[enemy],
+            modifiers=_make_modifiers(ap_cost=1),
+        )
+
+        assert weight == pytest.approx(100.0)  # pyright: ignore[reportUnknownMemberType]
+        assert damage_calculator.get_damage_effect.call_count == 1
+
+    def test_mixed_ally_enemy_effect_is_counted_as_enemy_damage(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        _stub_no_type_effect(monkeypatch)
+
+        mixed_effect = msgspec.structs.replace(_make_effect(), targetMask="a,A")
+        spell_lvl = _make_spell([mixed_effect])
+
+        damage_calculator = MagicMock()
+        damage_calculator.get_damage_effect.return_value = 100
+
+        enemy = _make_enemy(cell_id=1, life_point=1000, max_life_point=1000)
+        weight = calculate_attack_weight(
+            damage_calculator=damage_calculator,
+            context=_make_context(),
+            impact_mps={enemy.map_point},
+            spell_lvl=spell_lvl,
+            effect=mixed_effect,
+            target_mp=MapPoint.from_cell_id(0),
+            enemies_data=[enemy],
+            modifiers=_make_modifiers(ap_cost=1),
+        )
+
+        assert weight == pytest.approx(100.0)  # pyright: ignore[reportUnknownMemberType]
 
     def test_ally_in_aoe_penalises_weight(
         self, monkeypatch: pytest.MonkeyPatch

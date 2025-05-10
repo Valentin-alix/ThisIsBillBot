@@ -146,3 +146,9 @@ class InventoryState(State):
         return next(
             (obj for obj in self.objects_by_uid.values() if obj.item.gid == gid), None
         )
+
+    @property
+    def can_use_bank(self) -> bool:
+        return (
+            self.player_state.is_sub or self.player_state.is_former_sub
+        ) and self.kamas > 1_000

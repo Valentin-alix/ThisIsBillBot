@@ -10,8 +10,9 @@ class GroupBox(QFrame):
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        title_label = SubtitleLabel(text=title, parent=self)
-        layout.addWidget(title_label)
+        if title:
+            title_label = SubtitleLabel(text=title, parent=self)
+            layout.addWidget(title_label)
 
         self.content_layout = QVBoxLayout()
         layout.addLayout(self.content_layout)
