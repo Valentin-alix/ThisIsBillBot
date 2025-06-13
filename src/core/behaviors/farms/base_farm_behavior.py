@@ -15,7 +15,7 @@ from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestError,
 )
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
-from src.core.config import DO_CRAFT, DO_SALE_HOTEL, USEFUL_UNLOAD
+from src.core.config import DO_CRAFT, DO_SALE_HOTEL
 from src.core.engine.crafts.recipes import (
     get_recipes_for_job_lvl_upor_benefice,
     is_not_valid_recipe_for_lvl_up_job_or_benefice,
@@ -63,28 +63,23 @@ class BaseFarmBehavior(Behavior, ABC):
         if not self.game_state.inventory.can_use_bank:
             self.logger.info("No bank access: skipping unload, moving to next map")
             return self.run_next_step()
-        if do_unload_on_mule(
-            self.game_state.inventory.kamas,
-            self.game_state.player.is_sub,
-            self.game_state.sale_hotel.is_full_object_in_sale_hotel,
-            self.game_state.sale_hotel.should_update_price,
-        ):
-            self.mule_give_behavior.start(
-                callback=self.on_unloaded_on_mule_finished, parent=self
-            )
-        else:
-            self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
-
-    def on_unloaded_on_mule_finished(self, error_code: str | None):
-        if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
-            self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
-        else:
-            self.on_unload_finished(error_code)
+        self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
 
     def on_unload_finished(self, error_code: str | None):
         if error_code is not None:
             self.logger.error("Can't unload")
             return self.finish(error_code)
+
+        if do_unload_on_mule(
+            self.game_state.inventory.kamas, self.game_state.player.is_sub
+        ):
+            self.mule_give_behavior.start(
+                callback=self.on_unloaded_on_mule_finished, parent=self
+            )
+        else:
+            self.on_unloaded_on_mule_finished(None)
+
+    def on_unloaded_on_mule_finished(self, error_code: str | None):
         if self.game_state.sale_hotel.should_update_price:
             self.on_time_to_update_price()
         else:
@@ -118,7 +113,7 @@ class BaseFarmBehavior(Behavior, ABC):
         if not DO_SALE_HOTEL:
             return self.on_new_map()
 
-        def on_sale_hotel_prices_finished(_error_code: object) -> None:
+        def on_sale_hotel_prices_finished(error_code: str | None) -> None:
             self.on_new_map()
 
         self.sale_hotel_prices_behavior.start(

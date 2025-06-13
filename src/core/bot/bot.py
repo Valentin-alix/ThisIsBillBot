@@ -151,6 +151,7 @@ class Bot(ContextualLogger):
             is_connected_event=self.is_connected_event,
             tutorial_behavior=self.tutorial_behavior,
             character_creation_behavior=self.character_creation_behavior,
+            bot_signals=self.bot_signals,
         )
 
         self.watchdog = StuckWatchdog(

@@ -151,13 +151,13 @@ class Behavior(ContextualLogger):
             ):
                 return
 
-            self.logger.debug(f"Starting {self.__class__.__name__}")
-            if self.parent is None:
-                self._record_state_snapshot(f"{self.__class__.__name__}.start")
-            run_method = getattr(self, "run", None)
-            if not callable(run_method):
-                raise TypeError(f"{self.__class__.__name__} must define a run() method")
-            run_method(*args, **kwargs)
+        self.logger.debug(f"Starting {self.__class__.__name__}")
+        if self.parent is None:
+            self._record_state_snapshot(f"{self.__class__.__name__}.start")
+        run_method = getattr(self, "run", None)
+        if not callable(run_method):
+            raise TypeError(f"{self.__class__.__name__} must define a run() method")
+        run_method(*args, **kwargs)
 
     def send_message_delayed(
         self, message: Message, delay: tuple[float, float] | float
@@ -176,14 +176,13 @@ class Behavior(ContextualLogger):
         timer.start()
 
     def run_timed_func(self, func: Callable[[], None]) -> None:
-        with self.event_manager.lock:
-            with self._state_lock:
-                if self._state != BehaviorState.RUNNING:
-                    self.logger.warning(
-                        f"Timer fired but behavior in state {self.state.name}, ignoring"
-                    )
-                    return
-            func()
+        with self._state_lock:
+            if self._state != BehaviorState.RUNNING:
+                self.logger.warning(
+                    f"Timer fired but behavior in state {self._state.name}, ignoring"
+                )
+                return
+        func()
 
     def stop(self) -> None:
         with self._state_lock:

@@ -1,5 +1,6 @@
 import argparse
 import sys
+import threading
 from pathlib import Path
 from time import sleep
 
@@ -65,9 +66,16 @@ def main() -> None:
 
     cease_running = run_continuously()
 
-    def on_app_close():
+    def on_app_close() -> None:
         cease_running.set()
-        bot_manager.shutdown()
+
+        def shutdown() -> None:
+            try:
+                bot_manager.shutdown()
+            finally:
+                shared_signals.shutdown_finished.emit()
+
+        threading.Thread(target=shutdown, name="bot-manager-shutdown").start()
 
     shared_signals.closed.connect(on_app_close)
 

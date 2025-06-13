@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Coroutine
 
 import schedule
+from ankama_launcher_emulator_premium.exceptions import BannedException
 from ankama_launcher_emulator_premium.utils.internet import (
     get_available_network_interfaces,
 )
@@ -93,6 +94,7 @@ class AccountScheduler:
 
     on_accounts_synchronized: Callable[[], None]
     on_subscribed: Callable[[str], None]
+    on_banned_callback: Callable[[str], None]
     bot_config_controller: BotConfigController = field(
         default_factory=BotConfigController
     )
@@ -173,10 +175,14 @@ class AccountScheduler:
             case _RegisterOp():
                 _run_async(register_next_available_email())
             case _SubscribeOp(login=login, options=options):
-                sub_result = self.subscribe_service.run(login, options)
-                logger.info(f"[{login}] {sub_result}")
-                if sub_result.status == SubscribeStatus.SUBSCRIBED:
-                    self.on_subscribed(login)
+                try:
+                    sub_result = self.subscribe_service.run(login, options)
+                except BannedException:
+                    self.on_banned_callback(login)
+                else:
+                    logger.info(f"[{login}] {sub_result}")
+                    if sub_result.status == SubscribeStatus.SUBSCRIBED:
+                        self.on_subscribed(login)
         with self._lock:
             self._operation_in_progress = False
 

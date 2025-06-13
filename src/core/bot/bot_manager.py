@@ -7,9 +7,7 @@ from time import monotonic, sleep
 
 from src.exceptions import UnavailableNetworkInterface
 
-# Minimum spacing between two Dofus client launches: launching several native
-# clients at once segfaults the launcher, so they are staggered.
-LAUNCH_SPACING_SECONDS = 1.0
+LAUNCH_SPACING_SECONDS = 2.5
 
 from ankama_launcher_emulator_premium.decrypter.crypto_helper import (
     CryptoHelper,
@@ -66,6 +64,7 @@ class BotManager:
         self.account_scheduler = AccountScheduler(
             on_accounts_synchronized=self.shared_signals.synchronize_bots.emit,
             on_subscribed=self.on_subscribed,
+            on_banned_callback=self.on_banned_callback,
         )
         self.account_scheduler.start()
 
@@ -169,7 +168,12 @@ class BotManager:
             self._wait_launch_slot()
 
             if bot_config and bot_config.connection_mode == "socket":
-                SocketClient(related_bot, bot_config, interface_ip).connect()
+                SocketClient(
+                    related_bot,
+                    bot_config,
+                    interface_ip,
+                    self.on_banned_callback,
+                ).connect()
                 self._is_lauching_by_login[login].clear()
                 return
             else:
@@ -201,6 +205,11 @@ class BotManager:
         )
         related_bot.is_playing_event.clear()
         related_bot.process_manager.kill_process()
+
+    def on_banned_callback(self, login: str):
+        CryptoHelper.remove_bot(login)
+        BotConfigController().remove_bot_config(login)
+        self.on_synchronize_bots()
 
     def safe_stop_bots(self, bots: list[Bot]):
         for bot in bots:

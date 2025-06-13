@@ -69,6 +69,13 @@ class GameSessionBehavior(Behavior):
     _player_status_sent: bool = field(init=False, default=False)
 
     def run(self) -> None:
+        self._cvlg = 0
+        self._cvlh = 0
+        self._sequence_number = 1
+        self._fight_sequence_depth = 0
+        self._turn_ready_pending = False
+        self._player_status_sent = False
+
         self.event_manager.on(
             ServerVerificationEvent, self._on_server_verification, originator=self
         )

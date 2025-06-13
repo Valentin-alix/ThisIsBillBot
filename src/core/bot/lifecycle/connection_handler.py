@@ -1,4 +1,3 @@
-import time
 from dataclasses import dataclass, field
 from threading import Event, Timer
 from typing import Callable
@@ -23,16 +22,12 @@ from src.core.engine.movements.world.edge import (
 )
 from src.core.events_manager.event_manager import (
     EventManager,
-    ServerTextInformationError,
 )
+from src.core.signals.bot_signals import BotSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
 from src.services.logging_utils.contextual_logger import ContextualLogger
-
-
-def _format_server_error(server_error: ServerTextInformationError) -> str:
-    return f"id={server_error.message_id} params={list(server_error.parameters)!r}"
 
 
 @dataclass
@@ -40,6 +35,7 @@ class ConnectionHandler(ContextualLogger):
     """Handles bot connection/disconnection lifecycle events."""
 
     is_connected_event: Event
+    bot_signals: BotSignals
     is_ready_to_play_event: Event
     is_playing_event: Event
     game_state: GameState
@@ -56,7 +52,6 @@ class ConnectionHandler(ContextualLogger):
 
     _timer: Timer | None = field(init=False, default=None)
     _reconnect_attempts: int = field(init=False, default=0)
-    _last_disconnect_time: float | None = field(init=False, default=None)
 
     def cleanup(self):
         if self._timer is not None:
@@ -82,44 +77,34 @@ class ConnectionHandler(ContextualLogger):
             self._reconnect_attempts = 0
             return
 
-        current_time = time.time()
+        self.logger.info(
+            f"Bot unexpected disconnect, reconnect attemp : {self._reconnect_attempts}"
+        )
 
-        if self._last_disconnect_time is not None:
-            if current_time - self._last_disconnect_time < 120:
-                self._reconnect_attempts += 1
-            else:
-                self._reconnect_attempts = 0
+        self._reconnect_attempts += 1
 
-        self._last_disconnect_time = current_time
-
-        if self._reconnect_attempts >= 3:
-            server_error = self.event_manager.last_text_information_error
-            if server_error is not None:
-                self.logger.warning(
-                    "Dernière erreur serveur avant arrêt pour déconnexions rapides: "
-                    f"{_format_server_error(server_error)}"
-                )
-            self.logger.warning(
-                f"Trop de déconnexions rapides ({self._reconnect_attempts}), arrêt du bot"
-            )
-            self.is_playing_event.clear()
+        if self._reconnect_attempts > 3:
+            self.logger.warning("Max reconnected attempt reached, stopping bot.")
+            self.bot_signals.stop.emit()
             self._reconnect_attempts = 0
             return
 
         self.behavior_coordinator.stop_behaviors()
         self.cleanup()
 
-        delay = 3 + (self._reconnect_attempts * 5)
+        delay = 10 + (self._reconnect_attempts * 10)
         self._timer = Timer(delay, self._emit_relaunch)
         self._timer.start()
 
     def _emit_relaunch(self):
+        self.logger.info("Relaunching bot")
         if self.is_playing_event.is_set():
             self.shared_signals.launch_account.emit(self.account.apikey.login)
 
     def on_ready_to_play(self):
         """Handle ready to play event and start appropriate behavior."""
         self.is_ready_to_play_event.set()
+        self._reconnect_attempts = 0
         if not self.is_playing_event.is_set():
             return
 

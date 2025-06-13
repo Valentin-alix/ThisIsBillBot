@@ -7,12 +7,8 @@ from src.core.engine.movements.map.map_tools import MapTools
 def do_unload_on_mule(
     kamas: int,
     is_sub: bool,
-    is_full_object_in_sale_hotel: bool,
-    should_update_price: bool,
 ) -> bool:
-    return kamas > BOT_KAMA_LIMIT_TO_GIVE or (
-        not is_sub and is_full_object_in_sale_hotel and not should_update_price
-    )
+    return kamas > BOT_KAMA_LIMIT_TO_GIVE and is_sub
 
 
 def get_bank_npc_info(is_sub: bool) -> list[NpcInfo]:

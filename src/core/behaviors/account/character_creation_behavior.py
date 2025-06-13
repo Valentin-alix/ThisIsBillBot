@@ -9,7 +9,6 @@ from character_management_pb2 import (
 )
 from datas.protos.non_obf.game.common_pb2 import CharacterRemodelingInformation, Gender
 from dofus_unity_reader.game_constants.breed import BreedEnum
-from gamemap_pb2 import MapComplementaryInformationEvent
 
 from src.core.behaviors.behavior import Behavior
 from src.core.config import BIG_RANGE, VERY_BIG_RANGE
@@ -44,18 +43,7 @@ class CharacterCreationBehavior(Behavior):
         self.send_message_delayed(req, VERY_BIG_RANGE)
 
     def on_character_list_event(self, msg: CharacterListEvent):
-        self.event_manager.on(
-            MapComplementaryInformationEvent,
-            self.on_map_complementary_information_event,
-            originator=self,
-            once=True,
-        )
-
         assert len(msg.characters) > 0
         req = CharacterFirstSelectionRequest(character_id=msg.characters[0].id)
         self.event_manager.send(req)
-
-    def on_map_complementary_information_event(
-        self, msg: MapComplementaryInformationEvent
-    ):
         self.finish()

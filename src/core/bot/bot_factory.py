@@ -610,11 +610,14 @@ class BotFactory:
         connection_behavior = ConnectionBehavior(
             _logger=logger, event_manager=event_manager, game_state=game_state
         )
-        handshake_behavior = HandshakeBehavior(
-            _logger=logger, event_manager=event_manager, game_state=game_state
-        )
         character_creation_behavior = CharacterCreationBehavior(
             _logger=logger, event_manager=event_manager, game_state=game_state
+        )
+        handshake_behavior = HandshakeBehavior(
+            _logger=logger,
+            event_manager=event_manager,
+            game_state=game_state,
+            character_creation_behavior=character_creation_behavior,
         )
         tutorial_behavior = TutorialBehavior(
             _logger=logger, event_manager=event_manager, game_state=game_state

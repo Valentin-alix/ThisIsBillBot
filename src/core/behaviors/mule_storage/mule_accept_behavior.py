@@ -38,10 +38,12 @@ class MuleAcceptBehavior(Behavior):
     _step: int = field(init=False, default=0)
 
     def run(self) -> None:
+        self._step = 0
         self.go_bank_map()
 
     def go_bank_map(self) -> None:
-        def on_bank_map_reached(_error_code: str | None) -> None:
+        def on_bank_map_reached(error_code: str | None) -> None:
+            self.raise_if_error(error_code)
             self.on_bank_map()
 
         self.auto_trip_smart_behavior.start(
@@ -58,7 +60,8 @@ class MuleAcceptBehavior(Behavior):
 
         if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
 
-            def on_unload_finished(_error_code: str | None) -> None:
+            def on_unload_finished(error_code: str | None) -> None:
+                self.raise_if_error(error_code)
                 self.stand_ready_for_exchanges()
 
             self.unload_behavior.start(callback=on_unload_finished, parent=self)

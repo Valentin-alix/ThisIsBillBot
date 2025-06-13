@@ -50,9 +50,12 @@ class MainWindow(AppFluentWindow):
 
         self.account_widgets: list[AccountStackedWidget] = []
         self.bots_by_login: dict[str, Bot] = {}
+        self._close_requested = False
+        self._shutdown_finished = False
         self._init_sync_button()
         self.shared_signals.new_bot_added.connect(self.add_account)
         self.shared_signals.bot_removed.connect(self.remove_account)
+        self.shared_signals.shutdown_finished.connect(self.complete_shutdown)
 
     def init_accounts(self, account_by_id: dict[int, Bot]) -> None:
         for account in account_by_id.values():
@@ -187,5 +190,19 @@ class MainWindow(AppFluentWindow):
         )
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
+        if self._shutdown_finished:
+            super().closeEvent(a0)
+            return
+
+        if a0 is not None:
+            a0.ignore()
+        if self._close_requested:
+            return
+
+        self._close_requested = True
+        self.setEnabled(False)
         self.shared_signals.closed.emit()
-        super().closeEvent(a0)
+
+    def complete_shutdown(self) -> None:
+        self._shutdown_finished = True
+        self.close()

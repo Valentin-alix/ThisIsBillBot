@@ -6,7 +6,10 @@ from google.protobuf.message import Message
 
 from src import const
 from src.const import DOFUS_CONNECTION_URL
-from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
+from src.core.behaviors.socket.connection_behavior import (
+    ConnectionBehavior,
+    IdentificationSuccessInfo,
+)
 from src.core.socket_network.base_client import BaseClient
 from src.protocol.protocol import decode_varint_size, encode_msg
 from src.protocol.protocol_connection import (
@@ -22,7 +25,9 @@ class ConnectionClient(BaseClient):
     connection_behavior: ConnectionBehavior
 
     def connect(
-        self, game_token: str, callback: Callable[[str | None, str, int, str], None]
+        self,
+        game_token: str,
+        callback: Callable[[str | None, IdentificationSuccessInfo], None],
     ) -> None:
         """Authenticate against the login server and retrieve game server coordinates."""
         self.connect_socket(DOFUS_CONNECTION_URL, LOGIN_SERVER_PORT)

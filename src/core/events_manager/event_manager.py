@@ -3,7 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from threading import _RLock as RLock
-from typing import Any, Callable, NamedTuple, TypeVar, cast
+from typing import Any, Callable, TypeVar, cast
 
 from google.protobuf.message import Message
 
@@ -16,11 +16,6 @@ from src.services.debug_recorder import DebugRecorder
 from src.services.logging_utils.contextual_logger import ContextualLogger
 
 T = TypeVar("T", bound=Message)
-
-
-class ServerTextInformationError(NamedTuple):
-    message_id: int
-    parameters: tuple[str, ...]
 
 
 @dataclass
@@ -42,9 +37,6 @@ class EventManager(ContextualLogger):
         init=False, default=None
     )
     request_disconnect_callback: Callable[[], None] | None = field(
-        init=False, default=None
-    )
-    last_text_information_error: ServerTextInformationError | None = field(
         init=False, default=None
     )
     is_socket_mode: bool = field(init=False, default=False)
@@ -120,38 +112,51 @@ class EventManager(ContextualLogger):
             related_listeners = self.listeners_by_type_msg.get(msg.__class__)
             if not related_listeners:
                 return
+            listeners_snapshot = list(related_listeners)
 
-            listeners_to_remove: list[Listener[Message]] = []
-            for listener in list(related_listeners):
-                if listener not in related_listeners or listener._deleted:
-                    self.logger.warning(
-                        "Skipping listener removed during dispatch: "
-                        f"originator={listener.originator.__class__.__name__}, "
-                        f"msg_type={msg.__class__.__name__}"
-                    )
-                    continue
-                if listener.once:
-                    listeners_to_remove.append(listener)
-                try:
-                    listener.callback(msg)
-                except Exception:
-                    self.logger.exception(
-                        f"Listener {listener.originator.__class__.__name__} "
-                        f"raised while handling {msg.__class__.__name__}; "
-                        "continuing dispatch"
-                    )
+        listeners_to_remove: list[Listener[Message]] = []
+        for listener in listeners_snapshot:
+            with self.lock:
+                related_listeners = self.listeners_by_type_msg.get(msg.__class__)
+                listener_is_active = (
+                    related_listeners is not None
+                    and listener in related_listeners
+                    and not listener._deleted
+                )
+            if not listener_is_active:
+                self.logger.warning(
+                    "Skipping listener removed during dispatch: "
+                    f"originator={listener.originator.__class__.__name__}, "
+                    f"msg_type={msg.__class__.__name__}"
+                )
+                continue
+            if listener.once:
+                listeners_to_remove.append(listener)
+            try:
+                listener.callback(msg)
+            except Exception:
+                self.logger.exception(
+                    f"Listener {listener.originator.__class__.__name__} "
+                    f"raised while handling {msg.__class__.__name__}; "
+                    "continuing dispatch"
+                )
 
+        with self.lock:
+            related_listeners = self.listeners_by_type_msg.get(msg.__class__)
+            if related_listeners is None:
+                return
             for listener in listeners_to_remove:
-                if listener in related_listeners:
-                    listener.delete()
-                    related_listeners.remove(listener)
+                if listener not in related_listeners or listener._deleted:
+                    continue
+                listener.delete()
+                related_listeners.remove(listener)
 
     def alter_msg(self, msg: Message) -> tuple[Message | None, bool]:
         with self.lock:
             modifier = self.modifier_by_type_msg.get(msg.__class__)
             if modifier is None:
                 return msg, False
-            return modifier.callback(msg), True
+        return modifier.callback(msg), True
 
     def before(
         self,
@@ -242,26 +247,29 @@ class EventManager(ContextualLogger):
     def send(self, msg: Message) -> None:
         self.logger.debug(f"Sending Game MSG {msg.__class__.__name__}")
         with self.lock:
-            if self.on_send_game_callback is None:
+            send_game = self.on_send_game_callback
+            if send_game is None:
                 raise AttributeError(
                     f"sending msg {msg.__class__} but on_send_callback is not defined !"
                 )
-            self.on_send_game_callback(msg)
+        send_game(msg)
 
     def send_obf_msg(self, msg: Message) -> None:
         self.logger.debug(f"Sending Obf Game MSG {msg.__class__.__name__}")
         with self.lock:
-            if self.on_send_obf_game_callback is None:
+            send_obf_game = self.on_send_obf_game_callback
+            if send_obf_game is None:
                 raise AttributeError(
                     f"sending msg {msg.__class__} but on_send_obf_game_callback is not defined !"
                 )
-            self.on_send_obf_game_callback(msg)
+        send_obf_game(msg)
 
     def send_connection_msg(self, msg: Message) -> None:
         self.logger.debug(f"Sending Connection MSG {msg.__class__.__name__}")
         with self.lock:
-            if self.on_send_conn_callback is None:
+            send_connection = self.on_send_conn_callback
+            if send_connection is None:
                 raise AttributeError(
                     f"sending msg {msg.__class__.__name__} but on_send_callback is not defined !"
                 )
-            self.on_send_conn_callback(msg)
+        send_connection(msg)

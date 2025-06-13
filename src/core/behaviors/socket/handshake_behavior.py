@@ -28,6 +28,9 @@ from datas.protos.non_obf.game.context_pb2 import ContextCreationRequest
 from datas.protos.non_obf.game.guild_information_pb2 import GuildInformationRequest
 from datas.protos.non_obf.game.social_pb2 import SpouseInformationRequest
 
+from src.core.behaviors.account.character_creation_behavior import (
+    CharacterCreationBehavior,
+)
 from src.core.behaviors.behavior import Behavior
 from src.services.human_timings import get_random_range
 
@@ -59,6 +62,8 @@ _CHANNELS_DISABLED: list[Channel] = [
 
 @dataclass
 class HandshakeBehavior(Behavior):
+    character_creation_behavior: CharacterCreationBehavior
+
     def run(self, ticket: str) -> None:
         self.event_manager.on(
             AuthenticationTicketAcceptedEvent,
@@ -83,19 +88,24 @@ class HandshakeBehavior(Behavior):
         )
 
     def on_character_list_event(self, msg: CharacterListEvent) -> None:
-        if not msg.characters:
-            raise ValueError("CharacterListEvent has no characters")
-
-        character = msg.characters[0]
-        self.logger.info(f"Selecting character {character.id}")
-        self.event_manager.send(CharacterSelectionRequest(character_id=character.id))
-        self.event_manager.send(CharacterSelectionRequest(character_id=character.id))
         self.event_manager.on(
             CharacterLoadingCompleteEvent,
             self.on_character_loading_complete_event,
             originator=self,
             once=True,
         )
+
+        if len(msg.characters) == 0:
+            self.character_creation_behavior.start(parent=self, callback=None)
+        else:
+            character = msg.characters[0]
+            self.logger.info(f"Selecting character {character.id}")
+            self.event_manager.send(
+                CharacterSelectionRequest(character_id=character.id)
+            )
+            self.event_manager.send(
+                CharacterSelectionRequest(character_id=character.id)
+            )
 
     def on_character_loading_complete_event(
         self, _msg: CharacterLoadingCompleteEvent

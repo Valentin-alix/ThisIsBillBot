@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from enum import StrEnum, auto
+from typing import NamedTuple
 
 from ankama_launcher_emulator_premium.haapi.zaap_version import get_client_version
 from ankama_launcher_emulator_premium.web.subscription.storage import (
@@ -15,15 +16,23 @@ from datas.protos.non_obf.connection.login_message_pb2 import (
     SelectServerResponse,
     TokenRequest,
 )
+from dofus_unity_reader.game_constants.server import ServerEnum
 from google.protobuf.json_format import MessageToDict
 
 from src.controller.bot_config import BotConfigController
 from src.core.behaviors.behavior import Behavior
 
 
+class IdentificationSuccessInfo(NamedTuple):
+    host: str
+    port: int
+    ticket: str
+
+
 class ConnectionErrorCode(StrEnum):
     IDENTIFICATION_FAILED = auto()
     SELECT_SERVER_FAILED = auto()
+    BANNED = auto()
 
 
 @dataclass
@@ -61,25 +70,23 @@ class ConnectionBehavior(Behavior):
             once=True,
         )
 
-    def on_identification_response(self, msg: IdentificationResponse):
+    def on_identification_response(self, msg: IdentificationResponse) -> None:
         if not msg.HasField("success"):
-            self.logger.error(f"Identification failed: {msg}")
-            return self.finish(ConnectionErrorCode.IDENTIFICATION_FAILED)
+            reason = msg.error.reason
+            self.logger.error(
+                f"Identification failed: reason=({reason}), response={msg}"
+            )
+            if reason == IdentificationResponse.Error.Reason.BANNED or reason == 14:
+                return self.finish(ConnectionErrorCode.BANNED, None)
+            return self.finish(ConnectionErrorCode.IDENTIFICATION_FAILED, None)
         SubscriptionExpirationStorage().record_expiration(
             self.game_state.player.login,
             datetime.fromisoformat(msg.success.subscription_end_date),
         )
-        server_id = next(
-            server_info.server.id
-            for server_info in msg.success.server_list.servers
-            if len(server_info.characters) > 0
-        )
-        self.logger.info(f"Selected server id={server_id}")
-
         self.event_manager.send_connection_msg(
             LoginMessage(
                 request=Request(
-                    uuid="1", selectServer=SelectServerRequest(server=server_id)
+                    uuid="1", selectServer=SelectServerRequest(server=ServerEnum.BRIAL)
                 )
             )
         )
@@ -95,6 +102,13 @@ class ConnectionBehavior(Behavior):
     def on_select_server_response(self, msg: SelectServerResponse):
         if msg.HasField("error"):
             self.logger.error(f"SelectServer failed: {MessageToDict(msg)}")
-            return self.finish(ConnectionErrorCode.SELECT_SERVER_FAILED)
+            return self.finish(ConnectionErrorCode.SELECT_SERVER_FAILED, None)
         self.logger.info(f"Game server: {msg.success.host}:{msg.success.ports[0]}")
-        self.finish(None, msg.success.host, msg.success.ports[0], msg.success.token)
+        self.finish(
+            None,
+            IdentificationSuccessInfo(
+                host=msg.success.host,
+                port=msg.success.ports[0],
+                ticket=msg.success.token,
+            ),
+        )

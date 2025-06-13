@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Iterable
 
 from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
 from datas.protos.non_obf.game.exchange_pb2 import (
@@ -29,13 +30,13 @@ class MuleGiveBehavior(Behavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
 
     _step: int = field(init=False, default=0)
-    _mule_bank_character_ids: list[int] = field(init=False, default_factory=list[int])
+    _mule_bank_character_ids: Iterable[int] = field(
+        init=False, default_factory=list[int]
+    )
 
     def run(self) -> None:
-        self.on_get_mule_bank_ids(list(MULE_BANK_CHARACTER_IDS))
-
-    def on_get_mule_bank_ids(self, _mule_bank_character_ids: list[int]) -> None:
-        self._mule_bank_character_ids = _mule_bank_character_ids
+        self._step = 0
+        self._mule_bank_character_ids = MULE_BANK_CHARACTER_IDS
         if len(self._mule_bank_character_ids) == 0:
             self.logger.error("Mule bank character is not defined !")
             return self.finish()
@@ -80,7 +81,7 @@ class MuleGiveBehavior(Behavior):
         )
         self.event_manager.on(
             ExchangeErrorEvent,
-            lambda _: self.run_timer((3, 6), self.start_exchange_with_mule),
+            lambda _: self.finish(),
             originator=self,
             once=True,
             override_on_self=True,
@@ -92,9 +93,9 @@ class MuleGiveBehavior(Behavior):
         self, msg: ExchangeStartedWithPodsEvent
     ) -> None:
         self._step = 0
-        return self.depose_kamas_in_exchange(True)
+        return self.depose_kamas_in_exchange()
 
-    def depose_kamas_in_exchange(self, did_full_unload: bool) -> None:
+    def depose_kamas_in_exchange(self) -> None:
         kamas_to_gives = self.game_state.inventory.kamas - BOT_MINIMAL_KAMAS
         if kamas_to_gives <= 0:
             self.event_manager.on(
@@ -106,7 +107,7 @@ class MuleGiveBehavior(Behavior):
             return self.send_message_delayed(req, BASE_RANGE)
         self.event_manager.on(
             ExchangeKamaModifiedEvent,
-            lambda _: self.accept_exchange(did_full_unload),
+            lambda _: self.accept_exchange(),
             originator=self,
             once=True,
             override_on_self=True,
@@ -115,14 +116,10 @@ class MuleGiveBehavior(Behavior):
         move_kama_req = ExchangeMoveKamaRequest(quantity=kamas_to_gives)
         self.send_message_delayed(move_kama_req, BASE_RANGE)
 
-    def accept_exchange(self, did_full_unload: bool) -> None:
+    def accept_exchange(self) -> None:
         self.event_manager.on(
             ExchangeLeaveEvent,
-            lambda _: (
-                self.finish()
-                if did_full_unload
-                else self.run_timer((10, 15), self.start_exchange_with_mule)
-            ),
+            lambda _: self.finish(),
             originator=self,
             once=True,
             override_on_self=True,

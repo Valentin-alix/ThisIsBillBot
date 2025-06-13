@@ -128,3 +128,9 @@ class BotConfigController(metaclass=Singleton):
             )
             self._write_all_configs(all_configs)
             return hardware_id
+
+    def remove_bot_config(self, login: str):
+        with self._BOT_CONFIG_LOCK:
+            all_configs = self._get_all_configs()
+            all_configs.pop(login, None)
+            self._write_all_configs(all_configs)

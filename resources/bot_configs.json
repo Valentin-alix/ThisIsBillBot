@@ -1,19 +1,7 @@
 {
-  "pcserv_blibli_12_2@outlook.fr": {
-    "pc_id": 2,
-    "schedule_profile": null,
-    "connection_mode": "socket",
-    "hardware_id": null
-  },
-  "ezrealeu44700_main@outlook.com": {
-    "pc_id": 2,
-    "schedule_profile": "A",
-    "connection_mode": "socket",
-    "hardware_id": "427548B2FDA7A24B16B5B971EF5F5493853A4862746C3F0C89648C58AA8ED450"
-  },
   "renaissance.hehe1@outlook.fr": {
     "pc_id": 2,
-    "schedule_profile": "A",
+    "schedule_profile": "B",
     "connection_mode": "socket",
     "hardware_id": "93798AC4DFD217DBFE8DA54BFE05AD3729AB0E018432A9CFE300507A1B9732B1"
   },
@@ -37,7 +25,7 @@
   },
   "renaissance.haha1@outlook.fr": {
     "pc_id": 2,
-    "schedule_profile": "A",
+    "schedule_profile": "B",
     "connection_mode": "socket",
     "hardware_id": "294F48DCD785AE727D21C7901430136B8775C152C079CD625E94F582E6AA3C89"
   },
@@ -49,14 +37,44 @@
   },
   "renaissance.hehe2@outlook.fr": {
     "pc_id": 2,
-    "schedule_profile": "A",
+    "schedule_profile": "B",
     "connection_mode": "socket",
     "hardware_id": "6B4F4557F69904E635FA8389F07D60663B30B80151B8D44A094985C77AEB25CD"
   },
-  "renaissance.hehe3@outlook.fr": {
+  "renaissance.hehe4@outlook.fr": {
     "pc_id": 2,
-    "schedule_profile": "A",
+    "schedule_profile": "B",
     "connection_mode": "socket",
-    "hardware_id": null
+    "hardware_id": "9679C40FC8C1A239786B69F8BD40A6B820D935EA04BD2B9F79DA7CD4827BA9B6"
+  },
+  "renaissance.hrhr@outlook.fr": {
+    "pc_id": 2,
+    "schedule_profile": "B",
+    "connection_mode": "socket",
+    "hardware_id": "3B78AA74CA2F6A106D58C34EA6E31080E4CAEA2E5889A6FE1EBBE6C43ABC5A69"
+  },
+  "renaissance.hrhr1@outlook.fr": {
+    "pc_id": 2,
+    "schedule_profile": "B",
+    "connection_mode": "socket",
+    "hardware_id": "2DABEEA7723BB11AA95416B6C3F100722B1870FFC66AD9E407DE083D32353917"
+  },
+  "renaissance.htht@outlook.fr": {
+    "pc_id": 2,
+    "schedule_profile": "B",
+    "connection_mode": "socket",
+    "hardware_id": "B3BB7BB4FD97DE7480BDD64F06EF62E92EDD299DBE9DA6E9D85DBD0D3F58C168"
+  },
+  "renaissance.htht1@outlook.fr": {
+    "pc_id": 2,
+    "schedule_profile": "B",
+    "connection_mode": "socket",
+    "hardware_id": "9FFB332300497F304D17EEF2AACFC51B3A7370B1B70DA23404EB95829EAB7DDA"
+  },
+  "renaissance.htht2@outlook.fr": {
+    "pc_id": 2,
+    "schedule_profile": "B",
+    "connection_mode": "socket",
+    "hardware_id": "833108A9321CD281A66E4FC605EE30E35B78E0C858F66E66C40443679072FF26"
   }
 }

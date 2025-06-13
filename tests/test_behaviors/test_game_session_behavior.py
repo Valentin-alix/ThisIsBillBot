@@ -5,6 +5,8 @@ from unittest.mock import MagicMock
 from datas.protos.non_obf.game.basic_pb2 import (
     BasicLatencyStatsEvent,
     BasicLatencyStatsRequest,
+    SequenceNumberEvent,
+    SequenceNumberRequest,
 )
 from connection_pb2 import PongEvent
 from datas.protos.non_obf.game.fight_pb2 import (
@@ -59,6 +61,34 @@ def _make_running_game_session_behavior(
 
 
 class TestGameSessionBehavior:
+    def test_restarted_session_resets_sequence_number(
+        self,
+        game_state_ctx: GameStateContext,
+    ) -> None:
+        event_manager = EventManager(_logger=game_state_ctx.logger)
+        sent_messages: list[Message] = []
+        event_manager.on_send_game_callback = sent_messages.append
+        behavior = GameSessionBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            _logger=game_state_ctx.logger,
+        )
+
+        behavior.start(callback=None, parent=None)
+        event_manager.process_msg(SequenceNumberEvent())
+        event_manager.process_msg(SequenceNumberEvent())
+        behavior.stop()
+
+        behavior.start(callback=None, parent=None)
+        event_manager.process_msg(SequenceNumberEvent())
+
+        sequence_numbers = [
+            sent_message.number
+            for sent_message in sent_messages
+            if isinstance(sent_message, SequenceNumberRequest)
+        ]
+        assert sequence_numbers == [1, 2, 1]
+
     def test_sends_turn_ready_for_enemy_ready_event(
         self,
         game_state_ctx: GameStateContext,
