@@ -7,20 +7,24 @@ from typing import ClassVar, Literal
 from ankama_launcher_emulator_premium.decrypter.hardware_identity import (
     generate_hardware_id,
 )
-from consts import PC_ID
-from pydantic import BaseModel, RootModel
+from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
+    ScheduleProfileController,
+)
+from ankama_launcher_emulator_premium.utils.proxy import (
+    ProxyConfig,
+    build_http_proxy_url,
+    build_socks_proxy_url,
+)
+from pydantic import BaseModel, Field, RootModel
 from python_utils.singleton import Singleton
 
 from src.const import RESOURCE_FOLDER
-from src.controller.schedule_profile_controller import ScheduleProfileController
-from src.exceptions import UnavailableNetworkInterface
 
 
 class BotConfig(BaseModel):
-    pc_id: int = PC_ID
     schedule_profile: str | None = None
     connection_mode: Literal["mitm", "socket"] = "socket"
-    hardware_id: str | None = None
+    hardware_id: str = Field(default_factory=generate_hardware_id)
 
 
 class BotConfigs(RootModel):
@@ -36,31 +40,34 @@ class BotConfigController(metaclass=Singleton):
     _BOT_CONFIG_PATH = os.path.join(RESOURCE_FOLDER, "bot_configs.json")
     _all_configs: dict[str, BotConfig] = {}
 
-    def _get_all_configs(self) -> dict[str, BotConfig]:
-        with open(self._BOT_CONFIG_PATH, "r") as file:
-            return BotConfigs.model_validate(json.load(file)).root
-
-    def _write_all_configs(self, bot_configs: dict[str, BotConfig]) -> None:
-        with open(self._BOT_CONFIG_PATH, "w") as file:
-            json.dump(BotConfigs(root=bot_configs).model_dump(), file, indent=2)
-
     def get_bot_config_by_login(self) -> dict[str, BotConfig]:
         if not self.use_bot_config_json:
             return self._all_configs
         with self._BOT_CONFIG_LOCK:
-            return {
-                key: value
-                for key, value in self._get_all_configs().items()
-                if value.pc_id == PC_ID
-            }
+            with open(self._BOT_CONFIG_PATH, "r") as file:
+                return BotConfigs.model_validate(json.load(file)).root
 
-    def update_bot_config_by_login(self, bot_config: BotConfig, login: str):
+    def _write_all_configs(self, bot_configs: dict[str, BotConfig]) -> None:
         if not self.use_bot_config_json:
-            logger.info(f"Assigning {bot_config} for {login}")
-            self._all_configs[login] = bot_config
+            self._all_configs = bot_configs
             return
         with self._BOT_CONFIG_LOCK:
-            all_configs = self._get_all_configs()
+            with open(self._BOT_CONFIG_PATH, "w") as file:
+                json.dump(BotConfigs(root=bot_configs).model_dump(), file, indent=2)
+
+    def get_bot_config(self, login: str) -> BotConfig:
+        with self._BOT_CONFIG_LOCK:
+            bot_config_by_login = self.get_bot_config_by_login()
+            bot_config = bot_config_by_login.get(login)
+            if bot_config:
+                return bot_config
+            bot_config_by_login[login] = BotConfig()
+            self._write_all_configs(bot_config_by_login)
+            return bot_config_by_login[login]
+
+    def update_bot_config_by_login(self, bot_config: BotConfig, login: str):
+        with self._BOT_CONFIG_LOCK:
+            all_configs = self.get_bot_config_by_login()
             all_configs[login] = bot_config
             self._write_all_configs(all_configs)
 
@@ -74,63 +81,55 @@ class BotConfigController(metaclass=Singleton):
         if not profiles:
             raise ValueError("Did not found any profile")
         with self._BOT_CONFIG_LOCK:
-            all_configs = self._get_all_configs()
+            all_configs = self.get_bot_config_by_login()
             counts = {profile_id: 0 for profile_id in profiles}
             for config in all_configs.values():
-                if config.pc_id == PC_ID and config.schedule_profile in counts:
+                if config.schedule_profile:
                     counts[config.schedule_profile] += 1
+
             chosen = min(sorted(counts), key=lambda profile_id: counts[profile_id])
-            existing = all_configs.get(login, BotConfig())
-            all_configs[login] = existing.model_copy(
-                update={"schedule_profile": chosen}
-            )
+            config = all_configs.get(login, BotConfig())
+            config.schedule_profile = chosen
+            all_configs[login] = config
             self._write_all_configs(all_configs)
         return chosen
 
-    def resolve_bot_network_interface(
-        self, config: BotConfig | None, available_interfaces: list[str]
-    ) -> str | None:
-        if config is None:
-            return None
-        return self.resolve_profile_network_interface(
-            config.schedule_profile, available_interfaces
-        )
-
-    def resolve_profile_network_interface(
-        self, profile_id: str | None, available_interfaces: list[str]
-    ) -> str | None:
-        if profile_id is None:
-            return None
-        profile = ScheduleProfileController().get_profile(profile_id)
-        if profile is None or profile.network_interface_index is None:
-            return None
-        interface_index = profile.network_interface_index
-        if interface_index < 1 or interface_index > len(available_interfaces):
-            msg = (
-                f"Profile {profile_id} requires network interface index "
-                f"{interface_index}, but only {len(available_interfaces)} "
-                "interfaces are available"
-            )
-            logger.error(msg)
-            raise UnavailableNetworkInterface(msg)
-        return available_interfaces[interface_index - 1]
-
-    def get_or_create_hardware_id(self, login: str) -> str:
+    def assign_profile(self, login: str, profile_id: str | None) -> str | None:
+        profiles = ScheduleProfileController().get_all_profiles()
+        if profile_id and profile_id not in profiles:
+            raise ValueError(f"Unknown schedule profile {profile_id}")
         with self._BOT_CONFIG_LOCK:
-            all_configs = self._get_all_configs()
-            bot_config = all_configs.get(login, BotConfig())
-            if bot_config.hardware_id is not None:
-                return bot_config.hardware_id
-
-            hardware_id = generate_hardware_id()
-            all_configs[login] = bot_config.model_copy(
-                update={"hardware_id": hardware_id}
-            )
+            all_configs = self.get_bot_config_by_login()
+            config = all_configs.get(login, BotConfig())
+            config.schedule_profile = profile_id
+            all_configs[login] = config
             self._write_all_configs(all_configs)
-            return hardware_id
+        return profile_id
+
+    def assign_mode(self, login: str, mode: Literal["socket"] | Literal["mitm"]):
+        with self._BOT_CONFIG_LOCK:
+            all_configs = self.get_bot_config_by_login()
+            config = all_configs.get(login, BotConfig())
+            config.connection_mode = mode
+            all_configs[login] = config
+            self._write_all_configs(all_configs)
+
+    def resolve_bot_proxy(self, config: BotConfig) -> ProxyConfig:
+        if config.schedule_profile is None:
+            raise ValueError("Bot config must have a schedule profile")
+        profile = ScheduleProfileController().get_profile(config.schedule_profile)
+        if profile is None:
+            raise ValueError(f"Unknown schedule profile {config.schedule_profile}")
+        return profile.proxy
+
+    def resolve_bot_http_proxy_url(self, config: BotConfig) -> str:
+        return build_http_proxy_url(self.resolve_bot_proxy(config))
+
+    def resolve_bot_socks_proxy_url(self, config: BotConfig) -> str:
+        return build_socks_proxy_url(self.resolve_bot_proxy(config))
 
     def remove_bot_config(self, login: str):
         with self._BOT_CONFIG_LOCK:
-            all_configs = self._get_all_configs()
+            all_configs = self.get_bot_config_by_login()
             all_configs.pop(login, None)
             self._write_all_configs(all_configs)

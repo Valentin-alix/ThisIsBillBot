@@ -303,6 +303,8 @@ class FightFrame(Frame):
                 has_life_stat = True
         if not has_life_stat:
             return
+        if self.game_state.fight.life_point == 0:
+            return
         hp_before = self.game_state.fight.life_point
         self.game_state.fight.sync_life_points_from_characteristics()
         self._log_life_resync("FightRefreshCharacterStatsEvent", hp_before)

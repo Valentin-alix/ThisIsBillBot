@@ -25,7 +25,6 @@ class MapFrame(Frame):
     world_signals: WorldSignals
 
     def __post_init__(self):
-        self.game_info_signals.disconnected.connect(self.game_state.map.clear_state)
         self.event_manager.on(
             ContextCreationEvent,
             self.on_context_creation_event,

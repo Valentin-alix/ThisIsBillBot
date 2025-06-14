@@ -17,7 +17,8 @@ from dataclasses import dataclass, field
 from threading import Event
 from typing import Callable
 
-from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.behavior import Behavior, BehaviorState
+from src.core.behaviors.idle_behavior import IdleBehavior
 from src.core.events_manager.event_manager import EventManager
 from src.core.states.game_state import GameState
 from src.services.logging_utils.contextual_logger import ContextualLogger
@@ -56,6 +57,8 @@ class StuckWatchdog(ContextualLogger):
         running = self.get_running_top_level_behaviors()
         if not running:
             return
+        if all(self._is_intentionally_idle(behavior) for behavior in running):
+            return
 
         last_activity = self.event_manager.last_activity_monotonic
         idle_s = time.monotonic() - last_activity
@@ -66,6 +69,19 @@ class StuckWatchdog(ContextualLogger):
 
         self._last_reported_activity = last_activity
         self._report(running[0], idle_s)
+
+    def _is_intentionally_idle(self, behavior: Behavior) -> bool:
+        running_children = [
+            child
+            for child in list(behavior.children)
+            if child.state is BehaviorState.RUNNING
+        ]
+        if running_children:
+            return all(self._is_intentionally_idle(child) for child in running_children)
+        return (
+            isinstance(behavior, IdleBehavior)
+            and behavior.state is BehaviorState.RUNNING
+        )
 
     def _report(self, behavior: Behavior, idle_s: float) -> None:
         reason = (

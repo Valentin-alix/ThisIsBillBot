@@ -5,6 +5,7 @@ from datas.protos.non_obf.game.common_pb2 import (
     CharacterCharacteristic,
     CharacterCharacteristicDetailed,
 )
+from datas.protos.non_obf.game.game_action_pb2 import GameActionFightEvent
 from datas.protos.non_obf.game.fight_pb2 import (
     FightTurnEvent,
     FightTurnFinishRequest,
@@ -45,7 +46,18 @@ class FightTurnBehavior(Behavior):
             f"{len(context.enemy_actors)} enemies"
         )
         self.event_manager.on(FightTurnEvent, lambda _: self.finish(), originator=self)
+        self.event_manager.on(
+            GameActionFightEvent,
+            self.on_game_action_fight_event,
+            originator=self,
+        )
         self.try_self_buff_or_continue()
+
+    def on_game_action_fight_event(self, msg: GameActionFightEvent) -> None:
+        if msg.HasField("death") and (
+            msg.death.target_id == self.game_state.player.character_id
+        ):
+            self.finish(MapMoveError.PLAYER_DEAD)
 
     def _cast_self_spell(
         self,

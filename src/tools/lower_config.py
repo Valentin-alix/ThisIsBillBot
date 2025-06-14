@@ -58,11 +58,4 @@ def set_low_config_for_all():
 
 
 if __name__ == "__main__":
-    # dans dofus.json
-    # "windowDisplayMode": {
-    #     "value": 0
-    # },
-    # "windowResolutionMode": {
-    #     "value": 14
-    # },
     set_low_config_for_all()

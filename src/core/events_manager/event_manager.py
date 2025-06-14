@@ -124,7 +124,7 @@ class EventManager(ContextualLogger):
                     and not listener._deleted
                 )
             if not listener_is_active:
-                self.logger.warning(
+                self.logger.debug(
                     "Skipping listener removed during dispatch: "
                     f"originator={listener.originator.__class__.__name__}, "
                     f"msg_type={msg.__class__.__name__}"

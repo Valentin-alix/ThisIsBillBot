@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from time import monotonic, sleep
 
-from src.exceptions import UnavailableNetworkInterface
+from ankama_launcher_emulator_premium.web.auth.storage import remove_generated_account
 
 LAUNCH_SPACING_SECONDS = 2.5
 
@@ -17,20 +17,14 @@ from ankama_launcher_emulator_premium.server.handler import AnkamaLauncherHandle
 from ankama_launcher_emulator_premium.server.server import (
     AnkamaLauncherServer,
 )
-from ankama_launcher_emulator_premium.utils.internet import (
-    get_available_network_interfaces,
-)
 
-from src.controller.bot_config import BotConfigController
+from src.controller.bot_config import BotConfig, BotConfigController
 from src.core.bot.bot import Bot
 from src.core.bot.bot_factory import BotFactory
 from src.core.bot.lifecycle.account_scheduler import AccountScheduler
 from src.core.mitm.proxy_listener import ProxyListener
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.socket_network.socket_client import SocketClient
-from src.utils.internet import (
-    has_internet_connection,
-)
 
 logger = logging.getLogger()
 
@@ -103,6 +97,11 @@ class BotManager:
     def _emit_thread_count(self):
         self.shared_signals.thread_count_update.emit(self._running_task_count)
 
+    def _get_socks_proxy_url(self, bot_config: BotConfig) -> str | None:
+        if bot_config.schedule_profile is None:
+            return None
+        return BotConfigController().resolve_bot_socks_proxy_url(bot_config)
+
     def relaunch_account(self, login: str, max_retries: int = 3):
         related_bot = next(
             (
@@ -123,26 +122,21 @@ class BotManager:
 
         self._is_lauching_by_login[login].set()
 
+        bot_config = BotConfigController().get_bot_config(
+            related_bot.account.apikey.login
+        )
+
         related_bot.process_manager.kill_process()
 
-        bot_config = (
-            BotConfigController()
-            .get_bot_config_by_login()
-            .get(related_bot.account.apikey.login)
-        )
-        available_ips = list(get_available_network_interfaces().keys())
-        try:
-            interface_ip = BotConfigController().resolve_bot_network_interface(
-                bot_config, available_ips
-            )
-        except UnavailableNetworkInterface:
-            related_bot.logger.error(
-                "No network interface available for this bot, stopping."
-            )
-            related_bot.is_playing_event.clear()
+        socks_proxy_url = self._get_socks_proxy_url(bot_config)
+        if not related_bot.is_playing_event.is_set():
             self._is_lauching_by_login[login].clear()
-            return
-
+            return related_bot.logger.info(
+                "Bot is not playing anymore, aborting relaunch"
+            )
+        if related_bot.bot_should_not_play(datetime.now()):
+            self._is_lauching_by_login[login].clear()
+            return related_bot.logger.info("Bot is not in playtime anymore")
         for attempt in range(max_retries):
             if not related_bot.is_playing_event.is_set():
                 self._is_lauching_by_login[login].clear()
@@ -156,10 +150,6 @@ class BotManager:
 
             now = datetime.now()
 
-            while not has_internet_connection():
-                related_bot.logger.info("waiting for internet connection to be up")
-                sleep(1)
-
             if related_bot.bot_should_not_play(now):
                 self._is_lauching_by_login[login].clear()
                 return related_bot.logger.info("Bot is not in playtime anymore")
@@ -167,11 +157,11 @@ class BotManager:
             related_bot.logger.info("Launch bot")
             self._wait_launch_slot()
 
-            if bot_config and bot_config.connection_mode == "socket":
+            if bot_config.connection_mode == "socket":
                 SocketClient(
                     related_bot,
                     bot_config,
-                    interface_ip,
+                    socks_proxy_url,
                     self.on_banned_callback,
                 ).connect()
                 self._is_lauching_by_login[login].clear()
@@ -180,7 +170,7 @@ class BotManager:
                 related_bot.process_manager.pid = self.ankama_launcher.launch_dofus(
                     login,
                     self.proxy_listener,
-                    interface_ip=interface_ip,
+                    proxy_url=socks_proxy_url,
                     on_progress=self.on_progress_installing,
                 )
                 related_bot.logger.info(f"Pid {related_bot.process_manager.pid}")
@@ -209,6 +199,7 @@ class BotManager:
     def on_banned_callback(self, login: str):
         CryptoHelper.remove_bot(login)
         BotConfigController().remove_bot_config(login)
+        remove_generated_account(login)
         self.on_synchronize_bots()
 
     def safe_stop_bots(self, bots: list[Bot]):
@@ -257,18 +248,6 @@ class BotManager:
 
         for account_id, account in account_by_id.items():
             if account_id not in self.bot_by_account_id:
-                login = account.apikey.login
-                if BotConfigController.use_bot_config_json:
-                    bot_config_controller = BotConfigController()
-                    existing_config = (
-                        bot_config_controller.get_bot_config_by_login().get(login)
-                    )
-                    if (
-                        existing_config is None
-                        or existing_config.schedule_profile is None
-                    ):
-                        bot_config_controller.assign_least_used_profile(login)
-
                 new_bot = BotFactory.create_bot(
                     shared_signals=self.shared_signals,
                     account=account,

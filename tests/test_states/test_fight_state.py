@@ -304,6 +304,58 @@ class TestFightState:
             "hp_after=245, max_hp_after=300"
         )
 
+    def test_fight_refresh_after_player_death_keeps_life_at_zero(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        fight_frame = self._get_fight_frame(runtime_bot)
+        logger = MagicMock()
+        fight_frame.logger = logger
+        player_id = 8921612638
+        runtime_bot.game_state.player.character_id = player_id
+        runtime_bot.event_manager.process_msg(
+            CharacterCharacteristicsEvent(
+                stats=CharacterCharacteristics(
+                    characteristics=[
+                        self._detailed_characteristic(
+                            CharacteristicEnum.LIFE_POINTS, base=285
+                        ),
+                        self._detailed_characteristic(
+                            CharacteristicEnum.VITALITY,
+                            objects_and_mount_bonus=56,
+                        ),
+                        self._detailed_characteristic(
+                            CharacteristicEnum.CUR_LIFE, base=-333
+                        ),
+                    ]
+                )
+            )
+        )
+        runtime_bot.event_manager.process_msg(
+            GameActionFightEvent(death=GameActionFightEvent.Death(target_id=player_id))
+        )
+        logger.reset_mock()
+
+        runtime_bot.event_manager.process_msg(
+            FightRefreshCharacterStatsEvent(
+                fighter_id=player_id,
+                stats=FightCharacteristics(
+                    characteristics=[
+                        self._detailed_characteristic(
+                            CharacteristicEnum.CUR_LIFE, base=-329
+                        )
+                    ]
+                ),
+            )
+        )
+
+        assert runtime_bot.game_state.fight.life_point == 0
+        assert (
+            runtime_bot.game_state.fight.get_stat_by_id(CharacteristicEnum.CUR_LIFE)
+            == -329
+        )
+        logger.info.assert_not_called()
+
     def test_game_action_fight_cast_request_increments_count_by_spell_id(
         self,
         runtime_bot: Bot,

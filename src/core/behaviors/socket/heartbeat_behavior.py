@@ -17,6 +17,7 @@ class HearthBeatBehavior(Behavior):
     )
 
     def run(self) -> None:
+        self._heartbeat_stop.clear()
         self._send_ping()
         threading.Thread(target=self._heartbeat_loop, daemon=True).start()
 

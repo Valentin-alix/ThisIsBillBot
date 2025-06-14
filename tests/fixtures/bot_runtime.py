@@ -51,7 +51,7 @@ def run_in_background_mock(
 
 @dataclass
 class BotConfigMock:
-    schedule_profile: str | None = None
+    schedule_profile: str = "A"
 
 
 def make_bot_scheduler() -> BotScheduler:

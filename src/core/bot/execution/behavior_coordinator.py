@@ -150,7 +150,9 @@ class BehaviorCoordinator(ContextualLogger):
         """Determine and trigger the appropriate bot action based on configuration."""
         if self.account.apikey.login in MULE_BANK_CHARACTER_LOGIN:
             self.bot_signals.play_mule_kamas.emit()
-        elif self.get_bot_config() is not None:
+            return
+        config = self.get_bot_config()
+        if config is not None and config.schedule_profile is not None:
             self.bot_signals.play_auto_bot.emit()
 
     def stop_behaviors(self) -> None:

@@ -57,7 +57,7 @@ def test_listener_removed_during_dispatch_is_not_called() -> None:
     event_manager.process_msg(SequenceNumberEvent())
 
     assert calls == ["first"]
-    event_manager.logger.warning.assert_called_once_with(
+    event_manager.logger.debug.assert_any_call(
         "Skipping listener removed during dispatch: "
         "originator=SecondOrigin, msg_type=SequenceNumberEvent"
     )

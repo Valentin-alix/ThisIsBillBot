@@ -227,6 +227,104 @@ class TestFightActionAcknowledgement:
         assert finished_error_codes == [None]
         assert spell_behavior.state == BehaviorState.STOPPED
 
+    def test_spell_stops_when_player_dies_before_late_ack(
+        self, game_state_ctx: GameStateContext, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(
+            HumanTimingsService,
+            "get_micro_jitter",
+            _get_delayed_micro_jitter,
+        )
+        set_game_state(game_state_ctx.game_state, player_cell_id=399, enemy_cell_ids=[])
+        event_manager = _make_event_manager(game_state_ctx)
+        _register_entity_frame(event_manager, game_state_ctx)
+        spell_behavior = FightSpellBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            _logger=game_state_ctx.logger,
+        )
+        finished_error_codes: list[str | None] = []
+
+        spell_behavior.start(
+            callback=finished_error_codes.append,
+            parent=None,
+            spell_id=13242,
+            target_mp=MapPoint.from_cell_id(383),
+        )
+        event_manager.process_msg(SequenceEndEvent(action_id=16, author_id=PLAYER_ID))
+        event_manager.process_msg(
+            GameActionFightEvent(
+                source_id=OTHER_FIGHTER_ID,
+                death=GameActionFightEvent.Death(
+                    source_id=OTHER_FIGHTER_ID,
+                    target_id=PLAYER_ID,
+                ),
+            )
+        )
+
+        assert finished_error_codes == [MapMoveError.PLAYER_DEAD]
+        assert spell_behavior.state == BehaviorState.STOPPED
+
+        event_manager.process_msg(
+            GameActionAcknowledgementRequest(valid=True, action_id=16)
+        )
+
+        assert finished_error_codes == [MapMoveError.PLAYER_DEAD]
+
+    def test_fight_turn_stops_when_player_dies(
+        self, game_state_ctx: GameStateContext, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        set_game_state(game_state_ctx.game_state, player_cell_id=399, enemy_cell_ids=[])
+        event_manager = _make_event_manager(game_state_ctx)
+        map_move_behavior = MapMoveBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            path_finding=game_state_ctx.pathfinding,
+            _logger=game_state_ctx.logger,
+        )
+        fight_movement_behavior = FightMovementBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            map_move_behavior=map_move_behavior,
+            path_finding=game_state_ctx.pathfinding,
+            fight_reachable_cells=game_state_ctx.fight_reachable_cells,
+            _logger=game_state_ctx.logger,
+        )
+        fight_spell_behavior = FightSpellBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            _logger=game_state_ctx.logger,
+        )
+        fight_turn_behavior = FightTurnBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            fight_movement_behavior=fight_movement_behavior,
+            path_finding=game_state_ctx.pathfinding,
+            fight_spell_behavior=fight_spell_behavior,
+            attacker=game_state_ctx.attacker,
+            _logger=game_state_ctx.logger,
+        )
+        monkeypatch.setattr(
+            fight_turn_behavior,
+            "try_self_buff_or_continue",
+            lambda: None,
+        )
+        finished_error_codes: list[str | None] = []
+        fight_turn_behavior.start(callback=finished_error_codes.append, parent=None)
+
+        event_manager.process_msg(
+            GameActionFightEvent(
+                source_id=OTHER_FIGHTER_ID,
+                death=GameActionFightEvent.Death(
+                    source_id=OTHER_FIGHTER_ID,
+                    target_id=PLAYER_ID,
+                ),
+            )
+        )
+
+        assert finished_error_codes == [MapMoveError.PLAYER_DEAD]
+        assert fight_turn_behavior.state is BehaviorState.STOPPED
+
     def test_fight_turn_passes_without_runaway_when_no_enemies_remain(
         self, game_state_ctx: GameStateContext
     ) -> None:

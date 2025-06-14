@@ -11,11 +11,13 @@ from datas.protos.non_obf.connection.login_message_pb2 import (
     IdentificationResponse,
     LoginMessage,
     Request,
+    SelectServerResponse,
     Server,
     ServerInformation,
 )
 from dofus_unity_reader.game_constants.server import ServerEnum
 from google.protobuf.message import Message
+from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 from src.const import DEBUG
 from src.core.bot.bot import Bot
@@ -137,6 +139,14 @@ class ConnectionProxy(Proxy):
 
         if self.bot:
             self.bot.event_manager.process_msg(msg)
+
+        if (
+            from_server
+            and isinstance(msg, SelectServerResponse)
+            and msg.HasField("success")
+        ):
+            RuntimeDataStore().start_connection_capture_sequence()
+            self.close()
 
     def send_msg(self, msg: Request) -> None:
         conn_msg = LoginMessage(request=msg)

@@ -24,6 +24,9 @@ from qfluentwidgets.components.navigation.navigation_widget import NavigationWid
 from src.const import RESOURCE_FOLDER
 from src.core.signals.bot_signals import BotSignals
 
+NO_SCHEDULE_PROFILE_ID = ""
+NO_SCHEDULE_PROFILE_LABEL = "Aucun profil"
+
 
 class SidebarItem(NavigationWidget):
     schedule_profile_changed = pyqtSignal(str)
@@ -157,26 +160,26 @@ class SidebarItem(NavigationWidget):
     ) -> None:
         self._profile_combo.blockSignals(True)
         self._profile_combo.clear()
-        self._profile_combo.addItem("Vide", userData=None)
+        self._profile_combo.addItem(
+            NO_SCHEDULE_PROFILE_LABEL, userData=NO_SCHEDULE_PROFILE_ID
+        )
         for profile_id, display_name in profiles.items():
             self._profile_combo.addItem(display_name, userData=profile_id)
-        if selected_profile:
-            for i in range(self._profile_combo.count()):
-                if self._profile_combo.itemData(i) == selected_profile:
-                    self._profile_combo.setCurrentIndex(i)
-                    break
-        else:
-            self._profile_combo.setCurrentIndex(0)
+        selected_data = selected_profile or NO_SCHEDULE_PROFILE_ID
+        selected_index = self._profile_combo.findData(selected_data)
+        assert selected_index >= 0, f"Unknown schedule profile {selected_profile}"
+        self._profile_combo.setCurrentIndex(selected_index)
         self._profile_combo.blockSignals(False)
 
     def _on_profile_changed(self) -> None:
         profile_id = self._profile_combo.currentData()
-        self.schedule_profile_changed.emit(profile_id if profile_id else "")
+        has_schedule_profile = isinstance(profile_id, str) and profile_id != ""
+        self.schedule_profile_changed.emit(profile_id if has_schedule_profile else "")
 
     def populate_connection_mode(self, selected_mode: str) -> None:
-        for i in range(self._mode_combo.count()):
-            if self._mode_combo.itemData(i) == selected_mode:
-                self._mode_combo.setCurrentIndex(i)
+        for mode_index in range(self._mode_combo.count()):
+            if self._mode_combo.itemData(mode_index) == selected_mode:
+                self._mode_combo.setCurrentIndex(mode_index)
                 return
 
     def _on_mode_changed(self) -> None:

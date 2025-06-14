@@ -103,11 +103,7 @@ class Bot(ContextualLogger):
     watchdog: StuckWatchdog = field(init=False)
 
     def get_bot_config(self):
-        return (
-            BotConfigController()
-            .get_bot_config_by_login()
-            .get(self.account.apikey.login)
-        )
+        return BotConfigController().get_bot_config(self.account.apikey.login)
 
     def __str__(self):
         return self.account.apikey.login

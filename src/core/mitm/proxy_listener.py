@@ -6,16 +6,12 @@ from ankama_launcher_emulator_premium.proxy.dofus3.proxy import Proxy
 from ankama_launcher_emulator_premium.proxy.dofus3.proxy_listener import (
     ProxyListener as BaseProxyListener,
 )
-from ankama_launcher_emulator_premium.utils.internet import (
-    get_available_network_interfaces,
-)
 
 from src.const import CONNECTION_SERVERS_IPS
 from src.controller.bot_config import BotConfigController
 from src.core.bot.bot import Bot
 from src.core.mitm.connection_proxy import ConnectionProxy
 from src.core.mitm.game_proxy import GameProxy
-from src.exceptions import UnavailableNetworkInterface
 
 logger = logging.getLogger()
 
@@ -29,17 +25,8 @@ class ProxyListener(BaseProxyListener):
     def __init__(
         self,
         account_by_id: dict[int, Bot],
-        socks5_host: str | None = None,
-        socks5_port: int | None = None,
-        socks5_username: str | None = None,
-        socks5_password: str | None = None,
     ) -> None:
-        super().__init__(
-            socks5_host=socks5_host,
-            socks5_port=socks5_port,
-            socks5_username=socks5_username,
-            socks5_password=socks5_password,
-        )
+        super().__init__()
         self.account_by_id = account_by_id
         self.account_by_port = {}
         self._account_by_connection_port = {}
@@ -68,10 +55,8 @@ class ProxyListener(BaseProxyListener):
             def on_game_connection_callback(
                 target_address: tuple[str, int], bot: Bot
             ) -> int:
-                interface_ip = self.get_bot_network_interface(bot)
-                port = self.start_game_listener(
-                    target_address, interface_ip=interface_ip
-                )
+                proxy_url = self.get_bot_proxy_url(bot)
+                port = self.start_game_listener(target_address, proxy_url=proxy_url)
                 self.account_by_port[port] = bot
                 return port
 
@@ -88,17 +73,11 @@ class ProxyListener(BaseProxyListener):
             server_socket=server_socket,
         )
 
-    def get_bot_network_interface(self, bot: Bot | None) -> str | None:
-        if bot is None:
-            return None
+    def get_bot_proxy_url(self, bot: Bot) -> str | None:
         login = bot.account.apikey.login
         configs = BotConfigController().get_bot_config_by_login()
         config = configs.get(login)
-        available_ips = list(get_available_network_interfaces().keys())
-        try:
-            return BotConfigController().resolve_bot_network_interface(
-                config, available_ips
-            )
-        except UnavailableNetworkInterface:
-            bot.logger.error("No network interface available for this profile")
+        assert config is not None, f"Bot {login} must have a configuration"
+        if config.schedule_profile is None:
             return None
+        return BotConfigController().resolve_bot_socks_proxy_url(config)

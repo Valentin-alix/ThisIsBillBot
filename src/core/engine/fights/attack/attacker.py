@@ -77,7 +77,7 @@ class Attacker(ContextualLogger):
 
         valid_spells_for_turn = get_valid_spells_for_turn(context, self.logger)
         if not valid_spells_for_turn:
-            self.logger.warning("No valid spells available for this turn")
+            self.logger.info("No valid spells available for this turn")
             return None
 
         modifiers_map = context.modifier_by_type_and_spell_id

@@ -1,8 +1,14 @@
 {
   "profiles": {
     "B": {
-      "name_fr": "Nuit matin elargi - IP 2",
-      "network_interface_index": 2,
+      "name_fr": "Nuit matin elargi",
+      "proxy": {
+        "host": "185.134.193.138",
+        "http_port": 12323,
+        "socks_port": 12324,
+        "username": "14a09fc24cc21",
+        "password": "03412c6068"
+      },
       "slots_by_day": {
         "0": [
           {

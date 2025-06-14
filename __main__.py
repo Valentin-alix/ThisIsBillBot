@@ -1,12 +1,13 @@
 import argparse
+import signal
 import sys
 import threading
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
-from time import sleep
+from types import FrameType
 
 from dotenv import load_dotenv
-from PyQt6.QtCore import Qt
-from qfluentwidgets import Theme, setTheme, setThemeColor
 
 from src.services.logging_utils.loggers import configure_root_logger
 from src.utils.runtime_paths import configure_project_import_paths
@@ -14,7 +15,17 @@ from src.utils.runtime_paths import configure_project_import_paths
 configure_project_import_paths(Path(__file__).resolve().parent)
 
 
-def parse_runtime_args(argv: list[str]) -> tuple[bool, list[str]]:
+@dataclass(frozen=True)
+class RuntimeArgs:
+    use_bot_config_json: bool
+    headless: bool
+    application_argv: list[str]
+
+
+# uv run __main__.py --no-auto
+
+
+def parse_runtime_args(argv: list[str]) -> RuntimeArgs:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument(
         "--auto",
@@ -22,15 +33,18 @@ def parse_runtime_args(argv: list[str]) -> tuple[bool, list[str]]:
         default=True,
         help="Use resources/bot_configs.json to configure bots at runtime.",
     )
+    parser.add_argument(
+        "--headless",
+        action="store_true",
+        help="Run bots without creating the GUI window.",
+    )
     runtime_args, remaining_args = parser.parse_known_args(argv[1:])
-    return runtime_args.auto, [argv[0], *remaining_args]
+    return RuntimeArgs(
+        use_bot_config_json=runtime_args.auto,
+        headless=runtime_args.headless,
+        application_argv=[argv[0], *remaining_args],
+    )
 
-
-from src.utils.internet import has_internet_connection
-
-while not has_internet_connection():
-    print("waiting for internet connection")
-    sleep(1)
 
 load_dotenv()
 
@@ -38,15 +52,41 @@ from src.controller.bot_config import BotConfigController  # noqa: E402
 from src.core.bot.bot_manager import BotManager  # noqa: E402
 from src.core.bot.lifecycle.scheduler import run_continuously  # noqa: E402
 from src.core.signals.shared_farm_signals import SharedSignals  # noqa: E402
-from src.gui.application import Application  # noqa: E402
-from src.gui.main_window import MainWindow  # noqa: E402
 
 
-def main() -> None:
-    use_bot_config_json, application_argv = parse_runtime_args(sys.argv)
-    BotConfigController.use_bot_config_json = use_bot_config_json
+def _create_runtime(shared_signals: SharedSignals) -> BotManager:
+    bot_manager = BotManager(shared_signals=shared_signals)
+    bot_manager.ankama_launcher.start()
+    return bot_manager
 
-    configure_root_logger()
+
+def _start_bots(bot_manager: BotManager) -> None:
+    for bot in bot_manager.bot_by_account_id.values():
+        bot.start()
+
+
+def _shutdown_runtime(
+    bot_manager: BotManager,
+    cease_running: threading.Event,
+    on_finished: Callable[[], None],
+) -> None:
+    cease_running.set()
+
+    def shutdown() -> None:
+        try:
+            bot_manager.shutdown()
+        finally:
+            on_finished()
+
+    threading.Thread(target=shutdown, name="bot-manager-shutdown").start()
+
+
+def run_gui(application_argv: list[str]) -> int:
+    from PyQt6.QtCore import Qt
+    from qfluentwidgets import Theme, setTheme, setThemeColor
+
+    from src.gui.application import Application
+    from src.gui.main_window import MainWindow
 
     application = Application(application_argv)
     shared_signals = SharedSignals()
@@ -55,39 +95,60 @@ def main() -> None:
     setTheme(Theme.DARK)
     setThemeColor(Qt.GlobalColor.yellow)
 
-    bot_manager = BotManager(shared_signals=shared_signals)
-
-    bot_manager.ankama_launcher.start()
+    bot_manager = _create_runtime(shared_signals)
     main_window.init_accounts(bot_manager.bot_by_account_id)
     main_window.splashScreen.finish()
-
-    for bot in bot_manager.bot_by_account_id.values():
-        bot.start()
-
+    _start_bots(bot_manager)
     cease_running = run_continuously()
 
     def on_app_close() -> None:
-        cease_running.set()
-
-        def shutdown() -> None:
-            try:
-                bot_manager.shutdown()
-            finally:
-                shared_signals.shutdown_finished.emit()
-
-        threading.Thread(target=shutdown, name="bot-manager-shutdown").start()
+        _shutdown_runtime(
+            bot_manager,
+            cease_running,
+            shared_signals.shutdown_finished.emit,
+        )
 
     shared_signals.closed.connect(on_app_close)
 
-    application.exec()
+    return application.exec()
+
+
+def run_headless(application_argv: list[str]) -> int:
+    from PyQt6.QtCore import QCoreApplication, QTimer
+
+    application = QCoreApplication(application_argv)
+    shared_signals = SharedSignals()
+    bot_manager = _create_runtime(shared_signals)
+    _start_bots(bot_manager)
+    cease_running = run_continuously()
+    shutdown_requested = threading.Event()
+
+    def request_shutdown() -> None:
+        if shutdown_requested.is_set():
+            return
+        shutdown_requested.set()
+        _shutdown_runtime(bot_manager, cease_running, application.quit)
+
+    def handle_signal(_signum: int, _frame: FrameType | None) -> None:
+        QTimer.singleShot(0, request_shutdown)
+
+    signal.signal(signal.SIGINT, handle_signal)
+    if hasattr(signal, "SIGTERM"):
+        signal.signal(signal.SIGTERM, handle_signal)
+
+    return application.exec()
+
+
+def main(argv: list[str] | None = None) -> int:
+    runtime_args = parse_runtime_args(sys.argv if argv is None else argv)
+    BotConfigController.use_bot_config_json = runtime_args.use_bot_config_json
+
+    configure_root_logger()
+
+    if runtime_args.headless:
+        return run_headless(runtime_args.application_argv)
+    return run_gui(runtime_args.application_argv)
 
 
 if __name__ == "__main__":
-    main()
-    # profiler = cProfile.Profile()
-    # profiler.enable()
-
-    # exit_code = main()
-
-    # profiler.disable()
-    # profiler.dump_stats(os.path.join(RESOURCE_FOLDER, "profile.prof"))
+    raise SystemExit(main())

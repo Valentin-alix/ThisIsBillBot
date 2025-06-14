@@ -58,21 +58,26 @@ class ConnectionHandler(ContextualLogger):
             self._timer.cancel()
             self._timer = None
 
-    def on_connected(self, characters: list[Character]):
+    def on_connected(self, characters: list[Character]) -> None:
         self.is_connected_event.set()
-        if len(characters) == 0 and self.is_playing_event.is_set():
+        if (
+            not self.event_manager.is_socket_mode
+            and len(characters) == 0
+            and self.is_playing_event.is_set()
+        ):
             self.character_creation_behavior.start(
                 callback=self.on_character_creation_behavior_finished, parent=None
             )
 
-    def on_character_creation_behavior_finished(self, error_code: str | None):
+    def on_character_creation_behavior_finished(self, error_code: str | None) -> None:
         if error_code is not None:
             raise UnhandledErrorCodeException(error_code)
 
-    def on_disconnected(self):
+    def on_disconnected(self) -> None:
         """Handle bot disconnection event and trigger reconnection if playing."""
         self.is_connected_event.clear()
         self.is_ready_to_play_event.clear()
+        self.game_state.clear_connection_scoped_state()
         if not self.is_playing_event.is_set():
             self._reconnect_attempts = 0
             return

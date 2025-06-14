@@ -1,6 +1,9 @@
 from functools import partial
 from typing import Literal
 
+from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
+    ScheduleProfileController,
+)
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QCloseEvent, QColor, QIcon
 from PyQt6.QtWidgets import QHBoxLayout, QWidget
@@ -14,8 +17,7 @@ from qfluentwidgets.components.navigation import NavigationDisplayMode, Navigati
 
 from src import const
 from src.const import LOGO_FILE
-from src.controller.bot_config import BotConfig, BotConfigController
-from src.controller.schedule_profile_controller import ScheduleProfileController
+from src.controller.bot_config import BotConfigController
 from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.shared_farm_signals import SharedSignals
@@ -78,16 +80,17 @@ class MainWindow(AppFluentWindow):
         )
         self.navigationInterface.panel.expand()
 
-        current_config = BotConfigController().get_bot_config_by_login().get(login)
+        bot_config_controller = BotConfigController()
+        config = bot_config_controller.get_bot_config(login)
 
         profiles = ScheduleProfileController().get_profile_display_names()
-        selected_profile = current_config.schedule_profile if current_config else None
+        selected_profile = config.schedule_profile
         navigation_widget.populate_schedule_profiles(profiles, selected_profile)
         navigation_widget.schedule_profile_changed.connect(
             partial(self._on_schedule_profile_changed, login)
         )
 
-        selected_mode = current_config.connection_mode if current_config else "mitm"
+        selected_mode = config.connection_mode
         navigation_widget.populate_connection_mode(selected_mode)
         navigation_widget.connection_mode_changed.connect(
             partial(self._on_connection_mode_changed, login)
@@ -132,33 +135,16 @@ class MainWindow(AppFluentWindow):
             )
 
     def _on_schedule_profile_changed(self, login: str, profile_id: str) -> None:
-        profile = profile_id if profile_id else None
+        selected_profile = profile_id or None
+        bot_config_controller = BotConfigController()
+        bot_config_controller.assign_profile(login, selected_profile)
+        bot = self.bots_by_login[login]
+        bot.scheduler.update_profile(selected_profile)
 
-        configs = BotConfigController().get_bot_config_by_login()
-        existing_config = configs.get(login)
-        if existing_config:
-            updated_config = existing_config.model_copy(
-                update={"schedule_profile": profile}
-            )
-        else:
-            updated_config = BotConfig(schedule_profile=profile)
-        BotConfigController().update_bot_config_by_login(updated_config, login)
-
-        bot = self.bots_by_login.get(login)
-        if bot:
-            bot.scheduler.update_profile(profile)
-
-    def _on_connection_mode_changed(self, login: str, mode: str) -> None:
-        typed_mode: Literal["mitm", "socket"] = "socket" if mode == "socket" else "mitm"
-        configs = BotConfigController().get_bot_config_by_login()
-        existing_config = configs.get(login)
-        if existing_config:
-            updated_config = existing_config.model_copy(
-                update={"connection_mode": typed_mode}
-            )
-        else:
-            updated_config = BotConfig(connection_mode=typed_mode)
-        BotConfigController().update_bot_config_by_login(updated_config, login)
+    def _on_connection_mode_changed(
+        self, login: str, mode: Literal["mitm", "socket"]
+    ) -> None:
+        BotConfigController().assign_mode(login, mode)
 
     def _init_sync_button(self) -> None:
         def manage_visibility_sync_btn(display_mode: NavigationDisplayMode) -> None:

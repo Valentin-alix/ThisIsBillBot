@@ -36,6 +36,11 @@ class GameState:
     craft: CraftState
     server: ServerState
 
+    def clear_connection_scoped_state(self) -> None:
+        self.map.clear_state()
+        self.fight.clear_state()
+        self.entity.clear_state()
+
     def debug_snapshot(self) -> dict[str, Any]:
         """Flat snapshot of the most relevant state for debugging."""
         snapshot: dict[str, Any] = {

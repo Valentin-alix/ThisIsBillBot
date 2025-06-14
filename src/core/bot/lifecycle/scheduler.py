@@ -17,7 +17,9 @@ from ankama_launcher_emulator_premium.interfaces.credentials import (
 )
 
 from src.controller.bot_config import BotConfig
-from src.controller.schedule_profile_controller import ScheduleProfileController
+from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
+    ScheduleProfileController,
+)
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.execution.process_manager import ProcessManager
 from src.core.events_manager.event_manager import EventManager
@@ -26,7 +28,6 @@ from src.core.signals.log_signals import LogSignals
 from src.core.signals.message_signals import MessageInfoSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.services.logging_utils.contextual_logger import ContextualLogger
-from src.utils.internet import has_internet_connection
 
 
 @dataclass
@@ -78,14 +79,15 @@ class BotScheduler(ContextualLogger):
     def update_profile(self, profile_id: str | None) -> None:
         """Update the schedule profile and reschedule jobs."""
         config = self.get_bot_config()
-        if config is None:
-            config = BotConfig(schedule_profile=profile_id)
-        else:
-            config.schedule_profile = profile_id
-
         self._clear_scheduled_jobs()
 
+        assert config is not None, (
+            f"Bot {self.account.apikey.login} must have a configuration"
+        )
+        config.schedule_profile = profile_id
+
         if profile_id is None:
+            self.logger.info("Profile cleared, disabling automatic scheduling")
             if self.is_playing_event.is_set():
                 run_in_background(self._planned_stop_bot_task)
             return
@@ -214,10 +216,6 @@ class BotScheduler(ContextualLogger):
 
     def _planned_restart_bot(self) -> None:
         self.logger.info("Restarting bot")
-        while not has_internet_connection():
-            self.logger.info("waiting for internet connection to be up in restart bot")
-            sleep(1)
-
         if not self.is_in_randomized_playtime(datetime.now()):
             return self.logger.info("Bot is not anymore in playtime")
 

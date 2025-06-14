@@ -2,7 +2,8 @@ import select
 from dataclasses import dataclass
 from socket import AF_INET, SOCK_STREAM, socket
 
-from ankama_launcher_emulator_premium.utils.internet import has_internet_connection
+import socks
+from ankama_launcher_emulator_premium.utils.proxy import get_info_by_proxy_url
 
 from src.core.bot.bot import Bot
 from src.protocol.protocol import decode_varint_size
@@ -11,15 +12,28 @@ from src.protocol.protocol import decode_varint_size
 @dataclass(kw_only=True)
 class BaseClient:
     bot: Bot
-    interface_ip: str | None = None
+    proxy_url: str | None
 
     def __post_init__(self) -> None:
-        self.client_socket: socket = socket(AF_INET, SOCK_STREAM)
+        client_socket: socket
+        if self.proxy_url is None:
+            client_socket = socket(AF_INET, SOCK_STREAM)
+        else:
+            parsed_proxy = get_info_by_proxy_url(self.proxy_url)
+            socks_client_socket = socks.socksocket(AF_INET, SOCK_STREAM)
+            socks_client_socket.set_proxy(
+                socks.SOCKS5,
+                addr=parsed_proxy.hostname,
+                port=parsed_proxy.port,
+                rdns=False,
+                username=parsed_proxy.username,
+                password=parsed_proxy.password,
+            )
+            client_socket = socks_client_socket
+        self.client_socket = client_socket
         self.buffer = bytes()
 
     def connect_socket(self, host: str, port: int) -> None:
-        if self.interface_ip is not None:
-            self.client_socket.bind((self.interface_ip, 0))
         self.client_socket.connect((host, port))
 
     def loop(self) -> None:
@@ -75,9 +89,7 @@ class BaseClient:
     def on_received_msg_datas(self, msg_datas: bytes) -> None: ...
 
     def close(self):
-        self.bot.logger.info(
-            f"closing conns, internet connection is {has_internet_connection()}"
-        )
+        self.bot.logger.info(f"closing conns, proxy {self.proxy_url}")
         self.client_socket.close()
         self.on_close()
 

@@ -19,8 +19,8 @@ logger = logging.getLogger()
 @dataclass
 class SocketClient:
     bot: Bot
-    bot_config: BotConfig | None
-    interface_ip: str | None
+    bot_config: BotConfig
+    socks_proxy_url: str | None
     on_banned_callback: Callable[[str], None]
     _connection_client: ConnectionClient | None = field(init=False, default=None)
 
@@ -30,14 +30,13 @@ class SocketClient:
         game_token = Haapi(
             api_key=account.apikey.key,
             login=account.apikey.login,
-            interface_ip=self.interface_ip,
-            proxy_url=None,
+            proxy_url=self.socks_proxy_url,
         ).createToken(1, account.apikey.certificate)
         logger.info(f"got game token {game_token}")
         self._connection_client = ConnectionClient(
             bot=self.bot,
             connection_behavior=self.bot.connection_behavior,
-            interface_ip=self.interface_ip,
+            proxy_url=self.socks_proxy_url,
         )
         self._connection_client.connect(game_token, self.connected_server)
 
@@ -54,7 +53,10 @@ class SocketClient:
             return self.bot.logger.error(
                 f"[SocketClient] Connection failed: {error_code}"
             )
-        GameClient(bot=self.bot, interface_ip=self.interface_ip).connect(
+        GameClient(
+            bot=self.bot,
+            proxy_url=self.socks_proxy_url,
+        ).connect(
             identification_sucess_info.host,
             identification_sucess_info.port,
             identification_sucess_info.ticket,

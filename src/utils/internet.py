@@ -1,7 +1,6 @@
 import socket
 
 import psutil
-from python_utils.internet import has_internet_connection as has_internet_connection
 
 
 def get_ethernet_ip() -> str | None:

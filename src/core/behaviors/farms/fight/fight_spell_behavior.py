@@ -3,11 +3,13 @@ from dataclasses import dataclass, field
 from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionAcknowledgementRequest,
     GameActionFightCastRequest,
+    GameActionFightEvent,
     SequenceEndEvent,
 )
 from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.services.human_timings import HumanTimingsService
 
 
@@ -32,6 +34,11 @@ class FightSpellBehavior(Behavior):
             self.on_game_action_acknowledgement_request,
             originator=self,
         )
+        self.event_manager.on(
+            GameActionFightEvent,
+            self.on_game_action_fight_event,
+            originator=self,
+        )
         req = GameActionFightCastRequest(spell_id=spell_id, cell=cell_id)
 
         self.send_message_delayed(
@@ -47,3 +54,10 @@ class FightSpellBehavior(Behavior):
     ) -> None:
         if msg.valid and msg.action_id == self._pending_spell_action_id:
             self.finish()
+
+    def on_game_action_fight_event(self, msg: GameActionFightEvent) -> None:
+        if not msg.HasField("death"):
+            return
+        if msg.death.target_id != self.game_state.player.character_id:
+            return
+        self.finish(MapMoveError.PLAYER_DEAD)

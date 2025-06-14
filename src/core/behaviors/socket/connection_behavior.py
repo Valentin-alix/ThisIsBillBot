@@ -18,6 +18,7 @@ from datas.protos.non_obf.connection.login_message_pb2 import (
 )
 from dofus_unity_reader.game_constants.server import ServerEnum
 from google.protobuf.json_format import MessageToDict
+from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 from src.controller.bot_config import BotConfigController
 from src.core.behaviors.behavior import Behavior
@@ -46,8 +47,10 @@ class ConnectionBehavior(Behavior):
         client_version = get_client_version()
         self.logger.info(f"Client version: {client_version}")
 
-        device_identifier = BotConfigController().get_or_create_hardware_id(
-            self.game_state.player.login
+        device_identifier = (
+            BotConfigController()
+            .get_bot_config(self.game_state.player.login)
+            .hardware_id
         )
 
         identification = IdentificationRequest(
@@ -103,6 +106,7 @@ class ConnectionBehavior(Behavior):
         if msg.HasField("error"):
             self.logger.error(f"SelectServer failed: {MessageToDict(msg)}")
             return self.finish(ConnectionErrorCode.SELECT_SERVER_FAILED, None)
+        RuntimeDataStore().start_connection_capture_sequence()
         self.logger.info(f"Game server: {msg.success.host}:{msg.success.ports[0]}")
         self.finish(
             None,

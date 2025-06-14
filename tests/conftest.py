@@ -77,7 +77,6 @@ def tmp_json_path(tmp_path: Path) -> Path:
 def runtime_data_store(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> Iterator[RuntimeDataStore]:
-    monkeypatch.setattr(runtime_store, "PC_ID", "test")
     monkeypatch.setattr(runtime_store, "RUNTIME_DATA_DIR", tmp_path)
     instance = RuntimeDataStore()
     monkeypatch.setattr(protocol_game, "_on_exit", lambda: None)

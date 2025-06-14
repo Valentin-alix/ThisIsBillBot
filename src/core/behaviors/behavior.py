@@ -188,12 +188,12 @@ class Behavior(ContextualLogger):
         with self._state_lock:
             if self._state == BehaviorState.STOPPED:
                 error = "Already stopped, ignoring"
-                self.logger.error(error)
+                self.logger.debug(error)
                 return
 
             if self._state == BehaviorState.STOPPING:
                 error = "Already stopping, ignoring"
-                self.logger.error(error)
+                self.logger.debug(error)
                 return
 
         self._transition(

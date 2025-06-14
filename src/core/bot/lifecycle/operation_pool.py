@@ -22,14 +22,12 @@ class OperationLog(RootModel[dict[str, list[float]]]):
 
 @dataclass
 class OperationPool:
-    """Per-IP sliding-window quota tracker for account creation and authentication.
+    """Per-proxy sliding-window quota tracker for account creation/authentication.
 
-    Ankama rate-limits these operations *per source IP*: at most
-    ``MAX_OPERATIONS_PER_HOUR`` per rolling hour and ``MAX_OPERATIONS_PER_DAY`` per
-    rolling day, each IP carrying its own independent budget. So a rig with several
-    interfaces multiplies its total throughput by the number of IPs. Each *attempt*
-    (success or failure) consumes one token, so we record a timestamp the moment an
-    operation is launched, keyed by the IP it was charged to.
+    Ankama rate-limits these operations per source network. Bot-DofusUnity uses
+    SOCKS5 proxies as the only source selector, so each proxy URL carries its own
+    independent budget. Each attempt consumes one token, so we record a timestamp
+    the moment an operation is launched, keyed by the proxy URL.
 
     Timestamps are persisted to disk so the rolling windows survive restarts.
     """
@@ -53,35 +51,41 @@ class OperationPool:
         with open(self.path, "w", encoding="utf-8") as file:
             file.write(OperationLog(self._timestamps).model_dump_json())
 
-    def _count_since(self, ip: str, threshold: float) -> int:
-        return sum(1 for ts in self._timestamps.get(ip, []) if ts >= threshold)
+    def _count_since(self, quota_key: str, threshold: float) -> int:
+        return sum(1 for ts in self._timestamps.get(quota_key, []) if ts >= threshold)
 
-    def has_quota(self, ip: str, now: float | None = None) -> bool:
+    def has_quota(self, quota_key: str, now: float | None = None) -> bool:
         now = time.time() if now is None else now
-        within_hour = self._count_since(ip, now - ONE_HOUR_SEC)
-        within_day = self._count_since(ip, now - ONE_DAY_SEC)
+        within_hour = self._count_since(quota_key, now - ONE_HOUR_SEC)
+        within_day = self._count_since(quota_key, now - ONE_DAY_SEC)
         return (
             within_hour < MAX_OPERATIONS_PER_HOUR
             and within_day < MAX_OPERATIONS_PER_DAY
         )
 
+    def count_since_hour(self, quota_key: str, now: float | None = None) -> int:
+        now = time.time() if now is None else now
+        return self._count_since(quota_key, now - ONE_HOUR_SEC)
+
     def available_ip(self, ips: list[str], now: float | None = None) -> str | None:
-        """Return an IP from ``ips`` that still has quota, or ``None`` if all are
-        saturated. Prefers the least recently used (fewest operations in the rolling
-        hour) so load spreads evenly across interfaces."""
+        """Return a quota key from ``ips`` that still has quota.
+
+        Kept for backward compatibility with older callers; Bot-DofusUnity now
+        passes proxy URLs as quota keys.
+        """
         now = time.time() if now is None else now
         candidates = [ip for ip in ips if self.has_quota(ip, now)]
         if not candidates:
             return None
-        return min(candidates, key=lambda ip: self._count_since(ip, now - ONE_HOUR_SEC))
+        return min(candidates, key=lambda ip: self.count_since_hour(ip, now))
 
-    def record(self, ip: str, now: float | None = None) -> None:
+    def record(self, quota_key: str, now: float | None = None) -> None:
         now = time.time() if now is None else now
-        timestamps = self._timestamps.setdefault(ip, [])
+        timestamps = self._timestamps.setdefault(quota_key, [])
         timestamps.append(now)
         # Drop entries that fell out of the daily window; they can never affect
         # either quota again. Forget the IP entirely once it has none left.
         timestamps[:] = [ts for ts in timestamps if ts >= now - ONE_DAY_SEC]
         if not timestamps:
-            del self._timestamps[ip]
+            del self._timestamps[quota_key]
         self._save()

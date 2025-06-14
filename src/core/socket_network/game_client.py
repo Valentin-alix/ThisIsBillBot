@@ -34,7 +34,11 @@ class GameClient(BaseClient):
 
         threading.Thread(target=self.loop, daemon=True).start()
         self.bot.game_session_behavior.start(callback=None, parent=None)
-        self.bot.handshake_behavior.start(ticket=ticket, callback=None, parent=None)
+        self.bot.handshake_behavior.start(
+            ticket=ticket, callback=self.on_handshake_behavior_finished, parent=None
+        )
+
+    def on_handshake_behavior_finished(self, error_code: str | None) -> None:
         self.bot.hearthbeat_behavior.start(callback=None, parent=None)
 
     def on_received_msg_datas(self, msg_datas: bytes) -> None:
