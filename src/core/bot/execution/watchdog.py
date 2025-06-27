@@ -62,6 +62,8 @@ class StuckWatchdog(ContextualLogger):
 
         last_activity = self.event_manager.last_activity_monotonic
         idle_s = time.monotonic() - last_activity
+        if self._is_waiting_on_active_non_player_turn():
+            return
         if idle_s < self.threshold_s:
             return
         if last_activity == self._last_reported_activity:
@@ -82,6 +84,14 @@ class StuckWatchdog(ContextualLogger):
             isinstance(behavior, IdleBehavior)
             and behavior.state is BehaviorState.RUNNING
         )
+
+    def _is_waiting_on_active_non_player_turn(self) -> bool:
+        if not self.game_state.fight.in_fight or self.game_state.fight.is_our_turn:
+            return False
+        message_idle_s = time.monotonic() - (
+            self.event_manager.last_message_activity_monotonic
+        )
+        return message_idle_s < self.threshold_s
 
     def _report(self, behavior: Behavior, idle_s: float) -> None:
         reason = (

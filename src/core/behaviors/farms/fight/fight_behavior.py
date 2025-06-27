@@ -90,6 +90,7 @@ class FightBehavior(Behavior):
     def _can_start_fight_turn(self) -> bool:
         return (
             self.game_state.fight.in_fight
+            and self.game_state.fight.life_point > 0
             and self.game_state.player.character_id
             in self.game_state.entity.actor_by_id
             and self.fight_turn_behavior.state == BehaviorState.STOPPED

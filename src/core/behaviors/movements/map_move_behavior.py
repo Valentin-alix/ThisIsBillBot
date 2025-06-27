@@ -5,6 +5,7 @@ from functools import partial
 from datas.protos.non_obf.game.basic_pb2 import (
     TextInformationEvent,
 )
+from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent
 from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionAcknowledgementRequest,
     SequenceEndEvent,
@@ -42,6 +43,19 @@ class MapMoveBehavior(Behavior):
 
     def run(self, move_path: MovementPath):
         self.logger.info(f"Going to : {move_path.end}")
+        if self.game_state.map.is_waiting_for_map_popup_dialog_leave:
+            self.logger.info("Waiting for map popup dialog to close before moving")
+            self.event_manager.on(
+                DialogLeaveEvent,
+                lambda _: self.run(move_path=move_path),
+                originator=self,
+                once=True,
+                override_on_self=True,
+                timeout=3,
+                on_timeout=lambda: self.run(move_path=move_path),
+            )
+            return
+
         if self.game_state.map.map_point != move_path.start:
             self.logger.warning(
                 f"Player is not at starting move path, he is at {self.game_state.map.map_point}, invalid move path"

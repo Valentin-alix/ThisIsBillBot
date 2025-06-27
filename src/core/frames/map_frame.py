@@ -5,6 +5,7 @@ from datas.protos.non_obf.game.context_pb2 import (
     ContextCreationEvent,
     ContextReadyRequest,
 )
+from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
 from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapChangeRequest,
@@ -13,9 +14,12 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
     MapInformationRequest,
     MapMovementConfirmRequest,
 )
+from datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
 from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.game_constants.map_id import MAP_IDS_THAT_POP_DIALOG
 
 from src import const
+from src.core.config import BASE_RANGE
 from src.core.frames.frame import Frame
 from src.core.signals.world_signals import WorldSignals
 
@@ -71,8 +75,48 @@ class MapFrame(Frame):
                 DataReader().map_info_by_map_id[message.map_id]
             )
         self.game_state.map.is_in_map_transition = False
+        self.register_map_popup_dialog_leave(message.map_id)
+
+    def register_map_popup_dialog_leave(self, map_id: int) -> None:
+        if map_id not in MAP_IDS_THAT_POP_DIALOG:
+            self.game_state.map.is_waiting_for_map_popup_dialog_leave = False
+            self.unregister_listener(NpcDialogQuestionEvent)
+            return
+        self.game_state.map.is_waiting_for_map_popup_dialog_leave = True
+        self.event_manager.on(
+            NpcDialogQuestionEvent,
+            self.leave_map_popup_dialog_on_npc_question,
+            originator=self,
+            once=True,
+            override_on_self=True,
+            priority=self.priority,
+            timeout=2,
+            on_timeout=self.on_timeout_npc_dialog_question,
+        )
+
+    def on_timeout_npc_dialog_question(self):
+        self.game_state.map.is_waiting_for_map_popup_dialog_leave = False
+
+    def leave_map_popup_dialog_on_npc_question(
+        self, message: NpcDialogQuestionEvent
+    ) -> None:
+        self.event_manager.on(
+            DialogLeaveEvent,
+            self.on_map_popup_dialog_left,
+            originator=self,
+            once=True,
+            override_on_self=True,
+            priority=self.priority,
+        )
+        self.run_timer(
+            BASE_RANGE, lambda: self.event_manager.send(DialogLeaveRequest())
+        )
+
+    def on_map_popup_dialog_left(self, message: DialogLeaveEvent) -> None:
+        self.game_state.map.is_waiting_for_map_popup_dialog_leave = False
 
     def on_map_current_event(self, msg: MapCurrentEvent):
+        self.game_state.map.is_waiting_for_map_popup_dialog_leave = False
         self.game_state.map.map_id = msg.map_id
         self.game_state.entity.clear_actors()
         self.game_state.entity.clear_obstacles()

@@ -29,6 +29,7 @@ class MapState(State):
     forbidden_edge_transitions: set[tuple[Vertice, Vertice, Transition]] = field(
         init=False, default_factory=set[tuple[Vertice, Vertice, Transition]]
     )
+    is_waiting_for_map_popup_dialog_leave: bool = field(init=False, default=False)
     _anomaly_info_requested: bool = field(init=False, default=False)
     _is_fight_context: bool = field(init=False, default=False)
 
@@ -38,6 +39,7 @@ class MapState(State):
         self.is_in_haven_bag = False
         self.excluded_element_ids.clear()
         self.forbidden_edge_transitions.clear()
+        self.is_waiting_for_map_popup_dialog_leave = False
         self._anomaly_info_requested = False
         self._is_fight_context = False
 

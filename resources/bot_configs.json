@@ -14,30 +14,15 @@
     "connection_mode": "socket",
     "hardware_id": "799A44EC67AEE1B501EDA8D047E02B846846D93956A80F7CFBA80409EDA2E2C1"
   },
-  "renaissance.haha1@outlook.fr": {
-    "schedule_profile": "B",
-    "connection_mode": "socket",
-    "hardware_id": "294F48DCD785AE727D21C7901430136B8775C152C079CD625E94F582E6AA3C89"
-  },
   "renaissance.haha2@outlook.fr": {
     "schedule_profile": "B",
     "connection_mode": "socket",
     "hardware_id": "0662354B3D1112B4DAE2422B96EE580AFFFF559C882E28778515E3DC6366ABC0"
   },
-  "renaissance.hehe2@outlook.fr": {
-    "schedule_profile": "B",
-    "connection_mode": "socket",
-    "hardware_id": "6B4F4557F69904E635FA8389F07D60663B30B80151B8D44A094985C77AEB25CD"
-  },
   "renaissance.hehe4@outlook.fr": {
     "schedule_profile": "B",
     "connection_mode": "socket",
     "hardware_id": "9679C40FC8C1A239786B69F8BD40A6B820D935EA04BD2B9F79DA7CD4827BA9B6"
-  },
-  "renaissance.hrhr@outlook.fr": {
-    "schedule_profile": "B",
-    "connection_mode": "socket",
-    "hardware_id": "3B78AA74CA2F6A106D58C34EA6E31080E4CAEA2E5889A6FE1EBBE6C43ABC5A69"
   },
   "renaissance.hrhr1@outlook.fr": {
     "schedule_profile": "B",
@@ -93,5 +78,25 @@
     "schedule_profile": null,
     "connection_mode": "mitm",
     "hardware_id": "E924F7F63A27BF44094F3CE3EF90AEB270BEA90032CF17F4A43AF643BE03AAE4"
+  },
+  "renaissance.huhu@outlook.fr": {
+    "schedule_profile": "F",
+    "connection_mode": "socket",
+    "hardware_id": "D59A9F6D22065D4F38556EF17808136F78C5F048E13FAB74A30856BF0DE7FBDF"
+  },
+  "renaissance.huhu1@outlook.fr": {
+    "schedule_profile": "E",
+    "connection_mode": "socket",
+    "hardware_id": "DDB8AE83AAF0EFF4D9A8505EB1A156E662BC954F937B5790AF18A631DB48D38F"
+  },
+  "renaissance.huhu2@outlook.fr": {
+    "schedule_profile": "D",
+    "connection_mode": "socket",
+    "hardware_id": "65B6C91AA7E8524B4F185F336C6AF91E61B3135D4D942E2838CA615D81E067C2"
+  },
+  "renaissance.hihi@outlook.fr": {
+    "schedule_profile": "F",
+    "connection_mode": "socket",
+    "hardware_id": "4200EED3884E19694E5E851BF9313D744CEB28D3060D8A8404BED7D7CDBC88E2"
   }
 }

@@ -45,6 +45,9 @@ class EventManager(ContextualLogger):
         init=False, default_factory=EventManagerSignals
     )
     last_activity_monotonic: float = field(init=False, default_factory=time.monotonic)
+    last_message_activity_monotonic: float = field(
+        init=False, default_factory=time.monotonic
+    )
     last_message_name: str | None = field(init=False, default=None)
 
     def mark_activity(self) -> None:
@@ -109,6 +112,7 @@ class EventManager(ContextualLogger):
     def process_msg(self, msg: Message) -> None:
         with self.lock:
             self.last_message_name = msg.__class__.__name__
+            self.last_message_activity_monotonic = time.monotonic()
             related_listeners = self.listeners_by_type_msg.get(msg.__class__)
             if not related_listeners:
                 return

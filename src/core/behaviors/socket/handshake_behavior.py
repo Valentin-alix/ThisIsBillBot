@@ -36,6 +36,7 @@ from src.services.human_timings import get_random_range
 
 _POST_LOAD_DELAY: tuple[float, float] = (1.0, 1.3)
 _CONTEXT_CREATION_DELAY: tuple[float, float] = (0.25, 0.4)
+_AUTHENTICATION_TICKET_ACCEPTED_TIMEOUT_SECONDS = 15.0
 
 _CHANNELS_ENABLED: list[Channel] = [
     Channel.SALES,
@@ -70,10 +71,19 @@ class HandshakeBehavior(Behavior):
             self.on_authentication_ticket_accepted_event,
             originator=self,
             once=True,
+            timeout=_AUTHENTICATION_TICKET_ACCEPTED_TIMEOUT_SECONDS,
+            on_timeout=self.on_authentication_ticket_accepted_timeout,
         )
         self.event_manager.send(
             GameIdentificationRequest(ticket_key=ticket, language_code="fr")
         )
+
+    def on_authentication_ticket_accepted_timeout(self) -> None:
+        request_disconnect = self.event_manager.request_disconnect_callback
+        assert request_disconnect is not None, (
+            "Socket handshake timeout requires a request_disconnect_callback"
+        )
+        request_disconnect()
 
     def on_authentication_ticket_accepted_event(
         self, _msg: AuthenticationTicketAcceptedEvent
@@ -88,6 +98,7 @@ class HandshakeBehavior(Behavior):
         )
 
     def on_character_list_event(self, msg: CharacterListEvent) -> None:
+        character_count = len(msg.characters)
         self.event_manager.on(
             CharacterLoadingCompleteEvent,
             self.on_character_loading_complete_event,
@@ -95,11 +106,10 @@ class HandshakeBehavior(Behavior):
             once=True,
         )
 
-        if len(msg.characters) == 0:
+        if character_count == 0:
             self.character_creation_behavior.start(parent=self, callback=None)
         else:
             character = msg.characters[0]
-            self.logger.info(f"Selecting character {character.id}")
             self.event_manager.send(
                 CharacterSelectionRequest(character_id=character.id)
             )

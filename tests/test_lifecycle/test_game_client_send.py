@@ -1,8 +1,15 @@
+from collections.abc import Callable
 from typing import cast
 from unittest.mock import MagicMock
 
 import pytest
 from datas.protos.non_obf.connection.login_message_pb2 import IdentificationResponse
+from datas.protos.non_obf.game.connection_pb2 import (
+    AuthenticationTicketAcceptedEvent,
+)
+from datas.protos.non_obf.game.connection_pb2 import (
+    IdentificationRequest as GameIdentificationRequest,
+)
 from datas.protos.non_obf.game.game_action_pb2 import GameActionFightCastRequest
 from datas.protos.non_obf.game.spell_pb2 import SpellsEvent
 from google.protobuf.message import Message
@@ -94,6 +101,32 @@ class TestGameClientSendRoutesToProcessMsg:
         runtime_bot.debug_recorder.record_game_message.assert_called_once_with(
             clear_msg, obf_msg, 42, True
         )
+
+    def test_handshake_timeout_disconnects_game_socket(
+        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        event_manager_on = MagicMock()
+        event_manager_send = MagicMock()
+        request_disconnect = MagicMock()
+        runtime_bot.event_manager.request_disconnect_callback = request_disconnect
+        monkeypatch.setattr(runtime_bot.event_manager, "on", event_manager_on)
+        monkeypatch.setattr(runtime_bot.event_manager, "send", event_manager_send)
+
+        runtime_bot.handshake_behavior.run("game-ticket")
+
+        event_manager_on.assert_called_once()
+        listener_args = event_manager_on.call_args.args
+        listener_kwargs = cast(dict[str, object], event_manager_on.call_args.kwargs)
+        assert listener_args[0] is AuthenticationTicketAcceptedEvent
+        assert listener_kwargs["timeout"] == 15.0
+        on_timeout = listener_kwargs["on_timeout"]
+        assert callable(on_timeout)
+
+        cast(Callable[[], None], on_timeout)()
+
+        request_disconnect.assert_called_once_with()
+        sent_message = event_manager_send.call_args.args[0]
+        assert isinstance(sent_message, GameIdentificationRequest)
 
 
 class TestSocketProxyConnection:

@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from time import monotonic, sleep
 
+import psutil
 from ankama_launcher_emulator_premium.web.auth.storage import remove_generated_account
 
 LAUNCH_SPACING_SECONDS = 2.5
@@ -115,7 +116,10 @@ class BotManager:
             self._is_lauching_by_login.pop(login, None)
             return None
 
-        if self._is_lauching_by_login[login].is_set():
+        if self._is_lauching_by_login[login].is_set() and (
+            related_bot.process_manager.pid is None
+            or psutil.pid_exists(related_bot.process_manager.pid)
+        ):
             return related_bot.logger.warning(
                 "Bot is already launching, don't launch twice."
             )

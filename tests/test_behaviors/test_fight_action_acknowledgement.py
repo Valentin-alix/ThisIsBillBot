@@ -325,6 +325,47 @@ class TestFightActionAcknowledgement:
         assert finished_error_codes == [MapMoveError.PLAYER_DEAD]
         assert fight_turn_behavior.state is BehaviorState.STOPPED
 
+    def test_fight_turn_does_not_read_map_point_after_player_actor_was_removed(
+        self, game_state_ctx: GameStateContext
+    ) -> None:
+        set_game_state(game_state_ctx.game_state, player_cell_id=399, enemy_cell_ids=[])
+        game_state_ctx.game_state.entity.remove_actor(PLAYER_ID)
+        event_manager = _make_event_manager(game_state_ctx)
+        map_move_behavior = MapMoveBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            path_finding=game_state_ctx.pathfinding,
+            _logger=game_state_ctx.logger,
+        )
+        fight_movement_behavior = FightMovementBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            map_move_behavior=map_move_behavior,
+            path_finding=game_state_ctx.pathfinding,
+            fight_reachable_cells=game_state_ctx.fight_reachable_cells,
+            _logger=game_state_ctx.logger,
+        )
+        fight_spell_behavior = FightSpellBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            _logger=game_state_ctx.logger,
+        )
+        fight_turn_behavior = FightTurnBehavior(
+            event_manager=event_manager,
+            game_state=game_state_ctx.game_state,
+            fight_movement_behavior=fight_movement_behavior,
+            path_finding=game_state_ctx.pathfinding,
+            fight_spell_behavior=fight_spell_behavior,
+            attacker=game_state_ctx.attacker,
+            _logger=game_state_ctx.logger,
+        )
+        finished_error_codes: list[str | None] = []
+
+        fight_turn_behavior.start(callback=finished_error_codes.append, parent=None)
+
+        assert finished_error_codes == [MapMoveError.PLAYER_DEAD]
+        assert fight_turn_behavior.state is BehaviorState.STOPPED
+
     def test_fight_turn_passes_without_runaway_when_no_enemies_remain(
         self, game_state_ctx: GameStateContext
     ) -> None:

@@ -134,14 +134,27 @@ class SidebarItem(NavigationWidget):
             self._title.show()
             if self.in_fight:
                 self._right_icon.show()
-            if self._is_playing:
-                self._stop_btn.show()
-            else:
-                self._play_btn.show()
+            self._sync_play_buttons()
             self._profile_combo.show()
             self._mode_combo.show()
 
         self.update()
+
+    def _sync_play_buttons(self) -> None:
+        if self.isCompacted:
+            self._play_btn.hide()
+            self._stop_btn.hide()
+            return
+        if self._is_playing:
+            self._play_btn.hide()
+            self._stop_btn.show()
+        else:
+            self._stop_btn.hide()
+            self._play_btn.show()
+
+    def set_playing(self, is_playing: bool) -> None:
+        self._is_playing = is_playing
+        self._sync_play_buttons()
 
     def _margins(self) -> QMargins:
         return QMargins(0, 0, 0, 0)
@@ -194,14 +207,10 @@ class SidebarItem(NavigationWidget):
         self.bot_signals.stop.emit()
 
     def on_play(self, _: bool) -> None:
-        self._is_playing = True
-        self._stop_btn.show()
-        self._play_btn.hide()
+        self.set_playing(True)
 
     def on_stop(self) -> None:
-        self._is_playing = False
-        self._play_btn.show()
-        self._stop_btn.hide()
+        self.set_playing(False)
 
     def paintEvent(self, a0: QPaintEvent | None) -> None:
         painter = QPainter(self)

@@ -1,5 +1,6 @@
-import logging
 from dataclasses import dataclass, field
+from hashlib import sha256
+import logging
 from typing import Callable
 
 from ankama_launcher_emulator_premium.haapi.haapi import Haapi
@@ -14,6 +15,10 @@ from src.core.socket_network.connection_client import ConnectionClient
 from src.core.socket_network.game_client import GameClient
 
 logger = logging.getLogger()
+
+
+def _fingerprint_secret(secret: str) -> str:
+    return sha256(secret.encode()).hexdigest()[:8]
 
 
 @dataclass
@@ -32,7 +37,10 @@ class SocketClient:
             login=account.apikey.login,
             proxy_url=self.socks_proxy_url,
         ).createToken(1, account.apikey.certificate)
-        logger.info(f"got game token {game_token}")
+        logger.info(
+            "[SocketClient] Got HAAPI game token "
+            f"len={len(game_token)} fingerprint={_fingerprint_secret(game_token)}"
+        )
         self._connection_client = ConnectionClient(
             bot=self.bot,
             connection_behavior=self.bot.connection_behavior,
@@ -46,6 +54,9 @@ class SocketClient:
         identification_sucess_info: IdentificationSuccessInfo,
     ) -> None:
         if self._connection_client:
+            self.bot.logger.info(
+                "[SocketClient] Closing connection client before game handoff"
+            )
             self._connection_client.close()
         if error_code:
             if error_code == ConnectionErrorCode.BANNED:
@@ -53,6 +64,15 @@ class SocketClient:
             return self.bot.logger.error(
                 f"[SocketClient] Connection failed: {error_code}"
             )
+        self.bot.logger.info(
+            "[SocketClient] Connection server handoff complete: "
+            f"game_host={identification_sucess_info.host}, "
+            f"game_port={identification_sucess_info.port}, "
+            f"ticket_len={len(identification_sucess_info.ticket)}, "
+            "ticket_fingerprint="
+            f"{_fingerprint_secret(identification_sucess_info.ticket)}"
+        )
+        self.bot.logger.info("[SocketClient] Starting game client handoff")
         GameClient(
             bot=self.bot,
             proxy_url=self.socks_proxy_url,

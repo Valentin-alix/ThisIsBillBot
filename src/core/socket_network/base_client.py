@@ -33,32 +33,54 @@ class BaseClient:
         self.client_socket = client_socket
         self.buffer = bytes()
 
+    @property
+    def client_label(self) -> str:
+        return type(self).__name__
+
     def connect_socket(self, host: str, port: int) -> None:
+        self.bot.logger.info(
+            f"[{self.client_label}] Connecting to {host}:{port}, proxy={self.proxy_url}"
+        )
         self.client_socket.connect((host, port))
+        self.bot.logger.info(f"[{self.client_label}] Socket connected to {host}:{port}")
 
     def loop(self) -> None:
         active = True
+        stop_reason = "loop exited"
         try:
             while active:
                 if self.client_socket.fileno() == -1:
+                    stop_reason = "socket fileno is closed"
                     break
-                rlist, wlist, xlist = select.select(
+                (readable_sockets, _, exceptional_sockets) = select.select(
                     [self.client_socket], [], [self.client_socket]
                 )
-                if xlist:
-                    for error in xlist:
-                        self.bot.logger.error(f"error socket : {error}")
-                if xlist or not rlist:
+                if exceptional_sockets:
+                    stop_reason = "socket reported exceptional state"
+                    for socket_error in exceptional_sockets:
+                        self.bot.logger.error(
+                            f"[{self.client_label}] error socket: {socket_error}"
+                        )
+                if exceptional_sockets or not readable_sockets:
+                    if not readable_sockets:
+                        stop_reason = "select returned no readable socket"
                     break
-                for r in rlist:
-                    data: bytes = r.recv(8192)
+                for readable_socket in readable_sockets:
+                    data: bytes = readable_socket.recv(8192)
                     if not data:
+                        stop_reason = "remote socket closed"
                         active = False
                         break
                     self.handle(data)
         except (ConnectionResetError, BrokenPipeError, OSError, ValueError) as err:
-            self.bot.logger.warning(f"Network error in proxy loop: {err}")
+            stop_reason = f"network error: {type(err).__name__}: {err}"
+            self.bot.logger.warning(
+                f"[{self.client_label}] Network error in socket loop: {err}"
+            )
         finally:
+            self.bot.logger.info(
+                f"[{self.client_label}] Socket loop stopping: {stop_reason}"
+            )
             self.close()
 
     def handle(self, data: bytes) -> None:
@@ -88,8 +110,10 @@ class BaseClient:
 
     def on_received_msg_datas(self, msg_datas: bytes) -> None: ...
 
-    def close(self):
-        self.bot.logger.info(f"closing conns, proxy {self.proxy_url}")
+    def close(self) -> None:
+        self.bot.logger.info(
+            f"[{self.client_label}] closing conns, proxy {self.proxy_url}"
+        )
         self.client_socket.close()
         self.on_close()
 

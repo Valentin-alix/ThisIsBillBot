@@ -39,19 +39,29 @@ class FightTurnBehavior(Behavior):
 
     def run(self) -> None:
         self.did_attack = False
-        context = self.game_state.get_attack_context()
-        self.logger.info(
-            f"Turn {context.fight_turn}: HP {context.life_point}/{context.max_life_point}, "
-            f"AP {context.action_points}, MP {context.movement_points}, "
-            f"{len(context.enemy_actors)} enemies"
-        )
         self.event_manager.on(FightTurnEvent, lambda _: self.finish(), originator=self)
         self.event_manager.on(
             GameActionFightEvent,
             self.on_game_action_fight_event,
             originator=self,
         )
+        if not self._can_play_turn():
+            return self.finish(MapMoveError.PLAYER_DEAD)
+
+        context = self.game_state.get_attack_context()
+        self.logger.info(
+            f"Turn {context.fight_turn}: HP {context.life_point}/{context.max_life_point}, "
+            f"AP {context.action_points}, MP {context.movement_points}, "
+            f"{len(context.enemy_actors)} enemies"
+        )
         self.try_self_buff_or_continue()
+
+    def _can_play_turn(self) -> bool:
+        return (
+            self.game_state.fight.life_point > 0
+            and self.game_state.player.character_id
+            in self.game_state.entity.actor_by_id
+        )
 
     def on_game_action_fight_event(self, msg: GameActionFightEvent) -> None:
         if msg.HasField("death") and (

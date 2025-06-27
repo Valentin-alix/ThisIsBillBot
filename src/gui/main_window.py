@@ -72,6 +72,7 @@ class MainWindow(AppFluentWindow):
         navigation_widget = SidebarItem(
             account.bot_signals, self.disconnected_icon, login, True, parent=self
         )
+        navigation_widget.set_playing(account.is_playing_event.is_set())
         account_widget.setObjectName(login)
         self.addWidget(
             account_widget,

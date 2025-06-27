@@ -17,6 +17,7 @@ from ankama_launcher_emulator_premium.web.auth.launcher_login import (
 )
 from ankama_launcher_emulator_premium.web.auth.registration import (
     count_available_emails,
+    is_aws_waf_marker,
     register_next_available_email,
 )
 from ankama_launcher_emulator_premium.web.auth.storage import (
@@ -136,8 +137,8 @@ class AccountScheduler:
         threading.Thread(target=self._run_operation, args=(operation,)).start()
 
     def _next_operation(self, now: float) -> PendingOperation | None:
-        candidates = self._available_profile_proxies(now)
-        if not candidates:
+        quota_candidates = self._available_profile_proxies(now)
+        if not quota_candidates:
             return None
         profiles = self.schedule_profile_controller.get_all_profiles()
         available_accounts = load_available_generated_accounts()
@@ -156,8 +157,17 @@ class AccountScheduler:
         if subscription is not None:
             return subscription
         if count_available_emails() > 0:
+            register_candidates = [
+                (profile_id, profile)
+                for profile_id, profile in quota_candidates
+                if not self._pool.is_register_cooled_down(
+                    proxy_config_key(profile.proxy), now
+                )
+            ]
+            if not register_candidates:
+                return None
             profile_id, profile = min(
-                candidates,
+                register_candidates,
                 key=lambda item: self._pool.count_since_hour(
                     proxy_config_key(item[1].proxy), now
                 ),
@@ -212,7 +222,9 @@ class AccountScheduler:
                         )
                         self.on_accounts_synchronized()
                 case _RegisterOp(schedule_profile=schedule_profile):
-                    _run_async(register_next_available_email(schedule_profile))
+                    result = _run_async(register_next_available_email(schedule_profile))
+                    if result is not None and is_aws_waf_marker(result.antibot_marker):
+                        self._pool.record_register_cooldown(operation.quota_key)
                 case _SubscribeOp(login=login, options=options):
                     try:
                         sub_result = self.subscribe_service.run(login, options)
