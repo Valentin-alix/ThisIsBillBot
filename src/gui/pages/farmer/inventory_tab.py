@@ -62,10 +62,8 @@ class InventoryTab(QWidget):
             "QListWidget { background-color: transparent; border: none; }"
         )
 
-        self.kamas_label = BodyLabel(text="Kamas : 0", parent=self)
         self.weight_label = BodyLabel(text="Poids : 0/0", parent=self)
         bottom_layout = QHBoxLayout()
-        bottom_layout.addWidget(self.kamas_label)
         bottom_layout.addWidget(self.weight_label)
         bottom_layout.addStretch(1)
 
@@ -110,10 +108,6 @@ class InventoryTab(QWidget):
         self.list_widget.clear()
         self.list_item_by_uid.clear()
         self.equipment_panel.set_items({})
-
-    @pyqtSlot(int)
-    def on_kamas_updated(self, kamas: int):
-        self.kamas_label.setText(f"Kamas : {kamas}")
 
     @pyqtSlot(int)
     def on_inventory_weight_updated(self, inventory_weight: int):
@@ -179,7 +173,6 @@ class InventoryTab(QWidget):
             self.on_inventory_weight_updated
         )
         self.bot.inventory_signals.weight_max.connect(self.on_weight_max_updated)
-        self.bot.inventory_signals.kamas.connect(self.on_kamas_updated)
         self.signals_connected = True
         self._resync_inventory()
 
@@ -203,7 +196,6 @@ class InventoryTab(QWidget):
             self.on_inventory_weight_updated
         )
         self.bot.inventory_signals.weight_max.disconnect(self.on_weight_max_updated)
-        self.bot.inventory_signals.kamas.disconnect(self.on_kamas_updated)
         self.signals_connected = False
         self.items_by_uid.clear()
         self._rebuild_timer.stop()

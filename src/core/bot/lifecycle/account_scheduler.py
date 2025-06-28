@@ -22,6 +22,7 @@ from ankama_launcher_emulator_premium.web.auth.registration import (
 )
 from ankama_launcher_emulator_premium.web.auth.storage import (
     load_available_generated_accounts,
+    load_bad_state_emails,
 )
 from ankama_launcher_emulator_premium.web.subscription.models import (
     SubscribeOptions,
@@ -32,12 +33,14 @@ from ankama_launcher_emulator_premium.web.subscription.service import (
     _build_subscribe_service,
 )
 
+from src.controller.account_kamas import AccountKamasController
 from src.controller.bot_config import BotConfigController
 from src.core.bot.lifecycle.operation_pool import OperationPool
 
 logger = logging.getLogger()
 
 TICK_INTERVAL_MINUTES = 5
+OGRINE_SUBSCRIPTION_MIN_KAMAS = 3_000_000
 
 
 @dataclass(frozen=True)
@@ -59,7 +62,7 @@ class _RegisterOp:
 
 @dataclass(frozen=True)
 class _SubscribeOp:
-    """Renew the subscription of a single ``auto_subscribe`` account."""
+    """Subscribe or renew a single account."""
 
     login: str
     options: SubscribeOptions
@@ -93,9 +96,9 @@ class AccountScheduler:
 
     Ankama caps these operations at 2 per rolling hour and 4 per rolling day, all
     drawing from the same pool. The scheduler ticks periodically and, whenever quota
-    is available, performs a single operation — preferring authentication (which
-    turns an already-created account into a usable bot), then subscription renewal
-    (which keeps existing bots active), then creating a new account.
+    is available, performs a single operation — preferring an ogrine renewal for a
+    sufficiently funded former subscriber, then a first Paysafecard subscription,
+    then authentication, and finally creating a new account.
     """
 
     on_accounts_synchronized: Callable[[], None]
@@ -109,6 +112,9 @@ class AccountScheduler:
     )
     subscribe_service: SubscribeService = field(
         default_factory=_build_subscribe_service
+    )
+    account_kamas_controller: AccountKamasController = field(
+        default_factory=AccountKamasController
     )
     _job: schedule.Job | None = field(init=False, default=None)
     _pool: OperationPool = field(init=False, default_factory=OperationPool)
@@ -139,23 +145,31 @@ class AccountScheduler:
     def _next_operation(self, now: float) -> PendingOperation | None:
         quota_candidates = self._available_profile_proxies(now)
         if not quota_candidates:
+            logger.info("No quota candidate")
             return None
+        subscription = self._next_subscription_target(now)
+        if subscription is not None:
+            logger.info(f"let's subscribe for {subscription.login}")
+            return subscription
         profiles = self.schedule_profile_controller.get_all_profiles()
         available_accounts = load_available_generated_accounts()
+        bad_state_emails = load_bad_state_emails()
         for account in available_accounts:
+            if account.email in bad_state_emails:
+                logger.info(f"email {account.email} in bad state, skipping")
+                continue
             account_profile_id = account.schedule_profile
             if account_profile_id is None:
+                logger.info(f"account {account.email} has no profile id ?!")
                 continue
             account_profile = profiles.get(account_profile_id)
             if account_profile is None:
                 raise ValueError(f"Unknown schedule profile {account_profile_id}")
             quota_key = proxy_config_key(account_profile.proxy)
             if not self._pool.has_quota(quota_key, now):
+                logger.info(f"quota key {quota_key} reached")
                 continue
             return _AuthOp(account.email, account_profile_id, quota_key)
-        subscription = self._next_subscription_target(now)
-        if subscription is not None:
-            return subscription
         if count_available_emails() > 0:
             register_candidates = [
                 (profile_id, profile)
@@ -187,6 +201,8 @@ class AccountScheduler:
 
     def _next_subscription_target(self, now: float) -> _SubscribeOp | None:
         configs = self.bot_config_controller.get_bot_config_by_login()
+        has_paysafecard_pin = bool(self.subscribe_service.paysafecard_pool.load())
+        first_subscription: _SubscribeOp | None = None
         for login, config in configs.items():
             if config.schedule_profile is None:
                 continue
@@ -198,11 +214,19 @@ class AccountScheduler:
             info = self.subscribe_service.storage.get_subscribe_info(login)
             if info is None:
                 continue
-            if not info.is_active_beyond_threshold():
-                return _SubscribeOp(
-                    login, SubscribeOptions(proxy_url=proxy_url), quota_key
-                )
-        return None
+            if info.is_active_beyond_threshold():
+                continue
+            operation = _SubscribeOp(
+                login, SubscribeOptions(proxy_url=proxy_url), quota_key
+            )
+            if info.is_subscribe or info.is_former_subscribe:
+                kamas = self.account_kamas_controller.get_kamas(login)
+                if kamas is not None and kamas > OGRINE_SUBSCRIPTION_MIN_KAMAS:
+                    return operation
+                continue
+            if has_paysafecard_pin and first_subscription is None:
+                first_subscription = operation
+        return first_subscription
 
     def _run_operation(self, operation: PendingOperation) -> None:
         try:

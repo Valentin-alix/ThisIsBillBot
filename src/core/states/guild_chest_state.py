@@ -43,9 +43,6 @@ class GuildChestState(State):
 
     def clear_state(self) -> None:
         self.tab_number = 1
-        self.has_guild = False
-        self.tabs = [1, 2, 3, 4]
-        self.rank_id = 4
 
     @property
     def storage(self) -> GuildChestStorage:

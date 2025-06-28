@@ -1,5 +1,6 @@
 from functools import partial
 
+from dofus_unity_reader.data_center.data_reader import DataReader
 from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import SingleDirectionScrollArea, SmoothMode
@@ -53,10 +54,11 @@ class MapTab(QWidget):
 
         self.grid_signals.cell_id_clicked.connect(self.on_cell_id_clicked)
 
+        if self.game_state.map.map_id != 0:
+            self.on_map_id_changed(self.game_state.map.map_id)
+
     def _connect_info_signals(self) -> None:
-        self.grid_signals.new_map_id.connect(
-            partial(self.info_panel.on_received_property, "", "Map id")
-        )
+        self.grid_signals.new_map_id.connect(self.on_map_id_changed)
         self.grid_signals.is_in_map_transition.connect(
             partial(
                 self.info_panel.on_received_property, "", "Est en transition de map"
@@ -88,6 +90,14 @@ class MapTab(QWidget):
     @pyqtSlot(bool)
     def on_in_fight_changed(self, in_fight: bool) -> None:
         self.combat_group.setVisible(in_fight)
+
+    @pyqtSlot(int)
+    def on_map_id_changed(self, map_id: int) -> None:
+        map_position = DataReader().map_info_by_map_id[map_id]
+        self.info_panel.on_received_property("", "Map id", map_id)
+        self.info_panel.on_received_property(
+            "", "Coordonnées", f"({map_position.posX}, {map_position.posY})"
+        )
 
     @pyqtSlot(int)
     def on_cell_id_clicked(self, cell_id: int) -> None:

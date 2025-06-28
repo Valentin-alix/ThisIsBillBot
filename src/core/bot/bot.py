@@ -203,6 +203,10 @@ class Bot(ContextualLogger):
     def start(self):
         self.scheduler.start()
 
+    def cancel_frame_timers(self) -> None:
+        for frame in self.frames:
+            frame.cancel_timers()
+
     def wait_for_connection_result(self, timeout: float = 120.0) -> bool:
         is_success = self.is_connected_event.wait(timeout)
         return is_success

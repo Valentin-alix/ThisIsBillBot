@@ -91,7 +91,7 @@ class BaseClient:
                 break
             try:
                 size, pos = decode_varint_size(self.buffer)
-            except IndexError:
+            except ValueError:
                 break
             if size == 0 or len(self.buffer) < pos + size:
                 break

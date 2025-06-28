@@ -35,7 +35,6 @@ class MapState(State):
 
     def clear_state(self):
         self.is_in_map_transition = False
-        self._map_id = 0
         self.is_in_haven_bag = False
         self.excluded_element_ids.clear()
         self.forbidden_edge_transitions.clear()

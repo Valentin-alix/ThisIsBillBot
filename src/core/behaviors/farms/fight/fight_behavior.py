@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from datas.protos.non_obf.game.fight_pb2 import (
-    FightTurnEvent,
+    FightTurnStartPlayingEvent,
 )
 from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
@@ -48,7 +48,7 @@ class FightBehavior(Behavior):
 
     def on_fight_map_initialized(self):
         self.event_manager.on(
-            FightTurnEvent,
+            FightTurnStartPlayingEvent,
             self.on_player_turn_event,
             originator=self,
         )
@@ -69,9 +69,7 @@ class FightBehavior(Behavior):
     def on_fight_preparation_behavior_finish(self, error_code: str | None):
         self.raise_if_error(error_code)
 
-    def on_player_turn_event(self, msg: FightTurnEvent) -> None:
-        if msg.character_id != self.game_state.player.character_id:
-            return
+    def on_player_turn_event(self, msg: FightTurnStartPlayingEvent) -> None:
         self.on_player_turn()
 
     def on_player_turn(self):
@@ -90,9 +88,6 @@ class FightBehavior(Behavior):
     def _can_start_fight_turn(self) -> bool:
         return (
             self.game_state.fight.in_fight
-            and self.game_state.fight.life_point > 0
-            and self.game_state.player.character_id
-            in self.game_state.entity.actor_by_id
             and self.fight_turn_behavior.state == BehaviorState.STOPPED
         )
 

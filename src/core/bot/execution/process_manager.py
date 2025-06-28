@@ -27,3 +27,6 @@ class ProcessManager(ContextualLogger):
         except psutil.NoSuchProcess:
             self.logger.info("Process of related pid is not running anymore, skip.")
         self.pid = None
+
+    def is_bot_process_running(self) -> bool:
+        return self.pid is not None and psutil.pid_exists(self.pid)

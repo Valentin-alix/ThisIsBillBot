@@ -33,6 +33,7 @@ class GameProxy(Proxy):
         self.session_timings = SessionTimingsController(self.bot.account.apikey.login)
 
     def on_close(self) -> None:
+        self.bot.cancel_frame_timers()
         self.bot.event_manager.on_send_game_callback = None
         if self.bot.event_manager.request_disconnect_callback is self.close:
             self.bot.event_manager.request_disconnect_callback = None

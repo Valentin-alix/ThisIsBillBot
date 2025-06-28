@@ -28,6 +28,7 @@ class Frame(ContextualLogger):
         self.game_info_signals.disconnected.connect(self.on_disconnected)
 
     def on_disconnected(self) -> None:
+        self.cancel_timers()
         for field_name in dir(self):
             if field_name.startswith("__"):
                 continue
@@ -42,13 +43,23 @@ class Frame(ContextualLogger):
             wait_time = get_random_range(range_time)
         else:
             wait_time = range_time
-        timer = Timer(wait_time, lambda: self.run_timed_func(func))
-        self._timers.append(timer)
+        timer = Timer(wait_time, lambda: self.run_timed_func(timer, func))
+        with self.event_manager.lock:
+            self._timers.append(timer)
         timer.start()
 
-    def run_timed_func(self, func: Callable[[], None]) -> None:
+    def run_timed_func(self, timer: Timer, func: Callable[[], None]) -> None:
         with self.event_manager.lock:
+            if timer not in self._timers:
+                return
+            self._timers.remove(timer)
             func()
+
+    def cancel_timers(self) -> None:
+        with self.event_manager.lock:
+            for timer in self._timers:
+                timer.cancel()
+            self._timers.clear()
 
     def unregister_listener(self, event_type: type[Message], reason: str = "") -> None:
         """

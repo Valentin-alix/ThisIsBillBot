@@ -40,12 +40,15 @@ class BotConfigController(metaclass=Singleton):
     _BOT_CONFIG_PATH = os.path.join(RESOURCE_FOLDER, "bot_configs.json")
     _all_configs: dict[str, BotConfig] = {}
 
-    def get_bot_config_by_login(self) -> dict[str, BotConfig]:
-        if not self.use_bot_config_json:
-            return self._all_configs
+    def _read_bot_config_json(self) -> dict[str, BotConfig]:
         with self._BOT_CONFIG_LOCK:
             with open(self._BOT_CONFIG_PATH, "r") as file:
                 return BotConfigs.model_validate(json.load(file)).root
+
+    def get_bot_config_by_login(self) -> dict[str, BotConfig]:
+        if not self.use_bot_config_json:
+            return self._all_configs
+        return self._read_bot_config_json()
 
     def _write_all_configs(self, bot_configs: dict[str, BotConfig]) -> None:
         if not self.use_bot_config_json:
@@ -61,7 +64,17 @@ class BotConfigController(metaclass=Singleton):
             bot_config = bot_config_by_login.get(login)
             if bot_config:
                 return bot_config
-            bot_config_by_login[login] = BotConfig()
+            if self.use_bot_config_json:
+                bot_config_by_login[login] = BotConfig()
+            else:
+                persisted_config = self._read_bot_config_json().get(login)
+                schedule_profile = (
+                    persisted_config.schedule_profile if persisted_config else None
+                )
+                bot_config_by_login[login] = BotConfig(
+                    schedule_profile=schedule_profile,
+                    connection_mode="mitm",
+                )
             self._write_all_configs(bot_config_by_login)
             return bot_config_by_login[login]
 

@@ -23,6 +23,9 @@ from src.core.config import BASE_RANGE
 from src.core.frames.frame import Frame
 from src.core.signals.world_signals import WorldSignals
 
+_WAIT_FOR_ANAL_MOLY_INFO_RANGE = (1.3, 1.6)
+_WAIT_ON_NEW_MAP = (0.4, 0.7)
+
 
 @dataclass
 class MapFrame(Frame):
@@ -126,10 +129,19 @@ class MapFrame(Frame):
         if self.event_manager.is_socket_mode:
             if not self.game_state.map._anomaly_info_requested:
                 self.game_state.map._anomaly_info_requested = True
-                self.event_manager.send(AnomalySubareaInformationRequest())
-            self.event_manager.send(ContextReadyRequest(map_id=msg.map_id))
-            if not self.game_state.map._is_fight_context:
-                self.event_manager.send(MapInformationRequest(map_id=msg.map_id))
+                self.run_timer(
+                    _WAIT_FOR_ANAL_MOLY_INFO_RANGE,
+                    lambda: self.event_manager.send(AnomalySubareaInformationRequest()),
+                )
+            self.run_timer(
+                _WAIT_ON_NEW_MAP,
+                lambda: self._send_on_ready_on_new_map(msg.map_id),
+            )
+
+    def _send_on_ready_on_new_map(self, map_id: int):
+        self.event_manager.send(ContextReadyRequest(map_id=map_id))
+        if not self.game_state.map._is_fight_context:
+            self.event_manager.send(MapInformationRequest(map_id=map_id))
 
     def on_context_creation_event(self, msg: ContextCreationEvent):
         self.game_state.map._is_fight_context = (

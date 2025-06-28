@@ -30,7 +30,6 @@ class SaleHotelState(State):
     def clear_state(self):
         self.bid_seller_condition = None
         self.current_search_item_gid = None
-        self.last_time_updated_prices = datetime.datetime(datetime.MINYEAR, 1, 1)
 
     @property
     def should_update_price(self):

@@ -410,7 +410,7 @@ class TestFightState:
 
         assert runtime_bot.game_state.fight.life_point == 450
 
-    def test_negative_player_life_loss_logs_diagnostic_before_assertion(
+    def test_fatal_player_life_loss_clamps_to_zero(
         self,
         runtime_bot: Bot,
     ) -> None:
@@ -420,24 +420,24 @@ class TestFightState:
         runtime_bot.game_state.player.character_id = 123
         runtime_bot.game_state.fight.life_point = 10
 
-        with pytest.raises(AssertionError):
-            fight_frame.on_game_action_fight_event(
-                GameActionFightEvent(
-                    source_id=456,
-                    life_points_lost=GameActionFightEvent.LifePointsLost(
-                        target_id=123,
-                        loss=25,
-                        permanent_damages=3,
-                        element_id=2,
-                        shield_loss=4,
-                    ),
-                )
+        fight_frame.on_game_action_fight_event(
+            GameActionFightEvent(
+                source_id=456,
+                life_points_lost=GameActionFightEvent.LifePointsLost(
+                    target_id=123,
+                    loss=25,
+                    permanent_damages=3,
+                    element_id=2,
+                    shield_loss=4,
+                ),
             )
+        )
 
-        logger.error.assert_called_once_with(
+        assert runtime_bot.game_state.fight.life_point == 0
+        logger.info.assert_called_once_with(
             "Player HP loss event: hp_before=10, loss=25, shield_loss=4, "
-            "permanent_damages=3, element_id=2, hp_after=-15, source_id=456, "
-            "target_id=123 (would violate HP invariant)"
+            "permanent_damages=3, element_id=2, hp_after=0, source_id=456, "
+            "target_id=123 (fatal damage clamped to 0 HP)"
         )
 
     def test_enemy_without_monster_data_raises_diagnostic_assertion(
@@ -464,6 +464,27 @@ class TestFightState:
         assert "actor_id=-1" in message
         assert "monster_gid=0" in message
         assert "fighter_kind=unknown" in message
+
+    def test_zero_life_enemy_is_excluded_from_attack_context(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        runtime_bot.game_state.player.character_id = 123
+        runtime_bot.game_state.entity.set_actor(
+            make_fighter(123, 100, team=Team.TEAM_CHALLENGER)
+        )
+        runtime_bot.game_state.entity.set_actor(
+            make_fighter(-1, 200, team=Team.TEAM_DEFENDER)
+        )
+        runtime_bot.game_state.entity.actor_fight_by_id[-1] = FightActor(
+            life_point=0,
+            is_summoned=False,
+        )
+
+        attack_context = runtime_bot.game_state.get_attack_context()
+
+        assert attack_context.enemy_actors == []
+        assert attack_context.enemies_data == []
 
     def test_missing_life_characteristic_logs_before_assertion(
         self,

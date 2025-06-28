@@ -13,6 +13,7 @@ from datas.protos.non_obf.game.connection_pb2 import (
 from datas.protos.non_obf.game.game_action_pb2 import GameActionFightCastRequest
 from datas.protos.non_obf.game.spell_pb2 import SpellsEvent
 from google.protobuf.message import Message
+from requests import HTTPError
 
 from src.core.bot.bot import Bot
 from src.core.behaviors.socket import connection_behavior as connection_behavior_module
@@ -235,6 +236,7 @@ class TestSocketProxyConnection:
             bot_config=MagicMock(),
             socks_proxy_url="socks5://user:pass@127.0.0.1:1080",
             on_banned_callback=MagicMock(),
+            on_invalid_auth_callback=MagicMock(),
         ).connect()
 
         assert haapi_calls[0]["proxy_url"] == "socks5://user:pass@127.0.0.1:1080"
@@ -243,6 +245,40 @@ class TestSocketProxyConnection:
             "socks5://user:pass@127.0.0.1:1080"
         )
         assert connection_client_calls[1]["game_token"] == "game-token"
+
+    def test_socket_runtime_resets_stored_auth_on_create_token_auth_failure(
+        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        connection_client = MagicMock()
+        invalid_auth_callback = MagicMock()
+
+        class FakeHaapi:
+            def __init__(
+                self, api_key: str, login: str, proxy_url: str | None = None
+            ) -> None:
+                assert proxy_url == "socks5://user:pass@127.0.0.1:1080"
+
+            def createToken(self, game_id: int, certificate: object) -> str:
+                raise HTTPError(
+                    "HTTP Error: 403 Client Error: Forbidden for url: "
+                    "https://haapi.ankama.com/json/Ankama/v5/Account/CreateToken "
+                    '- Response: {"status":403,"message":"Unauthorized '
+                    "service '\\Ankama\\Account'\"}"
+                )
+
+        monkeypatch.setattr(socket_client_module, "Haapi", FakeHaapi)
+        monkeypatch.setattr(socket_client_module, "ConnectionClient", connection_client)
+
+        SocketClient(
+            bot=runtime_bot,
+            bot_config=MagicMock(),
+            socks_proxy_url="socks5://user:pass@127.0.0.1:1080",
+            on_banned_callback=MagicMock(),
+            on_invalid_auth_callback=invalid_auth_callback,
+        ).connect()
+
+        invalid_auth_callback.assert_called_once_with(runtime_bot.account.apikey.login)
+        connection_client.assert_not_called()
 
     def test_direct_connection_uses_plain_socket(
         self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
@@ -270,10 +306,32 @@ class TestSocketProxyConnection:
         client.client_socket.bind.assert_not_called()
         client.client_socket.connect.assert_called_once_with(("example.invalid", 5555))
 
-    def test_close_logs_proxy(self, runtime_bot: Bot) -> None:
+    def test_fragmented_varint_header_waits_for_next_read(
+        self, game_client: GameClient, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        received_message = MagicMock()
+        monkeypatch.setattr(game_client, "on_received_msg_datas", received_message)
+        payload = b"x" * 128
+
+        game_client.handle(b"\x80")
+
+        received_message.assert_not_called()
+        assert game_client.buffer == b"\x80"
+
+        game_client.handle(b"\x01" + payload)
+
+        received_message.assert_called_once_with(b"\x80\x01" + payload)
+        assert game_client.buffer == b""
+
+    def test_close_cancels_frame_timers(
+        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         client = GameClient(bot=runtime_bot, proxy_url="socks5://127.0.0.1:1080")
         client.client_socket = MagicMock()
+        cancel_frame_timers = MagicMock()
+        monkeypatch.setattr(runtime_bot, "cancel_frame_timers", cancel_frame_timers)
 
         client.close()
 
+        cancel_frame_timers.assert_called_once_with()
         client.client_socket.close.assert_called_once_with()

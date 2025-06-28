@@ -14,7 +14,6 @@ from datas.protos.non_obf.game.challenge_pb2 import (
     ChallengeBonusChoiceRequest,
     ChallengeModSelectRequest,
 )
-from datas.protos.non_obf.game.character_pb2 import PlayerStatusUpdateRequest
 from datas.protos.non_obf.game.client_verification_pb2 import (
     ClientChallengeInitRequest,
     ClientChallengeProofRequest,
@@ -26,9 +25,7 @@ from datas.protos.non_obf.game.client_verification_pb2 import (
 from datas.protos.non_obf.game.common_pb2 import (
     ChallengeBonus,
     ChallengeMod,
-    CharacterStatus,
 )
-from datas.protos.non_obf.game.context_pb2 import ContextCreationEvent
 from datas.protos.non_obf.game.fight_pb2 import (
     FightIsTurnReadyEvent,
     FightTurnFinishRequest,
@@ -92,9 +89,6 @@ class GameSessionBehavior(Behavior):
             BasicLatencyStatsEvent, self._on_basic_latency, originator=self
         )
         self.event_manager.on(
-            ContextCreationEvent, self._on_context_creation_event, originator=self
-        )
-        self.event_manager.on(
             SequenceStartEvent, self._on_sequence_start, originator=self
         )
         self.event_manager.on(SequenceEndEvent, self._on_sequence_end, originator=self)
@@ -131,16 +125,6 @@ class GameSessionBehavior(Behavior):
     def _on_server_session_ready(self, _msg: ServerSessionReadyEvent) -> None:
         client_id = pow(_DH_G, self._cvlg, _DH_P)
         self.event_manager.send(ClientIdRequest(id=str(client_id)))
-
-    def _on_context_creation_event(self, msg: ContextCreationEvent) -> None:
-        if self._player_status_sent:
-            return
-        self._player_status_sent = True
-        self.event_manager.send(
-            PlayerStatusUpdateRequest(
-                status=CharacterStatus(status=CharacterStatus.Status.STATUS_SOLO)
-            )
-        )
 
     def _on_sequence_number(self, msg: SequenceNumberEvent) -> None:
         self.event_manager.send(SequenceNumberRequest(number=self._sequence_number))

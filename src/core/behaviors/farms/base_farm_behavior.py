@@ -6,6 +6,9 @@ from typing import Callable
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
+from src.core.behaviors.equipment.auto_equipment_behavior import (
+    AutoEquipmentBehavior,
+)
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import (
@@ -31,6 +34,7 @@ class BaseFarmingErrorCode(StrEnum):
 class BaseFarmBehavior(Behavior, ABC):
     """Abstract behavior that is used to automatically unload when full pods, then craft items to lvl up jobs, then sell & update items in sale hotel"""
 
+    auto_equipment_behavior: AutoEquipmentBehavior
     random_farm_behavior: RandomFarmBehavior
     unload_behavior: UnloadBehavior
     sale_hotel_prices_behavior: SaleHotelSellBehavior
@@ -65,11 +69,20 @@ class BaseFarmBehavior(Behavior, ABC):
             return self.run_next_step()
         self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
 
-    def on_unload_finished(self, error_code: str | None):
+    def on_unload_finished(self, error_code: str | None) -> None:
         if error_code is not None:
             self.logger.error("Can't unload")
             return self.finish(error_code)
 
+        self.auto_equipment_behavior.start(
+            callback=self.on_auto_equipment_finished, parent=self
+        )
+
+    def on_auto_equipment_finished(self, error_code: str | None) -> None:
+        self.raise_if_error(error_code)
+        self.continue_after_unload()
+
+    def continue_after_unload(self) -> None:
         if do_unload_on_mule(
             self.game_state.inventory.kamas, self.game_state.player.is_sub
         ):

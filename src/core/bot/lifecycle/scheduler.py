@@ -76,6 +76,10 @@ class BotScheduler(ContextualLogger):
     def stop(self) -> None:
         self._clear_scheduled_jobs()
 
+    def disconnect_now(self) -> None:
+        """Disconnect the active runtime without waiting for schedule state."""
+        run_in_background(self._manual_disconnect_bot_task)
+
     def update_profile(self, profile_id: str | None) -> None:
         """Update the schedule profile and reschedule jobs."""
         config = self.get_bot_config()
@@ -200,19 +204,27 @@ class BotScheduler(ContextualLogger):
     def _planned_stop_bot(self) -> None:
         self.logger.info("Stopping bot")
         if self.is_playing_event.is_set():
-            if self.behavior_coordinator:
-                self.behavior_coordinator.stop_behaviors()
-            self.bot_signals.stop.emit()
-            if self.event_manager.is_socket_mode:
-                request_disconnect = self.event_manager.request_disconnect_callback
-                assert request_disconnect is not None, (
-                    "Socket mode must define a request_disconnect_callback"
-                )
-                request_disconnect()
-            if self.process_manager:
-                self.process_manager.kill_process()
+            self._disconnect_runtime()
         else:
             self.logger.info("Bot is not playing, dont stop")
+
+    def _disconnect_runtime(self) -> None:
+        self.behavior_coordinator.stop_behaviors()
+        self.bot_signals.stop.emit()
+
+        request_disconnect = self.event_manager.request_disconnect_callback
+        if self.event_manager.is_socket_mode:
+            assert request_disconnect is not None, (
+                "Socket mode must define a request_disconnect_callback"
+            )
+        if request_disconnect is not None:
+            request_disconnect()
+
+        self.process_manager.kill_process()
+
+    def _manual_disconnect_bot(self) -> None:
+        self.logger.info("Disconnecting bot")
+        self._disconnect_runtime()
 
     def _planned_restart_bot(self) -> None:
         self.logger.info("Restarting bot")
@@ -227,6 +239,11 @@ class BotScheduler(ContextualLogger):
 
     def _planned_stop_bot_task(self, _progress_callback: Callable[[str], None]) -> None:
         self._planned_stop_bot()
+
+    def _manual_disconnect_bot_task(
+        self, _progress_callback: Callable[[str], None]
+    ) -> None:
+        self._manual_disconnect_bot()
 
     def _planned_restart_bot_task(
         self, _progress_callback: Callable[[str], None]

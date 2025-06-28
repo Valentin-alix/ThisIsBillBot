@@ -18,6 +18,7 @@ configure_project_import_paths(Path(__file__).resolve().parent)
 @dataclass(frozen=True)
 class RuntimeArgs:
     use_bot_config_json: bool
+    enable_automatic_schedules: bool
     headless: bool
     application_argv: list[str]
 
@@ -39,8 +40,11 @@ def parse_runtime_args(argv: list[str]) -> RuntimeArgs:
         help="Run bots without creating the GUI window.",
     )
     runtime_args, remaining_args = parser.parse_known_args(argv[1:])
+    if runtime_args.headless and not runtime_args.auto:
+        parser.error("--no-auto cannot be used with --headless")
     return RuntimeArgs(
         use_bot_config_json=runtime_args.auto,
+        enable_automatic_schedules=runtime_args.auto,
         headless=runtime_args.headless,
         application_argv=[argv[0], *remaining_args],
     )
@@ -54,13 +58,20 @@ from src.core.bot.lifecycle.scheduler import run_continuously  # noqa: E402
 from src.core.signals.shared_farm_signals import SharedSignals  # noqa: E402
 
 
-def _create_runtime(shared_signals: SharedSignals) -> BotManager:
-    bot_manager = BotManager(shared_signals=shared_signals)
+def _create_runtime(
+    shared_signals: SharedSignals, enable_account_scheduler: bool
+) -> BotManager:
+    bot_manager = BotManager(
+        shared_signals=shared_signals,
+        enable_account_scheduler=enable_account_scheduler,
+    )
     bot_manager.ankama_launcher.start()
     return bot_manager
 
 
-def _start_bots(bot_manager: BotManager) -> None:
+def _start_bots(bot_manager: BotManager, enable_automatic_schedules: bool) -> None:
+    if not enable_automatic_schedules:
+        return
     for bot in bot_manager.bot_by_account_id.values():
         bot.start()
 
@@ -81,7 +92,7 @@ def _shutdown_runtime(
     threading.Thread(target=shutdown, name="bot-manager-shutdown").start()
 
 
-def run_gui(application_argv: list[str]) -> int:
+def run_gui(application_argv: list[str], enable_automatic_schedules: bool) -> int:
     from PyQt6.QtCore import Qt
     from qfluentwidgets import Theme, setTheme, setThemeColor
 
@@ -95,10 +106,13 @@ def run_gui(application_argv: list[str]) -> int:
     setTheme(Theme.DARK)
     setThemeColor(Qt.GlobalColor.yellow)
 
-    bot_manager = _create_runtime(shared_signals)
+    bot_manager = _create_runtime(
+        shared_signals,
+        enable_account_scheduler=enable_automatic_schedules,
+    )
     main_window.init_accounts(bot_manager.bot_by_account_id)
     main_window.splashScreen.finish()
-    _start_bots(bot_manager)
+    _start_bots(bot_manager, enable_automatic_schedules)
     cease_running = run_continuously()
 
     def on_app_close() -> None:
@@ -113,13 +127,16 @@ def run_gui(application_argv: list[str]) -> int:
     return application.exec()
 
 
-def run_headless(application_argv: list[str]) -> int:
+def run_headless(application_argv: list[str], enable_automatic_schedules: bool) -> int:
     from PyQt6.QtCore import QCoreApplication, QTimer
 
     application = QCoreApplication(application_argv)
     shared_signals = SharedSignals()
-    bot_manager = _create_runtime(shared_signals)
-    _start_bots(bot_manager)
+    bot_manager = _create_runtime(
+        shared_signals,
+        enable_account_scheduler=enable_automatic_schedules,
+    )
+    _start_bots(bot_manager, enable_automatic_schedules)
     cease_running = run_continuously()
     shutdown_requested = threading.Event()
 
@@ -146,8 +163,14 @@ def main(argv: list[str] | None = None) -> int:
     configure_root_logger()
 
     if runtime_args.headless:
-        return run_headless(runtime_args.application_argv)
-    return run_gui(runtime_args.application_argv)
+        return run_headless(
+            runtime_args.application_argv,
+            runtime_args.enable_automatic_schedules,
+        )
+    return run_gui(
+        runtime_args.application_argv,
+        runtime_args.enable_automatic_schedules,
+    )
 
 
 if __name__ == "__main__":

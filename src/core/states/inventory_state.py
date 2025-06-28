@@ -65,12 +65,6 @@ class InventoryState(State):
             None,
         )
 
-    def clear_state(self):
-        self.kamas = 0
-        self.inventory_weight = 0
-        self.weight_max = 1
-        self.clear_inventory()
-
     # ==================== Inventory Operations ====================
 
     def set_objects(self, objects: list[ObjectItemInventory]):

@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from typing import cast
 
 from datas.protos.non_obf.game.bak_pb2 import BakApiTokenRequest
 from datas.protos.non_obf.game.character_management_pb2 import (
+    CharacterForceSelectionEvent,
+    CharacterForceSelectionReadyRequest,
     CharacterListEvent,
     CharacterListRequest,
     CharacterLoadingCompleteEvent,
@@ -21,12 +22,22 @@ from datas.protos.non_obf.game.contact_pb2 import (
     ContactWarnOnPermanentDeathSetRequest,
     FriendListRequest,
     FriendSetStatusShareRequest,
-    FriendSetWarnOnConnectionRequest,
     FriendSetWarnOnLevelGainRequest,
 )
-from datas.protos.non_obf.game.context_pb2 import ContextCreationRequest
+from datas.protos.non_obf.game.context_pb2 import (
+    ContextCreationRequest,
+    ContextQuitRequest,
+)
 from datas.protos.non_obf.game.guild_information_pb2 import GuildInformationRequest
-from datas.protos.non_obf.game.social_pb2 import SpouseInformationRequest
+from datas.protos.non_obf.game.guild_member_pb2 import (
+    GuildMemberWarnOnConnectionSetRequest,
+    GuildMemberWarnOnConnectionStartRequest,
+)
+from datas.protos.non_obf.game.social_pb2 import (
+    ChatCommunityChannelSetCommunityRequest,
+    SpouseInformationRequest,
+)
+from exchange_pb2 import ObjectAveragePricesRequest
 
 from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
@@ -34,30 +45,32 @@ from src.core.behaviors.account.character_creation_behavior import (
 from src.core.behaviors.behavior import Behavior
 from src.services.human_timings import get_random_range
 
-_POST_LOAD_DELAY: tuple[float, float] = (1.0, 1.3)
-_CONTEXT_CREATION_DELAY: tuple[float, float] = (0.25, 0.4)
+_POST_LOAD_DELAY: tuple[float, float] = (0.02, 0.05)
+_CONTEXT_CREATION_DELAY: tuple[float, float] = (0.25, 0.30)
+_POST_CONTEXT_CREATION_DELAY: tuple[float, float] = (0.12, 0.15)
+_FINAL_SERVICE_ACTIVATION_DELAY: tuple[float, float] = (0.08, 0.13)
 _AUTHENTICATION_TICKET_ACCEPTED_TIMEOUT_SECONDS = 15.0
 
 _CHANNELS_ENABLED: list[Channel] = [
-    Channel.SALES,
-    Channel.SEEK,
-    Channel.ARENA,
-    cast(Channel, 11),
-    Channel.EVENT,
-]
-_CHANNELS_DISABLED: list[Channel] = [
     Channel.GLOBAL,
     Channel.TEAM,
-    Channel.GUILD,
-    Channel.ALLIANCE,
-    Channel.PARTY,
-    Channel.ADMIN,
     Channel.PRIVATE,
     Channel.INFO,
     Channel.FIGHT_LOG,
+]
+_CHANNELS_DISABLED: list[Channel] = [
+    Channel.GUILD,
+    Channel.ALLIANCE,
+    Channel.PARTY,
+    Channel.SALES,
+    Channel.SEEK,
+    Channel.ADMIN,
+    Channel.ARENA,
+    Channel.COMMUNAUTY,
+    Channel.EVENT,
     Channel.EXCHANGE,
-    cast(Channel, 17),
-    cast(Channel, 18),
+    Channel.TERRITORY,
+    Channel.GUILD_RAID,
 ]
 
 
@@ -74,6 +87,23 @@ class HandshakeBehavior(Behavior):
             timeout=_AUTHENTICATION_TICKET_ACCEPTED_TIMEOUT_SECONDS,
             on_timeout=self.on_authentication_ticket_accepted_timeout,
         )
+        self.event_manager.on(
+            CharacterListEvent,
+            self.on_character_list_event,
+            originator=self,
+            once=True,
+        )
+        self.event_manager.on(
+            CharacterForceSelectionEvent,
+            self.on_character_force_selection_event,
+            originator=self,
+        )
+        self.event_manager.on(
+            CharacterLoadingCompleteEvent,
+            self.on_character_loading_complete_event,
+            originator=self,
+            once=True,
+        )
         self.event_manager.send(
             GameIdentificationRequest(ticket_key=ticket, language_code="fr")
         )
@@ -89,22 +119,9 @@ class HandshakeBehavior(Behavior):
         self, _msg: AuthenticationTicketAcceptedEvent
     ) -> None:
         self.event_manager.send(CharacterListRequest())
-        self.event_manager.send(BakApiTokenRequest())
-        self.event_manager.on(
-            CharacterListEvent,
-            self.on_character_list_event,
-            originator=self,
-            once=True,
-        )
 
     def on_character_list_event(self, msg: CharacterListEvent) -> None:
         character_count = len(msg.characters)
-        self.event_manager.on(
-            CharacterLoadingCompleteEvent,
-            self.on_character_loading_complete_event,
-            originator=self,
-            once=True,
-        )
 
         if character_count == 0:
             self.character_creation_behavior.start(parent=self, callback=None)
@@ -117,38 +134,37 @@ class HandshakeBehavior(Behavior):
                 CharacterSelectionRequest(character_id=character.id)
             )
 
+    def on_character_force_selection_event(
+        self, _msg: CharacterForceSelectionEvent
+    ) -> None:
+        self.event_manager.send(CharacterForceSelectionReadyRequest())
+
     def on_character_loading_complete_event(
         self, _msg: CharacterLoadingCompleteEvent
     ) -> None:
         self.run_timer(
             get_random_range(_POST_LOAD_DELAY, is_weighted=False),
-            self._send_post_load_batch,
+            self._send_pre_context_creation_batch,
         )
 
-    def _send_post_load_batch(self) -> None:
-        info_type = GuildInformationRequest.InformationType
-        self.event_manager.send(FriendListRequest())
-        self.event_manager.send(AcquaintanceListRequest())
-        self.event_manager.send(SpouseInformationRequest())
-        self.event_manager.send(
-            GuildInformationRequest(information_type=info_type.INFO_PADDOCKS)
-        )
-        self.event_manager.send(
-            GuildInformationRequest(information_type=info_type.INFO_HOUSES)
-        )
+    def _send_pre_context_creation_batch(self) -> None:
         self.event_manager.send(
             ContactWarnOnAchievementCompleteSetRequest(enable=False)
         )
-        self.event_manager.send(FriendSetWarnOnConnectionRequest(enable=False))
+        self.event_manager.send(
+            GuildMemberWarnOnConnectionSetRequest(enable=False, guild_id="")
+        )
+        self.event_manager.send(FriendSetStatusShareRequest(share=False))
         self.event_manager.send(FriendSetWarnOnLevelGainRequest(enable=False))
         self.event_manager.send(ContactWarnOnPermanentDeathSetRequest(enable=False))
-        self.event_manager.send(FriendSetStatusShareRequest(share=False))
+        info_type = GuildInformationRequest.InformationType
         self.event_manager.send(
             GuildInformationRequest(information_type=info_type.INFO_PADDOCKS)
         )
         self.event_manager.send(
-            GuildInformationRequest(information_type=info_type.INFO_HOUSES)
+            GuildInformationRequest(information_type=info_type.INFO_GENERAL)
         )
+        self.event_manager.send(ContextQuitRequest())
 
         self.run_timer(
             get_random_range(_CONTEXT_CREATION_DELAY, is_weighted=False),
@@ -157,10 +173,34 @@ class HandshakeBehavior(Behavior):
 
     def _send_context_creation(self) -> None:
         self.event_manager.send(ContextCreationRequest())
+        self.run_timer(
+            get_random_range(_POST_CONTEXT_CREATION_DELAY, is_weighted=False),
+            self._send_post_context_creation_batch,
+        )
+
+    def _send_post_context_creation_batch(self) -> None:
+        self.event_manager.send(BakApiTokenRequest())
+        self.event_manager.send(GuildMemberWarnOnConnectionStartRequest())
+        self.event_manager.send(ChatCommunityChannelSetCommunityRequest(community=0))
         self.event_manager.send(
             SubscribeMultipleChannelRequest(
                 channel_enabled=_CHANNELS_ENABLED,
                 channel_disabled=_CHANNELS_DISABLED,
+            )
+        )
+        self.run_timer(
+            get_random_range(_FINAL_SERVICE_ACTIVATION_DELAY, is_weighted=False),
+            self._send_final_service_activation_batch,
+        )
+
+    def _send_final_service_activation_batch(self) -> None:
+        self.event_manager.send(ObjectAveragePricesRequest())
+        self.event_manager.send(AcquaintanceListRequest())
+        self.event_manager.send(FriendListRequest())
+        self.event_manager.send(SpouseInformationRequest())
+        self.event_manager.send(
+            GuildInformationRequest(
+                information_type=GuildInformationRequest.InformationType.INFO_PADDOCKS
             )
         )
         self.finish(None)

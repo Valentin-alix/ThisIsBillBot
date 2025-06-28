@@ -206,7 +206,7 @@ class FightFrame(Frame):
         if msg.HasField("life_points_lost"):
             if msg.life_points_lost.target_id == self.game_state.player.character_id:
                 hp_before = self.game_state.fight.life_point
-                hp_after = hp_before - msg.life_points_lost.loss
+                hp_after = max(hp_before - msg.life_points_lost.loss, 0)
                 log_message = (
                     "Player HP loss event: "
                     f"hp_before={hp_before}, loss={msg.life_points_lost.loss}, "
@@ -216,8 +216,8 @@ class FightFrame(Frame):
                     f"hp_after={hp_after}, source_id={msg.source_id}, "
                     f"target_id={msg.life_points_lost.target_id}"
                 )
-                if hp_after < 0:
-                    self.logger.error(f"{log_message} (would violate HP invariant)")
+                if msg.life_points_lost.loss > hp_before:
+                    self.logger.info(f"{log_message} (fatal damage clamped to 0 HP)")
                 else:
                     self.logger.info(log_message)
                 self.game_state.fight.life_point = hp_after
@@ -231,9 +231,13 @@ class FightFrame(Frame):
                         f"target_id={msg.life_points_lost.target_id}, "
                         f"loss={msg.life_points_lost.loss}, source_id={msg.source_id}"
                     )
-                self.game_state.entity.actor_fight_by_id[
+                actor_fight = self.game_state.entity.actor_fight_by_id[
                     msg.life_points_lost.target_id
-                ].life_point -= msg.life_points_lost.loss
+                ]
+                actor_fight.life_point = max(
+                    actor_fight.life_point - msg.life_points_lost.loss,
+                    0,
+                )
 
         # Effects/invisibility are tracked only for non-player fighters (the player
         # is kept out of actor_fight_by_id, its state lives in game_state.fight).
@@ -302,8 +306,6 @@ class FightFrame(Frame):
             if characteristic.characteristic_id in _LIFE_CHARACTERISTIC_IDS:
                 has_life_stat = True
         if not has_life_stat:
-            return
-        if self.game_state.fight.life_point == 0:
             return
         hp_before = self.game_state.fight.life_point
         self.game_state.fight.sync_life_points_from_characteristics()

@@ -36,13 +36,7 @@ class PlayerState(State):
         CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER.pop(
             (self.server_id, self.character_id), None
         )
-        self.server_id = -1
         self.is_ready_to_play_event.clear()
-        self.level = 1
-        self.character_id = 0
-        self.character_name = ""
-        self.waypoint_map_ids.clear()
-        self.jobs_lvl_by_id.clear()
 
     @property
     def level(self):
@@ -72,7 +66,11 @@ class PlayerState(State):
 
     @property
     def is_former_sub(self) -> bool:
-        return get_game_sub_info_by_login(self.login).is_former_subscriber
+        game_sub_info = get_game_sub_info_by_login(self.login)
+        return (
+            game_sub_info.end_of_subscribe is not None
+            and game_sub_info.end_of_subscribe.year > 2_000
+        )
 
     @property
     def character_id(self):

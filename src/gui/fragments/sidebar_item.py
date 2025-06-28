@@ -24,13 +24,10 @@ from qfluentwidgets.components.navigation.navigation_widget import NavigationWid
 from src.const import RESOURCE_FOLDER
 from src.core.signals.bot_signals import BotSignals
 
-NO_SCHEDULE_PROFILE_ID = ""
-NO_SCHEDULE_PROFILE_LABEL = "Aucun profil"
-
 
 class SidebarItem(NavigationWidget):
-    schedule_profile_changed = pyqtSignal(str)
     connection_mode_changed = pyqtSignal(str)
+    disconnect_clicked = pyqtSignal()
     play_clicked = pyqtSignal()
     stop_clicked = pyqtSignal()
 
@@ -49,8 +46,12 @@ class SidebarItem(NavigationWidget):
         self.bot_signals = bot_signals
         self.in_fight: bool = False
         self._is_playing: bool = False
+        self._is_connected: bool = False
+        self._left_icon_source = toQIcon(left_icon)
         self.main_layout = QVBoxLayout()
         self.main_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.main_layout.setContentsMargins(4, 4, 0, 4)
+        self.main_layout.setSpacing(4)
 
         self.header_layout = QHBoxLayout()
         self.header_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -58,13 +59,14 @@ class SidebarItem(NavigationWidget):
 
         self.controls_layout = QHBoxLayout()
         self.controls_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.controls_layout.setContentsMargins(4, 0, 12, 0)
 
         self.setLayout(self.main_layout)
         self.main_layout.addLayout(self.header_layout)
         self.main_layout.addLayout(self.controls_layout)
 
         self._left_icon = QLabel(self)
-        self._left_icon.setPixmap(toQIcon(left_icon).pixmap(16))
+        self._sync_left_icon()
         self.header_layout.addWidget(self._left_icon)
 
         self._title = BodyLabel(title, self)
@@ -81,30 +83,32 @@ class SidebarItem(NavigationWidget):
         self._right_icon.hide()
         self.header_layout.addWidget(self._right_icon)
 
-        self._play_btn = TransparentToolButton(FluentIcon.PLAY, self)
-        self._play_btn.setFixedSize(24, 24)
-        self._play_btn.clicked.connect(self.on_click_play)
-        self.bot_signals.play.connect(self.on_play)
-        self.header_layout.addWidget(self._play_btn)
-
-        self._stop_btn = TransparentToolButton(FluentIcon.PAUSE, self)
-        self._stop_btn.setFixedSize(24, 24)
-        self._stop_btn.clicked.connect(self.on_click_stop)
-        self.bot_signals.stop.connect(self.on_stop)
-        self._stop_btn.hide()
-        self.header_layout.addWidget(self._stop_btn)
-
-        self._profile_combo = ComboBox(self)
-        self._profile_combo.setFixedWidth(150)
-        self._profile_combo.currentIndexChanged.connect(self._on_profile_changed)
-        self.controls_layout.addWidget(self._profile_combo)
-
         self._mode_combo = ComboBox(self)
         self._mode_combo.setFixedWidth(150)
         self._mode_combo.addItem("Mitm", userData="mitm")
         self._mode_combo.addItem("Socket", userData="socket")
         self._mode_combo.currentIndexChanged.connect(self._on_mode_changed)
         self.controls_layout.addWidget(self._mode_combo)
+
+        self._play_btn = TransparentToolButton(FluentIcon.PLAY, self)
+        self._play_btn.setFixedSize(24, 24)
+        self._play_btn.clicked.connect(self.on_click_play)
+        self.bot_signals.play.connect(self.on_play)
+        self.controls_layout.addWidget(self._play_btn)
+
+        self._stop_btn = TransparentToolButton(FluentIcon.PAUSE, self)
+        self._stop_btn.setFixedSize(24, 24)
+        self._stop_btn.clicked.connect(self.on_click_stop)
+        self.bot_signals.stop.connect(self.on_stop)
+        self._stop_btn.hide()
+        self.controls_layout.addWidget(self._stop_btn)
+
+        self._disconnect_btn = TransparentToolButton(FluentIcon.CLOSE, self)
+        self._disconnect_btn.setFixedSize(24, 24)
+        self._disconnect_btn.setToolTip("Disconnect")
+        self._disconnect_btn.setEnabled(False)
+        self._disconnect_btn.clicked.connect(self.disconnect_clicked.emit)
+        self.controls_layout.addWidget(self._disconnect_btn)
 
     def show_battle_icon(self, show: bool) -> None:
         self.in_fight = show
@@ -120,13 +124,13 @@ class SidebarItem(NavigationWidget):
 
         self.isCompacted = isCompacted
         if isCompacted:
-            self.header_layout.setContentsMargins(0, 0, 0, 0)
-            self.setFixedSize(40, 48)
+            self.header_layout.setContentsMargins(4, 0, 0, 0)
+            self.setFixedSize(32, 48)
             self._title.hide()
             self._right_icon.hide()
             self._play_btn.hide()
             self._stop_btn.hide()
-            self._profile_combo.hide()
+            self._disconnect_btn.hide()
             self._mode_combo.hide()
         else:
             self.header_layout.setContentsMargins(4, 0, 12, 0)
@@ -135,7 +139,7 @@ class SidebarItem(NavigationWidget):
             if self.in_fight:
                 self._right_icon.show()
             self._sync_play_buttons()
-            self._profile_combo.show()
+            self._disconnect_btn.show()
             self._mode_combo.show()
 
         self.update()
@@ -156,6 +160,24 @@ class SidebarItem(NavigationWidget):
         self._is_playing = is_playing
         self._sync_play_buttons()
 
+    def set_connected(self, is_connected: bool) -> None:
+        self._is_connected = is_connected
+        self._disconnect_btn.setEnabled(is_connected)
+        self._sync_left_icon()
+
+    def _sync_left_icon(self) -> None:
+        pixmap = self._left_icon_source.pixmap(16)
+        if self._is_connected:
+            painter = QPainter(pixmap)
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(QColor(0, 0, 0, 180))
+            painter.drawEllipse(9, 9, 7, 7)
+            painter.setBrush(QColor(0, 230, 118))
+            painter.drawEllipse(10, 10, 5, 5)
+            painter.end()
+        self._left_icon.setPixmap(pixmap)
+
     def _margins(self) -> QMargins:
         return QMargins(0, 0, 0, 0)
 
@@ -163,31 +185,11 @@ class SidebarItem(NavigationWidget):
         return self.isSelected
 
     def set_left_icon(self, icon: QIcon | FluentIcon) -> None:
-        self._left_icon.setPixmap(toQIcon(icon).pixmap(16))
+        self._left_icon_source = toQIcon(icon)
+        self._sync_left_icon()
 
     def set_title(self, text: str) -> None:
         self._title.setText(text)
-
-    def populate_schedule_profiles(
-        self, profiles: dict[str, str], selected_profile: str | None
-    ) -> None:
-        self._profile_combo.blockSignals(True)
-        self._profile_combo.clear()
-        self._profile_combo.addItem(
-            NO_SCHEDULE_PROFILE_LABEL, userData=NO_SCHEDULE_PROFILE_ID
-        )
-        for profile_id, display_name in profiles.items():
-            self._profile_combo.addItem(display_name, userData=profile_id)
-        selected_data = selected_profile or NO_SCHEDULE_PROFILE_ID
-        selected_index = self._profile_combo.findData(selected_data)
-        assert selected_index >= 0, f"Unknown schedule profile {selected_profile}"
-        self._profile_combo.setCurrentIndex(selected_index)
-        self._profile_combo.blockSignals(False)
-
-    def _on_profile_changed(self) -> None:
-        profile_id = self._profile_combo.currentData()
-        has_schedule_profile = isinstance(profile_id, str) and profile_id != ""
-        self.schedule_profile_changed.emit(profile_id if has_schedule_profile else "")
 
     def populate_connection_mode(self, selected_mode: str) -> None:
         for mode_index in range(self._mode_combo.count()):

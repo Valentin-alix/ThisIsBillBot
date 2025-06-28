@@ -47,7 +47,7 @@ class Sidebar(NavigationInterface):
 
         self.resize(48, self.height())
         self.setMinimumWidth(48)
-        self.panel.setExpandWidth(350)
+        self.panel.setExpandWidth(250)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
     def insertItem(

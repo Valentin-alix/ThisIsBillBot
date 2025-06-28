@@ -5,6 +5,7 @@ from threading import RLock
 from dofus_unity_reader.data_center.area_info import AreaInfo
 
 from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.equipment.auto_equipment_behavior import AutoEquipmentBehavior
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmingErrorCode
 from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
@@ -41,6 +42,7 @@ class AutoBotBehavior(Behavior):
     This is a good behavior to automatically chose action based on context
     """
 
+    auto_equipment_behavior: AutoEquipmentBehavior
     fighter_behavior: FighterBehavior
     harvester_behavior: HarvesterBehavior
     multi_farming_behavior: MultiFarmingBehavior
@@ -71,6 +73,14 @@ class AutoBotBehavior(Behavior):
     ) -> None:
         self._area_id = area_id
         self._sub_area_id = sub_area_id
+        if self.game_state.inventory.is_full_pods:
+            return self.play()
+        self.auto_equipment_behavior.start(
+            callback=self.on_initial_auto_equipment_finished, parent=self
+        )
+
+    def on_initial_auto_equipment_finished(self, error_code: str | None) -> None:
+        self.raise_if_error(error_code)
         self.play()
 
     def play(self) -> None:

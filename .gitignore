@@ -19,6 +19,7 @@ avg_price_by_gid.json
 *.prof
 resources/paysafecards.txt
 humanization.log
+debug_dumps
 
 
 bid_seller_item_by_uid_by_player_id.json

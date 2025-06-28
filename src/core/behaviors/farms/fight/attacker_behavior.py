@@ -110,10 +110,24 @@ class AttackerBehavior(Behavior):
             once=True,
             override_on_self=True,
             timeout=15,
-            on_timeout=lambda: self.attack_enemy(group_actor_id),
+            on_timeout=partial(self.on_fight_map_information_timeout, group_actor_id),
         )
         request = AttackMonsterRequest(monster_group_id=group_actor_id)
         self.event_manager.send(request)
+
+    def on_fight_map_information_timeout(self, group_actor_id: int) -> None:
+        if self.game_state.fight.in_fight:
+            self.logger.warning(
+                "Fight context entered without FightMapInformationEvent; "
+                "forcing reconnect to resync"
+            )
+            request_disconnect = self.event_manager.request_disconnect_callback
+            assert request_disconnect is not None, (
+                "Fight initialization recovery requires a disconnect callback"
+            )
+            request_disconnect()
+            return
+        self.attack_enemy(group_actor_id)
 
     def on_fight_map_information_event(self, msg: FightMapInformationEvent):
         self.fight_behavior.start(

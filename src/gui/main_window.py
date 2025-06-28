@@ -1,11 +1,10 @@
+import logging
 from functools import partial
 from typing import Literal
 
-from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
-    ScheduleProfileController,
-)
-from PyQt6.QtCore import QSize
-from PyQt6.QtGui import QCloseEvent, QColor, QIcon
+from PyQt6.QtCore import QSize, QUrl
+from PyQt6.QtGui import QCloseEvent, QColor, QIcon, QPixmap
+from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PyQt6.QtWidgets import QHBoxLayout, QWidget
 from qfluentwidgets import (
     FluentIcon,
@@ -26,6 +25,9 @@ from src.gui.fragments.account_stacked_widget import AccountStackedWidget
 from src.gui.fragments.app_fluent_window import AppFluentWindow
 from src.gui.fragments.sidebar_item import SidebarItem
 from src.services.logging_utils.loggers import init_root_gui_logging
+
+logger = logging.getLogger()
+_BREED_ICON_URL_TEMPLATE = "https://api.dofusdb.fr/img/breeds/symbol_{breed_id}.png"
 
 
 class MainWindow(AppFluentWindow):
@@ -49,6 +51,8 @@ class MainWindow(AppFluentWindow):
 
         self.disconnected_icon = FluentIcon.PEOPLE.icon(color=QColor(255, 0, 0))
         self.connected_icon = FluentIcon.PEOPLE.icon(color=QColor(0, 255, 0))
+        self._breed_icon_network_manager = QNetworkAccessManager(self)
+        self._breed_icon_by_id: dict[int, QIcon] = {}
 
         self.account_widgets: list[AccountStackedWidget] = []
         self.bots_by_login: dict[str, Bot] = {}
@@ -73,6 +77,10 @@ class MainWindow(AppFluentWindow):
             account.bot_signals, self.disconnected_icon, login, True, parent=self
         )
         navigation_widget.set_playing(account.is_playing_event.is_set())
+        is_connected = account.is_connected_event.is_set()
+        navigation_widget.set_connected(is_connected)
+        if is_connected:
+            navigation_widget.set_left_icon(self.connected_icon)
         account_widget.setObjectName(login)
         self.addWidget(
             account_widget,
@@ -84,19 +92,23 @@ class MainWindow(AppFluentWindow):
         bot_config_controller = BotConfigController()
         config = bot_config_controller.get_bot_config(login)
 
-        profiles = ScheduleProfileController().get_profile_display_names()
-        selected_profile = config.schedule_profile
-        navigation_widget.populate_schedule_profiles(profiles, selected_profile)
-        navigation_widget.schedule_profile_changed.connect(
-            partial(self._on_schedule_profile_changed, login)
-        )
-
         selected_mode = config.connection_mode
         navigation_widget.populate_connection_mode(selected_mode)
-        navigation_widget.connection_mode_changed.connect(
-            partial(self._on_connection_mode_changed, login)
+
+        def on_connection_mode_changed(mode: str) -> None:
+            assert mode in ("mitm", "socket"), f"Unknown connection mode {mode}"
+            self._on_connection_mode_changed(login, mode)
+
+        navigation_widget.connection_mode_changed.connect(on_connection_mode_changed)
+        navigation_widget.disconnect_clicked.connect(
+            lambda: self._on_disconnect_clicked(login)
         )
 
+        def on_connected(_characters: object) -> None:
+            navigation_widget.set_left_icon(self.connected_icon)
+            navigation_widget.set_connected(True)
+
+        account.game_info_signals.connected.connect(on_connected)
         account.game_info_signals.character_name.connect(
             lambda name: navigation_widget.set_title(  # type: ignore
                 f"{account.account.apikey.login.split('@')[0]} : {name}"
@@ -105,14 +117,88 @@ class MainWindow(AppFluentWindow):
 
         account.game_info_signals.in_fight.connect(navigation_widget.show_battle_icon)
         account.game_info_signals.is_ready_to_play.connect(
-            lambda: navigation_widget.set_left_icon(self.connected_icon)
+            partial(self._show_breed_icon, navigation_widget, account)
         )
         account.game_info_signals.disconnected.connect(
             lambda: navigation_widget.set_left_icon(self.disconnected_icon)
         )
         account.game_info_signals.disconnected.connect(
+            lambda: navigation_widget.set_connected(False)
+        )
+        account.game_info_signals.disconnected.connect(
             lambda: navigation_widget.set_title(login)
         )
+
+        if account.is_ready_to_play_event.is_set():
+            self._show_breed_icon(navigation_widget, account)
+
+    def _show_breed_icon(self, navigation_widget: SidebarItem, account: Bot) -> None:
+        navigation_widget.set_left_icon(self.connected_icon)
+        breed_id = account.game_state.fight.breed_id
+        if breed_id <= 0:
+            return
+
+        cached_icon = self._breed_icon_by_id.get(breed_id)
+        if cached_icon is not None:
+            navigation_widget.set_left_icon(cached_icon)
+            return
+
+        request = QNetworkRequest(
+            QUrl(_BREED_ICON_URL_TEMPLATE.format(breed_id=breed_id))
+        )
+        request.setTransferTimeout(10_000)
+        reply = self._breed_icon_network_manager.get(request)
+        if not reply:
+            return
+        reply.finished.connect(
+            partial(
+                self._on_breed_icon_reply_finished,
+                reply,
+                navigation_widget,
+                account,
+                breed_id,
+            )
+        )
+
+    def _on_breed_icon_reply_finished(
+        self,
+        reply: QNetworkReply,
+        navigation_widget: SidebarItem,
+        account: Bot,
+        breed_id: int,
+    ) -> None:
+        if reply.error() != QNetworkReply.NetworkError.NoError:
+            logger.warning(
+                "Cannot load breed icon %s for %s: %s",
+                breed_id,
+                account.account.apikey.login,
+                reply.errorString(),
+            )
+            reply.deleteLater()
+            return
+
+        pixmap = QPixmap()
+        if not pixmap.loadFromData(reply.readAll().data(), "PNG"):
+            logger.warning(
+                "Cannot load breed icon %s for %s: invalid PNG response",
+                breed_id,
+                account.account.apikey.login,
+            )
+            reply.deleteLater()
+            return
+
+        reply.deleteLater()
+        breed_icon = QIcon(pixmap)
+        self._breed_icon_by_id[breed_id] = breed_icon
+
+        login = account.account.apikey.login
+        if self.bots_by_login.get(login) is not account:
+            return
+        if not account.is_connected_event.is_set():
+            return
+        if account.game_state.fight.breed_id != breed_id:
+            return
+        navigation_widget.set_left_icon(breed_icon)
 
     def remove_account(self, account: Bot) -> None:
         login = account.account.apikey.login
@@ -135,17 +221,16 @@ class MainWindow(AppFluentWindow):
                 self.account_widgets[0].objectName()
             )
 
-    def _on_schedule_profile_changed(self, login: str, profile_id: str) -> None:
-        selected_profile = profile_id or None
-        bot_config_controller = BotConfigController()
-        bot_config_controller.assign_profile(login, selected_profile)
-        bot = self.bots_by_login[login]
-        bot.scheduler.update_profile(selected_profile)
-
     def _on_connection_mode_changed(
         self, login: str, mode: Literal["mitm", "socket"]
     ) -> None:
         BotConfigController().assign_mode(login, mode)
+
+    def _on_disconnect_clicked(self, login: str) -> None:
+        bot = self.bots_by_login[login]
+        if not bot.is_connected_event.is_set():
+            return
+        bot.scheduler.disconnect_now()
 
     def _init_sync_button(self) -> None:
         def manage_visibility_sync_btn(display_mode: NavigationDisplayMode) -> None:

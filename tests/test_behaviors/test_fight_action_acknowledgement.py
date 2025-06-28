@@ -1,4 +1,5 @@
 from threading import Event
+from unittest.mock import MagicMock
 
 import pytest
 from datas.protos.non_obf.game.game_action_pb2 import (
@@ -11,6 +12,7 @@ from datas.protos.non_obf.game.fight_pb2 import FightTurnFinishRequest
 from dofus_unity_reader.grid.map_point import MapPoint
 from google.protobuf.message import Message
 
+from src.core.bot.bot import Bot
 from src.core.behaviors.behavior import BehaviorState
 from src.core.behaviors.farms.fight.fight_movement_behavior import (
     FightMovementBehavior,
@@ -18,6 +20,7 @@ from src.core.behaviors.farms.fight.fight_movement_behavior import (
 from src.core.behaviors.farms.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.farms.fight.fight_turn_behavior import FightTurnBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
+from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripErrorCode
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
 from src.core.events_manager.event_manager import EventManager
 from src.core.frames.entity_frame import EntityFrame
@@ -122,7 +125,6 @@ class TestFightActionAcknowledgement:
         assert finished_error_codes == [MapMoveError.PLAYER_DEAD]
         assert fight_movement_behavior.state == BehaviorState.STOPPED
         assert map_move_behavior.state == BehaviorState.STOPPED
-
         event_manager.process_msg(
             GameActionAcknowledgementRequest(valid=True, action_id=12)
         )
@@ -448,3 +450,36 @@ class TestFightActionAcknowledgement:
         )
         assert fight_movement_behavior.state == BehaviorState.STOPPED
         assert map_move_behavior.state == BehaviorState.STOPPED
+
+
+class TestFarmRecovery:
+    def test_incomplete_fight_initialization_requests_disconnect(
+        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        attacker_behavior = runtime_bot.fighter_behavior.attacker_behavior
+        request_disconnect = MagicMock()
+        attack_enemy = MagicMock()
+        runtime_bot.game_state.fight.in_fight = True
+        runtime_bot.event_manager.request_disconnect_callback = request_disconnect
+        monkeypatch.setattr(attacker_behavior, "attack_enemy", attack_enemy)
+
+        attacker_behavior.on_fight_map_information_timeout(-20_003)
+
+        request_disconnect.assert_called_once_with()
+        attack_enemy.assert_not_called()
+
+    def test_path_blocked_by_forbidden_transition_requests_disconnect(
+        self, runtime_bot: Bot
+    ) -> None:
+        random_farm_behavior = runtime_bot.fighter_behavior.random_farm_behavior
+        request_disconnect = MagicMock()
+        runtime_bot.event_manager.request_disconnect_callback = request_disconnect
+        runtime_bot.game_state.map.forbidden_edge_transitions.add(
+            (MagicMock(), MagicMock(), MagicMock())
+        )
+
+        random_farm_behavior.on_auto_trip_world_behavior_finished(
+            AutoTripErrorCode.PATH_NOT_FOUND
+        )
+
+        request_disconnect.assert_called_once_with()

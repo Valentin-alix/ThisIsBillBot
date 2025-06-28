@@ -4,6 +4,7 @@ import logging
 from typing import Callable
 
 from ankama_launcher_emulator_premium.haapi.haapi import Haapi
+from requests import HTTPError
 
 from src.controller.bot_config import BotConfig
 from src.core.behaviors.socket.connection_behavior import (
@@ -17,6 +18,16 @@ from src.core.socket_network.game_client import GameClient
 logger = logging.getLogger()
 
 
+def _is_create_token_auth_failure(error: HTTPError) -> bool:
+    message = str(error)
+    return "Account/CreateToken" in message and (
+        "403 Client Error" in message
+        or "401 Client Error" in message
+        or "Unauthorized service" in message
+        or "Invalid security state" in message
+    )
+
+
 def _fingerprint_secret(secret: str) -> str:
     return sha256(secret.encode()).hexdigest()[:8]
 
@@ -27,16 +38,28 @@ class SocketClient:
     bot_config: BotConfig
     socks_proxy_url: str | None
     on_banned_callback: Callable[[str], None]
+    on_invalid_auth_callback: Callable[[str], None]
     _connection_client: ConnectionClient | None = field(init=False, default=None)
 
     def connect(self) -> None:
         logger.info(f"Connecting socket client {self.bot.account.apikey.login}")
         account = self.bot.account
-        game_token = Haapi(
-            api_key=account.apikey.key,
-            login=account.apikey.login,
-            proxy_url=self.socks_proxy_url,
-        ).createToken(1, account.apikey.certificate)
+        try:
+            game_token = Haapi(
+                api_key=account.apikey.key,
+                login=account.apikey.login,
+                proxy_url=self.socks_proxy_url,
+            ).createToken(1, account.apikey.certificate)
+        except HTTPError as error:
+            if not _is_create_token_auth_failure(error):
+                raise
+            logger.error(
+                "[SocketClient] Stored HAAPI credentials rejected for %s: %s",
+                account.apikey.login,
+                error,
+            )
+            self.on_invalid_auth_callback(account.apikey.login)
+            return
         logger.info(
             "[SocketClient] Got HAAPI game token "
             f"len={len(game_token)} fingerprint={_fingerprint_secret(game_token)}"

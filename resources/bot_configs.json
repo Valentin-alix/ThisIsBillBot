@@ -60,12 +60,12 @@
     "hardware_id": "6FBFA4A6861F3BF2A6B260FC3B189B85C67575E41F4126072CE8AA0C936FC844"
   },
   "renaissance.hyhy1@outlook.fr": {
-    "schedule_profile": null,
+    "schedule_profile": "B",
     "connection_mode": "socket",
     "hardware_id": "E494945CD3A6A21546EBD7EC61E9023BFBF975ED1C4E60B1CAD6FBFD49858F19"
   },
   "renaissance.hyhy2@outlook.fr": {
-    "schedule_profile": null,
+    "schedule_profile": "B",
     "connection_mode": "socket",
     "hardware_id": "B857D0BFB24BE5CB1F46AFAFBD56B14F57BF7C7A85F97F8547F020C6AC32373F"
   },
@@ -98,5 +98,20 @@
     "schedule_profile": "F",
     "connection_mode": "socket",
     "hardware_id": "4200EED3884E19694E5E851BF9313D744CEB28D3060D8A8404BED7D7CDBC88E2"
+  },
+  "renaissance.hihi1@outlook.fr": {
+    "schedule_profile": null,
+    "connection_mode": "socket",
+    "hardware_id": "0584916E5E923E288FC550197802B1C637C0D146CDAB5CFE6E5FE063F295DFE4"
+  },
+  "CertUser7806": {
+    "schedule_profile": null,
+    "connection_mode": "socket",
+    "hardware_id": "384DCAF17E1D99A38E381B23183C48AEB13B29D0A311D2B15F582FA71787099D"
+  },
+  "CertUser6479": {
+    "schedule_profile": null,
+    "connection_mode": "socket",
+    "hardware_id": "83C24EEB49981BD562330F73909EE22CD5B39418C07131E05930F73BCB7F27A2"
   }
 }

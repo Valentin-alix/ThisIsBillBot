@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from typing import Callable
 
-from src.core.behaviors.equipment.auto_equipment_behavior import (
-    AutoEquipmentBehavior,
-)
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmBehavior
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
+from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
+    AutoTripErrorCode,
+)
 from src.core.behaviors.movements.edge_behavior import EdgeError
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
@@ -20,23 +20,13 @@ class FighterBehavior(BaseFarmBehavior):
     map_move_behavior: MapMoveBehavior
     path_finding: Pathfinding
     attacker_behavior: AttackerBehavior
-    auto_equipment_behavior: AutoEquipmentBehavior
-
-    def on_full_pods(self):
-        self.auto_equipment_behavior.start(
-            callback=self.on_auto_equipment_finished, parent=self
-        )
-
-    def on_auto_equipment_finished(self, error_code: str | None) -> None:
-        self.raise_if_error(error_code)
-        super().on_full_pods()
 
     def run(
         self,
         area_id: int | None,
         sub_area_id: int | None,
         is_stopped_at_new_map_condition: Callable[[], bool] | None = None,
-    ):
+    ) -> None:
         self.is_stopped_at_new_map_condition = is_stopped_at_new_map_condition
         self.random_farm_behavior.init_random_farm(
             area_id,
@@ -45,6 +35,11 @@ class FighterBehavior(BaseFarmBehavior):
                 map_id, self.game_state.player.level
             ),
         )
+        if self.game_state.inventory.is_full_pods:
+            self.logger.info(
+                f"Inventory full ({self.game_state.inventory.pod_percentage:.0%}), triggering unload"
+            )
+            return self.on_full_pods()
         self.on_new_map()
 
     def on_new_map(self):
@@ -70,6 +65,8 @@ class FighterBehavior(BaseFarmBehavior):
         ):
             if error_code is EdgeError.NO_VALID_TRANSITION:
                 return self.run_next_step()
+            if error_code is AutoTripErrorCode.PATH_NOT_FOUND:
+                return self.finish(error_code)
             self.raise_if_error(error_code)
         self.on_new_map()
 

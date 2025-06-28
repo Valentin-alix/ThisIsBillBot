@@ -13,6 +13,9 @@ from dofus_unity_reader.models.world_graph import Edge
 
 from src.const import MIN_DATE
 from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
+    AutoTripErrorCode,
+)
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
@@ -173,6 +176,19 @@ class RandomFarmBehavior(Behavior):
         if error_code is not None:
             self.edge_path = None
             self.logger.error(error_code)
+            if (
+                error_code is AutoTripErrorCode.PATH_NOT_FOUND
+                and self.game_state.map.forbidden_edge_transitions
+            ):
+                self.logger.warning(
+                    "Path blocked by forbidden transitions; forcing reconnect to resync"
+                )
+                request_disconnect = self.event_manager.request_disconnect_callback
+                assert request_disconnect is not None, (
+                    "Blocked path recovery requires a disconnect callback"
+                )
+                request_disconnect()
+                return
             return self.finish(error_code)
         LAST_VISITED_BY_SERVER_AND_MAP[
             (self.game_state.player.server_id, self.game_state.map.map_id)

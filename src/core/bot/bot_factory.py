@@ -544,6 +544,7 @@ class BotFactory:
             pathfinding=path_finding,
         )
         harvester = HarvesterBehavior(
+            auto_equipment_behavior=auto_equipment_behavior,
             mule_give_behavior=mule_give_behavior,
             event_manager=event_manager,
             collect_behavior=collect_behavior,
@@ -643,6 +644,7 @@ class BotFactory:
             event_manager=event_manager,
             game_state=game_state,
             _logger=logger,
+            auto_equipment_behavior=auto_equipment_behavior,
             fighter_behavior=fighter_behavior,
             harvester_behavior=harvester,
             multi_farming_behavior=multi_farming_behavior,

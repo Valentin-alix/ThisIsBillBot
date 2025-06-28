@@ -4,6 +4,7 @@ from qfluentwidgets import PivotItem, SegmentedWidget
 from src import const
 from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
+from src.gui.fragments.account_quick_info import AccountQuickInfoWidget
 from src.gui.pages.craft.craft_page import CraftPage
 from src.gui.pages.debugs.sniffer import SnifferWidget
 from src.gui.pages.farmer.farmer import FarmerWidget
@@ -33,6 +34,11 @@ class AccountStackedWidget(QWidget):
 
         self.pivot = SegmentedWidget(self)
         layout.addWidget(self.pivot)
+
+        self.quick_info_widget: AccountQuickInfoWidget | None = None
+        if const.DEBUG:
+            self.quick_info_widget = AccountQuickInfoWidget(self.bot, parent=self)
+            layout.addWidget(self.quick_info_widget)
 
         self.stacked_widget = QStackedWidget(self)
         layout.addWidget(self.stacked_widget)

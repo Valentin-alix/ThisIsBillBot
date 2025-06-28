@@ -17,6 +17,9 @@ from src.core.behaviors.interactives.collect_behavior import (
     CollectBehavior,
     CollectError,
 )
+from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
+    AutoTripErrorCode,
+)
 from src.core.behaviors.movements.edge_behavior import EdgeError
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.config import BASE_RANGE
@@ -97,6 +100,8 @@ class HarvesterBehavior(BaseFarmBehavior):
             EdgeError.INVALID_STARTING_MAP,
         ]:
             return self.on_unexpected_new_map()
+        if error_code is AutoTripErrorCode.PATH_NOT_FOUND:
+            return self.finish(error_code)
         self.raise_if_error(error_code)
         self.on_new_map()
 

@@ -80,11 +80,8 @@ class FightState(State):
         self.count_casted_by_spell_id_on_current_turn.clear()
         self.last_cast_turn_by_spell_id.clear()
         self.characteristic_by_id.clear()
-        self.breed_id = 0
         self.in_fight = False
         self.fight_turn = 0
-        self.life_point = 1
-        self.max_life_point = 1
         self.last_atk_info = None
 
     def get_stat_by_id(self, characteristic: int) -> int:
@@ -253,13 +250,24 @@ class FightState(State):
             return []
 
         player_team = player_actor.actor_information.fighter.spawn_information.team
-        enemies = [
-            actor
-            for actor in self.entity_state.actor_by_id.values()
-            if actor.disposition.cell_id != -1
-            and actor.actor_information.HasField("fighter")
-            and actor.actor_information.fighter.spawn_information.team != player_team
-        ]
+        enemies: list[ActorPositionInformation] = []
+        for actor in self.entity_state.actor_by_id.values():
+            if (
+                actor.disposition.cell_id == -1
+                or not actor.actor_information.HasField("fighter")
+                or actor.actor_information.fighter.spawn_information.team == player_team
+            ):
+                continue
+
+            actor_fight = self.entity_state.actor_fight_by_id.get(actor.actor_id)
+            if actor_fight is not None and actor_fight.life_point <= 0:
+                self.logger.debug(
+                    "Skipping zero-HP enemy still present in actor state: "
+                    f"actor_id={actor.actor_id}, life_point={actor_fight.life_point}"
+                )
+                continue
+
+            enemies.append(actor)
         self.logger.debug(f"Found {len(enemies)} enemies")
 
         return enemies

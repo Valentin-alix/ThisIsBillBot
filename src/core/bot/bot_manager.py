@@ -5,10 +5,14 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from time import monotonic, sleep
 
-import psutil
-from ankama_launcher_emulator_premium.web.auth.storage import remove_generated_account
+from ankama_launcher_emulator_premium.web.auth.storage import (
+    mark_account_available_for_auth_retry,
+    remove_generated_account,
+)
 
 LAUNCH_SPACING_SECONDS = 2.5
+MITM_CONNECTION_WAIT_TIMEOUT_SECONDS = 90.0
+MITM_CONNECTION_WAIT_STEP_SECONDS = 0.5
 
 from ankama_launcher_emulator_premium.decrypter.crypto_helper import (
     CryptoHelper,
@@ -33,6 +37,7 @@ logger = logging.getLogger()
 @dataclass
 class BotManager:
     shared_signals: SharedSignals
+    enable_account_scheduler: bool = True
     ankama_launcher_handler: AnkamaLauncherHandler = field(
         init=False, default_factory=AnkamaLauncherHandler
     )
@@ -61,7 +66,8 @@ class BotManager:
             on_subscribed=self.on_subscribed,
             on_banned_callback=self.on_banned_callback,
         )
-        self.account_scheduler.start()
+        if self.enable_account_scheduler:
+            self.account_scheduler.start()
 
     def on_subscribed(self, login: str):
         related_bot = next(
@@ -103,6 +109,21 @@ class BotManager:
             return None
         return BotConfigController().resolve_bot_socks_proxy_url(bot_config)
 
+    def _wait_for_mitm_connection_result(self, bot: Bot) -> bool:
+        deadline = monotonic() + MITM_CONNECTION_WAIT_TIMEOUT_SECONDS
+        while monotonic() < deadline:
+            if bot.is_connected_event.wait(timeout=MITM_CONNECTION_WAIT_STEP_SECONDS):
+                return True
+            if not bot.is_playing_event.is_set():
+                bot.logger.info("Bot is not playing anymore, aborting relaunch")
+                return False
+            if not bot.process_manager.is_bot_process_running():
+                bot.logger.info(
+                    "Dofus process is not running anymore, aborting relaunch"
+                )
+                return False
+        return False
+
     def relaunch_account(self, login: str, max_retries: int = 3):
         related_bot = next(
             (
@@ -116,61 +137,61 @@ class BotManager:
             self._is_lauching_by_login.pop(login, None)
             return None
 
-        if self._is_lauching_by_login[login].is_set() and (
-            related_bot.process_manager.pid is None
-            or psutil.pid_exists(related_bot.process_manager.pid)
-        ):
-            return related_bot.logger.warning(
-                "Bot is already launching, don't launch twice."
+        if self._is_lauching_by_login[login].is_set():
+            launch_still_active = related_bot.is_playing_event.is_set() and (
+                related_bot.process_manager.pid is None
+                or related_bot.process_manager.is_bot_process_running()
             )
+            if launch_still_active:
+                return related_bot.logger.warning(
+                    "Bot is already launching, don't launch twice."
+                )
+            self._is_lauching_by_login[login].clear()
 
         self._is_lauching_by_login[login].set()
 
-        bot_config = BotConfigController().get_bot_config(
-            related_bot.account.apikey.login
-        )
-
-        related_bot.process_manager.kill_process()
-
-        socks_proxy_url = self._get_socks_proxy_url(bot_config)
-        if not related_bot.is_playing_event.is_set():
-            self._is_lauching_by_login[login].clear()
-            return related_bot.logger.info(
-                "Bot is not playing anymore, aborting relaunch"
+        try:
+            bot_config = BotConfigController().get_bot_config(
+                related_bot.account.apikey.login
             )
-        if related_bot.bot_should_not_play(datetime.now()):
-            self._is_lauching_by_login[login].clear()
-            return related_bot.logger.info("Bot is not in playtime anymore")
-        for attempt in range(max_retries):
+
+            related_bot.process_manager.kill_process()
+
             if not related_bot.is_playing_event.is_set():
-                self._is_lauching_by_login[login].clear()
                 return related_bot.logger.info(
                     "Bot is not playing anymore, aborting relaunch"
                 )
-
-            related_bot.logger.info(
-                f"Relaunching (attempt {attempt + 1}/{max_retries})"
-            )
-
-            now = datetime.now()
-
-            if related_bot.bot_should_not_play(now):
-                self._is_lauching_by_login[login].clear()
+            if related_bot.bot_should_not_play(datetime.now()):
                 return related_bot.logger.info("Bot is not in playtime anymore")
 
-            related_bot.logger.info("Launch bot")
-            self._wait_launch_slot()
+            socks_proxy_url = self._get_socks_proxy_url(bot_config)
+            for attempt in range(max_retries):
+                if not related_bot.is_playing_event.is_set():
+                    return related_bot.logger.info(
+                        "Bot is not playing anymore, aborting relaunch"
+                    )
 
-            if bot_config.connection_mode == "socket":
-                SocketClient(
-                    related_bot,
-                    bot_config,
-                    socks_proxy_url,
-                    self.on_banned_callback,
-                ).connect()
-                self._is_lauching_by_login[login].clear()
-                return
-            else:
+                related_bot.logger.info(
+                    f"Relaunching (attempt {attempt + 1}/{max_retries})"
+                )
+
+                now = datetime.now()
+
+                if related_bot.bot_should_not_play(now):
+                    return related_bot.logger.info("Bot is not in playtime anymore")
+
+                related_bot.logger.info("Launch bot")
+                self._wait_launch_slot()
+
+                if bot_config.connection_mode == "socket":
+                    SocketClient(
+                        related_bot,
+                        bot_config,
+                        socks_proxy_url,
+                        self.on_banned_callback,
+                        self.on_invalid_auth_callback,
+                    ).connect()
+                    return
                 related_bot.process_manager.pid = self.ankama_launcher.launch_dofus(
                     login,
                     self.proxy_listener,
@@ -178,32 +199,42 @@ class BotManager:
                     on_progress=self.on_progress_installing,
                 )
                 related_bot.logger.info(f"Pid {related_bot.process_manager.pid}")
-                is_success = related_bot.wait_for_connection_result(timeout=90)
+                is_success = self._wait_for_mitm_connection_result(related_bot)
 
-            if related_bot.bot_should_not_play(now):
-                self._is_lauching_by_login[login].clear()
-                return related_bot.logger.info("Bot is not in playtime anymore")
+                if not related_bot.is_playing_event.is_set():
+                    return related_bot.logger.info(
+                        "Bot is not playing anymore, aborting relaunch"
+                    )
+                if related_bot.bot_should_not_play(now):
+                    return related_bot.logger.info("Bot is not in playtime anymore")
 
-            if is_success:
-                self._is_lauching_by_login[login].clear()
-                return related_bot.logger.info("Successfully connected")
+                if is_success:
+                    return related_bot.logger.info("Successfully connected")
 
-            related_bot.logger.warning(f"Connection timeout on attempt {attempt + 1}")
-            backoff = min(2**attempt * 5, 60)
-            related_bot.logger.info(f"Retrying in {backoff}s...")
-            sleep(backoff)
+                related_bot.logger.warning(
+                    f"Connection timeout on attempt {attempt + 1}"
+                )
+                backoff = min(2**attempt * 5, 60)
+                related_bot.logger.info(f"Retrying in {backoff}s...")
+                sleep(backoff)
 
-        self._is_lauching_by_login[login].clear()
-        related_bot.logger.error(
-            f"Failed to connect after {max_retries} attempts - stopping bot"
-        )
-        related_bot.is_playing_event.clear()
-        related_bot.process_manager.kill_process()
+            related_bot.logger.error(
+                f"Failed to connect after {max_retries} attempts - stopping bot"
+            )
+            related_bot.is_playing_event.clear()
+            related_bot.process_manager.kill_process()
+        finally:
+            self._is_lauching_by_login[login].clear()
 
     def on_banned_callback(self, login: str):
         CryptoHelper.remove_bot(login)
         BotConfigController().remove_bot_config(login)
         remove_generated_account(login)
+        self.on_synchronize_bots()
+
+    def on_invalid_auth_callback(self, login: str) -> None:
+        mark_account_available_for_auth_retry(login)
+        CryptoHelper.remove_bot(login)
         self.on_synchronize_bots()
 
     def safe_stop_bots(self, bots: list[Bot]):
@@ -221,7 +252,8 @@ class BotManager:
         return bot_by_account_id
 
     def shutdown(self) -> None:
-        self.account_scheduler.stop()
+        if self.enable_account_scheduler:
+            self.account_scheduler.stop()
         bots = list(self.bot_by_account_id.values())
         self.safe_stop_bots(bots)
         for bot in bots:
@@ -257,5 +289,6 @@ class BotManager:
                     account=account,
                 )
                 self.bot_by_account_id[account_id] = new_bot
-                new_bot.start()
                 self.shared_signals.new_bot_added.emit(new_bot)
+                if self.enable_account_scheduler:
+                    new_bot.start()
