@@ -1,5 +1,5 @@
+from collections.abc import Iterator
 from dataclasses import dataclass, field
-from typing import Iterator
 
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader

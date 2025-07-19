@@ -1,4 +1,5 @@
-from typing import Any, Callable, Union
+from collections.abc import Callable
+from typing import Any
 
 from PyQt6.QtCore import QPoint, Qt, pyqtSignal
 from PyQt6.QtGui import QAction, QIcon
@@ -130,7 +131,7 @@ class MultiSelectComboBox(ComboBox):
     def addItem(
         self,
         text: str,
-        icon: Union[str, QIcon, FluentIconBase] | None = None,
+        icon: str | QIcon | FluentIconBase | None = None,
         userData: Any = None,
     ) -> None:
         """add item

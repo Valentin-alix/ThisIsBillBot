@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
+from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.engine.contexts import (
     AttackContext,
@@ -122,15 +123,31 @@ class GameState:
         )
 
     def get_attack_context(self) -> AttackContext:
-        enemies = self.fight.get_enemies(self.player.character_id)
+        context = self.get_attack_context_if_available()
+        assert isinstance(context, AttackContext), (
+            f"Player {self.player.character_id} is missing from actor state"
+        )
+        return context
+
+    def get_attack_context_if_available(self) -> AttackContext | None:
+        actor_by_id = dict(self.entity.actor_by_id)
+        actor_fight_by_id = dict(self.entity.actor_fight_by_id)
+        player_actor = actor_by_id.get(self.player.character_id)
+        if player_actor is None:
+            return None
+        enemies = self.fight.get_enemies_from_actor_snapshot(
+            self.player.character_id,
+            actor_by_id,
+            actor_fight_by_id,
+        )
         return AttackContext(
             map_id=self.map.map_id,
-            player_map_point=self.map.map_point,
+            player_map_point=MapPoint.from_cell_id(player_actor.disposition.cell_id),
             player_character_id=self.player.character_id,
             player_level=self.player.level,
-            actor_by_id=self.entity.actor_by_id,
+            actor_by_id=actor_by_id,
             enemy_actors=enemies,
-            enemies_data=self.fight.get_enemies_data(enemies),
+            enemies_data=self.fight.get_enemies_data(enemies, actor_fight_by_id),
             spells=self.fight.spells,
             primary_and_second_elem=self.fight.primary_and_second_elem,
             primary_elem=self.fight.primary_elem,

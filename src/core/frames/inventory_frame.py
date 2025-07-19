@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 
+from ankama_launcher_emulator_premium.utils.bot_storage import BotStorageController
 from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryContentEvent,
     InventoryWeightEvent,
@@ -15,14 +16,13 @@ from datas.protos.non_obf.game.inventory_pb2 import (
 )
 
 from src import const
-from src.controller.account_kamas import AccountKamasController
 from src.core.frames.frame import Frame
 
 
 @dataclass
 class InventoryFrame(Frame):
-    account_kamas_controller: AccountKamasController = field(
-        default_factory=AccountKamasController
+    account_kamas_controller: BotStorageController = field(
+        default_factory=BotStorageController
     )
 
     def __post_init__(self):

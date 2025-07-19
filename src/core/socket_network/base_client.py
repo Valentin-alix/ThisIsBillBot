@@ -1,6 +1,8 @@
 import select
-from dataclasses import dataclass
+from _thread import LockType
+from dataclasses import dataclass, field
 from socket import AF_INET, SOCK_STREAM, socket
+from threading import Lock
 
 import socks
 from ankama_launcher_emulator_premium.utils.proxy import get_info_by_proxy_url
@@ -13,6 +15,8 @@ from src.protocol.protocol import decode_varint_size
 class BaseClient:
     bot: Bot
     proxy_url: str | None
+    _close_lock: LockType = field(init=False, default_factory=Lock)
+    _is_closed: bool = field(init=False, default=False)
 
     def __post_init__(self) -> None:
         client_socket: socket
@@ -31,7 +35,7 @@ class BaseClient:
             )
             client_socket = socks_client_socket
         self.client_socket = client_socket
-        self.buffer = bytes()
+        self.buffer = b""
 
     @property
     def client_label(self) -> str:
@@ -111,10 +115,17 @@ class BaseClient:
     def on_received_msg_datas(self, msg_datas: bytes) -> None: ...
 
     def close(self) -> None:
-        self.bot.logger.info(
-            f"[{self.client_label}] closing conns, proxy {self.proxy_url}"
-        )
-        self.client_socket.close()
+        with self._close_lock:
+            if self._is_closed:
+                self.bot.logger.debug(
+                    f"[{self.client_label}] connection already closed"
+                )
+                return
+            self._is_closed = True
+            self.bot.logger.info(
+                f"[{self.client_label}] closing conns, proxy {self.proxy_url}"
+            )
+            self.client_socket.close()
         self.on_close()
 
     def on_close(self): ...

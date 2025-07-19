@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmBehavior
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
@@ -31,14 +31,10 @@ class FighterBehavior(BaseFarmBehavior):
         self.random_farm_behavior.init_random_farm(
             area_id,
             sub_area_id,
-            lambda map_id: get_additional_weight_by_map_id(
-                map_id, self.game_state.player.level
-            ),
+            lambda map_id: get_additional_weight_by_map_id(map_id, self.game_state.player.level),
         )
-        if self.game_state.inventory.is_full_pods:
-            self.logger.info(
-                f"Inventory full ({self.game_state.inventory.pod_percentage:.0%}), triggering unload"
-            )
+        if self.game_state.inventory.is_full_pods and self.game_state.inventory.can_use_bank:
+            self.logger.info(f"Inventory full ({self.game_state.inventory.pod_percentage:.0%}), triggering unload")
             return self.on_full_pods()
         self.on_new_map()
 
@@ -47,22 +43,15 @@ class FighterBehavior(BaseFarmBehavior):
             return
 
         if self.game_state.map.map_id in self.random_farm_behavior.map_ids:
-            self.attacker_behavior.start(
-                callback=self.on_attacker_behavior_finish, parent=self
-            )
+            self.attacker_behavior.start(callback=self.on_attacker_behavior_finish, parent=self)
         else:
             self.run_next_step()
 
     def run_next_step(self):
-        self.random_farm_behavior.start(
-            parent=self, callback=self.on_random_farm_behavior_finished
-        )
+        self.random_farm_behavior.start(parent=self, callback=self.on_random_farm_behavior_finished)
 
     def on_random_farm_behavior_finished(self, error_code: str | None):
-        if (
-            error_code is not None
-            and error_code is not MapChangeError.UNEXPECTED_NEW_MAP
-        ):
+        if error_code is not None and error_code is not MapChangeError.UNEXPECTED_NEW_MAP:
             if error_code is EdgeError.NO_VALID_TRANSITION:
                 return self.run_next_step()
             if error_code is AutoTripErrorCode.PATH_NOT_FOUND:
@@ -70,11 +59,9 @@ class FighterBehavior(BaseFarmBehavior):
             self.raise_if_error(error_code)
         self.on_new_map()
 
-    def on_attacker_behavior_finish(
-        self, error_code: str | None, count_fighted_on_map: int
-    ):
+    def on_attacker_behavior_finish(self, error_code: str | None, count_fighted_on_map: int):
         self.raise_if_error(error_code)
-        if self.game_state.inventory.is_full_pods:
+        if self.game_state.inventory.is_full_pods and self.game_state.inventory.can_use_bank:
             self.on_full_pods()
         else:
             self.run_next_step()

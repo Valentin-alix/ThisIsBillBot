@@ -1,7 +1,7 @@
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
-from typing import Callable
 
 from datas.protos.non_obf.game.npc_pb2 import (
     NpcDialogQuestionEvent,

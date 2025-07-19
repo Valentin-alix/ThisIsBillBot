@@ -2,13 +2,13 @@ import logging
 import traceback
 from functools import cached_property
 
+from base_python.singleton import Singleton
 from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from openai import APIConnectionError, OpenAIError
-from python_utils.singleton import Singleton
 
 from src.const import ENV_PATH
 from src.services.logging_utils.loggers import configure_root_logger

@@ -6,7 +6,7 @@ from ankama_launcher_emulator_premium.interfaces.credentials import (
     StoredApiKey,
 )
 
-from src.controller.bot_config import BotConfigController
+from src.controller.bot_config import BotConfigService
 from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
 )
@@ -103,7 +103,7 @@ class Bot(ContextualLogger):
     watchdog: StuckWatchdog = field(init=False)
 
     def get_bot_config(self):
-        return BotConfigController().get_bot_config(self.account.apikey.login)
+        return BotConfigService().get_bot_config(self.account.apikey.login)
 
     def __str__(self):
         return self.account.apikey.login

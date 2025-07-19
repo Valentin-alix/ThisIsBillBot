@@ -17,7 +17,10 @@ from scapy.packet import Packet, Raw
 from scapy.sendrecv import sniff
 
 from src.core.signals.log_signals import LogSignals
-from src.services.logging_utils.loggers import configure_root_logger, init_root_gui_logging
+from src.services.logging_utils.loggers import (
+    configure_root_logger,
+    init_root_gui_logging,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -37,11 +40,7 @@ from src.protocol.protocol_connection import (
     get_conn_msg,
     get_conn_msg_info,
 )
-from src.protocol.protocol_game import (
-    get_game_msg,
-    get_game_msg_info,
-    get_obf_game_msg_info,
-)
+from src.protocol.protocol_game import get_obf_game_msg_info
 from src.utils.network import get_local_ip
 
 FILTER_DOFUS = "tcp port 5555"
@@ -112,12 +111,6 @@ class Sniffer:
     def handle_game_message(self, content: bytes, from_server: bool) -> None:
         try:
             msg_infos = get_obf_game_msg_info(content, from_server, True)
-            self.msg_info_signals.msg_info.emit(msg_infos, False)
-            return
-            _, clear_sub_msg, obf_sub_msg, uid_value = get_game_msg(content, True)
-            msg_infos = get_game_msg_info(
-                clear_sub_msg, obf_sub_msg, uid_value, from_server, True
-            )
             self.msg_info_signals.msg_info.emit(msg_infos, False)
         except Exception:
             print(traceback.format_exc())

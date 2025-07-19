@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
-from typing import Callable
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
@@ -13,6 +13,9 @@ from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import (
     SaleHotelSellBehavior,
+)
+from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
+    EnterBankChestErrorCode,
 )
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestError,
@@ -65,8 +68,8 @@ class BaseFarmBehavior(Behavior, ABC):
 
     def on_full_pods(self):
         if not self.game_state.inventory.can_use_bank:
-            self.logger.info("No bank access: skipping unload, moving to next map")
-            return self.run_next_step()
+            self.logger.info("No bank access: stopping farming to switch mode")
+            return self.finish(EnterBankChestErrorCode.NOT_ENOUGH_KAMAS)
         self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
 
     def on_unload_finished(self, error_code: str | None) -> None:
@@ -127,6 +130,8 @@ class BaseFarmBehavior(Behavior, ABC):
             return self.on_new_map()
 
         def on_sale_hotel_prices_finished(error_code: str | None) -> None:
+            if error_code is not None:
+                return self.finish(error_code)
             self.on_new_map()
 
         self.sale_hotel_prices_behavior.start(

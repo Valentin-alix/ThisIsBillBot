@@ -1,11 +1,10 @@
 from dataclasses import fields, is_dataclass
 from datetime import datetime
-from typing import TypeAlias, TypedDict, TypeGuard, cast
+from typing import Any, TypedDict, cast
 
 from google.protobuf.json_format import MessageToJson
 from google.protobuf.message import Message
 from pydantic import BaseModel, ConfigDict
-from python_utils.json_types import to_object_dict, to_object_list, to_str_object_dict
 
 
 class AppModel(BaseModel):
@@ -17,34 +16,7 @@ class SerializedProtoMessagePayload(TypedDict):
     content: str
 
 
-SerializedValue: TypeAlias = (
-    str
-    | int
-    | float
-    | bool
-    | None
-    | list["SerializedValue"]
-    | dict[str, "SerializedValue"]
-)
-
-
-def is_serialized_value(value: object) -> TypeGuard[SerializedValue]:
-    if value is None or isinstance(value, (str, int, float, bool)):
-        return True
-    typed_list = to_object_list(value)
-    if typed_list is not None:
-        return all(is_serialized_value(item) for item in typed_list)
-    typed_dict = to_str_object_dict(value)
-    if typed_dict is None:
-        return False
-    return all(is_serialized_value(item) for item in typed_dict.values())
-
-
-def is_serialized_content(value: object) -> TypeGuard[dict[str, SerializedValue]]:
-    typed_dict = to_str_object_dict(value)
-    if typed_dict is None:
-        return False
-    return all(is_serialized_value(item) for item in typed_dict.values())
+SerializedValue = str | int | float | bool | None | list["SerializedValue"] | dict[str, "SerializedValue"]
 
 
 def dataclass_to_dict(obj: object) -> dict[str, SerializedValue]:
@@ -59,7 +31,7 @@ def dataclass_to_dict(obj: object) -> dict[str, SerializedValue]:
     return result
 
 
-def _serialize_value(value: object) -> SerializedValue | None:
+def _serialize_value(value: Any) -> SerializedValue | None:
     if value is None:
         return None
     if isinstance(value, Message):
@@ -76,18 +48,18 @@ def _serialize_value(value: object) -> SerializedValue | None:
         return value.decode("utf-8", errors="ignore")
     if is_dataclass(value):
         return dataclass_to_dict(value)
-    typed_mapping = to_object_dict(value)
-    if typed_mapping is not None:
+    if isinstance(value, dict):
         serialized_dict: dict[str, SerializedValue] = {}
-        for key, item in typed_mapping.items():
+        value = cast(dict[str, Any], value)
+        for key, item in value.items():
             serialized_item = _serialize_value(item)
             if serialized_item is not None:
                 serialized_dict[str(key)] = serialized_item
         return serialized_dict
-    typed_list = to_object_list(value)
-    if typed_list is not None:
+    if isinstance(value, list):
         serialized_list: list[SerializedValue] = []
-        for item in typed_list:
+        value = cast(list[Any], value)
+        for item in value:
             serialized_item = _serialize_value(item)
             if serialized_item is not None:
                 serialized_list.append(serialized_item)

@@ -82,7 +82,7 @@ class GameClient(BaseClient):
 
     def on_close(self) -> None:
         self.bot.cancel_frame_timers()
-        if self.bot.event_manager.request_disconnect_callback is self.close:
+        if self.bot.event_manager.request_disconnect_callback == self.close:
             self.bot.event_manager.request_disconnect_callback = None
         self.bot.hearthbeat_behavior.stop()
         self.bot.game_session_behavior.stop()

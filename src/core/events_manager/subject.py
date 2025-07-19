@@ -1,6 +1,7 @@
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from threading import _RLock as RLock
-from typing import Callable, Generic, ParamSpec
+from typing import Generic, ParamSpec
 
 from src.core.events_manager.observer import Observer
 

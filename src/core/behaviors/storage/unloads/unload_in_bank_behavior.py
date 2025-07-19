@@ -47,7 +47,7 @@ class UnloadInBankBehavior(DialogHandlerBehavior):
     def on_enter_bank_chest_behavior(self, error_code: str | None) -> None:
         if error_code is not None:
             self.logger.error(f"Failed to enter bank: {error_code}")
-            return self.finish()
+            return self.finish(error_code)
 
         self.logger.info("Transferring all items to bank")
         object_to_unloads = self.game_state.inventory.get_unlinked_objects()

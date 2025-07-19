@@ -1,4 +1,5 @@
-from typing import Any, Callable, Union
+from collections.abc import Callable
+from typing import Any
 
 from PyQt6.QtCore import (
     QAbstractAnimation,
@@ -174,7 +175,7 @@ class SidebarPanel(QFrame):
     def addItem(
         self,
         routeKey: str,
-        icon: Union[str, QIcon, FluentIconBase],
+        icon: str | QIcon | FluentIconBase,
         text: str,
         onClick: Callable[[], None] | None = None,
         selectable: bool = True,
@@ -267,7 +268,7 @@ class SidebarPanel(QFrame):
         self,
         index: int,
         routeKey: str,
-        icon: Union[str, QIcon, FluentIconBase],
+        icon: str | QIcon | FluentIconBase,
         text: str,
         onClick: Callable[[], None] | None = None,
         selectable: bool = True,

@@ -1,9 +1,10 @@
 import time
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from threading import _RLock as RLock
-from typing import Any, Callable, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 from google.protobuf.message import Message
 

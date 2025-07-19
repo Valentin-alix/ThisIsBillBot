@@ -2,14 +2,14 @@ from abc import abstractmethod
 
 from PyQt6.QtCore import QObject, Qt, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import (
+    QGroupBox,
+    QHBoxLayout,
     QListView,
     QListWidgetItem,
-    QWidget,
     QVBoxLayout,
-    QHBoxLayout,
-    QGroupBox,
+    QWidget,
 )
-from qfluentwidgets import ListWidget, LineEdit
+from qfluentwidgets import LineEdit, ListWidget
 
 
 class GroupListSignals(QObject):

@@ -1,6 +1,6 @@
 from dofus_unity_reader.data_center.data_reader import DataReader
 
-from src.controller.gfx_mapping import GfxMappingController
+from src.controller.game_data import GameDataController
 
 
 def get_map_ids_to_explore(map_ids: set[int]) -> set[int]:
@@ -13,8 +13,8 @@ def get_map_ids_to_explore(map_ids: set[int]) -> set[int]:
     Returns:
         Set of map IDs worth exploring
     """
-    map_ids_checked = GfxMappingController().get_map_ids_checked()
-    item_job_by_gfx = GfxMappingController().get_item_job_by_gfx()
+    map_ids_checked = GameDataController().get_map_ids_checked()
+    item_job_by_gfx = GameDataController().get_item_job_by_gfx()
 
     map_ids_to_check: set[int] = set()
 

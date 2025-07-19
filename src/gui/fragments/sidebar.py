@@ -1,4 +1,4 @@
-from typing import Callable, Union
+from collections.abc import Callable
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
@@ -54,7 +54,7 @@ class Sidebar(NavigationInterface):
         self,
         index: int,
         routeKey: str,
-        icon: Union[str, QIcon, FluentIconBase],
+        icon: str | QIcon | FluentIconBase,
         text: str,
         onClick: Callable[[], None] | None = None,
         selectable: bool = True,

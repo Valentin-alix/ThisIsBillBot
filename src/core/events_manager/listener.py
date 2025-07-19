@@ -1,7 +1,8 @@
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from threading import Timer
-from typing import Callable, TypeVar
+from typing import TypeVar
 
 from google.protobuf.message import Message
 

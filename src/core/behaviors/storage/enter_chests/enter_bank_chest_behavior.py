@@ -10,6 +10,7 @@ from datas.protos.non_obf.game.exchange_pb2 import (
 )
 from datas.protos.non_obf.game.inventory_pb2 import (
     StorageInventoryContentEvent,
+    StorageKamasUpdateEvent,
 )
 from datas.protos.non_obf.game.npc_pb2 import (
     NpcDialogQuestionEvent,
@@ -35,6 +36,7 @@ from src.protocol.protocol_game import is_usable_msg
 class EnterBankChestErrorCode(StrEnum):
     NOT_ENOUGH_KAMAS = auto()
     NOT_ENOUGH_LVL = auto()
+    KAMAS_MOVE_NOT_CONFIRMED = auto()
 
 
 @dataclass
@@ -103,10 +105,27 @@ class EnterBankChestBehavior(Behavior):
 
         if msg.kamas > 0:
 
+            def on_storage_kamas_update_event(
+                update_event: StorageKamasUpdateEvent,
+            ) -> None:
+                if update_event.kamas != 0:
+                    return self.finish(EnterBankChestErrorCode.KAMAS_MOVE_NOT_CONFIRMED)
+                self.finish()
+
             def move_kama():
                 req = ExchangeMoveKamaRequest(quantity=-msg.kamas)
                 self.event_manager.send(req)
-                self.finish()
+
+            self.event_manager.on(
+                StorageKamasUpdateEvent,
+                on_storage_kamas_update_event,
+                originator=self,
+                once=True,
+                timeout=10,
+                on_timeout=lambda: self.finish(
+                    EnterBankChestErrorCode.KAMAS_MOVE_NOT_CONFIRMED
+                ),
+            )
 
             self.run_timer(BASE_RANGE, move_kama)
         else:

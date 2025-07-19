@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QVBoxLayout, QWidget, QFrame
+from PyQt6.QtWidgets import QFrame, QVBoxLayout, QWidget
 from qfluentwidgets import SubtitleLabel
 
 

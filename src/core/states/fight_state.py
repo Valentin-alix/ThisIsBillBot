@@ -1,5 +1,6 @@
 import dataclasses
 from collections import defaultdict
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import NamedTuple
 
@@ -24,7 +25,7 @@ from src.core.engine.fights.effect import get_effect_elem_by_stat
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
 from src.core.engine.monsters.monster_group import MonsterFighter
 from src.core.signals.player_signals import GameInfoSignals
-from src.core.states.entity_state import EntityState
+from src.core.states.entity_state import EntityState, FightActor
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State
 
@@ -242,7 +243,19 @@ class FightState(State):
             self.game_info_signals.is_our_turn.emit(value)
 
     def get_enemies(self, character_id: int) -> list[ActorPositionInformation]:
-        player_actor = self.entity_state.actor_by_id.get(character_id)
+        return self.get_enemies_from_actor_snapshot(
+            character_id,
+            self.entity_state.actor_by_id,
+            self.entity_state.actor_fight_by_id,
+        )
+
+    def get_enemies_from_actor_snapshot(
+        self,
+        character_id: int,
+        actor_by_id: Mapping[int, ActorPositionInformation],
+        actor_fight_by_id: Mapping[int, FightActor],
+    ) -> list[ActorPositionInformation]:
+        player_actor = actor_by_id.get(character_id)
         if player_actor is None:
             self.logger.warning(
                 f"Player {character_id} not in actors, return empty enemies"
@@ -251,7 +264,7 @@ class FightState(State):
 
         player_team = player_actor.actor_information.fighter.spawn_information.team
         enemies: list[ActorPositionInformation] = []
-        for actor in self.entity_state.actor_by_id.values():
+        for actor in actor_by_id.values():
             if (
                 actor.disposition.cell_id == -1
                 or not actor.actor_information.HasField("fighter")
@@ -259,7 +272,7 @@ class FightState(State):
             ):
                 continue
 
-            actor_fight = self.entity_state.actor_fight_by_id.get(actor.actor_id)
+            actor_fight = actor_fight_by_id.get(actor.actor_id)
             if actor_fight is not None and actor_fight.life_point <= 0:
                 self.logger.debug(
                     "Skipping zero-HP enemy still present in actor state: "
@@ -273,12 +286,19 @@ class FightState(State):
         return enemies
 
     def get_enemies_data(
-        self, enemies: list[ActorPositionInformation]
+        self,
+        enemies: list[ActorPositionInformation],
+        actor_fight_by_id: Mapping[int, FightActor] | None = None,
     ) -> list[EnemyData]:
+        fight_actor_by_id = (
+            self.entity_state.actor_fight_by_id
+            if actor_fight_by_id is None
+            else actor_fight_by_id
+        )
         enemies_data: list[EnemyData] = []
         for enemy in enemies:
             enemy_mp = MapPoint.from_cell_id(enemy.disposition.cell_id)
-            actor_fight = self.entity_state.actor_fight_by_id.get(enemy.actor_id)
+            actor_fight = fight_actor_by_id.get(enemy.actor_id)
             if not actor_fight:
                 self.logger.error(
                     f"Wtf ? {enemy.actor_id} not found in actor fight by id"

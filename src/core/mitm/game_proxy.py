@@ -35,7 +35,7 @@ class GameProxy(Proxy):
     def on_close(self) -> None:
         self.bot.cancel_frame_timers()
         self.bot.event_manager.on_send_game_callback = None
-        if self.bot.event_manager.request_disconnect_callback is self.close:
+        if self.bot.event_manager.request_disconnect_callback == self.close:
             self.bot.event_manager.request_disconnect_callback = None
 
         QMetaObject.invokeMethod(

@@ -1,10 +1,10 @@
 import random
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, time
 from threading import Event
 from time import sleep
-from typing import Callable
 
 import schedule
 
@@ -15,11 +15,11 @@ from ankama_launcher_emulator_premium.gui.utils import run_in_background
 from ankama_launcher_emulator_premium.interfaces.credentials import (
     StoredApiKey,
 )
-
-from src.controller.bot_config import BotConfig
 from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
     ScheduleProfileController,
 )
+
+from src.controller.bot_config import BotConfig
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.execution.process_manager import ProcessManager
 from src.core.events_manager.event_manager import EventManager

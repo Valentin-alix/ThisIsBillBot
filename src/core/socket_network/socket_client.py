@@ -1,7 +1,7 @@
+import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from hashlib import sha256
-import logging
-from typing import Callable
 
 from ankama_launcher_emulator_premium.haapi.haapi import Haapi
 from requests import HTTPError

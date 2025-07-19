@@ -8,7 +8,7 @@ from ankama_launcher_emulator_premium.proxy.dofus3.proxy_listener import (
 )
 
 from src.const import CONNECTION_SERVERS_IPS
-from src.controller.bot_config import BotConfigController
+from src.controller.bot_config import BotConfigService
 from src.core.bot.bot import Bot
 from src.core.mitm.connection_proxy import ConnectionProxy
 from src.core.mitm.game_proxy import GameProxy
@@ -75,9 +75,9 @@ class ProxyListener(BaseProxyListener):
 
     def get_bot_proxy_url(self, bot: Bot) -> str | None:
         login = bot.account.apikey.login
-        configs = BotConfigController().get_bot_config_by_login()
+        configs = BotConfigService().get_bot_config_by_login()
         config = configs.get(login)
         assert config is not None, f"Bot {login} must have a configuration"
         if config.schedule_profile is None:
             return None
-        return BotConfigController().resolve_bot_socks_proxy_url(config)
+        return BotConfigService().resolve_bot_socks_proxy_url(config)

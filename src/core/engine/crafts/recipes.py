@@ -8,7 +8,7 @@ from dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS, JobEnum
 from dofus_unity_reader.game_constants.skill import MAP_IDS_BY_SKILL
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
-from src.controller.sale_hotel import SaleHotelController
+from src.controller.game_data import GameDataController
 from src.core.config import WEIGHT_BY_JOB
 from src.core.engine.items.item import GATHERER_ITEM_GIDS
 from src.core.states.guild_chest_state import GIDS_BY_TAB
@@ -18,7 +18,7 @@ from src.services.logging_utils.loggers import BotLogger
 def get_benefice_on_craft_recipe(
     recipe: RecipeItem, server_id: int = 1
 ) -> tuple[float, float]:
-    avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(server_id)
+    avg_price_by_gid = GameDataController().get_avg_price_by_gid(server_id)
     if recipe.resultId in avg_price_by_gid and all(
         ingredient_id in avg_price_by_gid for ingredient_id in recipe.ingredientIds
     ):

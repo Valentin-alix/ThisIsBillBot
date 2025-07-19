@@ -1,5 +1,6 @@
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Iterable, cast
+from typing import cast
 
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,

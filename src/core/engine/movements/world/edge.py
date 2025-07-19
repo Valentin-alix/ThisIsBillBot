@@ -1,12 +1,12 @@
-from typing import Iterator
+from collections.abc import Iterator
 
+from base_python.cache import cache
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
 from dofus_unity_reader.game_constants.map_id import FORBIDDEN_MAP_IDS
 from dofus_unity_reader.game_constants.transition_type import CRITERION_WHITE_LIST
 from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
 from dofus_unity_reader.models.world_graph import Edge, Transition, Vertice
-from python_utils.cache import cache
 
 from src.core.engine.contexts import WorldTransitionContext
 from src.core.engine.movements.map.map_tools import MapTools

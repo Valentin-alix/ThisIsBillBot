@@ -1,6 +1,6 @@
 from abc import ABC
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
 from datas.protos.non_obf.game.exchange_pb2 import ExchangeLeaveEvent

@@ -1,15 +1,15 @@
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable
 
 from datas.protos.non_obf.game.common_pb2 import (
     CharacterCharacteristic,
     CharacterCharacteristicDetailed,
 )
-from datas.protos.non_obf.game.game_action_pb2 import GameActionFightEvent
 from datas.protos.non_obf.game.fight_pb2 import (
     FightTurnEvent,
     FightTurnFinishRequest,
 )
+from datas.protos.non_obf.game.game_action_pb2 import GameActionFightEvent
 from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 from dofus_unity_reader.grid.map_point import MapPoint
 from dofus_unity_reader.models.datas.spell_levels_root import SpellLevelsRootItem
@@ -20,6 +20,7 @@ from src.core.behaviors.farms.fight.fight_spell_behavior import FightSpellBehavi
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.config import BETWEEN_ACTION_RANGE
 from src.core.engine.fights.attack.attacker import Attacker
+from src.core.engine.contexts import AttackContext
 from src.core.engine.fights.attack.buff import find_best_self_buff
 from src.core.engine.fights.attack.heal import find_best_self_heal
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
@@ -36,19 +37,20 @@ class FightTurnBehavior(Behavior):
     attacker: Attacker
 
     did_attack: bool = field(init=False, default=False)
+    did_cast_support_spell: bool = field(init=False, default=False)
 
     def run(self) -> None:
         self.did_attack = False
+        self.did_cast_support_spell = False
         self.event_manager.on(FightTurnEvent, lambda _: self.finish(), originator=self)
         self.event_manager.on(
             GameActionFightEvent,
             self.on_game_action_fight_event,
             originator=self,
         )
-        if not self._can_play_turn():
-            return self.finish(MapMoveError.PLAYER_DEAD)
-
-        context = self.game_state.get_attack_context()
+        context = self._get_attack_context_or_finish()
+        if context is None:
+            return
         self.logger.info(
             f"Turn {context.fight_turn}: HP {context.life_point}/{context.max_life_point}, "
             f"AP {context.action_points}, MP {context.movement_points}, "
@@ -56,12 +58,15 @@ class FightTurnBehavior(Behavior):
         )
         self.try_self_buff_or_continue()
 
-    def _can_play_turn(self) -> bool:
-        return (
-            self.game_state.fight.life_point > 0
-            and self.game_state.player.character_id
-            in self.game_state.entity.actor_by_id
-        )
+    def _get_attack_context_or_finish(self) -> AttackContext | None:
+        context = self.game_state.get_attack_context_if_available()
+        if context is not None:
+            return context
+        if self.game_state.fight.life_point <= 0:
+            self.finish(MapMoveError.PLAYER_DEAD)
+        else:
+            self.finish()
+        return None
 
     def on_game_action_fight_event(self, msg: GameActionFightEvent) -> None:
         if msg.HasField("death") and (
@@ -79,6 +84,7 @@ class FightTurnBehavior(Behavior):
 
         def on_finished(error_code: str | None) -> None:
             self.raise_if_error(error_code)
+            self.did_cast_support_spell = True
             on_done()
 
         self.run_timer(
@@ -97,7 +103,9 @@ class FightTurnBehavior(Behavior):
         Buffs boost the damage of every subsequent cast this turn. Re-entered after
         each buff; terminates once all buffs are used or AP/cast limits are reached.
         """
-        context = self.game_state.get_attack_context()
+        context = self._get_attack_context_or_finish()
+        if context is None:
+            return
         buff_spell = find_best_self_buff(context, self.logger)
         if buff_spell is None:
             return self.try_self_heal_or_attack()
@@ -111,7 +119,9 @@ class FightTurnBehavior(Behavior):
         Re-entered after each heal so the caster can top up to the threshold; this
         terminates safely once HP is high enough or AP/cast limits are exhausted.
         """
-        context = self.game_state.get_attack_context()
+        context = self._get_attack_context_or_finish()
+        if context is None:
+            return
         heal_spell = find_best_self_heal(context, self.logger)
         if heal_spell is None:
             return self.find_and_do_attack()
@@ -120,7 +130,9 @@ class FightTurnBehavior(Behavior):
         )
 
     def find_and_do_attack(self) -> None:
-        context = self.game_state.get_attack_context()
+        context = self._get_attack_context_or_finish()
+        if context is None:
+            return
         if not context.enemy_actors:
             self.logger.info("No enemies left, passing turn")
             return self.pass_turn()
@@ -166,8 +178,7 @@ class FightTurnBehavior(Behavior):
             if current_mp != move_mp:
                 if current_mp != position_before_move:
                     self.logger.info(
-                        f"Did not reach planned cast cell {move_mp} "
-                        f"(now at {current_mp}), re-planning attack"
+                        f"Did not reach planned cast cell {move_mp} (now at {current_mp}), re-planning attack"
                     )
                     return self.find_and_do_attack()
                 self.logger.info(
@@ -231,5 +242,22 @@ class FightTurnBehavior(Behavior):
         self.find_and_do_attack()
 
     def pass_turn(self) -> None:
+        context = self.game_state.get_attack_context_if_available()
+        if context is not None:
+            message = (
+                f"Passing turn: attacked={self.did_attack}, "
+                f"support_cast={self.did_cast_support_spell}, "
+                f"AP={context.action_points}, MP={context.movement_points}, "
+                f"enemies={len(context.enemy_actors)}"
+            )
+            if (
+                not self.did_attack
+                and not self.did_cast_support_spell
+                and context.action_points > 0
+                and context.enemy_actors
+            ):
+                self.logger.warning(message)
+            else:
+                self.logger.info(message)
         req = FightTurnFinishRequest()
         self.event_manager.send(req)

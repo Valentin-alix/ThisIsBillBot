@@ -258,6 +258,6 @@ class Attacker(ContextualLogger):
             rejection_parts.append(f"Cast rejections ({cast_stats})")
 
         if rejection_parts:
-            self.logger.warning(f"No attack found - {'; '.join(rejection_parts)}")
+            self.logger.debug(f"No attack found - {'; '.join(rejection_parts)}")
         else:
-            self.logger.warning("No attack found - no targets evaluated")
+            self.logger.debug("No attack found - no targets evaluated")

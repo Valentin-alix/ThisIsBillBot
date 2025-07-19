@@ -321,6 +321,14 @@ class EntityFrame(Frame):
         self.game_state.entity.set_actor(msg.information)
 
     def on_map_teleport_on_same_event(self, msg: MapTeleportOnSameEvent):
+        if (
+            msg.player_id not in self.game_state.entity.actor_by_id
+            and self.game_state.map.is_in_map_transition
+        ):
+            self.logger.debug(
+                f"Ignoring teleport for actor {msg.player_id} during map transition"
+            )
+            return
         old_direction = self.game_state.entity.actor_by_id[
             msg.player_id
         ].disposition.direction

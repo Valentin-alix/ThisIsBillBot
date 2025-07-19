@@ -1,8 +1,10 @@
 import random
+from collections.abc import Callable
 from threading import RLock
-from typing import Callable
 
 import numpy as np
+from base_python.cache import cache
+from base_python.singleton import Singleton
 from datas.protos.non_obf.game.challenge_pb2 import (
     ChallengeModSelectRequest,
 )
@@ -35,8 +37,6 @@ from datas.protos.non_obf.game.inventory_pb2 import (
 from datas.protos.non_obf.game.roleplay_pb2 import (
     AttackMonsterRequest,
 )
-from python_utils.cache import cache
-from python_utils.singleton import Singleton
 from scipy.interpolate import interp1d
 
 from src.controller.session_timings import SessionTimingsController

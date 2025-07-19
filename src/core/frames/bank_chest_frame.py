@@ -1,4 +1,5 @@
-from typing import Iterable, override
+from collections.abc import Iterable
+from typing import override
 
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,

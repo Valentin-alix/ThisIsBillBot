@@ -208,7 +208,7 @@ class TestFindBestSelfHeal:
 
     def test_skips_negligible_heal(self, monkeypatch: pytest.MonkeyPatch) -> None:
         # heals 10 on a 1000 max-HP target -> below MIN_HEAL_FRACTION (5% = 50)
-        assert 10 < 1000 * MIN_HEAL_FRACTION
+        assert 1000 * MIN_HEAL_FRACTION > 10
         self._patch_spells(
             monkeypatch,
             [(_spell(1), _effect(dice_num=10, dice_side=10), _modifiers(1))],

@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable
 
 from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
@@ -10,7 +10,7 @@ from datas.protos.non_obf.game.inventory_pb2 import (
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
 
-from src.controller.gfx_mapping import GfxMappingController
+from src.controller.game_data import GameDataController
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmBehavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.interactives.collect_behavior import (
@@ -121,7 +121,7 @@ class HarvesterBehavior(BaseFarmBehavior):
                 f"New map explored: map_id={self.game_state.map.map_id} ({remaining} unexplored remaining)"
             )
             self.map_ids_to_explore.remove(self.game_state.map.map_id)
-            GfxMappingController().add_map_id_checked(self.game_state.map.map_id)
+            GameDataController().add_map_id_checked(self.game_state.map.map_id)
             self.random_farm_behavior.additional_weight_by_map_id.pop(
                 self.game_state.map.map_id, None
             )

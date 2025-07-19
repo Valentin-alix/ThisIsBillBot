@@ -3,10 +3,10 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
+from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import (
@@ -131,6 +131,7 @@ class CollectBehavior(Behavior):
     def _do_look_around(
         self, move_path: MovementPath, collectable: Collectable
     ) -> None:
+        starting_map_id = self.game_state.map.map_id
         adjacent_cell = self._get_random_walkable_cell_nearby()
         if adjacent_cell is None:
             return self.run_timer(
@@ -150,10 +151,21 @@ class CollectBehavior(Behavior):
                 lambda: self.collect(move_path, collectable),
             )
 
-        def on_look_around_finished(_error_code: str | None) -> None:
+        def on_look_around_finished(error_code: str | None) -> None:
+            if error_code not in {
+                None,
+                MapMoveError.CANCELED_MOVEMENT,
+                MapMoveError.INVALID_STARTING_POINT,
+                MapMoveError.REFUSED,
+            }:
+                self.raise_if_error(error_code)
             self.run_timer(
                 random.uniform(*LOOK_AROUND_PAUSE_RANGE),
-                lambda: self._collect_after_look_around(collectable),
+                lambda: self._collect_after_look_around(
+                    collectable,
+                    starting_map_id,
+                    movement_failed=error_code is not None,
+                ),
             )
 
         self.interactive_behavior.map_move_behavior.start(
@@ -162,7 +174,20 @@ class CollectBehavior(Behavior):
             move_path=look_path,
         )
 
-    def _collect_after_look_around(self, collectable: Collectable) -> None:
+    def _collect_after_look_around(
+        self,
+        collectable: Collectable,
+        starting_map_id: int,
+        movement_failed: bool,
+    ) -> None:
+        if (
+            self.game_state.map.is_in_map_transition
+            or self.game_state.map.map_id != starting_map_id
+        ):
+            return self.finish(MapChangeError.UNEXPECTED_NEW_MAP)
+        if movement_failed:
+            return self.collect_map()
+
         collectable_info = self.get_near_collectable([collectable])
         if collectable_info is None:
             return self.collect_map()

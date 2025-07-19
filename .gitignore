@@ -1,4 +1,3 @@
-**/logs/*.jsonl
 .venv
 node_modules
 package-lock.json
@@ -17,9 +16,7 @@ avg_price_by_gid.json
 *.csv
 *.parquet
 *.prof
-resources/paysafecards.txt
 humanization.log
-debug_dumps
 
 
 bid_seller_item_by_uid_by_player_id.json

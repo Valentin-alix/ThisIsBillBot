@@ -13,11 +13,12 @@ that never comes and therefore never transitions.
 
 import threading
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from threading import Event
-from typing import Callable
 
 from src.core.behaviors.behavior import Behavior, BehaviorState
+from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.idle_behavior import IdleBehavior
 from src.core.events_manager.event_manager import EventManager
 from src.core.states.game_state import GameState
@@ -62,7 +63,7 @@ class StuckWatchdog(ContextualLogger):
 
         last_activity = self.event_manager.last_activity_monotonic
         idle_s = time.monotonic() - last_activity
-        if self._is_waiting_on_active_non_player_turn():
+        if self._is_waiting_on_expected_fight_activity(running):
             return
         if idle_s < self.threshold_s:
             return
@@ -85,13 +86,33 @@ class StuckWatchdog(ContextualLogger):
             and behavior.state is BehaviorState.RUNNING
         )
 
-    def _is_waiting_on_active_non_player_turn(self) -> bool:
-        if not self.game_state.fight.in_fight or self.game_state.fight.is_our_turn:
-            return False
+    def _is_waiting_on_expected_fight_activity(
+        self, running_behaviors: list[Behavior]
+    ) -> bool:
         message_idle_s = time.monotonic() - (
             self.event_manager.last_message_activity_monotonic
         )
-        return message_idle_s < self.threshold_s
+        if self.game_state.fight.in_fight and not self.game_state.fight.is_our_turn:
+            return message_idle_s < self.threshold_s
+
+        is_finishing_fight = bool(self.game_state.map.is_in_map_transition) and any(
+            self._contains_running_fight_behavior(behavior)
+            for behavior in running_behaviors
+        )
+        transition_grace_s = self.tick_s * 2
+        return is_finishing_fight and message_idle_s < transition_grace_s
+
+    def _contains_running_fight_behavior(self, behavior: Behavior) -> bool:
+        if (
+            isinstance(behavior, FightBehavior)
+            and behavior.state is BehaviorState.RUNNING
+        ):
+            return True
+        return any(
+            self._contains_running_fight_behavior(child)
+            for child in list(behavior.children)
+            if child.state is BehaviorState.RUNNING
+        )
 
     def _report(self, behavior: Behavior, idle_s: float) -> None:
         reason = (

@@ -1,7 +1,7 @@
 import random
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from functools import partial
-from typing import Callable
 
 from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
@@ -10,7 +10,7 @@ from datas.protos.non_obf.game.roleplay_pb2 import (
     AttackMonsterRequest,
 )
 
-from src.controller.forbidden_monster_controller import ForbiddenMonsterController
+from src.controller.game_data import GameDataController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
@@ -77,6 +77,7 @@ class AttackerBehavior(Behavior):
             if error_code in [
                 MapMoveError.INVALID_STARTING_POINT,
                 MapMoveError.CANCELED_MOVEMENT,
+                MapMoveError.REFUSED,
             ]:
                 return self.attack_enemy()
             self.raise_if_error(error_code)
@@ -162,9 +163,8 @@ class AttackerBehavior(Behavior):
             if self._force_attack:
                 self.logger.warning("Forcing attack, even to forbidden group")
 
-            if (
-                not self._force_attack
-                and not ForbiddenMonsterController().is_group_allowed(monster_group)
+            if not self._force_attack and not GameDataController().is_group_allowed(
+                monster_group
             ):
                 self.logger.info(
                     f"Skipping forbidden monster group (actor_id={actor_id})"

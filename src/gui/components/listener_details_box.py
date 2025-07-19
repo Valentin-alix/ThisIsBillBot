@@ -1,6 +1,6 @@
-from functools import partial
 import inspect
-from typing import Callable
+from collections.abc import Callable
+from functools import partial
 
 from google.protobuf.message import Message
 from PyQt6.QtWidgets import QTextEdit, QWidget

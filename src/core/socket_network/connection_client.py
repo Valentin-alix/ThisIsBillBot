@@ -1,6 +1,6 @@
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 from google.protobuf.message import Message
 

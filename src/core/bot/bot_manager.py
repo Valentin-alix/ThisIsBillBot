@@ -23,7 +23,7 @@ from ankama_launcher_emulator_premium.server.server import (
     AnkamaLauncherServer,
 )
 
-from src.controller.bot_config import BotConfig, BotConfigController
+from src.controller.bot_config import BotConfig, BotConfigService
 from src.core.bot.bot import Bot
 from src.core.bot.bot_factory import BotFactory
 from src.core.bot.lifecycle.account_scheduler import AccountScheduler
@@ -107,7 +107,7 @@ class BotManager:
     def _get_socks_proxy_url(self, bot_config: BotConfig) -> str | None:
         if bot_config.schedule_profile is None:
             return None
-        return BotConfigController().resolve_bot_socks_proxy_url(bot_config)
+        return BotConfigService().resolve_bot_socks_proxy_url(bot_config)
 
     def _wait_for_mitm_connection_result(self, bot: Bot) -> bool:
         deadline = monotonic() + MITM_CONNECTION_WAIT_TIMEOUT_SECONDS
@@ -151,7 +151,7 @@ class BotManager:
         self._is_lauching_by_login[login].set()
 
         try:
-            bot_config = BotConfigController().get_bot_config(
+            bot_config = BotConfigService().get_bot_config(
                 related_bot.account.apikey.login
             )
 
@@ -228,7 +228,7 @@ class BotManager:
 
     def on_banned_callback(self, login: str):
         CryptoHelper.remove_bot(login)
-        BotConfigController().remove_bot_config(login)
+        BotConfigService().remove_bot_config(login)
         remove_generated_account(login)
         self.on_synchronize_bots()
 

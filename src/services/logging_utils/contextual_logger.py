@@ -1,8 +1,9 @@
 from abc import ABC
+from collections.abc import MutableMapping
 from dataclasses import dataclass
 from functools import cached_property
 from logging import LoggerAdapter
-from typing import Any, MutableMapping, cast
+from typing import Any, cast
 
 from src.services.logging_utils.loggers import BotLogger
 

@@ -18,8 +18,8 @@ from google.protobuf.descriptor import Descriptor, FieldDescriptor
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
+from proto_mapper_assembly.interfaces.game_mappings import SimpleGameMappingsDocument
 from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-from python_utils.json_types import to_str_object_dict
 
 from src.protocol.message import MessageInfo
 
@@ -34,9 +34,7 @@ def _on_exit(*_: object) -> None:
 _default_excepthook = sys.excepthook
 
 
-def _on_except_hook(
-    exc_type: type[BaseException], value: BaseException, tb: TracebackType | None
-) -> None:
+def _on_except_hook(exc_type: type[BaseException], value: BaseException, tb: TracebackType | None) -> None:
     _on_exit()
     _default_excepthook(exc_type, value, tb)
 
@@ -50,79 +48,41 @@ POOL: descriptor_pool.DescriptorPool = descriptor_pool.Default()
 
 FieldMappingToReal = Mapping[str, str | None]
 FieldMappingToObf = Mapping[str, str]
-RawGameMappings = dict[str, object]
 ProtoToRealMapping = Mapping[str, tuple[str, FieldMappingToReal]]
 ProtoToObfMapping = Mapping[str, tuple[str, FieldMappingToObf]]
 MessageTransformer = Callable[[Message], Message]
 
-_cached_game_mappings: RawGameMappings | None = None
+_cached_game_mappings: SimpleGameMappingsDocument | None = None
 _cached_game_mappings_mtime_ns: int | None = None
-
-
-def _get_mapping_info(mapping_value: Any) -> dict[str, object]:
-    typed_mapping = to_str_object_dict(mapping_value)
-    if typed_mapping is None:
-        raise TypeError("Invalid mapping info")
-    return typed_mapping
-
-
-def _get_mapping_namespace(mapping_info: dict[str, object]) -> str:
-    namespace = mapping_info["obf_msg_namespace"]
-    if not isinstance(namespace, str):
-        raise TypeError("Invalid obfuscated namespace")
-    return namespace
-
-
-def _get_field_mapping_to_real(
-    mapping_info: dict[str, object],
-) -> dict[str, str | None]:
-    raw_field_mapping = mapping_info["field_mapping"]
-    typed_raw_field_mapping = to_str_object_dict(raw_field_mapping)
-    if typed_raw_field_mapping is None:
-        raise TypeError("Invalid field mapping")
-
-    field_mapping: dict[str, str | None] = {}
-    for raw_key_obj, raw_value_obj in typed_raw_field_mapping.items():
-        if raw_value_obj is not None and not isinstance(raw_value_obj, str):
-            raise TypeError("Invalid field mapping value")
-        field_mapping[raw_key_obj] = raw_value_obj
-    return field_mapping
 
 
 def _is_repeated_field(field_descriptor: FieldDescriptor) -> bool:
     return getattr(field_descriptor, "label") == FieldDescriptor.LABEL_REPEATED
 
 
-def _load_game_mappings() -> RawGameMappings:
+def _load_game_mappings() -> SimpleGameMappingsDocument:
     global _cached_game_mappings, _cached_game_mappings_mtime_ns
 
     current_mtime_ns = _GAME_MAPPINGS_PATH.stat().st_mtime_ns
-    if (
-        _cached_game_mappings is not None
-        and _cached_game_mappings_mtime_ns == current_mtime_ns
-    ):
+    if _cached_game_mappings is not None and _cached_game_mappings_mtime_ns == current_mtime_ns:
         return _cached_game_mappings
 
-    with open(_GAME_MAPPINGS_PATH) as f:
-        raw_mappings: object = json.load(f)
-    typed_mappings = to_str_object_dict(raw_mappings)
-    if typed_mappings is None:
-        raise TypeError("Invalid game mappings payload")
+    with open(_GAME_MAPPINGS_PATH) as file:
+        game_mappings = SimpleGameMappingsDocument.model_validate(json.load(file))
 
-    _cached_game_mappings = typed_mappings
+    _cached_game_mappings = game_mappings
     _cached_game_mappings_mtime_ns = current_mtime_ns
-    return typed_mappings
+    return game_mappings
 
 
 @cache
 def get_mapping_proto_to_real() -> ProtoToRealMapping:
     return {
-        _get_mapping_namespace(info): (
+        mapping_info.obf_msg_namespace: (
             clear_namespace[1:],
-            _get_field_mapping_to_real(info),
+            mapping_info.field_mapping,
         )
-        for clear_namespace, raw_info in _load_game_mappings().items()
-        for info in [_get_mapping_info(raw_info)]
+        for clear_namespace, mapping_info in _load_game_mappings().root.items()
     }
 
 
@@ -130,15 +90,10 @@ def get_mapping_proto_to_real() -> ProtoToRealMapping:
 def get_mapping_proto_to_obf() -> ProtoToObfMapping:
     return {
         clear_namespace[1:]: (
-            _get_mapping_namespace(info),
-            {
-                clear_field: obf_field
-                for obf_field, clear_field in _get_field_mapping_to_real(info).items()
-                if clear_field is not None
-            },
+            mapping_info.obf_msg_namespace,
+            {clear_field: obf_field for obf_field, clear_field in mapping_info.field_mapping.items()},
         )
-        for clear_namespace, raw_info in _load_game_mappings().items()
-        for info in [_get_mapping_info(raw_info)]
+        for clear_namespace, mapping_info in _load_game_mappings().root.items()
     }
 
 
@@ -146,9 +101,7 @@ def is_usable_msg(msg_name: str) -> bool:
     return msg_name in get_mapping_proto_to_obf()
 
 
-def get_obf_game_msg_info(
-    content: bytes, from_server: bool, do_dump_values: bool
-) -> MessageInfo:
+def get_obf_game_msg_info(content: bytes, from_server: bool, do_dump_values: bool) -> MessageInfo:
     SHOW_URL = True
 
     received_msg_time = datetime.datetime.now()
@@ -202,12 +155,8 @@ def get_obf_game_msg_info(
     )
 
 
-def get_game_msg(
-    content: bytes, do_dump_values: bool
-) -> tuple[str, Message | None, Message, int]:
-    obf_game_type_url, obf_game_field_mapping = get_mapping_proto_to_obf()[
-        GameMessage.DESCRIPTOR.full_name
-    ]
+def get_game_msg(content: bytes, do_dump_values: bool) -> tuple[str, Message | None, Message, int]:
+    obf_game_type_url, obf_game_field_mapping = get_mapping_proto_to_obf()[GameMessage.DESCRIPTOR.full_name]
     uid_value = -1
     msg_descriptor: Descriptor = POOL.FindMessageTypeByName(obf_game_type_url)
     msg_type = GetMessageClass(msg_descriptor)
@@ -218,11 +167,7 @@ def get_game_msg(
     if do_dump_values:
         RuntimeDataStore().add_msg(msg, from_server=None, is_game_msg=True)
 
-    msg_one_of = next(
-        obf_field
-        for obf_field in obf_game_field_mapping.values()
-        if msg.HasField(obf_field)
-    )
+    msg_one_of = next(obf_field for obf_field in obf_game_field_mapping.values() if msg.HasField(obf_field))
     root_msg: Message = getattr(msg, msg_one_of)
     root_msg_any_field: protoAny | None = None
 
@@ -263,9 +208,7 @@ def get_game_msg_info(
     received_msg_time = datetime.datetime.now()
 
     if do_dump_values:
-        RuntimeDataStore().add_msg(
-            msg=obf_sub_msg, from_server=from_server, is_game_msg=False
-        )
+        RuntimeDataStore().add_msg(msg=obf_sub_msg, from_server=from_server, is_game_msg=False)
 
     if clear_sub_msg is not None:
         msg_json = MessageToDict(
@@ -303,30 +246,19 @@ def get_obf_game_message_from_msg(
         return print(f"No mapping found for {clear_sub_msg.DESCRIPTOR.full_name}")
 
     obf_any_msg.Pack(obf_msg, type_url_prefix=TYPE_URL_PREFIX)
-    obf_any_msg.type_url = (
-        TYPE_URL_PREFIX
-        + get_mapping_proto_to_obf()[clear_sub_msg.DESCRIPTOR.full_name][0]
-    )
+    obf_any_msg.type_url = TYPE_URL_PREFIX + get_mapping_proto_to_obf()[clear_sub_msg.DESCRIPTOR.full_name][0]
 
-    obf_sub_type_url, obf_sub_field_mapping = get_mapping_proto_to_obf()[
-        root_msg_namespace
-    ]
+    obf_sub_type_url, obf_sub_field_mapping = get_mapping_proto_to_obf()[root_msg_namespace]
     obf_sub_msg_type = GetMessageClass(POOL.FindMessageTypeByName(obf_sub_type_url))
-    sub_msg_values: dict[str, Message | int] = {
-        obf_sub_field_mapping["content"]: obf_any_msg
-    }
+    sub_msg_values: dict[str, Message | int] = {obf_sub_field_mapping["content"]: obf_any_msg}
     if "uid" in obf_sub_field_mapping:
         sub_msg_values[obf_sub_field_mapping["uid"]] = uid or -1
     obf_sub_msg = obf_sub_msg_type(**sub_msg_values)
 
-    obf_game_type_url, obf_game_field_mapping = get_mapping_proto_to_obf()[
-        GameMessage.DESCRIPTOR.full_name
-    ]
+    obf_game_type_url, obf_game_field_mapping = get_mapping_proto_to_obf()[GameMessage.DESCRIPTOR.full_name]
     game_content_field_name = root_msg_namespace.split(".")[-1].lower()
     obf_game_msg_type = GetMessageClass(POOL.FindMessageTypeByName(obf_game_type_url))
-    obf_game_msg = obf_game_msg_type(
-        **{obf_game_field_mapping[game_content_field_name]: obf_sub_msg}
-    )
+    obf_game_msg = obf_game_msg_type(**{obf_game_field_mapping[game_content_field_name]: obf_sub_msg})
 
     return obf_game_msg, obf_sub_msg
 
@@ -399,15 +331,11 @@ def set_field_from_mapping_field(
 ) -> None:
     if _is_repeated_field(msg_field):
         output_field_value = getattr(output_msg, output_msg_field_name)
-        is_map_field = (
-            msg_field.message_type and msg_field.message_type.GetOptions().map_entry
-        )
+        is_map_field = msg_field.message_type and msg_field.message_type.GetOptions().map_entry
         if msg_field.type == FieldDescriptor.TYPE_MESSAGE:
             for sub_msg_value in msg_field_value:
                 sub_msg_value: Message
-                sub_transformer = get_msg_transformer(
-                    sub_msg_value.DESCRIPTOR.full_name, msg_mappings
-                )
+                sub_transformer = get_msg_transformer(sub_msg_value.DESCRIPTOR.full_name, msg_mappings)
                 if not sub_transformer:
                     continue
                 sub_output_msg = sub_transformer(
@@ -430,9 +358,7 @@ def set_field_from_mapping_field(
             return
         output_field_value = getattr(output_msg, output_msg_field_name)
 
-        sub_transformer = get_msg_transformer(
-            msg_field_value.DESCRIPTOR.full_name, msg_mappings
-        )
+        sub_transformer = get_msg_transformer(msg_field_value.DESCRIPTOR.full_name, msg_mappings)
         if sub_transformer is not None:
             try:
                 output_field_value.CopyFrom(sub_transformer(msg_field_value))

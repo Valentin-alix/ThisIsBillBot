@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Callable
+from collections.abc import Callable
 
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.models.datas.spell_levels_root import (

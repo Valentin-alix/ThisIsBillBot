@@ -1,7 +1,8 @@
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from threading import RLock, Timer
-from typing import Callable, ParamSpec, Protocol, overload
+from typing import ParamSpec, Protocol, overload
 
 from google.protobuf.message import Message
 

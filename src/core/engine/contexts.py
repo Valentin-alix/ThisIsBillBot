@@ -77,7 +77,7 @@ class AttackContext:
     player_level: int
     actor_by_id: Mapping[int, ActorPositionInformation]
     enemy_actors: list[ActorPositionInformation]
-    enemies_data: list["EnemyData"]
+    enemies_data: list[EnemyData]
     spells: list[SpellItem]
     primary_and_second_elem: tuple[EffectElement, EffectElement]
     primary_elem: EffectElement

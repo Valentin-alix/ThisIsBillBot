@@ -25,7 +25,7 @@ from dofus_unity_reader.game_constants.npc import (
     NpcInfo,
 )
 
-from src.controller.sale_hotel import SaleHotelController
+from src.controller.game_data import GameDataController
 from src.core.config import get_time_beween_sale_hotel_prices
 from src.core.engine.items.item import GATHERER_ITEM_GIDS
 from src.core.frames.frame import Frame
@@ -108,7 +108,7 @@ class SaleHotelFrame(Frame):
         )
         self.game_state.sale_hotel.last_time_updated_prices = datetime.datetime.now()
         self.game_state.sale_hotel.bid_seller_condition = msg.selling_conditions
-        SaleHotelController().update_hdv(
+        GameDataController().update_hdv(
             self.game_state.player.server_id,
             self.game_state.player.character_id,
             {
@@ -120,7 +120,7 @@ class SaleHotelFrame(Frame):
     def on_exchange_bid_house_item_added_event(
         self, msg: ExchangeBidHouseItemAddedEvent
     ):
-        SaleHotelController().add_gid_quantity_by_uid_by_player_id(
+        GameDataController().add_gid_quantity_by_uid_by_player_id(
             self.game_state.player.server_id,
             self.game_state.player.character_id,
             msg.item.gid,
@@ -132,7 +132,7 @@ class SaleHotelFrame(Frame):
     def on_exchange_bid_house_item_removed_event(
         self, msg: ExchangeBidHouseItemRemovedEvent
     ):
-        SaleHotelController().remove_uid_for_player_id(
+        GameDataController().remove_uid_for_player_id(
             self.game_state.player.server_id,
             self.game_state.player.character_id,
             msg.sell_id,
@@ -151,7 +151,7 @@ class SaleHotelFrame(Frame):
             self.game_state.sale_hotel.current_search_item_gid = None
 
     def on_object_average_prices_event(self, msg: ObjectAveragePricesEvent):
-        SaleHotelController().add_multiple_avg_price_by_gid(
+        GameDataController().add_multiple_avg_price_by_gid(
             self.game_state.player.server_id,
             [
                 (
@@ -163,7 +163,7 @@ class SaleHotelFrame(Frame):
         )
 
     def on_exchange_bid_price_event(self, msg: ExchangeBidPriceEvent):
-        SaleHotelController().add_multiple_avg_price_by_gid(
+        GameDataController().add_multiple_avg_price_by_gid(
             self.game_state.player.server_id,
             [(msg.average_price, msg.object_gid)],
         )

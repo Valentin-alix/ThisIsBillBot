@@ -10,6 +10,7 @@ from src.core.behaviors.farms.base_farm_behavior import BaseFarmingErrorCode
 from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.farms.multi_farming_behavior import MultiFarmingBehavior
+from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import SaleHotelErrorCode
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestErrorCode,
 )
@@ -127,7 +128,10 @@ class AutoBotBehavior(Behavior):
     def on_multi_farming_behavior_finished(self, error_code: str | None) -> None:
         if error_code is BaseFarmingErrorCode.STOP_CONDITION_TRIGGERED:
             return self.run_timer(BASE_RANGE, self.play_multi_farming)
-        if error_code is EnterBankChestErrorCode.NOT_ENOUGH_KAMAS:
+        if error_code in {
+            EnterBankChestErrorCode.NOT_ENOUGH_KAMAS,
+            SaleHotelErrorCode.NOT_ENOUGH_KAMAS,
+        }:
             self.logger.info("Not enough kamas for bank: switching to fighter")
             return self.run_timer(BASE_RANGE, self.play_fighter)
         self.finish(error_code)

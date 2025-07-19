@@ -6,11 +6,11 @@ from PyQt6.QtGui import QStandardItem
 from PyQt6.QtWidgets import QHeaderView, QWidget
 from qfluentwidgets import TableWidget
 
-from src.protocol.message import MessageInfo
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
 from src.gui.consts import GREEN_COLOR
 from src.gui.pages.debugs.message_filter_proxy import MessageFilterProxyModel
+from src.protocol.message import MessageInfo
 
 MessageTreeValue: TypeAlias = (
     str

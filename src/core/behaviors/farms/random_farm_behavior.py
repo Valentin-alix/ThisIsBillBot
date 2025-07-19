@@ -1,9 +1,9 @@
 import random
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
 from threading import RLock
-from typing import Callable
 
 from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
@@ -111,7 +111,7 @@ class RandomFarmBehavior(Behavior):
         return self.edge_path is None or len(self.edge_path) == 0
 
     def _recalculate_edge_path(self) -> None:
-        self.logger.info("Empty edge path, recalculating")
+        self.logger.debug("Planning next farm route")
         with PATH_LOCK:
             self.edge_path = None
             self.edge_path = self.get_next_weighted_path()

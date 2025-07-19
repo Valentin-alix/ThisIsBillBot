@@ -3,7 +3,7 @@ from dofus_unity_reader.data_center.i18n import I18N
 from dofus_unity_reader.game_constants.item import CUSTOM_GATHERER_BY_SAC
 from dofus_unity_reader.models.datas.monsters_root import MonsterDrop
 
-from src.controller.sale_hotel import SaleHotelController
+from src.controller.game_data import GameDataController
 from src.core.engine.items.item import GATHERED_ITEM_ID_BY_NAME
 
 
@@ -11,7 +11,7 @@ def get_rare_gid_with_weight_from_protector_drop(
     drops: list[MonsterDrop],
     server_id: int = 1,
 ) -> tuple[int | None, float]:
-    avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(server_id)
+    avg_price_by_gid = GameDataController().get_avg_price_by_gid(server_id)
 
     res_object_id: int | None = None
     weight: float = 0

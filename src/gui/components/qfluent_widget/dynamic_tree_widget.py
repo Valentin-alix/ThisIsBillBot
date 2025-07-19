@@ -1,4 +1,5 @@
-from typing import Callable, TypeAlias, cast
+from collections.abc import Callable
+from typing import TypeAlias, cast
 
 from PyQt6.QtCore import QPoint, Qt
 from PyQt6.QtGui import QKeyEvent, QKeySequence

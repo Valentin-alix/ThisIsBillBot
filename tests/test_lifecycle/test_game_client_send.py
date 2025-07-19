@@ -3,7 +3,10 @@ from typing import cast
 from unittest.mock import MagicMock
 
 import pytest
-from datas.protos.non_obf.connection.login_message_pb2 import IdentificationResponse
+from datas.protos.non_obf.connection.login_message_pb2 import (
+    IdentificationResponse,
+    SelectServerResponse,
+)
 from datas.protos.non_obf.game.connection_pb2 import (
     AuthenticationTicketAcceptedEvent,
 )
@@ -15,9 +18,9 @@ from datas.protos.non_obf.game.spell_pb2 import SpellsEvent
 from google.protobuf.message import Message
 from requests import HTTPError
 
-from src.core.bot.bot import Bot
 from src.core.behaviors.socket import connection_behavior as connection_behavior_module
 from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
+from src.core.bot.bot import Bot
 from src.core.socket_network import base_client as base_client_module
 from src.core.socket_network import game_client as game_client_module
 from src.core.socket_network import socket_client as socket_client_module
@@ -115,9 +118,13 @@ class TestGameClientSendRoutesToProcessMsg:
 
         runtime_bot.handshake_behavior.run("game-ticket")
 
-        event_manager_on.assert_called_once()
-        listener_args = event_manager_on.call_args.args
-        listener_kwargs = cast(dict[str, object], event_manager_on.call_args.kwargs)
+        authentication_listener_call = next(
+            listener_call
+            for listener_call in event_manager_on.call_args_list
+            if listener_call.args[0] is AuthenticationTicketAcceptedEvent
+        )
+        listener_args = authentication_listener_call.args
+        listener_kwargs = cast(dict[str, object], authentication_listener_call.kwargs)
         assert listener_args[0] is AuthenticationTicketAcceptedEvent
         assert listener_kwargs["timeout"] == 15.0
         on_timeout = listener_kwargs["on_timeout"]
@@ -144,7 +151,7 @@ class TestSocketProxyConnection:
 
         runtime_bot.connection_handler.on_disconnected()
 
-        assert runtime_bot.game_state.map.map_id == 0
+        assert runtime_bot.game_state.map.map_id == 88090898
         assert runtime_bot.game_state.map.is_in_map_transition is False
         assert runtime_bot.game_state.fight.in_fight is False
         assert runtime_bot.game_state.fight.fight_turn == 0
@@ -152,7 +159,7 @@ class TestSocketProxyConnection:
         assert runtime_bot.game_state.player.character_id == 123
         assert runtime_bot.game_state.player.character_name == "Renaissance"
 
-    def test_identification_success_resets_runtime_capture_sequence(
+    def test_server_selection_success_resets_runtime_capture_sequence(
         self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         runtime_store = MagicMock()
@@ -182,9 +189,20 @@ class TestSocketProxyConnection:
 
         connection_behavior.on_identification_response(response)
 
-        runtime_store.start_connection_capture_sequence.assert_called_once_with()
+        runtime_store.start_connection_capture_sequence.assert_not_called()
         subscription_storage.record_expiration.assert_called_once()
-        runtime_bot.event_manager.on_send_conn_callback.assert_called_once()
+
+        connection_behavior.on_select_server_response(
+            SelectServerResponse(
+                success=SelectServerResponse.Success(
+                    token="game-ticket",
+                    host="127.0.0.1",
+                    ports=[5555],
+                )
+            )
+        )
+
+        runtime_store.start_connection_capture_sequence.assert_called_once_with()
 
     def test_socket_runtime_uses_socks_proxy_for_token_and_connection(
         self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
@@ -331,6 +349,7 @@ class TestSocketProxyConnection:
         cancel_frame_timers = MagicMock()
         monkeypatch.setattr(runtime_bot, "cancel_frame_timers", cancel_frame_timers)
 
+        client.close()
         client.close()
 
         cancel_frame_timers.assert_called_once_with()

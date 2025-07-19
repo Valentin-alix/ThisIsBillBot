@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable
 
 from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 

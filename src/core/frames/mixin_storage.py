@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Iterable
+from collections.abc import Iterable
 
 from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,

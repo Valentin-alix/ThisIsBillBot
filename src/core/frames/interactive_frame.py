@@ -13,7 +13,7 @@ from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.map_reader import MapReader
 from dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS, JobEnum
 
-from src.controller.gfx_mapping import GfxMappingController
+from src.controller.game_data import GameDataController
 from src.core.frames.frame import Frame
 
 
@@ -60,7 +60,7 @@ class InteractiveFrame(Frame):
         self.game_state.interactive.set_stated_elements(message.stated_elements)
 
         map_id = message.map_id
-        if map_id in GfxMappingController().get_map_ids_checked():
+        if map_id in GameDataController().get_map_ids_checked():
             return
 
         item_and_job_by_gfx_array: list[tuple[int, int, JobEnum]] = []
@@ -90,8 +90,8 @@ class InteractiveFrame(Frame):
                         JobEnum(data_skill.parentJobId),
                     )
                 )
-        GfxMappingController().add_multiple_item_job_by_gfx(item_and_job_by_gfx_array)
-        GfxMappingController().add_map_id_checked(message.map_id)
+        GameDataController().add_multiple_item_job_by_gfx(item_and_job_by_gfx_array)
+        GameDataController().add_map_id_checked(message.map_id)
 
     def on_interactive_map_update_event(self, msg: InteractiveMapUpdateEvent):
         for interactive_element in msg.interactive_elements:

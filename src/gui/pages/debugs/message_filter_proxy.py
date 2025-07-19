@@ -2,8 +2,8 @@ import json
 
 from PyQt6.QtCore import QModelIndex, Qt
 
-from src.gui.components.table.multi_filter_proxy import MultiColumnFilterProxyModel
 from src.gui.components.table.column_info import SearchType
+from src.gui.components.table.multi_filter_proxy import MultiColumnFilterProxyModel
 
 
 class MessageFilterProxyModel(MultiColumnFilterProxyModel):

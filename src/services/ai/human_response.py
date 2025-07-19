@@ -1,5 +1,6 @@
 from functools import cached_property
 
+from base_python.singleton import Singleton
 from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
@@ -7,7 +8,6 @@ from langgraph.checkpoint.memory import MemorySaver
 from openai import APIConnectionError, OpenAIError
 
 from src.services.ai.llm_classifier import ClassifierChat
-from python_utils.singleton import Singleton
 
 
 class HumanResponse(metaclass=Singleton):

@@ -1,6 +1,6 @@
+from collections.abc import Iterator
 from dataclasses import dataclass
 from time import sleep
-from typing import Iterator
 
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.transition_type import TransitionTypeEnum

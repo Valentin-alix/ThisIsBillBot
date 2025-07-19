@@ -95,9 +95,7 @@ def is_interesting_item_to_sell(
     if qty <= 0:
         return False
     avg_price = avg_price_by_gid.get(object_item.gid, 1)
-    if avg_price < 500 and qty < 100:
-        return False
-    elif avg_price < 5_000 and qty < 10:
+    if avg_price < 500 and qty < 100 or avg_price < 5_000 and qty < 10:
         return False
     return True
 

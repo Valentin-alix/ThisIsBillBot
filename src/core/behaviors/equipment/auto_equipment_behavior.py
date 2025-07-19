@@ -112,6 +112,13 @@ class AutoEquipmentBehavior(Behavior):
         self.buy_missing_items()
 
     def buy_missing_items(self):
+        if self._to_buy and not (
+            self.game_state.player.is_sub or self.game_state.player.is_former_sub
+        ):
+            self.logger.info(
+                "Sale hotel unavailable for accounts that have never subscribed; skipping equipment purchases"
+            )
+            self._to_buy = []
         if self._to_buy and self.game_state.inventory.is_full_pods:
             self.logger.info("Full pods: skipping sale-hotel purchase")
             self._to_buy = []

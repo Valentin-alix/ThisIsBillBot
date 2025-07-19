@@ -64,9 +64,7 @@ class DungeonBehavior(Behavior):
             parent=self,
         )
 
-    def on_npc_dialog_behavior_finished(
-        self, error_code: str | None, dungeon_info: DungeonInfo
-    ) -> None:
+    def on_npc_dialog_behavior_finished(self, error_code: str | None, dungeon_info: DungeonInfo) -> None:
         self.event_manager.on(
             MapComplementaryInformationEvent,
             lambda _: self.on_new_map(dungeon_info),
@@ -85,25 +83,21 @@ class DungeonBehavior(Behavior):
             count_fight_limit=1,
             wait_for_group=True,
             get_lvl_limit=get_lvl_limit,
-            callback=partial(
-                self.on_attacker_behavior_finished, dungeon_info=dungeon_info
-            ),
+            callback=partial(self.on_attacker_behavior_finished, dungeon_info=dungeon_info),
             parent=self,
         )
 
     def on_attacker_behavior_finished(
         self,
         error_code: str | None,
-        _count_fighted_on_map: int,
+        count_fighted_on_map: int,
         dungeon_info: DungeonInfo,
     ) -> None:
         self.on_new_map(dungeon_info)
 
     def exit_dungeon(self, dungeon_info: DungeonInfo) -> None:
         map_name_id = DataReader().map_info_by_map_id[self.game_state.map.map_id].nameId
-        title_map = (
-            I18N().name_by_id[map_name_id] if map_name_id in I18N().name_by_id else ""
-        )
+        title_map = I18N().name_by_id[map_name_id] if map_name_id in I18N().name_by_id else ""
         if "Sortie" in title_map:
             self.event_manager.on(
                 MapComplementaryInformationEvent,
@@ -122,7 +116,5 @@ class DungeonBehavior(Behavior):
         else:
             self.finish()
 
-    def on_new_map_after_exit_dungeon(
-        self, msg: MapComplementaryInformationEvent
-    ) -> None:
+    def on_new_map_after_exit_dungeon(self, msg: MapComplementaryInformationEvent) -> None:
         self.finish()

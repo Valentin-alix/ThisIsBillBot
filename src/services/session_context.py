@@ -1,7 +1,7 @@
 import random
 from datetime import datetime
 
-from python_utils.singleton import Singleton
+from base_python.singleton import Singleton
 
 
 class SessionContextService(metaclass=Singleton):

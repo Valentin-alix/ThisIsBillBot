@@ -1,11 +1,10 @@
 from datetime import datetime
 
+from google.protobuf.message import Message
 from PyQt6.QtCore import QModelIndex, QTimer, pyqtSlot
 from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import TableWidget
 from qfluentwidgets.components.widgets.model_combo_box import QStandardItem
-
-from google.protobuf.message import Message
 
 from src.core.events_manager.event_manager import EventManager
 from src.core.events_manager.listener import Listener

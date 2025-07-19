@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Generic, ParamSpec
+from typing import Generic, ParamSpec
 
 P = ParamSpec("P")
 

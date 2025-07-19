@@ -1,5 +1,5 @@
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Iterable
 
 from datas.protos.non_obf.game.common_pb2 import (
     InteractiveElement,

@@ -1,7 +1,8 @@
 import functools
 import threading
+from collections.abc import Callable
 from time import perf_counter
-from typing import Callable, Final, ParamSpec, TypeVar
+from typing import Final, ParamSpec, TypeVar
 
 from PyQt6.QtCore import QEvent, QObject
 from PyQt6.QtWidgets import QApplication

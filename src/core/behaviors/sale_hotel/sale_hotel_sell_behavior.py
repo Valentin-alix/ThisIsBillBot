@@ -1,8 +1,8 @@
 import math
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
-from typing import Iterable
 
 from datas.protos.non_obf.game.common_pb2 import ObjectItem
 from datas.protos.non_obf.game.exchange_pb2 import (
@@ -26,7 +26,7 @@ from dofus_unity_reader.game_constants.sale_hotel import (
     QuantityEnum,
 )
 
-from src.controller.sale_hotel import SaleHotelController
+from src.controller.game_data import GameDataController
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
@@ -38,6 +38,9 @@ from src.core.behaviors.storage.loads.load_from_guild_chest_behavior import (
     LoadFromGuildChestBehavior,
 )
 from src.core.behaviors.storage.loads.load_item_request import LoadItemInfo
+from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
+    EnterBankChestErrorCode,
+)
 from src.core.config import (
     BASE_RANGE,
     MIN_KAMAS_TO_GO_SALE_HOTEL,
@@ -103,10 +106,10 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
 
         self._curr_category = self.categories.pop()
 
-        item_sell_quantity_by_gid = SaleHotelController().get_item_sell_quantity_by_gid(
+        item_sell_quantity_by_gid = GameDataController().get_item_sell_quantity_by_gid(
             self.game_state.player.server_id
         )
-        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(
+        avg_price_by_gid = GameDataController().get_avg_price_by_gid(
             self.game_state.player.server_id
         )
 
@@ -162,6 +165,8 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
     def on_loaded_behavior_finished(
         self, error_code: str | None, load_items_infos: list[LoadItemInfo]
     ) -> None:
+        if error_code is EnterBankChestErrorCode.NOT_ENOUGH_KAMAS:
+            return self.finish(error_code)
         self.raise_if_error(error_code)
         self._load_items_infos = load_items_infos
         self.enter_sale_hotel_sell_behavior.start(
@@ -211,7 +216,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             next_item = self._item_to_sells_in_inventory.pop()
             if is_interesting_item_to_sell(
                 next_item,
-                SaleHotelController().get_avg_price_by_gid(
+                GameDataController().get_avg_price_by_gid(
                     self.game_state.player.server_id
                 ),
             ):
@@ -272,7 +277,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
 
     def create_price(self, minimal_prices: list[int], item: ObjectItem) -> None:
         server_id = self.game_state.player.server_id
-        avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(server_id)
+        avg_price_by_gid = GameDataController().get_avg_price_by_gid(server_id)
 
         remaining = self._remaining_quantity_by_uid.get(item.uid, item.quantity)
         if not is_interesting_item_to_sell(item, avg_price_by_gid, remaining):
@@ -281,7 +286,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
         quantity_to_sell, _ = choose_quantity_to_sell(item, avg_price_by_gid, remaining)
 
         bot_min_price = (
-            SaleHotelController()
+            GameDataController()
             .get_minimal_price_by_gid_and_quantity(server_id)
             .get((item.gid, quantity_to_sell))
         )
@@ -300,7 +305,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             raise UnexpectedStateException("we should have bid seller infos")
 
         count_item_in_sale = len(
-            SaleHotelController()
+            GameDataController()
             .get_hdv_by_uid_by_player(server_id)
             .get(self.game_state.player.character_id, {})
         )
@@ -395,7 +400,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             new_price = prices_by_quantity.get(QuantityEnum(item.item.quantity))
             if new_price is None or new_price == item.price or new_price <= 0:
                 continue
-            if item.item.uid not in SaleHotelController().get_hdv_by_uid_by_player(
+            if item.item.uid not in GameDataController().get_hdv_by_uid_by_player(
                 server_id
             ).get(self.game_state.player.character_id, {}):
                 self.logger.info(
@@ -455,9 +460,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
         self, minimal_prices: list[int], item_gid: int
     ) -> dict[QuantityEnum, int]:
         server_id = self.game_state.player.server_id
-        bot_mins = SaleHotelController().get_minimal_price_by_gid_and_quantity(
-            server_id
-        )
+        bot_mins = GameDataController().get_minimal_price_by_gid_and_quantity(server_id)
 
         return {
             qty: self._compute_price_with_undercut(

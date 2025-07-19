@@ -2,12 +2,12 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from dofus_unity_reader.grid.map_point import MapPoint
 from datas.protos.non_obf.game.gamemap_pb2 import (
     MapChangeRequest,
     MapCurrentEvent,
     MapMovementRefusedEvent,
 )
+from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError

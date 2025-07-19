@@ -51,9 +51,7 @@ def complete_message_tree_content(
                 continue
             completed[field_name] = _absent_value_for_field(field_descriptor, depth)
             continue
-        completed[field_name] = _complete_message_tree_value(
-            content[field_name], field_descriptor, depth
-        )
+        completed[field_name] = _complete_message_tree_value(content[field_name], field_descriptor, depth)
 
     for field_name, value in content.items():
         if field_name not in completed:
@@ -71,9 +69,7 @@ def _absent_value_for_field(field_descriptor: FieldDescriptor, depth: int) -> An
     return complete_message_tree_content({}, message_type, depth=depth + 1)
 
 
-def _complete_message_tree_value(
-    value: Any, field_descriptor: FieldDescriptor, depth: int
-) -> Any:
+def _complete_message_tree_value(value: Any, field_descriptor: FieldDescriptor, depth: int) -> Any:
     message_type = _message_field_descriptor(field_descriptor)
     if message_type is None:
         return value
@@ -83,18 +79,14 @@ def _complete_message_tree_value(
             return value
         value_items = cast(list[Any], value)
         return [
-            complete_message_tree_content(
-                cast(dict[str, Any], item), message_type, depth
-            )
+            complete_message_tree_content(cast(dict[str, Any], item), message_type, depth)
             if isinstance(item, dict)
             else item
             for item in value_items
         ]
 
     if isinstance(value, dict):
-        return complete_message_tree_content(
-            cast(dict[str, Any], value), message_type, depth
-        )
+        return complete_message_tree_content(cast(dict[str, Any], value), message_type, depth)
     return value
 
 
@@ -157,9 +149,7 @@ class MessageDetailWidget(QWidget):
         self.quit_btn = TransparentToolButton(FluentIcon.CLOSE, top_bar)
         top_bar_layout.addWidget(self.quit_btn)
 
-        self.lock_pinned_fields_btn = PrimaryPushButton(
-            FluentIcon.PIN, "Lock pinned fields", top_bar
-        )
+        self.lock_pinned_fields_btn = PrimaryPushButton(FluentIcon.PIN, "Lock pinned fields", top_bar)
         top_bar_layout.addWidget(self.lock_pinned_fields_btn)
 
         self.show_absent_fields_btn = TransparentToolButton(FluentIcon.VIEW, top_bar)
@@ -180,15 +170,11 @@ class MessageDetailWidget(QWidget):
         self._layout.addWidget(trees_widget)
 
         self.dynamic_tree = DynamicTreeWidget(trees_widget)
-        self.dynamic_tree.scrollDelagate.verticalSmoothScroll.setSmoothMode(
-            SmoothMode.NO_SMOOTH
-        )
+        self.dynamic_tree.scrollDelagate.verticalSmoothScroll.setSmoothMode(SmoothMode.NO_SMOOTH)
         trees_widget_layout.addWidget(self.dynamic_tree)
 
         self.obf_dynamic_tree = DynamicTreeWidget(trees_widget)
-        self.obf_dynamic_tree.scrollDelagate.verticalSmoothScroll.setSmoothMode(
-            SmoothMode.NO_SMOOTH
-        )
+        self.obf_dynamic_tree.scrollDelagate.verticalSmoothScroll.setSmoothMode(SmoothMode.NO_SMOOTH)
         trees_widget_layout.addWidget(self.obf_dynamic_tree)
 
     def set_content(
@@ -206,9 +192,7 @@ class MessageDetailWidget(QWidget):
 
     def _render_content(self) -> None:
         msg_json = self._display_content(self._msg_json, self._msg_descriptor)
-        obf_msg_json = self._display_content(
-            self._obf_msg_json, self._obf_msg_descriptor
-        )
+        obf_msg_json = self._display_content(self._obf_msg_json, self._obf_msg_descriptor)
         if msg_json is not None:
             self.dynamic_tree.show()
             self.dynamic_tree.set_content(msg_json)
@@ -219,9 +203,7 @@ class MessageDetailWidget(QWidget):
             self.obf_dynamic_tree.set_content(obf_msg_json)
         else:
             self.obf_dynamic_tree.hide()
-        self.lock_pinned_fields_btn.setEnabled(
-            msg_json is not None and obf_msg_json is not None
-        )
+        self.lock_pinned_fields_btn.setEnabled(msg_json is not None and obf_msg_json is not None)
         self.show_absent_fields_btn.setEnabled(
             (self._msg_json is not None and self._msg_descriptor is not None)
             or (self._obf_msg_json is not None and self._obf_msg_descriptor is not None)
@@ -250,12 +232,8 @@ class MessageDetailWidget(QWidget):
     def selected_pinned_fields(
         self,
     ) -> tuple[SelectedPinnedField, SelectedPinnedField] | None:
-        non_obf_field = self._selected_pinned_field(
-            self.dynamic_tree, self._msg_descriptor
-        )
-        obf_field = self._selected_pinned_field(
-            self.obf_dynamic_tree, self._obf_msg_descriptor
-        )
+        non_obf_field = self._selected_pinned_field(self.dynamic_tree, self._msg_descriptor)
+        obf_field = self._selected_pinned_field(self.obf_dynamic_tree, self._obf_msg_descriptor)
         if non_obf_field is None or obf_field is None:
             return None
         return obf_field, non_obf_field

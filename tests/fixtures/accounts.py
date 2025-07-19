@@ -11,7 +11,6 @@ from src.core.signals.shared_farm_signals import SharedSignals
 
 def make_account(login: str, account_id: int) -> StoredApiKey:
     return StoredApiKey(
-        apikeyFile="/path/to/test",
         apikey=DecipheredApiKey(
             key="test_key",
             provider="ankama",

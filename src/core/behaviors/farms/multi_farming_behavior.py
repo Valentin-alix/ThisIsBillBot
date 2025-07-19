@@ -1,7 +1,7 @@
 import random
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Callable
 
 from datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,

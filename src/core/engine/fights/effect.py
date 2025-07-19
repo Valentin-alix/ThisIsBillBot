@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
@@ -139,12 +139,12 @@ def get_type_effect(spell_id: int, effect: Effect) -> TypeEffect | None:
         DataReader().spell_by_id[spell_id].descriptionId
     ]
     if (
-        DescriptionEnum.MALUS_LIFE_PERCENT == data_effect.descriptionId
+        data_effect.descriptionId == DescriptionEnum.MALUS_LIFE_PERCENT
         and "vie du lanceur" in description_spell.lower()
         and data_effect.isInPercent
     ):
         return TypeEffect.MALUS_LIFE_PERCENT
-    if DescriptionEnum.SHIELD_PERCENT_LEVEL == data_effect.descriptionId:
+    if data_effect.descriptionId == DescriptionEnum.SHIELD_PERCENT_LEVEL:
         return TypeEffect.SHIELD_PERCENT_LEVEL
 
 

@@ -28,7 +28,7 @@ from datas.protos.non_obf.game.spell_pb2 import (
 )
 from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 
-from src.controller.forbidden_monster_controller import ForbiddenMonsterController
+from src.controller.game_data import GameDataController
 from src.core.frames.frame import Frame
 
 
@@ -357,7 +357,7 @@ class FightFrame(Frame):
 
         last_atk_info = self.game_state.fight.last_atk_info
         if last_atk_info:
-            unique_name_id = ForbiddenMonsterController().get_unique_name_id_from_group(
+            unique_name_id = GameDataController().get_unique_name_id_from_group(
                 last_atk_info.monster_group_info
             )
             if not unique_name_id:
@@ -366,13 +366,9 @@ class FightFrame(Frame):
                 f"Unique monster group name_id attacked : {unique_name_id}"
             )
             if last_atk_info.from_map_id == msg.map_id:
-                ForbiddenMonsterController().reset_defeat_count(
-                    unique_name_id, self.logger
-                )
+                GameDataController().reset_defeat_count(unique_name_id, self.logger)
             else:
-                ForbiddenMonsterController().increment_defeat_count(
-                    unique_name_id, self.logger
-                )
+                GameDataController().increment_defeat_count(unique_name_id, self.logger)
 
         self.game_state.fight.last_atk_info = None
 

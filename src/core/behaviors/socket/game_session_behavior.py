@@ -28,7 +28,6 @@ from datas.protos.non_obf.game.common_pb2 import (
 )
 from datas.protos.non_obf.game.fight_pb2 import (
     FightIsTurnReadyEvent,
-    FightTurnFinishRequest,
     FightTurnReadyRequest,
 )
 from datas.protos.non_obf.game.game_action_pb2 import (
@@ -73,31 +72,14 @@ class GameSessionBehavior(Behavior):
         self._turn_ready_pending = False
         self._player_status_sent = False
 
-        self.event_manager.on(
-            ServerVerificationEvent, self._on_server_verification, originator=self
-        )
-        self.event_manager.on(
-            ServerChallengeEvent, self._on_server_challenge, originator=self
-        )
-        self.event_manager.on(
-            ServerSessionReadyEvent, self._on_server_session_ready, originator=self
-        )
-        self.event_manager.on(
-            SequenceNumberEvent, self._on_sequence_number, originator=self
-        )
-        self.event_manager.on(
-            BasicLatencyStatsEvent, self._on_basic_latency, originator=self
-        )
-        self.event_manager.on(
-            SequenceStartEvent, self._on_sequence_start, originator=self
-        )
+        self.event_manager.on(ServerVerificationEvent, self._on_server_verification, originator=self)
+        self.event_manager.on(ServerChallengeEvent, self._on_server_challenge, originator=self)
+        self.event_manager.on(ServerSessionReadyEvent, self._on_server_session_ready, originator=self)
+        self.event_manager.on(SequenceNumberEvent, self._on_sequence_number, originator=self)
+        self.event_manager.on(BasicLatencyStatsEvent, self._on_basic_latency, originator=self)
+        self.event_manager.on(SequenceStartEvent, self._on_sequence_start, originator=self)
         self.event_manager.on(SequenceEndEvent, self._on_sequence_end, originator=self)
-        self.event_manager.on(
-            FightIsTurnReadyEvent, self._on_fight_is_turn_ready, originator=self
-        )
-        self.event_manager.on(
-            FightTurnFinishRequest, self._on_fight_turn_finish, originator=self
-        )
+        self.event_manager.on(FightIsTurnReadyEvent, self._on_fight_is_turn_ready, originator=self)
         self.event_manager.on(
             FightMapInformationEvent,
             self._on_fight_map_information,
@@ -109,9 +91,7 @@ class GameSessionBehavior(Behavior):
         self._cvlg = secrets.randbits(512) % _DH_P
         self._cvlh = secrets.randbits(400)
         challenge_key = pow(_DH_G, self._cvlh, _DH_P)
-        self.event_manager.send(
-            ClientChallengeInitRequest(challenge_key=str(challenge_key))
-        )
+        self.event_manager.send(ClientChallengeInitRequest(challenge_key=str(challenge_key)))
 
     def _on_server_challenge(self, msg: ServerChallengeEvent) -> None:
         if msg.HasField("value") and msg.value:
@@ -137,9 +117,7 @@ class GameSessionBehavior(Behavior):
                 f"sent_datetime_ping_request={self.game_state.server.sent_datetime_ping_request}"
             )
         assert self.game_state.server.latency is not None
-        self.event_manager.send(
-            BasicLatencyStatsRequest(latency=self.game_state.server.latency)
-        )
+        self.event_manager.send(BasicLatencyStatsRequest(latency=self.game_state.server.latency))
 
     def _on_sequence_start(self, msg: SequenceStartEvent) -> None:
         self._fight_sequence_depth += 1
@@ -173,22 +151,13 @@ class GameSessionBehavior(Behavior):
             return
         self.run_timer(_TURN_READY_DELAY, self._send_turn_ready)
 
-    def _on_fight_turn_finish(self, msg: FightTurnFinishRequest) -> None:
-        if self.game_state.get_attack_context().enemy_actors:
-            return
-        self.run_timer(_TURN_READY_DELAY, self._send_turn_ready)
-
     def _send_turn_ready(self) -> None:
         self.event_manager.send(FightTurnReadyRequest(is_ready=True))
 
     def _on_fight_map_information(self, _msg: FightMapInformationEvent) -> None:
+        self.event_manager.send(ChallengeModSelectRequest(challenge_mod=ChallengeMod.CHALLENGE_CHOICE))
         self.event_manager.send(
-            ChallengeModSelectRequest(challenge_mod=ChallengeMod.CHALLENGE_CHOICE)
-        )
-        self.event_manager.send(
-            ChallengeBonusChoiceRequest(
-                challenge_bonus=ChallengeBonus.CHALLENGE_DROP_BONUS
-            )
+            ChallengeBonusChoiceRequest(challenge_bonus=ChallengeBonus.CHALLENGE_DROP_BONUS)
         )
 
     def on_pong_event(self, msg: PongEvent):

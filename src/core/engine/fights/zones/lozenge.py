@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
+from base_python.cache import cache
 from dofus_unity_reader.game_constants.directions import DirectionsEnum
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
-from python_utils.cache import cache
 
 from src.core.engine.fights.zones.zone import Zone
 

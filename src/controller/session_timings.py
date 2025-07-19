@@ -1,7 +1,7 @@
 from datetime import datetime
 from threading import RLock
 
-from python_utils.cache import cache
+from base_python.cache import cache
 from pydantic import BaseModel, RootModel
 
 from src.const import HUMAN_SESSIONS_FILE
@@ -27,7 +27,7 @@ class SessionTimingsController:
     @staticmethod
     @cache
     def get_message_timings_by_session():
-        with open(HUMAN_SESSIONS_FILE, "r") as file:
+        with open(HUMAN_SESSIONS_FILE) as file:
             return MessageTimingsBySessionLogin.model_validate_json(file.read()).root
 
     def add_message_timing(self, msg_name: str, msg_received_time: datetime):

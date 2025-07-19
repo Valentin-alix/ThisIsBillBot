@@ -32,7 +32,7 @@ def parse_runtime_args(argv: list[str]) -> RuntimeArgs:
         "--auto",
         action=argparse.BooleanOptionalAction,
         default=True,
-        help="Use resources/bot_configs.json to configure bots at runtime.",
+        help="Use resources/bots.local.json to configure bots at runtime.",
     )
     parser.add_argument(
         "--headless",
@@ -52,7 +52,7 @@ def parse_runtime_args(argv: list[str]) -> RuntimeArgs:
 
 load_dotenv()
 
-from src.controller.bot_config import BotConfigController  # noqa: E402
+from src.controller.bot_config import BotConfigService  # noqa: E402
 from src.core.bot.bot_manager import BotManager  # noqa: E402
 from src.core.bot.lifecycle.scheduler import run_continuously  # noqa: E402
 from src.core.signals.shared_farm_signals import SharedSignals  # noqa: E402
@@ -158,7 +158,7 @@ def run_headless(application_argv: list[str], enable_automatic_schedules: bool) 
 
 def main(argv: list[str] | None = None) -> int:
     runtime_args = parse_runtime_args(sys.argv if argv is None else argv)
-    BotConfigController.use_bot_config_json = runtime_args.use_bot_config_json
+    BotConfigService.use_bot_config_json = runtime_args.use_bot_config_json
 
     configure_root_logger()
 

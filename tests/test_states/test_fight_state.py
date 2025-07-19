@@ -15,10 +15,10 @@ from datas.protos.non_obf.game.common_pb2 import (
     FightStartingPositions,
     Team,
 )
+from datas.protos.non_obf.game.fight_pb2 import FightRefreshCharacterStatsEvent
 from datas.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
 )
-from datas.protos.non_obf.game.fight_pb2 import FightRefreshCharacterStatsEvent
 from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightCastRequest,
     GameActionFightEvent,
@@ -29,6 +29,7 @@ from dofus_unity_reader.game_constants.characteristic import (
     CharacteristicEnum,
     EffectElement,
 )
+from dofus_unity_reader.grid.map_point import MapPoint
 from pytest import MonkeyPatch
 
 from src import const
@@ -36,6 +37,7 @@ from src.core.bot.bot import Bot
 from src.core.frames.fight_frame import FightFrame
 from src.core.states.entity_state import FightActor
 from tests.fixtures.entities import make_fighter
+from tests.fixtures.game_state import set_game_state
 
 
 class TestFightState:
@@ -304,7 +306,7 @@ class TestFightState:
             "hp_after=245, max_hp_after=300"
         )
 
-    def test_fight_refresh_after_player_death_keeps_life_at_zero(
+    def test_fight_refresh_after_player_death_resyncs_life(
         self,
         runtime_bot: Bot,
     ) -> None:
@@ -349,12 +351,16 @@ class TestFightState:
             )
         )
 
-        assert runtime_bot.game_state.fight.life_point == 0
+        assert runtime_bot.game_state.fight.life_point == 12
         assert (
             runtime_bot.game_state.fight.get_stat_by_id(CharacteristicEnum.CUR_LIFE)
             == -329
         )
-        logger.info.assert_not_called()
+        logger.info.assert_called_once_with(
+            "Player HP resync: source=FightRefreshCharacterStatsEvent, "
+            "hp_before=0, life_points=285, vitality=56, cur_life=-329, "
+            "hp_after=12, max_hp_after=341"
+        )
 
     def test_game_action_fight_cast_request_increments_count_by_spell_id(
         self,
@@ -485,6 +491,23 @@ class TestFightState:
 
         assert attack_context.enemy_actors == []
         assert attack_context.enemies_data == []
+
+    def test_attack_context_keeps_actor_snapshot_after_live_state_is_cleared(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        set_game_state(
+            runtime_bot.game_state,
+            player_cell_id=100,
+            enemy_cell_ids=[200],
+        )
+
+        attack_context = runtime_bot.game_state.get_attack_context()
+        runtime_bot.game_state.entity.clear_actors()
+
+        assert attack_context.player_map_point == MapPoint.from_cell_id(100)
+        assert set(attack_context.actor_by_id) == {-1, 0}
+        assert [enemy.actor_id for enemy in attack_context.enemy_actors] == [0]
 
     def test_missing_life_characteristic_logs_before_assertion(
         self,

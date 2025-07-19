@@ -16,7 +16,7 @@ from qfluentwidgets.components.navigation import NavigationDisplayMode, Navigati
 
 from src import const
 from src.const import LOGO_FILE
-from src.controller.bot_config import BotConfigController
+from src.controller.bot_config import BotConfigService
 from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.shared_farm_signals import SharedSignals
@@ -89,7 +89,7 @@ class MainWindow(AppFluentWindow):
         )
         self.navigationInterface.panel.expand()
 
-        bot_config_controller = BotConfigController()
+        bot_config_controller = BotConfigService()
         config = bot_config_controller.get_bot_config(login)
 
         selected_mode = config.connection_mode
@@ -224,7 +224,7 @@ class MainWindow(AppFluentWindow):
     def _on_connection_mode_changed(
         self, login: str, mode: Literal["mitm", "socket"]
     ) -> None:
-        BotConfigController().assign_mode(login, mode)
+        BotConfigService().assign_mode(login, mode)
 
     def _on_disconnect_clicked(self, login: str) -> None:
         bot = self.bots_by_login[login]

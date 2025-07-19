@@ -1,7 +1,7 @@
 from bisect import insort
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from time import sleep
-from typing import Iterator
 
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.directions import DirectionsEnum
@@ -377,9 +377,7 @@ class Pathfinding:
                         and not self.data_map_provider.is_changing_zone(
                             parent.mp.cell_id, grand_parent.mp.cell_id
                         )
-                    ):
-                        cursor.parent = grand_parent
-                    elif (
+                    ) or (
                         cursor.mp.x - cursor.mp.y
                         == grand_parent.mp.x - grand_parent.mp.y
                         and cursor.mp.x - cursor.mp.y != parent.mp.x - parent.mp.y

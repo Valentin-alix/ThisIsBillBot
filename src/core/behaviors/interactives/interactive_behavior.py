@@ -34,17 +34,12 @@ class InteractiveBehavior(Behavior):
     ) -> None:
         if self.game_state.map.is_in_map_transition:
             return self.finish()
-        if (
-            move_path is None
-            or self.game_state.map.map_point.cell_id == move_path.end.cell_id
-        ):
-            return self.use_interactive(
-                element_id=element_id, skill_instance_uid=skill_instance_uid
-            )
+        if move_path is None or self.game_state.map.map_point.cell_id == move_path.end.cell_id:
+            return self.use_interactive(element_id=element_id, skill_instance_uid=skill_instance_uid)
 
         self.event_manager.on(
             MapCurrentEvent,
-            lambda _: self.finish(MapChangeError.UNEXPECTED_NEW_MAP),
+            self.on_map_current_event,
             originator=self,
             once=True,
             override_on_self=True,
@@ -59,6 +54,13 @@ class InteractiveBehavior(Behavior):
             parent=self,
             move_path=move_path,
         )
+
+    def on_map_current_event(self, message: MapCurrentEvent) -> None:
+        if self.game_state.fight.in_fight:
+            self.logger.info("Interaction interrupted by fight context")
+            self.stop()
+            return
+        self.finish(MapChangeError.UNEXPECTED_NEW_MAP)
 
     def on_map_behavior_finish(
         self,
@@ -80,12 +82,8 @@ class InteractiveBehavior(Behavior):
                 self.game_state.map.map_point,
                 {old_move_path.end},
             )
-            self.logger.warning(
-                "Invalid starting point or canceled movement, let's retry interactive"
-            )
-            return self.run_timer(
-                BASE_RANGE, lambda: self.run(move_path, element_id, skill_instance_uid)
-            )
+            self.logger.warning("Invalid starting point or canceled movement, let's retry interactive")
+            return self.run_timer(BASE_RANGE, lambda: self.run(move_path, element_id, skill_instance_uid))
         elif error_code is not None:
             return self.finish(error_code)
 

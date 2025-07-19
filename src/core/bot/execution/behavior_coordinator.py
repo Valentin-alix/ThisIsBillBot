@@ -1,6 +1,6 @@
+from collections.abc import Callable
 from dataclasses import dataclass, field, fields
 from threading import Event
-from typing import Callable
 
 from ankama_launcher_emulator_premium.gui.utils import run_in_background
 from ankama_launcher_emulator_premium.interfaces.credentials import (

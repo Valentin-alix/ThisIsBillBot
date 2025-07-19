@@ -1,6 +1,7 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Callable, cast
+from typing import cast
 
 from ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
     Proxy,

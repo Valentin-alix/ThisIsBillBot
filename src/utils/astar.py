@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from bisect import insort
-from typing import Generic, Iterator, Protocol, TypeVar, cast
+from collections.abc import Iterator
+from typing import Generic, Protocol, TypeVar, cast
 
 T = TypeVar("T")
 PathResultT = TypeVar("PathResultT")
@@ -132,9 +133,7 @@ class Astar(ABC, Generic[T, PathResultT]):
 
             current_node.closed = True
 
-            for node in (
-                search_node_dict[data] for data in self.get_neighbors(current_node.data)
-            ):
+            for node in (search_node_dict[data] for data in self.get_neighbors(current_node.data)):
                 if node.closed:
                     continue
 
@@ -154,9 +153,7 @@ class Astar(ABC, Generic[T, PathResultT]):
 
                 node.parent = current_node
                 node.cost_to_node = cost_to_node
-                node.total_cost = (
-                    cost_to_node + self.get_dist(node.data, ends) * heuristic_scale
-                )
+                node.total_cost = cost_to_node + self.get_dist(node.data, ends) * heuristic_scale
 
                 open_set.push(node)
 

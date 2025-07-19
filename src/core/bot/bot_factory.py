@@ -1,14 +1,13 @@
-import os
 import random
 import threading
 
+from ankama_launcher_emulator_premium import consts as launcher_consts
 from ankama_launcher_emulator_premium.interfaces.credentials import (
     DecipheredApiKey,
     DecipheredCertif,
     StoredApiKey,
 )
 
-from src.const import LOG_FOLDER
 from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
 )
@@ -152,7 +151,7 @@ class BotFactory:
 
         title = account.apikey.login
         debug_recorder = DebugRecorder(
-            file_path=os.path.join(LOG_FOLDER, f"{title}.debug.jsonl")
+            file_path=str(launcher_consts.BOT_DEBUG_LOGS_DIR / f"{title}.debug.jsonl")
         )
         logger = BotLogger(
             title=title, log_signals=log_signals, debug_recorder=debug_recorder
@@ -722,7 +721,6 @@ def generate_random_bot() -> Bot:
     return BotFactory.create_bot(
         SharedSignals(),
         account=StoredApiKey(
-            apikeyFile="/path/to/apikey/file.json",
             apikey=DecipheredApiKey(
                 key="A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6",
                 provider="ankama",

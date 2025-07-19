@@ -10,8 +10,7 @@ from dofus_unity_reader.data_center.map_reader import MapReader
 from dofus_unity_reader.game_constants.job import JobEnum
 from dofus_unity_reader.game_constants.monster import PROTECTOR_RACES
 
-from src.controller.gfx_mapping import GfxMappingController
-from src.controller.sale_hotel import SaleHotelController
+from src.controller.game_data import GameDataController
 from src.core.config import WEIGHT_BY_JOB
 from src.core.engine.monsters.drops import get_rare_gid_with_weight_from_protector_drop
 from src.core.engine.movements.map.map_tools import MapTools
@@ -44,7 +43,7 @@ def get_map_id_collectable_weight(
     is_sub: bool,
     server_id: int = 1,
 ) -> float:
-    item_job_by_gfx = GfxMappingController().get_item_job_by_gfx()
+    item_job_by_gfx = GameDataController().get_item_job_by_gfx()
     weight_map: float = 0
     for ref_id in MapReader().map_by_id(map_id).references:
         if ref_id.transform is None:
@@ -81,7 +80,7 @@ def get_weight_collectable(
     is_sub: bool,
     server_id: int = 1,
 ):
-    avg_price_by_gid = SaleHotelController().get_avg_price_by_gid(server_id)
+    avg_price_by_gid = GameDataController().get_avg_price_by_gid(server_id)
     rare_drop_weight_by_collectable_gid = get_rare_drop_weight_by_collectable_gid()
 
     base = get_basic_weight_collectable(job_id, job_lvl, item_gid, is_sub)

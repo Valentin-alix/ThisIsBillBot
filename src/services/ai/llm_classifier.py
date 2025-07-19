@@ -1,10 +1,9 @@
 from functools import cached_property
 
+from base_python.singleton import Singleton
 from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
-
-from python_utils.singleton import Singleton
 
 
 class ClassifierChat(metaclass=Singleton):

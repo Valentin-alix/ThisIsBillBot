@@ -20,7 +20,7 @@ from dofus_unity_reader.game_constants.server import ServerEnum
 from google.protobuf.json_format import MessageToDict
 from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
-from src.controller.bot_config import BotConfigController
+from src.controller.bot_config import BotConfigService
 from src.core.behaviors.behavior import Behavior
 
 
@@ -48,9 +48,7 @@ class ConnectionBehavior(Behavior):
         self.logger.info(f"Client version: {client_version}")
 
         device_identifier = (
-            BotConfigController()
-            .get_bot_config(self.game_state.player.login)
-            .hardware_id
+            BotConfigService().get_bot_config(self.game_state.player.login).hardware_id
         )
 
         identification = IdentificationRequest(

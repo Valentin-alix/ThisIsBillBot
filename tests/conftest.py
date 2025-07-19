@@ -1,6 +1,6 @@
 import uuid
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 from unittest.mock import MagicMock
 
 import pytest
@@ -46,7 +46,9 @@ def bot_scheduler() -> BotScheduler:
 
 @pytest.fixture(autouse=True)
 def logger(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> MagicMock:
-    monkeypatch.setattr("src.const.LOG_FOLDER", tmp_path)
+    monkeypatch.setattr(
+        "ankama_launcher_emulator_premium.consts.BOT_DEBUG_LOGS_DIR", tmp_path
+    )
     return MagicMock()
 
 

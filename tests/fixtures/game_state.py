@@ -1,7 +1,7 @@
 import os
 import tempfile
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
 
 from datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,

@@ -4,7 +4,7 @@ import datetime
 from datas.protos.non_obf.game.exchange_pb2 import SellingConditions
 
 from src import const
-from src.controller.sale_hotel import SaleHotelController
+from src.controller.game_data import GameDataController
 from src.core.config import get_time_beween_sale_hotel_prices
 from src.core.signals.player_signals import GameInfoSignals
 from src.core.states.player_state import PlayerState
@@ -52,7 +52,7 @@ class SaleHotelState(State):
     def is_full_object_in_sale_hotel(self):
         return self.bid_seller_condition is not None and (
             len(
-                SaleHotelController()
+                GameDataController()
                 .get_hdv_by_uid_by_player(self.player_state.server_id)
                 .get(self.player_state.character_id, {})
             )

@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
 
+from src.core.engine.contexts import CriterionContext
 from src.core.engine.movements.world.criterions.interface_item_criterion import (
     IItemCriterion,
 )
 from src.core.engine.movements.world.criterions.item_criterion_factory import (
     ItemCriterionFactory,
 )
-from src.core.engine.contexts import CriterionContext
 
 
 @dataclass

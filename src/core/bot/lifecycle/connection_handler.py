@@ -1,6 +1,6 @@
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from threading import Event, Timer
-from typing import Callable
 
 from ankama_launcher_emulator_premium.interfaces.credentials import (
     StoredApiKey,

@@ -4,8 +4,8 @@ from unittest.mock import Mock
 
 from datas.protos.non_obf.game.basic_pb2 import SequenceNumberEvent
 
-from src.core.events_manager.event_manager import EventManager
 from src.core.behaviors.behavior import Behavior
+from src.core.events_manager.event_manager import EventManager
 from tests.fixtures.game_state import GameStateContext
 
 

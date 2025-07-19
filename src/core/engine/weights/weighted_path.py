@@ -1,6 +1,6 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 from heapq import nlargest
-from typing import Callable
 
 from dofus_unity_reader.models.world_graph import Edge, Vertice
 
