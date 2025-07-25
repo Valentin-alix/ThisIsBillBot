@@ -87,6 +87,7 @@ def make_behavior_coordinator() -> BehaviorCoordinator:
         usable_behaviors=[],
         bot_signals=BotSignalsFake(stop=SignalEmitter()),  # type: ignore
         shared_signals=SharedSignalsFake(),  # type: ignore
+        player_state=Mock(),
         account=make_account("test-login", 0),
         get_bot_config=Mock(return_value=None),
     )

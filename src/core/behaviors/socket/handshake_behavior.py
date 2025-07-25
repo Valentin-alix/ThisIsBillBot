@@ -6,7 +6,6 @@ from datas.protos.non_obf.game.character_management_pb2 import (
     CharacterForceSelectionReadyRequest,
     CharacterListEvent,
     CharacterListRequest,
-    CharacterLoadingCompleteEvent,
     CharacterSelectionRequest,
 )
 from datas.protos.non_obf.game.chat_pb2 import Channel, SubscribeMultipleChannelRequest
@@ -30,7 +29,6 @@ from datas.protos.non_obf.game.context_pb2 import (
 )
 from datas.protos.non_obf.game.guild_information_pb2 import GuildInformationRequest
 from datas.protos.non_obf.game.guild_member_pb2 import (
-    GuildMemberWarnOnConnectionSetRequest,
     GuildMemberWarnOnConnectionStartRequest,
 )
 from datas.protos.non_obf.game.social_pb2 import (
@@ -38,6 +36,7 @@ from datas.protos.non_obf.game.social_pb2 import (
     SpouseInformationRequest,
 )
 from exchange_pb2 import ObjectAveragePricesRequest
+from haapi_pb2 import HaapiSessionEvent
 
 from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
@@ -99,14 +98,12 @@ class HandshakeBehavior(Behavior):
             originator=self,
         )
         self.event_manager.on(
-            CharacterLoadingCompleteEvent,
-            self.on_character_loading_complete_event,
+            HaapiSessionEvent,
+            self.on_haapi_session_event,
             originator=self,
             once=True,
         )
-        self.event_manager.send(
-            GameIdentificationRequest(ticket_key=ticket, language_code="fr")
-        )
+        self.event_manager.send(GameIdentificationRequest(ticket_key=ticket, language_code="fr"))
 
     def on_authentication_ticket_accepted_timeout(self) -> None:
         request_disconnect = self.event_manager.request_disconnect_callback
@@ -127,43 +124,26 @@ class HandshakeBehavior(Behavior):
             self.character_creation_behavior.start(parent=self, callback=None)
         else:
             character = msg.characters[0]
-            self.event_manager.send(
-                CharacterSelectionRequest(character_id=character.id)
-            )
-            self.event_manager.send(
-                CharacterSelectionRequest(character_id=character.id)
-            )
+            self.event_manager.send(CharacterSelectionRequest(character_id=character.id))
+            self.event_manager.send(CharacterSelectionRequest(character_id=character.id))
 
-    def on_character_force_selection_event(
-        self, _msg: CharacterForceSelectionEvent
-    ) -> None:
+    def on_character_force_selection_event(self, _msg: CharacterForceSelectionEvent) -> None:
         self.event_manager.send(CharacterForceSelectionReadyRequest())
 
-    def on_character_loading_complete_event(
-        self, _msg: CharacterLoadingCompleteEvent
-    ) -> None:
+    def on_haapi_session_event(self, _msg: HaapiSessionEvent) -> None:
         self.run_timer(
             get_random_range(_POST_LOAD_DELAY, is_weighted=False),
             self._send_pre_context_creation_batch,
         )
 
     def _send_pre_context_creation_batch(self) -> None:
-        self.event_manager.send(
-            ContactWarnOnAchievementCompleteSetRequest(enable=False)
-        )
-        self.event_manager.send(
-            GuildMemberWarnOnConnectionSetRequest(enable=False, guild_id="")
-        )
+        self.event_manager.send(ContactWarnOnAchievementCompleteSetRequest(enable=False))
         self.event_manager.send(FriendSetStatusShareRequest(share=False))
         self.event_manager.send(FriendSetWarnOnLevelGainRequest(enable=False))
         self.event_manager.send(ContactWarnOnPermanentDeathSetRequest(enable=False))
         info_type = GuildInformationRequest.InformationType
-        self.event_manager.send(
-            GuildInformationRequest(information_type=info_type.INFO_PADDOCKS)
-        )
-        self.event_manager.send(
-            GuildInformationRequest(information_type=info_type.INFO_GENERAL)
-        )
+        self.event_manager.send(GuildInformationRequest(information_type=info_type.INFO_PADDOCKS))
+        self.event_manager.send(GuildInformationRequest(information_type=info_type.INFO_GENERAL))
         self.event_manager.send(ContextQuitRequest())
 
         self.run_timer(

@@ -16,16 +16,16 @@ from scapy.layers.inet6 import IPv6
 from scapy.packet import Packet, Raw
 from scapy.sendrecv import sniff
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
+from proto_mapper_assembly.scripts.dump import check_updated_mapping_resources
+
+from src.const import ENV_PATH
 from src.core.signals.log_signals import LogSignals
 from src.services.logging_utils.loggers import (
     configure_root_logger,
     init_root_gui_logging,
 )
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from src.const import ENV_PATH
 from src.utils.runtime_paths import configure_project_import_paths
 
 configure_project_import_paths(PROJECT_ROOT)
@@ -40,7 +40,7 @@ from src.protocol.protocol_connection import (
     get_conn_msg,
     get_conn_msg_info,
 )
-from src.protocol.protocol_game import get_obf_game_msg_info
+from src.protocol.protocol_game import get_game_msg, get_game_msg_info
 from src.utils.network import get_local_ip
 
 FILTER_DOFUS = "tcp port 5555"
@@ -50,9 +50,7 @@ CONNECTION_SERVERS_IPS: list[str] = socket.gethostbyname_ex(DOFUS_CONNECTION_URL
 
 @dataclass
 class Sniffer:
-    buffers: dict[tuple[str, str], bytes] = field(
-        init=False, default_factory=lambda: defaultdict(bytes)
-    )
+    buffers: dict[tuple[str, str], bytes] = field(init=False, default_factory=lambda: defaultdict(bytes))
     msg_info_signals: MessageInfoSignals
     from_obfuscated: bool
 
@@ -110,13 +108,17 @@ class Sniffer:
 
     def handle_game_message(self, content: bytes, from_server: bool) -> None:
         try:
-            msg_infos = get_obf_game_msg_info(content, from_server, True)
+            _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(content, True)
+            msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, from_server, True)
+            # msg_infos = get_obf_game_msg_info(content, from_server, True)
             self.msg_info_signals.msg_info.emit(msg_infos, False)
         except Exception:
             print(traceback.format_exc())
 
 
 def main() -> None:
+    check_updated_mapping_resources()
+
     configure_root_logger()
     app = QApplication(sys.argv)
     bot = generate_random_bot()

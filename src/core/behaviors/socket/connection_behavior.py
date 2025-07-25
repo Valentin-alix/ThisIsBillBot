@@ -47,9 +47,7 @@ class ConnectionBehavior(Behavior):
         client_version = get_client_version()
         self.logger.info(f"Client version: {client_version}")
 
-        device_identifier = (
-            BotConfigService().get_bot_config(self.game_state.player.login).hardware_id
-        )
+        device_identifier = BotConfigService().get_bot_config(self.game_state.player.login).hardware_id
 
         identification = IdentificationRequest(
             device_identifier=device_identifier,
@@ -74,22 +72,15 @@ class ConnectionBehavior(Behavior):
     def on_identification_response(self, msg: IdentificationResponse) -> None:
         if not msg.HasField("success"):
             reason = msg.error.reason
-            self.logger.error(
-                f"Identification failed: reason=({reason}), response={msg}"
-            )
+            self.logger.error(f"Identification failed: reason=({reason}), response={msg}")
             if reason == IdentificationResponse.Error.Reason.BANNED or reason == 14:
                 return self.finish(ConnectionErrorCode.BANNED, None)
             return self.finish(ConnectionErrorCode.IDENTIFICATION_FAILED, None)
         SubscriptionExpirationStorage().record_expiration(
-            self.game_state.player.login,
-            datetime.fromisoformat(msg.success.subscription_end_date),
+            self.game_state.player.login, datetime.fromisoformat(msg.success.subscription_end_date)
         )
         self.event_manager.send_connection_msg(
-            LoginMessage(
-                request=Request(
-                    uuid="1", selectServer=SelectServerRequest(server=ServerEnum.BRIAL)
-                )
-            )
+            LoginMessage(request=Request(uuid="1", selectServer=SelectServerRequest(server=ServerEnum.BRIAL)))
         )
         self.logger.info("Sent SelectServerRequest")
 

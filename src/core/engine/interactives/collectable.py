@@ -25,6 +25,10 @@ class Collectable:
         return related_job in HARVESTER_JOB_IDS
 
     @property
+    def skill_ids(self) -> list[int]:
+        return [skill.skill_id for skill in self.interactive_element.enabled_skills]
+
+    @property
     def mp(self) -> MapPoint:
         cell_id = (
             MapReader()

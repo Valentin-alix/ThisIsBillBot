@@ -8,6 +8,7 @@ from pathlib import Path
 from types import FrameType
 
 from dotenv import load_dotenv
+from proto_mapper_assembly.scripts.dump import check_updated_mapping_resources
 
 from src.services.logging_utils.loggers import configure_root_logger
 from src.utils.runtime_paths import configure_project_import_paths
@@ -58,9 +59,7 @@ from src.core.bot.lifecycle.scheduler import run_continuously  # noqa: E402
 from src.core.signals.shared_farm_signals import SharedSignals  # noqa: E402
 
 
-def _create_runtime(
-    shared_signals: SharedSignals, enable_account_scheduler: bool
-) -> BotManager:
+def _create_runtime(shared_signals: SharedSignals, enable_account_scheduler: bool) -> BotManager:
     bot_manager = BotManager(
         shared_signals=shared_signals,
         enable_account_scheduler=enable_account_scheduler,
@@ -157,6 +156,8 @@ def run_headless(application_argv: list[str], enable_automatic_schedules: bool) 
 
 
 def main(argv: list[str] | None = None) -> int:
+    check_updated_mapping_resources()
+
     runtime_args = parse_runtime_args(sys.argv if argv is None else argv)
     BotConfigService.use_bot_config_json = runtime_args.use_bot_config_json
 

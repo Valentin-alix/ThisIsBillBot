@@ -1,7 +1,14 @@
-from threading import Event
+from collections.abc import Callable
+from threading import Event, Thread
+from typing import cast
 from unittest.mock import MagicMock
 
 import pytest
+from datas.protos.non_obf.game.challenge_pb2 import (
+    ChallengeProposalEvent,
+    ChallengeSelectionRequest,
+)
+from datas.protos.non_obf.game.common_pb2 import Challenge
 from datas.protos.non_obf.game.fight_pb2 import FightTurnFinishRequest
 from datas.protos.non_obf.game.game_action_pb2 import (
     GameActionAcknowledgementRequest,
@@ -10,23 +17,26 @@ from datas.protos.non_obf.game.game_action_pb2 import (
 )
 from datas.protos.non_obf.game.gamemap_pb2 import MapMovementEvent, MapMovementRequest
 from dofus_unity_reader.grid.map_point import MapPoint
+from dofus_unity_reader.models.world_graph import Edge
 from google.protobuf.message import Message
 
-from src.core.behaviors.behavior import BehaviorState
+from src.core.behaviors.behavior import (
+    BehaviorLifecycleError,
+    BehaviorState,
+    BehaviorStateError,
+)
+from src.core.behaviors.farms import random_farm_behavior as random_farm_module
 from src.core.behaviors.farms.fight.fight_movement_behavior import (
     FightMovementBehavior,
 )
 from src.core.behaviors.farms.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.farms.fight.fight_turn_behavior import FightTurnBehavior
-from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripErrorCode
-from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
 from src.core.bot.bot import Bot
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
 from src.core.events_manager.event_manager import EventManager
 from src.core.frames.entity_frame import EntityFrame
 from src.core.states.game_state import GameState
-from src.exceptions import UnhandledErrorCodeException
 from src.services.human_timings import HumanTimingsService
 from tests.fixtures.game_state import GameStateContext, set_game_state
 
@@ -75,7 +85,152 @@ def _get_delayed_micro_jitter(service: HumanTimingsService, action_name: str) ->
     return 60.0
 
 
+def _get_fixed_challenge_selection_timing(service: HumanTimingsService) -> float:
+    del service
+    return 0.03
+
+
 class TestFightActionAcknowledgement:
+    def test_challenge_proposal_selects_first_proposed_challenge(
+        self,
+        runtime_bot: Bot,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        game_session_behavior = runtime_bot.game_session_behavior
+        sent_messages: list[Message] = []
+        scheduled_delays: list[float] = []
+        runtime_bot.event_manager.on_send_game_callback = sent_messages.append
+
+        def run_timer(delay: float, callback: Callable[[], None]) -> None:
+            scheduled_delays.append(delay)
+            callback()
+
+        monkeypatch.setattr(game_session_behavior, "run_timer", run_timer)
+        monkeypatch.setattr(
+            HumanTimingsService,
+            "get_timing_fight_challenge_selection",
+            _get_fixed_challenge_selection_timing,
+        )
+
+        game_session_behavior.run()
+        runtime_bot.event_manager.process_msg(
+            ChallengeProposalEvent(
+                challenge_proposals=[
+                    Challenge(challenge_id=8),
+                    Challenge(challenge_id=17),
+                ]
+            )
+        )
+
+        assert scheduled_delays == [0.03]
+        assert len(sent_messages) == 1
+        selection_request = sent_messages[0]
+        assert isinstance(selection_request, ChallengeSelectionRequest)
+        assert selection_request.challenge_id == 8
+
+    def test_empty_challenge_proposal_leaves_selection_to_server(
+        self,
+        runtime_bot: Bot,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        game_session_behavior = runtime_bot.game_session_behavior
+        run_timer = MagicMock()
+        monkeypatch.setattr(game_session_behavior, "run_timer", run_timer)
+
+        game_session_behavior.run()
+        runtime_bot.event_manager.process_msg(ChallengeProposalEvent())
+
+        run_timer.assert_not_called()
+
+    def test_start_with_stopped_parent_rolls_back_child_state(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        random_farm_behavior = runtime_bot.fighter_behavior.random_farm_behavior
+        auto_trip_behavior = random_farm_behavior.auto_trip_smart_behavior
+
+        with pytest.raises(BehaviorLifecycleError):
+            auto_trip_behavior.start(
+                callback=None,
+                parent=random_farm_behavior,
+                map_ids={runtime_bot.game_state.map.map_id},
+            )
+
+        assert auto_trip_behavior.state is BehaviorState.STOPPED
+        assert auto_trip_behavior.parent is None
+
+    def test_double_start_raises_instead_of_leaving_silent_stall(
+        self,
+        runtime_bot: Bot,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        game_session_behavior = runtime_bot.game_session_behavior
+        monkeypatch.setattr(game_session_behavior, "run", lambda: None)
+        game_session_behavior.start(callback=None, parent=None)
+
+        with pytest.raises(BehaviorStateError):
+            game_session_behavior.start(callback=None, parent=None)
+
+        assert game_session_behavior.state is BehaviorState.RUNNING
+        game_session_behavior.stop()
+
+    def test_synchronous_run_failure_cleans_behavior_before_propagating(
+        self,
+        runtime_bot: Bot,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        game_session_behavior = runtime_bot.game_session_behavior
+
+        def raise_run_error() -> None:
+            raise RuntimeError("synchronous run failure")
+
+        monkeypatch.setattr(game_session_behavior, "run", raise_run_error)
+
+        with pytest.raises(RuntimeError, match="synchronous run failure"):
+            game_session_behavior.start(callback=None, parent=None)
+
+        assert game_session_behavior.state is BehaviorState.STOPPED
+
+    def test_random_farm_publishes_stable_paths_during_concurrent_updates(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        random_farm_behavior = runtime_bot.fighter_behavior.random_farm_behavior
+        runtime_bot.game_state.player.server_id = 1
+        runtime_bot.game_state.player.character_id = 10
+        edge_mock = MagicMock()
+        edge_mock.m_to.m_mapId = 123
+        edge = cast(Edge, edge_mock)
+        random_farm_behavior.map_ids = {123}
+        random_farm_behavior.get_additional_weight_by_map_id = lambda map_id: 0
+        original_path = [edge]
+        random_farm_behavior.edge_path = original_path
+        original_path.clear()
+
+        with random_farm_module.PATH_LOCK:
+            published_path = random_farm_module.EDGE_PATH_BY_SERVER_AND_CHARACTER[(1, 10)]
+        assert published_path == (edge,)
+
+        competing_key = (1, 20)
+
+        def update_competing_path() -> None:
+            for iteration in range(2_000):
+                with random_farm_module.PATH_LOCK:
+                    if iteration % 2 == 0:
+                        random_farm_module.EDGE_PATH_BY_SERVER_AND_CHARACTER[competing_key] = (edge,)
+                    else:
+                        random_farm_module.EDGE_PATH_BY_SERVER_AND_CHARACTER.pop(competing_key, None)
+
+        writer_thread = Thread(target=update_competing_path)
+        writer_thread.start()
+        for _weight_calculation_index in range(2_000):
+            random_farm_behavior.get_weight_edge(edge)
+        writer_thread.join()
+
+        with random_farm_module.PATH_LOCK:
+            random_farm_module.EDGE_PATH_BY_SERVER_AND_CHARACTER.pop(competing_key, None)
+        random_farm_behavior.edge_path = None
+
     def test_fight_movement_stops_when_player_dies_before_late_ack(
         self, game_state_ctx: GameStateContext
     ) -> None:
@@ -170,86 +325,6 @@ class TestFightActionAcknowledgement:
 
         assert finished_error_codes == [None]
         assert movement_behavior.state == BehaviorState.STOPPED
-
-    def test_spell_finishes_on_latest_player_ack_and_ignores_other_authors(
-        self, game_state_ctx: GameStateContext, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        monkeypatch.setattr(
-            HumanTimingsService,
-            "get_micro_jitter",
-            _get_delayed_micro_jitter,
-        )
-        set_game_state(game_state_ctx.game_state, player_cell_id=399, enemy_cell_ids=[])
-        event_manager = _make_event_manager(game_state_ctx)
-        spell_behavior = FightSpellBehavior(
-            event_manager=event_manager,
-            game_state=game_state_ctx.game_state,
-            _logger=game_state_ctx.logger,
-        )
-        finished_error_codes: list[str | None] = []
-
-        spell_behavior.start(
-            callback=finished_error_codes.append,
-            parent=None,
-            spell_id=13242,
-            target_mp=MapPoint.from_cell_id(383),
-        )
-
-        event_manager.process_msg(SequenceEndEvent(action_id=12, author_id=OTHER_FIGHTER_ID))
-        event_manager.process_msg(GameActionAcknowledgementRequest(valid=True, action_id=12))
-        event_manager.process_msg(SequenceEndEvent(action_id=6, author_id=PLAYER_ID))
-        event_manager.process_msg(SequenceEndEvent(action_id=16, author_id=PLAYER_ID))
-        event_manager.process_msg(GameActionAcknowledgementRequest(valid=True, action_id=6))
-
-        assert finished_error_codes == []
-        assert spell_behavior.state == BehaviorState.RUNNING
-
-        event_manager.process_msg(GameActionAcknowledgementRequest(valid=True, action_id=16))
-
-        assert finished_error_codes == [None]
-        assert spell_behavior.state == BehaviorState.STOPPED
-
-    def test_spell_stops_when_player_dies_before_late_ack(
-        self, game_state_ctx: GameStateContext, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        monkeypatch.setattr(
-            HumanTimingsService,
-            "get_micro_jitter",
-            _get_delayed_micro_jitter,
-        )
-        set_game_state(game_state_ctx.game_state, player_cell_id=399, enemy_cell_ids=[])
-        event_manager = _make_event_manager(game_state_ctx)
-        _register_entity_frame(event_manager, game_state_ctx)
-        spell_behavior = FightSpellBehavior(
-            event_manager=event_manager,
-            game_state=game_state_ctx.game_state,
-            _logger=game_state_ctx.logger,
-        )
-        finished_error_codes: list[str | None] = []
-
-        spell_behavior.start(
-            callback=finished_error_codes.append,
-            parent=None,
-            spell_id=13242,
-            target_mp=MapPoint.from_cell_id(383),
-        )
-        event_manager.process_msg(SequenceEndEvent(action_id=16, author_id=PLAYER_ID))
-        event_manager.process_msg(
-            GameActionFightEvent(
-                source_id=OTHER_FIGHTER_ID,
-                death=GameActionFightEvent.Death(
-                    source_id=OTHER_FIGHTER_ID,
-                    target_id=PLAYER_ID,
-                ),
-            )
-        )
-
-        assert finished_error_codes == [MapMoveError.PLAYER_DEAD]
-        assert spell_behavior.state == BehaviorState.STOPPED
-
-        event_manager.process_msg(GameActionAcknowledgementRequest(valid=True, action_id=16))
-
-        assert finished_error_codes == [MapMoveError.PLAYER_DEAD]
 
     def test_fight_turn_stops_when_player_dies(
         self, game_state_ctx: GameStateContext, monkeypatch: pytest.MonkeyPatch
@@ -470,116 +545,3 @@ class TestFightActionAcknowledgement:
         assert not any(isinstance(sent_message, MapMovementRequest) for sent_message in sent_messages)
         assert fight_movement_behavior.state == BehaviorState.STOPPED
         assert map_move_behavior.state == BehaviorState.STOPPED
-
-
-class TestFarmRecovery:
-    def test_auto_equipment_skips_sale_hotel_for_never_subscribed_account(
-        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        auto_equipment_behavior = runtime_bot.auto_bot_behavior.auto_equipment_behavior
-        sale_hotel_start = MagicMock()
-        collect_and_equip = MagicMock()
-        auto_equipment_behavior._to_buy = [MagicMock()]
-        monkeypatch.setattr(
-            type(runtime_bot.game_state.player),
-            "is_sub",
-            property(lambda _player_state: False),
-        )
-        monkeypatch.setattr(
-            type(runtime_bot.game_state.player),
-            "is_former_sub",
-            property(lambda _player_state: False),
-        )
-        monkeypatch.setattr(
-            auto_equipment_behavior.sale_hotel_buy_behavior,
-            "start",
-            sale_hotel_start,
-        )
-        monkeypatch.setattr(auto_equipment_behavior, "collect_and_equip", collect_and_equip)
-
-        auto_equipment_behavior.buy_missing_items()
-
-        sale_hotel_start.assert_not_called()
-        collect_and_equip.assert_called_once_with()
-
-    def test_auto_equipment_keeps_sale_hotel_for_former_subscriber(
-        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        auto_equipment_behavior = runtime_bot.auto_bot_behavior.auto_equipment_behavior
-        sale_hotel_start = MagicMock()
-        auto_equipment_behavior._to_buy = [MagicMock()]
-        monkeypatch.setattr(
-            type(runtime_bot.game_state.player),
-            "is_sub",
-            property(lambda _player_state: False),
-        )
-        monkeypatch.setattr(
-            type(runtime_bot.game_state.player),
-            "is_former_sub",
-            property(lambda _player_state: True),
-        )
-        monkeypatch.setattr(
-            auto_equipment_behavior.sale_hotel_buy_behavior,
-            "start",
-            sale_hotel_start,
-        )
-
-        auto_equipment_behavior.buy_missing_items()
-
-        sale_hotel_start.assert_called_once()
-
-    def test_interactive_transition_accepts_fight_interruption(self, runtime_bot: Bot) -> None:
-        edge_behavior = runtime_bot.fighter_behavior.random_farm_behavior.edge_behavior
-        edge = MagicMock()
-        transition = MagicMock()
-        edge.m_to.m_mapId = 123
-        runtime_bot.game_state.map.map_id = 124
-        runtime_bot.game_state.fight.in_fight = True
-
-        edge_behavior.on_interactive_behavior_finished(
-            MapChangeError.UNEXPECTED_NEW_MAP,
-            edge=edge,
-            transition=transition,
-            element_id=456,
-        )
-
-    def test_interactive_transition_rejects_unexpected_roleplay_map(self, runtime_bot: Bot) -> None:
-        edge_behavior = runtime_bot.fighter_behavior.random_farm_behavior.edge_behavior
-        edge = MagicMock()
-        transition = MagicMock()
-        edge.m_to.m_mapId = 123
-        runtime_bot.game_state.map.map_id = 124
-        runtime_bot.game_state.fight.in_fight = False
-
-        with pytest.raises(UnhandledErrorCodeException):
-            edge_behavior.on_interactive_behavior_finished(
-                MapChangeError.UNEXPECTED_NEW_MAP,
-                edge=edge,
-                transition=transition,
-                element_id=456,
-            )
-
-    def test_incomplete_fight_initialization_requests_disconnect(
-        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        attacker_behavior = runtime_bot.fighter_behavior.attacker_behavior
-        request_disconnect = MagicMock()
-        attack_enemy = MagicMock()
-        runtime_bot.game_state.fight.in_fight = True
-        runtime_bot.event_manager.request_disconnect_callback = request_disconnect
-        monkeypatch.setattr(attacker_behavior, "attack_enemy", attack_enemy)
-
-        attacker_behavior.on_fight_map_information_timeout(-20_003)
-
-        request_disconnect.assert_called_once_with()
-        attack_enemy.assert_not_called()
-
-    def test_path_blocked_by_forbidden_transition_requests_disconnect(self, runtime_bot: Bot) -> None:
-        random_farm_behavior = runtime_bot.fighter_behavior.random_farm_behavior
-        request_disconnect = MagicMock()
-        runtime_bot.event_manager.request_disconnect_callback = request_disconnect
-        runtime_bot.game_state.map.forbidden_edge_transitions.add((MagicMock(), MagicMock(), MagicMock()))
-
-        random_farm_behavior.on_auto_trip_world_behavior_finished(AutoTripErrorCode.PATH_NOT_FOUND)
-
-        request_disconnect.assert_called_once_with()

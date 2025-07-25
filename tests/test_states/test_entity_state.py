@@ -194,6 +194,11 @@ class TestEntityState:
         self,
         runtime_bot: Bot,
     ):
+        runtime_bot.event_manager.process_msg(
+            FightSynchronizeEvent(
+                fighters=[make_fighter(actor_id=3, cell_id=204, alive=True)]
+            )
+        )
         # The dead fighter is placed *before* an alive one to reproduce the
         # ordering bug where re-adding the full list overwrote its removal.
         runtime_bot.event_manager.process_msg(
@@ -212,6 +217,50 @@ class TestEntityState:
             for enemy in runtime_bot.game_state.fight.get_enemies(character_id=0)
         }
         assert 204 not in enemy_cells
+
+    def test_partial_fight_synchronize_keeps_omitted_alive_fighter(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        runtime_bot.event_manager.process_msg(
+            FightSynchronizeEvent(
+                fighters=[
+                    make_fighter(actor_id=-1, cell_id=396, alive=True),
+                    make_fighter(actor_id=-2, cell_id=204, alive=True),
+                ]
+            )
+        )
+
+        runtime_bot.event_manager.process_msg(
+            FightSynchronizeEvent(
+                fighters=[make_fighter(actor_id=-1, cell_id=396, alive=True)]
+            )
+        )
+
+        assert set(runtime_bot.game_state.entity.actor_by_id) == {-1, -2}
+
+    def test_fight_synchronize_recreates_revived_fight_actor(
+        self, runtime_bot: Bot
+    ) -> None:
+        revived_fighter = make_fighter(actor_id=-2, cell_id=204, alive=True)
+        revived_fighter.actor_information.fighter.stats.characteristics.append(
+            CharacterCharacteristic(
+                characteristic_id=0,
+                value=CharacterCharacteristicValue(total=300),
+            )
+        )
+        runtime_bot.game_state.entity.set_actor(revived_fighter)
+        runtime_bot.event_manager.process_msg(
+            GameActionFightEvent(
+                death=GameActionFightEvent.Death(target_id=-2),
+            )
+        )
+
+        runtime_bot.event_manager.process_msg(
+            FightSynchronizeEvent(fighters=[revived_fighter])
+        )
+
+        assert runtime_bot.game_state.entity.actor_fight_by_id[-2].life_point == 300
 
     def test_context_summons_create_fight_actors_before_life_loss(
         self,

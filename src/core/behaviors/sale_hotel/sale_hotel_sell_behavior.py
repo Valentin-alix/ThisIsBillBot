@@ -1,4 +1,5 @@
 import math
+from collections import deque
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import StrEnum, auto
@@ -41,12 +42,7 @@ from src.core.behaviors.storage.loads.load_item_request import LoadItemInfo
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestErrorCode,
 )
-from src.core.config import (
-    BASE_RANGE,
-    MIN_KAMAS_TO_GO_SALE_HOTEL,
-    SMALL_RANGE,
-    TINY_RANGE,
-)
+from src.core.config import MIN_KAMAS_TO_GO_SALE_HOTEL
 from src.core.engine.economy.sale_hotel import (
     choose_quantity_to_sell,
     get_item_gids_to_sell,
@@ -56,6 +52,7 @@ from src.core.engine.economy.sale_hotel import (
 )
 from src.core.states.guild_chest_state import TAB_BY_GID
 from src.exceptions import UnexpectedStateException
+from src.services.human_timings import HumanTimingsService
 
 
 class SaleHotelErrorCode(StrEnum):
@@ -233,7 +230,10 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             ),
             originator=self,
         )
-        self.run_timer(SMALL_RANGE, lambda: self.open_item(next_item.gid))
+        self.run_timer(
+            HumanTimingsService().get_timing_sale_hotel_review(),
+            lambda: self.open_item(next_item.gid),
+        )
 
     def open_item(self, item_gid: int) -> None:
         if self.game_state.sale_hotel.current_search_item_gid is not None:
@@ -344,7 +344,10 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
         req = ExchangeObjectMovePricedRequest(
             object_uid=item.uid, quantity=quantity_to_sell, price=price_for_quantity
         )
-        self.send_message_delayed(req, TINY_RANGE)
+        self.send_message_delayed(
+            req,
+            HumanTimingsService().get_timing_sale_hotel_price_change(),
+        )
 
     def on_inventory_weight_event_after_created_price(
         self,
@@ -379,7 +382,10 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
         )
         self.logger.info(f"Updating item {item_gid}")
         req = ExchangeBidHousePriceRequest(object_gid=item_gid)
-        self.send_message_delayed(req, SMALL_RANGE)
+        self.send_message_delayed(
+            req,
+            HumanTimingsService().get_timing_sale_hotel_review(),
+        )
 
     def on_exchange_bid_price_event(
         self, msg: ExchangeBidPriceEvent, item_gid: int
@@ -431,11 +437,21 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
                 originator=self,
             )
 
-            def send_all_modify_price_req() -> None:
-                for request_modify_price in requests_modify_price:
-                    self.event_manager.send(request_modify_price)
+            pending_requests = deque(requests_modify_price)
 
-            self.run_timer(BASE_RANGE, send_all_modify_price_req)
+            def send_next_modify_price_request() -> None:
+                request_modify_price = pending_requests.popleft()
+                self.event_manager.send(request_modify_price)
+                if pending_requests:
+                    self.run_timer(
+                        HumanTimingsService().get_timing_sale_hotel_price_change(),
+                        send_next_modify_price_request,
+                    )
+
+            self.run_timer(
+                HumanTimingsService().get_timing_sale_hotel_price_change(),
+                send_next_modify_price_request,
+            )
 
     def on_exchange_bid_house_item_removed_event_after_updated(
         self,
@@ -449,7 +465,10 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             reason="Item removed from sale hotel, proceeding to update all prices",
         )
         self.logger.info("Update all prices after item removed")
-        self.run_timer(BASE_RANGE, self.update_all_prices)
+        self.run_timer(
+            HumanTimingsService().get_timing_sale_hotel_review(),
+            self.update_all_prices,
+        )
 
     def _compute_price_with_undercut(
         self, market_price: int, bot_min_price: int | None

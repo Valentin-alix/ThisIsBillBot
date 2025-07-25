@@ -31,7 +31,6 @@ class MapState(State):
     )
     is_waiting_for_map_popup_dialog_leave: bool = field(init=False, default=False)
     _anomaly_info_requested: bool = field(init=False, default=False)
-    _is_fight_context: bool = field(init=False, default=False)
 
     def clear_state(self):
         self.is_in_map_transition = False
@@ -40,7 +39,6 @@ class MapState(State):
         self.forbidden_edge_transitions.clear()
         self.is_waiting_for_map_popup_dialog_leave = False
         self._anomaly_info_requested = False
-        self._is_fight_context = False
 
     @property
     def is_in_map_transition(self) -> int:
@@ -83,9 +81,7 @@ class MapState(State):
     @property
     def map_point(self):
         return MapPoint.from_cell_id(
-            self.entity_state.actor_by_id[
-                self.player_state.character_id
-            ].disposition.cell_id
+            self.entity_state.actor_by_id[self.player_state.character_id].disposition.cell_id
         )
 
     @property

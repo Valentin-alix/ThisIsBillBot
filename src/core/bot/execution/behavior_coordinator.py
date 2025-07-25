@@ -8,7 +8,7 @@ from ankama_launcher_emulator_premium.interfaces.credentials import (
 )
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
-from src.controller.bot_config import BotConfig
+from src.controller.bot_config import BotConfig, BotConfigService
 from src.core.behaviors.behavior import Behavior, BehaviorState
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
@@ -16,10 +16,10 @@ from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehavior
-from src.core.config import MULE_BANK_CHARACTER_LOGIN
 from src.core.events_manager.event_manager import EventManager
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.shared_farm_signals import SharedSignals
+from src.core.states.player_state import PlayerState
 from src.services.logging_utils.contextual_logger import ContextualLogger
 
 
@@ -44,6 +44,7 @@ class BehaviorCoordinator(ContextualLogger):
 
     bot_signals: BotSignals
     shared_signals: SharedSignals
+    player_state: PlayerState
 
     account: StoredApiKey
     get_bot_config: Callable[[], BotConfig | None]
@@ -148,7 +149,14 @@ class BehaviorCoordinator(ContextualLogger):
 
     def guess_bot_action(self) -> None:
         """Determine and trigger the appropriate bot action based on configuration."""
-        if self.account.apikey.login in MULE_BANK_CHARACTER_LOGIN:
+        is_kamas_mule = BotConfigService().is_kamas_mule(
+            self.account.apikey.login
+        )
+        if (
+            is_kamas_mule
+            and self.player_state.level >= 50
+            and self.player_state.is_former_sub
+        ):
             self.bot_signals.play_mule_kamas.emit()
             return
         config = self.get_bot_config()

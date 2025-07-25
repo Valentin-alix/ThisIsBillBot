@@ -2,10 +2,12 @@ import threading
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from datas.protos.non_obf.connection.login_message_pb2 import LoginMessage
 from google.protobuf.message import Message
 
 from src import const
 from src.const import DOFUS_CONNECTION_URL
+from src.core.behaviors.behavior import BehaviorState
 from src.core.behaviors.socket.connection_behavior import (
     ConnectionBehavior,
     IdentificationSuccessInfo,
@@ -31,18 +33,23 @@ class ConnectionClient(BaseClient):
     ) -> None:
         """Authenticate against the login server and retrieve game server coordinates."""
         self.connect_socket(DOFUS_CONNECTION_URL, LOGIN_SERVER_PORT)
+        self.bot.event_manager.request_disconnect_callback = self.close
+        self.bot.event_manager.is_socket_mode = True
         self.bot.event_manager.on_send_conn_callback = self.send_msg
         self.bot.logger.info(f"Connected to {DOFUS_CONNECTION_URL}:{LOGIN_SERVER_PORT}")
+        self.connection_behavior.start(game_token=game_token, callback=callback, parent=None)
         threading.Thread(target=self.loop, daemon=True).start()
-        self.connection_behavior.start(
-            game_token=game_token, callback=callback, parent=None
-        )
 
     def send_msg(self, msg: Message) -> None:
         try:
+            assert isinstance(msg, LoginMessage), (
+                "ConnectionClient only sends LoginMessage envelopes"
+            )
+            _, clear_sub_msg = get_conn_msg(msg.SerializeToString())
             self.client_socket.sendall(encode_msg(msg))
+            self.bot.event_manager.process_msg(clear_sub_msg)
             if const.DEBUG:
-                msg_info = get_conn_msg_info(msg, False)
+                msg_info = get_conn_msg_info(clear_sub_msg, False)
                 self.bot.msg_info_signals.msg_info.emit(msg_info, True)
         except OSError as err:
             self.bot.logger.error(f"send error: {err}")
@@ -58,3 +65,11 @@ class ConnectionClient(BaseClient):
 
     def on_close(self) -> None:
         self.bot.event_manager.on_send_conn_callback = None
+        if self.connection_behavior.state in {
+            BehaviorState.STARTING,
+            BehaviorState.RUNNING,
+        }:
+            self.connection_behavior.stop()
+        if self.bot.event_manager.request_disconnect_callback == self.close:
+            self.bot.event_manager.request_disconnect_callback = None
+            self.bot.event_manager.is_socket_mode = False

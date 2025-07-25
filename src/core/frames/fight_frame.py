@@ -108,17 +108,10 @@ class FightFrame(Frame):
         )
 
     def on_context_creation_event(self, msg: ContextCreationEvent):
-        self.game_state.fight.in_fight = (
-            msg.context == ContextCreationEvent.GameContext.FIGHT
-        )
+        self.game_state.fight.in_fight = msg.context == ContextCreationEvent.GameContext.FIGHT
 
-    def on_fight_placement_position_request(
-        self, msg: FightPlacementPossiblePositionsEvent
-    ):
-        if (
-            self.game_state.map.map_point.cell_id
-            in msg.starting_positions.challengers_positions
-        ):
+    def on_fight_placement_position_request(self, msg: FightPlacementPossiblePositionsEvent):
+        if self.game_state.map.map_point.cell_id in msg.starting_positions.challengers_positions:
             self.game_state.fight.fight_placement_possible_positions = list(
                 msg.starting_positions.challengers_positions
             )
@@ -131,21 +124,12 @@ class FightFrame(Frame):
         self.game_state.fight.spells = list(message.human_spells)
 
     def on_game_action_fight_cast_request(self, message: GameActionFightCastRequest):
-        self.game_state.fight.count_casted_by_spell_id_on_current_turn[
-            message.spell_id
-        ] = (
-            self.game_state.fight.count_casted_by_spell_id_on_current_turn.get(
-                message.spell_id, 0
-            )
-            + 1
+        self.game_state.fight.count_casted_by_spell_id_on_current_turn[message.spell_id] = (
+            self.game_state.fight.count_casted_by_spell_id_on_current_turn.get(message.spell_id, 0) + 1
         )
-        self.game_state.fight.last_cast_turn_by_spell_id[message.spell_id] = (
-            self.game_state.fight.fight_turn
-        )
+        self.game_state.fight.last_cast_turn_by_spell_id[message.spell_id] = self.game_state.fight.fight_turn
 
-    def on_character_characteristics_event(
-        self, message: CharacterCharacteristicsEvent
-    ):
+    def on_character_characteristics_event(self, message: CharacterCharacteristicsEvent):
         self.game_state.fight.modifier_by_type_and_spell_id.clear()
         for spell_modifier in message.stats.spell_modifiers:
             self.game_state.fight.modifier_by_type_and_spell_id[
@@ -158,17 +142,13 @@ class FightFrame(Frame):
         self.game_state.fight.sync_life_points_from_characteristics()
         self._log_life_resync("CharacterCharacteristicsEvent", hp_before)
 
-    def before_fight_turn_finish_request(
-        self, msg: FightTurnFinishRequest
-    ) -> FightTurnFinishRequest | None:
+    def before_fight_turn_finish_request(self, msg: FightTurnFinishRequest) -> FightTurnFinishRequest | None:
         if self.is_playing_event.is_set():
             return None
         return msg
 
     def on_game_action_fight_event(self, msg: GameActionFightEvent):
-        if msg.HasField("death") and (
-            msg.death.target_id == self.game_state.player.character_id
-        ):
+        if msg.HasField("death") and (msg.death.target_id == self.game_state.player.character_id):
             hp_before = self.game_state.fight.life_point
             self.logger.info(
                 "Player HP death event: "
@@ -190,10 +170,7 @@ class FightFrame(Frame):
                 )
                 self.game_state.fight.life_point = hp_after
             else:
-                if (
-                    msg.life_points_gain.target_id
-                    not in self.game_state.entity.actor_fight_by_id
-                ):
+                if msg.life_points_gain.target_id not in self.game_state.entity.actor_fight_by_id:
                     self.logger.error(
                         "Non-player HP gain targets missing fight actor: "
                         f"target_id={msg.life_points_gain.target_id}, "
@@ -222,18 +199,13 @@ class FightFrame(Frame):
                     self.logger.info(log_message)
                 self.game_state.fight.life_point = hp_after
             else:
-                if (
-                    msg.life_points_lost.target_id
-                    not in self.game_state.entity.actor_fight_by_id
-                ):
+                if msg.life_points_lost.target_id not in self.game_state.entity.actor_fight_by_id:
                     self.logger.error(
                         "Non-player HP loss targets missing fight actor: "
                         f"target_id={msg.life_points_lost.target_id}, "
                         f"loss={msg.life_points_lost.loss}, source_id={msg.source_id}"
                     )
-                actor_fight = self.game_state.entity.actor_fight_by_id[
-                    msg.life_points_lost.target_id
-                ]
+                actor_fight = self.game_state.entity.actor_fight_by_id[msg.life_points_lost.target_id]
                 actor_fight.life_point = max(
                     actor_fight.life_point - msg.life_points_lost.loss,
                     0,
@@ -243,10 +215,7 @@ class FightFrame(Frame):
         # is kept out of actor_fight_by_id, its state lives in game_state.fight).
         player_id = self.game_state.player.character_id
 
-        if (
-            msg.HasField("removable_effect")
-            and msg.removable_effect.effect.target_id != player_id
-        ):
+        if msg.HasField("removable_effect") and msg.removable_effect.effect.target_id != player_id:
             self._handle_removable_effect(msg.removable_effect.effect)
 
         if msg.HasField("spell_remove") and msg.spell_remove.target_id != player_id:
@@ -259,10 +228,7 @@ class FightFrame(Frame):
                 msg.invisibility.target_id, msg.invisibility.invisibility_state
             )
 
-        if (
-            msg.HasField("invisible_detected")
-            and msg.invisible_detected.target_id != player_id
-        ):
+        if msg.HasField("invisible_detected") and msg.invisible_detected.target_id != player_id:
             self.game_state.entity.set_fight_actor_invisibility(
                 msg.invisible_detected.target_id, FightInvisibilityState.DETECTED
             )
@@ -270,34 +236,21 @@ class FightFrame(Frame):
     def _handle_removable_effect(self, effect: FightRemovableEffect) -> None:
         # Only track state-carrying effects; pure stat boosts (state_id 0) are ignored.
         state_id = effect.temporary_boost_effect.state_id
-        if (
-            effect.dissipation_state == FightRemovableEffect.REALLY_NOT_DISSIPATED
-            and state_id
-        ):
-            self.game_state.entity.set_fight_actor_effect(
-                effect.target_id, effect.uid, state_id
-            )
+        if effect.dissipation_state == FightRemovableEffect.REALLY_NOT_DISSIPATED and state_id:
+            self.game_state.entity.set_fight_actor_effect(effect.target_id, effect.uid, state_id)
         else:
-            self.game_state.entity.remove_fight_actor_effect(
-                effect.target_id, effect.uid
-            )
+            self.game_state.entity.remove_fight_actor_effect(effect.target_id, effect.uid)
 
     def on_fight_synchronize_event(self, msg: FightSynchronizeEvent):
         player_id = self.game_state.player.character_id
-        player_fighter = next(
-            actor for actor in msg.fighters if actor.actor_id == player_id
-        )
-        for (
-            characteristic
-        ) in player_fighter.actor_information.fighter.stats.characteristics:
+        player_fighter = next(actor for actor in msg.fighters if actor.actor_id == player_id)
+        for characteristic in player_fighter.actor_information.fighter.stats.characteristics:
             self.game_state.fight.update_characteristic(characteristic)
         hp_before = self.game_state.fight.life_point
         self.game_state.fight.sync_life_points_from_characteristics()
         self._log_life_resync("FightSynchronizeEvent", hp_before)
 
-    def on_fight_refresh_character_stats_event(
-        self, msg: FightRefreshCharacterStatsEvent
-    ):
+    def on_fight_refresh_character_stats_event(self, msg: FightRefreshCharacterStatsEvent):
         if self.game_state.player.character_id != msg.fighter_id:
             return
         has_life_stat = False
@@ -307,18 +260,16 @@ class FightFrame(Frame):
                 has_life_stat = True
         if not has_life_stat:
             return
+        if not self.game_state.fight.can_sync_life_points_from_characteristics():
+            return
         hp_before = self.game_state.fight.life_point
         self.game_state.fight.sync_life_points_from_characteristics()
         self._log_life_resync("FightRefreshCharacterStatsEvent", hp_before)
 
     def _log_life_resync(self, source_event: str, hp_before: int) -> None:
-        life_points = self.game_state.fight.get_stat_by_id(
-            CharacteristicEnum.LIFE_POINTS
-        )
+        life_points = self.game_state.fight.get_stat_by_id(CharacteristicEnum.LIFE_POINTS)
         vitality = self.game_state.fight.get_stat_by_id(CharacteristicEnum.VITALITY)
-        current_life_delta = self.game_state.fight.get_stat_by_id(
-            CharacteristicEnum.CUR_LIFE
-        )
+        current_life_delta = self.game_state.fight.get_stat_by_id(CharacteristicEnum.CUR_LIFE)
         self.logger.info(
             "Player HP resync: "
             f"source={source_event}, hp_before={hp_before}, "
@@ -332,7 +283,6 @@ class FightFrame(Frame):
         self.game_state.fight.count_casted_by_spell_id_on_current_turn.clear()
         self.game_state.fight.last_cast_turn_by_spell_id.clear()
         self.game_state.fight.modifier_by_type_and_spell_id.clear()
-        self.game_state.fight.in_fight = True
         self.logger.debug("Fight start: cleared per-fight cooldown/cast tracking")
 
     def on_fight_turn_event(self, msg: FightTurnEvent):
@@ -345,9 +295,7 @@ class FightFrame(Frame):
             self.game_state.fight.count_casted_by_spell_id_on_current_turn.clear()
             self.game_state.fight.is_our_turn = False
 
-    def on_map_complementary_information_event(
-        self, msg: MapComplementaryInformationEvent
-    ):
+    def on_map_complementary_information_event(self, msg: MapComplementaryInformationEvent):
         self.game_state.fight.modifier_by_type_and_spell_id.clear()
         self.game_state.fight.count_casted_by_spell_id_on_current_turn.clear()
         self.game_state.fight.in_fight = False
@@ -362,9 +310,7 @@ class FightFrame(Frame):
             )
             if not unique_name_id:
                 return
-            self.logger.info(
-                f"Unique monster group name_id attacked : {unique_name_id}"
-            )
+            self.logger.info(f"Unique monster group name_id attacked : {unique_name_id}")
             if last_atk_info.from_map_id == msg.map_id:
                 GameDataController().reset_defeat_count(unique_name_id, self.logger)
             else:

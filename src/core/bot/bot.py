@@ -10,6 +10,10 @@ from src.controller.bot_config import BotConfigService
 from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
 )
+from src.core.behaviors.account.ogrine_subscription import OgrineSubscriptionBehavior
+from src.core.behaviors.account.paysafecard_subscription import (
+    PaysafecardSubscriptionBehavior,
+)
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
@@ -87,6 +91,8 @@ class Bot(ContextualLogger):
     hearthbeat_behavior: HearthBeatBehavior
     character_creation_behavior: CharacterCreationBehavior
     tutorial_behavior: TutorialBehavior
+    ogrine_subscription_behavior: OgrineSubscriptionBehavior
+    paysafecard_subscription_behavior: PaysafecardSubscriptionBehavior
 
     usable_behaviors: list[Behavior]
 
@@ -119,6 +125,7 @@ class Bot(ContextualLogger):
             _logger=self.logger,
             account=self.account,
             shared_signals=self.shared_signals,
+            player_state=self.game_state.player,
             event_manager=self.event_manager,
             get_bot_config=self.get_bot_config,
             is_connected_event=self.is_connected_event,
@@ -146,6 +153,8 @@ class Bot(ContextualLogger):
             behavior_coordinator=self.behavior_coordinator,
             is_connected_event=self.is_connected_event,
             tutorial_behavior=self.tutorial_behavior,
+            ogrine_subscription_behavior=self.ogrine_subscription_behavior,
+            paysafecard_subscription_behavior=self.paysafecard_subscription_behavior,
             character_creation_behavior=self.character_creation_behavior,
             bot_signals=self.bot_signals,
         )

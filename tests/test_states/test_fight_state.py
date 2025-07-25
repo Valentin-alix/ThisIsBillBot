@@ -306,6 +306,39 @@ class TestFightState:
             "hp_after=245, max_hp_after=300"
         )
 
+    def test_partial_life_refresh_waits_for_complete_characteristic_cache(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        fight_frame = self._get_fight_frame(runtime_bot)
+        logger = MagicMock()
+        fight_frame.logger = logger
+        player_id = 8921612638
+        runtime_bot.game_state.player.character_id = player_id
+        runtime_bot.game_state.fight.life_point = 200
+        runtime_bot.game_state.fight.max_life_point = 300
+
+        runtime_bot.event_manager.process_msg(
+            FightRefreshCharacterStatsEvent(
+                fighter_id=player_id,
+                stats=FightCharacteristics(
+                    characteristics=[
+                        self._detailed_characteristic(
+                            CharacteristicEnum.CUR_LIFE, base=-55
+                        )
+                    ]
+                ),
+            )
+        )
+
+        assert runtime_bot.game_state.fight.life_point == 200
+        assert runtime_bot.game_state.fight.max_life_point == 300
+        assert (
+            runtime_bot.game_state.fight.get_stat_by_id(CharacteristicEnum.CUR_LIFE)
+            == -55
+        )
+        logger.info.assert_not_called()
+
     def test_fight_refresh_after_player_death_resyncs_life(
         self,
         runtime_bot: Bot,
@@ -578,8 +611,7 @@ class TestFightState:
             )
 
         logger.error.assert_called_once_with(
-            "Non-player HP loss targets missing fight actor: "
-            "target_id=-11, loss=70, source_id=123"
+            "Non-player HP loss targets missing fight actor: target_id=-11, loss=70, source_id=123"
         )
 
     def test_life_points_lost_death_and_cur_life_sync_update_player_life(

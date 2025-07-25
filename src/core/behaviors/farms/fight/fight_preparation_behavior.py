@@ -25,10 +25,16 @@ class FightPreparationBehavior(Behavior):
 
     _has_repositioned: bool = field(init=False, default=False)
     _has_done_non_optimal_move: bool = field(init=False, default=False)
+    _should_do_non_optimal_move: bool = field(init=False, default=False)
+    _has_returned_to_optimal: bool = field(init=False, default=False)
 
     def run(self) -> None:
         self._has_repositioned = False
         self._has_done_non_optimal_move = False
+        self._has_returned_to_optimal = False
+        self._should_do_non_optimal_move = (
+            random.random() < PLACEMENT_NON_OPTIMAL_MOVE_PROBABILITY
+        )
         self.event_manager.on(
             FightReadyRequest, lambda _: self.finish(), originator=self, once=True
         )
@@ -38,10 +44,7 @@ class FightPreparationBehavior(Behavior):
         near_possible_cell_id = self.get_near_placement_cell_id()
         self.logger.info(f"found near cell id to enemy : {near_possible_cell_id}")
 
-        if (
-            not self._has_done_non_optimal_move
-            and random.random() < PLACEMENT_NON_OPTIMAL_MOVE_PROBABILITY
-        ):
+        if self._should_do_non_optimal_move and not self._has_done_non_optimal_move:
             non_optimal_cell = self.get_random_non_optimal_cell(near_possible_cell_id)
             if non_optimal_cell is not None:
                 self._has_done_non_optimal_move = True
@@ -99,6 +102,14 @@ class FightPreparationBehavior(Behavior):
             self.on_player_placement_done()
 
     def on_player_placement_done(self) -> None:
+        if self._has_done_non_optimal_move and not self._has_returned_to_optimal:
+            self._has_returned_to_optimal = True
+            self.logger.debug("Feint done, returning to optimal cell")
+            return self.run_timer(
+                random.uniform(*PLACEMENT_EXTRA_HESITATION_RANGE),
+                self.position_player,
+            )
+
         if (
             not self._has_repositioned
             and random.random() < PLACEMENT_REPOSITIONING_PROBABILITY

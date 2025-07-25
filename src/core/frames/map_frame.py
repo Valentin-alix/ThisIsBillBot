@@ -17,6 +17,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
 from datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.map_id import MAP_IDS_THAT_POP_DIALOG
+from fight_preparation_pb2 import FightPreparationEnterRequest
 
 from src import const
 from src.core.config import BASE_RANGE
@@ -67,16 +68,12 @@ class MapFrame(Frame):
             originator=self,
         )
 
-    def on_map_complementary_information_event(
-        self, message: MapComplementaryInformationEvent
-    ):
+    def on_map_complementary_information_event(self, message: MapComplementaryInformationEvent):
         self.logger.debug(f"New map : {message.map_id}")
         assert self.game_state.map.map_id == message.map_id
         self.game_state.map.is_in_haven_bag = message.HasField("haven_bag_information")
         if const.DEBUG:
-            self.world_signals.curr_map_pos.emit(
-                DataReader().map_info_by_map_id[message.map_id]
-            )
+            self.world_signals.curr_map_pos.emit(DataReader().map_info_by_map_id[message.map_id])
         self.game_state.map.is_in_map_transition = False
         self.register_map_popup_dialog_leave(message.map_id)
 
@@ -100,9 +97,7 @@ class MapFrame(Frame):
     def on_timeout_npc_dialog_question(self):
         self.game_state.map.is_waiting_for_map_popup_dialog_leave = False
 
-    def leave_map_popup_dialog_on_npc_question(
-        self, message: NpcDialogQuestionEvent
-    ) -> None:
+    def leave_map_popup_dialog_on_npc_question(self, message: NpcDialogQuestionEvent) -> None:
         self.event_manager.on(
             DialogLeaveEvent,
             self.on_map_popup_dialog_left,
@@ -111,9 +106,7 @@ class MapFrame(Frame):
             override_on_self=True,
             priority=self.priority,
         )
-        self.run_timer(
-            BASE_RANGE, lambda: self.event_manager.send(DialogLeaveRequest())
-        )
+        self.run_timer(BASE_RANGE, lambda: self.event_manager.send(DialogLeaveRequest()))
 
     def on_map_popup_dialog_left(self, message: DialogLeaveEvent) -> None:
         self.game_state.map.is_waiting_for_map_popup_dialog_leave = False
@@ -139,14 +132,14 @@ class MapFrame(Frame):
             )
 
     def _send_on_ready_on_new_map(self, map_id: int):
+        if self.game_state.fight.in_fight:
+            self.event_manager.send(FightPreparationEnterRequest())
         self.event_manager.send(ContextReadyRequest(map_id=map_id))
-        if not self.game_state.map._is_fight_context:
+        if not self.game_state.fight.in_fight:
             self.event_manager.send(MapInformationRequest(map_id=map_id))
 
     def on_context_creation_event(self, msg: ContextCreationEvent):
-        self.game_state.map._is_fight_context = (
-            msg.context == ContextCreationEvent.FIGHT
-        )
+        self.game_state.map.is_in_map_transition = True
 
     def on_fight_map_information_event(self, msg: FightMapInformationEvent):
         self.game_state.map.is_in_haven_bag = False
@@ -154,9 +147,7 @@ class MapFrame(Frame):
 
     def before_map_movement_confirm_request(self, msg: MapMovementConfirmRequest):
         if self.is_playing_event.is_set():
-            self.logger.debug(
-                "Canceling client map movement confirm response to avoid duplicate"
-            )
+            self.logger.debug("Canceling client map movement confirm response to avoid duplicate")
             return None
         return msg
 

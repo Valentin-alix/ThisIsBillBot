@@ -4,6 +4,7 @@ from datetime import datetime
 from threading import Event
 
 from ankama_launcher_emulator_premium.haapi.haapi import get_game_sub_info_by_login
+from dofus_unity_reader.game_constants.server import ServerEnum
 
 from src import const
 from src.core.signals.player_signals import GameInfoSignals
@@ -17,25 +18,19 @@ from src.core.states.state import State
 class PlayerState(State):
     game_info_signals: GameInfoSignals
     login: str
-    _server_id: int = dataclasses.field(init=False, default=1)
+    _server_id: int = dataclasses.field(init=False, default=ServerEnum.BRIAL.value)
     is_ready_to_play_event: Event = dataclasses.field(init=False)
     _level: int = dataclasses.field(init=False, default=1)
     _character_id: int = dataclasses.field(init=False, default=0)
     _character_name: str = dataclasses.field(init=False, default_factory=str)
-    waypoint_map_ids: list[int] = dataclasses.field(
-        init=False, default_factory=list[int]
-    )
-    jobs_lvl_by_id: dict[int, int] = dataclasses.field(
-        init=False, default_factory=dict[int, int]
-    )
+    waypoint_map_ids: list[int] = dataclasses.field(init=False, default_factory=list[int])
+    jobs_lvl_by_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict[int, int])
 
     def __post_init__(self) -> None:
         self.is_ready_to_play_event = Event()
 
     def clear_state(self):
-        CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER.pop(
-            (self.server_id, self.character_id), None
-        )
+        CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER.pop((self.server_id, self.character_id), None)
         self.is_ready_to_play_event.clear()
 
     @property
@@ -54,9 +49,7 @@ class PlayerState(State):
     def subscription_end_date(self) -> datetime:
         game_sub = get_game_sub_info_by_login(self.login)
         if const.DEBUG:
-            self.game_info_signals.subscription_end_date.emit(
-                game_sub.end_of_subscribe or const.MIN_DATE
-            )
+            self.game_info_signals.subscription_end_date.emit(game_sub.end_of_subscribe or const.MIN_DATE)
         return game_sub.end_of_subscribe or const.MIN_DATE
 
     @property
@@ -67,10 +60,7 @@ class PlayerState(State):
     @property
     def is_former_sub(self) -> bool:
         game_sub_info = get_game_sub_info_by_login(self.login)
-        return (
-            game_sub_info.end_of_subscribe is not None
-            and game_sub_info.end_of_subscribe.year > 2_000
-        )
+        return game_sub_info.is_former_subscriber
 
     @property
     def character_id(self):

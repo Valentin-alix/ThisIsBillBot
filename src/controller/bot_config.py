@@ -92,9 +92,17 @@ class BotConfigService(metaclass=Singleton):
             all_configs[login] = bot_config
             self._write_all_configs(all_configs)
 
+    def is_kamas_mule(self, login: str) -> bool:
+        config = self.get_bot_config(login)
+        if config.schedule_profile is None:
+            return False
+        profile = ScheduleProfileController().get_profile(config.schedule_profile)
+        return profile is not None and profile.kind == "kamas_mule"
+
     def assign_profile(self, login: str, profile_id: str) -> str:
         profiles = ScheduleProfileController().get_all_profiles()
-        if profile_id not in profiles:
+        profile = profiles.get(profile_id)
+        if profile is None:
             raise ValueError(f"Unknown schedule profile {profile_id}")
         with self._BOT_CONFIG_LOCK:
             all_configs = self.get_bot_config_by_login()
@@ -122,6 +130,12 @@ class BotConfigService(metaclass=Singleton):
 
     def resolve_bot_http_proxy_url(self, config: BotConfig) -> str:
         return build_http_proxy_url(self.resolve_bot_proxy(config))
+
+    def get_bot_http_proxy_url(self, login: str) -> str | None:
+        config = self.get_bot_config(login)
+        if config.schedule_profile is None:
+            return None
+        return self.resolve_bot_http_proxy_url(config)
 
     def resolve_bot_socks_proxy_url(self, config: BotConfig) -> str:
         return build_socks_proxy_url(self.resolve_bot_proxy(config))

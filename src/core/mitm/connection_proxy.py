@@ -7,6 +7,7 @@ from ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
 )
+from ankama_launcher_emulator_premium.web.subscription.storage import SubscriptionExpirationStorage
 from datas.protos.non_obf.connection.login_message_pb2 import (
     CharacterInformation,
     IdentificationResponse,
@@ -42,23 +43,17 @@ class ConnectionProxy(Proxy):
     def __post_init__(self):
         super().__post_init__()
         if self.bot:
-            self.bot.event_manager.on_send_conn_callback = cast(
-                Callable[[Message], None], self.send_msg
-            )
+            self.bot.event_manager.on_send_conn_callback = cast(Callable[[Message], None], self.send_msg)
 
     def on_close(self) -> None:
         if self.bot:
             self.bot.event_manager.on_send_conn_callback = None
 
-    def alter_msg_datas(
-        self, msg_content_datas: bytes, msg_datas: bytes
-    ) -> bytes | None:
+    def alter_msg_datas(self, msg_content_datas: bytes, msg_datas: bytes) -> bytes | None:
         msg = LoginMessage()
         msg.ParseFromString(msg_content_datas)
 
-        if msg.response.HasField("selectServer") and msg.response.selectServer.HasField(
-            "success"
-        ):
+        if msg.response.HasField("selectServer") and msg.response.selectServer.HasField("success"):
             assert self.bot
             new_port: int = self.on_game_connection_callback(
                 (
@@ -73,18 +68,13 @@ class ConnectionProxy(Proxy):
         elif msg.response.HasField("identification"):
             if msg.response.identification.HasField("success"):
                 if msg.response.identification.success.account_id in self.bot_by_id:
-                    self.bot = self.bot_by_id[
-                        msg.response.identification.success.account_id
-                    ]
-                msg.response.identification.success.ClearField(
-                    "fight_reconnection_server_id"
-                )
+                    self.bot = self.bot_by_id[msg.response.identification.success.account_id]
+                msg.response.identification.success.ClearField("fight_reconnection_server_id")
                 is_new_account = all(
                     len(server_info.characters) == 0
                     for server_info in msg.response.identification.success.server_list.servers
                 )
                 if is_new_account:
-                    print(is_new_account)
                     servers = msg.response.identification.success.server_list.servers
                     for server in list(servers):
                         if server.server.id == ServerEnum.BRIAL:
@@ -105,33 +95,37 @@ class ConnectionProxy(Proxy):
                         )
                     )
                 if self.bot:
-                    msg.response.identification.success.subscription_end_date = (
-                        datetime(year=2030, month=12, day=25).isoformat()
+                    SubscriptionExpirationStorage().record_expiration(
+                        self.bot.game_state.player.login,
+                        datetime.fromisoformat(msg.response.identification.success.subscription_end_date),
                     )
+                    msg.response.identification.success.subscription_end_date = datetime(
+                        year=2030, month=12, day=25
+                    ).isoformat()
                 msg_datas = encode_msg(msg)
             elif msg.response.identification.HasField("error"):
                 if self.bot:
                     self.bot.process_manager.kill_process()
-                print(
-                    f"Error Identification, reason : {IdentificationResponse.Error.Reason.Name(msg.response.identification.error.reason)}"
-                )
-                if (
-                    msg.response.identification.error.reason
-                    == IdentificationResponse.Error.Reason.OUTDATED_CLIENT_VERSION
-                ):
+                reason = msg.response.identification.error.reason
+                print(f"Error Identification, reason : {reason}")
+                if reason == IdentificationResponse.Error.Reason.OUTDATED_CLIENT_VERSION:
                     raise ClientVersionOutdatedError("Dofus client version is outdated")
 
         return msg_datas
 
-    def on_sent_msg_datas(
-        self, msg_datas: bytes, was_send_from_proxy: bool, from_server: bool
-    ) -> None:
+    def on_sent_msg_datas(self, msg_datas: bytes, was_send_from_proxy: bool, from_server: bool) -> None:
         size, pos = decode_varint_size(msg_datas)
         msg_content_datas = msg_datas[pos : pos + size]
         _, msg = get_conn_msg(msg_content_datas)
 
         if self.bot:
-            self.bot.debug_recorder.record_conn_message(msg, from_server)
+            if from_server:
+                source = "server"
+            elif was_send_from_proxy:
+                source = "framework_injected"
+            else:
+                source = "client_forwarded"
+            self.bot.debug_recorder.record_conn_message(msg, from_server, source)
 
         if DEBUG:
             msg_info = get_conn_msg_info(msg, from_server)
@@ -141,16 +135,10 @@ class ConnectionProxy(Proxy):
         if self.bot:
             self.bot.event_manager.process_msg(msg)
 
-        if (
-            from_server
-            and isinstance(msg, SelectServerResponse)
-            and msg.HasField("success")
-        ):
+        if from_server and isinstance(msg, SelectServerResponse) and msg.HasField("success"):
             RuntimeDataStore().start_connection_capture_sequence()
             self.close()
 
     def send_msg(self, msg: Request) -> None:
         conn_msg = LoginMessage(request=msg)
-        self.queue_worker_item.put(
-            (WorkerAction.SEND_SERVER, encode_msg(conn_msg), True, False)
-        )
+        self.queue_worker_item.put((WorkerAction.SEND_SERVER, encode_msg(conn_msg), True, False))

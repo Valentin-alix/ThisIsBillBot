@@ -77,16 +77,12 @@ class SocketClient:
         identification_sucess_info: IdentificationSuccessInfo,
     ) -> None:
         if self._connection_client:
-            self.bot.logger.info(
-                "[SocketClient] Closing connection client before game handoff"
-            )
+            self.bot.logger.info("[SocketClient] Closing connection client before game handoff")
             self._connection_client.close()
         if error_code:
-            if error_code == ConnectionErrorCode.BANNED:
+            if error_code == ConnectionErrorCode.BANNED or error_code == 14:
                 self.on_banned_callback(self.bot.account.apikey.login)
-            return self.bot.logger.error(
-                f"[SocketClient] Connection failed: {error_code}"
-            )
+            return self.bot.logger.error(f"[SocketClient] Connection failed: {error_code}")
         self.bot.logger.info(
             "[SocketClient] Connection server handoff complete: "
             f"game_host={identification_sucess_info.host}, "

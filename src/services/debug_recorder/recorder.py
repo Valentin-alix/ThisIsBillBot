@@ -7,16 +7,19 @@ Design:
   writes them to disk in batches.
 - Hot paths (proxy worker threads, log emit) only push raw data into the queue
   (cheap, no Qt signals involved), so the GUI thread is not starved.
-- The file is truncated at session start to bound size; rotation per-session.
+- Bot sessions use distinct files. Completed sessions are compressed and
+  pruned in the background.
 """
 
 import atexit
+import gzip
 import json
 import queue
+import shutil
 import threading
 import time
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Literal, TypedDict
 
@@ -24,6 +27,9 @@ from google.protobuf.message import Message
 
 from src.protocol.protocol_connection import get_conn_msg_info
 from src.protocol.protocol_game import get_game_msg_info
+
+
+MessageSource = Literal["server", "client_forwarded", "framework_injected"]
 
 
 class DebugLogEntry(TypedDict):
@@ -37,6 +43,7 @@ class DebugMessageEntry(TypedDict):
     categorie: Literal["message"]
     datetime: str
     origine: str
+    source: MessageSource
     type_non_obfusque: str
     type_obfusque: str | None
     contenu_obfusque: dict[str, Any] | None
@@ -74,13 +81,7 @@ class DebugStuckEntry(TypedDict):
     last_message: str | None
 
 
-DebugEntry = (
-    DebugLogEntry
-    | DebugMessageEntry
-    | DebugBehaviorEntry
-    | DebugStateEntry
-    | DebugStuckEntry
-)
+DebugEntry = DebugLogEntry | DebugMessageEntry | DebugBehaviorEntry | DebugStateEntry | DebugStuckEntry
 
 
 def _parse_sub_msg_name(sub_msg_name: str) -> tuple[str | None, str]:
@@ -104,6 +105,7 @@ class _GameMsgRaw:
     obf_sub_msg: Message
     uid: int | None
     from_server: bool
+    source: MessageSource
 
 
 @dataclass(slots=True)
@@ -111,6 +113,7 @@ class _ConnMsgRaw:
     received_at: datetime
     sub_msg: Message
     from_server: bool
+    source: MessageSource
 
 
 @dataclass(slots=True)
@@ -149,14 +152,16 @@ _RawEntry = _LogRaw | _GameMsgRaw | _ConnMsgRaw | _BehaviorRaw | _StateRaw | _St
 
 _MAX_BUFFER = 100
 _FLUSH_INTERVAL_S = 1.0
+_BOT_LOG_RETENTION_DAYS = 14
+_BOT_LOG_RETENTION_COUNT = 10
+_SESSION_TIMESTAMP_FORMAT = "%Y%m%dT%H%M%S_%f%z"
+_HISTORY_MAINTENANCE_LOCK = threading.Lock()
 
 
 @dataclass
 class DebugRecorder:
     file_path: str
-    _queue: queue.Queue[_RawEntry | None] = field(
-        init=False, default_factory=queue.Queue[_RawEntry | None]
-    )
+    _queue: queue.Queue[_RawEntry | None] = field(init=False, default_factory=queue.Queue[_RawEntry | None])
     _stop_event: threading.Event = field(init=False, default_factory=threading.Event)
 
     def __post_init__(self) -> None:
@@ -178,13 +183,26 @@ class DebugRecorder:
         obf_sub_msg: Message,
         uid: int | None,
         from_server: bool,
+        source: MessageSource,
     ) -> None:
         self._queue.put(
-            _GameMsgRaw(datetime.now(), clear_sub_msg, obf_sub_msg, uid, from_server)
+            _GameMsgRaw(
+                datetime.now(),
+                clear_sub_msg,
+                obf_sub_msg,
+                uid,
+                from_server,
+                source,
+            )
         )
 
-    def record_conn_message(self, sub_msg: Message, from_server: bool) -> None:
-        self._queue.put(_ConnMsgRaw(datetime.now(), sub_msg, from_server))
+    def record_conn_message(
+        self,
+        sub_msg: Message,
+        from_server: bool,
+        source: MessageSource,
+    ) -> None:
+        self._queue.put(_ConnMsgRaw(datetime.now(), sub_msg, from_server, source))
 
     def record_behavior(
         self,
@@ -260,9 +278,7 @@ class DebugRecorder:
                     buffer.append(json.dumps(entry, ensure_ascii=False))
 
                 now = time.monotonic()
-                if buffer and (
-                    len(buffer) >= _MAX_BUFFER or now - last_flush >= _FLUSH_INTERVAL_S
-                ):
+                if buffer and (len(buffer) >= _MAX_BUFFER or now - last_flush >= _FLUSH_INTERVAL_S):
                     self._flush(file, buffer)
                     last_flush = now
 
@@ -276,6 +292,106 @@ class DebugRecorder:
         file.write("\n".join(buffer) + "\n")
         file.flush()
         buffer.clear()
+
+
+def create_bot_session_debug_recorder(
+    logs_directory: Path,
+    login: str,
+    *,
+    session_started_at: datetime | None = None,
+) -> DebugRecorder:
+    """Create a recorder with a unique file and maintain prior sessions."""
+    account_logs_directory = logs_directory / login
+    account_logs_directory.mkdir(parents=True, exist_ok=True)
+    _migrate_legacy_bot_debug_log(
+        logs_directory,
+        account_logs_directory,
+        login,
+    )
+
+    started_at = session_started_at or datetime.now().astimezone()
+    assert started_at.tzinfo is not None, "Bot debug session timestamp must be timezone-aware"
+    session_timestamp = started_at.strftime(_SESSION_TIMESTAMP_FORMAT)
+    session_path = account_logs_directory / f"{session_timestamp}.debug.jsonl"
+    assert not session_path.exists(), f"Bot debug session path already exists: {session_path}"
+    session_path.touch(exist_ok=False)
+
+    recorder = DebugRecorder(file_path=str(session_path))
+    threading.Thread(
+        target=_maintain_bot_debug_history,
+        args=(account_logs_directory, session_path),
+        daemon=True,
+        name=f"DebugHistory-{login}",
+    ).start()
+    return recorder
+
+
+def _migrate_legacy_bot_debug_log(
+    logs_directory: Path,
+    account_logs_directory: Path,
+    login: str,
+) -> None:
+    legacy_path = logs_directory / f"{login}.debug.jsonl"
+    if not legacy_path.exists():
+        return
+    legacy_timestamp = (
+        datetime.fromtimestamp(legacy_path.stat().st_mtime).astimezone().strftime(_SESSION_TIMESTAMP_FORMAT)
+    )
+    migrated_path = account_logs_directory / f"legacy-{legacy_timestamp}.debug.jsonl"
+    assert not migrated_path.exists(), f"Migrated debug log already exists: {migrated_path}"
+    legacy_path.replace(migrated_path)
+
+
+def _maintain_bot_debug_history(
+    account_logs_directory: Path,
+    active_session_path: Path,
+) -> None:
+    with _HISTORY_MAINTENANCE_LOCK:
+        for session_path in account_logs_directory.glob("*.debug.jsonl"):
+            if session_path != active_session_path:
+                _compress_bot_debug_session(session_path)
+        _prune_bot_debug_sessions(account_logs_directory, active_session_path)
+
+
+def _compress_bot_debug_session(session_path: Path) -> None:
+    compressed_path = Path(f"{session_path}.gz")
+    temporary_path = Path(f"{compressed_path}.tmp")
+    if temporary_path.exists():
+        temporary_path.unlink()
+    with session_path.open("rb") as source, gzip.open(temporary_path, "wb") as destination:
+        shutil.copyfileobj(source, destination)
+    temporary_path.replace(compressed_path)
+    session_path.unlink()
+
+
+def _prune_bot_debug_sessions(
+    account_logs_directory: Path,
+    active_session_path: Path,
+) -> None:
+    expiration_timestamp = (datetime.now().astimezone() - timedelta(days=_BOT_LOG_RETENTION_DAYS)).timestamp()
+    session_paths = _bot_debug_session_paths(account_logs_directory)
+    for session_path in session_paths:
+        if session_path != active_session_path and session_path.stat().st_mtime < expiration_timestamp:
+            session_path.unlink()
+
+    retained_paths = sorted(
+        _bot_debug_session_paths(account_logs_directory),
+        key=lambda session_path: session_path.stat().st_mtime,
+        reverse=True,
+    )
+    for session_path in retained_paths[_BOT_LOG_RETENTION_COUNT:]:
+        assert session_path != active_session_path, (
+            "The active bot debug session must be among the newest retained sessions"
+        )
+        session_path.unlink()
+
+
+def _bot_debug_session_paths(account_logs_directory: Path) -> list[Path]:
+    return [
+        session_path
+        for session_path in account_logs_directory.iterdir()
+        if session_path.name.endswith((".debug.jsonl", ".debug.jsonl.gz"))
+    ]
 
 
 def _build_entry(raw: _RawEntry) -> DebugEntry:
@@ -318,14 +434,13 @@ def _build_entry(raw: _RawEntry) -> DebugEntry:
             last_message=raw.last_message,
         )
     if isinstance(raw, _GameMsgRaw):
-        msg_info = get_game_msg_info(
-            raw.clear_sub_msg, raw.obf_sub_msg, raw.uid, raw.from_server, False
-        )
+        msg_info = get_game_msg_info(raw.clear_sub_msg, raw.obf_sub_msg, raw.uid, raw.from_server, False)
         obf_type, decoded_type = _parse_sub_msg_name(msg_info.sub_msg_name)
         return DebugMessageEntry(
             categorie="message",
             datetime=msg_info.received_time.isoformat(),
             origine="Serveur" if msg_info.from_server else "Client",
+            source=raw.source,
             type_non_obfusque=decoded_type,
             type_obfusque=obf_type,
             contenu_obfusque=msg_info.obf_msg_json,
@@ -339,6 +454,7 @@ def _build_entry(raw: _RawEntry) -> DebugEntry:
         categorie="message",
         datetime=msg_info.received_time.isoformat(),
         origine="Serveur" if msg_info.from_server else "Client",
+        source=raw.source,
         type_non_obfusque=decoded_type,
         type_obfusque=obf_type,
         contenu_obfusque=msg_info.obf_msg_json,

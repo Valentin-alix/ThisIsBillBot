@@ -39,18 +39,14 @@ def get_item_gids_to_sell(
 ):
     if can_access_guild_chest:
         if guild_chest_items_by_gid is None:
-            raise ValueError(
-                "guild_chest_items_by_gid required when can_access_guild_chest=True"
-            )
+            raise ValueError("guild_chest_items_by_gid required when can_access_guild_chest=True")
         item_by_gid_in_storage = guild_chest_items_by_gid
     else:
         item_by_gid_in_storage = bank_object_by_gid
 
     logger.info(f"count item in storage : {len(item_by_gid_in_storage)}")
 
-    def is_valid_item_to_sell(
-        gid: int, object_item: ObjectItemInventory, is_bank_item: bool
-    ):
+    def is_valid_item_to_sell(gid: int, object_item: ObjectItemInventory, is_bank_item: bool):
         item_data = DataReader().item_by_id[gid]
         if not item_data.typeId:
             return False
@@ -153,9 +149,7 @@ def get_price_for_sale_hotel(
     if not valid_indexes:
         return 0
 
-    filtered_unit_prices: list[float] = [
-        cast(float, unit_prices[index]) for index in valid_indexes
-    ]
+    filtered_unit_prices: list[float] = [cast(float, unit_prices[index]) for index in valid_indexes]
     median_raw = median(filtered_unit_prices)
 
     accepted_indexes: list[int] = []
@@ -173,15 +167,11 @@ def get_price_for_sale_hotel(
         )
         accepted_indexes = [closest_index]
 
-    cleaned_unit_price = median(
-        [cast(float, unit_prices[index]) for index in accepted_indexes]
-    )
+    cleaned_unit_price = median([cast(float, unit_prices[index]) for index in accepted_indexes])
 
     lot_index_by_quantity = QUANTITY_INDEX_BY_QUANTITY[target_lot]
     curr_min_price_lot = (
-        min_prices[lot_index_by_quantity]
-        if min_prices[lot_index_by_quantity] > 0
-        else float("inf")
+        min_prices[lot_index_by_quantity] if min_prices[lot_index_by_quantity] > 0 else float("inf")
     )
 
     return int(min(cleaned_unit_price * target_lot, curr_min_price_lot))
@@ -196,18 +186,18 @@ class ItemToBuyInfo(BaseModel):
         kamas: int,
         bid_object: ExchangeTypesItemsExchangerDescriptionForUserEvent.BidExchangerObject,
     ) -> bool:
-        if (
-            bid_object.prices[0] == 0
-            or bid_object.prices[0] > kamas
-            or bid_object.prices[0] > self.max_kamas
-        ):
+        if bid_object.prices[0] == 0 or bid_object.prices[0] > kamas or bid_object.prices[0] > self.max_kamas:
             return False
         bid_object_effect_by_id: dict[int, ObjectEffect] = {
             object_effect.action: object_effect for object_effect in bid_object.effects
         }
         for item_effect in DataReader().get_item_effects_by_gid(self.item_gid):
             object_effect = bid_object_effect_by_id.get(item_effect.effectId)
-            if object_effect and object_effect.value_int < item_effect.diceNum:
+            if (
+                object_effect
+                and object_effect.HasField("value_int")
+                and object_effect.value_int < item_effect.diceNum
+            ):
                 return False
 
         return True

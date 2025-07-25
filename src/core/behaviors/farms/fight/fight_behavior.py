@@ -13,7 +13,6 @@ from src.core.behaviors.farms.fight.fight_preparation_behavior import (
     FightPreparationBehavior,
 )
 from src.core.behaviors.farms.fight.fight_turn_behavior import FightTurnBehavior
-from src.core.config import BETWEEN_ACTION_RANGE
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.signals.shared_farm_signals import SharedSignals
 
@@ -47,11 +46,7 @@ class FightBehavior(Behavior):
             )
 
     def on_fight_map_initialized(self):
-        self.event_manager.on(
-            FightTurnStartPlayingEvent,
-            self.on_player_turn_event,
-            originator=self,
-        )
+        self.event_manager.on(FightTurnStartPlayingEvent, self.on_player_turn_event, originator=self)
         if self.game_state.fight.is_our_turn:
             self.logger.info("It's already our turn, let's play")
             self.on_player_turn()
@@ -61,9 +56,7 @@ class FightBehavior(Behavior):
                 callback=self.on_fight_preparation_behavior_finish, parent=self
             )
 
-    def on_map_complementary_information_event(
-        self, msg: MapComplementaryInformationEvent
-    ):
+    def on_map_complementary_information_event(self, msg: MapComplementaryInformationEvent):
         self.finish()
 
     def on_fight_preparation_behavior_finish(self, error_code: str | None):
@@ -78,7 +71,7 @@ class FightBehavior(Behavior):
         if self.game_state.fight.fight_turn > 100:
             self.logger.error("Bot Might be stuck")
             self.shared_signals.launch_account.emit(self.login)
-        self.run_timer(BETWEEN_ACTION_RANGE, self._start_fight_turn_if_still_valid)
+        self._start_fight_turn_if_still_valid()
 
     def _start_fight_turn_if_still_valid(self) -> None:
         if not self._can_start_fight_turn():
@@ -86,10 +79,7 @@ class FightBehavior(Behavior):
         self.fight_turn_behavior.start(callback=None, parent=self)
 
     def _can_start_fight_turn(self) -> bool:
-        return (
-            self.game_state.fight.in_fight
-            and self.fight_turn_behavior.state == BehaviorState.STOPPED
-        )
+        return self.game_state.fight.in_fight and self.fight_turn_behavior.state == BehaviorState.STOPPED
 
     def on_fight_timeout(self):
         self.logger.error("Fight timeout reached (30 min), relaunching game")

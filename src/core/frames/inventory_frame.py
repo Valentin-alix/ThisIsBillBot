@@ -1,6 +1,5 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-from ankama_launcher_emulator_premium.utils.bot_storage import BotStorageController
 from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryContentEvent,
     InventoryWeightEvent,
@@ -21,10 +20,6 @@ from src.core.frames.frame import Frame
 
 @dataclass
 class InventoryFrame(Frame):
-    account_kamas_controller: BotStorageController = field(
-        default_factory=BotStorageController
-    )
-
     def __post_init__(self):
         self.event_manager.on(
             InventoryContentEvent,
@@ -104,7 +99,7 @@ class InventoryFrame(Frame):
 
     def on_inventory_content_event(self, msg: InventoryContentEvent):
         self.game_state.inventory.set_objects(list(msg.objects))
-        self._record_kamas(msg.kamas)
+        self.game_state.inventory.kamas = msg.kamas
 
     def on_object_added_event(self, msg: ObjectAddedEvent):
         self.game_state.inventory.add_object(msg.object)
@@ -120,11 +115,7 @@ class InventoryFrame(Frame):
             self.game_state.inventory.remove_object(uid)
 
     def on_kamas_update_event(self, msg: KamasUpdateEvent):
-        self._record_kamas(msg.quantity)
-
-    def _record_kamas(self, kamas: int) -> None:
-        self.game_state.inventory.kamas = kamas
-        self.account_kamas_controller.record_kamas(self.game_state.player.login, kamas)
+        self.game_state.inventory.kamas = msg.quantity
 
     def on_inventory_weight_event(self, message: InventoryWeightEvent):
         self.game_state.inventory.inventory_weight = message.inventory_weight
@@ -137,9 +128,7 @@ class InventoryFrame(Frame):
             ].item.quantity = object_with_quantity.quantity
             if const.DEBUG:
                 self.inventory_signals.updated_object_item.emit(
-                    self.game_state.inventory.objects_by_uid[
-                        object_with_quantity.object_uid
-                    ]
+                    self.game_state.inventory.objects_by_uid[object_with_quantity.object_uid]
                 )
 
     def on_object_modified_event(self, msg: ObjectModifiedEvent):

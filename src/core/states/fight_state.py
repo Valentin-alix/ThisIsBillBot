@@ -89,6 +89,14 @@ class FightState(State):
         value = get_stat_by_id(self.characteristic_by_id.get(characteristic))
         return value
 
+    def can_sync_life_points_from_characteristics(self) -> bool:
+        required_characteristic_ids = {
+            CharacteristicEnum.LIFE_POINTS,
+            CharacteristicEnum.VITALITY,
+            CharacteristicEnum.CUR_LIFE,
+        }
+        return required_characteristic_ids.issubset(self.characteristic_by_id)
+
     def sync_life_points_from_characteristics(self) -> None:
         required_characteristic_ids = {
             CharacteristicEnum.LIFE_POINTS,

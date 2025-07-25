@@ -13,6 +13,9 @@ from datas.protos.non_obf.game.basic_pb2 import (
 from datas.protos.non_obf.game.challenge_pb2 import (
     ChallengeBonusChoiceRequest,
     ChallengeModSelectRequest,
+    ChallengeProposalEvent,
+    ChallengeReadyRequest,
+    ChallengeSelectionRequest,
 )
 from datas.protos.non_obf.game.client_verification_pb2 import (
     ClientChallengeInitRequest,
@@ -38,6 +41,7 @@ from datas.protos.non_obf.game.game_action_pb2 import (
 from datas.protos.non_obf.game.gamemap_pb2 import FightMapInformationEvent
 
 from src.core.behaviors.behavior import Behavior
+from src.services.human_timings import HumanTimingsService
 
 # RFC 2409 768-bit MODP Group 1 (public parameters)
 _DH_P = int(
@@ -49,10 +53,6 @@ _DH_P = int(
 )
 _DH_G = 2
 _DH_Q = (_DH_P - 1) // 2
-
-_ACK_DELAY = (0.10, 0.20)
-_TURN_READY_DELAY = (0.10, 0.20)
-
 
 @dataclass
 class GameSessionBehavior(Behavior):
@@ -83,6 +83,11 @@ class GameSessionBehavior(Behavior):
         self.event_manager.on(
             FightMapInformationEvent,
             self._on_fight_map_information,
+            originator=self,
+        )
+        self.event_manager.on(
+            ChallengeProposalEvent,
+            self._on_challenge_proposal,
             originator=self,
         )
         self.event_manager.on(PongEvent, self.on_pong_event, originator=self)
@@ -136,10 +141,13 @@ class GameSessionBehavior(Behavior):
         self._fight_sequence_depth = 0
         if self._turn_ready_pending:
             self._turn_ready_pending = False
-            self.run_timer(_TURN_READY_DELAY, self._send_turn_ready)
+            self._schedule_turn_ready()
         if msg.author_id != self.game_state.player.character_id:
             return
-        self.run_timer(_ACK_DELAY, lambda: self._send_action_ack(msg.action_id))
+        self.run_timer(
+            HumanTimingsService().get_timing_fight_acknowledgement(),
+            lambda: self._send_action_ack(msg.action_id),
+        )
 
     def _send_action_ack(self, action_id: int) -> None:
         ack = GameActionAcknowledgementRequest(valid=True, action_id=action_id)
@@ -149,7 +157,13 @@ class GameSessionBehavior(Behavior):
         if self._fight_sequence_depth > 0:
             self._turn_ready_pending = True
             return
-        self.run_timer(_TURN_READY_DELAY, self._send_turn_ready)
+        self._schedule_turn_ready()
+
+    def _schedule_turn_ready(self) -> None:
+        self.run_timer(
+            HumanTimingsService().get_timing_fight_turn_ready(),
+            self._send_turn_ready,
+        )
 
     def _send_turn_ready(self) -> None:
         self.event_manager.send(FightTurnReadyRequest(is_ready=True))
@@ -158,6 +172,27 @@ class GameSessionBehavior(Behavior):
         self.event_manager.send(ChallengeModSelectRequest(challenge_mod=ChallengeMod.CHALLENGE_CHOICE))
         self.event_manager.send(
             ChallengeBonusChoiceRequest(challenge_bonus=ChallengeBonus.CHALLENGE_DROP_BONUS)
+        )
+        self.run_timer(
+            HumanTimingsService().get_timing_fight_challenge_ready(),
+            lambda: self.event_manager.send(
+                ChallengeReadyRequest(challenge_mod=ChallengeMod.CHALLENGE_CHOICE)
+            ),
+        )
+
+    def _on_challenge_proposal(self, msg: ChallengeProposalEvent) -> None:
+        if not msg.challenge_proposals:
+            self.logger.warning(
+                "ChallengeProposalEvent received without proposals; "
+                "leaving challenge selection to the server"
+            )
+            return
+        challenge_id = msg.challenge_proposals[0].challenge_id
+        self.run_timer(
+            HumanTimingsService().get_timing_fight_challenge_selection(),
+            lambda: self.event_manager.send(
+                ChallengeSelectionRequest(challenge_id=challenge_id)
+            ),
         )
 
     def on_pong_event(self, msg: PongEvent):

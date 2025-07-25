@@ -13,11 +13,17 @@ from ankama_launcher_emulator_premium.web.auth.storage import (
 LAUNCH_SPACING_SECONDS = 2.5
 MITM_CONNECTION_WAIT_TIMEOUT_SECONDS = 90.0
 MITM_CONNECTION_WAIT_STEP_SECONDS = 0.5
+SOCKET_DISCONNECTION_WAIT_TIMEOUT_SECONDS = 5.0
+SOCKET_DISCONNECTION_WAIT_STEP_SECONDS = 0.05
 
 from ankama_launcher_emulator_premium.decrypter.crypto_helper import (
     CryptoHelper,
 )
 from ankama_launcher_emulator_premium.gui.utils import run_in_background
+from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
+    ProxyController,
+    ScheduleProfileController,
+)
 from ankama_launcher_emulator_premium.server.handler import AnkamaLauncherHandler
 from ankama_launcher_emulator_premium.server.server import (
     AnkamaLauncherServer,
@@ -63,26 +69,10 @@ class BotManager:
         self.proxy_listener = ProxyListener(account_by_id=self.bot_by_account_id)
         self.account_scheduler = AccountScheduler(
             on_accounts_synchronized=self.shared_signals.synchronize_bots.emit,
-            on_subscribed=self.on_subscribed,
             on_banned_callback=self.on_banned_callback,
         )
         if self.enable_account_scheduler:
             self.account_scheduler.start()
-
-    def on_subscribed(self, login: str):
-        related_bot = next(
-            (
-                bot
-                for bot in self.bot_by_account_id.values()
-                if bot.account.apikey.login == login
-            ),
-            None,
-        )
-        if not related_bot:
-            logger.error(f"bot {login} not found in bot by account id ?")
-            return
-        if related_bot.is_playing_event.is_set():
-            self.shared_signals.launch_account.emit(login)
 
     def on_launch_account(self, login: str):
         self._running_task_count += 1
@@ -124,6 +114,22 @@ class BotManager:
                 return False
         return False
 
+    def _disconnect_stale_socket_runtime(self, bot: Bot) -> None:
+        request_disconnect = bot.event_manager.request_disconnect_callback
+        if request_disconnect is not None:
+            bot.logger.info("Closing existing socket runtime before relaunch")
+            if bot.is_connected_event.is_set():
+                bot.connection_handler.record_planned_disconnect()
+            request_disconnect()
+
+        deadline = monotonic() + SOCKET_DISCONNECTION_WAIT_TIMEOUT_SECONDS
+        while bot.is_connected_event.is_set() and monotonic() < deadline:
+            sleep(SOCKET_DISCONNECTION_WAIT_STEP_SECONDS)
+        if bot.is_connected_event.is_set():
+            raise TimeoutError(
+                "Existing socket runtime did not disconnect before relaunch"
+            )
+
     def relaunch_account(self, login: str, max_retries: int = 3):
         related_bot = next(
             (
@@ -154,7 +160,15 @@ class BotManager:
             bot_config = BotConfigService().get_bot_config(
                 related_bot.account.apikey.login
             )
+            if bot_config.schedule_profile is not None:
+                proxy = BotConfigService().resolve_bot_proxy(bot_config)
+                if proxy.rejected:
+                    return related_bot.logger.warning(
+                        "Bot relaunch blocked because its proxy is quarantined"
+                    )
 
+            if bot_config.connection_mode == "socket":
+                self._disconnect_stale_socket_runtime(related_bot)
             related_bot.process_manager.kill_process()
 
             if not related_bot.is_playing_event.is_set():
@@ -227,6 +241,30 @@ class BotManager:
             self._is_lauching_by_login[login].clear()
 
     def on_banned_callback(self, login: str):
+        bot_config = BotConfigService().get_bot_config(login)
+        if bot_config.schedule_profile is None:
+            logger.warning(
+                "Banned account %s has no schedule profile; no proxy was quarantined",
+                login,
+            )
+        else:
+            schedule_profile = ScheduleProfileController().get_profile(
+                bot_config.schedule_profile
+            )
+            if schedule_profile is None:
+                logger.warning(
+                    "Banned account %s references unknown schedule profile %s; "
+                    "no proxy was quarantined",
+                    login,
+                    bot_config.schedule_profile,
+                )
+            else:
+                ProxyController().record_rejection(schedule_profile.proxy_id)
+                logger.warning(
+                    "Quarantined proxy %s after ban of account %s",
+                    schedule_profile.proxy_id,
+                    login,
+                )
         CryptoHelper.remove_bot(login)
         BotConfigService().remove_bot_config(login)
         remove_generated_account(login)

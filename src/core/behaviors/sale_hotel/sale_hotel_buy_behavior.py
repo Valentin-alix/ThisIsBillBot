@@ -19,8 +19,9 @@ from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
     EnterSaleHotelBehavior,
 )
-from src.core.config import BASE_RANGE, BIG_RANGE, SMALL_RANGE
+from src.core.config import BASE_RANGE
 from src.core.engine.economy.sale_hotel import ItemToBuyInfo
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
@@ -76,7 +77,10 @@ class SaleHotelBuyBehavior(DialogHandlerBehavior):
             )
             self.event_manager.send(req)
         req = ExchangeBidHouseTypeRequest(type_id=type_id, follow=True)
-        self.send_message_delayed(req, SMALL_RANGE)
+        self.send_message_delayed(
+            req,
+            HumanTimingsService().get_timing_sale_hotel_review(),
+        )
 
     def on_exchange_types_exchanger_description_for_user_event(
         self, msg: ExchangeTypesExchangerDescriptionForUserEvent
@@ -105,7 +109,10 @@ class SaleHotelBuyBehavior(DialogHandlerBehavior):
             )
             self.event_manager.send(req)
         req = ExchangeBidHouseSearchRequest(object_gid=item_info.item_gid, follow=True)
-        self.run_timer(BIG_RANGE, lambda: self.event_manager.send(req))
+        self.run_timer(
+            HumanTimingsService().get_timing_sale_hotel_review(),
+            lambda: self.event_manager.send(req),
+        )
 
     def on_exchange_types_items_exchanger_description_for_user_event(
         self,
@@ -134,7 +141,10 @@ class SaleHotelBuyBehavior(DialogHandlerBehavior):
         req = ExchangeBidHouseBuyRequest(
             bid_item_uid=cheaper_item.uid, quantity=1, price=cheaper_item.prices[0]
         )
-        self.run_timer(BIG_RANGE, lambda: self.event_manager.send(req))
+        self.run_timer(
+            HumanTimingsService().get_timing_sale_hotel_price_change(),
+            lambda: self.event_manager.send(req),
+        )
 
     def exchange_bid_house_buy_result_event(
         self, msg: ExchangeBidHouseBuyResultEvent, gid: int

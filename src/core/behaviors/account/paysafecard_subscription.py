@@ -1,0 +1,232 @@
+import asyncio
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from enum import StrEnum
+from functools import partial
+from threading import Thread
+from time import sleep
+
+from ankama_launcher_emulator_premium.consts import (
+    PAYSAFECARDS_PATH,
+    PAYSAFECARD_PURCHASE_PATH,
+)
+from ankama_launcher_emulator_premium.haapi.bak import BakHaapi, ShopPurchaseError
+from ankama_launcher_emulator_premium.interfaces.bak_api import ShopiArticle
+from ankama_launcher_emulator_premium.web.subscription.paysafecard_pool import (
+    PaysafecardPool,
+)
+from ankama_launcher_emulator_premium.web.subscription.purchase_state import (
+    PaysafecardPurchase,
+    PaysafecardPurchaseStatus,
+    PaysafecardPurchaseStorage,
+)
+from ankama_launcher_emulator_premium.web.subscription.storage import (
+    SubscriptionExpirationStorage,
+)
+from ankama_launcher_emulator_premium.web.subscription.xsolla_paysafecard import (
+    XsollaPaymentOutcome,
+    pay_with_paysafecard,
+)
+from datas.protos.non_obf.game.bak_pb2 import (
+    BakApiKeyEvent,
+    BakApiTokenRequest,
+    BakShopTokenEvent,
+    BakShopTokenRequest,
+)
+from playwright.async_api import Error as PlaywrightError
+from pydantic import ValidationError
+from requests.exceptions import RequestException
+
+from src.controller.bot_config import BotConfigService
+from src.core.behaviors.behavior import Behavior, BehaviorState
+
+_SUBSCRIPTION_CATEGORY_ID = 698
+_DOFUS_SUBSCRIPTION_REFERENCE_ID = "10"
+_SUBSCRIPTION_DAYS = 7
+_EVENT_TIMEOUT_SECONDS = 15
+_REFRESH_ATTEMPTS = 8
+_REFRESH_DELAY_SECONDS = 3
+
+
+class PaysafecardSubscriptionErrorCode(StrEnum):
+    BAK_TOKEN_TIMEOUT = "BAK_TOKEN_TIMEOUT"
+    SHOP_TOKEN_TIMEOUT = "SHOP_TOKEN_TIMEOUT"
+    SHOP_PURCHASE_FAILED = "SHOP_PURCHASE_FAILED"
+    PAYSAFECARD_REJECTED = "PAYSAFECARD_REJECTED"
+    PAYMENT_CONFIRMATION_PENDING = "PAYMENT_CONFIRMATION_PENDING"
+    HAAPI_REQUEST_FAILED = "HAAPI_REQUEST_FAILED"
+    SUBSCRIPTION_ARTICLE_NOT_FOUND = "SUBSCRIPTION_ARTICLE_NOT_FOUND"
+    SUBSCRIPTION_ARTICLE_AMBIGUOUS = "SUBSCRIPTION_ARTICLE_AMBIGUOUS"
+
+
+@dataclass
+class PaysafecardSubscriptionBehavior(Behavior):
+    account_id: int
+    paysafecard_pool: PaysafecardPool = field(
+        default_factory=lambda: PaysafecardPool(path=str(PAYSAFECARDS_PATH))
+    )
+    purchase_storage: PaysafecardPurchaseStorage = field(
+        default_factory=lambda: PaysafecardPurchaseStorage(PAYSAFECARD_PURCHASE_PATH)
+    )
+    subscription_storage: SubscriptionExpirationStorage = field(default_factory=SubscriptionExpirationStorage)
+    _haapi: BakHaapi | None = field(init=False, default=None)
+    _proxy_url: str | None = field(init=False, default=None)
+
+    def run(self) -> None:
+        login = self.game_state.player.login
+        self._proxy_url = BotConfigService().get_bot_http_proxy_url(login)
+        pending_purchase = self.purchase_storage.load_purchase()
+        if pending_purchase is not None:
+            if pending_purchase.login != login:
+                self.logger.error(
+                    "Paysafecard purchase for %s blocks a new purchase for %s",
+                    pending_purchase.login,
+                    login,
+                )
+                self._finish_error(PaysafecardSubscriptionErrorCode.PAYMENT_CONFIRMATION_PENDING)
+                return
+            if pending_purchase.status == PaysafecardPurchaseStatus.AWAITING_CONFIRMATION:
+                self._start_worker(partial(self._confirm_subscription, pending_purchase))
+                return
+        self.event_manager.on(
+            BakApiKeyEvent,
+            self._on_bak_api_key,
+            originator=self,
+            once=True,
+            timeout=_EVENT_TIMEOUT_SECONDS,
+            on_timeout=lambda: self._finish_error(PaysafecardSubscriptionErrorCode.BAK_TOKEN_TIMEOUT),
+        )
+        self.event_manager.send(BakApiTokenRequest())
+
+    def _on_bak_api_key(self, message: BakApiKeyEvent) -> None:
+        assert message.token, "The game returned an empty BAK API token"
+        self._haapi = BakHaapi(api_key=message.token, proxy_url=self._proxy_url)
+        self.event_manager.on(
+            BakShopTokenEvent,
+            self._on_shop_token,
+            originator=self,
+            once=True,
+            timeout=_EVENT_TIMEOUT_SECONDS,
+            on_timeout=lambda: self._finish_error(PaysafecardSubscriptionErrorCode.SHOP_TOKEN_TIMEOUT),
+        )
+        self.event_manager.send(BakShopTokenRequest())
+
+    def _on_shop_token(self, message: BakShopTokenEvent) -> None:
+        assert message.token, "The game returned an empty Shop API token"
+        self._start_worker(partial(self._create_and_pay_order, message.token))
+
+    def _create_and_pay_order(self, shop_api_key: str) -> None:
+        login = self.game_state.player.login
+        pending_purchase = self.purchase_storage.load_purchase()
+        if pending_purchase is None:
+            reserved_pin = self.paysafecard_pool.reserve_next_pin()
+            pending_purchase = self.purchase_storage.reserve_purchase(login, reserved_pin)
+        assert pending_purchase.login == login, (
+            f"Pending Paysafecard purchase belongs to {pending_purchase.login}"
+        )
+        try:
+            haapi = self._get_haapi()
+            shop_access_token = haapi.get_shop_access_token(shop_api_key)
+            articles = haapi.get_subscription_articles(
+                _SUBSCRIPTION_CATEGORY_ID,
+                shop_access_token=shop_access_token,
+            )
+            article = self._select_subscription_article(articles)
+            if article is None:
+                self._restore_pre_submission_purchase(pending_purchase)
+                return
+            order, payment = haapi.create_xsolla_payment(
+                article,
+                self.account_id,
+                shop_access_token=shop_access_token,
+            )
+        except (ShopPurchaseError, RequestException, ValidationError) as error:
+            self.logger.error("Unable to create Xsolla payment: %s", error)
+            self._restore_pre_submission_purchase(pending_purchase)
+            self._finish_error(PaysafecardSubscriptionErrorCode.SHOP_PURCHASE_FAILED)
+            return
+
+        pending_purchase = self.purchase_storage.record_awaiting_confirmation(
+            pending_purchase,
+            order_id=order.id,
+            xsolla_token=payment.token,
+        )
+        try:
+            outcome = asyncio.run(
+                pay_with_paysafecard(
+                    token=payment.token,
+                    pin=pending_purchase.pin,
+                    login=login,
+                    proxy_url=self._proxy_url,
+                )
+            )
+        except PlaywrightError as error:
+            self.logger.error("Xsolla Pay Station failed: %s", error)
+            self._finish_error(PaysafecardSubscriptionErrorCode.PAYMENT_CONFIRMATION_PENDING)
+            return
+        if outcome == XsollaPaymentOutcome.REJECTED:
+            self.purchase_storage.clear_purchase()
+            self._finish_error(PaysafecardSubscriptionErrorCode.PAYSAFECARD_REJECTED)
+            return
+        if outcome == XsollaPaymentOutcome.AMBIGUOUS:
+            self._finish_error(PaysafecardSubscriptionErrorCode.PAYMENT_CONFIRMATION_PENDING)
+            return
+        self._confirm_subscription(pending_purchase)
+
+    def _confirm_subscription(self, pending_purchase: PaysafecardPurchase) -> None:
+        try:
+            for attempt_index in range(_REFRESH_ATTEMPTS):
+                subscribe_info = self.subscription_storage.refresh_subscribe_info(
+                    pending_purchase.login,
+                    self._proxy_url,
+                )
+                if subscribe_info.is_subscribe:
+                    self.purchase_storage.clear_purchase()
+                    if self.state == BehaviorState.RUNNING:
+                        self.finish(None, subscribe_info.end_of_subscribe)
+                    return
+                if attempt_index + 1 < _REFRESH_ATTEMPTS:
+                    sleep(_REFRESH_DELAY_SECONDS)
+        except (RequestException, ValidationError) as error:
+            self.logger.error("Unable to confirm Paysafecard subscription: %s", error)
+            self._finish_error(PaysafecardSubscriptionErrorCode.HAAPI_REQUEST_FAILED)
+            return
+        self._finish_error(PaysafecardSubscriptionErrorCode.PAYMENT_CONFIRMATION_PENDING)
+
+    @staticmethod
+    def _is_target_subscription_pack(article: ShopiArticle) -> bool:
+        return any(
+            single_reference.reference.discriminator == "VirtualSubscriptionReference"
+            and single_reference.reference.get_reference_value().id == _DOFUS_SUBSCRIPTION_REFERENCE_ID
+            and single_reference.quantity == _SUBSCRIPTION_DAYS
+            for single_reference in article.single_references
+        )
+
+    def _select_subscription_article(self, articles: list[ShopiArticle]) -> ShopiArticle | None:
+        matching_articles = [article for article in articles if self._is_target_subscription_pack(article)]
+        if not matching_articles:
+            self._finish_error(PaysafecardSubscriptionErrorCode.SUBSCRIPTION_ARTICLE_NOT_FOUND)
+            return None
+        if len(matching_articles) != 1:
+            self._finish_error(PaysafecardSubscriptionErrorCode.SUBSCRIPTION_ARTICLE_AMBIGUOUS)
+            return None
+        return matching_articles[0]
+
+    def _restore_pre_submission_purchase(self, pending_purchase: PaysafecardPurchase) -> None:
+        self.paysafecard_pool.restore_reserved_pin(pending_purchase.pin)
+        self.purchase_storage.clear_purchase()
+
+    def _get_haapi(self) -> BakHaapi:
+        assert self._haapi is not None, "BAK HAAPI must be initialized before use"
+        return self._haapi
+
+    def _finish_error(self, error_code: PaysafecardSubscriptionErrorCode) -> None:
+        if self.state == BehaviorState.RUNNING:
+            self.finish(error_code, None)
+
+    def _start_worker(self, operation: Callable[[], None]) -> None:
+        Thread(
+            target=operation,
+            name=f"{self.game_state.player.login}-paysafecard-subscription",
+            daemon=True,
+        ).start()

@@ -1,8 +1,8 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
+from context_pb2 import ContextCreationEvent
 from datas.protos.non_obf.game.gamemap_pb2 import (
-    FightMapInformationEvent,
     MapComplementaryInformationEvent,
 )
 from datas.protos.non_obf.game.inventory_pb2 import (
@@ -27,6 +27,7 @@ from src.core.engine.weights.harvester.explorator import get_map_ids_to_explore
 from src.core.engine.weights.harvester.weight_map import (
     get_harvester_additional_weight_by_map_id,
 )
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
@@ -45,19 +46,13 @@ class HarvesterBehavior(BaseFarmBehavior):
         is_stopped_at_new_map_condition: Callable[[], bool] | None = None,
     ) -> None:
         area_name = DataReader().area_by_id[area_id].nameId if area_id else "Unknown"
-        subarea_name = (
-            DataReader().sub_area_by_id[sub_area_id].nameId
-            if sub_area_id
-            else "Unknown"
-        )
+        subarea_name = DataReader().sub_area_by_id[sub_area_id].nameId if sub_area_id else "Unknown"
         self.logger.info(
             f"Starting harvesting in {area_name} / {subarea_name} (area_id={area_id}, subarea_id={sub_area_id})"
         )
 
         self.is_stopped_at_new_map_condition = is_stopped_at_new_map_condition
-        self.map_ids_to_explore = get_map_ids_to_explore(
-            self.random_farm_behavior.map_ids
-        )
+        self.map_ids_to_explore = get_map_ids_to_explore(self.random_farm_behavior.map_ids)
         self.logger.info(
             f"Will explore {len(self.map_ids_to_explore)} new maps in zone of {len(self.random_farm_behavior.map_ids)} total maps"
         )
@@ -83,14 +78,10 @@ class HarvesterBehavior(BaseFarmBehavior):
         self.on_new_map()
 
     def init_listeners(self) -> None:
-        self.event_manager.on(
-            FightMapInformationEvent, lambda _: self.on_fight_aggro(), originator=self
-        )
+        self.event_manager.on(ContextCreationEvent, self.on_context_creation_event, originator=self)
 
     def run_next_step(self) -> None:
-        self.random_farm_behavior.start(
-            callback=self.on_random_farm_behavior_finished, parent=self
-        )
+        self.random_farm_behavior.start(callback=self.on_random_farm_behavior_finished, parent=self)
 
     def on_random_farm_behavior_finished(self, error_code: str | None) -> None:
         if error_code is EdgeError.NO_VALID_TRANSITION:
@@ -122,17 +113,13 @@ class HarvesterBehavior(BaseFarmBehavior):
             )
             self.map_ids_to_explore.remove(self.game_state.map.map_id)
             GameDataController().add_map_id_checked(self.game_state.map.map_id)
-            self.random_farm_behavior.additional_weight_by_map_id.pop(
-                self.game_state.map.map_id, None
-            )
+            self.random_farm_behavior.additional_weight_by_map_id.pop(self.game_state.map.map_id, None)
 
         if self.check_stop_condition():
             return
 
         if self.game_state.map.map_id in self.random_farm_behavior.map_ids:
-            self.collect_behavior.start(
-                callback=self.on_collect_behavior_finished, parent=self
-            )
+            self.collect_behavior.start(callback=self.on_collect_behavior_finished, parent=self)
         else:
             self.run_next_step()
 
@@ -144,13 +131,13 @@ class HarvesterBehavior(BaseFarmBehavior):
         self.raise_if_error(error_code)
         self.run_next_step()
 
-    def on_fight_aggro(self) -> None:
+    def on_context_creation_event(self, msg: ContextCreationEvent) -> None:
+        if msg.context != ContextCreationEvent.GameContext.FIGHT:
+            return
         with self.event_manager.lock:
             self.clear_behavior()
             self.init_listeners()
-            self.fight_behavior.start(
-                callback=self.on_fight_behavior_finished, parent=self
-            )
+            self.fight_behavior.start(callback=self.on_fight_behavior_finished, parent=self)
 
     def on_fight_behavior_finished(self, error_code: str | None) -> None:
         self.raise_if_error(error_code)
@@ -169,7 +156,9 @@ class HarvesterBehavior(BaseFarmBehavior):
                 def use_harvest_bag():
                     req = ObjectUseRequest(object_uid=object.item.uid)
                     self.event_manager.send(req)
-                    self.run_timer(BASE_RANGE, lambda: self.purge_inventory())
+                    self.run_timer(
+                        HumanTimingsService().get_timing_before_item_use(), lambda: self.purge_inventory()
+                    )
 
                 return self.run_timer(BASE_RANGE, use_harvest_bag)
 

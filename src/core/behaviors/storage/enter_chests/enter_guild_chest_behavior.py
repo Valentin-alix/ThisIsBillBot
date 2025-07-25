@@ -47,26 +47,18 @@ class EnterGuildChestBehavior(Behavior):
             for element in self.game_state.interactive.interactive_element_by_id.values()
             if element.element_type_id == ElementTypeEnum.GUILD_CHEST
         )
-        ref_data = MapReader().get_ref_data_by_element_id_by_map_id(
-            self.game_state.map.map_id
-        )[chest_interactive.element_id]
+        ref_data = MapReader().get_ref_data_by_element_id_by_map_id(self.game_state.map.map_id)[
+            chest_interactive.element_id
+        ]
         if ref_data.cellId is None:
             raise ValueError("Guild chest cell id is missing")
-
-        move_path_to_chest = self.path_finding.find_path(
-            self.game_state.get_map_movement_context(),
-            self.game_state.map.map_point,
-            {MapPoint.from_cell_id(ref_data.cellId)},
-        )
+        element_mp = MapPoint.from_cell_id(ref_data.cellId)
 
         self.run_timer(
             BASE_RANGE,
             lambda: self.interactive_behavior.start(
-                move_path=move_path_to_chest,
+                element_mp=element_mp,
                 element_id=chest_interactive.element_id,
-                skill_instance_uid=chest_interactive.enabled_skills[
-                    0
-                ].skill_instance_uid,
                 callback=self.on_interactive_behavior_finished,
                 parent=self,
             ),

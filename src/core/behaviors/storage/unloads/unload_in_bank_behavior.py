@@ -17,12 +17,9 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )
-from src.core.config import (
-    BEFORE_CLOSING_INVENTORY,
-    SMALL_RANGE,
-    USEFUL_UNLOAD,
-)
+from src.core.config import USEFUL_UNLOAD
 from src.core.engine.items.item_formatter import format_item_name
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
@@ -51,12 +48,15 @@ class UnloadInBankBehavior(DialogHandlerBehavior):
 
         self.logger.info("Transferring all items to bank")
         object_to_unloads = self.game_state.inventory.get_unlinked_objects()
-        self.unload_object(object_to_unloads)
+        self.run_timer(
+            HumanTimingsService().get_timing_unload_on_bank(),
+            lambda: self.unload_object(object_to_unloads),
+        )
 
     def unload_object(self, object_to_unloads: list[ObjectItemInventory]) -> None:
         if len(object_to_unloads) == 0:
             return self.run_timer(
-                BEFORE_CLOSING_INVENTORY,
+                HumanTimingsService().get_timing_before_bank_close(),
                 lambda: self.leave_dialog(
                     on_leave_callback=self.on_exchange_leave_event
                 ),
@@ -85,7 +85,10 @@ class UnloadInBankBehavior(DialogHandlerBehavior):
     def on_inventory_weight_event(
         self, msg: InventoryWeightEvent, object_to_unloads: list[ObjectItemInventory]
     ) -> None:
-        self.run_timer(SMALL_RANGE, lambda: self.unload_object(object_to_unloads))
+        self.run_timer(
+            HumanTimingsService().get_timing_between_bank_transfers(),
+            lambda: self.unload_object(object_to_unloads),
+        )
 
     def on_exchange_leave_event(self, msg: ExchangeLeaveEvent) -> None:
         self.logger.info("Bank unload completed successfully")

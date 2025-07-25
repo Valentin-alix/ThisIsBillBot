@@ -1,9 +1,23 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import datetime
 from threading import Event, Timer
 
+from ankama_launcher_emulator_premium.consts import (
+    PAYSAFECARDS_PATH,
+    PAYSAFECARD_PURCHASE_PATH,
+)
 from ankama_launcher_emulator_premium.interfaces.credentials import (
     StoredApiKey,
+)
+from ankama_launcher_emulator_premium.web.subscription.paysafecard_pool import (
+    PaysafecardPool,
+)
+from ankama_launcher_emulator_premium.web.subscription.purchase_state import (
+    PaysafecardPurchaseStorage,
+)
+from ankama_launcher_emulator_premium.web.subscription.storage import (
+    SubscriptionExpirationStorage,
 )
 from datas.protos.non_obf.game.common_pb2 import Character
 from dofus_unity_reader.data_center.dungeon_info import PLAYABLE_DUNGEONS
@@ -12,6 +26,13 @@ from dofus_unity_reader.game_constants.map_id import MapIdEnum
 from src.controller.bot_config import BotConfig
 from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
+)
+from src.core.behaviors.account.ogrine_subscription import (
+    OgrineSubscriptionBehavior,
+    OgrineSubscriptionErrorCode,
+)
+from src.core.behaviors.account.paysafecard_subscription import (
+    PaysafecardSubscriptionBehavior,
 )
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
@@ -29,6 +50,8 @@ from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
 from src.services.logging_utils.contextual_logger import ContextualLogger
 
+_OGRINE_SUBSCRIPTION_MIN_KAMAS = 2_000_000
+
 
 @dataclass
 class ConnectionHandler(ContextualLogger):
@@ -43,15 +66,28 @@ class ConnectionHandler(ContextualLogger):
     fight_behavior: FightBehavior
     character_creation_behavior: CharacterCreationBehavior
     tutorial_behavior: TutorialBehavior
+    ogrine_subscription_behavior: OgrineSubscriptionBehavior
+    paysafecard_subscription_behavior: PaysafecardSubscriptionBehavior
     account: StoredApiKey
     shared_signals: SharedSignals
     get_bot_config: Callable[[], BotConfig | None]
     event_manager: EventManager
 
     behavior_coordinator: BehaviorCoordinator
+    subscription_storage: SubscriptionExpirationStorage = field(default_factory=SubscriptionExpirationStorage)
+    paysafecard_pool: PaysafecardPool = field(
+        default_factory=lambda: PaysafecardPool(path=str(PAYSAFECARDS_PATH))
+    )
+    paysafecard_purchase_storage: PaysafecardPurchaseStorage = field(
+        default_factory=lambda: PaysafecardPurchaseStorage(PAYSAFECARD_PURCHASE_PATH)
+    )
 
     _timer: Timer | None = field(init=False, default=None)
     _reconnect_attempts: int = field(init=False, default=0)
+    _planned_disconnect_event: Event = field(init=False, default_factory=Event)
+
+    def record_planned_disconnect(self) -> None:
+        self._planned_disconnect_event.set()
 
     def cleanup(self):
         if self._timer is not None:
@@ -60,11 +96,7 @@ class ConnectionHandler(ContextualLogger):
 
     def on_connected(self, characters: list[Character]) -> None:
         self.is_connected_event.set()
-        if (
-            not self.event_manager.is_socket_mode
-            and len(characters) == 0
-            and self.is_playing_event.is_set()
-        ):
+        if not self.event_manager.is_socket_mode and len(characters) == 0 and self.is_playing_event.is_set():
             self.character_creation_behavior.start(
                 callback=self.on_character_creation_behavior_finished, parent=None
             )
@@ -75,6 +107,8 @@ class ConnectionHandler(ContextualLogger):
 
     def on_disconnected(self) -> None:
         """Handle bot disconnection event and trigger reconnection if playing."""
+        planned_disconnect = self._planned_disconnect_event.is_set()
+        self._planned_disconnect_event.clear()
         self.is_connected_event.clear()
         self.is_ready_to_play_event.clear()
         self.game_state.clear_connection_scoped_state()
@@ -82,9 +116,14 @@ class ConnectionHandler(ContextualLogger):
             self._reconnect_attempts = 0
             return
 
-        self.logger.info(
-            f"Bot unexpected disconnect, reconnect attemp : {self._reconnect_attempts}"
-        )
+        if planned_disconnect:
+            self.logger.info("Planned disconnect completed without reconnect scheduling")
+            self._reconnect_attempts = 0
+            self.behavior_coordinator.stop_behaviors()
+            self.cleanup()
+            return
+
+        self.logger.info(f"Bot unexpected disconnect, reconnect attemp : {self._reconnect_attempts}")
 
         self._reconnect_attempts += 1
 
@@ -113,10 +152,7 @@ class ConnectionHandler(ContextualLogger):
         if not self.is_playing_event.is_set():
             return
 
-        if (
-            self.behavior_coordinator._current_bot_action_func is None
-            and self.get_bot_config() is None
-        ):
+        if self.behavior_coordinator._current_bot_action_func is None and self.get_bot_config() is None:
             raise ValueError("An action should be provided if is_playing_event is set")
 
         remove_forbidden_edge_transition_by_map_id(
@@ -127,34 +163,23 @@ class ConnectionHandler(ContextualLogger):
         def on_fight_behavior_finished(error_code: str | None):
             if error_code is not None:
                 raise UnhandledErrorCodeException(error_code)
-            if (
-                self.behavior_coordinator
-                and self.behavior_coordinator.is_playing_event.is_set()
-            ):
-                self.behavior_coordinator.run_current_bot_action()
+            if self.behavior_coordinator and self.behavior_coordinator.is_playing_event.is_set():
+                self._continue_after_required_behavior()
 
         def on_dungeon_behavior_finished(error_code: str | None):
             if error_code is not None:
                 raise UnhandledErrorCodeException(error_code)
-            if (
-                self.behavior_coordinator
-                and self.behavior_coordinator.is_playing_event.is_set()
-            ):
-                self.behavior_coordinator.run_current_bot_action()
+            if self.behavior_coordinator and self.behavior_coordinator.is_playing_event.is_set():
+                self._continue_after_required_behavior()
 
         def on_tutorial_behavior_finished(error_code: str | None):
             if error_code is not None:
                 raise UnhandledErrorCodeException(error_code)
-            if (
-                self.behavior_coordinator
-                and self.behavior_coordinator.is_playing_event.is_set()
-            ):
-                self.behavior_coordinator.run_current_bot_action()
+            if self.behavior_coordinator and self.behavior_coordinator.is_playing_event.is_set():
+                self._continue_after_required_behavior()
 
         if self.game_state.map.map_id == MapIdEnum.TUTORIAL_STARTING_MAP:
-            return self.tutorial_behavior.start(
-                callback=on_tutorial_behavior_finished, parent=None
-            )
+            return self.tutorial_behavior.start(callback=on_tutorial_behavior_finished, parent=None)
 
         for dungeon_info in PLAYABLE_DUNGEONS:
             if (
@@ -173,4 +198,77 @@ class ConnectionHandler(ContextualLogger):
                 parent=None,
             )
         elif self.behavior_coordinator.is_playing_event.is_set():
+            self._continue_after_required_behavior()
+
+    def _continue_after_required_behavior(self) -> None:
+        if not self.behavior_coordinator.is_playing_event.is_set():
+            return
+        if self._should_subscribe_with_paysafe_card():
+            self.logger.info("Starting automatic in-game Paysafecard subscription")
+            self.paysafecard_subscription_behavior.start(
+                callback=self._on_paysafecard_subscription_finished,
+                parent=None,
+            )
+            return
+        if self._should_renew_subscription_with_ogrines():
+            self.logger.info(
+                f"Starting automatic ogrine subscription renewal: kamas={self.game_state.inventory.kamas}"
+            )
+            self.ogrine_subscription_behavior.start(
+                callback=self._on_ogrine_subscription_finished,
+                parent=None,
+            )
+            return
+        self.behavior_coordinator.run_current_bot_action()
+
+    def _should_subscribe_with_paysafe_card(self) -> bool:
+        login = self.game_state.player.login
+        subscribe_info = self.subscription_storage.get_subscribe_info(login)
+        if subscribe_info is None:
+            return False
+        is_never_subscribed = not subscribe_info.is_subscribe and not subscribe_info.is_former_subscribe
+        pending_purchase = self.paysafecard_purchase_storage.load_purchase()
+        has_pending_purchase = pending_purchase is not None and pending_purchase.login == login
+        has_available_pin = bool(self.paysafecard_pool.load())
+        self.logger.info(f"Is never subscribed : {is_never_subscribed}")
+        self.logger.info(f"Has Paysafecard PIN available : {has_available_pin}")
+        self.logger.info(f"Has pending Paysafecard purchase : {has_pending_purchase}")
+        return is_never_subscribed and (has_available_pin or has_pending_purchase)
+
+    def _on_paysafecard_subscription_finished(
+        self,
+        error_code: str | None,
+        _new_expiration: datetime | None,
+    ) -> None:
+        if error_code is not None:
+            self.logger.error("Automatic Paysafecard subscription failed: %s", error_code)
+            self.bot_signals.stop.emit()
+            return
+        if self.behavior_coordinator.is_playing_event.is_set():
+            self.behavior_coordinator.run_current_bot_action()
+
+    def _should_renew_subscription_with_ogrines(self) -> bool:
+        subscribe_info = self.subscription_storage.get_subscribe_info(self.game_state.player.login)
+        if subscribe_info is None:
+            return False
+        is_current_or_former_subscriber = bool(
+            subscribe_info.is_subscribe or subscribe_info.is_former_subscribe
+        )
+        self.logger.info(f"Is current or former sub : {is_current_or_former_subscriber}")
+        self.logger.info(f"Kamas available : {self.game_state.inventory.kamas}")
+        self.logger.info(f"Is active beyond threshold : {subscribe_info.is_active_beyond_threshold()}")
+        return (
+            is_current_or_former_subscriber
+            and not subscribe_info.is_active_beyond_threshold()
+            and self.game_state.inventory.kamas > _OGRINE_SUBSCRIPTION_MIN_KAMAS
+        )
+
+    def _on_ogrine_subscription_finished(
+        self, error_code: str | None, _new_expiration: datetime | None
+    ) -> None:
+        if error_code is not None and error_code is not OgrineSubscriptionErrorCode.NOT_ENOUGH_KAMAS:
+            self.logger.error(f"Automatic ogrine subscription failed: {error_code}")
+            self.bot_signals.stop.emit()
+            return
+        if self.behavior_coordinator.is_playing_event.is_set():
             self.behavior_coordinator.run_current_bot_action()

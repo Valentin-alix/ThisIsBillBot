@@ -11,7 +11,12 @@ from ankama_launcher_emulator_premium.interfaces.credentials import (
 from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
 )
-from src.core.behaviors.communication.chat_behavior import ChatBehavior
+from src.core.behaviors.account.ogrine_subscription import (
+    OgrineSubscriptionBehavior,
+)
+from src.core.behaviors.account.paysafecard_subscription import (
+    PaysafecardSubscriptionBehavior,
+)
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.equipment.auto_equipment_behavior import AutoEquipmentBehavior
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
@@ -49,6 +54,7 @@ from src.core.behaviors.movements.fake_bad_movement_behavior import (
 )
 from src.core.behaviors.movements.map_change_behavior import MapChangeBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
+from src.core.behaviors.movements.map_movement_cancel_behavior import MapMovementCancelBehavior
 from src.core.behaviors.movements.waypoint_behavior import WaypointBehavior
 from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehavior
 from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
@@ -128,15 +134,13 @@ from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.signals.world_signals import WorldSignals
 from src.core.states.state_factory import StateFactory
-from src.services.debug_recorder import DebugRecorder
+from src.services.debug_recorder import create_bot_session_debug_recorder
 from src.services.logging_utils.loggers import BotLogger
 
 
 class BotFactory:
     @staticmethod
-    def create_bot(
-        shared_signals: SharedSignals, account: StoredApiKey, is_fake: bool = False
-    ):
+    def create_bot(shared_signals: SharedSignals, account: StoredApiKey, is_fake: bool = False):
         harvester_signals = BotSignals()
         game_info_signals = GameInfoSignals()
         msg_info_signals = MessageInfoSignals()
@@ -150,12 +154,11 @@ class BotFactory:
         is_ready_to_play_event = threading.Event()
 
         title = account.apikey.login
-        debug_recorder = DebugRecorder(
-            file_path=str(launcher_consts.BOT_DEBUG_LOGS_DIR / f"{title}.debug.jsonl")
+        debug_recorder = create_bot_session_debug_recorder(
+            launcher_consts.BOT_DEBUG_LOGS_DIR,
+            title,
         )
-        logger = BotLogger(
-            title=title, log_signals=log_signals, debug_recorder=debug_recorder
-        )
+        logger = BotLogger(title=title, log_signals=log_signals, debug_recorder=debug_recorder)
 
         event_manager = EventManager(_logger=logger, debug_recorder=debug_recorder)
 
@@ -397,11 +400,19 @@ class BotFactory:
             auto_trip_explorator_behavior=auto_trip_explorator_behavior,
             _logger=logger,
         )
+        map_move_cancel_behavior = MapMovementCancelBehavior(
+            _logger=logger,
+            event_manager=event_manager,
+            game_state=game_state,
+            path_finding=path_finding,
+            map_move_behavior=map_move_behavior,
+        )
         collect_behavior = CollectBehavior(
             event_manager=event_manager,
             interactive_behavior=interactive_behavior,
             game_state=game_state,
             path_finding=path_finding,
+            map_movement_cancel_behavior=map_move_cancel_behavior,
             _logger=logger,
         )
         enter_guild_chest_behavior = EnterGuildChestBehavior(
@@ -580,9 +591,6 @@ class BotFactory:
             auto_equipment_behavior=auto_equipment_behavior,
         )
 
-        chat_behavior = ChatBehavior(
-            event_manager=event_manager, game_state=game_state, _logger=logger
-        )
         fake_bad_movement_behavior = FakeBadMovementBehavior(
             event_manager=event_manager, game_state=game_state, _logger=logger
         )
@@ -623,7 +631,6 @@ class BotFactory:
             _logger=logger, event_manager=event_manager, game_state=game_state
         )
         multi_farming_behavior = MultiFarmingBehavior(
-            chat_behavior=chat_behavior,
             mule_give_behavior=mule_give_behavior,
             event_manager=event_manager,
             collect_behavior=collect_behavior,
@@ -659,6 +666,19 @@ class BotFactory:
             _logger=logger, event_manager=event_manager, game_state=game_state
         )
 
+        ogrine_subscription_behavior = OgrineSubscriptionBehavior(
+            _logger=logger,
+            event_manager=event_manager,
+            game_state=game_state,
+            account_id=account.apikey.accountId,
+        )
+        paysafecard_subscription_behavior = PaysafecardSubscriptionBehavior(
+            _logger=logger,
+            event_manager=event_manager,
+            game_state=game_state,
+            account_id=account.apikey.accountId,
+        )
+
         return Bot(
             usable_behaviors=[
                 mule_give_behavior,
@@ -668,6 +688,8 @@ class BotFactory:
                 auto_equipment_behavior,
                 fake_bad_movement_behavior,
                 fake_bad_interactive_behavior,
+                ogrine_subscription_behavior,
+                paysafecard_subscription_behavior,
             ],
             account=account,
             grid_signals=grid_signals,
@@ -712,6 +734,8 @@ class BotFactory:
             is_fake=is_fake,
             character_creation_behavior=character_creation_behavior,
             tutorial_behavior=tutorial_behavior,
+            ogrine_subscription_behavior=ogrine_subscription_behavior,
+            paysafecard_subscription_behavior=paysafecard_subscription_behavior,
             debug_recorder=debug_recorder,
         )
 
@@ -730,10 +754,7 @@ def generate_random_bot() -> Bot:
                 login=login,
                 certificate=DecipheredCertif(
                     id=4321,
-                    encodedCertificate=(
-                        "ABCD1234EFGH5678IJKL9012MNOP3456QRST7890"
-                        "UVWX1234YZAB5678CDEF9012"
-                    ),
+                    encodedCertificate=("ABCD1234EFGH5678IJKL9012MNOP3456QRST7890UVWX1234YZAB5678CDEF9012"),
                     login=login,
                 ),
                 refreshDate=1762825632,

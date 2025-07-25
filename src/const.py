@@ -39,7 +39,6 @@ def _read_bool_env(name: str, default: bool) -> bool:
 # ============================================================================
 
 DEBUG = _read_bool_env("DEBUG", True)
-DO_INSERT_HUMAN_SESSION = False
 
 # ============================================================================
 # BACKEND & RÉSEAU
@@ -61,7 +60,6 @@ CONNECTION_SERVERS_IPS: list[str] = [
 
 RESOURCE_FOLDER = os.path.join(Path(__file__).parent.parent, "resources")
 LOGO_FILE = os.path.join(RESOURCE_FOLDER, "icons", "logo.png")
-HUMAN_SESSIONS_FILE = os.path.join(RESOURCE_FOLDER, "human_sessions.json")
 
 # ============================================================================
 # UTILITAIRES

@@ -53,6 +53,34 @@ def logger(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> MagicMock:
 
 
 @pytest.fixture(autouse=True)
+def _isolate_resource_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(
+        "src.core.behaviors.account.paysafecard_subscription.PAYSAFECARDS_PATH",
+        tmp_path / "paysafecards.txt",
+    )
+    monkeypatch.setattr(
+        "src.core.behaviors.account.paysafecard_subscription.PAYSAFECARD_PURCHASE_PATH",
+        tmp_path / "paysafecard_purchase.local.json",
+    )
+    monkeypatch.setattr(
+        "src.core.bot.lifecycle.connection_handler.PAYSAFECARDS_PATH",
+        tmp_path / "paysafecards.txt",
+    )
+    monkeypatch.setattr(
+        "src.core.bot.lifecycle.connection_handler.PAYSAFECARD_PURCHASE_PATH",
+        tmp_path / "paysafecard_purchase.local.json",
+    )
+    monkeypatch.setattr(
+        "ankama_launcher_emulator_premium.web.debug_utils.DEBUG_DUMPS_DIR",
+        tmp_path / "debug" / "dumps",
+    )
+    monkeypatch.setattr(
+        "ankama_launcher_emulator_premium.web.subscription.xsolla_paysafecard.DEBUG_DUMPS_DIR",
+        tmp_path / "debug" / "dumps",
+    )
+
+
+@pytest.fixture(autouse=True)
 def game_sub_info_mock(monkeypatch: pytest.MonkeyPatch) -> None:
     def fake_get_game_sub_info(login: str):
         return GameSubscription(

@@ -27,7 +27,7 @@ from src.core.signals.world_signals import WorldSignals
 
 PATH_LOCK = RLock()
 LAST_VISITED_BY_SERVER_AND_MAP: dict[tuple[int, int], datetime] = {}
-EDGE_PATH_BY_SERVER_AND_CHARACTER: dict[tuple[int, int], list[Edge]] = {}
+EDGE_PATH_BY_SERVER_AND_CHARACTER: dict[tuple[int, int], tuple[Edge, ...]] = {}
 
 
 @dataclass
@@ -51,12 +51,16 @@ class RandomFarmBehavior(Behavior):
 
     @edge_path.setter
     def edge_path(self, value: list[Edge] | None) -> None:
-        self._edge_path = value
-        key = (self.game_state.player.server_id, self.game_state.player.character_id)
-        if value is None:
-            EDGE_PATH_BY_SERVER_AND_CHARACTER.pop(key, None)
-        else:
-            EDGE_PATH_BY_SERVER_AND_CHARACTER[key] = value
+        self._edge_path = None if value is None else list(value)
+        path_key = (
+            self.game_state.player.server_id,
+            self.game_state.player.character_id,
+        )
+        with PATH_LOCK:
+            if self._edge_path is None:
+                EDGE_PATH_BY_SERVER_AND_CHARACTER.pop(path_key, None)
+            else:
+                EDGE_PATH_BY_SERVER_AND_CHARACTER[path_key] = tuple(self._edge_path)
 
     def init_random_farm(
         self,
@@ -151,11 +155,13 @@ class RandomFarmBehavior(Behavior):
         if error_code is not None:
             self.edge_path = None
             return self.finish(error_code)
-        else:
-            self.edge_path.remove(edge)
-        LAST_VISITED_BY_SERVER_AND_MAP[
-            (self.game_state.player.server_id, self.game_state.map.map_id)
-        ] = datetime.now()
+        remaining_path = list(self.edge_path)
+        remaining_path.remove(edge)
+        self.edge_path = remaining_path
+        with PATH_LOCK:
+            LAST_VISITED_BY_SERVER_AND_MAP[
+                (self.game_state.player.server_id, self.game_state.map.map_id)
+            ] = datetime.now()
         self.event_manager.on(
             MapComplementaryInformationEvent,
             partial(
@@ -190,9 +196,10 @@ class RandomFarmBehavior(Behavior):
                 request_disconnect()
                 return
             return self.finish(error_code)
-        LAST_VISITED_BY_SERVER_AND_MAP[
-            (self.game_state.player.server_id, self.game_state.map.map_id)
-        ] = datetime.now()
+        with PATH_LOCK:
+            LAST_VISITED_BY_SERVER_AND_MAP[
+                (self.game_state.player.server_id, self.game_state.map.map_id)
+            ] = datetime.now()
         self.finish(error_code)
 
     def get_next_weighted_path(self) -> list[Edge] | None:
@@ -225,7 +232,8 @@ class RandomFarmBehavior(Behavior):
 
     def _calculate_time_weight(self, map_id: int) -> float:
         key = (self.game_state.player.server_id, map_id)
-        last_visited = LAST_VISITED_BY_SERVER_AND_MAP.get(key, MIN_DATE)
+        with PATH_LOCK:
+            last_visited = LAST_VISITED_BY_SERVER_AND_MAP.get(key, MIN_DATE)
         seconds_since_visit = (datetime.now() - last_visited).total_seconds()
         return min(seconds_since_visit, 3600) ** 2
 
@@ -239,13 +247,18 @@ class RandomFarmBehavior(Behavior):
     def _calculate_competition_penalty(self, edge: Edge) -> int:
         server_id = self.game_state.player.server_id
         character_id = self.game_state.player.character_id
+        with PATH_LOCK:
+            competing_paths = [
+                edge_path
+                for (
+                    path_server_id,
+                    path_character_id,
+                ), edge_path in EDGE_PATH_BY_SERVER_AND_CHARACTER.items()
+                if path_server_id == server_id and path_character_id != character_id
+            ]
         return sum(
             1
-            for (
-                srv_id,
-                char_id,
-            ), edge_path in EDGE_PATH_BY_SERVER_AND_CHARACTER.items()
-            if srv_id == server_id and char_id != character_id
-            for other_edge in edge_path
+            for competing_path in competing_paths
+            for other_edge in competing_path
             if other_edge == edge
         )

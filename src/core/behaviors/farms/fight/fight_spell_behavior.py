@@ -1,10 +1,10 @@
 from dataclasses import dataclass, field
 
 from datas.protos.non_obf.game.game_action_pb2 import (
-    GameActionAcknowledgementRequest,
     GameActionFightCastRequest,
     GameActionFightEvent,
     SequenceEndEvent,
+    SequenceType,
 )
 from dofus_unity_reader.grid.map_point import MapPoint
 
@@ -22,18 +22,10 @@ class FightSpellBehavior(Behavior):
         spell_id: int,
         target_mp: MapPoint,
     ) -> None:
-        self._pending_spell_action_id = None
         self.launch_spell_on_cell_id(spell_id, target_mp.cell_id)
 
     def launch_spell_on_cell_id(self, spell_id: int, cell_id: int):
-        self.event_manager.on(
-            SequenceEndEvent, self.on_sequence_end_event, originator=self
-        )
-        self.event_manager.on(
-            GameActionAcknowledgementRequest,
-            self.on_game_action_acknowledgement_request,
-            originator=self,
-        )
+        self.event_manager.on(SequenceEndEvent, self.on_sequence_end_event, originator=self)
         self.event_manager.on(
             GameActionFightEvent,
             self.on_game_action_fight_event,
@@ -41,19 +33,11 @@ class FightSpellBehavior(Behavior):
         )
         req = GameActionFightCastRequest(spell_id=spell_id, cell=cell_id)
 
-        self.send_message_delayed(
-            req, HumanTimingsService().get_micro_jitter("spell_cast")
-        )
+        self.send_message_delayed(req, HumanTimingsService().get_timing_before_spell_cast())
 
     def on_sequence_end_event(self, msg: SequenceEndEvent):
-        if msg.author_id == self.game_state.player.character_id:
-            self._pending_spell_action_id = msg.action_id
-
-    def on_game_action_acknowledgement_request(
-        self, msg: GameActionAcknowledgementRequest
-    ) -> None:
-        if msg.valid and msg.action_id == self._pending_spell_action_id:
-            self.finish()
+        if msg.author_id == self.game_state.player.character_id and msg.sequence_type == SequenceType.SPELL:
+            return self.finish()
 
     def on_game_action_fight_event(self, msg: GameActionFightEvent) -> None:
         if not msg.HasField("death"):

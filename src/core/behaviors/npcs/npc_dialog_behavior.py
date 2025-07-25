@@ -29,35 +29,24 @@ class NpcDialogBehavior(Behavior):
     def run(
         self,
         npc_dialog_info: NpcDialogInfo,
-        is_forbidden_msg_callback: Callable[[NpcDialogQuestionEvent], bool]
-        | None = None,
+        is_forbidden_msg_callback: Callable[[NpcDialogQuestionEvent], bool] | None = None,
     ):
         self.is_forbidden_msg_callback = is_forbidden_msg_callback
-        self.run_timer(
-            ON_NEW_MAP_BEFORE_ACTION,
-            lambda: self.dialog_to_npc(npc_dialog_info=npc_dialog_info),
-        )
+        self.run_timer(ON_NEW_MAP_BEFORE_ACTION, lambda: self.dialog_to_npc(npc_dialog_info=npc_dialog_info))
 
     def dialog_to_npc(self, npc_dialog_info: NpcDialogInfo):
         self.event_manager.on(
             NpcDialogQuestionEvent,
-            partial(
-                self.on_npc_dialog_question_event,
-                npc_dialog_info=npc_dialog_info,
-            ),
+            partial(self.on_npc_dialog_question_event, npc_dialog_info=npc_dialog_info),
             originator=self,
         )
         npc_id = self.game_state.entity.resolve_npc_id(npc_dialog_info)
         npc_request = NpcGenericActionRequest(
-            npc_action_id=npc_dialog_info.npc_action_id,
-            npc_id=npc_id,
-            npc_map_id=self.game_state.map.map_id,
+            npc_action_id=npc_dialog_info.npc_action_id, npc_id=npc_id, npc_map_id=self.game_state.map.map_id
         )
         self.event_manager.send(npc_request)
 
-    def on_npc_dialog_question_event(
-        self, msg: NpcDialogQuestionEvent, npc_dialog_info: NpcDialogInfo
-    ):
+    def on_npc_dialog_question_event(self, msg: NpcDialogQuestionEvent, npc_dialog_info: NpcDialogInfo):
         if self.is_forbidden_msg_callback and self.is_forbidden_msg_callback(msg):
             return self.finish(NpcDialogErrorCode.FORBIDDEN_CONDITION)
 

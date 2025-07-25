@@ -115,19 +115,13 @@ class WaypointBehavior(Behavior):
         mp_zaap = MapPoint.from_cell_id(
             self.game_state.interactive.stated_element_by_id[zaap.element_id][0].cell_id
         )
-        move_path = self.pathfinding.find_path(
-            self.game_state.get_map_movement_context(),
-            self.game_state.map.map_point,
-            {mp_zaap},
-        )
         self.run_timer(
             BASE_RANGE,
             lambda: self.interactive_behavior.start(
                 parent=self,
                 callback=partial(self.on_zaap_used, map_id=map_id),
-                move_path=move_path,
+                element_mp=mp_zaap,
                 element_id=zaap.element_id,
-                skill_instance_uid=zaap.enabled_skills[0].skill_instance_uid,
             ),
         )
 

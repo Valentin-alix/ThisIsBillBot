@@ -43,12 +43,8 @@ class GameClient(BaseClient):
 
     def on_received_msg_datas(self, msg_datas: bytes) -> None:
         size, pos = decode_varint_size(msg_datas)
-        _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(
-            msg_datas[pos : pos + size], False
-        )
-        self.bot.debug_recorder.record_game_message(
-            clear_sub_msg, obf_sub_msg, uid, True
-        )
+        _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(msg_datas[pos : pos + size], False)
+        self.bot.debug_recorder.record_game_message(clear_sub_msg, obf_sub_msg, uid, True, "server")
         if const.DEBUG:
             msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, True, False)
             self.bot.msg_info_signals.msg_info.emit(msg_infos, False)
@@ -59,20 +55,16 @@ class GameClient(BaseClient):
         if self.client_socket.fileno() == -1:
             return
         uid = self.uid + 1 if type(clear_sub_msg) in MESSAGES_WITH_UID else -1
-        obf_info = get_obf_game_message_from_msg(
-            Request.DESCRIPTOR.full_name, clear_sub_msg, uid
-        )
+        obf_info = get_obf_game_message_from_msg(Request.DESCRIPTOR.full_name, clear_sub_msg, uid)
         if obf_info is not None:
             obf_game_msg, obf_sub_msg = obf_info
             self.client_socket.sendall(encode_msg(obf_game_msg))
             self.bot.debug_recorder.record_game_message(
-                clear_sub_msg, obf_sub_msg, uid, False
+                clear_sub_msg, obf_sub_msg, uid, False, "framework_injected"
             )
             self.bot.event_manager.process_msg(clear_sub_msg)
             if const.DEBUG:
-                msg_infos = get_game_msg_info(
-                    clear_sub_msg, obf_sub_msg, uid, False, False
-                )
+                msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, False, False)
                 self.bot.msg_info_signals.msg_info.emit(msg_infos, True)
 
     def send_obf_msg(self, obf_msg: Message) -> None:

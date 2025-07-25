@@ -2,9 +2,11 @@ from dataclasses import dataclass
 from functools import partial
 
 from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.data_center.map_reader import MapReader
 from dofus_unity_reader.game_constants.element_type import ElementTypeEnum
 from dofus_unity_reader.game_constants.item import CategoryItemEnum
 from dofus_unity_reader.game_constants.npc import NpcInfo
+from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
@@ -58,17 +60,21 @@ class EnterSaleHotelBehavior(Behavior):
             ]
         )
 
+        ref_data = MapReader().get_ref_data_by_element_id_by_map_id(self.game_state.map.map_id)[
+            sale_hotel_interactive.element_id
+        ]
+        if ref_data.cellId is None:
+            raise ValueError("Sale hotel cell id is missing")
+        element_mp = MapPoint.from_cell_id(ref_data.cellId)
+
         def on_interactive_finished(_error_code: str | None) -> None:
             self.finish(npc_info=npc_info)
 
         self.run_timer(
             BASE_RANGE,
             lambda: self.interactive_behavior.start(
-                move_path=None,
+                element_mp=element_mp,
                 element_id=sale_hotel_interactive.element_id,
-                skill_instance_uid=sale_hotel_interactive.enabled_skills[
-                    0
-                ].skill_instance_uid,
                 callback=on_interactive_finished,
                 parent=self,
             ),

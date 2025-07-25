@@ -17,7 +17,7 @@ class LoadRecipeBehavior(Behavior):
     load_recipe_from_guild_chest_behavior: LoadRecipeFromGuildChestBehavior
 
     def run(self, recipes: list[RecipeItem]) -> None:
-        if self.game_state.player.is_sub:
+        if self.game_state.player.is_sub and self.game_state.guild_chest.can_access_guild_chest:
             self.load_recipe_from_guild_chest_behavior.start(
                 callback=self.on_load_from_chest_behavior_finished,
                 parent=self,

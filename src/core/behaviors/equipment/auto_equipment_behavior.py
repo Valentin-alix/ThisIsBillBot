@@ -13,7 +13,6 @@ from src.core.behaviors.storage.loads.load_from_bank_behavior import (
     LoadFromBankBehavior,
 )
 from src.core.behaviors.storage.loads.load_item_request import LoadItemInfo
-from src.core.config import BASE_RANGE
 from src.core.engine.economy.sale_hotel import ItemToBuyInfo
 from src.core.engine.items.equipment import (
     get_best_roll,
@@ -22,6 +21,7 @@ from src.core.engine.items.equipment import (
     roll_score,
 )
 from src.core.engine.items.set_infos import SetOnLevel
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
@@ -34,17 +34,11 @@ class AutoEquipmentBehavior(Behavior):
     _last_run_datetime: datetime | None = field(init=False, default=None)
     _chosen_set: SetOnLevel | None = field(init=False, default=None)
     _needed_gids: list[int] = field(init=False, default_factory=list[int])
-    _to_buy: list[ItemToBuyInfo] = field(
-        init=False, default_factory=list[ItemToBuyInfo]
-    )
-    _items_to_equip: list[ObjectItemInventory] = field(
-        init=False, default_factory=list[ObjectItemInventory]
-    )
+    _to_buy: list[ItemToBuyInfo] = field(init=False, default_factory=list[ItemToBuyInfo])
+    _items_to_equip: list[ObjectItemInventory] = field(init=False, default_factory=list[ObjectItemInventory])
 
     def run(self):
-        if self._last_run_datetime and (
-            datetime.now() - self._last_run_datetime
-        ) < timedelta(hours=1):
+        if self._last_run_datetime and (datetime.now() - self._last_run_datetime) < timedelta(hours=1):
             self.logger.info("Too early to start auto equipment again")
             return self.finish()
 
@@ -87,15 +81,9 @@ class AutoEquipmentBehavior(Behavior):
             bank_best = get_best_roll(bank_items, primary_elem)
 
             if bank_best is not None and (
-                inv_best is None
-                or roll_score(bank_best, primary_elem)
-                > roll_score(inv_best, primary_elem)
+                inv_best is None or roll_score(bank_best, primary_elem) > roll_score(inv_best, primary_elem)
             ):
-                load_from_bank.append(
-                    LoadItemInfo(
-                        item_gid=gid, remaining_quantity=len(bank_items), tab=0
-                    )
-                )
+                load_from_bank.append(LoadItemInfo(item_gid=gid, remaining_quantity=len(bank_items), tab=0))
             elif inv_best is None:
                 self._to_buy.append(info)
 
@@ -112,9 +100,7 @@ class AutoEquipmentBehavior(Behavior):
         self.buy_missing_items()
 
     def buy_missing_items(self):
-        if self._to_buy and not (
-            self.game_state.player.is_sub or self.game_state.player.is_former_sub
-        ):
+        if self._to_buy and not (self.game_state.player.is_sub or self.game_state.player.is_former_sub):
             self.logger.info(
                 "Sale hotel unavailable for accounts that have never subscribed; skipping equipment purchases"
             )
@@ -167,9 +153,7 @@ class AutoEquipmentBehavior(Behavior):
 
         self._chosen_set = set_on_level
 
-        item_info_to_buy = get_item_gids_to_buy(
-            set_on_level, self.game_state.inventory.objects_by_uid
-        )
+        item_info_to_buy = get_item_gids_to_buy(set_on_level, self.game_state.inventory.objects_by_uid)
         self.logger.info(f"Gonna equip {item_info_to_buy}")
 
         return item_info_to_buy
@@ -193,7 +177,10 @@ class AutoEquipmentBehavior(Behavior):
             quantity=1,
             position=self._chosen_set.position_by_item_id[item_inventory.item.gid],
         )
-        self.send_message_delayed(req, BASE_RANGE)
+        self.send_message_delayed(
+            req,
+            HumanTimingsService().get_timing_equipment_choice(),
+        )
 
     def on_inventory_weight_event_after_equipped(self, msg: InventoryWeightEvent):
         self.equip_next_item()

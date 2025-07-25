@@ -146,7 +146,10 @@ class AttackerBehavior(Behavior):
             and self._count_fighted_on_map >= self._count_fight_limit
         ):
             return self.finish(count_fighted_on_map=self._count_fighted_on_map)
-        self.attack_enemy()
+        self.run_timer(
+            HumanTimingsService().get_timing_after_fight(),
+            self.attack_enemy,
+        )
 
     def get_next_enemy(
         self, excluded_group_actor_id: int | None = None

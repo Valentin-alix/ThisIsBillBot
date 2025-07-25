@@ -20,6 +20,7 @@ from src.services.logging_utils.loggers import BotLogger
 HV_COST: int = 10
 DIAG_COST: int = 15
 HEURISTIC_SCALE: int = 1
+MAX_SKILL_RANGE: int = 63
 
 DEBUG_WAIT_TIME: float = 0.01
 
@@ -37,12 +38,8 @@ class Pathfinding:
     node_by_coord: dict[tuple[int, int], NodeMapPoint] = field(
         init=False, default_factory=dict[tuple[int, int], NodeMapPoint]
     )
-    open_list: list[NodeMapPoint] = field(
-        init=False, default_factory=list[NodeMapPoint]
-    )
-    is_coord_closed: set[tuple[int, int]] = field(
-        init=False, default_factory=set[tuple[int, int]]
-    )
+    open_list: list[NodeMapPoint] = field(init=False, default_factory=list[NodeMapPoint])
+    is_coord_closed: set[tuple[int, int]] = field(init=False, default_factory=set[tuple[int, int]])
     occupied_cell_ids: set[int] = field(init=False, default_factory=set[int])
     end_columns: set[int] = field(init=False, default_factory=set[int])
     end_lines: set[int] = field(init=False, default_factory=set[int])
@@ -55,50 +52,137 @@ class Pathfinding:
         player_mp: MapPoint,
         element_mp: MapPoint,
         skill_ids: list[int],
+        ignore_server_range: bool = False,
     ) -> MovementPath | None:
-        """get near path for using interactive element"""
+        """Path to the cell the client walks to before using an interactive.
+
+        Unreachable approach cell -> `None`, except for elements that have none at all (a fish in
+        the water, a door sunk into a wall): there the client walks as close as it can, and we
+        follow as long as we stay within `get_max_skill_range`.
+
+        `ignore_server_range` drops that last check, for map transitions only: their element cell
+        comes from the world graph and is too unreliable to measure a distance against.
+        """
         self.data_map_provider.set_context(context)
-        minimal_range = 63
+
+        destination = self.get_interactive_destination(player_mp, element_mp, skill_ids)
+        path_to_element = self.find_path(context=context, start=player_mp, ends={destination})
+        if path_to_element.end.cell_id == destination.cell_id:
+            return path_to_element
+
+        has_no_approach_cell = destination.cell_id == element_mp.cell_id
+        if not has_no_approach_cell:
+            return None
+        if ignore_server_range:
+            return path_to_element
+
+        distance_to_element = path_to_element.end.distance_to_map_point(element_mp)
+        if distance_to_element - 1 > self.get_max_skill_range(skill_ids):
+            return None
+        return path_to_element
+
+    def get_interactive_destination(
+        self, player_mp: MapPoint, element_mp: MapPoint, skill_ids: list[int]
+    ) -> MapPoint:
+        forbidden_cell_ids = self.get_interactive_forbidden_cell_ids(element_mp)
+        minimal_range = self.get_minimal_skill_range(skill_ids)
+
+        element_cell_data = self.data_map_provider.get_cell_data(element_mp.cell_id)
+        is_element_cell_standable = bool(element_cell_data.mov) and not self.data_map_provider.is_farm_cell(
+            element_mp.cell_id
+        )
+
+        if element_mp.distance_to_map_point(player_mp) <= minimal_range and not is_element_cell_standable:
+            return player_mp
+
+        destination = self.data_map_provider.get_nearest_free_cell(
+            element_mp,
+            element_mp.advanced_orientation_to(player_mp),
+            forbidden_cell_ids=frozenset(forbidden_cell_ids),
+        )
+        if minimal_range > 1 and destination is not None:
+            destination = self.walk_away_from_element(
+                destination, player_mp, minimal_range, forbidden_cell_ids
+            )
+
+        if skill_ids == [SkillEnum.POINT_OUT_EXIT]:
+            return element_mp
+
+        if destination is None or destination.cell_id in forbidden_cell_ids:
+            return element_mp
+        return destination
+
+    def walk_away_from_element(
+        self,
+        destination: MapPoint,
+        player_mp: MapPoint,
+        minimal_range: int,
+        forbidden_cell_ids: set[int],
+    ) -> MapPoint | None:
+        current = destination
+        for _ in range(minimal_range - 1):
+            forbidden_cell_ids.add(current.cell_id)
+            next_mp = self.data_map_provider.get_nearest_free_cell(
+                current,
+                current.advanced_orientation_to(player_mp, four_dir=False),
+                forbidden_cell_ids=frozenset(forbidden_cell_ids),
+            )
+            if next_mp is None:
+                return None
+            current = next_mp
+            if current.cell_id == player_mp.cell_id:
+                break
+        return current
+
+    def get_max_skill_range(self, skill_ids: list[int]) -> int:
+        return max(DataReader().skill_by_id[skill_id].range for skill_id in skill_ids)
+
+    def get_minimal_skill_range(self, skill_ids: list[int]) -> int:
+        minimal_range = MAX_SKILL_RANGE
         for skill_id in skill_ids:
             skill_data = DataReader().skill_by_id[skill_id]
-            if skill_data.range < minimal_range:
+            if not skill_data.useRangeInClient:
+                minimal_range = 1
+            elif skill_data.range < minimal_range:
                 minimal_range = skill_data.range
+        return minimal_range
 
-        near_mps: set[MapPoint] = set()
+    def get_interactive_forbidden_cell_ids(self, element_mp: MapPoint) -> set[int]:
+        forbidden_cell_ids: set[int] = set()
+        for direction in DirectionsEnum:
+            near_mp = element_mp.get_nearest_mp_in_direction(direction)
+            if near_mp is None:
+                continue
+            cell_data = self.data_map_provider.get_cell_data(near_mp.cell_id)
+            is_forbidden = not cell_data.mov or self.data_map_provider.is_farm_cell(near_mp.cell_id)
+            if not is_forbidden and self.is_dead_end(near_mp):
+                is_forbidden = True
+            if is_forbidden:
+                forbidden_cell_ids.add(near_mp.cell_id)
+        return forbidden_cell_ids
 
-        if SkillEnum.EXIT in skill_ids:
-            near_mps = element_mp.side_map_points
-            path_to_element = self.find_path(
-                context=context, start=player_mp, ends=near_mps
-            )
-            if path_to_element.end in near_mps:
-                return path_to_element
+    def is_dead_end(self, mp: MapPoint) -> bool:
+        """True when none of the eight neighbours of `mp` can be walked to.
 
-        if minimal_range > 0:
-            for direction in DirectionsEnum:
-                mp_direction = self.data_map_provider.get_nearest_free_cell(
-                    element_mp, direction
-                )
-                if mp_direction is not None:
-                    near_mps.add(mp_direction)
-        if len(near_mps) == 0:
-            near_mps = {element_mp}
+        Off map directions do not count as blocking, like the client, so a cell on the map border
+        is never a dead end.
+        """
+        walkable_count = len(DirectionsEnum)
+        for direction in DirectionsEnum:
+            neighbor_mp = mp.get_nearest_mp_in_direction(direction)
+            if neighbor_mp is None:
+                continue
+            if not self.can_mov_to_coords(neighbor_mp.x, neighbor_mp.y, mp.cell_id) or not (
+                self.can_mov_to_coords(neighbor_mp.x - 1, neighbor_mp.y, mp.cell_id)
+                or self.can_mov_to_coords(neighbor_mp.x, neighbor_mp.y - 1, mp.cell_id)
+            ):
+                walkable_count -= 1
+        return walkable_count == 0
 
-        path_to_element = self.find_path(
-            context=context, start=player_mp, ends=near_mps
-        )
-        if path_to_element.end.distance_to_map_point(element_mp) - 1 > minimal_range:
-            return None
-
-        end_path_mp = (
-            path_to_element.path[-1].step
-            if len(path_to_element.path) > 0
-            else player_mp
-        )
-        if not self.data_map_provider.can_reach_mp(end_path_mp, element_mp):
-            return None
-
-        return path_to_element
+    def can_mov_to_coords(self, x: int, y: int, previous_cell_id: int) -> bool:
+        if (x, y) not in MAP_POINT_BY_COORD:
+            return False
+        return self.data_map_provider.can_mov_to_mp(MapPoint.from_coords(x, y), previous_cell_id)
 
     def find_path(
         self,
@@ -246,9 +330,7 @@ class Pathfinding:
     ) -> float:
         """check cost of move from map point to parent map point"""
         point_weight = self.get_map_point_weight(mp, ends)
-        movement_cost: float = (
-            DIAG_COST if mp.is_diagonal_move(parent_mp) else HV_COST
-        ) * point_weight
+        movement_cost: float = (DIAG_COST if mp.is_diagonal_move(parent_mp) else HV_COST) * point_weight
         if self.allow_trough_entity:
             is_cell_on_end_column = self.is_cell_on_ends_column(mp)
             is_cell_on_start_column = mp.x + mp.y == start.x + start.y
@@ -318,10 +400,7 @@ class Pathfinding:
                 grand_grand_parent = grand_parent.parent if grand_parent else None
                 if (
                     grand_parent is not None
-                    and MapTools.get_distance(
-                        cursor.mp.cell_id, grand_parent.mp.cell_id
-                    )
-                    == 1
+                    and MapTools.get_distance(cursor.mp.cell_id, grand_parent.mp.cell_id) == 1
                 ):
                     if self.data_map_provider.can_mov_to_mp(
                         cursor.mp,
@@ -332,17 +411,10 @@ class Pathfinding:
                         cursor.parent = grand_parent
                 elif (
                     grand_grand_parent is not None
-                    and MapTools.get_distance(
-                        cursor.mp.cell_id, grand_grand_parent.mp.cell_id
-                    )
-                    == 2
+                    and MapTools.get_distance(cursor.mp.cell_id, grand_grand_parent.mp.cell_id) == 2
                 ):
-                    inter_x = cursor.mp.x + round(
-                        (grand_grand_parent.mp.x - cursor.mp.x) / 2
-                    )
-                    inter_y = cursor.mp.y + round(
-                        (grand_grand_parent.mp.y - cursor.mp.y) / 2
-                    )
+                    inter_x = cursor.mp.x + round((grand_grand_parent.mp.x - cursor.mp.x) / 2)
+                    inter_y = cursor.mp.y + round((grand_grand_parent.mp.y - cursor.mp.y) / 2)
 
                     inter_mp = MapPoint.from_coords(inter_x, inter_y)
                     if (
@@ -352,38 +424,26 @@ class Pathfinding:
                             allow_through_entity=self.allow_trough_entity,
                             avoid_obstacle=self.avoid_obstacles,
                         )
-                        and self.data_map_provider.get_point_weight(
-                            inter_mp, self.allow_trough_entity
-                        )
-                        < 2
+                        and self.data_map_provider.get_point_weight(inter_mp, self.allow_trough_entity) < 2
                     ):
                         cursor.parent = self.node_by_coord[(inter_mp.x, inter_mp.y)]
                 elif (
                     grand_parent is not None
-                    and MapTools.get_distance(
-                        cursor.mp.cell_id, grand_parent.mp.cell_id
-                    )
-                    == 2
+                    and MapTools.get_distance(cursor.mp.cell_id, grand_parent.mp.cell_id) == 2
                 ):
                     assert parent is not None
 
                     if (
-                        cursor.mp.x + cursor.mp.y
-                        == grand_parent.mp.x + grand_parent.mp.y
+                        cursor.mp.x + cursor.mp.y == grand_parent.mp.x + grand_parent.mp.y
                         and cursor.mp.x - cursor.mp.y != parent.mp.x - parent.mp.y
-                        and not self.data_map_provider.is_changing_zone(
-                            cursor.mp.cell_id, parent.mp.cell_id
-                        )
+                        and not self.data_map_provider.is_changing_zone(cursor.mp.cell_id, parent.mp.cell_id)
                         and not self.data_map_provider.is_changing_zone(
                             parent.mp.cell_id, grand_parent.mp.cell_id
                         )
                     ) or (
-                        cursor.mp.x - cursor.mp.y
-                        == grand_parent.mp.x - grand_parent.mp.y
+                        cursor.mp.x - cursor.mp.y == grand_parent.mp.x - grand_parent.mp.y
                         and cursor.mp.x - cursor.mp.y != parent.mp.x - parent.mp.y
-                        and not self.data_map_provider.is_changing_zone(
-                            cursor.mp.cell_id, parent.mp.cell_id
-                        )
+                        and not self.data_map_provider.is_changing_zone(cursor.mp.cell_id, parent.mp.cell_id)
                         and not self.data_map_provider.is_changing_zone(
                             parent.mp.cell_id, grand_parent.mp.cell_id
                         )

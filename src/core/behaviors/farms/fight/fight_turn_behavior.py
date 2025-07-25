@@ -18,7 +18,6 @@ from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_movement_behavior import FightMovementBehavior
 from src.core.behaviors.farms.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
-from src.core.config import BETWEEN_ACTION_RANGE
 from src.core.engine.fights.attack.attacker import Attacker
 from src.core.engine.contexts import AttackContext
 from src.core.engine.fights.attack.buff import find_best_self_buff
@@ -88,7 +87,7 @@ class FightTurnBehavior(Behavior):
             on_done()
 
         self.run_timer(
-            BETWEEN_ACTION_RANGE,
+            HumanTimingsService().get_timing_fight_action(),
             lambda: self.fight_spell_behavior.start(
                 spell_id=spell_lvl.spellId,
                 target_mp=target_mp,
@@ -187,7 +186,7 @@ class FightTurnBehavior(Behavior):
                 return self.pass_turn()
 
             self.run_timer(
-                BETWEEN_ACTION_RANGE,
+                HumanTimingsService().get_timing_fight_action(),
                 lambda: self.fight_spell_behavior.start(
                     spell_id=spell_lvl.spellId,
                     target_mp=attack_mp,

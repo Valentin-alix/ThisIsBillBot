@@ -22,6 +22,7 @@ from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import (
     SaleHotelSellBehavior,
 )
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
+from src.core.bot.kamas_mule_registry import KamasMuleRegistry
 from src.core.config import (
     BASE_RANGE,
     MULE_BANK_MAP_ID,
@@ -34,6 +35,7 @@ class MuleAcceptBehavior(Behavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
     unload_behavior: UnloadBehavior
     sale_hotel_prices_behavior: SaleHotelSellBehavior
+    mule_registry: KamasMuleRegistry = field(default_factory=KamasMuleRegistry)
 
     _step: int = field(init=False, default=0)
 
@@ -73,6 +75,15 @@ class MuleAcceptBehavior(Behavior):
         self.go_bank_map()
 
     def stand_ready_for_exchanges(self) -> None:
+        self.mule_registry.mark_ready(
+            self.game_state.player.login,
+            self.game_state.player.server_id,
+            self.game_state.player.character_id,
+            self.game_state.map.map_id,
+        )
+        self.listen_for_exchange_request()
+
+    def listen_for_exchange_request(self) -> None:
         self.event_manager.on(
             ExchangeRequestedTradeEvent,
             self.on_exchange_requested_trade_event,
@@ -84,6 +95,15 @@ class MuleAcceptBehavior(Behavior):
     def on_exchange_requested_trade_event(
         self, msg: ExchangeRequestedTradeEvent
     ) -> None:
+        if not self.mule_registry.is_reserved_by(
+            self.game_state.player.login, msg.source_id
+        ):
+            self.logger.info(
+                f"Rejecting unreserved exchange request from {msg.source_id}"
+            )
+            self.listen_for_exchange_request()
+            self.event_manager.send(DialogLeaveRequest())
+            return
         self.logger.info("on requested trade event, let's accept")
         self.event_manager.on(
             ExchangeStartedWithPodsEvent,
@@ -148,3 +168,7 @@ class MuleAcceptBehavior(Behavior):
 
     def on_exchange_leave_event(self, msg: ExchangeLeaveEvent) -> None:
         self.run_timer(BASE_RANGE, self.on_bank_map)
+
+    def clear_behavior(self) -> None:
+        self.mule_registry.mark_unavailable(self.game_state.player.login)
+        super().clear_behavior()

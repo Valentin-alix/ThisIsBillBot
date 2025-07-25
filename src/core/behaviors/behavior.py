@@ -2,7 +2,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from threading import RLock, Timer
-from typing import ParamSpec, Protocol, overload
+from typing import ParamSpec, Protocol, cast
 
 from google.protobuf.message import Message
 
@@ -53,9 +53,7 @@ class Behavior(ContextualLogger):
     children: list["Behavior"] = field(init=False, default_factory=list["Behavior"])
     timers: list[Timer] = field(init=False, default_factory=list[Timer])
 
-    def _transition(
-        self, from_states: set[BehaviorState], to_state: BehaviorState, reason: str = ""
-    ) -> bool:
+    def _transition(self, from_states: set[BehaviorState], to_state: BehaviorState, reason: str = "") -> None:
         """
         Atomic state transition with validation.
 
@@ -76,13 +74,12 @@ class Behavior(ContextualLogger):
                     f"Reason: {reason}"
                 )
                 self.logger.error(error)
-                return False
+                raise BehaviorStateError(error)
 
             old_state = self._state
             self._state = to_state
             self.logger.debug(
-                f"State transition: {old_state.name} -> {to_state.name}"
-                + (f" ({reason})" if reason else "")
+                f"State transition: {old_state.name} -> {to_state.name}" + (f" ({reason})" if reason else "")
             )
             self._record_behavior_event(
                 "transition",
@@ -90,7 +87,6 @@ class Behavior(ContextualLogger):
                 to_state=to_state.name,
                 reason=reason,
             )
-            return True
 
     @property
     def state(self) -> BehaviorState:
@@ -98,76 +94,55 @@ class Behavior(ContextualLogger):
         with self._state_lock:
             return self._state
 
-    @overload
     def start(
         self: RunnableBehavior[RunParams],
         callback: Callable[..., None] | None,
         parent: "Behavior|None",
         *args: RunParams.args,
         **kwargs: RunParams.kwargs,
-    ) -> None: ...
-
-    @overload
-    def start(
-        self: RunnableBehavior[RunParams],
-        callback: Callable[..., None] | None,
-        parent: "Behavior|None",
-        *args: RunParams.args,
-        **kwargs: RunParams.kwargs,
-    ) -> None: ...
-
-    def start(
-        self,
-        callback: Callable[..., None] | None,
-        parent: "Behavior|None",
-        *args: object,
-        **kwargs: object,
     ) -> None:
-        if not self._transition(
+        behavior = cast(Behavior, self)
+        behavior._transition(
             {BehaviorState.STOPPED},
             BehaviorState.STARTING,
             reason=f"start() called with parent={parent.__class__.__name__ if parent else None}",
-        ):
-            return
+        )
 
-        with self.event_manager.lock:
+        with behavior.event_manager.lock:
             if parent and parent.state != BehaviorState.RUNNING:
                 error = (
-                    f"Cannot start {self.__class__.__name__}: "
+                    f"Cannot start {behavior.__class__.__name__}: "
                     f"parent {parent.__class__.__name__} in state {parent.state.name}, "
                     f"expected RUNNING"
                 )
-                self.logger.error(error)
-                return
+                behavior.logger.error(error)
+                behavior.stop()
+                raise BehaviorLifecycleError(error)
 
-            self.parent = parent
-            if self.parent:
-                self.parent.children.append(self)
-            self.callback = callback
+            behavior.parent = parent
+            if behavior.parent:
+                behavior.parent.children.append(behavior)
+            behavior.callback = callback
 
-            if not self._transition(
+            behavior._transition(
                 {BehaviorState.STARTING},
                 BehaviorState.RUNNING,
                 reason="setup complete, entering run()",
-            ):
-                return
+            )
 
-        self.logger.debug(f"Starting {self.__class__.__name__}")
-        if self.parent is None:
-            self._record_state_snapshot(f"{self.__class__.__name__}.start")
-        run_method = getattr(self, "run", None)
-        if not callable(run_method):
-            raise TypeError(f"{self.__class__.__name__} must define a run() method")
-        run_method(*args, **kwargs)
+        behavior.logger.debug(f"Starting {behavior.__class__.__name__}")
+        if behavior.parent is None:
+            behavior._record_state_snapshot(f"{behavior.__class__.__name__}.start")
+        try:
+            self.run(*args, **kwargs)
+        except Exception:
+            behavior.stop()
+            raise
 
-    def send_message_delayed(
-        self, message: Message, delay: tuple[float, float] | float
-    ) -> None:
+    def send_message_delayed(self, message: Message, delay: tuple[float, float] | float) -> None:
         self.run_timer(delay, lambda: self.event_manager.send(message))
 
-    def run_timer(
-        self, range_time: tuple[float, float] | float, func: Callable[[], None]
-    ) -> None:
+    def run_timer(self, range_time: tuple[float, float] | float, func: Callable[[], None]) -> None:
         if isinstance(range_time, tuple):
             wait_time = get_random_range(range_time)
         else:
@@ -179,9 +154,7 @@ class Behavior(ContextualLogger):
     def run_timed_func(self, func: Callable[[], None]) -> None:
         with self._state_lock:
             if self._state != BehaviorState.RUNNING:
-                self.logger.warning(
-                    f"Timer fired but behavior in state {self._state.name}, ignoring"
-                )
+                self.logger.warning(f"Timer fired but behavior in state {self._state.name}, ignoring")
                 return
         func()
 
@@ -197,11 +170,11 @@ class Behavior(ContextualLogger):
                 self.logger.debug(error)
                 return
 
-        self._transition(
-            {BehaviorState.RUNNING, BehaviorState.STARTING},
-            BehaviorState.STOPPING,
-            reason="stop() called",
-        )
+            self._transition(
+                {BehaviorState.RUNNING, BehaviorState.STARTING},
+                BehaviorState.STOPPING,
+                reason="stop() called",
+            )
 
         with self.event_manager.lock:
             self.logger.info("Stopping")
@@ -209,9 +182,7 @@ class Behavior(ContextualLogger):
             if self.parent and self in self.parent.children:
                 self.parent.children.remove(self)
 
-        self._transition(
-            {BehaviorState.STOPPING}, BehaviorState.STOPPED, reason="cleanup complete"
-        )
+        self._transition({BehaviorState.STOPPING}, BehaviorState.STOPPED, reason="cleanup complete")
 
     def force_reset(self) -> None:
         """
@@ -239,9 +210,7 @@ class Behavior(ContextualLogger):
                 child = self.children.pop()
                 child.stop()
 
-    def finish(
-        self, error_code: str | None = None, *args: object, **kwargs: object
-    ) -> None:
+    def finish(self, error_code: str | None = None, *args: object, **kwargs: object) -> None:
         with self._state_lock:
             if self._state not in {BehaviorState.RUNNING, BehaviorState.STARTING}:
                 error = f"finish() called in state {self._state.name}"
@@ -277,9 +246,7 @@ class Behavior(ContextualLogger):
             reason: Raison du nettoyage manuel (pour debug/doc)
         """
         if reason:
-            self.logger.debug(
-                f"Manual listener cleanup: {event_type.__name__} - {reason}"
-            )
+            self.logger.debug(f"Manual listener cleanup: {event_type.__name__} - {reason}")
         self.event_manager.clear_listener_by_origin_and_type(event_type, self)
 
     def raise_if_error(self, error_code: str | None) -> None:
@@ -297,11 +264,7 @@ class Behavior(ContextualLogger):
 
         def walk(behavior: "Behavior", depth: int) -> None:
             marker = " <-" if behavior is self else ""
-            lines.append(
-                "  " * depth
-                + f"{behavior.__class__.__name__}[{behavior.state.name}]"
-                + marker
-            )
+            lines.append("  " * depth + f"{behavior.__class__.__name__}[{behavior.state.name}]" + marker)
             for child in list(behavior.children):
                 walk(child, depth + 1)
 
@@ -335,6 +298,4 @@ class Behavior(ContextualLogger):
         recorder = self.event_manager.debug_recorder
         if recorder is None:
             return
-        recorder.record_state(
-            trigger=trigger, snapshot=self.game_state.debug_snapshot()
-        )
+        recorder.record_state(trigger=trigger, snapshot=self.game_state.debug_snapshot())

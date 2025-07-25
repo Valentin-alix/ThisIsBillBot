@@ -33,23 +33,14 @@ from ankama_launcher_emulator_premium.web.auth.storage import (
     mark_account_available_for_auth_retry,
     reassign_account_for_auth_retry,
 )
-from ankama_launcher_emulator_premium.web.subscription.models import (
-    SubscribeOptions,
-    SubscribeStatus,
-)
-from ankama_launcher_emulator_premium.web.subscription.service import (
-    SubscribeService,
-    build_subscribe_service,
-)
-
 from src.controller.bot_config import BotConfigService
 from src.core.bot.lifecycle.operation_pool import OperationPool
 
 logger = logging.getLogger()
 
 TICK_INTERVAL_MINUTES = 5
-OGRINE_SUBSCRIPTION_MIN_KAMAS = 3_000_000
 MAX_BOTS_PER_SCHEDULE_PROFILE = 5
+MIN_AUTHENTICATED_BOTS_FOR_MULE = 13
 
 
 @dataclass(frozen=True)
@@ -69,23 +60,12 @@ class _RegisterOp:
     quota_key: str
 
 
-@dataclass(frozen=True)
-class _SubscribeOp:
-    """Subscribe or renew a single account."""
-
-    login: str
-    options: SubscribeOptions
-    quota_key: str
-
-
-PendingOperation = _AuthOp | _RegisterOp | _SubscribeOp
+PendingOperation = _AuthOp | _RegisterOp
 
 
 def _quota_key_of(operation: PendingOperation) -> str:
     """The source proxy, or direct connection, an operation is charged against."""
     match operation:
-        case _SubscribeOp(quota_key=quota_key):
-            return quota_key
         case _AuthOp(quota_key=quota_key) | _RegisterOp(quota_key=quota_key):
             return quota_key
 
@@ -101,27 +81,19 @@ def _run_async[T](coro: Coroutine[Any, Any, T]) -> T:
 
 @dataclass
 class AccountScheduler:
-    """Drives account auth, creation and subscription from a shared rate-limit pool.
+    """Drives account authentication and creation from a shared rate-limit pool.
 
     Ankama caps these operations at 2 per rolling hour and 4 per rolling day, all
     drawing from the same pool. The scheduler ticks periodically and, whenever quota
-    is available, performs a single operation — preferring an ogrine renewal for a
-    sufficiently funded former subscriber, then a first Paysafecard subscription,
-    then authentication, and finally creating a new account.
+    is available, performs a single authentication or account creation.
     """
 
     on_accounts_synchronized: Callable[[], None]
-    on_subscribed: Callable[[str], None]
     on_banned_callback: Callable[[str], None]
     bot_config_controller: BotConfigService = field(default_factory=BotConfigService)
-    schedule_profile_controller: ScheduleProfileController = field(
-        default_factory=ScheduleProfileController
-    )
+    schedule_profile_controller: ScheduleProfileController = field(default_factory=ScheduleProfileController)
     proxy_controller: ProxyController = field(default_factory=ProxyController)
-    subscribe_service: SubscribeService = field(default_factory=build_subscribe_service)
-    account_kamas_controller: BotStorageController = field(
-        default_factory=BotStorageController
-    )
+    bot_storage_controller: BotStorageController = field(default_factory=BotStorageController)
     _job: schedule.Job | None = field(init=False, default=None)
     _pool: OperationPool = field(init=False, default_factory=OperationPool)
     _lock: threading.Lock = field(init=False, default_factory=threading.Lock)
@@ -130,9 +102,7 @@ class AccountScheduler:
     def start(self) -> None:
         assert self._job is None, "Scheduler is already started"
         self._job = schedule.every(TICK_INTERVAL_MINUTES).minutes.do(self._tick)
-        logger.info(
-            f"Account scheduler armed: one operation every {TICK_INTERVAL_MINUTES} min "
-        )
+        logger.info(f"Account scheduler armed: one operation every {TICK_INTERVAL_MINUTES} min ")
 
     def _tick(self) -> None:
         with self._lock:
@@ -149,10 +119,6 @@ class AccountScheduler:
         threading.Thread(target=self._run_operation, args=(operation,)).start()
 
     def _next_operation(self, now: float) -> PendingOperation | None:
-        subscription = self._next_subscription_target(now)
-        if subscription is not None:
-            logger.info(f"let's subscribe for {subscription.login}")
-            return subscription
         profiles = self.schedule_profile_controller.get_all_profiles()
         available_accounts = load_available_generated_accounts()
         bad_state_emails = load_bad_state_emails()
@@ -180,32 +146,50 @@ class AccountScheduler:
             if not self._pool.has_quota(quota_key, now):
                 logger.info(f"quota key {quota_key} reached")
                 continue
-            auth_candidates.append(
-                _AuthOp(account.email, account_profile_id, quota_key)
-            )
+            auth_candidates.append(_AuthOp(account.email, account_profile_id, quota_key))
         if auth_candidates:
             return min(
                 auth_candidates,
-                key=lambda operation: self._pool.count_since_hour(
-                    operation.quota_key, now
-                ),
+                key=lambda operation: self._pool.count_since_hour(operation.quota_key, now),
             )
         if count_available_emails() > 0:
             profile_counts = self._profile_account_counts(profiles)
-            register_candidates = [
+            records = self.bot_storage_controller.get_all_records().values()
+            authenticated_count = sum(record.encrypted_api_key is not None for record in records)
+            has_viable_kamas_mule = any(
+                not record.bad_state and profile.kind == "kamas_mule"
+                for record in records
+                if record.schedule_profile is not None
+                if (profile := profiles.get(record.schedule_profile)) is not None
+            )
+            eligible_candidates = [
                 _RegisterOp(profile_id, profile.proxy_id)
                 for profile_id, profile in profiles.items()
                 if not self.proxy_controller.get_proxy(profile.proxy_id).rejected
                 if self._pool.has_quota(profile.proxy_id, now)
-                if profile_counts[profile_id] < MAX_BOTS_PER_SCHEDULE_PROFILE
                 if not self._pool.is_register_cooled_down(profile.proxy_id, now)
             ]
+            mule_candidates = [
+                operation
+                for operation in eligible_candidates
+                if profiles[operation.schedule_profile].kind == "kamas_mule"
+            ]
+            register_candidates = (
+                mule_candidates
+                if authenticated_count >= MIN_AUTHENTICATED_BOTS_FOR_MULE
+                and not has_viable_kamas_mule
+                and mule_candidates
+                else [
+                    operation
+                    for operation in eligible_candidates
+                    if profiles[operation.schedule_profile].kind == "bot"
+                    if profile_counts[operation.schedule_profile] < MAX_BOTS_PER_SCHEDULE_PROFILE
+                ]
+            )
             if not register_candidates:
                 return None
             register_candidates.sort(
-                key=lambda operation: self._pool.count_since_hour(
-                    operation.quota_key, now
-                )
+                key=lambda operation: self._pool.count_since_hour(operation.quota_key, now)
             )
             return min(
                 register_candidates,
@@ -225,49 +209,11 @@ class AccountScheduler:
                 continue
             if profile_id not in profiles:
                 raise ValueError(
-                    f"Unknown schedule profile {profile_id} "
-                    f"for generated account {account.email}"
+                    f"Unknown schedule profile {profile_id} for generated account {account.email}"
                 )
             counts[profile_id] += 1
             counted_logins.add(account.email)
         return counts
-
-    def _next_subscription_target(self, now: float) -> _SubscribeOp | None:
-        configs = self.bot_config_controller.get_bot_config_by_login()
-        has_paysafecard_pin = bool(self.subscribe_service.paysafecard_pool.load())
-        first_subscription: _SubscribeOp | None = None
-        for login, config in configs.items():
-            if config.schedule_profile is None:
-                continue
-            proxy = self.bot_config_controller.resolve_bot_proxy(config)
-            if proxy.rejected:
-                continue
-            proxy_url = self.bot_config_controller.resolve_bot_http_proxy_url(config)
-            profile = self.schedule_profile_controller.get_profile(
-                config.schedule_profile
-            )
-            assert profile is not None, (
-                f"Unknown schedule profile {config.schedule_profile}"
-            )
-            quota_key = profile.proxy_id
-            if not self._pool.has_quota(quota_key, now):
-                continue
-            info = self.subscribe_service.storage.get_subscribe_info(login)
-            if info is None:
-                continue
-            if info.is_active_beyond_threshold():
-                continue
-            operation = _SubscribeOp(
-                login, SubscribeOptions(proxy_url=proxy_url), quota_key
-            )
-            if info.is_subscribe or info.is_former_subscribe:
-                kamas = self.account_kamas_controller.get_kamas(login)
-                if kamas is not None and kamas > OGRINE_SUBSCRIPTION_MIN_KAMAS:
-                    return operation
-                continue
-            if has_paysafecard_pin and first_subscription is None:
-                first_subscription = operation
-        return first_subscription
 
     def _handle_proxy_rejection(self, profile_id: str) -> None:
         rejected_profile = self.schedule_profile_controller.get_profile(profile_id)
@@ -282,9 +228,7 @@ class AccountScheduler:
         }
         affected_logins = set(generated_account_logins)
         affected_logins.update(
-            login
-            for login, config in bot_configs.items()
-            if config.schedule_profile == profile_id
+            login for login, config in bot_configs.items() if config.schedule_profile == profile_id
         )
         logger.error(
             "Proxy rejected for profile %s; recycling %d accounts",
@@ -301,22 +245,19 @@ class AccountScheduler:
             healthy_profile_ids = sorted(
                 candidate_profile_id
                 for candidate_profile_id, candidate_profile in profiles.items()
-                if not self.proxy_controller.get_proxy(
-                    candidate_profile.proxy_id
-                ).rejected
+                if candidate_profile.kind == "bot"
+                if not self.proxy_controller.get_proxy(candidate_profile.proxy_id).rejected
             )
             for login in sorted(generated_account_logins):
                 available_profile_ids = [
                     candidate_profile_id
                     for candidate_profile_id in healthy_profile_ids
-                    if profile_counts[candidate_profile_id]
-                    < MAX_BOTS_PER_SCHEDULE_PROFILE
+                    if profile_counts[candidate_profile_id] < MAX_BOTS_PER_SCHEDULE_PROFILE
                 ]
                 if not available_profile_ids:
                     mark_account_available_for_auth_retry(login)
                     logger.warning(
-                        "No healthy schedule profile has room for %s; "
-                        "keeping its rejected profile",
+                        "No healthy schedule profile has room for %s; keeping its rejected profile",
                         login,
                     )
                     continue
@@ -355,22 +296,12 @@ class AccountScheduler:
                         self._handle_proxy_rejection(schedule_profile)
                         return
                     if result is not None and result.success:
-                        self.bot_config_controller.assign_profile(
-                            login, schedule_profile
-                        )
+                        self.bot_config_controller.assign_profile(login, schedule_profile)
                         self.on_accounts_synchronized()
                 case _RegisterOp(schedule_profile=schedule_profile):
                     result = _run_async(register_next_available_email(schedule_profile))
                     if result is not None and is_aws_waf_marker(result.antibot_marker):
                         self._pool.record_register_cooldown(operation.quota_key)
-                case _SubscribeOp(login=login, options=options):
-                    try:
-                        sub_result = self.subscribe_service.run(login, options)
-                    except BannedException:
-                        return self.on_banned_callback(login)
-                    logger.info(f"[{login}] {sub_result}")
-                    if sub_result.status == SubscribeStatus.SUBSCRIBED:
-                        self.on_subscribed(login)
         finally:
             self._operation_in_progress = False
 

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-from ankama_launcher_emulator_premium.gui.utils import run_in_background
 from ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
@@ -11,7 +10,6 @@ from PyQt6.QtCore import QMetaObject, Qt
 
 from src import const
 from src.const import MESSAGES_WITH_UID
-from src.controller.session_timings import SessionTimingsController
 from src.core.bot.bot import Bot
 from src.protocol.protocol import decode_varint_size, encode_msg
 from src.protocol.protocol_game import (
@@ -19,6 +17,7 @@ from src.protocol.protocol_game import (
     get_game_msg_info,
     get_obf_game_message_from_msg,
 )
+from src.services.debug_recorder.recorder import MessageSource
 
 
 @dataclass
@@ -30,7 +29,6 @@ class GameProxy(Proxy):
         self.bot.event_manager.on_send_game_callback = self.send_msg
         self.bot.event_manager.request_disconnect_callback = self.close
         self.uid: int = 1
-        self.session_timings = SessionTimingsController(self.bot.account.apikey.login)
 
     def on_close(self) -> None:
         self.bot.cancel_frame_timers()
@@ -44,38 +42,25 @@ class GameProxy(Proxy):
             Qt.ConnectionType.QueuedConnection,
         )
 
-        if const.DO_INSERT_HUMAN_SESSION:
-            run_in_background(lambda _: self.session_timings.insert_session_datas())
-
-    def alter_msg_datas(
-        self, msg_content_datas: bytes, msg_datas: bytes
-    ) -> bytes | None:
+    def alter_msg_datas(self, msg_content_datas: bytes, msg_datas: bytes) -> bytes | None:
         expected_uid = self.uid + 1
-        root_msg_namespace, clear_sub_msg, _, uid = get_game_msg(
-            msg_content_datas, const.DEBUG
-        )
+        root_msg_namespace, clear_sub_msg, _, uid = get_game_msg(msg_content_datas, const.DEBUG)
         if clear_sub_msg is None:
             return msg_datas
 
-        clear_sub_altered_msg, was_altered = self.bot.event_manager.alter_msg(
-            clear_sub_msg
-        )
+        clear_sub_altered_msg, was_altered = self.bot.event_manager.alter_msg(clear_sub_msg)
         if not was_altered and (uid is None or uid == -1 or uid == expected_uid):
             return msg_datas
 
         if clear_sub_altered_msg is None:
             return None
         # msg was altered, let's rebuild game msg
-        obf_info = get_obf_game_message_from_msg(
-            root_msg_namespace, clear_sub_altered_msg, expected_uid
-        )
+        obf_info = get_obf_game_message_from_msg(root_msg_namespace, clear_sub_altered_msg, expected_uid)
         if obf_info is not None:
             game_msg, _ = obf_info
             return encode_msg(game_msg)
 
-    def on_sent_msg_datas(
-        self, msg_datas: bytes, was_send_from_proxy: bool, from_server: bool
-    ) -> None:
+    def on_sent_msg_datas(self, msg_datas: bytes, was_send_from_proxy: bool, from_server: bool) -> None:
         size, pos = decode_varint_size(msg_datas)
         msg_content_datas = msg_datas[pos : pos + size]
 
@@ -85,9 +70,15 @@ class GameProxy(Proxy):
         if uid is not None and uid != -1:
             self.uid = uid
 
-        self.bot.debug_recorder.record_game_message(
-            clear_sub_msg, obf_sub_msg, uid, from_server
-        )
+        source: MessageSource
+        if from_server:
+            source = "server"
+        elif was_send_from_proxy:
+            source = "framework_injected"
+        else:
+            source = "client_forwarded"
+
+        self.bot.debug_recorder.record_game_message(clear_sub_msg, obf_sub_msg, uid, from_server, source)
 
         if const.DEBUG:
             msg_infos = get_game_msg_info(
@@ -98,14 +89,6 @@ class GameProxy(Proxy):
                 not was_send_from_proxy,
             )
             self.bot.msg_info_signals.msg_info.emit(msg_infos, was_send_from_proxy)
-            if (
-                const.DO_INSERT_HUMAN_SESSION
-                and clear_sub_msg is not None
-                and not self.bot.is_playing_event.is_set()
-            ):
-                self.session_timings.add_message_timing(
-                    clear_sub_msg.__class__.__name__, msg_infos.received_time
-                )
 
         if clear_sub_msg is not None:
             self.bot.event_manager.process_msg(clear_sub_msg)
@@ -116,11 +99,7 @@ class GameProxy(Proxy):
         else:
             uid = -1
 
-        obf_info = get_obf_game_message_from_msg(
-            Request.DESCRIPTOR.full_name, clear_sub_msg, uid
-        )
+        obf_info = get_obf_game_message_from_msg(Request.DESCRIPTOR.full_name, clear_sub_msg, uid)
         if obf_info is not None:
             obf_game_msg, _ = obf_info
-            self.queue_worker_item.put(
-                (WorkerAction.SEND_SERVER, encode_msg(obf_game_msg), True, False)
-            )
+            self.queue_worker_item.put((WorkerAction.SEND_SERVER, encode_msg(obf_game_msg), True, False))

@@ -24,6 +24,8 @@ from src.core.behaviors.behavior import Behavior
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 
+CLIENT_CONFIRM_OVERHEAD = 0.040
+
 
 class MapMoveError(StrEnum):
     CANCELED_MOVEMENT = auto()
@@ -69,9 +71,7 @@ class MapMoveBehavior(Behavior):
         if self.game_state.fight.in_fight:
             self._cell_is_taken = False
             self._pending_fight_movement_action_id = None
-            self.event_manager.on(
-                TextInformationEvent, self.on_text_information_event, originator=self
-            )
+            self.event_manager.on(TextInformationEvent, self.on_text_information_event, originator=self)
             self.event_manager.on(
                 MapMovementEvent,
                 callback=partial(
@@ -100,15 +100,12 @@ class MapMoveBehavior(Behavior):
             once=True,
         )
 
-        map_movement_request = MapMovementRequest(
-            key_cells=key_cells, map_id=self.game_state.map.map_id
-        )
+        map_movement_request = MapMovementRequest(key_cells=key_cells, map_id=self.game_state.map.map_id)
         self.event_manager.send(map_movement_request)
 
     def on_text_information_event(self, msg: TextInformationEvent):
         if (
-            msg.message_type
-            is TextInformationEvent.TextInformationType.TEXT_INFORMATION_ERROR
+            msg.message_type is TextInformationEvent.TextInformationType.TEXT_INFORMATION_ERROR
             and msg.message_id == TextEnum.TAKEN_CELL
         ):
             self._cell_is_taken = True
@@ -117,20 +114,12 @@ class MapMoveBehavior(Behavior):
         if msg.character_id != self.game_state.player.character_id:
             return
         self.unregister_listener(
-            MapMovementEvent,
-            reason="Fight movement started, now waiting for sequence end",
+            MapMovementEvent, reason="Fight movement started, now waiting for sequence end"
         )
-        self.event_manager.on(
-            SequenceEndEvent,
-            self.on_sequence_end_event,
-            originator=self,
-        )
+        self.event_manager.on(SequenceEndEvent, self.on_sequence_end_event, originator=self)
         self.event_manager.on(
             GameActionAcknowledgementRequest,
-            partial(
-                self.on_game_action_acknowledgement_request,
-                end_mp=end_mp,
-            ),
+            partial(self.on_game_action_acknowledgement_request, end_mp=end_mp),
             originator=self,
         )
 
@@ -154,13 +143,15 @@ class MapMoveBehavior(Behavior):
     def on_map_movement_event(self, msg: MapMovementEvent, move_path: MovementPath):
         if self.game_state.player.character_id == msg.character_id:
             self.unregister_listener(
-                MapMovementEvent,
-                reason="Player movement confirmed, switching to completion listener",
+                MapMovementEvent, reason="Player movement confirmed, switching to completion listener"
             )
-            duration = MovementPath.get_total_duration(
-                MovementPath.get_path_elements_from_cells(list(msg.cells)),
-                self.game_state.inventory.inventory_weight,
-                self.game_state.inventory.weight_max,
+            duration = (
+                MovementPath.get_total_duration(
+                    MovementPath.get_path_elements_from_cells(list(msg.cells)),
+                    self.game_state.inventory.inventory_weight,
+                    self.game_state.inventory.weight_max,
+                )
+                + CLIENT_CONFIRM_OVERHEAD
             )
             error_code: str | None
             if move_path.end.cell_id != msg.cells[-1]:
@@ -177,9 +168,7 @@ class MapMoveBehavior(Behavior):
             )
             self.send_message_delayed(MapMovementConfirmRequest(), duration)
 
-    def on_map_movement_refused_event_after_request(
-        self, msg: MapMovementRefusedEvent, start_mp: MapPoint
-    ):
+    def on_map_movement_refused_event_after_request(self, msg: MapMovementRefusedEvent, start_mp: MapPoint):
         real_mp = MapPoint.from_coords(msg.cell_x, msg.cell_y)
         if real_mp != start_mp:
             return self.finish(MapMoveError.INVALID_STARTING_POINT)

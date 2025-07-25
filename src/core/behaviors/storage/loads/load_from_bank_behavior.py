@@ -19,7 +19,8 @@ from src.core.behaviors.storage.loads.load_item_request import (
     get_portable_quantity,
 )
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
-from src.core.config import BASE_RANGE, SMALL_RANGE, USEFUL_UNLOAD
+from src.core.config import BASE_RANGE, USEFUL_UNLOAD
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
@@ -49,7 +50,7 @@ class LoadFromBankBehavior(DialogHandlerBehavior):
         error_code: str | None,
     ) -> None:
         if error_code is not None:
-            return self.finish(error_code)
+            return self.finish(error_code, load_items_infos=[])
         self.on_unloaded()
 
     def on_unloaded(self) -> None:
@@ -83,7 +84,10 @@ class LoadFromBankBehavior(DialogHandlerBehavior):
                 once=True,
                 override_on_self=True,
             )
-            return self.run_timer(BASE_RANGE, self.leave_all_dialogs)
+            return self.run_timer(
+                HumanTimingsService().get_timing_before_bank_close(),
+                self.leave_all_dialogs,
+            )
 
         current_load = self._pending_load_items[0]
         related_item = self.game_state.inventory.get_bank_object_by_gid(
@@ -115,7 +119,10 @@ class LoadFromBankBehavior(DialogHandlerBehavior):
                 once=True,
                 override_on_self=True,
             )
-            return self.run_timer(BASE_RANGE, self.leave_all_dialogs)
+            return self.run_timer(
+                HumanTimingsService().get_timing_before_bank_close(),
+                self.leave_all_dialogs,
+            )
 
         valid_quantity = min(portable_quantity, quantity_to_unload)
         current_load.remaining_quantity -= valid_quantity
@@ -133,7 +140,10 @@ class LoadFromBankBehavior(DialogHandlerBehavior):
             object_uid=related_item.item.uid,
             quantity=-valid_quantity,
         )
-        self.send_message_delayed(req, SMALL_RANGE)
+        self.send_message_delayed(
+            req,
+            HumanTimingsService().get_timing_between_bank_transfers(),
+        )
 
     def on_item_loaded(self) -> None:
         self.load_item()

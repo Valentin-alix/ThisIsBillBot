@@ -22,6 +22,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
     GameRolePlayShowActorsEvent,
     MapChangeOrientationEvent,
     MapComplementaryInformationEvent,
+    MapMovementCancelRequest,
     MapMovementEvent,
     MapMovementRefusedEvent,
     MapObstacleUpdateEvent,
@@ -56,6 +57,12 @@ class EntityFrame(Frame):
         self.event_manager.on(
             EntitiesDispositionEvent,
             self.on_entities_disposition_event,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            MapMovementCancelRequest,
+            self.on_map_movement_cancel_request,
             originator=self,
             priority=self.priority,
         )
@@ -126,15 +133,20 @@ class EntityFrame(Frame):
             priority=self.priority,
         )
 
-    def on_map_complementary_info_event(
-        self, message: MapComplementaryInformationEvent
-    ):
+    def on_map_complementary_info_event(self, message: MapComplementaryInformationEvent):
         self.game_state.entity.set_map_obstacles(message.obstacles)
         self.game_state.entity.set_actors(message.actors)
 
     def on_map_movement_event(self, message: MapMovementEvent):
         self.game_state.entity.update_actor_disposition(
             message.character_id, message.direction, message.cells[-1]
+        )
+
+    def on_map_movement_cancel_request(self, msg: MapMovementCancelRequest):
+        character_id = self.game_state.player.character_id
+        actor = self.game_state.entity.actor_by_id[character_id]
+        self.game_state.entity.update_actor_disposition(
+            character_id, actor.disposition.direction, msg.cell_id
         )
 
     def on_entities_disposition_event(self, msg: EntitiesDispositionEvent):
@@ -170,9 +182,7 @@ class EntityFrame(Frame):
     def on_game_action_fight_event(self, msg: GameActionFightEvent):
         if msg.HasField("death"):
             self.game_state.entity.remove_actor(msg.death.target_id)
-        elif msg.HasField("summons") and msg.summons.HasField(
-            "summons_by_context_information"
-        ):
+        elif msg.HasField("summons") and msg.summons.HasField("summons_by_context_information"):
             related_team = self.game_state.entity.actor_by_id[
                 msg.source_id
             ].actor_information.fighter.spawn_information.team
@@ -191,38 +201,46 @@ class EntityFrame(Frame):
                         position=sub_summon.position,
                     )
                     if summon.spawn_information.HasField("monster"):
-                        fighter_information = ActorPositionInformation.ActorInformation.FightFighterInformation(
-                            spawn_information=spawn_information,
-                            ai_fighter=AIFighter(
-                                monster_fighter_information=MonsterFighter(
-                                    monster_gid=summon.spawn_information.monster.monster_gid,
-                                    creature_grade=summon.spawn_information.monster.grade,
-                                )
-                            ),
-                            stats=summon.characteristics,
+                        fighter_information = (
+                            ActorPositionInformation.ActorInformation.FightFighterInformation(
+                                spawn_information=spawn_information,
+                                ai_fighter=AIFighter(
+                                    monster_fighter_information=MonsterFighter(
+                                        monster_gid=summon.spawn_information.monster.monster_gid,
+                                        creature_grade=summon.spawn_information.monster.grade,
+                                    )
+                                ),
+                                stats=summon.characteristics,
+                            )
                         )
                     elif summon.spawn_information.HasField("character"):
-                        fighter_information = ActorPositionInformation.ActorInformation.FightFighterInformation(
-                            spawn_information=spawn_information,
-                            named_fighter=NamedFighterInformation(
-                                name=summon.spawn_information.character.name
-                            ),
-                            stats=summon.characteristics,
+                        fighter_information = (
+                            ActorPositionInformation.ActorInformation.FightFighterInformation(
+                                spawn_information=spawn_information,
+                                named_fighter=NamedFighterInformation(
+                                    name=summon.spawn_information.character.name
+                                ),
+                                stats=summon.characteristics,
+                            )
                         )
                     elif summon.spawn_information.HasField("companion"):
-                        fighter_information = ActorPositionInformation.ActorInformation.FightFighterInformation(
-                            spawn_information=spawn_information,
-                            entity_fighter=EntityFighterInformation(
-                                entity_model_id=summon.spawn_information.companion.model_id,
-                                master_id=summon.spawn_information.companion.owner_id,
-                                level=summon.spawn_information.companion.level,
-                            ),
-                            stats=summon.characteristics,
+                        fighter_information = (
+                            ActorPositionInformation.ActorInformation.FightFighterInformation(
+                                spawn_information=spawn_information,
+                                entity_fighter=EntityFighterInformation(
+                                    entity_model_id=summon.spawn_information.companion.model_id,
+                                    master_id=summon.spawn_information.companion.owner_id,
+                                    level=summon.spawn_information.companion.level,
+                                ),
+                                stats=summon.characteristics,
+                            )
                         )
                     else:
-                        fighter_information = ActorPositionInformation.ActorInformation.FightFighterInformation(
-                            spawn_information=spawn_information,
-                            stats=summon.characteristics,
+                        fighter_information = (
+                            ActorPositionInformation.ActorInformation.FightFighterInformation(
+                                spawn_information=spawn_information,
+                                stats=summon.characteristics,
+                            )
                         )
                     related_actor_pos_information = ActorPositionInformation(
                         actor_information=ActorPositionInformation.ActorInformation(
@@ -231,16 +249,10 @@ class EntityFrame(Frame):
                         actor_id=sub_summon.position.actor_id,
                         disposition=sub_summon.position.disposition,
                     )
-                    self.game_state.entity.set_actor(
-                        related_actor_pos_information, True
-                    )
+                    self.game_state.entity.set_actor(related_actor_pos_information, True)
         elif msg.HasField("slide"):
-            old_cell_id = self.game_state.entity.actor_by_id[
-                msg.slide.target_id
-            ].disposition.cell_id
-            direction = self.game_state.entity.actor_by_id[
-                msg.slide.target_id
-            ].disposition.direction
+            old_cell_id = self.game_state.entity.actor_by_id[msg.slide.target_id].disposition.cell_id
+            direction = self.game_state.entity.actor_by_id[msg.slide.target_id].disposition.direction
 
             if old_cell_id == msg.slide.start_cell:
                 self.game_state.entity.update_actor_disposition(
@@ -256,26 +268,17 @@ class EntityFrame(Frame):
                 )
 
         elif msg.HasField("exchange_positions"):
-            if (
-                msg.exchange_positions.caster_cell_id
-                == msg.exchange_positions.target_cell_id
-            ):
+            if msg.exchange_positions.caster_cell_id == msg.exchange_positions.target_cell_id:
                 return
-            source_cell_id = self.game_state.entity.actor_by_id[
-                msg.source_id
-            ].disposition.cell_id
+            source_cell_id = self.game_state.entity.actor_by_id[msg.source_id].disposition.cell_id
             if not msg.exchange_positions.caster_cell_id == source_cell_id:
-                msg.exchange_positions.target_cell_id = (
-                    msg.exchange_positions.caster_cell_id
-                )
+                msg.exchange_positions.target_cell_id = msg.exchange_positions.caster_cell_id
                 msg.exchange_positions.caster_cell_id = source_cell_id
 
             target_direction = self.game_state.entity.actor_by_id[
                 msg.exchange_positions.target_id
             ].disposition.direction
-            caster_direction = self.game_state.entity.actor_by_id[
-                msg.source_id
-            ].disposition.direction
+            caster_direction = self.game_state.entity.actor_by_id[msg.source_id].disposition.direction
 
             self.game_state.entity.update_actor_disposition(
                 msg.exchange_positions.target_id,
@@ -310,12 +313,11 @@ class EntityFrame(Frame):
         )
 
     def on_fight_synchronize_event(self, msg: FightSynchronizeEvent):
-        alive_fighters = [
-            actor
-            for actor in msg.fighters
-            if actor.actor_information.fighter.spawn_information.alive
-        ]
-        self.game_state.entity.set_actors(alive_fighters)
+        for fighter in msg.fighters:
+            if fighter.actor_information.fighter.spawn_information.alive:
+                self.game_state.entity.set_actor(fighter)
+            else:
+                self.game_state.entity.remove_actor(fighter.actor_id)
 
     def on_fight_fighter_show_event(self, msg: FightFighterShowEvent):
         self.game_state.entity.set_actor(msg.information)
@@ -325,13 +327,9 @@ class EntityFrame(Frame):
             msg.player_id not in self.game_state.entity.actor_by_id
             and self.game_state.map.is_in_map_transition
         ):
-            self.logger.debug(
-                f"Ignoring teleport for actor {msg.player_id} during map transition"
-            )
+            self.logger.debug(f"Ignoring teleport for actor {msg.player_id} during map transition")
             return
-        old_direction = self.game_state.entity.actor_by_id[
-            msg.player_id
-        ].disposition.direction
+        old_direction = self.game_state.entity.actor_by_id[msg.player_id].disposition.direction
         self.game_state.entity.update_actor_disposition(
             msg.player_id, direction=old_direction, cell_id=msg.cell_id
         )

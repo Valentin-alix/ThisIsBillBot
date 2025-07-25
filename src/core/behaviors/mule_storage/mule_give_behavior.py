@@ -1,4 +1,3 @@
-from collections.abc import Iterable
 from dataclasses import dataclass, field
 
 from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
@@ -17,37 +16,41 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
+from src.core.bot.kamas_mule_registry import (
+    KamasMuleRegistry,
+    MuleReservation,
+)
 from src.core.config import (
     BASE_RANGE,
     BOT_MINIMAL_KAMAS,
-    MULE_BANK_CHARACTER_IDS,
-    MULE_BANK_MAP_ID,
 )
-
 
 @dataclass
 class MuleGiveBehavior(Behavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
+    mule_registry: KamasMuleRegistry = field(default_factory=KamasMuleRegistry)
 
     _step: int = field(init=False, default=0)
-    _mule_bank_character_ids: Iterable[int] = field(
-        init=False, default_factory=list[int]
-    )
+    _reservation: MuleReservation | None = field(init=False, default=None)
 
     def run(self) -> None:
         self._step = 0
-        self._mule_bank_character_ids = MULE_BANK_CHARACTER_IDS
-        if len(self._mule_bank_character_ids) == 0:
-            self.logger.error("Mule bank character is not defined !")
-            return self.finish()
         if self.game_state.inventory.pod_percentage >= 1:
             self.logger.info("Mule has too much pods to exchange")
+            return self.finish()
+        self._reservation = self.mule_registry.reserve(
+            self.game_state.player.server_id,
+            self.game_state.player.character_id,
+        )
+        if self._reservation is None:
+            self.logger.info("No kamas mule is currently available")
             return self.finish()
         self.go_to_mule()
 
     def go_to_mule(self) -> None:
+        assert self._reservation is not None
         self.auto_trip_smart_behavior.start(
-            map_ids={MULE_BANK_MAP_ID},
+            map_ids={self._reservation.map_id},
             callback=self.on_auto_trip_smart_behavior_finished,
             parent=self,
         )
@@ -60,15 +63,15 @@ class MuleGiveBehavior(Behavior):
         self.start_exchange_with_mule()
 
     def start_exchange_with_mule(self) -> None:
-        mule_id = next(
-            (
-                actor_id
-                for actor_id in self.game_state.entity.actor_by_id
-                if actor_id in self._mule_bank_character_ids
-            ),
-            None,
-        )
-        if mule_id is None:
+        assert self._reservation is not None
+        if not self.mule_registry.is_reserved_by(
+            self._reservation.mule_login,
+            self.game_state.player.character_id,
+        ):
+            self.logger.info("Kamas mule reservation expired before exchange")
+            return self.finish()
+        mule_id = self._reservation.mule_character_id
+        if mule_id not in self.game_state.entity.actor_by_id:
             self.logger.warning("Mule bank not in map")
             return self.finish()
 
@@ -126,3 +129,9 @@ class MuleGiveBehavior(Behavior):
         )
         req = ExchangeReadyRequest(ready=True, step=self._step)
         self.send_message_delayed(req, (3, 4))
+
+    def clear_behavior(self) -> None:
+        if self._reservation is not None:
+            self.mule_registry.release(self._reservation.token)
+            self._reservation = None
+        super().clear_behavior()

@@ -54,8 +54,7 @@ class InteractiveState(State):
         if not self.stated_element_by_id:
             return
         batch = [
-            (stated_element.cell_id, None, None)
-            for stated_element, _ in self.stated_element_by_id.values()
+            (stated_element.cell_id, None, None) for stated_element, _ in self.stated_element_by_id.values()
         ]
         self.stated_element_by_id.clear()
         self.stated_element_by_cell_id.clear()
@@ -76,9 +75,7 @@ class InteractiveState(State):
                 stated_element,
                 collectable,
             )
-            self.stated_element_by_cell_id[stated_element.cell_id][
-                stated_element.element_id
-            ] = (
+            self.stated_element_by_cell_id[stated_element.cell_id][stated_element.element_id] = (
                 stated_element,
                 collectable,
             )
@@ -102,9 +99,7 @@ class InteractiveState(State):
             stated_element,
             collectable,
         )
-        self.stated_element_by_cell_id[stated_element.cell_id][
-            stated_element.element_id
-        ] = (
+        self.stated_element_by_cell_id[stated_element.cell_id][stated_element.element_id] = (
             stated_element,
             collectable,
         )
@@ -118,15 +113,10 @@ class InteractiveState(State):
         if const.DEBUG:
             self.grid_signals.set_stated_element_on_cell_id_batch.emit(batch)
 
-    def get_farmable_collectables(
-        self, excluded_element_ids: set[int] | None = None
-    ) -> list[Collectable]:
+    def get_farmable_collectables(self, excluded_element_ids: set[int] | None = None) -> list[Collectable]:
         farmable_collectables: list[Collectable] = []
         for stated_element, collectable in self.stated_element_by_id.values():
-            if (
-                excluded_element_ids is not None
-                and stated_element.element_id in excluded_element_ids
-            ):
+            if excluded_element_ids is not None and stated_element.element_id in excluded_element_ids:
                 continue
             if not collectable:
                 continue
@@ -134,9 +124,7 @@ class InteractiveState(State):
 
         return farmable_collectables
 
-    def get_stated_element_collectable(
-        self, stated_element: StatedElement
-    ) -> Collectable | None:
+    def get_stated_element_collectable(self, stated_element: StatedElement) -> Collectable | None:
         return get_stated_element_collectable(
             stated_element,
             self.interactive_element_by_id,
@@ -144,22 +132,26 @@ class InteractiveState(State):
             self.player_state.jobs_lvl_by_id,
         )
 
-    def get_element_and_skill_by_skill_id(
-        self, skill_id: int
-    ) -> tuple[InteractiveElement, InteractiveElement.InteractiveElementSkill]:
-        related_element, related_skill = next(
-            (element, skill)
+    def get_enabled_skill(
+        self, element_id: int, skill_id: int | None = None
+    ) -> InteractiveElement.InteractiveElementSkill | None:
+        element = self.interactive_element_by_id.get(element_id)
+        if element is None or len(element.enabled_skills) == 0:
+            return None
+        if skill_id is None:
+            return element.enabled_skills[0]
+        return next((skill for skill in element.enabled_skills if skill.skill_id == skill_id), None)
+
+    def get_enabled_skill_ids(self, element_id: int) -> list[int]:
+        element = self.interactive_element_by_id.get(element_id)
+        if element is None:
+            return []
+        return [skill.skill_id for skill in element.enabled_skills]
+
+    def get_element_by_skill_id(self, skill_id: int) -> InteractiveElement:
+        related_element = next(
+            element
             for element in self.interactive_element_by_id.values()
-            if (
-                skill := next(
-                    (
-                        enabled_skill
-                        for enabled_skill in element.enabled_skills
-                        if enabled_skill.skill_id == skill_id
-                    ),
-                    None,
-                )
-            )
-            is not None
+            if any(enabled_skill.skill_id == skill_id for enabled_skill in element.enabled_skills) is not None
         )
-        return related_element, related_skill
+        return related_element
