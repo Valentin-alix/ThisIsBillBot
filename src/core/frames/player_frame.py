@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from threading import Timer
 
+from bak_pb2 import BakApiKeyEvent
 from datas.protos.non_obf.game.character_management_pb2 import (
     CharacterListEvent,
     CharacterSelectionEvent,
@@ -53,10 +54,10 @@ class PlayerFrame(Frame):
         self.event_manager.on(CharacterLevelUpEvent, self.on_character_level_up_event, originator=self)
         self.event_manager.before(DialogLeaveRequest, self.before_dialog_leave_request, originator=self)
         self.event_manager.on(
-            CharacterListEvent,
-            self.on_character_list_event,
-            originator=self,
-            priority=self.priority,
+            CharacterListEvent, self.on_character_list_event, originator=self, priority=self.priority
+        )
+        self.event_manager.on(
+            BakApiKeyEvent, self.on_bak_api_event, originator=self, priority=PriorityEnum.MAX
         )
 
         self.game_info_signals.disconnected.connect(self.on_disconnected)
@@ -85,6 +86,9 @@ class PlayerFrame(Frame):
 
     def on_disconnected(self):
         self.game_state.player.is_ready_to_play_event.clear()
+
+    def on_bak_api_event(self, msg: BakApiKeyEvent):
+        self.game_state.player.bak_token = msg.token
 
     def on_character_level_up_event(self, msg: CharacterLevelUpEvent):
         self.game_state.player.level = msg.new_level
@@ -128,6 +132,7 @@ class PlayerFrame(Frame):
                 self.game_state.fight.breed_id = (
                     message.success.character.character_remodeling_information.breed_id
                 )
+
     def on_zaap_known_list_event(self, msg: ZaapKnownListEvent):
         self.game_state.player.waypoint_map_ids = list(msg.destinations)
 

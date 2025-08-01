@@ -8,6 +8,9 @@ from typing import Any, TypeVar, cast
 
 from google.protobuf.message import Message
 
+from datas.protos.non_obf.game.basic_pb2 import DateRequest
+from datas.protos.non_obf.game.connection_pb2 import PingRequest
+
 from src import const
 from src.core.events_manager.listener import Listener
 from src.core.events_manager.modifier import Modifier
@@ -17,6 +20,10 @@ from src.services.debug_recorder import DebugRecorder
 from src.services.logging_utils.contextual_logger import ContextualLogger
 
 T = TypeVar("T", bound=Message)
+
+_HEARTBEAT_MESSAGE_TYPES: frozenset[type[Message]] = frozenset(
+    {DateRequest, PingRequest}
+)
 
 
 @dataclass
@@ -258,6 +265,8 @@ class EventManager(ContextualLogger):
                     f"sending msg {msg.__class__} but on_send_callback is not defined !"
                 )
         send_game(msg)
+        if type(msg) not in _HEARTBEAT_MESSAGE_TYPES:
+            self.mark_activity()
 
     def send_obf_msg(self, msg: Message) -> None:
         self.logger.debug(f"Sending Obf Game MSG {msg.__class__.__name__}")

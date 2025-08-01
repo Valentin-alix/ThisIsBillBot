@@ -1,3 +1,4 @@
+import hashlib
 import secrets
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -40,24 +41,32 @@ from datas.protos.non_obf.game.game_action_pb2 import (
 )
 from datas.protos.non_obf.game.gamemap_pb2 import FightMapInformationEvent
 
+from src.controller.bot_config import BotConfigService
 from src.core.behaviors.behavior import Behavior
 from src.services.human_timings import HumanTimingsService
 
-# RFC 2409 768-bit MODP Group 1 (public parameters)
+# Schnorr identification proof the client runs against the game server.
+# Group parameters come from DHStandardGroups.rfc2409_768 (768-bit MODP Group 1),
+# with g = 2 and q = (p - 1) / 2 as built by BouncyCastle's SafePrimeGen2.
 _DH_P = int(
-    "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
-    "C90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA6"
-    "3B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437"
-    "4FE1356D6D51C245E485B576625E7EC6F44C42E9A63A3620FFFFFFFFFFFFFFFF",
+    "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1"
+    "29024E088A67CC74020BBEA63B139B22514A08798E3404DD"
+    "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245"
+    "E485B576625E7EC6F44C42E9A63A3620FFFFFFFFFFFFFFFF",
     16,
 )
 _DH_G = 2
 _DH_Q = (_DH_P - 1) // 2
 
+# Byte counts the client feeds to its RNG before reducing mod p.
+_SECRET_RANDOM_BYTES = 1024
+_NONCE_RANDOM_BYTES = 50
+
+
 @dataclass
 class GameSessionBehavior(Behavior):
-    _cvlg: int = field(init=False, default=0)
-    _cvlh: int = field(init=False, default=0)
+    _verification_secret: int = field(init=False, default=0)
+    _verification_nonce: int = field(init=False, default=0)
     _sequence_number: int = field(init=False, default=1)
 
     _fight_sequence_depth: int = field(init=False, default=0)
@@ -65,8 +74,12 @@ class GameSessionBehavior(Behavior):
     _player_status_sent: bool = field(init=False, default=False)
 
     def run(self) -> None:
-        self._cvlg = 0
-        self._cvlh = 0
+        # The client draws its long term secret once, when the verification service
+        # is constructed, and keeps it for the whole session.
+        self._verification_secret = (
+            int.from_bytes(secrets.token_bytes(_SECRET_RANDOM_BYTES), "little") % _DH_P
+        )
+        self._verification_nonce = 0
         self._sequence_number = 1
         self._fight_sequence_depth = 0
         self._turn_ready_pending = False
@@ -80,36 +93,48 @@ class GameSessionBehavior(Behavior):
         self.event_manager.on(SequenceStartEvent, self._on_sequence_start, originator=self)
         self.event_manager.on(SequenceEndEvent, self._on_sequence_end, originator=self)
         self.event_manager.on(FightIsTurnReadyEvent, self._on_fight_is_turn_ready, originator=self)
-        self.event_manager.on(
-            FightMapInformationEvent,
-            self._on_fight_map_information,
-            originator=self,
-        )
-        self.event_manager.on(
-            ChallengeProposalEvent,
-            self._on_challenge_proposal,
-            originator=self,
-        )
+        self.event_manager.on(FightMapInformationEvent, self._on_fight_map_information, originator=self)
+        self.event_manager.on(ChallengeProposalEvent, self._on_challenge_proposal, originator=self)
         self.event_manager.on(PongEvent, self.on_pong_event, originator=self)
 
     def _on_server_verification(self, _msg: ServerVerificationEvent) -> None:
-        self._cvlg = secrets.randbits(512) % _DH_P
-        self._cvlh = secrets.randbits(400)
-        challenge_key = pow(_DH_G, self._cvlh, _DH_P)
-        self.event_manager.send(ClientChallengeInitRequest(challenge_key=str(challenge_key)))
+        self.event_manager.send(
+            ClientChallengeInitRequest(challenge_key=str(self._verification_public_key()))
+        )
+
+    def _on_server_session_ready(self, _msg: ServerSessionReadyEvent) -> None:
+        # A fresh commitment is required for every round: reusing one across two
+        # different challenges would leak the secret and is trivially detectable.
+        self._verification_nonce = int.from_bytes(secrets.token_bytes(_NONCE_RANDOM_BYTES), "little")
+        self.event_manager.send(ClientIdRequest(id=str(self._verification_commitment())))
 
     def _on_server_challenge(self, msg: ServerChallengeEvent) -> None:
         if msg.HasField("value") and msg.value:
-            proof = (self._cvlh + int(msg.value) * self._cvlg) % _DH_Q
+            challenge = int(msg.value)
         else:
-            proof = (self._cvlh + self._cvlg) % _DH_Q
-        if proof < 0:
-            proof += _DH_Q
+            challenge = self._derive_local_challenge()
+        proof = (self._verification_nonce + challenge * self._verification_secret) % _DH_Q
         self.event_manager.send(ClientChallengeProofRequest(proof=str(proof)))
 
-    def _on_server_session_ready(self, _msg: ServerSessionReadyEvent) -> None:
-        client_id = pow(_DH_G, self._cvlg, _DH_P)
-        self.event_manager.send(ClientIdRequest(id=str(client_id)))
+    def _verification_public_key(self) -> int:
+        return pow(_DH_G, self._verification_secret, _DH_P)
+
+    def _verification_commitment(self) -> int:
+        return pow(_DH_G, self._verification_nonce, _DH_P)
+
+    def _derive_local_challenge(self) -> int:
+        """Rebuild the challenge the client computes when the server omits it.
+
+        The client falls back to a Fiat-Shamir transcript hash over the group
+        generator, its public key, the current commitment and the same device
+        identifier it declared at login.
+        """
+
+        device_identifier = BotConfigService().get_bot_config(self.game_state.player.login).hardware_id
+        transcript = (
+            f"{_DH_G}{self._verification_public_key()}{self._verification_commitment()}{device_identifier}"
+        )
+        return int.from_bytes(hashlib.sha256(transcript.encode("utf-8")).digest(), "big")
 
     def _on_sequence_number(self, msg: SequenceNumberEvent) -> None:
         self.event_manager.send(SequenceNumberRequest(number=self._sequence_number))
@@ -183,16 +208,13 @@ class GameSessionBehavior(Behavior):
     def _on_challenge_proposal(self, msg: ChallengeProposalEvent) -> None:
         if not msg.challenge_proposals:
             self.logger.warning(
-                "ChallengeProposalEvent received without proposals; "
-                "leaving challenge selection to the server"
+                "ChallengeProposalEvent received without proposals; leaving challenge selection to the server"
             )
             return
         challenge_id = msg.challenge_proposals[0].challenge_id
         self.run_timer(
             HumanTimingsService().get_timing_fight_challenge_selection(),
-            lambda: self.event_manager.send(
-                ChallengeSelectionRequest(challenge_id=challenge_id)
-            ),
+            lambda: self.event_manager.send(ChallengeSelectionRequest(challenge_id=challenge_id)),
         )
 
     def on_pong_event(self, msg: PongEvent):

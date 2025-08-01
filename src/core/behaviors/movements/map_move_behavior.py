@@ -110,12 +110,13 @@ class MapMoveBehavior(Behavior):
         ):
             self._cell_is_taken = True
 
-    def on_fight_map_movement_event(self, msg: MapMovementEvent, end_mp: MapPoint):
+    def on_fight_map_movement_event(self, msg: MapMovementEvent, end_mp: MapPoint) -> None:
         if msg.character_id != self.game_state.player.character_id:
             return
         self.unregister_listener(
             MapMovementEvent, reason="Fight movement started, now waiting for sequence end"
         )
+        self._replace_initial_refusal_listener(end_mp)
         self.event_manager.on(SequenceEndEvent, self.on_sequence_end_event, originator=self)
         self.event_manager.on(
             GameActionAcknowledgementRequest,
@@ -140,11 +141,12 @@ class MapMoveBehavior(Behavior):
                 return self.finish(MapMoveError.CANCELED_MOVEMENT)
             self.finish()
 
-    def on_map_movement_event(self, msg: MapMovementEvent, move_path: MovementPath):
+    def on_map_movement_event(self, msg: MapMovementEvent, move_path: MovementPath) -> None:
         if self.game_state.player.character_id == msg.character_id:
             self.unregister_listener(
                 MapMovementEvent, reason="Player movement confirmed, switching to completion listener"
             )
+            self._replace_initial_refusal_listener(move_path.end)
             duration = (
                 MovementPath.get_total_duration(
                     MovementPath.get_path_elements_from_cells(list(msg.cells)),
@@ -168,8 +170,33 @@ class MapMoveBehavior(Behavior):
             )
             self.send_message_delayed(MapMovementConfirmRequest(), duration)
 
-    def on_map_movement_refused_event_after_request(self, msg: MapMovementRefusedEvent, start_mp: MapPoint):
+    def _replace_initial_refusal_listener(self, end_mp: MapPoint) -> None:
+        self.unregister_listener(
+            MapMovementRefusedEvent,
+            reason="Movement accepted, switching to completion refusal listener",
+        )
+        self.event_manager.on(
+            MapMovementRefusedEvent,
+            partial(
+                self.on_map_movement_refused_event_after_acceptance,
+                end_mp=end_mp,
+            ),
+            originator=self,
+            once=True,
+        )
+
+    def on_map_movement_refused_event_after_request(
+        self, msg: MapMovementRefusedEvent, start_mp: MapPoint
+    ) -> None:
         real_mp = MapPoint.from_coords(msg.cell_x, msg.cell_y)
         if real_mp != start_mp:
             return self.finish(MapMoveError.INVALID_STARTING_POINT)
         return self.finish(MapMoveError.REFUSED)
+
+    def on_map_movement_refused_event_after_acceptance(
+        self, msg: MapMovementRefusedEvent, end_mp: MapPoint
+    ) -> None:
+        real_mp = MapPoint.from_coords(msg.cell_x, msg.cell_y)
+        if real_mp == end_mp:
+            return self.finish()
+        return self.finish(MapMoveError.CANCELED_MOVEMENT)

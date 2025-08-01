@@ -126,6 +126,8 @@ class CollectBehavior(Behavior):
         starting_map_id = self.game_state.map.map_id
 
         def on_look_around_finished(error_code: str | None) -> None:
+            if error_code is MapMoveError.UNEXPECTED_NEW_MAP:
+                return self.finish(MapChangeError.UNEXPECTED_NEW_MAP)
             movement_failed = error_code in {
                 MapMoveError.CANCELED_MOVEMENT,
                 MapMoveError.INVALID_STARTING_POINT,

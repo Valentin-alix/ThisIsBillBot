@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from functools import partial
 
 from datas.protos.non_obf.game.gamemap_pb2 import (
+    MapCurrentEvent,
     MapMovementCancelRequest,
     MapMovementEvent,
     MapMovementRefusedEvent,
@@ -11,9 +12,10 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID
 
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
+from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
+from src.core.events_manager.priority import PriorityEnum
 
 DECOY_MIN_DISTANCE = 5
 DECOY_MAX_DISTANCE = 10
@@ -31,6 +33,14 @@ class MapMovementCancelBehavior(Behavior):
     def run(self, final_move_path: MovementPath):
         current_mp = self.game_state.map.map_point
         context = self.game_state.get_map_movement_context()
+
+        self.event_manager.on(
+            MapCurrentEvent,
+            lambda _: self.finish(MapMoveError.UNEXPECTED_NEW_MAP),
+            originator=self,
+            once=True,
+            priority=PriorityEnum.MAX,
+        )
 
         candidates = [
             mp

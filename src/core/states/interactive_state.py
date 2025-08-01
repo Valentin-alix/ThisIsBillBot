@@ -152,6 +152,6 @@ class InteractiveState(State):
         related_element = next(
             element
             for element in self.interactive_element_by_id.values()
-            if any(enabled_skill.skill_id == skill_id for enabled_skill in element.enabled_skills) is not None
+            if any(enabled_skill.skill_id == skill_id for enabled_skill in element.enabled_skills)
         )
         return related_element

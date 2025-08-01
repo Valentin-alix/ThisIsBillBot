@@ -230,9 +230,7 @@ def get_game_msg_info(
         msg_json=msg_json,
         sub_msg_name=f"{obf_sub_msg.DESCRIPTOR.full_name} -> {sub_msg_info[0].__class__.__name__}",
         obf_msg_json=MessageToDict(
-            obf_sub_msg,
-            always_print_fields_with_no_presence=True,
-            preserving_proto_field_name=True,
+            obf_sub_msg, always_print_fields_with_no_presence=True, preserving_proto_field_name=True
         ),
     )
 
@@ -331,8 +329,27 @@ def set_field_from_mapping_field(
 ) -> None:
     if _is_repeated_field(msg_field):
         output_field_value = getattr(output_msg, output_msg_field_name)
-        is_map_field = msg_field.message_type and msg_field.message_type.GetOptions().map_entry
-        if msg_field.type == FieldDescriptor.TYPE_MESSAGE:
+        map_entry = msg_field.message_type
+        is_map_field = map_entry is not None and map_entry.GetOptions().map_entry
+        if is_map_field:
+            assert map_entry is not None, f"Map field {msg_field.full_name} has no map-entry descriptor"
+            map_value_field = map_entry.fields_by_name["value"]
+            if map_value_field.type == FieldDescriptor.TYPE_MESSAGE:
+                for map_key, sub_msg_value in msg_field_value.items():
+                    assert isinstance(sub_msg_value, Message), (
+                        f"Map field {msg_field.full_name} declares message values but contains "
+                        f"{type(sub_msg_value).__name__}"
+                    )
+                    sub_transformer = get_msg_transformer(
+                        sub_msg_value.DESCRIPTOR.full_name,
+                        msg_mappings,
+                    )
+                    if sub_transformer is None:
+                        continue
+                    output_field_value[map_key].CopyFrom(sub_transformer(sub_msg_value))
+            else:
+                output_field_value.MergeFrom(msg_field_value)
+        elif msg_field.type == FieldDescriptor.TYPE_MESSAGE:
             for sub_msg_value in msg_field_value:
                 sub_msg_value: Message
                 sub_transformer = get_msg_transformer(sub_msg_value.DESCRIPTOR.full_name, msg_mappings)
@@ -343,15 +360,9 @@ def set_field_from_mapping_field(
                 )
                 if sub_output_msg is None:
                     continue
-                if is_map_field:
-                    output_field_value[sub_msg_value].CopyFrom(sub_output_msg)
-                else:
-                    output_field_value.append(sub_output_msg)
+                output_field_value.append(sub_output_msg)
         else:
-            if is_map_field:
-                output_field_value.MergeFrom(msg_field_value)
-            else:
-                output_field_value.extend(msg_field_value)
+            output_field_value.extend(msg_field_value)
 
     elif msg_field.type == FieldDescriptor.TYPE_MESSAGE:
         if not isinstance(msg_field_value, Message):

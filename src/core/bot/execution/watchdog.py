@@ -6,9 +6,9 @@ running while the bot logic stops making progress (no behavior transition for
 game state snapshot, registered listeners with their age, last message) into
 the debug recorder so an agent can pinpoint the infinite wait.
 
-"Progress" is defined as a behavior transition (see
-``EventManager.mark_activity``): a truly stuck bot is waiting for a message
-that never comes and therefore never transitions.
+"Progress" is defined as a behavior transition or a successfully sent
+non-heartbeat game message (see ``EventManager.mark_activity``): a truly stuck
+bot is waiting for a message that never comes and therefore performs neither.
 """
 
 import threading

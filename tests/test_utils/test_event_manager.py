@@ -1,8 +1,16 @@
 from dataclasses import dataclass, field
 from threading import Event, Thread
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
-from datas.protos.non_obf.game.basic_pb2 import SequenceNumberEvent
+import pytest
+from google.protobuf.message import Message
+
+from datas.protos.non_obf.game.basic_pb2 import (
+    DateRequest,
+    SequenceNumberEvent,
+    SequenceNumberRequest,
+)
+from datas.protos.non_obf.game.connection_pb2 import PingRequest
 
 from src.core.behaviors.behavior import Behavior
 from src.core.events_manager.event_manager import EventManager
@@ -25,6 +33,57 @@ class BlockingBehavior(Behavior):
     def run(self) -> None:
         self.run_started.set()
         self.release_run.wait()
+
+
+def test_successful_non_heartbeat_send_marks_activity() -> None:
+    event_manager = EventManager(_logger=Mock())
+    sent_messages: list[Message] = []
+    event_manager.on_send_game_callback = sent_messages.append
+    event_manager.last_activity_monotonic = 10.0
+
+    with patch("src.core.events_manager.event_manager.time.monotonic", return_value=20.0):
+        request = SequenceNumberRequest(number=1)
+        event_manager.send(request)
+
+    assert sent_messages == [request]
+    assert event_manager.last_activity_monotonic == 20.0
+
+
+@pytest.mark.parametrize(
+    "heartbeat_message",
+    [DateRequest(), PingRequest(quiet=True)],
+)
+def test_successful_heartbeat_send_does_not_mark_activity(
+    heartbeat_message: Message,
+) -> None:
+    event_manager = EventManager(_logger=Mock())
+    sent_messages: list[Message] = []
+    event_manager.on_send_game_callback = sent_messages.append
+    event_manager.last_activity_monotonic = 10.0
+
+    with patch("src.core.events_manager.event_manager.time.monotonic", return_value=20.0):
+        event_manager.send(heartbeat_message)
+
+    assert sent_messages == [heartbeat_message]
+    assert event_manager.last_activity_monotonic == 10.0
+
+
+def test_failed_send_does_not_mark_activity() -> None:
+    event_manager = EventManager(_logger=Mock())
+    event_manager.last_activity_monotonic = 10.0
+
+    def fail_send(_message: Message) -> None:
+        raise OSError("send failed")
+
+    event_manager.on_send_game_callback = fail_send
+
+    with (
+        patch("src.core.events_manager.event_manager.time.monotonic", return_value=20.0),
+        pytest.raises(OSError, match="send failed"),
+    ):
+        event_manager.send(SequenceNumberRequest(number=1))
+
+    assert event_manager.last_activity_monotonic == 10.0
 
 
 def test_listener_removed_during_dispatch_is_not_called() -> None:

@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from datas.protos.non_obf.game.character_pb2 import CharacterCharacteristicsEvent
 from datas.protos.non_obf.game.common_pb2 import (
     FightInvisibilityState,
-    FightRemovableEffect,
 )
 from datas.protos.non_obf.game.context_pb2 import ContextCreationEvent
 from datas.protos.non_obf.game.fight_pb2 import (
@@ -211,12 +210,7 @@ class FightFrame(Frame):
                     0,
                 )
 
-        # Effects/invisibility are tracked only for non-player fighters (the player
-        # is kept out of actor_fight_by_id, its state lives in game_state.fight).
         player_id = self.game_state.player.character_id
-
-        if msg.HasField("removable_effect") and msg.removable_effect.effect.target_id != player_id:
-            self._handle_removable_effect(msg.removable_effect.effect)
 
         if msg.HasField("spell_remove") and msg.spell_remove.target_id != player_id:
             self.game_state.entity.remove_fight_actor_effect(
@@ -232,14 +226,6 @@ class FightFrame(Frame):
             self.game_state.entity.set_fight_actor_invisibility(
                 msg.invisible_detected.target_id, FightInvisibilityState.DETECTED
             )
-
-    def _handle_removable_effect(self, effect: FightRemovableEffect) -> None:
-        # Only track state-carrying effects; pure stat boosts (state_id 0) are ignored.
-        state_id = effect.temporary_boost_effect.state_id
-        if effect.dissipation_state == FightRemovableEffect.REALLY_NOT_DISSIPATED and state_id:
-            self.game_state.entity.set_fight_actor_effect(effect.target_id, effect.uid, state_id)
-        else:
-            self.game_state.entity.remove_fight_actor_effect(effect.target_id, effect.uid)
 
     def on_fight_synchronize_event(self, msg: FightSynchronizeEvent):
         player_id = self.game_state.player.character_id

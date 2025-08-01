@@ -18,6 +18,7 @@ from src.core.states.state import State
 class PlayerState(State):
     game_info_signals: GameInfoSignals
     login: str
+    bak_token: str | None = dataclasses.field(init=False, default=None)
     _server_id: int = dataclasses.field(init=False, default=ServerEnum.BRIAL.value)
     is_ready_to_play_event: Event = dataclasses.field(init=False)
     _level: int = dataclasses.field(init=False, default=1)

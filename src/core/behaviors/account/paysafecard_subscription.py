@@ -7,8 +7,8 @@ from threading import Thread
 from time import sleep
 
 from ankama_launcher_emulator_premium.consts import (
-    PAYSAFECARDS_PATH,
     PAYSAFECARD_PURCHASE_PATH,
+    PAYSAFECARDS_PATH,
 )
 from ankama_launcher_emulator_premium.haapi.bak import BakHaapi, ShopPurchaseError
 from ankama_launcher_emulator_premium.interfaces.bak_api import ShopiArticle
@@ -28,8 +28,6 @@ from ankama_launcher_emulator_premium.web.subscription.xsolla_paysafecard import
     pay_with_paysafecard,
 )
 from datas.protos.non_obf.game.bak_pb2 import (
-    BakApiKeyEvent,
-    BakApiTokenRequest,
     BakShopTokenEvent,
     BakShopTokenRequest,
 )
@@ -88,19 +86,8 @@ class PaysafecardSubscriptionBehavior(Behavior):
             if pending_purchase.status == PaysafecardPurchaseStatus.AWAITING_CONFIRMATION:
                 self._start_worker(partial(self._confirm_subscription, pending_purchase))
                 return
-        self.event_manager.on(
-            BakApiKeyEvent,
-            self._on_bak_api_key,
-            originator=self,
-            once=True,
-            timeout=_EVENT_TIMEOUT_SECONDS,
-            on_timeout=lambda: self._finish_error(PaysafecardSubscriptionErrorCode.BAK_TOKEN_TIMEOUT),
-        )
-        self.event_manager.send(BakApiTokenRequest())
-
-    def _on_bak_api_key(self, message: BakApiKeyEvent) -> None:
-        assert message.token, "The game returned an empty BAK API token"
-        self._haapi = BakHaapi(api_key=message.token, proxy_url=self._proxy_url)
+        assert self.game_state.player.bak_token
+        self._haapi = BakHaapi(api_key=self.game_state.player.bak_token, proxy_url=self._proxy_url)
         self.event_manager.on(
             BakShopTokenEvent,
             self._on_shop_token,

@@ -10,8 +10,6 @@ from ankama_launcher_emulator_premium.interfaces.bak_api import ShopiArticle
 from datas.protos.non_obf.game.bak_pb2 import (
     BakActionEvent,
     BakActionRequest,
-    BakApiKeyEvent,
-    BakApiTokenRequest,
     BakBuyValidationEvent,
     BakShopTokenEvent,
     BakShopTokenRequest,
@@ -63,19 +61,8 @@ class OgrineSubscriptionBehavior(Behavior):
 
     def run(self) -> None:
         self._proxy_url = BotConfigService().get_bot_http_proxy_url(self.game_state.player.login)
-        self.event_manager.on(
-            BakApiKeyEvent,
-            self._on_bak_api_key,
-            originator=self,
-            once=True,
-            timeout=_EVENT_TIMEOUT_SECONDS,
-            on_timeout=lambda: self._finish_error(OgrineSubscriptionErrorCode.BAK_TOKEN_TIMEOUT),
-        )
-        self.event_manager.send(BakApiTokenRequest())
-
-    def _on_bak_api_key(self, message: BakApiKeyEvent) -> None:
-        assert message.token, "The game returned an empty BAK API token"
-        self._haapi = BakHaapi(api_key=message.token, proxy_url=self._proxy_url)
+        assert self.game_state.player.bak_token
+        self._haapi = BakHaapi(api_key=self.game_state.player.bak_token, proxy_url=self._proxy_url)
         self._request_shop_token()
 
     def _prepare_ogrine_purchase(self) -> None:

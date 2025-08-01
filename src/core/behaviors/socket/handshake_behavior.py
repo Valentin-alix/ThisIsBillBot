@@ -23,10 +23,7 @@ from datas.protos.non_obf.game.contact_pb2 import (
     FriendSetStatusShareRequest,
     FriendSetWarnOnLevelGainRequest,
 )
-from datas.protos.non_obf.game.context_pb2 import (
-    ContextCreationRequest,
-    ContextQuitRequest,
-)
+from datas.protos.non_obf.game.context_pb2 import ContextCreationRequest, ContextQuitRequest
 from datas.protos.non_obf.game.guild_information_pb2 import GuildInformationRequest
 from datas.protos.non_obf.game.guild_member_pb2 import (
     GuildMemberWarnOnConnectionStartRequest,
@@ -112,9 +109,7 @@ class HandshakeBehavior(Behavior):
         )
         request_disconnect()
 
-    def on_authentication_ticket_accepted_event(
-        self, _msg: AuthenticationTicketAcceptedEvent
-    ) -> None:
+    def on_authentication_ticket_accepted_event(self, _msg: AuthenticationTicketAcceptedEvent) -> None:
         self.event_manager.send(CharacterListRequest())
 
     def on_character_list_event(self, msg: CharacterListEvent) -> None:
@@ -179,8 +174,6 @@ class HandshakeBehavior(Behavior):
         self.event_manager.send(FriendListRequest())
         self.event_manager.send(SpouseInformationRequest())
         self.event_manager.send(
-            GuildInformationRequest(
-                information_type=GuildInformationRequest.InformationType.INFO_PADDOCKS
-            )
+            GuildInformationRequest(information_type=GuildInformationRequest.InformationType.INFO_PADDOCKS)
         )
         self.finish(None)
