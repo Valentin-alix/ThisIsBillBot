@@ -79,9 +79,7 @@ class MultiSelectComboBox(ComboBox):
 
         # Pour le positionnement, on peut reprendre la méthode originale
         menu_layout = menu.layout()
-        left_margin = (
-            menu_layout.contentsMargins().left() if menu_layout is not None else 0
-        )
+        left_margin = menu_layout.contentsMargins().left() if menu_layout is not None else 0
         x = -menu.width() // 2 + left_margin + self.width() // 2
         pd = self.mapToGlobal(QPoint(x, self.height()))
         # Ici, pour simplifier, on n'effectue pas d'animation particulière.

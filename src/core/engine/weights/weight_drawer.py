@@ -4,9 +4,7 @@ from dofus_unity_reader.models.datas.map_positions_root import MapInformationRoo
 from src.core.signals.world_signals import WorldSignals
 
 
-def draw_weight_on_map(
-    weight_by_map_id: dict[int, float], world_signals: WorldSignals
-) -> None:
+def draw_weight_on_map(weight_by_map_id: dict[int, float], world_signals: WorldSignals) -> None:
     if len(weight_by_map_id) == 0:
         return
     max_weight = max(weight_by_map_id.values())

@@ -22,7 +22,7 @@ from src.core.behaviors.movements.map_change_behavior import (
     MapChangeError,
 )
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
-from src.core.config import BASE_RANGE, BIG_RANGE
+from src.services.human_timings import HumanTimingsService
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.engine.movements.world.edge import get_valid_transition
 
@@ -82,7 +82,9 @@ class EdgeBehavior(Behavior):
         else:
             self.logger.error(f"invalid transition type : {transition_type}")
             self.handle_invalid_transition(edge, transition)
-            self.run_timer(BASE_RANGE, partial(self._retry_edge, edge=edge))
+            self.run_timer(
+                HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
+            )
 
     def on_fight_map_information_event(self, msg: FightMapInformationEvent, edge: Edge):
         if self.fight_behavior.state != BehaviorState.STOPPED:
@@ -98,7 +100,7 @@ class EdgeBehavior(Behavior):
             self.fight_behavior.start(partial(self.on_fight_behavior_finished, edge=edge), parent=self)
 
     def on_fight_behavior_finished(self, edge: Edge, error_code: str | None):
-        self.run_timer(BIG_RANGE, partial(self._retry_edge, edge=edge))
+        self.run_timer(HumanTimingsService().get_timing_long_action(), partial(self._retry_edge, edge=edge))
 
     def _retry_edge(self, edge: Edge) -> None:
         if self.game_state.fight.in_fight:
@@ -132,7 +134,9 @@ class EdgeBehavior(Behavior):
                 f"Did not found any potential valid interactive at {transition.m_cellId} for skill {transition.m_skillId}, recalculating path"
             )
             self.handle_invalid_transition(edge, transition)
-            return self.run_timer(BASE_RANGE, partial(self._retry_edge, edge=edge))
+            return self.run_timer(
+                HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
+            )
 
         self.event_manager.on(
             MapCurrentEvent,
@@ -155,6 +159,7 @@ class EdgeBehavior(Behavior):
             element_id=target_element.element_id,
             skill_id=transition.m_skillId,
             ignore_server_range=True,
+            movement_cancel_probability=0,
         )
 
     def on_timeout_map_after_interactive(self, edge: Edge, element_id: int):
@@ -164,7 +169,7 @@ class EdgeBehavior(Behavior):
     def on_timeout_map_after_map_action(self, edge: Edge, transition: Transition):
         self.logger.error("Timeout waiting for map change after map action")
         self.handle_invalid_transition(edge, transition)
-        self.run_timer(BASE_RANGE, partial(self._retry_edge, edge=edge))
+        self.run_timer(HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge))
 
     def on_interactive_behavior_finished(
         self,
@@ -177,19 +182,25 @@ class EdgeBehavior(Behavior):
             if error_code == MapMoveError.REFUSED:
                 self.logger.error("map move refused after interactive")
                 self.handle_invalid_transition(edge, transition)
-                return self.run_timer(BASE_RANGE, partial(self._retry_edge, edge=edge))
+                return self.run_timer(
+                    HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
+                )
             elif error_code in [
                 InteractiveError.USE_ERROR,
                 InteractiveError.UNREACHABLE_ELEMENT,
                 InteractiveError.SKILL_NOT_AVAILABLE,
             ]:
                 self.game_state.map.excluded_element_ids.add(element_id)
-                return self.run_timer(BASE_RANGE, partial(self._retry_edge, edge=edge))
+                return self.run_timer(
+                    HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
+                )
             elif error_code in [
                 MapMoveError.CANCELED_MOVEMENT,
                 MapMoveError.INVALID_STARTING_POINT,
             ]:
-                return self.run_timer(BASE_RANGE, partial(self._retry_edge, edge=edge))
+                return self.run_timer(
+                    HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
+                )
             elif error_code is MapChangeError.UNEXPECTED_NEW_MAP and self.game_state.fight.in_fight:
                 return
             self.raise_if_error(error_code)
@@ -203,7 +214,9 @@ class EdgeBehavior(Behavior):
         if move_path.end.cell_id != transition.m_cellId:
             self.logger.error(f"move path : {move_path} not ending at transition {transition}, invalid.")
             self.handle_invalid_transition(edge, transition)
-            return self.run_timer(BASE_RANGE, partial(self._retry_edge, edge=edge))
+            return self.run_timer(
+                HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
+            )
 
         self.event_manager.on(
             MapCurrentEvent,
@@ -234,11 +247,15 @@ class EdgeBehavior(Behavior):
                 MapMoveError.INVALID_STARTING_POINT,
             ]:
                 self.logger.warning("Retry edge")
-                return self.run_timer(BASE_RANGE, partial(self._retry_edge, edge=edge))
+                return self.run_timer(
+                    HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
+                )
             elif error_code is MapMoveError.REFUSED:
                 self.logger.error("map move refused")
                 self.handle_invalid_transition(edge, transition)
-                return self.run_timer(BASE_RANGE, partial(self._retry_edge, edge=edge))
+                return self.run_timer(
+                    HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
+                )
             self.raise_if_error(error_code)
 
     def on_map_current_event(self, msg: MapCurrentEvent, expected_map_id: int):
@@ -257,7 +274,9 @@ class EdgeBehavior(Behavior):
         if move_path.end.cell_id != transition.m_cellId:
             self.logger.error(f"move path : {move_path} not ending at transition {transition}, invalid.")
             self.handle_invalid_transition(edge, transition)
-            return self.run_timer(BASE_RANGE, partial(self._retry_edge, edge=edge))
+            return self.run_timer(
+                HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
+            )
 
         self.map_move_behavior.start(
             callback=partial(
@@ -283,11 +302,15 @@ class EdgeBehavior(Behavior):
                 MapMoveError.INVALID_STARTING_POINT,
             ]:
                 self.logger.warning("Canceled or invalid starting point, retry edge")
-                return self.run_timer(BASE_RANGE, partial(self._retry_edge, edge=edge))
+                return self.run_timer(
+                    HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
+                )
             elif error_code is MapMoveError.REFUSED:
                 self.logger.error(f"refused map move with mp {self.game_state.map.map_point}")
                 self.handle_invalid_transition(edge, transition)
-                return self.run_timer(BASE_RANGE, partial(self._retry_edge, edge=edge))
+                return self.run_timer(
+                    HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
+                )
 
             self.raise_if_error(error_code)
 
@@ -300,7 +323,9 @@ class EdgeBehavior(Behavior):
 
     def on_map_change_behavior_finished(self, error_code: str | None, edge: Edge, transition: Transition):
         if error_code is MapMoveError.INVALID_STARTING_POINT:
-            return self.run_timer(BASE_RANGE, partial(self._retry_edge, edge=edge))
+            return self.run_timer(
+                HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
+            )
         elif error_code is MapChangeError.UNEXPECTED_NEW_MAP and self.game_state.fight.in_fight:
             return
         elif error_code in [MapMoveError.REFUSED, MapChangeError.TIMEOUT]:

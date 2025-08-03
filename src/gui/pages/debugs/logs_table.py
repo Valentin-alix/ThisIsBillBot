@@ -76,12 +76,8 @@ class LogsTable(BaseTableWidget):
     def on_click_row(self, model_index: QModelIndex) -> None:
         source_index = self.table.proxy_model.mapToSource(model_index)
         model = self.table.item_model
-        time_text = model.data(
-            model.index(source_index.row(), 0), Qt.ItemDataRole.DisplayRole
-        )
-        type_lvl = model.data(
-            model.index(source_index.row(), 1), Qt.ItemDataRole.DisplayRole
-        )
+        time_text = model.data(model.index(source_index.row(), 0), Qt.ItemDataRole.DisplayRole)
+        type_lvl = model.data(model.index(source_index.row(), 1), Qt.ItemDataRole.DisplayRole)
         msg_text = _require_display_text(
             model.data(model.index(source_index.row(), 2), Qt.ItemDataRole.DisplayRole)
         )

@@ -36,12 +36,8 @@ class RandomFarmBehavior(Behavior):
     edge_behavior: EdgeBehavior
     weighted_path: WeightedPath
     world_signals: WorldSignals
-    additional_weight_by_map_id: dict[int, float] = field(
-        default_factory=dict[int, float], init=False
-    )
-    get_additional_weight_by_map_id: Callable[[int], float] = field(
-        init=False, default=lambda _: 0
-    )
+    additional_weight_by_map_id: dict[int, float] = field(default_factory=dict[int, float], init=False)
+    get_additional_weight_by_map_id: Callable[[int], float] = field(init=False, default=lambda _: 0)
     map_ids: set[int] = field(default_factory=set[int], init=False)
     _edge_path: list[Edge] | None = field(default=None, init=False)
 
@@ -100,10 +96,7 @@ class RandomFarmBehavior(Behavior):
             )
 
     def _should_go_to_area(self) -> bool:
-        is_outside_farm_area = (
-            self._is_edge_path_empty()
-            and self.game_state.map.map_id not in self.map_ids
-        )
+        is_outside_farm_area = self._is_edge_path_empty() and self.game_state.map.map_id not in self.map_ids
         is_path_desynchronized = (
             self.edge_path is not None
             and len(self.edge_path) > 0
@@ -130,20 +123,14 @@ class RandomFarmBehavior(Behavior):
             draw_edge_path(self.world_signals, self.edge_path)
 
     def get_map_ids(self, area_id: int | None, sub_area_id: int | None) -> set[int]:
-        self.logger.info(
-            f"init map ids based on area {area_id} and sub area {sub_area_id}"
-        )
+        self.logger.info(f"init map ids based on area {area_id} and sub area {sub_area_id}")
         if sub_area_id is not None:
             return set(DataReader().sub_area_by_id[sub_area_id].mapIds)
         elif area_id is not None:
-            self.logger.info(
-                f"setting map id based on {area_id}, ignore sub area with too high level"
-            )
+            self.logger.info(f"setting map id based on {area_id}, ignore sub area with too high level")
             map_ids: set[int] = set()
             for sub_area_id in DataReader().sub_areas_by_area_id[area_id]:
-                if DataReader().sub_area_by_id[sub_area_id].level > (
-                    self.game_state.player.level + 40
-                ):
+                if DataReader().sub_area_by_id[sub_area_id].level > (self.game_state.player.level + 40):
                     continue
                 map_ids |= set(DataReader().sub_area_by_id[sub_area_id].mapIds)
             return map_ids
@@ -159,9 +146,9 @@ class RandomFarmBehavior(Behavior):
         remaining_path.remove(edge)
         self.edge_path = remaining_path
         with PATH_LOCK:
-            LAST_VISITED_BY_SERVER_AND_MAP[
-                (self.game_state.player.server_id, self.game_state.map.map_id)
-            ] = datetime.now()
+            LAST_VISITED_BY_SERVER_AND_MAP[(self.game_state.player.server_id, self.game_state.map.map_id)] = (
+                datetime.now()
+            )
         self.event_manager.on(
             MapComplementaryInformationEvent,
             partial(
@@ -186,20 +173,16 @@ class RandomFarmBehavior(Behavior):
                 error_code is AutoTripErrorCode.PATH_NOT_FOUND
                 and self.game_state.map.forbidden_edge_transitions
             ):
-                self.logger.warning(
-                    "Path blocked by forbidden transitions; forcing reconnect to resync"
-                )
+                self.logger.warning("Path blocked by forbidden transitions; forcing reconnect to resync")
                 request_disconnect = self.event_manager.request_disconnect_callback
-                assert request_disconnect is not None, (
-                    "Blocked path recovery requires a disconnect callback"
-                )
+                assert request_disconnect is not None, "Blocked path recovery requires a disconnect callback"
                 request_disconnect()
                 return
             return self.finish(error_code)
         with PATH_LOCK:
-            LAST_VISITED_BY_SERVER_AND_MAP[
-                (self.game_state.player.server_id, self.game_state.map.map_id)
-            ] = datetime.now()
+            LAST_VISITED_BY_SERVER_AND_MAP[(self.game_state.player.server_id, self.game_state.map.map_id)] = (
+                datetime.now()
+            )
         self.finish(error_code)
 
     def get_next_weighted_path(self) -> list[Edge] | None:
@@ -226,9 +209,7 @@ class RandomFarmBehavior(Behavior):
         randomness_factor = random.uniform(0.8, 1)
         competition_penalty = self._calculate_competition_penalty(edge)
 
-        return (time_weight * (1 + additional_weight) * randomness_factor) / (
-            1 + competition_penalty
-        )
+        return (time_weight * (1 + additional_weight) * randomness_factor) / (1 + competition_penalty)
 
     def _calculate_time_weight(self, map_id: int) -> float:
         key = (self.game_state.player.server_id, map_id)
@@ -239,9 +220,7 @@ class RandomFarmBehavior(Behavior):
 
     def _get_cached_additional_weight(self, map_id: int) -> float:
         if map_id not in self.additional_weight_by_map_id:
-            self.additional_weight_by_map_id[map_id] = (
-                self.get_additional_weight_by_map_id(map_id)
-            )
+            self.additional_weight_by_map_id[map_id] = self.get_additional_weight_by_map_id(map_id)
         return self.additional_weight_by_map_id[map_id]
 
     def _calculate_competition_penalty(self, edge: Edge) -> int:
@@ -257,8 +236,5 @@ class RandomFarmBehavior(Behavior):
                 if path_server_id == server_id and path_character_id != character_id
             ]
         return sum(
-            1
-            for competing_path in competing_paths
-            for other_edge in competing_path
-            if other_edge == edge
+            1 for competing_path in competing_paths for other_edge in competing_path if other_edge == edge
         )

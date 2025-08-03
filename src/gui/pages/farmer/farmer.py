@@ -111,9 +111,7 @@ class FarmerWidget(QWidget):
             DataReader().area_by_id.values(),
             key=lambda area: I18N().name_by_id.get(area.nameId, "Unknown"),
         ):
-            self.area_farm_combo.addItem(
-                I18N().name_by_id.get(area.nameId, "Unknown"), userData=area.id
-            )
+            self.area_farm_combo.addItem(I18N().name_by_id.get(area.nameId, "Unknown"), userData=area.id)
 
         top_widget_layout.addWidget(self.area_farm_combo)
 
@@ -170,9 +168,7 @@ class FarmerWidget(QWidget):
         ):
             if sub_area.areaId != current_area_id:
                 continue
-            self.sub_area_farm_combo.addItem(
-                I18N().name_by_id[sub_area.nameId], userData=sub_area.id
-            )
+            self.sub_area_farm_combo.addItem(I18N().name_by_id[sub_area.nameId], userData=sub_area.id)
 
     @pyqtSlot()
     def on_click_play(self) -> None:
@@ -186,9 +182,7 @@ class FarmerWidget(QWidget):
         elif self.type_action_combo.currentText() == FarmActionEnum.AUTO:
             self.bot.bot_signals.play_auto_bot.emit()
         elif self.type_action_combo.currentText() not in FarmActionEnum:
-            self.bot.bot_signals.play_usable_behavior.emit(
-                self.type_action_combo.currentText()
-            )
+            self.bot.bot_signals.play_usable_behavior.emit(self.type_action_combo.currentText())
 
     @pyqtSlot(bool)
     def on_play(self, _: bool) -> None:
@@ -225,9 +219,7 @@ class FarmerWidget(QWidget):
             self.area_farm_combo.setCurrentText("")
 
         if sub_area_id is not None:
-            self.sub_area_farm_combo.setCurrentIndex(
-                self.sub_area_farm_combo.findData(sub_area_id)
-            )
+            self.sub_area_farm_combo.setCurrentIndex(self.sub_area_farm_combo.findData(sub_area_id))
         else:
             self.sub_area_farm_combo.setCurrentText("")
 
@@ -275,25 +267,17 @@ class FarmerWidget(QWidget):
         self.player_tab = PlayerTab(bot=self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.player_tab)
         player_route = f"{self.objectName()}_player_tab"
-        self.player_pivot_item = self._add_debug_tab(
-            player_route, "Joueur", self.player_tab
-        )
+        self.player_pivot_item = self._add_debug_tab(player_route, "Joueur", self.player_tab)
 
-        self.world_tab = WorldTab(
-            world_signals=self.bot.world_signals, parent=self.stacked_widget
-        )
+        self.world_tab = WorldTab(world_signals=self.bot.world_signals, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.world_tab)
         world_route = f"{self.objectName()}_world_tab"
-        self.world_pivot_item = self._add_debug_tab(
-            world_route, "Monde", self.world_tab
-        )
+        self.world_pivot_item = self._add_debug_tab(world_route, "Monde", self.world_tab)
 
         self.inventory_tab = InventoryTab(self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.inventory_tab)
         inventory_route = f"{self.objectName()}_inventory_tab"
-        self.inventory_pivot_item = self._add_debug_tab(
-            inventory_route, "Inventaire", self.inventory_tab
-        )
+        self.inventory_pivot_item = self._add_debug_tab(inventory_route, "Inventaire", self.inventory_tab)
 
         self.bank_tab = BankTab(self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.bank_tab)

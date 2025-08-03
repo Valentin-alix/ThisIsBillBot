@@ -86,9 +86,7 @@ class TestEntityState:
         )
 
         runtime_bot.event_manager.process_msg(ContextRemoveElementEvent(element_id=1))
-        runtime_bot.event_manager.process_msg(
-            ContextRemoveElementsEvent(element_id=[2, 3])
-        )
+        runtime_bot.event_manager.process_msg(ContextRemoveElementsEvent(element_id=[2, 3]))
 
         assert runtime_bot.game_state.entity.actor_by_id == {}
 
@@ -195,9 +193,7 @@ class TestEntityState:
         runtime_bot: Bot,
     ):
         runtime_bot.event_manager.process_msg(
-            FightSynchronizeEvent(
-                fighters=[make_fighter(actor_id=3, cell_id=204, alive=True)]
-            )
+            FightSynchronizeEvent(fighters=[make_fighter(actor_id=3, cell_id=204, alive=True)])
         )
         # The dead fighter is placed *before* an alive one to reproduce the
         # ordering bug where re-adding the full list overwrote its removal.
@@ -213,8 +209,7 @@ class TestEntityState:
 
         assert set(runtime_bot.game_state.entity.actor_by_id) == {1, 2}
         enemy_cells = {
-            enemy.disposition.cell_id
-            for enemy in runtime_bot.game_state.fight.get_enemies(character_id=0)
+            enemy.disposition.cell_id for enemy in runtime_bot.game_state.fight.get_enemies(character_id=0)
         }
         assert 204 not in enemy_cells
 
@@ -232,16 +227,12 @@ class TestEntityState:
         )
 
         runtime_bot.event_manager.process_msg(
-            FightSynchronizeEvent(
-                fighters=[make_fighter(actor_id=-1, cell_id=396, alive=True)]
-            )
+            FightSynchronizeEvent(fighters=[make_fighter(actor_id=-1, cell_id=396, alive=True)])
         )
 
         assert set(runtime_bot.game_state.entity.actor_by_id) == {-1, -2}
 
-    def test_fight_synchronize_recreates_revived_fight_actor(
-        self, runtime_bot: Bot
-    ) -> None:
+    def test_fight_synchronize_recreates_revived_fight_actor(self, runtime_bot: Bot) -> None:
         revived_fighter = make_fighter(actor_id=-2, cell_id=204, alive=True)
         revived_fighter.actor_information.fighter.stats.characteristics.append(
             CharacterCharacteristic(
@@ -256,9 +247,7 @@ class TestEntityState:
             )
         )
 
-        runtime_bot.event_manager.process_msg(
-            FightSynchronizeEvent(fighters=[revived_fighter])
-        )
+        runtime_bot.event_manager.process_msg(FightSynchronizeEvent(fighters=[revived_fighter]))
 
         assert runtime_bot.game_state.entity.actor_fight_by_id[-2].life_point == 300
 
@@ -297,9 +286,7 @@ class TestEntityState:
                                     characteristics=[
                                         CharacterCharacteristic(
                                             characteristic_id=0,
-                                            value=CharacterCharacteristicValue(
-                                                total=75
-                                            ),
+                                            value=CharacterCharacteristicValue(total=75),
                                         )
                                     ],
                                 ),
@@ -349,18 +336,10 @@ class TestEntityState:
         runtime_bot.event_manager.process_msg(
             FightSynchronizeEvent(
                 fighters=[
-                    make_fighter(
-                        actor_id=100, cell_id=272, team=Team.TEAM_CHALLENGER
-                    ),  # me
-                    make_fighter(
-                        actor_id=200, cell_id=280, team=Team.TEAM_CHALLENGER
-                    ),  # ally
-                    make_fighter(
-                        actor_id=300, cell_id=259, team=Team.TEAM_DEFENDER
-                    ),  # enemy
-                    make_fighter(
-                        actor_id=400, cell_id=396, team=Team.TEAM_DEFENDER
-                    ),  # enemy
+                    make_fighter(actor_id=100, cell_id=272, team=Team.TEAM_CHALLENGER),  # me
+                    make_fighter(actor_id=200, cell_id=280, team=Team.TEAM_CHALLENGER),  # ally
+                    make_fighter(actor_id=300, cell_id=259, team=Team.TEAM_DEFENDER),  # enemy
+                    make_fighter(actor_id=400, cell_id=396, team=Team.TEAM_DEFENDER),  # enemy
                 ]
             )
         )
@@ -374,6 +353,4 @@ class TestEntityState:
         runtime_bot: Bot,
         actors: list[ActorPositionInformation],
     ) -> None:
-        runtime_bot.event_manager.process_msg(
-            MapComplementaryInformationEvent(actors=actors)
-        )
+        runtime_bot.event_manager.process_msg(MapComplementaryInformationEvent(actors=actors))

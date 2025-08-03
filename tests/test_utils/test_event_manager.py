@@ -117,8 +117,7 @@ def test_listener_removed_during_dispatch_is_not_called() -> None:
 
     assert calls == ["first"]
     event_manager.logger.debug.assert_any_call(
-        "Skipping listener removed during dispatch: "
-        "originator=SecondOrigin, msg_type=SequenceNumberEvent"
+        "Skipping listener removed during dispatch: originator=SecondOrigin, msg_type=SequenceNumberEvent"
     )
 
 
@@ -185,9 +184,7 @@ def test_blocking_listener_does_not_block_listener_cleanup() -> None:
         originator=removable_origin,
     )
 
-    dispatch_thread = Thread(
-        target=lambda: event_manager.process_msg(SequenceNumberEvent())
-    )
+    dispatch_thread = Thread(target=lambda: event_manager.process_msg(SequenceNumberEvent()))
     dispatch_thread.start()
     assert callback_started.wait(timeout=1)
 

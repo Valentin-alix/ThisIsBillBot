@@ -6,9 +6,7 @@ from PyQt6.QtGui import QKeyEvent, QKeySequence
 from PyQt6.QtWidgets import QApplication, QMenu, QTreeWidgetItem, QWidget
 from qfluentwidgets import TreeWidget
 
-TreeValue: TypeAlias = (
-    str | int | float | bool | None | dict[str, "TreeValue"] | list["TreeValue"]
-)
+TreeValue: TypeAlias = str | int | float | bool | None | dict[str, "TreeValue"] | list["TreeValue"]
 
 
 class DynamicTreeWidget(TreeWidget):

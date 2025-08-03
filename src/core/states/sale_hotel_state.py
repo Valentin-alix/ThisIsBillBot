@@ -21,9 +21,7 @@ class SaleHotelState(State):
     _last_time_updated_prices: datetime.datetime = dataclasses.field(
         init=False, default=datetime.datetime(datetime.MINYEAR, 1, 1)
     )
-    bid_seller_condition: SellingConditions | None = dataclasses.field(
-        init=False, default=None
-    )
+    bid_seller_condition: SellingConditions | None = dataclasses.field(init=False, default=None)
     current_search_item_gid: int | None = dataclasses.field(init=False, default=None)
     current_search_type_id: int | None = dataclasses.field(init=False, default=None)
 

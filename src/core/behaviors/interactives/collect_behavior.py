@@ -14,12 +14,10 @@ from src.core.behaviors.interactives.interactive_behavior import (
 )
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
-from src.core.behaviors.movements.map_movement_cancel_behavior import MapMovementCancelBehavior
 from src.core.config import (
-    BASE_RANGE,
     BETWEEN_COLLECT_PAUSE_PROBABILITY,
-    BETWEEN_COLLECT_PAUSE_RANGE,
-    LOOK_AROUND_PROBABILITY,
+    FIRST_COLLECT_MOVEMENT_CANCEL_PROBABILITY,
+    SUBSEQUENT_COLLECT_MOVEMENT_CANCEL_PROBABILITY,
 )
 from src.core.engine.interactives.collectable import Collectable
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
@@ -31,21 +29,25 @@ class CollectError(StrEnum):
     FULL_PODS = auto()
 
 
+MINIMUM_PATH_LENGTH_FOR_MOVEMENT_CANCEL = 5
+
+
 @dataclass
 class CollectBehavior(Behavior):
     """collect all collectables in current map"""
 
     interactive_behavior: InteractiveBehavior
-    map_movement_cancel_behavior: MapMovementCancelBehavior
     path_finding: Pathfinding
 
     is_first_action: bool = field(init=False, default=False)
+    is_first_collect: bool = field(init=False, default=False)
 
     excluded_element_ids: set[int] = field(init=False, default_factory=set[int])
 
     def run(self) -> None:
         self.excluded_element_ids.clear()
         self.is_first_action = True
+        self.is_first_collect = True
         self.collect_map()
 
     def collect_map(self) -> None:
@@ -64,16 +66,21 @@ class CollectBehavior(Behavior):
         if self.is_first_action:
             self.is_first_action = False
             timing_before_action = HumanTimingsService().get_timing_collect_on_new_map()
-            if random.random() < LOOK_AROUND_PROBABILITY:
-                return self.run_timer(
-                    timing_before_action, lambda: self._do_look_around(move_path, collectable)
-                )
             self.run_timer(timing_before_action, lambda: self.collect(move_path, collectable))
         else:
             self.collect(move_path, collectable)
 
     def collect(self, move_path: MovementPath, collectable: Collectable) -> None:
         self.logger.info(f"Collecting at {move_path.end}")
+        if len(move_path.path) < MINIMUM_PATH_LENGTH_FOR_MOVEMENT_CANCEL:
+            movement_cancel_probability = 0
+        else:
+            movement_cancel_probability = (
+                FIRST_COLLECT_MOVEMENT_CANCEL_PROBABILITY
+                if self.is_first_collect
+                else SUBSEQUENT_COLLECT_MOVEMENT_CANCEL_PROBABILITY
+            )
+        self.is_first_collect = False
 
         self.interactive_behavior.start(
             callback=partial(self.on_interactive_behavior_finished, collectable=collectable),
@@ -81,6 +88,7 @@ class CollectBehavior(Behavior):
             element_mp=collectable.mp,
             element_id=collectable.interactive_element.element_id,
             skill_id=collectable.skill.skill_id,
+            movement_cancel_probability=movement_cancel_probability,
         )
 
     def on_interactive_behavior_finished(self, error_code: str | None, collectable: Collectable) -> None:
@@ -96,7 +104,7 @@ class CollectBehavior(Behavior):
             )
             self.excluded_element_ids.add(collectable.interactive_element.element_id)
             self.logger.info("Interactive error, trying to recollect on map.")
-            return self.run_timer(BASE_RANGE, self.collect_map)
+            return self.run_timer(HumanTimingsService().get_timing_base_action(), self.collect_map)
         elif error_code == MapChangeError.UNEXPECTED_NEW_MAP:
             return self.finish(error_code)
 
@@ -116,49 +124,11 @@ class CollectBehavior(Behavior):
             StatedElementUpdatedEvent, reason="Element state confirmed, proceeding with next collection"
         )
         if random.random() < BETWEEN_COLLECT_PAUSE_PROBABILITY:
-            pause_time = random.uniform(*BETWEEN_COLLECT_PAUSE_RANGE)
+            pause_time = HumanTimingsService().get_timing_between_collects()
             self.logger.debug(f"Taking a short break: {pause_time:.1f}s")
             self.run_timer(pause_time, self.collect_map)
         else:
             self.collect_map()
-
-    def _do_look_around(self, move_path: MovementPath, collectable: Collectable) -> None:
-        starting_map_id = self.game_state.map.map_id
-
-        def on_look_around_finished(error_code: str | None) -> None:
-            if error_code is MapMoveError.UNEXPECTED_NEW_MAP:
-                return self.finish(MapChangeError.UNEXPECTED_NEW_MAP)
-            movement_failed = error_code in {
-                MapMoveError.CANCELED_MOVEMENT,
-                MapMoveError.INVALID_STARTING_POINT,
-                MapMoveError.REFUSED,
-            }
-            if error_code is not None and not movement_failed:
-                self.raise_if_error(error_code)
-            self._collect_after_look_around(collectable, starting_map_id, movement_failed)
-
-        self.map_movement_cancel_behavior.start(
-            final_move_path=move_path, callback=on_look_around_finished, parent=self
-        )
-
-    def _collect_after_look_around(
-        self,
-        collectable: Collectable,
-        starting_map_id: int,
-        movement_failed: bool,
-    ) -> None:
-        if self.game_state.map.is_in_map_transition or self.game_state.map.map_id != starting_map_id:
-            return self.finish(MapChangeError.UNEXPECTED_NEW_MAP)
-        if movement_failed:
-            self.logger.warning("Movement failed on look around, skip it.")
-            return self.collect_map()
-
-        collectable_info = self.get_near_collectable([collectable])
-        if collectable_info is None:
-            return self.collect_map()
-
-        move_path, fresh_collectable = collectable_info
-        self.collect(move_path, fresh_collectable)
 
     def get_near_collectable(
         self,

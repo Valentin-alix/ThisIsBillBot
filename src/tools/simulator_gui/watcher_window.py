@@ -95,9 +95,7 @@ class WatcherGui:
             del sys.modules[name]
 
         gui_main_window = importlib.import_module("src.gui.main_window")
-        new_window = gui_main_window.MainWindow(
-            title=self.app.TITLE, shared_signals=self.shared_signals
-        )
+        new_window = gui_main_window.MainWindow(title=self.app.TITLE, shared_signals=self.shared_signals)
         if prev_geom is not None:
             new_window.restoreGeometry(prev_geom)
 

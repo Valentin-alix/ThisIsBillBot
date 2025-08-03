@@ -9,9 +9,7 @@ from src.gui.components.group_list import GroupList
 
 
 class RecipeGroup(GroupList[RecipeItem]):
-    def __init__(
-        self, recipes: list[RecipeItem], parent: QWidget | None = None
-    ) -> None:
+    def __init__(self, recipes: list[RecipeItem], parent: QWidget | None = None) -> None:
         super().__init__(items=recipes, is_lazy_loaded=True, parent=parent)
 
     @property

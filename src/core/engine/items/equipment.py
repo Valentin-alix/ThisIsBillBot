@@ -59,9 +59,7 @@ def get_best_roll(
     )
 
 
-def get_current_best_set(
-    elem: EffectElement, level: int, is_sub: bool
-) -> set_infos.SetOnLevel | None:
+def get_current_best_set(elem: EffectElement, level: int, is_sub: bool) -> set_infos.SetOnLevel | None:
     available_set = [
         set_on_level
         for set_on_level in set_infos.SET_BY_LEVEL_THRESHOLD
@@ -72,9 +70,7 @@ def get_current_best_set(
     if not available_set:
         return None
 
-    best_available_set = max(
-        available_set, key=lambda set_on_level: set_on_level.min_level
-    )
+    best_available_set = max(available_set, key=lambda set_on_level: set_on_level.min_level)
     return best_available_set
 
 

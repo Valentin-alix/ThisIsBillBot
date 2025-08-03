@@ -103,14 +103,10 @@ class BotScheduler(ContextualLogger):
             return
         self._is_kamas_mule_profile = profile.kind == "kamas_mule"
         random_minutes_min = (
-            MULE_SCHEDULE_RANDOM_MINUTES_MIN
-            if self._is_kamas_mule_profile
-            else SCHEDULE_RANDOM_MINUTES_MIN
+            MULE_SCHEDULE_RANDOM_MINUTES_MIN if self._is_kamas_mule_profile else SCHEDULE_RANDOM_MINUTES_MIN
         )
         random_minutes_max = (
-            MULE_SCHEDULE_RANDOM_MINUTES_MAX
-            if self._is_kamas_mule_profile
-            else SCHEDULE_RANDOM_MINUTES_MAX
+            MULE_SCHEDULE_RANDOM_MINUTES_MAX if self._is_kamas_mule_profile else SCHEDULE_RANDOM_MINUTES_MAX
         )
 
         for day_str, slots in profile.slots_by_day.items():

@@ -1,0 +1,17 @@
+from __future__ import annotations
+
+RAX_REG: int = 0
+RCX_REG: int = 1
+RDX_REG: int = 2
+R8_REG: int = 8
+R9_REG: int = 9
+CALL_ARGUMENT_REGISTERS: tuple[int, ...] = (RCX_REG, RDX_REG, R8_REG, R9_REG)
+
+IENUMERATOR_TYPEINFO_PREFIX = "ienumerator:"
+KVP_VALUE_TYPEINFO_PREFIX = "kvp_value:"
+IENUMERATOR_INTERFACE_SLOT_DISPLACEMENT: int = 0x138
+KVP_VALUE_POINTER_OFFSET: int = 8
+
+IL2CPP_TYPEINFO_CAST_HELPERS: frozenset[int] = frozenset({0x18000A290})
+
+MAX_INTERPROCEDURAL_DEPTH: int = 24

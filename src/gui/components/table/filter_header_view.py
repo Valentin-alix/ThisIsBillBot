@@ -24,9 +24,7 @@ class FilterHeaderView(QHeaderView):
         self.line_edits: list[LineEdit] = []
         self.header_filters: list[str] = []
         self.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.setDefaultAlignment(
-            QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter
-        )
+        self.setDefaultAlignment(QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.sectionResized.connect(profiled_slot(self.adjust_positions))
         hsb = parent.horizontalScrollBar()
         assert hsb is not None

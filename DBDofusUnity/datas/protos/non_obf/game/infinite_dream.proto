@@ -1,0 +1,221 @@
+syntax = "proto3";
+
+import "common.proto";
+import "game_message.proto";
+import "report.proto";
+
+package com.ankama.dofus.server.game.protocol.infinite_dream;
+
+message UnknownIxf {
+	.com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxf.UnknownIxd unknown_fruz = 1;
+	.com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxf.UnknownIxc unknown_fruy = 2;
+	.com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxf.UnknownIxc unknown_frva = 3;
+	message UnknownIxc {
+		int32 unknown_frum = 1;
+	}
+	message UnknownIxd {
+		string unknown_fruq = 1;
+		bool unknown_frus = 2;
+		int32 unknown_frut = 3;
+		int32 unknown_fruu = 4;
+	}
+}
+
+message UnknownIxj {
+	string unknown_frvl = 1;
+	int32 unknown_frvp = 2;
+	int64 unknown_frvn = 3;
+	int32 unknown_frvo = 4;
+	.com.ankama.dofus.server.game.protocol.common.Gender unknown_frvm = 5;
+	.com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxj.UnknownIxh unknown_frvq = 6;
+	message UnknownIxh {
+	}
+}
+
+message UnknownIxn {
+	string unknown_frwn = 1;
+}
+
+message UnknownIya {
+	int32 unknown_frxx = 1;
+	int32 unknown_frxy = 2;
+	int32 unknown_frxz = 3;
+	int32 unknown_fryd = 4;
+	string unknown_frya = 5;
+	repeated .com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIyw unknown_fryb = 6;
+	repeated .com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIzi unknown_fryc = 7;
+	int32 unknown_fryh = 8;
+	int32 unknown_fryi = 9;
+	int32 unknown_fryj = 10;
+	int32 unknown_fryk = 11;
+	int32 unknown_frxw = 20;
+	bool unknown_fryf = 21;
+	int32 unknown_fryg = 22;
+	int64 unknown_fryl = 12;
+	.com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxj unknown_frym = 13;
+	.com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIya.UnknownIxw unknown_fryn = 14;
+	.com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIya.UnknownIxx unknown_fryo = 15;
+	message UnknownIxw {
+		repeated .com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIya.UnknownIxy unknown_frxd = 1;
+		int32 unknown_frxe = 2;
+		int32 unknown_frxf = 3;
+	}
+	message UnknownIxx {
+		string unknown_frxj = 1;
+		int32 unknown_frxk = 2;
+	}
+	message UnknownIxy {
+		.com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxj unknown_frxo = 1;
+		int32 unknown_frxs = 2;
+		optional string unknown_frxp = 3;
+		.com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxj unknown_frxr = 4;
+	}
+}
+
+message UnknownIyw {
+	map<string, int32> unknown_fsbn = 1;
+	int32 unknown_fsbo = 2;
+	repeated string unknown_fsbp = 3;
+	map<string, int32> unknown_fsbq = 4;
+}
+
+message UnknownIzi {
+	.com.ankama.dofus.server.game.protocol.common.ObjectEffect unknown_fsef = 1;
+	int32 unknown_fseg = 2;
+	int32 unknown_fseh = 3;
+}
+
+message UnknownIyj {
+	.com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIyj.UnknownIyh unknown_fsab = 1;
+	message UnknownIyh {
+		int32 unknown_frzf = 1;
+		int32 unknown_frzg = 2;
+		string unknown_frzh = 3;
+		int32 unknown_frzi = 4;
+		string unknown_frzj = 5;
+		repeated .com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIzi unknown_frzm = 6;
+		int32 unknown_frzn = 7;
+		int32 unknown_frzp = 8;
+		bool unknown_frzq = 9;
+		int32 unknown_frzt = 10;
+		bool unknown_frzu = 11;
+		optional int32 unknown_frzr = 20;
+		bool unknown_frzv = 12;
+		string unknown_frzw = 13;
+		repeated .com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIyw unknown_frzx = 14;
+	}
+}
+
+message UnknownIzm {
+	string unknown_fsfb = 1;
+	int32 unknown_fsfc = 2;
+	int32 unknown_fsfd = 3;
+	float unknown_fsff = 4;
+	.com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIzm.UnknownIzk unknown_fsfe = 5;
+	message UnknownIzk {
+		map<int32, int64> unknown_fseq = 1;
+		repeated int64 unknown_fser = 2;
+		map<bool, string> unknown_fses = 3;
+		repeated int64 unknown_fset = 4;
+		repeated string unknown_fseu = 5;
+		repeated string unknown_fsev = 6;
+		string unknown_fsew = 7;
+		bool unknown_fsex = 8;
+	}
+}
+
+message InfiniteDreamEnterRequest {
+}
+
+message UnknownIww {
+	optional int32 unknown_frtn = 1;
+	optional int32 unknown_frtp = 2;
+	repeated .com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIzi unknown_frtr = 3;
+	optional int32 unknown_frts = 4;
+	optional int32 unknown_frtu = 5;
+	map<int32, int64> unknown_frtw = 6;
+	optional int32 unknown_frty = 8;
+	int32 unknown_frua = 9;
+	int32 unknown_frub = 10;
+	optional bool unknown_fruc = 11;
+}
+
+message InfiniteDreamEnterResponse {
+	.com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxj unknown_fsda = 1;
+	repeated .com.ankama.dofus.server.game.protocol.infinite_dream.InfiniteDreamEnterResponse.UnknownIze unknown_fsdc = 3;
+	repeated .com.ankama.dofus.server.game.protocol.infinite_dream.InfiniteDreamEnterResponse.UnknownIzd unknown_fsdd = 4;
+	repeated .com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxj unknown_fsde = 5;
+	repeated .com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIww unknown_fsdf = 6;
+	int32 unknown_fsdg = 7;
+	int32 unknown_fsdh = 8;
+	optional string unknown_fsdi = 9;
+	optional int32 unknown_fsdk = 10;
+	int32 unknown_fsdm = 11;
+	int32 unknown_fsdn = 12;
+	string unknown_fsdo = 13;
+	int32 unknown_fsdp = 14;
+	repeated .com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIzi unknown_fsdq = 15;
+	repeated .com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIyw unknown_fsdr = 16;
+	int32 unknown_fsds = 17;
+	bool unknown_fsdt = 18;
+	bool unknown_fsdu = 19;
+	int32 unknown_fsdv = 20;
+	bool unknown_fsdw = 21;
+	int32 unknown_fsdx = 22;
+	bool unknown_fsdy = 23;
+	message UnknownIze {
+		int32 unknown_fscs = 1;
+		int32 unknown_fscu = 3;
+		int32 unknown_fscv = 4;
+		map<int32, int32> unknown_fscw = 5;
+	}
+	message UnknownIzd {
+		string unknown_fsck = 1;
+		UnknownFscnValue unknown_fscn = 2;
+		UnknownFscoValue unknown_fsco = 3;
+		.com.ankama.dofus.server.game.protocol.infinite_dream.InfiniteDreamEnterResponse.UnknownIzd.UnknownIzb unknown_fscm = 4;
+		message UnknownIzb {
+			optional int64 unknown_fsbx = 1;
+			repeated int32 unknown_fsbz = 2;
+			map<int64, bool> unknown_fsca = 3;
+			optional int64 unknown_fscb = 4;
+			string unknown_fscd = 5;
+			repeated int32 unknown_fsce = 6;
+			int64 unknown_fscf = 7;
+			repeated int64 unknown_fscg = 8;
+		}
+		enum UnknownFscnValue {
+			UNKNOWN_FSCN_VALUE_UNSPECIFIED = 0;
+		}
+		enum UnknownFscoValue {
+			UNKNOWN_FSCO_VALUE_UNSPECIFIED = 0;
+		}
+	}
+}
+
+message InfiniteDreamRoomLootEvent {
+	bool unknown_fsfj = 1;
+	repeated .com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIzm unknown_fsfk = 2;
+}
+
+message InfiniteDreamRoomLootRequest {
+	optional int64 unknown_frws = 2;
+}
+
+message InfiniteDreamExitRequest {
+}
+
+message InfiniteDreamRerollMonstersRequest {
+}
+
+message UnknownIxg {
+}
+
+message UnknownIyb {
+	bool unknown_fryt = 1;
+}
+
+message UnknownIzj {
+	bool unknown_fsel = 1;
+	bool unknown_fsem = 2;
+}

@@ -44,9 +44,7 @@ class BaseFarmBehavior(Behavior, ABC):
     mule_give_behavior: MuleGiveBehavior
     craft_behavior: CraftBehavior
 
-    is_stopped_at_new_map_condition: Callable[[], bool] | None = field(
-        init=False, default=None
-    )
+    is_stopped_at_new_map_condition: Callable[[], bool] | None = field(init=False, default=None)
 
     @abstractmethod
     def on_new_map(self):
@@ -77,21 +75,15 @@ class BaseFarmBehavior(Behavior, ABC):
             self.logger.error("Can't unload")
             return self.finish(error_code)
 
-        self.auto_equipment_behavior.start(
-            callback=self.on_auto_equipment_finished, parent=self
-        )
+        self.auto_equipment_behavior.start(callback=self.on_auto_equipment_finished, parent=self)
 
     def on_auto_equipment_finished(self, error_code: str | None) -> None:
         self.raise_if_error(error_code)
         self.continue_after_unload()
 
     def continue_after_unload(self) -> None:
-        if do_unload_on_mule(
-            self.game_state.inventory.kamas, self.game_state.player.is_sub
-        ):
-            self.mule_give_behavior.start(
-                callback=self.on_unloaded_on_mule_finished, parent=self
-            )
+        if do_unload_on_mule(self.game_state.inventory.kamas, self.game_state.player.is_sub):
+            self.mule_give_behavior.start(callback=self.on_unloaded_on_mule_finished, parent=self)
         else:
             self.on_unloaded_on_mule_finished(None)
 
@@ -120,10 +112,7 @@ class BaseFarmBehavior(Behavior, ABC):
         )
 
     def on_craft_behavior_finished(self, error_code: str | None):
-        if (
-            error_code is not None
-            and error_code is not EnterGuildChestError.CANT_ACCESS_GUILD_CHEST
-        ):
+        if error_code is not None and error_code is not EnterGuildChestError.CANT_ACCESS_GUILD_CHEST:
             self.logger.warning(f"Craft behavior failed: {error_code}")
 
         if not DO_SALE_HOTEL:
@@ -134,6 +123,4 @@ class BaseFarmBehavior(Behavior, ABC):
                 return self.finish(error_code)
             self.on_new_map()
 
-        self.sale_hotel_prices_behavior.start(
-            callback=on_sale_hotel_prices_finished, parent=self
-        )
+        self.sale_hotel_prices_behavior.start(callback=on_sale_hotel_prices_finished, parent=self)

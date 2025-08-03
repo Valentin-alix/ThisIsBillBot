@@ -51,9 +51,7 @@ class InteractiveFrame(Frame):
             priority=self.priority,
         )
 
-    def on_map_complementary_information_event(
-        self, message: MapComplementaryInformationEvent
-    ):
+    def on_map_complementary_information_event(self, message: MapComplementaryInformationEvent):
         self.game_state.interactive.interactive_element_by_id = {
             element.element_id: element for element in message.interactive_elements
         }
@@ -65,9 +63,7 @@ class InteractiveFrame(Frame):
 
         item_and_job_by_gfx_array: list[tuple[int, int, JobEnum]] = []
         for interactive_element in message.interactive_elements:
-            for skill in list(interactive_element.enabled_skills) + list(
-                interactive_element.disabled_skills
-            ):
+            for skill in list(interactive_element.enabled_skills) + list(interactive_element.disabled_skills):
                 data_skill = DataReader().skill_by_id[skill.skill_id]
                 if (
                     data_skill.gatheredRessourceItem in [-1, 0]
@@ -76,9 +72,7 @@ class InteractiveFrame(Frame):
                     continue
                 gfx_id = (
                     MapReader()
-                    .get_ref_data_by_element_id_by_map_id(map_id)[
-                        interactive_element.element_id
-                    ]
+                    .get_ref_data_by_element_id_by_map_id(map_id)[interactive_element.element_id]
                     .gfxId
                 )
                 if gfx_id is None:
@@ -95,17 +89,17 @@ class InteractiveFrame(Frame):
 
     def on_interactive_map_update_event(self, msg: InteractiveMapUpdateEvent):
         for interactive_element in msg.interactive_elements:
-            self.game_state.interactive.interactive_element_by_id[
-                interactive_element.element_id
-            ] = interactive_element
+            self.game_state.interactive.interactive_element_by_id[interactive_element.element_id] = (
+                interactive_element
+            )
 
     def on_stated_map_update_event(self, msg: StatedMapUpdateEvent):
         self.game_state.interactive.set_stated_elements(msg.stated_elements)
 
     def on_interactive_element_updated_event(self, msg: InteractiveElementUpdatedEvent):
-        self.game_state.interactive.interactive_element_by_id[
-            msg.interactive_element.element_id
-        ] = msg.interactive_element
+        self.game_state.interactive.interactive_element_by_id[msg.interactive_element.element_id] = (
+            msg.interactive_element
+        )
 
     def on_stated_element_updated_event(self, msg: StatedElementUpdatedEvent):
         self.game_state.interactive.set_stated_element(msg.stated_element)

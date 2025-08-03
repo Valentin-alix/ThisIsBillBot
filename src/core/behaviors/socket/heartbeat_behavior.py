@@ -12,9 +12,7 @@ _HEARTBEAT_INTERVAL_SECONDS = 30
 
 @dataclass
 class HearthBeatBehavior(Behavior):
-    _heartbeat_stop: threading.Event = field(
-        init=False, default_factory=threading.Event
-    )
+    _heartbeat_stop: threading.Event = field(init=False, default_factory=threading.Event)
 
     def run(self) -> None:
         self._heartbeat_stop.clear()
@@ -32,9 +30,7 @@ class HearthBeatBehavior(Behavior):
         now = datetime.now()
         previous_ping_datetime = self.game_state.server.sent_datetime_ping_request
         if previous_ping_datetime is not None:
-            pending_ping_age_ms = int(
-                (now - previous_ping_datetime).total_seconds() * 1_000
-            )
+            pending_ping_age_ms = int((now - previous_ping_datetime).total_seconds() * 1_000)
             self.logger.warning(
                 "Sending PingRequest while previous ping is still pending: "
                 f"pending_ping_age_ms={pending_ping_age_ms}"

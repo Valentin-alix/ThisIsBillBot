@@ -55,9 +55,7 @@ class _SlotWidget(QWidget):
         self.value_label = BodyLabel(text=_EMPTY_VALUE, parent=self)
         self.value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.value_label.setWordWrap(True)
-        self.value_label.setTextInteractionFlags(
-            Qt.TextInteractionFlag.TextSelectableByMouse
-        )
+        self.value_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         layout.addWidget(self.value_label)
 
     def set_value(self, value: str | None) -> None:

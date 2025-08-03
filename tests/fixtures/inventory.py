@@ -43,7 +43,5 @@ def make_criterion_context_with_inventory(
         fight_breed_id=game_state.fight.breed_id,
         fight_characteristic_by_id=game_state.fight.characteristic_by_id,
         inventory_objects_by_uid=game_state.inventory.objects_by_uid,
-        positive_actor_count=sum(
-            1 for actor_id in game_state.entity.actor_by_id if actor_id > 0
-        ),
+        positive_actor_count=sum(1 for actor_id in game_state.entity.actor_by_id if actor_id > 0),
     )

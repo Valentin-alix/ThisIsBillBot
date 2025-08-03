@@ -22,7 +22,6 @@ from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
 )
 from src.core.behaviors.movements.edge_behavior import EdgeError
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
-from src.core.config import BASE_RANGE
 from src.core.engine.weights.harvester.explorator import get_map_ids_to_explore
 from src.core.engine.weights.harvester.weight_map import (
     get_harvester_additional_weight_by_map_id,
@@ -160,9 +159,9 @@ class HarvesterBehavior(BaseFarmBehavior):
                         HumanTimingsService().get_timing_before_item_use(), lambda: self.purge_inventory()
                     )
 
-                return self.run_timer(BASE_RANGE, use_harvest_bag)
+                return self.run_timer(HumanTimingsService().get_timing_base_action(), use_harvest_bag)
 
-        self.run_timer(BASE_RANGE, self.on_fight_end_after_purge)
+        self.run_timer(HumanTimingsService().get_timing_base_action(), self.on_fight_end_after_purge)
 
     def on_fight_end_after_purge(self) -> None:
         self.logger.info("Purge of harvest bag is finished, let's continue")

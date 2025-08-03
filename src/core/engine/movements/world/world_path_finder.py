@@ -26,14 +26,11 @@ class WorldPathFinder:
             dst_vertexes = {
                 vertex
                 for dst_map_id in dst_map_ids
-                if (vertex := WorldGraphReader().get_vertex(dst_map_id, linked_zone))
-                is not None
+                if (vertex := WorldGraphReader().get_vertex(dst_map_id, linked_zone)) is not None
             }
         else:
             dst_vertexes = {
-                vertex
-                for dst_map_id in dst_map_ids
-                for vertex in WorldGraphReader().get_vertexes(dst_map_id)
+                vertex for dst_map_id in dst_map_ids for vertex in WorldGraphReader().get_vertexes(dst_map_id)
             }
 
         if src_vertex in dst_vertexes:

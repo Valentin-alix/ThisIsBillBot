@@ -24,10 +24,10 @@ from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import (
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
 from src.core.bot.kamas_mule_registry import KamasMuleRegistry
 from src.core.config import (
-    BASE_RANGE,
     MULE_BANK_MAP_ID,
     USEFUL_UNLOAD,
 )
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
@@ -92,15 +92,9 @@ class MuleAcceptBehavior(Behavior):
             override_on_self=True,
         )
 
-    def on_exchange_requested_trade_event(
-        self, msg: ExchangeRequestedTradeEvent
-    ) -> None:
-        if not self.mule_registry.is_reserved_by(
-            self.game_state.player.login, msg.source_id
-        ):
-            self.logger.info(
-                f"Rejecting unreserved exchange request from {msg.source_id}"
-            )
+    def on_exchange_requested_trade_event(self, msg: ExchangeRequestedTradeEvent) -> None:
+        if not self.mule_registry.is_reserved_by(self.game_state.player.login, msg.source_id):
+            self.logger.info(f"Rejecting unreserved exchange request from {msg.source_id}")
             self.listen_for_exchange_request()
             self.event_manager.send(DialogLeaveRequest())
             return
@@ -112,11 +106,9 @@ class MuleAcceptBehavior(Behavior):
             once=True,
             override_on_self=True,
         )
-        self.send_message_delayed(ExchangeAcceptRequest(), BASE_RANGE)
+        self.send_message_delayed(ExchangeAcceptRequest(), HumanTimingsService().get_timing_base_action())
 
-    def on_exchange_started_with_pods_event(
-        self, msg: ExchangeStartedWithPodsEvent
-    ) -> None:
+    def on_exchange_started_with_pods_event(self, msg: ExchangeStartedWithPodsEvent) -> None:
         self.event_manager.on(
             ExchangeLeaveEvent,
             self.on_exchange_leave_event,
@@ -156,18 +148,16 @@ class MuleAcceptBehavior(Behavior):
             override_on_self=True,
         )
         req = ExchangeReadyRequest(ready=True, step=self._step)
-        self.send_message_delayed(req, BASE_RANGE)
+        self.send_message_delayed(req, HumanTimingsService().get_timing_base_action())
 
-    def on_exchange_requested_trade_event_during_unload(
-        self, msg: ExchangeRequestedTradeEvent
-    ) -> None:
+    def on_exchange_requested_trade_event_during_unload(self, msg: ExchangeRequestedTradeEvent) -> None:
         self.logger.info("Canceling request bc we are unloading")
         # auto cancel exchange request
         req = DialogLeaveRequest()
         self.event_manager.send(req)
 
     def on_exchange_leave_event(self, msg: ExchangeLeaveEvent) -> None:
-        self.run_timer(BASE_RANGE, self.on_bank_map)
+        self.run_timer(HumanTimingsService().get_timing_base_action(), self.on_bank_map)
 
     def clear_behavior(self) -> None:
         self.mule_registry.mark_unavailable(self.game_state.player.login)

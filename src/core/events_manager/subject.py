@@ -18,21 +18,13 @@ class Subject(Generic[P]):
     def __post_init__(self) -> None:
         self._lock = RLock()
 
-    def connect(
-        self, callback: Callable[P, None], originator: object, once: bool = False
-    ) -> None:
+    def connect(self, callback: Callable[P, None], originator: object, once: bool = False) -> None:
         with self._lock:
-            self._observers.append(
-                Observer(callback=callback, originator=originator, once=once)
-            )
+            self._observers.append(Observer(callback=callback, originator=originator, once=once))
 
     def disconnect_originator(self, originator: object) -> None:
         with self._lock:
-            self._observers = [
-                observer
-                for observer in self._observers
-                if observer.originator != originator
-            ]
+            self._observers = [observer for observer in self._observers if observer.originator != originator]
 
     def emit(self, *args: P.args, **kwargs: P.kwargs) -> None:
         with self._lock:

@@ -33,28 +33,20 @@ class ProxyListener(BaseProxyListener):
 
     def on_connection_port_assigned(self, login: str, connection_port: int) -> None:
         related_bot = next(
-            (
-                bot
-                for bot in self.account_by_id.values()
-                if bot.account.apikey.login == login
-            ),
+            (bot for bot in self.account_by_id.values() if bot.account.apikey.login == login),
             None,
         )
         if related_bot is not None:
             self._account_by_connection_port[connection_port] = related_bot
 
-    def create_bridge(
-        self, client_socket: Socket, server_socket: Socket, host_port: int
-    ) -> Proxy | None:
+    def create_bridge(self, client_socket: Socket, server_socket: Socket, host_port: int) -> Proxy | None:
         if server_socket.getpeername()[0] in CONNECTION_SERVERS_IPS:
             related_bot = self._account_by_connection_port.get(host_port)
             if related_bot is None:
                 logger.warning("Did not find bot for connection port %d", host_port)
                 return None
 
-            def on_game_connection_callback(
-                target_address: tuple[str, int], bot: Bot
-            ) -> int:
+            def on_game_connection_callback(target_address: tuple[str, int], bot: Bot) -> int:
                 proxy_url = self.get_bot_proxy_url(bot)
                 port = self.start_game_listener(target_address, proxy_url=proxy_url)
                 self.account_by_port[port] = bot

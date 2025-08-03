@@ -14,7 +14,7 @@ from src.core.behaviors.interactives.interactive_behavior import InteractiveBeha
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
-from src.core.config import BASE_RANGE
+from src.services.human_timings import HumanTimingsService
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 
 
@@ -55,7 +55,7 @@ class EnterGuildChestBehavior(Behavior):
         element_mp = MapPoint.from_cell_id(ref_data.cellId)
 
         self.run_timer(
-            BASE_RANGE,
+            HumanTimingsService().get_timing_base_action(),
             lambda: self.interactive_behavior.start(
                 element_mp=element_mp,
                 element_id=chest_interactive.element_id,

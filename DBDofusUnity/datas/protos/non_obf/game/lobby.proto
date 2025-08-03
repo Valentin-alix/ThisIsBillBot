@@ -1,0 +1,206 @@
+syntax = "proto3";
+
+import "game_message.proto";
+import "report.proto";
+
+package com.ankama.dofus.server.game.protocol.lobby;
+
+message UnknownJmv {
+	string unknown_fucy = 1;
+	bool unknown_fucz = 2;
+}
+
+message UnknownJnc {
+	.com.ankama.dofus.server.game.protocol.lobby.UnknownJnc.UnknownJmz unknown_fudx = 1;
+	int32 unknown_fudy = 2;
+	message UnknownJmz {
+		repeated string unknown_fudo = 1;
+	}
+}
+
+message UnknownJnf {
+	int32 unknown_fuee = 1;
+	string unknown_fuef = 2;
+}
+
+message UnknownJng {
+	.com.ankama.dofus.server.game.protocol.lobby.UnknownJpn unknown_fuej = 1;
+}
+
+message UnknownJpn {
+	repeated .com.ankama.dofus.server.game.protocol.lobby.UnknownJoa unknown_fumn = 1;
+	.com.ankama.dofus.server.game.protocol.lobby.UnknownJos unknown_fumr = 2;
+	repeated .com.ankama.dofus.server.game.protocol.lobby.UnknownJoa unknown_fums = 3;
+}
+
+message UnknownJoa {
+	int64 unknown_fuhf = 1;
+	string unknown_fuhg = 2;
+	int32 unknown_fuhi = 3;
+	int32 unknown_fuhj = 4;
+	string unknown_fuhk = 5;
+	int32 unknown_fuhl = 6;
+	string unknown_fuhm = 7;
+}
+
+message UnknownJos {
+	int32 unknown_fujz = 1;
+	int32 unknown_fuka = 2;
+	int32 unknown_fukc = 3;
+	bool unknown_fukd = 4;
+	string unknown_fuke = 5;
+	repeated int32 unknown_fukf = 6;
+	repeated int32 unknown_fukg = 7;
+	string unknown_fukh = 8;
+	int32 unknown_fuki = 9;
+	.com.ankama.dofus.server.game.protocol.lobby.UnknownJoa unknown_fukj = 10;
+	repeated .com.ankama.dofus.server.game.protocol.lobby.UnknownJoa unknown_fukk = 11;
+	string unknown_fukl = 12;
+}
+
+message UnknownJnh {
+	string unknown_fueo = 1;
+}
+
+message UnknownJnk {
+	int32 unknown_fues = 1;
+}
+
+message UnknownJnn {
+	int32 unknown_fuew = 1;
+}
+
+message UnknownJnr {
+	int32 unknown_fufh = 1;
+	string unknown_fufi = 2;
+}
+
+message UnknownJnt {
+	string unknown_fufq = 1;
+	string unknown_fufr = 2;
+	repeated int32 unknown_fufs = 3;
+}
+
+message LobbyCreateRequest {
+	repeated int32 unknown_fufz = 1;
+	bool unknown_fuga = 2;
+	int32 unknown_fugb = 3;
+	string unknown_fugc = 4;
+	int32 unknown_fugd = 5;
+	repeated int32 unknown_fuge = 6;
+	int32 unknown_fugf = 7;
+	bool unknown_fugg = 8;
+	int32 unknown_fugh = 9;
+}
+
+message UnknownJny {
+	string unknown_fugw = 1;
+}
+
+message UnknownJnz {
+	string unknown_fuhb = 1;
+}
+
+message UnknownJoc {
+	string unknown_fuhq = 1;
+}
+
+message UnknownJof {
+	string unknown_fuhz = 1;
+}
+
+message UnknownJog {
+	string unknown_fuid = 1;
+	string unknown_fuie = 2;
+}
+
+message UnknownJoh {
+	repeated string unknown_fuii = 1;
+}
+
+message UnknownJol {
+	int32 unknown_fuis = 1;
+}
+
+message UnknownJom {
+	string unknown_fuiw = 1;
+	bool unknown_fuix = 2;
+}
+
+message LobbyCreateResponse {
+	int32 unknown_fujm = 1;
+	string unknown_fujn = 2;
+}
+
+message UnknownJor {
+	string unknown_fujs = 1;
+	string unknown_fuju = 2;
+}
+
+message UnknownJov {
+	repeated int32 unknown_fuks = 1;
+	string unknown_fukt = 2;
+	map<string, string> unknown_fuku = 3;
+}
+
+message UnknownJpb {
+	int32 unknown_fulk = 1;
+	.com.ankama.dofus.server.game.protocol.lobby.UnknownJpb.UnknownJoy unknown_fulm = 2;
+	message UnknownJoy {
+		repeated .com.ankama.dofus.server.game.protocol.lobby.UnknownJpb.UnknownJoz unknown_fukz = 1;
+	}
+	message UnknownJoz {
+		bool unknown_fulf = 1;
+		string unknown_fulg = 2;
+	}
+}
+
+message UnknownJpe {
+	int32 unknown_fulr = 1;
+}
+
+message UnknownJpi {
+	int32 unknown_fuma = 1;
+}
+
+message UnknownJpj {
+	.com.ankama.dofus.server.game.protocol.lobby.UnknownJoa unknown_fume = 1;
+}
+
+message UnknownJpk {
+	.com.ankama.dofus.server.game.protocol.lobby.UnknownJoa unknown_fumi = 1;
+	string unknown_fumj = 2;
+}
+
+message UnknownJpq {
+	.com.ankama.dofus.server.game.protocol.lobby.UnknownJoa unknown_fumw = 1;
+}
+
+message UnknownJps {
+	int32 unknown_fung = 1;
+}
+
+message UnknownJpx {
+	.com.ankama.dofus.server.game.protocol.lobby.UnknownJpx.UnknownJpv unknown_funp = 1;
+	int32 unknown_funq = 2;
+	message UnknownJpv {
+		repeated .com.ankama.dofus.server.game.protocol.lobby.UnknownJos unknown_funk = 1;
+		repeated .com.ankama.dofus.server.game.protocol.lobby.UnknownJnf unknown_funl = 2;
+	}
+}
+
+message UnknownJpz {
+	string unknown_fuob = 1;
+}
+
+message UnknownJmu {
+}
+
+message UnknownJpr {
+}
+
+message LobbyStopListeningRequest {
+}
+
+message LobbyStopListeningResponse {
+}

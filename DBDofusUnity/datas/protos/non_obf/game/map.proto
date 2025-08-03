@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+
+package com.ankama.dofus.server.game.protocol.map;
+
+message UnknownKsc {
+	int32 unknown_fyxs = 1;
+	bool unknown_fyxt = 2;
+}

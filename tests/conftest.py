@@ -46,9 +46,7 @@ def bot_scheduler() -> BotScheduler:
 
 @pytest.fixture(autouse=True)
 def logger(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> MagicMock:
-    monkeypatch.setattr(
-        "ankama_launcher_emulator_premium.consts.BOT_DEBUG_LOGS_DIR", tmp_path
-    )
+    monkeypatch.setattr("ankama_launcher_emulator_premium.consts.BOT_DEBUG_LOGS_DIR", tmp_path)
     return MagicMock()
 
 
@@ -104,15 +102,15 @@ def tmp_json_path(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def runtime_data_store(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> Iterator[RuntimeDataStore]:
+def runtime_data_store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[RuntimeDataStore]:
     monkeypatch.setattr(runtime_store, "RUNTIME_DATA_DIR", tmp_path)
     instance = RuntimeDataStore()
+    instance._capture_target_path = None  # pyright: ignore[reportPrivateUsage]
     monkeypatch.setattr(protocol_game, "_on_exit", lambda: None)
     yield instance
-    del instance._writing_content
     instance.path.unlink(missing_ok=True)
+    del instance._writing_content
+    instance._capture_target_path = None  # pyright: ignore[reportPrivateUsage]
 
 
 @pytest.fixture

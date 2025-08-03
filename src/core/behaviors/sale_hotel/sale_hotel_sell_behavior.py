@@ -65,34 +65,22 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
     load_from_guild_chest_behavior: LoadFromGuildChestBehavior
     load_from_bank_behavior: LoadFromBankBehavior
 
-    categories: set[CategoryItemEnum] = field(
-        init=False, default_factory=set[CategoryItemEnum]
-    )
-    _curr_category: CategoryItemEnum = field(
-        init=False, default=CategoryItemEnum.RESOURCES
-    )
-    _remaining_quantity_by_uid: dict[int, int] = field(
-        init=False, default_factory=dict[int, int]
-    )
-    _item_to_sells_in_inventory: list[ObjectItem] = field(
-        init=False, default_factory=list[ObjectItem]
-    )
+    categories: set[CategoryItemEnum] = field(init=False, default_factory=set[CategoryItemEnum])
+    _curr_category: CategoryItemEnum = field(init=False, default=CategoryItemEnum.RESOURCES)
+    _remaining_quantity_by_uid: dict[int, int] = field(init=False, default_factory=dict[int, int])
+    _item_to_sells_in_inventory: list[ObjectItem] = field(init=False, default_factory=list[ObjectItem])
     _item_ids_to_sell: list[int] = field(init=False, default_factory=list[int])
     _items_in_sale_hotel: list[ExchangeBidSellerStartedEvent.ItemToSellInBid] = field(
         init=False,
         default_factory=list[ExchangeBidSellerStartedEvent.ItemToSellInBid],
     )
-    _load_items_infos: list[LoadItemInfo] = field(
-        init=False, default_factory=list[LoadItemInfo]
-    )
+    _load_items_infos: list[LoadItemInfo] = field(init=False, default_factory=list[LoadItemInfo])
 
     def run(self) -> None:
         self.categories = {CategoryItemEnum.RESOURCES, CategoryItemEnum.CONSUMABLES}
 
         if self.game_state.inventory.kamas < MIN_KAMAS_TO_GO_SALE_HOTEL:
-            self.logger.warning(
-                "Player does not have enough kamas, skipping sale hotel"
-            )
+            self.logger.warning("Player does not have enough kamas, skipping sale hotel")
             return self.finish()
 
         self.sell_next_category()
@@ -106,9 +94,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
         item_sell_quantity_by_gid = GameDataController().get_item_sell_quantity_by_gid(
             self.game_state.player.server_id
         )
-        avg_price_by_gid = GameDataController().get_avg_price_by_gid(
-            self.game_state.player.server_id
-        )
+        avg_price_by_gid = GameDataController().get_avg_price_by_gid(self.game_state.player.server_id)
 
         self._item_ids_to_sell = get_item_gids_to_sell(
             self.game_state.guild_chest.can_access_guild_chest,
@@ -213,15 +199,11 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             next_item = self._item_to_sells_in_inventory.pop()
             if is_interesting_item_to_sell(
                 next_item,
-                GameDataController().get_avg_price_by_gid(
-                    self.game_state.player.server_id
-                ),
+                GameDataController().get_avg_price_by_gid(self.game_state.player.server_id),
             ):
                 break
 
-        self.logger.info(
-            f"Sell item {next_item.gid} with quantity {next_item.quantity}"
-        )
+        self.logger.info(f"Sell item {next_item.gid} with quantity {next_item.quantity}")
         self.event_manager.on(
             ExchangeBidHouseSearchRequest,
             partial(
@@ -231,9 +213,14 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             originator=self,
         )
         self.run_timer(
-            HumanTimingsService().get_timing_sale_hotel_review(),
+            self._get_timing_before_next_sale(next_item.gid),
             lambda: self.open_item(next_item.gid),
         )
+
+    def _get_timing_before_next_sale(self, item_gid: int) -> float:
+        if self.game_state.sale_hotel.current_search_item_gid == item_gid:
+            return HumanTimingsService().get_timing_sale_hotel_next_lot()
+        return HumanTimingsService().get_timing_sale_hotel_next_item()
 
     def open_item(self, item_gid: int) -> None:
         if self.game_state.sale_hotel.current_search_item_gid is not None:
@@ -291,13 +278,9 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             .get((item.gid, quantity_to_sell))
         )
         market_price = get_price_for_sale_hotel(list(minimal_prices), quantity_to_sell)
-        price_for_quantity = self._compute_price_with_undercut(
-            market_price, bot_min_price
-        )
+        price_for_quantity = self._compute_price_with_undercut(market_price, bot_min_price)
 
-        self.logger.info(
-            f"Price for {quantity_to_sell} for item {item.gid} : {price_for_quantity}"
-        )
+        self.logger.info(f"Price for {quantity_to_sell} for item {item.gid} : {price_for_quantity}")
         if price_for_quantity <= 0:
             return self.create_all_prices()
 
@@ -316,10 +299,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             self.logger.info("Sale hotel is full of object, let's update prices")
             return self.update_all_prices()
 
-        if (
-            price_for_quantity * SALE_HOTEL_LISTING_FEE
-            > self.game_state.inventory.kamas
-        ):
+        if price_for_quantity * SALE_HOTEL_LISTING_FEE > self.game_state.inventory.kamas:
             self.event_manager.on(
                 ExchangeLeaveEvent,
                 callback=lambda _: self.finish(SaleHotelErrorCode.NOT_ENOUGH_KAMAS),
@@ -346,7 +326,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
         )
         self.send_message_delayed(
             req,
-            HumanTimingsService().get_timing_sale_hotel_price_change(),
+            HumanTimingsService().get_timing_sale_hotel_same_lot(),
         )
 
     def on_inventory_weight_event_after_created_price(
@@ -387,16 +367,12 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             HumanTimingsService().get_timing_sale_hotel_review(),
         )
 
-    def on_exchange_bid_price_event(
-        self, msg: ExchangeBidPriceEvent, item_gid: int
-    ) -> None:
+    def on_exchange_bid_price_event(self, msg: ExchangeBidPriceEvent, item_gid: int) -> None:
         prices_by_quantity = self._compute_prices_by_quantity(
             list(msg.bid_price_for_seller.minimal_prices), item_gid
         )
 
-        related_items = [
-            item for item in self._items_in_sale_hotel if item.item.gid == item_gid
-        ]
+        related_items = [item for item in self._items_in_sale_hotel if item.item.gid == item_gid]
         price_cost: float = 0
         requests_modify_price: list[ExchangeObjectModifyPricedRequest] = []
         server_id = self.game_state.player.server_id
@@ -406,12 +382,10 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             new_price = prices_by_quantity.get(QuantityEnum(item.item.quantity))
             if new_price is None or new_price == item.price or new_price <= 0:
                 continue
-            if item.item.uid not in GameDataController().get_hdv_by_uid_by_player(
-                server_id
-            ).get(self.game_state.player.character_id, {}):
-                self.logger.info(
-                    f"item {item.item.uid} not in bid seller anymore, skip"
-                )
+            if item.item.uid not in GameDataController().get_hdv_by_uid_by_player(server_id).get(
+                self.game_state.player.character_id, {}
+            ):
+                self.logger.info(f"item {item.item.uid} not in bid seller anymore, skip")
                 continue
             price_cost += new_price * SALE_HOTEL_LISTING_FEE
             if price_cost > self.game_state.inventory.kamas:
@@ -470,9 +444,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             self.update_all_prices,
         )
 
-    def _compute_price_with_undercut(
-        self, market_price: int, bot_min_price: int | None
-    ) -> int:
+    def _compute_price_with_undercut(self, market_price: int, bot_min_price: int | None) -> int:
         return market_price - 1 if market_price != bot_min_price else market_price
 
     def _compute_prices_by_quantity(

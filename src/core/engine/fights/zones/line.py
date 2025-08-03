@@ -28,9 +28,7 @@ class Line(Zone):
         coords: list[tuple[int, int]] = []
 
         origin_mp = mp if not self.caster_mp else self.caster_mp
-        length: int = (
-            self.radius if not self.caster_mp else self.radius + self.min_radius - 1
-        )
+        length: int = self.radius if not self.caster_mp else self.radius + self.min_radius - 1
         if self.caster_mp and self.stop_at_target:
             distance = origin_mp.distance_to_map_point(mp)
             length = int(min((distance, length)))

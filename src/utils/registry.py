@@ -13,9 +13,7 @@ def import_and_get_all_msg_from_folder(folder_path: str):
             if not (filename.endswith(".py") and not filename.startswith("__")):
                 continue
             module_name = filename[:-3]
-            relative_module_path = os.path.relpath(root, folder_path).replace(
-                os.sep, "."
-            )
+            relative_module_path = os.path.relpath(root, folder_path).replace(os.sep, ".")
             if relative_module_path == ".":
                 full_module_name = module_name
             else:

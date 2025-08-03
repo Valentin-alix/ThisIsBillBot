@@ -46,9 +46,6 @@ class MapChangeBehavior(Behavior):
         return self.finish()
 
     def on_map_movement_refused_event(self, msg: MapMovementRefusedEvent):
-        if (
-            MapPoint.from_coords(msg.cell_x, msg.cell_y)
-            != self.game_state.map.map_point
-        ):
+        if MapPoint.from_coords(msg.cell_x, msg.cell_y) != self.game_state.map.map_point:
             return self.finish(MapMoveError.INVALID_STARTING_POINT)
         return self.finish(MapMoveError.REFUSED)

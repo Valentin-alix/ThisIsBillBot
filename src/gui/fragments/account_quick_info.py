@@ -27,17 +27,13 @@ class AccountQuickInfoWidget(QWidget):
         self.level_label = self._add_info_column(layout, "Niveau")
         self.sub_area_label = self._add_info_column(layout, "Sous-zone actuelle")
 
-        self.bot.game_info_signals.subscription_end_date.connect(
-            self._set_subscription_end_date
-        )
+        self.bot.game_info_signals.subscription_end_date.connect(self._set_subscription_end_date)
         self.bot.inventory_signals.kamas.connect(self._set_kamas)
         self.bot.game_info_signals.level.connect(self._set_level)
         self.bot.grid_signals.new_map_id.connect(self._set_sub_area)
         self.bot.game_info_signals.is_ready_to_play.connect(self._sync_from_state)
 
-        self._set_subscription_end_date(
-            self.bot.game_state.player.subscription_end_date
-        )
+        self._set_subscription_end_date(self.bot.game_state.player.subscription_end_date)
         if self.bot.is_ready_to_play_event.is_set():
             self._sync_game_values_from_state()
 
@@ -56,18 +52,14 @@ class AccountQuickInfoWidget(QWidget):
         value_label = BodyLabel(text=_UNKNOWN_VALUE, parent=column_widget)
         value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         value_label.setWordWrap(True)
-        value_label.setTextInteractionFlags(
-            Qt.TextInteractionFlag.TextSelectableByMouse
-        )
+        value_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         column_layout.addWidget(value_label)
 
         layout.addWidget(column_widget, 1)
         return value_label
 
     def _sync_from_state(self) -> None:
-        self._set_subscription_end_date(
-            self.bot.game_state.player.subscription_end_date
-        )
+        self._set_subscription_end_date(self.bot.game_state.player.subscription_end_date)
         self._sync_game_values_from_state()
 
     def _sync_game_values_from_state(self) -> None:
@@ -79,9 +71,7 @@ class AccountQuickInfoWidget(QWidget):
         if subscription_end_date == const.MIN_DATE:
             self.subscription_end_label.setText(_UNKNOWN_VALUE)
             return
-        self.subscription_end_label.setText(
-            subscription_end_date.strftime("%d/%m/%Y %H:%M")
-        )
+        self.subscription_end_label.setText(subscription_end_date.strftime("%d/%m/%Y %H:%M"))
 
     def _set_kamas(self, kamas: int) -> None:
         self.kamas_label.setText(f"{kamas:,}".replace(",", " "))

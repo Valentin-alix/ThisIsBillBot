@@ -1,0 +1,267 @@
+syntax = "proto3";
+
+import "common.proto";
+import "game_message.proto";
+import "report.proto";
+
+package com.ankama.dofus.server.game.protocol.breeding;
+
+message UnknownHql {
+	.com.ankama.dofus.server.game.protocol.breeding.UnknownHta unknown_fngc = 1;
+	map<string, .com.ankama.dofus.server.game.protocol.breeding.UnknownHqu> unknown_fngd = 2;
+}
+
+message UnknownHta {
+	repeated .com.ankama.dofus.server.game.protocol.breeding.UnknownHtz unknown_fnpc = 1;
+	repeated int32 unknown_fnpd = 2;
+	map<string, .com.ankama.dofus.server.game.protocol.breeding.UnknownHqu> unknown_fnpe = 3;
+}
+
+message UnknownHtz {
+	int32 unknown_fnrw = 1;
+	int32 unknown_fnrx = 2;
+}
+
+message UnknownHqu {
+	int32 unknown_fnhc = 1;
+	repeated .com.ankama.dofus.server.game.protocol.common.ObjectEffect unknown_fnhd = 2;
+	int32 unknown_fnhe = 3;
+	bool unknown_fnhf = 4;
+	string unknown_fnhg = 5;
+	repeated .com.ankama.dofus.server.game.protocol.breeding.UnknownHqu.UnknownHqr unknown_fnhi = 6;
+	bool unknown_fnhj = 7;
+	repeated int32 unknown_fnhk = 8;
+	.com.ankama.dofus.server.game.protocol.breeding.UnknownHqu.UnknownHqs unknown_fnhl = 9;
+	bool unknown_fnhm = 10;
+	int32 unknown_fnhn = 11;
+	int32 unknown_fnho = 12;
+	message UnknownHqr {
+		int32 unknown_fngr = 1;
+		int32 unknown_fngt = 2;
+	}
+	message UnknownHqs {
+		int32 unknown_fngx = 1;
+		int32 unknown_fngy = 2;
+	}
+}
+
+message UnknownHqp {
+	int32 unknown_fngk = 1;
+}
+
+message UnknownHqv {
+	string unknown_fnhs = 1;
+	string unknown_fnht = 2;
+}
+
+message UnknownHqw {
+	int32 unknown_fnhx = 1;
+}
+
+message PaddockInformationEvent {
+	int32 unknown_fnin = 1;
+	.com.ankama.dofus.server.game.protocol.breeding.PaddockInformationEvent.UnknownHra unknown_fnip = 2;
+	message UnknownHra {
+		UnknownFnifValue unknown_fnif = 1;
+		.com.ankama.dofus.server.game.protocol.breeding.UnknownHta unknown_fnig = 2;
+		enum UnknownFnifValue {
+			UNKNOWN_FNIF_VALUE_UNSPECIFIED = 0;
+		}
+	}
+}
+
+message UnknownHrh {
+	.com.ankama.dofus.server.game.protocol.breeding.UnknownHrh.UnknownHrf unknown_fniz = 1;
+	int32 unknown_fnja = 2;
+	message UnknownHrf {
+		repeated string unknown_fniv = 1;
+	}
+}
+
+message UnknownHrl {
+	int32 unknown_fnjj = 1;
+	int32 unknown_fnjk = 2;
+}
+
+message UnknownHrz {
+	.com.ankama.dofus.server.game.protocol.breeding.UnknownHrz.UnknownHrq unknown_fnlk = 1;
+	int32 unknown_fnll = 2;
+	message UnknownHrq {
+		.com.ankama.dofus.server.game.protocol.breeding.UnknownHrz.UnknownHrx unknown_fnjt = 1;
+		repeated .com.ankama.dofus.server.game.protocol.breeding.UnknownHrz.UnknownHrt unknown_fnju = 2;
+		repeated .com.ankama.dofus.server.game.protocol.breeding.UnknownHrz.UnknownHrt unknown_fnjv = 3;
+		int32 unknown_fnjw = 4;
+		repeated .com.ankama.dofus.server.game.protocol.breeding.UnknownHrz.UnknownHru unknown_fnjx = 5;
+		bool unknown_fnjz = 6;
+		int32 unknown_fnka = 7;
+	}
+	message UnknownHrt {
+		float unknown_fnkp = 1;
+		int32 unknown_fnkq = 2;
+	}
+	message UnknownHru {
+		bool unknown_fnku = 1;
+		int32 unknown_fnkv = 2;
+		float unknown_fnkw = 3;
+	}
+	message UnknownHrx {
+		int64 unknown_fnla = 1;
+		int64 unknown_fnlc = 2;
+		int32 unknown_fnld = 3;
+		int64 unknown_fnle = 4;
+	}
+}
+
+message UnknownHsa {
+	string unknown_fnlr = 1;
+	string unknown_fnls = 2;
+	int32 unknown_fnlt = 3;
+	string unknown_fnlv = 4;
+}
+
+message UnknownHsb {
+	int32 unknown_fnlz = 1;
+}
+
+message UnknownHse {
+	repeated int32 unknown_fnmh = 1;
+	int32 unknown_fnmj = 2;
+}
+
+message UnknownHsm {
+	.com.ankama.dofus.server.game.protocol.breeding.UnknownHsm.UnknownHsk unknown_fnmx = 1;
+	int32 unknown_fnmy = 2;
+	message UnknownHsk {
+		.com.ankama.dofus.server.game.protocol.breeding.UnknownHqu unknown_fnmr = 1;
+		string unknown_fnms = 2;
+	}
+}
+
+message UnknownHsn {
+	int32 unknown_fnne = 1;
+	repeated string unknown_fnnf = 2;
+}
+
+message UnknownHsu {
+	int32 unknown_fnnt = 1;
+	.com.ankama.dofus.server.game.protocol.breeding.UnknownHsu.UnknownHss unknown_fnnv = 2;
+	message UnknownHss {
+		int32 unknown_fnnj = 1;
+		map<string, .com.ankama.dofus.server.game.protocol.breeding.UnknownHqu> unknown_fnnk = 2;
+		int64 unknown_fnnl = 3;
+		bool unknown_fnnm = 4;
+		map<string, .com.ankama.dofus.server.game.protocol.breeding.UnknownHqu> unknown_fnnn = 5;
+	}
+}
+
+message UnknownHsv {
+	repeated string unknown_fnoa = 1;
+}
+
+message UnknownHsy {
+	map<int32, bool> unknown_fnou = 1;
+}
+
+message UnknownHsz {
+	int32 unknown_fnoy = 1;
+}
+
+message UnknownHtf {
+	int32 unknown_fnpn = 1;
+	.com.ankama.dofus.server.game.protocol.breeding.UnknownHtf.UnknownHtd unknown_fnpp = 2;
+	message UnknownHtd {
+		repeated .com.ankama.dofus.server.game.protocol.breeding.UnknownHtz unknown_fnpi = 1;
+	}
+}
+
+message UnknownHti {
+	map<string, int32> unknown_fnpu = 1;
+}
+
+message UnknownHtl {
+	map<int32, int32> unknown_fnpy = 1;
+}
+
+message MountBoostResponse {
+	.com.ankama.dofus.server.game.protocol.breeding.MountBoostResponse.UnknownHtp unknown_fnqw = 1;
+	int32 unknown_fnqx = 2;
+	message UnknownHtp {
+		repeated int32 unknown_fnqq = 1;
+	}
+}
+
+message UnknownHtu {
+	string unknown_fnrd = 1;
+	int32 unknown_fnre = 2;
+	string unknown_fnrg = 3;
+	string unknown_fnri = 4;
+}
+
+message UnknownHty {
+	map<int32, int32> unknown_fnrr = 1;
+	map<int32, int32> unknown_fnrs = 2;
+}
+
+message UnknownHua {
+	.com.ankama.dofus.server.game.protocol.breeding.UnknownHta unknown_fnsb = 1;
+}
+
+message UnknownHub {
+	map<int32, int32> unknown_fnsg = 1;
+}
+
+message UnknownHuh {
+	repeated string unknown_fnsu = 1;
+	int32 unknown_fnsv = 2;
+	string unknown_fnsx = 3;
+}
+
+message UnknownHum {
+	int32 unknown_fnth = 1;
+	.com.ankama.dofus.server.game.protocol.breeding.UnknownHum.UnknownHuk unknown_fntj = 2;
+	message UnknownHuk {
+		repeated .com.ankama.dofus.server.game.protocol.breeding.UnknownHtz unknown_fntc = 1;
+	}
+}
+
+message MountBoostRequest {
+	int32 unknown_fnto = 1;
+}
+
+message UnknownHur {
+	map<string, int32> unknown_fnuc = 1;
+}
+
+message PaddockSlotsEvent {
+	map<int32, bool> unknown_fnug = 1;
+}
+
+message UnknownHut {
+	string unknown_fnuk = 1;
+	int32 unknown_fnul = 2;
+	string unknown_fnum = 3;
+}
+
+message PaddockMountsEvent {
+	UnknownFnuxValue unknown_fnux = 1;
+	.com.ankama.dofus.server.game.protocol.breeding.PaddockMountsEvent.UnknownHux unknown_fnuz = 2;
+	message UnknownHux {
+		map<string, .com.ankama.dofus.server.game.protocol.breeding.UnknownHqu> unknown_fnut = 1;
+	}
+	enum UnknownFnuxValue {
+		UNKNOWN_FNUX_VALUE_UNSPECIFIED = 0;
+	}
+}
+
+message PaddockListenStartRequest {
+	bool unknown_fnib = 1;
+}
+
+message PaddockSlotsRequest {
+}
+
+message PaddockListenStopRequest {
+}
+
+message PaddockListenStopEvent {
+}

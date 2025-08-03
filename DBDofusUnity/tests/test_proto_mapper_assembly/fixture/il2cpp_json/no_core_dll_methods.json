@@ -1,0 +1,12 @@
+{
+    "addressMap": {
+        "methodDefinitions": [
+            {
+                "virtualAddress": "0x0000000180001000",
+                "name": "_ZN5Other6MethodEv",
+                "signature": "void Other_Method(Other * this, MethodInfo * method)",
+                "group": "OtherLib.dll/Other"
+            }
+        ]
+    }
+}

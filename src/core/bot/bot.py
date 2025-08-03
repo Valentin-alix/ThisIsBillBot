@@ -164,9 +164,7 @@ class Bot(ContextualLogger):
             event_manager=self.event_manager,
             game_state=self.game_state,
             is_playing_event=self.is_playing_event,
-            get_running_top_level_behaviors=(
-                self.behavior_coordinator.running_top_level_behaviors
-            ),
+            get_running_top_level_behaviors=(self.behavior_coordinator.running_top_level_behaviors),
         )
 
         self.process_manager = ProcessManager(_logger=self.logger)
@@ -185,29 +183,18 @@ class Bot(ContextualLogger):
         )
 
         self.game_info_signals.connected.connect(self.connection_handler.on_connected)
-        self.game_info_signals.disconnected.connect(
-            self.connection_handler.on_disconnected
-        )
+        self.game_info_signals.disconnected.connect(self.connection_handler.on_disconnected)
         self.bot_signals.play.connect(self.behavior_coordinator.on_play)
         self.bot_signals.stop.connect(self.behavior_coordinator.on_stop)
         self.bot_signals.stop.connect(self.connection_handler.cleanup)
-        self.game_info_signals.is_ready_to_play.connect(
-            self.connection_handler.on_ready_to_play
-        )
-        self.bot_signals.play_harvester.connect(
-            self.behavior_coordinator.on_play_harvester
-        )
+        self.bot_signals.disconnect_runtime.connect(self.scheduler.disconnect_now)
+        self.game_info_signals.is_ready_to_play.connect(self.connection_handler.on_ready_to_play)
+        self.bot_signals.play_harvester.connect(self.behavior_coordinator.on_play_harvester)
         self.bot_signals.play_fighter.connect(self.behavior_coordinator.on_play_fighter)
         self.bot_signals.play_crafter.connect(self.behavior_coordinator.on_play_crafter)
-        self.bot_signals.play_mule_kamas.connect(
-            self.behavior_coordinator.on_play_mule_kamas
-        )
-        self.bot_signals.play_auto_bot.connect(
-            self.behavior_coordinator.on_play_auto_bot
-        )
-        self.bot_signals.play_usable_behavior.connect(
-            self.behavior_coordinator.on_play_usable_behavior
-        )
+        self.bot_signals.play_mule_kamas.connect(self.behavior_coordinator.on_play_mule_kamas)
+        self.bot_signals.play_auto_bot.connect(self.behavior_coordinator.on_play_auto_bot)
+        self.bot_signals.play_usable_behavior.connect(self.behavior_coordinator.on_play_usable_behavior)
 
     def start(self):
         self.scheduler.start()

@@ -72,9 +72,7 @@ class SidebarItem(NavigationWidget):
         self._title = BodyLabel(title, self)
         self.header_layout.addWidget(self._title)
 
-        spacer = QSpacerItem(
-            0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
-        )
+        spacer = QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.header_layout.addItem(spacer)
 
         self._right_icon = QLabel(self)

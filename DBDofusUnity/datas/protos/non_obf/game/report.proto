@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package com.ankama.dofus.server.game;
+
+message ReportRequest {
+	oneof report_payload {
+		Report report = 1;
+		UnknownHvi unknown_fnvt = 2;
+	}
+
+	message Report {
+		ReportCategory report_category = 1;
+		string description = 3;
+		int64 target_character_id = 4;
+	}
+
+	message UnknownHvi {
+		string unknown_fnvn = 1;
+		string unknown_fnvo = 2;
+	}
+
+	enum ReportCategory {
+		THIRD_PARTY_SOFTWARE = 0;
+		ILLEGAL_TRADE = 1;
+		ILLEGAL_PROMOTION = 2;
+		EXPLOITING = 3;
+		OFFENSIVE_NAME = 4;
+		OFFENSIVE_LANGUAGE = 5;
+		PHISHING = 6;
+	}
+}
+
+message ReportResponse {
+	map<int64, bool> reportability_by_character_id = 1;
+	.com.ankama.dofus.server.game.ReportResponse.Error error = 2;
+	bool success = 3;
+	enum Error {
+		UNKNOWN = 0;
+		SUBSCRIPTION_REQUIRED = 1;
+		BAD_LEVEL = 2;
+		LIMIT_EXCEEDED = 3;
+		NOT_ENABLED = 4;
+		ALREADY_REPORTED = 5;
+	}
+
+}

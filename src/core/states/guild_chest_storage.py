@@ -31,9 +31,7 @@ class GuildChestStorage:
     def set_tab_content(self, tab: int, objects: list[ObjectItemInventory]) -> None:
         with self._lock:
             self._objects[tab] = {obj.item.gid: obj for obj in objects}
-            self._gid_by_uid_by_tab[tab] = {
-                obj.item.uid: obj.item.gid for obj in objects
-            }
+            self._gid_by_uid_by_tab[tab] = {obj.item.uid: obj.item.gid for obj in objects}
 
     def set_item(self, tab: int, obj: ObjectItemInventory) -> None:
         with self._lock:
@@ -56,11 +54,7 @@ class GuildChestStorage:
 
     def get_all_items_by_gid(self) -> dict[int, ObjectItemInventory]:
         with self._lock:
-            return {
-                gid: obj
-                for by_gid in self._objects.values()
-                for gid, obj in by_gid.items()
-            }
+            return {gid: obj for by_gid in self._objects.values() for gid, obj in by_gid.items()}
 
     def tab_exists(self, tab: int) -> bool:
         with self._lock:
@@ -84,22 +78,16 @@ class GuildChestStorage:
             reserved = sum(self._reservations.get(tab, {}).get(gid, {}).values())
             return max(0, item.item.quantity - reserved)
 
-    def reserve_quantity(
-        self, tab: int, gid: int, quantity: int, bot_name: str
-    ) -> None:
+    def reserve_quantity(self, tab: int, gid: int, quantity: int, bot_name: str) -> None:
         with self._lock:
             bucket = self._reservations.setdefault(tab, {}).setdefault(gid, {})
             bucket[bot_name] = bucket.get(bot_name, 0) + quantity
 
-    def release_reservation(
-        self, tab: int, gid: int, quantity: int, bot_name: str
-    ) -> None:
+    def release_reservation(self, tab: int, gid: int, quantity: int, bot_name: str) -> None:
         with self._lock:
             bucket = self._reservations.get(tab, {}).get(gid)
             if bucket is None or bot_name not in bucket:
-                raise KeyError(
-                    f"No reservation for bot={bot_name!r} tab={tab} gid={gid}"
-                )
+                raise KeyError(f"No reservation for bot={bot_name!r} tab={tab} gid={gid}")
             new_qty = max(0, bucket[bot_name] - quantity)
             if new_qty == 0:
                 bucket.pop(bot_name)

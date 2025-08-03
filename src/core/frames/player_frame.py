@@ -26,6 +26,7 @@ from dofus_unity_reader.game_constants.characteristic import EffectElement
 from src.core.engine.fights.stats.characteristic import get_max_characteristic_per_point
 from src.core.events_manager.priority import PriorityEnum
 from src.core.frames.frame import Frame
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
@@ -93,19 +94,30 @@ class PlayerFrame(Frame):
     def on_character_level_up_event(self, msg: CharacterLevelUpEvent):
         self.game_state.player.level = msg.new_level
         if self.is_playing_event.is_set():
-            char = get_max_characteristic_per_point(msg.new_level)
-            self.logger.info(f"New amount of base char : {char}")
-            prim_elem = self.game_state.fight.primary_and_second_elem[0]
-            match prim_elem:
-                case EffectElement.STRENGTH:
-                    req = CharacterCharacteristicUpgradeRequest(strength=char)
-                case EffectElement.INTELLIGENCE:
-                    req = CharacterCharacteristicUpgradeRequest(intelligence=char)
-                case EffectElement.CHANCE:
-                    req = CharacterCharacteristicUpgradeRequest(chance=char)
-                case _:
-                    req = CharacterCharacteristicUpgradeRequest(agility=char)
-            self.event_manager.send(req)
+            self.game_state.player.is_characteristic_upgrade_complete_event.clear()
+            self.run_timer(
+                HumanTimingsService().get_timing_after_level_up(),
+                lambda: self._upgrade_characteristic_after_level_up(msg.new_level),
+            )
+
+    def _upgrade_characteristic_after_level_up(self, level: int) -> None:
+        if not self.is_playing_event.is_set():
+            self.game_state.player.is_characteristic_upgrade_complete_event.set()
+            return
+        characteristic_points = get_max_characteristic_per_point(level)
+        self.logger.info(f"New amount of base char : {characteristic_points}")
+        primary_element = self.game_state.fight.primary_and_second_elem[0]
+        match primary_element:
+            case EffectElement.STRENGTH:
+                request = CharacterCharacteristicUpgradeRequest(strength=characteristic_points)
+            case EffectElement.INTELLIGENCE:
+                request = CharacterCharacteristicUpgradeRequest(intelligence=characteristic_points)
+            case EffectElement.CHANCE:
+                request = CharacterCharacteristicUpgradeRequest(chance=characteristic_points)
+            case _:
+                request = CharacterCharacteristicUpgradeRequest(agility=characteristic_points)
+        self.event_manager.send(request)
+        self.game_state.player.is_characteristic_upgrade_complete_event.set()
 
     def on_job_experiences_update_event(self, message: JobExperiencesUpdateEvent):
         for job_xp in message.experiences:

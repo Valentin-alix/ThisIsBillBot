@@ -32,9 +32,7 @@ class Collectable:
     def mp(self) -> MapPoint:
         cell_id = (
             MapReader()
-            .get_ref_data_by_element_id_by_map_id(self.map_id)[
-                self.interactive_element.element_id
-            ]
+            .get_ref_data_by_element_id_by_map_id(self.map_id)[self.interactive_element.element_id]
             .cellId
         )
         if cell_id is None:

@@ -19,16 +19,12 @@ def can_cast_spell_on_mp(
     entities_id_by_mp: dict[MapPoint, int],
     rejection_stats: dict[RejectionStat, int],
 ) -> bool:
-    targetable_mp_data = MapReader().get_cell_data_by_cell_id(
-        context.map_id, mp.cell_id
-    )
+    targetable_mp_data = MapReader().get_cell_data_by_cell_id(context.map_id, mp.cell_id)
     if not targetable_mp_data.mov or not targetable_mp_data.los:
         rejection_stats[RejectionStat.CELL_NOT_WALKABLE] += 1
         return False
 
-    count_casted = context.count_casted_by_spell_id_on_current_turn.get(
-        spell_lvl.spellId
-    )
+    count_casted = context.count_casted_by_spell_id_on_current_turn.get(spell_lvl.spellId)
     entity_id = entities_id_by_mp.get(mp)
     if (
         count_casted is not None

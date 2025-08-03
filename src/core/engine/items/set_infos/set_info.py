@@ -19,6 +19,4 @@ class SetOnLevel(BaseModel):
 
     @cached_property
     def position_by_item_id(self) -> PositionByItemId:
-        return {
-            value.item_gid: key for key, value in self.item_info_by_position.items()
-        }
+        return {value.item_gid: key for key, value in self.item_info_by_position.items()}

@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+import "common.proto";
+import "game_message.proto";
+import "report.proto";
+
+package com.ankama.dofus.server.game.protocol.world_event;
+
+message UnknownHeg {
+	int32 unknown_fllw = 1;
+	repeated int32 unknown_flly = 2;
+	string unknown_fllz = 3;
+}
+
+message UnknownHeh {
+	int32 unknown_flmd = 1;
+	int32 award_type = 2;
+	int32 unknown_flmh = 3;
+	string player_name = 4;
+}
+
+message WorldEventOngoingListEvent {
+	repeated .com.ankama.dofus.server.game.protocol.world_event.UnknownHeg events = 1;
+}
+
+message WorldEventDetailEvent {
+	.com.ankama.dofus.server.game.protocol.world_event.WorldEventDetailEvent.UnknownHfa unknown_flpw = 1;
+	UnknownHfb unknown_flpx = 2;
+	message UnknownHfa {
+		int32 winner_count = 1;
+		repeated .com.ankama.dofus.server.game.protocol.world_event.UnknownHfl players = 2;
+		UnknownFlpmValue unknown_flpm = 3;
+		.com.ankama.dofus.server.game.protocol.world_event.UnknownHfl unknown_flpn = 4;
+		enum UnknownFlpmValue {
+			UNKNOWN_FLPM_VALUE_UNSPECIFIED = 0;
+		}
+	}
+	message UnknownHfb {
+	}
+}
+
+message UnknownHfl {
+	int32 rank = 1;
+	int32 score = 2;
+	.com.ankama.dofus.server.game.protocol.world_event.UnknownHfh unknown_flrc = 3;
+	.com.ankama.dofus.server.game.protocol.world_event.UnknownHeh player = 4;
+	.com.ankama.dofus.server.game.protocol.world_event.UnknownHfj unknown_flre = 5;
+	.com.ankama.dofus.server.game.protocol.world_event.UnknownHgb unknown_flrf = 6;
+}
+
+message UnknownHfh {
+	int32 unknown_flql = 1;
+}
+
+message UnknownHfj {
+	.com.ankama.dofus.server.game.protocol.common.SocialEmblem unknown_flqv = 1;
+	string unknown_flqw = 2;
+}
+
+message UnknownHgb {
+	string unknown_fltm = 1;
+	int32 unknown_fltn = 2;
+	.com.ankama.dofus.server.game.protocol.common.SocialEmblem unknown_flto = 3;
+}
+
+message WorldEventOccurrencesEvent {
+	repeated .com.ankama.dofus.server.game.protocol.world_event.WorldEventOccurrence infos = 1;
+}
+
+message UnknownHfi {
+	string unknown_flqp = 1;
+	int32 unknown_flqq = 2;
+}
+
+message UnknownHfo {
+	string unknown_flrm = 1;
+	string unknown_flrn = 2;
+}
+
+message WorldEventDetailRequest {
+	string event_uuid = 1;
+}
+
+message WorldEventTypeRequest {
+	int32 type = 1;
+}
+
+message WorldEventOccurrencesRequest {
+}
+
+message WorldEventSelfOccurrencesRequest {
+}
+
+message UnknownHfr {
+}
+
+message WorldEventOccurrence {
+	string done_date = 1;
+	string event_uuid = 2;
+	int32 type_id = 3;
+}

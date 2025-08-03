@@ -40,24 +40,16 @@ ELEMENT_INFO_BY_ID: dict[int, _ElementInfo] = {
     EffectElement.NEUTRAL_ELEMENT: _ElementInfo(
         CharacteristicEnum.STRENGTH, CharacteristicEnum.NEUTRAL_DAMAGE_BONUS
     ),
-    EffectElement.STRENGTH: _ElementInfo(
-        CharacteristicEnum.STRENGTH, CharacteristicEnum.EARTH_DAMAGE_BONUS
-    ),
+    EffectElement.STRENGTH: _ElementInfo(CharacteristicEnum.STRENGTH, CharacteristicEnum.EARTH_DAMAGE_BONUS),
     EffectElement.INTELLIGENCE: _ElementInfo(
         CharacteristicEnum.INTELLIGENCE, CharacteristicEnum.FIRE_DAMAGE_BONUS
     ),
-    EffectElement.CHANCE: _ElementInfo(
-        CharacteristicEnum.CHANCE, CharacteristicEnum.WATER_DAMAGE_BONUS
-    ),
-    EffectElement.AGILITY: _ElementInfo(
-        CharacteristicEnum.AGILITY, CharacteristicEnum.AIR_DAMAGE_BONUS
-    ),
+    EffectElement.CHANCE: _ElementInfo(CharacteristicEnum.CHANCE, CharacteristicEnum.WATER_DAMAGE_BONUS),
+    EffectElement.AGILITY: _ElementInfo(CharacteristicEnum.AGILITY, CharacteristicEnum.AIR_DAMAGE_BONUS),
 }
 
 
-def _multiplier_factor(
-    characteristic_by_id: dict[int, CharacterCharacteristic], stat_id: int
-) -> float:
+def _multiplier_factor(characteristic_by_id: dict[int, CharacterCharacteristic], stat_id: int) -> float:
     """Base-100 multiplier stat as a ratio (absent stat -> neutral 1.0)."""
     raw = get_stat_by_id(characteristic_by_id.get(stat_id))
     return (raw if raw > 0 else 100) / 100
@@ -93,9 +85,7 @@ def _percent_factor(
     bonus = (
         get_stat_by_id(characteristic_by_id.get(info.scaling_stat))
         + get_stat_by_id(characteristic_by_id.get(CharacteristicEnum.POWER))
-        + get_stat_by_id(
-            characteristic_by_id.get(CharacteristicEnum.DAMAGES_PERCENT_SPELL)
-        )
+        + get_stat_by_id(characteristic_by_id.get(CharacteristicEnum.DAMAGES_PERCENT_SPELL))
         + spell_modifier_value(spell_id, SpellModifierType.DAMAGE, modifiers)
     )
     return (100 + bonus) / 100
@@ -108,19 +98,15 @@ def _flat_bonus(
 ) -> int:
     """Flat damage bonus: all-damage + per-element (+ critical bonus on crit)."""
     info = ELEMENT_INFO_BY_ID[element_id]
-    flat = get_stat_by_id(
-        characteristic_by_id.get(CharacteristicEnum.ALL_DAMAGES_BONUS)
-    ) + get_stat_by_id(characteristic_by_id.get(info.flat_damage_bonus))
+    flat = get_stat_by_id(characteristic_by_id.get(CharacteristicEnum.ALL_DAMAGES_BONUS)) + get_stat_by_id(
+        characteristic_by_id.get(info.flat_damage_bonus)
+    )
     if is_critical:
-        flat += get_stat_by_id(
-            characteristic_by_id.get(CharacteristicEnum.CRITICAL_DAMAGE_BONUS)
-        )
+        flat += get_stat_by_id(characteristic_by_id.get(CharacteristicEnum.CRITICAL_DAMAGE_BONUS))
     return flat
 
 
-def _dealt_multipliers(
-    characteristic_by_id: dict[int, CharacterCharacteristic], is_melee: bool
-) -> float:
+def _dealt_multipliers(characteristic_by_id: dict[int, CharacterCharacteristic], is_melee: bool) -> float:
     """Product of the caster's dealt-damage multipliers."""
     melee_or_distance = (
         CharacteristicEnum.DEALT_DAMAGE_MULTIPLIER_MELEE
@@ -128,13 +114,9 @@ def _dealt_multipliers(
         else CharacteristicEnum.DEALT_DAMAGE_MULTIPLIER_DISTANCE
     )
     return (
-        _multiplier_factor(
-            characteristic_by_id, CharacteristicEnum.DEALT_DAMAGE_MULTIPLIER
-        )
+        _multiplier_factor(characteristic_by_id, CharacteristicEnum.DEALT_DAMAGE_MULTIPLIER)
         * _multiplier_factor(characteristic_by_id, melee_or_distance)
-        * _multiplier_factor(
-            characteristic_by_id, CharacteristicEnum.DEALT_DAMAGE_MULTIPLIER_SPELLS
-        )
+        * _multiplier_factor(characteristic_by_id, CharacteristicEnum.DEALT_DAMAGE_MULTIPLIER_SPELLS)
     )
 
 
@@ -169,12 +151,10 @@ def _damage_for_effect(
     The dealt-damage multipliers are a positive scalar identical for the normal
     and critical rolls, so the caller applies them once on the combined value.
     """
-    base = base_roll(effect) + spell_modifier_value(
-        effect.spellId, SpellModifierType.BASE_DAMAGE, modifiers
+    base = base_roll(effect) + spell_modifier_value(effect.spellId, SpellModifierType.BASE_DAMAGE, modifiers)
+    raw = base * _percent_factor(element_id, characteristic_by_id, effect.spellId, modifiers) + _flat_bonus(
+        element_id, characteristic_by_id, is_critical
     )
-    raw = base * _percent_factor(
-        element_id, characteristic_by_id, effect.spellId, modifiers
-    ) + _flat_bonus(element_id, characteristic_by_id, is_critical)
     if raw <= 0:
         return 0.0
 
@@ -231,7 +211,5 @@ class DamageCalculator:
             is_critical=True,
             modifiers=modifiers,
         )
-        expected = (
-            1 - crit_probability
-        ) * normal_damage + crit_probability * crit_damage
+        expected = (1 - crit_probability) * normal_damage + crit_probability * crit_damage
         return math.floor(expected * multiplier)

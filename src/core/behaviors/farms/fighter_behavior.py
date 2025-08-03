@@ -34,7 +34,9 @@ class FighterBehavior(BaseFarmBehavior):
             lambda map_id: get_additional_weight_by_map_id(map_id, self.game_state.player.level),
         )
         if self.game_state.inventory.is_full_pods and self.game_state.inventory.can_use_bank:
-            self.logger.info(f"Inventory full ({self.game_state.inventory.pod_percentage:.0%}), triggering unload")
+            self.logger.info(
+                f"Inventory full ({self.game_state.inventory.pod_percentage:.0%}), triggering unload"
+            )
             return self.on_full_pods()
         self.on_new_map()
 
@@ -60,6 +62,9 @@ class FighterBehavior(BaseFarmBehavior):
         self.on_new_map()
 
     def on_attacker_behavior_finish(self, error_code: str | None, count_fighted_on_map: int):
+        if error_code is MapChangeError.UNEXPECTED_NEW_MAP:
+            self.on_new_map()
+            return
         self.raise_if_error(error_code)
         if self.game_state.inventory.is_full_pods and self.game_state.inventory.can_use_bank:
             self.on_full_pods()

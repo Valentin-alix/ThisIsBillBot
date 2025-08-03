@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+
+package com.ankama.dofus.server.game.protocol.calendar;
+
+message CalendarRequest {
+	string start_date = 1;
+	string end_date = 2;
+}
+
+message CalendarEvent {
+	repeated .com.ankama.dofus.server.game.protocol.calendar.CalendarOccurrence krosmic_events = 1;
+	repeated .com.ankama.dofus.server.game.protocol.calendar.CalendarEntry festivity_events = 2;
+}
+
+message CalendarOccurrence {
+	string unknown_gepg = 1;
+	int32 description_id = 2;
+	optional string end_date = 3;
+	string start_date = 4;
+}
+
+message CalendarEntry {
+	string start_date = 1;
+	string end_date = 2;
+	int32 description_id = 3;
+}

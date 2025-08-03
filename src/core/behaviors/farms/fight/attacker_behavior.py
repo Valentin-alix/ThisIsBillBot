@@ -13,7 +13,9 @@ from datas.protos.non_obf.game.roleplay_pb2 import (
 from src.controller.game_data import GameDataController
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
-from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
+from src.core.behaviors.movements.map_change_behavior import MapChangeError
+from src.core.behaviors.movements.map_move_behavior import MapMoveError
+from src.core.behaviors.movements.map_movement_cancel_behavior import MapMovementCancelBehavior
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.engine.weights.fighter.weight_monsters import (
     MonsterGroupToAttack,
@@ -28,7 +30,7 @@ from src.services.human_timings import HumanTimingsService
 @dataclass
 class AttackerBehavior(Behavior):
     path_finding: Pathfinding
-    map_move_behavior: MapMoveBehavior
+    map_movement_cancel_behavior: MapMovementCancelBehavior
     fight_behavior: FightBehavior
     game_info_signals: GameInfoSignals
     bot_signals: BotSignals | None = None
@@ -63,17 +65,19 @@ class AttackerBehavior(Behavior):
 
         self.run_timer(
             HumanTimingsService().get_timing_attack_on_new_map(),
-            lambda: self.map_move_behavior.start(
-                callback=partial(
-                    self.on_moved_to_monster, group_actor_id=monster_group_info.actor_id
-                ),
+            lambda: self.map_movement_cancel_behavior.start(
+                callback=partial(self.on_moved_to_monster, group_actor_id=monster_group_info.actor_id),
                 parent=self,
-                move_path=monster_group_info.move_path,
+                final_move_path=monster_group_info.move_path,
+                cancellation_probability=1 / 3,
             ),
         )
 
     def on_moved_to_monster(self, error_code: str | None, group_actor_id: int) -> None:
         if error_code is not None:
+            if error_code is MapMoveError.UNEXPECTED_NEW_MAP:
+                self.finish(MapChangeError.UNEXPECTED_NEW_MAP)
+                return
             if error_code in [
                 MapMoveError.INVALID_STARTING_POINT,
                 MapMoveError.CANCELED_MOVEMENT,
@@ -85,8 +89,7 @@ class AttackerBehavior(Behavior):
         related_actor = self.game_state.entity.actor_by_id.get(group_actor_id)
         if (
             related_actor is None
-            or related_actor.disposition.cell_id
-            != self.game_state.map.map_point.cell_id
+            or related_actor.disposition.cell_id != self.game_state.map.map_point.cell_id
         ):
             self.logger.info(
                 f"Monster group moved out of mp {self.game_state.map.map_point.cell_id} or is not there anymore, "
@@ -96,9 +99,7 @@ class AttackerBehavior(Behavior):
 
         if related_actor.actor_information.HasField(
             "role_play_actor"
-        ) and related_actor.actor_information.role_play_actor.HasField(
-            "monster_group_actor"
-        ):
+        ) and related_actor.actor_information.role_play_actor.HasField("monster_group_actor"):
             self.game_state.fight.last_atk_info = LastAtkInfo(
                 monster_group_info=related_actor.actor_information.role_play_actor.monster_group_actor,
                 from_map_id=self.game_state.map.map_id,
@@ -119,8 +120,7 @@ class AttackerBehavior(Behavior):
     def on_fight_map_information_timeout(self, group_actor_id: int) -> None:
         if self.game_state.fight.in_fight:
             self.logger.warning(
-                "Fight context entered without FightMapInformationEvent; "
-                "forcing reconnect to resync"
+                "Fight context entered without FightMapInformationEvent; forcing reconnect to resync"
             )
             request_disconnect = self.event_manager.request_disconnect_callback
             assert request_disconnect is not None, (
@@ -141,19 +141,14 @@ class AttackerBehavior(Behavior):
         self._count_fighted_on_map += 1
         if self.bot_signals:
             self.game_info_signals.fight_completed.emit(1)
-        if (
-            self._count_fight_limit is not None
-            and self._count_fighted_on_map >= self._count_fight_limit
-        ):
+        if self._count_fight_limit is not None and self._count_fighted_on_map >= self._count_fight_limit:
             return self.finish(count_fighted_on_map=self._count_fighted_on_map)
         self.run_timer(
             HumanTimingsService().get_timing_after_fight(),
             self.attack_enemy,
         )
 
-    def get_next_enemy(
-        self, excluded_group_actor_id: int | None = None
-    ) -> MonsterGroupToAttack | None:
+    def get_next_enemy(self, excluded_group_actor_id: int | None = None) -> MonsterGroupToAttack | None:
         monster_group_infos: list[MonsterGroupToAttack] = []
         for (
             actor_id,
@@ -166,17 +161,11 @@ class AttackerBehavior(Behavior):
             if self._force_attack:
                 self.logger.warning("Forcing attack, even to forbidden group")
 
-            if not self._force_attack and not GameDataController().is_group_allowed(
-                monster_group
-            ):
-                self.logger.info(
-                    f"Skipping forbidden monster group (actor_id={actor_id})"
-                )
+            if not self._force_attack and not GameDataController().is_group_allowed(monster_group):
+                self.logger.info(f"Skipping forbidden monster group (actor_id={actor_id})")
                 continue
 
-            monster_group_lvl = self.game_state.entity.get_level_monster_group(
-                monster_group
-            )
+            monster_group_lvl = self.game_state.entity.get_level_monster_group(monster_group)
             if not self.game_state.entity.is_valid_monster_group(
                 monster_group,
                 monster_group_lvl,

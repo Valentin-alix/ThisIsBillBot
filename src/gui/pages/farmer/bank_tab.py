@@ -26,9 +26,7 @@ class BankTab(QWidget):
         self._rebuild_timer.timeout.connect(self._rebuild_sorted_list)
 
         self.list_widget = ListWidget(self)
-        self.list_widget.scrollDelegate.verticalSmoothScroll.setSmoothMode(
-            SmoothMode.NO_SMOOTH
-        )
+        self.list_widget.scrollDelegate.verticalSmoothScroll.setSmoothMode(SmoothMode.NO_SMOOTH)
         self.list_widget.setViewMode(QListView.ViewMode.IconMode)
         self.list_widget.setResizeMode(QListView.ResizeMode.Adjust)
         self.list_widget.setMovement(QListView.Movement.Static)
@@ -36,9 +34,7 @@ class BankTab(QWidget):
         self.list_widget.setUniformItemSizes(True)
         self.list_widget.setGridSize(QSize(CARD_WIDTH, CARD_HEIGHT))
 
-        self.list_widget.setStyleSheet(
-            "QListWidget { background-color: transparent; border: none; }"
-        )
+        self.list_widget.setStyleSheet("QListWidget { background-color: transparent; border: none; }")
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -71,9 +67,7 @@ class BankTab(QWidget):
         self.list_widget.setUpdatesEnabled(False)
         self.list_widget.clear()
         self.list_item_by_uid.clear()
-        sorted_items = sorted(
-            self.items_by_uid.values(), key=lambda obj: obj.item.quantity, reverse=True
-        )
+        sorted_items = sorted(self.items_by_uid.values(), key=lambda obj: obj.item.quantity, reverse=True)
         for object_item in sorted_items:
             list_item = QListWidgetItem()
             list_item.setSizeHint(QSize(CARD_WIDTH, CARD_HEIGHT))
@@ -85,9 +79,7 @@ class BankTab(QWidget):
     def _get_item_text(self, object_item: ObjectItemInventory) -> str:
         item_data = DataReader().item_by_id.get(object_item.item.gid)
         if item_data and item_data.nameId:
-            item_name = I18N().name_by_id.get(
-                item_data.nameId, f"Item {object_item.item.gid}"
-            )
+            item_name = I18N().name_by_id.get(item_data.nameId, f"Item {object_item.item.gid}")
         else:
             item_name = f"Item {object_item.item.gid}"
         return f"{item_name} \n\n {object_item.item.quantity}"
@@ -105,12 +97,8 @@ class BankTab(QWidget):
         if not self.signals_connected:
             return
         self.bot.inventory_signals.bank_refreshed.disconnect(self.on_bank_refreshed)
-        self.bot.inventory_signals.bank_item_updated.disconnect(
-            self.on_bank_item_updated
-        )
-        self.bot.inventory_signals.bank_item_removed.disconnect(
-            self.on_bank_item_removed
-        )
+        self.bot.inventory_signals.bank_item_updated.disconnect(self.on_bank_item_updated)
+        self.bot.inventory_signals.bank_item_removed.disconnect(self.on_bank_item_removed)
         self.signals_connected = False
         self.items_by_uid.clear()
         self._rebuild_timer.stop()

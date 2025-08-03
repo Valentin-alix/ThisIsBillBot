@@ -65,9 +65,7 @@ def get_monster_groups(
     return monster_groups
 
 
-FightFighterInformation = (
-    ActorPositionInformation.ActorInformation.FightFighterInformation
-)
+FightFighterInformation = ActorPositionInformation.ActorInformation.FightFighterInformation
 
 
 EntityFighterInformation = FightFighterInformation.EntityFighterInformation

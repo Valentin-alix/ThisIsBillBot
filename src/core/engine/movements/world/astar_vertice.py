@@ -29,10 +29,7 @@ class AstarWorld(Astar[Vertice, Edge]):
         context = self._get_context()
         if self.world_signals:
             map_data = DataReader().map_info_by_map_id[data.m_mapId]
-            if (
-                map_data.posX != context.current_map_pos.posX
-                or map_data.posY != context.current_map_pos.posY
-            ):
+            if map_data.posX != context.current_map_pos.posX or map_data.posY != context.current_map_pos.posY:
                 self.world_signals.color_pos.emit(map_data, (0, 255, 0))
         for edge in iter_valid_outgoing_edges(data, context.transition):
             yield edge.m_to
@@ -46,9 +43,7 @@ class AstarWorld(Astar[Vertice, Edge]):
     def reconstruct_path(self, node: Node[Vertice], do_reverse: bool) -> list[Edge]:
         result: list[Edge] = []
         while node.parent is not None:
-            edge = WorldGraphReader().get_edge_by_src_and_dst_vertex(
-                node.parent.data, node.data
-            )
+            edge = WorldGraphReader().get_edge_by_src_and_dst_vertex(node.parent.data, node.data)
             result.append(edge)
             node = node.parent
         result.reverse()
@@ -83,9 +78,7 @@ class AstarWorld(Astar[Vertice, Edge]):
 
             current_node.closed = True
 
-            for node in (
-                search_node_dict[data] for data in self.get_neighbors(current_node.data)
-            ):
+            for node in (search_node_dict[data] for data in self.get_neighbors(current_node.data)):
                 if node.closed:
                     continue
 
@@ -105,9 +98,7 @@ class AstarWorld(Astar[Vertice, Edge]):
 
                 node.parent = current_node
                 node.cost_to_node = cost_to_node
-                node.total_cost = (
-                    cost_to_node + self.get_dist(node.data, ends) * heuristic_scale
-                )
+                node.total_cost = cost_to_node + self.get_dist(node.data, ends) * heuristic_scale
 
                 open_set.push(node)
 

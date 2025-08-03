@@ -76,9 +76,7 @@ class BotConfigService(metaclass=Singleton):
                 bot_config_by_login[login] = BotConfig()
             else:
                 persisted_config = self._read_bot_config_json().get(login)
-                schedule_profile = (
-                    persisted_config.schedule_profile if persisted_config else None
-                )
+                schedule_profile = persisted_config.schedule_profile if persisted_config else None
                 bot_config_by_login[login] = BotConfig(
                     schedule_profile=schedule_profile,
                     connection_mode="mitm",

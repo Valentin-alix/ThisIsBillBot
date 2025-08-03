@@ -15,9 +15,7 @@ from src.services.logging_utils.loggers import BotLogger
 
 
 def _self_beneficial_effect(effect: Effect) -> bool:
-    return (
-        is_offensive_self_buff_effect(effect) or is_self_shield_effect(effect)
-    ) and can_self_cast(effect)
+    return (is_offensive_self_buff_effect(effect) or is_self_shield_effect(effect)) and can_self_cast(effect)
 
 
 def get_valid_self_buff_spells_for_turn(
@@ -26,14 +24,10 @@ def get_valid_self_buff_spells_for_turn(
     """Castable beneficial self-casts (offensive buffs and shields), each cast at
     most once per fight (anti-redundancy via ``last_cast_turn_by_spell_id``).
     """
-    return collect_castable_spells(
-        context, _self_beneficial_effect, skip_already_cast=True
-    )
+    return collect_castable_spells(context, _self_beneficial_effect, skip_already_cast=True)
 
 
-def find_best_self_buff(
-    context: AttackContext, logger: BotLogger
-) -> SpellLevelsRootItem | None:
+def find_best_self_buff(context: AttackContext, logger: BotLogger) -> SpellLevelsRootItem | None:
     """Cheapest castable self-buff not yet used this fight, or None."""
     best_spell: SpellLevelsRootItem | None = None
     best_ap_cost: int | None = None

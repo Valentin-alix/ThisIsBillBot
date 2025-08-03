@@ -39,15 +39,11 @@ class TestIsOffensiveSelfBuffEffect:
         monkeypatch.setattr(
             effect_module,
             "DataReader",
-            lambda: SimpleNamespace(
-                effect_by_id={1: SimpleNamespace(descriptionId=description_id)}
-            ),
+            lambda: SimpleNamespace(effect_by_id={1: SimpleNamespace(descriptionId=description_id)}),
         )
 
     def test_detects_buff(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        self._patch(
-            monkeypatch, next(iter(effect_module.OFFENSIVE_SELF_BUFF_DESCRIPTION_IDS))
-        )
+        self._patch(monkeypatch, next(iter(effect_module.OFFENSIVE_SELF_BUFF_DESCRIPTION_IDS)))
         assert is_offensive_self_buff_effect(_effect()) is True
 
     def test_rejects_non_buff(self, monkeypatch: pytest.MonkeyPatch) -> None:

@@ -13,8 +13,10 @@ from dofus_unity_reader.grid.map_point import MapPoint
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
-from src.core.config import BASE_RANGE
+from src.core.behaviors.movements.map_movement_cancel_behavior import MapMovementCancelBehavior
+from src.core.config import STATIC_INTERACTION_CANCEL_PROBABILITY
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
+from src.services.human_timings import HumanTimingsService
 
 MAX_APPROACH_RETRIES: int = 3
 
@@ -28,6 +30,7 @@ class InteractiveError(StrEnum):
 @dataclass
 class InteractiveBehavior(Behavior):
     map_move_behavior: MapMoveBehavior
+    map_movement_cancel_behavior: MapMovementCancelBehavior
     path_finding: Pathfinding
 
     def run(
@@ -37,6 +40,8 @@ class InteractiveBehavior(Behavior):
         skill_id: int | None = None,
         ignore_server_range: bool = False,
         remaining_retries: int = MAX_APPROACH_RETRIES,
+        movement_cancel_probability: float = STATIC_INTERACTION_CANCEL_PROBABILITY,
+        pre_interaction_delay: float = 0,
     ) -> None:
         """Walk to the client approach cell of `element_mp`, then use the element.
 
@@ -44,6 +49,10 @@ class InteractiveBehavior(Behavior):
         sending, never captured here: the server disables the skills as soon as the element is
         used. `ignore_server_range`: see `Pathfinding.get_interactive_near_path`.
         """
+        assert 0 <= movement_cancel_probability <= 1, (
+            "Interaction cancellation probability must be between zero and one"
+        )
+        assert pre_interaction_delay >= 0, "Interaction delay must be positive"
         if self.game_state.map.is_in_map_transition:
             return self.finish()
 
@@ -63,9 +72,6 @@ class InteractiveBehavior(Behavior):
             self.logger.warning(f"No reachable approach cell for element {element_id} on {element_mp}")
             return self.finish(InteractiveError.UNREACHABLE_ELEMENT)
 
-        if self.game_state.map.map_point.cell_id == move_path.end.cell_id:
-            return self.use_interactive(element_id=element_id, skill_id=skill_id)
-
         self.event_manager.on(
             MapCurrentEvent,
             self.on_map_current_event,
@@ -73,17 +79,36 @@ class InteractiveBehavior(Behavior):
             once=True,
             override_on_self=True,
         )
-        self.map_move_behavior.start(
-            callback=partial(
-                self.on_map_behavior_finish,
-                element_mp=element_mp,
-                element_id=element_id,
-                skill_id=skill_id,
-                ignore_server_range=ignore_server_range,
-                remaining_retries=remaining_retries,
-            ),
+
+        if self.game_state.map.map_point.cell_id == move_path.end.cell_id:
+            return self._use_interactive_after_delay(
+                element_id,
+                skill_id,
+                pre_interaction_delay,
+            )
+
+        callback = partial(
+            self.on_map_behavior_finish,
+            element_mp=element_mp,
+            element_id=element_id,
+            skill_id=skill_id,
+            ignore_server_range=ignore_server_range,
+            remaining_retries=remaining_retries,
+            movement_cancel_probability=movement_cancel_probability,
+            pre_interaction_delay=pre_interaction_delay,
+        )
+        if movement_cancel_probability == 0:
+            self.map_move_behavior.start(
+                callback=callback,
+                parent=self,
+                move_path=move_path,
+            )
+            return
+        self.map_movement_cancel_behavior.start(
+            callback=callback,
             parent=self,
-            move_path=move_path,
+            final_move_path=move_path,
+            cancellation_probability=movement_cancel_probability,
         )
 
     def on_map_current_event(self, message: MapCurrentEvent) -> None:
@@ -101,7 +126,12 @@ class InteractiveBehavior(Behavior):
         skill_id: int | None,
         ignore_server_range: bool,
         remaining_retries: int,
-    ):
+        movement_cancel_probability: float,
+        pre_interaction_delay: float,
+    ) -> None:
+        if error_code is MapMoveError.UNEXPECTED_NEW_MAP:
+            self.finish(MapChangeError.UNEXPECTED_NEW_MAP)
+            return
         if error_code in [
             MapMoveError.INVALID_STARTING_POINT,
             MapMoveError.CANCELED_MOVEMENT,
@@ -115,19 +145,35 @@ class InteractiveBehavior(Behavior):
 
             self.logger.warning("Invalid starting point or canceled movement, recomputing approach cell")
             return self.run_timer(
-                BASE_RANGE,
+                HumanTimingsService().get_timing_base_action(),
                 lambda: self.run(
                     element_mp,
                     element_id,
                     skill_id,
                     ignore_server_range,
                     remaining_retries - 1,
+                    movement_cancel_probability,
+                    pre_interaction_delay,
                 ),
             )
         elif error_code is not None:
             return self.finish(error_code)
 
-        self.use_interactive(element_id, skill_id)
+        self._use_interactive_after_delay(element_id, skill_id, pre_interaction_delay)
+
+    def _use_interactive_after_delay(
+        self,
+        element_id: int,
+        skill_id: int | None,
+        pre_interaction_delay: float,
+    ) -> None:
+        if pre_interaction_delay == 0:
+            self.use_interactive(element_id, skill_id)
+            return
+        self.run_timer(
+            pre_interaction_delay,
+            lambda: self.use_interactive(element_id, skill_id),
+        )
 
     def use_interactive(self, element_id: int, skill_id: int | None = None):
         skill = self.game_state.interactive.get_enabled_skill(element_id, skill_id)

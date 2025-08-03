@@ -35,17 +35,13 @@ class HumanResponse(metaclass=Singleton):
             system_prompt=system_prompt,
         )
 
-    def get_human_response_to_private_msg(
-        self, msg: str, sender_name: str, from_name: str
-    ) -> str | None:
+    def get_human_response_to_private_msg(self, msg: str, sender_name: str, from_name: str) -> str | None:
         try:
             if not ClassifierChat().llm_should_respond(msg):
                 return None
             ai_msg = self.response_agent.invoke(
                 {"messages": [HumanMessage(content=msg)]},
-                config={
-                    "configurable": {"thread_id": (sender_name, from_name).__hash__()}
-                },
+                config={"configurable": {"thread_id": (sender_name, from_name).__hash__()}},
             )
             return ai_msg["messages"][-1].content
         except (APIConnectionError, OpenAIError):

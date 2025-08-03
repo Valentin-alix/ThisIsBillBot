@@ -31,18 +31,14 @@ def get_max_range_spell(
     return range
 
 
-def get_min_range_spell(
-    spell_lvl: SpellLevelsRootItem, modifier_range_min: SpellModifier | None
-) -> int:
+def get_min_range_spell(spell_lvl: SpellLevelsRootItem, modifier_range_min: SpellModifier | None) -> int:
     if modifier_range_min:
         return modifier_range_min.context
 
     return spell_lvl.minRange
 
 
-def get_ap_cost_spell(
-    spell_lvl: SpellLevelsRootItem, modifier_ap_cost: SpellModifier | None
-) -> int:
+def get_ap_cost_spell(spell_lvl: SpellLevelsRootItem, modifier_ap_cost: SpellModifier | None) -> int:
     if modifier_ap_cost:
         return modifier_ap_cost.context
 
@@ -65,9 +61,7 @@ def get_spell_max_cast_per_target(
     return spell_lvl.maxCastPerTarget
 
 
-def is_spell_cast_in_line(
-    spell_lvl: SpellLevelsRootItem, modifier_cast_line: SpellModifier | None
-) -> bool:
+def is_spell_cast_in_line(spell_lvl: SpellLevelsRootItem, modifier_cast_line: SpellModifier | None) -> bool:
     if modifier_cast_line:
         return bool(modifier_cast_line.context)
 
@@ -126,30 +120,32 @@ def get_possible_mp_spell(
 
 
 def get_damage_spells(
-    spells: list[SpellItem], primary_elem: EffectElement, secondary_elem: EffectElement
+    spells: list[SpellItem],
+    primary_elem: EffectElement,
+    secondary_elem: EffectElement,
+    *,
+    allowed_elements: frozenset[EffectElement] | None = None,
 ) -> list[tuple[SpellLevelsRootItem, Effect]]:
     spell_levels: list[tuple[SpellLevelsRootItem, Effect]] = []
     count_secondary_spell_lvl: int = 0
     for spell in spells:
         if not spell.spell_id:
             continue
-        spell_lvl = DataReader().spell_lvl_by_spell_id[spell.spell_id][
-            spell.spell_level - 1
-        ]
+        spell_lvl = DataReader().spell_lvl_by_spell_id[spell.spell_id][spell.spell_level - 1]
         # Cooldown availability is handled per-turn in is_spell_valid_for_turn,
         # which has the fight-turn context (statesCriterion stays excluded here).
         if spell_lvl.statesCriterion != "":
             continue
         for effect in spell_lvl.effects:
+            if allowed_elements is not None and effect.effectElement not in allowed_elements:
+                continue
             data_effect = DataReader().effect_by_id[effect.effectId]
             if data_effect.characteristicOperator != "":
                 continue
             if effect.effectElement == primary_elem:
                 spell_levels.append((spell_lvl, effect))
                 break
-            elif (
-                effect.effectElement == secondary_elem and count_secondary_spell_lvl < 2
-            ):
+            elif effect.effectElement == secondary_elem and count_secondary_spell_lvl < 2:
                 count_secondary_spell_lvl += 1
                 spell_levels.append((spell_lvl, effect))
                 break

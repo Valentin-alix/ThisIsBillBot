@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+
+package com.ankama.dofus.server.game.protocol.guild.mission;
+
+message UnknownJlb {
+	int32 unknown_ftwm = 1;
+	string unknown_ftwn = 2;
+}

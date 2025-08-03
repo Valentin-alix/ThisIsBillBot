@@ -111,8 +111,7 @@ class KamasMuleRegistry(metaclass=Singleton):
                 return False
             self._expire_reservation(entry, datetime.now())
             return (
-                entry.reservation is not None
-                and entry.reservation.donor_character_id == donor_character_id
+                entry.reservation is not None and entry.reservation.donor_character_id == donor_character_id
             )
 
     def clear(self) -> None:

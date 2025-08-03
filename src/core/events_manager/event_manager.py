@@ -21,9 +21,7 @@ from src.services.logging_utils.contextual_logger import ContextualLogger
 
 T = TypeVar("T", bound=Message)
 
-_HEARTBEAT_MESSAGE_TYPES: frozenset[type[Message]] = frozenset(
-    {DateRequest, PingRequest}
-)
+_HEARTBEAT_MESSAGE_TYPES: frozenset[type[Message]] = frozenset({DateRequest, PingRequest})
 
 
 @dataclass
@@ -35,27 +33,15 @@ class EventManager(ContextualLogger):
     listeners_by_type_msg: defaultdict[type[Message], list[Listener[Message]]] = field(
         init=False, default_factory=lambda: defaultdict(list)
     )
-    on_send_game_callback: Callable[[Message], None] | None = field(
-        init=False, default=None
-    )
-    on_send_obf_game_callback: Callable[[Message], None] | None = field(
-        init=False, default=None
-    )
-    on_send_conn_callback: Callable[[Message], None] | None = field(
-        init=False, default=None
-    )
-    request_disconnect_callback: Callable[[], None] | None = field(
-        init=False, default=None
-    )
+    on_send_game_callback: Callable[[Message], None] | None = field(init=False, default=None)
+    on_send_obf_game_callback: Callable[[Message], None] | None = field(init=False, default=None)
+    on_send_conn_callback: Callable[[Message], None] | None = field(init=False, default=None)
+    request_disconnect_callback: Callable[[], None] | None = field(init=False, default=None)
     is_socket_mode: bool = field(init=False, default=False)
     lock: RLock = field(init=False, default_factory=RLock)
-    signals: EventManagerSignals = field(
-        init=False, default_factory=EventManagerSignals
-    )
+    signals: EventManagerSignals = field(init=False, default_factory=EventManagerSignals)
     last_activity_monotonic: float = field(init=False, default_factory=time.monotonic)
-    last_message_activity_monotonic: float = field(
-        init=False, default_factory=time.monotonic
-    )
+    last_message_activity_monotonic: float = field(init=False, default_factory=time.monotonic)
     last_message_name: str | None = field(init=False, default=None)
 
     def mark_activity(self) -> None:
@@ -98,12 +84,8 @@ class EventManager(ContextualLogger):
         if listeners_to_remove and const.DEBUG:
             self.signals.listeners_removed.emit(listeners_to_remove)
 
-    def clear_listener_by_origin_and_type(
-        self, msg_type: type[Message], originator: object
-    ) -> None:
-        self.logger.debug(
-            f"Clearing listeners {msg_type.__name__} from {originator.__class__.__name__}"
-        )
+    def clear_listener_by_origin_and_type(self, msg_type: type[Message], originator: object) -> None:
+        self.logger.debug(f"Clearing listeners {msg_type.__name__} from {originator.__class__.__name__}")
         with self.lock:
             listeners_to_remove: list[Listener[Message]] = []
             for listener in self.listeners_by_type_msg[msg_type]:
@@ -131,9 +113,7 @@ class EventManager(ContextualLogger):
             with self.lock:
                 related_listeners = self.listeners_by_type_msg.get(msg.__class__)
                 listener_is_active = (
-                    related_listeners is not None
-                    and listener in related_listeners
-                    and not listener._deleted
+                    related_listeners is not None and listener in related_listeners and not listener._deleted
                 )
             if not listener_is_active:
                 self.logger.debug(
@@ -205,9 +185,7 @@ class EventManager(ContextualLogger):
                 if modifier.originator != originator
             }
 
-    def clear_modifier_by_origin_and_type(
-        self, msg_type: type[Message], originator: object
-    ) -> None:
+    def clear_modifier_by_origin_and_type(self, msg_type: type[Message], originator: object) -> None:
         with self.lock:
             modifier = self.modifier_by_type_msg.get(msg_type)
             if modifier is not None and modifier.originator == originator:
@@ -261,9 +239,7 @@ class EventManager(ContextualLogger):
         with self.lock:
             send_game = self.on_send_game_callback
             if send_game is None:
-                raise AttributeError(
-                    f"sending msg {msg.__class__} but on_send_callback is not defined !"
-                )
+                raise AttributeError(f"sending msg {msg.__class__} but on_send_callback is not defined !")
         send_game(msg)
         if type(msg) not in _HEARTBEAT_MESSAGE_TYPES:
             self.mark_activity()

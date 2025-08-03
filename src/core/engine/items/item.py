@@ -45,6 +45,5 @@ PROTECTOR_DROP_ITEM_IDS = {
     for race in PROTECTOR_RACES
     for monster in DataReader().monsters_by_race[race]
     for drop in monster.drops
-    if DataReader().item_by_id[drop.objectId].typeId
-    not in [310, ItemTypeEnum.PIERRE_BRUTE]
+    if DataReader().item_by_id[drop.objectId].typeId not in [310, ItemTypeEnum.PIERRE_BRUTE]
 }

@@ -1,0 +1,14 @@
+syntax = "proto3";
+import "common.proto";
+
+
+package com.ankama.dofus.server.game.protocol.ladder;
+
+message LadderCharacter {
+	int32 server_id = 1;
+	int32 breed_id = 2;
+	string player_name = 3;
+	.com.ankama.dofus.server.game.protocol.common.Gender gender = 4;
+	int32 level = 5;
+	int32 unknown_fqqb = 6;
+}

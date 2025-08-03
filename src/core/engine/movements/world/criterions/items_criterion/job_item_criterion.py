@@ -14,9 +14,7 @@ class JobItemCriterion(ItemCriterion):
         array_params: list[str] = str(self.criterion_value_text).split(",")
         if len(array_params) > 0:
             if len(array_params) <= 2:
-                is_valid_float = (int(array_params[0])) is not None and int(
-                    array_params[0]
-                ) > 0
+                is_valid_float = (int(array_params[0])) is not None and int(array_params[0]) > 0
                 if is_valid_float:
                     self.job_id = int(array_params[0])
                     self.jobs_count = 1

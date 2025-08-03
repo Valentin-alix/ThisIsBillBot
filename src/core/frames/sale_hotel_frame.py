@@ -56,9 +56,7 @@ SALE_HOTELS_BY_CATEGORY: dict[CategoryItemEnum, list[NpcInfo]] = {
 @dataclass
 class SaleHotelFrame(Frame):
     def __post_init__(self):
-        self.game_info_signals.disconnected.connect(
-            self.game_state.sale_hotel.clear_state
-        )
+        self.game_info_signals.disconnected.connect(self.game_state.sale_hotel.clear_state)
         self.event_manager.on(
             ExchangeBidSellerStartedEvent,
             self.on_exchange_bid_seller_started_event,
@@ -103,23 +101,16 @@ class SaleHotelFrame(Frame):
         )
 
     def on_exchange_bid_seller_started_event(self, msg: ExchangeBidSellerStartedEvent):
-        self.game_state.sale_hotel.timedelta_for_next_sale_hotel_prices = (
-            get_time_beween_sale_hotel_prices()
-        )
+        self.game_state.sale_hotel.timedelta_for_next_sale_hotel_prices = get_time_beween_sale_hotel_prices()
         self.game_state.sale_hotel.last_time_updated_prices = datetime.datetime.now()
         self.game_state.sale_hotel.bid_seller_condition = msg.selling_conditions
         GameDataController().update_hdv(
             self.game_state.player.server_id,
             self.game_state.player.character_id,
-            {
-                item.item.uid: (item.item.gid, item.item.quantity, item.price)
-                for item in msg.items
-            },
+            {item.item.uid: (item.item.gid, item.item.quantity, item.price) for item in msg.items},
         )
 
-    def on_exchange_bid_house_item_added_event(
-        self, msg: ExchangeBidHouseItemAddedEvent
-    ):
+    def on_exchange_bid_house_item_added_event(self, msg: ExchangeBidHouseItemAddedEvent):
         GameDataController().add_gid_quantity_by_uid_by_player_id(
             self.game_state.player.server_id,
             self.game_state.player.character_id,
@@ -129,9 +120,7 @@ class SaleHotelFrame(Frame):
             msg.item.uid,
         )
 
-    def on_exchange_bid_house_item_removed_event(
-        self, msg: ExchangeBidHouseItemRemovedEvent
-    ):
+    def on_exchange_bid_house_item_removed_event(self, msg: ExchangeBidHouseItemRemovedEvent):
         GameDataController().remove_uid_for_player_id(
             self.game_state.player.server_id,
             self.game_state.player.character_id,

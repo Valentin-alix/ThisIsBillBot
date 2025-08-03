@@ -42,9 +42,7 @@ class BaseClient:
         return type(self).__name__
 
     def connect_socket(self, host: str, port: int) -> None:
-        self.bot.logger.info(
-            f"[{self.client_label}] Connecting to {host}:{port}, proxy={self.proxy_url}"
-        )
+        self.bot.logger.info(f"[{self.client_label}] Connecting to {host}:{port}, proxy={self.proxy_url}")
         self.client_socket.connect((host, port))
         self.bot.logger.info(f"[{self.client_label}] Socket connected to {host}:{port}")
 
@@ -62,9 +60,7 @@ class BaseClient:
                 if exceptional_sockets:
                     stop_reason = "socket reported exceptional state"
                     for socket_error in exceptional_sockets:
-                        self.bot.logger.error(
-                            f"[{self.client_label}] error socket: {socket_error}"
-                        )
+                        self.bot.logger.error(f"[{self.client_label}] error socket: {socket_error}")
                 if exceptional_sockets or not readable_sockets:
                     if not readable_sockets:
                         stop_reason = "select returned no readable socket"
@@ -78,13 +74,9 @@ class BaseClient:
                     self.handle(data)
         except (ConnectionResetError, BrokenPipeError, OSError, ValueError) as err:
             stop_reason = f"network error: {type(err).__name__}: {err}"
-            self.bot.logger.warning(
-                f"[{self.client_label}] Network error in socket loop: {err}"
-            )
+            self.bot.logger.warning(f"[{self.client_label}] Network error in socket loop: {err}")
         finally:
-            self.bot.logger.info(
-                f"[{self.client_label}] Socket loop stopping: {stop_reason}"
-            )
+            self.bot.logger.info(f"[{self.client_label}] Socket loop stopping: {stop_reason}")
             self.close()
 
     def handle(self, data: bytes) -> None:
@@ -117,14 +109,10 @@ class BaseClient:
     def close(self) -> None:
         with self._close_lock:
             if self._is_closed:
-                self.bot.logger.debug(
-                    f"[{self.client_label}] connection already closed"
-                )
+                self.bot.logger.debug(f"[{self.client_label}] connection already closed")
                 return
             self._is_closed = True
-            self.bot.logger.info(
-                f"[{self.client_label}] closing conns, proxy {self.proxy_url}"
-            )
+            self.bot.logger.info(f"[{self.client_label}] closing conns, proxy {self.proxy_url}")
             self.client_socket.close()
         self.on_close()
 

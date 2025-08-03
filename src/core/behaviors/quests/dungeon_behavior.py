@@ -14,7 +14,7 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
-from src.core.config import ON_NEW_MAP_BEFORE_ACTION
+from src.services.human_timings import HumanTimingsService
 from src.core.engine.dungeons.dungeon_access import (
     do_have_key_access_to_dungeon,
 )
@@ -106,7 +106,7 @@ class DungeonBehavior(Behavior):
                 once=True,
             )
             self.run_timer(
-                ON_NEW_MAP_BEFORE_ACTION,
+                HumanTimingsService().get_timing_after_map_arrival(),
                 lambda: self.npc_dialog_behavior.start(
                     npc_dialog_info=dungeon_info.exit_npc_info,
                     callback=None,

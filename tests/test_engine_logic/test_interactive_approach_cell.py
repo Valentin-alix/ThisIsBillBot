@@ -86,9 +86,7 @@ class ClientReference:
                 if not self.point_mov(near_mp.x, near_mp.y, source.cell_id):
                     speed = -100
                 weights.append(
-                    DirectionsEnum.get_distance(
-                        DirectionsEnum(index), DirectionsEnum(orientation)
-                    )
+                    DirectionsEnum.get_distance(DirectionsEnum(index), DirectionsEnum(orientation))
                     + (5 - speed if speed >= 0 else 11 + abs(speed))
                 )
             else:
@@ -129,9 +127,7 @@ class ClientReference:
                 forbidden.add(near_mp.cell_id)
         return forbidden
 
-    def destination(
-        self, player_mp: MapPoint, element_mp: MapPoint, minimal_range: int = 1
-    ) -> MapPoint:
+    def destination(self, player_mp: MapPoint, element_mp: MapPoint, minimal_range: int = 1) -> MapPoint:
         forbidden = self.forbidden_cells(element_mp)
         element_cell_data = self._provider.get_cell_data(element_mp.cell_id)
         if element_mp.distance_to_map_point(player_mp) <= minimal_range and (
@@ -216,9 +212,7 @@ def test_fishing_spot_in_the_water_is_reachable_thanks_to_the_server_range() -> 
     assert fishing.end.distance_to_map_point(element_mp) == 4
 
     assert (
-        path_finding.get_interactive_near_path(
-            context, player_mp, element_mp, skill_ids=[HARVEST_SKILL_ID]
-        )
+        path_finding.get_interactive_near_path(context, player_mp, element_mp, skill_ids=[HARVEST_SKILL_ID])
         is None
     )
 
@@ -231,16 +225,12 @@ def test_refuses_an_element_beyond_the_server_range() -> None:
     player_mp = MapPoint.from_cell_id(WALL_DOOR_START_CELL)
 
     assert (
-        path_finding.get_interactive_destination(
-            player_mp, element_mp, skill_ids=[EXIT_SKILL_ID]
-        ).cell_id
+        path_finding.get_interactive_destination(player_mp, element_mp, skill_ids=[EXIT_SKILL_ID]).cell_id
         == WALL_DOOR_CELL
     )
 
     assert (
-        path_finding.get_interactive_near_path(
-            context, player_mp, element_mp, skill_ids=[EXIT_SKILL_ID]
-        )
+        path_finding.get_interactive_near_path(context, player_mp, element_mp, skill_ids=[EXIT_SKILL_ID])
         is None
     )
 
@@ -311,9 +301,7 @@ def test_destination_matches_the_client_on_every_cell_of_the_map(map_id: int) ->
         {
             ref.cellId
             for ref in MapReader().map_by_id(map_id).references
-            if ref.m_interactionId is not None
-            and ref.cellId is not None
-            and ref.cellId != PLACEHOLDER_CELL
+            if ref.m_interactionId is not None and ref.cellId is not None and ref.cellId != PLACEHOLDER_CELL
         }
     )
     walkable_cells = _walkable_cells(data_map_provider)

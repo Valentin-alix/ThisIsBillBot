@@ -17,6 +17,7 @@ from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.signals.shared_farm_signals import SharedSignals
 
 FIGHT_TIMEOUT_SECONDS = 30 * 60
+CHARACTERISTIC_UPGRADE_WAIT_SECONDS = 0.05
 
 
 @dataclass
@@ -57,6 +58,14 @@ class FightBehavior(Behavior):
             )
 
     def on_map_complementary_information_event(self, msg: MapComplementaryInformationEvent):
+        self._finish_after_characteristic_upgrade()
+
+    def _finish_after_characteristic_upgrade(self) -> None:
+        if not self.game_state.player.is_characteristic_upgrade_complete_event.is_set():
+            return self.run_timer(
+                CHARACTERISTIC_UPGRADE_WAIT_SECONDS,
+                self._finish_after_characteristic_upgrade,
+            )
         self.finish()
 
     def on_fight_preparation_behavior_finish(self, error_code: str | None):

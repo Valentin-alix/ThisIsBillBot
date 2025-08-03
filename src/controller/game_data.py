@@ -17,15 +17,13 @@ from src.services.logging_utils.loggers import BotLogger
 
 class SaleHotelServerData(BaseModel):
     avg_price_by_gid: dict[int, float] = Field(default_factory=dict[int, float])
-    bid_seller_item_by_uid_by_player_id: dict[int, dict[int, tuple[int, int, int]]] = (
-        Field(default_factory=dict[int, dict[int, tuple[int, int, int]]])
+    bid_seller_item_by_uid_by_player_id: dict[int, dict[int, tuple[int, int, int]]] = Field(
+        default_factory=dict[int, dict[int, tuple[int, int, int]]]
     )
 
 
 class GameDataFile(BaseModel):
-    gfx_to_item: dict[int, tuple[int, int]] = Field(
-        default_factory=dict[int, tuple[int, int]]
-    )
+    gfx_to_item: dict[int, tuple[int, int]] = Field(default_factory=dict[int, tuple[int, int]])
     collectable_map_checked: set[int] = Field(default_factory=set[int])
     defeat_count_by_name: dict[str, int] = Field(default_factory=dict[str, int])
     sale_hotel_by_server: dict[int, SaleHotelServerData] = Field(
@@ -44,9 +42,7 @@ class GameDataController(metaclass=Singleton):
     def _load(self) -> GameDataFile:
         if self._loaded_path != self._FILE_PATH or self._game_data is None:
             self._game_data = (
-                GameDataFile.model_validate_json(
-                    self._FILE_PATH.read_text(encoding="utf-8")
-                )
+                GameDataFile.model_validate_json(self._FILE_PATH.read_text(encoding="utf-8"))
                 if self._FILE_PATH.exists()
                 else GameDataFile()
             )
@@ -96,10 +92,7 @@ class GameDataController(metaclass=Singleton):
         item_and_job_by_gfx_array: list[tuple[int, int, JobEnum]],
     ) -> None:
         self.add_item_jobs_by_gfx(
-            {
-                gfx_id: (item_id, int(job_id))
-                for gfx_id, item_id, job_id in item_and_job_by_gfx_array
-            }
+            {gfx_id: (item_id, int(job_id)) for gfx_id, item_id, job_id in item_and_job_by_gfx_array}
         )
 
     def get_collectable_map_ids_checked(self) -> set[int]:
@@ -138,13 +131,9 @@ class GameDataController(metaclass=Singleton):
             game_data.defeat_count_by_name[monster_name] = new_count
             self._save(game_data)
         if new_count >= self._DEFEAT_THRESHOLD:
-            logger.warning(
-                f"Monster name_id {name_id} reached {new_count} defeats, now forbidden"
-            )
+            logger.warning(f"Monster name_id {name_id} reached {new_count} defeats, now forbidden")
         else:
-            logger.info(
-                f"Monster name_id {name_id} defeat count: {new_count}/{self._DEFEAT_THRESHOLD}"
-            )
+            logger.info(f"Monster name_id {name_id} defeat count: {new_count}/{self._DEFEAT_THRESHOLD}")
 
     def reset_defeat_count(self, name_id: int, logger: BotLogger) -> None:
         with self._LOCK:
@@ -162,9 +151,7 @@ class GameDataController(metaclass=Singleton):
     ) -> bool:
         defeat_count_by_name = self.get_defeat_count_by_name()
         creature_ids = [monster_group.identification.main_creature.gid]
-        creature_ids.extend(
-            underling.gid for underling in monster_group.identification.underlings
-        )
+        creature_ids.extend(underling.gid for underling in monster_group.identification.underlings)
         for creature_id in creature_ids:
             monster = DataReader().monsters_by_id[creature_id]
             monster_name = I18N().name_by_id[monster.nameId]
@@ -176,11 +163,7 @@ class GameDataController(metaclass=Singleton):
     def get_unique_name_id_from_group(
         monster_group: ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor,
     ) -> int | None:
-        name_ids = {
-            DataReader()
-            .monsters_by_id[monster_group.identification.main_creature.gid]
-            .nameId
-        }
+        name_ids = {DataReader().monsters_by_id[monster_group.identification.main_creature.gid].nameId}
         name_ids.update(
             DataReader().monsters_by_id[underling.gid].nameId
             for underling in monster_group.identification.underlings
@@ -231,15 +214,11 @@ class GameDataController(metaclass=Singleton):
     ) -> dict[int, dict[int, tuple[int, int, int]]]:
         return self.get_sale_hotel_server(server_id).bid_seller_item_by_uid_by_player_id
 
-    def get_minimal_price_by_gid_and_quantity(
-        self, server_id: int
-    ) -> dict[tuple[int, int], int]:
+    def get_minimal_price_by_gid_and_quantity(self, server_id: int) -> dict[tuple[int, int], int]:
         minimal_price_by_gid_and_quantity: dict[tuple[int, int], int] = {}
         for player_bids in self.get_hdv_by_uid_by_player(server_id).values():
             for gid, quantity, price in player_bids.values():
-                current_minimal_price = minimal_price_by_gid_and_quantity.get(
-                    (gid, quantity)
-                )
+                current_minimal_price = minimal_price_by_gid_and_quantity.get((gid, quantity))
                 if current_minimal_price is None or current_minimal_price > price:
                     minimal_price_by_gid_and_quantity[(gid, quantity)] = price
         return minimal_price_by_gid_and_quantity
@@ -263,9 +242,7 @@ class GameDataController(metaclass=Singleton):
                 server_id,
                 SaleHotelServerData(),
             )
-            server_data.bid_seller_item_by_uid_by_player_id[player_id] = (
-                gid_and_quantity_and_price_by_uid
-            )
+            server_data.bid_seller_item_by_uid_by_player_id[player_id] = gid_and_quantity_and_price_by_uid
             self._save(game_data)
 
     def add_gid_quantity_by_uid_by_player_id(
@@ -290,9 +267,7 @@ class GameDataController(metaclass=Singleton):
             player_bids[uid] = (gid, quantity, price)
             self._save(game_data)
 
-    def remove_uid_for_player_id(
-        self, server_id: int, player_id: int, uid: int
-    ) -> None:
+    def remove_uid_for_player_id(self, server_id: int, player_id: int, uid: int) -> None:
         with self._LOCK:
             game_data = self._load()
             server_data = game_data.sale_hotel_by_server.setdefault(

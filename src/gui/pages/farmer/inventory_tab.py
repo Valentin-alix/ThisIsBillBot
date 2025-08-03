@@ -47,9 +47,7 @@ class InventoryTab(QWidget):
         self.equipment_panel = EquipmentPanelWidget(self)
 
         self.list_widget = ListWidget(self)
-        self.list_widget.scrollDelegate.verticalSmoothScroll.setSmoothMode(
-            SmoothMode.NO_SMOOTH
-        )
+        self.list_widget.scrollDelegate.verticalSmoothScroll.setSmoothMode(SmoothMode.NO_SMOOTH)
         self.list_widget.setViewMode(QListView.ViewMode.IconMode)
         self.list_widget.setResizeMode(QListView.ResizeMode.Adjust)
         self.list_widget.setMovement(QListView.Movement.Static)
@@ -58,9 +56,7 @@ class InventoryTab(QWidget):
         self.list_widget.setGridSize(QSize(CARD_WIDTH, CARD_HEIGHT))
         # Au plus 3 colonnes pour laisser la place au panneau d'équipement.
         self.list_widget.setMaximumWidth(BAG_MAX_WIDTH)
-        self.list_widget.setStyleSheet(
-            "QListWidget { background-color: transparent; border: none; }"
-        )
+        self.list_widget.setStyleSheet("QListWidget { background-color: transparent; border: none; }")
 
         self.weight_label = BodyLabel(text="Poids : 0/0", parent=self)
         bottom_layout = QHBoxLayout()
@@ -140,9 +136,7 @@ class InventoryTab(QWidget):
         self.list_widget.setUpdatesEnabled(False)
         self.list_widget.clear()
         self.list_item_by_uid.clear()
-        sorted_items = sorted(
-            bag_items, key=lambda obj: obj.item.quantity, reverse=True
-        )
+        sorted_items = sorted(bag_items, key=lambda obj: obj.item.quantity, reverse=True)
         for object_item in sorted_items:
             list_item = QListWidgetItem()
             list_item.setSizeHint(QSize(CARD_WIDTH, CARD_HEIGHT))
@@ -159,19 +153,11 @@ class InventoryTab(QWidget):
         if self.signals_connected:
             return
         self.bot.inventory_signals.added_object_item.connect(self.on_added_object_item)
-        self.bot.inventory_signals.added_object_items_batch.connect(
-            self.on_added_object_items_batch
-        )
-        self.bot.inventory_signals.updated_object_item.connect(
-            self.on_updated_object_item
-        )
-        self.bot.inventory_signals.deleted_object_item_uid.connect(
-            self.on_deleted_object_item_uid
-        )
+        self.bot.inventory_signals.added_object_items_batch.connect(self.on_added_object_items_batch)
+        self.bot.inventory_signals.updated_object_item.connect(self.on_updated_object_item)
+        self.bot.inventory_signals.deleted_object_item_uid.connect(self.on_deleted_object_item_uid)
         self.bot.inventory_signals.clear_inventory.connect(self.on_clear_inventory)
-        self.bot.inventory_signals.inventory_weight.connect(
-            self.on_inventory_weight_updated
-        )
+        self.bot.inventory_signals.inventory_weight.connect(self.on_inventory_weight_updated)
         self.bot.inventory_signals.weight_max.connect(self.on_weight_max_updated)
         self.signals_connected = True
         self._resync_inventory()
@@ -179,22 +165,12 @@ class InventoryTab(QWidget):
     def disconnect_signals(self) -> None:
         if not self.signals_connected:
             return
-        self.bot.inventory_signals.added_object_item.disconnect(
-            self.on_added_object_item
-        )
-        self.bot.inventory_signals.added_object_items_batch.disconnect(
-            self.on_added_object_items_batch
-        )
-        self.bot.inventory_signals.updated_object_item.disconnect(
-            self.on_updated_object_item
-        )
-        self.bot.inventory_signals.deleted_object_item_uid.disconnect(
-            self.on_deleted_object_item_uid
-        )
+        self.bot.inventory_signals.added_object_item.disconnect(self.on_added_object_item)
+        self.bot.inventory_signals.added_object_items_batch.disconnect(self.on_added_object_items_batch)
+        self.bot.inventory_signals.updated_object_item.disconnect(self.on_updated_object_item)
+        self.bot.inventory_signals.deleted_object_item_uid.disconnect(self.on_deleted_object_item_uid)
         self.bot.inventory_signals.clear_inventory.disconnect(self.on_clear_inventory)
-        self.bot.inventory_signals.inventory_weight.disconnect(
-            self.on_inventory_weight_updated
-        )
+        self.bot.inventory_signals.inventory_weight.disconnect(self.on_inventory_weight_updated)
         self.bot.inventory_signals.weight_max.disconnect(self.on_weight_max_updated)
         self.signals_connected = False
         self.items_by_uid.clear()

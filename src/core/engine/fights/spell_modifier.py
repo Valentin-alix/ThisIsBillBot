@@ -31,9 +31,7 @@ class SpellModifiers:
     ) -> "SpellModifiers":
         spell_id = spell_lvl.spellId
         return cls(
-            ap_cost=get_ap_cost_spell(
-                spell_lvl, modifiers_map.get((spell_id, SpellModifierType.AP_COST))
-            ),
+            ap_cost=get_ap_cost_spell(spell_lvl, modifiers_map.get((spell_id, SpellModifierType.AP_COST))),
             max_cast_per_turn=(
                 get_spell_max_cast_per_turn(
                     spell_lvl,
@@ -43,9 +41,7 @@ class SpellModifiers:
             max_cast_per_target=(
                 get_spell_max_cast_per_target(
                     spell_lvl,
-                    modifiers_map.get(
-                        (spell_id, SpellModifierType.MAX_CAST_PER_TARGET)
-                    ),
+                    modifiers_map.get((spell_id, SpellModifierType.MAX_CAST_PER_TARGET)),
                 )
             ),
             range_min=get_min_range_spell(

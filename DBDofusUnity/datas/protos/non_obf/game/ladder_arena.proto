@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+import "arena.proto";
+import "game_message.proto";
+import "report.proto";
+import "ladder.proto";
+
+package com.ankama.dofus.server.game.protocol.ladder.arena;
+
+message ArenaLadderPageEvent {
+	repeated .com.ankama.dofus.server.game.protocol.ladder.arena.ArenaLadderEntry ranks = 1;
+}
+
+message ArenaLadderEntry {
+	int64 rank = 1;
+	int32 winrate = 2;
+	.com.ankama.dofus.server.game.protocol.ladder.LadderCharacter player = 3;
+	int32 unknown_fque = 4;
+	int32 rating = 5;
+}
+
+message ArenaLadderSelfRankRequest {
+	int32 breed_id = 1;
+	.com.ankama.dofus.server.game.protocol.arena.ArenaType mode = 2;
+	int32 unknown_fqto = 3;
+}
+
+message UnknownIqv {
+	repeated .com.ankama.dofus.server.game.protocol.ladder.arena.ArenaLadderEntry entries = 1;
+}
+
+message ArenaLadderPageRequest {
+	repeated bool unknown_fqul = 1;
+	.com.ankama.dofus.server.game.protocol.arena.ArenaType mode = 2;
+	int32 level_range = 3;
+	int32 breed_id = 4;
+}
+
+message UnknownIqz {
+	int32 unknown_fquu = 1;
+	int32 unknown_fquw = 2;
+	int32 unknown_fqux = 3;
+	string unknown_fquz = 4;
+}
+
+message ArenaLadderSelfRankEvent {
+	.com.ankama.dofus.server.game.protocol.ladder.arena.ArenaLadderEntry entry = 1;
+}

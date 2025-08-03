@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package com.ankama.dofus.server.game.protocol.guild.hall;
+
+message GuildHallConfigurationEvent {
+	.com.ankama.dofus.server.game.protocol.guild.hall.GuildHallConfigurationEvent.GuildHallConfiguration configuration = 1;
+	message GuildHallConfiguration {
+		int32 unknown_ftpj = 1;
+		map<string, bool> available_options_by_key = 2;
+		repeated int32 available_option_ids = 3;
+		bool is_enabled = 4;
+		optional string unknown_ftpn = 5;
+		optional int32 unknown_ftpp = 6;
+		int64 unknown_ftpr = 7;
+	}
+}

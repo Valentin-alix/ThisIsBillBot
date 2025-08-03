@@ -10,9 +10,7 @@ from PyQt6.QtWidgets import QApplication
 P = ParamSpec("P")
 R = TypeVar("R")
 
-EVENT_NAMES = {
-    value: name for name, value in vars(QEvent).items() if isinstance(value, int)
-}
+EVENT_NAMES = {value: name for name, value in vars(QEvent).items() if isinstance(value, int)}
 
 PROFILING_ENABLED: Final = False
 
@@ -29,11 +27,7 @@ def profiled_slot(func: Callable[P, R], threshold_ms: int = 1) -> Callable[P, R]
         finally:
             dt = (perf_counter() - start) * 1000
             if dt >= threshold_ms:
-                print(
-                    f"[SLOT] {func.__qualname__} | "
-                    f"{dt:.2f} ms | "
-                    f"{threading.current_thread().name}"
-                )
+                print(f"[SLOT] {func.__qualname__} | {dt:.2f} ms | {threading.current_thread().name}")
 
     return wrapper
 

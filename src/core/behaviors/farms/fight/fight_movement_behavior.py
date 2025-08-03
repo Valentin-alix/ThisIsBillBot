@@ -40,17 +40,13 @@ class FightMovementBehavior(Behavior):
                 if move_path is None:
                     return self.finish()
             else:
-                near_enemy_info = self.find_near_enemy_with_dist(
-                    self.game_state.map.map_point
-                )
+                near_enemy_info = self.find_near_enemy_with_dist(self.game_state.map.map_point)
                 if not near_enemy_info:
                     return self.finish()
 
                 move_path = near_enemy_info[1]
 
-        pm: int = self.game_state.fight.get_stat_by_id(
-            CharacteristicEnum.MOVEMENT_POINTS
-        )
+        pm: int = self.game_state.fight.get_stat_by_id(CharacteristicEnum.MOVEMENT_POINTS)
 
         self.logger.info(f"PM : {pm}")
 
@@ -61,9 +57,7 @@ class FightMovementBehavior(Behavior):
             move_path.end = move_path.path[pm].step
             move_path.path = move_path.path[:pm]
 
-        self.map_move_behavior.start(
-            parent=self, move_path=move_path, callback=self.finish
-        )
+        self.map_move_behavior.start(parent=self, move_path=move_path, callback=self.finish)
 
     def on_game_action_fight_event(self, msg: GameActionFightEvent) -> None:
         if not msg.HasField("death"):
@@ -79,9 +73,7 @@ class FightMovementBehavior(Behavior):
         if len(enemies) == 0:
             return None
 
-        enemies_by_mp: dict[MapPoint, list[ActorPositionInformation]] = defaultdict(
-            list
-        )
+        enemies_by_mp: dict[MapPoint, list[ActorPositionInformation]] = defaultdict(list)
         for enemy in enemies:
             mp_enemy = MapPoint.from_cell_id(enemy.disposition.cell_id)
             for side_mp_enemy in mp_enemy.side_map_points:
@@ -99,15 +91,11 @@ class FightMovementBehavior(Behavior):
         if related_enemies is None:
             near_mp, related_enemies = min(
                 enemies_by_mp.items(),
-                key=lambda mp_with_enemies: mp_with_enemies[0].distance_to_map_point(
-                    move_path.end
-                ),
+                key=lambda mp_with_enemies: mp_with_enemies[0].distance_to_map_point(move_path.end),
             )
             cost_path = (
                 len(move_path.path)
-                + near_mp.distance_to_map_point(
-                    MapPoint.from_cell_id(related_enemies[0].disposition.cell_id)
-                )
+                + near_mp.distance_to_map_point(MapPoint.from_cell_id(related_enemies[0].disposition.cell_id))
                 + 1
             )
         else:
@@ -119,15 +107,11 @@ class FightMovementBehavior(Behavior):
         self.logger.info("Finding safest path")
 
         entities_mp: set[MapPoint] = {
-            mp
-            for mp, actors in self.game_state.entity.actors_on_mp.items()
-            if len(actors) > 0
+            mp for mp, actors in self.game_state.entity.actors_on_mp.items() if len(actors) > 0
         }
         enemies_mp = {
             MapPoint.from_cell_id(enemy.disposition.cell_id)
-            for enemy in self.game_state.fight.get_enemies(
-                self.game_state.player.character_id
-            )
+            for enemy in self.game_state.fight.get_enemies(self.game_state.player.character_id)
         }
 
         self.logger.info(f"enemies mp : {enemies_mp}")
@@ -147,12 +131,7 @@ class FightMovementBehavior(Behavior):
             (
                 (
                     reachable_mp,
-                    sum(
-                        [
-                            reachable_mp.distance_to_map_point(enemy_mp)
-                            for enemy_mp in enemies_mp
-                        ]
-                    ),
+                    sum([reachable_mp.distance_to_map_point(enemy_mp) for enemy_mp in enemies_mp]),
                 )
                 for reachable_mp in reachable_mps
             ),

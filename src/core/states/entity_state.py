@@ -62,12 +62,8 @@ class EntityState(State):
     actor_by_id: dict[int, ActorPositionInformation] = field(
         init=False, default_factory=dict[int, ActorPositionInformation]
     )
-    actor_fight_by_id: dict[int, FightActor] = field(
-        init=False, default_factory=dict[int, FightActor]
-    )
-    obstacle_on_cell_id: dict[int, MapObstacle] = field(
-        init=False, default_factory=dict[int, MapObstacle]
-    )
+    actor_fight_by_id: dict[int, FightActor] = field(init=False, default_factory=dict[int, FightActor])
+    obstacle_on_cell_id: dict[int, MapObstacle] = field(init=False, default_factory=dict[int, MapObstacle])
     actors_on_mp: ActorByMpDict = field(init=False, default_factory=ActorByMpDict)
 
     def clear_state(self):
@@ -96,9 +92,7 @@ class EntityState(State):
     def clear_obstacles(self):
         if not self.obstacle_on_cell_id:
             return
-        batch: list[tuple[int, bool]] = [
-            (cell_id, False) for cell_id in self.obstacle_on_cell_id.keys()
-        ]
+        batch: list[tuple[int, bool]] = [(cell_id, False) for cell_id in self.obstacle_on_cell_id.keys()]
         self.obstacle_on_cell_id.clear()
         if const.DEBUG:
             self.grid_signals.set_obstacle_on_cell_id_batch.emit(batch)
@@ -178,9 +172,7 @@ class EntityState(State):
 
     # ==================== Actor Data Helpers ====================
 
-    def _update_actor_data(
-        self, actor: ActorPositionInformation, is_summoned: bool = False
-    ):
+    def _update_actor_data(self, actor: ActorPositionInformation, is_summoned: bool = False):
         self._remove_actor_on_mp(actor.actor_id)
         self.actor_by_id[actor.actor_id] = actor
         self._add_actor_on_mp(actor)
@@ -199,14 +191,8 @@ class EntityState(State):
                 self.actor_fight_by_id[actor.actor_id] = FightActor(
                     life_point=get_stat_by_id(life_stat),
                     is_summoned=is_summoned,
-                    invisibility=(
-                        previous.invisibility
-                        if previous
-                        else FightInvisibilityState.VISIBLE
-                    ),
-                    state_id_by_effect_uid=previous.state_id_by_effect_uid.copy()
-                    if previous
-                    else {},
+                    invisibility=(previous.invisibility if previous else FightInvisibilityState.VISIBLE),
+                    state_id_by_effect_uid=previous.state_id_by_effect_uid.copy() if previous else {},
                 )
 
     def set_fight_actor_effect(self, target_id: int, uid: int, state_id: int) -> None:
@@ -217,9 +203,7 @@ class EntityState(State):
         actor_fight = self.actor_fight_by_id[target_id]
         actor_fight.state_id_by_effect_uid.pop(uid, None)
 
-    def set_fight_actor_invisibility(
-        self, target_id: int, invisibility: FightInvisibilityState
-    ) -> None:
+    def set_fight_actor_invisibility(self, target_id: int, invisibility: FightInvisibilityState) -> None:
         actor_fight = self.actor_fight_by_id[target_id]
         actor_fight.invisibility = invisibility
 
@@ -233,9 +217,7 @@ class EntityState(State):
     def _add_actor_on_mp(self, actor: ActorPositionInformation):
         cell_id = actor.disposition.cell_id
         if cell_id not in MAP_POINT_BY_CELL_ID:
-            self.logger.warning(
-                f"Actor {actor.actor_id} on cell {cell_id} might be invisible"
-            )
+            self.logger.warning(f"Actor {actor.actor_id} on cell {cell_id} might be invisible")
             return
         mp = MapPoint.from_cell_id(cell_id)
         self.actors_on_mp[mp][actor.actor_id] = actor
@@ -258,9 +240,7 @@ class EntityState(State):
         if all_zero:
             batch: list[tuple[int, int]] = [(cell_id, 0) for cell_id in cell_ids]
         else:
-            batch = [
-                (cell_id, self._count_actors_on_cell(cell_id)) for cell_id in cell_ids
-            ]
+            batch = [(cell_id, self._count_actors_on_cell(cell_id)) for cell_id in cell_ids]
         self.grid_signals.count_actor_on_cell_id_batch.emit(batch)
 
     def _count_actors_on_cell(self, cell_id: int) -> int:
@@ -271,9 +251,7 @@ class EntityState(State):
 
     # ==================== Query Methods ====================
 
-    def get_first_actor_on_cell_id(
-        self, cell_id: int
-    ) -> ActorPositionInformation | None:
+    def get_first_actor_on_cell_id(self, cell_id: int) -> ActorPositionInformation | None:
         actor_on_mp = self.actors_on_mp.get(MapPoint.from_cell_id(cell_id))
         if actor_on_mp:
             return next(iter(actor_on_mp.values()))
@@ -288,9 +266,7 @@ class EntityState(State):
         monster_group_lvl: int,
         lvl_limit: float,
     ) -> bool:
-        return is_valid_monster_group(
-            self.logger, monster_group, monster_group_lvl, lvl_limit
-        )
+        return is_valid_monster_group(self.logger, monster_group, monster_group_lvl, lvl_limit)
 
     def get_level_monster_group(
         self,
@@ -303,9 +279,7 @@ class EntityState(State):
             return npc_info.npc_id
         assert npc_info.bones_id
         if npc_info.cell_id is not None:
-            return self.get_npc_id_by_cell_and_bones(
-                npc_info.cell_id, npc_info.bones_id
-            )
+            return self.get_npc_id_by_cell_and_bones(npc_info.cell_id, npc_info.bones_id)
         return self.get_npc_id_by_bones(npc_info.bones_id)
 
     def get_npc_id_by_cell_and_bones(self, cell_id: int, bones_id: int) -> int:

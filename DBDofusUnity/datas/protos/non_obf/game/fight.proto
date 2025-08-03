@@ -1,0 +1,433 @@
+syntax = "proto3";
+
+import "common.proto";
+import "spell.proto";
+
+package com.ankama.dofus.server.game.protocol.fight;
+
+message FightTurnReadyRequest {
+	bool is_ready = 1;
+}
+
+message FightSlaveNoLongerControlledEvent {
+	int64 master_id = 1;
+	int64 slave_id = 2;
+}
+
+message FightTurnFinishRequest {
+	bool is_afk = 1;
+}
+
+message FightTurnListEvent {
+	repeated .com.ankama.dofus.server.game.protocol.fight.RefreshCooldownEvent.CooldownContext.Entry entries = 1;
+
+	message Entry {
+		oneof fighter {
+			.com.ankama.dofus.server.game.protocol.fight.FightTurnListEvent.NamedFighter named_fighter = 1;
+			.com.ankama.dofus.server.game.protocol.fight.FightTurnListEvent.IndexedFighter indexed_fighter = 2;
+		}
+	}
+
+	message NamedFighter {
+		string name = 1;
+		int64 fighter_id = 2;
+	}
+
+	message IndexedFighter {
+		int64 fighter_id = 1;
+		bool slain = 2;
+		int32 index = 3;
+	}
+	message UnknownJzq {
+		.com.ankama.dofus.server.game.protocol.fight.FightTurnListEvent.UnknownJzs unknown_fwgh = 1;
+		.com.ankama.dofus.server.game.protocol.fight.FightTurnListEvent.UnknownJzr unknown_fwgi = 2;
+	}
+	message UnknownJzr {
+		bool unknown_fwgn = 1;
+		int64 unknown_fwgo = 2;
+	}
+	message UnknownJzs {
+		int64 unknown_fwgs = 1;
+		string unknown_fwgt = 2;
+	}
+}
+
+message FightEffectsEvent {
+	.com.ankama.dofus.server.game.protocol.common.FightRemovableEffectExtendedInformation effect = 1;
+}
+
+message FightChangeControllerEvent {
+	optional int64 efvm = 1;
+	bool efvo = 2;
+	int64 efvp = 3;
+}
+
+message FightJoinRunningEvent {
+	repeated .com.ankama.dofus.server.game.protocol.common.FightRemovableEffectExtendedInformation effects = 1;
+	repeated .com.ankama.dofus.server.game.protocol.common.FightMark marks = 2;
+	int32 game_turn = 3;
+	int32 fight_start = 4;
+	repeated .com.ankama.dofus.server.game.protocol.common.FightEffectTriggerCount fx_trigger_counts = 5;
+	optional .com.ankama.dofus.server.game.protocol.fight.FightResume resume = 6;
+}
+
+message FightEndEvent {
+	int32 duration = 1;
+	int32 reward_rate = 2;
+	int32 loot_share_limit_malus = 3;
+	repeated .com.ankama.dofus.server.game.protocol.common.FightResultListEntry results = 4;
+	repeated .com.ankama.dofus.server.game.protocol.common.NamedPartyTeamWithOutcome named_party_teams_outcomes = 5;
+	optional int32 budget = 6;
+}
+
+message FightStatisticsEvent {
+  .com.ankama.dofus.server.game.protocol.fight.BaseStatistics stat_resume = 1;
+  map<int64, .com.ankama.dofus.server.game.protocol.fight.DetailedStatistics> stat_detailed = 2;
+}
+
+message FightNewRoundEvent {
+	int32 round_number = 1;
+}
+message FightTurnEvent {
+	int64 character_id = 1;
+	int32 base_time = 2;
+	int32 extra_time = 3;
+	optional int32 remaining_time = 4;
+	optional int32 unknown_fwyz = 5;
+	int32 unknown_fwze = 7;
+}
+
+message FightNewWaveEvent {
+	int32 wave_id = 1;
+	.com.ankama.dofus.server.game.protocol.common.Team team = 2;
+	int32 turn_left_before_next_wave = 3;
+}
+
+message FightTurnStartPlayingEvent {
+}
+
+message FightPauseEvent {
+	bool is_paused = 1;
+}
+
+message FightScenarioEvent {
+	repeated .com.ankama.dofus.server.game.protocol.fight.FightScenarioEvent.ScenarioEntity scenarios = 1;
+	message ScenarioEntity {
+		int64 actor_id = 1;
+		int32 scenario_id = 2;
+	}
+}
+
+message TimelineRefreshEvent {
+	repeated ios eftc = 1;
+	message ios {
+		bool efsx = 1;
+		int64 efsy = 2;
+	}
+}
+
+message FightSlaveSwitchContextEvent {
+	int64 master_id = 1;
+	repeated .com.ankama.dofus.server.game.protocol.fight.FightSlaveSwitchContextEvent.ContextEntry context_entries = 2;
+	repeated .com.ankama.dofus.server.game.protocol.common.Shortcut shortcuts = 3;
+	repeated .com.ankama.dofus.server.game.protocol.spell.SpellItem slave_spells = 4;
+	repeated .com.ankama.dofus.server.game.protocol.common.SpellModifier spell_modifiers = 5;
+	optional int64 slave_id = 6;
+
+	message ContextEntry {
+		ContextEntryType type = 1;
+		bool enabled = 2;
+		int32 value = 3;
+		.com.ankama.dofus.server.game.protocol.common.SpellModifierActionType action_type = 4;
+		.com.ankama.dofus.server.game.protocol.common.SpellModifierType modifier_type = 5;
+		enum ContextEntryType {
+			CONTEXT_ENTRY_TYPE_0 = 0;
+			CONTEXT_ENTRY_TYPE_1 = 1;
+			CONTEXT_ENTRY_TYPE_2 = 2;
+			CONTEXT_ENTRY_TYPE_3 = 3;
+			CONTEXT_ENTRY_TYPE_4 = 4;
+			CONTEXT_ENTRY_TYPE_5 = 5;
+			CONTEXT_ENTRY_TYPE_6 = 6;
+			CONTEXT_ENTRY_TYPE_7 = 7;
+			CONTEXT_ENTRY_TYPE_8 = 8;
+		}
+	}
+}
+
+message FightRefreshCharacterStatsEvent {
+	int64 fighter_id = 1;
+	.com.ankama.dofus.server.game.protocol.common.FightCharacteristics stats = 2;
+}
+
+message FightIsTurnReadyEvent {
+	int64 character_id = 1;
+}
+
+message FightSynchronizeEvent {
+	repeated .com.ankama.dofus.server.game.protocol.common.ActorPositionInformation fighters = 1;
+}
+
+message FightTurnEndEvent {
+	int64 character_id = 1;
+}
+
+message FightFighterShowEvent {
+	.com.ankama.dofus.server.game.protocol.common.ActorPositionInformation information = 1;
+	bool static_pose = 2;
+}
+
+message FightFighterRefreshEvent {
+	.com.ankama.dofus.server.game.protocol.common.ActorPositionInformation information = 1;
+}
+
+message RefreshCooldownEvent {
+	int64 character_id = 1;
+	repeated .com.ankama.dofus.server.game.protocol.fight.RefreshCooldownEvent.CooldownContext first_contexts = 2;
+	repeated .com.ankama.dofus.server.game.protocol.fight.RefreshCooldownEvent.CooldownContext second_contexts = 3;
+	repeated .com.ankama.dofus.server.game.protocol.common.FightSpellCoolDown spell_cool_downs = 4;
+
+	message CooldownContext {
+		repeated .com.ankama.dofus.server.game.protocol.fight.RefreshCooldownEvent.CooldownContext.Entry entries = 1;
+		int32 value = 2;
+		CooldownContextType type = 3;
+		int32 count = 4;
+
+		message Entry {
+			int64 first_id = 1;
+			int64 second_id = 2;
+			int32 value = 3;
+		}
+
+		enum CooldownContextType {
+			COOLDOWN_CONTEXT_TYPE_0 = 0;
+			COOLDOWN_CONTEXT_TYPE_1 = 1;
+			COOLDOWN_CONTEXT_TYPE_2 = 2;
+			COOLDOWN_CONTEXT_TYPE_3 = 3;
+			COOLDOWN_CONTEXT_TYPE_4 = 4;
+			COOLDOWN_CONTEXT_TYPE_5 = 5;
+			COOLDOWN_CONTEXT_TYPE_6 = 6;
+			COOLDOWN_CONTEXT_TYPE_7 = 7;
+		}
+	}
+}
+
+message FightChallengeJoinRefuseEvent {
+	int64 player_id = 1;
+	.com.ankama.dofus.server.game.protocol.fight.FightChallengeJoinRefuseEvent.FighterRefusedReason reason = 2;
+	enum FighterRefusedReason {
+		FIGHTER_REFUSED = 0;
+		FIGHTER_ACCEPTED = 1;
+		CHALLENGE_FULL = 2;
+		TEAM_FULL = 3;
+		WRONG_ALIGNMENT = 4;
+		WRONG_GUILD = 5;
+		TOO_LATE = 6;
+		MUTANT_REFUSED = 7;
+		WRONG_MAP = 8;
+		JUST_RESPAWNED = 9;
+		IM_OCCUPIED = 10;
+		OPPONENT_OCCUPIED = 11;
+		FIGHT_MYSELF = 12;
+		INSUFFICIENT_RIGHTS = 13;
+		MEMBER_ACCOUNT_NEEDED = 14;
+		OPPONENT_NOT_MEMBER = 15;
+		TEAM_LIMITED_BY_MAIN_CHARACTER = 16;
+		MULTI_ACCOUNT_NOT_ALLOWED = 17;
+		GHOST_REFUSED = 18;
+		WRONG_ALLIANCE = 19;
+		AVA_ZONE = 20;
+		ENTITY_REFUSED = 21;
+		NOT_ENOUGH_ROOM = 22;
+		GUEST_ACCOUNT = 23;
+	}
+
+}
+
+
+message FightResume {
+  repeated .com.ankama.dofus.server.game.protocol.fight.FighterResumeInfo fighter_resume_infos = 1;
+  repeated .com.ankama.dofus.server.game.protocol.common.FightResumeSlaves slaves_information = 2;
+}
+
+message FighterResumeInfo {
+	int64 efzz = 1;
+	int32 egaa = 2;
+	int32 egab = 3;
+	repeated .com.ankama.dofus.server.game.protocol.common.FightSpellCoolDown spells_cool_down = 4;
+	repeated .com.ankama.dofus.server.game.protocol.fight.FightSpellCast fight_spell_cast = 5;
+}
+
+message FightSpellCast {
+	int32 ejrs = 1;
+	int32 ejrt = 2;
+	repeated .com.ankama.dofus.server.game.protocol.fight.CastCountOneSomeone cast_count_one_someone = 3;
+}
+
+message CastCountOneSomeone {
+	int32 ejrn = 1;
+	int32 ejro = 2;
+}
+
+message FightMapInformationResponse {
+	int64 map_id = 1;
+	int64 fight_map_id = 2;
+	.com.ankama.dofus.server.game.protocol.common.FightStartingPositions fight_start_positions = 3;
+}
+
+message FightLiveStateEvent {
+	repeated .com.ankama.dofus.server.game.protocol.fight.FightLiveStateEvent.FightEntityState entities_states = 1;
+
+	message FightEntityState {
+		int64 entity_id = 1;
+		bool is_dead = 2;
+	}
+}
+
+
+// Moved here from stats.proto: the build ships these in the fight file descriptor, alongside
+// FightStatisticsEvent which carries them. Keeping them in a separate reference file left the
+// whole set unmapped, since no StatsReflection exists in the non-obfuscated dump.
+message FighterIdentity {
+  int64 player_id = 1;
+  .com.ankama.dofus.server.game.protocol.common.Team team = 2;
+  oneof entity_type {
+    .com.ankama.dofus.server.game.protocol.fight.FighterIdentity.Player player = 3;
+    .com.ankama.dofus.server.game.protocol.fight.FighterIdentity.Monster monster = 4;
+    .com.ankama.dofus.server.game.protocol.fight.FighterIdentity.Companion companion = 5;
+    .com.ankama.dofus.server.game.protocol.fight.FighterIdentity.Summon summon = 6;
+  }
+  message Player {
+  }
+  message Monster {
+    int32 esag = 1;
+  }
+  message Companion {
+    int32 esak = 1;
+    .com.ankama.dofus.server.game.protocol.fight.FighterIdentity entity = 2;
+  }
+  message Summon {
+    int32 esap = 1;
+    .com.ankama.dofus.server.game.protocol.fight.FighterIdentity entity = 2;
+  }
+}
+
+message BaseStatistics {
+	int32 damage_done = 1;
+	int32 damage_taken = 2;
+	int32 blocked_damage = 3;
+	int32 applied_shield = 4;
+	int32 heal_done = 5;
+	int32 heal_taken = 6;
+	int32 kill_count = 7;
+}
+
+
+message DetailedStatistics {
+  .com.ankama.dofus.server.game.protocol.fight.DetailedStatistics.DamageDone damage_done = 1;
+  .com.ankama.dofus.server.game.protocol.fight.DetailedStatistics.DamageTaken damage_taken = 2;
+  .com.ankama.dofus.server.game.protocol.fight.DetailedStatistics.HealDone heal_done = 3;
+  .com.ankama.dofus.server.game.protocol.fight.DetailedStatistics.HealTaken heal_taken = 4;
+  .com.ankama.dofus.server.game.protocol.fight.DetailedStatistics.ShieldDone shield_done = 5;
+  .com.ankama.dofus.server.game.protocol.fight.DetailedStatistics.ShieldTaken shield_taken = 6;
+  .com.ankama.dofus.server.game.protocol.fight.DetailedStatistics.StatRemoved ap_stat_removed = 7;
+  .com.ankama.dofus.server.game.protocol.fight.DetailedStatistics.StatRemoved mp_stat_removed = 8;
+  .com.ankama.dofus.server.game.protocol.fight.DetailedStatistics.Kill kill = 9;
+  .com.ankama.dofus.server.game.protocol.fight.FighterIdentity entity = 10;
+  message DamageDone {
+    int32 total = 1;
+    int32 by_poison = 2;
+    int32 by_pushing = 3;
+    int32 by_ground_object = 4;
+    int32 by_summon = 5;
+    int32 on_shield = 6;
+    float by_ap_action = 7;
+    float by_turn = 8;
+    int32 erosion_done = 9;
+  }
+  message DamageTaken {
+    int32 total = 1;
+    int32 by_poison = 2;
+    int32 by_pushing = 3;
+    int32 by_ground_object = 4;
+    int32 by_summon = 5;
+    int32 on_shield = 6;
+    float by_turn = 7;
+    int32 erosion_done = 8;
+  }
+  message HealDone {
+    int32 total = 1;
+    int32 by_summon = 2;
+    float by_ap_action = 3;
+    float by_turn = 4;
+  }
+  message HealTaken {
+    int32 total = 1;
+    int32 by_summon = 2;
+    float by_turn = 3;
+  }
+  message ShieldDone {
+    int32 total = 1;
+    int32 by_summon = 2;
+    float by_turn = 3;
+  }
+  message ShieldTaken {
+    int32 total = 1;
+    int32 by_summon = 2;
+    float by_turn = 3;
+  }
+  message StatRemoved {
+    int32 dodged = 1;
+    int32 not_dodged = 2;
+    int32 removed = 3;
+    float average_dodged_by_turn = 4;
+    float average_not_dodged_by_turn = 5;
+    float average_removed_by_turn = 6;
+    float average_spent_by_turn = 7;
+  }
+  message Kill {
+    int32 total = 1;
+    int32 enemies = 2;
+    int32 enemies_summon = 3;
+  }
+}
+
+
+message UnknownJws {
+	int64 unknown_fvrs = 1;
+	.com.ankama.dofus.server.game.protocol.common.UnknownLhq unknown_fvrt = 2;
+}
+
+message UnknownJxk {
+	repeated .com.ankama.dofus.server.game.protocol.common.Shortcut unknown_fvuy = 1;
+	int64 unknown_fvuz = 2;
+	repeated .com.ankama.dofus.server.game.protocol.spell.SpellItem unknown_fvva = 3;
+}
+
+message UnknownJxp {
+	int64 unknown_fvvw = 1;
+	.com.ankama.dofus.server.game.protocol.common.UnknownLhq unknown_fvvx = 2;
+}
+
+message UnknownJxt {
+	bool unknown_fvwg = 1;
+}
+
+message UnknownJya {
+	int64 unknown_fvxx = 1;
+	int32 unknown_fvxy = 2;
+}
+
+message UnknownJyc {
+	repeated int32 unknown_fvyi = 1;
+}
+
+message UnknownJyu {
+	int64 unknown_fwaw = 1;
+}
+
+message UnknownJyv {
+	int32 unknown_fwba = 1;
+	int32 unknown_fwbb = 2;
+	int64 unknown_fwbc = 3;
+}
+

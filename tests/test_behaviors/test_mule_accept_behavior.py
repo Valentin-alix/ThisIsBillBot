@@ -6,11 +6,12 @@ from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeRequestedTradeEvent,
 )
 from google.protobuf.message import Message
+from pytest import MonkeyPatch
 
 from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehavior
 from src.core.bot.kamas_mule_registry import KamasMuleRegistry
-from src.core.config import BASE_RANGE
 from src.core.events_manager.event_manager import EventManager
+from src.services.human_timings import HumanTimingsService
 from tests.fixtures.game_state import GameStateContext
 
 
@@ -22,9 +23,16 @@ def teardown_function() -> None:
     KamasMuleRegistry().clear()
 
 
+def _get_fixed_base_action_timing(service: HumanTimingsService) -> float:
+    del service
+    return 1.0
+
+
 def test_unreserved_request_does_not_hide_reserved_donor_request(
     game_state_ctx: GameStateContext,
+    monkeypatch: MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr(HumanTimingsService, "get_timing_base_action", _get_fixed_base_action_timing)
     registry = KamasMuleRegistry()
     game_state_ctx.game_state.player.character_id = 100
     game_state_ctx.game_state.map.map_id = 200
@@ -43,9 +51,7 @@ def test_unreserved_request_does_not_hide_reserved_donor_request(
         _logger=game_state_ctx.logger,
     )
 
-    def capture_delayed_message(
-        message: Message, delay: tuple[float, float] | float
-    ) -> None:
+    def capture_delayed_message(message: Message, delay: tuple[float, float] | float) -> None:
         delayed_messages.append((message, delay))
 
     behavior.send_message_delayed = capture_delayed_message
@@ -68,4 +74,4 @@ def test_unreserved_request_does_not_hide_reserved_donor_request(
     assert len(delayed_messages) == 1
     message, delay = delayed_messages[0]
     assert isinstance(message, ExchangeAcceptRequest)
-    assert delay == BASE_RANGE
+    assert delay == 1.0

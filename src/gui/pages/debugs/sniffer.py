@@ -98,10 +98,7 @@ def _resolve_pinned_field_message_pair(
         return root_message_pair
     if len(obf_field.path) == 1 or len(non_obf_field.path) == 1:
         return None
-    if (
-        obf_field.container_descriptor is None
-        or non_obf_field.container_descriptor is None
-    ):
+    if obf_field.container_descriptor is None or non_obf_field.container_descriptor is None:
         return None
     return (
         obf_field.container_descriptor.full_name,
@@ -208,16 +205,12 @@ class SnifferWidget(QWidget):
         self.setLayout(self.v_layout)
         self.init_top_content()
         self.init_content()
-        self.bot.msg_info_signals.msg_info.connect(
-            profiled_slot(self.on_receive_msg_info)
-        )
+        self.bot.msg_info_signals.msg_info.connect(profiled_slot(self.on_receive_msg_info))
 
     def init_top_content(self) -> None:
         top_content = QWidget(self)
         # prevent top header from expanding in height
-        top_content.setSizePolicy(
-            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
-        )
+        top_content.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         self.v_layout.addWidget(top_content)
         top_content_layout = QHBoxLayout()
         top_content.setLayout(top_content_layout)
@@ -226,17 +219,13 @@ class SnifferWidget(QWidget):
         reset_btn.clicked.connect(self.on_reset)
         top_content_layout.addWidget(reset_btn)
 
-        self.play_btn = PrimaryPushButton(
-            FluentIcon.PLAY, "Lancer le sniffer", top_content
-        )
+        self.play_btn = PrimaryPushButton(FluentIcon.PLAY, "Lancer le sniffer", top_content)
         if self.is_playing:
             self.play_btn.hide()
         self.play_btn.clicked.connect(self.on_play)
         top_content_layout.addWidget(self.play_btn)
 
-        self.stop_btn = PrimaryPushButton(
-            FluentIcon.PAUSE, "Arrêter le sniffer", top_content
-        )
+        self.stop_btn = PrimaryPushButton(FluentIcon.PAUSE, "Arrêter le sniffer", top_content)
         if not self.is_playing:
             self.stop_btn.hide()
         self.stop_btn.clicked.connect(self.on_stop)
@@ -264,33 +253,23 @@ class SnifferWidget(QWidget):
         wrapper_filter_layout = QHBoxLayout()
         wrapper_filter.setLayout(wrapper_filter_layout)
         # filter bar should not expand vertically
-        wrapper_filter.setSizePolicy(
-            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
-        )
+        wrapper_filter.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         wrapper_filter_layout.setContentsMargins(0, 16, 0, 0)
         custom_filter = LineEdit(wrapper_filter)
         wrapper_filter_layout.addWidget(custom_filter)
         custom_filter.setPlaceholderText("Contenu")
-        custom_filter.textChanged.connect(
-            partial(self.msg_table.table.header.on_new_filter_input, 4)
-        )
+        custom_filter.textChanged.connect(partial(self.msg_table.table.header.on_new_filter_input, 4))
 
         left_widget_layout.addWidget(wrapper_filter)
         left_widget_layout.addWidget(self.msg_table)
-        left_widget.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
-        )
-        self.msg_table.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
-        )
+        left_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.msg_table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         # right side: message detail and logs/listeners tabs
         self.msg_detail = MessageDetailWidget(parent=self)
         self.msg_detail.hide()
         self.msg_detail.quit_btn.clicked.connect(self.on_close_detail)
-        self.msg_detail.lock_pinned_fields_btn.clicked.connect(
-            self.on_lock_pinned_fields
-        )
+        self.msg_detail.lock_pinned_fields_btn.clicked.connect(self.on_lock_pinned_fields)
 
         self.right_splitter = QSplitter(Qt.Orientation.Vertical, self)
         self.right_splitter.addWidget(self.msg_detail)
@@ -328,9 +307,7 @@ class SnifferWidget(QWidget):
             debug_pivot.addItem(
                 routeKey="listeners",
                 text="Listeners",
-                onClick=lambda: self._show_listeners_tab(
-                    debug_stacked, listeners_widget
-                ),
+                onClick=lambda: self._show_listeners_tab(debug_stacked, listeners_widget),
             )
             debug_pivot.setCurrentItem("logs")
 
@@ -365,9 +342,7 @@ class SnifferWidget(QWidget):
         self.v_layout.setStretch(2, 1)
 
     @pyqtSlot(MessageInfo, bool)
-    def on_receive_msg_info(
-        self, msg_info: MessageInfo, was_send_from_proxy: bool
-    ) -> None:
+    def on_receive_msg_info(self, msg_info: MessageInfo, was_send_from_proxy: bool) -> None:
         if self.is_playing:
             self.msg_table.add_row(msg_info, was_send_from_proxy)
 
@@ -417,9 +392,7 @@ class SnifferWidget(QWidget):
         if obf_msg_name is None:
             return
 
-        dialog = PinnedPairMessageBox(
-            obf_msg_name, load_non_obf_game_message_full_names(), self
-        )
+        dialog = PinnedPairMessageBox(obf_msg_name, load_non_obf_game_message_full_names(), self)
         if dialog.exec():
             upsert_pinned_pair(PINNED_PAIRS_FILE, obf_msg_name, dialog.non_obf_msg_name)
 
@@ -433,9 +406,7 @@ class SnifferWidget(QWidget):
         if self._current_detail_msg_info is None:
             return
 
-        message_pair = _extract_pinned_pair_names_for_fields(
-            self._current_detail_msg_info
-        )
+        message_pair = _extract_pinned_pair_names_for_fields(self._current_detail_msg_info)
         if message_pair is None:
             QMessageBox.warning(
                 self,
@@ -454,9 +425,7 @@ class SnifferWidget(QWidget):
             return
 
         obf_field, non_obf_field = fields
-        resolved_message_pair = _resolve_pinned_field_message_pair(
-            message_pair, obf_field, non_obf_field
-        )
+        resolved_message_pair = _resolve_pinned_field_message_pair(message_pair, obf_field, non_obf_field)
         if resolved_message_pair is None:
             QMessageBox.warning(
                 self,

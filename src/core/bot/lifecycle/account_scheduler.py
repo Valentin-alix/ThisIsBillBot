@@ -33,6 +33,7 @@ from ankama_launcher_emulator_premium.web.auth.storage import (
     mark_account_available_for_auth_retry,
     reassign_account_for_auth_retry,
 )
+
 from src.controller.bot_config import BotConfigService
 from src.core.bot.lifecycle.operation_pool import OperationPool
 
@@ -129,7 +130,11 @@ class AccountScheduler:
                 continue
             account_profile_id = account.schedule_profile
             if account_profile_id is None:
-                logger.info(f"account {account.email} has no profile id ?!")
+                logger.warning(
+                    "account %s is available but has no schedule profile, ignored "
+                    "(assign one so it can be authenticated)",
+                    account.email,
+                )
                 continue
             account_profile = profiles.get(account_profile_id)
             if account_profile is None:

@@ -24,7 +24,7 @@ from src.core.behaviors.interactives.interactive_behavior import InteractiveBeha
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
     AutoTripBehavior,
 )
-from src.core.config import BASE_RANGE
+from src.services.human_timings import HumanTimingsService
 from src.core.engine.movements.map.map_position_flags import allow_teleport_to
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.engine.movements.world.astar_allow_capability import (
@@ -51,13 +51,9 @@ class WaypointBehavior(Behavior):
         self.event_manager.prevent(HavenBagEnterRequest, originator=self)
         if not allow_teleport_to(map_data.m_flags):
             dst_vertex: set[Vertice] = {
-                vertex
-                for dst in dst_map_ids
-                for vertex in WorldGraphReader().get_vertexes(dst)
+                vertex for dst in dst_map_ids for vertex in WorldGraphReader().get_vertexes(dst)
             }
-            self.astar_allow_havre_sac.set_context(
-                self.game_state.get_world_path_context()
-            )
+            self.astar_allow_havre_sac.set_context(self.game_state.get_world_path_context())
             path = self.astar_allow_havre_sac.find_path(
                 start=self.game_state.map.curr_vertex,
                 ends=dst_vertex,
@@ -110,13 +106,15 @@ class WaypointBehavior(Behavior):
                 once=True,
                 originator=self,
             )
-            return self.send_message_delayed(HavenBagExitRequest(), BASE_RANGE)
+            return self.send_message_delayed(
+                HavenBagExitRequest(), HumanTimingsService().get_timing_base_action()
+            )
 
         mp_zaap = MapPoint.from_cell_id(
             self.game_state.interactive.stated_element_by_id[zaap.element_id][0].cell_id
         )
         self.run_timer(
-            BASE_RANGE,
+            HumanTimingsService().get_timing_base_action(),
             lambda: self.interactive_behavior.start(
                 parent=self,
                 callback=partial(self.on_zaap_used, map_id=map_id),
@@ -130,20 +128,14 @@ class WaypointBehavior(Behavior):
 
         self.event_manager.on(
             MapComplementaryInformationEvent,
-            callback=partial(
-                self.on_map_complementary_information_event, map_id=map_id
-            ),
+            callback=partial(self.on_map_complementary_information_event, map_id=map_id),
             originator=self,
             once=True,
         )
-        req = TeleportRequest(
-            source_type=Teleporter.TELEPORTER_HAVEN_BAG, map_id=map_id
-        )
-        self.send_message_delayed(req, BASE_RANGE)
+        req = TeleportRequest(source_type=Teleporter.TELEPORTER_HAVEN_BAG, map_id=map_id)
+        self.send_message_delayed(req, HumanTimingsService().get_timing_base_action())
 
-    def on_map_complementary_information_event(
-        self, msg: MapComplementaryInformationEvent, map_id: int
-    ):
+    def on_map_complementary_information_event(self, msg: MapComplementaryInformationEvent, map_id: int):
         if msg.map_id == map_id:
             return self.finish()
         raise UnexpectedStateException(

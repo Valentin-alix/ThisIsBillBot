@@ -1,8 +1,0 @@
-[submodule "AnkamaLauncherEmulatorPremium"]
-	path = AnkamaLauncherEmulatorPremium
-	url = https://github.com/Valentin-alix/AnkamaLauncherEmulatorPremium
-	branch = master
-[submodule "DBDofusUnity"]
-	path = DBDofusUnity
-	url = https://github.com/Valentin-alix/DBDofusUnity
-	branch = main

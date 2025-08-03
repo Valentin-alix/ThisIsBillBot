@@ -183,5 +183,26 @@ cython_debug/
 #.idea/
 
 farm_stats.json
+AnkamaLauncherEmulatorPremium/LauncherSourceCode/
+AnkamaLauncherEmulatorPremium/resources/bots.local.json
+AnkamaLauncherEmulatorPremium/resources/bots.local.json.lock
+AnkamaLauncherEmulatorPremium/resources/proxies.local.json
+AnkamaLauncherEmulatorPremium/resources/paysafecards.txt
+AnkamaLauncherEmulatorPremium/resources/debug/
+DBDofusUnity/resources/*.json
+DBDofusUnity/datas/proto_mapper/obf/cs/*.cs
+DBDofusUnity/datas/proto_mapper/non_obf/cs/*.cs
+DBDofusUnity/datas/proto_mapper/.era_cache/
+!DBDofusUnity/datas/proto_mapper/non_obf/cs/Ankama.Dofus.Protocol.Game.cs
+DBDofusUnity/**/*.h
+DBDofusUnity/**/*.dll
+DBDofusUnity/**/bin/**
+DBDofusUnity/**/obf/**/il2cpp.py
+DBDofusUnity/**/obf/**/il2cpp.json
+DBDofusUnity/*.coverage
+DBDofusUnity/.worktrees/
+DBDofusUnity/.cod*
+DBDofusUnity/**/*.understand*
+DBDofusUnity/**/bundles/
 # CocoIndex Code (ccc)
 /.cocoindex_code/

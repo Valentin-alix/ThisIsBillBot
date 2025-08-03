@@ -15,15 +15,11 @@ from src.core.signals.world_signals import MapSignals
 class FightReachableCells:
     debug_signals: MapSignals | None = None
 
-    reachable_cost_by_mp: dict[MapPoint, int] = field(
-        init=False, default_factory=dict[MapPoint, int]
-    )
+    reachable_cost_by_mp: dict[MapPoint, int] = field(init=False, default_factory=dict[MapPoint, int])
     node_by_mp: dict[MapPoint, ReachableMpNode] = field(
         init=False, default_factory=dict[MapPoint, ReachableMpNode]
     )
-    open_node: set[ReachableMpNode] = field(
-        init=False, default_factory=set[ReachableMpNode]
-    )
+    open_node: set[ReachableMpNode] = field(init=False, default_factory=set[ReachableMpNode])
 
     def search(
         self,
@@ -66,16 +62,10 @@ class FightReachableCells:
         node = self.node_by_mp.get(mp)
         if node is None:
             cell_data = MapReader().get_cell_data_by_cell_id(context.map_id, mp.cell_id)
-            if (
-                mp in entities_mp
-                or not cell_data.mov
-                or cell_data.nonWalkableDuringFight
-            ):
+            if mp in entities_mp or not cell_data.mov or cell_data.nonWalkableDuringFight:
                 return
 
-            node = ReachableMpNode(
-                mp=mp, best_remaining_pm_no_tackle=remaining_not_tackled_pm
-            )
+            node = ReachableMpNode(mp=mp, best_remaining_pm_no_tackle=remaining_not_tackled_pm)
             self.open_node.add(node)
             self.node_by_mp[mp] = node
             self.reachable_cost_by_mp[mp] = remaining_not_tackled_pm

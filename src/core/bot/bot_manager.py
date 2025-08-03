@@ -44,9 +44,7 @@ logger = logging.getLogger()
 class BotManager:
     shared_signals: SharedSignals
     enable_account_scheduler: bool = True
-    ankama_launcher_handler: AnkamaLauncherHandler = field(
-        init=False, default_factory=AnkamaLauncherHandler
-    )
+    ankama_launcher_handler: AnkamaLauncherHandler = field(init=False, default_factory=AnkamaLauncherHandler)
     _running_task_count: int = field(default=0, init=False)
     _is_lauching_by_login: defaultdict[str, threading.Event] = field(
         default_factory=lambda: defaultdict(threading.Event), init=False
@@ -108,9 +106,7 @@ class BotManager:
                 bot.logger.info("Bot is not playing anymore, aborting relaunch")
                 return False
             if not bot.process_manager.is_bot_process_running():
-                bot.logger.info(
-                    "Dofus process is not running anymore, aborting relaunch"
-                )
+                bot.logger.info("Dofus process is not running anymore, aborting relaunch")
                 return False
         return False
 
@@ -126,17 +122,11 @@ class BotManager:
         while bot.is_connected_event.is_set() and monotonic() < deadline:
             sleep(SOCKET_DISCONNECTION_WAIT_STEP_SECONDS)
         if bot.is_connected_event.is_set():
-            raise TimeoutError(
-                "Existing socket runtime did not disconnect before relaunch"
-            )
+            raise TimeoutError("Existing socket runtime did not disconnect before relaunch")
 
     def relaunch_account(self, login: str, max_retries: int = 3):
         related_bot = next(
-            (
-                bot
-                for _, bot in self.bot_by_account_id.items()
-                if bot.account.apikey.login == login
-            ),
+            (bot for _, bot in self.bot_by_account_id.items() if bot.account.apikey.login == login),
             None,
         )
         if related_bot is None:
@@ -149,45 +139,33 @@ class BotManager:
                 or related_bot.process_manager.is_bot_process_running()
             )
             if launch_still_active:
-                return related_bot.logger.warning(
-                    "Bot is already launching, don't launch twice."
-                )
+                return related_bot.logger.warning("Bot is already launching, don't launch twice.")
             self._is_lauching_by_login[login].clear()
 
         self._is_lauching_by_login[login].set()
 
         try:
-            bot_config = BotConfigService().get_bot_config(
-                related_bot.account.apikey.login
-            )
+            bot_config = BotConfigService().get_bot_config(related_bot.account.apikey.login)
             if bot_config.schedule_profile is not None:
                 proxy = BotConfigService().resolve_bot_proxy(bot_config)
                 if proxy.rejected:
-                    return related_bot.logger.warning(
-                        "Bot relaunch blocked because its proxy is quarantined"
-                    )
+                    return related_bot.logger.warning("Bot relaunch blocked because its proxy is quarantined")
 
             if bot_config.connection_mode == "socket":
                 self._disconnect_stale_socket_runtime(related_bot)
             related_bot.process_manager.kill_process()
 
             if not related_bot.is_playing_event.is_set():
-                return related_bot.logger.info(
-                    "Bot is not playing anymore, aborting relaunch"
-                )
+                return related_bot.logger.info("Bot is not playing anymore, aborting relaunch")
             if related_bot.bot_should_not_play(datetime.now()):
                 return related_bot.logger.info("Bot is not in playtime anymore")
 
             socks_proxy_url = self._get_socks_proxy_url(bot_config)
             for attempt in range(max_retries):
                 if not related_bot.is_playing_event.is_set():
-                    return related_bot.logger.info(
-                        "Bot is not playing anymore, aborting relaunch"
-                    )
+                    return related_bot.logger.info("Bot is not playing anymore, aborting relaunch")
 
-                related_bot.logger.info(
-                    f"Relaunching (attempt {attempt + 1}/{max_retries})"
-                )
+                related_bot.logger.info(f"Relaunching (attempt {attempt + 1}/{max_retries})")
 
                 now = datetime.now()
 
@@ -216,25 +194,19 @@ class BotManager:
                 is_success = self._wait_for_mitm_connection_result(related_bot)
 
                 if not related_bot.is_playing_event.is_set():
-                    return related_bot.logger.info(
-                        "Bot is not playing anymore, aborting relaunch"
-                    )
+                    return related_bot.logger.info("Bot is not playing anymore, aborting relaunch")
                 if related_bot.bot_should_not_play(now):
                     return related_bot.logger.info("Bot is not in playtime anymore")
 
                 if is_success:
                     return related_bot.logger.info("Successfully connected")
 
-                related_bot.logger.warning(
-                    f"Connection timeout on attempt {attempt + 1}"
-                )
+                related_bot.logger.warning(f"Connection timeout on attempt {attempt + 1}")
                 backoff = min(2**attempt * 5, 60)
                 related_bot.logger.info(f"Retrying in {backoff}s...")
                 sleep(backoff)
 
-            related_bot.logger.error(
-                f"Failed to connect after {max_retries} attempts - stopping bot"
-            )
+            related_bot.logger.error(f"Failed to connect after {max_retries} attempts - stopping bot")
             related_bot.is_playing_event.clear()
             related_bot.process_manager.kill_process()
         finally:
@@ -248,13 +220,10 @@ class BotManager:
                 login,
             )
         else:
-            schedule_profile = ScheduleProfileController().get_profile(
-                bot_config.schedule_profile
-            )
+            schedule_profile = ScheduleProfileController().get_profile(bot_config.schedule_profile)
             if schedule_profile is None:
                 logger.warning(
-                    "Banned account %s references unknown schedule profile %s; "
-                    "no proxy was quarantined",
+                    "Banned account %s references unknown schedule profile %s; no proxy was quarantined",
                     login,
                     bot_config.schedule_profile,
                 )
@@ -309,10 +278,7 @@ class BotManager:
         self._is_lauching_by_login.pop(login, None)
 
     def on_synchronize_bots(self) -> None:
-        account_by_id = {
-            account.apikey.accountId: account
-            for account in CryptoHelper.getStoredApiKeys()
-        }
+        account_by_id = {account.apikey.accountId: account for account in CryptoHelper.getStoredApiKeys()}
 
         removed_account_ids = set(self.bot_by_account_id) - set(account_by_id)
         for account_id in removed_account_ids:

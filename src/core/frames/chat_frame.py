@@ -31,8 +31,6 @@ class ChatFrame(Frame):
             self.run_timer(
                 (3, 6),
                 lambda: self.event_manager.send(
-                    ChatPrivateMessageRequest(
-                        content=response_content, name=msg.sender_name
-                    )
+                    ChatPrivateMessageRequest(content=response_content, name=msg.sender_name)
                 ),
             )

@@ -60,14 +60,10 @@ class AutoTripBehavior(Behavior):
                 self.game_state.get_world_path_context(), curr_vertex, map_ids
             )
             if path is None:
-                self.logger.warning(
-                    f"Path not found from {self.game_state.map.curr_vertex} to {map_ids}"
-                )
+                self.logger.warning(f"Path not found from {self.game_state.map.curr_vertex} to {map_ids}")
                 if from_auto_trip_zaap_behavior or retry <= 0:
                     return self.finish(AutoTripErrorCode.PATH_NOT_FOUND)
-                return self.run(
-                    map_ids, edge_path, from_auto_trip_zaap_behavior, retry - 1
-                )
+                return self.run(map_ids, edge_path, from_auto_trip_zaap_behavior, retry - 1)
             if len(path) == 0:
                 self.logger.info("Path to these map ids is empty")
                 return self.finish()
@@ -91,9 +87,7 @@ class AutoTripBehavior(Behavior):
             return self.finish()
 
         edge = self.auto_trip_edges.pop(0)
-        self.edge_behavior.start(
-            callback=self.on_edge_behavior_finished, parent=self, edge=edge
-        )
+        self.edge_behavior.start(callback=self.on_edge_behavior_finished, parent=self, edge=edge)
 
     def on_edge_behavior_finished(self, error_code: str | None) -> None:
         if error_code in (
@@ -102,15 +96,10 @@ class AutoTripBehavior(Behavior):
         ):
             self._replan_on_desync += 1
             if self._replan_on_desync > _MAX_REPLAN_ON_DESYNC:
-                self.logger.warning(
-                    f"Too many consecutive replans ({self._replan_on_desync}); "
-                    "aborting trip"
-                )
+                self.logger.warning(f"Too many consecutive replans ({self._replan_on_desync}); aborting trip")
                 return self.finish(error_code)
             return self.run(map_ids=self.target_map_ids)
-        elif (
-            error_code is not None and error_code is not MapMoveError.UNEXPECTED_NEW_MAP
-        ):
+        elif error_code is not None and error_code is not MapMoveError.UNEXPECTED_NEW_MAP:
             return self.finish(error_code)
 
         self._replan_on_desync = 0

@@ -1,0 +1,28 @@
+from enum import IntEnum
+
+
+class AreaEnum(IntEnum):
+    AMAKNA = 0
+    INCARNAM = 45
+    ASTRUB = 18
+    CANIA_PLAIN = 8
+    KOALAK_MONTAIN = 28
+    FRIGOST = 48
+    PANDALA = 78
+    OTOMAI = 46
+
+
+class SubAreaEnum(IntEnum):
+    ASTRUB_CITY = 95
+    ASTRUB_FIELD = 98
+    ASTRUB_MEADOW = 173
+    ASTRUB_SEWERS = 100
+    INCARNAM_FOREST = 443
+    INCARNAM_SOUL_ROAD = 450
+    INCARNAM_FIELD = 444
+    CANIA_LAKE = 56
+    PORKASS_PLAIN = 178
+    CANIA_LITNEG = 69
+    CANIA_FIELD = 68
+    ENCHANTED_LAKE = 231
+    DENT_PIERRE = 519

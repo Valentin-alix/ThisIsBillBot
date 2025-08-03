@@ -2,13 +2,6 @@ version = 1
 revision = 3
 requires-python = ">3.12, <3.13"
 
-[manifest]
-members = [
-    "ankama-launcher-emulator-premium",
-    "db-dofus-unity",
-    "voldemort",
-]
-
 [[package]]
 name = "aiohappyeyeballs"
 version = "2.7.1"
@@ -87,65 +80,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/61/62/06741b579156360248d1ec624842ad0edf697050bbaf7c3e46394e106ad1/aiosignal-1.4.0.tar.gz", hash = "sha256:f47eecd9468083c2029cc99945502cb7708b082c232f9aca65da147157b251c7", size = 25007, upload-time = "2025-07-03T22:54:43.528Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fb/76/641ae371508676492379f16e2fa48f4e2c11741bd63c48be4b12a6b09cba/aiosignal-1.4.0-py3-none-any.whl", hash = "sha256:053243f8b92b990551949e63930a839ff0cf0b0ebbe0597b0f3fb19e1a0fe82e", size = 7490, upload-time = "2025-07-03T22:54:42.156Z" },
-]
-
-[[package]]
-name = "ankama-launcher-emulator-premium"
-version = "0.1.0"
-source = { editable = "AnkamaLauncherEmulatorPremium" }
-dependencies = [
-    { name = "base-python" },
-    { name = "filelock" },
-    { name = "frida" },
-    { name = "frida-tools" },
-    { name = "mitmproxy" },
-    { name = "playwright" },
-    { name = "protobuf" },
-    { name = "psutil" },
-    { name = "pycryptodomex" },
-    { name = "pydantic" },
-    { name = "pyqt6-fluent-widgets" },
-    { name = "pyright" },
-    { name = "pysocks" },
-    { name = "python-dateutil" },
-    { name = "python-dotenv" },
-    { name = "requests" },
-    { name = "thrift" },
-    { name = "wmi", marker = "sys_platform == 'win32'" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "poethepoet" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "base-python", git = "https://github.com/Valentin-alix/base-python.git" },
-    { name = "filelock", specifier = ">=3,<4" },
-    { name = "frida", specifier = "==16.7.9" },
-    { name = "frida-tools", specifier = ">=13.7.1" },
-    { name = "mitmproxy", specifier = ">=12.2.1" },
-    { name = "playwright", specifier = ">=1.58.0" },
-    { name = "protobuf", specifier = "==5.28.3" },
-    { name = "psutil", specifier = ">3.0.0" },
-    { name = "pycryptodomex", specifier = ">=3.21.0,<4" },
-    { name = "pydantic", specifier = ">=2.11.10" },
-    { name = "pyqt6-fluent-widgets", specifier = ">=1.11.1" },
-    { name = "pyright", specifier = ">=1.1.408" },
-    { name = "pysocks", specifier = ">=1.7.1" },
-    { name = "python-dateutil", specifier = ">=2.9.0.post0,<3" },
-    { name = "python-dotenv", specifier = ">=1.1.0,<2" },
-    { name = "requests", specifier = ">1.0.0" },
-    { name = "thrift", specifier = ">=0.20.0,<0.21" },
-    { name = "wmi", marker = "sys_platform == 'win32'", specifier = ">=1.5.1,<2" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "poethepoet", specifier = ">=0.44.0" },
-    { name = "ruff", specifier = ">=0.15.12" },
 ]
 
 [[package]]
@@ -546,63 +480,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/64/fb/2ade117f4e77b9aa2b2f5995ce9f932977028957e2335de4056e1d0fc72f/datamodel_code_generator-0.30.2.tar.gz", hash = "sha256:35738b004033ec238871b5653b50fa173eff657ca2757927d2020d5db265b21e", size = 451210, upload-time = "2025-06-07T02:42:12.194Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a1/44/5a751d9976e9efe4ae0c699dbb82538adcc602fd80dc879cc0466c9995da/datamodel_code_generator-0.30.2-py3-none-any.whl", hash = "sha256:1b0665b9ca58d5b5ded0f6527535ac47d91dd3f9710eb0e583395065ceba65a4", size = 119093, upload-time = "2025-06-07T02:42:10.121Z" },
-]
-
-[[package]]
-name = "db-dofus-unity"
-version = "0.1.0"
-source = { editable = "DBDofusUnity" }
-dependencies = [
-    { name = "base-python" },
-    { name = "cachetools" },
-    { name = "datamodel-code-generator" },
-    { name = "icecream" },
-    { name = "ida-domain" },
-    { name = "idapro" },
-    { name = "levenshtein" },
-    { name = "msgspec" },
-    { name = "numpy" },
-    { name = "pandas" },
-    { name = "proto-schema-parser" },
-    { name = "protobuf" },
-    { name = "pulp" },
-    { name = "pyarrow" },
-    { name = "pydantic" },
-    { name = "pyqt6-fluent-widgets" },
-    { name = "pyright" },
-    { name = "pytest" },
-    { name = "python-dotenv" },
-    { name = "scikit-learn" },
-    { name = "scipy" },
-    { name = "tqdm" },
-    { name = "typing-extensions" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "base-python", git = "https://github.com/Valentin-alix/base-python.git" },
-    { name = "cachetools", specifier = ">=7.0.5" },
-    { name = "datamodel-code-generator", specifier = ">=0.26.1" },
-    { name = "icecream", specifier = ">=2.2.0" },
-    { name = "ida-domain", specifier = ">=0.4.0" },
-    { name = "idapro", specifier = ">=0.0.7" },
-    { name = "levenshtein", specifier = ">=0.27.3" },
-    { name = "msgspec", specifier = ">=0.20.0" },
-    { name = "numpy", specifier = ">=2.4.2" },
-    { name = "pandas", specifier = ">=2.2.0" },
-    { name = "proto-schema-parser", specifier = ">=1.3.10" },
-    { name = "protobuf", specifier = "==5.28.3" },
-    { name = "pulp", specifier = ">=3.3.0" },
-    { name = "pyarrow", specifier = ">=19.0.0" },
-    { name = "pydantic", specifier = ">=2.9" },
-    { name = "pyqt6-fluent-widgets", specifier = ">=1.11.1" },
-    { name = "pyright", specifier = ">=1.1.408" },
-    { name = "pytest", specifier = ">=9.0.3" },
-    { name = "python-dotenv", specifier = ">=1.2.2" },
-    { name = "scikit-learn", specifier = ">=1.8.0" },
-    { name = "scipy", specifier = ">=1.17.1" },
-    { name = "tqdm", specifier = ">=4.66.5" },
-    { name = "typing-extensions", specifier = ">=4.6.0" },
 ]
 
 [[package]]
@@ -4994,16 +4871,23 @@ name = "voldemort"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "ankama-launcher-emulator-premium" },
     { name = "base-python" },
     { name = "cachetools" },
     { name = "datamodel-code-generator" },
-    { name = "db-dofus-unity" },
     { name = "fastparquet" },
+    { name = "filelock" },
+    { name = "frida" },
+    { name = "frida-tools" },
+    { name = "icecream" },
+    { name = "ida-domain" },
+    { name = "idapro" },
     { name = "langchain" },
     { name = "langchain-community" },
     { name = "langchain-openai" },
+    { name = "levenshtein" },
+    { name = "mitmproxy" },
     { name = "msgspec" },
+    { name = "numpy" },
     { name = "openapi-python-client" },
     { name = "pandas" },
     { name = "playwright" },
@@ -5011,11 +4895,13 @@ dependencies = [
     { name = "protobuf" },
     { name = "psutil" },
     { name = "pulp" },
+    { name = "pyarrow" },
     { name = "pyarrow-stubs" },
     { name = "pycryptodomex" },
     { name = "pydantic" },
     { name = "pyqt6-fluent-widgets" },
     { name = "pysocks" },
+    { name = "python-dateutil" },
     { name = "python-dotenv" },
     { name = "requests", extra = ["socks"] },
     { name = "scapy" },
@@ -5023,6 +4909,7 @@ dependencies = [
     { name = "scikit-learn" },
     { name = "sortedcontainers" },
     { name = "thrift" },
+    { name = "typing-extensions" },
     { name = "vulture" },
     { name = "wmi", marker = "sys_platform == 'win32'" },
 ]
@@ -5049,16 +4936,23 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "ankama-launcher-emulator-premium", editable = "AnkamaLauncherEmulatorPremium" },
     { name = "base-python", git = "https://github.com/Valentin-alix/base-python.git" },
     { name = "cachetools", specifier = ">=7.0.5" },
     { name = "datamodel-code-generator", specifier = ">=0.30.2,<0.31" },
-    { name = "db-dofus-unity", editable = "DBDofusUnity" },
     { name = "fastparquet", specifier = ">=2024.11.0,<2025" },
+    { name = "filelock", specifier = ">=3,<4" },
+    { name = "frida", specifier = "==16.7.9" },
+    { name = "frida-tools", specifier = ">=13.7.1" },
+    { name = "icecream", specifier = ">=2.2.0" },
+    { name = "ida-domain", specifier = ">=0.4.0" },
+    { name = "idapro", specifier = ">=0.0.7" },
     { name = "langchain", specifier = ">=1.2.6" },
     { name = "langchain-community", specifier = ">=0.4.1,<0.5" },
     { name = "langchain-openai", specifier = ">=1.0.3,<2" },
+    { name = "levenshtein", specifier = ">=0.27.3" },
+    { name = "mitmproxy", specifier = ">=12.2.1" },
     { name = "msgspec", specifier = ">=0.20.0" },
+    { name = "numpy", specifier = ">=2.4.2" },
     { name = "openapi-python-client", specifier = ">=0.26" },
     { name = "pandas", specifier = ">=2.3.3,<3" },
     { name = "playwright", specifier = ">=1.58.0" },
@@ -5066,11 +4960,13 @@ requires-dist = [
     { name = "protobuf", specifier = "==5.28.3" },
     { name = "psutil", specifier = ">=6.0.0,<7" },
     { name = "pulp", specifier = ">=3.2.1,<4" },
+    { name = "pyarrow", specifier = ">=19.0.0" },
     { name = "pyarrow-stubs", specifier = ">=20.0.0.20251215" },
     { name = "pycryptodomex", specifier = ">=3.23.0" },
     { name = "pydantic", specifier = ">=2.11.10" },
     { name = "pyqt6-fluent-widgets", specifier = ">=1.11.1" },
     { name = "pysocks", specifier = ">=1.7.1,<2.0.0" },
+    { name = "python-dateutil", specifier = ">=2.9.0.post0,<3" },
     { name = "python-dotenv", specifier = ">=1.1.0,<2" },
     { name = "requests", extras = ["socks"], specifier = ">=2.32" },
     { name = "scapy", specifier = ">=2.5.0,<3" },
@@ -5078,6 +4974,7 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.7.2,<2" },
     { name = "sortedcontainers", specifier = ">=2.4.0,<3" },
     { name = "thrift", specifier = ">=0.20.0,<0.21" },
+    { name = "typing-extensions", specifier = ">=4.6.0" },
     { name = "vulture", specifier = ">=2.16" },
     { name = "wmi", marker = "sys_platform == 'win32'", specifier = ">=1.5.1" },
 ]
@@ -5086,12 +4983,12 @@ requires-dist = [
 dev = [
     { name = "coverage", specifier = ">=7.13.1" },
     { name = "pandas-stubs", specifier = ">=2.3.3.251219" },
-    { name = "poethepoet", specifier = ">=0.42.1" },
+    { name = "poethepoet", specifier = ">=0.44.0" },
     { name = "pyqt6-stubs", specifier = ">=6.6.0" },
     { name = "pyright", specifier = ">=1.1.408" },
-    { name = "pytest", specifier = ">=8.0" },
+    { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-cov", specifier = ">=6.0" },
-    { name = "ruff", specifier = ">=0.12.12" },
+    { name = "ruff", specifier = ">=0.15.12" },
     { name = "scipy-stubs", specifier = ">=1.16.3.3" },
     { name = "tqdm", specifier = ">=4.66.5,<5" },
     { name = "types-cachetools", specifier = ">=5.5.0.20240820" },

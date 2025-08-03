@@ -1,0 +1,12 @@
+{
+    "addressMap": {
+        "methodDefinitions": [
+            {
+                "virtualAddress": "0x0000000180002000",
+                "name": "_ZN9Processor14ProcessMessagesEPN12MessageA13MessageObjectEPN12MessageB13MessageObjectEPN9MethodInfoE",
+                "signature": "void Processor_ProcessMessages(Processor * this, MessageA * a, MessageB * b, MethodInfo * method)",
+                "group": "Core.dll/Processor"
+            }
+        ]
+    }
+}

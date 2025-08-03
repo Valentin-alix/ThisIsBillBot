@@ -1,5 +1,21 @@
 {
-    "extends": ".venv/Lib/site-packages/base_python/pyrightconfig.json",
+    "typeCheckingMode": "standard",
+    "pythonVersion": "3.12",
+    "useLibraryCodeForTypes": true,
+    "stubPath": ".stubs",
+    "reportMissingTypeStubs": "none",
+    "reportIncompatibleMethodOverride": "error",
+    "reportUnknownVariableType": "error",
+    "reportUnknownMemberType": "error",
+    "reportUnknownArgumentType": "error",
+    "reportUnknownLambdaType": "error",
+    "reportUnknownParameterType": "error",
+    "reportMissingImports": "error",
+    "reportMissingModuleSource": "none",
+    "reportAttributeAccessIssue": "error",
+    "reportOptionalMemberAccess": "error",
+    "reportOptionalSubscript": "error",
+    "reportOptionalCall": "warning",
     "extraPaths": [
         "DBDofusUnity/datas/protos/non_obf/game",
         "DBDofusUnity/datas/protos/non_obf/connection",
@@ -8,6 +24,7 @@
         "DBDofusUnity"
     ],
     "ignore": [
+        "**/datas/**",
         "DBDofusUnity/datas/**",
         "DBDofusUnity/dofus_unity_reader/models/datas/**",
         "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator_premium/proxy/dofus3/login_message_pb2.py*",

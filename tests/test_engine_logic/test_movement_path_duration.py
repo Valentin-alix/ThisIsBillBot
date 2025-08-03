@@ -15,8 +15,7 @@ _LINEAR = DirectionsEnum.DOWN_RIGHT
 
 def _linear_path(step_count: int) -> list[PathElement]:
     return [
-        PathElement(step=MapPoint.from_cell_id(cell_id), orientation=_LINEAR)
-        for cell_id in range(step_count)
+        PathElement(step=MapPoint.from_cell_id(cell_id), orientation=_LINEAR) for cell_id in range(step_count)
     ]
 
 
@@ -52,9 +51,7 @@ def test_run_duration_matches_the_unity_client() -> None:
     # Logged movement of session 20260731T155836: cells 444 -> 220, eight vertical diagonal steps.
     # The real client confirmed after 1145 ms; the AS3 constants predicted 1200 ms and made every
     # confirm late. Guards against someone restoring 170/255/150 from `RunningMovementBehavior.as`.
-    path_elements = MovementPath.get_path_elements_from_cells(
-        [444, 416, 388, 360, 332, 304, 276, 248, 220]
-    )
+    path_elements = MovementPath.get_path_elements_from_cells([444, 416, 388, 360, 332, 304, 276, 248, 220])
     assert all(element.orientation is DirectionsEnum.UP for element in path_elements)
 
     duration = MovementPath.get_total_duration(path_elements, inventory_weight=0, inventory_weight_max=1000)

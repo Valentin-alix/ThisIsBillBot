@@ -19,7 +19,7 @@ from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
 from src.core.behaviors.storage.loads.recipe_loader_behavior import (
     RecipeLoaderBehavior,
 )
-from src.core.config import SMALL_RANGE
+from src.services.human_timings import HumanTimingsService
 from src.core.states.guild_chest_state import GIDS_BY_TAB
 
 
@@ -65,9 +65,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
             )
 
         all_ingredient_ids: set[int] = {
-            ingredient_id
-            for recipe in self._remaining_recipes
-            for ingredient_id in recipe.ingredientIds
+            ingredient_id for recipe in self._remaining_recipes for ingredient_id in recipe.ingredientIds
         }
         storage = self.game_state.guild_chest.storage
         tabs_to_discover = tuple(
@@ -95,15 +93,13 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
         self.logger.info(f"Gonna discover tab {tab}")
         return self.send_message_delayed(
             GuildChestTabSelectRequest(tab_number=tab),
-            SMALL_RANGE,
+            HumanTimingsService().get_timing_short_action(),
         )
 
     def get_storage_objects_by_gid(self) -> dict[int, ObjectItemInventory]:
         return self.game_state.guild_chest.storage.get_storage_objects_by_gid()
 
-    def reserve_ingredients_for_recipe(
-        self, recipe: RecipeItem, max_possible_result_quantity: int
-    ) -> None:
+    def reserve_ingredients_for_recipe(self, recipe: RecipeItem, max_possible_result_quantity: int) -> None:
         storage = self.game_state.guild_chest.storage
         reservations: list[ReservedIngredient] = []
         for ingredient_id, quantity in zip(recipe.ingredientIds, recipe.quantities):
@@ -130,9 +126,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
             reservations=tuple(reservations),
         )
 
-    def load_ingredients_for_recipe(
-        self, recipe: RecipeItem, max_possible_result_quantity: int
-    ) -> None:
+    def load_ingredients_for_recipe(self, recipe: RecipeItem, max_possible_result_quantity: int) -> None:
         storage = self.game_state.guild_chest.storage
         ingredients_infos: list[IngredientsInfo] = []
         for ingredient_id, quantity in zip(recipe.ingredientIds, recipe.quantities):
@@ -177,10 +171,8 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
                 originator=self,
             )
             return self.run_timer(
-                SMALL_RANGE,
-                lambda: self.event_manager.send(
-                    GuildChestTabSelectRequest(tab_number=ingredient_info.tab)
-                ),
+                HumanTimingsService().get_timing_short_action(),
+                lambda: self.event_manager.send(GuildChestTabSelectRequest(tab_number=ingredient_info.tab)),
             )
         self.on_tab_of_item_to_load(
             ingredient_info,
@@ -224,7 +216,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
             object_uid=item.item.uid,
             quantity=-ingredient_info.quantity * max_possible_result_quantity,
         )
-        self.send_message_delayed(req, SMALL_RANGE)
+        self.send_message_delayed(req, HumanTimingsService().get_timing_short_action())
 
     def on_ingredient_loaded(
         self,
@@ -265,9 +257,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
         if self._current_recipe_load.recipe in self._remaining_recipes:
             self._remaining_recipes.remove(self._current_recipe_load.recipe)
 
-        if self._current_recipe_load.recipe in [
-            recipe for recipe, _ in self._loaded_recipes_infos
-        ]:
+        if self._current_recipe_load.recipe in [recipe for recipe, _ in self._loaded_recipes_infos]:
             self._loaded_recipes_infos = [
                 (recipe, qty)
                 for recipe, qty in self._loaded_recipes_infos

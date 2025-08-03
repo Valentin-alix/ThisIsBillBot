@@ -57,17 +57,13 @@ def sent_messages(behavior: InteractiveBehavior, monkeypatch: pytest.MonkeyPatch
     return send
 
 
-def _mock_approach(
-    behavior: InteractiveBehavior, monkeypatch: pytest.MonkeyPatch, end_cell_id: int
-) -> None:
+def _mock_approach(behavior: InteractiveBehavior, monkeypatch: pytest.MonkeyPatch, end_cell_id: int) -> None:
     path = MovementPath(
         start=MapPoint.from_cell_id(PLAYER_CELL_ID),
         end=MapPoint.from_cell_id(end_cell_id),
         path=[],
     )
-    monkeypatch.setattr(
-        behavior.path_finding, "get_interactive_near_path", MagicMock(return_value=path)
-    )
+    monkeypatch.setattr(behavior.path_finding, "get_interactive_near_path", MagicMock(return_value=path))
 
 
 def _run_now(range_time: tuple[float, float] | float, func: Callable[[], None]) -> None:
@@ -77,11 +73,7 @@ def _run_now(range_time: tuple[float, float] | float, func: Callable[[], None]) 
 
 
 def _use_requests(send: MagicMock) -> list[InteractiveUseRequest]:
-    return [
-        call.args[0]
-        for call in send.call_args_list
-        if isinstance(call.args[0], InteractiveUseRequest)
-    ]
+    return [call.args[0] for call in send.call_args_list if isinstance(call.args[0], InteractiveUseRequest)]
 
 
 def _start(behavior: InteractiveBehavior, callback: MagicMock, skill_id: int | None = None) -> None:

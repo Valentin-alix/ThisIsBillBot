@@ -27,9 +27,6 @@ class UnloadBehavior(Behavior):
         )
 
     def on_unload_in_guild_chest_behavior_finished(self, error_code: str | None):
-        if (
-            error_code is not None
-            and error_code is not EnterGuildChestError.CANT_ACCESS_GUILD_CHEST
-        ):
+        if error_code is not None and error_code is not EnterGuildChestError.CANT_ACCESS_GUILD_CHEST:
             raise UnhandledErrorCodeException(error_code)
         self.unload_in_bank_behavior.start(callback=self.finish, parent=self)

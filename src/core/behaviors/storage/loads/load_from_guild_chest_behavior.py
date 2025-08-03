@@ -23,21 +23,19 @@ from src.core.behaviors.storage.loads.load_item_request import (
     get_portable_quantity,
 )
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
-from src.core.config import BASE_RANGE, SMALL_RANGE, USEFUL_UNLOAD
+from src.core.config import USEFUL_UNLOAD
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
 class LoadFromGuildChestBehavior(DialogHandlerBehavior):
     enter_guild_chest_behavior: EnterGuildChestBehavior
     unload_behavior: UnloadBehavior
-    _pending_load_items: list[PendingLoadItem] = field(
-        init=False, default_factory=lambda: []
-    )
+    _pending_load_items: list[PendingLoadItem] = field(init=False, default_factory=lambda: [])
 
     def run(self, load_items_infos: list[LoadItemInfo]) -> None:
         self._pending_load_items = [
-            PendingLoadItem.from_request(load_item_info)
-            for load_item_info in load_items_infos
+            PendingLoadItem.from_request(load_item_info) for load_item_info in load_items_infos
         ]
         if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
             return self.unload_behavior.start(
@@ -58,7 +56,7 @@ class LoadFromGuildChestBehavior(DialogHandlerBehavior):
 
     def on_unloaded(self) -> None:
         self.run_timer(
-            BASE_RANGE,
+            HumanTimingsService().get_timing_base_action(),
             lambda: self.enter_guild_chest_behavior.start(
                 callback=self.on_entered_guild_chest_behavior,
                 parent=self,
@@ -80,14 +78,12 @@ class LoadFromGuildChestBehavior(DialogHandlerBehavior):
         if len(self._pending_load_items) == 0:
             self.event_manager.on(
                 ExchangeLeaveEvent,
-                callback=lambda _: self.finish(
-                    load_items_infos=self._build_remaining_requests()
-                ),
+                callback=lambda _: self.finish(load_items_infos=self._build_remaining_requests()),
                 originator=self,
                 once=True,
                 override_on_self=True,
             )
-            return self.run_timer(BASE_RANGE, self.leave_all_dialogs)
+            return self.run_timer(HumanTimingsService().get_timing_base_action(), self.leave_all_dialogs)
 
         current_load = self._pending_load_items[0]
         if current_load.tab != self.game_state.guild_chest.tab_number:
@@ -124,14 +120,12 @@ class LoadFromGuildChestBehavior(DialogHandlerBehavior):
         if portable_quantity == 0:
             self.event_manager.on(
                 ExchangeLeaveEvent,
-                callback=lambda _: self.finish(
-                    load_items_infos=self._build_remaining_requests()
-                ),
+                callback=lambda _: self.finish(load_items_infos=self._build_remaining_requests()),
                 originator=self,
                 once=True,
                 override_on_self=True,
             )
-            return self.run_timer(BASE_RANGE, self.leave_all_dialogs)
+            return self.run_timer(HumanTimingsService().get_timing_base_action(), self.leave_all_dialogs)
 
         valid_quantity = min(portable_quantity, quantity_to_unload)
 
@@ -161,7 +155,7 @@ class LoadFromGuildChestBehavior(DialogHandlerBehavior):
             object_uid=related_item.item.uid,
             quantity=-valid_quantity,
         )
-        self.send_message_delayed(req, SMALL_RANGE)
+        self.send_message_delayed(req, HumanTimingsService().get_timing_short_action())
 
     def go_to_tab(self, tab_number: int) -> None:
         self.event_manager.on(
@@ -172,10 +166,8 @@ class LoadFromGuildChestBehavior(DialogHandlerBehavior):
             override_on_self=True,
         )
         return self.run_timer(
-            SMALL_RANGE,
-            lambda: self.event_manager.send(
-                GuildChestTabSelectRequest(tab_number=tab_number)
-            ),
+            HumanTimingsService().get_timing_short_action(),
+            lambda: self.event_manager.send(GuildChestTabSelectRequest(tab_number=tab_number)),
         )
 
     def on_item_loaded(self, tab: int, gid: int, quantity: int) -> None:

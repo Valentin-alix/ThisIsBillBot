@@ -10,7 +10,8 @@ from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
-from src.core.config import BASE_RANGE, USEFUL_UNLOAD
+from src.core.config import USEFUL_UNLOAD
+from src.services.human_timings import HumanTimingsService
 from src.core.engine.crafts.recipes import (
     get_max_possible_result_quantity,
     get_max_result_quantity,
@@ -21,9 +22,7 @@ from src.core.engine.crafts.recipes import (
 class RecipeLoaderBehavior(DialogHandlerBehavior):
     unload_behavior: UnloadBehavior
 
-    _remaining_recipes: list[RecipeItem] = field(
-        init=False, default_factory=list[RecipeItem]
-    )
+    _remaining_recipes: list[RecipeItem] = field(init=False, default_factory=list[RecipeItem])
     _loaded_recipes_infos: list[tuple[RecipeItem, int]] = field(
         init=False, default_factory=list[tuple[RecipeItem, int]]
     )
@@ -37,9 +36,7 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
         pass
 
     @abstractmethod
-    def load_ingredients_for_recipe(
-        self, recipe: RecipeItem, max_possible_result_quantity: int
-    ) -> None:
+    def load_ingredients_for_recipe(self, recipe: RecipeItem, max_possible_result_quantity: int) -> None:
         pass
 
     def run(self, recipes: list[RecipeItem]) -> None:
@@ -47,9 +44,7 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
         self._loaded_recipes_infos = []
 
         if self.game_state.inventory.pod_percentage > USEFUL_UNLOAD:
-            return self.unload_behavior.start(
-                callback=self.on_unload_behavior_finished, parent=self
-            )
+            return self.unload_behavior.start(callback=self.on_unload_behavior_finished, parent=self)
         self.on_unloaded()
 
     def on_unload_behavior_finished(self, error_code: str | None) -> None:
@@ -62,7 +57,7 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
         self.on_unloaded()
 
     def on_unloaded(self) -> None:
-        self.run_timer(BASE_RANGE, self.enter_storage)
+        self.run_timer(HumanTimingsService().get_timing_base_action(), self.enter_storage)
 
     def load_recipe(self) -> None:
         if len(self._remaining_recipes) == 0:
@@ -96,9 +91,7 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
         self.reserve_ingredients_for_recipe(recipe, max_possible_result_quantity)
         self.load_ingredients_for_recipe(recipe, max_possible_result_quantity)
 
-    def reserve_ingredients_for_recipe(
-        self, recipe: RecipeItem, max_possible_result_quantity: int
-    ) -> None:
+    def reserve_ingredients_for_recipe(self, recipe: RecipeItem, max_possible_result_quantity: int) -> None:
         pass
 
     def on_full_loaded(self) -> None:
@@ -111,7 +104,7 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
             originator=self,
             once=True,
         )
-        self.run_timer(BASE_RANGE, self.leave_all_dialogs)
+        self.run_timer(HumanTimingsService().get_timing_base_action(), self.leave_all_dialogs)
 
     def leave_all_dialogs(self) -> None:
         self.leave_dialog()

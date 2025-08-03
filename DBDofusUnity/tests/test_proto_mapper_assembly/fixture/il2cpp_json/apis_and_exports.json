@@ -1,0 +1,18 @@
+{
+    "addressMap": {
+        "methodDefinitions": [],
+        "apis": [
+            {
+                "virtualAddress": "0x000000018055BB60",
+                "name": "il2cpp_object_new",
+                "signature": "Il2CppObject * il2cpp_object_new(Il2CppClass * klass)"
+            }
+        ],
+        "exports": [
+            {
+                "virtualAddress": "0x000000018055BB60",
+                "name": "il2cpp_object_new"
+            }
+        ]
+    }
+}

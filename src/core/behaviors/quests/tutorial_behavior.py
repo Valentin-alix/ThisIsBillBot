@@ -5,7 +5,7 @@ from gamemap_pb2 import MapComplementaryInformationEvent
 from quest_pb2 import GuideModQuitRequest
 
 from src.core.behaviors.behavior import Behavior
-from src.core.config import BIG_RANGE
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
@@ -19,9 +19,7 @@ class TutorialBehavior(Behavior):
             once=True,
         )
         req = GuideModQuitRequest()
-        self.run_timer(BIG_RANGE, lambda: self.event_manager.send(req))
+        self.run_timer(HumanTimingsService().get_timing_long_action(), lambda: self.event_manager.send(req))
 
-    def on_map_complementary_information_event(
-        self, msg: MapComplementaryInformationEvent
-    ):
+    def on_map_complementary_information_event(self, msg: MapComplementaryInformationEvent):
         self.finish()

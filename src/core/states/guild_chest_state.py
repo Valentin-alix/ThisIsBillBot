@@ -36,9 +36,7 @@ class GuildChestState(State):
     game_info_signals: GameInfoSignals
     _tab_number: int = dataclasses.field(init=False, default=1)
     _has_guild: bool = dataclasses.field(init=False, default=False)
-    tabs: list[int] = dataclasses.field(
-        init=False, default_factory=lambda: [1, 2, 3, 4]
-    )
+    tabs: list[int] = dataclasses.field(init=False, default_factory=lambda: [1, 2, 3, 4])
     rank_id: int = dataclasses.field(init=False, default=4)
 
     def clear_state(self) -> None:
@@ -70,9 +68,4 @@ class GuildChestState(State):
 
     @property
     def can_access_guild_chest(self) -> bool:
-        return (
-            self.player_state.is_sub
-            and self.has_guild
-            and DO_USE_GUILD_CHEST
-            and self.rank_id <= 3
-        )
+        return self.player_state.is_sub and self.has_guild and DO_USE_GUILD_CHEST and self.rank_id <= 3

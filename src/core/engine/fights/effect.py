@@ -105,9 +105,7 @@ def is_self_shield_effect(effect: Effect) -> bool:
     return _has_description(effect, SHIELD_DESCRIPTION_IDS)
 
 
-def resolve_effect_element(
-    effect_element: int, primary_elem: EffectElement
-) -> int | None:
+def resolve_effect_element(effect_element: int, primary_elem: EffectElement) -> int | None:
     """Resolve ``effectElement`` to a concrete element id, or None if non-damage.
 
     The "best element" sentinel (5) is mapped to the caster's primary element.
@@ -135,9 +133,7 @@ def get_effect_elem_by_stat(stat_id: int) -> EffectElement:
 
 def get_type_effect(spell_id: int, effect: Effect) -> TypeEffect | None:
     data_effect = DataReader().effect_by_id[effect.effectId]
-    description_spell = I18N().name_by_id[
-        DataReader().spell_by_id[spell_id].descriptionId
-    ]
+    description_spell = I18N().name_by_id[DataReader().spell_by_id[spell_id].descriptionId]
     if (
         data_effect.descriptionId == DescriptionEnum.MALUS_LIFE_PERCENT
         and "vie du lanceur" in description_spell.lower()
@@ -166,9 +162,7 @@ def is_included_by_mask(
         if any(char in masks for char in ("c", "C", "a")):
             return True
 
-    is_same_team = (
-        caster_team == target_actor.actor_information.fighter.spawn_information.team
-    )
+    is_same_team = caster_team == target_actor.actor_information.fighter.spawn_information.team
 
     is_summoned_target = False
 

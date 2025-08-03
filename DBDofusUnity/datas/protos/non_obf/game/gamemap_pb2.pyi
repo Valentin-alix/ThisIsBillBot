@@ -1,0 +1,357 @@
+import common_pb2 as _common_pb2
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+
+DESCRIPTOR: _descriptor.FileDescriptor
+
+class MapChangeRequest(_message.Message):
+    __slots__ = ("map_id", "auto_pilot")
+    MAP_ID_FIELD_NUMBER: _ClassVar[int]
+    AUTO_PILOT_FIELD_NUMBER: _ClassVar[int]
+    map_id: int
+    auto_pilot: bool
+    def __init__(self, map_id: _Optional[int] = ..., auto_pilot: bool = ...) -> None: ...
+
+class GameRolePlayShowActorsEvent(_message.Message):
+    __slots__ = ("actors",)
+    ACTORS_FIELD_NUMBER: _ClassVar[int]
+    actors: _containers.RepeatedCompositeFieldContainer[_common_pb2.ActorPositionInformation]
+    def __init__(self, actors: _Optional[_Iterable[_Union[_common_pb2.ActorPositionInformation, _Mapping]]] = ...) -> None: ...
+
+class MapMovementRefusedEvent(_message.Message):
+    __slots__ = ("cell_x", "cell_y")
+    CELL_X_FIELD_NUMBER: _ClassVar[int]
+    CELL_Y_FIELD_NUMBER: _ClassVar[int]
+    cell_x: int
+    cell_y: int
+    def __init__(self, cell_x: _Optional[int] = ..., cell_y: _Optional[int] = ...) -> None: ...
+
+class MapComplementaryInformationEvent(_message.Message):
+    __slots__ = ("subarea_id", "map_id", "houses", "actors", "interactive_elements", "stated_elements", "obstacles", "fights", "has_aggressive_monsters", "unknown_fuyn", "in_house_information", "coordinates", "breach_information", "anomaly_information", "haven_bag_information")
+    SUBAREA_ID_FIELD_NUMBER: _ClassVar[int]
+    MAP_ID_FIELD_NUMBER: _ClassVar[int]
+    HOUSES_FIELD_NUMBER: _ClassVar[int]
+    ACTORS_FIELD_NUMBER: _ClassVar[int]
+    INTERACTIVE_ELEMENTS_FIELD_NUMBER: _ClassVar[int]
+    STATED_ELEMENTS_FIELD_NUMBER: _ClassVar[int]
+    OBSTACLES_FIELD_NUMBER: _ClassVar[int]
+    FIGHTS_FIELD_NUMBER: _ClassVar[int]
+    HAS_AGGRESSIVE_MONSTERS_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FUYN_FIELD_NUMBER: _ClassVar[int]
+    IN_HOUSE_INFORMATION_FIELD_NUMBER: _ClassVar[int]
+    COORDINATES_FIELD_NUMBER: _ClassVar[int]
+    BREACH_INFORMATION_FIELD_NUMBER: _ClassVar[int]
+    ANOMALY_INFORMATION_FIELD_NUMBER: _ClassVar[int]
+    HAVEN_BAG_INFORMATION_FIELD_NUMBER: _ClassVar[int]
+    subarea_id: int
+    map_id: int
+    houses: _containers.RepeatedCompositeFieldContainer[_common_pb2.House]
+    actors: _containers.RepeatedCompositeFieldContainer[_common_pb2.ActorPositionInformation]
+    interactive_elements: _containers.RepeatedCompositeFieldContainer[_common_pb2.InteractiveElement]
+    stated_elements: _containers.RepeatedCompositeFieldContainer[_common_pb2.StatedElement]
+    obstacles: _containers.RepeatedCompositeFieldContainer[MapObstacle]
+    fights: _containers.RepeatedCompositeFieldContainer[_common_pb2.FightCommonInformation]
+    has_aggressive_monsters: bool
+    unknown_fuyn: _containers.RepeatedCompositeFieldContainer[UnknownJqn]
+    in_house_information: MapComplementaryInHouseInformation
+    coordinates: _common_pb2.MapCoordinates
+    breach_information: MapComplementaryBreachInformation
+    anomaly_information: MapComplementaryAnomalyInformation
+    haven_bag_information: MapComplementaryHavenBagInformation
+    def __init__(self, subarea_id: _Optional[int] = ..., map_id: _Optional[int] = ..., houses: _Optional[_Iterable[_Union[_common_pb2.House, _Mapping]]] = ..., actors: _Optional[_Iterable[_Union[_common_pb2.ActorPositionInformation, _Mapping]]] = ..., interactive_elements: _Optional[_Iterable[_Union[_common_pb2.InteractiveElement, _Mapping]]] = ..., stated_elements: _Optional[_Iterable[_Union[_common_pb2.StatedElement, _Mapping]]] = ..., obstacles: _Optional[_Iterable[_Union[MapObstacle, _Mapping]]] = ..., fights: _Optional[_Iterable[_Union[_common_pb2.FightCommonInformation, _Mapping]]] = ..., has_aggressive_monsters: bool = ..., unknown_fuyn: _Optional[_Iterable[_Union[UnknownJqn, _Mapping]]] = ..., in_house_information: _Optional[_Union[MapComplementaryInHouseInformation, _Mapping]] = ..., coordinates: _Optional[_Union[_common_pb2.MapCoordinates, _Mapping]] = ..., breach_information: _Optional[_Union[MapComplementaryBreachInformation, _Mapping]] = ..., anomaly_information: _Optional[_Union[MapComplementaryAnomalyInformation, _Mapping]] = ..., haven_bag_information: _Optional[_Union[MapComplementaryHavenBagInformation, _Mapping]] = ...) -> None: ...
+
+class MapFightCountEvent(_message.Message):
+    __slots__ = ("fight_count",)
+    FIGHT_COUNT_FIELD_NUMBER: _ClassVar[int]
+    fight_count: int
+    def __init__(self, fight_count: _Optional[int] = ...) -> None: ...
+
+class MapMovementRequest(_message.Message):
+    __slots__ = ("key_cells", "map_id", "cautious")
+    KEY_CELLS_FIELD_NUMBER: _ClassVar[int]
+    MAP_ID_FIELD_NUMBER: _ClassVar[int]
+    CAUTIOUS_FIELD_NUMBER: _ClassVar[int]
+    key_cells: _containers.RepeatedScalarFieldContainer[int]
+    map_id: int
+    cautious: bool
+    def __init__(self, key_cells: _Optional[_Iterable[int]] = ..., map_id: _Optional[int] = ..., cautious: bool = ...) -> None: ...
+
+class MapComplementaryWithCoordsInformation(_message.Message):
+    __slots__ = ("coordinates",)
+    COORDINATES_FIELD_NUMBER: _ClassVar[int]
+    coordinates: _common_pb2.MapCoordinates
+    def __init__(self, coordinates: _Optional[_Union[_common_pb2.MapCoordinates, _Mapping]] = ...) -> None: ...
+
+class MapMovementConfirmResponse(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class MapRunningFightDetailsExtendedEvent(_message.Message):
+    __slots__ = ("fight_id", "attackers", "defenders", "named_party_teams")
+    FIGHT_ID_FIELD_NUMBER: _ClassVar[int]
+    ATTACKERS_FIELD_NUMBER: _ClassVar[int]
+    DEFENDERS_FIELD_NUMBER: _ClassVar[int]
+    NAMED_PARTY_TEAMS_FIELD_NUMBER: _ClassVar[int]
+    fight_id: int
+    attackers: _containers.RepeatedCompositeFieldContainer[_common_pb2.FighterLightInformation]
+    defenders: _containers.RepeatedCompositeFieldContainer[_common_pb2.FighterLightInformation]
+    named_party_teams: _containers.RepeatedCompositeFieldContainer[_common_pb2.NamedPartyTeam]
+    def __init__(self, fight_id: _Optional[int] = ..., attackers: _Optional[_Iterable[_Union[_common_pb2.FighterLightInformation, _Mapping]]] = ..., defenders: _Optional[_Iterable[_Union[_common_pb2.FighterLightInformation, _Mapping]]] = ..., named_party_teams: _Optional[_Iterable[_Union[_common_pb2.NamedPartyTeam, _Mapping]]] = ...) -> None: ...
+
+class MapCurrentInstanceEvent(_message.Message):
+    __slots__ = ("map_id", "instantiate_map_id")
+    MAP_ID_FIELD_NUMBER: _ClassVar[int]
+    INSTANTIATE_MAP_ID_FIELD_NUMBER: _ClassVar[int]
+    map_id: int
+    instantiate_map_id: int
+    def __init__(self, map_id: _Optional[int] = ..., instantiate_map_id: _Optional[int] = ...) -> None: ...
+
+class MapComplementaryInHouseInformation(_message.Message):
+    __slots__ = ("current_house",)
+    CURRENT_HOUSE_FIELD_NUMBER: _ClassVar[int]
+    current_house: _common_pb2.House
+    def __init__(self, current_house: _Optional[_Union[_common_pb2.House, _Mapping]] = ...) -> None: ...
+
+class MapMovementCancelRequest(_message.Message):
+    __slots__ = ("cell_id",)
+    CELL_ID_FIELD_NUMBER: _ClassVar[int]
+    cell_id: int
+    def __init__(self, cell_id: _Optional[int] = ...) -> None: ...
+
+class FightMapInformationEvent(_message.Message):
+    __slots__ = ("subarea_id", "map_id", "coordinates", "breach_information", "anomaly_information")
+    SUBAREA_ID_FIELD_NUMBER: _ClassVar[int]
+    MAP_ID_FIELD_NUMBER: _ClassVar[int]
+    COORDINATES_FIELD_NUMBER: _ClassVar[int]
+    BREACH_INFORMATION_FIELD_NUMBER: _ClassVar[int]
+    ANOMALY_INFORMATION_FIELD_NUMBER: _ClassVar[int]
+    subarea_id: int
+    map_id: int
+    coordinates: _common_pb2.MapCoordinates
+    breach_information: MapComplementaryBreachInformation
+    anomaly_information: MapComplementaryAnomalyInformation
+    def __init__(self, subarea_id: _Optional[int] = ..., map_id: _Optional[int] = ..., coordinates: _Optional[_Union[_common_pb2.MapCoordinates, _Mapping]] = ..., breach_information: _Optional[_Union[MapComplementaryBreachInformation, _Mapping]] = ..., anomaly_information: _Optional[_Union[MapComplementaryAnomalyInformation, _Mapping]] = ...) -> None: ...
+
+class MapChangeOrientationRequest(_message.Message):
+    __slots__ = ("direction",)
+    DIRECTION_FIELD_NUMBER: _ClassVar[int]
+    direction: _common_pb2.Direction
+    def __init__(self, direction: _Optional[_Union[_common_pb2.Direction, str]] = ...) -> None: ...
+
+class MapObstacle(_message.Message):
+    __slots__ = ("cell_id", "state")
+    class ObstacleState(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+        __slots__ = ()
+        OBSTACLE_OPENED: _ClassVar[MapObstacle.ObstacleState]
+        OBSTACLE_CLOSED: _ClassVar[MapObstacle.ObstacleState]
+    OBSTACLE_OPENED: MapObstacle.ObstacleState
+    OBSTACLE_CLOSED: MapObstacle.ObstacleState
+    CELL_ID_FIELD_NUMBER: _ClassVar[int]
+    STATE_FIELD_NUMBER: _ClassVar[int]
+    cell_id: int
+    state: MapObstacle.ObstacleState
+    def __init__(self, cell_id: _Optional[int] = ..., state: _Optional[_Union[MapObstacle.ObstacleState, str]] = ...) -> None: ...
+
+class MapRunningFightDetailsEvent(_message.Message):
+    __slots__ = ("fight_id", "attackers", "defenders")
+    FIGHT_ID_FIELD_NUMBER: _ClassVar[int]
+    ATTACKERS_FIELD_NUMBER: _ClassVar[int]
+    DEFENDERS_FIELD_NUMBER: _ClassVar[int]
+    fight_id: int
+    attackers: _containers.RepeatedCompositeFieldContainer[_common_pb2.FighterLightInformation]
+    defenders: _containers.RepeatedCompositeFieldContainer[_common_pb2.FighterLightInformation]
+    def __init__(self, fight_id: _Optional[int] = ..., attackers: _Optional[_Iterable[_Union[_common_pb2.FighterLightInformation, _Mapping]]] = ..., defenders: _Optional[_Iterable[_Union[_common_pb2.FighterLightInformation, _Mapping]]] = ...) -> None: ...
+
+class MapTeleportOnSameEvent(_message.Message):
+    __slots__ = ("player_id", "cell_id")
+    PLAYER_ID_FIELD_NUMBER: _ClassVar[int]
+    CELL_ID_FIELD_NUMBER: _ClassVar[int]
+    player_id: int
+    cell_id: int
+    def __init__(self, player_id: _Optional[int] = ..., cell_id: _Optional[int] = ...) -> None: ...
+
+class MapMovementConfirmRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class MapRunningFightStopListeningRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class MapRunningFightsRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class MapComplementaryBreachInformation(_message.Message):
+    __slots__ = ("unknown_fuuq", "unknown_fuur", "unknown_fuus")
+    UNKNOWN_FUUQ_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FUUR_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FUUS_FIELD_NUMBER: _ClassVar[int]
+    unknown_fuuq: BreachBranchesInformation
+    unknown_fuur: BreachRoomInformation
+    unknown_fuus: UnknownJqj
+    def __init__(self, unknown_fuuq: _Optional[_Union[BreachBranchesInformation, _Mapping]] = ..., unknown_fuur: _Optional[_Union[BreachRoomInformation, _Mapping]] = ..., unknown_fuus: _Optional[_Union[UnknownJqj, _Mapping]] = ...) -> None: ...
+
+class MapObstacleUpdateEvent(_message.Message):
+    __slots__ = ("obstacles",)
+    OBSTACLES_FIELD_NUMBER: _ClassVar[int]
+    obstacles: _containers.RepeatedCompositeFieldContainer[MapObstacle]
+    def __init__(self, obstacles: _Optional[_Iterable[_Union[MapObstacle, _Mapping]]] = ...) -> None: ...
+
+class MapCurrentEvent(_message.Message):
+    __slots__ = ("map_id",)
+    MAP_ID_FIELD_NUMBER: _ClassVar[int]
+    map_id: int
+    def __init__(self, map_id: _Optional[int] = ...) -> None: ...
+
+class MapComplementaryHavenBagInformation(_message.Message):
+    __slots__ = ("owner_information", "theme", "room_id", "max_room_id")
+    OWNER_INFORMATION_FIELD_NUMBER: _ClassVar[int]
+    THEME_FIELD_NUMBER: _ClassVar[int]
+    ROOM_ID_FIELD_NUMBER: _ClassVar[int]
+    MAX_ROOM_ID_FIELD_NUMBER: _ClassVar[int]
+    owner_information: _common_pb2.Character
+    theme: int
+    room_id: int
+    max_room_id: int
+    def __init__(self, owner_information: _Optional[_Union[_common_pb2.Character, _Mapping]] = ..., theme: _Optional[int] = ..., room_id: _Optional[int] = ..., max_room_id: _Optional[int] = ...) -> None: ...
+
+class MapInformationRequest(_message.Message):
+    __slots__ = ("map_id",)
+    MAP_ID_FIELD_NUMBER: _ClassVar[int]
+    map_id: int
+    def __init__(self, map_id: _Optional[int] = ...) -> None: ...
+
+class MapChangeOrientationEvent(_message.Message):
+    __slots__ = ("actor_id", "direction")
+    ACTOR_ID_FIELD_NUMBER: _ClassVar[int]
+    DIRECTION_FIELD_NUMBER: _ClassVar[int]
+    actor_id: int
+    direction: _common_pb2.Direction
+    def __init__(self, actor_id: _Optional[int] = ..., direction: _Optional[_Union[_common_pb2.Direction, str]] = ...) -> None: ...
+
+class MapRunningFightsEvent(_message.Message):
+    __slots__ = ("fights",)
+    FIGHTS_FIELD_NUMBER: _ClassVar[int]
+    fights: _containers.RepeatedCompositeFieldContainer[_common_pb2.FightExternalInformation]
+    def __init__(self, fights: _Optional[_Iterable[_Union[_common_pb2.FightExternalInformation, _Mapping]]] = ...) -> None: ...
+
+class MapMovementEvent(_message.Message):
+    __slots__ = ("cells", "character_id", "cautious", "direction")
+    CELLS_FIELD_NUMBER: _ClassVar[int]
+    CHARACTER_ID_FIELD_NUMBER: _ClassVar[int]
+    CAUTIOUS_FIELD_NUMBER: _ClassVar[int]
+    DIRECTION_FIELD_NUMBER: _ClassVar[int]
+    cells: _containers.RepeatedScalarFieldContainer[int]
+    character_id: int
+    cautious: bool
+    direction: int
+    def __init__(self, cells: _Optional[_Iterable[int]] = ..., character_id: _Optional[int] = ..., cautious: bool = ..., direction: _Optional[int] = ...) -> None: ...
+
+class MapComplementaryAnomalyInformation(_message.Message):
+    __slots__ = ("level", "closing_time")
+    LEVEL_FIELD_NUMBER: _ClassVar[int]
+    CLOSING_TIME_FIELD_NUMBER: _ClassVar[int]
+    level: int
+    closing_time: int
+    def __init__(self, level: _Optional[int] = ..., closing_time: _Optional[int] = ...) -> None: ...
+
+class MapRunningFightDetailsRequest(_message.Message):
+    __slots__ = ("fight_id", "unknown_fuuy")
+    FIGHT_ID_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FUUY_FIELD_NUMBER: _ClassVar[int]
+    fight_id: int
+    unknown_fuuy: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, fight_id: _Optional[int] = ..., unknown_fuuy: _Optional[_Iterable[str]] = ...) -> None: ...
+
+class MapErrorNotFoundRequest(_message.Message):
+    __slots__ = ("map_id",)
+    MAP_ID_FIELD_NUMBER: _ClassVar[int]
+    map_id: int
+    def __init__(self, map_id: _Optional[int] = ...) -> None: ...
+
+class UnknownJqf(_message.Message):
+    __slots__ = ("unknown_fuow",)
+    UNKNOWN_FUOW_FIELD_NUMBER: _ClassVar[int]
+    unknown_fuow: int
+    def __init__(self, unknown_fuow: _Optional[int] = ...) -> None: ...
+
+class UnknownJqj(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class UnknownJqn(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class BreachBranchesInformation(_message.Message):
+    __slots__ = ("unknown_fuqh",)
+    class Branch(_message.Message):
+        __slots__ = ("unknown_fuqc", "unknown_fuqd")
+        UNKNOWN_FUQC_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_FUQD_FIELD_NUMBER: _ClassVar[int]
+        unknown_fuqc: int
+        unknown_fuqd: _containers.RepeatedScalarFieldContainer[int]
+        def __init__(self, unknown_fuqc: _Optional[int] = ..., unknown_fuqd: _Optional[_Iterable[int]] = ...) -> None: ...
+    UNKNOWN_FUQH_FIELD_NUMBER: _ClassVar[int]
+    unknown_fuqh: BreachBranchesInformation.Branch
+    def __init__(self, unknown_fuqh: _Optional[_Union[BreachBranchesInformation.Branch, _Mapping]] = ...) -> None: ...
+
+class BreachRoomInformation(_message.Message):
+    __slots__ = ("unknown_futh", "unknown_futi", "unknown_futk")
+    UNKNOWN_FUTH_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FUTI_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FUTK_FIELD_NUMBER: _ClassVar[int]
+    unknown_futh: int
+    unknown_futi: int
+    unknown_futk: int
+    def __init__(self, unknown_futh: _Optional[int] = ..., unknown_futi: _Optional[int] = ..., unknown_futk: _Optional[int] = ...) -> None: ...
+
+class UnknownJsg(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class UnknownJfl(_message.Message):
+    __slots__ = ("unknown_ftcg", "unknown_ftch", "unknown_ftci", "unknown_ftcj", "unknown_ftck")
+    UNKNOWN_FTCG_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FTCH_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FTCI_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FTCJ_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FTCK_FIELD_NUMBER: _ClassVar[int]
+    unknown_ftcg: int
+    unknown_ftch: int
+    unknown_ftci: int
+    unknown_ftcj: int
+    unknown_ftck: int
+    def __init__(self, unknown_ftcg: _Optional[int] = ..., unknown_ftch: _Optional[int] = ..., unknown_ftci: _Optional[int] = ..., unknown_ftcj: _Optional[int] = ..., unknown_ftck: _Optional[int] = ...) -> None: ...
+
+class UnknownJff(_message.Message):
+    __slots__ = ("unknown_ftbm", "unknown_ftbn", "unknown_ftbo")
+    class UnknownJfb(_message.Message):
+        __slots__ = ("unknown_ftbc",)
+        UNKNOWN_FTBC_FIELD_NUMBER: _ClassVar[int]
+        unknown_ftbc: UnknownJfl
+        def __init__(self, unknown_ftbc: _Optional[_Union[UnknownJfl, _Mapping]] = ...) -> None: ...
+    UNKNOWN_FTBM_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FTBN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FTBO_FIELD_NUMBER: _ClassVar[int]
+    unknown_ftbm: int
+    unknown_ftbn: UnknownJff.UnknownJfb
+    unknown_ftbo: int
+    def __init__(self, unknown_ftbm: _Optional[int] = ..., unknown_ftbn: _Optional[_Union[UnknownJff.UnknownJfb, _Mapping]] = ..., unknown_ftbo: _Optional[int] = ...) -> None: ...
+
+class UnknownJfk(_message.Message):
+    __slots__ = ("unknown_ftca", "unknown_ftcb")
+    class UnknownJfh(_message.Message):
+        __slots__ = ("unknown_ftbt",)
+        UNKNOWN_FTBT_FIELD_NUMBER: _ClassVar[int]
+        unknown_ftbt: UnknownJfl
+        def __init__(self, unknown_ftbt: _Optional[_Union[UnknownJfl, _Mapping]] = ...) -> None: ...
+    UNKNOWN_FTCA_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FTCB_FIELD_NUMBER: _ClassVar[int]
+    unknown_ftca: UnknownJfk.UnknownJfh
+    unknown_ftcb: int
+    def __init__(self, unknown_ftca: _Optional[_Union[UnknownJfk.UnknownJfh, _Mapping]] = ..., unknown_ftcb: _Optional[int] = ...) -> None: ...

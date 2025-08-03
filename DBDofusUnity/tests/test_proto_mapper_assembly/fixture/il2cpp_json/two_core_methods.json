@@ -1,0 +1,18 @@
+{
+    "addressMap": {
+        "methodDefinitions": [
+            {
+                "virtualAddress": "0x0000000180001000",
+                "name": "_ZN9MessageA5GetIdEv",
+                "signature": "int32_t MessageA_GetId(MessageA * this, MethodInfo * method)",
+                "group": "Core.dll/MessageA"
+            },
+            {
+                "virtualAddress": "0x0000000180001200",
+                "name": "_ZN9MessageA5SetIdEi",
+                "signature": "void MessageA_SetId(MessageA * this, int32_t value, MethodInfo * method)",
+                "group": "Core.dll/MessageA"
+            }
+        ]
+    }
+}

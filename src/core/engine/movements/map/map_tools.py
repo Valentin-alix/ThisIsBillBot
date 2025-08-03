@@ -45,26 +45,18 @@ class MapTools:
             _loc4_ + _loc5_, _loc9_ - _loc8_, _loc11_ + _loc12_, _loc16_ - _loc15_
         )
         if look_direction is None:
-            raise ValueError(
-                f"look direction should not be none ? {cell_id} -> {dst_cell_id}"
-            )
+            raise ValueError(f"look direction should not be none ? {cell_id} -> {dst_cell_id}")
         return look_direction
 
     @staticmethod
-    def get_look_direction8_exact_by_coord(
-        x_1: int, y_1: int, x_2: int, y_2: int
-    ) -> DirectionsEnum | None:
+    def get_look_direction8_exact_by_coord(x_1: int, y_1: int, x_2: int, y_2: int) -> DirectionsEnum | None:
         look_direction = MapTools.get_look_direction4_exact_by_coord(x_1, y_1, x_2, y_2)
         if look_direction is None:
-            look_direction = MapTools.get_look_direction4_diag_exact_by_coord(
-                x_1, y_1, x_2, y_2
-            )
+            look_direction = MapTools.get_look_direction4_diag_exact_by_coord(x_1, y_1, x_2, y_2)
         return look_direction
 
     @staticmethod
-    def get_look_direction4_exact_by_coord(
-        x_1: int, y_1: int, x_2: int, y_2: int
-    ) -> DirectionsEnum | None:
+    def get_look_direction4_exact_by_coord(x_1: int, y_1: int, x_2: int, y_2: int) -> DirectionsEnum | None:
         diff_x = x_2 - x_1
         diff_y = y_2 - y_1
         if diff_y == 0:
@@ -154,7 +146,5 @@ class MapTools:
     @staticmethod
     def is_map_allowed_for_unsub(map_id: int) -> bool:
         return (
-            DataReader()
-            .sub_area_by_id[DataReader().map_info_by_map_id[map_id].subAreaId]
-            .basicAccountAllowed
+            DataReader().sub_area_by_id[DataReader().map_info_by_map_id[map_id].subAreaId].basicAccountAllowed
         ) == 1

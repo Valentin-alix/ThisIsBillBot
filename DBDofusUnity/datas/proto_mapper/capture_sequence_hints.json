@@ -1,0 +1,137 @@
+{
+  "sequences": [
+    {
+      "name": "object_average_prices",
+      "messages": [
+        "ObjectAveragePricesRequest",
+        "ObjectAveragePricesEvent"
+      ]
+    },
+    {
+      "name": "ping_pong",
+      "messages": [
+        "PingRequest",
+        "PongEvent"
+      ]
+    },
+    {
+      "name": "fight_turn_start_playing",
+      "messages": [
+        "FightStartingEvent",
+        "FightJoinEvent",
+        "FightFighterShowEvent"
+      ]
+    },
+    {
+      "name": "fight_turn_start_playing_start",
+      "messages": [
+        "FightTurnStartPlayingEvent",
+        "GameActionAcknowledgementRequest"
+      ]
+    },
+    {
+      "name": "fight_turn_start_playing_2",
+      "messages": [
+        "FightPlacementPossiblePositionsEvent",
+        "FightTeamUpdateEvent",
+        "ChallengeNumberEvent"
+      ]
+    },
+    {
+      "name": "fight_turn_start_playing_3",
+      "messages": [
+        "FightMapInformationEvent",
+        "ChallengeModSelectRequest",
+        "ChallengeBonusChoiceRequest"
+      ]
+    },
+    {
+      "name": "fight_turn_end_playing",
+      "messages": [
+        "FightTurnFinishRequest",
+        "FightTurnEndEvent"
+      ]
+    },
+    {
+      "name": "fight_turn_start_turn",
+      "messages": [
+        "FightIsTurnReadyEvent",
+        "FightTurnReadyRequest"
+      ]
+    },
+    {
+      "name": "fight_choose_chall",
+      "messages": [
+        "ChallengeReadyRequest",
+        "ChallengeProposalEvent"
+      ]
+    },
+    {
+      "name": "handshake_authentication",
+      "messages": [
+        "IdentificationRequest",
+        "AuthenticationTicketAcceptedEvent",
+        "CharacterListRequest",
+        "CharacterListEvent"
+      ]
+    },
+    {
+      "name": "handshake_character_selection",
+      "messages": [
+        "CharacterListEvent",
+        "CharacterSelectionRequest",
+        "CharacterLoadingCompleteEvent"
+      ]
+    },
+    {
+      "name": "handshake_pre_context_creation",
+      "messages": [
+        "ContactWarnOnAchievementCompleteSetRequest",
+        "GuildMemberWarnOnConnectionSetRequest",
+        "FriendSetStatusShareRequest",
+        "FriendSetWarnOnLevelGainRequest",
+        "ContactLookRequest",
+        "ContactWarnOnPermanentDeathSetRequest",
+        "GuildInformationRequest",
+        "GuildInformationRequest",
+        "ContextQuitRequest",
+        "ContextCreationRequest"
+      ]
+    },
+    {
+      "name": "handshake_post_context_creation",
+      "messages": [
+        "ContextCreationRequest",
+        "BakApiTokenRequest",
+        "GuildMemberWarnOnConnectionStartRequest",
+        "ChatCommunityChannelSetCommunityRequest",
+        "SubscribeMultipleChannelRequest"
+      ]
+    },
+    {
+      "name": "handshake_final_service_activation",
+      "messages": [
+        "SubscribeMultipleChannelRequest",
+        "ObjectAveragePricesRequest",
+        "AcquaintanceListRequest",
+        "FriendListRequest",
+        "SpouseInformationRequest",
+        "GuildInformationRequest"
+      ]
+    },
+    {
+      "name": "basic_sequence_number",
+      "messages": [
+        "SequenceNumberEvent",
+        "SequenceNumberRequest"
+      ]
+    },
+    {
+      "name": "context_switch",
+      "messages": [
+        "ContextDestroyEvent",
+        "ContextCreationEvent"
+      ]
+    }
+  ]
+}

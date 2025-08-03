@@ -1,0 +1,206 @@
+import platform
+import sys
+from pathlib import Path
+
+from base_python.env_config import get_path_from_env, get_required_path
+from dotenv import load_dotenv
+
+sys.path.append(str(Path(__file__).parent.parent))
+
+from proto_mapper_assembly.helpers.obf_game_snapshot import resolve_obf_game_snapshot
+
+from project_paths import ENV_PATH
+
+PROJECT_ROOT: Path = Path(__file__).resolve().parent
+BOT_SRC_ROOT: Path = PROJECT_ROOT.parent / "src"
+IDA_TRACER_TYPINGS: Path = PROJECT_ROOT / "proto_mapper_assembly" / "scripts" / "ida_tracer_lib" / "typings"
+
+load_dotenv(ENV_PATH)
+
+
+def _default_standalone_bundle_folder() -> str:
+    if platform.system() == "Windows":
+        return "StandaloneWindows64"
+    return "StandaloneLinux64"
+
+
+OBF_GAME_DIR: Path = get_required_path("OBF_GAME_DIR")
+NON_OBF_GAME_DIR: Path = get_required_path("NON_OBF_GAME_DIR")
+OBF_GAME_SNAPSHOTS_DIR: Path = get_path_from_env("OBF_GAME_SNAPSHOTS_DIR", Path.home() / "Documents" / "D3")
+PROTOC_PATH: Path = get_required_path("PROTOC_PATH")
+IDA_EXE: Path = get_required_path("IDA_EXE")
+DATA_ROOT: Path = PROJECT_ROOT / "datas"
+BUNDLES_ROOT: Path = DATA_ROOT / "bundles"
+DATA_BUNDLES_ROOT: Path = BUNDLES_ROOT / "data"
+MAP_BUNDLES_ROOT: Path = BUNDLES_ROOT / "map"
+STANDALONE_BUNDLES_ROOT: Path = BUNDLES_ROOT / "standalone"
+I18N_OUTPUT_PATH: Path = BUNDLES_ROOT / "i18n.json"
+PROTOS_ROOT: Path = DATA_ROOT / "protos"
+GAME_MAPPINGS_JSON_FILE: Path = PROTOS_ROOT / "game_mappings.json"
+GAME_MAPPINGS_DETAILED_JSON_FILE: Path = PROTOS_ROOT / "game_mappings_detailed.json"
+
+DOFUS_ASSETS_FOLDER: Path = OBF_GAME_DIR / "Dofus_Data" / "StreamingAssets"
+DOFUS_CONTENT_FOLDER: Path = DOFUS_ASSETS_FOLDER / "Content"
+I18N_PATH: Path = DOFUS_CONTENT_FOLDER / "I18n" / "fr.bin"
+UABEA_PATH_EXE: Path = get_path_from_env(
+    "UABEA_EXECUTABLE",
+    PROJECT_ROOT / "UABEA" / "UABEAvalonia" / "bin" / "Debug" / "net6.0" / "UABEAvalonia.exe",
+)
+PATH_STANDALONE_BUNDLES: Path = get_path_from_env(
+    "PATH_STANDALONE_BUNDLES",
+    DOFUS_ASSETS_FOLDER / "aa" / _default_standalone_bundle_folder(),
+)
+PATH_MAPS: Path = DOFUS_CONTENT_FOLDER / "Map" / "Data"
+PATH_DATAS: Path = DOFUS_CONTENT_FOLDER / "Data"
+
+IL2CPP_INSPECTOR_EXECUTABLE: Path = get_path_from_env(
+    "IL2CPP_INSPECTOR_EXECUTABLE",
+    PROJECT_ROOT
+    / "Il2CppInspectorRedux"
+    / "Il2CppInspector.CLI"
+    / "bin"
+    / "Debug"
+    / "net10.0"
+    / "win-x64"
+    / "Il2CppInspector.exe",
+)
+PROTODEC_EXECUTABLE: Path = get_path_from_env(
+    "PROTODEC_EXECUTABLE",
+    PROJECT_ROOT / "protodec" / "bin" / "protodec" / "Debug" / "net10.0" / "protodec.exe",
+)
+
+_OBF_GAME_SNAPSHOT = resolve_obf_game_snapshot(
+    real_game_dir=OBF_GAME_DIR,
+    snapshots_root=OBF_GAME_SNAPSHOTS_DIR,
+    non_obf_game_dir=NON_OBF_GAME_DIR,
+)
+
+OBF_GAME_ASSEMBLY_DLL: Path = _OBF_GAME_SNAPSHOT.game_assembly
+OBF_GAME_ASSEMBLY_DLL_I64: Path = OBF_GAME_ASSEMBLY_DLL.with_suffix(".dll.i64")
+OBF_IL2CPP_METADATA_FILE: Path = _OBF_GAME_SNAPSHOT.metadata
+
+NON_OBF_GAME_ASSEMBLY_DLL: Path = NON_OBF_GAME_DIR / "GameAssembly.dll"
+NON_OBF_GAME_ASSEMBLY_DLL_I64: Path = NON_OBF_GAME_DIR / "GameAssembly.dll.i64"
+NON_OBF_IL2CPP_METADATA_FILE: Path = NON_OBF_GAME_DIR / "global-metadata.dat"
+
+PROTO_MAPPER_DATA_ROOT: Path = DATA_ROOT / "proto_mapper"
+AUTO_MODE_MAPPING_CONTRACT_FILE: Path = PROTO_MAPPER_DATA_ROOT / "auto_mode_mapping_contract.json"
+PINNED_PAIRS_FILE: Path = PROTO_MAPPER_DATA_ROOT / "pinned_pairs.json"
+CAPTURE_SEQUENCE_HINTS_FILE: Path = PROTO_MAPPER_DATA_ROOT / "capture_sequence_hints.json"
+EXCLUDED_NON_OBF_FILE: Path = PROTO_MAPPER_DATA_ROOT / "excluded_non_obf.json"
+OBFUSCATED_DATA_DIR: Path = PROTO_MAPPER_DATA_ROOT / "obf"
+NON_OBFUSCATED_DATA_DIR: Path = PROTO_MAPPER_DATA_ROOT / "non_obf"
+OBF_PROTO_OUTPUT: Path = PROTOS_ROOT / "obf" / "game"
+NON_OBF_PROTO_OUTPUT: Path = PROTOS_ROOT / "non_obf" / "game"
+NON_OBF_NEW_DUMP_CS_FILE: Path = NON_OBFUSCATED_DATA_DIR / "new_dump_cs.json"
+
+RUNTIME_DATA_DIR: Path = get_path_from_env(
+    "BOT_SHARED_DATAS_DIR", Path.home() / "OneDrive" / "Botting" / "BotSharedDatas"
+)
+if not RUNTIME_DATA_DIR.exists():
+    err = f"Did not found shared datas dir : {RUNTIME_DATA_DIR}"
+    raise FileNotFoundError(err)
+
+OBF_PROTO_ACCESSES_FILE: Path = OBFUSCATED_DATA_DIR / "proto_accesses.json"
+NON_OBF_PROTO_ACCESSES_FILE: Path = NON_OBFUSCATED_DATA_DIR / "proto_accesses.json"
+NON_OBF_SIGNATURE_OVERRIDES_FILE: Path = NON_OBFUSCATED_DATA_DIR / "messages_access_signature_override.json"
+PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH: Path = Path("cs") / "Ankama.Dofus.Protocol.Game.cs"
+OBF_PROTOCOL_GAME_DUMP_CS_FILE: Path = OBFUSCATED_DATA_DIR / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
+NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE: Path = NON_OBFUSCATED_DATA_DIR / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
+
+MSG_TO_MAP: list[str] = [
+    # protocol root
+    "GameMessage",  # protocol/protocol_game.py
+    "Request",  # core/mitm/game_proxy.py
+    # frames coeur de jeu
+    "CharacterSelectionEvent",  # core/frames/player_frame.py
+    "JobExperiencesUpdateEvent",  # core/frames/player_frame.py
+    "ZaapKnownListEvent",  # core/frames/player_frame.py
+    "CharacterLevelUpEvent",  # core/frames/player_frame.py
+    "CharacterCharacteristicUpgradeRequest",  # core/frames/player_frame.py
+    "MapCurrentEvent",  # core/frames/map_frame.py
+    "MapComplementaryInformationEvent",  # core/frames/map_frame.py
+    "FightMapInformationEvent",  # core/frames/fight_frame.py
+    "CharacterCharacteristicsEvent",  # core/frames/fight_frame.py
+    "SpellsEvent",  # core/frames/fight_frame.py
+    "FightPlacementPossiblePositionsEvent",  # core/frames/fight_frame.py
+    "FightRefreshCharacterStatsEvent",  # core/frames/fight_frame.py
+    "InventoryContentEvent",  # core/frames/inventory_frame.py
+    "InventoryWeightEvent",  # core/frames/inventory_frame.py
+    "ObjectAddedEvent",  # core/frames/inventory_frame.py
+    "ObjectQuantityEvent",  # core/frames/inventory_frame.py
+    "ExchangeStartedWithStorageEvent",  # core/frames/inventory_frame.py
+    "StorageInventoryContentEvent",  # core/frames/inventory_frame.py
+    "ExchangeStartedWithMultiTabStorageEvent",  # core/frames/guild_chest_frame.py
+    "GuildMembershipEvent",  # core/frames/guild_chest_frame.py
+    "ExchangeBidSellerStartedEvent",  # core/frames/sale_hotel_frame.py
+    "ExchangeBidHouseItemAddedEvent",  # core/frames/sale_hotel_frame.py
+    "ExchangeBidHouseItemRemovedEvent",  # core/frames/sale_hotel_frame.py
+    "ExchangeBidPriceEvent",  # core/frames/sale_hotel_frame.py
+    "ObjectAveragePricesEvent",  # core/frames/sale_hotel_frame.py
+    "ChatChannelMessageEvent",  # core/frames/chat_frame.py
+    # mouvements / interactifs / PNJ
+    "MapMovementRequest",  # core/behaviors/movements/map_move_behavior.py
+    "MapMovementEvent",  # core/frames/entity_frame.py
+    "MapMovementConfirmRequest",  # core/behaviors/movements/map_move_behavior.py
+    "MapMovementConfirmResponse",  # core/behaviors/movements/map_move_behavior.py
+    "MapMovementRefusedEvent",  # core/frames/entity_frame.py
+    "MapChangeRequest",  # core/behaviors/movements/map_change_behavior.py
+    "MapTeleportOnSameEvent",  # core/frames/entity_frame.py
+    "InteractiveElementUpdatedEvent",  # core/frames/interactive_frame.py
+    "StatedElementUpdatedEvent",  # core/frames/interactive_frame.py
+    "InteractiveUseRequest",  # core/behaviors/interactives/interactive_behavior.py
+    "InteractiveUsedEvent",  # core/behaviors/interactives/interactive_behavior.py
+    "InteractiveUseErrorEvent",  # core/behaviors/interactives/interactive_behavior.py
+    "NpcGenericActionRequest",  # core/behaviors/npcs/npc_dialog_behavior.py
+    "NpcDialogQuestionEvent",  # core/behaviors/npcs/npc_dialog_behavior.py
+    "NpcDialogReplyRequest",  # core/behaviors/npcs/npc_dialog_behavior.py
+    "HavenBagEnterRequest",  # core/behaviors/movements/waypoint_behavior.py
+    "HavenBagExitRequest",  # core/behaviors/movements/waypoint_behavior.py
+    "TeleportRequest",  # core/behaviors/movements/waypoint_behavior.py
+    # combat / farm
+    "AttackMonsterRequest",  # core/behaviors/farms/fight/attacker_behavior.py
+    "EntitiesDispositionEvent",  # core/frames/entity_frame.py
+    "GameActionAcknowledgementRequest",  # core/behaviors/movements/map_move_behavior.py
+    "GameActionFightCastRequest",  # core/frames/fight_frame.py
+    "GameActionFightEvent",  # core/frames/fight_frame.py
+    "SequenceEndEvent",  # core/behaviors/movements/map_move_behavior.py
+    "FightPlacementPositionRequest",  # core/behaviors/farms/fight/fight_preparation_behavior.py
+    "FightReadyRequest",  # core/behaviors/farms/fight/fight_preparation_behavior.py
+    "ChallengeModSelectRequest",  # services/human_timings.py (human_timings only)
+    "FightTurnFinishRequest",  # core/frames/fight_frame.py
+    "FightSynchronizeEvent",  # core/frames/entity_frame.py
+    "FightFighterShowEvent",  # core/frames/entity_frame.py
+    "FightFighterRefreshEvent",  # core/frames/entity_frame.py
+    # inventaire / storage / guild chest / mule
+    "ObjectUseRequest",  # core/frames/inventory_frame.py
+    "DialogLeaveRequest",  # core/behaviors/dialog_handler_behavior.py
+    "ExchangeLeaveEvent",  # core/frames/inventory_frame.py
+    "ExchangeObjectMoveRequest",  # core/frames/inventory_frame.py
+    "ExchangeMoveKamaRequest",  # core/frames/inventory_frame.py
+    "GuildChestCurrentListenersAddEvent",  # enter_guild_chest_behavior.py
+    "GuildChestTabSelectRequest",  # core/behaviors/storage/loads/load_from_guild_chest_behavior.py
+    "ExchangePlayerRequest",  # core/behaviors/mule_storage/mule_give_behavior.py (mule only)
+    "ExchangeRequestedTradeEvent",  # core/behaviors/mule_storage/mule_accept_behavior.py (mule only)
+    "ExchangeAcceptRequest",  # core/behaviors/mule_storage/mule_accept_behavior.py (mule only)
+    "ExchangeStartedWithPodsEvent",  # core/behaviors/mule_storage/mule_accept_behavior.py (mule only)
+    "ExchangeObjectsAddedEvent",  # core/behaviors/mule_storage/mule_accept_behavior.py (mule only)
+    "ExchangeKamaModifiedEvent",  # core/behaviors/mule_storage/mule_accept_behavior.py (mule only)
+    "ExchangeReadyEvent",  # core/behaviors/mule_storage/mule_accept_behavior.py (mule only)
+    "ExchangeReadyRequest",  # core/frames/craft_frame.py
+    "ExchangeErrorEvent",  # core/behaviors/mule_storage/mule_give_behavior.py (mule only)
+    # craft / sale hotel / chat
+    "ExchangeCraftStartedEvent",  # core/frames/craft_frame.py
+    "ExchangeSetCraftRecipeRequest",  # core/frames/craft_frame.py
+    "ExchangeCraftCountRequest",  # core/frames/craft_frame.py
+    "ExchangeCraftCountModifiedEvent",  # core/behaviors/craft/craft_behavior.py
+    "ExchangeBidHouseSearchRequest",  # core/frames/sale_hotel_frame.py
+    "ExchangeBidHousePriceRequest",  # core/behaviors/sale_hotel/sale_hotel_prices_behavior.py
+    "ExchangeObjectMovePricedRequest",  # core/frames/inventory_frame.py
+    "ExchangeObjectModifyPricedRequest",  # core/frames/inventory_frame.py
+    "TextInformationEvent",  # core/behaviors/movements/map_move_behavior.py
+    "ChatChannelMessageRequest",  # core/behaviors/communication/chat_behavior.py
+    "ChatPrivateMessageRequest",  # core/frames/chat_frame.py
+]
+GAME_ASSEMBLY_MARKER_NAME = ".last_dumped_game_assembly_mtime"
+DUMP_CS_MARKER_NAME = ".last_dumped_protocol_cs_hash"

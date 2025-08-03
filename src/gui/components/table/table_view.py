@@ -41,9 +41,7 @@ class CustomTableModel(QAbstractTableModel):
     def columnCount(self, parent: QModelIndex | None = None) -> int:
         return self._column_count
 
-    def data(
-        self, index: QModelIndex, role: int | None = None
-    ) -> str | QBrush | object | None:
+    def data(self, index: QModelIndex, role: int | None = None) -> str | QBrush | object | None:
         if not index.isValid():
             return None
 
@@ -97,9 +95,7 @@ class CustomTableModel(QAbstractTableModel):
             return Qt.ItemFlag.NoItemFlags
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
-    def setData(
-        self, index: QModelIndex, value: str, role: int = Qt.ItemDataRole.EditRole
-    ) -> bool:
+    def setData(self, index: QModelIndex, value: str, role: int = Qt.ItemDataRole.EditRole) -> bool:
         if not index.isValid():
             return False
 
@@ -110,9 +106,7 @@ class CustomTableModel(QAbstractTableModel):
             return True
         return False
 
-    def update_row_cells(
-        self, row: int, col_start: int, col_end: int, values: list[str]
-    ) -> None:
+    def update_row_cells(self, row: int, col_start: int, col_end: int, values: list[str]) -> None:
         if row < 0 or row >= len(self._data):
             return
         for i, value in enumerate(values):
@@ -152,9 +146,7 @@ class CustomTableView(TableView):
         vertical_header.hide()
 
         self.item_model = CustomTableModel(parent=self)
-        self.item_model.signals.max_row_reached.connect(
-            profiled_slot(self.on_max_row_reached)
-        )
+        self.item_model.signals.max_row_reached.connect(profiled_slot(self.on_max_row_reached))
         self.proxy_model = proxy_model or MultiColumnFilterProxyModel()
         self.proxy_model.setSourceModel(self.item_model)
 
@@ -170,9 +162,7 @@ class CustomTableView(TableView):
         assert scroll_bar is not None
         old_scroll_position = scroll_bar.value()
         overflow = self.item_model.rowCount() - self.item_model._max_row_count
-        self.item_model.remove_rows(
-            0, min(self.item_model.rowCount(), max(500, overflow))
-        )
+        self.item_model.remove_rows(0, min(self.item_model.rowCount(), max(500, overflow)))
         scroll_bar.setValue(old_scroll_position)
 
     def resizeEvent(self, e: QResizeEvent | None) -> None:

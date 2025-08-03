@@ -15,9 +15,7 @@ from src.core.states.guild_chest_state import GIDS_BY_TAB
 from src.services.logging_utils.loggers import BotLogger
 
 
-def get_benefice_on_craft_recipe(
-    recipe: RecipeItem, server_id: int = 1
-) -> tuple[float, float]:
+def get_benefice_on_craft_recipe(recipe: RecipeItem, server_id: int = 1) -> tuple[float, float]:
     avg_price_by_gid = GameDataController().get_avg_price_by_gid(server_id)
     if recipe.resultId in avg_price_by_gid and all(
         ingredient_id in avg_price_by_gid for ingredient_id in recipe.ingredientIds
@@ -77,8 +75,7 @@ def get_max_result_quantity(
         if ingredient_in_chest is None:
             name_id = DataReader().item_by_id[ingredient_id].nameId
             logger.info(
-                f"ingredient {I18N().name_by_id[name_id] if name_id else ''} not in chest, can't "
-                f"craft recipe"
+                f"ingredient {I18N().name_by_id[name_id] if name_id else ''} not in chest, can't craft recipe"
             )
             logger.info(
                 f"we have {list(storage_object_by_gid.keys())} gids and we need this : {ingredient_id}"
@@ -96,9 +93,7 @@ def get_max_result_quantity(
         if max_result_quantity is None or result_quantity < max_result_quantity:
             max_result_quantity = result_quantity
 
-        weight_for_one_result += quantity * (
-            DataReader().item_by_id[ingredient_id].realWeight or 0
-        )
+        weight_for_one_result += quantity * (DataReader().item_by_id[ingredient_id].realWeight or 0)
 
     return (max_result_quantity or 0), weight_for_one_result
 
@@ -110,9 +105,7 @@ def get_max_possible_result_quantity(
     max_result_quantity: int,
 ) -> int:
     player_weight = weight_max - inventory_weight
-    max_possible_result_quantity = min(
-        player_weight // weight_for_one_result, max_result_quantity
-    )
+    max_possible_result_quantity = min(player_weight // weight_for_one_result, max_result_quantity)
     return max_possible_result_quantity
 
 
@@ -129,23 +122,17 @@ def get_valid_recipes(
 
         skill_data = DataReader().skill_by_id[recipe.skillId]
         if jobs_lvl_by_id.get(skill_data.parentJobId, 1) < recipe.resultLevel:
-            result_name = I18N().name_by_id.get(
-                int(recipe.resultNameId), str(recipe.resultId)
-            )
+            result_name = I18N().name_by_id.get(int(recipe.resultNameId), str(recipe.resultId))
             logger.warning(f"Can't craft recipe {result_name} because of job lvl")
             continue
         valid_recipes.append(recipe)
     return valid_recipes
 
 
-def get_recipes_for_job_lvl_upor_benefice(
-    is_sub: bool, jobs_lvl_by_id: dict[int, int]
-) -> list[RecipeItem]:
+def get_recipes_for_job_lvl_upor_benefice(is_sub: bool, jobs_lvl_by_id: dict[int, int]) -> list[RecipeItem]:
     recipes: list[RecipeItem] = []
     for recipe in DataReader().recipes:
-        if is_not_valid_recipe_for_lvl_up_job_or_benefice(
-            recipe, is_sub, jobs_lvl_by_id
-        ):
+        if is_not_valid_recipe_for_lvl_up_job_or_benefice(recipe, is_sub, jobs_lvl_by_id):
             continue
         recipes.append(recipe)
     recipes.sort(

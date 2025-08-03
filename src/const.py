@@ -12,17 +12,51 @@ import os
 import socket
 from pathlib import Path
 
-from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
-from datas.protos.non_obf.game.fight_pb2 import (
-    FightTurnFinishRequest,
+from datas.protos.non_obf.game.admin_console_pb2 import ConsoleCommand
+from datas.protos.non_obf.game.arena_pb2 import (
+    ArenaFightAnswerRequest,
+    ArenaModesStatusRequest,
+    ArenaRegisterRequest,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import (
-    MapMovementConfirmRequest,
+from datas.protos.non_obf.game.basic_pb2 import BasicLatencyStatsRequest
+from datas.protos.non_obf.game.breeding_pb2 import (
+    MountBoostRequest,
+    UnknownHqv,
+    UnknownHqw,
+    UnknownHut,
+)
+from datas.protos.non_obf.game.character_pb2 import (
+    CharacterCharacteristicUpgradeRequest,
+)
+from datas.protos.non_obf.game.client_verification_pb2 import (
+    ClientChallengeInitRequest,
+    ClientChallengeProofRequest,
+    ClientIdRequest,
+)
+from datas.protos.non_obf.game.player_info_pb2 import PlayerInfoRequest, UnknownLag
+from datas.protos.non_obf.game.preset_pb2 import (
+    CharacterPresetResetRequest,
+    PresetDeleteRequest,
+    PresetEquipmentUpdateRequest,
+    PresetOutfitUpdateRequest,
+    PresetRenameRequest,
+    PresetSaveRequest,
+    PresetSetFavoriteRequest,
+    PresetSymbolUpdateRequest,
+    PresetUseRequest,
+    UnknownIin,
+)
+from datas.protos.non_obf.game.report_pb2 import ReportRequest
+from datas.protos.non_obf.game.tag_storage_pb2 import (
+    AddTagStorageRequest,
+    RemoveTagStorageRequest,
+    UpdateTagStorageContentRequest,
 )
 from dotenv import load_dotenv
 from google.protobuf.message import Message
 
-ENV_PATH = os.path.join(Path(__file__).parent.parent, ".env")
+from project_paths import ENV_PATH
+
 load_dotenv(ENV_PATH)
 
 
@@ -73,7 +107,40 @@ FAKE_INFINITY_VALUE = 99999
 # ============================================================================
 
 MESSAGES_WITH_UID: list[type[Message]] = [
-    MapMovementConfirmRequest,
-    DialogLeaveRequest,
-    FightTurnFinishRequest,
+    # Verification client (handshake)
+    ClientIdRequest,
+    ClientChallengeInitRequest,
+    ClientChallengeProofRequest,
+    # Presets
+    PresetSaveRequest,
+    PresetUseRequest,
+    PresetDeleteRequest,
+    PresetRenameRequest,
+    PresetSymbolUpdateRequest,
+    PresetSetFavoriteRequest,
+    PresetEquipmentUpdateRequest,
+    PresetOutfitUpdateRequest,
+    CharacterPresetResetRequest,
+    UnknownIin,
+    # Montures
+    MountBoostRequest,
+    UnknownHut,
+    UnknownHqv,
+    UnknownHqw,
+    # Tags de stockage
+    AddTagStorageRequest,
+    RemoveTagStorageRequest,
+    UpdateTagStorageContentRequest,
+    # Arene
+    ArenaRegisterRequest,
+    ArenaFightAnswerRequest,
+    ArenaModesStatusRequest,
+    # Joueur / signalement
+    PlayerInfoRequest,
+    UnknownLag,
+    ReportRequest,
+    # Divers
+    CharacterCharacteristicUpgradeRequest,
+    BasicLatencyStatsRequest,
+    ConsoleCommand,
 ]

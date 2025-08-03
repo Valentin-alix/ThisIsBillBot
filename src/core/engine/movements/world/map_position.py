@@ -5,21 +5,14 @@ from dofus_unity_reader.models.datas.map_positions_root import MapInformationRoo
 from src.const import FAKE_INFINITY_VALUE
 
 
-def get_dist_to_maps(
-    map_pos: MapInformationRootItem, ends_pos: list[MapInformationRootItem]
-) -> float:
-    if DataReader().sub_area_by_id[
-        map_pos.subAreaId
-    ].areaId == AreaEnum.INCARNAM and not any(
-        DataReader().sub_area_by_id[end_pos.subAreaId].areaId != AreaEnum.INCARNAM
-        for end_pos in ends_pos
+def get_dist_to_maps(map_pos: MapInformationRootItem, ends_pos: list[MapInformationRootItem]) -> float:
+    if DataReader().sub_area_by_id[map_pos.subAreaId].areaId == AreaEnum.INCARNAM and not any(
+        DataReader().sub_area_by_id[end_pos.subAreaId].areaId != AreaEnum.INCARNAM for end_pos in ends_pos
     ):
         return FAKE_INFINITY_VALUE
     dist_to_end_pos: list[float] = []
     for end_pos in ends_pos:
-        manhattan_dist = abs(map_pos.posX - end_pos.posX) + abs(
-            map_pos.posY - end_pos.posY
-        )
+        manhattan_dist = abs(map_pos.posX - end_pos.posX) + abs(map_pos.posY - end_pos.posY)
         if manhattan_dist == 0 and end_pos.subAreaId != map_pos.subAreaId:
             dist = 10
         else:

@@ -301,10 +301,18 @@ class BotFactory:
             path_finding=path_finding,
             _logger=logger,
         )
+        map_move_cancel_behavior = MapMovementCancelBehavior(
+            _logger=logger,
+            event_manager=event_manager,
+            game_state=game_state,
+            path_finding=path_finding,
+            map_move_behavior=map_move_behavior,
+        )
         interactive_behavior = InteractiveBehavior(
             game_state=game_state,
             event_manager=event_manager,
             map_move_behavior=map_move_behavior,
+            map_movement_cancel_behavior=map_move_cancel_behavior,
             _logger=logger,
             path_finding=path_finding,
         )
@@ -400,19 +408,11 @@ class BotFactory:
             auto_trip_explorator_behavior=auto_trip_explorator_behavior,
             _logger=logger,
         )
-        map_move_cancel_behavior = MapMovementCancelBehavior(
-            _logger=logger,
-            event_manager=event_manager,
-            game_state=game_state,
-            path_finding=path_finding,
-            map_move_behavior=map_move_behavior,
-        )
         collect_behavior = CollectBehavior(
             event_manager=event_manager,
             interactive_behavior=interactive_behavior,
             game_state=game_state,
             path_finding=path_finding,
-            map_movement_cancel_behavior=map_move_cancel_behavior,
             _logger=logger,
         )
         enter_guild_chest_behavior = EnterGuildChestBehavior(
@@ -569,7 +569,7 @@ class BotFactory:
         attacker_behavior = AttackerBehavior(
             event_manager=event_manager,
             fight_behavior=fight_behavior,
-            map_move_behavior=map_move_behavior,
+            map_movement_cancel_behavior=map_move_cancel_behavior,
             path_finding=path_finding,
             game_state=game_state,
             _logger=logger,

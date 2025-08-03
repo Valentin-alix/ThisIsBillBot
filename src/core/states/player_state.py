@@ -21,6 +21,7 @@ class PlayerState(State):
     bak_token: str | None = dataclasses.field(init=False, default=None)
     _server_id: int = dataclasses.field(init=False, default=ServerEnum.BRIAL.value)
     is_ready_to_play_event: Event = dataclasses.field(init=False)
+    is_characteristic_upgrade_complete_event: Event = dataclasses.field(init=False)
     _level: int = dataclasses.field(init=False, default=1)
     _character_id: int = dataclasses.field(init=False, default=0)
     _character_name: str = dataclasses.field(init=False, default_factory=str)
@@ -29,10 +30,13 @@ class PlayerState(State):
 
     def __post_init__(self) -> None:
         self.is_ready_to_play_event = Event()
+        self.is_characteristic_upgrade_complete_event = Event()
+        self.is_characteristic_upgrade_complete_event.set()
 
     def clear_state(self):
         CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER.pop((self.server_id, self.character_id), None)
         self.is_ready_to_play_event.clear()
+        self.is_characteristic_upgrade_complete_event.set()
 
     @property
     def level(self):

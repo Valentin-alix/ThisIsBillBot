@@ -5,9 +5,7 @@ from src.gui.pages.farmer.player_info.property_widget import PropertyWidget
 
 
 class PropertyGroupWidget(GroupBox):
-    def __init__(
-        self, key: str, vertical: bool = False, parent: QWidget | None = None
-    ):
+    def __init__(self, key: str, vertical: bool = False, parent: QWidget | None = None):
         super().__init__(key, parent=parent)
         self._vertical = vertical
         self.property_by_key: dict[str, PropertyWidget] = {}
@@ -17,8 +15,6 @@ class PropertyGroupWidget(GroupBox):
         if property_widget is not None:
             property_widget.set_content_value(value)
         else:
-            property_widget = PropertyWidget(
-                key=key, value=value, vertical=self._vertical
-            )
+            property_widget = PropertyWidget(key=key, value=value, vertical=self._vertical)
             self.add_widget(property_widget)
             self.property_by_key[key] = property_widget

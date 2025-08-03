@@ -1,0 +1,411 @@
+syntax = "proto3";
+
+import "common.proto";
+import "game_message.proto";
+import "report.proto";
+
+package com.ankama.dofus.server.game.protocol.guild.raid;
+
+message UnknownHvs {
+	int32 unknown_fnwf = 1;
+}
+
+message UnknownHvt {
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbj unknown_fnwj = 1;
+	string unknown_fnwk = 2;
+}
+
+message UnknownIbj {
+	map<string, int32> unknown_fopy = 1;
+	int32 unknown_fopz = 2;
+	string unknown_foqa = 3;
+	string unknown_foqb = 4;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIau unknown_foqd = 5;
+}
+
+message UnknownIau {
+	int32 unknown_foob = 1;
+	map<int32, UnknownFoocValue> unknown_fooc = 2;
+	int32 unknown_fooe = 3;
+	map<int32, int32> unknown_foog = 4;
+	enum UnknownFoocValue {
+		UNKNOWN_FOOC_VALUE_UNSPECIFIED = 0;
+	}
+}
+
+message UnknownHwa {
+	int32 unknown_fnwv = 1;
+}
+
+message UnknownHwe {
+	int32 unknown_fnxe = 1;
+}
+
+message UnknownHwh {
+	.com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderCategory unknown_fnxr = 1;
+	int32 unknown_fnxs = 2;
+	.com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderEntry unknown_fnxt = 3;
+}
+
+message GuildRaidLadderCategory {
+	int32 unknown_fojn = 1;
+	repeated .com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderEntry unknown_fojo = 2;
+}
+
+message GuildRaidLadderEntry {
+	int32 unknown_fojv = 1;
+	int32 unknown_fojw = 2;
+	int64 unknown_fojy = 3;
+	.com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderGuild unknown_foka = 4;
+}
+
+message GuildRaidLadderGuild {
+	string unknown_fokt = 1;
+	.com.ankama.dofus.server.game.protocol.common.SocialEmblem unknown_foku = 2;
+	string unknown_fokv = 3;
+}
+
+message UnknownHwk {
+	int32 unknown_fnxx = 1;
+}
+
+message UnknownHwl {
+	int32 unknown_fnyb = 1;
+	repeated .com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwr unknown_fnyc = 2;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyr unknown_fnyd = 3;
+	string unknown_fnye = 4;
+}
+
+message UnknownHwr {
+	int32 unknown_fnyx = 1;
+	bool unknown_fnyy = 2;
+	bool unknown_fnyv = 3;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxd unknown_fnza = 4;
+	bool unknown_fnyz = 5;
+}
+
+message UnknownHxd {
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHys unknown_foal = 1;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxd.UnknownHxb unknown_foao = 2;
+	message UnknownHxb {
+		string unknown_foag = 1;
+	}
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHys unknown_foan = 3;
+}
+
+message UnknownHys {
+	int32 unknown_fofx = 1;
+	int32 unknown_fofy = 2;
+	int64 unknown_fofz = 3;
+	int32 unknown_fogb = 4;
+	string unknown_fogc = 5;
+	.com.ankama.dofus.server.game.protocol.common.CharacterStatus unknown_fogd = 6;
+	string unknown_foge = 7;
+}
+
+message UnknownHyr {
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyr.UnknownHyp unknown_fofr = 1;
+	string unknown_fofs = 2;
+	string unknown_foft = 3;
+	message UnknownHyp {
+		int64 unknown_fofl = 1;
+		string unknown_fofm = 2;
+	}
+}
+
+message UnknownHwo {
+	string unknown_fnyi = 1;
+	string unknown_fnyj = 2;
+	int32 unknown_fnyk = 3;
+}
+
+message GuildRaidLadderEvent {
+	map<int32, .com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderCategory> unknown_fnze = 1;
+	map<int32, .com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderCategory> unknown_fnzf = 2;
+	map<int32, .com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderEntry> unknown_fnzg = 3;
+	map<int32, .com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderEntry> unknown_fnzh = 4;
+}
+
+message UnknownHxm {
+	map<string, int32> unknown_focc = 1;
+	map<int32, .com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxm.UnknownHxj> unknown_foce = 2;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcl unknown_focf = 3;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxm.UnknownHxk unknown_focg = 4;
+	message UnknownHxj {
+		repeated int32 unknown_fobr = 1;
+		int32 unknown_fobs = 2;
+	}
+	message UnknownHxk {
+		repeated int32 unknown_fobx = 1;
+		int32 unknown_fobw = 2;
+			int32 unknown_foby = 3;
+}
+}
+
+message UnknownIcl {
+	.com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderGuild unknown_fota = 1;
+	string unknown_fotb = 2;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwl unknown_fotd = 3;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbg unknown_fote = 4;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyx unknown_fotf = 5;
+}
+
+message UnknownIbg {
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyr unknown_foph = 1;
+	repeated .com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwr unknown_fopi = 2;
+	int32 unknown_fopj = 3;
+	repeated .com.ankama.dofus.server.game.protocol.guild.raid.UnknownHys unknown_fopk = 4;
+}
+
+message UnknownHyx {
+	repeated string unknown_fogr = 1;
+	string unknown_fogt = 2;
+	repeated .com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwr unknown_fogu = 3;
+	int32 unknown_fogv = 4;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyr unknown_fogw = 5;
+}
+
+message UnknownHxt {
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxt.UnknownHxr unknown_focw = 1;
+	int32 unknown_focx = 2;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxt.UnknownHxq unknown_focy = 3;
+	int32 unknown_focz = 4;
+	message UnknownHxq {
+		repeated .com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxd unknown_foco = 1;
+	}
+	message UnknownHxr {
+		repeated .com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxd unknown_focs = 1;
+	}
+}
+
+message UnknownHxu {
+	string unknown_fodf = 1;
+	string unknown_fodg = 2;
+}
+
+message UnknownHxx {
+	int32 unknown_fodl = 1;
+}
+
+message UnknownHya {
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbg unknown_fodq = 1;
+	string unknown_fodr = 2;
+}
+
+message UnknownHyb {
+	string unknown_fodv = 1;
+	string unknown_fodw = 2;
+	bool unknown_fodx = 3;
+}
+
+message UnknownHyg {
+	int64 unknown_foeh = 1;
+	int32 unknown_foef = 2;
+	repeated int32 unknown_foei = 3;
+	bool unknown_foej = 4;
+	map<int32, UnknownFoekValue> unknown_foek = 5;
+	int64 unknown_foee = 6;
+	enum UnknownFoekValue {
+		UNKNOWN_FOEK_VALUE_UNSPECIFIED = 0;
+	}
+}
+
+message UnknownHyj {
+	UnknownFoeoValue unknown_foeo = 1;
+	enum UnknownFoeoValue {
+		UNKNOWN_FOEO_VALUE_UNSPECIFIED = 0;
+	}
+}
+
+message UnknownHyt {
+	int32 unknown_fogi = 1;
+}
+
+message UnknownHyw {
+	UnknownFogmValue unknown_fogm = 1;
+	enum UnknownFogmValue {
+		UNKNOWN_FOGM_VALUE_UNSPECIFIED = 0;
+	}
+}
+
+message UnknownHzb {
+	int32 unknown_fohk = 1;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcl unknown_fohm = 2;
+}
+
+message UnknownHzd {
+	bool unknown_foht = 1;
+}
+
+message UnknownHzg {
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIau unknown_fohx = 1;
+	string unknown_fohz = 2;
+}
+
+message UnknownHzh {
+	string unknown_foid = 1;
+	string unknown_foie = 2;
+}
+
+message UnknownHzi {
+	int32 unknown_foik = 1;
+	string unknown_foim = 2;
+}
+
+message UnknownHzj {
+	int32 unknown_foit = 1;
+}
+
+message UnknownHzk {
+	string unknown_foiy = 1;
+	string unknown_foiz = 2;
+}
+
+message UnknownHzn {
+	int32 unknown_fojd = 1;
+}
+
+message UnknownHzo {
+	map<int32, .com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderEntry> unknown_fojh = 1;
+	map<int32, .com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderCategory> unknown_foji = 2;
+}
+
+message UnknownHzv {
+	int32 unknown_fokf = 1;
+}
+
+message UnknownHzy {
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcl unknown_fokz = 1;
+}
+
+message UnknownIag {
+	bool unknown_folx = 1;
+}
+
+message UnknownIai {
+	string unknown_fomb = 1;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwl unknown_fomc = 2;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyx unknown_fomd = 3;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIak unknown_fome = 4;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbg unknown_fomf = 5;
+}
+
+message UnknownIak {
+	string unknown_fomo = 1;
+	repeated .com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwr unknown_fomp = 2;
+	int32 unknown_fomq = 3;
+	int64 unknown_fomr = 4;
+	repeated int32 unknown_foms = 5;
+	int32 unknown_fomt = 6;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyr unknown_fomu = 7;
+}
+
+message UnknownIaj {
+	string unknown_fomk = 1;
+}
+
+message UnknownIav {
+	string unknown_fook = 1;
+	string unknown_fool = 2;
+	.com.ankama.dofus.server.game.protocol.common.CharacterStatus unknown_foom = 3;
+}
+
+message UnknownIbc {
+	int32 unknown_fooy = 1;
+}
+
+message UnknownIbk {
+	string unknown_foqh = 1;
+	map<string, int32> unknown_foqi = 2;
+}
+
+message UnknownIbl {
+	repeated bool unknown_foqm = 1;
+}
+
+message UnknownIbo {
+	.com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderGuild unknown_foqr = 1;
+	int32 unknown_foqs = 2;
+}
+
+message UnknownIbs {
+	repeated .com.ankama.dofus.server.game.protocol.guild.raid.UnknownHzj unknown_forg = 1;
+}
+
+message UnknownIbv {
+	string unknown_fork = 1;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbj unknown_forl = 2;
+}
+
+message UnknownIbw {
+	int32 unknown_forr = 1;
+}
+
+message UnknownIce {
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIce.UnknownIcc unknown_fosi = 1;
+	int32 unknown_fosj = 2;
+	message UnknownIcc {
+		map<string, .com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbg> unknown_forz = 1;
+		map<string, .com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwl> unknown_fosa = 2;
+		map<string, .com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyx> unknown_fosc = 3;
+		map<string, .com.ankama.dofus.server.game.protocol.guild.raid.UnknownIak> unknown_fosd = 4;
+	}
+}
+
+message UnknownIcj {
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcj.UnknownIch unknown_fost = 1;
+	int32 unknown_fosu = 2;
+	message UnknownIch {
+		.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbj unknown_fosp = 1;
+	}
+}
+
+message UnknownIcz {
+	int32 unknown_foum = 1;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcz.UnknownIcu unknown_foun = 2;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcz.UnknownIcp unknown_fouo = 3;
+	.com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcz.UnknownIcq unknown_foup = 4;
+	int32 unknown_fouq = 5;
+	message UnknownIcp {
+		.com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxd unknown_fotq = 1;
+	}
+	message UnknownIcq {
+		repeated .com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxd unknown_fotu = 1;
+	}
+	message UnknownIcu {
+		repeated .com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxd unknown_foue = 1;
+	}
+}
+
+message UnknownIda {
+	string unknown_fouw = 1;
+	string unknown_foux = 2;
+}
+
+message UnknownIde {
+	int32 unknown_fovd = 1;
+}
+
+message UnknownIdf {
+	int32 unknown_fovh = 1;
+	string unknown_fovi = 2;
+}
+
+message UnknownIdi {
+	int32 unknown_fovm = 1;
+}
+
+message UnknownIdm {
+	int32 unknown_fovv = 1;
+	int32 unknown_fovx = 2;
+}
+
+message GuildRaidLadderRequest {
+}
+
+message UnknownHvx {
+}
+
+message UnknownHwb {
+	int64 unknown_fnxa = 1;
+}

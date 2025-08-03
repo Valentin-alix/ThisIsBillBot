@@ -44,6 +44,6 @@ class PendingLoadItem:
 
 
 def get_portable_quantity(game_state: GameState, item_gid: int) -> int:
-    return (
-        game_state.inventory.weight_max - game_state.inventory.inventory_weight
-    ) // (DataReader().item_by_id[item_gid].realWeight or 1)
+    return (game_state.inventory.weight_max - game_state.inventory.inventory_weight) // (
+        DataReader().item_by_id[item_gid].realWeight or 1
+    )

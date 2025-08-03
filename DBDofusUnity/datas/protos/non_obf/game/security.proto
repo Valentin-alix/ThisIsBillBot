@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package com.ankama.dofus.server.game.protocol.security;
+
+enum CheckType {
+	LENGTH = 0;
+	HASH_SUM = 1;
+}
+
+message FileCheckRequest {
+	.com.ankama.dofus.server.game.protocol.security.CheckType check_type = 1;
+	string value = 2;
+}
+
+message TrustStatusEvent {
+	bool certified = 1;
+}
+
+message FileCheckEvent {
+	string file_name = 1;
+	.com.ankama.dofus.server.game.protocol.security.CheckType check_type = 2;
+}
+
+message UnknownLvf {
+	int32 unknown_gdhg = 1;
+	repeated int32 unknown_gdhh = 2;
+}
+
+message UnknownLvq {
+	int32 unknown_gdiw = 1;
+	repeated int32 unknown_gdix = 2;
+	string unknown_gdiy = 3;
+	UnknownGdizValue unknown_gdiz = 4;
+	int32 unknown_gdja = 5;
+	enum UnknownGdizValue {
+		UNKNOWN_GDIZ_VALUE_UNSPECIFIED = 0;
+	}
+}
+
+message UnknownLvv {
+	UnknownGdjvValue unknown_gdjv = 1;
+	.com.ankama.dofus.server.game.protocol.common.EntityLook unknown_gdjw = 2;
+	string unknown_gdka = 3;
+	enum UnknownGdjvValue {
+		UNKNOWN_GDJV_VALUE_UNSPECIFIED = 0;
+	}
+}
+
+message UnknownLwd {
+	UnknownGdltValue unknown_gdlt = 1;
+	string unknown_gdlu = 2;
+	enum UnknownGdltValue {
+		UNKNOWN_GDLT_VALUE_UNSPECIFIED = 0;
+	}
+}
+
+message UnknownLwe {
+	int32 unknown_gdly = 1;
+	int32 unknown_gdlz = 2;
+	UnknownGdmaValue unknown_gdma = 3;
+	int32 unknown_gdmb = 4;
+	string unknown_gdmc = 5;
+	repeated int32 unknown_gdmd = 6;
+	enum UnknownGdmaValue {
+		UNKNOWN_GDMA_VALUE_UNSPECIFIED = 0;
+	}
+}

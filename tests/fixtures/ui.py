@@ -22,9 +22,7 @@ class MainWindowShellFake:
     account_widgets: list[AccountWidgetFake]
     removeWidget: Mock = field(default_factory=Mock)
     switchTo: Mock = field(default_factory=Mock)
-    navigationInterface: NavigationInterfaceFake = field(
-        default_factory=NavigationInterfaceFake
-    )
+    navigationInterface: NavigationInterfaceFake = field(default_factory=NavigationInterfaceFake)
 
 
 def make_main_window_shell(*logins: str) -> MainWindowShellFake:

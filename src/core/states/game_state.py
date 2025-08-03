@@ -96,9 +96,7 @@ class GameState:
             fight_breed_id=self.fight.breed_id,
             fight_characteristic_by_id=self.fight.characteristic_by_id,
             inventory_objects_by_uid=self.inventory.objects_by_uid,
-            positive_actor_count=sum(
-                1 for actor_id in self.entity.actor_by_id if actor_id > 0
-            ),
+            positive_actor_count=sum(1 for actor_id in self.entity.actor_by_id if actor_id > 0),
         )
 
     def get_world_transition_context(self) -> WorldTransitionContext:
@@ -117,9 +115,7 @@ class GameState:
         return FightReachableContext(
             map_id=self.map.map_id,
             player_map_point=self.map.map_point,
-            movement_points=self.fight.get_stat_by_id(
-                CharacteristicEnum.MOVEMENT_POINTS
-            ),
+            movement_points=self.fight.get_stat_by_id(CharacteristicEnum.MOVEMENT_POINTS),
         )
 
     def get_attack_context(self) -> AttackContext:
@@ -152,16 +148,12 @@ class GameState:
             primary_and_second_elem=self.fight.primary_and_second_elem,
             primary_elem=self.fight.primary_elem,
             modifier_by_type_and_spell_id=self.fight.modifier_by_type_and_spell_id,
-            count_casted_by_spell_id_on_current_turn=(
-                self.fight.count_casted_by_spell_id_on_current_turn
-            ),
+            count_casted_by_spell_id_on_current_turn=(self.fight.count_casted_by_spell_id_on_current_turn),
             last_cast_turn_by_spell_id=self.fight.last_cast_turn_by_spell_id,
             fight_turn=self.fight.fight_turn,
             characteristic_by_id=self.fight.characteristic_by_id,
             action_points=self.fight.get_stat_by_id(CharacteristicEnum.ACTION_POINTS),
-            movement_points=self.fight.get_stat_by_id(
-                CharacteristicEnum.MOVEMENT_POINTS
-            ),
+            movement_points=self.fight.get_stat_by_id(CharacteristicEnum.MOVEMENT_POINTS),
             range=self.fight.get_stat_by_id(CharacteristicEnum.RANGE),
             life_point=self.fight.life_point,
             max_life_point=self.fight.max_life_point,

@@ -18,10 +18,6 @@ DO_FIGHTER = True  # le bot va attacker un groupe de monstre random toutes les 3
 DO_SALE_HOTEL = True  # le bot va aller vendre en hdv
 DO_CRAFT = True  # le bot va aller craft pr level up principalement
 DO_USE_GUILD_CHEST = False  # le bot va utiliser le coffre de guilde plutot que la banque
-DO_CHAT = False  # le bot va parler en général (avec le model de chatgpt)
-DO_REGISTER_PRICE = (
-    False  # le bot va faire une requete pour enregistrer le prix a chaque fois qu'on l'obtient
-)
 DO_DUNGEON = False  # le bot va aller faire des dongons toutes les 4 heures (si cest possible)
 
 
@@ -37,9 +33,8 @@ KAMAS_LIMIT_FOR_HARVEST = 5_000
 USEFUL_UNLOAD = 0.15
 
 # Reliability / anti-stuck
-# message_id of the "you are busy" error TextInformationEvent. Capture it via the debug
-# message table then set it here; while None the anti-stuck safeguard stays dormant.
-OCCUPIED_MESSAGE_ID: int | None = None
+# message_id of the "you are busy" error TextInformationEvent.
+OCCUPIED_MESSAGE_ID: int = 474
 OCCUPIED_STUCK_LIMIT = 2  # consecutive "occupied" errors before forcing a reconnect
 
 # Mule
@@ -53,32 +48,6 @@ MIN_KAMAS_TO_GO_SALE_HOTEL = 1_500
 
 # Dungeon
 DUNGEON_OFFSET_LVL = 20
-
-
-# ============================================================================
-# TIMINGS (en secondes, tuples = ranges)
-# ============================================================================
-
-# Waiting times timing
-VERY_SMALL_RANGE = (0.2, 0.4)
-TINY_RANGE = (0.2, 0.8)
-SMALL_RANGE = (0.3, 1)
-BASE_RANGE = (0.5, 1.5)
-BETWEEN_ACTION_RANGE = (0.3, 1.5)
-MEDIUM_RANGE = (0.5, 2.5)
-BIG_RANGE = (1, 3)
-VERY_BIG_RANGE = (2, 6)
-ON_NEW_MAP_BEFORE_ACTION = (0.5, 4.5)
-
-# Bank
-ON_OPENED_INVENTORY = BASE_RANGE
-BEFORE_CLOSING_INVENTORY = BASE_RANGE
-
-# Npc
-BETWEEN_REPLY = BASE_RANGE
-
-# Scraping
-INTERVAL_BETWEEN_SCRAPING = 60 * 14
 
 
 # ============================================================================
@@ -98,14 +67,6 @@ def get_time_between_attacker() -> datetime.timedelta:
     return (
         datetime.timedelta(minutes=20) * uniform(0.75, 1.25)
         if DO_FIGHTER
-        else datetime.timedelta(datetime.MAXYEAR)
-    )
-
-
-def get_time_between_random_chat():
-    return (
-        datetime.timedelta(hours=45) * uniform(0.75, 1.25)
-        if DO_CHAT
         else datetime.timedelta(datetime.MAXYEAR)
     )
 
@@ -137,17 +98,13 @@ WEIGHT_BY_JOB: dict[JobEnum, float] = {
 # ============================================================================
 
 BETWEEN_COLLECT_PAUSE_PROBABILITY = 0.1
-BETWEEN_COLLECT_PAUSE_RANGE = (1.5, 4.0)
+FIRST_COLLECT_MOVEMENT_CANCEL_PROBABILITY = 1 / 3
+SUBSEQUENT_COLLECT_MOVEMENT_CANCEL_PROBABILITY = 1 / 8
+STATIC_INTERACTION_CANCEL_PROBABILITY = 1 / 8
 
 AFK_PROBABILITY_PER_MAP = 0.005
-AFK_DURATION_RANGE = (10.0, 40.0)
-FARM_LONG_BREAK_INTERVAL_RANGE = (75.0 * 60, 120.0 * 60)
-FARM_LONG_BREAK_DURATION_RANGE = (2.0 * 60, 5.0 * 60)
 
 ENABLE_SESSION_CONTEXT = True
 
 PLACEMENT_REPOSITIONING_PROBABILITY = 0.08
-PLACEMENT_EXTRA_HESITATION_RANGE = (0.25, 0.8)
 PLACEMENT_NON_OPTIMAL_MOVE_PROBABILITY = 0.1
-
-LOOK_AROUND_PROBABILITY = 0.5

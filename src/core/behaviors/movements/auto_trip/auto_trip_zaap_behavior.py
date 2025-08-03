@@ -21,7 +21,10 @@ from src.core.behaviors.movements.waypoint_behavior import (
     WaypointErrorCode,
 )
 from src.core.engine.movements.world.map_position import get_dist_to_maps
-from src.core.engine.movements.world.waypoint import get_near_waypoint
+from src.core.engine.movements.world.waypoint import (
+    get_final_world_entry_map_positions,
+    get_near_waypoint,
+)
 
 
 @dataclass
@@ -35,25 +38,33 @@ class AutoTripZaapBehavior(Behavior):
         if (
             not self.game_state.player.is_sub
             or self.game_state.player.level < 10
-            or DataReader().sub_area_by_id[self.game_state.map.sub_area_id].areaId
-            == AreaEnum.INCARNAM
+            or DataReader().sub_area_by_id[self.game_state.map.sub_area_id].areaId == AreaEnum.INCARNAM
             or self.game_state.inventory.kamas < 10_000
         ):
             self.logger.info("Can't use zaap, walk to dst")
-            return self.auto_trip_behavior.start(
-                callback=self.finish, parent=self, map_ids=map_ids
-            )
+            return self.auto_trip_behavior.start(callback=self.finish, parent=self, map_ids=map_ids)
 
-        dst_map_pos = [DataReader().map_info_by_map_id[map_id] for map_id in map_ids]
-        dist_player_to_ends = get_dist_to_maps(self.game_state.map.map_pos, dst_map_pos)
+        destination_map_positions = [DataReader().map_info_by_map_id[map_id] for map_id in map_ids]
+        world_path = self.auto_trip_behavior.world_path_finder.find_path(
+            self.game_state.get_world_path_context(), self.game_state.map.curr_vertex, map_ids
+        )
+        world_entry_map_positions = get_final_world_entry_map_positions(world_path)
+        waypoint_target_positions = world_entry_map_positions or destination_map_positions
+        dist_player_to_ends = get_dist_to_maps(self.game_state.map.map_pos, waypoint_target_positions)
 
         self.logger.info(
-            f"Get near waypoint with dist player to ends : {dist_player_to_ends} with waypoints : {self.game_state.player.waypoint_map_ids}"
+            "Get near waypoint with dist player to target : "
+            f"{dist_player_to_ends} with waypoints : {self.game_state.player.waypoint_map_ids}"
         )
+        if world_entry_map_positions:
+            self.logger.info(
+                "Changing world, selecting waypoint near entry maps : "
+                f"{[map_position.id for map_position in world_entry_map_positions]}"
+            )
         near_waypoint = get_near_waypoint(
             self.game_state.player.waypoint_map_ids,
             dist_player_to_ends,
-            dst_map_pos,
+            waypoint_target_positions,
             True,
         )
         if near_waypoint is not None:
@@ -61,7 +72,7 @@ class AutoTripZaapBehavior(Behavior):
                 callback=partial(
                     self.on_near_waypoint_behavior_finished,
                     map_ids=map_ids,
-                    ends_pos=dst_map_pos,
+                    ends_pos=destination_map_positions,
                 ),
                 parent=self,
                 map_id=near_waypoint.map_id,
@@ -70,14 +81,14 @@ class AutoTripZaapBehavior(Behavior):
         if self.game_state.map.is_in_haven_bag:
             self.event_manager.on(
                 MapComplementaryInformationEvent,
-                lambda _: self.walk_to_map_ids(map_ids=map_ids, ends_pos=dst_map_pos),
+                lambda _: self.walk_to_map_ids(map_ids=map_ids, ends_pos=destination_map_positions),
                 originator=self,
                 once=True,
             )
             req = HavenBagExitRequest()
             self.event_manager.send(req)
         else:
-            self.walk_to_map_ids(map_ids=map_ids, ends_pos=dst_map_pos)
+            self.walk_to_map_ids(map_ids=map_ids, ends_pos=destination_map_positions)
 
     def on_near_waypoint_behavior_finished(
         self,
@@ -90,15 +101,11 @@ class AutoTripZaapBehavior(Behavior):
         self.raise_if_error(error_code)
         self.walk_to_map_ids(map_ids, ends_pos)
 
-    def walk_to_map_ids(
-        self, map_ids: set[int], ends_pos: list[MapInformationRootItem]
-    ):
+    def walk_to_map_ids(self, map_ids: set[int], ends_pos: list[MapInformationRootItem]):
         self.auto_trip_behavior.start(
             parent=self,
             map_ids=map_ids,
-            callback=partial(
-                self.on_auto_trip_behavior_finished, map_ids=map_ids, ends_pos=ends_pos
-            ),
+            callback=partial(self.on_auto_trip_behavior_finished, map_ids=map_ids, ends_pos=ends_pos),
         )
 
     def on_auto_trip_behavior_finished(
@@ -109,9 +116,7 @@ class AutoTripZaapBehavior(Behavior):
     ):
         if error_code is AutoTripErrorCode.PATH_NOT_FOUND:
             self.logger.info("Path not found, try to use waypoint")
-            near_waypoint = get_near_waypoint(
-                self.game_state.player.waypoint_map_ids, None, ends_pos, True
-            )
+            near_waypoint = get_near_waypoint(self.game_state.player.waypoint_map_ids, None, ends_pos, True)
             if near_waypoint is None:
                 return self.finish(AutoTripErrorCode.PATH_NOT_FOUND)
             return self.waypoint_behavior.start(
@@ -125,12 +130,8 @@ class AutoTripZaapBehavior(Behavior):
             )
         self.finish(error_code)
 
-    def on_waypoint_behavior_finished_after_auto_trip_fail(
-        self, error_code: str | None, map_ids: set[int]
-    ):
+    def on_waypoint_behavior_finished_after_auto_trip_fail(self, error_code: str | None, map_ids: set[int]):
         if error_code is WaypointErrorCode.UNREACHABLE_HAVRE_MAP:
             return self.finish(AutoTripErrorCode.PATH_NOT_FOUND)
         self.raise_if_error(error_code)
-        self.auto_trip_behavior.start(
-            parent=self, map_ids=map_ids, callback=self.finish
-        )
+        self.auto_trip_behavior.start(parent=self, map_ids=map_ids, callback=self.finish)

@@ -42,9 +42,7 @@ class ConnectionClient(BaseClient):
 
     def send_msg(self, msg: Message) -> None:
         try:
-            assert isinstance(msg, LoginMessage), (
-                "ConnectionClient only sends LoginMessage envelopes"
-            )
+            assert isinstance(msg, LoginMessage), "ConnectionClient only sends LoginMessage envelopes"
             _, clear_sub_msg = get_conn_msg(msg.SerializeToString())
             self.client_socket.sendall(encode_msg(msg))
             self.bot.event_manager.process_msg(clear_sub_msg)

@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package com.ankama.dofus.server.game.protocol.guild.member;
+
+message GuildMemberParametersChangeRequest {
+	int64 member_id = 1;
+	int32 rank_id = 2;
+	int32 experience_given_percent = 3;
+}
+
+message GuildMemberWarnOnConnectionStartRequest {
+}
+
+message GuildMemberWarnOnConnectionStopRequest {
+}
+
+message GuildMemberWarnOnConnectionSetRequest {
+	bool enable = 1;
+	string guild_id = 2;
+}
+
+message GuildMemberOnlineStatusEvent {
+	int64 member_id = 1;
+	bool online = 2;
+}
+
+message GuildMembersEvent {
+	repeated .com.ankama.dofus.server.game.protocol.common.Character members = 1;
+}
+
+message GuildMemberUpdateEvent {
+	.com.ankama.dofus.server.game.protocol.common.Character member = 1;
+}
+
+message GuildMemberLeaveEvent {
+	bool kicked = 1;
+	int64 player_id = 2;
+}
+
+message GuildLeftEvent {
+}
+
+message GuildMembershipEvent {
+	.com.ankama.dofus.server.game.protocol.common.GuildInformation guild_information = 1;
+	int32 rank_id = 2;
+	int32 unknown_ftza = 3;
+	int32 unknown_ftzd = 4;
+}
+
+message GuildJoinedEvent {
+	.com.ankama.dofus.server.game.protocol.common.GuildInformation guild_information = 1;
+	int32 rank_id = 2;
+}
+
+message UnknownJkh {
+	int32 unknown_fttu = 1;
+	.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkh.UnknownJkf unknown_fttv = 2;
+	message UnknownJkf {
+		int32 unknown_fttp = 1;
+		map<int32, .com.ankama.dofus.server.game.protocol.guild.member.UnknownJkt> unknown_fttq = 2;
+	}
+}
+
+message UnknownJkt {
+	int32 unknown_ftve = 1;
+	.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkq unknown_ftvf = 2;
+}
+
+message UnknownJkq {
+	.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkq.UnknownJko unknown_ftuq = 1;
+	int32 unknown_ftur = 2;
+	message UnknownJko {
+		int32 unknown_ftuk = 1;
+		string unknown_ftul = 2;
+	}
+}
+
+message UnknownJku {
+	map<int32, int32> unknown_ftvk = 1;
+	int32 unknown_ftvl = 2;
+}
+
+message UnknownJkv {
+	.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkq unknown_ftvp = 1;
+	int32 unknown_ftvq = 2;
+}
+
+message UnknownJkw {
+	int32 unknown_ftvu = 1;
+}
+
+message UnknownJky {
+	int32 unknown_ftwc = 1;
+}

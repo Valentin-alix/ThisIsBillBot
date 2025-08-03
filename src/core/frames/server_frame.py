@@ -58,15 +58,10 @@ class ServerFrame(Frame):
         self._occupied_stuck_counter = 0
 
     def on_text_information_event(self, msg: TextInformationEvent):
-        if (
-            msg.message_type
-            is not TextInformationEvent.TextInformationType.TEXT_INFORMATION_ERROR
-        ):
+        if msg.message_type is not TextInformationEvent.TextInformationType.TEXT_INFORMATION_ERROR:
             return
 
-        self.logger.debug(
-            f"TextInformation error id={msg.message_id} params={msg.parameters}"
-        )
+        self.logger.debug(f"TextInformation error id={msg.message_id} params={msg.parameters}")
 
         if OCCUPIED_MESSAGE_ID is None or msg.message_id != OCCUPIED_MESSAGE_ID:
             return
@@ -74,8 +69,7 @@ class ServerFrame(Frame):
         self._occupied_stuck_counter += 1
         if self._occupied_stuck_counter > OCCUPIED_STUCK_LIMIT:
             self.logger.warning(
-                f"Occupied-stuck detected ({self._occupied_stuck_counter}x), "
-                "forcing reconnect to resync"
+                f"Occupied-stuck detected ({self._occupied_stuck_counter}x), forcing reconnect to resync"
             )
             self._occupied_stuck_counter = 0
             request_disconnect = self.event_manager.request_disconnect_callback

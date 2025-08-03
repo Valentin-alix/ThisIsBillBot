@@ -13,19 +13,11 @@ from src.gui.pages.debugs.message_filter_proxy import MessageFilterProxyModel
 from src.protocol.message import MessageInfo
 
 MessageTreeValue: TypeAlias = (
-    str
-    | int
-    | float
-    | bool
-    | None
-    | dict[str, "MessageTreeValue"]
-    | list["MessageTreeValue"]
+    str | int | float | bool | None | dict[str, "MessageTreeValue"] | list["MessageTreeValue"]
 )
 
 
-def _deep_count_fields_cache_key(
-    _: "MessageTable", sub_msg_name: str, __: MessageTreeValue
-) -> str:
+def _deep_count_fields_cache_key(_: "MessageTable", sub_msg_name: str, __: MessageTreeValue) -> str:
     return sub_msg_name
 
 
@@ -96,21 +88,15 @@ class MessageTable(BaseTableWidget):
             if msg_info.msg_json is None:
                 candidates = self._unmapped_candidates_by_obf.get(msg_info.sub_msg_name)
                 if candidates:
-                    candidates_str = ", ".join(
-                        f"{name} ({sim:.0%})" for name, sim in candidates
-                    )
+                    candidates_str = ", ".join(f"{name} ({sim:.0%})" for name, sim in candidates)
                     display_name = f"{msg_info.sub_msg_name} ? {candidates_str}"
             sub_msg_name_field = QStandardItem(display_name)
 
             count = ""
             if msg_info.obf_msg_json:
-                count = str(
-                    self.deep_count_fields(msg_info.sub_msg_name, msg_info.obf_msg_json)
-                )
+                count = str(self.deep_count_fields(msg_info.sub_msg_name, msg_info.obf_msg_json))
             elif msg_info.msg_json:
-                count = str(
-                    self.deep_count_fields(msg_info.sub_msg_name, msg_info.msg_json)
-                )
+                count = str(self.deep_count_fields(msg_info.sub_msg_name, msg_info.msg_json))
             count_fields = QStandardItem(count)
 
             content_msg_field = QStandardItem("")

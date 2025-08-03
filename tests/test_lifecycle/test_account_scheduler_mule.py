@@ -11,6 +11,7 @@ from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
     ScheduleProfile,
 )
 from ankama_launcher_emulator_premium.utils.proxy import ProxyConfig
+
 from src.core.bot.lifecycle.account_scheduler import (
     AccountScheduler,
     _AuthOp,

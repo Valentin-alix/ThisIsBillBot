@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+import "game_message.proto";
+import "report.proto";
+import "ladder.proto";
+
+package com.ankama.dofus.server.game.protocol.ladder.achievement;
+
+message UnknownIrb {
+	int32 unknown_fqve = 1;
+	string unknown_fqvf = 2;
+}
+
+message AchievementLadderPageEvent {
+	repeated .com.ankama.dofus.server.game.protocol.ladder.achievement.AchievementLadderEntry entries = 1;
+}
+
+message AchievementLadderEntry {
+	int64 rank = 1;
+	int64 success = 2;
+	.com.ankama.dofus.server.game.protocol.ladder.LadderCharacter info = 3;
+}
+
+message AchievementLadderPageRequest {
+	int32 server_id = 1;
+}
+
+message UnknownIrh {
+	repeated .com.ankama.dofus.server.game.protocol.ladder.achievement.AchievementLadderEntry entries = 1;
+}
+
+message AchievementLadderSelfRankEvent {
+	.com.ankama.dofus.server.game.protocol.ladder.achievement.AchievementLadderEntry entry = 1;
+}
+
+message AchievementLadderSelfRankRequest {
+	int32 server_id = 1;
+}

@@ -8,8 +8,6 @@ class GridSignals(QObject):
     set_obstacle_on_cell_id = pyqtSignal(int, bool)
     set_obstacle_on_cell_id_batch = pyqtSignal(list)  # list of (cell_id, is_obstacle)
     set_stated_element_on_cell_id = pyqtSignal(int, object, object)
-    set_stated_element_on_cell_id_batch = pyqtSignal(
-        list
-    )  # list of (cell_id, stated_element, collectable)
+    set_stated_element_on_cell_id_batch = pyqtSignal(list)  # list of (cell_id, stated_element, collectable)
     cell_id_clicked = pyqtSignal(int)
     is_in_map_transition = pyqtSignal(bool)

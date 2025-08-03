@@ -51,14 +51,10 @@ def calculate_attack_weight(
 
     life_malus, shield_bonus = calculate_life_modifiers(context, spell_lvl)
     life_stolen = (
-        effective_damage * AttackWeights.LIFE_STEAL_RATIO
-        if is_life_steal(description_effect)
-        else 0.0
+        effective_damage * AttackWeights.LIFE_STEAL_RATIO if is_life_steal(description_effect) else 0.0
     )
 
-    life_recovery_weight = calculate_life_recovery_weight(
-        context, life_stolen, life_malus, shield_bonus
-    )
+    life_recovery_weight = calculate_life_recovery_weight(context, life_stolen, life_malus, shield_bonus)
 
     ally_penalty = _ally_hit_penalty(context, impact_mps)
 
@@ -89,9 +85,7 @@ def is_life_steal(description_effect: str) -> bool:
     return bool(LIFE_STEAL_PATTERN.search(description_effect))
 
 
-def calculate_life_modifiers(
-    context: AttackContext, spell_lvl: SpellLevelsRootItem
-) -> tuple[int, int]:
+def calculate_life_modifiers(context: AttackContext, spell_lvl: SpellLevelsRootItem) -> tuple[int, int]:
     life_point_malus = 0
     shield_bonus = 0
 
@@ -117,21 +111,12 @@ def calculate_life_recovery_weight(
     new_life = context.life_point + life_stolen - life_malus + shield_bonus
     new_life_percentage = min(new_life / context.max_life_point, 1.0)
 
-    return 1 + (
-        (new_life_percentage - context.life_percentage)
-        * AttackWeights.LIFE_RECOVERY_MULTIPLIER
-    )
+    return 1 + ((new_life_percentage - context.life_percentage) * AttackWeights.LIFE_RECOVERY_MULTIPLIER)
 
 
-def _co_zone_effects(
-    spell_lvl: SpellLevelsRootItem, representative: Effect
-) -> list[Effect]:
+def _co_zone_effects(spell_lvl: SpellLevelsRootItem, representative: Effect) -> list[Effect]:
     """Effects of the spell that hit the same zone as ``representative``."""
-    return [
-        effect
-        for effect in spell_lvl.effects
-        if effect.zoneDescr == representative.zoneDescr
-    ]
+    return [effect for effect in spell_lvl.effects if effect.zoneDescr == representative.zoneDescr]
 
 
 def _spell_damage_effects(
@@ -150,9 +135,7 @@ def _spell_damage_effects(
     ]
 
 
-def _spell_push_distance(
-    spell_lvl: SpellLevelsRootItem, representative: Effect
-) -> int | None:
+def _spell_push_distance(spell_lvl: SpellLevelsRootItem, representative: Effect) -> int | None:
     """Push distance (cells) of a co-zone push effect of the spell, if any."""
     for effect in _co_zone_effects(spell_lvl, representative):
         if is_push_effect(effect):
@@ -198,13 +181,9 @@ def calculate_damage_weight(
 
         distance = target_mp.distance_to_map_point(enemy_data.map_point)
         applied_steps = min(distance, effect.zoneDescr.maxDamageDecreaseApplyCount)
-        damage_decrease = (
-            effect.zoneDescr.damageDecreaseStepPercent * applied_steps / 100.0
-        )
+        damage_decrease = effect.zoneDescr.damageDecreaseStepPercent * applied_steps / 100.0
 
-        is_melee = (
-            context.player_map_point.distance_to_map_point(enemy_data.map_point) == 1
-        )
+        is_melee = context.player_map_point.distance_to_map_point(enemy_data.map_point) == 1
         raw_damage = sum(
             damage_calculator.get_damage_effect(
                 damage_effect,

@@ -35,9 +35,7 @@ def remove_forbidden_edge_transition_by_map_id(
 def get_valid_transition(
     edge: Edge, transitions: list[Transition], context: WorldTransitionContext
 ) -> Transition | None:
-    for transition, criterion in _get_transition_to_valid_criterions(
-        tuple(transitions)
-    ):
+    for transition, criterion in _get_transition_to_valid_criterions(tuple(transitions)):
         if (
             edge.m_from,
             edge.m_to,
@@ -63,30 +61,21 @@ def _get_transition_to_valid_criterions(
             and transition.m_criterion[0:2] not in CRITERION_WHITE_LIST
         ):
             continue
-        transitions_with_criterion.append(
-            (transition, GroupItemCriterion(transition.m_criterion))
-        )
+        transitions_with_criterion.append((transition, GroupItemCriterion(transition.m_criterion)))
     return transitions_with_criterion
 
 
 def edge_has_valid_transition(edge: Edge, context: WorldTransitionContext) -> bool:
-    return (
-        get_valid_transition(edge=edge, transitions=edge.m_transitions, context=context)
-        is not None
-    )
+    return get_valid_transition(edge=edge, transitions=edge.m_transitions, context=context) is not None
 
 
-def iter_valid_outgoing_edges(
-    vertice: Vertice, context: WorldTransitionContext
-) -> Iterator[Edge]:
+def iter_valid_outgoing_edges(vertice: Vertice, context: WorldTransitionContext) -> Iterator[Edge]:
     edges = WorldGraphReader().get_outgoing_edges_from_vertex(vertice)
     for edge in edges:
         if edge.m_to.m_mapId in FORBIDDEN_MAP_IDS:
             continue
         try:
-            if not context.criterion.is_sub and not MapTools.is_map_allowed_for_unsub(
-                edge.m_to.m_mapId
-            ):
+            if not context.criterion.is_sub and not MapTools.is_map_allowed_for_unsub(edge.m_to.m_mapId):
                 continue
             if not edge_has_valid_transition(edge, context):
                 continue

@@ -11,7 +11,6 @@ from datas.protos.non_obf.game.npc_pb2 import (
 from dofus_unity_reader.game_constants.npc import NpcDialogInfo, ReplyInfo
 
 from src.core.behaviors.behavior import Behavior
-from src.core.config import ON_NEW_MAP_BEFORE_ACTION
 from src.services.human_timings import HumanTimingsService
 
 
@@ -32,7 +31,10 @@ class NpcDialogBehavior(Behavior):
         is_forbidden_msg_callback: Callable[[NpcDialogQuestionEvent], bool] | None = None,
     ):
         self.is_forbidden_msg_callback = is_forbidden_msg_callback
-        self.run_timer(ON_NEW_MAP_BEFORE_ACTION, lambda: self.dialog_to_npc(npc_dialog_info=npc_dialog_info))
+        self.run_timer(
+            HumanTimingsService().get_timing_after_map_arrival(),
+            lambda: self.dialog_to_npc(npc_dialog_info=npc_dialog_info),
+        )
 
     def dialog_to_npc(self, npc_dialog_info: NpcDialogInfo):
         self.event_manager.on(

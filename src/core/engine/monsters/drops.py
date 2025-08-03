@@ -17,9 +17,7 @@ def get_rare_gid_with_weight_from_protector_drop(
     weight: float = 0
 
     for drop in drops:
-        if not (
-            item_description := DataReader().item_by_id[drop.objectId].descriptionId
-        ):
+        if not (item_description := DataReader().item_by_id[drop.objectId].descriptionId):
             continue
         if item_description not in I18N().name_by_id:
             continue
@@ -35,7 +33,5 @@ def get_rare_gid_with_weight_from_protector_drop(
             else:
                 continue
 
-        weight += (
-            drop.percentDropForGrade1 / 100 * avg_price_by_gid.get(drop.objectId, 1)
-        )
+        weight += drop.percentDropForGrade1 / 100 * avg_price_by_gid.get(drop.objectId, 1)
     return res_object_id, weight

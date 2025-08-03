@@ -25,9 +25,7 @@ class Rectangle(Zone):
     def get_mps(self, mp: MapPoint, direction: DirectionsEnum) -> set[MapPoint]:
         mps: set[MapPoint] = set()
         coords: list[tuple[int, int]] = []
-        sign: int = (
-            -1 if direction in [DirectionsEnum.UP_LEFT, DirectionsEnum.DOWN_LEFT] else 1
-        )
+        sign: int = -1 if direction in [DirectionsEnum.UP_LEFT, DirectionsEnum.DOWN_LEFT] else 1
         axis_flag: bool = direction in [
             DirectionsEnum.UP_LEFT,
             DirectionsEnum.DOWN_LEFT,

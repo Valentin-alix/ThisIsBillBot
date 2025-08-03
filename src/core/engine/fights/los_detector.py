@@ -22,12 +22,7 @@ class LosDetector:
             mp = line[index]
             if (
                 mp in taken_mps
-                or (
-                    MapReader()
-                    .get_cell_data_by_cell_id(map_id=map_id, cell_id=mp.cell_id)
-                    .los
-                )
-                != 1
+                or (MapReader().get_cell_data_by_cell_id(map_id=map_id, cell_id=mp.cell_id).los) != 1
             ):
                 return False
 

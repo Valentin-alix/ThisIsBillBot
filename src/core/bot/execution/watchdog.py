@@ -75,38 +75,25 @@ class StuckWatchdog(ContextualLogger):
 
     def _is_intentionally_idle(self, behavior: Behavior) -> bool:
         running_children = [
-            child
-            for child in list(behavior.children)
-            if child.state is BehaviorState.RUNNING
+            child for child in list(behavior.children) if child.state is BehaviorState.RUNNING
         ]
         if running_children:
             return all(self._is_intentionally_idle(child) for child in running_children)
-        return (
-            isinstance(behavior, IdleBehavior)
-            and behavior.state is BehaviorState.RUNNING
-        )
+        return isinstance(behavior, IdleBehavior) and behavior.state is BehaviorState.RUNNING
 
-    def _is_waiting_on_expected_fight_activity(
-        self, running_behaviors: list[Behavior]
-    ) -> bool:
-        message_idle_s = time.monotonic() - (
-            self.event_manager.last_message_activity_monotonic
-        )
+    def _is_waiting_on_expected_fight_activity(self, running_behaviors: list[Behavior]) -> bool:
+        message_idle_s = time.monotonic() - (self.event_manager.last_message_activity_monotonic)
         if self.game_state.fight.in_fight and not self.game_state.fight.is_our_turn:
             return message_idle_s < self.threshold_s
 
         is_finishing_fight = bool(self.game_state.map.is_in_map_transition) and any(
-            self._contains_running_fight_behavior(behavior)
-            for behavior in running_behaviors
+            self._contains_running_fight_behavior(behavior) for behavior in running_behaviors
         )
         transition_grace_s = self.tick_s * 2
         return is_finishing_fight and message_idle_s < transition_grace_s
 
     def _contains_running_fight_behavior(self, behavior: Behavior) -> bool:
-        if (
-            isinstance(behavior, FightBehavior)
-            and behavior.state is BehaviorState.RUNNING
-        ):
+        if isinstance(behavior, FightBehavior) and behavior.state is BehaviorState.RUNNING:
             return True
         return any(
             self._contains_running_fight_behavior(child)
@@ -115,10 +102,7 @@ class StuckWatchdog(ContextualLogger):
         )
 
     def _report(self, behavior: Behavior, idle_s: float) -> None:
-        reason = (
-            f"No bot progress for {idle_s:.0f}s while "
-            f"{behavior.__class__.__name__} is running"
-        )
+        reason = f"No bot progress for {idle_s:.0f}s while {behavior.__class__.__name__} is running"
         self.logger.warning(f"STUCK: {reason}")
 
         recorder = self.event_manager.debug_recorder

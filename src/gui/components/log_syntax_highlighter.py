@@ -35,15 +35,11 @@ class LogSyntaxHighlighter(QSyntaxHighlighter):
         self.setFormat(0, len(text), self.default_format)
         number_pattern = re.compile(r"\b\d+\b")
         for match in number_pattern.finditer(text):
-            self.setFormat(
-                match.start(), match.end() - match.start(), self.number_format
-            )
+            self.setFormat(match.start(), match.end() - match.start(), self.number_format)
 
         bracket_pattern = re.compile(r"[\[\]\(\)\{\}]")
         for match in bracket_pattern.finditer(text):
-            self.setFormat(
-                match.start(), match.end() - match.start(), self.bracket_format
-            )
+            self.setFormat(match.start(), match.end() - match.start(), self.bracket_format)
 
         id_pattern = re.compile(r"\b(?:gid|uid|id|tab|map_id)[:=]\s*\d+")
         for match in id_pattern.finditer(text):
@@ -62,6 +58,4 @@ class LogSyntaxHighlighter(QSyntaxHighlighter):
         for keyword in keywords:
             pattern = re.compile(r"\b" + keyword + r"\b", re.IGNORECASE)
             for match in pattern.finditer(text):
-                self.setFormat(
-                    match.start(), match.end() - match.start(), self.keyword_format
-                )
+                self.setFormat(match.start(), match.end() - match.start(), self.keyword_format)

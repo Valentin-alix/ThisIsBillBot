@@ -87,10 +87,7 @@ class GroupList[T](QGroupBox):
                 existing_widget.setHidden(True)
         else:
             related_widget = self.get_or_create_widget_item(item)
-            if (
-                self.input_search == ""
-                or self.input_search.casefold() in self.get_name_item(item).casefold()
-            ):
+            if self.input_search == "" or self.input_search.casefold() in self.get_name_item(item).casefold():
                 related_widget.setHidden(False)
             else:
                 related_widget.setHidden(True)

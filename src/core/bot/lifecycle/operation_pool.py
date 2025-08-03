@@ -24,12 +24,8 @@ class OperationPool:
     """
 
     proxy_controller: ProxyController = field(default_factory=ProxyController)
-    _timestamps: dict[str, list[float]] = field(
-        init=False, default_factory=dict[str, list[float]]
-    )
-    _register_cooldowns: dict[str, float] = field(
-        init=False, default_factory=dict[str, float]
-    )
+    _timestamps: dict[str, list[float]] = field(init=False, default_factory=dict[str, list[float]])
+    _register_cooldowns: dict[str, float] = field(init=False, default_factory=dict[str, float])
 
     def __post_init__(self) -> None:
         self._timestamps = self.proxy_controller.get_operation_timestamps()
@@ -43,20 +39,13 @@ class OperationPool:
         )
 
     def _count_since(self, proxy_id: str, threshold: float) -> int:
-        return sum(
-            1
-            for timestamp in self._timestamps.get(proxy_id, [])
-            if timestamp >= threshold
-        )
+        return sum(1 for timestamp in self._timestamps.get(proxy_id, []) if timestamp >= threshold)
 
     def has_quota(self, proxy_id: str, now: float | None = None) -> bool:
         now = time.time() if now is None else now
         within_hour = self._count_since(proxy_id, now - ONE_HOUR_SEC)
         within_day = self._count_since(proxy_id, now - ONE_DAY_SEC)
-        return (
-            within_hour < MAX_OPERATIONS_PER_HOUR
-            and within_day < MAX_OPERATIONS_PER_DAY
-        )
+        return within_hour < MAX_OPERATIONS_PER_HOUR and within_day < MAX_OPERATIONS_PER_DAY
 
     def count_since_hour(self, proxy_id: str, now: float | None = None) -> int:
         now = time.time() if now is None else now

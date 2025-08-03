@@ -28,7 +28,7 @@ from src.core.behaviors.npcs.npc_dialog_behavior import (
     NpcDialogBehavior,
     NpcDialogErrorCode,
 )
-from src.core.config import BASE_RANGE
+from src.services.human_timings import HumanTimingsService
 from src.core.engine.storage.unload import get_bank_npc_info
 from src.protocol.protocol_game import is_usable_msg
 
@@ -69,11 +69,7 @@ class EnterBankChestBehavior(Behavior):
         self.npc_dialog_behavior.start(
             callback=self.on_npc_dialog_behavior_finished,
             parent=self,
-            npc_dialog_info=next(
-                bank
-                for bank in BANK_NPCS
-                if bank.npc_map_id == self.game_state.map.map_id
-            ),
+            npc_dialog_info=next(bank for bank in BANK_NPCS if bank.npc_map_id == self.game_state.map.map_id),
             is_forbidden_msg_callback=is_forbidden_msg_callback,
         )
 
@@ -122,11 +118,9 @@ class EnterBankChestBehavior(Behavior):
                 originator=self,
                 once=True,
                 timeout=10,
-                on_timeout=lambda: self.finish(
-                    EnterBankChestErrorCode.KAMAS_MOVE_NOT_CONFIRMED
-                ),
+                on_timeout=lambda: self.finish(EnterBankChestErrorCode.KAMAS_MOVE_NOT_CONFIRMED),
             )
 
-            self.run_timer(BASE_RANGE, move_kama)
+            self.run_timer(HumanTimingsService().get_timing_base_action(), move_kama)
         else:
             self.finish()

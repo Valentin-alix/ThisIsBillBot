@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 *)",
+      "Bash(Select-Object Name)",
+      "Bash(uv run *)",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Get-ChildItem -Path *)",
+      "Bash(Sort-Object)",
+      "PowerShell(uv run *)",
+      "Bash(Select-Object -ExpandProperty Name)",
+      "mcp__plugin_ida-pro_idalib__func_query",
+      "mcp__plugin_ida-pro_idalib__search_structs",
+      "mcp__plugin_ida-pro_idalib__entity_query",
+      "mcp__plugin_ida-pro_idalib__lookup_funcs",
+      "mcp__plugin_ida-pro_idalib__int_convert",
+      "mcp__plugin_ida-pro_idalib__decompile",
+      "mcp__plugin_ida-pro_idalib__xref_query",
+      "Bash(git rev-parse *)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(Set-Location *)",
+      "Bash(python *)",
+      "Bash([ -d \"$PLUGIN_ROOT/packages/dashboard\" ])",
+      "Read(//c/Users/Valentin/.claude/plugins/cache/understand-anything/understand-anything/2.7.5/packages/dashboard/**)",
+      "PowerShell(Get-Item *)",
+      "PowerShell(Select-String *)"
+    ]
+  },
+  "spinnerTipsEnabled": false
+}

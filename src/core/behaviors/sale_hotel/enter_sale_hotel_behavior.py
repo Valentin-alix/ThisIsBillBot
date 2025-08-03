@@ -13,7 +13,7 @@ from src.core.behaviors.interactives.interactive_behavior import InteractiveBeha
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
-from src.core.config import BASE_RANGE
+from src.services.human_timings import HumanTimingsService
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.movements.world.map_position import get_dist_to_maps
 from src.core.frames.sale_hotel_frame import SALE_HOTELS_BY_CATEGORY
@@ -30,8 +30,7 @@ class EnterSaleHotelBehavior(Behavior):
             [
                 npc_info
                 for npc_info in SALE_HOTELS_BY_CATEGORY[category]
-                if self.game_state.player.is_sub
-                != MapTools.is_map_allowed_for_unsub(npc_info.npc_map_id)
+                if self.game_state.player.is_sub != MapTools.is_map_allowed_for_unsub(npc_info.npc_map_id)
             ],
             key=lambda npc_info: get_dist_to_maps(
                 curr_map_pos, [DataReader().map_info_by_map_id[npc_info.npc_map_id]]
@@ -39,15 +38,11 @@ class EnterSaleHotelBehavior(Behavior):
         )
         self.auto_trip_smart_behavior.start(
             map_ids={near_acessible_sale_hotel.npc_map_id},
-            callback=partial(
-                self.on_auto_trip_smart_behavior, npc_info=near_acessible_sale_hotel
-            ),
+            callback=partial(self.on_auto_trip_smart_behavior, npc_info=near_acessible_sale_hotel),
             parent=self,
         )
 
-    def on_auto_trip_smart_behavior(
-        self, error_code: str | None, npc_info: NpcInfo
-    ) -> None:
+    def on_auto_trip_smart_behavior(self, error_code: str | None, npc_info: NpcInfo) -> None:
         self.raise_if_error(error_code)
         sale_hotel_interactive = next(
             interactive
@@ -71,7 +66,7 @@ class EnterSaleHotelBehavior(Behavior):
             self.finish(npc_info=npc_info)
 
         self.run_timer(
-            BASE_RANGE,
+            HumanTimingsService().get_timing_base_action(),
             lambda: self.interactive_behavior.start(
                 element_mp=element_mp,
                 element_id=sale_hotel_interactive.element_id,

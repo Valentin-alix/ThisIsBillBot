@@ -60,9 +60,7 @@ class MapTab(QWidget):
     def _connect_info_signals(self) -> None:
         self.grid_signals.new_map_id.connect(self.on_map_id_changed)
         self.grid_signals.is_in_map_transition.connect(
-            partial(
-                self.info_panel.on_received_property, "", "Est en transition de map"
-            )
+            partial(self.info_panel.on_received_property, "", "Est en transition de map")
         )
         self.game_info_signals.is_in_haven_bag.connect(
             partial(self.info_panel.on_received_property, "", "Dans le havre-sac")
@@ -95,9 +93,7 @@ class MapTab(QWidget):
     def on_map_id_changed(self, map_id: int) -> None:
         map_position = DataReader().map_info_by_map_id[map_id]
         self.info_panel.on_received_property("", "Map id", map_id)
-        self.info_panel.on_received_property(
-            "", "Coordonnées", f"({map_position.posX}, {map_position.posY})"
-        )
+        self.info_panel.on_received_property("", "Coordonnées", f"({map_position.posX}, {map_position.posY})")
 
     @pyqtSlot(int)
     def on_cell_id_clicked(self, cell_id: int) -> None:
@@ -111,14 +107,10 @@ class MapTab(QWidget):
             ScrollableMessageBox(f"Acteur sur cell {cell_id}", content, self).exec()
             return
 
-        stated_elements = self.game_state.interactive.stated_element_by_cell_id.get(
-            cell_id
-        )
+        stated_elements = self.game_state.interactive.stated_element_by_cell_id.get(cell_id)
         if stated_elements:
             stated_element, collectable = next(iter(stated_elements.values()))
             content = str(stated_element)
             if collectable is not None:
                 content += f"\n\nCollectable: {collectable}"
-            ScrollableMessageBox(
-                f"Interactive sur cell {cell_id}", content, self
-            ).exec()
+            ScrollableMessageBox(f"Interactive sur cell {cell_id}", content, self).exec()

@@ -49,9 +49,7 @@ class BehaviorCoordinator(ContextualLogger):
     account: StoredApiKey
     get_bot_config: Callable[[], BotConfig | None]
 
-    _current_bot_action_func: Callable[[Callable[[str], None]], None] | None = field(
-        init=False, default=None
-    )
+    _current_bot_action_func: Callable[[Callable[[str], None]], None] | None = field(init=False, default=None)
 
     def on_play(self, from_manual_play: bool):
         if from_manual_play:
@@ -149,14 +147,8 @@ class BehaviorCoordinator(ContextualLogger):
 
     def guess_bot_action(self) -> None:
         """Determine and trigger the appropriate bot action based on configuration."""
-        is_kamas_mule = BotConfigService().is_kamas_mule(
-            self.account.apikey.login
-        )
-        if (
-            is_kamas_mule
-            and self.player_state.level >= 50
-            and self.player_state.is_former_sub
-        ):
+        is_kamas_mule = BotConfigService().is_kamas_mule(self.account.apikey.login)
+        if is_kamas_mule and self.player_state.level >= 50 and self.player_state.is_former_sub:
             self.bot_signals.play_mule_kamas.emit()
             return
         config = self.get_bot_config()
@@ -173,10 +165,7 @@ class BehaviorCoordinator(ContextualLogger):
         running: list[Behavior] = []
         for field_info in fields(self):
             field_value = getattr(self, field_info.name)
-            if (
-                isinstance(field_value, Behavior)
-                and field_value.state == BehaviorState.RUNNING
-            ):
+            if isinstance(field_value, Behavior) and field_value.state == BehaviorState.RUNNING:
                 running.append(field_value)
 
         for usable_behavior in self.usable_behaviors:

@@ -33,9 +33,7 @@ class PropertyWidget(QWidget):
         if self.label_widget is None:
             label_widget = BodyLabel(text=value, parent=self)
             label_widget.setWordWrap(True)
-            label_widget.setTextInteractionFlags(
-                Qt.TextInteractionFlag.TextSelectableByMouse
-            )
+            label_widget.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             self._layout.addWidget(label_widget)
             self.label_widget = label_widget
         else:

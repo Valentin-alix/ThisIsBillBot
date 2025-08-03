@@ -36,9 +36,7 @@ class Frame(ContextualLogger):
             if hasattr(field_value, "clear_state"):
                 field_value.clear_state()
 
-    def run_timer(
-        self, range_time: tuple[float, float] | float, func: Callable[[], None]
-    ) -> None:
+    def run_timer(self, range_time: tuple[float, float] | float, func: Callable[[], None]) -> None:
         if isinstance(range_time, tuple):
             wait_time = get_random_range(range_time)
         else:
@@ -75,7 +73,5 @@ class Frame(ContextualLogger):
             reason: Raison du nettoyage manuel (pour debug/doc)
         """
         if reason:
-            self.logger.debug(
-                f"Manual listener cleanup: {event_type.__name__} - {reason}"
-            )
+            self.logger.debug(f"Manual listener cleanup: {event_type.__name__} - {reason}")
         self.event_manager.clear_listener_by_origin_and_type(event_type, self)

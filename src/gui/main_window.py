@@ -73,9 +73,7 @@ class MainWindow(AppFluentWindow):
 
         account_widget = AccountStackedWidget(self.global_log_signals, login, account)
         self.account_widgets.append(account_widget)
-        navigation_widget = SidebarItem(
-            account.bot_signals, self.disconnected_icon, login, True, parent=self
-        )
+        navigation_widget = SidebarItem(account.bot_signals, self.disconnected_icon, login, True, parent=self)
         navigation_widget.set_playing(account.is_playing_event.is_set())
         is_connected = account.is_connected_event.is_set()
         navigation_widget.set_connected(is_connected)
@@ -100,9 +98,7 @@ class MainWindow(AppFluentWindow):
             self._on_connection_mode_changed(login, mode)
 
         navigation_widget.connection_mode_changed.connect(on_connection_mode_changed)
-        navigation_widget.disconnect_clicked.connect(
-            lambda: self._on_disconnect_clicked(login)
-        )
+        navigation_widget.disconnect_clicked.connect(lambda: self._on_disconnect_clicked(login))
 
         def on_connected(_characters: object) -> None:
             navigation_widget.set_left_icon(self.connected_icon)
@@ -122,12 +118,8 @@ class MainWindow(AppFluentWindow):
         account.game_info_signals.disconnected.connect(
             lambda: navigation_widget.set_left_icon(self.disconnected_icon)
         )
-        account.game_info_signals.disconnected.connect(
-            lambda: navigation_widget.set_connected(False)
-        )
-        account.game_info_signals.disconnected.connect(
-            lambda: navigation_widget.set_title(login)
-        )
+        account.game_info_signals.disconnected.connect(lambda: navigation_widget.set_connected(False))
+        account.game_info_signals.disconnected.connect(lambda: navigation_widget.set_title(login))
 
         if account.is_ready_to_play_event.is_set():
             self._show_breed_icon(navigation_widget, account)
@@ -143,9 +135,7 @@ class MainWindow(AppFluentWindow):
             navigation_widget.set_left_icon(cached_icon)
             return
 
-        request = QNetworkRequest(
-            QUrl(_BREED_ICON_URL_TEMPLATE.format(breed_id=breed_id))
-        )
+        request = QNetworkRequest(QUrl(_BREED_ICON_URL_TEMPLATE.format(breed_id=breed_id)))
         request.setTransferTimeout(10_000)
         reply = self._breed_icon_network_manager.get(request)
         if not reply:
@@ -217,13 +207,9 @@ class MainWindow(AppFluentWindow):
 
         if self.account_widgets:
             self.switchTo(self.account_widgets[0])
-            self.navigationInterface.setCurrentItem(
-                self.account_widgets[0].objectName()
-            )
+            self.navigationInterface.setCurrentItem(self.account_widgets[0].objectName())
 
-    def _on_connection_mode_changed(
-        self, login: str, mode: Literal["mitm", "socket"]
-    ) -> None:
+    def _on_connection_mode_changed(self, login: str, mode: Literal["mitm", "socket"]) -> None:
         BotConfigService().assign_mode(login, mode)
 
     def _on_disconnect_clicked(self, login: str) -> None:
@@ -244,15 +230,11 @@ class MainWindow(AppFluentWindow):
                 super().__init__(isSelectable=False, parent=parent)
                 layout = QHBoxLayout(self)
                 layout.setContentsMargins(12, 0, 12, 0)
-                self.button = PrimaryPushButton(
-                    FluentIcon.SYNC, "Synchronisez les comptes"
-                )
+                self.button = PrimaryPushButton(FluentIcon.SYNC, "Synchronisez les comptes")
                 layout.addWidget(self.button)
 
         self.sync_widget = SyncButtonWidget(self)
-        self.sync_widget.button.clicked.connect(
-            lambda: self.shared_signals.synchronize_bots.emit()
-        )
+        self.sync_widget.button.clicked.connect(lambda: self.shared_signals.synchronize_bots.emit())
         self.navigationInterface.displayModeChanged.connect(manage_visibility_sync_btn)
 
         self.navigationInterface.addWidget(

@@ -31,16 +31,12 @@ class Listener[T]:
     def __post_init__(self) -> None:
         self._context = f"{self.originator.__class__.__name__}:{self.msg_type.__name__}"
         if self.timeout is not None and self.on_timeout is not None:
-            self._timeout_timer = Timer(
-                interval=self.timeout, function=self.on_timeout_callback
-            )
+            self._timeout_timer = Timer(interval=self.timeout, function=self.on_timeout_callback)
             self._timeout_timer.start()
 
     def on_timeout_callback(self) -> None:
         if self._deleted:
-            self.logger.info(
-                f"{self._context} : On timeout callback called but listener is deleted"
-            )
+            self.logger.info(f"{self._context} : On timeout callback called but listener is deleted")
             return
         if self.on_timeout is None:
             raise ValueError("timeout timer is set but no timeout callback provided")

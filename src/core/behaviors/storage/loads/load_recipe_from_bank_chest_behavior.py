@@ -15,7 +15,7 @@ from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
 from src.core.behaviors.storage.loads.recipe_loader_behavior import (
     RecipeLoaderBehavior,
 )
-from src.core.config import SMALL_RANGE
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
@@ -23,9 +23,7 @@ class LoadRecipeFromBankChestBehavior(RecipeLoaderBehavior):
     enter_bank_chest_behavior: EnterBankChestBehavior
 
     def enter_storage(self) -> None:
-        self.enter_bank_chest_behavior.start(
-            callback=self.on_entered_storage, parent=self
-        )
+        self.enter_bank_chest_behavior.start(callback=self.on_entered_storage, parent=self)
 
     def on_entered_storage(self, error_code: str | None) -> None:
         if error_code is not None:
@@ -39,17 +37,11 @@ class LoadRecipeFromBankChestBehavior(RecipeLoaderBehavior):
     def get_storage_objects_by_gid(self) -> dict[int, ObjectItemInventory]:
         return self.game_state.inventory.get_bank_objects_by_gid()
 
-    def load_ingredients_for_recipe(
-        self, recipe: RecipeItem, max_possible_result_quantity: int
-    ) -> None:
-        ingredient_id_with_quantity = tuple(
-            zip(recipe.ingredientIds, recipe.quantities)
-        )
+    def load_ingredients_for_recipe(self, recipe: RecipeItem, max_possible_result_quantity: int) -> None:
+        ingredient_id_with_quantity = tuple(zip(recipe.ingredientIds, recipe.quantities))
         if len(ingredient_id_with_quantity) == 0:
             return self.load_recipe()
-        self.load_ingredient(
-            ingredient_id_with_quantity, 0, max_possible_result_quantity
-        )
+        self.load_ingredient(ingredient_id_with_quantity, 0, max_possible_result_quantity)
 
     def load_ingredient(
         self,
@@ -70,13 +62,11 @@ class LoadRecipeFromBankChestBehavior(RecipeLoaderBehavior):
             originator=self,
             once=True,
         )
-        ingredient_item = self.game_state.inventory.get_bank_object_by_gid(
-            ingredient_id
-        )
+        ingredient_item = self.game_state.inventory.get_bank_object_by_gid(ingredient_id)
         if ingredient_item is None:
             return self.load_recipe()
         req = ExchangeObjectMoveRequest(
             object_uid=ingredient_item.item.uid,
             quantity=-quantity * max_possible_result_quantity,
         )
-        self.send_message_delayed(req, SMALL_RANGE)
+        self.send_message_delayed(req, HumanTimingsService().get_timing_short_action())

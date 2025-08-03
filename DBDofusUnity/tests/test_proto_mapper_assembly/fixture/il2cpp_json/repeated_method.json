@@ -1,0 +1,12 @@
+{
+    "addressMap": {
+        "methodDefinitions": [
+            {
+                "virtualAddress": "0x0000000180005000",
+                "name": "_ZN9MessageA9AddItemEPN5Item8ItemObjectE",
+                "signature": "void MessageA_AddItem(MessageA * this, Item * item, MethodInfo * method)",
+                "group": "Core.dll/MessageA"
+            }
+        ]
+    }
+}

@@ -22,14 +22,8 @@ class MessageFilterProxyModel(MultiColumnFilterProxyModel):
 
             if text == "":
                 user_data = source_index.data(Qt.ItemDataRole.UserRole)
-                if (
-                    user_data
-                    and hasattr(user_data, "msg_json")
-                    and hasattr(user_data, "obf_msg_json")
-                ):
-                    text = json.dumps(user_data.msg_json) + json.dumps(
-                        user_data.obf_msg_json
-                    )
+                if user_data and hasattr(user_data, "msg_json") and hasattr(user_data, "obf_msg_json"):
+                    text = json.dumps(user_data.msg_json) + json.dumps(user_data.obf_msg_json)
 
             if filter_info.search_type == SearchType.CONTAINS:
                 if filter_string.lower() not in text.lower():

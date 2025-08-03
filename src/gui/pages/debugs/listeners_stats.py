@@ -27,9 +27,7 @@ class ListenersStatsTable(BaseTableWidget):
 
 
 class ListenersStatsWidget(QWidget):
-    def __init__(
-        self, event_manager: EventManager, parent: QWidget | None = None
-    ) -> None:
+    def __init__(self, event_manager: EventManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.event_manager = event_manager
 
@@ -39,9 +37,7 @@ class ListenersStatsWidget(QWidget):
         self.setLayout(layout)
 
         self.stats_table = ListenersStatsTable(self)
-        self.stats_table.table.setSelectionMode(
-            TableWidget.SelectionMode.SingleSelection
-        )
+        self.stats_table.table.setSelectionMode(TableWidget.SelectionMode.SingleSelection)
         self.stats_table.table.clicked.connect(self.on_row_double_clicked)
         layout.addWidget(self.stats_table)
 
@@ -77,9 +73,7 @@ class ListenersStatsWidget(QWidget):
             listener.originator.__class__.__name__,
         )
 
-    def add_listener_at_index(
-        self, listener: Listener[Message], row_index: int
-    ) -> None:
+    def add_listener_at_index(self, listener: Listener[Message], row_index: int) -> None:
         timestamp_str = listener.registered_at.strftime("%H:%M:%S.%f")[:-3]
         originator_str = listener.originator.__class__.__name__
         type_str = listener.msg_type.__name__

@@ -16,9 +16,7 @@ class CraftPage(QWidget):
         self.bot = bot
         recipes: list[RecipeItem] = DataReader().recipes
         self.main_layout = QVBoxLayout()
-        self.main_layout.setAlignment(
-            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignCenter
-        )
+        self.main_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignCenter)
         self.setLayout(self.main_layout)
 
         self.play_btn = TransparentToolButton(FluentIcon.PLAY, self)

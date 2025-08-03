@@ -15,12 +15,12 @@ from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestErrorCode,
 )
 from src.core.config import (
-    BASE_RANGE,
     DO_FIGHTER,
     KAMAS_LIMIT_FOR_HARVEST,
     LVL_LIMIT_FOR_HARVEST,
     get_time_beween_areas,
 )
+from src.services.human_timings import HumanTimingsService
 from src.core.engine.contexts import HarvesterAreaContext
 from src.core.engine.weights.fighter.set_drop import (
     choose_set_drop_area_info,
@@ -50,9 +50,7 @@ class AutoBotBehavior(Behavior):
 
     _area_id: int | None = field(init=False, default=None)
     _sub_area_id: int | None = field(init=False, default=None)
-    _previous_area_info_played: list[AreaInfo] = field(
-        init=False, default_factory=list[AreaInfo]
-    )
+    _previous_area_info_played: list[AreaInfo] = field(init=False, default_factory=list[AreaInfo])
 
     def get_harvester_area_context(self) -> HarvesterAreaContext:
         return HarvesterAreaContext(
@@ -62,9 +60,7 @@ class AutoBotBehavior(Behavior):
             player_server_id=self.game_state.player.server_id,
             player_jobs_lvl_by_id=self.game_state.player.jobs_lvl_by_id,
             bank_storage_by_gid=self.game_state.inventory.get_bank_objects_by_gid(),
-            current_area_infos_by_server_and_character=(
-                CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER
-            ),
+            current_area_infos_by_server_and_character=(CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER),
         )
 
     def run(
@@ -76,9 +72,7 @@ class AutoBotBehavior(Behavior):
         self._sub_area_id = sub_area_id
         if self.game_state.inventory.is_full_pods:
             return self.play()
-        self.auto_equipment_behavior.start(
-            callback=self.on_initial_auto_equipment_finished, parent=self
-        )
+        self.auto_equipment_behavior.start(callback=self.on_initial_auto_equipment_finished, parent=self)
 
     def on_initial_auto_equipment_finished(self, error_code: str | None) -> None:
         self.raise_if_error(error_code)
@@ -127,13 +121,13 @@ class AutoBotBehavior(Behavior):
 
     def on_multi_farming_behavior_finished(self, error_code: str | None) -> None:
         if error_code is BaseFarmingErrorCode.STOP_CONDITION_TRIGGERED:
-            return self.run_timer(BASE_RANGE, self.play_multi_farming)
+            return self.run_timer(HumanTimingsService().get_timing_base_action(), self.play_multi_farming)
         if error_code in {
             EnterBankChestErrorCode.NOT_ENOUGH_KAMAS,
             SaleHotelErrorCode.NOT_ENOUGH_KAMAS,
         }:
             self.logger.info("Not enough kamas for bank: switching to fighter")
-            return self.run_timer(BASE_RANGE, self.play_fighter)
+            return self.run_timer(HumanTimingsService().get_timing_base_action(), self.play_fighter)
         self.finish(error_code)
 
     def play_fighter(self) -> None:
@@ -148,9 +142,7 @@ class AutoBotBehavior(Behavior):
                 and self.game_state.player.level >= LVL_LIMIT_FOR_HARVEST
                 and self.game_state.inventory.kamas >= KAMAS_LIMIT_FOR_HARVEST
             )
-            time_to_rotate_area = (
-                datetime_start_played + get_time_beween_areas() < datetime.now()
-            )
+            time_to_rotate_area = datetime_start_played + get_time_beween_areas() < datetime.now()
             return reached_harvest_threshold or time_to_rotate_area
 
         area_info = self._get_fighter_area_info()
@@ -193,5 +185,5 @@ class AutoBotBehavior(Behavior):
 
     def on_fighter_behavior_finished(self, error_code: str | None) -> None:
         if error_code is BaseFarmingErrorCode.STOP_CONDITION_TRIGGERED:
-            return self.run_timer(BASE_RANGE, self.play)
+            return self.run_timer(HumanTimingsService().get_timing_base_action(), self.play)
         self.finish(error_code)

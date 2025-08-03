@@ -31,29 +31,20 @@ class AutoTripExploratorBehavior(Behavior):
             ends_pos=ends_pos,
             check_owned=False,
         )
-        if (
-            near_waypoint
-            and near_waypoint.map_id not in self.game_state.player.waypoint_map_ids
-        ):
+        if near_waypoint and near_waypoint.map_id not in self.game_state.player.waypoint_map_ids:
             self.logger.info(f"let's discover new zaap first : {near_waypoint.map_id}")
             return self.auto_trip_zaap_behavior.start(
                 map_ids={near_waypoint.map_id},
-                callback=partial(
-                    self.on_auto_trip_zaap_behavior_finished, map_ids=map_ids
-                ),
+                callback=partial(self.on_auto_trip_zaap_behavior_finished, map_ids=map_ids),
                 parent=self,
             )
         self.on_explored_near_zaap(map_ids=map_ids)
 
-    def on_auto_trip_zaap_behavior_finished(
-        self, error_code: str | None, map_ids: set[int]
-    ):
+    def on_auto_trip_zaap_behavior_finished(self, error_code: str | None, map_ids: set[int]):
         if error_code is AutoTripErrorCode.PATH_NOT_FOUND:
             return self.on_explored_near_zaap(map_ids)
         self.raise_if_error(error_code)
         self.on_explored_near_zaap(map_ids)
 
     def on_explored_near_zaap(self, map_ids: set[int]):
-        self.auto_trip_zaap_behavior.start(
-            map_ids=map_ids, callback=self.finish, parent=self
-        )
+        self.auto_trip_zaap_behavior.start(map_ids=map_ids, callback=self.finish, parent=self)

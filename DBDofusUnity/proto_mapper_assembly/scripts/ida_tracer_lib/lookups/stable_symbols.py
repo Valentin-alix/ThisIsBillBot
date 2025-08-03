@@ -1,0 +1,53 @@
+from __future__ import annotations
+
+import re
+from collections import defaultdict
+
+from proto_mapper_assembly.interfaces.il2cpp_json import MethodDefinition
+from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.il2cpp import parse_method_signature_parts
+
+_OBFUSCATED_IDENTIFIER_RE = re.compile(r"^[a-z]{1,5}$")
+_TYPE_PATH_SEPARATORS_RE = re.compile(r"[/+]")
+
+
+def build_callee_identity_lookup(method_definitions: list[MethodDefinition]) -> dict[int, str]:
+    """
+    Map a native address to a callee identity that survives a rebuild.
+
+    Only ``assembly/Namespace/Type::Method/arity`` is kept: return and parameter types routinely
+    name protobuf messages, whose names are reshuffled on every build, so including them would make
+    the identity unstable exactly where it matters. Identities holding an obfuscated segment are
+    dropped outright — they can never match their counterpart, and keeping them would only add
+    noise to the similarity of the functions that call them.
+    """
+    definitions_by_address: dict[int, list[MethodDefinition]] = defaultdict(list)
+    for method_definition in method_definitions:
+        definitions_by_address[int(method_definition.virtual_address, 16)].append(method_definition)
+
+    callee_identity_by_address: dict[int, str] = {}
+    for address, definitions in definitions_by_address.items():
+        # Identical code folding collapses thousands of trivial methods onto one address; such an
+        # address does not identify anything.
+        if len(definitions) != 1:
+            continue
+        identity = _build_callee_identity(definitions[0])
+        if identity is not None:
+            callee_identity_by_address[address] = identity
+    return callee_identity_by_address
+
+
+def _build_callee_identity(method_definition: MethodDefinition) -> str | None:
+    if method_definition.dot_net_signature is None:
+        return None
+    _, method_name, parameters = parse_method_signature_parts(method_definition.dot_net_signature)
+    if not method_name or not _is_stable_path(method_definition.group) or _is_obfuscated(method_name):
+        return None
+    return f"{method_definition.group}::{method_name}/{len(parameters)}"
+
+
+def _is_stable_path(type_path: str) -> bool:
+    return all(not _is_obfuscated(segment) for segment in _TYPE_PATH_SEPARATORS_RE.split(type_path))
+
+
+def _is_obfuscated(identifier: str) -> bool:
+    return _OBFUSCATED_IDENTIFIER_RE.match(identifier) is not None

@@ -10,7 +10,5 @@ from src.core.behaviors.behavior import Behavior
 @dataclass
 class FakeBadInteractiveBehavior(Behavior):
     def run(self):
-        self.event_manager.send(
-            InteractiveUseRequest(element_id=-1, skill_instance_uid=-1)
-        )
+        self.event_manager.send(InteractiveUseRequest(element_id=-1, skill_instance_uid=-1))
         self.finish()

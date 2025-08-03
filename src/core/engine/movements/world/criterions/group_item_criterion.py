@@ -13,9 +13,7 @@ from src.core.engine.movements.world.criterions.item_criterion_factory import (
 class GroupItemCriterion(IItemCriterion):
     criterion: str
 
-    items_criterion: list[IItemCriterion | None] = field(
-        init=False, default_factory=lambda: []
-    )
+    items_criterion: list[IItemCriterion | None] = field(init=False, default_factory=lambda: [])
     operators: list[str] = field(
         init=False, default_factory=lambda: []
     )  # operator between item items_criterion

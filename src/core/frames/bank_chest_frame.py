@@ -21,9 +21,7 @@ class BankChestFrame(MixinStorage):
             priority=self.priority,
         )
 
-    def on_exchange_started_with_storage_event(
-        self, msg: ExchangeStartedWithStorageEvent
-    ):
+    def on_exchange_started_with_storage_event(self, msg: ExchangeStartedWithStorageEvent):
         if msg.storage_max_slot <= 10_000:
             return
         self.on_opened_storage()
@@ -31,21 +29,15 @@ class BankChestFrame(MixinStorage):
     @override
     def set_objects(self, objects_item_inventory: Iterable[ObjectItemInventory]):
         objects = list(objects_item_inventory)
-        self.game_state.inventory.bank_objects_by_uid = {
-            item.item.uid: item for item in objects
-        }
+        self.game_state.inventory.bank_objects_by_uid = {item.item.uid: item for item in objects}
         if const.DEBUG:
             self.game_state.inventory.inventory_signals.bank_refreshed.emit(objects)
 
     @override
     def set_object(self, object_item_inventory: ObjectItemInventory):
-        self.game_state.inventory.bank_objects_by_uid[
-            object_item_inventory.item.uid
-        ] = object_item_inventory
+        self.game_state.inventory.bank_objects_by_uid[object_item_inventory.item.uid] = object_item_inventory
         if const.DEBUG:
-            self.game_state.inventory.inventory_signals.bank_item_updated.emit(
-                object_item_inventory
-            )
+            self.game_state.inventory.inventory_signals.bank_item_updated.emit(object_item_inventory)
 
     @override
     def remove_object(self, uid: int):

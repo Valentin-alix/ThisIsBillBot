@@ -43,9 +43,7 @@ class BotLogger(logging.Logger):
         self.addFilter(filter)
 
         self.debug_recorder_handler = DebugRecorderLogHandler(debug_recorder)
-        self.debug_recorder_handler.setFormatter(
-            logging.Formatter("[%(context)s] %(message)s")
-        )
+        self.debug_recorder_handler.setFormatter(logging.Formatter("[%(context)s] %(message)s"))
         self.addHandler(self.debug_recorder_handler)
 
         self.gui_formatter = logging.Formatter("[%(context)s] - %(message)s")

@@ -11,7 +11,7 @@ from datas.protos.non_obf.game.common_pb2 import CharacterRemodelingInformation,
 from dofus_unity_reader.game_constants.breed import BreedEnum
 
 from src.core.behaviors.behavior import Behavior
-from src.core.config import BIG_RANGE, VERY_BIG_RANGE
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
@@ -23,12 +23,12 @@ class CharacterCreationBehavior(Behavior):
             originator=self,
             once=True,
         )
-        self.send_message_delayed(CharacterNameSuggestionRequest(), BIG_RANGE)
+        self.send_message_delayed(
+            CharacterNameSuggestionRequest(), HumanTimingsService().get_timing_long_action()
+        )
 
     def on_character_name_suggestion_event(self, msg: CharacterNameSuggestionEvent):
-        self.event_manager.on(
-            CharacterListEvent, self.on_character_list_event, originator=self, once=True
-        )
+        self.event_manager.on(CharacterListEvent, self.on_character_list_event, originator=self, once=True)
 
         req = CharacterCreationRequest(
             modeling_information=CharacterRemodelingInformation(
@@ -40,7 +40,7 @@ class CharacterCreationBehavior(Behavior):
                 unknown=27,
             )
         )
-        self.send_message_delayed(req, VERY_BIG_RANGE)
+        self.send_message_delayed(req, HumanTimingsService().get_timing_very_long_action())
 
     def on_character_list_event(self, msg: CharacterListEvent):
         assert len(msg.characters) > 0

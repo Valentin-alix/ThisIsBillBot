@@ -25,9 +25,7 @@ from tests.fixtures.data import make_spell_effect, make_spell_level, make_zone_d
 
 
 def _make_actor(*, actor_id: int, cell_id: int) -> object:
-    return SimpleNamespace(
-        actor_id=actor_id, disposition=SimpleNamespace(cell_id=cell_id)
-    )
+    return SimpleNamespace(actor_id=actor_id, disposition=SimpleNamespace(cell_id=cell_id))
 
 
 def _make_context(
@@ -101,9 +99,7 @@ def _stub_no_type_effect(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(weight_calculator, "get_type_effect", _no_type)
 
 
-def _stub_malus_life_percent(
-    monkeypatch: pytest.MonkeyPatch, malus: int
-) -> None:
+def _stub_malus_life_percent(monkeypatch: pytest.MonkeyPatch, malus: int) -> None:
     def _type(spell_id: int, effect: Effect) -> TypeEffect | None:
         return TypeEffect.MALUS_LIFE_PERCENT
 
@@ -114,9 +110,7 @@ def _stub_malus_life_percent(
     monkeypatch.setattr(weight_calculator, "get_life_point_percent_malus", _malus)
 
 
-def _stub_malus_life_percent_pct(
-    monkeypatch: pytest.MonkeyPatch, pct: float
-) -> None:
+def _stub_malus_life_percent_pct(monkeypatch: pytest.MonkeyPatch, pct: float) -> None:
     """Apply a malus computed as `pct` of current life_point at call time."""
 
     def _type(spell_id: int, effect: Effect) -> TypeEffect | None:
@@ -152,9 +146,7 @@ def _make_spell(effects: list[Effect]) -> SpellLevelsRootItem:
 
 
 class TestCalculateAttackWeight:
-    def test_zone_damage_decrease_cap_uses_step_count(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_zone_damage_decrease_cap_uses_step_count(self, monkeypatch: pytest.MonkeyPatch) -> None:
         _stub_no_type_effect(monkeypatch)
 
         effect = _make_effect(step_percent=20, max_apply=2)
@@ -183,9 +175,7 @@ class TestCalculateAttackWeight:
         # normalized_health = 1.0, efficiency = 60, no kill -> weight = 60 / ap_cost(1).
         assert weight == pytest.approx(60.0)  # pyright: ignore[reportUnknownMemberType]
 
-    def test_catastrophic_life_cost_drops_weight_below_zero(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_catastrophic_life_cost_drops_weight_below_zero(self, monkeypatch: pytest.MonkeyPatch) -> None:
         # Spell that drains 100% of current LP -> recovery weight goes negative,
         # so the candidate is filtered by attacker.py's `total_weight > 0` guard.
         _stub_malus_life_percent_pct(monkeypatch, 1.0)
@@ -246,9 +236,7 @@ class TestCalculateAttackWeight:
         # life_stolen = 50 * 0.5 = 25 -> recovery = 1 + (0.025*2) = 1.05
         assert weight == pytest.approx(1000 * 1.05)  # pyright: ignore[reportUnknownMemberType]
 
-    def test_low_hp_target_is_prioritized_over_full_hp(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_low_hp_target_is_prioritized_over_full_hp(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """The 1/normalized_health amplifier biases scoring toward finishing wounded enemies."""
         _stub_no_type_effect(monkeypatch)
 
@@ -289,23 +277,17 @@ class TestCalculateAttackWeight:
         assert weight_full == pytest.approx(100.0)  # pyright: ignore[reportUnknownMemberType]
         assert weight_low > weight_full
 
-    def test_multiple_malus_life_percent_effects_are_summed(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_multiple_malus_life_percent_effects_are_summed(self, monkeypatch: pytest.MonkeyPatch) -> None:
         _stub_malus_life_percent(monkeypatch, malus=100)
 
         effect_a = _make_effect()
         effect_b = _make_effect()
         spell_lvl = _make_spell([effect_a, effect_b])
 
-        life_malus, _ = weight_calculator.calculate_life_modifiers(
-            _make_context(), spell_lvl
-        )
+        life_malus, _ = weight_calculator.calculate_life_modifiers(_make_context(), spell_lvl)
         assert life_malus == 200
 
-    def test_summoned_enemy_has_lower_weight_than_regular(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_summoned_enemy_has_lower_weight_than_regular(self, monkeypatch: pytest.MonkeyPatch) -> None:
         _stub_no_type_effect(monkeypatch)
 
         effect = _make_effect()
@@ -314,12 +296,8 @@ class TestCalculateAttackWeight:
         damage_calculator = MagicMock()
         damage_calculator.get_damage_effect.return_value = 1000
 
-        summon = _make_enemy(
-            cell_id=1, life_point=100, max_life_point=100, is_summoned=True
-        )
-        regular = _make_enemy(
-            cell_id=2, life_point=100, max_life_point=100, is_summoned=False
-        )
+        summon = _make_enemy(cell_id=1, life_point=100, max_life_point=100, is_summoned=True)
+        regular = _make_enemy(cell_id=2, life_point=100, max_life_point=100, is_summoned=False)
         target_mp = MapPoint.from_cell_id(0)
 
         weight_summon = calculate_attack_weight(
@@ -350,9 +328,7 @@ class TestCalculateAttackWeight:
         assert weight_regular == pytest.approx(200.0)  # pyright: ignore[reportUnknownMemberType]
         assert weight_summon < weight_regular
 
-    def test_invulnerable_enemy_is_not_targeted(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_invulnerable_enemy_is_not_targeted(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Damage on a fully invulnerable target is wasted -> zero weight."""
         _stub_no_type_effect(monkeypatch)
 
@@ -376,9 +352,7 @@ class TestCalculateAttackWeight:
 
         assert weight == 0.0
 
-    def test_invisible_enemy_is_not_targeted(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_invisible_enemy_is_not_targeted(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """An invisible (non-detected) target cannot be reliably hit -> zero weight."""
         _stub_no_type_effect(monkeypatch)
 
@@ -388,9 +362,7 @@ class TestCalculateAttackWeight:
         damage_calculator = MagicMock()
         damage_calculator.get_damage_effect.return_value = 1000
 
-        enemy = _make_enemy(
-            cell_id=1, invisibility=FightInvisibilityState.INVISIBLE
-        )
+        enemy = _make_enemy(cell_id=1, invisibility=FightInvisibilityState.INVISIBLE)
         weight = calculate_attack_weight(
             damage_calculator=damage_calculator,
             context=_make_context(),
@@ -404,16 +376,12 @@ class TestCalculateAttackWeight:
 
         assert weight == 0.0
 
-    def test_bi_element_spell_sums_both_damage_effects(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_bi_element_spell_sums_both_damage_effects(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """A spell with two co-zone damage effects is valued by their sum."""
         _stub_no_type_effect(monkeypatch)
 
         effect_str = _make_effect()
-        effect_int = msgspec.structs.replace(
-            effect_str, effectElement=EffectElement.INTELLIGENCE
-        )
+        effect_int = msgspec.structs.replace(effect_str, effectElement=EffectElement.INTELLIGENCE)
         spell_lvl = _make_spell([effect_str, effect_int])
 
         damage_calculator = MagicMock()
@@ -434,9 +402,7 @@ class TestCalculateAttackWeight:
         # two effects x 100 = 200 damage; efficiency 200 / 1.0, no kill -> 200
         assert weight == pytest.approx(200.0)  # pyright: ignore[reportUnknownMemberType]
 
-    def test_ally_only_effect_is_not_counted_as_enemy_damage(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_ally_only_effect_is_not_counted_as_enemy_damage(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Absorption-like ally transfer effects must not inflate attack weight."""
         _stub_no_type_effect(monkeypatch)
 
@@ -491,9 +457,7 @@ class TestCalculateAttackWeight:
 
         assert weight == pytest.approx(100.0)  # pyright: ignore[reportUnknownMemberType]
 
-    def test_ally_in_aoe_penalises_weight(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_ally_in_aoe_penalises_weight(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """An AoE catching an ally is strongly down-weighted."""
         _stub_no_type_effect(monkeypatch)
 

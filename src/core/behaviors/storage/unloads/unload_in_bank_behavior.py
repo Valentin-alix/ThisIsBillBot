@@ -34,12 +34,8 @@ class UnloadInBankBehavior(DialogHandlerBehavior):
             )
             return self.finish()
 
-        self.logger.info(
-            f"Starting bank unload (pods: {self.game_state.inventory.pod_percentage}%)"
-        )
-        self.enter_bank_chest_behavior.start(
-            callback=self.on_enter_bank_chest_behavior, parent=self
-        )
+        self.logger.info(f"Starting bank unload (pods: {self.game_state.inventory.pod_percentage}%)")
+        self.enter_bank_chest_behavior.start(callback=self.on_enter_bank_chest_behavior, parent=self)
 
     def on_enter_bank_chest_behavior(self, error_code: str | None) -> None:
         if error_code is not None:
@@ -57,16 +53,12 @@ class UnloadInBankBehavior(DialogHandlerBehavior):
         if len(object_to_unloads) == 0:
             return self.run_timer(
                 HumanTimingsService().get_timing_before_bank_close(),
-                lambda: self.leave_dialog(
-                    on_leave_callback=self.on_exchange_leave_event
-                ),
+                lambda: self.leave_dialog(on_leave_callback=self.on_exchange_leave_event),
             )
 
         self.event_manager.on(
             InventoryWeightEvent,
-            partial(
-                self.on_inventory_weight_event, object_to_unloads=object_to_unloads
-            ),
+            partial(self.on_inventory_weight_event, object_to_unloads=object_to_unloads),
             originator=self,
             once=True,
             override_on_self=True,
@@ -77,9 +69,7 @@ class UnloadInBankBehavior(DialogHandlerBehavior):
         self.logger.info(
             f"Unloading {item_name} x{next_object.item.quantity} ({len(object_to_unloads)} remaining)"
         )
-        req = ExchangeObjectMoveRequest(
-            object_uid=next_object.item.uid, quantity=next_object.item.quantity
-        )
+        req = ExchangeObjectMoveRequest(object_uid=next_object.item.uid, quantity=next_object.item.quantity)
         self.event_manager.send(req)
 
     def on_inventory_weight_event(

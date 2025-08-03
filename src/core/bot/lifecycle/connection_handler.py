@@ -129,7 +129,7 @@ class ConnectionHandler(ContextualLogger):
 
         if self._reconnect_attempts > 3:
             self.logger.warning("Max reconnected attempt reached, stopping bot.")
-            self.bot_signals.stop.emit()
+            self.bot_signals.disconnect_runtime.emit()
             self._reconnect_attempts = 0
             return
 
@@ -242,7 +242,7 @@ class ConnectionHandler(ContextualLogger):
     ) -> None:
         if error_code is not None:
             self.logger.error("Automatic Paysafecard subscription failed: %s", error_code)
-            self.bot_signals.stop.emit()
+            self.bot_signals.disconnect_runtime.emit()
             return
         if self.behavior_coordinator.is_playing_event.is_set():
             self.behavior_coordinator.run_current_bot_action()
@@ -268,7 +268,7 @@ class ConnectionHandler(ContextualLogger):
     ) -> None:
         if error_code is not None and error_code is not OgrineSubscriptionErrorCode.NOT_ENOUGH_KAMAS:
             self.logger.error(f"Automatic ogrine subscription failed: {error_code}")
-            self.bot_signals.stop.emit()
+            self.bot_signals.disconnect_runtime.emit()
             return
         if self.behavior_coordinator.is_playing_event.is_set():
             self.behavior_coordinator.run_current_bot_action()

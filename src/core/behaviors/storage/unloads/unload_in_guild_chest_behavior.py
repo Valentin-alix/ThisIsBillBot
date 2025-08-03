@@ -26,7 +26,7 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestBehavior,
 )
-from src.core.config import BASE_RANGE, SMALL_RANGE
+from src.services.human_timings import HumanTimingsService
 from src.core.engine.items.item import is_exchangeable_item
 from src.core.engine.items.item_formatter import format_item_name
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
@@ -45,12 +45,9 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
 
     def run(self, unload_item_id_by_tab: dict[int, set[int]]) -> None:
         object_by_gid_in_inventory = {
-            object.item.gid: object
-            for object in self.game_state.inventory.objects_by_uid.values()
+            object.item.gid: object for object in self.game_state.inventory.objects_by_uid.values()
         }
-        self.logger.info(
-            f"Inventory contains {len(object_by_gid_in_inventory)} unique items"
-        )
+        self.logger.info(f"Inventory contains {len(object_by_gid_in_inventory)} unique items")
 
         self.object_to_unload_on_tab = []
         gids_treaded: set[int] = set()
@@ -70,10 +67,7 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
 
         total_items = sum(len(objects) for _, objects in self.object_to_unload_on_tab)
         tabs_summary = ", ".join(
-            [
-                f"Tab {tab}: {len(objects)} items"
-                for tab, objects in self.object_to_unload_on_tab
-            ]
+            [f"Tab {tab}: {len(objects)} items" for tab, objects in self.object_to_unload_on_tab]
         )
         self.logger.info(
             f"Will unload {total_items} items across {len(self.object_to_unload_on_tab)} tabs ({tabs_summary})"
@@ -91,26 +85,18 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
             return self.finish(error_code)
 
         available_tabs = set(self.game_state.guild_chest.tabs)
-        filtered = [
-            (tab, objects)
-            for tab, objects in self.object_to_unload_on_tab
-            if tab in available_tabs
-        ]
+        filtered = [(tab, objects) for tab, objects in self.object_to_unload_on_tab if tab in available_tabs]
         filtered_out_count = len(self.object_to_unload_on_tab) - len(filtered)
         self.object_to_unload_on_tab = filtered
 
         if filtered_out_count > 0:
-            self.logger.warning(
-                f"Filtered out {filtered_out_count} tabs (not accessible)"
-            )
-        self.logger.info(
-            f"Starting unload process for {len(self.object_to_unload_on_tab)} accessible tabs"
-        )
-        self.run_timer(BASE_RANGE, self.unload_tab)
+            self.logger.warning(f"Filtered out {filtered_out_count} tabs (not accessible)")
+        self.logger.info(f"Starting unload process for {len(self.object_to_unload_on_tab)} accessible tabs")
+        self.run_timer(HumanTimingsService().get_timing_base_action(), self.unload_tab)
 
     def unload_tab(self) -> None:
         if len(self.object_to_unload_on_tab) == 0:
-            return self.run_timer(BASE_RANGE, self.on_all_unloaded)
+            return self.run_timer(HumanTimingsService().get_timing_base_action(), self.on_all_unloaded)
         tab, object_to_unloads = self.object_to_unload_on_tab.pop()
         if tab != self.game_state.guild_chest.tab_number:
             self.event_manager.on(
@@ -124,10 +110,8 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
                 override_on_self=True,
             )
             return self.run_timer(
-                SMALL_RANGE,
-                lambda: self.event_manager.send(
-                    GuildChestTabSelectRequest(tab_number=tab)
-                ),
+                HumanTimingsService().get_timing_short_action(),
+                lambda: self.event_manager.send(GuildChestTabSelectRequest(tab_number=tab)),
             )
         self.unload_object(object_to_unloads)
 
@@ -136,18 +120,18 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
         msg: StorageInventoryContentEvent,
         object_to_unloads: list[ObjectItemInventory],
     ) -> None:
-        self.run_timer(SMALL_RANGE, lambda: self.unload_object(object_to_unloads))
+        self.run_timer(
+            HumanTimingsService().get_timing_short_action(), lambda: self.unload_object(object_to_unloads)
+        )
 
     def unload_object(self, object_to_unloads: list[ObjectItemInventory]) -> None:
         if len(object_to_unloads) == 0:
             self.logger.info("Finished unloading current tab")
-            return self.run_timer(BASE_RANGE, self.unload_tab)
+            return self.run_timer(HumanTimingsService().get_timing_base_action(), self.unload_tab)
 
         self.event_manager.on(
             InventoryWeightEvent,
-            partial(
-                self.on_inventory_weight_event, object_to_unloads=object_to_unloads
-            ),
+            partial(self.on_inventory_weight_event, object_to_unloads=object_to_unloads),
             originator=self,
             once=True,
             override_on_self=True,
@@ -167,21 +151,21 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
                 f"Tab {self.game_state.guild_chest.tab_number} is full (100/100 slots), skipping {item_name}"
             )
             return self.run_timer(
-                SMALL_RANGE, lambda: self.unload_object(object_to_unloads)
+                HumanTimingsService().get_timing_short_action(), lambda: self.unload_object(object_to_unloads)
             )
 
         self.logger.info(
             f"Unloading {item_name} x{next_object.item.quantity} ({len(object_to_unloads)} remaining)"
         )
-        req = ExchangeObjectMoveRequest(
-            object_uid=next_object.item.uid, quantity=next_object.item.quantity
-        )
+        req = ExchangeObjectMoveRequest(object_uid=next_object.item.uid, quantity=next_object.item.quantity)
         self.event_manager.send(req)
 
     def on_inventory_weight_event(
         self, msg: InventoryWeightEvent, object_to_unloads: list[ObjectItemInventory]
     ) -> None:
-        self.run_timer(SMALL_RANGE, lambda: self.unload_object(object_to_unloads))
+        self.run_timer(
+            HumanTimingsService().get_timing_short_action(), lambda: self.unload_object(object_to_unloads)
+        )
 
     def on_all_unloaded(self) -> None:
         self.event_manager.on(

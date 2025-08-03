@@ -24,9 +24,7 @@ class RecipeTableSignals(QObject):
 
 
 class RecipeTable(BaseTableWidget):
-    def __init__(
-        self, recipes: list[RecipeItem], parent: QWidget | None = None
-    ) -> None:
+    def __init__(self, recipes: list[RecipeItem], parent: QWidget | None = None) -> None:
         super().__init__(parent=parent)
         columns: list[ColumnInfo] = [
             ColumnInfo(name="Nom"),
@@ -35,9 +33,7 @@ class RecipeTable(BaseTableWidget):
             ColumnInfo(name="Bénéfice"),
         ]
         self.table.set_columns(columns)
-        self.table.setEditTriggers(
-            QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers
-        )
+        self.table.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers)
 
         self.signals = RecipeTableSignals(parent=self)
         self.widget_item_by_recipe: dict[RecipeItem, QStandardItem] = {}
@@ -52,24 +48,18 @@ class RecipeTable(BaseTableWidget):
 
     def add_recipe(self, recipe: RecipeItem) -> None:
         name_id = DataReader().item_by_id[recipe.resultId].nameId
-        recipe_widget_item = QStandardItem(
-            I18N().name_by_id[name_id] if name_id else ""
-        )
+        recipe_widget_item = QStandardItem(I18N().name_by_id[name_id] if name_id else "")
         recipe_widget_item.setData(recipe, role=Qt.ItemDataRole.UserRole)
         self.widget_item_by_recipe[recipe] = recipe_widget_item
 
-        job_name_widget = QStandardItem(
-            I18N().name_by_id[DataReader().job_by_id[recipe.jobId].nameId]
-        )
+        job_name_widget = QStandardItem(I18N().name_by_id[DataReader().job_by_id[recipe.jobId].nameId])
 
         recipe_lvl = QStandardItem(str(DataReader().item_by_id[recipe.resultId].level))
 
         profit = get_benefice_on_craft_recipe(recipe) or "Unknown"
         benefice = QStandardItem(str(profit))
 
-        self.table.item_model.append_row(
-            [recipe_widget_item, job_name_widget, recipe_lvl, benefice]
-        )
+        self.table.item_model.append_row([recipe_widget_item, job_name_widget, recipe_lvl, benefice])
 
     @pyqtSlot(QModelIndex)
     def on_click_recipe(self, model_index: QModelIndex) -> None:

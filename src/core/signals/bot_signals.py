@@ -10,3 +10,4 @@ class BotSignals(QObject):
     play_usable_behavior = pyqtSignal(str)
     play = pyqtSignal(bool)
     stop = pyqtSignal()
+    disconnect_runtime = pyqtSignal()

@@ -1,0 +1,16 @@
+{
+  "packages": [
+    {
+      "package": "com.ankama.dofus.server.game.protocol.paddock",
+      "reason": "No obfuscated file descriptor holds these: the 15 messages were scattered one per unrelated block, average similarity 0.57, none observed in a capture. The Breeding UI module (eqc) that displays paddock information handles 13 messages of hqd and not one of them is a paddock message, so hqd is a different protocol."
+    },
+    {
+      "package": "com.ankama.dofus.server.game.protocol.breach",
+      "reason": "Same picture, average similarity 0.63 across 6 unrelated blocks. The InfiniteDream module (eft) owns iwr, and the four already-mapped messages it handles are an incoherent set, so they were squatting too."
+    },
+    {
+      "package": "com.ankama.dofus.server.game.protocol.mount",
+      "reason": "Same picture, average similarity 0.63 across 8 unrelated blocks. Keyword search over the whole access trace finds no module working on mount protocol messages."
+    }
+  ]
+}

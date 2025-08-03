@@ -102,9 +102,7 @@ class SidebarPanel(QFrame):
         self.returnButton.hide()
         self.returnButton.setDisabled(True)
 
-        self.scrollArea.setHorizontalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAsNeeded
-        )
+        self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         hscroll_bar = self.scrollArea.horizontalScrollBar()
         assert hscroll_bar
@@ -364,16 +362,12 @@ class SidebarPanel(QFrame):
         if parentRouteKey:
             parent_widget = self.widget(parentRouteKey)
             if not isinstance(parent_widget, NavigationTreeWidgetBase):
-                raise TypeError(
-                    f"Navigation parent `{parentRouteKey}` must be a tree widget"
-                )
+                raise TypeError(f"Navigation parent `{parentRouteKey}` must be a tree widget")
             parent_widget.insertChild(index, widget)
         else:
             self._insertWidgetToLayout(index, widget, position)
 
-    def addSeparator(
-        self, position: NavigationItemPosition = NavigationItemPosition.TOP
-    ) -> None:
+    def addSeparator(self, position: NavigationItemPosition = NavigationItemPosition.TOP) -> None:
         """add separator
 
         Parameters
@@ -439,9 +433,7 @@ class SidebarPanel(QFrame):
             self.scrollLayout.insertWidget(index, widget, 0, Qt.AlignmentFlag.AlignTop)
         else:
             widget.setParent(self)
-            self.bottomLayout.insertWidget(
-                index, widget, 0, Qt.AlignmentFlag.AlignBottom
-            )
+            self.bottomLayout.insertWidget(index, widget, 0, Qt.AlignmentFlag.AlignBottom)
 
         widget.show()
 
@@ -461,9 +453,7 @@ class SidebarPanel(QFrame):
         if item.parentRouteKey:
             parent_widget = self.widget(item.parentRouteKey)
             if not isinstance(parent_widget, NavigationTreeWidgetBase):
-                raise TypeError(
-                    f"Navigation parent `{item.parentRouteKey}` must be a tree widget"
-                )
+                raise TypeError(f"Navigation parent `{item.parentRouteKey}` must be a tree widget")
             parent_widget.removeChild(item.widget)
 
         if isinstance(item.widget, NavigationTreeWidgetBase):
@@ -532,9 +522,7 @@ class SidebarPanel(QFrame):
         expandWidth = self.minimumExpandWidth + self.expandWidth - 322
         window = self.window()
         assert window
-        if (
-            window.width() >= expandWidth and not self.isMinimalEnabled
-        ) or not self._isCollapsible:
+        if (window.width() >= expandWidth and not self.isMinimalEnabled) or not self._isCollapsible:
             self.displayMode = NavigationDisplayMode.EXPAND
         else:
             self.setProperty("menu", True)
@@ -562,9 +550,7 @@ class SidebarPanel(QFrame):
         if useAni:
             self.displayModeChanged.emit(self.displayMode)
             self.expandAni.setStartValue(QRect(self.pos(), QSize(48, self.height())))
-            self.expandAni.setEndValue(
-                QRect(self.pos(), QSize(self.expandWidth, self.height()))
-            )
+            self.expandAni.setEndValue(QRect(self.pos(), QSize(self.expandWidth, self.height())))
             self.expandAni.start()
         else:
             self.resize(self.expandWidth, self.height())
@@ -580,9 +566,7 @@ class SidebarPanel(QFrame):
             if isinstance(w, NavigationTreeWidgetBase) and w.isRoot():
                 w.setExpanded(False)
 
-        self.expandAni.setStartValue(
-            QRect(self.pos(), QSize(self.width(), self.height()))
-        )
+        self.expandAni.setStartValue(QRect(self.pos(), QSize(self.width(), self.height())))
         self.expandAni.setEndValue(QRect(self.pos(), QSize(48, self.height())))
         self.expandAni.setProperty("expand", False)
         self.expandAni.start()
@@ -703,10 +687,7 @@ class SidebarPanel(QFrame):
                 return super().eventFilter(a0, a1)
             w = a1.size().width()
 
-            if (
-                w < self.minimumExpandWidth
-                and self.displayMode == NavigationDisplayMode.EXPAND
-            ):
+            if w < self.minimumExpandWidth and self.displayMode == NavigationDisplayMode.EXPAND:
                 self.collapse()
 
             elif (

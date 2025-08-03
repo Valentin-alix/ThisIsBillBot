@@ -48,9 +48,7 @@ def get_missing_set_drop_sub_area_ids(
     return frozenset(sub_area_ids)
 
 
-def _covered_world_sub_area_id(
-    area_info: AreaInfo, missing_sub_area_ids: frozenset[int]
-) -> int | None:
+def _covered_world_sub_area_id(area_info: AreaInfo, missing_sub_area_ids: frozenset[int]) -> int | None:
     """Sub-area of ``area_info`` that drops a missing set piece and is reachable
     by world navigation (overworld, not a dungeon), or None.
 
@@ -61,11 +59,7 @@ def _covered_world_sub_area_id(
     area_sub_area_ids = DataReader().sub_areas_by_area_id.get(area_info.area_id, set())
     for sub_area_id in sorted(missing_sub_area_ids & area_sub_area_ids):
         sub_area = sub_area_by_id.get(sub_area_id)
-        if (
-            sub_area is not None
-            and sub_area.dungeonId <= 0
-            and sub_area.displayOnWorldMap
-        ):
+        if sub_area is not None and sub_area.dungeonId <= 0 and sub_area.displayOnWorldMap:
             return sub_area_id
     return None
 
@@ -94,22 +88,15 @@ def choose_set_drop_area_info(
     for area_info in candidate_areas:
         if player_level < area_info.min_lvl:
             continue
-        if (
-            area_info.waypoint_id_needed is not None
-            and area_info.waypoint_id_needed not in waypoint_map_ids
-        ):
+        if area_info.waypoint_id_needed is not None and area_info.waypoint_id_needed not in waypoint_map_ids:
             continue
         if area_info.sub_area_id is not None:
             if area_info.sub_area_id in missing_sub_area_ids:
                 matching_area_infos.append(area_info)
             continue
-        covered_sub_area_id = _covered_world_sub_area_id(
-            area_info, missing_sub_area_ids
-        )
+        covered_sub_area_id = _covered_world_sub_area_id(area_info, missing_sub_area_ids)
         if covered_sub_area_id is not None:
-            matching_area_infos.append(
-                area_info.model_copy(update={"sub_area_id": covered_sub_area_id})
-            )
+            matching_area_infos.append(area_info.model_copy(update={"sub_area_id": covered_sub_area_id}))
     if not matching_area_infos:
         return None
 

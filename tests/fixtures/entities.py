@@ -12,9 +12,7 @@ def make_monster_group_actor(
     main_level: int,
     underlings: list[tuple[int, int]] | None = None,
 ) -> ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor:
-    monster_group = (
-        ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor()
-    )
+    monster_group = ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor()
     monster_group.identification.main_creature.gid = main_gid
     monster_group.identification.main_creature.level = main_level
 

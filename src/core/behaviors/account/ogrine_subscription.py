@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from enum import StrEnum
 from functools import partial
 from threading import Thread
@@ -7,6 +8,9 @@ from time import sleep
 
 from ankama_launcher_emulator_premium.haapi.bak import BakHaapi, ShopPurchaseError
 from ankama_launcher_emulator_premium.interfaces.bak_api import ShopiArticle
+from ankama_launcher_emulator_premium.web.subscription.storage import (
+    SubscriptionExpirationStorage,
+)
 from datas.protos.non_obf.game.bak_pb2 import (
     BakActionEvent,
     BakActionRequest,
@@ -52,18 +56,31 @@ class OgrineSubscriptionErrorCode(StrEnum):
 @dataclass
 class OgrineSubscriptionBehavior(Behavior):
     account_id: int
+    subscription_storage: SubscriptionExpirationStorage = field(default_factory=SubscriptionExpirationStorage)
     _haapi: BakHaapi | None = field(init=False, default=None)
     _proxy_url: str | None = field(init=False, default=None)
     _required_ogrines: int = field(init=False, default=0)
     _missing_ogrines: int = field(init=False, default=0)
     _expected_rate: int = field(init=False, default=0)
     _expected_kamas: int = field(init=False, default=0)
+    _previous_expiration: datetime | None = field(init=False, default=None)
 
     def run(self) -> None:
-        self._proxy_url = BotConfigService().get_bot_http_proxy_url(self.game_state.player.login)
+        self._reset_purchase_state()
+        login = self.game_state.player.login
+        subscribe_info = self.subscription_storage.get_subscribe_info(login)
+        self._previous_expiration = subscribe_info.end_of_subscribe if subscribe_info is not None else None
+        self._proxy_url = BotConfigService().get_bot_http_proxy_url(login)
         assert self.game_state.player.bak_token
         self._haapi = BakHaapi(api_key=self.game_state.player.bak_token, proxy_url=self._proxy_url)
         self._request_shop_token()
+
+    def _reset_purchase_state(self) -> None:
+        self._required_ogrines = 0
+        self._missing_ogrines = 0
+        self._expected_rate = 0
+        self._expected_kamas = 0
+        self._previous_expiration = None
 
     def _prepare_ogrine_purchase(self) -> None:
         haapi = self._get_haapi()
@@ -260,7 +277,21 @@ class OgrineSubscriptionBehavior(Behavior):
 
         self.logger.info(f"Shopi order {purchase.order_id} paid with payment {purchase.payment_id}")
         if self.state == BehaviorState.RUNNING:
-            self.finish(None, None)
+            expiration = self._record_subscription_expiration()
+            self.finish(None, expiration)
+
+    def _record_subscription_expiration(self) -> datetime:
+        login = self.game_state.player.login
+        if self._previous_expiration is None:
+            renewal_start = datetime.now().astimezone()
+        else:
+            renewal_start = max(
+                self._previous_expiration,
+                datetime.now(tz=self._previous_expiration.tzinfo),
+            )
+        expiration = renewal_start + timedelta(days=_SUBSCRIPTION_DAYS)
+        self.subscription_storage.record_expiration(login, expiration)
+        return expiration
 
     @staticmethod
     def _is_target_subscription_pack(article: ShopiArticle) -> bool:

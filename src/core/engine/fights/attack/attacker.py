@@ -5,6 +5,7 @@ from typing import NamedTuple
 from datas.protos.non_obf.game.common_pb2 import SpellModifierType
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.i18n import I18N
+from dofus_unity_reader.game_constants.characteristic import EffectElement
 from dofus_unity_reader.game_constants.directions import DirectionsEnum
 from dofus_unity_reader.game_constants.spell_shape_enum import SpellShapeEnum
 from dofus_unity_reader.grid.map_point import MapPoint
@@ -51,6 +52,8 @@ class Attacker(ContextualLogger):
     def find_best_attack_from_mp(
         self,
         context: AttackContext,
+        *,
+        allowed_elements: frozenset[EffectElement] | None = None,
     ) -> tuple[MapPoint, SpellLevelsRootItem, MapPoint] | None:
         entities_id_by_mp: dict[MapPoint, int] = {
             MapPoint.from_cell_id(actor.disposition.cell_id): actor.actor_id
@@ -59,9 +62,7 @@ class Attacker(ContextualLogger):
         }
         entities_mp = set(entities_id_by_mp.keys())
         enemies = context.enemy_actors
-        enemies_mp = {
-            MapPoint.from_cell_id(enemy.disposition.cell_id) for enemy in enemies
-        }
+        enemies_mp = {MapPoint.from_cell_id(enemy.disposition.cell_id) for enemy in enemies}
         enemies_data = context.enemies_data
 
         movable_mps = self.fight_reachable_cells.search(
@@ -75,7 +76,11 @@ class Attacker(ContextualLogger):
         )
         movable_mps[context.player_map_point] = context.movement_points
 
-        valid_spells_for_turn = get_valid_spells_for_turn(context, self.logger)
+        valid_spells_for_turn = get_valid_spells_for_turn(
+            context,
+            self.logger,
+            allowed_elements=allowed_elements,
+        )
         if not valid_spells_for_turn:
             self.logger.info("No valid spells available for this turn")
             return None
@@ -98,15 +103,9 @@ class Attacker(ContextualLogger):
             needs_taken_cell = does_spell_need_taken_cell(spell_lvl) or zone_size == 0
 
             spell_id = spell_lvl.spellId
-            modifier_range_min = modifiers_map.get(
-                (spell_id, SpellModifierType.RANGE_MIN)
-            )
-            modifier_range_max = modifiers_map.get(
-                (spell_id, SpellModifierType.RANGE_MAX)
-            )
-            modifier_cast_line = modifiers_map.get(
-                (spell_id, SpellModifierType.CAST_LINE)
-            )
+            modifier_range_min = modifiers_map.get((spell_id, SpellModifierType.RANGE_MIN))
+            modifier_range_max = modifiers_map.get((spell_id, SpellModifierType.RANGE_MAX))
+            modifier_cast_line = modifiers_map.get((spell_id, SpellModifierType.CAST_LINE))
 
             spell_has_targets = False
 
@@ -134,9 +133,7 @@ class Attacker(ContextualLogger):
                     targetable_mps = {
                         mp
                         for enemy_mp in enemies_mp
-                        for mp in zone_spell.get_mps(
-                            enemy_mp, enemy_mp.orientation_to(movable_mp)
-                        )
+                        for mp in zone_spell.get_mps(enemy_mp, enemy_mp.orientation_to(movable_mp))
                         if mp in targetable_mps
                     }
 
@@ -155,14 +152,10 @@ class Attacker(ContextualLogger):
                         continue
 
                     direction = movable_mp.orientation_to(targetable_mp)
-                    weight_cache_key = WeightCacheKey(
-                        spell_lvl, direction, targetable_mp
-                    )
+                    weight_cache_key = WeightCacheKey(spell_lvl, direction, targetable_mp)
 
                     if weight_cache_key not in weight_cache:
-                        impact_mps = zone_spell.get_mps(
-                            mp=targetable_mp, direction=direction
-                        )
+                        impact_mps = zone_spell.get_mps(mp=targetable_mp, direction=direction)
                         weight_cache[weight_cache_key] = calculate_attack_weight(
                             self.damage_calculator,
                             context,
@@ -210,9 +203,7 @@ class Attacker(ContextualLogger):
                 best_attack.targetable_mp,
             )
 
-        self._build_debug_info_on_no_attack(
-            spells_without_targets, cast_rejection_stats
-        )
+        self._build_debug_info_on_no_attack(spells_without_targets, cast_rejection_stats)
 
         return None
 
@@ -252,9 +243,7 @@ class Attacker(ContextualLogger):
 
         total_cast_rejections = sum(cast_rejection_stats.values())
         if total_cast_rejections > 0:
-            cast_stats = ", ".join(
-                f"{k}: {v}" for k, v in cast_rejection_stats.items() if v > 0
-            )
+            cast_stats = ", ".join(f"{k}: {v}" for k, v in cast_rejection_stats.items() if v > 0)
             rejection_parts.append(f"Cast rejections ({cast_stats})")
 
         if rejection_parts:

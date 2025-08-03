@@ -110,12 +110,8 @@ class TestFightState:
         received_action_points: list[int] = []
         received_movement_points: list[int] = []
 
-        runtime_bot.game_info_signals.action_points.connect(
-            received_action_points.append
-        )
-        runtime_bot.game_info_signals.movement_points.connect(
-            received_movement_points.append
-        )
+        runtime_bot.game_info_signals.action_points.connect(received_action_points.append)
+        runtime_bot.game_info_signals.movement_points.connect(received_movement_points.append)
 
         runtime_bot.event_manager.process_msg(
             CharacterCharacteristicsEvent(
@@ -134,14 +130,8 @@ class TestFightState:
             )
         )
 
-        assert (
-            CharacteristicEnum.ACTION_POINTS
-            in runtime_bot.game_state.fight.characteristic_by_id
-        )
-        assert (
-            CharacteristicEnum.MOVEMENT_POINTS
-            in runtime_bot.game_state.fight.characteristic_by_id
-        )
+        assert CharacteristicEnum.ACTION_POINTS in runtime_bot.game_state.fight.characteristic_by_id
+        assert CharacteristicEnum.MOVEMENT_POINTS in runtime_bot.game_state.fight.characteristic_by_id
         assert received_action_points == [12]
         assert received_movement_points == [6]
 
@@ -154,12 +144,8 @@ class TestFightState:
             CharacterCharacteristicsEvent(
                 stats=CharacterCharacteristics(
                     characteristics=[
-                        self._detailed_characteristic(
-                            CharacteristicEnum.CHANCE, base=100
-                        ),
-                        self._detailed_characteristic(
-                            CharacteristicEnum.INTELLIGENCE, base=100
-                        ),
+                        self._detailed_characteristic(CharacteristicEnum.CHANCE, base=100),
+                        self._detailed_characteristic(CharacteristicEnum.INTELLIGENCE, base=100),
                     ]
                 )
             )
@@ -182,16 +168,12 @@ class TestFightState:
             CharacterCharacteristicsEvent(
                 stats=CharacterCharacteristics(
                     characteristics=[
-                        self._detailed_characteristic(
-                            CharacteristicEnum.LIFE_POINTS, base=245
-                        ),
+                        self._detailed_characteristic(CharacteristicEnum.LIFE_POINTS, base=245),
                         self._detailed_characteristic(
                             CharacteristicEnum.VITALITY,
                             objects_and_mount_bonus=55,
                         ),
-                        self._detailed_characteristic(
-                            CharacteristicEnum.CUR_LIFE, base=0
-                        ),
+                        self._detailed_characteristic(CharacteristicEnum.CUR_LIFE, base=0),
                     ]
                 )
             )
@@ -217,16 +199,12 @@ class TestFightState:
             CharacterCharacteristicsEvent(
                 stats=CharacterCharacteristics(
                     characteristics=[
-                        self._detailed_characteristic(
-                            CharacteristicEnum.LIFE_POINTS, base=245
-                        ),
+                        self._detailed_characteristic(CharacteristicEnum.LIFE_POINTS, base=245),
                         self._detailed_characteristic(
                             CharacteristicEnum.VITALITY,
                             objects_and_mount_bonus=55,
                         ),
-                        self._detailed_characteristic(
-                            CharacteristicEnum.CUR_LIFE, base=0
-                        ),
+                        self._detailed_characteristic(CharacteristicEnum.CUR_LIFE, base=0),
                     ]
                 )
             )
@@ -238,22 +216,13 @@ class TestFightState:
             FightRefreshCharacterStatsEvent(
                 fighter_id=8921612638,
                 stats=FightCharacteristics(
-                    characteristics=[
-                        self._detailed_characteristic(
-                            CharacteristicEnum.ACTION_POINTS, base=12
-                        )
-                    ]
+                    characteristics=[self._detailed_characteristic(CharacteristicEnum.ACTION_POINTS, base=12)]
                 ),
             )
         )
 
         assert runtime_bot.game_state.fight.life_point == 245
-        assert (
-            runtime_bot.game_state.fight.get_stat_by_id(
-                CharacteristicEnum.ACTION_POINTS
-            )
-            == 12
-        )
+        assert runtime_bot.game_state.fight.get_stat_by_id(CharacteristicEnum.ACTION_POINTS) == 12
         logger.info.assert_not_called()
 
     def test_fight_refresh_with_cur_life_resyncs_player_life(
@@ -268,16 +237,12 @@ class TestFightState:
             CharacterCharacteristicsEvent(
                 stats=CharacterCharacteristics(
                     characteristics=[
-                        self._detailed_characteristic(
-                            CharacteristicEnum.LIFE_POINTS, base=245
-                        ),
+                        self._detailed_characteristic(CharacteristicEnum.LIFE_POINTS, base=245),
                         self._detailed_characteristic(
                             CharacteristicEnum.VITALITY,
                             objects_and_mount_bonus=55,
                         ),
-                        self._detailed_characteristic(
-                            CharacteristicEnum.CUR_LIFE, base=0
-                        ),
+                        self._detailed_characteristic(CharacteristicEnum.CUR_LIFE, base=0),
                     ]
                 )
             )
@@ -289,11 +254,7 @@ class TestFightState:
             FightRefreshCharacterStatsEvent(
                 fighter_id=8921612638,
                 stats=FightCharacteristics(
-                    characteristics=[
-                        self._detailed_characteristic(
-                            CharacteristicEnum.CUR_LIFE, base=-55
-                        )
-                    ]
+                    characteristics=[self._detailed_characteristic(CharacteristicEnum.CUR_LIFE, base=-55)]
                 ),
             )
         )
@@ -322,21 +283,14 @@ class TestFightState:
             FightRefreshCharacterStatsEvent(
                 fighter_id=player_id,
                 stats=FightCharacteristics(
-                    characteristics=[
-                        self._detailed_characteristic(
-                            CharacteristicEnum.CUR_LIFE, base=-55
-                        )
-                    ]
+                    characteristics=[self._detailed_characteristic(CharacteristicEnum.CUR_LIFE, base=-55)]
                 ),
             )
         )
 
         assert runtime_bot.game_state.fight.life_point == 200
         assert runtime_bot.game_state.fight.max_life_point == 300
-        assert (
-            runtime_bot.game_state.fight.get_stat_by_id(CharacteristicEnum.CUR_LIFE)
-            == -55
-        )
+        assert runtime_bot.game_state.fight.get_stat_by_id(CharacteristicEnum.CUR_LIFE) == -55
         logger.info.assert_not_called()
 
     def test_fight_refresh_after_player_death_resyncs_life(
@@ -352,16 +306,12 @@ class TestFightState:
             CharacterCharacteristicsEvent(
                 stats=CharacterCharacteristics(
                     characteristics=[
-                        self._detailed_characteristic(
-                            CharacteristicEnum.LIFE_POINTS, base=285
-                        ),
+                        self._detailed_characteristic(CharacteristicEnum.LIFE_POINTS, base=285),
                         self._detailed_characteristic(
                             CharacteristicEnum.VITALITY,
                             objects_and_mount_bonus=56,
                         ),
-                        self._detailed_characteristic(
-                            CharacteristicEnum.CUR_LIFE, base=-333
-                        ),
+                        self._detailed_characteristic(CharacteristicEnum.CUR_LIFE, base=-333),
                     ]
                 )
             )
@@ -375,20 +325,13 @@ class TestFightState:
             FightRefreshCharacterStatsEvent(
                 fighter_id=player_id,
                 stats=FightCharacteristics(
-                    characteristics=[
-                        self._detailed_characteristic(
-                            CharacteristicEnum.CUR_LIFE, base=-329
-                        )
-                    ]
+                    characteristics=[self._detailed_characteristic(CharacteristicEnum.CUR_LIFE, base=-329)]
                 ),
             )
         )
 
         assert runtime_bot.game_state.fight.life_point == 12
-        assert (
-            runtime_bot.game_state.fight.get_stat_by_id(CharacteristicEnum.CUR_LIFE)
-            == -329
-        )
+        assert runtime_bot.game_state.fight.get_stat_by_id(CharacteristicEnum.CUR_LIFE) == -329
         logger.info.assert_called_once_with(
             "Player HP resync: source=FightRefreshCharacterStatsEvent, "
             "hp_before=0, life_points=285, vitality=56, cur_life=-329, "
@@ -412,10 +355,7 @@ class TestFightState:
             )
         )
 
-        assert (
-            runtime_bot.game_state.fight.count_casted_by_spell_id_on_current_turn[42]
-            == 2
-        )
+        assert runtime_bot.game_state.fight.count_casted_by_spell_id_on_current_turn[42] == 2
 
     def test_life_points_gain_and_loss_update_player_life(
         self,
@@ -423,10 +363,8 @@ class TestFightState:
     ):
         runtime_bot.game_state.fight.life_point = 500
         runtime_bot.game_state.player.character_id = 123
-        runtime_bot.game_state.entity.actor_fight_by_id[
-            runtime_bot.game_state.player.character_id
-        ] = FightActor(
-            life_point=runtime_bot.game_state.fight.life_point, is_summoned=False
+        runtime_bot.game_state.entity.actor_fight_by_id[runtime_bot.game_state.player.character_id] = (
+            FightActor(life_point=runtime_bot.game_state.fight.life_point, is_summoned=False)
         )
 
         runtime_bot.event_manager.process_msg(
@@ -484,12 +422,8 @@ class TestFightState:
         runtime_bot: Bot,
     ) -> None:
         runtime_bot.game_state.player.character_id = 123
-        runtime_bot.game_state.entity.set_actor(
-            make_fighter(123, 100, team=Team.TEAM_CHALLENGER)
-        )
-        runtime_bot.game_state.entity.set_actor(
-            make_fighter(-1, 200, team=Team.TEAM_DEFENDER)
-        )
+        runtime_bot.game_state.entity.set_actor(make_fighter(123, 100, team=Team.TEAM_CHALLENGER))
+        runtime_bot.game_state.entity.set_actor(make_fighter(-1, 200, team=Team.TEAM_DEFENDER))
         runtime_bot.game_state.entity.actor_fight_by_id[-1] = FightActor(
             life_point=10,
             is_summoned=False,
@@ -509,12 +443,8 @@ class TestFightState:
         runtime_bot: Bot,
     ) -> None:
         runtime_bot.game_state.player.character_id = 123
-        runtime_bot.game_state.entity.set_actor(
-            make_fighter(123, 100, team=Team.TEAM_CHALLENGER)
-        )
-        runtime_bot.game_state.entity.set_actor(
-            make_fighter(-1, 200, team=Team.TEAM_DEFENDER)
-        )
+        runtime_bot.game_state.entity.set_actor(make_fighter(123, 100, team=Team.TEAM_CHALLENGER))
+        runtime_bot.game_state.entity.set_actor(make_fighter(-1, 200, team=Team.TEAM_DEFENDER))
         runtime_bot.game_state.entity.actor_fight_by_id[-1] = FightActor(
             life_point=0,
             is_summoned=False,
@@ -623,16 +553,12 @@ class TestFightState:
             CharacterCharacteristicsEvent(
                 stats=CharacterCharacteristics(
                     characteristics=[
-                        self._detailed_characteristic(
-                            CharacteristicEnum.LIFE_POINTS, base=245
-                        ),
+                        self._detailed_characteristic(CharacteristicEnum.LIFE_POINTS, base=245),
                         self._detailed_characteristic(
                             CharacteristicEnum.VITALITY,
                             objects_and_mount_bonus=55,
                         ),
-                        self._detailed_characteristic(
-                            CharacteristicEnum.CUR_LIFE, base=0
-                        ),
+                        self._detailed_characteristic(CharacteristicEnum.CUR_LIFE, base=0),
                     ]
                 )
             )
@@ -666,16 +592,12 @@ class TestFightState:
             CharacterCharacteristicsEvent(
                 stats=CharacterCharacteristics(
                     characteristics=[
-                        self._detailed_characteristic(
-                            CharacteristicEnum.LIFE_POINTS, base=245
-                        ),
+                        self._detailed_characteristic(CharacteristicEnum.LIFE_POINTS, base=245),
                         self._detailed_characteristic(
                             CharacteristicEnum.VITALITY,
                             objects_and_mount_bonus=55,
                         ),
-                        self._detailed_characteristic(
-                            CharacteristicEnum.CUR_LIFE, base=-150
-                        ),
+                        self._detailed_characteristic(CharacteristicEnum.CUR_LIFE, base=-150),
                     ]
                 )
             )
@@ -703,9 +625,7 @@ class TestFightState:
 
     @staticmethod
     def _get_fight_frame(runtime_bot: Bot) -> FightFrame:
-        fight_frame = next(
-            frame for frame in runtime_bot.frames if isinstance(frame, FightFrame)
-        )
+        fight_frame = next(frame for frame in runtime_bot.frames if isinstance(frame, FightFrame))
         return fight_frame
 
     def _detailed_characteristic(

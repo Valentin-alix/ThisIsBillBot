@@ -150,20 +150,14 @@ def set_game_state(
     }
 
     for characteristic_id, value in characteristics.items():
-        game_state.fight.characteristic_by_id[characteristic_id] = (
-            CharacterCharacteristic(
-                characteristic_id=characteristic_id,
-                value=CharacterCharacteristicValue(total=value),
-            )
+        game_state.fight.characteristic_by_id[characteristic_id] = CharacterCharacteristic(
+            characteristic_id=characteristic_id,
+            value=CharacterCharacteristicValue(total=value),
         )
 
-    included_spell_ids = (
-        set(include_spell_ids) if include_spell_ids is not None else None
-    )
+    included_spell_ids = set(include_spell_ids) if include_spell_ids is not None else None
 
-    for spell_variant in data_reader.spell_variant_by_breed_id[
-        game_state.fight.breed_id
-    ]:
+    for spell_variant in data_reader.spell_variant_by_breed_id[game_state.fight.breed_id]:
         spell_id = spell_variant.spellIds[0]
 
         if included_spell_ids is not None and spell_id not in included_spell_ids:
@@ -188,9 +182,7 @@ def set_game_state(
                 named_fighter=NamedFighterInformation(
                     character_information=NamedFighterInformation.FightCharacterInformation()
                 ),
-                stats=FightCharacteristics(
-                    characteristics=game_state.fight.characteristic_by_id.values()
-                ),
+                stats=FightCharacteristics(characteristics=game_state.fight.characteristic_by_id.values()),
             )
         ),
     )

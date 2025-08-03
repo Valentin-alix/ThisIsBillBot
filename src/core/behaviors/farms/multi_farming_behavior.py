@@ -15,15 +15,12 @@ from src.core.behaviors.quests.dungeon_behavior import (
     DungeonBehavior,
 )
 from src.core.config import (
-    AFK_DURATION_RANGE,
     AFK_PROBABILITY_PER_MAP,
-    BASE_RANGE,
-    FARM_LONG_BREAK_DURATION_RANGE,
-    FARM_LONG_BREAK_INTERVAL_RANGE,
     get_time_between_attacker,
     get_time_between_dungeon,
 )
 from src.core.engine.dungeons.dungeon_access import get_valid_dungeon_infos
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
@@ -54,7 +51,7 @@ class MultiFarmingBehavior(HarvesterBehavior):
             return
 
         if datetime.now() >= self._next_long_break_at:
-            break_duration = random.uniform(*FARM_LONG_BREAK_DURATION_RANGE)
+            break_duration = HumanTimingsService().get_timing_farm_long_break_duration()
             self.logger.info(f"Taking a long break: {break_duration / 60:.1f}min")
             return self.idle_behavior.start(
                 duration=break_duration,
@@ -63,7 +60,7 @@ class MultiFarmingBehavior(HarvesterBehavior):
             )
 
         if random.random() < AFK_PROBABILITY_PER_MAP:
-            afk_duration = random.uniform(*AFK_DURATION_RANGE)
+            afk_duration = HumanTimingsService().get_timing_farm_afk_break()
             self.logger.info(f"Taking an AFK break: {afk_duration:.0f}s")
             return self.idle_behavior.start(
                 duration=afk_duration,
@@ -79,7 +76,7 @@ class MultiFarmingBehavior(HarvesterBehavior):
         self._continue_on_new_map()
 
     def _schedule_next_long_break(self) -> None:
-        interval_seconds = random.uniform(*FARM_LONG_BREAK_INTERVAL_RANGE)
+        interval_seconds = HumanTimingsService().get_timing_farm_long_break_interval()
         self._next_long_break_at = datetime.now() + timedelta(seconds=interval_seconds)
 
     def on_idle_behavior_finished(self, error_code: str | None):
@@ -108,7 +105,7 @@ class MultiFarmingBehavior(HarvesterBehavior):
             if len(valid_dungeons_infos) == 0:
                 return on_dungeon_behavior_finished(None)
             return self.run_timer(
-                BASE_RANGE,
+                HumanTimingsService().get_timing_base_action(),
                 lambda: self.dungeon_behavior.start(
                     dungeon_info=random.choice(valid_dungeons_infos),
                     callback=on_dungeon_behavior_finished,

@@ -10,9 +10,7 @@ from src.core.behaviors.behavior import Behavior
 
 @dataclass
 class DialogHandlerBehavior(Behavior, ABC):
-    def leave_dialog(
-        self, on_leave_callback: Callable[[ExchangeLeaveEvent], None] | None = None
-    ) -> None:
+    def leave_dialog(self, on_leave_callback: Callable[[ExchangeLeaveEvent], None] | None = None) -> None:
         if on_leave_callback:
             self.event_manager.on(
                 ExchangeLeaveEvent,

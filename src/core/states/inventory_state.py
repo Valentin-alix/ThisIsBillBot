@@ -36,12 +36,8 @@ class InventoryState(State):
         return [
             object
             for object in self.objects_by_uid.values()
-            if object.position
-            == CharacterInventoryPositionEnum.InventoryPositionNotEquiped.value
-            and all(
-                effect.action != ActionEnum.LINKED_TO_CHARACTER
-                for effect in object.item.effects
-            )
+            if object.position == CharacterInventoryPositionEnum.InventoryPositionNotEquiped.value
+            and all(effect.action != ActionEnum.LINKED_TO_CHARACTER for effect in object.item.effects)
             and not DataReader().item_by_id[object.item.gid].realWeight == 0
         ]
 
@@ -57,11 +53,7 @@ class InventoryState(State):
 
     def get_bank_object_by_gid(self, gid: int) -> ObjectItemInventory | None:
         return next(
-            (
-                object_item
-                for object_item in self.bank_objects_by_uid.values()
-                if object_item.item.gid == gid
-            ),
+            (object_item for object_item in self.bank_objects_by_uid.values() if object_item.item.gid == gid),
             None,
         )
 
@@ -137,12 +129,8 @@ class InventoryState(State):
             self.inventory_signals.kamas.emit(value)
 
     def get_object_item_by_gid(self, gid: int) -> ObjectItemInventory | None:
-        return next(
-            (obj for obj in self.objects_by_uid.values() if obj.item.gid == gid), None
-        )
+        return next((obj for obj in self.objects_by_uid.values() if obj.item.gid == gid), None)
 
     @property
     def can_use_bank(self) -> bool:
-        return (
-            self.player_state.is_sub or self.player_state.is_former_sub
-        ) and self.kamas > 1_000
+        return (self.player_state.is_sub or self.player_state.is_former_sub) and self.kamas > 1_000

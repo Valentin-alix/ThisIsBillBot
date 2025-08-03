@@ -1,0 +1,1812 @@
+{
+  "version": 3,
+  "thresholds": {
+    "message_score": 0.7,
+    "match_margin": 0.05,
+    "field_score": 0.5
+  },
+  "messages": [
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.anomaly.AnomalySubareaInformationRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.bak.BakActionEvent",
+      "fields": [
+        "amount",
+        "bid_action",
+        "kamas",
+        "rate",
+        "transaction_uuid"
+      ],
+      "activities": [
+        "subscription"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.bak.BakActionRequest",
+      "fields": [
+        "bid_action",
+        "kamas",
+        "ogrines",
+        "rate"
+      ],
+      "activities": [
+        "subscription"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.bak.BakApiTokenRequest",
+      "fields": [],
+      "activities": [
+        "subscription"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.bak.BakApiKeyEvent",
+      "fields": [
+        "token"
+      ],
+      "activities": [
+        "subscription"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.bak.BakBuyValidationEvent",
+      "fields": [
+        "amount",
+        "transaction_validation"
+      ],
+      "activities": [
+        "subscription"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.bak.BakShopTokenEvent",
+      "fields": [
+        "token"
+      ],
+      "activities": [
+        "subscription"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.bak.BakShopTokenRequest",
+      "fields": [],
+      "activities": [
+        "subscription"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.bak.BakTransactionValidationEvent",
+      "fields": [
+        "bid_action",
+        "result"
+      ],
+      "activities": [
+        "subscription"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.bak.BakTransactionValidationRequest",
+      "fields": [
+        "transaction_uuid"
+      ],
+      "activities": [
+        "subscription"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.basic.BasicLatencyStatsEvent",
+      "fields": [],
+      "activities": [
+        "session"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.basic.BasicLatencyStatsRequest",
+      "fields": [
+        "latency"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.basic.DateRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.basic.SequenceNumberEvent",
+      "fields": [],
+      "activities": [
+        "session"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.basic.SequenceNumberRequest",
+      "fields": [
+        "number"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.basic.TextInformationEvent",
+      "fields": [
+        "message_id",
+        "message_type",
+        "parameters"
+      ],
+      "activities": [
+        "session"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.challenge.ChallengeBonusChoiceRequest",
+      "fields": [
+        "challenge_bonus"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.challenge.ChallengeModSelectRequest",
+      "fields": [
+        "challenge_mod"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.challenge.ChallengeProposalEvent",
+      "fields": [
+        "challenge_proposals"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.challenge.ChallengeReadyRequest",
+      "fields": [
+        "challenge_mod"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.challenge.ChallengeSelectionRequest",
+      "fields": [
+        "challenge_id"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.CharacterCharacteristicsEvent",
+      "fields": [
+        "stats"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.CharacterCharacteristicUpgradeRequest",
+      "fields": [
+        "agility",
+        "chance",
+        "intelligence",
+        "strength"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.CharacterLevelUpEvent",
+      "fields": [
+        "new_level"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.management.CharacterCreationRequest",
+      "fields": [
+        "modeling_information"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.management.CharacterFirstSelectionRequest",
+      "fields": [
+        "character_id",
+        "do_tutorial"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.management.CharacterForceSelectionEvent",
+      "fields": [],
+      "activities": [
+        "session"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.management.CharacterForceSelectionReadyRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.management.CharacterListEvent",
+      "fields": [
+        "characters"
+      ],
+      "activities": [
+        "session"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.management.CharacterListRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.management.CharacterNameSuggestionEvent",
+      "fields": [
+        "suggestion"
+      ],
+      "activities": [
+        "session"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.management.CharacterNameSuggestionRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.management.CharacterSelectionEvent",
+      "fields": [
+        "success"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.management.CharacterSelectionRequest",
+      "fields": [
+        "character_id"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.chat.ChatChannelMessageEvent",
+      "fields": [
+        "channel",
+        "content",
+        "sender_name"
+      ],
+      "activities": [
+        "chat"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.chat.ChatChannelMessageRequest",
+      "fields": [
+        "channel",
+        "content"
+      ],
+      "activities": [
+        "chat"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.chat.ChatPrivateMessageRequest",
+      "fields": [
+        "content",
+        "name"
+      ],
+      "activities": [
+        "chat"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.chat.SubscribeMultipleChannelRequest",
+      "fields": [
+        "channel_disabled",
+        "channel_enabled"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.client.verification.ClientChallengeInitRequest",
+      "fields": [
+        "challenge_key"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.client.verification.ClientChallengeProofRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.client.verification.ClientIdRequest",
+      "fields": [
+        "id"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.client.verification.ServerChallengeEvent",
+      "fields": [],
+      "activities": [
+        "session"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.client.verification.ServerSessionReadyEvent",
+      "fields": [],
+      "activities": [
+        "session"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.client.verification.ServerVerificationEvent",
+      "fields": [],
+      "activities": [
+        "session"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation",
+      "fields": [
+        "actor_id",
+        "actor_information",
+        "disposition"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.CharacterCharacteristic",
+      "fields": [
+        "characteristic_id",
+        "detailed",
+        "usable",
+        "value"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.CharacterCharacteristicDetailed",
+      "fields": [
+        "additional",
+        "alignment_gift_bonus",
+        "base",
+        "context_modification",
+        "objects_and_mount_bonus",
+        "temporary"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.CharacterInformation",
+      "fields": [
+        "account_id",
+        "account_nickname",
+        "account_tag",
+        "breed_id",
+        "character_id",
+        "gender",
+        "level",
+        "name",
+        "status"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.CharacterRemodelingInformation",
+      "fields": [
+        "breed_id",
+        "colors",
+        "cosmetic_id",
+        "gender",
+        "name",
+        "unknown"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.EntityDisposition",
+      "fields": [
+        "cell_id",
+        "direction",
+        "entity_id"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.FightRemovableEffect",
+      "fields": [
+        "dissipation_state",
+        "spell_id",
+        "target_id",
+        "uid"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.InteractiveElement",
+      "fields": [
+        "element_id",
+        "enabled_skills",
+        "on_current_map"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.ObjectEffect",
+      "fields": [
+        "action",
+        "value_int"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.ObjectItem",
+      "fields": [
+        "effects",
+        "gid",
+        "quantity",
+        "uid"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.ObjectItemInventory",
+      "fields": [
+        "item",
+        "position"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.SpawnInformation",
+      "fields": [
+        "alive",
+        "position",
+        "team"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.SpellModifier",
+      "fields": [
+        "context",
+        "spell_id"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.common.StatedElement",
+      "fields": [
+        "cell_id",
+        "element_id",
+        "on_current_map",
+        "state"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.connection.AuthenticationTicketAcceptedEvent",
+      "fields": [],
+      "activities": [
+        "session"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.connection.IdentificationRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.connection.PingRequest",
+      "fields": [
+        "quiet"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.connection.PongEvent",
+      "fields": [
+        "quiet"
+      ],
+      "activities": [
+        "session"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.contact.ContactWarnOnAchievementCompleteSetRequest",
+      "fields": [
+        "enable"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.contact.ContactWarnOnPermanentDeathSetRequest",
+      "fields": [
+        "enable"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.contact.AcquaintanceListRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.contact.FriendListRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.contact.FriendSetStatusShareRequest",
+      "fields": [
+        "share"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.contact.FriendSetWarnOnLevelGainRequest",
+      "fields": [
+        "enable"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.context.ContextCreationEvent",
+      "fields": [
+        "context"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.context.ContextCreationRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.context.ContextQuitRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.context.ContextReadyRequest",
+      "fields": [
+        "map_id"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.context.ContextRemoveElementEvent",
+      "fields": [
+        "element_id"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.context.ContextRemoveElementsEvent",
+      "fields": [
+        "element_id"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.context.EntitiesDispositionEvent",
+      "fields": [
+        "dispositions"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.dialog.DialogLeaveEvent",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.dialog.DialogLeaveRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.Event",
+      "fields": [
+        "content"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeAcceptRequest",
+      "fields": [],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseBuyRequest",
+      "fields": [
+        "bid_item_uid",
+        "price",
+        "quantity"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseBuyResultEvent",
+      "fields": [
+        "bid_item_uid",
+        "bought"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseItemAddedEvent",
+      "fields": [
+        "item",
+        "price"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseItemRemovedEvent",
+      "fields": [
+        "sell_id"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHousePriceRequest",
+      "fields": [
+        "object_gid"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseSearchRequest",
+      "fields": [
+        "follow",
+        "object_gid"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseTypeRequest",
+      "fields": [
+        "follow",
+        "type_id"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidPriceEvent",
+      "fields": [
+        "average_price",
+        "bid_price_for_seller",
+        "object_gid"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidSellerStartedEvent",
+      "fields": [
+        "items",
+        "selling_conditions"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeCraftCountModifiedEvent",
+      "fields": [],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeCraftCountRequest",
+      "fields": [
+        "count"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeCraftStartedEvent",
+      "fields": [],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeErrorEvent",
+      "fields": [],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeKamaModifiedEvent",
+      "fields": [],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeLeaveEvent",
+      "fields": [],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeMoveKamaRequest",
+      "fields": [
+        "quantity"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectModifyPricedRequest",
+      "fields": [
+        "object_uid",
+        "price",
+        "quantity"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectMovePricedRequest",
+      "fields": [
+        "object_uid",
+        "price",
+        "quantity"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectMoveRequest",
+      "fields": [
+        "object_uid",
+        "quantity"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectsAddedEvent",
+      "fields": [],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangePlayerRequest",
+      "fields": [
+        "target_id"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeReadyEvent",
+      "fields": [
+        "character_id"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeReadyRequest",
+      "fields": [
+        "ready",
+        "step"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeRequestedTradeEvent",
+      "fields": [
+        "source_id"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeSetCraftRecipeRequest",
+      "fields": [
+        "object_uid"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeStartedWithMultiTabStorageEvent",
+      "fields": [
+        "storage_max_slot",
+        "tab_number"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeStartedWithPodsEvent",
+      "fields": [],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeStartedWithStorageEvent",
+      "fields": [
+        "storage_max_slot"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeTypesExchangerDescriptionForUserEvent",
+      "fields": [
+        "object_type",
+        "type_description"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeTypesItemsExchangerDescriptionForUserEvent",
+      "fields": [
+        "item_descriptions",
+        "object_gid",
+        "object_type"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ObjectAveragePricesEvent",
+      "fields": [
+        "objects_average_prices"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.ObjectAveragePricesRequest",
+      "fields": [],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.exchange.SellingConditions",
+      "fields": [
+        "max_item_per_account"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.fight.FightFighterRefreshEvent",
+      "fields": [
+        "information"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.fight.FightFighterShowEvent",
+      "fields": [
+        "information"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.fight.FightIsTurnReadyEvent",
+      "fields": [
+        "character_id"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.fight.FightRefreshCharacterStatsEvent",
+      "fields": [
+        "fighter_id",
+        "stats"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.fight.FightSynchronizeEvent",
+      "fields": [
+        "fighters"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.fight.FightTurnEvent",
+      "fields": [
+        "character_id"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.fight.FightTurnFinishRequest",
+      "fields": [],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.fight.FightTurnReadyRequest",
+      "fields": [
+        "is_ready"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.fight.FightTurnStartPlayingEvent",
+      "fields": [],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.fight.preparation.FightPlacementPositionRequest",
+      "fields": [
+        "cell_id",
+        "entity_id"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.fight.preparation.FightPlacementPossiblePositionsEvent",
+      "fields": [
+        "starting_positions",
+        "team"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.fight.preparation.FightReadyRequest",
+      "fields": [
+        "is_ready"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.game.action.GameActionAcknowledgementRequest",
+      "fields": [
+        "action_id",
+        "valid"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightCastRequest",
+      "fields": [
+        "cell",
+        "spell_id"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent",
+      "fields": [
+        "action_id",
+        "activate_glyph_trap",
+        "carry_character",
+        "change_look",
+        "death",
+        "dodge_point_loss",
+        "drop_character",
+        "exchange_positions",
+        "execute_script",
+        "invisibility",
+        "invisible_detected",
+        "kill",
+        "life_points_gain",
+        "life_points_lost",
+        "mark_cells",
+        "modify_effects_duration",
+        "points_variation",
+        "reduce_damages",
+        "reflect_damages",
+        "reflect_spell",
+        "slide",
+        "source_id",
+        "spell_cool_down_variation",
+        "spell_immunity",
+        "spell_remove",
+        "steal_kama",
+        "summons",
+        "tackled",
+        "targeted_ability",
+        "teleport_on_same_map",
+        "throw_character",
+        "trigger_glyph_trap",
+        "unmark_cells",
+        "vanish"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.game.action.SequenceEndEvent",
+      "fields": [
+        "action_id",
+        "author_id",
+        "sequence_type"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.game.action.SequenceStartEvent",
+      "fields": [
+        "author_id",
+        "sequence_type"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.FightMapInformationEvent",
+      "fields": [
+        "map_id"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.GameRolePlayShowActorsEvent",
+      "fields": [
+        "actors"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapChangeOrientationEvent",
+      "fields": [
+        "actor_id",
+        "direction"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapChangeRequest",
+      "fields": [
+        "auto_pilot",
+        "map_id"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryInformationEvent",
+      "fields": [
+        "actors",
+        "fights",
+        "interactive_elements",
+        "map_id",
+        "obstacles",
+        "stated_elements"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapCurrentEvent",
+      "fields": [
+        "map_id"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapInformationRequest",
+      "fields": [
+        "map_id"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementConfirmRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementConfirmResponse",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementEvent",
+      "fields": [
+        "cells",
+        "character_id",
+        "direction"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementRefusedEvent",
+      "fields": [
+        "cell_x",
+        "cell_y"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementRequest",
+      "fields": [
+        "key_cells",
+        "map_id"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapObstacle",
+      "fields": [
+        "cell_id",
+        "state"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapObstacleUpdateEvent",
+      "fields": [
+        "obstacles"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapTeleportOnSameEvent",
+      "fields": [
+        "cell_id",
+        "player_id"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.guild.chest.GuildChestCurrentListenersAddEvent",
+      "fields": [],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.guild.chest.GuildChestTabSelectRequest",
+      "fields": [
+        "tab_number"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.guild.information.GuildInformationRequest",
+      "fields": [
+        "information_type"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.guild.member.GuildMembershipEvent",
+      "fields": [
+        "guild_information",
+        "rank_id"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.guild.member.GuildMemberWarnOnConnectionStartRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.haapi.HaapiSessionEvent",
+      "fields": [
+        "session_uid"
+      ],
+      "activities": [
+        "subscription"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.haven.bag.HavenBagEnterRequest",
+      "fields": [
+        "owner"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.haven.bag.HavenBagExitRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.interactive.element.InteractiveElementUpdatedEvent",
+      "fields": [
+        "interactive_element"
+      ],
+      "activities": [
+        "harvest"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.interactive.element.InteractiveMapUpdateEvent",
+      "fields": [
+        "interactive_elements"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.interactive.element.InteractiveUsedEvent",
+      "fields": [
+        "can_move",
+        "duration",
+        "element_id",
+        "entity_id",
+        "skill_id"
+      ],
+      "activities": [
+        "harvest"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.interactive.element.InteractiveUseErrorEvent",
+      "fields": [
+        "element_id",
+        "skill_instance_uid"
+      ],
+      "activities": [
+        "harvest"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.interactive.element.InteractiveUseRequest",
+      "fields": [
+        "element_id",
+        "skill_instance_uid",
+        "specific_instance_id"
+      ],
+      "activities": [
+        "harvest"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.interactive.element.StatedElementUpdatedEvent",
+      "fields": [
+        "stated_element"
+      ],
+      "activities": [
+        "harvest"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.interactive.element.StatedMapUpdateEvent",
+      "fields": [
+        "stated_elements"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.InventoryContentEvent",
+      "fields": [
+        "kamas",
+        "objects"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.InventoryWeightEvent",
+      "fields": [
+        "inventory_weight",
+        "weight_max"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.KamasUpdateEvent",
+      "fields": [
+        "quantity"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.MultiTabStorageEvent",
+      "fields": [
+        "tabs"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.ObjectAddedEvent",
+      "fields": [
+        "object"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.ObjectDeletedEvent",
+      "fields": [
+        "object_uid"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.ObjectModifiedEvent",
+      "fields": [
+        "object"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.ObjectMovementEvent",
+      "fields": [
+        "object_uid",
+        "position"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.ObjectQuantityEvent",
+      "fields": [
+        "object"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.ObjectsAddedEvent",
+      "fields": [
+        "objects"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.ObjectsDeletedEvent",
+      "fields": [
+        "objects_uid"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.ObjectSetPositionRequest",
+      "fields": [
+        "object_uid",
+        "position",
+        "quantity"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.ObjectsQuantityEvent",
+      "fields": [
+        "object"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.ObjectUseRequest",
+      "fields": [
+        "object_uid"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.StorageInventoryContentEvent",
+      "fields": [
+        "kamas",
+        "objects"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.StorageKamasUpdateEvent",
+      "fields": [
+        "kamas"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.StorageObjectRemovedEvent",
+      "fields": [
+        "object_uid"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.StorageObjectsRemovedEvent",
+      "fields": [
+        "objects_uid"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.StorageObjectsUpdateEvent",
+      "fields": [
+        "objects"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.inventory.StorageObjectUpdateEvent",
+      "fields": [
+        "object"
+      ],
+      "activities": [
+        "storage_economy_craft"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.job.JobExperiencesUpdateEvent",
+      "fields": [
+        "experiences"
+      ],
+      "activities": [
+        "harvest"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.npc.NpcDialogQuestionEvent",
+      "fields": [
+        "dialog_params",
+        "message_id"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.npc.NpcDialogReplyRequest",
+      "fields": [
+        "reply_id"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.npc.NpcGenericActionRequest",
+      "fields": [
+        "npc_action_id",
+        "npc_id",
+        "npc_map_id"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.quest.GuideModQuitRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.Request",
+      "fields": [
+        "content",
+        "uid"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.Response",
+      "fields": [
+        "content",
+        "uid"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.roleplay.AttackMonsterRequest",
+      "fields": [
+        "monster_group_id"
+      ],
+      "activities": [
+        "fight"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.social.ChatCommunityChannelSetCommunityRequest",
+      "fields": [
+        "community"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.social.SpouseInformationRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.spell.SpellsEvent",
+      "fields": [
+        "human_spells"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.teleportation.TeleportRequest",
+      "fields": [
+        "map_id",
+        "source_type"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.teleportation.ZaapKnownListEvent",
+      "fields": [
+        "destinations"
+      ],
+      "activities": [
+        "movement_dungeon"
+      ]
+    }
+  ]
+}

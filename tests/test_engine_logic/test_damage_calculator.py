@@ -21,9 +21,7 @@ from tests.fixtures.data import (
 )
 
 
-def _effect(
-    *, element: int, dice_num: int = 0, dice_side: int = 0, value: int = 0
-) -> Effect:
+def _effect(*, element: int, dice_num: int = 0, dice_side: int = 0, value: int = 0) -> Effect:
     return msgspec.structs.replace(
         make_spell_effect(effect_id=1, effect_element=EffectElement.STRENGTH),
         effectElement=element,
@@ -169,9 +167,7 @@ class TestGetDamageEffect:
             effect=_effect(element=1, dice_num=100, dice_side=100),
             spell_lvl=_spell(),
             monster_grade=_monster(),
-            characteristic_by_id=make_characteristics(
-                {CharacteristicEnum.DEALT_DAMAGE_MULTIPLIER: 120}
-            ),
+            characteristic_by_id=make_characteristics({CharacteristicEnum.DEALT_DAMAGE_MULTIPLIER: 120}),
             is_melee=False,
             primary_elem=EffectElement.STRENGTH,
         )
@@ -194,9 +190,7 @@ class TestGetDamageEffect:
         crit_effect = _effect(element=1, dice_num=200, dice_side=200)
         damage = self.calc.get_damage_effect(
             effect=_effect(element=1, dice_num=100, dice_side=100),
-            spell_lvl=_spell(
-                critical_hit_probability=50, critical_effect=[crit_effect]
-            ),
+            spell_lvl=_spell(critical_hit_probability=50, critical_effect=[crit_effect]),
             monster_grade=_monster(),
             characteristic_by_id={},
             is_melee=False,
@@ -209,9 +203,7 @@ class TestGetDamageEffect:
         crit_effect = _effect(element=1, dice_num=200, dice_side=200)
         damage = self.calc.get_damage_effect(
             effect=_effect(element=1, dice_num=100, dice_side=100),
-            spell_lvl=_spell(
-                critical_hit_probability=50, critical_effect=[crit_effect]
-            ),
+            spell_lvl=_spell(critical_hit_probability=50, critical_effect=[crit_effect]),
             monster_grade=_monster(),
             characteristic_by_id=make_characteristics({CharacteristicEnum.CRITICAL_HIT: 10}),
             is_melee=False,

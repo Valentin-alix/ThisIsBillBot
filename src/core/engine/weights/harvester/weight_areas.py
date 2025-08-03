@@ -47,13 +47,7 @@ def get_weight_harvester_sub_area(
 ):
     weight: float = 0
     for map_id in DataReader().map_ids_by_sub_area_id[sub_area_id]:
-        weight += get_map_id_collectable_weight(
-            map_id,
-            job_lvl_by_id,
-            storage_by_gid,
-            is_sub,
-            server_id,
-        )
+        weight += get_map_id_collectable_weight(map_id, job_lvl_by_id, storage_by_gid, is_sub, server_id)
     count_map = len(DataReader().map_ids_by_sub_area_id[sub_area_id])
     if count_map == 0:
         return 0
@@ -121,9 +115,7 @@ def get_random_best_area_info_for_harvester(
             )
         count_area_already_playing = server_area_infos.count(area_info)
         weight_by_areas_info[area_info] = weight / (
-            1
-            + count_area_already_playing * 3
-            + previous_area_info_played.count(area_info)
+            1 + count_area_already_playing * 3 + previous_area_info_played.count(area_info)
         )
 
     areas_infos = [

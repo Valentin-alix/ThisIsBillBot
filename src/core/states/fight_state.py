@@ -31,9 +31,7 @@ from src.core.states.state import State
 
 
 class LastAtkInfo(NamedTuple):
-    monster_group_info: (
-        ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor
-    )
+    monster_group_info: ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor
     from_map_id: int  # ca sert a déterminer si on a perdu => si la map est différente après le fight alors ui on a perdu
 
 
@@ -43,16 +41,10 @@ class FightState(State):
     entity_state: EntityState
     game_info_signals: GameInfoSignals
 
-    fight_placement_possible_positions: list[int] = field(
-        init=False, default_factory=list[int]
-    )
+    fight_placement_possible_positions: list[int] = field(init=False, default_factory=list[int])
     _is_our_turn: bool = field(init=False, default=False)
-    spells: list[SpellItem] = dataclasses.field(
-        init=False, default_factory=list[SpellItem]
-    )
-    modifier_by_type_and_spell_id: dict[
-        tuple[int, SpellModifierType], SpellModifier
-    ] = dataclasses.field(
+    spells: list[SpellItem] = dataclasses.field(init=False, default_factory=list[SpellItem])
+    modifier_by_type_and_spell_id: dict[tuple[int, SpellModifierType], SpellModifier] = dataclasses.field(
         init=False,
         default_factory=dict[tuple[int, SpellModifierType], SpellModifier],
     )
@@ -60,9 +52,7 @@ class FightState(State):
         init=False, default_factory=lambda: defaultdict(int)
     )
     # spell_id -> last fight_turn it was cast on (for real cooldown tracking).
-    last_cast_turn_by_spell_id: dict[int, int] = dataclasses.field(
-        init=False, default_factory=dict[int, int]
-    )
+    last_cast_turn_by_spell_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict[int, int])
     characteristic_by_id: dict[int, CharacterCharacteristic] = dataclasses.field(
         init=False, default_factory=dict[int, CharacterCharacteristic]
     )
@@ -265,9 +255,7 @@ class FightState(State):
     ) -> list[ActorPositionInformation]:
         player_actor = actor_by_id.get(character_id)
         if player_actor is None:
-            self.logger.warning(
-                f"Player {character_id} not in actors, return empty enemies"
-            )
+            self.logger.warning(f"Player {character_id} not in actors, return empty enemies")
             return []
 
         player_team = player_actor.actor_information.fighter.spawn_information.team
@@ -299,18 +287,14 @@ class FightState(State):
         actor_fight_by_id: Mapping[int, FightActor] | None = None,
     ) -> list[EnemyData]:
         fight_actor_by_id = (
-            self.entity_state.actor_fight_by_id
-            if actor_fight_by_id is None
-            else actor_fight_by_id
+            self.entity_state.actor_fight_by_id if actor_fight_by_id is None else actor_fight_by_id
         )
         enemies_data: list[EnemyData] = []
         for enemy in enemies:
             enemy_mp = MapPoint.from_cell_id(enemy.disposition.cell_id)
             actor_fight = fight_actor_by_id.get(enemy.actor_id)
             if not actor_fight:
-                self.logger.error(
-                    f"Wtf ? {enemy.actor_id} not found in actor fight by id"
-                )
+                self.logger.error(f"Wtf ? {enemy.actor_id} not found in actor fight by id")
                 continue
             life_point = actor_fight.life_point
             is_summoned = actor_fight.is_summoned

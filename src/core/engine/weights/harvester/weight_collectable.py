@@ -27,11 +27,7 @@ def get_weight_collectable_for_sale_hotel(
     # we dont care about job lvl, so we dont use the get weight collectable below
     return (
         avg_price_by_gid.get(item_gid, 1)
-        * (
-            related_object.item.quantity
-            if (related_object := storage_object_by_item.get(item_gid))
-            else 0
-        )
+        * (related_object.item.quantity if (related_object := storage_object_by_item.get(item_gid)) else 0)
         / (1 + log1p(item_sell_quantity_by_gid.get(item_gid, 0)))
     )
 
@@ -60,14 +56,7 @@ def get_map_id_collectable_weight(
         job_lvl = player_job_lvl_by_id.get(job_id, 1)
         if item.level is None or item.level > job_lvl:
             continue
-        weight_item = get_weight_collectable(
-            job_id,
-            job_lvl,
-            item_id,
-            storage_by_gid,
-            is_sub,
-            server_id,
-        )
+        weight_item = get_weight_collectable(job_id, job_lvl, item_id, storage_by_gid, is_sub, server_id)
         weight_map += weight_item
     return weight_map
 
@@ -93,18 +82,12 @@ def get_weight_collectable(
     # apply non-linear scaling to favor high prices (tunable via PRICE_EXPONENT)
     scaled_price = price**PRICE_EXPONENT
     weight = base * scaled_price
-    storage_qty = (
-        related_object.item.quantity
-        if (related_object := storage_by_gid.get(item_gid))
-        else 0
-    )
+    storage_qty = related_object.item.quantity if (related_object := storage_by_gid.get(item_gid)) else 0
     return weight / (1 + log1p(storage_qty))
 
 
 @cache
-def get_basic_weight_collectable(
-    job_id: JobEnum, job_lvl: int, item_gid: int, is_sub: bool
-):
+def get_basic_weight_collectable(job_id: JobEnum, job_lvl: int, item_gid: int, is_sub: bool):
     item = DataReader().item_by_id[item_gid]
     if item.level is None or item.id is None:
         return 0
@@ -112,11 +95,7 @@ def get_basic_weight_collectable(
     weight = WEIGHT_BY_JOB[job_id]
     max_job_lvl = 200 if is_sub else 60
     if job_lvl != max_job_lvl:
-        weight = (
-            weight
-            * item.level
-            * (((max_job_lvl + 1 - job_lvl) ** 2) if job_id != JobEnum.BASE else 1)
-        )
+        weight = weight * item.level * (((max_job_lvl + 1 - job_lvl) ** 2) if job_id != JobEnum.BASE else 1)
 
     return weight
 
@@ -126,9 +105,7 @@ def get_rare_drop_weight_by_collectable_gid() -> dict[int, float]:
     drop_weight_by_res_id: dict[int, float] = defaultdict(float)
     for race in PROTECTOR_RACES:
         for monster in DataReader().monsters_by_race[race]:
-            res_object_id, curr_weight = get_rare_gid_with_weight_from_protector_drop(
-                monster.drops
-            )
+            res_object_id, curr_weight = get_rare_gid_with_weight_from_protector_drop(monster.drops)
             if res_object_id is None:
                 continue
             drop_weight_by_res_id[res_object_id] = curr_weight

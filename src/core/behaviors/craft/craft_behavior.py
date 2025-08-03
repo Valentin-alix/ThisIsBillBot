@@ -25,9 +25,9 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.storage.loads.load_recipe_behavior import LoadRecipeBehavior
-from src.core.config import BASE_RANGE, SMALL_RANGE
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass(frozen=True)
@@ -128,7 +128,7 @@ class CraftBehavior(DialogHandlerBehavior):
             return self.process_remaining_recipes()
 
         self.run_timer(
-            BASE_RANGE,
+            HumanTimingsService().get_timing_base_action(),
             lambda: self.auto_trip_smart_behavior.start(
                 map_ids=related_map_ids,
                 callback=partial(
@@ -157,11 +157,12 @@ class CraftBehavior(DialogHandlerBehavior):
         element_mp = MapPoint.from_cell_id(ref_data.cellId)
 
         self.run_timer(
-            BASE_RANGE,
+            HumanTimingsService().get_timing_base_action(),
             lambda: self.interactive_behavior.start(
                 element_mp=element_mp,
                 element_id=related_element.element_id,
                 skill_id=skill_id,
+                pre_interaction_delay=HumanTimingsService().get_timing_before_workshop_interaction(),
                 callback=partial(
                     self.on_interactive_behavior_finished,
                     recipes_infos=recipes_infos,
@@ -218,7 +219,7 @@ class CraftBehavior(DialogHandlerBehavior):
         )
 
         req = ExchangeSetCraftRecipeRequest(object_uid=recipe_info.recipe.resultId)
-        self.send_message_delayed(req, BASE_RANGE)
+        self.send_message_delayed(req, HumanTimingsService().get_timing_base_action())
 
     def on_exchange_set_craft_recipe_request(
         self,
@@ -241,7 +242,10 @@ class CraftBehavior(DialogHandlerBehavior):
             once=True,
             override_on_self=True,
         )
-        self.send_message_delayed(ExchangeCraftCountRequest(count=max_possible_result_quantity), BASE_RANGE)
+        self.send_message_delayed(
+            ExchangeCraftCountRequest(count=max_possible_result_quantity),
+            HumanTimingsService().get_timing_base_action(),
+        )
 
     def on_exchange_craft_count_modified_event(
         self,
@@ -260,7 +264,7 @@ class CraftBehavior(DialogHandlerBehavior):
             on_timeout=lambda: self.on_timeout_exchange_ready(gid),
         )
         req = ExchangeReadyRequest(ready=True, step=6)
-        self.send_message_delayed(req, SMALL_RANGE)
+        self.send_message_delayed(req, HumanTimingsService().get_timing_short_action())
 
     def on_all_crafted_for_skill_in_inventory(self) -> None:
         self.leave_dialog(on_leave_callback=lambda _: self.process_next_loaded_recipe_skill())

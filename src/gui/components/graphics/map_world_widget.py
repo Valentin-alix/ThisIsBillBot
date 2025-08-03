@@ -94,9 +94,7 @@ class CurrMapInfo:
 
 
 class MapWorldView(QGraphicsView):
-    def __init__(
-        self, world_signals: WorldSignals | None = None, debug: bool = False
-    ) -> None:
+    def __init__(self, world_signals: WorldSignals | None = None, debug: bool = False) -> None:
         super().__init__()
         self.is_curr_map_visible: bool = False
         self.debug = debug
@@ -105,9 +103,7 @@ class MapWorldView(QGraphicsView):
         self.line_items: list[QGraphicsLineItem] = []
         self._scene: QGraphicsScene = QGraphicsScene()
         self.square_by_coord: dict[Coord, SquareMap] = {}
-        self.map_pos_by_coord: dict[Coord, set[MapInformationRootItem]] = defaultdict(
-            set
-        )
+        self.map_pos_by_coord: dict[Coord, set[MapInformationRootItem]] = defaultdict(set)
 
         self.setStyleSheet("border: 0px")
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -117,13 +113,9 @@ class MapWorldView(QGraphicsView):
 
         if self.world_signals:
             self.world_signals.color_pos.connect(profiled_slot(self.on_color_pos))
-            self.world_signals.color_pos_batch.connect(
-                profiled_slot(self.on_color_pos_batch)
-            )
+            self.world_signals.color_pos_batch.connect(profiled_slot(self.on_color_pos_batch))
             self.world_signals.arrow_pos.connect(profiled_slot(self.on_arrow_pos))
-            self.world_signals.arrow_pos_batch.connect(
-                profiled_slot(self.on_arrow_pos_batch)
-            )
+            self.world_signals.arrow_pos_batch.connect(profiled_slot(self.on_arrow_pos_batch))
             self.world_signals.reset_weight.connect(profiled_slot(self.on_reset_weight))
             self.world_signals.reset_path.connect(profiled_slot(self.on_reset_path))
             self.world_signals.curr_map_pos.connect(profiled_slot(self.on_curr_map))
@@ -146,9 +138,7 @@ class MapWorldView(QGraphicsView):
         self.curr_map_info.state.setPos(x, y)
         left = x - CELL_SIZE * LIMIT_GRID
         top = y - CELL_SIZE * LIMIT_GRID
-        self._scene.setSceneRect(
-            QRectF(left, top, WIDTH_AROUND_CURRENT_MAP, HEIGHT_AROUND_CURRENT_MAP)
-        )
+        self._scene.setSceneRect(QRectF(left, top, WIDTH_AROUND_CURRENT_MAP, HEIGHT_AROUND_CURRENT_MAP))
         self.centerOn(x, y)
 
     def get_or_create_map(self, map_pos: MapInformationRootItem) -> SquareMap:
@@ -186,9 +176,7 @@ class MapWorldView(QGraphicsView):
         self.setUpdatesEnabled(True)
 
     @pyqtSlot(MapInformationRootItem, MapInformationRootItem)
-    def on_arrow_pos(
-        self, map_pos_start: MapInformationRootItem, map_pos_end: MapInformationRootItem
-    ):
+    def on_arrow_pos(self, map_pos_start: MapInformationRootItem, map_pos_end: MapInformationRootItem):
         """draw line from start to end pos"""
         start_square = self.get_or_create_map(map_pos_start)
         end_square = self.get_or_create_map(map_pos_end)
@@ -205,9 +193,7 @@ class MapWorldView(QGraphicsView):
         self._scene.addItem(line_item)
 
     @pyqtSlot(list)
-    def on_arrow_pos_batch(
-        self, items: list[tuple[MapInformationRootItem, MapInformationRootItem]]
-    ):
+    def on_arrow_pos_batch(self, items: list[tuple[MapInformationRootItem, MapInformationRootItem]]):
         self.setUpdatesEnabled(False)
         for map_pos_start, map_pos_end in items:
             start_square = self.get_or_create_map(map_pos_start)

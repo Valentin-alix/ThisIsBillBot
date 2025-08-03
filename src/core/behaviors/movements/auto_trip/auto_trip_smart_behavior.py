@@ -24,9 +24,7 @@ NPC_PORTAL_INCARNAM = NpcInfo(
     npc_id=-20001,
     reply_info_by_message_id={
         NpcAskMessageIdEnum.HESITATE_BEFORE_GO_ANKARNOOB: ReplyInfo(reply_id=36982),
-        NpcAskMessageIdEnum.CONFIRM_GO_ASTRUB: ReplyInfo(
-            reply_id=36980, do_finish_after=True
-        ),
+        NpcAskMessageIdEnum.CONFIRM_GO_ASTRUB: ReplyInfo(reply_id=36980, do_finish_after=True),
     },
 )
 
@@ -43,25 +41,17 @@ class AutoTripSmartBehavior(Behavior):
 
         from_area_id = (
             DataReader()
-            .sub_area_by_id[
-                DataReader().map_info_by_map_id[self.game_state.map.map_id].subAreaId
-            ]
+            .sub_area_by_id[DataReader().map_info_by_map_id[self.game_state.map.map_id].subAreaId]
             .areaId
         )
         to_area_id = (
-            DataReader()
-            .sub_area_by_id[
-                DataReader().map_info_by_map_id[next(iter(map_ids))].subAreaId
-            ]
-            .areaId
+            DataReader().sub_area_by_id[DataReader().map_info_by_map_id[next(iter(map_ids))].subAreaId].areaId
         )
 
         if from_area_id == AreaEnum.INCARNAM and to_area_id != AreaEnum.INCARNAM:
             self.from_incarnam_go_astrub(map_ids)
         else:
-            self.auto_trip_explorator_behavior.start(
-                callback=self.finish, parent=self, map_ids=map_ids
-            )
+            self.auto_trip_explorator_behavior.start(callback=self.finish, parent=self, map_ids=map_ids)
 
     def from_incarnam_go_astrub(self, dst_map_ids: set[int]):
         self.logger.info("Get out of incarnam")
@@ -74,28 +64,20 @@ class AutoTripSmartBehavior(Behavior):
             map_ids={NPC_PORTAL_INCARNAM.npc_map_id},
         )
 
-    def on_auto_trip_to_npc_portal_incarnam_finished(
-        self, error_code: str | None, dst_map_ids: set[int]
-    ):
+    def on_auto_trip_to_npc_portal_incarnam_finished(self, error_code: str | None, dst_map_ids: set[int]):
         if error_code is not None:
             return self.finish(error_code)
 
         self.npc_dialog_behavior.start(
-            callback=partial(
-                self.on_npc_dialog_behavior_finished, dst_map_ids=dst_map_ids
-            ),
+            callback=partial(self.on_npc_dialog_behavior_finished, dst_map_ids=dst_map_ids),
             parent=self,
             npc_dialog_info=NPC_PORTAL_INCARNAM,
         )
 
-    def on_npc_dialog_behavior_finished(
-        self, error_code: str | None, dst_map_ids: set[int]
-    ):
+    def on_npc_dialog_behavior_finished(self, error_code: str | None, dst_map_ids: set[int]):
         self.event_manager.on(
             MapComplementaryInformationEvent,
-            callback=partial(
-                self.on_auto_trip_zaap_portal_incarnam_finished, dst_map_ids=dst_map_ids
-            ),
+            callback=partial(self.on_auto_trip_zaap_portal_incarnam_finished, dst_map_ids=dst_map_ids),
             originator=self,
             once=True,
         )
@@ -103,6 +85,4 @@ class AutoTripSmartBehavior(Behavior):
     def on_auto_trip_zaap_portal_incarnam_finished(
         self, msg: MapComplementaryInformationEvent, dst_map_ids: set[int]
     ):
-        self.auto_trip_explorator_behavior.start(
-            callback=self.finish, parent=self, map_ids=dst_map_ids
-        )
+        self.auto_trip_explorator_behavior.start(callback=self.finish, parent=self, map_ids=dst_map_ids)

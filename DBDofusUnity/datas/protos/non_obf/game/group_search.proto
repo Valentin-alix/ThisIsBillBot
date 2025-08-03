@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+import "common.proto";
+import "game_message.proto";
+import "report.proto";
+
+package com.ankama.dofus.server.game.protocol.group_search;
+
+message UnknownKif {
+	repeated .com.ankama.dofus.server.game.protocol.group_search.UnknownKif.UnknownKid unknown_fxrd = 1;
+	int64 unknown_fxre = 2;
+	bool unknown_fxrf = 3;
+	int32 unknown_fxrg = 4;
+	message UnknownKid {
+		int32 unknown_fxqw = 1;
+		int32 unknown_fxqx = 2;
+		int32 unknown_fxqy = 3;
+	}
+}
+
+message UnknownKig {
+	repeated bool unknown_fxrl = 1;
+	int64 unknown_fxrm = 2;
+}
+
+message UnknownKje {
+	int32 unknown_fxvf = 1;
+}
+
+message UnknownKjl {
+	.com.ankama.dofus.server.game.protocol.group_search.UnknownKjl.UnknownKji unknown_fxwc = 1;
+	.com.ankama.dofus.server.game.protocol.group_search.UnknownKjl.UnknownKjj unknown_fxwd = 2;
+	message UnknownKji {
+		int32 unknown_fxvq = 1;
+	}
+	message UnknownKjj {
+		bool unknown_fxvw = 1;
+	}
+}
+
+message UnknownKjs {
+	bool unknown_fxws = 1;
+}
+
+message UnknownKjv {
+	int32 unknown_fxww = 1;
+}
+
+message GroupSearchStartRequest {
+	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartRequest.UnknownKka unknown_fxxu = 1;
+	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartRequest.UnknownKkb unknown_fxxv = 2;
+	int32 unknown_fxxw = 3;
+	message UnknownKka {
+		repeated int32 unknown_fxxh = 1;
+	}
+	message UnknownKkb {
+		string unknown_fxxl = 1;
+		repeated int32 unknown_fxxm = 2;
+	}
+}
+
+message UnknownKkk {
+	int64 unknown_fxyp = 1;
+	.com.ankama.dofus.server.game.protocol.group_search.UnknownKkk.UnknownKkg unknown_fxyr = 2;
+	int32 unknown_fxys = 3;
+	int32 unknown_fxyt = 4;
+	message UnknownKkg {
+		repeated int32 unknown_fxyd = 1;
+	}
+}
+
+message UnknownKkq {
+	int32 unknown_fxzl = 1;
+}
+
+message UnknownKjx {
+}
+
+message GroupSearchStartResponse {
+	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownKiy unknown_fxuy = 1;
+	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownKiv unknown_fxuz = 2;
+	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownKiz unknown_fxva = 3;
+	message UnknownKiv {
+		int32 unknown_fxtw = 1;
+	}
+	message UnknownKiy {
+		int32 unknown_fxuo = 1;
+		int32 unknown_fxup = 2;
+	}
+	message UnknownKiz {
+		int64 unknown_fxuu = 1;
+	}
+}
+
+message UnknownKis {
+	repeated .com.ankama.dofus.server.game.protocol.group_search.UnknownKis.UnknownKip unknown_fxto = 1;
+	int64 unknown_fxtp = 2;
+	repeated .com.ankama.dofus.server.game.protocol.group_search.UnknownKis.UnknownKiq unknown_fxtr = 3;
+	int64 unknown_fxts = 4;
+	message UnknownKip {
+		.com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FighterListEntry.PlayerListEntry.FightResultAdditionalData.PvpData unknown_fxsy = 1;
+		.com.ankama.dofus.server.game.protocol.group_search.UnknownKis.UnknownKip.UnknownKin unknown_fxsz = 2;
+			message UnknownKin {
+		string unknown_fxst = 1;
+		}
+	}
+	message UnknownKiq {
+		repeated int64 unknown_fxte = 1;
+		int32 unknown_fxtf = 2;
+		int64 unknown_fxth = 3;
+		int32 unknown_fxtj = 4;
+		repeated int64 unknown_fxtk = 5;
+	}
+}

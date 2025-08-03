@@ -20,7 +20,7 @@ from dofus_unity_reader.game_constants.map_id import MAP_IDS_THAT_POP_DIALOG
 from fight_preparation_pb2 import FightPreparationEnterRequest
 
 from src import const
-from src.core.config import BASE_RANGE
+from src.services.human_timings import HumanTimingsService
 from src.core.frames.frame import Frame
 from src.core.signals.world_signals import WorldSignals
 
@@ -106,7 +106,10 @@ class MapFrame(Frame):
             override_on_self=True,
             priority=self.priority,
         )
-        self.run_timer(BASE_RANGE, lambda: self.event_manager.send(DialogLeaveRequest()))
+        self.run_timer(
+            HumanTimingsService().get_timing_base_action(),
+            lambda: self.event_manager.send(DialogLeaveRequest()),
+        )
 
     def on_map_popup_dialog_left(self, message: DialogLeaveEvent) -> None:
         self.game_state.map.is_waiting_for_map_popup_dialog_leave = False

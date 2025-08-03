@@ -40,9 +40,7 @@ class GuildChestFrame(MixinStorage):
             priority=self.priority,
         )
 
-    def on_exchange_started_with_multi_tab_storage_event(
-        self, msg: ExchangeStartedWithMultiTabStorageEvent
-    ):
+    def on_exchange_started_with_multi_tab_storage_event(self, msg: ExchangeStartedWithMultiTabStorageEvent):
         if msg.tab_number == 100:
             msg.tab_number = msg.storage_max_slot
 
@@ -55,9 +53,7 @@ class GuildChestFrame(MixinStorage):
             self.game_state.guild_chest.tab_number,
             list(objects_item_inventory),
         )
-        self.logger.info(
-            f"New storage for tab number : {self.game_state.guild_chest.tab_number}"
-        )
+        self.logger.info(f"New storage for tab number : {self.game_state.guild_chest.tab_number}")
 
     @override
     def set_object(self, object_item_inventory: ObjectItemInventory) -> None:

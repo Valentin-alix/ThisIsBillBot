@@ -207,9 +207,7 @@ class GridView(QGraphicsView):
         self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
         super().resizeEvent(event)
 
-    def add_cell(
-        self, x: float, y: float, cell_id: int
-    ) -> tuple[SquareCell, StateCell]:
+    def add_cell(self, x: float, y: float, cell_id: int) -> tuple[SquareCell, StateCell]:
         square_cell = SquareCell(cell_id)
         square_cell.setPos(x, y)
         self._scene.addItem(square_cell)
@@ -251,9 +249,7 @@ class GridView(QGraphicsView):
         self.setUpdatesEnabled(False)
         for cell_id, stated_element, collectable in items:
             mp = MapPoint.from_cell_id(cell_id)
-            self.cell_state_by_coord[(mp.x, mp.y)].set_state_element(
-                stated_element, collectable
-            )
+            self.cell_state_by_coord[(mp.x, mp.y)].set_state_element(stated_element, collectable)
         self.setUpdatesEnabled(True)
 
     @pyqtSlot(list)

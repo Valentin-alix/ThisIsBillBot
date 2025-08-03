@@ -18,7 +18,6 @@ from src.core.engine.contexts import AttackContext
 from src.core.engine.fights import effect as effect_module
 from src.core.engine.fights.attack import heal
 from src.core.engine.fights.attack.heal import (
-    MIN_HEAL_FRACTION,
     estimate_self_heal,
     find_best_self_heal,
     is_heal_effect,
@@ -73,15 +72,11 @@ def _context(
 
 
 class TestIsHealEffect:
-    def _patch_description_id(
-        self, monkeypatch: pytest.MonkeyPatch, description_id: int
-    ) -> None:
+    def _patch_description_id(self, monkeypatch: pytest.MonkeyPatch, description_id: int) -> None:
         monkeypatch.setattr(
             effect_module,
             "DataReader",
-            lambda: SimpleNamespace(
-                effect_by_id={1: SimpleNamespace(descriptionId=description_id)}
-            ),
+            lambda: SimpleNamespace(effect_by_id={1: SimpleNamespace(descriptionId=description_id)}),
         )
 
     def test_detects_heal_description_id(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -89,9 +84,7 @@ class TestIsHealEffect:
         self._patch_description_id(monkeypatch, heal_description_id)
         assert is_heal_effect(_effect()) is True
 
-    def test_rejects_non_heal_description_id(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_rejects_non_heal_description_id(self, monkeypatch: pytest.MonkeyPatch) -> None:
         self._patch_description_id(monkeypatch, 999999)
         assert is_heal_effect(_effect()) is False
 
@@ -105,22 +98,16 @@ class TestCanSelfCast:
         assert can_self_cast(_effect(target_mask="A")) is False
 
 
-def _patch_effect_description(
-    monkeypatch: pytest.MonkeyPatch, description_id: int
-) -> None:
+def _patch_effect_description(monkeypatch: pytest.MonkeyPatch, description_id: int) -> None:
     monkeypatch.setattr(
         heal,
         "DataReader",
-        lambda: SimpleNamespace(
-            effect_by_id={1: SimpleNamespace(descriptionId=description_id)}
-        ),
+        lambda: SimpleNamespace(effect_by_id={1: SimpleNamespace(descriptionId=description_id)}),
     )
 
 
 class TestEstimateSelfHeal:
-    def test_elemental_heal_scales_with_intelligence(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_elemental_heal_scales_with_intelligence(self, monkeypatch: pytest.MonkeyPatch) -> None:
         _patch_effect_description(monkeypatch, 0)  # generic -> elemental branch
         context = cast(
             AttackContext,
@@ -146,16 +133,12 @@ class TestEstimateSelfHeal:
         # 30% of 1000 max life
         assert estimate_self_heal(_effect(dice_num=30, dice_side=30), context) == 300
 
-    def test_flat_heal_has_no_stat_scaling(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_flat_heal_has_no_stat_scaling(self, monkeypatch: pytest.MonkeyPatch) -> None:
         _patch_effect_description(monkeypatch, DescriptionEnum.HEAL_FLAT_LIFE)
         context = cast(
             AttackContext,
             SimpleNamespace(
-                characteristic_by_id=make_characteristics(
-                    {CharacteristicEnum.INTELLIGENCE: 100}
-                )
+                characteristic_by_id=make_characteristics({CharacteristicEnum.INTELLIGENCE: 100})
             ),
         )
         # flat heal: base only, no Intelligence scaling
@@ -177,18 +160,6 @@ class TestFindBestSelfHeal:
 
         monkeypatch.setattr(heal, "get_valid_heal_spells_for_turn", _fake)
 
-    def test_no_heal_when_healthy(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        self._patch_spells(
-            monkeypatch,
-            [(_spell(1), _effect(dice_num=500, dice_side=500), _modifiers(3))],
-        )
-        assert (
-            find_best_self_heal(
-                _context(life_point=900, max_life_point=1000), MagicMock()
-            )
-            is None
-        )
-
     def test_no_heal_when_no_spells(self, monkeypatch: pytest.MonkeyPatch) -> None:
         self._patch_spells(monkeypatch, [])
         assert find_best_self_heal(_context(life_point=100), MagicMock()) is None
@@ -205,12 +176,3 @@ class TestFindBestSelfHeal:
         best = find_best_self_heal(_context(life_point=300), MagicMock())
         assert best is not None
         assert best.spellId == 2
-
-    def test_skips_negligible_heal(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        # heals 10 on a 1000 max-HP target -> below MIN_HEAL_FRACTION (5% = 50)
-        assert 1000 * MIN_HEAL_FRACTION > 10
-        self._patch_spells(
-            monkeypatch,
-            [(_spell(1), _effect(dice_num=10, dice_side=10), _modifiers(1))],
-        )
-        assert find_best_self_heal(_context(life_point=300), MagicMock()) is None

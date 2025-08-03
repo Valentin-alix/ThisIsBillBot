@@ -1,0 +1,245 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package com.ankama.dofus.server.game.protocol.gamemap;
+
+message MapChangeRequest {
+	int32 map_id = 1;
+	bool auto_pilot = 2;
+}
+
+
+
+message GameRolePlayShowActorsEvent {
+	repeated .com.ankama.dofus.server.game.protocol.common.ActorPositionInformation actors = 1;
+
+}
+
+message MapMovementRefusedEvent {
+	int32 cell_x = 1;
+	int32 cell_y = 2;
+}
+
+message MapComplementaryInformationEvent {
+	int32 subarea_id = 1;
+	int64 map_id = 2;
+	repeated .com.ankama.dofus.server.game.protocol.common.House houses = 3;
+	repeated .com.ankama.dofus.server.game.protocol.common.ActorPositionInformation actors = 4;
+	repeated .com.ankama.dofus.server.game.protocol.common.InteractiveElement interactive_elements = 5;
+	repeated .com.ankama.dofus.server.game.protocol.common.StatedElement stated_elements = 6;
+	repeated .com.ankama.dofus.server.game.protocol.gamemap.MapObstacle obstacles = 7;
+	repeated .com.ankama.dofus.server.game.protocol.common.FightCommonInformation fights = 8;
+	bool has_aggressive_monsters = 9;
+	repeated .com.ankama.dofus.server.game.protocol.gamemap.UnknownJqn unknown_fuyn = 15;
+	oneof specific_complementary_information {
+		.com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryInHouseInformation in_house_information = 10;
+		.com.ankama.dofus.server.game.protocol.common.MapCoordinates coordinates = 11;
+		.com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryBreachInformation breach_information = 12;
+		.com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryAnomalyInformation anomaly_information = 13;
+		.com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryHavenBagInformation haven_bag_information = 14;
+	}
+}
+
+message MapFightCountEvent {
+	int32 fight_count = 1;
+}
+
+message MapMovementRequest {
+	repeated int32 key_cells = 1;
+	int64 map_id = 2;
+	bool cautious = 3;
+}
+
+message MapComplementaryWithCoordsInformation {
+	.com.ankama.dofus.server.game.protocol.common.MapCoordinates coordinates = 1;
+}
+
+message MapMovementConfirmResponse {
+}
+
+message MapRunningFightDetailsExtendedEvent {
+	int32 fight_id = 1;
+	repeated .com.ankama.dofus.server.game.protocol.common.FighterLightInformation attackers = 2;
+	repeated .com.ankama.dofus.server.game.protocol.common.FighterLightInformation defenders = 3;
+	repeated .com.ankama.dofus.server.game.protocol.common.NamedPartyTeam named_party_teams = 4;
+}
+
+// ifu
+
+message MapCurrentInstanceEvent {
+	int64 map_id = 1;
+	int64 instantiate_map_id = 2;
+}
+
+message MapComplementaryInHouseInformation {
+	.com.ankama.dofus.server.game.protocol.common.House current_house = 1;
+}
+
+message MapMovementCancelRequest {
+	int32 cell_id = 1;
+}
+
+message FightMapInformationEvent {
+	int32 subarea_id = 1;
+	int64 map_id = 2;
+	oneof specific_complementary_information {
+		.com.ankama.dofus.server.game.protocol.common.MapCoordinates coordinates = 3;
+		.com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryBreachInformation breach_information = 4;
+		.com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryAnomalyInformation anomaly_information = 5;
+	}
+}
+
+message MapChangeOrientationRequest {
+	.com.ankama.dofus.server.game.protocol.common.Direction direction = 1;
+}
+
+message MapObstacle {
+	int32 cell_id = 1;
+	.com.ankama.dofus.server.game.protocol.gamemap.MapObstacle.ObstacleState state = 2;
+	enum ObstacleState {
+		OBSTACLE_OPENED = 0;
+		OBSTACLE_CLOSED = 1;
+	}
+
+}
+
+message MapRunningFightDetailsEvent {
+	int32 fight_id = 1;
+	repeated .com.ankama.dofus.server.game.protocol.common.FighterLightInformation attackers = 2;
+	repeated .com.ankama.dofus.server.game.protocol.common.FighterLightInformation defenders = 3;
+}
+
+message MapTeleportOnSameEvent {
+	int64 player_id = 1;
+	int32 cell_id = 2;
+}
+
+message MapMovementConfirmRequest {
+}
+
+message MapRunningFightStopListeningRequest {
+
+}
+
+message MapRunningFightsRequest {
+}
+
+// Reshaped by the build: floor/room/infinity_mode/branches are gone from the obfuscated message,
+// which now carries a oneof of three message-typed fields. All three are traced.
+message MapComplementaryBreachInformation {
+	oneof breach_complementary_information {
+		.com.ankama.dofus.server.game.protocol.gamemap.BreachBranchesInformation unknown_fuuq = 1;
+		.com.ankama.dofus.server.game.protocol.gamemap.BreachRoomInformation unknown_fuur = 2;
+		.com.ankama.dofus.server.game.protocol.gamemap.UnknownJqj unknown_fuus = 3;
+	}
+}
+
+message MapObstacleUpdateEvent {
+	repeated .com.ankama.dofus.server.game.protocol.gamemap.MapObstacle obstacles = 1;
+}
+
+message MapCurrentEvent {
+	int64 map_id = 1;
+}
+
+message MapComplementaryHavenBagInformation {
+	.com.ankama.dofus.server.game.protocol.common.Character owner_information = 1;
+	int32 theme = 2;
+	int32 room_id = 3;
+	int32 max_room_id = 4;
+
+}
+
+message MapInformationRequest {
+	int32 map_id = 1;
+}
+
+message MapChangeOrientationEvent {
+	int64 actor_id = 1;
+	.com.ankama.dofus.server.game.protocol.common.Direction direction = 2;
+}
+
+
+message MapRunningFightsEvent {
+	repeated .com.ankama.dofus.server.game.protocol.common.FightExternalInformation fights = 1;
+}
+
+message MapMovementEvent {
+	repeated int32 cells = 1;
+	int64 character_id = 3;
+	bool cautious = 4;
+	optional int32 direction = 2;
+
+}
+
+message MapComplementaryAnomalyInformation {
+	int32 level = 1;
+	int64 closing_time = 2;
+}
+
+message MapRunningFightDetailsRequest {
+	int32 fight_id = 1;
+	repeated string unknown_fuuy = 2;
+}
+
+message MapErrorNotFoundRequest {
+	int32 map_id = 1;
+}
+
+
+message UnknownJqf {
+	int32 unknown_fuow = 1;
+}
+
+message UnknownJqj {
+}
+
+message UnknownJqn {
+
+}
+
+// Two of the three variants of MapComplementaryBreachInformation's oneof.
+message BreachBranchesInformation {
+	.com.ankama.dofus.server.game.protocol.gamemap.BreachBranchesInformation.Branch unknown_fuqh = 1;
+	message Branch {
+		int32 unknown_fuqc = 1;
+		repeated int32 unknown_fuqd = 2;
+	}
+
+}
+
+message BreachRoomInformation {
+	int32 unknown_futh = 1;
+	int32 unknown_futi = 2;
+	int32 unknown_futk = 3;
+
+}
+
+message UnknownJsg {
+}
+
+message UnknownJfl {
+	int32 unknown_ftcg = 1;
+	int32 unknown_ftch = 2;
+	int32 unknown_ftci = 3;
+	int32 unknown_ftcj = 4;
+	int32 unknown_ftck = 5;
+}
+
+message UnknownJff {
+	int32 unknown_ftbm = 1;
+	.com.ankama.dofus.server.game.protocol.gamemap.UnknownJff.UnknownJfb unknown_ftbn = 2;
+	int32 unknown_ftbo = 3;
+	message UnknownJfb {
+		.com.ankama.dofus.server.game.protocol.gamemap.UnknownJfl unknown_ftbc = 1;
+	}
+}
+
+message UnknownJfk {
+	.com.ankama.dofus.server.game.protocol.gamemap.UnknownJfk.UnknownJfh unknown_ftca = 1;
+	int32 unknown_ftcb = 2;
+	message UnknownJfh {
+		.com.ankama.dofus.server.game.protocol.gamemap.UnknownJfl unknown_ftbt = 1;
+	}
+}

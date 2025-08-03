@@ -21,9 +21,10 @@ from src.core.bot.kamas_mule_registry import (
     MuleReservation,
 )
 from src.core.config import (
-    BASE_RANGE,
     BOT_MINIMAL_KAMAS,
 )
+from src.services.human_timings import HumanTimingsService
+
 
 @dataclass
 class MuleGiveBehavior(Behavior):
@@ -90,11 +91,9 @@ class MuleGiveBehavior(Behavior):
             override_on_self=True,
         )
         req = ExchangePlayerRequest(target_id=mule_id)
-        self.send_message_delayed(req, BASE_RANGE)
+        self.send_message_delayed(req, HumanTimingsService().get_timing_base_action())
 
-    def on_exchange_started_with_pods_event(
-        self, msg: ExchangeStartedWithPodsEvent
-    ) -> None:
+    def on_exchange_started_with_pods_event(self, msg: ExchangeStartedWithPodsEvent) -> None:
         self._step = 0
         return self.depose_kamas_in_exchange()
 
@@ -107,7 +106,7 @@ class MuleGiveBehavior(Behavior):
                 originator=self,
             )
             req = DialogLeaveRequest()
-            return self.send_message_delayed(req, BASE_RANGE)
+            return self.send_message_delayed(req, HumanTimingsService().get_timing_base_action())
         self.event_manager.on(
             ExchangeKamaModifiedEvent,
             lambda _: self.accept_exchange(),
@@ -117,7 +116,7 @@ class MuleGiveBehavior(Behavior):
         )
         self._step += 1
         move_kama_req = ExchangeMoveKamaRequest(quantity=kamas_to_gives)
-        self.send_message_delayed(move_kama_req, BASE_RANGE)
+        self.send_message_delayed(move_kama_req, HumanTimingsService().get_timing_base_action())
 
     def accept_exchange(self) -> None:
         self.event_manager.on(

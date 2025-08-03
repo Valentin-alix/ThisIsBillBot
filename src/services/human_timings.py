@@ -28,10 +28,14 @@ BANK_TRANSFER_TIMING = TimingProfile(0.2, 0.45, 1.0)
 BANK_CLOSE_TIMING = TimingProfile(0.4, 0.8, 1.8)
 SALE_HOTEL_REVIEW_TIMING = TimingProfile(0.5, 1.0, 2.5)
 SALE_HOTEL_PRICE_TIMING = TimingProfile(0.7, 1.3, 3.0)
+SALE_HOTEL_SAME_LOT_TIMING = TimingProfile(0.2, 0.3, 0.6)
+SALE_HOTEL_NEXT_LOT_TIMING = TimingProfile(0.4, 0.8, 1.2)
+SALE_HOTEL_NEXT_ITEM_TIMING = TimingProfile(0.7, 1.4, 2.1)
 EQUIPMENT_CHOICE_TIMING = TimingProfile(0.4, 0.9, 2.0)
 FIGHT_PLACEMENT_TIMING = TimingProfile(0.35, 0.75, 1.6)
 FIGHT_READY_TIMING = TimingProfile(0.45, 0.9, 2.0)
 FIGHT_ACTION_TIMING = TimingProfile(0.15, 0.65, 1.8)
+FIGHT_SAME_SPELL_ACTION_TIMING = TimingProfile(0.08, 0.3, 0.85)
 FIGHT_PASS_TURN_TIMING = TimingProfile(0.25, 0.55, 1.2)
 FIGHT_ACKNOWLEDGEMENT_TIMING = TimingProfile(0.01, 0.16, 0.65)
 FIGHT_TURN_READY_TIMING = TimingProfile(0.02, 0.35, 1.2)
@@ -40,6 +44,18 @@ FIGHT_CHALLENGE_SELECTION_TIMING = TimingProfile(0.01, 0.03, 0.08)
 FIGHT_POST_COMBAT_TIMING = TimingProfile(0.8, 2.5, 6.0)
 FIGHT_SPELL_CAST_TIMING = TimingProfile(0.08, 0.15, 0.3)
 ITEM_USE_TIMING = TimingProfile(0.4, 0.6, 1)
+WORKSHOP_INTERACTION_TIMING = TimingProfile(0.8, 1.5, 3.0)
+LEVEL_UP_CHARACTERISTIC_TIMING = TimingProfile(1, 1.5, 2)
+SHORT_ACTION_TIMING = TimingProfile(0.3, 0.65, 1.0)
+BASE_ACTION_TIMING = TimingProfile(0.5, 1.0, 1.5)
+LONG_ACTION_TIMING = TimingProfile(1.0, 2.0, 3.0)
+VERY_LONG_ACTION_TIMING = TimingProfile(2.0, 4.0, 6.0)
+MAP_ACTION_TIMING = TimingProfile(0.5, 2.5, 4.5)
+BETWEEN_COLLECT_PAUSE_TIMING = TimingProfile(1.5, 2.75, 4.0)
+FARM_AFK_BREAK_TIMING = TimingProfile(10.0, 25.0, 40.0)
+FARM_LONG_BREAK_INTERVAL_TIMING = TimingProfile(75.0 * 60, 97.5 * 60, 120.0 * 60)
+FARM_LONG_BREAK_DURATION_TIMING = TimingProfile(2.0 * 60, 3.5 * 60, 5.0 * 60)
+PLACEMENT_EXTRA_HESITATION_TIMING = TimingProfile(0.25, 0.525, 0.8)
 
 
 def sample_timing(profile: TimingProfile) -> float:
@@ -72,11 +88,44 @@ def get_random_range(range_time: tuple[float, float], is_weighted: bool = True, 
 
 
 class HumanTimingsService(metaclass=Singleton):
+    def get_timing_short_action(self) -> float:
+        return sample_timing(SHORT_ACTION_TIMING)
+
+    def get_timing_base_action(self) -> float:
+        return sample_timing(BASE_ACTION_TIMING)
+
+    def get_timing_long_action(self) -> float:
+        return sample_timing(LONG_ACTION_TIMING)
+
+    def get_timing_very_long_action(self) -> float:
+        return sample_timing(VERY_LONG_ACTION_TIMING)
+
+    def get_timing_after_map_arrival(self) -> float:
+        return sample_timing(MAP_ACTION_TIMING)
+
+    def get_timing_between_collects(self) -> float:
+        return sample_timing(BETWEEN_COLLECT_PAUSE_TIMING)
+
+    def get_timing_farm_afk_break(self) -> float:
+        return sample_timing(FARM_AFK_BREAK_TIMING)
+
+    def get_timing_farm_long_break_interval(self) -> float:
+        return sample_timing(FARM_LONG_BREAK_INTERVAL_TIMING)
+
+    def get_timing_farm_long_break_duration(self) -> float:
+        return sample_timing(FARM_LONG_BREAK_DURATION_TIMING)
+
+    def get_timing_placement_extra_hesitation(self) -> float:
+        return sample_timing(PLACEMENT_EXTRA_HESITATION_TIMING)
+
     def get_timing_before_spell_cast(self) -> float:
         return sample_timing(FIGHT_SPELL_CAST_TIMING)
 
     def get_timing_before_item_use(self) -> float:
         return sample_timing(ITEM_USE_TIMING)
+
+    def get_timing_before_workshop_interaction(self) -> float:
+        return sample_timing(WORKSHOP_INTERACTION_TIMING)
 
     def get_timing_before_pass_turn(self) -> float:
         return sample_timing(FIGHT_PASS_TURN_TIMING)
@@ -111,11 +160,24 @@ class HumanTimingsService(metaclass=Singleton):
     def get_timing_sale_hotel_price_change(self) -> float:
         return sample_timing(SALE_HOTEL_PRICE_TIMING)
 
+    def get_timing_sale_hotel_same_lot(self) -> float:
+        return sample_timing(SALE_HOTEL_SAME_LOT_TIMING)
+
+    def get_timing_sale_hotel_next_lot(self) -> float:
+        return sample_timing(SALE_HOTEL_NEXT_LOT_TIMING)
+
+    def get_timing_sale_hotel_next_item(self) -> float:
+        return sample_timing(SALE_HOTEL_NEXT_ITEM_TIMING)
+
     def get_timing_equipment_choice(self) -> float:
         return sample_timing(EQUIPMENT_CHOICE_TIMING)
 
-    def get_timing_fight_action(self) -> float:
-        return sample_timing(FIGHT_ACTION_TIMING)
+    def get_timing_fight_action(self, same_spell: bool) -> float:
+        profile = FIGHT_SAME_SPELL_ACTION_TIMING if same_spell else FIGHT_ACTION_TIMING
+        return sample_timing(profile)
+
+    def get_timing_after_level_up(self) -> float:
+        return sample_timing(LEVEL_UP_CHARACTERISTIC_TIMING)
 
     def get_timing_fight_acknowledgement(self) -> float:
         return sample_timing(FIGHT_ACKNOWLEDGEMENT_TIMING)
@@ -133,6 +195,6 @@ class HumanTimingsService(metaclass=Singleton):
         return sample_timing(FIGHT_POST_COMBAT_TIMING)
 
     def get_timing_npc_dialog_reply(self, message_length: int = 0) -> float:
-        base_timing = sample_timing(DECISION_NORMAL_TIMING)
+        base_timing = sample_timing(REACTION_SHORT_TIMING)
         reading_time = (message_length * 0.04) * random.uniform(0.6, 1.4)
         return base_timing + min(reading_time, 2.5)

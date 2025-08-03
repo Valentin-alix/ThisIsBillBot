@@ -1,0 +1,30 @@
+syntax = "proto3";
+import "common.proto";
+
+import "game_message.proto";
+import "report.proto";
+
+package com.ankama.dofus.server.game.protocol.account;
+
+message AccountRoleStatusEvent {
+	UnknownGfajValue unknown_gfaj = 1;
+	bool unknown_gfak = 2;
+	.com.ankama.dofus.server.game.protocol.common.Hierarchy role = 3;
+	enum UnknownGfajValue {
+		UNKNOWN_GFAJ_VALUE_UNSPECIFIED = 0;
+	}
+}
+
+message AccountSecurityFlagsEvent {
+	.com.ankama.dofus.server.game.protocol.account.AccountSecurityFlagsEvent.SecurityFlags security_flags = 1;
+	message SecurityFlags {
+		bool unknown_gfap = 1;
+		bool unknown_gfaq = 2;
+		bool unknown_gfas = 3;
+		bool unknown_gfat = 4;
+	}
+}
+
+message SessionElapsedDurationEvent {
+	int64 duration_seconds = 1;
+}

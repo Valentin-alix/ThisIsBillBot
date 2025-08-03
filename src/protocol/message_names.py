@@ -29,16 +29,12 @@ def _discover_non_obf_game_message_descriptors_by_name() -> dict[str, Descriptor
     import datas.protos.non_obf.game as game_pkg
 
     descriptors: dict[str, Descriptor] = {}
-    for module_info in pkgutil.walk_packages(
-        game_pkg.__path__, f"{game_pkg.__name__}."
-    ):
+    for module_info in pkgutil.walk_packages(game_pkg.__path__, f"{game_pkg.__name__}."):
         if module_info.ispkg or module_info.name.endswith(".__init__"):
             continue
         module = importlib.import_module(module_info.name)
         for descriptor in module.DESCRIPTOR.message_types_by_name.values():
-            _record_non_obf_game_message_descriptor(
-                descriptors, descriptor, is_top_level=True
-            )
+            _record_non_obf_game_message_descriptor(descriptors, descriptor, is_top_level=True)
     return descriptors
 
 
@@ -53,15 +49,12 @@ def _record_non_obf_game_message_descriptor(
     descriptors[descriptor.full_name] = descriptor
     descriptors[build_non_obf_game_message_pinned_name(descriptor)] = descriptor
     for nested_descriptor in descriptor.nested_types:
-        _record_non_obf_game_message_descriptor(
-            descriptors, nested_descriptor, is_top_level=False
-        )
+        _record_non_obf_game_message_descriptor(descriptors, nested_descriptor, is_top_level=False)
 
 
 def build_non_obf_game_message_pinned_name(descriptor: Descriptor) -> str:
     return ".".join(
-        _normalize_non_obf_game_message_name_part(name_part)
-        for name_part in descriptor.full_name.split(".")
+        _normalize_non_obf_game_message_name_part(name_part) for name_part in descriptor.full_name.split(".")
     )
 
 
