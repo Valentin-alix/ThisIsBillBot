@@ -11,6 +11,8 @@ from datas.protos.non_obf.game.common_pb2 import (
 from datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
 from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 from dofus_unity_reader.game_constants.npc import NpcDialogInfo
+
+from src.core.engine.npcs.npc_lookup import find_npc_ids_by_name
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 
 from src import const
@@ -277,10 +279,30 @@ class EntityState(State):
     def resolve_npc_id(self, npc_info: NpcDialogInfo) -> int:
         if npc_info.npc_id:
             return npc_info.npc_id
+        if npc_info.npc_name is not None:
+            candidate_npc_ids = find_npc_ids_by_name(npc_info.npc_name)
+            if not candidate_npc_ids:
+                raise ValueError(f"No NPC is named {npc_info.npc_name!r}")
+            return self.get_npc_id_among(candidate_npc_ids)
         assert npc_info.bones_id
         if npc_info.cell_id is not None:
             return self.get_npc_id_by_cell_and_bones(npc_info.cell_id, npc_info.bones_id)
         return self.get_npc_id_by_bones(npc_info.bones_id)
+
+    def get_npc_id_among(self, candidate_npc_ids: set[int]) -> int:
+        """The one npc of `candidate_npc_ids` on this map -- how a shared name is resolved."""
+        found_npc_ids = {
+            actor.actor_id
+            for actor in self.actor_by_id.values()
+            if actor.actor_information.HasField("role_play_actor")
+            and actor.actor_information.role_play_actor.HasField("npc_actor")
+            and actor.actor_information.role_play_actor.npc_actor.npc_id in candidate_npc_ids
+        }
+        if not found_npc_ids:
+            raise ValueError(f"No NPC among {sorted(candidate_npc_ids)} found on map")
+        if len(found_npc_ids) > 1:
+            raise ValueError(f"Several NPCs among {sorted(candidate_npc_ids)} found on map")
+        return found_npc_ids.pop()
 
     def get_npc_id_by_cell_and_bones(self, cell_id: int, bones_id: int) -> int:
         mp = MapPoint.from_cell_id(cell_id)

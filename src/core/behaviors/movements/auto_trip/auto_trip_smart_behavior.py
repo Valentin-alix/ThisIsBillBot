@@ -6,27 +6,22 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.area import AreaEnum
-from dofus_unity_reader.game_constants.npc import (
-    NpcAskMessageIdEnum,
-    NpcInfo,
-    ReplyInfo,
-)
+from dofus_unity_reader.game_constants.map_id import MapIdEnum
+from dofus_unity_reader.game_constants.npc import NpcInfo
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_explorator_behavior import (
     AutoTripExploratorBehavior,
 )
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
+from src.core.engine.npcs.dialog_turn import DialogTurn
+from src.core.engine.npcs.reply_selector import ByText
 
-NPC_PORTAL_INCARNAM = NpcInfo(
-    npc_map_id=153880835,
-    npc_action_id=3,
-    npc_id=-20001,
-    reply_info_by_message_id={
-        NpcAskMessageIdEnum.HESITATE_BEFORE_GO_ANKARNOOB: ReplyInfo(reply_id=36982),
-        NpcAskMessageIdEnum.CONFIRM_GO_ASTRUB: ReplyInfo(reply_id=36980, do_finish_after=True),
-    },
-)
+NPC_PORTAL_INCARNAM = NpcInfo(npc_map_id=MapIdEnum.INCARNAM_PORTAL, npc_name="Portail vers Astrub")
+PORTAL_INCARNAM_TURNS = [
+    DialogTurn(reply=ByText(pattern=r"hesiter avant de quitter incarnam")),
+    DialogTurn(reply=ByText(pattern=r"partir pour astrub"), finish_after=True),
+]
 
 
 @dataclass
@@ -72,6 +67,7 @@ class AutoTripSmartBehavior(Behavior):
             callback=partial(self.on_npc_dialog_behavior_finished, dst_map_ids=dst_map_ids),
             parent=self,
             npc_dialog_info=NPC_PORTAL_INCARNAM,
+            turns=PORTAL_INCARNAM_TURNS,
         )
 
     def on_npc_dialog_behavior_finished(self, error_code: str | None, dst_map_ids: set[int]):

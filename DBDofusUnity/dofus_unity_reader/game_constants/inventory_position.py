@@ -70,7 +70,3 @@ class CharacterInventoryPositionEnum(IntEnum):
     InventoryPositionTalisman = 40
 
     InventoryPositionNotEquiped = 63
-
-
-class ActionEnum(IntEnum):
-    LINKED_TO_CHARACTER = 981

@@ -1,4 +1,5 @@
 import sys
+from typing import override
 
 from datas.protos.non_obf.game.common_pb2 import StatedElement
 from dofus_unity_reader.data_center.map_reader import MapReader
@@ -7,8 +8,10 @@ from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 from dofus_unity_reader.models.datas.collectionsroot import Collectable
 from PyQt6.QtCore import QPointF, Qt, pyqtSlot
 from PyQt6.QtGui import (
+    QBrush,
     QColor,
     QFont,
+    QGradient,
     QMouseEvent,
     QPainter,
     QPen,
@@ -18,6 +21,7 @@ from PyQt6.QtGui import (
 from PyQt6.QtWidgets import (
     QApplication,
     QGraphicsEllipseItem,
+    QGraphicsItem,
     QGraphicsPolygonItem,
     QGraphicsScene,
     QGraphicsTextItem,
@@ -29,9 +33,22 @@ from src.core.signals.world_signals import MapSignals
 from src.gui.utils.profiling import profiled_slot
 
 CELL_BORDER_COLOR = QColor("#A9A9A9")
-CELL_TEXT_COLOR = Qt.GlobalColor.black
 
 CIRCLE_CELL_SIZE = 15
+
+
+def readable_text_color(background: QColor) -> QColor:
+    luminance = (0.299 * background.red() + 0.587 * background.green() + 0.114 * background.blue()) / 255
+    return QColor(Qt.GlobalColor.black) if luminance > 0.5 else QColor(Qt.GlobalColor.white)
+
+
+def _make_cell_id_text(cell_id: int, parent: QGraphicsItem) -> QGraphicsTextItem:
+    text_item = QGraphicsTextItem(str(cell_id), parent=parent)
+    text_item.setDefaultTextColor(QColor(Qt.GlobalColor.black))
+    text_item.setFont(QFont("Arial", 10))
+    text_rect = text_item.boundingRect()
+    text_item.setPos(-text_rect.width() / 2, -text_rect.height() / 2)
+    return text_item
 
 
 class SquareCell(QGraphicsPolygonItem):
@@ -56,17 +73,16 @@ class SquareCell(QGraphicsPolygonItem):
                 ]
             )
         )
-        text = str(cell_id)
-        self.text_item = QGraphicsTextItem(text, parent=self)
-        self.text_item.setDefaultTextColor(CELL_TEXT_COLOR)
-        self.text_item.setFont(QFont("Arial", 10))
-        text_rect = self.text_item.boundingRect()
-        self.text_item.setPos(-text_rect.width() / 2, -text_rect.height() / 2)
-        self.text_item.setPlainText(text)
+        self.text_item = _make_cell_id_text(cell_id, self)
 
         pen = QPen(CELL_BORDER_COLOR)
         pen.setWidth(1)
         self.setPen(pen)
+
+    @override
+    def setBrush(self, brush: QBrush | QColor | Qt.GlobalColor | int | QGradient) -> None:
+        super().setBrush(brush)
+        self.text_item.setDefaultTextColor(readable_text_color(QBrush(brush).color()))
 
 
 class StateCell(QGraphicsEllipseItem):
@@ -87,15 +103,14 @@ class StateCell(QGraphicsEllipseItem):
         self.state_element: StatedElement | None = None
         self.collectable: Collectable | None = None
 
-        text = str(cell_id)
-        self.text_item = QGraphicsTextItem(text, parent=self)
-        self.text_item.setDefaultTextColor(CELL_TEXT_COLOR)
-        self.text_item.setFont(QFont("Arial", 10))
-        text_rect = self.text_item.boundingRect()
-        self.text_item.setPos(-text_rect.width() / 2, -text_rect.height() / 2)
-        self.text_item.setPlainText(text)
+        self.text_item = _make_cell_id_text(cell_id, self)
 
         self.update_state()
+
+    @override
+    def setBrush(self, brush: QBrush | QColor | Qt.GlobalColor | int | QGradient) -> None:
+        super().setBrush(brush)
+        self.text_item.setDefaultTextColor(readable_text_color(QBrush(brush).color()))
 
     @property
     def is_empty(self):

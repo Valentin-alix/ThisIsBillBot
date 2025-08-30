@@ -9,7 +9,6 @@ import msgspec
 import msgspec.json
 from base_python.cache import cache
 from base_python.singleton import Singleton
-
 from consts import DATA_BUNDLES_ROOT, MAP_BUNDLES_ROOT
 from dofus_unity_reader.data_center.i18n import I18N
 from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
@@ -51,6 +50,10 @@ from dofus_unity_reader.models.datas.quest_objectives_root import (
     QuestObjectivesRootItem,
 )
 from dofus_unity_reader.models.datas.quests_root import QuestsRoot, QuestsRootItem
+from dofus_unity_reader.models.datas.queststepsroot import (
+    Queststepsroot,
+    QueststepsrootItem,
+)
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem, RecipeRoot
 from dofus_unity_reader.models.datas.skills_root import SkillsRoot, SkillsRootItem
 from dofus_unity_reader.models.datas.spell_levels_root import (
@@ -74,6 +77,7 @@ FILEPATH_BY_MODEL: dict[Any, str] = {
     MapInformationsRoot: "MapsInformationDataRoot.json",
     QuestObjectivesRoot: "QuestObjectivesDataRoot.json",
     QuestsRoot: "QuestsDataRoot.json",
+    Queststepsroot: "QuestStepsDataRoot.json",
     SkillsRoot: "SkillsDataRoot.json",
     SpellLevelsRoot: "SpellLevelsDataRoot.json",
     SpellsRoot: "SpellsDataRoot.json",
@@ -250,6 +254,16 @@ class DataReader(metaclass=Singleton):
         return {monster.id: monster for monster in data}
 
     @cached_property
+    def monster_ids_by_name(self) -> dict[str, list[int]]:
+        """Monster display name -> every monster carrying it."""
+        monster_ids_by_name_dict: dict[str, list[int]] = defaultdict(list)
+        for monster in self.monsters_by_id.values():
+            name = I18N().name_by_id.get(monster.nameId)
+            if name:
+                monster_ids_by_name_dict[name].append(monster.id)
+        return monster_ids_by_name_dict
+
+    @cached_property
     def monsters_by_race(self) -> dict[int, list[MonsterItem]]:
         monsters_by_race_dict: defaultdict[int, list[MonsterItem]] = defaultdict(list)
         for monster in self.monsters_by_id.values():
@@ -283,6 +297,15 @@ class DataReader(metaclass=Singleton):
     def quest_objective_by_id(self) -> dict[int, QuestObjectivesRootItem]:
         data = _load_model(QuestObjectivesRoot, QuestObjectivesRoot)
         return {quest_obj.id: quest_obj for quest_obj in data}
+
+    @cached_property
+    def quest_step_by_id(self) -> dict[int, QueststepsrootItem]:
+        data = _load_model(Queststepsroot, Queststepsroot)
+        return {quest_step.id: quest_step for quest_step in data}
+
+    @cached_property
+    def quest_objective_ids_by_step_id(self) -> dict[int, list[int]]:
+        return {step.id: step.objectiveIds for step in self.quest_step_by_id.values()}
 
     @cached_property
     def spell_by_id(self) -> dict[int, SpellsRootItem]:
@@ -369,6 +392,53 @@ class DataReader(metaclass=Singleton):
     def npc_by_id(self) -> dict[int, NpcsRootItem]:
         data = _load_model(NpcsRoot, NpcsRoot)
         return {npc.id: npc for npc in data}
+
+    @cached_property
+    def npc_ids_by_name(self) -> dict[str, list[int]]:
+        """Npc display name -> every npc carrying it; ~380 names are shared, hence the list."""
+        npc_ids_by_name_dict: dict[str, list[int]] = defaultdict(list)
+        for npc in self.npc_by_id.values():
+            name = I18N().name_by_id.get(npc.nameId)
+            if name:
+                npc_ids_by_name_dict[name].append(npc.id)
+        return npc_ids_by_name_dict
+
+    @cached_property
+    def npc_reply_i18n_by_reply_id(self) -> dict[int, int]:
+        """`reply_id` -> i18n id. Reply ids are globally unique, so no npc scoping is needed."""
+        i18n_by_reply_id: dict[int, int] = {}
+        for npc in self.npc_by_id.values():
+            for dialog_reply in npc.dialogReplies:
+                reply_id, i18n_id = dialog_reply.values
+                i18n_by_reply_id[reply_id] = i18n_id
+        return i18n_by_reply_id
+
+    @cached_property
+    def npc_message_i18n_by_message_id(self) -> dict[int, int]:
+        """`NpcDialogQuestionEvent.message_id` -> i18n id of the question text."""
+        i18n_by_message_id: dict[int, int] = {}
+        for npc in self.npc_by_id.values():
+            for dialog_message in npc.dialogMessages:
+                message_id, i18n_id = dialog_message.values
+                i18n_by_message_id[message_id] = i18n_id
+        return i18n_by_message_id
+
+    @cached_property
+    def npc_reply_ids_by_npc_id(self) -> dict[int, list[int]]:
+        """Every reply an npc can ever offer."""
+        return {
+            npc.id: [dialog_reply.values[0] for dialog_reply in npc.dialogReplies]
+            for npc in self.npc_by_id.values()
+        }
+
+    @cached_property
+    def npc_replies_id_by_i18n(self) -> dict[int, list[int]]:
+        replies_by_i18n: dict[int, list[int]] = defaultdict(list)
+        for npc in self.npc_by_id.values():
+            for dialog_msg in npc.dialogMessages:
+                reply_id, i18n = dialog_msg.values
+                replies_by_i18n[i18n].append(reply_id)
+        return replies_by_i18n
 
     @staticmethod
     @cache

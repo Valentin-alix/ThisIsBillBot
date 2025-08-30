@@ -11,7 +11,7 @@ from src.services.human_timings import HumanTimingsService
 @dataclass
 class TutorialBehavior(Behavior):
     def run(self):
-        assert self.game_state.map.map_id == MapIdEnum.TUTORIAL_STARTING_MAP
+        assert self.game_state.map.map_id == MapIdEnum.TUTORIAL_STARTING
         self.event_manager.on(
             MapComplementaryInformationEvent,
             self.on_map_complementary_information_event,

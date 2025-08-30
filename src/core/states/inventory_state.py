@@ -5,8 +5,8 @@ from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.game_constants.effect_action import EffectActionEnum
 from dofus_unity_reader.game_constants.inventory_position import (
-    ActionEnum,
     CharacterInventoryPositionEnum,
 )
 
@@ -37,7 +37,7 @@ class InventoryState(State):
             object
             for object in self.objects_by_uid.values()
             if object.position == CharacterInventoryPositionEnum.InventoryPositionNotEquiped.value
-            and all(effect.action != ActionEnum.LINKED_TO_CHARACTER for effect in object.item.effects)
+            and all(effect.action != EffectActionEnum.LINKED_TO_CHARACTER for effect in object.item.effects)
             and not DataReader().item_by_id[object.item.gid].realWeight == 0
         ]
 

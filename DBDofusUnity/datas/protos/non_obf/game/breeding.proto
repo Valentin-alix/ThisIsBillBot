@@ -78,7 +78,7 @@ message UnknownHrh {
 	}
 }
 
-message UnknownHrl {
+message PaddockInformationRequest {
 	int32 unknown_fnjj = 1;
 	int32 unknown_fnjk = 2;
 }

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 from datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
 from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.game_constants.directions import DirectionsEnum
+from dofus_unity_reader.game_constants.directions import DirectionsEnum, MapChangeFlag
 from dofus_unity_reader.grid.consts import MAP_COUNT_CELL, MAP_WIDTH
 from dofus_unity_reader.grid.map_point import MapPoint
 
@@ -175,27 +175,27 @@ class DataMapProvider:
         match direction:
             case DirectionsEnum.RIGHT:
                 return (
-                    bool(cell_data.mapChangeData & 1)
-                    or ((mp.cell_id + 1) % (MAP_WIDTH * 2) == 0 and bool(cell_data.mapChangeData & 2))
-                    or ((mp.cell_id + 1) % (MAP_WIDTH * 2) == 0 and bool(cell_data.mapChangeData & 128))
+                    bool(cell_data.mapChangeData & MapChangeFlag.RIGHT)
+                    or ((mp.cell_id + 1) % (MAP_WIDTH * 2) == 0 and bool(cell_data.mapChangeData & MapChangeFlag.DOWN_RIGHT))
+                    or ((mp.cell_id + 1) % (MAP_WIDTH * 2) == 0 and bool(cell_data.mapChangeData & MapChangeFlag.UP_RIGHT))
                 )
             case DirectionsEnum.LEFT:
                 return (
-                    (mp.x == -mp.y and bool(cell_data.mapChangeData & 8))
-                    or bool(cell_data.mapChangeData & 16)
-                    or (mp.x == -mp.y and bool(cell_data.mapChangeData & 32))
+                    (mp.x == -mp.y and bool(cell_data.mapChangeData & MapChangeFlag.DOWN_LEFT))
+                    or bool(cell_data.mapChangeData & MapChangeFlag.LEFT)
+                    or (mp.x == -mp.y and bool(cell_data.mapChangeData & MapChangeFlag.UP_LEFT))
                 )
             case DirectionsEnum.UP:
                 return (
-                    (mp.cell_id < MAP_WIDTH and bool(cell_data.mapChangeData & 32))
-                    or bool(cell_data.mapChangeData & 64)
-                    or (mp.cell_id < MAP_WIDTH and bool(cell_data.mapChangeData & 128))
+                    (mp.cell_id < MAP_WIDTH and bool(cell_data.mapChangeData & MapChangeFlag.UP_LEFT))
+                    or bool(cell_data.mapChangeData & MapChangeFlag.UP)
+                    or (mp.cell_id < MAP_WIDTH and bool(cell_data.mapChangeData & MapChangeFlag.UP_RIGHT))
                 )
             case DirectionsEnum.DOWN:
                 return (
-                    (mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH and bool(cell_data.mapChangeData & 2))
-                    or bool(cell_data.mapChangeData & 4)
-                    or (mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH and bool(cell_data.mapChangeData & 8))
+                    (mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH and bool(cell_data.mapChangeData & MapChangeFlag.DOWN_RIGHT))
+                    or bool(cell_data.mapChangeData & MapChangeFlag.DOWN)
+                    or (mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH and bool(cell_data.mapChangeData & MapChangeFlag.DOWN_LEFT))
                 )
             case _:
                 return False
@@ -204,27 +204,27 @@ class DataMapProvider:
         map_change_data = self.get_cell_data(mp.cell_id).mapChangeData
         if direction == DirectionsEnum.RIGHT:
             return (
-                bool(map_change_data & 1)
-                or ((mp.cell_id + 1) % (MAP_WIDTH * 2) == 0 and bool(map_change_data & 2))
-                or ((mp.cell_id + 1) % (MAP_WIDTH * 2) == 0 and bool(map_change_data & 128))
+                bool(map_change_data & MapChangeFlag.RIGHT)
+                or ((mp.cell_id + 1) % (MAP_WIDTH * 2) == 0 and bool(map_change_data & MapChangeFlag.DOWN_RIGHT))
+                or ((mp.cell_id + 1) % (MAP_WIDTH * 2) == 0 and bool(map_change_data & MapChangeFlag.UP_RIGHT))
             )
         elif direction == DirectionsEnum.LEFT:
             return (
-                (mp.x == -mp.y and bool(map_change_data & 8))
-                or bool(map_change_data & 16)
-                or (mp.x == -mp.y and bool(map_change_data & 32))
+                (mp.x == -mp.y and bool(map_change_data & MapChangeFlag.DOWN_LEFT))
+                or bool(map_change_data & MapChangeFlag.LEFT)
+                or (mp.x == -mp.y and bool(map_change_data & MapChangeFlag.UP_LEFT))
             )
         elif direction == DirectionsEnum.UP:
             return (
-                (mp.cell_id < MAP_WIDTH and bool(map_change_data & 32))
-                or bool(map_change_data & 64)
-                or (mp.cell_id < MAP_WIDTH and bool(map_change_data & 128))
+                (mp.cell_id < MAP_WIDTH and bool(map_change_data & MapChangeFlag.UP_LEFT))
+                or bool(map_change_data & MapChangeFlag.UP)
+                or (mp.cell_id < MAP_WIDTH and bool(map_change_data & MapChangeFlag.UP_RIGHT))
             )
         elif direction == DirectionsEnum.DOWN:
             return (
-                (mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH and bool(map_change_data & 2))
-                or bool(map_change_data & 4)
-                or (mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH and bool(map_change_data & 8))
+                (mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH and bool(map_change_data & MapChangeFlag.DOWN_RIGHT))
+                or bool(map_change_data & MapChangeFlag.DOWN)
+                or (mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH and bool(map_change_data & MapChangeFlag.DOWN_LEFT))
             )
 
         return False

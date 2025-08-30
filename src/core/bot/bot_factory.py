@@ -60,6 +60,8 @@ from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehav
 from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
+from src.core.behaviors.quests.quest_behavior import QuestBehavior
+from src.core.behaviors.quests.quest_script_behavior import QuestScriptBehavior
 from src.core.behaviors.quests.tutorial_behavior import TutorialBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
     EnterSaleHotelBehavior,
@@ -124,6 +126,7 @@ from src.core.frames.interactive_frame import InteractiveFrame
 from src.core.frames.inventory_frame import InventoryFrame
 from src.core.frames.map_frame import MapFrame
 from src.core.frames.player_frame import PlayerFrame
+from src.core.frames.quest_frame import QuestFrame
 from src.core.frames.sale_hotel_frame import SaleHotelFrame
 from src.core.frames.server_frame import ServerFrame
 from src.core.signals.bot_signals import BotSignals
@@ -282,6 +285,14 @@ class BotFactory:
             is_playing_event=is_playing_event,
         )
         craft_frame = CraftFrame(
+            event_manager=event_manager,
+            game_state=game_state,
+            game_info_signals=game_info_signals,
+            inventory_signals=inventory_signals,
+            _logger=logger,
+            is_playing_event=is_playing_event,
+        )
+        quest_frame = QuestFrame(
             event_manager=event_manager,
             game_state=game_state,
             game_info_signals=game_info_signals,
@@ -610,6 +621,23 @@ class BotFactory:
             attacker_behavior=attacker_behavior,
             auto_trip_smart_behavior=auto_trip_world_behavior,
         )
+        quest_script_behavior = QuestScriptBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            _logger=logger,
+            auto_trip_smart_behavior=auto_trip_world_behavior,
+            npc_dialog_behavior=npc_dialog_behavior,
+            attacker_behavior=attacker_behavior,
+            fight_behavior=fight_behavior,
+            interactive_behavior=interactive_behavior,
+            sale_hotel_buy_behavior=sale_hotel_buy_behavior,
+        )
+        quest_behavior = QuestBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            _logger=logger,
+            quest_script_behavior=quest_script_behavior,
+        )
         idle_behavior = IdleBehavior(
             event_manager=event_manager,
             game_state=game_state,
@@ -684,12 +712,14 @@ class BotFactory:
                 mule_give_behavior,
                 mule_accept_kamas_behavior,
                 dungeon_behavior,
+                quest_behavior,
                 sale_hotel_prices_behavior,
                 auto_equipment_behavior,
                 fake_bad_movement_behavior,
                 fake_bad_interactive_behavior,
                 ogrine_subscription_behavior,
                 paysafecard_subscription_behavior,
+                quest_behavior,
             ],
             account=account,
             grid_signals=grid_signals,
@@ -719,6 +749,7 @@ class BotFactory:
                 sale_hotel_frame,
                 craft_frame,
                 bank_chest_frame,
+                quest_frame,
             ],
             world_signals=world_signals,
             _logger=logger,

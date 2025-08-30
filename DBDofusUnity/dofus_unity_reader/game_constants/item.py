@@ -13,6 +13,8 @@ class CategoryItemEnum(IntEnum):
 
 
 class ItemTypeEnum(IntEnum):
+    RESOURCE_BAG = 100  # "Sac de ble", "Sac d'Orge"...
+    EKLEME = 310
     KEY = 84
     VIANDE = 63
     REKLOOT = 94

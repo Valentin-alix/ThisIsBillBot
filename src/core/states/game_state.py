@@ -20,6 +20,7 @@ from src.core.states.interactive_state import InteractiveState
 from src.core.states.inventory_state import InventoryState
 from src.core.states.map_state import MapState
 from src.core.states.player_state import PlayerState
+from src.core.states.quest_state import QuestState
 from src.core.states.sale_hotel_state import SaleHotelState
 from src.core.states.server_state import ServerState
 
@@ -36,6 +37,7 @@ class GameState:
     sale_hotel: SaleHotelState
     craft: CraftState
     server: ServerState
+    quest: QuestState
 
     def clear_connection_scoped_state(self) -> None:
         self.map.clear_state()

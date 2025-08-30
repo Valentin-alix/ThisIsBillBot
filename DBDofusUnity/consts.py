@@ -155,6 +155,14 @@ MSG_TO_MAP: list[str] = [
     "NpcGenericActionRequest",  # core/behaviors/npcs/npc_dialog_behavior.py
     "NpcDialogQuestionEvent",  # core/behaviors/npcs/npc_dialog_behavior.py
     "NpcDialogReplyRequest",  # core/behaviors/npcs/npc_dialog_behavior.py
+    # quetes
+    "QuestsEvent",  # core/frames/quest_frame.py
+    "QuestStartedEvent",  # core/frames/quest_frame.py
+    "QuestValidatedEvent",  # core/frames/quest_frame.py
+    "QuestStepStartedEvent",  # core/frames/quest_frame.py
+    "QuestStepValidatedEvent",  # core/frames/quest_frame.py
+    "QuestStepInformationEvent",  # core/frames/quest_frame.py
+    "GuideModQuitRequest",  # core/behaviors/quests/tutorial_behavior.py
     "HavenBagEnterRequest",  # core/behaviors/movements/waypoint_behavior.py
     "HavenBagExitRequest",  # core/behaviors/movements/waypoint_behavior.py
     "TeleportRequest",  # core/behaviors/movements/waypoint_behavior.py

@@ -88,7 +88,7 @@ def choose_set_drop_area_info(
     for area_info in candidate_areas:
         if player_level < area_info.min_lvl:
             continue
-        if area_info.waypoint_id_needed is not None and area_info.waypoint_id_needed not in waypoint_map_ids:
+        if area_info.waypoint_map_id_needed is not None and area_info.waypoint_map_id_needed not in waypoint_map_ids:
             continue
         if area_info.sub_area_id is not None:
             if area_info.sub_area_id in missing_sub_area_ids:

@@ -26,6 +26,14 @@ def get_level_monster_group(
     return total_group_lvl
 
 
+def get_monster_group_gids(
+    monster_group: ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor,
+) -> set[int]:
+    gids = {monster_group.identification.main_creature.gid}
+    gids.update(underling.gid for underling in monster_group.identification.underlings)
+    return gids
+
+
 MonsterGroup = tuple[
     int,
     MapPoint,

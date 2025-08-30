@@ -27,7 +27,6 @@ class DungeonInfo:
             npc_id=entrance_npc_id,
             bones_id=entrance_bones_id,
             npc_map_id=self.dungeon.entranceMapId,
-            forbidden_action_ids=[1074],
         )
         self.exit_npc_info = NpcDialogInfo(npc_id=exit_npc_id, bones_id=exit_bones_id)
 

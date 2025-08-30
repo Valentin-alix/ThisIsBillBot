@@ -62,8 +62,8 @@ def is_valid_area_info_to_harvest(
     return (
         context.player_level >= area_info.min_lvl
         and (
-            area_info.waypoint_id_needed is None
-            or area_info.waypoint_id_needed in context.player_waypoint_map_ids
+            area_info.waypoint_map_id_needed is None
+            or area_info.waypoint_map_id_needed in context.player_waypoint_map_ids
         )
         and weight_by_areas_info[area_info] > 0
     )

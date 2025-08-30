@@ -3,7 +3,6 @@ from collections.abc import Iterator
 from base_python.cache import cache
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
-from dofus_unity_reader.game_constants.map_id import FORBIDDEN_MAP_IDS
 from dofus_unity_reader.game_constants.transition_type import CRITERION_WHITE_LIST
 from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
 from dofus_unity_reader.models.world_graph import Edge, Transition, Vertice
@@ -72,8 +71,6 @@ def edge_has_valid_transition(edge: Edge, context: WorldTransitionContext) -> bo
 def iter_valid_outgoing_edges(vertice: Vertice, context: WorldTransitionContext) -> Iterator[Edge]:
     edges = WorldGraphReader().get_outgoing_edges_from_vertex(vertice)
     for edge in edges:
-        if edge.m_to.m_mapId in FORBIDDEN_MAP_IDS:
-            continue
         try:
             if not context.criterion.is_sub and not MapTools.is_map_allowed_for_unsub(edge.m_to.m_mapId):
                 continue

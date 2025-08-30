@@ -9,6 +9,7 @@ from src.core.behaviors.movements.fake_bad_movement_behavior import (
 from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehavior
 from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
+from src.core.behaviors.quests.quest_behavior import QuestBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import (
     SaleHotelSellBehavior,
 )
@@ -20,8 +21,10 @@ USABLE_BEHAVIORS: list[type[Behavior]] = [
     MuleGiveBehavior,
     MuleAcceptBehavior,
     DungeonBehavior,
+    QuestBehavior,
     SaleHotelSellBehavior,
     AutoEquipmentBehavior,
     FakeBadMovementBehavior,
     FakeBadInteractiveBehavior,
+    QuestBehavior,
 ]

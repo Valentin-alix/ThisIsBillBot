@@ -50,7 +50,6 @@ SHORT_ACTION_TIMING = TimingProfile(0.3, 0.65, 1.0)
 BASE_ACTION_TIMING = TimingProfile(0.5, 1.0, 1.5)
 LONG_ACTION_TIMING = TimingProfile(1.0, 2.0, 3.0)
 VERY_LONG_ACTION_TIMING = TimingProfile(2.0, 4.0, 6.0)
-MAP_ACTION_TIMING = TimingProfile(0.5, 2.5, 4.5)
 BETWEEN_COLLECT_PAUSE_TIMING = TimingProfile(1.5, 2.75, 4.0)
 FARM_AFK_BREAK_TIMING = TimingProfile(10.0, 25.0, 40.0)
 FARM_LONG_BREAK_INTERVAL_TIMING = TimingProfile(75.0 * 60, 97.5 * 60, 120.0 * 60)
@@ -101,7 +100,7 @@ class HumanTimingsService(metaclass=Singleton):
         return sample_timing(VERY_LONG_ACTION_TIMING)
 
     def get_timing_after_map_arrival(self) -> float:
-        return sample_timing(MAP_ACTION_TIMING)
+        return sample_timing(MAP_ARRIVAL_TIMING)
 
     def get_timing_between_collects(self) -> float:
         return sample_timing(BETWEEN_COLLECT_PAUSE_TIMING)
@@ -194,7 +193,6 @@ class HumanTimingsService(metaclass=Singleton):
     def get_timing_after_fight(self) -> float:
         return sample_timing(FIGHT_POST_COMBAT_TIMING)
 
-    def get_timing_npc_dialog_reply(self, message_length: int = 0) -> float:
-        base_timing = sample_timing(REACTION_SHORT_TIMING)
-        reading_time = (message_length * 0.04) * random.uniform(0.6, 1.4)
-        return base_timing + min(reading_time, 2.5)
+    def get_timing_npc_dialog_reply(self) -> float:
+        base_timing = sample_timing(REACTION_SHORT_TIMING) * random.uniform(0.6, 1.4)
+        return base_timing

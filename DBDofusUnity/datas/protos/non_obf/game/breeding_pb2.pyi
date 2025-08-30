@@ -143,7 +143,7 @@ class UnknownHrh(_message.Message):
     unknown_fnja: int
     def __init__(self, unknown_fniz: _Optional[_Union[UnknownHrh.UnknownHrf, _Mapping]] = ..., unknown_fnja: _Optional[int] = ...) -> None: ...
 
-class UnknownHrl(_message.Message):
+class PaddockInformationRequest(_message.Message):
     __slots__ = ("unknown_fnjj", "unknown_fnjk")
     UNKNOWN_FNJJ_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN_FNJK_FIELD_NUMBER: _ClassVar[int]

@@ -8,7 +8,7 @@ from character_management_pb2 import (
     CharacterNameSuggestionRequest,
 )
 from datas.protos.non_obf.game.common_pb2 import CharacterRemodelingInformation, Gender
-from dofus_unity_reader.game_constants.breed import BreedEnum
+from dofus_unity_reader.game_constants.breed import DEFAULT_SACRIEUR_COSMETIC_ID, BreedEnum
 
 from src.core.behaviors.behavior import Behavior
 from src.services.human_timings import HumanTimingsService
@@ -36,7 +36,7 @@ class CharacterCreationBehavior(Behavior):
                 breed_id=BreedEnum.SACRIER,
                 gender=Gender.FEMALE,
                 colors=[-1, -1, -1, -1, -1, -1],
-                cosmetic_id=169,
+                cosmetic_id=DEFAULT_SACRIEUR_COSMETIC_ID,
                 unknown=27,
             )
         )

@@ -4,8 +4,8 @@ from datetime import datetime
 from threading import Event, Timer
 
 from ankama_launcher_emulator_premium.consts import (
-    PAYSAFECARDS_PATH,
     PAYSAFECARD_PURCHASE_PATH,
+    PAYSAFECARDS_PATH,
 )
 from ankama_launcher_emulator_premium.interfaces.credentials import (
     StoredApiKey,
@@ -178,7 +178,7 @@ class ConnectionHandler(ContextualLogger):
             if self.behavior_coordinator and self.behavior_coordinator.is_playing_event.is_set():
                 self._continue_after_required_behavior()
 
-        if self.game_state.map.map_id == MapIdEnum.TUTORIAL_STARTING_MAP:
+        if self.game_state.map.map_id == MapIdEnum.TUTORIAL_STARTING:
             return self.tutorial_behavior.start(callback=on_tutorial_behavior_finished, parent=None)
 
         for dungeon_info in PLAYABLE_DUNGEONS:

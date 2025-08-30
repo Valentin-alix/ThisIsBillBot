@@ -24,13 +24,19 @@ class NpcDialogBehavior(Behavior):
     is_forbidden_msg_callback: Callable[[NpcDialogQuestionEvent], bool] | None = field(
         init=False, default=None
     )
+    resolve_reply: Callable[[NpcDialogQuestionEvent], ReplyInfo | None] | None = field(
+        init=False, default=None
+    )
 
     def run(
         self,
         npc_dialog_info: NpcDialogInfo,
         is_forbidden_msg_callback: Callable[[NpcDialogQuestionEvent], bool] | None = None,
+        resolve_reply: Callable[[NpcDialogQuestionEvent], ReplyInfo | None] | None = None,
     ):
+        """`resolve_reply`, when given, replaces the static `reply_info_by_message_id` lookup."""
         self.is_forbidden_msg_callback = is_forbidden_msg_callback
+        self.resolve_reply = resolve_reply
         self.run_timer(
             HumanTimingsService().get_timing_after_map_arrival(),
             lambda: self.dialog_to_npc(npc_dialog_info=npc_dialog_info),
@@ -52,13 +58,20 @@ class NpcDialogBehavior(Behavior):
         if self.is_forbidden_msg_callback and self.is_forbidden_msg_callback(msg):
             return self.finish(NpcDialogErrorCode.FORBIDDEN_CONDITION)
 
-        if msg.message_id not in npc_dialog_info.reply_info_by_message_id:
+        reply_info = self._get_reply_info(msg, npc_dialog_info)
+        if reply_info is None:
             return self.finish(NpcDialogErrorCode.UNEXPECTED_MESSAGE)
 
-        reply_info = npc_dialog_info.reply_info_by_message_id[msg.message_id]
         estimated_length = sum(len(param) for param in msg.dialog_params) + 50
         timing = HumanTimingsService().get_timing_npc_dialog_reply(estimated_length)
         self.run_timer(timing, lambda: self.send_npc_dialog_reply(reply_info))
+
+    def _get_reply_info(
+        self, msg: NpcDialogQuestionEvent, npc_dialog_info: NpcDialogInfo
+    ) -> ReplyInfo | None:
+        if self.resolve_reply is not None:
+            return self.resolve_reply(msg)
+        return npc_dialog_info.reply_info_by_message_id.get(msg.message_id)
 
     def send_npc_dialog_reply(self, reply_info: ReplyInfo):
         npc_dialog_reply_request = NpcDialogReplyRequest(reply_id=reply_info.reply_id)

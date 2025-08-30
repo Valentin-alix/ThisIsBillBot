@@ -92,6 +92,7 @@ message OutfitEquipTitleRequest {
 
 message OutfitEquipTitleResponse {
 	bool success = 1;
+	bool is_owned = 2;
 }
 
 message OutfitEquipOrnamentRequest {
@@ -232,20 +233,16 @@ message UnknownLwy {
 	bool unknown_gdox = 1;
 }
 
-message UnknownLxa {
-	bool unknown_gdpk = 1;
+message OutfitEntityLookChangeRequest {
+	.com.ankama.dofus.server.game.protocol.cosmetic.ObjectSlot slot = 1;
+	bool hide = 2;
 }
 
-message UnknownLxg {
-	.com.ankama.dofus.server.game.protocol.cosmetic.ObjectSlot unknown_gdqe = 1;
-	bool unknown_gdqg = 2;
+message OutfitEntityLookChangeResponse {
+	bool hide = 1;
 }
 
-message UnknownLxk {
-	bool unknown_gdqp = 1;
-}
-
-message UnknownLxo {
+message OutfitDetailResponse {
 	bool success = 1;
 	UnknownGdqzValue unknown_gdqz = 2;
 	.com.ankama.dofus.server.game.protocol.cosmetic.Outfit outfit = 3;
@@ -291,7 +288,7 @@ message UnknownLyr {
 	string unknown_gdvs = 1;
 }
 
-message UnknownLyy {
+message OutfitDetailRequest {
 	string outfit_uuid = 1;
 }
 

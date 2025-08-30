@@ -30,6 +30,7 @@ from src.services.human_timings import HumanTimingsService
 from src.core.engine.items.item import is_exchangeable_item
 from src.core.engine.items.item_formatter import format_item_name
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
+from dofus_unity_reader.game_constants.guild import UNBOUNDED_CHEST_TAB_NUMBER
 
 
 @dataclass
@@ -146,7 +147,7 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
             next_object.item.gid,
         )
 
-        if item_in_chest is None and tab_size == 100:
+        if item_in_chest is None and tab_size == UNBOUNDED_CHEST_TAB_NUMBER:
             self.logger.warning(
                 f"Tab {self.game_state.guild_chest.tab_number} is full (100/100 slots), skipping {item_name}"
             )

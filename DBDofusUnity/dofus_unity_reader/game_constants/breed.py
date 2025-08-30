@@ -10,3 +10,6 @@ class BreedEnum(IntEnum):
     IOP = Breed.IOP + 1
     CRA = Breed.CRA + 1
     XELOR = Breed.XELOR + 1
+
+
+DEFAULT_SACRIEUR_COSMETIC_ID = 169

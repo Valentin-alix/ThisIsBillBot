@@ -16,6 +16,7 @@ from datas.protos.non_obf.game.inventory_pb2 import (
 )
 
 from src.core.frames.mixin_storage import MixinStorage
+from dofus_unity_reader.game_constants.guild import UNBOUNDED_CHEST_TAB_NUMBER
 
 
 @dataclass
@@ -41,7 +42,7 @@ class GuildChestFrame(MixinStorage):
         )
 
     def on_exchange_started_with_multi_tab_storage_event(self, msg: ExchangeStartedWithMultiTabStorageEvent):
-        if msg.tab_number == 100:
+        if msg.tab_number == UNBOUNDED_CHEST_TAB_NUMBER:
             msg.tab_number = msg.storage_max_slot
 
         self.game_state.guild_chest.tab_number = msg.tab_number

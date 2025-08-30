@@ -2,6 +2,10 @@ import math
 
 from base_python.cache import cache
 from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.game_constants.map_id import (
+    MAP_PIXEL_HALF_HEIGHT,
+    MAP_PIXEL_HALF_WIDTH,
+)
 from dofus_unity_reader.game_constants.directions import DirectionsEnum
 from dofus_unity_reader.grid.consts import (
     MAP_GRID_WIDTH,
@@ -138,10 +142,7 @@ class MapTools:
     def is_transform_outside_map(transform: Transform) -> bool:
         m31 = transform.m31
         m32 = transform.m32
-        if abs(m31) > 623 or abs(m32) > 431:
-            # it is outside map
-            return True
-        return False
+        return abs(m31) > MAP_PIXEL_HALF_WIDTH or abs(m32) > MAP_PIXEL_HALF_HEIGHT
 
     @staticmethod
     def is_map_allowed_for_unsub(map_id: int) -> bool:

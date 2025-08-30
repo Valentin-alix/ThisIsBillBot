@@ -148,10 +148,12 @@ class OutfitEquipTitleRequest(_message.Message):
     def __init__(self, title_id: _Optional[int] = ...) -> None: ...
 
 class OutfitEquipTitleResponse(_message.Message):
-    __slots__ = ("success",)
+    __slots__ = ("success", "is_owned")
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    IS_OWNED_FIELD_NUMBER: _ClassVar[int]
     success: bool
-    def __init__(self, success: bool = ...) -> None: ...
+    is_owned: bool
+    def __init__(self, success: bool = ..., is_owned: bool = ...) -> None: ...
 
 class OutfitEquipOrnamentRequest(_message.Message):
     __slots__ = ("ornament_id",)
@@ -375,39 +377,33 @@ class UnknownLwy(_message.Message):
     unknown_gdox: bool
     def __init__(self, unknown_gdox: bool = ...) -> None: ...
 
-class UnknownLxa(_message.Message):
-    __slots__ = ("unknown_gdpk",)
-    UNKNOWN_GDPK_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdpk: bool
-    def __init__(self, unknown_gdpk: bool = ...) -> None: ...
+class OutfitEntityLookChangeRequest(_message.Message):
+    __slots__ = ("slot", "hide")
+    SLOT_FIELD_NUMBER: _ClassVar[int]
+    HIDE_FIELD_NUMBER: _ClassVar[int]
+    slot: ObjectSlot
+    hide: bool
+    def __init__(self, slot: _Optional[_Union[ObjectSlot, str]] = ..., hide: bool = ...) -> None: ...
 
-class UnknownLxg(_message.Message):
-    __slots__ = ("unknown_gdqe", "unknown_gdqg")
-    UNKNOWN_GDQE_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GDQG_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdqe: ObjectSlot
-    unknown_gdqg: bool
-    def __init__(self, unknown_gdqe: _Optional[_Union[ObjectSlot, str]] = ..., unknown_gdqg: bool = ...) -> None: ...
+class OutfitEntityLookChangeResponse(_message.Message):
+    __slots__ = ("hide",)
+    HIDE_FIELD_NUMBER: _ClassVar[int]
+    hide: bool
+    def __init__(self, hide: bool = ...) -> None: ...
 
-class UnknownLxk(_message.Message):
-    __slots__ = ("unknown_gdqp",)
-    UNKNOWN_GDQP_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdqp: bool
-    def __init__(self, unknown_gdqp: bool = ...) -> None: ...
-
-class UnknownLxo(_message.Message):
+class OutfitDetailResponse(_message.Message):
     __slots__ = ("success", "unknown_gdqz", "outfit")
     class UnknownGdqzValue(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
-        UNKNOWN_GDQZ_VALUE_UNSPECIFIED: _ClassVar[UnknownLxo.UnknownGdqzValue]
-    UNKNOWN_GDQZ_VALUE_UNSPECIFIED: UnknownLxo.UnknownGdqzValue
+        UNKNOWN_GDQZ_VALUE_UNSPECIFIED: _ClassVar[OutfitDetailResponse.UnknownGdqzValue]
+    UNKNOWN_GDQZ_VALUE_UNSPECIFIED: OutfitDetailResponse.UnknownGdqzValue
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     UNKNOWN_GDQZ_FIELD_NUMBER: _ClassVar[int]
     OUTFIT_FIELD_NUMBER: _ClassVar[int]
     success: bool
-    unknown_gdqz: UnknownLxo.UnknownGdqzValue
+    unknown_gdqz: OutfitDetailResponse.UnknownGdqzValue
     outfit: Outfit
-    def __init__(self, success: bool = ..., unknown_gdqz: _Optional[_Union[UnknownLxo.UnknownGdqzValue, str]] = ..., outfit: _Optional[_Union[Outfit, _Mapping]] = ...) -> None: ...
+    def __init__(self, success: bool = ..., unknown_gdqz: _Optional[_Union[OutfitDetailResponse.UnknownGdqzValue, str]] = ..., outfit: _Optional[_Union[Outfit, _Mapping]] = ...) -> None: ...
 
 class OutfitSaveRequest(_message.Message):
     __slots__ = ("unknown_gdrs", "name", "unknown_gdru")
@@ -480,7 +476,7 @@ class UnknownLyr(_message.Message):
     unknown_gdvs: str
     def __init__(self, unknown_gdvs: _Optional[str] = ...) -> None: ...
 
-class UnknownLyy(_message.Message):
+class OutfitDetailRequest(_message.Message):
     __slots__ = ("outfit_uuid",)
     OUTFIT_UUID_FIELD_NUMBER: _ClassVar[int]
     outfit_uuid: str

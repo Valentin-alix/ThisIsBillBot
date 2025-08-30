@@ -4643,56 +4643,32 @@
     "parent_name": null,
     "base_class_name": null
   },
-  "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.UnknownLxa": {
+  "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.OutfitEquipTitleResponse": {
     "file_descriptor": "CosmeticReflection",
-    "name": "UnknownLxa",
+    "name": "OutfitEquipTitleResponse",
     "fields": [
       {
         "clr_type": "bool",
         "normalized_type": "bool",
         "category": "boolean",
-        "memory_offset": 0,
-        "field_name": "unknownGdpk_",
+        "memory_offset": 25,
+        "field_name": "success_",
         "is_proto_field": true,
-        "property_name": "UnknownGdpk",
+        "property_name": "Success",
         "proto_decl_order": 1,
         "oneof_group_name": null,
         "is_synthetic_oneof_variant": false,
         "enum_key_type": null,
         "enum_value_type": null
-      }
-    ],
-    "properties": [],
-    "namespace": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic",
-    "parent_name": null,
-    "base_class_name": null
-  },
-  "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.UnknownLxg": {
-    "file_descriptor": "CosmeticReflection",
-    "name": "UnknownLxg",
-    "fields": [
-      {
-        "clr_type": "ObjectSlot",
-        "normalized_type": "ObjectSlot",
-        "category": "enum",
-        "memory_offset": 0,
-        "field_name": "unknownGdqe_",
-        "is_proto_field": true,
-        "property_name": "UnknownGdqe",
-        "proto_decl_order": 1,
-        "oneof_group_name": null,
-        "is_synthetic_oneof_variant": false,
-        "enum_key_type": null,
-        "enum_value_type": "ObjectSlot"
       },
       {
         "clr_type": "bool",
         "normalized_type": "bool",
         "category": "boolean",
-        "memory_offset": 0,
-        "field_name": "unknownGdqg_",
+        "memory_offset": 24,
+        "field_name": "isOwned_",
         "is_proto_field": true,
-        "property_name": "UnknownGdqg",
+        "property_name": "IsOwned",
         "proto_decl_order": 2,
         "oneof_group_name": null,
         "is_synthetic_oneof_variant": false,
@@ -4705,18 +4681,56 @@
     "parent_name": null,
     "base_class_name": null
   },
-  "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.UnknownLxk": {
+  "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.OutfitEntityLookChangeRequest": {
     "file_descriptor": "CosmeticReflection",
-    "name": "UnknownLxk",
+    "name": "OutfitEntityLookChangeRequest",
+    "fields": [
+      {
+        "clr_type": "ObjectSlot",
+        "normalized_type": "ObjectSlot",
+        "category": "enum",
+        "memory_offset": 28,
+        "field_name": "slot_",
+        "is_proto_field": true,
+        "property_name": "Slot",
+        "proto_decl_order": 1,
+        "oneof_group_name": null,
+        "is_synthetic_oneof_variant": false,
+        "enum_key_type": null,
+        "enum_value_type": "ObjectSlot"
+      },
+      {
+        "clr_type": "bool",
+        "normalized_type": "bool",
+        "category": "boolean",
+        "memory_offset": 32,
+        "field_name": "hide_",
+        "is_proto_field": true,
+        "property_name": "Hide",
+        "proto_decl_order": 2,
+        "oneof_group_name": null,
+        "is_synthetic_oneof_variant": false,
+        "enum_key_type": null,
+        "enum_value_type": null
+      }
+    ],
+    "properties": [],
+    "namespace": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic",
+    "parent_name": null,
+    "base_class_name": null
+  },
+  "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.OutfitEntityLookChangeResponse": {
+    "file_descriptor": "CosmeticReflection",
+    "name": "OutfitEntityLookChangeResponse",
     "fields": [
       {
         "clr_type": "bool",
         "normalized_type": "bool",
         "category": "boolean",
-        "memory_offset": 0,
-        "field_name": "unknownGdqp_",
+        "memory_offset": 24,
+        "field_name": "hide_",
         "is_proto_field": true,
-        "property_name": "UnknownGdqp",
+        "property_name": "Hide",
         "proto_decl_order": 1,
         "oneof_group_name": null,
         "is_synthetic_oneof_variant": false,
@@ -4729,15 +4743,15 @@
     "parent_name": null,
     "base_class_name": null
   },
-  "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.UnknownLxo": {
+  "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.OutfitDetailResponse": {
     "file_descriptor": "CosmeticReflection",
-    "name": "UnknownLxo",
+    "name": "OutfitDetailResponse",
     "fields": [
       {
         "clr_type": "bool",
         "normalized_type": "bool",
         "category": "boolean",
-        "memory_offset": 0,
+        "memory_offset": 28,
         "field_name": "success_",
         "is_proto_field": true,
         "property_name": "Success",
@@ -4751,7 +4765,7 @@
         "clr_type": "Types.UnknownGdqzValue",
         "normalized_type": "Types.UnknownGdqzValue",
         "category": "enum",
-        "memory_offset": 0,
+        "memory_offset": 32,
         "field_name": "unknownGdqz_",
         "is_proto_field": true,
         "property_name": "UnknownGdqz",
@@ -4765,7 +4779,7 @@
         "clr_type": "Outfit",
         "normalized_type": "Outfit",
         "category": "message",
-        "memory_offset": 0,
+        "memory_offset": 40,
         "field_name": "outfit_",
         "is_proto_field": true,
         "property_name": "Outfit",
@@ -4953,15 +4967,15 @@
     "parent_name": null,
     "base_class_name": null
   },
-  "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.UnknownLyy": {
+  "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.OutfitDetailRequest": {
     "file_descriptor": "CosmeticReflection",
-    "name": "UnknownLyy",
+    "name": "OutfitDetailRequest",
     "fields": [
       {
         "clr_type": "string",
         "normalized_type": "string",
         "category": "string",
-        "memory_offset": 0,
+        "memory_offset": 24,
         "field_name": "outfitUuid_",
         "is_proto_field": true,
         "property_name": "OutfitUuid",
@@ -15269,15 +15283,15 @@
     "parent_name": null,
     "base_class_name": null
   },
-  "Com.Ankama.Dofus.Server.Game.Protocol.Breeding.UnknownHrl": {
+  "Com.Ankama.Dofus.Server.Game.Protocol.Breeding.PaddockInformationRequest": {
     "file_descriptor": "BreedingReflection",
-    "name": "UnknownHrl",
+    "name": "PaddockInformationRequest",
     "fields": [
       {
         "clr_type": "UnknownHrj",
         "normalized_type": "UnknownHrj",
         "category": "message",
-        "memory_offset": 0,
+        "memory_offset": 24,
         "field_name": "unknownFnjj_",
         "is_proto_field": true,
         "property_name": "UnknownFnjj",
@@ -15291,7 +15305,7 @@
         "clr_type": "int",
         "normalized_type": "int",
         "category": "number",
-        "memory_offset": 0,
+        "memory_offset": 24,
         "field_name": "unknownFnjk_",
         "is_proto_field": true,
         "property_name": "UnknownFnjk",

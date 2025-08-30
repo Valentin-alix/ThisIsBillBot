@@ -9,6 +9,7 @@ from datas.protos.non_obf.game.inventory_pb2 import (
     ObjectUseRequest,
 )
 from dofus_unity_reader.data_center.data_reader import DataReader
+from dofus_unity_reader.game_constants.item import ItemTypeEnum
 
 from src.controller.game_data import GameDataController
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmBehavior
@@ -150,8 +151,7 @@ class HarvesterBehavior(BaseFarmBehavior):
                 continue
 
             type_item = DataReader().item_by_id[object.item.gid].typeId
-            if type_item == 100:
-                # sac de ressource
+            if type_item == ItemTypeEnum.RESOURCE_BAG:
                 def use_harvest_bag():
                     req = ObjectUseRequest(object_uid=object.item.uid)
                     self.event_manager.send(req)

@@ -3,13 +3,14 @@ from pydantic import BaseModel
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.i18n import I18N
 from dofus_unity_reader.game_constants.area import AreaEnum, SubAreaEnum
+from dofus_unity_reader.game_constants.waypoint_enum import WaypointEnum
 
 
 class AreaInfo(BaseModel):
     area_id: int
     sub_area_id: int | None = None
     min_lvl: int = 1
-    waypoint_id_needed: int | None = None
+    waypoint_map_id_needed: int | None = None
 
     def __str__(self) -> str:
         area_name = I18N().name_by_id[DataReader().area_by_id[self.area_id].nameId]
@@ -58,11 +59,11 @@ AREAS_SUB_WITH_WEIGHT: list[AreaInfo] = [
         sub_area_id=SubAreaEnum.ENCHANTED_LAKE,
         min_lvl=39,
     ),
-    AreaInfo(area_id=AreaEnum.FRIGOST, min_lvl=91, waypoint_id_needed=54172969),
-    AreaInfo(area_id=AreaEnum.PANDALA, min_lvl=91, waypoint_id_needed=207619076),
+    AreaInfo(area_id=AreaEnum.FRIGOST, min_lvl=91, waypoint_map_id_needed=WaypointEnum.FRIGOST),
+    AreaInfo(area_id=AreaEnum.PANDALA, min_lvl=91, waypoint_map_id_needed=WaypointEnum.PANDALA),
     AreaInfo(
         area_id=AreaEnum.OTOMAI,
         min_lvl=111,
-        waypoint_id_needed=207619076,
+        waypoint_map_id_needed=WaypointEnum.PANDALA,
     ),
 ]

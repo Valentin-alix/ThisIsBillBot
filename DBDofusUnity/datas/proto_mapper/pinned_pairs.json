@@ -287,7 +287,7 @@
     },
     {
       "obf": "hrl",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Breeding.UnknownHrl",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Breeding.PaddockInformationRequest",
       "field_mapping_by_obf": {
         "fnjj": "unknown_fnjj",
         "fnjk": "unknown_fnjk"
@@ -1102,14 +1102,6 @@
     {
       "obf": "igk.igj.igi",
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Preset.CharacterPresetCreateResponse.UnknownIgi"
-    },
-    {
-      "obf": "iin",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Preset.UnknownIin",
-      "field_mapping_by_obf": {
-        "fppd": "unknown_fppd",
-        "fppc": "unknown_fppc"
-      }
     },
     {
       "obf": "ijm",
@@ -3231,23 +3223,30 @@
       }
     },
     {
-      "obf": "lxa",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.UnknownLxa"
+      "obf": "lwv",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.OutfitEquipFaceResponse",
+      "field_mapping_by_obf": {
+        "gdol": "success"
+      }
     },
     {
-      "obf": "lxg",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.UnknownLxg"
+      "obf": "lxa",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.OutfitEquipTitleResponse",
+      "field_mapping_by_obf": {
+        "gdpj": "success",
+        "gdpk": "is_owned"
+      }
     },
     {
       "obf": "lxk",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.UnknownLxk",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.OutfitEntityLookChangeResponse",
       "field_mapping_by_obf": {
-        "gdqp": "unknown_gdqp"
+        "gdqp": "hide"
       }
     },
     {
       "obf": "lxo",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.UnknownLxo",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.OutfitDetailResponse",
       "field_mapping_by_obf": {
         "gdqy": "success",
         "gdqz": "unknown_gdqz",
@@ -3312,7 +3311,7 @@
     },
     {
       "obf": "lyy",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.UnknownLyy",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.OutfitDetailRequest",
       "field_mapping_by_obf": {
         "gdwq": "outfit_uuid"
       }
@@ -4064,6 +4063,53 @@
         "fwmz": "first_character_current_weight",
         "fwnc": "second_character_current_weight",
         "fwmy": "second_character_max_weight"
+      }
+    },
+    {
+      "obf": "hif",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Tinsel.OrnamentGainedEvent"
+    },
+    {
+      "obf": "ihr",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Preset.CharacterPresetInfo",
+      "field_mapping_by_obf": {
+        "fpkw": "last_modification_date",
+        "fplb": "uuid",
+        "fpkz": "outfit_uuid"
+      }
+    },
+    {
+      "obf": "igk.igi",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Preset.ForgettableSpellPresetCreateResponse.Success"
+    },
+    {
+      "obf": "iin",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Preset.CharacterPresetInfoRequest"
+    },
+    {
+      "obf": "ldn",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Common.CharacterCharacteristics",
+      "field_mapping_by_obf": {
+        "gagp": "experience_next_level_floor",
+        "gagw": "experience",
+        "gagv": "experience_level_floor",
+        "gagy": "kamas",
+        "gags": "critical_hit_weapon"
+      }
+    },
+    {
+      "obf": "igk",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Preset.CharacterPresetCreateResponse",
+      "field_mapping_by_obf": {
+        "fpfz": "success"
+      }
+    },
+    {
+      "obf": "lxg",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.OutfitEntityLookChangeRequest",
+      "field_mapping_by_obf": {
+        "gdqe": "slot",
+        "gdqg": "hide"
       }
     }
   ]

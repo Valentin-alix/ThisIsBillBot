@@ -16,6 +16,7 @@ from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.behaviors.movements.map_movement_cancel_behavior import MapMovementCancelBehavior
+from src.core.engine.monsters.monster_group import get_monster_group_gids
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.engine.weights.fighter.weight_monsters import (
     MonsterGroupToAttack,
@@ -40,6 +41,7 @@ class AttackerBehavior(Behavior):
     _wait_for_group: bool = field(init=False, default=False)
     _get_lvl_limit: Callable[[int], float] = lambda level: level * 1.5 + 5
     _force_attack: bool = field(init=False, default=False)
+    _monster_ids: set[int] | None = field(init=False, default=None)
 
     def run(
         self,
@@ -47,7 +49,9 @@ class AttackerBehavior(Behavior):
         wait_for_group: bool = False,
         get_lvl_limit: Callable[[int], float] | None = None,
         force_attack: bool = False,
+        monster_ids: set[int] | None = None,
     ) -> None:
+        self._monster_ids = monster_ids
         self._force_attack = force_attack
         if get_lvl_limit:
             self._get_lvl_limit = get_lvl_limit
@@ -156,6 +160,11 @@ class AttackerBehavior(Behavior):
             monster_group,
         ) in self.game_state.entity.get_monster_groups():
             if actor_id == excluded_group_actor_id:
+                continue
+
+            if self._monster_ids is not None and not (
+                self._monster_ids & get_monster_group_gids(monster_group)
+            ):
                 continue
 
             if self._force_attack:

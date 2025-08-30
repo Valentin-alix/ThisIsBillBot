@@ -21,6 +21,8 @@ from dofus_unity_reader.game_constants.npc import (
 )
 
 from src.core.behaviors.behavior import Behavior
+from src.core.engine.npcs.dialog_turn import DialogTurn
+from src.core.engine.npcs.reply_selector import ByText
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
@@ -56,6 +58,10 @@ class EnterBankChestBehavior(Behavior):
             map_ids={bank.npc_map_id for bank in bank_npc_infos},
         )
 
+    OPEN_CHEST_TURNS = [
+        DialogTurn(reply=ByText(pattern=r"consulter son coffre personnel"), finish_after=True)
+    ]
+
     def on_bank_map(self, error_code: str | None):
         def is_forbidden_msg_callback(msg: NpcDialogQuestionEvent):
             return (
@@ -70,6 +76,7 @@ class EnterBankChestBehavior(Behavior):
             callback=self.on_npc_dialog_behavior_finished,
             parent=self,
             npc_dialog_info=next(bank for bank in BANK_NPCS if bank.npc_map_id == self.game_state.map.map_id),
+            turns=self.OPEN_CHEST_TURNS,
             is_forbidden_msg_callback=is_forbidden_msg_callback,
         )
 

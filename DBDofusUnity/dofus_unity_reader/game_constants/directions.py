@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import IntEnum, IntFlag
 
 from base_python.cache import cache
 
@@ -36,3 +36,14 @@ class DirectionsEnum(IntEnum):
             abs(target_orientation - current_orientation),
             abs(8 - target_orientation + current_orientation),
         )
+
+
+class MapChangeFlag(IntFlag):
+    RIGHT = 1 << DirectionsEnum.RIGHT
+    DOWN_RIGHT = 1 << DirectionsEnum.DOWN_RIGHT
+    DOWN = 1 << DirectionsEnum.DOWN
+    DOWN_LEFT = 1 << DirectionsEnum.DOWN_LEFT
+    LEFT = 1 << DirectionsEnum.LEFT
+    UP_LEFT = 1 << DirectionsEnum.UP_LEFT
+    UP = 1 << DirectionsEnum.UP
+    UP_RIGHT = 1 << DirectionsEnum.UP_RIGHT
