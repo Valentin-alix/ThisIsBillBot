@@ -1,8 +1,8 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum, auto
-from functools import partial
 
+from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
 from datas.protos.non_obf.game.npc_pb2 import (
     NpcDialogQuestionEvent,
     NpcDialogReplyRequest,
@@ -11,6 +11,8 @@ from datas.protos.non_obf.game.npc_pb2 import (
 from dofus_unity_reader.game_constants.npc import NpcDialogInfo, ReplyInfo
 
 from src.core.behaviors.behavior import Behavior
+from src.core.engine.npcs.dialog_texts import get_question_text
+from src.core.engine.npcs.dialog_turn import DialogTurn, DialogTurns
 from src.services.human_timings import HumanTimingsService
 
 
@@ -24,28 +26,33 @@ class NpcDialogBehavior(Behavior):
     is_forbidden_msg_callback: Callable[[NpcDialogQuestionEvent], bool] | None = field(
         init=False, default=None
     )
-    resolve_reply: Callable[[NpcDialogQuestionEvent], ReplyInfo | None] | None = field(
-        init=False, default=None
-    )
+    _turns: DialogTurns = field(init=False, default_factory=lambda: DialogTurns(turns=[]))
 
     def run(
         self,
         npc_dialog_info: NpcDialogInfo,
+        turns: list[DialogTurn] | None = None,
         is_forbidden_msg_callback: Callable[[NpcDialogQuestionEvent], bool] | None = None,
-        resolve_reply: Callable[[NpcDialogQuestionEvent], ReplyInfo | None] | None = None,
     ):
-        """`resolve_reply`, when given, replaces the static `reply_info_by_message_id` lookup."""
         self.is_forbidden_msg_callback = is_forbidden_msg_callback
-        self.resolve_reply = resolve_reply
+        self._turns = DialogTurns(turns=turns or [])
         self.run_timer(
             HumanTimingsService().get_timing_after_map_arrival(),
             lambda: self.dialog_to_npc(npc_dialog_info=npc_dialog_info),
         )
 
-    def dialog_to_npc(self, npc_dialog_info: NpcDialogInfo):
+    def dialog_to_npc(self, npc_dialog_info: NpcDialogInfo) -> None:
+        self.ensure_dialog_closed(lambda: self.talk_to_npc(npc_dialog_info))
+
+    def talk_to_npc(self, npc_dialog_info: NpcDialogInfo) -> None:
         self.event_manager.on(
             NpcDialogQuestionEvent,
-            partial(self.on_npc_dialog_question_event, npc_dialog_info=npc_dialog_info),
+            self.on_npc_dialog_question_event,
+            originator=self,
+        )
+        self.event_manager.on(
+            DialogLeaveEvent,
+            self.on_dialog_leave_event,
             originator=self,
         )
         npc_id = self.game_state.entity.resolve_npc_id(npc_dialog_info)
@@ -54,24 +61,28 @@ class NpcDialogBehavior(Behavior):
         )
         self.event_manager.send(npc_request)
 
-    def on_npc_dialog_question_event(self, msg: NpcDialogQuestionEvent, npc_dialog_info: NpcDialogInfo):
+    def on_dialog_leave_event(self, msg: DialogLeaveEvent) -> None:
+        """Le serveur peut fermer le dialogue de lui-meme (un combat, par exemple)."""
+        del msg
+        self.finish()
+
+    def on_npc_dialog_question_event(self, msg: NpcDialogQuestionEvent):
         if self.is_forbidden_msg_callback and self.is_forbidden_msg_callback(msg):
             return self.finish(NpcDialogErrorCode.FORBIDDEN_CONDITION)
 
-        reply_info = self._get_reply_info(msg, npc_dialog_info)
+        if not msg.visible_replies:
+            self.logger.info("NPC said its last word, leaving the dialog")
+            return self.event_manager.send(DialogLeaveRequest())
+
+        reply_info = self._turns.take_reply_for(msg)
         if reply_info is None:
+            self.logger.warning(
+                f"No declared turn answers question {msg.message_id} ({get_question_text(msg.message_id)!r})"
+            )
             return self.finish(NpcDialogErrorCode.UNEXPECTED_MESSAGE)
 
-        estimated_length = sum(len(param) for param in msg.dialog_params) + 50
-        timing = HumanTimingsService().get_timing_npc_dialog_reply(estimated_length)
+        timing = HumanTimingsService().get_timing_npc_dialog_reply()
         self.run_timer(timing, lambda: self.send_npc_dialog_reply(reply_info))
-
-    def _get_reply_info(
-        self, msg: NpcDialogQuestionEvent, npc_dialog_info: NpcDialogInfo
-    ) -> ReplyInfo | None:
-        if self.resolve_reply is not None:
-            return self.resolve_reply(msg)
-        return npc_dialog_info.reply_info_by_message_id.get(msg.message_id)
 
     def send_npc_dialog_reply(self, reply_info: ReplyInfo):
         npc_dialog_reply_request = NpcDialogReplyRequest(reply_id=reply_info.reply_id)

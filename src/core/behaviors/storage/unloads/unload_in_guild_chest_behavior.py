@@ -5,7 +5,6 @@ from datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
 from datas.protos.non_obf.game.exchange_pb2 import (
-    ExchangeLeaveEvent,
     ExchangeObjectMoveRequest,
 )
 from datas.protos.non_obf.game.guild_chest_pb2 import (
@@ -18,7 +17,7 @@ from datas.protos.non_obf.game.inventory_pb2 import (
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.item import ItemTypeEnum
 
-from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
@@ -34,7 +33,7 @@ from dofus_unity_reader.game_constants.guild import UNBOUNDED_CHEST_TAB_NUMBER
 
 
 @dataclass
-class UnloadInGuildChestBehavior(DialogHandlerBehavior):
+class UnloadInGuildChestBehavior(RecoverableBehavior):
     interactive_behavior: InteractiveBehavior
     path_finding: Pathfinding
     auto_trip_world_behavior: AutoTripSmartBehavior
@@ -45,6 +44,10 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
     )
 
     def run(self, unload_item_id_by_tab: dict[int, set[int]]) -> None:
+        self.init_recovery_listeners()
+        self.ensure_free_to_act(lambda: self.start_guild_chest_unload(unload_item_id_by_tab=unload_item_id_by_tab))
+
+    def start_guild_chest_unload(self, unload_item_id_by_tab: dict[int, set[int]]) -> None:
         object_by_gid_in_inventory = {
             object.item.gid: object for object in self.game_state.inventory.objects_by_uid.values()
         }
@@ -169,14 +172,5 @@ class UnloadInGuildChestBehavior(DialogHandlerBehavior):
         )
 
     def on_all_unloaded(self) -> None:
-        self.event_manager.on(
-            ExchangeLeaveEvent,
-            callback=lambda _event: self.finish(),
-            originator=self,
-            once=True,
-            override_on_self=True,
-        )
-        self.leave_all_dialogs()
-
-    def leave_all_dialogs(self) -> None:
-        self.leave_dialog()
+        self.logger.info("Guild chest unload completed")
+        self.finish()

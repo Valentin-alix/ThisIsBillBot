@@ -20,7 +20,7 @@ from dofus_unity_reader.game_constants.npc import (
     NpcAskMessageIdEnum,
 )
 
-from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.engine.npcs.dialog_turn import DialogTurn
 from src.core.engine.npcs.reply_selector import ByText
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
@@ -32,6 +32,7 @@ from src.core.behaviors.npcs.npc_dialog_behavior import (
 )
 from src.services.human_timings import HumanTimingsService
 from src.core.engine.storage.unload import get_bank_npc_info
+from src.core.states.dialog_state import OpenDialogKind
 from src.protocol.protocol_game import is_usable_msg
 
 
@@ -42,11 +43,19 @@ class EnterBankChestErrorCode(StrEnum):
 
 
 @dataclass
-class EnterBankChestBehavior(Behavior):
+class EnterBankChestBehavior(RecoverableBehavior):
     npc_dialog_behavior: NpcDialogBehavior
     auto_trip_world_behavior: AutoTripSmartBehavior
 
-    def run(self):
+    def run(self) -> None:
+        self.init_recovery_listeners()
+        self.ensure_free_to_act(lambda: self.start_entering_bank())
+
+    def start_entering_bank(self):
+        if self.game_state.dialog.is_open(OpenDialogKind.BANK_STORAGE):
+            self.logger.info("Bank chest already open, reusing it")
+            return self.finish()
+
         if self.game_state.player.level < 10:
             return self.finish(EnterBankChestErrorCode.NOT_ENOUGH_LVL)
 

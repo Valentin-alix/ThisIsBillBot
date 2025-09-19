@@ -13,6 +13,7 @@ from src.core.engine.contexts import (
     WorldTransitionContext,
 )
 from src.core.states.craft_state import CraftState
+from src.core.states.dialog_state import DialogState
 from src.core.states.entity_state import EntityState
 from src.core.states.fight_state import FightState
 from src.core.states.guild_chest_state import GuildChestState
@@ -38,6 +39,7 @@ class GameState:
     craft: CraftState
     server: ServerState
     quest: QuestState
+    dialog: DialogState
 
     def clear_connection_scoped_state(self) -> None:
         self.map.clear_state()
@@ -63,6 +65,8 @@ class GameState:
             "inventory_weight": self.inventory.inventory_weight,
             "weight_max": self.inventory.weight_max,
             "actor_count": len(self.entity.actor_by_id),
+            "open_dialog": self.dialog.kind,
+            "open_dialog_context": self.dialog.context_id,
         }
         try:
             snapshot["sub_area_id"] = self.map.sub_area_id

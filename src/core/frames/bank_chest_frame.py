@@ -30,6 +30,7 @@ class BankChestFrame(MixinStorage):
     def set_objects(self, objects_item_inventory: Iterable[ObjectItemInventory]):
         objects = list(objects_item_inventory)
         self.game_state.inventory.bank_objects_by_uid = {item.item.uid: item for item in objects}
+        self.game_state.inventory.bank_content_known = True
         if const.DEBUG:
             self.game_state.inventory.inventory_signals.bank_refreshed.emit(objects)
 

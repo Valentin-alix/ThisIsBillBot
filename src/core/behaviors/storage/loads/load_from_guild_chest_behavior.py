@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 from functools import partial
 
 from datas.protos.non_obf.game.exchange_pb2 import (
-    ExchangeLeaveEvent,
     ExchangeObjectMoveRequest,
 )
 from datas.protos.non_obf.game.guild_chest_pb2 import (
@@ -13,7 +12,7 @@ from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
 
-from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestBehavior,
 )
@@ -28,12 +27,16 @@ from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
-class LoadFromGuildChestBehavior(DialogHandlerBehavior):
+class LoadFromGuildChestBehavior(RecoverableBehavior):
     enter_guild_chest_behavior: EnterGuildChestBehavior
     unload_behavior: UnloadBehavior
     _pending_load_items: list[PendingLoadItem] = field(init=False, default_factory=lambda: [])
 
     def run(self, load_items_infos: list[LoadItemInfo]) -> None:
+        self.init_recovery_listeners()
+        self.ensure_free_to_act(lambda: self.start_guild_chest_load(load_items_infos=load_items_infos))
+
+    def start_guild_chest_load(self, load_items_infos: list[LoadItemInfo]) -> None:
         self._pending_load_items = [
             PendingLoadItem.from_request(load_item_info) for load_item_info in load_items_infos
         ]
@@ -76,14 +79,7 @@ class LoadFromGuildChestBehavior(DialogHandlerBehavior):
 
     def load_item(self) -> None:
         if len(self._pending_load_items) == 0:
-            self.event_manager.on(
-                ExchangeLeaveEvent,
-                callback=lambda _: self.finish(load_items_infos=self._build_remaining_requests()),
-                originator=self,
-                once=True,
-                override_on_self=True,
-            )
-            return self.run_timer(HumanTimingsService().get_timing_base_action(), self.leave_all_dialogs)
+            return self.on_all_loaded()
 
         current_load = self._pending_load_items[0]
         if current_load.tab != self.game_state.guild_chest.tab_number:
@@ -118,14 +114,7 @@ class LoadFromGuildChestBehavior(DialogHandlerBehavior):
             current_load.item_gid,
         )
         if portable_quantity == 0:
-            self.event_manager.on(
-                ExchangeLeaveEvent,
-                callback=lambda _: self.finish(load_items_infos=self._build_remaining_requests()),
-                originator=self,
-                once=True,
-                override_on_self=True,
-            )
-            return self.run_timer(HumanTimingsService().get_timing_base_action(), self.leave_all_dialogs)
+            return self.on_all_loaded()
 
         valid_quantity = min(portable_quantity, quantity_to_unload)
 
@@ -182,8 +171,11 @@ class LoadFromGuildChestBehavior(DialogHandlerBehavior):
     def _build_remaining_requests(self) -> list[LoadItemInfo]:
         return [load_item.to_request() for load_item in self._pending_load_items]
 
-    def leave_all_dialogs(self) -> None:
-        self.leave_dialog()
+    def on_all_loaded(self) -> None:
+        self.run_timer(
+            HumanTimingsService().get_timing_base_action(),
+            lambda: self.finish(load_items_infos=self._build_remaining_requests()),
+        )
 
     def clear_behavior(self) -> None:
         self.game_state.guild_chest.storage.clear_all_reservations_for_bot(

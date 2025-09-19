@@ -121,7 +121,6 @@ class Bot(ContextualLogger):
         self.behavior_coordinator = BehaviorCoordinator(
             is_ready_to_play_event=self.is_ready_to_play_event,
             is_playing_event=self.is_playing_event,
-            fight_behavior=self.fight_behavior,
             _logger=self.logger,
             account=self.account,
             shared_signals=self.shared_signals,
@@ -130,6 +129,7 @@ class Bot(ContextualLogger):
             get_bot_config=self.get_bot_config,
             is_connected_event=self.is_connected_event,
             from_manual_play=self.from_manual_play,
+            fight_behavior=self.fight_behavior,
             harvester_behavior=self.harvester_behavior,
             fighter_behavior=self.fighter_behavior,
             craft_behavior=self.craft_behavior,
@@ -143,8 +143,6 @@ class Bot(ContextualLogger):
             is_ready_to_play_event=self.is_ready_to_play_event,
             is_playing_event=self.is_playing_event,
             game_state=self.game_state,
-            dungeon_behavior=self.dungeon_behavior,
-            fight_behavior=self.fight_behavior,
             _logger=self.logger,
             account=self.account,
             shared_signals=self.shared_signals,
@@ -152,7 +150,6 @@ class Bot(ContextualLogger):
             event_manager=self.event_manager,
             behavior_coordinator=self.behavior_coordinator,
             is_connected_event=self.is_connected_event,
-            tutorial_behavior=self.tutorial_behavior,
             ogrine_subscription_behavior=self.ogrine_subscription_behavior,
             paysafecard_subscription_behavior=self.paysafecard_subscription_behavior,
             character_creation_behavior=self.character_creation_behavior,
@@ -180,6 +177,9 @@ class Bot(ContextualLogger):
             msg_info_signals=self.msg_info_signals,
             process_manager=self.process_manager,
             event_manager=self.event_manager,
+            on_session_started=self.auto_bot_behavior.start_planned_session,
+            on_session_finished=self.auto_bot_behavior.clear_planned_session,
+            on_mule_give_slot_started=self.auto_bot_behavior.request_mule_give,
         )
 
         self.game_info_signals.connected.connect(self.connection_handler.on_connected)

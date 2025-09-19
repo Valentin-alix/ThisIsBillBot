@@ -1,16 +1,13 @@
 from dataclasses import dataclass
-from functools import partial
 
-from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
 from datas.protos.non_obf.game.exchange_pb2 import (
-    ExchangeLeaveEvent,
-    ExchangeObjectMoveRequest,
+    ExchangeObjectTransferAllFromInventoryRequest,
 )
 from datas.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
 
-from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
@@ -18,16 +15,21 @@ from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,
 )
 from src.core.config import USEFUL_UNLOAD
-from src.core.engine.items.item_formatter import format_item_name
 from src.services.human_timings import HumanTimingsService
+
+TRANSFER_ALL_TIMEOUT_SECONDS = 15.0
 
 
 @dataclass
-class UnloadInBankBehavior(DialogHandlerBehavior):
+class UnloadInBankBehavior(RecoverableBehavior):
     auto_trip_world_behavior: AutoTripSmartBehavior
     enter_bank_chest_behavior: EnterBankChestBehavior
 
     def run(self) -> None:
+        self.init_recovery_listeners()
+        self.ensure_free_to_act(lambda: self.start_bank_unload())
+
+    def start_bank_unload(self) -> None:
         if self.game_state.inventory.pod_percentage < USEFUL_UNLOAD:
             self.logger.info(
                 f"Pod usage {self.game_state.inventory.pod_percentage}% below threshold {USEFUL_UNLOAD}%, skipping unload"
@@ -42,44 +44,35 @@ class UnloadInBankBehavior(DialogHandlerBehavior):
             self.logger.error(f"Failed to enter bank: {error_code}")
             return self.finish(error_code)
 
+        if not self.game_state.inventory.get_unlinked_objects():
+            self.logger.info("Nothing transferable in the bag, leaving the chest open")
+            return self.on_unloaded()
+
         self.logger.info("Transferring all items to bank")
-        object_to_unloads = self.game_state.inventory.get_unlinked_objects()
         self.run_timer(
             HumanTimingsService().get_timing_unload_on_bank(),
-            lambda: self.unload_object(object_to_unloads),
+            self.transfer_all_to_bank,
         )
 
-    def unload_object(self, object_to_unloads: list[ObjectItemInventory]) -> None:
-        if len(object_to_unloads) == 0:
-            return self.run_timer(
-                HumanTimingsService().get_timing_before_bank_close(),
-                lambda: self.leave_dialog(on_leave_callback=self.on_exchange_leave_event),
-            )
-
+    def transfer_all_to_bank(self) -> None:
         self.event_manager.on(
             InventoryWeightEvent,
-            partial(self.on_inventory_weight_event, object_to_unloads=object_to_unloads),
+            self.on_inventory_weight_event,
             originator=self,
             once=True,
-            override_on_self=True,
+            timeout=TRANSFER_ALL_TIMEOUT_SECONDS,
+            on_timeout=self.on_transfer_all_timeout,
         )
-        next_object = object_to_unloads.pop()
-        item_name = format_item_name(next_object.item.gid)
+        self.event_manager.send(ExchangeObjectTransferAllFromInventoryRequest())
 
-        self.logger.info(
-            f"Unloading {item_name} x{next_object.item.quantity} ({len(object_to_unloads)} remaining)"
-        )
-        req = ExchangeObjectMoveRequest(object_uid=next_object.item.uid, quantity=next_object.item.quantity)
-        self.event_manager.send(req)
+    def on_inventory_weight_event(self, msg: InventoryWeightEvent) -> None:
+        self.logger.info(f"Bag transferred, inventory weight is now {msg.inventory_weight}")
+        self.on_unloaded()
 
-    def on_inventory_weight_event(
-        self, msg: InventoryWeightEvent, object_to_unloads: list[ObjectItemInventory]
-    ) -> None:
-        self.run_timer(
-            HumanTimingsService().get_timing_between_bank_transfers(),
-            lambda: self.unload_object(object_to_unloads),
-        )
+    def on_transfer_all_timeout(self) -> None:
+        self.logger.warning("No inventory update after the transfer request, giving up on it")
+        self.on_unloaded()
 
-    def on_exchange_leave_event(self, msg: ExchangeLeaveEvent) -> None:
+    def on_unloaded(self) -> None:
         self.logger.info("Bank unload completed successfully")
-        self.finish()
+        self.run_timer(HumanTimingsService().get_timing_before_bank_close(), self.finish)

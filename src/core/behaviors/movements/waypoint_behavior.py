@@ -72,7 +72,10 @@ class WaypointBehavior(Behavior):
         self.raise_if_error(error_code)
         self.on_map_allowing_havre_sac(map_id)
 
-    def on_map_allowing_havre_sac(self, map_id: int):
+    def on_map_allowing_havre_sac(self, map_id: int) -> None:
+        self.ensure_dialog_closed(lambda: self.enter_havre_sac(map_id))
+
+    def enter_havre_sac(self, map_id: int) -> None:
         self.event_manager.on(
             MapComplementaryInformationEvent,
             callback=partial(self.on_entered_havre_sac, map_id=map_id),

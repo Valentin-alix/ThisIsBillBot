@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from functools import cached_property
 
 import msgspec
+from base_python.cache import cache
 from base_python.singleton import Singleton
 
 from consts import STANDALONE_BUNDLES_ROOT
@@ -27,6 +28,21 @@ class WorldGraphReader(metaclass=Singleton):
 
     def get_vertexes(self, map_id: int) -> set[Vertice]:
         return set(self.datas.m_vertices.get(map_id, {}).values())
+
+    @cache
+    def get_exit_cell_ids(self, map_id: int) -> frozenset[int]:
+        """Cellules d'ou l'on quitte la map : portes, escaliers, zones de transition.
+
+        Les elements interactifs poses dessus font changer de map ; tout comportement qui
+        cherche un element "sur place" doit les ecarter.
+        """
+        return frozenset(
+            transition.m_cellId
+            for vertex in self.get_vertexes(map_id)
+            for edge in self.get_outgoing_edges_from_vertex(vertex)
+            for transition in edge.m_transitions
+            if transition.m_cellId >= 0
+        )
 
     @cached_property
     def get_all_transition_map_ids(self) -> set[int]:

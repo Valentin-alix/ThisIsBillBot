@@ -20,8 +20,6 @@ from ankama_launcher_emulator_premium.web.subscription.storage import (
     SubscriptionExpirationStorage,
 )
 from datas.protos.non_obf.game.common_pb2 import Character
-from dofus_unity_reader.data_center.dungeon_info import PLAYABLE_DUNGEONS
-from dofus_unity_reader.game_constants.map_id import MapIdEnum
 
 from src.controller.bot_config import BotConfig
 from src.core.behaviors.account.character_creation_behavior import (
@@ -34,9 +32,6 @@ from src.core.behaviors.account.ogrine_subscription import (
 from src.core.behaviors.account.paysafecard_subscription import (
     PaysafecardSubscriptionBehavior,
 )
-from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
-from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
-from src.core.behaviors.quests.tutorial_behavior import TutorialBehavior
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.engine.movements.world.edge import (
     remove_forbidden_edge_transition_by_map_id,
@@ -62,10 +57,7 @@ class ConnectionHandler(ContextualLogger):
     is_ready_to_play_event: Event
     is_playing_event: Event
     game_state: GameState
-    dungeon_behavior: DungeonBehavior
-    fight_behavior: FightBehavior
     character_creation_behavior: CharacterCreationBehavior
-    tutorial_behavior: TutorialBehavior
     ogrine_subscription_behavior: OgrineSubscriptionBehavior
     paysafecard_subscription_behavior: PaysafecardSubscriptionBehavior
     account: StoredApiKey
@@ -147,6 +139,7 @@ class ConnectionHandler(ContextualLogger):
 
     def on_ready_to_play(self):
         """Handle ready to play event and start appropriate behavior."""
+        self.logger.info("On ready to play")
         self.is_ready_to_play_event.set()
         self._reconnect_attempts = 0
         if not self.is_playing_event.is_set():
@@ -160,45 +153,7 @@ class ConnectionHandler(ContextualLogger):
             self.game_state.map.forbidden_edge_transitions,
         )
 
-        def on_fight_behavior_finished(error_code: str | None):
-            if error_code is not None:
-                raise UnhandledErrorCodeException(error_code)
-            if self.behavior_coordinator and self.behavior_coordinator.is_playing_event.is_set():
-                self._continue_after_required_behavior()
-
-        def on_dungeon_behavior_finished(error_code: str | None):
-            if error_code is not None:
-                raise UnhandledErrorCodeException(error_code)
-            if self.behavior_coordinator and self.behavior_coordinator.is_playing_event.is_set():
-                self._continue_after_required_behavior()
-
-        def on_tutorial_behavior_finished(error_code: str | None):
-            if error_code is not None:
-                raise UnhandledErrorCodeException(error_code)
-            if self.behavior_coordinator and self.behavior_coordinator.is_playing_event.is_set():
-                self._continue_after_required_behavior()
-
-        if self.game_state.map.map_id == MapIdEnum.TUTORIAL_STARTING:
-            return self.tutorial_behavior.start(callback=on_tutorial_behavior_finished, parent=None)
-
-        for dungeon_info in PLAYABLE_DUNGEONS:
-            if (
-                self.game_state.map.map_id in dungeon_info.dungeon.mapIds
-                or self.game_state.map.map_id == dungeon_info.dungeon.exitMapId
-            ):
-                return self.dungeon_behavior.start(
-                    dungeon_info=dungeon_info,
-                    callback=on_dungeon_behavior_finished,
-                    parent=None,
-                )
-
-        if self.game_state.fight.in_fight:
-            self.fight_behavior.start(
-                callback=on_fight_behavior_finished,
-                parent=None,
-            )
-        elif self.behavior_coordinator.is_playing_event.is_set():
-            self._continue_after_required_behavior()
+        self._continue_after_required_behavior()
 
     def _continue_after_required_behavior(self) -> None:
         if not self.behavior_coordinator.is_playing_event.is_set():

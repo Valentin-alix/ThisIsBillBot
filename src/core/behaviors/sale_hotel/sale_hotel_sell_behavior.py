@@ -12,7 +12,6 @@ from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidHouseSearchRequest,
     ExchangeBidPriceEvent,
     ExchangeBidSellerStartedEvent,
-    ExchangeLeaveEvent,
     ExchangeObjectModifyPricedRequest,
     ExchangeObjectMovePricedRequest,
 )
@@ -28,7 +27,7 @@ from dofus_unity_reader.game_constants.sale_hotel import (
 )
 
 from src.controller.game_data import GameDataController
-from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
 )
@@ -60,7 +59,7 @@ class SaleHotelErrorCode(StrEnum):
 
 
 @dataclass
-class SaleHotelSellBehavior(DialogHandlerBehavior):
+class SaleHotelSellBehavior(RecoverableBehavior):
     enter_sale_hotel_sell_behavior: EnterSaleHotelSellBehavior
     load_from_guild_chest_behavior: LoadFromGuildChestBehavior
     load_from_bank_behavior: LoadFromBankBehavior
@@ -75,8 +74,18 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
         default_factory=list[ExchangeBidSellerStartedEvent.ItemToSellInBid],
     )
     _load_items_infos: list[LoadItemInfo] = field(init=False, default_factory=list[LoadItemInfo])
+    _activity_performed: bool = field(init=False, default=False)
+
+    @property
+    def activity_performed(self) -> bool:
+        return self._activity_performed
 
     def run(self) -> None:
+        self.init_recovery_listeners()
+        self.ensure_free_to_act(lambda: self.start_selling())
+
+    def start_selling(self) -> None:
+        self._activity_performed = False
         self.categories = {CategoryItemEnum.RESOURCES, CategoryItemEnum.CONSUMABLES}
 
         if self.game_state.inventory.kamas < MIN_KAMAS_TO_GO_SALE_HOTEL:
@@ -188,13 +197,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
                     self.logger.info("No more item to sell, lets update prices")
                     return self.update_all_prices()
 
-                self.event_manager.on(
-                    ExchangeLeaveEvent,
-                    callback=lambda _: self.load_items(),
-                    originator=self,
-                    once=True,
-                )
-                return self.leave_dialog()
+                return self.load_items()
 
             next_item = self._item_to_sells_in_inventory.pop()
             if is_interesting_item_to_sell(
@@ -300,13 +303,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             return self.update_all_prices()
 
         if price_for_quantity * SALE_HOTEL_LISTING_FEE > self.game_state.inventory.kamas:
-            self.event_manager.on(
-                ExchangeLeaveEvent,
-                callback=lambda _: self.finish(SaleHotelErrorCode.NOT_ENOUGH_KAMAS),
-                originator=self,
-                once=True,
-            )
-            return self.leave_dialog()
+            return self.finish(SaleHotelErrorCode.NOT_ENOUGH_KAMAS)
 
         self.event_manager.on(
             InventoryWeightEvent,
@@ -334,6 +331,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
         item: ObjectItem,
         minimal_prices: list[int],
     ) -> None:
+        self._activity_performed = True
         if self.game_state.sale_hotel.is_full_object_in_sale_hotel:
             return self.update_all_prices()
 
@@ -342,13 +340,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
 
     def update_all_prices(self) -> None:
         if len(self._items_in_sale_hotel) == 0:
-            self.event_manager.on(
-                ExchangeLeaveEvent,
-                callback=lambda _: self.sell_next_category(),
-                originator=self,
-                once=True,
-            )
-            return self.leave_dialog()
+            return self.sell_next_category()
         self.logger.info("Update prices of all item in sale hotel")
         item = self._items_in_sale_hotel[0]
         self.update_item_price(item.item.gid)
@@ -438,6 +430,7 @@ class SaleHotelSellBehavior(DialogHandlerBehavior):
             ExchangeBidHouseItemRemovedEvent,
             reason="Item removed from sale hotel, proceeding to update all prices",
         )
+        self._activity_performed = True
         self.logger.info("Update all prices after item removed")
         self.run_timer(
             HumanTimingsService().get_timing_sale_hotel_review(),

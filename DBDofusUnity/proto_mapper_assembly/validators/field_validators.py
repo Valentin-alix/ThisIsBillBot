@@ -787,7 +787,7 @@ def is_valid_mood_smiley_id(value: int) -> bool:
 
 @strict_validate_call
 def is_valid_achievement_id(value: int) -> bool:
-    return 0 < value <= MAX_ACHIEVEMENT_ID
+    return -1 < value <= MAX_ACHIEVEMENT_ID
 
 
 @strict_validate_call

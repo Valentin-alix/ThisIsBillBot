@@ -21,7 +21,10 @@ class MapChangeError(StrEnum):
 
 @dataclass
 class MapChangeBehavior(Behavior):
-    def run(self, map_id: int, expected_map_id: int):
+    def run(self, map_id: int, expected_map_id: int) -> None:
+        self.ensure_dialog_closed(lambda: self.change_map(map_id, expected_map_id))
+
+    def change_map(self, map_id: int, expected_map_id: int) -> None:
         self.event_manager.on(
             MapCurrentEvent,
             partial(self.on_map_current_event, expected_map_id=expected_map_id),

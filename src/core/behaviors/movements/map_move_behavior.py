@@ -43,7 +43,7 @@ class MapMoveBehavior(Behavior):
     _cell_is_taken: bool = field(init=False, default=False)
     _pending_fight_movement_action_id: int | None = field(init=False, default=None)
 
-    def run(self, move_path: MovementPath):
+    def run(self, move_path: MovementPath) -> None:
         self.logger.info(f"Going to : {move_path.end}")
         if self.game_state.map.is_waiting_for_map_popup_dialog_leave:
             self.logger.info("Waiting for map popup dialog to close before moving")
@@ -58,6 +58,9 @@ class MapMoveBehavior(Behavior):
             )
             return
 
+        self.ensure_dialog_closed(lambda: self.move_along(move_path))
+
+    def move_along(self, move_path: MovementPath) -> None:
         if self.game_state.map.map_point != move_path.start:
             self.logger.warning(
                 f"Player is not at starting move path, he is at {self.game_state.map.map_point}, invalid move path"

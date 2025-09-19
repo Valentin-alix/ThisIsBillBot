@@ -2,7 +2,6 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from functools import partial
 
-from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
 from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeCraftCountModifiedEvent,
     ExchangeCraftCountRequest,
@@ -19,7 +18,7 @@ from dofus_unity_reader.game_constants.skill import MAP_IDS_BY_SKILL
 from dofus_unity_reader.grid.map_point import MapPoint
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
-from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
@@ -27,6 +26,7 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 from src.core.behaviors.storage.loads.load_recipe_behavior import LoadRecipeBehavior
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
+from src.core.states.dialog_state import OpenDialogKind
 from src.services.human_timings import HumanTimingsService
 
 
@@ -37,7 +37,7 @@ class LoadedRecipeInfo:
 
 
 @dataclass
-class CraftBehavior(DialogHandlerBehavior):
+class CraftBehavior(RecoverableBehavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
     load_recipe_behavior: LoadRecipeBehavior
     interactive_behavior: InteractiveBehavior
@@ -46,15 +46,50 @@ class CraftBehavior(DialogHandlerBehavior):
     _stop_craft_recipe_condition: Callable[[RecipeItem], bool] | None = field(init=False, default=None)
     _remaining_recipes: list[RecipeItem] = field(init=False, default_factory=list[RecipeItem])
     _loaded_recipes_infos: list[LoadedRecipeInfo] = field(init=False, default_factory=lambda: [])
+    _activity_performed: bool = field(init=False, default=False)
+
+    @property
+    def activity_performed(self) -> bool:
+        return self._activity_performed
 
     def run(
         self,
         recipes: list[RecipeItem],
         stop_craft_recipe_condition: Callable[[RecipeItem], bool] | None = None,
+        quantity_by_result_id: dict[int, int] | None = None,
     ) -> None:
+        self.init_recovery_listeners()
+        self.ensure_free_to_act(lambda: self.start_crafting(recipes=recipes, stop_craft_recipe_condition=stop_craft_recipe_condition, quantity_by_result_id=quantity_by_result_id))
+
+    def start_crafting(
+        self,
+        recipes: list[RecipeItem],
+        stop_craft_recipe_condition: Callable[[RecipeItem], bool] | None = None,
+        quantity_by_result_id: dict[int, int] | None = None,
+    ) -> None:
+        """`quantity_by_result_id` : crafter ces quantites avec les ingredients deja en sac.
+
+        Le chemin normal remplit l'inventaire depuis la banque, ce qui n'a pas de sens quand on
+        sort du HDV les mains pleines -- une quete, typiquement. On saute alors le chargement,
+        et seul le trajet vers l'atelier et le dialogue de craft sont reutilises.
+        """
+        self._activity_performed = False
         self._remaining_recipes = self.game_state.craft.get_valid_recipes(recipes)
         self._stop_craft_recipe_condition = stop_craft_recipe_condition
+        if quantity_by_result_id is not None:
+            return self.craft_from_inventory(quantity_by_result_id)
         self.process_remaining_recipes()
+
+    def craft_from_inventory(self, quantity_by_result_id: dict[int, int]) -> None:
+        self._loaded_recipes_infos = [
+            LoadedRecipeInfo(recipe=recipe, quantity=quantity_by_result_id.get(recipe.resultId, 1))
+            for recipe in self._remaining_recipes
+        ]
+        self._remaining_recipes = []
+        if not self._loaded_recipes_infos:
+            self.logger.warning("No craftable recipe left, nothing to craft from the inventory")
+            return self.finish()
+        self.process_next_loaded_recipe_skill()
 
     def process_remaining_recipes(self):
         initial_count = len(self._remaining_recipes)
@@ -114,6 +149,13 @@ class CraftBehavior(DialogHandlerBehavior):
         self.go_and_craft_on_skill(target_recipes_infos, target_skill_id)
 
     def go_and_craft_on_skill(self, recipes_infos: list[LoadedRecipeInfo], skill_id: int) -> None:
+        if self.game_state.dialog.is_open(OpenDialogKind.CRAFT, context_id=skill_id):
+            self.logger.info(f"Workshop for skill {skill_id} already open, reusing it")
+            return self.run_timer(
+                HumanTimingsService().get_timing_base_action(),
+                lambda: self.craft_recipe_in_same_skill(tuple(recipes_infos), 0),
+            )
+
         related_map_ids = MAP_IDS_BY_SKILL[skill_id]
         if not self.game_state.player.is_sub:
             related_map_ids = {
@@ -229,7 +271,6 @@ class CraftBehavior(DialogHandlerBehavior):
         max_possible_result_quantity: int,
         gid: int,
     ) -> None:
-        self.unregister_listener(DialogLeaveRequest)
         self.event_manager.on(
             ExchangeCraftCountModifiedEvent,
             partial(
@@ -256,7 +297,7 @@ class CraftBehavior(DialogHandlerBehavior):
     ) -> None:
         self.event_manager.on(
             InventoryWeightEvent,
-            lambda _: self.craft_recipe_in_same_skill(recipes_infos, next_recipe_index),
+            lambda _: self.on_inventory_weight_event_after_craft(recipes_infos, next_recipe_index),
             originator=self,
             once=True,
             override_on_self=True,
@@ -266,9 +307,17 @@ class CraftBehavior(DialogHandlerBehavior):
         req = ExchangeReadyRequest(ready=True, step=6)
         self.send_message_delayed(req, HumanTimingsService().get_timing_short_action())
 
+    def on_inventory_weight_event_after_craft(
+        self,
+        recipes_infos: tuple[LoadedRecipeInfo, ...],
+        next_recipe_index: int,
+    ) -> None:
+        self._activity_performed = True
+        self.craft_recipe_in_same_skill(recipes_infos, next_recipe_index)
+
     def on_all_crafted_for_skill_in_inventory(self) -> None:
-        self.leave_dialog(on_leave_callback=lambda _: self.process_next_loaded_recipe_skill())
+        self.process_next_loaded_recipe_skill()
 
     def on_timeout_exchange_ready(self, gid: int) -> None:
         self.game_state.craft.forbidden_craft_ids.add(gid)
-        self.leave_dialog(on_leave_callback=lambda _: self.finish())
+        self.finish()

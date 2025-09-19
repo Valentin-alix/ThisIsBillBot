@@ -18,7 +18,8 @@ DO_FIGHTER = True  # le bot va attacker un groupe de monstre random toutes les 3
 DO_SALE_HOTEL = True  # le bot va aller vendre en hdv
 DO_CRAFT = True  # le bot va aller craft pr level up principalement
 DO_USE_GUILD_CHEST = False  # le bot va utiliser le coffre de guilde plutot que la banque
-DO_DUNGEON = False  # le bot va aller faire des dongons toutes les 4 heures (si cest possible)
+DO_DUNGEON = True  # le bot va tenter un donjon pendant une session planifiee
+DO_QUEST = True  # le bot va tenter les quetes eligibles pendant une session planifiee
 
 
 # ============================================================================
@@ -39,7 +40,6 @@ OCCUPIED_STUCK_LIMIT = 2  # consecutive "occupied" errors before forcing a recon
 
 # Mule
 BOT_MINIMAL_KAMAS: int = 2_000_000
-BOT_KAMA_LIMIT_TO_GIVE: int = 8_000_000
 MULE_BANK_MAP_ID = MapIdEnum.ASTRUB_BANK
 
 # Sale Hotel
@@ -71,14 +71,6 @@ def get_time_between_attacker() -> datetime.timedelta:
     )
 
 
-def get_time_between_dungeon():
-    return (
-        datetime.timedelta(hours=4) * uniform(0.75, 1.25)
-        if DO_DUNGEON
-        else datetime.timedelta(datetime.MAXYEAR)
-    )
-
-
 # ============================================================================
 # POIDS & PRIORITÉS
 # ============================================================================
@@ -101,8 +93,6 @@ BETWEEN_COLLECT_PAUSE_PROBABILITY = 0.1
 FIRST_COLLECT_MOVEMENT_CANCEL_PROBABILITY = 1 / 3
 SUBSEQUENT_COLLECT_MOVEMENT_CANCEL_PROBABILITY = 1 / 8
 STATIC_INTERACTION_CANCEL_PROBABILITY = 1 / 8
-
-AFK_PROBABILITY_PER_MAP = 0.005
 
 ENABLE_SESSION_CONTEXT = True
 

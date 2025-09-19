@@ -1,27 +1,42 @@
 from dataclasses import dataclass, field
 from datetime import datetime
+from functools import partial
 from threading import RLock
 
 from dofus_unity_reader.data_center.area_info import AreaInfo
 
-from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.behavior import BehaviorState
+from src.core.behaviors.recovery import RecoverableBehavior
+from src.core.behaviors.craft.craft_behavior import CraftBehavior
 from src.core.behaviors.equipment.auto_equipment_behavior import AutoEquipmentBehavior
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmingErrorCode
 from src.core.behaviors.farms.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.farms.multi_farming_behavior import MultiFarmingBehavior
-from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import SaleHotelErrorCode
+from src.core.behaviors.idle_behavior import IdleBehavior
+from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
+from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
+from src.core.behaviors.quests.quest_behavior import QuestBehavior
+from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import SaleHotelErrorCode, SaleHotelSellBehavior
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestErrorCode,
 )
+from src.core.bot.session_activity_plan import SessionActivity, SessionActivityPlan
 from src.core.config import (
+    DO_CRAFT,
+    DO_DUNGEON,
     DO_FIGHTER,
+    DO_QUEST,
+    DO_SALE_HOTEL,
     KAMAS_LIMIT_FOR_HARVEST,
     LVL_LIMIT_FOR_HARVEST,
     get_time_beween_areas,
 )
-from src.services.human_timings import HumanTimingsService
 from src.core.engine.contexts import HarvesterAreaContext
+from src.core.engine.crafts.recipes import (
+    get_recipes_for_job_lvl_up_or_benefice,
+    is_not_valid_recipe_for_lvl_up_job_or_benefice,
+)
 from src.core.engine.weights.fighter.set_drop import (
     choose_set_drop_area_info,
     get_missing_set_drop_sub_area_ids,
@@ -32,12 +47,13 @@ from src.core.engine.weights.harvester.weight_areas import (
 from src.core.states.area_state import (
     CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER,
 )
+from src.services.human_timings import HumanTimingsService
 
 AREA_CHOICE_LOCK = RLock()
 
 
 @dataclass
-class AutoBotBehavior(Behavior):
+class AutoBotBehavior(RecoverableBehavior):
     """
     Behavior to fight until certain lvl & kamas then play MultiFarmingBehavior,
     This is a good behavior to automatically chose action based on context
@@ -47,10 +63,52 @@ class AutoBotBehavior(Behavior):
     fighter_behavior: FighterBehavior
     harvester_behavior: HarvesterBehavior
     multi_farming_behavior: MultiFarmingBehavior
+    dungeon_behavior: DungeonBehavior
+    quest_behavior: QuestBehavior
+    idle_behavior: IdleBehavior
+    craft_behavior: CraftBehavior
+    sale_hotel_sell_behavior: SaleHotelSellBehavior
+    mule_give_behavior: MuleGiveBehavior
 
     _area_id: int | None = field(init=False, default=None)
     _sub_area_id: int | None = field(init=False, default=None)
     _previous_area_info_played: list[AreaInfo] = field(init=False, default_factory=list[AreaInfo])
+    _session_activity_plan: SessionActivityPlan | None = field(init=False, default=None)
+    _mule_give_ends_at: datetime | None = field(init=False, default=None)
+
+    def start_planned_session(self, session_start: datetime, session_end: datetime) -> None:
+        activities: list[SessionActivity] = [SessionActivity.IDLE]
+        if DO_QUEST:
+            activities.append(SessionActivity.QUEST)
+        if DO_DUNGEON:
+            activities.append(SessionActivity.DUNGEON)
+        if DO_CRAFT:
+            activities.append(SessionActivity.CRAFT)
+        if DO_SALE_HOTEL:
+            activities.append(SessionActivity.SALE_HOTEL)
+        self._session_activity_plan = SessionActivityPlan.create(
+            session_start=session_start,
+            session_end=session_end,
+            activities=activities,
+        )
+        planned_slots = [
+            f"{slot.activity} at {slot.starts_at:%H:%M}" for slot in self._session_activity_plan.slots
+        ]
+        self.logger.info("Planned session activities: %s", planned_slots)
+
+    def clear_planned_session(self) -> None:
+        self._session_activity_plan = None
+        self._mule_give_ends_at = None
+
+    def request_mule_give(self, ends_at: datetime) -> None:
+        if self.state != BehaviorState.RUNNING:
+            self.logger.info("Skipping mule give slot: auto-bot is not running")
+            return
+        if datetime.now() >= ends_at:
+            self.logger.info("Skipping mule give slot: its window already ended")
+            return
+        self._mule_give_ends_at = ends_at
+        self.logger.info("Mule give requested before %s", ends_at.strftime("%H:%M"))
 
     def get_harvester_area_context(self) -> HarvesterAreaContext:
         return HarvesterAreaContext(
@@ -64,6 +122,13 @@ class AutoBotBehavior(Behavior):
         )
 
     def run(
+        self,
+        area_id: int | None = None,
+        sub_area_id: int | None = None,
+    ) -> None:
+        self.ensure_free_to_act(lambda: self.start_playing(area_id=area_id, sub_area_id=sub_area_id))
+
+    def start_playing(
         self,
         area_id: int | None = None,
         sub_area_id: int | None = None,
@@ -94,7 +159,10 @@ class AutoBotBehavior(Behavior):
         datetime_start_played = datetime.now()
 
         def stop_multi_farming_condition():
-            return datetime_start_played + get_time_beween_areas() < datetime.now()
+            return (
+                self._get_due_activity() is not None
+                or datetime_start_played + get_time_beween_areas() < datetime.now()
+            )
 
         with AREA_CHOICE_LOCK:
             area_info = get_random_best_area_info_for_harvester(
@@ -121,6 +189,9 @@ class AutoBotBehavior(Behavior):
 
     def on_multi_farming_behavior_finished(self, error_code: str | None) -> None:
         if error_code is BaseFarmingErrorCode.STOP_CONDITION_TRIGGERED:
+            due_activity = self._get_due_activity()
+            if due_activity is not None:
+                return self._start_session_activity(due_activity)
             return self.run_timer(HumanTimingsService().get_timing_base_action(), self.play_multi_farming)
         if error_code in {
             EnterBankChestErrorCode.NOT_ENOUGH_KAMAS,
@@ -129,6 +200,96 @@ class AutoBotBehavior(Behavior):
             self.logger.info("Not enough kamas for bank: switching to fighter")
             return self.run_timer(HumanTimingsService().get_timing_base_action(), self.play_fighter)
         self.finish(error_code)
+
+    def _get_due_activity(self) -> SessionActivity | None:
+        if self._mule_give_ends_at is not None:
+            if datetime.now() < self._mule_give_ends_at:
+                return SessionActivity.MULE_GIVE
+            self.logger.info("Mule give slot ended before the farm boundary")
+            self._mule_give_ends_at = None
+        if self._session_activity_plan is None:
+            return None
+        return self._session_activity_plan.get_due_activity(datetime.now())
+
+    def _start_session_activity(self, activity: SessionActivity) -> None:
+        self.logger.info("Starting planned session activity: %s", activity)
+        if activity is SessionActivity.MULE_GIVE:
+            return self.mule_give_behavior.start(
+                callback=self._on_mule_give_finished,
+                parent=self,
+            )
+
+        if activity is SessionActivity.IDLE:
+            idle_duration = HumanTimingsService().get_timing_session_idle_duration()
+            self.logger.info("Taking planned idle break: %.1fmin", idle_duration / 60)
+            return self.idle_behavior.start(
+                duration=idle_duration,
+                callback=partial(self._on_session_activity_finished, activity),
+                parent=self,
+            )
+
+        if activity is SessionActivity.QUEST:
+            return self.quest_behavior.start(
+                callback=partial(self._on_session_activity_finished, activity),
+                parent=self,
+            )
+
+        if activity is SessionActivity.DUNGEON:
+            return self.dungeon_behavior.start(
+                callback=partial(self._on_session_activity_finished, activity),
+                parent=self,
+            )
+
+        if activity is SessionActivity.CRAFT:
+            recipes = get_recipes_for_job_lvl_up_or_benefice(
+                self.game_state.player.is_sub, self.game_state.player.jobs_lvl_by_id
+            )
+            return self.craft_behavior.start(
+                recipes=recipes,
+                stop_craft_recipe_condition=partial(
+                    is_not_valid_recipe_for_lvl_up_job_or_benefice,
+                    is_sub=self.game_state.player.is_sub,
+                    jobs_lvl_by_id=self.game_state.player.jobs_lvl_by_id,
+                ),
+                callback=partial(self._on_session_activity_finished, activity),
+                parent=self,
+            )
+
+        assert activity is SessionActivity.SALE_HOTEL, f"Unsupported session activity: {activity}"
+        self.sale_hotel_sell_behavior.start(
+            callback=partial(self._on_session_activity_finished, activity), parent=self
+        )
+
+    def _on_session_activity_finished(self, activity: SessionActivity, error_code: str | None) -> None:
+        if error_code is not None:
+            self.logger.warning("Planned session activity %s finished with %s", activity, error_code)
+        assert self._session_activity_plan is not None, "A planned activity requires an active session plan"
+        if error_code is None and not self._activity_was_performed(activity):
+            self._session_activity_plan.discard_empty_activity(activity, datetime.now())
+            self.logger.info("Removed empty planned session activity: %s", activity)
+        else:
+            self._session_activity_plan.mark_activity_completed(activity)
+        self.run_timer(HumanTimingsService().get_timing_base_action(), self.play_multi_farming)
+
+    def _activity_was_performed(self, activity: SessionActivity) -> bool:
+        if activity is SessionActivity.IDLE:
+            return True
+        if activity is SessionActivity.QUEST:
+            return self.quest_behavior.activity_performed
+        if activity is SessionActivity.DUNGEON:
+            return self.dungeon_behavior.activity_performed
+        if activity is SessionActivity.CRAFT:
+            return self.craft_behavior.activity_performed
+        assert activity is SessionActivity.SALE_HOTEL, f"Unsupported planned activity: {activity}"
+        return self.sale_hotel_sell_behavior.activity_performed
+
+    def _on_mule_give_finished(self, error_code: str | None) -> None:
+        self._mule_give_ends_at = None
+        if error_code is not None:
+            self.logger.warning("Mule give finished with %s", error_code)
+        elif not self.mule_give_behavior.activity_performed:
+            self.logger.info("Mule give window completed without a transfer")
+        self.run_timer(HumanTimingsService().get_timing_base_action(), self.play_multi_farming)
 
     def play_fighter(self) -> None:
         datetime_start_played = datetime.now()

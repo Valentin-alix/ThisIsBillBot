@@ -47,3 +47,11 @@ def get_portable_quantity(game_state: GameState, item_gid: int) -> int:
     return (game_state.inventory.weight_max - game_state.inventory.inventory_weight) // (
         DataReader().item_by_id[item_gid].realWeight or 1
     )
+
+
+def get_owned_quantity(game_state: GameState, item_gid: int) -> int:
+    return sum(
+        object_item.item.quantity
+        for object_item in game_state.inventory.objects_by_uid.values()
+        if object_item.item.gid == item_gid
+    )

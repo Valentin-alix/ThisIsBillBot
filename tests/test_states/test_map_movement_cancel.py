@@ -1,3 +1,4 @@
+import random
 from collections.abc import Callable
 from math import sqrt
 from threading import Event
@@ -253,6 +254,9 @@ def test_cancel_behavior_moves_to_a_lateral_destination_before_the_final_destina
     game_state_ctx: GameStateContext,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    # Le comportement tire au sort parmi les destinations candidates : sans graine, ce test
+    # depend de ce que les tests precedents ont consomme du generateur global.
+    random.seed(0)
     game_state = game_state_ctx.game_state
     start_map_point = MapPoint.from_cell_id(301)
     final_map_point = MapPoint.from_cell_id(135)

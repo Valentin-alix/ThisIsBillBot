@@ -12,6 +12,7 @@ from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehav
 from src.core.bot.kamas_mule_registry import KamasMuleRegistry
 from src.core.events_manager.event_manager import EventManager
 from src.services.human_timings import HumanTimingsService
+from tests.fixtures.bot_runtime import make_blocking_state_recovery
 from tests.fixtures.game_state import GameStateContext
 
 
@@ -42,6 +43,7 @@ def test_unreserved_request_does_not_hide_reserved_donor_request(
     delayed_messages: list[tuple[Message, tuple[float, float] | float]] = []
     event_manager.on_send_game_callback = sent_messages.append
     behavior = MuleAcceptBehavior(
+        recovery=make_blocking_state_recovery(),
         event_manager=event_manager,
         game_state=game_state_ctx.game_state,
         auto_trip_smart_behavior=MagicMock(),

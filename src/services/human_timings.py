@@ -46,14 +46,13 @@ FIGHT_SPELL_CAST_TIMING = TimingProfile(0.08, 0.15, 0.3)
 ITEM_USE_TIMING = TimingProfile(0.4, 0.6, 1)
 WORKSHOP_INTERACTION_TIMING = TimingProfile(0.8, 1.5, 3.0)
 LEVEL_UP_CHARACTERISTIC_TIMING = TimingProfile(1, 1.5, 2)
+ACHIEVEMENT_REWARD_TIMING = TimingProfile(1.5, 3.0, 6.0)
 SHORT_ACTION_TIMING = TimingProfile(0.3, 0.65, 1.0)
 BASE_ACTION_TIMING = TimingProfile(0.5, 1.0, 1.5)
 LONG_ACTION_TIMING = TimingProfile(1.0, 2.0, 3.0)
 VERY_LONG_ACTION_TIMING = TimingProfile(2.0, 4.0, 6.0)
 BETWEEN_COLLECT_PAUSE_TIMING = TimingProfile(1.5, 2.75, 4.0)
-FARM_AFK_BREAK_TIMING = TimingProfile(10.0, 25.0, 40.0)
-FARM_LONG_BREAK_INTERVAL_TIMING = TimingProfile(75.0 * 60, 97.5 * 60, 120.0 * 60)
-FARM_LONG_BREAK_DURATION_TIMING = TimingProfile(2.0 * 60, 3.5 * 60, 5.0 * 60)
+SESSION_IDLE_DURATION_TIMING = TimingProfile(2.0 * 60, 3.5 * 60, 5.0 * 60)
 PLACEMENT_EXTRA_HESITATION_TIMING = TimingProfile(0.25, 0.525, 0.8)
 
 
@@ -105,14 +104,8 @@ class HumanTimingsService(metaclass=Singleton):
     def get_timing_between_collects(self) -> float:
         return sample_timing(BETWEEN_COLLECT_PAUSE_TIMING)
 
-    def get_timing_farm_afk_break(self) -> float:
-        return sample_timing(FARM_AFK_BREAK_TIMING)
-
-    def get_timing_farm_long_break_interval(self) -> float:
-        return sample_timing(FARM_LONG_BREAK_INTERVAL_TIMING)
-
-    def get_timing_farm_long_break_duration(self) -> float:
-        return sample_timing(FARM_LONG_BREAK_DURATION_TIMING)
+    def get_timing_session_idle_duration(self) -> float:
+        return sample_timing(SESSION_IDLE_DURATION_TIMING)
 
     def get_timing_placement_extra_hesitation(self) -> float:
         return sample_timing(PLACEMENT_EXTRA_HESITATION_TIMING)
@@ -177,6 +170,9 @@ class HumanTimingsService(metaclass=Singleton):
 
     def get_timing_after_level_up(self) -> float:
         return sample_timing(LEVEL_UP_CHARACTERISTIC_TIMING)
+
+    def get_timing_after_achievement(self) -> float:
+        return sample_timing(ACHIEVEMENT_REWARD_TIMING)
 
     def get_timing_fight_acknowledgement(self) -> float:
         return sample_timing(FIGHT_ACKNOWLEDGEMENT_TIMING)

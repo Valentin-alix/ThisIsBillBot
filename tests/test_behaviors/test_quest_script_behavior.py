@@ -2,24 +2,42 @@ from collections.abc import Callable
 from typing import cast
 from unittest.mock import MagicMock
 
+from datas.protos.non_obf.game.common_pb2 import (
+    ActorPositionInformation,
+    InteractiveElement,
+    ObjectItem,
+    ObjectItemInventory,
+)
+from datas.protos.non_obf.game.context_pb2 import ContextCreationEvent
 from datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
-from datas.protos.non_obf.game.quest_pb2 import QuestValidatedEvent
-from dofus_unity_reader.game_constants.npc import ReplyInfo
+from datas.protos.non_obf.game.quest_pb2 import QuestActive, QuestValidatedEvent
+from dofus_unity_reader.data_center.map_reader import MapReader
+from dofus_unity_reader.game_constants.map_id import MapIdEnum
+from dofus_unity_reader.game_constants.npc import NpcDialogInfo
+from dofus_unity_reader.game_constants.skill import SkillEnum
+from dofus_unity_reader.grid.map_point import MapPoint
+from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.behaviors.quests.quest_script_behavior import (
     QuestScriptBehavior,
     QuestScriptError,
 )
+from src.core.engine.npcs.dialog_turn import DialogTurn
+from dofus_unity_reader.game_constants.world import WorldMapEnum
+
 from src.core.engine.quests.quest_script import (
-    DialogTurn,
+    BuyItemStep,
+    CraftItemStep,
     EnsureItemStep,
     FightStep,
     GoToStep,
     QuestScript,
     QuestStep,
     TalkToNpcStep,
+    UseMapInteractiveStep,
 )
-from src.core.engine.quests.reply_selector import ByIndex, ByReplyId
+from src.core.behaviors.items.acquire_items_behavior import ItemToAcquire
+from src.core.engine.npcs.reply_selector import ByReplyId
 from src.core.events_manager.event_manager import EventManager
 from tests.fixtures.game_state import GameStateContext
 
@@ -29,6 +47,22 @@ START_MAP_ID = 100
 DESTINATION_MAP_ID = 200
 DESTINATION_MAP_IDS = {DESTINATION_MAP_ID}
 OTHER_MAP_IDS = {300}
+OBJECTIVE_A = 6752
+OBJECTIVE_B = 6753
+
+# Real ids from `NpcsDataRoot`, so the text lookups under test resolve against game data.
+KERUBIM_SHOP_CLOSED_MESSAGE_ID = 12877  # "La boutique est fermee pour cause d'inventaire..."
+KERUBIM_LISTEN_MESSAGE_ID = 13470  # "Vous etes toujours la ? Ca tombe bien..."
+KERUBIM_HELP_REPLY_ID = 15482  # "Accepter de l'aider."
+KERUBIM_LISTEN_REPLY_ID = 15483  # "Continuer a ecouter."
+SNORI_NAIRB_NPC_ID = 1088
+XELOR_LOUCHE_MONSTER_ID = 3363
+CIRE_DE_GLIGLI_GID = 14508
+GRAISSE_GELATINEUSE_GID = 1983
+POILS_DE_KERUBIM_GID = 13608
+PREPARER_POTION_SKILL_ID = 23
+POLISH_SKILL_ID = 700
+SHELF_CELL_IDS = (314, 347)  # Les deux seuls interactifs hors sortie chez Kerubim.
 
 
 def _make_behavior(game_state_ctx: GameStateContext) -> QuestScriptBehavior:
@@ -41,8 +75,10 @@ def _make_behavior(game_state_ctx: GameStateContext) -> QuestScriptBehavior:
         auto_trip_smart_behavior=MagicMock(),
         npc_dialog_behavior=MagicMock(),
         attacker_behavior=MagicMock(),
+        fight_behavior=MagicMock(),
         interactive_behavior=MagicMock(),
-        sale_hotel_buy_behavior=MagicMock(),
+        acquire_items_behavior=MagicMock(),
+        craft_behavior=MagicMock(),
     )
 
     def run_timer_inline(range_time: tuple[float, float] | float, func: Callable[[], None]) -> None:
@@ -109,6 +145,44 @@ def test_script_runs_its_steps_in_order(game_state_ctx: GameStateContext) -> Non
     assert finished == [None]
 
 
+def test_fight_step_targets_the_quest_monster(game_state_ctx: GameStateContext) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    game_state_ctx.game_state.map.map_id = DESTINATION_MAP_ID
+    steps: list[QuestStep] = [
+        FightStep(map_ids=DESTINATION_MAP_IDS, monster_id=3363, count=1, wait_for_group=False)
+    ]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+
+    assert _child_kwarg(behavior.attacker_behavior, "monster_ids") == {3363}
+    assert _child_kwarg(behavior.attacker_behavior, "wait_for_group") is False
+
+
+def test_fight_step_without_monster_id_does_not_filter(game_state_ctx: GameStateContext) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    game_state_ctx.game_state.map.map_id = DESTINATION_MAP_ID
+    steps: list[QuestStep] = [FightStep(map_ids=DESTINATION_MAP_IDS)]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+
+    assert _child_kwarg(behavior.attacker_behavior, "monster_ids") is None
+
+
+def test_unfought_quest_monster_aborts_the_script(game_state_ctx: GameStateContext) -> None:
+    """The quest monster was not on the map, so the step must not be reported as done."""
+    behavior = _make_behavior(game_state_ctx)
+    game_state_ctx.game_state.map.map_id = DESTINATION_MAP_ID
+    steps: list[QuestStep] = [
+        FightStep(map_ids=DESTINATION_MAP_IDS, monster_id=3363, count=1, wait_for_group=False)
+    ]
+    finished: list[str | None] = []
+
+    _start(behavior, QuestScript(name="demo", steps=steps), finished)
+    _child_callback(behavior.attacker_behavior)(None, 0)
+
+    assert finished == [QuestScriptError.FIGHT_NOT_COMPLETED]
+
+
 def test_travel_is_skipped_when_already_on_destination(game_state_ctx: GameStateContext) -> None:
     behavior = _make_behavior(game_state_ctx)
     game_state_ctx.game_state.map.map_id = DESTINATION_MAP_ID
@@ -141,6 +215,99 @@ def test_script_resumes_at_the_server_step(game_state_ctx: GameStateContext) -> 
 
     # It jumped straight to step 2, so it travels to the fight destination.
     assert _child_kwarg(behavior.auto_trip_smart_behavior, "map_ids") == DESTINATION_MAP_IDS
+
+
+def _declare_objective(
+    game_state_ctx: GameStateContext, objective_id: int, done: bool = False
+) -> None:
+    """Le serveur met `objective_reached` a True tant que l'objectif reste a faire."""
+    quest = game_state_ctx.game_state.quest.active_quest_by_id.setdefault(
+        QUEST_ID, QuestActive(quest_id=QUEST_ID)
+    )
+    objective = quest.details.objectives.add()
+    objective.objective_id = objective_id
+    objective.objective_reached = not done
+
+
+def _objective_script(steps: list[QuestStep]) -> QuestScript:
+    """Etape 0 = prendre la quete (sans objectif), les suivantes portent un objectif."""
+    return QuestScript(
+        name="demo",
+        quest_id=QUEST_ID,
+        steps=steps,
+        objective_id_by_index={1: OBJECTIVE_A, 2: OBJECTIVE_B},
+    )
+
+
+def test_an_already_accepted_quest_skips_the_step_that_takes_it(
+    game_state_ctx: GameStateContext,
+) -> None:
+    """Le PNJ ne reproposerait pas la quete : reparler a lui bloquerait le script."""
+    behavior = _make_behavior(game_state_ctx)
+    _declare_objective(game_state_ctx, OBJECTIVE_A)
+    steps: list[QuestStep] = [
+        TalkToNpcStep(npc_id=NPC_ID, turns=[]),
+        GoToStep(map_ids=OTHER_MAP_IDS),
+        GoToStep(map_ids=DESTINATION_MAP_IDS),
+    ]
+
+    _start(behavior, _objective_script(steps))
+
+    _mock_of(behavior.npc_dialog_behavior).start.assert_not_called()
+    assert _child_kwarg(behavior.auto_trip_smart_behavior, "map_ids") == OTHER_MAP_IDS
+
+
+def test_a_quest_not_yet_accepted_starts_at_the_first_step(
+    game_state_ctx: GameStateContext,
+) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    steps: list[QuestStep] = [
+        TalkToNpcStep(npc_id=NPC_ID, turns=[]),
+        GoToStep(map_ids=OTHER_MAP_IDS),
+        GoToStep(map_ids=DESTINATION_MAP_IDS),
+    ]
+
+    _start(behavior, _objective_script(steps))
+
+    _mock_of(behavior.npc_dialog_behavior).start.assert_called_once()
+
+
+def test_resume_skips_every_objective_already_reached(
+    game_state_ctx: GameStateContext,
+) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    _declare_objective(game_state_ctx, OBJECTIVE_A, done=True)
+    _declare_objective(game_state_ctx, OBJECTIVE_B)
+    steps: list[QuestStep] = [
+        TalkToNpcStep(npc_id=NPC_ID, turns=[]),
+        GoToStep(map_ids=OTHER_MAP_IDS),
+        GoToStep(map_ids=DESTINATION_MAP_IDS),
+    ]
+
+    _start(behavior, _objective_script(steps))
+
+    assert _child_kwarg(behavior.auto_trip_smart_behavior, "map_ids") == DESTINATION_MAP_IDS
+
+
+def test_an_objective_reached_mid_run_skips_its_step(game_state_ctx: GameStateContext) -> None:
+    """Un objectif peut se valider en route -- l'etape correspondante n'a plus lieu d'etre."""
+    behavior = _make_behavior(game_state_ctx)
+    _declare_objective(game_state_ctx, OBJECTIVE_A)
+    _declare_objective(game_state_ctx, OBJECTIVE_B)
+    steps: list[QuestStep] = [
+        TalkToNpcStep(npc_id=NPC_ID, turns=[]),
+        GoToStep(map_ids=OTHER_MAP_IDS),
+        GoToStep(map_ids=DESTINATION_MAP_IDS),
+    ]
+    finished: list[str | None] = []
+
+    _start(behavior, _objective_script(steps), finished)
+    # Le serveur valide l'objectif de l'etape suivante pendant que celle-ci se deroule.
+    game_state_ctx.game_state.quest.mark_objective_reached(QUEST_ID, OBJECTIVE_B)
+    _arrive(behavior, next(iter(OTHER_MAP_IDS)))
+
+    assert finished == [None]
+    assert _mock_of(behavior.auto_trip_smart_behavior).start.call_count == 1
 
 
 def test_script_starts_at_zero_when_server_step_is_unmapped(
@@ -220,9 +387,6 @@ def test_unknown_coord_aborts_the_script(game_state_ctx: GameStateContext) -> No
     assert finished == [QuestScriptError.UNKNOWN_DESTINATION]
 
 
-# --- dialog turns ----------------------------------------------------------
-
-
 def _make_question(message_id: int, reply_ids: list[int]) -> NpcDialogQuestionEvent:
     msg = NpcDialogQuestionEvent(message_id=message_id)
     for reply_id in reply_ids:
@@ -230,62 +394,16 @@ def _make_question(message_id: int, reply_ids: list[int]) -> NpcDialogQuestionEv
     return msg
 
 
-def _resolve_reply_of(behavior: QuestScriptBehavior) -> Callable[[NpcDialogQuestionEvent], ReplyInfo | None]:
-    return cast(
-        Callable[[NpcDialogQuestionEvent], ReplyInfo | None],
-        _child_kwarg(behavior.npc_dialog_behavior, "resolve_reply"),
-    )
-
-
-def _start_dialog_script(
-    game_state_ctx: GameStateContext, turns: list[DialogTurn]
-) -> QuestScriptBehavior:
-    behavior = _make_behavior(game_state_ctx)
-    steps: list[QuestStep] = [TalkToNpcStep(npc_id=NPC_ID, turns=turns)]
-    _start(behavior, QuestScript(name="demo", steps=steps))
-    return behavior
-
-
-def test_dialog_turns_are_consumed_in_order(game_state_ctx: GameStateContext) -> None:
-    behavior = _start_dialog_script(
-        game_state_ctx,
-        [
-            DialogTurn(message_id=1, reply=ByReplyId(reply_id=10)),
-            DialogTurn(message_id=2, reply=ByReplyId(reply_id=20), finish_after=True),
-        ],
-    )
-    resolve_reply = _resolve_reply_of(behavior)
-
-    first = resolve_reply(_make_question(1, [10, 11]))
-    second = resolve_reply(_make_question(2, [20, 21]))
-
-    assert first is not None
-    assert first.reply_id == 10
-    assert first.do_finish_after is False
-    assert second is not None
-    assert second.reply_id == 20
-    assert second.do_finish_after is True
-
-
-def test_dialog_turn_without_message_id_matches_any_question(
+def test_declared_turns_are_handed_to_the_dialog_behavior(
     game_state_ctx: GameStateContext,
 ) -> None:
-    behavior = _start_dialog_script(
-        game_state_ctx, [DialogTurn(reply=ByIndex(index=1), finish_after=True)]
-    )
+    behavior = _make_behavior(game_state_ctx)
+    turns = [DialogTurn(reply=ByReplyId(reply_id=10), finish_after=True)]
+    steps: list[QuestStep] = [TalkToNpcStep(npc_id=NPC_ID, turns=turns)]
 
-    reply_info = _resolve_reply_of(behavior)(_make_question(48366, [10, 11]))
+    _start(behavior, QuestScript(name="demo", steps=steps))
 
-    assert reply_info is not None
-    assert reply_info.reply_id == 11
-
-
-def test_unexpected_question_resolves_to_no_reply(game_state_ctx: GameStateContext) -> None:
-    behavior = _start_dialog_script(
-        game_state_ctx, [DialogTurn(message_id=1, reply=ByReplyId(reply_id=10))]
-    )
-
-    assert _resolve_reply_of(behavior)(_make_question(999, [10])) is None
+    assert _child_kwarg(behavior.npc_dialog_behavior, "turns") == turns
 
 
 def test_npc_not_on_map_aborts_the_script(game_state_ctx: GameStateContext) -> None:
@@ -296,3 +414,324 @@ def test_npc_not_on_map_aborts_the_script(game_state_ctx: GameStateContext) -> N
     _start(behavior, QuestScript(name="demo", steps=steps), finished)
 
     assert finished == [QuestScriptError.NPC_NOT_FOUND]
+
+
+# --- naming npcs and monsters instead of numbering them --------------------
+
+
+def _put_npc_on_map(behavior: QuestScriptBehavior, npc_id: int, actor_id: int) -> None:
+    actor = ActorPositionInformation(actor_id=actor_id)
+    actor.actor_information.role_play_actor.npc_actor.npc_id = npc_id
+    behavior.game_state.entity.actor_by_id[actor_id] = actor
+
+
+def _resolved_npc_id(behavior: QuestScriptBehavior) -> int:
+    """The id the dialog will actually be opened with, name resolution included."""
+    npc_dialog_info = _child_kwarg(behavior.npc_dialog_behavior, "npc_dialog_info")
+    assert isinstance(npc_dialog_info, NpcDialogInfo)
+    return behavior.game_state.entity.resolve_npc_id(npc_dialog_info)
+
+
+def test_npc_name_resolves_against_the_npc_standing_on_the_map(
+    game_state_ctx: GameStateContext,
+) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    _put_npc_on_map(behavior, npc_id=SNORI_NAIRB_NPC_ID, actor_id=SNORI_NAIRB_NPC_ID)
+    steps: list[QuestStep] = [TalkToNpcStep(npc_name="Snori Nairb", turns=[])]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+
+    assert _resolved_npc_id(behavior) == SNORI_NAIRB_NPC_ID
+
+
+def test_a_shared_npc_name_is_resolved_by_the_map(game_state_ctx: GameStateContext) -> None:
+    """Four npcs are called Kerubim Crepin, but only one of them stands here."""
+    behavior = _make_behavior(game_state_ctx)
+    _put_npc_on_map(behavior, npc_id=NPC_ID, actor_id=NPC_ID)
+    steps: list[QuestStep] = [TalkToNpcStep(npc_name="Kerubim Crepin", turns=[])]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+
+    assert _resolved_npc_id(behavior) == NPC_ID
+
+
+def test_a_named_npc_absent_from_the_map_aborts_the_script(
+    game_state_ctx: GameStateContext,
+) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    steps: list[QuestStep] = [TalkToNpcStep(npc_name="Snori Nairb", turns=[])]
+    finished: list[str | None] = []
+
+    _start(behavior, QuestScript(name="demo", steps=steps), finished)
+
+    assert finished == [QuestScriptError.NPC_NOT_FOUND]
+    _mock_of(behavior.npc_dialog_behavior).start.assert_not_called()
+
+
+def test_an_unknown_npc_name_aborts_the_script(game_state_ctx: GameStateContext) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    steps: list[QuestStep] = [TalkToNpcStep(npc_name="Kerubim Crepine", turns=[])]
+    finished: list[str | None] = []
+
+    _start(behavior, QuestScript(name="demo", steps=steps), finished)
+
+    assert finished == [QuestScriptError.NPC_NOT_FOUND]
+
+
+def test_monster_name_is_resolved_into_the_targeting_filter(
+    game_state_ctx: GameStateContext,
+) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    game_state_ctx.game_state.map.map_id = DESTINATION_MAP_ID
+    steps: list[QuestStep] = [
+        FightStep(map_ids=DESTINATION_MAP_IDS, monster_name="Xelor Louche", count=1)
+    ]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+
+    assert _child_kwarg(behavior.attacker_behavior, "monster_ids") == {XELOR_LOUCHE_MONSTER_ID}
+
+
+def test_an_unknown_monster_name_aborts_the_script(game_state_ctx: GameStateContext) -> None:
+    """Falling back to "any group" would quietly fight the wrong thing."""
+    behavior = _make_behavior(game_state_ctx)
+    game_state_ctx.game_state.map.map_id = DESTINATION_MAP_ID
+    steps: list[QuestStep] = [FightStep(map_ids=DESTINATION_MAP_IDS, monster_name="Xelor Absent")]
+    finished: list[str | None] = []
+
+    _start(behavior, QuestScript(name="demo", steps=steps), finished)
+
+    assert finished == [QuestScriptError.UNKNOWN_MONSTER]
+    _mock_of(behavior.attacker_behavior).start.assert_not_called()
+
+
+def test_coord_and_world_are_resolved_into_travel_destinations(
+    game_state_ctx: GameStateContext,
+) -> None:
+    """(7, -19) on the overworld is the single Astrub map Herdegrize stands on."""
+    behavior = _make_behavior(game_state_ctx)
+    steps: list[QuestStep] = [GoToStep(coord=(7, -19))]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+
+    assert _child_kwarg(behavior.auto_trip_smart_behavior, "map_ids") == {188746755}
+
+
+def test_map_name_narrows_an_interior_destination(game_state_ctx: GameStateContext) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    steps: list[QuestStep] = [
+        GoToStep(coord=(6, -18), world=WorldMapEnum.INTERIOR, map_name="Taverne d'Astrub - Chambre du pirate")
+    ]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+
+    assert _child_kwarg(behavior.auto_trip_smart_behavior, "map_ids") == {192416768}
+
+
+def test_a_pending_objective_is_not_taken_for_a_done_one(
+    game_state_ctx: GameStateContext,
+) -> None:
+    """Regression : `objective_reached=True` veut dire "a faire", pas "fait"."""
+    behavior = _make_behavior(game_state_ctx)
+    _declare_objective(game_state_ctx, OBJECTIVE_A)
+    _declare_objective(game_state_ctx, OBJECTIVE_B)
+    steps: list[QuestStep] = [
+        TalkToNpcStep(npc_id=NPC_ID, turns=[]),
+        GoToStep(map_ids=OTHER_MAP_IDS),
+        GoToStep(map_ids=DESTINATION_MAP_IDS),
+    ]
+
+    _start(behavior, _objective_script(steps))
+
+    # Rien n'est fait : on reprend a la premiere etape porteuse d'objectif, pas plus loin.
+    assert _child_kwarg(behavior.auto_trip_smart_behavior, "map_ids") == OTHER_MAP_IDS
+
+
+def test_an_objective_absent_from_the_server_is_not_done(
+    game_state_ctx: GameStateContext,
+) -> None:
+    """Un objectif pas encore revele ne doit pas faire sauter son etape."""
+    behavior = _make_behavior(game_state_ctx)
+    _declare_objective(game_state_ctx, OBJECTIVE_A, done=True)
+    steps: list[QuestStep] = [
+        TalkToNpcStep(npc_id=NPC_ID, turns=[]),
+        GoToStep(map_ids=OTHER_MAP_IDS),
+        GoToStep(map_ids=DESTINATION_MAP_IDS),
+    ]
+
+    _start(behavior, _objective_script(steps))
+
+    assert _child_kwarg(behavior.auto_trip_smart_behavior, "map_ids") == DESTINATION_MAP_IDS
+
+
+def _enter_fight(behavior: QuestScriptBehavior) -> None:
+    behavior.game_state.fight.in_fight = True
+    behavior.event_manager.process_msg(
+        ContextCreationEvent(context=ContextCreationEvent.GameContext.FIGHT)
+    )
+
+
+def test_a_fight_started_by_an_npc_is_played_before_resuming(
+    game_state_ctx: GameStateContext,
+) -> None:
+    """Gaztronom declenche le combat depuis le dialogue : le script doit le jouer."""
+    behavior = _make_behavior(game_state_ctx)
+    steps: list[QuestStep] = [
+        TalkToNpcStep(npc_id=NPC_ID, turns=[]),
+        GoToStep(map_ids=DESTINATION_MAP_IDS),
+    ]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+    _enter_fight(behavior)
+
+    _mock_of(behavior.fight_behavior).start.assert_called_once()
+
+
+def test_no_travel_is_attempted_while_in_fight(game_state_ctx: GameStateContext) -> None:
+    """Voyager depuis un combat plante sur `curr_vertex` : l'etape doit attendre."""
+    behavior = _make_behavior(game_state_ctx)
+    steps: list[QuestStep] = [GoToStep(map_ids=DESTINATION_MAP_IDS)]
+    game_state_ctx.game_state.fight.in_fight = True
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+
+    _mock_of(behavior.auto_trip_smart_behavior).start.assert_not_called()
+
+
+def test_the_step_resumes_once_the_fight_is_over(game_state_ctx: GameStateContext) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    steps: list[QuestStep] = [GoToStep(map_ids=DESTINATION_MAP_IDS)]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+    _enter_fight(behavior)
+    behavior.game_state.fight.in_fight = False
+    _child_callback(behavior.fight_behavior)(None)
+
+    _mock_of(behavior.auto_trip_smart_behavior).start.assert_called()
+
+
+def _put_interactives_on_map(behavior: QuestScriptBehavior, map_id: int, skill_id: int) -> None:
+    """Declare tous les interactifs connus de `map_id` comme utilisables, comme le serveur."""
+    behavior.game_state.map.map_id = map_id
+    behavior.game_state.interactive.interactive_element_by_id.clear()
+    for element_id in MapReader().get_ref_data_by_element_id_by_map_id(map_id):
+        behavior.game_state.interactive.interactive_element_by_id[element_id] = InteractiveElement(
+            element_id=element_id,
+            on_current_map=True,
+            enabled_skills=[InteractiveElement.InteractiveElementSkill(skill_id=skill_id)],
+        )
+
+
+def test_use_map_interactive_takes_a_furniture_not_an_exit(game_state_ctx: GameStateContext) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    _put_interactives_on_map(behavior, MapIdEnum.KERUBIM_SHOP, POLISH_SKILL_ID)
+    steps: list[QuestStep] = [UseMapInteractiveStep(map_ids={MapIdEnum.KERUBIM_SHOP})]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+
+    element_mp = cast(MapPoint, _child_kwarg(behavior.interactive_behavior, "element_mp"))
+    assert element_mp.cell_id == SHELF_CELL_IDS[0]
+
+
+def test_two_use_map_interactive_steps_take_two_different_furnitures(
+    game_state_ctx: GameStateContext,
+) -> None:
+    """Le premier meuble n'a plus de skill une fois lustre : le second doit prendre l'autre."""
+    behavior = _make_behavior(game_state_ctx)
+    _put_interactives_on_map(behavior, MapIdEnum.KERUBIM_SHOP, POLISH_SKILL_ID)
+    steps: list[QuestStep] = [
+        UseMapInteractiveStep(map_ids={MapIdEnum.KERUBIM_SHOP}),
+        UseMapInteractiveStep(map_ids={MapIdEnum.KERUBIM_SHOP}),
+    ]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+    used_element_id = cast(int, _child_kwarg(behavior.interactive_behavior, "element_id"))
+    behavior.game_state.interactive.interactive_element_by_id[used_element_id] = InteractiveElement(
+        element_id=used_element_id, on_current_map=True
+    )
+    _child_callback(behavior.interactive_behavior)(None)
+
+    element_mp = cast(MapPoint, _child_kwarg(behavior.interactive_behavior, "element_mp"))
+    assert element_mp.cell_id == SHELF_CELL_IDS[1]
+
+
+def test_use_map_interactive_without_candidate_aborts_the_script(
+    game_state_ctx: GameStateContext,
+) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    _put_interactives_on_map(behavior, MapIdEnum.KERUBIM_SHOP, SkillEnum.EXIT)
+    steps: list[QuestStep] = [UseMapInteractiveStep(map_ids={MapIdEnum.KERUBIM_SHOP})]
+    finished: list[str | None] = []
+
+    _start(behavior, QuestScript(name="demo", steps=steps), finished)
+
+    assert finished == [QuestScriptError.INTERACTIVE_NOT_FOUND]
+    _mock_of(behavior.interactive_behavior).start.assert_not_called()
+
+
+def test_craft_item_step_crafts_from_the_inventory(game_state_ctx: GameStateContext) -> None:
+    """Les ingredients sortent du HDV : le craft ne doit pas passer par la banque."""
+    behavior = _make_behavior(game_state_ctx)
+    steps: list[QuestStep] = [CraftItemStep(item_gid=CIRE_DE_GLIGLI_GID, quantity=2)]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+
+    recipes = cast(list[RecipeItem], _child_kwarg(behavior.craft_behavior, "recipes"))
+    assert [recipe.resultId for recipe in recipes] == [CIRE_DE_GLIGLI_GID]
+    assert recipes[0].skillId == PREPARER_POTION_SKILL_ID
+    assert _child_kwarg(behavior.craft_behavior, "quantity_by_result_id") == {CIRE_DE_GLIGLI_GID: 2}
+
+
+def test_craft_item_step_without_recipe_aborts_the_script(game_state_ctx: GameStateContext) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    steps: list[QuestStep] = [CraftItemStep(item_gid=-1)]
+    finished: list[str | None] = []
+
+    _start(behavior, QuestScript(name="demo", steps=steps), finished)
+
+    assert finished == [QuestScriptError.UNKNOWN_RECIPE]
+
+
+def _put_in_inventory(behavior: QuestScriptBehavior, item_gid: int, quantity: int) -> None:
+    behavior.game_state.inventory.objects_by_uid[item_gid] = ObjectItemInventory(
+        item=ObjectItem(uid=item_gid, gid=item_gid, quantity=quantity)
+    )
+
+
+def test_buy_item_step_delegates_the_whole_need_to_the_sourcing_behavior(
+    game_state_ctx: GameStateContext,
+) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    _put_in_inventory(behavior, GRAISSE_GELATINEUSE_GID, 2)
+    steps: list[QuestStep] = [BuyItemStep(item_gid=GRAISSE_GELATINEUSE_GID, max_kamas=5_000, quantity=5)]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+
+    items = cast(list[ItemToAcquire], _child_kwarg(behavior.acquire_items_behavior, "items"))
+    assert [(item.item_gid, item.quantity, item.max_kamas) for item in items] == [
+        (GRAISSE_GELATINEUSE_GID, 5, 5_000)
+    ]
+
+
+def test_buy_item_step_passes_when_nothing_was_missing(game_state_ctx: GameStateContext) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    _put_in_inventory(behavior, POILS_DE_KERUBIM_GID, 1)
+    steps: list[QuestStep] = [BuyItemStep(item_gid=POILS_DE_KERUBIM_GID, max_kamas=50_000)]
+    finished: list[str | None] = []
+
+    _start(behavior, QuestScript(name="demo", steps=steps), finished)
+    _child_callback(behavior.acquire_items_behavior)(None, {})
+
+    assert finished == [None]
+
+
+def test_a_partial_sourcing_aborts_the_script(game_state_ctx: GameStateContext) -> None:
+    behavior = _make_behavior(game_state_ctx)
+    steps: list[QuestStep] = [BuyItemStep(item_gid=GRAISSE_GELATINEUSE_GID, max_kamas=5_000, quantity=5)]
+    finished: list[str | None] = []
+
+    _start(behavior, QuestScript(name="demo", steps=steps), finished)
+    _put_in_inventory(behavior, GRAISSE_GELATINEUSE_GID, 4)
+    _child_callback(behavior.acquire_items_behavior)(None, {GRAISSE_GELATINEUSE_GID: 1})
+
+    assert finished == [QuestScriptError.ITEM_MISSING]

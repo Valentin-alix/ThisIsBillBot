@@ -1,7 +1,10 @@
 import dataclasses
 import datetime
 
-from datas.protos.non_obf.game.exchange_pb2 import SellingConditions
+from datas.protos.non_obf.game.exchange_pb2 import (
+    ExchangeBidSellerStartedEvent,
+    SellingConditions,
+)
 
 from src import const
 from src.controller.game_data import GameDataController
@@ -24,10 +27,16 @@ class SaleHotelState(State):
     bid_seller_condition: SellingConditions | None = dataclasses.field(init=False, default=None)
     current_search_item_gid: int | None = dataclasses.field(init=False, default=None)
     current_search_type_id: int | None = dataclasses.field(init=False, default=None)
+    items_in_sale: list[ExchangeBidSellerStartedEvent.ItemToSellInBid] = dataclasses.field(
+        init=False,
+        default_factory=list[ExchangeBidSellerStartedEvent.ItemToSellInBid],
+    )
 
     def clear_state(self):
         self.bid_seller_condition = None
         self.current_search_item_gid = None
+        self.current_search_type_id = None
+        self.items_in_sale = []
 
     @property
     def should_update_price(self):

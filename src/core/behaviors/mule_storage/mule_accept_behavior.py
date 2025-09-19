@@ -14,7 +14,7 @@ from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeStartedWithPodsEvent,
 )
 
-from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
@@ -31,7 +31,7 @@ from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
-class MuleAcceptBehavior(Behavior):
+class MuleAcceptBehavior(RecoverableBehavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
     unload_behavior: UnloadBehavior
     sale_hotel_prices_behavior: SaleHotelSellBehavior
@@ -40,6 +40,10 @@ class MuleAcceptBehavior(Behavior):
     _step: int = field(init=False, default=0)
 
     def run(self) -> None:
+        self.init_recovery_listeners()
+        self.ensure_free_to_act(lambda: self.start_accepting())
+
+    def start_accepting(self) -> None:
         self._step = 0
         self.go_bank_map()
 

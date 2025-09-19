@@ -56,6 +56,29 @@ class InteractiveBehavior(Behavior):
         if self.game_state.map.is_in_map_transition:
             return self.finish()
 
+        self.ensure_dialog_closed(
+            partial(
+                self.approach_and_use,
+                element_mp,
+                element_id,
+                skill_id,
+                ignore_server_range,
+                remaining_retries,
+                movement_cancel_probability,
+                pre_interaction_delay,
+            )
+        )
+
+    def approach_and_use(
+        self,
+        element_mp: MapPoint,
+        element_id: int,
+        skill_id: int | None,
+        ignore_server_range: bool,
+        remaining_retries: int,
+        movement_cancel_probability: float,
+        pre_interaction_delay: float,
+    ) -> None:
         skill_ids = self.game_state.interactive.get_enabled_skill_ids(element_id)
         if len(skill_ids) == 0:
             self.logger.warning(f"Element {element_id} has no enabled skill left")

@@ -24,6 +24,7 @@ class ScheduleProfile(BaseModel):
     name_fr: str
     proxy_id: str
     slots_by_day: dict[str, list[TimeSlot]]
+    mule_give_slot: TimeSlot | None = None
     kind: Literal["bot", "kamas_mule"] = "bot"
 
 

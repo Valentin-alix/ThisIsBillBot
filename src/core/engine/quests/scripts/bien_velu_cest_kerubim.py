@@ -31,10 +31,10 @@ _STEPS: list[QuestStep] = [
             DialogTurn(reply=ByText(pattern=r"objets legendaires")),
             DialogTurn(reply=ByText(pattern=r"cet ingrédient")),
             DialogTurn(reply=ByText(pattern=r"demander ce que c'est")),
-            DialogTurn(reply=ByText(pattern=r"le rassurer")),
-            DialogTurn(reply=ByText(pattern=r"en savoir plus")),
-            DialogTurn(reply=ByText(pattern=r"sa proposition")),
-            DialogTurn(reply=ByText(pattern=r"accepter"), finish_after=True),
+            DialogTurn(reply=ByText(pattern=r"le rassurer et l'interroger")),
+            DialogTurn(reply=ByText(pattern=r"en savoir plus a ce sujet")),
+            DialogTurn(reply=ByText(pattern=r"ecouter sa proposition")),
+            DialogTurn(reply=ByText(pattern=r"^accepter\.$"), finish_after=True),
         ]
     ),
     TalkToNpcStep(

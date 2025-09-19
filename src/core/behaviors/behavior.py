@@ -4,9 +4,16 @@ from enum import Enum, auto
 from threading import RLock, Timer
 from typing import ParamSpec, Protocol, cast
 
+from datas.protos.non_obf.game.common_pb2 import PlayerSearch
+from datas.protos.non_obf.game.contact_pb2 import IgnoreRequest
+from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
+from datas.protos.non_obf.game.exchange_pb2 import ExchangeLeaveEvent
+from datas.protos.non_obf.game.guild_information_pb2 import GuildInvitationAnswerRequest
+from datas.protos.non_obf.game.roleplay_pb2 import PlayerFightFriendlyAnswerRequest
 from google.protobuf.message import Message
 
 from src.core.events_manager.event_manager import EventManager
+from src.core.states.dialog_state import OpenDialogKind
 from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
 from src.services.human_timings import get_random_range
@@ -36,6 +43,13 @@ class BehaviorState(Enum):
 
 RunParams = ParamSpec("RunParams")
 
+DIALOG_LEAVE_TIMEOUT_SECONDS = 5.0
+DIALOG_LEAVE_KINDS = {OpenDialogKind.NPC_DIALOG, OpenDialogKind.ZAAP_DESTINATIONS}
+UNACKNOWLEDGED_KINDS = {
+    OpenDialogKind.FRIENDLY_FIGHT_REQUEST,
+    OpenDialogKind.GUILD_INVITE,
+}
+
 
 class RunnableBehavior(Protocol[RunParams]):
     def run(self, *args: RunParams.args, **kwargs: RunParams.kwargs) -> None: ...
@@ -52,6 +66,8 @@ class Behavior(ContextualLogger):
     _state_lock: RLock = field(init=False, default_factory=RLock)
     children: list["Behavior"] = field(init=False, default_factory=list["Behavior"])
     timers: list[Timer] = field(init=False, default_factory=list[Timer])
+    _run_args: tuple[object, ...] = field(init=False, default_factory=tuple[object, ...])
+    _run_kwargs: dict[str, object] = field(init=False, default_factory=dict[str, object])
 
     def _transition(self, from_states: set[BehaviorState], to_state: BehaviorState, reason: str = "") -> None:
         """
@@ -123,6 +139,8 @@ class Behavior(ContextualLogger):
             if behavior.parent:
                 behavior.parent.children.append(behavior)
             behavior.callback = callback
+            behavior._run_args = args
+            behavior._run_kwargs = kwargs
 
             behavior._transition(
                 {BehaviorState.STARTING},
@@ -232,6 +250,74 @@ class Behavior(ContextualLogger):
         if callback:
             callback(error_code, *args, **kwargs)
 
+    def ensure_dialog_closed(
+        self,
+        then: Callable[[], None],
+        keep: OpenDialogKind | None = None,
+    ) -> None:
+        kind = self.game_state.dialog.kind
+        if kind is None or kind is keep:
+            return then()
+
+        self.logger.info(f"Closing {kind} before going on")
+
+        if kind in UNACKNOWLEDGED_KINDS:
+            self.decline_solicitation(kind)
+            self.game_state.dialog.clear_state()
+            return then()
+
+        def on_timeout() -> None:
+            self.logger.warning(f"No leave confirmation for {kind}, assuming it is closed")
+            self.game_state.dialog.clear_state()
+            then()
+
+        self.event_manager.on(
+            DialogLeaveEvent if kind in DIALOG_LEAVE_KINDS else ExchangeLeaveEvent,
+            lambda _: then(),
+            originator=self,
+            once=True,
+            override_on_self=True,
+            timeout=DIALOG_LEAVE_TIMEOUT_SECONDS,
+            on_timeout=on_timeout,
+        )
+        self.event_manager.send(DialogLeaveRequest())
+
+    def decline_solicitation(self, kind: OpenDialogKind) -> None:
+        dialog = self.game_state.dialog
+        if kind is OpenDialogKind.GUILD_INVITE:
+            return self.event_manager.send(GuildInvitationAnswerRequest(accepted=False))
+
+        if dialog.context_name:
+            self.event_manager.send(
+                IgnoreRequest(
+                    player_search=PlayerSearch(
+                        search_by_character_name=PlayerSearch.SearchByCharacterName(name=dialog.context_name)
+                    )
+                )
+            )
+        self.event_manager.send(
+            PlayerFightFriendlyAnswerRequest(fight_id=dialog.context_id or 0, accept=False)
+        )
+
+    def leave_dialog(self, on_leave_callback: Callable[[ExchangeLeaveEvent], None] | None = None) -> None:
+        if not self.game_state.dialog.is_any_open:
+            self.logger.info("Nothing is open, skipping the leave request")
+            if on_leave_callback:
+                on_leave_callback(ExchangeLeaveEvent())
+            return
+
+        if on_leave_callback:
+            self.event_manager.on(
+                ExchangeLeaveEvent,
+                callback=on_leave_callback,
+                originator=self,
+                once=True,
+                override_on_self=True,
+                timeout=DIALOG_LEAVE_TIMEOUT_SECONDS,
+                on_timeout=lambda: on_leave_callback(ExchangeLeaveEvent()),
+            )
+        self.event_manager.send(DialogLeaveRequest())
+
     def unregister_listener(self, event_type: type[Message], reason: str = "") -> None:
         """
         Nettoie un listener spécifique en cours d'exécution.
@@ -248,6 +334,10 @@ class Behavior(ContextualLogger):
         if reason:
             self.logger.debug(f"Manual listener cleanup: {event_type.__name__} - {reason}")
         self.event_manager.clear_listener_by_origin_and_type(event_type, self)
+
+    def replay_run(self) -> None:
+        runnable = cast(RunnableBehavior[...], self)
+        runnable.run(*self._run_args, **self._run_kwargs)
 
     def raise_if_error(self, error_code: str | None) -> None:
         if error_code is not None:

@@ -30,6 +30,7 @@ class InventoryState(State):
     bank_objects_by_uid: dict[int, ObjectItemInventory] = dataclasses.field(
         init=False, default_factory=dict[int, ObjectItemInventory]
     )
+    bank_content_known: bool = dataclasses.field(init=False, default=False)
     objects_by_uid: ObjectByUid = field(init=False, default_factory=ObjectByUid)
 
     def get_unlinked_objects(self) -> list[ObjectItemInventory]:

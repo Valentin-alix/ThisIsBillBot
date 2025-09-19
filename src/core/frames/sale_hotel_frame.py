@@ -104,6 +104,7 @@ class SaleHotelFrame(Frame):
         self.game_state.sale_hotel.timedelta_for_next_sale_hotel_prices = get_time_beween_sale_hotel_prices()
         self.game_state.sale_hotel.last_time_updated_prices = datetime.datetime.now()
         self.game_state.sale_hotel.bid_seller_condition = msg.selling_conditions
+        self.game_state.sale_hotel.items_in_sale = list(msg.items)
         GameDataController().update_hdv(
             self.game_state.player.server_id,
             self.game_state.player.character_id,

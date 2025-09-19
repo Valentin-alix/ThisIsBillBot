@@ -514,3 +514,9 @@ class DataReader(metaclass=Singleton):
             for direction in range(8):
                 key_cells.add(cell_id | direction << 12)
         return key_cells
+
+
+if __name__ == "__main__":
+    map_info = DataReader().map_info_by_map_id[190318594]
+    print(map_info)
+    print(DataReader().map_ids_by_sub_area_id[map_info.subAreaId])

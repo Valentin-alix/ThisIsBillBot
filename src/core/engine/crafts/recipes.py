@@ -129,7 +129,7 @@ def get_valid_recipes(
     return valid_recipes
 
 
-def get_recipes_for_job_lvl_upor_benefice(is_sub: bool, jobs_lvl_by_id: dict[int, int]) -> list[RecipeItem]:
+def get_recipes_for_job_lvl_up_or_benefice(is_sub: bool, jobs_lvl_by_id: dict[int, int]) -> list[RecipeItem]:
     recipes: list[RecipeItem] = []
     for recipe in DataReader().recipes:
         if is_not_valid_recipe_for_lvl_up_job_or_benefice(recipe, is_sub, jobs_lvl_by_id):

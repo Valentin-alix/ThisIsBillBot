@@ -1,6 +1,7 @@
 from src.core.signals.grid_signals import GridSignals
 from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.states.craft_state import CraftState
+from src.core.states.dialog_state import DialogState
 from src.core.states.entity_state import EntityState
 from src.core.states.fight_state import FightState
 from src.core.states.game_state import GameState
@@ -64,6 +65,7 @@ class StateFactory:
         craft_state = CraftState(_logger=logger, player_state=player_state)
         quest_state = QuestState(_logger=logger)
         server_state = ServerState(_logger=logger)
+        dialog_state = DialogState(_logger=logger)
         game_state = GameState(
             entity=entity_state,
             fight=fight_state,
@@ -76,5 +78,6 @@ class StateFactory:
             craft=craft_state,
             server=server_state,
             quest=quest_state,
+            dialog=dialog_state,
         )
         return game_state

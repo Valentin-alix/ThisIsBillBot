@@ -2,13 +2,10 @@ from abc import abstractmethod
 from dataclasses import dataclass, field
 
 from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
-from datas.protos.non_obf.game.exchange_pb2 import (
-    ExchangeLeaveEvent,
-)
 from dofus_unity_reader.data_center.i18n import I18N
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
-from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
 from src.core.config import USEFUL_UNLOAD
 from src.services.human_timings import HumanTimingsService
@@ -19,7 +16,7 @@ from src.core.engine.crafts.recipes import (
 
 
 @dataclass
-class RecipeLoaderBehavior(DialogHandlerBehavior):
+class RecipeLoaderBehavior(RecoverableBehavior):
     unload_behavior: UnloadBehavior
 
     _remaining_recipes: list[RecipeItem] = field(init=False, default_factory=list[RecipeItem])
@@ -40,6 +37,10 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
         pass
 
     def run(self, recipes: list[RecipeItem]) -> None:
+        self.init_recovery_listeners()
+        self.ensure_free_to_act(lambda: self.start_recipe_load(recipes=recipes))
+
+    def start_recipe_load(self, recipes: list[RecipeItem]) -> None:
         self._remaining_recipes = recipes.copy()
         self._loaded_recipes_infos = []
 
@@ -95,16 +96,10 @@ class RecipeLoaderBehavior(DialogHandlerBehavior):
         pass
 
     def on_full_loaded(self) -> None:
-        self.event_manager.on(
-            ExchangeLeaveEvent,
-            callback=lambda _: self.finish(
+        self.run_timer(
+            HumanTimingsService().get_timing_base_action(),
+            lambda: self.finish(
                 loaded_recipes_infos=self._loaded_recipes_infos,
                 remaining_recipes=self._remaining_recipes,
             ),
-            originator=self,
-            once=True,
         )
-        self.run_timer(HumanTimingsService().get_timing_base_action(), self.leave_all_dialogs)
-
-    def leave_all_dialogs(self) -> None:
-        self.leave_dialog()

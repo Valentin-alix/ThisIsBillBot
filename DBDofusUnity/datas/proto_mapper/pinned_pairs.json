@@ -2265,6 +2265,20 @@
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap.UnknownJsg"
     },
     {
+      "obf": "jwe",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Game.Action.GameActionFightEvent",
+      "field_mapping_by_obf": {
+        "fvnx": "death"
+      }
+    },
+    {
+      "obf": "jwe.jwd.jvn",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Game.Action.GameActionFightEvent.Death",
+      "field_mapping_by_obf": {
+        "fvle": "target_id"
+      }
+    },
+    {
       "obf": "jwe.jwd.jtq",
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Game.Action.GameActionFightEvent.UnknownJtq",
       "field_mapping_by_obf": {
@@ -4111,6 +4125,25 @@
         "gdqe": "slot",
         "gdqg": "hide"
       }
+    },
+    {
+      "obf": "mga",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Achievement.AchievementRewardRequest"
+    },
+    {
+      "obf": "kpy",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Contact.IgnoreEvent",
+      "field_mapping_by_obf": {
+        "fypd": "success"
+      }
+    },
+    {
+      "obf": "kpy.kpw",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Contact.UnBlockEvent.Success"
+    },
+    {
+      "obf": "hpv",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Roleplay.PlayerFightFriendlyAnswerRequest"
     }
   ]
 }

@@ -1,21 +1,73 @@
 from unittest.mock import MagicMock
+from datetime import datetime, timedelta
 
 import pytest
 
+from dofus_unity_reader.game_constants.item import CategoryItemEnum, ItemEnum
+
+from src.core.behaviors.items.acquire_items_behavior import (
+    AcquireItemsBehavior,
+    ItemToAcquire,
+)
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripErrorCode
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.bot.bot import Bot
+from src.core.bot.session_activity_plan import SessionActivity, SessionActivityPlan, SessionActivitySlot
 from src.exceptions import UnhandledErrorCodeException
 
 
 class TestFarmRecovery:
-    def test_auto_equipment_skips_sale_hotel_for_never_subscribed_account(
+    def test_empty_activity_is_removed_and_remaining_slots_are_redistributed(self) -> None:
+        session_start = datetime(2026, 8, 12, 8)
+        session_end = session_start + timedelta(hours=8)
+        reschedule_at = session_start + timedelta(hours=2)
+        plan = SessionActivityPlan(
+            session_start=session_start,
+            session_end=session_end,
+            slots=[
+                SessionActivitySlot(SessionActivity.QUEST, session_start + timedelta(hours=1)),
+                SessionActivitySlot(SessionActivity.DUNGEON, session_start + timedelta(hours=3)),
+                SessionActivitySlot(SessionActivity.CRAFT, session_start + timedelta(hours=5)),
+            ],
+        )
+
+        plan.discard_empty_activity(SessionActivity.QUEST, reschedule_at)
+
+        assert plan.completed_activities == {SessionActivity.QUEST}
+        assert [slot.activity for slot in plan.slots] == [SessionActivity.DUNGEON, SessionActivity.CRAFT]
+        assert all(reschedule_at < slot.starts_at < session_end for slot in plan.slots)
+
+    def test_auto_bot_redistributes_slots_after_an_empty_activity(
         self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        auto_equipment_behavior = runtime_bot.auto_bot_behavior.auto_equipment_behavior
+        auto_bot_behavior = runtime_bot.auto_bot_behavior
+        session_start = datetime.now() - timedelta(hours=2)
+        session_end = session_start + timedelta(hours=8)
+        auto_bot_behavior._session_activity_plan = SessionActivityPlan(
+            session_start=session_start,
+            session_end=session_end,
+            slots=[
+                SessionActivitySlot(SessionActivity.QUEST, session_start + timedelta(hours=1)),
+                SessionActivitySlot(SessionActivity.DUNGEON, session_start + timedelta(hours=3)),
+            ],
+        )
+        monkeypatch.setattr(auto_bot_behavior, "run_timer", MagicMock())
+
+        auto_bot_behavior._on_session_activity_finished(SessionActivity.QUEST, None)
+
+        assert auto_bot_behavior._session_activity_plan.completed_activities == {SessionActivity.QUEST}
+        assert [slot.activity for slot in auto_bot_behavior._session_activity_plan.slots] == [
+            SessionActivity.DUNGEON
+        ]
+
+    @staticmethod
+    def _prepare_sourcing(
+        runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch, *, is_former_sub: bool
+    ) -> tuple[AcquireItemsBehavior, MagicMock]:
+        acquire_items_behavior = runtime_bot.auto_bot_behavior.auto_equipment_behavior.acquire_items_behavior
         sale_hotel_start = MagicMock()
-        collect_and_equip = MagicMock()
-        auto_equipment_behavior._to_buy = [MagicMock()]
+        monkeypatch.setattr(acquire_items_behavior.sale_hotel_buy_behavior, "start", sale_hotel_start)
+        monkeypatch.setattr(acquire_items_behavior.load_from_bank_behavior, "start", MagicMock())
         monkeypatch.setattr(
             type(runtime_bot.game_state.player),
             "is_sub",
@@ -24,43 +76,50 @@ class TestFarmRecovery:
         monkeypatch.setattr(
             type(runtime_bot.game_state.player),
             "is_former_sub",
-            property(lambda _player_state: False),
+            property(lambda _player_state: is_former_sub),
         )
-        monkeypatch.setattr(
-            auto_equipment_behavior.sale_hotel_buy_behavior,
-            "start",
-            sale_hotel_start,
-        )
-        monkeypatch.setattr(auto_equipment_behavior, "collect_and_equip", collect_and_equip)
+        runtime_bot.game_state.inventory.bank_content_known = True
+        return acquire_items_behavior, sale_hotel_start
 
-        auto_equipment_behavior.buy_missing_items()
+    def test_sourcing_skips_sale_hotel_for_never_subscribed_account(
+        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        acquire_items_behavior, sale_hotel_start = self._prepare_sourcing(
+            runtime_bot, monkeypatch, is_former_sub=False
+        )
+
+        acquire_items_behavior.start(
+            items=[
+                ItemToAcquire(
+                    item_gid=ItemEnum.AMULETTE_AKWADALA,
+                    max_kamas=10_000,
+                    category=CategoryItemEnum.EQUIPMENT,
+                )
+            ],
+            callback=None,
+            parent=None,
+        )
 
         sale_hotel_start.assert_not_called()
-        collect_and_equip.assert_called_once_with()
 
-    def test_auto_equipment_keeps_sale_hotel_for_former_subscriber(
+    def test_sourcing_keeps_sale_hotel_for_former_subscriber(
         self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        auto_equipment_behavior = runtime_bot.auto_bot_behavior.auto_equipment_behavior
-        sale_hotel_start = MagicMock()
-        auto_equipment_behavior._to_buy = [MagicMock()]
-        monkeypatch.setattr(
-            type(runtime_bot.game_state.player),
-            "is_sub",
-            property(lambda _player_state: False),
-        )
-        monkeypatch.setattr(
-            type(runtime_bot.game_state.player),
-            "is_former_sub",
-            property(lambda _player_state: True),
-        )
-        monkeypatch.setattr(
-            auto_equipment_behavior.sale_hotel_buy_behavior,
-            "start",
-            sale_hotel_start,
+        acquire_items_behavior, sale_hotel_start = self._prepare_sourcing(
+            runtime_bot, monkeypatch, is_former_sub=True
         )
 
-        auto_equipment_behavior.buy_missing_items()
+        acquire_items_behavior.start(
+            items=[
+                ItemToAcquire(
+                    item_gid=ItemEnum.AMULETTE_AKWADALA,
+                    max_kamas=10_000,
+                    category=CategoryItemEnum.EQUIPMENT,
+                )
+            ],
+            callback=None,
+            parent=None,
+        )
 
         sale_hotel_start.assert_called_once()
 

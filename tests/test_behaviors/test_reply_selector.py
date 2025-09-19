@@ -1,11 +1,9 @@
 from datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
 
-from src.core.engine.quests.reply_selector import (
-    ByIndex,
-    ByQuestAction,
-    ByReplyId,
-    resolve_reply_id,
-)
+from src.core.engine.npcs.reply_selector import ByReplyId, ByText, resolve_reply_id
+
+CONSULT_CHEST_REPLY_ID = 64361  # "Consulter son coffre personnel."
+OPEN_ACCOUNT_REPLY_ID = 64362  # "Se renseigner sur les modalites d'ouverture d'un compte..."
 
 
 def _make_question(reply_ids: list[int]) -> NpcDialogQuestionEvent:
@@ -16,40 +14,32 @@ def _make_question(reply_ids: list[int]) -> NpcDialogQuestionEvent:
 
 
 def test_by_reply_id_returns_the_reply_when_visible() -> None:
-    msg = _make_question([64361, 64362])
+    msg = _make_question([CONSULT_CHEST_REPLY_ID, OPEN_ACCOUNT_REPLY_ID])
 
-    assert resolve_reply_id(ByReplyId(reply_id=64362), msg) == 64362
+    assert resolve_reply_id(ByReplyId(reply_id=OPEN_ACCOUNT_REPLY_ID), msg) == OPEN_ACCOUNT_REPLY_ID
 
 
 def test_by_reply_id_returns_none_when_reply_is_not_offered() -> None:
-    msg = _make_question([64361])
+    msg = _make_question([CONSULT_CHEST_REPLY_ID])
 
     assert resolve_reply_id(ByReplyId(reply_id=99999), msg) is None
 
 
-def test_by_index_returns_the_nth_visible_reply() -> None:
-    msg = _make_question([64361, 64362, 64363])
+def test_by_text_matches_the_reply_on_its_wording() -> None:
+    msg = _make_question([CONSULT_CHEST_REPLY_ID, OPEN_ACCOUNT_REPLY_ID])
 
-    assert resolve_reply_id(ByIndex(index=0), msg) == 64361
-    assert resolve_reply_id(ByIndex(index=2), msg) == 64363
-
-
-def test_by_index_returns_none_when_out_of_range() -> None:
-    msg = _make_question([64361])
-
-    assert resolve_reply_id(ByIndex(index=1), msg) is None
-    assert resolve_reply_id(ByIndex(index=-1), msg) is None
+    assert resolve_reply_id(ByText(pattern=r"coffre personnel"), msg) == CONSULT_CHEST_REPLY_ID
 
 
-def test_by_quest_action_matches_the_reply_carrying_the_action() -> None:
-    msg = _make_question([64361, 64362])
-    msg.visible_replies[1].actions.add().id = 4242
+def test_by_text_ignores_accents_and_case() -> None:
+    msg = _make_question([OPEN_ACCOUNT_REPLY_ID])
 
-    assert resolve_reply_id(ByQuestAction(action_id=4242), msg) == 64362
+    assert (
+        resolve_reply_id(ByText(pattern=r"MODALITES D'OUVERTURE"), msg) == OPEN_ACCOUNT_REPLY_ID
+    )
 
 
-def test_by_quest_action_returns_none_without_mapped_actions() -> None:
-    """`VisibleReply.actions` is absent from game_mappings.json, so it decodes empty."""
-    msg = _make_question([64361, 64362])
+def test_by_text_returns_none_when_no_offered_reply_matches() -> None:
+    msg = _make_question([CONSULT_CHEST_REPLY_ID])
 
-    assert resolve_reply_id(ByQuestAction(action_id=4242), msg) is None
+    assert resolve_reply_id(ByText(pattern=r"modalites d'ouverture"), msg) is None

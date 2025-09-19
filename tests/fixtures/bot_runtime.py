@@ -2,10 +2,17 @@ from dataclasses import dataclass, field
 from threading import Event, RLock
 from unittest.mock import Mock
 
+from src.core.behaviors.recovery import BlockingStateRecovery
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.lifecycle.scheduler import BotScheduler
 from src.core.events_manager.event_manager import EventManager
 from tests.fixtures.accounts import make_account
+
+
+def make_blocking_state_recovery() -> BlockingStateRecovery:
+    return BlockingStateRecovery(
+        fight_behavior=Mock(), dungeon_behavior=Mock(), tutorial_behavior=Mock()
+    )
 
 
 @dataclass
@@ -67,6 +74,9 @@ def make_bot_scheduler() -> BotScheduler:
         behavior_coordinator=Mock(),
         process_manager=Mock(),
         event_manager=EventManager(_logger=Mock()),
+        on_session_started=Mock(),
+        on_session_finished=Mock(),
+        on_mule_give_slot_started=Mock(),
     )
 
 

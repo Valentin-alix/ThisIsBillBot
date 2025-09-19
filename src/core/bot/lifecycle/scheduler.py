@@ -2,7 +2,7 @@ import random
 import threading
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Event
 from time import sleep
 
@@ -10,8 +10,7 @@ import schedule
 
 SCHEDULE_RANDOM_MINUTES_MIN = 10
 SCHEDULE_RANDOM_MINUTES_MAX = 30
-MULE_SCHEDULE_RANDOM_MINUTES_MIN = 1
-MULE_SCHEDULE_RANDOM_MINUTES_MAX = 8
+MULE_GIVE_START_DELAY_MINUTES = 2
 
 from ankama_launcher_emulator_premium.gui.utils import run_in_background
 from ankama_launcher_emulator_premium.interfaces.credentials import (
@@ -19,6 +18,7 @@ from ankama_launcher_emulator_premium.interfaces.credentials import (
 )
 from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
     ScheduleProfileController,
+    TimeSlot,
 )
 
 from src.controller.bot_config import BotConfig
@@ -39,6 +39,12 @@ class RandomizedSlot:
     end: str
 
 
+@dataclass(frozen=True)
+class ScheduledSessionWindow:
+    start: datetime
+    end: datetime
+
+
 @dataclass
 class BotScheduler(ContextualLogger):
     """Handles bot scheduling and playtime management."""
@@ -55,6 +61,9 @@ class BotScheduler(ContextualLogger):
     behavior_coordinator: BehaviorCoordinator
     process_manager: ProcessManager
     event_manager: EventManager
+    on_session_started: Callable[[datetime, datetime], None]
+    on_session_finished: Callable[[], None]
+    on_mule_give_slot_started: Callable[[datetime], None]
 
     _scheduled_jobs: list[schedule.Job] = field(init=False, default_factory=list[schedule.Job])
     _randomized_slots_by_day: dict[int, list[RandomizedSlot]] = field(
@@ -73,6 +82,7 @@ class BotScheduler(ContextualLogger):
 
         now = datetime.now()
         if self.is_in_randomized_playtime(now):
+            self._start_current_session(now)
             self.bot_signals.play.emit(False)
             self.shared_signals.launch_account.emit(self.account.apikey.login)
 
@@ -102,12 +112,8 @@ class BotScheduler(ContextualLogger):
             self.logger.error(f"Unknown schedule profile {profile_id}")
             return
         self._is_kamas_mule_profile = profile.kind == "kamas_mule"
-        random_minutes_min = (
-            MULE_SCHEDULE_RANDOM_MINUTES_MIN if self._is_kamas_mule_profile else SCHEDULE_RANDOM_MINUTES_MIN
-        )
-        random_minutes_max = (
-            MULE_SCHEDULE_RANDOM_MINUTES_MAX if self._is_kamas_mule_profile else SCHEDULE_RANDOM_MINUTES_MAX
-        )
+        random_minutes_min = 0 if self._is_kamas_mule_profile else SCHEDULE_RANDOM_MINUTES_MIN
+        random_minutes_max = 0 if self._is_kamas_mule_profile else SCHEDULE_RANDOM_MINUTES_MAX
 
         for day_str, slots in profile.slots_by_day.items():
             day = int(day_str)
@@ -146,10 +152,31 @@ class BotScheduler(ContextualLogger):
                 )
                 self._scheduled_jobs.append(end_job)
 
+        if profile.mule_give_slot is not None:
+            self._schedule_mule_give_jobs(profile.mule_give_slot)
+
         midnight_job = (
             schedule.every().day.at("00:00").do(lambda: self._reschedule_with_new_random_times(profile_id))
         )
         self._scheduled_jobs.append(midnight_job)
+
+    def _schedule_mule_give_jobs(self, mule_give_slot: TimeSlot) -> None:
+        start_time = _add_minutes(mule_give_slot.start, MULE_GIVE_START_DELAY_MINUTES)
+        for day in range(7):
+            mule_give_job = (
+                _get_day_scheduler(day)
+                .at(start_time)
+                .do(lambda: self._notify_mule_give_slot_started(mule_give_slot.end))
+            )
+            self._scheduled_jobs.append(mule_give_job)
+
+    def _notify_mule_give_slot_started(self, end_time: str) -> None:
+        now = datetime.now()
+        end_hour, end_minute = map(int, end_time.split(":"))
+        ends_at = now.replace(hour=end_hour, minute=end_minute, second=0, microsecond=0)
+        if ends_at <= now:
+            ends_at += timedelta(days=1)
+        self.on_mule_give_slot_started(ends_at)
 
     def _reschedule_with_new_random_times(self, profile_id: str) -> None:
         """Reschedule all jobs with new random times (called daily at midnight)."""
@@ -181,6 +208,27 @@ class BotScheduler(ContextualLogger):
                 return True
         return False
 
+    def _get_current_session_window(self, now: datetime) -> ScheduledSessionWindow | None:
+        current_day = now.weekday()
+        for day_offset in (0, -1):
+            slot_day = (current_day + day_offset) % 7
+            slot_date = now.date() if day_offset == 0 else now.date() - timedelta(days=1)
+            for slot in self._randomized_slots_by_day.get(slot_day, []):
+                start_time = datetime.strptime(slot.start, "%H:%M").time()
+                end_time = datetime.strptime(slot.end, "%H:%M").time()
+                starts_at = datetime.combine(slot_date, start_time)
+                ends_at = datetime.combine(slot_date, end_time)
+                if ends_at <= starts_at:
+                    ends_at += timedelta(days=1)
+                if starts_at <= now <= ends_at:
+                    return ScheduledSessionWindow(start=starts_at, end=ends_at)
+        return None
+
+    def _start_current_session(self, now: datetime) -> None:
+        session_window = self._get_current_session_window(now)
+        assert session_window is not None, "A scheduled restart must occur inside a session window"
+        self.on_session_started(session_window.start, session_window.end)
+
     def stop_scheduled_runtime(self) -> None:
         self.logger.info("Stopping bot")
         if self._is_kamas_mule_profile:
@@ -194,8 +242,10 @@ class BotScheduler(ContextualLogger):
             or self.process_manager.is_bot_process_running()
         )
         if runtime_is_active:
+            self.on_session_finished()
             self._disconnect_runtime()
         else:
+            self.on_session_finished()
             self.logger.info("Bot runtime is already stopped")
 
     def _disconnect_runtime(self) -> None:
@@ -222,6 +272,7 @@ class BotScheduler(ContextualLogger):
             return self.logger.info("Bot is not anymore in playtime")
 
         if not self.is_playing_event.is_set():
+            self._start_current_session(datetime.now())
             self.bot_signals.play.emit(False)
             self.shared_signals.launch_account.emit(self.account.apikey.login)
         else:
@@ -269,6 +320,13 @@ def _add_random_minutes(
     new_hours = (total_minutes // 60) % 24
     new_minutes = total_minutes % 60
     return f"{new_hours:02d}:{new_minutes:02d}"
+
+
+def _add_minutes(time_str: str, minutes_to_add: int) -> str:
+    assert minutes_to_add >= 0, "A scheduled time can only move forward"
+    hours, minutes = map(int, time_str.split(":"))
+    total_minutes = hours * 60 + minutes + minutes_to_add
+    return f"{(total_minutes // 60) % 24:02d}:{total_minutes % 60:02d}"
 
 
 def _subtract_random_minutes(

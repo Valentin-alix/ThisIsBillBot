@@ -1,23 +1,19 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import partial
 
 from datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.dungeon_info import PLAYABLE_DUNGEONS, DungeonInfo
-from dofus_unity_reader.data_center.i18n import I18N
-
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
-from src.services.human_timings import HumanTimingsService
 from src.core.engine.dungeons.dungeon_access import (
     do_have_key_access_to_dungeon,
 )
+from src.core.engine.dungeons.dungeon_info import DungeonInfo, PLAYABLE_DUNGEONS
 
 
 @dataclass
@@ -26,7 +22,14 @@ class DungeonBehavior(Behavior):
     attacker_behavior: AttackerBehavior
     auto_trip_smart_behavior: AutoTripSmartBehavior
 
+    _activity_performed: bool = field(init=False, default=False)
+
+    @property
+    def activity_performed(self) -> bool:
+        return self._activity_performed
+
     def run(self, dungeon_info: DungeonInfo | None = None) -> None:
+        self._activity_performed = False
         if dungeon_info is None:
             dungeon_info = next(
                 (
@@ -42,6 +45,11 @@ class DungeonBehavior(Behavior):
             )
             if dungeon_info is None:
                 return self.finish()
+
+        if self.game_state.map.map_id in dungeon_info.dungeon.mapIds:
+            return self.on_new_map(dungeon_info)
+        if self.game_state.map.map_id == dungeon_info.exit_dialog_map_id:
+            return self.exit_dungeon(dungeon_info)
 
         self.auto_trip_smart_behavior.start(
             map_ids={dungeon_info.entrance_npc_info.npc_map_id},
@@ -60,11 +68,14 @@ class DungeonBehavior(Behavior):
 
         self.npc_dialog_behavior.start(
             npc_dialog_info=dungeon_info.entrance_npc_info,
-            callback=self.on_npc_dialog_behavior_finished,
+            turns=dungeon_info.entrance_turns,
+            callback=partial(self.on_npc_dialog_behavior_finished, dungeon_info=dungeon_info),
             parent=self,
         )
 
     def on_npc_dialog_behavior_finished(self, error_code: str | None, dungeon_info: DungeonInfo) -> None:
+        if error_code is not None:
+            return self.finish(error_code)
         self.event_manager.on(
             MapComplementaryInformationEvent,
             lambda _: self.on_new_map(dungeon_info),
@@ -93,28 +104,30 @@ class DungeonBehavior(Behavior):
         count_fighted_on_map: int,
         dungeon_info: DungeonInfo,
     ) -> None:
+        if count_fighted_on_map > 0:
+            self._activity_performed = True
         self.on_new_map(dungeon_info)
 
     def exit_dungeon(self, dungeon_info: DungeonInfo) -> None:
-        map_name_id = DataReader().map_info_by_map_id[self.game_state.map.map_id].nameId
-        title_map = I18N().name_by_id[map_name_id] if map_name_id in I18N().name_by_id else ""
-        if "Sortie" in title_map:
-            self.event_manager.on(
-                MapComplementaryInformationEvent,
-                callback=self.on_new_map_after_exit_dungeon,
-                originator=self,
-                once=True,
-            )
-            self.run_timer(
-                HumanTimingsService().get_timing_after_map_arrival(),
-                lambda: self.npc_dialog_behavior.start(
-                    npc_dialog_info=dungeon_info.exit_npc_info,
-                    callback=None,
-                    parent=self,
-                ),
-            )
-        else:
-            self.finish()
+        if self.game_state.map.map_id != dungeon_info.exit_dialog_map_id:
+            return self.finish()
+
+        self.event_manager.on(
+            MapComplementaryInformationEvent,
+            callback=self.on_new_map_after_exit_dungeon,
+            originator=self,
+            once=True,
+        )
+        self.npc_dialog_behavior.start(
+            npc_dialog_info=dungeon_info.exit_npc_info,
+            turns=dungeon_info.exit_turns,
+            callback=self.on_exit_npc_dialog_behavior_finished,
+            parent=self,
+        )
+
+    def on_exit_npc_dialog_behavior_finished(self, error_code: str | None) -> None:
+        if error_code is not None:
+            self.finish(error_code)
 
     def on_new_map_after_exit_dungeon(self, msg: MapComplementaryInformationEvent) -> None:
         self.finish()

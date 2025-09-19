@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestError,
 )
@@ -15,11 +15,15 @@ from src.exceptions import UnhandledErrorCodeException
 
 
 @dataclass
-class UnloadBehavior(Behavior):
+class UnloadBehavior(RecoverableBehavior):
     unload_in_bank_behavior: UnloadInBankBehavior
     unload_in_guild_chest_behavior: UnloadInGuildChestBehavior
 
     def run(self) -> None:
+        self.init_recovery_listeners()
+        self.ensure_free_to_act(lambda: self.start_unloading())
+
+    def start_unloading(self) -> None:
         self.unload_in_guild_chest_behavior.start(
             unload_item_id_by_tab=GIDS_BY_TAB,
             parent=self,

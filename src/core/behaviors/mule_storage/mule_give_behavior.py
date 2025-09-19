@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 
-from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
 from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeErrorEvent,
     ExchangeKamaModifiedEvent,
@@ -11,7 +10,7 @@ from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeStartedWithPodsEvent,
 )
 
-from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
@@ -27,15 +26,25 @@ from src.services.human_timings import HumanTimingsService
 
 
 @dataclass
-class MuleGiveBehavior(Behavior):
+class MuleGiveBehavior(RecoverableBehavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
     mule_registry: KamasMuleRegistry = field(default_factory=KamasMuleRegistry)
 
     _step: int = field(init=False, default=0)
     _reservation: MuleReservation | None = field(init=False, default=None)
+    _activity_performed: bool = field(init=False, default=False)
+
+    @property
+    def activity_performed(self) -> bool:
+        return self._activity_performed
 
     def run(self) -> None:
+        self.init_recovery_listeners()
+        self.ensure_free_to_act(lambda: self.start_giving())
+
+    def start_giving(self) -> None:
         self._step = 0
+        self._activity_performed = False
         if self.game_state.inventory.pod_percentage >= 1:
             self.logger.info("Mule has too much pods to exchange")
             return self.finish()
@@ -100,13 +109,10 @@ class MuleGiveBehavior(Behavior):
     def depose_kamas_in_exchange(self) -> None:
         kamas_to_gives = self.game_state.inventory.kamas - BOT_MINIMAL_KAMAS
         if kamas_to_gives <= 0:
-            self.event_manager.on(
-                ExchangeLeaveEvent,
-                callback=lambda _: self.finish(),
-                originator=self,
+            return self.run_timer(
+                HumanTimingsService().get_timing_base_action(),
+                lambda: self.leave_dialog(on_leave_callback=lambda _: self.finish()),
             )
-            req = DialogLeaveRequest()
-            return self.send_message_delayed(req, HumanTimingsService().get_timing_base_action())
         self.event_manager.on(
             ExchangeKamaModifiedEvent,
             lambda _: self.accept_exchange(),
@@ -119,6 +125,7 @@ class MuleGiveBehavior(Behavior):
         self.send_message_delayed(move_kama_req, HumanTimingsService().get_timing_base_action())
 
     def accept_exchange(self) -> None:
+        self._activity_performed = True
         self.event_manager.on(
             ExchangeLeaveEvent,
             lambda _: self.finish(),

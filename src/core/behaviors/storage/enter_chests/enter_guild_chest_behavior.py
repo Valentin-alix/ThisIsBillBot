@@ -9,13 +9,14 @@ from dofus_unity_reader.game_constants.element_type import ElementTypeEnum
 from dofus_unity_reader.game_constants.map_id import BANK_MAP_IDS
 from dofus_unity_reader.grid.map_point import MapPoint
 
-from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.services.human_timings import HumanTimingsService
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
+from src.core.states.dialog_state import OpenDialogKind
 
 
 class EnterGuildChestError(StrEnum):
@@ -23,14 +24,22 @@ class EnterGuildChestError(StrEnum):
 
 
 @dataclass
-class EnterGuildChestBehavior(Behavior):
+class EnterGuildChestBehavior(RecoverableBehavior):
     interactive_behavior: InteractiveBehavior
     path_finding: Pathfinding
     auto_trip_world_behavior: AutoTripSmartBehavior
 
-    def run(self):
+    def run(self) -> None:
+        self.init_recovery_listeners()
+        self.ensure_free_to_act(lambda: self.start_entering_guild_chest())
+
+    def start_entering_guild_chest(self):
         if not self.game_state.guild_chest.can_access_guild_chest:
             return self.finish(error_code=EnterGuildChestError.CANT_ACCESS_GUILD_CHEST)
+
+        if self.game_state.dialog.is_open(OpenDialogKind.GUILD_CHEST):
+            self.logger.info("Guild chest already open, reusing it")
+            return self.finish()
 
         self.auto_trip_world_behavior.start(
             callback=self.on_bank_map,

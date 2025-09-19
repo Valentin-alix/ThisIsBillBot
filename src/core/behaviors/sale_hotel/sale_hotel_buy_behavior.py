@@ -15,7 +15,7 @@ from exchange_pb2 import (
     ExchangeTypesItemsExchangerDescriptionForUserEvent,
 )
 
-from src.core.behaviors.dialog_handler_behavior import DialogHandlerBehavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
     EnterSaleHotelBehavior,
 )
@@ -24,7 +24,7 @@ from src.core.engine.economy.sale_hotel import ItemToBuyInfo
 
 
 @dataclass
-class SaleHotelBuyBehavior(DialogHandlerBehavior):
+class SaleHotelBuyBehavior(RecoverableBehavior):
     enter_sale_hotel_behavior: EnterSaleHotelBehavior
 
     _current_grouped_item_infos_by_type: dict[int, list[ItemToBuyInfo]] = field(
@@ -33,7 +33,11 @@ class SaleHotelBuyBehavior(DialogHandlerBehavior):
     _current_item_infos: list[ItemToBuyInfo] = field(init=False, default_factory=list[ItemToBuyInfo])
     _bought_item: list[ObjectItemInventory] = field(init=False, default_factory=list[ObjectItemInventory])
 
-    def run(self, item_infos_to_buy: list[ItemToBuyInfo], category: CategoryItemEnum):
+    def run(self, item_infos_to_buy: list[ItemToBuyInfo], category: CategoryItemEnum) -> None:
+        self.init_recovery_listeners()
+        self.ensure_free_to_act(lambda: self.start_buying(item_infos_to_buy=item_infos_to_buy, category=category))
+
+    def start_buying(self, item_infos_to_buy: list[ItemToBuyInfo], category: CategoryItemEnum):
         self._bought_item.clear()
         self._current_item_infos.clear()
         self._current_grouped_item_infos_by_type = defaultdict(list)
@@ -146,5 +150,5 @@ class SaleHotelBuyBehavior(DialogHandlerBehavior):
     def exit_and_finish(self):
         self.run_timer(
             HumanTimingsService().get_timing_base_action(),
-            lambda: self.leave_dialog(lambda _: self.finish(bought_item=self._bought_item)),
+            lambda: self.finish(bought_item=self._bought_item),
         )
