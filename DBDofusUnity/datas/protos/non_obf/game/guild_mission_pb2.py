@@ -24,13 +24,31 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13guild_mission.proto\x12\x33\x63om.ankama.dofus.server.game.protocol.guild.mission\"8\n\nUnknownJlb\x12\x14\n\x0cunknown_ftwm\x18\x01 \x01(\x05\x12\x14\n\x0cunknown_ftwn\x18\x02 \x01(\tb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13guild_mission.proto\x12\x33\x63om.ankama.dofus.server.game.protocol.guild.mission\">\n%GuildMissionActivityTierUpdateRequest\x12\x15\n\ractivity_tier\x18\x01 \x01(\x05\"\x81\x01\n\x17GuildMissionInformation\x12\x0c\n\x04tier\x18\x01 \x01(\x05\x12\x17\n\x0ftier_experience\x18\x02 \x01(\x05\x12\x15\n\rguildaton_max\x18\x03 \x01(\x05\x12\x11\n\tguildaton\x18\x04 \x01(\x05\x12\x15\n\ractivity_tier\x18\x05 \x01(\x05\"\x9b\x01\n\"GuildMissionInformationUpdateEvent\x12u\n\x1funknown_four_hundred_eighty_six\x18\x01 \x01(\x0b\x32L.com.ankama.dofus.server.game.protocol.guild.mission.GuildMissionInformation\"\xe5\x04\n\x17GuildMissionStatusEvent\x12{\n\x08\x64isabled\x18\x01 \x01(\x0b\x32g.com.ankama.dofus.server.game.protocol.guild.mission.GuildMissionStatusEvent.GuildMissionStatusDisabledH\x00\x12}\n\tavailable\x18\x02 \x01(\x0b\x32h.com.ankama.dofus.server.game.protocol.guild.mission.GuildMissionStatusEvent.GuildMissionStatusAvailableH\x00\x12\x81\x01\n\x0bunavailable\x18\x03 \x01(\x0b\x32j.com.ankama.dofus.server.game.protocol.guild.mission.GuildMissionStatusEvent.GuildMissionStatusUnavailableH\x00\x1a\x80\x01\n\x1bGuildMissionStatusAvailable\x12\x61\n\x0binformation\x18\x01 \x01(\x0b\x32L.com.ankama.dofus.server.game.protocol.guild.mission.GuildMissionInformation\x1a\x1c\n\x1aGuildMissionStatusDisabled\x1a\x1f\n\x1dGuildMissionStatusUnavailableB\x08\n\x06status\"\x1b\n\x19GuildMissionStatusRequest\"2\n\x16ServerMaintenanceEvent\x12\x18\n\x10maintenance_date\x18\x01 \x01(\t\"%\n#ServerMaintenanceInformationRequestb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'guild_mission_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_UNKNOWNJLB']._serialized_start=76
-  _globals['_UNKNOWNJLB']._serialized_end=132
+  _globals['_GUILDMISSIONACTIVITYTIERUPDATEREQUEST']._serialized_start=76
+  _globals['_GUILDMISSIONACTIVITYTIERUPDATEREQUEST']._serialized_end=138
+  _globals['_GUILDMISSIONINFORMATION']._serialized_start=141
+  _globals['_GUILDMISSIONINFORMATION']._serialized_end=270
+  _globals['_GUILDMISSIONINFORMATIONUPDATEEVENT']._serialized_start=273
+  _globals['_GUILDMISSIONINFORMATIONUPDATEEVENT']._serialized_end=428
+  _globals['_GUILDMISSIONSTATUSEVENT']._serialized_start=431
+  _globals['_GUILDMISSIONSTATUSEVENT']._serialized_end=1044
+  _globals['_GUILDMISSIONSTATUSEVENT_GUILDMISSIONSTATUSAVAILABLE']._serialized_start=843
+  _globals['_GUILDMISSIONSTATUSEVENT_GUILDMISSIONSTATUSAVAILABLE']._serialized_end=971
+  _globals['_GUILDMISSIONSTATUSEVENT_GUILDMISSIONSTATUSDISABLED']._serialized_start=973
+  _globals['_GUILDMISSIONSTATUSEVENT_GUILDMISSIONSTATUSDISABLED']._serialized_end=1001
+  _globals['_GUILDMISSIONSTATUSEVENT_GUILDMISSIONSTATUSUNAVAILABLE']._serialized_start=1003
+  _globals['_GUILDMISSIONSTATUSEVENT_GUILDMISSIONSTATUSUNAVAILABLE']._serialized_end=1034
+  _globals['_GUILDMISSIONSTATUSREQUEST']._serialized_start=1046
+  _globals['_GUILDMISSIONSTATUSREQUEST']._serialized_end=1073
+  _globals['_SERVERMAINTENANCEEVENT']._serialized_start=1075
+  _globals['_SERVERMAINTENANCEEVENT']._serialized_end=1125
+  _globals['_SERVERMAINTENANCEINFORMATIONREQUEST']._serialized_start=1127
+  _globals['_SERVERMAINTENANCEINFORMATIONREQUEST']._serialized_end=1164
 # @@protoc_insertion_point(module_scope)

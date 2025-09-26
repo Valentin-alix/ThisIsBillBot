@@ -1,7 +1,7 @@
 from src.core.engine.quests.quest_criterion import get_required_finished_quest_ids
 
 SCENE_DE_MENAGE_QUEST_ID = 1199
-BIEN_VELU_QUEST_ID = 1200  # startCriterion: PL>9&Qf=1199&PZ=1
+BIEN_VELU_QUEST_ID = 1200
 
 
 def test_a_required_quest_is_read_from_the_criterion() -> None:

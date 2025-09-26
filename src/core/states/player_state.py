@@ -6,7 +6,7 @@ from threading import Event
 from ankama_launcher_emulator_premium.haapi.haapi import get_game_sub_info_by_login
 from dofus_unity_reader.game_constants.server import ServerEnum
 
-from src import const
+from src import consts
 from src.core.signals.player_signals import GameInfoSignals
 from src.core.states.area_state import (
     CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER,
@@ -47,15 +47,15 @@ class PlayerState(State):
         if value == self._level:
             return
         self._level = value
-        if const.DEBUG:
+        if consts.DEBUG:
             self.game_info_signals.level.emit(value)
 
     @property
     def subscription_end_date(self) -> datetime:
         game_sub = get_game_sub_info_by_login(self.login)
-        if const.DEBUG:
-            self.game_info_signals.subscription_end_date.emit(game_sub.end_of_subscribe or const.MIN_DATE)
-        return game_sub.end_of_subscribe or const.MIN_DATE
+        if consts.DEBUG:
+            self.game_info_signals.subscription_end_date.emit(game_sub.end_of_subscribe or consts.MIN_DATE)
+        return game_sub.end_of_subscribe or consts.MIN_DATE
 
     @property
     def is_sub(self) -> bool:
@@ -74,7 +74,7 @@ class PlayerState(State):
     @character_id.setter
     def character_id(self, value: int):
         self._character_id = value
-        if const.DEBUG:
+        if consts.DEBUG:
             self.game_info_signals.character_id.emit(value)
 
     @property
@@ -98,5 +98,5 @@ class PlayerState(State):
     @server_id.setter
     def server_id(self, value: int):
         self._server_id = value
-        if const.DEBUG:
+        if consts.DEBUG:
             self.game_info_signals.server_id.emit(value)

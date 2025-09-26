@@ -11,7 +11,7 @@ from google.protobuf.message import Message
 from datas.protos.non_obf.game.basic_pb2 import DateRequest
 from datas.protos.non_obf.game.connection_pb2 import PingRequest
 
-from src import const
+from src import consts
 from src.core.events_manager.listener import Listener
 from src.core.events_manager.modifier import Modifier
 from src.core.events_manager.priority import PriorityEnum
@@ -81,7 +81,7 @@ class EventManager(ContextualLogger):
                 listener.delete()
                 self.listeners_by_type_msg[listener.msg_type].remove(listener)
 
-        if listeners_to_remove and const.DEBUG:
+        if listeners_to_remove and consts.DEBUG:
             self.signals.listeners_removed.emit(listeners_to_remove)
 
     def clear_listener_by_origin_and_type(self, msg_type: type[Message], originator: object) -> None:
@@ -96,7 +96,7 @@ class EventManager(ContextualLogger):
                 listener.delete()
                 self.listeners_by_type_msg[msg_type].remove(listener)
 
-        if listeners_to_remove and const.DEBUG:
+        if listeners_to_remove and consts.DEBUG:
             self.signals.listeners_removed.emit(listeners_to_remove)
 
     def process_msg(self, msg: Message) -> None:
@@ -231,7 +231,7 @@ class EventManager(ContextualLogger):
                 listeners.append(cast(Listener[Message], new_listener))
                 listeners.sort(key=lambda listener: listener.priority)
 
-            if const.DEBUG:
+            if consts.DEBUG:
                 self.signals.listeners_added.emit([new_listener])
 
     def send(self, msg: Message) -> None:

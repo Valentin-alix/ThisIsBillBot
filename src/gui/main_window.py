@@ -14,8 +14,8 @@ from qfluentwidgets import (
 )
 from qfluentwidgets.components.navigation import NavigationDisplayMode, NavigationWidget
 
-from src import const
-from src.const import LOGO_FILE
+from src import consts
+from src.consts import LOGO_FILE
 from src.controller.bot_config import BotConfigService
 from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
@@ -38,7 +38,7 @@ class MainWindow(AppFluentWindow):
         super().__init__(parent=None)
 
         self.global_log_signals = LogSignals()
-        if const.DEBUG:
+        if consts.DEBUG:
             init_root_gui_logging(self.global_log_signals)
 
         self.title = title

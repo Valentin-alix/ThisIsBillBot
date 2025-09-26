@@ -1,8 +1,10 @@
 syntax = "proto3";
 
+import "guild_mission.proto";
+import "guild_mission_tier.proto";
 import "common.proto";
-import "gamemap.proto";
-import "guild_chest.proto";
+
+import "game_action_unknown.proto";
 
 package com.ankama.dofus.server.game.protocol.game.action;
 
@@ -100,23 +102,18 @@ message GameActionFightEvent {
 		.com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.DropCharacter drop_character = 34;
 		.com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.ExecuteScript execute_script = 35;
 		// Three variants the build added to this oneof.
-		.com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.UnknownJtq unknown_fvof = 36;
-		.com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.UnknownJtx unknown_fvom = 37;
-		.com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.UnknownJwc unknown_fvpd = 38;
+		.com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.UnknownOneHundredSeventyTwo unknown_three_hundred_sixty_five = 36;
+		.com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.UnknownOneHundredSeventyThree unknown_three_hundred_sixty_six = 37;
+		.com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.UnknownOneHundredSeventyFour unknown_three_hundred_sixty_seven = 38;
 	}
 
-	message UnknownJtq {
-		int32 unknown_fvch = 1;
-		bool unknown_fvci = 2;
-		int32 unknown_fvcj = 3;
+	message UnknownOneHundredSeventyTwo {
 	}
 
-	message UnknownJtx {
-		int32 unknown_fvdn = 1;
+	message UnknownOneHundredSeventyThree {
 	}
 
-	message UnknownJwc {
-		.com.ankama.dofus.server.game.protocol.common.Team unknown_fvnp = 1;
+	message UnknownOneHundredSeventyFour {
 	}
 	message CarryCharacter {
 		int64 target_id = 3;
@@ -252,24 +249,20 @@ message GameActionFightEvent {
 			.com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.TargetedAbility.SpellCast spell_cast = 6;
 			int32 weapon_generic_id = 7;
 		}
-		repeated .com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.TargetedAbility.UnknownJvf unknown_fvkb = 8;
-		.com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.TargetedAbility.UnknownJvg unknown_fvkf = 9;
+		repeated .com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.TargetedAbility.UnknownOneHundredSeventy unknown_three_hundred_sixty_four = 8;
 		message SpellCast {
 			int32 spell_id = 1;
 			int32 spell_level = 2;
 			repeated int32 portals_id = 3;
 		}
 
-		message UnknownJvf {
-			repeated .com.ankama.dofus.server.game.protocol.common.UnknownLgt unknown_fvjl = 1;
-			int32 unknown_fvjm = 2;
-			int32 unknown_fvjn = 3;
-			int64 unknown_fvjo = 4;
+		message UnknownOneHundredSeventy {
+			int32 unknown_three_hundred_sixty_one = 2;
+			int32 unknown_three_hundred_sixty_two = 3;
+			int64 unknown_three_hundred_sixty_three = 4;
 		}
 
-		message UnknownJvg {
-			repeated .com.ankama.dofus.server.game.protocol.common.UnknownLgt unknown_fvjt = 1;
-			int32 unknown_fvju = 2;
+		message UnknownOneHundredSeventyOne {
 		}
 
 	}
@@ -390,87 +383,42 @@ message EntitySpawnInformation {
 
 }
 
-message UnknownJdb {
-	int32 unknown_fstx = 1;
-	.com.ankama.dofus.server.game.protocol.game.action.UnknownJdb.UnknownJcy unknown_fsty = 2;
-	message UnknownJcy {
-		.com.ankama.dofus.server.game.protocol.guild.chest.UnknownJgs unknown_fstl = 1;
-		.com.ankama.dofus.server.game.protocol.gamemap.UnknownJfl unknown_fstm = 2;
-		.com.ankama.dofus.server.game.protocol.game.action.UnknownJdf unknown_fstn = 3;
+message UnknownOneHundredSeventyFive {
+	int32 unknown_three_hundred_seventy_one = 1;
+	.com.ankama.dofus.server.game.protocol.game.action.UnknownOneHundredSeventyFive.UnknownOneHundredSeventySix unknown_three_hundred_seventy_two = 2;
+	message UnknownOneHundredSeventySix {
+		.com.ankama.dofus.server.game.protocol.guild.mission.tier.GuildMissionDisabledEntries unknown_three_hundred_sixty_eight = 1;
+		.com.ankama.dofus.server.game.protocol.guild.mission.GuildMissionInformation unknown_three_hundred_sixty_nine = 2;
+		.com.ankama.dofus.server.game.protocol.game.action.unknown.UnknownOneHundredEightyFive unknown_three_hundred_seventy = 3;
 	}
 }
 
-message UnknownJdf {
-	repeated .com.ankama.dofus.server.game.protocol.game.action.UnknownJdx unknown_fsui = 1;
-	repeated .com.ankama.dofus.server.game.protocol.game.action.UnknownJdx unknown_fsuk = 2;
-}
-
-message UnknownJdx {
-	string unknown_fswi = 1;
-	repeated .com.ankama.dofus.server.game.protocol.game.action.UnknownJdx.UnknownJdv unknown_fswj = 2;
-	int32 unknown_fswk = 3;
-	.com.ankama.dofus.server.game.protocol.game.action.UnknownJdx.UnknownJdu unknown_fswl = 4;
-	message UnknownJdu {
-		int32 unknown_fsvp = 1;
-	}
-	message UnknownJdv {
-		bool unknown_fsvx = 1;
-		string unknown_fsvy = 2;
-		int32 unknown_fsvz = 3;
-		int32 unknown_fswb = 4;
-		bool unknown_fswc = 5;
-		int32 unknown_fswd = 6;
-		int64 unknown_fswe = 7;
+message UnknownOneHundredSeventySeven {
+	int32 unknown_three_hundred_seventy_four = 1;
+	.com.ankama.dofus.server.game.protocol.game.action.UnknownOneHundredSeventySeven.UnknownOneHundredSeventyEight unknown_three_hundred_seventy_five = 2;
+	message UnknownOneHundredSeventyEight {
+		.com.ankama.dofus.server.game.protocol.game.action.unknown.UnknownOneHundredEightySix unknown_three_hundred_seventy_three = 1;
 	}
 }
 
-message UnknownJdc {
-	.com.ankama.dofus.server.game.protocol.game.action.UnknownJdx unknown_fsud = 1;
-}
-
-message UnknownJdk {
-	int32 unknown_fsuw = 1;
-	.com.ankama.dofus.server.game.protocol.game.action.UnknownJdk.UnknownJdh unknown_fsux = 2;
-	message UnknownJdh {
-		.com.ankama.dofus.server.game.protocol.game.action.UnknownJdx unknown_fsup = 1;
+message UnknownOneHundredSeventyNine {
+	.com.ankama.dofus.server.game.protocol.game.action.UnknownOneHundredSeventyNine.UnknownOneHundredEighty unknown_three_hundred_seventy_eight = 1;
+	int32 unknown_three_hundred_seventy_nine = 2;
+	message UnknownOneHundredEighty {
+		string unknown_three_hundred_seventy_six = 1;
+		.com.ankama.dofus.server.game.protocol.game.action.unknown.UnknownOneHundredEightySix unknown_three_hundred_seventy_seven = 2;
 	}
 }
 
-message UnknownJed {
-	.com.ankama.dofus.server.game.protocol.game.action.UnknownJed.UnknownJea unknown_fsxo = 1;
-	int32 unknown_fsxp = 2;
-	message UnknownJea {
-		string unknown_fsxe = 1;
-		.com.ankama.dofus.server.game.protocol.game.action.UnknownJdx unknown_fsxg = 2;
+message UnknownOneHundredEightyOne {
+	.com.ankama.dofus.server.game.protocol.game.action.UnknownOneHundredEightyOne.UnknownOneHundredEightyTwo unknown_three_hundred_eighty_one = 1;
+	int32 unknown_three_hundred_eighty_two = 2;
+	message UnknownOneHundredEightyTwo {
+		.com.ankama.dofus.server.game.protocol.game.action.unknown.UnknownOneHundredEightyFive unknown_three_hundred_eighty = 1;
 	}
 }
 
-message UnknownJei {
-	.com.ankama.dofus.server.game.protocol.game.action.UnknownJei.UnknownJef unknown_fsyc = 1;
-	int32 unknown_fsyd = 2;
-	message UnknownJef {
-		.com.ankama.dofus.server.game.protocol.game.action.UnknownJdf unknown_fsxu = 1;
-	}
-}
-
-message UnknownJej {
-	bool unknown_fsyi = 1;
-	string unknown_fsyj = 2;
-}
-
-message UnknownJem {
-	.com.ankama.dofus.server.game.protocol.game.action.UnknownJdf unknown_fsza = 1;
-}
-
-message UnknownJen {
-	int32 unknown_fszf = 1;
-}
-
-message UnknownJeq {
-	string unknown_fszx = 1;
-}
-
-message UnknownJet {
-	int32 unknown_ftab = 1;
-	.com.ankama.dofus.server.game.protocol.guild.chest.UnknownJgs unknown_ftae = 2;
+message UnknownOneHundredEightyThree {
+	int32 unknown_three_hundred_eighty_three = 1;
+	.com.ankama.dofus.server.game.protocol.guild.mission.tier.GuildMissionDisabledEntries unknown_three_hundred_eighty_four = 2;
 }

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+
+package com.ankama.dofus.server.game.protocol.shop.offer;
+
+message UnknownFourHundredNinetyOne {
+	message UnknownFourHundredNinetyThree {
+	}
+	enum UnknownFourHundredNinetyTwo {
+		UNKNOWN_FOUR_HUNDRED_NINETY_TWO_UNSPECIFIED = 0;
+		UNKNOWN_FOUR_HUNDRED_NINETY_TWO_1 = 1;
+	}
+}
+
+message UnknownFourHundredNinetyFour {
+}
+
+message UnknownFourHundredNinetyFive {
+	repeated UnknownFourHundredNinetyOne unknown_eight_hundred_fifty_four = 3;
+}

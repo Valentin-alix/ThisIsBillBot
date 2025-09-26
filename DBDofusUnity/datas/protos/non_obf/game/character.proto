@@ -42,8 +42,6 @@ message CharacterLevelUpEvent {
 
 message CharacterExperienceGainEvent {
 	int64 character_experience = 1;
-	int64 mount_experience = 2;
-	int64 guild_experience = 3;
 }
 
 message LifePointsRegenBeginEvent {
@@ -102,6 +100,6 @@ message CharacterOnConnectionEvent {
 
 
 
-message UnknownKug {
-	repeated bool unknown_fzgi = 1;
+message UnknownOneHundredOne {
+	repeated bool unknown_one_hundred_ninety_nine = 1;
 }

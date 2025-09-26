@@ -14,7 +14,7 @@ message CalendarEvent {
 }
 
 message CalendarOccurrence {
-	string unknown_gepg = 1;
+	string event_uuid = 1;
 	int32 description_id = 2;
 	optional string end_date = 3;
 	string start_date = 4;

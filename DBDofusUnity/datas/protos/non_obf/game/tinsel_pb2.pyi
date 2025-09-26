@@ -15,10 +15,6 @@ UNDEFINED: TinselSelectError
 INVALID: TinselSelectError
 ALREADY: TinselSelectError
 
-class TitlesAndOrnamentsRequest(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
-
 class TitlesAndOrnamentsEvent(_message.Message):
     __slots__ = ("titles", "ornaments")
     TITLES_FIELD_NUMBER: _ClassVar[int]

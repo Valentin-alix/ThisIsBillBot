@@ -7,6 +7,11 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class UnknownFourHundredNinetyEight(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    UNKNOWN_FOUR_HUNDRED_NINETY_EIGHT: _ClassVar[UnknownFourHundredNinetyEight]
+UNKNOWN_FOUR_HUNDRED_NINETY_EIGHT: UnknownFourHundredNinetyEight
+
 class TaxCollectorUpdatesListenStartRequest(_message.Message):
     __slots__ = ("tax_collector_uid",)
     TAX_COLLECTOR_UID_FIELD_NUMBER: _ClassVar[int]
@@ -253,38 +258,38 @@ class TaxCollectorFightRequest(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
-class UnknownHko(_message.Message):
-    __slots__ = ("unknown_fmko", "unknown_fmkq", "unknown_fmkr")
-    UNKNOWN_FMKO_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FMKQ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FMKR_FIELD_NUMBER: _ClassVar[int]
-    unknown_fmko: _common_pb2.TaxCollectorOrderedSpell
-    unknown_fmkq: _containers.RepeatedScalarFieldContainer[int]
-    unknown_fmkr: str
-    def __init__(self, unknown_fmko: _Optional[_Union[_common_pb2.TaxCollectorOrderedSpell, _Mapping]] = ..., unknown_fmkq: _Optional[_Iterable[int]] = ..., unknown_fmkr: _Optional[str] = ...) -> None: ...
+class UnknownFourHundredNinetyNine(_message.Message):
+    __slots__ = ("unknown_eight_hundred_fifty_eight", "unknown_eight_hundred_fifty_nine", "unknown_eight_hundred_sixty")
+    UNKNOWN_EIGHT_HUNDRED_FIFTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_FIFTY_NINE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_SIXTY_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_fifty_eight: _common_pb2.TaxCollectorOrderedSpell
+    unknown_eight_hundred_fifty_nine: _containers.RepeatedScalarFieldContainer[int]
+    unknown_eight_hundred_sixty: str
+    def __init__(self, unknown_eight_hundred_fifty_eight: _Optional[_Union[_common_pb2.TaxCollectorOrderedSpell, _Mapping]] = ..., unknown_eight_hundred_fifty_nine: _Optional[_Iterable[int]] = ..., unknown_eight_hundred_sixty: _Optional[str] = ...) -> None: ...
 
-class UnknownHkp(_message.Message):
-    __slots__ = ("unknown_fmkv",)
-    UNKNOWN_FMKV_FIELD_NUMBER: _ClassVar[int]
-    unknown_fmkv: str
-    def __init__(self, unknown_fmkv: _Optional[str] = ...) -> None: ...
+class UnknownFiveHundred(_message.Message):
+    __slots__ = ("unknown_eight_hundred_sixty_one",)
+    UNKNOWN_EIGHT_HUNDRED_SIXTY_ONE_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_sixty_one: str
+    def __init__(self, unknown_eight_hundred_sixty_one: _Optional[str] = ...) -> None: ...
 
-class UnknownHkt(_message.Message):
-    __slots__ = ("unknown_fmlf",)
-    UNKNOWN_FMLF_FIELD_NUMBER: _ClassVar[int]
-    unknown_fmlf: str
-    def __init__(self, unknown_fmlf: _Optional[str] = ...) -> None: ...
+class UnknownFiveHundredOne(_message.Message):
+    __slots__ = ("unknown_eight_hundred_sixty_two",)
+    UNKNOWN_EIGHT_HUNDRED_SIXTY_TWO_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_sixty_two: str
+    def __init__(self, unknown_eight_hundred_sixty_two: _Optional[str] = ...) -> None: ...
 
-class UnknownHla(_message.Message):
-    __slots__ = ("unknown_fmlu",)
-    UNKNOWN_FMLU_FIELD_NUMBER: _ClassVar[int]
-    unknown_fmlu: int
-    def __init__(self, unknown_fmlu: _Optional[int] = ...) -> None: ...
+class UnknownFiveHundredTwo(_message.Message):
+    __slots__ = ("unknown_eight_hundred_sixty_three",)
+    UNKNOWN_EIGHT_HUNDRED_SIXTY_THREE_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_sixty_three: UnknownFourHundredNinetyEight
+    def __init__(self, unknown_eight_hundred_sixty_three: _Optional[_Union[UnknownFourHundredNinetyEight, str]] = ...) -> None: ...
 
-class UnknownHle(_message.Message):
-    __slots__ = ("unknown_fmmo", "unknown_fmmp")
-    UNKNOWN_FMMO_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FMMP_FIELD_NUMBER: _ClassVar[int]
-    unknown_fmmo: str
-    unknown_fmmp: _common_pb2.TaxCollectorOrderedSpell
-    def __init__(self, unknown_fmmo: _Optional[str] = ..., unknown_fmmp: _Optional[_Union[_common_pb2.TaxCollectorOrderedSpell, _Mapping]] = ...) -> None: ...
+class UnknownFiveHundredThree(_message.Message):
+    __slots__ = ("unknown_eight_hundred_sixty_four", "unknown_eight_hundred_sixty_five")
+    UNKNOWN_EIGHT_HUNDRED_SIXTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_SIXTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_sixty_four: str
+    unknown_eight_hundred_sixty_five: _common_pb2.TaxCollectorOrderedSpell
+    def __init__(self, unknown_eight_hundred_sixty_four: _Optional[str] = ..., unknown_eight_hundred_sixty_five: _Optional[_Union[_common_pb2.TaxCollectorOrderedSpell, _Mapping]] = ...) -> None: ...

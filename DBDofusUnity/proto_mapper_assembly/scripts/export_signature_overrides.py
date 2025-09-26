@@ -9,7 +9,6 @@ Run this after generating detailed game mappings or when the obfuscated build ch
 from __future__ import annotations
 
 import argparse
-import sys
 from collections import Counter
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
@@ -18,12 +17,8 @@ from pathlib import Path
 from icecream import ic
 from pydantic import BaseModel
 
-from consts import PROJECT_ROOT
-
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
 from consts import (
+    EXCLUDED_NON_OBF_FILE,
     GAME_MAPPINGS_DETAILED_JSON_FILE,
     NON_OBF_NEW_DUMP_CS_FILE,
     NON_OBF_PROTO_ACCESSES_FILE,
@@ -32,13 +27,13 @@ from consts import (
     OBF_PROTO_ACCESSES_FILE,
     OBF_PROTOCOL_GAME_DUMP_CS_FILE,
     PINNED_PAIRS_FILE,
-    PROJECT_ROOT,
     PROTOS_ROOT,
 )
 from proto_mapper_assembly.controllers.access_signatures import load_message_access_signatures_from_messages
 from proto_mapper_assembly.controllers.enum_signatures import (
     build_canonical_enum_signature,
 )
+from proto_mapper_assembly.controllers.excluded_non_obf import load_excluded_non_obf
 from proto_mapper_assembly.controllers.game_mappings import (
     load_game_mappings_document,
     resolve_generated_message_alias,
@@ -90,6 +85,7 @@ from proto_mapper_assembly.scoring.signature_scoring import function_similarity_
 class _ExportContext(BaseModel):
     pinned_pairs_config: PinnedPairsConfig
     non_obf_messages_by_cls: dict[str, DumpCSMessage]
+    excluded_non_obf_names: frozenset[str]
     bootstrap_messages_by_cls: dict[str, DumpCSMessage]
     non_obf_messages_with_bootstrap_by_cls: dict[str, DumpCSMessage]
     virtual_field_clean_names_by_cls: dict[str, set[str]]
@@ -270,8 +266,8 @@ def _report_dropped_bindings(dropped_bindings_by_non_obf_cls: dict[str, list[str
     total = sum(len(names) for names in dropped_bindings_by_non_obf_cls.values())
     print(
         f"Dropped {total} field binding(s) of incompatible shape across "
-        f"{len(dropped_bindings_by_non_obf_cls)} message(s); fix their new_dump_cs.json declaration "
-        f"to recover the shape evidence:"
+        f"{len(dropped_bindings_by_non_obf_cls)} message(s); review their protobuf declaration, "
+        f"pin, or mapping to recover the shape evidence:"
     )
     for non_obf_cls, property_names in sorted(dropped_bindings_by_non_obf_cls.items()):
         print(f"  {non_obf_cls}: {', '.join(property_names)}")
@@ -365,7 +361,9 @@ def _report_group_coherence(
         ] += 1
 
     non_obf_size_by_descriptor = Counter(
-        message.file_descriptor for message in export_context.non_obf_messages_by_cls.values()
+        message.file_descriptor
+        for message in export_context.non_obf_messages_by_cls.values()
+        if message.composed_name not in export_context.excluded_non_obf_names
     )
     obf_size_by_descriptor = Counter(
         signature.file_descriptor for signature in export_context.obf_signatures_by_cls.values()
@@ -484,6 +482,7 @@ def _load_export_context(export_paths: SignatureOverrideExportPaths) -> _ExportC
 
     print("Parsing non-obf dump.cs")
     non_obf_messages = parse_messages(str(export_paths.non_obf_dump_cs_path))
+    excluded_non_obf_names = frozenset(load_excluded_non_obf(EXCLUDED_NON_OBF_FILE).root)
 
     obf_messages_by_cls = {message.composed_name: message for message in obf_messages}
     parsed_non_obf_messages_by_cls = {message.composed_name: message for message in non_obf_messages}
@@ -523,6 +522,7 @@ def _load_export_context(export_paths: SignatureOverrideExportPaths) -> _ExportC
     return _ExportContext(
         pinned_pairs_config=pinned_pairs,
         non_obf_messages_by_cls=overlay.messages_by_cls,
+        excluded_non_obf_names=excluded_non_obf_names,
         bootstrap_messages_by_cls=bootstrap_messages_by_cls,
         non_obf_messages_with_bootstrap_by_cls=non_obf_messages_with_bootstrap_by_cls,
         virtual_field_clean_names_by_cls=overlay.virtual_field_clean_names_by_cls,

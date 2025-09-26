@@ -28,6 +28,8 @@ def resolve_non_obf_alias(
     if not candidates:
         message = f"Unknown non-obf message alias: {alias!r}"
         raise ValueError(message)
+    if alias in candidates:
+        return alias
     if len(candidates) != 1:
         sorted_candidates = ", ".join(sorted(candidates))
         message = f"Ambiguous non-obf message alias {alias!r}: {sorted_candidates}"

@@ -110,7 +110,7 @@ class BotConfigService(metaclass=Singleton):
             self._write_all_configs(all_configs)
         return profile_id
 
-    def assign_mode(self, login: str, mode: Literal["socket"] | Literal["mitm"]):
+    def assign_mode(self, login: str, mode: Literal["socket", "mitm"]):
         with self._BOT_CONFIG_LOCK:
             all_configs = self.get_bot_config_by_login()
             config = all_configs.get(login, BotConfig())

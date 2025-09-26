@@ -24,13 +24,13 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tmap.proto\x12)com.ankama.dofus.server.game.protocol.map\"8\n\nUnknownKsc\x12\x14\n\x0cunknown_fyxs\x18\x01 \x01(\x05\x12\x14\n\x0cunknown_fyxt\x18\x02 \x01(\x08\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tmap.proto\x12)com.ankama.dofus.server.game.protocol.map\"o\n\x1aUnknownFourHundredEighteen\x12(\n unknown_seven_hundred_fifty_five\x18\x01 \x01(\x05\x12\'\n\x1funknown_seven_hundred_fifty_six\x18\x02 \x01(\x08\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'map_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_UNKNOWNKSC']._serialized_start=56
-  _globals['_UNKNOWNKSC']._serialized_end=112
+  _globals['_UNKNOWNFOURHUNDREDEIGHTEEN']._serialized_start=56
+  _globals['_UNKNOWNFOURHUNDREDEIGHTEEN']._serialized_end=167
 # @@protoc_insertion_point(module_scope)

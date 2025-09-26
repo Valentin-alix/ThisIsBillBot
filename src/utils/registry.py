@@ -6,7 +6,6 @@ from google.protobuf.message import Message
 
 
 def import_and_get_all_msg_from_folder(folder_path: str):
-    """Load all proto message types from a folder into memory (registers them in the descriptor pool)."""
     sys.path.append(folder_path)
     for root, _, files in os.walk(folder_path):
         for filename in files:

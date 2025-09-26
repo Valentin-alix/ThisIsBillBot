@@ -29,8 +29,6 @@ from src.core.engine.movements.world.waypoint import (
 
 @dataclass
 class AutoTripZaapBehavior(Behavior):
-    """auto trip with zaap"""
-
     auto_trip_behavior: AutoTripBehavior
     waypoint_behavior: WaypointBehavior
 

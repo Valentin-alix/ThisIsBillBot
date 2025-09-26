@@ -136,18 +136,18 @@ message AllianceBulletinSetErrorEvent {
 
 
 
-message UnknownMcs {
-	string unknown_gelr = 1;
+message UnknownFive {
+	string unknown_nine = 1;
 }
 
-message UnknownMdg {
-	string unknown_genx = 1;
+message UnknownSix {
+	string unknown_ten = 1;
 }
 
-message UnknownHic {
-	int32 unknown_flzo = 1;
+message UnknownThree {
+	int32 unknown_seven = 1;
 }
 
-message UnknownHig {
-	int32 unknown_fmaf = 1;
+message UnknownFour {
+	int32 unknown_eight = 1;
 }

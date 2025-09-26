@@ -30,7 +30,7 @@ def _patch_grid(
 
 
 _CASTER = _mp(0, 0, 0)
-_ENEMY = _mp(1, 0, 1)  # dx>0 -> pushed along +x
+_ENEMY = _mp(1, 0, 1)
 
 
 class TestEstimateCollisionDamage:
@@ -41,8 +41,8 @@ class TestEstimateCollisionDamage:
 
     def test_wall_collision(self, monkeypatch: pytest.MonkeyPatch) -> None:
         grid = {(2, 0): _mp(2, 0, 2), (3, 0): _mp(3, 0, 3), (4, 0): _mp(4, 0, 4)}
-        _patch_grid(monkeypatch, grid, {3})  # cell 3 non-walkable
-        # moves to (2,0), blocked at (3,0): blocked=2 -> 2*(100+32)//4 = 66
+        _patch_grid(monkeypatch, grid, {3})
+
         assert estimate_collision_damage(_CASTER, _ENEMY, 3, 0, set(), 200, 0) == 66
 
     def test_fighter_collision(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -51,13 +51,13 @@ class TestEstimateCollisionDamage:
         assert estimate_collision_damage(_CASTER, _ENEMY, 3, 0, {3}, 200, 0) == 66
 
     def test_map_edge_blocks(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        grid = {(2, 0): _mp(2, 0, 2)}  # (3,0) missing -> edge
+        grid = {(2, 0): _mp(2, 0, 2)}
         _patch_grid(monkeypatch, grid, set())
         assert estimate_collision_damage(_CASTER, _ENEMY, 3, 0, set(), 200, 0) == 66
 
     def test_push_damage_bonus_increases_damage(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        _patch_grid(monkeypatch, {}, set())  # immediate edge -> blocked=3
-        # 3 * (100 + 32 + 20) // 4 = 114
+        _patch_grid(monkeypatch, {}, set())
+
         assert estimate_collision_damage(_CASTER, _ENEMY, 3, 0, set(), 200, 20) == 114
 
     def test_no_direction_returns_zero(self, monkeypatch: pytest.MonkeyPatch) -> None:

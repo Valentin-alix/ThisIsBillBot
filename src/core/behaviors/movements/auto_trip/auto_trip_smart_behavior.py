@@ -26,14 +26,10 @@ PORTAL_INCARNAM_TURNS = [
 
 @dataclass
 class AutoTripSmartBehavior(Behavior):
-    """complete auto trip, use zaap & change world if needed"""
-
     auto_trip_explorator_behavior: AutoTripExploratorBehavior
     npc_dialog_behavior: NpcDialogBehavior
 
     def run(self, map_ids: set[int]) -> None:
-        """auto trip to one of map ids"""
-
         from_area_id = (
             DataReader()
             .sub_area_by_id[DataReader().map_info_by_map_id[self.game_state.map.map_id].subAreaId]
@@ -67,7 +63,7 @@ class AutoTripSmartBehavior(Behavior):
             callback=partial(self.on_npc_dialog_behavior_finished, dst_map_ids=dst_map_ids),
             parent=self,
             npc_dialog_info=NPC_PORTAL_INCARNAM,
-            turns=PORTAL_INCARNAM_TURNS,
+            turn_variants=[PORTAL_INCARNAM_TURNS],
         )
 
     def on_npc_dialog_behavior_finished(self, error_code: str | None, dst_map_ids: set[int]):

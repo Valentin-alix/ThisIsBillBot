@@ -2,6 +2,8 @@ syntax = "proto3";
 
 import "common.proto";
 
+import "guild_member_shop.proto";
+
 package com.ankama.dofus.server.game.protocol.guild.member;
 
 message GuildMemberParametersChangeRequest {
@@ -45,8 +47,8 @@ message GuildLeftEvent {
 message GuildMembershipEvent {
 	.com.ankama.dofus.server.game.protocol.common.GuildInformation guild_information = 1;
 	int32 rank_id = 2;
-	int32 unknown_ftza = 3;
-	int32 unknown_ftzd = 4;
+	int32 guildaton_count = 3;
+	int32 unknown_four_hundred_seventy_one = 4;
 }
 
 message GuildJoinedEvent {
@@ -54,43 +56,29 @@ message GuildJoinedEvent {
 	int32 rank_id = 2;
 }
 
-message UnknownJkh {
-	int32 unknown_fttu = 1;
-	.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkh.UnknownJkf unknown_fttv = 2;
-	message UnknownJkf {
-		int32 unknown_fttp = 1;
-		map<int32, .com.ankama.dofus.server.game.protocol.guild.member.UnknownJkt> unknown_fttq = 2;
+message UnknownTwoHundredForty {
+	int32 unknown_four_hundred_seventy_four = 1;
+	.com.ankama.dofus.server.game.protocol.guild.member.UnknownTwoHundredForty.UnknownTwoHundredFortyOne unknown_four_hundred_seventy_five = 2;
+	message UnknownTwoHundredFortyOne {
+		int32 unknown_four_hundred_seventy_two = 1;
+		map<int32, .com.ankama.dofus.server.game.protocol.guild.member.UnknownTwoHundredFortyTwo> unknown_four_hundred_seventy_three = 2;
 	}
 }
 
-message UnknownJkt {
-	int32 unknown_ftve = 1;
-	.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkq unknown_ftvf = 2;
+message UnknownTwoHundredFortyTwo {
+	int32 unknown_four_hundred_seventy_six = 1;
+	.com.ankama.dofus.server.game.protocol.guild.member.shop.UnknownTwoHundredFortySix unknown_four_hundred_seventy_seven = 2;
 }
 
-message UnknownJkq {
-	.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkq.UnknownJko unknown_ftuq = 1;
-	int32 unknown_ftur = 2;
-	message UnknownJko {
-		int32 unknown_ftuk = 1;
-		string unknown_ftul = 2;
-	}
+message UnknownTwoHundredFortyThree {
+	.com.ankama.dofus.server.game.protocol.guild.member.shop.UnknownTwoHundredFortySix unknown_four_hundred_seventy_eight = 1;
+	int32 unknown_four_hundred_seventy_nine = 2;
 }
 
-message UnknownJku {
-	map<int32, int32> unknown_ftvk = 1;
-	int32 unknown_ftvl = 2;
+message UnknownTwoHundredFortyFour {
+	int32 unknown_four_hundred_eighty = 1;
 }
 
-message UnknownJkv {
-	.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkq unknown_ftvp = 1;
-	int32 unknown_ftvq = 2;
-}
-
-message UnknownJkw {
-	int32 unknown_ftvu = 1;
-}
-
-message UnknownJky {
-	int32 unknown_ftwc = 1;
+message UnknownTwoHundredFortyFive {
+	int32 unknown_four_hundred_eighty_one = 1;
 }

@@ -34,7 +34,7 @@ from src.core.behaviors.account.paysafecard_subscription import (
 )
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.engine.movements.world.edge import (
-    remove_forbidden_edge_transition_by_map_id,
+    remove_banned_transitions_by_map_id,
 )
 from src.core.events_manager.event_manager import (
     EventManager,
@@ -50,8 +50,6 @@ _OGRINE_SUBSCRIPTION_MIN_KAMAS = 2_000_000
 
 @dataclass
 class ConnectionHandler(ContextualLogger):
-    """Handles bot connection/disconnection lifecycle events."""
-
     is_connected_event: Event
     bot_signals: BotSignals
     is_ready_to_play_event: Event
@@ -98,7 +96,6 @@ class ConnectionHandler(ContextualLogger):
             raise UnhandledErrorCodeException(error_code)
 
     def on_disconnected(self) -> None:
-        """Handle bot disconnection event and trigger reconnection if playing."""
         planned_disconnect = self._planned_disconnect_event.is_set()
         self._planned_disconnect_event.clear()
         self.is_connected_event.clear()
@@ -138,7 +135,6 @@ class ConnectionHandler(ContextualLogger):
             self.shared_signals.launch_account.emit(self.account.apikey.login)
 
     def on_ready_to_play(self):
-        """Handle ready to play event and start appropriate behavior."""
         self.logger.info("On ready to play")
         self.is_ready_to_play_event.set()
         self._reconnect_attempts = 0
@@ -148,9 +144,9 @@ class ConnectionHandler(ContextualLogger):
         if self.behavior_coordinator._current_bot_action_func is None and self.get_bot_config() is None:
             raise ValueError("An action should be provided if is_playing_event is set")
 
-        remove_forbidden_edge_transition_by_map_id(
+        remove_banned_transitions_by_map_id(
             self.game_state.map.map_id,
-            self.game_state.map.forbidden_edge_transitions,
+            self.game_state.map.banned_edge_transitions,
         )
 
         self._continue_after_required_behavior()

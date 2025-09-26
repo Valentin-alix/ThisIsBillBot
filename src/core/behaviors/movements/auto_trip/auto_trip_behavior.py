@@ -27,8 +27,6 @@ _MAX_REPLAN_ON_DESYNC = 8
 
 @dataclass
 class AutoTripBehavior(Behavior):
-    """auto trip by walking"""
-
     edge_behavior: EdgeBehavior
     world_path_finder: WorldPathFinder
     world_signals: WorldSignals

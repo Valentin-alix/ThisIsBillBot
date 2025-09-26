@@ -1,114 +1,162 @@
 syntax = "proto3";
 
 import "common.proto";
-import "game_message.proto";
-import "report.proto";
 
 package com.ankama.dofus.server.game.protocol.group_search;
 
-message UnknownKif {
-	repeated .com.ankama.dofus.server.game.protocol.group_search.UnknownKif.UnknownKid unknown_fxrd = 1;
-	int64 unknown_fxre = 2;
-	bool unknown_fxrf = 3;
-	int32 unknown_fxrg = 4;
-	message UnknownKid {
-		int32 unknown_fxqw = 1;
-		int32 unknown_fxqx = 2;
-		int32 unknown_fxqy = 3;
+enum UnknownTwoHundredTwentyNine {
+	UNKNOWN_TWO_HUNDRED_TWENTY_NINE_UNSPECIFIED = 0;
+	UNKNOWN_TWO_HUNDRED_TWENTY_NINE_1 = 1;
+	UNKNOWN_TWO_HUNDRED_TWENTY_NINE_2 = 2;
+	UNKNOWN_TWO_HUNDRED_TWENTY_NINE_3 = 3;
+	UNKNOWN_TWO_HUNDRED_TWENTY_NINE_4 = 4;
+	UNKNOWN_TWO_HUNDRED_TWENTY_NINE_5 = 5;
+	UNKNOWN_TWO_HUNDRED_TWENTY_NINE_6 = 6;
+	UNKNOWN_TWO_HUNDRED_TWENTY_NINE_7 = 7;
+	UNKNOWN_TWO_HUNDRED_TWENTY_NINE_8 = 8;
+	UNKNOWN_TWO_HUNDRED_TWENTY_NINE_9 = 9;
+	UNKNOWN_TWO_HUNDRED_TWENTY_NINE_10 = 10;
+}
+
+message UnknownTwoHundredFourteen {}
+
+enum UnknownTwoHundredTwelve {
+	UNKNOWN_TWO_HUNDRED_TWELVE = 0;
+}
+
+enum UnknownTwoHundredThirteen {
+	UNKNOWN_TWO_HUNDRED_THIRTEEN = 0;
+}
+
+message UnknownTwoHundredFifteen {}
+
+message UnknownTwoHundredSixteen {}
+
+enum UnknownTwoHundredSeventeen {
+	UNKNOWN_TWO_HUNDRED_SEVENTEEN = 0;
+}
+
+
+message UnknownTwoHundredEighteen {
+	repeated .com.ankama.dofus.server.game.protocol.group_search.UnknownTwoHundredEighteen.UnknownTwoHundredNineteen unknown_four_hundred_forty = 1;
+	int64 unknown_four_hundred_forty_one = 2;
+	bool unknown_four_hundred_forty_two = 3;
+	int32 unknown_four_hundred_forty_three = 4;
+	message UnknownTwoHundredNineteen {
+		enum UnknownTwoHundredTwenty {
+		UNKNOWN_TWO_HUNDRED_TWENTY_UNSPECIFIED = 0;
+		UNKNOWN_TWO_HUNDRED_TWENTY_1 = 1;
+		}
+		enum UnknownTwoHundredTwentyOne {
+		UNKNOWN_TWO_HUNDRED_TWENTY_ONE_UNSPECIFIED = 0;
+		UNKNOWN_TWO_HUNDRED_TWENTY_ONE_1 = 1;
+		}
 	}
 }
 
-message UnknownKig {
-	repeated bool unknown_fxrl = 1;
-	int64 unknown_fxrm = 2;
+message UnknownTwoHundredTwentyTwo {
+	repeated bool unknown_four_hundred_forty_four = 1;
+	int64 unknown_four_hundred_forty_five = 2;
 }
 
-message UnknownKje {
-	int32 unknown_fxvf = 1;
+message UnknownTwoHundredTwentyThree {
+	UnknownTwoHundredTwelve unknown_four_hundred_forty_six = 1;
 }
 
-message UnknownKjl {
-	.com.ankama.dofus.server.game.protocol.group_search.UnknownKjl.UnknownKji unknown_fxwc = 1;
-	.com.ankama.dofus.server.game.protocol.group_search.UnknownKjl.UnknownKjj unknown_fxwd = 2;
-	message UnknownKji {
-		int32 unknown_fxvq = 1;
+message UnknownTwoHundredTwentyFour {
+	.com.ankama.dofus.server.game.protocol.group_search.UnknownTwoHundredTwentyFour.UnknownTwoHundredTwentyFive unknown_four_hundred_forty_seven = 1;
+	.com.ankama.dofus.server.game.protocol.group_search.UnknownTwoHundredTwentyFour.UnknownTwoHundredTwentySix unknown_four_hundred_forty_eight = 2;
+	message UnknownTwoHundredTwentyFive {
 	}
-	message UnknownKjj {
-		bool unknown_fxvw = 1;
+	message UnknownTwoHundredTwentySix {
 	}
 }
 
-message UnknownKjs {
-	bool unknown_fxws = 1;
+message UnknownTwoHundredTwentySeven {
+	bool unknown_four_hundred_forty_nine = 1;
 }
 
-message UnknownKjv {
-	int32 unknown_fxww = 1;
+message UnknownTwoHundredTwentyEight {
+	UnknownTwoHundredThirteen unknown_four_hundred_fifty = 1;
 }
 
 message GroupSearchStartRequest {
-	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartRequest.UnknownKka unknown_fxxu = 1;
-	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartRequest.UnknownKkb unknown_fxxv = 2;
-	int32 unknown_fxxw = 3;
-	message UnknownKka {
-		repeated int32 unknown_fxxh = 1;
+	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartRequest.UnknownTwoHundredSix unknown_four_hundred_thirty_four = 1;
+	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartRequest.UnknownTwoHundredSeven unknown_four_hundred_thirty_five = 2;
+	UnknownTwoHundredFourteen unknown_four_hundred_thirty_six = 3;
+	message UnknownTwoHundredSix {
 	}
-	message UnknownKkb {
-		string unknown_fxxl = 1;
-		repeated int32 unknown_fxxm = 2;
+	message UnknownTwoHundredSeven {
 	}
 }
 
-message UnknownKkk {
-	int64 unknown_fxyp = 1;
-	.com.ankama.dofus.server.game.protocol.group_search.UnknownKkk.UnknownKkg unknown_fxyr = 2;
-	int32 unknown_fxys = 3;
-	int32 unknown_fxyt = 4;
-	message UnknownKkg {
-		repeated int32 unknown_fxyd = 1;
+message UnknownTwoHundredThirty {
+	int64 unknown_four_hundred_fifty_one = 1;
+	.com.ankama.dofus.server.game.protocol.group_search.UnknownTwoHundredThirty.UnknownTwoHundredThirtyOne unknown_four_hundred_fifty_two = 2;
+	message UnknownTwoHundredThirtyOne {
 	}
 }
 
-message UnknownKkq {
-	int32 unknown_fxzl = 1;
+message UnknownTwoHundredThirtyTwo {
+	UnknownTwoHundredSeventeen unknown_four_hundred_fifty_three = 1;
 }
 
-message UnknownKjx {
+message GroupSearchMenuRequest {
 }
 
 message GroupSearchStartResponse {
-	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownKiy unknown_fxuy = 1;
-	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownKiv unknown_fxuz = 2;
-	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownKiz unknown_fxva = 3;
-	message UnknownKiv {
-		int32 unknown_fxtw = 1;
+	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownTwoHundredNine unknown_four_hundred_thirty_seven = 1;
+	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownTwoHundredEight unknown_four_hundred_thirty_eight = 2;
+	.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownTwoHundredEleven unknown_four_hundred_thirty_nine = 3;
+	message UnknownTwoHundredEight {
 	}
-	message UnknownKiy {
-		int32 unknown_fxuo = 1;
-		int32 unknown_fxup = 2;
+	message UnknownTwoHundredNine {
+		enum UnknownTwoHundredTen {
+		UNKNOWN_TWO_HUNDRED_TEN_UNSPECIFIED = 0;
+		UNKNOWN_TWO_HUNDRED_TEN_1 = 1;
+		UNKNOWN_TWO_HUNDRED_TEN_2 = 2;
+		UNKNOWN_TWO_HUNDRED_TEN_3 = 3;
+		UNKNOWN_TWO_HUNDRED_TEN_4 = 4;
+		UNKNOWN_TWO_HUNDRED_TEN_5 = 5;
+		UNKNOWN_TWO_HUNDRED_TEN_6 = 6;
+		UNKNOWN_TWO_HUNDRED_TEN_7 = 7;
+		UNKNOWN_TWO_HUNDRED_TEN_8 = 8;
+		UNKNOWN_TWO_HUNDRED_TEN_9 = 9;
+		UNKNOWN_TWO_HUNDRED_TEN_10 = 10;
+		UNKNOWN_TWO_HUNDRED_TEN_11 = 11;
+		UNKNOWN_TWO_HUNDRED_TEN_12 = 12;
+		UNKNOWN_TWO_HUNDRED_TEN_13 = 13;
+		UNKNOWN_TWO_HUNDRED_TEN_14 = 14;
+		UNKNOWN_TWO_HUNDRED_TEN_15 = 15;
+		UNKNOWN_TWO_HUNDRED_TEN_16 = 16;
+		UNKNOWN_TWO_HUNDRED_TEN_17 = 17;
+		UNKNOWN_TWO_HUNDRED_TEN_18 = 18;
+		UNKNOWN_TWO_HUNDRED_TEN_19 = 19;
+		UNKNOWN_TWO_HUNDRED_TEN_20 = 20;
+		UNKNOWN_TWO_HUNDRED_TEN_21 = 21;
+		}
 	}
-	message UnknownKiz {
-		int64 unknown_fxuu = 1;
+	message UnknownTwoHundredEleven {
 	}
 }
 
-message UnknownKis {
-	repeated .com.ankama.dofus.server.game.protocol.group_search.UnknownKis.UnknownKip unknown_fxto = 1;
-	int64 unknown_fxtp = 2;
-	repeated .com.ankama.dofus.server.game.protocol.group_search.UnknownKis.UnknownKiq unknown_fxtr = 3;
-	int64 unknown_fxts = 4;
-	message UnknownKip {
-		.com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FighterListEntry.PlayerListEntry.FightResultAdditionalData.PvpData unknown_fxsy = 1;
-		.com.ankama.dofus.server.game.protocol.group_search.UnknownKis.UnknownKip.UnknownKin unknown_fxsz = 2;
-			message UnknownKin {
-		string unknown_fxst = 1;
+message GroupSearchMenuEvent {
+	repeated .com.ankama.dofus.server.game.protocol.group_search.GroupSearchMenuEvent.UnknownTwoHundredThree unknown_four_hundred_thirty = 1;
+	int64 unknown_four_hundred_thirty_one = 2;
+	repeated .com.ankama.dofus.server.game.protocol.group_search.GroupSearchMenuEvent.UnknownTwoHundredFive unknown_four_hundred_thirty_two = 3;
+	int64 unknown_four_hundred_thirty_three = 4;
+	message UnknownTwoHundredThree {
+		.com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FighterListEntry.PlayerListEntry.FightResultAdditionalData.PvpData unknown_four_hundred_twenty_three = 1;
+		.com.ankama.dofus.server.game.protocol.group_search.GroupSearchMenuEvent.UnknownTwoHundredThree.UnknownTwoHundredFour unknown_four_hundred_twenty_four = 2;
+			message UnknownTwoHundredFour {
+		string unknown_four_hundred_twenty_two = 1;
 		}
 	}
-	message UnknownKiq {
-		repeated int64 unknown_fxte = 1;
-		int32 unknown_fxtf = 2;
-		int64 unknown_fxth = 3;
-		int32 unknown_fxtj = 4;
-		repeated int64 unknown_fxtk = 5;
+	message UnknownTwoHundredFive {
+		repeated int64 unknown_four_hundred_twenty_five = 1;
+		int32 unknown_four_hundred_twenty_six = 2;
+		int64 unknown_four_hundred_twenty_seven = 3;
+		int32 unknown_four_hundred_twenty_eight = 4;
+		repeated int64 unknown_four_hundred_twenty_nine = 5;
 	}
 }

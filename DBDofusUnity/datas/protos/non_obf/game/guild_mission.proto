@@ -1,9 +1,44 @@
 syntax = "proto3";
 
-
 package com.ankama.dofus.server.game.protocol.guild.mission;
 
-message UnknownJlb {
-	int32 unknown_ftwm = 1;
-	string unknown_ftwn = 2;
+message GuildMissionActivityTierUpdateRequest {
+	int32 activity_tier = 1;
+}
+
+message GuildMissionInformation {
+	int32 tier = 1;
+	int32 tier_experience = 2;
+	int32 guildaton_max = 3;
+	int32 guildaton = 4;
+	int32 activity_tier = 5;
+}
+
+message GuildMissionInformationUpdateEvent {
+	GuildMissionInformation unknown_four_hundred_eighty_six = 1;
+}
+
+message GuildMissionStatusEvent {
+	oneof status {
+		GuildMissionStatusDisabled disabled = 1;
+		GuildMissionStatusAvailable available = 2;
+		GuildMissionStatusUnavailable unavailable = 3;
+	}
+	message GuildMissionStatusAvailable {
+		GuildMissionInformation information = 1;
+	}
+	message GuildMissionStatusDisabled {
+	}
+	message GuildMissionStatusUnavailable {
+	}
+}
+
+message GuildMissionStatusRequest {
+}
+
+message ServerMaintenanceEvent {
+	string maintenance_date = 1;
+}
+
+message ServerMaintenanceInformationRequest {
 }

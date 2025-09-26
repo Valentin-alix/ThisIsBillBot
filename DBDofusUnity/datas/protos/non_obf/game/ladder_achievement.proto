@@ -1,14 +1,12 @@
 syntax = "proto3";
 
-import "game_message.proto";
-import "report.proto";
 import "ladder.proto";
 
 package com.ankama.dofus.server.game.protocol.ladder.achievement;
 
-message UnknownIrb {
-	int32 unknown_fqve = 1;
-	string unknown_fqvf = 2;
+message UnknownThreeHundredSixty {
+	int32 unknown_six_hundred_sixty_four = 1;
+	string unknown_six_hundred_sixty_five = 2;
 }
 
 message AchievementLadderPageEvent {
@@ -25,7 +23,7 @@ message AchievementLadderPageRequest {
 	int32 server_id = 1;
 }
 
-message UnknownIrh {
+message UnknownThreeHundredSixtyOne {
 	repeated .com.ankama.dofus.server.game.protocol.ladder.achievement.AchievementLadderEntry entries = 1;
 }
 

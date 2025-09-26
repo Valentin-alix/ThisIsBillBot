@@ -94,6 +94,12 @@ class ObjectUseOnCellRequest(_message.Message):
     cell_id: int
     def __init__(self, object_uid: _Optional[int] = ..., cell_id: _Optional[int] = ...) -> None: ...
 
+class ObjectPriceHistoryRequest(_message.Message):
+    __slots__ = ("object_gid",)
+    OBJECT_GID_FIELD_NUMBER: _ClassVar[int]
+    object_gid: int
+    def __init__(self, object_gid: _Optional[int] = ...) -> None: ...
+
 class ObjectFeedRequest(_message.Message):
     __slots__ = ("object_uid", "meal")
     OBJECT_UID_FIELD_NUMBER: _ClassVar[int]
@@ -385,25 +391,25 @@ class SetUpdateEvent(_message.Message):
     effects: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectEffect]
     def __init__(self, set_id: _Optional[int] = ..., objects_uid: _Optional[_Iterable[int]] = ..., effects: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ...) -> None: ...
 
-class UnknownIue(_message.Message):
-    __slots__ = ("unknown_frit", "unknown_friv")
-    class UnknownIuc(_message.Message):
-        __slots__ = ("unknown_frik", "unknown_fril", "unknown_frip")
-        UNKNOWN_FRIK_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FRIL_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FRIP_FIELD_NUMBER: _ClassVar[int]
-        unknown_frik: int
-        unknown_fril: int
-        unknown_frip: str
-        def __init__(self, unknown_frik: _Optional[int] = ..., unknown_fril: _Optional[int] = ..., unknown_frip: _Optional[str] = ...) -> None: ...
-    UNKNOWN_FRIT_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FRIV_FIELD_NUMBER: _ClassVar[int]
-    unknown_frit: _containers.RepeatedCompositeFieldContainer[UnknownIue.UnknownIuc]
-    unknown_friv: _containers.RepeatedCompositeFieldContainer[UnknownIue.UnknownIuc]
-    def __init__(self, unknown_frit: _Optional[_Iterable[_Union[UnknownIue.UnknownIuc, _Mapping]]] = ..., unknown_friv: _Optional[_Iterable[_Union[UnknownIue.UnknownIuc, _Mapping]]] = ...) -> None: ...
+class ObjectPriceHistoryEvent(_message.Message):
+    __slots__ = ("unknown_six_hundred_sixty", "unknown_six_hundred_sixty_one")
+    class ObjectPriceHistoryEntry(_message.Message):
+        __slots__ = ("object_gid", "price", "bought_date")
+        OBJECT_GID_FIELD_NUMBER: _ClassVar[int]
+        PRICE_FIELD_NUMBER: _ClassVar[int]
+        BOUGHT_DATE_FIELD_NUMBER: _ClassVar[int]
+        object_gid: int
+        price: int
+        bought_date: str
+        def __init__(self, object_gid: _Optional[int] = ..., price: _Optional[int] = ..., bought_date: _Optional[str] = ...) -> None: ...
+    UNKNOWN_SIX_HUNDRED_SIXTY_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_SIX_HUNDRED_SIXTY_ONE_FIELD_NUMBER: _ClassVar[int]
+    unknown_six_hundred_sixty: _containers.RepeatedCompositeFieldContainer[ObjectPriceHistoryEvent.ObjectPriceHistoryEntry]
+    unknown_six_hundred_sixty_one: _containers.RepeatedCompositeFieldContainer[ObjectPriceHistoryEvent.ObjectPriceHistoryEntry]
+    def __init__(self, unknown_six_hundred_sixty: _Optional[_Iterable[_Union[ObjectPriceHistoryEvent.ObjectPriceHistoryEntry, _Mapping]]] = ..., unknown_six_hundred_sixty_one: _Optional[_Iterable[_Union[ObjectPriceHistoryEvent.ObjectPriceHistoryEntry, _Mapping]]] = ...) -> None: ...
 
-class UnknownIuz(_message.Message):
-    __slots__ = ("unknown_frmg",)
-    UNKNOWN_FRMG_FIELD_NUMBER: _ClassVar[int]
-    unknown_frmg: _common_pb2.ShortcutBar
-    def __init__(self, unknown_frmg: _Optional[_Union[_common_pb2.ShortcutBar, str]] = ...) -> None: ...
+class UnknownThreeHundredFiftyNine(_message.Message):
+    __slots__ = ("unknown_six_hundred_sixty_two",)
+    UNKNOWN_SIX_HUNDRED_SIXTY_TWO_FIELD_NUMBER: _ClassVar[int]
+    unknown_six_hundred_sixty_two: _common_pb2.ShortcutBar
+    def __init__(self, unknown_six_hundred_sixty_two: _Optional[_Union[_common_pb2.ShortcutBar, str]] = ...) -> None: ...

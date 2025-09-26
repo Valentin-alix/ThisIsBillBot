@@ -15,16 +15,16 @@ from PyQt6.QtWidgets import (
 from qfluentwidgets import BodyLabel, ListWidget, SmoothMode
 
 from src.core.bot.bot import Bot
+from src.gui.consts import CARD_WIDTH
 from src.gui.pages.farmer.equipment_panel_widget import (
     EquipmentPanelWidget,
     get_item_name,
 )
 
-CARD_WIDTH = 150
 CARD_HEIGHT = 120
 CARD_SPACING = 10
 BAG_MAX_COLUMNS = 3
-# Largeur pour afficher au plus 3 colonnes (cellule + espacement + barre de scroll).
+
 BAG_MAX_WIDTH = BAG_MAX_COLUMNS * (CARD_WIDTH + CARD_SPACING) + CARD_SPACING + 20
 
 _NOT_EQUIPED = int(CharacterInventoryPositionEnum.InventoryPositionNotEquiped)
@@ -54,7 +54,7 @@ class InventoryTab(QWidget):
         self.list_widget.setSpacing(CARD_SPACING)
         self.list_widget.setUniformItemSizes(True)
         self.list_widget.setGridSize(QSize(CARD_WIDTH, CARD_HEIGHT))
-        # Au plus 3 colonnes pour laisser la place au panneau d'équipement.
+
         self.list_widget.setMaximumWidth(BAG_MAX_WIDTH)
         self.list_widget.setStyleSheet("QListWidget { background-color: transparent; border: none; }")
 

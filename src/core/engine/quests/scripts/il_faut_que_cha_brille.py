@@ -1,5 +1,3 @@
-"""Quete 1426 -- "Il faut que cha brille", hebdomadaire."""
-
 from dofus_unity_reader.game_constants.item import ItemEnum
 from dofus_unity_reader.game_constants.map_id import MapIdEnum
 from dofus_unity_reader.game_constants.quest import (
@@ -33,8 +31,6 @@ _STEPS: list[QuestStep] = [
         map_ids={MapIdEnum.KERUBIM_SHOP},
         npc_name="Kerubim Crepin",
         turns=[
-            # Premiere prise de la quete, puis relance hebdomadaire : une seule des deux
-            # entrees est proposee, l'autre tour reste simplement inutilise.
             DialogTurn(reply=ByText(pattern=r"odeur bizarre dans la piece")),
             DialogTurn(reply=ByText(pattern=r"proposer une nouvelle fois votre aide")),
             DialogTurn(reply=ByText(pattern=r"proposer votre aide pour trouver de la cire")),

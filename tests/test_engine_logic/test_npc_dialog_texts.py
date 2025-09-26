@@ -7,8 +7,8 @@ from src.core.engine.npcs.dialog_texts import (
 )
 
 KERUBIM_NPC_ID = 1901
-KERUBIM_HELP_REPLY_ID = 15482  # "Accepter de l'aider."
-KERUBIM_SHOP_CLOSED_MESSAGE_ID = 12877  # "La boutique est fermee pour cause d'inventaire..."
+KERUBIM_HELP_REPLY_ID = 15482
+KERUBIM_SHOP_CLOSED_MESSAGE_ID = 12877
 UNKNOWN_ID = 999_999_999
 
 
@@ -54,9 +54,7 @@ def test_unresolved_text_never_matches() -> None:
 
 
 def test_finding_replies_of_an_npc_by_wording() -> None:
-    assert find_npc_reply_ids_matching(KERUBIM_NPC_ID, r"accepter de l'aider") == [
-        KERUBIM_HELP_REPLY_ID
-    ]
+    assert find_npc_reply_ids_matching(KERUBIM_NPC_ID, r"accepter de l'aider") == [KERUBIM_HELP_REPLY_ID]
 
 
 def test_finding_replies_of_an_unknown_npc_yields_nothing() -> None:

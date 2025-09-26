@@ -1,4 +1,5 @@
 import common_pb2 as _common_pb2
+import guild_member_shop_pb2 as _guild_member_shop_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
@@ -65,16 +66,16 @@ class GuildLeftEvent(_message.Message):
     def __init__(self) -> None: ...
 
 class GuildMembershipEvent(_message.Message):
-    __slots__ = ("guild_information", "rank_id", "unknown_ftza", "unknown_ftzd")
+    __slots__ = ("guild_information", "rank_id", "guildaton_count", "unknown_four_hundred_seventy_one")
     GUILD_INFORMATION_FIELD_NUMBER: _ClassVar[int]
     RANK_ID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTZA_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTZD_FIELD_NUMBER: _ClassVar[int]
+    GUILDATON_COUNT_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_SEVENTY_ONE_FIELD_NUMBER: _ClassVar[int]
     guild_information: _common_pb2.GuildInformation
     rank_id: int
-    unknown_ftza: int
-    unknown_ftzd: int
-    def __init__(self, guild_information: _Optional[_Union[_common_pb2.GuildInformation, _Mapping]] = ..., rank_id: _Optional[int] = ..., unknown_ftza: _Optional[int] = ..., unknown_ftzd: _Optional[int] = ...) -> None: ...
+    guildaton_count: int
+    unknown_four_hundred_seventy_one: int
+    def __init__(self, guild_information: _Optional[_Union[_common_pb2.GuildInformation, _Mapping]] = ..., rank_id: _Optional[int] = ..., guildaton_count: _Optional[int] = ..., unknown_four_hundred_seventy_one: _Optional[int] = ...) -> None: ...
 
 class GuildJoinedEvent(_message.Message):
     __slots__ = ("guild_information", "rank_id")
@@ -84,82 +85,52 @@ class GuildJoinedEvent(_message.Message):
     rank_id: int
     def __init__(self, guild_information: _Optional[_Union[_common_pb2.GuildInformation, _Mapping]] = ..., rank_id: _Optional[int] = ...) -> None: ...
 
-class UnknownJkh(_message.Message):
-    __slots__ = ("unknown_fttu", "unknown_fttv")
-    class UnknownJkf(_message.Message):
-        __slots__ = ("unknown_fttp", "unknown_fttq")
-        class UnknownFttqEntry(_message.Message):
+class UnknownTwoHundredForty(_message.Message):
+    __slots__ = ("unknown_four_hundred_seventy_four", "unknown_four_hundred_seventy_five")
+    class UnknownTwoHundredFortyOne(_message.Message):
+        __slots__ = ("unknown_four_hundred_seventy_two", "unknown_four_hundred_seventy_three")
+        class UnknownFourHundredSeventyThreeEntry(_message.Message):
             __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: int
-            value: UnknownJkt
-            def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[UnknownJkt, _Mapping]] = ...) -> None: ...
-        UNKNOWN_FTTP_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FTTQ_FIELD_NUMBER: _ClassVar[int]
-        unknown_fttp: int
-        unknown_fttq: _containers.MessageMap[int, UnknownJkt]
-        def __init__(self, unknown_fttp: _Optional[int] = ..., unknown_fttq: _Optional[_Mapping[int, UnknownJkt]] = ...) -> None: ...
-    UNKNOWN_FTTU_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTTV_FIELD_NUMBER: _ClassVar[int]
-    unknown_fttu: int
-    unknown_fttv: UnknownJkh.UnknownJkf
-    def __init__(self, unknown_fttu: _Optional[int] = ..., unknown_fttv: _Optional[_Union[UnknownJkh.UnknownJkf, _Mapping]] = ...) -> None: ...
+            value: UnknownTwoHundredFortyTwo
+            def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[UnknownTwoHundredFortyTwo, _Mapping]] = ...) -> None: ...
+        UNKNOWN_FOUR_HUNDRED_SEVENTY_TWO_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_FOUR_HUNDRED_SEVENTY_THREE_FIELD_NUMBER: _ClassVar[int]
+        unknown_four_hundred_seventy_two: int
+        unknown_four_hundred_seventy_three: _containers.MessageMap[int, UnknownTwoHundredFortyTwo]
+        def __init__(self, unknown_four_hundred_seventy_two: _Optional[int] = ..., unknown_four_hundred_seventy_three: _Optional[_Mapping[int, UnknownTwoHundredFortyTwo]] = ...) -> None: ...
+    UNKNOWN_FOUR_HUNDRED_SEVENTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_SEVENTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_seventy_four: int
+    unknown_four_hundred_seventy_five: UnknownTwoHundredForty.UnknownTwoHundredFortyOne
+    def __init__(self, unknown_four_hundred_seventy_four: _Optional[int] = ..., unknown_four_hundred_seventy_five: _Optional[_Union[UnknownTwoHundredForty.UnknownTwoHundredFortyOne, _Mapping]] = ...) -> None: ...
 
-class UnknownJkt(_message.Message):
-    __slots__ = ("unknown_ftve", "unknown_ftvf")
-    UNKNOWN_FTVE_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTVF_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftve: int
-    unknown_ftvf: UnknownJkq
-    def __init__(self, unknown_ftve: _Optional[int] = ..., unknown_ftvf: _Optional[_Union[UnknownJkq, _Mapping]] = ...) -> None: ...
+class UnknownTwoHundredFortyTwo(_message.Message):
+    __slots__ = ("unknown_four_hundred_seventy_six", "unknown_four_hundred_seventy_seven")
+    UNKNOWN_FOUR_HUNDRED_SEVENTY_SIX_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_SEVENTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_seventy_six: int
+    unknown_four_hundred_seventy_seven: _guild_member_shop_pb2.UnknownTwoHundredFortySix
+    def __init__(self, unknown_four_hundred_seventy_six: _Optional[int] = ..., unknown_four_hundred_seventy_seven: _Optional[_Union[_guild_member_shop_pb2.UnknownTwoHundredFortySix, _Mapping]] = ...) -> None: ...
 
-class UnknownJkq(_message.Message):
-    __slots__ = ("unknown_ftuq", "unknown_ftur")
-    class UnknownJko(_message.Message):
-        __slots__ = ("unknown_ftuk", "unknown_ftul")
-        UNKNOWN_FTUK_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FTUL_FIELD_NUMBER: _ClassVar[int]
-        unknown_ftuk: int
-        unknown_ftul: str
-        def __init__(self, unknown_ftuk: _Optional[int] = ..., unknown_ftul: _Optional[str] = ...) -> None: ...
-    UNKNOWN_FTUQ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTUR_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftuq: UnknownJkq.UnknownJko
-    unknown_ftur: int
-    def __init__(self, unknown_ftuq: _Optional[_Union[UnknownJkq.UnknownJko, _Mapping]] = ..., unknown_ftur: _Optional[int] = ...) -> None: ...
+class UnknownTwoHundredFortyThree(_message.Message):
+    __slots__ = ("unknown_four_hundred_seventy_eight", "unknown_four_hundred_seventy_nine")
+    UNKNOWN_FOUR_HUNDRED_SEVENTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_SEVENTY_NINE_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_seventy_eight: _guild_member_shop_pb2.UnknownTwoHundredFortySix
+    unknown_four_hundred_seventy_nine: int
+    def __init__(self, unknown_four_hundred_seventy_eight: _Optional[_Union[_guild_member_shop_pb2.UnknownTwoHundredFortySix, _Mapping]] = ..., unknown_four_hundred_seventy_nine: _Optional[int] = ...) -> None: ...
 
-class UnknownJku(_message.Message):
-    __slots__ = ("unknown_ftvk", "unknown_ftvl")
-    class UnknownFtvkEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: int
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-    UNKNOWN_FTVK_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTVL_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftvk: _containers.ScalarMap[int, int]
-    unknown_ftvl: int
-    def __init__(self, unknown_ftvk: _Optional[_Mapping[int, int]] = ..., unknown_ftvl: _Optional[int] = ...) -> None: ...
+class UnknownTwoHundredFortyFour(_message.Message):
+    __slots__ = ("unknown_four_hundred_eighty",)
+    UNKNOWN_FOUR_HUNDRED_EIGHTY_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_eighty: int
+    def __init__(self, unknown_four_hundred_eighty: _Optional[int] = ...) -> None: ...
 
-class UnknownJkv(_message.Message):
-    __slots__ = ("unknown_ftvp", "unknown_ftvq")
-    UNKNOWN_FTVP_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTVQ_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftvp: UnknownJkq
-    unknown_ftvq: int
-    def __init__(self, unknown_ftvp: _Optional[_Union[UnknownJkq, _Mapping]] = ..., unknown_ftvq: _Optional[int] = ...) -> None: ...
-
-class UnknownJkw(_message.Message):
-    __slots__ = ("unknown_ftvu",)
-    UNKNOWN_FTVU_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftvu: int
-    def __init__(self, unknown_ftvu: _Optional[int] = ...) -> None: ...
-
-class UnknownJky(_message.Message):
-    __slots__ = ("unknown_ftwc",)
-    UNKNOWN_FTWC_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftwc: int
-    def __init__(self, unknown_ftwc: _Optional[int] = ...) -> None: ...
+class UnknownTwoHundredFortyFive(_message.Message):
+    __slots__ = ("unknown_four_hundred_eighty_one",)
+    UNKNOWN_FOUR_HUNDRED_EIGHTY_ONE_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_eighty_one: int
+    def __init__(self, unknown_four_hundred_eighty_one: _Optional[int] = ...) -> None: ...

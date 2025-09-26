@@ -15,20 +15,17 @@ from src.core.engine.movements.world.criterions.group_item_criterion import (
 from src.core.engine.movements.world.criterions.interface_item_criterion import (
     IItemCriterion,
 )
+from src.core.engine.movements.world.transition_ban import BannedTransition
 from src.core.signals.world_signals import WorldSignals
 
 
-def remove_forbidden_edge_transition_by_map_id(
+def remove_banned_transitions_by_map_id(
     map_id: int,
-    forbidden_edge_transitions: set[tuple[Vertice, Vertice, Transition]],
+    banned_edge_transitions: set[BannedTransition],
 ) -> None:
-    for (
-        vertice_from,
-        vertice_to,
-        transition,
-    ) in forbidden_edge_transitions.copy():
-        if vertice_from.m_mapId == map_id:
-            forbidden_edge_transitions.remove((vertice_from, vertice_to, transition))
+    banned_edge_transitions.difference_update(
+        {ban for ban in banned_edge_transitions if ban.vertice_from.m_mapId == map_id}
+    )
 
 
 def get_valid_transition(
@@ -92,7 +89,5 @@ def draw_edge_path(world_signals: WorldSignals, edges: list[Edge]) -> None:
         world_signals.arrow_pos_batch.emit(batch)
 
 
-# Passage vers berceau d'alma, donc peux pas
 # Forbidden edge : Edge(m_from=Vertice(m_mapId=54162757, m_zoneId=1, m_uid=1795), m_to=Vertice(m_mapId=57016832, m_zoneId=1, m_uid=6791), m_transitions=[Transition(m_type=3
 # 2, m_direction=255, m_skillId=184, m_criterion='', m_transitionMapId=57016832, m_cellId=132, m_id=456644)]) with transition : Transition(m_type=32, m_direction=255, m_ski
-# llId=184, m_criterion='', m_transitionMapId=57016832, m_cellId=132, m_id=456644)

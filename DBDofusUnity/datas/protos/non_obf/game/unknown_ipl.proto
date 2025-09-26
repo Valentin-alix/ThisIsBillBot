@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-package com.ankama.dofus.server.game.protocol.unknown_ipl;
-
-message UnknownIpm {
-	int32 unknown_ejhm = 1;
-}

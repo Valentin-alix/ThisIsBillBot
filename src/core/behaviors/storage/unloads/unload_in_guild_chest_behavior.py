@@ -45,7 +45,9 @@ class UnloadInGuildChestBehavior(RecoverableBehavior):
 
     def run(self, unload_item_id_by_tab: dict[int, set[int]]) -> None:
         self.init_recovery_listeners()
-        self.ensure_free_to_act(lambda: self.start_guild_chest_unload(unload_item_id_by_tab=unload_item_id_by_tab))
+        self.ensure_free_to_act(
+            lambda: self.start_guild_chest_unload(unload_item_id_by_tab=unload_item_id_by_tab)
+        )
 
     def start_guild_chest_unload(self, unload_item_id_by_tab: dict[int, set[int]]) -> None:
         object_by_gid_in_inventory = {

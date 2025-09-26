@@ -11,7 +11,7 @@ from dofus_unity_reader.data_center.i18n import I18N
 from dofus_unity_reader.game_constants.job import JobEnum
 from pydantic import BaseModel, Field
 
-from src.const import RESOURCE_FOLDER
+from src.consts import RESOURCE_FOLDER
 from src.services.logging_utils.loggers import BotLogger
 
 

@@ -1,301 +1,333 @@
 import common_pb2 as _common_pb2
-import cosmetic_pb2 as _cosmetic_pb2
-import game_message_pb2 as _game_message_pb2
 import preset_pb2 as _preset_pb2
-import report_pb2 as _report_pb2
 from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class UnknownKxm(_message.Message):
-    __slots__ = ("unknown_fzqb", "unknown_fzqc")
-    class UnknownKxj(_message.Message):
-        __slots__ = ("unknown_fzps",)
-        UNKNOWN_FZPS_FIELD_NUMBER: _ClassVar[int]
-        unknown_fzps: _containers.RepeatedScalarFieldContainer[int]
-        def __init__(self, unknown_fzps: _Optional[_Iterable[int]] = ...) -> None: ...
-    class UnknownKxk(_message.Message):
-        __slots__ = ("unknown_fzpx",)
-        UNKNOWN_FZPX_FIELD_NUMBER: _ClassVar[int]
-        unknown_fzpx: _containers.RepeatedScalarFieldContainer[int]
-        def __init__(self, unknown_fzpx: _Optional[_Iterable[int]] = ...) -> None: ...
-    UNKNOWN_FZQB_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZQC_FIELD_NUMBER: _ClassVar[int]
-    unknown_fzqb: UnknownKxm.UnknownKxj
-    unknown_fzqc: UnknownKxm.UnknownKxk
-    def __init__(self, unknown_fzqb: _Optional[_Union[UnknownKxm.UnknownKxj, _Mapping]] = ..., unknown_fzqc: _Optional[_Union[UnknownKxm.UnknownKxk, _Mapping]] = ...) -> None: ...
+class UnknownFourHundredFortyEight(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    UNKNOWN_FOUR_HUNDRED_FORTY_EIGHT_UNSPECIFIED: _ClassVar[UnknownFourHundredFortyEight]
+    UNKNOWN_FOUR_HUNDRED_FORTY_EIGHT_1: _ClassVar[UnknownFourHundredFortyEight]
 
-class UnknownKxr(_message.Message):
-    __slots__ = ("unknown_fzqp", "unknown_fzqq")
-    class UnknownKxo(_message.Message):
-        __slots__ = ("unknown_fzqh",)
-        UNKNOWN_FZQH_FIELD_NUMBER: _ClassVar[int]
-        unknown_fzqh: int
-        def __init__(self, unknown_fzqh: _Optional[int] = ...) -> None: ...
-    class UnknownKxp(_message.Message):
-        __slots__ = ("unknown_fzql",)
-        UNKNOWN_FZQL_FIELD_NUMBER: _ClassVar[int]
-        unknown_fzql: _containers.RepeatedScalarFieldContainer[int]
-        def __init__(self, unknown_fzql: _Optional[_Iterable[int]] = ...) -> None: ...
-    UNKNOWN_FZQP_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZQQ_FIELD_NUMBER: _ClassVar[int]
-    unknown_fzqp: UnknownKxr.UnknownKxp
-    unknown_fzqq: UnknownKxr.UnknownKxo
-    def __init__(self, unknown_fzqp: _Optional[_Union[UnknownKxr.UnknownKxp, _Mapping]] = ..., unknown_fzqq: _Optional[_Union[UnknownKxr.UnknownKxo, _Mapping]] = ...) -> None: ...
+class UnknownFourHundredFortySix(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    UNKNOWN_FOUR_HUNDRED_FORTY_SIX_UNSPECIFIED: _ClassVar[UnknownFourHundredFortySix]
+    UNKNOWN_FOUR_HUNDRED_FORTY_SIX_1: _ClassVar[UnknownFourHundredFortySix]
+    UNKNOWN_FOUR_HUNDRED_FORTY_SIX_2: _ClassVar[UnknownFourHundredFortySix]
 
-class UnknownKxs(_message.Message):
-    __slots__ = ("unknown_fzqv",)
-    UNKNOWN_FZQV_FIELD_NUMBER: _ClassVar[int]
-    unknown_fzqv: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, unknown_fzqv: _Optional[_Iterable[int]] = ...) -> None: ...
+class UnknownFourHundredFortySeven(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    UNKNOWN_FOUR_HUNDRED_FORTY_SEVEN_UNSPECIFIED: _ClassVar[UnknownFourHundredFortySeven]
+    UNKNOWN_FOUR_HUNDRED_FORTY_SEVEN_1: _ClassVar[UnknownFourHundredFortySeven]
+    UNKNOWN_FOUR_HUNDRED_FORTY_SEVEN_2: _ClassVar[UnknownFourHundredFortySeven]
 
-class UnknownKyb(_message.Message):
-    __slots__ = ("unknown_fzrp", "unknown_fzrq")
-    class UnknownKxw(_message.Message):
-        __slots__ = ("unknown_fzre",)
-        UNKNOWN_FZRE_FIELD_NUMBER: _ClassVar[int]
-        unknown_fzre: _containers.RepeatedScalarFieldContainer[int]
-        def __init__(self, unknown_fzre: _Optional[_Iterable[int]] = ...) -> None: ...
-    class UnknownKxz(_message.Message):
-        __slots__ = ("unknown_fzri",)
-        UNKNOWN_FZRI_FIELD_NUMBER: _ClassVar[int]
-        unknown_fzri: _containers.RepeatedScalarFieldContainer[int]
-        def __init__(self, unknown_fzri: _Optional[_Iterable[int]] = ...) -> None: ...
-    UNKNOWN_FZRP_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZRQ_FIELD_NUMBER: _ClassVar[int]
-    unknown_fzrp: UnknownKyb.UnknownKxz
-    unknown_fzrq: UnknownKyb.UnknownKxw
-    def __init__(self, unknown_fzrp: _Optional[_Union[UnknownKyb.UnknownKxz, _Mapping]] = ..., unknown_fzrq: _Optional[_Union[UnknownKyb.UnknownKxw, _Mapping]] = ...) -> None: ...
+class UnknownFourHundredFortyThree(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    UNKNOWN_FOUR_HUNDRED_FORTY_THREE: _ClassVar[UnknownFourHundredFortyThree]
 
-class UnknownKyf(_message.Message):
-    __slots__ = ("unknown_fzsh",)
-    UNKNOWN_FZSH_FIELD_NUMBER: _ClassVar[int]
-    unknown_fzsh: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, unknown_fzsh: _Optional[_Iterable[int]] = ...) -> None: ...
+class UnknownFourHundredFortyFive(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    UNKNOWN_FOUR_HUNDRED_FORTY_FIVE: _ClassVar[UnknownFourHundredFortyFive]
+UNKNOWN_FOUR_HUNDRED_FORTY_EIGHT_UNSPECIFIED: UnknownFourHundredFortyEight
+UNKNOWN_FOUR_HUNDRED_FORTY_EIGHT_1: UnknownFourHundredFortyEight
+UNKNOWN_FOUR_HUNDRED_FORTY_SIX_UNSPECIFIED: UnknownFourHundredFortySix
+UNKNOWN_FOUR_HUNDRED_FORTY_SIX_1: UnknownFourHundredFortySix
+UNKNOWN_FOUR_HUNDRED_FORTY_SIX_2: UnknownFourHundredFortySix
+UNKNOWN_FOUR_HUNDRED_FORTY_SEVEN_UNSPECIFIED: UnknownFourHundredFortySeven
+UNKNOWN_FOUR_HUNDRED_FORTY_SEVEN_1: UnknownFourHundredFortySeven
+UNKNOWN_FOUR_HUNDRED_FORTY_SEVEN_2: UnknownFourHundredFortySeven
+UNKNOWN_FOUR_HUNDRED_FORTY_THREE: UnknownFourHundredFortyThree
+UNKNOWN_FOUR_HUNDRED_FORTY_FIVE: UnknownFourHundredFortyFive
 
-class UnknownKzl(_message.Message):
-    __slots__ = ("unknown_fzxl", "unknown_fzxm")
-    class UnknownKyi(_message.Message):
-        __slots__ = ("unknown_fzsl", "unknown_fzsm", "unknown_fzsn", "unknown_fzso")
-        UNKNOWN_FZSL_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZSM_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZSN_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZSO_FIELD_NUMBER: _ClassVar[int]
-        unknown_fzsl: UnknownKzl.UnknownKzi
-        unknown_fzsm: UnknownKzl.UnknownKyu
-        unknown_fzsn: UnknownKzl.UnknownKyr
-        unknown_fzso: int
-        def __init__(self, unknown_fzsl: _Optional[_Union[UnknownKzl.UnknownKzi, _Mapping]] = ..., unknown_fzsm: _Optional[_Union[UnknownKzl.UnknownKyu, _Mapping]] = ..., unknown_fzsn: _Optional[_Union[UnknownKzl.UnknownKyr, _Mapping]] = ..., unknown_fzso: _Optional[int] = ...) -> None: ...
-    class UnknownKyl(_message.Message):
-        __slots__ = ("unknown_fzst",)
-        UNKNOWN_FZST_FIELD_NUMBER: _ClassVar[int]
-        unknown_fzst: int
-        def __init__(self, unknown_fzst: _Optional[int] = ...) -> None: ...
-    class UnknownKyr(_message.Message):
-        __slots__ = ("unknown_fztv", "unknown_fztx", "unknown_fztz", "unknown_fzua", "unknown_fzub", "unknown_fzuc", "unknown_fzud", "unknown_fzue")
-        class UnknownFztzEntry(_message.Message):
+class UnknownFourHundredFortyFour(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class UnknownFourHundredFortyNine(_message.Message):
+    __slots__ = ("unknown_seven_hundred_eighty_two", "unknown_seven_hundred_eighty_three")
+    class UnknownFourHundredFifty(_message.Message):
+        __slots__ = ()
+        def __init__(self) -> None: ...
+    class UnknownFourHundredFiftyOne(_message.Message):
+        __slots__ = ()
+        def __init__(self) -> None: ...
+    UNKNOWN_SEVEN_HUNDRED_EIGHTY_TWO_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_SEVEN_HUNDRED_EIGHTY_THREE_FIELD_NUMBER: _ClassVar[int]
+    unknown_seven_hundred_eighty_two: UnknownFourHundredFortyNine.UnknownFourHundredFifty
+    unknown_seven_hundred_eighty_three: UnknownFourHundredFortyNine.UnknownFourHundredFiftyOne
+    def __init__(self, unknown_seven_hundred_eighty_two: _Optional[_Union[UnknownFourHundredFortyNine.UnknownFourHundredFifty, _Mapping]] = ..., unknown_seven_hundred_eighty_three: _Optional[_Union[UnknownFourHundredFortyNine.UnknownFourHundredFiftyOne, _Mapping]] = ...) -> None: ...
+
+class UnknownFourHundredFiftyTwo(_message.Message):
+    __slots__ = ("unknown_seven_hundred_eighty_four", "unknown_seven_hundred_eighty_five")
+    class UnknownFourHundredFiftyThree(_message.Message):
+        __slots__ = ()
+        def __init__(self) -> None: ...
+    class UnknownFourHundredFiftyFour(_message.Message):
+        __slots__ = ()
+        def __init__(self) -> None: ...
+    UNKNOWN_SEVEN_HUNDRED_EIGHTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_SEVEN_HUNDRED_EIGHTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    unknown_seven_hundred_eighty_four: UnknownFourHundredFiftyTwo.UnknownFourHundredFiftyFour
+    unknown_seven_hundred_eighty_five: UnknownFourHundredFiftyTwo.UnknownFourHundredFiftyThree
+    def __init__(self, unknown_seven_hundred_eighty_four: _Optional[_Union[UnknownFourHundredFiftyTwo.UnknownFourHundredFiftyFour, _Mapping]] = ..., unknown_seven_hundred_eighty_five: _Optional[_Union[UnknownFourHundredFiftyTwo.UnknownFourHundredFiftyThree, _Mapping]] = ...) -> None: ...
+
+class UnknownFourHundredFiftyFive(_message.Message):
+    __slots__ = ("unknown_seven_hundred_eighty_six",)
+    UNKNOWN_SEVEN_HUNDRED_EIGHTY_SIX_FIELD_NUMBER: _ClassVar[int]
+    unknown_seven_hundred_eighty_six: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, unknown_seven_hundred_eighty_six: _Optional[_Iterable[int]] = ...) -> None: ...
+
+class UnknownFourHundredFiftySix(_message.Message):
+    __slots__ = ("unknown_seven_hundred_eighty_seven", "unknown_seven_hundred_eighty_eight")
+    class UnknownFourHundredFiftySeven(_message.Message):
+        __slots__ = ()
+        def __init__(self) -> None: ...
+    class UnknownFourHundredFiftyEight(_message.Message):
+        __slots__ = ()
+        def __init__(self) -> None: ...
+    UNKNOWN_SEVEN_HUNDRED_EIGHTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_SEVEN_HUNDRED_EIGHTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+    unknown_seven_hundred_eighty_seven: UnknownFourHundredFiftySix.UnknownFourHundredFiftyEight
+    unknown_seven_hundred_eighty_eight: UnknownFourHundredFiftySix.UnknownFourHundredFiftySeven
+    def __init__(self, unknown_seven_hundred_eighty_seven: _Optional[_Union[UnknownFourHundredFiftySix.UnknownFourHundredFiftyEight, _Mapping]] = ..., unknown_seven_hundred_eighty_eight: _Optional[_Union[UnknownFourHundredFiftySix.UnknownFourHundredFiftySeven, _Mapping]] = ...) -> None: ...
+
+class UnknownFourHundredFiftyNine(_message.Message):
+    __slots__ = ("unknown_seven_hundred_eighty_nine",)
+    UNKNOWN_SEVEN_HUNDRED_EIGHTY_NINE_FIELD_NUMBER: _ClassVar[int]
+    unknown_seven_hundred_eighty_nine: _containers.RepeatedScalarFieldContainer[UnknownFourHundredFortyThree]
+    def __init__(self, unknown_seven_hundred_eighty_nine: _Optional[_Iterable[_Union[UnknownFourHundredFortyThree, str]]] = ...) -> None: ...
+
+class UnknownFourHundredSixty(_message.Message):
+    __slots__ = ("unknown_eight_hundred_twenty_four", "unknown_eight_hundred_twenty_five")
+    class UnknownFourHundredSixtyOne(_message.Message):
+        __slots__ = ()
+        class UnknownFourHundredSixtyTwo(_message.Message):
+            __slots__ = ()
+            def __init__(self) -> None: ...
+        def __init__(self) -> None: ...
+    class UnknownFourHundredSixtyThree(_message.Message):
+        __slots__ = ()
+        class UnknownFourHundredSixtyFour(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+            __slots__ = ()
+            UNKNOWN_FOUR_HUNDRED_SIXTY_FOUR_UNSPECIFIED: _ClassVar[UnknownFourHundredSixty.UnknownFourHundredSixtyThree.UnknownFourHundredSixtyFour]
+            UNKNOWN_FOUR_HUNDRED_SIXTY_FOUR_1: _ClassVar[UnknownFourHundredSixty.UnknownFourHundredSixtyThree.UnknownFourHundredSixtyFour]
+            UNKNOWN_FOUR_HUNDRED_SIXTY_FOUR_2: _ClassVar[UnknownFourHundredSixty.UnknownFourHundredSixtyThree.UnknownFourHundredSixtyFour]
+        UNKNOWN_FOUR_HUNDRED_SIXTY_FOUR_UNSPECIFIED: UnknownFourHundredSixty.UnknownFourHundredSixtyThree.UnknownFourHundredSixtyFour
+        UNKNOWN_FOUR_HUNDRED_SIXTY_FOUR_1: UnknownFourHundredSixty.UnknownFourHundredSixtyThree.UnknownFourHundredSixtyFour
+        UNKNOWN_FOUR_HUNDRED_SIXTY_FOUR_2: UnknownFourHundredSixty.UnknownFourHundredSixtyThree.UnknownFourHundredSixtyFour
+        def __init__(self) -> None: ...
+    class UnknownFourHundredSixtyFive(_message.Message):
+        __slots__ = ("unknown_seven_hundred_ninety_nine", "unknown_eight_hundred", "unknown_eight_hundred_one", "unknown_eight_hundred_two", "unknown_eight_hundred_three", "unknown_eight_hundred_four", "unknown_eight_hundred_five", "unknown_eight_hundred_six")
+        class UnknownEightHundredOneEntry(_message.Message):
             __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: int
             value: int
             def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-        class UnknownKym(_message.Message):
-            __slots__ = ("unknown_fzsz", "unknown_fzta")
-            UNKNOWN_FZSZ_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_FZTA_FIELD_NUMBER: _ClassVar[int]
-            unknown_fzsz: int
-            unknown_fzta: str
-            def __init__(self, unknown_fzsz: _Optional[int] = ..., unknown_fzta: _Optional[str] = ...) -> None: ...
-        class UnknownKyn(_message.Message):
-            __slots__ = ("unknown_fzte", "unknown_fztf", "unknown_fztg")
-            UNKNOWN_FZTE_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_FZTF_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_FZTG_FIELD_NUMBER: _ClassVar[int]
-            unknown_fzte: int
-            unknown_fztf: _common_pb2.SocialEmblem
-            unknown_fztg: str
-            def __init__(self, unknown_fzte: _Optional[int] = ..., unknown_fztf: _Optional[_Union[_common_pb2.SocialEmblem, _Mapping]] = ..., unknown_fztg: _Optional[str] = ...) -> None: ...
-        class UnknownKyo(_message.Message):
-            __slots__ = ("unknown_fztk", "unknown_fztl", "unknown_fztm")
-            UNKNOWN_FZTK_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_FZTL_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_FZTM_FIELD_NUMBER: _ClassVar[int]
-            unknown_fztk: str
-            unknown_fztl: str
-            unknown_fztm: _common_pb2.SocialEmblem
-            def __init__(self, unknown_fztk: _Optional[str] = ..., unknown_fztl: _Optional[str] = ..., unknown_fztm: _Optional[_Union[_common_pb2.SocialEmblem, _Mapping]] = ...) -> None: ...
-        class UnknownKyp(_message.Message):
-            __slots__ = ("unknown_fztq",)
-            UNKNOWN_FZTQ_FIELD_NUMBER: _ClassVar[int]
-            unknown_fztq: _common_pb2.MapExtendedCoordinates
-            def __init__(self, unknown_fztq: _Optional[_Union[_common_pb2.MapExtendedCoordinates, _Mapping]] = ...) -> None: ...
-        UNKNOWN_FZTV_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZTX_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZTZ_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZUA_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZUB_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZUC_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZUD_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZUE_FIELD_NUMBER: _ClassVar[int]
-        unknown_fztv: _common_pb2.UnknownLhp
-        unknown_fztx: UnknownKzl.UnknownKyr.UnknownKyn
-        unknown_fztz: _containers.ScalarMap[int, int]
-        unknown_fzua: UnknownKzl.UnknownKyr.UnknownKym
-        unknown_fzub: _containers.RepeatedScalarFieldContainer[int]
-        unknown_fzuc: UnknownKzl.UnknownKyr.UnknownKyp
-        unknown_fzud: UnknownKzl.UnknownKyr.UnknownKyo
-        unknown_fzue: int
-        def __init__(self, unknown_fztv: _Optional[_Union[_common_pb2.UnknownLhp, _Mapping]] = ..., unknown_fztx: _Optional[_Union[UnknownKzl.UnknownKyr.UnknownKyn, _Mapping]] = ..., unknown_fztz: _Optional[_Mapping[int, int]] = ..., unknown_fzua: _Optional[_Union[UnknownKzl.UnknownKyr.UnknownKym, _Mapping]] = ..., unknown_fzub: _Optional[_Iterable[int]] = ..., unknown_fzuc: _Optional[_Union[UnknownKzl.UnknownKyr.UnknownKyp, _Mapping]] = ..., unknown_fzud: _Optional[_Union[UnknownKzl.UnknownKyr.UnknownKyo, _Mapping]] = ..., unknown_fzue: _Optional[int] = ...) -> None: ...
-    class UnknownKyu(_message.Message):
-        __slots__ = ("unknown_fzun", "unknown_fzuo", "unknown_fzup")
-        class UnknownFzunEntry(_message.Message):
+        class UnknownFourHundredSixtySix(_message.Message):
+            __slots__ = ("unknown_seven_hundred_ninety", "unknown_seven_hundred_ninety_one")
+            UNKNOWN_SEVEN_HUNDRED_NINETY_FIELD_NUMBER: _ClassVar[int]
+            UNKNOWN_SEVEN_HUNDRED_NINETY_ONE_FIELD_NUMBER: _ClassVar[int]
+            unknown_seven_hundred_ninety: int
+            unknown_seven_hundred_ninety_one: str
+            def __init__(self, unknown_seven_hundred_ninety: _Optional[int] = ..., unknown_seven_hundred_ninety_one: _Optional[str] = ...) -> None: ...
+        class UnknownFourHundredSixtySeven(_message.Message):
+            __slots__ = ("unknown_seven_hundred_ninety_two", "unknown_seven_hundred_ninety_three", "unknown_seven_hundred_ninety_four")
+            UNKNOWN_SEVEN_HUNDRED_NINETY_TWO_FIELD_NUMBER: _ClassVar[int]
+            UNKNOWN_SEVEN_HUNDRED_NINETY_THREE_FIELD_NUMBER: _ClassVar[int]
+            UNKNOWN_SEVEN_HUNDRED_NINETY_FOUR_FIELD_NUMBER: _ClassVar[int]
+            unknown_seven_hundred_ninety_two: int
+            unknown_seven_hundred_ninety_three: _common_pb2.SocialEmblem
+            unknown_seven_hundred_ninety_four: str
+            def __init__(self, unknown_seven_hundred_ninety_two: _Optional[int] = ..., unknown_seven_hundred_ninety_three: _Optional[_Union[_common_pb2.SocialEmblem, _Mapping]] = ..., unknown_seven_hundred_ninety_four: _Optional[str] = ...) -> None: ...
+        class UnknownFourHundredSixtyEight(_message.Message):
+            __slots__ = ("unknown_seven_hundred_ninety_five", "unknown_seven_hundred_ninety_six", "unknown_seven_hundred_ninety_seven")
+            UNKNOWN_SEVEN_HUNDRED_NINETY_FIVE_FIELD_NUMBER: _ClassVar[int]
+            UNKNOWN_SEVEN_HUNDRED_NINETY_SIX_FIELD_NUMBER: _ClassVar[int]
+            UNKNOWN_SEVEN_HUNDRED_NINETY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+            unknown_seven_hundred_ninety_five: str
+            unknown_seven_hundred_ninety_six: str
+            unknown_seven_hundred_ninety_seven: _common_pb2.SocialEmblem
+            def __init__(self, unknown_seven_hundred_ninety_five: _Optional[str] = ..., unknown_seven_hundred_ninety_six: _Optional[str] = ..., unknown_seven_hundred_ninety_seven: _Optional[_Union[_common_pb2.SocialEmblem, _Mapping]] = ...) -> None: ...
+        class UnknownFourHundredSixtyNine(_message.Message):
+            __slots__ = ("unknown_seven_hundred_ninety_eight",)
+            UNKNOWN_SEVEN_HUNDRED_NINETY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+            unknown_seven_hundred_ninety_eight: _common_pb2.MapExtendedCoordinates
+            def __init__(self, unknown_seven_hundred_ninety_eight: _Optional[_Union[_common_pb2.MapExtendedCoordinates, _Mapping]] = ...) -> None: ...
+        UNKNOWN_SEVEN_HUNDRED_NINETY_NINE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_EIGHT_HUNDRED_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_EIGHT_HUNDRED_ONE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_EIGHT_HUNDRED_TWO_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_EIGHT_HUNDRED_THREE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_EIGHT_HUNDRED_FOUR_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_EIGHT_HUNDRED_FIVE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_EIGHT_HUNDRED_SIX_FIELD_NUMBER: _ClassVar[int]
+        unknown_seven_hundred_ninety_nine: _common_pb2.UnknownOneHundredTwenty
+        unknown_eight_hundred: UnknownFourHundredSixty.UnknownFourHundredSixtyFive.UnknownFourHundredSixtySeven
+        unknown_eight_hundred_one: _containers.ScalarMap[int, int]
+        unknown_eight_hundred_two: UnknownFourHundredSixty.UnknownFourHundredSixtyFive.UnknownFourHundredSixtySix
+        unknown_eight_hundred_three: _containers.RepeatedScalarFieldContainer[int]
+        unknown_eight_hundred_four: UnknownFourHundredSixty.UnknownFourHundredSixtyFive.UnknownFourHundredSixtyNine
+        unknown_eight_hundred_five: UnknownFourHundredSixty.UnknownFourHundredSixtyFive.UnknownFourHundredSixtyEight
+        unknown_eight_hundred_six: int
+        def __init__(self, unknown_seven_hundred_ninety_nine: _Optional[_Union[_common_pb2.UnknownOneHundredTwenty, _Mapping]] = ..., unknown_eight_hundred: _Optional[_Union[UnknownFourHundredSixty.UnknownFourHundredSixtyFive.UnknownFourHundredSixtySeven, _Mapping]] = ..., unknown_eight_hundred_one: _Optional[_Mapping[int, int]] = ..., unknown_eight_hundred_two: _Optional[_Union[UnknownFourHundredSixty.UnknownFourHundredSixtyFive.UnknownFourHundredSixtySix, _Mapping]] = ..., unknown_eight_hundred_three: _Optional[_Iterable[int]] = ..., unknown_eight_hundred_four: _Optional[_Union[UnknownFourHundredSixty.UnknownFourHundredSixtyFive.UnknownFourHundredSixtyNine, _Mapping]] = ..., unknown_eight_hundred_five: _Optional[_Union[UnknownFourHundredSixty.UnknownFourHundredSixtyFive.UnknownFourHundredSixtyEight, _Mapping]] = ..., unknown_eight_hundred_six: _Optional[int] = ...) -> None: ...
+    class UnknownFourHundredSeventy(_message.Message):
+        __slots__ = ("unknown_eight_hundred_seven", "unknown_eight_hundred_eight", "unknown_eight_hundred_nine")
+        class UnknownEightHundredSevenEntry(_message.Message):
             __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: int
             value: int
             def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-        class UnknownFzuoEntry(_message.Message):
+        class UnknownEightHundredEightEntry(_message.Message):
             __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: int
             value: int
             def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-        UNKNOWN_FZUN_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZUO_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZUP_FIELD_NUMBER: _ClassVar[int]
-        unknown_fzun: _containers.ScalarMap[int, int]
-        unknown_fzuo: _containers.ScalarMap[int, int]
-        unknown_fzup: _preset_pb2.CharacteristicsInfo
-        def __init__(self, unknown_fzun: _Optional[_Mapping[int, int]] = ..., unknown_fzuo: _Optional[_Mapping[int, int]] = ..., unknown_fzup: _Optional[_Union[_preset_pb2.CharacteristicsInfo, _Mapping]] = ...) -> None: ...
-    class UnknownKzi(_message.Message):
-        __slots__ = ("unknown_fzxd",)
-        class UnknownKzg(_message.Message):
-            __slots__ = ("unknown_fzwu", "unknown_fzwv", "unknown_fzww", "unknown_fzwx")
-            class UnknownKyw(_message.Message):
-                __slots__ = ("unknown_fzuu", "unknown_fzuv")
-                UNKNOWN_FZUU_FIELD_NUMBER: _ClassVar[int]
-                UNKNOWN_FZUV_FIELD_NUMBER: _ClassVar[int]
-                unknown_fzuu: int
-                unknown_fzuv: int
-                def __init__(self, unknown_fzuu: _Optional[int] = ..., unknown_fzuv: _Optional[int] = ...) -> None: ...
-            class UnknownKyx(_message.Message):
-                __slots__ = ("unknown_fzuz", "unknown_fzva")
-                UNKNOWN_FZUZ_FIELD_NUMBER: _ClassVar[int]
-                UNKNOWN_FZVA_FIELD_NUMBER: _ClassVar[int]
-                unknown_fzuz: int
-                unknown_fzva: int
-                def __init__(self, unknown_fzuz: _Optional[int] = ..., unknown_fzva: _Optional[int] = ...) -> None: ...
-            class UnknownKyy(_message.Message):
-                __slots__ = ("unknown_fzve", "unknown_fzvf", "unknown_fzvg", "unknown_fzvh")
-                UNKNOWN_FZVE_FIELD_NUMBER: _ClassVar[int]
-                UNKNOWN_FZVF_FIELD_NUMBER: _ClassVar[int]
-                UNKNOWN_FZVG_FIELD_NUMBER: _ClassVar[int]
-                UNKNOWN_FZVH_FIELD_NUMBER: _ClassVar[int]
-                unknown_fzve: int
-                unknown_fzvf: int
-                unknown_fzvg: int
-                unknown_fzvh: int
-                def __init__(self, unknown_fzve: _Optional[int] = ..., unknown_fzvf: _Optional[int] = ..., unknown_fzvg: _Optional[int] = ..., unknown_fzvh: _Optional[int] = ...) -> None: ...
-            class UnknownKze(_message.Message):
-                __slots__ = ("unknown_fzwq",)
-                UNKNOWN_FZWQ_FIELD_NUMBER: _ClassVar[int]
-                unknown_fzwq: _containers.RepeatedScalarFieldContainer[int]
-                def __init__(self, unknown_fzwq: _Optional[_Iterable[int]] = ...) -> None: ...
-            UNKNOWN_FZWU_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_FZWV_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_FZWW_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_FZWX_FIELD_NUMBER: _ClassVar[int]
-            unknown_fzwu: UnknownKzl.UnknownKzi.UnknownKzg.UnknownKyy
-            unknown_fzwv: UnknownKzl.UnknownKzi.UnknownKzg.UnknownKyw
-            unknown_fzww: UnknownKzl.UnknownKzi.UnknownKzg.UnknownKze
-            unknown_fzwx: UnknownKzl.UnknownKzi.UnknownKzg.UnknownKyx
-            def __init__(self, unknown_fzwu: _Optional[_Union[UnknownKzl.UnknownKzi.UnknownKzg.UnknownKyy, _Mapping]] = ..., unknown_fzwv: _Optional[_Union[UnknownKzl.UnknownKzi.UnknownKzg.UnknownKyw, _Mapping]] = ..., unknown_fzww: _Optional[_Union[UnknownKzl.UnknownKzi.UnknownKzg.UnknownKze, _Mapping]] = ..., unknown_fzwx: _Optional[_Union[UnknownKzl.UnknownKzi.UnknownKzg.UnknownKyx, _Mapping]] = ...) -> None: ...
-        UNKNOWN_FZXD_FIELD_NUMBER: _ClassVar[int]
-        unknown_fzxd: _containers.RepeatedCompositeFieldContainer[UnknownKzl.UnknownKzi.UnknownKzg]
-        def __init__(self, unknown_fzxd: _Optional[_Iterable[_Union[UnknownKzl.UnknownKzi.UnknownKzg, _Mapping]]] = ...) -> None: ...
-    UNKNOWN_FZXL_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZXM_FIELD_NUMBER: _ClassVar[int]
-    unknown_fzxl: UnknownKzl.UnknownKyi
-    unknown_fzxm: UnknownKzl.UnknownKyl
-    def __init__(self, unknown_fzxl: _Optional[_Union[UnknownKzl.UnknownKyi, _Mapping]] = ..., unknown_fzxm: _Optional[_Union[UnknownKzl.UnknownKyl, _Mapping]] = ...) -> None: ...
+        UNKNOWN_EIGHT_HUNDRED_SEVEN_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_EIGHT_HUNDRED_EIGHT_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_EIGHT_HUNDRED_NINE_FIELD_NUMBER: _ClassVar[int]
+        unknown_eight_hundred_seven: _containers.ScalarMap[int, int]
+        unknown_eight_hundred_eight: _containers.ScalarMap[int, int]
+        unknown_eight_hundred_nine: _preset_pb2.CharacteristicsInfo
+        def __init__(self, unknown_eight_hundred_seven: _Optional[_Mapping[int, int]] = ..., unknown_eight_hundred_eight: _Optional[_Mapping[int, int]] = ..., unknown_eight_hundred_nine: _Optional[_Union[_preset_pb2.CharacteristicsInfo, _Mapping]] = ...) -> None: ...
+    class UnknownFourHundredSeventyOne(_message.Message):
+        __slots__ = ("unknown_eight_hundred_twenty_three",)
+        class UnknownFourHundredSeventyTwo(_message.Message):
+            __slots__ = ("unknown_eight_hundred_nineteen", "unknown_eight_hundred_twenty", "unknown_eight_hundred_twenty_one", "unknown_eight_hundred_twenty_two")
+            class UnknownFourHundredSeventyThree(_message.Message):
+                __slots__ = ("unknown_eight_hundred_ten", "unknown_eight_hundred_eleven")
+                UNKNOWN_EIGHT_HUNDRED_TEN_FIELD_NUMBER: _ClassVar[int]
+                UNKNOWN_EIGHT_HUNDRED_ELEVEN_FIELD_NUMBER: _ClassVar[int]
+                unknown_eight_hundred_ten: int
+                unknown_eight_hundred_eleven: int
+                def __init__(self, unknown_eight_hundred_ten: _Optional[int] = ..., unknown_eight_hundred_eleven: _Optional[int] = ...) -> None: ...
+            class UnknownFourHundredSeventyFour(_message.Message):
+                __slots__ = ("unknown_eight_hundred_twelve", "unknown_eight_hundred_thirteen")
+                UNKNOWN_EIGHT_HUNDRED_TWELVE_FIELD_NUMBER: _ClassVar[int]
+                UNKNOWN_EIGHT_HUNDRED_THIRTEEN_FIELD_NUMBER: _ClassVar[int]
+                unknown_eight_hundred_twelve: int
+                unknown_eight_hundred_thirteen: int
+                def __init__(self, unknown_eight_hundred_twelve: _Optional[int] = ..., unknown_eight_hundred_thirteen: _Optional[int] = ...) -> None: ...
+            class UnknownFourHundredSeventyFive(_message.Message):
+                __slots__ = ("unknown_eight_hundred_fourteen", "unknown_eight_hundred_fifteen", "unknown_eight_hundred_sixteen", "unknown_eight_hundred_seventeen")
+                UNKNOWN_EIGHT_HUNDRED_FOURTEEN_FIELD_NUMBER: _ClassVar[int]
+                UNKNOWN_EIGHT_HUNDRED_FIFTEEN_FIELD_NUMBER: _ClassVar[int]
+                UNKNOWN_EIGHT_HUNDRED_SIXTEEN_FIELD_NUMBER: _ClassVar[int]
+                UNKNOWN_EIGHT_HUNDRED_SEVENTEEN_FIELD_NUMBER: _ClassVar[int]
+                unknown_eight_hundred_fourteen: int
+                unknown_eight_hundred_fifteen: int
+                unknown_eight_hundred_sixteen: int
+                unknown_eight_hundred_seventeen: int
+                def __init__(self, unknown_eight_hundred_fourteen: _Optional[int] = ..., unknown_eight_hundred_fifteen: _Optional[int] = ..., unknown_eight_hundred_sixteen: _Optional[int] = ..., unknown_eight_hundred_seventeen: _Optional[int] = ...) -> None: ...
+            class UnknownFourHundredSeventySix(_message.Message):
+                __slots__ = ("unknown_eight_hundred_eighteen",)
+                UNKNOWN_EIGHT_HUNDRED_EIGHTEEN_FIELD_NUMBER: _ClassVar[int]
+                unknown_eight_hundred_eighteen: _containers.RepeatedScalarFieldContainer[int]
+                def __init__(self, unknown_eight_hundred_eighteen: _Optional[_Iterable[int]] = ...) -> None: ...
+            UNKNOWN_EIGHT_HUNDRED_NINETEEN_FIELD_NUMBER: _ClassVar[int]
+            UNKNOWN_EIGHT_HUNDRED_TWENTY_FIELD_NUMBER: _ClassVar[int]
+            UNKNOWN_EIGHT_HUNDRED_TWENTY_ONE_FIELD_NUMBER: _ClassVar[int]
+            UNKNOWN_EIGHT_HUNDRED_TWENTY_TWO_FIELD_NUMBER: _ClassVar[int]
+            unknown_eight_hundred_nineteen: UnknownFourHundredSixty.UnknownFourHundredSeventyOne.UnknownFourHundredSeventyTwo.UnknownFourHundredSeventyFive
+            unknown_eight_hundred_twenty: UnknownFourHundredSixty.UnknownFourHundredSeventyOne.UnknownFourHundredSeventyTwo.UnknownFourHundredSeventyThree
+            unknown_eight_hundred_twenty_one: UnknownFourHundredSixty.UnknownFourHundredSeventyOne.UnknownFourHundredSeventyTwo.UnknownFourHundredSeventySix
+            unknown_eight_hundred_twenty_two: UnknownFourHundredSixty.UnknownFourHundredSeventyOne.UnknownFourHundredSeventyTwo.UnknownFourHundredSeventyFour
+            def __init__(self, unknown_eight_hundred_nineteen: _Optional[_Union[UnknownFourHundredSixty.UnknownFourHundredSeventyOne.UnknownFourHundredSeventyTwo.UnknownFourHundredSeventyFive, _Mapping]] = ..., unknown_eight_hundred_twenty: _Optional[_Union[UnknownFourHundredSixty.UnknownFourHundredSeventyOne.UnknownFourHundredSeventyTwo.UnknownFourHundredSeventyThree, _Mapping]] = ..., unknown_eight_hundred_twenty_one: _Optional[_Union[UnknownFourHundredSixty.UnknownFourHundredSeventyOne.UnknownFourHundredSeventyTwo.UnknownFourHundredSeventySix, _Mapping]] = ..., unknown_eight_hundred_twenty_two: _Optional[_Union[UnknownFourHundredSixty.UnknownFourHundredSeventyOne.UnknownFourHundredSeventyTwo.UnknownFourHundredSeventyFour, _Mapping]] = ...) -> None: ...
+        UNKNOWN_EIGHT_HUNDRED_TWENTY_THREE_FIELD_NUMBER: _ClassVar[int]
+        unknown_eight_hundred_twenty_three: _containers.RepeatedCompositeFieldContainer[UnknownFourHundredSixty.UnknownFourHundredSeventyOne.UnknownFourHundredSeventyTwo]
+        def __init__(self, unknown_eight_hundred_twenty_three: _Optional[_Iterable[_Union[UnknownFourHundredSixty.UnknownFourHundredSeventyOne.UnknownFourHundredSeventyTwo, _Mapping]]] = ...) -> None: ...
+    UNKNOWN_EIGHT_HUNDRED_TWENTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_TWENTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_twenty_four: UnknownFourHundredSixty.UnknownFourHundredSixtyOne
+    unknown_eight_hundred_twenty_five: UnknownFourHundredSixty.UnknownFourHundredSixtyThree
+    def __init__(self, unknown_eight_hundred_twenty_four: _Optional[_Union[UnknownFourHundredSixty.UnknownFourHundredSixtyOne, _Mapping]] = ..., unknown_eight_hundred_twenty_five: _Optional[_Union[UnknownFourHundredSixty.UnknownFourHundredSixtyThree, _Mapping]] = ...) -> None: ...
 
-class UnknownKzs(_message.Message):
-    __slots__ = ("unknown_fzyc", "unknown_fzyd")
-    class UnknownKzn(_message.Message):
-        __slots__ = ("unknown_fzxs",)
-        UNKNOWN_FZXS_FIELD_NUMBER: _ClassVar[int]
-        unknown_fzxs: _cosmetic_pb2.Outfit
-        def __init__(self, unknown_fzxs: _Optional[_Union[_cosmetic_pb2.Outfit, _Mapping]] = ...) -> None: ...
-    UNKNOWN_FZYC_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZYD_FIELD_NUMBER: _ClassVar[int]
-    unknown_fzyc: UnknownKzs.UnknownKzn
-    unknown_fzyd: int
-    def __init__(self, unknown_fzyc: _Optional[_Union[UnknownKzs.UnknownKzn, _Mapping]] = ..., unknown_fzyd: _Optional[int] = ...) -> None: ...
+class UnknownFourHundredSeventySeven(_message.Message):
+    __slots__ = ("unknown_eight_hundred_twenty_six", "unknown_eight_hundred_twenty_seven")
+    class UnknownFourHundredSeventyEight(_message.Message):
+        __slots__ = ()
+        def __init__(self) -> None: ...
+    UNKNOWN_EIGHT_HUNDRED_TWENTY_SIX_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_TWENTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_twenty_six: UnknownFourHundredSeventySeven.UnknownFourHundredSeventyEight
+    unknown_eight_hundred_twenty_seven: UnknownFourHundredFortyFour
+    def __init__(self, unknown_eight_hundred_twenty_six: _Optional[_Union[UnknownFourHundredSeventySeven.UnknownFourHundredSeventyEight, _Mapping]] = ..., unknown_eight_hundred_twenty_seven: _Optional[_Union[UnknownFourHundredFortyFour, _Mapping]] = ...) -> None: ...
 
-class UnknownKzu(_message.Message):
-    __slots__ = ("unknown_fzym", "unknown_fzyp", "unknown_fzyr", "unknown_fzyt", "unknown_fzyu", "unknown_fzyv", "unknown_fzyw", "unknown_fzyx", "unknown_fzyy", "unknown_fzyz", "unknown_fzzc")
-    UNKNOWN_FZYM_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZYP_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZYR_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZYT_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZYU_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZYV_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZYW_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZYX_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZYY_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZYZ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZZC_FIELD_NUMBER: _ClassVar[int]
-    unknown_fzym: int
-    unknown_fzyp: int
-    unknown_fzyr: int
-    unknown_fzyt: bool
-    unknown_fzyu: int
-    unknown_fzyv: _common_pb2.EntityLook
-    unknown_fzyw: int
-    unknown_fzyx: int
-    unknown_fzyy: str
-    unknown_fzyz: int
-    unknown_fzzc: _common_pb2.EntityLook
-    def __init__(self, unknown_fzym: _Optional[int] = ..., unknown_fzyp: _Optional[int] = ..., unknown_fzyr: _Optional[int] = ..., unknown_fzyt: bool = ..., unknown_fzyu: _Optional[int] = ..., unknown_fzyv: _Optional[_Union[_common_pb2.EntityLook, _Mapping]] = ..., unknown_fzyw: _Optional[int] = ..., unknown_fzyx: _Optional[int] = ..., unknown_fzyy: _Optional[str] = ..., unknown_fzyz: _Optional[int] = ..., unknown_fzzc: _Optional[_Union[_common_pb2.EntityLook, _Mapping]] = ...) -> None: ...
+class UnknownFourHundredSeventyNine(_message.Message):
+    __slots__ = ("unknown_eight_hundred_twenty_eight", "unknown_eight_hundred_twenty_nine", "unknown_eight_hundred_thirty", "unknown_eight_hundred_thirty_one", "unknown_eight_hundred_thirty_two", "unknown_eight_hundred_thirty_three", "unknown_eight_hundred_thirty_four", "unknown_eight_hundred_thirty_five", "unknown_eight_hundred_thirty_six", "unknown_eight_hundred_thirty_seven", "unknown_eight_hundred_thirty_eight")
+    class UnknownFourHundredEighty(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+        __slots__ = ()
+        UNKNOWN_FOUR_HUNDRED_EIGHTY_UNSPECIFIED: _ClassVar[UnknownFourHundredSeventyNine.UnknownFourHundredEighty]
+        UNKNOWN_FOUR_HUNDRED_EIGHTY_1: _ClassVar[UnknownFourHundredSeventyNine.UnknownFourHundredEighty]
+    UNKNOWN_FOUR_HUNDRED_EIGHTY_UNSPECIFIED: UnknownFourHundredSeventyNine.UnknownFourHundredEighty
+    UNKNOWN_FOUR_HUNDRED_EIGHTY_1: UnknownFourHundredSeventyNine.UnknownFourHundredEighty
+    UNKNOWN_EIGHT_HUNDRED_TWENTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_TWENTY_NINE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_THIRTY_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_THIRTY_ONE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_THIRTY_TWO_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_THIRTY_THREE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_THIRTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_THIRTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_THIRTY_SIX_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_THIRTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_THIRTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_twenty_eight: int
+    unknown_eight_hundred_twenty_nine: int
+    unknown_eight_hundred_thirty: int
+    unknown_eight_hundred_thirty_one: bool
+    unknown_eight_hundred_thirty_two: int
+    unknown_eight_hundred_thirty_three: _common_pb2.EntityLook
+    unknown_eight_hundred_thirty_four: int
+    unknown_eight_hundred_thirty_five: UnknownFourHundredSeventyNine.UnknownFourHundredEighty
+    unknown_eight_hundred_thirty_six: str
+    unknown_eight_hundred_thirty_seven: int
+    unknown_eight_hundred_thirty_eight: _common_pb2.EntityLook
+    def __init__(self, unknown_eight_hundred_twenty_eight: _Optional[int] = ..., unknown_eight_hundred_twenty_nine: _Optional[int] = ..., unknown_eight_hundred_thirty: _Optional[int] = ..., unknown_eight_hundred_thirty_one: bool = ..., unknown_eight_hundred_thirty_two: _Optional[int] = ..., unknown_eight_hundred_thirty_three: _Optional[_Union[_common_pb2.EntityLook, _Mapping]] = ..., unknown_eight_hundred_thirty_four: _Optional[int] = ..., unknown_eight_hundred_thirty_five: _Optional[_Union[UnknownFourHundredSeventyNine.UnknownFourHundredEighty, str]] = ..., unknown_eight_hundred_thirty_six: _Optional[str] = ..., unknown_eight_hundred_thirty_seven: _Optional[int] = ..., unknown_eight_hundred_thirty_eight: _Optional[_Union[_common_pb2.EntityLook, _Mapping]] = ...) -> None: ...
 
 class PlayerInfoEvent(_message.Message):
-    __slots__ = ("unknown_fzzu", "unknown_fzzv")
-    class UnknownKzy(_message.Message):
-        __slots__ = ("unknown_fzzg", "unknown_fzzj", "unknown_fzzk")
-        UNKNOWN_FZZG_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZZJ_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FZZK_FIELD_NUMBER: _ClassVar[int]
-        unknown_fzzg: _containers.RepeatedScalarFieldContainer[int]
-        unknown_fzzj: str
-        unknown_fzzk: UnknownKzu
-        def __init__(self, unknown_fzzg: _Optional[_Iterable[int]] = ..., unknown_fzzj: _Optional[str] = ..., unknown_fzzk: _Optional[_Union[UnknownKzu, _Mapping]] = ...) -> None: ...
-    class UnknownLab(_message.Message):
-        __slots__ = ("unknown_fzzp",)
-        UNKNOWN_FZZP_FIELD_NUMBER: _ClassVar[int]
-        unknown_fzzp: int
-        def __init__(self, unknown_fzzp: _Optional[int] = ...) -> None: ...
-    UNKNOWN_FZZU_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZZV_FIELD_NUMBER: _ClassVar[int]
-    unknown_fzzu: PlayerInfoEvent.UnknownLab
-    unknown_fzzv: PlayerInfoEvent.UnknownKzy
-    def __init__(self, unknown_fzzu: _Optional[_Union[PlayerInfoEvent.UnknownLab, _Mapping]] = ..., unknown_fzzv: _Optional[_Union[PlayerInfoEvent.UnknownKzy, _Mapping]] = ...) -> None: ...
+    __slots__ = ("unknown_seven_hundred_seventy_nine", "unknown_seven_hundred_eighty")
+    class UnknownFourHundredForty(_message.Message):
+        __slots__ = ()
+        def __init__(self) -> None: ...
+    class UnknownFourHundredFortyOne(_message.Message):
+        __slots__ = ("unknown_seven_hundred_seventy_eight",)
+        class UnknownFourHundredFortyTwo(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+            __slots__ = ()
+            UNKNOWN_FOUR_HUNDRED_FORTY_TWO_UNSPECIFIED: _ClassVar[PlayerInfoEvent.UnknownFourHundredFortyOne.UnknownFourHundredFortyTwo]
+            UNKNOWN_FOUR_HUNDRED_FORTY_TWO_1: _ClassVar[PlayerInfoEvent.UnknownFourHundredFortyOne.UnknownFourHundredFortyTwo]
+            UNKNOWN_FOUR_HUNDRED_FORTY_TWO_2: _ClassVar[PlayerInfoEvent.UnknownFourHundredFortyOne.UnknownFourHundredFortyTwo]
+        UNKNOWN_FOUR_HUNDRED_FORTY_TWO_UNSPECIFIED: PlayerInfoEvent.UnknownFourHundredFortyOne.UnknownFourHundredFortyTwo
+        UNKNOWN_FOUR_HUNDRED_FORTY_TWO_1: PlayerInfoEvent.UnknownFourHundredFortyOne.UnknownFourHundredFortyTwo
+        UNKNOWN_FOUR_HUNDRED_FORTY_TWO_2: PlayerInfoEvent.UnknownFourHundredFortyOne.UnknownFourHundredFortyTwo
+        UNKNOWN_SEVEN_HUNDRED_SEVENTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+        unknown_seven_hundred_seventy_eight: PlayerInfoEvent.UnknownFourHundredFortyOne.UnknownFourHundredFortyTwo
+        def __init__(self, unknown_seven_hundred_seventy_eight: _Optional[_Union[PlayerInfoEvent.UnknownFourHundredFortyOne.UnknownFourHundredFortyTwo, str]] = ...) -> None: ...
+    UNKNOWN_SEVEN_HUNDRED_SEVENTY_NINE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_SEVEN_HUNDRED_EIGHTY_FIELD_NUMBER: _ClassVar[int]
+    unknown_seven_hundred_seventy_nine: PlayerInfoEvent.UnknownFourHundredFortyOne
+    unknown_seven_hundred_eighty: PlayerInfoEvent.UnknownFourHundredForty
+    def __init__(self, unknown_seven_hundred_seventy_nine: _Optional[_Union[PlayerInfoEvent.UnknownFourHundredFortyOne, _Mapping]] = ..., unknown_seven_hundred_eighty: _Optional[_Union[PlayerInfoEvent.UnknownFourHundredForty, _Mapping]] = ...) -> None: ...
 
-class UnknownLag(_message.Message):
-    __slots__ = ("unknown_gaab", "unknown_gaac")
-    UNKNOWN_GAAB_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GAAC_FIELD_NUMBER: _ClassVar[int]
-    unknown_gaab: int
-    unknown_gaac: int
-    def __init__(self, unknown_gaab: _Optional[int] = ..., unknown_gaac: _Optional[int] = ...) -> None: ...
+class UnknownFourHundredEightyOne(_message.Message):
+    __slots__ = ("unknown_eight_hundred_thirty_nine", "unknown_eight_hundred_forty")
+    UNKNOWN_EIGHT_HUNDRED_THIRTY_NINE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_FORTY_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_thirty_nine: UnknownFourHundredFortyFive
+    unknown_eight_hundred_forty: int
+    def __init__(self, unknown_eight_hundred_thirty_nine: _Optional[_Union[UnknownFourHundredFortyFive, str]] = ..., unknown_eight_hundred_forty: _Optional[int] = ...) -> None: ...
 
 class PlayerInfoRequest(_message.Message):
-    __slots__ = ("unknown_fzpm",)
-    UNKNOWN_FZPM_FIELD_NUMBER: _ClassVar[int]
-    unknown_fzpm: int
-    def __init__(self, unknown_fzpm: _Optional[int] = ...) -> None: ...
+    __slots__ = ("unknown_seven_hundred_eighty_one",)
+    UNKNOWN_SEVEN_HUNDRED_EIGHTY_ONE_FIELD_NUMBER: _ClassVar[int]
+    unknown_seven_hundred_eighty_one: int
+    def __init__(self, unknown_seven_hundred_eighty_one: _Optional[int] = ...) -> None: ...

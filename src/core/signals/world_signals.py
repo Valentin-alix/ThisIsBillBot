@@ -11,8 +11,8 @@ class MapSignals(QObject):
 class WorldSignals(QObject):
     curr_map_pos = pyqtSignal(object)
     color_pos = pyqtSignal(object, tuple)
-    color_pos_batch = pyqtSignal(list)  # list of (map_pos, color) tuples
+    color_pos_batch = pyqtSignal(list)
     arrow_pos = pyqtSignal(object, object)
-    arrow_pos_batch = pyqtSignal(list)  # list of (map_pos_start, map_pos_end) tuples
+    arrow_pos_batch = pyqtSignal(list)
     reset_weight = pyqtSignal()
     reset_path = pyqtSignal()

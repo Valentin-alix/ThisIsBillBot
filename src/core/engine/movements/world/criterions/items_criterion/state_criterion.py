@@ -11,7 +11,6 @@ class StateCriterion(ItemCriterion):
     def is_respected(self, context: CriterionContext) -> bool:
         match self.item_operator.text:
             case ItemCriterionOperator.EQUAL:
-                # return
                 ...
             case ItemCriterionOperator.DIFFERENT:
                 ...

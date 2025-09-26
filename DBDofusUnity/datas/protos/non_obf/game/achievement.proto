@@ -78,3 +78,6 @@ message AchievedAchievement {
 	optional int32 finished_level = 3;
 }
 
+message AchievementFilterRequest {
+	string filter_text = 1;
+}

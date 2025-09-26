@@ -46,8 +46,6 @@ MIN_AUTHENTICATED_BOTS_FOR_MULE = 13
 
 @dataclass(frozen=True)
 class _AuthOp:
-    """Authenticate the next available generated account for ``schedule_profile``."""
-
     login: str
     schedule_profile: str
     quota_key: str
@@ -55,8 +53,6 @@ class _AuthOp:
 
 @dataclass(frozen=True)
 class _RegisterOp:
-    """Create the next account from the available-emails queue."""
-
     schedule_profile: str
     quota_key: str
 
@@ -65,7 +61,6 @@ PendingOperation = _AuthOp | _RegisterOp
 
 
 def _quota_key_of(operation: PendingOperation) -> str:
-    """The source proxy, or direct connection, an operation is charged against."""
     match operation:
         case _AuthOp(quota_key=quota_key) | _RegisterOp(quota_key=quota_key):
             return quota_key

@@ -8,6 +8,18 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class UnknownOneHundredThirtyFour(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    UNKNOWN_ONE_HUNDRED_THIRTY_FOUR: _ClassVar[UnknownOneHundredThirtyFour]
+
+class UnknownOneHundredThirtyFive(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    UNKNOWN_ONE_HUNDRED_THIRTY_FIVE: _ClassVar[UnknownOneHundredThirtyFive]
+
+class UnknownOneHundredThirtySix(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    UNKNOWN_ONE_HUNDRED_THIRTY_SIX: _ClassVar[UnknownOneHundredThirtySix]
+
 class ObjectSlot(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
     AMULET: _ClassVar[ObjectSlot]
@@ -36,6 +48,9 @@ class ObjectSlot(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     DISGUISE: _ClassVar[ObjectSlot]
     WINGS: _ClassVar[ObjectSlot]
     SHOULDERS: _ClassVar[ObjectSlot]
+UNKNOWN_ONE_HUNDRED_THIRTY_FOUR: UnknownOneHundredThirtyFour
+UNKNOWN_ONE_HUNDRED_THIRTY_FIVE: UnknownOneHundredThirtyFive
+UNKNOWN_ONE_HUNDRED_THIRTY_SIX: UnknownOneHundredThirtySix
 AMULET: ObjectSlot
 RING_LEFT: ObjectSlot
 RING_RIGHT: ObjectSlot
@@ -353,29 +368,29 @@ class Outfit(_message.Message):
     color_palette: _appearance_pb2.ColorPalette
     def __init__(self, uuid: _Optional[str] = ..., name: _Optional[str] = ..., pictogram_id: _Optional[int] = ..., objects: _Optional[_Mapping[int, Outfit.SkinOutfit]] = ..., aura_emote_id: _Optional[int] = ..., ornament_id: _Optional[int] = ..., title_id: _Optional[int] = ..., entity_look: _Optional[_Union[_common_pb2.EntityLook, _Mapping]] = ..., favorite: bool = ..., last_modified: _Optional[str] = ..., face_id: _Optional[int] = ..., color_palette: _Optional[_Union[_appearance_pb2.ColorPalette, _Mapping]] = ...) -> None: ...
 
-class UnknownLwn(_message.Message):
-    __slots__ = ("unknown_gdne",)
-    UNKNOWN_GDNE_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdne: bool
-    def __init__(self, unknown_gdne: bool = ...) -> None: ...
+class UnknownOneHundredFortySix(_message.Message):
+    __slots__ = ("unknown_three_hundred_eleven",)
+    UNKNOWN_THREE_HUNDRED_ELEVEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_eleven: bool
+    def __init__(self, unknown_three_hundred_eleven: bool = ...) -> None: ...
 
-class UnknownLwq(_message.Message):
-    __slots__ = ("unknown_gdni",)
-    UNKNOWN_GDNI_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdni: Outfit
-    def __init__(self, unknown_gdni: _Optional[_Union[Outfit, _Mapping]] = ...) -> None: ...
+class UnknownOneHundredFortySeven(_message.Message):
+    __slots__ = ("unknown_three_hundred_twelve",)
+    UNKNOWN_THREE_HUNDRED_TWELVE_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_twelve: Outfit
+    def __init__(self, unknown_three_hundred_twelve: _Optional[_Union[Outfit, _Mapping]] = ...) -> None: ...
 
-class UnknownLww(_message.Message):
-    __slots__ = ("unknown_gdop",)
-    UNKNOWN_GDOP_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdop: int
-    def __init__(self, unknown_gdop: _Optional[int] = ...) -> None: ...
+class UnknownOneHundredFortyEight(_message.Message):
+    __slots__ = ("unknown_three_hundred_thirteen",)
+    UNKNOWN_THREE_HUNDRED_THIRTEEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_thirteen: UnknownOneHundredThirtyFour
+    def __init__(self, unknown_three_hundred_thirteen: _Optional[_Union[UnknownOneHundredThirtyFour, str]] = ...) -> None: ...
 
-class UnknownLwy(_message.Message):
-    __slots__ = ("unknown_gdox",)
-    UNKNOWN_GDOX_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdox: bool
-    def __init__(self, unknown_gdox: bool = ...) -> None: ...
+class UnknownOneHundredFortyNine(_message.Message):
+    __slots__ = ("unknown_three_hundred_fourteen",)
+    UNKNOWN_THREE_HUNDRED_FOURTEEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_fourteen: bool
+    def __init__(self, unknown_three_hundred_fourteen: bool = ...) -> None: ...
 
 class OutfitEntityLookChangeRequest(_message.Message):
     __slots__ = ("slot", "hide")
@@ -392,89 +407,83 @@ class OutfitEntityLookChangeResponse(_message.Message):
     def __init__(self, hide: bool = ...) -> None: ...
 
 class OutfitDetailResponse(_message.Message):
-    __slots__ = ("success", "unknown_gdqz", "outfit")
-    class UnknownGdqzValue(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ("success", "unknown_two_hundred_ninety", "outfit")
+    class UnknownOneHundredThirtyTwo(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
-        UNKNOWN_GDQZ_VALUE_UNSPECIFIED: _ClassVar[OutfitDetailResponse.UnknownGdqzValue]
-    UNKNOWN_GDQZ_VALUE_UNSPECIFIED: OutfitDetailResponse.UnknownGdqzValue
+        UNKNOWN_ONE_HUNDRED_THIRTY_TWO_UNSPECIFIED: _ClassVar[OutfitDetailResponse.UnknownOneHundredThirtyTwo]
+    UNKNOWN_ONE_HUNDRED_THIRTY_TWO_UNSPECIFIED: OutfitDetailResponse.UnknownOneHundredThirtyTwo
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GDQZ_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_NINETY_FIELD_NUMBER: _ClassVar[int]
     OUTFIT_FIELD_NUMBER: _ClassVar[int]
     success: bool
-    unknown_gdqz: OutfitDetailResponse.UnknownGdqzValue
+    unknown_two_hundred_ninety: OutfitDetailResponse.UnknownOneHundredThirtyTwo
     outfit: Outfit
-    def __init__(self, success: bool = ..., unknown_gdqz: _Optional[_Union[OutfitDetailResponse.UnknownGdqzValue, str]] = ..., outfit: _Optional[_Union[Outfit, _Mapping]] = ...) -> None: ...
+    def __init__(self, success: bool = ..., unknown_two_hundred_ninety: _Optional[_Union[OutfitDetailResponse.UnknownOneHundredThirtyTwo, str]] = ..., outfit: _Optional[_Union[Outfit, _Mapping]] = ...) -> None: ...
 
 class OutfitSaveRequest(_message.Message):
-    __slots__ = ("unknown_gdrs", "name", "unknown_gdru")
-    class UnknownGdruValue(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ("unknown_two_hundred_ninety_one", "name", "unknown_two_hundred_ninety_two")
+    class UnknownOneHundredThirtyThree(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
-        UNKNOWN_GDRU_VALUE_UNSPECIFIED: _ClassVar[OutfitSaveRequest.UnknownGdruValue]
-    UNKNOWN_GDRU_VALUE_UNSPECIFIED: OutfitSaveRequest.UnknownGdruValue
-    UNKNOWN_GDRS_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_ONE_HUNDRED_THIRTY_THREE_UNSPECIFIED: _ClassVar[OutfitSaveRequest.UnknownOneHundredThirtyThree]
+    UNKNOWN_ONE_HUNDRED_THIRTY_THREE_UNSPECIFIED: OutfitSaveRequest.UnknownOneHundredThirtyThree
+    UNKNOWN_TWO_HUNDRED_NINETY_ONE_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GDRU_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdrs: int
+    UNKNOWN_TWO_HUNDRED_NINETY_TWO_FIELD_NUMBER: _ClassVar[int]
+    unknown_two_hundred_ninety_one: int
     name: str
-    unknown_gdru: OutfitSaveRequest.UnknownGdruValue
-    def __init__(self, unknown_gdrs: _Optional[int] = ..., name: _Optional[str] = ..., unknown_gdru: _Optional[_Union[OutfitSaveRequest.UnknownGdruValue, str]] = ...) -> None: ...
+    unknown_two_hundred_ninety_two: OutfitSaveRequest.UnknownOneHundredThirtyThree
+    def __init__(self, unknown_two_hundred_ninety_one: _Optional[int] = ..., name: _Optional[str] = ..., unknown_two_hundred_ninety_two: _Optional[_Union[OutfitSaveRequest.UnknownOneHundredThirtyThree, str]] = ...) -> None: ...
 
-class UnknownLya(_message.Message):
-    __slots__ = ("unknown_gdsz", "unknown_gdtb")
-    class UnknownGdszEntry(_message.Message):
+class UnknownOneHundredFifty(_message.Message):
+    __slots__ = ("unknown_three_hundred_fifteen", "unknown_three_hundred_sixteen")
+    class UnknownThreeHundredFifteenEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
-        value: UnknownLya.UnknownLxy
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[UnknownLya.UnknownLxy, _Mapping]] = ...) -> None: ...
-    class UnknownLxy(_message.Message):
+        value: UnknownOneHundredFifty.UnknownOneHundredFiftyOne
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[UnknownOneHundredFifty.UnknownOneHundredFiftyOne, _Mapping]] = ...) -> None: ...
+    class UnknownOneHundredFiftyOne(_message.Message):
         __slots__ = ()
         def __init__(self) -> None: ...
-    UNKNOWN_GDSZ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GDTB_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdsz: _containers.MessageMap[int, UnknownLya.UnknownLxy]
-    unknown_gdtb: int
-    def __init__(self, unknown_gdsz: _Optional[_Mapping[int, UnknownLya.UnknownLxy]] = ..., unknown_gdtb: _Optional[int] = ...) -> None: ...
+    UNKNOWN_THREE_HUNDRED_FIFTEEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_SIXTEEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_fifteen: _containers.MessageMap[int, UnknownOneHundredFifty.UnknownOneHundredFiftyOne]
+    unknown_three_hundred_sixteen: UnknownOneHundredThirtyFive
+    def __init__(self, unknown_three_hundred_fifteen: _Optional[_Mapping[int, UnknownOneHundredFifty.UnknownOneHundredFiftyOne]] = ..., unknown_three_hundred_sixteen: _Optional[_Union[UnknownOneHundredThirtyFive, str]] = ...) -> None: ...
 
-class UnknownLye(_message.Message):
-    __slots__ = ("unknown_gdtv",)
-    UNKNOWN_GDTV_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdtv: bool
-    def __init__(self, unknown_gdtv: bool = ...) -> None: ...
+class UnknownOneHundredFiftyTwo(_message.Message):
+    __slots__ = ("unknown_three_hundred_seventeen",)
+    UNKNOWN_THREE_HUNDRED_SEVENTEEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_seventeen: bool
+    def __init__(self, unknown_three_hundred_seventeen: bool = ...) -> None: ...
 
-class UnknownLyg(_message.Message):
-    __slots__ = ("unknown_gduh",)
-    class UnknownGduhEntry(_message.Message):
+class UnknownOneHundredFiftyThree(_message.Message):
+    __slots__ = ("unknown_three_hundred_eighteen",)
+    class UnknownThreeHundredEighteenEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
-        value: int
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-    UNKNOWN_GDUH_FIELD_NUMBER: _ClassVar[int]
-    unknown_gduh: _containers.ScalarMap[int, int]
-    def __init__(self, unknown_gduh: _Optional[_Mapping[int, int]] = ...) -> None: ...
+        value: UnknownOneHundredThirtySix
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[UnknownOneHundredThirtySix, str]] = ...) -> None: ...
+    UNKNOWN_THREE_HUNDRED_EIGHTEEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_eighteen: _containers.ScalarMap[int, UnknownOneHundredThirtySix]
+    def __init__(self, unknown_three_hundred_eighteen: _Optional[_Mapping[int, UnknownOneHundredThirtySix]] = ...) -> None: ...
 
-class UnknownLyn(_message.Message):
-    __slots__ = ("unknown_gdvi",)
-    UNKNOWN_GDVI_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdvi: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, unknown_gdvi: _Optional[_Iterable[int]] = ...) -> None: ...
+class UnknownOneHundredFiftyFour(_message.Message):
+    __slots__ = ("unknown_three_hundred_nineteen",)
+    UNKNOWN_THREE_HUNDRED_NINETEEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_nineteen: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, unknown_three_hundred_nineteen: _Optional[_Iterable[int]] = ...) -> None: ...
 
-class UnknownLyo(_message.Message):
-    __slots__ = ("unknown_gdvm", "unknown_gdvn")
-    UNKNOWN_GDVM_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GDVN_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdvm: str
-    unknown_gdvn: int
-    def __init__(self, unknown_gdvm: _Optional[str] = ..., unknown_gdvn: _Optional[int] = ...) -> None: ...
-
-class UnknownLyr(_message.Message):
-    __slots__ = ("unknown_gdvs",)
-    UNKNOWN_GDVS_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdvs: str
-    def __init__(self, unknown_gdvs: _Optional[str] = ...) -> None: ...
+class UnknownOneHundredFiftyFive(_message.Message):
+    __slots__ = ("unknown_three_hundred_twenty", "unknown_three_hundred_twenty_one")
+    UNKNOWN_THREE_HUNDRED_TWENTY_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_TWENTY_ONE_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_twenty: str
+    unknown_three_hundred_twenty_one: int
+    def __init__(self, unknown_three_hundred_twenty: _Optional[str] = ..., unknown_three_hundred_twenty_one: _Optional[int] = ...) -> None: ...
 
 class OutfitDetailRequest(_message.Message):
     __slots__ = ("outfit_uuid",)
@@ -482,12 +491,12 @@ class OutfitDetailRequest(_message.Message):
     outfit_uuid: str
     def __init__(self, outfit_uuid: _Optional[str] = ...) -> None: ...
 
-class UnknownLyz(_message.Message):
-    __slots__ = ("unknown_gdwv",)
-    UNKNOWN_GDWV_FIELD_NUMBER: _ClassVar[int]
-    unknown_gdwv: bool
-    def __init__(self, unknown_gdwv: bool = ...) -> None: ...
+class UnknownOneHundredFiftySix(_message.Message):
+    __slots__ = ("unknown_three_hundred_twenty_two",)
+    UNKNOWN_THREE_HUNDRED_TWENTY_TWO_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_twenty_two: bool
+    def __init__(self, unknown_three_hundred_twenty_two: bool = ...) -> None: ...
 
-class UnknownLyk(_message.Message):
+class OutfitMenuRequest(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...

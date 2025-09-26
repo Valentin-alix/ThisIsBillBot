@@ -10,9 +10,7 @@ from tests.fixtures.accounts import make_account
 
 
 def make_blocking_state_recovery() -> BlockingStateRecovery:
-    return BlockingStateRecovery(
-        fight_behavior=Mock(), dungeon_behavior=Mock(), tutorial_behavior=Mock()
-    )
+    return BlockingStateRecovery(fight_behavior=Mock(), dungeon_behavior=Mock(), tutorial_behavior=Mock())
 
 
 @dataclass

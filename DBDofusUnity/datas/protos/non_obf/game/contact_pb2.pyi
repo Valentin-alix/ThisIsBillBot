@@ -117,8 +117,10 @@ class UnBlockRequest(_message.Message):
     def __init__(self, account_id: _Optional[int] = ...) -> None: ...
 
 class FriendListRequest(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("unknown_two_hundred_eighty_five",)
+    UNKNOWN_TWO_HUNDRED_EIGHTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    unknown_two_hundred_eighty_five: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, unknown_two_hundred_eighty_five: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class AcquaintanceListRequest(_message.Message):
     __slots__ = ()
@@ -216,16 +218,16 @@ class IgnoreEvent(_message.Message):
         IGNORED_FIELD_NUMBER: _ClassVar[int]
         ignored: ContactInformation
         def __init__(self, ignored: _Optional[_Union[ContactInformation, _Mapping]] = ...) -> None: ...
-    class UnknownKpv(_message.Message):
-        __slots__ = ("unknown_fyou",)
-        UNKNOWN_FYOU_FIELD_NUMBER: _ClassVar[int]
-        unknown_fyou: AddFailureReason
-        def __init__(self, unknown_fyou: _Optional[_Union[AddFailureReason, str]] = ...) -> None: ...
-    class UnknownKpw(_message.Message):
-        __slots__ = ("unknown_fyoz",)
-        UNKNOWN_FYOZ_FIELD_NUMBER: _ClassVar[int]
-        unknown_fyoz: ContactInformation
-        def __init__(self, unknown_fyoz: _Optional[_Union[ContactInformation, _Mapping]] = ...) -> None: ...
+    class UnknownOneHundredTwentyEight(_message.Message):
+        __slots__ = ("unknown_two_hundred_eighty_six",)
+        UNKNOWN_TWO_HUNDRED_EIGHTY_SIX_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_eighty_six: AddFailureReason
+        def __init__(self, unknown_two_hundred_eighty_six: _Optional[_Union[AddFailureReason, str]] = ...) -> None: ...
+    class UnknownOneHundredTwentyNine(_message.Message):
+        __slots__ = ("unknown_two_hundred_eighty_seven",)
+        UNKNOWN_TWO_HUNDRED_EIGHTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_eighty_seven: ContactInformation
+        def __init__(self, unknown_two_hundred_eighty_seven: _Optional[_Union[ContactInformation, _Mapping]] = ...) -> None: ...
     ERROR_FIELD_NUMBER: _ClassVar[int]
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     error: UnBlockEvent.Error
@@ -242,11 +244,11 @@ class UnIgnoreEvent(_message.Message):
         IGNORED_TAG_FIELD_NUMBER: _ClassVar[int]
         ignored_tag: _common_pb2.AccountTag
         def __init__(self, ignored_tag: _Optional[_Union[_common_pb2.AccountTag, _Mapping]] = ...) -> None: ...
-    class UnknownKov(_message.Message):
-        __slots__ = ("unknown_fylw",)
-        UNKNOWN_FYLW_FIELD_NUMBER: _ClassVar[int]
-        unknown_fylw: _common_pb2.AccountTag
-        def __init__(self, unknown_fylw: _Optional[_Union[_common_pb2.AccountTag, _Mapping]] = ...) -> None: ...
+    class UnknownOneHundredThirtyOne(_message.Message):
+        __slots__ = ("unknown_two_hundred_eighty_nine",)
+        UNKNOWN_TWO_HUNDRED_EIGHTY_NINE_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_eighty_nine: _common_pb2.AccountTag
+        def __init__(self, unknown_two_hundred_eighty_nine: _Optional[_Union[_common_pb2.AccountTag, _Mapping]] = ...) -> None: ...
     ERROR_FIELD_NUMBER: _ClassVar[int]
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     error: UnBlockEvent.Error
@@ -271,16 +273,16 @@ class BlockEvent(_message.Message):
         BLOCKED_FIELD_NUMBER: _ClassVar[int]
         blocked: ContactInformation
         def __init__(self, blocked: _Optional[_Union[ContactInformation, _Mapping]] = ...) -> None: ...
-    class UnknownKns(_message.Message):
-        __slots__ = ("unknown_fyhz",)
-        UNKNOWN_FYHZ_FIELD_NUMBER: _ClassVar[int]
-        unknown_fyhz: AddFailureReason
-        def __init__(self, unknown_fyhz: _Optional[_Union[AddFailureReason, str]] = ...) -> None: ...
-    class UnknownKnt(_message.Message):
-        __slots__ = ("unknown_fyid",)
-        UNKNOWN_FYID_FIELD_NUMBER: _ClassVar[int]
-        unknown_fyid: ContactInformation
-        def __init__(self, unknown_fyid: _Optional[_Union[ContactInformation, _Mapping]] = ...) -> None: ...
+    class UnknownOneHundredTwentySix(_message.Message):
+        __slots__ = ("unknown_two_hundred_eighty_three",)
+        UNKNOWN_TWO_HUNDRED_EIGHTY_THREE_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_eighty_three: AddFailureReason
+        def __init__(self, unknown_two_hundred_eighty_three: _Optional[_Union[AddFailureReason, str]] = ...) -> None: ...
+    class UnknownOneHundredTwentySeven(_message.Message):
+        __slots__ = ("unknown_two_hundred_eighty_four",)
+        UNKNOWN_TWO_HUNDRED_EIGHTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_eighty_four: ContactInformation
+        def __init__(self, unknown_two_hundred_eighty_four: _Optional[_Union[ContactInformation, _Mapping]] = ...) -> None: ...
     ERROR_FIELD_NUMBER: _ClassVar[int]
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     error: UnBlockEvent.Error
@@ -297,11 +299,11 @@ class UnBlockEvent(_message.Message):
         TAG_FIELD_NUMBER: _ClassVar[int]
         tag: _common_pb2.AccountTag
         def __init__(self, tag: _Optional[_Union[_common_pb2.AccountTag, _Mapping]] = ...) -> None: ...
-    class UnknownKni(_message.Message):
-        __slots__ = ("unknown_fygt",)
-        UNKNOWN_FYGT_FIELD_NUMBER: _ClassVar[int]
-        unknown_fygt: _common_pb2.AccountTag
-        def __init__(self, unknown_fygt: _Optional[_Union[_common_pb2.AccountTag, _Mapping]] = ...) -> None: ...
+    class UnknownOneHundredThirty(_message.Message):
+        __slots__ = ("unknown_two_hundred_eighty_eight",)
+        UNKNOWN_TWO_HUNDRED_EIGHTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_eighty_eight: _common_pb2.AccountTag
+        def __init__(self, unknown_two_hundred_eighty_eight: _Optional[_Union[_common_pb2.AccountTag, _Mapping]] = ...) -> None: ...
     ERROR_FIELD_NUMBER: _ClassVar[int]
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     error: UnBlockEvent.Error

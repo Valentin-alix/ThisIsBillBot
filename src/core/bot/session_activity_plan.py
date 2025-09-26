@@ -59,7 +59,6 @@ class SessionActivityPlan:
         self.completed_activities.add(activity)
 
     def discard_empty_activity(self, activity: SessionActivity, now: datetime) -> None:
-        """Drop an empty activity and redistribute the remaining session slots."""
         self.completed_activities.add(activity)
         remaining_activities = [
             slot.activity for slot in self.slots if slot.activity not in self.completed_activities
@@ -80,7 +79,6 @@ class SessionActivityPlan:
 
 
 def _get_activity_start_fraction(activity_index: int, activity_count: int) -> float:
-    """Place each activity in a distinct segment while varying its exact start."""
     assert activity_count > 0, "An activity start fraction requires at least one activity"
     assert 0 <= activity_index < activity_count, "Activity index must belong to the session plan"
     segment_size = 1 / (activity_count + 1)

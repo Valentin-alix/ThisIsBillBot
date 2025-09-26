@@ -5,6 +5,9 @@ import "spell.proto";
 
 package com.ankama.dofus.server.game.protocol.fight;
 
+message UnknownOneHundredSixtyOne {}
+
+
 message FightTurnReadyRequest {
 	bool is_ready = 1;
 }
@@ -38,17 +41,17 @@ message FightTurnListEvent {
 		bool slain = 2;
 		int32 index = 3;
 	}
-	message UnknownJzq {
-		.com.ankama.dofus.server.game.protocol.fight.FightTurnListEvent.UnknownJzs unknown_fwgh = 1;
-		.com.ankama.dofus.server.game.protocol.fight.FightTurnListEvent.UnknownJzr unknown_fwgi = 2;
+	message UnknownOneHundredFiftyEight {
+		.com.ankama.dofus.server.game.protocol.fight.FightTurnListEvent.UnknownOneHundredSixty unknown_three_hundred_forty = 1;
+		.com.ankama.dofus.server.game.protocol.fight.FightTurnListEvent.UnknownOneHundredFiftyNine unknown_three_hundred_forty_one = 2;
 	}
-	message UnknownJzr {
-		bool unknown_fwgn = 1;
-		int64 unknown_fwgo = 2;
+	message UnknownOneHundredFiftyNine {
+		bool unknown_three_hundred_forty_two = 1;
+		int64 unknown_three_hundred_forty_three = 2;
 	}
-	message UnknownJzs {
-		int64 unknown_fwgs = 1;
-		string unknown_fwgt = 2;
+	message UnknownOneHundredSixty {
+		int64 unknown_three_hundred_forty_four = 1;
+		string unknown_three_hundred_forty_five = 2;
 	}
 }
 
@@ -93,8 +96,8 @@ message FightTurnEvent {
 	int32 base_time = 2;
 	int32 extra_time = 3;
 	optional int32 remaining_time = 4;
-	optional int32 unknown_fwyz = 5;
-	int32 unknown_fwze = 7;
+	optional int32 unknown_three_hundred_thirty_eight = 5;
+	int32 unknown_three_hundred_thirty_nine = 7;
 }
 
 message FightNewWaveEvent {
@@ -392,42 +395,42 @@ message DetailedStatistics {
 }
 
 
-message UnknownJws {
-	int64 unknown_fvrs = 1;
-	.com.ankama.dofus.server.game.protocol.common.UnknownLhq unknown_fvrt = 2;
+message UnknownOneHundredSixtyTwo {
+	int64 unknown_three_hundred_forty_six = 1;
+	.com.ankama.dofus.server.game.protocol.common.UnknownOneHundredTwentyOne unknown_three_hundred_forty_seven = 2;
 }
 
-message UnknownJxk {
-	repeated .com.ankama.dofus.server.game.protocol.common.Shortcut unknown_fvuy = 1;
-	int64 unknown_fvuz = 2;
-	repeated .com.ankama.dofus.server.game.protocol.spell.SpellItem unknown_fvva = 3;
+message UnknownOneHundredSixtyThree {
+	repeated .com.ankama.dofus.server.game.protocol.common.Shortcut unknown_three_hundred_forty_eight = 1;
+	int64 unknown_three_hundred_forty_nine = 2;
+	repeated .com.ankama.dofus.server.game.protocol.spell.SpellItem unknown_three_hundred_fifty = 3;
 }
 
-message UnknownJxp {
-	int64 unknown_fvvw = 1;
-	.com.ankama.dofus.server.game.protocol.common.UnknownLhq unknown_fvvx = 2;
+message UnknownOneHundredSixtyFour {
+	int64 unknown_three_hundred_fifty_one = 1;
+	.com.ankama.dofus.server.game.protocol.common.UnknownOneHundredTwentyOne unknown_three_hundred_fifty_two = 2;
 }
 
-message UnknownJxt {
-	bool unknown_fvwg = 1;
+message UnknownOneHundredSixtyFive {
+	bool unknown_three_hundred_fifty_three = 1;
 }
 
-message UnknownJya {
-	int64 unknown_fvxx = 1;
-	int32 unknown_fvxy = 2;
+message UnknownOneHundredSixtySix {
+	int64 unknown_three_hundred_fifty_four = 1;
+	int32 unknown_three_hundred_fifty_five = 2;
 }
 
-message UnknownJyc {
-	repeated int32 unknown_fvyi = 1;
+message UnknownOneHundredSixtySeven {
+	repeated UnknownOneHundredSixtyOne unknown_three_hundred_fifty_six = 1;
 }
 
-message UnknownJyu {
-	int64 unknown_fwaw = 1;
+message UnknownOneHundredSixtyEight {
+	int64 unknown_three_hundred_fifty_seven = 1;
 }
 
-message UnknownJyv {
-	int32 unknown_fwba = 1;
-	int32 unknown_fwbb = 2;
-	int64 unknown_fwbc = 3;
+message UnknownOneHundredSixtyNine {
+	int32 unknown_three_hundred_fifty_eight = 1;
+	int32 unknown_three_hundred_fifty_nine = 2;
+	int64 unknown_three_hundred_sixty = 3;
 }
 

@@ -8,8 +8,8 @@ from datas.protos.non_obf.game.game_message_pb2 import Request
 from google.protobuf.message import Message
 from PyQt6.QtCore import QMetaObject, Qt
 
-from src import const
-from src.const import MESSAGES_WITH_UID
+from src import consts
+from src.consts import MESSAGES_WITH_UID
 from src.core.bot.bot import Bot
 from src.protocol.protocol import decode_varint_size, encode_msg
 from src.protocol.protocol_game import (
@@ -44,7 +44,7 @@ class GameProxy(Proxy):
 
     def alter_msg_datas(self, msg_content_datas: bytes, msg_datas: bytes) -> bytes | None:
         expected_uid = self.uid + 1
-        root_msg_namespace, clear_sub_msg, _, uid = get_game_msg(msg_content_datas, const.DEBUG)
+        root_msg_namespace, clear_sub_msg, _, uid = get_game_msg(msg_content_datas, consts.DEBUG)
         if clear_sub_msg is None:
             return msg_datas
 
@@ -54,7 +54,7 @@ class GameProxy(Proxy):
 
         if clear_sub_altered_msg is None:
             return None
-        # msg was altered, let's rebuild game msg
+
         obf_info = get_obf_game_message_from_msg(root_msg_namespace, clear_sub_altered_msg, expected_uid)
         if obf_info is not None:
             game_msg, _ = obf_info
@@ -65,7 +65,7 @@ class GameProxy(Proxy):
         msg_content_datas = msg_datas[pos : pos + size]
 
         _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(
-            msg_content_datas, const.DEBUG and not was_send_from_proxy
+            msg_content_datas, consts.DEBUG and not was_send_from_proxy
         )
         if uid is not None and uid != -1:
             self.uid = uid
@@ -80,7 +80,7 @@ class GameProxy(Proxy):
 
         self.bot.debug_recorder.record_game_message(clear_sub_msg, obf_sub_msg, uid, from_server, source)
 
-        if const.DEBUG:
+        if consts.DEBUG:
             msg_infos = get_game_msg_info(
                 clear_sub_msg,
                 obf_sub_msg,

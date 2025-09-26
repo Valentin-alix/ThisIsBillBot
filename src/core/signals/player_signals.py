@@ -9,7 +9,7 @@ class GameInfoSignals(QObject):
     disconnected = pyqtSignal()
     is_ready_to_play = pyqtSignal()
     breed_id = pyqtSignal(int)
-    character_id = pyqtSignal(object)  # bc it's a big int
+    character_id = pyqtSignal(object)
     character_name = pyqtSignal(str)
     subscription_end_date = pyqtSignal(datetime.datetime)
     in_fight = pyqtSignal(bool)
@@ -30,13 +30,13 @@ class GameInfoSignals(QObject):
 
 class InventorySignals(QObject):
     added_object_item = pyqtSignal(ObjectItemInventory)
-    added_object_items_batch = pyqtSignal(list)  # list of ObjectItemInventory
+    added_object_items_batch = pyqtSignal(list)
     updated_object_item = pyqtSignal(ObjectItemInventory)
     deleted_object_item_uid = pyqtSignal(int)
     clear_inventory = pyqtSignal()
     inventory_weight = pyqtSignal(int)
     weight_max = pyqtSignal(int)
     kamas = pyqtSignal(int)
-    bank_refreshed = pyqtSignal(list)  # list[ObjectItemInventory]
+    bank_refreshed = pyqtSignal(list)
     bank_item_updated = pyqtSignal(ObjectItemInventory)
-    bank_item_removed = pyqtSignal(int)  # uid
+    bank_item_removed = pyqtSignal(int)

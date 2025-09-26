@@ -2,8 +2,8 @@ from datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
 
 from src.core.engine.npcs.reply_selector import ByReplyId, ByText, resolve_reply_id
 
-CONSULT_CHEST_REPLY_ID = 64361  # "Consulter son coffre personnel."
-OPEN_ACCOUNT_REPLY_ID = 64362  # "Se renseigner sur les modalites d'ouverture d'un compte..."
+CONSULT_CHEST_REPLY_ID = 64361
+OPEN_ACCOUNT_REPLY_ID = 64362
 
 
 def _make_question(reply_ids: list[int]) -> NpcDialogQuestionEvent:

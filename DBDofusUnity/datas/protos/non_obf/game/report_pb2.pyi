@@ -7,7 +7,7 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class ReportRequest(_message.Message):
-    __slots__ = ("report", "unknown_fnvt")
+    __slots__ = ("report", "unknown_one")
     class ReportCategory(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         THIRD_PARTY_SOFTWARE: _ClassVar[ReportRequest.ReportCategory]
@@ -33,18 +33,14 @@ class ReportRequest(_message.Message):
         description: str
         target_character_id: int
         def __init__(self, report_category: _Optional[_Union[ReportRequest.ReportCategory, str]] = ..., description: _Optional[str] = ..., target_character_id: _Optional[int] = ...) -> None: ...
-    class UnknownHvi(_message.Message):
-        __slots__ = ("unknown_fnvn", "unknown_fnvo")
-        UNKNOWN_FNVN_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FNVO_FIELD_NUMBER: _ClassVar[int]
-        unknown_fnvn: str
-        unknown_fnvo: str
-        def __init__(self, unknown_fnvn: _Optional[str] = ..., unknown_fnvo: _Optional[str] = ...) -> None: ...
+    class UnknownOne(_message.Message):
+        __slots__ = ()
+        def __init__(self) -> None: ...
     REPORT_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FNVT_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_ONE_FIELD_NUMBER: _ClassVar[int]
     report: ReportRequest.Report
-    unknown_fnvt: ReportRequest.UnknownHvi
-    def __init__(self, report: _Optional[_Union[ReportRequest.Report, _Mapping]] = ..., unknown_fnvt: _Optional[_Union[ReportRequest.UnknownHvi, _Mapping]] = ...) -> None: ...
+    unknown_one: ReportRequest.UnknownOne
+    def __init__(self, report: _Optional[_Union[ReportRequest.Report, _Mapping]] = ..., unknown_one: _Optional[_Union[ReportRequest.UnknownOne, _Mapping]] = ...) -> None: ...
 
 class ReportResponse(_message.Message):
     __slots__ = ("reportability_by_character_id", "error", "success")

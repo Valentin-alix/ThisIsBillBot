@@ -151,4 +151,3 @@ class Sidebar(NavigationInterface):
             tooltip,
             parentRouteKey,
         )
-        # self.setMinimumHeight(self.panel.layoutMinHeight())

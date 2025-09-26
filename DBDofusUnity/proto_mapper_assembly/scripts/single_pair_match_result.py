@@ -1,21 +1,9 @@
 from __future__ import annotations
 
 import argparse
-import sys
 from collections.abc import Mapping
 
 from icecream import ic
-
-from consts import PROJECT_ROOT
-from proto_mapper_assembly.controllers.message_lookup import (
-    build_non_obf_alias_lookup,
-    build_obf_alias_lookup,
-    resolve_non_obf_alias,
-    resolve_obf_alias,
-)
-
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
 
 from consts import (
     NON_OBF_NEW_DUMP_CS_FILE,
@@ -24,7 +12,12 @@ from consts import (
     NON_OBF_SIGNATURE_OVERRIDES_FILE,
     OBF_PROTO_ACCESSES_FILE,
     OBF_PROTOCOL_GAME_DUMP_CS_FILE,
-    PROJECT_ROOT,
+)
+from proto_mapper_assembly.controllers.message_lookup import (
+    build_non_obf_alias_lookup,
+    build_obf_alias_lookup,
+    resolve_non_obf_alias,
+    resolve_obf_alias,
 )
 from proto_mapper_assembly.controllers.matching_inputs_loader import load_matching_inputs
 from proto_mapper_assembly.field_mapping.field_mapper import build_field_mapping

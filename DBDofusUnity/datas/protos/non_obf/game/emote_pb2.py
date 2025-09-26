@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0b\x65mote.proto\x12+com.ankama.dofus.server.game.protocol.emote\"=\n\x10\x45motePlayRequest\x12\x10\n\x08\x65mote_id\x18\x01 \x01(\x05\x12\x17\n\x0fonly_play_emote\x18\x02 \x01(\x08\" \n\x0b\x45motesEvent\x12\x11\n\temotes_id\x18\x01 \x03(\x05\"#\n\x0f\x45moteAddedEvent\x12\x10\n\x08\x65mote_id\x18\x01 \x01(\x05\"%\n\x11\x45moteRemovedEvent\x12\x10\n\x08\x65mote_id\x18\x01 \x01(\x05\"b\n\x0e\x45motePlayEvent\x12\x10\n\x08\x65mote_id\x18\x01 \x01(\x05\x12\x18\n\x10\x65mote_start_time\x18\x02 \x01(\x03\x12\x10\n\x08\x61\x63tor_id\x18\x03 \x01(\x03\x12\x12\n\naccount_id\x18\x04 \x01(\x05\"V\n\x15\x45moteMassivePlayEvent\x12\x10\n\x08\x65mote_id\x18\x01 \x01(\x05\x12\x18\n\x10\x65mote_start_time\x18\x02 \x01(\x03\x12\x11\n\tactors_id\x18\x03 \x03(\x03\"\'\n\x13\x45motePlayErrorEvent\x12\x10\n\x08\x65mote_id\x18\x01 \x01(\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0b\x65mote.proto\x12+com.ankama.dofus.server.game.protocol.emote\"=\n\x10\x45motePlayRequest\x12\x10\n\x08\x65mote_id\x18\x01 \x01(\x05\x12\x17\n\x0fonly_play_emote\x18\x02 \x01(\x08\" \n\x0b\x45motesEvent\x12\x11\n\temotes_id\x18\x01 \x03(\x05\"#\n\x0f\x45moteAddedEvent\x12\x10\n\x08\x65mote_id\x18\x01 \x01(\x05\"%\n\x11\x45moteRemovedEvent\x12\x10\n\x08\x65mote_id\x18\x01 \x01(\x05\"p\n\x0e\x45motePlayEvent\x12\x10\n\x08\x65mote_id\x18\x01 \x01(\x05\x12\x18\n\x10\x65mote_start_time\x18\x02 \x01(\x03\x12\x10\n\x08\x61\x63tor_id\x18\x03 \x01(\x03\x12\x12\n\naccount_id\x18\x04 \x01(\x05\x12\x0c\n\x04name\x18\x05 \x01(\t\"V\n\x15\x45moteMassivePlayEvent\x12\x10\n\x08\x65mote_id\x18\x01 \x01(\x05\x12\x18\n\x10\x65mote_start_time\x18\x02 \x01(\x03\x12\x11\n\tactors_id\x18\x03 \x03(\x03\"\'\n\x13\x45motePlayErrorEvent\x12\x10\n\x08\x65mote_id\x18\x01 \x01(\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -40,9 +40,9 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_EMOTEREMOVEDEVENT']._serialized_start=194
   _globals['_EMOTEREMOVEDEVENT']._serialized_end=231
   _globals['_EMOTEPLAYEVENT']._serialized_start=233
-  _globals['_EMOTEPLAYEVENT']._serialized_end=331
-  _globals['_EMOTEMASSIVEPLAYEVENT']._serialized_start=333
-  _globals['_EMOTEMASSIVEPLAYEVENT']._serialized_end=419
-  _globals['_EMOTEPLAYERROREVENT']._serialized_start=421
-  _globals['_EMOTEPLAYERROREVENT']._serialized_end=460
+  _globals['_EMOTEPLAYEVENT']._serialized_end=345
+  _globals['_EMOTEMASSIVEPLAYEVENT']._serialized_start=347
+  _globals['_EMOTEMASSIVEPLAYEVENT']._serialized_end=433
+  _globals['_EMOTEPLAYERROREVENT']._serialized_start=435
+  _globals['_EMOTEPLAYERROREVENT']._serialized_end=474
 # @@protoc_insertion_point(module_scope)

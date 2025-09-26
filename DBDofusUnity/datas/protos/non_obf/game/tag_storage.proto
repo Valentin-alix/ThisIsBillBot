@@ -69,11 +69,11 @@ message TagObjectData {
 
 
 
-message UnknownHlz {
-	repeated int32 unknown_fmpe = 1;
-	repeated .com.ankama.dofus.server.game.protocol.tag.storage.TagObjectUpdateContent unknown_fmpf = 2;
+message UnknownFourHundredNinetySix {
+	repeated int32 unknown_eight_hundred_fifty_five = 1;
+	repeated .com.ankama.dofus.server.game.protocol.tag.storage.TagObjectUpdateContent unknown_eight_hundred_fifty_six = 2;
 }
 
-message UnknownHmb {
-	repeated .com.ankama.dofus.server.game.protocol.tag.storage.TagObjectUpdateContent unknown_fmpo = 1;
+message UnknownFourHundredNinetySeven {
+	repeated .com.ankama.dofus.server.game.protocol.tag.storage.TagObjectUpdateContent unknown_eight_hundred_fifty_seven = 1;
 }

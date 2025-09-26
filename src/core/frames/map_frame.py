@@ -19,7 +19,7 @@ from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.map_id import MAP_IDS_THAT_POP_DIALOG
 from fight_preparation_pb2 import FightPreparationEnterRequest
 
-from src import const
+from src import consts
 from src.services.human_timings import HumanTimingsService
 from src.core.frames.frame import Frame
 from src.core.signals.world_signals import WorldSignals
@@ -72,9 +72,10 @@ class MapFrame(Frame):
         self.logger.debug(f"New map : {message.map_id}")
         assert self.game_state.map.map_id == message.map_id
         self.game_state.map.is_in_haven_bag = message.HasField("haven_bag_information")
-        if const.DEBUG:
+        if consts.DEBUG:
             self.world_signals.curr_map_pos.emit(DataReader().map_info_by_map_id[message.map_id])
         self.game_state.map.is_in_map_transition = False
+        self.game_state.map.discard_map_stay_banned_transitions()
         self.register_map_popup_dialog_leave(message.map_id)
 
     def register_map_popup_dialog_leave(self, map_id: int) -> None:

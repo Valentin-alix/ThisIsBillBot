@@ -32,16 +32,18 @@ class EmoteRemovedEvent(_message.Message):
     def __init__(self, emote_id: _Optional[int] = ...) -> None: ...
 
 class EmotePlayEvent(_message.Message):
-    __slots__ = ("emote_id", "emote_start_time", "actor_id", "account_id")
+    __slots__ = ("emote_id", "emote_start_time", "actor_id", "account_id", "name")
     EMOTE_ID_FIELD_NUMBER: _ClassVar[int]
     EMOTE_START_TIME_FIELD_NUMBER: _ClassVar[int]
     ACTOR_ID_FIELD_NUMBER: _ClassVar[int]
     ACCOUNT_ID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
     emote_id: int
     emote_start_time: int
     actor_id: int
     account_id: int
-    def __init__(self, emote_id: _Optional[int] = ..., emote_start_time: _Optional[int] = ..., actor_id: _Optional[int] = ..., account_id: _Optional[int] = ...) -> None: ...
+    name: str
+    def __init__(self, emote_id: _Optional[int] = ..., emote_start_time: _Optional[int] = ..., actor_id: _Optional[int] = ..., account_id: _Optional[int] = ..., name: _Optional[str] = ...) -> None: ...
 
 class EmoteMassivePlayEvent(_message.Message):
     __slots__ = ("emote_id", "emote_start_time", "actors_id")

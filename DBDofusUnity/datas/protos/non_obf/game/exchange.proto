@@ -8,14 +8,12 @@ package com.ankama.dofus.server.game.protocol.exchange;
 
 message ExchangeSetCraftRecipeRequest {
 	int32 object_uid = 1;
-	int32 unknown_fxdf = 2;
+	int32 unknown_three_hundred_thirty = 2;
 }
 
 message ExchangeObjectUseInWorkshopRequest {
 	int32 object_uid = 1;
 	int32 quantity = 2;
-	bool unknown_fxja = 3;
-	int32 unknown_fxjd = 4;
 }
 
 message ExchangeObjectMovePricedRequest {
@@ -35,7 +33,7 @@ message ExchangeObjectTransferAllToInventoryRequest {
 
 message ExchangeObjectTransferListToInventoryRequest {
 	repeated int32 objects_uid = 1;
-	repeated int32 unknown_fwux = 2;
+	repeated int32 unknown_three_hundred_twenty_nine = 2;
 }
 
 message ExchangeObjectTransferListWithQuantityToInventoryRequest {
@@ -50,7 +48,7 @@ message ExchangeObjectTransferAllFromInventoryRequest {
 
 message ExchangeObjectTransferListFromInventoryRequest {
 	repeated int32 objects_uid = 1;
-	repeated int32 unknown_fwwb = 2;
+	repeated int32 unknown_three_hundred_twenty_eight = 2;
 }
 
 message ExchangeObjectTransferTypeFromInventoryRequest {
@@ -66,11 +64,10 @@ message ExchangeMoveKamaRequest {
 
 message ExchangeCraftCountRequest {
 	int32 count = 1;
-	int32 unknown_fwyq = 2;
+	int32 unknown_three_hundred_twenty_five = 2;
 }
 
 message ExchangeReplayStopRequest {
-	int32 unknown_fwng = 1;
 }
 
 message ExchangeMultiCraftSetCrafterCanUseHisResourcesRequest {
@@ -79,8 +76,6 @@ message ExchangeMultiCraftSetCrafterCanUseHisResourcesRequest {
 
 message ExchangePlayerRequest {
 	int64 target_id = 1;
-	int64 unknown_fxcu = 2;
-	int64 unknown_fxcw = 3;
 }
 
 message ExchangePlayerMultiCraftRequest {
@@ -103,7 +98,6 @@ message ExchangeFocusedReadyRequest {
 	bool ready = 1;
 	int32 step = 2;
 	int32 focus_action_id = 3;
-	int32 unknown_fwno = 4;
 }
 
 message ExchangeCraftPaymentModificationRequest {
@@ -131,7 +125,7 @@ message ExchangeObjectsSellRequest {
 
 message JobBookSubscribeRequest {
 	repeated int32 jobs_id = 1;
-	repeated int32 unknown_fwzt = 2;
+	repeated int32 unknown_three_hundred_thirty_two = 2;
 }
 
 message ExchangeHandleMountsRequest {
@@ -174,8 +168,7 @@ message ExchangeBidHouseListRequest {
 message ExchangeBidHouseTypeRequest {
 	int32 type_id = 1;
 	bool follow = 2;
-	int32 unknown_fwxf = 3;
-	repeated string unknown_fwxh = 4;
+	repeated string unknown_three_hundred_twenty_four = 4;
 }
 
 
@@ -186,7 +179,7 @@ message ExchangeBidHousePriceRequest {
 
 message ExchangeTaxCollectorEquipmentRequest {
 	string tax_collector_uid = 1;
-	string unknown_fxca = 2;
+	string unknown_three_hundred_thirty_one = 2;
 }
 
 message ObjectAveragePricesRequest {
@@ -198,7 +191,6 @@ message ExchangeMoneyMovementLimitEvent {
 
 message ExchangeCraftCountModifiedEvent {
 	int32 count = 1;
-	bool unknown_fxkp = 2;
 }
 
 
@@ -216,19 +208,16 @@ message ExchangeObjectsRemovedEvent {
 message ExchangeObjectsModifiedEvent {
 	bool remote = 1;
 	repeated .com.ankama.dofus.server.game.protocol.common.ObjectItemInventory objects = 2;
-	bool unknown_fxdm = 3;
 }
 
 message ExchangeObjectPutInBagEvent {
 	bool remote = 1;
 	.com.ankama.dofus.server.game.protocol.common.ObjectItemInventory object = 2;
-	bool unknown_fwzi = 3;
 }
 
 message ExchangeObjectRemovedFromBagEvent {
 	bool remote = 1;
 	int32 object_uid = 2;
-	int32 unknown_fxbl = 3;
 }
 
 message ExchangeObjectModifiedInBagEvent {
@@ -239,8 +228,6 @@ message ExchangeObjectModifiedInBagEvent {
 message ExchangeKamaModifiedEvent {
 	bool remote = 1;
 	int64 quantity = 2;
-	int64 unknown_fxcn = 3;
-	optional int64 unknown_fxcp = 4;
 }
 
 message ExchangePodsModifiedEvent {
@@ -287,7 +274,6 @@ message ExchangeStartedWithMultiTabStorageEvent {
 message ExchangeBidHouseBuyResultEvent {
 	int32 bid_item_uid = 1;
 	bool bought = 2;
-	bool unknown_fwuo = 3;
 }
 
 message ExchangeBidSellerStartedEvent {
@@ -297,23 +283,18 @@ message ExchangeBidSellerStartedEvent {
 		.com.ankama.dofus.server.game.protocol.exchange.BidItem item = 1;
 		int64 price = 2;
 		int32 unsold_delay = 3;
-			map<int64, string> unknown_fwpv = 4;
 }
 
-	optional int32 unknown_fwqd = 4;
 }
 
 message ExchangeBidHouseItemAddedEvent {
 	.com.ankama.dofus.server.game.protocol.exchange.BidItem item = 1;
 	int64 price = 2;
 	int64 unsold_delay = 3;
-	repeated bool unknown_fxcg = 4;
-	.com.ankama.dofus.server.game.protocol.exchange.BidItem unknown_fxci = 5;
 }
 
 message ExchangeBidHouseItemRemovedEvent {
 	int32 sell_id = 1;
-	int32 unknown_fxbf = 2;
 }
 
 message ExchangeBidHouseGenericItemAddedEvent {
@@ -347,7 +328,6 @@ message ExchangeBidHouseOfflineSoldItemsEvent {
 message ExchangeReadyEvent {
 	int64 character_id = 1;
 	bool ready = 2;
-	string unknown_fxlv = 3;
 }
 
 message ExchangeStoppedEvent {
@@ -379,7 +359,6 @@ message ExchangeLeaveEvent {
 
 message ExchangeTaxCollectorEquipmentStartedEvent {
 	.com.ankama.dofus.server.game.protocol.common.TaxCollectorInformation tax_collector_information = 1;
-	.com.ankama.dofus.server.game.protocol.common.TaxCollectorInformation unknown_fwyd = 2;
 }
 
 message ExchangeNpcTradeStartedEvent {
@@ -394,16 +373,12 @@ message ExchangeRecycleTradeStartedEvent {
 	int32 percent_to_player = 2;
 	repeated int32 adjacent_subareas_possessed = 3;
 	repeated int32 adjacent_subareas_not_possessed = 4;
-	repeated .com.ankama.dofus.server.game.protocol.common.ObjectItemInventory unknown_fxij = 5;
-	int32 unknown_fxil = 6;
 }
 
 message ExchangeNpcShopStartedEvent {
 	int64 npc_seller_id = 1;
 	int32 token_id = 2;
 	repeated .com.ankama.dofus.server.game.protocol.common.ItemMinimalInformation objects = 3;
-	int64 unknown_fwmq = 4;
-	int32 unknown_fwmr = 5;
 }
 
 message ExchangeMultiCraftOkEvent {
@@ -462,7 +437,6 @@ message ExchangeObjectMoveRequest {
 
 message ExchangeMultiCraftCrafterStartedEvent {
 	int32 skill_id = 1;
-	string unknown_fwzy = 2;
 }
 
 message ExchangeBidBuyerStartedEvent {
@@ -501,7 +475,6 @@ message ExchangeBidHouseInListRemovedEvent {
 	int32 bid_item_uid = 1;
 	int32 object_gid = 2;
 	int32 object_type = 3;
-	int32 unknown_fxmk = 4;
 }
 
 
@@ -518,7 +491,6 @@ message ExchangeBidHouseInListAddedEvent {
 	int32 object_type = 3;
 	repeated .com.ankama.dofus.server.game.protocol.common.ObjectEffect effects = 4;
 	repeated int64 prices = 5;
-	repeated .com.ankama.dofus.server.game.protocol.common.ObjectEffect unknown_fxfk = 6;
 }
 
 message ExchangeBidPriceEvent {
@@ -528,16 +500,13 @@ message ExchangeBidPriceEvent {
 	message BidPriceForSeller {
 		bool all_identical = 1;
 		repeated int64 minimal_prices = 2;
-			repeated int64 unknown_fwsq = 3;
 }
 
-	bool unknown_fwsw = 4;
 }
 
 message ExchangeTypesExchangerDescriptionForUserEvent {
 	int32 object_type = 1;
 	repeated int32 type_description = 2;
-	repeated int32 unknown_fwve = 3;
 }
 
 message ExchangeTypesItemsExchangerDescriptionForUserEvent {
@@ -550,8 +519,6 @@ message ExchangeTypesItemsExchangerDescriptionForUserEvent {
 		int32 type = 3;
 		repeated .com.ankama.dofus.server.game.protocol.common.ObjectEffect effects = 4;
 		repeated int64 prices = 5;
-			repeated int64 unknown_fwoy = 6;
-		repeated string unknown_fwpc = 7;
 }
 
 }
@@ -570,8 +537,6 @@ message ExchangeTaxCollectorGetEvent {
 	int32 pods = 6;
 	repeated .com.ankama.dofus.server.game.protocol.common.ObjectGidWithQuantity objects = 7;
 	.com.ankama.dofus.server.game.protocol.common.EntityLook look = 8;
-	string unknown_fwvo = 9;
-	int64 unknown_fwvu = 10;
 }
 
 
@@ -587,7 +552,7 @@ message ExchangeMountWithoutPaddockStartedEvent {
 message ExchangeMountsStableAddedEvent {
 	repeated .com.ankama.dofus.server.game.protocol.common.MountData mounts = 1;
 	bool new_born = 2;
-	bool unknown_fxkj = 3;
+	bool unknown_three_hundred_twenty_seven = 3;
 }
 
 message ExchangeMountsPaddockAddedEvent {
@@ -596,12 +561,11 @@ message ExchangeMountsPaddockAddedEvent {
 
 message ExchangeMountsStableRemoveEvent {
 	repeated int32 mounts_id = 1;
-	repeated int32 unknown_foln = 2;
 }
 
 message ExchangeMountsPaddockRemoveEvent {
 	repeated int32 mounts_id = 1;
-	repeated int32 unknown_fwsc = 2;
+	repeated int32 unknown_three_hundred_twenty_six = 2;
 }
 
 message ExchangeMountFreeFromPaddockEvent {
@@ -619,7 +583,6 @@ message ExchangeItemAutoCraftStoppedEvent {
 		IMPOSSIBLE_MODIFICATION = 3;
 	}
 
-	bool unknown_fwqo = 4;
 }
 
 message ExchangeCraftStartedEvent {
@@ -629,8 +592,6 @@ message ExchangeCraftStartedEvent {
 message ExchangeMultiCraftCustomerStartedEvent {
 	int32 skill_id = 1;
 	int32 crafter_job_level = 2;
-	int32 unknown_fxmr = 3;
-	int64 unknown_fxms = 4;
 }
 
 message ExchangeCrafterJobLevelUpEvent {
@@ -639,7 +600,6 @@ message ExchangeCrafterJobLevelUpEvent {
 
 message ExchangeJobIndexStartedEvent {
 	repeated int32 jobs = 1;
-	repeated int64 unknown_fxfo = 2;
 }
 
 message ExchangeCraftPaymentModifiedEvent {
@@ -655,8 +615,7 @@ message SellingConditions {
 	int32 max_item_per_account = 6;
 	int32 npc_contextual_id = 7;
 	int32 unsold_delay = 8;
-	int32 unknown_fxwx = 9;
-	int32 unknown_fxhk = 10;
+	int32 unknown_three_hundred_thirty_three = 9;
 }
 
 message ObjectAveragePricesErrorEvent {
@@ -688,18 +647,15 @@ message DecraftResultEvent {
 			int32 quantity = 2;
 		}
 
-			int32 unknown_fxgk = 5;
 }
 
 }
 
 
 
-message UnknownKcj {
-	int32 unknown_fwrt = 1;
-	bool unknown_fwru = 2;
-	int32 unknown_fwrv = 3;
-	bool unknown_fwrx = 4;
-	int32 unknown_fwrw = 5;
-	bool unknown_fwry = 6;
+message UnknownOneHundredFiftySeven {
+	int32 unknown_three_hundred_thirty_four = 1;
+	bool unknown_three_hundred_thirty_five = 2;
+	int32 unknown_three_hundred_thirty_six = 3;
+	bool unknown_three_hundred_thirty_seven = 6;
 }

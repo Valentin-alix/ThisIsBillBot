@@ -4,8 +4,6 @@ from qfluentwidgets.components.widgets.scroll_bar import SmoothScrollDelegate
 
 
 class NoAnimatedScrollArea(QScrollArea):
-    """Smooth scroll area"""
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.scrollDelagate = SmoothScrollDelegate(self)

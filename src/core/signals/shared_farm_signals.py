@@ -5,7 +5,7 @@ class SharedSignals(QObject):
     launch_account = pyqtSignal(str)
     closed = pyqtSignal()
     shutdown_finished = pyqtSignal()
-    thread_count_update = pyqtSignal(int)  # bot_manager thread count
+    thread_count_update = pyqtSignal(int)
     synchronize_bots = pyqtSignal()
     new_bot_added = pyqtSignal(object)
     bot_removed = pyqtSignal(object)

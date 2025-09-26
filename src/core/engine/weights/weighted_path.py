@@ -29,11 +29,6 @@ class WeightedPath:
         depth: int = 25,
         beam_width: int = 50,
     ) -> tuple[list[Edge], float]:
-        """
-        Deterministic weighted path search using Beam Search.
-        """
-
-        # (current_vertex, path, score, visited_map_ids)
         beam: list[tuple[Vertice, list[Edge], float, tuple[int, ...]]] = [
             (start_vertex, [], 0.0, (start_vertex.m_mapId,))
         ]

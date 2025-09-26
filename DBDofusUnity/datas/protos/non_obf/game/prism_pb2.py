@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0bprism.proto\x12+com.ankama.dofus.server.game.protocol.prism\x1a\x0c\x63ommon.proto\"\x1b\n\x19PrismTeleportationRequest\"\x14\n\x12PrismAttackRequest\"\x16\n\x14PrismExchangeRequest\"\x15\n\x13PrismRecycleRequest\"~\n\x0ePrismListEvent\x12l\n\x1bprism_localized_information\x18\x01 \x03(\x0b\x32G.com.ankama.dofus.server.game.protocol.common.PrismLocalizedInformation\"\x85\x01\n\x15PrismAddOrUpdateEvent\x12l\n\x1bprism_localized_information\x18\x01 \x01(\x0b\x32G.com.ankama.dofus.server.game.protocol.common.PrismLocalizedInformation\"\x80\x01\n\x10PrismRemoveEvent\x12l\n\x1bprism_localized_information\x18\x01 \x01(\x0b\x32G.com.ankama.dofus.server.game.protocol.common.PrismLocalizedInformation\"\x82\x01\n\x12PrismAttackedEvent\x12l\n\x1bprism_localized_information\x18\x01 \x01(\x0b\x32G.com.ankama.dofus.server.game.protocol.common.PrismLocalizedInformation\"\xb5\x02\n\x16PrismAttackResultEvent\x12l\n\x1bprism_localized_information\x18\x01 \x01(\x0b\x32G.com.ankama.dofus.server.game.protocol.common.PrismLocalizedInformation\x12r\n\x13prism_attack_result\x18\x02 \x01(\x0e\x32U.com.ankama.dofus.server.game.protocol.prism.PrismAttackResultEvent.PrismAttackResult\"9\n\x11PrismAttackResult\x12\x11\n\rDEFENDERS_WIN\x10\x00\x12\x11\n\rATTACKERS_WIN\x10\x01\"\"\n\nUnknownIew\x12\x14\n\x0cunknown_fpax\x18\x01 \x01(\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0bprism.proto\x12+com.ankama.dofus.server.game.protocol.prism\x1a\x0c\x63ommon.proto\"\x1b\n\x19PrismTeleportationRequest\"\x14\n\x12PrismAttackRequest\"\x16\n\x14PrismExchangeRequest\"\x15\n\x13PrismRecycleRequest\"~\n\x0ePrismListEvent\x12l\n\x1bprism_localized_information\x18\x01 \x03(\x0b\x32G.com.ankama.dofus.server.game.protocol.common.PrismLocalizedInformation\"\x85\x01\n\x15PrismAddOrUpdateEvent\x12l\n\x1bprism_localized_information\x18\x01 \x01(\x0b\x32G.com.ankama.dofus.server.game.protocol.common.PrismLocalizedInformation\"\x80\x01\n\x10PrismRemoveEvent\x12l\n\x1bprism_localized_information\x18\x01 \x01(\x0b\x32G.com.ankama.dofus.server.game.protocol.common.PrismLocalizedInformation\"\x82\x01\n\x12PrismAttackedEvent\x12l\n\x1bprism_localized_information\x18\x01 \x01(\x0b\x32G.com.ankama.dofus.server.game.protocol.common.PrismLocalizedInformation\"\xb5\x02\n\x16PrismAttackResultEvent\x12l\n\x1bprism_localized_information\x18\x01 \x01(\x0b\x32G.com.ankama.dofus.server.game.protocol.common.PrismLocalizedInformation\x12r\n\x13prism_attack_result\x18\x02 \x01(\x0e\x32U.com.ankama.dofus.server.game.protocol.prism.PrismAttackResultEvent.PrismAttackResult\"9\n\x11PrismAttackResult\x12\x11\n\rDEFENDERS_WIN\x10\x00\x12\x11\n\rATTACKERS_WIN\x10\x01\"H\n\x1cUnknownFourHundredEightyFive\x12(\n unknown_eight_hundred_forty_four\x18\x01 \x01(\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -52,6 +52,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_PRISMATTACKRESULTEVENT']._serialized_end=1010
   _globals['_PRISMATTACKRESULTEVENT_PRISMATTACKRESULT']._serialized_start=953
   _globals['_PRISMATTACKRESULTEVENT_PRISMATTACKRESULT']._serialized_end=1010
-  _globals['_UNKNOWNIEW']._serialized_start=1012
-  _globals['_UNKNOWNIEW']._serialized_end=1046
+  _globals['_UNKNOWNFOURHUNDREDEIGHTYFIVE']._serialized_start=1012
+  _globals['_UNKNOWNFOURHUNDREDEIGHTYFIVE']._serialized_end=1084
 # @@protoc_insertion_point(module_scope)

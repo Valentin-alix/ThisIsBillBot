@@ -1,4 +1,3 @@
-
 from collections.abc import Callable
 from typing import cast
 from unittest.mock import MagicMock
@@ -8,7 +7,7 @@ from datas.protos.non_obf.game.common_pb2 import ObjectItem, ObjectItemInventory
 from dofus_unity_reader.game_constants.item import CategoryItemEnum, ItemEnum
 from pytest import MonkeyPatch
 
-from src.const import MIN_DATE
+from src.consts import MIN_DATE
 
 from src.core.behaviors.items.acquire_items_behavior import (
     AcquireItemsBehavior,
@@ -28,9 +27,7 @@ POILS_DE_KERUBIM_GID = int(ItemEnum.POILS_DE_KERUBIM)
 AMULETTE_AKWADALA_GID = int(ItemEnum.AMULETTE_AKWADALA)
 
 
-def _make_behavior(
-    game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
-) -> AcquireItemsBehavior:
+def _make_behavior(game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch) -> AcquireItemsBehavior:
     def fake_get_game_sub_info(login: str) -> GameSubscription:
         del login
         return GameSubscription(
@@ -111,9 +108,7 @@ def _request(
     quantity: int = 1,
     category: CategoryItemEnum = CategoryItemEnum.RESOURCES,
 ) -> ItemToAcquire:
-    return ItemToAcquire(
-        item_gid=item_gid, quantity=quantity, max_kamas=5_000, category=category
-    )
+    return ItemToAcquire(item_gid=item_gid, quantity=quantity, max_kamas=5_000, category=category)
 
 
 def test_nothing_moves_when_the_inventory_already_holds_everything(
@@ -139,12 +134,8 @@ def test_an_item_held_in_bank_is_withdrawn_and_never_bought(
 
     _start(behavior, [_request(GRAISSE_GELATINEUSE_GID, quantity=5)], finished)
 
-    load_items = cast(
-        list[LoadItemInfo], _child_kwarg(behavior.load_from_bank_behavior, "load_items_infos")
-    )
-    assert [(item.item_gid, item.remaining_quantity) for item in load_items] == [
-        (GRAISSE_GELATINEUSE_GID, 5)
-    ]
+    load_items = cast(list[LoadItemInfo], _child_kwarg(behavior.load_from_bank_behavior, "load_items_infos"))
+    assert [(item.item_gid, item.remaining_quantity) for item in load_items] == [(GRAISSE_GELATINEUSE_GID, 5)]
 
     _put_in_inventory(behavior, GRAISSE_GELATINEUSE_GID, 5)
     _child_callback(behavior.load_from_bank_behavior)(None, [])
@@ -153,7 +144,9 @@ def test_an_item_held_in_bank_is_withdrawn_and_never_bought(
     assert finished == [(None, {})]
 
 
-def test_the_bank_is_not_emptied_on_the_way_in(game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch) -> None:
+def test_the_bank_is_not_emptied_on_the_way_in(
+    game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
+) -> None:
     behavior = _make_behavior(game_state_ctx, monkeypatch)
     _put_in_bank(behavior, GRAISSE_GELATINEUSE_GID, 20)
 
@@ -162,7 +155,9 @@ def test_the_bank_is_not_emptied_on_the_way_in(game_state_ctx: GameStateContext,
     assert _child_kwarg(behavior.load_from_bank_behavior, "unload_first") is False
 
 
-def test_a_known_bank_without_the_item_spares_the_trip(game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch) -> None:
+def test_a_known_bank_without_the_item_spares_the_trip(
+    game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
+) -> None:
     behavior = _make_behavior(game_state_ctx, monkeypatch)
     _put_in_bank(behavior, POILS_DE_KERUBIM_GID, 3)
 
@@ -184,7 +179,9 @@ def test_an_unopened_bank_is_visited_rather_than_assumed_empty(
     _mock_of(behavior.sale_hotel_buy_behavior).start.assert_not_called()
 
 
-def test_only_what_the_bank_could_not_cover_is_bought(game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch) -> None:
+def test_only_what_the_bank_could_not_cover_is_bought(
+    game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
+) -> None:
     behavior = _make_behavior(game_state_ctx, monkeypatch)
     _put_in_bank(behavior, GRAISSE_GELATINEUSE_GID, 2)
 
@@ -225,7 +222,9 @@ def test_a_character_without_bank_access_goes_straight_to_the_sale_hotel(
     _mock_of(behavior.sale_hotel_buy_behavior).start.assert_called_once()
 
 
-def test_each_category_gets_its_own_sale_hotel_visit(game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch) -> None:
+def test_each_category_gets_its_own_sale_hotel_visit(
+    game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
+) -> None:
     behavior = _make_behavior(game_state_ctx, monkeypatch)
     behavior.game_state.inventory.bank_content_known = True
 
@@ -278,12 +277,8 @@ def test_an_upgrade_visits_the_bank_though_nothing_is_missing(
         ],
     )
 
-    load_items = cast(
-        list[LoadItemInfo], _child_kwarg(behavior.load_from_bank_behavior, "load_items_infos")
-    )
-    assert [(item.item_gid, item.remaining_quantity) for item in load_items] == [
-        (AMULETTE_AKWADALA_GID, 1)
-    ]
+    load_items = cast(list[LoadItemInfo], _child_kwarg(behavior.load_from_bank_behavior, "load_items_infos"))
+    assert [(item.item_gid, item.remaining_quantity) for item in load_items] == [(AMULETTE_AKWADALA_GID, 1)]
 
 
 def test_a_failed_upgrade_never_falls_back_to_buying(

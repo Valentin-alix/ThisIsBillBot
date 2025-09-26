@@ -1,80 +1,75 @@
 syntax = "proto3";
 
 import "common.proto";
-import "game_message.proto";
-import "report.proto";
 
 package com.ankama.dofus.server.game.protocol.world_event;
 
-message UnknownHeg {
-	int32 unknown_fllw = 1;
-	repeated int32 unknown_flly = 2;
-	string unknown_fllz = 3;
+message UnknownFiveHundredFive {}
+
+
+message UnknownFiveHundredSix {
 }
 
-message UnknownHeh {
-	int32 unknown_flmd = 1;
+message UnknownFiveHundredSeven {
 	int32 award_type = 2;
-	int32 unknown_flmh = 3;
+	int32 unknown_eight_hundred_sixty_seven = 3;
 	string player_name = 4;
 }
 
 message WorldEventOngoingListEvent {
-	repeated .com.ankama.dofus.server.game.protocol.world_event.UnknownHeg events = 1;
+	repeated .com.ankama.dofus.server.game.protocol.world_event.UnknownFiveHundredSix events = 1;
 }
 
 message WorldEventDetailEvent {
-	.com.ankama.dofus.server.game.protocol.world_event.WorldEventDetailEvent.UnknownHfa unknown_flpw = 1;
-	UnknownHfb unknown_flpx = 2;
-	message UnknownHfa {
+	.com.ankama.dofus.server.game.protocol.world_event.WorldEventDetailEvent.UnknownFiveHundredFifteen unknown_eight_hundred_eighty_two = 1;
+	message UnknownFiveHundredFifteen {
 		int32 winner_count = 1;
-		repeated .com.ankama.dofus.server.game.protocol.world_event.UnknownHfl players = 2;
-		UnknownFlpmValue unknown_flpm = 3;
-		.com.ankama.dofus.server.game.protocol.world_event.UnknownHfl unknown_flpn = 4;
-		enum UnknownFlpmValue {
-			UNKNOWN_FLPM_VALUE_UNSPECIFIED = 0;
+		repeated .com.ankama.dofus.server.game.protocol.world_event.UnknownFiveHundredEleven players = 2;
+		UnknownFiveHundredSixteen unknown_eight_hundred_eighty_one = 3;
+		enum UnknownFiveHundredSixteen {
+			UNKNOWN_FIVE_HUNDRED_SIXTEEN_UNSPECIFIED = 0;
 		}
 	}
-	message UnknownHfb {
+	message UnknownFiveHundredSeventeen {
 	}
 }
 
-message UnknownHfl {
+message UnknownFiveHundredEleven {
 	int32 rank = 1;
 	int32 score = 2;
-	.com.ankama.dofus.server.game.protocol.world_event.UnknownHfh unknown_flrc = 3;
-	.com.ankama.dofus.server.game.protocol.world_event.UnknownHeh player = 4;
-	.com.ankama.dofus.server.game.protocol.world_event.UnknownHfj unknown_flre = 5;
-	.com.ankama.dofus.server.game.protocol.world_event.UnknownHgb unknown_flrf = 6;
+	.com.ankama.dofus.server.game.protocol.world_event.UnknownFiveHundredEight unknown_eight_hundred_seventy_three = 3;
+	.com.ankama.dofus.server.game.protocol.world_event.UnknownFiveHundredSeven player = 4;
+	.com.ankama.dofus.server.game.protocol.world_event.UnknownFiveHundredTen unknown_eight_hundred_seventy_four = 5;
+	.com.ankama.dofus.server.game.protocol.world_event.UnknownFiveHundredFourteen unknown_eight_hundred_seventy_five = 6;
 }
 
-message UnknownHfh {
-	int32 unknown_flql = 1;
+message UnknownFiveHundredEight {
+	int32 unknown_eight_hundred_sixty_eight = 1;
 }
 
-message UnknownHfj {
-	.com.ankama.dofus.server.game.protocol.common.SocialEmblem unknown_flqv = 1;
-	string unknown_flqw = 2;
+message UnknownFiveHundredTen {
+	.com.ankama.dofus.server.game.protocol.common.SocialEmblem unknown_eight_hundred_seventy_one = 1;
+	string unknown_eight_hundred_seventy_two = 2;
 }
 
-message UnknownHgb {
-	string unknown_fltm = 1;
-	int32 unknown_fltn = 2;
-	.com.ankama.dofus.server.game.protocol.common.SocialEmblem unknown_flto = 3;
+message UnknownFiveHundredFourteen {
+	string unknown_eight_hundred_seventy_eight = 1;
+	int32 unknown_eight_hundred_seventy_nine = 2;
+	.com.ankama.dofus.server.game.protocol.common.SocialEmblem unknown_eight_hundred_eighty = 3;
 }
 
 message WorldEventOccurrencesEvent {
 	repeated .com.ankama.dofus.server.game.protocol.world_event.WorldEventOccurrence infos = 1;
 }
 
-message UnknownHfi {
-	string unknown_flqp = 1;
-	int32 unknown_flqq = 2;
+message UnknownFiveHundredNine {
+	string unknown_eight_hundred_sixty_nine = 1;
+	int32 unknown_eight_hundred_seventy = 2;
 }
 
-message UnknownHfo {
-	string unknown_flrm = 1;
-	string unknown_flrn = 2;
+message UnknownFiveHundredTwelve {
+	string unknown_eight_hundred_seventy_six = 1;
+	string unknown_eight_hundred_seventy_seven = 2;
 }
 
 message WorldEventDetailRequest {
@@ -91,7 +86,7 @@ message WorldEventOccurrencesRequest {
 message WorldEventSelfOccurrencesRequest {
 }
 
-message UnknownHfr {
+message UnknownFiveHundredThirteen {
 }
 
 message WorldEventOccurrence {

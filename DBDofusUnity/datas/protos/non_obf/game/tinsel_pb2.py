@@ -24,33 +24,31 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0ctinsel.proto\x12,com.ankama.dofus.server.game.protocol.tinsel\"\x1b\n\x19TitlesAndOrnamentsRequest\"<\n\x17TitlesAndOrnamentsEvent\x12\x0e\n\x06titles\x18\x01 \x03(\x05\x12\x11\n\tornaments\x18\x02 \x03(\x05\"$\n\x10TitleGainedEvent\x12\x10\n\x08title_id\x18\x01 \x01(\x05\"\"\n\x0eTitleLostEvent\x12\x10\n\x08title_id\x18\x01 \x01(\x05\"*\n\x13OrnamentGainedEvent\x12\x13\n\x0bornament_id\x18\x01 \x01(\x05\"(\n\x11OrnamentLostEvent\x12\x13\n\x0bornament_id\x18\x01 \x01(\x05\"&\n\x12TitleSelectedEvent\x12\x10\n\x08title_id\x18\x01 \x01(\x05\"h\n\x15TitleSelectErrorEvent\x12O\n\x06reason\x18\x01 \x01(\x0e\x32?.com.ankama.dofus.server.game.protocol.tinsel.TinselSelectError\",\n\x15OrnamentSelectedEvent\x12\x13\n\x0bornament_id\x18\x01 \x01(\x05\"k\n\x18OrnamentSelectErrorEvent\x12O\n\x06reason\x18\x01 \x01(\x0e\x32?.com.ankama.dofus.server.game.protocol.tinsel.TinselSelectError*<\n\x11TinselSelectError\x12\r\n\tUNDEFINED\x10\x00\x12\x0b\n\x07INVALID\x10\x01\x12\x0b\n\x07\x41LREADY\x10\x02\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0ctinsel.proto\x12,com.ankama.dofus.server.game.protocol.tinsel\"<\n\x17TitlesAndOrnamentsEvent\x12\x0e\n\x06titles\x18\x01 \x03(\x05\x12\x11\n\tornaments\x18\x02 \x03(\x05\"$\n\x10TitleGainedEvent\x12\x10\n\x08title_id\x18\x01 \x01(\x05\"\"\n\x0eTitleLostEvent\x12\x10\n\x08title_id\x18\x01 \x01(\x05\"*\n\x13OrnamentGainedEvent\x12\x13\n\x0bornament_id\x18\x01 \x01(\x05\"(\n\x11OrnamentLostEvent\x12\x13\n\x0bornament_id\x18\x01 \x01(\x05\"&\n\x12TitleSelectedEvent\x12\x10\n\x08title_id\x18\x01 \x01(\x05\"h\n\x15TitleSelectErrorEvent\x12O\n\x06reason\x18\x01 \x01(\x0e\x32?.com.ankama.dofus.server.game.protocol.tinsel.TinselSelectError\",\n\x15OrnamentSelectedEvent\x12\x13\n\x0bornament_id\x18\x01 \x01(\x05\"k\n\x18OrnamentSelectErrorEvent\x12O\n\x06reason\x18\x01 \x01(\x0e\x32?.com.ankama.dofus.server.game.protocol.tinsel.TinselSelectError*<\n\x11TinselSelectError\x12\r\n\tUNDEFINED\x10\x00\x12\x0b\n\x07INVALID\x10\x01\x12\x0b\n\x07\x41LREADY\x10\x02\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'tinsel_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_TINSELSELECTERROR']._serialized_start=614
-  _globals['_TINSELSELECTERROR']._serialized_end=674
-  _globals['_TITLESANDORNAMENTSREQUEST']._serialized_start=62
-  _globals['_TITLESANDORNAMENTSREQUEST']._serialized_end=89
-  _globals['_TITLESANDORNAMENTSEVENT']._serialized_start=91
-  _globals['_TITLESANDORNAMENTSEVENT']._serialized_end=151
-  _globals['_TITLEGAINEDEVENT']._serialized_start=153
-  _globals['_TITLEGAINEDEVENT']._serialized_end=189
-  _globals['_TITLELOSTEVENT']._serialized_start=191
-  _globals['_TITLELOSTEVENT']._serialized_end=225
-  _globals['_ORNAMENTGAINEDEVENT']._serialized_start=227
-  _globals['_ORNAMENTGAINEDEVENT']._serialized_end=269
-  _globals['_ORNAMENTLOSTEVENT']._serialized_start=271
-  _globals['_ORNAMENTLOSTEVENT']._serialized_end=311
-  _globals['_TITLESELECTEDEVENT']._serialized_start=313
-  _globals['_TITLESELECTEDEVENT']._serialized_end=351
-  _globals['_TITLESELECTERROREVENT']._serialized_start=353
-  _globals['_TITLESELECTERROREVENT']._serialized_end=457
-  _globals['_ORNAMENTSELECTEDEVENT']._serialized_start=459
-  _globals['_ORNAMENTSELECTEDEVENT']._serialized_end=503
-  _globals['_ORNAMENTSELECTERROREVENT']._serialized_start=505
-  _globals['_ORNAMENTSELECTERROREVENT']._serialized_end=612
+  _globals['_TINSELSELECTERROR']._serialized_start=585
+  _globals['_TINSELSELECTERROR']._serialized_end=645
+  _globals['_TITLESANDORNAMENTSEVENT']._serialized_start=62
+  _globals['_TITLESANDORNAMENTSEVENT']._serialized_end=122
+  _globals['_TITLEGAINEDEVENT']._serialized_start=124
+  _globals['_TITLEGAINEDEVENT']._serialized_end=160
+  _globals['_TITLELOSTEVENT']._serialized_start=162
+  _globals['_TITLELOSTEVENT']._serialized_end=196
+  _globals['_ORNAMENTGAINEDEVENT']._serialized_start=198
+  _globals['_ORNAMENTGAINEDEVENT']._serialized_end=240
+  _globals['_ORNAMENTLOSTEVENT']._serialized_start=242
+  _globals['_ORNAMENTLOSTEVENT']._serialized_end=282
+  _globals['_TITLESELECTEDEVENT']._serialized_start=284
+  _globals['_TITLESELECTEDEVENT']._serialized_end=322
+  _globals['_TITLESELECTERROREVENT']._serialized_start=324
+  _globals['_TITLESELECTERROREVENT']._serialized_end=428
+  _globals['_ORNAMENTSELECTEDEVENT']._serialized_start=430
+  _globals['_ORNAMENTSELECTEDEVENT']._serialized_end=474
+  _globals['_ORNAMENTSELECTERROREVENT']._serialized_start=476
+  _globals['_ORNAMENTSELECTERROREVENT']._serialized_end=583
 # @@protoc_insertion_point(module_scope)

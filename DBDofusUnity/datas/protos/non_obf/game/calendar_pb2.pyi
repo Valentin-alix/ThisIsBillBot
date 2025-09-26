@@ -22,16 +22,16 @@ class CalendarEvent(_message.Message):
     def __init__(self, krosmic_events: _Optional[_Iterable[_Union[CalendarOccurrence, _Mapping]]] = ..., festivity_events: _Optional[_Iterable[_Union[CalendarEntry, _Mapping]]] = ...) -> None: ...
 
 class CalendarOccurrence(_message.Message):
-    __slots__ = ("unknown_gepg", "description_id", "end_date", "start_date")
-    UNKNOWN_GEPG_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("event_uuid", "description_id", "end_date", "start_date")
+    EVENT_UUID_FIELD_NUMBER: _ClassVar[int]
     DESCRIPTION_ID_FIELD_NUMBER: _ClassVar[int]
     END_DATE_FIELD_NUMBER: _ClassVar[int]
     START_DATE_FIELD_NUMBER: _ClassVar[int]
-    unknown_gepg: str
+    event_uuid: str
     description_id: int
     end_date: str
     start_date: str
-    def __init__(self, unknown_gepg: _Optional[str] = ..., description_id: _Optional[int] = ..., end_date: _Optional[str] = ..., start_date: _Optional[str] = ...) -> None: ...
+    def __init__(self, event_uuid: _Optional[str] = ..., description_id: _Optional[int] = ..., end_date: _Optional[str] = ..., start_date: _Optional[str] = ...) -> None: ...
 
 class CalendarEntry(_message.Message):
     __slots__ = ("start_date", "end_date", "description_id")

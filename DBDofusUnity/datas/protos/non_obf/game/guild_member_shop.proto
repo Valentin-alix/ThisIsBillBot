@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package com.ankama.dofus.server.game.protocol.guild.member.shop;
+
+message UnknownTwoHundredFortySix {
+	message UnknownTwoHundredFortyEight {
+		int32 unknown_four_hundred_eighty_two = 1;
+		string unknown_four_hundred_eighty_three = 2;
+	}
+	message UnknownTwoHundredFortySeven {
+	}
+}
+
+message UnknownTwoHundredFortyNine {
+	map<int32, int32> unknown_four_hundred_eighty_four = 1;
+	int32 unknown_four_hundred_eighty_five = 2;
+}

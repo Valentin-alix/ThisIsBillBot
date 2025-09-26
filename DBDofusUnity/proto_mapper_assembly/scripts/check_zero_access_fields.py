@@ -1,25 +1,33 @@
+"""Report protobuf fields the IDA trace never shows being accessed.
+
+``--obf`` / ``--non-obf`` scan a whole build for fields with zero recorded access, optionally
+explaining each one by tracer evidence bucket. ``--unknown-fields`` narrows the same evidence to
+the declared ``unknown_*`` fields, crossing it with the runtime captures so a field is only a
+``dead_candidate`` when its obfuscated message was captured at least once while neither IDA nor
+the runtime shows the field in use.
+"""
+
 from __future__ import annotations
 
 import argparse
-import sys
-from collections import defaultdict
-from collections.abc import Mapping
+from collections import Counter, defaultdict
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
 from consts import (
+    GAME_MAPPINGS_DETAILED_JSON_FILE,
     NON_OBF_PROTO_ACCESSES_FILE,
     NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
     NON_OBFUSCATED_DATA_DIR,
     OBF_PROTO_ACCESSES_FILE,
     OBF_PROTOCOL_GAME_DUMP_CS_FILE,
     OBFUSCATED_DATA_DIR,
+    PROTOS_ROOT,
 )
+from proto_mapper_assembly.controllers.game_mappings import load_game_mappings_document
+from proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
 from proto_mapper_assembly.interfaces.assembly_access import (
     FunctionAccessInfo,
     ProtoAccessesInfo,
@@ -29,6 +37,7 @@ from proto_mapper_assembly.interfaces.assembly_access import (
 from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
 from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
 from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry, GameMappingsDocument
 from proto_mapper_assembly.interfaces.il2cpp_json import Il2CppJson
 from proto_mapper_assembly.parsers.csharp_signature_utils import (
     CORE_METHOD_DECLARATION_RE as _CORE_METHOD_DECLARATION_RE,
@@ -41,6 +50,9 @@ from proto_mapper_assembly.parsers.proto_accesses_parser import (
     parse_access_trace_document,
     parse_proto_accesses,
 )
+from proto_mapper_assembly.parsers.protobuf_dump_cs import build_dump_cs_messages_from_pb2
+from proto_mapper_assembly.runtime.runtime_field_validation import collect_runtime_alive_field_names
+from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.type_lookup import build_long_name_by_unique_alias
 from proto_mapper_assembly.scripts.ida_tracer_lib.signatures.parser import (
     extract_proto_parameter_seeds,
@@ -97,6 +109,10 @@ class _CoreMethodMetadata:
 def main() -> None:
     args = _build_argument_parser().parse_args()
 
+    if args.unknown_fields:
+        print(format_unknown_field_audit(build_unknown_field_audit()))
+        return
+
     if args.obf:
         dump_cs_path = str(OBF_PROTOCOL_GAME_DUMP_CS_FILE)
         proto_accesses_path = str(OBF_PROTO_ACCESSES_FILE)
@@ -135,10 +151,16 @@ def _build_argument_parser() -> argparse.ArgumentParser:
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--obf", action="store_true", help="Check obfuscated build")
     group.add_argument("--non-obf", action="store_true", dest="non_obf", help="Check non-obfuscated build")
+    group.add_argument(
+        "--unknown-fields",
+        action="store_true",
+        dest="unknown_fields",
+        help="Audit declared unknown_* fields against the obfuscated trace and the runtime captures.",
+    )
     parser.add_argument(
         "--explain",
         action="store_true",
-        help="Group zero-access fields by tracer evidence bucket.",
+        help="Group zero-access fields by tracer evidence bucket. Ignored with --unknown-fields.",
     )
     return parser
 
@@ -493,6 +515,244 @@ def format_explain_report(explanations: list[ZeroAccessExplanation]) -> str:
     lines.append(f"\n=== explained {total_fields} zero-access fields across {len(explanations)} messages ===")
 
     return "\n".join(lines)
+
+
+type UnknownFieldAuditStatus = Literal["active", "dead_candidate", "inconclusive"]
+type UnknownFieldAuditReason = Literal[
+    "ida_access",
+    "runtime_non_default",
+    "no_evidence",
+    "no_runtime_capture",
+    "no_root_mapping",
+    "no_unique_field_mapping",
+    "missing_obf_message",
+    "missing_obf_field",
+]
+
+
+@dataclass(frozen=True, slots=True)
+class UnknownFieldAuditRecord:
+    non_obf_message: str
+    non_obf_field: str
+    status: UnknownFieldAuditStatus
+    reason: UnknownFieldAuditReason
+    obf_message: str | None = None
+    obf_field: str | None = None
+    capture_count: int | None = None
+    has_ida_access: bool | None = None
+    has_runtime_non_default_value: bool | None = None
+
+
+def audit_unknown_fields(
+    *,
+    non_obf_messages_by_cls: Mapping[str, DumpCSMessage],
+    obf_messages_by_cls: Mapping[str, DumpCSMessage],
+    game_mappings: GameMappingsDocument,
+    accessed_offsets_by_obf_message: Mapping[str, set[int]],
+    runtime_instances_by_obf_message: Mapping[str, Sequence[Mapping[str, object]]],
+) -> list[UnknownFieldAuditRecord]:
+    """Classify every declared ``unknown_*`` non-obfuscated protobuf field."""
+    records: list[UnknownFieldAuditRecord] = []
+    for non_obf_message in non_obf_messages_by_cls.values():
+        non_obf_namespace = build_filtered_message_namespace(
+            is_obf=False,
+            message=non_obf_message,
+            messages_by_cls=non_obf_messages_by_cls,
+        )
+        mapping = game_mappings.root.get(non_obf_namespace)
+        for non_obf_field in non_obf_message.fields:
+            if not non_obf_field.is_declared_proto_shape_field:
+                continue
+            if not non_obf_field.clean_field_name.startswith("unknown_"):
+                continue
+            records.append(
+                _audit_unknown_field(
+                    non_obf_namespace=non_obf_namespace,
+                    non_obf_field_name=non_obf_field.clean_field_name,
+                    mapping=mapping,
+                    obf_messages_by_cls=obf_messages_by_cls,
+                    accessed_offsets_by_obf_message=accessed_offsets_by_obf_message,
+                    runtime_instances_by_obf_message=runtime_instances_by_obf_message,
+                )
+            )
+    return sorted(records, key=lambda record: (record.status, record.non_obf_message, record.non_obf_field))
+
+
+def _audit_unknown_field(
+    *,
+    non_obf_namespace: str,
+    non_obf_field_name: str,
+    mapping: GameMappingEntry | None,
+    obf_messages_by_cls: Mapping[str, DumpCSMessage],
+    accessed_offsets_by_obf_message: Mapping[str, set[int]],
+    runtime_instances_by_obf_message: Mapping[str, Sequence[Mapping[str, object]]],
+) -> UnknownFieldAuditRecord:
+    if mapping is None:
+        return UnknownFieldAuditRecord(
+            non_obf_message=non_obf_namespace,
+            non_obf_field=non_obf_field_name,
+            status="inconclusive",
+            reason="no_root_mapping",
+        )
+
+    obf_field_names = [
+        obf_field_name
+        for obf_field_name, mapped_non_obf_field_name in mapping.field_mapping.items()
+        if mapped_non_obf_field_name == non_obf_field_name
+    ]
+    if len(obf_field_names) != 1:
+        return UnknownFieldAuditRecord(
+            non_obf_message=non_obf_namespace,
+            non_obf_field=non_obf_field_name,
+            status="inconclusive",
+            reason="no_unique_field_mapping",
+            obf_message=mapping.full_obf_msg_namespace,
+        )
+
+    obf_message = obf_messages_by_cls.get(mapping.full_obf_msg_namespace)
+    if obf_message is None:
+        return UnknownFieldAuditRecord(
+            non_obf_message=non_obf_namespace,
+            non_obf_field=non_obf_field_name,
+            status="inconclusive",
+            reason="missing_obf_message",
+            obf_message=mapping.full_obf_msg_namespace,
+            obf_field=obf_field_names[0],
+        )
+
+    obf_field_name = obf_field_names[0]
+    obf_field = next(
+        (field for field in obf_message.fields if field.clean_field_name == obf_field_name),
+        None,
+    )
+    if obf_field is None:
+        return UnknownFieldAuditRecord(
+            non_obf_message=non_obf_namespace,
+            non_obf_field=non_obf_field_name,
+            status="inconclusive",
+            reason="missing_obf_field",
+            obf_message=obf_message.composed_name,
+            obf_field=obf_field_name,
+        )
+
+    runtime_instances = runtime_instances_by_obf_message.get(obf_message.composed_name, ())
+    has_runtime_non_default_value = obf_field_name in collect_runtime_alive_field_names(runtime_instances)
+    has_ida_access = obf_field.memory_offset in accessed_offsets_by_obf_message.get(
+        obf_message.composed_name, set()
+    )
+    if has_ida_access:
+        return UnknownFieldAuditRecord(
+            non_obf_message=non_obf_namespace,
+            non_obf_field=non_obf_field_name,
+            status="active",
+            reason="ida_access",
+            obf_message=obf_message.composed_name,
+            obf_field=obf_field_name,
+            capture_count=len(runtime_instances),
+            has_ida_access=True,
+            has_runtime_non_default_value=has_runtime_non_default_value,
+        )
+    if has_runtime_non_default_value:
+        return UnknownFieldAuditRecord(
+            non_obf_message=non_obf_namespace,
+            non_obf_field=non_obf_field_name,
+            status="active",
+            reason="runtime_non_default",
+            obf_message=obf_message.composed_name,
+            obf_field=obf_field_name,
+            capture_count=len(runtime_instances),
+            has_ida_access=False,
+            has_runtime_non_default_value=True,
+        )
+    if not runtime_instances:
+        return UnknownFieldAuditRecord(
+            non_obf_message=non_obf_namespace,
+            non_obf_field=non_obf_field_name,
+            status="inconclusive",
+            reason="no_runtime_capture",
+            obf_message=obf_message.composed_name,
+            obf_field=obf_field_name,
+            capture_count=0,
+            has_ida_access=False,
+            has_runtime_non_default_value=False,
+        )
+    return UnknownFieldAuditRecord(
+        non_obf_message=non_obf_namespace,
+        non_obf_field=non_obf_field_name,
+        status="dead_candidate",
+        reason="no_evidence",
+        obf_message=obf_message.composed_name,
+        obf_field=obf_field_name,
+        capture_count=len(runtime_instances),
+        has_ida_access=False,
+        has_runtime_non_default_value=False,
+    )
+
+
+def format_unknown_field_audit(records: Sequence[UnknownFieldAuditRecord]) -> str:
+    """Format a stable, reviewable report for manual schema decisions."""
+    counts_by_status = Counter(record.status for record in records)
+    counts_by_reason = Counter(record.reason for record in records)
+    lines = [
+        "=== Unknown field audit ===",
+        f"Total declared unknown fields: {len(records)}",
+        *(f"{status}: {counts_by_status[status]}" for status in sorted(counts_by_status)),
+        "",
+        "Reasons:",
+        *(f"{reason}: {counts_by_reason[reason]}" for reason in sorted(counts_by_reason)),
+    ]
+    by_status: dict[UnknownFieldAuditStatus, list[UnknownFieldAuditRecord]] = defaultdict(list)
+    for record in records:
+        by_status[record.status].append(record)
+    for status in ("dead_candidate", "inconclusive", "active"):
+        lines.append(f"\n[{status}]")
+        for record in by_status[status]:
+            lines.append(_format_record(record))
+    return "\n".join(lines)
+
+
+def _format_record(record: UnknownFieldAuditRecord) -> str:
+    target = record.non_obf_message + "." + record.non_obf_field
+    source = "unresolved"
+    if record.obf_message is not None and record.obf_field is not None:
+        source = record.obf_message + "." + record.obf_field
+    evidence = f"captures={record.capture_count} ida={record.has_ida_access} runtime={record.has_runtime_non_default_value}"
+    return f"- {target} <- {source} [{record.reason}; {evidence}]"
+
+
+def build_unknown_field_audit() -> list[UnknownFieldAuditRecord]:
+    """Collect the unknown-field evidence from the obfuscated build and the runtime captures."""
+    non_obf_messages_by_cls = build_dump_cs_messages_from_pb2(PROTOS_ROOT / "non_obf")
+    obf_messages = parse_messages(str(OBF_PROTOCOL_GAME_DUMP_CS_FILE))
+    obf_messages_by_cls = {message.composed_name: message for message in obf_messages}
+    access_trace = parse_access_trace_document(str(OBF_PROTO_ACCESSES_FILE))
+    proto_accesses = parse_proto_accesses(str(OBF_PROTO_ACCESSES_FILE))
+    property_offsets = _build_property_offset_by_cls(obf_messages)
+    proto_accessed_offsets = _collect_proto_accessed_offsets(proto_accesses, property_offsets)
+    enum_accessed_offsets = _collect_enum_accessed_offsets(
+        obf_messages,
+        access_trace.enum_signatures_by_name,
+    )
+    accessed_offsets_by_obf_message = {
+        obf_message_name: proto_accessed_offsets.get(obf_message_name, set())
+        | enum_accessed_offsets.get(obf_message_name, set())
+        for obf_message_name in obf_messages_by_cls
+    }
+    runtime_store = RuntimeDataStore()
+    runtime_instances_by_obf_message = {
+        obf_message_name: runtime_store.get_normalized_content_for_obf_message(
+            message=obf_message,
+            obf_messages_by_cls=obf_messages_by_cls,
+        )
+        for obf_message_name, obf_message in obf_messages_by_cls.items()
+    }
+    return audit_unknown_fields(
+        non_obf_messages_by_cls=non_obf_messages_by_cls,
+        obf_messages_by_cls=obf_messages_by_cls,
+        game_mappings=load_game_mappings_document(GAME_MAPPINGS_DETAILED_JSON_FILE),
+        accessed_offsets_by_obf_message=accessed_offsets_by_obf_message,
+        runtime_instances_by_obf_message=runtime_instances_by_obf_message,
+    )
 
 
 if __name__ == "__main__":

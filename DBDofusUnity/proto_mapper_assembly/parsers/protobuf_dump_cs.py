@@ -6,7 +6,6 @@ from collections.abc import Iterable, Iterator
 from pathlib import Path
 
 from google.protobuf.descriptor import Descriptor, EnumDescriptor, FieldDescriptor, OneofDescriptor
-
 from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
 from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
 from proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type
@@ -42,7 +41,7 @@ def build_dump_cs_messages_from_pb2(protos_dir: Path) -> dict[str, DumpCSMessage
 
 def _build_pb2_index(protos_dir: Path) -> dict[str, Descriptor]:
     index: dict[str, Descriptor] = {}
-    for subdir in sorted(path for path in protos_dir.iterdir() if path.is_dir()):
+    for subdir in _iter_pb2_directories(protos_dir):
         subdir_str = str(subdir)
         if subdir_str not in sys.path:
             sys.path.insert(0, subdir_str)
@@ -51,6 +50,12 @@ def _build_pb2_index(protos_dir: Path) -> dict[str, Descriptor]:
             for descriptor in _walk_message_descriptors(module.DESCRIPTOR):
                 index[_composed_name(descriptor)] = descriptor
     return index
+
+
+def _iter_pb2_directories(protos_dir: Path) -> list[Path]:
+    if any(protos_dir.glob("*_pb2.py")):
+        return [protos_dir]
+    return sorted(path for path in protos_dir.iterdir() if path.is_dir())
 
 
 def _walk_message_descriptors(file_descriptor: object) -> Iterator[Descriptor]:

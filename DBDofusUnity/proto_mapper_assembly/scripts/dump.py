@@ -124,6 +124,7 @@ def update_protos(*, use_obf: bool, obf_dir: Path | None = None, force: bool = F
         if use_obf:
             _clear_mapping_inputs_before_pipeline()
             _record_game_assembly_mtime(target)
+
             run_pipeline(do_load_pinned_pair=True)
     else:
         print(f"{target.game_assembly} unchanged since last dump; skipping mapping-input reset")
@@ -268,6 +269,7 @@ def run_protodec(assembly_path: Path, proto_output: Path) -> None:
 
 def gen_python_from_protoc(proto_input: Path, output_folder: Path) -> None:
     if proto_input.is_dir():
+        _remove_orphaned_generated_bindings(proto_input)
         for proto_path in proto_input.iterdir():
             if proto_path.suffix != ".proto":
                 continue
@@ -295,6 +297,14 @@ def gen_python_from_protoc(proto_input: Path, output_folder: Path) -> None:
         ],
         check=True,
     )
+
+
+def _remove_orphaned_generated_bindings(proto_directory: Path) -> None:
+    source_stems = {proto_path.stem for proto_path in proto_directory.glob("*.proto")}
+    for generated_path in proto_directory.glob("*_pb2.*"):
+        generated_stem = generated_path.name.removesuffix("_pb2.py").removesuffix("_pb2.pyi")
+        if generated_stem not in source_stems:
+            generated_path.unlink()
 
 
 if __name__ == "__main__":

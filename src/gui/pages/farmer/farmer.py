@@ -12,7 +12,7 @@ from qfluentwidgets import (
     TransparentToolButton,
 )
 
-from src import const
+from src import consts
 from src.core.behaviors.behavior_factory import USABLE_BEHAVIORS
 from src.core.bot.bot import Bot
 from src.gui.pages.farmer.bank_tab import BankTab
@@ -65,7 +65,7 @@ class FarmerWidget(QWidget):
 
         self.init_top_content()
 
-        if const.DEBUG:
+        if consts.DEBUG:
             self.init_content()
             self._create_debug_tabs()
 
@@ -124,18 +124,6 @@ class FarmerWidget(QWidget):
         self._v_layout.addWidget(self.pivot)
         self.stacked_widget = QStackedWidget(self)
         self._v_layout.addWidget(self.stacked_widget)
-
-        # stats_tab = StatsTab(
-        #     self.bot.game_state.player.character_name,
-        #     self.bot.game_state.player.game_info_signals,
-        # )
-        # stacked_widget.addWidget(stats_tab)
-        # stats_route = f"{self.objectName()}_stats_tab"
-        # pivot.addItem(
-        #     routeKey=stats_route,
-        #     text="Statistiques",
-        #     onClick=lambda: stacked_widget.setCurrentWidget(stats_tab),
-        # )
 
     @pyqtSlot()
     def on_type_action_changed(self) -> None:

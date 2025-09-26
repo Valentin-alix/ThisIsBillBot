@@ -44,6 +44,6 @@ message PrismAttackResultEvent {
 
 
 
-message UnknownIew {
-	int32 unknown_fpax = 1;
+message UnknownFourHundredEightyFive {
+	int32 unknown_eight_hundred_forty_four = 1;
 }

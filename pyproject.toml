@@ -86,22 +86,27 @@ check_type = "pyright"
 lint = "ruff check . --fix"
 format = "ruff format ."
 check = ["lint", "check_type"]
-test = "coverage run --source=src -m pytest tests DBDofusUnity/tests AnkamaLauncherEmulatorPremium/tests"
+test = "coverage run --source=src -m pytest tests"
+test_verbose = "pytest tests -s"
 verify = ["lint", "check_type", "test"]
 
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "DBDofusUnity/tests", "AnkamaLauncherEmulatorPremium/tests"]
-pythonpath = ["."]
+testpaths = ["tests"]
+pythonpath = [".", "AnkamaLauncherEmulatorPremium", "DBDofusUnity"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
-    "-s",
     "-ra",
     "--strict-markers",
     "--strict-config",
-    "--import-mode=importlib"
+    "--import-mode=importlib",
+    "-p", "no:cov",
+    "-p", "no:langsmith_plugin"
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:pulp",
 ]
 
 [tool.ruff]

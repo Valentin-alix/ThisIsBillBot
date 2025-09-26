@@ -21,7 +21,7 @@ from dofus_unity_reader.game_constants.server import ServerEnum
 from google.protobuf.message import Message
 from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
-from src.const import DEBUG
+from src.consts import DEBUG
 from src.core.bot.bot import Bot
 from src.protocol.protocol import decode_varint_size, encode_msg
 from src.protocol.protocol_connection import (

@@ -10,25 +10,24 @@ from proto_mapper_assembly.interfaces.signature_overrides import SignatureOverri
 
 def load_excluded_non_obf(path: Path) -> ExcludedNonObfConfig:
     if not path.exists():
-        return ExcludedNonObfConfig()
+        return ExcludedNonObfConfig(root=[])
     return ExcludedNonObfConfig.model_validate_json(path.read_text(encoding="utf-8"))
 
 
 def split_excluded_non_obf_messages(
     *,
     messages: Sequence[DumpCSMessage],
-    excluded_namespaces: frozenset[str],
+    excluded_message_names: frozenset[str],
 ) -> tuple[list[DumpCSMessage], frozenset[str]]:
     """Split the messages into the ones to keep and the composed names that were dropped.
 
-    A nested message carries the same namespace as its owner, so matching on the namespace alone
-    takes the whole tree. The dropped names are needed to purge the stored signature overrides:
+    The dropped names are needed to purge the stored signature overrides:
     an override left behind would be injected back as a synthetic message and undo the exclusion.
     """
     kept: list[DumpCSMessage] = []
     dropped: set[str] = set()
     for message in messages:
-        if (message.namespace or "").lower() in excluded_namespaces:
+        if message.composed_name in excluded_message_names:
             dropped.add(message.composed_name)
         else:
             kept.append(message)
@@ -39,16 +38,6 @@ def drop_excluded_signature_overrides(
     *,
     overrides: dict[str, SignatureOverrideEntry],
     dropped_message_names: frozenset[str],
-    excluded_namespaces: frozenset[str],
 ) -> dict[str, SignatureOverrideEntry]:
-    """Drop the overrides of excluded messages, by composed name or by package prefix.
-
-    Both checks are needed: nested overrides are keyed by `Owner.Types.Child` with no namespace, so
-    only the dropped names catch them, while a package-qualified key survives the dump.cs going away.
-    """
-    prefixes = tuple(f"{namespace}." for namespace in excluded_namespaces)
-    return {
-        name: entry
-        for name, entry in overrides.items()
-        if name not in dropped_message_names and not name.lower().startswith(prefixes)
-    }
+    """Drop overrides whose exact composed class is excluded."""
+    return {name: entry for name, entry in overrides.items() if name not in dropped_message_names}

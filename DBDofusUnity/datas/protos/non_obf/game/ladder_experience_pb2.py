@@ -22,38 +22,28 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-import game_message_pb2 as game__message__pb2
-import report_pb2 as report__pb2
 import ladder_pb2 as ladder__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17ladder_experience.proto\x12\x37\x63om.ankama.dofus.server.game.protocol.ladder.experience\x1a\x12game_message.proto\x1a\x0creport.proto\x1a\x0cladder.proto\"F\n\x1b\x45xperienceLadderPageRequest\x12\x14\n\x0cunknown_fqqg\x18\x01 \x03(\x08\x12\x11\n\tserver_id\x18\x02 \x01(\x05\"4\n\x1f\x45xperienceLadderSelfRankRequest\x12\x11\n\tserver_id\x18\x01 \x01(\x05\"\x8b\x01\n\x15\x45xperienceLadderEntry\x12\x12\n\nexperience\x18\x01 \x01(\x03\x12P\n\tcharacter\x18\x02 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.ladder.LadderCharacter\x12\x0c\n\x04rank\x18\x03 \x01(\x03\"|\n\x19\x45xperienceLadderPageEvent\x12_\n\x07\x65ntries\x18\x01 \x03(\x0b\x32N.com.ankama.dofus.server.game.protocol.ladder.experience.ExperienceLadderEntry\"8\n\nUnknownIqd\x12\x14\n\x0cunknown_fqrc\x18\x01 \x01(\t\x12\x14\n\x0cunknown_fqrd\x18\x02 \x01(\x05\"m\n\nUnknownIqg\x12_\n\x07\x65ntries\x18\x01 \x03(\x0b\x32N.com.ankama.dofus.server.game.protocol.ladder.experience.ExperienceLadderEntry\"~\n\x1d\x45xperienceLadderSelfRankEvent\x12]\n\x05\x65ntry\x18\x01 \x01(\x0b\x32N.com.ankama.dofus.server.game.protocol.ladder.experience.ExperienceLadderEntry\"\xcc\x04\n\x17GuildTokenConfiguration\x12{\n\x11guild_token_items\x18\x01 \x01(\x0b\x32`.com.ankama.dofus.server.game.protocol.ladder.experience.GuildTokenConfiguration.GuildTokenItems\x12%\n\x1drefresh_interval_milliseconds\x18\x02 \x01(\x03\x12y\n\nthresholds\x18\x03 \x01(\x0b\x32\x65.com.ankama.dofus.server.game.protocol.ladder.experience.GuildTokenConfiguration.GuildTokenThresholds\x1an\n\x14GuildTokenThresholds\x12\x14\n\x0cunknown_fytt\x18\x01 \x01(\x03\x12\x14\n\x0cunknown_fytu\x18\x02 \x01(\x05\x12\x14\n\x0cunknown_fytv\x18\x03 \x01(\x05\x12\x14\n\x0cunknown_fytw\x18\x04 \x01(\x05\x1a\xa1\x01\n\x0fGuildTokenItems\x12\x19\n\x11guildaton_item_id\x18\x01 \x01(\x05\x12\x14\n\x0cunknown_fyul\x18\x02 \x01(\x05\x12\x14\n\x0cunknown_fyum\x18\x03 \x01(\x05\x12\x14\n\x0cunknown_fyun\x18\x04 \x01(\x05\x12\x1b\n\x13guild_token_item_id\x18\x05 \x01(\x05\x12\x14\n\x0cunknown_fyup\x18\x06 \x01(\x05\"\x87\x01\n\x1cGuildTokenConfigurationEvent\x12g\n\rconfiguration\x18\x01 \x01(\x0b\x32P.com.ankama.dofus.server.game.protocol.ladder.experience.GuildTokenConfigurationb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17ladder_experience.proto\x12\x37\x63om.ankama.dofus.server.game.protocol.ladder.experience\x1a\x0cladder.proto\"Y\n\x1b\x45xperienceLadderPageRequest\x12\'\n\x1funknown_six_hundred_seventy_six\x18\x01 \x03(\x08\x12\x11\n\tserver_id\x18\x02 \x01(\x05\"4\n\x1f\x45xperienceLadderSelfRankRequest\x12\x11\n\tserver_id\x18\x01 \x01(\x05\"\x8b\x01\n\x15\x45xperienceLadderEntry\x12\x12\n\nexperience\x18\x01 \x01(\x03\x12P\n\tcharacter\x18\x02 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.ladder.LadderCharacter\x12\x0c\n\x04rank\x18\x03 \x01(\x03\"|\n\x19\x45xperienceLadderPageEvent\x12_\n\x07\x65ntries\x18\x01 \x03(\x0b\x32N.com.ankama.dofus.server.game.protocol.ladder.experience.ExperienceLadderEntry\"u\n\x1dUnknownThreeHundredSixtySeven\x12)\n!unknown_six_hundred_seventy_seven\x18\x01 \x01(\t\x12)\n!unknown_six_hundred_seventy_eight\x18\x02 \x01(\x05\"\x80\x01\n\x1dUnknownThreeHundredSixtyEight\x12_\n\x07\x65ntries\x18\x01 \x03(\x0b\x32N.com.ankama.dofus.server.game.protocol.ladder.experience.ExperienceLadderEntry\"~\n\x1d\x45xperienceLadderSelfRankEvent\x12]\n\x05\x65ntry\x18\x01 \x01(\x0b\x32N.com.ankama.dofus.server.game.protocol.ladder.experience.ExperienceLadderEntryb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ladder_experience_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_EXPERIENCELADDERPAGEREQUEST']._serialized_start=132
-  _globals['_EXPERIENCELADDERPAGEREQUEST']._serialized_end=202
-  _globals['_EXPERIENCELADDERSELFRANKREQUEST']._serialized_start=204
-  _globals['_EXPERIENCELADDERSELFRANKREQUEST']._serialized_end=256
-  _globals['_EXPERIENCELADDERENTRY']._serialized_start=259
-  _globals['_EXPERIENCELADDERENTRY']._serialized_end=398
-  _globals['_EXPERIENCELADDERPAGEEVENT']._serialized_start=400
-  _globals['_EXPERIENCELADDERPAGEEVENT']._serialized_end=524
-  _globals['_UNKNOWNIQD']._serialized_start=526
-  _globals['_UNKNOWNIQD']._serialized_end=582
-  _globals['_UNKNOWNIQG']._serialized_start=584
-  _globals['_UNKNOWNIQG']._serialized_end=693
-  _globals['_EXPERIENCELADDERSELFRANKEVENT']._serialized_start=695
-  _globals['_EXPERIENCELADDERSELFRANKEVENT']._serialized_end=821
-  _globals['_GUILDTOKENCONFIGURATION']._serialized_start=824
-  _globals['_GUILDTOKENCONFIGURATION']._serialized_end=1412
-  _globals['_GUILDTOKENCONFIGURATION_GUILDTOKENTHRESHOLDS']._serialized_start=1138
-  _globals['_GUILDTOKENCONFIGURATION_GUILDTOKENTHRESHOLDS']._serialized_end=1248
-  _globals['_GUILDTOKENCONFIGURATION_GUILDTOKENITEMS']._serialized_start=1251
-  _globals['_GUILDTOKENCONFIGURATION_GUILDTOKENITEMS']._serialized_end=1412
-  _globals['_GUILDTOKENCONFIGURATIONEVENT']._serialized_start=1415
-  _globals['_GUILDTOKENCONFIGURATIONEVENT']._serialized_end=1550
+  _globals['_EXPERIENCELADDERPAGEREQUEST']._serialized_start=98
+  _globals['_EXPERIENCELADDERPAGEREQUEST']._serialized_end=187
+  _globals['_EXPERIENCELADDERSELFRANKREQUEST']._serialized_start=189
+  _globals['_EXPERIENCELADDERSELFRANKREQUEST']._serialized_end=241
+  _globals['_EXPERIENCELADDERENTRY']._serialized_start=244
+  _globals['_EXPERIENCELADDERENTRY']._serialized_end=383
+  _globals['_EXPERIENCELADDERPAGEEVENT']._serialized_start=385
+  _globals['_EXPERIENCELADDERPAGEEVENT']._serialized_end=509
+  _globals['_UNKNOWNTHREEHUNDREDSIXTYSEVEN']._serialized_start=511
+  _globals['_UNKNOWNTHREEHUNDREDSIXTYSEVEN']._serialized_end=628
+  _globals['_UNKNOWNTHREEHUNDREDSIXTYEIGHT']._serialized_start=631
+  _globals['_UNKNOWNTHREEHUNDREDSIXTYEIGHT']._serialized_end=759
+  _globals['_EXPERIENCELADDERSELFRANKEVENT']._serialized_start=761
+  _globals['_EXPERIENCELADDERSELFRANKEVENT']._serialized_end=887
 # @@protoc_insertion_point(module_scope)

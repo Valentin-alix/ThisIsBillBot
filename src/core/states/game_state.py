@@ -47,7 +47,6 @@ class GameState:
         self.entity.clear_state()
 
     def debug_snapshot(self) -> dict[str, Any]:
-        """Flat snapshot of the most relevant state for debugging."""
         snapshot: dict[str, Any] = {
             "map_id": self.map.map_id,
             "in_map_transition": bool(self.map.is_in_map_transition),
@@ -108,7 +107,9 @@ class GameState:
     def get_world_transition_context(self) -> WorldTransitionContext:
         return WorldTransitionContext(
             criterion=self.get_criterion_context(),
-            forbidden_edge_transitions=frozenset(self.map.forbidden_edge_transitions),
+            forbidden_edge_transitions=frozenset(
+                ban.key for ban in self.map.banned_edge_transitions
+            ),
         )
 
     def get_world_path_context(self) -> WorldPathContext:

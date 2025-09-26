@@ -1,6 +1,6 @@
 ## Repository Guidelines
 
-Bot-DofusUnity is a Python 3.12 multi-account automation framework for Dofus 3 Unity. Main source lives in `src/`; workspace members are `AnkamaLauncherEmulatorPremium/` and `DBDofusUnity/`.
+Bot-DofusUnity is a Python 3.12 multi-account automation framework for Dofus 3 Unity. Main source lives in `src/`; other modules are `AnkamaLauncherEmulatorPremium/` and `DBDofusUnity/`.
 
 ## Commands
 

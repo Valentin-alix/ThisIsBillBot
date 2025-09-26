@@ -1,3 +1,5 @@
+import os
+import tempfile
 import uuid
 from collections.abc import Iterator
 from pathlib import Path
@@ -11,12 +13,13 @@ from ankama_launcher_emulator_premium.interfaces.zaap_files import GameSubscript
 from proto_mapper_assembly.runtime import runtime_store
 from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
-from src.const import MIN_DATE
+from src.consts import MIN_DATE
 from src.core.bot.bot import Bot
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.lifecycle.scheduler import BotScheduler
 from src.core.states.guild_chest_storage import GuildChestStorage
 from src.protocol import protocol_game
+from src.services.debug_recorder import DebugRecorder
 from tests.fixtures.accounts import (
     make_account,
     make_runtime_bot,
@@ -119,13 +122,23 @@ def account() -> StoredApiKey:
 
 
 @pytest.fixture
-def game_state_ctx() -> GameStateContext:
-    return make_game_state_ctx()
+def game_state_ctx(_shared_game_state_debug_recorder: DebugRecorder) -> GameStateContext:
+    return make_game_state_ctx(_shared_game_state_debug_recorder)
+
+
+@pytest.fixture(scope="session")
+def _shared_game_state_debug_recorder() -> Iterator[DebugRecorder]:
+    recorder = DebugRecorder(file_path=os.path.join(tempfile.gettempdir(), "gamestatefixture.debug.jsonl"))
+    yield recorder
+    recorder.stop()
 
 
 @pytest.fixture
-def runtime_bot(game_sub_info_mock: None) -> Bot:
-    return make_runtime_bot("TEST", 1)
+def runtime_bot(game_sub_info_mock: None) -> Iterator[Bot]:
+    bot = make_runtime_bot("TEST", 1)
+    yield bot
+    bot.watchdog.stop()
+    bot.debug_recorder.stop()
 
 
 @pytest.fixture

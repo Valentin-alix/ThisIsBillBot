@@ -59,8 +59,7 @@ def _fake_encode(_: Message) -> bytes:
 def game_client(runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch) -> GameClient:
     client = GameClient(bot=runtime_bot, proxy_url="socks5://127.0.0.1:1080")
     client.client_socket = MagicMock()
-    # Le bot est son propre client en socket : on court-circuite l'encodage obfusqué
-    # (qui exige le data store runtime) pour isoler le routage send -> process_msg.
+
     monkeypatch.setattr(game_client_module, "get_obf_game_message_from_msg", _fake_obf)
     monkeypatch.setattr(game_client_module, "encode_msg", _fake_encode)
     return client

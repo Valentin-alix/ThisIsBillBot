@@ -143,12 +143,12 @@ class DelayedActionFinishedEvent(_message.Message):
     delayed_action_type: _common_pb2.DelayedActionType
     def __init__(self, character_id: _Optional[int] = ..., delayed_action_type: _Optional[_Union[_common_pb2.DelayedActionType, str]] = ...) -> None: ...
 
-class UnknownHpm(_message.Message):
-    __slots__ = ("unknown_fnct", "unknown_fncu", "unknown_fncv")
-    UNKNOWN_FNCT_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FNCU_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FNCV_FIELD_NUMBER: _ClassVar[int]
-    unknown_fnct: int
-    unknown_fncu: int
-    unknown_fncv: int
-    def __init__(self, unknown_fnct: _Optional[int] = ..., unknown_fncu: _Optional[int] = ..., unknown_fncv: _Optional[int] = ...) -> None: ...
+class StagingSequenceConfigurationEvent(_message.Message):
+    __slots__ = ("unknown_eight_hundred_forty_six", "unknown_eight_hundred_forty_seven", "unknown_eight_hundred_forty_eight")
+    UNKNOWN_EIGHT_HUNDRED_FORTY_SIX_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_FORTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_FORTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_forty_six: int
+    unknown_eight_hundred_forty_seven: int
+    unknown_eight_hundred_forty_eight: int
+    def __init__(self, unknown_eight_hundred_forty_six: _Optional[int] = ..., unknown_eight_hundred_forty_seven: _Optional[int] = ..., unknown_eight_hundred_forty_eight: _Optional[int] = ...) -> None: ...

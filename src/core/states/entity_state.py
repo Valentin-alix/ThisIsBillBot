@@ -15,7 +15,7 @@ from dofus_unity_reader.game_constants.npc import NpcDialogInfo
 from src.core.engine.npcs.npc_lookup import find_npc_ids_by_name
 from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 
-from src import const
+from src import consts
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
 from src.core.engine.monsters.monster_group import (
     MonsterGroup,
@@ -72,8 +72,6 @@ class EntityState(State):
         self.clear_actors()
         self.clear_obstacles()
 
-    # ==================== Obstacles ====================
-
     def set_map_obstacles(self, map_obstacles: Iterable[MapObstacle]):
         old_cell_ids = set(self.obstacle_on_cell_id.keys())
         new_cell_ids: set[int] = set()
@@ -88,7 +86,7 @@ class EntityState(State):
 
         batch: list[tuple[int, bool]] = [(cell_id, True) for cell_id in new_cell_ids]
         batch.extend((cell_id, False) for cell_id in removed_cell_ids)
-        if batch and const.DEBUG:
+        if batch and consts.DEBUG:
             self.grid_signals.set_obstacle_on_cell_id_batch.emit(batch)
 
     def clear_obstacles(self):
@@ -96,10 +94,8 @@ class EntityState(State):
             return
         batch: list[tuple[int, bool]] = [(cell_id, False) for cell_id in self.obstacle_on_cell_id.keys()]
         self.obstacle_on_cell_id.clear()
-        if const.DEBUG:
+        if consts.DEBUG:
             self.grid_signals.set_obstacle_on_cell_id_batch.emit(batch)
-
-    # ==================== Actors ====================
 
     def set_actors(self, actors: Iterable[ActorPositionInformation]):
         old_actor_ids = set(self.actor_by_id.keys())
@@ -172,8 +168,6 @@ class EntityState(State):
         self.actors_on_mp.clear()
         self._emit_actor_counts(affected_cells, all_zero=True)
 
-    # ==================== Actor Data Helpers ====================
-
     def _update_actor_data(self, actor: ActorPositionInformation, is_summoned: bool = False):
         self._remove_actor_on_mp(actor.actor_id)
         self.actor_by_id[actor.actor_id] = actor
@@ -214,8 +208,6 @@ class EntityState(State):
         self.actor_fight_by_id.pop(actor_id, None)
         self._remove_actor_on_mp(actor_id)
 
-    # ==================== Actor on MapPoint Helpers ====================
-
     def _add_actor_on_mp(self, actor: ActorPositionInformation):
         cell_id = actor.disposition.cell_id
         if cell_id not in MAP_POINT_BY_CELL_ID:
@@ -234,10 +226,8 @@ class EntityState(State):
         for mp in mps_to_remove:
             del self.actors_on_mp[mp]
 
-    # ==================== Signal Emission ====================
-
     def _emit_actor_counts(self, cell_ids: set[int], all_zero: bool = False):
-        if not cell_ids or not const.DEBUG:
+        if not cell_ids or not consts.DEBUG:
             return
         if all_zero:
             batch: list[tuple[int, int]] = [(cell_id, 0) for cell_id in cell_ids]
@@ -250,8 +240,6 @@ class EntityState(State):
             return 0
         actors = self.actors_on_mp.get(MapPoint.from_cell_id(cell_id))
         return len(actors) if actors else 0
-
-    # ==================== Query Methods ====================
 
     def get_first_actor_on_cell_id(self, cell_id: int) -> ActorPositionInformation | None:
         actor_on_mp = self.actors_on_mp.get(MapPoint.from_cell_id(cell_id))
@@ -290,7 +278,6 @@ class EntityState(State):
         return self.get_npc_id_by_bones(npc_info.bones_id)
 
     def get_npc_id_among(self, candidate_npc_ids: set[int]) -> int:
-        """The one npc of `candidate_npc_ids` on this map -- how a shared name is resolved."""
         found_npc_ids = {
             actor.actor_id
             for actor in self.actor_by_id.values()

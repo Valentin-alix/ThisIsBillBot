@@ -10,7 +10,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from openai import APIConnectionError, OpenAIError
 
-from src.const import ENV_PATH
+from src.consts import ENV_PATH
 from src.services.logging_utils.loggers import configure_root_logger
 
 load_dotenv(ENV_PATH)

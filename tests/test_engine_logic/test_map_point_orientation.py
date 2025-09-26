@@ -15,12 +15,10 @@ ORIGIN = (10, -5)
 @pytest.mark.parametrize(
     ("delta", "four_dir_expected", "eight_dir_expected"),
     [
-        # +-45 and +-135 degrees: the cases where Math.round and round() disagree.
         ((1, 1), DirectionsEnum.DOWN_RIGHT, DirectionsEnum.RIGHT),
         ((1, -1), DirectionsEnum.DOWN_LEFT, DirectionsEnum.DOWN),
         ((-1, 1), DirectionsEnum.UP_RIGHT, DirectionsEnum.UP),
         ((-1, -1), DirectionsEnum.UP_LEFT, DirectionsEnum.LEFT),
-        # Straight axes, unambiguous in both implementations.
         ((1, 0), DirectionsEnum.DOWN_RIGHT, DirectionsEnum.DOWN_RIGHT),
         ((-1, 0), DirectionsEnum.UP_LEFT, DirectionsEnum.UP_LEFT),
         ((0, 1), DirectionsEnum.UP_RIGHT, DirectionsEnum.UP_RIGHT),
@@ -40,8 +38,7 @@ def test_advanced_orientation_matches_the_client(
 
 
 def test_advanced_orientation_to_itself_is_down_right() -> None:
-    # AS3 divides by zero, gets NaN, and `int(NaN)` is 0 -> orientation 1. This is what makes
-    # the client leave a resource cell toward DOWN_RIGHT when standing on the element itself.
+
     source = MapPoint.from_coords(*ORIGIN)
 
     assert source.advanced_orientation_to(source) == DirectionsEnum.DOWN_RIGHT

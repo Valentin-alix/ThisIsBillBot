@@ -22,17 +22,25 @@ from consts import (
 
 from proto_mapper_assembly.controllers.access_signatures import (
     build_message_access_signatures_from_trace,
+    count_handler_registrations_by_cls,
 )
 from proto_mapper_assembly.controllers.message_lookup import (
     build_non_obf_alias_lookup,
     build_obf_alias_lookup,
+)
+from proto_mapper_assembly.helpers.archived_builds import (
+    GAME_MAPPINGS_RELATIVE_PATH,
+    NON_OBF_PROTO_ACCESSES_RELATIVE_PATH,
+    NON_OBF_PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
+    PROTO_ACCESSES_RELATIVE_PATH,
+    PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
+    iter_archived_build_dirs,
 )
 from proto_mapper_assembly.interfaces.assembly_access import (
     AccessAtomKey,
     AccessAtomSequenceKey,
     AccessTraceDocument,
     FieldAccessSignatures,
-    HandlerRegistrationAccessEntry,
     MessageAccessSignature,
 )
 from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
@@ -41,19 +49,11 @@ from proto_mapper_assembly.interfaces.game_mappings import SimpleGameMappingsDoc
 from proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
 from proto_mapper_assembly.scoring.primitives import (
     counter_overlap_similarity,
+    counter_profile_overlap_similarity,
     get_average_best_similarity_sequences,
     ratio_similarity,
 )
 from proto_mapper_assembly.scoring.signature_scoring import access_atom_sequence_similarity
-
-_GAME_ASSEMBLY_NAME = "GameAssembly.dll"
-"""Marks a directory as a game build, the same test the snapshot resolver applies."""
-
-_OBF_PROTO_ACCESSES_PATH = Path("proto_accesses.json")
-_NON_OBF_PROTO_ACCESSES_PATH = Path("non_obf") / "proto_accesses.json"
-_OBF_DUMP_CS_PATH = Path("cs") / "Ankama.Dofus.Protocol.Game.cs"
-_NON_OBF_DUMP_CS_PATH = Path("non_obf") / "cs" / "Ankama.Dofus.Protocol.Game.cs"
-_GAME_MAPPINGS_PATH = Path("game_mappings.json")
 
 _WORKING_SET_VERSION_ID = "working_set"
 _MINIMUM_SNAPSHOT_COUNT = 2
@@ -99,9 +99,9 @@ class VersionSource:
         return tuple(
             relative_path
             for relative_path, path in (
-                (_OBF_PROTO_ACCESSES_PATH, self.obf_proto_accesses_path),
-                (_OBF_DUMP_CS_PATH, self.obf_dump_cs_path),
-                (_GAME_MAPPINGS_PATH, self.game_mappings_path),
+                (PROTO_ACCESSES_RELATIVE_PATH, self.obf_proto_accesses_path),
+                (PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH, self.obf_dump_cs_path),
+                (GAME_MAPPINGS_RELATIVE_PATH, self.game_mappings_path),
             )
             if not path.is_file()
         )
@@ -180,8 +180,8 @@ def main() -> None:
     non_obf_dir: Path | None = args.non_obf_dir
     non_obf_fallback = (
         NonObfReference(
-            proto_accesses_path=non_obf_dir / "proto_accesses.json",
-            dump_cs_path=non_obf_dir / "cs" / "Ankama.Dofus.Protocol.Game.cs",
+            proto_accesses_path=non_obf_dir / PROTO_ACCESSES_RELATIVE_PATH,
+            dump_cs_path=non_obf_dir / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
         )
         if non_obf_dir is not None
         else _default_non_obf_reference()
@@ -317,14 +317,14 @@ def _build_working_set_source() -> VersionSource:
 
 def _build_snapshot_source(version_dir: Path) -> VersionSource:
     archived_non_obf = NonObfReference(
-        proto_accesses_path=version_dir / _NON_OBF_PROTO_ACCESSES_PATH,
-        dump_cs_path=version_dir / _NON_OBF_DUMP_CS_PATH,
+        proto_accesses_path=version_dir / NON_OBF_PROTO_ACCESSES_RELATIVE_PATH,
+        dump_cs_path=version_dir / NON_OBF_PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
     )
     return VersionSource(
         version_id=version_dir.name,
-        obf_proto_accesses_path=version_dir / _OBF_PROTO_ACCESSES_PATH,
-        obf_dump_cs_path=version_dir / _OBF_DUMP_CS_PATH,
-        game_mappings_path=version_dir / _GAME_MAPPINGS_PATH,
+        obf_proto_accesses_path=version_dir / PROTO_ACCESSES_RELATIVE_PATH,
+        obf_dump_cs_path=version_dir / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
+        game_mappings_path=version_dir / GAME_MAPPINGS_RELATIVE_PATH,
         non_obf=None if archived_non_obf.missing_paths else archived_non_obf,
     )
 
@@ -401,23 +401,9 @@ def _collect_version_heads(
 def _iter_version_dirs(*, snapshots_root: Path, non_obf_game_dir: Path) -> list[Path]:
     """List the obfuscated build directories, newest first.
 
-    Ordering follows the ``GameAssembly.dll`` modification time rather than the directory name:
-    ``_collect_stability_samples`` pairs consecutive snapshots, and names like ``BETA`` carry no date.
+    ``_collect_stability_samples`` pairs consecutive snapshots, so the ordering matters here.
     """
-    if not snapshots_root.exists():
-        return []
-    version_dirs = [
-        version_dir
-        for version_dir in snapshots_root.iterdir()
-        if version_dir.is_dir()
-        and (version_dir / _GAME_ASSEMBLY_NAME).is_file()
-        and version_dir.resolve() != non_obf_game_dir.resolve()
-    ]
-    return sorted(
-        version_dirs,
-        key=lambda version_dir: (version_dir / _GAME_ASSEMBLY_NAME).stat().st_mtime_ns,
-        reverse=True,
-    )
+    return iter_archived_build_dirs(snapshots_root=snapshots_root, exclude_dir=non_obf_game_dir)
 
 
 def _load_version_snapshot(version_head: VersionHead) -> VersionSnapshot:
@@ -446,22 +432,9 @@ def _load_version_snapshot(version_head: VersionHead) -> VersionSnapshot:
         mapping_by_non_obf_cls=mapping_by_non_obf_cls,
         obf_signatures_by_cls=obf_signatures_by_cls,
         non_obf_signatures_by_cls=non_obf_signatures_by_cls,
-        obf_registration_count_by_cls=_count_handler_registrations_by_cls(obf_access_trace),
-        non_obf_registration_count_by_cls=_count_handler_registrations_by_cls(non_obf_access_trace),
+        obf_registration_count_by_cls=count_handler_registrations_by_cls(obf_access_trace),
+        non_obf_registration_count_by_cls=count_handler_registrations_by_cls(non_obf_access_trace),
     )
-
-
-def _count_handler_registrations_by_cls(access_trace: AccessTraceDocument) -> dict[str, int]:
-    """How many times each message is registered with a handler, the raw material of the blend."""
-    registration_count_by_cls: dict[str, int] = {}
-    for traced_function in access_trace.functions_by_address.values():
-        for access_entry in traced_function.access_infos:
-            if not isinstance(access_entry, HandlerRegistrationAccessEntry):
-                continue
-            registration_count_by_cls[access_entry.cls] = (
-                registration_count_by_cls.get(access_entry.cls, 0) + 1
-            )
-    return registration_count_by_cls
 
 
 def _parse_messages_by_cls(dump_path: Path) -> dict[str, DumpCSMessage]:
@@ -675,9 +648,16 @@ def _structure_declared_shape_similarity(
     left: MessageAccessSignature,
     right: MessageAccessSignature,
 ) -> float:
-    """The obfuscation-stable half of the structure score, weighted 0.3 in ``_harden_structure_score``."""
-    return counter_overlap_similarity(
-        left_counter=left.declared_shape_counter, right_counter=right.declared_shape_counter
+    """
+    Mirrors ``_declared_shape_similarity``, weighted 0.3 in ``_harden_structure_score``.
+
+    Reimplemented rather than imported because it is private to the scoring module, and because
+    the audit must keep measuring the current definition even once that one is changed.
+    ``TestMetricsMirrorTheScoringModule`` fails when the two stop agreeing, so the divergence is
+    a decision someone makes rather than a drift nobody notices.
+    """
+    return counter_profile_overlap_similarity(
+        left=left.declared_shape_profile, right=right.declared_shape_profile
     )
 
 
@@ -685,12 +665,7 @@ def _structure_oneof_partition_similarity(
     left: MessageAccessSignature,
     right: MessageAccessSignature,
 ) -> float:
-    """
-    Mirrors ``_oneof_partition_similarity``, the factor scaling every structure score.
-
-    Reimplemented rather than imported because it is private to the scoring module, and because
-    the audit must keep measuring the current definition even once that one is changed.
-    """
+    """Mirrors ``_oneof_partition_similarity``, the factor scaling every structure score."""
     return get_average_best_similarity_sequences(
         left.dump_cs_msg.oneof_group_sizes,
         right.dump_cs_msg.oneof_group_sizes,

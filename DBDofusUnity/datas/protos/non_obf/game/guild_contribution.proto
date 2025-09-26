@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package com.ankama.dofus.server.game.protocol.guild.contribution;
+
+message GuildContributionGiveRequest {
+	int32 token = 1;
+	string unknown_four_hundred_fifty_seven = 2;
+}
+
+message GuildContributionKamasUpdateEvent {
+	int64 kamas_spent = 1;
+	int32 unknown_four_hundred_fifty_eight = 2;
+	GuildContributionKamasUpdateType unknown_four_hundred_fifty_nine = 3;
+	enum GuildContributionKamasUpdateType {
+		UNKNOWN = 0;
+		UNKNOWN_1 = 1;
+		UNKNOWN_2 = 2;
+		UNKNOWN_3 = 3;
+		UNKNOWN_4 = 4;
+		UNKNOWN_5 = 5;
+		UNKNOWN_6 = 6;
+		UNKNOWN_7 = 7;
+	}
+}
+
+message GuildContributionStateEvent {
+	int32 unknown_four_hundred_sixty = 1;
+}

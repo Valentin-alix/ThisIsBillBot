@@ -54,7 +54,7 @@ class ServerFrame(Frame):
         self.logger.info(f"Connected on server {msg.server}")
 
     def on_map_current_event(self, _: MapCurrentEvent):
-        # New map = progress: only consecutive "occupied" errors count.
+
         self._occupied_stuck_counter = 0
 
     def on_text_information_event(self, msg: TextInformationEvent):

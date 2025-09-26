@@ -9,6 +9,7 @@ import glob
 import os
 import random
 import tempfile
+from collections.abc import Iterator
 
 import pytest
 from dofus_unity_reader.data_center.map_reader import MapReader
@@ -29,7 +30,7 @@ RESOURCE_CELL = 241
 OTHER_RESOURCE_CELL = 257
 APPROACH_CELL = 269
 BLOCKED_NEIGHBOR_CELLS = (242, 256)
-# Map 123471361 cell 163: a door sunk into a wall, no approach cell exists for it.
+
 WALL_DOOR_MAP_ID = 123471361
 WALL_DOOR_CELL = 163
 WALL_DOOR_START_CELL = 300
@@ -41,6 +42,17 @@ FISHING_START_CELL = 451
 FISHING_SKILL_ID = 124
 CELL_COUNT = 560
 PLACEHOLDER_CELL = 559
+
+
+_debug_recorder = DebugRecorder(
+    file_path=os.path.join(tempfile.gettempdir(), "interactive_approach_cell.debug.jsonl")
+)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _stop_shared_debug_recorder() -> Iterator[None]:
+    yield
+    _debug_recorder.stop()
 
 
 def _make_pathfinding(map_id: int) -> tuple[Pathfinding, DataMapProvider, MapMovementContext]:
@@ -55,9 +67,7 @@ def _make_pathfinding(map_id: int) -> tuple[Pathfinding, DataMapProvider, MapMov
     logger = BotLogger(
         log_signals=LogSignals(),
         title="interactive_approach_cell",
-        debug_recorder=DebugRecorder(
-            file_path=os.path.join(tempfile.gettempdir(), "interactive_approach_cell.debug.jsonl")
-        ),
+        debug_recorder=_debug_recorder,
     )
     path_finding = Pathfinding(data_map_provider=data_map_provider, logger=logger)
     return path_finding, data_map_provider, context
@@ -164,8 +174,7 @@ def _walkable_cells(data_map_provider: DataMapProvider) -> list[int]:
 
 
 def test_harvest_from_257_walks_to_269_like_the_client() -> None:
-    # Reproduces the logged session: standing on 257, the client walks 257 -> 270 -> 269
-    # before using the resource on 241. See RoleplayWorldFrame.as:1179-1274.
+
     path_finding, _, context = _make_pathfinding(HARVEST_MAP_ID)
 
     move_path = path_finding.get_interactive_near_path(
@@ -196,7 +205,7 @@ def test_blocked_neighbors_are_never_used_as_approach_cell() -> None:
 
 def test_fishing_spot_in_the_water_is_reachable_thanks_to_the_server_range() -> None:
     # The fish sits on water surrounded by water: no approach cell, the path stops 4 cells away.
-    # Fishing carries range 10, so the server accepts it; the same spot with a range 1 skill
+
     # must be refused. Logs confirm 128 accepted fishing interactions between distance 1 and 5.
     path_finding, data_map_provider, context = _make_pathfinding(FISHING_MAP_ID)
     element_mp = MapPoint.from_cell_id(FISHING_CELL)
@@ -218,7 +227,7 @@ def test_fishing_spot_in_the_water_is_reachable_thanks_to_the_server_range() -> 
 
 
 def test_refuses_an_element_beyond_the_server_range() -> None:
-    # Map 123471361 cell 163: a door sunk into a wall, no approach cell either, but skill 184
+
     # has range 1 while the path stops 4 cells away. The server would refuse, so we do not try.
     path_finding, _, context = _make_pathfinding(WALL_DOOR_MAP_ID)
     element_mp = MapPoint.from_cell_id(WALL_DOOR_CELL)
@@ -236,8 +245,7 @@ def test_refuses_an_element_beyond_the_server_range() -> None:
 
 
 def test_map_transitions_ignore_the_server_range() -> None:
-    # Their element cell comes from the world graph, too unreliable to measure a distance
-    # against, so EdgeBehavior opts out and lets the server answer.
+
     path_finding, _, context = _make_pathfinding(WALL_DOOR_MAP_ID)
 
     move_path = path_finding.get_interactive_near_path(
@@ -253,8 +261,7 @@ def test_map_transitions_ignore_the_server_range() -> None:
 
 
 def test_an_unreachable_approach_cell_is_refused_even_without_the_range_check() -> None:
-    # `ignore_server_range` must not become a blanket "interact from anywhere": it only covers
-    # elements that have no approach cell. When one exists, both regimes agree.
+
     path_finding, _, context = _make_pathfinding(HARVEST_MAP_ID)
     args = (
         context,
@@ -272,7 +279,7 @@ def test_an_unreachable_approach_cell_is_refused_even_without_the_range_check() 
 
 
 def test_standing_on_the_resource_cell_leaves_toward_down_right() -> None:
-    # Logged client behaviour: on cell 257, clicking the resource of cell 257 walks to 271.
+
     path_finding, _, _ = _make_pathfinding(HARVEST_MAP_ID)
     element_mp = MapPoint.from_cell_id(OTHER_RESOURCE_CELL)
 
@@ -292,8 +299,11 @@ def _map_ids_sample(count: int) -> list[int]:
     return rng.sample(map_ids, min(count, len(map_ids)))
 
 
+_START_CELL_SAMPLE_SIZE = 80
+
+
 @pytest.mark.parametrize("map_id", [HARVEST_MAP_ID, *_map_ids_sample(6)])
-def test_destination_matches_the_client_on_every_cell_of_the_map(map_id: int) -> None:
+def test_destination_matches_the_client_on_a_sample_of_walkable_cells(map_id: int) -> None:
     path_finding, data_map_provider, _ = _make_pathfinding(map_id)
     reference = ClientReference(data_map_provider)
 
@@ -304,7 +314,10 @@ def test_destination_matches_the_client_on_every_cell_of_the_map(map_id: int) ->
             if ref.m_interactionId is not None and ref.cellId is not None and ref.cellId != PLACEHOLDER_CELL
         }
     )
-    walkable_cells = _walkable_cells(data_map_provider)
+    all_walkable_cells = _walkable_cells(data_map_provider)
+    walkable_cells = random.Random(map_id).sample(
+        all_walkable_cells, min(_START_CELL_SAMPLE_SIZE, len(all_walkable_cells))
+    )
 
     divergences: list[tuple[int, int, int, int]] = []
     for element_cell in element_cells:

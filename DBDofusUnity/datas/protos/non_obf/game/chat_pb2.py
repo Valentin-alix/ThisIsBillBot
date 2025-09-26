@@ -25,35 +25,35 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nchat.proto\x12*com.ankama.dofus.server.game.protocol.chat\x1a\x0c\x63ommon.proto\"\xab\x01\n\x10\x43hatMessageLinks\x12I\n\x07objects\x18\x02 \x03(\x0b\x32\x38.com.ankama.dofus.server.game.protocol.common.ObjectItem\x12L\n\x0cunknown_fzsv\x18\x03 \x03(\x0b\x32\x36.com.ankama.dofus.server.game.protocol.chat.UnknownKsu\"\xe4\x01\n\nUnknownKsu\x12\x14\n\x0cunknown_fztj\x18\x01 \x01(\x05\x12R\n\x0cunknown_fztk\x18\x02 \x01(\x0b\x32<.com.ankama.dofus.server.game.protocol.common.MapCoordinates\x12\x14\n\x0cunknown_fztl\x18\x03 \x01(\t\x12\x14\n\x0cunknown_fztm\x18\x04 \x01(\x05\x12\x14\n\x0cunknown_fztn\x18\x05 \x01(\x03\x12\x14\n\x0cunknown_fzto\x18\x06 \x01(\x05\x12\x14\n\x0cunknown_fztp\x18\x07 \x01(\x05\"\xdc\x01\n\x19\x43hatPrivateMessageRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12K\n\x05links\x18\x02 \x01(\x0b\x32<.com.ankama.dofus.server.game.protocol.chat.ChatMessageLinks\x12\x0e\n\x04name\x18\x03 \x01(\tH\x00\x12G\n\x03tag\x18\x04 \x01(\x0b\x32\x38.com.ankama.dofus.server.game.protocol.common.AccountTagH\x00\x42\x08\n\x06target\"\xc1\x01\n\x1b\x43hatPrivateCopyMessageEvent\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61te\x18\x02 \x01(\t\x12\x1b\n\x13target_character_id\x18\x03 \x01(\x03\x12\x13\n\x0btarget_name\x18\x04 \x01(\t\x12Q\n\x06object\x18\x05 \x03(\x0b\x32\x41.com.ankama.dofus.server.game.protocol.common.ObjectItemInventory\"\xbf\x01\n\x19\x43hatChannelMessageRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x44\n\x07\x63hannel\x18\x02 \x01(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel\x12K\n\x05links\x18\x03 \x01(\x0b\x32<.com.ankama.dofus.server.game.protocol.chat.ChatMessageLinks\"\xf7\x02\n\x17\x43hatChannelMessageEvent\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x44\n\x07\x63hannel\x18\x02 \x01(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel\x12\x0c\n\x04\x64\x61te\x18\x03 \x01(\t\x12\x1b\n\x13sender_character_id\x18\x04 \x01(\x03\x12\x19\n\x11sender_account_id\x18\x05 \x01(\x03\x12\x15\n\rsender_prefix\x18\x06 \x01(\t\x12\x13\n\x0bsender_name\x18\x07 \x01(\t\x12\x12\n\nfrom_admin\x18\x08 \x01(\x08\x12K\n\x05links\x18\t \x01(\x0b\x32<.com.ankama.dofus.server.game.protocol.chat.ChatMessageLinks\x12\x1d\n\x10origin_server_id\x18\n \x01(\x05H\x00\x88\x01\x01\x42\x13\n\x11_origin_server_id\"\xac\x02\n\x0e\x43hatErrorEvent\x12O\n\x05\x65rror\x18\x01 \x01(\x0e\x32@.com.ankama.dofus.server.game.protocol.chat.ChatErrorEvent.Error\"\xc8\x01\n\x05\x45rror\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x16\n\x12RECEIVER_NOT_FOUND\x10\x01\x12\x16\n\x12INTERIOR_MONOLOGUE\x10\x02\x12\x0c\n\x08NO_GUILD\x10\x03\x12\x0c\n\x08NO_PARTY\x10\x04\x12\x0c\n\x08\x41LLIANCE\x10\x05\x12\x0f\n\x0bINVALID_MAP\x10\x06\x12\x12\n\x0eNO_PARTY_ARENA\x10\x07\x12\x0b\n\x07NO_TEAM\x10\x08\x12\x15\n\x11MALFORMED_CONTENT\x10\t\x12\x0f\n\x0bNO_EXCHANGE\x10\n\"\xbe\x01\n\x1fSubscribeMultipleChannelRequest\x12L\n\x0f\x63hannel_enabled\x18\x01 \x03(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel\x12M\n\x10\x63hannel_disabled\x18\x02 \x03(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel\"j\n\x12\x43hannelUpdateEvent\x12\x44\n\x07\x63hannel\x18\x01 \x01(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel\x12\x0e\n\x06\x65nable\x18\x02 \x01(\x08\"\xb8\x01\n\x18\x43hatChannelsEnabledEvent\x12L\n\x0f\x61\x63tive_channels\x18\x01 \x03(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel\x12N\n\x11\x64isabled_channels\x18\x02 \x03(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel*\xfe\x01\n\x07\x43hannel\x12\n\n\x06GLOBAL\x10\x00\x12\x08\n\x04TEAM\x10\x01\x12\t\n\x05GUILD\x10\x02\x12\x0c\n\x08\x41LLIANCE\x10\x03\x12\t\n\x05PARTY\x10\x04\x12\t\n\x05SALES\x10\x05\x12\x08\n\x04SEEK\x10\x06\x12\x08\n\x04NOOB\x10\x07\x12\t\n\x05\x41\x44MIN\x10\x08\x12\t\n\x05\x41RENA\x10\t\x12\x0b\n\x07PRIVATE\x10\n\x12\x0e\n\nCOMMUNAUTY\x10\x0b\x12\x08\n\x04INFO\x10\x0c\x12\r\n\tFIGHT_LOG\x10\r\x12\x07\n\x03\x41\x44S\x10\x0e\x12\t\n\x05\x45VENT\x10\x0f\x12\x0c\n\x08\x45XCHANGE\x10\x10\x12\r\n\tTERRITORY\x10\x11\x12\x0e\n\nGUILD_RAID\x10\x12\x12\r\n\tJESAISPAS\x10\x13\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nchat.proto\x12*com.ankama.dofus.server.game.protocol.chat\x1a\x0c\x63ommon.proto\"\xbc\x01\n\x10\x43hatMessageLinks\x12I\n\x07objects\x18\x02 \x03(\x0b\x32\x38.com.ankama.dofus.server.game.protocol.common.ObjectItem\x12]\n\x13unknown_two_hundred\x18\x03 \x03(\x0b\x32@.com.ankama.dofus.server.game.protocol.chat.UnknownOneHundredTwo\"\xc1\x02\n\x14UnknownOneHundredTwo\x12\x1f\n\x17unknown_two_hundred_one\x18\x01 \x01(\x05\x12]\n\x17unknown_two_hundred_two\x18\x02 \x01(\x0b\x32<.com.ankama.dofus.server.game.protocol.common.MapCoordinates\x12!\n\x19unknown_two_hundred_three\x18\x03 \x01(\t\x12 \n\x18unknown_two_hundred_four\x18\x04 \x01(\x05\x12 \n\x18unknown_two_hundred_five\x18\x05 \x01(\x03\x12\x1f\n\x17unknown_two_hundred_six\x18\x06 \x01(\x05\x12!\n\x19unknown_two_hundred_seven\x18\x07 \x01(\x05\"\xdc\x01\n\x19\x43hatPrivateMessageRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12K\n\x05links\x18\x02 \x01(\x0b\x32<.com.ankama.dofus.server.game.protocol.chat.ChatMessageLinks\x12\x0e\n\x04name\x18\x03 \x01(\tH\x00\x12G\n\x03tag\x18\x04 \x01(\x0b\x32\x38.com.ankama.dofus.server.game.protocol.common.AccountTagH\x00\x42\x08\n\x06target\"\xc1\x01\n\x1b\x43hatPrivateCopyMessageEvent\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61te\x18\x02 \x01(\t\x12\x1b\n\x13target_character_id\x18\x03 \x01(\x03\x12\x13\n\x0btarget_name\x18\x04 \x01(\t\x12Q\n\x06object\x18\x05 \x03(\x0b\x32\x41.com.ankama.dofus.server.game.protocol.common.ObjectItemInventory\"\xbf\x01\n\x19\x43hatChannelMessageRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x44\n\x07\x63hannel\x18\x02 \x01(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel\x12K\n\x05links\x18\x03 \x01(\x0b\x32<.com.ankama.dofus.server.game.protocol.chat.ChatMessageLinks\"\xf7\x02\n\x17\x43hatChannelMessageEvent\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x44\n\x07\x63hannel\x18\x02 \x01(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel\x12\x0c\n\x04\x64\x61te\x18\x03 \x01(\t\x12\x1b\n\x13sender_character_id\x18\x04 \x01(\x03\x12\x19\n\x11sender_account_id\x18\x05 \x01(\x03\x12\x15\n\rsender_prefix\x18\x06 \x01(\t\x12\x13\n\x0bsender_name\x18\x07 \x01(\t\x12\x12\n\nfrom_admin\x18\x08 \x01(\x08\x12K\n\x05links\x18\t \x01(\x0b\x32<.com.ankama.dofus.server.game.protocol.chat.ChatMessageLinks\x12\x1d\n\x10origin_server_id\x18\n \x01(\x05H\x00\x88\x01\x01\x42\x13\n\x11_origin_server_id\"\xac\x02\n\x0e\x43hatErrorEvent\x12O\n\x05\x65rror\x18\x01 \x01(\x0e\x32@.com.ankama.dofus.server.game.protocol.chat.ChatErrorEvent.Error\"\xc8\x01\n\x05\x45rror\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x16\n\x12RECEIVER_NOT_FOUND\x10\x01\x12\x16\n\x12INTERIOR_MONOLOGUE\x10\x02\x12\x0c\n\x08NO_GUILD\x10\x03\x12\x0c\n\x08NO_PARTY\x10\x04\x12\x0c\n\x08\x41LLIANCE\x10\x05\x12\x0f\n\x0bINVALID_MAP\x10\x06\x12\x12\n\x0eNO_PARTY_ARENA\x10\x07\x12\x0b\n\x07NO_TEAM\x10\x08\x12\x15\n\x11MALFORMED_CONTENT\x10\t\x12\x0f\n\x0bNO_EXCHANGE\x10\n\"\xbe\x01\n\x1fSubscribeMultipleChannelRequest\x12L\n\x0f\x63hannel_enabled\x18\x01 \x03(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel\x12M\n\x10\x63hannel_disabled\x18\x02 \x03(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel\"j\n\x12\x43hannelUpdateEvent\x12\x44\n\x07\x63hannel\x18\x01 \x01(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel\x12\x0e\n\x06\x65nable\x18\x02 \x01(\x08\"\xb8\x01\n\x18\x43hatChannelsEnabledEvent\x12L\n\x0f\x61\x63tive_channels\x18\x01 \x03(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel\x12N\n\x11\x64isabled_channels\x18\x02 \x03(\x0e\x32\x33.com.ankama.dofus.server.game.protocol.chat.Channel*\xfe\x01\n\x07\x43hannel\x12\n\n\x06GLOBAL\x10\x00\x12\x08\n\x04TEAM\x10\x01\x12\t\n\x05GUILD\x10\x02\x12\x0c\n\x08\x41LLIANCE\x10\x03\x12\t\n\x05PARTY\x10\x04\x12\t\n\x05SALES\x10\x05\x12\x08\n\x04SEEK\x10\x06\x12\x08\n\x04NOOB\x10\x07\x12\t\n\x05\x41\x44MIN\x10\x08\x12\t\n\x05\x41RENA\x10\t\x12\x0b\n\x07PRIVATE\x10\n\x12\x0e\n\nCOMMUNAUTY\x10\x0b\x12\x08\n\x04INFO\x10\x0c\x12\r\n\tFIGHT_LOG\x10\r\x12\x07\n\x03\x41\x44S\x10\x0e\x12\t\n\x05\x45VENT\x10\x0f\x12\x0c\n\x08\x45XCHANGE\x10\x10\x12\r\n\tTERRITORY\x10\x11\x12\x0e\n\nGUILD_RAID\x10\x12\x12\r\n\tJESAISPAS\x10\x13\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chat_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_CHANNEL']._serialized_start=2260
-  _globals['_CHANNEL']._serialized_end=2514
+  _globals['_CHANNEL']._serialized_start=2370
+  _globals['_CHANNEL']._serialized_end=2624
   _globals['_CHATMESSAGELINKS']._serialized_start=73
-  _globals['_CHATMESSAGELINKS']._serialized_end=244
-  _globals['_UNKNOWNKSU']._serialized_start=247
-  _globals['_UNKNOWNKSU']._serialized_end=475
-  _globals['_CHATPRIVATEMESSAGEREQUEST']._serialized_start=478
-  _globals['_CHATPRIVATEMESSAGEREQUEST']._serialized_end=698
-  _globals['_CHATPRIVATECOPYMESSAGEEVENT']._serialized_start=701
-  _globals['_CHATPRIVATECOPYMESSAGEEVENT']._serialized_end=894
-  _globals['_CHATCHANNELMESSAGEREQUEST']._serialized_start=897
-  _globals['_CHATCHANNELMESSAGEREQUEST']._serialized_end=1088
-  _globals['_CHATCHANNELMESSAGEEVENT']._serialized_start=1091
-  _globals['_CHATCHANNELMESSAGEEVENT']._serialized_end=1466
-  _globals['_CHATERROREVENT']._serialized_start=1469
-  _globals['_CHATERROREVENT']._serialized_end=1769
-  _globals['_CHATERROREVENT_ERROR']._serialized_start=1569
-  _globals['_CHATERROREVENT_ERROR']._serialized_end=1769
-  _globals['_SUBSCRIBEMULTIPLECHANNELREQUEST']._serialized_start=1772
-  _globals['_SUBSCRIBEMULTIPLECHANNELREQUEST']._serialized_end=1962
-  _globals['_CHANNELUPDATEEVENT']._serialized_start=1964
-  _globals['_CHANNELUPDATEEVENT']._serialized_end=2070
-  _globals['_CHATCHANNELSENABLEDEVENT']._serialized_start=2073
-  _globals['_CHATCHANNELSENABLEDEVENT']._serialized_end=2257
+  _globals['_CHATMESSAGELINKS']._serialized_end=261
+  _globals['_UNKNOWNONEHUNDREDTWO']._serialized_start=264
+  _globals['_UNKNOWNONEHUNDREDTWO']._serialized_end=585
+  _globals['_CHATPRIVATEMESSAGEREQUEST']._serialized_start=588
+  _globals['_CHATPRIVATEMESSAGEREQUEST']._serialized_end=808
+  _globals['_CHATPRIVATECOPYMESSAGEEVENT']._serialized_start=811
+  _globals['_CHATPRIVATECOPYMESSAGEEVENT']._serialized_end=1004
+  _globals['_CHATCHANNELMESSAGEREQUEST']._serialized_start=1007
+  _globals['_CHATCHANNELMESSAGEREQUEST']._serialized_end=1198
+  _globals['_CHATCHANNELMESSAGEEVENT']._serialized_start=1201
+  _globals['_CHATCHANNELMESSAGEEVENT']._serialized_end=1576
+  _globals['_CHATERROREVENT']._serialized_start=1579
+  _globals['_CHATERROREVENT']._serialized_end=1879
+  _globals['_CHATERROREVENT_ERROR']._serialized_start=1679
+  _globals['_CHATERROREVENT_ERROR']._serialized_end=1879
+  _globals['_SUBSCRIBEMULTIPLECHANNELREQUEST']._serialized_start=1882
+  _globals['_SUBSCRIBEMULTIPLECHANNELREQUEST']._serialized_end=2072
+  _globals['_CHANNELUPDATEEVENT']._serialized_start=2074
+  _globals['_CHANNELUPDATEEVENT']._serialized_end=2180
+  _globals['_CHATCHANNELSENABLEDEVENT']._serialized_start=2183
+  _globals['_CHATCHANNELSENABLEDEVENT']._serialized_end=2367
 # @@protoc_insertion_point(module_scope)

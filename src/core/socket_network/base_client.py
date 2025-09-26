@@ -73,8 +73,12 @@ class BaseClient:
                         break
                     self.handle(data)
         except (ConnectionResetError, BrokenPipeError, OSError, ValueError) as err:
-            stop_reason = f"network error: {type(err).__name__}: {err}"
-            self.bot.logger.warning(f"[{self.client_label}] Network error in socket loop: {err}")
+            if self._is_closed:
+                stop_reason = f"socket closed during shutdown: {type(err).__name__}: {err}"
+                self.bot.logger.debug(f"[{self.client_label}] {stop_reason}")
+            else:
+                stop_reason = f"network error: {type(err).__name__}: {err}"
+                self.bot.logger.warning(f"[{self.client_label}] Network error in socket loop: {err}")
         finally:
             self.bot.logger.info(f"[{self.client_label}] Socket loop stopping: {stop_reason}")
             self.close()

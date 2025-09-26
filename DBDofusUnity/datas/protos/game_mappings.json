@@ -16,7 +16,9 @@
   },
   ".com.ankama.dofus.server.game.protocol.achievement.AchievementRewardRequest": {
     "obf_msg_namespace": "mga",
-    "field_mapping": {}
+    "field_mapping": {
+      "geys": "achievement_id"
+    }
   },
   ".com.ankama.dofus.server.game.protocol.achievement.AchievementRewardResultEvent": {
     "obf_msg_namespace": "mfs",
@@ -134,28 +136,7 @@
   ".com.ankama.dofus.server.game.protocol.breeding.MountBoostRequest": {
     "obf_msg_namespace": "hun",
     "field_mapping": {
-      "fnto": "unknown_fnto"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHqv": {
-    "obf_msg_namespace": "hqv",
-    "field_mapping": {
-      "fnhs": "unknown_fnhs",
-      "fnht": "unknown_fnht"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHqw": {
-    "obf_msg_namespace": "hqw",
-    "field_mapping": {
-      "fnhx": "unknown_fnhx"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHut": {
-    "obf_msg_namespace": "hut",
-    "field_mapping": {
-      "fnuk": "unknown_fnuk",
-      "fnul": "unknown_fnul",
-      "fnum": "unknown_fnum"
+      "fnto": "unknown_one_hundred_twenty_two"
     }
   },
   ".com.ankama.dofus.server.game.protocol.challenge.ChallengeBonusChoiceRequest": {
@@ -358,8 +339,6 @@
     "obf_msg_namespace": "lef",
     "field_mapping": {
       "gakx": "base",
-      "gaky": "unknown_gaky",
-      "gakz": "unknown_gakz",
       "galb": "context_modification",
       "galc": "objects_and_mount_bonus",
       "gald": "used",
@@ -397,7 +376,8 @@
       "gclw": "colors",
       "gclx": "character_to_remodel_information",
       "gcly": "unknown",
-      "gclz": "gender"
+      "gclz": "gender",
+      "gcma": "breed_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.EntityDisposition": {
@@ -414,8 +394,7 @@
     "field_mapping": {
       "gbaf": "indexed_colors",
       "gbag": "bones_id",
-      "gbah": "unknown_gbah",
-      "gbai": "unknown_gbai",
+      "gbah": "unknown_two_hundred_twelve",
       "gbaj": "skins",
       "gbak": "scales",
       "gbal": "sub_entities"
@@ -489,7 +468,7 @@
       "gccl": "creature_family",
       "gcck": "monster_count",
       "gccn": "mount",
-      "gcch": "unknown_gcch"
+      "gcch": "unknown_two_hundred_sixty_four"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.ObjectItem": {
@@ -499,7 +478,7 @@
       "gbtt": "effects",
       "gbtu": "quantity",
       "gbtv": "uid",
-      "gbtw": "unknown_gdgv"
+      "gbtw": "unknown_two_hundred_sixty_five"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.ObjectItemInventory": {
@@ -516,6 +495,13 @@
     "field_mapping": {
       "gbsw": "object_uid",
       "gbsx": "quantity"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.common.PlayerSearch": {
+    "obf_msg_namespace": "lgf",
+    "field_mapping": {
+      "gauu": "search_by_character_name",
+      "gaut": "search_by_account"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.SpawnInformation": {
@@ -580,7 +566,9 @@
   },
   ".com.ankama.dofus.server.game.protocol.contact.FriendListRequest": {
     "obf_msg_namespace": "kno",
-    "field_mapping": {}
+    "field_mapping": {
+      "fyht": "unknown_two_hundred_eighty_five"
+    }
   },
   ".com.ankama.dofus.server.game.protocol.contact.FriendSetStatusShareRequest": {
     "obf_msg_namespace": "koe",
@@ -594,6 +582,12 @@
       "fygl": "enable"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.contact.IgnoreRequest": {
+    "obf_msg_namespace": "kpa",
+    "field_mapping": {
+      "fymh": "player_search"
+    }
+  },
   ".com.ankama.dofus.server.game.protocol.context.ContextCreationEvent": {
     "obf_msg_namespace": "kmp",
     "field_mapping": {
@@ -605,7 +599,7 @@
     "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.context.ContextQuitRequest": {
-    "obf_msg_namespace": "jew",
+    "obf_msg_namespace": "kme",
     "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.context.ContextReadyRequest": {
@@ -640,7 +634,9 @@
   },
   ".com.ankama.dofus.server.game.protocol.dialog.DialogLeaveRequest": {
     "obf_msg_namespace": "kla",
-    "field_mapping": {}
+    "field_mapping": {
+      "fyam": "unknown_three_hundred_twenty_three"
+    }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.BidItem": {
     "obf_msg_namespace": "kfa",
@@ -655,21 +651,24 @@
     "obf_msg_namespace": "kgi",
     "field_mapping": {}
   },
+  ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidBuyerStartedEvent": {
+    "obf_msg_namespace": "kdw",
+    "field_mapping": {
+      "fwyl": "selling_conditions"
+    }
+  },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseItemAddedEvent": {
     "obf_msg_namespace": "kes",
     "field_mapping": {
       "fxce": "item",
       "fxcf": "unsold_delay",
-      "fxcg": "unknown_fxcg",
-      "fxch": "price",
-      "fxci": "unknown_fxci"
+      "fxch": "price"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseItemRemovedEvent": {
     "obf_msg_namespace": "ken",
     "field_mapping": {
-      "fxbe": "sell_id",
-      "fxbf": "unknown_fxbf"
+      "fxbe": "sell_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHousePriceRequest": {
@@ -689,15 +688,13 @@
     "obf_msg_namespace": "kdk",
     "field_mapping": {
       "fwxe": "follow",
-      "fwxf": "unknown_fwxf",
       "fwxg": "type_id",
-      "fwxh": "unknown_fwxh"
+      "fwxh": "unknown_three_hundred_twenty_four"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidPriceEvent": {
     "obf_msg_namespace": "kcq",
     "field_mapping": {
-      "fwsw": "unknown_fwsw",
       "fwsx": "object_gid",
       "fwsy": "average_price",
       "fwsz": "bid_price_for_seller"
@@ -707,7 +704,6 @@
     "obf_msg_namespace": "kcq.kco",
     "field_mapping": {
       "fwsp": "minimal_prices",
-      "fwsq": "unknown_fwsq",
       "fwsr": "all_identical"
     }
   },
@@ -715,14 +711,12 @@
     "obf_msg_namespace": "kby",
     "field_mapping": {
       "fwqc": "items",
-      "fwqd": "unknown_fwqd",
       "fwqf": "selling_conditions"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidSellerStartedEvent.ItemToSellInBid": {
     "obf_msg_namespace": "kby.kbw",
     "field_mapping": {
-      "fwpv": "unknown_fwpv",
       "fwpw": "item",
       "fwpx": "price",
       "fwpy": "unsold_delay"
@@ -731,15 +725,14 @@
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeCraftCountModifiedEvent": {
     "obf_msg_namespace": "kgl",
     "field_mapping": {
-      "fxko": "count",
-      "fxkp": "unknown_fxkp"
+      "fxko": "count"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeCraftCountRequest": {
     "obf_msg_namespace": "kdx",
     "field_mapping": {
       "fwyp": "count",
-      "fwyq": "unknown_fwyq"
+      "fwyq": "unknown_three_hundred_twenty_five"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeCraftStartedEvent": {
@@ -758,9 +751,7 @@
     "obf_msg_namespace": "ket",
     "field_mapping": {
       "fxcm": "quantity",
-      "fxcn": "unknown_fxcn",
-      "fxco": "remote",
-      "fxcp": "unknown_fxcp"
+      "fxco": "remote"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeLeaveEvent": {
@@ -814,15 +805,12 @@
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangePlayerRequest": {
     "obf_msg_namespace": "keu",
     "field_mapping": {
-      "fxcu": "unknown_fxcu",
-      "fxcv": "target_id",
-      "fxcw": "unknown_fxcw"
+      "fxcv": "target_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeReadyEvent": {
     "obf_msg_namespace": "kgt",
     "field_mapping": {
-      "fxlv": "unknown_fxlv",
       "fxlx": "ready",
       "fxly": "character_id"
     }
@@ -845,7 +833,7 @@
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeSetCraftRecipeRequest": {
     "obf_msg_namespace": "kew",
     "field_mapping": {
-      "fxdf": "unknown_fxdf",
+      "fxdf": "unknown_three_hundred_thirty",
       "fxdg": "object_uid"
     }
   },
@@ -853,8 +841,8 @@
     "obf_msg_namespace": "kbk",
     "field_mapping": {
       "fwnv": "exchange_type",
-      "fwnw": "storage_max_slot",
-      "fwnx": "tab_number"
+      "fwnw": "tab_number",
+      "fwnx": "storage_max_slot"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeStartedWithPodsEvent": {
@@ -890,14 +878,13 @@
   ".com.ankama.dofus.server.game.protocol.exchange.SellingConditions": {
     "obf_msg_namespace": "kfw",
     "field_mapping": {
-      "fxhd": "npc_contextual_id",
       "fxhe": "max_item_level",
       "fxhf": "max_item_per_account",
-      "fxhg": "unknown_fxwx",
+      "fxhg": "npc_contextual_id",
       "fxhh": "tax_percentage",
       "fxhi": "unsold_delay",
       "fxhj": "tax_modification_percentage",
-      "fxhk": "unknown_fxhk",
+      "fxhk": "unknown_three_hundred_thirty_three",
       "fxhl": "types",
       "fxhm": "quantities"
     }
@@ -940,8 +927,8 @@
       "fwcl": "character_id",
       "fwcm": "extra_time",
       "fwcp": "base_time",
-      "fwcr": "unknown_fwyz",
-      "fwct": "unknown_fwze",
+      "fwcr": "unknown_three_hundred_thirty_eight",
+      "fwct": "unknown_three_hundred_thirty_nine",
       "fwcu": "remaining_time"
     }
   },
@@ -998,7 +985,7 @@
       "fuyk": "actors",
       "fuyl": "subarea_id",
       "fuym": "houses",
-      "fuyn": "unknown_fuyn",
+      "fuyn": "unknown_four_hundred_seven",
       "fuyo": "interactive_elements",
       "fuyp": "fights",
       "fuyq": "has_aggressive_monsters",
@@ -1258,14 +1245,7 @@
   ".com.ankama.dofus.server.game.protocol.player_info.PlayerInfoRequest": {
     "obf_msg_namespace": "kxh",
     "field_mapping": {
-      "fzpn": "unknown_fzpm"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownLag": {
-    "obf_msg_namespace": "lag",
-    "field_mapping": {
-      "gaab": "unknown_gaab",
-      "gaac": "unknown_gaac"
+      "fzpm": "unknown_seven_hundred_eighty_one"
     }
   },
   ".com.ankama.dofus.server.game.protocol.preset.CharacterPresetResetRequest": {
@@ -1331,12 +1311,6 @@
     "field_mapping": {
       "fpph": "preset_uuid",
       "fppi": "preset_type"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.preset.UnknownIin": {
-    "obf_msg_namespace": "iaz",
-    "field_mapping": {
-      "foou": "unknown_fppc"
     }
   },
   ".com.ankama.dofus.server.game.protocol.quest.QuestActive": {
@@ -1424,6 +1398,21 @@
       "fnfj": "monster_group_id"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.roleplay.PlayerFightFriendlyAnswerRequest": {
+    "obf_msg_namespace": "hpv",
+    "field_mapping": {
+      "fneu": "fight_id",
+      "fnev": "accept"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.roleplay.PlayerFightFriendlyRequestedEvent": {
+    "obf_msg_namespace": "hqc",
+    "field_mapping": {
+      "fnfu": "source_id",
+      "fnfv": "target_id",
+      "fnfw": "fight_id"
+    }
+  },
   ".com.ankama.dofus.server.game.protocol.social.ChatCommunityChannelSetCommunityRequest": {
     "obf_msg_namespace": "hos",
     "field_mapping": {
@@ -1450,6 +1439,14 @@
       "fmsg": "mutant_spells"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.teleportation.TeleportDestinationsEvent": {
+    "obf_msg_namespace": "hjj",
+    "field_mapping": {
+      "fmfi": "spawn_map_id",
+      "fmfk": "destinations",
+      "fmfl": "type"
+    }
+  },
   ".com.ankama.dofus.server.game.protocol.teleportation.TeleportRequest": {
     "obf_msg_namespace": "hjc",
     "field_mapping": {
@@ -1468,7 +1465,7 @@
     "obf_msg_namespace": "hvk",
     "field_mapping": {
       "fnvs": "report",
-      "fnvt": "unknown_fnvt"
+      "fnvt": "unknown_one"
     }
   },
   ".com.ankama.dofus.server.game.ReportRequest.Report": {
@@ -1477,13 +1474,6 @@
       "fnvf": "report_category",
       "fnvh": "description",
       "fnvi": "target_character_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.ReportRequest.UnknownHvi": {
-    "obf_msg_namespace": "hvk.hvi",
-    "field_mapping": {
-      "fnvn": "unknown_fnvn",
-      "fnvo": "unknown_fnvo"
     }
   },
   ".com.ankama.dofus.server.game.ReportResponse": {
@@ -1535,8 +1525,8 @@
   ".com.ankama.dofus.server.game.protocol.account.AccountRoleStatusEvent": {
     "obf_msg_namespace": "mgq",
     "field_mapping": {
-      "gfaj": "unknown_gfaj",
-      "gfak": "unknown_gfak",
+      "gfaj": "unknown_two",
+      "gfak": "unknown_three",
       "gfal": "role"
     }
   },
@@ -1549,16 +1539,15 @@
   ".com.ankama.dofus.server.game.protocol.account.AccountSecurityFlagsEvent.SecurityFlags": {
     "obf_msg_namespace": "mgt.mgr",
     "field_mapping": {
-      "gfap": "unknown_gfap",
-      "gfaq": "unknown_gfaq",
-      "gfar": "unknown_gfat",
-      "gfas": "unknown_gfas"
+      "gfap": "unknown_four",
+      "gfaq": "unknown_five",
+      "gfas": "unknown_six"
     }
   },
   ".com.ankama.dofus.server.game.protocol.account.AccountSubscriptionElapsedDurationUpdateEvent": {
-    "obf_msg_namespace": "jbz",
+    "obf_msg_namespace": "lsi",
     "field_mapping": {
-      "fsqi": "subscription_elapsed_duration"
+      "gcxc": "subscription_elapsed_duration"
     }
   },
   ".com.ankama.dofus.server.game.protocol.account.GuestLimitationEvent": {
@@ -1660,14 +1649,8 @@
       "gext": "achieved_achievements"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.achievement.AchievementsPioneerRanksResponse": {
-    "obf_msg_namespace": "las",
-    "field_mapping": {
-      "gabm": "achievements_pioneer_ranks"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.achievement.AchievementsPioneerRanksResponse.AchievementPioneerRank": {
-    "obf_msg_namespace": "jtg.jtd",
+    "obf_msg_namespace": "mfs.mfq",
     "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.admin.console.Command": {
@@ -1913,6 +1896,10 @@
     "obf_msg_namespace": "mcf",
     "field_mapping": {}
   },
+  ".com.ankama.dofus.server.game.protocol.alliance.information.AllianceMemberStartWarningOnConnectionRequest": {
+    "obf_msg_namespace": "mdj",
+    "field_mapping": {}
+  },
   ".com.ankama.dofus.server.game.protocol.alliance.information.AllianceMemberStopWarningOnConnectionRequest": {
     "obf_msg_namespace": "mda",
     "field_mapping": {}
@@ -1980,30 +1967,6 @@
       "genm": "hide_full_filter",
       "genn": "filter_type",
       "geno": "recruitment_type_filter"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.alliance.information.UnknownHic": {
-    "obf_msg_namespace": "hic",
-    "field_mapping": {
-      "flzo": "unknown_flzo"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.alliance.information.UnknownHig": {
-    "obf_msg_namespace": "hig",
-    "field_mapping": {
-      "fmaf": "unknown_fmaf"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.alliance.information.UnknownMcs": {
-    "obf_msg_namespace": "mcs",
-    "field_mapping": {
-      "gelr": "unknown_gelr"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.alliance.information.UnknownMdg": {
-    "obf_msg_namespace": "mdg",
-    "field_mapping": {
-      "genx": "unknown_genx"
     }
   },
   ".com.ankama.dofus.server.game.protocol.alliance.member.AllianceInvitationAnswerRequest": {
@@ -2240,14 +2203,6 @@
       "gebc": "information"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.alliance.recruitment.UnknownMae": {
-    "obf_msg_namespace": "mae",
-    "field_mapping": {
-      "gecb": "unknown_gecb",
-      "gecc": "unknown_gecc",
-      "gecd": "unknown_gecd"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.alteration.Alteration": {
     "obf_msg_namespace": "lzv",
     "field_mapping": {
@@ -2361,24 +2316,22 @@
   ".com.ankama.dofus.server.game.protocol.arena.ArenaModesStatusEvent": {
     "obf_msg_namespace": "ltd",
     "field_mapping": {
-      "gczw": "unknown_gczw"
+      "gczw": "unknown_fifteen"
     }
   },
   ".com.ankama.dofus.server.game.protocol.arena.ArenaModesStatusEvent.ArenaModeStatus": {
     "obf_msg_namespace": "ltd.ltb",
     "field_mapping": {
       "gczq": "type",
-      "gczr": "unknown_gczr",
-      "gczs": "unknown_gczs"
+      "gczr": "unknown_fourteen",
+      "gczs": "is_available"
     }
   },
   ".com.ankama.dofus.server.game.protocol.arena.ArenaModesStatusEvent.ArenaModeStatus.ArenaModeInformation": {
     "obf_msg_namespace": "ltd.ltb.lsz",
     "field_mapping": {
-      "gczh": "unknown_gczh",
-      "gczi": "unknown_gczi",
-      "gczk": "unknown_gczk",
-      "gczm": "unknown_gczm"
+      "gczh": "is_available",
+      "gczm": "player_count"
     }
   },
   ".com.ankama.dofus.server.game.protocol.arena.ArenaPlayerBehavioursEvent": {
@@ -2620,24 +2573,12 @@
       "gcpl": "date_id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.basic.CurrentServerStatusUpdateEvent": {
-    "obf_msg_namespace": "ike",
-    "field_mapping": {
-      "fpud": "status"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.basic.DateEvent": {
     "obf_msg_namespace": "lqq",
     "field_mapping": {
       "gcrh": "day",
       "gcri": "month",
       "gcrj": "year"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.basic.ServerMaintenanceEvent": {
-    "obf_msg_namespace": "jez",
-    "field_mapping": {
-      "ftay": "maintenance_date"
     }
   },
   ".com.ankama.dofus.server.game.protocol.basic.SystemMessageDisplayEvent": {
@@ -2653,12 +2594,6 @@
     "field_mapping": {
       "gcsc": "timezone_offset",
       "gcsd": "timestamp"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.basic.UnknownLqx": {
-    "obf_msg_namespace": "lqx",
-    "field_mapping": {
-      "gcss": "unknown_gcsr"
     }
   },
   ".com.ankama.dofus.server.game.protocol.basic.WhoAmIRequest": {
@@ -2710,45 +2645,123 @@
       "gcsn": "verbose"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.breach.BreachCurrentInformationEvent": {
+    "obf_msg_namespace": "iyj",
+    "field_mapping": {
+      "fsab": "unknown_thirty_one"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.breach.BreachEnterInstanceRequest": {
+    "obf_msg_namespace": "ixf",
+    "field_mapping": {
+      "fruz": "unknown_thirty_five",
+      "frva": "unknown_thirty_six"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.breach.BreachEnterInstanceRequest.BreachInstanceInformation": {
+    "obf_msg_namespace": "ixf.ixc",
+    "field_mapping": {
+      "frum": "instance_number"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.breach.BreachEnterInstanceResponse": {
+    "obf_msg_namespace": "izg",
+    "field_mapping": {
+      "fsda": "unknown_fifty_two",
+      "fsdc": "unknown_fifty_three",
+      "fsdd": "unknown_fifty_four",
+      "fsde": "unknown_fifty_five",
+      "fsdf": "unknown_fifty_six",
+      "fsdg": "unknown_fifty_seven",
+      "fsdh": "unknown_fifty_eight",
+      "fsdi": "unknown_fifty_nine",
+      "fsdk": "unknown_sixty",
+      "fsdm": "unknown_sixty_one",
+      "fsdn": "unknown_sixty_two",
+      "fsdo": "unknown_sixty_three",
+      "fsdp": "unknown_sixty_four",
+      "fsdq": "unknown_sixty_five",
+      "fsdr": "unknown_sixty_six",
+      "fsds": "unknown_sixty_seven",
+      "fsdt": "unknown_sixty_eight",
+      "fsdu": "unknown_sixty_nine",
+      "fsdv": "unknown_seventy",
+      "fsdw": "unknown_seventy_one",
+      "fsdx": "unknown_seventy_two",
+      "fsdy": "unknown_seventy_three"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.breach.BreachEnterRequest": {
+    "obf_msg_namespace": "iyc",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.breach.BreachExitEvent": {
+    "obf_msg_namespace": "ixg",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.breach.BreachExitRequest": {
+    "obf_msg_namespace": "iyx",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.breach.BreachExitResultEvent": {
+    "obf_msg_namespace": "iyb",
+    "field_mapping": {
+      "fryt": "exited"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.breach.BreachPlayerInformation": {
+    "obf_msg_namespace": "ixj",
+    "field_mapping": {
+      "frvl": "player_name",
+      "frvm": "gender",
+      "frvn": "player_id",
+      "frvo": "breed_id"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.breach.BreachRerollMonstersRequest": {
+    "obf_msg_namespace": "izh",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.breach.BreachRerollMonstersResponse": {
+    "obf_msg_namespace": "izj",
+    "field_mapping": {
+      "fsem": "unknown_seventy_four"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.breach.BreachRoomLootEvent": {
+    "obf_msg_namespace": "izo",
+    "field_mapping": {
+      "fsfj": "unknown_seventy_five",
+      "fsfk": "unknown_seventy_six"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.breach.BreachRoomLootRequest": {
+    "obf_msg_namespace": "ixq",
+    "field_mapping": {}
+  },
   ".com.ankama.dofus.server.game.protocol.breeding.MountBoostResponse": {
     "obf_msg_namespace": "htr",
     "field_mapping": {
-      "fnqu": "unknown_fnqx",
-      "fnqw": "unknown_fnqw"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.MountBoostResponse.UnknownHtp": {
-    "obf_msg_namespace": "htr.htp",
-    "field_mapping": {
-      "fnqq": "unknown_fnqq"
+      "fnqw": "unknown_one_hundred_twenty_four",
+      "fnqx": "unknown_one_hundred_twenty_five"
     }
   },
   ".com.ankama.dofus.server.game.protocol.breeding.PaddockInformationEvent": {
     "obf_msg_namespace": "hrc",
     "field_mapping": {
-      "fnik": "unknown_fnin",
-      "fnim": "unknown_fnip"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.PaddockInformationEvent.UnknownHra": {
-    "obf_msg_namespace": "hrc.hra",
-    "field_mapping": {
-      "fnif": "unknown_fnif",
-      "fnig": "unknown_fnig"
+      "fnin": "unknown_one_hundred_thirty",
+      "fnip": "unknown_one_hundred_thirty_one"
     }
   },
   ".com.ankama.dofus.server.game.protocol.breeding.PaddockInformationRequest": {
     "obf_msg_namespace": "hrl",
     "field_mapping": {
-      "fnjj": "unknown_fnjj",
-      "fnjk": "unknown_fnjk"
+      "fnjk": "unknown_one_hundred_thirty_two"
     }
   },
   ".com.ankama.dofus.server.game.protocol.breeding.PaddockListenStartRequest": {
     "obf_msg_namespace": "hqx",
-    "field_mapping": {
-      "fnib": "unknown_fnib"
-    }
+    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.breeding.PaddockListenStopEvent": {
     "obf_msg_namespace": "huu",
@@ -2758,301 +2771,35 @@
     "obf_msg_namespace": "hqq",
     "field_mapping": {}
   },
+  ".com.ankama.dofus.server.game.protocol.breeding.PaddockMountAddRequest": {
+    "obf_msg_namespace": "hse",
+    "field_mapping": {
+      "fnmh": "object_uids",
+      "fnmj": "unknown_one_hundred_thirty_three"
+    }
+  },
   ".com.ankama.dofus.server.game.protocol.breeding.PaddockMountsEvent": {
     "obf_msg_namespace": "huz",
     "field_mapping": {
-      "fnux": "unknown_fnux",
-      "fnuz": "unknown_fnuz"
+      "fnuz": "unknown_one_hundred_thirty_five"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.breeding.PaddockMountsEvent.UnknownHux": {
-    "obf_msg_namespace": "huz.hux",
+  ".com.ankama.dofus.server.game.protocol.breeding.PaddockMountsUpdateEvent": {
+    "obf_msg_namespace": "hty",
     "field_mapping": {
-      "fnut": "unknown_fnut"
+      "fnrr": "unknown_one_hundred_thirty_six",
+      "fnrs": "unknown_one_hundred_thirty_seven"
     }
   },
   ".com.ankama.dofus.server.game.protocol.breeding.PaddockSlotsEvent": {
     "obf_msg_namespace": "hus",
     "field_mapping": {
-      "fnug": "unknown_fnug"
+      "fnug": "unknown_one_hundred_thirty_eight"
     }
   },
   ".com.ankama.dofus.server.game.protocol.breeding.PaddockSlotsRequest": {
     "obf_msg_namespace": "hue",
     "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHql": {
-    "obf_msg_namespace": "hql",
-    "field_mapping": {
-      "fngc": "unknown_fngc",
-      "fngd": "unknown_fngd"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHqp": {
-    "obf_msg_namespace": "hqp",
-    "field_mapping": {
-      "fngk": "unknown_fngk"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHqu": {
-    "obf_msg_namespace": "hqu",
-    "field_mapping": {
-      "fnhc": "unknown_fnhc",
-      "fnhd": "unknown_fnhd",
-      "fnhe": "unknown_fnhe",
-      "fnhf": "unknown_fnhf",
-      "fnhg": "unknown_fnhg",
-      "fnhi": "unknown_fnhi",
-      "fnhj": "unknown_fnhj",
-      "fnhk": "unknown_fnhk",
-      "fnhl": "unknown_fnhl",
-      "fnhm": "unknown_fnhm",
-      "fnhn": "unknown_fnhn",
-      "fnho": "unknown_fnho"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHqu.UnknownHqr": {
-    "obf_msg_namespace": "hqu.hqr",
-    "field_mapping": {
-      "fngr": "unknown_fngr",
-      "fngt": "unknown_fngt"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHqu.UnknownHqs": {
-    "obf_msg_namespace": "hqu.hqs",
-    "field_mapping": {
-      "fngx": "unknown_fngx",
-      "fngy": "unknown_fngy"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHrh": {
-    "obf_msg_namespace": "hrh",
-    "field_mapping": {
-      "fniz": "unknown_fniz",
-      "fnja": "unknown_fnja"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHrh.UnknownHrf": {
-    "obf_msg_namespace": "hrh.hrf",
-    "field_mapping": {
-      "fniv": "unknown_fniv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHrz": {
-    "obf_msg_namespace": "hrz",
-    "field_mapping": {
-      "fnlk": "unknown_fnlk",
-      "fnll": "unknown_fnll"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHrz.UnknownHrq": {
-    "obf_msg_namespace": "hrz.hrq",
-    "field_mapping": {
-      "fnjt": "unknown_fnjt",
-      "fnju": "unknown_fnju",
-      "fnjv": "unknown_fnjv",
-      "fnjw": "unknown_fnjw",
-      "fnjx": "unknown_fnjx",
-      "fnjz": "unknown_fnjz",
-      "fnka": "unknown_fnka"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHrz.UnknownHrt": {
-    "obf_msg_namespace": "hrz.hrt",
-    "field_mapping": {
-      "fnkp": "unknown_fnkp",
-      "fnkq": "unknown_fnkq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHrz.UnknownHru": {
-    "obf_msg_namespace": "hrz.hru",
-    "field_mapping": {
-      "fnku": "unknown_fnku",
-      "fnkv": "unknown_fnkv",
-      "fnkw": "unknown_fnkw"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHrz.UnknownHrx": {
-    "obf_msg_namespace": "hrz.hrx",
-    "field_mapping": {
-      "fnla": "unknown_fnla",
-      "fnlc": "unknown_fnlc",
-      "fnld": "unknown_fnld",
-      "fnle": "unknown_fnle"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHsa": {
-    "obf_msg_namespace": "hsa",
-    "field_mapping": {
-      "fnlr": "unknown_fnlr",
-      "fnls": "unknown_fnls",
-      "fnlt": "unknown_fnlt",
-      "fnlv": "unknown_fnlv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHsb": {
-    "obf_msg_namespace": "hsb",
-    "field_mapping": {
-      "fnma": "unknown_fnlz"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHse": {
-    "obf_msg_namespace": "hse",
-    "field_mapping": {
-      "fnmh": "unknown_fnmh",
-      "fnmj": "unknown_fnmj"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHsm": {
-    "obf_msg_namespace": "hsm",
-    "field_mapping": {
-      "fnmx": "unknown_fnmx",
-      "fnmy": "unknown_fnmy"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHsm.UnknownHsk": {
-    "obf_msg_namespace": "hsm.hsk",
-    "field_mapping": {
-      "fnmr": "unknown_fnmr",
-      "fnms": "unknown_fnms"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHsn": {
-    "obf_msg_namespace": "hsn",
-    "field_mapping": {
-      "fnne": "unknown_fnne",
-      "fnnf": "unknown_fnnf"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHsu": {
-    "obf_msg_namespace": "hsu",
-    "field_mapping": {
-      "fnns": "unknown_fnnv",
-      "fnnt": "unknown_fnnt"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHsu.UnknownHss": {
-    "obf_msg_namespace": "hsu.hss",
-    "field_mapping": {
-      "fnnj": "unknown_fnnj",
-      "fnnk": "unknown_fnnk",
-      "fnnl": "unknown_fnnl",
-      "fnnm": "unknown_fnnm",
-      "fnnn": "unknown_fnnn"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHsv": {
-    "obf_msg_namespace": "hsv",
-    "field_mapping": {
-      "fnoa": "unknown_fnoa"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHsy": {
-    "obf_msg_namespace": "hsy",
-    "field_mapping": {
-      "fnos": "unknown_fnou"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHsz": {
-    "obf_msg_namespace": "hsz",
-    "field_mapping": {
-      "fnoy": "unknown_fnoy"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHta": {
-    "obf_msg_namespace": "hta",
-    "field_mapping": {
-      "fnpc": "unknown_fnpc",
-      "fnpd": "unknown_fnpd",
-      "fnpe": "unknown_fnpe"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHtf": {
-    "obf_msg_namespace": "htf",
-    "field_mapping": {
-      "fnpn": "unknown_fnpn",
-      "fnpp": "unknown_fnpp"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHtf.UnknownHtd": {
-    "obf_msg_namespace": "htf.htd",
-    "field_mapping": {
-      "fnpi": "unknown_fnpi"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHti": {
-    "obf_msg_namespace": "hti",
-    "field_mapping": {
-      "fnpu": "unknown_fnpu"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHtl": {
-    "obf_msg_namespace": "htl",
-    "field_mapping": {
-      "fnpy": "unknown_fnpy"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHtu": {
-    "obf_msg_namespace": "htu",
-    "field_mapping": {
-      "fnrd": "unknown_fnrd",
-      "fnre": "unknown_fnre",
-      "fnrg": "unknown_fnrg",
-      "fnri": "unknown_fnri"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHty": {
-    "obf_msg_namespace": "hty",
-    "field_mapping": {
-      "fnrr": "unknown_fnrr",
-      "fnrs": "unknown_fnrs"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHtz": {
-    "obf_msg_namespace": "htz",
-    "field_mapping": {
-      "fnrw": "unknown_fnrw",
-      "fnrx": "unknown_fnrx"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHua": {
-    "obf_msg_namespace": "hua",
-    "field_mapping": {
-      "fnsb": "unknown_fnsb"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHub": {
-    "obf_msg_namespace": "hub",
-    "field_mapping": {
-      "fnsg": "unknown_fnsg"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHuh": {
-    "obf_msg_namespace": "huh",
-    "field_mapping": {
-      "fnsu": "unknown_fnsu",
-      "fnsv": "unknown_fnsv",
-      "fnsx": "unknown_fnsx"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHum": {
-    "obf_msg_namespace": "hum",
-    "field_mapping": {
-      "fnth": "unknown_fnth",
-      "fntj": "unknown_fntj"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHum.UnknownHuk": {
-    "obf_msg_namespace": "hum.huk",
-    "field_mapping": {
-      "fntc": "unknown_fntc"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.breeding.UnknownHur": {
-    "obf_msg_namespace": "hur",
-    "field_mapping": {
-      "fnuc": "unknown_fnuc"
-    }
   },
   ".com.ankama.dofus.server.game.protocol.calendar.CalendarEntry": {
     "obf_msg_namespace": "mdn",
@@ -3072,7 +2819,7 @@
   ".com.ankama.dofus.server.game.protocol.calendar.CalendarOccurrence": {
     "obf_msg_namespace": "mdr",
     "field_mapping": {
-      "gepg": "unknown_gepg",
+      "gepg": "event_uuid",
       "geph": "description_id",
       "gepi": "end_date",
       "gepk": "start_date"
@@ -3091,10 +2838,22 @@
       "fznq": "challenge"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.challenge.ChallengeBonusChoiceSelectedEvent": {
+    "obf_msg_namespace": "kwk",
+    "field_mapping": {
+      "fzng": "challenge_bonus"
+    }
+  },
   ".com.ankama.dofus.server.game.protocol.challenge.ChallengeListEvent": {
     "obf_msg_namespace": "kwu",
     "field_mapping": {
       "fzoi": "challenges"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.challenge.ChallengeModSelectedEvent": {
+    "obf_msg_namespace": "kwn",
+    "field_mapping": {
+      "fznu": "challenge_mod"
     }
   },
   ".com.ankama.dofus.server.game.protocol.challenge.ChallengeNumberEvent": {
@@ -3113,7 +2872,7 @@
   ".com.ankama.dofus.server.game.protocol.challenge.ChallengeSelectedEvent": {
     "obf_msg_namespace": "kww",
     "field_mapping": {
-      "fzor": "challenge"
+      "fzoq": "challenge"
     }
   },
   ".com.ankama.dofus.server.game.protocol.challenge.ChallengeTargetsEvent": {
@@ -3167,11 +2926,19 @@
       "fzhv": "restrictions"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.character.GameOverEvent": {
+    "obf_msg_namespace": "kuc",
+    "field_mapping": {}
+  },
   ".com.ankama.dofus.server.game.protocol.character.LifePointsRegenBeginEvent": {
     "obf_msg_namespace": "ktz",
     "field_mapping": {
       "fzfn": "regen_rate"
     }
+  },
+  ".com.ankama.dofus.server.game.protocol.character.PlayerStatusUpdateErrorEvent": {
+    "obf_msg_namespace": "kty",
+    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.character.PlayerStatusUpdateRequest": {
     "obf_msg_namespace": "kus",
@@ -3191,21 +2958,17 @@
     "obf_msg_namespace": "kuh",
     "field_mapping": {}
   },
-  ".com.ankama.dofus.server.game.protocol.character.UnknownKug": {
-    "obf_msg_namespace": "kug",
-    "field_mapping": {
-      "fzgi": "unknown_fzgi"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.character.UpdateLifePointsEvent": {
-    "obf_msg_namespace": "kts",
-    "field_mapping": {}
+    "obf_msg_namespace": "kuq",
+    "field_mapping": {
+      "fzhm": "life_points",
+      "fzhn": "life_points_gained",
+      "fzhq": "max_life_points"
+    }
   },
   ".com.ankama.dofus.server.game.protocol.character.management.CanCharacterBeCreatedResultEvent": {
-    "obf_msg_namespace": "ijk",
-    "field_mapping": {
-      "fprw": "result"
-    }
+    "obf_msg_namespace": "kvm",
+    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.character.management.CanCreateCharacterRequest": {
     "obf_msg_namespace": "kvh",
@@ -3351,18 +3114,6 @@
       "fzme": "character_id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.character.management.UnknownIjn": {
-    "obf_msg_namespace": "ijn",
-    "field_mapping": {
-      "fpsk": "unknown_fpsk"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.character.management.UnknownIjt": {
-    "obf_msg_namespace": "ijt",
-    "field_mapping": {
-      "fpsv": "unknown_fpsw"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.chat.ChannelUpdateEvent": {
     "obf_msg_namespace": "ktq",
     "field_mapping": {
@@ -3395,7 +3146,7 @@
     "obf_msg_namespace": "ktp",
     "field_mapping": {
       "fzds": "objects",
-      "fzdt": "unknown_fzsv"
+      "fzdt": "unknown_two_hundred"
     }
   },
   ".com.ankama.dofus.server.game.protocol.chat.ChatPrivateCopyMessageEvent": {
@@ -3407,18 +3158,6 @@
       "fzcd": "content"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.chat.UnknownKsu": {
-    "obf_msg_namespace": "kte",
-    "field_mapping": {
-      "fzbh": "unknown_fztn",
-      "fzbi": "unknown_fztp",
-      "fzbj": "unknown_fzto",
-      "fzbk": "unknown_fztk",
-      "fzbl": "unknown_fztj",
-      "fzbm": "unknown_fztl",
-      "fzbn": "unknown_fztm"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.choice.Choice": {
     "obf_msg_namespace": "ksw",
     "field_mapping": {
@@ -3426,21 +3165,11 @@
       "fzah": "id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.choice.ChoiceSelectedEvent": {
-    "obf_msg_namespace": "jla",
-    "field_mapping": {
-      "ftwi": "position"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.choice.ChoiceSelectedRequest": {
     "obf_msg_namespace": "kso",
     "field_mapping": {
       "fyza": "position"
     }
-  },
-  ".com.ankama.dofus.server.game.protocol.choice.ChoiceSelectionEvent": {
-    "obf_msg_namespace": "ksl",
-    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.choice.CurrentGlobalChoiceSelectionEvent": {
     "obf_msg_namespace": "ksv",
@@ -3474,13 +3203,6 @@
     "field_mapping": {
       "fyyv": "choices",
       "fyyw": "selection_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.choice.GlobalChoiceVoteEvent": {
-    "obf_msg_namespace": "ksu",
-    "field_mapping": {
-      "fyzv": "player_id",
-      "fyzw": "choice_position"
     }
   },
   ".com.ankama.dofus.server.game.protocol.choice.VotedChoice": {
@@ -3583,8 +3305,7 @@
     "obf_msg_namespace": "ljx.ljv.lja.lip",
     "field_mapping": {
       "gbhd": "name",
-      "gbhf": "humanoid_information",
-      "gbhe": "mount_information"
+      "gbhf": "humanoid_information"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Humanoid": {
@@ -3676,10 +3397,6 @@
       "gbgk": "power_level",
       "gbgl": "monster_id"
     }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NamedActor.Mount": {
-    "obf_msg_namespace": "ljx.ljv.lja.lip.lin",
-    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.common.ActorPositionInformation.ActorInformation.RolePlayActor.NpcStaticInformation.Quests": {
     "obf_msg_namespace": "ljx.ljv.lja.liy.liw",
@@ -3784,9 +3501,18 @@
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.BreachBranch.ExtendedBreachBranch": {
-    "obf_msg_namespace": "lgl.lgj",
+    "obf_msg_namespace": "llc.lko",
     "field_mapping": {
-      "gavk": "unlock_price"
+      "gbod": "price",
+      "gbog": "modifier"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.common.BreachReward": {
+    "obf_msg_namespace": "lni",
+    "field_mapping": {
+      "gccy": "price",
+      "gccz": "remaining_quantity",
+      "gcda": "id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.ChallengeTarget": {
@@ -3913,15 +3639,6 @@
       "gabs": "message"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.common.EntityLook.UnknownLhe": {
-    "obf_msg_namespace": "lhg.lhe",
-    "field_mapping": {
-      "gazx": "unknown_gazx",
-      "gazy": "unknown_gazy",
-      "gazz": "unknown_gazz",
-      "gbab": "unknown_gbab"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.common.FightEffectTriggerCount": {
     "obf_msg_namespace": "llh",
     "field_mapping": {
@@ -3931,11 +3648,11 @@
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.FightExternalInformation": {
-    "obf_msg_namespace": "jle",
+    "obf_msg_namespace": "kss",
     "field_mapping": {
-      "ftwr": "fight_start",
-      "ftws": "fight_id",
-      "ftwt": "fight_type"
+      "fyzm": "fight_spectator_locked",
+      "fyzn": "fight_id",
+      "fyzo": "fight_teams_with_options"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.FightMark": {
@@ -3982,18 +3699,17 @@
     "field_mapping": {
       "gaze": "parent_boost_id",
       "gazf": "target_id",
-      "gazg": "unknown_gccp",
+      "gazg": "unknown_two_hundred_sixteen",
       "gazh": "effect_id",
-      "gazj": "unknown_gcce",
-      "gazk": "unknown_gccn",
-      "gazl": "unknown_gccj",
-      "gazm": "unknown_gcci",
+      "gazi": "unknown_two_hundred_fifteen",
+      "gazj": "unknown_two_hundred_thirteen",
+      "gazk": "unknown_two_hundred_eighteen",
       "gazn": "turn_duration",
-      "gazo": "unknown_gcch",
-      "gazp": "unknown_gccf",
+      "gazo": "unknown_two_hundred_nineteen",
+      "gazp": "unknown_two_hundred_fourteen",
       "gazq": "uid",
       "gazr": "spell_id",
-      "gazs": "unknown_gccl",
+      "gazs": "unknown_two_hundred_seventeen",
       "gazt": "dissipation_state"
     }
   },
@@ -4017,7 +3733,8 @@
   ".com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FightLoot": {
     "obf_msg_namespace": "lmm.llq",
     "field_mapping": {
-      "gbvf": "kamas"
+      "gbvf": "kamas",
+      "gbvh": "objects"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FightLoot.Object": {
@@ -4054,38 +3771,34 @@
   ".com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FighterListEntry.PlayerListEntry.FightResultAdditionalData": {
     "obf_msg_namespace": "lmm.lmk.lmg.lme",
     "field_mapping": {
-      "gbxk": "experience_data"
+      "gbxl": "experience_data"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FighterListEntry.PlayerListEntry.FightResultAdditionalData.ExperienceData": {
-    "obf_msg_namespace": "lmm.lmk.lmg.lme.lmc",
+    "obf_msg_namespace": "lmm.lmk.lmg.lme.llz",
     "field_mapping": {
-      "gbxc": "experience_level_floor",
-      "gbxd": "experience_next_level_floor",
-      "gbxe": "experience_fight_delta",
-      "gbxf": "experience_for_guild",
-      "gbxg": "re_roll_experience_multiplier"
+      "gbwg": "experience",
+      "gbwh": "experience_level_floor",
+      "gbwi": "re_roll_experience_multiplier",
+      "gbwj": "show_experience_level_floor",
+      "gbwk": "experience_next_level_floor",
+      "gbwl": "experience_fight_delta",
+      "gbwm": "show_experience_next_level_floor",
+      "gbwn": "show_experience",
+      "gbwo": "show_experience_fight_delta"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FighterListEntry.PlayerListEntry.FightResultAdditionalData.PvpData": {
-    "obf_msg_namespace": "kis.kip.kim",
+    "obf_msg_namespace": "lpg.lpe.lon.lol.loj",
     "field_mapping": {
-      "fxsn": "min_honor_for_grade",
-      "fxso": "max_honor_for_grade"
+      "gchn": "min_honor_for_grade",
+      "gcho": "max_honor_for_grade"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FighterListEntry.TaxCollectorListEntry": {
     "obf_msg_namespace": "lmm.lmk.lmi",
     "field_mapping": {
       "gbya": "alliance_information"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.FightResultListEntry.UnknownLlw": {
-    "obf_msg_namespace": "lmm.llw",
-    "field_mapping": {
-      "gbwa": "unknown_gbwa",
-      "gbwb": "unknown_gbvy",
-      "gbwc": "unknown_gbwc"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.FightResumeSlaves": {
@@ -4160,8 +3873,6 @@
     "obf_msg_namespace": "lnq",
     "field_mapping": {
       "gceb": "member_id",
-      "gcec": "unknown_gcec",
-      "gced": "unknown_gced",
       "gcee": "character_member",
       "gceh": "entity_member",
       "gcef": "monster_member",
@@ -4191,22 +3902,11 @@
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.FightTemporaryBoostEffect.Details": {
-    "obf_msg_namespace": "lcr.lcp",
+    "obf_msg_namespace": "lmm.lmk.lmg.lme.lmc",
     "field_mapping": {
-      "gadd": "first_param"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.FightTemporarySpellImmunityEffect": {
-    "obf_msg_namespace": "kye",
-    "field_mapping": {
-      "fzsd": "immune_spell_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.FightTriggeredEffect": {
-    "obf_msg_namespace": "ieg",
-    "field_mapping": {
-      "foyw": "delay",
-      "foyy": "second_param"
+      "gbxc": "first_param",
+      "gbxd": "second_param",
+      "gbxe": "third_param"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.FighterEntityLightInformation": {
@@ -4341,95 +4041,6 @@
       "gbnq": "rank_activity_type"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry.UnknownLko": {
-    "obf_msg_namespace": "llc.lko",
-    "field_mapping": {
-      "gbod": "unknown_gbod",
-      "gboe": "unknown_gboe",
-      "gbof": "unknown_gbof",
-      "gbog": "unknown_gbog"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry.UnknownLkp": {
-    "obf_msg_namespace": "llc.lkp",
-    "field_mapping": {
-      "gbok": "unknown_gbon",
-      "gbom": "unknown_gbom",
-      "gboo": "unknown_gboq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry.UnknownLkq": {
-    "obf_msg_namespace": "llc.lkq",
-    "field_mapping": {
-      "gbou": "unknown_gbou",
-      "gbov": "unknown_gbov"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry.UnknownLks": {
-    "obf_msg_namespace": "llc.lks",
-    "field_mapping": {
-      "gbpe": "unknown_gbpe",
-      "gbpf": "unknown_gbpf",
-      "gbph": "unknown_gbpg"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry.UnknownLkt": {
-    "obf_msg_namespace": "llc.lkt",
-    "field_mapping": {
-      "gbpl": "unknown_gbpl",
-      "gbpm": "unknown_gbpm",
-      "gbpn": "unknown_gbpn"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry.UnknownLku": {
-    "obf_msg_namespace": "llc.lku",
-    "field_mapping": {
-      "gbps": "unknown_gbpr",
-      "gbpt": "unknown_gbpu",
-      "gbpu": "unknown_gbpt",
-      "gbpv": "unknown_gbpv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry.UnknownLkx": {
-    "obf_msg_namespace": "llc.lkx",
-    "field_mapping": {
-      "gbqi": "unknown_gbqi",
-      "gbqj": "unknown_gbqj",
-      "gbqk": "unknown_gbqk",
-      "gbql": "unknown_gbql",
-      "gbqm": "unknown_gbqm",
-      "gbqn": "unknown_gbqn"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry.UnknownLky": {
-    "obf_msg_namespace": "llc.lky",
-    "field_mapping": {
-      "gbqr": "unknown_gbqr",
-      "gbqs": "unknown_gbqs",
-      "gbqt": "unknown_gbqt",
-      "gbqu": "unknown_gbqu",
-      "gbqv": "unknown_gbqv",
-      "gbqw": "unknown_gbqw"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry.UnknownLkz": {
-    "obf_msg_namespace": "llc.lkz",
-    "field_mapping": {
-      "gbra": "unknown_gbrb",
-      "gbrb": "unknown_gbra",
-      "gbrc": "unknown_gbrd"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry.UnknownLla": {
-    "obf_msg_namespace": "llc.lla",
-    "field_mapping": {
-      "gbrh": "unknown_gbrh",
-      "gbri": "unknown_gbri",
-      "gbrj": "unknown_gbrj",
-      "gbrk": "unknown_gbrk",
-      "gbrl": "unknown_gbrl"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry.UnlockNewTabActivity": {
     "obf_msg_namespace": "llc.lki",
     "field_mapping": {}
@@ -4520,13 +4131,6 @@
       "gagk": "item_to_sell_in_npc_shop"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.common.ItemMinimalInformation.ItemToSellInNpcShop": {
-    "obf_msg_namespace": "ldm.ldk",
-    "field_mapping": {
-      "gafy": "price",
-      "gaga": "buy_criterion"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.common.MapCoordinates": {
     "obf_msg_namespace": "lfe",
     "field_mapping": {
@@ -4567,9 +4171,9 @@
   ".com.ankama.dofus.server.game.protocol.common.ObjectEffect.DofusDate": {
     "obf_msg_namespace": "lng.lmv",
     "field_mapping": {
-      "gcao": "minute",
-      "gcap": "day",
-      "gcaq": "month",
+      "gcao": "day",
+      "gcap": "month",
+      "gcaq": "minute",
       "gcar": "hour",
       "gcas": "year"
     }
@@ -4603,13 +4207,6 @@
       "gcbj": "model_id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.common.ObjectEffect.UnknownLmw": {
-    "obf_msg_namespace": "lng.lmw",
-    "field_mapping": {
-      "gcaw": "unknown_gcaw",
-      "gcax": "unknown_gcax"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.common.ObjectGidWithQuantity": {
     "obf_msg_namespace": "lfo",
     "field_mapping": {
@@ -4636,10 +4233,10 @@
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.ObjectInRolePlay.PaddockItem": {
-    "obf_msg_namespace": "lft.lfr",
+    "obf_msg_namespace": "llc.lkq",
     "field_mapping": {
-      "gary": "durability",
-      "garz": "durability_max"
+      "gbou": "durability",
+      "gbov": "durability_max"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.ObjectInRolePlay.WithLook": {
@@ -4649,9 +4246,13 @@
       "gars": "direction"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.common.PaddockInformation.PaddockInstances.PaddockToSell.PaddockGuildInformation": {
-    "obf_msg_namespace": "ldt.ldq.ldo",
-    "field_mapping": {}
+  ".com.ankama.dofus.server.game.protocol.common.PaddockInformation.PaddockContent.MountForPaddock": {
+    "obf_msg_namespace": "llc.lku",
+    "field_mapping": {
+      "gbpr": "model_id",
+      "gbpt": "owner_name",
+      "gbpu": "name"
+    }
   },
   ".com.ankama.dofus.server.game.protocol.common.PartyEntity": {
     "obf_msg_namespace": "lfx",
@@ -4678,13 +4279,6 @@
       "gcdr": "max_life_points"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.common.PlayerSearch": {
-    "obf_msg_namespace": "lgf",
-    "field_mapping": {
-      "gauu": "search_by_character_name",
-      "gaut": "search_by_account"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.common.PlayerSearch.SearchByAccount": {
     "obf_msg_namespace": "lgf.lgd",
     "field_mapping": {
@@ -4703,6 +4297,12 @@
     "field_mapping": {
       "gcct": "portal_id",
       "gccu": "area_id"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.common.PrismCristal": {
+    "obf_msg_namespace": "llj",
+    "field_mapping": {
+      "gbto": "type"
     }
   },
   ".com.ankama.dofus.server.game.protocol.common.PrismInformation": {
@@ -4760,7 +4360,7 @@
     "obf_msg_namespace": "lhs",
     "field_mapping": {
       "gbcv": "slot_id",
-      "gbcw": "unknown_gbcw",
+      "gbcw": "unknown_two_hundred_sixty_six",
       "gbdd": "shortcut_object_item",
       "gbcz": "shortcut_preset",
       "gbda": "shortcut_spell",
@@ -4935,74 +4535,6 @@
       "gajy": "placement_time_left"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.common.UnknownKlm": {
-    "obf_msg_namespace": "klm",
-    "field_mapping": {
-      "fybz": "unknown_fybz",
-      "fycb": "unknown_fycb"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.UnknownKlm.UnknownKlk": {
-    "obf_msg_namespace": "klm.klk",
-    "field_mapping": {
-      "fybs": "unknown_fybs",
-      "fybt": "unknown_fybt",
-      "fybu": "unknown_fybu",
-      "fybv": "unknown_fybv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.UnknownLgt": {
-    "obf_msg_namespace": "lgt",
-    "field_mapping": {
-      "gaxo": "unknown_gaxo",
-      "gaxp": "unknown_gaxp",
-      "gaxq": "unknown_gaxq",
-      "gaxr": "unknown_gaxr"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.UnknownLhp": {
-    "obf_msg_namespace": "lhp",
-    "field_mapping": {
-      "gbcj": "unknown_gbcj",
-      "gbck": "unknown_gbck",
-      "gbcl": "unknown_gbcl"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.UnknownLhq": {
-    "obf_msg_namespace": "lhq",
-    "field_mapping": {
-      "gbcp": "unknown_gbcp",
-      "gbcq": "unknown_gbcq",
-      "gbcr": "unknown_gbcr"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.UnknownLlz": {
-    "obf_msg_namespace": "lmm.lmk.lmg.lme.llz",
-    "field_mapping": {
-      "gbwn": "unknown_gbwj",
-      "gbwo": "unknown_gbwm"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.UnknownLma": {
-    "obf_msg_namespace": "llj",
-    "field_mapping": {
-      "gbtn": "unknown_gbtn"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.UnknownLmv": {
-    "obf_msg_namespace": "lni",
-    "field_mapping": {
-      "gccy": "unknown_gctr",
-      "gccz": "unknown_gcts"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.common.UnknownLoj": {
-    "obf_msg_namespace": "lpg.lpe.lon.lol.loj",
-    "field_mapping": {
-      "gchn": "unknown_gchn",
-      "gcho": "unknown_gcho"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.connection.AlreadyConnectedEvent": {
     "obf_msg_namespace": "kqs",
     "field_mapping": {}
@@ -5088,18 +4620,6 @@
     "obf_msg_namespace": "knv",
     "field_mapping": {
       "fyij": "success"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.contact.BlockEvent.UnknownKns": {
-    "obf_msg_namespace": "knv.kns",
-    "field_mapping": {
-      "fyhy": "unknown_fyhz"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.contact.BlockEvent.UnknownKnt": {
-    "obf_msg_namespace": "knv.knt",
-    "field_mapping": {
-      "fyie": "unknown_fyid"
     }
   },
   ".com.ankama.dofus.server.game.protocol.contact.BlockListEvent": {
@@ -5247,37 +4767,13 @@
   ".com.ankama.dofus.server.game.protocol.contact.IgnoreEvent": {
     "obf_msg_namespace": "kpy",
     "field_mapping": {
-      "fype": "success"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.contact.IgnoreEvent.UnknownKpv": {
-    "obf_msg_namespace": "kpy.kpv",
-    "field_mapping": {
-      "fyov": "unknown_fyou"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.contact.IgnoreEvent.UnknownKpw": {
-    "obf_msg_namespace": "kpy.kpw",
-    "field_mapping": {
-      "fyoz": "unknown_fyoz"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.contact.IgnoreRequest": {
-    "obf_msg_namespace": "kpa",
-    "field_mapping": {
-      "fymh": "player_search"
+      "fypd": "success"
     }
   },
   ".com.ankama.dofus.server.game.protocol.contact.UnBlockEvent": {
     "obf_msg_namespace": "knk",
     "field_mapping": {
       "fygz": "success"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.contact.UnBlockEvent.UnknownKni": {
-    "obf_msg_namespace": "knk.kni",
-    "field_mapping": {
-      "fygt": "unknown_fygt"
     }
   },
   ".com.ankama.dofus.server.game.protocol.contact.UnBlockRequest": {
@@ -5290,12 +4786,6 @@
     "obf_msg_namespace": "kox",
     "field_mapping": {
       "fymb": "success"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.contact.UnIgnoreEvent.UnknownKov": {
-    "obf_msg_namespace": "kox.kov",
-    "field_mapping": {
-      "fylw": "unknown_fylw"
     }
   },
   ".com.ankama.dofus.server.game.protocol.contact.UnIgnoreRequest": {
@@ -5355,43 +4845,10 @@
       "fyeb": "cell_id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.context.ShowCellTagOwnerEvent": {
-    "obf_msg_namespace": "ijj",
-    "field_mapping": {
-      "fpro": "owner_id",
-      "fprq": "cell_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.context.ShowCellTagRequest": {
-    "obf_msg_namespace": "ijl",
-    "field_mapping": {
-      "fpsa": "tag_type",
-      "fpsb": "cell_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.context.ShowCellTagsEvent": {
-    "obf_msg_namespace": "ijq",
-    "field_mapping": {
-      "fpso": "tag_type_by_cell_id",
-      "fpsq": "tag_type_by_entity_id"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.cosmetic.CharacterAppearanceCollectionEvent": {
     "obf_msg_namespace": "lwc",
     "field_mapping": {
-      "gdlp": "character_colors"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.CharacterAppearancesResponse": {
-    "obf_msg_namespace": "ksh",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.CharacterColors": {
-    "obf_msg_namespace": "lvs",
-    "field_mapping": {
-      "gdjj": "slots",
-      "gdjl": "color_palettes",
-      "gdjm": "max_slots"
+      "gdlp": "character_faces"
     }
   },
   ".com.ankama.dofus.server.game.protocol.cosmetic.CharacterColorsUpdatedEvent": {
@@ -5401,18 +4858,11 @@
       "gdjf": "colors"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.CharacterFaceUpdatedEvent": {
-    "obf_msg_namespace": "him",
-    "field_mapping": {
-      "fmba": "face_id",
-      "fmbb": "slot"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.cosmetic.CharacterFaces": {
-    "obf_msg_namespace": "hpn",
+    "obf_msg_namespace": "lvs",
     "field_mapping": {
-      "fncz": "max_slots",
-      "fndb": "faces"
+      "gdjj": "slots",
+      "gdjm": "max_slots"
     }
   },
   ".com.ankama.dofus.server.game.protocol.cosmetic.CharacterUpdateColorsRequest": {
@@ -5420,12 +4870,6 @@
     "field_mapping": {
       "gdhw": "slot",
       "gdhx": "colors"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.CharacterUpdateFaceRequest": {
-    "obf_msg_namespace": "jjw",
-    "field_mapping": {
-      "ftsv": "slot"
     }
   },
   ".com.ankama.dofus.server.game.protocol.cosmetic.ColorPalette": {
@@ -5446,19 +4890,6 @@
       "gdth": "object"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.CosmeticInventoryLivingObjectFeedRequest": {
-    "obf_msg_namespace": "iec",
-    "field_mapping": {
-      "foye": "gid",
-      "foyg": "food_object_uid"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.CosmeticInventoryLivingObjectFeedResponse": {
-    "obf_msg_namespace": "jkx",
-    "field_mapping": {
-      "ftvy": "success"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.cosmetic.CosmeticInventoryLoadedEvent": {
     "obf_msg_namespace": "lwt",
     "field_mapping": {
@@ -5466,15 +4897,9 @@
     }
   },
   ".com.ankama.dofus.server.game.protocol.cosmetic.CosmeticInventoryPopObjectRequest": {
-    "obf_msg_namespace": "jey",
+    "obf_msg_namespace": "jky",
     "field_mapping": {
-      "ftau": "gid"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.CosmeticInventoryPopObjectResponse": {
-    "obf_msg_namespace": "imk",
-    "field_mapping": {
-      "fqcv": "success"
+      "ftwc": "gid"
     }
   },
   ".com.ankama.dofus.server.game.protocol.cosmetic.Outfit": {
@@ -5533,7 +4958,7 @@
     "obf_msg_namespace": "lxo",
     "field_mapping": {
       "gdqy": "success",
-      "gdqz": "unknown_gdqz",
+      "gdqz": "unknown_two_hundred_ninety",
       "gdrb": "outfit"
     }
   },
@@ -5641,12 +5066,6 @@
       "gdwm": "success"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.OutfitEquipResponse": {
-    "obf_msg_namespace": "jkj",
-    "field_mapping": {
-      "ftud": "success"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.cosmetic.OutfitEquipTitleRequest": {
     "obf_msg_namespace": "lze",
     "field_mapping": {
@@ -5660,6 +5079,16 @@
       "gdpk": "is_owned"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.cosmetic.OutfitMenuRequest": {
+    "obf_msg_namespace": "lyk",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.cosmetic.OutfitRemoveRequest": {
+    "obf_msg_namespace": "lyr",
+    "field_mapping": {
+      "gdvs": "outfit_uuid"
+    }
+  },
   ".com.ankama.dofus.server.game.protocol.cosmetic.OutfitRemoveResponse": {
     "obf_msg_namespace": "lxl",
     "field_mapping": {
@@ -5669,9 +5098,9 @@
   ".com.ankama.dofus.server.game.protocol.cosmetic.OutfitSaveRequest": {
     "obf_msg_namespace": "lxs",
     "field_mapping": {
-      "gdrs": "unknown_gdrs",
+      "gdrs": "unknown_two_hundred_ninety_one",
       "gdrt": "name",
-      "gdru": "unknown_gdru"
+      "gdru": "unknown_two_hundred_ninety_two"
     }
   },
   ".com.ankama.dofus.server.game.protocol.cosmetic.OutfitUpdateRequest": {
@@ -5696,82 +5125,6 @@
       "gdwd": "current"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.UnknownLwn": {
-    "obf_msg_namespace": "lwn",
-    "field_mapping": {
-      "gdne": "unknown_gdne"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.UnknownLwq": {
-    "obf_msg_namespace": "lwq",
-    "field_mapping": {
-      "gdni": "unknown_gdni"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.UnknownLww": {
-    "obf_msg_namespace": "lww",
-    "field_mapping": {
-      "gdop": "unknown_gdop"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.UnknownLwy": {
-    "obf_msg_namespace": "lwy",
-    "field_mapping": {
-      "gdox": "unknown_gdox"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.UnknownLya": {
-    "obf_msg_namespace": "lya",
-    "field_mapping": {
-      "gdsz": "unknown_gdsz",
-      "gdtb": "unknown_gdtb"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.UnknownLya.UnknownLxy": {
-    "obf_msg_namespace": "lya.lxy",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.UnknownLye": {
-    "obf_msg_namespace": "lye",
-    "field_mapping": {
-      "gdtv": "unknown_gdtv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.UnknownLyg": {
-    "obf_msg_namespace": "lyg",
-    "field_mapping": {
-      "gduh": "unknown_gduh"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.UnknownLyk": {
-    "obf_msg_namespace": "lyk",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.UnknownLyn": {
-    "obf_msg_namespace": "lyn",
-    "field_mapping": {
-      "gdvi": "unknown_gdvi"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.UnknownLyo": {
-    "obf_msg_namespace": "lyo",
-    "field_mapping": {
-      "gdvm": "unknown_gdvm",
-      "gdvn": "unknown_gdvn"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.UnknownLyr": {
-    "obf_msg_namespace": "lyr",
-    "field_mapping": {
-      "gdvs": "unknown_gdvs"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.cosmetic.UnknownLyz": {
-    "obf_msg_namespace": "lyz",
-    "field_mapping": {
-      "gdwv": "unknown_gdwv"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.debt.DebtsDeleteEvent": {
     "obf_msg_namespace": "klu",
     "field_mapping": {
@@ -5793,20 +5146,6 @@
       "fycu": "kamas",
       "fycw": "timestamp"
     }
-  },
-  ".com.ankama.dofus.server.game.protocol.debug.DebugClearHighlightCellsEvent": {
-    "obf_msg_namespace": "krt",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.debug.DebugHighlightCellsEvent": {
-    "obf_msg_namespace": "kqq",
-    "field_mapping": {
-      "fyry": "cells"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.debug.DebugInClientEvent": {
-    "obf_msg_namespace": "lvw",
-    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.dialog.ChangeAppearanceDialogLeave": {
     "obf_msg_namespace": "klg",
@@ -5903,6 +5242,7 @@
       "fxnu": "actor_id",
       "fxnw": "emote_id",
       "fxny": "account_id",
+      "fxnz": "name",
       "fxoa": "emote_start_time"
     }
   },
@@ -5937,8 +5277,7 @@
       "fxgf": "object_uid",
       "fxgh": "runes",
       "fxgi": "bonus_max",
-      "fxgj": "bonus_min",
-      "fxgk": "unknown_fxgk"
+      "fxgj": "bonus_min"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.DecraftResultEvent.DecraftedItem.Rune": {
@@ -5946,12 +5285,6 @@
     "field_mapping": {
       "fxga": "rune_id",
       "fxgb": "quantity"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidBuyerStartedEvent": {
-    "obf_msg_namespace": "kdw",
-    "field_mapping": {
-      "fwyl": "selling_conditions"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseBuyRequest": {
@@ -5966,7 +5299,6 @@
     "obf_msg_namespace": "kcx",
     "field_mapping": {
       "fwun": "bid_item_uid",
-      "fwuo": "unknown_fwuo",
       "fwup": "bought"
     }
   },
@@ -5977,8 +5309,7 @@
       "fxfg": "object_type",
       "fxfh": "object_gid",
       "fxfi": "prices",
-      "fxfj": "bid_item_uid",
-      "fxfk": "unknown_fxfk"
+      "fxfj": "bid_item_uid"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeBidHouseInListRemovedEvent": {
@@ -5986,7 +5317,6 @@
     "field_mapping": {
       "fxmi": "object_gid",
       "fxmj": "object_type",
-      "fxmk": "unknown_fxmk",
       "fxml": "bid_item_uid"
     }
   },
@@ -6057,29 +5387,26 @@
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeFocusedReadyRequest": {
     "obf_msg_namespace": "kbj",
     "field_mapping": {
-      "fwno": "unknown_fwno",
       "fwnp": "ready",
       "fwnq": "step",
       "fwnr": "focus_action_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeHandleMountsRequest": {
-    "obf_msg_namespace": "lxh",
+    "obf_msg_namespace": "jav",
     "field_mapping": {
-      "gdql": "action_type"
+      "fsmd": "rides_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeItemAutoCraftStoppedEvent": {
     "obf_msg_namespace": "kcc",
     "field_mapping": {
-      "fwqn": "reason",
-      "fwqo": "unknown_fwqo"
+      "fwqn": "reason"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeJobIndexStartedEvent": {
     "obf_msg_namespace": "kfj",
     "field_mapping": {
-      "fxfo": "unknown_fxfo",
       "fxfp": "jobs"
     }
   },
@@ -6089,30 +5416,32 @@
       "fxeu": "limit"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.exchange.ExchangeMountStockStartedEvent": {
+    "obf_msg_namespace": "jwq",
+    "field_mapping": {}
+  },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeMountsPaddockRemoveEvent": {
     "obf_msg_namespace": "kck",
     "field_mapping": {
-      "fwsc": "unknown_fwsc"
+      "fwsc": "unknown_three_hundred_twenty_six"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeMountsStableAddedEvent": {
     "obf_msg_namespace": "kgk",
     "field_mapping": {
-      "fxkj": "unknown_fxkj",
+      "fxkj": "unknown_three_hundred_twenty_seven",
       "fxkk": "new_born"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeMountsStableRemoveEvent": {
     "obf_msg_namespace": "iac",
     "field_mapping": {
-      "foln": "unknown_foln",
       "folp": "mounts_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeMultiCraftCrafterStartedEvent": {
     "obf_msg_namespace": "keg",
     "field_mapping": {
-      "fwzy": "unknown_fwzy",
       "fwzz": "skill_id"
     }
   },
@@ -6120,9 +5449,7 @@
     "obf_msg_namespace": "kgw",
     "field_mapping": {
       "fxmp": "crafter_job_level",
-      "fxmq": "skill_id",
-      "fxmr": "unknown_fxmr",
-      "fxms": "unknown_fxms"
+      "fxmq": "skill_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeMultiCraftOkEvent": {
@@ -6138,9 +5465,7 @@
     "field_mapping": {
       "fwmn": "objects",
       "fwmo": "npc_seller_id",
-      "fwmp": "token_id",
-      "fwmq": "unknown_fwmq",
-      "fwmr": "unknown_fwmr"
+      "fwmp": "token_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeNpcTradeStartedEvent": {
@@ -6167,7 +5492,6 @@
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectPutInBagEvent": {
     "obf_msg_namespace": "ked",
     "field_mapping": {
-      "fwzi": "unknown_fwzi",
       "fwzk": "object",
       "fwzl": "remote"
     }
@@ -6183,8 +5507,7 @@
     "obf_msg_namespace": "keo",
     "field_mapping": {
       "fxbj": "object_uid",
-      "fxbk": "remote",
-      "fxbl": "unknown_fxbl"
+      "fxbk": "remote"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectTransferAllToInventoryRequest": {
@@ -6198,14 +5521,14 @@
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectTransferListFromInventoryRequest": {
     "obf_msg_namespace": "kdd",
     "field_mapping": {
-      "fwwb": "unknown_fwwb",
+      "fwwb": "unknown_three_hundred_twenty_eight",
       "fwwc": "objects_uid"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectTransferListToInventoryRequest": {
     "obf_msg_namespace": "kcz",
     "field_mapping": {
-      "fwux": "unknown_fwux",
+      "fwux": "unknown_three_hundred_twenty_nine",
       "fwuy": "objects_uid"
     }
   },
@@ -6219,17 +5542,14 @@
     "obf_msg_namespace": "kgd",
     "field_mapping": {
       "fxiz": "quantity",
-      "fxja": "unknown_fxja",
-      "fxjc": "object_uid",
-      "fxjd": "unknown_fxjd"
+      "fxjc": "object_uid"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectsModifiedEvent": {
     "obf_msg_namespace": "kex",
     "field_mapping": {
       "fxdk": "remote",
-      "fxdl": "objects",
-      "fxdm": "unknown_fxdm"
+      "fxdl": "objects"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeObjectsRemovedEvent": {
@@ -6271,9 +5591,7 @@
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeRecycleTradeStartedEvent": {
     "obf_msg_namespace": "kga",
     "field_mapping": {
-      "fxij": "unknown_fxij",
       "fxik": "percent_to_player",
-      "fxil": "unknown_fxil",
       "fxim": "adjacent_subareas_not_possessed",
       "fxin": "percent_to_prism",
       "fxio": "adjacent_subareas_possessed"
@@ -6281,9 +5599,7 @@
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeReplayStopRequest": {
     "obf_msg_namespace": "kbh",
-    "field_mapping": {
-      "fwng": "unknown_fwng"
-    }
+    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeSellRequest": {
     "obf_msg_namespace": "kea",
@@ -6307,27 +5623,24 @@
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeTaxCollectorEquipmentRequest": {
     "obf_msg_namespace": "ker",
     "field_mapping": {
-      "fxca": "unknown_fxca"
+      "fxca": "unknown_three_hundred_thirty_one"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeTaxCollectorEquipmentStartedEvent": {
     "obf_msg_namespace": "kds",
     "field_mapping": {
-      "fwyc": "tax_collector_information",
-      "fwyd": "unknown_fwyd"
+      "fwyc": "tax_collector_information"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeTaxCollectorGetEvent": {
     "obf_msg_namespace": "kdc",
     "field_mapping": {
       "fwvn": "coordinates",
-      "fwvo": "unknown_fwvo",
       "fwvp": "collector_name",
       "fwvq": "user_name",
       "fwvr": "objects",
       "fwvs": "caller_id",
       "fwvt": "pods",
-      "fwvu": "unknown_fwvu",
       "fwvv": "look",
       "fwvw": "caller_name"
     }
@@ -6338,18 +5651,11 @@
       "fwpn": "tax_collector_uuid"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.exchange.ExchangeTaxCollectorShopStartedEvent": {
-    "obf_msg_namespace": "iku",
-    "field_mapping": {
-      "fpwa": "kamas"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeTypesExchangerDescriptionForUserEvent": {
     "obf_msg_namespace": "kda",
     "field_mapping": {
       "fwvc": "type_description",
-      "fwvd": "object_type",
-      "fwve": "unknown_fwve"
+      "fwvd": "object_type"
     }
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeTypesItemsExchangerDescriptionForUserEvent": {
@@ -6364,11 +5670,9 @@
     "obf_msg_namespace": "kbt.kbr",
     "field_mapping": {
       "fwow": "uid",
-      "fwoy": "unknown_fwoy",
       "fwoz": "effects",
       "fwpa": "gid",
       "fwpb": "prices",
-      "fwpc": "unknown_fwpc",
       "fwpd": "type"
     }
   },
@@ -6382,7 +5686,7 @@
   ".com.ankama.dofus.server.game.protocol.exchange.JobBookSubscribeRequest": {
     "obf_msg_namespace": "kef",
     "field_mapping": {
-      "fwzt": "unknown_fwzt",
+      "fwzt": "unknown_three_hundred_thirty_two",
       "fwzu": "jobs_id"
     }
   },
@@ -6395,17 +5699,6 @@
     "field_mapping": {
       "fxjv": "player_nuggets",
       "fxjw": "prism_nuggets"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.exchange.UnknownKcj": {
-    "obf_msg_namespace": "kcj",
-    "field_mapping": {
-      "fwrt": "unknown_fwrt",
-      "fwru": "unknown_fwru",
-      "fwrv": "unknown_fwrv",
-      "fwrw": "unknown_fwrw",
-      "fwrx": "unknown_fwrx",
-      "fwry": "unknown_fwry"
     }
   },
   ".com.ankama.dofus.server.game.protocol.fight.BaseStatistics": {
@@ -6616,27 +5909,6 @@
       "fwgy": "entries"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.fight.FightTurnListEvent.UnknownJzq": {
-    "obf_msg_namespace": "jzu.jzq",
-    "field_mapping": {
-      "fwgh": "unknown_fwgh",
-      "fwgi": "unknown_fwgi"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.fight.FightTurnListEvent.UnknownJzr": {
-    "obf_msg_namespace": "jzu.jzr",
-    "field_mapping": {
-      "fwgn": "unknown_fwgn",
-      "fwgo": "unknown_fwgo"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.fight.FightTurnListEvent.UnknownJzs": {
-    "obf_msg_namespace": "jzu.jzs",
-    "field_mapping": {
-      "fwgs": "unknown_fwgs",
-      "fwgt": "unknown_fwgt"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.fight.FighterIdentity": {
     "obf_msg_namespace": "jys",
     "field_mapping": {
@@ -6679,61 +5951,6 @@
       "fvtm": "first_contexts",
       "fvtn": "second_contexts",
       "fvto": "character_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.fight.UnknownJws": {
-    "obf_msg_namespace": "jws",
-    "field_mapping": {
-      "fvrs": "unknown_fvrs",
-      "fvrt": "unknown_fvrt"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.fight.UnknownJxk": {
-    "obf_msg_namespace": "jxk",
-    "field_mapping": {
-      "fvuy": "unknown_fvuy",
-      "fvuz": "unknown_fvuz",
-      "fvva": "unknown_fvva"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.fight.UnknownJxp": {
-    "obf_msg_namespace": "jxp",
-    "field_mapping": {
-      "fvvw": "unknown_fvvw",
-      "fvvx": "unknown_fvvx"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.fight.UnknownJxt": {
-    "obf_msg_namespace": "jxt",
-    "field_mapping": {
-      "fvwg": "unknown_fvwg"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.fight.UnknownJya": {
-    "obf_msg_namespace": "jya",
-    "field_mapping": {
-      "fvxx": "unknown_fvxx",
-      "fvxy": "unknown_fvxy"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.fight.UnknownJyc": {
-    "obf_msg_namespace": "jyc",
-    "field_mapping": {
-      "fvyi": "unknown_fvyi"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.fight.UnknownJyu": {
-    "obf_msg_namespace": "jyu",
-    "field_mapping": {
-      "fwaw": "unknown_fwaw"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.fight.UnknownJyv": {
-    "obf_msg_namespace": "jyv",
-    "field_mapping": {
-      "fwba": "unknown_fwba",
-      "fwbb": "unknown_fwbb",
-      "fwbc": "unknown_fwbc"
     }
   },
   ".com.ankama.dofus.server.game.protocol.fight.preparation.FightHumanReadyStateEvent": {
@@ -6892,31 +6109,11 @@
       "fwiz": "fight_id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.finish.move.FinishMoveSetRequest": {
-    "obf_msg_namespace": "kss",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.finish.move.FinishMovesEvent": {
-    "obf_msg_namespace": "jwq",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.finish.move.FinishMovesRequest": {
-    "obf_msg_namespace": "lar",
-    "field_mapping": {}
-  },
   ".com.ankama.dofus.server.game.protocol.game.action.EntitySpawnInformation": {
     "obf_msg_namespace": "jtc",
     "field_mapping": {
       "fuzz": "monster",
-      "fuzy": "character",
       "fuzx": "companion"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.EntitySpawnInformation.CharacterEntity": {
-    "obf_msg_namespace": "jtc.jsz",
-    "field_mapping": {
-      "fuzl": "name",
-      "fuzm": "level"
     }
   },
   ".com.ankama.dofus.server.game.protocol.game.action.EntitySpawnInformation.Companion": {
@@ -6995,9 +6192,9 @@
       "fvoo": "throw_character",
       "fvor": "drop_character",
       "fvop": "execute_script",
-      "fvof": "unknown_fvof",
-      "fvom": "unknown_fvom",
-      "fvpd": "unknown_fvpd"
+      "fvof": "unknown_three_hundred_sixty_five",
+      "fvom": "unknown_three_hundred_sixty_six",
+      "fvpd": "unknown_three_hundred_sixty_seven"
     }
   },
   ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.ActivateGlyphTrap": {
@@ -7168,10 +6365,6 @@
       "fvil": "spell_id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.SpellRemove.EffectRemove": {
-    "obf_msg_namespace": "jwo",
-    "field_mapping": {}
-  },
   ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.StealKama": {
     "obf_msg_namespace": "jwe.jur",
     "field_mapping": {
@@ -7219,11 +6412,10 @@
     "field_mapping": {
       "fvjy": "silent_cast",
       "fvjz": "target_id",
-      "fvkb": "unknown_fvkb",
+      "fvkb": "unknown_three_hundred_sixty_four",
       "fvkc": "critical",
       "fvkd": "destination_cell",
       "fvke": "verbose_cast",
-      "fvkf": "unknown_fvkf",
       "fvkg": "spell_cast",
       "fvkh": "weapon_generic_id"
     }
@@ -7234,22 +6426,6 @@
       "fvjf": "portals_id",
       "fvjg": "spell_id",
       "fvjh": "spell_level"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.TargetedAbility.UnknownJvf": {
-    "obf_msg_namespace": "jwe.jvi.jvf",
-    "field_mapping": {
-      "fvjm": "unknown_fvjm",
-      "fvjn": "unknown_fvjn",
-      "fvjo": "unknown_fvjo",
-      "fvjp": "unknown_fvjl"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.TargetedAbility.UnknownJvg": {
-    "obf_msg_namespace": "jwe.jvi.jvg",
-    "field_mapping": {
-      "fvjt": "unknown_fvjt",
-      "fvju": "unknown_fvju"
     }
   },
   ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.TeleportOnSameMap": {
@@ -7272,26 +6448,6 @@
       "fvhz": "mark_id",
       "fvia": "mark_impact_cell",
       "fvib": "triggering_character_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.UnknownJtq": {
-    "obf_msg_namespace": "jwe.jtq",
-    "field_mapping": {
-      "fvch": "unknown_fvch",
-      "fvci": "unknown_fvci",
-      "fvcj": "unknown_fvcj"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.UnknownJtx": {
-    "obf_msg_namespace": "jwe.jtx",
-    "field_mapping": {
-      "fvdn": "unknown_fvdn"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.UnknownJwc": {
-    "obf_msg_namespace": "jwe.jwc",
-    "field_mapping": {
-      "fvnp": "unknown_fvnp"
     }
   },
   ".com.ankama.dofus.server.game.protocol.game.action.GameActionFightEvent.UnmarkCells": {
@@ -7333,20 +6489,14 @@
   },
   ".com.ankama.dofus.server.game.protocol.game.action.GameActionSpamEvent": {
     "obf_msg_namespace": "mbg",
-    "field_mapping": {}
+    "field_mapping": {
+      "gegc": "cells"
+    }
   },
   ".com.ankama.dofus.server.game.protocol.game.action.GameActionUpdateEffectTriggerCountEvent": {
     "obf_msg_namespace": "jtn",
     "field_mapping": {
       "fvby": "effects_count_on_target"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.GameActionUpdateEffectTriggerCountEvent.FightEffectTriggerCountInfo": {
-    "obf_msg_namespace": "jtn.jtl",
-    "field_mapping": {
-      "fvbr": "target_id",
-      "fvbs": "effect_id",
-      "fvbt": "count"
     }
   },
   ".com.ankama.dofus.server.game.protocol.game.action.SequenceEndEvent": {
@@ -7364,151 +6514,47 @@
       "fvcd": "sequence_type"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJdb": {
-    "obf_msg_namespace": "jdb",
-    "field_mapping": {
-      "fstx": "unknown_fstx",
-      "fsty": "unknown_fsty"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJdb.UnknownJcy": {
-    "obf_msg_namespace": "jdb.jcy",
-    "field_mapping": {
-      "fstl": "unknown_fstl",
-      "fstm": "unknown_fstm",
-      "fstn": "unknown_fstn"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJdc": {
-    "obf_msg_namespace": "jdc",
-    "field_mapping": {
-      "fsud": "unknown_fsud"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJdf": {
-    "obf_msg_namespace": "jdf",
-    "field_mapping": {
-      "fsui": "unknown_fsui",
-      "fsuk": "unknown_fsuk"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJdk": {
-    "obf_msg_namespace": "jdk",
-    "field_mapping": {
-      "fsuw": "unknown_fsuw",
-      "fsux": "unknown_fsux"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJdk.UnknownJdh": {
-    "obf_msg_namespace": "jdk.jdh",
-    "field_mapping": {
-      "fsuo": "unknown_fsup"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJdx": {
-    "obf_msg_namespace": "jdx",
-    "field_mapping": {
-      "fswj": "unknown_fswj",
-      "fswk": "unknown_fswk",
-      "fswl": "unknown_fswl",
-      "fswm": "unknown_fswi"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJdx.UnknownJdu": {
-    "obf_msg_namespace": "jdx.jdu",
-    "field_mapping": {
-      "fsvp": "unknown_fsvp"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJdx.UnknownJdv": {
-    "obf_msg_namespace": "jdx.jdv",
-    "field_mapping": {
-      "fsvx": "unknown_fsvx",
-      "fsvz": "unknown_fsvz",
-      "fswa": "unknown_fsvy",
-      "fswb": "unknown_fswb",
-      "fswc": "unknown_fswc",
-      "fswe": "unknown_fswe"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJed": {
-    "obf_msg_namespace": "jed",
-    "field_mapping": {
-      "fsxo": "unknown_fsxo",
-      "fsxp": "unknown_fsxp"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJed.UnknownJea": {
-    "obf_msg_namespace": "jed.jea",
-    "field_mapping": {
-      "fsxe": "unknown_fsxe",
-      "fsxg": "unknown_fsxg"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJei": {
+  ".com.ankama.dofus.server.game.protocol.game.action.unknown.GuildMissionConfigurationEvent": {
     "obf_msg_namespace": "jei",
     "field_mapping": {
-      "fsyc": "unknown_fsyc",
-      "fsyd": "unknown_fsyd"
+      "fsyd": "unavailable",
+      "fsyc": "details"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJei.UnknownJef": {
-    "obf_msg_namespace": "jei.jef",
+  ".com.ankama.dofus.server.game.protocol.game.action.unknown.GuildMissionConfigurationRequest": {
+    "obf_msg_namespace": "jeu",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.game.action.unknown.GuildMissionSelectionSaveEvent": {
+    "obf_msg_namespace": "jdb",
     "field_mapping": {
-      "fsxu": "unknown_fsxu"
+      "fsty": "failure",
+      "fstx": "success"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJej": {
-    "obf_msg_namespace": "jej",
-    "field_mapping": {
-      "fsyi": "unknown_fsyi",
-      "fsyj": "unknown_fsyj"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJem": {
-    "obf_msg_namespace": "jem",
-    "field_mapping": {
-      "fsza": "unknown_fsza"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJen": {
-    "obf_msg_namespace": "jen",
-    "field_mapping": {
-      "fszf": "unknown_fszf"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJeq": {
-    "obf_msg_namespace": "jeq",
-    "field_mapping": {
-      "fszx": "unknown_fszx"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.game.action.UnknownJet": {
+  ".com.ankama.dofus.server.game.protocol.game.action.unknown.GuildMissionSelectionSaveRequest": {
     "obf_msg_namespace": "jet",
     "field_mapping": {
-      "ftad": "unknown_ftab",
-      "ftae": "unknown_ftae"
+      "ftab": "tier_id",
+      "ftae": "selected_missions"
     }
   },
   ".com.ankama.dofus.server.game.protocol.gamemap.BreachBranchesInformation": {
     "obf_msg_namespace": "jqr",
     "field_mapping": {
-      "fuqh": "unknown_fuqh"
+      "fuqh": "unknown_four_hundred"
     }
   },
   ".com.ankama.dofus.server.game.protocol.gamemap.BreachBranchesInformation.Branch": {
     "obf_msg_namespace": "jqr.jqp",
-    "field_mapping": {
-      "fuqc": "unknown_fuqc",
-      "fuqd": "unknown_fuqd"
-    }
+    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.gamemap.BreachRoomInformation": {
     "obf_msg_namespace": "jrn",
     "field_mapping": {
-      "futh": "unknown_futh",
-      "futi": "unknown_futi",
-      "futk": "unknown_futk"
+      "futh": "unknown_four_hundred_one",
+      "futi": "unknown_four_hundred_two",
+      "futk": "unknown_four_hundred_three"
     }
   },
   ".com.ankama.dofus.server.game.protocol.gamemap.MapChangeOrientationRequest": {
@@ -7527,9 +6573,9 @@
   ".com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryBreachInformation": {
     "obf_msg_namespace": "jry",
     "field_mapping": {
-      "fuuq": "unknown_fuuq",
-      "fuur": "unknown_fuur",
-      "fuus": "unknown_fuus"
+      "fuuq": "unknown_four_hundred_four",
+      "fuur": "unknown_four_hundred_five",
+      "fuus": "unknown_four_hundred_six"
     }
   },
   ".com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryHavenBagInformation": {
@@ -7593,7 +6639,7 @@
     "obf_msg_namespace": "jrz",
     "field_mapping": {
       "fuux": "fight_id",
-      "fuuy": "unknown_fuuy"
+      "fuuy": "unknown_four_hundred_eight"
     }
   },
   ".com.ankama.dofus.server.game.protocol.gamemap.MapRunningFightStopListeningRequest": {
@@ -7608,225 +6654,33 @@
     "obf_msg_namespace": "jrv",
     "field_mapping": {}
   },
-  ".com.ankama.dofus.server.game.protocol.gamemap.UnknownJff": {
-    "obf_msg_namespace": "jff",
+  ".com.ankama.dofus.server.game.protocol.group_search.GroupSearchMenuEvent": {
+    "obf_msg_namespace": "kis",
     "field_mapping": {
-      "ftbm": "unknown_ftbm",
-      "ftbn": "unknown_ftbn",
-      "ftbo": "unknown_ftbo"
+      "fxto": "unknown_four_hundred_thirty",
+      "fxtp": "unknown_four_hundred_thirty_one",
+      "fxtr": "unknown_four_hundred_thirty_two",
+      "fxts": "unknown_four_hundred_thirty_three"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.gamemap.UnknownJff.UnknownJfb": {
-    "obf_msg_namespace": "jff.jfb",
-    "field_mapping": {
-      "ftbc": "unknown_ftbc"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.gamemap.UnknownJfk": {
-    "obf_msg_namespace": "jfk",
-    "field_mapping": {
-      "ftca": "unknown_ftca",
-      "ftcb": "unknown_ftcb"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.gamemap.UnknownJfk.UnknownJfh": {
-    "obf_msg_namespace": "jfk.jfh",
-    "field_mapping": {
-      "ftbt": "unknown_ftbt"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.gamemap.UnknownJfl": {
-    "obf_msg_namespace": "jfl",
-    "field_mapping": {
-      "ftcg": "unknown_ftcg",
-      "ftch": "unknown_ftch",
-      "ftci": "unknown_ftci",
-      "ftcj": "unknown_ftcj",
-      "ftck": "unknown_ftck"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.gamemap.UnknownJqf": {
-    "obf_msg_namespace": "jqf",
-    "field_mapping": {
-      "fuow": "unknown_fuow"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.gamemap.UnknownJqj": {
-    "obf_msg_namespace": "jqj",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.gamemap.UnknownJqn": {
-    "obf_msg_namespace": "jqn",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.gamemap.UnknownJsg": {
-    "obf_msg_namespace": "jsg",
+  ".com.ankama.dofus.server.game.protocol.group_search.GroupSearchMenuRequest": {
+    "obf_msg_namespace": "kjx",
     "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartRequest": {
     "obf_msg_namespace": "kke",
     "field_mapping": {
-      "fxxu": "unknown_fxxu",
-      "fxxv": "unknown_fxxv",
-      "fxxw": "unknown_fxxw"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartRequest.UnknownKka": {
-    "obf_msg_namespace": "kke.kka",
-    "field_mapping": {
-      "fxxh": "unknown_fxxh"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartRequest.UnknownKkb": {
-    "obf_msg_namespace": "kke.kkb",
-    "field_mapping": {
-      "fxxl": "unknown_fxxl",
-      "fxxm": "unknown_fxxm"
+      "fxxu": "unknown_four_hundred_thirty_four",
+      "fxxv": "unknown_four_hundred_thirty_five",
+      "fxxw": "unknown_four_hundred_thirty_six"
     }
   },
   ".com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse": {
     "obf_msg_namespace": "kjb",
     "field_mapping": {
-      "fxuy": "unknown_fxuy",
-      "fxuz": "unknown_fxuz",
-      "fxva": "unknown_fxva"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownKiv": {
-    "obf_msg_namespace": "kjb.kiv",
-    "field_mapping": {
-      "fxtw": "unknown_fxtw"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownKiy": {
-    "obf_msg_namespace": "kjb.kiy",
-    "field_mapping": {
-      "fxuo": "unknown_fxuo",
-      "fxup": "unknown_fxup"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownKiz": {
-    "obf_msg_namespace": "kjb.kiz",
-    "field_mapping": {
-      "fxuu": "unknown_fxuu"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKif": {
-    "obf_msg_namespace": "kif",
-    "field_mapping": {
-      "fxrd": "unknown_fxrd",
-      "fxre": "unknown_fxre",
-      "fxrf": "unknown_fxrf",
-      "fxrg": "unknown_fxrg"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKif.UnknownKid": {
-    "obf_msg_namespace": "kif.kid",
-    "field_mapping": {
-      "fxqw": "unknown_fxqw",
-      "fxqy": "unknown_fxqy",
-      "fxqz": "unknown_fxqx"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKig": {
-    "obf_msg_namespace": "kig",
-    "field_mapping": {
-      "fxrl": "unknown_fxrl",
-      "fxrm": "unknown_fxrm"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKis": {
-    "obf_msg_namespace": "kis",
-    "field_mapping": {
-      "fxto": "unknown_fxto",
-      "fxtp": "unknown_fxtp",
-      "fxtr": "unknown_fxtr",
-      "fxts": "unknown_fxts"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKis.UnknownKip": {
-    "obf_msg_namespace": "kis.kip",
-    "field_mapping": {
-      "fxsy": "unknown_fxsy",
-      "fxsz": "unknown_fxsz"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKis.UnknownKip.UnknownKin": {
-    "obf_msg_namespace": "kis.kip.kin",
-    "field_mapping": {
-      "fxst": "unknown_fxst"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKis.UnknownKiq": {
-    "obf_msg_namespace": "kis.kiq",
-    "field_mapping": {
-      "fxte": "unknown_fxte",
-      "fxtf": "unknown_fxtf",
-      "fxtg": "unknown_fxtk",
-      "fxth": "unknown_fxth",
-      "fxtj": "unknown_fxtj"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKje": {
-    "obf_msg_namespace": "kje",
-    "field_mapping": {
-      "fxvf": "unknown_fxvf"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKjl": {
-    "obf_msg_namespace": "kjl",
-    "field_mapping": {
-      "fxwb": "unknown_fxwc",
-      "fxwd": "unknown_fxwd"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKjl.UnknownKji": {
-    "obf_msg_namespace": "kjl.kji",
-    "field_mapping": {
-      "fxvq": "unknown_fxvq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKjl.UnknownKjj": {
-    "obf_msg_namespace": "kjl.kjj",
-    "field_mapping": {
-      "fxvv": "unknown_fxvw"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKjs": {
-    "obf_msg_namespace": "kjs",
-    "field_mapping": {
-      "fxws": "unknown_fxws"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKjv": {
-    "obf_msg_namespace": "kjv",
-    "field_mapping": {
-      "fxww": "unknown_fxww"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKjx": {
-    "obf_msg_namespace": "kjx",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKkk": {
-    "obf_msg_namespace": "kkk",
-    "field_mapping": {
-      "fxyp": "unknown_fxyp",
-      "fxyr": "unknown_fxyr",
-      "fxys": "unknown_fxys",
-      "fxyt": "unknown_fxyt"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKkk.UnknownKkg": {
-    "obf_msg_namespace": "kkk.kkg",
-    "field_mapping": {
-      "fxyb": "unknown_fxyd"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.group_search.UnknownKkq": {
-    "obf_msg_namespace": "kkq",
-    "field_mapping": {
-      "fxzl": "unknown_fxzl"
+      "fxuy": "unknown_four_hundred_thirty_seven",
+      "fxuz": "unknown_four_hundred_thirty_eight",
+      "fxva": "unknown_four_hundred_thirty_nine"
     }
   },
   ".com.ankama.dofus.server.game.protocol.guild.application.GuildApplicationAnswerEvent": {
@@ -7942,19 +6796,6 @@
       "fuad": "offset"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.application.UnknownJfz": {
-    "obf_msg_namespace": "jfz",
-    "field_mapping": {
-      "ftel": "unknown_ftel"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.application.UnknownJgb": {
-    "obf_msg_namespace": "jgb",
-    "field_mapping": {
-      "ftes": "unknown_ftes",
-      "ftet": "unknown_ftet"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.guild.chest.GuildChestCurrentListenersAddEvent": {
     "obf_msg_namespace": "jlq",
     "field_mapping": {
@@ -7973,22 +6814,13 @@
       "ftwy": "players"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.chest.GuildChestTabContributionEvent": {
-    "obf_msg_namespace": "ijf",
-    "field_mapping": {
-      "fprd": "chest_contribution_enrollment_delay",
-      "fprf": "chest_contribution_delay"
-    }
+  ".com.ankama.dofus.server.game.protocol.guild.chest.GuildChestStructureStopListeningRequest": {
+    "obf_msg_namespace": "jlh",
+    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.guild.chest.GuildChestTabContributionsEvent": {
     "obf_msg_namespace": "jlk",
     "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.chest.GuildChestTabLastContributionDateEvent": {
-    "obf_msg_namespace": "kjr",
-    "field_mapping": {
-      "fxwo": "last_contribution_date"
-    }
   },
   ".com.ankama.dofus.server.game.protocol.guild.chest.GuildChestTabSelectRequest": {
     "obf_msg_namespace": "jll",
@@ -8005,50 +6837,34 @@
       "ftyk": "picto"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.chest.UnknownJgg": {
-    "obf_msg_namespace": "jgg",
+  ".com.ankama.dofus.server.game.protocol.guild.contribution.GuildContributionGiveRequest": {
+    "obf_msg_namespace": "jlb",
     "field_mapping": {
-      "ftfd": "unknown_ftfd"
+      "ftwm": "token",
+      "ftwn": "unknown_four_hundred_fifty_seven"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.chest.UnknownJgl": {
-    "obf_msg_namespace": "jgl",
+  ".com.ankama.dofus.server.game.protocol.guild.contribution.GuildContributionKamasUpdateEvent": {
+    "obf_msg_namespace": "jle",
     "field_mapping": {
-      "ftfp": "unknown_ftfp",
-      "ftfq": "unknown_ftfq"
+      "ftwr": "kamas_spent",
+      "ftws": "unknown_four_hundred_fifty_eight",
+      "ftwt": "unknown_four_hundred_fifty_nine"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.chest.UnknownJgl.UnknownJgi": {
-    "obf_msg_namespace": "jgl.jgi",
+  ".com.ankama.dofus.server.game.protocol.guild.contribution.GuildContributionStateEvent": {
+    "obf_msg_namespace": "jla",
     "field_mapping": {
-      "ftfi": "unknown_ftfi"
+      "ftwh": "unknown_four_hundred_sixty"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.chest.UnknownJgq": {
-    "obf_msg_namespace": "jgq",
-    "field_mapping": {
-      "ftgd": "unknown_ftgd",
-      "ftge": "unknown_ftge"
-    }
+  ".com.ankama.dofus.server.game.protocol.guild.hall.GuildHallSetRequest": {
+    "obf_msg_namespace": "jjz",
+    "field_mapping": {}
   },
-  ".com.ankama.dofus.server.game.protocol.guild.chest.UnknownJgq.UnknownJgn": {
-    "obf_msg_namespace": "jgq.jgn",
-    "field_mapping": {
-      "ftfv": "unknown_ftfv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.chest.UnknownJgs": {
-    "obf_msg_namespace": "jgs",
-    "field_mapping": {
-      "ftgm": "unknown_ftgm",
-      "ftgn": "unknown_ftgn"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.hall.GuildHallConfigurationEvent": {
-    "obf_msg_namespace": "jjc",
-    "field_mapping": {
-      "ftpv": "configuration"
-    }
+  ".com.ankama.dofus.server.game.protocol.guild.hall.GuildHallSetResultEvent": {
+    "obf_msg_namespace": "jjv",
+    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.guild.house.GuildHouseRemoveEvent": {
     "obf_msg_namespace": "jjt",
@@ -8108,6 +6924,12 @@
       "ftkd": "guild_id"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.guild.information.GuildContributionTokenEvent": {
+    "obf_msg_namespace": "jia",
+    "field_mapping": {
+      "ftlu": "guildaton_count"
+    }
+  },
   ".com.ankama.dofus.server.game.protocol.guild.information.GuildCreationResultEvent": {
     "obf_msg_namespace": "jhq",
     "field_mapping": {
@@ -8121,6 +6943,13 @@
       "ftqp": "name"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.guild.information.GuildFeaturePanelStateRequest": {
+    "obf_msg_namespace": "jii",
+    "field_mapping": {
+      "ftmt": "is_open",
+      "ftmv": "unknown_four_hundred_sixty_two"
+    }
+  },
   ".com.ankama.dofus.server.game.protocol.guild.information.GuildGeneralInformationEvent": {
     "obf_msg_namespace": "jhh",
     "field_mapping": {
@@ -8131,6 +6960,12 @@
       "ftjd": "exp_level_floor",
       "ftjh": "exp_level_next_floor",
       "ftji": "members_count"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.information.GuildHallConfigurationEvent": {
+    "obf_msg_namespace": "jjc",
+    "field_mapping": {
+      "ftpv": "configuration"
     }
   },
   ".com.ankama.dofus.server.game.protocol.guild.information.GuildInformationRequest": {
@@ -8172,16 +7007,19 @@
       "ftof": "recruiter_name"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.information.GuildJoinAutomaticallyRequest": {
-    "obf_msg_namespace": "iym",
-    "field_mapping": {
-      "fsas": "guild_id"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.guild.information.GuildKickRequest": {
     "obf_msg_namespace": "jho",
     "field_mapping": {
       "ftjy": "kicked_id"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.information.GuildLogbookEvent": {
+    "obf_msg_namespace": "jil",
+    "field_mapping": {
+      "ftni": "global_activities",
+      "ftnj": "chest_activities",
+      "ftnk": "unknown_four_hundred_sixty_seven",
+      "ftnm": "unknown_four_hundred_sixty_eight"
     }
   },
   ".com.ankama.dofus.server.game.protocol.guild.information.GuildLogbookRequest": {
@@ -8193,6 +7031,10 @@
     "field_mapping": {
       "ftlq": "emblem"
     }
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.information.GuildModificationNameValidRequest": {
+    "obf_msg_namespace": "jik",
+    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.guild.information.GuildModificationResultEvent": {
     "obf_msg_namespace": "jhy",
@@ -8226,6 +7068,12 @@
       "ftkl": "error"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.guild.information.GuildMotdSetRequest": {
+    "obf_msg_namespace": "jjd",
+    "field_mapping": {
+      "ftpz": "content"
+    }
+  },
   ".com.ankama.dofus.server.game.protocol.guild.information.GuildNoteUpdateRequest": {
     "obf_msg_namespace": "jjj",
     "field_mapping": {
@@ -8233,20 +7081,10 @@
       "ftqv": "player_id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.information.GuildPaddockBoughtEvent": {
-    "obf_msg_namespace": "jex",
-    "field_mapping": {}
-  },
   ".com.ankama.dofus.server.game.protocol.guild.information.GuildPaddockRemovedEvent": {
-    "obf_msg_namespace": "jia",
+    "obf_msg_namespace": "iku",
     "field_mapping": {
-      "ftlu": "paddock_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.information.GuildPaddockTeleportRequest": {
-    "obf_msg_namespace": "hir",
-    "field_mapping": {
-      "fmbz": "paddock_id"
+      "fpwa": "paddock_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.guild.information.GuildSummaryEvent": {
@@ -8279,41 +7117,6 @@
       "ftrp": "max_level_filter"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.information.UnknownJii": {
-    "obf_msg_namespace": "jii",
-    "field_mapping": {
-      "ftmt": "unknown_ftmt",
-      "ftmv": "unknown_ftmv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.information.UnknownJik": {
-    "obf_msg_namespace": "jik",
-    "field_mapping": {
-      "ftnd": "unknown_ftnd",
-      "ftne": "unknown_ftne"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.information.UnknownJil": {
-    "obf_msg_namespace": "jil",
-    "field_mapping": {
-      "ftni": "unknown_ftni",
-      "ftnj": "unknown_ftnj",
-      "ftnk": "unknown_ftnk",
-      "ftnm": "unknown_ftnm"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.information.UnknownJjd": {
-    "obf_msg_namespace": "jjd",
-    "field_mapping": {
-      "ftpz": "unknown_ftpz"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.information.UnknownJjv": {
-    "obf_msg_namespace": "jjv",
-    "field_mapping": {
-      "ftsq": "unknown_ftsr"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.guild.member.GuildJoinedEvent": {
     "obf_msg_namespace": "jgw",
     "field_mapping": {
@@ -8322,7 +7125,7 @@
     }
   },
   ".com.ankama.dofus.server.game.protocol.guild.member.GuildLeftEvent": {
-    "obf_msg_namespace": "jfs",
+    "obf_msg_namespace": "jhc",
     "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.guild.member.GuildMemberLeaveEvent": {
@@ -8358,7 +7161,7 @@
     "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.guild.member.GuildMemberWarnOnConnectionStopRequest": {
-    "obf_msg_namespace": "jhc",
+    "obf_msg_namespace": "jhf",
     "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.guild.member.GuildMembersEvent": {
@@ -8372,635 +7175,189 @@
     "field_mapping": {
       "ftik": "guild_information",
       "ftil": "rank_id",
-      "ftim": "unknown_ftza",
-      "ftin": "unknown_ftzd"
+      "ftim": "guildaton_count",
+      "ftin": "unknown_four_hundred_seventy_one"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.member.UnknownJkh": {
-    "obf_msg_namespace": "jkh",
+  ".com.ankama.dofus.server.game.protocol.guild.mission.GuildMissionActivityTierUpdateRequest": {
+    "obf_msg_namespace": "jey",
     "field_mapping": {
-      "fttu": "unknown_fttu",
-      "fttv": "unknown_fttv"
+      "ftau": "activity_tier"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.member.UnknownJkh.UnknownJkf": {
-    "obf_msg_namespace": "jkh.jkf",
+  ".com.ankama.dofus.server.game.protocol.guild.mission.GuildMissionInformation": {
+    "obf_msg_namespace": "jfl",
     "field_mapping": {
-      "fttp": "unknown_fttp",
-      "fttq": "unknown_fttq"
+      "ftcg": "tier",
+      "ftch": "tier_experience",
+      "ftci": "guildaton_max",
+      "ftcj": "guildaton",
+      "ftck": "activity_tier"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.member.UnknownJkq": {
-    "obf_msg_namespace": "jkq",
+  ".com.ankama.dofus.server.game.protocol.guild.mission.GuildMissionInformationUpdateEvent": {
+    "obf_msg_namespace": "jex",
     "field_mapping": {
-      "ftuq": "unknown_ftuq",
-      "ftur": "unknown_ftur"
+      "ftap": "unknown_four_hundred_eighty_six"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.member.UnknownJkq.UnknownJko": {
-    "obf_msg_namespace": "jkq.jko",
+  ".com.ankama.dofus.server.game.protocol.guild.mission.GuildMissionStatusEvent": {
+    "obf_msg_namespace": "jff",
     "field_mapping": {
-      "ftuk": "unknown_ftuk",
-      "ftul": "unknown_ftul"
+      "ftbm": "disabled",
+      "ftbn": "available",
+      "ftbo": "unavailable"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.member.UnknownJkt": {
-    "obf_msg_namespace": "jkt",
+  ".com.ankama.dofus.server.game.protocol.guild.mission.GuildMissionStatusRequest": {
+    "obf_msg_namespace": "jfp",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.mission.ServerMaintenanceEvent": {
+    "obf_msg_namespace": "jez",
     "field_mapping": {
-      "ftve": "unknown_ftve",
-      "ftvf": "unknown_ftvf"
+      "ftay": "maintenance_date"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.member.UnknownJku": {
-    "obf_msg_namespace": "jku",
+  ".com.ankama.dofus.server.game.protocol.guild.mission.ServerMaintenanceInformationRequest": {
+    "obf_msg_namespace": "jew",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.mission.listener.GuildMissionStartListenerEvent": {
+    "obf_msg_namespace": "jfs",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.mission.listener.GuildMissionStartListenerRequest": {
+    "obf_msg_namespace": "jfv",
     "field_mapping": {
-      "ftvk": "unknown_ftvk",
-      "ftvl": "unknown_ftvl"
+      "ftdz": "listener_options"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.member.UnknownJkv": {
-    "obf_msg_namespace": "jkv",
+  ".com.ankama.dofus.server.game.protocol.guild.mission.listener.GuildMissionStopListenerEvent": {
+    "obf_msg_namespace": "jfr",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.mission.listener.GuildMissionStopListenerRequest": {
+    "obf_msg_namespace": "jfw",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.mission.reward.GuildMissionRewardsEvent": {
+    "obf_msg_namespace": "jfz",
     "field_mapping": {
-      "ftvp": "unknown_ftvp",
-      "ftvq": "unknown_ftvq"
+      "ftel": "rewards"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.member.UnknownJkw": {
-    "obf_msg_namespace": "jkw",
+  ".com.ankama.dofus.server.game.protocol.guild.mission.reward.GuildMissionRewardsRequest": {
+    "obf_msg_namespace": "jga",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.mission.tier.GuildMissionDisabledEntries": {
+    "obf_msg_namespace": "jgs",
     "field_mapping": {
-      "ftvu": "unknown_ftvu"
+      "ftgm": "disabled_categories",
+      "ftgn": "disabled_tiers"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.member.UnknownJky": {
-    "obf_msg_namespace": "jky",
+  ".com.ankama.dofus.server.game.protocol.guild.mission.tier.GuildMissionTierDetailEvent": {
+    "obf_msg_namespace": "jgq",
     "field_mapping": {
-      "ftwc": "unknown_ftwc"
+      "ftgd": "failure",
+      "ftge": "success"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.mission.UnknownJlb": {
-    "obf_msg_namespace": "jlb",
+  ".com.ankama.dofus.server.game.protocol.guild.mission.tier.GuildMissionTierDetailRequest": {
+    "obf_msg_namespace": "jgr",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.mission.tier.GuildMissionUpdateEvent": {
+    "obf_msg_namespace": "jgl",
     "field_mapping": {
-      "ftwm": "unknown_ftwm",
-      "ftwn": "unknown_ftwn"
+      "ftfp": "failure",
+      "ftfq": "success"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.mission.tier.GuildMissionUpdateRequest": {
+    "obf_msg_namespace": "jgg",
+    "field_mapping": {
+      "ftfd": "disabled_entries"
     }
   },
   ".com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderCategory": {
     "obf_msg_namespace": "hzp",
     "field_mapping": {
-      "fojn": "unknown_fojn",
-      "fojo": "unknown_fojo"
+      "fojn": "unknown_four_hundred_ninety_two",
+      "fojo": "unknown_four_hundred_ninety_three"
     }
   },
   ".com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderEntry": {
     "obf_msg_namespace": "hzr",
     "field_mapping": {
-      "fojv": "unknown_fojv",
-      "fojw": "unknown_fojw",
-      "fojy": "unknown_fojy",
-      "foka": "unknown_foka"
+      "fojv": "unknown_four_hundred_ninety_four",
+      "fojw": "unknown_four_hundred_ninety_five",
+      "fojy": "unknown_four_hundred_ninety_six",
+      "foka": "unknown_four_hundred_ninety_seven"
     }
   },
   ".com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderEvent": {
     "obf_msg_namespace": "hwu",
     "field_mapping": {
-      "fnze": "unknown_fnze",
-      "fnzf": "unknown_fnzf",
-      "fnzg": "unknown_fnzg",
-      "fnzh": "unknown_fnzh"
+      "fnze": "unknown_four_hundred_ninety_eight",
+      "fnzf": "unknown_four_hundred_ninety_nine",
+      "fnzg": "unknown_five_hundred",
+      "fnzh": "unknown_five_hundred_one"
     }
   },
   ".com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderGuild": {
     "obf_msg_namespace": "hzx",
     "field_mapping": {
-      "fokt": "unknown_fokt",
-      "foku": "unknown_foku",
-      "fokv": "unknown_fokv"
+      "fokt": "unknown_five_hundred_two",
+      "foku": "unknown_five_hundred_three",
+      "fokv": "unknown_five_hundred_four"
     }
   },
   ".com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidLadderRequest": {
     "obf_msg_namespace": "hzq",
     "field_mapping": {}
   },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHvs": {
-    "obf_msg_namespace": "hvs",
-    "field_mapping": {
-      "fnwf": "unknown_fnwf"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHvt": {
-    "obf_msg_namespace": "hvt",
-    "field_mapping": {
-      "fnwj": "unknown_fnwj",
-      "fnwk": "unknown_fnwk"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHvx": {
-    "obf_msg_namespace": "hvx",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwa": {
-    "obf_msg_namespace": "hwa",
-    "field_mapping": {
-      "fnwv": "unknown_fnwv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwb": {
-    "obf_msg_namespace": "hwb",
-    "field_mapping": {
-      "fnxa": "unknown_fnxa"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwe": {
-    "obf_msg_namespace": "hwe",
-    "field_mapping": {
-      "fnxe": "unknown_fnxe"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwh": {
-    "obf_msg_namespace": "hwh",
-    "field_mapping": {
-      "fnxr": "unknown_fnxr",
-      "fnxs": "unknown_fnxs",
-      "fnxt": "unknown_fnxt"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwk": {
-    "obf_msg_namespace": "hwk",
-    "field_mapping": {
-      "fnxx": "unknown_fnxx"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwl": {
-    "obf_msg_namespace": "hwl",
-    "field_mapping": {
-      "fnyb": "unknown_fnyb",
-      "fnyc": "unknown_fnyc",
-      "fnyd": "unknown_fnyd",
-      "fnye": "unknown_fnye"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwo": {
-    "obf_msg_namespace": "hwo",
-    "field_mapping": {
-      "fnyi": "unknown_fnyi",
-      "fnyj": "unknown_fnyj",
-      "fnyk": "unknown_fnyk"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHwr": {
-    "obf_msg_namespace": "hwr",
-    "field_mapping": {
-      "fnyv": "unknown_fnyv",
-      "fnyx": "unknown_fnyx",
-      "fnyy": "unknown_fnyy",
-      "fnyz": "unknown_fnyz",
-      "fnza": "unknown_fnza"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxd": {
-    "obf_msg_namespace": "hxd",
-    "field_mapping": {
-      "foal": "unknown_foal",
-      "foao": "unknown_foao",
-      "foan": "unknown_foan"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxd.UnknownHxb": {
-    "obf_msg_namespace": "hxd.hxb",
-    "field_mapping": {
-      "foag": "unknown_foag"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxm": {
-    "obf_msg_namespace": "hxm",
-    "field_mapping": {
-      "focc": "unknown_focc",
-      "foce": "unknown_foce",
-      "focf": "unknown_focf",
-      "focg": "unknown_focg"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxm.UnknownHxj": {
-    "obf_msg_namespace": "hxm.hxj",
-    "field_mapping": {
-      "fobr": "unknown_fobr",
-      "fobs": "unknown_fobs"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxm.UnknownHxk": {
-    "obf_msg_namespace": "hxm.hxk",
-    "field_mapping": {
-      "fobw": "unknown_fobw",
-      "fobx": "unknown_fobx",
-      "foby": "unknown_foby"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxt": {
-    "obf_msg_namespace": "hxt",
-    "field_mapping": {
-      "focw": "unknown_focw",
-      "focx": "unknown_focx",
-      "focy": "unknown_focy",
-      "focz": "unknown_focz"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxt.UnknownHxq": {
-    "obf_msg_namespace": "hxt.hxq",
-    "field_mapping": {
-      "foco": "unknown_foco"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxt.UnknownHxr": {
-    "obf_msg_namespace": "hxt.hxr",
-    "field_mapping": {
-      "focs": "unknown_focs"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxu": {
-    "obf_msg_namespace": "hxu",
-    "field_mapping": {
-      "fodf": "unknown_fodf",
-      "fodg": "unknown_fodg"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHxx": {
-    "obf_msg_namespace": "hxx",
-    "field_mapping": {
-      "fodl": "unknown_fodl"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHya": {
-    "obf_msg_namespace": "hya",
-    "field_mapping": {
-      "fodq": "unknown_fodq",
-      "fodr": "unknown_fodr"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyb": {
-    "obf_msg_namespace": "hyb",
-    "field_mapping": {
-      "fodv": "unknown_fodv",
-      "fodw": "unknown_fodw",
-      "fodx": "unknown_fodx"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyg": {
-    "obf_msg_namespace": "hyg",
-    "field_mapping": {
-      "foee": "unknown_foee",
-      "foef": "unknown_foef",
-      "foeh": "unknown_foeh",
-      "foei": "unknown_foei",
-      "foej": "unknown_foej",
-      "foek": "unknown_foek"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyj": {
-    "obf_msg_namespace": "hyj",
-    "field_mapping": {
-      "foeo": "unknown_foeo"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyr": {
-    "obf_msg_namespace": "hyr",
-    "field_mapping": {
-      "fofr": "unknown_fofr",
-      "fofs": "unknown_fofs",
-      "foft": "unknown_foft"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyr.UnknownHyp": {
-    "obf_msg_namespace": "hyr.hyp",
-    "field_mapping": {
-      "fofl": "unknown_fofl",
-      "fofm": "unknown_fofm"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHys": {
-    "obf_msg_namespace": "hys",
-    "field_mapping": {
-      "fofx": "unknown_fofx",
-      "fofz": "unknown_fofz",
-      "foga": "unknown_fofy",
-      "fogb": "unknown_fogb",
-      "fogc": "unknown_fogc",
-      "fogd": "unknown_fogd",
-      "foge": "unknown_foge"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyt": {
-    "obf_msg_namespace": "hyt",
-    "field_mapping": {
-      "fogi": "unknown_fogi"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyw": {
-    "obf_msg_namespace": "hyw",
-    "field_mapping": {
-      "fogm": "unknown_fogm"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHyx": {
-    "obf_msg_namespace": "hyx",
-    "field_mapping": {
-      "fogr": "unknown_fogr",
-      "fogt": "unknown_fogt",
-      "fogu": "unknown_fogu",
-      "fogv": "unknown_fogv",
-      "fogw": "unknown_fogw"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHzb": {
-    "obf_msg_namespace": "hzb",
-    "field_mapping": {
-      "fohk": "unknown_fohk",
-      "fohm": "unknown_fohm"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHzd": {
-    "obf_msg_namespace": "hzd",
-    "field_mapping": {
-      "foht": "unknown_foht"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHzg": {
-    "obf_msg_namespace": "hzg",
-    "field_mapping": {
-      "fohx": "unknown_fohx",
-      "fohz": "unknown_fohz"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHzh": {
-    "obf_msg_namespace": "hzh",
-    "field_mapping": {
-      "foid": "unknown_foid",
-      "foie": "unknown_foie"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHzi": {
-    "obf_msg_namespace": "hzi",
-    "field_mapping": {
-      "foik": "unknown_foik",
-      "foim": "unknown_foim"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHzj": {
-    "obf_msg_namespace": "hzj",
-    "field_mapping": {
-      "foit": "unknown_foit"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHzk": {
-    "obf_msg_namespace": "hzk",
-    "field_mapping": {
-      "foiy": "unknown_foiy",
-      "foiz": "unknown_foiz"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHzn": {
-    "obf_msg_namespace": "hzn",
-    "field_mapping": {
-      "fojd": "unknown_fojd"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHzo": {
-    "obf_msg_namespace": "hzo",
-    "field_mapping": {
-      "fojh": "unknown_fojh",
-      "foji": "unknown_foji"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHzv": {
-    "obf_msg_namespace": "hzv",
-    "field_mapping": {
-      "fokf": "unknown_fokf"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownHzy": {
-    "obf_msg_namespace": "hzy",
-    "field_mapping": {
-      "fokz": "unknown_fokz"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIag": {
-    "obf_msg_namespace": "iag",
-    "field_mapping": {
-      "folx": "unknown_folx"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIai": {
-    "obf_msg_namespace": "iai",
-    "field_mapping": {
-      "fomb": "unknown_fomb",
-      "fomc": "unknown_fomc",
-      "fomd": "unknown_fomd",
-      "fome": "unknown_fome",
-      "fomf": "unknown_fomf"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIaj": {
-    "obf_msg_namespace": "iaj",
-    "field_mapping": {
-      "fomk": "unknown_fomk"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIak": {
-    "obf_msg_namespace": "iak",
-    "field_mapping": {
-      "fomo": "unknown_fomo",
-      "fomp": "unknown_fomp",
-      "fomq": "unknown_fomq",
-      "fomr": "unknown_fomr",
-      "foms": "unknown_foms",
-      "fomt": "unknown_fomt",
-      "fomu": "unknown_fomu"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIau": {
-    "obf_msg_namespace": "iau",
-    "field_mapping": {
-      "foob": "unknown_foob",
-      "fooc": "unknown_fooc",
-      "fooe": "unknown_fooe",
-      "foog": "unknown_foog"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIav": {
-    "obf_msg_namespace": "iav",
-    "field_mapping": {
-      "fook": "unknown_fook",
-      "fool": "unknown_fool",
-      "foom": "unknown_foom"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbc": {
-    "obf_msg_namespace": "ibc",
-    "field_mapping": {
-      "fooy": "unknown_fooy"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbg": {
-    "obf_msg_namespace": "ibg",
-    "field_mapping": {
-      "foph": "unknown_foph",
-      "fopi": "unknown_fopi",
-      "fopj": "unknown_fopj",
-      "fopk": "unknown_fopk"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbj": {
-    "obf_msg_namespace": "ibj",
-    "field_mapping": {
-      "fopy": "unknown_fopy",
-      "fopz": "unknown_fopz",
-      "foqa": "unknown_foqa",
-      "foqb": "unknown_foqb",
-      "foqd": "unknown_foqd"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbk": {
-    "obf_msg_namespace": "ibk",
-    "field_mapping": {
-      "foqh": "unknown_foqh",
-      "foqi": "unknown_foqi"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbl": {
-    "obf_msg_namespace": "ibl",
-    "field_mapping": {
-      "foqm": "unknown_foqm"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbo": {
-    "obf_msg_namespace": "ibo",
-    "field_mapping": {
-      "foqr": "unknown_foqr",
-      "foqs": "unknown_foqs"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbs": {
-    "obf_msg_namespace": "ibs",
-    "field_mapping": {
-      "forg": "unknown_forg"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbv": {
-    "obf_msg_namespace": "ibv",
-    "field_mapping": {
-      "fork": "unknown_fork",
-      "forl": "unknown_forl"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIbw": {
-    "obf_msg_namespace": "ibw",
-    "field_mapping": {
-      "forr": "unknown_forr"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIce": {
+  ".com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidOverviewEvent": {
     "obf_msg_namespace": "ice",
     "field_mapping": {
-      "fosi": "unknown_fosi",
-      "fosj": "unknown_fosj"
+      "fosi": "unknown_five_hundred_five"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIce.UnknownIcc": {
-    "obf_msg_namespace": "ice.icc",
+  ".com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidOverviewRequest": {
+    "obf_msg_namespace": "hzc",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidPurchaseInformationEvent": {
+    "obf_msg_namespace": "jkh",
     "field_mapping": {
-      "forz": "unknown_forz",
-      "fosa": "unknown_fosa",
-      "fosc": "unknown_fosc",
-      "fosd": "unknown_fosd"
+      "fttv": "failure",
+      "fttu": "options"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcj": {
-    "obf_msg_namespace": "icj",
+  ".com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidPurchaseInformationRequest": {
+    "obf_msg_namespace": "jki",
+    "field_mapping": {}
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidRewardsInformationEvent": {
+    "obf_msg_namespace": "hxm",
     "field_mapping": {
-      "fost": "unknown_fost",
-      "fosu": "unknown_fosu"
+      "focc": "unknown_five_hundred_nine",
+      "foce": "unknown_five_hundred_ten",
+      "focf": "unknown_five_hundred_eleven",
+      "focg": "unknown_five_hundred_twelve"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcj.UnknownIch": {
-    "obf_msg_namespace": "icj.ich",
-    "field_mapping": {
-      "fosp": "unknown_fosp"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcl": {
-    "obf_msg_namespace": "icl",
-    "field_mapping": {
-      "fota": "unknown_fota",
-      "fotb": "unknown_fotb",
-      "fotf": "unknown_fotf",
-      "fotd": "unknown_fotd",
-      "fote": "unknown_fote"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcz": {
-    "obf_msg_namespace": "icz",
-    "field_mapping": {
-      "foum": "unknown_foum",
-      "foun": "unknown_foun",
-      "fouo": "unknown_fouo",
-      "foup": "unknown_foup",
-      "fouq": "unknown_fouq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcz.UnknownIcp": {
-    "obf_msg_namespace": "icz.icp",
-    "field_mapping": {
-      "fotq": "unknown_fotq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcz.UnknownIcq": {
-    "obf_msg_namespace": "icz.icq",
-    "field_mapping": {
-      "fotu": "unknown_fotu"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIcz.UnknownIcu": {
-    "obf_msg_namespace": "icz.icu",
-    "field_mapping": {
-      "foue": "unknown_foue"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIda": {
-    "obf_msg_namespace": "ida",
-    "field_mapping": {
-      "fouw": "unknown_fouw",
-      "foux": "unknown_foux"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIde": {
-    "obf_msg_namespace": "ide",
-    "field_mapping": {
-      "fovd": "unknown_fovd"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIdf": {
-    "obf_msg_namespace": "idf",
-    "field_mapping": {
-      "fovh": "unknown_fovh",
-      "fovi": "unknown_fovi"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIdi": {
-    "obf_msg_namespace": "idi",
-    "field_mapping": {
-      "fovm": "unknown_fovm"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.guild.raid.UnknownIdm": {
-    "obf_msg_namespace": "idm",
-    "field_mapping": {
-      "fovv": "unknown_fovv",
-      "fovx": "unknown_fovx"
-    }
+  ".com.ankama.dofus.server.game.protocol.guild.raid.GuildRaidRewardsInformationRequest": {
+    "obf_msg_namespace": "hvx",
+    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.guild.rank.GuildRankCreateRequest": {
     "obf_msg_namespace": "jcv",
     "field_mapping": {
       "fstc": "parent_rank_id",
+      "fstf": "name",
       "fstg": "gfx_id"
     }
   },
@@ -9056,6 +7413,20 @@
       "fsqu": "recruitment"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.guild.token.GuildTokenConfiguration": {
+    "obf_msg_namespace": "krh",
+    "field_mapping": {
+      "fyuu": "guild_token_items",
+      "fyuv": "refresh_interval_milliseconds",
+      "fyuw": "thresholds"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.guild.token.GuildTokenConfigurationEvent": {
+    "obf_msg_namespace": "krj",
+    "field_mapping": {
+      "fyvi": "configuration"
+    }
+  },
   ".com.ankama.dofus.server.game.protocol.haapi.HaapiAuthenticationErrorEvent": {
     "obf_msg_namespace": "jbx",
     "field_mapping": {}
@@ -9067,13 +7438,13 @@
     }
   },
   ".com.ankama.dofus.server.game.protocol.haapi.HaapiTokenEvent": {
-    "obf_msg_namespace": "hfs",
+    "obf_msg_namespace": "jca",
     "field_mapping": {
-      "flry": "token"
+      "fsqm": "token"
     }
   },
   ".com.ankama.dofus.server.game.protocol.haapi.HaapiTokenRequest": {
-    "obf_msg_namespace": "jca",
+    "obf_msg_namespace": "jbz",
     "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.haven.bag.Element": {
@@ -9376,278 +7747,6 @@
       "fskm": "page_index"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.InfiniteDreamEnterRequest": {
-    "obf_msg_namespace": "iyc",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.InfiniteDreamEnterResponse": {
-    "obf_msg_namespace": "izg",
-    "field_mapping": {
-      "fsda": "unknown_fsda",
-      "fsdb": "unknown_fsdh",
-      "fsdc": "unknown_fsdc",
-      "fsdd": "unknown_fsdd",
-      "fsde": "unknown_fsde",
-      "fsdf": "unknown_fsdf",
-      "fsdg": "unknown_fsdk",
-      "fsdh": "unknown_fsdm",
-      "fsdi": "unknown_fsdi",
-      "fsdk": "unknown_fsdg",
-      "fsdm": "unknown_fsdn",
-      "fsdo": "unknown_fsdo",
-      "fsdp": "unknown_fsdp",
-      "fsdq": "unknown_fsdq",
-      "fsdr": "unknown_fsdr",
-      "fsds": "unknown_fsds",
-      "fsdt": "unknown_fsdt",
-      "fsdu": "unknown_fsdu",
-      "fsdv": "unknown_fsdv",
-      "fsdw": "unknown_fsdw",
-      "fsdx": "unknown_fsdx",
-      "fsdy": "unknown_fsdy"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.InfiniteDreamEnterResponse.UnknownIzd": {
-    "obf_msg_namespace": "izg.izd",
-    "field_mapping": {
-      "fsck": "unknown_fsck",
-      "fscm": "unknown_fscm",
-      "fscn": "unknown_fscn",
-      "fsco": "unknown_fsco"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.InfiniteDreamEnterResponse.UnknownIzd.UnknownIzb": {
-    "obf_msg_namespace": "izg.izd.izb",
-    "field_mapping": {
-      "fsbx": "unknown_fsbx",
-      "fsbz": "unknown_fsbz",
-      "fsca": "unknown_fsca",
-      "fscb": "unknown_fscb",
-      "fscd": "unknown_fscd",
-      "fsce": "unknown_fsce",
-      "fscf": "unknown_fscf",
-      "fscg": "unknown_fscg"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.InfiniteDreamEnterResponse.UnknownIze": {
-    "obf_msg_namespace": "izg.ize",
-    "field_mapping": {
-      "fscs": "unknown_fscu",
-      "fsct": "unknown_fscv",
-      "fscu": "unknown_fscs",
-      "fscw": "unknown_fscw"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.InfiniteDreamExitRequest": {
-    "obf_msg_namespace": "iyx",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.InfiniteDreamRerollMonstersRequest": {
-    "obf_msg_namespace": "izh",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.InfiniteDreamRoomLootEvent": {
-    "obf_msg_namespace": "izo",
-    "field_mapping": {
-      "fsfj": "unknown_fsfj",
-      "fsfk": "unknown_fsfk"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.InfiniteDreamRoomLootRequest": {
-    "obf_msg_namespace": "ixq",
-    "field_mapping": {
-      "frws": "unknown_frws"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIww": {
-    "obf_msg_namespace": "iww",
-    "field_mapping": {
-      "frtn": "unknown_frtp",
-      "frtp": "unknown_frub",
-      "frtr": "unknown_frtr",
-      "frts": "unknown_frtu",
-      "frtu": "unknown_frts",
-      "frtw": "unknown_frtw",
-      "frty": "unknown_frtn",
-      "frua": "unknown_frty",
-      "frub": "unknown_frua",
-      "fruc": "unknown_fruc"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxf": {
-    "obf_msg_namespace": "ixf",
-    "field_mapping": {
-      "fruy": "unknown_fruy",
-      "fruz": "unknown_fruz",
-      "frva": "unknown_frva"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxf.UnknownIxc": {
-    "obf_msg_namespace": "ixf.ixc",
-    "field_mapping": {
-      "frum": "unknown_frum"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxf.UnknownIxd": {
-    "obf_msg_namespace": "ixf.ixd",
-    "field_mapping": {
-      "fruq": "unknown_fruq",
-      "frus": "unknown_frus",
-      "frut": "unknown_frut",
-      "fruu": "unknown_fruu"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxg": {
-    "obf_msg_namespace": "ixg",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxj": {
-    "obf_msg_namespace": "ixj",
-    "field_mapping": {
-      "frvl": "unknown_frvl",
-      "frvm": "unknown_frvm",
-      "frvn": "unknown_frvn",
-      "frvo": "unknown_frvo",
-      "frvp": "unknown_frvp",
-      "frvq": "unknown_frvq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxj.UnknownIxh": {
-    "obf_msg_namespace": "ixj.ixh",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIxn": {
-    "obf_msg_namespace": "ixn",
-    "field_mapping": {
-      "frwn": "unknown_frwn"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIya": {
-    "obf_msg_namespace": "iya",
-    "field_mapping": {
-      "frxw": "unknown_frxw",
-      "frxx": "unknown_frxx",
-      "frxy": "unknown_frxy",
-      "frxz": "unknown_frxz",
-      "fryd": "unknown_fryd",
-      "frya": "unknown_frya",
-      "fryb": "unknown_fryb",
-      "fryc": "unknown_fryc",
-      "fryg": "unknown_fryg",
-      "fryf": "unknown_fryf",
-      "fryh": "unknown_fryh",
-      "fryi": "unknown_fryi",
-      "fryj": "unknown_fryk",
-      "fryk": "unknown_fryj",
-      "fryl": "unknown_fryl",
-      "frym": "unknown_frym",
-      "fryn": "unknown_fryn",
-      "fryo": "unknown_fryo"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIya.UnknownIxw": {
-    "obf_msg_namespace": "iya.ixw",
-    "field_mapping": {
-      "frxd": "unknown_frxd",
-      "frxe": "unknown_frxe",
-      "frxf": "unknown_frxf"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIya.UnknownIxx": {
-    "obf_msg_namespace": "iya.ixx",
-    "field_mapping": {
-      "frxj": "unknown_frxj",
-      "frxk": "unknown_frxk"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIya.UnknownIxy": {
-    "obf_msg_namespace": "iya.ixy",
-    "field_mapping": {
-      "frxo": "unknown_frxo",
-      "frxp": "unknown_frxp",
-      "frxr": "unknown_frxr",
-      "frxs": "unknown_frxs"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIyb": {
-    "obf_msg_namespace": "iyb",
-    "field_mapping": {
-      "fryt": "unknown_fryt"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIyj": {
-    "obf_msg_namespace": "iyj",
-    "field_mapping": {
-      "fsab": "unknown_fsab"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIyj.UnknownIyh": {
-    "obf_msg_namespace": "iyj.iyh",
-    "field_mapping": {
-      "frzf": "unknown_frzf",
-      "frzg": "unknown_frzg",
-      "frzh": "unknown_frzh",
-      "frzi": "unknown_frzi",
-      "frzj": "unknown_frzj",
-      "frzm": "unknown_frzm",
-      "frzn": "unknown_frzn",
-      "frzp": "unknown_frzp",
-      "frzq": "unknown_frzq",
-      "frzr": "unknown_frzr",
-      "frzt": "unknown_frzt",
-      "frzu": "unknown_frzu",
-      "frzv": "unknown_frzv",
-      "frzw": "unknown_frzw",
-      "frzx": "unknown_frzx"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIyw": {
-    "obf_msg_namespace": "iyw",
-    "field_mapping": {
-      "fsbn": "unknown_fsbn",
-      "fsbo": "unknown_fsbo",
-      "fsbp": "unknown_fsbp",
-      "fsbq": "unknown_fsbq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIzi": {
-    "obf_msg_namespace": "izi",
-    "field_mapping": {
-      "fsef": "unknown_fsef",
-      "fseg": "unknown_fseg",
-      "fseh": "unknown_fseh"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIzj": {
-    "obf_msg_namespace": "izj",
-    "field_mapping": {
-      "fsel": "unknown_fsem",
-      "fsem": "unknown_fsel"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIzm": {
-    "obf_msg_namespace": "izo.izm",
-    "field_mapping": {
-      "fsfb": "unknown_fsfb",
-      "fsfc": "unknown_fsfc",
-      "fsfd": "unknown_fsfd",
-      "fsfe": "unknown_fsfe",
-      "fsff": "unknown_fsff"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.infinite_dream.UnknownIzm.UnknownIzk": {
-    "obf_msg_namespace": "izo.izm.izk",
-    "field_mapping": {
-      "fseq": "unknown_fseq",
-      "fser": "unknown_fser",
-      "fses": "unknown_fses",
-      "fset": "unknown_fset",
-      "fseu": "unknown_fseu",
-      "fsev": "unknown_fsev",
-      "fsew": "unknown_fsew",
-      "fsex": "unknown_fsex"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.interactive.element.InteractiveElementUpdatedEvent": {
     "obf_msg_namespace": "iwm",
     "field_mapping": {
@@ -9802,6 +7901,27 @@
       "frqx": "quantity"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.inventory.ObjectPriceHistoryEvent": {
+    "obf_msg_namespace": "iue",
+    "field_mapping": {
+      "frit": "unknown_six_hundred_sixty",
+      "friv": "unknown_six_hundred_sixty_one"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.inventory.ObjectPriceHistoryEvent.ObjectPriceHistoryEntry": {
+    "obf_msg_namespace": "iue.iuc",
+    "field_mapping": {
+      "frik": "object_gid",
+      "fril": "price",
+      "frip": "bought_date"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.inventory.ObjectPriceHistoryRequest": {
+    "obf_msg_namespace": "itj",
+    "field_mapping": {
+      "frew": "object_gid"
+    }
+  },
   ".com.ankama.dofus.server.game.protocol.inventory.ObjectSetPositionRequest": {
     "obf_msg_namespace": "iuk",
     "field_mapping": {
@@ -9818,9 +7938,10 @@
     }
   },
   ".com.ankama.dofus.server.game.protocol.inventory.ObjectUseOnCellRequest": {
-    "obf_msg_namespace": "itj",
+    "obf_msg_namespace": "ivu",
     "field_mapping": {
-      "frew": "cell_id"
+      "frpj": "object_uid",
+      "frpk": "cell_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.inventory.ObjectUseOnCharacterRequest": {
@@ -9894,27 +8015,6 @@
       "frlo": "bar_type"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.inventory.UnknownIue": {
-    "obf_msg_namespace": "iue",
-    "field_mapping": {
-      "frit": "unknown_frit",
-      "friv": "unknown_friv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.inventory.UnknownIue.UnknownIuc": {
-    "obf_msg_namespace": "iue.iuc",
-    "field_mapping": {
-      "fril": "unknown_fril",
-      "frim": "unknown_frik",
-      "frip": "unknown_frip"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.inventory.UnknownIuz": {
-    "obf_msg_namespace": "iuz",
-    "field_mapping": {
-      "frmf": "unknown_frmg"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.job.JobBookSubscriptionEvent": {
     "obf_msg_namespace": "iro",
     "field_mapping": {
@@ -9940,6 +8040,10 @@
       "frbw": "job_information",
       "frbx": "player_information"
     }
+  },
+  ".com.ankama.dofus.server.game.protocol.job.JobCrafterDirectoryEntryEvent": {
+    "obf_msg_namespace": "iqv",
+    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.job.JobCrafterDirectoryJobInformation": {
     "obf_msg_namespace": "isi",
@@ -10006,7 +8110,8 @@
   ".com.ankama.dofus.server.game.protocol.job.JobDescription": {
     "obf_msg_namespace": "isa",
     "field_mapping": {
-      "fqza": "job_id"
+      "fqza": "job_id",
+      "fqzc": "skills"
     }
   },
   ".com.ankama.dofus.server.game.protocol.job.JobDescription.SkillAction": {
@@ -10079,7 +8184,7 @@
       "fqpy": "player_name",
       "fqpz": "gender",
       "fqqa": "level",
-      "fqqb": "unknown_fqqb"
+      "fqqb": "unknown_six_hundred_sixty_three"
     }
   },
   ".com.ankama.dofus.server.game.protocol.ladder.achievement.AchievementLadderEntry": {
@@ -10114,26 +8219,13 @@
       "fqwh": "server_id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.ladder.achievement.UnknownIrb": {
-    "obf_msg_namespace": "irb",
-    "field_mapping": {
-      "fqve": "unknown_fqve",
-      "fqvf": "unknown_fqvf"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.achievement.UnknownIrh": {
-    "obf_msg_namespace": "irh",
-    "field_mapping": {
-      "fqvz": "entries"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.ladder.arena.ArenaLadderEntry": {
     "obf_msg_namespace": "iqx",
     "field_mapping": {
       "fqub": "rank",
       "fquc": "winrate",
       "fqud": "player",
-      "fque": "unknown_fque",
+      "fque": "unknown_six_hundred_sixty_six",
       "fquf": "rating"
     }
   },
@@ -10146,7 +8238,7 @@
   ".com.ankama.dofus.server.game.protocol.ladder.arena.ArenaLadderPageRequest": {
     "obf_msg_namespace": "iqy",
     "field_mapping": {
-      "fqul": "unknown_fqul",
+      "fqul": "unknown_six_hundred_sixty_seven",
       "fqum": "mode",
       "fqun": "level_range",
       "fqup": "breed_id"
@@ -10163,22 +8255,42 @@
     "field_mapping": {
       "fqtl": "breed_id",
       "fqtn": "mode",
-      "fqto": "unknown_fqto"
+      "fqto": "unknown_six_hundred_sixty_eight"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.ladder.arena.UnknownIqv": {
-    "obf_msg_namespace": "iqv",
+  ".com.ankama.dofus.server.game.protocol.ladder.breach.BreachLadderEntry": {
+    "obf_msg_namespace": "iqn",
     "field_mapping": {
-      "fqtt": "entries"
+      "fqsj": "unknown_six_hundred_seventy_three",
+      "fqsk": "rank",
+      "fqsl": "player",
+      "fqsm": "breed_id",
+      "fqsn": "done_date",
+      "fqso": "wave"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.ladder.arena.UnknownIqz": {
-    "obf_msg_namespace": "iqz",
+  ".com.ankama.dofus.server.game.protocol.ladder.breach.BreachLadderPageEvent": {
+    "obf_msg_namespace": "iqj",
     "field_mapping": {
-      "fquu": "unknown_fquu",
-      "fquw": "unknown_fquw",
-      "fqux": "unknown_fqux",
-      "fquz": "unknown_fquz"
+      "fqrr": "entries"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.ladder.breach.BreachLadderPageRequest": {
+    "obf_msg_namespace": "iqq",
+    "field_mapping": {
+      "fqsu": "server_id"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.ladder.breach.BreachLadderSelfRankEvent": {
+    "obf_msg_namespace": "iqr",
+    "field_mapping": {
+      "fqta": "entry"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.ladder.breach.BreachLadderSelfRankRequest": {
+    "obf_msg_namespace": "iql",
+    "field_mapping": {
+      "fqsa": "server_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.ladder.experience.ExperienceLadderEntry": {
@@ -10198,7 +8310,7 @@
   ".com.ankama.dofus.server.game.protocol.ladder.experience.ExperienceLadderPageRequest": {
     "obf_msg_namespace": "ipz",
     "field_mapping": {
-      "fqqg": "unknown_fqqg",
+      "fqqg": "unknown_six_hundred_seventy_six",
       "fqqh": "server_id"
     }
   },
@@ -10212,101 +8324,6 @@
     "obf_msg_namespace": "iqa",
     "field_mapping": {
       "fqqm": "server_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.experience.GuildTokenConfiguration": {
-    "obf_msg_namespace": "krh",
-    "field_mapping": {
-      "fyuu": "guild_token_items",
-      "fyuv": "refresh_interval_milliseconds",
-      "fyuw": "thresholds"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.experience.GuildTokenConfiguration.GuildTokenItems": {
-    "obf_msg_namespace": "krh.krf",
-    "field_mapping": {
-      "fyuk": "guildaton_item_id",
-      "fyul": "unknown_fyul",
-      "fyum": "unknown_fyum",
-      "fyun": "unknown_fyun",
-      "fyuo": "guild_token_item_id",
-      "fyup": "unknown_fyup"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.experience.GuildTokenConfiguration.GuildTokenThresholds": {
-    "obf_msg_namespace": "krh.krc",
-    "field_mapping": {
-      "fytt": "unknown_fytt",
-      "fytu": "unknown_fytu",
-      "fytv": "unknown_fytv",
-      "fytw": "unknown_fytw"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.experience.GuildTokenConfigurationEvent": {
-    "obf_msg_namespace": "krj",
-    "field_mapping": {
-      "fyvi": "configuration"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.experience.UnknownIqd": {
-    "obf_msg_namespace": "iqd",
-    "field_mapping": {
-      "fqrb": "unknown_fqrd",
-      "fqrc": "unknown_fqrc"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.experience.UnknownIqg": {
-    "obf_msg_namespace": "iqg",
-    "field_mapping": {
-      "fqri": "entries"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.infinite_dream.InfiniteDreamLadderEntry": {
-    "obf_msg_namespace": "iqn",
-    "field_mapping": {
-      "fqsj": "unknown_fqsj",
-      "fqsk": "rank",
-      "fqsl": "player",
-      "fqsm": "breed_id",
-      "fqsn": "done_date",
-      "fqso": "wave"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.infinite_dream.InfiniteDreamLadderPageEvent": {
-    "obf_msg_namespace": "iqj",
-    "field_mapping": {
-      "fqrr": "entries"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.infinite_dream.InfiniteDreamLadderPageRequest": {
-    "obf_msg_namespace": "iqq",
-    "field_mapping": {
-      "fqst": "server_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.infinite_dream.InfiniteDreamLadderSelfRankEvent": {
-    "obf_msg_namespace": "iqr",
-    "field_mapping": {
-      "fqta": "entry"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.infinite_dream.InfiniteDreamLadderSelfRankRequest": {
-    "obf_msg_namespace": "iql",
-    "field_mapping": {
-      "fqsa": "server_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.infinite_dream.UnknownIqk": {
-    "obf_msg_namespace": "iqk",
-    "field_mapping": {
-      "fqrv": "unknown_fqrv",
-      "fqrw": "unknown_fqrw"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.ladder.infinite_dream.UnknownIqm": {
-    "obf_msg_namespace": "iqm",
-    "field_mapping": {
-      "fqse": "entries"
     }
   },
   ".com.ankama.dofus.server.game.protocol.living.object.LivingObjectChangeSkinRequest": {
@@ -10340,25 +8357,36 @@
       "fqow": "message_id"
     }
   },
+  ".com.ankama.dofus.server.game.protocol.lobby.LobbyAdvertisementListEvent": {
+    "obf_msg_namespace": "jpx",
+    "field_mapping": {
+      "funp": "unknown_six_hundred_eighty_one",
+      "funq": "unknown_six_hundred_eighty_two"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.lobby.LobbyAdvertisementListRequest": {
+    "obf_msg_namespace": "jmu",
+    "field_mapping": {}
+  },
   ".com.ankama.dofus.server.game.protocol.lobby.LobbyCreateRequest": {
     "obf_msg_namespace": "jnv",
     "field_mapping": {
-      "fufz": "unknown_fufz",
-      "fuga": "unknown_fuga",
-      "fugb": "unknown_fugb",
-      "fugc": "unknown_fugc",
-      "fugd": "unknown_fugd",
-      "fuge": "unknown_fuge",
-      "fugf": "unknown_fugf",
-      "fugg": "unknown_fugg",
-      "fugh": "unknown_fugh"
+      "fufz": "unknown_six_hundred_eighty_three",
+      "fuga": "unknown_six_hundred_eighty_four",
+      "fugb": "unknown_six_hundred_eighty_five",
+      "fugc": "unknown_six_hundred_eighty_six",
+      "fugd": "unknown_six_hundred_eighty_seven",
+      "fuge": "unknown_six_hundred_eighty_eight",
+      "fugf": "unknown_six_hundred_eighty_nine",
+      "fugg": "unknown_six_hundred_ninety",
+      "fugh": "unknown_six_hundred_ninety_one"
     }
   },
   ".com.ankama.dofus.server.game.protocol.lobby.LobbyCreateResponse": {
     "obf_msg_namespace": "joq",
     "field_mapping": {
-      "fujm": "unknown_fujm",
-      "fujn": "unknown_fujn"
+      "fujm": "unknown_six_hundred_ninety_two",
+      "fujn": "unknown_six_hundred_ninety_three"
     }
   },
   ".com.ankama.dofus.server.game.protocol.lobby.LobbyStopListeningRequest": {
@@ -10369,264 +8397,25 @@
     "obf_msg_namespace": "jns",
     "field_mapping": {}
   },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJmu": {
-    "obf_msg_namespace": "jmu",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJmv": {
-    "obf_msg_namespace": "jmv",
+  ".com.ankama.dofus.server.game.protocol.map.cell.tag.ShowCellTagOwnerEvent": {
+    "obf_msg_namespace": "ijj",
     "field_mapping": {
-      "fucy": "unknown_fucy",
-      "fucz": "unknown_fucz"
+      "fpro": "owner_id",
+      "fprq": "cell_id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJnc": {
-    "obf_msg_namespace": "jnc",
+  ".com.ankama.dofus.server.game.protocol.map.cell.tag.ShowCellTagRequest": {
+    "obf_msg_namespace": "ijl",
     "field_mapping": {
-      "fudx": "unknown_fudx",
-      "fudy": "unknown_fudy"
+      "fpsb": "cell_id",
+      "fpsc": "tag_type"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJnc.UnknownJmz": {
-    "obf_msg_namespace": "jnc.jmz",
+  ".com.ankama.dofus.server.game.protocol.map.cell.tag.ShowCellTagsEvent": {
+    "obf_msg_namespace": "ijq",
     "field_mapping": {
-      "fudo": "unknown_fudo"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJnf": {
-    "obf_msg_namespace": "jnf",
-    "field_mapping": {
-      "fued": "unknown_fuef",
-      "fuee": "unknown_fuee"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJng": {
-    "obf_msg_namespace": "jng",
-    "field_mapping": {
-      "fuek": "unknown_fuej"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJnh": {
-    "obf_msg_namespace": "jnh",
-    "field_mapping": {
-      "fueo": "unknown_fueo"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJnk": {
-    "obf_msg_namespace": "jnk",
-    "field_mapping": {
-      "fues": "unknown_fues"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJnn": {
-    "obf_msg_namespace": "jnn",
-    "field_mapping": {
-      "fuew": "unknown_fuew"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJnr": {
-    "obf_msg_namespace": "jnr",
-    "field_mapping": {
-      "fufh": "unknown_fufh",
-      "fufi": "unknown_fufi"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJnt": {
-    "obf_msg_namespace": "jnt",
-    "field_mapping": {
-      "fufq": "unknown_fufq",
-      "fufr": "unknown_fufr",
-      "fufs": "unknown_fufs"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJny": {
-    "obf_msg_namespace": "jny",
-    "field_mapping": {
-      "fugw": "unknown_fugw"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJnz": {
-    "obf_msg_namespace": "jnz",
-    "field_mapping": {
-      "fuhb": "unknown_fuhb"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJoa": {
-    "obf_msg_namespace": "joa",
-    "field_mapping": {
-      "fuhf": "unknown_fuhf",
-      "fuhg": "unknown_fuhg",
-      "fuhi": "unknown_fuhi",
-      "fuhj": "unknown_fuhj",
-      "fuhk": "unknown_fuhk",
-      "fuhl": "unknown_fuhl",
-      "fuhm": "unknown_fuhm"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJoc": {
-    "obf_msg_namespace": "joc",
-    "field_mapping": {
-      "fuhq": "unknown_fuhq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJof": {
-    "obf_msg_namespace": "jof",
-    "field_mapping": {
-      "fuhz": "unknown_fuhz"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJog": {
-    "obf_msg_namespace": "jog",
-    "field_mapping": {
-      "fuid": "unknown_fuid",
-      "fuie": "unknown_fuie"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJoh": {
-    "obf_msg_namespace": "joh",
-    "field_mapping": {
-      "fuii": "unknown_fuii"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJol": {
-    "obf_msg_namespace": "jol",
-    "field_mapping": {
-      "fuiq": "unknown_fuis"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJom": {
-    "obf_msg_namespace": "jom",
-    "field_mapping": {
-      "fuiw": "unknown_fuiw",
-      "fuix": "unknown_fuix"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJor": {
-    "obf_msg_namespace": "jor",
-    "field_mapping": {
-      "fuju": "unknown_fuju",
-      "fujv": "unknown_fujs"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJos": {
-    "obf_msg_namespace": "jos",
-    "field_mapping": {
-      "fujz": "unknown_fujz",
-      "fuka": "unknown_fuka",
-      "fukb": "unknown_fukd",
-      "fukc": "unknown_fukc",
-      "fuke": "unknown_fuke",
-      "fukf": "unknown_fukf",
-      "fukg": "unknown_fukg",
-      "fukh": "unknown_fukh",
-      "fuki": "unknown_fuki",
-      "fukj": "unknown_fukj",
-      "fukk": "unknown_fukk",
-      "fukl": "unknown_fukl"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJov": {
-    "obf_msg_namespace": "jov",
-    "field_mapping": {
-      "fuks": "unknown_fuks",
-      "fukt": "unknown_fukt",
-      "fuku": "unknown_fuku"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJpb": {
-    "obf_msg_namespace": "jpb",
-    "field_mapping": {
-      "fulk": "unknown_fulk",
-      "fulm": "unknown_fulm"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJpb.UnknownJoy": {
-    "obf_msg_namespace": "jpb.joy",
-    "field_mapping": {
-      "fukz": "unknown_fukz"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJpb.UnknownJoz": {
-    "obf_msg_namespace": "jpb.joz",
-    "field_mapping": {
-      "fulf": "unknown_fulf",
-      "fulg": "unknown_fulg"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJpe": {
-    "obf_msg_namespace": "jpe",
-    "field_mapping": {
-      "fulr": "unknown_fulr"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJpi": {
-    "obf_msg_namespace": "jpi",
-    "field_mapping": {
-      "fuma": "unknown_fuma"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJpj": {
-    "obf_msg_namespace": "jpj",
-    "field_mapping": {
-      "fume": "unknown_fume"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJpk": {
-    "obf_msg_namespace": "jpk",
-    "field_mapping": {
-      "fumi": "unknown_fumi",
-      "fumj": "unknown_fumj"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJpn": {
-    "obf_msg_namespace": "jpn",
-    "field_mapping": {
-      "fumn": "unknown_fumn",
-      "fumr": "unknown_fumr",
-      "fums": "unknown_fums"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJpq": {
-    "obf_msg_namespace": "jpq",
-    "field_mapping": {
-      "fumw": "unknown_fumw"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJpr": {
-    "obf_msg_namespace": "jpr",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJps": {
-    "obf_msg_namespace": "jps",
-    "field_mapping": {
-      "fung": "unknown_fung"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJpx": {
-    "obf_msg_namespace": "jpx",
-    "field_mapping": {
-      "funp": "unknown_funp",
-      "funq": "unknown_funq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJpx.UnknownJpv": {
-    "obf_msg_namespace": "jpx.jpv",
-    "field_mapping": {
-      "funk": "unknown_funk",
-      "funl": "unknown_funl"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.lobby.UnknownJpz": {
-    "obf_msg_namespace": "jpz",
-    "field_mapping": {
-      "fuob": "unknown_fuob"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.map.UnknownKsc": {
-    "obf_msg_namespace": "ksc",
-    "field_mapping": {
-      "fyxs": "unknown_fyxs",
-      "fyxu": "unknown_fyxt"
+      "fpso": "tag_type_by_entity_id",
+      "fpsq": "tag_type_by_cell_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.moderation.PopupWarningCloseRequest": {
@@ -10689,12 +8478,6 @@
       "fqja": "portal_type",
       "fqjd": "map_id",
       "fqje": "npc_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.npc.NpcDialogQuestionEvent.VisibleReply.ActionInformation": {
-    "obf_msg_namespace": "inw",
-    "field_mapping": {
-      "fqhy": "id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.npc.NpcGenericActionFailureEvent": {
@@ -10775,7 +8558,9 @@
   },
   ".com.ankama.dofus.server.game.protocol.party.FightAutoJoinActivationResponse": {
     "obf_msg_namespace": "ikm",
-    "field_mapping": {}
+    "field_mapping": {
+      "fpuz": "result"
+    }
   },
   ".com.ankama.dofus.server.game.protocol.party.FightAutoReadyActivationRequest": {
     "obf_msg_namespace": "ikr",
@@ -10784,7 +8569,7 @@
   ".com.ankama.dofus.server.game.protocol.party.FightAutoReadyActivationResponse": {
     "obf_msg_namespace": "inn",
     "field_mapping": {
-      "fqgo": "result"
+      "fqgp": "result"
     }
   },
   ".com.ankama.dofus.server.game.protocol.party.PartyAbdicateThroneRequest": {
@@ -10929,13 +8714,6 @@
       "fqfx": "max_participants"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.party.PartyJoinEvent.UnknownIne": {
-    "obf_msg_namespace": "ing.ine",
-    "field_mapping": {
-      "fqfk": "unknown_fqfk",
-      "fqfm": "unknown_fqfm"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.party.PartyKickRequest": {
     "obf_msg_namespace": "ima",
     "field_mapping": {
@@ -10979,13 +8757,6 @@
     "field_mapping": {
       "fqaa": "loyal",
       "fqab": "party_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.PartyMemberInBreachFightEvent": {
-    "obf_msg_namespace": "ikv",
-    "field_mapping": {
-      "fpwf": "member_account_id",
-      "fpwi": "party_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.party.PartyMemberInFightEvent": {
@@ -11081,326 +8852,11 @@
       "fpwu": "party_id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownIjy": {
-    "obf_msg_namespace": "ijy",
-    "field_mapping": {
-      "fptf": "unknown_fptf"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownIka": {
-    "obf_msg_namespace": "ika",
-    "field_mapping": {
-      "fptt": "unknown_fptt"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownIkb": {
-    "obf_msg_namespace": "ikb",
-    "field_mapping": {
-      "fpty": "unknown_fpty"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownIks": {
-    "obf_msg_namespace": "iks",
-    "field_mapping": {
-      "fpvq": "unknown_fpvq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownIkt": {
-    "obf_msg_namespace": "ikt",
-    "field_mapping": {
-      "fpvv": "unknown_fpvu"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownIkw": {
-    "obf_msg_namespace": "ikw",
-    "field_mapping": {
-      "fpwm": "unknown_fpwm",
-      "fpwn": "unknown_fpwn",
-      "fpwo": "unknown_fpwo"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownIlc": {
-    "obf_msg_namespace": "ilc",
-    "field_mapping": {
-      "fpye": "unknown_fpye"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownIlr": {
-    "obf_msg_namespace": "ilr",
-    "field_mapping": {
-      "fqap": "unknown_fqap"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownIlv": {
-    "obf_msg_namespace": "ilv",
-    "field_mapping": {
-      "fqax": "unknown_fqax"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownImj": {
-    "obf_msg_namespace": "imj",
-    "field_mapping": {
-      "fqcr": "unknown_fqcr"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownImv": {
-    "obf_msg_namespace": "imv",
-    "field_mapping": {
-      "fqej": "unknown_fqej"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownInb": {
-    "obf_msg_namespace": "inb",
-    "field_mapping": {
-      "fqet": "unknown_fqet"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownInp": {
-    "obf_msg_namespace": "inp",
-    "field_mapping": {
-      "fqhb": "unknown_fqhb"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.party.UnknownInt": {
-    "obf_msg_namespace": "int",
-    "field_mapping": {
-      "fqhm": "unknown_fqhm",
-      "fqhn": "unknown_fqhn"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.player_info.PlayerInfoEvent": {
     "obf_msg_namespace": "lad",
     "field_mapping": {
-      "fzzu": "unknown_fzzu",
-      "fzzv": "unknown_fzzv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.PlayerInfoEvent.UnknownKzy": {
-    "obf_msg_namespace": "lad.kzy",
-    "field_mapping": {
-      "fzzg": "unknown_fzzg",
-      "fzzj": "unknown_fzzj",
-      "fzzk": "unknown_fzzk"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.PlayerInfoEvent.UnknownLab": {
-    "obf_msg_namespace": "lad.lab",
-    "field_mapping": {
-      "fzzp": "unknown_fzzp"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKxm": {
-    "obf_msg_namespace": "kxm",
-    "field_mapping": {
-      "fzqb": "unknown_fzqb",
-      "fzqc": "unknown_fzqc"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKxm.UnknownKxj": {
-    "obf_msg_namespace": "kxm.kxj",
-    "field_mapping": {
-      "fzpt": "unknown_fzps"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKxm.UnknownKxk": {
-    "obf_msg_namespace": "kxm.kxk",
-    "field_mapping": {
-      "fzpx": "unknown_fzpx"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKxr": {
-    "obf_msg_namespace": "kxr",
-    "field_mapping": {
-      "fzqp": "unknown_fzqp",
-      "fzqq": "unknown_fzqq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKxr.UnknownKxo": {
-    "obf_msg_namespace": "kxr.kxo",
-    "field_mapping": {
-      "fzqh": "unknown_fzqh"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKxr.UnknownKxp": {
-    "obf_msg_namespace": "kxr.kxp",
-    "field_mapping": {
-      "fzql": "unknown_fzql"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKxs": {
-    "obf_msg_namespace": "kxs",
-    "field_mapping": {
-      "fzqv": "unknown_fzqv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKyb": {
-    "obf_msg_namespace": "kyb",
-    "field_mapping": {
-      "fzrp": "unknown_fzrp",
-      "fzrq": "unknown_fzrq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKyb.UnknownKxw": {
-    "obf_msg_namespace": "kyb.kxw",
-    "field_mapping": {
-      "fzre": "unknown_fzre"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKyb.UnknownKxz": {
-    "obf_msg_namespace": "kyb.kxz",
-    "field_mapping": {
-      "fzri": "unknown_fzri"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKyf": {
-    "obf_msg_namespace": "kyf",
-    "field_mapping": {
-      "fzsh": "unknown_fzsh"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl": {
-    "obf_msg_namespace": "kzl",
-    "field_mapping": {
-      "fzxl": "unknown_fzxl",
-      "fzxm": "unknown_fzxm"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKyi": {
-    "obf_msg_namespace": "kzl.kyi",
-    "field_mapping": {
-      "fzsl": "unknown_fzsl",
-      "fzsm": "unknown_fzsm",
-      "fzsn": "unknown_fzsn",
-      "fzso": "unknown_fzso"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKyl": {
-    "obf_msg_namespace": "kzl.kyl",
-    "field_mapping": {
-      "fzsu": "unknown_fzst"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKyr": {
-    "obf_msg_namespace": "kzl.kyr",
-    "field_mapping": {
-      "fztv": "unknown_fztv",
-      "fztw": "unknown_fztz",
-      "fztx": "unknown_fztx",
-      "fzty": "unknown_fzue",
-      "fzua": "unknown_fzua",
-      "fzub": "unknown_fzub",
-      "fzuc": "unknown_fzuc",
-      "fzud": "unknown_fzud"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKyr.UnknownKym": {
-    "obf_msg_namespace": "kzl.kyr.kym",
-    "field_mapping": {
-      "fzsz": "unknown_fzsz",
-      "fzta": "unknown_fzta"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKyr.UnknownKyn": {
-    "obf_msg_namespace": "kzl.kyr.kyn",
-    "field_mapping": {
-      "fzte": "unknown_fzte",
-      "fztf": "unknown_fztf",
-      "fztg": "unknown_fztg"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKyr.UnknownKyo": {
-    "obf_msg_namespace": "kzl.kyr.kyo",
-    "field_mapping": {
-      "fztk": "unknown_fztk",
-      "fztl": "unknown_fztl",
-      "fztm": "unknown_fztm"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKyr.UnknownKyp": {
-    "obf_msg_namespace": "kzl.kyr.kyp",
-    "field_mapping": {
-      "fztq": "unknown_fztq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKyu": {
-    "obf_msg_namespace": "kzl.kyu",
-    "field_mapping": {
-      "fzun": "unknown_fzun",
-      "fzuo": "unknown_fzuo",
-      "fzuq": "unknown_fzup"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKzi": {
-    "obf_msg_namespace": "kzl.kzi",
-    "field_mapping": {
-      "fzxc": "unknown_fzxd"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKzi.UnknownKzg": {
-    "obf_msg_namespace": "kzl.kzi.kzg",
-    "field_mapping": {
-      "fzwu": "unknown_fzwu",
-      "fzwv": "unknown_fzwv",
-      "fzww": "unknown_fzww",
-      "fzwx": "unknown_fzwx"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKzi.UnknownKzg.UnknownKyw": {
-    "obf_msg_namespace": "kzl.kzi.kzg.kyw",
-    "field_mapping": {
-      "fzuu": "unknown_fzuu",
-      "fzuv": "unknown_fzuv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKzi.UnknownKzg.UnknownKyx": {
-    "obf_msg_namespace": "kzl.kzi.kzg.kyx",
-    "field_mapping": {
-      "fzuz": "unknown_fzuz",
-      "fzva": "unknown_fzva"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKzi.UnknownKzg.UnknownKyy": {
-    "obf_msg_namespace": "kzl.kzi.kzg.kyy",
-    "field_mapping": {
-      "fzve": "unknown_fzve",
-      "fzvf": "unknown_fzvf",
-      "fzvg": "unknown_fzvg",
-      "fzvh": "unknown_fzvh"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzl.UnknownKzi.UnknownKzg.UnknownKze": {
-    "obf_msg_namespace": "kzl.kzi.kzg.kze",
-    "field_mapping": {
-      "fzwq": "unknown_fzwq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzs": {
-    "obf_msg_namespace": "kzs",
-    "field_mapping": {
-      "fzyb": "unknown_fzyc",
-      "fzyd": "unknown_fzyd"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzs.UnknownKzn": {
-    "obf_msg_namespace": "kzs.kzn",
-    "field_mapping": {
-      "fzxs": "unknown_fzxs"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.player_info.UnknownKzu": {
-    "obf_msg_namespace": "kzu",
-    "field_mapping": {
-      "fzym": "unknown_fzym",
-      "fzyo": "unknown_fzyx",
-      "fzyp": "unknown_fzyp",
-      "fzyr": "unknown_fzyr",
-      "fzyt": "unknown_fzyt",
-      "fzyu": "unknown_fzyu",
-      "fzyv": "unknown_fzzc",
-      "fzyw": "unknown_fzyw",
-      "fzyy": "unknown_fzyy",
-      "fzyz": "unknown_fzyz",
-      "fzzb": "unknown_fzyv"
+      "fzzu": "unknown_seven_hundred_seventy_nine",
+      "fzzv": "unknown_seven_hundred_eighty"
     }
   },
   ".com.ankama.dofus.server.game.protocol.preset.CharacterPresetCreateRequest": {
@@ -11481,11 +8937,10 @@
     }
   },
   ".com.ankama.dofus.server.game.protocol.preset.Equipment": {
-    "obf_msg_namespace": "llm",
+    "obf_msg_namespace": "idm",
     "field_mapping": {
-      "gbuj": "gid",
-      "gbuk": "uid",
-      "gbum": "effects"
+      "fovw": "gid",
+      "fovx": "uid"
     }
   },
   ".com.ankama.dofus.server.game.protocol.preset.ForgettableSpellInfo": {
@@ -11509,10 +8964,6 @@
       "fpqc": "success",
       "fpqa": "error"
     }
-  },
-  ".com.ankama.dofus.server.game.protocol.preset.ForgettableSpellPresetCreateResponse.Success": {
-    "obf_msg_namespace": "igk.igi",
-    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.preset.ForgettableSpellPresetInfo": {
     "obf_msg_namespace": "ifh",
@@ -11622,12 +9073,6 @@
       "fpoy": "is_success"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.preset.PresetSetFavoriteResponse": {
-    "obf_msg_namespace": "igv",
-    "field_mapping": {
-      "fphq": "is_success"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.preset.PresetSpellUpdateRequest": {
     "obf_msg_namespace": "igy",
     "field_mapping": {
@@ -11695,14 +9140,14 @@
       "fpjn": "spell_positions_by_id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.preset.TierAmount": {
+  ".com.ankama.dofus.server.game.protocol.preset.tier.TierAmount": {
     "obf_msg_namespace": "lak",
     "field_mapping": {
-      "gaah": "amount",
+      "gaai": "amount",
       "gaaj": "tier"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.preset.TierAmountTableEvent": {
+  ".com.ankama.dofus.server.game.protocol.preset.tier.TierAmountTableEvent": {
     "obf_msg_namespace": "lal",
     "field_mapping": {
       "gaan": "entries"
@@ -11745,12 +9190,6 @@
     "obf_msg_namespace": "ifd",
     "field_mapping": {}
   },
-  ".com.ankama.dofus.server.game.protocol.prism.UnknownIew": {
-    "obf_msg_namespace": "iew",
-    "field_mapping": {
-      "fpax": "unknown_fpax"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.quest.GuideModQuitRequest": {
     "obf_msg_namespace": "idt",
     "field_mapping": {}
@@ -11764,13 +9203,6 @@
     "field_mapping": {
       "fozc": "current_completion",
       "fozd": "max_completion"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.quest.QuestObjectiveFollowRequest": {
-    "obf_msg_namespace": "ivu",
-    "field_mapping": {
-      "frpj": "objective_id",
-      "frpk": "quest_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.quest.QuestObjectiveUnfollowRequest": {
@@ -11811,12 +9243,6 @@
       "fozs": "quests"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.quest.UnknownIej": {
-    "obf_msg_namespace": "iej",
-    "field_mapping": {
-      "fozo": "unknown_fozo"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.roleplay.AggressionEvent": {
     "obf_msg_namespace": "hps",
     "field_mapping": {
@@ -11851,10 +9277,10 @@
   ".com.ankama.dofus.server.game.protocol.roleplay.MonsterAngryAtPlayerEvent": {
     "obf_msg_namespace": "hpk",
     "field_mapping": {
-      "fncf": "attack_time",
-      "fncg": "angry_start_time",
+      "fncg": "attack_time",
       "fnch": "monster_group_id",
-      "fncj": "character_id"
+      "fncj": "angry_start_time",
+      "fnck": "character_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.roleplay.MonsterNotAngryAtPlayerEvent": {
@@ -11862,30 +9288,6 @@
     "field_mapping": {
       "fnco": "monster_group_id",
       "fncp": "character_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.roleplay.PlayerFightFriendlyAnswerRequest": {
-    "obf_msg_namespace": "hpu",
-    "field_mapping": {
-      "fneo": "fight_id",
-      "fnep": "accept"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.roleplay.PlayerFightFriendlyAnsweredEvent": {
-    "obf_msg_namespace": "hpv",
-    "field_mapping": {
-      "fnet": "source_id",
-      "fneu": "fight_id",
-      "fnev": "accept",
-      "fnew": "target_id"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.roleplay.PlayerFightFriendlyRequestedEvent": {
-    "obf_msg_namespace": "hqc",
-    "field_mapping": {
-      "fnfu": "source_id",
-      "fnfv": "target_id",
-      "fnfw": "fight_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.roleplay.PlayerFightRequest": {
@@ -11918,12 +9320,12 @@
       "fnek": "caster_id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.roleplay.UnknownHpm": {
+  ".com.ankama.dofus.server.game.protocol.roleplay.StagingSequenceConfigurationEvent": {
     "obf_msg_namespace": "hpm",
     "field_mapping": {
-      "fnct": "unknown_fnct",
-      "fncu": "unknown_fncu",
-      "fncv": "unknown_fncv"
+      "fnct": "unknown_eight_hundred_forty_six",
+      "fncu": "unknown_eight_hundred_forty_seven",
+      "fncv": "unknown_eight_hundred_forty_eight"
     }
   },
   ".com.ankama.dofus.server.game.protocol.script.CinematicEvent": {
@@ -11932,86 +9334,10 @@
       "fnbu": "cinematic_id"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.security.FileCheckEvent": {
-    "obf_msg_namespace": "hpb",
-    "field_mapping": {
-      "fnbe": "check_type",
-      "fnbf": "file_name"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.security.FileCheckRequest": {
-    "obf_msg_namespace": "hpc",
-    "field_mapping": {
-      "fnbk": "value",
-      "fnbl": "check_type"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.security.TrustStatusEvent": {
-    "obf_msg_namespace": "hpd",
-    "field_mapping": {
-      "fnbp": "certified"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.security.UnknownLvf": {
-    "obf_msg_namespace": "lvi.lvf",
-    "field_mapping": {
-      "gdhh": "unknown_gdhh",
-      "gdhi": "unknown_gdhg"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.security.UnknownLvq": {
-    "obf_msg_namespace": "lvq",
-    "field_mapping": {
-      "gdiw": "unknown_gdiw",
-      "gdix": "unknown_gdix",
-      "gdiy": "unknown_gdiy",
-      "gdiz": "unknown_gdiz",
-      "gdja": "unknown_gdja"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.security.UnknownLvv": {
-    "obf_msg_namespace": "lvv",
-    "field_mapping": {
-      "gdjv": "unknown_gdjv",
-      "gdjw": "unknown_gdjw",
-      "gdka": "unknown_gdka"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.security.UnknownLwd": {
-    "obf_msg_namespace": "lwd",
-    "field_mapping": {
-      "gdlt": "unknown_gdlt",
-      "gdlu": "unknown_gdlu"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.security.UnknownLwe": {
-    "obf_msg_namespace": "lwe",
-    "field_mapping": {
-      "gdly": "unknown_gdly",
-      "gdlz": "unknown_gdlz",
-      "gdma": "unknown_gdma",
-      "gdmb": "unknown_gdmb",
-      "gdmc": "unknown_gdmc",
-      "gdmd": "unknown_gdmd"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.server.ServerExperienceModifierEvent": {
     "obf_msg_namespace": "hox",
     "field_mapping": {
       "fnan": "experience_percentage"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.server.ServerSessionConstantsEvent": {
-    "obf_msg_namespace": "mfx",
-    "field_mapping": {
-      "geyg": "variables"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.server.ServerSessionConstantsEvent.ServerSessionConstant": {
-    "obf_msg_namespace": "mfx.mfv",
-    "field_mapping": {
-      "geyb": "id",
-      "geyc": "value"
     }
   },
   ".com.ankama.dofus.server.game.protocol.server.ServerSettingsEvent": {
@@ -12024,22 +9350,6 @@
       "fnax": "community",
       "fnay": "language",
       "fnaz": "item_max_level"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.shop.AccessoryPreviewErrorEvent": {
-    "obf_msg_namespace": "hsh",
-    "field_mapping": {
-      "fnmn": "error"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.shop.AccessoryPreviewEvent": {
-    "obf_msg_namespace": "lvi",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.shop.AccessoryPreviewRequest": {
-    "obf_msg_namespace": "lvp",
-    "field_mapping": {
-      "gdis": "object_gid"
     }
   },
   ".com.ankama.dofus.server.game.protocol.social.AdditionalSmileyEvent": {
@@ -12362,19 +9672,6 @@
       "fmng": "tag_information"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.tag.storage.UnknownHlz": {
-    "obf_msg_namespace": "hlz",
-    "field_mapping": {
-      "fmpe": "unknown_fmpe",
-      "fmpf": "unknown_fmpf"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.tag.storage.UnknownHmb": {
-    "obf_msg_namespace": "hmb",
-    "field_mapping": {
-      "fmpo": "unknown_fmpo"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.tag.storage.UpdateTagStorageContentRequest": {
     "obf_msg_namespace": "hme",
     "field_mapping": {
@@ -12422,6 +9719,12 @@
       "fmjr": "object",
       "fmjs": "tax_collector_uid",
       "fmjt": "characteristics"
+    }
+  },
+  ".com.ankama.dofus.server.game.protocol.taxcollector.TaxCollectorErrorEvent": {
+    "obf_msg_namespace": "hla",
+    "field_mapping": {
+      "fmlu": "reason"
     }
   },
   ".com.ankama.dofus.server.game.protocol.taxcollector.TaxCollectorFightRequest": {
@@ -12505,6 +9808,10 @@
     "obf_msg_namespace": "hjy",
     "field_mapping": {}
   },
+  ".com.ankama.dofus.server.game.protocol.taxcollector.TaxCollectorPresetsUpdatesListenStopRequest": {
+    "obf_msg_namespace": "hkl",
+    "field_mapping": {}
+  },
   ".com.ankama.dofus.server.game.protocol.taxcollector.TaxCollectorRemovedEvent": {
     "obf_msg_namespace": "hlc",
     "field_mapping": {
@@ -12529,39 +9836,6 @@
     "obf_msg_namespace": "hkb",
     "field_mapping": {
       "fmik": "information"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.taxcollector.UnknownHko": {
-    "obf_msg_namespace": "hko",
-    "field_mapping": {
-      "fmko": "unknown_fmko",
-      "fmkq": "unknown_fmkq",
-      "fmkr": "unknown_fmkr"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.taxcollector.UnknownHkp": {
-    "obf_msg_namespace": "hkp",
-    "field_mapping": {
-      "fmkv": "unknown_fmkv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.taxcollector.UnknownHkt": {
-    "obf_msg_namespace": "hkt",
-    "field_mapping": {
-      "fmlf": "unknown_fmlf"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.taxcollector.UnknownHla": {
-    "obf_msg_namespace": "hla",
-    "field_mapping": {
-      "fmlu": "unknown_fmlu"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.taxcollector.UnknownHle": {
-    "obf_msg_namespace": "hle",
-    "field_mapping": {
-      "fmmo": "unknown_fmmo",
-      "fmmp": "unknown_fmmp"
     }
   },
   ".com.ankama.dofus.server.game.protocol.teleportation.GroupTeleportPlayerAnswerRequest": {
@@ -12624,14 +9898,6 @@
     "field_mapping": {
       "fmep": "remaining_time",
       "fmeq": "bonus_pourcentage"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.teleportation.TeleportDestinationsEvent": {
-    "obf_msg_namespace": "hjj",
-    "field_mapping": {
-      "fmfi": "spawn_map_id",
-      "fmfk": "destinations",
-      "fmfl": "type"
     }
   },
   ".com.ankama.dofus.server.game.protocol.teleportation.TeleportPlayerAnswerRequest": {
@@ -12706,9 +9972,9 @@
     }
   },
   ".com.ankama.dofus.server.game.protocol.tinsel.TitleGainedEvent": {
-    "obf_msg_namespace": "kry",
+    "obf_msg_namespace": "hig",
     "field_mapping": {
-      "fyxc": "title_id"
+      "fmaf": "title_id"
     }
   },
   ".com.ankama.dofus.server.game.protocol.tinsel.TitleLostEvent": {
@@ -12729,10 +9995,6 @@
       "flzf": "titles",
       "flzg": "ornaments"
     }
-  },
-  ".com.ankama.dofus.server.game.protocol.tinsel.TitlesAndOrnamentsRequest": {
-    "obf_msg_namespace": "jjz",
-    "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.treasure.hunt.PortalUseRequest": {
     "obf_msg_namespace": "hhu",
@@ -12820,12 +10082,6 @@
       "fluy": "direction"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.treasure.hunt.TreasureHuntEvent.UnknownHhd": {
-    "obf_msg_namespace": "hhf.hhd",
-    "field_mapping": {
-      "flwk": "unknown_flwk"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.treasure.hunt.TreasureHuntFinishedEvent": {
     "obf_msg_namespace": "hhq",
     "field_mapping": {
@@ -12878,87 +10134,10 @@
       "flud": "object_uid"
     }
   },
-  ".com.ankama.dofus.server.game.protocol.world_event.UnknownHeg": {
-    "obf_msg_namespace": "heg",
-    "field_mapping": {
-      "fllw": "unknown_fllw",
-      "flly": "unknown_flly",
-      "fllz": "unknown_fllz"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.world_event.UnknownHeh": {
-    "obf_msg_namespace": "heh",
-    "field_mapping": {
-      "flme": "unknown_flmh",
-      "flmf": "unknown_flmd",
-      "flmg": "award_type",
-      "flmi": "player_name"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.world_event.UnknownHfh": {
-    "obf_msg_namespace": "hfh",
-    "field_mapping": {
-      "flql": "unknown_flql"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.world_event.UnknownHfi": {
-    "obf_msg_namespace": "hfi",
-    "field_mapping": {
-      "flqp": "unknown_flqp",
-      "flqq": "unknown_flqq"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.world_event.UnknownHfj": {
-    "obf_msg_namespace": "hfj",
-    "field_mapping": {
-      "flqu": "unknown_flqw",
-      "flqv": "unknown_flqv"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.world_event.UnknownHfl": {
-    "obf_msg_namespace": "hfl",
-    "field_mapping": {
-      "flra": "rank",
-      "flrb": "score",
-      "flrc": "unknown_flrc",
-      "flrd": "player",
-      "flre": "unknown_flre",
-      "flrf": "unknown_flrf"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.world_event.UnknownHfo": {
-    "obf_msg_namespace": "hfo",
-    "field_mapping": {
-      "flrm": "unknown_flrm",
-      "flrn": "unknown_flrn"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.world_event.UnknownHfr": {
-    "obf_msg_namespace": "hfr",
-    "field_mapping": {}
-  },
-  ".com.ankama.dofus.server.game.protocol.world_event.UnknownHgb": {
-    "obf_msg_namespace": "hgb",
-    "field_mapping": {
-      "fltm": "unknown_fltm",
-      "fltn": "unknown_fltn",
-      "flto": "unknown_flto"
-    }
-  },
   ".com.ankama.dofus.server.game.protocol.world_event.WorldEventDetailEvent": {
     "obf_msg_namespace": "hfd",
     "field_mapping": {
-      "flpw": "unknown_flpw",
-      "flpx": "unknown_flpx"
-    }
-  },
-  ".com.ankama.dofus.server.game.protocol.world_event.WorldEventDetailEvent.UnknownHfa": {
-    "obf_msg_namespace": "hfd.hfa",
-    "field_mapping": {
-      "flpk": "winner_count",
-      "flpl": "players",
-      "flpm": "unknown_flpm",
-      "flpo": "unknown_flpn"
+      "flpw": "unknown_eight_hundred_eighty_two"
     }
   },
   ".com.ankama.dofus.server.game.protocol.world_event.WorldEventDetailRequest": {

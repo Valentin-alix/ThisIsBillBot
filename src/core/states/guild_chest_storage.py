@@ -26,8 +26,6 @@ class GuildChestStorage:
                     _STORAGE_REGISTRY[server_id] = cls()
         return _STORAGE_REGISTRY[server_id]
 
-    # ── write operations ──────────────────────────────────────────────────────
-
     def set_tab_content(self, tab: int, objects: list[ObjectItemInventory]) -> None:
         with self._lock:
             self._objects[tab] = {obj.item.gid: obj for obj in objects}
@@ -45,8 +43,6 @@ class GuildChestStorage:
                 raise ValueError(f"item uid={uid} not found in tab {tab}")
             gid = uid_map.pop(uid)
             self._objects.get(tab, {}).pop(gid, None)
-
-    # ── read operations ───────────────────────────────────────────────────────
 
     def get_item_by_gid(self, tab: int, gid: int) -> ObjectItemInventory | None:
         with self._lock:
@@ -67,8 +63,6 @@ class GuildChestStorage:
     def get_tab_for_gid(self, gid: int) -> int | None:
         with self._lock:
             return self._get_tab_for_gid_unlocked(gid)
-
-    # ── reservation operations ────────────────────────────────────────────────
 
     def get_available_quantity(self, tab: int, gid: int) -> int:
         with self._lock:

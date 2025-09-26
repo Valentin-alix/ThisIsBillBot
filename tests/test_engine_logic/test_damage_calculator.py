@@ -159,7 +159,7 @@ class TestGetDamageEffect:
             is_melee=False,
             primary_elem=EffectElement.STRENGTH,
         )
-        # factor = (100 + 100 + 50 + 50) / 100 = 3.0
+
         assert damage == 300
 
     def test_dealt_damage_multiplier_is_applied(self) -> None:
@@ -196,7 +196,7 @@ class TestGetDamageEffect:
             is_melee=False,
             primary_elem=EffectElement.STRENGTH,
         )
-        # 0.5 * 100 + 0.5 * 200 = 150
+
         assert damage == 150
 
     def test_critical_probability_includes_critical_hit_stat(self) -> None:
@@ -209,7 +209,7 @@ class TestGetDamageEffect:
             is_melee=False,
             primary_elem=EffectElement.STRENGTH,
         )
-        # crit chance = (50 + 10) / 100 = 0.6 -> 0.4 * 100 + 0.6 * 200 = 160
+
         assert damage == 160
 
     def test_no_critical_without_critical_effect(self) -> None:
@@ -244,7 +244,7 @@ class TestGetDamageEffect:
             is_melee=False,
             primary_elem=EffectElement.STRENGTH,
         )
-        # total fire resist = 10 + 20 = 30 -> 100 * 0.7 = 70
+
         assert damage == 70
 
     def test_best_element_uses_caster_primary_elem(self) -> None:
@@ -257,7 +257,7 @@ class TestGetDamageEffect:
             is_melee=False,
             primary_elem=EffectElement.AGILITY,
         )
-        # best element = air (agility 300) -> factor (100+300)/100 = 4.0 -> 400
+
         assert damage == 400
 
     def test_non_damage_effect_returns_zero(self) -> None:
@@ -307,5 +307,5 @@ class TestGetDamageEffect:
             primary_elem=EffectElement.STRENGTH,
             modifiers=modifiers,
         )
-        # factor = (100 + 100) / 100 = 2.0
+
         assert damage == 200

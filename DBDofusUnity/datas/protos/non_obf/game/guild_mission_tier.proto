@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package com.ankama.dofus.server.game.protocol.guild.mission.tier;
+
+message GuildMissionTierDetailEvent {
+	oneof result {
+		GuildMissionTierDetailFailure failure = 1;
+		GuildMissionTierDetailSuccess success = 3;
+	}
+	message GuildMissionTierDetailFailure {
+	}
+	message GuildMissionTierDetailUnknownResult {
+	}
+	message GuildMissionTierDetailSuccess {
+		.com.ankama.dofus.server.game.protocol.guild.mission.tier.GuildMissionDisabledEntries disabled_entries = 1;
+	}
+}
+
+message GuildMissionTierDetailRequest {
+}
+
+message GuildMissionDisabledEntries {
+	repeated int32 disabled_categories = 1;
+	repeated int32 disabled_tiers = 2;
+}
+
+message GuildMissionUpdateEvent {
+	oneof result {
+		GuildMissionUpdateFailure failure = 1;
+		GuildMissionUpdateSuccess success = 2;
+	}
+	message GuildMissionUpdateFailure {
+	}
+	message GuildMissionUpdateSuccess {
+		.com.ankama.dofus.server.game.protocol.guild.mission.tier.GuildMissionDisabledEntries disabled_entries = 1;
+	}
+}
+
+message GuildMissionUpdateRequest {
+	.com.ankama.dofus.server.game.protocol.guild.mission.tier.GuildMissionDisabledEntries disabled_entries = 1;
+	enum GuildMissionUpdateMode {
+		GUILD_MISSION_UPDATE_MODE_UNSPECIFIED = 0;
+		GUILD_MISSION_UPDATE_MODE_UNKNOWN = 1;
+	}
+}

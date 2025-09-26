@@ -77,14 +77,6 @@ message GuildKickRequest {
 	int64 kicked_id = 1;
 }
 
-message GuildJoinAutomaticallyRequest {
-	int32 guild_id = 1;
-}
-
-message GuildPaddockTeleportRequest {
-	int64 paddock_id = 1;
-}
-
 message GuildMotdSetRequest {
 	string content = 1;
 }
@@ -105,6 +97,8 @@ message GuildNoteUpdateRequest {
 message GuildLogbookEvent {
 	repeated .com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry global_activities = 1;
 	repeated .com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry chest_activities = 2;
+	repeated .com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry unknown_four_hundred_sixty_seven = 3;
+	repeated .com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry unknown_four_hundred_sixty_eight = 5;
 }
 
 message GuildSummaryEvent {
@@ -112,9 +106,6 @@ message GuildSummaryEvent {
 	int64 count = 2;
 	int64 total = 3;
 	repeated .com.ankama.dofus.server.game.protocol.common.GuildInformation guilds = 4;
-}
-
-message GuildCreationStartedEvent {
 }
 
 message GuildModificationStartedEvent {
@@ -156,15 +147,6 @@ message GuildGeneralInformationEvent {
 	int32 score = 8;
 }
 
-message GuildPaddocksInformationEvent {
-	int32 max_paddock_number = 1;
-	repeated .com.ankama.dofus.server.game.protocol.common.PaddockInformation paddock_information = 2;
-}
-
-message GuildPaddockBoughtEvent {
-	.com.ankama.dofus.server.game.protocol.common.PaddockInformation paddock = 1;
-}
-
 message GuildPaddockRemovedEvent {
 	int64 paddock_id = 1;
 }
@@ -197,27 +179,34 @@ message GuildCardEvent {
 
 
 
-message UnknownJii {
-	bool unknown_ftmt = 1;
-	int32 unknown_ftmv = 2;
+message GuildFeaturePanelStateRequest {
+	bool is_open = 1;
+	UnknownTwoHundredThirtyEight unknown_four_hundred_sixty_two = 2;
+	enum UnknownTwoHundredThirtyEight {
+		UNKNOWN_TWO_HUNDRED_THIRTY_EIGHT_UNSPECIFIED = 0;
+		UNKNOWN_TWO_HUNDRED_THIRTY_EIGHT_1 = 1;
+		UNKNOWN_TWO_HUNDRED_THIRTY_EIGHT_2 = 2;
+	}
 }
 
-message UnknownJik {
-	string unknown_ftnd = 1;
-	map<bool, int64> unknown_ftne = 2;
+message UnknownTwoHundredThirtyNine {
+	string unknown_four_hundred_sixty_nine = 1;
+	map<bool, int64> unknown_four_hundred_seventy = 2;
 }
 
-message UnknownJil {
-	repeated .com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry unknown_ftni = 1;
-	repeated .com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry unknown_ftnj = 2;
-	repeated .com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry unknown_ftnk = 3;
-	repeated .com.ankama.dofus.server.game.protocol.common.GuildLogbookEntry unknown_ftnm = 4;
+message GuildHallConfigurationEvent {
+	GuildHallConfiguration configuration = 1;
+	message GuildHallConfiguration {
+		int32 unknown_four_hundred_sixty_three = 1;
+		map<string, bool> available_options_by_key = 2;
+		repeated int32 available_option_ids = 3;
+		bool is_enabled = 4;
+		optional string unknown_four_hundred_sixty_four = 5;
+		optional int32 unknown_four_hundred_sixty_five = 6;
+		int64 unknown_four_hundred_sixty_six = 7;
+	}
 }
 
-message UnknownJjd {
-	string unknown_ftpz = 1;
-}
-
-message UnknownJjv {
-	int32 unknown_ftsr = 1;
+message GuildContributionTokenEvent {
+	int64 guildaton_count = 1;
 }

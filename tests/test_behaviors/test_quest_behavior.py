@@ -13,8 +13,8 @@ from src.core.events_manager.event_manager import EventManager
 from tests.fixtures.bot_runtime import make_blocking_state_recovery
 from tests.fixtures.game_state import GameStateContext
 
-QUEST_ID = 1199  # startCriterion 'PL>9': no quest prerequisite
-DEPENDENT_QUEST_ID = 1200  # startCriterion 'PL>9&Qf=1199&PZ=1'
+QUEST_ID = 1199
+DEPENDENT_QUEST_ID = 1200
 MAP_IDS = {200}
 
 

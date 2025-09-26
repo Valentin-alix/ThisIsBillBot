@@ -61,8 +61,8 @@ class PrismAttackResultEvent(_message.Message):
     prism_attack_result: PrismAttackResultEvent.PrismAttackResult
     def __init__(self, prism_localized_information: _Optional[_Union[_common_pb2.PrismLocalizedInformation, _Mapping]] = ..., prism_attack_result: _Optional[_Union[PrismAttackResultEvent.PrismAttackResult, str]] = ...) -> None: ...
 
-class UnknownIew(_message.Message):
-    __slots__ = ("unknown_fpax",)
-    UNKNOWN_FPAX_FIELD_NUMBER: _ClassVar[int]
-    unknown_fpax: int
-    def __init__(self, unknown_fpax: _Optional[int] = ...) -> None: ...
+class UnknownFourHundredEightyFive(_message.Message):
+    __slots__ = ("unknown_eight_hundred_forty_four",)
+    UNKNOWN_EIGHT_HUNDRED_FORTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_forty_four: int
+    def __init__(self, unknown_eight_hundred_forty_four: _Optional[int] = ...) -> None: ...

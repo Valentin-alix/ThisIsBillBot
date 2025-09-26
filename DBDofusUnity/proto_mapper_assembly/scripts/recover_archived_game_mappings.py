@@ -30,13 +30,16 @@ from pathlib import Path
 from consts import OBF_GAME_SNAPSHOTS_DIR, PROJECT_ROOT
 
 from proto_mapper_assembly.controllers.message_lookup import build_obf_alias_lookup
+from proto_mapper_assembly.helpers.archived_builds import (
+    GAME_MAPPINGS_RELATIVE_PATH,
+    PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
+    game_assembly_mtime_ns,
+    iter_archived_build_dirs,
+)
 from proto_mapper_assembly.interfaces.game_mappings import SimpleGameMappingsDocument
 from proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
 
 _GAME_MAPPINGS_REPO_PATH = "datas/protos/game_mappings.json"
-_GAME_ASSEMBLY_NAME = "GameAssembly.dll"
-_OBF_DUMP_CS_PATH = Path("cs") / "Ankama.Dofus.Protocol.Game.cs"
-_GAME_MAPPINGS_PATH = Path("game_mappings.json")
 _CONFIDENT_FIELD_RATIO = 0.90
 
 
@@ -59,7 +62,7 @@ class CommitCandidate:
 def main() -> None:
     arguments = _build_argument_parser().parse_args()
     obf_dir: Path = arguments.obf_dir
-    dump_cs_path = obf_dir / _OBF_DUMP_CS_PATH
+    dump_cs_path = obf_dir / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
     if not dump_cs_path.is_file():
         error_message = f"{dump_cs_path} not found; dump this build before recovering its mappings"
         raise SystemExit(error_message)
@@ -121,7 +124,7 @@ def main() -> None:
         print("re-run with --write to store it next to the build")
         return
 
-    output_path = obf_dir / _GAME_MAPPINGS_PATH
+    output_path = obf_dir / GAME_MAPPINGS_RELATIVE_PATH
     output_path.write_bytes(_read_mappings_at_commit(best.commit))
     print(f"written: {output_path}")
 
@@ -148,17 +151,16 @@ def _build_argument_parser() -> argparse.ArgumentParser:
 def resolve_build_window(*, obf_dir: Path, snapshots_root: Path) -> tuple[str, str | None]:
     """Return the git date bounds during which this build was the one installed."""
     build_times = sorted(
-        (version_dir / _GAME_ASSEMBLY_NAME).stat().st_mtime
-        for version_dir in snapshots_root.iterdir()
-        if version_dir.is_dir() and (version_dir / _GAME_ASSEMBLY_NAME).is_file()
+        game_assembly_mtime_ns(version_dir)
+        for version_dir in iter_archived_build_dirs(snapshots_root=snapshots_root)
     )
-    own_time = (obf_dir / _GAME_ASSEMBLY_NAME).stat().st_mtime
+    own_time = game_assembly_mtime_ns(obf_dir)
     later_times = [build_time for build_time in build_times if build_time > own_time]
     return _format_git_date(own_time), _format_git_date(min(later_times)) if later_times else None
 
 
-def _format_git_date(timestamp: float) -> str:
-    return datetime.fromtimestamp(timestamp).astimezone().strftime("%Y-%m-%d %H:%M:%S")
+def _format_git_date(mtime_ns: int) -> str:
+    return datetime.fromtimestamp(mtime_ns / 1_000_000_000).astimezone().strftime("%Y-%m-%d %H:%M:%S")
 
 
 def iter_mapping_commits(*, window_start: str, window_end: str | None) -> list[tuple[str, str, str]]:

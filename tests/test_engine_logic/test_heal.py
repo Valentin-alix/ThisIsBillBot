@@ -108,7 +108,7 @@ def _patch_effect_description(monkeypatch: pytest.MonkeyPatch, description_id: i
 
 class TestEstimateSelfHeal:
     def test_elemental_heal_scales_with_intelligence(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        _patch_effect_description(monkeypatch, 0)  # generic -> elemental branch
+        _patch_effect_description(monkeypatch, 0)
         context = cast(
             AttackContext,
             SimpleNamespace(
@@ -120,7 +120,7 @@ class TestEstimateSelfHeal:
                 )
             ),
         )
-        # base = (40 + 60) / 2 = 50 ; 50 * (100 + 100) / 100 + 10 = 110
+
         heal_amount = estimate_self_heal(_effect(dice_num=40, dice_side=60), context)
         assert heal_amount == 110
 
@@ -130,7 +130,7 @@ class TestEstimateSelfHeal:
             AttackContext,
             SimpleNamespace(max_life_point=1000, characteristic_by_id={}),
         )
-        # 30% of 1000 max life
+
         assert estimate_self_heal(_effect(dice_num=30, dice_side=30), context) == 300
 
     def test_flat_heal_has_no_stat_scaling(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -141,7 +141,7 @@ class TestEstimateSelfHeal:
                 characteristic_by_id=make_characteristics({CharacteristicEnum.INTELLIGENCE: 100})
             ),
         )
-        # flat heal: base only, no Intelligence scaling
+
         assert estimate_self_heal(_effect(dice_num=50, dice_side=50), context) == 50
 
 
@@ -151,7 +151,7 @@ class TestFindBestSelfHeal:
         monkeypatch: pytest.MonkeyPatch,
         spells: list[tuple[SpellLevelsRootItem, Effect, SpellModifiers]],
     ) -> None:
-        _patch_effect_description(monkeypatch, 0)  # elemental branch, no scaling
+        _patch_effect_description(monkeypatch, 0)
 
         def _fake(
             _context: AttackContext,
@@ -165,7 +165,7 @@ class TestFindBestSelfHeal:
         assert find_best_self_heal(_context(life_point=100), MagicMock()) is None
 
     def test_picks_most_efficient_heal(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        # spell 1: heals 300 for 3 AP -> 100/AP ; spell 2: heals 300 for 2 AP -> 150/AP
+
         self._patch_spells(
             monkeypatch,
             [

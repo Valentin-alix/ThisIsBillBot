@@ -1,4 +1,3 @@
-
 from collections.abc import Callable
 from typing import cast
 from unittest.mock import MagicMock
@@ -81,9 +80,7 @@ def test_a_full_bag_is_transferred_with_a_single_request(
 
     _enter_bank(behavior)
 
-    assert [type(message) for message in sent_messages] == [
-        ExchangeObjectTransferAllFromInventoryRequest
-    ]
+    assert [type(message) for message in sent_messages] == [ExchangeObjectTransferAllFromInventoryRequest]
 
 
 def test_no_item_is_moved_one_by_one_anymore(game_state_ctx: GameStateContext) -> None:
@@ -104,9 +101,7 @@ def test_the_chest_is_left_open_once_the_bag_is_empty(game_state_ctx: GameStateC
     _enter_bank(behavior, callback=finished.append)
     behavior.event_manager.process_msg(InventoryWeightEvent(inventory_weight=0, weight_max=1_000))
 
-    assert [type(message) for message in sent_messages] == [
-        ExchangeObjectTransferAllFromInventoryRequest
-    ]
+    assert [type(message) for message in sent_messages] == [ExchangeObjectTransferAllFromInventoryRequest]
     assert finished == [None]
 
 
@@ -118,9 +113,7 @@ def test_a_silent_server_still_finishes_the_unload(game_state_ctx: GameStateCont
     _enter_bank(behavior, callback=finished.append)
     behavior.on_transfer_all_timeout()
 
-    assert [type(message) for message in sent_messages] == [
-        ExchangeObjectTransferAllFromInventoryRequest
-    ]
+    assert [type(message) for message in sent_messages] == [ExchangeObjectTransferAllFromInventoryRequest]
     assert finished == [None]
 
 

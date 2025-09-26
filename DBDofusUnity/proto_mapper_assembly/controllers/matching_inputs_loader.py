@@ -28,11 +28,11 @@ def load_matching_inputs(
     excluded_non_obf_path: Path = EXCLUDED_NON_OBF_FILE,
 ) -> MatchingInputs:
     obf_messages = parse_messages(str(obf_dump_cs_path))
-    excluded_namespaces = load_excluded_non_obf(excluded_non_obf_path).excluded_namespaces
+    excluded_config = load_excluded_non_obf(excluded_non_obf_path)
     all_non_obf_messages = parse_messages(str(non_obf_dump_cs_path))
     non_obf_messages, excluded_non_obf_names = split_excluded_non_obf_messages(
         messages=all_non_obf_messages,
-        excluded_namespaces=excluded_namespaces,
+        excluded_message_names=frozenset(excluded_config.root),
     )
     obf_messages_by_cls = {message.composed_name: message for message in obf_messages}
     non_obf_messages_by_cls = {message.composed_name: message for message in non_obf_messages}
@@ -60,7 +60,6 @@ def load_matching_inputs(
     stored_overrides = drop_excluded_signature_overrides(
         overrides=load_signature_overrides(signature_overrides_path).root,
         dropped_message_names=excluded_non_obf_names,
-        excluded_namespaces=excluded_namespaces,
     )
     prepared_non_obf_messages_by_cls, prepared_non_obf_signatures_by_cls = prepare_non_obf_matching_inputs(
         overrides=stored_overrides,

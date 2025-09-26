@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 sys.path.append(str(Path(__file__).parent.parent))
 
+from proto_mapper_assembly.helpers.archived_builds import PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
 from proto_mapper_assembly.helpers.obf_game_snapshot import resolve_obf_game_snapshot
 
 from project_paths import ENV_PATH
@@ -104,7 +105,6 @@ if not RUNTIME_DATA_DIR.exists():
 OBF_PROTO_ACCESSES_FILE: Path = OBFUSCATED_DATA_DIR / "proto_accesses.json"
 NON_OBF_PROTO_ACCESSES_FILE: Path = NON_OBFUSCATED_DATA_DIR / "proto_accesses.json"
 NON_OBF_SIGNATURE_OVERRIDES_FILE: Path = NON_OBFUSCATED_DATA_DIR / "messages_access_signature_override.json"
-PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH: Path = Path("cs") / "Ankama.Dofus.Protocol.Game.cs"
 OBF_PROTOCOL_GAME_DUMP_CS_FILE: Path = OBFUSCATED_DATA_DIR / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
 NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE: Path = NON_OBFUSCATED_DATA_DIR / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
 

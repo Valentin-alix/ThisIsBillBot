@@ -50,6 +50,7 @@ class GameStateContext:
     world_signals: WorldSignals
     inventory_signals: InventorySignals
     logger: BotLogger
+    debug_recorder: DebugRecorder
     game_state: GameState
     damage_calculator: DamageCalculator
     data_map_provider: DataMapProvider
@@ -59,14 +60,14 @@ class GameStateContext:
     world_path_finder: WorldPathFinder
 
 
-def make_game_state_ctx() -> GameStateContext:
+def make_game_state_ctx(debug_recorder: DebugRecorder | None = None) -> GameStateContext:
     game_info_signals = GameInfoSignals()
     grid_signals = GridSignals()
     log_signals = LogSignals()
     world_signals = WorldSignals()
     inventory_signals = InventorySignals()
 
-    debug_recorder = DebugRecorder(
+    debug_recorder = debug_recorder or DebugRecorder(
         file_path=os.path.join(tempfile.gettempdir(), "gamestatefixture.debug.jsonl")
     )
     logger = BotLogger(
@@ -114,6 +115,7 @@ def make_game_state_ctx() -> GameStateContext:
         world_signals=world_signals,
         inventory_signals=inventory_signals,
         logger=logger,
+        debug_recorder=debug_recorder,
         game_state=game_state,
         damage_calculator=damage_calculator,
         data_map_provider=data_map_provider,

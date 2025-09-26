@@ -141,11 +141,11 @@ class TreasureHuntEvent(_message.Message):
         map_id: int
         state: TreasureHuntEvent.TreasureHuntFlag.FlagState
         def __init__(self, map_id: _Optional[int] = ..., state: _Optional[_Union[TreasureHuntEvent.TreasureHuntFlag.FlagState, str]] = ...) -> None: ...
-    class UnknownHhd(_message.Message):
-        __slots__ = ("unknown_flwk",)
-        UNKNOWN_FLWK_FIELD_NUMBER: _ClassVar[int]
-        unknown_flwk: int
-        def __init__(self, unknown_flwk: _Optional[int] = ...) -> None: ...
+    class UnknownFiveHundredFour(_message.Message):
+        __slots__ = ("unknown_eight_hundred_sixty_six",)
+        UNKNOWN_EIGHT_HUNDRED_SIXTY_SIX_FIELD_NUMBER: _ClassVar[int]
+        unknown_eight_hundred_sixty_six: int
+        def __init__(self, unknown_eight_hundred_sixty_six: _Optional[int] = ...) -> None: ...
     QUEST_TYPE_FIELD_NUMBER: _ClassVar[int]
     START_MAP_ID_FIELD_NUMBER: _ClassVar[int]
     KNOWN_STEPS_FIELD_NUMBER: _ClassVar[int]

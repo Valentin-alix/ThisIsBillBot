@@ -34,8 +34,6 @@ MINIMUM_PATH_LENGTH_FOR_MOVEMENT_CANCEL = 5
 
 @dataclass
 class CollectBehavior(Behavior):
-    """collect all collectables in current map"""
-
     interactive_behavior: InteractiveBehavior
     path_finding: Pathfinding
 

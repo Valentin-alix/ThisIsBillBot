@@ -31,7 +31,7 @@ message MapComplementaryInformationEvent {
 	repeated .com.ankama.dofus.server.game.protocol.gamemap.MapObstacle obstacles = 7;
 	repeated .com.ankama.dofus.server.game.protocol.common.FightCommonInformation fights = 8;
 	bool has_aggressive_monsters = 9;
-	repeated .com.ankama.dofus.server.game.protocol.gamemap.UnknownJqn unknown_fuyn = 15;
+	repeated .com.ankama.dofus.server.game.protocol.gamemap.UnknownTwoHundredOne unknown_four_hundred_seven = 15;
 	oneof specific_complementary_information {
 		.com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryInHouseInformation in_house_information = 10;
 		.com.ankama.dofus.server.game.protocol.common.MapCoordinates coordinates = 11;
@@ -129,9 +129,9 @@ message MapRunningFightsRequest {
 // which now carries a oneof of three message-typed fields. All three are traced.
 message MapComplementaryBreachInformation {
 	oneof breach_complementary_information {
-		.com.ankama.dofus.server.game.protocol.gamemap.BreachBranchesInformation unknown_fuuq = 1;
-		.com.ankama.dofus.server.game.protocol.gamemap.BreachRoomInformation unknown_fuur = 2;
-		.com.ankama.dofus.server.game.protocol.gamemap.UnknownJqj unknown_fuus = 3;
+		.com.ankama.dofus.server.game.protocol.gamemap.BreachBranchesInformation unknown_four_hundred_four = 1;
+		.com.ankama.dofus.server.game.protocol.gamemap.BreachRoomInformation unknown_four_hundred_five = 2;
+		.com.ankama.dofus.server.game.protocol.gamemap.UnknownTwoHundred unknown_four_hundred_six = 3;
 	}
 }
 
@@ -180,7 +180,7 @@ message MapComplementaryAnomalyInformation {
 
 message MapRunningFightDetailsRequest {
 	int32 fight_id = 1;
-	repeated string unknown_fuuy = 2;
+	repeated string unknown_four_hundred_eight = 2;
 }
 
 message MapErrorNotFoundRequest {
@@ -188,58 +188,58 @@ message MapErrorNotFoundRequest {
 }
 
 
-message UnknownJqf {
-	int32 unknown_fuow = 1;
+message UnknownOneHundredNinetyNine {
+	int32 unknown_four_hundred_twenty_one = 1;
 }
 
-message UnknownJqj {
+message UnknownTwoHundred {
 }
 
-message UnknownJqn {
+message UnknownTwoHundredOne {
 
 }
 
 // Two of the three variants of MapComplementaryBreachInformation's oneof.
 message BreachBranchesInformation {
-	.com.ankama.dofus.server.game.protocol.gamemap.BreachBranchesInformation.Branch unknown_fuqh = 1;
+	.com.ankama.dofus.server.game.protocol.gamemap.BreachBranchesInformation.Branch unknown_four_hundred = 1;
 	message Branch {
-		int32 unknown_fuqc = 1;
-		repeated int32 unknown_fuqd = 2;
+		int32 unknown_three_hundred_ninety_eight = 1;
+		repeated int32 unknown_three_hundred_ninety_nine = 2;
 	}
 
 }
 
 message BreachRoomInformation {
-	int32 unknown_futh = 1;
-	int32 unknown_futi = 2;
-	int32 unknown_futk = 3;
+	int32 unknown_four_hundred_one = 1;
+	int32 unknown_four_hundred_two = 2;
+	int32 unknown_four_hundred_three = 3;
 
 }
 
-message UnknownJsg {
+message UnknownTwoHundredTwo {
 }
 
-message UnknownJfl {
-	int32 unknown_ftcg = 1;
-	int32 unknown_ftch = 2;
-	int32 unknown_ftci = 3;
-	int32 unknown_ftcj = 4;
-	int32 unknown_ftck = 5;
+message UnknownOneHundredNinetyEight {
+	int32 unknown_four_hundred_sixteen = 1;
+	int32 unknown_four_hundred_seventeen = 2;
+	int32 unknown_four_hundred_eighteen = 3;
+	int32 unknown_four_hundred_nineteen = 4;
+	int32 unknown_four_hundred_twenty = 5;
 }
 
-message UnknownJff {
-	int32 unknown_ftbm = 1;
-	.com.ankama.dofus.server.game.protocol.gamemap.UnknownJff.UnknownJfb unknown_ftbn = 2;
-	int32 unknown_ftbo = 3;
-	message UnknownJfb {
-		.com.ankama.dofus.server.game.protocol.gamemap.UnknownJfl unknown_ftbc = 1;
+message UnknownOneHundredNinetyFour {
+	int32 unknown_four_hundred_ten = 1;
+	.com.ankama.dofus.server.game.protocol.gamemap.UnknownOneHundredNinetyFour.UnknownOneHundredNinetyFive unknown_four_hundred_eleven = 2;
+	int32 unknown_four_hundred_twelve = 3;
+	message UnknownOneHundredNinetyFive {
+		.com.ankama.dofus.server.game.protocol.gamemap.UnknownOneHundredNinetyEight unknown_four_hundred_nine = 1;
 	}
 }
 
-message UnknownJfk {
-	.com.ankama.dofus.server.game.protocol.gamemap.UnknownJfk.UnknownJfh unknown_ftca = 1;
-	int32 unknown_ftcb = 2;
-	message UnknownJfh {
-		.com.ankama.dofus.server.game.protocol.gamemap.UnknownJfl unknown_ftbt = 1;
+message UnknownOneHundredNinetySix {
+	.com.ankama.dofus.server.game.protocol.gamemap.UnknownOneHundredNinetySix.UnknownOneHundredNinetySeven unknown_four_hundred_fourteen = 1;
+	int32 unknown_four_hundred_fifteen = 2;
+	message UnknownOneHundredNinetySeven {
+		.com.ankama.dofus.server.game.protocol.gamemap.UnknownOneHundredNinetyEight unknown_four_hundred_thirteen = 1;
 	}
 }

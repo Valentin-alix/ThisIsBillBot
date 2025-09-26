@@ -115,7 +115,6 @@ def calculate_life_recovery_weight(
 
 
 def _co_zone_effects(spell_lvl: SpellLevelsRootItem, representative: Effect) -> list[Effect]:
-    """Effects of the spell that hit the same zone as ``representative``."""
     return [effect for effect in spell_lvl.effects if effect.zoneDescr == representative.zoneDescr]
 
 
@@ -136,7 +135,6 @@ def _spell_damage_effects(
 
 
 def _spell_push_distance(spell_lvl: SpellLevelsRootItem, representative: Effect) -> int | None:
-    """Push distance (cells) of a co-zone push effect of the spell, if any."""
     for effect in _co_zone_effects(spell_lvl, representative):
         if is_push_effect(effect):
             return effect.diceNum
@@ -175,7 +173,6 @@ def calculate_damage_weight(
         if enemy_data.map_point not in impact_mps:
             continue
 
-        # Damage on a fully invulnerable or hidden target is wasted.
         if enemy_data.is_invulnerable or enemy_data.is_hidden:
             continue
 

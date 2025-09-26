@@ -30,13 +30,13 @@ from src.core.config import get_time_beween_sale_hotel_prices
 from src.core.engine.items.item import GATHERER_ITEM_GIDS
 from src.core.frames.frame import Frame
 
-# Items vendables
+
 SELLABLE_ITEMS = (
     GATHERER_ITEM_GIDS
     | DataReader().item_ids_by_type_id[ItemTypeEnum.SUBSTRAT]
     | DataReader().item_ids_by_type_id[ItemTypeEnum.ALLIAGE]
 )
-# Hôtels de vente par catégorie
+
 SALE_HOTELS_BY_CATEGORY: dict[CategoryItemEnum, list[NpcInfo]] = {
     CategoryItemEnum.RESOURCES: [
         BONTA_SALE_HOTEL_RES_SELL_NPC,

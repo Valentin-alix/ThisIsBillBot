@@ -79,8 +79,6 @@ class FightTurnBehavior(Behavior):
         target_mp: MapPoint,
         on_done: Callable[[], None],
     ) -> None:
-        """Cast a self-targeted spell, then run ``on_done`` (re-entrant step)."""
-
         def on_finished(error_code: str | None) -> None:
             self.raise_if_error(error_code)
             self.did_cast_support_spell = True
@@ -249,7 +247,6 @@ class FightTurnBehavior(Behavior):
             )
             return self.find_and_do_attack()
         elif error_code is MapMoveError.CELL_TAKEN:
-            # cell is probably taken by invisible enemy
             return self.pass_turn()
         elif error_code is not None:
             return self.pass_turn()

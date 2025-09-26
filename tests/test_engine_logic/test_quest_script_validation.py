@@ -338,10 +338,10 @@ def test_declared_objectives_match_their_step_destination() -> None:
     for script in QUEST_SCRIPTS:
         for index, objective_id in script.objective_id_by_index.items():
             if objective_id in script.objective_ids_with_untrusted_map:
-                continue  # map declaree connue fausse, cf. `objective_ids_with_untrusted_map`
+                continue
             objective_map_id = data_reader.quest_objective_by_id[objective_id].mapId
             if not objective_map_id:
-                continue  # certains objectifs ne portent qu'une position, pas de map
+                continue
             step = script.steps[index]
             if not isinstance(step, StepWithDestination):
                 continue

@@ -22,33 +22,50 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x61ppearance.proto\x12.com.ankama.dofus.server.game.protocol.cosmetic\"\x1d\n\x1b\x43haracterAppearancesRequest\"\xd2\x01\n\x1c\x43haracterAppearancesResponse\x12W\n\x0f\x63haracter_faces\x18\x01 \x01(\x0b\x32>.com.ankama.dofus.server.game.protocol.cosmetic.CharacterFaces\x12Y\n\x10\x63haracter_colors\x18\x02 \x01(\x0b\x32?.com.ankama.dofus.server.game.protocol.cosmetic.CharacterColors\"\xd8\x01\n\"CharacterAppearanceCollectionEvent\x12W\n\x0f\x63haracter_faces\x18\x01 \x01(\x0b\x32>.com.ankama.dofus.server.game.protocol.cosmetic.CharacterFaces\x12Y\n\x10\x63haracter_colors\x18\x02 \x01(\x0b\x32?.com.ankama.dofus.server.game.protocol.cosmetic.CharacterColors\"A\n\x0e\x43haracterFaces\x12\r\n\x05slots\x18\x01 \x01(\x05\x12\r\n\x05\x66\x61\x63\x65s\x18\x02 \x03(\x05\x12\x11\n\tmax_slots\x18\x03 \x01(\x05\"\x89\x01\n\x0f\x43haracterColors\x12\r\n\x05slots\x18\x01 \x01(\x05\x12T\n\x0e\x63olor_palettes\x18\x02 \x03(\x0b\x32<.com.ankama.dofus.server.game.protocol.cosmetic.ColorPalette\x12\x11\n\tmax_slots\x18\x03 \x01(\x05\"\x1e\n\x0c\x43olorPalette\x12\x0e\n\x06\x63olors\x18\x01 \x03(\x05\";\n\x1a\x43haracterUpdateFaceRequest\x12\x0f\n\x07\x66\x61\x63\x65_id\x18\x01 \x01(\x05\x12\x0c\n\x04slot\x18\x02 \x01(\x05\":\n\x19\x43haracterFaceUpdatedEvent\x12\x0f\n\x07\x66\x61\x63\x65_id\x18\x01 \x01(\x05\x12\x0c\n\x04slot\x18\x02 \x01(\x05\"<\n\x1c\x43haracterUpdateColorsRequest\x12\x0e\n\x06\x63olors\x18\x01 \x03(\x05\x12\x0c\n\x04slot\x18\x02 \x01(\x05\";\n\x1b\x43haracterColorsUpdatedEvent\x12\x0e\n\x06\x63olors\x18\x01 \x03(\x05\x12\x0c\n\x04slot\x18\x02 \x01(\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x61ppearance.proto\x12.com.ankama.dofus.server.game.protocol.cosmetic\x1a\x0c\x63ommon.proto\"\xd8\x01\n\"CharacterAppearanceCollectionEvent\x12W\n\x0f\x63haracter_faces\x18\x01 \x01(\x0b\x32>.com.ankama.dofus.server.game.protocol.cosmetic.CharacterFaces\x12Y\n\x10\x63haracter_colors\x18\x02 \x01(\x0b\x32?.com.ankama.dofus.server.game.protocol.cosmetic.CharacterColors\"A\n\x0e\x43haracterFaces\x12\r\n\x05slots\x18\x01 \x01(\x05\x12\r\n\x05\x66\x61\x63\x65s\x18\x02 \x03(\x05\x12\x11\n\tmax_slots\x18\x03 \x01(\x05\"\x89\x01\n\x0f\x43haracterColors\x12\r\n\x05slots\x18\x01 \x01(\x05\x12T\n\x0e\x63olor_palettes\x18\x02 \x03(\x0b\x32<.com.ankama.dofus.server.game.protocol.cosmetic.ColorPalette\x12\x11\n\tmax_slots\x18\x03 \x01(\x05\"\x1e\n\x0c\x43olorPalette\x12\x0e\n\x06\x63olors\x18\x01 \x03(\x05\"<\n\x1c\x43haracterUpdateColorsRequest\x12\x0e\n\x06\x63olors\x18\x01 \x03(\x05\x12\x0c\n\x04slot\x18\x02 \x01(\x05\";\n\x1b\x43haracterColorsUpdatedEvent\x12\x0e\n\x06\x63olors\x18\x01 \x03(\x05\x12\x0c\n\x04slot\x18\x02 \x01(\x05\"q\n\x1cUnknownOneHundredThirtySeven\x12(\n unknown_two_hundred_ninety_three\x18\x01 \x01(\x05\x12\'\n\x1funknown_two_hundred_ninety_four\x18\x02 \x03(\x05\"\xa7\x03\n\x1cUnknownOneHundredThirtyEight\x12\'\n\x1funknown_two_hundred_ninety_five\x18\x01 \x01(\x05\x12&\n\x1eunknown_two_hundred_ninety_six\x18\x02 \x03(\x05\x12(\n unknown_two_hundred_ninety_seven\x18\x03 \x01(\t\x12\x92\x01\n unknown_two_hundred_ninety_eight\x18\x04 \x01(\x0e\x32h.com.ankama.dofus.server.game.protocol.cosmetic.UnknownOneHundredThirtyEight.UnknownOneHundredThirtyNine\x12\'\n\x1funknown_two_hundred_ninety_nine\x18\x05 \x01(\x05\"N\n\x1bUnknownOneHundredThirtyNine\x12/\n+UNKNOWN_ONE_HUNDRED_THIRTY_NINE_UNSPECIFIED\x10\x00\"\xe5\x02\n\x16UnknownOneHundredForty\x12\x7f\n\x15unknown_three_hundred\x18\x01 \x01(\x0e\x32`.com.ankama.dofus.server.game.protocol.cosmetic.UnknownOneHundredForty.UnknownOneHundredFortyOne\x12[\n\x19unknown_three_hundred_one\x18\x02 \x01(\x0b\x32\x38.com.ankama.dofus.server.game.protocol.common.EntityLook\x12!\n\x19unknown_three_hundred_two\x18\x03 \x01(\t\"J\n\x19UnknownOneHundredFortyOne\x12-\n)UNKNOWN_ONE_HUNDRED_FORTY_ONE_UNSPECIFIED\x10\x00\"\x9c\x02\n\x19UnknownOneHundredFortyTwo\x12\x8a\x01\n\x1bunknown_three_hundred_three\x18\x01 \x01(\x0e\x32\x65.com.ankama.dofus.server.game.protocol.cosmetic.UnknownOneHundredFortyTwo.UnknownOneHundredFortyThree\x12\"\n\x1aunknown_three_hundred_four\x18\x02 \x01(\t\"N\n\x1bUnknownOneHundredFortyThree\x12/\n+UNKNOWN_ONE_HUNDRED_FORTY_THREE_UNSPECIFIED\x10\x00\"\xaa\x03\n\x1aUnknownOneHundredFortyFour\x12\"\n\x1aunknown_three_hundred_five\x18\x01 \x01(\x05\x12!\n\x19unknown_three_hundred_six\x18\x02 \x01(\x05\x12\x8a\x01\n\x1bunknown_three_hundred_seven\x18\x03 \x01(\x0e\x32\x65.com.ankama.dofus.server.game.protocol.cosmetic.UnknownOneHundredFortyFour.UnknownOneHundredFortyFive\x12#\n\x1bunknown_three_hundred_eight\x18\x04 \x01(\x05\x12\"\n\x1aunknown_three_hundred_nine\x18\x05 \x01(\t\x12!\n\x19unknown_three_hundred_ten\x18\x06 \x03(\x05\"L\n\x1aUnknownOneHundredFortyFive\x12.\n*UNKNOWN_ONE_HUNDRED_FORTY_FIVE_UNSPECIFIED\x10\x00\"K\n\x17\x41\x63\x63\x65ssoryPreviewRequest\x12\x12\n\nobject_gid\x18\x01 \x03(\x05\x12\x1c\n\x14show_current_objects\x18\x02 \x01(\x08\"_\n\x15\x41\x63\x63\x65ssoryPreviewEvent\x12\x46\n\x04look\x18\x01 \x01(\x0b\x32\x38.com.ankama.dofus.server.game.protocol.common.EntityLook*%\n\tCheckType\x12\n\n\x06LENGTH\x10\x00\x12\x0c\n\x08HASH_SUM\x10\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'appearance_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_CHARACTERAPPEARANCESREQUEST']._serialized_start=68
-  _globals['_CHARACTERAPPEARANCESREQUEST']._serialized_end=97
-  _globals['_CHARACTERAPPEARANCESRESPONSE']._serialized_start=100
-  _globals['_CHARACTERAPPEARANCESRESPONSE']._serialized_end=310
-  _globals['_CHARACTERAPPEARANCECOLLECTIONEVENT']._serialized_start=313
-  _globals['_CHARACTERAPPEARANCECOLLECTIONEVENT']._serialized_end=529
-  _globals['_CHARACTERFACES']._serialized_start=531
-  _globals['_CHARACTERFACES']._serialized_end=596
-  _globals['_CHARACTERCOLORS']._serialized_start=599
-  _globals['_CHARACTERCOLORS']._serialized_end=736
-  _globals['_COLORPALETTE']._serialized_start=738
-  _globals['_COLORPALETTE']._serialized_end=768
-  _globals['_CHARACTERUPDATEFACEREQUEST']._serialized_start=770
-  _globals['_CHARACTERUPDATEFACEREQUEST']._serialized_end=829
-  _globals['_CHARACTERFACEUPDATEDEVENT']._serialized_start=831
-  _globals['_CHARACTERFACEUPDATEDEVENT']._serialized_end=889
-  _globals['_CHARACTERUPDATECOLORSREQUEST']._serialized_start=891
-  _globals['_CHARACTERUPDATECOLORSREQUEST']._serialized_end=951
-  _globals['_CHARACTERCOLORSUPDATEDEVENT']._serialized_start=953
-  _globals['_CHARACTERCOLORSUPDATEDEVENT']._serialized_end=1012
+  _globals['_CHECKTYPE']._serialized_start=2454
+  _globals['_CHECKTYPE']._serialized_end=2491
+  _globals['_CHARACTERAPPEARANCECOLLECTIONEVENT']._serialized_start=83
+  _globals['_CHARACTERAPPEARANCECOLLECTIONEVENT']._serialized_end=299
+  _globals['_CHARACTERFACES']._serialized_start=301
+  _globals['_CHARACTERFACES']._serialized_end=366
+  _globals['_CHARACTERCOLORS']._serialized_start=369
+  _globals['_CHARACTERCOLORS']._serialized_end=506
+  _globals['_COLORPALETTE']._serialized_start=508
+  _globals['_COLORPALETTE']._serialized_end=538
+  _globals['_CHARACTERUPDATECOLORSREQUEST']._serialized_start=540
+  _globals['_CHARACTERUPDATECOLORSREQUEST']._serialized_end=600
+  _globals['_CHARACTERCOLORSUPDATEDEVENT']._serialized_start=602
+  _globals['_CHARACTERCOLORSUPDATEDEVENT']._serialized_end=661
+  _globals['_UNKNOWNONEHUNDREDTHIRTYSEVEN']._serialized_start=663
+  _globals['_UNKNOWNONEHUNDREDTHIRTYSEVEN']._serialized_end=776
+  _globals['_UNKNOWNONEHUNDREDTHIRTYEIGHT']._serialized_start=779
+  _globals['_UNKNOWNONEHUNDREDTHIRTYEIGHT']._serialized_end=1202
+  _globals['_UNKNOWNONEHUNDREDTHIRTYEIGHT_UNKNOWNONEHUNDREDTHIRTYNINE']._serialized_start=1124
+  _globals['_UNKNOWNONEHUNDREDTHIRTYEIGHT_UNKNOWNONEHUNDREDTHIRTYNINE']._serialized_end=1202
+  _globals['_UNKNOWNONEHUNDREDFORTY']._serialized_start=1205
+  _globals['_UNKNOWNONEHUNDREDFORTY']._serialized_end=1562
+  _globals['_UNKNOWNONEHUNDREDFORTY_UNKNOWNONEHUNDREDFORTYONE']._serialized_start=1488
+  _globals['_UNKNOWNONEHUNDREDFORTY_UNKNOWNONEHUNDREDFORTYONE']._serialized_end=1562
+  _globals['_UNKNOWNONEHUNDREDFORTYTWO']._serialized_start=1565
+  _globals['_UNKNOWNONEHUNDREDFORTYTWO']._serialized_end=1849
+  _globals['_UNKNOWNONEHUNDREDFORTYTWO_UNKNOWNONEHUNDREDFORTYTHREE']._serialized_start=1771
+  _globals['_UNKNOWNONEHUNDREDFORTYTWO_UNKNOWNONEHUNDREDFORTYTHREE']._serialized_end=1849
+  _globals['_UNKNOWNONEHUNDREDFORTYFOUR']._serialized_start=1852
+  _globals['_UNKNOWNONEHUNDREDFORTYFOUR']._serialized_end=2278
+  _globals['_UNKNOWNONEHUNDREDFORTYFOUR_UNKNOWNONEHUNDREDFORTYFIVE']._serialized_start=2202
+  _globals['_UNKNOWNONEHUNDREDFORTYFOUR_UNKNOWNONEHUNDREDFORTYFIVE']._serialized_end=2278
+  _globals['_ACCESSORYPREVIEWREQUEST']._serialized_start=2280
+  _globals['_ACCESSORYPREVIEWREQUEST']._serialized_end=2355
+  _globals['_ACCESSORYPREVIEWEVENT']._serialized_start=2357
+  _globals['_ACCESSORYPREVIEWEVENT']._serialized_end=2452
 # @@protoc_insertion_point(module_scope)

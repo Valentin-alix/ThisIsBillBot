@@ -1,5 +1,4 @@
 import common_pb2 as _common_pb2
-import rule_pb2 as _rule_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
@@ -7,6 +6,33 @@ from google.protobuf import message as _message
 from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
+
+class NameCompliance(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    NAME_OK: _ClassVar[NameCompliance]
+    NAME_ERROR_SERVICE_UNAVAILABLE: _ClassVar[NameCompliance]
+    NAME_ERROR_ALREADY_EXISTS: _ClassVar[NameCompliance]
+    NAME_ERROR_BAD_ALPHABET: _ClassVar[NameCompliance]
+    NAME_ERROR_BAD_LENGTH: _ClassVar[NameCompliance]
+    NAME_ERROR_BAD_CHAR: _ClassVar[NameCompliance]
+    NAME_ERROR_INVALID_DASH_POSITION: _ClassVar[NameCompliance]
+    NAME_ERROR_NAME_WITH_BAD_CASE: _ClassVar[NameCompliance]
+    NAME_ERROR_TOO_MANY_CONSECUTIVE_IDENTICAL: _ClassVar[NameCompliance]
+    NAME_ERROR_TOO_MANY_SPECIAL: _ClassVar[NameCompliance]
+    NAME_ERROR_FORBIDDEN: _ClassVar[NameCompliance]
+    NAME_ERROR_RESERVED: _ClassVar[NameCompliance]
+NAME_OK: NameCompliance
+NAME_ERROR_SERVICE_UNAVAILABLE: NameCompliance
+NAME_ERROR_ALREADY_EXISTS: NameCompliance
+NAME_ERROR_BAD_ALPHABET: NameCompliance
+NAME_ERROR_BAD_LENGTH: NameCompliance
+NAME_ERROR_BAD_CHAR: NameCompliance
+NAME_ERROR_INVALID_DASH_POSITION: NameCompliance
+NAME_ERROR_NAME_WITH_BAD_CASE: NameCompliance
+NAME_ERROR_TOO_MANY_CONSECUTIVE_IDENTICAL: NameCompliance
+NAME_ERROR_TOO_MANY_SPECIAL: NameCompliance
+NAME_ERROR_FORBIDDEN: NameCompliance
+NAME_ERROR_RESERVED: NameCompliance
 
 class PrepareCharacterDeletionRequest(_message.Message):
     __slots__ = ("character_id",)
@@ -80,12 +106,6 @@ class CharacterNameSuggestionRequest(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
-class CanCharacterBeCreatedResultEvent(_message.Message):
-    __slots__ = ("result",)
-    RESULT_FIELD_NUMBER: _ClassVar[int]
-    result: bool
-    def __init__(self, result: bool = ...) -> None: ...
-
 class CharacterCreationResultEvent(_message.Message):
     __slots__ = ("result", "reason")
     class CharacterCreationResult(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
@@ -105,8 +125,8 @@ class CharacterCreationResultEvent(_message.Message):
     RESULT_FIELD_NUMBER: _ClassVar[int]
     REASON_FIELD_NUMBER: _ClassVar[int]
     result: CharacterCreationResultEvent.CharacterCreationResult
-    reason: _rule_pb2.NameCompliance
-    def __init__(self, result: _Optional[_Union[CharacterCreationResultEvent.CharacterCreationResult, str]] = ..., reason: _Optional[_Union[_rule_pb2.NameCompliance, str]] = ...) -> None: ...
+    reason: NameCompliance
+    def __init__(self, result: _Optional[_Union[CharacterCreationResultEvent.CharacterCreationResult, str]] = ..., reason: _Optional[_Union[NameCompliance, str]] = ...) -> None: ...
 
 class CharacterDeletionErrorEvent(_message.Message):
     __slots__ = ("reason",)
@@ -202,14 +222,8 @@ class CharacterCapabilitiesEvent(_message.Message):
     guild_emblem_symbol_category: int
     def __init__(self, guild_emblem_symbol_category: _Optional[int] = ...) -> None: ...
 
-class UnknownIjn(_message.Message):
-    __slots__ = ("unknown_fpsk",)
-    UNKNOWN_FPSK_FIELD_NUMBER: _ClassVar[int]
-    unknown_fpsk: int
-    def __init__(self, unknown_fpsk: _Optional[int] = ...) -> None: ...
-
-class UnknownIjt(_message.Message):
-    __slots__ = ("unknown_fpsw",)
-    UNKNOWN_FPSW_FIELD_NUMBER: _ClassVar[int]
-    unknown_fpsw: int
-    def __init__(self, unknown_fpsw: _Optional[int] = ...) -> None: ...
+class CanCharacterBeCreatedResultEvent(_message.Message):
+    __slots__ = ("result",)
+    RESULT_FIELD_NUMBER: _ClassVar[int]
+    result: bool
+    def __init__(self, result: bool = ...) -> None: ...

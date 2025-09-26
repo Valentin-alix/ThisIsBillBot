@@ -16,8 +16,8 @@ from dofus_unity_reader.game_constants.map_id import MapIdEnum
 from dofus_unity_reader.game_constants.npc import NpcDialogInfo
 from dofus_unity_reader.game_constants.skill import SkillEnum
 from dofus_unity_reader.grid.map_point import MapPoint
-from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
+from src.core.behaviors.craft.craft_behavior import CraftRequest
 from src.core.behaviors.quests.quest_script_behavior import (
     QuestScriptBehavior,
     QuestScriptError,
@@ -50,11 +50,11 @@ OTHER_MAP_IDS = {300}
 OBJECTIVE_A = 6752
 OBJECTIVE_B = 6753
 
-# Real ids from `NpcsDataRoot`, so the text lookups under test resolve against game data.
-KERUBIM_SHOP_CLOSED_MESSAGE_ID = 12877  # "La boutique est fermee pour cause d'inventaire..."
-KERUBIM_LISTEN_MESSAGE_ID = 13470  # "Vous etes toujours la ? Ca tombe bien..."
-KERUBIM_HELP_REPLY_ID = 15482  # "Accepter de l'aider."
-KERUBIM_LISTEN_REPLY_ID = 15483  # "Continuer a ecouter."
+
+KERUBIM_SHOP_CLOSED_MESSAGE_ID = 12877
+KERUBIM_LISTEN_MESSAGE_ID = 13470
+KERUBIM_HELP_REPLY_ID = 15482
+KERUBIM_LISTEN_REPLY_ID = 15483
 SNORI_NAIRB_NPC_ID = 1088
 XELOR_LOUCHE_MONSTER_ID = 3363
 CIRE_DE_GLIGLI_GID = 14508
@@ -62,7 +62,7 @@ GRAISSE_GELATINEUSE_GID = 1983
 POILS_DE_KERUBIM_GID = 13608
 PREPARER_POTION_SKILL_ID = 23
 POLISH_SKILL_ID = 700
-SHELF_CELL_IDS = (314, 347)  # Les deux seuls interactifs hors sortie chez Kerubim.
+SHELF_CELL_IDS = (314, 347)
 
 
 def _make_behavior(game_state_ctx: GameStateContext) -> QuestScriptBehavior:
@@ -85,7 +85,6 @@ def _make_behavior(game_state_ctx: GameStateContext) -> QuestScriptBehavior:
         del range_time
         func()
 
-    # Run timers inline so the step loop is deterministic.
     behavior.run_timer = run_timer_inline
     return behavior
 
@@ -213,13 +212,10 @@ def test_script_resumes_at_the_server_step(game_state_ctx: GameStateContext) -> 
         ),
     )
 
-    # It jumped straight to step 2, so it travels to the fight destination.
     assert _child_kwarg(behavior.auto_trip_smart_behavior, "map_ids") == DESTINATION_MAP_IDS
 
 
-def _declare_objective(
-    game_state_ctx: GameStateContext, objective_id: int, done: bool = False
-) -> None:
+def _declare_objective(game_state_ctx: GameStateContext, objective_id: int, done: bool = False) -> None:
     """Le serveur met `objective_reached` a True tant que l'objectif reste a faire."""
     quest = game_state_ctx.game_state.quest.active_quest_by_id.setdefault(
         QUEST_ID, QuestActive(quest_id=QUEST_ID)
@@ -302,7 +298,7 @@ def test_an_objective_reached_mid_run_skips_its_step(game_state_ctx: GameStateCo
     finished: list[str | None] = []
 
     _start(behavior, _objective_script(steps), finished)
-    # Le serveur valide l'objectif de l'etape suivante pendant que celle-ci se deroule.
+
     game_state_ctx.game_state.quest.mark_objective_reached(QUEST_ID, OBJECTIVE_B)
     _arrive(behavior, next(iter(OTHER_MAP_IDS)))
 
@@ -319,9 +315,7 @@ def test_script_starts_at_zero_when_server_step_is_unmapped(
 
     _start(
         behavior,
-        QuestScript(
-            name="demo", quest_id=QUEST_ID, steps=steps, server_step_id_by_index={0: 55}
-        ),
+        QuestScript(name="demo", quest_id=QUEST_ID, steps=steps, server_step_id_by_index={0: 55}),
     )
 
     assert _child_kwarg(behavior.auto_trip_smart_behavior, "map_ids") == OTHER_MAP_IDS
@@ -340,7 +334,7 @@ def test_quest_validated_event_finishes_early(game_state_ctx: GameStateContext) 
     behavior.event_manager.process_msg(QuestValidatedEvent(quest_id=QUEST_ID))
 
     assert finished == [None]
-    # The second fight never started.
+
     assert _mock_of(behavior.attacker_behavior).start.call_count == 1
 
 
@@ -403,7 +397,23 @@ def test_declared_turns_are_handed_to_the_dialog_behavior(
 
     _start(behavior, QuestScript(name="demo", steps=steps))
 
-    assert _child_kwarg(behavior.npc_dialog_behavior, "turns") == turns
+    assert _child_kwarg(behavior.npc_dialog_behavior, "turn_variants") == [turns]
+
+
+def test_declared_turn_variants_are_handed_to_the_dialog_behavior(
+    game_state_ctx: GameStateContext,
+) -> None:
+    """A quest already done offers another dialog path, declared as a second variant."""
+    behavior = _make_behavior(game_state_ctx)
+    turn_variants = [
+        [DialogTurn(reply=ByReplyId(reply_id=10), finish_after=True)],
+        [DialogTurn(reply=ByReplyId(reply_id=20), finish_after=True)],
+    ]
+    steps: list[QuestStep] = [TalkToNpcStep(npc_id=NPC_ID, turn_variants=turn_variants)]
+
+    _start(behavior, QuestScript(name="demo", steps=steps))
+
+    assert _child_kwarg(behavior.npc_dialog_behavior, "turn_variants") == turn_variants
 
 
 def test_npc_not_on_map_aborts_the_script(game_state_ctx: GameStateContext) -> None:
@@ -414,9 +424,6 @@ def test_npc_not_on_map_aborts_the_script(game_state_ctx: GameStateContext) -> N
     _start(behavior, QuestScript(name="demo", steps=steps), finished)
 
     assert finished == [QuestScriptError.NPC_NOT_FOUND]
-
-
-# --- naming npcs and monsters instead of numbering them --------------------
 
 
 def _put_npc_on_map(behavior: QuestScriptBehavior, npc_id: int, actor_id: int) -> None:
@@ -483,9 +490,7 @@ def test_monster_name_is_resolved_into_the_targeting_filter(
 ) -> None:
     behavior = _make_behavior(game_state_ctx)
     game_state_ctx.game_state.map.map_id = DESTINATION_MAP_ID
-    steps: list[QuestStep] = [
-        FightStep(map_ids=DESTINATION_MAP_IDS, monster_name="Xelor Louche", count=1)
-    ]
+    steps: list[QuestStep] = [FightStep(map_ids=DESTINATION_MAP_IDS, monster_name="Xelor Louche", count=1)]
 
     _start(behavior, QuestScript(name="demo", steps=steps))
 
@@ -543,7 +548,6 @@ def test_a_pending_objective_is_not_taken_for_a_done_one(
 
     _start(behavior, _objective_script(steps))
 
-    # Rien n'est fait : on reprend a la premiere etape porteuse d'objectif, pas plus loin.
     assert _child_kwarg(behavior.auto_trip_smart_behavior, "map_ids") == OTHER_MAP_IDS
 
 
@@ -566,9 +570,7 @@ def test_an_objective_absent_from_the_server_is_not_done(
 
 def _enter_fight(behavior: QuestScriptBehavior) -> None:
     behavior.game_state.fight.in_fight = True
-    behavior.event_manager.process_msg(
-        ContextCreationEvent(context=ContextCreationEvent.GameContext.FIGHT)
-    )
+    behavior.event_manager.process_msg(ContextCreationEvent(context=ContextCreationEvent.GameContext.FIGHT))
 
 
 def test_a_fight_started_by_an_npc_is_played_before_resuming(
@@ -676,10 +678,10 @@ def test_craft_item_step_crafts_from_the_inventory(game_state_ctx: GameStateCont
 
     _start(behavior, QuestScript(name="demo", steps=steps))
 
-    recipes = cast(list[RecipeItem], _child_kwarg(behavior.craft_behavior, "recipes"))
-    assert [recipe.resultId for recipe in recipes] == [CIRE_DE_GLIGLI_GID]
-    assert recipes[0].skillId == PREPARER_POTION_SKILL_ID
-    assert _child_kwarg(behavior.craft_behavior, "quantity_by_result_id") == {CIRE_DE_GLIGLI_GID: 2}
+    craft_requests = cast(list[CraftRequest], _child_kwarg(behavior.craft_behavior, "craft_requests"))
+    assert [req.recipe.resultId for req in craft_requests] == [CIRE_DE_GLIGLI_GID]
+    assert craft_requests[0].recipe.skillId == PREPARER_POTION_SKILL_ID
+    assert craft_requests[0].stop_condition == 2
 
 
 def test_craft_item_step_without_recipe_aborts_the_script(game_state_ctx: GameStateContext) -> None:

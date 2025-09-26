@@ -114,6 +114,6 @@ message QuestObjectiveUpdatedEvent {
 }
 
 
-message UnknownIej {
-	int32 unknown_fozo = 1;
+message UnknownFourHundredEightySix {
+	int32 unknown_eight_hundred_forty_five = 1;
 }

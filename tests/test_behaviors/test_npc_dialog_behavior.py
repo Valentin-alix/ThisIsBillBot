@@ -14,14 +14,12 @@ from src.core.engine.npcs.reply_selector import ByReplyId
 from src.core.events_manager.event_manager import EventManager
 from tests.fixtures.game_state import GameStateContext
 
-NPC_ID = 1440  # Herdegrize
+NPC_ID = 1440
 SOUFFLER_REPLY_ID = 8996
-LAST_SCREEN_MESSAGE_ID = 8901  # l'ecran final d'Herdegrize, sans aucune reponse
+LAST_SCREEN_MESSAGE_ID = 8901
 
 
-def _make_behavior(
-    game_state_ctx: GameStateContext, sent_messages: list[Message]
-) -> NpcDialogBehavior:
+def _make_behavior(game_state_ctx: GameStateContext, sent_messages: list[Message]) -> NpcDialogBehavior:
     event_manager = EventManager(_logger=game_state_ctx.logger)
     event_manager.on_send_game_callback = sent_messages.append
     behavior = NpcDialogBehavior(
@@ -47,7 +45,7 @@ def _start(
     callback = None if finished is None else finished.append
     behavior.start(
         npc_dialog_info=NpcDialogInfo(npc_id=NPC_ID),
-        turns=turns,
+        turn_variants=[turns],
         callback=callback,
         parent=None,
     )

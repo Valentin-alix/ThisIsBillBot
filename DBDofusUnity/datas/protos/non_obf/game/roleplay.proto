@@ -90,8 +90,10 @@ message DelayedActionFinishedEvent {
 }
 
 
-message UnknownHpm {
-	int32 unknown_fnct = 1;
-	int32 unknown_fncu = 2;
-	int32 unknown_fncv = 3;
+// Values consumed by the client StagingManager after map changes. Their individual
+// semantics are not yet established by a controlled capture.
+message StagingSequenceConfigurationEvent {
+	int32 unknown_eight_hundred_forty_six = 1;
+	int32 unknown_eight_hundred_forty_seven = 2;
+	int32 unknown_eight_hundred_forty_eight = 3;
 }

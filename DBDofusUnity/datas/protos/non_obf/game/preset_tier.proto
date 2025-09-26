@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package com.ankama.dofus.server.game.protocol.preset.tier;
+
+message TierAmount {
+	int32 amount = 1;
+	UnknownFourHundredEightyFour tier = 2;
+	enum UnknownFourHundredEightyFour {
+		UNKNOWN_FOUR_HUNDRED_EIGHTY_FOUR_UNSPECIFIED = 0;
+	}
+}
+
+message TierAmountTableEvent {
+	repeated .com.ankama.dofus.server.game.protocol.preset.tier.TierAmount entries = 1;
+}

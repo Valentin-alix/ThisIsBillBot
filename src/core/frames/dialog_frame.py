@@ -128,14 +128,10 @@ class DialogFrame(Frame):
         self.game_state.dialog.set_open(OpenDialogKind.CRAFT, context_id=msg.skill_id)
 
     def on_exchange_bid_seller_started_event(self, msg: ExchangeBidSellerStartedEvent) -> None:
-        self.game_state.dialog.set_open(
-            OpenDialogKind.BID_HOUSE_SELL, context_id=self.game_state.map.map_id
-        )
+        self.game_state.dialog.set_open(OpenDialogKind.BID_HOUSE_SELL, context_id=self.game_state.map.map_id)
 
     def on_exchange_bid_buyer_started_event(self, msg: ExchangeBidBuyerStartedEvent) -> None:
-        self.game_state.dialog.set_open(
-            OpenDialogKind.BID_HOUSE_BUY, context_id=self.game_state.map.map_id
-        )
+        self.game_state.dialog.set_open(OpenDialogKind.BID_HOUSE_BUY, context_id=self.game_state.map.map_id)
 
     def on_exchange_started_with_pods_event(self, msg: ExchangeStartedWithPodsEvent) -> None:
         self.game_state.dialog.set_open(OpenDialogKind.PLAYER_EXCHANGE)
@@ -146,9 +142,7 @@ class DialogFrame(Frame):
     def on_teleport_destinations_event(self, msg: TeleportDestinationsEvent) -> None:
         self.game_state.dialog.set_open(OpenDialogKind.ZAAP_DESTINATIONS)
 
-    def on_player_fight_friendly_requested_event(
-        self, msg: PlayerFightFriendlyRequestedEvent
-    ) -> None:
+    def on_player_fight_friendly_requested_event(self, msg: PlayerFightFriendlyRequestedEvent) -> None:
         if msg.target_id != self.game_state.player.character_id:
             return
         self.game_state.dialog.set_open(
@@ -158,9 +152,7 @@ class DialogFrame(Frame):
         )
 
     def on_guild_invited_event(self, msg: GuildInvitedEvent) -> None:
-        self.game_state.dialog.set_open(
-            OpenDialogKind.GUILD_INVITE, context_name=msg.recruiter_name
-        )
+        self.game_state.dialog.set_open(OpenDialogKind.GUILD_INVITE, context_name=msg.recruiter_name)
 
     def get_character_name(self, actor_id: int) -> str | None:
         actor = self.game_state.entity.actor_by_id.get(actor_id)

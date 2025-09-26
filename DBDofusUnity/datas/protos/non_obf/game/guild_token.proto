@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package com.ankama.dofus.server.game.protocol.guild.token;
+
+message GuildTokenConfiguration {
+	.com.ankama.dofus.server.game.protocol.guild.token.GuildTokenConfiguration.GuildTokenItems guild_token_items = 1;
+	int64 refresh_interval_milliseconds = 2;
+	.com.ankama.dofus.server.game.protocol.guild.token.GuildTokenConfiguration.GuildTokenThresholds thresholds = 3;
+	message GuildTokenThresholds {
+		int64 unknown_six_hundred_fifty_six = 1;
+		int32 unknown_six_hundred_fifty_seven = 2;
+		int32 unknown_six_hundred_fifty_eight = 3;
+		int32 unknown_six_hundred_fifty_nine = 4;
+	}
+	message GuildTokenItems {
+		int32 guildaton_item_id = 1;
+		int32 unknown_six_hundred_fifty_two = 2;
+		int32 unknown_six_hundred_fifty_three = 3;
+		int32 unknown_six_hundred_fifty_four = 4;
+		int32 guild_token_item_id = 5;
+		int32 unknown_six_hundred_fifty_five = 6;
+	}
+}
+
+message GuildTokenConfigurationEvent {
+	.com.ankama.dofus.server.game.protocol.guild.token.GuildTokenConfiguration configuration = 1;
+}

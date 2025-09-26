@@ -1,5 +1,3 @@
-"""Quete 1200 -- "Bien velu, c'est Kerubim", journaliere"""
-
 from dofus_unity_reader.game_constants.map_id import MapIdEnum
 from dofus_unity_reader.game_constants.quest import (
     QuestEnum,
@@ -17,24 +15,33 @@ from src.core.engine.quests.quest_script import (
 )
 
 
-def _talk_to_kerubim(turns: list[DialogTurn]) -> TalkToNpcStep:
+def _talk_to_kerubim(turn_variants: list[list[DialogTurn]]) -> TalkToNpcStep:
     return TalkToNpcStep(
         map_ids={MapIdEnum.KERUBIM_SHOP},
         npc_name="Kerubim Crepin",
-        turns=turns,
+        turn_variants=turn_variants,
     )
 
 
 _STEPS: list[QuestStep] = [
     _talk_to_kerubim(
         [
-            DialogTurn(reply=ByText(pattern=r"objets legendaires")),
-            DialogTurn(reply=ByText(pattern=r"cet ingrédient")),
-            DialogTurn(reply=ByText(pattern=r"demander ce que c'est")),
-            DialogTurn(reply=ByText(pattern=r"le rassurer et l'interroger")),
-            DialogTurn(reply=ByText(pattern=r"en savoir plus a ce sujet")),
-            DialogTurn(reply=ByText(pattern=r"ecouter sa proposition")),
-            DialogTurn(reply=ByText(pattern=r"^accepter\.$"), finish_after=True),
+            [
+                DialogTurn(reply=ByText(pattern=r"objets legendaires")),
+                DialogTurn(reply=ByText(pattern=r"cet ingrédient")),
+                DialogTurn(reply=ByText(pattern=r"demander ce que c'est")),
+                DialogTurn(reply=ByText(pattern=r"le rassurer et l'interroger")),
+                DialogTurn(reply=ByText(pattern=r"en savoir plus a ce sujet")),
+                DialogTurn(reply=ByText(pattern=r"ecouter sa proposition")),
+                DialogTurn(reply=ByText(pattern=r"^accepter\.$"), finish_after=True),
+            ],
+            [
+                DialogTurn(reply=ByText(pattern=r"une autre dose de l'ingrédient")),
+                DialogTurn(
+                    reply=ByText(pattern=r"partir à la recherche des xelors"),
+                    finish_after=True,
+                ),
+            ],
         ]
     ),
     TalkToNpcStep(
@@ -48,7 +55,7 @@ _STEPS: list[QuestStep] = [
     TalkToNpcStep(
         coord=(3, 1), npc_name="Xelor Suspect", turns=[DialogTurn(reply=ByText(pattern=r"violence"))]
     ),
-    _talk_to_kerubim([DialogTurn(reply=ByText(pattern=r"caisses du xelor"), finish_after=True)]),
+    _talk_to_kerubim([[DialogTurn(reply=ByText(pattern=r"caisses du xelor"), finish_after=True)]]),
 ]
 
 BIEN_VELU_CEST_KERUBIM = QuestScript(

@@ -35,7 +35,9 @@ class SaleHotelBuyBehavior(RecoverableBehavior):
 
     def run(self, item_infos_to_buy: list[ItemToBuyInfo], category: CategoryItemEnum) -> None:
         self.init_recovery_listeners()
-        self.ensure_free_to_act(lambda: self.start_buying(item_infos_to_buy=item_infos_to_buy, category=category))
+        self.ensure_free_to_act(
+            lambda: self.start_buying(item_infos_to_buy=item_infos_to_buy, category=category)
+        )
 
     def start_buying(self, item_infos_to_buy: list[ItemToBuyInfo], category: CategoryItemEnum):
         self._bought_item.clear()

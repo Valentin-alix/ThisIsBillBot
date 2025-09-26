@@ -6,7 +6,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import BodyLabel, CaptionLabel
 
-from src import const
+from src import consts
 from src.core.bot.bot import Bot
 
 _UNKNOWN_VALUE = "—"
@@ -68,7 +68,7 @@ class AccountQuickInfoWidget(QWidget):
         self._set_sub_area(self.bot.game_state.map.map_id)
 
     def _set_subscription_end_date(self, subscription_end_date: datetime) -> None:
-        if subscription_end_date == const.MIN_DATE:
+        if subscription_end_date == consts.MIN_DATE:
             self.subscription_end_label.setText(_UNKNOWN_VALUE)
             return
         self.subscription_end_label.setText(subscription_end_date.strftime("%d/%m/%Y %H:%M"))

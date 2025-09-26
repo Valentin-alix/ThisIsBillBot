@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package com.ankama.dofus.server.game.protocol.security.file.check;
+
+enum UnknownFourHundredEightySeven {
+	UNKNOWN_FOUR_HUNDRED_EIGHTY_SEVEN_UNSPECIFIED = 0;
+	UNKNOWN_FOUR_HUNDRED_EIGHTY_SEVEN_1 = 1;
+}
+
+message UnknownFourHundredEightyEight {
+	UnknownFourHundredEightySeven unknown_eight_hundred_forty_nine = 1;
+	string unknown_eight_hundred_fifty = 2;
+}
+
+message UnknownFourHundredEightyNine {
+	string unknown_eight_hundred_fifty_one = 2;
+	UnknownFourHundredEightySeven unknown_eight_hundred_fifty_two = 3;
+}
+
+message UnknownFourHundredNinety {
+	bool unknown_eight_hundred_fifty_three = 1;
+}

@@ -96,8 +96,8 @@ message AllianceApplicationPresenceEvent {
 
 
 
-message UnknownMae {
-	string unknown_gecb = 1;
-	string unknown_gecc = 2;
-	repeated int64 unknown_gecd = 3;
+message UnknownSeven {
+	string unknown_eleven = 1;
+	string unknown_twelve = 2;
+	repeated int64 unknown_thirteen = 3;
 }

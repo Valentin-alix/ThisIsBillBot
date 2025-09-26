@@ -3,11 +3,11 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum, auto
 
-from src.core.behaviors.recovery import RecoverableBehavior
-from src.core.behaviors.equipment.auto_equipment_behavior import (
+from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
+from src.core.behaviors.items.auto_equipment_behavior import (
     AutoEquipmentBehavior,
 )
-from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestErrorCode,
 )
@@ -20,8 +20,6 @@ class BaseFarmingErrorCode(StrEnum):
 
 @dataclass
 class BaseFarmBehavior(RecoverableBehavior, ABC):
-    """Abstract behavior that unloads a full inventory before resuming its farm cycle."""
-
     auto_equipment_behavior: AutoEquipmentBehavior
     random_farm_behavior: RandomFarmBehavior
     unload_behavior: UnloadBehavior

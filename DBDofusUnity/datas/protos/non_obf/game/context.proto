@@ -21,21 +21,6 @@ message ShowCellEvent {
 	int32 cell_id = 2;
 }
 
-message ShowCellTagRequest {
-	int32 cell_id = 1;
-	int32 tag_type = 2;
-}
-
-message ShowCellTagOwnerEvent {
-	int64 owner_id = 1;
-	int32 cell_id = 2;
-}
-
-message ShowCellTagsEvent {
-	map<int64, int32> tag_type_by_entity_id = 1;
-	map<int32, int32> tag_type_by_cell_id = 2;
-}
-
 message ContextRemoveElementsEvent {
 	repeated int64 element_id = 1;
 }

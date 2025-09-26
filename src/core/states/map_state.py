@@ -5,10 +5,11 @@ from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
 from dofus_unity_reader.grid.map_point import MapPoint
 from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
-from dofus_unity_reader.models.world_graph import Transition, Vertice
+from dofus_unity_reader.models.world_graph import Vertice
 
-from src import const
+from src import consts
 from src.core.engine.movements.world.linked_zone import get_linked_zone_rp
+from src.core.engine.movements.world.transition_ban import BannedTransition, TransitionBanScope
 from src.core.signals.grid_signals import GridSignals
 from src.core.signals.player_signals import GameInfoSignals
 from src.core.states.entity_state import EntityState
@@ -26,9 +27,7 @@ class MapState(State):
     _map_id: int = dataclasses.field(init=False, default=0)
     _is_in_haven_bag: bool = dataclasses.field(init=False, default=False)
     excluded_element_ids: set[int] = field(init=False, default_factory=set[int])
-    forbidden_edge_transitions: set[tuple[Vertice, Vertice, Transition]] = field(
-        init=False, default_factory=set[tuple[Vertice, Vertice, Transition]]
-    )
+    banned_edge_transitions: set[BannedTransition] = field(init=False, default_factory=set[BannedTransition])
     is_waiting_for_map_popup_dialog_leave: bool = field(init=False, default=False)
     _anomaly_info_requested: bool = field(init=False, default=False)
 
@@ -36,9 +35,18 @@ class MapState(State):
         self.is_in_map_transition = False
         self.is_in_haven_bag = False
         self.excluded_element_ids.clear()
-        self.forbidden_edge_transitions.clear()
+        self.banned_edge_transitions.clear()
         self.is_waiting_for_map_popup_dialog_leave = False
         self._anomaly_info_requested = False
+
+    def discard_map_stay_banned_transitions(self) -> None:
+        self.banned_edge_transitions.difference_update(
+            {ban for ban in self.banned_edge_transitions if ban.scope is TransitionBanScope.MAP_STAY}
+        )
+
+    @property
+    def has_session_banned_transitions(self) -> bool:
+        return any(ban.scope is TransitionBanScope.SESSION for ban in self.banned_edge_transitions)
 
     @property
     def is_in_map_transition(self) -> int:
@@ -47,7 +55,7 @@ class MapState(State):
     @is_in_map_transition.setter
     def is_in_map_transition(self, value: bool):
         self._is_in_map_transition = value
-        if const.DEBUG:
+        if consts.DEBUG:
             self.grid_signals.is_in_map_transition.emit(value)
 
     @property
@@ -57,7 +65,7 @@ class MapState(State):
     @map_id.setter
     def map_id(self, value: int):
         self._map_id = value
-        if const.DEBUG:
+        if consts.DEBUG:
             self.grid_signals.new_map_id.emit(self._map_id)
 
     @property
@@ -75,7 +83,7 @@ class MapState(State):
     @is_in_haven_bag.setter
     def is_in_haven_bag(self, value: bool):
         self._is_in_haven_bag = value
-        if const.DEBUG:
+        if consts.DEBUG:
             self.game_info_signals.is_in_haven_bag.emit(value)
 
     @property

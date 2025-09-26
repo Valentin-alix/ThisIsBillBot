@@ -23,55 +23,55 @@ _sym_db = _symbol_database.Default()
 
 
 import common_pb2 as common__pb2
-import game_message_pb2 as game__message__pb2
-import report_pb2 as report__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11world_event.proto\x12\x31\x63om.ankama.dofus.server.game.protocol.world_event\x1a\x0c\x63ommon.proto\x1a\x12game_message.proto\x1a\x0creport.proto\"N\n\nUnknownHeg\x12\x14\n\x0cunknown_fllw\x18\x01 \x01(\x05\x12\x14\n\x0cunknown_flly\x18\x02 \x03(\x05\x12\x14\n\x0cunknown_fllz\x18\x03 \x01(\t\"a\n\nUnknownHeh\x12\x14\n\x0cunknown_flmd\x18\x01 \x01(\x05\x12\x12\n\naward_type\x18\x02 \x01(\x05\x12\x14\n\x0cunknown_flmh\x18\x03 \x01(\x05\x12\x13\n\x0bplayer_name\x18\x04 \x01(\t\"k\n\x1aWorldEventOngoingListEvent\x12M\n\x06\x65vents\x18\x01 \x03(\x0b\x32=.com.ankama.dofus.server.game.protocol.world_event.UnknownHeg\"\xf9\x04\n\x15WorldEventDetailEvent\x12i\n\x0cunknown_flpw\x18\x01 \x01(\x0b\x32S.com.ankama.dofus.server.game.protocol.world_event.WorldEventDetailEvent.UnknownHfa\x12i\n\x0cunknown_flpx\x18\x02 \x01(\x0b\x32S.com.ankama.dofus.server.game.protocol.world_event.WorldEventDetailEvent.UnknownHfb\x1a\xfb\x02\n\nUnknownHfa\x12\x14\n\x0cwinner_count\x18\x01 \x01(\x05\x12N\n\x07players\x18\x02 \x03(\x0b\x32=.com.ankama.dofus.server.game.protocol.world_event.UnknownHfl\x12z\n\x0cunknown_flpm\x18\x03 \x01(\x0e\x32\x64.com.ankama.dofus.server.game.protocol.world_event.WorldEventDetailEvent.UnknownHfa.UnknownFlpmValue\x12S\n\x0cunknown_flpn\x18\x04 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.world_event.UnknownHfl\"6\n\x10UnknownFlpmValue\x12\"\n\x1eUNKNOWN_FLPM_VALUE_UNSPECIFIED\x10\x00\x1a\x0c\n\nUnknownHfb\"\xf7\x02\n\nUnknownHfl\x12\x0c\n\x04rank\x18\x01 \x01(\x05\x12\r\n\x05score\x18\x02 \x01(\x05\x12S\n\x0cunknown_flrc\x18\x03 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.world_event.UnknownHfh\x12M\n\x06player\x18\x04 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.world_event.UnknownHeh\x12S\n\x0cunknown_flre\x18\x05 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.world_event.UnknownHfj\x12S\n\x0cunknown_flrf\x18\x06 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.world_event.UnknownHgb\"\"\n\nUnknownHfh\x12\x14\n\x0cunknown_flql\x18\x01 \x01(\x05\"t\n\nUnknownHfj\x12P\n\x0cunknown_flqv\x18\x01 \x01(\x0b\x32:.com.ankama.dofus.server.game.protocol.common.SocialEmblem\x12\x14\n\x0cunknown_flqw\x18\x02 \x01(\t\"\x8a\x01\n\nUnknownHgb\x12\x14\n\x0cunknown_fltm\x18\x01 \x01(\t\x12\x14\n\x0cunknown_fltn\x18\x02 \x01(\x05\x12P\n\x0cunknown_flto\x18\x03 \x01(\x0b\x32:.com.ankama.dofus.server.game.protocol.common.SocialEmblem\"t\n\x1aWorldEventOccurrencesEvent\x12V\n\x05infos\x18\x01 \x03(\x0b\x32G.com.ankama.dofus.server.game.protocol.world_event.WorldEventOccurrence\"8\n\nUnknownHfi\x12\x14\n\x0cunknown_flqp\x18\x01 \x01(\t\x12\x14\n\x0cunknown_flqq\x18\x02 \x01(\x05\"8\n\nUnknownHfo\x12\x14\n\x0cunknown_flrm\x18\x01 \x01(\t\x12\x14\n\x0cunknown_flrn\x18\x02 \x01(\t\"-\n\x17WorldEventDetailRequest\x12\x12\n\nevent_uuid\x18\x01 \x01(\t\"%\n\x15WorldEventTypeRequest\x12\x0c\n\x04type\x18\x01 \x01(\x05\"\x1e\n\x1cWorldEventOccurrencesRequest\"\"\n WorldEventSelfOccurrencesRequest\"\x0c\n\nUnknownHfr\"N\n\x14WorldEventOccurrence\x12\x11\n\tdone_date\x18\x01 \x01(\t\x12\x12\n\nevent_uuid\x18\x02 \x01(\t\x12\x0f\n\x07type_id\x18\x03 \x01(\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11world_event.proto\x12\x31\x63om.ankama.dofus.server.game.protocol.world_event\x1a\x0c\x63ommon.proto\"\x18\n\x16UnknownFiveHundredFive\"\x17\n\x15UnknownFiveHundredSix\"m\n\x17UnknownFiveHundredSeven\x12\x12\n\naward_type\x18\x02 \x01(\x05\x12)\n!unknown_eight_hundred_sixty_seven\x18\x03 \x01(\x05\x12\x13\n\x0bplayer_name\x18\x04 \x01(\t\"v\n\x1aWorldEventOngoingListEvent\x12X\n\x06\x65vents\x18\x01 \x03(\x0b\x32H.com.ankama.dofus.server.game.protocol.world_event.UnknownFiveHundredSix\"\xcb\x04\n\x15WorldEventDetailEvent\x12\x8c\x01\n unknown_eight_hundred_eighty_two\x18\x01 \x01(\x0b\x32\x62.com.ankama.dofus.server.game.protocol.world_event.WorldEventDetailEvent.UnknownFiveHundredFifteen\x1a\x83\x03\n\x19UnknownFiveHundredFifteen\x12\x14\n\x0cwinner_count\x18\x01 \x01(\x05\x12\\\n\x07players\x18\x02 \x03(\x0b\x32K.com.ankama.dofus.server.game.protocol.world_event.UnknownFiveHundredEleven\x12\xa6\x01\n unknown_eight_hundred_eighty_one\x18\x03 \x01(\x0e\x32|.com.ankama.dofus.server.game.protocol.world_event.WorldEventDetailEvent.UnknownFiveHundredFifteen.UnknownFiveHundredSixteen\"I\n\x19UnknownFiveHundredSixteen\x12,\n(UNKNOWN_FIVE_HUNDRED_SIXTEEN_UNSPECIFIED\x10\x00\x1a\x1d\n\x1bUnknownFiveHundredSeventeen\"\xfd\x03\n\x18UnknownFiveHundredEleven\x12\x0c\n\x04rank\x18\x01 \x01(\x05\x12\r\n\x05score\x18\x02 \x01(\x05\x12w\n#unknown_eight_hundred_seventy_three\x18\x03 \x01(\x0b\x32J.com.ankama.dofus.server.game.protocol.world_event.UnknownFiveHundredEight\x12Z\n\x06player\x18\x04 \x01(\x0b\x32J.com.ankama.dofus.server.game.protocol.world_event.UnknownFiveHundredSeven\x12t\n\"unknown_eight_hundred_seventy_four\x18\x05 \x01(\x0b\x32H.com.ankama.dofus.server.game.protocol.world_event.UnknownFiveHundredTen\x12y\n\"unknown_eight_hundred_seventy_five\x18\x06 \x01(\x0b\x32M.com.ankama.dofus.server.game.protocol.world_event.UnknownFiveHundredFourteen\"D\n\x17UnknownFiveHundredEight\x12)\n!unknown_eight_hundred_sixty_eight\x18\x01 \x01(\x05\"\xa9\x01\n\x15UnknownFiveHundredTen\x12\x65\n!unknown_eight_hundred_seventy_one\x18\x01 \x01(\x0b\x32:.com.ankama.dofus.server.game.protocol.common.SocialEmblem\x12)\n!unknown_eight_hundred_seventy_two\x18\x02 \x01(\t\"\xd7\x01\n\x1aUnknownFiveHundredFourteen\x12+\n#unknown_eight_hundred_seventy_eight\x18\x01 \x01(\t\x12*\n\"unknown_eight_hundred_seventy_nine\x18\x02 \x01(\x05\x12`\n\x1cunknown_eight_hundred_eighty\x18\x03 \x01(\x0b\x32:.com.ankama.dofus.server.game.protocol.common.SocialEmblem\"t\n\x1aWorldEventOccurrencesEvent\x12V\n\x05infos\x18\x01 \x03(\x0b\x32G.com.ankama.dofus.server.game.protocol.world_event.WorldEventOccurrence\"i\n\x16UnknownFiveHundredNine\x12(\n unknown_eight_hundred_sixty_nine\x18\x01 \x01(\t\x12%\n\x1dunknown_eight_hundred_seventy\x18\x02 \x01(\x05\"r\n\x18UnknownFiveHundredTwelve\x12)\n!unknown_eight_hundred_seventy_six\x18\x01 \x01(\t\x12+\n#unknown_eight_hundred_seventy_seven\x18\x02 \x01(\t\"-\n\x17WorldEventDetailRequest\x12\x12\n\nevent_uuid\x18\x01 \x01(\t\"%\n\x15WorldEventTypeRequest\x12\x0c\n\x04type\x18\x01 \x01(\x05\"\x1e\n\x1cWorldEventOccurrencesRequest\"\"\n WorldEventSelfOccurrencesRequest\"\x1c\n\x1aUnknownFiveHundredThirteen\"N\n\x14WorldEventOccurrence\x12\x11\n\tdone_date\x18\x01 \x01(\t\x12\x12\n\nevent_uuid\x18\x02 \x01(\t\x12\x0f\n\x07type_id\x18\x03 \x01(\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'world_event_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_UNKNOWNHEG']._serialized_start=120
-  _globals['_UNKNOWNHEG']._serialized_end=198
-  _globals['_UNKNOWNHEH']._serialized_start=200
-  _globals['_UNKNOWNHEH']._serialized_end=297
-  _globals['_WORLDEVENTONGOINGLISTEVENT']._serialized_start=299
-  _globals['_WORLDEVENTONGOINGLISTEVENT']._serialized_end=406
-  _globals['_WORLDEVENTDETAILEVENT']._serialized_start=409
-  _globals['_WORLDEVENTDETAILEVENT']._serialized_end=1042
-  _globals['_WORLDEVENTDETAILEVENT_UNKNOWNHFA']._serialized_start=649
-  _globals['_WORLDEVENTDETAILEVENT_UNKNOWNHFA']._serialized_end=1028
-  _globals['_WORLDEVENTDETAILEVENT_UNKNOWNHFA_UNKNOWNFLPMVALUE']._serialized_start=974
-  _globals['_WORLDEVENTDETAILEVENT_UNKNOWNHFA_UNKNOWNFLPMVALUE']._serialized_end=1028
-  _globals['_WORLDEVENTDETAILEVENT_UNKNOWNHFB']._serialized_start=1030
-  _globals['_WORLDEVENTDETAILEVENT_UNKNOWNHFB']._serialized_end=1042
-  _globals['_UNKNOWNHFL']._serialized_start=1045
-  _globals['_UNKNOWNHFL']._serialized_end=1420
-  _globals['_UNKNOWNHFH']._serialized_start=1422
-  _globals['_UNKNOWNHFH']._serialized_end=1456
-  _globals['_UNKNOWNHFJ']._serialized_start=1458
-  _globals['_UNKNOWNHFJ']._serialized_end=1574
-  _globals['_UNKNOWNHGB']._serialized_start=1577
-  _globals['_UNKNOWNHGB']._serialized_end=1715
-  _globals['_WORLDEVENTOCCURRENCESEVENT']._serialized_start=1717
-  _globals['_WORLDEVENTOCCURRENCESEVENT']._serialized_end=1833
-  _globals['_UNKNOWNHFI']._serialized_start=1835
-  _globals['_UNKNOWNHFI']._serialized_end=1891
-  _globals['_UNKNOWNHFO']._serialized_start=1893
-  _globals['_UNKNOWNHFO']._serialized_end=1949
-  _globals['_WORLDEVENTDETAILREQUEST']._serialized_start=1951
-  _globals['_WORLDEVENTDETAILREQUEST']._serialized_end=1996
-  _globals['_WORLDEVENTTYPEREQUEST']._serialized_start=1998
-  _globals['_WORLDEVENTTYPEREQUEST']._serialized_end=2035
-  _globals['_WORLDEVENTOCCURRENCESREQUEST']._serialized_start=2037
-  _globals['_WORLDEVENTOCCURRENCESREQUEST']._serialized_end=2067
-  _globals['_WORLDEVENTSELFOCCURRENCESREQUEST']._serialized_start=2069
-  _globals['_WORLDEVENTSELFOCCURRENCESREQUEST']._serialized_end=2103
-  _globals['_UNKNOWNHFR']._serialized_start=2105
-  _globals['_UNKNOWNHFR']._serialized_end=2117
-  _globals['_WORLDEVENTOCCURRENCE']._serialized_start=2119
-  _globals['_WORLDEVENTOCCURRENCE']._serialized_end=2197
+  _globals['_UNKNOWNFIVEHUNDREDFIVE']._serialized_start=86
+  _globals['_UNKNOWNFIVEHUNDREDFIVE']._serialized_end=110
+  _globals['_UNKNOWNFIVEHUNDREDSIX']._serialized_start=112
+  _globals['_UNKNOWNFIVEHUNDREDSIX']._serialized_end=135
+  _globals['_UNKNOWNFIVEHUNDREDSEVEN']._serialized_start=137
+  _globals['_UNKNOWNFIVEHUNDREDSEVEN']._serialized_end=246
+  _globals['_WORLDEVENTONGOINGLISTEVENT']._serialized_start=248
+  _globals['_WORLDEVENTONGOINGLISTEVENT']._serialized_end=366
+  _globals['_WORLDEVENTDETAILEVENT']._serialized_start=369
+  _globals['_WORLDEVENTDETAILEVENT']._serialized_end=956
+  _globals['_WORLDEVENTDETAILEVENT_UNKNOWNFIVEHUNDREDFIFTEEN']._serialized_start=538
+  _globals['_WORLDEVENTDETAILEVENT_UNKNOWNFIVEHUNDREDFIFTEEN']._serialized_end=925
+  _globals['_WORLDEVENTDETAILEVENT_UNKNOWNFIVEHUNDREDFIFTEEN_UNKNOWNFIVEHUNDREDSIXTEEN']._serialized_start=852
+  _globals['_WORLDEVENTDETAILEVENT_UNKNOWNFIVEHUNDREDFIFTEEN_UNKNOWNFIVEHUNDREDSIXTEEN']._serialized_end=925
+  _globals['_WORLDEVENTDETAILEVENT_UNKNOWNFIVEHUNDREDSEVENTEEN']._serialized_start=927
+  _globals['_WORLDEVENTDETAILEVENT_UNKNOWNFIVEHUNDREDSEVENTEEN']._serialized_end=956
+  _globals['_UNKNOWNFIVEHUNDREDELEVEN']._serialized_start=959
+  _globals['_UNKNOWNFIVEHUNDREDELEVEN']._serialized_end=1468
+  _globals['_UNKNOWNFIVEHUNDREDEIGHT']._serialized_start=1470
+  _globals['_UNKNOWNFIVEHUNDREDEIGHT']._serialized_end=1538
+  _globals['_UNKNOWNFIVEHUNDREDTEN']._serialized_start=1541
+  _globals['_UNKNOWNFIVEHUNDREDTEN']._serialized_end=1710
+  _globals['_UNKNOWNFIVEHUNDREDFOURTEEN']._serialized_start=1713
+  _globals['_UNKNOWNFIVEHUNDREDFOURTEEN']._serialized_end=1928
+  _globals['_WORLDEVENTOCCURRENCESEVENT']._serialized_start=1930
+  _globals['_WORLDEVENTOCCURRENCESEVENT']._serialized_end=2046
+  _globals['_UNKNOWNFIVEHUNDREDNINE']._serialized_start=2048
+  _globals['_UNKNOWNFIVEHUNDREDNINE']._serialized_end=2153
+  _globals['_UNKNOWNFIVEHUNDREDTWELVE']._serialized_start=2155
+  _globals['_UNKNOWNFIVEHUNDREDTWELVE']._serialized_end=2269
+  _globals['_WORLDEVENTDETAILREQUEST']._serialized_start=2271
+  _globals['_WORLDEVENTDETAILREQUEST']._serialized_end=2316
+  _globals['_WORLDEVENTTYPEREQUEST']._serialized_start=2318
+  _globals['_WORLDEVENTTYPEREQUEST']._serialized_end=2355
+  _globals['_WORLDEVENTOCCURRENCESREQUEST']._serialized_start=2357
+  _globals['_WORLDEVENTOCCURRENCESREQUEST']._serialized_end=2387
+  _globals['_WORLDEVENTSELFOCCURRENCESREQUEST']._serialized_start=2389
+  _globals['_WORLDEVENTSELFOCCURRENCESREQUEST']._serialized_end=2423
+  _globals['_UNKNOWNFIVEHUNDREDTHIRTEEN']._serialized_start=2425
+  _globals['_UNKNOWNFIVEHUNDREDTHIRTEEN']._serialized_end=2453
+  _globals['_WORLDEVENTOCCURRENCE']._serialized_start=2455
+  _globals['_WORLDEVENTOCCURRENCE']._serialized_end=2533
 # @@protoc_insertion_point(module_scope)

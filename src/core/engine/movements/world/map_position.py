@@ -2,7 +2,7 @@ from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.game_constants.area import AreaEnum
 from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
 
-from src.const import FAKE_INFINITY_VALUE
+from src.consts import FAKE_INFINITY_VALUE
 
 
 def get_dist_to_maps(map_pos: MapInformationRootItem, ends_pos: list[MapInformationRootItem]) -> float:

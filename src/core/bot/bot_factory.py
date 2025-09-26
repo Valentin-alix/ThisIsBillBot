@@ -18,7 +18,6 @@ from src.core.behaviors.account.paysafecard_subscription import (
     PaysafecardSubscriptionBehavior,
 )
 from src.core.behaviors.craft.craft_behavior import CraftBehavior
-from src.core.behaviors.equipment.auto_equipment_behavior import AutoEquipmentBehavior
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
@@ -28,9 +27,9 @@ from src.core.behaviors.farms.fight.fight_preparation_behavior import (
 )
 from src.core.behaviors.farms.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.farms.fight.fight_turn_behavior import FightTurnBehavior
-from src.core.behaviors.farms.fighter_behavior import FighterBehavior
-from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
-from src.core.behaviors.farms.multi_farming_behavior import MultiFarmingBehavior
+from src.core.behaviors.farms.fight.fighter_behavior import FighterBehavior
+from src.core.behaviors.farms.harvest.harvester_behavior import HarvesterBehavior
+from src.core.behaviors.farms.harvest.multi_farming_behavior import MultiFarmingBehavior
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.idle_behavior import IdleBehavior
 from src.core.behaviors.interactives.collect_behavior import CollectBehavior
@@ -38,6 +37,8 @@ from src.core.behaviors.interactives.fake_bad_interactive_behavior import (
     FakeBadInteractiveBehavior,
 )
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
+from src.core.behaviors.items.acquire_items_behavior import AcquireItemsBehavior
+from src.core.behaviors.items.auto_equipment_behavior import AutoEquipmentBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_explorator_behavior import (
     AutoTripExploratorBehavior,
@@ -56,21 +57,18 @@ from src.core.behaviors.movements.map_change_behavior import MapChangeBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
 from src.core.behaviors.movements.map_movement_cancel_behavior import MapMovementCancelBehavior
 from src.core.behaviors.movements.waypoint_behavior import WaypointBehavior
-from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehavior
-from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
-from src.core.behaviors.recovery import BlockingStateRecovery
 from src.core.behaviors.quests.quest_behavior import QuestBehavior
 from src.core.behaviors.quests.quest_script_behavior import QuestScriptBehavior
 from src.core.behaviors.quests.tutorial_behavior import TutorialBehavior
+from src.core.behaviors.recovery import BlockingStateRecovery
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
     EnterSaleHotelBehavior,
 )
 from src.core.behaviors.sale_hotel.enter_sale_hotel_sell_behavior import (
     EnterSaleHotelSellBehavior,
 )
-from src.core.behaviors.items.acquire_items_behavior import AcquireItemsBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_buy_behavior import SaleHotelBuyBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import (
     SaleHotelSellBehavior,
@@ -98,6 +96,8 @@ from src.core.behaviors.storage.loads.load_recipe_from_bank_chest_behavior impor
 from src.core.behaviors.storage.loads.load_recipe_from_guild_chest_behavior import (
     LoadRecipeFromGuildChestBehavior,
 )
+from src.core.behaviors.storage.mule.mule_accept_behavior import MuleAcceptBehavior
+from src.core.behaviors.storage.mule.mule_give_behavior import MuleGiveBehavior
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
 from src.core.behaviors.storage.unloads.unload_in_bank_behavior import (
     UnloadInBankBehavior,
@@ -118,9 +118,9 @@ from src.core.engine.movements.world.astar_vertice import AstarWorld
 from src.core.engine.movements.world.world_path_finder import WorldPathFinder
 from src.core.engine.weights.weighted_path import WeightedPath
 from src.core.events_manager.event_manager import EventManager
+from src.core.frames.achievement_frame import AchievementFrame
 from src.core.frames.bank_chest_frame import BankChestFrame
 from src.core.frames.chat_frame import ChatFrame
-from src.core.frames.achievement_frame import AchievementFrame
 from src.core.frames.craft_frame import CraftFrame
 from src.core.frames.dialog_frame import DialogFrame
 from src.core.frames.entity_frame import EntityFrame
@@ -169,7 +169,6 @@ class BotFactory:
 
         event_manager = EventManager(_logger=logger, debug_recorder=debug_recorder)
 
-        # state
         game_state = StateFactory.create_game_state(
             inventory_signals=inventory_signals,
             game_info_signals=game_info_signals,
@@ -178,7 +177,6 @@ class BotFactory:
             login=account.apikey.login,
         )
 
-        # logic
         data_map_provider = DataMapProvider()
         path_finding = Pathfinding(
             data_map_provider=data_map_provider,
@@ -198,7 +196,6 @@ class BotFactory:
             damage_calculator=damage_calculator,
         )
 
-        # frames
         entity_frame = EntityFrame(
             event_manager=event_manager,
             game_state=game_state,
@@ -320,7 +317,7 @@ class BotFactory:
             _logger=logger,
             is_playing_event=is_playing_event,
         )
-        # behavior
+
         map_change_behavior = MapChangeBehavior(
             event_manager=event_manager,
             game_state=game_state,
@@ -605,7 +602,6 @@ class BotFactory:
             auto_trip_smart_behavior=auto_trip_world_behavior,
         )
 
-        # module
         load_recipe_from_bank_chest_behavior = LoadRecipeFromBankChestBehavior(
             recovery=blocking_state_recovery,
             event_manager=event_manager,

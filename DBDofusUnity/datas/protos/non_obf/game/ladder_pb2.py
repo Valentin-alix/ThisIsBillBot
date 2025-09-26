@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cladder.proto\x12,com.ankama.dofus.server.game.protocol.ladder\x1a\x0c\x63ommon.proto\"\xb6\x01\n\x0fLadderCharacter\x12\x11\n\tserver_id\x18\x01 \x01(\x05\x12\x10\n\x08\x62reed_id\x18\x02 \x01(\x05\x12\x13\n\x0bplayer_name\x18\x03 \x01(\t\x12\x44\n\x06gender\x18\x04 \x01(\x0e\x32\x34.com.ankama.dofus.server.game.protocol.common.Gender\x12\r\n\x05level\x18\x05 \x01(\x05\x12\x14\n\x0cunknown_fqqb\x18\x06 \x01(\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cladder.proto\x12,com.ankama.dofus.server.game.protocol.ladder\x1a\x0c\x63ommon.proto\"\xc9\x01\n\x0fLadderCharacter\x12\x11\n\tserver_id\x18\x01 \x01(\x05\x12\x10\n\x08\x62reed_id\x18\x02 \x01(\x05\x12\x13\n\x0bplayer_name\x18\x03 \x01(\t\x12\x44\n\x06gender\x18\x04 \x01(\x0e\x32\x34.com.ankama.dofus.server.game.protocol.common.Gender\x12\r\n\x05level\x18\x05 \x01(\x05\x12\'\n\x1funknown_six_hundred_sixty_three\x18\x06 \x01(\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,5 +33,5 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ladder_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_LADDERCHARACTER']._serialized_start=77
-  _globals['_LADDERCHARACTER']._serialized_end=259
+  _globals['_LADDERCHARACTER']._serialized_end=278
 # @@protoc_insertion_point(module_scope)

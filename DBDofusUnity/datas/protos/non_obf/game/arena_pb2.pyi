@@ -11,9 +11,11 @@ class ArenaType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     ONE_VS_ONE: _ClassVar[ArenaType]
     TWO_VS_TWO: _ClassVar[ArenaType]
     THREE_VS_THREE: _ClassVar[ArenaType]
+    TOURNAMENT: _ClassVar[ArenaType]
 ONE_VS_ONE: ArenaType
 TWO_VS_TWO: ArenaType
 THREE_VS_THREE: ArenaType
+TOURNAMENT: ArenaType
 
 class ArenaRegisterRequest(_message.Message):
     __slots__ = ("arena_type",)
@@ -275,30 +277,26 @@ class OpponentSurrenderEvent(_message.Message):
     def __init__(self) -> None: ...
 
 class ArenaModesStatusEvent(_message.Message):
-    __slots__ = ("unknown_gczw",)
+    __slots__ = ("unknown_fifteen",)
     class ArenaModeStatus(_message.Message):
-        __slots__ = ("type", "unknown_gczr", "unknown_gczs")
+        __slots__ = ("type", "unknown_fourteen", "is_available")
         class ArenaModeInformation(_message.Message):
-            __slots__ = ("unknown_gczh", "unknown_gczi", "unknown_gczk", "unknown_gczm")
-            UNKNOWN_GCZH_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_GCZI_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_GCZK_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_GCZM_FIELD_NUMBER: _ClassVar[int]
-            unknown_gczh: bool
-            unknown_gczi: str
-            unknown_gczk: str
-            unknown_gczm: int
-            def __init__(self, unknown_gczh: bool = ..., unknown_gczi: _Optional[str] = ..., unknown_gczk: _Optional[str] = ..., unknown_gczm: _Optional[int] = ...) -> None: ...
+            __slots__ = ("is_available", "player_count")
+            IS_AVAILABLE_FIELD_NUMBER: _ClassVar[int]
+            PLAYER_COUNT_FIELD_NUMBER: _ClassVar[int]
+            is_available: bool
+            player_count: int
+            def __init__(self, is_available: bool = ..., player_count: _Optional[int] = ...) -> None: ...
         TYPE_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GCZR_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GCZS_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_FOURTEEN_FIELD_NUMBER: _ClassVar[int]
+        IS_AVAILABLE_FIELD_NUMBER: _ClassVar[int]
         type: ArenaType
-        unknown_gczr: ArenaModesStatusEvent.ArenaModeStatus.ArenaModeInformation
-        unknown_gczs: bool
-        def __init__(self, type: _Optional[_Union[ArenaType, str]] = ..., unknown_gczr: _Optional[_Union[ArenaModesStatusEvent.ArenaModeStatus.ArenaModeInformation, _Mapping]] = ..., unknown_gczs: bool = ...) -> None: ...
-    UNKNOWN_GCZW_FIELD_NUMBER: _ClassVar[int]
-    unknown_gczw: _containers.RepeatedCompositeFieldContainer[ArenaModesStatusEvent.ArenaModeStatus]
-    def __init__(self, unknown_gczw: _Optional[_Iterable[_Union[ArenaModesStatusEvent.ArenaModeStatus, _Mapping]]] = ...) -> None: ...
+        unknown_fourteen: ArenaModesStatusEvent.ArenaModeStatus.ArenaModeInformation
+        is_available: bool
+        def __init__(self, type: _Optional[_Union[ArenaType, str]] = ..., unknown_fourteen: _Optional[_Union[ArenaModesStatusEvent.ArenaModeStatus.ArenaModeInformation, _Mapping]] = ..., is_available: bool = ...) -> None: ...
+    UNKNOWN_FIFTEEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_fifteen: _containers.RepeatedCompositeFieldContainer[ArenaModesStatusEvent.ArenaModeStatus]
+    def __init__(self, unknown_fifteen: _Optional[_Iterable[_Union[ArenaModesStatusEvent.ArenaModeStatus, _Mapping]]] = ...) -> None: ...
 
 class ArenaModesStatusRequest(_message.Message):
     __slots__ = ()

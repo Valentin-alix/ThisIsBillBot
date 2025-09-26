@@ -119,9 +119,7 @@ def test_a_fight_starting_mid_run_is_played_then_the_work_is_replayed(
     unload_in_guild_chest = _mock_of(behavior.unload_in_guild_chest_behavior)
     assert unload_in_guild_chest.start.call_count == 1
 
-    behavior.event_manager.process_msg(
-        ContextCreationEvent(context=ContextCreationEvent.GameContext.FIGHT)
-    )
+    behavior.event_manager.process_msg(ContextCreationEvent(context=ContextCreationEvent.GameContext.FIGHT))
 
     _mock_of(behavior.recovery.fight_behavior).start.assert_called_once()
 

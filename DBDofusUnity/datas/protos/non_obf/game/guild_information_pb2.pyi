@@ -125,18 +125,6 @@ class GuildKickRequest(_message.Message):
     kicked_id: int
     def __init__(self, kicked_id: _Optional[int] = ...) -> None: ...
 
-class GuildJoinAutomaticallyRequest(_message.Message):
-    __slots__ = ("guild_id",)
-    GUILD_ID_FIELD_NUMBER: _ClassVar[int]
-    guild_id: int
-    def __init__(self, guild_id: _Optional[int] = ...) -> None: ...
-
-class GuildPaddockTeleportRequest(_message.Message):
-    __slots__ = ("paddock_id",)
-    PADDOCK_ID_FIELD_NUMBER: _ClassVar[int]
-    paddock_id: int
-    def __init__(self, paddock_id: _Optional[int] = ...) -> None: ...
-
 class GuildMotdSetRequest(_message.Message):
     __slots__ = ("content",)
     CONTENT_FIELD_NUMBER: _ClassVar[int]
@@ -164,12 +152,16 @@ class GuildNoteUpdateRequest(_message.Message):
     def __init__(self, player_id: _Optional[int] = ..., note: _Optional[str] = ...) -> None: ...
 
 class GuildLogbookEvent(_message.Message):
-    __slots__ = ("global_activities", "chest_activities")
+    __slots__ = ("global_activities", "chest_activities", "unknown_four_hundred_sixty_seven", "unknown_four_hundred_sixty_eight")
     GLOBAL_ACTIVITIES_FIELD_NUMBER: _ClassVar[int]
     CHEST_ACTIVITIES_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_SIXTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_SIXTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
     global_activities: _containers.RepeatedCompositeFieldContainer[_common_pb2.GuildLogbookEntry]
     chest_activities: _containers.RepeatedCompositeFieldContainer[_common_pb2.GuildLogbookEntry]
-    def __init__(self, global_activities: _Optional[_Iterable[_Union[_common_pb2.GuildLogbookEntry, _Mapping]]] = ..., chest_activities: _Optional[_Iterable[_Union[_common_pb2.GuildLogbookEntry, _Mapping]]] = ...) -> None: ...
+    unknown_four_hundred_sixty_seven: _containers.RepeatedCompositeFieldContainer[_common_pb2.GuildLogbookEntry]
+    unknown_four_hundred_sixty_eight: _containers.RepeatedCompositeFieldContainer[_common_pb2.GuildLogbookEntry]
+    def __init__(self, global_activities: _Optional[_Iterable[_Union[_common_pb2.GuildLogbookEntry, _Mapping]]] = ..., chest_activities: _Optional[_Iterable[_Union[_common_pb2.GuildLogbookEntry, _Mapping]]] = ..., unknown_four_hundred_sixty_seven: _Optional[_Iterable[_Union[_common_pb2.GuildLogbookEntry, _Mapping]]] = ..., unknown_four_hundred_sixty_eight: _Optional[_Iterable[_Union[_common_pb2.GuildLogbookEntry, _Mapping]]] = ...) -> None: ...
 
 class GuildSummaryEvent(_message.Message):
     __slots__ = ("offset", "count", "total", "guilds")
@@ -182,10 +174,6 @@ class GuildSummaryEvent(_message.Message):
     total: int
     guilds: _containers.RepeatedCompositeFieldContainer[_common_pb2.GuildInformation]
     def __init__(self, offset: _Optional[int] = ..., count: _Optional[int] = ..., total: _Optional[int] = ..., guilds: _Optional[_Iterable[_Union[_common_pb2.GuildInformation, _Mapping]]] = ...) -> None: ...
-
-class GuildCreationStartedEvent(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
 
 class GuildModificationStartedEvent(_message.Message):
     __slots__ = ("can_change_name", "can_change_emblem")
@@ -251,20 +239,6 @@ class GuildGeneralInformationEvent(_message.Message):
     score: int
     def __init__(self, abandoned_paddock: bool = ..., level: _Optional[int] = ..., exp_level_floor: _Optional[int] = ..., experience: _Optional[int] = ..., exp_level_next_floor: _Optional[int] = ..., creation_date: _Optional[str] = ..., members_count: _Optional[int] = ..., score: _Optional[int] = ...) -> None: ...
 
-class GuildPaddocksInformationEvent(_message.Message):
-    __slots__ = ("max_paddock_number", "paddock_information")
-    MAX_PADDOCK_NUMBER_FIELD_NUMBER: _ClassVar[int]
-    PADDOCK_INFORMATION_FIELD_NUMBER: _ClassVar[int]
-    max_paddock_number: int
-    paddock_information: _containers.RepeatedCompositeFieldContainer[_common_pb2.PaddockInformation]
-    def __init__(self, max_paddock_number: _Optional[int] = ..., paddock_information: _Optional[_Iterable[_Union[_common_pb2.PaddockInformation, _Mapping]]] = ...) -> None: ...
-
-class GuildPaddockBoughtEvent(_message.Message):
-    __slots__ = ("paddock",)
-    PADDOCK_FIELD_NUMBER: _ClassVar[int]
-    paddock: _common_pb2.PaddockInformation
-    def __init__(self, paddock: _Optional[_Union[_common_pb2.PaddockInformation, _Mapping]] = ...) -> None: ...
-
 class GuildPaddockRemovedEvent(_message.Message):
     __slots__ = ("paddock_id",)
     PADDOCK_ID_FIELD_NUMBER: _ClassVar[int]
@@ -311,49 +285,69 @@ class GuildCardEvent(_message.Message):
     members: _containers.RepeatedCompositeFieldContainer[_common_pb2.Character]
     def __init__(self, info: _Optional[_Union[_common_pb2.GuildInformation, _Mapping]] = ..., creation_date: _Optional[int] = ..., members: _Optional[_Iterable[_Union[_common_pb2.Character, _Mapping]]] = ...) -> None: ...
 
-class UnknownJii(_message.Message):
-    __slots__ = ("unknown_ftmt", "unknown_ftmv")
-    UNKNOWN_FTMT_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTMV_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftmt: bool
-    unknown_ftmv: int
-    def __init__(self, unknown_ftmt: bool = ..., unknown_ftmv: _Optional[int] = ...) -> None: ...
+class GuildFeaturePanelStateRequest(_message.Message):
+    __slots__ = ("is_open", "unknown_four_hundred_sixty_two")
+    class UnknownTwoHundredThirtyEight(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+        __slots__ = ()
+        UNKNOWN_TWO_HUNDRED_THIRTY_EIGHT_UNSPECIFIED: _ClassVar[GuildFeaturePanelStateRequest.UnknownTwoHundredThirtyEight]
+        UNKNOWN_TWO_HUNDRED_THIRTY_EIGHT_1: _ClassVar[GuildFeaturePanelStateRequest.UnknownTwoHundredThirtyEight]
+        UNKNOWN_TWO_HUNDRED_THIRTY_EIGHT_2: _ClassVar[GuildFeaturePanelStateRequest.UnknownTwoHundredThirtyEight]
+    UNKNOWN_TWO_HUNDRED_THIRTY_EIGHT_UNSPECIFIED: GuildFeaturePanelStateRequest.UnknownTwoHundredThirtyEight
+    UNKNOWN_TWO_HUNDRED_THIRTY_EIGHT_1: GuildFeaturePanelStateRequest.UnknownTwoHundredThirtyEight
+    UNKNOWN_TWO_HUNDRED_THIRTY_EIGHT_2: GuildFeaturePanelStateRequest.UnknownTwoHundredThirtyEight
+    IS_OPEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_SIXTY_TWO_FIELD_NUMBER: _ClassVar[int]
+    is_open: bool
+    unknown_four_hundred_sixty_two: GuildFeaturePanelStateRequest.UnknownTwoHundredThirtyEight
+    def __init__(self, is_open: bool = ..., unknown_four_hundred_sixty_two: _Optional[_Union[GuildFeaturePanelStateRequest.UnknownTwoHundredThirtyEight, str]] = ...) -> None: ...
 
-class UnknownJik(_message.Message):
-    __slots__ = ("unknown_ftnd", "unknown_ftne")
-    class UnknownFtneEntry(_message.Message):
+class UnknownTwoHundredThirtyNine(_message.Message):
+    __slots__ = ("unknown_four_hundred_sixty_nine", "unknown_four_hundred_seventy")
+    class UnknownFourHundredSeventyEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: bool
         value: int
         def __init__(self, key: bool = ..., value: _Optional[int] = ...) -> None: ...
-    UNKNOWN_FTND_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTNE_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftnd: str
-    unknown_ftne: _containers.ScalarMap[bool, int]
-    def __init__(self, unknown_ftnd: _Optional[str] = ..., unknown_ftne: _Optional[_Mapping[bool, int]] = ...) -> None: ...
+    UNKNOWN_FOUR_HUNDRED_SIXTY_NINE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_SEVENTY_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_sixty_nine: str
+    unknown_four_hundred_seventy: _containers.ScalarMap[bool, int]
+    def __init__(self, unknown_four_hundred_sixty_nine: _Optional[str] = ..., unknown_four_hundred_seventy: _Optional[_Mapping[bool, int]] = ...) -> None: ...
 
-class UnknownJil(_message.Message):
-    __slots__ = ("unknown_ftni", "unknown_ftnj", "unknown_ftnk", "unknown_ftnm")
-    UNKNOWN_FTNI_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTNJ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTNK_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTNM_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftni: _containers.RepeatedCompositeFieldContainer[_common_pb2.GuildLogbookEntry]
-    unknown_ftnj: _containers.RepeatedCompositeFieldContainer[_common_pb2.GuildLogbookEntry]
-    unknown_ftnk: _containers.RepeatedCompositeFieldContainer[_common_pb2.GuildLogbookEntry]
-    unknown_ftnm: _containers.RepeatedCompositeFieldContainer[_common_pb2.GuildLogbookEntry]
-    def __init__(self, unknown_ftni: _Optional[_Iterable[_Union[_common_pb2.GuildLogbookEntry, _Mapping]]] = ..., unknown_ftnj: _Optional[_Iterable[_Union[_common_pb2.GuildLogbookEntry, _Mapping]]] = ..., unknown_ftnk: _Optional[_Iterable[_Union[_common_pb2.GuildLogbookEntry, _Mapping]]] = ..., unknown_ftnm: _Optional[_Iterable[_Union[_common_pb2.GuildLogbookEntry, _Mapping]]] = ...) -> None: ...
+class GuildHallConfigurationEvent(_message.Message):
+    __slots__ = ("configuration",)
+    class GuildHallConfiguration(_message.Message):
+        __slots__ = ("unknown_four_hundred_sixty_three", "available_options_by_key", "available_option_ids", "is_enabled", "unknown_four_hundred_sixty_four", "unknown_four_hundred_sixty_five", "unknown_four_hundred_sixty_six")
+        class AvailableOptionsByKeyEntry(_message.Message):
+            __slots__ = ("key", "value")
+            KEY_FIELD_NUMBER: _ClassVar[int]
+            VALUE_FIELD_NUMBER: _ClassVar[int]
+            key: str
+            value: bool
+            def __init__(self, key: _Optional[str] = ..., value: bool = ...) -> None: ...
+        UNKNOWN_FOUR_HUNDRED_SIXTY_THREE_FIELD_NUMBER: _ClassVar[int]
+        AVAILABLE_OPTIONS_BY_KEY_FIELD_NUMBER: _ClassVar[int]
+        AVAILABLE_OPTION_IDS_FIELD_NUMBER: _ClassVar[int]
+        IS_ENABLED_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_FOUR_HUNDRED_SIXTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_FOUR_HUNDRED_SIXTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_FOUR_HUNDRED_SIXTY_SIX_FIELD_NUMBER: _ClassVar[int]
+        unknown_four_hundred_sixty_three: int
+        available_options_by_key: _containers.ScalarMap[str, bool]
+        available_option_ids: _containers.RepeatedScalarFieldContainer[int]
+        is_enabled: bool
+        unknown_four_hundred_sixty_four: str
+        unknown_four_hundred_sixty_five: int
+        unknown_four_hundred_sixty_six: int
+        def __init__(self, unknown_four_hundred_sixty_three: _Optional[int] = ..., available_options_by_key: _Optional[_Mapping[str, bool]] = ..., available_option_ids: _Optional[_Iterable[int]] = ..., is_enabled: bool = ..., unknown_four_hundred_sixty_four: _Optional[str] = ..., unknown_four_hundred_sixty_five: _Optional[int] = ..., unknown_four_hundred_sixty_six: _Optional[int] = ...) -> None: ...
+    CONFIGURATION_FIELD_NUMBER: _ClassVar[int]
+    configuration: GuildHallConfigurationEvent.GuildHallConfiguration
+    def __init__(self, configuration: _Optional[_Union[GuildHallConfigurationEvent.GuildHallConfiguration, _Mapping]] = ...) -> None: ...
 
-class UnknownJjd(_message.Message):
-    __slots__ = ("unknown_ftpz",)
-    UNKNOWN_FTPZ_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftpz: str
-    def __init__(self, unknown_ftpz: _Optional[str] = ...) -> None: ...
-
-class UnknownJjv(_message.Message):
-    __slots__ = ("unknown_ftsr",)
-    UNKNOWN_FTSR_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftsr: int
-    def __init__(self, unknown_ftsr: _Optional[int] = ...) -> None: ...
+class GuildContributionTokenEvent(_message.Message):
+    __slots__ = ("guildaton_count",)
+    GUILDATON_COUNT_FIELD_NUMBER: _ClassVar[int]
+    guildaton_count: int
+    def __init__(self, guildaton_count: _Optional[int] = ...) -> None: ...

@@ -21,20 +21,14 @@ from src.services.logging_utils.contextual_logger import ContextualLogger
 
 
 class BehaviorLifecycleError(Exception):
-    """Raised when behavior lifecycle contracts are violated"""
-
     pass
 
 
 class BehaviorStateError(Exception):
-    """Raised when invalid state transition is attempted"""
-
     pass
 
 
 class BehaviorState(Enum):
-    """Explicit behavior lifecycle states"""
-
     STOPPED = auto()
     STARTING = auto()
     RUNNING = auto()
@@ -106,7 +100,6 @@ class Behavior(ContextualLogger):
 
     @property
     def state(self) -> BehaviorState:
-        """Thread-safe state accessor"""
         with self._state_lock:
             return self._state
 
@@ -166,6 +159,7 @@ class Behavior(ContextualLogger):
         else:
             wait_time = range_time
         timer = Timer(wait_time, lambda: self.run_timed_func(func))
+        timer.daemon = True
         self.timers.append(timer)
         timer.start()
 

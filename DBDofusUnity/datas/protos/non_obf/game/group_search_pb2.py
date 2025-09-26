@@ -23,63 +23,81 @@ _sym_db = _symbol_database.Default()
 
 
 import common_pb2 as common__pb2
-import game_message_pb2 as game__message__pb2
-import report_pb2 as report__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12group_search.proto\x12\x32\x63om.ankama.dofus.server.game.protocol.group_search\x1a\x0c\x63ommon.proto\x1a\x12game_message.proto\x1a\x0creport.proto\"\xff\x01\n\nUnknownKif\x12_\n\x0cunknown_fxrd\x18\x01 \x03(\x0b\x32I.com.ankama.dofus.server.game.protocol.group_search.UnknownKif.UnknownKid\x12\x14\n\x0cunknown_fxre\x18\x02 \x01(\x03\x12\x14\n\x0cunknown_fxrf\x18\x03 \x01(\x08\x12\x14\n\x0cunknown_fxrg\x18\x04 \x01(\x05\x1aN\n\nUnknownKid\x12\x14\n\x0cunknown_fxqw\x18\x01 \x01(\x05\x12\x14\n\x0cunknown_fxqx\x18\x02 \x01(\x05\x12\x14\n\x0cunknown_fxqy\x18\x03 \x01(\x05\"8\n\nUnknownKig\x12\x14\n\x0cunknown_fxrl\x18\x01 \x03(\x08\x12\x14\n\x0cunknown_fxrm\x18\x02 \x01(\x03\"\"\n\nUnknownKje\x12\x14\n\x0cunknown_fxvf\x18\x01 \x01(\x05\"\x96\x02\n\nUnknownKjl\x12_\n\x0cunknown_fxwc\x18\x01 \x01(\x0b\x32I.com.ankama.dofus.server.game.protocol.group_search.UnknownKjl.UnknownKji\x12_\n\x0cunknown_fxwd\x18\x02 \x01(\x0b\x32I.com.ankama.dofus.server.game.protocol.group_search.UnknownKjl.UnknownKjj\x1a\"\n\nUnknownKji\x12\x14\n\x0cunknown_fxvq\x18\x01 \x01(\x05\x1a\"\n\nUnknownKjj\x12\x14\n\x0cunknown_fxvw\x18\x01 \x01(\x08\"\"\n\nUnknownKjs\x12\x14\n\x0cunknown_fxws\x18\x01 \x01(\x08\"\"\n\nUnknownKjv\x12\x14\n\x0cunknown_fxww\x18\x01 \x01(\x05\"\xe9\x02\n\x17GroupSearchStartRequest\x12l\n\x0cunknown_fxxu\x18\x01 \x01(\x0b\x32V.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartRequest.UnknownKka\x12l\n\x0cunknown_fxxv\x18\x02 \x01(\x0b\x32V.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartRequest.UnknownKkb\x12\x14\n\x0cunknown_fxxw\x18\x03 \x01(\x05\x1a\"\n\nUnknownKka\x12\x14\n\x0cunknown_fxxh\x18\x01 \x03(\x05\x1a\x38\n\nUnknownKkb\x12\x14\n\x0cunknown_fxxl\x18\x01 \x01(\t\x12\x14\n\x0cunknown_fxxm\x18\x02 \x03(\x05\"\xd3\x01\n\nUnknownKkk\x12\x14\n\x0cunknown_fxyp\x18\x01 \x01(\x03\x12_\n\x0cunknown_fxyr\x18\x02 \x01(\x0b\x32I.com.ankama.dofus.server.game.protocol.group_search.UnknownKkk.UnknownKkg\x12\x14\n\x0cunknown_fxys\x18\x03 \x01(\x05\x12\x14\n\x0cunknown_fxyt\x18\x04 \x01(\x05\x1a\"\n\nUnknownKkg\x12\x14\n\x0cunknown_fxyd\x18\x01 \x03(\x05\"\"\n\nUnknownKkq\x12\x14\n\x0cunknown_fxzl\x18\x01 \x01(\x05\"\x0c\n\nUnknownKjx\"\xe9\x03\n\x18GroupSearchStartResponse\x12m\n\x0cunknown_fxuy\x18\x01 \x01(\x0b\x32W.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownKiy\x12m\n\x0cunknown_fxuz\x18\x02 \x01(\x0b\x32W.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownKiv\x12m\n\x0cunknown_fxva\x18\x03 \x01(\x0b\x32W.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownKiz\x1a\"\n\nUnknownKiv\x12\x14\n\x0cunknown_fxtw\x18\x01 \x01(\x05\x1a\x38\n\nUnknownKiy\x12\x14\n\x0cunknown_fxuo\x18\x01 \x01(\x05\x12\x14\n\x0cunknown_fxup\x18\x02 \x01(\x05\x1a\"\n\nUnknownKiz\x12\x14\n\x0cunknown_fxuu\x18\x01 \x01(\x03\"\xb4\x05\n\nUnknownKis\x12_\n\x0cunknown_fxto\x18\x01 \x03(\x0b\x32I.com.ankama.dofus.server.game.protocol.group_search.UnknownKis.UnknownKip\x12\x14\n\x0cunknown_fxtp\x18\x02 \x01(\x03\x12_\n\x0cunknown_fxtr\x18\x03 \x03(\x0b\x32I.com.ankama.dofus.server.game.protocol.group_search.UnknownKis.UnknownKiq\x12\x14\n\x0cunknown_fxts\x18\x04 \x01(\x03\x1a\xbb\x02\n\nUnknownKip\x12\x9c\x01\n\x0cunknown_fxsy\x18\x01 \x01(\x0b\x32\x85\x01.com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FighterListEntry.PlayerListEntry.FightResultAdditionalData.PvpData\x12j\n\x0cunknown_fxsz\x18\x02 \x01(\x0b\x32T.com.ankama.dofus.server.game.protocol.group_search.UnknownKis.UnknownKip.UnknownKin\x1a\"\n\nUnknownKin\x12\x14\n\x0cunknown_fxst\x18\x01 \x01(\t\x1az\n\nUnknownKiq\x12\x14\n\x0cunknown_fxte\x18\x01 \x03(\x03\x12\x14\n\x0cunknown_fxtf\x18\x02 \x01(\x05\x12\x14\n\x0cunknown_fxth\x18\x03 \x01(\x03\x12\x14\n\x0cunknown_fxtj\x18\x04 \x01(\x05\x12\x14\n\x0cunknown_fxtk\x18\x05 \x03(\x03\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12group_search.proto\x12\x32\x63om.ankama.dofus.server.game.protocol.group_search\x1a\x0c\x63ommon.proto\"\x1b\n\x19UnknownTwoHundredFourteen\"\x1a\n\x18UnknownTwoHundredFifteen\"\x1a\n\x18UnknownTwoHundredSixteen\"\x9e\x04\n\x19UnknownTwoHundredEighteen\x12\x8b\x01\n\x1aunknown_four_hundred_forty\x18\x01 \x03(\x0b\x32g.com.ankama.dofus.server.game.protocol.group_search.UnknownTwoHundredEighteen.UnknownTwoHundredNineteen\x12&\n\x1eunknown_four_hundred_forty_one\x18\x02 \x01(\x03\x12&\n\x1eunknown_four_hundred_forty_two\x18\x03 \x01(\x08\x12(\n unknown_four_hundred_forty_three\x18\x04 \x01(\x05\x1a\xf8\x01\n\x19UnknownTwoHundredNineteen\"g\n\x17UnknownTwoHundredTwenty\x12*\n&UNKNOWN_TWO_HUNDRED_TWENTY_UNSPECIFIED\x10\x00\x12 \n\x1cUNKNOWN_TWO_HUNDRED_TWENTY_1\x10\x01\"r\n\x1aUnknownTwoHundredTwentyOne\x12.\n*UNKNOWN_TWO_HUNDRED_TWENTY_ONE_UNSPECIFIED\x10\x00\x12$\n UNKNOWN_TWO_HUNDRED_TWENTY_ONE_1\x10\x01\"n\n\x1aUnknownTwoHundredTwentyTwo\x12\'\n\x1funknown_four_hundred_forty_four\x18\x01 \x03(\x08\x12\'\n\x1funknown_four_hundred_forty_five\x18\x02 \x01(\x03\"\x93\x01\n\x1cUnknownTwoHundredTwentyThree\x12s\n\x1eunknown_four_hundred_forty_six\x18\x01 \x01(\x0e\x32K.com.ankama.dofus.server.game.protocol.group_search.UnknownTwoHundredTwelve\"\x89\x03\n\x1bUnknownTwoHundredTwentyFour\x12\x95\x01\n unknown_four_hundred_forty_seven\x18\x01 \x01(\x0b\x32k.com.ankama.dofus.server.game.protocol.group_search.UnknownTwoHundredTwentyFour.UnknownTwoHundredTwentyFive\x12\x94\x01\n unknown_four_hundred_forty_eight\x18\x02 \x01(\x0b\x32j.com.ankama.dofus.server.game.protocol.group_search.UnknownTwoHundredTwentyFour.UnknownTwoHundredTwentySix\x1a\x1d\n\x1bUnknownTwoHundredTwentyFive\x1a\x1c\n\x1aUnknownTwoHundredTwentySix\"G\n\x1cUnknownTwoHundredTwentySeven\x12\'\n\x1funknown_four_hundred_forty_nine\x18\x01 \x01(\x08\"\x91\x01\n\x1cUnknownTwoHundredTwentyEight\x12q\n\x1aunknown_four_hundred_fifty\x18\x01 \x01(\x0e\x32M.com.ankama.dofus.server.game.protocol.group_search.UnknownTwoHundredThirteen\"\xdf\x03\n\x17GroupSearchStartRequest\x12\x8a\x01\n unknown_four_hundred_thirty_four\x18\x01 \x01(\x0b\x32`.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartRequest.UnknownTwoHundredSix\x12\x8c\x01\n unknown_four_hundred_thirty_five\x18\x02 \x01(\x0b\x32\x62.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartRequest.UnknownTwoHundredSeven\x12v\n\x1funknown_four_hundred_thirty_six\x18\x03 \x01(\x0b\x32M.com.ankama.dofus.server.game.protocol.group_search.UnknownTwoHundredFourteen\x1a\x16\n\x14UnknownTwoHundredSix\x1a\x18\n\x16UnknownTwoHundredSeven\"\xf0\x01\n\x17UnknownTwoHundredThirty\x12&\n\x1eunknown_four_hundred_fifty_one\x18\x01 \x01(\x03\x12\x8e\x01\n\x1eunknown_four_hundred_fifty_two\x18\x02 \x01(\x0b\x32\x66.com.ankama.dofus.server.game.protocol.group_search.UnknownTwoHundredThirty.UnknownTwoHundredThirtyOne\x1a\x1c\n\x1aUnknownTwoHundredThirtyOne\"\x96\x01\n\x1aUnknownTwoHundredThirtyTwo\x12x\n unknown_four_hundred_fifty_three\x18\x01 \x01(\x0e\x32N.com.ankama.dofus.server.game.protocol.group_search.UnknownTwoHundredSeventeen\"\x18\n\x16GroupSearchMenuRequest\"\xf4\t\n\x18GroupSearchStartResponse\x12\x8d\x01\n!unknown_four_hundred_thirty_seven\x18\x01 \x01(\x0b\x32\x62.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownTwoHundredNine\x12\x8e\x01\n!unknown_four_hundred_thirty_eight\x18\x02 \x01(\x0b\x32\x63.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownTwoHundredEight\x12\x8e\x01\n unknown_four_hundred_thirty_nine\x18\x03 \x01(\x0b\x32\x64.com.ankama.dofus.server.game.protocol.group_search.GroupSearchStartResponse.UnknownTwoHundredEleven\x1a\x18\n\x16UnknownTwoHundredEight\x1a\xf0\x05\n\x15UnknownTwoHundredNine\"\xd6\x05\n\x14UnknownTwoHundredTen\x12\'\n#UNKNOWN_TWO_HUNDRED_TEN_UNSPECIFIED\x10\x00\x12\x1d\n\x19UNKNOWN_TWO_HUNDRED_TEN_1\x10\x01\x12\x1d\n\x19UNKNOWN_TWO_HUNDRED_TEN_2\x10\x02\x12\x1d\n\x19UNKNOWN_TWO_HUNDRED_TEN_3\x10\x03\x12\x1d\n\x19UNKNOWN_TWO_HUNDRED_TEN_4\x10\x04\x12\x1d\n\x19UNKNOWN_TWO_HUNDRED_TEN_5\x10\x05\x12\x1d\n\x19UNKNOWN_TWO_HUNDRED_TEN_6\x10\x06\x12\x1d\n\x19UNKNOWN_TWO_HUNDRED_TEN_7\x10\x07\x12\x1d\n\x19UNKNOWN_TWO_HUNDRED_TEN_8\x10\x08\x12\x1d\n\x19UNKNOWN_TWO_HUNDRED_TEN_9\x10\t\x12\x1e\n\x1aUNKNOWN_TWO_HUNDRED_TEN_10\x10\n\x12\x1e\n\x1aUNKNOWN_TWO_HUNDRED_TEN_11\x10\x0b\x12\x1e\n\x1aUNKNOWN_TWO_HUNDRED_TEN_12\x10\x0c\x12\x1e\n\x1aUNKNOWN_TWO_HUNDRED_TEN_13\x10\r\x12\x1e\n\x1aUNKNOWN_TWO_HUNDRED_TEN_14\x10\x0e\x12\x1e\n\x1aUNKNOWN_TWO_HUNDRED_TEN_15\x10\x0f\x12\x1e\n\x1aUNKNOWN_TWO_HUNDRED_TEN_16\x10\x10\x12\x1e\n\x1aUNKNOWN_TWO_HUNDRED_TEN_17\x10\x11\x12\x1e\n\x1aUNKNOWN_TWO_HUNDRED_TEN_18\x10\x12\x12\x1e\n\x1aUNKNOWN_TWO_HUNDRED_TEN_19\x10\x13\x12\x1e\n\x1aUNKNOWN_TWO_HUNDRED_TEN_20\x10\x14\x12\x1e\n\x1aUNKNOWN_TWO_HUNDRED_TEN_21\x10\x15\x1a\x19\n\x17UnknownTwoHundredEleven\"\x9b\x08\n\x14GroupSearchMenuEvent\x12\x84\x01\n\x1bunknown_four_hundred_thirty\x18\x01 \x03(\x0b\x32_.com.ankama.dofus.server.game.protocol.group_search.GroupSearchMenuEvent.UnknownTwoHundredThree\x12\'\n\x1funknown_four_hundred_thirty_one\x18\x02 \x01(\x03\x12\x87\x01\n\x1funknown_four_hundred_thirty_two\x18\x03 \x03(\x0b\x32^.com.ankama.dofus.server.game.protocol.group_search.GroupSearchMenuEvent.UnknownTwoHundredFive\x12)\n!unknown_four_hundred_thirty_three\x18\x04 \x01(\x03\x1a\xb0\x03\n\x16UnknownTwoHundredThree\x12\xb1\x01\n!unknown_four_hundred_twenty_three\x18\x01 \x01(\x0b\x32\x85\x01.com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FighterListEntry.PlayerListEntry.FightResultAdditionalData.PvpData\x12\x9f\x01\n unknown_four_hundred_twenty_four\x18\x02 \x01(\x0b\x32u.com.ankama.dofus.server.game.protocol.group_search.GroupSearchMenuEvent.UnknownTwoHundredThree.UnknownTwoHundredFour\x1a@\n\x15UnknownTwoHundredFour\x12\'\n\x1funknown_four_hundred_twenty_two\x18\x01 \x01(\t\x1a\xea\x01\n\x15UnknownTwoHundredFive\x12(\n unknown_four_hundred_twenty_five\x18\x01 \x03(\x03\x12\'\n\x1funknown_four_hundred_twenty_six\x18\x02 \x01(\x05\x12)\n!unknown_four_hundred_twenty_seven\x18\x03 \x01(\x03\x12)\n!unknown_four_hundred_twenty_eight\x18\x04 \x01(\x05\x12(\n unknown_four_hundred_twenty_nine\x18\x05 \x03(\x03*\xd5\x03\n\x1bUnknownTwoHundredTwentyNine\x12/\n+UNKNOWN_TWO_HUNDRED_TWENTY_NINE_UNSPECIFIED\x10\x00\x12%\n!UNKNOWN_TWO_HUNDRED_TWENTY_NINE_1\x10\x01\x12%\n!UNKNOWN_TWO_HUNDRED_TWENTY_NINE_2\x10\x02\x12%\n!UNKNOWN_TWO_HUNDRED_TWENTY_NINE_3\x10\x03\x12%\n!UNKNOWN_TWO_HUNDRED_TWENTY_NINE_4\x10\x04\x12%\n!UNKNOWN_TWO_HUNDRED_TWENTY_NINE_5\x10\x05\x12%\n!UNKNOWN_TWO_HUNDRED_TWENTY_NINE_6\x10\x06\x12%\n!UNKNOWN_TWO_HUNDRED_TWENTY_NINE_7\x10\x07\x12%\n!UNKNOWN_TWO_HUNDRED_TWENTY_NINE_8\x10\x08\x12%\n!UNKNOWN_TWO_HUNDRED_TWENTY_NINE_9\x10\t\x12&\n\"UNKNOWN_TWO_HUNDRED_TWENTY_NINE_10\x10\n*9\n\x17UnknownTwoHundredTwelve\x12\x1e\n\x1aUNKNOWN_TWO_HUNDRED_TWELVE\x10\x00*=\n\x19UnknownTwoHundredThirteen\x12 \n\x1cUNKNOWN_TWO_HUNDRED_THIRTEEN\x10\x00*?\n\x1aUnknownTwoHundredSeventeen\x12!\n\x1dUNKNOWN_TWO_HUNDRED_SEVENTEEN\x10\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'group_search_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_UNKNOWNKIF']._serialized_start=123
-  _globals['_UNKNOWNKIF']._serialized_end=378
-  _globals['_UNKNOWNKIF_UNKNOWNKID']._serialized_start=300
-  _globals['_UNKNOWNKIF_UNKNOWNKID']._serialized_end=378
-  _globals['_UNKNOWNKIG']._serialized_start=380
-  _globals['_UNKNOWNKIG']._serialized_end=436
-  _globals['_UNKNOWNKJE']._serialized_start=438
-  _globals['_UNKNOWNKJE']._serialized_end=472
-  _globals['_UNKNOWNKJL']._serialized_start=475
-  _globals['_UNKNOWNKJL']._serialized_end=753
-  _globals['_UNKNOWNKJL_UNKNOWNKJI']._serialized_start=683
-  _globals['_UNKNOWNKJL_UNKNOWNKJI']._serialized_end=717
-  _globals['_UNKNOWNKJL_UNKNOWNKJJ']._serialized_start=719
-  _globals['_UNKNOWNKJL_UNKNOWNKJJ']._serialized_end=753
-  _globals['_UNKNOWNKJS']._serialized_start=755
-  _globals['_UNKNOWNKJS']._serialized_end=789
-  _globals['_UNKNOWNKJV']._serialized_start=791
-  _globals['_UNKNOWNKJV']._serialized_end=825
-  _globals['_GROUPSEARCHSTARTREQUEST']._serialized_start=828
-  _globals['_GROUPSEARCHSTARTREQUEST']._serialized_end=1189
-  _globals['_GROUPSEARCHSTARTREQUEST_UNKNOWNKKA']._serialized_start=1097
-  _globals['_GROUPSEARCHSTARTREQUEST_UNKNOWNKKA']._serialized_end=1131
-  _globals['_GROUPSEARCHSTARTREQUEST_UNKNOWNKKB']._serialized_start=1133
-  _globals['_GROUPSEARCHSTARTREQUEST_UNKNOWNKKB']._serialized_end=1189
-  _globals['_UNKNOWNKKK']._serialized_start=1192
-  _globals['_UNKNOWNKKK']._serialized_end=1403
-  _globals['_UNKNOWNKKK_UNKNOWNKKG']._serialized_start=1369
-  _globals['_UNKNOWNKKK_UNKNOWNKKG']._serialized_end=1403
-  _globals['_UNKNOWNKKQ']._serialized_start=1405
-  _globals['_UNKNOWNKKQ']._serialized_end=1439
-  _globals['_UNKNOWNKJX']._serialized_start=1441
-  _globals['_UNKNOWNKJX']._serialized_end=1453
-  _globals['_GROUPSEARCHSTARTRESPONSE']._serialized_start=1456
-  _globals['_GROUPSEARCHSTARTRESPONSE']._serialized_end=1945
-  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNKIV']._serialized_start=1817
-  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNKIV']._serialized_end=1851
-  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNKIY']._serialized_start=1853
-  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNKIY']._serialized_end=1909
-  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNKIZ']._serialized_start=1911
-  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNKIZ']._serialized_end=1945
-  _globals['_UNKNOWNKIS']._serialized_start=1948
-  _globals['_UNKNOWNKIS']._serialized_end=2640
-  _globals['_UNKNOWNKIS_UNKNOWNKIP']._serialized_start=2201
-  _globals['_UNKNOWNKIS_UNKNOWNKIP']._serialized_end=2516
-  _globals['_UNKNOWNKIS_UNKNOWNKIP_UNKNOWNKIN']._serialized_start=2482
-  _globals['_UNKNOWNKIS_UNKNOWNKIP_UNKNOWNKIN']._serialized_end=2516
-  _globals['_UNKNOWNKIS_UNKNOWNKIQ']._serialized_start=2518
-  _globals['_UNKNOWNKIS_UNKNOWNKIQ']._serialized_end=2640
+  _globals['_UNKNOWNTWOHUNDREDTWENTYNINE']._serialized_start=4827
+  _globals['_UNKNOWNTWOHUNDREDTWENTYNINE']._serialized_end=5296
+  _globals['_UNKNOWNTWOHUNDREDTWELVE']._serialized_start=5298
+  _globals['_UNKNOWNTWOHUNDREDTWELVE']._serialized_end=5355
+  _globals['_UNKNOWNTWOHUNDREDTHIRTEEN']._serialized_start=5357
+  _globals['_UNKNOWNTWOHUNDREDTHIRTEEN']._serialized_end=5418
+  _globals['_UNKNOWNTWOHUNDREDSEVENTEEN']._serialized_start=5420
+  _globals['_UNKNOWNTWOHUNDREDSEVENTEEN']._serialized_end=5483
+  _globals['_UNKNOWNTWOHUNDREDFOURTEEN']._serialized_start=88
+  _globals['_UNKNOWNTWOHUNDREDFOURTEEN']._serialized_end=115
+  _globals['_UNKNOWNTWOHUNDREDFIFTEEN']._serialized_start=117
+  _globals['_UNKNOWNTWOHUNDREDFIFTEEN']._serialized_end=143
+  _globals['_UNKNOWNTWOHUNDREDSIXTEEN']._serialized_start=145
+  _globals['_UNKNOWNTWOHUNDREDSIXTEEN']._serialized_end=171
+  _globals['_UNKNOWNTWOHUNDREDEIGHTEEN']._serialized_start=174
+  _globals['_UNKNOWNTWOHUNDREDEIGHTEEN']._serialized_end=716
+  _globals['_UNKNOWNTWOHUNDREDEIGHTEEN_UNKNOWNTWOHUNDREDNINETEEN']._serialized_start=468
+  _globals['_UNKNOWNTWOHUNDREDEIGHTEEN_UNKNOWNTWOHUNDREDNINETEEN']._serialized_end=716
+  _globals['_UNKNOWNTWOHUNDREDEIGHTEEN_UNKNOWNTWOHUNDREDNINETEEN_UNKNOWNTWOHUNDREDTWENTY']._serialized_start=497
+  _globals['_UNKNOWNTWOHUNDREDEIGHTEEN_UNKNOWNTWOHUNDREDNINETEEN_UNKNOWNTWOHUNDREDTWENTY']._serialized_end=600
+  _globals['_UNKNOWNTWOHUNDREDEIGHTEEN_UNKNOWNTWOHUNDREDNINETEEN_UNKNOWNTWOHUNDREDTWENTYONE']._serialized_start=602
+  _globals['_UNKNOWNTWOHUNDREDEIGHTEEN_UNKNOWNTWOHUNDREDNINETEEN_UNKNOWNTWOHUNDREDTWENTYONE']._serialized_end=716
+  _globals['_UNKNOWNTWOHUNDREDTWENTYTWO']._serialized_start=718
+  _globals['_UNKNOWNTWOHUNDREDTWENTYTWO']._serialized_end=828
+  _globals['_UNKNOWNTWOHUNDREDTWENTYTHREE']._serialized_start=831
+  _globals['_UNKNOWNTWOHUNDREDTWENTYTHREE']._serialized_end=978
+  _globals['_UNKNOWNTWOHUNDREDTWENTYFOUR']._serialized_start=981
+  _globals['_UNKNOWNTWOHUNDREDTWENTYFOUR']._serialized_end=1374
+  _globals['_UNKNOWNTWOHUNDREDTWENTYFOUR_UNKNOWNTWOHUNDREDTWENTYFIVE']._serialized_start=1315
+  _globals['_UNKNOWNTWOHUNDREDTWENTYFOUR_UNKNOWNTWOHUNDREDTWENTYFIVE']._serialized_end=1344
+  _globals['_UNKNOWNTWOHUNDREDTWENTYFOUR_UNKNOWNTWOHUNDREDTWENTYSIX']._serialized_start=1346
+  _globals['_UNKNOWNTWOHUNDREDTWENTYFOUR_UNKNOWNTWOHUNDREDTWENTYSIX']._serialized_end=1374
+  _globals['_UNKNOWNTWOHUNDREDTWENTYSEVEN']._serialized_start=1376
+  _globals['_UNKNOWNTWOHUNDREDTWENTYSEVEN']._serialized_end=1447
+  _globals['_UNKNOWNTWOHUNDREDTWENTYEIGHT']._serialized_start=1450
+  _globals['_UNKNOWNTWOHUNDREDTWENTYEIGHT']._serialized_end=1595
+  _globals['_GROUPSEARCHSTARTREQUEST']._serialized_start=1598
+  _globals['_GROUPSEARCHSTARTREQUEST']._serialized_end=2077
+  _globals['_GROUPSEARCHSTARTREQUEST_UNKNOWNTWOHUNDREDSIX']._serialized_start=2029
+  _globals['_GROUPSEARCHSTARTREQUEST_UNKNOWNTWOHUNDREDSIX']._serialized_end=2051
+  _globals['_GROUPSEARCHSTARTREQUEST_UNKNOWNTWOHUNDREDSEVEN']._serialized_start=2053
+  _globals['_GROUPSEARCHSTARTREQUEST_UNKNOWNTWOHUNDREDSEVEN']._serialized_end=2077
+  _globals['_UNKNOWNTWOHUNDREDTHIRTY']._serialized_start=2080
+  _globals['_UNKNOWNTWOHUNDREDTHIRTY']._serialized_end=2320
+  _globals['_UNKNOWNTWOHUNDREDTHIRTY_UNKNOWNTWOHUNDREDTHIRTYONE']._serialized_start=2292
+  _globals['_UNKNOWNTWOHUNDREDTHIRTY_UNKNOWNTWOHUNDREDTHIRTYONE']._serialized_end=2320
+  _globals['_UNKNOWNTWOHUNDREDTHIRTYTWO']._serialized_start=2323
+  _globals['_UNKNOWNTWOHUNDREDTHIRTYTWO']._serialized_end=2473
+  _globals['_GROUPSEARCHMENUREQUEST']._serialized_start=2475
+  _globals['_GROUPSEARCHMENUREQUEST']._serialized_end=2499
+  _globals['_GROUPSEARCHSTARTRESPONSE']._serialized_start=2502
+  _globals['_GROUPSEARCHSTARTRESPONSE']._serialized_end=3770
+  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNTWOHUNDREDEIGHT']._serialized_start=2964
+  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNTWOHUNDREDEIGHT']._serialized_end=2988
+  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNTWOHUNDREDNINE']._serialized_start=2991
+  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNTWOHUNDREDNINE']._serialized_end=3743
+  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNTWOHUNDREDNINE_UNKNOWNTWOHUNDREDTEN']._serialized_start=3017
+  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNTWOHUNDREDNINE_UNKNOWNTWOHUNDREDTEN']._serialized_end=3743
+  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNTWOHUNDREDELEVEN']._serialized_start=3745
+  _globals['_GROUPSEARCHSTARTRESPONSE_UNKNOWNTWOHUNDREDELEVEN']._serialized_end=3770
+  _globals['_GROUPSEARCHMENUEVENT']._serialized_start=3773
+  _globals['_GROUPSEARCHMENUEVENT']._serialized_end=4824
+  _globals['_GROUPSEARCHMENUEVENT_UNKNOWNTWOHUNDREDTHREE']._serialized_start=4155
+  _globals['_GROUPSEARCHMENUEVENT_UNKNOWNTWOHUNDREDTHREE']._serialized_end=4587
+  _globals['_GROUPSEARCHMENUEVENT_UNKNOWNTWOHUNDREDTHREE_UNKNOWNTWOHUNDREDFOUR']._serialized_start=4523
+  _globals['_GROUPSEARCHMENUEVENT_UNKNOWNTWOHUNDREDTHREE_UNKNOWNTWOHUNDREDFOUR']._serialized_end=4587
+  _globals['_GROUPSEARCHMENUEVENT_UNKNOWNTWOHUNDREDFIVE']._serialized_start=4590
+  _globals['_GROUPSEARCHMENUEVENT_UNKNOWNTWOHUNDREDFIVE']._serialized_end=4824
 # @@protoc_insertion_point(module_scope)

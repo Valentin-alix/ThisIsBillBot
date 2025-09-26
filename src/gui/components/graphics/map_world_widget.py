@@ -177,7 +177,6 @@ class MapWorldView(QGraphicsView):
 
     @pyqtSlot(MapInformationRootItem, MapInformationRootItem)
     def on_arrow_pos(self, map_pos_start: MapInformationRootItem, map_pos_end: MapInformationRootItem):
-        """draw line from start to end pos"""
         start_square = self.get_or_create_map(map_pos_start)
         end_square = self.get_or_create_map(map_pos_end)
         line_item = QGraphicsLineItem(

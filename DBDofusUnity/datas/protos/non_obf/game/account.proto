@@ -58,3 +58,24 @@ message SubscriptionZoneEvent {
 	bool effective = 1;
 }
 
+message AccountRoleStatusEvent {
+	UnknownTwo unknown_two = 1;
+	bool unknown_three = 2;
+	.com.ankama.dofus.server.game.protocol.common.Hierarchy role = 3;
+	enum UnknownTwo {
+		UNKNOWN_TWO_UNSPECIFIED = 0;
+	}
+}
+
+message AccountSecurityFlagsEvent {
+	.com.ankama.dofus.server.game.protocol.account.AccountSecurityFlagsEvent.SecurityFlags security_flags = 1;
+	message SecurityFlags {
+		bool unknown_four = 1;
+		bool unknown_five = 2;
+		bool unknown_six = 3;
+	}
+}
+
+message SessionElapsedDurationEvent {
+	int64 duration_seconds = 1;
+}

@@ -62,7 +62,6 @@ class SquareCell(QGraphicsPolygonItem):
     def __init__(self, cell_id: int):
         super().__init__()
 
-        # draw 2d isometric square
         self.setPolygon(
             QPolygonF(
                 [

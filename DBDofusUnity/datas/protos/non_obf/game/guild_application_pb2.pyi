@@ -141,16 +141,16 @@ class GuildApplicationPresenceEvent(_message.Message):
     is_application: bool
     def __init__(self, is_application: bool = ...) -> None: ...
 
-class UnknownJfz(_message.Message):
-    __slots__ = ("unknown_ftel",)
-    UNKNOWN_FTEL_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftel: UnknownJgb
-    def __init__(self, unknown_ftel: _Optional[_Union[UnknownJgb, _Mapping]] = ...) -> None: ...
+class UnknownTwoHundredThirtyThree(_message.Message):
+    __slots__ = ("unknown_four_hundred_fifty_four",)
+    UNKNOWN_FOUR_HUNDRED_FIFTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_fifty_four: UnknownTwoHundredThirtyFour
+    def __init__(self, unknown_four_hundred_fifty_four: _Optional[_Union[UnknownTwoHundredThirtyFour, _Mapping]] = ...) -> None: ...
 
-class UnknownJgb(_message.Message):
-    __slots__ = ("unknown_ftes", "unknown_ftet")
-    UNKNOWN_FTES_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTET_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftes: int
-    unknown_ftet: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectGidWithQuantity]
-    def __init__(self, unknown_ftes: _Optional[int] = ..., unknown_ftet: _Optional[_Iterable[_Union[_common_pb2.ObjectGidWithQuantity, _Mapping]]] = ...) -> None: ...
+class UnknownTwoHundredThirtyFour(_message.Message):
+    __slots__ = ("unknown_four_hundred_fifty_five", "unknown_four_hundred_fifty_six")
+    UNKNOWN_FOUR_HUNDRED_FIFTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_FIFTY_SIX_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_fifty_five: int
+    unknown_four_hundred_fifty_six: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectGidWithQuantity]
+    def __init__(self, unknown_four_hundred_fifty_five: _Optional[int] = ..., unknown_four_hundred_fifty_six: _Optional[_Iterable[_Union[_common_pb2.ObjectGidWithQuantity, _Mapping]]] = ...) -> None: ...

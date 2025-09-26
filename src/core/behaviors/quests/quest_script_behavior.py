@@ -12,7 +12,7 @@ from dofus_unity_reader.game_constants.world import WorldMapEnum
 from dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.craft.craft_behavior import CraftBehavior
+from src.core.behaviors.craft.craft_behavior import CraftBehavior, CraftRequest
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
@@ -80,8 +80,6 @@ def matches_map_name(map_name: str, name_id: int) -> bool:
 
 @dataclass
 class QuestScriptBehavior(Behavior):
-    """Replays a `QuestScript` step by step, resuming where the server says the quest stands."""
-
     auto_trip_smart_behavior: AutoTripSmartBehavior
     npc_dialog_behavior: NpcDialogBehavior
     attacker_behavior: AttackerBehavior
@@ -149,21 +147,18 @@ class QuestScriptBehavior(Behavior):
             return 0
 
         self._log_server_progress(script)
-        # Reprendre au premier objectif non atteint : tout ce qui le precede est acquis, y
-        # compris les etapes sans objectif comme celle qui prend la quete.
+
         for index in sorted(script.objective_id_by_index):
             if not self._is_step_done(script, index):
                 return index
         return self._index_from_server_step(script)
 
     def _log_server_progress(self, script: QuestScript) -> None:
-        """Sans ca, une reprise au mauvais endroit est indiagnosticable apres coup."""
         assert script.quest_id is not None
         quest_state = self.game_state.quest
         known = quest_state.known_objective_ids(script.quest_id)
         reached = quest_state.reached_objective_ids(script.quest_id)
-        # Le serveur n'envoie que les objectifs deja reveles : ceux d'apres sont absents, et
-        # absent vaut non atteint.
+
         self.logger.info(
             f"Quest '{script.name}' already active on server step "
             f"{quest_state.current_step_id(script.quest_id)}: "
@@ -191,7 +186,6 @@ class QuestScriptBehavior(Behavior):
         return index
 
     def _is_step_done(self, script: QuestScript, index: int) -> bool:
-        """Une etape sans objectif declare n'est jamais consideree comme faite d'elle-meme."""
         objective_id = script.objective_id_by_index.get(index)
         if objective_id is None or script.quest_id is None:
             return False
@@ -203,7 +197,6 @@ class QuestScriptBehavior(Behavior):
             self.finish()
 
     def _run_step(self) -> None:
-        """Un objectif peut se valider en route (ou l'avoir ete avant) : on saute son etape."""
         assert self._script is not None
         while self._step_index < len(self._script.steps) and self._is_step_done(
             self._script, self._step_index
@@ -230,7 +223,6 @@ class QuestScriptBehavior(Behavior):
 
     def _travel_then(self, step: QuestStep, on_arrived: Callable[[], None]) -> None:
         if self.game_state.fight.in_fight:
-            # `on_context_creation_event` reprendra l'etape a la fin du combat.
             return self.logger.info("In fight, postponing the step until it is over")
         if not isinstance(step, StepWithDestination):
             return on_arrived()
@@ -305,7 +297,7 @@ class QuestScriptBehavior(Behavior):
 
         self.npc_dialog_behavior.start(
             npc_dialog_info=npc_dialog_info,
-            turns=step.turns,
+            turn_variants=step.turn_variants,
             callback=self._on_step_finished,
             parent=self,
         )
@@ -330,7 +322,6 @@ class QuestScriptBehavior(Behavior):
         )
 
     def _resolve_monster_ids(self, step: FightStep) -> set[int] | None:
-        """None means any group will do; empty means the declared name matched nothing."""
         if step.monster_id is not None:
             return {step.monster_id}
         if step.monster_name is None:
@@ -341,7 +332,6 @@ class QuestScriptBehavior(Behavior):
         return monster_ids
 
     def _on_fight_finished(self, error_code: str | None, count_fighted_on_map: int, step: FightStep) -> None:
-        """A step that fought fewer times than asked has not been done."""
         if error_code is None and count_fighted_on_map < step.count:
             self.logger.warning(
                 f"Only {count_fighted_on_map}/{step.count} fight(s) done"
@@ -398,8 +388,7 @@ class QuestScriptBehavior(Behavior):
             return self.finish(QuestScriptError.UNKNOWN_RECIPE)
 
         self.craft_behavior.start(
-            recipes=[recipe],
-            quantity_by_result_id={step.item_gid: step.quantity},
+            craft_requests=[CraftRequest(recipe=recipe, stop_condition=step.quantity)],
             callback=self._on_step_finished,
             parent=self,
         )

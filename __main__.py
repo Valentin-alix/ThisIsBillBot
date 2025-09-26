@@ -24,9 +24,6 @@ class RuntimeArgs:
     application_argv: list[str]
 
 
-# uv run __main__.py --no-auto
-
-
 def parse_runtime_args(argv: list[str]) -> RuntimeArgs:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument(

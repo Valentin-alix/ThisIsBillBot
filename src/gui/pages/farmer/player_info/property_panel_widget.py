@@ -65,5 +65,4 @@ class PropertyPanelWidget(QWidget):
         return group_widget
 
     def pre_create_group(self, group_key: str) -> PropertyGroupWidget:
-        """Create the group now so callers can show/hide it before any update."""
         return self.get_or_create_group_widget(group_key)

@@ -32,7 +32,7 @@ from dofus_unity_reader.game_constants.characteristic import (
 from dofus_unity_reader.grid.map_point import MapPoint
 from pytest import MonkeyPatch
 
-from src import const
+from src import consts
 from src.core.bot.bot import Bot
 from src.core.frames.fight_frame import FightFrame
 from src.core.states.entity_state import FightActor
@@ -106,7 +106,7 @@ class TestFightState:
         runtime_bot: Bot,
         monkeypatch: MonkeyPatch,
     ):
-        monkeypatch.setattr(const, "DEBUG", True)
+        monkeypatch.setattr(consts, "DEBUG", True)
         received_action_points: list[int] = []
         received_movement_points: list[int] = []
 

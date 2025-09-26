@@ -213,26 +213,26 @@ class AllianceBulletinSetErrorEvent(_message.Message):
     reason: _common_pb2.SocialNoticeError
     def __init__(self, reason: _Optional[_Union[_common_pb2.SocialNoticeError, str]] = ...) -> None: ...
 
-class UnknownMcs(_message.Message):
-    __slots__ = ("unknown_gelr",)
-    UNKNOWN_GELR_FIELD_NUMBER: _ClassVar[int]
-    unknown_gelr: str
-    def __init__(self, unknown_gelr: _Optional[str] = ...) -> None: ...
+class UnknownFive(_message.Message):
+    __slots__ = ("unknown_nine",)
+    UNKNOWN_NINE_FIELD_NUMBER: _ClassVar[int]
+    unknown_nine: str
+    def __init__(self, unknown_nine: _Optional[str] = ...) -> None: ...
 
-class UnknownMdg(_message.Message):
-    __slots__ = ("unknown_genx",)
-    UNKNOWN_GENX_FIELD_NUMBER: _ClassVar[int]
-    unknown_genx: str
-    def __init__(self, unknown_genx: _Optional[str] = ...) -> None: ...
+class UnknownSix(_message.Message):
+    __slots__ = ("unknown_ten",)
+    UNKNOWN_TEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_ten: str
+    def __init__(self, unknown_ten: _Optional[str] = ...) -> None: ...
 
-class UnknownHic(_message.Message):
-    __slots__ = ("unknown_flzo",)
-    UNKNOWN_FLZO_FIELD_NUMBER: _ClassVar[int]
-    unknown_flzo: int
-    def __init__(self, unknown_flzo: _Optional[int] = ...) -> None: ...
+class UnknownThree(_message.Message):
+    __slots__ = ("unknown_seven",)
+    UNKNOWN_SEVEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_seven: int
+    def __init__(self, unknown_seven: _Optional[int] = ...) -> None: ...
 
-class UnknownHig(_message.Message):
-    __slots__ = ("unknown_fmaf",)
-    UNKNOWN_FMAF_FIELD_NUMBER: _ClassVar[int]
-    unknown_fmaf: int
-    def __init__(self, unknown_fmaf: _Optional[int] = ...) -> None: ...
+class UnknownFour(_message.Message):
+    __slots__ = ("unknown_eight",)
+    UNKNOWN_EIGHT_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight: int
+    def __init__(self, unknown_eight: _Optional[int] = ...) -> None: ...

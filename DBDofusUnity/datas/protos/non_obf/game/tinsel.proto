@@ -8,9 +8,6 @@ enum TinselSelectError {
 	ALREADY = 2;
 }
 
-message TitlesAndOrnamentsRequest {
-}
-
 message TitlesAndOrnamentsEvent {
 	repeated int32 titles = 1;
 	repeated int32 ornaments = 2;

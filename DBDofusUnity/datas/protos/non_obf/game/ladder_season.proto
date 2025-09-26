@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+package com.ankama.dofus.server.game.protocol.ladder.season;
+
+message UnknownThreeHundredSixtyNine {
+}

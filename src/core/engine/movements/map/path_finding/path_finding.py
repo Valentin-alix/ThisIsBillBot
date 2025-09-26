@@ -328,7 +328,6 @@ class Pathfinding:
         ends: set[MapPoint],
         cost_to_end: float,
     ) -> float:
-        """check cost of move from map point to parent map point"""
         point_weight = self.get_map_point_weight(mp, ends)
         movement_cost: float = (DIAG_COST if mp.is_diagonal_move(parent_mp) else HV_COST) * point_weight
         if self.allow_trough_entity:
@@ -362,7 +361,6 @@ class Pathfinding:
         return movement_cost
 
     def get_map_point_weight(self, mp: MapPoint, ends: set[MapPoint]) -> float:
-        """get weight of map point"""
         if mp in ends:
             return 1
 
@@ -394,7 +392,6 @@ class Pathfinding:
 
         while cursor and cursor.mp.cell_id != start.cell_id:
             if self.allow_diag:
-                # here we check if we can reduce path time by checking parent
                 parent = cursor.parent
                 grand_parent = parent.parent if parent else None
                 grand_grand_parent = grand_parent.parent if grand_parent else None

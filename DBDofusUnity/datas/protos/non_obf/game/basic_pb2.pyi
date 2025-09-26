@@ -31,34 +31,6 @@ class WhoIsNumericRequest(_message.Message):
     player_id: int
     def __init__(self, player_id: _Optional[int] = ...) -> None: ...
 
-class CurrentServerStatusUpdateEvent(_message.Message):
-    __slots__ = ("status",)
-    class ServerStatus(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = ()
-        UNKNOWN: _ClassVar[CurrentServerStatusUpdateEvent.ServerStatus]
-        OFFLINE: _ClassVar[CurrentServerStatusUpdateEvent.ServerStatus]
-        STARTING: _ClassVar[CurrentServerStatusUpdateEvent.ServerStatus]
-        ONLINE: _ClassVar[CurrentServerStatusUpdateEvent.ServerStatus]
-        NO_JOIN: _ClassVar[CurrentServerStatusUpdateEvent.ServerStatus]
-        SAVING: _ClassVar[CurrentServerStatusUpdateEvent.ServerStatus]
-        STOPPING: _ClassVar[CurrentServerStatusUpdateEvent.ServerStatus]
-    UNKNOWN: CurrentServerStatusUpdateEvent.ServerStatus
-    OFFLINE: CurrentServerStatusUpdateEvent.ServerStatus
-    STARTING: CurrentServerStatusUpdateEvent.ServerStatus
-    ONLINE: CurrentServerStatusUpdateEvent.ServerStatus
-    NO_JOIN: CurrentServerStatusUpdateEvent.ServerStatus
-    SAVING: CurrentServerStatusUpdateEvent.ServerStatus
-    STOPPING: CurrentServerStatusUpdateEvent.ServerStatus
-    STATUS_FIELD_NUMBER: _ClassVar[int]
-    status: CurrentServerStatusUpdateEvent.ServerStatus
-    def __init__(self, status: _Optional[_Union[CurrentServerStatusUpdateEvent.ServerStatus, str]] = ...) -> None: ...
-
-class ServerMaintenanceEvent(_message.Message):
-    __slots__ = ("maintenance_date",)
-    MAINTENANCE_DATE_FIELD_NUMBER: _ClassVar[int]
-    maintenance_date: str
-    def __init__(self, maintenance_date: _Optional[str] = ...) -> None: ...
-
 class BasicLatencyStatsRequest(_message.Message):
     __slots__ = ("latency",)
     LATENCY_FIELD_NUMBER: _ClassVar[int]
@@ -195,8 +167,8 @@ class SequenceNumberEvent(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
-class UnknownLqx(_message.Message):
-    __slots__ = ("unknown_gcsr",)
-    UNKNOWN_GCSR_FIELD_NUMBER: _ClassVar[int]
-    unknown_gcsr: _common_pb2.PlayerSearch
-    def __init__(self, unknown_gcsr: _Optional[_Union[_common_pb2.PlayerSearch, _Mapping]] = ...) -> None: ...
+class UnknownEight(_message.Message):
+    __slots__ = ("unknown_sixteen",)
+    UNKNOWN_SIXTEEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_sixteen: _common_pb2.PlayerSearch
+    def __init__(self, unknown_sixteen: _Optional[_Union[_common_pb2.PlayerSearch, _Mapping]] = ...) -> None: ...

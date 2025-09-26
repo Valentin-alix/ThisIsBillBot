@@ -1,6 +1,6 @@
 import logging
 
-from src import const
+from src import consts
 from src.core.signals.log_signals import LogSignals
 from src.services.debug_recorder import DebugRecorder, DebugRecorderLogHandler
 from src.services.logging_utils.filters import ContextFallbackFilter
@@ -27,8 +27,6 @@ def init_root_gui_logging(signals: LogSignals) -> logging.Logger:
 
 
 class BotLogger(logging.Logger):
-    """specific bot logger, title is only used for filename"""
-
     def __init__(
         self,
         log_signals: LogSignals,
@@ -47,7 +45,7 @@ class BotLogger(logging.Logger):
         self.addHandler(self.debug_recorder_handler)
 
         self.gui_formatter = logging.Formatter("[%(context)s] - %(message)s")
-        if const.DEBUG:
+        if consts.DEBUG:
             self.log_signal_handler = LogSignalHandler(log_signals)
             self.log_signal_handler.setFormatter(self.gui_formatter)
             self.addHandler(self.log_signal_handler)

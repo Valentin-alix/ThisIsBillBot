@@ -8,8 +8,8 @@ from PyQt6.QtWidgets import QListView, QListWidgetItem, QVBoxLayout, QWidget
 from qfluentwidgets import ListWidget, SmoothMode
 
 from src.core.bot.bot import Bot
+from src.gui.consts import CARD_WIDTH
 
-CARD_WIDTH = 150
 CARD_HEIGHT = 80
 
 

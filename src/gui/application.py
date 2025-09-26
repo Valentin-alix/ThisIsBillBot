@@ -4,7 +4,7 @@ import sys
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication
 
-from src.const import LOGO_FILE
+from src.consts import LOGO_FILE
 
 
 class Application(QApplication):

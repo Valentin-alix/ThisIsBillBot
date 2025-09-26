@@ -10,8 +10,6 @@ P = ParamSpec("P")
 
 @dataclass
 class Subject(Generic[P]):
-    """observer pattern"""
-
     _lock: RLock = field(init=False)
     _observers: list[Observer[P]] = field(init=False, default_factory=list[Observer[P]])
 

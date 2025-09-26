@@ -25,17 +25,13 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rcontext.proto\x12-com.ankama.dofus.server.game.protocol.context\x1a\x0c\x63ommon.proto\"\x1d\n\x1b\x45ntityDispositionErrorEvent\"\"\n\x0fShowCellRequest\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\x05\"z\n\x1d\x43ontextRefreshEntityLookEvent\x12\x11\n\tentity_id\x18\x01 \x01(\x03\x12\x46\n\x04look\x18\x02 \x01(\x0b\x32\x38.com.ankama.dofus.server.game.protocol.common.EntityLook\"3\n\rShowCellEvent\x12\x11\n\tsource_id\x18\x01 \x01(\x03\x12\x0f\n\x07\x63\x65ll_id\x18\x02 \x01(\x05\"7\n\x12ShowCellTagRequest\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\x05\x12\x10\n\x08tag_type\x18\x02 \x01(\x05\":\n\x15ShowCellTagOwnerEvent\x12\x10\n\x08owner_id\x18\x01 \x01(\x03\x12\x0f\n\x07\x63\x65ll_id\x18\x02 \x01(\x05\"\xf1\x02\n\x11ShowCellTagsEvent\x12v\n\x15tag_type_by_entity_id\x18\x01 \x03(\x0b\x32W.com.ankama.dofus.server.game.protocol.context.ShowCellTagsEvent.TagTypeByEntityIdEntry\x12r\n\x13tag_type_by_cell_id\x18\x02 \x03(\x0b\x32U.com.ankama.dofus.server.game.protocol.context.ShowCellTagsEvent.TagTypeByCellIdEntry\x1a\x38\n\x16TagTypeByEntityIdEntry\x12\x0b\n\x03key\x18\x01 \x01(\x03\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a\x36\n\x14TagTypeByCellIdEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\"0\n\x1a\x43ontextRemoveElementsEvent\x12\x12\n\nelement_id\x18\x01 \x03(\x03\"\xc6\x01\n\x19RefreshMonsterBoostsEvent\x12T\n\x0emonster_boosts\x18\x01 \x03(\x0b\x32<.com.ankama.dofus.server.game.protocol.context.MonsterBoosts\x12S\n\rfamily_boosts\x18\x02 \x03(\x0b\x32<.com.ankama.dofus.server.game.protocol.context.MonsterBoosts\"A\n\rMonsterBoosts\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08xp_boost\x18\x02 \x01(\x05\x12\x12\n\ndrop_boost\x18\x03 \x01(\x05\"%\n\x13\x43ontextReadyRequest\x12\x0e\n\x06map_id\x18\x01 \x01(\x03\"\'\n\x12\x43ontextKickRequest\x12\x11\n\ttarget_id\x18\x01 \x01(\x03\"\x18\n\x16\x43ontextCreationRequest\"\x14\n\x12\x43ontextQuitRequest\"\x15\n\x13\x43ontextDestroyEvent\"/\n\x19\x43ontextRemoveElementEvent\x12\x12\n\nelement_id\x18\x01 \x01(\x03\"q\n\x18\x45ntitiesDispositionEvent\x12U\n\x0c\x64ispositions\x18\x01 \x03(\x0b\x32?.com.ankama.dofus.server.game.protocol.common.EntityDisposition\"\xa1\x01\n\x14\x43ontextCreationEvent\x12`\n\x07\x63ontext\x18\x01 \x01(\x0e\x32O.com.ankama.dofus.server.game.protocol.context.ContextCreationEvent.GameContext\"\'\n\x0bGameContext\x12\r\n\tROLE_PLAY\x10\x00\x12\t\n\x05\x46IGHT\x10\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rcontext.proto\x12-com.ankama.dofus.server.game.protocol.context\x1a\x0c\x63ommon.proto\"\x1d\n\x1b\x45ntityDispositionErrorEvent\"\"\n\x0fShowCellRequest\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\x05\"z\n\x1d\x43ontextRefreshEntityLookEvent\x12\x11\n\tentity_id\x18\x01 \x01(\x03\x12\x46\n\x04look\x18\x02 \x01(\x0b\x32\x38.com.ankama.dofus.server.game.protocol.common.EntityLook\"3\n\rShowCellEvent\x12\x11\n\tsource_id\x18\x01 \x01(\x03\x12\x0f\n\x07\x63\x65ll_id\x18\x02 \x01(\x05\"0\n\x1a\x43ontextRemoveElementsEvent\x12\x12\n\nelement_id\x18\x01 \x03(\x03\"\xc6\x01\n\x19RefreshMonsterBoostsEvent\x12T\n\x0emonster_boosts\x18\x01 \x03(\x0b\x32<.com.ankama.dofus.server.game.protocol.context.MonsterBoosts\x12S\n\rfamily_boosts\x18\x02 \x03(\x0b\x32<.com.ankama.dofus.server.game.protocol.context.MonsterBoosts\"A\n\rMonsterBoosts\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08xp_boost\x18\x02 \x01(\x05\x12\x12\n\ndrop_boost\x18\x03 \x01(\x05\"%\n\x13\x43ontextReadyRequest\x12\x0e\n\x06map_id\x18\x01 \x01(\x03\"\'\n\x12\x43ontextKickRequest\x12\x11\n\ttarget_id\x18\x01 \x01(\x03\"\x18\n\x16\x43ontextCreationRequest\"\x14\n\x12\x43ontextQuitRequest\"\x15\n\x13\x43ontextDestroyEvent\"/\n\x19\x43ontextRemoveElementEvent\x12\x12\n\nelement_id\x18\x01 \x01(\x03\"q\n\x18\x45ntitiesDispositionEvent\x12U\n\x0c\x64ispositions\x18\x01 \x03(\x0b\x32?.com.ankama.dofus.server.game.protocol.common.EntityDisposition\"\xa1\x01\n\x14\x43ontextCreationEvent\x12`\n\x07\x63ontext\x18\x01 \x01(\x0e\x32O.com.ankama.dofus.server.game.protocol.context.ContextCreationEvent.GameContext\"\'\n\x0bGameContext\x12\r\n\tROLE_PLAY\x10\x00\x12\t\n\x05\x46IGHT\x10\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'context_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_SHOWCELLTAGSEVENT_TAGTYPEBYENTITYIDENTRY']._loaded_options = None
-  _globals['_SHOWCELLTAGSEVENT_TAGTYPEBYENTITYIDENTRY']._serialized_options = b'8\001'
-  _globals['_SHOWCELLTAGSEVENT_TAGTYPEBYCELLIDENTRY']._loaded_options = None
-  _globals['_SHOWCELLTAGSEVENT_TAGTYPEBYCELLIDENTRY']._serialized_options = b'8\001'
   _globals['_ENTITYDISPOSITIONERROREVENT']._serialized_start=78
   _globals['_ENTITYDISPOSITIONERROREVENT']._serialized_end=107
   _globals['_SHOWCELLREQUEST']._serialized_start=109
@@ -44,38 +40,28 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_CONTEXTREFRESHENTITYLOOKEVENT']._serialized_end=267
   _globals['_SHOWCELLEVENT']._serialized_start=269
   _globals['_SHOWCELLEVENT']._serialized_end=320
-  _globals['_SHOWCELLTAGREQUEST']._serialized_start=322
-  _globals['_SHOWCELLTAGREQUEST']._serialized_end=377
-  _globals['_SHOWCELLTAGOWNEREVENT']._serialized_start=379
-  _globals['_SHOWCELLTAGOWNEREVENT']._serialized_end=437
-  _globals['_SHOWCELLTAGSEVENT']._serialized_start=440
-  _globals['_SHOWCELLTAGSEVENT']._serialized_end=809
-  _globals['_SHOWCELLTAGSEVENT_TAGTYPEBYENTITYIDENTRY']._serialized_start=697
-  _globals['_SHOWCELLTAGSEVENT_TAGTYPEBYENTITYIDENTRY']._serialized_end=753
-  _globals['_SHOWCELLTAGSEVENT_TAGTYPEBYCELLIDENTRY']._serialized_start=755
-  _globals['_SHOWCELLTAGSEVENT_TAGTYPEBYCELLIDENTRY']._serialized_end=809
-  _globals['_CONTEXTREMOVEELEMENTSEVENT']._serialized_start=811
-  _globals['_CONTEXTREMOVEELEMENTSEVENT']._serialized_end=859
-  _globals['_REFRESHMONSTERBOOSTSEVENT']._serialized_start=862
-  _globals['_REFRESHMONSTERBOOSTSEVENT']._serialized_end=1060
-  _globals['_MONSTERBOOSTS']._serialized_start=1062
-  _globals['_MONSTERBOOSTS']._serialized_end=1127
-  _globals['_CONTEXTREADYREQUEST']._serialized_start=1129
-  _globals['_CONTEXTREADYREQUEST']._serialized_end=1166
-  _globals['_CONTEXTKICKREQUEST']._serialized_start=1168
-  _globals['_CONTEXTKICKREQUEST']._serialized_end=1207
-  _globals['_CONTEXTCREATIONREQUEST']._serialized_start=1209
-  _globals['_CONTEXTCREATIONREQUEST']._serialized_end=1233
-  _globals['_CONTEXTQUITREQUEST']._serialized_start=1235
-  _globals['_CONTEXTQUITREQUEST']._serialized_end=1255
-  _globals['_CONTEXTDESTROYEVENT']._serialized_start=1257
-  _globals['_CONTEXTDESTROYEVENT']._serialized_end=1278
-  _globals['_CONTEXTREMOVEELEMENTEVENT']._serialized_start=1280
-  _globals['_CONTEXTREMOVEELEMENTEVENT']._serialized_end=1327
-  _globals['_ENTITIESDISPOSITIONEVENT']._serialized_start=1329
-  _globals['_ENTITIESDISPOSITIONEVENT']._serialized_end=1442
-  _globals['_CONTEXTCREATIONEVENT']._serialized_start=1445
-  _globals['_CONTEXTCREATIONEVENT']._serialized_end=1606
-  _globals['_CONTEXTCREATIONEVENT_GAMECONTEXT']._serialized_start=1567
-  _globals['_CONTEXTCREATIONEVENT_GAMECONTEXT']._serialized_end=1606
+  _globals['_CONTEXTREMOVEELEMENTSEVENT']._serialized_start=322
+  _globals['_CONTEXTREMOVEELEMENTSEVENT']._serialized_end=370
+  _globals['_REFRESHMONSTERBOOSTSEVENT']._serialized_start=373
+  _globals['_REFRESHMONSTERBOOSTSEVENT']._serialized_end=571
+  _globals['_MONSTERBOOSTS']._serialized_start=573
+  _globals['_MONSTERBOOSTS']._serialized_end=638
+  _globals['_CONTEXTREADYREQUEST']._serialized_start=640
+  _globals['_CONTEXTREADYREQUEST']._serialized_end=677
+  _globals['_CONTEXTKICKREQUEST']._serialized_start=679
+  _globals['_CONTEXTKICKREQUEST']._serialized_end=718
+  _globals['_CONTEXTCREATIONREQUEST']._serialized_start=720
+  _globals['_CONTEXTCREATIONREQUEST']._serialized_end=744
+  _globals['_CONTEXTQUITREQUEST']._serialized_start=746
+  _globals['_CONTEXTQUITREQUEST']._serialized_end=766
+  _globals['_CONTEXTDESTROYEVENT']._serialized_start=768
+  _globals['_CONTEXTDESTROYEVENT']._serialized_end=789
+  _globals['_CONTEXTREMOVEELEMENTEVENT']._serialized_start=791
+  _globals['_CONTEXTREMOVEELEMENTEVENT']._serialized_end=838
+  _globals['_ENTITIESDISPOSITIONEVENT']._serialized_start=840
+  _globals['_ENTITIESDISPOSITIONEVENT']._serialized_end=953
+  _globals['_CONTEXTCREATIONEVENT']._serialized_start=956
+  _globals['_CONTEXTCREATIONEVENT']._serialized_end=1117
+  _globals['_CONTEXTCREATIONEVENT_GAMECONTEXT']._serialized_start=1078
+  _globals['_CONTEXTCREATIONEVENT_GAMECONTEXT']._serialized_end=1117
 # @@protoc_insertion_point(module_scope)

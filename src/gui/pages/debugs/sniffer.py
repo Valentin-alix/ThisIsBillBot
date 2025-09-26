@@ -51,7 +51,6 @@ def _require_message_info(value: object) -> MessageInfo:
 
 
 def _parse_sub_msg_name(sub_msg_name: str) -> tuple[str | None, str]:
-    """Returns (obf_type, decoded_type). obf_type is None for connection messages."""
     if " -> " in sub_msg_name:
         obf, decoded = sub_msg_name.split(" -> ", 1)
         return obf, decoded
@@ -209,7 +208,7 @@ class SnifferWidget(QWidget):
 
     def init_top_content(self) -> None:
         top_content = QWidget(self)
-        # prevent top header from expanding in height
+
         top_content.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         self.v_layout.addWidget(top_content)
         top_content_layout = QHBoxLayout()
@@ -238,7 +237,6 @@ class SnifferWidget(QWidget):
         content_layout.setSpacing(0)
         content_layout.setContentsMargins(0, 0, 0, 0)
 
-        # left side: filter + message table
         self.msg_table = MessageTable(parent=self)
         self.msg_table.table.clicked.connect(self.on_click_msg)
         self.msg_table.table.doubleClicked.connect(self.on_double_click_msg)
@@ -252,7 +250,7 @@ class SnifferWidget(QWidget):
         wrapper_filter = QWidget(left_widget)
         wrapper_filter_layout = QHBoxLayout()
         wrapper_filter.setLayout(wrapper_filter_layout)
-        # filter bar should not expand vertically
+
         wrapper_filter.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         wrapper_filter_layout.setContentsMargins(0, 16, 0, 0)
         custom_filter = LineEdit(wrapper_filter)
@@ -265,7 +263,6 @@ class SnifferWidget(QWidget):
         left_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.msg_table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-        # right side: message detail and logs/listeners tabs
         self.msg_detail = MessageDetailWidget(parent=self)
         self.msg_detail.hide()
         self.msg_detail.quit_btn.clicked.connect(self.on_close_detail)
@@ -319,21 +316,19 @@ class SnifferWidget(QWidget):
             self.logs_widget = None
             self.listeners_widget = None
 
-        # main horizontal splitter: left (filter+table) | right (detail+logs)
         splitter = QSplitter(Qt.Orientation.Horizontal, self)
         splitter.addWidget(left_widget)
         splitter.addWidget(self.right_splitter)
-        # equal stretch: each side takes ~50% by default
+
         splitter.setStretchFactor(0, 1)
         splitter.setStretchFactor(1, 1)
-        # enforce initial equal proportions (pixels) so it appears 50/50
+
         splitter.setSizes([800, 800])
 
-        # right vertical splitter equal split when both widgets present
         if self.logs_widget is not None:
             self.right_splitter.setStretchFactor(0, 2)
             self.right_splitter.setStretchFactor(1, 1)
-            # enforce equal vertical split when both present
+
             self.right_splitter.setSizes([300, 150])
 
         content_layout.addWidget(splitter)

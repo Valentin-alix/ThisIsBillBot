@@ -24,19 +24,21 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10guild_hall.proto\x12\x30\x63om.ankama.dofus.server.game.protocol.guild.hall\"\xcd\x04\n\x1bGuildHallConfigurationEvent\x12{\n\rconfiguration\x18\x01 \x01(\x0b\x32\x64.com.ankama.dofus.server.game.protocol.guild.hall.GuildHallConfigurationEvent.GuildHallConfiguration\x1a\xb0\x03\n\x16GuildHallConfiguration\x12\x14\n\x0cunknown_ftpj\x18\x01 \x01(\x05\x12\xa1\x01\n\x18\x61vailable_options_by_key\x18\x02 \x03(\x0b\x32\x7f.com.ankama.dofus.server.game.protocol.guild.hall.GuildHallConfigurationEvent.GuildHallConfiguration.AvailableOptionsByKeyEntry\x12\x1c\n\x14\x61vailable_option_ids\x18\x03 \x03(\x05\x12\x12\n\nis_enabled\x18\x04 \x01(\x08\x12\x19\n\x0cunknown_ftpn\x18\x05 \x01(\tH\x00\x88\x01\x01\x12\x19\n\x0cunknown_ftpp\x18\x06 \x01(\x05H\x01\x88\x01\x01\x12\x14\n\x0cunknown_ftpr\x18\x07 \x01(\x03\x1a<\n\x1a\x41vailableOptionsByKeyEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x08:\x02\x38\x01\x42\x0f\n\r_unknown_ftpnB\x0f\n\r_unknown_ftppb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10guild_hall.proto\x12\x30\x63om.ankama.dofus.server.game.protocol.guild.hall\"\x15\n\x13GuildHallSetRequest\"\x19\n\x17GuildHallSetResultEvent\"E\n\x1bUnknownTwoHundredThirtyFive\x12&\n\x1eunknown_four_hundred_sixty_one\x18\x01 \x01(\x05\"\x1c\n\x1aUnknownTwoHundredThirtySix\"\x1e\n\x1cUnknownTwoHundredThirtySevenb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'guild_hall_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_GUILDHALLCONFIGURATIONEVENT_GUILDHALLCONFIGURATION_AVAILABLEOPTIONSBYKEYENTRY']._loaded_options = None
-  _globals['_GUILDHALLCONFIGURATIONEVENT_GUILDHALLCONFIGURATION_AVAILABLEOPTIONSBYKEYENTRY']._serialized_options = b'8\001'
-  _globals['_GUILDHALLCONFIGURATIONEVENT']._serialized_start=71
-  _globals['_GUILDHALLCONFIGURATIONEVENT']._serialized_end=660
-  _globals['_GUILDHALLCONFIGURATIONEVENT_GUILDHALLCONFIGURATION']._serialized_start=228
-  _globals['_GUILDHALLCONFIGURATIONEVENT_GUILDHALLCONFIGURATION']._serialized_end=660
-  _globals['_GUILDHALLCONFIGURATIONEVENT_GUILDHALLCONFIGURATION_AVAILABLEOPTIONSBYKEYENTRY']._serialized_start=566
-  _globals['_GUILDHALLCONFIGURATIONEVENT_GUILDHALLCONFIGURATION_AVAILABLEOPTIONSBYKEYENTRY']._serialized_end=626
+  _globals['_GUILDHALLSETREQUEST']._serialized_start=70
+  _globals['_GUILDHALLSETREQUEST']._serialized_end=91
+  _globals['_GUILDHALLSETRESULTEVENT']._serialized_start=93
+  _globals['_GUILDHALLSETRESULTEVENT']._serialized_end=118
+  _globals['_UNKNOWNTWOHUNDREDTHIRTYFIVE']._serialized_start=120
+  _globals['_UNKNOWNTWOHUNDREDTHIRTYFIVE']._serialized_end=189
+  _globals['_UNKNOWNTWOHUNDREDTHIRTYSIX']._serialized_start=191
+  _globals['_UNKNOWNTWOHUNDREDTHIRTYSIX']._serialized_end=219
+  _globals['_UNKNOWNTWOHUNDREDTHIRTYSEVEN']._serialized_start=221
+  _globals['_UNKNOWNTWOHUNDREDTHIRTYSEVEN']._serialized_end=251
 # @@protoc_insertion_point(module_scope)

@@ -6,7 +6,7 @@ from dofus_unity_reader.game_constants.item import (
     ItemTypeEnum,
 )
 
-from src import const
+from src import consts
 from src.core.config import DO_USE_GUILD_CHEST
 from src.core.engine.items.item import GATHERER_ITEM_GIDS, PROTECTOR_DROP_ITEM_IDS
 from src.core.signals.player_signals import GameInfoSignals
@@ -53,7 +53,7 @@ class GuildChestState(State):
     @tab_number.setter
     def tab_number(self, value: int) -> None:
         self._tab_number = value
-        if const.DEBUG:
+        if consts.DEBUG:
             self.game_info_signals.tab_number.emit(value)
 
     @property
@@ -63,7 +63,7 @@ class GuildChestState(State):
     @has_guild.setter
     def has_guild(self, value: bool) -> None:
         self._has_guild = value
-        if const.DEBUG:
+        if consts.DEBUG:
             self.game_info_signals.has_guild.emit(value)
 
     @property

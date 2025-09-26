@@ -51,11 +51,21 @@ class TalkToNpcStep(StepWithDestination):
     cell_id: int | None = None
     npc_action_id: int = NpcActionEnum.TALK
     turns: list[DialogTurn] = Field(default_factory=list[DialogTurn])
+    turn_variants: list[list[DialogTurn]] = Field(default_factory=list[list[DialogTurn]])
 
     @model_validator(mode="after")
     def _check_npc_identity(self):
         if self.npc_name is None and self.npc_id is None and self.bones_id is None:
             raise ValueError("talk_to_npc needs either npc_name, npc_id or bones_id")
+        return self
+
+    @model_validator(mode="after")
+    def _fold_turns_into_variants(self):
+        """A quest already done offers another dialog path, so a step may declare several variants."""
+        if not self.turn_variants:
+            self.turn_variants = [self.turns]
+        elif self.turns and self.turn_variants != [self.turns]:
+            raise ValueError("turns and turn_variants are mutually exclusive")
         return self
 
 

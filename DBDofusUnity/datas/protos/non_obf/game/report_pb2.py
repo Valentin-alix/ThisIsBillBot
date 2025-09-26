@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0creport.proto\x12\x1c\x63om.ankama.dofus.server.game\"\xa4\x04\n\rReportRequest\x12\x44\n\x06report\x18\x01 \x01(\x0b\x32\x32.com.ankama.dofus.server.game.ReportRequest.ReportH\x00\x12N\n\x0cunknown_fnvt\x18\x02 \x01(\x0b\x32\x36.com.ankama.dofus.server.game.ReportRequest.UnknownHviH\x00\x1a\x8f\x01\n\x06Report\x12S\n\x0freport_category\x18\x01 \x01(\x0e\x32:.com.ankama.dofus.server.game.ReportRequest.ReportCategory\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\x1b\n\x13target_character_id\x18\x04 \x01(\x03\x1a\x38\n\nUnknownHvi\x12\x14\n\x0cunknown_fnvn\x18\x01 \x01(\t\x12\x14\n\x0cunknown_fnvo\x18\x02 \x01(\t\"\x9e\x01\n\x0eReportCategory\x12\x18\n\x14THIRD_PARTY_SOFTWARE\x10\x00\x12\x11\n\rILLEGAL_TRADE\x10\x01\x12\x15\n\x11ILLEGAL_PROMOTION\x10\x02\x12\x0e\n\nEXPLOITING\x10\x03\x12\x12\n\x0eOFFENSIVE_NAME\x10\x04\x12\x16\n\x12OFFENSIVE_LANGUAGE\x10\x05\x12\x0c\n\x08PHISHING\x10\x06\x42\x10\n\x0ereport_payload\"\x97\x03\n\x0eReportResponse\x12s\n\x1dreportability_by_character_id\x18\x01 \x03(\x0b\x32L.com.ankama.dofus.server.game.ReportResponse.ReportabilityByCharacterIdEntry\x12\x41\n\x05\x65rror\x18\x02 \x01(\x0e\x32\x32.com.ankama.dofus.server.game.ReportResponse.Error\x12\x0f\n\x07success\x18\x03 \x01(\x08\x1a\x41\n\x1fReportabilityByCharacterIdEntry\x12\x0b\n\x03key\x18\x01 \x01(\x03\x12\r\n\x05value\x18\x02 \x01(\x08:\x02\x38\x01\"y\n\x05\x45rror\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x19\n\x15SUBSCRIPTION_REQUIRED\x10\x01\x12\r\n\tBAD_LEVEL\x10\x02\x12\x12\n\x0eLIMIT_EXCEEDED\x10\x03\x12\x0f\n\x0bNOT_ENABLED\x10\x04\x12\x14\n\x10\x41LREADY_REPORTED\x10\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0creport.proto\x12\x1c\x63om.ankama.dofus.server.game\"\xf7\x03\n\rReportRequest\x12\x44\n\x06report\x18\x01 \x01(\x0b\x32\x32.com.ankama.dofus.server.game.ReportRequest.ReportH\x00\x12M\n\x0bunknown_one\x18\x02 \x01(\x0b\x32\x36.com.ankama.dofus.server.game.ReportRequest.UnknownOneH\x00\x1a\x8f\x01\n\x06Report\x12S\n\x0freport_category\x18\x01 \x01(\x0e\x32:.com.ankama.dofus.server.game.ReportRequest.ReportCategory\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\x1b\n\x13target_character_id\x18\x04 \x01(\x03\x1a\x0c\n\nUnknownOne\"\x9e\x01\n\x0eReportCategory\x12\x18\n\x14THIRD_PARTY_SOFTWARE\x10\x00\x12\x11\n\rILLEGAL_TRADE\x10\x01\x12\x15\n\x11ILLEGAL_PROMOTION\x10\x02\x12\x0e\n\nEXPLOITING\x10\x03\x12\x12\n\x0eOFFENSIVE_NAME\x10\x04\x12\x16\n\x12OFFENSIVE_LANGUAGE\x10\x05\x12\x0c\n\x08PHISHING\x10\x06\x42\x10\n\x0ereport_payload\"\x97\x03\n\x0eReportResponse\x12s\n\x1dreportability_by_character_id\x18\x01 \x03(\x0b\x32L.com.ankama.dofus.server.game.ReportResponse.ReportabilityByCharacterIdEntry\x12\x41\n\x05\x65rror\x18\x02 \x01(\x0e\x32\x32.com.ankama.dofus.server.game.ReportResponse.Error\x12\x0f\n\x07success\x18\x03 \x01(\x08\x1a\x41\n\x1fReportabilityByCharacterIdEntry\x12\x0b\n\x03key\x18\x01 \x01(\x03\x12\r\n\x05value\x18\x02 \x01(\x08:\x02\x38\x01\"y\n\x05\x45rror\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x19\n\x15SUBSCRIPTION_REQUIRED\x10\x01\x12\r\n\tBAD_LEVEL\x10\x02\x12\x12\n\x0eLIMIT_EXCEEDED\x10\x03\x12\x0f\n\x0bNOT_ENABLED\x10\x04\x12\x14\n\x10\x41LREADY_REPORTED\x10\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,17 +34,17 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_REPORTRESPONSE_REPORTABILITYBYCHARACTERIDENTRY']._loaded_options = None
   _globals['_REPORTRESPONSE_REPORTABILITYBYCHARACTERIDENTRY']._serialized_options = b'8\001'
   _globals['_REPORTREQUEST']._serialized_start=47
-  _globals['_REPORTREQUEST']._serialized_end=595
-  _globals['_REPORTREQUEST_REPORT']._serialized_start=215
-  _globals['_REPORTREQUEST_REPORT']._serialized_end=358
-  _globals['_REPORTREQUEST_UNKNOWNHVI']._serialized_start=360
-  _globals['_REPORTREQUEST_UNKNOWNHVI']._serialized_end=416
-  _globals['_REPORTREQUEST_REPORTCATEGORY']._serialized_start=419
-  _globals['_REPORTREQUEST_REPORTCATEGORY']._serialized_end=577
-  _globals['_REPORTRESPONSE']._serialized_start=598
-  _globals['_REPORTRESPONSE']._serialized_end=1005
-  _globals['_REPORTRESPONSE_REPORTABILITYBYCHARACTERIDENTRY']._serialized_start=817
-  _globals['_REPORTRESPONSE_REPORTABILITYBYCHARACTERIDENTRY']._serialized_end=882
-  _globals['_REPORTRESPONSE_ERROR']._serialized_start=884
-  _globals['_REPORTRESPONSE_ERROR']._serialized_end=1005
+  _globals['_REPORTREQUEST']._serialized_end=550
+  _globals['_REPORTREQUEST_REPORT']._serialized_start=214
+  _globals['_REPORTREQUEST_REPORT']._serialized_end=357
+  _globals['_REPORTREQUEST_UNKNOWNONE']._serialized_start=359
+  _globals['_REPORTREQUEST_UNKNOWNONE']._serialized_end=371
+  _globals['_REPORTREQUEST_REPORTCATEGORY']._serialized_start=374
+  _globals['_REPORTREQUEST_REPORTCATEGORY']._serialized_end=532
+  _globals['_REPORTRESPONSE']._serialized_start=553
+  _globals['_REPORTRESPONSE']._serialized_end=960
+  _globals['_REPORTRESPONSE_REPORTABILITYBYCHARACTERIDENTRY']._serialized_start=772
+  _globals['_REPORTRESPONSE_REPORTABILITYBYCHARACTERIDENTRY']._serialized_end=837
+  _globals['_REPORTRESPONSE_ERROR']._serialized_start=839
+  _globals['_REPORTRESPONSE_ERROR']._serialized_end=960
 # @@protoc_insertion_point(module_scope)

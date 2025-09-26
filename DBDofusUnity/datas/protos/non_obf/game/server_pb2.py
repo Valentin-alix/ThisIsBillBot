@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cserver.proto\x12,com.ankama.dofus.server.game.protocol.server\x1a\x0c\x63ommon.proto\"\xf2\x01\n\x13ServerSettingsEvent\x12\x10\n\x08language\x18\x01 \x01(\t\x12\x11\n\tcommunity\x18\x02 \x01(\x05\x12K\n\tgame_type\x18\x03 \x01(\x0e\x32\x38.com.ankama.dofus.server.game.protocol.common.ServerType\x12\x17\n\x0fis_mono_account\x18\x04 \x01(\x08\x12\x1c\n\x14\x61rena_leave_ban_time\x18\x05 \x01(\x05\x12\x16\n\x0eitem_max_level\x18\x06 \x01(\x05\x12\x1a\n\x12has_free_autopilot\x18\x07 \x01(\x08\"\xc5\x01\n\x1bServerSessionConstantsEvent\x12r\n\tvariables\x18\x01 \x03(\x0b\x32_.com.ankama.dofus.server.game.protocol.server.ServerSessionConstantsEvent.ServerSessionConstant\x1a\x32\n\x15ServerSessionConstant\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\x03\">\n\x1dServerExperienceModifierEvent\x12\x1d\n\x15\x65xperience_percentage\x18\x01 \x01(\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cserver.proto\x12,com.ankama.dofus.server.game.protocol.server\x1a\x0c\x63ommon.proto\"\xf2\x01\n\x13ServerSettingsEvent\x12\x10\n\x08language\x18\x01 \x01(\t\x12\x11\n\tcommunity\x18\x02 \x01(\x05\x12K\n\tgame_type\x18\x03 \x01(\x0e\x32\x38.com.ankama.dofus.server.game.protocol.common.ServerType\x12\x17\n\x0fis_mono_account\x18\x04 \x01(\x08\x12\x1c\n\x14\x61rena_leave_ban_time\x18\x05 \x01(\x05\x12\x16\n\x0eitem_max_level\x18\x06 \x01(\x05\x12\x1a\n\x12has_free_autopilot\x18\x07 \x01(\x08\">\n\x1dServerExperienceModifierEvent\x12\x1d\n\x15\x65xperience_percentage\x18\x01 \x01(\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,10 +34,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_SERVERSETTINGSEVENT']._serialized_start=77
   _globals['_SERVERSETTINGSEVENT']._serialized_end=319
-  _globals['_SERVERSESSIONCONSTANTSEVENT']._serialized_start=322
-  _globals['_SERVERSESSIONCONSTANTSEVENT']._serialized_end=519
-  _globals['_SERVERSESSIONCONSTANTSEVENT_SERVERSESSIONCONSTANT']._serialized_start=469
-  _globals['_SERVERSESSIONCONSTANTSEVENT_SERVERSESSIONCONSTANT']._serialized_end=519
-  _globals['_SERVEREXPERIENCEMODIFIEREVENT']._serialized_start=521
-  _globals['_SERVEREXPERIENCEMODIFIEREVENT']._serialized_end=583
+  _globals['_SERVEREXPERIENCEMODIFIEREVENT']._serialized_start=321
+  _globals['_SERVEREXPERIENCEMODIFIEREVENT']._serialized_end=383
 # @@protoc_insertion_point(module_scope)

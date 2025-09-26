@@ -121,7 +121,6 @@ class PlayerFrame(Frame):
 
     def on_job_experiences_update_event(self, message: JobExperiencesUpdateEvent):
         for job_xp in message.experiences:
-            # round to ten digit lower bc only that matters
             self.game_state.player.jobs_lvl_by_id[job_xp.job_id] = max((job_xp.job_level // 10) * 10, 1)
 
     def on_character_list_event(self, msg: CharacterListEvent):

@@ -6,6 +6,7 @@ enum ArenaType {
 	ONE_VS_ONE = 0;
 	TWO_VS_TWO = 1;
 	THREE_VS_THREE = 2;
+	TOURNAMENT = 3;
 }
 
 message ArenaRegisterRequest {
@@ -188,16 +189,14 @@ message OpponentSurrenderEvent {
 
 
 message ArenaModesStatusEvent {
-	repeated .com.ankama.dofus.server.game.protocol.arena.ArenaModesStatusEvent.ArenaModeStatus unknown_gczw = 1;
+	repeated .com.ankama.dofus.server.game.protocol.arena.ArenaModesStatusEvent.ArenaModeStatus unknown_fifteen = 1;
 	message ArenaModeStatus {
 		.com.ankama.dofus.server.game.protocol.arena.ArenaType type = 1;
-		.com.ankama.dofus.server.game.protocol.arena.ArenaModesStatusEvent.ArenaModeStatus.ArenaModeInformation unknown_gczr = 2;
-		bool unknown_gczs = 3;
+		.com.ankama.dofus.server.game.protocol.arena.ArenaModesStatusEvent.ArenaModeStatus.ArenaModeInformation unknown_fourteen = 2;
+		bool is_available = 3;
 			message ArenaModeInformation {
-		bool unknown_gczh = 1;
-		string unknown_gczi = 2;
-		string unknown_gczk = 3;
-		int32 unknown_gczm = 4;
+		bool is_available = 1;
+		int32 player_count = 4;
 		}
 	}
 }

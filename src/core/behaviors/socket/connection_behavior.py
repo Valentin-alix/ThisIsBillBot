@@ -42,8 +42,6 @@ class ConnectionBehavior(Behavior):
         return self.connect(game_token)
 
     def connect(self, game_token: str):
-        """Authenticate against the login server and retrieve game server coordinates."""
-
         client_version = get_client_version()
         self.logger.info(f"Client version: {client_version}")
 

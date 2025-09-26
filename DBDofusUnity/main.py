@@ -4,12 +4,11 @@ import argparse
 from collections.abc import Sequence
 from pathlib import Path
 
-from consts import PINNED_PAIRS_FILE
-from proto_mapper_assembly.controllers.pinned_pairs import upsert_pinned_field_mapping, upsert_pinned_pair
-from proto_mapper_assembly.scripts.add_to_new_dump_cs import build_new_dump_cs_entries
+from proto_mapper_assembly.scripts.add_to_new_dump_cs import synchronize_non_obf_mapping_artifacts
 from proto_mapper_assembly.scripts.dump import _build_proto_dump_target, gen_python_from_protoc, update_protos
 from proto_mapper_assembly.scripts.export_signature_overrides import run_export_signature_overrides
 from proto_mapper_assembly.scripts.ida_tracer_lib.main import run_ida_script
+from proto_mapper_assembly.scripts.unknown_name_registry import validate_unknown_names
 
 
 def gen_python(_):
@@ -21,29 +20,14 @@ def gen_python(_):
     gen_python_from_protoc(target.proto_output, python_output_folder)
 
 
-def _gen_new_msg(arguments: argparse.Namespace) -> None:
+def _synchronize_protos(arguments: argparse.Namespace) -> None:
     # `gen_python` rewrites the *_pb2 modules on disk, so nothing that imports them may be
     # loaded before it runs: the stale descriptors would already sit in the default pool and
     # protobuf then rejects the regenerated ones with "duplicate file name <x>.proto".
     # This is why `run_pipeline` is imported below rather than at module level.
     gen_python(arguments)
-    build_new_dump_cs_entries([arguments.class_name])
-
-    upsert_pinned_pair(PINNED_PAIRS_FILE, arguments.obf_class_name, arguments.class_name)
-
-    for field_mapping in arguments.field_mappings:
-        obf_field_name, separator, non_obf_field_name = field_mapping.partition("=")
-        if not separator:
-            err = f"Invalid --field-mapping value {field_mapping!r}; expected OBF_FIELD=NON_OBF_FIELD."
-            raise SystemExit(err)
-        upsert_pinned_field_mapping(
-            PINNED_PAIRS_FILE,
-            arguments.obf_class_name,
-            arguments.class_name,
-            obf_field_name,
-            non_obf_field_name,
-        )
-
+    validate_unknown_names()
+    synchronize_non_obf_mapping_artifacts()
     run_export_signature_overrides()
 
     from proto_mapper_assembly.pipeline import run_pipeline
@@ -86,31 +70,11 @@ def build_argument_parser() -> argparse.ArgumentParser:
     )
     pipeline_parser.set_defaults(handler=_run_pipeline_command)
 
-    gen_new_non_obf_msg = subparsers.add_parser(
-        "gen-msg",
-        help="Run when added a new msg in .proto: gen python, register in new_dump_cs.json, "
-        "pin the obf pair, export overrides, run the pipeline.",
+    synchronize_protos_parser = subparsers.add_parser(
+        "synchronize-protos",
+        help="Regenerate every non-obfuscated protobuf artifact and run the mapping pipeline.",
     )
-    gen_new_non_obf_msg.add_argument(
-        "class_name",
-        help="Composed non-obf class name to add/overwrite in new_dump_cs.json and to pin as the "
-        "non-obf target.",
-    )
-    gen_new_non_obf_msg.add_argument(
-        "--obf",
-        dest="obf_class_name",
-        required=True,
-        help="Obfuscated short class name to pin against the non-obf target.",
-    )
-    gen_new_non_obf_msg.add_argument(
-        "--field-mapping",
-        dest="field_mappings",
-        action="append",
-        default=[],
-        metavar="OBF_FIELD=NON_OBF_FIELD",
-        help="Repeatable pinned field-mapping override (obf field name = non-obf field name).",
-    )
-    gen_new_non_obf_msg.set_defaults(handler=_gen_new_msg)
+    synchronize_protos_parser.set_defaults(handler=_synchronize_protos)
 
     on_new_maj_parser = subparsers.add_parser(
         "update-maj", help="Execute at a new dofus maj <!> it reset pinned_pairs & instancied_msg_info.json"

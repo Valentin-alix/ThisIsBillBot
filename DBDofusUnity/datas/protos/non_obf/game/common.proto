@@ -780,8 +780,6 @@ message CharacterCharacteristicDetailedUsable {
 	int32 context_modification = 5;
 	int32 used = 6;
 	int32 temporary = 7;
-	int32 unknown_gaky = 8;
-	optional int64 unknown_gakz = 9;
 }
 
 message CharacterInformation {
@@ -895,13 +893,12 @@ message EntityLook {
 	repeated int32 indexed_colors = 3;
 	repeated int32 scales = 4;
 	repeated .com.ankama.dofus.server.game.protocol.common.SubEntityInformation sub_entities = 5;
-	int32 unknown_gbah = 6;
-	.com.ankama.dofus.server.game.protocol.common.EntityLook.UnknownLhe unknown_gbai = 7;
-	message UnknownLhe {
-		repeated int32 unknown_gazx = 1;
-		map<int32, int64> unknown_gazy = 2;
-		optional int64 unknown_gazz = 3;
-		string unknown_gbab = 4;
+	int32 unknown_two_hundred_twelve = 6;
+	message UnknownOneHundredThree {
+		repeated int32 unknown_two_hundred_eight = 1;
+		map<int32, int64> unknown_two_hundred_nine = 2;
+		optional int64 unknown_two_hundred_ten = 3;
+		string unknown_two_hundred_eleven = 4;
 	}
 }
 
@@ -1045,8 +1042,6 @@ message FightTeamMembersInformation {
 
 message FightTeamMemberInformation {
 	int64 member_id = 1;
-	int64 unknown_gcec = 6;
-	repeated int32 unknown_gced = 7;
 	oneof information {
 		.com.ankama.dofus.server.game.protocol.common.FightTeamMemberCharacter character_member = 2;
 		.com.ankama.dofus.server.game.protocol.common.FightTeamMemberEntity entity_member = 3;
@@ -1103,14 +1098,13 @@ message FightRemovableEffect {
 	int32 spell_id = 5;
 	int32 effect_id = 6;
 	int32 parent_boost_id = 7;
-	.com.ankama.dofus.server.game.protocol.common.UnknownLmv unknown_gcce = 8;
-	.com.ankama.dofus.server.game.protocol.common.UnknownLmv unknown_gccf = 9;
-	int32 unknown_gcch = 10;
-	bool unknown_gcci = 11;
-	int32 unknown_gccj = 12;
-	.com.ankama.dofus.server.game.protocol.common.FightRemovableEffect.UnknownLiw unknown_gccl = 13;
-	string unknown_gccn = 14;
-	int32 unknown_gccp = 15;
+	.com.ankama.dofus.server.game.protocol.common.UnknownOneHundredTwentyFour unknown_two_hundred_thirteen = 8;
+	.com.ankama.dofus.server.game.protocol.common.UnknownOneHundredTwentyFour unknown_two_hundred_fourteen = 9;
+	bool unknown_two_hundred_fifteen = 11;
+	int32 unknown_two_hundred_sixteen = 12;
+	.com.ankama.dofus.server.game.protocol.common.FightRemovableEffect.UnknownOneHundredFour unknown_two_hundred_seventeen = 13;
+	string unknown_two_hundred_eighteen = 14;
+	int32 unknown_two_hundred_nineteen = 15;
 	enum EffectDissipationState {
 		DISSIPATED = 0;
 		DISSIPATED_BY_DEATH = 1;
@@ -1118,26 +1112,25 @@ message FightRemovableEffect {
 		REALLY_NOT_DISSIPATED = 3;
 	}
 
-	enum UnknownLiw {
-		UNKNOWN_LIW_0 = 0;
-		UNKNOWN_LIW_1 = 1;
-		UNKNOWN_LIW_2 = 2;
-		UNKNOWN_LIW_3 = 3;
-		UNKNOWN_LIW_4 = 4;
-		UNKNOWN_LIW_5 = 5;
-		UNKNOWN_LIW_6 = 6;
-		UNKNOWN_LIW_7 = 7;
+	enum UnknownOneHundredFour {
+		UNKNOWN_ONE_HUNDRED_FOUR_0 = 0;
+		UNKNOWN_ONE_HUNDRED_FOUR_1 = 1;
+		UNKNOWN_ONE_HUNDRED_FOUR_2 = 2;
+		UNKNOWN_ONE_HUNDRED_FOUR_3 = 3;
+		UNKNOWN_ONE_HUNDRED_FOUR_4 = 4;
+		UNKNOWN_ONE_HUNDRED_FOUR_5 = 5;
+		UNKNOWN_ONE_HUNDRED_FOUR_6 = 6;
+		UNKNOWN_ONE_HUNDRED_FOUR_7 = 7;
 	}
 
 }
 
-message UnknownLmv {
-	int32 unknown_gctr = 1;
-	int32 unknown_gcts = 2;
+message UnknownOneHundredTwentyFour {
+	int32 unknown_two_hundred_eighty = 2;
 }
 
-message UnknownLma {
-	int32 unknown_gbtn = 1;
+message UnknownOneHundredTwentyThree {
+	int32 unknown_two_hundred_seventy_nine = 1;
 }
 
 message FightTemporaryBoostEffect {
@@ -1288,10 +1281,10 @@ message FightResultListEntry {
 
 	}
 
-	message UnknownLlw {
-		repeated .com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FightLoot.Object unknown_gbvy = 1;
-		repeated .com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FightLoot.Object unknown_gbwa = 2;
-		int32 unknown_gbwc = 3;
+	message UnknownOneHundredFive {
+		repeated .com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FightLoot.Object unknown_two_hundred_twenty = 1;
+		repeated .com.ankama.dofus.server.game.protocol.common.FightResultListEntry.FightLoot.Object unknown_two_hundred_twenty_one = 2;
+		int32 unknown_two_hundred_twenty_two = 3;
 	}
 }
 
@@ -1425,64 +1418,64 @@ message GuildLogbookEntry {
 		string target_player_name = 5;
 	}
 
-	message UnknownLko {
-		int32 unknown_gbod = 1;
-		int64 unknown_gboe = 2;
-		string unknown_gbof = 3;
-		int32 unknown_gbog = 4;
+	message UnknownOneHundredSix {
+		int32 unknown_two_hundred_twenty_three = 1;
+		int64 unknown_two_hundred_twenty_four = 2;
+		string unknown_two_hundred_twenty_five = 3;
+		int32 unknown_two_hundred_twenty_six = 4;
 	}
-	message UnknownLkp {
-		int64 unknown_gbom = 1;
-		int32 unknown_gbon = 2;
-		string unknown_gboq = 3;
+	message UnknownOneHundredSeven {
+		int64 unknown_two_hundred_twenty_seven = 1;
+		int32 unknown_two_hundred_twenty_eight = 2;
+		string unknown_two_hundred_twenty_nine = 3;
 	}
-	message UnknownLkq {
-		int32 unknown_gbou = 1;
-		int32 unknown_gbov = 2;
+	message UnknownOneHundredEight {
+		int32 unknown_two_hundred_thirty = 1;
+		int32 unknown_two_hundred_thirty_one = 2;
 	}
-	message UnknownLks {
-		int64 unknown_gbpe = 1;
-		string unknown_gbpf = 2;
-		int32 unknown_gbpg = 3;
+	message UnknownOneHundredNine {
+		int64 unknown_two_hundred_thirty_two = 1;
+		string unknown_two_hundred_thirty_three = 2;
+		int32 unknown_two_hundred_thirty_four = 3;
 	}
-	message UnknownLkt {
-		string unknown_gbpl = 1;
-		int64 unknown_gbpm = 2;
-		int32 unknown_gbpn = 3;
+	message UnknownOneHundredTen {
+		string unknown_two_hundred_thirty_five = 1;
+		int64 unknown_two_hundred_thirty_six = 2;
+		int32 unknown_two_hundred_thirty_seven = 3;
 	}
-	message UnknownLku {
-		int32 unknown_gbpr = 1;
-		string unknown_gbpt = 2;
-		string unknown_gbpu = 3;
-		int64 unknown_gbpv = 4;
+	message UnknownOneHundredEleven {
+		int32 unknown_two_hundred_thirty_eight = 1;
+		string unknown_two_hundred_thirty_nine = 2;
+		string unknown_two_hundred_forty = 3;
+		int64 unknown_two_hundred_forty_one = 4;
 	}
-	message UnknownLkx {
-		int64 unknown_gbqi = 1;
-		string unknown_gbqj = 2;
-		int64 unknown_gbqk = 3;
-		string unknown_gbql = 4;
-		int32 unknown_gbqm = 5;
-		string unknown_gbqn = 6;
+	message UnknownOneHundredTwelve {
+		int64 unknown_two_hundred_forty_two = 1;
+		string unknown_two_hundred_forty_three = 2;
+		int64 unknown_two_hundred_forty_four = 3;
+		string unknown_two_hundred_forty_five = 4;
+		int32 unknown_two_hundred_forty_six = 5;
+		string unknown_two_hundred_forty_seven = 6;
 	}
-	message UnknownLky {
-		int64 unknown_gbqr = 1;
-		string unknown_gbqs = 2;
-		int32 unknown_gbqt = 3;
-		string unknown_gbqu = 4;
-		string unknown_gbqv = 5;
-		int64 unknown_gbqw = 6;
+	message UnknownOneHundredThirteen {
+		int64 unknown_two_hundred_forty_eight = 1;
+		string unknown_two_hundred_forty_nine = 2;
+		int32 unknown_two_hundred_fifty = 3;
+		string unknown_two_hundred_fifty_one = 4;
+		string unknown_two_hundred_fifty_two = 5;
+		int64 unknown_two_hundred_fifty_three = 6;
 	}
-	message UnknownLkz {
-		int32 unknown_gbra = 1;
-		int32 unknown_gbrb = 2;
-		string unknown_gbrd = 3;
+	message UnknownOneHundredFourteen {
+		int32 unknown_two_hundred_fifty_four = 1;
+		int32 unknown_two_hundred_fifty_five = 2;
+		string unknown_two_hundred_fifty_six = 3;
 	}
-	message UnknownLla {
-		int64 unknown_gbrh = 1;
-		int32 unknown_gbri = 2;
-		string unknown_gbrj = 3;
-		string unknown_gbrk = 4;
-		string unknown_gbrl = 5;
+	message UnknownOneHundredFifteen {
+		int64 unknown_two_hundred_fifty_seven = 1;
+		int32 unknown_two_hundred_fifty_eight = 2;
+		string unknown_two_hundred_fifty_nine = 3;
+		string unknown_two_hundred_sixty = 4;
+		string unknown_two_hundred_sixty_one = 5;
 	}
 }
 
@@ -1536,7 +1529,7 @@ message House {
 
 message Shortcut {
 	int32 slot_id = 1;
-	repeated bool unknown_gbcw = 9;
+	repeated bool unknown_two_hundred_sixty_six = 9;
 	oneof shortcut {
 		.com.ankama.dofus.server.game.protocol.common.ShortcutObjectItem shortcut_object_item = 2;
 		.com.ankama.dofus.server.game.protocol.common.ShortcutPreset shortcut_preset = 3;
@@ -1653,7 +1646,7 @@ message ObjectItem {
 	int32 quantity = 2;
 	int32 gid = 3;
 	repeated .com.ankama.dofus.server.game.protocol.common.ObjectEffect effects = 4;
-	repeated .com.ankama.dofus.server.game.protocol.common.UnknownLma unknown_gdgv = 5;
+	repeated .com.ankama.dofus.server.game.protocol.common.UnknownOneHundredTwentyThree unknown_two_hundred_sixty_five = 5;
 }
 
 message ObjectEffect {
@@ -1668,11 +1661,11 @@ message ObjectEffect {
 		int32 creature_family = 8;
 		.com.ankama.dofus.server.game.protocol.common.ObjectEffect.MonsterCount monster_count = 9;
 		.com.ankama.dofus.server.game.protocol.common.ObjectEffect.ObjectEffectMountValue mount = 10;
-		.com.ankama.dofus.server.game.protocol.common.ObjectEffect.UnknownLmw unknown_gcch = 11;
+		.com.ankama.dofus.server.game.protocol.common.ObjectEffect.UnknownOneHundredSixteen unknown_two_hundred_sixty_four = 11;
 	}
-	message UnknownLmw {
-		int32 unknown_gcaw = 1;
-		int32 unknown_gcax = 2;
+	message UnknownOneHundredSixteen {
+		int32 unknown_two_hundred_sixty_two = 1;
+		int32 unknown_two_hundred_sixty_three = 2;
 	}
 	message DofusDate {
 		int32 year = 1;
@@ -1986,44 +1979,38 @@ message SpellModifier {
 }
 // Referenced by three live fields: two on GameActionFightEvent.TargetedAbility, one on
 // FightResumeSlaves.
-message UnknownLgt {
-	int32 unknown_gaxr = 1;
-	int64 unknown_gaxp = 2;
-	int32 unknown_gaxo = 3;
-	map<string, int32> unknown_gaxq = 4;
+message UnknownOneHundredNineteen {
+	int64 unknown_two_hundred_seventy = 2;
+	int32 unknown_two_hundred_sixty_nine = 3;
 }
 
 
-message UnknownLhp {
-	int32 unknown_gbcj = 1;
-	int32 unknown_gbck = 2;
-	.com.ankama.dofus.server.game.protocol.common.Alignment unknown_gbcl = 3;
+message UnknownOneHundredTwenty {
+	int32 unknown_two_hundred_seventy_one = 1;
+	int32 unknown_two_hundred_seventy_two = 2;
+	.com.ankama.dofus.server.game.protocol.common.Alignment unknown_two_hundred_seventy_three = 3;
 }
 
-message UnknownLhq {
-	int32 unknown_gbcp = 1;
-	.com.ankama.dofus.server.game.protocol.common.SpellModifierType unknown_gbcq = 2;
-	.com.ankama.dofus.server.game.protocol.common.SpellModifierActionType unknown_gbcr = 3;
+message UnknownOneHundredTwentyOne {
+	int32 unknown_two_hundred_seventy_four = 1;
+	.com.ankama.dofus.server.game.protocol.common.SpellModifierType unknown_two_hundred_seventy_five = 2;
+	.com.ankama.dofus.server.game.protocol.common.SpellModifierActionType unknown_two_hundred_seventy_six = 3;
 }
 
-message UnknownLlz {
-	bool unknown_gbwj = 1;
-	bool unknown_gbwm = 2;
+message UnknownOneHundredTwentyTwo {
+	bool unknown_two_hundred_seventy_seven = 1;
+	bool unknown_two_hundred_seventy_eight = 2;
 }
 
-message UnknownLoj {
-	int32 unknown_gchn = 1;
-	int32 unknown_gcho = 2;
+message UnknownOneHundredTwentyFive {
+	int32 unknown_two_hundred_eighty_one = 1;
+	int32 unknown_two_hundred_eighty_two = 2;
 }
 
-message UnknownKlm {
-	repeated int32 unknown_fybz = 1;
-	.com.ankama.dofus.server.game.protocol.common.UnknownKlm.UnknownKlk unknown_fycb = 2;
-	message UnknownKlk {
-		uint32 unknown_fybs = 1;
-		uint32 unknown_fybt = 2;
-		uint32 unknown_fybu = 3;
-		uint32 unknown_fybv = 4;
+message UnknownOneHundredSeventeen {
+	repeated int32 unknown_two_hundred_sixty_seven = 1;
+	.com.ankama.dofus.server.game.protocol.common.UnknownOneHundredSeventeen.UnknownOneHundredEighteen unknown_two_hundred_sixty_eight = 2;
+	message UnknownOneHundredEighteen {
 	}
 
 }

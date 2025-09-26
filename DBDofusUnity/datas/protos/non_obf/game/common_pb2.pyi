@@ -1229,7 +1229,7 @@ class CharacterCharacteristicDetailed(_message.Message):
     def __init__(self, base: _Optional[int] = ..., additional: _Optional[int] = ..., objects_and_mount_bonus: _Optional[int] = ..., alignment_gift_bonus: _Optional[int] = ..., context_modification: _Optional[int] = ..., temporary: _Optional[int] = ...) -> None: ...
 
 class CharacterCharacteristicDetailedUsable(_message.Message):
-    __slots__ = ("base", "additional", "objects_and_mount_bonus", "alignment_gift_bonus", "context_modification", "used", "temporary", "unknown_gaky", "unknown_gakz")
+    __slots__ = ("base", "additional", "objects_and_mount_bonus", "alignment_gift_bonus", "context_modification", "used", "temporary")
     BASE_FIELD_NUMBER: _ClassVar[int]
     ADDITIONAL_FIELD_NUMBER: _ClassVar[int]
     OBJECTS_AND_MOUNT_BONUS_FIELD_NUMBER: _ClassVar[int]
@@ -1237,8 +1237,6 @@ class CharacterCharacteristicDetailedUsable(_message.Message):
     CONTEXT_MODIFICATION_FIELD_NUMBER: _ClassVar[int]
     USED_FIELD_NUMBER: _ClassVar[int]
     TEMPORARY_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GAKY_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GAKZ_FIELD_NUMBER: _ClassVar[int]
     base: int
     additional: int
     objects_and_mount_bonus: int
@@ -1246,9 +1244,7 @@ class CharacterCharacteristicDetailedUsable(_message.Message):
     context_modification: int
     used: int
     temporary: int
-    unknown_gaky: int
-    unknown_gakz: int
-    def __init__(self, base: _Optional[int] = ..., additional: _Optional[int] = ..., objects_and_mount_bonus: _Optional[int] = ..., alignment_gift_bonus: _Optional[int] = ..., context_modification: _Optional[int] = ..., used: _Optional[int] = ..., temporary: _Optional[int] = ..., unknown_gaky: _Optional[int] = ..., unknown_gakz: _Optional[int] = ...) -> None: ...
+    def __init__(self, base: _Optional[int] = ..., additional: _Optional[int] = ..., objects_and_mount_bonus: _Optional[int] = ..., alignment_gift_bonus: _Optional[int] = ..., context_modification: _Optional[int] = ..., used: _Optional[int] = ..., temporary: _Optional[int] = ...) -> None: ...
 
 class CharacterInformation(_message.Message):
     __slots__ = ("character_id", "name", "breed_id", "gender", "level", "account_id", "account_tag", "account_nickname", "status")
@@ -1423,40 +1419,38 @@ class StatedElement(_message.Message):
     def __init__(self, element_id: _Optional[int] = ..., cell_id: _Optional[int] = ..., state: _Optional[int] = ..., on_current_map: bool = ...) -> None: ...
 
 class EntityLook(_message.Message):
-    __slots__ = ("bones_id", "skins", "indexed_colors", "scales", "sub_entities", "unknown_gbah", "unknown_gbai")
-    class UnknownLhe(_message.Message):
-        __slots__ = ("unknown_gazx", "unknown_gazy", "unknown_gazz", "unknown_gbab")
-        class UnknownGazyEntry(_message.Message):
+    __slots__ = ("bones_id", "skins", "indexed_colors", "scales", "sub_entities", "unknown_two_hundred_twelve")
+    class UnknownOneHundredThree(_message.Message):
+        __slots__ = ("unknown_two_hundred_eight", "unknown_two_hundred_nine", "unknown_two_hundred_ten", "unknown_two_hundred_eleven")
+        class UnknownTwoHundredNineEntry(_message.Message):
             __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: int
             value: int
             def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-        UNKNOWN_GAZX_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GAZY_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GAZZ_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBAB_FIELD_NUMBER: _ClassVar[int]
-        unknown_gazx: _containers.RepeatedScalarFieldContainer[int]
-        unknown_gazy: _containers.ScalarMap[int, int]
-        unknown_gazz: int
-        unknown_gbab: str
-        def __init__(self, unknown_gazx: _Optional[_Iterable[int]] = ..., unknown_gazy: _Optional[_Mapping[int, int]] = ..., unknown_gazz: _Optional[int] = ..., unknown_gbab: _Optional[str] = ...) -> None: ...
+        UNKNOWN_TWO_HUNDRED_EIGHT_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_NINE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_TEN_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_ELEVEN_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_eight: _containers.RepeatedScalarFieldContainer[int]
+        unknown_two_hundred_nine: _containers.ScalarMap[int, int]
+        unknown_two_hundred_ten: int
+        unknown_two_hundred_eleven: str
+        def __init__(self, unknown_two_hundred_eight: _Optional[_Iterable[int]] = ..., unknown_two_hundred_nine: _Optional[_Mapping[int, int]] = ..., unknown_two_hundred_ten: _Optional[int] = ..., unknown_two_hundred_eleven: _Optional[str] = ...) -> None: ...
     BONES_ID_FIELD_NUMBER: _ClassVar[int]
     SKINS_FIELD_NUMBER: _ClassVar[int]
     INDEXED_COLORS_FIELD_NUMBER: _ClassVar[int]
     SCALES_FIELD_NUMBER: _ClassVar[int]
     SUB_ENTITIES_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GBAH_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GBAI_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_TWELVE_FIELD_NUMBER: _ClassVar[int]
     bones_id: int
     skins: _containers.RepeatedScalarFieldContainer[int]
     indexed_colors: _containers.RepeatedScalarFieldContainer[int]
     scales: _containers.RepeatedScalarFieldContainer[int]
     sub_entities: _containers.RepeatedCompositeFieldContainer[SubEntityInformation]
-    unknown_gbah: int
-    unknown_gbai: EntityLook.UnknownLhe
-    def __init__(self, bones_id: _Optional[int] = ..., skins: _Optional[_Iterable[int]] = ..., indexed_colors: _Optional[_Iterable[int]] = ..., scales: _Optional[_Iterable[int]] = ..., sub_entities: _Optional[_Iterable[_Union[SubEntityInformation, _Mapping]]] = ..., unknown_gbah: _Optional[int] = ..., unknown_gbai: _Optional[_Union[EntityLook.UnknownLhe, _Mapping]] = ...) -> None: ...
+    unknown_two_hundred_twelve: int
+    def __init__(self, bones_id: _Optional[int] = ..., skins: _Optional[_Iterable[int]] = ..., indexed_colors: _Optional[_Iterable[int]] = ..., scales: _Optional[_Iterable[int]] = ..., sub_entities: _Optional[_Iterable[_Union[SubEntityInformation, _Mapping]]] = ..., unknown_two_hundred_twelve: _Optional[int] = ...) -> None: ...
 
 class SubEntityInformation(_message.Message):
     __slots__ = ("binding_point_category", "binding_point_index", "sub_entity_look")
@@ -1681,22 +1675,18 @@ class FightTeamMembersInformation(_message.Message):
     def __init__(self, team_members: _Optional[_Iterable[_Union[FightTeamMemberInformation, _Mapping]]] = ..., alliance_relation: _Optional[_Union[AllianceRelation, str]] = ...) -> None: ...
 
 class FightTeamMemberInformation(_message.Message):
-    __slots__ = ("member_id", "unknown_gcec", "unknown_gced", "character_member", "entity_member", "monster_member", "tax_collector_member")
+    __slots__ = ("member_id", "character_member", "entity_member", "monster_member", "tax_collector_member")
     MEMBER_ID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GCEC_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GCED_FIELD_NUMBER: _ClassVar[int]
     CHARACTER_MEMBER_FIELD_NUMBER: _ClassVar[int]
     ENTITY_MEMBER_FIELD_NUMBER: _ClassVar[int]
     MONSTER_MEMBER_FIELD_NUMBER: _ClassVar[int]
     TAX_COLLECTOR_MEMBER_FIELD_NUMBER: _ClassVar[int]
     member_id: int
-    unknown_gcec: int
-    unknown_gced: _containers.RepeatedScalarFieldContainer[int]
     character_member: FightTeamMemberCharacter
     entity_member: FightTeamMemberEntity
     monster_member: FightTeamMemberMonster
     tax_collector_member: FightTeamMemberTaxCollector
-    def __init__(self, member_id: _Optional[int] = ..., unknown_gcec: _Optional[int] = ..., unknown_gced: _Optional[_Iterable[int]] = ..., character_member: _Optional[_Union[FightTeamMemberCharacter, _Mapping]] = ..., entity_member: _Optional[_Union[FightTeamMemberEntity, _Mapping]] = ..., monster_member: _Optional[_Union[FightTeamMemberMonster, _Mapping]] = ..., tax_collector_member: _Optional[_Union[FightTeamMemberTaxCollector, _Mapping]] = ...) -> None: ...
+    def __init__(self, member_id: _Optional[int] = ..., character_member: _Optional[_Union[FightTeamMemberCharacter, _Mapping]] = ..., entity_member: _Optional[_Union[FightTeamMemberEntity, _Mapping]] = ..., monster_member: _Optional[_Union[FightTeamMemberMonster, _Mapping]] = ..., tax_collector_member: _Optional[_Union[FightTeamMemberTaxCollector, _Mapping]] = ...) -> None: ...
 
 class FightTeamMemberCharacter(_message.Message):
     __slots__ = ("name", "level", "alliance_info")
@@ -1764,7 +1754,7 @@ class FightRemovableEffectExtendedInformation(_message.Message):
     def __init__(self, action_id: _Optional[int] = ..., source_id: _Optional[int] = ..., effect: _Optional[_Union[FightRemovableEffect, _Mapping]] = ...) -> None: ...
 
 class FightRemovableEffect(_message.Message):
-    __slots__ = ("uid", "target_id", "turn_duration", "dissipation_state", "spell_id", "effect_id", "parent_boost_id", "unknown_gcce", "unknown_gccf", "unknown_gcch", "unknown_gcci", "unknown_gccj", "unknown_gccl", "unknown_gccn", "unknown_gccp")
+    __slots__ = ("uid", "target_id", "turn_duration", "dissipation_state", "spell_id", "effect_id", "parent_boost_id", "unknown_two_hundred_thirteen", "unknown_two_hundred_fourteen", "unknown_two_hundred_fifteen", "unknown_two_hundred_sixteen", "unknown_two_hundred_seventeen", "unknown_two_hundred_eighteen", "unknown_two_hundred_nineteen")
     class EffectDissipationState(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         DISSIPATED: _ClassVar[FightRemovableEffect.EffectDissipationState]
@@ -1775,24 +1765,24 @@ class FightRemovableEffect(_message.Message):
     DISSIPATED_BY_DEATH: FightRemovableEffect.EffectDissipationState
     DISSIPATED_BY_STRONG_DISPEL: FightRemovableEffect.EffectDissipationState
     REALLY_NOT_DISSIPATED: FightRemovableEffect.EffectDissipationState
-    class UnknownLiw(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    class UnknownOneHundredFour(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
-        UNKNOWN_LIW_0: _ClassVar[FightRemovableEffect.UnknownLiw]
-        UNKNOWN_LIW_1: _ClassVar[FightRemovableEffect.UnknownLiw]
-        UNKNOWN_LIW_2: _ClassVar[FightRemovableEffect.UnknownLiw]
-        UNKNOWN_LIW_3: _ClassVar[FightRemovableEffect.UnknownLiw]
-        UNKNOWN_LIW_4: _ClassVar[FightRemovableEffect.UnknownLiw]
-        UNKNOWN_LIW_5: _ClassVar[FightRemovableEffect.UnknownLiw]
-        UNKNOWN_LIW_6: _ClassVar[FightRemovableEffect.UnknownLiw]
-        UNKNOWN_LIW_7: _ClassVar[FightRemovableEffect.UnknownLiw]
-    UNKNOWN_LIW_0: FightRemovableEffect.UnknownLiw
-    UNKNOWN_LIW_1: FightRemovableEffect.UnknownLiw
-    UNKNOWN_LIW_2: FightRemovableEffect.UnknownLiw
-    UNKNOWN_LIW_3: FightRemovableEffect.UnknownLiw
-    UNKNOWN_LIW_4: FightRemovableEffect.UnknownLiw
-    UNKNOWN_LIW_5: FightRemovableEffect.UnknownLiw
-    UNKNOWN_LIW_6: FightRemovableEffect.UnknownLiw
-    UNKNOWN_LIW_7: FightRemovableEffect.UnknownLiw
+        UNKNOWN_ONE_HUNDRED_FOUR_0: _ClassVar[FightRemovableEffect.UnknownOneHundredFour]
+        UNKNOWN_ONE_HUNDRED_FOUR_1: _ClassVar[FightRemovableEffect.UnknownOneHundredFour]
+        UNKNOWN_ONE_HUNDRED_FOUR_2: _ClassVar[FightRemovableEffect.UnknownOneHundredFour]
+        UNKNOWN_ONE_HUNDRED_FOUR_3: _ClassVar[FightRemovableEffect.UnknownOneHundredFour]
+        UNKNOWN_ONE_HUNDRED_FOUR_4: _ClassVar[FightRemovableEffect.UnknownOneHundredFour]
+        UNKNOWN_ONE_HUNDRED_FOUR_5: _ClassVar[FightRemovableEffect.UnknownOneHundredFour]
+        UNKNOWN_ONE_HUNDRED_FOUR_6: _ClassVar[FightRemovableEffect.UnknownOneHundredFour]
+        UNKNOWN_ONE_HUNDRED_FOUR_7: _ClassVar[FightRemovableEffect.UnknownOneHundredFour]
+    UNKNOWN_ONE_HUNDRED_FOUR_0: FightRemovableEffect.UnknownOneHundredFour
+    UNKNOWN_ONE_HUNDRED_FOUR_1: FightRemovableEffect.UnknownOneHundredFour
+    UNKNOWN_ONE_HUNDRED_FOUR_2: FightRemovableEffect.UnknownOneHundredFour
+    UNKNOWN_ONE_HUNDRED_FOUR_3: FightRemovableEffect.UnknownOneHundredFour
+    UNKNOWN_ONE_HUNDRED_FOUR_4: FightRemovableEffect.UnknownOneHundredFour
+    UNKNOWN_ONE_HUNDRED_FOUR_5: FightRemovableEffect.UnknownOneHundredFour
+    UNKNOWN_ONE_HUNDRED_FOUR_6: FightRemovableEffect.UnknownOneHundredFour
+    UNKNOWN_ONE_HUNDRED_FOUR_7: FightRemovableEffect.UnknownOneHundredFour
     UID_FIELD_NUMBER: _ClassVar[int]
     TARGET_ID_FIELD_NUMBER: _ClassVar[int]
     TURN_DURATION_FIELD_NUMBER: _ClassVar[int]
@@ -1800,14 +1790,13 @@ class FightRemovableEffect(_message.Message):
     SPELL_ID_FIELD_NUMBER: _ClassVar[int]
     EFFECT_ID_FIELD_NUMBER: _ClassVar[int]
     PARENT_BOOST_ID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GCCE_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GCCF_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GCCH_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GCCI_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GCCJ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GCCL_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GCCN_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GCCP_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_THIRTEEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_FOURTEEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_FIFTEEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SIXTEEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SEVENTEEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_EIGHTEEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_NINETEEN_FIELD_NUMBER: _ClassVar[int]
     uid: int
     target_id: int
     turn_duration: int
@@ -1815,29 +1804,26 @@ class FightRemovableEffect(_message.Message):
     spell_id: int
     effect_id: int
     parent_boost_id: int
-    unknown_gcce: UnknownLmv
-    unknown_gccf: UnknownLmv
-    unknown_gcch: int
-    unknown_gcci: bool
-    unknown_gccj: int
-    unknown_gccl: FightRemovableEffect.UnknownLiw
-    unknown_gccn: str
-    unknown_gccp: int
-    def __init__(self, uid: _Optional[int] = ..., target_id: _Optional[int] = ..., turn_duration: _Optional[int] = ..., dissipation_state: _Optional[_Union[FightRemovableEffect.EffectDissipationState, str]] = ..., spell_id: _Optional[int] = ..., effect_id: _Optional[int] = ..., parent_boost_id: _Optional[int] = ..., unknown_gcce: _Optional[_Union[UnknownLmv, _Mapping]] = ..., unknown_gccf: _Optional[_Union[UnknownLmv, _Mapping]] = ..., unknown_gcch: _Optional[int] = ..., unknown_gcci: bool = ..., unknown_gccj: _Optional[int] = ..., unknown_gccl: _Optional[_Union[FightRemovableEffect.UnknownLiw, str]] = ..., unknown_gccn: _Optional[str] = ..., unknown_gccp: _Optional[int] = ...) -> None: ...
+    unknown_two_hundred_thirteen: UnknownOneHundredTwentyFour
+    unknown_two_hundred_fourteen: UnknownOneHundredTwentyFour
+    unknown_two_hundred_fifteen: bool
+    unknown_two_hundred_sixteen: int
+    unknown_two_hundred_seventeen: FightRemovableEffect.UnknownOneHundredFour
+    unknown_two_hundred_eighteen: str
+    unknown_two_hundred_nineteen: int
+    def __init__(self, uid: _Optional[int] = ..., target_id: _Optional[int] = ..., turn_duration: _Optional[int] = ..., dissipation_state: _Optional[_Union[FightRemovableEffect.EffectDissipationState, str]] = ..., spell_id: _Optional[int] = ..., effect_id: _Optional[int] = ..., parent_boost_id: _Optional[int] = ..., unknown_two_hundred_thirteen: _Optional[_Union[UnknownOneHundredTwentyFour, _Mapping]] = ..., unknown_two_hundred_fourteen: _Optional[_Union[UnknownOneHundredTwentyFour, _Mapping]] = ..., unknown_two_hundred_fifteen: bool = ..., unknown_two_hundred_sixteen: _Optional[int] = ..., unknown_two_hundred_seventeen: _Optional[_Union[FightRemovableEffect.UnknownOneHundredFour, str]] = ..., unknown_two_hundred_eighteen: _Optional[str] = ..., unknown_two_hundred_nineteen: _Optional[int] = ...) -> None: ...
 
-class UnknownLmv(_message.Message):
-    __slots__ = ("unknown_gctr", "unknown_gcts")
-    UNKNOWN_GCTR_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GCTS_FIELD_NUMBER: _ClassVar[int]
-    unknown_gctr: int
-    unknown_gcts: int
-    def __init__(self, unknown_gctr: _Optional[int] = ..., unknown_gcts: _Optional[int] = ...) -> None: ...
+class UnknownOneHundredTwentyFour(_message.Message):
+    __slots__ = ("unknown_two_hundred_eighty",)
+    UNKNOWN_TWO_HUNDRED_EIGHTY_FIELD_NUMBER: _ClassVar[int]
+    unknown_two_hundred_eighty: int
+    def __init__(self, unknown_two_hundred_eighty: _Optional[int] = ...) -> None: ...
 
-class UnknownLma(_message.Message):
-    __slots__ = ("unknown_gbtn",)
-    UNKNOWN_GBTN_FIELD_NUMBER: _ClassVar[int]
-    unknown_gbtn: int
-    def __init__(self, unknown_gbtn: _Optional[int] = ...) -> None: ...
+class UnknownOneHundredTwentyThree(_message.Message):
+    __slots__ = ("unknown_two_hundred_seventy_nine",)
+    UNKNOWN_TWO_HUNDRED_SEVENTY_NINE_FIELD_NUMBER: _ClassVar[int]
+    unknown_two_hundred_seventy_nine: int
+    def __init__(self, unknown_two_hundred_seventy_nine: _Optional[int] = ...) -> None: ...
 
 class FightTemporaryBoostEffect(_message.Message):
     __slots__ = ("delta", "boosted_spell_id", "weapon_type_id", "state_id", "details")
@@ -2060,15 +2046,15 @@ class FightResultListEntry(_message.Message):
         mutant_list_entry: FightResultListEntry.FighterListEntry.MutantListEntry
         tax_collector_list_entry: FightResultListEntry.FighterListEntry.TaxCollectorListEntry
         def __init__(self, fighter_id: _Optional[int] = ..., alive: bool = ..., player_list_entry: _Optional[_Union[FightResultListEntry.FighterListEntry.PlayerListEntry, _Mapping]] = ..., mutant_list_entry: _Optional[_Union[FightResultListEntry.FighterListEntry.MutantListEntry, _Mapping]] = ..., tax_collector_list_entry: _Optional[_Union[FightResultListEntry.FighterListEntry.TaxCollectorListEntry, _Mapping]] = ...) -> None: ...
-    class UnknownLlw(_message.Message):
-        __slots__ = ("unknown_gbvy", "unknown_gbwa", "unknown_gbwc")
-        UNKNOWN_GBVY_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBWA_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBWC_FIELD_NUMBER: _ClassVar[int]
-        unknown_gbvy: _containers.RepeatedCompositeFieldContainer[FightResultListEntry.FightLoot.Object]
-        unknown_gbwa: _containers.RepeatedCompositeFieldContainer[FightResultListEntry.FightLoot.Object]
-        unknown_gbwc: int
-        def __init__(self, unknown_gbvy: _Optional[_Iterable[_Union[FightResultListEntry.FightLoot.Object, _Mapping]]] = ..., unknown_gbwa: _Optional[_Iterable[_Union[FightResultListEntry.FightLoot.Object, _Mapping]]] = ..., unknown_gbwc: _Optional[int] = ...) -> None: ...
+    class UnknownOneHundredFive(_message.Message):
+        __slots__ = ("unknown_two_hundred_twenty", "unknown_two_hundred_twenty_one", "unknown_two_hundred_twenty_two")
+        UNKNOWN_TWO_HUNDRED_TWENTY_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_TWENTY_ONE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_TWENTY_TWO_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_twenty: _containers.RepeatedCompositeFieldContainer[FightResultListEntry.FightLoot.Object]
+        unknown_two_hundred_twenty_one: _containers.RepeatedCompositeFieldContainer[FightResultListEntry.FightLoot.Object]
+        unknown_two_hundred_twenty_two: int
+        def __init__(self, unknown_two_hundred_twenty: _Optional[_Iterable[_Union[FightResultListEntry.FightLoot.Object, _Mapping]]] = ..., unknown_two_hundred_twenty_one: _Optional[_Iterable[_Union[FightResultListEntry.FightLoot.Object, _Mapping]]] = ..., unknown_two_hundred_twenty_two: _Optional[int] = ...) -> None: ...
     OUTCOME_FIELD_NUMBER: _ClassVar[int]
     WAVE_FIELD_NUMBER: _ClassVar[int]
     REWARDS_FIELD_NUMBER: _ClassVar[int]
@@ -2266,114 +2252,114 @@ class GuildLogbookEntry(_message.Message):
         source_player_name: str
         target_player_name: str
         def __init__(self, rank_information: _Optional[_Union[RankInformation, _Mapping]] = ..., source_player_id: _Optional[int] = ..., target_player_id: _Optional[int] = ..., source_player_name: _Optional[str] = ..., target_player_name: _Optional[str] = ...) -> None: ...
-    class UnknownLko(_message.Message):
-        __slots__ = ("unknown_gbod", "unknown_gboe", "unknown_gbof", "unknown_gbog")
-        UNKNOWN_GBOD_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBOE_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBOF_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBOG_FIELD_NUMBER: _ClassVar[int]
-        unknown_gbod: int
-        unknown_gboe: int
-        unknown_gbof: str
-        unknown_gbog: int
-        def __init__(self, unknown_gbod: _Optional[int] = ..., unknown_gboe: _Optional[int] = ..., unknown_gbof: _Optional[str] = ..., unknown_gbog: _Optional[int] = ...) -> None: ...
-    class UnknownLkp(_message.Message):
-        __slots__ = ("unknown_gbom", "unknown_gbon", "unknown_gboq")
-        UNKNOWN_GBOM_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBON_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBOQ_FIELD_NUMBER: _ClassVar[int]
-        unknown_gbom: int
-        unknown_gbon: int
-        unknown_gboq: str
-        def __init__(self, unknown_gbom: _Optional[int] = ..., unknown_gbon: _Optional[int] = ..., unknown_gboq: _Optional[str] = ...) -> None: ...
-    class UnknownLkq(_message.Message):
-        __slots__ = ("unknown_gbou", "unknown_gbov")
-        UNKNOWN_GBOU_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBOV_FIELD_NUMBER: _ClassVar[int]
-        unknown_gbou: int
-        unknown_gbov: int
-        def __init__(self, unknown_gbou: _Optional[int] = ..., unknown_gbov: _Optional[int] = ...) -> None: ...
-    class UnknownLks(_message.Message):
-        __slots__ = ("unknown_gbpe", "unknown_gbpf", "unknown_gbpg")
-        UNKNOWN_GBPE_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBPF_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBPG_FIELD_NUMBER: _ClassVar[int]
-        unknown_gbpe: int
-        unknown_gbpf: str
-        unknown_gbpg: int
-        def __init__(self, unknown_gbpe: _Optional[int] = ..., unknown_gbpf: _Optional[str] = ..., unknown_gbpg: _Optional[int] = ...) -> None: ...
-    class UnknownLkt(_message.Message):
-        __slots__ = ("unknown_gbpl", "unknown_gbpm", "unknown_gbpn")
-        UNKNOWN_GBPL_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBPM_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBPN_FIELD_NUMBER: _ClassVar[int]
-        unknown_gbpl: str
-        unknown_gbpm: int
-        unknown_gbpn: int
-        def __init__(self, unknown_gbpl: _Optional[str] = ..., unknown_gbpm: _Optional[int] = ..., unknown_gbpn: _Optional[int] = ...) -> None: ...
-    class UnknownLku(_message.Message):
-        __slots__ = ("unknown_gbpr", "unknown_gbpt", "unknown_gbpu", "unknown_gbpv")
-        UNKNOWN_GBPR_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBPT_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBPU_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBPV_FIELD_NUMBER: _ClassVar[int]
-        unknown_gbpr: int
-        unknown_gbpt: str
-        unknown_gbpu: str
-        unknown_gbpv: int
-        def __init__(self, unknown_gbpr: _Optional[int] = ..., unknown_gbpt: _Optional[str] = ..., unknown_gbpu: _Optional[str] = ..., unknown_gbpv: _Optional[int] = ...) -> None: ...
-    class UnknownLkx(_message.Message):
-        __slots__ = ("unknown_gbqi", "unknown_gbqj", "unknown_gbqk", "unknown_gbql", "unknown_gbqm", "unknown_gbqn")
-        UNKNOWN_GBQI_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBQJ_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBQK_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBQL_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBQM_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBQN_FIELD_NUMBER: _ClassVar[int]
-        unknown_gbqi: int
-        unknown_gbqj: str
-        unknown_gbqk: int
-        unknown_gbql: str
-        unknown_gbqm: int
-        unknown_gbqn: str
-        def __init__(self, unknown_gbqi: _Optional[int] = ..., unknown_gbqj: _Optional[str] = ..., unknown_gbqk: _Optional[int] = ..., unknown_gbql: _Optional[str] = ..., unknown_gbqm: _Optional[int] = ..., unknown_gbqn: _Optional[str] = ...) -> None: ...
-    class UnknownLky(_message.Message):
-        __slots__ = ("unknown_gbqr", "unknown_gbqs", "unknown_gbqt", "unknown_gbqu", "unknown_gbqv", "unknown_gbqw")
-        UNKNOWN_GBQR_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBQS_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBQT_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBQU_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBQV_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBQW_FIELD_NUMBER: _ClassVar[int]
-        unknown_gbqr: int
-        unknown_gbqs: str
-        unknown_gbqt: int
-        unknown_gbqu: str
-        unknown_gbqv: str
-        unknown_gbqw: int
-        def __init__(self, unknown_gbqr: _Optional[int] = ..., unknown_gbqs: _Optional[str] = ..., unknown_gbqt: _Optional[int] = ..., unknown_gbqu: _Optional[str] = ..., unknown_gbqv: _Optional[str] = ..., unknown_gbqw: _Optional[int] = ...) -> None: ...
-    class UnknownLkz(_message.Message):
-        __slots__ = ("unknown_gbra", "unknown_gbrb", "unknown_gbrd")
-        UNKNOWN_GBRA_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBRB_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBRD_FIELD_NUMBER: _ClassVar[int]
-        unknown_gbra: int
-        unknown_gbrb: int
-        unknown_gbrd: str
-        def __init__(self, unknown_gbra: _Optional[int] = ..., unknown_gbrb: _Optional[int] = ..., unknown_gbrd: _Optional[str] = ...) -> None: ...
-    class UnknownLla(_message.Message):
-        __slots__ = ("unknown_gbrh", "unknown_gbri", "unknown_gbrj", "unknown_gbrk", "unknown_gbrl")
-        UNKNOWN_GBRH_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBRI_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBRJ_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBRK_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GBRL_FIELD_NUMBER: _ClassVar[int]
-        unknown_gbrh: int
-        unknown_gbri: int
-        unknown_gbrj: str
-        unknown_gbrk: str
-        unknown_gbrl: str
-        def __init__(self, unknown_gbrh: _Optional[int] = ..., unknown_gbri: _Optional[int] = ..., unknown_gbrj: _Optional[str] = ..., unknown_gbrk: _Optional[str] = ..., unknown_gbrl: _Optional[str] = ...) -> None: ...
+    class UnknownOneHundredSix(_message.Message):
+        __slots__ = ("unknown_two_hundred_twenty_three", "unknown_two_hundred_twenty_four", "unknown_two_hundred_twenty_five", "unknown_two_hundred_twenty_six")
+        UNKNOWN_TWO_HUNDRED_TWENTY_THREE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_TWENTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_TWENTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_TWENTY_SIX_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_twenty_three: int
+        unknown_two_hundred_twenty_four: int
+        unknown_two_hundred_twenty_five: str
+        unknown_two_hundred_twenty_six: int
+        def __init__(self, unknown_two_hundred_twenty_three: _Optional[int] = ..., unknown_two_hundred_twenty_four: _Optional[int] = ..., unknown_two_hundred_twenty_five: _Optional[str] = ..., unknown_two_hundred_twenty_six: _Optional[int] = ...) -> None: ...
+    class UnknownOneHundredSeven(_message.Message):
+        __slots__ = ("unknown_two_hundred_twenty_seven", "unknown_two_hundred_twenty_eight", "unknown_two_hundred_twenty_nine")
+        UNKNOWN_TWO_HUNDRED_TWENTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_TWENTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_TWENTY_NINE_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_twenty_seven: int
+        unknown_two_hundred_twenty_eight: int
+        unknown_two_hundred_twenty_nine: str
+        def __init__(self, unknown_two_hundred_twenty_seven: _Optional[int] = ..., unknown_two_hundred_twenty_eight: _Optional[int] = ..., unknown_two_hundred_twenty_nine: _Optional[str] = ...) -> None: ...
+    class UnknownOneHundredEight(_message.Message):
+        __slots__ = ("unknown_two_hundred_thirty", "unknown_two_hundred_thirty_one")
+        UNKNOWN_TWO_HUNDRED_THIRTY_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_THIRTY_ONE_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_thirty: int
+        unknown_two_hundred_thirty_one: int
+        def __init__(self, unknown_two_hundred_thirty: _Optional[int] = ..., unknown_two_hundred_thirty_one: _Optional[int] = ...) -> None: ...
+    class UnknownOneHundredNine(_message.Message):
+        __slots__ = ("unknown_two_hundred_thirty_two", "unknown_two_hundred_thirty_three", "unknown_two_hundred_thirty_four")
+        UNKNOWN_TWO_HUNDRED_THIRTY_TWO_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_THIRTY_THREE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_THIRTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_thirty_two: int
+        unknown_two_hundred_thirty_three: str
+        unknown_two_hundred_thirty_four: int
+        def __init__(self, unknown_two_hundred_thirty_two: _Optional[int] = ..., unknown_two_hundred_thirty_three: _Optional[str] = ..., unknown_two_hundred_thirty_four: _Optional[int] = ...) -> None: ...
+    class UnknownOneHundredTen(_message.Message):
+        __slots__ = ("unknown_two_hundred_thirty_five", "unknown_two_hundred_thirty_six", "unknown_two_hundred_thirty_seven")
+        UNKNOWN_TWO_HUNDRED_THIRTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_THIRTY_SIX_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_THIRTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_thirty_five: str
+        unknown_two_hundred_thirty_six: int
+        unknown_two_hundred_thirty_seven: int
+        def __init__(self, unknown_two_hundred_thirty_five: _Optional[str] = ..., unknown_two_hundred_thirty_six: _Optional[int] = ..., unknown_two_hundred_thirty_seven: _Optional[int] = ...) -> None: ...
+    class UnknownOneHundredEleven(_message.Message):
+        __slots__ = ("unknown_two_hundred_thirty_eight", "unknown_two_hundred_thirty_nine", "unknown_two_hundred_forty", "unknown_two_hundred_forty_one")
+        UNKNOWN_TWO_HUNDRED_THIRTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_THIRTY_NINE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FORTY_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FORTY_ONE_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_thirty_eight: int
+        unknown_two_hundred_thirty_nine: str
+        unknown_two_hundred_forty: str
+        unknown_two_hundred_forty_one: int
+        def __init__(self, unknown_two_hundred_thirty_eight: _Optional[int] = ..., unknown_two_hundred_thirty_nine: _Optional[str] = ..., unknown_two_hundred_forty: _Optional[str] = ..., unknown_two_hundred_forty_one: _Optional[int] = ...) -> None: ...
+    class UnknownOneHundredTwelve(_message.Message):
+        __slots__ = ("unknown_two_hundred_forty_two", "unknown_two_hundred_forty_three", "unknown_two_hundred_forty_four", "unknown_two_hundred_forty_five", "unknown_two_hundred_forty_six", "unknown_two_hundred_forty_seven")
+        UNKNOWN_TWO_HUNDRED_FORTY_TWO_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FORTY_THREE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FORTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FORTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FORTY_SIX_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FORTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_forty_two: int
+        unknown_two_hundred_forty_three: str
+        unknown_two_hundred_forty_four: int
+        unknown_two_hundred_forty_five: str
+        unknown_two_hundred_forty_six: int
+        unknown_two_hundred_forty_seven: str
+        def __init__(self, unknown_two_hundred_forty_two: _Optional[int] = ..., unknown_two_hundred_forty_three: _Optional[str] = ..., unknown_two_hundred_forty_four: _Optional[int] = ..., unknown_two_hundred_forty_five: _Optional[str] = ..., unknown_two_hundred_forty_six: _Optional[int] = ..., unknown_two_hundred_forty_seven: _Optional[str] = ...) -> None: ...
+    class UnknownOneHundredThirteen(_message.Message):
+        __slots__ = ("unknown_two_hundred_forty_eight", "unknown_two_hundred_forty_nine", "unknown_two_hundred_fifty", "unknown_two_hundred_fifty_one", "unknown_two_hundred_fifty_two", "unknown_two_hundred_fifty_three")
+        UNKNOWN_TWO_HUNDRED_FORTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FORTY_NINE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FIFTY_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FIFTY_ONE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FIFTY_TWO_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FIFTY_THREE_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_forty_eight: int
+        unknown_two_hundred_forty_nine: str
+        unknown_two_hundred_fifty: int
+        unknown_two_hundred_fifty_one: str
+        unknown_two_hundred_fifty_two: str
+        unknown_two_hundred_fifty_three: int
+        def __init__(self, unknown_two_hundred_forty_eight: _Optional[int] = ..., unknown_two_hundred_forty_nine: _Optional[str] = ..., unknown_two_hundred_fifty: _Optional[int] = ..., unknown_two_hundred_fifty_one: _Optional[str] = ..., unknown_two_hundred_fifty_two: _Optional[str] = ..., unknown_two_hundred_fifty_three: _Optional[int] = ...) -> None: ...
+    class UnknownOneHundredFourteen(_message.Message):
+        __slots__ = ("unknown_two_hundred_fifty_four", "unknown_two_hundred_fifty_five", "unknown_two_hundred_fifty_six")
+        UNKNOWN_TWO_HUNDRED_FIFTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FIFTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FIFTY_SIX_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_fifty_four: int
+        unknown_two_hundred_fifty_five: int
+        unknown_two_hundred_fifty_six: str
+        def __init__(self, unknown_two_hundred_fifty_four: _Optional[int] = ..., unknown_two_hundred_fifty_five: _Optional[int] = ..., unknown_two_hundred_fifty_six: _Optional[str] = ...) -> None: ...
+    class UnknownOneHundredFifteen(_message.Message):
+        __slots__ = ("unknown_two_hundred_fifty_seven", "unknown_two_hundred_fifty_eight", "unknown_two_hundred_fifty_nine", "unknown_two_hundred_sixty", "unknown_two_hundred_sixty_one")
+        UNKNOWN_TWO_HUNDRED_FIFTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FIFTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_FIFTY_NINE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_SIXTY_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_SIXTY_ONE_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_fifty_seven: int
+        unknown_two_hundred_fifty_eight: int
+        unknown_two_hundred_fifty_nine: str
+        unknown_two_hundred_sixty: str
+        unknown_two_hundred_sixty_one: str
+        def __init__(self, unknown_two_hundred_fifty_seven: _Optional[int] = ..., unknown_two_hundred_fifty_eight: _Optional[int] = ..., unknown_two_hundred_fifty_nine: _Optional[str] = ..., unknown_two_hundred_sixty: _Optional[str] = ..., unknown_two_hundred_sixty_one: _Optional[str] = ...) -> None: ...
     GUILD_ID_FIELD_NUMBER: _ClassVar[int]
     DATE_FIELD_NUMBER: _ClassVar[int]
     CHEST_ACTIVITY_FIELD_NUMBER: _ClassVar[int]
@@ -2471,9 +2457,9 @@ class House(_message.Message):
     def __init__(self, house_id: _Optional[int] = ..., model_id: _Optional[int] = ..., house_account: _Optional[_Union[House.HouseAccount, _Mapping]] = ..., house_on_map: _Optional[_Union[House.HouseOnMap, _Mapping]] = ..., house_inside: _Optional[_Union[House.HouseInside, _Mapping]] = ..., house_guild: _Optional[_Union[House.HouseGuild, _Mapping]] = ...) -> None: ...
 
 class Shortcut(_message.Message):
-    __slots__ = ("slot_id", "unknown_gbcw", "shortcut_object_item", "shortcut_preset", "shortcut_spell", "shortcut_smiley", "shortcut_emote", "shortcut_cosmetic_object", "shortcut_outfit")
+    __slots__ = ("slot_id", "unknown_two_hundred_sixty_six", "shortcut_object_item", "shortcut_preset", "shortcut_spell", "shortcut_smiley", "shortcut_emote", "shortcut_cosmetic_object", "shortcut_outfit")
     SLOT_ID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GBCW_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SIXTY_SIX_FIELD_NUMBER: _ClassVar[int]
     SHORTCUT_OBJECT_ITEM_FIELD_NUMBER: _ClassVar[int]
     SHORTCUT_PRESET_FIELD_NUMBER: _ClassVar[int]
     SHORTCUT_SPELL_FIELD_NUMBER: _ClassVar[int]
@@ -2482,7 +2468,7 @@ class Shortcut(_message.Message):
     SHORTCUT_COSMETIC_OBJECT_FIELD_NUMBER: _ClassVar[int]
     SHORTCUT_OUTFIT_FIELD_NUMBER: _ClassVar[int]
     slot_id: int
-    unknown_gbcw: _containers.RepeatedScalarFieldContainer[bool]
+    unknown_two_hundred_sixty_six: _containers.RepeatedScalarFieldContainer[bool]
     shortcut_object_item: ShortcutObjectItem
     shortcut_preset: ShortcutPreset
     shortcut_spell: ShortcutSpell
@@ -2490,7 +2476,7 @@ class Shortcut(_message.Message):
     shortcut_emote: ShortcutEmote
     shortcut_cosmetic_object: ShortcutCosmeticObject
     shortcut_outfit: ShortcutOutfit
-    def __init__(self, slot_id: _Optional[int] = ..., unknown_gbcw: _Optional[_Iterable[bool]] = ..., shortcut_object_item: _Optional[_Union[ShortcutObjectItem, _Mapping]] = ..., shortcut_preset: _Optional[_Union[ShortcutPreset, _Mapping]] = ..., shortcut_spell: _Optional[_Union[ShortcutSpell, _Mapping]] = ..., shortcut_smiley: _Optional[_Union[ShortcutSmiley, _Mapping]] = ..., shortcut_emote: _Optional[_Union[ShortcutEmote, _Mapping]] = ..., shortcut_cosmetic_object: _Optional[_Union[ShortcutCosmeticObject, _Mapping]] = ..., shortcut_outfit: _Optional[_Union[ShortcutOutfit, _Mapping]] = ...) -> None: ...
+    def __init__(self, slot_id: _Optional[int] = ..., unknown_two_hundred_sixty_six: _Optional[_Iterable[bool]] = ..., shortcut_object_item: _Optional[_Union[ShortcutObjectItem, _Mapping]] = ..., shortcut_preset: _Optional[_Union[ShortcutPreset, _Mapping]] = ..., shortcut_spell: _Optional[_Union[ShortcutSpell, _Mapping]] = ..., shortcut_smiley: _Optional[_Union[ShortcutSmiley, _Mapping]] = ..., shortcut_emote: _Optional[_Union[ShortcutEmote, _Mapping]] = ..., shortcut_cosmetic_object: _Optional[_Union[ShortcutCosmeticObject, _Mapping]] = ..., shortcut_outfit: _Optional[_Union[ShortcutOutfit, _Mapping]] = ...) -> None: ...
 
 class ShortcutObjectItem(_message.Message):
     __slots__ = ("item_uid", "item_gid")
@@ -2651,28 +2637,28 @@ class ObjectItemInventory(_message.Message):
     def __init__(self, position: _Optional[int] = ..., item: _Optional[_Union[ObjectItem, _Mapping]] = ..., favorite: bool = ..., tag_storage_uuids: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class ObjectItem(_message.Message):
-    __slots__ = ("uid", "quantity", "gid", "effects", "unknown_gdgv")
+    __slots__ = ("uid", "quantity", "gid", "effects", "unknown_two_hundred_sixty_five")
     UID_FIELD_NUMBER: _ClassVar[int]
     QUANTITY_FIELD_NUMBER: _ClassVar[int]
     GID_FIELD_NUMBER: _ClassVar[int]
     EFFECTS_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GDGV_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SIXTY_FIVE_FIELD_NUMBER: _ClassVar[int]
     uid: int
     quantity: int
     gid: int
     effects: _containers.RepeatedCompositeFieldContainer[ObjectEffect]
-    unknown_gdgv: _containers.RepeatedCompositeFieldContainer[UnknownLma]
-    def __init__(self, uid: _Optional[int] = ..., quantity: _Optional[int] = ..., gid: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[ObjectEffect, _Mapping]]] = ..., unknown_gdgv: _Optional[_Iterable[_Union[UnknownLma, _Mapping]]] = ...) -> None: ...
+    unknown_two_hundred_sixty_five: _containers.RepeatedCompositeFieldContainer[UnknownOneHundredTwentyThree]
+    def __init__(self, uid: _Optional[int] = ..., quantity: _Optional[int] = ..., gid: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[ObjectEffect, _Mapping]]] = ..., unknown_two_hundred_sixty_five: _Optional[_Iterable[_Union[UnknownOneHundredTwentyThree, _Mapping]]] = ...) -> None: ...
 
 class ObjectEffect(_message.Message):
-    __slots__ = ("action", "value_string", "value_int", "min_max", "dice", "date", "duration_minute", "creature_family", "monster_count", "mount", "unknown_gcch")
-    class UnknownLmw(_message.Message):
-        __slots__ = ("unknown_gcaw", "unknown_gcax")
-        UNKNOWN_GCAW_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_GCAX_FIELD_NUMBER: _ClassVar[int]
-        unknown_gcaw: int
-        unknown_gcax: int
-        def __init__(self, unknown_gcaw: _Optional[int] = ..., unknown_gcax: _Optional[int] = ...) -> None: ...
+    __slots__ = ("action", "value_string", "value_int", "min_max", "dice", "date", "duration_minute", "creature_family", "monster_count", "mount", "unknown_two_hundred_sixty_four")
+    class UnknownOneHundredSixteen(_message.Message):
+        __slots__ = ("unknown_two_hundred_sixty_two", "unknown_two_hundred_sixty_three")
+        UNKNOWN_TWO_HUNDRED_SIXTY_TWO_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_TWO_HUNDRED_SIXTY_THREE_FIELD_NUMBER: _ClassVar[int]
+        unknown_two_hundred_sixty_two: int
+        unknown_two_hundred_sixty_three: int
+        def __init__(self, unknown_two_hundred_sixty_two: _Optional[int] = ..., unknown_two_hundred_sixty_three: _Optional[int] = ...) -> None: ...
     class DofusDate(_message.Message):
         __slots__ = ("year", "month", "day", "hour", "minute")
         YEAR_FIELD_NUMBER: _ClassVar[int]
@@ -2750,7 +2736,7 @@ class ObjectEffect(_message.Message):
     CREATURE_FAMILY_FIELD_NUMBER: _ClassVar[int]
     MONSTER_COUNT_FIELD_NUMBER: _ClassVar[int]
     MOUNT_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GCCH_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SIXTY_FOUR_FIELD_NUMBER: _ClassVar[int]
     action: int
     value_string: str
     value_int: int
@@ -2761,8 +2747,8 @@ class ObjectEffect(_message.Message):
     creature_family: int
     monster_count: ObjectEffect.MonsterCount
     mount: ObjectEffect.ObjectEffectMountValue
-    unknown_gcch: ObjectEffect.UnknownLmw
-    def __init__(self, action: _Optional[int] = ..., value_string: _Optional[str] = ..., value_int: _Optional[int] = ..., min_max: _Optional[_Union[ObjectEffect.ObjectEffectMinMaxValue, _Mapping]] = ..., dice: _Optional[_Union[ObjectEffect.ObjectEffectDiceValue, _Mapping]] = ..., date: _Optional[_Union[ObjectEffect.DofusDate, _Mapping]] = ..., duration_minute: _Optional[int] = ..., creature_family: _Optional[int] = ..., monster_count: _Optional[_Union[ObjectEffect.MonsterCount, _Mapping]] = ..., mount: _Optional[_Union[ObjectEffect.ObjectEffectMountValue, _Mapping]] = ..., unknown_gcch: _Optional[_Union[ObjectEffect.UnknownLmw, _Mapping]] = ...) -> None: ...
+    unknown_two_hundred_sixty_four: ObjectEffect.UnknownOneHundredSixteen
+    def __init__(self, action: _Optional[int] = ..., value_string: _Optional[str] = ..., value_int: _Optional[int] = ..., min_max: _Optional[_Union[ObjectEffect.ObjectEffectMinMaxValue, _Mapping]] = ..., dice: _Optional[_Union[ObjectEffect.ObjectEffectDiceValue, _Mapping]] = ..., date: _Optional[_Union[ObjectEffect.DofusDate, _Mapping]] = ..., duration_minute: _Optional[int] = ..., creature_family: _Optional[int] = ..., monster_count: _Optional[_Union[ObjectEffect.MonsterCount, _Mapping]] = ..., mount: _Optional[_Union[ObjectEffect.ObjectEffectMountValue, _Mapping]] = ..., unknown_two_hundred_sixty_four: _Optional[_Union[ObjectEffect.UnknownOneHundredSixteen, _Mapping]] = ...) -> None: ...
 
 class ObjectInRolePlay(_message.Message):
     __slots__ = ("cell_id", "object_gid", "with_look", "paddock_item")
@@ -3205,76 +3191,57 @@ class SpellModifier(_message.Message):
     equipment: int
     def __init__(self, spell_id: _Optional[int] = ..., action_type: _Optional[_Union[SpellModifierActionType, str]] = ..., modifier_type: _Optional[_Union[SpellModifierType, str]] = ..., context: _Optional[int] = ..., equipment: _Optional[int] = ...) -> None: ...
 
-class UnknownLgt(_message.Message):
-    __slots__ = ("unknown_gaxr", "unknown_gaxp", "unknown_gaxo", "unknown_gaxq")
-    class UnknownGaxqEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: str
-        value: int
-        def __init__(self, key: _Optional[str] = ..., value: _Optional[int] = ...) -> None: ...
-    UNKNOWN_GAXR_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GAXP_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GAXO_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GAXQ_FIELD_NUMBER: _ClassVar[int]
-    unknown_gaxr: int
-    unknown_gaxp: int
-    unknown_gaxo: int
-    unknown_gaxq: _containers.ScalarMap[str, int]
-    def __init__(self, unknown_gaxr: _Optional[int] = ..., unknown_gaxp: _Optional[int] = ..., unknown_gaxo: _Optional[int] = ..., unknown_gaxq: _Optional[_Mapping[str, int]] = ...) -> None: ...
+class UnknownOneHundredNineteen(_message.Message):
+    __slots__ = ("unknown_two_hundred_seventy", "unknown_two_hundred_sixty_nine")
+    UNKNOWN_TWO_HUNDRED_SEVENTY_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SIXTY_NINE_FIELD_NUMBER: _ClassVar[int]
+    unknown_two_hundred_seventy: int
+    unknown_two_hundred_sixty_nine: int
+    def __init__(self, unknown_two_hundred_seventy: _Optional[int] = ..., unknown_two_hundred_sixty_nine: _Optional[int] = ...) -> None: ...
 
-class UnknownLhp(_message.Message):
-    __slots__ = ("unknown_gbcj", "unknown_gbck", "unknown_gbcl")
-    UNKNOWN_GBCJ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GBCK_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GBCL_FIELD_NUMBER: _ClassVar[int]
-    unknown_gbcj: int
-    unknown_gbck: int
-    unknown_gbcl: Alignment
-    def __init__(self, unknown_gbcj: _Optional[int] = ..., unknown_gbck: _Optional[int] = ..., unknown_gbcl: _Optional[_Union[Alignment, str]] = ...) -> None: ...
+class UnknownOneHundredTwenty(_message.Message):
+    __slots__ = ("unknown_two_hundred_seventy_one", "unknown_two_hundred_seventy_two", "unknown_two_hundred_seventy_three")
+    UNKNOWN_TWO_HUNDRED_SEVENTY_ONE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SEVENTY_TWO_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SEVENTY_THREE_FIELD_NUMBER: _ClassVar[int]
+    unknown_two_hundred_seventy_one: int
+    unknown_two_hundred_seventy_two: int
+    unknown_two_hundred_seventy_three: Alignment
+    def __init__(self, unknown_two_hundred_seventy_one: _Optional[int] = ..., unknown_two_hundred_seventy_two: _Optional[int] = ..., unknown_two_hundred_seventy_three: _Optional[_Union[Alignment, str]] = ...) -> None: ...
 
-class UnknownLhq(_message.Message):
-    __slots__ = ("unknown_gbcp", "unknown_gbcq", "unknown_gbcr")
-    UNKNOWN_GBCP_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GBCQ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GBCR_FIELD_NUMBER: _ClassVar[int]
-    unknown_gbcp: int
-    unknown_gbcq: SpellModifierType
-    unknown_gbcr: SpellModifierActionType
-    def __init__(self, unknown_gbcp: _Optional[int] = ..., unknown_gbcq: _Optional[_Union[SpellModifierType, str]] = ..., unknown_gbcr: _Optional[_Union[SpellModifierActionType, str]] = ...) -> None: ...
+class UnknownOneHundredTwentyOne(_message.Message):
+    __slots__ = ("unknown_two_hundred_seventy_four", "unknown_two_hundred_seventy_five", "unknown_two_hundred_seventy_six")
+    UNKNOWN_TWO_HUNDRED_SEVENTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SEVENTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SEVENTY_SIX_FIELD_NUMBER: _ClassVar[int]
+    unknown_two_hundred_seventy_four: int
+    unknown_two_hundred_seventy_five: SpellModifierType
+    unknown_two_hundred_seventy_six: SpellModifierActionType
+    def __init__(self, unknown_two_hundred_seventy_four: _Optional[int] = ..., unknown_two_hundred_seventy_five: _Optional[_Union[SpellModifierType, str]] = ..., unknown_two_hundred_seventy_six: _Optional[_Union[SpellModifierActionType, str]] = ...) -> None: ...
 
-class UnknownLlz(_message.Message):
-    __slots__ = ("unknown_gbwj", "unknown_gbwm")
-    UNKNOWN_GBWJ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GBWM_FIELD_NUMBER: _ClassVar[int]
-    unknown_gbwj: bool
-    unknown_gbwm: bool
-    def __init__(self, unknown_gbwj: bool = ..., unknown_gbwm: bool = ...) -> None: ...
+class UnknownOneHundredTwentyTwo(_message.Message):
+    __slots__ = ("unknown_two_hundred_seventy_seven", "unknown_two_hundred_seventy_eight")
+    UNKNOWN_TWO_HUNDRED_SEVENTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SEVENTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+    unknown_two_hundred_seventy_seven: bool
+    unknown_two_hundred_seventy_eight: bool
+    def __init__(self, unknown_two_hundred_seventy_seven: bool = ..., unknown_two_hundred_seventy_eight: bool = ...) -> None: ...
 
-class UnknownLoj(_message.Message):
-    __slots__ = ("unknown_gchn", "unknown_gcho")
-    UNKNOWN_GCHN_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GCHO_FIELD_NUMBER: _ClassVar[int]
-    unknown_gchn: int
-    unknown_gcho: int
-    def __init__(self, unknown_gchn: _Optional[int] = ..., unknown_gcho: _Optional[int] = ...) -> None: ...
+class UnknownOneHundredTwentyFive(_message.Message):
+    __slots__ = ("unknown_two_hundred_eighty_one", "unknown_two_hundred_eighty_two")
+    UNKNOWN_TWO_HUNDRED_EIGHTY_ONE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_EIGHTY_TWO_FIELD_NUMBER: _ClassVar[int]
+    unknown_two_hundred_eighty_one: int
+    unknown_two_hundred_eighty_two: int
+    def __init__(self, unknown_two_hundred_eighty_one: _Optional[int] = ..., unknown_two_hundred_eighty_two: _Optional[int] = ...) -> None: ...
 
-class UnknownKlm(_message.Message):
-    __slots__ = ("unknown_fybz", "unknown_fycb")
-    class UnknownKlk(_message.Message):
-        __slots__ = ("unknown_fybs", "unknown_fybt", "unknown_fybu", "unknown_fybv")
-        UNKNOWN_FYBS_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FYBT_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FYBU_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FYBV_FIELD_NUMBER: _ClassVar[int]
-        unknown_fybs: int
-        unknown_fybt: int
-        unknown_fybu: int
-        unknown_fybv: int
-        def __init__(self, unknown_fybs: _Optional[int] = ..., unknown_fybt: _Optional[int] = ..., unknown_fybu: _Optional[int] = ..., unknown_fybv: _Optional[int] = ...) -> None: ...
-    UNKNOWN_FYBZ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FYCB_FIELD_NUMBER: _ClassVar[int]
-    unknown_fybz: _containers.RepeatedScalarFieldContainer[int]
-    unknown_fycb: UnknownKlm.UnknownKlk
-    def __init__(self, unknown_fybz: _Optional[_Iterable[int]] = ..., unknown_fycb: _Optional[_Union[UnknownKlm.UnknownKlk, _Mapping]] = ...) -> None: ...
+class UnknownOneHundredSeventeen(_message.Message):
+    __slots__ = ("unknown_two_hundred_sixty_seven", "unknown_two_hundred_sixty_eight")
+    class UnknownOneHundredEighteen(_message.Message):
+        __slots__ = ()
+        def __init__(self) -> None: ...
+    UNKNOWN_TWO_HUNDRED_SIXTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SIXTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+    unknown_two_hundred_sixty_seven: _containers.RepeatedScalarFieldContainer[int]
+    unknown_two_hundred_sixty_eight: UnknownOneHundredSeventeen.UnknownOneHundredEighteen
+    def __init__(self, unknown_two_hundred_sixty_seven: _Optional[_Iterable[int]] = ..., unknown_two_hundred_sixty_eight: _Optional[_Union[UnknownOneHundredSeventeen.UnknownOneHundredEighteen, _Mapping]] = ...) -> None: ...

@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import QApplication
 from qfluentwidgets import Theme, setTheme, setThemeColor
 from watchfiles import Change, watch
 
-from src.const import ENV_PATH
+from src.consts import ENV_PATH
 from src.core.bot.bot import Bot
 from src.core.bot.bot_factory import generate_random_bot
 

@@ -13,7 +13,7 @@ from dofus_unity_reader.game_constants.item import ItemEnum
 from dofus_unity_reader.game_constants.skill import MAP_IDS_BY_SKILL, SkillEnum
 from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
-from src.core.behaviors.craft.craft_behavior import CraftBehavior, LoadedRecipeInfo
+from src.core.behaviors.craft.craft_behavior import CraftBehavior, CraftRequest, LoadedRecipeInfo
 from src.core.events_manager.event_manager import EventManager
 from tests.fixtures.bot_runtime import make_blocking_state_recovery
 from tests.fixtures.game_state import GameStateContext
@@ -49,8 +49,7 @@ def _craft_from_inventory(
     behavior: CraftBehavior, quantity: int, callback: Callable[..., None] | None = None
 ) -> None:
     behavior.start(
-        recipes=[_recipe()],
-        quantity_by_result_id={ItemEnum.CIRE_DE_GLIGLI: quantity},
+        craft_requests=[CraftRequest(recipe=_recipe(), stop_condition=quantity)],
         callback=callback,
         parent=None,
     )

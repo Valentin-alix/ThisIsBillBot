@@ -14,9 +14,7 @@ class GroupItemCriterion(IItemCriterion):
     criterion: str
 
     items_criterion: list[IItemCriterion | None] = field(init=False, default_factory=lambda: [])
-    operators: list[str] = field(
-        init=False, default_factory=lambda: []
-    )  # operator between item items_criterion
+    operators: list[str] = field(init=False, default_factory=lambda: [])
 
     def __post_init__(self):
         self.parse()

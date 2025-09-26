@@ -11,7 +11,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
 from dofus_unity_reader.data_center.data_reader import DataReader
 from dofus_unity_reader.models.world_graph import Edge
 
-from src.const import MIN_DATE
+from src.consts import MIN_DATE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
     AutoTripErrorCode,
@@ -20,12 +20,14 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.movements.edge_behavior import EdgeBehavior
+from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.engine.movements.world.edge import draw_edge_path
 from src.core.engine.weights.weight_drawer import draw_weight_on_map
 from src.core.engine.weights.weighted_path import WeightedPath
 from src.core.signals.world_signals import WorldSignals
 
 PATH_LOCK = RLock()
+MAX_CONSECUTIVE_UNEXPECTED_NEW_MAPS = 3
 LAST_VISITED_BY_SERVER_AND_MAP: dict[tuple[int, int], datetime] = {}
 EDGE_PATH_BY_SERVER_AND_CHARACTER: dict[tuple[int, int], tuple[Edge, ...]] = {}
 
@@ -40,6 +42,7 @@ class RandomFarmBehavior(Behavior):
     get_additional_weight_by_map_id: Callable[[int], float] = field(init=False, default=lambda _: 0)
     map_ids: set[int] = field(default_factory=set[int], init=False)
     _edge_path: list[Edge] | None = field(default=None, init=False)
+    _consecutive_unexpected_new_maps: int = field(default=0, init=False)
 
     @property
     def edge_path(self) -> list[Edge] | None:
@@ -66,6 +69,7 @@ class RandomFarmBehavior(Behavior):
     ) -> None:
         self.get_additional_weight_by_map_id = get_additional_weight_by_map_id
         self.additional_weight_by_map_id.clear()
+        self._consecutive_unexpected_new_maps = 0
         self.edge_path = None
         self.world_signals.reset_weight.emit()
         self.map_ids = self.get_map_ids(area_id, sub_area_id)
@@ -141,7 +145,14 @@ class RandomFarmBehavior(Behavior):
             raise ValueError("edge path should not be none")
         if error_code is not None:
             self.edge_path = None
+            if error_code is MapChangeError.UNEXPECTED_NEW_MAP:
+                self._consecutive_unexpected_new_maps += 1
+                if self._consecutive_unexpected_new_maps >= MAX_CONSECUTIVE_UNEXPECTED_NEW_MAPS:
+                    return self._force_reconnect(
+                        "Repeated unexpected map changes; forcing reconnect to resync"
+                    )
             return self.finish(error_code)
+        self._consecutive_unexpected_new_maps = 0
         remaining_path = list(self.edge_path)
         remaining_path.remove(edge)
         self.edge_path = remaining_path
@@ -171,19 +182,24 @@ class RandomFarmBehavior(Behavior):
             self.logger.error(error_code)
             if (
                 error_code is AutoTripErrorCode.PATH_NOT_FOUND
-                and self.game_state.map.forbidden_edge_transitions
+                and self.game_state.map.has_session_banned_transitions
             ):
-                self.logger.warning("Path blocked by forbidden transitions; forcing reconnect to resync")
-                request_disconnect = self.event_manager.request_disconnect_callback
-                assert request_disconnect is not None, "Blocked path recovery requires a disconnect callback"
-                request_disconnect()
-                return
+                return self._force_reconnect(
+                    "Path blocked by forbidden transitions; forcing reconnect to resync"
+                )
             return self.finish(error_code)
         with PATH_LOCK:
             LAST_VISITED_BY_SERVER_AND_MAP[(self.game_state.player.server_id, self.game_state.map.map_id)] = (
                 datetime.now()
             )
         self.finish(error_code)
+
+    def _force_reconnect(self, reason: str) -> None:
+        self.logger.warning(reason)
+        self._consecutive_unexpected_new_maps = 0
+        request_disconnect = self.event_manager.request_disconnect_callback
+        assert request_disconnect is not None, "Blocked path recovery requires a disconnect callback"
+        request_disconnect()
 
     def get_next_weighted_path(self) -> list[Edge] | None:
         cached_weight_by_map_id: dict[int, float] = {}

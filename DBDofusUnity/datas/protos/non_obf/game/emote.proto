@@ -24,6 +24,7 @@ message EmotePlayEvent {
 	int64 emote_start_time = 2;
 	int64 actor_id = 3;
 	int32 account_id = 4;
+	string name = 5;
 }
 
 message EmoteMassivePlayEvent {

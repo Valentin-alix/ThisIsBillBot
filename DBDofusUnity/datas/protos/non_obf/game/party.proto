@@ -4,6 +4,23 @@ import "common.proto";
 
 package com.ankama.dofus.server.game.protocol.party;
 
+enum UnknownFourHundredTwentyTwo {
+	UNKNOWN_FOUR_HUNDRED_TWENTY_TWO = 0;
+}
+
+enum UnknownFourHundredTwentyThree {
+	UNKNOWN_FOUR_HUNDRED_TWENTY_THREE = 0;
+}
+
+enum UnknownFourHundredTwentyFour {
+	UNKNOWN_FOUR_HUNDRED_TWENTY_FOUR = 0;
+}
+
+enum UnknownFourHundredTwentyFive {
+	UNKNOWN_FOUR_HUNDRED_TWENTY_FIVE = 0;
+}
+
+
 enum PartyMemberInFightCause {
 	UNKNOWN = 0;
 	MONSTER_ATTACK = 1;
@@ -246,9 +263,9 @@ message PartyJoinEvent {
 	repeated .com.ankama.dofus.server.game.protocol.party.PartyGuest guests = 6;
 	bool restricted = 7;
 	string party_name = 8;
-	message UnknownIne {
-		int64 unknown_fqfk = 1;
-		int32 unknown_fqfm = 2;
+	message UnknownFourHundredTwentyOne {
+		int64 unknown_seven_hundred_fifty_nine = 1;
+		int32 unknown_seven_hundred_sixty = 2;
 	}
 }
 
@@ -369,61 +386,61 @@ message PartyGuest {
 
 
 
-message UnknownIjy {
-	int64 unknown_fptf = 1;
+message UnknownFourHundredTwentySix {
+	int64 unknown_seven_hundred_sixty_one = 1;
 }
 
-message UnknownIka {
-	int64 unknown_fptt = 1;
+message UnknownFourHundredTwentySeven {
+	int64 unknown_seven_hundred_sixty_two = 1;
 }
 
-message UnknownIkb {
-	bool unknown_fpty = 1;
+message UnknownFourHundredTwentyEight {
+	bool unknown_seven_hundred_sixty_three = 1;
 }
 
-message UnknownIks {
-	int64 unknown_fpvq = 1;
+message UnknownFourHundredTwentyNine {
+	int64 unknown_seven_hundred_sixty_four = 1;
 }
 
-message UnknownIkt {
-	int64 unknown_fpvu = 1;
+message UnknownFourHundredThirty {
+	int64 unknown_seven_hundred_sixty_five = 1;
 }
 
-message UnknownIkw {
-	repeated bool unknown_fpwm = 1;
-	int64 unknown_fpwn = 2;
-	int64 unknown_fpwo = 3;
+message UnknownFourHundredThirtyOne {
+	repeated bool unknown_seven_hundred_sixty_six = 1;
+	int64 unknown_seven_hundred_sixty_seven = 2;
+	int64 unknown_seven_hundred_sixty_eight = 3;
 }
 
-message UnknownIlc {
-	int64 unknown_fpye = 1;
+message UnknownFourHundredThirtyTwo {
+	int64 unknown_seven_hundred_sixty_nine = 1;
 }
 
-message UnknownIlr {
-	int32 unknown_fqap = 1;
+message UnknownFourHundredThirtyThree {
+	UnknownFourHundredTwentyTwo unknown_seven_hundred_seventy = 1;
 }
 
-message UnknownIlv {
-	int32 unknown_fqax = 1;
+message UnknownFourHundredThirtyFour {
+	UnknownFourHundredTwentyThree unknown_seven_hundred_seventy_one = 1;
 }
 
-message UnknownImj {
-	int32 unknown_fqcr = 1;
+message UnknownFourHundredThirtyFive {
+	int32 unknown_seven_hundred_seventy_two = 1;
 }
 
-message UnknownImv {
-	int64 unknown_fqej = 1;
+message UnknownFourHundredThirtySix {
+	int64 unknown_seven_hundred_seventy_three = 1;
 }
 
-message UnknownInb {
-	int32 unknown_fqet = 1;
+message UnknownFourHundredThirtySeven {
+	UnknownFourHundredTwentyFour unknown_seven_hundred_seventy_four = 1;
 }
 
-message UnknownInp {
-	string unknown_fqhb = 1;
+message UnknownFourHundredThirtyEight {
+	string unknown_seven_hundred_seventy_five = 1;
 }
 
-message UnknownInt {
-	int32 unknown_fqhm = 1;
-	int32 unknown_fqhn = 2;
+message UnknownFourHundredThirtyNine {
+	int32 unknown_seven_hundred_seventy_six = 1;
+	UnknownFourHundredTwentyFive unknown_seven_hundred_seventy_seven = 2;
 }

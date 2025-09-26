@@ -51,30 +51,30 @@ GUILD_RAID: Channel
 JESAISPAS: Channel
 
 class ChatMessageLinks(_message.Message):
-    __slots__ = ("objects", "unknown_fzsv")
+    __slots__ = ("objects", "unknown_two_hundred")
     OBJECTS_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZSV_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_FIELD_NUMBER: _ClassVar[int]
     objects: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectItem]
-    unknown_fzsv: _containers.RepeatedCompositeFieldContainer[UnknownKsu]
-    def __init__(self, objects: _Optional[_Iterable[_Union[_common_pb2.ObjectItem, _Mapping]]] = ..., unknown_fzsv: _Optional[_Iterable[_Union[UnknownKsu, _Mapping]]] = ...) -> None: ...
+    unknown_two_hundred: _containers.RepeatedCompositeFieldContainer[UnknownOneHundredTwo]
+    def __init__(self, objects: _Optional[_Iterable[_Union[_common_pb2.ObjectItem, _Mapping]]] = ..., unknown_two_hundred: _Optional[_Iterable[_Union[UnknownOneHundredTwo, _Mapping]]] = ...) -> None: ...
 
-class UnknownKsu(_message.Message):
-    __slots__ = ("unknown_fztj", "unknown_fztk", "unknown_fztl", "unknown_fztm", "unknown_fztn", "unknown_fzto", "unknown_fztp")
-    UNKNOWN_FZTJ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZTK_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZTL_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZTM_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZTN_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZTO_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FZTP_FIELD_NUMBER: _ClassVar[int]
-    unknown_fztj: int
-    unknown_fztk: _common_pb2.MapCoordinates
-    unknown_fztl: str
-    unknown_fztm: int
-    unknown_fztn: int
-    unknown_fzto: int
-    unknown_fztp: int
-    def __init__(self, unknown_fztj: _Optional[int] = ..., unknown_fztk: _Optional[_Union[_common_pb2.MapCoordinates, _Mapping]] = ..., unknown_fztl: _Optional[str] = ..., unknown_fztm: _Optional[int] = ..., unknown_fztn: _Optional[int] = ..., unknown_fzto: _Optional[int] = ..., unknown_fztp: _Optional[int] = ...) -> None: ...
+class UnknownOneHundredTwo(_message.Message):
+    __slots__ = ("unknown_two_hundred_one", "unknown_two_hundred_two", "unknown_two_hundred_three", "unknown_two_hundred_four", "unknown_two_hundred_five", "unknown_two_hundred_six", "unknown_two_hundred_seven")
+    UNKNOWN_TWO_HUNDRED_ONE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_TWO_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_THREE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_FOUR_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_FIVE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SIX_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWO_HUNDRED_SEVEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_two_hundred_one: int
+    unknown_two_hundred_two: _common_pb2.MapCoordinates
+    unknown_two_hundred_three: str
+    unknown_two_hundred_four: int
+    unknown_two_hundred_five: int
+    unknown_two_hundred_six: int
+    unknown_two_hundred_seven: int
+    def __init__(self, unknown_two_hundred_one: _Optional[int] = ..., unknown_two_hundred_two: _Optional[_Union[_common_pb2.MapCoordinates, _Mapping]] = ..., unknown_two_hundred_three: _Optional[str] = ..., unknown_two_hundred_four: _Optional[int] = ..., unknown_two_hundred_five: _Optional[int] = ..., unknown_two_hundred_six: _Optional[int] = ..., unknown_two_hundred_seven: _Optional[int] = ...) -> None: ...
 
 class ChatPrivateMessageRequest(_message.Message):
     __slots__ = ("content", "links", "name", "tag")

@@ -5,7 +5,7 @@ package com.ankama.dofus.server.game;
 message ReportRequest {
 	oneof report_payload {
 		Report report = 1;
-		UnknownHvi unknown_fnvt = 2;
+		UnknownOne unknown_one = 2;
 	}
 
 	message Report {
@@ -14,9 +14,7 @@ message ReportRequest {
 		int64 target_character_id = 4;
 	}
 
-	message UnknownHvi {
-		string unknown_fnvn = 1;
-		string unknown_fnvo = 2;
+	message UnknownOne {
 	}
 
 	enum ReportCategory {

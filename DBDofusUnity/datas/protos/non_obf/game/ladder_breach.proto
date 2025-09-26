@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+import "ladder.proto";
+
+package com.ankama.dofus.server.game.protocol.ladder.breach;
+
+message BreachLadderPageEvent {
+	repeated .com.ankama.dofus.server.game.protocol.ladder.breach.BreachLadderEntry entries = 1;
+}
+
+message UnknownThreeHundredSixtyFive {
+	int32 unknown_six_hundred_seventy_four = 1;
+	string unknown_six_hundred_seventy_five = 2;
+}
+
+message BreachLadderSelfRankRequest {
+	int32 server_id = 1;
+}
+
+message UnknownThreeHundredSixtySix {
+	repeated .com.ankama.dofus.server.game.protocol.ladder.breach.BreachLadderEntry entries = 1;
+}
+
+message BreachLadderPageRequest {
+	int32 server_id = 1;
+}
+
+message BreachLadderSelfRankEvent {
+	.com.ankama.dofus.server.game.protocol.ladder.breach.BreachLadderEntry entry = 1;
+}
+
+message BreachLadderEntry {
+	int32 unknown_six_hundred_seventy_three = 1;
+	int64 rank = 2;
+	.com.ankama.dofus.server.game.protocol.ladder.LadderCharacter player = 3;
+	int32 breed_id = 4;
+	string done_date = 5;
+	int32 wave = 6;
+}

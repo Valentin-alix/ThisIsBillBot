@@ -64,14 +64,10 @@ class CharacterLevelUpEvent(_message.Message):
     def __init__(self, new_level: _Optional[int] = ...) -> None: ...
 
 class CharacterExperienceGainEvent(_message.Message):
-    __slots__ = ("character_experience", "mount_experience", "guild_experience")
+    __slots__ = ("character_experience",)
     CHARACTER_EXPERIENCE_FIELD_NUMBER: _ClassVar[int]
-    MOUNT_EXPERIENCE_FIELD_NUMBER: _ClassVar[int]
-    GUILD_EXPERIENCE_FIELD_NUMBER: _ClassVar[int]
     character_experience: int
-    mount_experience: int
-    guild_experience: int
-    def __init__(self, character_experience: _Optional[int] = ..., mount_experience: _Optional[int] = ..., guild_experience: _Optional[int] = ...) -> None: ...
+    def __init__(self, character_experience: _Optional[int] = ...) -> None: ...
 
 class LifePointsRegenBeginEvent(_message.Message):
     __slots__ = ("regen_rate",)
@@ -155,8 +151,8 @@ class CharacterOnConnectionEvent(_message.Message):
     connection_event: CharacterOnConnectionEvent.ConnectionEvent
     def __init__(self, connection_event: _Optional[_Union[CharacterOnConnectionEvent.ConnectionEvent, str]] = ...) -> None: ...
 
-class UnknownKug(_message.Message):
-    __slots__ = ("unknown_fzgi",)
-    UNKNOWN_FZGI_FIELD_NUMBER: _ClassVar[int]
-    unknown_fzgi: _containers.RepeatedScalarFieldContainer[bool]
-    def __init__(self, unknown_fzgi: _Optional[_Iterable[bool]] = ...) -> None: ...
+class UnknownOneHundredOne(_message.Message):
+    __slots__ = ("unknown_one_hundred_ninety_nine",)
+    UNKNOWN_ONE_HUNDRED_NINETY_NINE_FIELD_NUMBER: _ClassVar[int]
+    unknown_one_hundred_ninety_nine: _containers.RepeatedScalarFieldContainer[bool]
+    def __init__(self, unknown_one_hundred_ninety_nine: _Optional[_Iterable[bool]] = ...) -> None: ...

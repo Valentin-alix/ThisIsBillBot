@@ -68,7 +68,7 @@ class DungeonBehavior(Behavior):
 
         self.npc_dialog_behavior.start(
             npc_dialog_info=dungeon_info.entrance_npc_info,
-            turns=dungeon_info.entrance_turns,
+            turn_variants=[dungeon_info.entrance_turns],
             callback=partial(self.on_npc_dialog_behavior_finished, dungeon_info=dungeon_info),
             parent=self,
         )
@@ -120,7 +120,7 @@ class DungeonBehavior(Behavior):
         )
         self.npc_dialog_behavior.start(
             npc_dialog_info=dungeon_info.exit_npc_info,
-            turns=dungeon_info.exit_turns,
+            turn_variants=[dungeon_info.exit_turns],
             callback=self.on_exit_npc_dialog_behavior_finished,
             parent=self,
         )

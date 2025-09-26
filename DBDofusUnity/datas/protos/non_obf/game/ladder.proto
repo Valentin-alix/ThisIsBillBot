@@ -10,5 +10,5 @@ message LadderCharacter {
 	string player_name = 3;
 	.com.ankama.dofus.server.game.protocol.common.Gender gender = 4;
 	int32 level = 5;
-	int32 unknown_fqqb = 6;
+	int32 unknown_six_hundred_sixty_three = 6;
 }

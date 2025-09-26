@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package com.ankama.dofus.server.game.protocol.guild.mission.listener;
+
+message GuildMissionStartListenerEvent {
+}
+
+message GuildMissionStartListenerRequest {
+	GuildMissionListenerOptions listener_options = 1;
+	message GuildMissionListenerOptions {
+		int32 unknown_four_hundred_eighty_seven = 1;
+		int64 unknown_four_hundred_eighty_eight = 2;
+		repeated int64 unknown_four_hundred_eighty_nine = 3;
+		bool unknown_four_hundred_ninety = 4;
+	}
+}
+
+message GuildMissionStopListenerEvent {
+}
+
+message GuildMissionStopListenerRequest {
+}

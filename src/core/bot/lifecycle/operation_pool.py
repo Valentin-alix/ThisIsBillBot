@@ -71,8 +71,7 @@ class OperationPool:
         now = time.time() if now is None else now
         timestamps = self._timestamps.setdefault(proxy_id, [])
         timestamps.append(now)
-        # Drop entries that fell out of the daily window; they can never affect
-        # either quota again. Forget the IP entirely once it has none left.
+
         timestamps[:] = [ts for ts in timestamps if ts >= now - ONE_DAY_SEC]
         if not timestamps:
             del self._timestamps[proxy_id]

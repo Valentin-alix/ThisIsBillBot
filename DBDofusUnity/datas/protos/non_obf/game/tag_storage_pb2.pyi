@@ -105,16 +105,16 @@ class TagObjectData(_message.Message):
     tag_object_uuids: _containers.RepeatedScalarFieldContainer[int]
     def __init__(self, tag_object_uuids: _Optional[_Iterable[int]] = ...) -> None: ...
 
-class UnknownHlz(_message.Message):
-    __slots__ = ("unknown_fmpe", "unknown_fmpf")
-    UNKNOWN_FMPE_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FMPF_FIELD_NUMBER: _ClassVar[int]
-    unknown_fmpe: _containers.RepeatedScalarFieldContainer[int]
-    unknown_fmpf: _containers.RepeatedCompositeFieldContainer[TagObjectUpdateContent]
-    def __init__(self, unknown_fmpe: _Optional[_Iterable[int]] = ..., unknown_fmpf: _Optional[_Iterable[_Union[TagObjectUpdateContent, _Mapping]]] = ...) -> None: ...
+class UnknownFourHundredNinetySix(_message.Message):
+    __slots__ = ("unknown_eight_hundred_fifty_five", "unknown_eight_hundred_fifty_six")
+    UNKNOWN_EIGHT_HUNDRED_FIFTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_FIFTY_SIX_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_fifty_five: _containers.RepeatedScalarFieldContainer[int]
+    unknown_eight_hundred_fifty_six: _containers.RepeatedCompositeFieldContainer[TagObjectUpdateContent]
+    def __init__(self, unknown_eight_hundred_fifty_five: _Optional[_Iterable[int]] = ..., unknown_eight_hundred_fifty_six: _Optional[_Iterable[_Union[TagObjectUpdateContent, _Mapping]]] = ...) -> None: ...
 
-class UnknownHmb(_message.Message):
-    __slots__ = ("unknown_fmpo",)
-    UNKNOWN_FMPO_FIELD_NUMBER: _ClassVar[int]
-    unknown_fmpo: _containers.RepeatedCompositeFieldContainer[TagObjectUpdateContent]
-    def __init__(self, unknown_fmpo: _Optional[_Iterable[_Union[TagObjectUpdateContent, _Mapping]]] = ...) -> None: ...
+class UnknownFourHundredNinetySeven(_message.Message):
+    __slots__ = ("unknown_eight_hundred_fifty_seven",)
+    UNKNOWN_EIGHT_HUNDRED_FIFTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_fifty_seven: _containers.RepeatedCompositeFieldContainer[TagObjectUpdateContent]
+    def __init__(self, unknown_eight_hundred_fifty_seven: _Optional[_Iterable[_Union[TagObjectUpdateContent, _Mapping]]] = ...) -> None: ...

@@ -98,9 +98,7 @@ def test_a_workshop_is_recorded_with_its_skill(game_state_ctx: GameStateContext)
     event_manager.process_msg(ExchangeCraftStartedEvent(skill_id=CRAFT_SKILL_ID))
 
     assert game_state_ctx.game_state.dialog.is_open(OpenDialogKind.CRAFT, context_id=CRAFT_SKILL_ID)
-    assert not game_state_ctx.game_state.dialog.is_open(
-        OpenDialogKind.CRAFT, context_id=CRAFT_SKILL_ID + 1
-    )
+    assert not game_state_ctx.game_state.dialog.is_open(OpenDialogKind.CRAFT, context_id=CRAFT_SKILL_ID + 1)
 
 
 def test_a_npc_question_is_recorded(game_state_ctx: GameStateContext) -> None:
@@ -274,9 +272,7 @@ def _add_challenger(game_state_ctx: GameStateContext) -> None:
 
 
 def _challenge(target_id: int = PLAYER_ID) -> PlayerFightFriendlyRequestedEvent:
-    return PlayerFightFriendlyRequestedEvent(
-        fight_id=FIGHT_ID, source_id=CHALLENGER_ID, target_id=target_id
-    )
+    return PlayerFightFriendlyRequestedEvent(fight_id=FIGHT_ID, source_id=CHALLENGER_ID, target_id=target_id)
 
 
 def test_a_challenge_aimed_at_us_is_recorded(game_state_ctx: GameStateContext) -> None:

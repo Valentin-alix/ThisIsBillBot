@@ -6,21 +6,21 @@ from threading import RLock
 from dofus_unity_reader.data_center.area_info import AreaInfo
 
 from src.core.behaviors.behavior import BehaviorState
-from src.core.behaviors.recovery import RecoverableBehavior
-from src.core.behaviors.craft.craft_behavior import CraftBehavior
-from src.core.behaviors.equipment.auto_equipment_behavior import AutoEquipmentBehavior
+from src.core.behaviors.craft.craft_behavior import CraftBehavior, CraftRequest
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmingErrorCode
-from src.core.behaviors.farms.fighter_behavior import FighterBehavior
-from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
-from src.core.behaviors.farms.multi_farming_behavior import MultiFarmingBehavior
+from src.core.behaviors.farms.fight.fighter_behavior import FighterBehavior
+from src.core.behaviors.farms.harvest.harvester_behavior import HarvesterBehavior
+from src.core.behaviors.farms.harvest.multi_farming_behavior import MultiFarmingBehavior
 from src.core.behaviors.idle_behavior import IdleBehavior
-from src.core.behaviors.mule_storage.mule_give_behavior import MuleGiveBehavior
+from src.core.behaviors.items.auto_equipment_behavior import AutoEquipmentBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
 from src.core.behaviors.quests.quest_behavior import QuestBehavior
+from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import SaleHotelErrorCode, SaleHotelSellBehavior
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestErrorCode,
 )
+from src.core.behaviors.storage.mule.mule_give_behavior import MuleGiveBehavior
 from src.core.bot.session_activity_plan import SessionActivity, SessionActivityPlan
 from src.core.config import (
     DO_CRAFT,
@@ -245,12 +245,17 @@ class AutoBotBehavior(RecoverableBehavior):
                 self.game_state.player.is_sub, self.game_state.player.jobs_lvl_by_id
             )
             return self.craft_behavior.start(
-                recipes=recipes,
-                stop_craft_recipe_condition=partial(
-                    is_not_valid_recipe_for_lvl_up_job_or_benefice,
-                    is_sub=self.game_state.player.is_sub,
-                    jobs_lvl_by_id=self.game_state.player.jobs_lvl_by_id,
-                ),
+                craft_requests=[
+                    CraftRequest(
+                        recipe=recipe,
+                        stop_condition=partial(
+                            is_not_valid_recipe_for_lvl_up_job_or_benefice,
+                            is_sub=self.game_state.player.is_sub,
+                            jobs_lvl_by_id=self.game_state.player.jobs_lvl_by_id,
+                        ),
+                    )
+                    for recipe in recipes
+                ],
                 callback=partial(self._on_session_activity_finished, activity),
                 parent=self,
             )

@@ -17,7 +17,7 @@ from dofus_unity_reader.models.datas.spell_levels_root import (
     SpellLevelsRootItem,
 )
 
-# Effect.effectElement: 5 == "best element of the caster"
+
 BEST_ELEMENT = 5
 
 
@@ -56,8 +56,6 @@ def is_heal_effect(effect: Effect) -> bool:
     return _has_description(effect, HEAL_DESCRIPTION_IDS)
 
 
-# "Repousse de N cases" effects that deal collision damage (push distance =
-# effect.diceNum). Excludes the "(sans dommages)" and the pull ("Attire") variants.
 PUSH_DESCRIPTION_IDS: frozenset[int] = frozenset(
     {
         DescriptionEnum.PUSH,
@@ -69,12 +67,9 @@ PUSH_DESCRIPTION_IDS: frozenset[int] = frozenset(
 
 
 def is_push_effect(effect: Effect) -> bool:
-    """Whether an effect pushes the target away and can deal collision damage."""
     return _has_description(effect, PUSH_DESCRIPTION_IDS)
 
 
-# Positive self-buff effects worth casting before attacking (boost damage output
-# or AP). Their malus counterparts have distinct descriptionIds (leading "-").
 OFFENSIVE_SELF_BUFF_DESCRIPTION_IDS: frozenset[int] = frozenset(
     {
         DescriptionEnum.BUFF_POWER,
@@ -86,11 +81,9 @@ OFFENSIVE_SELF_BUFF_DESCRIPTION_IDS: frozenset[int] = frozenset(
 
 
 def is_offensive_self_buff_effect(effect: Effect) -> bool:
-    """Whether an effect is a beneficial offensive buff (Power/Damage/AP gain)."""
     return _has_description(effect, OFFENSIVE_SELF_BUFF_DESCRIPTION_IDS)
 
 
-# Shield effects (flat, %-of-level, %-of-max-life) — a defensive buff.
 SHIELD_DESCRIPTION_IDS: frozenset[int] = frozenset(
     {
         DescriptionEnum.SHIELD_FLAT,
@@ -101,7 +94,6 @@ SHIELD_DESCRIPTION_IDS: frozenset[int] = frozenset(
 
 
 def is_self_shield_effect(effect: Effect) -> bool:
-    """Whether an effect grants a damage-absorbing shield."""
     return _has_description(effect, SHIELD_DESCRIPTION_IDS)
 
 
@@ -197,7 +189,6 @@ def get_critical_effect(spell_lvl: SpellLevelsRootItem, effect: Effect) -> Effec
 
 
 def base_roll(effect: Effect) -> float:
-    """Average roll: diceNum=min, diceSide=max, value=fixed when both dice are 0."""
     if effect.diceNum == 0 and effect.diceSide == 0:
         return float(effect.value)
     if effect.diceSide > effect.diceNum:
@@ -205,10 +196,9 @@ def base_roll(effect: Effect) -> float:
     return float(effect.diceNum)
 
 
-# targetMask characters that include the caster itself.
 _SELF_MASK_CHARS = ("C", "c", "a")
 
-# targetMask characters that can apply to enemy fighters.
+
 _ENEMY_MASK_CHARS = frozenset({"A", "D", "H", "I", "J", "L", "M", "S"})
 
 

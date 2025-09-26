@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-from collections import defaultdict
 from collections.abc import Mapping
 
 import numpy as np
-
 from proto_mapper_assembly.affinities.callee_affinity import build_callee_affinity
 from proto_mapper_assembly.affinities.declaration_order_alignment import build_declaration_order_affinity
 from proto_mapper_assembly.affinities.file_descriptor_similarity import build_file_descriptor_similarity
 from proto_mapper_assembly.affinities.handler_cohorts import build_handler_cohort_affinity
+from proto_mapper_assembly.controllers.access_signatures import count_handler_registrations_by_cls
 from proto_mapper_assembly.interfaces.affinity import AffinitySignalInputs, MaskedAffinitySignal
 from proto_mapper_assembly.interfaces.assembly_access import (
     AccessTraceDocument,
-    HandlerRegistrationAccessEntry,
 )
 from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
 from proto_mapper_assembly.interfaces.matching import (
@@ -28,7 +26,7 @@ from proto_mapper_assembly.matching.static_scores import (
 from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 from proto_mapper_assembly.scoring.message_scoring import StructureSimilarityContext
 
-_FILE_DESCRIPTOR_SIMILARITY_WEIGHT = 0.35
+_FILE_DESCRIPTOR_SIMILARITY_WEIGHT = 0.5
 _HANDLER_REGISTRATION_SIMILARITY_WEIGHT = 0.25
 
 _MASKED_AFFINITY_SIGNALS: tuple[MaskedAffinitySignal, ...] = (
@@ -158,8 +156,8 @@ def _blend_handler_registration_similarity(
     observed from the server and whose registration counts are known on both sides.
     """
     adjusted_scores_matrix = np.array(scores_matrix, copy=True)
-    obf_registration_count_by_cls = _count_handler_registrations_by_cls(obf_access_trace)
-    non_obf_registration_count_by_cls = _count_handler_registrations_by_cls(non_obf_access_trace)
+    obf_registration_count_by_cls = count_handler_registrations_by_cls(obf_access_trace)
+    non_obf_registration_count_by_cls = count_handler_registrations_by_cls(non_obf_access_trace)
     for obf_index, obf_signature in enumerate(workspace.obf_signatures):
         obf_registration_count = obf_registration_count_by_cls.get(obf_signature.message_cls)
         if obf_registration_count is None:
@@ -186,16 +184,6 @@ def _blend_handler_registration_similarity(
                 1.0 - _HANDLER_REGISTRATION_SIMILARITY_WEIGHT
             ) * current_score + _HANDLER_REGISTRATION_SIMILARITY_WEIGHT * registration_similarity
     return adjusted_scores_matrix
-
-
-def _count_handler_registrations_by_cls(access_trace: AccessTraceDocument) -> dict[str, int]:
-    registration_count_by_cls: dict[str, int] = defaultdict(int)
-    for traced_function in access_trace.functions_by_address.values():
-        for access_entry in traced_function.access_infos:
-            if not isinstance(access_entry, HandlerRegistrationAccessEntry):
-                continue
-            registration_count_by_cls[access_entry.cls] += 1
-    return dict(registration_count_by_cls)
 
 
 def _build_structure_similarity_context(

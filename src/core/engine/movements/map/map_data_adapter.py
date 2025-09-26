@@ -33,7 +33,6 @@ class DataMapProvider:
         return self.map_data.mapData.cellsData[cell_id]
 
     def can_reach_mp(self, from_mp: MapPoint, to_mp: MapPoint) -> bool:
-        """check if mps are on same level"""
         context = self._get_context()
         from_mp_data = MapReader().get_cell_data_by_cell_id(context.map_id, from_mp.cell_id)
         to_mp_data = MapReader().get_cell_data_by_cell_id(context.map_id, to_mp.cell_id)
@@ -155,7 +154,6 @@ class DataMapProvider:
                 + (0 if ignore_speed else (5 - speed if speed >= 0 else 11 + abs(speed)))
             )
 
-        # Ties keep the lowest direction index
         best_index = 0
         for index in range(1, len(weights)):
             if weights[index] < weights[best_index] and candidates[index] is not None:
@@ -176,8 +174,14 @@ class DataMapProvider:
             case DirectionsEnum.RIGHT:
                 return (
                     bool(cell_data.mapChangeData & MapChangeFlag.RIGHT)
-                    or ((mp.cell_id + 1) % (MAP_WIDTH * 2) == 0 and bool(cell_data.mapChangeData & MapChangeFlag.DOWN_RIGHT))
-                    or ((mp.cell_id + 1) % (MAP_WIDTH * 2) == 0 and bool(cell_data.mapChangeData & MapChangeFlag.UP_RIGHT))
+                    or (
+                        (mp.cell_id + 1) % (MAP_WIDTH * 2) == 0
+                        and bool(cell_data.mapChangeData & MapChangeFlag.DOWN_RIGHT)
+                    )
+                    or (
+                        (mp.cell_id + 1) % (MAP_WIDTH * 2) == 0
+                        and bool(cell_data.mapChangeData & MapChangeFlag.UP_RIGHT)
+                    )
                 )
             case DirectionsEnum.LEFT:
                 return (
@@ -193,9 +197,15 @@ class DataMapProvider:
                 )
             case DirectionsEnum.DOWN:
                 return (
-                    (mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH and bool(cell_data.mapChangeData & MapChangeFlag.DOWN_RIGHT))
+                    (
+                        mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH
+                        and bool(cell_data.mapChangeData & MapChangeFlag.DOWN_RIGHT)
+                    )
                     or bool(cell_data.mapChangeData & MapChangeFlag.DOWN)
-                    or (mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH and bool(cell_data.mapChangeData & MapChangeFlag.DOWN_LEFT))
+                    or (
+                        mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH
+                        and bool(cell_data.mapChangeData & MapChangeFlag.DOWN_LEFT)
+                    )
                 )
             case _:
                 return False
@@ -205,8 +215,13 @@ class DataMapProvider:
         if direction == DirectionsEnum.RIGHT:
             return (
                 bool(map_change_data & MapChangeFlag.RIGHT)
-                or ((mp.cell_id + 1) % (MAP_WIDTH * 2) == 0 and bool(map_change_data & MapChangeFlag.DOWN_RIGHT))
-                or ((mp.cell_id + 1) % (MAP_WIDTH * 2) == 0 and bool(map_change_data & MapChangeFlag.UP_RIGHT))
+                or (
+                    (mp.cell_id + 1) % (MAP_WIDTH * 2) == 0
+                    and bool(map_change_data & MapChangeFlag.DOWN_RIGHT)
+                )
+                or (
+                    (mp.cell_id + 1) % (MAP_WIDTH * 2) == 0 and bool(map_change_data & MapChangeFlag.UP_RIGHT)
+                )
             )
         elif direction == DirectionsEnum.LEFT:
             return (
@@ -222,9 +237,15 @@ class DataMapProvider:
             )
         elif direction == DirectionsEnum.DOWN:
             return (
-                (mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH and bool(map_change_data & MapChangeFlag.DOWN_RIGHT))
+                (
+                    mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH
+                    and bool(map_change_data & MapChangeFlag.DOWN_RIGHT)
+                )
                 or bool(map_change_data & MapChangeFlag.DOWN)
-                or (mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH and bool(map_change_data & MapChangeFlag.DOWN_LEFT))
+                or (
+                    mp.cell_id >= MAP_COUNT_CELL - MAP_WIDTH
+                    and bool(map_change_data & MapChangeFlag.DOWN_LEFT)
+                )
             )
 
         return False

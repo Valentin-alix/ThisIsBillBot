@@ -127,8 +127,7 @@ class HandshakeBehavior(Behavior):
 
     def on_haapi_session_event(self, _msg: HaapiSessionEvent) -> None:
         self.run_timer(
-            get_random_range(_POST_LOAD_DELAY, is_weighted=False),
-            self._send_pre_context_creation_batch,
+            get_random_range(_POST_LOAD_DELAY, is_weighted=False), self._send_pre_context_creation_batch
         )
 
     def _send_pre_context_creation_batch(self) -> None:

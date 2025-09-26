@@ -8,8 +8,6 @@ from src.services.logging_utils.log_level import LogLevel
 
 @dataclass
 class LogSignalHandler(logging.Handler):
-    """auto emit to gui when logging msg, works for global logging & bot specific logging"""
-
     def __init__(self, log_signals: LogSignals, *args: Any, **kwargs: Any):
         self.signals = log_signals
         super().__init__(*args, **kwargs)

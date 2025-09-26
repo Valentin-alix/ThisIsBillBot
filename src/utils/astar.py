@@ -223,7 +223,6 @@ def find_path(
     is_goal_reached_func: GoalReachedProvider[PathT] = _default_is_goal_reached,
     do_reverse: bool = False,
 ) -> list[PathT] | None:
-    """A non-class version of the path finding algorithm."""
     astar = _CallableAstar(
         get_neighbors_func,
         distance_between_func,

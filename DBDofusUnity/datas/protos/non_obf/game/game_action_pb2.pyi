@@ -1,6 +1,7 @@
+import guild_mission_pb2 as _guild_mission_pb2
+import guild_mission_tier_pb2 as _guild_mission_tier_pb2
 import common_pb2 as _common_pb2
-import gamemap_pb2 as _gamemap_pb2
-import guild_chest_pb2 as _guild_chest_pb2
+import game_action_unknown_pb2 as _game_action_unknown_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
@@ -100,26 +101,16 @@ class GameActionSpamEvent(_message.Message):
     def __init__(self, cells: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class GameActionFightEvent(_message.Message):
-    __slots__ = ("action_id", "source_id", "slide", "dodge_point_loss", "reflect_damages", "reduce_damages", "reflect_spell", "removable_effect", "life_points_lost", "life_points_gain", "spell_immunity", "spell_cool_down_variation", "vanish", "kill", "death", "targeted_ability", "tackled", "points_variation", "invisible_detected", "teleport_on_same_map", "exchange_positions", "spell_remove", "modify_effects_duration", "steal_kama", "change_look", "invisibility", "summons", "mark_cells", "unmark_cells", "trigger_glyph_trap", "activate_glyph_trap", "carry_character", "throw_character", "drop_character", "execute_script", "unknown_fvof", "unknown_fvom", "unknown_fvpd")
-    class UnknownJtq(_message.Message):
-        __slots__ = ("unknown_fvch", "unknown_fvci", "unknown_fvcj")
-        UNKNOWN_FVCH_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FVCI_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FVCJ_FIELD_NUMBER: _ClassVar[int]
-        unknown_fvch: int
-        unknown_fvci: bool
-        unknown_fvcj: int
-        def __init__(self, unknown_fvch: _Optional[int] = ..., unknown_fvci: bool = ..., unknown_fvcj: _Optional[int] = ...) -> None: ...
-    class UnknownJtx(_message.Message):
-        __slots__ = ("unknown_fvdn",)
-        UNKNOWN_FVDN_FIELD_NUMBER: _ClassVar[int]
-        unknown_fvdn: int
-        def __init__(self, unknown_fvdn: _Optional[int] = ...) -> None: ...
-    class UnknownJwc(_message.Message):
-        __slots__ = ("unknown_fvnp",)
-        UNKNOWN_FVNP_FIELD_NUMBER: _ClassVar[int]
-        unknown_fvnp: _common_pb2.Team
-        def __init__(self, unknown_fvnp: _Optional[_Union[_common_pb2.Team, str]] = ...) -> None: ...
+    __slots__ = ("action_id", "source_id", "slide", "dodge_point_loss", "reflect_damages", "reduce_damages", "reflect_spell", "removable_effect", "life_points_lost", "life_points_gain", "spell_immunity", "spell_cool_down_variation", "vanish", "kill", "death", "targeted_ability", "tackled", "points_variation", "invisible_detected", "teleport_on_same_map", "exchange_positions", "spell_remove", "modify_effects_duration", "steal_kama", "change_look", "invisibility", "summons", "mark_cells", "unmark_cells", "trigger_glyph_trap", "activate_glyph_trap", "carry_character", "throw_character", "drop_character", "execute_script", "unknown_three_hundred_sixty_five", "unknown_three_hundred_sixty_six", "unknown_three_hundred_sixty_seven")
+    class UnknownOneHundredSeventyTwo(_message.Message):
+        __slots__ = ()
+        def __init__(self) -> None: ...
+    class UnknownOneHundredSeventyThree(_message.Message):
+        __slots__ = ()
+        def __init__(self) -> None: ...
+    class UnknownOneHundredSeventyFour(_message.Message):
+        __slots__ = ()
+        def __init__(self) -> None: ...
     class CarryCharacter(_message.Message):
         __slots__ = ("target_id", "cell")
         TARGET_ID_FIELD_NUMBER: _ClassVar[int]
@@ -292,7 +283,7 @@ class GameActionFightEvent(_message.Message):
         cell: int
         def __init__(self, target_id: _Optional[int] = ..., cell: _Optional[int] = ...) -> None: ...
     class TargetedAbility(_message.Message):
-        __slots__ = ("target_id", "destination_cell", "critical", "silent_cast", "verbose_cast", "spell_cast", "weapon_generic_id", "unknown_fvkb", "unknown_fvkf")
+        __slots__ = ("target_id", "destination_cell", "critical", "silent_cast", "verbose_cast", "spell_cast", "weapon_generic_id", "unknown_three_hundred_sixty_four")
         class SpellCast(_message.Message):
             __slots__ = ("spell_id", "spell_level", "portals_id")
             SPELL_ID_FIELD_NUMBER: _ClassVar[int]
@@ -302,24 +293,18 @@ class GameActionFightEvent(_message.Message):
             spell_level: int
             portals_id: _containers.RepeatedScalarFieldContainer[int]
             def __init__(self, spell_id: _Optional[int] = ..., spell_level: _Optional[int] = ..., portals_id: _Optional[_Iterable[int]] = ...) -> None: ...
-        class UnknownJvf(_message.Message):
-            __slots__ = ("unknown_fvjl", "unknown_fvjm", "unknown_fvjn", "unknown_fvjo")
-            UNKNOWN_FVJL_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_FVJM_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_FVJN_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_FVJO_FIELD_NUMBER: _ClassVar[int]
-            unknown_fvjl: _containers.RepeatedCompositeFieldContainer[_common_pb2.UnknownLgt]
-            unknown_fvjm: int
-            unknown_fvjn: int
-            unknown_fvjo: int
-            def __init__(self, unknown_fvjl: _Optional[_Iterable[_Union[_common_pb2.UnknownLgt, _Mapping]]] = ..., unknown_fvjm: _Optional[int] = ..., unknown_fvjn: _Optional[int] = ..., unknown_fvjo: _Optional[int] = ...) -> None: ...
-        class UnknownJvg(_message.Message):
-            __slots__ = ("unknown_fvjt", "unknown_fvju")
-            UNKNOWN_FVJT_FIELD_NUMBER: _ClassVar[int]
-            UNKNOWN_FVJU_FIELD_NUMBER: _ClassVar[int]
-            unknown_fvjt: _containers.RepeatedCompositeFieldContainer[_common_pb2.UnknownLgt]
-            unknown_fvju: int
-            def __init__(self, unknown_fvjt: _Optional[_Iterable[_Union[_common_pb2.UnknownLgt, _Mapping]]] = ..., unknown_fvju: _Optional[int] = ...) -> None: ...
+        class UnknownOneHundredSeventy(_message.Message):
+            __slots__ = ("unknown_three_hundred_sixty_one", "unknown_three_hundred_sixty_two", "unknown_three_hundred_sixty_three")
+            UNKNOWN_THREE_HUNDRED_SIXTY_ONE_FIELD_NUMBER: _ClassVar[int]
+            UNKNOWN_THREE_HUNDRED_SIXTY_TWO_FIELD_NUMBER: _ClassVar[int]
+            UNKNOWN_THREE_HUNDRED_SIXTY_THREE_FIELD_NUMBER: _ClassVar[int]
+            unknown_three_hundred_sixty_one: int
+            unknown_three_hundred_sixty_two: int
+            unknown_three_hundred_sixty_three: int
+            def __init__(self, unknown_three_hundred_sixty_one: _Optional[int] = ..., unknown_three_hundred_sixty_two: _Optional[int] = ..., unknown_three_hundred_sixty_three: _Optional[int] = ...) -> None: ...
+        class UnknownOneHundredSeventyOne(_message.Message):
+            __slots__ = ()
+            def __init__(self) -> None: ...
         TARGET_ID_FIELD_NUMBER: _ClassVar[int]
         DESTINATION_CELL_FIELD_NUMBER: _ClassVar[int]
         CRITICAL_FIELD_NUMBER: _ClassVar[int]
@@ -327,8 +312,7 @@ class GameActionFightEvent(_message.Message):
         VERBOSE_CAST_FIELD_NUMBER: _ClassVar[int]
         SPELL_CAST_FIELD_NUMBER: _ClassVar[int]
         WEAPON_GENERIC_ID_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FVKB_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FVKF_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_THREE_HUNDRED_SIXTY_FOUR_FIELD_NUMBER: _ClassVar[int]
         target_id: int
         destination_cell: int
         critical: FightSpellCastCritical
@@ -336,9 +320,8 @@ class GameActionFightEvent(_message.Message):
         verbose_cast: bool
         spell_cast: GameActionFightEvent.TargetedAbility.SpellCast
         weapon_generic_id: int
-        unknown_fvkb: _containers.RepeatedCompositeFieldContainer[GameActionFightEvent.TargetedAbility.UnknownJvf]
-        unknown_fvkf: GameActionFightEvent.TargetedAbility.UnknownJvg
-        def __init__(self, target_id: _Optional[int] = ..., destination_cell: _Optional[int] = ..., critical: _Optional[_Union[FightSpellCastCritical, str]] = ..., silent_cast: bool = ..., verbose_cast: bool = ..., spell_cast: _Optional[_Union[GameActionFightEvent.TargetedAbility.SpellCast, _Mapping]] = ..., weapon_generic_id: _Optional[int] = ..., unknown_fvkb: _Optional[_Iterable[_Union[GameActionFightEvent.TargetedAbility.UnknownJvf, _Mapping]]] = ..., unknown_fvkf: _Optional[_Union[GameActionFightEvent.TargetedAbility.UnknownJvg, _Mapping]] = ...) -> None: ...
+        unknown_three_hundred_sixty_four: _containers.RepeatedCompositeFieldContainer[GameActionFightEvent.TargetedAbility.UnknownOneHundredSeventy]
+        def __init__(self, target_id: _Optional[int] = ..., destination_cell: _Optional[int] = ..., critical: _Optional[_Union[FightSpellCastCritical, str]] = ..., silent_cast: bool = ..., verbose_cast: bool = ..., spell_cast: _Optional[_Union[GameActionFightEvent.TargetedAbility.SpellCast, _Mapping]] = ..., weapon_generic_id: _Optional[int] = ..., unknown_three_hundred_sixty_four: _Optional[_Iterable[_Union[GameActionFightEvent.TargetedAbility.UnknownOneHundredSeventy, _Mapping]]] = ...) -> None: ...
     class Vanish(_message.Message):
         __slots__ = ("target_id",)
         TARGET_ID_FIELD_NUMBER: _ClassVar[int]
@@ -465,9 +448,9 @@ class GameActionFightEvent(_message.Message):
     THROW_CHARACTER_FIELD_NUMBER: _ClassVar[int]
     DROP_CHARACTER_FIELD_NUMBER: _ClassVar[int]
     EXECUTE_SCRIPT_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FVOF_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FVOM_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FVPD_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_SIXTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_SIXTY_SIX_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_SIXTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
     action_id: int
     source_id: int
     slide: GameActionFightEvent.Slide
@@ -503,10 +486,10 @@ class GameActionFightEvent(_message.Message):
     throw_character: GameActionFightEvent.ThrowCharacter
     drop_character: GameActionFightEvent.DropCharacter
     execute_script: GameActionFightEvent.ExecuteScript
-    unknown_fvof: GameActionFightEvent.UnknownJtq
-    unknown_fvom: GameActionFightEvent.UnknownJtx
-    unknown_fvpd: GameActionFightEvent.UnknownJwc
-    def __init__(self, action_id: _Optional[int] = ..., source_id: _Optional[int] = ..., slide: _Optional[_Union[GameActionFightEvent.Slide, _Mapping]] = ..., dodge_point_loss: _Optional[_Union[GameActionFightEvent.DodgePointLoss, _Mapping]] = ..., reflect_damages: _Optional[_Union[GameActionFightEvent.ReflectDamages, _Mapping]] = ..., reduce_damages: _Optional[_Union[GameActionFightEvent.ReduceDamages, _Mapping]] = ..., reflect_spell: _Optional[_Union[GameActionFightEvent.ReflectSpell, _Mapping]] = ..., removable_effect: _Optional[_Union[GameActionFightEvent.RemovableEffect, _Mapping]] = ..., life_points_lost: _Optional[_Union[GameActionFightEvent.LifePointsLost, _Mapping]] = ..., life_points_gain: _Optional[_Union[GameActionFightEvent.LifePointsGain, _Mapping]] = ..., spell_immunity: _Optional[_Union[GameActionFightEvent.SpellImmunity, _Mapping]] = ..., spell_cool_down_variation: _Optional[_Union[GameActionFightEvent.SpellCoolDownVariation, _Mapping]] = ..., vanish: _Optional[_Union[GameActionFightEvent.Vanish, _Mapping]] = ..., kill: _Optional[_Union[GameActionFightEvent.Kill, _Mapping]] = ..., death: _Optional[_Union[GameActionFightEvent.Death, _Mapping]] = ..., targeted_ability: _Optional[_Union[GameActionFightEvent.TargetedAbility, _Mapping]] = ..., tackled: _Optional[_Union[GameActionFightEvent.Tackled, _Mapping]] = ..., points_variation: _Optional[_Union[GameActionFightEvent.PointsVariation, _Mapping]] = ..., invisible_detected: _Optional[_Union[GameActionFightEvent.InvisibleDetected, _Mapping]] = ..., teleport_on_same_map: _Optional[_Union[GameActionFightEvent.TeleportOnSameMap, _Mapping]] = ..., exchange_positions: _Optional[_Union[GameActionFightEvent.ExchangePositions, _Mapping]] = ..., spell_remove: _Optional[_Union[GameActionFightEvent.SpellRemove, _Mapping]] = ..., modify_effects_duration: _Optional[_Union[GameActionFightEvent.ModifyEffectsDuration, _Mapping]] = ..., steal_kama: _Optional[_Union[GameActionFightEvent.StealKama, _Mapping]] = ..., change_look: _Optional[_Union[GameActionFightEvent.ChangeLook, _Mapping]] = ..., invisibility: _Optional[_Union[GameActionFightEvent.Invisibility, _Mapping]] = ..., summons: _Optional[_Union[GameActionFightEvent.Summons, _Mapping]] = ..., mark_cells: _Optional[_Union[GameActionFightEvent.MarkCells, _Mapping]] = ..., unmark_cells: _Optional[_Union[GameActionFightEvent.UnmarkCells, _Mapping]] = ..., trigger_glyph_trap: _Optional[_Union[GameActionFightEvent.TriggerGlyphTrap, _Mapping]] = ..., activate_glyph_trap: _Optional[_Union[GameActionFightEvent.ActivateGlyphTrap, _Mapping]] = ..., carry_character: _Optional[_Union[GameActionFightEvent.CarryCharacter, _Mapping]] = ..., throw_character: _Optional[_Union[GameActionFightEvent.ThrowCharacter, _Mapping]] = ..., drop_character: _Optional[_Union[GameActionFightEvent.DropCharacter, _Mapping]] = ..., execute_script: _Optional[_Union[GameActionFightEvent.ExecuteScript, _Mapping]] = ..., unknown_fvof: _Optional[_Union[GameActionFightEvent.UnknownJtq, _Mapping]] = ..., unknown_fvom: _Optional[_Union[GameActionFightEvent.UnknownJtx, _Mapping]] = ..., unknown_fvpd: _Optional[_Union[GameActionFightEvent.UnknownJwc, _Mapping]] = ...) -> None: ...
+    unknown_three_hundred_sixty_five: GameActionFightEvent.UnknownOneHundredSeventyTwo
+    unknown_three_hundred_sixty_six: GameActionFightEvent.UnknownOneHundredSeventyThree
+    unknown_three_hundred_sixty_seven: GameActionFightEvent.UnknownOneHundredSeventyFour
+    def __init__(self, action_id: _Optional[int] = ..., source_id: _Optional[int] = ..., slide: _Optional[_Union[GameActionFightEvent.Slide, _Mapping]] = ..., dodge_point_loss: _Optional[_Union[GameActionFightEvent.DodgePointLoss, _Mapping]] = ..., reflect_damages: _Optional[_Union[GameActionFightEvent.ReflectDamages, _Mapping]] = ..., reduce_damages: _Optional[_Union[GameActionFightEvent.ReduceDamages, _Mapping]] = ..., reflect_spell: _Optional[_Union[GameActionFightEvent.ReflectSpell, _Mapping]] = ..., removable_effect: _Optional[_Union[GameActionFightEvent.RemovableEffect, _Mapping]] = ..., life_points_lost: _Optional[_Union[GameActionFightEvent.LifePointsLost, _Mapping]] = ..., life_points_gain: _Optional[_Union[GameActionFightEvent.LifePointsGain, _Mapping]] = ..., spell_immunity: _Optional[_Union[GameActionFightEvent.SpellImmunity, _Mapping]] = ..., spell_cool_down_variation: _Optional[_Union[GameActionFightEvent.SpellCoolDownVariation, _Mapping]] = ..., vanish: _Optional[_Union[GameActionFightEvent.Vanish, _Mapping]] = ..., kill: _Optional[_Union[GameActionFightEvent.Kill, _Mapping]] = ..., death: _Optional[_Union[GameActionFightEvent.Death, _Mapping]] = ..., targeted_ability: _Optional[_Union[GameActionFightEvent.TargetedAbility, _Mapping]] = ..., tackled: _Optional[_Union[GameActionFightEvent.Tackled, _Mapping]] = ..., points_variation: _Optional[_Union[GameActionFightEvent.PointsVariation, _Mapping]] = ..., invisible_detected: _Optional[_Union[GameActionFightEvent.InvisibleDetected, _Mapping]] = ..., teleport_on_same_map: _Optional[_Union[GameActionFightEvent.TeleportOnSameMap, _Mapping]] = ..., exchange_positions: _Optional[_Union[GameActionFightEvent.ExchangePositions, _Mapping]] = ..., spell_remove: _Optional[_Union[GameActionFightEvent.SpellRemove, _Mapping]] = ..., modify_effects_duration: _Optional[_Union[GameActionFightEvent.ModifyEffectsDuration, _Mapping]] = ..., steal_kama: _Optional[_Union[GameActionFightEvent.StealKama, _Mapping]] = ..., change_look: _Optional[_Union[GameActionFightEvent.ChangeLook, _Mapping]] = ..., invisibility: _Optional[_Union[GameActionFightEvent.Invisibility, _Mapping]] = ..., summons: _Optional[_Union[GameActionFightEvent.Summons, _Mapping]] = ..., mark_cells: _Optional[_Union[GameActionFightEvent.MarkCells, _Mapping]] = ..., unmark_cells: _Optional[_Union[GameActionFightEvent.UnmarkCells, _Mapping]] = ..., trigger_glyph_trap: _Optional[_Union[GameActionFightEvent.TriggerGlyphTrap, _Mapping]] = ..., activate_glyph_trap: _Optional[_Union[GameActionFightEvent.ActivateGlyphTrap, _Mapping]] = ..., carry_character: _Optional[_Union[GameActionFightEvent.CarryCharacter, _Mapping]] = ..., throw_character: _Optional[_Union[GameActionFightEvent.ThrowCharacter, _Mapping]] = ..., drop_character: _Optional[_Union[GameActionFightEvent.DropCharacter, _Mapping]] = ..., execute_script: _Optional[_Union[GameActionFightEvent.ExecuteScript, _Mapping]] = ..., unknown_three_hundred_sixty_five: _Optional[_Union[GameActionFightEvent.UnknownOneHundredSeventyTwo, _Mapping]] = ..., unknown_three_hundred_sixty_six: _Optional[_Union[GameActionFightEvent.UnknownOneHundredSeventyThree, _Mapping]] = ..., unknown_three_hundred_sixty_seven: _Optional[_Union[GameActionFightEvent.UnknownOneHundredSeventyFour, _Mapping]] = ...) -> None: ...
 
 class GameActionUpdateEffectTriggerCountEvent(_message.Message):
     __slots__ = ("effects_count_on_target",)
@@ -578,142 +561,68 @@ class EntitySpawnInformation(_message.Message):
     companion: EntitySpawnInformation.Companion
     def __init__(self, monster: _Optional[_Union[EntitySpawnInformation.Monster, _Mapping]] = ..., character: _Optional[_Union[EntitySpawnInformation.CharacterEntity, _Mapping]] = ..., companion: _Optional[_Union[EntitySpawnInformation.Companion, _Mapping]] = ...) -> None: ...
 
-class UnknownJdb(_message.Message):
-    __slots__ = ("unknown_fstx", "unknown_fsty")
-    class UnknownJcy(_message.Message):
-        __slots__ = ("unknown_fstl", "unknown_fstm", "unknown_fstn")
-        UNKNOWN_FSTL_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FSTM_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FSTN_FIELD_NUMBER: _ClassVar[int]
-        unknown_fstl: _guild_chest_pb2.UnknownJgs
-        unknown_fstm: _gamemap_pb2.UnknownJfl
-        unknown_fstn: UnknownJdf
-        def __init__(self, unknown_fstl: _Optional[_Union[_guild_chest_pb2.UnknownJgs, _Mapping]] = ..., unknown_fstm: _Optional[_Union[_gamemap_pb2.UnknownJfl, _Mapping]] = ..., unknown_fstn: _Optional[_Union[UnknownJdf, _Mapping]] = ...) -> None: ...
-    UNKNOWN_FSTX_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FSTY_FIELD_NUMBER: _ClassVar[int]
-    unknown_fstx: int
-    unknown_fsty: UnknownJdb.UnknownJcy
-    def __init__(self, unknown_fstx: _Optional[int] = ..., unknown_fsty: _Optional[_Union[UnknownJdb.UnknownJcy, _Mapping]] = ...) -> None: ...
+class UnknownOneHundredSeventyFive(_message.Message):
+    __slots__ = ("unknown_three_hundred_seventy_one", "unknown_three_hundred_seventy_two")
+    class UnknownOneHundredSeventySix(_message.Message):
+        __slots__ = ("unknown_three_hundred_sixty_eight", "unknown_three_hundred_sixty_nine", "unknown_three_hundred_seventy")
+        UNKNOWN_THREE_HUNDRED_SIXTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_THREE_HUNDRED_SIXTY_NINE_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_THREE_HUNDRED_SEVENTY_FIELD_NUMBER: _ClassVar[int]
+        unknown_three_hundred_sixty_eight: _guild_mission_tier_pb2.GuildMissionDisabledEntries
+        unknown_three_hundred_sixty_nine: _guild_mission_pb2.GuildMissionInformation
+        unknown_three_hundred_seventy: _game_action_unknown_pb2.UnknownOneHundredEightyFive
+        def __init__(self, unknown_three_hundred_sixty_eight: _Optional[_Union[_guild_mission_tier_pb2.GuildMissionDisabledEntries, _Mapping]] = ..., unknown_three_hundred_sixty_nine: _Optional[_Union[_guild_mission_pb2.GuildMissionInformation, _Mapping]] = ..., unknown_three_hundred_seventy: _Optional[_Union[_game_action_unknown_pb2.UnknownOneHundredEightyFive, _Mapping]] = ...) -> None: ...
+    UNKNOWN_THREE_HUNDRED_SEVENTY_ONE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_SEVENTY_TWO_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_seventy_one: int
+    unknown_three_hundred_seventy_two: UnknownOneHundredSeventyFive.UnknownOneHundredSeventySix
+    def __init__(self, unknown_three_hundred_seventy_one: _Optional[int] = ..., unknown_three_hundred_seventy_two: _Optional[_Union[UnknownOneHundredSeventyFive.UnknownOneHundredSeventySix, _Mapping]] = ...) -> None: ...
 
-class UnknownJdf(_message.Message):
-    __slots__ = ("unknown_fsui", "unknown_fsuk")
-    UNKNOWN_FSUI_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FSUK_FIELD_NUMBER: _ClassVar[int]
-    unknown_fsui: _containers.RepeatedCompositeFieldContainer[UnknownJdx]
-    unknown_fsuk: _containers.RepeatedCompositeFieldContainer[UnknownJdx]
-    def __init__(self, unknown_fsui: _Optional[_Iterable[_Union[UnknownJdx, _Mapping]]] = ..., unknown_fsuk: _Optional[_Iterable[_Union[UnknownJdx, _Mapping]]] = ...) -> None: ...
+class UnknownOneHundredSeventySeven(_message.Message):
+    __slots__ = ("unknown_three_hundred_seventy_four", "unknown_three_hundred_seventy_five")
+    class UnknownOneHundredSeventyEight(_message.Message):
+        __slots__ = ("unknown_three_hundred_seventy_three",)
+        UNKNOWN_THREE_HUNDRED_SEVENTY_THREE_FIELD_NUMBER: _ClassVar[int]
+        unknown_three_hundred_seventy_three: _game_action_unknown_pb2.UnknownOneHundredEightySix
+        def __init__(self, unknown_three_hundred_seventy_three: _Optional[_Union[_game_action_unknown_pb2.UnknownOneHundredEightySix, _Mapping]] = ...) -> None: ...
+    UNKNOWN_THREE_HUNDRED_SEVENTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_SEVENTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_seventy_four: int
+    unknown_three_hundred_seventy_five: UnknownOneHundredSeventySeven.UnknownOneHundredSeventyEight
+    def __init__(self, unknown_three_hundred_seventy_four: _Optional[int] = ..., unknown_three_hundred_seventy_five: _Optional[_Union[UnknownOneHundredSeventySeven.UnknownOneHundredSeventyEight, _Mapping]] = ...) -> None: ...
 
-class UnknownJdx(_message.Message):
-    __slots__ = ("unknown_fswi", "unknown_fswj", "unknown_fswk", "unknown_fswl")
-    class UnknownJdu(_message.Message):
-        __slots__ = ("unknown_fsvp",)
-        UNKNOWN_FSVP_FIELD_NUMBER: _ClassVar[int]
-        unknown_fsvp: int
-        def __init__(self, unknown_fsvp: _Optional[int] = ...) -> None: ...
-    class UnknownJdv(_message.Message):
-        __slots__ = ("unknown_fsvx", "unknown_fsvy", "unknown_fsvz", "unknown_fswb", "unknown_fswc", "unknown_fswd", "unknown_fswe")
-        UNKNOWN_FSVX_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FSVY_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FSVZ_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FSWB_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FSWC_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FSWD_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FSWE_FIELD_NUMBER: _ClassVar[int]
-        unknown_fsvx: bool
-        unknown_fsvy: str
-        unknown_fsvz: int
-        unknown_fswb: int
-        unknown_fswc: bool
-        unknown_fswd: int
-        unknown_fswe: int
-        def __init__(self, unknown_fsvx: bool = ..., unknown_fsvy: _Optional[str] = ..., unknown_fsvz: _Optional[int] = ..., unknown_fswb: _Optional[int] = ..., unknown_fswc: bool = ..., unknown_fswd: _Optional[int] = ..., unknown_fswe: _Optional[int] = ...) -> None: ...
-    UNKNOWN_FSWI_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FSWJ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FSWK_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FSWL_FIELD_NUMBER: _ClassVar[int]
-    unknown_fswi: str
-    unknown_fswj: _containers.RepeatedCompositeFieldContainer[UnknownJdx.UnknownJdv]
-    unknown_fswk: int
-    unknown_fswl: UnknownJdx.UnknownJdu
-    def __init__(self, unknown_fswi: _Optional[str] = ..., unknown_fswj: _Optional[_Iterable[_Union[UnknownJdx.UnknownJdv, _Mapping]]] = ..., unknown_fswk: _Optional[int] = ..., unknown_fswl: _Optional[_Union[UnknownJdx.UnknownJdu, _Mapping]] = ...) -> None: ...
+class UnknownOneHundredSeventyNine(_message.Message):
+    __slots__ = ("unknown_three_hundred_seventy_eight", "unknown_three_hundred_seventy_nine")
+    class UnknownOneHundredEighty(_message.Message):
+        __slots__ = ("unknown_three_hundred_seventy_six", "unknown_three_hundred_seventy_seven")
+        UNKNOWN_THREE_HUNDRED_SEVENTY_SIX_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_THREE_HUNDRED_SEVENTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+        unknown_three_hundred_seventy_six: str
+        unknown_three_hundred_seventy_seven: _game_action_unknown_pb2.UnknownOneHundredEightySix
+        def __init__(self, unknown_three_hundred_seventy_six: _Optional[str] = ..., unknown_three_hundred_seventy_seven: _Optional[_Union[_game_action_unknown_pb2.UnknownOneHundredEightySix, _Mapping]] = ...) -> None: ...
+    UNKNOWN_THREE_HUNDRED_SEVENTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_SEVENTY_NINE_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_seventy_eight: UnknownOneHundredSeventyNine.UnknownOneHundredEighty
+    unknown_three_hundred_seventy_nine: int
+    def __init__(self, unknown_three_hundred_seventy_eight: _Optional[_Union[UnknownOneHundredSeventyNine.UnknownOneHundredEighty, _Mapping]] = ..., unknown_three_hundred_seventy_nine: _Optional[int] = ...) -> None: ...
 
-class UnknownJdc(_message.Message):
-    __slots__ = ("unknown_fsud",)
-    UNKNOWN_FSUD_FIELD_NUMBER: _ClassVar[int]
-    unknown_fsud: UnknownJdx
-    def __init__(self, unknown_fsud: _Optional[_Union[UnknownJdx, _Mapping]] = ...) -> None: ...
+class UnknownOneHundredEightyOne(_message.Message):
+    __slots__ = ("unknown_three_hundred_eighty_one", "unknown_three_hundred_eighty_two")
+    class UnknownOneHundredEightyTwo(_message.Message):
+        __slots__ = ("unknown_three_hundred_eighty",)
+        UNKNOWN_THREE_HUNDRED_EIGHTY_FIELD_NUMBER: _ClassVar[int]
+        unknown_three_hundred_eighty: _game_action_unknown_pb2.UnknownOneHundredEightyFive
+        def __init__(self, unknown_three_hundred_eighty: _Optional[_Union[_game_action_unknown_pb2.UnknownOneHundredEightyFive, _Mapping]] = ...) -> None: ...
+    UNKNOWN_THREE_HUNDRED_EIGHTY_ONE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_EIGHTY_TWO_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_eighty_one: UnknownOneHundredEightyOne.UnknownOneHundredEightyTwo
+    unknown_three_hundred_eighty_two: int
+    def __init__(self, unknown_three_hundred_eighty_one: _Optional[_Union[UnknownOneHundredEightyOne.UnknownOneHundredEightyTwo, _Mapping]] = ..., unknown_three_hundred_eighty_two: _Optional[int] = ...) -> None: ...
 
-class UnknownJdk(_message.Message):
-    __slots__ = ("unknown_fsuw", "unknown_fsux")
-    class UnknownJdh(_message.Message):
-        __slots__ = ("unknown_fsup",)
-        UNKNOWN_FSUP_FIELD_NUMBER: _ClassVar[int]
-        unknown_fsup: UnknownJdx
-        def __init__(self, unknown_fsup: _Optional[_Union[UnknownJdx, _Mapping]] = ...) -> None: ...
-    UNKNOWN_FSUW_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FSUX_FIELD_NUMBER: _ClassVar[int]
-    unknown_fsuw: int
-    unknown_fsux: UnknownJdk.UnknownJdh
-    def __init__(self, unknown_fsuw: _Optional[int] = ..., unknown_fsux: _Optional[_Union[UnknownJdk.UnknownJdh, _Mapping]] = ...) -> None: ...
-
-class UnknownJed(_message.Message):
-    __slots__ = ("unknown_fsxo", "unknown_fsxp")
-    class UnknownJea(_message.Message):
-        __slots__ = ("unknown_fsxe", "unknown_fsxg")
-        UNKNOWN_FSXE_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FSXG_FIELD_NUMBER: _ClassVar[int]
-        unknown_fsxe: str
-        unknown_fsxg: UnknownJdx
-        def __init__(self, unknown_fsxe: _Optional[str] = ..., unknown_fsxg: _Optional[_Union[UnknownJdx, _Mapping]] = ...) -> None: ...
-    UNKNOWN_FSXO_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FSXP_FIELD_NUMBER: _ClassVar[int]
-    unknown_fsxo: UnknownJed.UnknownJea
-    unknown_fsxp: int
-    def __init__(self, unknown_fsxo: _Optional[_Union[UnknownJed.UnknownJea, _Mapping]] = ..., unknown_fsxp: _Optional[int] = ...) -> None: ...
-
-class UnknownJei(_message.Message):
-    __slots__ = ("unknown_fsyc", "unknown_fsyd")
-    class UnknownJef(_message.Message):
-        __slots__ = ("unknown_fsxu",)
-        UNKNOWN_FSXU_FIELD_NUMBER: _ClassVar[int]
-        unknown_fsxu: UnknownJdf
-        def __init__(self, unknown_fsxu: _Optional[_Union[UnknownJdf, _Mapping]] = ...) -> None: ...
-    UNKNOWN_FSYC_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FSYD_FIELD_NUMBER: _ClassVar[int]
-    unknown_fsyc: UnknownJei.UnknownJef
-    unknown_fsyd: int
-    def __init__(self, unknown_fsyc: _Optional[_Union[UnknownJei.UnknownJef, _Mapping]] = ..., unknown_fsyd: _Optional[int] = ...) -> None: ...
-
-class UnknownJej(_message.Message):
-    __slots__ = ("unknown_fsyi", "unknown_fsyj")
-    UNKNOWN_FSYI_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FSYJ_FIELD_NUMBER: _ClassVar[int]
-    unknown_fsyi: bool
-    unknown_fsyj: str
-    def __init__(self, unknown_fsyi: bool = ..., unknown_fsyj: _Optional[str] = ...) -> None: ...
-
-class UnknownJem(_message.Message):
-    __slots__ = ("unknown_fsza",)
-    UNKNOWN_FSZA_FIELD_NUMBER: _ClassVar[int]
-    unknown_fsza: UnknownJdf
-    def __init__(self, unknown_fsza: _Optional[_Union[UnknownJdf, _Mapping]] = ...) -> None: ...
-
-class UnknownJen(_message.Message):
-    __slots__ = ("unknown_fszf",)
-    UNKNOWN_FSZF_FIELD_NUMBER: _ClassVar[int]
-    unknown_fszf: int
-    def __init__(self, unknown_fszf: _Optional[int] = ...) -> None: ...
-
-class UnknownJeq(_message.Message):
-    __slots__ = ("unknown_fszx",)
-    UNKNOWN_FSZX_FIELD_NUMBER: _ClassVar[int]
-    unknown_fszx: str
-    def __init__(self, unknown_fszx: _Optional[str] = ...) -> None: ...
-
-class UnknownJet(_message.Message):
-    __slots__ = ("unknown_ftab", "unknown_ftae")
-    UNKNOWN_FTAB_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTAE_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftab: int
-    unknown_ftae: _guild_chest_pb2.UnknownJgs
-    def __init__(self, unknown_ftab: _Optional[int] = ..., unknown_ftae: _Optional[_Union[_guild_chest_pb2.UnknownJgs, _Mapping]] = ...) -> None: ...
+class UnknownOneHundredEightyThree(_message.Message):
+    __slots__ = ("unknown_three_hundred_eighty_three", "unknown_three_hundred_eighty_four")
+    UNKNOWN_THREE_HUNDRED_EIGHTY_THREE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_EIGHTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_eighty_three: int
+    unknown_three_hundred_eighty_four: _guild_mission_tier_pb2.GuildMissionDisabledEntries
+    def __init__(self, unknown_three_hundred_eighty_three: _Optional[int] = ..., unknown_three_hundred_eighty_four: _Optional[_Union[_guild_mission_tier_pb2.GuildMissionDisabledEntries, _Mapping]] = ...) -> None: ...

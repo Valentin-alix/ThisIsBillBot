@@ -22,9 +22,10 @@ from src.core.behaviors.movements.map_change_behavior import (
     MapChangeError,
 )
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
-from src.services.human_timings import HumanTimingsService
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.engine.movements.world.edge import get_valid_transition
+from src.core.engine.movements.world.transition_ban import BannedTransition, TransitionBanScope
+from src.services.human_timings import HumanTimingsService
 
 
 class EdgeError(StrEnum):
@@ -51,17 +52,17 @@ class EdgeBehavior(Behavior):
                 f"probably in transition to map id"
             )
             return self.finish(EdgeError.INVALID_STARTING_MAP)
-        self.event_manager.on(
-            MapCurrentEvent,
-            partial(self.on_map_current_event, expected_map_id=edge.m_to.m_mapId),
-            originator=self,
-        )
         transition = get_valid_transition(
             edge, edge.m_transitions, self.game_state.get_world_transition_context()
         )
         if transition is None:
             return self.finish(EdgeError.NO_VALID_TRANSITION)
 
+        self.event_manager.on(
+            MapCurrentEvent,
+            partial(self.on_map_current_event, edge=edge, transition=transition),
+            originator=self,
+        )
         self.event_manager.on(
             FightMapInformationEvent,
             partial(self.on_fight_map_information_event, edge=edge),
@@ -140,7 +141,7 @@ class EdgeBehavior(Behavior):
 
         self.event_manager.on(
             MapCurrentEvent,
-            partial(self.on_map_current_event, expected_map_id=edge.m_to.m_mapId),
+            partial(self.on_map_current_event, edge=edge, transition=transition),
             originator=self,
             once=True,
             override_on_self=True,
@@ -213,14 +214,14 @@ class EdgeBehavior(Behavior):
         )
         if move_path.end.cell_id != transition.m_cellId:
             self.logger.error(f"move path : {move_path} not ending at transition {transition}, invalid.")
-            self.handle_invalid_transition(edge, transition)
+            self.handle_unreachable_transition(edge, transition)
             return self.run_timer(
                 HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
             )
 
         self.event_manager.on(
             MapCurrentEvent,
-            partial(self.on_map_current_event, expected_map_id=edge.m_to.m_mapId),
+            partial(self.on_map_current_event, edge=edge, transition=transition),
             originator=self,
             once=True,
             override_on_self=True,
@@ -258,12 +259,14 @@ class EdgeBehavior(Behavior):
                 )
             self.raise_if_error(error_code)
 
-    def on_map_current_event(self, msg: MapCurrentEvent, expected_map_id: int):
+    def on_map_current_event(self, msg: MapCurrentEvent, edge: Edge, transition: Transition):
         if self.game_state.fight.in_fight:
-            # FightMapInformationEvent is gonna handle that
             return
-        error_code = MapChangeError.UNEXPECTED_NEW_MAP if msg.map_id != expected_map_id else None
-        return self.finish(error_code)
+        if msg.map_id == edge.m_to.m_mapId:
+            return self.finish()
+        self.logger.error(f"landed on map {msg.map_id} instead of {edge.m_to.m_mapId}")
+        self.handle_invalid_transition(edge, transition)
+        return self.finish(MapChangeError.UNEXPECTED_NEW_MAP)
 
     def use_map_change_transition(self, edge: Edge, transition: Transition):
         move_path = self.path_finding.find_path(
@@ -273,7 +276,7 @@ class EdgeBehavior(Behavior):
         )
         if move_path.end.cell_id != transition.m_cellId:
             self.logger.error(f"move path : {move_path} not ending at transition {transition}, invalid.")
-            self.handle_invalid_transition(edge, transition)
+            self.handle_unreachable_transition(edge, transition)
             return self.run_timer(
                 HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
             )
@@ -326,14 +329,28 @@ class EdgeBehavior(Behavior):
             return self.run_timer(
                 HumanTimingsService().get_timing_base_action(), partial(self._retry_edge, edge=edge)
             )
-        elif error_code is MapChangeError.UNEXPECTED_NEW_MAP and self.game_state.fight.in_fight:
-            return
+        elif error_code is MapChangeError.UNEXPECTED_NEW_MAP:
+            if self.game_state.fight.in_fight:
+                return
+            self.handle_invalid_transition(edge, transition)
         elif error_code in [MapMoveError.REFUSED, MapChangeError.TIMEOUT]:
             self.logger.error("refused or timeout map change")
             self.handle_invalid_transition(edge, transition)
             return self.run_timer((1, 10), partial(self._retry_edge, edge=edge))
         self.raise_if_error(error_code)
 
+    def handle_unreachable_transition(self, edge: Edge, transition: Transition):
+        self._ban_transition(edge, transition, TransitionBanScope.MAP_STAY, "Unreachable transition")
+
     def handle_invalid_transition(self, edge: Edge, transition: Transition):
-        self.logger.error(f"Forbidden edge : {edge} with transition : {transition}")
-        self.game_state.map.forbidden_edge_transitions.add((edge.m_from, edge.m_to, transition))
+        self._ban_transition(edge, transition, TransitionBanScope.SESSION, "Forbidden edge")
+
+    def _ban_transition(
+        self, edge: Edge, transition: Transition, scope: TransitionBanScope, reason: str
+    ) -> None:
+        self.logger.error(f"{reason} : {edge} with transition : {transition}")
+        self.game_state.map.banned_edge_transitions.add(
+            BannedTransition(
+                vertice_from=edge.m_from, vertice_to=edge.m_to, transition=transition, scope=scope
+            )
+        )

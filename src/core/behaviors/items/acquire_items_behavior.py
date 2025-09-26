@@ -29,7 +29,6 @@ class ItemToAcquire(BaseModel):
 
 @dataclass
 class AcquireItemsBehavior(RecoverableBehavior):
-
     load_from_bank_behavior: LoadFromBankBehavior
     sale_hotel_buy_behavior: SaleHotelBuyBehavior
 

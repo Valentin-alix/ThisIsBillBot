@@ -215,7 +215,6 @@ class Attacker(ContextualLogger):
         target_mp: MapPoint,
         current_best: tuple[float, int, MapPoint, SpellLevelsRootItem, MapPoint],
     ) -> bool:
-        """get best weight first then most remaining pm if equal first then closer enemy if equals"""
         if weight < current_best[0]:
             return False
 

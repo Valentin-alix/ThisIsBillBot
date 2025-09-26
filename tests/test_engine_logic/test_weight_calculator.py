@@ -131,7 +131,7 @@ def patch_singletons(monkeypatch: pytest.MonkeyPatch) -> dict[str, str]:
     fake_data_effect = SimpleNamespace(descriptionId=42, characteristicOperator="")
     fake_data_reader = SimpleNamespace(effect_by_id={1: fake_data_effect})
     monkeypatch.setattr(weight_calculator, "DataReader", lambda: fake_data_reader)
-    # is_push_effect / is_heal_effect live in the effect module and use its DataReader.
+
     monkeypatch.setattr(effect_module, "DataReader", lambda: fake_data_reader)
     monkeypatch.setattr(
         weight_calculator,
@@ -171,13 +171,10 @@ class TestCalculateAttackWeight:
             modifiers=_make_modifiers(ap_cost=1),
         )
 
-        # cap at 2 steps -> 40% decrease -> effective_damage = 60.
-        # normalized_health = 1.0, efficiency = 60, no kill -> weight = 60 / ap_cost(1).
         assert weight == pytest.approx(60.0)  # pyright: ignore[reportUnknownMemberType]
 
     def test_catastrophic_life_cost_drops_weight_below_zero(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        # Spell that drains 100% of current LP -> recovery weight goes negative,
-        # so the candidate is filtered by attacker.py's `total_weight > 0` guard.
+
         _stub_malus_life_percent_pct(monkeypatch, 1.0)
 
         effect = _make_effect()
@@ -198,8 +195,6 @@ class TestCalculateAttackWeight:
             modifiers=_make_modifiers(ap_cost=2),
         )
 
-        # dmg_weight = 100 (efficiency 100/1.0), recovery = 1 + (-1.0 * 2) = -1.0
-        # final = 100 * -1.0 / 2 = -50
         assert weight == pytest.approx(-50.0)  # pyright: ignore[reportUnknownMemberType]
         assert weight <= 0
 
@@ -231,9 +226,6 @@ class TestCalculateAttackWeight:
             modifiers=_make_modifiers(ap_cost=1),
         )
 
-        # effective_damage capped at 50, normalized_health = 50/500 = 0.1
-        # efficiency = 50/0.1 = 500, with kill bonus -> dmg_weight = 500 * 2.0 = 1000
-        # life_stolen = 50 * 0.5 = 25 -> recovery = 1 + (0.025*2) = 1.05
         assert weight == pytest.approx(1000 * 1.05)  # pyright: ignore[reportUnknownMemberType]
 
     def test_low_hp_target_is_prioritized_over_full_hp(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -271,8 +263,6 @@ class TestCalculateAttackWeight:
             modifiers=_make_modifiers(ap_cost=1),
         )
 
-        # low: effective=10, normalized=0.02, efficiency=10/0.02=500, +kill -> 1000
-        # full: effective=100, normalized=1.0, efficiency=100, no kill -> 100
         assert weight_low == pytest.approx(1000.0)  # pyright: ignore[reportUnknownMemberType]
         assert weight_full == pytest.approx(100.0)  # pyright: ignore[reportUnknownMemberType]
         assert weight_low > weight_full
@@ -321,9 +311,6 @@ class TestCalculateAttackWeight:
             modifiers=_make_modifiers(ap_cost=1),
         )
 
-        # both effective_damage capped at 100, normalized_health = 1.0
-        # summon: efficiency 100/2 = 50, +SUMMONED_KILL_BONUS -> 50 * 1.5 = 75
-        # regular: efficiency 100, +ENEMY_KILL_BONUS -> 100 * 2.0 = 200
         assert weight_summon == pytest.approx(75.0)  # pyright: ignore[reportUnknownMemberType]
         assert weight_regular == pytest.approx(200.0)  # pyright: ignore[reportUnknownMemberType]
         assert weight_summon < weight_regular
@@ -399,7 +386,6 @@ class TestCalculateAttackWeight:
             modifiers=_make_modifiers(ap_cost=1),
         )
 
-        # two effects x 100 = 200 damage; efficiency 200 / 1.0, no kill -> 200
         assert weight == pytest.approx(200.0)  # pyright: ignore[reportUnknownMemberType]
 
     def test_ally_only_effect_is_not_counted_as_enemy_damage(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -486,5 +472,4 @@ class TestCalculateAttackWeight:
             modifiers=_make_modifiers(ap_cost=1),
         )
 
-        # base weight 100, one ally hit -> x0.1 -> 10
         assert weight == pytest.approx(10.0)  # pyright: ignore[reportUnknownMemberType]

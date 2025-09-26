@@ -144,12 +144,12 @@ class AllianceApplicationPresenceEvent(_message.Message):
     presence: bool
     def __init__(self, presence: bool = ...) -> None: ...
 
-class UnknownMae(_message.Message):
-    __slots__ = ("unknown_gecb", "unknown_gecc", "unknown_gecd")
-    UNKNOWN_GECB_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GECC_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_GECD_FIELD_NUMBER: _ClassVar[int]
-    unknown_gecb: str
-    unknown_gecc: str
-    unknown_gecd: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, unknown_gecb: _Optional[str] = ..., unknown_gecc: _Optional[str] = ..., unknown_gecd: _Optional[_Iterable[int]] = ...) -> None: ...
+class UnknownSeven(_message.Message):
+    __slots__ = ("unknown_eleven", "unknown_twelve", "unknown_thirteen")
+    UNKNOWN_ELEVEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_TWELVE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THIRTEEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_eleven: str
+    unknown_twelve: str
+    unknown_thirteen: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, unknown_eleven: _Optional[str] = ..., unknown_twelve: _Optional[str] = ..., unknown_thirteen: _Optional[_Iterable[int]] = ...) -> None: ...

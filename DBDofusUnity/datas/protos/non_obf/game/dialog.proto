@@ -5,6 +5,7 @@ import "common.proto";
 package com.ankama.dofus.server.game.protocol.dialog;
 
 message DialogLeaveRequest {
+	string unknown_three_hundred_twenty_three = 1;
 }
 
 message DialogLeaveEvent {

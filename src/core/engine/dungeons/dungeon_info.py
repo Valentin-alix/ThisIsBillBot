@@ -73,8 +73,7 @@ def get_dungeon_info_for_map_id(map_id: int) -> DungeonInfo | None:
         (
             dungeon_info
             for dungeon_info in PLAYABLE_DUNGEONS
-            if map_id in dungeon_info.dungeon.mapIds
-            or map_id == dungeon_info.exit_dialog_map_id
+            if map_id in dungeon_info.dungeon.mapIds or map_id == dungeon_info.exit_dialog_map_id
         ),
         None,
     )

@@ -54,7 +54,7 @@ class DebugBehaviorEntry(TypedDict):
     categorie: Literal["behavior"]
     datetime: str
     behavior: str
-    event: str  # "start" | "transition" | "finish" | "stop"
+    event: str
     from_state: str | None
     to_state: str | None
     error_code: str | None
@@ -284,6 +284,7 @@ class DebugRecorder:
 
                 if self._stop_event.is_set() and self._queue.empty():
                     self._flush(file, buffer)
+                    return
 
     @staticmethod
     def _flush(file: Any, buffer: list[str]) -> None:
@@ -300,7 +301,6 @@ def create_bot_session_debug_recorder(
     *,
     session_started_at: datetime | None = None,
 ) -> DebugRecorder:
-    """Create a recorder with a unique file and maintain prior sessions."""
     account_logs_directory = logs_directory / login
     account_logs_directory.mkdir(parents=True, exist_ok=True)
     _migrate_legacy_bot_debug_log(
@@ -446,7 +446,7 @@ def _build_entry(raw: _RawEntry) -> DebugEntry:
             contenu_obfusque=msg_info.obf_msg_json,
             contenu_non_obfusque=msg_info.msg_json,
         )
-    # _ConnMsgRaw
+
     assert isinstance(raw, _ConnMsgRaw)
     msg_info = get_conn_msg_info(raw.sub_msg, raw.from_server)
     obf_type, decoded_type = _parse_sub_msg_name(msg_info.sub_msg_name)

@@ -1,14 +1,8 @@
 syntax = "proto3";
 
+import "common.proto";
+
 package com.ankama.dofus.server.game.protocol.cosmetic;
-
-message CharacterAppearancesRequest {
-}
-
-message CharacterAppearancesResponse {
-	.com.ankama.dofus.server.game.protocol.cosmetic.CharacterFaces character_faces = 1;
-	.com.ankama.dofus.server.game.protocol.cosmetic.CharacterColors character_colors = 2;
-}
 
 message CharacterAppearanceCollectionEvent {
 	.com.ankama.dofus.server.game.protocol.cosmetic.CharacterFaces character_faces = 1;
@@ -31,16 +25,6 @@ message ColorPalette {
 	repeated int32 colors = 1;
 }
 
-message CharacterUpdateFaceRequest {
-	int32 face_id = 1;
-	int32 slot = 2;
-}
-
-message CharacterFaceUpdatedEvent {
-	int32 face_id = 1;
-	int32 slot = 2;
-}
-
 message CharacterUpdateColorsRequest {
 	repeated int32 colors = 1;
 	int32 slot = 2;
@@ -51,3 +35,61 @@ message CharacterColorsUpdatedEvent {
 	int32 slot = 2;
 }
 
+enum CheckType {
+	LENGTH = 0;
+	HASH_SUM = 1;
+}
+
+message UnknownOneHundredThirtySeven {
+	int32 unknown_two_hundred_ninety_three = 1;
+	repeated int32 unknown_two_hundred_ninety_four = 2;
+}
+
+message UnknownOneHundredThirtyEight {
+	int32 unknown_two_hundred_ninety_five = 1;
+	repeated int32 unknown_two_hundred_ninety_six = 2;
+	string unknown_two_hundred_ninety_seven = 3;
+	UnknownOneHundredThirtyNine unknown_two_hundred_ninety_eight = 4;
+	int32 unknown_two_hundred_ninety_nine = 5;
+	enum UnknownOneHundredThirtyNine {
+		UNKNOWN_ONE_HUNDRED_THIRTY_NINE_UNSPECIFIED = 0;
+	}
+}
+
+message UnknownOneHundredForty {
+	UnknownOneHundredFortyOne unknown_three_hundred = 1;
+	.com.ankama.dofus.server.game.protocol.common.EntityLook unknown_three_hundred_one = 2;
+	string unknown_three_hundred_two = 3;
+	enum UnknownOneHundredFortyOne {
+		UNKNOWN_ONE_HUNDRED_FORTY_ONE_UNSPECIFIED = 0;
+	}
+}
+
+message UnknownOneHundredFortyTwo {
+	UnknownOneHundredFortyThree unknown_three_hundred_three = 1;
+	string unknown_three_hundred_four = 2;
+	enum UnknownOneHundredFortyThree {
+		UNKNOWN_ONE_HUNDRED_FORTY_THREE_UNSPECIFIED = 0;
+	}
+}
+
+message UnknownOneHundredFortyFour {
+	int32 unknown_three_hundred_five = 1;
+	int32 unknown_three_hundred_six = 2;
+	UnknownOneHundredFortyFive unknown_three_hundred_seven = 3;
+	int32 unknown_three_hundred_eight = 4;
+	string unknown_three_hundred_nine = 5;
+	repeated int32 unknown_three_hundred_ten = 6;
+	enum UnknownOneHundredFortyFive {
+		UNKNOWN_ONE_HUNDRED_FORTY_FIVE_UNSPECIFIED = 0;
+	}
+}
+
+message AccessoryPreviewRequest {
+	repeated int32 object_gid = 1;
+	bool show_current_objects = 2;
+}
+
+message AccessoryPreviewEvent {
+	.com.ankama.dofus.server.game.protocol.common.EntityLook look = 1;
+}

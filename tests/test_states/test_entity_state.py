@@ -195,8 +195,7 @@ class TestEntityState:
         runtime_bot.event_manager.process_msg(
             FightSynchronizeEvent(fighters=[make_fighter(actor_id=3, cell_id=204, alive=True)])
         )
-        # The dead fighter is placed *before* an alive one to reproduce the
-        # ordering bug where re-adding the full list overwrote its removal.
+
         runtime_bot.event_manager.process_msg(
             FightSynchronizeEvent(
                 fighters=[
@@ -336,10 +335,10 @@ class TestEntityState:
         runtime_bot.event_manager.process_msg(
             FightSynchronizeEvent(
                 fighters=[
-                    make_fighter(actor_id=100, cell_id=272, team=Team.TEAM_CHALLENGER),  # me
-                    make_fighter(actor_id=200, cell_id=280, team=Team.TEAM_CHALLENGER),  # ally
-                    make_fighter(actor_id=300, cell_id=259, team=Team.TEAM_DEFENDER),  # enemy
-                    make_fighter(actor_id=400, cell_id=396, team=Team.TEAM_DEFENDER),  # enemy
+                    make_fighter(actor_id=100, cell_id=272, team=Team.TEAM_CHALLENGER),
+                    make_fighter(actor_id=200, cell_id=280, team=Team.TEAM_CHALLENGER),
+                    make_fighter(actor_id=300, cell_id=259, team=Team.TEAM_DEFENDER),
+                    make_fighter(actor_id=400, cell_id=396, team=Team.TEAM_DEFENDER),
                 ]
             )
         )

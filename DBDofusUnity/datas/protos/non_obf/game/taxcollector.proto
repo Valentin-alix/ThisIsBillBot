@@ -4,6 +4,11 @@ import "common.proto";
 
 package com.ankama.dofus.server.game.protocol.taxcollector;
 
+enum UnknownFourHundredNinetyEight {
+	UNKNOWN_FOUR_HUNDRED_NINETY_EIGHT = 0;
+}
+
+
 message TaxCollectorUpdatesListenStartRequest {
 	string tax_collector_uid = 1;
 }
@@ -159,25 +164,25 @@ message TaxCollectorFightRequest {
 
 
 
-message UnknownHko {
-	.com.ankama.dofus.server.game.protocol.common.TaxCollectorOrderedSpell unknown_fmko = 1;
-	repeated int64 unknown_fmkq = 2;
-	string unknown_fmkr = 3;
+message UnknownFourHundredNinetyNine {
+	.com.ankama.dofus.server.game.protocol.common.TaxCollectorOrderedSpell unknown_eight_hundred_fifty_eight = 1;
+	repeated int64 unknown_eight_hundred_fifty_nine = 2;
+	string unknown_eight_hundred_sixty = 3;
 }
 
-message UnknownHkp {
-	string unknown_fmkv = 1;
+message UnknownFiveHundred {
+	string unknown_eight_hundred_sixty_one = 1;
 }
 
-message UnknownHkt {
-	string unknown_fmlf = 1;
+message UnknownFiveHundredOne {
+	string unknown_eight_hundred_sixty_two = 1;
 }
 
-message UnknownHla {
-	int32 unknown_fmlu = 1;
+message UnknownFiveHundredTwo {
+	UnknownFourHundredNinetyEight unknown_eight_hundred_sixty_three = 1;
 }
 
-message UnknownHle {
-	string unknown_fmmo = 1;
-	.com.ankama.dofus.server.game.protocol.common.TaxCollectorOrderedSpell unknown_fmmp = 2;
+message UnknownFiveHundredThree {
+	string unknown_eight_hundred_sixty_four = 1;
+	.com.ankama.dofus.server.game.protocol.common.TaxCollectorOrderedSpell unknown_eight_hundred_sixty_five = 2;
 }

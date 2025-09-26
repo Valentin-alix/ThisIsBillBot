@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0b\x62\x61sic.proto\x12+com.ankama.dofus.server.game.protocol.basic\x1a\x0c\x63ommon.proto\"\r\n\x0b\x44\x61teRequest\" \n\rWhoAmIRequest\x12\x0f\n\x07verbose\x18\x01 \x01(\x08\"k\n\x0cWhoIsRequest\x12\x0f\n\x07verbose\x18\x01 \x01(\x08\x12J\n\x06target\x18\x02 \x01(\x0b\x32:.com.ankama.dofus.server.game.protocol.common.PlayerSearch\"(\n\x13WhoIsNumericRequest\x12\x11\n\tplayer_id\x18\x01 \x01(\x03\"\xf5\x01\n\x1e\x43urrentServerStatusUpdateEvent\x12h\n\x06status\x18\x01 \x01(\x0e\x32X.com.ankama.dofus.server.game.protocol.basic.CurrentServerStatusUpdateEvent.ServerStatus\"i\n\x0cServerStatus\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07OFFLINE\x10\x01\x12\x0c\n\x08STARTING\x10\x02\x12\n\n\x06ONLINE\x10\x03\x12\x0b\n\x07NO_JOIN\x10\x04\x12\n\n\x06SAVING\x10\x05\x12\x0c\n\x08STOPPING\x10\x06\"2\n\x16ServerMaintenanceEvent\x12\x18\n\x10maintenance_date\x18\x01 \x01(\t\"+\n\x18\x42\x61sicLatencyStatsRequest\x12\x0f\n\x07latency\x18\x01 \x01(\x05\"\'\n\x15SequenceNumberRequest\x12\x0e\n\x06number\x18\x01 \x01(\x05\"5\n\tDateEvent\x12\x0b\n\x03\x64\x61y\x18\x01 \x01(\x05\x12\r\n\x05month\x18\x02 \x01(\x05\x12\x0c\n\x04year\x18\x03 \x01(\x05\"7\n\tTimeEvent\x12\x11\n\ttimestamp\x18\x01 \x01(\x03\x12\x17\n\x0ftimezone_offset\x18\x02 \x01(\x05\",\n\x19\x41lmanachCalendarDateEvent\x12\x0f\n\x07\x64\x61te_id\x18\x01 \x01(\x05\"T\n\x19SystemMessageDisplayEvent\x12\x0f\n\x07hang_up\x18\x01 \x01(\x08\x12\x12\n\nmessage_id\x18\x02 \x01(\x05\x12\x12\n\nparameters\x18\x03 \x03(\t\"\xf5\x04\n\x14TextInformationEvent\x12k\n\x0cmessage_type\x18\x01 \x01(\x0e\x32U.com.ankama.dofus.server.game.protocol.basic.TextInformationEvent.TextInformationType\x12\x12\n\nmessage_id\x18\x02 \x01(\x05\x12\x12\n\nparameters\x18\x03 \x03(\t\"\xc7\x03\n\x13TextInformationType\x12\x1c\n\x18TEXT_INFORMATION_MESSAGE\x10\x00\x12\x1a\n\x16TEXT_INFORMATION_ERROR\x10\x01\x12\x18\n\x14TEXT_INFORMATION_PVP\x10\x02\x12\x1e\n\x1aTEXT_INFORMATION_FIGHT_LOG\x10\x03\x12\x1a\n\x16TEXT_INFORMATION_POPUP\x10\x04\x12\x16\n\x12TEXT_LIVING_OBJECT\x10\x05\x12\x14\n\x10TEXT_ENTITY_TALK\x10\x06\x12\x1a\n\x16TEXT_INFORMATION_FIGHT\x10\x07\x12\x1a\n\x16TEXT_INFORMATION_EVENT\x10\x08\x12,\n(TEXT_INFORMATION_WORLD_EVENT_PRE_MESSAGE\x10\n\x12.\n*TEXT_INFORMATION_WORLD_EVENT_START_MESSAGE\x10\x0b\x12,\n(TEXT_INFORMATION_WORLD_EVENT_END_MESSAGE\x10\x0c\x12.\n*TEXT_INFORMATION_WORLD_EVENT_SCORE_MESSAGE\x10\r\"\xe3\x04\n\nWhoIsEvent\x12\x0c\n\x04self\x18\x01 \x01(\x08\x12I\n\x08position\x18\x02 \x01(\x0e\x32\x37.com.ankama.dofus.server.game.protocol.common.Hierarchy\x12\x14\n\x0c\x61\x63\x63ount_name\x18\x03 \x01(\t\x12\x13\n\x0b\x61\x63\x63ount_tag\x18\x04 \x01(\t\x12\x12\n\naccount_id\x18\x05 \x01(\x03\x12\x16\n\x0e\x63haracter_name\x18\x06 \x01(\t\x12\x14\n\x0c\x63haracter_id\x18\x07 \x01(\x03\x12\x0f\n\x07\x61rea_id\x18\x08 \x01(\x05\x12\x11\n\tserver_id\x18\t \x01(\x05\x12\x18\n\x10origin_server_id\x18\n \x01(\x05\x12\x0f\n\x07verbose\x18\r \x01(\x08\x12K\n\x05state\x18\x0e \x01(\x0e\x32<.com.ankama.dofus.server.game.protocol.common.CharacterState\x12^\n\x11guild_information\x18\x0b \x01(\x0b\x32>.com.ankama.dofus.server.game.protocol.common.GuildInformationH\x00\x88\x01\x01\x12\x64\n\x14\x61lliance_information\x18\x0c \x01(\x0b\x32\x41.com.ankama.dofus.server.game.protocol.common.AllianceInformationH\x01\x88\x01\x01\x42\x14\n\x12_guild_informationB\x17\n\x15_alliance_information\"\x13\n\x11WhoIsNoMatchEvent\":\n\x11WhoIsNumericEvent\x12\x11\n\tplayer_id\x18\x01 \x01(\x03\x12\x12\n\naccount_id\x18\x02 \x01(\x03\"\x18\n\x16\x42\x61sicLatencyStatsEvent\"\x15\n\x13SequenceNumberEvent\"^\n\nUnknownLqx\x12P\n\x0cunknown_gcsr\x18\x01 \x01(\x0b\x32:.com.ankama.dofus.server.game.protocol.common.PlayerSearchb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0b\x62\x61sic.proto\x12+com.ankama.dofus.server.game.protocol.basic\x1a\x0c\x63ommon.proto\"\r\n\x0b\x44\x61teRequest\" \n\rWhoAmIRequest\x12\x0f\n\x07verbose\x18\x01 \x01(\x08\"k\n\x0cWhoIsRequest\x12\x0f\n\x07verbose\x18\x01 \x01(\x08\x12J\n\x06target\x18\x02 \x01(\x0b\x32:.com.ankama.dofus.server.game.protocol.common.PlayerSearch\"(\n\x13WhoIsNumericRequest\x12\x11\n\tplayer_id\x18\x01 \x01(\x03\"+\n\x18\x42\x61sicLatencyStatsRequest\x12\x0f\n\x07latency\x18\x01 \x01(\x05\"\'\n\x15SequenceNumberRequest\x12\x0e\n\x06number\x18\x01 \x01(\x05\"5\n\tDateEvent\x12\x0b\n\x03\x64\x61y\x18\x01 \x01(\x05\x12\r\n\x05month\x18\x02 \x01(\x05\x12\x0c\n\x04year\x18\x03 \x01(\x05\"7\n\tTimeEvent\x12\x11\n\ttimestamp\x18\x01 \x01(\x03\x12\x17\n\x0ftimezone_offset\x18\x02 \x01(\x05\",\n\x19\x41lmanachCalendarDateEvent\x12\x0f\n\x07\x64\x61te_id\x18\x01 \x01(\x05\"T\n\x19SystemMessageDisplayEvent\x12\x0f\n\x07hang_up\x18\x01 \x01(\x08\x12\x12\n\nmessage_id\x18\x02 \x01(\x05\x12\x12\n\nparameters\x18\x03 \x03(\t\"\xf5\x04\n\x14TextInformationEvent\x12k\n\x0cmessage_type\x18\x01 \x01(\x0e\x32U.com.ankama.dofus.server.game.protocol.basic.TextInformationEvent.TextInformationType\x12\x12\n\nmessage_id\x18\x02 \x01(\x05\x12\x12\n\nparameters\x18\x03 \x03(\t\"\xc7\x03\n\x13TextInformationType\x12\x1c\n\x18TEXT_INFORMATION_MESSAGE\x10\x00\x12\x1a\n\x16TEXT_INFORMATION_ERROR\x10\x01\x12\x18\n\x14TEXT_INFORMATION_PVP\x10\x02\x12\x1e\n\x1aTEXT_INFORMATION_FIGHT_LOG\x10\x03\x12\x1a\n\x16TEXT_INFORMATION_POPUP\x10\x04\x12\x16\n\x12TEXT_LIVING_OBJECT\x10\x05\x12\x14\n\x10TEXT_ENTITY_TALK\x10\x06\x12\x1a\n\x16TEXT_INFORMATION_FIGHT\x10\x07\x12\x1a\n\x16TEXT_INFORMATION_EVENT\x10\x08\x12,\n(TEXT_INFORMATION_WORLD_EVENT_PRE_MESSAGE\x10\n\x12.\n*TEXT_INFORMATION_WORLD_EVENT_START_MESSAGE\x10\x0b\x12,\n(TEXT_INFORMATION_WORLD_EVENT_END_MESSAGE\x10\x0c\x12.\n*TEXT_INFORMATION_WORLD_EVENT_SCORE_MESSAGE\x10\r\"\xe3\x04\n\nWhoIsEvent\x12\x0c\n\x04self\x18\x01 \x01(\x08\x12I\n\x08position\x18\x02 \x01(\x0e\x32\x37.com.ankama.dofus.server.game.protocol.common.Hierarchy\x12\x14\n\x0c\x61\x63\x63ount_name\x18\x03 \x01(\t\x12\x13\n\x0b\x61\x63\x63ount_tag\x18\x04 \x01(\t\x12\x12\n\naccount_id\x18\x05 \x01(\x03\x12\x16\n\x0e\x63haracter_name\x18\x06 \x01(\t\x12\x14\n\x0c\x63haracter_id\x18\x07 \x01(\x03\x12\x0f\n\x07\x61rea_id\x18\x08 \x01(\x05\x12\x11\n\tserver_id\x18\t \x01(\x05\x12\x18\n\x10origin_server_id\x18\n \x01(\x05\x12\x0f\n\x07verbose\x18\r \x01(\x08\x12K\n\x05state\x18\x0e \x01(\x0e\x32<.com.ankama.dofus.server.game.protocol.common.CharacterState\x12^\n\x11guild_information\x18\x0b \x01(\x0b\x32>.com.ankama.dofus.server.game.protocol.common.GuildInformationH\x00\x88\x01\x01\x12\x64\n\x14\x61lliance_information\x18\x0c \x01(\x0b\x32\x41.com.ankama.dofus.server.game.protocol.common.AllianceInformationH\x01\x88\x01\x01\x42\x14\n\x12_guild_informationB\x17\n\x15_alliance_information\"\x13\n\x11WhoIsNoMatchEvent\":\n\x11WhoIsNumericEvent\x12\x11\n\tplayer_id\x18\x01 \x01(\x03\x12\x12\n\naccount_id\x18\x02 \x01(\x03\"\x18\n\x16\x42\x61sicLatencyStatsEvent\"\x15\n\x13SequenceNumberEvent\"c\n\x0cUnknownEight\x12S\n\x0funknown_sixteen\x18\x01 \x01(\x0b\x32:.com.ankama.dofus.server.game.protocol.common.PlayerSearchb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -40,38 +40,32 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_WHOISREQUEST']._serialized_end=230
   _globals['_WHOISNUMERICREQUEST']._serialized_start=232
   _globals['_WHOISNUMERICREQUEST']._serialized_end=272
-  _globals['_CURRENTSERVERSTATUSUPDATEEVENT']._serialized_start=275
-  _globals['_CURRENTSERVERSTATUSUPDATEEVENT']._serialized_end=520
-  _globals['_CURRENTSERVERSTATUSUPDATEEVENT_SERVERSTATUS']._serialized_start=415
-  _globals['_CURRENTSERVERSTATUSUPDATEEVENT_SERVERSTATUS']._serialized_end=520
-  _globals['_SERVERMAINTENANCEEVENT']._serialized_start=522
-  _globals['_SERVERMAINTENANCEEVENT']._serialized_end=572
-  _globals['_BASICLATENCYSTATSREQUEST']._serialized_start=574
-  _globals['_BASICLATENCYSTATSREQUEST']._serialized_end=617
-  _globals['_SEQUENCENUMBERREQUEST']._serialized_start=619
-  _globals['_SEQUENCENUMBERREQUEST']._serialized_end=658
-  _globals['_DATEEVENT']._serialized_start=660
-  _globals['_DATEEVENT']._serialized_end=713
-  _globals['_TIMEEVENT']._serialized_start=715
-  _globals['_TIMEEVENT']._serialized_end=770
-  _globals['_ALMANACHCALENDARDATEEVENT']._serialized_start=772
-  _globals['_ALMANACHCALENDARDATEEVENT']._serialized_end=816
-  _globals['_SYSTEMMESSAGEDISPLAYEVENT']._serialized_start=818
-  _globals['_SYSTEMMESSAGEDISPLAYEVENT']._serialized_end=902
-  _globals['_TEXTINFORMATIONEVENT']._serialized_start=905
-  _globals['_TEXTINFORMATIONEVENT']._serialized_end=1534
-  _globals['_TEXTINFORMATIONEVENT_TEXTINFORMATIONTYPE']._serialized_start=1079
-  _globals['_TEXTINFORMATIONEVENT_TEXTINFORMATIONTYPE']._serialized_end=1534
-  _globals['_WHOISEVENT']._serialized_start=1537
-  _globals['_WHOISEVENT']._serialized_end=2148
-  _globals['_WHOISNOMATCHEVENT']._serialized_start=2150
-  _globals['_WHOISNOMATCHEVENT']._serialized_end=2169
-  _globals['_WHOISNUMERICEVENT']._serialized_start=2171
-  _globals['_WHOISNUMERICEVENT']._serialized_end=2229
-  _globals['_BASICLATENCYSTATSEVENT']._serialized_start=2231
-  _globals['_BASICLATENCYSTATSEVENT']._serialized_end=2255
-  _globals['_SEQUENCENUMBEREVENT']._serialized_start=2257
-  _globals['_SEQUENCENUMBEREVENT']._serialized_end=2278
-  _globals['_UNKNOWNLQX']._serialized_start=2280
-  _globals['_UNKNOWNLQX']._serialized_end=2374
+  _globals['_BASICLATENCYSTATSREQUEST']._serialized_start=274
+  _globals['_BASICLATENCYSTATSREQUEST']._serialized_end=317
+  _globals['_SEQUENCENUMBERREQUEST']._serialized_start=319
+  _globals['_SEQUENCENUMBERREQUEST']._serialized_end=358
+  _globals['_DATEEVENT']._serialized_start=360
+  _globals['_DATEEVENT']._serialized_end=413
+  _globals['_TIMEEVENT']._serialized_start=415
+  _globals['_TIMEEVENT']._serialized_end=470
+  _globals['_ALMANACHCALENDARDATEEVENT']._serialized_start=472
+  _globals['_ALMANACHCALENDARDATEEVENT']._serialized_end=516
+  _globals['_SYSTEMMESSAGEDISPLAYEVENT']._serialized_start=518
+  _globals['_SYSTEMMESSAGEDISPLAYEVENT']._serialized_end=602
+  _globals['_TEXTINFORMATIONEVENT']._serialized_start=605
+  _globals['_TEXTINFORMATIONEVENT']._serialized_end=1234
+  _globals['_TEXTINFORMATIONEVENT_TEXTINFORMATIONTYPE']._serialized_start=779
+  _globals['_TEXTINFORMATIONEVENT_TEXTINFORMATIONTYPE']._serialized_end=1234
+  _globals['_WHOISEVENT']._serialized_start=1237
+  _globals['_WHOISEVENT']._serialized_end=1848
+  _globals['_WHOISNOMATCHEVENT']._serialized_start=1850
+  _globals['_WHOISNOMATCHEVENT']._serialized_end=1869
+  _globals['_WHOISNUMERICEVENT']._serialized_start=1871
+  _globals['_WHOISNUMERICEVENT']._serialized_end=1929
+  _globals['_BASICLATENCYSTATSEVENT']._serialized_start=1931
+  _globals['_BASICLATENCYSTATSEVENT']._serialized_end=1955
+  _globals['_SEQUENCENUMBEREVENT']._serialized_start=1957
+  _globals['_SEQUENCENUMBEREVENT']._serialized_end=1978
+  _globals['_UNKNOWNEIGHT']._serialized_start=1980
+  _globals['_UNKNOWNEIGHT']._serialized_end=2079
 # @@protoc_insertion_point(module_scope)

@@ -53,8 +53,6 @@ from src.gui.components.qfluent_widget.no_animated_scroll_area import (
 
 
 class SidebarPanel(QFrame):
-    """Custom navigation panel"""
-
     displayModeChanged = pyqtSignal(NavigationDisplayMode)
 
     def __init__(self, parent: QWidget, isMinimalEnabled: bool = False) -> None:
@@ -118,7 +116,6 @@ class SidebarPanel(QFrame):
         self.history.emptyChanged.connect(self.returnButton.setDisabled)
         self.returnButton.clicked.connect(self.history.pop)
 
-        # add tool tip
         self.returnButton.installEventFilter(ToolTipFilter(self.returnButton, 1000))
         self.returnButton.setToolTip(self.tr("Back"))
 
@@ -401,7 +398,6 @@ class SidebarPanel(QFrame):
         onClick: Callable[[], None] | None,
         tooltip: str | None,
     ) -> None:
-        """register widget"""
         widget.clicked.connect(self._onWidgetClicked)
 
         if onClick is not None:
@@ -424,7 +420,6 @@ class SidebarPanel(QFrame):
     def _insertWidgetToLayout(
         self, index: int, widget: NavigationWidget, position: NavigationItemPosition
     ) -> None:
-        """insert widget to layout"""
         if position == NavigationItemPosition.TOP:
             widget.setParent(self)
             self.topLayout.insertWidget(index, widget, 0, Qt.AlignmentFlag.AlignTop)
@@ -472,12 +467,10 @@ class SidebarPanel(QFrame):
         self.history.remove(routeKey)
 
     def setMenuButtonVisible(self, isVisible: bool) -> None:
-        """set whether the menu button is visible"""
         self._isMenuButtonVisible = isVisible
         self.menuButton.setVisible(isVisible)
 
     def setReturnButtonVisible(self, isVisible: bool) -> None:
-        """set whether the return button is visible"""
         self._isReturnButtonVisible = isVisible
         self.returnButton.setVisible(isVisible)
 
@@ -487,7 +480,6 @@ class SidebarPanel(QFrame):
             self.expand(False)
 
     def setExpandWidth(self, width: int) -> None:
-        """set the maximum width"""
         if width <= 42:
             return
 
@@ -495,7 +487,6 @@ class SidebarPanel(QFrame):
         NavigationWidget.EXPAND_WIDTH = width - 10
 
     def setMinimumExpandWidth(self, width: int) -> None:
-        """Set the minimum window width that allows panel to be expanded"""
         self.minimumExpandWidth = width
 
     def setAcrylicEnabled(self, isEnabled: bool) -> None:
@@ -508,17 +499,13 @@ class SidebarPanel(QFrame):
         self.update()
 
     def isAcrylicEnabled(self) -> bool:
-        """whether the acrylic effect is enabled"""
         return self._isAcrylicEnabled
 
     def expand(self, useAni: bool = True) -> None:
-        """expand navigation panel"""
         self._setWidgetCompacted(False)
         self.expandAni.setProperty("expand", True)
         self.menuButton.setToolTip(self.tr("Close Navigation"))
 
-        # determine the display mode according to the width of window
-        # https://learn.microsoft.com/en-us/windows/apps/design/controls/navigationview#default
         expandWidth = self.minimumExpandWidth + self.expandWidth - 322
         window = self.window()
         assert window
@@ -529,7 +516,6 @@ class SidebarPanel(QFrame):
             self.setStyle(QApplication.style())
             self.displayMode = NavigationDisplayMode.MENU
 
-            # grab acrylic image
             if self._canDrawAcrylic():
                 self.acrylicBrush.grabImage(
                     QRect(
@@ -557,7 +543,6 @@ class SidebarPanel(QFrame):
             self._onExpandAniFinished()
 
     def collapse(self) -> None:
-        """collapse navigation panel"""
         if self.expandAni.state() == QAbstractAnimation.State.Running:
             return
 
@@ -574,7 +559,6 @@ class SidebarPanel(QFrame):
         self.menuButton.setToolTip(self.tr("Open Navigation"))
 
     def toggle(self) -> None:
-        """toggle navigation panel"""
         if self.displayMode in [
             NavigationDisplayMode.COMPACT,
             NavigationDisplayMode.MINIMAL,
@@ -615,7 +599,6 @@ class SidebarPanel(QFrame):
             self._showFlyoutNavigationMenu(widget)
 
     def _showFlyoutNavigationMenu(self, widget: NavigationTreeWidget) -> None:
-        """show flyout navigation menu"""
         if not (self.isCollapsed() and isinstance(widget, NavigationTreeWidget)):
             return
 
@@ -633,12 +616,10 @@ class SidebarPanel(QFrame):
             view.setLayout(layout)
             flyout = Flyout(view, self.window())
 
-        # add navigation menu to flyout
         menu = NavigationFlyoutMenu(widget, view)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(menu)
 
-        # execuse flyout animation
         flyout.resize(flyout.sizeHint())
         pos = SlideRightFlyoutAnimationManager(flyout).position(widget)
         flyout.exec(pos, FlyoutAnimationType.SLIDE_RIGHT)
@@ -725,7 +706,6 @@ class SidebarPanel(QFrame):
                 self.show()
 
     def _setWidgetCompacted(self, isCompacted: bool) -> None:
-        """set whether the navigation widget is compacted"""
         for item in self.findChildren(NavigationWidget):
             item.setCompacted(isCompacted)
 

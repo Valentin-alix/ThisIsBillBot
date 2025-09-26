@@ -10,12 +10,12 @@ from dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.controller.bot_config import BotConfig, BotConfigService
 from src.core.behaviors.behavior import Behavior, BehaviorState
-from src.core.behaviors.craft.craft_behavior import CraftBehavior
+from src.core.behaviors.craft.craft_behavior import CraftBehavior, CraftRequest
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
-from src.core.behaviors.farms.fighter_behavior import FighterBehavior
-from src.core.behaviors.farms.harvester_behavior import HarvesterBehavior
-from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehavior
+from src.core.behaviors.farms.fight.fighter_behavior import FighterBehavior
+from src.core.behaviors.farms.harvest.harvester_behavior import HarvesterBehavior
+from src.core.behaviors.storage.mule.mule_accept_behavior import MuleAcceptBehavior
 from src.core.events_manager.event_manager import EventManager
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.shared_farm_signals import SharedSignals
@@ -25,8 +25,6 @@ from src.services.logging_utils.contextual_logger import ContextualLogger
 
 @dataclass
 class BehaviorCoordinator(ContextualLogger):
-    """Coordinates and orchestrates bot behaviors execution."""
-
     is_connected_event: Event
     is_ready_to_play_event: Event
     is_playing_event: Event
@@ -64,7 +62,6 @@ class BehaviorCoordinator(ContextualLogger):
         run_in_background(lambda _progress_callback: self.stop_behaviors())
 
     def on_play_usable_behavior(self, behavior_class_name: str):
-        """Execute a usable behavior by class name."""
         related_behavior = next(
             behavior
             for behavior in self.usable_behaviors
@@ -123,12 +120,11 @@ class BehaviorCoordinator(ContextualLogger):
             lambda _progress_callback: self.craft_behavior.start(
                 callback=lambda *_args: self.bot_signals.stop.emit(),
                 parent=None,
-                recipes=recipes,
+                craft_requests=[CraftRequest(recipe=recipe) for recipe in recipes],
             )
         )
 
     def play_action(self, func: Callable[[Callable[[str], None]], None]) -> None:
-        """Setup and execute a bot action."""
         self.stop_behaviors()
         self._current_bot_action_func = func
         if not self.is_connected_event.is_set():
@@ -139,14 +135,12 @@ class BehaviorCoordinator(ContextualLogger):
             self.logger.info("character is probably connecting, waiting...")
 
     def run_current_bot_action(self) -> None:
-        """Execute the current bot action or guess the appropriate one."""
         if self._current_bot_action_func is not None:
             run_in_background(self._current_bot_action_func)
         else:
             self.guess_bot_action()
 
     def guess_bot_action(self) -> None:
-        """Determine and trigger the appropriate bot action based on configuration."""
         is_kamas_mule = BotConfigService().is_kamas_mule(self.account.apikey.login)
         if is_kamas_mule and self.player_state.level >= 50 and self.player_state.is_former_sub:
             self.bot_signals.play_mule_kamas.emit()
@@ -161,7 +155,6 @@ class BehaviorCoordinator(ContextualLogger):
                 behavior.stop()
 
     def running_top_level_behaviors(self) -> list[Behavior]:
-        """Top-level (parent-less) action behaviors currently RUNNING."""
         running: list[Behavior] = []
         for field_info in fields(self):
             field_value = getattr(self, field_info.name)

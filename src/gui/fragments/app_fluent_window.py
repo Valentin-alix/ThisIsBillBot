@@ -16,8 +16,6 @@ from src.gui.fragments.sidebar import Sidebar
 
 
 class AppFluentWindow(FluentWindowBase):
-    """Fluent window"""
-
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
 
@@ -29,7 +27,6 @@ class AppFluentWindow(FluentWindowBase):
         self.navigationInterface = Sidebar(self)
         self.widgetLayout = QHBoxLayout()
 
-        # initialize layout
         self.hBoxLayout.addWidget(self.navigationInterface)
         self.hBoxLayout.addLayout(self.widgetLayout)
         self.hBoxLayout.setStretchFactor(self.widgetLayout, 1)
@@ -79,7 +76,6 @@ class AppFluentWindow(FluentWindowBase):
         interface.setProperty("isStackedTransparent", isTransparent)
         self.stackedWidget.addWidget(interface)
 
-        # add navigation item
         routeKey = interface.objectName()
         self.navigationInterface.addWidget(
             routeKey=routeKey,
@@ -89,7 +85,6 @@ class AppFluentWindow(FluentWindowBase):
             parentRouteKey=parent.objectName() if parent else None,
         )
 
-        # initialize selected item
         if self.stackedWidget.count() == 1:
             self.stackedWidget.currentChanged.connect(self._onCurrentInterfaceChanged)
             self.navigationInterface.setCurrentItem(routeKey)

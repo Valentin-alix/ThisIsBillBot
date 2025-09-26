@@ -100,7 +100,7 @@ def is_valid_monster_group(
     Returns:
         True if monster group is valid, False otherwise
     """
-    # Filter out forbidden monsters
+
     if monster_group.identification.main_creature.gid in [
         MonsterGidEnum.POUTCH,
         MonsterGidEnum.PRESPIC,

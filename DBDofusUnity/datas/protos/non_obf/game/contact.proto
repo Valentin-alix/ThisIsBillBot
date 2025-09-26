@@ -77,6 +77,7 @@ message UnBlockRequest {
 }
 
 message FriendListRequest {
+	repeated int32 unknown_two_hundred_eighty_five = 1;
 }
 
 message AcquaintanceListRequest {
@@ -147,11 +148,11 @@ message IgnoreEvent {
 		.com.ankama.dofus.server.game.protocol.contact.ContactInformation ignored = 1;
 	}
 
-	message UnknownKpv {
-		.com.ankama.dofus.server.game.protocol.contact.AddFailureReason unknown_fyou = 1;
+	message UnknownOneHundredTwentyEight {
+		.com.ankama.dofus.server.game.protocol.contact.AddFailureReason unknown_two_hundred_eighty_six = 1;
 	}
-	message UnknownKpw {
-		.com.ankama.dofus.server.game.protocol.contact.ContactInformation unknown_fyoz = 1;
+	message UnknownOneHundredTwentyNine {
+		.com.ankama.dofus.server.game.protocol.contact.ContactInformation unknown_two_hundred_eighty_seven = 1;
 	}
 }
 
@@ -167,8 +168,8 @@ message UnIgnoreEvent {
 		.com.ankama.dofus.server.game.protocol.common.AccountTag ignored_tag = 1;
 	}
 
-	message UnknownKov {
-		.com.ankama.dofus.server.game.protocol.common.AccountTag unknown_fylw = 1;
+	message UnknownOneHundredThirtyOne {
+		.com.ankama.dofus.server.game.protocol.common.AccountTag unknown_two_hundred_eighty_nine = 1;
 	}
 }
 
@@ -189,11 +190,11 @@ message BlockEvent {
 		.com.ankama.dofus.server.game.protocol.contact.ContactInformation blocked = 1;
 	}
 
-	message UnknownKns {
-		.com.ankama.dofus.server.game.protocol.contact.AddFailureReason unknown_fyhz = 1;
+	message UnknownOneHundredTwentySix {
+		.com.ankama.dofus.server.game.protocol.contact.AddFailureReason unknown_two_hundred_eighty_three = 1;
 	}
-	message UnknownKnt {
-		.com.ankama.dofus.server.game.protocol.contact.ContactInformation unknown_fyid = 1;
+	message UnknownOneHundredTwentySeven {
+		.com.ankama.dofus.server.game.protocol.contact.ContactInformation unknown_two_hundred_eighty_four = 1;
 	}
 }
 
@@ -209,8 +210,8 @@ message UnBlockEvent {
 		.com.ankama.dofus.server.game.protocol.common.AccountTag tag = 1;
 	}
 
-	message UnknownKni {
-		.com.ankama.dofus.server.game.protocol.common.AccountTag unknown_fygt = 1;
+	message UnknownOneHundredThirty {
+		.com.ankama.dofus.server.game.protocol.common.AccountTag unknown_two_hundred_eighty_eight = 1;
 	}
 }
 

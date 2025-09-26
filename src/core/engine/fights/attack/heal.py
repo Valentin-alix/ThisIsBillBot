@@ -19,7 +19,6 @@ HEAL_HP_THRESHOLD = 0.5
 
 
 def estimate_self_heal(effect: Effect, context: AttackContext) -> int:
-    """Rough expected heal amount on the caster, by heal type."""
     description_id = DataReader().effect_by_id[effect.effectId].descriptionId
     heal_bonus = get_stat_by_id(context.characteristic_by_id.get(CharacteristicEnum.HEAL_BONUS))
     base = base_roll(effect)
@@ -29,8 +28,6 @@ def estimate_self_heal(effect: Effect, context: AttackContext) -> int:
     if description_id == DescriptionEnum.HEAL_FLAT_LIFE:
         return math.floor(base + heal_bonus)
 
-    # Elemental heals scale on a primary stat (Intelligence dominates in practice);
-    # a rough approximation is enough to prioritise.
     intelligence = get_stat_by_id(context.characteristic_by_id.get(CharacteristicEnum.INTELLIGENCE))
     return math.floor(base * (100 + intelligence) / 100 + heal_bonus)
 

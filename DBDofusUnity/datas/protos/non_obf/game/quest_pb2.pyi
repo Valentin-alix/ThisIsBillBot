@@ -178,8 +178,8 @@ class QuestObjectiveUpdatedEvent(_message.Message):
     ebsj: int
     def __init__(self, completion: _Optional[_Union[QuestObjective.Completion, _Mapping]] = ..., ebsi: _Optional[int] = ..., ebsj: _Optional[int] = ...) -> None: ...
 
-class UnknownIej(_message.Message):
-    __slots__ = ("unknown_fozo",)
-    UNKNOWN_FOZO_FIELD_NUMBER: _ClassVar[int]
-    unknown_fozo: int
-    def __init__(self, unknown_fozo: _Optional[int] = ...) -> None: ...
+class UnknownFourHundredEightySix(_message.Message):
+    __slots__ = ("unknown_eight_hundred_forty_five",)
+    UNKNOWN_EIGHT_HUNDRED_FORTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_forty_five: int
+    def __init__(self, unknown_eight_hundred_forty_five: _Optional[int] = ...) -> None: ...

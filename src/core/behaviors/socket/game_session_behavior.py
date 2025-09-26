@@ -74,8 +74,7 @@ class GameSessionBehavior(Behavior):
     _player_status_sent: bool = field(init=False, default=False)
 
     def run(self) -> None:
-        # The client draws its long term secret once, when the verification service
-        # is constructed, and keeps it for the whole session.
+
         self._verification_secret = (
             int.from_bytes(secrets.token_bytes(_SECRET_RANDOM_BYTES), "little") % _DH_P
         )
@@ -103,8 +102,7 @@ class GameSessionBehavior(Behavior):
         )
 
     def _on_server_session_ready(self, _msg: ServerSessionReadyEvent) -> None:
-        # A fresh commitment is required for every round: reusing one across two
-        # different challenges would leak the secret and is trivially detectable.
+
         self._verification_nonce = int.from_bytes(secrets.token_bytes(_NONCE_RANDOM_BYTES), "little")
         self.event_manager.send(ClientIdRequest(id=str(self._verification_commitment())))
 

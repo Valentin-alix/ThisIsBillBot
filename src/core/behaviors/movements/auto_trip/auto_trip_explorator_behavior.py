@@ -14,8 +14,6 @@ from src.core.engine.movements.world.waypoint import get_near_waypoint
 
 @dataclass
 class AutoTripExploratorBehavior(Behavior):
-    """auto trip with zaap, discover new zaap if needed"""
-
     auto_trip_zaap_behavior: AutoTripZaapBehavior
 
     def run(self, map_ids: set[int]) -> None:
@@ -24,7 +22,7 @@ class AutoTripExploratorBehavior(Behavior):
 
         ends_pos = [DataReader().map_info_by_map_id[map_id] for map_id in map_ids]
         dist_player_to_ends = get_dist_to_maps(self.game_state.map.map_pos, ends_pos)
-        # discover near waypoint & go dst
+
         near_waypoint = get_near_waypoint(
             available_waypoint_map_ids=self.game_state.player.waypoint_map_ids,
             dist_player_to_ends=dist_player_to_ends,

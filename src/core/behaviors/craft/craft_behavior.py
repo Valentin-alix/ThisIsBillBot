@@ -36,6 +36,12 @@ class LoadedRecipeInfo:
     quantity: int
 
 
+@dataclass(frozen=True)
+class CraftRequest:
+    recipe: RecipeItem
+    stop_condition: Callable[[RecipeItem], bool] | int | None = None
+
+
 @dataclass
 class CraftBehavior(RecoverableBehavior):
     auto_trip_smart_behavior: AutoTripSmartBehavior
@@ -52,43 +58,61 @@ class CraftBehavior(RecoverableBehavior):
     def activity_performed(self) -> bool:
         return self._activity_performed
 
-    def run(
-        self,
-        recipes: list[RecipeItem],
-        stop_craft_recipe_condition: Callable[[RecipeItem], bool] | None = None,
-        quantity_by_result_id: dict[int, int] | None = None,
-    ) -> None:
+    def run(self, craft_requests: list[CraftRequest]) -> None:
         self.init_recovery_listeners()
-        self.ensure_free_to_act(lambda: self.start_crafting(recipes=recipes, stop_craft_recipe_condition=stop_craft_recipe_condition, quantity_by_result_id=quantity_by_result_id))
+        self.ensure_free_to_act(lambda: self.start_crafting(craft_requests=craft_requests))
 
-    def start_crafting(
-        self,
-        recipes: list[RecipeItem],
-        stop_craft_recipe_condition: Callable[[RecipeItem], bool] | None = None,
-        quantity_by_result_id: dict[int, int] | None = None,
-    ) -> None:
-        """`quantity_by_result_id` : crafter ces quantites avec les ingredients deja en sac.
+    def start_crafting(self, craft_requests: list[CraftRequest]) -> None:
+        """Chaque `CraftRequest` porte sa propre regle d'arret :
 
-        Le chemin normal remplit l'inventaire depuis la banque, ce qui n'a pas de sens quand on
-        sort du HDV les mains pleines -- une quete, typiquement. On saute alors le chargement,
-        et seul le trajet vers l'atelier et le dialogue de craft sont reutilises.
+        - un `int` : crafter cette quantite avec les ingredients deja en sac, sans passer par la
+          banque (utile quand on sort du HDV les mains pleines -- une quete, typiquement).
+        - un `Callable` : filtre applique avant le chargement banque (comportement normal, quantite
+          determinee par le poids d'inventaire disponible).
+        - `None` : pas de regle, craft normal jusqu'a epuisement.
         """
         self._activity_performed = False
-        self._remaining_recipes = self.game_state.craft.get_valid_recipes(recipes)
-        self._stop_craft_recipe_condition = stop_craft_recipe_condition
-        if quantity_by_result_id is not None:
-            return self.craft_from_inventory(quantity_by_result_id)
+        valid_recipe_ids = {
+            recipe.resultId
+            for recipe in self.game_state.craft.get_valid_recipes(
+                [req.recipe for req in craft_requests]
+            )
+        }
+        valid_requests = [req for req in craft_requests if req.recipe.resultId in valid_recipe_ids]
+
+        quantity_by_result_id = {
+            req.recipe.resultId: req.stop_condition
+            for req in valid_requests
+            if isinstance(req.stop_condition, int)
+        }
+        condition_by_result_id = {
+            req.recipe.resultId: req.stop_condition
+            for req in valid_requests
+            if callable(req.stop_condition)
+        }
+        self._stop_craft_recipe_condition = lambda recipe: condition_by_result_id.get(
+            recipe.resultId, lambda _: False
+        )(recipe)
+
+        inventory_recipes = [req.recipe for req in valid_requests if isinstance(req.stop_condition, int)]
+        self._remaining_recipes = [
+            req.recipe for req in valid_requests if not isinstance(req.stop_condition, int)
+        ]
+
+        if inventory_recipes:
+            return self.craft_from_inventory(quantity_by_result_id, inventory_recipes)
         self.process_remaining_recipes()
 
-    def craft_from_inventory(self, quantity_by_result_id: dict[int, int]) -> None:
+    def craft_from_inventory(
+        self, quantity_by_result_id: dict[int, int], recipes: list[RecipeItem]
+    ) -> None:
         self._loaded_recipes_infos = [
-            LoadedRecipeInfo(recipe=recipe, quantity=quantity_by_result_id.get(recipe.resultId, 1))
-            for recipe in self._remaining_recipes
+            LoadedRecipeInfo(recipe=recipe, quantity=quantity_by_result_id[recipe.resultId])
+            for recipe in recipes
         ]
-        self._remaining_recipes = []
         if not self._loaded_recipes_infos:
             self.logger.warning("No craftable recipe left, nothing to craft from the inventory")
-            return self.finish()
+            return self.process_remaining_recipes()
         self.process_next_loaded_recipe_skill()
 
     def process_remaining_recipes(self):

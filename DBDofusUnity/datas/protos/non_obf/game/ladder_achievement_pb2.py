@@ -22,30 +22,28 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-import game_message_pb2 as game__message__pb2
-import report_pb2 as report__pb2
 import ladder_pb2 as ladder__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18ladder_achievement.proto\x12\x38\x63om.ankama.dofus.server.game.protocol.ladder.achievement\x1a\x12game_message.proto\x1a\x0creport.proto\x1a\x0cladder.proto\"8\n\nUnknownIrb\x12\x14\n\x0cunknown_fqve\x18\x01 \x01(\x05\x12\x14\n\x0cunknown_fqvf\x18\x02 \x01(\t\"\x7f\n\x1a\x41\x63hievementLadderPageEvent\x12\x61\n\x07\x65ntries\x18\x01 \x03(\x0b\x32P.com.ankama.dofus.server.game.protocol.ladder.achievement.AchievementLadderEntry\"\x84\x01\n\x16\x41\x63hievementLadderEntry\x12\x0c\n\x04rank\x18\x01 \x01(\x03\x12\x0f\n\x07success\x18\x02 \x01(\x03\x12K\n\x04info\x18\x03 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.ladder.LadderCharacter\"1\n\x1c\x41\x63hievementLadderPageRequest\x12\x11\n\tserver_id\x18\x01 \x01(\x05\"o\n\nUnknownIrh\x12\x61\n\x07\x65ntries\x18\x01 \x03(\x0b\x32P.com.ankama.dofus.server.game.protocol.ladder.achievement.AchievementLadderEntry\"\x81\x01\n\x1e\x41\x63hievementLadderSelfRankEvent\x12_\n\x05\x65ntry\x18\x01 \x01(\x0b\x32P.com.ankama.dofus.server.game.protocol.ladder.achievement.AchievementLadderEntry\"5\n AchievementLadderSelfRankRequest\x12\x11\n\tserver_id\x18\x01 \x01(\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18ladder_achievement.proto\x12\x38\x63om.ankama.dofus.server.game.protocol.ladder.achievement\x1a\x0cladder.proto\"j\n\x18UnknownThreeHundredSixty\x12&\n\x1eunknown_six_hundred_sixty_four\x18\x01 \x01(\x05\x12&\n\x1eunknown_six_hundred_sixty_five\x18\x02 \x01(\t\"\x7f\n\x1a\x41\x63hievementLadderPageEvent\x12\x61\n\x07\x65ntries\x18\x01 \x03(\x0b\x32P.com.ankama.dofus.server.game.protocol.ladder.achievement.AchievementLadderEntry\"\x84\x01\n\x16\x41\x63hievementLadderEntry\x12\x0c\n\x04rank\x18\x01 \x01(\x03\x12\x0f\n\x07success\x18\x02 \x01(\x03\x12K\n\x04info\x18\x03 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.ladder.LadderCharacter\"1\n\x1c\x41\x63hievementLadderPageRequest\x12\x11\n\tserver_id\x18\x01 \x01(\x05\"\x80\x01\n\x1bUnknownThreeHundredSixtyOne\x12\x61\n\x07\x65ntries\x18\x01 \x03(\x0b\x32P.com.ankama.dofus.server.game.protocol.ladder.achievement.AchievementLadderEntry\"\x81\x01\n\x1e\x41\x63hievementLadderSelfRankEvent\x12_\n\x05\x65ntry\x18\x01 \x01(\x0b\x32P.com.ankama.dofus.server.game.protocol.ladder.achievement.AchievementLadderEntry\"5\n AchievementLadderSelfRankRequest\x12\x11\n\tserver_id\x18\x01 \x01(\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ladder_achievement_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_UNKNOWNIRB']._serialized_start=134
-  _globals['_UNKNOWNIRB']._serialized_end=190
-  _globals['_ACHIEVEMENTLADDERPAGEEVENT']._serialized_start=192
-  _globals['_ACHIEVEMENTLADDERPAGEEVENT']._serialized_end=319
-  _globals['_ACHIEVEMENTLADDERENTRY']._serialized_start=322
-  _globals['_ACHIEVEMENTLADDERENTRY']._serialized_end=454
-  _globals['_ACHIEVEMENTLADDERPAGEREQUEST']._serialized_start=456
-  _globals['_ACHIEVEMENTLADDERPAGEREQUEST']._serialized_end=505
-  _globals['_UNKNOWNIRH']._serialized_start=507
-  _globals['_UNKNOWNIRH']._serialized_end=618
-  _globals['_ACHIEVEMENTLADDERSELFRANKEVENT']._serialized_start=621
-  _globals['_ACHIEVEMENTLADDERSELFRANKEVENT']._serialized_end=750
-  _globals['_ACHIEVEMENTLADDERSELFRANKREQUEST']._serialized_start=752
-  _globals['_ACHIEVEMENTLADDERSELFRANKREQUEST']._serialized_end=805
+  _globals['_UNKNOWNTHREEHUNDREDSIXTY']._serialized_start=100
+  _globals['_UNKNOWNTHREEHUNDREDSIXTY']._serialized_end=206
+  _globals['_ACHIEVEMENTLADDERPAGEEVENT']._serialized_start=208
+  _globals['_ACHIEVEMENTLADDERPAGEEVENT']._serialized_end=335
+  _globals['_ACHIEVEMENTLADDERENTRY']._serialized_start=338
+  _globals['_ACHIEVEMENTLADDERENTRY']._serialized_end=470
+  _globals['_ACHIEVEMENTLADDERPAGEREQUEST']._serialized_start=472
+  _globals['_ACHIEVEMENTLADDERPAGEREQUEST']._serialized_end=521
+  _globals['_UNKNOWNTHREEHUNDREDSIXTYONE']._serialized_start=524
+  _globals['_UNKNOWNTHREEHUNDREDSIXTYONE']._serialized_end=652
+  _globals['_ACHIEVEMENTLADDERSELFRANKEVENT']._serialized_start=655
+  _globals['_ACHIEVEMENTLADDERSELFRANKEVENT']._serialized_end=784
+  _globals['_ACHIEVEMENTLADDERSELFRANKREQUEST']._serialized_start=786
+  _globals['_ACHIEVEMENTLADDERSELFRANKREQUEST']._serialized_end=839
 # @@protoc_insertion_point(module_scope)

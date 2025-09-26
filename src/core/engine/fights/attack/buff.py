@@ -28,7 +28,6 @@ def get_valid_self_buff_spells_for_turn(
 
 
 def find_best_self_buff(context: AttackContext, logger: BotLogger) -> SpellLevelsRootItem | None:
-    """Cheapest castable self-buff not yet used this fight, or None."""
     best_spell: SpellLevelsRootItem | None = None
     best_ap_cost: int | None = None
     for spell_lvl, _effect, modifiers in get_valid_self_buff_spells_for_turn(context):

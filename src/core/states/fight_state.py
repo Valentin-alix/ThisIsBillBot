@@ -19,7 +19,7 @@ from dofus_unity_reader.game_constants.characteristic import (
 )
 from dofus_unity_reader.grid.map_point import MapPoint
 
-from src import const
+from src import consts
 from src.core.engine.fights.attack.models import EnemyData
 from src.core.engine.fights.effect import get_effect_elem_by_stat
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
@@ -51,7 +51,7 @@ class FightState(State):
     count_casted_by_spell_id_on_current_turn: dict[int, int] = dataclasses.field(
         init=False, default_factory=lambda: defaultdict(int)
     )
-    # spell_id -> last fight_turn it was cast on (for real cooldown tracking).
+
     last_cast_turn_by_spell_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict[int, int])
     characteristic_by_id: dict[int, CharacterCharacteristic] = dataclasses.field(
         init=False, default_factory=dict[int, CharacterCharacteristic]
@@ -126,7 +126,7 @@ class FightState(State):
 
     def update_characteristic(self, characteristic: CharacterCharacteristic) -> None:
         self.characteristic_by_id[characteristic.characteristic_id] = characteristic
-        if not const.DEBUG:
+        if not consts.DEBUG:
             return
         value = get_stat_by_id(characteristic)
         if characteristic.characteristic_id == CharacteristicEnum.ACTION_POINTS:
@@ -141,7 +141,7 @@ class FightState(State):
     @breed_id.setter
     def breed_id(self, value: int):
         self._breed_id = value
-        if const.DEBUG:
+        if consts.DEBUG:
             self.game_info_signals.breed_id.emit(value)
 
     @property
@@ -155,7 +155,7 @@ class FightState(State):
     @fight_turn.setter
     def fight_turn(self, value: int):
         self._fight_turn = value
-        if const.DEBUG:
+        if consts.DEBUG:
             self.game_info_signals.fight_turn.emit(value)
 
     @property
@@ -166,7 +166,7 @@ class FightState(State):
     def max_life_point(self, value: int):
         assert value > 0
         self._max_life_point = value
-        if const.DEBUG:
+        if consts.DEBUG:
             self.game_info_signals.max_life_point.emit(value)
 
     @property
@@ -177,7 +177,7 @@ class FightState(State):
     def life_point(self, value: int):
         assert value >= 0
         self._life_point = value
-        if const.DEBUG:
+        if consts.DEBUG:
             self.game_info_signals.life_point.emit(self._life_point)
 
     @property
@@ -237,7 +237,7 @@ class FightState(State):
     @is_our_turn.setter
     def is_our_turn(self, value: bool):
         self._is_our_turn = value
-        if const.DEBUG:
+        if consts.DEBUG:
             self.game_info_signals.is_our_turn.emit(value)
 
     def get_enemies(self, character_id: int) -> list[ActorPositionInformation]:

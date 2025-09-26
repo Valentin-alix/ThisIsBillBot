@@ -96,19 +96,16 @@ def is_spell_valid_for_turn(
     modifiers: SpellModifiers,
     rejection_stats: dict[RejectionStat, int],
 ) -> bool:
-    """check if spell can be casted and update in place rejection_stats"""
     current_ap = context.action_points
 
     if modifiers.ap_cost > current_ap:
         rejection_stats[RejectionStat.INSUFICIENT_AP] += 1
         return False
 
-    # Spell unavailable for the first `initialCooldown` turns of the fight.
     if spell_lvl.initialCooldown != 0 and context.fight_turn <= spell_lvl.initialCooldown:
         rejection_stats[RejectionStat.INITIAL_COOLDOWN] += 1
         return False
 
-    # Spell still recharging since its last cast (globalCooldown is in player turns).
     last_cast_turn = context.last_cast_turn_by_spell_id.get(spell_lvl.spellId)
     if (
         spell_lvl.globalCooldown != 0

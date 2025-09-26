@@ -1,4 +1,3 @@
-import socket
 import sys
 import traceback
 from collections import defaultdict
@@ -20,7 +19,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 from proto_mapper_assembly.scripts.dump import check_updated_mapping_resources
 
-from src.const import ENV_PATH
+from src.consts import ENV_PATH, FILTER_DOFUS, get_connection_servers_ips
 from src.core.signals.log_signals import LogSignals
 from src.services.logging_utils.loggers import (
     configure_root_logger,
@@ -42,10 +41,6 @@ from src.protocol.protocol_connection import (
 )
 from src.protocol.protocol_game import get_game_msg, get_game_msg_info
 from src.utils.network import get_local_ip
-
-FILTER_DOFUS = "tcp port 5555"
-DOFUS_CONNECTION_URL = "dofus2-co-production.ankama-games.com"
-CONNECTION_SERVERS_IPS: list[str] = socket.gethostbyname_ex(DOFUS_CONNECTION_URL)[2]
 
 
 @dataclass
@@ -94,7 +89,7 @@ class Sniffer:
 
             msg_content_datas = self.buffers[tunnel][pos : pos + size]
 
-            if ip_src in CONNECTION_SERVERS_IPS or ip_dst in CONNECTION_SERVERS_IPS:
+            if ip_src in get_connection_servers_ips() or ip_dst in get_connection_servers_ips():
                 self.handle_connection_message(msg_content_datas, from_server)
             else:
                 self.handle_game_message(msg_content_datas, from_server)
@@ -110,7 +105,7 @@ class Sniffer:
         try:
             _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(content, True)
             msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, from_server, True)
-            # msg_infos = get_obf_game_msg_info(content, from_server, True)
+
             self.msg_info_signals.msg_info.emit(msg_infos, False)
         except Exception:
             print(traceback.format_exc())

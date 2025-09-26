@@ -30,7 +30,7 @@ class MapMovementRefusedEvent(_message.Message):
     def __init__(self, cell_x: _Optional[int] = ..., cell_y: _Optional[int] = ...) -> None: ...
 
 class MapComplementaryInformationEvent(_message.Message):
-    __slots__ = ("subarea_id", "map_id", "houses", "actors", "interactive_elements", "stated_elements", "obstacles", "fights", "has_aggressive_monsters", "unknown_fuyn", "in_house_information", "coordinates", "breach_information", "anomaly_information", "haven_bag_information")
+    __slots__ = ("subarea_id", "map_id", "houses", "actors", "interactive_elements", "stated_elements", "obstacles", "fights", "has_aggressive_monsters", "unknown_four_hundred_seven", "in_house_information", "coordinates", "breach_information", "anomaly_information", "haven_bag_information")
     SUBAREA_ID_FIELD_NUMBER: _ClassVar[int]
     MAP_ID_FIELD_NUMBER: _ClassVar[int]
     HOUSES_FIELD_NUMBER: _ClassVar[int]
@@ -40,7 +40,7 @@ class MapComplementaryInformationEvent(_message.Message):
     OBSTACLES_FIELD_NUMBER: _ClassVar[int]
     FIGHTS_FIELD_NUMBER: _ClassVar[int]
     HAS_AGGRESSIVE_MONSTERS_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FUYN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_SEVEN_FIELD_NUMBER: _ClassVar[int]
     IN_HOUSE_INFORMATION_FIELD_NUMBER: _ClassVar[int]
     COORDINATES_FIELD_NUMBER: _ClassVar[int]
     BREACH_INFORMATION_FIELD_NUMBER: _ClassVar[int]
@@ -55,13 +55,13 @@ class MapComplementaryInformationEvent(_message.Message):
     obstacles: _containers.RepeatedCompositeFieldContainer[MapObstacle]
     fights: _containers.RepeatedCompositeFieldContainer[_common_pb2.FightCommonInformation]
     has_aggressive_monsters: bool
-    unknown_fuyn: _containers.RepeatedCompositeFieldContainer[UnknownJqn]
+    unknown_four_hundred_seven: _containers.RepeatedCompositeFieldContainer[UnknownTwoHundredOne]
     in_house_information: MapComplementaryInHouseInformation
     coordinates: _common_pb2.MapCoordinates
     breach_information: MapComplementaryBreachInformation
     anomaly_information: MapComplementaryAnomalyInformation
     haven_bag_information: MapComplementaryHavenBagInformation
-    def __init__(self, subarea_id: _Optional[int] = ..., map_id: _Optional[int] = ..., houses: _Optional[_Iterable[_Union[_common_pb2.House, _Mapping]]] = ..., actors: _Optional[_Iterable[_Union[_common_pb2.ActorPositionInformation, _Mapping]]] = ..., interactive_elements: _Optional[_Iterable[_Union[_common_pb2.InteractiveElement, _Mapping]]] = ..., stated_elements: _Optional[_Iterable[_Union[_common_pb2.StatedElement, _Mapping]]] = ..., obstacles: _Optional[_Iterable[_Union[MapObstacle, _Mapping]]] = ..., fights: _Optional[_Iterable[_Union[_common_pb2.FightCommonInformation, _Mapping]]] = ..., has_aggressive_monsters: bool = ..., unknown_fuyn: _Optional[_Iterable[_Union[UnknownJqn, _Mapping]]] = ..., in_house_information: _Optional[_Union[MapComplementaryInHouseInformation, _Mapping]] = ..., coordinates: _Optional[_Union[_common_pb2.MapCoordinates, _Mapping]] = ..., breach_information: _Optional[_Union[MapComplementaryBreachInformation, _Mapping]] = ..., anomaly_information: _Optional[_Union[MapComplementaryAnomalyInformation, _Mapping]] = ..., haven_bag_information: _Optional[_Union[MapComplementaryHavenBagInformation, _Mapping]] = ...) -> None: ...
+    def __init__(self, subarea_id: _Optional[int] = ..., map_id: _Optional[int] = ..., houses: _Optional[_Iterable[_Union[_common_pb2.House, _Mapping]]] = ..., actors: _Optional[_Iterable[_Union[_common_pb2.ActorPositionInformation, _Mapping]]] = ..., interactive_elements: _Optional[_Iterable[_Union[_common_pb2.InteractiveElement, _Mapping]]] = ..., stated_elements: _Optional[_Iterable[_Union[_common_pb2.StatedElement, _Mapping]]] = ..., obstacles: _Optional[_Iterable[_Union[MapObstacle, _Mapping]]] = ..., fights: _Optional[_Iterable[_Union[_common_pb2.FightCommonInformation, _Mapping]]] = ..., has_aggressive_monsters: bool = ..., unknown_four_hundred_seven: _Optional[_Iterable[_Union[UnknownTwoHundredOne, _Mapping]]] = ..., in_house_information: _Optional[_Union[MapComplementaryInHouseInformation, _Mapping]] = ..., coordinates: _Optional[_Union[_common_pb2.MapCoordinates, _Mapping]] = ..., breach_information: _Optional[_Union[MapComplementaryBreachInformation, _Mapping]] = ..., anomaly_information: _Optional[_Union[MapComplementaryAnomalyInformation, _Mapping]] = ..., haven_bag_information: _Optional[_Union[MapComplementaryHavenBagInformation, _Mapping]] = ...) -> None: ...
 
 class MapFightCountEvent(_message.Message):
     __slots__ = ("fight_count",)
@@ -186,14 +186,14 @@ class MapRunningFightsRequest(_message.Message):
     def __init__(self) -> None: ...
 
 class MapComplementaryBreachInformation(_message.Message):
-    __slots__ = ("unknown_fuuq", "unknown_fuur", "unknown_fuus")
-    UNKNOWN_FUUQ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FUUR_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FUUS_FIELD_NUMBER: _ClassVar[int]
-    unknown_fuuq: BreachBranchesInformation
-    unknown_fuur: BreachRoomInformation
-    unknown_fuus: UnknownJqj
-    def __init__(self, unknown_fuuq: _Optional[_Union[BreachBranchesInformation, _Mapping]] = ..., unknown_fuur: _Optional[_Union[BreachRoomInformation, _Mapping]] = ..., unknown_fuus: _Optional[_Union[UnknownJqj, _Mapping]] = ...) -> None: ...
+    __slots__ = ("unknown_four_hundred_four", "unknown_four_hundred_five", "unknown_four_hundred_six")
+    UNKNOWN_FOUR_HUNDRED_FOUR_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_FIVE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_SIX_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_four: BreachBranchesInformation
+    unknown_four_hundred_five: BreachRoomInformation
+    unknown_four_hundred_six: UnknownTwoHundred
+    def __init__(self, unknown_four_hundred_four: _Optional[_Union[BreachBranchesInformation, _Mapping]] = ..., unknown_four_hundred_five: _Optional[_Union[BreachRoomInformation, _Mapping]] = ..., unknown_four_hundred_six: _Optional[_Union[UnknownTwoHundred, _Mapping]] = ...) -> None: ...
 
 class MapObstacleUpdateEvent(_message.Message):
     __slots__ = ("obstacles",)
@@ -260,12 +260,12 @@ class MapComplementaryAnomalyInformation(_message.Message):
     def __init__(self, level: _Optional[int] = ..., closing_time: _Optional[int] = ...) -> None: ...
 
 class MapRunningFightDetailsRequest(_message.Message):
-    __slots__ = ("fight_id", "unknown_fuuy")
+    __slots__ = ("fight_id", "unknown_four_hundred_eight")
     FIGHT_ID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FUUY_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_EIGHT_FIELD_NUMBER: _ClassVar[int]
     fight_id: int
-    unknown_fuuy: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, fight_id: _Optional[int] = ..., unknown_fuuy: _Optional[_Iterable[str]] = ...) -> None: ...
+    unknown_four_hundred_eight: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, fight_id: _Optional[int] = ..., unknown_four_hundred_eight: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class MapErrorNotFoundRequest(_message.Message):
     __slots__ = ("map_id",)
@@ -273,85 +273,85 @@ class MapErrorNotFoundRequest(_message.Message):
     map_id: int
     def __init__(self, map_id: _Optional[int] = ...) -> None: ...
 
-class UnknownJqf(_message.Message):
-    __slots__ = ("unknown_fuow",)
-    UNKNOWN_FUOW_FIELD_NUMBER: _ClassVar[int]
-    unknown_fuow: int
-    def __init__(self, unknown_fuow: _Optional[int] = ...) -> None: ...
+class UnknownOneHundredNinetyNine(_message.Message):
+    __slots__ = ("unknown_four_hundred_twenty_one",)
+    UNKNOWN_FOUR_HUNDRED_TWENTY_ONE_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_twenty_one: int
+    def __init__(self, unknown_four_hundred_twenty_one: _Optional[int] = ...) -> None: ...
 
-class UnknownJqj(_message.Message):
+class UnknownTwoHundred(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
-class UnknownJqn(_message.Message):
+class UnknownTwoHundredOne(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
 class BreachBranchesInformation(_message.Message):
-    __slots__ = ("unknown_fuqh",)
+    __slots__ = ("unknown_four_hundred",)
     class Branch(_message.Message):
-        __slots__ = ("unknown_fuqc", "unknown_fuqd")
-        UNKNOWN_FUQC_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FUQD_FIELD_NUMBER: _ClassVar[int]
-        unknown_fuqc: int
-        unknown_fuqd: _containers.RepeatedScalarFieldContainer[int]
-        def __init__(self, unknown_fuqc: _Optional[int] = ..., unknown_fuqd: _Optional[_Iterable[int]] = ...) -> None: ...
-    UNKNOWN_FUQH_FIELD_NUMBER: _ClassVar[int]
-    unknown_fuqh: BreachBranchesInformation.Branch
-    def __init__(self, unknown_fuqh: _Optional[_Union[BreachBranchesInformation.Branch, _Mapping]] = ...) -> None: ...
+        __slots__ = ("unknown_three_hundred_ninety_eight", "unknown_three_hundred_ninety_nine")
+        UNKNOWN_THREE_HUNDRED_NINETY_EIGHT_FIELD_NUMBER: _ClassVar[int]
+        UNKNOWN_THREE_HUNDRED_NINETY_NINE_FIELD_NUMBER: _ClassVar[int]
+        unknown_three_hundred_ninety_eight: int
+        unknown_three_hundred_ninety_nine: _containers.RepeatedScalarFieldContainer[int]
+        def __init__(self, unknown_three_hundred_ninety_eight: _Optional[int] = ..., unknown_three_hundred_ninety_nine: _Optional[_Iterable[int]] = ...) -> None: ...
+    UNKNOWN_FOUR_HUNDRED_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred: BreachBranchesInformation.Branch
+    def __init__(self, unknown_four_hundred: _Optional[_Union[BreachBranchesInformation.Branch, _Mapping]] = ...) -> None: ...
 
 class BreachRoomInformation(_message.Message):
-    __slots__ = ("unknown_futh", "unknown_futi", "unknown_futk")
-    UNKNOWN_FUTH_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FUTI_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FUTK_FIELD_NUMBER: _ClassVar[int]
-    unknown_futh: int
-    unknown_futi: int
-    unknown_futk: int
-    def __init__(self, unknown_futh: _Optional[int] = ..., unknown_futi: _Optional[int] = ..., unknown_futk: _Optional[int] = ...) -> None: ...
+    __slots__ = ("unknown_four_hundred_one", "unknown_four_hundred_two", "unknown_four_hundred_three")
+    UNKNOWN_FOUR_HUNDRED_ONE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_TWO_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_THREE_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_one: int
+    unknown_four_hundred_two: int
+    unknown_four_hundred_three: int
+    def __init__(self, unknown_four_hundred_one: _Optional[int] = ..., unknown_four_hundred_two: _Optional[int] = ..., unknown_four_hundred_three: _Optional[int] = ...) -> None: ...
 
-class UnknownJsg(_message.Message):
+class UnknownTwoHundredTwo(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
-class UnknownJfl(_message.Message):
-    __slots__ = ("unknown_ftcg", "unknown_ftch", "unknown_ftci", "unknown_ftcj", "unknown_ftck")
-    UNKNOWN_FTCG_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTCH_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTCI_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTCJ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTCK_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftcg: int
-    unknown_ftch: int
-    unknown_ftci: int
-    unknown_ftcj: int
-    unknown_ftck: int
-    def __init__(self, unknown_ftcg: _Optional[int] = ..., unknown_ftch: _Optional[int] = ..., unknown_ftci: _Optional[int] = ..., unknown_ftcj: _Optional[int] = ..., unknown_ftck: _Optional[int] = ...) -> None: ...
+class UnknownOneHundredNinetyEight(_message.Message):
+    __slots__ = ("unknown_four_hundred_sixteen", "unknown_four_hundred_seventeen", "unknown_four_hundred_eighteen", "unknown_four_hundred_nineteen", "unknown_four_hundred_twenty")
+    UNKNOWN_FOUR_HUNDRED_SIXTEEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_SEVENTEEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_EIGHTEEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_NINETEEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_TWENTY_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_sixteen: int
+    unknown_four_hundred_seventeen: int
+    unknown_four_hundred_eighteen: int
+    unknown_four_hundred_nineteen: int
+    unknown_four_hundred_twenty: int
+    def __init__(self, unknown_four_hundred_sixteen: _Optional[int] = ..., unknown_four_hundred_seventeen: _Optional[int] = ..., unknown_four_hundred_eighteen: _Optional[int] = ..., unknown_four_hundred_nineteen: _Optional[int] = ..., unknown_four_hundred_twenty: _Optional[int] = ...) -> None: ...
 
-class UnknownJff(_message.Message):
-    __slots__ = ("unknown_ftbm", "unknown_ftbn", "unknown_ftbo")
-    class UnknownJfb(_message.Message):
-        __slots__ = ("unknown_ftbc",)
-        UNKNOWN_FTBC_FIELD_NUMBER: _ClassVar[int]
-        unknown_ftbc: UnknownJfl
-        def __init__(self, unknown_ftbc: _Optional[_Union[UnknownJfl, _Mapping]] = ...) -> None: ...
-    UNKNOWN_FTBM_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTBN_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTBO_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftbm: int
-    unknown_ftbn: UnknownJff.UnknownJfb
-    unknown_ftbo: int
-    def __init__(self, unknown_ftbm: _Optional[int] = ..., unknown_ftbn: _Optional[_Union[UnknownJff.UnknownJfb, _Mapping]] = ..., unknown_ftbo: _Optional[int] = ...) -> None: ...
+class UnknownOneHundredNinetyFour(_message.Message):
+    __slots__ = ("unknown_four_hundred_ten", "unknown_four_hundred_eleven", "unknown_four_hundred_twelve")
+    class UnknownOneHundredNinetyFive(_message.Message):
+        __slots__ = ("unknown_four_hundred_nine",)
+        UNKNOWN_FOUR_HUNDRED_NINE_FIELD_NUMBER: _ClassVar[int]
+        unknown_four_hundred_nine: UnknownOneHundredNinetyEight
+        def __init__(self, unknown_four_hundred_nine: _Optional[_Union[UnknownOneHundredNinetyEight, _Mapping]] = ...) -> None: ...
+    UNKNOWN_FOUR_HUNDRED_TEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_ELEVEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_TWELVE_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_ten: int
+    unknown_four_hundred_eleven: UnknownOneHundredNinetyFour.UnknownOneHundredNinetyFive
+    unknown_four_hundred_twelve: int
+    def __init__(self, unknown_four_hundred_ten: _Optional[int] = ..., unknown_four_hundred_eleven: _Optional[_Union[UnknownOneHundredNinetyFour.UnknownOneHundredNinetyFive, _Mapping]] = ..., unknown_four_hundred_twelve: _Optional[int] = ...) -> None: ...
 
-class UnknownJfk(_message.Message):
-    __slots__ = ("unknown_ftca", "unknown_ftcb")
-    class UnknownJfh(_message.Message):
-        __slots__ = ("unknown_ftbt",)
-        UNKNOWN_FTBT_FIELD_NUMBER: _ClassVar[int]
-        unknown_ftbt: UnknownJfl
-        def __init__(self, unknown_ftbt: _Optional[_Union[UnknownJfl, _Mapping]] = ...) -> None: ...
-    UNKNOWN_FTCA_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FTCB_FIELD_NUMBER: _ClassVar[int]
-    unknown_ftca: UnknownJfk.UnknownJfh
-    unknown_ftcb: int
-    def __init__(self, unknown_ftca: _Optional[_Union[UnknownJfk.UnknownJfh, _Mapping]] = ..., unknown_ftcb: _Optional[int] = ...) -> None: ...
+class UnknownOneHundredNinetySix(_message.Message):
+    __slots__ = ("unknown_four_hundred_fourteen", "unknown_four_hundred_fifteen")
+    class UnknownOneHundredNinetySeven(_message.Message):
+        __slots__ = ("unknown_four_hundred_thirteen",)
+        UNKNOWN_FOUR_HUNDRED_THIRTEEN_FIELD_NUMBER: _ClassVar[int]
+        unknown_four_hundred_thirteen: UnknownOneHundredNinetyEight
+        def __init__(self, unknown_four_hundred_thirteen: _Optional[_Union[UnknownOneHundredNinetyEight, _Mapping]] = ...) -> None: ...
+    UNKNOWN_FOUR_HUNDRED_FOURTEEN_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_FOUR_HUNDRED_FIFTEEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_four_hundred_fourteen: UnknownOneHundredNinetySix.UnknownOneHundredNinetySeven
+    unknown_four_hundred_fifteen: int
+    def __init__(self, unknown_four_hundred_fourteen: _Optional[_Union[UnknownOneHundredNinetySix.UnknownOneHundredNinetySeven, _Mapping]] = ..., unknown_four_hundred_fifteen: _Optional[int] = ...) -> None: ...

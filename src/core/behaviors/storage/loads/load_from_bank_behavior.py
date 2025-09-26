@@ -30,7 +30,9 @@ class LoadFromBankBehavior(RecoverableBehavior):
 
     def run(self, load_items_infos: list[LoadItemInfo], unload_first: bool = True) -> None:
         self.init_recovery_listeners()
-        self.ensure_free_to_act(lambda: self.start_bank_load(load_items_infos=load_items_infos, unload_first=unload_first))
+        self.ensure_free_to_act(
+            lambda: self.start_bank_load(load_items_infos=load_items_infos, unload_first=unload_first)
+        )
 
     def start_bank_load(self, load_items_infos: list[LoadItemInfo], unload_first: bool = True) -> None:
         self._pending_load_items = [

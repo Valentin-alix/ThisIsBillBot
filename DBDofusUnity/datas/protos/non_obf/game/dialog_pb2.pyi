@@ -7,8 +7,10 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class DialogLeaveRequest(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("unknown_three_hundred_twenty_three",)
+    UNKNOWN_THREE_HUNDRED_TWENTY_THREE_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_twenty_three: str
+    def __init__(self, unknown_three_hundred_twenty_three: _Optional[str] = ...) -> None: ...
 
 class DialogLeaveEvent(_message.Message):
     __slots__ = ("dialog_type",)

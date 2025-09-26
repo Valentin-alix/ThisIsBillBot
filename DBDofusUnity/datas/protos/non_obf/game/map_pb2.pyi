@@ -4,10 +4,10 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class UnknownKsc(_message.Message):
-    __slots__ = ("unknown_fyxs", "unknown_fyxt")
-    UNKNOWN_FYXS_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FYXT_FIELD_NUMBER: _ClassVar[int]
-    unknown_fyxs: int
-    unknown_fyxt: bool
-    def __init__(self, unknown_fyxs: _Optional[int] = ..., unknown_fyxt: bool = ...) -> None: ...
+class UnknownFourHundredEighteen(_message.Message):
+    __slots__ = ("unknown_seven_hundred_fifty_five", "unknown_seven_hundred_fifty_six")
+    UNKNOWN_SEVEN_HUNDRED_FIFTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_SEVEN_HUNDRED_FIFTY_SIX_FIELD_NUMBER: _ClassVar[int]
+    unknown_seven_hundred_fifty_five: int
+    unknown_seven_hundred_fifty_six: bool
+    def __init__(self, unknown_seven_hundred_fifty_five: _Optional[int] = ..., unknown_seven_hundred_fifty_six: bool = ...) -> None: ...

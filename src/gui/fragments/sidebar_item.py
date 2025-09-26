@@ -21,7 +21,7 @@ from qfluentwidgets.common.icon import toQIcon
 from qfluentwidgets.common.style_sheet import themeColor
 from qfluentwidgets.components.navigation.navigation_widget import NavigationWidget
 
-from src.const import RESOURCE_FOLDER
+from src.consts import RESOURCE_FOLDER
 from src.core.signals.bot_signals import BotSignals
 
 
@@ -116,7 +116,6 @@ class SidebarItem(NavigationWidget):
             self._right_icon.hide()
 
     def setCompacted(self, isCompacted: bool) -> None:
-        """set whether the widget is compacted"""
         if isCompacted == self.isCompacted:
             return
 
@@ -226,7 +225,6 @@ class SidebarItem(NavigationWidget):
         if not self.isEnabled():
             painter.setOpacity(0.4)
 
-        # draw background
         c = 255 if isDarkTheme() else 0
         m = self._margins()
         pl = m.left()
@@ -236,7 +234,6 @@ class SidebarItem(NavigationWidget):
             painter.setBrush(QColor(c, c, c, 6 if self.isEnter else 10))
             painter.drawRoundedRect(self.rect(), 5, 5)
 
-            # draw indicator
             painter.setBrush(themeColor())
             indicator_height = max(16, int(self.height() * 0.65))
             indicator_top = (self.height() - indicator_height) // 2

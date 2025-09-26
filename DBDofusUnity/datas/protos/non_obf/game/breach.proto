@@ -4,99 +4,211 @@ import "common.proto";
 
 package com.ankama.dofus.server.game.protocol.breach;
 
-message BreachTeleportRequest {
+message UnknownEighteen {}
+
+enum UnknownNineteen {
+	UNKNOWN_NINETEEN = 0;
 }
 
-message BreachRoomUnlockRequest {
-	int32 room_id = 1;
+message UnknownTwenty {}
+
+
+message BreachEnterInstanceRequest {
+	.com.ankama.dofus.server.game.protocol.breach.BreachEnterInstanceRequest.UnknownTen unknown_thirty_five = 1;
+	.com.ankama.dofus.server.game.protocol.breach.BreachEnterInstanceRequest.BreachInstanceInformation unknown_thirty_six = 3;
+	message BreachInstanceInformation {
+		int32 instance_number = 1;
+	}
+	message UnknownTen {
+		string unknown_thirty_two = 1;
+		int32 unknown_thirty_three = 3;
+		int32 unknown_thirty_four = 4;
+	}
+}
+
+message BreachPlayerInformation {
+	string player_name = 1;
+	int64 player_id = 3;
+	int32 breed_id = 4;
+	.com.ankama.dofus.server.game.protocol.common.Gender gender = 5;
+	message UnknownSeventeen {
+	}
+}
+
+message UnknownTwentyTwo {
+	string unknown_eighty_six = 1;
+}
+
+message UnknownTwentyThree {
+	int32 unknown_eighty_eight = 1;
+	int32 unknown_eighty_nine = 2;
+	int32 unknown_ninety = 3;
+	int32 unknown_ninety_four = 4;
+	string unknown_ninety_one = 5;
+	repeated .com.ankama.dofus.server.game.protocol.breach.UnknownTwentySeven unknown_ninety_two = 6;
+	repeated .com.ankama.dofus.server.game.protocol.breach.UnknownTwentyEight unknown_ninety_three = 7;
+	int32 unknown_ninety_five = 8;
+	int32 unknown_ninety_six = 9;
+	int32 unknown_ninety_seven = 10;
+	int32 unknown_ninety_eight = 11;
+	int64 unknown_ninety_nine = 12;
+	.com.ankama.dofus.server.game.protocol.breach.BreachPlayerInformation unknown_one_hundred = 13;
+	.com.ankama.dofus.server.game.protocol.breach.UnknownTwentyThree.UnknownTwentyFour unknown_one_hundred_one = 14;
+	.com.ankama.dofus.server.game.protocol.breach.UnknownTwentyThree.UnknownTwentyFive unknown_one_hundred_two = 15;
+	message UnknownTwentyFour {
+	}
+	message UnknownTwentyFive {
+		int32 unknown_eighty_seven = 2;
+	}
+	message UnknownTwentySix {
+	}
+}
+
+message UnknownTwentySeven {
+	map<string, UnknownEighteen> unknown_one_hundred_three = 1;
+	UnknownNineteen unknown_one_hundred_four = 2;
+	repeated string unknown_one_hundred_five = 3;
+	map<string, UnknownTwenty> unknown_one_hundred_six = 4;
+}
+
+message UnknownTwentyEight {
+	.com.ankama.dofus.server.game.protocol.common.ObjectEffect unknown_one_hundred_seven = 1;
+	int32 unknown_one_hundred_eight = 2;
+	int32 unknown_one_hundred_nine = 3;
+}
+
+message BreachCurrentInformationEvent {
+	.com.ankama.dofus.server.game.protocol.breach.BreachCurrentInformationEvent.UnknownNine unknown_thirty_one = 1;
+	message UnknownNine {
+		int32 unknown_seventeen = 1;
+		int32 unknown_eighteen = 2;
+		string unknown_nineteen = 3;
+		int32 unknown_twenty = 4;
+		string unknown_twenty_one = 5;
+		repeated .com.ankama.dofus.server.game.protocol.breach.UnknownTwentyEight unknown_twenty_two = 6;
+		int32 unknown_twenty_three = 7;
+		int32 unknown_twenty_four = 8;
+		bool unknown_twenty_five = 9;
+		int32 unknown_twenty_six = 10;
+		bool unknown_twenty_seven = 11;
+		bool unknown_twenty_eight = 12;
+		string unknown_twenty_nine = 13;
+		repeated .com.ankama.dofus.server.game.protocol.breach.UnknownTwentySeven unknown_thirty = 14;
+	}
+}
+
+message UnknownTwentyNine {
+	string unknown_one_hundred_eighteen = 1;
+	int32 unknown_one_hundred_nineteen = 2;
+	int32 unknown_one_hundred_twenty = 3;
+	float unknown_one_hundred_twenty_one = 4;
+	message UnknownThirty {
+		map<int32, int64> unknown_one_hundred_ten = 1;
+		repeated int64 unknown_one_hundred_eleven = 2;
+		map<bool, string> unknown_one_hundred_twelve = 3;
+		repeated int64 unknown_one_hundred_thirteen = 4;
+		repeated string unknown_one_hundred_fourteen = 5;
+		repeated string unknown_one_hundred_fifteen = 6;
+		string unknown_one_hundred_sixteen = 7;
+		bool unknown_one_hundred_seventeen = 8;
+	}
+}
+
+message BreachEnterRequest {
+}
+
+message UnknownTwentyOne {
+	optional int32 unknown_seventy_seven = 1;
+	optional int32 unknown_seventy_eight = 2;
+	repeated .com.ankama.dofus.server.game.protocol.breach.UnknownTwentyEight unknown_seventy_nine = 3;
+	optional int32 unknown_eighty = 4;
+	optional int32 unknown_eighty_one = 5;
+	optional int32 unknown_eighty_two = 8;
+	int32 unknown_eighty_three = 9;
+	int32 unknown_eighty_four = 10;
+	optional bool unknown_eighty_five = 11;
+}
+
+message BreachEnterInstanceResponse {
+	.com.ankama.dofus.server.game.protocol.breach.BreachPlayerInformation unknown_fifty_two = 1;
+	repeated .com.ankama.dofus.server.game.protocol.breach.BreachEnterInstanceResponse.UnknownSixteen unknown_fifty_three = 3;
+	repeated .com.ankama.dofus.server.game.protocol.breach.BreachEnterInstanceResponse.UnknownTwelve unknown_fifty_four = 4;
+	repeated .com.ankama.dofus.server.game.protocol.breach.BreachPlayerInformation unknown_fifty_five = 5;
+	repeated .com.ankama.dofus.server.game.protocol.breach.UnknownTwentyOne unknown_fifty_six = 6;
+	int32 unknown_fifty_seven = 7;
+	int32 unknown_fifty_eight = 8;
+	optional string unknown_fifty_nine = 9;
+	optional int32 unknown_sixty = 10;
+	int32 unknown_sixty_one = 11;
+	UnknownEleven unknown_sixty_two = 12;
+	string unknown_sixty_three = 13;
+	int32 unknown_sixty_four = 14;
+	repeated .com.ankama.dofus.server.game.protocol.breach.UnknownTwentyEight unknown_sixty_five = 15;
+	repeated .com.ankama.dofus.server.game.protocol.breach.UnknownTwentySeven unknown_sixty_six = 16;
+	int32 unknown_sixty_seven = 17;
+	bool unknown_sixty_eight = 18;
+	bool unknown_sixty_nine = 19;
+	int32 unknown_seventy = 20;
+	bool unknown_seventy_one = 21;
+	int32 unknown_seventy_two = 22;
+	bool unknown_seventy_three = 23;
+	message UnknownSixteen {
+		int32 unknown_forty_eight = 1;
+		int32 unknown_forty_nine = 3;
+		int32 unknown_fifty = 4;
+		map<int32, int32> unknown_fifty_one = 5;
+	}
+	message UnknownTwelve {
+		string unknown_forty_five = 1;
+		UnknownThirteen unknown_forty_six = 2;
+		UnknownFourteen unknown_forty_seven = 3;
+		message UnknownFifteen {
+			optional int64 unknown_thirty_seven = 1;
+			repeated int32 unknown_thirty_eight = 2;
+			map<int64, bool> unknown_thirty_nine = 3;
+			optional int64 unknown_forty = 4;
+			string unknown_forty_one = 5;
+			repeated int32 unknown_forty_two = 6;
+			int64 unknown_forty_three = 7;
+			repeated int64 unknown_forty_four = 8;
+		}
+		enum UnknownThirteen {
+			UNKNOWN_THIRTEEN_UNSPECIFIED = 0;
+		}
+		enum UnknownFourteen {
+			UNKNOWN_FOURTEEN_UNSPECIFIED = 0;
+		}
+	}
+	enum UnknownEleven {
+		UNKNOWN_ELEVEN_UNSPECIFIED = 0;
+		UNKNOWN_ELEVEN_1 = 1;
+		UNKNOWN_ELEVEN_2 = 2;
+		UNKNOWN_ELEVEN_3 = 3;
+		UNKNOWN_ELEVEN_4 = 4;
+	}
+}
+
+message BreachRoomLootEvent {
+	bool unknown_seventy_five = 1;
+	repeated .com.ankama.dofus.server.game.protocol.breach.UnknownTwentyNine unknown_seventy_six = 2;
+}
+
+message BreachRoomLootRequest {
 }
 
 message BreachExitRequest {
 }
 
-message BreachRewardBuyRequest {
-	int32 reward_id = 1;
+message BreachRerollMonstersRequest {
 }
 
-message BreachInvitationRequest {
-	repeated int64 guests = 1;
-}
-
-message BreachInvitationAnswerRequest {
-	bool accepted = 1;
-}
-
-message BreachKickRequest {
-	int64 player_id = 1;
-}
-
-message BreachEnterEvent {
-	int64 owner = 1;
-}
-
-message BreachTeleportResultEvent {
-	bool teleported = 1;
-}
-
-message BreachRoomLockedEvent {
-}
-
-message BreachRoomUnlockResultEvent {
-	int32 room_id = 1;
-	.com.ankama.dofus.server.game.protocol.breach.BreachRoomUnlockResultEvent.BreachRoomUnlockResult result = 2;
-	enum BreachRoomUnlockResult {
-		SUCCESS = 0;
-		FAIL_NOT_ENOUGH_BUDGET = 1;
-	}
-
+message BreachExitEvent {
 }
 
 message BreachExitResultEvent {
 	bool exited = 1;
 }
 
-message BreachStateEvent {
-	.com.ankama.dofus.server.game.protocol.common.Character owner = 1;
-	repeated .com.ankama.dofus.server.game.protocol.common.ObjectEffect bonuses = 2;
-	int32 budget = 3;
-	bool saved = 4;
+message BreachRerollMonstersResponse {
+	bool unknown_seventy_four = 2;
 }
-
-message BreachCharactersEvent {
-	repeated int64 players = 1;
-}
-
-message BreachBonusEvent {
-	.com.ankama.dofus.server.game.protocol.common.ObjectEffect bonus = 1;
-}
-
-message BreachBudgetEvent {
-	int32 budget = 1;
-}
-
-message BreachSavedEvent {
-	bool saved = 1;
-}
-
-message BreachBranchesEvent {
-	repeated .com.ankama.dofus.server.game.protocol.common.BreachBranch branches = 1;
-}
-
-message BreachRewardsEvent {
-	repeated .com.ankama.dofus.server.game.protocol.common.BreachReward rewards = 1;
-}
-
-message BreachRewardBoughtEvent {
-	int32 reward_id = 1;
-	bool bought = 2;
-}
-
-message BreachInvitationOfferEvent {
-	.com.ankama.dofus.server.game.protocol.common.Character host = 1;
-	int32 time_left_before_cancel = 2;
-}
-
-message BreachInvitationCloseEvent {
-	.com.ankama.dofus.server.game.protocol.common.Character host = 1;
-}
-

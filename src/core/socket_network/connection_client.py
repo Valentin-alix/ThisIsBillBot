@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from datas.protos.non_obf.connection.login_message_pb2 import LoginMessage
 from google.protobuf.message import Message
 
-from src import const
-from src.const import DOFUS_CONNECTION_URL
+from src import consts
+from src.consts import DOFUS_CONNECTION_URL
 from src.core.behaviors.behavior import BehaviorState
 from src.core.behaviors.socket.connection_behavior import (
     ConnectionBehavior,
@@ -31,7 +31,6 @@ class ConnectionClient(BaseClient):
         game_token: str,
         callback: Callable[[str | None, IdentificationSuccessInfo], None],
     ) -> None:
-        """Authenticate against the login server and retrieve game server coordinates."""
         self.connect_socket(DOFUS_CONNECTION_URL, LOGIN_SERVER_PORT)
         self.bot.event_manager.request_disconnect_callback = self.close
         self.bot.event_manager.is_socket_mode = True
@@ -46,7 +45,7 @@ class ConnectionClient(BaseClient):
             _, clear_sub_msg = get_conn_msg(msg.SerializeToString())
             self.client_socket.sendall(encode_msg(msg))
             self.bot.event_manager.process_msg(clear_sub_msg)
-            if const.DEBUG:
+            if consts.DEBUG:
                 msg_info = get_conn_msg_info(clear_sub_msg, False)
                 self.bot.msg_info_signals.msg_info.emit(msg_info, True)
         except OSError as err:
@@ -56,7 +55,7 @@ class ConnectionClient(BaseClient):
     def on_received_msg_datas(self, msg_datas: bytes) -> None:
         size, pos = decode_varint_size(msg_datas)
         msg = get_conn_msg(msg_datas[pos : pos + size])[1]
-        if const.DEBUG:
+        if consts.DEBUG:
             msg_info = get_conn_msg_info(msg, True)
             self.bot.msg_info_signals.msg_info.emit(msg_info, False)
         self.bot.event_manager.process_msg(msg)

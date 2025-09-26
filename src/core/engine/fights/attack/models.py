@@ -9,7 +9,7 @@ from dofus_unity_reader.game_constants.spell_state import SpellStateEnum
 from dofus_unity_reader.grid.map_point import MapPoint
 from dofus_unity_reader.models.datas.monsters_root import MonsterGrade
 
-# State ids granting full damage invulnerability
+
 FULLY_INVULNERABLE_STATE_IDS: frozenset[int] = frozenset(
     {
         SpellStateEnum.INVULNERABLE,
@@ -27,8 +27,7 @@ class AttackWeights:
     ENEMY_KILL_BONUS = 1.0
     SUMMONED_KILL_BONUS = 0.5
     SUMMONED_DAMAGE_DIVISOR = 2
-    # Multiplicative weight penalty applied per ally caught in a damage AoE,
-    # to strongly discourage (but not absolutely forbid) friendly fire.
+
     ALLY_HIT_PENALTY_FACTOR = 0.1
 
 

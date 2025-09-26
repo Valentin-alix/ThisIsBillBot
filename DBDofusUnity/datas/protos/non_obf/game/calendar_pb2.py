@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0e\x63\x61lendar.proto\x12.com.ankama.dofus.server.game.protocol.calendar\"7\n\x0f\x43\x61lendarRequest\x12\x12\n\nstart_date\x18\x01 \x01(\t\x12\x10\n\x08\x65nd_date\x18\x02 \x01(\t\"\xc4\x01\n\rCalendarEvent\x12Z\n\x0ekrosmic_events\x18\x01 \x03(\x0b\x32\x42.com.ankama.dofus.server.game.protocol.calendar.CalendarOccurrence\x12W\n\x10\x66\x65stivity_events\x18\x02 \x03(\x0b\x32=.com.ankama.dofus.server.game.protocol.calendar.CalendarEntry\"z\n\x12\x43\x61lendarOccurrence\x12\x14\n\x0cunknown_gepg\x18\x01 \x01(\t\x12\x16\n\x0e\x64\x65scription_id\x18\x02 \x01(\x05\x12\x15\n\x08\x65nd_date\x18\x03 \x01(\tH\x00\x88\x01\x01\x12\x12\n\nstart_date\x18\x04 \x01(\tB\x0b\n\t_end_date\"M\n\rCalendarEntry\x12\x12\n\nstart_date\x18\x01 \x01(\t\x12\x10\n\x08\x65nd_date\x18\x02 \x01(\t\x12\x16\n\x0e\x64\x65scription_id\x18\x03 \x01(\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0e\x63\x61lendar.proto\x12.com.ankama.dofus.server.game.protocol.calendar\"7\n\x0f\x43\x61lendarRequest\x12\x12\n\nstart_date\x18\x01 \x01(\t\x12\x10\n\x08\x65nd_date\x18\x02 \x01(\t\"\xc4\x01\n\rCalendarEvent\x12Z\n\x0ekrosmic_events\x18\x01 \x03(\x0b\x32\x42.com.ankama.dofus.server.game.protocol.calendar.CalendarOccurrence\x12W\n\x10\x66\x65stivity_events\x18\x02 \x03(\x0b\x32=.com.ankama.dofus.server.game.protocol.calendar.CalendarEntry\"x\n\x12\x43\x61lendarOccurrence\x12\x12\n\nevent_uuid\x18\x01 \x01(\t\x12\x16\n\x0e\x64\x65scription_id\x18\x02 \x01(\x05\x12\x15\n\x08\x65nd_date\x18\x03 \x01(\tH\x00\x88\x01\x01\x12\x12\n\nstart_date\x18\x04 \x01(\tB\x0b\n\t_end_date\"M\n\rCalendarEntry\x12\x12\n\nstart_date\x18\x01 \x01(\t\x12\x10\n\x08\x65nd_date\x18\x02 \x01(\t\x12\x16\n\x0e\x64\x65scription_id\x18\x03 \x01(\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -36,7 +36,7 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_CALENDAREVENT']._serialized_start=124
   _globals['_CALENDAREVENT']._serialized_end=320
   _globals['_CALENDAROCCURRENCE']._serialized_start=322
-  _globals['_CALENDAROCCURRENCE']._serialized_end=444
-  _globals['_CALENDARENTRY']._serialized_start=446
-  _globals['_CALENDARENTRY']._serialized_end=523
+  _globals['_CALENDAROCCURRENCE']._serialized_end=442
+  _globals['_CALENDARENTRY']._serialized_start=444
+  _globals['_CALENDARENTRY']._serialized_end=521
 # @@protoc_insertion_point(module_scope)

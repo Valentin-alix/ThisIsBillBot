@@ -8,7 +8,7 @@ from datas.protos.non_obf.game.exchange_pb2 import (
 from google.protobuf.message import Message
 from pytest import MonkeyPatch
 
-from src.core.behaviors.mule_storage.mule_accept_behavior import MuleAcceptBehavior
+from src.core.behaviors.storage.mule.mule_accept_behavior import MuleAcceptBehavior
 from src.core.bot.kamas_mule_registry import KamasMuleRegistry
 from src.core.events_manager.event_manager import EventManager
 from src.services.human_timings import HumanTimingsService

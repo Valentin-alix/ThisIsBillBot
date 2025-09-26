@@ -7,7 +7,7 @@ from datas.protos.non_obf.game.common_pb2 import (
 )
 from dofus_unity_reader.data_center.map_reader import MapReader
 
-from src import const
+from src import consts
 from src.core.engine.interactives.collectable import (
     Collectable,
     get_stated_element_collectable,
@@ -59,7 +59,7 @@ class InteractiveState(State):
         ]
         self.stated_element_by_id.clear()
         self.stated_element_by_cell_id.clear()
-        if batch and const.DEBUG:
+        if batch and consts.DEBUG:
             self.grid_signals.set_stated_element_on_cell_id_batch.emit(batch)
 
     def set_stated_elements(self, stated_elements: Iterable[StatedElement]) -> None:
@@ -84,7 +84,7 @@ class InteractiveState(State):
             batch.append((stated_element.cell_id, stated_element, collectable))
         for old_cell_id in old_cell_ids - new_cell_ids:
             batch.append((old_cell_id, None, None))
-        if batch and const.DEBUG:
+        if batch and consts.DEBUG:
             self.grid_signals.set_stated_element_on_cell_id_batch.emit(batch)
 
     def set_stated_element(self, stated_element: StatedElement) -> None:
@@ -111,7 +111,7 @@ class InteractiveState(State):
             remaining = self.stated_element_by_cell_id.get(old_cell_id)
             if not remaining or len(remaining) == 0:
                 batch.append((old_cell_id, None, None))
-        if const.DEBUG:
+        if consts.DEBUG:
             self.grid_signals.set_stated_element_on_cell_id_batch.emit(batch)
 
     def get_farmable_collectables(self, excluded_element_ids: set[int] | None = None) -> list[Collectable]:

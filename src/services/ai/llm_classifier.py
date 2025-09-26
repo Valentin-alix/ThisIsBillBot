@@ -1,18 +1,20 @@
 from functools import cached_property
 
 from base_python.singleton import Singleton
-from langchain.agents import create_agent
-from langchain_core.messages import HumanMessage
-from langchain_openai import ChatOpenAI
 
 
 class ClassifierChat(metaclass=Singleton):
     @cached_property
     def classifier_agent(self):
+        from langchain.agents import create_agent
+        from langchain_openai import ChatOpenAI
+
         classifier_model = ChatOpenAI(model="gpt-4.1-mini", temperature=0)
         return create_agent(classifier_model, tools=[])
 
     def llm_should_respond(self, msg: str) -> bool:
+        from langchain_core.messages import HumanMessage
+
         result = self.classifier_agent.invoke(
             {
                 "messages": [

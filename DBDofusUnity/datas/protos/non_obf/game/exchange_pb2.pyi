@@ -8,24 +8,20 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class ExchangeSetCraftRecipeRequest(_message.Message):
-    __slots__ = ("object_uid", "unknown_fxdf")
+    __slots__ = ("object_uid", "unknown_three_hundred_thirty")
     OBJECT_UID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXDF_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_THIRTY_FIELD_NUMBER: _ClassVar[int]
     object_uid: int
-    unknown_fxdf: int
-    def __init__(self, object_uid: _Optional[int] = ..., unknown_fxdf: _Optional[int] = ...) -> None: ...
+    unknown_three_hundred_thirty: int
+    def __init__(self, object_uid: _Optional[int] = ..., unknown_three_hundred_thirty: _Optional[int] = ...) -> None: ...
 
 class ExchangeObjectUseInWorkshopRequest(_message.Message):
-    __slots__ = ("object_uid", "quantity", "unknown_fxja", "unknown_fxjd")
+    __slots__ = ("object_uid", "quantity")
     OBJECT_UID_FIELD_NUMBER: _ClassVar[int]
     QUANTITY_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXJA_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXJD_FIELD_NUMBER: _ClassVar[int]
     object_uid: int
     quantity: int
-    unknown_fxja: bool
-    unknown_fxjd: int
-    def __init__(self, object_uid: _Optional[int] = ..., quantity: _Optional[int] = ..., unknown_fxja: bool = ..., unknown_fxjd: _Optional[int] = ...) -> None: ...
+    def __init__(self, object_uid: _Optional[int] = ..., quantity: _Optional[int] = ...) -> None: ...
 
 class ExchangeObjectMovePricedRequest(_message.Message):
     __slots__ = ("object_uid", "quantity", "price")
@@ -52,12 +48,12 @@ class ExchangeObjectTransferAllToInventoryRequest(_message.Message):
     def __init__(self) -> None: ...
 
 class ExchangeObjectTransferListToInventoryRequest(_message.Message):
-    __slots__ = ("objects_uid", "unknown_fwux")
+    __slots__ = ("objects_uid", "unknown_three_hundred_twenty_nine")
     OBJECTS_UID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWUX_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_TWENTY_NINE_FIELD_NUMBER: _ClassVar[int]
     objects_uid: _containers.RepeatedScalarFieldContainer[int]
-    unknown_fwux: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, objects_uid: _Optional[_Iterable[int]] = ..., unknown_fwux: _Optional[_Iterable[int]] = ...) -> None: ...
+    unknown_three_hundred_twenty_nine: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, objects_uid: _Optional[_Iterable[int]] = ..., unknown_three_hundred_twenty_nine: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ExchangeObjectTransferListWithQuantityToInventoryRequest(_message.Message):
     __slots__ = ("objects",)
@@ -74,12 +70,12 @@ class ExchangeObjectTransferAllFromInventoryRequest(_message.Message):
     def __init__(self) -> None: ...
 
 class ExchangeObjectTransferListFromInventoryRequest(_message.Message):
-    __slots__ = ("objects_uid", "unknown_fwwb")
+    __slots__ = ("objects_uid", "unknown_three_hundred_twenty_eight")
     OBJECTS_UID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWWB_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_TWENTY_EIGHT_FIELD_NUMBER: _ClassVar[int]
     objects_uid: _containers.RepeatedScalarFieldContainer[int]
-    unknown_fwwb: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, objects_uid: _Optional[_Iterable[int]] = ..., unknown_fwwb: _Optional[_Iterable[int]] = ...) -> None: ...
+    unknown_three_hundred_twenty_eight: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, objects_uid: _Optional[_Iterable[int]] = ..., unknown_three_hundred_twenty_eight: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ExchangeObjectTransferTypeFromInventoryRequest(_message.Message):
     __slots__ = ("object_type",)
@@ -98,18 +94,16 @@ class ExchangeMoveKamaRequest(_message.Message):
     def __init__(self, quantity: _Optional[int] = ...) -> None: ...
 
 class ExchangeCraftCountRequest(_message.Message):
-    __slots__ = ("count", "unknown_fwyq")
+    __slots__ = ("count", "unknown_three_hundred_twenty_five")
     COUNT_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWYQ_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_TWENTY_FIVE_FIELD_NUMBER: _ClassVar[int]
     count: int
-    unknown_fwyq: int
-    def __init__(self, count: _Optional[int] = ..., unknown_fwyq: _Optional[int] = ...) -> None: ...
+    unknown_three_hundred_twenty_five: int
+    def __init__(self, count: _Optional[int] = ..., unknown_three_hundred_twenty_five: _Optional[int] = ...) -> None: ...
 
 class ExchangeReplayStopRequest(_message.Message):
-    __slots__ = ("unknown_fwng",)
-    UNKNOWN_FWNG_FIELD_NUMBER: _ClassVar[int]
-    unknown_fwng: int
-    def __init__(self, unknown_fwng: _Optional[int] = ...) -> None: ...
+    __slots__ = ()
+    def __init__(self) -> None: ...
 
 class ExchangeMultiCraftSetCrafterCanUseHisResourcesRequest(_message.Message):
     __slots__ = ("allow",)
@@ -118,14 +112,10 @@ class ExchangeMultiCraftSetCrafterCanUseHisResourcesRequest(_message.Message):
     def __init__(self, allow: bool = ...) -> None: ...
 
 class ExchangePlayerRequest(_message.Message):
-    __slots__ = ("target_id", "unknown_fxcu", "unknown_fxcw")
+    __slots__ = ("target_id",)
     TARGET_ID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXCU_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXCW_FIELD_NUMBER: _ClassVar[int]
     target_id: int
-    unknown_fxcu: int
-    unknown_fxcw: int
-    def __init__(self, target_id: _Optional[int] = ..., unknown_fxcu: _Optional[int] = ..., unknown_fxcw: _Optional[int] = ...) -> None: ...
+    def __init__(self, target_id: _Optional[int] = ...) -> None: ...
 
 class ExchangePlayerMultiCraftRequest(_message.Message):
     __slots__ = ("exchange_type", "target_id", "skill_id")
@@ -152,16 +142,14 @@ class ExchangeAcceptRequest(_message.Message):
     def __init__(self) -> None: ...
 
 class ExchangeFocusedReadyRequest(_message.Message):
-    __slots__ = ("ready", "step", "focus_action_id", "unknown_fwno")
+    __slots__ = ("ready", "step", "focus_action_id")
     READY_FIELD_NUMBER: _ClassVar[int]
     STEP_FIELD_NUMBER: _ClassVar[int]
     FOCUS_ACTION_ID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWNO_FIELD_NUMBER: _ClassVar[int]
     ready: bool
     step: int
     focus_action_id: int
-    unknown_fwno: int
-    def __init__(self, ready: bool = ..., step: _Optional[int] = ..., focus_action_id: _Optional[int] = ..., unknown_fwno: _Optional[int] = ...) -> None: ...
+    def __init__(self, ready: bool = ..., step: _Optional[int] = ..., focus_action_id: _Optional[int] = ...) -> None: ...
 
 class ExchangeCraftPaymentModificationRequest(_message.Message):
     __slots__ = ("quantity",)
@@ -199,12 +187,12 @@ class ExchangeObjectsSellRequest(_message.Message):
     def __init__(self, objects: _Optional[_Iterable[_Union[ExchangeObjectsSellRequest.ExchangeObject, _Mapping]]] = ...) -> None: ...
 
 class JobBookSubscribeRequest(_message.Message):
-    __slots__ = ("jobs_id", "unknown_fwzt")
+    __slots__ = ("jobs_id", "unknown_three_hundred_thirty_two")
     JOBS_ID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWZT_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_THIRTY_TWO_FIELD_NUMBER: _ClassVar[int]
     jobs_id: _containers.RepeatedScalarFieldContainer[int]
-    unknown_fwzt: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, jobs_id: _Optional[_Iterable[int]] = ..., unknown_fwzt: _Optional[_Iterable[int]] = ...) -> None: ...
+    unknown_three_hundred_thirty_two: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, jobs_id: _Optional[_Iterable[int]] = ..., unknown_three_hundred_thirty_two: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ExchangeHandleMountsRequest(_message.Message):
     __slots__ = ("action_type", "rides_id")
@@ -271,16 +259,14 @@ class ExchangeBidHouseListRequest(_message.Message):
     def __init__(self, object_gid: _Optional[int] = ..., follow: bool = ...) -> None: ...
 
 class ExchangeBidHouseTypeRequest(_message.Message):
-    __slots__ = ("type_id", "follow", "unknown_fwxf", "unknown_fwxh")
+    __slots__ = ("type_id", "follow", "unknown_three_hundred_twenty_four")
     TYPE_ID_FIELD_NUMBER: _ClassVar[int]
     FOLLOW_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWXF_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWXH_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_TWENTY_FOUR_FIELD_NUMBER: _ClassVar[int]
     type_id: int
     follow: bool
-    unknown_fwxf: int
-    unknown_fwxh: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, type_id: _Optional[int] = ..., follow: bool = ..., unknown_fwxf: _Optional[int] = ..., unknown_fwxh: _Optional[_Iterable[str]] = ...) -> None: ...
+    unknown_three_hundred_twenty_four: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, type_id: _Optional[int] = ..., follow: bool = ..., unknown_three_hundred_twenty_four: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class ExchangeBidHousePriceRequest(_message.Message):
     __slots__ = ("object_gid",)
@@ -289,12 +275,12 @@ class ExchangeBidHousePriceRequest(_message.Message):
     def __init__(self, object_gid: _Optional[int] = ...) -> None: ...
 
 class ExchangeTaxCollectorEquipmentRequest(_message.Message):
-    __slots__ = ("tax_collector_uid", "unknown_fxca")
+    __slots__ = ("tax_collector_uid", "unknown_three_hundred_thirty_one")
     TAX_COLLECTOR_UID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXCA_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_THIRTY_ONE_FIELD_NUMBER: _ClassVar[int]
     tax_collector_uid: str
-    unknown_fxca: str
-    def __init__(self, tax_collector_uid: _Optional[str] = ..., unknown_fxca: _Optional[str] = ...) -> None: ...
+    unknown_three_hundred_thirty_one: str
+    def __init__(self, tax_collector_uid: _Optional[str] = ..., unknown_three_hundred_thirty_one: _Optional[str] = ...) -> None: ...
 
 class ObjectAveragePricesRequest(_message.Message):
     __slots__ = ()
@@ -307,12 +293,10 @@ class ExchangeMoneyMovementLimitEvent(_message.Message):
     def __init__(self, limit: _Optional[int] = ...) -> None: ...
 
 class ExchangeCraftCountModifiedEvent(_message.Message):
-    __slots__ = ("count", "unknown_fxkp")
+    __slots__ = ("count",)
     COUNT_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXKP_FIELD_NUMBER: _ClassVar[int]
     count: int
-    unknown_fxkp: bool
-    def __init__(self, count: _Optional[int] = ..., unknown_fxkp: bool = ...) -> None: ...
+    def __init__(self, count: _Optional[int] = ...) -> None: ...
 
 class ExchangeObjectRemovedEvent(_message.Message):
     __slots__ = ("remote", "bid_item_uid")
@@ -331,34 +315,28 @@ class ExchangeObjectsRemovedEvent(_message.Message):
     def __init__(self, remote: bool = ..., bid_items_uid: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ExchangeObjectsModifiedEvent(_message.Message):
-    __slots__ = ("remote", "objects", "unknown_fxdm")
+    __slots__ = ("remote", "objects")
     REMOTE_FIELD_NUMBER: _ClassVar[int]
     OBJECTS_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXDM_FIELD_NUMBER: _ClassVar[int]
     remote: bool
     objects: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectItemInventory]
-    unknown_fxdm: bool
-    def __init__(self, remote: bool = ..., objects: _Optional[_Iterable[_Union[_common_pb2.ObjectItemInventory, _Mapping]]] = ..., unknown_fxdm: bool = ...) -> None: ...
+    def __init__(self, remote: bool = ..., objects: _Optional[_Iterable[_Union[_common_pb2.ObjectItemInventory, _Mapping]]] = ...) -> None: ...
 
 class ExchangeObjectPutInBagEvent(_message.Message):
-    __slots__ = ("remote", "object", "unknown_fwzi")
+    __slots__ = ("remote", "object")
     REMOTE_FIELD_NUMBER: _ClassVar[int]
     OBJECT_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWZI_FIELD_NUMBER: _ClassVar[int]
     remote: bool
     object: _common_pb2.ObjectItemInventory
-    unknown_fwzi: bool
-    def __init__(self, remote: bool = ..., object: _Optional[_Union[_common_pb2.ObjectItemInventory, _Mapping]] = ..., unknown_fwzi: bool = ...) -> None: ...
+    def __init__(self, remote: bool = ..., object: _Optional[_Union[_common_pb2.ObjectItemInventory, _Mapping]] = ...) -> None: ...
 
 class ExchangeObjectRemovedFromBagEvent(_message.Message):
-    __slots__ = ("remote", "object_uid", "unknown_fxbl")
+    __slots__ = ("remote", "object_uid")
     REMOTE_FIELD_NUMBER: _ClassVar[int]
     OBJECT_UID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXBL_FIELD_NUMBER: _ClassVar[int]
     remote: bool
     object_uid: int
-    unknown_fxbl: int
-    def __init__(self, remote: bool = ..., object_uid: _Optional[int] = ..., unknown_fxbl: _Optional[int] = ...) -> None: ...
+    def __init__(self, remote: bool = ..., object_uid: _Optional[int] = ...) -> None: ...
 
 class ExchangeObjectModifiedInBagEvent(_message.Message):
     __slots__ = ("remote", "object")
@@ -369,16 +347,12 @@ class ExchangeObjectModifiedInBagEvent(_message.Message):
     def __init__(self, remote: bool = ..., object: _Optional[_Union[_common_pb2.ObjectItemInventory, _Mapping]] = ...) -> None: ...
 
 class ExchangeKamaModifiedEvent(_message.Message):
-    __slots__ = ("remote", "quantity", "unknown_fxcn", "unknown_fxcp")
+    __slots__ = ("remote", "quantity")
     REMOTE_FIELD_NUMBER: _ClassVar[int]
     QUANTITY_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXCN_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXCP_FIELD_NUMBER: _ClassVar[int]
     remote: bool
     quantity: int
-    unknown_fxcn: int
-    unknown_fxcp: int
-    def __init__(self, remote: bool = ..., quantity: _Optional[int] = ..., unknown_fxcn: _Optional[int] = ..., unknown_fxcp: _Optional[int] = ...) -> None: ...
+    def __init__(self, remote: bool = ..., quantity: _Optional[int] = ...) -> None: ...
 
 class ExchangePodsModifiedEvent(_message.Message):
     __slots__ = ("remote", "current_weight", "max_weight")
@@ -449,64 +423,45 @@ class ExchangeStartedWithMultiTabStorageEvent(_message.Message):
     def __init__(self, exchange_type: _Optional[_Union[_common_pb2.ExchangeType, str]] = ..., storage_max_slot: _Optional[int] = ..., tab_number: _Optional[int] = ...) -> None: ...
 
 class ExchangeBidHouseBuyResultEvent(_message.Message):
-    __slots__ = ("bid_item_uid", "bought", "unknown_fwuo")
+    __slots__ = ("bid_item_uid", "bought")
     BID_ITEM_UID_FIELD_NUMBER: _ClassVar[int]
     BOUGHT_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWUO_FIELD_NUMBER: _ClassVar[int]
     bid_item_uid: int
     bought: bool
-    unknown_fwuo: bool
-    def __init__(self, bid_item_uid: _Optional[int] = ..., bought: bool = ..., unknown_fwuo: bool = ...) -> None: ...
+    def __init__(self, bid_item_uid: _Optional[int] = ..., bought: bool = ...) -> None: ...
 
 class ExchangeBidSellerStartedEvent(_message.Message):
-    __slots__ = ("selling_conditions", "items", "unknown_fwqd")
+    __slots__ = ("selling_conditions", "items")
     class ItemToSellInBid(_message.Message):
-        __slots__ = ("item", "price", "unsold_delay", "unknown_fwpv")
-        class UnknownFwpvEntry(_message.Message):
-            __slots__ = ("key", "value")
-            KEY_FIELD_NUMBER: _ClassVar[int]
-            VALUE_FIELD_NUMBER: _ClassVar[int]
-            key: int
-            value: str
-            def __init__(self, key: _Optional[int] = ..., value: _Optional[str] = ...) -> None: ...
+        __slots__ = ("item", "price", "unsold_delay")
         ITEM_FIELD_NUMBER: _ClassVar[int]
         PRICE_FIELD_NUMBER: _ClassVar[int]
         UNSOLD_DELAY_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FWPV_FIELD_NUMBER: _ClassVar[int]
         item: BidItem
         price: int
         unsold_delay: int
-        unknown_fwpv: _containers.ScalarMap[int, str]
-        def __init__(self, item: _Optional[_Union[BidItem, _Mapping]] = ..., price: _Optional[int] = ..., unsold_delay: _Optional[int] = ..., unknown_fwpv: _Optional[_Mapping[int, str]] = ...) -> None: ...
+        def __init__(self, item: _Optional[_Union[BidItem, _Mapping]] = ..., price: _Optional[int] = ..., unsold_delay: _Optional[int] = ...) -> None: ...
     SELLING_CONDITIONS_FIELD_NUMBER: _ClassVar[int]
     ITEMS_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWQD_FIELD_NUMBER: _ClassVar[int]
     selling_conditions: SellingConditions
     items: _containers.RepeatedCompositeFieldContainer[ExchangeBidSellerStartedEvent.ItemToSellInBid]
-    unknown_fwqd: int
-    def __init__(self, selling_conditions: _Optional[_Union[SellingConditions, _Mapping]] = ..., items: _Optional[_Iterable[_Union[ExchangeBidSellerStartedEvent.ItemToSellInBid, _Mapping]]] = ..., unknown_fwqd: _Optional[int] = ...) -> None: ...
+    def __init__(self, selling_conditions: _Optional[_Union[SellingConditions, _Mapping]] = ..., items: _Optional[_Iterable[_Union[ExchangeBidSellerStartedEvent.ItemToSellInBid, _Mapping]]] = ...) -> None: ...
 
 class ExchangeBidHouseItemAddedEvent(_message.Message):
-    __slots__ = ("item", "price", "unsold_delay", "unknown_fxcg", "unknown_fxci")
+    __slots__ = ("item", "price", "unsold_delay")
     ITEM_FIELD_NUMBER: _ClassVar[int]
     PRICE_FIELD_NUMBER: _ClassVar[int]
     UNSOLD_DELAY_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXCG_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXCI_FIELD_NUMBER: _ClassVar[int]
     item: BidItem
     price: int
     unsold_delay: int
-    unknown_fxcg: _containers.RepeatedScalarFieldContainer[bool]
-    unknown_fxci: BidItem
-    def __init__(self, item: _Optional[_Union[BidItem, _Mapping]] = ..., price: _Optional[int] = ..., unsold_delay: _Optional[int] = ..., unknown_fxcg: _Optional[_Iterable[bool]] = ..., unknown_fxci: _Optional[_Union[BidItem, _Mapping]] = ...) -> None: ...
+    def __init__(self, item: _Optional[_Union[BidItem, _Mapping]] = ..., price: _Optional[int] = ..., unsold_delay: _Optional[int] = ...) -> None: ...
 
 class ExchangeBidHouseItemRemovedEvent(_message.Message):
-    __slots__ = ("sell_id", "unknown_fxbf")
+    __slots__ = ("sell_id",)
     SELL_ID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXBF_FIELD_NUMBER: _ClassVar[int]
     sell_id: int
-    unknown_fxbf: int
-    def __init__(self, sell_id: _Optional[int] = ..., unknown_fxbf: _Optional[int] = ...) -> None: ...
+    def __init__(self, sell_id: _Optional[int] = ...) -> None: ...
 
 class ExchangeBidHouseGenericItemAddedEvent(_message.Message):
     __slots__ = ("object_gid",)
@@ -547,14 +502,12 @@ class ExchangeBidHouseOfflineSoldItemsEvent(_message.Message):
     def __init__(self, bid_house_items: _Optional[_Iterable[_Union[_common_pb2.ObjectGidWithQuantity, _Mapping]]] = ...) -> None: ...
 
 class ExchangeReadyEvent(_message.Message):
-    __slots__ = ("character_id", "ready", "unknown_fxlv")
+    __slots__ = ("character_id", "ready")
     CHARACTER_ID_FIELD_NUMBER: _ClassVar[int]
     READY_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXLV_FIELD_NUMBER: _ClassVar[int]
     character_id: int
     ready: bool
-    unknown_fxlv: str
-    def __init__(self, character_id: _Optional[int] = ..., ready: bool = ..., unknown_fxlv: _Optional[str] = ...) -> None: ...
+    def __init__(self, character_id: _Optional[int] = ..., ready: bool = ...) -> None: ...
 
 class ExchangeStoppedEvent(_message.Message):
     __slots__ = ("character_id",)
@@ -601,12 +554,10 @@ class ExchangeLeaveEvent(_message.Message):
     def __init__(self, dialog_type: _Optional[_Union[_common_pb2.DialogType, str]] = ..., success: bool = ...) -> None: ...
 
 class ExchangeTaxCollectorEquipmentStartedEvent(_message.Message):
-    __slots__ = ("tax_collector_information", "unknown_fwyd")
+    __slots__ = ("tax_collector_information",)
     TAX_COLLECTOR_INFORMATION_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWYD_FIELD_NUMBER: _ClassVar[int]
     tax_collector_information: _common_pb2.TaxCollectorInformation
-    unknown_fwyd: _common_pb2.TaxCollectorInformation
-    def __init__(self, tax_collector_information: _Optional[_Union[_common_pb2.TaxCollectorInformation, _Mapping]] = ..., unknown_fwyd: _Optional[_Union[_common_pb2.TaxCollectorInformation, _Mapping]] = ...) -> None: ...
+    def __init__(self, tax_collector_information: _Optional[_Union[_common_pb2.TaxCollectorInformation, _Mapping]] = ...) -> None: ...
 
 class ExchangeNpcTradeStartedEvent(_message.Message):
     __slots__ = ("npc_id",)
@@ -619,34 +570,26 @@ class ExchangeRunesTradeStartedEvent(_message.Message):
     def __init__(self) -> None: ...
 
 class ExchangeRecycleTradeStartedEvent(_message.Message):
-    __slots__ = ("percent_to_prism", "percent_to_player", "adjacent_subareas_possessed", "adjacent_subareas_not_possessed", "unknown_fxij", "unknown_fxil")
+    __slots__ = ("percent_to_prism", "percent_to_player", "adjacent_subareas_possessed", "adjacent_subareas_not_possessed")
     PERCENT_TO_PRISM_FIELD_NUMBER: _ClassVar[int]
     PERCENT_TO_PLAYER_FIELD_NUMBER: _ClassVar[int]
     ADJACENT_SUBAREAS_POSSESSED_FIELD_NUMBER: _ClassVar[int]
     ADJACENT_SUBAREAS_NOT_POSSESSED_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXIJ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXIL_FIELD_NUMBER: _ClassVar[int]
     percent_to_prism: int
     percent_to_player: int
     adjacent_subareas_possessed: _containers.RepeatedScalarFieldContainer[int]
     adjacent_subareas_not_possessed: _containers.RepeatedScalarFieldContainer[int]
-    unknown_fxij: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectItemInventory]
-    unknown_fxil: int
-    def __init__(self, percent_to_prism: _Optional[int] = ..., percent_to_player: _Optional[int] = ..., adjacent_subareas_possessed: _Optional[_Iterable[int]] = ..., adjacent_subareas_not_possessed: _Optional[_Iterable[int]] = ..., unknown_fxij: _Optional[_Iterable[_Union[_common_pb2.ObjectItemInventory, _Mapping]]] = ..., unknown_fxil: _Optional[int] = ...) -> None: ...
+    def __init__(self, percent_to_prism: _Optional[int] = ..., percent_to_player: _Optional[int] = ..., adjacent_subareas_possessed: _Optional[_Iterable[int]] = ..., adjacent_subareas_not_possessed: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ExchangeNpcShopStartedEvent(_message.Message):
-    __slots__ = ("npc_seller_id", "token_id", "objects", "unknown_fwmq", "unknown_fwmr")
+    __slots__ = ("npc_seller_id", "token_id", "objects")
     NPC_SELLER_ID_FIELD_NUMBER: _ClassVar[int]
     TOKEN_ID_FIELD_NUMBER: _ClassVar[int]
     OBJECTS_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWMQ_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWMR_FIELD_NUMBER: _ClassVar[int]
     npc_seller_id: int
     token_id: int
     objects: _containers.RepeatedCompositeFieldContainer[_common_pb2.ItemMinimalInformation]
-    unknown_fwmq: int
-    unknown_fwmr: int
-    def __init__(self, npc_seller_id: _Optional[int] = ..., token_id: _Optional[int] = ..., objects: _Optional[_Iterable[_Union[_common_pb2.ItemMinimalInformation, _Mapping]]] = ..., unknown_fwmq: _Optional[int] = ..., unknown_fwmr: _Optional[int] = ...) -> None: ...
+    def __init__(self, npc_seller_id: _Optional[int] = ..., token_id: _Optional[int] = ..., objects: _Optional[_Iterable[_Union[_common_pb2.ItemMinimalInformation, _Mapping]]] = ...) -> None: ...
 
 class ExchangeMultiCraftOkEvent(_message.Message):
     __slots__ = ("initiator_id", "other_id", "role")
@@ -720,12 +663,10 @@ class ExchangeObjectMoveRequest(_message.Message):
     def __init__(self, object_uid: _Optional[int] = ..., quantity: _Optional[int] = ...) -> None: ...
 
 class ExchangeMultiCraftCrafterStartedEvent(_message.Message):
-    __slots__ = ("skill_id", "unknown_fwzy")
+    __slots__ = ("skill_id",)
     SKILL_ID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWZY_FIELD_NUMBER: _ClassVar[int]
     skill_id: int
-    unknown_fwzy: str
-    def __init__(self, skill_id: _Optional[int] = ..., unknown_fwzy: _Optional[str] = ...) -> None: ...
+    def __init__(self, skill_id: _Optional[int] = ...) -> None: ...
 
 class ExchangeBidBuyerStartedEvent(_message.Message):
     __slots__ = ("selling_conditions",)
@@ -776,16 +717,14 @@ class ExchangeBidHouseBuyRequest(_message.Message):
     def __init__(self, bid_item_uid: _Optional[int] = ..., quantity: _Optional[int] = ..., price: _Optional[int] = ...) -> None: ...
 
 class ExchangeBidHouseInListRemovedEvent(_message.Message):
-    __slots__ = ("bid_item_uid", "object_gid", "object_type", "unknown_fxmk")
+    __slots__ = ("bid_item_uid", "object_gid", "object_type")
     BID_ITEM_UID_FIELD_NUMBER: _ClassVar[int]
     OBJECT_GID_FIELD_NUMBER: _ClassVar[int]
     OBJECT_TYPE_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXMK_FIELD_NUMBER: _ClassVar[int]
     bid_item_uid: int
     object_gid: int
     object_type: int
-    unknown_fxmk: int
-    def __init__(self, bid_item_uid: _Optional[int] = ..., object_gid: _Optional[int] = ..., object_type: _Optional[int] = ..., unknown_fxmk: _Optional[int] = ...) -> None: ...
+    def __init__(self, bid_item_uid: _Optional[int] = ..., object_gid: _Optional[int] = ..., object_type: _Optional[int] = ...) -> None: ...
 
 class BidItem(_message.Message):
     __slots__ = ("uid", "quantity", "gid", "effects")
@@ -800,71 +739,59 @@ class BidItem(_message.Message):
     def __init__(self, uid: _Optional[int] = ..., quantity: _Optional[int] = ..., gid: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ...) -> None: ...
 
 class ExchangeBidHouseInListAddedEvent(_message.Message):
-    __slots__ = ("bid_item_uid", "object_gid", "object_type", "effects", "prices", "unknown_fxfk")
+    __slots__ = ("bid_item_uid", "object_gid", "object_type", "effects", "prices")
     BID_ITEM_UID_FIELD_NUMBER: _ClassVar[int]
     OBJECT_GID_FIELD_NUMBER: _ClassVar[int]
     OBJECT_TYPE_FIELD_NUMBER: _ClassVar[int]
     EFFECTS_FIELD_NUMBER: _ClassVar[int]
     PRICES_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXFK_FIELD_NUMBER: _ClassVar[int]
     bid_item_uid: int
     object_gid: int
     object_type: int
     effects: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectEffect]
     prices: _containers.RepeatedScalarFieldContainer[int]
-    unknown_fxfk: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectEffect]
-    def __init__(self, bid_item_uid: _Optional[int] = ..., object_gid: _Optional[int] = ..., object_type: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ..., prices: _Optional[_Iterable[int]] = ..., unknown_fxfk: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ...) -> None: ...
+    def __init__(self, bid_item_uid: _Optional[int] = ..., object_gid: _Optional[int] = ..., object_type: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ..., prices: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ExchangeBidPriceEvent(_message.Message):
-    __slots__ = ("object_gid", "average_price", "bid_price_for_seller", "unknown_fwsw")
+    __slots__ = ("object_gid", "average_price", "bid_price_for_seller")
     class BidPriceForSeller(_message.Message):
-        __slots__ = ("all_identical", "minimal_prices", "unknown_fwsq")
+        __slots__ = ("all_identical", "minimal_prices")
         ALL_IDENTICAL_FIELD_NUMBER: _ClassVar[int]
         MINIMAL_PRICES_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FWSQ_FIELD_NUMBER: _ClassVar[int]
         all_identical: bool
         minimal_prices: _containers.RepeatedScalarFieldContainer[int]
-        unknown_fwsq: _containers.RepeatedScalarFieldContainer[int]
-        def __init__(self, all_identical: bool = ..., minimal_prices: _Optional[_Iterable[int]] = ..., unknown_fwsq: _Optional[_Iterable[int]] = ...) -> None: ...
+        def __init__(self, all_identical: bool = ..., minimal_prices: _Optional[_Iterable[int]] = ...) -> None: ...
     OBJECT_GID_FIELD_NUMBER: _ClassVar[int]
     AVERAGE_PRICE_FIELD_NUMBER: _ClassVar[int]
     BID_PRICE_FOR_SELLER_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWSW_FIELD_NUMBER: _ClassVar[int]
     object_gid: int
     average_price: int
     bid_price_for_seller: ExchangeBidPriceEvent.BidPriceForSeller
-    unknown_fwsw: bool
-    def __init__(self, object_gid: _Optional[int] = ..., average_price: _Optional[int] = ..., bid_price_for_seller: _Optional[_Union[ExchangeBidPriceEvent.BidPriceForSeller, _Mapping]] = ..., unknown_fwsw: bool = ...) -> None: ...
+    def __init__(self, object_gid: _Optional[int] = ..., average_price: _Optional[int] = ..., bid_price_for_seller: _Optional[_Union[ExchangeBidPriceEvent.BidPriceForSeller, _Mapping]] = ...) -> None: ...
 
 class ExchangeTypesExchangerDescriptionForUserEvent(_message.Message):
-    __slots__ = ("object_type", "type_description", "unknown_fwve")
+    __slots__ = ("object_type", "type_description")
     OBJECT_TYPE_FIELD_NUMBER: _ClassVar[int]
     TYPE_DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWVE_FIELD_NUMBER: _ClassVar[int]
     object_type: int
     type_description: _containers.RepeatedScalarFieldContainer[int]
-    unknown_fwve: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, object_type: _Optional[int] = ..., type_description: _Optional[_Iterable[int]] = ..., unknown_fwve: _Optional[_Iterable[int]] = ...) -> None: ...
+    def __init__(self, object_type: _Optional[int] = ..., type_description: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ExchangeTypesItemsExchangerDescriptionForUserEvent(_message.Message):
     __slots__ = ("object_gid", "object_type", "item_descriptions")
     class BidExchangerObject(_message.Message):
-        __slots__ = ("uid", "gid", "type", "effects", "prices", "unknown_fwoy", "unknown_fwpc")
+        __slots__ = ("uid", "gid", "type", "effects", "prices")
         UID_FIELD_NUMBER: _ClassVar[int]
         GID_FIELD_NUMBER: _ClassVar[int]
         TYPE_FIELD_NUMBER: _ClassVar[int]
         EFFECTS_FIELD_NUMBER: _ClassVar[int]
         PRICES_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FWOY_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FWPC_FIELD_NUMBER: _ClassVar[int]
         uid: int
         gid: int
         type: int
         effects: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectEffect]
         prices: _containers.RepeatedScalarFieldContainer[int]
-        unknown_fwoy: _containers.RepeatedScalarFieldContainer[int]
-        unknown_fwpc: _containers.RepeatedScalarFieldContainer[str]
-        def __init__(self, uid: _Optional[int] = ..., gid: _Optional[int] = ..., type: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ..., prices: _Optional[_Iterable[int]] = ..., unknown_fwoy: _Optional[_Iterable[int]] = ..., unknown_fwpc: _Optional[_Iterable[str]] = ...) -> None: ...
+        def __init__(self, uid: _Optional[int] = ..., gid: _Optional[int] = ..., type: _Optional[int] = ..., effects: _Optional[_Iterable[_Union[_common_pb2.ObjectEffect, _Mapping]]] = ..., prices: _Optional[_Iterable[int]] = ...) -> None: ...
     OBJECT_GID_FIELD_NUMBER: _ClassVar[int]
     OBJECT_TYPE_FIELD_NUMBER: _ClassVar[int]
     ITEM_DESCRIPTIONS_FIELD_NUMBER: _ClassVar[int]
@@ -882,7 +809,7 @@ class ExchangeWeightEvent(_message.Message):
     def __init__(self, current_weight: _Optional[int] = ..., max_weight: _Optional[int] = ...) -> None: ...
 
 class ExchangeTaxCollectorGetEvent(_message.Message):
-    __slots__ = ("collector_name", "coordinates", "user_name", "caller_id", "caller_name", "pods", "objects", "look", "unknown_fwvo", "unknown_fwvu")
+    __slots__ = ("collector_name", "coordinates", "user_name", "caller_id", "caller_name", "pods", "objects", "look")
     COLLECTOR_NAME_FIELD_NUMBER: _ClassVar[int]
     COORDINATES_FIELD_NUMBER: _ClassVar[int]
     USER_NAME_FIELD_NUMBER: _ClassVar[int]
@@ -891,8 +818,6 @@ class ExchangeTaxCollectorGetEvent(_message.Message):
     PODS_FIELD_NUMBER: _ClassVar[int]
     OBJECTS_FIELD_NUMBER: _ClassVar[int]
     LOOK_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWVO_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWVU_FIELD_NUMBER: _ClassVar[int]
     collector_name: str
     coordinates: _common_pb2.MapExtendedCoordinates
     user_name: str
@@ -901,9 +826,7 @@ class ExchangeTaxCollectorGetEvent(_message.Message):
     pods: int
     objects: _containers.RepeatedCompositeFieldContainer[_common_pb2.ObjectGidWithQuantity]
     look: _common_pb2.EntityLook
-    unknown_fwvo: str
-    unknown_fwvu: int
-    def __init__(self, collector_name: _Optional[str] = ..., coordinates: _Optional[_Union[_common_pb2.MapExtendedCoordinates, _Mapping]] = ..., user_name: _Optional[str] = ..., caller_id: _Optional[int] = ..., caller_name: _Optional[str] = ..., pods: _Optional[int] = ..., objects: _Optional[_Iterable[_Union[_common_pb2.ObjectGidWithQuantity, _Mapping]]] = ..., look: _Optional[_Union[_common_pb2.EntityLook, _Mapping]] = ..., unknown_fwvo: _Optional[str] = ..., unknown_fwvu: _Optional[int] = ...) -> None: ...
+    def __init__(self, collector_name: _Optional[str] = ..., coordinates: _Optional[_Union[_common_pb2.MapExtendedCoordinates, _Mapping]] = ..., user_name: _Optional[str] = ..., caller_id: _Optional[int] = ..., caller_name: _Optional[str] = ..., pods: _Optional[int] = ..., objects: _Optional[_Iterable[_Union[_common_pb2.ObjectGidWithQuantity, _Mapping]]] = ..., look: _Optional[_Union[_common_pb2.EntityLook, _Mapping]] = ...) -> None: ...
 
 class ExchangeSoldEvent(_message.Message):
     __slots__ = ()
@@ -918,14 +841,14 @@ class ExchangeMountWithoutPaddockStartedEvent(_message.Message):
     def __init__(self, stabled_mounts: _Optional[_Iterable[_Union[_common_pb2.MountData, _Mapping]]] = ..., paddocked_mounts: _Optional[_Iterable[_Union[_common_pb2.MountData, _Mapping]]] = ...) -> None: ...
 
 class ExchangeMountsStableAddedEvent(_message.Message):
-    __slots__ = ("mounts", "new_born", "unknown_fxkj")
+    __slots__ = ("mounts", "new_born", "unknown_three_hundred_twenty_seven")
     MOUNTS_FIELD_NUMBER: _ClassVar[int]
     NEW_BORN_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXKJ_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_TWENTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
     mounts: _containers.RepeatedCompositeFieldContainer[_common_pb2.MountData]
     new_born: bool
-    unknown_fxkj: bool
-    def __init__(self, mounts: _Optional[_Iterable[_Union[_common_pb2.MountData, _Mapping]]] = ..., new_born: bool = ..., unknown_fxkj: bool = ...) -> None: ...
+    unknown_three_hundred_twenty_seven: bool
+    def __init__(self, mounts: _Optional[_Iterable[_Union[_common_pb2.MountData, _Mapping]]] = ..., new_born: bool = ..., unknown_three_hundred_twenty_seven: bool = ...) -> None: ...
 
 class ExchangeMountsPaddockAddedEvent(_message.Message):
     __slots__ = ("mounts",)
@@ -934,20 +857,18 @@ class ExchangeMountsPaddockAddedEvent(_message.Message):
     def __init__(self, mounts: _Optional[_Iterable[_Union[_common_pb2.MountData, _Mapping]]] = ...) -> None: ...
 
 class ExchangeMountsStableRemoveEvent(_message.Message):
-    __slots__ = ("mounts_id", "unknown_foln")
+    __slots__ = ("mounts_id",)
     MOUNTS_ID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FOLN_FIELD_NUMBER: _ClassVar[int]
     mounts_id: _containers.RepeatedScalarFieldContainer[int]
-    unknown_foln: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, mounts_id: _Optional[_Iterable[int]] = ..., unknown_foln: _Optional[_Iterable[int]] = ...) -> None: ...
+    def __init__(self, mounts_id: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ExchangeMountsPaddockRemoveEvent(_message.Message):
-    __slots__ = ("mounts_id", "unknown_fwsc")
+    __slots__ = ("mounts_id", "unknown_three_hundred_twenty_six")
     MOUNTS_ID_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWSC_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_TWENTY_SIX_FIELD_NUMBER: _ClassVar[int]
     mounts_id: _containers.RepeatedScalarFieldContainer[int]
-    unknown_fwsc: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, mounts_id: _Optional[_Iterable[int]] = ..., unknown_fwsc: _Optional[_Iterable[int]] = ...) -> None: ...
+    unknown_three_hundred_twenty_six: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, mounts_id: _Optional[_Iterable[int]] = ..., unknown_three_hundred_twenty_six: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ExchangeMountFreeFromPaddockEvent(_message.Message):
     __slots__ = ("name", "coordinates", "liberator")
@@ -960,7 +881,7 @@ class ExchangeMountFreeFromPaddockEvent(_message.Message):
     def __init__(self, name: _Optional[str] = ..., coordinates: _Optional[_Union[_common_pb2.MapCoordinates, _Mapping]] = ..., liberator: _Optional[str] = ...) -> None: ...
 
 class ExchangeItemAutoCraftStoppedEvent(_message.Message):
-    __slots__ = ("reason", "unknown_fwqo")
+    __slots__ = ("reason",)
     class ExchangeReplayStopReason(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         OK: _ClassVar[ExchangeItemAutoCraftStoppedEvent.ExchangeReplayStopReason]
@@ -972,10 +893,8 @@ class ExchangeItemAutoCraftStoppedEvent(_message.Message):
     MISSING_RESSOURCE: ExchangeItemAutoCraftStoppedEvent.ExchangeReplayStopReason
     IMPOSSIBLE_MODIFICATION: ExchangeItemAutoCraftStoppedEvent.ExchangeReplayStopReason
     REASON_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWQO_FIELD_NUMBER: _ClassVar[int]
     reason: ExchangeItemAutoCraftStoppedEvent.ExchangeReplayStopReason
-    unknown_fwqo: bool
-    def __init__(self, reason: _Optional[_Union[ExchangeItemAutoCraftStoppedEvent.ExchangeReplayStopReason, str]] = ..., unknown_fwqo: bool = ...) -> None: ...
+    def __init__(self, reason: _Optional[_Union[ExchangeItemAutoCraftStoppedEvent.ExchangeReplayStopReason, str]] = ...) -> None: ...
 
 class ExchangeCraftStartedEvent(_message.Message):
     __slots__ = ("skill_id",)
@@ -984,16 +903,12 @@ class ExchangeCraftStartedEvent(_message.Message):
     def __init__(self, skill_id: _Optional[int] = ...) -> None: ...
 
 class ExchangeMultiCraftCustomerStartedEvent(_message.Message):
-    __slots__ = ("skill_id", "crafter_job_level", "unknown_fxmr", "unknown_fxms")
+    __slots__ = ("skill_id", "crafter_job_level")
     SKILL_ID_FIELD_NUMBER: _ClassVar[int]
     CRAFTER_JOB_LEVEL_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXMR_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXMS_FIELD_NUMBER: _ClassVar[int]
     skill_id: int
     crafter_job_level: int
-    unknown_fxmr: int
-    unknown_fxms: int
-    def __init__(self, skill_id: _Optional[int] = ..., crafter_job_level: _Optional[int] = ..., unknown_fxmr: _Optional[int] = ..., unknown_fxms: _Optional[int] = ...) -> None: ...
+    def __init__(self, skill_id: _Optional[int] = ..., crafter_job_level: _Optional[int] = ...) -> None: ...
 
 class ExchangeCrafterJobLevelUpEvent(_message.Message):
     __slots__ = ("crafter_job_level",)
@@ -1002,12 +917,10 @@ class ExchangeCrafterJobLevelUpEvent(_message.Message):
     def __init__(self, crafter_job_level: _Optional[int] = ...) -> None: ...
 
 class ExchangeJobIndexStartedEvent(_message.Message):
-    __slots__ = ("jobs", "unknown_fxfo")
+    __slots__ = ("jobs",)
     JOBS_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXFO_FIELD_NUMBER: _ClassVar[int]
     jobs: _containers.RepeatedScalarFieldContainer[int]
-    unknown_fxfo: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, jobs: _Optional[_Iterable[int]] = ..., unknown_fxfo: _Optional[_Iterable[int]] = ...) -> None: ...
+    def __init__(self, jobs: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ExchangeCraftPaymentModifiedEvent(_message.Message):
     __slots__ = ("kamas",)
@@ -1016,7 +929,7 @@ class ExchangeCraftPaymentModifiedEvent(_message.Message):
     def __init__(self, kamas: _Optional[int] = ...) -> None: ...
 
 class SellingConditions(_message.Message):
-    __slots__ = ("quantities", "types", "tax_percentage", "tax_modification_percentage", "max_item_level", "max_item_per_account", "npc_contextual_id", "unsold_delay", "unknown_fxwx", "unknown_fxhk")
+    __slots__ = ("quantities", "types", "tax_percentage", "tax_modification_percentage", "max_item_level", "max_item_per_account", "npc_contextual_id", "unsold_delay", "unknown_three_hundred_thirty_three")
     QUANTITIES_FIELD_NUMBER: _ClassVar[int]
     TYPES_FIELD_NUMBER: _ClassVar[int]
     TAX_PERCENTAGE_FIELD_NUMBER: _ClassVar[int]
@@ -1025,8 +938,7 @@ class SellingConditions(_message.Message):
     MAX_ITEM_PER_ACCOUNT_FIELD_NUMBER: _ClassVar[int]
     NPC_CONTEXTUAL_ID_FIELD_NUMBER: _ClassVar[int]
     UNSOLD_DELAY_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXWX_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FXHK_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_THIRTY_THREE_FIELD_NUMBER: _ClassVar[int]
     quantities: _containers.RepeatedScalarFieldContainer[int]
     types: _containers.RepeatedScalarFieldContainer[int]
     tax_percentage: float
@@ -1035,9 +947,8 @@ class SellingConditions(_message.Message):
     max_item_per_account: int
     npc_contextual_id: int
     unsold_delay: int
-    unknown_fxwx: int
-    unknown_fxhk: int
-    def __init__(self, quantities: _Optional[_Iterable[int]] = ..., types: _Optional[_Iterable[int]] = ..., tax_percentage: _Optional[float] = ..., tax_modification_percentage: _Optional[float] = ..., max_item_level: _Optional[int] = ..., max_item_per_account: _Optional[int] = ..., npc_contextual_id: _Optional[int] = ..., unsold_delay: _Optional[int] = ..., unknown_fxwx: _Optional[int] = ..., unknown_fxhk: _Optional[int] = ...) -> None: ...
+    unknown_three_hundred_thirty_three: int
+    def __init__(self, quantities: _Optional[_Iterable[int]] = ..., types: _Optional[_Iterable[int]] = ..., tax_percentage: _Optional[float] = ..., tax_modification_percentage: _Optional[float] = ..., max_item_level: _Optional[int] = ..., max_item_per_account: _Optional[int] = ..., npc_contextual_id: _Optional[int] = ..., unsold_delay: _Optional[int] = ..., unknown_three_hundred_thirty_three: _Optional[int] = ...) -> None: ...
 
 class ObjectAveragePricesErrorEvent(_message.Message):
     __slots__ = ()
@@ -1067,7 +978,7 @@ class RecycleResultEvent(_message.Message):
 class DecraftResultEvent(_message.Message):
     __slots__ = ("results",)
     class DecraftedItem(_message.Message):
-        __slots__ = ("object_uid", "bonus_min", "bonus_max", "runes", "unknown_fxgk")
+        __slots__ = ("object_uid", "bonus_min", "bonus_max", "runes")
         class Rune(_message.Message):
             __slots__ = ("rune_id", "quantity")
             RUNE_ID_FIELD_NUMBER: _ClassVar[int]
@@ -1079,29 +990,23 @@ class DecraftResultEvent(_message.Message):
         BONUS_MIN_FIELD_NUMBER: _ClassVar[int]
         BONUS_MAX_FIELD_NUMBER: _ClassVar[int]
         RUNES_FIELD_NUMBER: _ClassVar[int]
-        UNKNOWN_FXGK_FIELD_NUMBER: _ClassVar[int]
         object_uid: int
         bonus_min: float
         bonus_max: float
         runes: _containers.RepeatedCompositeFieldContainer[DecraftResultEvent.DecraftedItem.Rune]
-        unknown_fxgk: int
-        def __init__(self, object_uid: _Optional[int] = ..., bonus_min: _Optional[float] = ..., bonus_max: _Optional[float] = ..., runes: _Optional[_Iterable[_Union[DecraftResultEvent.DecraftedItem.Rune, _Mapping]]] = ..., unknown_fxgk: _Optional[int] = ...) -> None: ...
+        def __init__(self, object_uid: _Optional[int] = ..., bonus_min: _Optional[float] = ..., bonus_max: _Optional[float] = ..., runes: _Optional[_Iterable[_Union[DecraftResultEvent.DecraftedItem.Rune, _Mapping]]] = ...) -> None: ...
     RESULTS_FIELD_NUMBER: _ClassVar[int]
     results: _containers.RepeatedCompositeFieldContainer[DecraftResultEvent.DecraftedItem]
     def __init__(self, results: _Optional[_Iterable[_Union[DecraftResultEvent.DecraftedItem, _Mapping]]] = ...) -> None: ...
 
-class UnknownKcj(_message.Message):
-    __slots__ = ("unknown_fwrt", "unknown_fwru", "unknown_fwrv", "unknown_fwrx", "unknown_fwrw", "unknown_fwry")
-    UNKNOWN_FWRT_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWRU_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWRV_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWRX_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWRW_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FWRY_FIELD_NUMBER: _ClassVar[int]
-    unknown_fwrt: int
-    unknown_fwru: bool
-    unknown_fwrv: int
-    unknown_fwrx: bool
-    unknown_fwrw: int
-    unknown_fwry: bool
-    def __init__(self, unknown_fwrt: _Optional[int] = ..., unknown_fwru: bool = ..., unknown_fwrv: _Optional[int] = ..., unknown_fwrx: bool = ..., unknown_fwrw: _Optional[int] = ..., unknown_fwry: bool = ...) -> None: ...
+class UnknownOneHundredFiftySeven(_message.Message):
+    __slots__ = ("unknown_three_hundred_thirty_four", "unknown_three_hundred_thirty_five", "unknown_three_hundred_thirty_six", "unknown_three_hundred_thirty_seven")
+    UNKNOWN_THREE_HUNDRED_THIRTY_FOUR_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_THIRTY_FIVE_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_THIRTY_SIX_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_THREE_HUNDRED_THIRTY_SEVEN_FIELD_NUMBER: _ClassVar[int]
+    unknown_three_hundred_thirty_four: int
+    unknown_three_hundred_thirty_five: bool
+    unknown_three_hundred_thirty_six: int
+    unknown_three_hundred_thirty_seven: bool
+    def __init__(self, unknown_three_hundred_thirty_four: _Optional[int] = ..., unknown_three_hundred_thirty_five: bool = ..., unknown_three_hundred_thirty_six: _Optional[int] = ..., unknown_three_hundred_thirty_seven: bool = ...) -> None: ...

@@ -29,7 +29,6 @@ class QuestBehavior(RecoverableBehavior):
         self._run_next_script()
 
     def _run_next_script(self) -> None:
-        """Eligibility is re-checked here, not up front: a script can unlock the next one."""
         while self._pending_scripts:
             script = self._pending_scripts.pop(0)
             if self._is_runnable(script):

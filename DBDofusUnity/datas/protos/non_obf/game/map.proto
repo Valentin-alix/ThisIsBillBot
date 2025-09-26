@@ -3,7 +3,7 @@ syntax = "proto3";
 
 package com.ankama.dofus.server.game.protocol.map;
 
-message UnknownKsc {
-	int32 unknown_fyxs = 1;
-	bool unknown_fyxt = 2;
+message UnknownFourHundredEighteen {
+	int32 unknown_seven_hundred_fifty_five = 1;
+	bool unknown_seven_hundred_fifty_six = 2;
 }

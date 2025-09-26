@@ -120,3 +120,9 @@ class AchievedAchievement(_message.Message):
     pioneer_rank: int
     finished_level: int
     def __init__(self, achievement_id: _Optional[int] = ..., achieved_by: _Optional[int] = ..., pioneer_rank: _Optional[int] = ..., finished_level: _Optional[int] = ...) -> None: ...
+
+class AchievementFilterRequest(_message.Message):
+    __slots__ = ("filter_text",)
+    FILTER_TEXT_FIELD_NUMBER: _ClassVar[int]
+    filter_text: str
+    def __init__(self, filter_text: _Optional[str] = ...) -> None: ...

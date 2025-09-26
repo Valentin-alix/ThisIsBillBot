@@ -20,23 +20,6 @@ message WhoIsNumericRequest {
 	int64 player_id = 1;
 }
 
-message CurrentServerStatusUpdateEvent {
-	ServerStatus status = 1;
-	enum ServerStatus {
-		UNKNOWN = 0;
-		OFFLINE = 1;
-		STARTING = 2;
-		ONLINE = 3;
-		NO_JOIN = 4;
-		SAVING = 5;
-		STOPPING = 6;
-	}
-}
-
-message ServerMaintenanceEvent {
-	string maintenance_date = 1;
-}
-
 message BasicLatencyStatsRequest {
 	int32 latency = 1;
 }
@@ -120,6 +103,6 @@ message SequenceNumberEvent {
 
 
 
-message UnknownLqx {
-	.com.ankama.dofus.server.game.protocol.common.PlayerSearch unknown_gcsr = 1;
+message UnknownEight {
+	.com.ankama.dofus.server.game.protocol.common.PlayerSearch unknown_sixteen = 1;
 }

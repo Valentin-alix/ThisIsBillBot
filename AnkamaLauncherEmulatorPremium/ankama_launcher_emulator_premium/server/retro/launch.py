@@ -1,7 +1,7 @@
-import json
 import logging
 import os
 import socket
+from functools import cache
 from pathlib import Path
 from threading import Event
 
@@ -11,7 +11,10 @@ from ankama_launcher_emulator_premium.consts import LAUNCHER_PORT
 from ankama_launcher_emulator_premium.interfaces.game import GameNameEnum
 from ankama_launcher_emulator_premium.utils.environment import RETRO_PATH, ZAAP_PATH
 
-RETRO_CDN = json.dumps(socket.gethostbyname_ex("dofusretro.cdn.ankama.com")[2])
+
+@cache
+def _retro_cdn_ips() -> list[str]:
+    return socket.gethostbyname_ex("dofusretro.cdn.ankama.com")[2]
 
 
 logger = logging.getLogger()
@@ -68,7 +71,7 @@ def load_frida_script(pid: int, port: int, resume: bool = False) -> None:
     script.on("message", on_message)
     script.load()
 
-    script.post({"retroCdn": json.loads(RETRO_CDN), "port": port, "proxyIp": [127, 0, 0, 1]})
+    script.post({"retroCdn": _retro_cdn_ips(), "port": port, "proxyIp": [127, 0, 0, 1]})
 
     if resume:
         if not hooks_ready.wait(timeout=5.0):

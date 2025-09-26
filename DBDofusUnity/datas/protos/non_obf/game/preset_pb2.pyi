@@ -196,11 +196,11 @@ class CharacterPresetCreateResponse(_message.Message):
         PRESET_INFO_FIELD_NUMBER: _ClassVar[int]
         preset_info: CharacterPresetInfo
         def __init__(self, preset_info: _Optional[_Union[CharacterPresetInfo, _Mapping]] = ...) -> None: ...
-    class UnknownIgi(_message.Message):
-        __slots__ = ("unknown_fpft",)
-        UNKNOWN_FPFT_FIELD_NUMBER: _ClassVar[int]
-        unknown_fpft: CharacterPresetInfo
-        def __init__(self, unknown_fpft: _Optional[_Union[CharacterPresetInfo, _Mapping]] = ...) -> None: ...
+    class UnknownFourHundredEightyTwo(_message.Message):
+        __slots__ = ("unknown_eight_hundred_forty_one",)
+        UNKNOWN_EIGHT_HUNDRED_FORTY_ONE_FIELD_NUMBER: _ClassVar[int]
+        unknown_eight_hundred_forty_one: CharacterPresetInfo
+        def __init__(self, unknown_eight_hundred_forty_one: _Optional[_Union[CharacterPresetInfo, _Mapping]] = ...) -> None: ...
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     success: ForgettableSpellPresetCreateResponse.Success
@@ -616,35 +616,17 @@ class CharacterPresetCurrentStateResponse(_message.Message):
     preset: CharacterPresetInfo
     def __init__(self, preset: _Optional[_Union[CharacterPresetInfo, _Mapping]] = ...) -> None: ...
 
-class UnknownIin(_message.Message):
-    __slots__ = ("unknown_fppc", "unknown_fppd")
-    class UnknownFppdEntry(_message.Message):
+class UnknownFourHundredEightyThree(_message.Message):
+    __slots__ = ("unknown_eight_hundred_forty_two", "unknown_eight_hundred_forty_three")
+    class UnknownEightHundredFortyThreeEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
         value: str
         def __init__(self, key: _Optional[int] = ..., value: _Optional[str] = ...) -> None: ...
-    UNKNOWN_FPPC_FIELD_NUMBER: _ClassVar[int]
-    UNKNOWN_FPPD_FIELD_NUMBER: _ClassVar[int]
-    unknown_fppc: str
-    unknown_fppd: _containers.ScalarMap[int, str]
-    def __init__(self, unknown_fppc: _Optional[str] = ..., unknown_fppd: _Optional[_Mapping[int, str]] = ...) -> None: ...
-
-class TierAmount(_message.Message):
-    __slots__ = ("amount", "tier")
-    class UnknownTierValue(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = ()
-        UNKNOWN_TIER_VALUE_UNSPECIFIED: _ClassVar[TierAmount.UnknownTierValue]
-    UNKNOWN_TIER_VALUE_UNSPECIFIED: TierAmount.UnknownTierValue
-    AMOUNT_FIELD_NUMBER: _ClassVar[int]
-    TIER_FIELD_NUMBER: _ClassVar[int]
-    amount: int
-    tier: TierAmount.UnknownTierValue
-    def __init__(self, amount: _Optional[int] = ..., tier: _Optional[_Union[TierAmount.UnknownTierValue, str]] = ...) -> None: ...
-
-class TierAmountTableEvent(_message.Message):
-    __slots__ = ("entries",)
-    ENTRIES_FIELD_NUMBER: _ClassVar[int]
-    entries: _containers.RepeatedCompositeFieldContainer[TierAmount]
-    def __init__(self, entries: _Optional[_Iterable[_Union[TierAmount, _Mapping]]] = ...) -> None: ...
+    UNKNOWN_EIGHT_HUNDRED_FORTY_TWO_FIELD_NUMBER: _ClassVar[int]
+    UNKNOWN_EIGHT_HUNDRED_FORTY_THREE_FIELD_NUMBER: _ClassVar[int]
+    unknown_eight_hundred_forty_two: str
+    unknown_eight_hundred_forty_three: _containers.ScalarMap[int, str]
+    def __init__(self, unknown_eight_hundred_forty_two: _Optional[str] = ..., unknown_eight_hundred_forty_three: _Optional[_Mapping[int, str]] = ...) -> None: ...

@@ -23,61 +23,52 @@ _sym_db = _symbol_database.Default()
 
 
 import common_pb2 as common__pb2
+import guild_member_shop_pb2 as guild__member__shop__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12guild_member.proto\x12\x32\x63om.ankama.dofus.server.game.protocol.guild.member\x1a\x0c\x63ommon.proto\"j\n\"GuildMemberParametersChangeRequest\x12\x11\n\tmember_id\x18\x01 \x01(\x03\x12\x0f\n\x07rank_id\x18\x02 \x01(\x05\x12 \n\x18\x65xperience_given_percent\x18\x03 \x01(\x05\")\n\'GuildMemberWarnOnConnectionStartRequest\"(\n&GuildMemberWarnOnConnectionStopRequest\"I\n%GuildMemberWarnOnConnectionSetRequest\x12\x0e\n\x06\x65nable\x18\x01 \x01(\x08\x12\x10\n\x08guild_id\x18\x02 \x01(\t\"A\n\x1cGuildMemberOnlineStatusEvent\x12\x11\n\tmember_id\x18\x01 \x01(\x03\x12\x0e\n\x06online\x18\x02 \x01(\x08\"]\n\x11GuildMembersEvent\x12H\n\x07members\x18\x01 \x03(\x0b\x32\x37.com.ankama.dofus.server.game.protocol.common.Character\"a\n\x16GuildMemberUpdateEvent\x12G\n\x06member\x18\x01 \x01(\x0b\x32\x37.com.ankama.dofus.server.game.protocol.common.Character\":\n\x15GuildMemberLeaveEvent\x12\x0e\n\x06kicked\x18\x01 \x01(\x08\x12\x11\n\tplayer_id\x18\x02 \x01(\x03\"\x10\n\x0eGuildLeftEvent\"\xae\x01\n\x14GuildMembershipEvent\x12Y\n\x11guild_information\x18\x01 \x01(\x0b\x32>.com.ankama.dofus.server.game.protocol.common.GuildInformation\x12\x0f\n\x07rank_id\x18\x02 \x01(\x05\x12\x14\n\x0cunknown_ftza\x18\x03 \x01(\x05\x12\x14\n\x0cunknown_ftzd\x18\x04 \x01(\x05\"~\n\x10GuildJoinedEvent\x12Y\n\x11guild_information\x18\x01 \x01(\x0b\x32>.com.ankama.dofus.server.game.protocol.common.GuildInformation\x12\x0f\n\x07rank_id\x18\x02 \x01(\x05\"\x8e\x03\n\nUnknownJkh\x12\x14\n\x0cunknown_fttu\x18\x01 \x01(\x05\x12_\n\x0cunknown_fttv\x18\x02 \x01(\x0b\x32I.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkh.UnknownJkf\x1a\x88\x02\n\nUnknownJkf\x12\x14\n\x0cunknown_fttp\x18\x01 \x01(\x05\x12p\n\x0cunknown_fttq\x18\x02 \x03(\x0b\x32Z.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkh.UnknownJkf.UnknownFttqEntry\x1ar\n\x10UnknownFttqEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12M\n\x05value\x18\x02 \x01(\x0b\x32>.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkt:\x02\x38\x01\"x\n\nUnknownJkt\x12\x14\n\x0cunknown_ftve\x18\x01 \x01(\x05\x12T\n\x0cunknown_ftvf\x18\x02 \x01(\x0b\x32>.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkq\"\xbd\x01\n\nUnknownJkq\x12_\n\x0cunknown_ftuq\x18\x01 \x01(\x0b\x32I.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkq.UnknownJko\x12\x14\n\x0cunknown_ftur\x18\x02 \x01(\x05\x1a\x38\n\nUnknownJko\x12\x14\n\x0cunknown_ftuk\x18\x01 \x01(\x05\x12\x14\n\x0cunknown_ftul\x18\x02 \x01(\t\"\xbd\x01\n\nUnknownJku\x12\x65\n\x0cunknown_ftvk\x18\x01 \x03(\x0b\x32O.com.ankama.dofus.server.game.protocol.guild.member.UnknownJku.UnknownFtvkEntry\x12\x14\n\x0cunknown_ftvl\x18\x02 \x01(\x05\x1a\x32\n\x10UnknownFtvkEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\"x\n\nUnknownJkv\x12T\n\x0cunknown_ftvp\x18\x01 \x01(\x0b\x32>.com.ankama.dofus.server.game.protocol.guild.member.UnknownJkq\x12\x14\n\x0cunknown_ftvq\x18\x02 \x01(\x05\"\"\n\nUnknownJkw\x12\x14\n\x0cunknown_ftvu\x18\x01 \x01(\x05\"\"\n\nUnknownJky\x12\x14\n\x0cunknown_ftwc\x18\x01 \x01(\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12guild_member.proto\x12\x32\x63om.ankama.dofus.server.game.protocol.guild.member\x1a\x0c\x63ommon.proto\x1a\x17guild_member_shop.proto\"j\n\"GuildMemberParametersChangeRequest\x12\x11\n\tmember_id\x18\x01 \x01(\x03\x12\x0f\n\x07rank_id\x18\x02 \x01(\x05\x12 \n\x18\x65xperience_given_percent\x18\x03 \x01(\x05\")\n\'GuildMemberWarnOnConnectionStartRequest\"(\n&GuildMemberWarnOnConnectionStopRequest\"I\n%GuildMemberWarnOnConnectionSetRequest\x12\x0e\n\x06\x65nable\x18\x01 \x01(\x08\x12\x10\n\x08guild_id\x18\x02 \x01(\t\"A\n\x1cGuildMemberOnlineStatusEvent\x12\x11\n\tmember_id\x18\x01 \x01(\x03\x12\x0e\n\x06online\x18\x02 \x01(\x08\"]\n\x11GuildMembersEvent\x12H\n\x07members\x18\x01 \x03(\x0b\x32\x37.com.ankama.dofus.server.game.protocol.common.Character\"a\n\x16GuildMemberUpdateEvent\x12G\n\x06member\x18\x01 \x01(\x0b\x32\x37.com.ankama.dofus.server.game.protocol.common.Character\":\n\x15GuildMemberLeaveEvent\x12\x0e\n\x06kicked\x18\x01 \x01(\x08\x12\x11\n\tplayer_id\x18\x02 \x01(\x03\"\x10\n\x0eGuildLeftEvent\"\xc5\x01\n\x14GuildMembershipEvent\x12Y\n\x11guild_information\x18\x01 \x01(\x0b\x32>.com.ankama.dofus.server.game.protocol.common.GuildInformation\x12\x0f\n\x07rank_id\x18\x02 \x01(\x05\x12\x17\n\x0fguildaton_count\x18\x03 \x01(\x05\x12(\n unknown_four_hundred_seventy_one\x18\x04 \x01(\x05\"~\n\x10GuildJoinedEvent\x12Y\n\x11guild_information\x18\x01 \x01(\x0b\x32>.com.ankama.dofus.server.game.protocol.common.GuildInformation\x12\x0f\n\x07rank_id\x18\x02 \x01(\x05\"\xec\x04\n\x16UnknownTwoHundredForty\x12)\n!unknown_four_hundred_seventy_four\x18\x01 \x01(\x05\x12\x8f\x01\n!unknown_four_hundred_seventy_five\x18\x02 \x01(\x0b\x32\x64.com.ankama.dofus.server.game.protocol.guild.member.UnknownTwoHundredForty.UnknownTwoHundredFortyOne\x1a\x94\x03\n\x19UnknownTwoHundredFortyOne\x12(\n unknown_four_hundred_seventy_two\x18\x01 \x01(\x05\x12\xb5\x01\n\"unknown_four_hundred_seventy_three\x18\x02 \x03(\x0b\x32\x88\x01.com.ankama.dofus.server.game.protocol.guild.member.UnknownTwoHundredForty.UnknownTwoHundredFortyOne.UnknownFourHundredSeventyThreeEntry\x1a\x94\x01\n#UnknownFourHundredSeventyThreeEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\\\n\x05value\x18\x02 \x01(\x0b\x32M.com.ankama.dofus.server.game.protocol.guild.member.UnknownTwoHundredFortyTwo:\x02\x38\x01\"\xc5\x01\n\x19UnknownTwoHundredFortyTwo\x12(\n unknown_four_hundred_seventy_six\x18\x01 \x01(\x05\x12~\n\"unknown_four_hundred_seventy_seven\x18\x02 \x01(\x0b\x32R.com.ankama.dofus.server.game.protocol.guild.member.shop.UnknownTwoHundredFortySix\"\xc8\x01\n\x1bUnknownTwoHundredFortyThree\x12~\n\"unknown_four_hundred_seventy_eight\x18\x01 \x01(\x0b\x32R.com.ankama.dofus.server.game.protocol.guild.member.shop.UnknownTwoHundredFortySix\x12)\n!unknown_four_hundred_seventy_nine\x18\x02 \x01(\x05\"A\n\x1aUnknownTwoHundredFortyFour\x12#\n\x1bunknown_four_hundred_eighty\x18\x01 \x01(\x05\"E\n\x1aUnknownTwoHundredFortyFive\x12\'\n\x1funknown_four_hundred_eighty_one\x18\x01 \x01(\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'guild_member_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_UNKNOWNJKH_UNKNOWNJKF_UNKNOWNFTTQENTRY']._loaded_options = None
-  _globals['_UNKNOWNJKH_UNKNOWNJKF_UNKNOWNFTTQENTRY']._serialized_options = b'8\001'
-  _globals['_UNKNOWNJKU_UNKNOWNFTVKENTRY']._loaded_options = None
-  _globals['_UNKNOWNJKU_UNKNOWNFTVKENTRY']._serialized_options = b'8\001'
-  _globals['_GUILDMEMBERPARAMETERSCHANGEREQUEST']._serialized_start=88
-  _globals['_GUILDMEMBERPARAMETERSCHANGEREQUEST']._serialized_end=194
-  _globals['_GUILDMEMBERWARNONCONNECTIONSTARTREQUEST']._serialized_start=196
-  _globals['_GUILDMEMBERWARNONCONNECTIONSTARTREQUEST']._serialized_end=237
-  _globals['_GUILDMEMBERWARNONCONNECTIONSTOPREQUEST']._serialized_start=239
-  _globals['_GUILDMEMBERWARNONCONNECTIONSTOPREQUEST']._serialized_end=279
-  _globals['_GUILDMEMBERWARNONCONNECTIONSETREQUEST']._serialized_start=281
-  _globals['_GUILDMEMBERWARNONCONNECTIONSETREQUEST']._serialized_end=354
-  _globals['_GUILDMEMBERONLINESTATUSEVENT']._serialized_start=356
-  _globals['_GUILDMEMBERONLINESTATUSEVENT']._serialized_end=421
-  _globals['_GUILDMEMBERSEVENT']._serialized_start=423
-  _globals['_GUILDMEMBERSEVENT']._serialized_end=516
-  _globals['_GUILDMEMBERUPDATEEVENT']._serialized_start=518
-  _globals['_GUILDMEMBERUPDATEEVENT']._serialized_end=615
-  _globals['_GUILDMEMBERLEAVEEVENT']._serialized_start=617
-  _globals['_GUILDMEMBERLEAVEEVENT']._serialized_end=675
-  _globals['_GUILDLEFTEVENT']._serialized_start=677
-  _globals['_GUILDLEFTEVENT']._serialized_end=693
-  _globals['_GUILDMEMBERSHIPEVENT']._serialized_start=696
-  _globals['_GUILDMEMBERSHIPEVENT']._serialized_end=870
-  _globals['_GUILDJOINEDEVENT']._serialized_start=872
-  _globals['_GUILDJOINEDEVENT']._serialized_end=998
-  _globals['_UNKNOWNJKH']._serialized_start=1001
-  _globals['_UNKNOWNJKH']._serialized_end=1399
-  _globals['_UNKNOWNJKH_UNKNOWNJKF']._serialized_start=1135
-  _globals['_UNKNOWNJKH_UNKNOWNJKF']._serialized_end=1399
-  _globals['_UNKNOWNJKH_UNKNOWNJKF_UNKNOWNFTTQENTRY']._serialized_start=1285
-  _globals['_UNKNOWNJKH_UNKNOWNJKF_UNKNOWNFTTQENTRY']._serialized_end=1399
-  _globals['_UNKNOWNJKT']._serialized_start=1401
-  _globals['_UNKNOWNJKT']._serialized_end=1521
-  _globals['_UNKNOWNJKQ']._serialized_start=1524
-  _globals['_UNKNOWNJKQ']._serialized_end=1713
-  _globals['_UNKNOWNJKQ_UNKNOWNJKO']._serialized_start=1657
-  _globals['_UNKNOWNJKQ_UNKNOWNJKO']._serialized_end=1713
-  _globals['_UNKNOWNJKU']._serialized_start=1716
-  _globals['_UNKNOWNJKU']._serialized_end=1905
-  _globals['_UNKNOWNJKU_UNKNOWNFTVKENTRY']._serialized_start=1855
-  _globals['_UNKNOWNJKU_UNKNOWNFTVKENTRY']._serialized_end=1905
-  _globals['_UNKNOWNJKV']._serialized_start=1907
-  _globals['_UNKNOWNJKV']._serialized_end=2027
-  _globals['_UNKNOWNJKW']._serialized_start=2029
-  _globals['_UNKNOWNJKW']._serialized_end=2063
-  _globals['_UNKNOWNJKY']._serialized_start=2065
-  _globals['_UNKNOWNJKY']._serialized_end=2099
+  _globals['_UNKNOWNTWOHUNDREDFORTY_UNKNOWNTWOHUNDREDFORTYONE_UNKNOWNFOURHUNDREDSEVENTYTHREEENTRY']._loaded_options = None
+  _globals['_UNKNOWNTWOHUNDREDFORTY_UNKNOWNTWOHUNDREDFORTYONE_UNKNOWNFOURHUNDREDSEVENTYTHREEENTRY']._serialized_options = b'8\001'
+  _globals['_GUILDMEMBERPARAMETERSCHANGEREQUEST']._serialized_start=113
+  _globals['_GUILDMEMBERPARAMETERSCHANGEREQUEST']._serialized_end=219
+  _globals['_GUILDMEMBERWARNONCONNECTIONSTARTREQUEST']._serialized_start=221
+  _globals['_GUILDMEMBERWARNONCONNECTIONSTARTREQUEST']._serialized_end=262
+  _globals['_GUILDMEMBERWARNONCONNECTIONSTOPREQUEST']._serialized_start=264
+  _globals['_GUILDMEMBERWARNONCONNECTIONSTOPREQUEST']._serialized_end=304
+  _globals['_GUILDMEMBERWARNONCONNECTIONSETREQUEST']._serialized_start=306
+  _globals['_GUILDMEMBERWARNONCONNECTIONSETREQUEST']._serialized_end=379
+  _globals['_GUILDMEMBERONLINESTATUSEVENT']._serialized_start=381
+  _globals['_GUILDMEMBERONLINESTATUSEVENT']._serialized_end=446
+  _globals['_GUILDMEMBERSEVENT']._serialized_start=448
+  _globals['_GUILDMEMBERSEVENT']._serialized_end=541
+  _globals['_GUILDMEMBERUPDATEEVENT']._serialized_start=543
+  _globals['_GUILDMEMBERUPDATEEVENT']._serialized_end=640
+  _globals['_GUILDMEMBERLEAVEEVENT']._serialized_start=642
+  _globals['_GUILDMEMBERLEAVEEVENT']._serialized_end=700
+  _globals['_GUILDLEFTEVENT']._serialized_start=702
+  _globals['_GUILDLEFTEVENT']._serialized_end=718
+  _globals['_GUILDMEMBERSHIPEVENT']._serialized_start=721
+  _globals['_GUILDMEMBERSHIPEVENT']._serialized_end=918
+  _globals['_GUILDJOINEDEVENT']._serialized_start=920
+  _globals['_GUILDJOINEDEVENT']._serialized_end=1046
+  _globals['_UNKNOWNTWOHUNDREDFORTY']._serialized_start=1049
+  _globals['_UNKNOWNTWOHUNDREDFORTY']._serialized_end=1669
+  _globals['_UNKNOWNTWOHUNDREDFORTY_UNKNOWNTWOHUNDREDFORTYONE']._serialized_start=1265
+  _globals['_UNKNOWNTWOHUNDREDFORTY_UNKNOWNTWOHUNDREDFORTYONE']._serialized_end=1669
+  _globals['_UNKNOWNTWOHUNDREDFORTY_UNKNOWNTWOHUNDREDFORTYONE_UNKNOWNFOURHUNDREDSEVENTYTHREEENTRY']._serialized_start=1521
+  _globals['_UNKNOWNTWOHUNDREDFORTY_UNKNOWNTWOHUNDREDFORTYONE_UNKNOWNFOURHUNDREDSEVENTYTHREEENTRY']._serialized_end=1669
+  _globals['_UNKNOWNTWOHUNDREDFORTYTWO']._serialized_start=1672
+  _globals['_UNKNOWNTWOHUNDREDFORTYTWO']._serialized_end=1869
+  _globals['_UNKNOWNTWOHUNDREDFORTYTHREE']._serialized_start=1872
+  _globals['_UNKNOWNTWOHUNDREDFORTYTHREE']._serialized_end=2072
+  _globals['_UNKNOWNTWOHUNDREDFORTYFOUR']._serialized_start=2074
+  _globals['_UNKNOWNTWOHUNDREDFORTYFOUR']._serialized_end=2139
+  _globals['_UNKNOWNTWOHUNDREDFORTYFIVE']._serialized_start=2141
+  _globals['_UNKNOWNTWOHUNDREDFORTYFIVE']._serialized_end=2210
 # @@protoc_insertion_point(module_scope)

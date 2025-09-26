@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0f\x63haracter.proto\x12/com.ankama.dofus.server.game.protocol.character\x1a\x0c\x63ommon.proto\"j\n\x19PlayerStatusUpdateRequest\x12M\n\x06status\x18\x01 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.common.CharacterStatus\"&\n$ResetCharacterCharacteristicsRequest\"\x11\n\x0f\x46reeSoulRequest\"\x92\x01\n%CharacterCharacteristicUpgradeRequest\x12\x10\n\x08strength\x18\x01 \x01(\x05\x12\x10\n\x08vitality\x18\x02 \x01(\x05\x12\x0e\n\x06wisdom\x18\x03 \x01(\x05\x12\x0e\n\x06\x63hance\x18\x04 \x01(\x05\x12\x0f\n\x07\x61gility\x18\x05 \x01(\x05\x12\x14\n\x0cintelligence\x18\x06 \x01(\x05\"\x1e\n\x1cPlayerStatusUpdateErrorEvent\"\x90\x01\n\x18PlayerStatusUpdatedEvent\x12\x12\n\naccount_id\x18\x01 \x01(\x05\x12\x11\n\tplayer_id\x18\x02 \x01(\x03\x12M\n\x06status\x18\x03 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.common.CharacterStatus\"v\n\x1d\x43haracterCharacteristicsEvent\x12U\n\x05stats\x18\x01 \x01(\x0b\x32\x46.com.ankama.dofus.server.game.protocol.common.CharacterCharacteristics\"*\n\x15\x43haracterLevelUpEvent\x12\x11\n\tnew_level\x18\x01 \x01(\x05\"p\n\x1c\x43haracterExperienceGainEvent\x12\x1c\n\x14\x63haracter_experience\x18\x01 \x01(\x03\x12\x18\n\x10mount_experience\x18\x02 \x01(\x03\x12\x18\n\x10guild_experience\x18\x03 \x01(\x03\"/\n\x19LifePointsRegenBeginEvent\x12\x12\n\nregen_rate\x18\x01 \x01(\x05\"}\n\x15UpdateLifePointsEvent\x12\x13\n\x0blife_points\x18\x01 \x01(\x05\x12\x17\n\x0fmax_life_points\x18\x02 \x01(\x05\x12\x1f\n\x12life_points_gained\x18\x03 \x01(\x05H\x00\x88\x01\x01\x42\x15\n\x13_life_points_gained\"\xd8\x01\n\x18\x43haracterLifeStatusEvent\x12\x63\n\x05state\x18\x01 \x01(\x0e\x32T.com.ankama.dofus.server.game.protocol.character.CharacterLifeStatusEvent.LifeStatus\x12\x16\n\x0ephoenix_map_id\x18\x02 \x01(\x03\"?\n\nLifeStatus\x12\x15\n\x11\x41LIVE_AND_KICKING\x10\x00\x12\r\n\tTOMBSTONE\x10\x01\x12\x0b\n\x07PHANTOM\x10\x02\"\x0f\n\rGameOverEvent\"\xa9\x02\n)CharacterCharacteristicUpgradeResultEvent\x12\x86\x01\n\x06result\x18\x01 \x01(\x0e\x32v.com.ankama.dofus.server.game.protocol.character.CharacterCharacteristicUpgradeResultEvent.CharacteristicUpgradeResult\x12\x0e\n\x06points\x18\x02 \x01(\x05\"c\n\x1b\x43haracteristicUpgradeResult\x12\x08\n\x04NONE\x10\x00\x12\x0b\n\x07SUCCESS\x10\x01\x12\t\n\x05GUEST\x10\x02\x12\x0c\n\x08IN_FIGHT\x10\x03\x12\x14\n\x10NOT_ENOUGH_POINT\x10\x04\"\x83\x01\n\x1a\x43haracterRestrictionsEvent\x12\x14\n\x0c\x63haracter_id\x18\x01 \x01(\x03\x12O\n\x0crestrictions\x18\x02 \x03(\x0e\x32\x39.com.ankama.dofus.server.game.protocol.common.Restriction\"\xea\x02\n\x1a\x43haracterOnConnectionEvent\x12u\n\x10\x63onnection_event\x18\x01 \x01(\x0e\x32[.com.ankama.dofus.server.game.protocol.character.CharacterOnConnectionEvent.ConnectionEvent\"\xd4\x01\n\x0f\x43onnectionEvent\x12!\n\x1d\x46IRST_ACCOUNT_CONNECTION_EVER\x10\x00\x12&\n\"FIRST_ACCOUNT_CONNECTION_ON_SERVER\x10\x01\x12)\n%FIRST_ACCOUNT_CONNECTION_SINCE_REBOOT\x10\x02\x12\x1e\n\x1a\x46IRST_CHARACTER_CONNECTION\x10\x03\x12+\n\'FIRST_CHARACTER_CONNECTION_SINCE_REBOOT\x10\x04\"\"\n\nUnknownKug\x12\x14\n\x0cunknown_fzgi\x18\x01 \x03(\x08\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0f\x63haracter.proto\x12/com.ankama.dofus.server.game.protocol.character\x1a\x0c\x63ommon.proto\"j\n\x19PlayerStatusUpdateRequest\x12M\n\x06status\x18\x01 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.common.CharacterStatus\"&\n$ResetCharacterCharacteristicsRequest\"\x11\n\x0f\x46reeSoulRequest\"\x92\x01\n%CharacterCharacteristicUpgradeRequest\x12\x10\n\x08strength\x18\x01 \x01(\x05\x12\x10\n\x08vitality\x18\x02 \x01(\x05\x12\x0e\n\x06wisdom\x18\x03 \x01(\x05\x12\x0e\n\x06\x63hance\x18\x04 \x01(\x05\x12\x0f\n\x07\x61gility\x18\x05 \x01(\x05\x12\x14\n\x0cintelligence\x18\x06 \x01(\x05\"\x1e\n\x1cPlayerStatusUpdateErrorEvent\"\x90\x01\n\x18PlayerStatusUpdatedEvent\x12\x12\n\naccount_id\x18\x01 \x01(\x05\x12\x11\n\tplayer_id\x18\x02 \x01(\x03\x12M\n\x06status\x18\x03 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.common.CharacterStatus\"v\n\x1d\x43haracterCharacteristicsEvent\x12U\n\x05stats\x18\x01 \x01(\x0b\x32\x46.com.ankama.dofus.server.game.protocol.common.CharacterCharacteristics\"*\n\x15\x43haracterLevelUpEvent\x12\x11\n\tnew_level\x18\x01 \x01(\x05\"<\n\x1c\x43haracterExperienceGainEvent\x12\x1c\n\x14\x63haracter_experience\x18\x01 \x01(\x03\"/\n\x19LifePointsRegenBeginEvent\x12\x12\n\nregen_rate\x18\x01 \x01(\x05\"}\n\x15UpdateLifePointsEvent\x12\x13\n\x0blife_points\x18\x01 \x01(\x05\x12\x17\n\x0fmax_life_points\x18\x02 \x01(\x05\x12\x1f\n\x12life_points_gained\x18\x03 \x01(\x05H\x00\x88\x01\x01\x42\x15\n\x13_life_points_gained\"\xd8\x01\n\x18\x43haracterLifeStatusEvent\x12\x63\n\x05state\x18\x01 \x01(\x0e\x32T.com.ankama.dofus.server.game.protocol.character.CharacterLifeStatusEvent.LifeStatus\x12\x16\n\x0ephoenix_map_id\x18\x02 \x01(\x03\"?\n\nLifeStatus\x12\x15\n\x11\x41LIVE_AND_KICKING\x10\x00\x12\r\n\tTOMBSTONE\x10\x01\x12\x0b\n\x07PHANTOM\x10\x02\"\x0f\n\rGameOverEvent\"\xa9\x02\n)CharacterCharacteristicUpgradeResultEvent\x12\x86\x01\n\x06result\x18\x01 \x01(\x0e\x32v.com.ankama.dofus.server.game.protocol.character.CharacterCharacteristicUpgradeResultEvent.CharacteristicUpgradeResult\x12\x0e\n\x06points\x18\x02 \x01(\x05\"c\n\x1b\x43haracteristicUpgradeResult\x12\x08\n\x04NONE\x10\x00\x12\x0b\n\x07SUCCESS\x10\x01\x12\t\n\x05GUEST\x10\x02\x12\x0c\n\x08IN_FIGHT\x10\x03\x12\x14\n\x10NOT_ENOUGH_POINT\x10\x04\"\x83\x01\n\x1a\x43haracterRestrictionsEvent\x12\x14\n\x0c\x63haracter_id\x18\x01 \x01(\x03\x12O\n\x0crestrictions\x18\x02 \x03(\x0e\x32\x39.com.ankama.dofus.server.game.protocol.common.Restriction\"\xea\x02\n\x1a\x43haracterOnConnectionEvent\x12u\n\x10\x63onnection_event\x18\x01 \x01(\x0e\x32[.com.ankama.dofus.server.game.protocol.character.CharacterOnConnectionEvent.ConnectionEvent\"\xd4\x01\n\x0f\x43onnectionEvent\x12!\n\x1d\x46IRST_ACCOUNT_CONNECTION_EVER\x10\x00\x12&\n\"FIRST_ACCOUNT_CONNECTION_ON_SERVER\x10\x01\x12)\n%FIRST_ACCOUNT_CONNECTION_SINCE_REBOOT\x10\x02\x12\x1e\n\x1a\x46IRST_CHARACTER_CONNECTION\x10\x03\x12+\n\'FIRST_CHARACTER_CONNECTION_SINCE_REBOOT\x10\x04\"?\n\x14UnknownOneHundredOne\x12\'\n\x1funknown_one_hundred_ninety_nine\x18\x01 \x03(\x08\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -49,27 +49,27 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_CHARACTERLEVELUPEVENT']._serialized_start=697
   _globals['_CHARACTERLEVELUPEVENT']._serialized_end=739
   _globals['_CHARACTEREXPERIENCEGAINEVENT']._serialized_start=741
-  _globals['_CHARACTEREXPERIENCEGAINEVENT']._serialized_end=853
-  _globals['_LIFEPOINTSREGENBEGINEVENT']._serialized_start=855
-  _globals['_LIFEPOINTSREGENBEGINEVENT']._serialized_end=902
-  _globals['_UPDATELIFEPOINTSEVENT']._serialized_start=904
-  _globals['_UPDATELIFEPOINTSEVENT']._serialized_end=1029
-  _globals['_CHARACTERLIFESTATUSEVENT']._serialized_start=1032
-  _globals['_CHARACTERLIFESTATUSEVENT']._serialized_end=1248
-  _globals['_CHARACTERLIFESTATUSEVENT_LIFESTATUS']._serialized_start=1185
-  _globals['_CHARACTERLIFESTATUSEVENT_LIFESTATUS']._serialized_end=1248
-  _globals['_GAMEOVEREVENT']._serialized_start=1250
-  _globals['_GAMEOVEREVENT']._serialized_end=1265
-  _globals['_CHARACTERCHARACTERISTICUPGRADERESULTEVENT']._serialized_start=1268
-  _globals['_CHARACTERCHARACTERISTICUPGRADERESULTEVENT']._serialized_end=1565
-  _globals['_CHARACTERCHARACTERISTICUPGRADERESULTEVENT_CHARACTERISTICUPGRADERESULT']._serialized_start=1466
-  _globals['_CHARACTERCHARACTERISTICUPGRADERESULTEVENT_CHARACTERISTICUPGRADERESULT']._serialized_end=1565
-  _globals['_CHARACTERRESTRICTIONSEVENT']._serialized_start=1568
-  _globals['_CHARACTERRESTRICTIONSEVENT']._serialized_end=1699
-  _globals['_CHARACTERONCONNECTIONEVENT']._serialized_start=1702
-  _globals['_CHARACTERONCONNECTIONEVENT']._serialized_end=2064
-  _globals['_CHARACTERONCONNECTIONEVENT_CONNECTIONEVENT']._serialized_start=1852
-  _globals['_CHARACTERONCONNECTIONEVENT_CONNECTIONEVENT']._serialized_end=2064
-  _globals['_UNKNOWNKUG']._serialized_start=2066
-  _globals['_UNKNOWNKUG']._serialized_end=2100
+  _globals['_CHARACTEREXPERIENCEGAINEVENT']._serialized_end=801
+  _globals['_LIFEPOINTSREGENBEGINEVENT']._serialized_start=803
+  _globals['_LIFEPOINTSREGENBEGINEVENT']._serialized_end=850
+  _globals['_UPDATELIFEPOINTSEVENT']._serialized_start=852
+  _globals['_UPDATELIFEPOINTSEVENT']._serialized_end=977
+  _globals['_CHARACTERLIFESTATUSEVENT']._serialized_start=980
+  _globals['_CHARACTERLIFESTATUSEVENT']._serialized_end=1196
+  _globals['_CHARACTERLIFESTATUSEVENT_LIFESTATUS']._serialized_start=1133
+  _globals['_CHARACTERLIFESTATUSEVENT_LIFESTATUS']._serialized_end=1196
+  _globals['_GAMEOVEREVENT']._serialized_start=1198
+  _globals['_GAMEOVEREVENT']._serialized_end=1213
+  _globals['_CHARACTERCHARACTERISTICUPGRADERESULTEVENT']._serialized_start=1216
+  _globals['_CHARACTERCHARACTERISTICUPGRADERESULTEVENT']._serialized_end=1513
+  _globals['_CHARACTERCHARACTERISTICUPGRADERESULTEVENT_CHARACTERISTICUPGRADERESULT']._serialized_start=1414
+  _globals['_CHARACTERCHARACTERISTICUPGRADERESULTEVENT_CHARACTERISTICUPGRADERESULT']._serialized_end=1513
+  _globals['_CHARACTERRESTRICTIONSEVENT']._serialized_start=1516
+  _globals['_CHARACTERRESTRICTIONSEVENT']._serialized_end=1647
+  _globals['_CHARACTERONCONNECTIONEVENT']._serialized_start=1650
+  _globals['_CHARACTERONCONNECTIONEVENT']._serialized_end=2012
+  _globals['_CHARACTERONCONNECTIONEVENT_CONNECTIONEVENT']._serialized_start=1800
+  _globals['_CHARACTERONCONNECTIONEVENT_CONNECTIONEVENT']._serialized_end=2012
+  _globals['_UNKNOWNONEHUNDREDONE']._serialized_start=2014
+  _globals['_UNKNOWNONEHUNDREDONE']._serialized_end=2077
 # @@protoc_insertion_point(module_scope)

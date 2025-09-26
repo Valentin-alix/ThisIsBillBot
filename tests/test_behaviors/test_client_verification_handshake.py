@@ -17,7 +17,7 @@ from src.core.behaviors.socket import game_session_behavior as game_session_modu
 from src.core.behaviors.socket.game_session_behavior import _DH_G, _DH_P, _DH_Q
 from src.core.bot.bot import Bot
 
-# Challenge captured from a real server round.
+
 _SERVER_CHALLENGE = "87989774959674335681374014435310768134220535430930660942639414008177554728153"
 _FAKE_HWID = "1B4F0E9851971998E732078544C96B36C3D01CEDF7CAA332359D6F1D83567014"
 
@@ -47,13 +47,11 @@ def _only(sent_messages: list[Message], msg_type: type[Message]) -> Message:
 
 class TestClientVerificationHandshake:
     def test_dh_group_is_rfc2409_first_oakley_group(self) -> None:
-        # RFC 2409 section 6.1, the group the client reads from
-        # BouncyCastle's DHStandardGroups.rfc2409_768.
+
         assert _DH_P.bit_length() == 768
         assert _DH_G == 2
         assert _DH_Q == (_DH_P - 1) // 2
-        # g must generate the order-q subgroup, otherwise reducing the proof
-        # exponent modulo q produces a proof the server rejects.
+
         assert pow(_DH_G, _DH_Q, _DH_P) == 1
 
     def test_server_supplied_challenge_produces_a_verifiable_proof(
@@ -129,7 +127,6 @@ class TestClientVerificationHandshake:
         assert len(proof_requests) == 2
         assert proof_requests[0].proof != proof_requests[1].proof
 
-        # The long term key stays stable across rounds, only the commitment rotates.
         public_key = int(init_requests[0].challenge_key)
         for id_request, proof_request in zip(id_requests, proof_requests, strict=True):
             assert _proof_verifies(

@@ -5,12 +5,16 @@ import pytest
 
 from dofus_unity_reader.game_constants.item import CategoryItemEnum, ItemEnum
 
+from datas.protos.non_obf.game.gamemap_pb2 import MapComplementaryInformationEvent, MapCurrentEvent
+
+from src.core.behaviors.farms.random_farm_behavior import MAX_CONSECUTIVE_UNEXPECTED_NEW_MAPS
 from src.core.behaviors.items.acquire_items_behavior import (
     AcquireItemsBehavior,
     ItemToAcquire,
 )
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripErrorCode
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
+from src.core.engine.movements.world.transition_ban import BannedTransition, TransitionBanScope
 from src.core.bot.bot import Bot
 from src.core.bot.session_activity_plan import SessionActivity, SessionActivityPlan, SessionActivitySlot
 from src.exceptions import UnhandledErrorCodeException
@@ -173,8 +177,68 @@ class TestFarmRecovery:
         random_farm_behavior = runtime_bot.fighter_behavior.random_farm_behavior
         request_disconnect = MagicMock()
         runtime_bot.event_manager.request_disconnect_callback = request_disconnect
-        runtime_bot.game_state.map.forbidden_edge_transitions.add((MagicMock(), MagicMock(), MagicMock()))
+        runtime_bot.game_state.map.banned_edge_transitions.add(
+            BannedTransition(MagicMock(), MagicMock(), MagicMock(), TransitionBanScope.SESSION)
+        )
 
         random_farm_behavior.on_auto_trip_world_behavior_finished(AutoTripErrorCode.PATH_NOT_FOUND)
 
         request_disconnect.assert_called_once_with()
+
+    def test_landing_on_an_unexpected_map_forbids_the_transition(self, runtime_bot: Bot) -> None:
+        """An outdated world graph would otherwise send the bot back and forth forever."""
+        edge_behavior = runtime_bot.fighter_behavior.random_farm_behavior.edge_behavior
+        edge = MagicMock()
+        transition = MagicMock()
+        edge.m_to.m_mapId = 147981825
+        runtime_bot.game_state.fight.in_fight = False
+
+        edge_behavior.on_map_current_event(
+            MapCurrentEvent(map_id=149947392), edge=edge, transition=transition
+        )
+
+        assert runtime_bot.game_state.map.has_session_banned_transitions
+
+    def test_landing_on_the_expected_map_keeps_the_transition(self, runtime_bot: Bot) -> None:
+        edge_behavior = runtime_bot.fighter_behavior.random_farm_behavior.edge_behavior
+        edge = MagicMock()
+        transition = MagicMock()
+        edge.m_to.m_mapId = 147981825
+        runtime_bot.game_state.fight.in_fight = False
+
+        edge_behavior.on_map_current_event(
+            MapCurrentEvent(map_id=147981825), edge=edge, transition=transition
+        )
+
+        assert not runtime_bot.game_state.map.banned_edge_transitions
+
+    def test_repeated_unexpected_map_changes_request_disconnect(self, runtime_bot: Bot) -> None:
+        random_farm_behavior = runtime_bot.fighter_behavior.random_farm_behavior
+        request_disconnect = MagicMock()
+        runtime_bot.event_manager.request_disconnect_callback = request_disconnect
+        edge = MagicMock()
+
+        for _ in range(MAX_CONSECUTIVE_UNEXPECTED_NEW_MAPS):
+            random_farm_behavior.edge_path = [edge]
+            random_farm_behavior.on_edge_behavior_finished(MapChangeError.UNEXPECTED_NEW_MAP, edge=edge)
+
+        request_disconnect.assert_called_once_with()
+
+    def test_an_exit_out_of_reach_is_only_banned_for_the_current_map_stay(self, runtime_bot: Bot) -> None:
+        """Map 193331717 is split in two zones: its other zone exits are reachable once we enter it."""
+        edge_behavior = runtime_bot.fighter_behavior.random_farm_behavior.edge_behavior
+        edge = MagicMock()
+        transition = MagicMock()
+
+        edge_behavior.handle_unreachable_transition(edge, transition)
+
+        assert not runtime_bot.game_state.map.has_session_banned_transitions
+        assert (edge.m_from, edge.m_to, transition) in (
+            runtime_bot.game_state.get_world_transition_context().forbidden_edge_transitions
+        )
+
+        runtime_bot.event_manager.process_msg(
+            MapComplementaryInformationEvent(map_id=runtime_bot.game_state.map.map_id)
+        )
+
+        assert not runtime_bot.game_state.map.banned_edge_transitions

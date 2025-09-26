@@ -85,7 +85,7 @@ class EnterBankChestBehavior(RecoverableBehavior):
             callback=self.on_npc_dialog_behavior_finished,
             parent=self,
             npc_dialog_info=next(bank for bank in BANK_NPCS if bank.npc_map_id == self.game_state.map.map_id),
-            turns=self.OPEN_CHEST_TURNS,
+            turn_variants=[self.OPEN_CHEST_TURNS],
             is_forbidden_msg_callback=is_forbidden_msg_callback,
         )
 

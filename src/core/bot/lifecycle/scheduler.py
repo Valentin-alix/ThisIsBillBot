@@ -47,8 +47,6 @@ class ScheduledSessionWindow:
 
 @dataclass
 class BotScheduler(ContextualLogger):
-    """Handles bot scheduling and playtime management."""
-
     account: StoredApiKey
     bot_signals: BotSignals
     shared_signals: SharedSignals
@@ -73,7 +71,6 @@ class BotScheduler(ContextualLogger):
     _is_kamas_mule_profile: bool = field(init=False, default=False)
 
     def start(self) -> None:
-        """Start the bot scheduler if bot config exists."""
         config = self.get_bot_config()
         if config is None or config.schedule_profile is None:
             return
@@ -95,18 +92,15 @@ class BotScheduler(ContextualLogger):
         self._clear_scheduled_jobs()
 
     def disconnect_now(self) -> None:
-        """Disconnect the active runtime without waiting for schedule state."""
         run_in_background(self._manual_disconnect_bot_task)
 
     def _clear_scheduled_jobs(self) -> None:
-        """Cancel all scheduled jobs for this bot."""
         for job in self._scheduled_jobs:
             schedule.cancel_job(job)
         self._scheduled_jobs.clear()
         self._randomized_slots_by_day.clear()
 
     def _schedule_profile_jobs(self, profile_id: str) -> None:
-        """Setup scheduled tasks for each time slot in the profile."""
         profile = ScheduleProfileController().get_profile(profile_id)
         if not profile:
             self.logger.error(f"Unknown schedule profile {profile_id}")
@@ -179,7 +173,6 @@ class BotScheduler(ContextualLogger):
         self.on_mule_give_slot_started(ends_at)
 
     def _reschedule_with_new_random_times(self, profile_id: str) -> None:
-        """Reschedule all jobs with new random times (called daily at midnight)."""
         self.logger.info("Midnight reschedule: generating new random times")
         self._clear_scheduled_jobs()
         self._schedule_profile_jobs(profile_id)
@@ -313,7 +306,6 @@ def _add_random_minutes(
     random_minutes_min: int = SCHEDULE_RANDOM_MINUTES_MIN,
     random_minutes_max: int = SCHEDULE_RANDOM_MINUTES_MAX,
 ) -> str:
-    """Add random minutes to a time string (delays start, eats into playtime)."""
     hours, minutes = map(int, time_str.split(":"))
     random_minutes = random.randint(random_minutes_min, random_minutes_max)
     total_minutes = hours * 60 + minutes + random_minutes
@@ -334,7 +326,6 @@ def _subtract_random_minutes(
     random_minutes_min: int = SCHEDULE_RANDOM_MINUTES_MIN,
     random_minutes_max: int = SCHEDULE_RANDOM_MINUTES_MAX,
 ) -> str:
-    """Subtract random minutes from a time string (stops earlier, eats into playtime)."""
     hours, minutes = map(int, time_str.split(":"))
     random_minutes = random.randint(random_minutes_min, random_minutes_max)
     total_minutes = hours * 60 + minutes - random_minutes

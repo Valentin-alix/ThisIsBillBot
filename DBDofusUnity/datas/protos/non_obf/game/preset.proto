@@ -112,8 +112,8 @@ message CharacterPresetCreateResponse {
 		UNKNOWN = 3;
 	}
 
-	message UnknownIgi {
-		.com.ankama.dofus.server.game.protocol.preset.CharacterPresetInfo unknown_fpft = 1;
+	message UnknownFourHundredEightyTwo {
+		.com.ankama.dofus.server.game.protocol.preset.CharacterPresetInfo unknown_eight_hundred_forty_one = 1;
 	}
 }
 
@@ -372,19 +372,7 @@ message CharacterPresetCurrentStateResponse {
 
 
 
-message UnknownIin {
-	string unknown_fppc = 1;
-	map<int64, string> unknown_fppd = 2;
-}
-
-message TierAmount {
-	int32 amount = 1;
-	UnknownTierValue tier = 2;
-	enum UnknownTierValue {
-		UNKNOWN_TIER_VALUE_UNSPECIFIED = 0;
-	}
-}
-
-message TierAmountTableEvent {
-	repeated .com.ankama.dofus.server.game.protocol.preset.TierAmount entries = 1;
+message UnknownFourHundredEightyThree {
+	string unknown_eight_hundred_forty_two = 1;
+	map<int64, string> unknown_eight_hundred_forty_three = 2;
 }

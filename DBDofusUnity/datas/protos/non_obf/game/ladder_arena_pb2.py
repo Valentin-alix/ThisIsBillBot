@@ -23,30 +23,30 @@ _sym_db = _symbol_database.Default()
 
 
 import arena_pb2 as arena__pb2
-import game_message_pb2 as game__message__pb2
-import report_pb2 as report__pb2
 import ladder_pb2 as ladder__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12ladder_arena.proto\x12\x32\x63om.ankama.dofus.server.game.protocol.ladder.arena\x1a\x0b\x61rena.proto\x1a\x12game_message.proto\x1a\x0creport.proto\x1a\x0cladder.proto\"k\n\x14\x41renaLadderPageEvent\x12S\n\x05ranks\x18\x01 \x03(\x0b\x32\x44.com.ankama.dofus.server.game.protocol.ladder.arena.ArenaLadderEntry\"\xa6\x01\n\x10\x41renaLadderEntry\x12\x0c\n\x04rank\x18\x01 \x01(\x03\x12\x0f\n\x07winrate\x18\x02 \x01(\x05\x12M\n\x06player\x18\x03 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.ladder.LadderCharacter\x12\x14\n\x0cunknown_fque\x18\x04 \x01(\x05\x12\x0e\n\x06rating\x18\x05 \x01(\x05\"\x8a\x01\n\x1a\x41renaLadderSelfRankRequest\x12\x10\n\x08\x62reed_id\x18\x01 \x01(\x05\x12\x44\n\x04mode\x18\x02 \x01(\x0e\x32\x36.com.ankama.dofus.server.game.protocol.arena.ArenaType\x12\x14\n\x0cunknown_fqto\x18\x03 \x01(\x05\"c\n\nUnknownIqv\x12U\n\x07\x65ntries\x18\x01 \x03(\x0b\x32\x44.com.ankama.dofus.server.game.protocol.ladder.arena.ArenaLadderEntry\"\x9b\x01\n\x16\x41renaLadderPageRequest\x12\x14\n\x0cunknown_fqul\x18\x01 \x03(\x08\x12\x44\n\x04mode\x18\x02 \x01(\x0e\x32\x36.com.ankama.dofus.server.game.protocol.arena.ArenaType\x12\x13\n\x0blevel_range\x18\x03 \x01(\x05\x12\x10\n\x08\x62reed_id\x18\x04 \x01(\x05\"d\n\nUnknownIqz\x12\x14\n\x0cunknown_fquu\x18\x01 \x01(\x05\x12\x14\n\x0cunknown_fquw\x18\x02 \x01(\x05\x12\x14\n\x0cunknown_fqux\x18\x03 \x01(\x05\x12\x14\n\x0cunknown_fquz\x18\x04 \x01(\t\"o\n\x18\x41renaLadderSelfRankEvent\x12S\n\x05\x65ntry\x18\x01 \x01(\x0b\x32\x44.com.ankama.dofus.server.game.protocol.ladder.arena.ArenaLadderEntryb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12ladder_arena.proto\x12\x32\x63om.ankama.dofus.server.game.protocol.ladder.arena\x1a\x0b\x61rena.proto\x1a\x0cladder.proto\"k\n\x14\x41renaLadderPageEvent\x12S\n\x05ranks\x18\x01 \x03(\x0b\x32\x44.com.ankama.dofus.server.game.protocol.ladder.arena.ArenaLadderEntry\"\xb7\x01\n\x10\x41renaLadderEntry\x12\x0c\n\x04rank\x18\x01 \x01(\x03\x12\x0f\n\x07winrate\x18\x02 \x01(\x05\x12M\n\x06player\x18\x03 \x01(\x0b\x32=.com.ankama.dofus.server.game.protocol.ladder.LadderCharacter\x12%\n\x1dunknown_six_hundred_sixty_six\x18\x04 \x01(\x05\x12\x0e\n\x06rating\x18\x05 \x01(\x05\"\x9d\x01\n\x1a\x41renaLadderSelfRankRequest\x12\x10\n\x08\x62reed_id\x18\x01 \x01(\x05\x12\x44\n\x04mode\x18\x02 \x01(\x0e\x32\x36.com.ankama.dofus.server.game.protocol.arena.ArenaType\x12\'\n\x1funknown_six_hundred_sixty_eight\x18\x03 \x01(\x05\"v\n\x1dUnknownThreeHundredSixtyThree\x12U\n\x07\x65ntries\x18\x01 \x03(\x0b\x32\x44.com.ankama.dofus.server.game.protocol.ladder.arena.ArenaLadderEntry\"\xae\x01\n\x16\x41renaLadderPageRequest\x12\'\n\x1funknown_six_hundred_sixty_seven\x18\x01 \x03(\x08\x12\x44\n\x04mode\x18\x02 \x01(\x0e\x32\x36.com.ankama.dofus.server.game.protocol.arena.ArenaType\x12\x13\n\x0blevel_range\x18\x03 \x01(\x05\x12\x10\n\x08\x62reed_id\x18\x04 \x01(\x05\"\x8e\x02\n\x1cUnknownThreeHundredSixtyFour\x12&\n\x1eunknown_six_hundred_sixty_nine\x18\x01 \x01(\x05\x12t\n\x1bunknown_six_hundred_seventy\x18\x02 \x01(\x0e\x32O.com.ankama.dofus.server.game.protocol.ladder.arena.UnknownThreeHundredSixtyTwo\x12\'\n\x1funknown_six_hundred_seventy_one\x18\x03 \x01(\x05\x12\'\n\x1funknown_six_hundred_seventy_two\x18\x04 \x01(\t\"o\n\x18\x41renaLadderSelfRankEvent\x12S\n\x05\x65ntry\x18\x01 \x01(\x0b\x32\x44.com.ankama.dofus.server.game.protocol.ladder.arena.ArenaLadderEntry*B\n\x1bUnknownThreeHundredSixtyTwo\x12#\n\x1fUNKNOWN_THREE_HUNDRED_SIXTY_TWO\x10\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ladder_arena_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_ARENALADDERPAGEEVENT']._serialized_start=135
-  _globals['_ARENALADDERPAGEEVENT']._serialized_end=242
-  _globals['_ARENALADDERENTRY']._serialized_start=245
-  _globals['_ARENALADDERENTRY']._serialized_end=411
-  _globals['_ARENALADDERSELFRANKREQUEST']._serialized_start=414
-  _globals['_ARENALADDERSELFRANKREQUEST']._serialized_end=552
-  _globals['_UNKNOWNIQV']._serialized_start=554
-  _globals['_UNKNOWNIQV']._serialized_end=653
-  _globals['_ARENALADDERPAGEREQUEST']._serialized_start=656
-  _globals['_ARENALADDERPAGEREQUEST']._serialized_end=811
-  _globals['_UNKNOWNIQZ']._serialized_start=813
-  _globals['_UNKNOWNIQZ']._serialized_end=913
-  _globals['_ARENALADDERSELFRANKEVENT']._serialized_start=915
-  _globals['_ARENALADDERSELFRANKEVENT']._serialized_end=1026
+  _globals['_UNKNOWNTHREEHUNDREDSIXTYTWO']._serialized_start=1239
+  _globals['_UNKNOWNTHREEHUNDREDSIXTYTWO']._serialized_end=1305
+  _globals['_ARENALADDERPAGEEVENT']._serialized_start=101
+  _globals['_ARENALADDERPAGEEVENT']._serialized_end=208
+  _globals['_ARENALADDERENTRY']._serialized_start=211
+  _globals['_ARENALADDERENTRY']._serialized_end=394
+  _globals['_ARENALADDERSELFRANKREQUEST']._serialized_start=397
+  _globals['_ARENALADDERSELFRANKREQUEST']._serialized_end=554
+  _globals['_UNKNOWNTHREEHUNDREDSIXTYTHREE']._serialized_start=556
+  _globals['_UNKNOWNTHREEHUNDREDSIXTYTHREE']._serialized_end=674
+  _globals['_ARENALADDERPAGEREQUEST']._serialized_start=677
+  _globals['_ARENALADDERPAGEREQUEST']._serialized_end=851
+  _globals['_UNKNOWNTHREEHUNDREDSIXTYFOUR']._serialized_start=854
+  _globals['_UNKNOWNTHREEHUNDREDSIXTYFOUR']._serialized_end=1124
+  _globals['_ARENALADDERSELFRANKEVENT']._serialized_start=1126
+  _globals['_ARENALADDERSELFRANKEVENT']._serialized_end=1237
 # @@protoc_insertion_point(module_scope)

@@ -50,13 +50,11 @@ ELEMENT_INFO_BY_ID: dict[int, _ElementInfo] = {
 
 
 def _multiplier_factor(characteristic_by_id: dict[int, CharacterCharacteristic], stat_id: int) -> float:
-    """Base-100 multiplier stat as a ratio (absent stat -> neutral 1.0)."""
     raw = get_stat_by_id(characteristic_by_id.get(stat_id))
     return (raw if raw > 0 else 100) / 100
 
 
 def _monster_resist_percent(element_id: int, monster_grade: MonsterGrade) -> int:
-    """Total element resistance %% of the monster (base grade + bonus characteristics)."""
     bonus = monster_grade.bonusCharacteristics
     match element_id:
         case EffectElement.STRENGTH:
@@ -96,7 +94,6 @@ def _flat_bonus(
     characteristic_by_id: dict[int, CharacterCharacteristic],
     is_critical: bool,
 ) -> int:
-    """Flat damage bonus: all-damage + per-element (+ critical bonus on crit)."""
     info = ELEMENT_INFO_BY_ID[element_id]
     flat = get_stat_by_id(characteristic_by_id.get(CharacteristicEnum.ALL_DAMAGES_BONUS)) + get_stat_by_id(
         characteristic_by_id.get(info.flat_damage_bonus)
@@ -107,7 +104,6 @@ def _flat_bonus(
 
 
 def _dealt_multipliers(characteristic_by_id: dict[int, CharacterCharacteristic], is_melee: bool) -> float:
-    """Product of the caster's dealt-damage multipliers."""
     melee_or_distance = (
         CharacteristicEnum.DEALT_DAMAGE_MULTIPLIER_MELEE
         if is_melee

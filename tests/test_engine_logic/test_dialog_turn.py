@@ -1,12 +1,12 @@
 from datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
 
-from src.core.engine.npcs.dialog_turn import DialogTurn, DialogTurns
+from src.core.engine.npcs.dialog_turn import DialogTurn, DialogTurns, DialogVariants
 from src.core.engine.npcs.reply_selector import ByReplyId, ByText
 
-KERUBIM_SHOP_CLOSED_MESSAGE_ID = 12877  # "La boutique est fermee pour cause d'inventaire..."
+KERUBIM_SHOP_CLOSED_MESSAGE_ID = 12877
 KERUBIM_LISTEN_MESSAGE_ID = 13470
-KERUBIM_HELP_REPLY_ID = 15482  # "Accepter de l'aider."
-KERUBIM_LISTEN_REPLY_ID = 15483  # "Continuer a ecouter."
+KERUBIM_HELP_REPLY_ID = 15482
+KERUBIM_LISTEN_REPLY_ID = 15483
 
 
 def _make_question(message_id: int, reply_ids: list[int]) -> NpcDialogQuestionEvent:
@@ -110,3 +110,69 @@ def test_by_text_matching_no_offered_reply_resolves_to_nothing() -> None:
         turns.take_reply_for(_make_question(KERUBIM_LISTEN_MESSAGE_ID, [KERUBIM_LISTEN_REPLY_ID]))
         is None
     )
+
+
+def test_a_single_variant_behaves_like_a_plain_turn_list() -> None:
+    variants = DialogVariants.from_turn_variants([[DialogTurn(message_id=1, reply=ByReplyId(reply_id=10))]])
+
+    reply_info = variants.take_reply_for(_make_question(1, [10]))
+
+    assert reply_info is not None
+    assert reply_info.reply_id == 10
+    assert variants.active_index == 0
+
+
+def test_the_variant_answering_the_first_question_becomes_the_active_one() -> None:
+    """A quest already done offers another dialog path, recognizable from its first reply."""
+    variants = DialogVariants.from_turn_variants(
+        [
+            [
+                DialogTurn(reply=ByReplyId(reply_id=10)),
+                DialogTurn(reply=ByReplyId(reply_id=11), finish_after=True),
+            ],
+            [
+                DialogTurn(reply=ByReplyId(reply_id=20)),
+                DialogTurn(reply=ByReplyId(reply_id=21), finish_after=True),
+            ],
+        ]
+    )
+
+    first = variants.take_reply_for(_make_question(1, [20, 99]))
+    second = variants.take_reply_for(_make_question(2, [21, 99]))
+
+    assert first is not None
+    assert first.reply_id == 20
+    assert variants.active_index == 1
+    assert second is not None
+    assert second.reply_id == 21
+    assert second.do_finish_after is True
+
+
+def test_a_variant_that_stops_answering_falls_back_to_another_one() -> None:
+    variants = DialogVariants.from_turn_variants(
+        [
+            [DialogTurn(reply=ByReplyId(reply_id=10))],
+            [DialogTurn(reply=ByReplyId(reply_id=20))],
+        ]
+    )
+
+    first = variants.take_reply_for(_make_question(1, [10]))
+    second = variants.take_reply_for(_make_question(2, [20]))
+
+    assert first is not None
+    assert first.reply_id == 10
+    assert second is not None
+    assert second.reply_id == 20
+    assert variants.active_index == 1
+
+
+def test_a_question_no_variant_answers_resolves_to_no_reply() -> None:
+    variants = DialogVariants.from_turn_variants(
+        [
+            [DialogTurn(reply=ByReplyId(reply_id=10))],
+            [DialogTurn(reply=ByReplyId(reply_id=20))],
+        ]
+    )
+
+    assert variants.take_reply_for(_make_question(1, [99])) is None
+    assert variants.active_index is None

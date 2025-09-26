@@ -117,7 +117,7 @@ def _load_model(model: type[msgspec.Struct] | type[Sequence[msgspec.Struct]], ty
 def _coerce_item_root_item(item: ItemsRootItemStrict) -> ItemsRootItem | None:
     if item.id is None or item.typeId is None or item.nameId is None:
         return None
-    return msgspec.convert(msgspec.to_builtins(item), type=ItemsRootItem)
+    return msgspec.convert(item, type=ItemsRootItem, from_attributes=True)
 
 
 @dataclass(frozen=True)
@@ -160,7 +160,7 @@ class DataReader(metaclass=Singleton):
             for possible_effect in (item.possibleEffects or [])
         )
         return {
-            min_rid + index: msgspec.convert(msgspec.to_builtins(entry), type=ItemsRootItemEffect)
+            min_rid + index: msgspec.convert(entry, type=ItemsRootItemEffect, from_attributes=True)
             for index, entry in enumerate(effect_item_entries)
         }
 

@@ -12,7 +12,7 @@ from dofus_unity_reader.game_constants.npc import NpcDialogInfo, ReplyInfo
 
 from src.core.behaviors.behavior import Behavior
 from src.core.engine.npcs.dialog_texts import get_question_text
-from src.core.engine.npcs.dialog_turn import DialogTurn, DialogTurns
+from src.core.engine.npcs.dialog_turn import DialogTurn, DialogVariants
 from src.services.human_timings import HumanTimingsService
 
 
@@ -26,16 +26,18 @@ class NpcDialogBehavior(Behavior):
     is_forbidden_msg_callback: Callable[[NpcDialogQuestionEvent], bool] | None = field(
         init=False, default=None
     )
-    _turns: DialogTurns = field(init=False, default_factory=lambda: DialogTurns(turns=[]))
+    _variants: DialogVariants = field(
+        init=False, default_factory=lambda: DialogVariants.from_turn_variants([[]])
+    )
 
     def run(
         self,
         npc_dialog_info: NpcDialogInfo,
-        turns: list[DialogTurn] | None = None,
+        turn_variants: list[list[DialogTurn]] | None = None,
         is_forbidden_msg_callback: Callable[[NpcDialogQuestionEvent], bool] | None = None,
     ):
         self.is_forbidden_msg_callback = is_forbidden_msg_callback
-        self._turns = DialogTurns(turns=turns or [])
+        self._variants = DialogVariants.from_turn_variants(turn_variants or [[]])
         self.run_timer(
             HumanTimingsService().get_timing_after_map_arrival(),
             lambda: self.dialog_to_npc(npc_dialog_info=npc_dialog_info),
@@ -62,7 +64,6 @@ class NpcDialogBehavior(Behavior):
         self.event_manager.send(npc_request)
 
     def on_dialog_leave_event(self, msg: DialogLeaveEvent) -> None:
-        """Le serveur peut fermer le dialogue de lui-meme (un combat, par exemple)."""
         del msg
         self.finish()
 
@@ -74,12 +75,19 @@ class NpcDialogBehavior(Behavior):
             self.logger.info("NPC said its last word, leaving the dialog")
             return self.event_manager.send(DialogLeaveRequest())
 
-        reply_info = self._turns.take_reply_for(msg)
+        previous_variant_index = self._variants.active_index
+        reply_info = self._variants.take_reply_for(msg)
         if reply_info is None:
             self.logger.warning(
                 f"No declared turn answers question {msg.message_id} ({get_question_text(msg.message_id)!r})"
             )
             return self.finish(NpcDialogErrorCode.UNEXPECTED_MESSAGE)
+
+        if previous_variant_index is not None and previous_variant_index != self._variants.active_index:
+            self.logger.info(
+                f"Dialog variant {previous_variant_index} exhausted, "
+                f"switching to variant {self._variants.active_index}"
+            )
 
         timing = HumanTimingsService().get_timing_npc_dialog_reply()
         self.run_timer(timing, lambda: self.send_npc_dialog_reply(reply_info))

@@ -29,17 +29,17 @@ enum Channel {
 
 message ChatMessageLinks {
 	repeated .com.ankama.dofus.server.game.protocol.common.ObjectItem objects = 2;
-	repeated .com.ankama.dofus.server.game.protocol.chat.UnknownKsu unknown_fzsv = 3;
+	repeated .com.ankama.dofus.server.game.protocol.chat.UnknownOneHundredTwo unknown_two_hundred = 3;
 }
 
-message UnknownKsu {
-	int32 unknown_fztj = 1;
-	.com.ankama.dofus.server.game.protocol.common.MapCoordinates unknown_fztk = 2;
-	string unknown_fztl = 3;
-	int32 unknown_fztm = 4;
-	int64 unknown_fztn = 5;
-	int32 unknown_fzto = 6;
-	int32 unknown_fztp = 7;
+message UnknownOneHundredTwo {
+	int32 unknown_two_hundred_one = 1;
+	.com.ankama.dofus.server.game.protocol.common.MapCoordinates unknown_two_hundred_two = 2;
+	string unknown_two_hundred_three = 3;
+	int32 unknown_two_hundred_four = 4;
+	int64 unknown_two_hundred_five = 5;
+	int32 unknown_two_hundred_six = 6;
+	int32 unknown_two_hundred_seven = 7;
 }
 
 message ChatPrivateMessageRequest {

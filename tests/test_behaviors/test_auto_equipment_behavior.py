@@ -1,4 +1,3 @@
-
 from collections.abc import Callable
 from typing import cast
 from unittest.mock import MagicMock
@@ -11,8 +10,8 @@ from datas.protos.non_obf.game.common_pb2 import (
 from dofus_unity_reader.game_constants.item import CategoryItemEnum, ItemEnum
 from pytest import MonkeyPatch
 
-from src.core.behaviors.equipment.auto_equipment_behavior import AutoEquipmentBehavior
 from src.core.behaviors.items.acquire_items_behavior import ItemToAcquire
+from src.core.behaviors.items.auto_equipment_behavior import AutoEquipmentBehavior
 from src.core.engine.economy.sale_hotel import ItemToBuyInfo
 from src.core.events_manager.event_manager import EventManager
 from tests.fixtures.bot_runtime import make_blocking_state_recovery
@@ -23,9 +22,7 @@ MAX_KAMAS = 10_000
 VITALITY_EFFECT_ACTION = 125
 
 
-def _make_behavior(
-    game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
-) -> AutoEquipmentBehavior:
+def _make_behavior(game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch) -> AutoEquipmentBehavior:
     game_state = game_state_ctx.game_state
     game_state.inventory.kamas = 1_000_000
     behavior = AutoEquipmentBehavior(
@@ -40,9 +37,7 @@ def _make_behavior(
         "get_item_gids_to_equip",
         lambda: [ItemToBuyInfo(item_gid=AMULETTE_AKWADALA_GID, max_kamas=MAX_KAMAS)],
     )
-    monkeypatch.setattr(
-        type(game_state.player), "is_former_sub", property(lambda _player_state: True)
-    )
+    monkeypatch.setattr(type(game_state.player), "is_former_sub", property(lambda _player_state: True))
     return behavior
 
 
@@ -144,9 +139,7 @@ def test_a_served_slot_is_left_alone_when_the_bank_is_out_of_reach(
     collect_and_equip.assert_called_once_with()
 
 
-def test_the_hourly_cooldown_still_holds(
-    game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
-) -> None:
+def test_the_hourly_cooldown_still_holds(game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch) -> None:
     behavior = _make_behavior(game_state_ctx, monkeypatch)
     finished: list[str | None] = []
 

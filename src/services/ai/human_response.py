@@ -1,11 +1,6 @@
 from functools import cached_property
 
 from base_python.singleton import Singleton
-from langchain.agents import create_agent
-from langchain_core.messages import HumanMessage
-from langchain_openai import ChatOpenAI
-from langgraph.checkpoint.memory import MemorySaver
-from openai import APIConnectionError, OpenAIError
 
 from src.services.ai.llm_classifier import ClassifierChat
 
@@ -13,6 +8,10 @@ from src.services.ai.llm_classifier import ClassifierChat
 class HumanResponse(metaclass=Singleton):
     @cached_property
     def response_agent(self):
+        from langchain.agents import create_agent
+        from langchain_openai import ChatOpenAI
+        from langgraph.checkpoint.memory import MemorySaver
+
         system_prompt = (
             "Tu es en train de récolter des ressources sur dofus pour monter tes "
             "métiers et te faire des kamas, parle comme un joueur Dofus : neutre, "
@@ -36,6 +35,9 @@ class HumanResponse(metaclass=Singleton):
         )
 
     def get_human_response_to_private_msg(self, msg: str, sender_name: str, from_name: str) -> str | None:
+        from langchain_core.messages import HumanMessage
+        from openai import APIConnectionError, OpenAIError
+
         try:
             if not ClassifierChat().llm_should_respond(msg):
                 return None

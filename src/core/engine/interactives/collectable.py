@@ -58,11 +58,10 @@ def get_stated_element_collectable(
     Returns:
         Collectable instance if valid farmable resource, None otherwise
     """
-    # Filter out non-idle states
+
     if stated_element.state != 0:
         return None
 
-    # Get the related interactive element
     related_interactive = interactive_element_by_id.get(stated_element.element_id)
     if (
         not related_interactive
@@ -71,13 +70,11 @@ def get_stated_element_collectable(
     ):
         return None
 
-    # Check if skill gathers a resource
     skill = related_interactive.enabled_skills[0]
     data_skill = DataReader().skill_by_id[skill.skill_id]
     if data_skill.gatheredRessourceItem in [-1, 0]:
         return None
 
-    # Create collectable and validate farmability
     collectable = Collectable(
         map_id=map_id,
         interactive_element=related_interactive,
@@ -85,7 +82,6 @@ def get_stated_element_collectable(
         resource_item_id=data_skill.gatheredRessourceItem,
     )
 
-    # Check if player has sufficient job level
     player_job_level = jobs_lvl_by_id.get(data_skill.parentJobId, 1)
     if not collectable.is_farmable(player_job_level):
         return None

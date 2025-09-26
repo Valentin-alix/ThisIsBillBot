@@ -26,11 +26,13 @@ from requests.exceptions import RequestException
 
 from src.controller.bot_config import BotConfigService
 from src.core.behaviors.behavior import Behavior, BehaviorState
+from src.consts import (
+    DOFUS_SUBSCRIPTION_REFERENCE_ID,
+    SUBSCRIPTION_CATEGORY_ID,
+    SUBSCRIPTION_DAYS,
+    SUBSCRIPTION_EVENT_TIMEOUT_SECONDS,
+)
 
-_SUBSCRIPTION_CATEGORY_ID = 698
-_DOFUS_SUBSCRIPTION_REFERENCE_ID = "10"
-_SUBSCRIPTION_DAYS = 7
-_EVENT_TIMEOUT_SECONDS = 15
 _REFRESH_ATTEMPTS = 5
 _REFRESH_DELAY_SECONDS = 2
 
@@ -111,7 +113,6 @@ class OgrineSubscriptionBehavior(Behavior):
             self._finish_error(OgrineSubscriptionErrorCode.NOT_ENOUGH_KAMAS)
             return
 
-        # previus http requests can take time, so we check if bot is still running after
         if self.state != BehaviorState.RUNNING:
             self.logger.info("Ogrine purchase canceled before sending BakActionRequest")
             return
@@ -121,7 +122,7 @@ class OgrineSubscriptionBehavior(Behavior):
             self._on_bak_action,
             originator=self,
             once=True,
-            timeout=_EVENT_TIMEOUT_SECONDS,
+            timeout=SUBSCRIPTION_EVENT_TIMEOUT_SECONDS,
             on_timeout=lambda: self._finish_error(OgrineSubscriptionErrorCode.BAK_ACTION_TIMEOUT),
         )
         self.event_manager.send(
@@ -149,7 +150,7 @@ class OgrineSubscriptionBehavior(Behavior):
             self._on_transaction_validation,
             originator=self,
             once=True,
-            timeout=_EVENT_TIMEOUT_SECONDS,
+            timeout=SUBSCRIPTION_EVENT_TIMEOUT_SECONDS,
             on_timeout=lambda: self._finish_error(OgrineSubscriptionErrorCode.BAK_VALIDATION_TIMEOUT),
         )
         self.event_manager.on(
@@ -157,7 +158,7 @@ class OgrineSubscriptionBehavior(Behavior):
             self._on_buy_validation,
             originator=self,
             once=True,
-            timeout=_EVENT_TIMEOUT_SECONDS,
+            timeout=SUBSCRIPTION_EVENT_TIMEOUT_SECONDS,
             on_timeout=lambda: self._finish_error(OgrineSubscriptionErrorCode.BAK_BUY_TIMEOUT),
         )
         self.event_manager.send(BakTransactionValidationRequest(transaction_uuid=message.transaction_uuid))
@@ -206,7 +207,7 @@ class OgrineSubscriptionBehavior(Behavior):
             self._on_shop_token,
             originator=self,
             once=True,
-            timeout=_EVENT_TIMEOUT_SECONDS,
+            timeout=SUBSCRIPTION_EVENT_TIMEOUT_SECONDS,
             on_timeout=lambda: self._finish_error(OgrineSubscriptionErrorCode.SHOP_TOKEN_TIMEOUT),
         )
         self.event_manager.send(BakShopTokenRequest())
@@ -223,7 +224,7 @@ class OgrineSubscriptionBehavior(Behavior):
         try:
             shop_access_token = haapi.get_shop_access_token(shop_api_key)
             articles = haapi.get_subscription_articles(
-                _SUBSCRIPTION_CATEGORY_ID,
+                SUBSCRIPTION_CATEGORY_ID,
                 shop_access_token=shop_access_token,
             )
             article = self._select_subscription_article(articles)
@@ -246,7 +247,7 @@ class OgrineSubscriptionBehavior(Behavior):
         try:
             shop_access_token = haapi.get_shop_access_token(shop_api_key)
             articles = haapi.get_subscription_articles(
-                _SUBSCRIPTION_CATEGORY_ID,
+                SUBSCRIPTION_CATEGORY_ID,
                 shop_access_token=shop_access_token,
             )
             article = self._select_subscription_article(articles)
@@ -289,7 +290,7 @@ class OgrineSubscriptionBehavior(Behavior):
                 self._previous_expiration,
                 datetime.now(tz=self._previous_expiration.tzinfo),
             )
-        expiration = renewal_start + timedelta(days=_SUBSCRIPTION_DAYS)
+        expiration = renewal_start + timedelta(days=SUBSCRIPTION_DAYS)
         self.subscription_storage.record_expiration(login, expiration)
         return expiration
 
@@ -297,8 +298,8 @@ class OgrineSubscriptionBehavior(Behavior):
     def _is_target_subscription_pack(article: ShopiArticle) -> bool:
         return any(
             single_reference.reference.discriminator == "VirtualSubscriptionReference"
-            and single_reference.reference.get_reference_value().id == _DOFUS_SUBSCRIPTION_REFERENCE_ID
-            and single_reference.quantity == _SUBSCRIPTION_DAYS
+            and single_reference.reference.get_reference_value().id == DOFUS_SUBSCRIPTION_REFERENCE_ID
+            and single_reference.quantity == SUBSCRIPTION_DAYS
             for single_reference in article.single_references
         )
 

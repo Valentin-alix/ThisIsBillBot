@@ -14,6 +14,7 @@ from proto_mapper_assembly.interfaces.assembly_access import (
     FieldAccessSignatures,
     FunctionAccessInfo,
     FunctionAccessSignature,
+    HandlerRegistrationAccessEntry,
     MessageAccessSignature,
     ProtoAccessesInfo,
     is_field_access_entry,
@@ -35,6 +36,22 @@ def load_message_access_signatures_from_messages(
         access_trace=access_trace,
         messages=messages,
     )
+
+
+def count_handler_registrations_by_cls(access_trace: AccessTraceDocument) -> dict[str, int]:
+    """How many times each message is registered with a handler.
+
+    The client only registers a handler for what it receives, so the count separates server-pushed
+    messages from the rest. Absence is weak evidence: two builds do not compile the same features,
+    which is why callers blend this signal rather than gate on it.
+    """
+    registration_count_by_cls: dict[str, int] = defaultdict(int)
+    for traced_function in access_trace.functions_by_address.values():
+        for access_entry in traced_function.access_infos:
+            if not isinstance(access_entry, HandlerRegistrationAccessEntry):
+                continue
+            registration_count_by_cls[access_entry.cls] += 1
+    return dict(registration_count_by_cls)
 
 
 def build_message_access_signatures_from_trace(

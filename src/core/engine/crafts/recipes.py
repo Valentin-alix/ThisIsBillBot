@@ -33,14 +33,11 @@ def is_not_valid_recipe_for_lvl_up_job_or_benefice(
     max_job_lvl = 200 if is_sub else 60
     current_job_lvl = jobs_lvl_by_id.get(recipe.jobId)
     if current_job_lvl is None or current_job_lvl >= max_job_lvl:
-        # insufficient lvl
         return True
     if recipe.skillId not in MAP_IDS_BY_SKILL:
-        # not configured craft
         return True
     result_item = DataReader().item_by_id[recipe.resultId]
     if result_item.craftConditionalCriterion not in ["", None]:
-        # the item need a condition, like a quest completed or something
         return True
     if recipe.jobId not in HARVESTER_JOB_IDS and recipe.jobId != JobEnum.CHASSEUR:
         return True
@@ -48,7 +45,6 @@ def is_not_valid_recipe_for_lvl_up_job_or_benefice(
     if current_job_lvl - recipe.resultLevel >= 20 and not (
         benefit_percent > 0.3 and recipe.resultId in GIDS_BY_TAB[2]
     ):
-        # this recipe don't give enought xp, skip
         return True
     if any(
         (
@@ -57,7 +53,6 @@ def is_not_valid_recipe_for_lvl_up_job_or_benefice(
         )
         for ingredient_id in recipe.ingredientIds
     ):
-        # recipe contains an ingredient that we can't gather, skip
         return True
     return False
 

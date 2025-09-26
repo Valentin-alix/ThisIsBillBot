@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package com.ankama.dofus.server.game.protocol.game.action.unknown;
+
+message UnknownOneHundredEightyFour {
+	.com.ankama.dofus.server.game.protocol.game.action.unknown.UnknownOneHundredEightySix unknown_three_hundred_eighty_six = 1;
+}
+
+message UnknownOneHundredEightyFive {
+	repeated .com.ankama.dofus.server.game.protocol.game.action.unknown.UnknownOneHundredEightySix unknown_three_hundred_eighty_seven = 1;
+	repeated .com.ankama.dofus.server.game.protocol.game.action.unknown.UnknownOneHundredEightySix unknown_three_hundred_eighty_eight = 2;
+}
+
+message UnknownOneHundredEightySix {
+	repeated .com.ankama.dofus.server.game.protocol.game.action.unknown.UnknownOneHundredEightySix.UnknownOneHundredEightyEight unknown_three_hundred_ninety = 2;
+	int32 unknown_three_hundred_ninety_one = 3;
+	.com.ankama.dofus.server.game.protocol.game.action.unknown.UnknownOneHundredEightySix.UnknownOneHundredEightySeven unknown_three_hundred_ninety_two = 4;
+	message UnknownOneHundredEightySeven {
+		int32 unknown_three_hundred_eighty_nine = 1;
+	}
+	message UnknownOneHundredEightyEight {
+		enum UnknownOneHundredEightyNine {
+		UNKNOWN_ONE_HUNDRED_EIGHTY_NINE_UNSPECIFIED = 0;
+		UNKNOWN_ONE_HUNDRED_EIGHTY_NINE_1 = 1;
+		}
+	}
+}
+
+message UnknownOneHundredNinety {
+	bool unknown_three_hundred_ninety_three = 1;
+	string unknown_three_hundred_ninety_four = 2;
+}
+
+message UnknownOneHundredNinetyOne {
+	.com.ankama.dofus.server.game.protocol.game.action.unknown.UnknownOneHundredEightyFive unknown_three_hundred_ninety_five = 1;
+}
+
+message UnknownOneHundredNinetyTwo {
+	int32 unknown_three_hundred_ninety_six = 1;
+}
+
+message UnknownOneHundredNinetyThree {
+	string unknown_three_hundred_ninety_seven = 1;
+}
+
+message GuildMissionConfigurationEvent {
+	oneof configuration {
+		GuildMissionConfigurationDetails details = 1;
+		GuildMissionConfigurationUnavailable unavailable = 3;
+	}
+	message GuildMissionConfigurationDetails {
+	}
+	message GuildMissionConfigurationUnavailable {
+	}
+}
+
+message GuildMissionConfigurationRequest {
+}
+
+message GuildMissionSelectionSaveEvent {
+	oneof result {
+		GuildMissionSelectionSaveFailure failure = 1;
+		GuildMissionSelectionSaveSuccess success = 2;
+	}
+	message GuildMissionSelectionSaveFailure {
+	}
+	message GuildMissionSelectionSaveSuccess {
+		GuildMissionSelectionSaveRequest.GuildMissionSelection selected_missions = 1;
+	}
+}
+
+message GuildMissionSelectionSaveRequest {
+	int32 tier_id = 1;
+	GuildMissionSelection selected_missions = 4;
+	message GuildMissionSelection {
+		repeated int32 mission_ids = 1;
+		repeated int32 unknown_three_hundred_eighty_five = 2;
+	}
+}

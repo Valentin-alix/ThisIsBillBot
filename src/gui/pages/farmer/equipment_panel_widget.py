@@ -63,8 +63,6 @@ class _SlotWidget(QWidget):
 
 
 class EquipmentPanelWidget(GroupBox):
-    """Silhouette (paper-doll) des objets équipés, un emplacement par case."""
-
     def __init__(self, parent: QWidget | None = None):
         super().__init__("", parent=parent)
 

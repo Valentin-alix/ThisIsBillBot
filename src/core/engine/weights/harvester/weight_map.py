@@ -1,6 +1,6 @@
 from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
 
-from src.const import FAKE_INFINITY_VALUE
+from src.consts import FAKE_INFINITY_VALUE
 from src.core.engine.weights.harvester.weight_collectable import (
     get_map_id_collectable_weight,
 )

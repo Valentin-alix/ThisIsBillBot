@@ -208,38 +208,11 @@ from datas.protos.non_obf.game.inventory_pb2 import (
     StorageTab,
 )
 from datas.protos.non_obf.game.job_pb2 import JobExperience, JobExperiencesUpdateEvent
-from datas.protos.non_obf.game.mount_pb2 import (
-    MountEmoteIconUsedEvent,
-    MountFeedRequest,
-    MountInformationInPaddockRequest,
-    MountInformationRequest,
-    MountReleasedEvent,
-    MountRenamedErrorEvent,
-    MountRenamedEvent,
-    MountRenameRequest,
-    MountSetXpRatioRequest,
-    MountSterilizedEvent,
-    MountUpdateCharacteristicsEvent,
-    MountXpRatioEvent,
-)
 from datas.protos.non_obf.game.npc_pb2 import (
     NpcDialogQuestionEvent,
     NpcDialogReplyRequest,
     NpcGenericActionRequest,
     NpcsMapQuestStatusUpdateEvent,
-)
-from datas.protos.non_obf.game.paddock_pb2 import (
-    PaddockBuyRequest,
-    PaddockBuyResultEvent,
-    PaddockMoveItemRequest,
-    PaddockObjectAnimationPlayEvent,
-    PaddockObjectRemovedEvent,
-    PaddockRemoveItemRequest,
-    PaddockSellRequest,
-    PaddocksToSellEvent,
-    PaddocksToSellFiltersRequest,
-    PaddocksToSellRequest,
-    PaddockTransactionDialogEvent,
 )
 from datas.protos.non_obf.game.quest_pb2 import (
     QuestActive,
@@ -787,7 +760,7 @@ def is_valid_mood_smiley_id(value: int) -> bool:
 
 @strict_validate_call
 def is_valid_achievement_id(value: int) -> bool:
-    return -1 < value <= MAX_ACHIEVEMENT_ID
+    return -1 <= value <= MAX_ACHIEVEMENT_ID
 
 
 @strict_validate_call
@@ -858,7 +831,6 @@ _AchievementObjective = Achievement.AchievementObjective
 _QuestActiveDetails = QuestActive.Details
 _FriendOnlineInformation = FriendInformation.FriendOnlineInformation
 _AcquaintanceOnlineInformation = AcquaintanceInformation.OnlineInformation
-_PaddockForSale = PaddocksToSellEvent.PaddockForSale
 _QuestFinished = QuestsEvent.QuestFinished
 _ObjectAveragePrice = ObjectAveragePricesEvent.ObjectAveragePrice
 
@@ -1265,26 +1237,6 @@ VALIDATORS_ON_FIELD: dict[type[Message], dict[str, ValidatorFn[Any]]] = {
         "job_xp_next_level_floor": is_valid_strict_positive,
     },
     JobExperiencesUpdateEvent: {"experiences": is_not_empty_list},
-    # mount_pb2
-    MountRenameRequest: {"mount_id": is_valid_strict_positive},
-    MountFeedRequest: {
-        "mount_id": is_valid_strict_positive,
-        "mount_food_uid": is_valid_strict_positive,
-        "quantity": is_valid_positive_quantity,
-    },
-    MountSetXpRatioRequest: {"xp_ratio": is_valid_mount_xp_ratio},
-    MountInformationRequest: {
-        "mount_id": is_valid_strict_positive,
-        "time": is_valid_positive,
-    },
-    MountInformationInPaddockRequest: {"mount_id": is_valid_strict_positive},
-    MountSterilizedEvent: {"mount_id": is_valid_strict_positive},
-    MountReleasedEvent: {"mount_id": is_valid_strict_positive},
-    MountRenamedEvent: {"mount_id": is_valid_strict_positive},
-    MountRenamedErrorEvent: {"mount_id": is_valid_strict_positive},
-    MountXpRatioEvent: {"ratio": is_valid_mount_xp_ratio},
-    MountEmoteIconUsedEvent: {"mount_id": is_valid_strict_positive},
-    MountUpdateCharacteristicsEvent: {"ride_id": is_valid_strict_positive},
     # npc_pb2
     NpcGenericActionRequest: {
         "npc_map_id": is_valid_map_id,
@@ -1294,31 +1246,6 @@ VALIDATORS_ON_FIELD: dict[type[Message], dict[str, ValidatorFn[Any]]] = {
     _NpcWithQuest: {"npc_id": is_valid_npc_id},
     NpcDialogReplyRequest: {"reply_id": is_valid_strict_positive},
     NpcDialogQuestionEvent: {"message_id": is_valid_strict_positive},
-    # paddock_pb2
-    PaddockSellRequest: {"price": is_valid_amount_of_kamas},
-    PaddockBuyRequest: {"proposed_price": is_valid_amount_of_kamas},
-    PaddockRemoveItemRequest: {"cell_id": is_valid_cell_id},
-    PaddockMoveItemRequest: {
-        "old_cell_id": is_valid_cell_id,
-        "new_cell_id": is_valid_cell_id,
-    },
-    PaddocksToSellRequest: {"page_index": is_valid_page_index},
-    PaddocksToSellFiltersRequest: {"price_max": is_valid_amount_of_kamas},
-    PaddockObjectRemovedEvent: {"cell_id": is_valid_cell_id},
-    PaddockBuyResultEvent: {
-        "paddock_id": is_valid_strict_positive,
-        "price": is_valid_amount_of_kamas,
-    },
-    PaddockTransactionDialogEvent: {"price": is_valid_amount_of_kamas},
-    PaddockObjectAnimationPlayEvent: {"cells_id": is_list_of(is_valid_cell_id)},
-    PaddocksToSellEvent: {
-        "page_index": is_valid_page_index,
-        "page_total": is_valid_page_index,
-    },
-    _PaddockForSale: {
-        "sub_area_id": is_valid_sub_area_id,
-        "price": is_valid_amount_of_kamas,
-    },
     # quest_pb2
     QuestStartRequest: {"quest_id": is_valid_quest_id},
     QuestStepInformationRequest: {"quest_id": is_valid_quest_id},

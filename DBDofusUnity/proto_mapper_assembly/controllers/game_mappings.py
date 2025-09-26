@@ -103,7 +103,16 @@ def resolve_generated_message_alias(
         and {field.clean_field_name for field in generated_message.fields} == source_fields
         and (generated_message.name == message.name or generated_message.name.startswith(message.name))
     ]
-    return candidates[0] if len(candidates) == 1 else message
+    if len(candidates) == 1:
+        return candidates[0]
+
+    renamed_parent_candidates = [
+        generated_message
+        for generated_message in generated_messages_by_cls.values()
+        if {field.clean_field_name for field in generated_message.fields} == source_fields
+        and (generated_message.name == message.name or generated_message.name.startswith(message.name))
+    ]
+    return renamed_parent_candidates[0] if len(renamed_parent_candidates) == 1 else message
 
 
 def build_full_message_namespace(message: DumpCSMessage) -> str:

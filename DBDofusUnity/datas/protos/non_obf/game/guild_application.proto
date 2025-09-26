@@ -88,11 +88,11 @@ message GuildApplicationPresenceEvent {
 	bool is_application = 1;
 }
 
-message UnknownJfz {
-	.com.ankama.dofus.server.game.protocol.guild.application.UnknownJgb unknown_ftel = 1;
+message UnknownTwoHundredThirtyThree {
+	.com.ankama.dofus.server.game.protocol.guild.application.UnknownTwoHundredThirtyFour unknown_four_hundred_fifty_four = 1;
 }
 
-message UnknownJgb {
-	int32 unknown_ftes = 1;
-	repeated .com.ankama.dofus.server.game.protocol.common.ObjectGidWithQuantity unknown_ftet = 2;
+message UnknownTwoHundredThirtyFour {
+	int32 unknown_four_hundred_fifty_five = 1;
+	repeated .com.ankama.dofus.server.game.protocol.common.ObjectGidWithQuantity unknown_four_hundred_fifty_six = 2;
 }

@@ -24,7 +24,7 @@ def get_weight_collectable_for_sale_hotel(
     storage_object_by_item: dict[int, ObjectItemInventory],
     item_sell_quantity_by_gid: dict[int, int],
 ):
-    # we dont care about job lvl, so we dont use the get weight collectable below
+
     return (
         avg_price_by_gid.get(item_gid, 1)
         * (related_object.item.quantity if (related_object := storage_object_by_item.get(item_gid)) else 0)
@@ -79,7 +79,7 @@ def get_weight_collectable(
     price = avg_price_by_gid.get(item_gid, 1)
     if price <= 0:
         return 1
-    # apply non-linear scaling to favor high prices (tunable via PRICE_EXPONENT)
+
     scaled_price = price**PRICE_EXPONENT
     weight = base * scaled_price
     storage_qty = related_object.item.quantity if (related_object := storage_by_gid.get(item_gid)) else 0

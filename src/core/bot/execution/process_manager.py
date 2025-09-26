@@ -7,12 +7,9 @@ from src.services.logging_utils.contextual_logger import ContextualLogger
 
 @dataclass
 class ProcessManager(ContextualLogger):
-    """Manages bot process lifecycle (kill, restart, etc.)."""
-
     pid: int | None = field(init=False, default=None)
 
     def kill_process(self):
-        """Kill the Dofus process associated with this bot."""
         if self.pid is None or not psutil.pid_exists(self.pid):
             return self.logger.info("No pid to kill")
         try:

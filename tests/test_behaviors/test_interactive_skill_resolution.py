@@ -145,9 +145,9 @@ def test_aborts_when_the_element_has_no_enabled_skill_left(
 def test_gives_up_as_unreachable_after_too_many_canceled_approaches(
     behavior: InteractiveBehavior, sent_messages: MagicMock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # A player parked on the approach cell makes the server truncate every movement. Giving up
+
     # must report UNREACHABLE_ELEMENT: a bare CANCELED_MOVEMENT is not handled by CollectBehavior,
-    # which would then wait forever for a harvest that never happened.
+
     behavior.game_state.interactive.interactive_element_by_id[ELEMENT_ID] = _element(FIRST_SKILL)
     _mock_approach(behavior, monkeypatch, ELEMENT_CELL_ID)
     monkeypatch.setattr(behavior, "run_timer", _run_now)
@@ -167,7 +167,7 @@ def test_gives_up_as_unreachable_after_too_many_canceled_approaches(
 def test_aborts_when_the_element_lost_its_skills_during_the_walk(
     behavior: InteractiveBehavior, sent_messages: MagicMock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # The element is still usable when we decide to interact...
+
     behavior.game_state.interactive.interactive_element_by_id[ELEMENT_ID] = _element(FIRST_SKILL)
     _mock_approach(behavior, monkeypatch, ELEMENT_CELL_ID)
     move_start = MagicMock()
@@ -177,7 +177,6 @@ def test_aborts_when_the_element_lost_its_skills_during_the_walk(
     _start(behavior, callback)
     move_start.assert_called_once()
 
-    # ... but somebody else harvested it while we were walking.
     behavior.game_state.interactive.interactive_element_by_id[ELEMENT_ID] = _element()
     move_start.call_args.kwargs["callback"](None)
 

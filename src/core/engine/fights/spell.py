@@ -65,7 +65,6 @@ def is_spell_cast_in_line(spell_lvl: SpellLevelsRootItem, modifier_cast_line: Sp
     if modifier_cast_line:
         return bool(modifier_cast_line.context)
 
-    # [517, 581, 521, 513, 585]
     if (spell_lvl.m_flags & 1) != 0:
         return True
     return False
@@ -132,8 +131,7 @@ def get_damage_spells(
         if not spell.spell_id:
             continue
         spell_lvl = DataReader().spell_lvl_by_spell_id[spell.spell_id][spell.spell_level - 1]
-        # Cooldown availability is handled per-turn in is_spell_valid_for_turn,
-        # which has the fight-turn context (statesCriterion stays excluded here).
+
         if spell_lvl.statesCriterion != "":
             continue
         for effect in spell_lvl.effects:
@@ -159,5 +157,5 @@ def spell_modifier_value(
     if not modifiers:
         return 0
     modifier = modifiers.get((spell_id, modifier_type))
-    # `.context` = effective modifier value, additive for DAMAGE/BASE_DAMAGE.
+
     return modifier.context if modifier else 0

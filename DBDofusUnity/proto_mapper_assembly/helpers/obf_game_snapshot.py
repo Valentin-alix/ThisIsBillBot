@@ -5,9 +5,17 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-_GAME_ASSEMBLY_NAME = "GameAssembly.dll"
-_GAME_ASSEMBLY_I64_NAME = "GameAssembly.dll.i64"
-_METADATA_NAME = "global-metadata.dat"
+from proto_mapper_assembly.helpers.archived_builds import (
+    GAME_ASSEMBLY_I64_NAME as _GAME_ASSEMBLY_I64_NAME,
+)
+from proto_mapper_assembly.helpers.archived_builds import (
+    GAME_ASSEMBLY_NAME as _GAME_ASSEMBLY_NAME,
+)
+from proto_mapper_assembly.helpers.archived_builds import (
+    IL2CPP_METADATA_NAME as _METADATA_NAME,
+)
+from proto_mapper_assembly.helpers.archived_builds import iter_archived_build_dirs
+
 _METADATA_RELATIVE_PATH = Path("Dofus_Data") / "il2cpp_data" / "Metadata" / _METADATA_NAME
 
 
@@ -62,27 +70,8 @@ def find_snapshot_dir_by_game_assembly_mtime_ns(snapshots_root: Path, mtime_ns: 
 
 
 def _find_current_snapshot(snapshots_root: Path, non_obf_game_dir: Path) -> Path | None:
-    if not snapshots_root.exists():
-        return None
-
-    snapshot_dirs = [
-        snapshot_dir
-        for snapshot_dir in snapshots_root.iterdir()
-        if snapshot_dir.is_dir()
-        and not _same_path(snapshot_dir, non_obf_game_dir)
-        and (snapshot_dir / _GAME_ASSEMBLY_NAME).is_file()
-    ]
-    if not snapshot_dirs:
-        return None
-
-    return max(
-        snapshot_dirs,
-        key=lambda snapshot_dir: (snapshot_dir / _GAME_ASSEMBLY_NAME).stat().st_mtime_ns,
-    )
-
-
-def _same_path(left: Path, right: Path) -> bool:
-    return left.resolve() == right.resolve()
+    snapshot_dirs = iter_archived_build_dirs(snapshots_root=snapshots_root, exclude_dir=non_obf_game_dir)
+    return snapshot_dirs[0] if snapshot_dirs else None
 
 
 def _has_same_mtime(left: Path, right: Path) -> bool:

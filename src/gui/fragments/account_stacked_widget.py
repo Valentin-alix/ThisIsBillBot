@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import PivotItem, SegmentedWidget
 
-from src import const
+from src import consts
 from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
 from src.gui.fragments.account_quick_info import AccountQuickInfoWidget
@@ -36,7 +36,7 @@ class AccountStackedWidget(QWidget):
         layout.addWidget(self.pivot)
 
         self.quick_info_widget: AccountQuickInfoWidget | None = None
-        if const.DEBUG:
+        if consts.DEBUG:
             self.quick_info_widget = AccountQuickInfoWidget(self.bot, parent=self)
             layout.addWidget(self.quick_info_widget)
 
@@ -44,7 +44,7 @@ class AccountStackedWidget(QWidget):
         layout.addWidget(self.stacked_widget)
 
         self.debug_pivot_item: PivotItem | None = None
-        if const.DEBUG:
+        if consts.DEBUG:
             self._init_debug_interface()
 
         self.harvester_interface = FarmerWidget(login, self.bot, parent=self.stacked_widget)
@@ -90,7 +90,7 @@ class AccountStackedWidget(QWidget):
         )
 
     def _select_initial_page(self) -> None:
-        if const.DEBUG:
+        if consts.DEBUG:
             assert self.debug_pivot_item
             self.debug_pivot_item.click()
         else:

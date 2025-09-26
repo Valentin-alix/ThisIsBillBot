@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x64ialog.proto\x12,com.ankama.dofus.server.game.protocol.dialog\x1a\x0c\x63ommon.proto\"\x14\n\x12\x44ialogLeaveRequest\"a\n\x10\x44ialogLeaveEvent\x12M\n\x0b\x64ialog_type\x18\x01 \x01(\x0e\x32\x38.com.ankama.dofus.server.game.protocol.common.DialogType\"\xd8\x01\n\x1b\x43hangeAppearanceDialogStart\x12\x66\n\x04type\x18\x01 \x01(\x0e\x32X.com.ankama.dofus.server.game.protocol.dialog.ChangeAppearanceDialogStart.AppearanceType\"Q\n\x0e\x41ppearanceType\x12\x08\n\x04\x42ODY\x10\x00\x12\x08\n\x04\x46\x41\x43\x45\x10\x01\x12\n\n\x06\x43OLORS\x10\x02\x12\n\n\x06GENDER\x10\x03\x12\t\n\x05\x42REED\x10\x04\x12\x08\n\x04NAME\x10\x05\"\x1d\n\x1b\x43hangeAppearanceDialogLeave\"/\n\x1c\x43hangeAppearanceDialogResult\x12\x0f\n\x07success\x18\x01 \x01(\x08\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x64ialog.proto\x12,com.ankama.dofus.server.game.protocol.dialog\x1a\x0c\x63ommon.proto\"@\n\x12\x44ialogLeaveRequest\x12*\n\"unknown_three_hundred_twenty_three\x18\x01 \x01(\t\"a\n\x10\x44ialogLeaveEvent\x12M\n\x0b\x64ialog_type\x18\x01 \x01(\x0e\x32\x38.com.ankama.dofus.server.game.protocol.common.DialogType\"\xd8\x01\n\x1b\x43hangeAppearanceDialogStart\x12\x66\n\x04type\x18\x01 \x01(\x0e\x32X.com.ankama.dofus.server.game.protocol.dialog.ChangeAppearanceDialogStart.AppearanceType\"Q\n\x0e\x41ppearanceType\x12\x08\n\x04\x42ODY\x10\x00\x12\x08\n\x04\x46\x41\x43\x45\x10\x01\x12\n\n\x06\x43OLORS\x10\x02\x12\n\n\x06GENDER\x10\x03\x12\t\n\x05\x42REED\x10\x04\x12\x08\n\x04NAME\x10\x05\"\x1d\n\x1b\x43hangeAppearanceDialogLeave\"/\n\x1c\x43hangeAppearanceDialogResult\x12\x0f\n\x07success\x18\x01 \x01(\x08\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,15 +33,15 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'dialog_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_DIALOGLEAVEREQUEST']._serialized_start=76
-  _globals['_DIALOGLEAVEREQUEST']._serialized_end=96
-  _globals['_DIALOGLEAVEEVENT']._serialized_start=98
-  _globals['_DIALOGLEAVEEVENT']._serialized_end=195
-  _globals['_CHANGEAPPEARANCEDIALOGSTART']._serialized_start=198
-  _globals['_CHANGEAPPEARANCEDIALOGSTART']._serialized_end=414
-  _globals['_CHANGEAPPEARANCEDIALOGSTART_APPEARANCETYPE']._serialized_start=333
-  _globals['_CHANGEAPPEARANCEDIALOGSTART_APPEARANCETYPE']._serialized_end=414
-  _globals['_CHANGEAPPEARANCEDIALOGLEAVE']._serialized_start=416
-  _globals['_CHANGEAPPEARANCEDIALOGLEAVE']._serialized_end=445
-  _globals['_CHANGEAPPEARANCEDIALOGRESULT']._serialized_start=447
-  _globals['_CHANGEAPPEARANCEDIALOGRESULT']._serialized_end=494
+  _globals['_DIALOGLEAVEREQUEST']._serialized_end=140
+  _globals['_DIALOGLEAVEEVENT']._serialized_start=142
+  _globals['_DIALOGLEAVEEVENT']._serialized_end=239
+  _globals['_CHANGEAPPEARANCEDIALOGSTART']._serialized_start=242
+  _globals['_CHANGEAPPEARANCEDIALOGSTART']._serialized_end=458
+  _globals['_CHANGEAPPEARANCEDIALOGSTART_APPEARANCETYPE']._serialized_start=377
+  _globals['_CHANGEAPPEARANCEDIALOGSTART_APPEARANCETYPE']._serialized_end=458
+  _globals['_CHANGEAPPEARANCEDIALOGLEAVE']._serialized_start=460
+  _globals['_CHANGEAPPEARANCEDIALOGLEAVE']._serialized_end=489
+  _globals['_CHANGEAPPEARANCEDIALOGRESULT']._serialized_start=491
+  _globals['_CHANGEAPPEARANCEDIALOGRESULT']._serialized_end=538
 # @@protoc_insertion_point(module_scope)

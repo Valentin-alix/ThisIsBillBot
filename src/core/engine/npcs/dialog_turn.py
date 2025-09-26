@@ -43,3 +43,34 @@ class DialogTurns:
             del self._remaining_indexes[position]
             return ReplyInfo(reply_id=reply_id, do_finish_after=turn.finish_after)
         return None
+
+
+@dataclass
+class DialogVariants:
+    """Alternative dialog paths for the same step, e.g. a quest already done offers a shorter path."""
+
+    variants: list[DialogTurns]
+    _active_index: int | None = field(init=False, default=None)
+
+    @classmethod
+    def from_turn_variants(cls, turn_variants: list[list[DialogTurn]]) -> "DialogVariants":
+        return cls(variants=[DialogTurns(turns=turns) for turns in turn_variants])
+
+    @property
+    def active_index(self) -> int | None:
+        return self._active_index
+
+    def take_reply_for(self, msg: NpcDialogQuestionEvent) -> ReplyInfo | None:
+        for variant_index in self._search_order():
+            reply_info = self.variants[variant_index].take_reply_for(msg)
+            if reply_info is None:
+                continue
+            self._active_index = variant_index
+            return reply_info
+        return None
+
+    def _search_order(self) -> list[int]:
+        indexes = list(range(len(self.variants)))
+        if self._active_index is None:
+            return indexes
+        return [self._active_index, *(index for index in indexes if index != self._active_index)]

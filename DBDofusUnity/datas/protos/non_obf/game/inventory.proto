@@ -53,6 +53,10 @@ message ObjectUseOnCellRequest {
 	int32 cell_id = 2;
 }
 
+message ObjectPriceHistoryRequest {
+	int32 object_gid = 2;
+}
+
 message ObjectFeedRequest {
 	int32 object_uid = 1;
 	repeated .com.ankama.dofus.server.game.protocol.common.ObjectUidWithQuantity meal = 2;
@@ -247,17 +251,17 @@ message SetUpdateEvent {
 
 
 
-message UnknownIue {
-	repeated .com.ankama.dofus.server.game.protocol.inventory.UnknownIue.UnknownIuc unknown_frit = 1;
-	repeated .com.ankama.dofus.server.game.protocol.inventory.UnknownIue.UnknownIuc unknown_friv = 2;
-	message UnknownIuc {
-		int32 unknown_frik = 1;
-		int64 unknown_fril = 2;
-		string unknown_frip = 3;
+message ObjectPriceHistoryEvent {
+	repeated .com.ankama.dofus.server.game.protocol.inventory.ObjectPriceHistoryEvent.ObjectPriceHistoryEntry unknown_six_hundred_sixty = 1;
+	repeated .com.ankama.dofus.server.game.protocol.inventory.ObjectPriceHistoryEvent.ObjectPriceHistoryEntry unknown_six_hundred_sixty_one = 2;
+	message ObjectPriceHistoryEntry {
+		int32 object_gid = 1;
+		int64 price = 2;
+		string bought_date = 3;
 	}
 }
 
-message UnknownIuz {
-	.com.ankama.dofus.server.game.protocol.common.ShortcutBar unknown_frmg = 1;
+message UnknownThreeHundredFiftyNine {
+	.com.ankama.dofus.server.game.protocol.common.ShortcutBar unknown_six_hundred_sixty_two = 1;
 }
 
