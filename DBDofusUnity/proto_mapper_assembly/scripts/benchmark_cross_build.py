@@ -27,7 +27,7 @@ from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from consts import (
+from DBDofusUnity.consts import (
     CAPTURE_SEQUENCE_HINTS_FILE,
     GAME_MAPPINGS_DETAILED_JSON_FILE,
     NON_OBF_NEW_DUMP_CS_FILE,
@@ -41,49 +41,49 @@ from consts import (
     PROJECT_ROOT,
 )
 
-from proto_mapper_assembly.controllers.capture_sequence_hints import (
+from DBDofusUnity.proto_mapper_assembly.controllers.capture_sequence_hints import (
     load_capture_sequence_hints,
     resolve_capture_sequence_hints_non_obf_targets,
 )
-from proto_mapper_assembly.controllers.game_mappings import (
+from DBDofusUnity.proto_mapper_assembly.controllers.game_mappings import (
     build_game_mappings_document,
     load_game_mappings_document,
 )
-from proto_mapper_assembly.controllers.matching_inputs_loader import load_matching_inputs
-from proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
-from proto_mapper_assembly.controllers.message_lookup import (
+from DBDofusUnity.proto_mapper_assembly.controllers.matching_inputs_loader import load_matching_inputs
+from DBDofusUnity.proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
+from DBDofusUnity.proto_mapper_assembly.controllers.message_lookup import (
     build_non_obf_alias_lookup,
     build_obf_alias_lookup,
     resolve_non_obf_alias,
     resolve_obf_alias,
 )
-from proto_mapper_assembly.controllers.pinned_pairs import (
+from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import (
     load_pinned_pairs,
     resolve_pinned_pairs_non_obf_targets,
     write_pinned_pairs,
 )
-from proto_mapper_assembly.helpers.archived_builds import (
+from DBDofusUnity.proto_mapper_assembly.helpers.archived_builds import (
     GAME_MAPPINGS_RELATIVE_PATH,
     PROTO_ACCESSES_RELATIVE_PATH,
     PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
     iter_archived_build_dirs,
 )
-from proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.game_mappings import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import (
     GameMappingEntry,
     GameMappingsDocument,
     SimpleGameMappingsDocument,
 )
-from proto_mapper_assembly.interfaces.matching_inputs import MatchingRunConfig
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
-from proto_mapper_assembly.matching.orchestrator import match_messages
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-from proto_mapper_assembly.scripts.export_signature_overrides import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingRunConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.matching.orchestrator import match_messages
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides import (
     SignatureOverrideExportPaths,
     run_export_signature_overrides,
 )
-from proto_mapper_assembly.scripts.recover_archived_game_mappings import (
+from DBDofusUnity.proto_mapper_assembly.scripts.recover_archived_game_mappings import (
     iter_mapping_commits,
     resolve_build_window,
 )

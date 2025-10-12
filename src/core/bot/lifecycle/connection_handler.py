@@ -3,23 +3,19 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from threading import Event, Timer
 
-from ankama_launcher_emulator_premium.consts import (
-    PAYSAFECARD_PURCHASE_PATH,
-    PAYSAFECARDS_PATH,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_pool import (
+    PaysafecardPoolController,
 )
-from ankama_launcher_emulator_premium.interfaces.credentials import (
-    StoredApiKey,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_purchase import (
+    PaysafecardPurchaseController,
 )
-from ankama_launcher_emulator_premium.web.subscription.paysafecard_pool import (
-    PaysafecardPool,
-)
-from ankama_launcher_emulator_premium.web.subscription.purchase_state import (
-    PaysafecardPurchaseStorage,
-)
-from ankama_launcher_emulator_premium.web.subscription.storage import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.subscription_expiration import (
     SubscriptionExpirationStorage,
 )
-from datas.protos.non_obf.game.common_pb2 import Character
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
+    StoredApiKey,
+)
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import Character
 
 from src.controller.bot_config import BotConfig
 from src.core.behaviors.account.character_creation_behavior import (
@@ -65,11 +61,9 @@ class ConnectionHandler(ContextualLogger):
 
     behavior_coordinator: BehaviorCoordinator
     subscription_storage: SubscriptionExpirationStorage = field(default_factory=SubscriptionExpirationStorage)
-    paysafecard_pool: PaysafecardPool = field(
-        default_factory=lambda: PaysafecardPool(path=str(PAYSAFECARDS_PATH))
-    )
-    paysafecard_purchase_storage: PaysafecardPurchaseStorage = field(
-        default_factory=lambda: PaysafecardPurchaseStorage(PAYSAFECARD_PURCHASE_PATH)
+    paysafecard_pool: PaysafecardPoolController = field(default_factory=PaysafecardPoolController)
+    paysafecard_purchase_storage: PaysafecardPurchaseController = field(
+        default_factory=PaysafecardPurchaseController
     )
 
     _timer: Timer | None = field(init=False, default=None)

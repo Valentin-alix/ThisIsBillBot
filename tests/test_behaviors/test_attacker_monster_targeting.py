@@ -1,4 +1,4 @@
-from datas.protos.non_obf.game.common_pb2 import ActorPositionInformation
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ActorPositionInformation
 
 from src.core.engine.monsters.monster_group import get_monster_group_gids
 

@@ -6,10 +6,10 @@ from collections.abc import Mapping
 
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import NUMBER_SHAPE
 
-from proto_mapper_assembly.field_mapping.field_mapper import build_field_mapping
-from proto_mapper_assembly.field_mapping.field_mapping_preparation import prepare_field_mapping_context
-from proto_mapper_assembly.helpers.proto_helpers import build_types_by_short_name
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.field_mapping.field_mapper import build_field_mapping
+from DBDofusUnity.proto_mapper_assembly.field_mapping.field_mapping_preparation import prepare_field_mapping_context
+from DBDofusUnity.proto_mapper_assembly.helpers.proto_helpers import build_types_by_short_name
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessAtomSignature,
     AccessTraceDocument,
     EnumFunctionResolvedMetadata,
@@ -17,19 +17,19 @@ from proto_mapper_assembly.interfaces.assembly_access import (
     MessageAccessSignature,
     TracedFunction,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, FieldTypeShape
-from proto_mapper_assembly.interfaces.field_mapping import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, FieldTypeShape
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import (
     FieldMappingContext,
     FieldMappingResult,
     MatchingStoreProtocol,
     PreparedFieldMappingContext,
 )
-from proto_mapper_assembly.interfaces.message_pair import MatchPairKey
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
-from proto_mapper_assembly.interfaces.signature_overrides import SignatureOverrideEntry
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import SignatureOverrideEntry
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 NAMESPACE = "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap"
 FILE_DESCRIPTOR = "gamemap_reflection"

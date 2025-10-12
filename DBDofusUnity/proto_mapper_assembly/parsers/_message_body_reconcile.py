@@ -1,7 +1,7 @@
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, DumpCSMessageProperty
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.parsers._field_name_aliases import get_property_name_by_field_name
-from proto_mapper_assembly.parsers._message_body_scan import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, DumpCSMessageProperty
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.parsers._field_name_aliases import get_property_name_by_field_name
+from DBDofusUnity.proto_mapper_assembly.parsers._message_body_scan import (
     _ConstIntDeclaration,
     _ExcludedBooleanProperty,
 )

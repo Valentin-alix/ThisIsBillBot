@@ -3,7 +3,7 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builde
     simple_signature,
 )
 
-from proto_mapper_assembly.matching.workspace import build_matching_workspace
+from DBDofusUnity.proto_mapper_assembly.matching.workspace import build_matching_workspace
 
 
 class TestMatchingWorkspace:

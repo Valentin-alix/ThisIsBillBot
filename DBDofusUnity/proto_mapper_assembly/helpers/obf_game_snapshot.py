@@ -5,16 +5,16 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-from proto_mapper_assembly.helpers.archived_builds import (
+from DBDofusUnity.proto_mapper_assembly.helpers.archived_builds import (
     GAME_ASSEMBLY_I64_NAME as _GAME_ASSEMBLY_I64_NAME,
 )
-from proto_mapper_assembly.helpers.archived_builds import (
+from DBDofusUnity.proto_mapper_assembly.helpers.archived_builds import (
     GAME_ASSEMBLY_NAME as _GAME_ASSEMBLY_NAME,
 )
-from proto_mapper_assembly.helpers.archived_builds import (
+from DBDofusUnity.proto_mapper_assembly.helpers.archived_builds import (
     IL2CPP_METADATA_NAME as _METADATA_NAME,
 )
-from proto_mapper_assembly.helpers.archived_builds import iter_archived_build_dirs
+from DBDofusUnity.proto_mapper_assembly.helpers.archived_builds import iter_archived_build_dirs
 
 _METADATA_RELATIVE_PATH = Path("Dofus_Data") / "il2cpp_data" / "Metadata" / _METADATA_NAME
 

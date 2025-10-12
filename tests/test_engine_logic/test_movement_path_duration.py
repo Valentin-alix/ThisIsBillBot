@@ -1,5 +1,5 @@
-from dofus_unity_reader.game_constants.directions import DirectionsEnum
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.engine.movements.map.path_finding.movement_path import (
     RUN_LINEAR_DURATION,

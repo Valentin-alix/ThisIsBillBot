@@ -1,15 +1,15 @@
 from dataclasses import dataclass
 from functools import partial
 
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from datas.protos.non_obf.game.haven_bag_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.haven_bag_pb2 import (
     HavenBagExitRequest,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.area import AreaEnum
-from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.area import AreaEnum
+from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (

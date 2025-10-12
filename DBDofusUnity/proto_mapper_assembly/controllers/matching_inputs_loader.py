@@ -2,19 +2,19 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from consts import EXCLUDED_NON_OBF_FILE
-from proto_mapper_assembly.controllers.access_signatures import build_message_access_signatures_from_trace
-from proto_mapper_assembly.controllers.excluded_non_obf import (
+from DBDofusUnity.consts import EXCLUDED_NON_OBF_FILE
+from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import build_message_access_signatures_from_trace
+from DBDofusUnity.proto_mapper_assembly.controllers.excluded_non_obf import (
     drop_excluded_signature_overrides,
     load_excluded_non_obf,
     split_excluded_non_obf_messages,
 )
-from proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
-from proto_mapper_assembly.controllers.non_obf_matching_inputs import prepare_non_obf_matching_inputs
-from proto_mapper_assembly.controllers.signature_overrides import load_signature_overrides
-from proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs
-from proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
-from proto_mapper_assembly.parsers.proto_accesses_parser import parse_access_trace_document
+from DBDofusUnity.proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
+from DBDofusUnity.proto_mapper_assembly.controllers.non_obf_matching_inputs import prepare_non_obf_matching_inputs
+from DBDofusUnity.proto_mapper_assembly.controllers.signature_overrides import load_signature_overrides
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs
+from DBDofusUnity.proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
+from DBDofusUnity.proto_mapper_assembly.parsers.proto_accesses_parser import parse_access_trace_document
 
 
 def load_matching_inputs(

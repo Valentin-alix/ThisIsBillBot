@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-from proto_mapper_assembly.interfaces.il2cpp_json import MethodDefinition
+from DBDofusUnity.proto_mapper_assembly.interfaces.il2cpp_json import MethodDefinition
 
 _ASYNC_STATE_MACHINE_SEGMENT_PATTERN = re.compile(r"^<([^>]+)>d__(\d+)$")
 

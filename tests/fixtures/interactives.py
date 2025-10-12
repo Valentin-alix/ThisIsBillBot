@@ -1,4 +1,4 @@
-from datas.protos.non_obf.game.common_pb2 import InteractiveElement
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import InteractiveElement
 
 from src.core.engine.interactives.collectable import Collectable
 

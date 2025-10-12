@@ -1,9 +1,9 @@
 from typing import cast
 
-from datas.protos.non_obf.game.bak_pb2 import BidAction
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.grid.map_point import MapPoint
-from proto_mapper_assembly.validators.field_validators import (
+from DBDofusUnity.datas.protos.non_obf.game.bak_pb2 import BidAction
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.proto_mapper_assembly.validators.field_validators import (
     MAX_DOFUS_LEVEL,
     MAX_TURN_TIME_MS,
     is_non_empty_dict,

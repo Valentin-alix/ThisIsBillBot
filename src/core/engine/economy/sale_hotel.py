@@ -3,14 +3,14 @@ from collections import defaultdict
 from statistics import median
 from typing import cast
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ObjectEffect,
     ObjectItem,
     ObjectItemInventory,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.item import CategoryItemEnum
-from dofus_unity_reader.game_constants.sale_hotel import (
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.sale_hotel import (
     QUANTITY_INDEX_BY_QUANTITY,
     QuantityEnum,
     QuantityIndex,

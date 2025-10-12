@@ -1,7 +1,7 @@
 import threading
 from dataclasses import dataclass, field
 
-from datas.protos.non_obf.game.game_message_pb2 import Request
+from DBDofusUnity.datas.protos.non_obf.game.game_message_pb2 import Request
 from google.protobuf.message import Message
 from PyQt6.QtCore import QMetaObject, Qt
 

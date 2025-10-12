@@ -3,15 +3,15 @@ from __future__ import annotations
 from collections.abc import Mapping
 from pathlib import Path
 
-from proto_mapper_assembly.controllers.message_lookup import (
+from DBDofusUnity.proto_mapper_assembly.controllers.message_lookup import (
     build_non_obf_alias_lookup,
     resolve_non_obf_alias,
 )
-from proto_mapper_assembly.interfaces.capture_sequence_hints import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import (
     CaptureSequence,
     CaptureSequenceHintsConfig,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
 
 
 def load_capture_sequence_hints(path: Path) -> CaptureSequenceHintsConfig:

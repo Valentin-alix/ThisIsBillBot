@@ -1,6 +1,6 @@
 import numpy as np
 
-from proto_mapper_assembly.affinities._sequence_alignment import align_sequences_monotonically
+from DBDofusUnity.proto_mapper_assembly.affinities._sequence_alignment import align_sequences_monotonically
 
 _GAP_PENALTY = -0.3
 

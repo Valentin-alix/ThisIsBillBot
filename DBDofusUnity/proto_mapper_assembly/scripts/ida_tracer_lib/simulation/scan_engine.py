@@ -7,68 +7,68 @@ import ida_gdl
 import idaapi
 import idautils
 
-from proto_mapper_assembly.interfaces.assembly_access import AccessEntry
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
-from proto_mapper_assembly.scripts.ida_tracer_lib.core.function_inspector import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.core.function_inspector import (
     get_operation_index_inside_function,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.core.mnemonics import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.core.mnemonics import (
     ARITHMETIC_MNEMONICS,
     CMOV_MNEMONICS,
     VECTOR_MOVE_MNEMONICS,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.accessor_candidate import AccessorCandidate
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.accessor_candidate import AccessorCandidate
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import (
     CALL_ARGUMENT_REGISTERS,
     MAX_INTERPROCEDURAL_DEPTH,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.field_access import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.field_access import (
     collect_instruction_field_accesses,
     dedupe_and_sort_access_entries,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.handlers import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.handlers import (
     handle_call_instruction,
     handle_lea_instruction,
     handle_vector_move_instruction,
     update_register_state_for_arithmetic,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.interproc_calls import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.interproc_calls import (
     get_direct_call_target_addr,
     update_register_state_for_call,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.static_loads import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.static_loads import (
     handle_mov_methodinfo_instruction,
     handle_mov_typeinfo_instruction,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.type_guards import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.type_guards import (
     apply_type_guarded_cmov,
     handle_mov_type_guard_instruction,
     resolve_type_guard_compare,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.analysis_state import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.analysis_state import (
     AnalysisState,
     analysis_state_equals,
     copy_analysis_state,
     merge_analysis_states,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.basic_block import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.basic_block import (
     BasicBlock,
     DecodedInstruction,
     FunctionScanCache,
     FunctionScanPlan,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.builders import build_initial_frame_state
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.interproc import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.builders import build_initial_frame_state
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.interproc import (
     InterproceduralCacheKey,
     InterproceduralContext,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.register_updates import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.register_updates import (
     copy_frame_state,
     update_register_state_for_cmov,
     update_register_state_for_mov,
     update_stack_frame_for_instruction,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
     HeapState,
     RegisterState,
     StackFrameState,

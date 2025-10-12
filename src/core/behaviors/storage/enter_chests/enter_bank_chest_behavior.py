@@ -1,28 +1,24 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
-from datas.protos.non_obf.game.dialog_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import (
     DialogLeaveEvent,
     DialogLeaveRequest,
 )
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeMoveKamaRequest,
 )
-from datas.protos.non_obf.game.inventory_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import (
     StorageInventoryContentEvent,
     StorageKamasUpdateEvent,
 )
-from datas.protos.non_obf.game.npc_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import (
     NpcDialogQuestionEvent,
 )
-from dofus_unity_reader.game_constants.npc import (
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import (
     BANK_NPCS,
     NpcAskMessageIdEnum,
 )
-
-from src.core.behaviors.recovery import RecoverableBehavior
-from src.core.engine.npcs.dialog_turn import DialogTurn
-from src.core.engine.npcs.reply_selector import ByText
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
@@ -30,10 +26,13 @@ from src.core.behaviors.npcs.npc_dialog_behavior import (
     NpcDialogBehavior,
     NpcDialogErrorCode,
 )
-from src.services.human_timings import HumanTimingsService
+from src.core.behaviors.recovery_behavior import RecoverableBehavior
+from src.core.engine.npcs.dialog_turn import DialogTurn
+from src.core.engine.npcs.reply_selector import ByText
 from src.core.engine.storage.unload import get_bank_npc_info
 from src.core.states.dialog_state import OpenDialogKind
 from src.protocol.protocol_game import is_usable_msg
+from src.services.human_timings import HumanTimingsService
 
 
 class EnterBankChestErrorCode(StrEnum):

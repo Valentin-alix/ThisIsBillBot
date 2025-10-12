@@ -1,9 +1,9 @@
 import math
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
-from dofus_unity_reader.game_constants.description import DescriptionEnum
-from dofus_unity_reader.models.datas.spell_levels_root import (
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.description import DescriptionEnum
+from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
     Effect,
     SpellLevelsRootItem,
 )

@@ -5,11 +5,11 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.helper_builders
     type_index,
 )
 
-from proto_mapper_assembly.helpers.proto_helpers import (
+from DBDofusUnity.proto_mapper_assembly.helpers.proto_helpers import (
     extract_child_type_name,
     resolve_message_cls,
 )
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, FieldTypeLeafKind
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, FieldTypeLeafKind
 
 
 class TestProtoHelpers:

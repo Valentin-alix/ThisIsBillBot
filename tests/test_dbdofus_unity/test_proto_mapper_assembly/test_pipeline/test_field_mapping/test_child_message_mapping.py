@@ -6,9 +6,9 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builder
     build_field_mapping_for_test,
 )
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 
 class TestChildMessageMapping:

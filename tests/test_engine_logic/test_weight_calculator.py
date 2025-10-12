@@ -4,13 +4,13 @@ from unittest.mock import MagicMock
 
 import msgspec
 import pytest
-from datas.protos.non_obf.game.common_pb2 import FightInvisibilityState
-from dofus_unity_reader.game_constants.characteristic import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import FightInvisibilityState
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import (
     EffectElement,
     TypeEffect,
 )
-from dofus_unity_reader.grid.map_point import MapPoint
-from dofus_unity_reader.models.datas.spell_levels_root import (
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
     Effect,
     SpellLevelsRootItem,
 )

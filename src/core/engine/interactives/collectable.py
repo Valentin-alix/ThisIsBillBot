@@ -1,13 +1,14 @@
 from dataclasses import dataclass
+from functools import cached_property
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     InteractiveElement,
     StatedElement,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 
 @dataclass
@@ -28,7 +29,7 @@ class Collectable:
     def skill_ids(self) -> list[int]:
         return [skill.skill_id for skill in self.interactive_element.enabled_skills]
 
-    @property
+    @cached_property
     def mp(self) -> MapPoint:
         cell_id = (
             MapReader()

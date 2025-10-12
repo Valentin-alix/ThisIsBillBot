@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.schedule_profile import (
     ScheduleProfile,
 )
 

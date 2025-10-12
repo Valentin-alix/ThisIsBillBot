@@ -4,9 +4,9 @@ import re
 from collections.abc import Iterable
 from pathlib import Path
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.parsers._dump_cs_message_body_parser import parse_message_body
-from proto_mapper_assembly.parsers._dump_cs_structure import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_message_body_parser import parse_message_body
+from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_structure import (
     _Marker,
     _Span,
     build_parent_name,

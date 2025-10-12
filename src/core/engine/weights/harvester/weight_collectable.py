@@ -2,13 +2,13 @@ from collections import defaultdict
 from functools import cache
 from math import log1p
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.game_constants.job import JobEnum
-from dofus_unity_reader.game_constants.monster import PROTECTOR_RACES
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.game_constants.job import JobEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.monster import PROTECTOR_RACES
 
 from src.controller.game_data import GameDataController
 from src.core.config import WEIGHT_BY_JOB

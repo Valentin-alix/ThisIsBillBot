@@ -5,11 +5,11 @@ from datetime import datetime
 from functools import partial
 from threading import RLock
 
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.models.world_graph import Edge
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Edge
 
 from src.consts import MIN_DATE
 from src.core.behaviors.behavior import Behavior

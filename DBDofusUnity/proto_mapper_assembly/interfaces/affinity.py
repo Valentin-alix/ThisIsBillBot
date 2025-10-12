@@ -5,8 +5,8 @@ from typing import NamedTuple, Protocol
 
 import numpy as np
 
-from proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
 
 
 @dataclass(frozen=True)

@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import os
 import random
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -8,44 +7,50 @@ from datetime import UTC, datetime
 from dotenv import load_dotenv
 from playwright.async_api import Page
 
-from ankama_launcher_emulator_premium.consts import ENV_PATH
-from ankama_launcher_emulator_premium.haapi.urls import build_register_url
-from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
-    ProxyController,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import ENV_PATH
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+    BotStorageController,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.mail_account import (
+    MailAccountController,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.proxy import ProxyController
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
     ScheduleProfileController,
 )
-from ankama_launcher_emulator_premium.utils.environment import AVAILABLE_EMAILS_PATH
-from ankama_launcher_emulator_premium.utils.proxy import build_http_proxy_url
-from ankama_launcher_emulator_premium.web._client.browser import launch_browser_context
-from ankama_launcher_emulator_premium.web._client.browser_interactions import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.urls import build_register_url
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.proxy import build_http_proxy_url
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.browser import (
+    launch_browser_context,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.browser_interactions import (
     detect_antibot_marker,
     human_click_selector,
     human_type_selector,
     human_wait,
     visible_form_error_texts,
 )
-from ankama_launcher_emulator_premium.web._client.line_file import (
-    read_lines,
-    read_nonempty_lines,
-    write_lines,
-)
-from ankama_launcher_emulator_premium.web._client.mailbox import (
-    ImapMailboxClient,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.base import (
     MailboxCodeTimeoutError,
-    MailboxSettings,
 )
-from ankama_launcher_emulator_premium.web.auth.identity import random_identity
-from ankama_launcher_emulator_premium.web.auth.models import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.config import (
+    resolve_mail_provider,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.manual import (
+    wait_for_code_with_manual_fallback,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.identity import (
+    DEFAULT_PASSWORD,
+    random_identity,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.models import (
     RegistrationOptions,
     RegistrationResult,
 )
-from ankama_launcher_emulator_premium.web.auth.oauth_state import get_registration_state
-from ankama_launcher_emulator_premium.web.auth.storage import (
-    load_bad_state_emails,
-    record_bad_state_email,
-    save_account,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.oauth_state import (
+    get_registration_state,
 )
-from ankama_launcher_emulator_premium.web.debug_utils import dump_page_html
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.debug_utils import dump_page_html
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +99,7 @@ async def register_account(options: RegistrationOptions) -> RegistrationResult:
 
             if wait_result.success:
                 logger.info("[Register] Registration completed for %s", options.email)
-                save_account(
+                BotStorageController().save_account(
                     options.email,
                     options.password,
                     schedule_profile=options.schedule_profile,
@@ -198,8 +203,9 @@ async def _handle_confirmation_code(page: Page, options: RegistrationOptions, st
             await asyncio.sleep(0.3)
         return True
 
-    async def via_mailbox(client: ImapMailboxClient) -> bool:
-        code = await client.wait_for_code(
+    async def via_mailbox() -> bool:
+        code = await wait_for_code_with_manual_fallback(
+            options.mail_provider,
             since=started_at,
             timeout_seconds=options.confirmation_timeout_seconds,
         )
@@ -214,7 +220,7 @@ async def _handle_confirmation_code(page: Page, options: RegistrationOptions, st
 
     tasks = [
         asyncio.create_task(via_browser()),
-        asyncio.create_task(via_mailbox(ImapMailboxClient(options.mailbox))),
+        asyncio.create_task(via_mailbox()),
     ]
     done, pending = await asyncio.wait(
         tasks,
@@ -223,10 +229,12 @@ async def _handle_confirmation_code(page: Page, options: RegistrationOptions, st
     )
     for task in pending:
         task.cancel()
+    if pending:
+        await asyncio.gather(*pending, return_exceptions=True)
     for task in done:
         exception = task.exception()
         if isinstance(exception, MailboxCodeTimeoutError):
-            record_bad_state_email(options.email)
+            MailAccountController().record_bad_state(options.email)
             raise exception
     return any(task.result() for task in done if not task.cancelled())
 
@@ -316,43 +324,6 @@ def _format_form_failure_reason(
     return f"{reason}; {'; '.join(details)}"
 
 
-def _peek_next_available_email() -> str | None:
-    lines = read_lines(AVAILABLE_EMAILS_PATH)
-    bad_state_emails = load_bad_state_emails()
-    for line in lines:
-        email = line.strip()
-        if email not in bad_state_emails:
-            return email
-    return None
-
-
-def _consume_available_email(email: str) -> None:
-    lines = read_lines(AVAILABLE_EMAILS_PATH)
-    assert lines, "Cannot consume an email from an empty available-email queue"
-    queued_emails = [line.strip() for line in lines]
-    assert email in queued_emails, (
-        f"Available-email queue changed while registering {email}; current queue does not contain it"
-    )
-    write_lines(
-        AVAILABLE_EMAILS_PATH,
-        [line for line in lines if line.strip() != email],
-    )
-
-
-def count_available_emails() -> int:
-    """Non-destructive count of emails still waiting to be registered.
-
-    The scheduler uses it to know whether registration work is pending without
-    burning an email on a probe.
-    """
-    if not os.path.exists(AVAILABLE_EMAILS_PATH):
-        return 0
-    bad_state_emails = load_bad_state_emails()
-    return len(
-        [line for line in read_nonempty_lines(AVAILABLE_EMAILS_PATH) if line.strip() not in bad_state_emails]
-    )
-
-
 async def _register_email(
     email: str,
     schedule_profile: str,
@@ -363,9 +334,9 @@ async def _register_email(
     return await register_account(
         RegistrationOptions(
             email=email,
-            password="blibli44700",
+            password=DEFAULT_PASSWORD,
             identity=random_identity(),
-            mailbox=MailboxSettings.from_env(),
+            mail_provider=resolve_mail_provider(email),
             schedule_profile=schedule_profile,
             proxy_url=build_http_proxy_url(ProxyController().get_proxy(profile.proxy_id)),
         )
@@ -380,12 +351,12 @@ async def register_next_available_email(
     Used by the quota-driven scheduler, which only ever wants to consume one slot
     of the shared Ankama rate-limit pool at a time.
     """
-    email = _peek_next_available_email()
+    email = MailAccountController().peek_next_available_email()
     if email is None:
         return None
     result = await _register_email(email, schedule_profile)
     if result.success:
-        _consume_available_email(email)
+        MailAccountController().mark_used(email)
     return result
 
 
@@ -397,7 +368,7 @@ def _first_schedule_profile_id() -> str:
 
 
 async def register_available_emails(schedule_profile: str):
-    while (email := _peek_next_available_email()) is not None:
+    while (email := MailAccountController().peek_next_available_email()) is not None:
         result = await _register_email(email, schedule_profile)
         if not result.success:
             if result.antibot_marker is not None:
@@ -413,9 +384,9 @@ async def register_available_emails(schedule_profile: str):
                 result.error,
             )
             return
-        _consume_available_email(email)
+        MailAccountController().mark_used(email)
         await asyncio.sleep(random.randint(MIN_DELAY_BETWEEN_ACCOUNTS_SEC, MAX_DELAY_BETWEEN_ACCOUNTS_SEC))
-    logger.warning(f"No more email available at {AVAILABLE_EMAILS_PATH}")
+    logger.warning("No more email available")
 
 
 if __name__ == "__main__":

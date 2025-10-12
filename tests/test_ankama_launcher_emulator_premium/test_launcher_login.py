@@ -3,20 +3,18 @@ from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import requests
-from ankama_launcher_emulator_premium.exceptions import ProxyRejectedError
-from ankama_launcher_emulator_premium.haapi import haapi as haapi_module
-from ankama_launcher_emulator_premium.interfaces.credentials import DecipheredCertif
-from ankama_launcher_emulator_premium.interfaces.local_storage import (
-    GeneratedAccountEntry,
-)
-from ankama_launcher_emulator_premium.interfaces.oauth_api import TokenResponse
-from ankama_launcher_emulator_premium.web._client.mailbox import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.exceptions import ProxyRejectedError
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi import haapi as haapi_module
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import DecipheredCertif
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.local_storage import BotRecord
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.oauth_api import TokenResponse
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.base import (
     MailboxCodeTimeoutError,
 )
-from ankama_launcher_emulator_premium.web.auth import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth import (
     launcher_login as launcher_login_module,
 )
-from ankama_launcher_emulator_premium.web.auth.models import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.models import (
     AuthenticationOptions,
     AuthenticationResult,
 )
@@ -24,7 +22,7 @@ from playwright._impl._errors import TargetClosedError
 
 from tests.test_ankama_launcher_emulator_premium._fakes import (
     FakeBrowserContext,
-    mailbox_settings,
+    FakeMailProvider,
 )
 
 
@@ -158,7 +156,7 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
                 AuthenticationOptions(
                     email="u@example.com",
                     password="password",
-                    mailbox=mailbox_settings(),
+                    mail_provider=FakeMailProvider(),
                     proxy_url="http://127.0.0.1:9000",
                 )
             )
@@ -204,7 +202,7 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
                 AuthenticationOptions(
                     email="u@example.com",
                     password="password",
-                    mailbox=mailbox_settings(),
+                    mail_provider=FakeMailProvider(),
                     proxy_url="http://127.0.0.1:9000",
                 )
             )
@@ -252,7 +250,7 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
                 "resolve_shield",
                 new=AsyncMock(side_effect=MailboxCodeTimeoutError("Timed out waiting for code")),
             ),
-            patch.object(launcher_login_module, "record_bad_state_email") as record_bad_state_email,
+            patch.object(launcher_login_module, "MailAccountController") as mail_account_controller,
             patch.object(launcher_login_module.logger, "exception") as log_exception,
             patch.object(launcher_login_module.logger, "error") as log_error,
             patch.object(launcher_login_module, "try_dump_page_html", new=AsyncMock()),
@@ -264,24 +262,24 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
                 AuthenticationOptions(
                     email="u@example.com",
                     password="password",
-                    mailbox=mailbox_settings(),
+                    mail_provider=FakeMailProvider(),
                     proxy_url="http://127.0.0.1:9000",
                 )
             )
 
         self.assertFalse(result.success)
         self.assertEqual(result.error, "Timed out waiting for code")
-        record_bad_state_email.assert_called_once_with("u@example.com")
+        mail_account_controller.return_value.record_bad_state.assert_called_once_with("u@example.com")
         log_exception.assert_not_called()
         log_error.assert_called_once()
 
     async def test_failed_generated_account_auth_clears_stored_key_and_retries(
         self,
     ) -> None:
-        account = GeneratedAccountEntry(
+        account = BotRecord(
             email="u@example.com",
             password="password",
-            available=True,
+            hardware_id="hw-1",
             schedule_profile="E",
         )
         authenticate = AsyncMock(
@@ -299,9 +297,8 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
                 new=authenticate,
             ),
             patch.object(launcher_login_module.CryptoHelper, "remove_bot") as remove_bot,
-            patch.object(launcher_login_module, "mark_account_available_for_auth_retry") as mark_available,
             patch.object(
-                launcher_login_module.MailboxSettings, "from_env", return_value=mailbox_settings()
+                launcher_login_module, "resolve_mail_provider", return_value=FakeMailProvider()
             ),
         ):
             result = await launcher_login_module._authenticate_account(
@@ -315,15 +312,14 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
         sent_options = cast(AuthenticationOptions, await_args.args[0])
         self.assertEqual(sent_options.proxy_url, "http://127.0.0.1:9000")
         remove_bot.assert_called_once_with("u@example.com")
-        mark_available.assert_called_once_with("u@example.com")
 
-    async def test_successful_generated_account_auth_marks_unavailable(
+    async def test_successful_generated_account_auth_stores_key(
         self,
     ) -> None:
-        account = GeneratedAccountEntry(
+        account = BotRecord(
             email="u@example.com",
             password="password",
-            available=True,
+            hardware_id="hw-1",
             schedule_profile="E",
         )
         authenticate = AsyncMock(
@@ -341,11 +337,9 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
                 "authenticate",
                 new=authenticate,
             ),
-            patch.object(launcher_login_module, "mark_account_authenticated") as mark_authenticated,
             patch.object(launcher_login_module.CryptoHelper, "remove_bot") as remove_bot,
-            patch.object(launcher_login_module, "mark_account_available_for_auth_retry") as mark_available,
             patch.object(
-                launcher_login_module.MailboxSettings, "from_env", return_value=mailbox_settings()
+                launcher_login_module, "resolve_mail_provider", return_value=FakeMailProvider()
             ),
         ):
             result = await launcher_login_module._authenticate_account(
@@ -353,6 +347,4 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
             )
 
         self.assertTrue(result.success)
-        mark_authenticated.assert_called_once_with("u@example.com")
         remove_bot.assert_not_called()
-        mark_available.assert_not_called()

@@ -27,17 +27,17 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from consts import OBF_GAME_SNAPSHOTS_DIR, PROJECT_ROOT
+from DBDofusUnity.consts import OBF_GAME_SNAPSHOTS_DIR, PROJECT_ROOT
 
-from proto_mapper_assembly.controllers.message_lookup import build_obf_alias_lookup
-from proto_mapper_assembly.helpers.archived_builds import (
+from DBDofusUnity.proto_mapper_assembly.controllers.message_lookup import build_obf_alias_lookup
+from DBDofusUnity.proto_mapper_assembly.helpers.archived_builds import (
     GAME_MAPPINGS_RELATIVE_PATH,
     PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
     game_assembly_mtime_ns,
     iter_archived_build_dirs,
 )
-from proto_mapper_assembly.interfaces.game_mappings import SimpleGameMappingsDocument
-from proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import SimpleGameMappingsDocument
+from DBDofusUnity.proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
 
 _GAME_MAPPINGS_REPO_PATH = "datas/protos/game_mappings.json"
 _CONFIDENT_FIELD_RATIO = 0.90

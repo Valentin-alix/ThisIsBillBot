@@ -5,8 +5,8 @@ from tempfile import TemporaryDirectory
 
 from base_python.env_config import get_optional_path
 
-from ankama_launcher_emulator_premium.consts import ASAR_PATH
-from ankama_launcher_emulator_premium.interfaces.ankama_release import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import ASAR_PATH
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.ankama_release import (
     PackageJson,
     ReleaseJson,
 )

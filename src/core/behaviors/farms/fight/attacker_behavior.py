@@ -3,10 +3,10 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from functools import partial
 
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
 )
-from datas.protos.non_obf.game.roleplay_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.roleplay_pb2 import (
     AttackMonsterRequest,
 )
 

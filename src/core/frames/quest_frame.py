@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from datas.protos.non_obf.game.quest_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.quest_pb2 import (
     QuestObjectiveValidatedEvent,
     QuestsEvent,
     QuestStartedEvent,

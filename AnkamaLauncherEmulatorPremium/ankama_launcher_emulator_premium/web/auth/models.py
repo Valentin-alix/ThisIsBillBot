@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
-from ankama_launcher_emulator_premium.web._client.mailbox import MailboxSettings
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.base import (
+    MailCodeProvider,
+)
 
 
 @dataclass(frozen=True)
@@ -17,7 +19,7 @@ class RegistrationOptions:
     email: str
     password: str
     identity: RegistrationIdentity
-    mailbox: MailboxSettings
+    mail_provider: MailCodeProvider | None
     schedule_profile: str | None = None
     proxy_url: str | None = None
     headless: bool = False
@@ -38,7 +40,7 @@ class RegistrationResult:
 class AuthenticationOptions:
     email: str
     password: str
-    mailbox: MailboxSettings
+    mail_provider: MailCodeProvider | None
     proxy_url: str | None = None
     headless: bool = False
     shield_timeout_seconds: int = 1200

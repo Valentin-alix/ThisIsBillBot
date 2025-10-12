@@ -4,12 +4,12 @@ from enum import Enum, auto
 from threading import RLock, Timer
 from typing import ParamSpec, Protocol, cast
 
-from datas.protos.non_obf.game.common_pb2 import PlayerSearch
-from datas.protos.non_obf.game.contact_pb2 import IgnoreRequest
-from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
-from datas.protos.non_obf.game.exchange_pb2 import ExchangeLeaveEvent
-from datas.protos.non_obf.game.guild_information_pb2 import GuildInvitationAnswerRequest
-from datas.protos.non_obf.game.roleplay_pb2 import PlayerFightFriendlyAnswerRequest
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import PlayerSearch
+from DBDofusUnity.datas.protos.non_obf.game.contact_pb2 import IgnoreRequest
+from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import ExchangeLeaveEvent
+from DBDofusUnity.datas.protos.non_obf.game.guild_information_pb2 import GuildInvitationAnswerRequest
+from DBDofusUnity.datas.protos.non_obf.game.roleplay_pb2 import PlayerFightFriendlyAnswerRequest
 from google.protobuf.message import Message
 
 from src.core.events_manager.event_manager import EventManager

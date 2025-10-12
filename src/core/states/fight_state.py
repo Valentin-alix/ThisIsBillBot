@@ -4,20 +4,20 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import NamedTuple
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
     SpellModifier,
     SpellModifierType,
 )
-from datas.protos.non_obf.game.spell_pb2 import SpellItem
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.breed import BreedEnum
-from dofus_unity_reader.game_constants.characteristic import (
+from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellItem
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.breed import BreedEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import (
     CharacteristicEnum,
     EffectElement,
 )
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src import consts
 from src.core.engine.fights.attack.models import EnemyData

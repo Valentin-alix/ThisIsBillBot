@@ -4,9 +4,9 @@ import msgspec
 from base_python.cache import cache
 from base_python.singleton import Singleton
 
-from consts import MAP_BUNDLES_ROOT
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.models.maps import CellData, MapDataRoot, MapReference
+from DBDofusUnity.consts import MAP_BUNDLES_ROOT
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.models.maps import CellData, MapDataRoot, MapReference
 
 
 @dataclass(frozen=True)

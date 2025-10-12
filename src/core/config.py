@@ -6,8 +6,8 @@ Paramètres de stratégie, timings, poids, limites, etc.
 import datetime
 from random import uniform
 
-from dofus_unity_reader.game_constants.job import JobEnum
-from dofus_unity_reader.game_constants.map_id import MapIdEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.job import JobEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
 
 # ============================================================================
 # FONCTIONNALITÉS ACTIVÉES

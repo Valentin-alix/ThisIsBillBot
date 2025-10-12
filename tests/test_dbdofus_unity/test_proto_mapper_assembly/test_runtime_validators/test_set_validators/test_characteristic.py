@@ -2,8 +2,8 @@ from typing import Any
 
 import pytest
 
-from proto_mapper_assembly.field_mapping.pulp.constraints import has_applicable_constraints
-from proto_mapper_assembly.validators.set_validators import (
+from DBDofusUnity.proto_mapper_assembly.field_mapping.pulp.constraints import has_applicable_constraints
+from DBDofusUnity.proto_mapper_assembly.validators.set_validators import (
     validator_character_characteristic_detailed_usable,
     validator_character_characteristic_upgrade_request,
     validator_update_life_points_event,

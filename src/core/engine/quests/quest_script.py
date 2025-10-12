@@ -1,9 +1,9 @@
 from enum import StrEnum, auto
 from typing import Annotated, Literal
 
-from dofus_unity_reader.game_constants.item import CategoryItemEnum
-from dofus_unity_reader.game_constants.npc import NpcActionEnum
-from dofus_unity_reader.game_constants.world import WorldMapEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import NpcActionEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.world import WorldMapEnum
 from pydantic import BaseModel, Field, model_validator
 
 from src.core.engine.npcs.dialog_turn import DialogTurn

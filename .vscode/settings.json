@@ -1,5 +1,21 @@
 {
     "python.testing.pytestArgs": [
         "-s"
-    ]
+    ],
+    "files.watcherExclude": {
+        "**/DBDofusUnity/datas/**": true,
+        "**/DBDofusUnity/Il2CppInspectorRedux/**": true,
+        "**/DBDofusUnity/protodec/**": true,
+        "**/DBDofusUnity/UABEA/**": true,
+        "**/.venv/**": true,
+        "**/__pycache__/**": true
+    },
+    "search.exclude": {
+        "**/DBDofusUnity/datas": true,
+        "**/DBDofusUnity/Il2CppInspectorRedux": true,
+        "**/DBDofusUnity/protodec": true,
+        "**/DBDofusUnity/UABEA": true,
+        "**/.venv": true,
+        "**/__pycache__": true
+    }
 }

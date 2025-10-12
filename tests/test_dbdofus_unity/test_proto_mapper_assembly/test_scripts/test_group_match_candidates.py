@@ -4,9 +4,9 @@ import numpy as np
 import pytest
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import access_message_signature
 
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
-from proto_mapper_assembly.matching.workspace import build_matching_workspace
-from proto_mapper_assembly.scripts.group_match_candidates import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.matching.workspace import build_matching_workspace
+from DBDofusUnity.proto_mapper_assembly.scripts.group_match_candidates import (
     GroupAnalysis,
     GroupClaim,
     ObfGroupState,

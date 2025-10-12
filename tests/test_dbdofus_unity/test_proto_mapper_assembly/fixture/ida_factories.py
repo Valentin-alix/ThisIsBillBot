@@ -4,22 +4,22 @@ from typing import TYPE_CHECKING, Literal, cast
 
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import builder_field_access_entry
 
-from proto_mapper_assembly.interfaces.assembly_access import AccessEntry, AccessKind, FieldAccessEntry
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
-from proto_mapper_assembly.interfaces.il2cpp_json import Il2CppApiDefinition, MethodDefinition
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.accessor_candidate import AccessorCandidate
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.field_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessEntry, AccessKind, FieldAccessEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.il2cpp_json import Il2CppApiDefinition, MethodDefinition
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.accessor_candidate import AccessorCandidate
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.field_access import (
     collect_instruction_field_accesses,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.analysis_state import AnalysisState
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.builders import build_initial_frame_state
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.register_updates import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.analysis_state import AnalysisState
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.builders import build_initial_frame_state
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.register_updates import (
     update_stack_frame_for_instruction,
 )
 
 if TYPE_CHECKING:
-    import proto_mapper_assembly.scripts.ida_tracer_lib.typings.idaapi as idaapi_types
-    from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
+    import DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.typings.idaapi as idaapi_types
+    from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
         HeapState,
         RegisterState,
         StackFrameState,

@@ -1,8 +1,8 @@
-from dofus_unity_reader.game_constants.characteristic import EffectElement
-from dofus_unity_reader.game_constants.inventory_position import (
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import EffectElement
+from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
     CharacterInventoryPositionEnum,
 )
-from dofus_unity_reader.game_constants.item import ItemEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.item import ItemEnum
 
 from src.core.engine.economy.sale_hotel import ItemToBuyInfo
 from src.core.engine.items.set_infos.set_info import SetOnLevel

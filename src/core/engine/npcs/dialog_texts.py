@@ -2,8 +2,8 @@ import re
 import unicodedata
 from functools import lru_cache
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 
 
 def normalize(text: str) -> str:

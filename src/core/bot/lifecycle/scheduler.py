@@ -12,12 +12,14 @@ SCHEDULE_RANDOM_MINUTES_MIN = 10
 SCHEDULE_RANDOM_MINUTES_MAX = 30
 MULE_GIVE_START_DELAY_MINUTES = 2
 
-from ankama_launcher_emulator_premium.gui.utils import run_in_background
-from ankama_launcher_emulator_premium.interfaces.credentials import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
+    ScheduleProfileController,
+)
+from src.services.background import run_in_background
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
     StoredApiKey,
 )
-from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
-    ScheduleProfileController,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.schedule_profile import (
     TimeSlot,
 )
 

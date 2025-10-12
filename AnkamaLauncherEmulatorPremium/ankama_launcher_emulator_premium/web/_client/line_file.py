@@ -8,10 +8,6 @@ def read_lines(path: LineFilePath, *, encoding: str | None = None) -> list[str]:
         return handle.readlines()
 
 
-def read_nonempty_lines(path: LineFilePath, *, encoding: str | None = None) -> list[str]:
-    return [line for line in read_lines(path, encoding=encoding) if line.strip()]
-
-
 def write_lines(
     path: LineFilePath,
     lines: list[str],

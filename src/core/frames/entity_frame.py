@@ -1,24 +1,24 @@
 from dataclasses import dataclass
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     Direction,
     SpawnInformation,
 )
-from datas.protos.non_obf.game.context_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import (
     ContextRemoveElementEvent,
     ContextRemoveElementsEvent,
     EntitiesDispositionEvent,
 )
-from datas.protos.non_obf.game.fight_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.fight_pb2 import (
     FightFighterRefreshEvent,
     FightFighterShowEvent,
     FightSynchronizeEvent,
 )
-from datas.protos.non_obf.game.game_action_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightEvent,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     GameRolePlayShowActorsEvent,
     MapChangeOrientationEvent,
     MapComplementaryInformationEvent,
@@ -28,7 +28,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
     MapObstacleUpdateEvent,
     MapTeleportOnSameEvent,
 )
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.engine.monsters.monster_group import (
     AIFighter,

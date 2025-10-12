@@ -6,23 +6,23 @@ from operator import attrgetter
 
 from cachetools import LRUCache, cachedmethod
 
-from proto_mapper_assembly.helpers.proto_helpers import (
+from DBDofusUnity.proto_mapper_assembly.helpers.proto_helpers import (
     build_types_by_short_name,
     resolve_child_message_cls,
 )
-from proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument, MessageAccessSignature
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
-from proto_mapper_assembly.scoring.enum_similarity import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument, MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.scoring.enum_similarity import (
     EnumSimilarityContext,
     enum_signature_similarity,
 )
-from proto_mapper_assembly.scoring.primitives import (
+from DBDofusUnity.proto_mapper_assembly.scoring.primitives import (
     counter_profile_overlap_similarity,
     get_average_best_similarity_sequences,
     ratio_similarity,
 )
-from proto_mapper_assembly.scoring.signature_scoring import (
+from DBDofusUnity.proto_mapper_assembly.scoring.signature_scoring import (
     declared_field_similarity,
     field_signature_similarity,
     function_similarity_from_keys,

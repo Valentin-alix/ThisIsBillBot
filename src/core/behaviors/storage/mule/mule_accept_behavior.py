@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 
-from datas.protos.non_obf.game.dialog_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import (
     DialogLeaveRequest,
 )
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeAcceptRequest,
     ExchangeKamaModifiedEvent,
     ExchangeLeaveEvent,
@@ -13,11 +13,10 @@ from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeRequestedTradeEvent,
     ExchangeStartedWithPodsEvent,
 )
-
-from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
+from src.core.behaviors.recovery_behavior import RecoverableBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import (
     SaleHotelSellBehavior,
 )

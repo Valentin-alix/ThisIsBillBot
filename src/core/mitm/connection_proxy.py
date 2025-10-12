@@ -3,12 +3,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import cast
 
-from ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
 )
-from ankama_launcher_emulator_premium.web.subscription.storage import SubscriptionExpirationStorage
-from datas.protos.non_obf.connection.login_message_pb2 import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.subscription_expiration import SubscriptionExpirationStorage
+from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import (
     CharacterInformation,
     IdentificationResponse,
     LoginMessage,
@@ -17,9 +17,9 @@ from datas.protos.non_obf.connection.login_message_pb2 import (
     Server,
     ServerInformation,
 )
-from dofus_unity_reader.game_constants.server import ServerEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.server import ServerEnum
 from google.protobuf.message import Message
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 from src.consts import DEBUG
 from src.core.bot.bot import Bot

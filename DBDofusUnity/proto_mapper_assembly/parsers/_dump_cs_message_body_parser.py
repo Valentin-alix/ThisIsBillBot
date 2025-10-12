@@ -1,8 +1,8 @@
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, DumpCSMessageProperty
-from proto_mapper_assembly.parsers._message_body_oneof import build_synthetic_oneof_fields
-from proto_mapper_assembly.parsers._message_body_reconcile import reconcile_message_body
-from proto_mapper_assembly.parsers._message_body_scan import parse_class_fields as _parse_class_fields
-from proto_mapper_assembly.parsers._message_body_scan import scan_message_body
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, DumpCSMessageProperty
+from DBDofusUnity.proto_mapper_assembly.parsers._message_body_oneof import build_synthetic_oneof_fields
+from DBDofusUnity.proto_mapper_assembly.parsers._message_body_reconcile import reconcile_message_body
+from DBDofusUnity.proto_mapper_assembly.parsers._message_body_scan import parse_class_fields as _parse_class_fields
+from DBDofusUnity.proto_mapper_assembly.parsers._message_body_scan import scan_message_body
 
 
 def parse_class_fields(class_start: int, code: str) -> list[DumpCSMessageField]:

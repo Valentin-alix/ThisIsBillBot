@@ -5,8 +5,8 @@ import msgspec
 from base_python.cache import cache
 from base_python.singleton import Singleton
 
-from consts import STANDALONE_BUNDLES_ROOT
-from dofus_unity_reader.models.world_graph import Edge, Vertice, WorldGraphData
+from DBDofusUnity.consts import STANDALONE_BUNDLES_ROOT
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Edge, Vertice, WorldGraphData
 
 
 @dataclass(frozen=True)

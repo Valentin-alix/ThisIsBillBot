@@ -3,20 +3,20 @@ from __future__ import annotations
 import numpy as np
 from tqdm import tqdm
 
-from proto_mapper_assembly.field_mapping.field_mapper import build_field_mapping
-from proto_mapper_assembly.interfaces.capture_sequence_order import CaptureOrderIndex
-from proto_mapper_assembly.interfaces.field_mapping import FieldMappingContext
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace, MatchResult, PreparedScoreData
-from proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs, MatchingRunConfig
-from proto_mapper_assembly.interfaces.message_pair import MatchPairKey
-from proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
-from proto_mapper_assembly.matching.pair_selection import (
+from DBDofusUnity.proto_mapper_assembly.field_mapping.field_mapper import build_field_mapping
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_order import CaptureOrderIndex
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import FieldMappingContext
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace, MatchResult, PreparedScoreData
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs, MatchingRunConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
+from DBDofusUnity.proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
+from DBDofusUnity.proto_mapper_assembly.matching.pair_selection import (
     SelectedSignaturePair,
     select_signature_pairs,
 )
-from proto_mapper_assembly.matching.score_constraints import build_adjusted_scores_matrix
-from proto_mapper_assembly.matching.score_lookup import build_lazy_score_by_pair_lookup_from_signatures
-from proto_mapper_assembly.scoring.message_scoring import (
+from DBDofusUnity.proto_mapper_assembly.matching.score_constraints import build_adjusted_scores_matrix
+from DBDofusUnity.proto_mapper_assembly.matching.score_lookup import build_lazy_score_by_pair_lookup_from_signatures
+from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import (
     StructureSimilarityContext,
     pair_evidence_coverage,
 )

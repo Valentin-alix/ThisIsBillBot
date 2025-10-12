@@ -3,8 +3,8 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 import requests
-from ankama_launcher_emulator_premium.exceptions import HaapiHttpError
-from ankama_launcher_emulator_premium.utils.internet import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.exceptions import HaapiHttpError
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.internet import (
     raise_for_status_with_content,
     retry_internet,
 )
@@ -35,7 +35,7 @@ class TestRetryInternet(TestCase):
                 raise requests.exceptions.ConnectionError("offline")
             return "ok"
 
-        with patch("ankama_launcher_emulator_premium.utils.internet.sleep") as sleep_mock:
+        with patch("AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.internet.sleep") as sleep_mock:
             result = flaky_call()
 
         self.assertEqual(result, "ok")
@@ -48,7 +48,7 @@ class TestRetryInternet(TestCase):
             raise socket.gaierror("dns")
 
         with (
-            patch("ankama_launcher_emulator_premium.utils.internet.sleep") as sleep_mock,
+            patch("AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.internet.sleep") as sleep_mock,
             self.assertRaises(requests.exceptions.ConnectionError),
         ):
             always_fails()

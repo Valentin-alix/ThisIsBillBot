@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import re
 
-from proto_mapper_assembly.interfaces.il2cpp_json import MethodDefinition
-from proto_mapper_assembly.parsers._clr_type_utils import extract_repeated_inner_type, split_top_level_tokens
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.il2cpp_json import MethodDefinition
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import extract_repeated_inner_type, split_top_level_tokens
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import (
     normalize_message_type_name,
     resolve_message_type_name,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.signatures.type_utils import extract_generic_inner_type
-from proto_mapper_assembly.scripts.ida_tracer_lib.signatures.types import ProtoParameterSeed
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.signatures.type_utils import extract_generic_inner_type
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.signatures.types import ProtoParameterSeed
 
 _DOT_NET_SIG_RE = re.compile(r"^(?:(\S+)\s+)?(\w+)\(([^)]*)\)$")
 _NATIVE_SIG_RE = re.compile(r"^(.*?)\s+([^\s(]+)\((.*)\)$")

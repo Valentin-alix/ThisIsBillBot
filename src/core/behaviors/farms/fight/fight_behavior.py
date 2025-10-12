@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from datas.protos.non_obf.game.fight_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.fight_pb2 import (
     FightTurnStartPlayingEvent,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
 )
@@ -13,8 +13,12 @@ from src.core.behaviors.farms.fight.fight_preparation_behavior import (
     FightPreparationBehavior,
 )
 from src.core.behaviors.farms.fight.fight_turn_behavior import FightTurnBehavior
+from src.core.behaviors.items.auto_equipment_from_inventory_behavior import (
+    AutoEquipmentFromInventoryBehavior,
+)
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.signals.shared_farm_signals import SharedSignals
+from src.services.human_timings import HumanTimingsService
 
 FIGHT_TIMEOUT_SECONDS = 30 * 60
 CHARACTERISTIC_UPGRADE_WAIT_SECONDS = 0.05
@@ -27,6 +31,7 @@ class FightBehavior(Behavior):
     fight_preparation_behavior: FightPreparationBehavior
     shared_signals: SharedSignals
     login: str
+    auto_equipment_from_inventory_behavior: AutoEquipmentFromInventoryBehavior
 
     def run(self) -> None:
         self.run_timer(FIGHT_TIMEOUT_SECONDS, self.on_fight_timeout)
@@ -66,6 +71,19 @@ class FightBehavior(Behavior):
                 CHARACTERISTIC_UPGRADE_WAIT_SECONDS,
                 self._finish_after_characteristic_upgrade,
             )
+        self.run_timer(
+            HumanTimingsService().get_timing_equipment_inventory_opening(),
+            self.start_auto_equipment_from_inventory,
+        )
+
+    def start_auto_equipment_from_inventory(self) -> None:
+        self.auto_equipment_from_inventory_behavior.start(
+            callback=self.on_auto_equipment_from_inventory_finished,
+            parent=self,
+        )
+
+    def on_auto_equipment_from_inventory_finished(self, error_code: str | None) -> None:
+        self.raise_if_error(error_code)
         self.finish()
 
     def on_fight_preparation_behavior_finish(self, error_code: str | None):

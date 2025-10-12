@@ -6,9 +6,9 @@ from dataclasses import dataclass
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
 
 _MIN_MATCH_MARGIN = 0.05
 """

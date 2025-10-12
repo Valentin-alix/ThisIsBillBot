@@ -1,12 +1,12 @@
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.game_constants.item import ItemTypeEnum
-from dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS, JobEnum
-from dofus_unity_reader.game_constants.skill import MAP_IDS_BY_SKILL
-from dofus_unity_reader.models.datas.recipe_root import RecipeItem
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.game_constants.item import ItemTypeEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS, JobEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.skill import MAP_IDS_BY_SKILL
+from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.controller.game_data import GameDataController
 from src.core.config import WEIGHT_BY_JOB

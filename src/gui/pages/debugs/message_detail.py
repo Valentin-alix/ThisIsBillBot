@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from functools import cached_property
 from typing import Any, cast
 
 from google.protobuf.descriptor import Descriptor, FieldDescriptor
@@ -27,11 +28,11 @@ class SelectedPinnedField:
     field_name: str
     path: tuple[str, ...]
 
-    @property
+    @cached_property
     def path_label(self) -> str:
         return ".".join(self.path)
 
-    @property
+    @cached_property
     def message_descriptor(self) -> Descriptor | None:
         if self.field_descriptor is None:
             return None

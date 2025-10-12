@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
 )
-from datas.protos.non_obf.game.game_message_pb2 import Request
+from DBDofusUnity.datas.protos.non_obf.game.game_message_pb2 import Request
 from google.protobuf.message import Message
 from PyQt6.QtCore import QMetaObject, Qt
 

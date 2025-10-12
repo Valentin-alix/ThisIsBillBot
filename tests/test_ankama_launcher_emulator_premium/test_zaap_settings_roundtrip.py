@@ -3,17 +3,18 @@ from datetime import UTC, datetime
 from pathlib import Path
 from unittest import TestCase
 
-from ankama_launcher_emulator_premium.haapi.haapi import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.haapi import (
     get_account_info_by_login,
     get_game_sub_info_by_login,
     upsert_settings_account,
 )
-from ankama_launcher_emulator_premium.interfaces.game import GameIdEnum
-from ankama_launcher_emulator_premium.interfaces.zaap_files import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.game import GameIdEnum
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.local_storage import BotRecord
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.zaap_files import (
     GameSubscription,
     UserAccount,
 )
-from ankama_launcher_emulator_premium.utils import bot_storage
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller import bot_storage
 
 
 def _make_account(login: str) -> UserAccount:
@@ -49,9 +50,10 @@ def _update_password_repeatedly(
     storage_controller = bot_storage.BotStorageController()
     for update_index in range(10):
         password = f"{password_prefix}-{update_index}"
-        storage_controller.update_record(
+        storage_controller.upsert_record(
             login,
-            lambda record: setattr(record, "password", password),
+            create=lambda: BotRecord(email=login, password=password, hardware_id="hw-1"),
+            update=lambda record: setattr(record, "password", password),
         )
 
 
@@ -81,6 +83,11 @@ class TestAccountInfoRoundTrip(TestCase):
         self.assertEqual(list(bots_path.parent.glob("*.tmp")), [])
 
     def test_upsert_then_load_recovers_account_and_subscription(self) -> None:
+        bot_storage.BotStorageController().upsert_record(
+            "user@example.com",
+            create=lambda: BotRecord(email="user@example.com", password="secret", hardware_id="hw-1"),
+            update=lambda record: None,
+        )
         upsert_settings_account(_make_account("user@example.com"))
         loaded = get_account_info_by_login("user@example.com")
         subscription = get_game_sub_info_by_login("user@example.com")
@@ -92,9 +99,10 @@ class TestAccountInfoRoundTrip(TestCase):
         self.assertTrue(subscription.is_subscribed)
 
     def test_upsert_preserves_other_bot_fields(self) -> None:
-        bot_storage.BotStorageController().update_record(
+        bot_storage.BotStorageController().upsert_record(
             "user@example.com",
-            lambda record: setattr(record, "password", "secret"),
+            create=lambda: BotRecord(email="user@example.com", password="secret", hardware_id="hw-1"),
+            update=lambda record: setattr(record, "password", "secret"),
         )
         upsert_settings_account(_make_account("user@example.com"))
         record = bot_storage.BotStorageController().get_record("user@example.com")

@@ -31,7 +31,8 @@ SALE_HOTEL_PRICE_TIMING = TimingProfile(0.7, 1.3, 3.0)
 SALE_HOTEL_SAME_LOT_TIMING = TimingProfile(0.2, 0.3, 0.6)
 SALE_HOTEL_NEXT_LOT_TIMING = TimingProfile(0.4, 0.8, 1.2)
 SALE_HOTEL_NEXT_ITEM_TIMING = TimingProfile(0.7, 1.4, 2.1)
-EQUIPMENT_CHOICE_TIMING = TimingProfile(0.4, 0.9, 2.0)
+EQUIPMENT_CHOICE_TIMING = TimingProfile(0.4, 0.7, 1.5)
+EQUIPMENT_INVENTORY_OPENING_TIMING = TimingProfile(1.2, 2.0, 2.5)
 FIGHT_PLACEMENT_TIMING = TimingProfile(0.35, 0.75, 1.6)
 FIGHT_READY_TIMING = TimingProfile(0.45, 0.9, 2.0)
 FIGHT_ACTION_TIMING = TimingProfile(0.15, 0.65, 1.8)
@@ -163,6 +164,9 @@ class HumanTimingsService(metaclass=Singleton):
 
     def get_timing_equipment_choice(self) -> float:
         return sample_timing(EQUIPMENT_CHOICE_TIMING)
+
+    def get_timing_equipment_inventory_opening(self) -> float:
+        return sample_timing(EQUIPMENT_INVENTORY_OPENING_TIMING)
 
     def get_timing_fight_action(self, same_spell: bool) -> float:
         profile = FIGHT_SAME_SPELL_ACTION_TIMING if same_spell else FIGHT_ACTION_TIMING

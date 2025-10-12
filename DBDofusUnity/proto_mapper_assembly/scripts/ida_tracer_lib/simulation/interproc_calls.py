@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import idaapi
 
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.accessor_candidate import AccessorCandidate
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.accessor_candidate import AccessorCandidate
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import (
     IENUMERATOR_TYPEINFO_PREFIX,
     IL2CPP_TYPEINFO_CAST_HELPERS,
     KVP_VALUE_TYPEINFO_PREFIX,
@@ -13,11 +13,11 @@ from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import (
     RCX_REG,
     RDX_REG,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.invalidation import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.invalidation import (
     invalidate_heap_slots_for_volatile_bases,
     invalidate_volatile_registers,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
     HeapState,
     RegisterState,
     TrackedValue,

@@ -8,12 +8,12 @@ from typing import Protocol
 
 import pulp
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
-from proto_mapper_assembly.interfaces.runtime_data import NormalizedRuntimeInstance
-from proto_mapper_assembly.validators.global_validators import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime_data import NormalizedRuntimeInstance
+from DBDofusUnity.proto_mapper_assembly.validators.global_validators import (
     global_validator_interactive_element,
 )
-from proto_mapper_assembly.validators.set_validators import (
+from DBDofusUnity.proto_mapper_assembly.validators.set_validators import (
     validator_aggression_event,
     validator_bak_action_event,
     validator_bak_action_request,

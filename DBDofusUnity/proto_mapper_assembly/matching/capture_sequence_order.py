@@ -7,8 +7,8 @@ from math import exp, log
 
 import numpy as np
 
-from proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
-from proto_mapper_assembly.interfaces.capture_sequence_order import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_order import (
     Assignment,
     BeamState,
     CaptureOrderIndex,
@@ -16,8 +16,8 @@ from proto_mapper_assembly.interfaces.capture_sequence_order import (
     OrderContext,
     SequenceMessage,
 )
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace
-from proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
 
 _CANDIDATE_LIMIT = 5
 _CAPTURED_CANDIDATE_LIMIT = 10

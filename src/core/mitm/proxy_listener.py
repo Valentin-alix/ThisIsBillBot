@@ -2,8 +2,8 @@ import logging
 from dataclasses import dataclass, field
 from socket import socket as Socket
 
-from ankama_launcher_emulator_premium.proxy.dofus3.proxy import Proxy
-from ankama_launcher_emulator_premium.proxy.dofus3.proxy_listener import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.proxy.dofus3.proxy import Proxy
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.proxy.dofus3.proxy_listener import (
     ProxyListener as BaseProxyListener,
 )
 
@@ -33,7 +33,7 @@ class ProxyListener(BaseProxyListener):
 
     def on_connection_port_assigned(self, login: str, connection_port: int) -> None:
         related_bot = next(
-            (bot for bot in self.account_by_id.values() if bot.account.apikey.login == login),
+            (bot for bot in list(self.account_by_id.values()) if bot.account.apikey.login == login),
             None,
         )
         if related_bot is not None:

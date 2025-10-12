@@ -2,8 +2,8 @@ import threading
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from datas.protos.non_obf.game.basic_pb2 import DateRequest
-from datas.protos.non_obf.game.connection_pb2 import PingRequest
+from DBDofusUnity.datas.protos.non_obf.game.basic_pb2 import DateRequest
+from DBDofusUnity.datas.protos.non_obf.game.connection_pb2 import PingRequest
 
 from src.core.behaviors.behavior import Behavior
 

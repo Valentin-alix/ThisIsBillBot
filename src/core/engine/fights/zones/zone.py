@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from dofus_unity_reader.game_constants.directions import DirectionsEnum
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 
 class Zone(ABC):

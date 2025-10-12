@@ -2,7 +2,7 @@ import datetime
 import traceback
 from typing import Any
 
-from datas.protos.non_obf.connection.login_message_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import (
     Event,
     LoginMessage,
     Request,

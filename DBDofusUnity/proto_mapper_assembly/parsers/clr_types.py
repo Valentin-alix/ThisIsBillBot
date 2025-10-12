@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from proto_mapper_assembly.interfaces.field_category import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import (
     FieldCategoryEnum,
     FieldTypeLeafKind,
     NumericKind,
 )
-from proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type
 
 SCALAR_TYPES: frozenset[str] = frozenset(
     {"byte", "sbyte", "short", "ushort", "int", "uint", "long", "ulong", "float", "double"}

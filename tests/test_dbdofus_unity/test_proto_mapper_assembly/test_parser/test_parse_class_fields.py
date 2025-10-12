@@ -2,8 +2,8 @@ from typing import NamedTuple
 
 import pytest
 
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.parsers._dump_cs_message_body_parser import parse_class_fields
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_message_body_parser import parse_class_fields
 
 
 class FieldCase(NamedTuple):

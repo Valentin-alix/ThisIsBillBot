@@ -1,7 +1,7 @@
 import re
 from functools import lru_cache
 
-from dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 
 _FINISHED_QUEST_TERM = re.compile(r"Qf=(\d+)")
 

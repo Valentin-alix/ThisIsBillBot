@@ -4,15 +4,15 @@ from typing import Literal, NamedTuple, TypeGuard, override
 
 from pydantic import BaseModel, RootModel, model_validator
 
-from proto_mapper_assembly.interfaces.counter_profile import CounterProfile
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
-from proto_mapper_assembly.interfaces.field_category import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.counter_profile import CounterProfile
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import (
     CompactFieldTypeShape,
     FieldCategoryEnum,
     FieldTypeShape,
 )
-from proto_mapper_assembly.interfaces.function_access_signature import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import (
     AccessAtomKey,
     AccessAtomSequenceKey,
     AccessAtomSignature,
@@ -21,7 +21,7 @@ from proto_mapper_assembly.interfaces.function_access_signature import (
     FunctionSimilarityKey,
     ReturnRole,
 )
-from proto_mapper_assembly.parsers.csharp_signature_utils import get_normalized_short_type_name
+from DBDofusUnity.proto_mapper_assembly.parsers.csharp_signature_utils import get_normalized_short_type_name
 
 
 class FieldAccessSignatureKey(NamedTuple):

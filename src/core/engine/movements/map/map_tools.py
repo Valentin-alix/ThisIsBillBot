@@ -1,17 +1,17 @@
 import math
 
 from base_python.cache import cache
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.map_id import (
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.map_id import (
     MAP_PIXEL_HALF_HEIGHT,
     MAP_PIXEL_HALF_WIDTH,
 )
-from dofus_unity_reader.game_constants.directions import DirectionsEnum
-from dofus_unity_reader.grid.consts import (
+from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
+from DBDofusUnity.dofus_unity_reader.grid.consts import (
     MAP_GRID_WIDTH,
 )
-from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
-from dofus_unity_reader.models.maps import Transform
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
+from DBDofusUnity.dofus_unity_reader.models.maps import Transform
 
 
 class MapTools:

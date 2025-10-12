@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 
-from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeObjectMoveRequest,
 )
-from datas.protos.non_obf.game.inventory_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
-from dofus_unity_reader.models.datas.recipe_root import RecipeItem
+from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestBehavior,

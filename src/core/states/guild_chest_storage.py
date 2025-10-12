@@ -1,6 +1,6 @@
 from threading import RLock
 
-from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
 
 _STORAGE_REGISTRY: dict[int, "GuildChestStorage"] = {}
 _REGISTRY_LOCK = RLock()

@@ -4,7 +4,7 @@ from urllib.parse import unquote, urlparse
 
 from playwright.async_api import BrowserContext, ProxySettings, async_playwright
 
-from ankama_launcher_emulator_premium.web._client.user_agent import CHROME_USER_AGENT
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.user_agent import CHROME_USER_AGENT
 
 BROWSER_ARGS = [
     "--no-sandbox",

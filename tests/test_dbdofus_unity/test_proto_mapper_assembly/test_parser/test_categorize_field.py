@@ -2,8 +2,8 @@ from typing import Any
 
 import pytest
 
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.parsers.clr_types import categorize_field
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.parsers.clr_types import categorize_field
 
 _CATEGORIZE_PARAMS: list[tuple[str, frozenset[Any], FieldCategoryEnum]] = [
     ("int", frozenset(), FieldCategoryEnum.NUMBER),

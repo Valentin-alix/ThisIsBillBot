@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from proto_mapper_assembly.controllers.enum_signatures import validate_enum_signature_member_values
-from proto_mapper_assembly.controllers.message_fields import (
+from DBDofusUnity.proto_mapper_assembly.controllers.enum_signatures import validate_enum_signature_member_values
+from DBDofusUnity.proto_mapper_assembly.controllers.message_fields import (
     bind_field_signatures_to_message_fields,
     build_dump_cs_field_lookup,
 )
-from proto_mapper_assembly.interfaces.assembly_access import FieldAccessSignatures, MessageAccessSignature
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, normalize_proto_field_name
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
-from proto_mapper_assembly.interfaces.signature_overrides import FieldOverrideBinding, SignatureOverrideEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import FieldAccessSignatures, MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, normalize_proto_field_name
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import FieldOverrideBinding, SignatureOverrideEntry
 
 
 def validate_stored_field_bindings(

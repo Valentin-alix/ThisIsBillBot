@@ -7,9 +7,9 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from proto_mapper_assembly.helpers.proto_helpers import resolve_child_message_cls
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.matching import MatchResult
+from DBDofusUnity.proto_mapper_assembly.helpers.proto_helpers import resolve_child_message_cls
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchResult
 
 _IMPORT_PATTERN = re.compile(
     r"from\s+datas\.protos\.non_obf\.game\.(\w+)_pb2\s+import\s+(\([^()]+\)|[^\n#]+)",

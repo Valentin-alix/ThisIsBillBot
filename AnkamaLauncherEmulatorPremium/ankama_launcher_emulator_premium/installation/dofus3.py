@@ -1,9 +1,9 @@
 from collections.abc import Callable
 
-from ankama_launcher_emulator_premium.installation.cytrus import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.installation.cytrus import (
     check_cytrus_installation,
 )
-from ankama_launcher_emulator_premium.utils.environment import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.environment import (
     DOFUS_PATH,
     RELEASE_JSON_PATH,
 )

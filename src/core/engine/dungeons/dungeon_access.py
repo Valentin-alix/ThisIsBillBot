@@ -1,11 +1,11 @@
 from logging import Logger
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.game_constants.item import ItemEnum, ItemTypeEnum
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.game_constants.item import ItemEnum, ItemTypeEnum
 
 from src.core.config import DUNGEON_OFFSET_LVL
 from src.core.engine.dungeons.dungeon_info import DungeonInfo, PLAYABLE_DUNGEONS

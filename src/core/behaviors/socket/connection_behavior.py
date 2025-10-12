@@ -3,11 +3,11 @@ from datetime import datetime
 from enum import StrEnum, auto
 from typing import NamedTuple
 
-from ankama_launcher_emulator_premium.haapi.zaap_version import get_client_version
-from ankama_launcher_emulator_premium.web.subscription.storage import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.zaap_version import get_client_version
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.subscription_expiration import (
     SubscriptionExpirationStorage,
 )
-from datas.protos.non_obf.connection.login_message_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import (
     IdentificationRequest,
     IdentificationResponse,
     LoginMessage,
@@ -16,9 +16,9 @@ from datas.protos.non_obf.connection.login_message_pb2 import (
     SelectServerResponse,
     TokenRequest,
 )
-from dofus_unity_reader.game_constants.server import ServerEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.server import ServerEnum
 from google.protobuf.json_format import MessageToDict
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 from src.controller.bot_config import BotConfigService
 from src.core.behaviors.behavior import Behavior

@@ -5,10 +5,10 @@ from functools import cache
 
 import numpy as np
 
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace
-from proto_mapper_assembly.interfaces.message_pair import MatchPairKey
-from proto_mapper_assembly.scoring.message_scoring import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
+from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import (
     MessageSimilarityScoreData,
     StructureSimilarityContext,
     compute_message_similarity,

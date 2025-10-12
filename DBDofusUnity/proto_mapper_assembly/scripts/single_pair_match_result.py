@@ -5,7 +5,7 @@ from collections.abc import Mapping
 
 from icecream import ic
 
-from consts import (
+from DBDofusUnity.consts import (
     NON_OBF_NEW_DUMP_CS_FILE,
     NON_OBF_PROTO_ACCESSES_FILE,
     NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
@@ -13,37 +13,37 @@ from consts import (
     OBF_PROTO_ACCESSES_FILE,
     OBF_PROTOCOL_GAME_DUMP_CS_FILE,
 )
-from proto_mapper_assembly.controllers.message_lookup import (
+from DBDofusUnity.proto_mapper_assembly.controllers.message_lookup import (
     build_non_obf_alias_lookup,
     build_obf_alias_lookup,
     resolve_non_obf_alias,
     resolve_obf_alias,
 )
-from proto_mapper_assembly.controllers.matching_inputs_loader import load_matching_inputs
-from proto_mapper_assembly.field_mapping.field_mapper import build_field_mapping
-from proto_mapper_assembly.field_mapping.field_mapping_preparation import (
+from DBDofusUnity.proto_mapper_assembly.controllers.matching_inputs_loader import load_matching_inputs
+from DBDofusUnity.proto_mapper_assembly.field_mapping.field_mapper import build_field_mapping
+from DBDofusUnity.proto_mapper_assembly.field_mapping.field_mapping_preparation import (
     prepare_field_mapping_context,
 )
-from proto_mapper_assembly.field_mapping.field_mapping_scoring import score_field_pair
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.field_mapping import FieldMappingContext
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace
-from proto_mapper_assembly.interfaces.runtime import (
+from DBDofusUnity.proto_mapper_assembly.field_mapping.field_mapping_scoring import score_field_pair
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import FieldMappingContext
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime import (
     MessageRuntimeMetadata,
     RuntimeRemappingContext,
     RuntimeRemappingTraceEvent,
     RuntimeValidationCandidate,
 )
-from proto_mapper_assembly.matching.score_lookup import (
+from DBDofusUnity.proto_mapper_assembly.matching.score_lookup import (
     build_lazy_score_by_pair_lookup_from_signatures,
     build_message_pair_static_score,
 )
-from proto_mapper_assembly.matching.workspace import build_matching_workspace
-from proto_mapper_assembly.runtime.metadata import build_message_runtime_metadata
-from proto_mapper_assembly.runtime.runtime_remapping import remap_runtime_instances
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-from proto_mapper_assembly.scoring.message_scoring import StructureSimilarityContext
+from DBDofusUnity.proto_mapper_assembly.matching.workspace import build_matching_workspace
+from DBDofusUnity.proto_mapper_assembly.runtime.metadata import build_message_runtime_metadata
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_remapping import remap_runtime_instances
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import StructureSimilarityContext
 
 
 def main() -> None:

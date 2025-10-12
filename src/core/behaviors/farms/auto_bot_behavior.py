@@ -3,8 +3,7 @@ from datetime import datetime
 from functools import partial
 from threading import RLock
 
-from dofus_unity_reader.data_center.area_info import AreaInfo
-
+from DBDofusUnity.dofus_unity_reader.data_center.area_info import AreaInfo
 from src.core.behaviors.behavior import BehaviorState
 from src.core.behaviors.craft.craft_behavior import CraftBehavior, CraftRequest
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmingErrorCode
@@ -15,7 +14,7 @@ from src.core.behaviors.idle_behavior import IdleBehavior
 from src.core.behaviors.items.auto_equipment_behavior import AutoEquipmentBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
 from src.core.behaviors.quests.quest_behavior import QuestBehavior
-from src.core.behaviors.recovery import RecoverableBehavior
+from src.core.behaviors.recovery_behavior import RecoverableBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import SaleHotelErrorCode, SaleHotelSellBehavior
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestErrorCode,

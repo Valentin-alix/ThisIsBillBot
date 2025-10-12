@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ankama_launcher_emulator_premium.haapi.haapi import Haapi
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.haapi import Haapi
 
 
 @dataclass

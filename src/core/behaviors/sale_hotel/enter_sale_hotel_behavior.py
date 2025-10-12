@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from functools import partial
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.game_constants.element_type import ElementTypeEnum
-from dofus_unity_reader.game_constants.item import CategoryItemEnum
-from dofus_unity_reader.game_constants.npc import NpcInfo
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.game_constants.element_type import ElementTypeEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import NpcInfo
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior

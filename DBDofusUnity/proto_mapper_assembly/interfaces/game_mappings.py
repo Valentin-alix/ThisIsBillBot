@@ -1,6 +1,6 @@
 from pydantic import BaseModel, RootModel
 
-from proto_mapper_assembly.interfaces.field_mapping_rejected_infos import FieldMappingRejectedInfos
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping_rejected_infos import FieldMappingRejectedInfos
 
 
 class GameMappingEntry(BaseModel):

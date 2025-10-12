@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import cast
 
 import pytest
-from datas.protos.non_obf.game.client_verification_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.client_verification_pb2 import (
     ClientChallengeInitRequest,
     ClientChallengeProofRequest,
     ClientIdRequest,

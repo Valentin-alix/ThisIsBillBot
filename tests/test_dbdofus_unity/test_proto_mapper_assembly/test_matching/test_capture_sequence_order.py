@@ -4,18 +4,18 @@ import numpy as np
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import message_signature
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_store import seed_runtime_content
 
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
-from proto_mapper_assembly.interfaces.capture_sequence_order import CaptureOrderIndex
-from proto_mapper_assembly.interfaces.capture_sequence_hints import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_order import CaptureOrderIndex
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import (
     CaptureSequence,
     CaptureSequenceHintsConfig,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
-from proto_mapper_assembly.matching.capture_sequence_order import apply_capture_sequence_order_scores
-from proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
-from proto_mapper_assembly.matching.workspace import build_matching_workspace
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.matching.capture_sequence_order import apply_capture_sequence_order_scores
+from DBDofusUnity.proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
+from DBDofusUnity.proto_mapper_assembly.matching.workspace import build_matching_workspace
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 _SESSION = "session_a"
 

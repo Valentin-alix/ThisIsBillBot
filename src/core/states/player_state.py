@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from threading import Event
 
-from ankama_launcher_emulator_premium.haapi.haapi import get_game_sub_info_by_login
-from dofus_unity_reader.game_constants.server import ServerEnum
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.haapi import get_game_sub_info_by_login
+from DBDofusUnity.dofus_unity_reader.game_constants.server import ServerEnum
 
 from src import consts
 from src.core.signals.player_signals import GameInfoSignals

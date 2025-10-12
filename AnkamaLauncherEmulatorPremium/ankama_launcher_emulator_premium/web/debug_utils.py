@@ -7,7 +7,7 @@ from pathlib import Path
 from playwright._impl._errors import TargetClosedError
 from playwright.async_api import Page
 
-from ankama_launcher_emulator_premium.consts import DEBUG_DUMPS_DIR
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import DEBUG_DUMPS_DIR
 
 logger = logging.getLogger(__name__)
 

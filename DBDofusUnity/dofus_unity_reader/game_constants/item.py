@@ -104,6 +104,8 @@ class ItemEnum(IntEnum):
     GROIN_DE_SANGLIER_DES_PLAINES = 2515
     POILS_DE_KERUBIM = 13608
     CIRE_DE_GLIGLI = 14508
+    # recipes
+    ANKARNOOB_BREAD = 468
 
 
 CUSTOM_GATHERER_BY_SAC: dict[int, int] = {

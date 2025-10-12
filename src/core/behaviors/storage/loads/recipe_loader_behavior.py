@@ -1,18 +1,17 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
 
-from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.models.datas.recipe_root import RecipeItem
-
-from src.core.behaviors.recovery import RecoverableBehavior
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
+from src.core.behaviors.recovery_behavior import RecoverableBehavior
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
 from src.core.config import USEFUL_UNLOAD
-from src.services.human_timings import HumanTimingsService
 from src.core.engine.crafts.recipes import (
     get_max_possible_result_quantity,
     get_max_result_quantity,
 )
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass

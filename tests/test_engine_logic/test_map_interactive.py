@@ -1,8 +1,8 @@
-from datas.protos.non_obf.game.common_pb2 import InteractiveElement
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
-from dofus_unity_reader.game_constants.map_id import MapIdEnum
-from dofus_unity_reader.game_constants.skill import SkillEnum
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import InteractiveElement
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.skill import SkillEnum
 
 from src.core.engine.interactives.map_interactive import find_usable_element_ids_by_cell_id
 

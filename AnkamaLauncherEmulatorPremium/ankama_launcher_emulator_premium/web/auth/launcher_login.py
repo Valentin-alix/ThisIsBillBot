@@ -9,67 +9,70 @@ from playwright.async_api import Page, Response
 from pydantic import ValidationError
 from requests import HTTPError
 
-from ankama_launcher_emulator_premium.consts import ENV_PATH
-from ankama_launcher_emulator_premium.decrypter.crypto_helper import CryptoHelper
-from ankama_launcher_emulator_premium.exceptions import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import ENV_PATH
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+    BotStorageController,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.mail_account import (
+    MailAccountController,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.proxy import ProxyController
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
+    ScheduleProfileController,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.crypto_helper import (
+    CryptoHelper,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.exceptions import (
     BannedException,
     ProxyRejectedError,
 )
-from ankama_launcher_emulator_premium.haapi.haapi import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.haapi import (
     Haapi,
     refresh_api_key_from_oauth,
 )
-from ankama_launcher_emulator_premium.interfaces.credentials import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
     DecipheredApiKey,
 )
-from ankama_launcher_emulator_premium.interfaces.local_storage import (
-    GeneratedAccountEntry,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.local_storage import BotRecord
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.oauth_api import TokenResponse
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.proxy import build_http_proxy_url
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.browser import (
+    launch_browser_context,
 )
-from ankama_launcher_emulator_premium.interfaces.oauth_api import TokenResponse
-from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
-    ProxyController,
-    ScheduleProfileController,
-)
-from ankama_launcher_emulator_premium.utils.proxy import build_http_proxy_url
-from ankama_launcher_emulator_premium.web._client.browser import launch_browser_context
-from ankama_launcher_emulator_premium.web._client.browser_interactions import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.browser_interactions import (
     human_wait,
     visible_form_error_texts,
 )
-from ankama_launcher_emulator_premium.web._client.credentials import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.credentials import (
     fill_credentials_and_submit,
 )
-from ankama_launcher_emulator_premium.web._client.mailbox import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.base import (
     MailboxCodeTimeoutError,
-    MailboxSettings,
 )
-from ankama_launcher_emulator_premium.web._client.pkce import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.config import (
+    resolve_mail_provider,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.pkce import (
     generate_code_challenge,
     generate_code_verifier,
 )
-from ankama_launcher_emulator_premium.web.auth.identity import generate_nickname
-from ankama_launcher_emulator_premium.web.auth.models import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.identity import generate_nickname
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.models import (
     AuthenticationOptions,
     AuthenticationResult,
 )
-from ankama_launcher_emulator_premium.web.auth.oauth_state import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.oauth_state import (
     CLIENT_ID,
     LOGIN_REDIRECT_URI,
     build_login_url,
 )
-from ankama_launcher_emulator_premium.web.auth.shield import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.shield import (
     ZAAP_GAME_ID,
     resolve_shield,
     secure_apikey_via_email,
 )
-from ankama_launcher_emulator_premium.web.auth.storage import (
-    load_available_generated_accounts,
-    load_bad_state_emails,
-    mark_account_authenticated,
-    mark_account_available_for_auth_retry,
-    record_bad_state_email,
-)
-from ankama_launcher_emulator_premium.web.debug_utils import try_dump_page_html
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.debug_utils import try_dump_page_html
 
 TOKEN_URL = "https://auth.ankama.com/token"
 PROXY_REJECTED_ERROR_TEXT = "connexion non-autorisée : votre adresse ip est cachée."
@@ -211,7 +214,7 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
         certificate = await resolve_shield(
             haapi,
             account_info,
-            options.mailbox,
+            options.mail_provider,
             started_at,
             timeout_seconds=options.shield_timeout_seconds,
         )
@@ -222,7 +225,7 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
             # never store an unsecured key that only fails later at game launch.
             certificate = await secure_apikey_via_email(
                 haapi,
-                options.mailbox,
+                options.mail_provider,
                 started_at,
                 timeout_seconds=options.shield_timeout_seconds,
             )
@@ -287,7 +290,7 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
             await _dump_oauth_failure_page(page)
         raise
     except MailboxCodeTimeoutError as exc:
-        record_bad_state_email(options.email)
+        MailAccountController().record_bad_state(options.email)
         logger.error(
             "[OAuth] Mailbox code timeout for %s; recorded as bad-state email: %s",
             options.email,
@@ -304,23 +307,20 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
 
 
 async def _authenticate_account(
-    account: GeneratedAccountEntry,
+    account: BotRecord,
     proxy_url: str | None = None,
 ) -> AuthenticationResult:
     auth_result = await authenticate(
         AuthenticationOptions(
             email=account.email,
             password=account.password,
-            mailbox=MailboxSettings.from_env(),
+            mail_provider=resolve_mail_provider(account.email),
             proxy_url=proxy_url,
         )
     )
-    if auth_result.success:
-        mark_account_authenticated(account.email)
-    else:
+    if not auth_result.success:
         CryptoHelper.remove_bot(account.email)
-        mark_account_available_for_auth_retry(account.email)
-        if account.email in load_bad_state_emails():
+        if account.email in MailAccountController().load_bad_state_emails():
             logger.warning(
                 "[OAuth] %s is now in bad-state emails; skipping future scheduler auth",
                 account.email,
@@ -339,7 +339,7 @@ async def authenticate_next_available_account(
     Used by the quota-driven scheduler, which only ever wants to consume one slot
     of the per-proxy Ankama rate-limit pool at a time.
     """
-    available_accounts = load_available_generated_accounts()
+    available_accounts = BotStorageController().get_accounts_needing_auth()
     if not available_accounts:
         return None
     account = (
@@ -365,7 +365,7 @@ async def authenticate_next_available_account(
 
 
 async def authenticate_available_accounts():
-    available_accounts = load_available_generated_accounts()
+    available_accounts = BotStorageController().get_accounts_needing_auth()
     for account in available_accounts:
         auth_result = await _authenticate_account(account)
         if not auth_result.success:

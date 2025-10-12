@@ -1,4 +1,4 @@
-from proto_mapper_assembly.parsers._dump_cs_structure import _Span, build_parent_name
+from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_structure import _Span, build_parent_name
 
 
 class TestBuildParentName:

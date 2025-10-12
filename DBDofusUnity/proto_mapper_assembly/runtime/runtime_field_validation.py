@@ -3,10 +3,10 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
-from proto_mapper_assembly.interfaces.runtime import FieldValidatorRuntimeMetadata
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-from proto_mapper_assembly.validators.field_validators import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime import FieldValidatorRuntimeMetadata
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.validators.field_validators import (
     VALIDATORS_BY_NON_OBF_MESSAGE_NAME,
     ValidatorFn,
 )

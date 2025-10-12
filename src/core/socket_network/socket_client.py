@@ -3,7 +3,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from hashlib import sha256
 
-from ankama_launcher_emulator_premium.haapi.haapi import Haapi
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.haapi import Haapi
 from requests import HTTPError
 
 from src.controller.bot_config import BotConfig

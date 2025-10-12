@@ -1,6 +1,3 @@
-from typing import TypeAlias
-
-from cachetools import LRUCache, cached
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QStandardItem
 from PyQt6.QtWidgets import QHeaderView, QWidget
@@ -11,14 +8,6 @@ from src.gui.components.table.table import BaseTableWidget
 from src.gui.consts import GREEN_COLOR
 from src.gui.pages.debugs.message_filter_proxy import MessageFilterProxyModel
 from src.protocol.message import MessageInfo
-
-MessageTreeValue: TypeAlias = (
-    str | int | float | bool | None | dict[str, "MessageTreeValue"] | list["MessageTreeValue"]
-)
-
-
-def _deep_count_fields_cache_key(_: "MessageTable", sub_msg_name: str, __: MessageTreeValue) -> str:
-    return sub_msg_name
 
 
 class MessageTable(BaseTableWidget):
@@ -33,7 +22,6 @@ class MessageTable(BaseTableWidget):
         columns: list[ColumnInfo] = [
             ColumnInfo(name="Heure"),
             ColumnInfo(name="Origine"),
-            ColumnInfo(name="Nombre"),
             ColumnInfo(name="Type"),
             ColumnInfo(name="Contenu", is_hidden=True),
         ]
@@ -43,27 +31,12 @@ class MessageTable(BaseTableWidget):
         assert header is not None
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
         header.setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)
-        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
 
         self.table.setColumnWidth(0, 90)
         self.table.setColumnWidth(1, 10)
-        self.table.setColumnWidth(2, 80)
 
         self.table.setEditTriggers(TableWidget.EditTrigger.NoEditTriggers)
-
-    @cached(cache=LRUCache[str, int](maxsize=500), key=_deep_count_fields_cache_key)
-    def deep_count_fields(self, sub_msg_name: str, dico: MessageTreeValue) -> int:
-        if not isinstance(dico, dict):
-            return 1
-        count = len(dico)
-        for value in dico.values():
-            if isinstance(value, dict):
-                count += self.deep_count_fields(sub_msg_name, value)
-            elif isinstance(value, list):
-                for value_part in value:
-                    count += self.deep_count_fields(sub_msg_name, value_part)
-        return count
 
     def add_row(self, msg_info: MessageInfo, was_send_from_proxy: bool) -> None:
         self._pending_messages.append((msg_info, was_send_from_proxy))
@@ -92,13 +65,6 @@ class MessageTable(BaseTableWidget):
                     display_name = f"{msg_info.sub_msg_name} ? {candidates_str}"
             sub_msg_name_field = QStandardItem(display_name)
 
-            count = ""
-            if msg_info.obf_msg_json:
-                count = str(self.deep_count_fields(msg_info.sub_msg_name, msg_info.obf_msg_json))
-            elif msg_info.msg_json:
-                count = str(self.deep_count_fields(msg_info.sub_msg_name, msg_info.msg_json))
-            count_fields = QStandardItem(count)
-
             content_msg_field = QStandardItem("")
             content_msg_field.setData(msg_info, Qt.ItemDataRole.UserRole)
 
@@ -106,13 +72,11 @@ class MessageTable(BaseTableWidget):
                 date_field.setData(GREEN_COLOR, Qt.ItemDataRole.BackgroundRole)
                 origin_field.setData(GREEN_COLOR, Qt.ItemDataRole.BackgroundRole)
                 sub_msg_name_field.setData(GREEN_COLOR, Qt.ItemDataRole.BackgroundRole)
-                count_fields.setData(GREEN_COLOR, Qt.ItemDataRole.BackgroundRole)
 
             rows_to_add.append(
                 [
                     date_field,
                     origin_field,
-                    count_fields,
                     sub_msg_name_field,
                     content_msg_field,
                 ]

@@ -10,14 +10,14 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from consts import (
+from DBDofusUnity.consts import (
     IDA_EXE,
     NON_OBF_GAME_ASSEMBLY_DLL_I64,
     NON_OBFUSCATED_DATA_DIR,
     OBF_GAME_ASSEMBLY_DLL_I64,
     OBFUSCATED_DATA_DIR,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.progress.reporter import start_progress_watcher
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.progress.reporter import start_progress_watcher
 
 IDA_SCRIPT = Path(__file__).parent / "ida_proto_field_tracer.py"
 

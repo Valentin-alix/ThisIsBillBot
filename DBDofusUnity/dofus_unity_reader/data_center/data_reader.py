@@ -9,69 +9,71 @@ import msgspec
 import msgspec.json
 from base_python.cache import cache
 from base_python.singleton import Singleton
-from consts import DATA_BUNDLES_ROOT, MAP_BUNDLES_ROOT
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
-from dofus_unity_reader.game_constants.item import CategoryItemEnum
-from dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS
-from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD
-from dofus_unity_reader.models.datas.areas_root import AreasRoot, AreasRootItem
-from dofus_unity_reader.models.datas.breedsroot import Breedsroot, BreedsrootItem
-from dofus_unity_reader.models.datas.characteristic_category_root import (
+from DBDofusUnity.consts import DATA_BUNDLES_ROOT, MAP_BUNDLES_ROOT
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD
+from DBDofusUnity.dofus_unity_reader.models.datas.areas_root import AreasRoot, AreasRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.breedsroot import Breedsroot, BreedsrootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.characteristic_category_root import (
     CharacteristicCategoriesRoot,
 )
-from dofus_unity_reader.models.datas.characteristic_root import (
+from DBDofusUnity.dofus_unity_reader.models.datas.characteristic_root import (
     CharacteristicsRoot,
     CharacteristicsRootItem,
 )
-from dofus_unity_reader.models.datas.dungeons_root import DungeonsRoot, DungeonsRootItem
-from dofus_unity_reader.models.datas.effects_root import EffectsRoot, EffectsRootItem
-from dofus_unity_reader.models.datas.item_type_root import ItemsTypeRoot, ItemTypeData
-from dofus_unity_reader.models.datas.items_root import (
+from DBDofusUnity.dofus_unity_reader.models.datas.dungeons_root import DungeonsRoot, DungeonsRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.effects_root import EffectsRoot, EffectsRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.item_type_root import ItemsTypeRoot, ItemTypeData
+from DBDofusUnity.dofus_unity_reader.models.datas.itemsetsroot import Itemsetsroot
+from DBDofusUnity.dofus_unity_reader.models.datas.items_root import (
     ItemsRoot,
     ItemsRootItem,
     ItemsRootItemEffect,
     ItemsRootItemStrict,
 )
-from dofus_unity_reader.models.datas.jobs_root import JobsRoot, JobsRootItem
-from dofus_unity_reader.models.datas.map_positions_root import (
+from DBDofusUnity.dofus_unity_reader.models.datas.jobs_root import JobsRoot, JobsRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import (
     MapInformationRootItem,
     MapInformationsRoot,
 )
-from dofus_unity_reader.models.datas.monsters_root import MonsterItem, MonstersRoot
-from dofus_unity_reader.models.datas.npc_actions_root import NpcActionsRoot, NpcActionsRootItem
-from dofus_unity_reader.models.datas.npc_messages_root import (
+from DBDofusUnity.dofus_unity_reader.models.datas.monsters_root import MonsterItem, MonstersRoot
+from DBDofusUnity.dofus_unity_reader.models.datas.npc_actions_root import NpcActionsRoot, NpcActionsRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.npc_messages_root import (
     NpcMessagesRoot,
     NpcMessagesRootItem,
 )
-from dofus_unity_reader.models.datas.npcs_root import NpcsRoot, NpcsRootItem
-from dofus_unity_reader.models.datas.quest_objectives_root import (
+from DBDofusUnity.dofus_unity_reader.models.datas.npcs_root import NpcsRoot, NpcsRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.quest_objectives_root import (
     QuestObjectivesRoot,
     QuestObjectivesRootItem,
 )
-from dofus_unity_reader.models.datas.quests_root import QuestsRoot, QuestsRootItem
-from dofus_unity_reader.models.datas.queststepsroot import (
+from DBDofusUnity.dofus_unity_reader.models.datas.quests_root import QuestsRoot, QuestsRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.queststepsroot import (
     Queststepsroot,
     QueststepsrootItem,
 )
-from dofus_unity_reader.models.datas.recipe_root import RecipeItem, RecipeRoot
-from dofus_unity_reader.models.datas.skills_root import SkillsRoot, SkillsRootItem
-from dofus_unity_reader.models.datas.spell_levels_root import (
+from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem, RecipeRoot
+from DBDofusUnity.dofus_unity_reader.models.datas.skills_root import SkillsRoot, SkillsRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
     SpellLevelsRoot,
     SpellLevelsRootItem,
 )
-from dofus_unity_reader.models.datas.spell_variants_root import (
+from DBDofusUnity.dofus_unity_reader.models.datas.spell_variants_root import (
     SpellVariantsRoot,
     SpellVariantsRootItem,
 )
-from dofus_unity_reader.models.datas.spells_root import SpellsRoot, SpellsRootItem
-from dofus_unity_reader.models.datas.sub_areas_root import SubAreasRoot, SubAreasRootItem
-from dofus_unity_reader.models.datas.waypoints_root import WaypointsRoot, WaypointsRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.spells_root import SpellsRoot, SpellsRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.sub_areas_root import SubAreasRoot, SubAreasRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.waypoints_root import WaypointsRoot, WaypointsRootItem
 
 FILEPATH_BY_MODEL: dict[Any, str] = {
     AreasRoot: "AreasDataRoot.json",
     ItemsRoot: "ItemsDataRoot.json",
     ItemsTypeRoot: "ItemTypesDataRoot.json",
+    Itemsetsroot: "ItemSetsDataRoot.json",
     RecipeRoot: "RecipesDataRoot.json",
     JobsRoot: "JobsDataRoot.json",
     MapInformationsRoot: "MapsInformationDataRoot.json",
@@ -197,6 +199,40 @@ class DataReader(metaclass=Singleton):
     def item_type_by_id(self) -> dict[int, ItemTypeData]:
         data = _load_model(ItemsTypeRoot, ItemsTypeRoot)
         return {item.id: item for item in data if item.id is not None}
+
+    @cached_property
+    def item_set_effects_by_id(self) -> dict[int, list[list[tuple[int, int]]]]:
+        """Effects granted by each set, indexed by the number of worn pieces."""
+        data = _load_model(Itemsetsroot, Itemsetsroot)
+        effect_entries = [entry for entry in data if entry.id is None and entry.effectId is not None]
+        referenced_rids = [
+            value.rid
+            for entry in data
+            if entry.id is not None
+            for effects_at_count in (entry.effects or [])
+            for value in effects_at_count.values
+        ]
+        if not referenced_rids:
+            return {}
+        first_rid = min(referenced_rids)
+        effect_by_rid = {
+            first_rid + index: entry
+            for index, entry in enumerate(effect_entries)
+        }
+        result: dict[int, list[list[tuple[int, int]]]] = {}
+        for entry in data:
+            if entry.id is None:
+                continue
+            bonuses_by_piece_count: list[list[tuple[int, int]]] = []
+            for effects_at_count in entry.effects or []:
+                effects: list[tuple[int, int]] = []
+                for value in effects_at_count.values:
+                    effect = effect_by_rid.get(value.rid)
+                    if effect is not None and effect.effectId is not None:
+                        effects.append((effect.effectId, effect.diceNum or 0))
+                bonuses_by_piece_count.append(effects)
+            result[entry.id] = bonuses_by_piece_count
+        return result
 
     @cached_property
     def recipes(self) -> list[RecipeItem]:

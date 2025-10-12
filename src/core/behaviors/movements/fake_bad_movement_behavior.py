@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from datas.protos.non_obf.game.gamemap_pb2 import MapMovementRequest
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapMovementRequest
 
 from src.core.behaviors.behavior import Behavior
 

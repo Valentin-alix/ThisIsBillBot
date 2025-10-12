@@ -14,10 +14,10 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures impo
     builder_structure_similarity_context,
 )
 
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
-from proto_mapper_assembly.matching.score_preparation import build_static_score_data
-from proto_mapper_assembly.matching.workspace import build_matching_workspace
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.matching.score_preparation import build_static_score_data
+from DBDofusUnity.proto_mapper_assembly.matching.workspace import build_matching_workspace
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 
 class TestPinnedPairOverrides:
@@ -70,11 +70,11 @@ class TestPinnedPairOverrides:
 
         with (
             patch(
-                "proto_mapper_assembly.matching.runtime_rescore.build_runtime_field_validator_confidence",
+                "DBDofusUnity.proto_mapper_assembly.matching.runtime_rescore.build_runtime_field_validator_confidence",
                 return_value=0.0,
             ),
             patch(
-                "proto_mapper_assembly.matching.static_scores.build_prospective_constraint_mask",
+                "DBDofusUnity.proto_mapper_assembly.matching.static_scores.build_prospective_constraint_mask",
                 side_effect=_mask_with_assertion,
             ),
         ):

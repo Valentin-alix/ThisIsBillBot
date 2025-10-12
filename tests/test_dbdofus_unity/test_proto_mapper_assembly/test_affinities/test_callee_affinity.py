@@ -3,10 +3,10 @@ from typing import Any
 import numpy as np
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import simple_workspace
 
-from proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
-from proto_mapper_assembly.affinities.callee_affinity import build_callee_affinity
-from proto_mapper_assembly.interfaces.affinity import AffinityResult, AffinitySignalInputs
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
+from DBDofusUnity.proto_mapper_assembly.affinities.callee_affinity import build_callee_affinity
+from DBDofusUnity.proto_mapper_assembly.interfaces.affinity import AffinityResult, AffinitySignalInputs
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
 
 _OBF_CLASSES = ("obf_achievement", "obf_chat", "obf_silent")
 _NON_OBF_CLASSES = ("AchievementEvent", "ChatEvent", "SilentEvent")

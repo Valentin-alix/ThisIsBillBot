@@ -1,4 +1,4 @@
-from proto_mapper_assembly.parsers._dump_cs_structure import get_stripped_direct_body
+from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_structure import get_stripped_direct_body
 
 
 class TestGetStrippedDirectBody:

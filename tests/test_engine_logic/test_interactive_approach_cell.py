@@ -12,9 +12,9 @@ import tempfile
 from collections.abc import Iterator
 
 import pytest
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.game_constants.directions import DirectionsEnum
-from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
 
 from src.core.engine.contexts import MapMovementContext
 from src.core.engine.movements.map.map_data_adapter import DataMapProvider

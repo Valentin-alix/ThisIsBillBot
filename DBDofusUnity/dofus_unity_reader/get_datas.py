@@ -5,7 +5,7 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from consts import (
+from DBDofusUnity.consts import (
     BUNDLES_ROOT,
     DATA_BUNDLES_ROOT,
     I18N_OUTPUT_PATH,
@@ -17,11 +17,11 @@ from consts import (
     STANDALONE_BUNDLES_ROOT,
     UABEA_PATH_EXE,
 )
-from dofus_unity_reader.extraction_manifest import ExtractionManifest
-from dofus_unity_reader.generator.data_cleaning import clean_data_to_output
-from dofus_unity_reader.generator.i18n import I18NReader
-from dofus_unity_reader.models.maps import MapDataRoot
-from dofus_unity_reader.models.world_graph import WorldGraphData
+from DBDofusUnity.dofus_unity_reader.extraction_manifest import ExtractionManifest
+from DBDofusUnity.dofus_unity_reader.generator.data_cleaning import clean_data_to_output
+from DBDofusUnity.dofus_unity_reader.generator.i18n import I18NReader
+from DBDofusUnity.dofus_unity_reader.models.maps import MapDataRoot
+from DBDofusUnity.dofus_unity_reader.models.world_graph import WorldGraphData
 
 type DataModel = type[object]
 

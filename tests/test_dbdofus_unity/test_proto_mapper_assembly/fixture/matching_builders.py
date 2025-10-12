@@ -13,32 +13,32 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builder
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import MESSAGE_SHAPE, NUMBER_SHAPE
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import declared_field_signature
 
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessTraceDocument,
     MessageAccessSignature,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, FieldTypeShape
-from proto_mapper_assembly.interfaces.field_mapping import FieldMappingContext
-from proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
-from proto_mapper_assembly.interfaces.matching import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, FieldTypeShape
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import FieldMappingContext
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import (
     MatchingWorkspace,
     MatchResult,
     PreparedScoreData,
 )
-from proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs, MatchingRunConfig
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
-from proto_mapper_assembly.interfaces.message_pair import MatchPairKey
-from proto_mapper_assembly.matching.pair_selection import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs, MatchingRunConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
+from DBDofusUnity.proto_mapper_assembly.matching.pair_selection import (
     SelectedSignaturePair,
     select_signature_pairs,
 )
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
-from proto_mapper_assembly.interfaces.signature_overrides import SignatureOverrideEntry
-from proto_mapper_assembly.matching.orchestrator import match_messages, select_grouped_matches
-from proto_mapper_assembly.matching.score_preparation import build_prepared_scores
-from proto_mapper_assembly.matching.workspace import build_matching_workspace
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import SignatureOverrideEntry
+from DBDofusUnity.proto_mapper_assembly.matching.orchestrator import match_messages, select_grouped_matches
+from DBDofusUnity.proto_mapper_assembly.matching.score_preparation import build_prepared_scores
+from DBDofusUnity.proto_mapper_assembly.matching.workspace import build_matching_workspace
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 
 def simple_signature(message_cls: str) -> MessageAccessSignature:

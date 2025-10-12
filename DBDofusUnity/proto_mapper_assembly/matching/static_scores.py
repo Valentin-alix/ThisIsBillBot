@@ -6,14 +6,14 @@ from typing import NamedTuple
 import numpy as np
 from tqdm import tqdm
 
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace, StaticScoreMatrices
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
-from proto_mapper_assembly.interfaces.runtime_data import RuntimeInstance
-from proto_mapper_assembly.matching.score_constraints import build_prospective_constraint_mask
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-from proto_mapper_assembly.scoring.message_scoring import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace, StaticScoreMatrices
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime_data import RuntimeInstance
+from DBDofusUnity.proto_mapper_assembly.matching.score_constraints import build_prospective_constraint_mask
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import (
     StructureSimilarityContext,
     build_structure_hardening,
     compute_message_similarity,
@@ -135,7 +135,7 @@ def _build_obf_gate_inputs(
     runtime_data_store: RuntimeDataStore,
 ) -> _ObfGateInputs:
     pinned_pair = pinned_pairs_config.pinned_pair_msg_by_obf.get(obf_signature.message_cls)
-    observed_instances = runtime_data_store.merged_content_by_name.root.get(obf_signature.message_cls, ())
+    observed_instances = runtime_data_store.content_by_name.root.get(obf_signature.message_cls, ())
     return _ObfGateInputs(
         message_cls=obf_signature.message_cls,
         observed_instance=next(iter(observed_instances), None),

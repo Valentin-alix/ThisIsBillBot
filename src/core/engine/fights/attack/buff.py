@@ -1,4 +1,4 @@
-from dofus_unity_reader.models.datas.spell_levels_root import (
+from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
     Effect,
     SpellLevelsRootItem,
 )

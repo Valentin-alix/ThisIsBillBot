@@ -1,13 +1,12 @@
 import random
 import threading
 
-from ankama_launcher_emulator_premium import consts as launcher_consts
-from ankama_launcher_emulator_premium.interfaces.credentials import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
     DecipheredApiKey,
     DecipheredCertif,
     StoredApiKey,
 )
-
+from src import consts
 from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
 )
@@ -31,6 +30,7 @@ from src.core.behaviors.farms.fight.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvest.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.farms.harvest.multi_farming_behavior import MultiFarmingBehavior
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
+from src.core.behaviors.farms.smoke_test_behavior import SmokeTestBehavior
 from src.core.behaviors.idle_behavior import IdleBehavior
 from src.core.behaviors.interactives.collect_behavior import CollectBehavior
 from src.core.behaviors.interactives.fake_bad_interactive_behavior import (
@@ -39,6 +39,9 @@ from src.core.behaviors.interactives.fake_bad_interactive_behavior import (
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.items.acquire_items_behavior import AcquireItemsBehavior
 from src.core.behaviors.items.auto_equipment_behavior import AutoEquipmentBehavior
+from src.core.behaviors.items.auto_equipment_from_inventory_behavior import (
+    AutoEquipmentFromInventoryBehavior,
+)
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_explorator_behavior import (
     AutoTripExploratorBehavior,
@@ -62,7 +65,7 @@ from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
 from src.core.behaviors.quests.quest_behavior import QuestBehavior
 from src.core.behaviors.quests.quest_script_behavior import QuestScriptBehavior
 from src.core.behaviors.quests.tutorial_behavior import TutorialBehavior
-from src.core.behaviors.recovery import BlockingStateRecovery
+from src.core.behaviors.recovery_behavior import BlockingStateRecovery
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
     EnterSaleHotelBehavior,
 )
@@ -162,7 +165,7 @@ class BotFactory:
 
         title = account.apikey.login
         debug_recorder = create_bot_session_debug_recorder(
-            launcher_consts.BOT_DEBUG_LOGS_DIR,
+            consts.BOT_DEBUG_LOGS_DIR,
             title,
         )
         logger = BotLogger(title=title, log_signals=log_signals, debug_recorder=debug_recorder)
@@ -373,6 +376,11 @@ class BotFactory:
             game_state=game_state,
             attacker=attacker,
         )
+        auto_equipment_from_inventory_behavior = AutoEquipmentFromInventoryBehavior(
+            event_manager=event_manager,
+            game_state=game_state,
+            _logger=logger,
+        )
         fight_behavior = FightBehavior(
             event_manager=event_manager,
             game_state=game_state,
@@ -382,6 +390,7 @@ class BotFactory:
             fight_turn_behavior=fight_turn_behavior,
             login=account.apikey.login,
             shared_signals=shared_signals,
+            auto_equipment_from_inventory_behavior=auto_equipment_from_inventory_behavior,
         )
         edge_behavior = EdgeBehavior(
             event_manager=event_manager,
@@ -727,6 +736,20 @@ class BotFactory:
             sale_hotel_sell_behavior=sale_hotel_prices_behavior,
             mule_give_behavior=mule_give_behavior,
         )
+        smoke_test_behavior = SmokeTestBehavior(
+            recovery=blocking_state_recovery,
+            event_manager=event_manager,
+            game_state=game_state,
+            _logger=logger,
+            auto_equipment_behavior=auto_equipment_behavior,
+            fighter_behavior=fighter_behavior,
+            harvester_behavior=harvester,
+            craft_behavior=craft_behavior,
+            enter_bank_chest_behavior=enter_bank_chest_behavior,
+            sale_hotel_sell_behavior=sale_hotel_prices_behavior,
+            sale_hotel_buy_behavior=sale_hotel_buy_behavior,
+            quest_behavior=quest_behavior,
+        )
 
         fake_bad_interactive_behavior = FakeBadInteractiveBehavior(
             _logger=logger, event_manager=event_manager, game_state=game_state
@@ -763,6 +786,7 @@ class BotFactory:
                 ogrine_subscription_behavior,
                 paysafecard_subscription_behavior,
                 quest_behavior,
+                smoke_test_behavior,
             ],
             account=account,
             grid_signals=grid_signals,

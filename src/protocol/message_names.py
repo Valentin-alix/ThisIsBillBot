@@ -26,7 +26,7 @@ def _load_non_obf_game_message_descriptors_by_name() -> dict[str, Descriptor]:
 
 @cache
 def _discover_non_obf_game_message_descriptors_by_name() -> dict[str, Descriptor]:
-    import datas.protos.non_obf.game as game_pkg
+    import DBDofusUnity.datas.protos.non_obf.game as game_pkg
 
     descriptors: dict[str, Descriptor] = {}
     for module_info in pkgutil.walk_packages(game_pkg.__path__, f"{game_pkg.__name__}."):

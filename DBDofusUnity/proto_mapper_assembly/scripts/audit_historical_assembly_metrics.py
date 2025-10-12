@@ -10,7 +10,7 @@ from itertools import pairwise
 from pathlib import Path
 from typing import Literal
 
-from consts import (
+from DBDofusUnity.consts import (
     GAME_MAPPINGS_JSON_FILE,
     NON_OBF_GAME_DIR,
     NON_OBF_PROTO_ACCESSES_FILE,
@@ -20,15 +20,15 @@ from consts import (
     OBF_PROTOCOL_GAME_DUMP_CS_FILE,
 )
 
-from proto_mapper_assembly.controllers.access_signatures import (
+from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import (
     build_message_access_signatures_from_trace,
     count_handler_registrations_by_cls,
 )
-from proto_mapper_assembly.controllers.message_lookup import (
+from DBDofusUnity.proto_mapper_assembly.controllers.message_lookup import (
     build_non_obf_alias_lookup,
     build_obf_alias_lookup,
 )
-from proto_mapper_assembly.helpers.archived_builds import (
+from DBDofusUnity.proto_mapper_assembly.helpers.archived_builds import (
     GAME_MAPPINGS_RELATIVE_PATH,
     NON_OBF_PROTO_ACCESSES_RELATIVE_PATH,
     NON_OBF_PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
@@ -36,24 +36,24 @@ from proto_mapper_assembly.helpers.archived_builds import (
     PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
     iter_archived_build_dirs,
 )
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessAtomKey,
     AccessAtomSequenceKey,
     AccessTraceDocument,
     FieldAccessSignatures,
     MessageAccessSignature,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.function_access_signature import FunctionSimilarityKey
-from proto_mapper_assembly.interfaces.game_mappings import SimpleGameMappingsDocument
-from proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
-from proto_mapper_assembly.scoring.primitives import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import FunctionSimilarityKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import SimpleGameMappingsDocument
+from DBDofusUnity.proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
+from DBDofusUnity.proto_mapper_assembly.scoring.primitives import (
     counter_overlap_similarity,
     counter_profile_overlap_similarity,
     get_average_best_similarity_sequences,
     ratio_similarity,
 )
-from proto_mapper_assembly.scoring.signature_scoring import access_atom_sequence_similarity
+from DBDofusUnity.proto_mapper_assembly.scoring.signature_scoring import access_atom_sequence_similarity
 
 _WORKING_SET_VERSION_ID = "working_set"
 _MINIMUM_SNAPSHOT_COUNT = 2

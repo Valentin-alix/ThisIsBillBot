@@ -4,7 +4,7 @@ from collections.abc import Callable
 import numpy as np
 import pytest
 
-from proto_mapper_assembly.scoring.primitives import (
+from DBDofusUnity.proto_mapper_assembly.scoring.primitives import (
     counter_overlap_similarity,
     get_average_best_similarity_sequences,
     ratio_similarity,

@@ -1,12 +1,12 @@
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.game_constants.directions import DirectionsEnum
-from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID
-from datas.protos.non_obf.game.fight_pb2 import FightEndEvent
-from proto_mapper_assembly.validators.global_validators import (
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID
+from DBDofusUnity.datas.protos.non_obf.game.fight_pb2 import FightEndEvent
+from DBDofusUnity.proto_mapper_assembly.validators.global_validators import (
     global_validator_interactive_element,
 )
-from proto_mapper_assembly.validators.field_validators import (
+from DBDofusUnity.proto_mapper_assembly.validators.field_validators import (
     VALIDATORS_ON_FIELD,
     is_non_empty_list_of,
     is_valid_action_id,

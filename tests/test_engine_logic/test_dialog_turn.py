@@ -1,4 +1,4 @@
-from datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
+from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
 
 from src.core.engine.npcs.dialog_turn import DialogTurn, DialogTurns, DialogVariants
 from src.core.engine.npcs.reply_selector import ByReplyId, ByText

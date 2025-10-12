@@ -4,14 +4,14 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from proto_mapper_assembly.controllers.game_mappings import load_game_mappings_document
-from proto_mapper_assembly.controllers.pinned_pairs import load_pinned_pairs
-from proto_mapper_assembly.interfaces.auto_mode_mapping_contract import (
+from DBDofusUnity.proto_mapper_assembly.controllers.game_mappings import load_game_mappings_document
+from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import load_pinned_pairs
+from DBDofusUnity.proto_mapper_assembly.interfaces.auto_mode_mapping_contract import (
     AutoModeMappingContract,
 )
-from proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
-from proto_mapper_assembly.interfaces.runtime_data import ObservedRootObfMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime_data import ObservedRootObfMessage
 
 
 @dataclass(frozen=True)

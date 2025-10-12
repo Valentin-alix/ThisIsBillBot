@@ -1,6 +1,6 @@
 import pytest
 
-from proto_mapper_assembly.parsers._message_body_scan import _parse_property_addresses
+from DBDofusUnity.proto_mapper_assembly.parsers._message_body_scan import _parse_property_addresses
 
 
 class TestParsePropertyAddresses:

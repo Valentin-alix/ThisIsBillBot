@@ -2,7 +2,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from heapq import nlargest
 
-from dofus_unity_reader.models.world_graph import Edge, Vertice
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Edge, Vertice
 
 from src.core.engine.contexts import WorldTransitionContext
 from src.core.engine.movements.world.edge import iter_valid_outgoing_edges

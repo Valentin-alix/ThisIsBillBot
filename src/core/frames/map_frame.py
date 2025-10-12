@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 
-from datas.protos.non_obf.game.anomaly_pb2 import AnomalySubareaInformationRequest
-from datas.protos.non_obf.game.context_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.anomaly_pb2 import AnomalySubareaInformationRequest
+from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import (
     ContextCreationEvent,
     ContextReadyRequest,
 )
-from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapChangeRequest,
     MapComplementaryInformationEvent,
@@ -14,9 +14,9 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
     MapInformationRequest,
     MapMovementConfirmRequest,
 )
-from datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.map_id import MAP_IDS_THAT_POP_DIALOG
+from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MAP_IDS_THAT_POP_DIALOG
 from fight_preparation_pb2 import FightPreparationEnterRequest
 
 from src import consts

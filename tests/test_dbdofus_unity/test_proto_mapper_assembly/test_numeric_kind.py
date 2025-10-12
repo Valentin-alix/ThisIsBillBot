@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import typed_dump_field
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, NumericKind
-from proto_mapper_assembly.scoring.signature_scoring import declared_field_similarity
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, NumericKind
+from DBDofusUnity.proto_mapper_assembly.scoring.signature_scoring import declared_field_similarity
 
 
 def _number(normalized_type: str, *, offset: int = 0x10) -> DumpCSMessageField:

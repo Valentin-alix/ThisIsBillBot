@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from proto_mapper_assembly.scripts.ida_tracer_lib.signatures.types import ProtoParameterSeed
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.signatures.types import ProtoParameterSeed
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
     FIRST_STACK_PARAM_OFFSET,
     WINDOWS_X64_PARAM_REGISTERS,
     HeapState,

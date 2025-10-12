@@ -1,22 +1,21 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
-from datas.protos.non_obf.game.guild_chest_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.guild_chest_pb2 import (
     GuildChestCurrentListenersAddEvent,
 )
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.game_constants.element_type import ElementTypeEnum
-from dofus_unity_reader.game_constants.map_id import BANK_MAP_IDS
-from dofus_unity_reader.grid.map_point import MapPoint
-
-from src.core.behaviors.recovery import RecoverableBehavior
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.game_constants.element_type import ElementTypeEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.map_id import BANK_MAP_IDS
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
-from src.services.human_timings import HumanTimingsService
+from src.core.behaviors.recovery_behavior import RecoverableBehavior
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.states.dialog_state import OpenDialogKind
+from src.services.human_timings import HumanTimingsService
 
 
 class EnterGuildChestError(StrEnum):

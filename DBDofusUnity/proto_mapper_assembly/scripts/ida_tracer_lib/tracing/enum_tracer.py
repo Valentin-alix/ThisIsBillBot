@@ -11,12 +11,12 @@ import ida_typeinf
 import idaapi
 import idc
 
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     EnumFunctionResolvedMetadata,
     TracedFunction,
     format_trace_address,
 )
-from proto_mapper_assembly.interfaces.enum_mapping import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import (
     EnumCalledFunctionRef,
     EnumMemberGroup,
     EnumResolutionKind,
@@ -24,24 +24,24 @@ from proto_mapper_assembly.interfaces.enum_mapping import (
     EnumSwitchPattern,
     EnumTypeKind,
 )
-from proto_mapper_assembly.interfaces.il2cpp_json import Il2CppApiDefinition, MethodDefinition
-from proto_mapper_assembly.parsers._clr_type_utils import split_top_level_tokens
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.il2cpp_json import Il2CppApiDefinition, MethodDefinition
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import split_top_level_tokens
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import (
     resolve_message_type_name,
     resolve_owner_class_name,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.progress.reporter import ProgressReporter
-from proto_mapper_assembly.scripts.ida_tracer_lib.signatures.parser import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.progress.reporter import ProgressReporter
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.signatures.parser import (
     get_preferred_signature,
     is_method_info_parameter,
     is_native_this_parameter,
     parse_dot_net_signature,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.cfg_stats import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.cfg_stats import (
     opcode_histogram_for_func,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.scan_engine import build_function_scan_plan
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.basic_block import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.scan_engine import build_function_scan_plan
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.basic_block import (
     DecodedInstruction,
     FunctionScanCache,
 )

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from datas.protos.non_obf.game.common_pb2 import SpellModifier, SpellModifierType
-from dofus_unity_reader.models.datas.spell_levels_root import SpellLevelsRootItem
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import SpellModifier, SpellModifierType
+from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import SpellLevelsRootItem
 
 from src.core.engine.fights.spell import (
     get_ap_cost_spell,

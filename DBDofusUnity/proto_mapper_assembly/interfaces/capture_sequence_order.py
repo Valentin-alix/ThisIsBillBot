@@ -5,9 +5,9 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
-from proto_mapper_assembly.runtime.runtime_store import CaptureSequencesBySession, RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import CaptureSequencesBySession, RuntimeDataStore
 
 type Cell = tuple[int, int]
 """A (non_obf_index, obf_index) cell of the score matrix."""
@@ -84,7 +84,7 @@ class CaptureOrderIndex:
             },
             captured_obf_indexes=frozenset(
                 obf_index
-                for runtime_key in runtime_data_store.merged_content_by_name.root
+                for runtime_key in runtime_data_store.content_by_name.root
                 if (obf_index := obf_index_by_cls.get(runtime_key)) is not None
             ),
             pinned_obf_indexes=frozenset(

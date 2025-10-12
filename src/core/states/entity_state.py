@@ -2,18 +2,18 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import cast
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     Direction,
     EntityDisposition,
     FightInvisibilityState,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
-from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
-from dofus_unity_reader.game_constants.npc import NpcDialogInfo
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import NpcDialogInfo
 
 from src.core.engine.npcs.npc_lookup import find_npc_ids_by_name
-from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 
 from src import consts
 from src.core.engine.fights.stats.characteristic import get_stat_by_id

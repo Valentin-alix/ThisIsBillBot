@@ -2,14 +2,14 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from context_pb2 import ContextCreationEvent
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from datas.protos.non_obf.game.inventory_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import (
     ObjectUseRequest,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.item import ItemTypeEnum
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.item import ItemTypeEnum
 
 from src.controller.game_data import GameDataController
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmBehavior
@@ -36,21 +36,32 @@ class HarvesterBehavior(BaseFarmBehavior):
     fight_behavior: FightBehavior
 
     map_ids_to_explore: set[int] = field(init=False, default_factory=set[int])
+    target_resource_item_ids: set[int] | None = field(init=False, default=None)
 
     def run(
         self,
         area_id: int | None,
         sub_area_id: int | None,
         is_stopped_at_new_map_condition: Callable[[], bool] | None = None,
+        target_resource_item_ids: set[int] | None = None,
     ) -> None:
-        self.ensure_free_to_act(lambda: self.start_harvesting(area_id=area_id, sub_area_id=sub_area_id, is_stopped_at_new_map_condition=is_stopped_at_new_map_condition))
+        self.ensure_free_to_act(
+            lambda: self.start_harvesting(
+                area_id=area_id,
+                sub_area_id=sub_area_id,
+                is_stopped_at_new_map_condition=is_stopped_at_new_map_condition,
+                target_resource_item_ids=target_resource_item_ids,
+            )
+        )
 
     def start_harvesting(
         self,
         area_id: int | None,
         sub_area_id: int | None,
         is_stopped_at_new_map_condition: Callable[[], bool] | None = None,
+        target_resource_item_ids: set[int] | None = None,
     ) -> None:
+        self.target_resource_item_ids = target_resource_item_ids
         area_name = DataReader().area_by_id[area_id].nameId if area_id else "Unknown"
         subarea_name = DataReader().sub_area_by_id[sub_area_id].nameId if sub_area_id else "Unknown"
         self.logger.info(
@@ -125,7 +136,11 @@ class HarvesterBehavior(BaseFarmBehavior):
             return
 
         if self.game_state.map.map_id in self.random_farm_behavior.map_ids:
-            self.collect_behavior.start(callback=self.on_collect_behavior_finished, parent=self)
+            self.collect_behavior.start(
+                callback=self.on_collect_behavior_finished,
+                parent=self,
+                target_resource_item_ids=self.target_resource_item_ids,
+            )
         else:
             self.run_next_step()
 

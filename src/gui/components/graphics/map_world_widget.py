@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from math import floor
 
-from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
 from PyQt6.QtCore import QRectF, Qt, pyqtSlot
 from PyQt6.QtGui import QColor, QPainter, QPen, QResizeEvent
 from PyQt6.QtWidgets import (

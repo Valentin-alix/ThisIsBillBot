@@ -48,6 +48,9 @@ dependencies = [
     "numpy>=2.4.2",
     "pyarrow>=19.0.0",
     "typing-extensions>=4.6.0",
+    "jedi>=0.20.0",
+    "pyqt6-qscintilla>=2.14.1",
+    "pyflakes>=3.4.0",
 ]
 
 [dependency-groups]
@@ -93,7 +96,7 @@ verify = ["lint", "check_type", "test"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = [".", "AnkamaLauncherEmulatorPremium", "DBDofusUnity"]
+pythonpath = ["."]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]

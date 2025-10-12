@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidBuyerStartedEvent,
     ExchangeBidSellerStartedEvent,
     ExchangeCraftStartedEvent,
@@ -11,11 +11,11 @@ from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeStartedWithPodsEvent,
     ExchangeStartedWithStorageEvent,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import MapCurrentEvent
-from datas.protos.non_obf.game.guild_information_pb2 import GuildInvitedEvent
-from datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
-from datas.protos.non_obf.game.roleplay_pb2 import PlayerFightFriendlyRequestedEvent
-from datas.protos.non_obf.game.teleportation_pb2 import TeleportDestinationsEvent
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapCurrentEvent
+from DBDofusUnity.datas.protos.non_obf.game.guild_information_pb2 import GuildInvitedEvent
+from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
+from DBDofusUnity.datas.protos.non_obf.game.roleplay_pb2 import PlayerFightFriendlyRequestedEvent
+from DBDofusUnity.datas.protos.non_obf.game.teleportation_pb2 import TeleportDestinationsEvent
 
 from src.core.frames.frame import Frame
 from src.core.states.dialog_state import OpenDialogKind

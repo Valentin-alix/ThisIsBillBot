@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from proto_mapper_assembly.validators.set_validators import validator_exchange_positions, validator_slide
+from DBDofusUnity.proto_mapper_assembly.validators.set_validators import validator_exchange_positions, validator_slide
 
 SLIDE_CASES: list[tuple[dict[str, Any], bool]] = [
     ({"start_cell": -1, "end_cell": -1}, False),

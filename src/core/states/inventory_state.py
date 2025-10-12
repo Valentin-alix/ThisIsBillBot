@@ -1,12 +1,12 @@
 import dataclasses
 from dataclasses import dataclass, field
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.effect_action import EffectActionEnum
-from dofus_unity_reader.game_constants.inventory_position import (
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.effect_action import EffectActionEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
     CharacterInventoryPositionEnum,
 )
 

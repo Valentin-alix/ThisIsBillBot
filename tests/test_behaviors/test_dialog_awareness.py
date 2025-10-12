@@ -6,30 +6,30 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeCraftStartedEvent,
     ExchangeLeaveEvent,
     ExchangeRequestedTradeEvent,
     ExchangeStartedWithStorageEvent,
 )
-from datas.protos.non_obf.game.contact_pb2 import IgnoreRequest
-from datas.protos.non_obf.game.gamemap_pb2 import MapCurrentEvent, MapMovementRequest
-from datas.protos.non_obf.game.guild_information_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.contact_pb2 import IgnoreRequest
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapCurrentEvent, MapMovementRequest
+from DBDofusUnity.datas.protos.non_obf.game.guild_information_pb2 import (
     GuildInvitationAnswerRequest,
     GuildInvitedEvent,
 )
-from datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
-from datas.protos.non_obf.game.roleplay_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
+from DBDofusUnity.datas.protos.non_obf.game.roleplay_pb2 import (
     PlayerFightFriendlyAnswerRequest,
     PlayerFightFriendlyRequestedEvent,
 )
-from datas.protos.non_obf.game.teleportation_pb2 import TeleportDestinationsEvent
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.teleportation_pb2 import TeleportDestinationsEvent
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     EntityDisposition,
 )
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 from google.protobuf.message import Message
 
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior

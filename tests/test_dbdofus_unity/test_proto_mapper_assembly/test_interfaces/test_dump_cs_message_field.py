@@ -4,8 +4,8 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders 
     make_oneof_field,
 )
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
 
 
 class TestDumpCSMessageField:

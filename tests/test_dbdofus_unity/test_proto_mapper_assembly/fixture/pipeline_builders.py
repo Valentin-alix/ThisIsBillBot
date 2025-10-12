@@ -16,8 +16,8 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures impo
     builder_function_access_signature,
 )
 
-from proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessAtomSignature,
     AccessTraceDocument,
     FieldAccessSignatures,
@@ -25,16 +25,16 @@ from proto_mapper_assembly.interfaces.assembly_access import (
     MessageAccessSignature,
     ReturnRole,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.enum_mapping import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import (
     EnumMemberGroup,
     EnumSignatureEntry,
     EnumSwitchPattern,
 )
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, FieldTypeShape
-from proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry
-from proto_mapper_assembly.interfaces.matching import MatchResult
-from proto_mapper_assembly.interfaces.signature_overrides import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, FieldTypeShape
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchResult
+from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import (
     EnumSignatureOverrideHint,
     SignatureOverrideEntry,
 )

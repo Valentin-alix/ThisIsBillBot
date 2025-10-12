@@ -3,7 +3,7 @@ import tempfile
 from collections.abc import Iterable
 from dataclasses import dataclass
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
     CharacterCharacteristicValue,
@@ -12,10 +12,10 @@ from datas.protos.non_obf.game.common_pb2 import (
     SpawnInformation,
     Team,
 )
-from datas.protos.non_obf.game.spell_pb2 import SpellItem
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.breed import BreedEnum
-from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
+from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellItem
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.breed import BreedEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 
 from src.core.engine.fights.attack.attacker import Attacker
 from src.core.engine.fights.damage_calculator import DamageCalculator

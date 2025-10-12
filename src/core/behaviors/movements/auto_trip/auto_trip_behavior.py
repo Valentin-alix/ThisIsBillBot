@@ -2,10 +2,10 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from dofus_unity_reader.models.world_graph import Edge
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Edge
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.edge_behavior import EdgeBehavior, EdgeError

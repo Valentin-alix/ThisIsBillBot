@@ -3,13 +3,13 @@ from dataclasses import dataclass, field
 import requests
 from pydantic import JsonValue, TypeAdapter
 
-from ankama_launcher_emulator_premium.haapi.urls import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.urls import (
     ANKAMA_MONEY_OGRINS_ACCOUNT,
     ANKAMA_SHOP_ACCESS_TOKEN,
     ANKAMA_SHOP_API_URL,
     DOFUS_BAK_GET_OFFERS_OGRINES,
 )
-from ankama_launcher_emulator_premium.interfaces.bak_api import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.bak_api import (
     BakBidOffer,
     BakBidOffers,
     BakMoneyOgrine,
@@ -24,7 +24,7 @@ from ankama_launcher_emulator_premium.interfaces.bak_api import (
     ShopiOgrinePayment,
     ShopiXsollaPayment,
 )
-from ankama_launcher_emulator_premium.utils.internet import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.internet import (
     raise_for_status_with_content,
 )
 

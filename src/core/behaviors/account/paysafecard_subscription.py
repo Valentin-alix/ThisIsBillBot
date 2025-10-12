@@ -6,43 +6,44 @@ from functools import partial
 from threading import Thread
 from time import sleep
 
-from ankama_launcher_emulator_premium.consts import (
-    PAYSAFECARD_PURCHASE_PATH,
-    PAYSAFECARDS_PATH,
-)
-from ankama_launcher_emulator_premium.haapi.bak import BakHaapi, ShopPurchaseError
-from ankama_launcher_emulator_premium.interfaces.bak_api import ShopiArticle
-from ankama_launcher_emulator_premium.web.subscription.paysafecard_pool import (
-    PaysafecardPool,
-)
-from ankama_launcher_emulator_premium.web.subscription.purchase_state import (
-    PaysafecardPurchase,
-    PaysafecardPurchaseStatus,
-    PaysafecardPurchaseStorage,
-)
-from ankama_launcher_emulator_premium.web.subscription.storage import (
-    SubscriptionExpirationStorage,
-)
-from ankama_launcher_emulator_premium.web.subscription.xsolla_paysafecard import (
-    XsollaPaymentOutcome,
-    pay_with_paysafecard,
-)
-from datas.protos.non_obf.game.bak_pb2 import (
-    BakShopTokenEvent,
-    BakShopTokenRequest,
-)
 from playwright.async_api import Error as PlaywrightError
 from pydantic import ValidationError
 from requests.exceptions import RequestException
 
-from src.controller.bot_config import BotConfigService
-from src.core.behaviors.behavior import Behavior, BehaviorState
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_pool import (
+    PaysafecardPoolController,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_purchase import (
+    PaysafecardPurchaseController,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.subscription_expiration import (
+    SubscriptionExpirationStorage,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.bak import (
+    BakHaapi,
+    ShopPurchaseError,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.bak_api import ShopiArticle
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.paysafecard import (
+    PaysafecardPurchase,
+    PaysafecardPurchaseStatus,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.subscription.xsolla_paysafecard import (
+    XsollaPaymentOutcome,
+    pay_with_paysafecard,
+)
+from DBDofusUnity.datas.protos.non_obf.game.bak_pb2 import (
+    BakShopTokenEvent,
+    BakShopTokenRequest,
+)
 from src.consts import (
     DOFUS_SUBSCRIPTION_REFERENCE_ID,
     SUBSCRIPTION_CATEGORY_ID,
     SUBSCRIPTION_DAYS,
     SUBSCRIPTION_EVENT_TIMEOUT_SECONDS,
 )
+from src.controller.bot_config import BotConfigService
+from src.core.behaviors.behavior import Behavior, BehaviorState
 
 _REFRESH_ATTEMPTS = 8
 _REFRESH_DELAY_SECONDS = 3
@@ -62,12 +63,8 @@ class PaysafecardSubscriptionErrorCode(StrEnum):
 @dataclass
 class PaysafecardSubscriptionBehavior(Behavior):
     account_id: int
-    paysafecard_pool: PaysafecardPool = field(
-        default_factory=lambda: PaysafecardPool(path=str(PAYSAFECARDS_PATH))
-    )
-    purchase_storage: PaysafecardPurchaseStorage = field(
-        default_factory=lambda: PaysafecardPurchaseStorage(PAYSAFECARD_PURCHASE_PATH)
-    )
+    paysafecard_pool: PaysafecardPoolController = field(default_factory=PaysafecardPoolController)
+    purchase_storage: PaysafecardPurchaseController = field(default_factory=PaysafecardPurchaseController)
     subscription_storage: SubscriptionExpirationStorage = field(default_factory=SubscriptionExpirationStorage)
     _haapi: BakHaapi | None = field(init=False, default=None)
     _proxy_url: str | None = field(init=False, default=None)

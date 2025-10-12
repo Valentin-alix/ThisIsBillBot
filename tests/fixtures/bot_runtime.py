@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from threading import Event, RLock
 from unittest.mock import Mock
 
-from src.core.behaviors.recovery import BlockingStateRecovery
+from src.core.behaviors.recovery_behavior import BlockingStateRecovery
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.lifecycle.scheduler import BotScheduler
 from src.core.events_manager.event_manager import EventManager

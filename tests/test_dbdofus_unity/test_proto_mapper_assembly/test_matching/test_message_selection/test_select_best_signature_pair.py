@@ -9,7 +9,7 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builde
     simple_signature,
 )
 
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
 
 
 class TestSelectBestSignaturePair:

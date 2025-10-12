@@ -4,11 +4,11 @@ from enum import StrEnum
 from playwright.async_api import Page
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
-from ankama_launcher_emulator_premium.consts import DEBUG_DUMPS_DIR
-from ankama_launcher_emulator_premium.web._client.browser import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import DEBUG_DUMPS_DIR
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.browser import (
     launch_browser_context,
 )
-from ankama_launcher_emulator_premium.web.debug_utils import dump_page_html
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.debug_utils import dump_page_html
 
 _PAYSTATION_URL = "https://secure.xsolla.com/paystation4/?token={token}"
 _INTERACTION_TIMEOUT_MILLISECONDS = 30_000

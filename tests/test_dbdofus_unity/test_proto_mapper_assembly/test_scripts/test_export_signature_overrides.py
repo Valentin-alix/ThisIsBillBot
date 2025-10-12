@@ -38,29 +38,29 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures impo
     builder_function_access_signature,
 )
 
-from proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
-from proto_mapper_assembly.controllers.signature_override_application import apply_stored_signature_overrides
-from proto_mapper_assembly.controllers.signature_overrides import load_signature_overrides
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
+from DBDofusUnity.proto_mapper_assembly.controllers.signature_override_application import apply_stored_signature_overrides
+from DBDofusUnity.proto_mapper_assembly.controllers.signature_overrides import load_signature_overrides
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessAtomSignature,
     FieldAccessSignatures,
     ReturnRole,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.field_category import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import (
     FieldCategoryEnum,
     FieldTypeLeafKind,
     FieldTypeShape,
 )
-from proto_mapper_assembly.interfaces.game_mappings import GameMappingsDocument
-from proto_mapper_assembly.interfaces.signature_overrides import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import GameMappingsDocument
+from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import (
     EnumSignatureOverrideHint,
     FieldOverrideBinding,
     SignatureOverrideEntry,
     SignatureOverridesFile,
 )
-from proto_mapper_assembly.scoring.message_scoring import compute_message_similarity
-from proto_mapper_assembly.scripts.export_signature_overrides import (
+from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import compute_message_similarity
+from DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides import (
     _build_obf_field_binding_by_non_obf_property_name,
     main,
 )
@@ -1052,15 +1052,15 @@ class TestManualNewDumpCs:
 
             with (
                 patch(
-                    "proto_mapper_assembly.scripts.export_signature_overrides.build_signature_overrides",
+                    "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.build_signature_overrides",
                     return_value=generated_overrides,
                 ),
                 patch(
-                    "proto_mapper_assembly.scripts.export_signature_overrides.NON_OBF_SIGNATURE_OVERRIDES_FILE",
+                    "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.NON_OBF_SIGNATURE_OVERRIDES_FILE",
                     overrides_path,
                 ),
                 patch(
-                    "proto_mapper_assembly.scripts.export_signature_overrides.NON_OBF_NEW_DUMP_CS_FILE",
+                    "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.NON_OBF_NEW_DUMP_CS_FILE",
                     new_dump_cs_path,
                 ),
                 patch(
@@ -1087,11 +1087,11 @@ class TestManualNewDumpCs:
 
             with (
                 patch(
-                    "proto_mapper_assembly.scripts.export_signature_overrides.build_signature_overrides",
+                    "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.build_signature_overrides",
                     return_value=generated_overrides,
                 ) as build_signature_overrides,
                 patch(
-                    "proto_mapper_assembly.scripts.export_signature_overrides.NON_OBF_NEW_DUMP_CS_FILE",
+                    "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.NON_OBF_NEW_DUMP_CS_FILE",
                     new_dump_cs_path,
                 ),
                 patch(

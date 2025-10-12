@@ -3,10 +3,10 @@ from typing import Any
 import numpy as np
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import simple_workspace
 
-from proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
-from proto_mapper_assembly.affinities.handler_cohorts import build_handler_cohort_affinity
-from proto_mapper_assembly.interfaces.affinity import AffinitySignalInputs
-from proto_mapper_assembly.matching.score_preparation import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
+from DBDofusUnity.proto_mapper_assembly.affinities.handler_cohorts import build_handler_cohort_affinity
+from DBDofusUnity.proto_mapper_assembly.interfaces.affinity import AffinitySignalInputs
+from DBDofusUnity.proto_mapper_assembly.matching.score_preparation import (
     _MASKED_AFFINITY_SIGNALS,
     _blend_masked_affinity,
 )

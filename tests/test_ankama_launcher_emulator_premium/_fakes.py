@@ -1,7 +1,5 @@
 from unittest.mock import AsyncMock, MagicMock
 
-from ankama_launcher_emulator_premium.web._client.mailbox import MailboxSettings
-
 
 class FakeBrowserContext:
     """Fake async context manager standing in for launch_browser_context() in tests."""
@@ -45,5 +43,8 @@ class FakeLocator:
         self._count = count
 
 
-def mailbox_settings() -> MailboxSettings:
-    return MailboxSettings(host="imap.test", username="u", password="p")
+class FakeMailProvider:
+    """Fake ``MailCodeProvider`` standing in for a real IMAP/SmailPro provider in tests."""
+
+    def __init__(self, code: str | None = None) -> None:
+        self.wait_for_code = AsyncMock(return_value=code)

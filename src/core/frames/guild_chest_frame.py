@@ -2,21 +2,21 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import override
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeStartedWithMultiTabStorageEvent,
 )
-from datas.protos.non_obf.game.guild_member_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.guild_member_pb2 import (
     GuildMembershipEvent,
 )
-from datas.protos.non_obf.game.inventory_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import (
     MultiTabStorageEvent,
 )
 
 from src.core.frames.mixin_storage import MixinStorage
-from dofus_unity_reader.game_constants.guild import UNBOUNDED_CHEST_TAB_NUMBER
+from DBDofusUnity.dofus_unity_reader.game_constants.guild import UNBOUNDED_CHEST_TAB_NUMBER
 
 
 @dataclass

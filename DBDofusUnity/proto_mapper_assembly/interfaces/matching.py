@@ -5,14 +5,14 @@ from functools import cached_property
 
 import numpy as np
 
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.field_mapping import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import (
     FieldMappingInfos,
     FieldMappingRejectedInfos,
     FieldMappingUnmappedNonObfFields,
 )
-from proto_mapper_assembly.interfaces.message_pair import MatchPairKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
 
 
 @dataclass(frozen=True)

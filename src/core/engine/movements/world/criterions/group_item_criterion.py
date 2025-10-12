@@ -81,14 +81,10 @@ class GroupItemCriterion(IItemCriterion):
                 return False
             return item_criterion.is_respected(context)
 
-        if len(self.operators) > 0 and self.operators[0] == "|":
-            for criterion in self.items_criterion:
-                if criterion is not None and criterion.is_respected(context):
-                    return True
-            return False
+        first_criterion = self.items_criterion[0]
+        result = first_criterion is not None and first_criterion.is_respected(context)
+        for operator, criterion in zip(self.operators, self.items_criterion[1:], strict=True):
+            criterion_respected = criterion is not None and criterion.is_respected(context)
+            result = result or criterion_respected if operator == "|" else result and criterion_respected
 
-        for criterion in self.items_criterion:
-            if criterion is None or not criterion.is_respected(context):
-                return False
-
-        return True
+        return result

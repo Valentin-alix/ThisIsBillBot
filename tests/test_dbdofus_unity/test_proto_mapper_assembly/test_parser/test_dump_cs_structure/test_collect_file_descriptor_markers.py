@@ -1,4 +1,4 @@
-from proto_mapper_assembly.parsers._dump_cs_structure import collect_file_descriptor_markers
+from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_structure import collect_file_descriptor_markers
 
 
 class TestCollectFileDescriptorMarkers:

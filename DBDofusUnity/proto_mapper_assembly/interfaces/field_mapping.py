@@ -4,20 +4,20 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Protocol
 
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessTraceDocument,
     FieldAccessSignatures,
     MessageAccessSignature,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
-from proto_mapper_assembly.interfaces.field_mapping_rejected_infos import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping_rejected_infos import (
     FieldMappingRejectedInfos,
 )
-from proto_mapper_assembly.interfaces.message_pair import MatchPairKey
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
-from proto_mapper_assembly.interfaces.signature_overrides import SignatureOverrideEntry
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
+from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import SignatureOverrideEntry
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 type FieldMappingInfos = dict[str, dict[str, float]]
 type FieldMappingUnmappedNonObfFields = dict[str, str]

@@ -2,14 +2,14 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import NamedTuple
 
-from datas.protos.non_obf.game.common_pb2 import SpellModifierType
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.game_constants.characteristic import EffectElement
-from dofus_unity_reader.game_constants.directions import DirectionsEnum
-from dofus_unity_reader.game_constants.spell_shape_enum import SpellShapeEnum
-from dofus_unity_reader.grid.map_point import MapPoint
-from dofus_unity_reader.models.datas.spell_levels_root import SpellLevelsRootItem
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import SpellModifierType
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import EffectElement
+from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.spell_shape_enum import SpellShapeEnum
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import SpellLevelsRootItem
 
 from src.core.engine.contexts import AttackContext, FightReachableContext
 from src.core.engine.fights.attack.cast_validator import can_cast_spell_on_mp

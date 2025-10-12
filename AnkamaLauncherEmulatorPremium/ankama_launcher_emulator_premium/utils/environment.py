@@ -3,7 +3,9 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from ankama_launcher_emulator_premium.interfaces.ankama_release import ReleaseJson
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.ankama_release import (
+    ReleaseJson,
+)
 
 
 def _read_release_executable_path(release_json_path: str, executable_name: str) -> str | None:
@@ -31,16 +33,6 @@ ZAAP_PATH = _get_zaap_path()
 RELEASE_JSON_PATH = os.path.join(ZAAP_PATH, "repositories", "production", "dofus", "dofus3", "release.json")
 DOFUS_PATH = _read_release_executable_path(RELEASE_JSON_PATH, "Dofus.exe") or "DUMMY_PATH"
 DOFUS_INSTALLED = os.path.exists(DOFUS_PATH)
-RETRO_RELEASE_JSON_PATH = os.path.join(
-    ZAAP_PATH, "repositories", "production", "retro", "main", "release.json"
-)
-RETRO_PATH = (
-    _read_release_executable_path(
-        RETRO_RELEASE_JSON_PATH, "Dofus Retro.exe" if os.name == "nt" else "DofusRetro"
-    )
-    or "DUMMY_PATH"
-)
-RETRO_INSTALLED = os.path.exists(RETRO_PATH)
 
 
 def _get_app_config_dir() -> Path:
@@ -54,5 +46,3 @@ def _get_app_config_dir() -> Path:
 
 app_config_dir = _get_app_config_dir()
 os.makedirs(app_config_dir, exist_ok=True)
-
-AVAILABLE_EMAILS_PATH = Path.home() / "OneDrive" / "Botting" / "emails.txt"

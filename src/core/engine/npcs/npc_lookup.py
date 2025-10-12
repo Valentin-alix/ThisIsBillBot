@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 
 from src.core.engine.npcs.dialog_texts import normalize
 

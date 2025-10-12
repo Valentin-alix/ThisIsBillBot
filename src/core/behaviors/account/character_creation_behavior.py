@@ -7,8 +7,8 @@ from character_management_pb2 import (
     CharacterNameSuggestionEvent,
     CharacterNameSuggestionRequest,
 )
-from datas.protos.non_obf.game.common_pb2 import CharacterRemodelingInformation, Gender
-from dofus_unity_reader.game_constants.breed import DEFAULT_SACRIEUR_COSMETIC_ID, BreedEnum
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import CharacterRemodelingInformation, Gender
+from DBDofusUnity.dofus_unity_reader.game_constants.breed import DEFAULT_SACRIEUR_COSMETIC_ID, BreedEnum
 
 from src.core.behaviors.behavior import Behavior
 from src.services.human_timings import HumanTimingsService

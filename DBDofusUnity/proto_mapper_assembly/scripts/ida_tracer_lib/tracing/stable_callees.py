@@ -4,11 +4,11 @@ from collections.abc import Mapping
 
 import idaapi
 
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.interproc_calls import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.interproc_calls import (
     get_direct_call_target_addr,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.scan_engine import build_function_scan_plan
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.basic_block import FunctionScanCache
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.scan_engine import build_function_scan_plan
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.basic_block import FunctionScanCache
 
 
 def collect_stable_callees(

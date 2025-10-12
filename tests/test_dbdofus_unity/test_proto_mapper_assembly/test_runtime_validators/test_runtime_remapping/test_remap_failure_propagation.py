@@ -9,9 +9,9 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_builder
     make_simple_context,
 )
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
-from proto_mapper_assembly.interfaces.runtime import MessageRuntimeMetadata, RemapOutcome
-from proto_mapper_assembly.runtime.runtime_remapping import remap_runtime_instances
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime import MessageRuntimeMetadata, RemapOutcome
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_remapping import remap_runtime_instances
 
 
 class TestRemapFailurePropagation:
@@ -46,7 +46,7 @@ class TestRemapFailurePropagation:
 
         fail_outcome = RemapOutcome(value={}, mapping_failure="child_fail")
         with patch(
-            "proto_mapper_assembly.runtime.runtime_remapping._remap_child_message",
+            "DBDofusUnity.proto_mapper_assembly.runtime.runtime_remapping._remap_child_message",
             return_value=fail_outcome,
         ):
             result = remap_runtime_instances(
@@ -89,7 +89,7 @@ class TestRemapFailurePropagation:
 
         fail_outcome = RemapOutcome(value={}, mapping_failure="map_child_fail")
         with patch(
-            "proto_mapper_assembly.runtime.runtime_remapping._remap_child_message",
+            "DBDofusUnity.proto_mapper_assembly.runtime.runtime_remapping._remap_child_message",
             return_value=fail_outcome,
         ):
             result = remap_runtime_instances(

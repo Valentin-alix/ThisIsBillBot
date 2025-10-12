@@ -2,12 +2,12 @@ import random
 from dataclasses import dataclass, field
 from functools import partial
 
-from datas.protos.non_obf.game.context_pb2 import EntitiesDispositionEvent
-from datas.protos.non_obf.game.fight_preparation_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import EntitiesDispositionEvent
+from DBDofusUnity.datas.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPositionRequest,
     FightReadyRequest,
 )
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_movement_behavior import FightMovementBehavior

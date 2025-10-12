@@ -5,7 +5,7 @@ from typing import Literal, NamedTuple
 
 from pydantic import BaseModel
 
-from proto_mapper_assembly.interfaces.field_category import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import (
     CompactFieldTypeShape,
     FieldTypeShape,
 )

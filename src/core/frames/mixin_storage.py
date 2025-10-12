@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeLeaveEvent,
 )
-from datas.protos.non_obf.game.inventory_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import (
     StorageInventoryContentEvent,
     StorageObjectRemovedEvent,
     StorageObjectsRemovedEvent,

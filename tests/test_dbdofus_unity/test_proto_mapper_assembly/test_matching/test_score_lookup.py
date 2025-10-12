@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import simple_workspace
 
-from proto_mapper_assembly.interfaces.message_pair import MatchPairKey
-from proto_mapper_assembly.matching.score_lookup import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
+from DBDofusUnity.proto_mapper_assembly.matching.score_lookup import (
     LazyScoreByPair,
     build_lazy_score_by_pair_lookup_from_matrix,
 )

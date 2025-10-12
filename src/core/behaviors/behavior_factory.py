@@ -3,6 +3,7 @@ from src.core.behaviors.interactives.fake_bad_interactive_behavior import (
     FakeBadInteractiveBehavior,
 )
 from src.core.behaviors.items.auto_equipment_behavior import AutoEquipmentBehavior
+from src.core.behaviors.farms.smoke_test_behavior import SmokeTestBehavior
 from src.core.behaviors.movements.fake_bad_movement_behavior import (
     FakeBadMovementBehavior,
 )
@@ -25,4 +26,5 @@ USABLE_BEHAVIORS: list[type[Behavior]] = [
     FakeBadMovementBehavior,
     FakeBadInteractiveBehavior,
     QuestBehavior,
+    SmokeTestBehavior,
 ]

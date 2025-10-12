@@ -8,8 +8,8 @@ from typing import Any, TypeVar, cast
 
 from google.protobuf.message import Message
 
-from datas.protos.non_obf.game.basic_pb2 import DateRequest
-from datas.protos.non_obf.game.connection_pb2 import PingRequest
+from DBDofusUnity.datas.protos.non_obf.game.basic_pb2 import DateRequest
+from DBDofusUnity.datas.protos.non_obf.game.connection_pb2 import PingRequest
 
 from src import consts
 from src.core.events_manager.listener import Listener
@@ -184,12 +184,6 @@ class EventManager(ContextualLogger):
                 for type_msg, modifier in self.modifier_by_type_msg.items()
                 if modifier.originator != originator
             }
-
-    def clear_modifier_by_origin_and_type(self, msg_type: type[Message], originator: object) -> None:
-        with self.lock:
-            modifier = self.modifier_by_type_msg.get(msg_type)
-            if modifier is not None and modifier.originator == originator:
-                del self.modifier_by_type_msg[msg_type]
 
     def on(
         self,

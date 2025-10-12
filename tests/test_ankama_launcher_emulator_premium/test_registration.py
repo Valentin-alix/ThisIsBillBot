@@ -1,26 +1,31 @@
-from pathlib import Path
-from tempfile import TemporaryDirectory
 from unittest import IsolatedAsyncioTestCase, TestCase
 from unittest.mock import AsyncMock, MagicMock, patch
 from urllib.parse import parse_qs, urlparse
 
-from ankama_launcher_emulator_premium.haapi.urls import build_register_url
-from ankama_launcher_emulator_premium.web._client.mailbox import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+    BotStorageController,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.mail_account import (
+    MailAccountController,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.urls import build_register_url
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.mail_account import (
+    MailAccountEntry,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.manual import (
     extract_confirmation_code,
 )
-from ankama_launcher_emulator_premium.web._client.pkce import generate_code_challenge
-from ankama_launcher_emulator_premium.web.auth import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.pkce import generate_code_challenge
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth import (
     registration as registration_module,
 )
-from ankama_launcher_emulator_premium.web.auth import storage
-from ankama_launcher_emulator_premium.web.auth.models import (
-    MailboxSettings,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.models import (
     RegistrationIdentity,
     RegistrationOptions,
 )
-from ankama_launcher_emulator_premium.web.auth.oauth_state import build_login_url
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.oauth_state import build_login_url
 
-from tests.test_ankama_launcher_emulator_premium._fakes import FakeBrowserContext
+from tests.test_ankama_launcher_emulator_premium._fakes import FakeBrowserContext, FakeMailProvider
 
 
 class TestRegistration(TestCase):
@@ -61,55 +66,43 @@ class TestRegistration(TestCase):
         )
 
     def test_save_account_writes_generated_account_schema(self) -> None:
-        storage.save_account("new@example.com", "new", schedule_profile="A")
-        storage.save_account("new@example.com", "new", schedule_profile="B")
+        BotStorageController().save_account("new@example.com", "new", schedule_profile="A")
+        BotStorageController().save_account("new@example.com", "new", schedule_profile="B")
 
-        accounts = storage.load_generated_accounts().root
+        accounts = BotStorageController().get_generated_account_records()
 
         self.assertEqual(len(accounts), 1)
         self.assertEqual(accounts[0].email, "new@example.com")
         self.assertEqual(accounts[0].schedule_profile, "B")
 
     def test_bad_state_emails_are_loaded_from_json(self) -> None:
-        storage.record_bad_state_email("bad@example.com")
-        self.assertEqual(storage.load_bad_state_emails(), {"bad@example.com"})
+        MailAccountController().record_bad_state("bad@example.com")
+        self.assertEqual(MailAccountController().load_bad_state_emails(), {"bad@example.com"})
 
-    def test_reassign_account_for_auth_retry_preserves_credentials(self) -> None:
-        storage.save_account("user@example.com", "secret", "C")
-        storage.mark_account_authenticated("user@example.com")
-        storage.reassign_account_for_auth_retry("user@example.com", "E")
-        account = storage.load_generated_accounts().root[0]
+    def test_reassign_schedule_profile_preserves_credentials(self) -> None:
+        BotStorageController().save_account("user@example.com", "secret", "C")
+        BotStorageController().reassign_schedule_profile("user@example.com", "E")
+        account = BotStorageController().get_generated_account_records()[0]
 
         self.assertEqual(account.password, "secret")
-        self.assertTrue(account.available)
         self.assertEqual(account.schedule_profile, "E")
 
-    def test_count_available_emails_excludes_bad_state_json(self) -> None:
-        with TemporaryDirectory() as tmp_dir:
-            emails_path = Path(tmp_dir) / "emails.txt"
-            emails_path.write_text(
-                "bad@example.com\ngood@example.com\n",
-                encoding="utf-8",
-            )
-            with (
-                patch.object(registration_module, "AVAILABLE_EMAILS_PATH", emails_path),
-                patch.object(
-                    registration_module,
-                    "load_bad_state_emails",
-                    return_value={"bad@example.com"},
-                ),
-            ):
-                self.assertEqual(registration_module.count_available_emails(), 1)
-                self.assertEqual(
-                    registration_module._peek_next_available_email(),
-                    "good@example.com",
-                )
+    def test_peek_next_available_email_excludes_bad_state_and_used(self) -> None:
+        mail_controller = MailAccountController()
+        mail_controller.record_bad_state("bad@example.com")
+        mail_controller.mark_used("used@example.com")
+        with mail_controller._acquire_file_lock():
+            accounts_file = mail_controller._load()
+            accounts_file.accounts.setdefault("good@example.com", MailAccountEntry())
+            mail_controller._save(accounts_file)
+
+        self.assertEqual(mail_controller.peek_next_available_email(), "good@example.com")
 
     def test_record_bad_state_email_deduplicates_and_sorts(self) -> None:
-        storage.record_bad_state_email("z@example.com")
-        storage.record_bad_state_email("a@example.com")
-        storage.record_bad_state_email("z@example.com")
-        bad_state_emails = storage.load_bad_state_emails()
+        MailAccountController().record_bad_state("z@example.com")
+        MailAccountController().record_bad_state("a@example.com")
+        MailAccountController().record_bad_state("z@example.com")
+        bad_state_emails = MailAccountController().load_bad_state_emails()
 
         self.assertEqual(bad_state_emails, {"a@example.com", "z@example.com"})
 
@@ -127,7 +120,7 @@ def _registration_options(
             birthday_month="02",
             birthday_year="1990",
         ),
-        mailbox=MailboxSettings(host="imap.test", username="u", password="p"),
+        mail_provider=FakeMailProvider(),
         confirmation_timeout_seconds=confirmation_timeout_seconds,
     )
 
@@ -153,7 +146,6 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
         page.goto = AsyncMock()
         page.click = AsyncMock()
         browser_context = FakeBrowserContext(page)
-        save_account = MagicMock()
 
         with (
             patch.object(
@@ -186,7 +178,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
                 "human_click_selector",
                 new=AsyncMock(),
             ) as human_click_selector,
-            patch.object(registration_module, "save_account", new=save_account),
+            patch.object(registration_module, "BotStorageController") as bot_storage_controller,
             patch.object(registration_module.asyncio, "sleep", new=AsyncMock()),
             patch.object(registration_module, "human_wait", new=AsyncMock()),
         ):
@@ -194,7 +186,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
 
         self.assertTrue(result.success)
         human_click_selector.assert_awaited_once_with(page, "button[type='submit']")
-        save_account.assert_called_once_with(
+        bot_storage_controller.return_value.save_account.assert_called_once_with(
             "new@example.com",
             "password",
             schedule_profile=None,
@@ -207,7 +199,6 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
         page.click = AsyncMock()
         page.content = AsyncMock(return_value="<html>registration failed</html>")
         browser_context = FakeBrowserContext(page)
-        save_account = MagicMock()
         failure = registration_module._RegistrationWaitResult(
             success=False,
             reason="registration form is still present after submit; visible form errors: Email invalide",
@@ -244,7 +235,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
                 "human_click_selector",
                 new=AsyncMock(),
             ),
-            patch.object(registration_module, "save_account", new=save_account),
+            patch.object(registration_module, "BotStorageController") as bot_storage_controller,
             patch.object(registration_module, "dump_page_html", new=AsyncMock()),
             patch.object(registration_module.asyncio, "sleep", new=AsyncMock()),
             patch.object(registration_module, "human_wait", new=AsyncMock()),
@@ -253,7 +244,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
 
         self.assertFalse(result.success)
         self.assertEqual(result.error, failure.reason)
-        save_account.assert_not_called()
+        bot_storage_controller.return_value.save_account.assert_not_called()
 
     async def test_wait_for_result_reports_visible_form_errors(self) -> None:
         page = MagicMock()
@@ -333,16 +324,14 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
     ) -> None:
         page = MagicMock()
         page.url = "https://auth.ankama.com/register/ankama/code"
-        mailbox_client = MagicMock()
-        mailbox_client.wait_for_code = AsyncMock(return_value=None)
 
         with (
             patch.object(
                 registration_module,
-                "ImapMailboxClient",
-                return_value=mailbox_client,
+                "wait_for_code_with_manual_fallback",
+                new=AsyncMock(return_value=None),
             ),
-            patch.object(registration_module, "record_bad_state_email") as record_bad_state_email,
+            patch.object(registration_module, "MailAccountController") as mail_account_controller,
             self.assertRaises(registration_module.MailboxCodeTimeoutError),
         ):
             await registration_module._handle_confirmation_code(
@@ -351,4 +340,4 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
                 started_at=registration_module.datetime.now(registration_module.UTC),
             )
 
-        record_bad_state_email.assert_called_once_with("new@example.com")
+        mail_account_controller.return_value.record_bad_state.assert_called_once_with("new@example.com")

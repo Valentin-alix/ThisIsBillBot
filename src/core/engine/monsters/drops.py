@@ -1,7 +1,7 @@
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.game_constants.item import CUSTOM_GATHERER_BY_SAC
-from dofus_unity_reader.models.datas.monsters_root import MonsterDrop
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.game_constants.item import CUSTOM_GATHERER_BY_SAC
+from DBDofusUnity.dofus_unity_reader.models.datas.monsters_root import MonsterDrop
 
 from src.controller.game_data import GameDataController
 from src.core.engine.items.item import GATHERED_ITEM_ID_BY_NAME

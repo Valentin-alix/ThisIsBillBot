@@ -1,16 +1,16 @@
 from unittest.mock import Mock, patch
 
 import numpy as np
-from proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
-from proto_mapper_assembly.matching.runtime_rescore import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
+from DBDofusUnity.proto_mapper_assembly.matching.runtime_rescore import (
     RuntimeCandidateIndexes,
     _iter_runtime_candidate_indexes,
 )
-from proto_mapper_assembly.matching.score_preparation import (
+from DBDofusUnity.proto_mapper_assembly.matching.score_preparation import (
     _blend_handler_registration_similarity,
 )
-from proto_mapper_assembly.matching.static_scores import build_static_score_data
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.matching.static_scores import build_static_score_data
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import (
     number_signature,
@@ -33,7 +33,7 @@ class TestStaticScorePreparation:
         non_obf = number_signature("clear")
 
         with patch(
-            "proto_mapper_assembly.matching.static_scores.compute_message_similarity"
+            "DBDofusUnity.proto_mapper_assembly.matching.static_scores.compute_message_similarity"
         ) as mock_build_full_score:
             score_data = build_static_score_data(
                 obf_signatures=[obf],

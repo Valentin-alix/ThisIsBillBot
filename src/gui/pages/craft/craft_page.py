@@ -1,5 +1,5 @@
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.models.datas.recipe_root import RecipeItem
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import FluentIcon, TransparentToolButton

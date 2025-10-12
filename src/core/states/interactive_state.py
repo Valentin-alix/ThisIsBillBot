@@ -1,11 +1,11 @@
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     InteractiveElement,
     StatedElement,
 )
-from dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
 
 from src import consts
 from src.core.engine.interactives.collectable import (

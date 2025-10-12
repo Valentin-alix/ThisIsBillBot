@@ -9,9 +9,9 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_builder
     make_simple_context,
 )
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
-from proto_mapper_assembly.interfaces.runtime import MessageRuntimeMetadata, RuntimeValidationCandidate
-from proto_mapper_assembly.runtime.runtime_remapping import remap_runtime_instances
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime import MessageRuntimeMetadata, RuntimeValidationCandidate
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_remapping import remap_runtime_instances
 
 
 class TestRemapChildField:

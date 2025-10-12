@@ -4,7 +4,7 @@ import ida_auto
 import ida_ida
 import ida_idaapi
 
-from proto_mapper_assembly.scripts.ida_tracer_lib.progress.reporter import ProgressReporter
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.progress.reporter import ProgressReporter
 
 _REPORT_INTERVAL_SECONDS = 1.0
 _PHASE = "auto_analysis"

@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from msgspec import Struct
 
-from dofus_unity_reader.generator.data_cleaning import clean_data_to_output
+from DBDofusUnity.dofus_unity_reader.generator.data_cleaning import clean_data_to_output
 
 
 class SampleData(Struct, frozen=True):

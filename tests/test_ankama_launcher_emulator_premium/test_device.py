@@ -12,7 +12,7 @@ class TestDevice(TestCase):
         wmi_client = SimpleNamespace(Win32_Processor=lambda: [cpu_info])
         wmi_module = SimpleNamespace(WMI=lambda: wmi_client)
         pythoncom_module = SimpleNamespace(CoInitialize=co_initialize)
-        module_name = "ankama_launcher_emulator_premium.decrypter.device"
+        module_name = "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.device"
 
         with patch.dict(
             sys.modules,

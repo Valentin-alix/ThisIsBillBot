@@ -7,13 +7,13 @@ from typing import NamedTuple, override
 from base_python.string_utils import camel_to_snake
 from pydantic import BaseModel, Field
 
-from proto_mapper_assembly.interfaces.field_category import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import (
     FieldCategoryEnum,
     FieldTypeShape,
     NumericKind,
 )
-from proto_mapper_assembly.parsers._clr_type_utils import extract_map_inner_types, extract_repeated_inner_type
-from proto_mapper_assembly.parsers.clr_types import resolve_non_container_field_kind, resolve_numeric_kind
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import extract_map_inner_types, extract_repeated_inner_type
+from DBDofusUnity.proto_mapper_assembly.parsers.clr_types import resolve_non_container_field_kind, resolve_numeric_kind
 
 _INFRASTRUCTURE_TYPES: frozenset[str] = frozenset({"UnknownFieldSet"})
 

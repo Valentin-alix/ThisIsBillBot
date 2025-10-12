@@ -1,7 +1,7 @@
 import datetime
 from dataclasses import dataclass
 
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidHouseItemAddedEvent,
     ExchangeBidHouseItemRemovedEvent,
     ExchangeBidHouseSearchRequest,
@@ -10,12 +10,12 @@ from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidSellerStartedEvent,
     ObjectAveragePricesEvent,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.item import (
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.item import (
     CategoryItemEnum,
     ItemTypeEnum,
 )
-from dofus_unity_reader.game_constants.npc import (
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import (
     ASTRUB_SALE_HOTEL_COM_SELL_NPC,
     ASTRUB_SALE_HOTEL_EQUIPMENT_BUY_NPC,
     ASTRUB_SALE_HOTEL_RES_SELL_NPC,

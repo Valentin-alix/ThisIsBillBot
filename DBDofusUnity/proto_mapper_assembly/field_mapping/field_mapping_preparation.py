@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from proto_mapper_assembly.helpers.proto_helpers import resolve_child_message_cls
-from proto_mapper_assembly.interfaces.assembly_access import FieldAccessSignatures, MessageAccessSignature
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.field_mapping import (
+from DBDofusUnity.proto_mapper_assembly.helpers.proto_helpers import resolve_child_message_cls
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import FieldAccessSignatures, MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import (
     FieldMappingContext,
     MatchingStoreProtocol,
     MessageSideData,
     PreparedFieldMappingContext,
 )
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
-from proto_mapper_assembly.runtime.runtime_field_validation import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_field_validation import (
     collect_runtime_alive_field_names,
     collect_validated_field_names,
 )

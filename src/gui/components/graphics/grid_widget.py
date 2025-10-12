@@ -1,11 +1,11 @@
 import sys
 from typing import override
 
-from datas.protos.non_obf.game.common_pb2 import StatedElement
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.grid.consts import CELL_HEIGHT, CELL_WIDTH
-from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
-from dofus_unity_reader.models.datas.collectionsroot import Collectable
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import StatedElement
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.grid.consts import CELL_HEIGHT, CELL_WIDTH
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
+from DBDofusUnity.dofus_unity_reader.models.datas.collectionsroot import Collectable
 from PyQt6.QtCore import QPointF, Qt, pyqtSlot
 from PyQt6.QtGui import (
     QBrush,

@@ -18,14 +18,14 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures impo
     field_access_signature,
 )
 
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.scoring.message_scoring import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import (
     compute_message_similarity,
     compute_structure_score,
 )
-from proto_mapper_assembly.scoring.signature_scoring import (
+from DBDofusUnity.proto_mapper_assembly.scoring.signature_scoring import (
     _access_atom_similarity_from_keys,
     access_atom_sequence_similarity,
     field_evidence_similarity,

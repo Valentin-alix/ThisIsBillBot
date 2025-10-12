@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pydantic import RootModel
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
 
 
 class NewDumpCSFile(RootModel[dict[str, DumpCSMessage]]):

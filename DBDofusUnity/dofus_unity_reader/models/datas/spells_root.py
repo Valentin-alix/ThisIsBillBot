@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from msgspec import Struct
 
-from dofus_unity_reader.models.datas.zone_descr import ZoneDescr
+from DBDofusUnity.dofus_unity_reader.models.datas.zone_descr import ZoneDescr
 
 
 class BoundScriptUsageDatum(Struct, frozen=True, kw_only=True):

@@ -1,10 +1,13 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(uv run pyright*)",
-      "Bash(uv run ruff check*)",
-      "Bash(uv run ruff format*)",
-      "Bash(uv run python -m unittest*)"
-    ]
-  }
+    "defaultMode": "auto"
+  },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true
+  },
+  "effortLevel": "medium",
+  "advisorModel": "opus",
+  "switchModelsOnFlag": false
 }

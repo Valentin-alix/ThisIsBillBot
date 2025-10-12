@@ -11,7 +11,7 @@ def seed_runtime_content(
     tmp_path: Path,
     content_by_name: Mapping[str, Sequence[Mapping[str, object]]],
     *,
-    filename: str = "instancied_msg_infos_seed.json",
+    filename: str = "instancied_msg_infos.json",
 ) -> None:
     """Write runtime JSON under ``tmp_path`` for tests using the monkeypatched runtime store."""
     entries_by_name = {

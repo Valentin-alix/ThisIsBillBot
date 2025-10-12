@@ -4,9 +4,9 @@ from collections import defaultdict
 from collections.abc import Callable, Sequence
 from typing import TypeGuard, cast
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.interfaces.runtime import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime import (
     ChildMappingResolution,
     MappingFailureOrigin,
     RemapOutcome,

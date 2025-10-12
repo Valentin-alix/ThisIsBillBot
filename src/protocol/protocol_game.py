@@ -1,27 +1,32 @@
 import atexit
 import datetime
 import json
+import logging
 import signal
 import sys
-import traceback
 from collections.abc import Callable, Mapping
 from functools import cache
 from pathlib import Path
 from types import TracebackType
 from typing import Any
 
-from consts import GAME_MAPPINGS_JSON_FILE
-from datas.protos.non_obf.game.game_message_pb2 import GameMessage
+from DBDofusUnity.consts import GAME_MAPPINGS_JSON_FILE
+from DBDofusUnity.datas.protos.non_obf.game.game_message_pb2 import GameMessage
 from google.protobuf import descriptor_pool
 from google.protobuf.any_pb2 import Any as protoAny
 from google.protobuf.descriptor import Descriptor, FieldDescriptor
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
-from proto_mapper_assembly.interfaces.game_mappings import SimpleGameMappingsDocument
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import (
+    SimpleGameMappingEntry,
+    SimpleGameMappingsDocument,
+)
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 from src.protocol.message import MessageInfo
+
+logger = logging.getLogger(__name__)
 
 TYPE_URL_PREFIX = "type.ankama.com/"
 _GAME_MAPPINGS_PATH = Path(GAME_MAPPINGS_JSON_FILE)
@@ -95,6 +100,35 @@ def get_mapping_proto_to_obf() -> ProtoToObfMapping:
         )
         for clear_namespace, mapping_info in _load_game_mappings().root.items()
     }
+
+
+def add_pinned_pair_to_game_mappings(
+    *,
+    obf_msg_namespace: str,
+    non_obf_msg_namespace: str,
+    field_mapping: dict[str, str] | None = None,
+) -> None:
+    global _cached_game_mappings
+
+    game_mappings = _load_game_mappings()
+    key = non_obf_msg_namespace if non_obf_msg_namespace.startswith(".") else f".{non_obf_msg_namespace}"
+    existing_entry = game_mappings.root.get(key)
+    merged_field_mapping = {
+        **(existing_entry.field_mapping if existing_entry else {}),
+        **(field_mapping or {}),
+    }
+
+    _cached_game_mappings = SimpleGameMappingsDocument(
+        root={
+            **game_mappings.root,
+            key: SimpleGameMappingEntry(
+                obf_msg_namespace=obf_msg_namespace,
+                field_mapping=merged_field_mapping,
+            ),
+        }
+    )
+    get_mapping_proto_to_real.cache_clear()
+    get_mapping_proto_to_obf.cache_clear()
 
 
 def is_usable_msg(msg_name: str) -> bool:
@@ -192,7 +226,7 @@ def get_game_msg(content: bytes, do_dump_values: bool) -> tuple[str, Message | N
     try:
         clear_sub_msg = get_clear_msg_from_obf(sub_msg_content_unpacked)
     except Exception:
-        print(traceback.format_exc())
+        logger.exception("Failed to decode game message into its clear form")
         clear_sub_msg = None
 
     return root_msg_namespace, clear_sub_msg, sub_msg_content_unpacked, uid_value
@@ -241,7 +275,8 @@ def get_obf_game_message_from_msg(
     obf_any_msg = protoAny()
     obf_msg = get_obf_msg_from_clear(clear_sub_msg)
     if obf_msg is None:
-        return print(f"No mapping found for {clear_sub_msg.DESCRIPTOR.full_name}")
+        logger.warning("No mapping found for %s", clear_sub_msg.DESCRIPTOR.full_name)
+        return None
 
     obf_any_msg.Pack(obf_msg, type_url_prefix=TYPE_URL_PREFIX)
     obf_any_msg.type_url = TYPE_URL_PREFIX + get_mapping_proto_to_obf()[clear_sub_msg.DESCRIPTOR.full_name][0]
@@ -314,7 +349,9 @@ def get_msg_transformer(
                     msg_mappings,
                 )
             except (AttributeError, ValueError, OverflowError, TypeError):
-                pass
+                logger.debug(
+                    "Failed to translate field %s -> %s", msg_field.name, output_msg_field_name, exc_info=True
+                )
         return output_msg
 
     return transformer

@@ -9,10 +9,10 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builder
     prepare_field_mapping_context_for_test,
 )
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 
 class TestGetExportableFields:

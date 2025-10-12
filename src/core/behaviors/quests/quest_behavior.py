@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
-from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.quests.quest_script_behavior import QuestScriptBehavior
+from src.core.behaviors.recovery_behavior import RecoverableBehavior
 from src.core.engine.quests.quest_criterion import get_required_finished_quest_ids
 from src.core.engine.quests.quest_script import QuestCooldown, QuestScript
 from src.core.engine.quests.scripts import QUEST_SCRIPTS

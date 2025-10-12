@@ -5,7 +5,7 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.helper_builders
     write_snapshot,
 )
 
-from proto_mapper_assembly.helpers.archived_builds import (
+from DBDofusUnity.proto_mapper_assembly.helpers.archived_builds import (
     PROTO_ACCESSES_RELATIVE_PATH,
     PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
     iter_archived_build_dirs,

@@ -5,15 +5,15 @@ from typing import Literal
 
 import idaapi
 
-from proto_mapper_assembly.interfaces.assembly_access import TypeInfoAccessEntry
-from proto_mapper_assembly.scripts.ida_tracer_lib.core.function_inspector import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import TypeInfoAccessEntry
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.core.function_inspector import (
     get_operation_index_inside_function,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import (
     IENUMERATOR_TYPEINFO_PREFIX,
     KVP_VALUE_TYPEINFO_PREFIX,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import RegisterState
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import RegisterState
 
 
 def handle_mov_typeinfo_instruction(

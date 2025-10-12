@@ -3,11 +3,11 @@ from typing import Any
 import numpy as np
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import simple_workspace
 
-from proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
-from proto_mapper_assembly.affinities.declaration_order_alignment import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
+from DBDofusUnity.proto_mapper_assembly.affinities.declaration_order_alignment import (
     build_declaration_order_affinity,
 )
-from proto_mapper_assembly.interfaces.affinity import AffinitySignalInputs
+from DBDofusUnity.proto_mapper_assembly.interfaces.affinity import AffinitySignalInputs
 
 _OBF_CLASSES = ("obf_a1", "obf_a2", "obf_a3")
 _NON_OBF_CLASSES = ("ClearA1", "ClearA2", "ClearA3", "ClearUnwrapped")

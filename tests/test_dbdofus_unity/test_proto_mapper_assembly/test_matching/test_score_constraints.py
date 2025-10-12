@@ -6,17 +6,17 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builde
     simple_workspace,
 )
 
-from proto_mapper_assembly.interfaces.capture_sequence_order import CaptureOrderIndex
-from proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
-from proto_mapper_assembly.interfaces.message_pair import MatchPairKey
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
-from proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
-from proto_mapper_assembly.matching.score_constraints import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_order import CaptureOrderIndex
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
+from DBDofusUnity.proto_mapper_assembly.matching.score_constraints import (
     build_adjusted_scores_matrix,
     build_prospective_constraint_mask,
 )
-from proto_mapper_assembly.matching.workspace import build_matching_workspace
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.matching.workspace import build_matching_workspace
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 
 class TestScoreConstraints:

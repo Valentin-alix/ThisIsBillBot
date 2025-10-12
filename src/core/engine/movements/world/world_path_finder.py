@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
-from dofus_unity_reader.models.world_graph import Edge, Vertice
+from DBDofusUnity.dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Edge, Vertice
 
 from src.core.engine.contexts import WorldPathContext
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding

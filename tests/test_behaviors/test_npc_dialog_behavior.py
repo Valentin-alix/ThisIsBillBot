@@ -1,11 +1,11 @@
 from collections.abc import Callable
 
-from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
-from datas.protos.non_obf.game.npc_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
+from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import (
     NpcDialogQuestionEvent,
     NpcDialogReplyRequest,
 )
-from dofus_unity_reader.game_constants.npc import NpcDialogInfo
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import NpcDialogInfo
 from google.protobuf.message import Message
 
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior

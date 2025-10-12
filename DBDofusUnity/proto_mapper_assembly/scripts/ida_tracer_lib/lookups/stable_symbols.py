@@ -3,8 +3,8 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 
-from proto_mapper_assembly.interfaces.il2cpp_json import MethodDefinition
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.il2cpp import parse_method_signature_parts
+from DBDofusUnity.proto_mapper_assembly.interfaces.il2cpp_json import MethodDefinition
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.il2cpp import parse_method_signature_parts
 
 _OBFUSCATED_IDENTIFIER_RE = re.compile(r"^[a-z]{1,5}$")
 _TYPE_PATH_SEPARATORS_RE = re.compile(r"[/+]")

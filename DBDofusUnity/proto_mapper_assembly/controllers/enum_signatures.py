@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from proto_mapper_assembly.interfaces.enum_mapping import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import (
     EnumCalledFunctionRef,
     EnumMemberGroup,
     EnumSignatureEntry,
     EnumSwitchPattern,
 )
-from proto_mapper_assembly.interfaces.function_access_signature import FunctionAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import FunctionAccessSignature
 
 
 def validate_enum_signature_member_values(entry: EnumSignatureEntry) -> None:

@@ -17,7 +17,7 @@ from scapy.sendrecv import sniff
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
-from proto_mapper_assembly.scripts.dump import check_updated_mapping_resources
+from DBDofusUnity.proto_mapper_assembly.scripts.dump import check_updated_mapping_resources
 
 from src.consts import ENV_PATH, FILTER_DOFUS, get_connection_servers_ips
 from src.core.signals.log_signals import LogSignals
@@ -27,7 +27,7 @@ from src.services.logging_utils.loggers import (
 )
 from src.utils.runtime_paths import configure_project_import_paths
 
-configure_project_import_paths(PROJECT_ROOT)
+configure_project_import_paths()
 load_dotenv(ENV_PATH)
 
 from src.core.bot.bot_factory import generate_random_bot

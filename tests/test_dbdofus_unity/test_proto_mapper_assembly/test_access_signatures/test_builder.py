@@ -21,10 +21,10 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures impo
     function_access_info,
 )
 
-from proto_mapper_assembly.controllers.access_signatures import build_message_access_signatures_by_cls
-from proto_mapper_assembly.interfaces.assembly_access import ReturnRole
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
-from proto_mapper_assembly.interfaces.field_category import FieldTypeShape
+from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import build_message_access_signatures_by_cls
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import ReturnRole
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldTypeShape
 
 
 class TestBuildMessageAccessSignatures:

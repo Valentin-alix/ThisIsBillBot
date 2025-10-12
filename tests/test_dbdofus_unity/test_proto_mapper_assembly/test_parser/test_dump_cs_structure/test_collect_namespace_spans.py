@@ -1,4 +1,4 @@
-from proto_mapper_assembly.parsers._dump_cs_structure import collect_namespace_spans
+from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_structure import collect_namespace_spans
 
 
 class TestCollectNamespaceSpans:

@@ -2,8 +2,8 @@ from google.protobuf import descriptor_pb2
 from google.protobuf.descriptor import Descriptor
 from google.protobuf.descriptor_pool import DescriptorPool
 
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, FieldTypeLeafKind
-from proto_mapper_assembly.parsers.protobuf_dump_cs import _descriptor_to_dump_cs
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, FieldTypeLeafKind
+from DBDofusUnity.proto_mapper_assembly.parsers.protobuf_dump_cs import _descriptor_to_dump_cs
 
 _ENUM_NAME = "Origin"
 

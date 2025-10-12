@@ -1,4 +1,4 @@
-from dofus_unity_reader.game_constants.map_capability import (
+from DBDofusUnity.dofus_unity_reader.game_constants.map_capability import (
     MapCapabilityFlag,
     does_allow_capability,
 )

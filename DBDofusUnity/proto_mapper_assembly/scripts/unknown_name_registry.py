@@ -9,7 +9,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, cast
 
-from consts import NON_OBF_PROTO_OUTPUT, PROTO_MAPPER_DATA_ROOT
+from DBDofusUnity.consts import NON_OBF_PROTO_OUTPUT, PROTO_MAPPER_DATA_ROOT
 
 
 UNKNOWN_NAME_REGISTRY_FILE = PROTO_MAPPER_DATA_ROOT / "unknown_name_registry.json"

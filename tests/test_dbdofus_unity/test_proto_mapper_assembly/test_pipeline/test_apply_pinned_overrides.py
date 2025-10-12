@@ -23,19 +23,19 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.pipeline_builde
     signature_override_with_indexed_access,
 )
 
-from proto_mapper_assembly.controllers.non_obf_bootstrap import (
+from DBDofusUnity.proto_mapper_assembly.controllers.non_obf_bootstrap import (
     inject_synthetic_non_obf_entries_for_override_only_messages,
 )
-from proto_mapper_assembly.controllers.non_obf_matching_inputs import prepare_non_obf_matching_inputs
-from proto_mapper_assembly.controllers.signature_override_application import (
+from DBDofusUnity.proto_mapper_assembly.controllers.non_obf_matching_inputs import prepare_non_obf_matching_inputs
+from DBDofusUnity.proto_mapper_assembly.controllers.signature_override_application import (
     _apply_field_binding_remapping,
     apply_stored_signature_overrides,
 )
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, FieldTypeShape
-from proto_mapper_assembly.interfaces.signature_overrides import FieldOverrideBinding, SignatureOverrideEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, FieldTypeShape
+from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import FieldOverrideBinding, SignatureOverrideEntry
 
 
 class TestApplyStoredSignatureOverrides:

@@ -9,6 +9,22 @@ from PyQt6.QtGui import (
 )
 
 
+_NUMBER_PATTERN = re.compile(r"\b\d+\b")
+_BRACKET_PATTERN = re.compile(r"[\[\]\(\)\{\}]")
+_ID_PATTERN = re.compile(r"\b(?:gid|uid|id|tab|map_id)[:=]\s*\d+")
+_KEYWORDS = [
+    "ERROR",
+    "WARNING",
+    "INFO",
+    "DEBUG",
+    "CRITICAL",
+    "failed",
+    "success",
+    "finished",
+]
+_KEYWORD_PATTERNS = [re.compile(r"\b" + keyword + r"\b", re.IGNORECASE) for keyword in _KEYWORDS]
+
+
 class LogSyntaxHighlighter(QSyntaxHighlighter):
     def __init__(self, document: QTextDocument | None = None) -> None:
         super().__init__(document)
@@ -33,29 +49,15 @@ class LogSyntaxHighlighter(QSyntaxHighlighter):
         if text is None:
             return
         self.setFormat(0, len(text), self.default_format)
-        number_pattern = re.compile(r"\b\d+\b")
-        for match in number_pattern.finditer(text):
+        for match in _NUMBER_PATTERN.finditer(text):
             self.setFormat(match.start(), match.end() - match.start(), self.number_format)
 
-        bracket_pattern = re.compile(r"[\[\]\(\)\{\}]")
-        for match in bracket_pattern.finditer(text):
+        for match in _BRACKET_PATTERN.finditer(text):
             self.setFormat(match.start(), match.end() - match.start(), self.bracket_format)
 
-        id_pattern = re.compile(r"\b(?:gid|uid|id|tab|map_id)[:=]\s*\d+")
-        for match in id_pattern.finditer(text):
+        for match in _ID_PATTERN.finditer(text):
             self.setFormat(match.start(), match.end() - match.start(), self.id_format)
 
-        keywords = [
-            "ERROR",
-            "WARNING",
-            "INFO",
-            "DEBUG",
-            "CRITICAL",
-            "failed",
-            "success",
-            "finished",
-        ]
-        for keyword in keywords:
-            pattern = re.compile(r"\b" + keyword + r"\b", re.IGNORECASE)
+        for pattern in _KEYWORD_PATTERNS:
             for match in pattern.finditer(text):
                 self.setFormat(match.start(), match.end() - match.start(), self.keyword_format)

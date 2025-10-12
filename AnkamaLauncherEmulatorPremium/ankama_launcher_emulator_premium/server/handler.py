@@ -2,20 +2,20 @@ import logging
 from dataclasses import dataclass, field
 from threading import Timer
 
-from ankama_launcher_emulator_premium.decrypter.crypto_helper import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.crypto_helper import (
     CryptoHelper,
 )
-from ankama_launcher_emulator_premium.exceptions import HaapiHttpError
-from ankama_launcher_emulator_premium.haapi.haapi import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.exceptions import HaapiHttpError
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.haapi import (
     get_account_info_by_login,
 )
-from ankama_launcher_emulator_premium.interfaces.account_session import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.account_session import (
     AccountGameInfo,
 )
-from ankama_launcher_emulator_premium.interfaces.credentials import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
     DecipheredCertif,
 )
-from ankama_launcher_emulator_premium.utils.internet import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.internet import (
     retry_internet,
 )
 

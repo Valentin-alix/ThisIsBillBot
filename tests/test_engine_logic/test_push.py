@@ -2,7 +2,7 @@ from types import SimpleNamespace
 from typing import cast
 
 import pytest
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.engine.fights.attack import push
 from src.core.engine.fights.attack.push import estimate_collision_damage

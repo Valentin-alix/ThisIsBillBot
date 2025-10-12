@@ -16,8 +16,8 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures impo
     builder_field_access_entry,
 )
 
-from proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessEntry,
     AccessTraceDocument,
     FieldAccessSignatures,
@@ -26,23 +26,23 @@ from proto_mapper_assembly.interfaces.assembly_access import (
     MessageAccessSignature,
     ProtoAccessesInfo,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
-from proto_mapper_assembly.interfaces.enum_mapping import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import (
     EnumMemberGroup,
     EnumSignatureEntry,
     EnumSwitchPattern,
 )
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.interfaces.field_mapping import FieldMappingResult
-from proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry, GameMappingsDocument
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace
-from proto_mapper_assembly.interfaces.new_dump_cs import NewDumpCSFile
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
-from proto_mapper_assembly.interfaces.signature_overrides import SignatureOverridesFile
-from proto_mapper_assembly.matching.workspace import build_matching_workspace
-from proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type
-from proto_mapper_assembly.scoring.message_scoring import AssemblySimilarityData, MessageSimilarityScoreData
-from proto_mapper_assembly.scripts.export_signature_overrides import build_signature_overrides
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import FieldMappingResult
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry, GameMappingsDocument
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.interfaces.new_dump_cs import NewDumpCSFile
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import SignatureOverridesFile
+from DBDofusUnity.proto_mapper_assembly.matching.workspace import build_matching_workspace
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type
+from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import AssemblySimilarityData, MessageSimilarityScoreData
+from DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides import build_signature_overrides
 
 PINNED_PAIRS_PATH = Path("test_pinned_pairs.json")
 
@@ -280,13 +280,13 @@ def run_build_signature_overrides(
         # Exit stack permet d'Ã©viter de faire 40 imbrication de with, c'est l'Ã©quivalent de with ...: quand on fais enter_context
         stack.enter_context(
             patch(
-                "proto_mapper_assembly.scripts.export_signature_overrides.load_pinned_pairs",
+                "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.load_pinned_pairs",
                 return_value=pinned,
             )
         )
         stack.enter_context(
             patch(
-                "proto_mapper_assembly.scripts.export_signature_overrides.parse_messages",
+                "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.parse_messages",
                 side_effect=[
                     obf_messages or [signature.dump_cs_msg for signature in obf_signatures.values()],
                     non_obf_messages if non_obf_messages is not None else [],
@@ -295,19 +295,19 @@ def run_build_signature_overrides(
         )
         stack.enter_context(
             patch(
-                "proto_mapper_assembly.scripts.export_signature_overrides.load_message_access_signatures_from_messages",
+                "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.load_message_access_signatures_from_messages",
                 return_value=obf_signatures,
             )
         )
         stack.enter_context(
             patch(
-                "proto_mapper_assembly.scripts.export_signature_overrides.load_game_mappings_document",
+                "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.load_game_mappings_document",
                 return_value=game_mappings or GameMappingsDocument(root={}),
             )
         )
         stack.enter_context(
             patch(
-                "proto_mapper_assembly.scripts.export_signature_overrides.load_new_dump_cs_messages",
+                "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.load_new_dump_cs_messages",
                 return_value=NewDumpCSFile(
                     root=bootstrap_messages
                     if bootstrap_messages is not None
@@ -317,7 +317,7 @@ def run_build_signature_overrides(
         )
         stack.enter_context(
             patch(
-                "proto_mapper_assembly.scripts.export_signature_overrides.parse_access_trace_document",
+                "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.parse_access_trace_document",
                 side_effect=[
                     AccessTraceDocument(
                         functions_by_address={},

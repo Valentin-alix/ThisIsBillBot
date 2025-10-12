@@ -2,16 +2,16 @@ from collections.abc import Callable
 from typing import cast
 from unittest.mock import MagicMock
 
-from datas.protos.non_obf.game.common_pb2 import ObjectItem, ObjectItemInventory
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItem, ObjectItemInventory
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeObjectMoveRequest,
     ExchangeObjectTransferAllFromInventoryRequest,
 )
-from datas.protos.non_obf.game.inventory_pb2 import InventoryWeightEvent
-from dofus_unity_reader.game_constants.inventory_position import (
+from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import InventoryWeightEvent
+from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
     CharacterInventoryPositionEnum,
 )
-from dofus_unity_reader.game_constants.item import ItemEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.item import ItemEnum
 from google.protobuf.message import Message
 
 from src.core.behaviors.storage.unloads.unload_in_bank_behavior import (

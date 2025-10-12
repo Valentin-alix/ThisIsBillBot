@@ -29,14 +29,14 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures impo
     field_access_signature,
 )
 
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     FieldAccessSignatures,
     MessageAccessSignature,
     ReturnRole,
 )
-from proto_mapper_assembly.interfaces.function_access_signature import FunctionSimilarityKey
-from proto_mapper_assembly.scoring import message_scoring, signature_scoring
-from proto_mapper_assembly.scripts.audit_historical_assembly_metrics import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import FunctionSimilarityKey
+from DBDofusUnity.proto_mapper_assembly.scoring import message_scoring, signature_scoring
+from DBDofusUnity.proto_mapper_assembly.scripts.audit_historical_assembly_metrics import (
     _field_access_sequence_indexed_similarity,
     _function_access_sequence_indexed_similarity,
     _structure_declared_shape_similarity,

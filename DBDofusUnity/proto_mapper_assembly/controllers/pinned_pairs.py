@@ -2,15 +2,15 @@ import json
 from collections.abc import Mapping
 from pathlib import Path
 
-from proto_mapper_assembly.controllers.message_lookup import (
+from DBDofusUnity.proto_mapper_assembly.controllers.message_lookup import (
     build_non_obf_alias_lookup,
     build_obf_alias_lookup,
     resolve_non_obf_alias,
     resolve_obf_alias,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, normalize_proto_field_name
-from proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry
-from proto_mapper_assembly.interfaces.pinned_pairs import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, normalize_proto_field_name
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import (
     PinnedPair,
     PinnedPairsConfig,
 )

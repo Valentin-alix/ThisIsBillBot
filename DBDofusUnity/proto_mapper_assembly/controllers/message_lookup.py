@@ -1,11 +1,11 @@
 from collections import defaultdict
 from collections.abc import Mapping
 
-from proto_mapper_assembly.helpers.non_obf_names import (
+from DBDofusUnity.proto_mapper_assembly.helpers.non_obf_names import (
     build_filtered_message_namespace,
     build_pinned_non_obf_name,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
 
 
 def resolve_obf_alias(alias: str, alias_to_cls: Mapping[str, frozenset[str]]) -> str:

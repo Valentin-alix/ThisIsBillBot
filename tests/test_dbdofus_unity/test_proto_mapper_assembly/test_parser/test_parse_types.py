@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from pathlib import Path
 
-from proto_mapper_assembly.parsers.dump_cs_parser import parse_types
+from DBDofusUnity.proto_mapper_assembly.parsers.dump_cs_parser import parse_types
 
 CODE = (
     "public class fal // TypeDefIndex: 1\n"

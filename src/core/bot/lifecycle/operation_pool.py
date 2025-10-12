@@ -1,7 +1,7 @@
 import time
 from dataclasses import dataclass, field
 
-from ankama_launcher_emulator_premium.interfaces.schedule_profile import ProxyController
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.proxy import ProxyController
 
 ONE_HOUR_SEC = 3600
 ONE_DAY_SEC = 86_400
@@ -67,8 +67,7 @@ class OperationPool:
         self._register_cooldowns[proxy_id] = now + REGISTER_PROXY_COOLDOWN_SEC
         self._save_proxy(proxy_id)
 
-    def record(self, proxy_id: str, now: float | None = None) -> None:
-        now = time.time() if now is None else now
+    def record(self, proxy_id: str, now: float) -> None:
         timestamps = self._timestamps.setdefault(proxy_id, [])
         timestamps.append(now)
 

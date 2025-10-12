@@ -1,15 +1,11 @@
 import platform
-import sys
 from pathlib import Path
 
 from base_python.env_config import get_path_from_env, get_required_path
 from dotenv import load_dotenv
 
-sys.path.append(str(Path(__file__).parent.parent))
-
-from proto_mapper_assembly.helpers.archived_builds import PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
-from proto_mapper_assembly.helpers.obf_game_snapshot import resolve_obf_game_snapshot
-
+from DBDofusUnity.proto_mapper_assembly.helpers.archived_builds import PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
+from DBDofusUnity.proto_mapper_assembly.helpers.obf_game_snapshot import resolve_obf_game_snapshot
 from project_paths import ENV_PATH
 
 PROJECT_ROOT: Path = Path(__file__).resolve().parent
@@ -95,12 +91,7 @@ OBF_PROTO_OUTPUT: Path = PROTOS_ROOT / "obf" / "game"
 NON_OBF_PROTO_OUTPUT: Path = PROTOS_ROOT / "non_obf" / "game"
 NON_OBF_NEW_DUMP_CS_FILE: Path = NON_OBFUSCATED_DATA_DIR / "new_dump_cs.json"
 
-RUNTIME_DATA_DIR: Path = get_path_from_env(
-    "BOT_SHARED_DATAS_DIR", Path.home() / "OneDrive" / "Botting" / "BotSharedDatas"
-)
-if not RUNTIME_DATA_DIR.exists():
-    err = f"Did not found shared datas dir : {RUNTIME_DATA_DIR}"
-    raise FileNotFoundError(err)
+RUNTIME_DATA_FILE: Path = PROTO_MAPPER_DATA_ROOT / "instancied_msg_infos.json"
 
 OBF_PROTO_ACCESSES_FILE: Path = OBFUSCATED_DATA_DIR / "proto_accesses.json"
 NON_OBF_PROTO_ACCESSES_FILE: Path = NON_OBFUSCATED_DATA_DIR / "proto_accesses.json"

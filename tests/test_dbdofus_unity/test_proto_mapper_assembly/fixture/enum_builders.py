@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from collections import Counter
 
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessTraceDocument,
     EnumFunctionResolvedMetadata,
     TracedFunction,
     format_trace_address,
 )
-from proto_mapper_assembly.interfaces.enum_mapping import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import (
     EnumCalledFunctionRef,
     EnumMemberGroup,
     EnumSignatureEntry,

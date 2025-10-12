@@ -1,11 +1,11 @@
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import number_field
 
-from proto_mapper_assembly.helpers.non_obf_names import (
+from DBDofusUnity.proto_mapper_assembly.helpers.non_obf_names import (
     build_filtered_message_namespace,
     build_pinned_non_obf_name,
     normalize_exported_non_obf_namespace,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
 
 
 class TestNonObfNames:

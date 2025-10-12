@@ -1,4 +1,4 @@
-from proto_mapper_assembly.parsers._dump_cs_message_body_parser import parse_message_body
+from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_message_body_parser import parse_message_body
 
 
 class TestMessageBodyParser:

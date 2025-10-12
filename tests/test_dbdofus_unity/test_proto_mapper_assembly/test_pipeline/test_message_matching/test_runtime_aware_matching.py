@@ -18,21 +18,21 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builde
     match_messages_for_test,
 )
 
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
-from proto_mapper_assembly.interfaces.capture_sequence_order import CaptureOrderIndex
-from proto_mapper_assembly.interfaces.capture_sequence_hints import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_order import CaptureOrderIndex
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import (
     CaptureSequence,
     CaptureSequenceHintsConfig,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.interfaces.matching import MatchResult
-from proto_mapper_assembly.matching.capture_sequence_order import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchResult
+from DBDofusUnity.proto_mapper_assembly.matching.capture_sequence_order import (
     apply_capture_sequence_order_scores,
 )
-from proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
-from proto_mapper_assembly.matching.workspace import build_matching_workspace
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
+from DBDofusUnity.proto_mapper_assembly.matching.workspace import build_matching_workspace
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 
 class TestRuntimeAwareMatching:
@@ -123,7 +123,7 @@ class TestRuntimeAwareMatching:
         ]
         for signature_index, obf_signature in enumerate(obf_signatures):
             from_server = signature_index >= 2
-            seed_entry = runtime_data_store.merged_content_by_name.root[obf_signature.message_cls][0]
+            seed_entry = runtime_data_store.content_by_name.root[obf_signature.message_cls][0]
             assert seed_entry.from_server is from_server
         return match_messages_for_test(
             obf_signatures,

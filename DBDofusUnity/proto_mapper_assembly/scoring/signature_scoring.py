@@ -4,16 +4,16 @@ from collections import Counter
 
 from base_python.cache import cache
 
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessAtomKey,
     AccessAtomSequenceKey,
     FieldAccessSignatures,
     FunctionSimilarityKey,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
-from proto_mapper_assembly.interfaces.counter_profile import CounterProfile
-from proto_mapper_assembly.interfaces.function_access_signature import ForeignAccessSummaryKey
-from proto_mapper_assembly.scoring.primitives import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.counter_profile import CounterProfile
+from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import ForeignAccessSummaryKey
+from DBDofusUnity.proto_mapper_assembly.scoring.primitives import (
     counter_profile_overlap_similarity,
     ratio_similarity,
 )

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from proto_mapper_assembly.interfaces.assembly_access import FieldAccessEntry, FieldAccessSignatures
-from proto_mapper_assembly.interfaces.dump_cs_message import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import FieldAccessEntry, FieldAccessSignatures
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import (
     DumpCSMessage,
     DumpCSMessageField,
 )
-from proto_mapper_assembly.interfaces.message_field_resolution_lookup import MessageFieldResolutionLookup
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_field_resolution_lookup import MessageFieldResolutionLookup
 
 
 def build_message_field_resolution_lookup(

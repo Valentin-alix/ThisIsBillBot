@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from msgspec import Struct
 
-from dofus_unity_reader.models.datas.bounds import Bounds
+from DBDofusUnity.dofus_unity_reader.models.datas.bounds import Bounds
 
 
 class AreasRootItem(Struct, frozen=True, kw_only=True):

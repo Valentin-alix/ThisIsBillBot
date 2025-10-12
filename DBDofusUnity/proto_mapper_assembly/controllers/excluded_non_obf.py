@@ -3,9 +3,9 @@ from __future__ import annotations
 from collections.abc import Sequence
 from pathlib import Path
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.excluded_non_obf import ExcludedNonObfConfig
-from proto_mapper_assembly.interfaces.signature_overrides import SignatureOverrideEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.excluded_non_obf import ExcludedNonObfConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import SignatureOverrideEntry
 
 
 def load_excluded_non_obf(path: Path) -> ExcludedNonObfConfig:

@@ -1,11 +1,11 @@
 import dataclasses
 from dataclasses import dataclass, field
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
-from dofus_unity_reader.grid.map_point import MapPoint
-from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
-from dofus_unity_reader.models.world_graph import Vertice
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Vertice
 
 from src import consts
 from src.core.engine.movements.world.linked_zone import get_linked_zone_rp

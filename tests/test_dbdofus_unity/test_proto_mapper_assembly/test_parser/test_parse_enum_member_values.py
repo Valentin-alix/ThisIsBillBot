@@ -1,4 +1,4 @@
-from proto_mapper_assembly.parsers._dump_cs_structure import parse_enum_member_values
+from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_structure import parse_enum_member_values
 
 
 class TestParseEnumMemberValues:

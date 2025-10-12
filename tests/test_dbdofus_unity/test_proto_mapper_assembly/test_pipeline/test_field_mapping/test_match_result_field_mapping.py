@@ -31,22 +31,22 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builde
     match_messages_for_test,
 )
 
-from proto_mapper_assembly.field_mapping.field_mapping_scoring import score_field_pair
-from proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
-from proto_mapper_assembly.interfaces.field_category import (
+from DBDofusUnity.proto_mapper_assembly.field_mapping.field_mapping_scoring import score_field_pair
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import (
     FieldCategoryEnum,
     FieldTypeLeafKind,
     FieldTypeShape,
 )
-from proto_mapper_assembly.interfaces.message_pair import MatchPairKey
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
-from proto_mapper_assembly.interfaces.signature_overrides import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
+from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import (
     EnumSignatureOverrideHint,
     SignatureOverrideEntry,
 )
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 
 class TestMatchResultFieldMapping:

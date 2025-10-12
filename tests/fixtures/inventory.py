@@ -1,4 +1,4 @@
-from datas.protos.non_obf.game.common_pb2 import ObjectItem, ObjectItemInventory
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItem, ObjectItemInventory
 
 from src.core.bot.bot_factory import BotFactory
 from src.core.engine.contexts import CriterionContext

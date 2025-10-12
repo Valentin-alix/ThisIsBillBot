@@ -4,20 +4,20 @@ from typing import cast
 from unittest.mock import MagicMock
 
 import pytest
-from datas.protos.non_obf.game.challenge_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.challenge_pb2 import (
     ChallengeProposalEvent,
     ChallengeSelectionRequest,
 )
-from datas.protos.non_obf.game.common_pb2 import Challenge
-from datas.protos.non_obf.game.fight_pb2 import FightTurnFinishRequest
-from datas.protos.non_obf.game.game_action_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import Challenge
+from DBDofusUnity.datas.protos.non_obf.game.fight_pb2 import FightTurnFinishRequest
+from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import (
     GameActionAcknowledgementRequest,
     GameActionFightEvent,
     SequenceEndEvent,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import MapMovementEvent, MapMovementRequest
-from dofus_unity_reader.grid.map_point import MapPoint
-from dofus_unity_reader.models.world_graph import Edge
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapMovementEvent, MapMovementRequest
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Edge
 from google.protobuf.message import Message
 
 from src.core.behaviors.behavior import (

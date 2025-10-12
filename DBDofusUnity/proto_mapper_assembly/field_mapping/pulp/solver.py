@@ -5,15 +5,15 @@ from typing import Protocol
 import numpy as np
 import pulp
 
-from proto_mapper_assembly.field_mapping.pulp.constraints import (
+from DBDofusUnity.proto_mapper_assembly.field_mapping.pulp.constraints import (
     GLOBAL_VALIDATOR_FIELD_GROUPS,
     SET_VALIDATOR_FIELD_GROUPS,
     LpConstrainable,
     build_ilp_validator_constraints,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
-from proto_mapper_assembly.interfaces.field_mapping import PreparedFieldMappingContext
-from proto_mapper_assembly.interfaces.runtime_data import NormalizedRuntimeInstance
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import PreparedFieldMappingContext
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime_data import NormalizedRuntimeInstance
 
 
 class _LpProblemProto(LpConstrainable, Protocol):

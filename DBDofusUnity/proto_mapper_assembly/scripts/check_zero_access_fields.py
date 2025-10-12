@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-from consts import (
+from DBDofusUnity.consts import (
     GAME_MAPPINGS_DETAILED_JSON_FILE,
     NON_OBF_PROTO_ACCESSES_FILE,
     NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
@@ -26,35 +26,35 @@ from consts import (
     OBFUSCATED_DATA_DIR,
     PROTOS_ROOT,
 )
-from proto_mapper_assembly.controllers.game_mappings import load_game_mappings_document
-from proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.controllers.game_mappings import load_game_mappings_document
+from DBDofusUnity.proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     FunctionAccessInfo,
     ProtoAccessesInfo,
     TypeInfoAccessEntry,
     is_field_access_entry,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry, GameMappingsDocument
-from proto_mapper_assembly.interfaces.il2cpp_json import Il2CppJson
-from proto_mapper_assembly.parsers.csharp_signature_utils import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry, GameMappingsDocument
+from DBDofusUnity.proto_mapper_assembly.interfaces.il2cpp_json import Il2CppJson
+from DBDofusUnity.proto_mapper_assembly.parsers.csharp_signature_utils import (
     CORE_METHOD_DECLARATION_RE as _CORE_METHOD_DECLARATION_RE,
 )
-from proto_mapper_assembly.parsers.csharp_signature_utils import (
+from DBDofusUnity.proto_mapper_assembly.parsers.csharp_signature_utils import (
     canonicalize_csharp_method_declaration as _canonicalize_csharp_method_declaration,
 )
-from proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
-from proto_mapper_assembly.parsers.proto_accesses_parser import (
+from DBDofusUnity.proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
+from DBDofusUnity.proto_mapper_assembly.parsers.proto_accesses_parser import (
     parse_access_trace_document,
     parse_proto_accesses,
 )
-from proto_mapper_assembly.parsers.protobuf_dump_cs import build_dump_cs_messages_from_pb2
-from proto_mapper_assembly.runtime.runtime_field_validation import collect_runtime_alive_field_names
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.type_lookup import build_long_name_by_unique_alias
-from proto_mapper_assembly.scripts.ida_tracer_lib.signatures.parser import (
+from DBDofusUnity.proto_mapper_assembly.parsers.protobuf_dump_cs import build_dump_cs_messages_from_pb2
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_field_validation import collect_runtime_alive_field_names
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.type_lookup import build_long_name_by_unique_alias
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.signatures.parser import (
     extract_proto_parameter_seeds,
     select_signature_for_proto_tracking,
 )

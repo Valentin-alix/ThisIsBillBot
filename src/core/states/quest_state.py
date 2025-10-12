@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from datas.protos.non_obf.game.quest_pb2 import QuestActive, QuestObjective
+from DBDofusUnity.datas.protos.non_obf.game.quest_pb2 import QuestActive, QuestObjective
 
 from src.core.states.state import State
 

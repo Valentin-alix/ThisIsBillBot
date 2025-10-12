@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-from proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type, split_top_level_tokens
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type, split_top_level_tokens
 
 # Captures declaration, start address, and end address from an IL2CPP .cs dump line.
 CORE_METHOD_DECLARATION_RE = re.compile(

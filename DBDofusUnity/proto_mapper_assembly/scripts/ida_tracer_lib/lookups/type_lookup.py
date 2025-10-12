@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import normalize_message_type_name
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import normalize_message_type_name
 
 
 def build_long_name_by_unique_alias(classes: list[DumpCSMessage]) -> dict[str, str]:

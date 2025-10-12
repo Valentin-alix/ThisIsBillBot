@@ -25,7 +25,6 @@ from qfluentwidgets.components.material.acrylic_flyout import (
 )
 from qfluentwidgets.components.navigation import (
     NavigationItemPosition,
-    NavigationSeparator,
     NavigationTreeWidget,
     NavigationWidget,
 )
@@ -364,32 +363,6 @@ class SidebarPanel(QFrame):
         else:
             self._insertWidgetToLayout(index, widget, position)
 
-    def addSeparator(self, position: NavigationItemPosition = NavigationItemPosition.TOP) -> None:
-        """add separator
-
-        Parameters
-        ----------
-        position: NavigationPostion
-            where to add the separator
-        """
-        self.insertSeparator(-1, position)
-
-    def insertSeparator(
-        self, index: int, position: NavigationItemPosition = NavigationItemPosition.TOP
-    ) -> None:
-        """add separator
-
-        Parameters
-        ----------
-        index: int
-            insert position
-
-        position: NavigationPostion
-            where to add the separator
-        """
-        separator = NavigationSeparator(parent=self)
-        self._insertWidgetToLayout(index, separator, position)
-
     def _registerWidget(
         self,
         routeKey: str,
@@ -485,9 +458,6 @@ class SidebarPanel(QFrame):
 
         self.expandWidth = width
         NavigationWidget.EXPAND_WIDTH = width - 10
-
-    def setMinimumExpandWidth(self, width: int) -> None:
-        self.minimumExpandWidth = width
 
     def setAcrylicEnabled(self, isEnabled: bool) -> None:
         if isEnabled == self.isAcrylicEnabled():

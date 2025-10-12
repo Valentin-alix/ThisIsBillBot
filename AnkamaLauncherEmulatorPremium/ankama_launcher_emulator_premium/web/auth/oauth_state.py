@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 from playwright.async_api import Page
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
-from ankama_launcher_emulator_premium.web._client.pkce import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.pkce import (
     generate_code_challenge,
     generate_code_verifier,
 )

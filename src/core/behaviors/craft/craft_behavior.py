@@ -2,27 +2,26 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from functools import partial
 
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeCraftCountModifiedEvent,
     ExchangeCraftCountRequest,
     ExchangeCraftStartedEvent,
     ExchangeReadyRequest,
     ExchangeSetCraftRecipeRequest,
 )
-from datas.protos.non_obf.game.inventory_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
 )
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.game_constants.skill import MAP_IDS_BY_SKILL
-from dofus_unity_reader.grid.map_point import MapPoint
-from dofus_unity_reader.models.datas.recipe_root import RecipeItem
-
-from src.core.behaviors.recovery import RecoverableBehavior
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.game_constants.skill import MAP_IDS_BY_SKILL
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
+from src.core.behaviors.recovery_behavior import RecoverableBehavior
 from src.core.behaviors.storage.loads.load_recipe_behavior import LoadRecipeBehavior
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
@@ -74,9 +73,7 @@ class CraftBehavior(RecoverableBehavior):
         self._activity_performed = False
         valid_recipe_ids = {
             recipe.resultId
-            for recipe in self.game_state.craft.get_valid_recipes(
-                [req.recipe for req in craft_requests]
-            )
+            for recipe in self.game_state.craft.get_valid_recipes([req.recipe for req in craft_requests])
         }
         valid_requests = [req for req in craft_requests if req.recipe.resultId in valid_recipe_ids]
 
@@ -86,9 +83,7 @@ class CraftBehavior(RecoverableBehavior):
             if isinstance(req.stop_condition, int)
         }
         condition_by_result_id = {
-            req.recipe.resultId: req.stop_condition
-            for req in valid_requests
-            if callable(req.stop_condition)
+            req.recipe.resultId: req.stop_condition for req in valid_requests if callable(req.stop_condition)
         }
         self._stop_craft_recipe_condition = lambda recipe: condition_by_result_id.get(
             recipe.resultId, lambda _: False
@@ -103,9 +98,7 @@ class CraftBehavior(RecoverableBehavior):
             return self.craft_from_inventory(quantity_by_result_id, inventory_recipes)
         self.process_remaining_recipes()
 
-    def craft_from_inventory(
-        self, quantity_by_result_id: dict[int, int], recipes: list[RecipeItem]
-    ) -> None:
+    def craft_from_inventory(self, quantity_by_result_id: dict[int, int], recipes: list[RecipeItem]) -> None:
         self._loaded_recipes_infos = [
             LoadedRecipeInfo(recipe=recipe, quantity=quantity_by_result_id[recipe.resultId])
             for recipe in recipes

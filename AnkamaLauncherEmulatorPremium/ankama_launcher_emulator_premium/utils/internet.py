@@ -7,7 +7,7 @@ from typing import ParamSpec, TypeVar
 
 import requests
 
-from ankama_launcher_emulator_premium.exceptions import HaapiHttpError
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.exceptions import HaapiHttpError
 
 logger = logging.getLogger()
 ParamT = ParamSpec("ParamT")

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from proto_mapper_assembly.helpers.proto_helpers import resolve_child_message_cls
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.runtime import MessageRuntimeMetadata
+from DBDofusUnity.proto_mapper_assembly.helpers.proto_helpers import resolve_child_message_cls
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime import MessageRuntimeMetadata
 
 
 def build_message_runtime_metadata(

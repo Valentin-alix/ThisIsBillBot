@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
-from datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
-from dofus_unity_reader.game_constants.npc import ReplyInfo
+from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import ReplyInfo
 from pydantic import BaseModel
 
 from src.core.engine.npcs.dialog_texts import get_question_text, matches

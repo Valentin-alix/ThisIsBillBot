@@ -6,12 +6,12 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-from ankama_launcher_emulator_premium.interfaces.credentials import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
     StoredApiKey,
 )
-from ankama_launcher_emulator_premium.interfaces.zaap_files import GameSubscription
-from proto_mapper_assembly.runtime import runtime_store
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.zaap_files import GameSubscription
+from DBDofusUnity.proto_mapper_assembly.runtime import runtime_store
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 from src.consts import MIN_DATE
 from src.core.bot.bot import Bot
@@ -49,34 +49,26 @@ def bot_scheduler() -> BotScheduler:
 
 @pytest.fixture(autouse=True)
 def logger(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> MagicMock:
-    monkeypatch.setattr("ankama_launcher_emulator_premium.consts.BOT_DEBUG_LOGS_DIR", tmp_path)
+    monkeypatch.setattr("src.consts.BOT_DEBUG_LOGS_DIR", tmp_path)
     return MagicMock()
 
 
 @pytest.fixture(autouse=True)
 def _isolate_resource_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
-        "src.core.behaviors.account.paysafecard_subscription.PAYSAFECARDS_PATH",
+        "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_pool.PAYSAFECARDS_PATH",
         tmp_path / "paysafecards.txt",
     )
     monkeypatch.setattr(
-        "src.core.behaviors.account.paysafecard_subscription.PAYSAFECARD_PURCHASE_PATH",
+        "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_purchase.PAYSAFECARD_PURCHASE_PATH",
         tmp_path / "paysafecard_purchase.local.json",
     )
     monkeypatch.setattr(
-        "src.core.bot.lifecycle.connection_handler.PAYSAFECARDS_PATH",
-        tmp_path / "paysafecards.txt",
-    )
-    monkeypatch.setattr(
-        "src.core.bot.lifecycle.connection_handler.PAYSAFECARD_PURCHASE_PATH",
-        tmp_path / "paysafecard_purchase.local.json",
-    )
-    monkeypatch.setattr(
-        "ankama_launcher_emulator_premium.web.debug_utils.DEBUG_DUMPS_DIR",
+        "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.debug_utils.DEBUG_DUMPS_DIR",
         tmp_path / "debug" / "dumps",
     )
     monkeypatch.setattr(
-        "ankama_launcher_emulator_premium.web.subscription.xsolla_paysafecard.DEBUG_DUMPS_DIR",
+        "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.subscription.xsolla_paysafecard.DEBUG_DUMPS_DIR",
         tmp_path / "debug" / "dumps",
     )
 
@@ -106,7 +98,7 @@ def tmp_json_path(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def runtime_data_store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[RuntimeDataStore]:
-    monkeypatch.setattr(runtime_store, "RUNTIME_DATA_DIR", tmp_path)
+    monkeypatch.setattr(runtime_store, "RUNTIME_DATA_FILE", tmp_path / "instancied_msg_infos.json")
     instance = RuntimeDataStore()
     instance._capture_target_path = None  # pyright: ignore[reportPrivateUsage]
     monkeypatch.setattr(protocol_game, "_on_exit", lambda: None)

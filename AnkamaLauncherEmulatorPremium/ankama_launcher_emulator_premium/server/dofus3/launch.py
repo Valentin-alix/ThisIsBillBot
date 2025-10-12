@@ -5,8 +5,9 @@ from pathlib import Path
 import frida
 import frida.core
 
-from ankama_launcher_emulator_premium.interfaces.game import GameNameEnum
-from ankama_launcher_emulator_premium.utils.environment import DOFUS_PATH, ZAAP_PATH
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import LAUNCHER_PORT
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.game import GameNameEnum
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.environment import DOFUS_PATH, ZAAP_PATH
 
 logger = logging.getLogger()
 
@@ -21,7 +22,7 @@ def launch_dofus_exe(
     command: list[str | bytes] = [
         DOFUS_PATH,
         "--port",
-        "26116",
+        str(LAUNCHER_PORT),
         "--gameName",
         GameNameEnum.DOFUS.value,
         "--gameRelease",
@@ -48,7 +49,7 @@ def launch_dofus_exe(
         "ZAAP_HASH": random_hash,
         "ZAAP_INSTANCE_ID": str(instance_id),
         "ZAAP_LOGS_PATH": log_path,
-        "ZAAP_PORT": "26116",
+        "ZAAP_PORT": str(LAUNCHER_PORT),
         "ZAAP_RELEASE": "dofus3",
     }
 

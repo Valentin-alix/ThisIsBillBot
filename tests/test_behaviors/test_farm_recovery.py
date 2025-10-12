@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from dofus_unity_reader.game_constants.item import CategoryItemEnum, ItemEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum, ItemEnum
 
-from datas.protos.non_obf.game.gamemap_pb2 import MapComplementaryInformationEvent, MapCurrentEvent
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapComplementaryInformationEvent, MapCurrentEvent
 
 from src.core.behaviors.farms.random_farm_behavior import MAX_CONSECUTIVE_UNEXPECTED_NEW_MAPS
 from src.core.behaviors.items.acquire_items_behavior import (

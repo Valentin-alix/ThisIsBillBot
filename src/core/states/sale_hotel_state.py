@@ -1,7 +1,7 @@
 import dataclasses
 import datetime
 
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidSellerStartedEvent,
     SellingConditions,
 )

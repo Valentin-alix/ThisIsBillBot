@@ -2,11 +2,11 @@ from typing import cast
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock, patch
 
-from ankama_launcher_emulator_premium.exceptions import BannedException
-from ankama_launcher_emulator_premium.web._client import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.exceptions import BannedException
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client import (
     credentials as credentials_module,
 )
-from ankama_launcher_emulator_premium.web._client.browser_interactions import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.browser_interactions import (
     accept_cookies_if_present,
     detect_antibot_marker,
 )

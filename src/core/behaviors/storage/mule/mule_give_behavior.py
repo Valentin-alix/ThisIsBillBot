@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeErrorEvent,
     ExchangeKamaModifiedEvent,
     ExchangeLeaveEvent,
@@ -9,12 +9,11 @@ from datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeReadyRequest,
     ExchangeStartedWithPodsEvent,
 )
-
-from src.core.behaviors.recovery import RecoverableBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
+from src.core.behaviors.recovery_behavior import RecoverableBehavior
 from src.core.bot.kamas_mule_registry import (
     KamasMuleRegistry,
     MuleReservation,

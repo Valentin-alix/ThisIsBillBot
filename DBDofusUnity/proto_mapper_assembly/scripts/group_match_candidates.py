@@ -25,7 +25,7 @@ from dataclasses import dataclass
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from consts import (
+from DBDofusUnity.consts import (
     GAME_MAPPINGS_DETAILED_JSON_FILE,
     NON_OBF_NEW_DUMP_CS_FILE,
     NON_OBF_PROTO_ACCESSES_FILE,
@@ -35,20 +35,20 @@ from consts import (
     OBF_PROTOCOL_GAME_DUMP_CS_FILE,
     PINNED_PAIRS_FILE,
 )
-from proto_mapper_assembly.affinities._group_similarity import build_group_scores_matrix
-from proto_mapper_assembly.controllers.access_signatures import count_handler_registrations_by_cls
-from proto_mapper_assembly.controllers.game_mappings import load_game_mappings_document
-from proto_mapper_assembly.controllers.matching_inputs_loader import load_matching_inputs
-from proto_mapper_assembly.controllers.pinned_pairs import load_pinned_pairs
-from proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace
-from proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
-from proto_mapper_assembly.matching.static_scores import build_static_score_data
-from proto_mapper_assembly.matching.workspace import build_matching_workspace
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-from proto_mapper_assembly.scoring.message_scoring import StructureSimilarityContext
+from DBDofusUnity.proto_mapper_assembly.affinities._group_similarity import build_group_scores_matrix
+from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import count_handler_registrations_by_cls
+from DBDofusUnity.proto_mapper_assembly.controllers.game_mappings import load_game_mappings_document
+from DBDofusUnity.proto_mapper_assembly.controllers.matching_inputs_loader import load_matching_inputs
+from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import load_pinned_pairs
+from DBDofusUnity.proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.matching.static_scores import build_static_score_data
+from DBDofusUnity.proto_mapper_assembly.matching.workspace import build_matching_workspace
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import StructureSimilarityContext
 
 _MIN_GROUP_COHERENCE = 0.90
 """Same threshold as the export report, so both agree on which descriptors are worth looking at."""

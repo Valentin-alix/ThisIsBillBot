@@ -1,31 +1,31 @@
 from dataclasses import dataclass
 
-from datas.protos.non_obf.game.character_pb2 import CharacterCharacteristicsEvent
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import CharacterCharacteristicsEvent
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     FightInvisibilityState,
 )
-from datas.protos.non_obf.game.context_pb2 import ContextCreationEvent
-from datas.protos.non_obf.game.fight_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import ContextCreationEvent
+from DBDofusUnity.datas.protos.non_obf.game.fight_pb2 import (
     FightRefreshCharacterStatsEvent,
     FightSynchronizeEvent,
     FightTurnEvent,
     FightTurnFinishRequest,
 )
-from datas.protos.non_obf.game.fight_preparation_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
 )
-from datas.protos.non_obf.game.game_action_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightCastRequest,
     GameActionFightEvent,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
 )
-from datas.protos.non_obf.game.spell_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import (
     SpellsEvent,
 )
-from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 
 from src.controller.game_data import GameDataController
 from src.core.frames.frame import Frame

@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import numpy as np
 
-from proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
-from proto_mapper_assembly.interfaces.capture_sequence_order import CaptureOrderIndex
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace
-from proto_mapper_assembly.matching.capture_sequence_order import apply_capture_sequence_order_scores
-from proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_order import CaptureOrderIndex
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.matching.capture_sequence_order import apply_capture_sequence_order_scores
+from DBDofusUnity.proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
 
 _STORE_MATCH_BONUS = 0.1
 _PARENT_CANDIDATE_THRESHOLD = 0.3

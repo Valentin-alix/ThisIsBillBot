@@ -3,14 +3,14 @@ from unittest.mock import patch
 
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_builders import make_candidate
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.runtime import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime import (
     MessageRuntimeMetadata,
     RemapOutcome,
     RuntimeRemappingContext,
     RuntimeRemappingTraceEvent,
 )
-from proto_mapper_assembly.runtime.runtime_remapping import _remap_child_message
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_remapping import _remap_child_message
 
 
 class TestRemapChildMessage:
@@ -58,7 +58,7 @@ class TestRemapChildMessage:
         events: list[RuntimeRemappingTraceEvent] = []
         fail_outcome = RemapOutcome(value={}, mapping_failure="test_failure")
         with patch(
-            "proto_mapper_assembly.runtime.runtime_remapping._remap_runtime_instance",
+            "DBDofusUnity.proto_mapper_assembly.runtime.runtime_remapping._remap_runtime_instance",
             return_value=fail_outcome,
         ):
             outcome = _remap_child_message(

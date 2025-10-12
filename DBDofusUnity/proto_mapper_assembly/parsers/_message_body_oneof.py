@@ -3,10 +3,10 @@ from __future__ import annotations
 from bisect import bisect_right
 from dataclasses import dataclass
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, DumpCSMessageProperty
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.parsers._message_body_scan import _extract_enum_type_fields
-from proto_mapper_assembly.parsers.clr_types import categorize_field
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, DumpCSMessageProperty
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.parsers._message_body_scan import _extract_enum_type_fields
+from DBDofusUnity.proto_mapper_assembly.parsers.clr_types import categorize_field
 
 
 @dataclass(frozen=True, slots=True)

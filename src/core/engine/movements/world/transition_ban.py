@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto
+from functools import cached_property
 
-from dofus_unity_reader.models.world_graph import Transition, Vertice
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Transition, Vertice
 
 
 class TransitionBanScope(StrEnum):
@@ -20,6 +21,6 @@ class BannedTransition:
     transition: Transition
     scope: TransitionBanScope
 
-    @property
+    @cached_property
     def key(self) -> tuple[Vertice, Vertice, Transition]:
         return (self.vertice_from, self.vertice_to, self.transition)

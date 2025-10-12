@@ -3,7 +3,7 @@ from collections import defaultdict
 from functools import reduce
 from pathlib import Path
 
-from dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 
 _MIN_THRESHOLD: int = 15
 

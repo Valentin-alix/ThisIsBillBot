@@ -4,8 +4,8 @@ from functools import cached_property
 
 from base_python.cache import cache
 
-from dofus_unity_reader.game_constants.directions import DirectionsEnum
-from dofus_unity_reader.grid.consts import CELL_HEIGHT, CELL_WIDTH, MAP_HEIGHT, MAP_WIDTH
+from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
+from DBDofusUnity.dofus_unity_reader.grid.consts import CELL_HEIGHT, CELL_WIDTH, MAP_HEIGHT, MAP_WIDTH
 
 
 def _as3_int(value: float) -> int:

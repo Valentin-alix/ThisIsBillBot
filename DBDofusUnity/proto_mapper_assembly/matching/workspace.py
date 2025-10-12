@@ -3,10 +3,10 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Sequence
 
-from proto_mapper_assembly.helpers.proto_helpers import build_types_by_short_name, resolve_child_message_cls
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace, SignatureIndexLookup
+from DBDofusUnity.proto_mapper_assembly.helpers.proto_helpers import build_types_by_short_name, resolve_child_message_cls
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace, SignatureIndexLookup
 
 
 def build_matching_workspace(

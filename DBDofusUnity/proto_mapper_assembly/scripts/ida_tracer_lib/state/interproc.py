@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import NamedTuple
 
-from proto_mapper_assembly.interfaces.assembly_access import AccessEntry
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import TrackedValue
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessEntry
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import TrackedValue
 
 
 class InterproceduralCacheKey(NamedTuple):

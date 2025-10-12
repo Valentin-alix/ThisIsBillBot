@@ -1,6 +1,6 @@
 import datetime
 
-from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
 from PyQt6.QtCore import QObject, pyqtSignal
 
 

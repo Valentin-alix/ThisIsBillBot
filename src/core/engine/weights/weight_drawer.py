@@ -1,5 +1,5 @@
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
 
 from src.core.signals.world_signals import WorldSignals
 

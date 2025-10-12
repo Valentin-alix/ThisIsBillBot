@@ -4,10 +4,10 @@ from collections.abc import Mapping
 
 import numpy as np
 
-from proto_mapper_assembly.affinities._group_similarity import build_group_scores_matrix, match_groups
-from proto_mapper_assembly.affinities._sequence_alignment import align_sequences_monotonically
-from proto_mapper_assembly.interfaces.affinity import AffinityResult, AffinitySignalInputs
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.affinities._group_similarity import build_group_scores_matrix, match_groups
+from DBDofusUnity.proto_mapper_assembly.affinities._sequence_alignment import align_sequences_monotonically
+from DBDofusUnity.proto_mapper_assembly.interfaces.affinity import AffinityResult, AffinitySignalInputs
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessTraceDocument,
     HandlerRegistrationAccessEntry,
 )

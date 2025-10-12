@@ -1,13 +1,13 @@
 from dataclasses import dataclass, field
 from enum import StrEnum, auto
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     FightInvisibilityState,
 )
-from dofus_unity_reader.game_constants.spell_state import SpellStateEnum
-from dofus_unity_reader.grid.map_point import MapPoint
-from dofus_unity_reader.models.datas.monsters_root import MonsterGrade
+from DBDofusUnity.dofus_unity_reader.game_constants.spell_state import SpellStateEnum
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.models.datas.monsters_root import MonsterGrade
 
 
 FULLY_INVULNERABLE_STATE_IDS: frozenset[int] = frozenset(

@@ -1,6 +1,6 @@
 from typing import Annotated, Literal
 
-from datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
+from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
 from pydantic import BaseModel, Field
 
 from src.core.engine.npcs.dialog_texts import get_reply_text, matches

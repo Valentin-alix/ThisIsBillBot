@@ -6,9 +6,9 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.field_mapping import FieldMappingResult
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import FieldMappingResult
 
 type MappingFailureOrigin = Literal["child"]
 type RuntimeTraceKind = Literal["failure"]

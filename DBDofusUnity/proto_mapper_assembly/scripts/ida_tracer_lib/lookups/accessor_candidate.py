@@ -5,16 +5,16 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Literal
 
-from proto_mapper_assembly.interfaces.assembly_access import AccessKind, FieldAccessEntry
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.parsers._clr_type_utils import extract_map_inner_types, extract_repeated_inner_type
-from proto_mapper_assembly.scripts.ida_tracer_lib.core.function_inspector import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessKind, FieldAccessEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import extract_map_inner_types, extract_repeated_inner_type
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.core.function_inspector import (
     get_operation_index_inside_function,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import resolve_message_type_name
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.type_lookup import build_long_name_by_unique_alias
-from proto_mapper_assembly.scripts.ida_tracer_lib.signatures.type_utils import is_non_message_type
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import resolve_message_type_name
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.type_lookup import build_long_name_by_unique_alias
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.signatures.type_utils import is_non_message_type
 
 
 @dataclass(frozen=True)

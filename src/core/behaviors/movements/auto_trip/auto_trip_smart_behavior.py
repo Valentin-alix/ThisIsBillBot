@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from functools import partial
 
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.area import AreaEnum
-from dofus_unity_reader.game_constants.map_id import MapIdEnum
-from dofus_unity_reader.game_constants.npc import NpcInfo
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.area import AreaEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import NpcInfo
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_explorator_behavior import (

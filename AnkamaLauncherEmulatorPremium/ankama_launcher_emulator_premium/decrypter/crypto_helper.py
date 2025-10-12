@@ -8,33 +8,32 @@ from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import pad, unpad
 from pydantic import BaseModel
 
-from ankama_launcher_emulator_premium.decrypter.device import Device
-from ankama_launcher_emulator_premium.interfaces.credentials import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+    BotStorageController,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.device import Device
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
     DecipheredApiKey,
     DecipheredCertif,
     StoredApiKey,
     StoredCertificate,
 )
-from ankama_launcher_emulator_premium.interfaces.local_storage import BotRecord
-from ankama_launcher_emulator_premium.utils.bot_storage import BotStorageController
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.local_storage import BotRecord
 
 logger = logging.getLogger()
-
-
-class StoredPasswordNotFound(LookupError):
-    pass
 
 
 class CryptoHelper:
     @staticmethod
     def getStoredCertificate(login: str) -> StoredCertificate:
         record = BotStorageController().get_record(login)
-        if record is None or record.encrypted_certificate is None:
+        if record is None or record.encrypted_api_key is None:
             raise FileNotFoundError(f"No stored certificate for {login}")
-        raw = CryptoHelper.decrypt(record.encrypted_certificate, Device.getUUID())
-        return StoredCertificate(
-            certificate=DecipheredCertif.model_validate_json(raw),
-        )
+        raw = CryptoHelper.decrypt(record.encrypted_api_key, Device.getUUID())
+        certificate = DecipheredApiKey.model_validate_json(raw).certificate
+        if certificate is None:
+            raise FileNotFoundError(f"No stored certificate for {login}")
+        return StoredCertificate(certificate=certificate)
 
     @staticmethod
     def remove_bot(login: str) -> None:
@@ -44,7 +43,6 @@ class CryptoHelper:
 
         def clear_auth(record: BotRecord) -> None:
             record.encrypted_api_key = None
-            record.encrypted_certificate = None
 
         storage.update_record(login, clear_auth)
 
@@ -136,6 +134,8 @@ class CryptoHelper:
         try:
             decrypted_certificate = unpad(decrypted_certificate, AES.block_size)
         except ValueError:
+            # Ankama certificates aren't always PKCS7-padded; hashing must
+            # succeed either way to match the launcher's own behavior.
             pass
 
         combined_datas = hm1.encode() + decrypted_certificate
@@ -153,19 +153,3 @@ class CryptoHelper:
             lambda record: setattr(record, "encrypted_api_key", encrypted_api_key),
         )
         logger.info("[OAuth] API key stored for %s", login)
-
-    @staticmethod
-    def store_certificate(certif: DecipheredCertif) -> None:
-        encrypted_certificate = CryptoHelper.encrypt(
-            certif,
-            Device.getUUID(),
-        )
-        BotStorageController().update_record(
-            certif.login,
-            lambda record: setattr(
-                record,
-                "encrypted_certificate",
-                encrypted_certificate,
-            ),
-        )
-        logger.info("[OAuth] Certificate stored for %s", certif.login)

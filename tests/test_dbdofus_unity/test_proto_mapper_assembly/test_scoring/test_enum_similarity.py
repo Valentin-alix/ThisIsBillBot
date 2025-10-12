@@ -5,12 +5,12 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.enum_builders i
     enum_traced_function,
 )
 
-from proto_mapper_assembly.interfaces.enum_mapping import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import (
     EnumMemberGroup,
     EnumSignatureEntry,
     EnumSwitchPattern,
 )
-from proto_mapper_assembly.scoring.enum_similarity import (
+from DBDofusUnity.proto_mapper_assembly.scoring.enum_similarity import (
     EnumSimilarityContext,
     enum_member_similarity,
     enum_signature_similarity,

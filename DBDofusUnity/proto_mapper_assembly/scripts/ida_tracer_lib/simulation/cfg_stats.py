@@ -4,9 +4,9 @@ from collections import Counter, deque
 
 import idaapi
 
-from proto_mapper_assembly.interfaces.function_access_signature import CfgStats
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.scan_engine import build_function_scan_plan
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.basic_block import FunctionScanCache, FunctionScanPlan
+from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import CfgStats
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.scan_engine import build_function_scan_plan
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.basic_block import FunctionScanCache, FunctionScanPlan
 
 
 def opcode_histogram_for_func(

@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from functools import partial
 
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
 from src.core.behaviors.behavior import Behavior

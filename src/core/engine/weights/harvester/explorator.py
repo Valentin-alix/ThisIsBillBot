@@ -1,4 +1,4 @@
-from dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 
 from src.controller.game_data import GameDataController
 

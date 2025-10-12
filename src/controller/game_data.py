@@ -5,10 +5,10 @@ from pathlib import Path
 from threading import RLock
 
 from base_python.singleton import Singleton
-from datas.protos.non_obf.game.common_pb2 import ActorPositionInformation
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.game_constants.job import JobEnum
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ActorPositionInformation
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.game_constants.job import JobEnum
 from pydantic import BaseModel, Field
 
 from src.consts import RESOURCE_FOLDER
@@ -95,23 +95,17 @@ class GameDataController(metaclass=Singleton):
             {gfx_id: (item_id, int(job_id)) for gfx_id, item_id, job_id in item_and_job_by_gfx_array}
         )
 
-    def get_collectable_map_ids_checked(self) -> set[int]:
+    def get_map_ids_checked(self) -> set[int]:
         with self._LOCK:
             return self._load().collectable_map_checked
 
-    def add_collectable_map_id_checked(self, map_id: int) -> None:
+    def add_map_id_checked(self, map_id: int) -> None:
         with self._LOCK:
             game_data = self._load()
             if map_id in game_data.collectable_map_checked:
                 return
             game_data.collectable_map_checked.add(map_id)
             self._save(game_data)
-
-    def get_map_ids_checked(self) -> set[int]:
-        return self.get_collectable_map_ids_checked()
-
-    def add_map_id_checked(self, map_id: int) -> None:
-        self.add_collectable_map_id_checked(map_id)
 
     def get_defeat_count_by_name(self) -> dict[str, int]:
         with self._LOCK:

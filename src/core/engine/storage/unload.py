@@ -1,4 +1,4 @@
-from dofus_unity_reader.game_constants.npc import BANK_NPCS, NpcInfo
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import BANK_NPCS, NpcInfo
 
 from src.core.engine.movements.map.map_tools import MapTools
 

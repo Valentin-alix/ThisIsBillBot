@@ -3,11 +3,11 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Sequence
 
-from proto_mapper_assembly.controllers.message_fields import (
+from DBDofusUnity.proto_mapper_assembly.controllers.message_fields import (
     build_message_field_resolution_lookup,
     resolve_field_by_access_entry,
 )
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessAtomSignature,
     AccessEntry,
     AccessTraceDocument,
@@ -19,12 +19,12 @@ from proto_mapper_assembly.interfaces.assembly_access import (
     ProtoAccessesInfo,
     is_field_access_entry,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.interfaces.message_field_resolution_lookup import MessageFieldResolutionLookup
-from proto_mapper_assembly.parsers.csharp_signature_utils import get_normalized_short_type_name
-from proto_mapper_assembly.parsers.proto_accesses_parser import parse_access_trace_document
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_field_resolution_lookup import MessageFieldResolutionLookup
+from DBDofusUnity.proto_mapper_assembly.parsers.csharp_signature_utils import get_normalized_short_type_name
+from DBDofusUnity.proto_mapper_assembly.parsers.proto_accesses_parser import parse_access_trace_document
 
 
 def load_message_access_signatures_from_messages(

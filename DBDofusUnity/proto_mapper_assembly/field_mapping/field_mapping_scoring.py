@@ -4,31 +4,31 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Literal, NamedTuple
 
-from proto_mapper_assembly.helpers.proto_helpers import resolve_child_message_cls
-from proto_mapper_assembly.interfaces.assembly_access import FieldAccessSignatures
-from proto_mapper_assembly.interfaces.dump_cs_message import (
+from DBDofusUnity.proto_mapper_assembly.helpers.proto_helpers import resolve_child_message_cls
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import FieldAccessSignatures
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import (
     DumpCSMessage,
     DumpCSMessageField,
     EnumFieldTypes,
     FieldKey,
 )
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
-from proto_mapper_assembly.interfaces.field_mapping import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import (
     DiscoveredMessageMatch,
     FieldMappingContext,
     MatchingStoreProtocol,
 )
-from proto_mapper_assembly.interfaces.message_pair import MatchPairKey
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
-from proto_mapper_assembly.runtime.runtime_field_validation import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_field_validation import (
     get_defined_runtime_values,
     is_runtime_compatible_field_pair,
 )
-from proto_mapper_assembly.scoring.enum_similarity import (
+from DBDofusUnity.proto_mapper_assembly.scoring.enum_similarity import (
     EnumSimilarityContext,
     enum_signature_similarity,
 )
-from proto_mapper_assembly.scoring.signature_scoring import (
+from DBDofusUnity.proto_mapper_assembly.scoring.signature_scoring import (
     declared_field_similarity,
     field_evidence_similarity,
 )

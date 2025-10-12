@@ -45,7 +45,7 @@ class Device:
             sha256_hash_machine_uuid = hashlib.sha256()
             sha256_hash_machine_uuid.update(machine_uuid.encode("utf-8"))
             return sha256_hash_machine_uuid.hexdigest()
-        except subprocess.CalledProcessError as error:
+        except (OSError, subprocess.SubprocessError) as error:
             raise RuntimeError("Error while obtaining machine id: " + str(error)) from error
 
     @staticmethod
@@ -62,6 +62,7 @@ class Device:
                         "MachineGuid",
                     ],
                     text=True,
+                    timeout=10,
                 )
                 return Device.parseMachineGuuid(plt, output)
             case "linux":

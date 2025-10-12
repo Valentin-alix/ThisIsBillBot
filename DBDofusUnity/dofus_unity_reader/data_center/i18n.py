@@ -3,7 +3,7 @@ from functools import cached_property
 import msgspec
 from base_python.singleton import Singleton
 
-from consts import I18N_OUTPUT_PATH
+from DBDofusUnity.consts import I18N_OUTPUT_PATH
 
 I18NRoot = dict[int, str]
 

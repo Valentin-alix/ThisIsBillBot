@@ -5,27 +5,25 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from time import monotonic, sleep
 
-from ankama_launcher_emulator_premium.web.auth.storage import (
-    mark_account_available_for_auth_retry,
-    remove_generated_account,
-)
-
 LAUNCH_SPACING_SECONDS = 2.5
 MITM_CONNECTION_WAIT_TIMEOUT_SECONDS = 90.0
 MITM_CONNECTION_WAIT_STEP_SECONDS = 0.5
 SOCKET_DISCONNECTION_WAIT_TIMEOUT_SECONDS = 5.0
 SOCKET_DISCONNECTION_WAIT_STEP_SECONDS = 0.05
 
-from ankama_launcher_emulator_premium.decrypter.crypto_helper import (
-    CryptoHelper,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+    BotStorageController,
 )
-from ankama_launcher_emulator_premium.gui.utils import run_in_background
-from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
-    ProxyController,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.proxy import ProxyController
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
     ScheduleProfileController,
 )
-from ankama_launcher_emulator_premium.server.handler import AnkamaLauncherHandler
-from ankama_launcher_emulator_premium.server.server import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.crypto_helper import (
+    CryptoHelper,
+)
+from src.services.background import run_in_background
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.handler import AnkamaLauncherHandler
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.server import (
     AnkamaLauncherServer,
 )
 
@@ -236,11 +234,10 @@ class BotManager:
                 )
         CryptoHelper.remove_bot(login)
         BotConfigService().remove_bot_config(login)
-        remove_generated_account(login)
+        BotStorageController().remove_record(login)
         self.on_synchronize_bots()
 
     def on_invalid_auth_callback(self, login: str) -> None:
-        mark_account_available_for_auth_retry(login)
         CryptoHelper.remove_bot(login)
         self.on_synchronize_bots()
 

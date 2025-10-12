@@ -1,9 +1,9 @@
 from collections import defaultdict
 from collections.abc import Callable
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.characteristic import EffectElement
-from dofus_unity_reader.models.datas.spell_levels_root import (
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import EffectElement
+from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
     Effect,
     SpellLevelsRootItem,
 )

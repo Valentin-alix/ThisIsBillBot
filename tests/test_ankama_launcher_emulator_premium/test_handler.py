@@ -1,13 +1,13 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from ankama_launcher_emulator_premium.exceptions import HaapiHttpError
-from ankama_launcher_emulator_premium.interfaces.account_session import AccountGameInfo
-from ankama_launcher_emulator_premium.interfaces.credentials import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.exceptions import HaapiHttpError
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.account_session import AccountGameInfo
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
     DecipheredCertif,
     StoredCertificate,
 )
-from ankama_launcher_emulator_premium.server.handler import AnkamaLauncherHandler
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.handler import AnkamaLauncherHandler
 
 
 class TestAnkamaLauncherHandler(TestCase):
@@ -52,7 +52,7 @@ class TestAnkamaLauncherHandler(TestCase):
         self._register_session(handler, haapi)
 
         with patch(
-            "ankama_launcher_emulator_premium.server.handler.CryptoHelper.getStoredCertificate",
+            "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.handler.CryptoHelper.getStoredCertificate",
             return_value=StoredCertificate(certificate=certificate),
         ):
             token = handler.auth_getGameToken("session-hash", 99)
@@ -67,7 +67,7 @@ class TestAnkamaLauncherHandler(TestCase):
         self._register_session(handler, haapi)
 
         with patch(
-            "ankama_launcher_emulator_premium.server.handler.CryptoHelper.getStoredCertificate",
+            "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.handler.CryptoHelper.getStoredCertificate",
             side_effect=FileNotFoundError,
         ):
             token = handler.auth_getGameToken("session-hash", 99)
@@ -82,7 +82,7 @@ class TestAnkamaLauncherHandler(TestCase):
         self._register_session(handler, haapi)
 
         with patch(
-            "ankama_launcher_emulator_premium.server.handler.CryptoHelper.getStoredCertificate",
+            "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.handler.CryptoHelper.getStoredCertificate",
             side_effect=FileNotFoundError,
         ):
             with self.assertRaises(HaapiHttpError):
@@ -97,7 +97,7 @@ class TestAnkamaLauncherHandler(TestCase):
         self._register_session(handler, haapi)
 
         with patch(
-            "ankama_launcher_emulator_premium.server.handler.CryptoHelper.getStoredCertificate",
+            "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.handler.CryptoHelper.getStoredCertificate",
             side_effect=FileNotFoundError,
         ):
             with self.assertRaises(HaapiHttpError):
@@ -112,7 +112,7 @@ class TestAnkamaLauncherHandler(TestCase):
         self._register_session(handler, haapi)
 
         with patch(
-            "ankama_launcher_emulator_premium.server.handler.CryptoHelper.getStoredCertificate",
+            "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.handler.CryptoHelper.getStoredCertificate",
             side_effect=FileNotFoundError,
         ):
             token = handler.auth_getGameTokenWithWindowId("session-hash", 99, 3)

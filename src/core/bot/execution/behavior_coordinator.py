@@ -2,11 +2,11 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, fields
 from threading import Event
 
-from ankama_launcher_emulator_premium.gui.utils import run_in_background
-from ankama_launcher_emulator_premium.interfaces.credentials import (
+from src.services.background import run_in_background
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
     StoredApiKey,
 )
-from dofus_unity_reader.models.datas.recipe_root import RecipeItem
+from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.controller.bot_config import BotConfig, BotConfigService
 from src.core.behaviors.behavior import Behavior, BehaviorState

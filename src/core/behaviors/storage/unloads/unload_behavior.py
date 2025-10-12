@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.core.behaviors.recovery import RecoverableBehavior
+from src.core.behaviors.recovery_behavior import RecoverableBehavior
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestError,
 )

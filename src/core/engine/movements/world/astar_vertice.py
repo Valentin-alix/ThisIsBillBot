@@ -1,9 +1,9 @@
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
-from dofus_unity_reader.models.world_graph import Edge, Vertice
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Edge, Vertice
 
 from src.core.engine.contexts import WorldPathContext
 from src.core.engine.movements.world.edge import iter_valid_outgoing_edges

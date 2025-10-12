@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 
-from datas.protos.non_obf.game.achievement_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.achievement_pb2 import (
     AchievementFinishedEvent,
     AchievementRewardRequest,
     AchievementRewardResultEvent,
 )
-from datas.protos.non_obf.game.character_pb2 import CharacterLevelUpEvent
+from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import CharacterLevelUpEvent
 
 from src.core.frames.frame import Frame
 from src.services.human_timings import HumanTimingsService

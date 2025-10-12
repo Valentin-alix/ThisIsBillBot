@@ -1,0 +1,37 @@
+{
+  "proxies": {
+    "B": {
+      "rejected": false,
+      "host": "88.223.21.146",
+      "http_port": 12323,
+      "socks_port": 12324,
+      "username": "14aae09db58a6",
+      "password": "76e882c1f9",
+      "operation_timestamps": [
+        1786882833.7097816,
+        1786886287.427621
+      ],
+      "register_cooldown_until": null
+    },
+    "C": {
+      "rejected": true,
+      "host": "0.0.0.0",
+      "http_port": 1,
+      "socks_port": 1,
+      "username": "unset",
+      "password": "unset",
+      "operation_timestamps": [],
+      "register_cooldown_until": null
+    },
+    "E": {
+      "rejected": true,
+      "host": "0.0.0.0",
+      "http_port": 1,
+      "socks_port": 1,
+      "username": "unset",
+      "password": "unset",
+      "operation_timestamps": [],
+      "register_cooldown_until": null
+    }
+  }
+}

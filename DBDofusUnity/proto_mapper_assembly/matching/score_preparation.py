@@ -3,28 +3,28 @@ from __future__ import annotations
 from collections.abc import Mapping
 
 import numpy as np
-from proto_mapper_assembly.affinities.callee_affinity import build_callee_affinity
-from proto_mapper_assembly.affinities.declaration_order_alignment import build_declaration_order_affinity
-from proto_mapper_assembly.affinities.file_descriptor_similarity import build_file_descriptor_similarity
-from proto_mapper_assembly.affinities.handler_cohorts import build_handler_cohort_affinity
-from proto_mapper_assembly.controllers.access_signatures import count_handler_registrations_by_cls
-from proto_mapper_assembly.interfaces.affinity import AffinitySignalInputs, MaskedAffinitySignal
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.affinities.callee_affinity import build_callee_affinity
+from DBDofusUnity.proto_mapper_assembly.affinities.declaration_order_alignment import build_declaration_order_affinity
+from DBDofusUnity.proto_mapper_assembly.affinities.file_descriptor_similarity import build_file_descriptor_similarity
+from DBDofusUnity.proto_mapper_assembly.affinities.handler_cohorts import build_handler_cohort_affinity
+from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import count_handler_registrations_by_cls
+from DBDofusUnity.proto_mapper_assembly.interfaces.affinity import AffinitySignalInputs, MaskedAffinitySignal
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessTraceDocument,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.matching import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import (
     MatchingWorkspace,
     PreparedScoreData,
 )
-from proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs, MatchingRunConfig
-from proto_mapper_assembly.matching.runtime_rescore import build_runtime_rescored_scores
-from proto_mapper_assembly.matching.static_scores import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs, MatchingRunConfig
+from DBDofusUnity.proto_mapper_assembly.matching.runtime_rescore import build_runtime_rescored_scores
+from DBDofusUnity.proto_mapper_assembly.matching.static_scores import (
     apply_pinned_pair_overrides_around_prospective_mask,
     build_static_score_data,
 )
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-from proto_mapper_assembly.scoring.message_scoring import StructureSimilarityContext
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import StructureSimilarityContext
 
 _FILE_DESCRIPTOR_SIMILARITY_WEIGHT = 0.5
 _HANDLER_REGISTRATION_SIMILARITY_WEIGHT = 0.25

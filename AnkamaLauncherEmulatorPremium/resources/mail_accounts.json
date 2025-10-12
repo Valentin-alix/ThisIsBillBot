@@ -1,0 +1,11 @@
+{
+  "accounts": {
+    "ly.la.kh.a85.8@gmail.com": {
+      "config": {
+        "provider": "manual"
+      },
+      "bad_state": false,
+      "is_used": true
+    }
+  }
+}

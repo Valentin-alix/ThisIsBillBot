@@ -17,7 +17,7 @@ from pathlib import Path
 from icecream import ic
 from pydantic import BaseModel
 
-from consts import (
+from DBDofusUnity.consts import (
     EXCLUDED_NON_OBF_FILE,
     GAME_MAPPINGS_DETAILED_JSON_FILE,
     NON_OBF_NEW_DUMP_CS_FILE,
@@ -29,57 +29,57 @@ from consts import (
     PINNED_PAIRS_FILE,
     PROTOS_ROOT,
 )
-from proto_mapper_assembly.controllers.access_signatures import load_message_access_signatures_from_messages
-from proto_mapper_assembly.controllers.enum_signatures import (
+from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import load_message_access_signatures_from_messages
+from DBDofusUnity.proto_mapper_assembly.controllers.enum_signatures import (
     build_canonical_enum_signature,
 )
-from proto_mapper_assembly.controllers.excluded_non_obf import load_excluded_non_obf
-from proto_mapper_assembly.controllers.game_mappings import (
+from DBDofusUnity.proto_mapper_assembly.controllers.excluded_non_obf import load_excluded_non_obf
+from DBDofusUnity.proto_mapper_assembly.controllers.game_mappings import (
     load_game_mappings_document,
     resolve_generated_message_alias,
 )
-from proto_mapper_assembly.controllers.message_fields import build_dump_cs_field_lookup
-from proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
-from proto_mapper_assembly.controllers.non_obf_bootstrap import (
+from DBDofusUnity.proto_mapper_assembly.controllers.message_fields import build_dump_cs_field_lookup
+from DBDofusUnity.proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
+from DBDofusUnity.proto_mapper_assembly.controllers.non_obf_bootstrap import (
     build_bootstrap_message_overlay,
     build_missing_manual_new_dump_cs_message,
 )
-from proto_mapper_assembly.controllers.pinned_pairs import (
+from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import (
     build_resolved_field_mapping,
     load_pinned_pairs,
     resolve_pinned_pairs_non_obf_targets,
 )
-from proto_mapper_assembly.controllers.signature_override_application import (
+from DBDofusUnity.proto_mapper_assembly.controllers.signature_override_application import (
     validate_stored_field_bindings,
 )
-from proto_mapper_assembly.controllers.signature_rekeying import (
+from DBDofusUnity.proto_mapper_assembly.controllers.signature_rekeying import (
     dedupe_function_signatures,
     rekey_field_signatures,
     rekey_function_signatures,
 )
-from proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     FieldAccessSignatures,
     MessageAccessSignature,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
-from proto_mapper_assembly.interfaces.function_access_signature import FunctionAccessSignature
-from proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry, GameMappingsDocument
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
-from proto_mapper_assembly.interfaces.signature_overrides import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import FunctionAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry, GameMappingsDocument
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import (
     EnumHintSlot,
     EnumSignatureOverrideHint,
     FieldOverrideBinding,
     SignatureOverrideEntry,
     SignatureOverridesFile,
 )
-from proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
-from proto_mapper_assembly.parsers.proto_accesses_parser import parse_access_trace_document
-from proto_mapper_assembly.parsers.protobuf_dump_cs import build_dump_cs_messages_from_pb2
-from proto_mapper_assembly.scoring.enum_similarity import EnumFunctionSignatureResolver
-from proto_mapper_assembly.scoring.primitives import get_average_best_similarity_sequences
-from proto_mapper_assembly.scoring.signature_scoring import function_similarity_from_keys
+from DBDofusUnity.proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
+from DBDofusUnity.proto_mapper_assembly.parsers.proto_accesses_parser import parse_access_trace_document
+from DBDofusUnity.proto_mapper_assembly.parsers.protobuf_dump_cs import build_dump_cs_messages_from_pb2
+from DBDofusUnity.proto_mapper_assembly.scoring.enum_similarity import EnumFunctionSignatureResolver
+from DBDofusUnity.proto_mapper_assembly.scoring.primitives import get_average_best_similarity_sequences
+from DBDofusUnity.proto_mapper_assembly.scoring.signature_scoring import function_similarity_from_keys
 
 
 class _ExportContext(BaseModel):

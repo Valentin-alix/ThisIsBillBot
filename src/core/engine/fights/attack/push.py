@@ -1,5 +1,5 @@
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
 
 
 def _sign(value: int) -> int:

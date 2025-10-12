@@ -1,7 +1,7 @@
 from functools import cached_property
 
-from dofus_unity_reader.game_constants.characteristic import EffectElement
-from dofus_unity_reader.game_constants.inventory_position import (
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import EffectElement
+from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
     CharacterInventoryPositionEnum,
 )
 from pydantic import BaseModel

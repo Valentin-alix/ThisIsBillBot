@@ -7,7 +7,7 @@ from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
 from src.core.behaviors.items.auto_equipment_behavior import (
     AutoEquipmentBehavior,
 )
-from src.core.behaviors.recovery import RecoverableBehavior
+from src.core.behaviors.recovery_behavior import RecoverableBehavior
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestErrorCode,
 )

@@ -6,9 +6,9 @@ from typing import Literal
 
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import NUMBER_SHAPE
 
-from proto_mapper_assembly.controllers.access_signatures import build_message_access_signatures_by_cls
-from proto_mapper_assembly.controllers.message_fields import build_message_field_resolution_lookup
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import build_message_access_signatures_by_cls
+from DBDofusUnity.proto_mapper_assembly.controllers.message_fields import build_message_field_resolution_lookup
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessAtomSignature,
     AccessEntry,
     AccessKind,
@@ -23,16 +23,16 @@ from proto_mapper_assembly.interfaces.assembly_access import (
     ReturnRole,
     TypeInfoAccessEntry,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry, EnumSwitchPattern
-from proto_mapper_assembly.interfaces.field_category import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry, EnumSwitchPattern
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import (
     FieldCategoryEnum,
     FieldTypeLeafKind,
     FieldTypeShape,
 )
-from proto_mapper_assembly.interfaces.function_access_signature import CfgStats
-from proto_mapper_assembly.interfaces.message_field_resolution_lookup import MessageFieldResolutionLookup
-from proto_mapper_assembly.scoring.message_scoring import StructureSimilarityContext
+from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import CfgStats
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_field_resolution_lookup import MessageFieldResolutionLookup
+from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import StructureSimilarityContext
 
 DEFAULT_CFG_STATS = CfgStats(basic_block_count=4, edge_count=4, back_edge_count=0, max_block_depth=2)
 

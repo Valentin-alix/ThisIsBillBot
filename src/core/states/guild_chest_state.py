@@ -1,7 +1,7 @@
 import dataclasses
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.item import (
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.item import (
     CategoryItemEnum,
     ItemTypeEnum,
 )

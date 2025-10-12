@@ -22,12 +22,12 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builde
     match_messages_for_test,
 )
 
-from proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.runtime.runtime_field_validation import build_runtime_field_validator_confidence
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-from proto_mapper_assembly.validators.field_validators import ValidatorFn
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_field_validation import build_runtime_field_validator_confidence
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.validators.field_validators import ValidatorFn
 
 
 class TestRuntimeConfidence:
@@ -581,7 +581,7 @@ class TestRuntimeConfidence:
         }
 
         with patch.dict(
-            "proto_mapper_assembly.validators.field_validators.VALIDATORS_BY_NON_OBF_MESSAGE_NAME",
+            "DBDofusUnity.proto_mapper_assembly.validators.field_validators.VALIDATORS_BY_NON_OBF_MESSAGE_NAME",
             validators_patch,
             clear=False,
         ):
@@ -754,7 +754,7 @@ class TestRuntimeConfidence:
         }
 
         with patch.dict(
-            "proto_mapper_assembly.validators.field_validators.VALIDATORS_BY_NON_OBF_MESSAGE_NAME",
+            "DBDofusUnity.proto_mapper_assembly.validators.field_validators.VALIDATORS_BY_NON_OBF_MESSAGE_NAME",
             validators_patch,
             clear=False,
         ):
@@ -814,7 +814,7 @@ class TestRuntimeConfidence:
         }
 
         with patch.dict(
-            "proto_mapper_assembly.validators.field_validators.VALIDATORS_BY_NON_OBF_MESSAGE_NAME",
+            "DBDofusUnity.proto_mapper_assembly.validators.field_validators.VALIDATORS_BY_NON_OBF_MESSAGE_NAME",
             validators_patch,
             clear=False,
         ):
@@ -840,7 +840,7 @@ class TestRuntimeConfidence:
         }
 
         with patch.dict(
-            "proto_mapper_assembly.validators.field_validators.VALIDATORS_BY_NON_OBF_MESSAGE_NAME",
+            "DBDofusUnity.proto_mapper_assembly.validators.field_validators.VALIDATORS_BY_NON_OBF_MESSAGE_NAME",
             validators_patch,
             clear=False,
         ):

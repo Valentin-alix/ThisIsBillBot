@@ -13,26 +13,26 @@ import socket
 from functools import cache
 from pathlib import Path
 
-from datas.protos.non_obf.game.admin_console_pb2 import ConsoleCommand
-from datas.protos.non_obf.game.arena_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.admin_console_pb2 import ConsoleCommand
+from DBDofusUnity.datas.protos.non_obf.game.arena_pb2 import (
     ArenaFightAnswerRequest,
     ArenaModesStatusRequest,
     ArenaRegisterRequest,
 )
-from datas.protos.non_obf.game.basic_pb2 import BasicLatencyStatsRequest
-from datas.protos.non_obf.game.breeding_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.basic_pb2 import BasicLatencyStatsRequest
+from DBDofusUnity.datas.protos.non_obf.game.breeding_pb2 import (
     MountBoostRequest,
 )
-from datas.protos.non_obf.game.character_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicUpgradeRequest,
 )
-from datas.protos.non_obf.game.client_verification_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.client_verification_pb2 import (
     ClientChallengeInitRequest,
     ClientChallengeProofRequest,
     ClientIdRequest,
 )
-from datas.protos.non_obf.game.player_info_pb2 import PlayerInfoRequest
-from datas.protos.non_obf.game.preset_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.player_info_pb2 import PlayerInfoRequest
+from DBDofusUnity.datas.protos.non_obf.game.preset_pb2 import (
     CharacterPresetResetRequest,
     PresetDeleteRequest,
     PresetEquipmentUpdateRequest,
@@ -43,8 +43,8 @@ from datas.protos.non_obf.game.preset_pb2 import (
     PresetSymbolUpdateRequest,
     PresetUseRequest,
 )
-from datas.protos.non_obf.game.report_pb2 import ReportRequest
-from datas.protos.non_obf.game.tag_storage_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.report_pb2 import ReportRequest
+from DBDofusUnity.datas.protos.non_obf.game.tag_storage_pb2 import (
     AddTagStorageRequest,
     RemoveTagStorageRequest,
     UpdateTagStorageContentRequest,
@@ -68,6 +68,10 @@ def _read_bool_env(name: str, default: bool) -> bool:
 # --- Environnement ---
 DEBUG = _read_bool_env("DEBUG", True)
 
+# --- Sandbox (injection de code sur un bot en cours d'exécution) ---
+SANDBOX_ENABLED = _read_bool_env("SANDBOX_ENABLED", True)
+SANDBOX_PORT = int(os.environ.get("SANDBOX_PORT", "6666"))
+
 # --- Backend ---
 BACKEND_URL = "http://localhost:8000"
 
@@ -84,6 +88,7 @@ def get_connection_servers_ips() -> list[str]:
 # --- Chemins ---
 RESOURCE_FOLDER = os.path.join(Path(__file__).parent.parent, "resources")
 LOGO_FILE = os.path.join(RESOURCE_FOLDER, "icons", "logo.png")
+BOT_DEBUG_LOGS_DIR = Path(RESOURCE_FOLDER) / "debug" / "bots"
 
 # --- Utilitaires ---
 MIN_DATE = datetime.datetime(datetime.MINYEAR, 1, 1)

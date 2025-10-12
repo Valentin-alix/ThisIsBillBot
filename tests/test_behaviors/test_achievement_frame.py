@@ -1,11 +1,11 @@
 from collections.abc import Callable
 from threading import Event
 
-from datas.protos.non_obf.game.achievement_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.achievement_pb2 import (
     AchievementFinishedEvent,
     AchievementRewardRequest,
 )
-from datas.protos.non_obf.game.character_pb2 import CharacterLevelUpEvent
+from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import CharacterLevelUpEvent
 from google.protobuf.message import Message
 
 from src.core.events_manager.event_manager import EventManager

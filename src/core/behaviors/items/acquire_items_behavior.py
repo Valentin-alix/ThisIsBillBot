@@ -2,11 +2,11 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from functools import partial
 
-from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
-from dofus_unity_reader.game_constants.item import CategoryItemEnum
 from pydantic import BaseModel
 
-from src.core.behaviors.recovery import RecoverableBehavior
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
+from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum
+from src.core.behaviors.recovery_behavior import RecoverableBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_buy_behavior import SaleHotelBuyBehavior
 from src.core.behaviors.storage.loads.load_from_bank_behavior import (
     LoadFromBankBehavior,

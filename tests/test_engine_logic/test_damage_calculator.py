@@ -1,17 +1,17 @@
 import msgspec
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     SpellModifier,
     SpellModifierType,
 )
-from dofus_unity_reader.game_constants.characteristic import (
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import (
     CharacteristicEnum,
     EffectElement,
 )
-from dofus_unity_reader.models.datas.monsters_root import (
+from DBDofusUnity.dofus_unity_reader.models.datas.monsters_root import (
     MonsterCharacteristic,
     MonsterGrade,
 )
-from dofus_unity_reader.models.datas.spell_levels_root import Effect, SpellLevelsRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import Effect, SpellLevelsRootItem
 
 from src.core.engine.fights.damage_calculator import DamageCalculator
 from tests.fixtures.data import (

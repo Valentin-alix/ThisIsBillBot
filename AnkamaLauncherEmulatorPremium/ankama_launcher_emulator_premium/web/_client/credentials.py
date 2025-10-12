@@ -3,8 +3,8 @@ import logging
 from playwright.async_api import Page
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
-from ankama_launcher_emulator_premium.exceptions import BannedException
-from ankama_launcher_emulator_premium.web._client.browser_interactions import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.exceptions import BannedException
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.browser_interactions import (
     human_click_selector,
     human_type_selector,
     human_wait,

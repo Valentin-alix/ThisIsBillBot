@@ -5,9 +5,9 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builder
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_builders import runtime_entry
 from google.protobuf.empty_pb2 import Empty
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.runtime_data import RuntimeRoot
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime_data import RuntimeRoot
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 
 class TestRuntimeDataStore:
@@ -50,7 +50,7 @@ class TestRuntimeDataStore:
         runtime_data_store: RuntimeDataStore,
         tmp_path: Path,
     ) -> None:
-        (tmp_path / "instancied_msg_infos_1.json").write_text(
+        (tmp_path / "instancied_msg_infos.json").write_text(
             json.dumps(
                 {
                     "Alpha": [
@@ -73,7 +73,7 @@ class TestRuntimeDataStore:
         runtime_data_store: RuntimeDataStore,
         tmp_path: Path,
     ) -> None:
-        (tmp_path / "instancied_msg_infos_1.json").write_text(
+        (tmp_path / "instancied_msg_infos.json").write_text(
             json.dumps(
                 {
                     "Alpha": [
@@ -98,7 +98,7 @@ class TestRuntimeDataStore:
         runtime_data_store: RuntimeDataStore,
         tmp_path: Path,
     ) -> None:
-        (tmp_path / "instancied_msg_infos_1.json").write_text(
+        (tmp_path / "instancied_msg_infos.json").write_text(
             json.dumps({"Alpha": [runtime_entry({"value": 1}), runtime_entry({"value": 2})]}),
             encoding="utf-8",
         )
@@ -123,7 +123,7 @@ class TestRuntimeDataStore:
         runtime_data_store: RuntimeDataStore,
         tmp_path: Path,
     ) -> None:
-        (tmp_path / "instancied_msg_infos_1.json").write_text(
+        (tmp_path / "instancied_msg_infos.json").write_text(
             json.dumps({"Beta": [runtime_entry({"value": 3})], "Gamma": []}),
             encoding="utf-8",
         )
@@ -146,28 +146,6 @@ class TestRuntimeDataStore:
             == ()
         )
 
-    def test_runtime_data_store_merges_multiple_files(
-        self,
-        runtime_data_store: RuntimeDataStore,
-        tmp_path: Path,
-    ) -> None:
-        (tmp_path / "instancied_msg_infos_1.json").write_text(
-            json.dumps({"MsgX": [runtime_entry({"a": 1})]}),
-            encoding="utf-8",
-        )
-        (tmp_path / "instancied_msg_infos_2.json").write_text(
-            json.dumps({"MsgX": [runtime_entry({"a": 2})]}),
-            encoding="utf-8",
-        )
-        message = root_message("MsgX")
-
-        instances = runtime_data_store.get_normalized_content_for_obf_message(
-            message=message, obf_messages_by_cls={"MsgX": message}
-        )
-        assert len(instances) == 2
-        values = {instance["a"] for instance in instances}
-        assert values == {1, 2}
-
     def test_runtime_data_store_caps_per_name(
         self,
         runtime_data_store: RuntimeDataStore,
@@ -175,7 +153,7 @@ class TestRuntimeDataStore:
     ) -> None:
         cap = 1_500
         oversized = [{"i": index} for index in range(cap + 50)]
-        (tmp_path / "instancied_msg_infos_1.json").write_text(
+        (tmp_path / "instancied_msg_infos.json").write_text(
             json.dumps({"Big": [runtime_entry(payload) for payload in oversized]}),
             encoding="utf-8",
         )
@@ -195,7 +173,7 @@ class TestRuntimeDataStore:
         runtime_data_store: RuntimeDataStore,
         tmp_path: Path,
     ) -> None:
-        (tmp_path / "instancied_msg_infos_1.json").write_text(
+        (tmp_path / "instancied_msg_infos.json").write_text(
             json.dumps(
                 {
                     "kmv.kmt": [runtime_entry({"value": 1})],
@@ -234,7 +212,7 @@ class TestRuntimeDataStore:
 
         `src/protocol/protocol_game.py` registers `write_captured_content` with `atexit`, so every
         process that imports it reaches this on the way out - test runs included, by which point
-        RUNTIME_DATA_DIR points back at the real shared folder.
+        RUNTIME_DATA_FILE points back at the real shared file.
         """
         store_path = tmp_path / "instancied_msg_infos.json"
         store_path.write_text('{"krl": []}', encoding="utf-8")

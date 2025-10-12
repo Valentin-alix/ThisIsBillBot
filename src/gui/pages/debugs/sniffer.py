@@ -2,9 +2,9 @@ from functools import partial
 from pathlib import Path
 from typing import Any, cast
 
-from consts import PINNED_PAIRS_FILE
+from DBDofusUnity.consts import PINNED_PAIRS_FILE
 from google.protobuf.descriptor import Descriptor
-from proto_mapper_assembly.controllers.pinned_pairs import (
+from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import (
     upsert_pinned_field_mapping,
     upsert_pinned_pair,
 )
@@ -364,7 +364,7 @@ class SnifferWidget(QWidget):
         source_index = self.msg_table.table.proxy_model.mapToSource(model_index)
         model = self.msg_table.table.item_model
         msg_infos = _require_message_info(
-            model.data(model.index(source_index.row(), 4), Qt.ItemDataRole.UserRole)
+            model.data(model.index(source_index.row(), 3), Qt.ItemDataRole.UserRole)
         )
         self._current_detail_msg_info = msg_infos
         obf_msg_name, non_obf_msg_name = _parse_sub_msg_name(msg_infos.sub_msg_name)
@@ -381,7 +381,7 @@ class SnifferWidget(QWidget):
         source_index = self.msg_table.table.proxy_model.mapToSource(model_index)
         model = self.msg_table.table.item_model
         msg_info = _require_message_info(
-            model.data(model.index(source_index.row(), 4), Qt.ItemDataRole.UserRole)
+            model.data(model.index(source_index.row(), 3), Qt.ItemDataRole.UserRole)
         )
         obf_msg_name = _extract_obf_msg_name_for_pinned_pair(msg_info)
         if obf_msg_name is None:

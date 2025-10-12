@@ -6,7 +6,7 @@ from collections.abc import Callable, Sequence
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from proto_mapper_assembly.interfaces.counter_profile import CounterProfile
+from DBDofusUnity.proto_mapper_assembly.interfaces.counter_profile import CounterProfile
 
 
 def ratio_similarity(left: int | None, right: int | None, max_value: int) -> float:

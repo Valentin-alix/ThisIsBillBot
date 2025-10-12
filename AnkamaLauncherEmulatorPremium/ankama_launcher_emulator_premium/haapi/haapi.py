@@ -7,10 +7,14 @@ from time import time
 import requests
 import urllib3
 
-from ankama_launcher_emulator_premium.decrypter.crypto_helper import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+    BotStorageController,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.crypto_helper import (
     CryptoHelper,
 )
-from ankama_launcher_emulator_premium.haapi.urls import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.device import Device
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.urls import (
     ANKAMA_ACCOUNT_CREATE_TOKEN,
     ANKAMA_ACCOUNT_SET_NICKNAME_WITH_API_KEY,
     ANKAMA_ACCOUNT_SIGN_ON_WITH_API_KEY,
@@ -19,14 +23,15 @@ from ankama_launcher_emulator_premium.haapi.urls import (
     ANKAMA_SHIELD_VALIDATE_CODE,
     ANKAMA_SHIELD_VALIDATE_OTP,
 )
-from ankama_launcher_emulator_premium.haapi.zaap_version import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.zaap_version import (
     ZAAP_VERSION,
 )
-from ankama_launcher_emulator_premium.interfaces.credentials import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
+    DecipheredApiKey,
     DecipheredCertif,
 )
-from ankama_launcher_emulator_premium.interfaces.game import GameIdEnum
-from ankama_launcher_emulator_premium.interfaces.haapi_api import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.game import GameIdEnum
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.haapi_api import (
     CertificateResponse,
     CreateTokenResponse,
     GameRequest,
@@ -35,12 +40,12 @@ from ankama_launcher_emulator_premium.interfaces.haapi_api import (
     SecurityCodeResponse,
     SignOnResponse,
 )
-from ankama_launcher_emulator_premium.interfaces.zaap_files import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.local_storage import BotRecord
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.zaap_files import (
     GameSubscription,
     UserAccount,
 )
-from ankama_launcher_emulator_premium.utils.bot_storage import BotStorageController
-from ankama_launcher_emulator_premium.utils.internet import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.internet import (
     raise_for_status_with_content,
     retry_internet,
 )
@@ -252,28 +257,31 @@ class Haapi:
         )
 
     def refresh_api_key(self) -> None:
-        """Refresh the stored API key like ``Auth.refreshApiKey`` does before every token.
+        """Only ``refreshToken``/``refreshDate`` are kept."""
 
-        Only ``refreshToken`` and ``refreshDate`` are kept: the launcher does not
-        replace ``key`` with the one the endpoint returns.
-        """
-        api_key = CryptoHelper.getStoredApiKey(self.login).apikey
-        now_ms = int(time() * 1000)
-        if api_key.refreshDate + API_KEY_REFRESH_INTERVAL_MS > now_ms:
-            return
+        def do_refresh(record: BotRecord) -> None:
+            if record.encrypted_api_key is None:
+                raise FileNotFoundError(f"No stored certificate for {self.login}")
+            raw = CryptoHelper.decrypt(record.encrypted_api_key, Device.getUUID())
+            api_key = DecipheredApiKey.model_validate_json(raw)
+            now_ms = int(time() * 1000)
+            if api_key.refreshDate + API_KEY_REFRESH_INTERVAL_MS > now_ms:
+                return
 
-        response = self.zaap_session.post(
-            ANKAMA_API_REFRESH_API_KEY,
-            data=RefreshApiKeyRequest(refresh_token=api_key.refreshToken).to_form(),
-            verify=False,
-        )
-        response_body = raise_for_status_with_content(response)
-        parsed = RefreshApiKeyResponse.model_validate(response_body)
+            response = self.zaap_session.post(
+                ANKAMA_API_REFRESH_API_KEY,
+                data=RefreshApiKeyRequest(refresh_token=api_key.refreshToken).to_form(),
+                verify=False,
+            )
+            response_body = raise_for_status_with_content(response)
+            parsed = RefreshApiKeyResponse.model_validate(response_body)
 
-        api_key.refreshToken = parsed.refresh_token
-        api_key.refreshDate = now_ms
-        CryptoHelper.store_api_key(self.login, api_key)
-        logger.info("[HAAPI] API key refreshed for %s", self.login)
+            api_key.refreshToken = parsed.refresh_token
+            api_key.refreshDate = now_ms
+            record.encrypted_api_key = CryptoHelper.encrypt(api_key, Device.getUUID())
+            logger.info("[HAAPI] API key refreshed for %s", self.login)
+
+        BotStorageController().update_record(self.login, do_refresh)
 
     @retry_internet
     def createToken(self, game_id: int, certif: DecipheredCertif | None) -> str:

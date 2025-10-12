@@ -13,9 +13,9 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders
     static_score,
 )
 
-import proto_mapper_assembly.scripts.single_pair_match_result as script
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+import DBDofusUnity.proto_mapper_assembly.scripts.single_pair_match_result as script
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 
 class TestSinglePairMatchResultScript:

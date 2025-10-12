@@ -54,8 +54,10 @@ three pins in the right group is enough for the file-descriptor affinity to carr
 
 ## Artifacts
 
-- `pinned_pairs.json`: manually confirmed pairs.
+- `pinned_pairs.json` (`datas/proto_mapper/pinned_pairs.json`): manually confirmed pairs.
 - `messages_access_signature_override.json`: persistent signatures from mappings and pins.
 - `new_dump_cs.json`: generated mirror of `non_obf/game`, used by overrides; do not edit it.
 - `game_mappings.json` and `game_mappings_detailed.json`: pipeline outputs.
-- `proto_accesses.json`: IDA trace; runtime captures provide complementary evidence.
+- `proto_accesses.json`: IDA trace; runtime captures provide complementary evidence. Exists in two
+  variants, `datas/proto_mapper/obf/proto_accesses.json` and
+  `datas/proto_mapper/non_obf/proto_accesses.json`.

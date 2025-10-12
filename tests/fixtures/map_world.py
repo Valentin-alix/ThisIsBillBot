@@ -1,5 +1,5 @@
-from dofus_unity_reader.models.maps import MapReference
-from dofus_unity_reader.models.world_graph import Edge, Transition, Vertice
+from DBDofusUnity.dofus_unity_reader.models.maps import MapReference
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Edge, Transition, Vertice
 
 
 def make_map_reference(cell_id: int | None) -> MapReference:

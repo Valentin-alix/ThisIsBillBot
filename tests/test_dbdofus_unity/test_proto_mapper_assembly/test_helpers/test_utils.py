@@ -7,7 +7,7 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.helper_builders
     write_snapshot,
 )
 
-from proto_mapper_assembly.helpers.obf_game_snapshot import (
+from DBDofusUnity.proto_mapper_assembly.helpers.obf_game_snapshot import (
     find_snapshot_dir_by_game_assembly_mtime_ns,
     resolve_obf_game_snapshot,
 )

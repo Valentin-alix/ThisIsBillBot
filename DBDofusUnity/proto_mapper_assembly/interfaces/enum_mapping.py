@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import BaseModel, RootModel
 
-from proto_mapper_assembly.interfaces.function_access_signature import FunctionAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import FunctionAccessSignature
 
 type EnumResolutionKind = Literal[
     "method_definition",

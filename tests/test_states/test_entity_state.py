@@ -1,4 +1,4 @@
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
     CharacterCharacteristicValue,
@@ -8,18 +8,18 @@ from datas.protos.non_obf.game.common_pb2 import (
     SpawnInformation,
     Team,
 )
-from datas.protos.non_obf.game.context_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import (
     ContextRemoveElementEvent,
     ContextRemoveElementsEvent,
 )
-from datas.protos.non_obf.game.fight_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.fight_pb2 import (
     FightSynchronizeEvent,
 )
-from datas.protos.non_obf.game.game_action_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import (
     EntitySpawnInformation,
     GameActionFightEvent,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     GameRolePlayShowActorsEvent,
     MapChangeOrientationEvent,
     MapComplementaryInformationEvent,
@@ -27,7 +27,7 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
     MapObstacle,
     MapObstacleUpdateEvent,
 )
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.bot.bot import Bot
 from src.core.states.entity_state import FightActor

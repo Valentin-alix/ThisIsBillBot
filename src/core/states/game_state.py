@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Any
 
-from dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.engine.contexts import (
     AttackContext,

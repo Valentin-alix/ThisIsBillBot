@@ -2,28 +2,28 @@ from dataclasses import dataclass, field
 from threading import Timer
 
 from bak_pb2 import BakApiKeyEvent
-from datas.protos.non_obf.game.character_management_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.character_management_pb2 import (
     CharacterListEvent,
     CharacterSelectionEvent,
 )
-from datas.protos.non_obf.game.character_pb2 import (
-    CharacterCharacteristicUpgradeRequest,
+from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import (
     CharacterLevelUpEvent,
 )
-from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapComplementaryInformationEvent,
 )
-from datas.protos.non_obf.game.job_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.job_pb2 import (
     JobExperiencesUpdateEvent,
 )
-from datas.protos.non_obf.game.teleportation_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.teleportation_pb2 import (
     ZaapKnownListEvent,
 )
-from dofus_unity_reader.game_constants.characteristic import EffectElement
-
-from src.core.engine.fights.stats.characteristic import get_max_characteristic_per_point
+from src.core.engine.fights.stats.characteristic import (
+    build_characteristic_upgrade_request,
+    get_max_characteristic_per_point,
+)
 from src.core.events_manager.priority import PriorityEnum
 from src.core.frames.frame import Frame
 from src.services.human_timings import HumanTimingsService
@@ -107,15 +107,7 @@ class PlayerFrame(Frame):
         characteristic_points = get_max_characteristic_per_point(level)
         self.logger.info(f"New amount of base char : {characteristic_points}")
         primary_element = self.game_state.fight.primary_and_second_elem[0]
-        match primary_element:
-            case EffectElement.STRENGTH:
-                request = CharacterCharacteristicUpgradeRequest(strength=characteristic_points)
-            case EffectElement.INTELLIGENCE:
-                request = CharacterCharacteristicUpgradeRequest(intelligence=characteristic_points)
-            case EffectElement.CHANCE:
-                request = CharacterCharacteristicUpgradeRequest(chance=characteristic_points)
-            case _:
-                request = CharacterCharacteristicUpgradeRequest(agility=characteristic_points)
+        request = build_characteristic_upgrade_request(primary_element, characteristic_points)
         self.event_manager.send(request)
         self.game_state.player.is_characteristic_upgrade_complete_event.set()
 

@@ -2,7 +2,7 @@ import datetime
 from dataclasses import dataclass, field
 from threading import Event
 
-from ankama_launcher_emulator_premium.interfaces.credentials import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
     StoredApiKey,
 )
 

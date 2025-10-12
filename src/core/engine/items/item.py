@@ -1,12 +1,12 @@
-from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.game_constants.inventory_position import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
     CharacterInventoryPositionEnum,
 )
-from dofus_unity_reader.game_constants.item import ItemEnum, ItemTypeEnum
-from dofus_unity_reader.game_constants.monster import PROTECTOR_RACES
-from dofus_unity_reader.models.datas.items_root import ItemsRootItem
+from DBDofusUnity.dofus_unity_reader.game_constants.item import ItemEnum, ItemTypeEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.monster import PROTECTOR_RACES
+from DBDofusUnity.dofus_unity_reader.models.datas.items_root import ItemsRootItem
 
 
 def is_exchangeable_item(item: ItemsRootItem):

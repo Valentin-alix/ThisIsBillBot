@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
 
-from datas.protos.non_obf.game.game_action_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightCastRequest,
     GameActionFightEvent,
     SequenceEndEvent,
     SequenceType,
 )
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError

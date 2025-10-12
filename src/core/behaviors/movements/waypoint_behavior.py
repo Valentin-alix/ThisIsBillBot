@@ -2,22 +2,22 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
-from datas.protos.non_obf.game.haven_bag_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.haven_bag_pb2 import (
     HavenBagEnterRequest,
     HavenBagExitRequest,
 )
-from datas.protos.non_obf.game.teleportation_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.teleportation_pb2 import (
     Teleporter,
     TeleportRequest,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
-from dofus_unity_reader.game_constants.element_type import ElementTypeEnum
-from dofus_unity_reader.grid.map_point import MapPoint
-from dofus_unity_reader.models.world_graph import Vertice
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from DBDofusUnity.dofus_unity_reader.game_constants.element_type import ElementTypeEnum
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Vertice
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior

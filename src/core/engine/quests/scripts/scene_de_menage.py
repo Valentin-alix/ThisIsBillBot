@@ -3,13 +3,13 @@
 `repeatType=0` : non repetable, `QuestBehavior` la saute une fois validee.
 """
 
-from dofus_unity_reader.game_constants.map_id import MapIdEnum
-from dofus_unity_reader.game_constants.quest import (
+from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.quest import (
     QuestEnum,
     QuestObjectiveEnum,
     QuestStepEnum,
 )
-from dofus_unity_reader.game_constants.world import WorldMapEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.world import WorldMapEnum
 
 from src.core.engine.npcs.dialog_turn import DialogTurn
 from src.core.engine.npcs.reply_selector import ByText

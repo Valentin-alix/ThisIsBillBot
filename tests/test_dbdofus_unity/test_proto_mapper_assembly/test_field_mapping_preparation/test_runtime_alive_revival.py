@@ -9,7 +9,7 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builder
 )
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_store import seed_runtime_content
 
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 
 class TestRuntimeAliveRevival:

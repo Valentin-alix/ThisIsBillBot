@@ -193,6 +193,7 @@ class MainWindow(AppFluentWindow):
     def remove_account(self, account: Bot) -> None:
         login = account.account.apikey.login
         self.bots_by_login.pop(login, None)
+        self._disconnect_game_info_signals(account)
 
         account_widget = next(
             (widget for widget in self.account_widgets if widget.objectName() == login),
@@ -208,6 +209,19 @@ class MainWindow(AppFluentWindow):
         if self.account_widgets:
             self.switchTo(self.account_widgets[0])
             self.navigationInterface.setCurrentItem(self.account_widgets[0].objectName())
+
+    def _disconnect_game_info_signals(self, account: Bot) -> None:
+        for signal in (
+            account.game_info_signals.connected,
+            account.game_info_signals.character_name,
+            account.game_info_signals.in_fight,
+            account.game_info_signals.is_ready_to_play,
+            account.game_info_signals.disconnected,
+        ):
+            try:
+                signal.disconnect()
+            except TypeError:
+                pass
 
     def _on_connection_mode_changed(self, login: str, mode: Literal["mitm", "socket"]) -> None:
         BotConfigService().assign_mode(login, mode)

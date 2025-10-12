@@ -2,7 +2,7 @@ import json
 import struct
 from pathlib import Path
 
-from consts import I18N_OUTPUT_PATH, I18N_PATH
+from DBDofusUnity.consts import I18N_OUTPUT_PATH, I18N_PATH
 
 
 class BinaryReader:

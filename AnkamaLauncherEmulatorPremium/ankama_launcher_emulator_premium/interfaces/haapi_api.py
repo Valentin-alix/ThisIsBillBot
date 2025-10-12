@@ -8,7 +8,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from ankama_launcher_emulator_premium.interfaces.zaap_files import UserAccount
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.zaap_files import UserAccount
 
 
 class RefreshApiKeyRequest(BaseModel):

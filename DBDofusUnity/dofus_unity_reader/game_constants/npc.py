@@ -1,6 +1,6 @@
 from enum import IntEnum
 
-from dofus_unity_reader.game_constants.map_id import MapIdEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
 from pydantic import BaseModel
 
 

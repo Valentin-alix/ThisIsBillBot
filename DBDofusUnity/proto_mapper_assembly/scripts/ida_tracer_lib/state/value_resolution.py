@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import idaapi
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.parsers._clr_type_utils import extract_map_inner_types, extract_repeated_inner_type
-from proto_mapper_assembly.scripts.ida_tracer_lib.core.operands import get_displacement_value
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import resolve_message_type_name
-from proto_mapper_assembly.scripts.ida_tracer_lib.signatures.type_utils import is_non_message_type
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.encoding import decode_object_offset
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import extract_map_inner_types, extract_repeated_inner_type
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.core.operands import get_displacement_value
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import resolve_message_type_name
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.signatures.type_utils import is_non_message_type
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.encoding import decode_object_offset
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
     MAP_KVP_VALUE_OFFSET,
     RBP_REG,
     RSP_REG,

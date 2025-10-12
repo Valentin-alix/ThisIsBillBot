@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from datas.protos.non_obf.game.interactive_element_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.interactive_element_pb2 import (
     StatedElementUpdatedEvent,
 )
 
@@ -41,9 +41,13 @@ class CollectBehavior(Behavior):
     is_first_collect: bool = field(init=False, default=False)
 
     excluded_element_ids: set[int] = field(init=False, default_factory=set[int])
+    target_resource_item_ids: set[int] | None = field(init=False, default=None)
+    collects_done: int = field(init=False, default=0)
 
-    def run(self) -> None:
+    def run(self, target_resource_item_ids: set[int] | None = None) -> None:
         self.excluded_element_ids.clear()
+        self.target_resource_item_ids = target_resource_item_ids
+        self.collects_done = 0
         self.is_first_action = True
         self.is_first_collect = True
         self.collect_map()
@@ -53,6 +57,12 @@ class CollectBehavior(Behavior):
             return self.finish(CollectError.FULL_PODS)
 
         collectables = self.game_state.interactive.get_farmable_collectables(self.excluded_element_ids)
+        if self.target_resource_item_ids:
+            collectables = [
+                collectable
+                for collectable in collectables
+                if collectable.resource_item_id in self.target_resource_item_ids
+            ]
         if len(collectables) == 0:
             return self.finish()
 
@@ -121,6 +131,7 @@ class CollectBehavior(Behavior):
         self.unregister_listener(
             StatedElementUpdatedEvent, reason="Element state confirmed, proceeding with next collection"
         )
+        self.collects_done += 1
         if random.random() < BETWEEN_COLLECT_PAUSE_PROBABILITY:
             pause_time = HumanTimingsService().get_timing_between_collects()
             self.logger.debug(f"Taking a short break: {pause_time:.1f}s")

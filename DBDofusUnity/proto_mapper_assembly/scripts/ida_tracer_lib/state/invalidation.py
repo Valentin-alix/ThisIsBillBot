@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
     WINDOWS_X64_VOLATILE_REGISTERS,
     HeapState,
     RegisterState,

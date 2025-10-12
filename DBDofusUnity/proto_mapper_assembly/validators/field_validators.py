@@ -2,11 +2,11 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any, TypeVar
 
-from datas.protos.non_obf.game.account_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.account_pb2 import (
     AccountCapabilitiesEvent,
     AccountInformationUpdateEvent,
 )
-from datas.protos.non_obf.game.achievement_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.achievement_pb2 import (
     AchievedAchievement,
     Achievement,
     AchievementDetailsRequest,
@@ -14,19 +14,19 @@ from datas.protos.non_obf.game.achievement_pb2 import (
     AchievementRewardRequest,
     AchievementRewardResultEvent,
 )
-from datas.protos.non_obf.game.alliance_member_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.alliance_member_pb2 import (
     AllianceInvitationRequest,
     AllianceKickRequest,
     AllianceMemberLeavingEvent,
     AllianceMembershipEvent,
 )
-from datas.protos.non_obf.game.alliance_rank_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.alliance_rank_pb2 import (
     AllianceRankChangeRequest,
     AllianceRankCreationRequest,
     AllianceRankDeletionRequest,
     AllianceRightsUpdateRequest,
 )
-from datas.protos.non_obf.game.bak_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.bak_pb2 import (
     BakActionEvent,
     BakActionRequest,
     BakApiKeyEvent,
@@ -36,13 +36,13 @@ from datas.protos.non_obf.game.bak_pb2 import (
     BakTransactionValidationRequest,
     BidAction,
 )
-from datas.protos.non_obf.game.basic_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.basic_pb2 import (
     BasicLatencyStatsRequest,
     SequenceNumberRequest,
     TextInformationEvent,
     TimeEvent,
 )
-from datas.protos.non_obf.game.challenge_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.challenge_pb2 import (
     ChallengeNumberEvent,
     ChallengeProposalEvent,
     ChallengeResultEvent,
@@ -50,23 +50,23 @@ from datas.protos.non_obf.game.challenge_pb2 import (
     ChallengeTargetsRequest,
     ChallengeValidateRequest,
 )
-from datas.protos.non_obf.game.character_management_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.character_management_pb2 import (
     CharacterForceSelectionEvent,
     CharacterSelectionRequest,
 )
-from datas.protos.non_obf.game.character_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicsEvent,
     CharacterCharacteristicUpgradeRequest,
     CharacterLevelUpEvent,
     UpdateLifePointsEvent,
 )
-from datas.protos.non_obf.game.chat_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.chat_pb2 import (
     ChatChannelMessageEvent,
     ChatChannelMessageRequest,
     ChatPrivateMessageRequest,
 )
-from datas.protos.non_obf.game.client_verification_pb2 import ClientChallengeInitRequest
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.client_verification_pb2 import ClientChallengeInitRequest
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     AlignmentInformation,
     CharacterCharacteristic,
@@ -87,8 +87,8 @@ from datas.protos.non_obf.game.common_pb2 import (
     SpellModifier,
     StatedElement,
 )
-from datas.protos.non_obf.game.connection_pb2 import IdentificationRequest
-from datas.protos.non_obf.game.contact_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.connection_pb2 import IdentificationRequest
+from DBDofusUnity.datas.protos.non_obf.game.contact_pb2 import (
     AcquaintanceInformation,
     ContactLevelUpEvent,
     FriendDeleteRequest,
@@ -96,13 +96,13 @@ from datas.protos.non_obf.game.contact_pb2 import (
     UnBlockRequest,
     UnIgnoreRequest,
 )
-from datas.protos.non_obf.game.context_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import (
     ContextReadyRequest,
     ContextRemoveElementEvent,
     ContextRemoveElementsEvent,
     EntitiesDispositionEvent,
 )
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     BidItem,
     ExchangeBidHouseInListAddedEvent,
     ExchangeBidHouseItemAddedEvent,
@@ -129,7 +129,7 @@ from datas.protos.non_obf.game.exchange_pb2 import (
     ObjectAveragePricesEvent,
     SellingConditions,
 )
-from datas.protos.non_obf.game.fight_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.fight_pb2 import (
     FightEndEvent,
     FightFighterShowEvent,
     FightIsTurnReadyEvent,
@@ -140,11 +140,11 @@ from datas.protos.non_obf.game.fight_pb2 import (
     FightSynchronizeEvent,
     FightTurnEvent,
 )
-from datas.protos.non_obf.game.fight_preparation_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPositionRequest,
     FightPlacementPossiblePositionsEvent,
 )
-from datas.protos.non_obf.game.game_action_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import (
     EntitySpawnInformation,
     GameActionAcknowledgementRequest,
     GameActionFightCastRequest,
@@ -152,7 +152,7 @@ from datas.protos.non_obf.game.game_action_pb2 import (
     SequenceEndEvent,
     SequenceStartEvent,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     GameRolePlayShowActorsEvent,
     MapChangeOrientationEvent,
@@ -167,19 +167,19 @@ from datas.protos.non_obf.game.gamemap_pb2 import (
     MapObstacle,
     MapTeleportOnSameEvent,
 )
-from datas.protos.non_obf.game.guild_chest_pb2 import GuildChestTabSelectRequest
-from datas.protos.non_obf.game.guild_member_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.guild_chest_pb2 import GuildChestTabSelectRequest
+from DBDofusUnity.datas.protos.non_obf.game.guild_member_pb2 import (
     GuildMemberLeaveEvent,
     GuildMemberOnlineStatusEvent,
     GuildMemberParametersChangeRequest,
 )
-from datas.protos.non_obf.game.guild_rank_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.guild_rank_pb2 import (
     GuildRankCreateRequest,
     GuildRankRemoveRequest,
     GuildRightsUpdateRequest,
 )
-from datas.protos.non_obf.game.haven_bag_pb2 import Element, HavenBagEnterRequest
-from datas.protos.non_obf.game.interactive_element_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.haven_bag_pb2 import Element, HavenBagEnterRequest
+from DBDofusUnity.datas.protos.non_obf.game.interactive_element_pb2 import (
     InteractiveElementUpdatedEvent,
     InteractiveUsedEvent,
     InteractiveUseEndedEvent,
@@ -187,7 +187,7 @@ from datas.protos.non_obf.game.interactive_element_pb2 import (
     InteractiveUseRequest,
     StatedElementUpdatedEvent,
 )
-from datas.protos.non_obf.game.inventory_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import (
     InventoryContentEvent,
     InventoryWeightEvent,
     KamasUpdateEvent,
@@ -207,14 +207,14 @@ from datas.protos.non_obf.game.inventory_pb2 import (
     StorageObjectUpdateEvent,
     StorageTab,
 )
-from datas.protos.non_obf.game.job_pb2 import JobExperience, JobExperiencesUpdateEvent
-from datas.protos.non_obf.game.npc_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.job_pb2 import JobExperience, JobExperiencesUpdateEvent
+from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import (
     NpcDialogQuestionEvent,
     NpcDialogReplyRequest,
     NpcGenericActionRequest,
     NpcsMapQuestStatusUpdateEvent,
 )
-from datas.protos.non_obf.game.quest_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.quest_pb2 import (
     QuestActive,
     QuestObjective,
     QuestObjectiveFollowRequest,
@@ -230,7 +230,7 @@ from datas.protos.non_obf.game.quest_pb2 import (
     QuestStepValidatedEvent,
     QuestValidatedEvent,
 )
-from datas.protos.non_obf.game.roleplay_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.roleplay_pb2 import (
     AggressionEvent,
     AttackMonsterRequest,
     DelayedActionEvent,
@@ -245,8 +245,8 @@ from datas.protos.non_obf.game.roleplay_pb2 import (
     RemoveChallengeEvent,
     SpellAnimEvent,
 )
-from datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
-from datas.protos.non_obf.game.taxcollector_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
+from DBDofusUnity.datas.protos.non_obf.game.taxcollector_pb2 import (
     TaxCollectorAddedEvent,
     TaxCollectorAttackedEvent,
     TaxCollectorAttackResultEvent,
@@ -255,21 +255,21 @@ from datas.protos.non_obf.game.taxcollector_pb2 import (
     TaxCollectorOrderedSpellMoveRequest,
     TaxCollectorOrderedSpellRemoveRequest,
 )
-from datas.protos.non_obf.game.teleportation_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.teleportation_pb2 import (
     TeleportDestination,
     TeleportDestinationsEvent,
     TeleportRequest,
     ZaapKnownListEvent,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.game_constants.directions import DirectionsEnum
-from dofus_unity_reader.game_constants.inventory_position import (
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
     CharacterInventoryPositionEnum,
 )
-from dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID
 from google.protobuf.message import Message
-from proto_mapper_assembly.helpers.utils import strict_validate_call
+from DBDofusUnity.proto_mapper_assembly.helpers.utils import strict_validate_call
 
 T = TypeVar("T")
 

@@ -5,8 +5,8 @@ from math import log
 
 import numpy as np
 
-from proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
-from proto_mapper_assembly.interfaces.affinity import AffinityResult, AffinitySignalInputs
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
+from DBDofusUnity.proto_mapper_assembly.interfaces.affinity import AffinityResult, AffinitySignalInputs
 
 _SMOOTHING = 1e-9
 

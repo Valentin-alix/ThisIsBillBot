@@ -3,14 +3,14 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, DumpCSMessageProperty
-from proto_mapper_assembly.parsers._clr_type_utils import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, DumpCSMessageProperty
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import (
     extract_map_inner_types,
     extract_repeated_inner_type,
     normalize_clr_type,
 )
-from proto_mapper_assembly.parsers._dump_cs_structure import get_stripped_direct_body
-from proto_mapper_assembly.parsers.clr_types import categorize_field
+from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_structure import get_stripped_direct_body
+from DBDofusUnity.proto_mapper_assembly.parsers.clr_types import categorize_field
 
 FIELD_PATTERN = re.compile(
     r"(?:public|private|protected)\s+(?:readonly\s+)?(.*?)\s+(\w+)\s*;\s*//\s*0x([0-9a-fA-F]+)",

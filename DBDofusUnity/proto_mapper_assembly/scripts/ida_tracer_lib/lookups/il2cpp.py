@@ -3,10 +3,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from proto_mapper_assembly.interfaces.il2cpp_json import MethodInfoPointer, TypeInfoPointer
-from proto_mapper_assembly.parsers._clr_type_utils import split_top_level_tokens
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import resolve_message_type_name
-from proto_mapper_assembly.scripts.ida_tracer_lib.signatures.type_utils import extract_generic_inner_type
+from DBDofusUnity.proto_mapper_assembly.interfaces.il2cpp_json import MethodInfoPointer, TypeInfoPointer
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import split_top_level_tokens
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import resolve_message_type_name
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.signatures.type_utils import extract_generic_inner_type
 
 _DOT_NET_SIG_RE = re.compile(r"^(?:(\S+)\s+)?(\S+)\(([^)]*)\)$")
 _IENUMERATOR_BACKTICK_PREFIX = "IEnumerator`1["

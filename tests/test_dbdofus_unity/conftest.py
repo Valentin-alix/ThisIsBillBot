@@ -11,8 +11,8 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.ida_environment
 )
 from src.protocol import protocol_game
 
-from proto_mapper_assembly.runtime import runtime_store
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.runtime import runtime_store
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 install_mock_ida_environment()
 
@@ -36,7 +36,7 @@ def tmp_json_path(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def runtime_data_store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[RuntimeDataStore]:
-    monkeypatch.setattr(runtime_store, "RUNTIME_DATA_DIR", tmp_path)
+    monkeypatch.setattr(runtime_store, "RUNTIME_DATA_FILE", tmp_path / "instancied_msg_infos.json")
     instance = RuntimeDataStore()
     instance._capture_sequence_index = None  # pyright: ignore[reportPrivateUsage]
     instance._capture_session_id = None  # pyright: ignore[reportPrivateUsage]

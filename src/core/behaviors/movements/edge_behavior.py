@@ -2,14 +2,14 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from functools import partial
 
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
     MapCurrentEvent,
 )
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.game_constants.transition_type import TransitionTypeEnum
-from dofus_unity_reader.grid.map_point import MapPoint
-from dofus_unity_reader.models.world_graph import Edge, Transition
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.game_constants.transition_type import TransitionTypeEnum
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Edge, Transition
 
 from src.core.behaviors.behavior import Behavior, BehaviorState
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior

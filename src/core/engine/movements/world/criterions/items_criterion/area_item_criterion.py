@@ -1,4 +1,4 @@
-from dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 
 from src.core.engine.contexts import CriterionContext
 from src.core.engine.movements.world.criterions.item_criterion import (

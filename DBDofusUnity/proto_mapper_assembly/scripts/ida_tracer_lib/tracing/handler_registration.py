@@ -6,12 +6,12 @@ from dataclasses import dataclass
 import idaapi
 import idautils
 
-from proto_mapper_assembly.interfaces.assembly_access import HandlerRegistrationAccessEntry
-from proto_mapper_assembly.scripts.ida_tracer_lib.core.function_inspector import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import HandlerRegistrationAccessEntry
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.core.function_inspector import (
     get_operation_index_inside_function,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.il2cpp import HandlerMethodInfo
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.static_loads import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.il2cpp import HandlerMethodInfo
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.static_loads import (
     get_static_lookup_operand_addr,
 )
 

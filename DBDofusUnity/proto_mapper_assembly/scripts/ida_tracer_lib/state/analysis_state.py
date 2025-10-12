@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.register_updates import copy_frame_state
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.register_updates import copy_frame_state
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
     HeapState,
     RegisterState,
     StackFrameState,

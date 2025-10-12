@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from consts import (
+from DBDofusUnity.consts import (
     AUTO_MODE_MAPPING_CONTRACT_FILE,
     CAPTURE_SEQUENCE_HINTS_FILE,
     GAME_MAPPINGS_DETAILED_JSON_FILE,
@@ -16,22 +16,22 @@ from consts import (
     OBF_PROTOCOL_GAME_DUMP_CS_FILE,
     PINNED_PAIRS_FILE,
 )
-from proto_mapper_assembly.controllers.capture_sequence_hints import (
+from DBDofusUnity.proto_mapper_assembly.controllers.capture_sequence_hints import (
     load_capture_sequence_hints,
     resolve_capture_sequence_hints_non_obf_targets,
 )
-from proto_mapper_assembly.controllers.game_mappings import write_game_mappings
-from proto_mapper_assembly.controllers.matching_inputs_loader import load_matching_inputs
-from proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
-from proto_mapper_assembly.controllers.pinned_pairs import (
+from DBDofusUnity.proto_mapper_assembly.controllers.game_mappings import write_game_mappings
+from DBDofusUnity.proto_mapper_assembly.controllers.matching_inputs_loader import load_matching_inputs
+from DBDofusUnity.proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
+from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import (
     load_pinned_pairs,
     resolve_pinned_pairs_non_obf_targets,
 )
-from proto_mapper_assembly.interfaces.matching_inputs import MatchingRunConfig
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
-from proto_mapper_assembly.matching.orchestrator import match_messages
-from proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-from proto_mapper_assembly.validators.auto_mode_mapping_contract import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingRunConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.matching.orchestrator import match_messages
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
+from DBDofusUnity.proto_mapper_assembly.validators.auto_mode_mapping_contract import (
     check_auto_mode_mappings,
     format_auto_mode_mapping_audit,
 )

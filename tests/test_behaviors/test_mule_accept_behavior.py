@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
-from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeAcceptRequest,
     ExchangeRequestedTradeEvent,
 )

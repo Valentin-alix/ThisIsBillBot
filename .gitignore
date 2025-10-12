@@ -17,7 +17,7 @@ avg_price_by_gid.json
 *.parquet
 *.prof
 humanization.log
-
+instancied_msg_infos.json
 
 bid_seller_item_by_uid_by_player_id.json
 *_audit.json
@@ -184,11 +184,11 @@ cython_debug/
 
 farm_stats.json
 AnkamaLauncherEmulatorPremium/LauncherSourceCode/
-AnkamaLauncherEmulatorPremium/resources/bots.local.json
 AnkamaLauncherEmulatorPremium/resources/bots.local.json.lock
-AnkamaLauncherEmulatorPremium/resources/proxies.local.json
+AnkamaLauncherEmulatorPremium/resources/mail_accounts.json.lock
 AnkamaLauncherEmulatorPremium/resources/paysafecards.txt
 AnkamaLauncherEmulatorPremium/resources/debug/
+resources/debug/
 DBDofusUnity/resources/*.json
 DBDofusUnity/datas/proto_mapper/obf/cs/*.cs
 DBDofusUnity/datas/proto_mapper/non_obf/cs/*.cs

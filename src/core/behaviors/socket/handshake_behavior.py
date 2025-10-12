@@ -1,21 +1,21 @@
 from dataclasses import dataclass
 
-from datas.protos.non_obf.game.bak_pb2 import BakApiTokenRequest
-from datas.protos.non_obf.game.character_management_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.bak_pb2 import BakApiTokenRequest
+from DBDofusUnity.datas.protos.non_obf.game.character_management_pb2 import (
     CharacterForceSelectionEvent,
     CharacterForceSelectionReadyRequest,
     CharacterListEvent,
     CharacterListRequest,
     CharacterSelectionRequest,
 )
-from datas.protos.non_obf.game.chat_pb2 import Channel, SubscribeMultipleChannelRequest
-from datas.protos.non_obf.game.connection_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.chat_pb2 import Channel, SubscribeMultipleChannelRequest
+from DBDofusUnity.datas.protos.non_obf.game.connection_pb2 import (
     AuthenticationTicketAcceptedEvent,
 )
-from datas.protos.non_obf.game.connection_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.connection_pb2 import (
     IdentificationRequest as GameIdentificationRequest,
 )
-from datas.protos.non_obf.game.contact_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.contact_pb2 import (
     AcquaintanceListRequest,
     ContactWarnOnAchievementCompleteSetRequest,
     ContactWarnOnPermanentDeathSetRequest,
@@ -23,12 +23,12 @@ from datas.protos.non_obf.game.contact_pb2 import (
     FriendSetStatusShareRequest,
     FriendSetWarnOnLevelGainRequest,
 )
-from datas.protos.non_obf.game.context_pb2 import ContextCreationRequest, ContextQuitRequest
-from datas.protos.non_obf.game.guild_information_pb2 import GuildInformationRequest
-from datas.protos.non_obf.game.guild_member_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import ContextCreationRequest, ContextQuitRequest
+from DBDofusUnity.datas.protos.non_obf.game.guild_information_pb2 import GuildInformationRequest
+from DBDofusUnity.datas.protos.non_obf.game.guild_member_pb2 import (
     GuildMemberWarnOnConnectionStartRequest,
 )
-from datas.protos.non_obf.game.social_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.social_pb2 import (
     ChatCommunityChannelSetCommunityRequest,
     SpouseInformationRequest,
 )

@@ -8,9 +8,9 @@ from collections.abc import Callable
 from unittest.mock import MagicMock
 
 import pytest
-from datas.protos.non_obf.game.common_pb2 import InteractiveElement
-from datas.protos.non_obf.game.interactive_element_pb2 import InteractiveUseRequest
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import InteractiveElement
+from DBDofusUnity.datas.protos.non_obf.game.interactive_element_pb2 import InteractiveUseRequest
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.interactives.interactive_behavior import (
     MAX_APPROACH_RETRIES,

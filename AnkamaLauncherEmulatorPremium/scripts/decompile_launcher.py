@@ -5,7 +5,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 
-from ankama_launcher_emulator_premium.consts import ASAR_PATH, RESOURCES
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import ASAR_PATH, RESOURCES
 
 if __name__ == "__main__":
     print(

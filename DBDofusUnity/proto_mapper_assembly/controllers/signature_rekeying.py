@@ -1,11 +1,11 @@
 from collections.abc import Iterable, Sequence
 
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessAtomSignature,
     FieldAccessSignatures,
     FunctionAccessSignature,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, FieldKey
 
 # Models below are rebuilt rather than ``model_copy``-ed: ``similarity_key`` is a
 # ``cached_property``, so a copy reports the offset the source had, not the one it now carries.

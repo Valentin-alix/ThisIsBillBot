@@ -8,9 +8,9 @@ from itertools import chain
 import numpy as np
 from base_python.cache import cache
 
-from proto_mapper_assembly.interfaces.field_mapping import DiscoveredMessageMatch
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace
-from proto_mapper_assembly.interfaces.message_pair import MatchPairKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import DiscoveredMessageMatch
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
 
 
 @dataclass(frozen=True)

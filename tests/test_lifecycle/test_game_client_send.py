@@ -6,25 +6,25 @@ from typing import cast
 from unittest.mock import MagicMock
 
 import pytest
-from datas.protos.non_obf.connection.login_message_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import (
     IdentificationResponse,
     LoginMessage,
     Request,
     SelectServerRequest,
     SelectServerResponse,
 )
-from datas.protos.non_obf.game.connection_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.connection_pb2 import (
     AuthenticationTicketAcceptedEvent,
 )
-from datas.protos.non_obf.game.connection_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.connection_pb2 import (
     IdentificationRequest as GameIdentificationRequest,
 )
-from datas.protos.non_obf.game.game_action_pb2 import GameActionFightCastRequest
-from datas.protos.non_obf.game.spell_pb2 import SpellsEvent
+from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import GameActionFightCastRequest
+from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellsEvent
 from google.protobuf.message import Message
-from dofus_unity_reader.game_constants.server import ServerEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.server import ServerEnum
 from requests import HTTPError
-from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.schedule_profile import (
     PersistedProxy,
     ScheduleProfile,
 )
@@ -193,7 +193,7 @@ class TestSocketProxyConnection:
             MagicMock(side_effect=remove_bot_config),
         )
         monkeypatch.setattr(bot_manager_module.CryptoHelper, "remove_bot", MagicMock())
-        monkeypatch.setattr(bot_manager_module, "remove_generated_account", MagicMock())
+        monkeypatch.setattr(bot_manager_module.BotStorageController, "remove_record", MagicMock())
         monkeypatch.setattr(manager, "on_synchronize_bots", MagicMock())
 
         manager.on_banned_callback("banned@example.com")

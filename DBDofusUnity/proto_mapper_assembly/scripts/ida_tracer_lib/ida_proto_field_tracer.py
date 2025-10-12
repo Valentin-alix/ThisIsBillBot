@@ -14,85 +14,85 @@ if str(_PROJECT_ROOT) not in sys.path:
 import ida_pro
 import idaapi
 
-from consts import NON_OBFUSCATED_DATA_DIR
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.consts import NON_OBFUSCATED_DATA_DIR
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessTraceDocument,
     FunctionAccessInfo,
     FunctionAlias,
     TracedFunction,
     format_trace_address,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import (
     DumpCSMessageField,
 )
-from proto_mapper_assembly.interfaces.il2cpp_json import Il2CppJson, MethodDefinition
-from proto_mapper_assembly.parsers._dump_cs_structure import parse_enum_member_values
-from proto_mapper_assembly.parsers.csharp_signature_utils import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.il2cpp_json import Il2CppJson, MethodDefinition
+from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_structure import parse_enum_member_values
+from DBDofusUnity.proto_mapper_assembly.parsers.csharp_signature_utils import (
     CORE_METHOD_DECLARATION_RE as _CORE_METHOD_DECLARATION_RE,
 )
-from proto_mapper_assembly.parsers.csharp_signature_utils import (
+from DBDofusUnity.proto_mapper_assembly.parsers.csharp_signature_utils import (
     canonicalize_csharp_method_declaration as _canonicalize_csharp_method_declaration,
 )
-from proto_mapper_assembly.parsers.dump_cs_parser import load_tracking_types, parse_messages
-from proto_mapper_assembly.scripts.ida_tracer_lib.analysis import auto_wait_analysis
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.accessor_candidate import (
+from DBDofusUnity.proto_mapper_assembly.parsers.dump_cs_parser import load_tracking_types, parse_messages
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.analysis import auto_wait_analysis
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.accessor_candidate import (
     AccessorCandidate,
     build_getter_setter_lookup,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.field_offsets import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.field_offsets import (
     build_enum_field_by_class_offset,
     build_field_offset_lookup,
     build_tracking_field_offset_lookup,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.il2cpp import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.il2cpp import (
     HandlerMethodInfo,
     build_filter_typeinfo_lookup,
     build_handler_methodinfo_lookup,
     build_ienumerator_typeinfo_lookup,
     build_methodinfo_get_enumerator_lookup,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import (
     resolve_message_type_name,
     resolve_owner_class_name,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.type_lookup import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.type_lookup import (
     build_long_name_by_alias,
     build_long_name_by_unique_alias,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.progress.reporter import ProgressReporter
-from proto_mapper_assembly.scripts.ida_tracer_lib.signatures.parser import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.progress.reporter import ProgressReporter
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.signatures.parser import (
     build_function_key,
     canonicalize_function_signature_types,
     extract_proto_parameter_seeds,
     method_has_this_parameter,
     select_signature_for_proto_tracking,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.stable_symbols import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.stable_symbols import (
     build_callee_identity_lookup,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.cfg_stats import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.cfg_stats import (
     cfg_stats_for_func,
     opcode_histogram_for_func,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import MAX_INTERPROCEDURAL_DEPTH
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.scan_engine import scan_function_instructions
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.basic_block import FunctionScanCache
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.builders import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import MAX_INTERPROCEDURAL_DEPTH
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.scan_engine import scan_function_instructions
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.basic_block import FunctionScanCache
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.builders import (
     build_initial_frame_state,
     build_initial_heap_state,
     build_initial_register_state,
     build_initial_stack_state,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.interproc import InterproceduralContext
-from proto_mapper_assembly.scripts.ida_tracer_lib.tracing.enum_tracer import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.interproc import InterproceduralContext
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.tracing.enum_tracer import (
     build_class_candidates_by_ea,
     find_enum_switch_func_addrs,
     scan_methods_for_enum_switches,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.tracing.handler_registration import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.tracing.handler_registration import (
     collect_handler_registration_accesses,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.tracing.stable_callees import collect_stable_callees
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.tracing.stable_callees import collect_stable_callees
 
 
 @dataclass(frozen=True)

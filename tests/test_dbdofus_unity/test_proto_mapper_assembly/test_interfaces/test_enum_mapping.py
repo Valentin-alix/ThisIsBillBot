@@ -2,18 +2,18 @@ from collections import Counter
 
 import pytest
 
-from proto_mapper_assembly.controllers.enum_signatures import (
+from DBDofusUnity.proto_mapper_assembly.controllers.enum_signatures import (
     build_canonical_enum_signature,
     validate_enum_signature_member_values,
 )
-from proto_mapper_assembly.interfaces.enum_mapping import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import (
     EnumCalledFunctionRef,
     EnumMemberGroup,
     EnumSignatureEntry,
     EnumSignatureIndex,
     EnumSwitchPattern,
 )
-from proto_mapper_assembly.interfaces.function_access_signature import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import (
     FunctionAccessSignature,
     ReturnRole,
 )

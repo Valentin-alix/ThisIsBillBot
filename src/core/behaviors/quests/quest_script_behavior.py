@@ -3,13 +3,13 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from functools import partial
 
-from datas.protos.non_obf.game.context_pb2 import ContextCreationEvent
-from datas.protos.non_obf.game.quest_pb2 import QuestValidatedEvent
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.game_constants.npc import NpcDialogInfo
-from dofus_unity_reader.game_constants.world import WorldMapEnum
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import ContextCreationEvent
+from DBDofusUnity.datas.protos.non_obf.game.quest_pb2 import QuestValidatedEvent
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import NpcDialogInfo
+from DBDofusUnity.dofus_unity_reader.game_constants.world import WorldMapEnum
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.craft.craft_behavior import CraftBehavior, CraftRequest

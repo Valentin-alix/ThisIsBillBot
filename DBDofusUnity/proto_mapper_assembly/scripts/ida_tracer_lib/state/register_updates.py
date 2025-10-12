@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import idaapi
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
-from proto_mapper_assembly.scripts.ida_tracer_lib.core.operands import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.core.operands import (
     get_displacement_value,
     is_register_operand,
     read_immediate_operand_value,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.invalidation import invalidate_heap_slots_for_register
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.invalidation import invalidate_heap_slots_for_register
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
     RBP_REG,
     RSP_REG,
     HeapState,
@@ -17,7 +17,7 @@ from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
     StackFrameState,
     StackState,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.value_resolution import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.value_resolution import (
     get_stack_slot,
     is_heap_tracking_destination,
     resolve_move_source,

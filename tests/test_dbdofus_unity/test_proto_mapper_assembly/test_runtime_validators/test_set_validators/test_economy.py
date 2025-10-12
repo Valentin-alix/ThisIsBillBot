@@ -1,10 +1,10 @@
 from typing import Any
 
 import pytest
-from datas.protos.non_obf.game.bak_pb2 import BidAction
+from DBDofusUnity.datas.protos.non_obf.game.bak_pb2 import BidAction
 
-from proto_mapper_assembly.field_mapping.pulp.constraints import has_applicable_constraints
-from proto_mapper_assembly.validators.set_validators import (
+from DBDofusUnity.proto_mapper_assembly.field_mapping.pulp.constraints import has_applicable_constraints
+from DBDofusUnity.proto_mapper_assembly.validators.set_validators import (
     validator_bak_action_event,
     validator_bak_action_request,
     validator_exchange_requested_trade_event,

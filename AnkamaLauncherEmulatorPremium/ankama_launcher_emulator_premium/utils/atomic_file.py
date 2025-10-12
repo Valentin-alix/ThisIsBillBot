@@ -21,8 +21,9 @@ def atomic_write_text(path: Path, content: str, *, encoding: str = "utf-8") -> N
         os.fsync(temporary_handle.fileno())
     try:
         os.replace(temporary_path, path)
-    finally:
+    except BaseException:
         temporary_path.unlink(missing_ok=True)
+        raise
 
 
 def acquire_file_lock(path: Path, *, timeout_seconds: float = 20.0) -> FileLock:

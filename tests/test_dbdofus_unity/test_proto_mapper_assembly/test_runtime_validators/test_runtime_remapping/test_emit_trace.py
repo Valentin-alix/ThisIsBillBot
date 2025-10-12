@@ -1,5 +1,5 @@
-from proto_mapper_assembly.interfaces.runtime import RuntimeRemappingTraceEvent
-from proto_mapper_assembly.runtime.runtime_remapping import _emit_trace
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime import RuntimeRemappingTraceEvent
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_remapping import _emit_trace
 
 
 class TestEmitTrace:

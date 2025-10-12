@@ -5,20 +5,20 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
     ObjectItemInventory,
     SpellModifier,
     SpellModifierType,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
-from datas.protos.non_obf.game.spell_pb2 import SpellItem
-from dofus_unity_reader.data_center.area_info import AreaInfo
-from dofus_unity_reader.game_constants.characteristic import EffectElement
-from dofus_unity_reader.grid.map_point import MapPoint
-from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
-from dofus_unity_reader.models.world_graph import Transition, Vertice
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapObstacle
+from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellItem
+from DBDofusUnity.dofus_unity_reader.data_center.area_info import AreaInfo
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import EffectElement
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Transition, Vertice
 
 if TYPE_CHECKING:
     from src.core.engine.fights.attack.models import EnemyData

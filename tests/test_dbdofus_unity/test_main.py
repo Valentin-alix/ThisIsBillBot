@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from DBDofusUnity.main import build_argument_parser
 
-_RUN_PIPELINE = "proto_mapper_assembly.pipeline.run_pipeline"
+_RUN_PIPELINE = "DBDofusUnity.proto_mapper_assembly.pipeline.run_pipeline"
 
 
 class TestSynchronizeProtosCommand:

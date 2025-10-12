@@ -2,20 +2,20 @@ from collections.abc import Callable
 from typing import cast
 from unittest.mock import MagicMock
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     InteractiveElement,
     ObjectItem,
     ObjectItemInventory,
 )
-from datas.protos.non_obf.game.context_pb2 import ContextCreationEvent
-from datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
-from datas.protos.non_obf.game.quest_pb2 import QuestActive, QuestValidatedEvent
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.game_constants.map_id import MapIdEnum
-from dofus_unity_reader.game_constants.npc import NpcDialogInfo
-from dofus_unity_reader.game_constants.skill import SkillEnum
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import ContextCreationEvent
+from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
+from DBDofusUnity.datas.protos.non_obf.game.quest_pb2 import QuestActive, QuestValidatedEvent
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import NpcDialogInfo
+from DBDofusUnity.dofus_unity_reader.game_constants.skill import SkillEnum
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.craft.craft_behavior import CraftRequest
 from src.core.behaviors.quests.quest_script_behavior import (
@@ -23,7 +23,7 @@ from src.core.behaviors.quests.quest_script_behavior import (
     QuestScriptError,
 )
 from src.core.engine.npcs.dialog_turn import DialogTurn
-from dofus_unity_reader.game_constants.world import WorldMapEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.world import WorldMapEnum
 
 from src.core.engine.quests.quest_script import (
     BuyItemStep,

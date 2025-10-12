@@ -2,7 +2,7 @@ import random
 import secrets
 import string
 
-from ankama_launcher_emulator_premium.web.auth.models import RegistrationIdentity
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.models import RegistrationIdentity
 
 DEFAULT_PASSWORD = "blibli44700"
 NICKNAME_MIN_LENGTH = 8

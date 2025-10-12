@@ -7,7 +7,7 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.pipeline_builde
     simple_match_result,
 )
 
-from consts import (
+from DBDofusUnity.consts import (
     AUTO_MODE_MAPPING_CONTRACT_FILE,
     CAPTURE_SEQUENCE_HINTS_FILE,
     GAME_MAPPINGS_DETAILED_JSON_FILE,
@@ -16,11 +16,11 @@ from consts import (
     NON_OBF_PROTO_ACCESSES_FILE,
     NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
 )
-from proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.new_dump_cs import NewDumpCSFile
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
-from proto_mapper_assembly.pipeline import run_pipeline
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.new_dump_cs import NewDumpCSFile
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.pipeline import run_pipeline
 
 
 class TestRunPipeline:
@@ -46,7 +46,7 @@ class TestRunPipeline:
 
         with (
             patch(
-                "proto_mapper_assembly.pipeline.load_matching_inputs",
+                "DBDofusUnity.proto_mapper_assembly.pipeline.load_matching_inputs",
                 return_value=builder_matching_inputs(
                     obf_messages_by_cls=obf_messages_by_cls,
                     non_obf_messages_by_cls=non_obf_messages_by_cls,
@@ -54,25 +54,25 @@ class TestRunPipeline:
                     non_obf_signatures_by_cls={"ClearB": clear_b, "ClearA": clear_a},
                 ),
             ),
-            patch("proto_mapper_assembly.pipeline.load_pinned_pairs", return_value=fake_pinned),
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.load_pinned_pairs", return_value=fake_pinned),
             patch(
-                "proto_mapper_assembly.pipeline.resolve_pinned_pairs_non_obf_targets",
+                "DBDofusUnity.proto_mapper_assembly.pipeline.resolve_pinned_pairs_non_obf_targets",
                 return_value=fake_pinned,
             ),
             patch(
-                "proto_mapper_assembly.pipeline.load_new_dump_cs_messages",
+                "DBDofusUnity.proto_mapper_assembly.pipeline.load_new_dump_cs_messages",
                 return_value=NewDumpCSFile(root={}),
             ),
             patch(
-                "proto_mapper_assembly.pipeline.load_capture_sequence_hints", return_value=fake_hints
+                "DBDofusUnity.proto_mapper_assembly.pipeline.load_capture_sequence_hints", return_value=fake_hints
             ) as mock_load_hints,
             patch(
-                "proto_mapper_assembly.pipeline.resolve_capture_sequence_hints_non_obf_targets",
+                "DBDofusUnity.proto_mapper_assembly.pipeline.resolve_capture_sequence_hints_non_obf_targets",
                 return_value=fake_hints,
             ),
-            patch("proto_mapper_assembly.pipeline.match_messages", return_value=matches) as mock_match,
-            patch("proto_mapper_assembly.pipeline.write_game_mappings") as mock_write_game_mappings,
-            patch("proto_mapper_assembly.pipeline.check_auto_mode_mappings"),
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.match_messages", return_value=matches) as mock_match,
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.write_game_mappings") as mock_write_game_mappings,
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.check_auto_mode_mappings"),
         ):
             run_pipeline(do_load_pinned_pair=True)
 
@@ -103,7 +103,7 @@ class TestRunPipeline:
 
         with (
             patch(
-                "proto_mapper_assembly.pipeline.load_matching_inputs",
+                "DBDofusUnity.proto_mapper_assembly.pipeline.load_matching_inputs",
                 return_value=builder_matching_inputs(
                     obf_messages_by_cls={"irk": obf_message},
                     non_obf_messages_by_cls={dump_non_obf_message.composed_name: dump_non_obf_message},
@@ -111,25 +111,25 @@ class TestRunPipeline:
                     non_obf_signatures_by_cls={},
                 ),
             ),
-            patch("proto_mapper_assembly.pipeline.load_pinned_pairs", return_value=fake_pinned),
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.load_pinned_pairs", return_value=fake_pinned),
             patch(
-                "proto_mapper_assembly.pipeline.load_new_dump_cs_messages",
+                "DBDofusUnity.proto_mapper_assembly.pipeline.load_new_dump_cs_messages",
                 return_value=NewDumpCSFile(
                     root={manual_non_obf_message.composed_name: manual_non_obf_message}
                 ),
             ),
             patch(
-                "proto_mapper_assembly.pipeline.resolve_pinned_pairs_non_obf_targets",
+                "DBDofusUnity.proto_mapper_assembly.pipeline.resolve_pinned_pairs_non_obf_targets",
                 return_value=fake_pinned,
             ) as mock_resolve_pinned_pairs,
-            patch("proto_mapper_assembly.pipeline.load_capture_sequence_hints", return_value=fake_hints),
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.load_capture_sequence_hints", return_value=fake_hints),
             patch(
-                "proto_mapper_assembly.pipeline.resolve_capture_sequence_hints_non_obf_targets",
+                "DBDofusUnity.proto_mapper_assembly.pipeline.resolve_capture_sequence_hints_non_obf_targets",
                 return_value=fake_hints,
             ),
-            patch("proto_mapper_assembly.pipeline.match_messages", return_value=()),
-            patch("proto_mapper_assembly.pipeline.write_game_mappings"),
-            patch("proto_mapper_assembly.pipeline.check_auto_mode_mappings"),
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.match_messages", return_value=()),
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.write_game_mappings"),
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.check_auto_mode_mappings"),
         ):
             run_pipeline(do_load_pinned_pair=True)
 
@@ -152,7 +152,7 @@ class TestRunPipeline:
 
         with (
             patch(
-                "proto_mapper_assembly.pipeline.load_matching_inputs",
+                "DBDofusUnity.proto_mapper_assembly.pipeline.load_matching_inputs",
                 return_value=builder_matching_inputs(
                     obf_messages_by_cls={"obf": obf_message},
                     non_obf_messages_by_cls={"Clear": non_obf_message},
@@ -163,24 +163,24 @@ class TestRunPipeline:
                 ),
             ) as mock_load_matching_inputs,
             patch(
-                "proto_mapper_assembly.pipeline.load_pinned_pairs", return_value=fake_pinned
+                "DBDofusUnity.proto_mapper_assembly.pipeline.load_pinned_pairs", return_value=fake_pinned
             ) as mock_load_pinned_pairs,
             patch(
-                "proto_mapper_assembly.pipeline.resolve_pinned_pairs_non_obf_targets",
+                "DBDofusUnity.proto_mapper_assembly.pipeline.resolve_pinned_pairs_non_obf_targets",
                 return_value=fake_pinned,
             ),
             patch(
-                "proto_mapper_assembly.pipeline.load_new_dump_cs_messages",
+                "DBDofusUnity.proto_mapper_assembly.pipeline.load_new_dump_cs_messages",
                 return_value=NewDumpCSFile(root={}),
             ) as mock_load_new_dump_cs_messages,
-            patch("proto_mapper_assembly.pipeline.load_capture_sequence_hints", return_value=fake_hints),
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.load_capture_sequence_hints", return_value=fake_hints),
             patch(
-                "proto_mapper_assembly.pipeline.resolve_capture_sequence_hints_non_obf_targets",
+                "DBDofusUnity.proto_mapper_assembly.pipeline.resolve_capture_sequence_hints_non_obf_targets",
                 return_value=fake_hints,
             ),
-            patch("proto_mapper_assembly.pipeline.match_messages", return_value=matches),
-            patch("proto_mapper_assembly.pipeline.write_game_mappings") as mock_write_game_mappings,
-            patch("proto_mapper_assembly.pipeline.check_auto_mode_mappings") as mock_check_auto_mode_mappings,
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.match_messages", return_value=matches),
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.write_game_mappings") as mock_write_game_mappings,
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.check_auto_mode_mappings") as mock_check_auto_mode_mappings,
         ):
             run_pipeline(do_load_pinned_pair=True, obf_dir=obf_dir)
 

@@ -29,10 +29,10 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures impo
     builder_typeinfo_access_entry,
 )
 
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.interfaces.game_mappings import GameMappingsDocument
-from proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
-from proto_mapper_assembly.scripts.check_zero_access_fields import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import GameMappingsDocument
+from DBDofusUnity.proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
+from DBDofusUnity.proto_mapper_assembly.scripts.check_zero_access_fields import (
     audit_unknown_fields,
     CoreMethodEvidence,
     collect_zero_access_explanations,

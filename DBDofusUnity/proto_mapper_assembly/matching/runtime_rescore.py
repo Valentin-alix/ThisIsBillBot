@@ -7,18 +7,18 @@ from typing import NamedTuple
 import numpy as np
 from tqdm import tqdm
 
-from proto_mapper_assembly.field_mapping.field_mapper import build_field_mapping
-from proto_mapper_assembly.interfaces.field_mapping import FieldMappingContext
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace
-from proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs, MatchingRunConfig
-from proto_mapper_assembly.interfaces.message_pair import MatchPairKey
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
-from proto_mapper_assembly.interfaces.runtime import RuntimeValidationCandidate
-from proto_mapper_assembly.matching.score_lookup import build_lazy_score_by_pair_lookup_from_matrix
-from proto_mapper_assembly.runtime.runtime_field_validation import (
+from DBDofusUnity.proto_mapper_assembly.field_mapping.field_mapper import build_field_mapping
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import FieldMappingContext
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs, MatchingRunConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime import RuntimeValidationCandidate
+from DBDofusUnity.proto_mapper_assembly.matching.score_lookup import build_lazy_score_by_pair_lookup_from_matrix
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_field_validation import (
     build_runtime_field_validator_confidence,
 )
-from proto_mapper_assembly.scoring.message_scoring import compute_message_similarity
+from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import compute_message_similarity
 
 _RUNTIME_GUARANTEED_TOP_CANDIDATE_COUNT = 3
 _RUNTIME_MAX_CANDIDATE_COUNT = 10

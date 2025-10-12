@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessTraceDocument,
     ProtoAccessesInfo,
 )

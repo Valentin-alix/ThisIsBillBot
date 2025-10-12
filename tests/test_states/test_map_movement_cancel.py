@@ -5,18 +5,18 @@ from threading import Event
 from unittest.mock import MagicMock
 
 import pytest
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     EntityDisposition,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     MapCurrentEvent,
     MapMovementCancelRequest,
     MapMovementEvent,
     MapMovementRequest,
 )
-from dofus_unity_reader.game_constants.directions import DirectionsEnum
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.behaviors.movements.map_movement_cancel_behavior import MapMovementCancelBehavior

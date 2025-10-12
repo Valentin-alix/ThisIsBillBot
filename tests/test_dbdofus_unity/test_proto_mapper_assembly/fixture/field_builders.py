@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, DumpCSMessageProperty
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type
-from proto_mapper_assembly.parsers.clr_types import categorize_field
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, DumpCSMessageProperty
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type
+from DBDofusUnity.proto_mapper_assembly.parsers.clr_types import categorize_field
 
 
 def dump_cs_field(

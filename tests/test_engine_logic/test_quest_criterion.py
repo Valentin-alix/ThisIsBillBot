@@ -18,7 +18,7 @@ def test_an_unknown_quest_requires_nothing() -> None:
 
 def test_every_registered_quest_criterion_is_readable() -> None:
     """Guard against a criterion shape the splitter would choke on."""
-    from dofus_unity_reader.data_center.data_reader import DataReader
+    from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 
     for quest_id in DataReader().quest_by_id:
         get_required_finished_quest_ids(quest_id)

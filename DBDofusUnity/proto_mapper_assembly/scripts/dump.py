@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-from consts import (
+from DBDofusUnity.consts import (
     DUMP_CS_MARKER_NAME,
     GAME_ASSEMBLY_MARKER_NAME,
     GAME_MAPPINGS_JSON_FILE,
@@ -26,14 +26,13 @@ from consts import (
     PROTOC_PATH,
     PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
     PROTODEC_EXECUTABLE,
-    RUNTIME_DATA_DIR,
+    RUNTIME_DATA_FILE,
 )
-from proto_mapper_assembly.controllers.pinned_pairs import write_pinned_pairs
-from proto_mapper_assembly.helpers.obf_game_snapshot import find_snapshot_dir_by_game_assembly_mtime_ns
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
-from proto_mapper_assembly.pipeline import run_pipeline
-from proto_mapper_assembly.runtime.runtime_store import BASE_FILENAME
-from proto_mapper_assembly.scripts.ida_tracer_lib.main import run_ida_script
+from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import write_pinned_pairs
+from DBDofusUnity.proto_mapper_assembly.helpers.obf_game_snapshot import find_snapshot_dir_by_game_assembly_mtime_ns
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.pipeline import run_pipeline
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.main import run_ida_script
 
 
 @dataclass(frozen=True)
@@ -153,8 +152,8 @@ def _archive_previous_obf_dump(target: ProtoDumpTarget) -> None:
 
 def _clear_mapping_inputs_before_pipeline() -> None:
     today = datetime.now(tz=UTC).astimezone().date()
-    for runtime_data_file in RUNTIME_DATA_DIR.glob(f"{BASE_FILENAME}*.json"):
-        _archive_runtime_capture(runtime_data_file, today)
+    if RUNTIME_DATA_FILE.exists():
+        _archive_runtime_capture(RUNTIME_DATA_FILE, today)
 
     write_pinned_pairs(PINNED_PAIRS_FILE, PinnedPairsConfig(pairs=[]))
 

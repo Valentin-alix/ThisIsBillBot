@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from bisect import insort
 from collections.abc import Iterator
-from typing import Generic, Protocol, TypeVar, cast
+from typing import Generic, TypeVar, cast
 
 T = TypeVar("T")
 PathResultT = TypeVar("PathResultT")
@@ -172,60 +172,3 @@ class DataAstar(Astar[T, T], ABC):
         if do_reverse:
             return path
         return path[::-1]
-
-
-PathT = TypeVar("PathT")
-CallablePathT = TypeVar("CallablePathT")
-
-
-def _default_is_goal_reached(current: PathT, ends: set[PathT]) -> bool:
-    return current in ends
-
-
-class NeighborProvider(Protocol[T]):
-    def __call__(self, node: T) -> Iterator[T]: ...
-
-
-class DistanceProvider(Protocol[T]):
-    def __call__(self, current: T, ends: set[T]) -> float: ...
-
-
-class GoalReachedProvider(Protocol[T]):
-    def __call__(self, current: T, ends: set[T]) -> bool: ...
-
-
-class _CallableAstar(DataAstar[CallablePathT]):
-    def __init__(
-        self,
-        get_neighbors_func: NeighborProvider[CallablePathT],
-        distance_between_func: DistanceProvider[CallablePathT],
-        is_goal_reached_func: GoalReachedProvider[CallablePathT],
-    ) -> None:
-        self._get_neighbors_func = get_neighbors_func
-        self._distance_between_func = distance_between_func
-        self._is_goal_reached_func = is_goal_reached_func
-
-    def get_dist(self, current: CallablePathT, ends: set[CallablePathT]) -> float:
-        return self._distance_between_func(current, ends)
-
-    def get_neighbors(self, data: CallablePathT) -> Iterator[CallablePathT]:
-        return self._get_neighbors_func(data)
-
-    def is_goal_reached(self, current: CallablePathT, ends: set[CallablePathT]) -> bool:
-        return self._is_goal_reached_func(current, ends)
-
-
-def find_path(
-    start: PathT,
-    ends: set[PathT],
-    get_neighbors_func: NeighborProvider[PathT],
-    distance_between_func: DistanceProvider[PathT],
-    is_goal_reached_func: GoalReachedProvider[PathT] = _default_is_goal_reached,
-    do_reverse: bool = False,
-) -> list[PathT] | None:
-    astar = _CallableAstar(
-        get_neighbors_func,
-        distance_between_func,
-        is_goal_reached_func,
-    )
-    return astar.find_path(start, ends, do_reverse=do_reverse)

@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from proto_mapper_assembly.scripts.audit_historical_assembly_metrics import (
+from DBDofusUnity.proto_mapper_assembly.scripts.audit_historical_assembly_metrics import (
     MetricSample,
     MetricSummary,
     NonObfReference,

@@ -8,19 +8,19 @@ from typing import cast
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from proto_mapper_assembly.field_mapping.field_mapping_preparation import (
+from DBDofusUnity.proto_mapper_assembly.field_mapping.field_mapping_preparation import (
     PreparedFieldMappingContext,
     prepare_field_mapping_context,
 )
-from proto_mapper_assembly.field_mapping.field_mapping_scoring import (
+from DBDofusUnity.proto_mapper_assembly.field_mapping.field_mapping_scoring import (
     FieldPairMetadata,
     score_field_pair,
 )
-from proto_mapper_assembly.field_mapping.pulp.constraints import has_applicable_constraints
-from proto_mapper_assembly.field_mapping.pulp.solver import solve_field_mapping_ilp
-from proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
-from proto_mapper_assembly.interfaces.field_mapping import (
+from DBDofusUnity.proto_mapper_assembly.field_mapping.pulp.constraints import has_applicable_constraints
+from DBDofusUnity.proto_mapper_assembly.field_mapping.pulp.solver import solve_field_mapping_ilp
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import (
     DiscoveredMessageMatch,
     FieldMappingContext,
     FieldMappingRejectedInfos,
@@ -28,13 +28,13 @@ from proto_mapper_assembly.interfaces.field_mapping import (
     FieldMappingUnmappedNonObfFields,
     MatchingStoreProtocol,
 )
-from proto_mapper_assembly.interfaces.field_mapping_rejected_infos import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping_rejected_infos import (
     FieldMappingRejectedInfo,
     ReasonRejectedInfo,
     ScoreRejectedInfo,
     ValidationFailureRejectedInfo,
 )
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair
 
 
 @dataclass(frozen=True)

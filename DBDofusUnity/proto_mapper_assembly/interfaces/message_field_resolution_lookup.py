@@ -5,7 +5,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from functools import cached_property
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, FieldKey
 
 
 @dataclass(frozen=True)

@@ -1,6 +1,6 @@
 from collections.abc import Mapping, Sequence
 
-from proto_mapper_assembly.runtime.runtime_field_validation import collect_runtime_alive_field_names
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_field_validation import collect_runtime_alive_field_names
 
 
 class TestCollectRuntimeAliveFieldNames:

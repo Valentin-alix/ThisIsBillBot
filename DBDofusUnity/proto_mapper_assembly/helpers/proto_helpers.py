@@ -4,13 +4,13 @@ from collections import defaultdict
 from functools import cache
 from typing import NamedTuple
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
-from proto_mapper_assembly.interfaces.field_category import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import (
     FieldCategoryEnum,
     FieldTypeLeafKind,
 )
-from proto_mapper_assembly.parsers._clr_type_utils import extract_map_inner_types, extract_repeated_inner_type
-from proto_mapper_assembly.parsers.clr_types import resolve_non_container_field_kind
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import extract_map_inner_types, extract_repeated_inner_type
+from DBDofusUnity.proto_mapper_assembly.parsers.clr_types import resolve_non_container_field_kind
 
 
 class TypeIndexKey(NamedTuple):

@@ -5,7 +5,7 @@ from socket import AF_INET, SOCK_STREAM, socket
 from threading import Lock
 
 import socks
-from ankama_launcher_emulator_premium.utils.proxy import get_info_by_proxy_url
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.proxy import get_info_by_proxy_url
 
 from src.core.bot.bot import Bot
 from src.protocol.protocol import decode_varint_size

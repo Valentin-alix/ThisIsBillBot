@@ -8,24 +8,24 @@ from unittest.mock import patch
 import pytest
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import dump_cs_field
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.excluded_non_obf import ExcludedNonObfConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.excluded_non_obf import ExcludedNonObfConfig
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import game_mapping_entry
-from proto_mapper_assembly.interfaces.game_mappings import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import (
     GameMappingsDocument,
     SimpleGameMappingEntry,
     SimpleGameMappingsDocument,
 )
-from proto_mapper_assembly.scripts import add_to_new_dump_cs
-from proto_mapper_assembly.scripts.add_to_new_dump_cs import (
+from DBDofusUnity.proto_mapper_assembly.scripts import add_to_new_dump_cs
+from DBDofusUnity.proto_mapper_assembly.scripts.add_to_new_dump_cs import (
     _preserve_existing_field_offsets,
     build_new_dump_cs_entries,
     rebuild_new_dump_cs_from_protobufs,
     synchronize_non_obf_mapping_artifacts,
 )
-from proto_mapper_assembly.interfaces.new_dump_cs import NewDumpCSFile
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
-from proto_mapper_assembly.interfaces.signature_overrides import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.new_dump_cs import NewDumpCSFile
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import (
     SignatureOverrideEntry,
     SignatureOverridesFile,
 )
@@ -105,11 +105,11 @@ class TestBuildNewDumpCsEntries:
 
             with (
                 patch(
-                    "proto_mapper_assembly.scripts.add_to_new_dump_cs.build_dump_cs_messages_from_pb2",
+                    "DBDofusUnity.proto_mapper_assembly.scripts.add_to_new_dump_cs.build_dump_cs_messages_from_pb2",
                     return_value={"Com.Ankama.ActorEvent": generated_message},
                 ),
                 patch(
-                    "proto_mapper_assembly.scripts.add_to_new_dump_cs.parse_messages",
+                    "DBDofusUnity.proto_mapper_assembly.scripts.add_to_new_dump_cs.parse_messages",
                     return_value=[existing_message],
                 ),
             ):
@@ -189,11 +189,11 @@ class TestSynchronizeNonObfMappingArtifacts:
 
         with (
             patch(
-                "proto_mapper_assembly.scripts.add_to_new_dump_cs.build_dump_cs_messages_from_pb2",
+                "DBDofusUnity.proto_mapper_assembly.scripts.add_to_new_dump_cs.build_dump_cs_messages_from_pb2",
                 return_value={live_name: live_message},
             ),
             patch(
-                "proto_mapper_assembly.scripts.add_to_new_dump_cs.parse_messages",
+                "DBDofusUnity.proto_mapper_assembly.scripts.add_to_new_dump_cs.parse_messages",
                 return_value=[live_message, stale_message],
             ),
         ):
@@ -275,10 +275,10 @@ class TestSynchronizeNonObfMappingArtifacts:
 
         with (
             patch(
-                "proto_mapper_assembly.scripts.add_to_new_dump_cs.build_dump_cs_messages_from_pb2",
+                "DBDofusUnity.proto_mapper_assembly.scripts.add_to_new_dump_cs.build_dump_cs_messages_from_pb2",
                 return_value={first_name: generated_first, second_name: generated_second},
             ),
-            patch("proto_mapper_assembly.scripts.add_to_new_dump_cs.parse_messages", return_value=[]),
+            patch("DBDofusUnity.proto_mapper_assembly.scripts.add_to_new_dump_cs.parse_messages", return_value=[]),
         ):
             result = rebuild_new_dump_cs_from_protobufs(
                 protos_dir=tmp_path,
@@ -298,7 +298,7 @@ class TestSynchronizeNonObfMappingArtifacts:
 
             with (
                 patch(
-                    "proto_mapper_assembly.scripts.add_to_new_dump_cs.build_dump_cs_messages_from_pb2",
+                    "DBDofusUnity.proto_mapper_assembly.scripts.add_to_new_dump_cs.build_dump_cs_messages_from_pb2",
                     return_value={},
                 ),
                 pytest.raises(SystemExit, match="No protobuf descriptor found"),

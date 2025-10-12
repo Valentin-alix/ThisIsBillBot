@@ -22,7 +22,7 @@ import argparse
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
-from consts import (
+from DBDofusUnity.consts import (
     EXCLUDED_NON_OBF_FILE,
     GAME_MAPPINGS_DETAILED_JSON_FILE,
     GAME_MAPPINGS_JSON_FILE,
@@ -32,23 +32,23 @@ from consts import (
     PINNED_PAIRS_FILE,
     PROTOS_ROOT,
 )
-from proto_mapper_assembly.controllers.game_mappings import load_game_mappings_document
-from proto_mapper_assembly.controllers.message_lookup import (
+from DBDofusUnity.proto_mapper_assembly.controllers.game_mappings import load_game_mappings_document
+from DBDofusUnity.proto_mapper_assembly.controllers.message_lookup import (
     build_non_obf_alias_lookup,
     resolve_non_obf_alias,
 )
-from proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
-from proto_mapper_assembly.controllers.pinned_pairs import load_pinned_pairs, write_pinned_pairs
-from proto_mapper_assembly.controllers.signature_overrides import load_signature_overrides
-from proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
-from proto_mapper_assembly.interfaces.excluded_non_obf import ExcludedNonObfConfig
-from proto_mapper_assembly.interfaces.game_mappings import GameMappingsDocument, SimpleGameMappingsDocument
-from proto_mapper_assembly.interfaces.new_dump_cs import NewDumpCSFile
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
-from proto_mapper_assembly.interfaces.signature_overrides import SignatureOverridesFile
-from proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
-from proto_mapper_assembly.parsers.protobuf_dump_cs import build_dump_cs_messages_from_pb2
+from DBDofusUnity.proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
+from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import load_pinned_pairs, write_pinned_pairs
+from DBDofusUnity.proto_mapper_assembly.controllers.signature_overrides import load_signature_overrides
+from DBDofusUnity.proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.excluded_non_obf import ExcludedNonObfConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import GameMappingsDocument, SimpleGameMappingsDocument
+from DBDofusUnity.proto_mapper_assembly.interfaces.new_dump_cs import NewDumpCSFile
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import SignatureOverridesFile
+from DBDofusUnity.proto_mapper_assembly.parsers.dump_cs_parser import parse_messages
+from DBDofusUnity.proto_mapper_assembly.parsers.protobuf_dump_cs import build_dump_cs_messages_from_pb2
 
 _NON_OBF_PROTOS_DIR: Path = PROTOS_ROOT / "non_obf" / "game"
 

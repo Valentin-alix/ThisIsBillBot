@@ -5,11 +5,11 @@ from typing import cast
 from unittest.mock import MagicMock
 
 from context_pb2 import ContextCreationEvent
-from datas.protos.non_obf.game.gamemap_pb2 import MapComplementaryInformationEvent
-from datas.protos.non_obf.game.haven_bag_pb2 import HavenBagEnterRequest
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapComplementaryInformationEvent
+from DBDofusUnity.datas.protos.non_obf.game.haven_bag_pb2 import HavenBagEnterRequest
 from google.protobuf.message import Message
 
-from dofus_unity_reader.game_constants.map_id import MapIdEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
 
 from src.core.behaviors.storage.unloads.unload_behavior import UnloadBehavior
 from src.core.engine.dungeons.dungeon_info import (

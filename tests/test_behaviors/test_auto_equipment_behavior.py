@@ -2,12 +2,12 @@ from collections.abc import Callable
 from typing import cast
 from unittest.mock import MagicMock
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ObjectEffect,
     ObjectItem,
     ObjectItemInventory,
 )
-from dofus_unity_reader.game_constants.item import CategoryItemEnum, ItemEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum, ItemEnum
 from pytest import MonkeyPatch
 
 from src.core.behaviors.items.acquire_items_behavior import ItemToAcquire

@@ -2,28 +2,29 @@ import logging
 from threading import RLock
 from typing import ClassVar, Literal
 
-from ankama_launcher_emulator_premium.decrypter.hardware_identity import (
-    generate_hardware_id,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+    BotStorageController,
 )
-from ankama_launcher_emulator_premium.interfaces.local_storage import BotRecord
-from ankama_launcher_emulator_premium.interfaces.schedule_profile import (
-    ProxyController,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.proxy import ProxyController
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
     ScheduleProfileController,
 )
-from ankama_launcher_emulator_premium.utils.bot_storage import BotStorageController
-from ankama_launcher_emulator_premium.utils.proxy import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.local_storage import BotRecord
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.schedule_profile import (
     ProxyConfig,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.proxy import (
     build_http_proxy_url,
     build_socks_proxy_url,
 )
 from base_python.singleton import Singleton
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class BotConfig(BaseModel):
     schedule_profile: str | None = None
     connection_mode: Literal["mitm", "socket"] = "socket"
-    hardware_id: str = Field(default_factory=generate_hardware_id)
+    hardware_id: str | None = None
 
 
 logger = logging.getLogger()
@@ -42,7 +43,6 @@ class BotConfigService(metaclass=Singleton):
                 hardware_id=record.hardware_id,
             )
             for login, record in BotStorageController().get_all_records().items()
-            if record.hardware_id is not None
         }
 
     def get_bot_config_by_login(self) -> dict[str, BotConfig]:
@@ -58,11 +58,12 @@ class BotConfigService(metaclass=Singleton):
 
             def update_configs(records: dict[str, BotRecord]) -> None:
                 for login, bot_config in bot_configs.items():
-                    record = records.get(login, BotRecord(email=login))
+                    record = records.get(login)
+                    if record is None:
+                        logger.warning("No BotRecord for %s; skipping bot config write", login)
+                        continue
                     record.schedule_profile = bot_config.schedule_profile
                     record.connection_mode = bot_config.connection_mode
-                    record.hardware_id = bot_config.hardware_id
-                    records[login] = record
 
             BotStorageController().update_records(update_configs)
 
@@ -97,19 +98,6 @@ class BotConfigService(metaclass=Singleton):
         profile = ScheduleProfileController().get_profile(config.schedule_profile)
         return profile is not None and profile.kind == "kamas_mule"
 
-    def assign_profile(self, login: str, profile_id: str) -> str:
-        profiles = ScheduleProfileController().get_all_profiles()
-        profile = profiles.get(profile_id)
-        if profile is None:
-            raise ValueError(f"Unknown schedule profile {profile_id}")
-        with self._BOT_CONFIG_LOCK:
-            all_configs = self.get_bot_config_by_login()
-            config = all_configs.get(login, BotConfig())
-            config.schedule_profile = profile_id
-            all_configs[login] = config
-            self._write_all_configs(all_configs)
-        return profile_id
-
     def assign_mode(self, login: str, mode: Literal["socket", "mitm"]):
         with self._BOT_CONFIG_LOCK:
             all_configs = self.get_bot_config_by_login()
@@ -142,6 +130,5 @@ class BotConfigService(metaclass=Singleton):
         def clear_config(record: BotRecord) -> None:
             record.schedule_profile = None
             record.connection_mode = "socket"
-            record.hardware_id = None
 
         BotStorageController().update_record(login, clear_config)

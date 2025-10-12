@@ -8,10 +8,10 @@ from collections.abc import Callable
 from typing import cast
 from unittest.mock import MagicMock
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.item import ItemEnum
-from dofus_unity_reader.game_constants.skill import MAP_IDS_BY_SKILL, SkillEnum
-from dofus_unity_reader.models.datas.recipe_root import RecipeItem
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.item import ItemEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.skill import MAP_IDS_BY_SKILL, SkillEnum
+from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.core.behaviors.craft.craft_behavior import CraftBehavior, CraftRequest, LoadedRecipeInfo
 from src.core.events_manager.event_manager import EventManager

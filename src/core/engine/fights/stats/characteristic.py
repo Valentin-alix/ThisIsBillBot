@@ -1,6 +1,10 @@
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import (
+    CharacterCharacteristicUpgradeRequest,
+)
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     CharacterCharacteristic,
 )
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import EffectElement
 
 
 def get_stat_by_id(stat: CharacterCharacteristic | None) -> int:
@@ -53,3 +57,17 @@ def get_max_characteristic_per_point(level: int) -> int:
     remaining -= take * 4
 
     return used_points
+
+
+def build_characteristic_upgrade_request(
+    primary_element: EffectElement, points: int
+) -> CharacterCharacteristicUpgradeRequest:
+    match primary_element:
+        case EffectElement.STRENGTH:
+            return CharacterCharacteristicUpgradeRequest(strength=points)
+        case EffectElement.INTELLIGENCE:
+            return CharacterCharacteristicUpgradeRequest(intelligence=points)
+        case EffectElement.CHANCE:
+            return CharacterCharacteristicUpgradeRequest(chance=points)
+        case _:
+            return CharacterCharacteristicUpgradeRequest(agility=points)

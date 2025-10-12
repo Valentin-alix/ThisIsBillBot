@@ -2,30 +2,30 @@ from __future__ import annotations
 
 import idaapi
 
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessEntry,
     AccessKind,
     FieldAccessEntry,
     HandlerRegistrationAccessEntry,
 )
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
-from proto_mapper_assembly.scripts.ida_tracer_lib.core.function_inspector import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.core.function_inspector import (
     get_operation_index_inside_function,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.core.mnemonics import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.core.mnemonics import (
     CMOV_MNEMONICS,
     READ_WRITE_DEST_MNEMONICS,
     VECTOR_MOVE_MNEMONICS,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.core.operands import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.core.operands import (
     get_displacement_value,
     get_operand_access_size,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.encoding import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.encoding import (
     decode_field_address,
     decode_object_offset,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
     RegisterState,
     decode_object_union,
 )

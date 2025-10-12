@@ -1,4 +1,4 @@
-from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
 
 from src.consts import FAKE_INFINITY_VALUE
 from src.core.engine.weights.harvester.weight_collectable import (

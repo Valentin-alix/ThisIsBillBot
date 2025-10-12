@@ -19,13 +19,13 @@ class JobItemCriterion(ItemCriterion):
                     self.job_id = int(array_params[0])
                     self.jobs_count = 1
                 else:
-                    _job_identifier = array_params[0].split("")
-                    if _job_identifier[0] == "a":
+                    identifier_code, identifier_rest = array_params[0][0], array_params[0][1:]
+                    if identifier_code == "a":
                         self.job_id = None
                         self.jobs_count = 1
-                    elif _job_identifier[0] == "n":
+                    elif identifier_code == "n":
                         self.job_id = None
-                        self.jobs_count = int(_job_identifier[1])
+                        self.jobs_count = int(identifier_rest)
                     else:
                         self.job_id = 0
                         self.jobs_count = 0

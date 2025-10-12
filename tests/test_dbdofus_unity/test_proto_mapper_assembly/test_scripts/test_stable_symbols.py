@@ -1,5 +1,5 @@
-from proto_mapper_assembly.interfaces.il2cpp_json import MethodDefinition
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.stable_symbols import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.il2cpp_json import MethodDefinition
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.stable_symbols import (
     build_callee_identity_lookup,
 )
 

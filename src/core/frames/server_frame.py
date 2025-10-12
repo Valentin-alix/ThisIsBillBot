@@ -1,13 +1,13 @@
 from dataclasses import dataclass, field
 from threading import Timer
 
-from datas.protos.non_obf.connection.login_message_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import (
     SelectServerRequest,
 )
-from datas.protos.non_obf.game.basic_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.basic_pb2 import (
     TextInformationEvent,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     MapCurrentEvent,
 )
 

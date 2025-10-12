@@ -4,9 +4,9 @@ from collections.abc import Mapping
 
 from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import message_signature
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from proto_mapper_assembly.interfaces.field_mapping import FieldMappingResult
-from proto_mapper_assembly.interfaces.runtime import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import FieldMappingResult
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime import (
     MessageRuntimeMetadata,
     RuntimeRemappingContext,
     RuntimeValidationCandidate,

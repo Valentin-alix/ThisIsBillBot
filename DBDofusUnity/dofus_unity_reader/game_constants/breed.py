@@ -1,6 +1,6 @@
 from enum import IntEnum
 
-from datas.protos.non_obf.connection.login_message_pb2 import CharacterInformation
+from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import CharacterInformation
 
 Breed = CharacterInformation.Breed
 

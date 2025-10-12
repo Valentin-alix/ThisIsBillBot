@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dofus_unity_reader.game_constants.map_id import MapIdEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
 from gamemap_pb2 import MapComplementaryInformationEvent
 from quest_pb2 import GuideModQuitRequest
 

@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.area import AreaEnum
-from dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
-from dofus_unity_reader.models.world_graph import Edge
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.area import AreaEnum
+from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
+from DBDofusUnity.dofus_unity_reader.models.world_graph import Edge
 
 from src.core.engine.movements.world.map_position import get_dist_to_maps
 

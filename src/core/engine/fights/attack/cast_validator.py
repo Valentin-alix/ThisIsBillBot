@@ -1,6 +1,6 @@
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.grid.map_point import MapPoint
-from dofus_unity_reader.models.datas.spell_levels_root import SpellLevelsRootItem
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import SpellLevelsRootItem
 
 from src.core.engine.contexts import AttackContext
 from src.core.engine.fights.attack.models import RejectionStat

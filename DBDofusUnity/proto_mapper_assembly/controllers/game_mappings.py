@@ -5,19 +5,19 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from consts import BOT_SRC_ROOT, PROTOS_ROOT
-from proto_mapper_assembly.controllers.json_documents import load_root_model_or_empty
-from proto_mapper_assembly.helpers.bot_usage import analyze_bot_usage, log_missing_field_mappings
-from proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.game_mappings import (
+from DBDofusUnity.consts import BOT_SRC_ROOT, PROTOS_ROOT
+from DBDofusUnity.proto_mapper_assembly.controllers.json_documents import load_root_model_or_empty
+from DBDofusUnity.proto_mapper_assembly.helpers.bot_usage import analyze_bot_usage, log_missing_field_mappings
+from DBDofusUnity.proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import (
     GameMappingEntry,
     GameMappingsDocument,
     SimpleGameMappingEntry,
     SimpleGameMappingsDocument,
 )
-from proto_mapper_assembly.interfaces.matching import MatchResult
-from proto_mapper_assembly.parsers.protobuf_dump_cs import build_dump_cs_messages_from_pb2
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchResult
+from DBDofusUnity.proto_mapper_assembly.parsers.protobuf_dump_cs import build_dump_cs_messages_from_pb2
 
 
 def build_game_mappings_document(

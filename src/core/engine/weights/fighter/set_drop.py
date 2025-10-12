@@ -2,14 +2,14 @@ import random
 from collections import defaultdict
 from functools import cache
 
-from datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
-from dofus_unity_reader.data_center.area_info import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
+from DBDofusUnity.dofus_unity_reader.data_center.area_info import (
     AREAS_SUB_WITH_WEIGHT,
     AREAS_UNSUB_WITH_WEIGHT,
     AreaInfo,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.characteristic import EffectElement
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import EffectElement
 
 from src.core.engine.items.equipment import get_current_best_set, get_item_gids_to_buy
 

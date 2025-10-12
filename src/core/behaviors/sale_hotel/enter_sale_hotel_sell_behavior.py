@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidSellerStartedEvent,
 )
-from datas.protos.non_obf.game.npc_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import (
     NpcGenericActionRequest,
 )
-from dofus_unity_reader.game_constants.item import CategoryItemEnum
-from dofus_unity_reader.game_constants.npc import NpcInfo
+from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import NpcInfo
 
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (

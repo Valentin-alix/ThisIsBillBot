@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import idaapi
 
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.static_loads import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.static_loads import (
     get_static_lookup_operand_addr,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.analysis_state import TypeGuard
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import RegisterState
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.analysis_state import TypeGuard
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import RegisterState
 
 
 def handle_mov_type_guard_instruction(insn: idaapi.insn_t, reg_state: RegisterState) -> None:

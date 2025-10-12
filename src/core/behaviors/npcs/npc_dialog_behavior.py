@@ -2,13 +2,13 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum, auto
 
-from datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
-from datas.protos.non_obf.game.npc_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
+from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import (
     NpcDialogQuestionEvent,
     NpcDialogReplyRequest,
     NpcGenericActionRequest,
 )
-from dofus_unity_reader.game_constants.npc import NpcDialogInfo, ReplyInfo
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import NpcDialogInfo, ReplyInfo
 
 from src.core.behaviors.behavior import Behavior
 from src.core.engine.npcs.dialog_texts import get_question_text

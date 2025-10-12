@@ -4,11 +4,19 @@ import argparse
 from collections.abc import Sequence
 from pathlib import Path
 
-from proto_mapper_assembly.scripts.add_to_new_dump_cs import synchronize_non_obf_mapping_artifacts
-from proto_mapper_assembly.scripts.dump import _build_proto_dump_target, gen_python_from_protoc, update_protos
-from proto_mapper_assembly.scripts.export_signature_overrides import run_export_signature_overrides
-from proto_mapper_assembly.scripts.ida_tracer_lib.main import run_ida_script
-from proto_mapper_assembly.scripts.unknown_name_registry import validate_unknown_names
+from DBDofusUnity.proto_mapper_assembly.scripts.add_to_new_dump_cs import (
+    synchronize_non_obf_mapping_artifacts,
+)
+from DBDofusUnity.proto_mapper_assembly.scripts.dump import (
+    _build_proto_dump_target,
+    gen_python_from_protoc,
+    update_protos,
+)
+from DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides import (
+    run_export_signature_overrides,
+)
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.main import run_ida_script
+from DBDofusUnity.proto_mapper_assembly.scripts.unknown_name_registry import validate_unknown_names
 
 
 def gen_python(_):
@@ -30,13 +38,13 @@ def _synchronize_protos(arguments: argparse.Namespace) -> None:
     synchronize_non_obf_mapping_artifacts()
     run_export_signature_overrides()
 
-    from proto_mapper_assembly.pipeline import run_pipeline
+    from DBDofusUnity.proto_mapper_assembly.pipeline import run_pipeline
 
     run_pipeline(do_load_pinned_pair=True)
 
 
 def new_maj_update_command(_):
-    from dofus_unity_reader.get_datas import update_all_datas
+    from DBDofusUnity.dofus_unity_reader.get_datas import update_all_datas
 
     update_all_datas()
     update_protos(use_obf=True)
@@ -50,7 +58,7 @@ def run_ida_script_command(arguments: argparse.Namespace):
 
 
 def _run_pipeline_command(arguments: argparse.Namespace) -> None:
-    from proto_mapper_assembly.pipeline import run_pipeline
+    from DBDofusUnity.proto_mapper_assembly.pipeline import run_pipeline
 
     run_pipeline(do_load_pinned_pair=not arguments.no_pinned, obf_dir=arguments.obf_dir)
 

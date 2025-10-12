@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from proto_mapper_assembly.scripts import dump as dump_script
+from DBDofusUnity.proto_mapper_assembly.scripts import dump as dump_script
 
 
 class TestDumpScript:
@@ -82,7 +82,7 @@ class TestDumpScript:
             patch.object(dump_script, "run_ida_script", side_effect=fake_run_ida_script),
             patch.object(dump_script, "run_pipeline"),
             patch.object(dump_script, "PINNED_PAIRS_FILE", tmp_path / "pinned_pairs.json"),
-            patch.object(dump_script, "RUNTIME_DATA_DIR", tmp_path / "runtime_data"),
+            patch.object(dump_script, "RUNTIME_DATA_FILE", tmp_path / "instancied_msg_infos.json"),
         ):
             dump_script.update_protos(use_obf=True, obf_dir=obf_dir)
 
@@ -118,7 +118,7 @@ class TestDumpScript:
             patch.object(dump_script, "run_ida_script"),
             patch.object(dump_script, "run_pipeline") as run_pipeline_mock,
             patch.object(dump_script, "PINNED_PAIRS_FILE", pinned_pairs_path),
-            patch.object(dump_script, "RUNTIME_DATA_DIR", tmp_path / "runtime_data"),
+            patch.object(dump_script, "RUNTIME_DATA_FILE", tmp_path / "instancied_msg_infos.json"),
             patch.object(dump_script, "_clear_mapping_inputs_before_pipeline") as clear_mock,
         ):
             dump_script.update_protos(use_obf=True, obf_dir=obf_dir)
@@ -149,7 +149,7 @@ class TestDumpScript:
             patch.object(dump_script, "run_ida_script"),
             patch.object(dump_script, "run_pipeline") as run_pipeline_mock,
             patch.object(dump_script, "PINNED_PAIRS_FILE", tmp_path / "pinned_pairs.json"),
-            patch.object(dump_script, "RUNTIME_DATA_DIR", tmp_path / "runtime_data"),
+            patch.object(dump_script, "RUNTIME_DATA_FILE", tmp_path / "instancied_msg_infos.json"),
             patch.object(dump_script, "_clear_mapping_inputs_before_pipeline") as clear_mock,
         ):
             dump_script.update_protos(use_obf=True)
@@ -175,7 +175,7 @@ class TestDumpScript:
             patch.object(dump_script, "run_ida_script"),
             patch.object(dump_script, "run_pipeline"),
             patch.object(dump_script, "PINNED_PAIRS_FILE", tmp_path / "pinned_pairs.json"),
-            patch.object(dump_script, "RUNTIME_DATA_DIR", tmp_path / "runtime_data"),
+            patch.object(dump_script, "RUNTIME_DATA_FILE", tmp_path / "instancied_msg_infos.json"),
         ):
             dump_script.update_protos(use_obf=True, obf_dir=obf_dir)
             dump_script.update_protos(use_obf=True, obf_dir=obf_dir)
@@ -201,7 +201,7 @@ class TestDumpScript:
             patch.object(dump_script, "run_ida_script") as ida_mock,
             patch.object(dump_script, "run_pipeline"),
             patch.object(dump_script, "PINNED_PAIRS_FILE", tmp_path / "pinned_pairs.json"),
-            patch.object(dump_script, "RUNTIME_DATA_DIR", tmp_path / "runtime_data"),
+            patch.object(dump_script, "RUNTIME_DATA_FILE", tmp_path / "instancied_msg_infos.json"),
         ):
             dump_script.update_protos(use_obf=True, obf_dir=obf_dir)
             dump_script.update_protos(use_obf=True, obf_dir=obf_dir, force=True)
@@ -233,7 +233,7 @@ class TestDumpScript:
             patch.object(dump_script, "run_ida_script"),
             patch.object(dump_script, "run_pipeline"),
             patch.object(dump_script, "PINNED_PAIRS_FILE", tmp_path / "pinned_pairs.json"),
-            patch.object(dump_script, "RUNTIME_DATA_DIR", tmp_path / "runtime_data"),
+            patch.object(dump_script, "RUNTIME_DATA_FILE", tmp_path / "instancied_msg_infos.json"),
         ):
             dump_script.update_protos(use_obf=True, obf_dir=obf_dir)
 
@@ -278,7 +278,7 @@ class TestDumpScript:
                 patch.object(dump_script, "run_ida_script"),
                 patch.object(dump_script, "run_pipeline"),
                 patch.object(dump_script, "PINNED_PAIRS_FILE", tmp_path / "pinned_pairs.json"),
-                patch.object(dump_script, "RUNTIME_DATA_DIR", tmp_path / "runtime_data"),
+                patch.object(dump_script, "RUNTIME_DATA_FILE", tmp_path / "instancied_msg_infos.json"),
             ):
                 dump_script.update_protos(use_obf=True)
 
@@ -329,7 +329,7 @@ class TestDumpScript:
             patch.object(dump_script, "run_ida_script") as ida_mock,
             patch.object(dump_script, "run_pipeline"),
             patch.object(dump_script, "PINNED_PAIRS_FILE", tmp_path / "pinned_pairs.json"),
-            patch.object(dump_script, "RUNTIME_DATA_DIR", tmp_path / "runtime_data"),
+            patch.object(dump_script, "RUNTIME_DATA_FILE", tmp_path / "instancied_msg_infos.json"),
         ):
             dump_script.update_protos(use_obf=True, obf_dir=obf_dir)
 
@@ -366,58 +366,44 @@ class TestDumpScript:
         assert ida_call_count == 1
 
     def test_clear_mapping_inputs_archives_runtime_captures_instead_of_deleting(self, tmp_path: Path) -> None:
-        runtime_dir = tmp_path / "runtime_data"
-        runtime_dir.mkdir()
-        capture = runtime_dir / f"{dump_script.BASE_FILENAME}.json"
+        capture = tmp_path / "instancied_msg_infos.json"
         capture.write_text('{"krl": []}', encoding="utf-8")
-        shard = runtime_dir / f"{dump_script.BASE_FILENAME}_2.json"
-        shard.write_text('{"kro": []}', encoding="utf-8")
 
         with (
-            patch.object(dump_script, "RUNTIME_DATA_DIR", runtime_dir),
+            patch.object(dump_script, "RUNTIME_DATA_FILE", capture),
             patch.object(dump_script, "PINNED_PAIRS_FILE", tmp_path / "pinned_pairs.json"),
         ):
             dump_script._clear_mapping_inputs_before_pipeline()
 
         assert not capture.exists()
-        assert not shard.exists()
-        backups = sorted(path.name for path in runtime_dir.iterdir())
         today = datetime.now(tz=UTC).astimezone().date().strftime("%d_%m_%Y")
-        assert backups == [
-            f"{dump_script.BASE_FILENAME}.json.backup.{today}",
-            f"{dump_script.BASE_FILENAME}_2.json.backup.{today}",
-        ]
-        assert (runtime_dir / f"{dump_script.BASE_FILENAME}.json.backup.{today}").read_text(
-            encoding="utf-8"
-        ) == '{"krl": []}'
+        backup_path = tmp_path / f"instancied_msg_infos.json.backup.{today}"
+        assert backup_path.exists()
+        assert backup_path.read_text(encoding="utf-8") == '{"krl": []}'
 
-    def test_runtime_capture_backups_stay_out_of_the_runtime_store_glob(self, tmp_path: Path) -> None:
-        """The archive must not be readable as a capture.
+    def test_runtime_capture_backups_stay_out_of_the_live_capture_path(self, tmp_path: Path) -> None:
+        """The archive must not be readable as the live capture.
 
-        Obfuscated names are reshuffled every build, so re-merging a previous build's capture would
+        Obfuscated names are reshuffled every build, so re-reading a previous build's capture would
         feed the matcher payloads keyed to messages that no longer exist under those names.
         """
-        runtime_dir = tmp_path / "runtime_data"
-        runtime_dir.mkdir()
-        capture = runtime_dir / f"{dump_script.BASE_FILENAME}.json"
+        capture = tmp_path / "instancied_msg_infos.json"
         capture.write_text("{}", encoding="utf-8")
 
         backup_path = dump_script._archive_runtime_capture(capture, date(2026, 8, 8))
 
-        assert backup_path.name == f"{dump_script.BASE_FILENAME}.json.backup.08_08_2026"
-        assert list(runtime_dir.glob(f"{dump_script.BASE_FILENAME}*.json")) == []
+        assert backup_path.name == "instancied_msg_infos.json.backup.08_08_2026"
+        assert not capture.exists()
 
     def test_archiving_twice_the_same_day_keeps_both_captures(self, tmp_path: Path) -> None:
-        runtime_dir = tmp_path / "runtime_data"
-        runtime_dir.mkdir()
-        capture = runtime_dir / f"{dump_script.BASE_FILENAME}.json"
+        capture = tmp_path / "instancied_msg_infos.json"
 
         capture.write_text('{"first": []}', encoding="utf-8")
         first_backup = dump_script._archive_runtime_capture(capture, date(2026, 8, 8))
         capture.write_text('{"second": []}', encoding="utf-8")
         second_backup = dump_script._archive_runtime_capture(capture, date(2026, 8, 8))
 
-        assert first_backup.name == f"{dump_script.BASE_FILENAME}.json.backup.08_08_2026"
-        assert second_backup.name == f"{dump_script.BASE_FILENAME}.json.backup.08_08_2026.2"
+        assert first_backup.name == "instancied_msg_infos.json.backup.08_08_2026"
+        assert second_backup.name == "instancied_msg_infos.json.backup.08_08_2026.2"
         assert first_backup.read_text(encoding="utf-8") == '{"first": []}'
         assert second_backup.read_text(encoding="utf-8") == '{"second": []}'

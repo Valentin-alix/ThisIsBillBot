@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from proto_mapper_assembly.interfaces.field_category import FieldTypeLeafKind
-from proto_mapper_assembly.parsers._clr_type_utils import split_top_level_tokens
-from proto_mapper_assembly.parsers.clr_types import resolve_non_container_field_kind
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldTypeLeafKind
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import split_top_level_tokens
+from DBDofusUnity.proto_mapper_assembly.parsers.clr_types import resolve_non_container_field_kind
 
 
 def is_non_message_type(

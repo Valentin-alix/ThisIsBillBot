@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace, MatchResult, PreparedScoreData
-from proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs, MatchingRunConfig
-from proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
-from proto_mapper_assembly.matching.message_selection import match_all_signatures_iteratively
-from proto_mapper_assembly.matching.score_preparation import build_prepared_scores
-from proto_mapper_assembly.matching.workspace import build_matching_workspace
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace, MatchResult, PreparedScoreData
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs, MatchingRunConfig
+from DBDofusUnity.proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
+from DBDofusUnity.proto_mapper_assembly.matching.message_selection import match_all_signatures_iteratively
+from DBDofusUnity.proto_mapper_assembly.matching.score_preparation import build_prepared_scores
+from DBDofusUnity.proto_mapper_assembly.matching.workspace import build_matching_workspace
 
 
 def match_messages(*, inputs: MatchingInputs, run_config: MatchingRunConfig) -> tuple[MatchResult, ...]:

@@ -8,13 +8,13 @@ from typing import Literal
 
 from pydantic import validate_call
 
-from ankama_launcher_emulator_premium.consts import ANSI_ESCAPE, CYTRUS_INSTALLED
-from ankama_launcher_emulator_premium.interfaces.ankama_release import ReleaseJson
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import ANSI_ESCAPE, CYTRUS_INSTALLED
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.ankama_release import ReleaseJson
 
 logger = logging.getLogger()
 
-Game = Literal["dofus"] | Literal["retro"]
-Release = Literal["dofus3"] | Literal["main"]
+Game = Literal["dofus"]
+Release = Literal["dofus3"]
 
 
 @validate_call

@@ -1,9 +1,9 @@
 from collections import deque
 
 import pytest
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
-from dofus_unity_reader.game_constants.map_id import MapIdEnum
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
+from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
 
 from src.core.behaviors.quests.quest_script_behavior import get_map_ids_for_coord
 from src.core.engine.npcs.dialog_texts import (
@@ -13,7 +13,7 @@ from src.core.engine.npcs.dialog_texts import (
 )
 from src.core.engine.npcs.npc_lookup import find_monster_ids_by_name, find_npc_ids_by_name
 from src.core.engine.quests.quest_criterion import get_required_finished_quest_ids
-from dofus_unity_reader.game_constants.world import WorldMapEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.world import WorldMapEnum
 
 from src.core.engine.quests.quest_script import (
     FightStep,

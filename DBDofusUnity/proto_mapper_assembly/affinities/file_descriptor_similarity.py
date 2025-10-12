@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from proto_mapper_assembly.affinities._group_similarity import build_group_scores_matrix
-from proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.affinities._group_similarity import build_group_scores_matrix
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
 
 
 def build_file_descriptor_similarity(

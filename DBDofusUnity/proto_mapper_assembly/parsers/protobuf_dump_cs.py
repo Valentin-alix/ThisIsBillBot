@@ -6,10 +6,10 @@ from collections.abc import Iterable, Iterator
 from pathlib import Path
 
 from google.protobuf.descriptor import Descriptor, EnumDescriptor, FieldDescriptor, OneofDescriptor
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
-from proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type
-from proto_mapper_assembly.parsers.clr_types import categorize_field
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type
+from DBDofusUnity.proto_mapper_assembly.parsers.clr_types import categorize_field
 
 _PROTO_SCALAR_TO_CLR: dict[int, str] = {
     FieldDescriptor.TYPE_DOUBLE: "double",

@@ -1,19 +1,19 @@
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     CharacterCharacteristic,
     CharacterCharacteristicValue,
 )
-from dofus_unity_reader.game_constants.characteristic import EffectElement
-from dofus_unity_reader.game_constants.job import JobEnum
-from dofus_unity_reader.models.datas.effects_root import EffectsRootItem
-from dofus_unity_reader.models.datas.item_type_root import ItemTypeData
-from dofus_unity_reader.models.datas.items_root import ItemsRootItemStrict
-from dofus_unity_reader.models.datas.recipe_root import RecipeItem
-from dofus_unity_reader.models.datas.skills_root import SkillsRootItem
-from dofus_unity_reader.models.datas.spell_levels_root import (
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import EffectElement
+from DBDofusUnity.dofus_unity_reader.game_constants.job import JobEnum
+from DBDofusUnity.dofus_unity_reader.models.datas.effects_root import EffectsRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.item_type_root import ItemTypeData
+from DBDofusUnity.dofus_unity_reader.models.datas.items_root import ItemsRootItemStrict
+from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
+from DBDofusUnity.dofus_unity_reader.models.datas.skills_root import SkillsRootItem
+from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
     Effect,
     SpellLevelsRootItem,
 )
-from dofus_unity_reader.models.datas.zone_descr import ZoneDescr
+from DBDofusUnity.dofus_unity_reader.models.datas.zone_descr import ZoneDescr
 
 
 def make_skill_data(

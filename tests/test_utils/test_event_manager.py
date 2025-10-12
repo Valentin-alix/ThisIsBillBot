@@ -5,12 +5,12 @@ from unittest.mock import Mock, patch
 import pytest
 from google.protobuf.message import Message
 
-from datas.protos.non_obf.game.basic_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.basic_pb2 import (
     DateRequest,
     SequenceNumberEvent,
     SequenceNumberRequest,
 )
-from datas.protos.non_obf.game.connection_pb2 import PingRequest
+from DBDofusUnity.datas.protos.non_obf.game.connection_pb2 import PingRequest
 
 from src.core.behaviors.behavior import Behavior
 from src.core.events_manager.event_manager import EventManager

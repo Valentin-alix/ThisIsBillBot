@@ -10,17 +10,16 @@ from base_python.singleton import Singleton
 from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message
 
-from consts import RUNTIME_DATA_DIR
-from proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.runtime_data import (
+from DBDofusUnity.consts import RUNTIME_DATA_FILE
+from DBDofusUnity.proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime_data import (
     NormalizedRuntimeInstance,
     ObservedRootObfMessage,
     RuntimeInstance,
     RuntimeRoot,
 )
 
-BASE_FILENAME = "instancied_msg_infos"
 MAX_COUNT_BY_NAME = 1_500
 
 
@@ -58,7 +57,7 @@ class RuntimeDataStore(metaclass=Singleton):
             message=message,
             messages_by_cls=obf_messages_by_cls,
         )
-        return self._merged_normalized_content_by_name.get(runtime_key, ())
+        return self._normalized_content_by_name.get(runtime_key, ())
 
     def get_capture_sequences_for_obf_message(
         self, *, message: DumpCSMessage, obf_messages_by_cls: Mapping[str, DumpCSMessage]
@@ -70,7 +69,7 @@ class RuntimeDataStore(metaclass=Singleton):
         )
         return tuple(
             runtime_instance.capture_sequence
-            for runtime_instance in self.merged_content_by_name.root.get(runtime_key, ())
+            for runtime_instance in self.content_by_name.root.get(runtime_key, ())
         )
 
     def get_capture_sequences_by_session_for_obf_message(
@@ -91,7 +90,7 @@ class RuntimeDataStore(metaclass=Singleton):
             message=message,
             messages_by_cls=obf_messages_by_cls,
         )
-        return runtime_key in self.merged_content_by_name.root
+        return runtime_key in self.content_by_name.root
 
     @cached_property
     def capture_sequences_by_session_by_name(self) -> dict[str, CaptureSequencesBySession]:
@@ -101,7 +100,7 @@ class RuntimeDataStore(metaclass=Singleton):
         walking tens of thousands of instances on each rebuild dominated the pass.
         """
         by_name: dict[str, CaptureSequencesBySession] = {}
-        for runtime_key, instances in self.merged_content_by_name.root.items():
+        for runtime_key, instances in self.content_by_name.root.items():
             sequences_by_session: dict[str, list[int]] = defaultdict(list)
             for runtime_instance in instances:
                 if runtime_instance.capture_session_id is None or runtime_instance.capture_sequence is None:
@@ -118,7 +117,7 @@ class RuntimeDataStore(metaclass=Singleton):
 
     def get_observed_root_obf_messages(self) -> dict[str, ObservedRootObfMessage]:
         observed: dict[str, ObservedRootObfMessage] = {}
-        for obf_msg_namespace, instances in self.merged_content_by_name.root.items():
+        for obf_msg_namespace, instances in self.content_by_name.root.items():
             first_instance = next(iter(instances), None)
             if first_instance is None or not first_instance.is_root_msg or first_instance.is_game_msg:
                 continue
@@ -134,31 +133,23 @@ class RuntimeDataStore(metaclass=Singleton):
         return observed
 
     @cached_property
-    def _merged_normalized_content_by_name(
+    def _normalized_content_by_name(
         self,
     ) -> dict[str, tuple[NormalizedRuntimeInstance, ...]]:
         return {
             key: tuple(part.model_dump(exclude={"capture_sequence", "capture_session_id"}) for part in value)
-            for key, value in self.merged_content_by_name.root.items()
+            for key, value in self.content_by_name.root.items()
         }
 
     @cached_property
-    def merged_content_by_name(self) -> RuntimeRoot:
-        runtime_files = list(RUNTIME_DATA_DIR.glob(f"{BASE_FILENAME}*.json"))
-        merged = self._load_merged_runtime_instances(runtime_files)
-        return RuntimeRoot(root={name: tuple(instances) for name, instances in merged.items()})
-
-    def _load_merged_runtime_instances(self, runtime_files: list[Path]) -> dict[str, list[RuntimeInstance]]:
-        merged: dict[str, list[RuntimeInstance]] = defaultdict(list)
-        for runtime_file in runtime_files:
-            part = RuntimeRoot.model_validate_json(runtime_file.read_text(encoding="utf-8"))
-            for name, entries in part.root.items():
-                merged[name].extend(entries)
-        return merged
+    def content_by_name(self) -> RuntimeRoot:
+        if not RUNTIME_DATA_FILE.exists():
+            return RuntimeRoot(root={})
+        return RuntimeRoot.model_validate_json(RUNTIME_DATA_FILE.read_text(encoding="utf-8"))
 
     @cached_property
     def path(self) -> Path:
-        return RUNTIME_DATA_DIR / f"{BASE_FILENAME}.json"
+        return RUNTIME_DATA_FILE
 
     @cached_property
     def _writing_content(self) -> ContentByName:

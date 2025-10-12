@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from proto_mapper_assembly.validators.set_validators import validator_game_action_fight_event
+from DBDofusUnity.proto_mapper_assembly.validators.set_validators import validator_game_action_fight_event
 
 FIGHT_CASES: list[tuple[dict[str, Any], bool]] = [
     ({"source_id": -1}, True),

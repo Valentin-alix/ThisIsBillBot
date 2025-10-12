@@ -3,16 +3,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from functools import cache, cached_property
 
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessAtomSignature,
     AccessTraceDocument,
     FunctionAccessSignature,
     ReturnRole,
     TracedFunction,
 )
-from proto_mapper_assembly.interfaces.enum_mapping import EnumCalledFunctionRef, EnumSignatureEntry
-from proto_mapper_assembly.scoring.primitives import get_average_best_similarity_sequences
-from proto_mapper_assembly.scoring.signature_scoring import function_similarity_from_keys
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumCalledFunctionRef, EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.scoring.primitives import get_average_best_similarity_sequences
+from DBDofusUnity.proto_mapper_assembly.scoring.signature_scoring import function_similarity_from_keys
 
 type FunctionSignatureSequence = tuple[FunctionAccessSignature, ...]
 

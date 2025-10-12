@@ -5,7 +5,7 @@ from collections.abc import Sequence
 import numpy as np
 import pytest
 
-from proto_mapper_assembly.matching.pair_selection import _build_assignment_margin_by_position
+from DBDofusUnity.proto_mapper_assembly.matching.pair_selection import _build_assignment_margin_by_position
 
 
 def _scalar_assignment_margin_by_position(

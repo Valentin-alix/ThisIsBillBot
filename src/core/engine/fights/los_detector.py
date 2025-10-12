@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 
-from dofus_unity_reader.data_center.map_reader import MapReader
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src.core.engine.movements.map.map_tools import MapTools
 

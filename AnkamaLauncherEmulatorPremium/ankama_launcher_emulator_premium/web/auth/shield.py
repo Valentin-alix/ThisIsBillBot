@@ -3,19 +3,20 @@
 import logging
 from datetime import datetime
 
-from ankama_launcher_emulator_premium.decrypter.crypto_helper import CryptoHelper
-from ankama_launcher_emulator_premium.haapi.haapi import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.haapi import (
     Haapi,
     ShieldNotRequiredError,
 )
-from ankama_launcher_emulator_premium.interfaces.credentials import (
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
     DecipheredCertif,
 )
-from ankama_launcher_emulator_premium.interfaces.haapi_api import SignOnResponse
-from ankama_launcher_emulator_premium.web._client.mailbox import (
-    ImapMailboxClient,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.haapi_api import SignOnResponse
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.base import (
     MailboxCodeTimeoutError,
-    MailboxSettings,
+    MailCodeProvider,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.manual import (
+    wait_for_code_with_manual_fallback,
 )
 
 ZAAP_GAME_ID = 102
@@ -25,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 async def _request_and_validate_email_certificate(
     haapi: Haapi,
-    mailbox: MailboxSettings,
+    mail_provider: MailCodeProvider | None,
     since: datetime,
     timeout_seconds: int,
 ) -> DecipheredCertif:
@@ -36,21 +37,21 @@ async def _request_and_validate_email_certificate(
     domain = haapi.get_security_code("EMAIL")
     logger.info("[OAuth] Shield security code requested (domain=%s)", domain)
 
-    client = ImapMailboxClient(mailbox)
-    code = await client.wait_for_code(since=since, timeout_seconds=timeout_seconds)
+    code = await wait_for_code_with_manual_fallback(
+        mail_provider, since=since, timeout_seconds=timeout_seconds
+    )
     if code is None:
         raise MailboxCodeTimeoutError(f"Timed out waiting for Shield/OTP code in mailbox for {haapi.login}")
 
     certif = haapi.validate_code(code, ZAAP_GAME_ID)
     logger.info("[OAuth] Certificate obtained (id=%s)", certif.id)
-    CryptoHelper.store_certificate(certif)
     return certif
 
 
 async def resolve_shield(
     haapi: Haapi,
     account_info: SignOnResponse | None,
-    mailbox: MailboxSettings,
+    mail_provider: MailCodeProvider | None,
     started_at: datetime,
     *,
     timeout_seconds: int = 300,
@@ -62,23 +63,25 @@ async def resolve_shield(
         return None
 
     if has_shield:
-        return await _request_and_validate_email_certificate(haapi, mailbox, started_at, timeout_seconds)
+        return await _request_and_validate_email_certificate(
+            haapi, mail_provider, started_at, timeout_seconds
+        )
 
     logger.info("[OAuth] OTP required; waiting for code in mailbox...")
-    client = ImapMailboxClient(mailbox)
-    code = await client.wait_for_code(since=started_at, timeout_seconds=timeout_seconds)
+    code = await wait_for_code_with_manual_fallback(
+        mail_provider, since=started_at, timeout_seconds=timeout_seconds
+    )
     if code is None:
         raise MailboxCodeTimeoutError(f"Timed out waiting for Shield/OTP code in mailbox for {haapi.login}")
 
     certif = haapi.validate_otp(code, ZAAP_GAME_ID)
     logger.info("[OAuth] Certificate obtained (id=%s)", certif.id)
-    CryptoHelper.store_certificate(certif)
     return certif
 
 
 async def secure_apikey_via_email(
     haapi: Haapi,
-    mailbox: MailboxSettings,
+    mail_provider: MailCodeProvider | None,
     since: datetime,
     *,
     timeout_seconds: int = 300,
@@ -99,7 +102,7 @@ async def secure_apikey_via_email(
     """
     logger.info("[OAuth] Securing apikey via forced email Shield flow...")
     try:
-        return await _request_and_validate_email_certificate(haapi, mailbox, since, timeout_seconds)
+        return await _request_and_validate_email_certificate(haapi, mail_provider, since, timeout_seconds)
     except ShieldNotRequiredError:
         logger.info(
             "[OAuth] Apikey does not need securing (NONEEDTOBESECURED); proceeding without certificate."

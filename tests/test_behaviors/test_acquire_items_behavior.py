@@ -2,9 +2,9 @@ from collections.abc import Callable
 from typing import cast
 from unittest.mock import MagicMock
 
-from ankama_launcher_emulator_premium.interfaces.zaap_files import GameSubscription
-from datas.protos.non_obf.game.common_pb2 import ObjectItem, ObjectItemInventory
-from dofus_unity_reader.game_constants.item import CategoryItemEnum, ItemEnum
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.zaap_files import GameSubscription
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItem, ObjectItemInventory
+from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum, ItemEnum
 from pytest import MonkeyPatch
 
 from src.consts import MIN_DATE

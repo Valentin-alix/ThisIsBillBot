@@ -7,8 +7,8 @@ from unittest.mock import patch
 
 import pytest
 
-import proto_mapper_assembly.scripts.ida_tracer_lib.progress.reporter
-from proto_mapper_assembly.scripts.ida_tracer_lib import main as ida_main
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib import main as ida_main
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.progress import reporter
 
 
 class _CompletedThread:
@@ -170,7 +170,7 @@ class TestIdaTracerMain:
         stop_event.set()
         stream = io.StringIO()
 
-        proto_mapper_assembly.scripts.ida_tracer_lib.progress.reporter._watch_progress_file(
+        reporter._watch_progress_file(
             progress_path, stop_event, stream
         )
 

@@ -4,45 +4,45 @@ from collections.abc import Sequence
 
 import idaapi
 
-from proto_mapper_assembly.interfaces.assembly_access import AccessEntry, FieldAccessEntry
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
-from proto_mapper_assembly.scripts.ida_tracer_lib.core.function_inspector import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessEntry, FieldAccessEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.core.function_inspector import (
     get_operation_index_inside_function,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.core.operands import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.core.operands import (
     get_displacement_value,
     read_immediate_operand_value,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.lookups.accessor_candidate import AccessorCandidate
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.accessor_candidate import AccessorCandidate
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import (
     IENUMERATOR_INTERFACE_SLOT_DISPLACEMENT,
     KVP_VALUE_POINTER_OFFSET,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.interproc_calls import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.interproc_calls import (
     resolve_accessor_candidate_for_call,
     resolve_inline_ienumerator_current_cls,
     resolve_inline_kvp_current_cls,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.simulation.static_loads import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.static_loads import (
     handle_static_tracker_load,
     handle_typeinfo_load,
     static_lookup_contains_operand,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.encoding import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.encoding import (
     decode_field_address,
     decode_object_offset,
     encode_field_address,
     encode_object_offset,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.invalidation import invalidate_heap_slots_for_register
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.invalidation import invalidate_heap_slots_for_register
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
     HeapState,
     RegisterState,
     StackFrameState,
     StackState,
     TrackedValue,
 )
-from proto_mapper_assembly.scripts.ida_tracer_lib.state.value_resolution import get_stack_slot
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.value_resolution import get_stack_slot
 
 
 def _resolve_xmm0_register_number() -> int:

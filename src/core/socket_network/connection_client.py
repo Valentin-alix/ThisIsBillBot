@@ -2,7 +2,7 @@ import threading
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from datas.protos.non_obf.connection.login_message_pb2 import LoginMessage
+from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import LoginMessage
 from google.protobuf.message import Message
 
 from src import consts

@@ -1,9 +1,10 @@
 from dataclasses import dataclass, field
+from functools import cached_property
 
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.data_center.i18n import I18N
-from dofus_unity_reader.game_constants.npc import NpcDialogInfo, NpcInfo
-from dofus_unity_reader.models.datas.dungeons_root import DungeonsRootItem
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.game_constants.npc import NpcDialogInfo, NpcInfo
+from DBDofusUnity.dofus_unity_reader.models.datas.dungeons_root import DungeonsRootItem
 
 from src.core.engine.npcs.dialog_turn import DialogTurn
 from src.core.engine.npcs.reply_selector import ByText
@@ -38,7 +39,7 @@ class DungeonInfo:
         assert len(exit_maps) == 1, f"Expected one exit map named {exit_map_name!r}, got {exit_maps}"
         self.exit_dialog_map_id = exit_maps[0].id
 
-    @property
+    @cached_property
     def name(self) -> str:
         return I18N().name_by_id[self.dungeon.nameId]
 

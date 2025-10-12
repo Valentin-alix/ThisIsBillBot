@@ -7,8 +7,8 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_builder
     make_simple_context,
 )
 
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.runtime.runtime_remapping import remap_runtime_instances
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_remapping import remap_runtime_instances
 
 
 class TestRemapRuntimeInstancesBasic:

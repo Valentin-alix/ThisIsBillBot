@@ -3,16 +3,13 @@ import socket
 from dataclasses import dataclass, field
 from socket import AF_INET6
 from socket import socket as Socket
-from threading import Thread
+from threading import Lock, Thread
 from time import sleep
 
 import socks
 
-from ankama_launcher_emulator_premium.proxy.dofus3.connection_proxy import (
-    ConnectionProxy,
-)
-from ankama_launcher_emulator_premium.proxy.dofus3.proxy import Proxy
-from ankama_launcher_emulator_premium.utils.proxy import get_info_by_proxy_url
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.proxy.dofus3.proxy import Proxy
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.proxy import get_info_by_proxy_url
 
 logger = logging.getLogger()
 
@@ -23,21 +20,11 @@ DOFUS_CONNECTION_PORT = 5555
 @dataclass
 class ProxyListener:
     proxies: list[Proxy] = field(default_factory=lambda: [], init=False)
+    _proxies_lock: Lock = field(default_factory=Lock, init=False)
     _listener_sockets: list[Socket] = field(default_factory=lambda: [], init=False)
     _shutdown_requested: bool = field(default=False, init=False)
-    _initial_port: int | None = field(default=None, init=False)
-    _proxy_url: str | None = field(default=None, init=False)
 
     def create_bridge(self, client_socket: Socket, server_socket: Socket, host_port: int) -> Proxy | None:
-        if host_port == self._initial_port:
-            return ConnectionProxy(
-                on_game_connection_callback=lambda target_address: self.start_game_listener(
-                    target_address,
-                    proxy_url=self._proxy_url,
-                ),
-                client_socket=client_socket,
-                server_socket=server_socket,
-            )
         return Proxy(client_socket=client_socket, server_socket=server_socket)
 
     def start_game_listener(
@@ -68,8 +55,6 @@ class ProxyListener:
     ) -> int:
         proxy_socket = self.create_server(port)
         bound_port = proxy_socket.getsockname()[1]
-        self._initial_port = bound_port
-        self._proxy_url = proxy_url
         Thread(
             target=lambda: self.start_listener(
                 proxy_socket,
@@ -96,7 +81,7 @@ class ProxyListener:
                 try:
                     server_socket.connect(target_address)
                 except (TimeoutError, socket.gaierror, OSError) as err:
-                    if retry > 0:
+                    if retry > 0 and not self._shutdown_requested:
                         sleep(1)
                         connect_with_retry(retry - 1)
                     else:
@@ -142,7 +127,8 @@ class ProxyListener:
         bridge = self.create_bridge(client_socket, server_socket, host_port)
         if bridge is None:
             return
-        self.proxies.append(bridge)
+        with self._proxies_lock:
+            self.proxies.append(bridge)
         bridge.loop()
 
     def create_server(self, port: int = 0) -> Socket:
@@ -157,9 +143,11 @@ class ProxyListener:
 
     def shutdown(self) -> None:
         self._shutdown_requested = True
-        for proxy in self.proxies:
+        with self._proxies_lock:
+            proxies_to_close = list(self.proxies)
+            self.proxies.clear()
+        for proxy in proxies_to_close:
             proxy.close()
-        self.proxies.clear()
         for sock in self._listener_sockets:
             try:
                 sock.close()

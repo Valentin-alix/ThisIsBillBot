@@ -9,11 +9,11 @@ from pydantic import (
     RootModel,
 )
 
-from proto_mapper_assembly.interfaces.assembly_access import (
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     FieldAccessSignatures,
     FunctionAccessSignature,
 )
-from proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
 
 type EnumHintSlot = Literal["key", "value"]
 

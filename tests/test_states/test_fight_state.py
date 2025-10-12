@@ -1,10 +1,10 @@
 from unittest.mock import MagicMock
 
 import pytest
-from datas.protos.non_obf.game.character_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicsEvent,
 )
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
     CharacterCharacteristicDetailed,
@@ -15,21 +15,21 @@ from datas.protos.non_obf.game.common_pb2 import (
     FightStartingPositions,
     Team,
 )
-from datas.protos.non_obf.game.fight_pb2 import FightRefreshCharacterStatsEvent
-from datas.protos.non_obf.game.fight_preparation_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.fight_pb2 import FightRefreshCharacterStatsEvent
+from DBDofusUnity.datas.protos.non_obf.game.fight_preparation_pb2 import (
     FightPlacementPossiblePositionsEvent,
 )
-from datas.protos.non_obf.game.game_action_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightCastRequest,
     GameActionFightEvent,
 )
-from datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
-from dofus_unity_reader.game_constants.breed import BreedEnum
-from dofus_unity_reader.game_constants.characteristic import (
+from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
+from DBDofusUnity.dofus_unity_reader.game_constants.breed import BreedEnum
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import (
     CharacteristicEnum,
     EffectElement,
 )
-from dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 from pytest import MonkeyPatch
 
 from src import consts

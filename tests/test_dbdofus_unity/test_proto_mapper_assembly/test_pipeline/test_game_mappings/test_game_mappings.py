@@ -12,21 +12,21 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.pipeline_builde
     simple_match_result,
 )
 
-from proto_mapper_assembly.controllers.game_mappings import (
+from DBDofusUnity.proto_mapper_assembly.controllers.game_mappings import (
     build_full_message_namespace,
     build_game_mappings_document,
     build_simple_game_mappings_document,
     validate_game_mapping_targets,
     write_game_mappings,
 )
-from proto_mapper_assembly.controllers.excluded_non_obf import split_excluded_non_obf_messages
-from proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from proto_mapper_assembly.interfaces.field_mapping_rejected_infos import ValidationFailureRejectedInfo
-from proto_mapper_assembly.interfaces.game_mappings import GameMappingsDocument
-from proto_mapper_assembly.interfaces.matching import MatchResult
-from proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
-from proto_mapper_assembly.interfaces.runtime_data import ObservedRootObfMessage
-from proto_mapper_assembly.validators.auto_mode_mapping_contract import (
+from DBDofusUnity.proto_mapper_assembly.controllers.excluded_non_obf import split_excluded_non_obf_messages
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping_rejected_infos import ValidationFailureRejectedInfo
+from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import GameMappingsDocument
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchResult
+from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.runtime_data import ObservedRootObfMessage
+from DBDofusUnity.proto_mapper_assembly.validators.auto_mode_mapping_contract import (
     AutoModeMappingContractError,
     check_auto_mode_mappings,
 )
@@ -457,7 +457,7 @@ class TestGameMappings:
             return None
 
         monkeypatch.setattr(
-            "proto_mapper_assembly.controllers.game_mappings.validate_game_mapping_targets",
+            "DBDofusUnity.proto_mapper_assembly.controllers.game_mappings.validate_game_mapping_targets",
             skip_generated_target_validation,
         )
         output_path = tmp_path / "game_mappings.json"

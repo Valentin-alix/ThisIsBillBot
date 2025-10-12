@@ -1,35 +1,34 @@
 from dataclasses import dataclass, field
 from functools import partial
 
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
-from datas.protos.non_obf.game.exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeObjectMoveRequest,
 )
-from datas.protos.non_obf.game.guild_chest_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.guild_chest_pb2 import (
     GuildChestTabSelectRequest,
 )
-from datas.protos.non_obf.game.inventory_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import (
     InventoryWeightEvent,
     StorageInventoryContentEvent,
 )
-from dofus_unity_reader.data_center.data_reader import DataReader
-from dofus_unity_reader.game_constants.item import ItemTypeEnum
-
-from src.core.behaviors.recovery import RecoverableBehavior
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.game_constants.guild import UNBOUNDED_CHEST_TAB_NUMBER
+from DBDofusUnity.dofus_unity_reader.game_constants.item import ItemTypeEnum
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
     AutoTripSmartBehavior,
 )
+from src.core.behaviors.recovery_behavior import RecoverableBehavior
 from src.core.behaviors.storage.enter_chests.enter_guild_chest_behavior import (
     EnterGuildChestBehavior,
 )
-from src.services.human_timings import HumanTimingsService
 from src.core.engine.items.item import is_exchangeable_item
 from src.core.engine.items.item_formatter import format_item_name
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
-from dofus_unity_reader.game_constants.guild import UNBOUNDED_CHEST_TAB_NUMBER
+from src.services.human_timings import HumanTimingsService
 
 
 @dataclass

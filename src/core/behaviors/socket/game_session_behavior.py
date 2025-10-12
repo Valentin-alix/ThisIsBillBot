@@ -5,20 +5,20 @@ from datetime import datetime
 from math import floor
 
 from connection_pb2 import PongEvent
-from datas.protos.non_obf.game.basic_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.basic_pb2 import (
     BasicLatencyStatsEvent,
     BasicLatencyStatsRequest,
     SequenceNumberEvent,
     SequenceNumberRequest,
 )
-from datas.protos.non_obf.game.challenge_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.challenge_pb2 import (
     ChallengeBonusChoiceRequest,
     ChallengeModSelectRequest,
     ChallengeProposalEvent,
     ChallengeReadyRequest,
     ChallengeSelectionRequest,
 )
-from datas.protos.non_obf.game.client_verification_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.client_verification_pb2 import (
     ClientChallengeInitRequest,
     ClientChallengeProofRequest,
     ClientIdRequest,
@@ -26,20 +26,20 @@ from datas.protos.non_obf.game.client_verification_pb2 import (
     ServerSessionReadyEvent,
     ServerVerificationEvent,
 )
-from datas.protos.non_obf.game.common_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ChallengeBonus,
     ChallengeMod,
 )
-from datas.protos.non_obf.game.fight_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.fight_pb2 import (
     FightIsTurnReadyEvent,
     FightTurnReadyRequest,
 )
-from datas.protos.non_obf.game.game_action_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import (
     GameActionAcknowledgementRequest,
     SequenceEndEvent,
     SequenceStartEvent,
 )
-from datas.protos.non_obf.game.gamemap_pb2 import FightMapInformationEvent
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import FightMapInformationEvent
 
 from src.controller.bot_config import BotConfigService
 from src.core.behaviors.behavior import Behavior
