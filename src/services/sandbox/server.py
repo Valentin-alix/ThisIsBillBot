@@ -1,3 +1,4 @@
+import json
 import logging
 import socket
 import threading
@@ -13,12 +14,19 @@ logger = logging.getLogger(__name__)
 
 
 def _format_result(result: SandboxResult) -> str:
-    parts = [f"STDOUT:\n{result.stdout}"]
-    if result.result_repr is not None:
-        parts.append(f"RESULT:\n{result.result_repr}")
-    if result.error is not None:
-        parts.append(f"ERROR:\n{result.error}")
-    return "\n".join(parts) + "\n"
+    payload: dict[str, str | None] = {"stdout": result.stdout, "result": result.result_repr, "error": result.error}
+    return json.dumps(payload) + "\n"
+
+
+def _bot_status(account_id: int, bot: Bot) -> dict[str, object]:
+    running_behaviors = bot.behavior_coordinator.running_top_level_behaviors()
+    return {
+        "login": bot.account.apikey.login,
+        "account_id": account_id,
+        "connected": bot.is_connected_event.is_set(),
+        "in_fight": bot.game_state.fight.in_fight,
+        "current_behavior": running_behaviors[0].__class__.__name__ if running_behaviors else None,
+    }
 
 
 class SandboxServer:
@@ -79,13 +87,20 @@ class SandboxServer:
             selection = selection.strip()
 
             if selection == "list":
-                logins = ", ".join(bot.account.apikey.login for bot in self._bot_by_account_id.values())
-                connection.sendall(f"{logins}\n".encode())
+                bots = [
+                    _bot_status(account_id, bot) for account_id, bot in self._bot_by_account_id.items()
+                ]
+                connection.sendall((json.dumps({"bots": bots}) + "\n").encode())
                 return
 
             bot = self._find_bot(selection)
             if bot is None:
-                connection.sendall(f"ERROR:\nUnknown bot login {selection!r}\n".encode())
+                error_payload: dict[str, str | None] = {
+                    "stdout": "",
+                    "result": None,
+                    "error": f"Unknown bot login {selection!r}",
+                }
+                connection.sendall((json.dumps(error_payload) + "\n").encode())
                 return
 
             try:

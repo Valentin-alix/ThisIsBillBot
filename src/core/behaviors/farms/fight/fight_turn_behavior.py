@@ -1,39 +1,28 @@
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
-from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
-    CharacterCharacteristic,
-    CharacterCharacteristicDetailed,
-)
 from DBDofusUnity.datas.protos.non_obf.game.fight_pb2 import (
     FightTurnEvent,
     FightTurnFinishRequest,
 )
-from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import GameActionFightEvent
-from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import SpellLevelsRootItem
-
-from src.core.behaviors.behavior import Behavior
+from src.core.behaviors.farms.fight.fight_listener_behavior import FightListenerBehavior
 from src.core.behaviors.farms.fight.fight_movement_behavior import FightMovementBehavior
 from src.core.behaviors.farms.fight.fight_spell_behavior import FightSpellBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.engine.contexts import AttackContext
 from src.core.engine.fights.attack.attacker import Attacker
-from src.core.engine.fights.attack.buff import find_best_self_buff
-from src.core.engine.fights.attack.heal import find_best_self_heal
-from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
+from src.core.engine.fights.attack.breed_abilities import BreedAbilitySelector
 from src.services.human_timings import HumanTimingsService
-
-DO_RUNAWAY_AFTER_ATK = True
 
 
 @dataclass
-class FightTurnBehavior(Behavior):
+class FightTurnBehavior(FightListenerBehavior):
     fight_movement_behavior: FightMovementBehavior
-    path_finding: Pathfinding
     fight_spell_behavior: FightSpellBehavior
-    attacker: Attacker
+    attack_selector: Attacker
+    breed_ability_selector: BreedAbilitySelector
 
     did_attack: bool = field(init=False, default=False)
     did_cast_support_spell: bool = field(init=False, default=False)
@@ -44,11 +33,7 @@ class FightTurnBehavior(Behavior):
         self.did_cast_support_spell = False
         self.last_cast_spell_id = None
         self.event_manager.on(FightTurnEvent, lambda _: self.finish(), originator=self)
-        self.event_manager.on(
-            GameActionFightEvent,
-            self.on_game_action_fight_event,
-            originator=self,
-        )
+        self.register_fight_death_check()
         context = self._get_attack_context_or_finish()
         if context is None:
             return
@@ -57,7 +42,7 @@ class FightTurnBehavior(Behavior):
             f"AP {context.action_points}, MP {context.movement_points}, "
             f"{len(context.enemy_actors)} enemies"
         )
-        self.try_primary_attack_or_continue()
+        self._advance_turn()
 
     def _get_attack_context_or_finish(self) -> AttackContext | None:
         context = self.game_state.get_attack_context_if_available()
@@ -69,14 +54,10 @@ class FightTurnBehavior(Behavior):
             self.finish()
         return None
 
-    def on_game_action_fight_event(self, msg: GameActionFightEvent) -> None:
-        if msg.HasField("death") and (msg.death.target_id == self.game_state.player.character_id):
-            self.finish(MapMoveError.PLAYER_DEAD)
-
     def _cast_self_spell(
         self,
+        context: AttackContext,
         spell_lvl: SpellLevelsRootItem,
-        target_mp: MapPoint,
         on_done: Callable[[], None],
     ) -> None:
         def on_finished(error_code: str | None) -> None:
@@ -84,7 +65,7 @@ class FightTurnBehavior(Behavior):
             self.did_cast_support_spell = True
             on_done()
 
-        self._schedule_spell_cast(spell_lvl.spellId, target_mp, on_finished)
+        self._schedule_spell_cast(spell_lvl.spellId, context.player_map_point, on_finished)
 
     def _schedule_spell_cast(
         self,
@@ -100,85 +81,90 @@ class FightTurnBehavior(Behavior):
                 spell_id=spell_id, target_mp=target_mp, parent=self, callback=callback
             )
 
-        self.run_timer(
-            HumanTimingsService().get_timing_fight_action(same_spell),
-            start_spell,
-        )
+        self.run_timer(HumanTimingsService().get_timing_fight_action(same_spell), start_spell)
 
-    def try_primary_attack_or_continue(self) -> None:
+    def _attack_context_with_reserved_ap(self, context: AttackContext) -> AttackContext:
+        """Cap the AP the attack search may spend, holding back a pending support action's AP."""
+        reserved_ap = self.breed_ability_selector.get_reserved_ap(context)
+        if reserved_ap <= 0:
+            return context
+        return replace(context, action_points=max(context.action_points - reserved_ap, 0))
+
+    def _advance_turn(self, stage: int = 0) -> None:
+        """One-way waterfall (urgent breed action, primary attack, heal, buff): each
+        stage retries itself until it finds nothing, then falls through and never
+        re-checks."""
         context = self._get_attack_context_or_finish()
         if context is None:
             return
-        attack_info = self.attacker.find_best_attack_from_mp(
-            context,
-            allowed_elements=frozenset({*context.primary_and_second_elem}),
-        )
-        if attack_info is None:
-            return self.try_self_heal_or_continue()
-        self._do_attack(attack_info, self.try_primary_attack_or_continue)
 
-    def try_self_heal_or_continue(self) -> None:
-        context = self._get_attack_context_or_finish()
-        if context is None:
-            return
-        heal_spell = find_best_self_heal(context, self.logger)
-        if heal_spell is None:
-            return self.try_self_buff_or_continue()
-        self._cast_self_spell(
-            heal_spell,
-            context.player_map_point,
-            self.try_self_heal_or_continue,
-        )
+        if stage <= 0:
+            urgent_action = self.breed_ability_selector.find_urgent_support_action(
+                self._attack_context_with_reserved_ap(context)
+            )
+            if urgent_action is not None:
+                _, urgent_spell_lvl, _ = urgent_action
+                return self._cast_self_spell(context, urgent_spell_lvl, lambda: self._advance_turn(1))
+            stage = 1
 
-    def try_self_buff_or_continue(self) -> None:
-        """Cast beneficial self-buffs (once each per fight) before secondary attacks.
+        if stage <= 1:
+            primary_attack_info = self.attack_selector.find_best_attack_from_mp(
+                self._attack_context_with_reserved_ap(context),
+                allowed_elements=frozenset({*context.primary_and_second_elem}),
+            )
+            if primary_attack_info is not None:
+                return self._do_move_then_attack(primary_attack_info, lambda: self._advance_turn(1))
+            stage = 2
 
-        Buffs boost the damage of every subsequent cast this turn. Re-entered after
-        each buff; terminates once all buffs are used or AP/cast limits are reached.
-        """
-        context = self._get_attack_context_or_finish()
-        if context is None:
-            return
-        buff_spell = find_best_self_buff(context, self.logger)
-        if buff_spell is None:
-            return self.find_and_do_attack()
-        self._cast_self_spell(buff_spell, context.player_map_point, self.try_self_buff_or_continue)
+        if stage <= 2:
+            heal_spell = self.attack_selector.find_best_self_heal(
+                self._attack_context_with_reserved_ap(context)
+            )
+            if heal_spell is not None:
+                return self._cast_self_spell(context, heal_spell, lambda: self._advance_turn(2))
+            stage = 3
 
-    def find_and_do_attack(self) -> None:
-        context = self._get_attack_context_or_finish()
-        if context is None:
-            return
+        if stage <= 3:
+            buff_spell = self.attack_selector.find_best_self_buff(
+                self._attack_context_with_reserved_ap(context)
+            )
+            if buff_spell is not None:
+                return self._cast_self_spell(context, buff_spell, lambda: self._advance_turn(3))
+
+        self._find_move_attack(context)
+
+    def _find_move_attack(self, context: AttackContext) -> None:
         if not context.enemy_actors:
             self.logger.info("No enemies left, passing turn")
             return self.pass_turn()
 
-        attack_info = self.attacker.find_best_attack_from_mp(context)
+        attack_info = self.attack_selector.find_best_attack_from_mp(
+            self._attack_context_with_reserved_ap(context)
+        )
         if attack_info is None:
-            self.logger.info("Attack not found")
-            if DO_RUNAWAY_AFTER_ATK and self.did_attack:
-                self.logger.info("Go go run away")
-                run_away = True
-            else:
-                run_away = False
+            support_action = self.breed_ability_selector.find_support_action(context)
+            if support_action is not None:
+                return self._do_move_then_attack(support_action, self._retry_find_and_do_attack)
 
-            def on_movement_finished(error_code: str | None) -> None:
-                self.on_fight_movement_behavior_finished(
-                    error_code,
-                    callback=lambda: self.run_timer(
-                        HumanTimingsService().get_timing_before_pass_turn(),
-                        self.pass_turn,
-                    ),
-                )
+            attack_info = self.attack_selector.find_best_attack_from_mp(context)
 
-            return self.fight_movement_behavior.start(
-                callback=on_movement_finished,
-                parent=self,
-                run_away=run_away,
+        if attack_info is not None:
+            return self._do_move_then_attack(attack_info, self._retry_find_and_do_attack)
+
+        self.logger.info("Attack not found")
+
+        def on_movement_finished(error_code: str | None, cell_mp: MapPoint | None = None) -> None:
+            self.on_fight_movement_behavior_finished(
+                error_code,
+                cell_mp,
+                callback=lambda: self.run_timer(
+                    HumanTimingsService().get_timing_before_pass_turn(), self.pass_turn
+                ),
             )
 
-        self._do_attack(attack_info, self.find_and_do_attack)
+        return self.fight_movement_behavior.start(callback=on_movement_finished, parent=self)
 
-    def _do_attack(
+    def _do_move_then_attack(
         self,
         attack_info: tuple[MapPoint, SpellLevelsRootItem, MapPoint],
         on_replan: Callable[[], None],
@@ -187,13 +173,7 @@ class FightTurnBehavior(Behavior):
         move_mp, spell_lvl, attack_mp = attack_info
 
         position_before_move = self.game_state.map.map_point
-        move_path = self.path_finding.find_path(
-            self.game_state.get_map_movement_context(),
-            position_before_move,
-            {move_mp},
-            allow_diag=False,
-            allow_trough_entity=False,
-        )
+        move_path = self.fight_movement_behavior.find_path_to_cell(move_mp)
 
         def cast_attack() -> None:
             current_mp = self.game_state.map.map_point
@@ -212,49 +192,46 @@ class FightTurnBehavior(Behavior):
                 self.on_fight_spell_behavior_finished,
             )
 
-        def on_attack_movement_finished(error_code: str | None) -> None:
+        def on_attack_movement_finished(error_code: str | None, cell_mp: MapPoint | None = None) -> None:
             self.on_fight_movement_behavior_finished(
                 error_code,
+                cell_mp,
                 callback=cast_attack,
             )
 
         self.fight_movement_behavior.start(
-            callback=on_attack_movement_finished,
-            parent=self,
-            move_path=move_path,
+            callback=on_attack_movement_finished, parent=self, move_path=move_path
         )
 
     def on_fight_movement_behavior_finished(
-        self, error_code: str | None, callback: Callable[[], None]
+        self,
+        error_code: str | None,
+        cell_mp: MapPoint | None,
+        callback: Callable[[], None],
     ) -> None:
         if error_code is MapMoveError.PLAYER_DEAD:
             return self.finish(error_code)
         if error_code is MapMoveError.CANCELED_MOVEMENT:
-            return self.find_and_do_attack()
-        if error_code is MapMoveError.REFUSED:
-            self.game_state.fight.update_characteristic(
-                CharacterCharacteristic(
-                    characteristic_id=CharacteristicEnum.MOVEMENT_POINTS,
-                    detailed=CharacterCharacteristicDetailed(
-                        base=6,
-                        additional=0,
-                        objects_and_mount_bonus=0,
-                        alignment_gift_bonus=0,
-                        context_modification=-6,
-                        temporary=0,
-                    ),
-                )
-            )
-            return self.find_and_do_attack()
+            return self._retry_find_and_do_attack()
         elif error_code is MapMoveError.CELL_TAKEN:
-            return self.pass_turn()
+            assert cell_mp
+            self.logger.info(f"Cell {cell_mp.cell_id} taken (likely invisible enemy), blocking it")
+            self.game_state.fight.add_invisible_enemy_cell(cell_mp.cell_id)
+            return self._retry_find_and_do_attack()
         elif error_code is not None:
+            self.logger.error(f"Unexpected map move error during fight turn: {error_code}")
             return self.pass_turn()
         callback()
 
+    def _retry_find_and_do_attack(self) -> None:
+        context = self._get_attack_context_or_finish()
+        if context is None:
+            return
+        self._find_move_attack(context)
+
     def on_fight_spell_behavior_finished(self, error_code: str | None) -> None:
         self.raise_if_error(error_code)
-        self.try_primary_attack_or_continue()
+        self._advance_turn()
 
     def pass_turn(self) -> None:
         context = self.game_state.get_attack_context_if_available()

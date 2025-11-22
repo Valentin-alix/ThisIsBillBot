@@ -2,13 +2,9 @@ from functools import partial
 from pathlib import Path
 from typing import Any, cast
 
-from DBDofusUnity.consts import PINNED_PAIRS_FILE
 from google.protobuf.descriptor import Descriptor
-from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import (
-    upsert_pinned_field_mapping,
-    upsert_pinned_pair,
-)
-from PyQt6.QtCore import QModelIndex, QStringListModel, Qt, pyqtSlot
+from PyQt6.QtCore import QModelIndex, QStringListModel, Qt, QTimer, pyqtSlot
+from PyQt6.QtGui import QHideEvent, QShowEvent
 from PyQt6.QtWidgets import (
     QCompleter,
     QHBoxLayout,
@@ -28,6 +24,11 @@ from qfluentwidgets import (
     SubtitleLabel,
 )
 
+from DBDofusUnity.consts import PINNED_PAIRS_FILE
+from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import (
+    upsert_pinned_field_mapping,
+    upsert_pinned_pair,
+)
 from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
 from src.gui.pages.debugs.listeners_stats import ListenersStatsWidget
@@ -191,11 +192,14 @@ class SnifferWidget(QWidget):
         self,
         bot: Bot,
         global_log_signals: LogSignals,
+        use_recorder_feed: bool = True,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         self.bot = bot
         self.global_log_signals = global_log_signals
+        self._use_recorder_feed = use_recorder_feed
+        self._message_cursor = 0
         self.is_playing: bool = True
         self._current_detail_msg_info: MessageInfo | None = None
         self.v_layout = QVBoxLayout()
@@ -204,7 +208,14 @@ class SnifferWidget(QWidget):
         self.setLayout(self.v_layout)
         self.init_top_content()
         self.init_content()
-        self.bot.msg_info_signals.msg_info.connect(profiled_slot(self.on_receive_msg_info))
+        self._feed_timer = QTimer(self)
+        self._feed_timer.setInterval(100)
+        self._feed_timer.timeout.connect(self._poll_recorder_messages)
+        if self._use_recorder_feed:
+            self.bot.msg_info_signals.set_capture_enabled(False)
+        else:
+            self.bot.msg_info_signals.msg_info.connect(profiled_slot(self.on_receive_msg_info))
+            self.bot.msg_info_signals.set_capture_enabled(True)
 
     def init_top_content(self) -> None:
         top_content = QWidget(self)
@@ -256,7 +267,7 @@ class SnifferWidget(QWidget):
         custom_filter = LineEdit(wrapper_filter)
         wrapper_filter_layout.addWidget(custom_filter)
         custom_filter.setPlaceholderText("Contenu")
-        custom_filter.textChanged.connect(partial(self.msg_table.table.header.on_new_filter_input, 4))
+        custom_filter.textChanged.connect(partial(self.msg_table.table.header.on_new_filter_input, 3))
 
         left_widget_layout.addWidget(wrapper_filter)
         left_widget_layout.addWidget(self.msg_table)
@@ -344,12 +355,27 @@ class SnifferWidget(QWidget):
     @pyqtSlot()
     def on_play(self) -> None:
         self.is_playing = True
+        if self._use_recorder_feed:
+            self._message_cursor = self.bot.debug_recorder.latest_message_sequence
+            if self.isVisible():
+                self._feed_timer.start()
+        else:
+            self.bot.msg_info_signals.set_capture_enabled(True)
+        if self.logs_widget is not None:
+            self.logs_widget.set_capture_enabled(True)
         self.play_btn.hide()
         self.stop_btn.show()
 
     @pyqtSlot()
     def on_stop(self) -> None:
         self.is_playing = False
+        if self._use_recorder_feed:
+            self._feed_timer.stop()
+            self._message_cursor = self.bot.debug_recorder.latest_message_sequence
+        else:
+            self.bot.msg_info_signals.set_capture_enabled(False)
+        if self.logs_widget is not None:
+            self.logs_widget.set_capture_enabled(False)
         self.stop_btn.hide()
         self.play_btn.show()
 
@@ -358,6 +384,25 @@ class SnifferWidget(QWidget):
         self.msg_table.clear()
         if self.logs_widget:
             self.logs_widget.logs_table.clear()
+
+    def showEvent(self, a0: QShowEvent | None) -> None:
+        self.msg_table.set_updates_active(True)
+        if self._use_recorder_feed and self.is_playing:
+            self._poll_recorder_messages()
+            self._feed_timer.start()
+        super().showEvent(a0)
+
+    def hideEvent(self, a0: QHideEvent | None) -> None:
+        self.msg_table.set_updates_active(False)
+        if self._use_recorder_feed:
+            self._feed_timer.stop()
+        super().hideEvent(a0)
+
+    def _poll_recorder_messages(self) -> None:
+        cursor, entries = self.bot.debug_recorder.recent_messages_after(self._message_cursor)
+        self._message_cursor = cursor
+        if entries:
+            self.msg_table.add_recent_entries(entries)
 
     @pyqtSlot(QModelIndex)
     def on_click_msg(self, model_index: QModelIndex) -> None:

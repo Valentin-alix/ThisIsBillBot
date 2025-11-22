@@ -1,5 +1,5 @@
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import partial
 
 from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
@@ -30,8 +30,16 @@ class MapMovementCancelBehavior(Behavior):
     path_finding: Pathfinding
     map_move_behavior: MapMoveBehavior
 
-    def run(self, final_move_path: MovementPath, cancellation_probability: float) -> None:
+    _watch_actor_id: int | None = field(init=False, default=None)
+
+    def run(
+        self,
+        final_move_path: MovementPath,
+        cancellation_probability: float,
+        watch_actor_id: int | None = None,
+    ) -> None:
         assert 0 <= cancellation_probability <= 1, "Cancellation probability must be between zero and one"
+        self._watch_actor_id = watch_actor_id
         if random.random() >= cancellation_probability:
             self._start_final_move(final_move_path)
             return
@@ -201,4 +209,6 @@ class MapMovementCancelBehavior(Behavior):
         self._start_final_move(final_path)
 
     def _start_final_move(self, move_path: MovementPath):
-        self.map_move_behavior.start(callback=self.finish, parent=self, move_path=move_path)
+        self.map_move_behavior.start(
+            callback=self.finish, parent=self, move_path=move_path, watch_actor_id=self._watch_actor_id
+        )

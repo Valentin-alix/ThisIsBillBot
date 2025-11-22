@@ -119,6 +119,8 @@ class FarmerWidget(QWidget):
 
         self._v_layout.addWidget(top_widget)
 
+        self.on_type_action_changed()
+
     def init_content(self) -> None:
         self.pivot = SegmentedWidget(self)
         self._v_layout.addWidget(self.pivot)

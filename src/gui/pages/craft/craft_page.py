@@ -1,4 +1,3 @@
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtWidgets import QVBoxLayout, QWidget
@@ -14,7 +13,6 @@ class CraftPage(QWidget):
         super().__init__(parent=parent)
 
         self.bot = bot
-        recipes: list[RecipeItem] = DataReader().recipes
         self.main_layout = QVBoxLayout()
         self.main_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignCenter)
         self.setLayout(self.main_layout)
@@ -31,7 +29,7 @@ class CraftPage(QWidget):
         self.stop_btn.hide()
 
         self.craft_table = RecipeTable(recipes=[], parent=self)
-        self.craft_group = RecipeGroup(recipes=recipes, parent=self)
+        self.craft_group = RecipeGroup(parent=self)
 
         self.craft_group.signals.clicked_elem_queue.connect(self.on_added_recipe_queue)
         self.craft_table.signals.removed_recipe.connect(self.on_removed_recipe_queue)

@@ -9,7 +9,6 @@ from DBDofusUnity.dofus_unity_reader.data_center.area_info import (
     AreaInfo,
 )
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
-
 from src.core.engine.contexts import HarvesterAreaContext
 from src.core.engine.weights.harvester.weight_collectable import (
     get_map_id_collectable_weight,
@@ -69,7 +68,7 @@ def is_valid_area_info_to_harvest(
     )
 
 
-def get_random_best_area_info_for_harvester(
+def get_random_best_area_info(
     old_area_id: int | None,
     old_sub_area_id: int | None,
     context: HarvesterAreaContext,
@@ -114,7 +113,7 @@ def get_random_best_area_info_for_harvester(
                 server_id,
             )
         count_area_already_playing = server_area_infos.count(area_info)
-        weight_by_areas_info[area_info] = weight / (
+        weight_by_areas_info[area_info] = (weight * area_info.weight_multiplier) / (
             1 + count_area_already_playing * 3 + previous_area_info_played.count(area_info)
         )
 

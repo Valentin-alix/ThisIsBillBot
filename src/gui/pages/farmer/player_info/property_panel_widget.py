@@ -1,6 +1,7 @@
 from typing import Any
 
 from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QShowEvent
 from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import SingleDirectionScrollArea
 
@@ -42,16 +43,25 @@ class PropertyPanelWidget(QWidget):
 
     def on_received_property(self, group_key: str, key: str, value: Any):
         self._pending_updates[(group_key, key)] = value
-        if not self._update_scheduled:
+        if self.isVisible() and not self._update_scheduled:
             self._update_scheduled = True
             QTimer.singleShot(0, self._flush_updates)
 
     def _flush_updates(self):
+        if not self.isVisible():
+            self._update_scheduled = False
+            return
         for (group_key, key), value in self._pending_updates.items():
             group_widget = self.get_or_create_group_widget(group_key)
             group_widget.add_or_update_property_label(key, str(value))
         self._pending_updates.clear()
         self._update_scheduled = False
+
+    def showEvent(self, a0: QShowEvent | None) -> None:
+        if self._pending_updates and not self._update_scheduled:
+            self._update_scheduled = True
+            QTimer.singleShot(0, self._flush_updates)
+        super().showEvent(a0)
 
     def get_or_create_group_widget(self, group_key: str) -> PropertyGroupWidget:
         group_widget = self.group_by_key.get(group_key)

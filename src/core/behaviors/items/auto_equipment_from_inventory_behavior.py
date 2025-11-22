@@ -18,7 +18,10 @@ from src.core.engine.items.item import get_equipment_on_position
 from src.core.engine.movements.world.criterions.group_item_criterion import GroupItemCriterion
 from src.services.human_timings import HumanTimingsService
 
-_EQUIP_MOVE_TIMEOUT_SECONDS = 15.0
+
+def _equipment_signature(item: ObjectItemInventory) -> tuple[int, tuple[bytes, ...]]:
+    effects = tuple(sorted(effect.SerializeToString(deterministic=True) for effect in item.item.effects))
+    return item.item.gid, effects
 
 
 @dataclass
@@ -28,12 +31,10 @@ class AutoEquipmentFromInventoryBehavior(Behavior):
     _positions_by_uid: dict[int, CharacterInventoryPositionEnum] = field(
         init=False, default_factory=lambda: dict[int, CharacterInventoryPositionEnum]()
     )
-    _pending_uid: int | None = field(init=False, default=None)
     _pending_position: CharacterInventoryPositionEnum | None = field(init=False, default=None)
 
     def run(self) -> None:
         self._positions_by_uid = {}
-        self._pending_uid = None
         self._pending_position = None
         self.choose_loadout()
 
@@ -59,11 +60,14 @@ class AutoEquipmentFromInventoryBehavior(Behavior):
             self.logger.info("No inventory equipment improves the current loadout")
             return self.finish()
 
-        self._positions_by_uid = {
-            item.item.uid: position
-            for position, item in best_equipped_by_pos.items()
-            if equipped_by_pos.get(position) is not item
-        }
+        self._positions_by_uid = {}
+        for position, item in best_equipped_by_pos.items():
+            equipped = equipped_by_pos.get(position)
+            if equipped is item:
+                continue
+            if equipped is not None and _equipment_signature(equipped) == _equipment_signature(item):
+                continue
+            self._positions_by_uid[item.item.uid] = position
         self.logger.info(
             "Equipping %s inventory item(s), score %.1f -> %.1f",
             len(self._positions_by_uid),
@@ -116,11 +120,40 @@ class AutoEquipmentFromInventoryBehavior(Behavior):
         best = dict(current)
         for positions, pool in candidates_by_positions.items():
             currently_equipped = [current[position] for position in positions if position in current]
-            options = pool + currently_equipped
+            canonical_by_gid: dict[int, ObjectItemInventory] = {}
+            for item in currently_equipped:
+                canonical_by_gid[item.item.gid] = item
+            for item in pool:
+                incumbent = canonical_by_gid.get(item.item.gid)
+                if incumbent is None or roll_score(item, primary_elem) > roll_score(incumbent, primary_elem):
+                    canonical_by_gid[item.item.gid] = item
+
+            seen_gids: set[int] = set()
+            options: list[ObjectItemInventory] = []
+            for item in pool + currently_equipped:
+                gid = item.item.gid
+                if gid in seen_gids:
+                    continue
+                seen_gids.add(gid)
+                options.append(canonical_by_gid[gid])
             chosen = sorted(options, key=lambda item: roll_score(item, primary_elem), reverse=True)[
                 : len(positions)
             ]
-            for position, item in zip(positions, chosen, strict=False):
+
+            chosen_ids = {item.item.uid for item in chosen}
+            retained = {
+                position: current[position]
+                for position in positions
+                if position in current and current[position].item.uid in chosen_ids
+            }
+            retained_uids = {item.item.uid for item in retained.values()}
+            remaining_items = [item for item in chosen if item.item.uid not in retained_uids]
+            remaining_positions = [position for position in positions if position not in retained]
+
+            for position in positions:
+                best.pop(position, None)
+            best.update(retained)
+            for position, item in zip(remaining_positions, remaining_items, strict=False):
                 best[position] = item
 
         return best
@@ -129,17 +162,19 @@ class AutoEquipmentFromInventoryBehavior(Behavior):
         if not self._positions_by_uid:
             return self.finish()
         uid, position = self._positions_by_uid.popitem()
-        if uid not in self.game_state.inventory.objects_by_uid:
+        if (
+            uid not in self.game_state.inventory.objects_by_uid
+            or self.game_state.inventory.objects_by_uid[uid].position
+            != CharacterInventoryPositionEnum.InventoryPositionNotEquiped
+        ):
             return self._equip_next()
-        self._pending_uid = uid
+
         self._pending_position = position
         self.event_manager.on(
             [ObjectMovementEvent, ObjectAddedEvent],
             self._on_equip_confirmed,
             originator=self,
             override_on_self=True,
-            timeout=_EQUIP_MOVE_TIMEOUT_SECONDS,
-            on_timeout=self._on_equip_timeout,
         )
         self.send_message_delayed(
             ObjectSetPositionRequest(object_uid=uid, quantity=1, position=position),
@@ -147,25 +182,9 @@ class AutoEquipmentFromInventoryBehavior(Behavior):
         )
 
     def _on_equip_confirmed(self, msg: ObjectMovementEvent | ObjectAddedEvent) -> None:
-        # Moving into an empty slot echoes back an ObjectMovementEvent for the same uid.
-        # Swapping into an already-occupied slot instead regenerates the item (new uid,
-        # possible set-bonus recalculation) and announces it via ObjectAddedEvent — same
-        # target position, different uid. Match on position, which is stable either way.
-        event_position = msg.position if isinstance(msg, ObjectMovementEvent) else msg.object.position
-        if event_position != self._pending_position:
+        position = msg.position if isinstance(msg, ObjectMovementEvent) else msg.object.position
+        if position != self._pending_position:
             return
         self.event_manager.clear_listener_by_origin(self)
-        self._pending_uid = None
-        self._pending_position = None
-        self._equip_next()
-
-    def _on_equip_timeout(self) -> None:
-        self.logger.warning(
-            "No equip confirmation for item %s at position %s after %.0fs, skipping it",
-            self._pending_uid,
-            self._pending_position,
-            _EQUIP_MOVE_TIMEOUT_SECONDS,
-        )
-        self._pending_uid = None
         self._pending_position = None
         self._equip_next()

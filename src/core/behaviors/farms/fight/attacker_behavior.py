@@ -11,12 +11,13 @@ from DBDofusUnity.datas.protos.non_obf.game.roleplay_pb2 import (
 )
 
 from src.controller.game_data import GameDataController
+from src.core import config
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.behaviors.movements.map_movement_cancel_behavior import MapMovementCancelBehavior
-from src.core.engine.monsters.monster_group import get_monster_group_gids
+from src.core.engine.monsters.monster_group import is_group_targetable
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.engine.weights.fighter.weight_monsters import (
     MonsterGroupToAttack,
@@ -39,7 +40,7 @@ class AttackerBehavior(Behavior):
     _count_fight_limit: int | None = field(init=False, default=None)
     _count_fighted_on_map: int = field(init=False, default=0)
     _wait_for_group: bool = field(init=False, default=False)
-    _get_lvl_limit: Callable[[int], float] = lambda level: level * 1.5 + 5
+    _get_lvl_limit: Callable[[int], float] = staticmethod(config.get_default_fight_group_lvl_limit)
     _force_attack: bool = field(init=False, default=False)
     _monster_ids: set[int] | None = field(init=False, default=None)
 
@@ -74,6 +75,7 @@ class AttackerBehavior(Behavior):
                 parent=self,
                 final_move_path=monster_group_info.move_path,
                 cancellation_probability=1 / 3,
+                watch_actor_id=monster_group_info.actor_id,
             ),
         )
 
@@ -82,6 +84,8 @@ class AttackerBehavior(Behavior):
             if error_code is MapMoveError.UNEXPECTED_NEW_MAP:
                 self.finish(MapChangeError.UNEXPECTED_NEW_MAP)
                 return
+            if error_code is MapMoveError.TARGET_UNREACHABLE:
+                return self.attack_enemy(excluded_group_actor_id=group_actor_id)
             if error_code in [
                 MapMoveError.INVALID_STARTING_POINT,
                 MapMoveError.CANCELED_MOVEMENT,
@@ -162,23 +166,19 @@ class AttackerBehavior(Behavior):
             if actor_id == excluded_group_actor_id:
                 continue
 
-            if self._monster_ids is not None and not (
-                self._monster_ids & get_monster_group_gids(monster_group)
-            ):
-                continue
-
             if self._force_attack:
                 self.logger.warning("Forcing attack, even to forbidden group")
-
-            if not self._force_attack and not GameDataController().is_group_allowed(monster_group):
+            elif not GameDataController().is_group_allowed(monster_group):
                 self.logger.info(f"Skipping forbidden monster group (actor_id={actor_id})")
                 continue
 
             monster_group_lvl = self.game_state.entity.get_level_monster_group(monster_group)
-            if not self.game_state.entity.is_valid_monster_group(
+            if not is_group_targetable(
+                self.logger,
                 monster_group,
                 monster_group_lvl,
                 self._get_lvl_limit(self.game_state.player.limited_lvl),
+                self._monster_ids,
             ):
                 continue
             move_path_to_group = self.path_finding.find_path(

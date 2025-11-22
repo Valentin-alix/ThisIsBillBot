@@ -23,8 +23,11 @@ from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
 from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import (
+    SpellItem,
     SpellsEvent,
+    SpellVariantActivationEvent,
 )
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 
 from src.controller.game_data import GameDataController
@@ -43,6 +46,12 @@ class FightFrame(Frame):
         self.event_manager.on(
             SpellsEvent,
             self.on_spells_event,
+            originator=self,
+            priority=self.priority,
+        )
+        self.event_manager.on(
+            SpellVariantActivationEvent,
+            self.on_spell_variant_activation_event,
             originator=self,
             priority=self.priority,
         )
@@ -122,11 +131,23 @@ class FightFrame(Frame):
     def on_spells_event(self, message: SpellsEvent):
         self.game_state.fight.spells = list(message.human_spells)
 
+    def on_spell_variant_activation_event(self, message: SpellVariantActivationEvent):
+        if not message.effective:
+            return
+        spells = self.game_state.fight.spells
+        if any(spell.spell_id == message.spell_id for spell in spells):
+            return
+        first_spell_lvl = DataReader().spell_lvl_by_spell_id[message.spell_id][0]
+        self.game_state.fight.spells = [
+            *spells,
+            SpellItem(spell_id=message.spell_id, spell_level=first_spell_lvl.grade, available=True),
+        ]
+
     def on_game_action_fight_cast_request(self, message: GameActionFightCastRequest):
         self.game_state.fight.count_casted_by_spell_id_on_current_turn[message.spell_id] = (
             self.game_state.fight.count_casted_by_spell_id_on_current_turn.get(message.spell_id, 0) + 1
         )
-        self.game_state.fight.last_cast_turn_by_spell_id[message.spell_id] = self.game_state.fight.fight_turn
+        self.game_state.fight.cast_turn_by_spell_id[message.spell_id] = self.game_state.fight.fight_turn
 
     def on_character_characteristics_event(self, message: CharacterCharacteristicsEvent):
         self.game_state.fight.modifier_by_type_and_spell_id.clear()
@@ -267,7 +288,7 @@ class FightFrame(Frame):
 
     def on_fight_map_information_event(self, msg: FightMapInformationEvent):
         self.game_state.fight.count_casted_by_spell_id_on_current_turn.clear()
-        self.game_state.fight.last_cast_turn_by_spell_id.clear()
+        self.game_state.fight.cast_turn_by_spell_id.clear()
         self.game_state.fight.modifier_by_type_and_spell_id.clear()
         self.logger.debug("Fight start: cleared per-fight cooldown/cast tracking")
 

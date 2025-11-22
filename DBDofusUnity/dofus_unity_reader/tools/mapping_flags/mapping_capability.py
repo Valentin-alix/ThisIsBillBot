@@ -38,7 +38,7 @@ def map_capability() -> None:
 
     for value in valuable_not_allow_capability:
         if value & common_bits != 0:
-            # Si un bit commun apparaÃ®t aussi dans values_without, il n'est pas caractÃ©ristique
+            # If a common bit also appears in valuable_not_allow_capability, it isn't characteristic
             common_bits &= ~(value & common_bits)
 
     print(common_bits)

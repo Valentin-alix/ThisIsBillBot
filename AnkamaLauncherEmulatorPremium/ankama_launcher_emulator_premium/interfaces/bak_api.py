@@ -190,7 +190,6 @@ class ShopiCartNonVirtualPaymentMode(BaseModel):
     payment_mode_id: str
     price: ShopiPrice
     is_under_maintenance: bool
-    billing_address_id: str | None = None
 
 
 class ShopiCartPaymentMode(BaseModel):
@@ -232,11 +231,3 @@ class ShopiOgrinePayment(BaseModel):
 
     payment_id: str
     order_id: str
-
-
-class ShopiXsollaPayment(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
-    token: str
-    payment_id: str | None = None
-    order_id: str | None = None

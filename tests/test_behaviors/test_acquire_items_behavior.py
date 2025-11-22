@@ -214,12 +214,26 @@ def test_a_character_without_bank_access_goes_straight_to_the_sale_hotel(
     game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
 ) -> None:
     behavior = _make_behavior(game_state_ctx, monkeypatch)
-    behavior.game_state.inventory.kamas = 500
+    behavior.game_state.inventory.bank_content_known = True
 
     _start(behavior, [_request(GRAISSE_GELATINEUSE_GID, quantity=5)])
 
     _mock_of(behavior.load_from_bank_behavior).start.assert_not_called()
     _mock_of(behavior.sale_hotel_buy_behavior).start.assert_called_once()
+
+
+def test_too_few_kamas_to_bother_visiting_the_sale_hotel_skips_the_purchase(
+    game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
+) -> None:
+    behavior = _make_behavior(game_state_ctx, monkeypatch)
+    behavior.game_state.inventory.bank_content_known = True
+    behavior.game_state.inventory.kamas = 500
+    finished: list[tuple[str | None, dict[int, int]]] = []
+
+    _start(behavior, [_request(GRAISSE_GELATINEUSE_GID, quantity=5)], finished)
+
+    _mock_of(behavior.sale_hotel_buy_behavior).start.assert_not_called()
+    assert finished == [(None, {GRAISSE_GELATINEUSE_GID: 5})]
 
 
 def test_each_category_gets_its_own_sale_hotel_visit(

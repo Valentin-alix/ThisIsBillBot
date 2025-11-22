@@ -3,11 +3,15 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import cast
 
+from google.protobuf.message import Message
+
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.subscription_expiration import (
+    SubscriptionExpirationStorage,
+)
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.subscription_expiration import SubscriptionExpirationStorage
 from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import (
     CharacterInformation,
     IdentificationResponse,
@@ -18,9 +22,7 @@ from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import (
     ServerInformation,
 )
 from DBDofusUnity.dofus_unity_reader.game_constants.server import ServerEnum
-from google.protobuf.message import Message
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-
 from src.consts import DEBUG
 from src.core.bot.bot import Bot
 from src.protocol.protocol import decode_varint_size, encode_msg
@@ -99,6 +101,9 @@ class ConnectionProxy(Proxy):
                         self.bot.game_state.player.login,
                         datetime.fromisoformat(msg.response.identification.success.subscription_end_date),
                     )
+                    self.bot.logger.info(
+                        f"Recorded expiration sub at {msg.response.identification.success.subscription_end_date}"
+                    )
                     msg.response.identification.success.subscription_end_date = datetime(
                         year=2030, month=12, day=25
                     ).isoformat()
@@ -127,10 +132,9 @@ class ConnectionProxy(Proxy):
                 source = "client_forwarded"
             self.bot.debug_recorder.record_conn_message(msg, from_server, source)
 
-        if DEBUG:
+        if DEBUG and self.bot and self.bot.msg_info_signals.capture_enabled:
             msg_info = get_conn_msg_info(msg, from_server)
-            if self.bot:
-                self.bot.msg_info_signals.msg_info.emit(msg_info, was_send_from_proxy)
+            self.bot.msg_info_signals.msg_info.emit(msg_info, was_send_from_proxy)
 
         if self.bot:
             self.bot.event_manager.process_msg(msg)

@@ -47,13 +47,11 @@ class PaysafecardPurchaseController(metaclass=Singleton):
         purchase: PaysafecardPurchase,
         *,
         order_id: str,
-        xsolla_token: str,
     ) -> PaysafecardPurchase:
         updated_purchase = purchase.model_copy(
             update={
                 "status": PaysafecardPurchaseStatus.AWAITING_CONFIRMATION,
                 "order_id": order_id,
-                "xsolla_token": xsolla_token,
                 "updated_at": datetime.now(UTC),
             }
         )

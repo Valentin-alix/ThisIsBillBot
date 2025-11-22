@@ -4,6 +4,7 @@ from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from PyQt6.QtCore import QSize, QTimer, pyqtSlot
+from PyQt6.QtGui import QShowEvent
 from PyQt6.QtWidgets import QListView, QListWidgetItem, QVBoxLayout, QWidget
 from qfluentwidgets import ListWidget, SmoothMode
 
@@ -20,6 +21,7 @@ class BankTab(QWidget):
         self.items_by_uid: dict[int, ObjectItemInventory] = {}
         self.list_item_by_uid: dict[int, QListWidgetItem] = {}
         self.signals_connected = False
+        self._render_dirty = False
         self._rebuild_timer = QTimer(self)
         self._rebuild_timer.setInterval(50)
         self._rebuild_timer.setSingleShot(True)
@@ -60,7 +62,8 @@ class BankTab(QWidget):
         self._schedule_rebuild()
 
     def _schedule_rebuild(self) -> None:
-        if not self._rebuild_timer.isActive():
+        self._render_dirty = True
+        if self.isVisible() and not self._rebuild_timer.isActive():
             self._rebuild_timer.start()
 
     def _rebuild_sorted_list(self) -> None:
@@ -75,6 +78,7 @@ class BankTab(QWidget):
             self.list_widget.addItem(list_item)
             self.list_item_by_uid[object_item.item.uid] = list_item
         self.list_widget.setUpdatesEnabled(True)
+        self._render_dirty = False
 
     def _get_item_text(self, object_item: ObjectItemInventory) -> str:
         item_data = DataReader().item_by_id.get(object_item.item.gid)
@@ -112,3 +116,8 @@ class BankTab(QWidget):
         bank_items = list(self.bot.game_state.inventory.bank_objects_by_uid.values())
         if bank_items:
             self.on_bank_refreshed(bank_items)
+
+    def showEvent(self, a0: QShowEvent | None) -> None:
+        if self._render_dirty:
+            self._rebuild_sorted_list()
+        super().showEvent(a0)

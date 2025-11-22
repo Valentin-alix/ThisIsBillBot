@@ -16,5 +16,4 @@ class PaysafecardPurchase(BaseModel):
     pin: str
     status: PaysafecardPurchaseStatus
     order_id: str | None = None
-    xsolla_token: str | None = None
     updated_at: datetime

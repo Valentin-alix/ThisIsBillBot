@@ -9,7 +9,7 @@ from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
 )
 
 from src.core.engine.contexts import AttackContext
-from src.core.engine.fights.attack.models import RejectionStat
+from src.core.engine.fights.attack.rejection_stat import RejectionStat
 from src.core.engine.fights.spell import get_damage_spells
 from src.core.engine.fights.spell_modifier import SpellModifiers
 from src.services.logging_utils.loggers import BotLogger
@@ -77,7 +77,7 @@ def collect_castable_spells(
     for spell in context.spells:
         if not spell.spell_id:
             continue
-        if skip_already_cast and spell.spell_id in context.last_cast_turn_by_spell_id:
+        if skip_already_cast and spell.spell_id in context.cast_turn_by_spell_id:
             continue
         spell_lvl = DataReader().spell_lvl_by_spell_id[spell.spell_id][spell.spell_level - 1]
         matched = next((effect for effect in spell_lvl.effects if effect_predicate(effect)), None)
@@ -88,6 +88,20 @@ def collect_castable_spells(
             valid.append((spell_lvl, matched, modifiers))
 
     return valid
+
+
+def resolve_castable_spell_lvl(context: AttackContext, spell_id: int) -> SpellLevelsRootItem | None:
+    spell = next((spell for spell in context.spells if spell.spell_id == spell_id), None)
+    if spell is None:
+        return None
+
+    spell_lvl = DataReader().spell_lvl_by_spell_id[spell.spell_id][spell.spell_level - 1]
+    modifiers = SpellModifiers.from_spell(context.range, spell_lvl, context.modifier_by_type_and_spell_id)
+    rejection_stats: dict[RejectionStat, int] = defaultdict(int)
+    if not is_spell_valid_for_turn(context, spell_lvl, modifiers, rejection_stats):
+        return None
+
+    return spell_lvl
 
 
 def is_spell_valid_for_turn(
@@ -106,13 +120,21 @@ def is_spell_valid_for_turn(
         rejection_stats[RejectionStat.INITIAL_COOLDOWN] += 1
         return False
 
-    last_cast_turn = context.last_cast_turn_by_spell_id.get(spell_lvl.spellId)
+    last_cast_turn = context.cast_turn_by_spell_id.get(spell_lvl.spellId)
     if (
         spell_lvl.globalCooldown != 0
         and last_cast_turn is not None
         and context.fight_turn - last_cast_turn < spell_lvl.globalCooldown
     ):
         rejection_stats[RejectionStat.GLOBAL_COOLDOWN] += 1
+        return False
+
+    if (
+        spell_lvl.minCastInterval != 0
+        and last_cast_turn is not None
+        and context.fight_turn - last_cast_turn < spell_lvl.minCastInterval
+    ):
+        rejection_stats[RejectionStat.MIN_CAST_INTERVAL] += 1
         return False
 
     count_casted = context.count_casted_by_spell_id_on_current_turn.get(spell_lvl.spellId)

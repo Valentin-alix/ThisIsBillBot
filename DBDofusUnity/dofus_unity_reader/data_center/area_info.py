@@ -11,6 +11,7 @@ class AreaInfo(BaseModel):
     sub_area_id: int | None = None
     min_lvl: int = 1
     waypoint_map_id_needed: int | None = None
+    weight_multiplier: float = 1.0
 
     def __str__(self) -> str:
         area_name = I18N().name_by_id[DataReader().area_by_id[self.area_id].nameId]
@@ -28,7 +29,7 @@ class AreaInfo(BaseModel):
 
 
 AREAS_UNSUB_WITH_WEIGHT: list[AreaInfo] = [
-    AreaInfo(area_id=AreaEnum.INCARNAM),
+    AreaInfo(area_id=AreaEnum.INCARNAM, weight_multiplier=0.05),
     AreaInfo(area_id=AreaEnum.ASTRUB, min_lvl=10),
 ]
 AREAS_SUB_WITH_WEIGHT: list[AreaInfo] = [

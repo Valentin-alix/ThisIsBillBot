@@ -16,7 +16,6 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.c
     StoredApiKey,
 )
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import Character
-
 from src.controller.bot_config import BotConfig
 from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,

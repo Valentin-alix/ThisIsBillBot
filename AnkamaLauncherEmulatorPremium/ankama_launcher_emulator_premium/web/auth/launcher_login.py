@@ -310,6 +310,7 @@ async def _authenticate_account(
     account: BotRecord,
     proxy_url: str | None = None,
 ) -> AuthenticationResult:
+    assert account.password is not None, f"No password stored for {account.email}, cannot re-authenticate"
     auth_result = await authenticate(
         AuthenticationOptions(
             email=account.email,

@@ -40,8 +40,8 @@ from src.core.engine.weights.fighter.set_drop import (
     choose_set_drop_area_info,
     get_missing_set_drop_sub_area_ids,
 )
-from src.core.engine.weights.harvester.weight_areas import (
-    get_random_best_area_info_for_harvester,
+from src.core.engine.weights.weight_areas import (
+    get_random_best_area_info,
 )
 from src.core.states.area_state import (
     CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER,
@@ -164,7 +164,7 @@ class AutoBotBehavior(RecoverableBehavior):
             )
 
         with AREA_CHOICE_LOCK:
-            area_info = get_random_best_area_info_for_harvester(
+            area_info = get_random_best_area_info(
                 self._area_id,
                 self._sub_area_id,
                 self.get_harvester_area_context(),
@@ -340,7 +340,7 @@ class AutoBotBehavior(RecoverableBehavior):
                 self.logger.info(f"Gearing: farming {set_drop_area_info} for set drops")
                 return set_drop_area_info
 
-        return get_random_best_area_info_for_harvester(
+        return get_random_best_area_info(
             self._area_id,
             self._sub_area_id,
             self.get_harvester_area_context(),

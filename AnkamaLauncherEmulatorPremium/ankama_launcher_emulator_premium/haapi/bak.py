@@ -17,12 +17,10 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.b
     ShopiArticle,
     ShopiCatalogPage,
     ShopiCart,
-    ShopiCartNonVirtualPaymentMode,
     ShopiCartPaymentModeList,
     ShopiCartVirtualPaymentMode,
-    ShopiOrder,
     ShopiOgrinePayment,
-    ShopiXsollaPayment,
+    ShopiOrder,
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.internet import (
     raise_for_status_with_content,
@@ -32,6 +30,7 @@ _REQUEST_TIMEOUT_SECONDS = 30
 _MONEY_OGRINES_ADAPTER = TypeAdapter(list[BakMoneyOgrine])
 _SHOP_LANGUAGE = "fr"
 _SHOP_KEY = "ZAAP"
+_PAYSAFECARD_PAYMENT_MODE_ID = "OF"
 
 
 class ShopPurchaseError(Exception):
@@ -213,13 +212,8 @@ class BakHaapi:
             )
         return payment
 
-    def create_xsolla_payment(
-        self,
-        article: ShopiArticle,
-        account_id: int,
-        *,
-        shop_access_token: str,
-    ) -> tuple[ShopiOrder, ShopiXsollaPayment]:
+    def prepare_paysafecard_cart(self, article: ShopiArticle, *, shop_access_token: str) -> str:
+        """Create a shop-api cart and confirm the paysafecard payment mode is available. Returns the cart id."""
         shop_session = self._create_shop_session(shop_access_token)
         cart = self._create_cart(shop_session, article)
         payment_modes = self._get_cart_payment_modes(shop_session, cart.id)
@@ -230,39 +224,11 @@ class BakHaapi:
             and payment_mode.cart_non_virtual_payment_mode is not None
             and not payment_mode.cart_non_virtual_payment_mode.is_under_maintenance
             and payment_mode.cart_non_virtual_payment_mode.price.currency == "EUR"
+            and payment_mode.cart_non_virtual_payment_mode.payment_mode_id == _PAYSAFECARD_PAYMENT_MODE_ID
         ]
         if len(matching_payment_modes) != 1:
             raise ShopPurchaseError(
-                "Expected exactly one available EUR non-virtual payment mode, "
+                f"Expected exactly one available EUR {_PAYSAFECARD_PAYMENT_MODE_ID} payment mode, "
                 f"got {len(matching_payment_modes)}"
             )
-        payment_mode: ShopiCartNonVirtualPaymentMode = matching_payment_modes[0]
-        create_order_response = shop_session.post(
-            self._get_shop_url(f"carts/{cart.id}/orders"),
-            json={
-                "account_id": str(account_id),
-                "payment": {
-                    "discriminator": "NON_VIRTUAL",
-                    "non_virtual_payment_request": {
-                        "currency": payment_mode.price.currency,
-                        "amount": payment_mode.price.amount,
-                        "payment_mode_id": payment_mode.payment_mode_id,
-                        "billing_address_id": payment_mode.billing_address_id,
-                    },
-                },
-                "options": [],
-            },
-            timeout=_REQUEST_TIMEOUT_SECONDS,
-        )
-        order = ShopiOrder.model_validate(raise_for_status_with_content(create_order_response))
-        payment_response = shop_session.post(
-            self._get_shop_url("payment/providers/xsolla/types/pay-station:create-payment"),
-            json={"order_id": order.id},
-            timeout=_REQUEST_TIMEOUT_SECONDS,
-        )
-        payment = ShopiXsollaPayment.model_validate(raise_for_status_with_content(payment_response))
-        if payment.order_id is not None and payment.order_id != order.id:
-            raise ShopPurchaseError(
-                f"Shopi payment order {payment.order_id} does not match created order {order.id}"
-            )
-        return order, payment
+        return cart.id

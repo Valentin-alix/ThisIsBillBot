@@ -1,9 +1,10 @@
-import json
-
 from PyQt6.QtCore import QModelIndex, Qt
 
 from src.gui.components.table.column_info import SearchType
 from src.gui.components.table.multi_filter_proxy import MultiColumnFilterProxyModel
+
+
+MESSAGE_SEARCH_ROLE = int(Qt.ItemDataRole.UserRole) + 1
 
 
 class MessageFilterProxyModel(MultiColumnFilterProxyModel):
@@ -18,15 +19,16 @@ class MessageFilterProxyModel(MultiColumnFilterProxyModel):
             source_model = self.sourceModel()
             assert source_model is not None
             source_index = source_model.index(source_row, col_index, source_parent)
-            text: str = source_index.data()
+            text = source_index.data()
 
             if text == "":
-                user_data = source_index.data(Qt.ItemDataRole.UserRole)
-                if user_data and hasattr(user_data, "msg_json") and hasattr(user_data, "obf_msg_json"):
-                    text = json.dumps(user_data.msg_json) + json.dumps(user_data.obf_msg_json)
+                text = source_index.data(MESSAGE_SEARCH_ROLE)
+
+            if not isinstance(text, str):
+                raise TypeError("Expected searchable message text")
 
             if filter_info.search_type == SearchType.CONTAINS:
-                if filter_string.lower() not in text.lower():
+                if filter_string.casefold() not in text.casefold():
                     return False
             if filter_info.search_type == SearchType.EXACT:
                 if not filter_string == text:

@@ -23,8 +23,6 @@ from DBDofusUnity.dofus_unity_reader.generator.i18n import I18NReader
 from DBDofusUnity.dofus_unity_reader.models.maps import MapDataRoot
 from DBDofusUnity.dofus_unity_reader.models.world_graph import WorldGraphData
 
-type DataModel = type[object]
-
 MANIFEST_PATH = BUNDLES_ROOT / ".extraction_manifest.json"
 
 

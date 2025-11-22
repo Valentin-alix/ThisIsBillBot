@@ -18,6 +18,9 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.p
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
     ScheduleProfileController,
 )
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.zaap_import import (
+    import_zaap_accounts,
+)
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.crypto_helper import (
     CryptoHelper,
 )
@@ -59,6 +62,7 @@ class BotManager:
 
     def __post_init__(self):
         self.ankama_launcher = AnkamaLauncherServer(self.ankama_launcher_handler)
+        import_zaap_accounts()
         self.bot_by_account_id = self.get_bot_by_account_id()
         self.shared_signals.launch_account.connect(self.on_launch_account)
         self.shared_signals.synchronize_bots.connect(self.on_synchronize_bots)

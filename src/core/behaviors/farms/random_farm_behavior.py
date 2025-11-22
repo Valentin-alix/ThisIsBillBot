@@ -1,4 +1,5 @@
 import random
+from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -28,6 +29,8 @@ from src.core.signals.world_signals import WorldSignals
 
 PATH_LOCK = RLock()
 MAX_CONSECUTIVE_UNEXPECTED_NEW_MAPS = 3
+RECENT_MAP_HISTORY_SIZE = 4
+OSCILLATION_REPEAT_THRESHOLD = 2
 LAST_VISITED_BY_SERVER_AND_MAP: dict[tuple[int, int], datetime] = {}
 EDGE_PATH_BY_SERVER_AND_CHARACTER: dict[tuple[int, int], tuple[Edge, ...]] = {}
 
@@ -43,6 +46,9 @@ class RandomFarmBehavior(Behavior):
     map_ids: set[int] = field(default_factory=set[int], init=False)
     _edge_path: list[Edge] | None = field(default=None, init=False)
     _consecutive_unexpected_new_maps: int = field(default=0, init=False)
+    _recent_map_ids: deque[int] = field(
+        default_factory=lambda: deque(maxlen=RECENT_MAP_HISTORY_SIZE), init=False
+    )
 
     @property
     def edge_path(self) -> list[Edge] | None:
@@ -70,6 +76,7 @@ class RandomFarmBehavior(Behavior):
         self.get_additional_weight_by_map_id = get_additional_weight_by_map_id
         self.additional_weight_by_map_id.clear()
         self._consecutive_unexpected_new_maps = 0
+        self._recent_map_ids.clear()
         self.edge_path = None
         self.world_signals.reset_weight.emit()
         self.map_ids = self.get_map_ids(area_id, sub_area_id)
@@ -117,14 +124,30 @@ class RandomFarmBehavior(Behavior):
             self.edge_path = None
             self.edge_path = self.get_next_weighted_path()
 
+        blocked_map_ids: set[int] = set()
+        if (
+            self.edge_path is not None
+            and len(self.edge_path) > 0
+            and self._is_oscillating(self.edge_path[0].m_to.m_mapId)
+        ):
+            self.logger.warning(
+                f"Farm route keeps bouncing through {list(self._recent_map_ids)}; rerouting away from it"
+            )
+            blocked_map_ids = set(self._recent_map_ids)
+            self.edge_path = None
+            self._recent_map_ids.clear()
+
         if self.edge_path is None:
             self.auto_trip_smart_behavior.start(
                 callback=self.on_auto_trip_world_behavior_finished,
                 parent=self,
-                map_ids=self.map_ids - {self.game_state.map.map_id},
+                map_ids=self.map_ids - {self.game_state.map.map_id} - blocked_map_ids,
             )
         else:
             draw_edge_path(self.world_signals, self.edge_path)
+
+    def _is_oscillating(self, next_map_id: int) -> bool:
+        return self._recent_map_ids.count(next_map_id) >= OSCILLATION_REPEAT_THRESHOLD
 
     def get_map_ids(self, area_id: int | None, sub_area_id: int | None) -> set[int]:
         self.logger.info(f"init map ids based on area {area_id} and sub area {sub_area_id}")
@@ -156,6 +179,7 @@ class RandomFarmBehavior(Behavior):
         remaining_path = list(self.edge_path)
         remaining_path.remove(edge)
         self.edge_path = remaining_path
+        self._recent_map_ids.append(self.game_state.map.map_id)
         with PATH_LOCK:
             LAST_VISITED_BY_SERVER_AND_MAP[(self.game_state.player.server_id, self.game_state.map.map_id)] = (
                 datetime.now()

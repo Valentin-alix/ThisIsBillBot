@@ -328,6 +328,24 @@ class TestEntityState:
         assert actor_fight.is_summoned is True
         assert actor_fight.life_point == 5
 
+    def test_fight_synchronize_keeps_is_summoned_after_resync(self, runtime_bot: Bot) -> None:
+        summoned_actor = make_fighter(actor_id=-8, cell_id=275, team=Team.TEAM_CHALLENGER)
+        runtime_bot.game_state.entity.set_actor(summoned_actor, True)
+        runtime_bot.game_state.entity.actor_fight_by_id[-8] = FightActor(life_point=50, is_summoned=True)
+
+        resynced_actor = make_fighter(actor_id=-8, cell_id=275, team=Team.TEAM_CHALLENGER)
+        resynced_actor.actor_information.fighter.stats.characteristics.append(
+            CharacterCharacteristic(
+                characteristic_id=0,
+                value=CharacterCharacteristicValue(total=40),
+            )
+        )
+        runtime_bot.event_manager.process_msg(FightSynchronizeEvent(fighters=[resynced_actor]))
+
+        actor_fight = runtime_bot.game_state.entity.actor_fight_by_id[-8]
+        assert actor_fight.is_summoned is True
+        assert actor_fight.life_point == 40
+
     def test_get_enemies_only_returns_other_teams(
         self,
         runtime_bot: Bot,

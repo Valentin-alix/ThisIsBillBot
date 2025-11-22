@@ -21,7 +21,7 @@ from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import MapI
 from DBDofusUnity.dofus_unity_reader.models.world_graph import Transition, Vertice
 
 if TYPE_CHECKING:
-    from src.core.engine.fights.attack.models import EnemyData
+    from src.core.engine.fights.attack.enemy_data import EnemyData
 
 
 @dataclass(frozen=True)
@@ -83,7 +83,7 @@ class AttackContext:
     primary_elem: EffectElement
     modifier_by_type_and_spell_id: dict[tuple[int, SpellModifierType], SpellModifier]
     count_casted_by_spell_id_on_current_turn: dict[int, int]
-    last_cast_turn_by_spell_id: dict[int, int]
+    cast_turn_by_spell_id: dict[int, int]
     fight_turn: int
     characteristic_by_id: dict[int, CharacterCharacteristic]
     action_points: int
@@ -92,6 +92,11 @@ class AttackContext:
     life_point: int
     max_life_point: int
     life_percentage: float
+    invisible_enemy_cell_ids: frozenset[int]
+    breed_id: int
+    own_state_ids: frozenset[int]
+    own_active_summon_count: int
+    max_active_summon_count: int
 
 
 @dataclass(frozen=True)

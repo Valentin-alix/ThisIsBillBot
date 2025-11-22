@@ -45,7 +45,7 @@ class GameClient(BaseClient):
         size, pos = decode_varint_size(msg_datas)
         _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(msg_datas[pos : pos + size], False)
         self.bot.debug_recorder.record_game_message(clear_sub_msg, obf_sub_msg, uid, True, "server")
-        if consts.DEBUG:
+        if consts.DEBUG and self.bot.msg_info_signals.capture_enabled:
             msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, True, False)
             self.bot.msg_info_signals.msg_info.emit(msg_infos, False)
         if clear_sub_msg:
@@ -63,7 +63,7 @@ class GameClient(BaseClient):
                 clear_sub_msg, obf_sub_msg, uid, False, "framework_injected"
             )
             self.bot.event_manager.process_msg(clear_sub_msg)
-            if consts.DEBUG:
+            if consts.DEBUG and self.bot.msg_info_signals.capture_enabled:
                 msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, False, False)
                 self.bot.msg_info_signals.msg_info.emit(msg_infos, True)
 

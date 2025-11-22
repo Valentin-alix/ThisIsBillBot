@@ -109,3 +109,21 @@ def is_valid_monster_group(
 
     logger.info(f"lvl : {lvl_limit} against monster group lvl : {monster_group_lvl}")
     return monster_group_lvl <= lvl_limit
+
+
+def is_group_targetable(
+    logger: Logger,
+    monster_group: ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor,
+    monster_group_lvl: int,
+    lvl_limit: float,
+    monster_ids: set[int] | None,
+) -> bool:
+    """
+    True if a group matches the monster-id allow-list (when set) and passes level validation.
+
+    Does not check the defeat-count blacklist (`GameDataController.is_group_allowed`), which
+    the caller filters separately since it carries its own dedicated logging/bypass logic.
+    """
+    if monster_ids is not None and not (monster_ids & get_monster_group_gids(monster_group)):
+        return False
+    return is_valid_monster_group(logger, monster_group, monster_group_lvl, lvl_limit)

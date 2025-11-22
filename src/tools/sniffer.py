@@ -97,11 +97,15 @@ class Sniffer:
             self.buffers[tunnel] = self.buffers[tunnel][pos + size :]
 
     def handle_connection_message(self, content: bytes, from_server: bool) -> None:
+        if not self.msg_info_signals.capture_enabled:
+            return
         _, sub_msg = get_conn_msg(content)
         msg_infos = get_conn_msg_info(sub_msg, from_server)
         self.msg_info_signals.msg_info.emit(msg_infos, False)
 
     def handle_game_message(self, content: bytes, from_server: bool) -> None:
+        if not self.msg_info_signals.capture_enabled:
+            return
         try:
             _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(content, True)
             msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, from_server, True)
@@ -122,7 +126,7 @@ def main() -> None:
     Thread(target=sniffer.launch_sniffer, daemon=True).start()
     global_signals = LogSignals()
     init_root_gui_logging(global_signals)
-    sniffer_widget = SnifferWidget(bot, global_signals)
+    sniffer_widget = SnifferWidget(bot, global_signals, use_recorder_feed=False)
     sniffer_widget.resize(BASE_WIDTH, BASE_HEIGHT)
     sniffer_widget.show()
     setTheme(Theme.DARK)

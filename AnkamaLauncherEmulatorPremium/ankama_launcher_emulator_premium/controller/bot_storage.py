@@ -39,10 +39,12 @@ class BotStorageController(metaclass=Singleton):
         return acquire_file_lock(BOTS_STORAGE_PATH, timeout_seconds=self._FILE_LOCK_TIMEOUT_SECONDS)
 
     def get_record(self, login: str) -> BotRecord | None:
-        return self._load().bots.get(login)
+        with self._acquire_file_lock():
+            return self._load().bots.get(login)
 
     def get_all_records(self) -> dict[str, BotRecord]:
-        return self._load().bots
+        with self._acquire_file_lock():
+            return self._load().bots
 
     def update_record(
         self,

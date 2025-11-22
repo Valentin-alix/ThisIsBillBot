@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
-
 from src.core.engine.movements.map.path_finding.path_element import PathElement
 
 WALK_HORIZONTAL_DIAG_DURATION = 510
@@ -41,6 +40,16 @@ class MovementPath:
         key_cells.append(MovementPath.get_key_by_cell_and_direction(self.end.cell_id, curr_orientation))
 
         return key_cells
+
+    def get_next_step(self, current_mp: MapPoint) -> MapPoint | None:
+        steps = [element.step for element in self.path] + [self.end]
+        try:
+            index = steps.index(current_mp)
+        except ValueError:
+            return None
+        if index + 1 < len(steps):
+            return steps[index + 1]
+        return None
 
     @staticmethod
     def get_step_duration(

@@ -23,7 +23,11 @@ from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import (
     GameActionFightCastRequest,
     GameActionFightEvent,
 )
-from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
+from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import (
+    SpellItem,
+    SpellsEvent,
+    SpellVariantActivationEvent,
+)
 from DBDofusUnity.dofus_unity_reader.game_constants.breed import BreedEnum
 from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import (
     CharacteristicEnum,
@@ -58,6 +62,42 @@ class TestFightState:
             100,
             200,
         ]
+
+    def test_spell_variant_activation_event_adds_new_spell(
+        self,
+        runtime_bot: Bot,
+    ):
+        runtime_bot.event_manager.process_msg(
+            SpellsEvent(human_spells=[SpellItem(spell_id=100, spell_level=1, available=True)])
+        )
+
+        runtime_bot.event_manager.process_msg(SpellVariantActivationEvent(spell_id=12744, effective=True))
+
+        assert [spell.spell_id for spell in runtime_bot.game_state.fight.spells] == [100, 12744]
+
+    def test_spell_variant_activation_event_ignores_non_effective(
+        self,
+        runtime_bot: Bot,
+    ):
+        runtime_bot.event_manager.process_msg(
+            SpellsEvent(human_spells=[SpellItem(spell_id=100, spell_level=1, available=True)])
+        )
+
+        runtime_bot.event_manager.process_msg(SpellVariantActivationEvent(spell_id=12744, effective=False))
+
+        assert [spell.spell_id for spell in runtime_bot.game_state.fight.spells] == [100]
+
+    def test_spell_variant_activation_event_ignores_already_known_spell(
+        self,
+        runtime_bot: Bot,
+    ):
+        runtime_bot.event_manager.process_msg(
+            SpellsEvent(human_spells=[SpellItem(spell_id=12744, spell_level=1, available=True)])
+        )
+
+        runtime_bot.event_manager.process_msg(SpellVariantActivationEvent(spell_id=12744, effective=True))
+
+        assert [spell.spell_id for spell in runtime_bot.game_state.fight.spells] == [12744]
 
     def test_fight_placement_positions_for_challenger(
         self,
@@ -454,6 +494,21 @@ class TestFightState:
 
         assert attack_context.enemy_actors == []
         assert attack_context.enemies_data == []
+
+    def test_attack_context_counts_own_active_summons(
+        self,
+        runtime_bot: Bot,
+    ) -> None:
+        runtime_bot.game_state.player.character_id = 123
+        runtime_bot.game_state.entity.set_actor(make_fighter(123, 100, team=Team.TEAM_CHALLENGER))
+        runtime_bot.game_state.entity.set_actor(make_fighter(456, 101, team=Team.TEAM_CHALLENGER))
+        runtime_bot.game_state.entity.actor_fight_by_id[456] = FightActor(life_point=10, is_summoned=True)
+        runtime_bot.game_state.entity.set_actor(make_fighter(789, 102, team=Team.TEAM_CHALLENGER))
+        runtime_bot.game_state.entity.actor_fight_by_id[789] = FightActor(life_point=0, is_summoned=True)
+
+        attack_context = runtime_bot.game_state.get_attack_context()
+
+        assert attack_context.own_active_summon_count == 1
 
     def test_attack_context_keeps_actor_snapshot_after_live_state_is_cleared(
         self,

@@ -21,7 +21,6 @@ from src.core.engine.monsters.monster_group import (
     MonsterGroup,
     get_level_monster_group,
     get_monster_groups,
-    is_valid_monster_group,
 )
 from src.core.signals.grid_signals import GridSignals
 from src.core.states.player_state import PlayerState
@@ -186,7 +185,7 @@ class EntityState(State):
                 previous = self.actor_fight_by_id.get(actor.actor_id)
                 self.actor_fight_by_id[actor.actor_id] = FightActor(
                     life_point=get_stat_by_id(life_stat),
-                    is_summoned=is_summoned,
+                    is_summoned=is_summoned or (previous.is_summoned if previous else False),
                     invisibility=(previous.invisibility if previous else FightInvisibilityState.VISIBLE),
                     state_id_by_effect_uid=previous.state_id_by_effect_uid.copy() if previous else {},
                 )
@@ -249,14 +248,6 @@ class EntityState(State):
 
     def get_monster_groups(self) -> list[MonsterGroup]:
         return get_monster_groups(self.actor_by_id)
-
-    def is_valid_monster_group(
-        self,
-        monster_group: ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor,
-        monster_group_lvl: int,
-        lvl_limit: float,
-    ) -> bool:
-        return is_valid_monster_group(self.logger, monster_group, monster_group_lvl, lvl_limit)
 
     def get_level_monster_group(
         self,

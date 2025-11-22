@@ -4,12 +4,10 @@ from dataclasses import dataclass
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
 )
-from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import GameActionFightEvent
 from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
-
-from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
+from src.core.behaviors.farms.fight.fight_listener_behavior import FightListenerBehavior
+from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior
 from src.core.engine.fights.reachable_cells.fight_reachable_cells import (
     FightReachableCells,
 )
@@ -18,33 +16,18 @@ from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 
 
 @dataclass
-class FightMovementBehavior(Behavior):
+class FightMovementBehavior(FightListenerBehavior):
     map_move_behavior: MapMoveBehavior
     path_finding: Pathfinding
     fight_reachable_cells: FightReachableCells
 
-    def run(
-        self,
-        move_path: MovementPath | None = None,
-        run_away: bool = False,
-    ) -> None:
-        self.event_manager.on(
-            GameActionFightEvent,
-            self.on_game_action_fight_event,
-            originator=self,
-        )
+    def run(self, move_path: MovementPath | None = None) -> None:
+        self.register_fight_death_check()
 
         if move_path is None:
-            if run_away:
-                move_path = self.find_safest_path()
-                if move_path is None:
-                    return self.finish()
-            else:
-                near_enemy_info = self.find_near_enemy_with_dist(self.game_state.map.map_point)
-                if not near_enemy_info:
-                    return self.finish()
-
-                move_path = near_enemy_info[1]
+            move_path = self.find_safest_path()
+            if move_path is None:
+                return self.finish()
 
         pm: int = self.game_state.fight.get_stat_by_id(CharacteristicEnum.MOVEMENT_POINTS)
 
@@ -58,13 +41,6 @@ class FightMovementBehavior(Behavior):
             move_path.path = move_path.path[:pm]
 
         self.map_move_behavior.start(parent=self, move_path=move_path, callback=self.finish)
-
-    def on_game_action_fight_event(self, msg: GameActionFightEvent) -> None:
-        if not msg.HasField("death"):
-            return
-        if msg.death.target_id != self.game_state.player.character_id:
-            return
-        self.finish(MapMoveError.PLAYER_DEAD)
 
     def find_near_enemy_with_dist(
         self, start: MapPoint
@@ -103,16 +79,23 @@ class FightMovementBehavior(Behavior):
 
         return related_enemies[0], move_path, cost_path
 
+    def find_path_to_cell(self, target_mp: MapPoint) -> MovementPath:
+        return self.path_finding.find_path(
+            self.game_state.get_map_movement_context(),
+            self.game_state.map.map_point,
+            {target_mp},
+            allow_diag=False,
+            allow_trough_entity=False,
+        )
+
     def find_safest_path(self) -> MovementPath | None:
         self.logger.info("Finding safest path")
 
         entities_mp: set[MapPoint] = {
             mp for mp, actors in self.game_state.entity.actors_on_mp.items() if len(actors) > 0
-        }
-        enemies_mp = {
-            MapPoint.from_cell_id(enemy.disposition.cell_id)
-            for enemy in self.game_state.fight.get_enemies(self.game_state.player.character_id)
-        }
+        } | {MapPoint.from_cell_id(cell_id) for cell_id in self.game_state.fight.invisible_enemy_cell_ids}
+        enemies = self.game_state.fight.get_enemies(self.game_state.player.character_id)
+        enemies_mp = {MapPoint.from_cell_id(enemy.disposition.cell_id) for enemy in enemies}
 
         self.logger.info(f"enemies mp : {enemies_mp}")
         if not enemies_mp:
@@ -127,23 +110,32 @@ class FightMovementBehavior(Behavior):
         if len(reachable_mps) == 0:
             return None
 
-        mp_with_safest_coeff = max(
-            (
-                (
-                    reachable_mp,
-                    sum([reachable_mp.distance_to_map_point(enemy_mp) for enemy_mp in enemies_mp]),
-                )
-                for reachable_mp in reachable_mps
-            ),
-            key=lambda elem: elem[1],
+        enemies_data = self.game_state.fight.get_enemies_data(
+            enemies, dict(self.game_state.entity.actor_fight_by_id)
         )
+        current_mp = self.game_state.map.map_point
 
-        self.logger.info(f"Found safest cell : {mp_with_safest_coeff}")
+        def is_out_of_threat_range(cell_mp: MapPoint) -> bool:
+            return all(
+                cell_mp.distance_to_map_point(enemy.map_point) > enemy.movement_points + enemy.max_spell_range
+                for enemy in enemies_data
+            )
+
+        safe_cells = [cell_mp for cell_mp in reachable_mps if is_out_of_threat_range(cell_mp)]
+        if safe_cells:
+            target_mp = min(safe_cells, key=lambda cell_mp: cell_mp.distance_to_map_point(current_mp))
+            self.logger.info(f"Found nearest out-of-threat-range cell : {target_mp}")
+        else:
+            target_mp = max(
+                reachable_mps,
+                key=lambda cell_mp: sum(cell_mp.distance_to_map_point(enemy_mp) for enemy_mp in enemies_mp),
+            )
+            self.logger.info(f"No cell out of threat range, falling back to farthest cell : {target_mp}")
 
         move_path = self.path_finding.find_path(
             self.game_state.get_map_movement_context(),
             self.game_state.map.map_point,
-            {mp_with_safest_coeff[0]},
+            {target_mp},
             allow_trough_entity=False,
             allow_diag=False,
         )

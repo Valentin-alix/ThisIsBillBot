@@ -15,6 +15,7 @@ from src.core.behaviors.storage.loads.load_item_request import (
     LoadItemInfo,
     get_owned_quantity,
 )
+from src.core.config import MIN_KAMAS_TO_GO_SALE_HOTEL
 from src.core.engine.economy.sale_hotel import ItemToBuyInfo
 from src.core.engine.items.item_formatter import format_item_name
 
@@ -83,6 +84,13 @@ class AcquireItemsBehavior(RecoverableBehavior):
             return self.finish(missing_by_gid=missing_by_gid)
         if self.game_state.inventory.is_full_pods:
             self.logger.info("Full pods: skipping sale-hotel purchase")
+            return self.finish(missing_by_gid=missing_by_gid)
+        if self.game_state.inventory.kamas < MIN_KAMAS_TO_GO_SALE_HOTEL:
+            self.logger.warning(
+                f"Only {self.game_state.inventory.kamas} kamas available, "
+                f"below the {MIN_KAMAS_TO_GO_SALE_HOTEL} floor: skipping sale-hotel purchase "
+                f"for {self._format(missing_by_gid)}"
+            )
             return self.finish(missing_by_gid=missing_by_gid)
 
         self._pending_categories = sorted(

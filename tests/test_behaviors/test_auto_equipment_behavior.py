@@ -7,13 +7,23 @@ from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ObjectItem,
     ObjectItemInventory,
 )
+from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import ExchangeLeaveEvent
+from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import ObjectSetPositionRequest
+from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import EffectElement
+from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
+    CharacterInventoryPositionEnum,
+)
 from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum, ItemEnum
+from google.protobuf.message import Message
 from pytest import MonkeyPatch
 
 from src.core.behaviors.items.acquire_items_behavior import ItemToAcquire
 from src.core.behaviors.items.auto_equipment_behavior import AutoEquipmentBehavior
 from src.core.engine.economy.sale_hotel import ItemToBuyInfo
+from src.core.engine.items.set_infos.set_info import SetOnLevel
 from src.core.events_manager.event_manager import EventManager
+from src.core.states.dialog_state import OpenDialogKind
 from tests.fixtures.bot_runtime import make_blocking_state_recovery
 from tests.fixtures.game_state import GameStateContext
 
@@ -164,3 +174,53 @@ def test_what_the_sourcing_could_not_find_does_not_abort_the_equipment(
     behavior.on_items_acquired(None, {AMULETTE_AKWADALA_GID: 1})
 
     collect_and_equip.assert_called_once_with()
+
+
+def _set_on_level() -> SetOnLevel:
+    return SetOnLevel(
+        min_level=1,
+        elem=EffectElement.STRENGTH,
+        item_info_by_position={
+            CharacterInventoryPositionEnum.AccessoryPositionAmulet: ItemToBuyInfo(
+                item_gid=AMULETTE_AKWADALA_GID, max_kamas=MAX_KAMAS
+            )
+        },
+    )
+
+
+def _make_equip_ready_behavior(
+    game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
+) -> tuple[AutoEquipmentBehavior, list[Message]]:
+    behavior = _make_behavior(game_state_ctx, monkeypatch)
+    sent_messages: list[Message] = []
+    behavior.event_manager.on_send_game_callback = sent_messages.append
+    behavior.send_message_delayed = lambda message, delay: behavior.event_manager.send(message)
+    behavior._chosen_set = _set_on_level()
+    behavior._items_to_equip = [_copy(uid=1, roll=10)]
+    return behavior, sent_messages
+
+
+def test_an_open_sale_hotel_dialog_is_closed_before_equipping(
+    game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
+) -> None:
+    behavior, sent_messages = _make_equip_ready_behavior(game_state_ctx, monkeypatch)
+    game_state_ctx.game_state.dialog.set_open(OpenDialogKind.BID_HOUSE_BUY)
+
+    behavior.equip_next_item()
+
+    assert [type(message) for message in sent_messages] == [DialogLeaveRequest]
+
+    game_state_ctx.game_state.dialog.clear_state()
+    behavior.event_manager.process_msg(ExchangeLeaveEvent())
+
+    assert [type(message) for message in sent_messages] == [DialogLeaveRequest, ObjectSetPositionRequest]
+
+
+def test_equipping_with_nothing_open_sends_the_request_directly(
+    game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
+) -> None:
+    behavior, sent_messages = _make_equip_ready_behavior(game_state_ctx, monkeypatch)
+
+    behavior.equip_next_item()
+
+    assert [type(message) for message in sent_messages] == [ObjectSetPositionRequest]

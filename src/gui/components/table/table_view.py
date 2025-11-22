@@ -88,7 +88,8 @@ class CustomTableModel(QAbstractTableModel):
         self.endRemoveRows()
 
     def clear_all(self) -> None:
-        self.remove_rows(0, len(self._data))
+        if self._data:
+            self.remove_rows(0, len(self._data))
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         if not index.isValid():
@@ -125,6 +126,7 @@ class CustomTableView(TableView):
         self,
         parent: SingleDirectionScrollArea,
         proxy_model: MultiColumnFilterProxyModel | None = None,
+        item_model: CustomTableModel | None = None,
     ) -> None:
         super().__init__(parent=parent)
         self.scroll_bar = parent
@@ -144,7 +146,7 @@ class CustomTableView(TableView):
         assert vertical_header is not None
         vertical_header.hide()
 
-        self.item_model = CustomTableModel(parent=self)
+        self.item_model = item_model or CustomTableModel(parent=self)
         self.item_model.signals.max_row_reached.connect(profiled_slot(self.on_max_row_reached))
         self.proxy_model = proxy_model or MultiColumnFilterProxyModel()
         self.proxy_model.setSourceModel(self.item_model)

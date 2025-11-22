@@ -9,11 +9,12 @@ from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
 
 from src.services.background import run_in_background
+from src.services.hotreload.reloader import ReloadReport, reload_core_modules
 from DBDofusUnity.consts import PINNED_PAIRS_FILE
 from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import upsert_pinned_field_mapping, upsert_pinned_pair
 from src.core.behaviors.behavior import Behavior
 from src.core.bot.bot import Bot
-from src.protocol.message_names import find_non_obf_game_message_descriptor
+from src.protocol.message_names import find_non_obf_game_message_descriptor, load_non_obf_game_message_full_names
 from src.protocol.protocol_game import add_pinned_pair_to_game_mappings
 
 _END_SENTINEL_MODULE_NAME = "<sandbox>"
@@ -54,7 +55,30 @@ class SandboxExecutor:
             "trigger_behavior": self.trigger_behavior,
             "replay_behavior": self.replay_behavior,
             "add_pinned_pair": self.add_pinned_pair,
+            "list_behaviors": self.list_behaviors,
+            "list_messages": self.list_messages,
+            "describe_message": self.describe_message,
+            "reload": self.reload,
         }
+
+    def list_behaviors(self) -> dict[str, str]:
+        return {behavior.__class__.__name__: behavior.state.name for behavior in self.bot.usable_behaviors}
+
+    def list_messages(self, contains: str = "") -> list[str]:
+        names = load_non_obf_game_message_full_names()
+        if not contains:
+            return names
+        lowered = contains.lower()
+        return [name for name in names if lowered in name.lower()]
+
+    def describe_message(self, name: str) -> list[str]:
+        descriptor = find_non_obf_game_message_descriptor(name)
+        if descriptor is None:
+            raise ValueError(f"Unknown message {name!r}")
+        return list(descriptor.fields_by_name.keys())
+
+    def reload(self) -> ReloadReport:
+        return reload_core_modules()
 
     def send_message(self, name: str, **fields: object) -> None:
         message_class = _resolve_message_class(name)

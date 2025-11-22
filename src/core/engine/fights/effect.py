@@ -97,6 +97,13 @@ def is_self_shield_effect(effect: Effect) -> bool:
     return _has_description(effect, SHIELD_DESCRIPTION_IDS)
 
 
+VITALITY_BUFF_DESCRIPTION_IDS: frozenset[int] = frozenset({DescriptionEnum.BUFF_VITALITY})
+
+
+def is_vitality_buff_effect(effect: Effect) -> bool:
+    return _has_description(effect, VITALITY_BUFF_DESCRIPTION_IDS)
+
+
 def resolve_effect_element(effect_element: int, primary_elem: EffectElement) -> int | None:
     """Resolve ``effectElement`` to a concrete element id, or None if non-damage.
 

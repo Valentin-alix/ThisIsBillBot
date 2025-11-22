@@ -47,6 +47,7 @@ class GameState:
         self.entity.clear_state()
 
     def debug_snapshot(self) -> dict[str, Any]:
+        """Curated, readable summary of the bot's state - the fast way to inspect a live bot from the sandbox."""
         snapshot: dict[str, Any] = {
             "map_id": self.map.map_id,
             "in_map_transition": bool(self.map.is_in_map_transition),
@@ -80,9 +81,12 @@ class GameState:
             in_fight=self.fight.in_fight,
             obstacle_on_cell_id=self.entity.obstacle_on_cell_id,
             occupied_cell_ids=frozenset(
-                actor.disposition.cell_id
-                for actor in self.entity.actor_by_id.values()
-                if actor.disposition.cell_id != -1
+                {
+                    actor.disposition.cell_id
+                    for actor in self.entity.actor_by_id.values()
+                    if actor.disposition.cell_id != -1
+                }
+                | self.fight.invisible_enemy_cell_ids
             ),
         )
 
@@ -143,6 +147,16 @@ class GameState:
             actor_by_id,
             actor_fight_by_id,
         )
+        player_fight_actor = actor_fight_by_id.get(self.player.character_id)
+        own_state_ids = (
+            player_fight_actor.state_ids if player_fight_actor is not None else frozenset[int]()
+        )
+        own_active_summon_count = self.fight.count_own_active_summons(
+            self.player.character_id, actor_by_id, actor_fight_by_id
+        )
+        max_active_summon_count = self.fight.get_stat_by_id(
+            CharacteristicEnum.MAX_SUMMONED_CREATURES_BOOST
+        )
         return AttackContext(
             map_id=self.map.map_id,
             player_map_point=MapPoint.from_cell_id(player_actor.disposition.cell_id),
@@ -156,7 +170,7 @@ class GameState:
             primary_elem=self.fight.primary_elem,
             modifier_by_type_and_spell_id=self.fight.modifier_by_type_and_spell_id,
             count_casted_by_spell_id_on_current_turn=(self.fight.count_casted_by_spell_id_on_current_turn),
-            last_cast_turn_by_spell_id=self.fight.last_cast_turn_by_spell_id,
+            cast_turn_by_spell_id=self.fight.cast_turn_by_spell_id,
             fight_turn=self.fight.fight_turn,
             characteristic_by_id=self.fight.characteristic_by_id,
             action_points=self.fight.get_stat_by_id(CharacteristicEnum.ACTION_POINTS),
@@ -165,4 +179,9 @@ class GameState:
             life_point=self.fight.life_point,
             max_life_point=self.fight.max_life_point,
             life_percentage=self.fight.life_percentage,
+            invisible_enemy_cell_ids=frozenset(self.fight.invisible_enemy_cell_ids),
+            breed_id=self.fight.breed_id,
+            own_state_ids=own_state_ids,
+            own_active_summon_count=own_active_summon_count,
+            max_active_summon_count=max_active_summon_count,
         )

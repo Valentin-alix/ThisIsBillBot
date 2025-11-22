@@ -18,6 +18,7 @@ import queue
 import shutil
 import threading
 import time
+from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -27,6 +28,7 @@ from google.protobuf.message import Message
 
 from src.protocol.protocol_connection import get_conn_msg_info
 from src.protocol.protocol_game import get_game_msg_info
+from src.protocol.message import MessageInfo
 
 
 MessageSource = Literal["server", "client_forwarded", "framework_injected"]
@@ -156,6 +158,31 @@ _BOT_LOG_RETENTION_DAYS = 14
 _BOT_LOG_RETENTION_COUNT = 10
 _SESSION_TIMESTAMP_FORMAT = "%Y%m%dT%H%M%S_%f%z"
 _HISTORY_MAINTENANCE_LOCK = threading.Lock()
+_RECENT_GUI_MESSAGE_COUNT = 5000
+
+
+@dataclass(frozen=True, slots=True)
+class RecentMessageEntry:
+    sequence: int
+    received_time: datetime
+    from_server: bool
+    was_sent_from_proxy: bool
+    sub_msg_name: str
+    serialized: str
+
+    def to_message_info(self) -> MessageInfo:
+        body: dict[str, Any] = json.loads(self.serialized)
+        msg_json: dict[str, Any] | None = body["contenu_non_obfusque"]
+        obf_msg_json: dict[str, Any] | None = body["contenu_obfusque"]
+        assert msg_json is None or isinstance(msg_json, dict)
+        assert obf_msg_json is None or isinstance(obf_msg_json, dict)
+        return MessageInfo(
+            received_time=self.received_time,
+            from_server=self.from_server,
+            sub_msg_name=self.sub_msg_name,
+            msg_json=msg_json,
+            obf_msg_json=obf_msg_json,
+        )
 
 
 @dataclass
@@ -163,6 +190,12 @@ class DebugRecorder:
     file_path: str
     _queue: queue.Queue[_RawEntry | None] = field(init=False, default_factory=queue.Queue[_RawEntry | None])
     _stop_event: threading.Event = field(init=False, default_factory=threading.Event)
+    _recent_messages: deque[RecentMessageEntry] = field(
+        init=False,
+        default_factory=lambda: deque(maxlen=_RECENT_GUI_MESSAGE_COUNT),
+    )
+    _recent_lock: threading.Lock = field(init=False, default_factory=threading.Lock)
+    _latest_message_sequence: int = field(init=False, default=0)
 
     def __post_init__(self) -> None:
         Path(self.file_path).parent.mkdir(parents=True, exist_ok=True)
@@ -203,6 +236,18 @@ class DebugRecorder:
         source: MessageSource,
     ) -> None:
         self._queue.put(_ConnMsgRaw(datetime.now(), sub_msg, from_server, source))
+
+    @property
+    def latest_message_sequence(self) -> int:
+        with self._recent_lock:
+            return self._latest_message_sequence
+
+    def recent_messages_after(self, sequence: int) -> tuple[int, list[RecentMessageEntry]]:
+        with self._recent_lock:
+            return (
+                self._latest_message_sequence,
+                [entry for entry in self._recent_messages if entry.sequence > sequence],
+            )
 
     def record_behavior(
         self,
@@ -275,7 +320,10 @@ class DebugRecorder:
 
                 if item is not None:
                     entry = _build_entry(item)
-                    buffer.append(json.dumps(entry, ensure_ascii=False))
+                    serialized = json.dumps(entry, ensure_ascii=False)
+                    buffer.append(serialized)
+                    if entry["categorie"] == "message":
+                        self._record_recent_message(entry, serialized)
 
                 now = time.monotonic()
                 if buffer and (len(buffer) >= _MAX_BUFFER or now - last_flush >= _FLUSH_INTERVAL_S):
@@ -285,6 +333,23 @@ class DebugRecorder:
                 if self._stop_event.is_set() and self._queue.empty():
                     self._flush(file, buffer)
                     return
+
+    def _record_recent_message(self, entry: DebugMessageEntry, serialized: str) -> None:
+        obf_name = entry["type_obfusque"]
+        non_obf_name = entry["type_non_obfusque"]
+        sub_msg_name = f"{obf_name} -> {non_obf_name}" if obf_name else non_obf_name
+        with self._recent_lock:
+            self._latest_message_sequence += 1
+            self._recent_messages.append(
+                RecentMessageEntry(
+                    sequence=self._latest_message_sequence,
+                    received_time=datetime.fromisoformat(entry["datetime"]),
+                    from_server=entry["origine"] == "Serveur",
+                    was_sent_from_proxy=entry["source"] == "framework_injected",
+                    sub_msg_name=sub_msg_name,
+                    serialized=serialized,
+                )
+            )
 
     @staticmethod
     def _flush(file: Any, buffer: list[str]) -> None:

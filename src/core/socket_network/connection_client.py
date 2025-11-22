@@ -44,8 +44,11 @@ class ConnectionClient(BaseClient):
             assert isinstance(msg, LoginMessage), "ConnectionClient only sends LoginMessage envelopes"
             _, clear_sub_msg = get_conn_msg(msg.SerializeToString())
             self.client_socket.sendall(encode_msg(msg))
+            self.bot.debug_recorder.record_conn_message(
+                clear_sub_msg, False, "framework_injected"
+            )
             self.bot.event_manager.process_msg(clear_sub_msg)
-            if consts.DEBUG:
+            if consts.DEBUG and self.bot.msg_info_signals.capture_enabled:
                 msg_info = get_conn_msg_info(clear_sub_msg, False)
                 self.bot.msg_info_signals.msg_info.emit(msg_info, True)
         except OSError as err:
@@ -55,7 +58,8 @@ class ConnectionClient(BaseClient):
     def on_received_msg_datas(self, msg_datas: bytes) -> None:
         size, pos = decode_varint_size(msg_datas)
         msg = get_conn_msg(msg_datas[pos : pos + size])[1]
-        if consts.DEBUG:
+        self.bot.debug_recorder.record_conn_message(msg, True, "server")
+        if consts.DEBUG and self.bot.msg_info_signals.capture_enabled:
             msg_info = get_conn_msg_info(msg, True)
             self.bot.msg_info_signals.msg_info.emit(msg_info, False)
         self.bot.event_manager.process_msg(msg)

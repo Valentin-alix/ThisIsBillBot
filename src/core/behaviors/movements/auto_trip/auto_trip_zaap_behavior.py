@@ -10,7 +10,6 @@ from DBDofusUnity.datas.protos.non_obf.game.haven_bag_pb2 import (
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.game_constants.area import AreaEnum
 from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
-
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
     AutoTripBehavior,
@@ -37,7 +36,7 @@ class AutoTripZaapBehavior(Behavior):
             not self.game_state.player.is_sub
             or self.game_state.player.level < 10
             or DataReader().sub_area_by_id[self.game_state.map.sub_area_id].areaId == AreaEnum.INCARNAM
-            or self.game_state.inventory.kamas < 10_000
+            or self.game_state.inventory.kamas < 3_000
         ):
             self.logger.info("Can't use zaap, walk to dst")
             return self.auto_trip_behavior.start(callback=self.finish, parent=self, map_ids=map_ids)

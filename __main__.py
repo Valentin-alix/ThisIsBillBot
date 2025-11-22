@@ -12,6 +12,8 @@ from project_paths import PROJECT_ROOT
 
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from proto_mapper_assembly.scripts.dump import check_updated_mapping_resources
+
 from src.utils.runtime_paths import configure_project_import_paths
 
 configure_project_import_paths()
@@ -170,7 +172,7 @@ def run_headless(application_argv: list[str], enable_automatic_schedules: bool) 
 
 
 def main(argv: list[str] | None = None) -> int:
-    # check_updated_mapping_resources()
+    check_updated_mapping_resources()
 
     runtime_args = parse_runtime_args(sys.argv if argv is None else argv)
     BotConfigService.use_bot_config_json = runtime_args.use_bot_config_json

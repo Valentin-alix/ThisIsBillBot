@@ -5,7 +5,9 @@ from datetime import datetime, timedelta
 
 from base_python.singleton import Singleton
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.crypto_helper import CryptoHelper
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.crypto_helper import (
+    CryptoHelper,
+)
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.haapi import (
     Haapi,
     get_account_info_by_login,

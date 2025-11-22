@@ -4,7 +4,7 @@ from math import floor
 
 from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import MapInformationRootItem
 from PyQt6.QtCore import QRectF, Qt, pyqtSlot
-from PyQt6.QtGui import QColor, QPainter, QPen, QResizeEvent
+from PyQt6.QtGui import QColor, QPainter, QPen, QResizeEvent, QShowEvent
 from PyQt6.QtWidgets import (
     QGraphicsEllipseItem,
     QGraphicsLineItem,
@@ -104,6 +104,10 @@ class MapWorldView(QGraphicsView):
         self._scene: QGraphicsScene = QGraphicsScene()
         self.square_by_coord: dict[Coord, SquareMap] = {}
         self.map_pos_by_coord: dict[Coord, set[MapInformationRootItem]] = defaultdict(set)
+        self._colors_by_map_id: dict[int, tuple[MapInformationRootItem, RGBColor]] = {}
+        self._path: list[tuple[MapInformationRootItem, MapInformationRootItem]] = []
+        self._current_map: MapInformationRootItem | None = None
+        self._render_dirty = False
 
         self.setStyleSheet("border: 0px")
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -124,8 +128,20 @@ class MapWorldView(QGraphicsView):
         self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
         return super().resizeEvent(event)
 
+    def showEvent(self, event: QShowEvent | None) -> None:
+        if self._render_dirty:
+            self._rebuild_scene()
+        super().showEvent(event)
+
     @pyqtSlot(MapInformationRootItem)
     def on_curr_map(self, map_pos: MapInformationRootItem):
+        self._current_map = map_pos
+        if not self.isVisible():
+            self._render_dirty = True
+            return
+        self._render_current_map(map_pos)
+
+    def _render_current_map(self, map_pos: MapInformationRootItem) -> None:
         coord = map_pos.posX, map_pos.posY
         if self.curr_map_info is None:
             state = MapCircle()
@@ -164,11 +180,20 @@ class MapWorldView(QGraphicsView):
 
     @pyqtSlot(MapInformationRootItem, tuple)
     def on_color_pos(self, map_pos: MapInformationRootItem, color: RGBColor):
+        self._colors_by_map_id[map_pos.id] = (map_pos, color)
+        if not self.isVisible():
+            self._render_dirty = True
+            return
         square_cell = self.get_or_create_map(map_pos)
         square_cell.add_color(map_pos.id, color)
 
     @pyqtSlot(list)
     def on_color_pos_batch(self, items: list[tuple[MapInformationRootItem, RGBColor]]):
+        for map_pos, color in items:
+            self._colors_by_map_id[map_pos.id] = (map_pos, color)
+        if not self.isVisible():
+            self._render_dirty = True
+            return
         self.setUpdatesEnabled(False)
         for map_pos, color in items:
             square_cell = self.get_or_create_map(map_pos)
@@ -177,6 +202,15 @@ class MapWorldView(QGraphicsView):
 
     @pyqtSlot(MapInformationRootItem, MapInformationRootItem)
     def on_arrow_pos(self, map_pos_start: MapInformationRootItem, map_pos_end: MapInformationRootItem):
+        self._path.append((map_pos_start, map_pos_end))
+        if not self.isVisible():
+            self._render_dirty = True
+            return
+        self._render_arrow(map_pos_start, map_pos_end)
+
+    def _render_arrow(
+        self, map_pos_start: MapInformationRootItem, map_pos_end: MapInformationRootItem
+    ) -> None:
         start_square = self.get_or_create_map(map_pos_start)
         end_square = self.get_or_create_map(map_pos_end)
         line_item = QGraphicsLineItem(
@@ -193,25 +227,21 @@ class MapWorldView(QGraphicsView):
 
     @pyqtSlot(list)
     def on_arrow_pos_batch(self, items: list[tuple[MapInformationRootItem, MapInformationRootItem]]):
+        self._path.extend(items)
+        if not self.isVisible():
+            self._render_dirty = True
+            return
         self.setUpdatesEnabled(False)
         for map_pos_start, map_pos_end in items:
-            start_square = self.get_or_create_map(map_pos_start)
-            end_square = self.get_or_create_map(map_pos_end)
-            line_item = QGraphicsLineItem(
-                start_square.x() + CELL_SIZE / 2,
-                start_square.y() + CELL_SIZE / 2,
-                end_square.x() + CELL_SIZE / 2,
-                end_square.y() + CELL_SIZE / 2,
-            )
-            pen = QPen(Qt.GlobalColor.green)
-            pen.setWidth(2)
-            line_item.setPen(pen)
-            self.line_items.append(line_item)
-            self._scene.addItem(line_item)
+            self._render_arrow(map_pos_start, map_pos_end)
         self.setUpdatesEnabled(True)
 
     @pyqtSlot()
     def on_reset_path(self):
+        self._path.clear()
+        if not self.isVisible():
+            self._render_dirty = True
+            return
         self.setUpdatesEnabled(False)
         while self.line_items:
             line_item = self.line_items.pop()
@@ -220,7 +250,25 @@ class MapWorldView(QGraphicsView):
 
     @pyqtSlot()
     def on_reset_weight(self):
+        self._colors_by_map_id.clear()
+        if not self.isVisible():
+            self._render_dirty = True
+            return
         self.setUpdatesEnabled(False)
         for square in self.square_by_coord.values():
             square.reset_color()
         self.setUpdatesEnabled(True)
+
+    def _rebuild_scene(self) -> None:
+        self._scene.clear()
+        self.curr_map_info = None
+        self.line_items.clear()
+        self.square_by_coord.clear()
+        self.map_pos_by_coord.clear()
+        for map_pos, color in self._colors_by_map_id.values():
+            self.get_or_create_map(map_pos).add_color(map_pos.id, color)
+        for map_pos_start, map_pos_end in self._path:
+            self._render_arrow(map_pos_start, map_pos_end)
+        if self._current_map is not None:
+            self._render_current_map(self._current_map)
+        self._render_dirty = False

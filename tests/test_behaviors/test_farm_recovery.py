@@ -5,9 +5,15 @@ import pytest
 
 from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum, ItemEnum
 
-from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapComplementaryInformationEvent, MapCurrentEvent
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
+    MapComplementaryInformationEvent,
+    MapCurrentEvent,
+)
 
-from src.core.behaviors.farms.random_farm_behavior import MAX_CONSECUTIVE_UNEXPECTED_NEW_MAPS
+from src.core.behaviors.farms.random_farm_behavior import (
+    MAX_CONSECUTIVE_UNEXPECTED_NEW_MAPS,
+    OSCILLATION_REPEAT_THRESHOLD,
+)
 from src.core.behaviors.items.acquire_items_behavior import (
     AcquireItemsBehavior,
     ItemToAcquire,
@@ -242,3 +248,28 @@ class TestFarmRecovery:
         )
 
         assert not runtime_bot.game_state.map.banned_edge_transitions
+
+    def test_farm_route_bouncing_between_two_maps_reroutes_instead_of_looping_forever(
+        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A farm-zone pocket reachable only through a single edge must not trap the bot forever."""
+        random_farm_behavior = runtime_bot.fighter_behavior.random_farm_behavior
+        map_a, map_b = 193331717, 193332229
+        random_farm_behavior.map_ids = {map_a, map_b, 999}
+        runtime_bot.game_state.map.map_id = map_b
+        for _ in range(OSCILLATION_REPEAT_THRESHOLD):
+            random_farm_behavior._recent_map_ids.append(map_a)
+            random_farm_behavior._recent_map_ids.append(map_b)
+
+        bouncing_edge = MagicMock()
+        bouncing_edge.m_to.m_mapId = map_a
+        monkeypatch.setattr(random_farm_behavior, "get_next_weighted_path", lambda: [bouncing_edge])
+        auto_trip_start = MagicMock()
+        monkeypatch.setattr(random_farm_behavior.auto_trip_smart_behavior, "start", auto_trip_start)
+
+        random_farm_behavior._recalculate_edge_path()
+
+        assert random_farm_behavior.edge_path is None
+        assert not random_farm_behavior._recent_map_ids
+        auto_trip_start.assert_called_once()
+        assert auto_trip_start.call_args.kwargs["map_ids"] == {999}

@@ -37,7 +37,7 @@ def get_missing_set_drop_sub_area_ids(
     owned_gids = {object_item.item.gid for object_item in object_by_uid.values()}
     missing_gids = [
         item_info.item_gid
-        for item_info in get_item_gids_to_buy(best_set, object_by_uid)
+        for item_info in get_item_gids_to_buy(best_set, object_by_uid, primary_elem)
         if item_info.item_gid not in owned_gids
     ]
 

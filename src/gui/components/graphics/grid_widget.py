@@ -1,40 +1,41 @@
 import sys
-from typing import override
+from dataclasses import dataclass
 
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import StatedElement
 from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
 from DBDofusUnity.dofus_unity_reader.grid.consts import CELL_HEIGHT, CELL_WIDTH
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 from DBDofusUnity.dofus_unity_reader.models.datas.collectionsroot import Collectable
-from PyQt6.QtCore import QPointF, Qt, pyqtSlot
-from PyQt6.QtGui import (
-    QBrush,
-    QColor,
-    QFont,
-    QGradient,
-    QMouseEvent,
-    QPainter,
-    QPen,
-    QPolygonF,
-    QResizeEvent,
-)
-from PyQt6.QtWidgets import (
-    QApplication,
-    QGraphicsEllipseItem,
-    QGraphicsItem,
-    QGraphicsPolygonItem,
-    QGraphicsScene,
-    QGraphicsTextItem,
-    QGraphicsView,
-)
+from PyQt6.QtCore import QPointF, QRectF, Qt, pyqtSlot
+from PyQt6.QtGui import QColor, QFont, QMouseEvent, QPaintEvent, QPainter, QPen, QPolygonF, QShowEvent
+from PyQt6.QtWidgets import QApplication, QWidget
 
 from src.core.signals.grid_signals import GridSignals
 from src.core.signals.world_signals import MapSignals
 from src.gui.utils.profiling import profiled_slot
 
 CELL_BORDER_COLOR = QColor("#A9A9A9")
-
 CIRCLE_CELL_SIZE = 15
+
+_MOVABLE_COLOR = QColor(Qt.GlobalColor.lightGray)
+_BLOCK_COLOR = QColor(Qt.GlobalColor.darkGray)
+_EMPTY_COLOR = QColor(Qt.GlobalColor.black)
+_DEFAULT_COLOR = QColor(Qt.GlobalColor.white)
+_ACTOR_COLOR = QColor(Qt.GlobalColor.red)
+_STATED_COLOR = QColor(Qt.GlobalColor.green)
+_STATED_DOWN_COLOR = QColor(144, 238, 144)
+_PATH_START_COLOR = QColor(Qt.GlobalColor.white)
+_PATH_END_COLOR = QColor(Qt.GlobalColor.red)
+_PATH_TREATED_COLOR = QColor(Qt.GlobalColor.green)
+
+_CELL_POINTS = tuple(
+    (cell_id, point.pixel_coord, (point.x, point.y)) for cell_id, point in MAP_POINT_BY_CELL_ID.items()
+)
+_MIN_X = min(pixel[0] for _, pixel, _ in _CELL_POINTS) - CELL_WIDTH / 2
+_MAX_X = max(pixel[0] for _, pixel, _ in _CELL_POINTS) + CELL_WIDTH / 2
+_MIN_Y = min(pixel[1] for _, pixel, _ in _CELL_POINTS) - CELL_HEIGHT / 2
+_MAX_Y = max(pixel[1] for _, pixel, _ in _CELL_POINTS) + CELL_HEIGHT / 2
+_SCENE_RECT = QRectF(_MIN_X, _MIN_Y, _MAX_X - _MIN_X, _MAX_Y - _MIN_Y)
 
 
 def readable_text_color(background: QColor) -> QColor:
@@ -42,134 +43,40 @@ def readable_text_color(background: QColor) -> QColor:
     return QColor(Qt.GlobalColor.black) if luminance > 0.5 else QColor(Qt.GlobalColor.white)
 
 
-def _make_cell_id_text(cell_id: int, parent: QGraphicsItem) -> QGraphicsTextItem:
-    text_item = QGraphicsTextItem(str(cell_id), parent=parent)
-    text_item.setDefaultTextColor(QColor(Qt.GlobalColor.black))
-    text_item.setFont(QFont("Arial", 10))
-    text_rect = text_item.boundingRect()
-    text_item.setPos(-text_rect.width() / 2, -text_rect.height() / 2)
-    return text_item
+@dataclass(slots=True)
+class CellState:
+    is_obstacle: bool = False
+    count_actor: int = 0
+    stated_element: StatedElement | None = None
+    collectable: Collectable | None = None
+    debug_color: QColor | None = None
 
-
-class SquareCell(QGraphicsPolygonItem):
-    MOVABLE = Qt.GlobalColor.lightGray
-    BLOCK = Qt.GlobalColor.darkGray
-    EMPTY = Qt.GlobalColor.black
-    PATH_FINDING_TREATED = Qt.GlobalColor.green
-    PATH_FINDING_START = Qt.GlobalColor.white
-    PATH_FINDING_END = Qt.GlobalColor.red
-
-    def __init__(self, cell_id: int):
-        super().__init__()
-
-        self.setPolygon(
-            QPolygonF(
-                [
-                    QPointF(-CELL_WIDTH / 2, 0),
-                    QPointF(0, CELL_HEIGHT / 2),
-                    QPointF(CELL_WIDTH / 2, 0),
-                    QPointF(0, -CELL_HEIGHT / 2),
-                ]
-            )
-        )
-        self.text_item = _make_cell_id_text(cell_id, self)
-
-        pen = QPen(CELL_BORDER_COLOR)
-        pen.setWidth(1)
-        self.setPen(pen)
-
-    @override
-    def setBrush(self, brush: QBrush | QColor | Qt.GlobalColor | int | QGradient) -> None:
-        super().setBrush(brush)
-        self.text_item.setDefaultTextColor(readable_text_color(QBrush(brush).color()))
-
-
-class StateCell(QGraphicsEllipseItem):
-    ACTOR = Qt.GlobalColor.red
-    STATED = Qt.GlobalColor.green
-    STATED_DOWN = QColor(144, 238, 144)
-    OBSTACLE = Qt.GlobalColor.darkGray
-
-    def __init__(self, cell_id: int) -> None:
-        super().__init__(
-            -CIRCLE_CELL_SIZE,
-            -CIRCLE_CELL_SIZE,
-            2 * CIRCLE_CELL_SIZE,
-            2 * CIRCLE_CELL_SIZE,
-        )
-        self.is_obstacle: bool = False
-        self.count_actor: int = 0
-        self.state_element: StatedElement | None = None
-        self.collectable: Collectable | None = None
-
-        self.text_item = _make_cell_id_text(cell_id, self)
-
-        self.update_state()
-
-    @override
-    def setBrush(self, brush: QBrush | QColor | Qt.GlobalColor | int | QGradient) -> None:
-        super().setBrush(brush)
-        self.text_item.setDefaultTextColor(readable_text_color(QBrush(brush).color()))
-
-    @property
-    def is_empty(self):
-        return not self.is_obstacle and self.count_actor == 0 and not self.state_element
-
-    def set_count_actor(self, count_actor: int) -> None:
-        self.count_actor = count_actor
-        self.update_state()
-
-    def set_state_element(
-        self, stated_element: StatedElement | None, collectable: Collectable | None
-    ) -> None:
-        self.state_element = stated_element
-        self.collectable = collectable
-        self.update_state()
-
-    def set_is_obstacle(self, is_obstacle: bool) -> None:
-        self.is_obstacle = is_obstacle
-        self.update_state()
-
-    def update_state(self) -> None:
+    def color(self) -> QColor | None:
+        if self.debug_color is not None:
+            return self.debug_color
         if self.is_obstacle:
-            self.setVisible(True)
-            self.setBrush(self.OBSTACLE)
-        elif self.state_element is not None:
-            self.setVisible(True)
-            if self.collectable is not None:
-                self.setBrush(self.STATED)
-            else:
-                self.setBrush(self.STATED_DOWN)
-        elif self.count_actor > 0:
-            self.setVisible(True)
-            self.setBrush(self.ACTOR)
-        else:
-            self.setVisible(False)
+            return _BLOCK_COLOR
+        if self.stated_element is not None:
+            return _STATED_COLOR if self.collectable is not None else _STATED_DOWN_COLOR
+        if self.count_actor > 0:
+            return _ACTOR_COLOR
+        return None
 
 
-class GridView(QGraphicsView):
+class GridView(QWidget):
     def __init__(
         self,
         grid_signals: GridSignals,
         debug_signals: MapSignals | None = None,
     ) -> None:
         super().__init__()
-        self.setStyleSheet("border: 0px")
-        self.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.grid_signals = grid_signals
         self.debug_signals = debug_signals
-        self._scene: QGraphicsScene = QGraphicsScene()
-
-        self.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-        self.cell_square_by_coord: dict[tuple[int, int], SquareCell] = {}
-        self.cell_state_by_coord: dict[tuple[int, int], StateCell] = {}
-
-        self.setScene(self._scene)
-
-        self.init_grid()
-
-        self.scale(0.75, 0.75)
+        self._map_id = 0
+        self._rendered_map_id = 0
+        self._cell_color_by_id: dict[int, QColor] = {}
+        self._state_by_cell_id = {cell_id: CellState() for cell_id in MAP_POINT_BY_CELL_ID}
+        self._font = QFont("Arial", 10)
 
         self.grid_signals.count_actor_on_cell_id_batch.connect(
             profiled_slot(self.on_new_count_actor_on_cell_id_batch)
@@ -187,108 +94,152 @@ class GridView(QGraphicsView):
             self.debug_signals.red_cells.connect(self.on_debug_red_cells)
             self.debug_signals.green_cell.connect(self.on_debug_green_cell)
 
-        self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
-        self.resizeEvent = self.on_resize
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
+        if self._map_id != self._rendered_map_id:
+            self._load_map_colors()
 
-    def mousePressEvent(self, event: QMouseEvent | None):
-        if event is not None and event.button() == Qt.MouseButton.LeftButton:
-            scene_pos = self.mapToScene(event.pos())
-            item = self._scene.itemAt(scene_pos, self.transform())
-            if isinstance(item, (SquareCell, StateCell)):
-                cell_id = int(item.text_item.toPlainText())
-                self.grid_signals.cell_id_clicked.emit(cell_id)
-            elif isinstance(item, QGraphicsTextItem):
-                cell_id = int(item.toPlainText())
-                self.grid_signals.cell_id_clicked.emit(cell_id)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        offset_x, offset_y, scale = self._view_transform()
+        painter.translate(offset_x, offset_y)
+        painter.scale(scale, scale)
+        painter.setFont(self._font)
 
-        return super().mousePressEvent(event)
+        border_pen = QPen(CELL_BORDER_COLOR)
+        border_pen.setWidthF(1 / scale)
+        painter.setPen(border_pen)
+        for cell_id, (x, y), _ in _CELL_POINTS:
+            color = self._cell_color_by_id.get(cell_id, _DEFAULT_COLOR)
+            painter.setBrush(color)
+            painter.drawPolygon(self._cell_polygon(x, y))
+            painter.setPen(readable_text_color(color))
+            painter.drawText(
+                QRectF(x - CELL_WIDTH / 2, y - CELL_HEIGHT / 2, CELL_WIDTH, CELL_HEIGHT),
+                Qt.AlignmentFlag.AlignCenter,
+                str(cell_id),
+            )
+            painter.setPen(border_pen)
 
-    def init_grid(self) -> None:
-        self.setUpdatesEnabled(False)
+        for cell_id, (x, y), _ in _CELL_POINTS:
+            color = self._state_by_cell_id[cell_id].color()
+            if color is None:
+                continue
+            painter.setBrush(color)
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.drawEllipse(QPointF(x, y), CIRCLE_CELL_SIZE, CIRCLE_CELL_SIZE)
+            painter.setPen(readable_text_color(color))
+            painter.drawText(
+                QRectF(
+                    x - CIRCLE_CELL_SIZE,
+                    y - CIRCLE_CELL_SIZE,
+                    CIRCLE_CELL_SIZE * 2,
+                    CIRCLE_CELL_SIZE * 2,
+                ),
+                Qt.AlignmentFlag.AlignCenter,
+                str(cell_id),
+            )
+        painter.end()
+        super().paintEvent(a0)
 
-        x: float
-        y: float
-        for cell_id, point in MAP_POINT_BY_CELL_ID.items():
-            x, y = point.pixel_coord
-            coord_cell = (point.x, point.y)
-            square_cell, state_cell = self.add_cell(x, y, cell_id)
-            self.cell_square_by_coord[coord_cell] = square_cell
-            self.cell_state_by_coord[coord_cell] = state_cell
+    def mousePressEvent(self, a0: QMouseEvent | None) -> None:
+        if a0 is not None and a0.button() == Qt.MouseButton.LeftButton:
+            offset_x, offset_y, scale = self._view_transform()
+            scene_pos = QPointF(
+                (a0.position().x() - offset_x) / scale,
+                (a0.position().y() - offset_y) / scale,
+            )
+            for cell_id, (x, y), _ in _CELL_POINTS:
+                if self._cell_polygon(x, y).containsPoint(scene_pos, Qt.FillRule.OddEvenFill):
+                    self.grid_signals.cell_id_clicked.emit(cell_id)
+                    break
+        super().mousePressEvent(a0)
 
-        self.setUpdatesEnabled(True)
+    def showEvent(self, a0: QShowEvent | None) -> None:
+        if self._map_id != self._rendered_map_id:
+            self._load_map_colors()
+        super().showEvent(a0)
 
-    def on_resize(self, event: QResizeEvent | None) -> None:
-        self.fitInView(self._scene.sceneRect(), mode=Qt.AspectRatioMode.KeepAspectRatio)
-        super().resizeEvent(event)
+    @staticmethod
+    def _cell_polygon(x: float, y: float) -> QPolygonF:
+        return QPolygonF(
+            [
+                QPointF(x - CELL_WIDTH / 2, y),
+                QPointF(x, y + CELL_HEIGHT / 2),
+                QPointF(x + CELL_WIDTH / 2, y),
+                QPointF(x, y - CELL_HEIGHT / 2),
+            ]
+        )
 
-    def add_cell(self, x: float, y: float, cell_id: int) -> tuple[SquareCell, StateCell]:
-        square_cell = SquareCell(cell_id)
-        square_cell.setPos(x, y)
-        self._scene.addItem(square_cell)
+    def _view_transform(self) -> tuple[float, float, float]:
+        scale = min(self.width() / _SCENE_RECT.width(), self.height() / _SCENE_RECT.height()) * 0.95
+        offset_x = (self.width() - _SCENE_RECT.width() * scale) / 2 - _SCENE_RECT.left() * scale
+        offset_y = (self.height() - _SCENE_RECT.height() * scale) / 2 - _SCENE_RECT.top() * scale
+        return offset_x, offset_y, scale
 
-        state_cell = StateCell(cell_id)
-        state_cell.setPos(x, y)
-        self._scene.addItem(state_cell)
+    def _load_map_colors(self) -> None:
+        self._cell_color_by_id.clear()
+        if self._map_id == 0:
+            self._rendered_map_id = 0
+            return
+        for cell_data in MapReader().map_by_id(self._map_id).mapData.cellsData:
+            if cell_data.mov == 1:
+                color = _MOVABLE_COLOR
+            elif cell_data.los != 1:
+                color = _BLOCK_COLOR
+            else:
+                color = _EMPTY_COLOR
+            self._cell_color_by_id[cell_data.cellNumber] = color
+        self._rendered_map_id = self._map_id
 
-        return square_cell, state_cell
+    def _request_visible_update(self) -> None:
+        if self.isVisible():
+            self.update()
 
     @pyqtSlot(int)
-    def on_new_map_id(self, map_id: int):
-        self.setUpdatesEnabled(False)
-        for cell_data in MapReader().map_by_id(map_id).mapData.cellsData:
-            mp = MapPoint.from_cell_id(cell_data.cellNumber)
-            cell_square = self.cell_square_by_coord[(mp.x, mp.y)]
-            if cell_data.mov == 1:
-                cell_square.setBrush(SquareCell.MOVABLE)
-            elif cell_data.los != 1:
-                cell_square.setBrush(SquareCell.BLOCK)
-            else:
-                cell_square.setBrush(SquareCell.EMPTY)
-        self.setUpdatesEnabled(True)
+    def on_new_map_id(self, map_id: int) -> None:
+        self._map_id = map_id
+        if self.isVisible():
+            self._load_map_colors()
+            self.update()
 
     @pyqtSlot(list)
-    def on_new_count_actor_on_cell_id_batch(self, items: list[tuple[int, int]]):
-        self.setUpdatesEnabled(False)
+    def on_new_count_actor_on_cell_id_batch(self, items: list[tuple[int, int]]) -> None:
         for cell_id, count_actor in items:
-            if cell_id not in MAP_POINT_BY_CELL_ID:
-                continue
-            mp = MapPoint.from_cell_id(cell_id)
-            self.cell_state_by_coord[(mp.x, mp.y)].set_count_actor(count_actor)
-        self.setUpdatesEnabled(True)
+            if cell_id in self._state_by_cell_id:
+                self._state_by_cell_id[cell_id].count_actor = count_actor
+        self._request_visible_update()
 
     @pyqtSlot(list)
     def on_set_stated_element_on_cell_id_batch(
         self, items: list[tuple[int, StatedElement | None, Collectable | None]]
-    ):
-        self.setUpdatesEnabled(False)
+    ) -> None:
         for cell_id, stated_element, collectable in items:
-            mp = MapPoint.from_cell_id(cell_id)
-            self.cell_state_by_coord[(mp.x, mp.y)].set_state_element(stated_element, collectable)
-        self.setUpdatesEnabled(True)
+            state = self._state_by_cell_id[cell_id]
+            state.stated_element = stated_element
+            state.collectable = collectable
+        self._request_visible_update()
 
     @pyqtSlot(list)
-    def on_set_obstacle_on_cell_id_batch(self, items: list[tuple[int, bool]]):
-        self.setUpdatesEnabled(False)
+    def on_set_obstacle_on_cell_id_batch(self, items: list[tuple[int, bool]]) -> None:
         for cell_id, is_obstacle in items:
-            mp = MapPoint.from_cell_id(cell_id)
-            self.cell_state_by_coord[(mp.x, mp.y)].set_is_obstacle(is_obstacle)
-        self.setUpdatesEnabled(True)
+            self._state_by_cell_id[cell_id].is_obstacle = is_obstacle
+        self._request_visible_update()
 
     @pyqtSlot(MapPoint)
-    def on_debug_white_cell(self, mp: MapPoint):
-        self.cell_state_by_coord[(mp.x, mp.y)].setVisible(True)
-        self.cell_state_by_coord[(mp.x, mp.y)].setBrush(SquareCell.PATH_FINDING_START)
+    def on_debug_white_cell(self, mp: MapPoint) -> None:
+        self._state_by_cell_id[mp.cell_id].debug_color = _PATH_START_COLOR
+        self._request_visible_update()
 
     @pyqtSlot(MapPoint)
-    def on_debug_red_cells(self, mps: set[MapPoint]):
+    def on_debug_red_cells(self, mps: set[MapPoint]) -> None:
         for mp in mps:
-            self.cell_state_by_coord[(mp.x, mp.y)].setVisible(True)
-            self.cell_state_by_coord[(mp.x, mp.y)].setBrush(SquareCell.PATH_FINDING_END)
+            self._state_by_cell_id[mp.cell_id].debug_color = _PATH_END_COLOR
+        self._request_visible_update()
 
     @pyqtSlot(MapPoint)
-    def on_debug_green_cell(self, mp: MapPoint):
-        self.cell_state_by_coord[(mp.x, mp.y)].setVisible(True)
-        self.cell_state_by_coord[(mp.x, mp.y)].setBrush(SquareCell.PATH_FINDING_TREATED)
+    def on_debug_green_cell(self, mp: MapPoint) -> None:
+        self._state_by_cell_id[mp.cell_id].debug_color = _PATH_TREATED_COLOR
+        self._request_visible_update()
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import SpellLevelsRootItem
 
 from src.core.engine.contexts import AttackContext
-from src.core.engine.fights.attack.models import RejectionStat
+from src.core.engine.fights.attack.rejection_stat import RejectionStat
 from src.core.engine.fights.los_detector import LosDetector
 from src.core.engine.fights.spell import does_spell_need_test_los
 from src.core.engine.fights.spell_modifier import SpellModifiers
@@ -20,7 +20,7 @@ def can_cast_spell_on_mp(
     rejection_stats: dict[RejectionStat, int],
 ) -> bool:
     targetable_mp_data = MapReader().get_cell_data_by_cell_id(context.map_id, mp.cell_id)
-    if not targetable_mp_data.mov or not targetable_mp_data.los:
+    if not targetable_mp_data.mov or not targetable_mp_data.los or mp.cell_id in context.invisible_enemy_cell_ids:
         rejection_stats[RejectionStat.CELL_NOT_WALKABLE] += 1
         return False
 

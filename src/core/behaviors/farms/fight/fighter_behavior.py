@@ -27,7 +27,13 @@ class FighterBehavior(BaseFarmBehavior):
         sub_area_id: int | None,
         is_stopped_at_new_map_condition: Callable[[], bool] | None = None,
     ) -> None:
-        self.ensure_free_to_act(lambda: self.start_fighting(area_id=area_id, sub_area_id=sub_area_id, is_stopped_at_new_map_condition=is_stopped_at_new_map_condition))
+        self.ensure_free_to_act(
+            lambda: self.start_fighting(
+                area_id=area_id,
+                sub_area_id=sub_area_id,
+                is_stopped_at_new_map_condition=is_stopped_at_new_map_condition,
+            )
+        )
 
     def start_fighting(
         self,

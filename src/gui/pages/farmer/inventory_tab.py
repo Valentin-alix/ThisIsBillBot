@@ -5,6 +5,7 @@ from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
     CharacterInventoryPositionEnum,
 )
 from PyQt6.QtCore import QSize, QTimer, pyqtSlot
+from PyQt6.QtGui import QShowEvent
 from PyQt6.QtWidgets import (
     QHBoxLayout,
     QListView,
@@ -39,6 +40,7 @@ class InventoryTab(QWidget):
         self.signals_connected = False
         self.inventory_weight: int = 0
         self.weight_max: int = 0
+        self._render_dirty = False
         self._rebuild_timer = QTimer(self)
         self._rebuild_timer.setInterval(50)
         self._rebuild_timer.setSingleShot(True)
@@ -101,9 +103,12 @@ class InventoryTab(QWidget):
     def on_clear_inventory(self):
         self.items_by_uid.clear()
         self._rebuild_timer.stop()
-        self.list_widget.clear()
-        self.list_item_by_uid.clear()
-        self.equipment_panel.set_items({})
+        if self.isVisible():
+            self.list_widget.clear()
+            self.list_item_by_uid.clear()
+            self.equipment_panel.set_items({})
+        else:
+            self._render_dirty = True
 
     @pyqtSlot(int)
     def on_inventory_weight_updated(self, inventory_weight: int):
@@ -119,7 +124,8 @@ class InventoryTab(QWidget):
         self.weight_label.setText(f"Poids : {self.inventory_weight}/{self.weight_max}")
 
     def _schedule_rebuild(self) -> None:
-        if not self._rebuild_timer.isActive():
+        self._render_dirty = True
+        if self.isVisible() and not self._rebuild_timer.isActive():
             self._rebuild_timer.start()
 
     def _rebuild_sorted_list(self) -> None:
@@ -144,6 +150,7 @@ class InventoryTab(QWidget):
             self.list_widget.addItem(list_item)
             self.list_item_by_uid[object_item.item.uid] = list_item
         self.list_widget.setUpdatesEnabled(True)
+        self._render_dirty = False
 
     def _get_item_text(self, object_item: ObjectItemInventory) -> str:
         item_name = get_item_name(object_item)
@@ -186,3 +193,8 @@ class InventoryTab(QWidget):
         inventory_items = list(self.bot.game_state.inventory.objects_by_uid.values())
         if inventory_items:
             self.on_added_object_items_batch(inventory_items)
+
+    def showEvent(self, a0: QShowEvent | None) -> None:
+        if self._render_dirty:
+            self._rebuild_sorted_list()
+        super().showEvent(a0)

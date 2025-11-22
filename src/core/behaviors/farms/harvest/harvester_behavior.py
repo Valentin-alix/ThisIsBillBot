@@ -2,6 +2,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from context_pb2 import ContextCreationEvent
+
 from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
@@ -10,7 +11,6 @@ from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import (
 )
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.game_constants.item import ItemTypeEnum
-
 from src.controller.game_data import GameDataController
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmBehavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
@@ -167,12 +167,12 @@ class HarvesterBehavior(BaseFarmBehavior):
     def purge_inventory(self) -> None:
         self.logger.info("Purging inventory from harvest bags")
         for object in self.game_state.inventory.objects_by_uid.values():
-
             if object.item.gid not in DataReader().item_by_id:
                 continue
 
             type_item = DataReader().item_by_id[object.item.gid].typeId
             if type_item == ItemTypeEnum.RESOURCE_BAG:
+
                 def use_harvest_bag():
                     req = ObjectUseRequest(object_uid=object.item.uid)
                     self.event_manager.send(req)

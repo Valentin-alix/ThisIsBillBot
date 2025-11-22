@@ -1,7 +1,7 @@
 from functools import partial
 
 from PyQt6 import QtCore, QtWidgets
-from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, QTimer, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import (
     QHeaderView,
     QTableView,
@@ -23,6 +23,10 @@ class FilterHeaderView(QHeaderView):
         self.signals = HeaderFilterSignals(parent=self)
         self.line_edits: list[LineEdit] = []
         self.header_filters: list[str] = []
+        self._filter_timer = QTimer(self)
+        self._filter_timer.setInterval(250)
+        self._filter_timer.setSingleShot(True)
+        self._filter_timer.timeout.connect(self._emit_filters)
         self.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.setDefaultAlignment(QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.sectionResized.connect(profiled_slot(self.adjust_positions))
@@ -33,7 +37,10 @@ class FilterHeaderView(QHeaderView):
     @pyqtSlot(int, str)
     def on_new_filter_input(self, index: int, value: str) -> None:
         self.header_filters[index] = value
-        self.signals.new_filter_input.emit(self.header_filters)
+        self._filter_timer.start()
+
+    def _emit_filters(self) -> None:
+        self.signals.new_filter_input.emit(list(self.header_filters))
 
     def set_columns(self, column_infos: list[ColumnInfo]):
         for index, col_info in enumerate(column_infos):

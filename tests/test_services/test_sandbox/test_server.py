@@ -1,3 +1,4 @@
+import json
 import socket
 import time
 
@@ -12,17 +13,27 @@ def test_sandbox_server_smoke(runtime_bot: Bot) -> None:
     try:
         with socket.create_connection(("127.0.0.1", 16666)) as connection:
             connection.sendall(b"list\n")
-            response = connection.recv(4096)
-            assert response == b"TEST\n"
+            response = json.loads(connection.recv(4096))
+            assert response == {
+                "bots": [
+                    {
+                        "login": "TEST",
+                        "account_id": 1,
+                        "connected": False,
+                        "in_fight": False,
+                        "current_behavior": None,
+                    }
+                ]
+            }
 
         with socket.create_connection(("127.0.0.1", 16666)) as connection:
             connection.sendall(b"TEST\n1+1\n---END---\n")
-            response = connection.recv(4096)
-            assert response == b"STDOUT:\n\nRESULT:\n2\n"
+            response = json.loads(connection.recv(4096))
+            assert response == {"stdout": "", "result": "2", "error": None}
 
         with socket.create_connection(("127.0.0.1", 16666)) as connection:
             connection.sendall(b"UNKNOWN\ncode\n---END---\n")
-            response = connection.recv(4096)
-            assert response == b"ERROR:\nUnknown bot login 'UNKNOWN'\n"
+            response = json.loads(connection.recv(4096))
+            assert response == {"stdout": "", "result": None, "error": "Unknown bot login 'UNKNOWN'"}
     finally:
         server.stop()

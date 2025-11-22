@@ -9,7 +9,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.z
 
 class BotRecord(BaseModel):
     email: str
-    password: str
+    password: str | None = None
     hardware_id: str
     schedule_profile: str | None = None
     connection_mode: Literal["mitm", "socket"] = "socket"

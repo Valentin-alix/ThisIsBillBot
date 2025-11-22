@@ -20,7 +20,7 @@ from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import (
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 
 from src import consts
-from src.core.engine.fights.attack.models import EnemyData
+from src.core.engine.fights.attack.enemy_data import EnemyData, get_monster_max_spell_range
 from src.core.engine.fights.effect import get_effect_elem_by_stat
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
 from src.core.engine.monsters.monster_group import MonsterFighter
@@ -52,7 +52,7 @@ class FightState(State):
         init=False, default_factory=lambda: defaultdict(int)
     )
 
-    last_cast_turn_by_spell_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict[int, int])
+    cast_turn_by_spell_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict[int, int])
     characteristic_by_id: dict[int, CharacterCharacteristic] = dataclasses.field(
         init=False, default_factory=dict[int, CharacterCharacteristic]
     )
@@ -62,6 +62,7 @@ class FightState(State):
     _life_point: int = dataclasses.field(init=False, default=1)
     _max_life_point: int = dataclasses.field(init=False, default=1)
     last_atk_info: LastAtkInfo | None = dataclasses.field(init=False, default=None)
+    invisible_enemy_cell_ids: set[int] = dataclasses.field(init=False, default_factory=set[int])
 
     def clear_state(self):
         self.fight_placement_possible_positions.clear()
@@ -69,11 +70,15 @@ class FightState(State):
         self.spells.clear()
         self.modifier_by_type_and_spell_id.clear()
         self.count_casted_by_spell_id_on_current_turn.clear()
-        self.last_cast_turn_by_spell_id.clear()
+        self.cast_turn_by_spell_id.clear()
         self.characteristic_by_id.clear()
         self.in_fight = False
         self.fight_turn = 0
         self.last_atk_info = None
+        self.invisible_enemy_cell_ids.clear()
+
+    def add_invisible_enemy_cell(self, cell_id: int) -> None:
+        self.invisible_enemy_cell_ids.add(cell_id)
 
     def get_stat_by_id(self, characteristic: int) -> int:
         value = get_stat_by_id(self.characteristic_by_id.get(characteristic))
@@ -281,6 +286,27 @@ class FightState(State):
 
         return enemies
 
+    def count_own_active_summons(
+        self,
+        character_id: int,
+        actor_by_id: Mapping[int, ActorPositionInformation],
+        actor_fight_by_id: Mapping[int, FightActor],
+    ) -> int:
+        player_actor = actor_by_id.get(character_id)
+        if player_actor is None:
+            return 0
+
+        player_team = player_actor.actor_information.fighter.spawn_information.team
+        return sum(
+            1
+            for actor in actor_by_id.values()
+            if actor.actor_id != character_id
+            and actor.actor_information.fighter.spawn_information.team == player_team
+            and (actor_fight := actor_fight_by_id.get(actor.actor_id)) is not None
+            and actor_fight.is_summoned
+            and actor_fight.life_point > 0
+        )
+
     def get_enemies_data(
         self,
         enemies: list[ActorPositionInformation],
@@ -326,6 +352,8 @@ class FightState(State):
                     monster_grade=monster_grade,
                     invisibility=actor_fight.invisibility,
                     state_ids=actor_fight.state_ids,
+                    movement_points=monster_grade.movementPoints,
+                    max_spell_range=get_monster_max_spell_range(monster, monster_grade),
                 )
             )
         return enemies_data

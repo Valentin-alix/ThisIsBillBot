@@ -21,9 +21,6 @@ def map_spell_level() -> None:
             if old_value is None:
                 continue
             if old_value is True:
-                # name_spell = I18N().name_by_id[
-                #     DataReader().spell_by_id[spell_lvl.spellId].nameId
-                # ]
                 count_flags_verified[spell_lvl.m_flags] += 1
 
     valids = [flag for flag, count in count_flags_verified.items() if count > _MIN_THRESHOLD]

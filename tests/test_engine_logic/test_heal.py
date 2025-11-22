@@ -16,12 +16,10 @@ from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
 
 from src.core.engine.contexts import AttackContext
 from src.core.engine.fights import effect as effect_module
+from src.core.engine.fights.attack import attacker as attacker_module
 from src.core.engine.fights.attack import heal
-from src.core.engine.fights.attack.heal import (
-    estimate_self_heal,
-    find_best_self_heal,
-    is_heal_effect,
-)
+from src.core.engine.fights.attack.attacker import Attacker
+from src.core.engine.fights.attack.heal import _self_heal_effect, estimate_self_heal, is_heal_effect
 from src.core.engine.fights.effect import can_self_cast
 from src.core.engine.fights.spell_modifier import SpellModifiers
 from tests.fixtures.data import (
@@ -29,6 +27,14 @@ from tests.fixtures.data import (
     make_spell_effect,
     make_spell_level,
 )
+
+
+def _make_attacker() -> Attacker:
+    return Attacker(
+        _logger=MagicMock(),
+        fight_reachable_cells=MagicMock(),
+        damage_calculator=MagicMock(),
+    )
 
 
 def _effect(
@@ -89,6 +95,23 @@ class TestIsHealEffect:
         assert is_heal_effect(_effect()) is False
 
 
+class TestSelfHealEffect:
+    def _patch_description_id(self, monkeypatch: pytest.MonkeyPatch, description_id: int) -> None:
+        monkeypatch.setattr(
+            effect_module,
+            "DataReader",
+            lambda: SimpleNamespace(effect_by_id={1: SimpleNamespace(descriptionId=description_id)}),
+        )
+
+    def test_accepts_vitality_buff_effect(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        self._patch_description_id(monkeypatch, DescriptionEnum.BUFF_VITALITY)
+        assert _self_heal_effect(_effect(target_mask="c")) is True
+
+    def test_rejects_vitality_buff_effect_not_self_castable(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        self._patch_description_id(monkeypatch, DescriptionEnum.BUFF_VITALITY)
+        assert _self_heal_effect(_effect(target_mask="A")) is False
+
+
 class TestCanSelfCast:
     def test_self_mask_is_castable(self) -> None:
         assert can_self_cast(_effect(target_mask="C")) is True
@@ -144,6 +167,17 @@ class TestEstimateSelfHeal:
 
         assert estimate_self_heal(_effect(dice_num=50, dice_side=50), context) == 50
 
+    def test_vitality_buff_has_no_stat_scaling(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        _patch_effect_description(monkeypatch, DescriptionEnum.BUFF_VITALITY)
+        context = cast(
+            AttackContext,
+            SimpleNamespace(
+                characteristic_by_id=make_characteristics({CharacteristicEnum.INTELLIGENCE: 100})
+            ),
+        )
+
+        assert estimate_self_heal(_effect(dice_num=12, dice_side=0), context) == 12
+
 
 class TestFindBestSelfHeal:
     def _patch_spells(
@@ -158,11 +192,11 @@ class TestFindBestSelfHeal:
         ) -> list[tuple[SpellLevelsRootItem, Effect, SpellModifiers]]:
             return spells
 
-        monkeypatch.setattr(heal, "get_valid_heal_spells_for_turn", _fake)
+        monkeypatch.setattr(attacker_module, "get_valid_heal_spells_for_turn", _fake)
 
     def test_no_heal_when_no_spells(self, monkeypatch: pytest.MonkeyPatch) -> None:
         self._patch_spells(monkeypatch, [])
-        assert find_best_self_heal(_context(life_point=100), MagicMock()) is None
+        assert _make_attacker().find_best_self_heal(_context(life_point=100)) is None
 
     def test_picks_most_efficient_heal(self, monkeypatch: pytest.MonkeyPatch) -> None:
 
@@ -173,6 +207,6 @@ class TestFindBestSelfHeal:
                 (_spell(2), _effect(dice_num=300, dice_side=300), _modifiers(2)),
             ],
         )
-        best = find_best_self_heal(_context(life_point=300), MagicMock())
+        best = _make_attacker().find_best_self_heal(_context(life_point=300))
         assert best is not None
         assert best.spellId == 2

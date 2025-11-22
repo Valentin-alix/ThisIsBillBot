@@ -67,10 +67,6 @@ def _isolate_resource_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> 
         "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.debug_utils.DEBUG_DUMPS_DIR",
         tmp_path / "debug" / "dumps",
     )
-    monkeypatch.setattr(
-        "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.subscription.xsolla_paysafecard.DEBUG_DUMPS_DIR",
-        tmp_path / "debug" / "dumps",
-    )
 
 
 @pytest.fixture(autouse=True)

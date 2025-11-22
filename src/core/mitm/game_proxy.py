@@ -80,7 +80,7 @@ class GameProxy(Proxy):
 
         self.bot.debug_recorder.record_game_message(clear_sub_msg, obf_sub_msg, uid, from_server, source)
 
-        if consts.DEBUG:
+        if consts.DEBUG and self.bot.msg_info_signals.capture_enabled:
             msg_infos = get_game_msg_info(
                 clear_sub_msg,
                 obf_sub_msg,

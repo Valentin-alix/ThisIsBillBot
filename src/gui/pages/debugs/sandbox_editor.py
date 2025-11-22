@@ -3,11 +3,11 @@ import logging
 import re
 from collections.abc import Callable
 
+from pyflakes.checker import Checker
 from PyQt6.Qsci import QsciLexerPython, QsciScintilla
 from PyQt6.QtCore import QTimer, pyqtSignal
 from PyQt6.QtGui import QColor, QFont
 from PyQt6.QtWidgets import QWidget
-from pyflakes.checker import Checker
 
 from src.services.sandbox.completions import get_completions
 
@@ -34,7 +34,7 @@ class SandboxCodeEdit(QsciScintilla):
 
         self._syntax_timer = QTimer(self)
         self._syntax_timer.setSingleShot(True)
-        self._syntax_timer.setInterval(300)
+        self._syntax_timer.setInterval(2_000)
         self._syntax_timer.timeout.connect(self._check_syntax)
 
         self.textChanged.connect(self._on_text_changed)

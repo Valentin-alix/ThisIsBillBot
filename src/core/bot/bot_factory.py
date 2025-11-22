@@ -110,6 +110,7 @@ from src.core.behaviors.storage.unloads.unload_in_guild_chest_behavior import (
 )
 from src.core.bot.bot import Bot
 from src.core.engine.fights.attack.attacker import Attacker
+from src.core.engine.fights.attack.breed_abilities import BreedAbilitySelector
 from src.core.engine.fights.damage_calculator import DamageCalculator
 from src.core.engine.fights.reachable_cells.fight_reachable_cells import (
     FightReachableCells,
@@ -193,7 +194,11 @@ class BotFactory:
         fight_reachable_cells = FightReachableCells()
         damage_calculator = DamageCalculator()
         attacker = Attacker(
-            path_finding=path_finding,
+            _logger=logger,
+            fight_reachable_cells=fight_reachable_cells,
+            damage_calculator=damage_calculator,
+        )
+        breed_ability_selector = BreedAbilitySelector(
             _logger=logger,
             fight_reachable_cells=fight_reachable_cells,
             damage_calculator=damage_calculator,
@@ -372,9 +377,9 @@ class BotFactory:
             fight_spell_behavior=fight_spell_behavior,
             event_manager=event_manager,
             fight_movement_behavior=fight_movement_behavior,
-            path_finding=path_finding,
             game_state=game_state,
-            attacker=attacker,
+            attack_selector=attacker,
+            breed_ability_selector=breed_ability_selector,
         )
         auto_equipment_from_inventory_behavior = AutoEquipmentFromInventoryBehavior(
             event_manager=event_manager,

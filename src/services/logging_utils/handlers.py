@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 from src.core.signals.log_signals import LogSignals
@@ -14,4 +15,8 @@ class LogSignalHandler(logging.Handler):
 
     def emit(self, record: logging.LogRecord):
         msg = self.format(record)
-        self.signals.log_emitted.emit(LogLevel(record.levelno), msg)
+        self.signals.publish(
+            LogLevel(record.levelno),
+            msg,
+            datetime.fromtimestamp(record.created),
+        )

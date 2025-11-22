@@ -15,7 +15,7 @@ from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
 )
 
 from src.core.engine.contexts import AttackContext
-from src.core.engine.fights.attack.models import AttackWeights, EnemyData
+from src.core.engine.fights.attack.enemy_data import EnemyData
 from src.core.engine.fights.attack.push import estimate_collision_damage
 from src.core.engine.fights.damage_calculator import DamageCalculator
 from src.core.engine.fights.effect import (
@@ -30,6 +30,16 @@ from src.core.engine.fights.spell_modifier import SpellModifiers
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
 
 LIFE_STEAL_PATTERN = re.compile(r"\bvol\b", re.IGNORECASE)
+
+
+class AttackWeights:
+    LIFE_RECOVERY_MULTIPLIER = 2
+    LIFE_STEAL_RATIO = 0.5
+    ENEMY_KILL_BONUS = 1.0
+    SUMMONED_KILL_BONUS = 0.5
+    SUMMONED_DAMAGE_DIVISOR = 2
+
+    ALLY_HIT_PENALTY_FACTOR = 0.1
 
 
 def calculate_attack_weight(

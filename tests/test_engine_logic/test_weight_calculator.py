@@ -18,7 +18,7 @@ from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
 from src.core.engine.contexts import AttackContext
 from src.core.engine.fights import effect as effect_module
 from src.core.engine.fights.attack import weight_calculator
-from src.core.engine.fights.attack.models import EnemyData
+from src.core.engine.fights.attack.enemy_data import EnemyData
 from src.core.engine.fights.attack.weight_calculator import calculate_attack_weight
 from src.core.engine.fights.spell_modifier import SpellModifiers
 from tests.fixtures.data import make_spell_effect, make_spell_level, make_zone_descr
@@ -74,6 +74,8 @@ def _make_enemy(
         max_life_point=max_life_point,
         is_summoned=is_summoned,
         monster_grade=MagicMock(),
+        movement_points=0,
+        max_spell_range=0,
         invisibility=invisibility,
         state_ids=state_ids,
     )

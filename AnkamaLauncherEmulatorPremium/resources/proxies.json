@@ -8,29 +8,39 @@
       "username": "14aae09db58a6",
       "password": "76e882c1f9",
       "operation_timestamps": [
-        1786882833.7097816,
-        1786886287.427621
+        1786120222.3604507,
+        1786123305.0086074,
+        1786130207.9861903,
+        1786131547.1222637
       ],
       "register_cooldown_until": null
     },
     "C": {
-      "rejected": true,
-      "host": "0.0.0.0",
-      "http_port": 1,
-      "socks_port": 1,
-      "username": "unset",
-      "password": "unset",
-      "operation_timestamps": [],
+      "rejected": false,
+      "host": "72.9.173.85",
+      "http_port": 12323,
+      "socks_port": 12324,
+      "username": "14aae09db58a6",
+      "password": "76e882c1f9",
+      "operation_timestamps": [
+        1786130946.3100097,
+        1786131847.2736208,
+        1786134548.6772728
+      ],
       "register_cooldown_until": null
     },
     "E": {
-      "rejected": true,
-      "host": "0.0.0.0",
-      "http_port": 1,
-      "socks_port": 1,
-      "username": "unset",
-      "password": "unset",
-      "operation_timestamps": [],
+      "rejected": false,
+      "host": "88.223.23.10",
+      "http_port": 12323,
+      "socks_port": 12324,
+      "username": "14aae09db58a6",
+      "password": "76e882c1f9",
+      "operation_timestamps": [
+        1786122954.659675,
+        1786131246.9475925,
+        1786132147.4337678
+      ],
       "register_cooldown_until": null
     }
   }

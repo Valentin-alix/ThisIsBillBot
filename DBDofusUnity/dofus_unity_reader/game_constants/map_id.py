@@ -27,6 +27,17 @@ class MapIdEnum(IntEnum):
 
 BANK_MAP_IDS: list[MapIdEnum] = [MapIdEnum.ASTRUB_BANK, MapIdEnum.BONTA_BANK]
 
+FORBIDDEN_MAP_IDS: set[int] = {
+    99096071,  # (3,-17)
+    206046725,  # (1,-5)
+    193331717,  # (4,2)
+    99096067,  # (-16,4)
+    103547392,  # (9,-17)
+    153358342,  # (15,-31)
+    153357312,  # (9,21)
+    73400323,  # (4,-4)
+}
+
 MAP_IDS_THAT_POP_DIALOG: set[int] = {241445377}
 
 

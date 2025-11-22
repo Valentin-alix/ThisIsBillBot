@@ -80,7 +80,7 @@ class TestGameClientSendRoutesToProcessMsg:
         game_client.send_msg(clear_msg)
 
         fight = runtime_bot.game_state.fight
-        assert fight.last_cast_turn_by_spell_id.get(13052) == 5
+        assert fight.cast_turn_by_spell_id.get(13052) == 5
         assert fight.count_casted_by_spell_id_on_current_turn.get(13052) == 1
         runtime_bot.debug_recorder.record_game_message.assert_called_once()
         recorded_clear_msg = runtime_bot.debug_recorder.record_game_message.call_args.args[0]

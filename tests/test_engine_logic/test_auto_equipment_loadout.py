@@ -5,7 +5,10 @@ from typing import Any, cast
 
 import pytest
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectEffect, ObjectItem, ObjectItemInventory
-from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import ObjectAddedEvent, ObjectMovementEvent
+from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import (
+    ObjectAddedEvent,
+    ObjectMovementEvent,
+)
 from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import (
     CharacteristicEnum,
     EffectElement,
@@ -16,6 +19,7 @@ from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
 
 from src.core.behaviors.items.auto_equipment_from_inventory_behavior import (
     AutoEquipmentFromInventoryBehavior,
+    _equipment_signature,
 )
 from src.core.engine.items import equipment as equipment_module
 from src.core.states.game_state import GameState
@@ -56,6 +60,69 @@ def _make_behavior() -> AutoEquipmentFromInventoryBehavior:
 
 
 class TestBestLoadout:
+    def test_keeps_equivalent_equipped_ring_when_another_ring_improves(self) -> None:
+        behavior = _make_behavior()
+        equipped_ring = _make_item(uid=1, gid=900, action=_POWER_ACTION, value_int=10)
+        weak_ring = _make_item(uid=2, gid=901, action=_VITALITY_ACTION, value_int=1)
+        equivalent_copy = _make_item(uid=3, gid=900, action=_POWER_ACTION, value_int=10)
+        stronger_ring = _make_item(uid=4, gid=902, action=_POWER_ACTION, value_int=20)
+        current = {
+            CharacterInventoryPositionEnum.InventoryPositionRingLeft: equipped_ring,
+            CharacterInventoryPositionEnum.InventoryPositionRingRight: weak_ring,
+        }
+
+        best = behavior._best_loadout(current, [equivalent_copy, stronger_ring])
+
+        assert best[CharacterInventoryPositionEnum.InventoryPositionRingLeft].item.uid == 1
+        assert best[CharacterInventoryPositionEnum.InventoryPositionRingRight].item.uid == 4
+
+    def test_duplicate_gid_copy_does_not_fill_an_empty_second_slot(self) -> None:
+        """The game rejects equipping two items sharing the same gid at once
+        (ObjectError.CANNOT_EQUIP_TWICE), even in two different ring slots."""
+        behavior = _make_behavior()
+        equipped_ring = _make_item(uid=1, gid=900, action=_POWER_ACTION, value_int=10)
+        duplicate_copy = _make_item(uid=2, gid=900, action=_POWER_ACTION, value_int=10)
+        current = {CharacterInventoryPositionEnum.InventoryPositionRingLeft: equipped_ring}
+
+        best = behavior._best_loadout(current, [duplicate_copy])
+
+        assert best[CharacterInventoryPositionEnum.InventoryPositionRingLeft].item.gid == 900
+        assert CharacterInventoryPositionEnum.InventoryPositionRingRight not in best
+
+    def test_better_rolled_duplicate_gid_replaces_equipped_copy(self) -> None:
+        """A same-gid inventory copy with a strictly better roll should still be usable as
+        an upgrade (single slot swap), not discarded outright by the gid dedup."""
+        behavior = _make_behavior()
+        equipped_ring = _make_item(uid=1, gid=900, action=_POWER_ACTION, value_int=10)
+        better_copy = _make_item(uid=2, gid=900, action=_POWER_ACTION, value_int=20)
+        current = {CharacterInventoryPositionEnum.InventoryPositionRingLeft: equipped_ring}
+
+        best = behavior._best_loadout(current, [better_copy])
+
+        assert best[CharacterInventoryPositionEnum.InventoryPositionRingLeft].item.uid == 2
+        assert CharacterInventoryPositionEnum.InventoryPositionRingRight not in best
+
+    def test_effect_order_does_not_change_equipment_signature(self) -> None:
+        first = ObjectItemInventory(
+            item=ObjectItem(
+                uid=1,
+                gid=900,
+                effects=[
+                    ObjectEffect(action=_POWER_ACTION, value_int=10),
+                    ObjectEffect(action=_VITALITY_ACTION, value_int=20),
+                ],
+            )
+        )
+        second = ObjectItemInventory(
+            item=ObjectItem(
+                uid=2,
+                gid=900,
+                effects=list(reversed(first.item.effects)),
+            )
+        )
+
+        assert _equipment_signature(first) == _equipment_signature(second)
+
     def test_picks_top_two_of_three_ring_candidates(self) -> None:
         behavior = _make_behavior()
         strong_ring = _make_item(uid=1, gid=900, action=_POWER_ACTION, value_int=10)
@@ -128,9 +195,9 @@ def _make_equip_behavior(
 ) -> tuple[AutoEquipmentFromInventoryBehavior, _FakeEventManager, list[object]]:
     behavior = _make_behavior()
     behavior._positions_by_uid = {pending_uid: position}
-    behavior._pending_uid = None
     behavior._pending_position = None
-    behavior.game_state.inventory = SimpleNamespace(objects_by_uid={pending_uid: object()})  # type: ignore[attr-defined]
+    pending_item = SimpleNamespace(position=CharacterInventoryPositionEnum.InventoryPositionNotEquiped)
+    behavior.game_state.inventory = SimpleNamespace(objects_by_uid={pending_uid: pending_item})  # type: ignore[attr-defined]
     fake_event_manager = _FakeEventManager()
     behavior.event_manager = cast(Any, fake_event_manager)
     behavior.send_message_delayed = lambda *_args, **_kwargs: None  # type: ignore[method-assign]
@@ -140,27 +207,11 @@ def _make_equip_behavior(
 
 
 class TestEquipConfirmation:
-    """Regression coverage for the amulet-swap incident: swapping into an already-occupied
-    slot makes the server regenerate the item (new uid) and announce it via ObjectAddedEvent
-    instead of ObjectMovementEvent, so confirmation must match on position, not uid."""
+    """Confirmation fires on an `ObjectMovementEvent` or `ObjectAddedEvent` matching the
+    pending position; the uid isn't checked since a stack-split item gets a new one that
+    can't be known ahead of time. A non-matching position is ignored and left pending."""
 
-    def test_object_added_event_with_different_uid_but_matching_position_confirms(self) -> None:
-        position = CharacterInventoryPositionEnum.AccessoryPositionAmulet
-        behavior, event_manager, finished_with = _make_equip_behavior(pending_uid=1, position=position)
-
-        behavior._equip_next()
-        assert event_manager.confirm_callback is not None
-
-        regenerated_item = ObjectItemInventory(item=ObjectItem(uid=999), position=position)
-        event_manager.confirm_callback(ObjectAddedEvent(object=regenerated_item))
-
-        assert finished_with  # queue drained -> finish() called
-        assert event_manager.cleared_origins == [behavior]
-        assert behavior._pending_uid is None
-        assert behavior._pending_position is None
-
-    def test_object_movement_event_with_same_uid_still_confirms(self) -> None:
-        """Guards the pre-existing empty-slot path (boots/rings) against regressing."""
+    def test_object_movement_event_with_matching_position_confirms(self) -> None:
         position = CharacterInventoryPositionEnum.AccessoryPositionBoots
         behavior, event_manager, finished_with = _make_equip_behavior(pending_uid=1, position=position)
 
@@ -169,20 +220,56 @@ class TestEquipConfirmation:
 
         event_manager.confirm_callback(ObjectMovementEvent(object_uid=1, position=position))
 
-        assert finished_with
+        assert finished_with  # queue drained -> finish() called
+        assert event_manager.cleared_origins == [behavior]
+        assert behavior._pending_position is None
 
-    def test_event_with_non_matching_position_is_ignored(self) -> None:
+    def test_object_added_event_with_matching_position_confirms(self) -> None:
+        """Equipping an item split off a stack creates a new uid via `ObjectAddedEvent`
+        instead of moving the existing one, so confirmation must also accept that event,
+        matched on position only (the new uid isn't known ahead of time)."""
+        position = CharacterInventoryPositionEnum.AccessoryPositionBoots
+        behavior, event_manager, finished_with = _make_equip_behavior(pending_uid=1, position=position)
+
+        behavior._equip_next()
+        assert event_manager.confirm_callback is not None
+
+        event_manager.confirm_callback(
+            ObjectAddedEvent(object=ObjectItemInventory(position=position))
+        )
+
+        assert finished_with  # queue drained -> finish() called
+        assert event_manager.cleared_origins == [behavior]
+        assert behavior._pending_position is None
+
+    def test_object_added_event_with_non_matching_position_is_ignored(self) -> None:
         position = CharacterInventoryPositionEnum.AccessoryPositionAmulet
         behavior, event_manager, finished_with = _make_equip_behavior(pending_uid=1, position=position)
 
         behavior._equip_next()
         assert event_manager.confirm_callback is not None
 
-        unrelated_item = ObjectItemInventory(
-            item=ObjectItem(uid=999),
-            position=CharacterInventoryPositionEnum.InventoryPositionNotEquiped,
+        event_manager.confirm_callback(
+            ObjectAddedEvent(
+                object=ObjectItemInventory(position=CharacterInventoryPositionEnum.InventoryPositionNotEquiped)
+            )
         )
-        event_manager.confirm_callback(ObjectAddedEvent(object=unrelated_item))
 
         assert not finished_with
-        assert behavior._pending_uid == 1
+        assert behavior._pending_position == position
+
+    def test_object_movement_event_with_non_matching_position_is_ignored(self) -> None:
+        position = CharacterInventoryPositionEnum.AccessoryPositionAmulet
+        behavior, event_manager, finished_with = _make_equip_behavior(pending_uid=1, position=position)
+
+        behavior._equip_next()
+        assert event_manager.confirm_callback is not None
+
+        event_manager.confirm_callback(
+            ObjectMovementEvent(
+                object_uid=1, position=CharacterInventoryPositionEnum.InventoryPositionNotEquiped
+            )
+        )
+
+        assert not finished_with
+        assert behavior._pending_position == position

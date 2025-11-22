@@ -4,6 +4,8 @@ from typing import cast
 from unittest.mock import MagicMock
 
 import pytest
+from google.protobuf.message import Message
+
 from DBDofusUnity.datas.protos.non_obf.game.challenge_pb2 import (
     ChallengeProposalEvent,
     ChallengeSelectionRequest,
@@ -17,9 +19,8 @@ from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import (
 )
 from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapMovementEvent, MapMovementRequest
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import SpellLevelsRootItem
 from DBDofusUnity.dofus_unity_reader.models.world_graph import Edge
-from google.protobuf.message import Message
-
 from src.core.behaviors.behavior import (
     BehaviorLifecycleError,
     BehaviorState,
@@ -33,6 +34,7 @@ from src.core.behaviors.farms.fight.fight_spell_behavior import FightSpellBehavi
 from src.core.behaviors.farms.fight.fight_turn_behavior import FightTurnBehavior
 from src.core.behaviors.movements.map_move_behavior import MapMoveBehavior, MapMoveError
 from src.core.bot.bot import Bot
+from src.core.engine.contexts import AttackContext
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
 from src.core.events_manager.event_manager import EventManager
 from src.core.frames.entity_frame import EntityFrame
@@ -88,6 +90,11 @@ def _get_delayed_micro_jitter(service: HumanTimingsService, action_name: str) ->
 def _get_fixed_challenge_selection_timing(service: HumanTimingsService) -> float:
     del service
     return 0.03
+
+
+def _no_self_buff(context: AttackContext) -> SpellLevelsRootItem | None:
+    del context
+    return None
 
 
 class TestFightActionAcknowledgement:
@@ -354,15 +361,15 @@ class TestFightActionAcknowledgement:
             event_manager=event_manager,
             game_state=game_state_ctx.game_state,
             fight_movement_behavior=fight_movement_behavior,
-            path_finding=game_state_ctx.pathfinding,
             fight_spell_behavior=fight_spell_behavior,
-            attacker=game_state_ctx.attacker,
+            attack_selector=game_state_ctx.attacker,
+            breed_ability_selector=game_state_ctx.breed_ability_selector,
             _logger=game_state_ctx.logger,
         )
         monkeypatch.setattr(
-            fight_turn_behavior,
-            "try_self_buff_or_continue",
-            lambda: None,
+            fight_turn_behavior.attack_selector,
+            "find_best_self_buff",
+            _no_self_buff,
         )
         finished_error_codes: list[str | None] = []
         fight_turn_behavior.start(callback=finished_error_codes.append, parent=None)
@@ -409,9 +416,9 @@ class TestFightActionAcknowledgement:
             event_manager=event_manager,
             game_state=game_state_ctx.game_state,
             fight_movement_behavior=fight_movement_behavior,
-            path_finding=game_state_ctx.pathfinding,
             fight_spell_behavior=fight_spell_behavior,
-            attacker=game_state_ctx.attacker,
+            attack_selector=game_state_ctx.attacker,
+            breed_ability_selector=game_state_ctx.breed_ability_selector,
             _logger=game_state_ctx.logger,
         )
         finished_error_codes: list[str | None] = []
@@ -449,16 +456,16 @@ class TestFightActionAcknowledgement:
             event_manager=event_manager,
             game_state=game_state_ctx.game_state,
             fight_movement_behavior=fight_movement_behavior,
-            path_finding=game_state_ctx.pathfinding,
             fight_spell_behavior=fight_spell_behavior,
-            attacker=game_state_ctx.attacker,
+            attack_selector=game_state_ctx.attacker,
+            breed_ability_selector=game_state_ctx.breed_ability_selector,
             _logger=game_state_ctx.logger,
         )
         finished_error_codes: list[str | None] = []
         monkeypatch.setattr(
-            fight_turn_behavior,
-            "try_self_buff_or_continue",
-            lambda: None,
+            fight_turn_behavior.attack_selector,
+            "find_best_self_buff",
+            _no_self_buff,
         )
         fight_turn_behavior.start(callback=finished_error_codes.append, parent=None)
         game_state_ctx.game_state.entity.remove_actor(PLAYER_ID)
@@ -499,14 +506,16 @@ class TestFightActionAcknowledgement:
             event_manager=event_manager,
             game_state=game_state_ctx.game_state,
             fight_movement_behavior=fight_movement_behavior,
-            path_finding=game_state_ctx.pathfinding,
             fight_spell_behavior=fight_spell_behavior,
-            attacker=game_state_ctx.attacker,
+            attack_selector=game_state_ctx.attacker,
+            breed_ability_selector=game_state_ctx.breed_ability_selector,
             _logger=game_state_ctx.logger,
         )
         fight_turn_behavior.did_attack = True
 
-        fight_turn_behavior.find_and_do_attack()
+        context = fight_turn_behavior._get_attack_context_or_finish()
+        assert context is not None
+        fight_turn_behavior._find_move_attack(context)
 
         assert [type(sent_message) for sent_message in sent_messages] == [FightTurnFinishRequest]
         assert map_move_behavior.state == BehaviorState.STOPPED
@@ -535,11 +544,7 @@ class TestFightActionAcknowledgement:
         )
         finished_error_codes: list[str | None] = []
 
-        fight_movement_behavior.start(
-            callback=finished_error_codes.append,
-            parent=None,
-            run_away=True,
-        )
+        fight_movement_behavior.start(callback=finished_error_codes.append, parent=None)
 
         assert finished_error_codes == [None]
         assert not any(isinstance(sent_message, MapMovementRequest) for sent_message in sent_messages)

@@ -18,6 +18,7 @@ from DBDofusUnity.dofus_unity_reader.game_constants.breed import BreedEnum
 from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 
 from src.core.engine.fights.attack.attacker import Attacker
+from src.core.engine.fights.attack.breed_abilities import BreedAbilitySelector
 from src.core.engine.fights.damage_calculator import DamageCalculator
 from src.core.engine.fights.reachable_cells.fight_reachable_cells import (
     FightReachableCells,
@@ -57,6 +58,7 @@ class GameStateContext:
     pathfinding: Pathfinding
     fight_reachable_cells: FightReachableCells
     attacker: Attacker
+    breed_ability_selector: BreedAbilitySelector
     world_path_finder: WorldPathFinder
 
 
@@ -97,8 +99,13 @@ def make_game_state_ctx(debug_recorder: DebugRecorder | None = None) -> GameStat
     attacker = Attacker(
         _logger=logger,
         damage_calculator=damage_calculator,
-        path_finding=pathfinding,
         fight_reachable_cells=fight_reachable_cells,
+    )
+
+    breed_ability_selector = BreedAbilitySelector(
+        _logger=logger,
+        fight_reachable_cells=fight_reachable_cells,
+        damage_calculator=damage_calculator,
     )
 
     astar_world = AstarWorld(world_signals=world_signals)
@@ -122,6 +129,7 @@ def make_game_state_ctx(debug_recorder: DebugRecorder | None = None) -> GameStat
         pathfinding=pathfinding,
         fight_reachable_cells=fight_reachable_cells,
         attacker=attacker,
+        breed_ability_selector=breed_ability_selector,
         world_path_finder=world_path_finder,
     )
 

@@ -6,7 +6,6 @@ from functools import partial
 from threading import Thread
 from time import sleep
 
-from playwright.async_api import Error as PlaywrightError
 from pydantic import ValidationError
 from requests.exceptions import RequestException
 
@@ -28,9 +27,10 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.p
     PaysafecardPurchase,
     PaysafecardPurchaseStatus,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.subscription.xsolla_paysafecard import (
-    XsollaPaymentOutcome,
-    pay_with_paysafecard,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.subscription.paysafecard_purchase import (
+    PaysafecardPaymentOutcome,
+    PaysafecardPurchaseError,
+    purchase_with_paysafecard,
 )
 from DBDofusUnity.datas.protos.non_obf.game.bak_pb2 import (
     BakShopTokenEvent,
@@ -121,40 +121,33 @@ class PaysafecardSubscriptionBehavior(Behavior):
             if article is None:
                 self._restore_pre_submission_purchase(pending_purchase)
                 return
-            order, payment = haapi.create_xsolla_payment(
-                article,
-                self.account_id,
-                shop_access_token=shop_access_token,
-            )
+            cart_id = haapi.prepare_paysafecard_cart(article, shop_access_token=shop_access_token)
         except (ShopPurchaseError, RequestException, ValidationError) as error:
-            self.logger.error("Unable to create Xsolla payment: %s", error)
+            self.logger.error("Unable to prepare paysafecard cart: %s", error)
             self._restore_pre_submission_purchase(pending_purchase)
             self._finish_error(PaysafecardSubscriptionErrorCode.SHOP_PURCHASE_FAILED)
             return
 
-        pending_purchase = self.purchase_storage.record_awaiting_confirmation(
-            pending_purchase,
-            order_id=order.id,
-            xsolla_token=payment.token,
-        )
+        pending_purchase = self.purchase_storage.record_awaiting_confirmation(pending_purchase, order_id=cart_id)
         try:
             outcome = asyncio.run(
-                pay_with_paysafecard(
-                    token=payment.token,
+                purchase_with_paysafecard(
+                    shop_access_token=shop_access_token,
+                    cart_id=cart_id,
                     pin=pending_purchase.pin,
                     login=login,
                     proxy_url=self._proxy_url,
                 )
             )
-        except PlaywrightError as error:
-            self.logger.error("Xsolla Pay Station failed: %s", error)
+        except PaysafecardPurchaseError as error:
+            self.logger.error("Paysafecard purchase webview failed: %s", error)
             self._finish_error(PaysafecardSubscriptionErrorCode.PAYMENT_CONFIRMATION_PENDING)
             return
-        if outcome == XsollaPaymentOutcome.REJECTED:
+        if outcome == PaysafecardPaymentOutcome.REJECTED:
             self.purchase_storage.clear_purchase()
             self._finish_error(PaysafecardSubscriptionErrorCode.PAYSAFECARD_REJECTED)
             return
-        if outcome == XsollaPaymentOutcome.AMBIGUOUS:
+        if outcome == PaysafecardPaymentOutcome.AMBIGUOUS:
             self._finish_error(PaysafecardSubscriptionErrorCode.PAYMENT_CONFIRMATION_PENDING)
             return
         self._confirm_subscription(pending_purchase)

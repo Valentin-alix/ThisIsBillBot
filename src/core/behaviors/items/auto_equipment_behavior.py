@@ -106,7 +106,7 @@ class AutoEquipmentBehavior(RecoverableBehavior):
         self.raise_if_error(error_code)
         if missing_by_gid:
             self.logger.info(f"Could not source {len(missing_by_gid)} item(s); equipping what we have")
-        self.collect_and_equip()
+        self.ensure_dialog_closed(then=self.collect_and_equip)
 
     def collect_and_equip(self):
         primary_elem = self.game_state.fight.primary_and_second_elem[0]
@@ -129,7 +129,11 @@ class AutoEquipmentBehavior(RecoverableBehavior):
 
         self._chosen_set = set_on_level
 
-        item_info_to_buy = get_item_gids_to_buy(set_on_level, self.game_state.inventory.objects_by_uid)
+        item_info_to_buy = get_item_gids_to_buy(
+            set_on_level,
+            self.game_state.inventory.objects_by_uid,
+            self.game_state.fight.primary_and_second_elem[0],
+        )
         self.logger.info(f"Gonna equip {item_info_to_buy}")
 
         return item_info_to_buy
@@ -139,6 +143,11 @@ class AutoEquipmentBehavior(RecoverableBehavior):
             return self.finish()
 
         assert self._chosen_set
+        item_inventory = self._items_to_equip.pop()
+        self._send_equip_request(item_inventory)
+
+    def _send_equip_request(self, item_inventory: ObjectItemInventory) -> None:
+        assert self._chosen_set
 
         self.event_manager.on(
             InventoryWeightEvent,
@@ -147,7 +156,6 @@ class AutoEquipmentBehavior(RecoverableBehavior):
             once=True,
         )
 
-        item_inventory = self._items_to_equip.pop()
         req = ObjectSetPositionRequest(
             object_uid=item_inventory.item.uid,
             quantity=1,
