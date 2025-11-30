@@ -6,6 +6,27 @@
       },
       "bad_state": false,
       "is_used": true
+    },
+    "renaissance.huhu@outlook.fr": {
+      "config": {
+        "provider": "manual"
+      },
+      "bad_state": false,
+      "is_used": true
+    },
+    "renaissance.hihi@outlook.fr": {
+      "config": {
+        "provider": "manual"
+      },
+      "bad_state": false,
+      "is_used": true
+    },
+    "valentin-alix.850+1@outlook.fr": {
+      "config": {
+        "provider": "manual"
+      },
+      "bad_state": false,
+      "is_used": true
     }
   }
 }

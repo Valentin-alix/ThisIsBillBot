@@ -233,9 +233,27 @@ class FightFrame(Frame):
 
         player_id = self.game_state.player.character_id
 
-        if msg.HasField("spell_remove") and msg.spell_remove.target_id != player_id:
-            self.game_state.entity.remove_fight_actor_effect(
-                msg.spell_remove.target_id, msg.spell_remove.effect_remove.effect
+        if msg.HasField("spell_remove"):
+            if msg.spell_remove.target_id != player_id:
+                self.game_state.entity.remove_fight_actor_effect(
+                    msg.spell_remove.target_id, msg.spell_remove.effect_remove.effect
+                )
+            elif msg.spell_remove.WhichOneof("complement") == "effect_remove":
+                self.game_state.fight.own_spell_id_by_effect_uid.pop(
+                    msg.spell_remove.effect_remove.effect, None
+                )
+            elif msg.spell_remove.WhichOneof("complement") == "spell_id":
+                stale_uids = [
+                    uid
+                    for uid, spell_id in self.game_state.fight.own_spell_id_by_effect_uid.items()
+                    if spell_id == msg.spell_remove.spell_id
+                ]
+                for uid in stale_uids:
+                    del self.game_state.fight.own_spell_id_by_effect_uid[uid]
+
+        if msg.HasField("removable_effect") and msg.removable_effect.effect.target_id == player_id:
+            self.game_state.fight.own_spell_id_by_effect_uid[msg.removable_effect.effect.uid] = (
+                msg.removable_effect.effect.spell_id
             )
 
         if msg.HasField("invisibility") and msg.invisibility.target_id != player_id:
@@ -294,6 +312,7 @@ class FightFrame(Frame):
 
     def on_fight_turn_event(self, msg: FightTurnEvent):
         self.game_state.fight.fight_placement_possible_positions.clear()
+        self.game_state.fight.invisible_enemy_cell_ids.clear()
         if msg.character_id == self.game_state.player.character_id:
             self.game_state.fight.count_casted_by_spell_id_on_current_turn.clear()
             self.game_state.fight.is_our_turn = True

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from collections.abc import Sequence
 from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent.parent))
 
 from DBDofusUnity.proto_mapper_assembly.scripts.add_to_new_dump_cs import (
     synchronize_non_obf_mapping_artifacts,

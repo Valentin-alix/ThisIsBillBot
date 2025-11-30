@@ -42,10 +42,13 @@ class OperationPool:
         return sum(1 for timestamp in self._timestamps.get(proxy_id, []) if timestamp >= threshold)
 
     def has_quota(self, proxy_id: str, now: float | None = None) -> bool:
+        return self.has_quota_for(proxy_id, 1, now)
+
+    def has_quota_for(self, proxy_id: str, count: int, now: float | None = None) -> bool:
         now = time.time() if now is None else now
         within_hour = self._count_since(proxy_id, now - ONE_HOUR_SEC)
         within_day = self._count_since(proxy_id, now - ONE_DAY_SEC)
-        return within_hour < MAX_OPERATIONS_PER_HOUR and within_day < MAX_OPERATIONS_PER_DAY
+        return within_hour + count <= MAX_OPERATIONS_PER_HOUR and within_day + count <= MAX_OPERATIONS_PER_DAY
 
     def count_since_hour(self, proxy_id: str, now: float | None = None) -> int:
         now = time.time() if now is None else now

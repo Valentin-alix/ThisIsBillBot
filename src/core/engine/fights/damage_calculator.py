@@ -54,7 +54,9 @@ def _multiplier_factor(characteristic_by_id: dict[int, CharacterCharacteristic],
     return (raw if raw > 0 else 100) / 100
 
 
-def _monster_resist_percent(element_id: int, monster_grade: MonsterGrade) -> int:
+def _monster_resist_percent(element_id: int, monster_grade: MonsterGrade | None) -> int:
+    if monster_grade is None:
+        return 0
     bonus = monster_grade.bonusCharacteristics
     match element_id:
         case EffectElement.STRENGTH:
@@ -137,7 +139,7 @@ def _crit_probability(
 def _damage_for_effect(
     effect: Effect,
     element_id: int,
-    monster_grade: MonsterGrade,
+    monster_grade: MonsterGrade | None,
     characteristic_by_id: dict[int, CharacterCharacteristic],
     is_critical: bool,
     modifiers: ModifierMap | None,
@@ -164,7 +166,7 @@ class DamageCalculator:
         self,
         effect: Effect,
         spell_lvl: SpellLevelsRootItem,
-        monster_grade: MonsterGrade,
+        monster_grade: MonsterGrade | None,
         characteristic_by_id: dict[int, CharacterCharacteristic],
         is_melee: bool,
         primary_elem: EffectElement,
@@ -176,6 +178,9 @@ class DamageCalculator:
         to a monster target: base roll average, % damage factor, flat bonuses,
         critical-hit expectation, monster element resistance and the caster's
         dealt-damage multipliers (melee/distance + spell category).
+
+        ``monster_grade=None`` (target with unknown stats, e.g. an invisible enemy)
+        skips the resistance step (assumed 0%) rather than guessing it.
 
         Out of scope (not relevant for a monster-target prediction): reflection,
         life steal, sacrifice, splash/shared damage, dodge, caster/target

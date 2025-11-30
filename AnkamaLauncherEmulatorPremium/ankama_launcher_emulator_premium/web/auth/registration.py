@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from dotenv import load_dotenv
 from playwright.async_api import Page
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import ENV_PATH
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import ENV_PATH, SONJI_API_KEY
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
     BotStorageController,
 )
@@ -343,6 +343,15 @@ async def _register_email(
     )
 
 
+def _next_email_to_register() -> str | None:
+    email = MailAccountController().peek_next_available_email()
+    if email is not None:
+        return email
+    if SONJI_API_KEY is None:
+        return None
+    return MailAccountController().provision_smailpro_email(SONJI_API_KEY)
+
+
 async def register_next_available_email(
     schedule_profile: str,
 ) -> RegistrationResult | None:
@@ -351,7 +360,7 @@ async def register_next_available_email(
     Used by the quota-driven scheduler, which only ever wants to consume one slot
     of the shared Ankama rate-limit pool at a time.
     """
-    email = MailAccountController().peek_next_available_email()
+    email = _next_email_to_register()
     if email is None:
         return None
     result = await _register_email(email, schedule_profile)
@@ -368,7 +377,7 @@ def _first_schedule_profile_id() -> str:
 
 
 async def register_available_emails(schedule_profile: str):
-    while (email := MailAccountController().peek_next_available_email()) is not None:
+    while (email := _next_email_to_register()) is not None:
         result = await _register_email(email, schedule_profile)
         if not result.success:
             if result.antibot_marker is not None:

@@ -206,7 +206,7 @@ def test_an_open_sale_hotel_dialog_is_closed_before_equipping(
     behavior, sent_messages = _make_equip_ready_behavior(game_state_ctx, monkeypatch)
     game_state_ctx.game_state.dialog.set_open(OpenDialogKind.BID_HOUSE_BUY)
 
-    behavior.equip_next_item()
+    behavior.ensure_dialog_closed(then=behavior.equip_next_item)
 
     assert [type(message) for message in sent_messages] == [DialogLeaveRequest]
 

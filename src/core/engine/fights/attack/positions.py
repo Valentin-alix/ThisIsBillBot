@@ -19,7 +19,9 @@ def get_positions(context: AttackContext) -> AttackPositions:
         if actor.disposition.cell_id != -1
     }
     entities_mp = set(entities_id_by_mp.keys())
-    enemies_mp = {MapPoint.from_cell_id(enemy.disposition.cell_id) for enemy in context.enemy_actors}
+    enemies_mp = {MapPoint.from_cell_id(enemy.disposition.cell_id) for enemy in context.enemy_actors} | {
+        MapPoint.from_cell_id(cell_id) for cell_id in context.invisible_enemy_cell_ids
+    }
     return AttackPositions(
         entities_mp=entities_mp,
         entities_id_by_mp=entities_id_by_mp,

@@ -19,7 +19,6 @@ from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
 )
 from DBDofusUnity.dofus_unity_reader.game_constants.text_enum import TextEnum
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
-
 from src.core.behaviors.behavior import Behavior
 from src.core.engine.movements.map.path_finding.movement_path import MovementPath
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
@@ -143,7 +142,7 @@ class MapMoveBehavior(Behavior):
         if msg.valid and msg.action_id == self._pending_fight_movement_action_id:
             if self._cell_is_taken:
                 taken_mp = move_path.get_next_step(self.game_state.map.map_point)
-                return self.finish(MapMoveError.CELL_TAKEN, taken_mp)
+                return self.finish(MapMoveError.CELL_TAKEN, cell_mp=taken_mp)
             if self.game_state.map.map_point != move_path.end:
                 self.logger.info("Movement was canceled.")
                 return self.finish(MapMoveError.CANCELED_MOVEMENT)

@@ -23,7 +23,7 @@ def _estimate_best_damage_per_ap(
 ) -> float:
     is_melee = context.player_map_point.distance_to_map_point(enemy.map_point) == 1
     best = 0.0
-    for spell_lvl, effect in get_damage_spells(context.spells, *context.primary_and_second_elem):
+    for spell_lvl, effect in get_damage_spells(context.spells, context.primary_elem):
         modifiers = SpellModifiers.from_spell(context.range, spell_lvl, context.modifier_by_type_and_spell_id)
         if modifiers.ap_cost <= 0:
             continue

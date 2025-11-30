@@ -151,6 +151,7 @@ class GameState:
         own_state_ids = (
             player_fight_actor.state_ids if player_fight_actor is not None else frozenset[int]()
         )
+        own_active_stack_count_by_spell_id = self.fight.get_own_active_stack_count_by_spell_id()
         own_active_summon_count = self.fight.count_own_active_summons(
             self.player.character_id, actor_by_id, actor_fight_by_id
         )
@@ -166,7 +167,6 @@ class GameState:
             enemy_actors=enemies,
             enemies_data=self.fight.get_enemies_data(enemies, actor_fight_by_id),
             spells=self.fight.spells,
-            primary_and_second_elem=self.fight.primary_and_second_elem,
             primary_elem=self.fight.primary_elem,
             modifier_by_type_and_spell_id=self.fight.modifier_by_type_and_spell_id,
             count_casted_by_spell_id_on_current_turn=(self.fight.count_casted_by_spell_id_on_current_turn),
@@ -182,6 +182,7 @@ class GameState:
             invisible_enemy_cell_ids=frozenset(self.fight.invisible_enemy_cell_ids),
             breed_id=self.fight.breed_id,
             own_state_ids=own_state_ids,
+            own_active_stack_count_by_spell_id=own_active_stack_count_by_spell_id,
             own_active_summon_count=own_active_summon_count,
             max_active_summon_count=max_active_summon_count,
         )

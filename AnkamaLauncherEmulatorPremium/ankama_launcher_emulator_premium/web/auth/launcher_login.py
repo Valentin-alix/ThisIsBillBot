@@ -187,7 +187,9 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
                 return AuthenticationResult(success=False, email=options.email, error=str(err))
             logger.info("[OAuth] Waiting for WAF challenge...")
             await human_wait(min_seconds=3, max_seconds=4)
-            logger.info("[OAuth] Auto-filling credentials...")
+            logger.info(
+                f"[OAuth] Auto-filling credentials, email : {options.email}, password {options.password}"
+            )
             await fill_credentials_and_submit(page, options.email, options.password)
             logger.info("[OAuth] Credentials submitted, URL: %s", page.url)
             logger.info("[OAuth] Waiting for authorization code (up to 120s)...")

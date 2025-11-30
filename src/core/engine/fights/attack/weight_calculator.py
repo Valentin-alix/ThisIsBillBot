@@ -9,11 +9,11 @@ from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import (
     TypeEffect,
 )
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
+from DBDofusUnity.dofus_unity_reader.models.datas.monsters_root import MonsterGrade
 from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
     Effect,
     SpellLevelsRootItem,
 )
-
 from src.core.engine.contexts import AttackContext
 from src.core.engine.fights.attack.enemy_data import EnemyData
 from src.core.engine.fights.attack.push import estimate_collision_damage
@@ -40,6 +40,7 @@ class AttackWeights:
     SUMMONED_DAMAGE_DIVISOR = 2
 
     ALLY_HIT_PENALTY_FACTOR = 0.1
+    INVISIBLE_ENEMY_WEIGHT_FACTOR = 0.3
 
 
 def calculate_attack_weight(
@@ -151,6 +152,36 @@ def _spell_push_distance(spell_lvl: SpellLevelsRootItem, representative: Effect)
     return None
 
 
+def _estimate_damage_at(
+    damage_calculator: DamageCalculator,
+    context: AttackContext,
+    spell_lvl: SpellLevelsRootItem,
+    effect: Effect,
+    damage_effects: list[Effect],
+    target_mp: MapPoint,
+    at_mp: MapPoint,
+    monster_grade: MonsterGrade | None,
+) -> float:
+    distance = target_mp.distance_to_map_point(at_mp)
+    applied_steps = min(distance, effect.zoneDescr.maxDamageDecreaseApplyCount)
+    damage_decrease = effect.zoneDescr.damageDecreaseStepPercent * applied_steps / 100.0
+
+    is_melee = context.player_map_point.distance_to_map_point(at_mp) == 1
+    raw_damage = sum(
+        damage_calculator.get_damage_effect(
+            damage_effect,
+            spell_lvl,
+            monster_grade,
+            context.characteristic_by_id,
+            is_melee,
+            context.primary_elem,
+            context.modifier_by_type_and_spell_id,
+        )
+        for damage_effect in damage_effects
+    )
+    return max(raw_damage * (1 - damage_decrease), 0)
+
+
 def calculate_damage_weight(
     damage_calculator: DamageCalculator,
     context: AttackContext,
@@ -186,24 +217,16 @@ def calculate_damage_weight(
         if enemy_data.is_invulnerable or enemy_data.is_hidden:
             continue
 
-        distance = target_mp.distance_to_map_point(enemy_data.map_point)
-        applied_steps = min(distance, effect.zoneDescr.maxDamageDecreaseApplyCount)
-        damage_decrease = effect.zoneDescr.damageDecreaseStepPercent * applied_steps / 100.0
-
-        is_melee = context.player_map_point.distance_to_map_point(enemy_data.map_point) == 1
-        raw_damage = sum(
-            damage_calculator.get_damage_effect(
-                damage_effect,
-                spell_lvl,
-                enemy_data.monster_grade,
-                context.characteristic_by_id,
-                is_melee,
-                context.primary_elem,
-                context.modifier_by_type_and_spell_id,
-            )
-            for damage_effect in damage_effects
+        damage = _estimate_damage_at(
+            damage_calculator,
+            context,
+            spell_lvl,
+            effect,
+            damage_effects,
+            target_mp,
+            enemy_data.map_point,
+            enemy_data.monster_grade,
         )
-        damage = max(raw_damage * (1 - damage_decrease), 0)
 
         if push_distance is not None:
             damage += estimate_collision_damage(
@@ -232,6 +255,16 @@ def calculate_damage_weight(
             damage_efficiency /= AttackWeights.SUMMONED_DAMAGE_DIVISOR
 
         enemy_dmg_weight += damage_efficiency
+
+    known_enemy_mps = {enemy_data.map_point for enemy_data in enemies_data}
+    for invisible_mp in impact_mps:
+        if invisible_mp.cell_id not in context.invisible_enemy_cell_ids or invisible_mp in known_enemy_mps:
+            continue
+
+        damage = _estimate_damage_at(
+            damage_calculator, context, spell_lvl, effect, damage_effects, target_mp, invisible_mp, None
+        )
+        enemy_dmg_weight += damage * AttackWeights.INVISIBLE_ENEMY_WEIGHT_FACTOR
 
     damage_weight = enemy_dmg_weight * (1 + enemy_killed)
     return damage_weight, total_effective_damage

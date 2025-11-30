@@ -554,16 +554,6 @@
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap.MapRunningFightsEvent"
     },
     {
-      "obf": "jwe",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Game.Action.GameActionFightEvent",
-      "field_mapping_by_obf": {
-        "fvnx": "death",
-        "fvof": "unknown_three_hundred_sixty_five",
-        "fvom": "unknown_three_hundred_sixty_six",
-        "fvpd": "unknown_three_hundred_sixty_seven"
-      }
-    },
-    {
       "obf": "jww",
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Fight.BaseStatistics"
     },
@@ -1833,6 +1823,21 @@
         "gfaq": "unknown_five",
         "gfas": "unknown_six"
       }
+    },
+    {
+      "obf": "jwe",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Game.Action.GameActionFightEvent",
+      "field_mapping_by_obf": {
+        "fvnx": "death",
+        "fvof": "unknown_three_hundred_sixty_five",
+        "fvom": "unknown_three_hundred_sixty_six",
+        "fvpd": "unknown_three_hundred_sixty_seven",
+        "fvoz": "teleport_on_same_map"
+      }
+    },
+    {
+      "obf": "jwe.jut",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Game.Action.GameActionFightEvent.TeleportOnSameMap"
     }
   ]
 }

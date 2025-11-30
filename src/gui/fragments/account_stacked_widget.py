@@ -72,6 +72,9 @@ class AccountStackedWidget(QWidget):
             self.craft_route,
         )
 
+        if consts.DEBUG:
+            self._init_sandbox_interface()
+
         for pivot_item in self.pivot.items.values():
             pivot_item.setFixedHeight(40)
 
@@ -90,6 +93,7 @@ class AccountStackedWidget(QWidget):
             self.sniffer_route,
         )
 
+    def _init_sandbox_interface(self) -> None:
         sandbox_interface = SandboxWidget(self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(sandbox_interface)
         self.sandbox_route = f"{self.login}_sandbox"

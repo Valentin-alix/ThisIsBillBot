@@ -35,6 +35,7 @@ def _make_context(
     player_level: int = 200,
     actor_by_id: dict[int, object] | None = None,
     enemy_actors: list[object] | None = None,
+    invisible_enemy_cell_ids: frozenset[int] = frozenset(),
 ) -> AttackContext:
     return cast(
         AttackContext,
@@ -50,6 +51,7 @@ def _make_context(
             player_character_id=1,
             actor_by_id=actor_by_id or {},
             enemy_actors=enemy_actors or [],
+            invisible_enemy_cell_ids=invisible_enemy_cell_ids,
         ),
     )
 

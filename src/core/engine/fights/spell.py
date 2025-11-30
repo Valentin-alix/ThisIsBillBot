@@ -1,4 +1,5 @@
 from common_pb2 import SpellModifierType
+
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import SpellModifier
 from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellItem
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
@@ -8,7 +9,7 @@ from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
     Effect,
     SpellLevelsRootItem,
 )
-
+from src.core.engine.fights.effect import is_heal_effect, resolve_effect_element
 from src.core.engine.fights.zones.cross import Cross
 from src.core.engine.fights.zones.lozenge import Lozenge
 
@@ -119,14 +120,15 @@ def get_possible_mp_spell(
 
 
 def get_damage_spells(
-    spells: list[SpellItem],
-    primary_elem: EffectElement,
-    secondary_elem: EffectElement,
-    *,
-    allowed_elements: frozenset[EffectElement] | None = None,
+    spells: list[SpellItem], primary_elem: EffectElement
 ) -> list[tuple[SpellLevelsRootItem, Effect]]:
+    """Damage spells for every element the caster can deal (not just the top ones).
+
+    The weight formula (real damage from the actual per-element stat, monster
+    resistance, kill bonus) already ranks a weak-element spell below a strong one
+    whenever it matters.
+    """
     spell_levels: list[tuple[SpellLevelsRootItem, Effect]] = []
-    count_secondary_spell_lvl: int = 0
     for spell in spells:
         if not spell.spell_id:
             continue
@@ -135,16 +137,12 @@ def get_damage_spells(
         if spell_lvl.statesCriterion != "":
             continue
         for effect in spell_lvl.effects:
-            if allowed_elements is not None and effect.effectElement not in allowed_elements:
-                continue
             data_effect = DataReader().effect_by_id[effect.effectId]
             if data_effect.characteristicOperator != "":
                 continue
-            if effect.effectElement == primary_elem:
-                spell_levels.append((spell_lvl, effect))
-                break
-            elif effect.effectElement == secondary_elem and count_secondary_spell_lvl < 2:
-                count_secondary_spell_lvl += 1
+            if is_heal_effect(effect):
+                continue
+            if resolve_effect_element(effect.effectElement, primary_elem) is not None:
                 spell_levels.append((spell_lvl, effect))
                 break
 

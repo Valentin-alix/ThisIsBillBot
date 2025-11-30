@@ -8,10 +8,8 @@
       "username": "14aae09db58a6",
       "password": "76e882c1f9",
       "operation_timestamps": [
-        1786120222.3604507,
-        1786123305.0086074,
-        1786130207.9861903,
-        1786131547.1222637
+        1787496458.4896352,
+        1787496766.6154118
       ],
       "register_cooldown_until": null
     },
@@ -23,9 +21,7 @@
       "username": "14aae09db58a6",
       "password": "76e882c1f9",
       "operation_timestamps": [
-        1786130946.3100097,
-        1786131847.2736208,
-        1786134548.6772728
+        1787494722.1868422
       ],
       "register_cooldown_until": null
     },
@@ -37,9 +33,7 @@
       "username": "14aae09db58a6",
       "password": "76e882c1f9",
       "operation_timestamps": [
-        1786122954.659675,
-        1786131246.9475925,
-        1786132147.4337678
+        1787496523.712702
       ],
       "register_cooldown_until": null
     }

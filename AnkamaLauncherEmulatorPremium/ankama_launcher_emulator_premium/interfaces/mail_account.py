@@ -14,9 +14,10 @@ class ImapAccountConfig(BaseModel):
 class SmailProAccountConfig(BaseModel):
     provider: Literal["smailpro"] = "smailpro"
     api_key: str
-    email: str | None = None
-    """``None`` mints a fresh SmailPro address on first use."""
-    expiry_minutes: int = 30
+    email: str
+    kind: Literal["gmail", "outlook"] = "gmail"
+    timestamp: int
+    """Returned alongside ``email`` when minted; required to poll the Gmail/Outlook inbox."""
 
 
 class ManualAccountConfig(BaseModel):

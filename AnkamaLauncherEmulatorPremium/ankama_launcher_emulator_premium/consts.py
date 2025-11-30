@@ -28,3 +28,5 @@ CYTRUS_INSTALLED = shutil.which("cytrus-v6") is not None
 
 ASAR_PATH = Path(os.getenv("programfiles", "")) / "Ankama" / "Ankama Launcher" / "resources" / "app.asar"
 ZAAP_PATH = Path(os.environ["APPDATA"]) / "zaap"
+
+SONJI_API_KEY = os.getenv("SONJI_API_KEY")

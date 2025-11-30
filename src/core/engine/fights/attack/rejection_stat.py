@@ -10,3 +10,4 @@ class RejectionStat(StrEnum):
     MIN_CAST_INTERVAL = auto()
     CELL_NOT_WALKABLE = auto()
     NO_LOS = auto()
+    MAX_STACK_REACHED = auto()

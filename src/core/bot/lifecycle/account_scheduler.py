@@ -6,6 +6,7 @@ from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
 from typing import Any
 
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import SONJI_API_KEY
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
     BotStorageController,
 )
@@ -143,7 +144,7 @@ class AccountScheduler:
                 auth_candidates,
                 key=lambda operation: self._pool.count_since_hour(operation.quota_key, now),
             )
-        if MailAccountController().peek_next_available_email() is not None:
+        if MailAccountController().peek_next_available_email() is not None or SONJI_API_KEY is not None:
             profile_counts = self._profile_account_counts(profiles_by_letter)
             records = self.bot_storage_controller.get_all_records().values()
             authenticated_count = sum(record.encrypted_api_key is not None for record in records)
@@ -157,7 +158,7 @@ class AccountScheduler:
                 _RegisterOp(profile_id, profile.proxy_id)
                 for profile_id, profile in profiles_by_letter.items()
                 if not self.proxy_controller.get_proxy(profile.proxy_id).rejected
-                if self._pool.has_quota(profile.proxy_id, now)
+                if self._pool.has_quota_for(profile.proxy_id, 2, now)
                 if not self._pool.is_register_cooled_down(profile.proxy_id, now)
             ]
             mule_candidates = [
@@ -266,21 +267,27 @@ class AccountScheduler:
     def _run_operation(self, operation: PendingOperation) -> None:
         match operation:
             case _AuthOp(login=login, schedule_profile=schedule_profile):
-                try:
-                    result = _run_async(
-                        authenticate_next_available_account(email=login, schedule_profile=schedule_profile)
-                    )
-                except BannedException:
-                    return self.on_banned_callback(login)
-                except ProxyRejectedError:
-                    self._handle_proxy_rejection(schedule_profile)
-                    return
-                if result is not None and result.success:
-                    self.on_accounts_synchronized()
-            case _RegisterOp(schedule_profile=schedule_profile):
+                self._authenticate(login, schedule_profile)
+            case _RegisterOp(schedule_profile=schedule_profile, quota_key=quota_key):
                 result = _run_async(register_next_available_email(schedule_profile))
                 if result is not None and is_aws_waf_marker(result.antibot_marker):
-                    self._pool.record_register_cooldown(operation.quota_key)
+                    self._pool.record_register_cooldown(quota_key)
+                if result is not None and result.success:
+                    self._pool.record(quota_key, time.time())
+                    self._authenticate(result.email, schedule_profile)
+
+    def _authenticate(self, login: str, schedule_profile: str) -> None:
+        try:
+            result = _run_async(
+                authenticate_next_available_account(email=login, schedule_profile=schedule_profile)
+            )
+        except BannedException:
+            return self.on_banned_callback(login)
+        except ProxyRejectedError:
+            self._handle_proxy_rejection(schedule_profile)
+            return
+        if result is not None and result.success:
+            self.on_accounts_synchronized()
 
     def stop(self) -> None:
         assert self._thread is not None, "Scheduler is not started"

@@ -80,16 +80,21 @@ class DebugLiveViewsTest(unittest.TestCase):
     def test_logs_table_batches_plain_text_and_supports_search(self) -> None:
         table = LogsTable()
         table.add_row(LogLevel.WARNING, "Inventory almost full")
+        table.add_row(LogLevel.INFO, "Unrelated line")
         self.wait_for_batch()
         self.assertEqual(table.text_view.toPlainText(), "")
 
         table.set_updates_active(True)
         self.wait_for_batch()
 
-        self.assertIn("WARNING | Inventory almost full", table.text_view.toPlainText())
+        text = table.text_view.toPlainText()
+        self.assertIn("WARNING | Inventory almost full", text)
+        self.assertIn("Unrelated line", text)
+
         table.search_edit.setText("Inventory")
-        table.find_next()
-        self.assertEqual(table.text_view.textCursor().selectedText(), "Inventory")
+        filtered_text = table.text_view.toPlainText()
+        self.assertIn("Inventory almost full", filtered_text)
+        self.assertNotIn("Unrelated line", filtered_text)
 
     def test_hidden_inventory_and_bank_keep_current_data_without_rendering(self) -> None:
         bot = MagicMock()

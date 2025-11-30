@@ -36,7 +36,7 @@ class ItemEnum(IntEnum):
     SANDALE_PIOU_BLEU = 8226
     ANNEAU_PIOU_BLEU = 8220
     ANNEAU_KARDORIM = 16502
-    ARC_HOLLIS = 13150
+    ARC_HOLIC = 1350
     # piou rouge
     AMU_PIOU_ROUGE = 8213
     CAPE_PIOU_ROUGE = 8231

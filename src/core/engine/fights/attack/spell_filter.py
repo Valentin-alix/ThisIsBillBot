@@ -2,12 +2,10 @@ from collections import defaultdict
 from collections.abc import Callable
 
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
-from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import EffectElement
 from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
     Effect,
     SpellLevelsRootItem,
 )
-
 from src.core.engine.contexts import AttackContext
 from src.core.engine.fights.attack.rejection_stat import RejectionStat
 from src.core.engine.fights.spell import get_damage_spells
@@ -18,14 +16,8 @@ from src.services.logging_utils.loggers import BotLogger
 def get_valid_spells_for_turn(
     context: AttackContext,
     logger: BotLogger,
-    *,
-    allowed_elements: frozenset[EffectElement] | None = None,
 ) -> list[tuple[SpellLevelsRootItem, Effect, SpellModifiers]]:
-    valuable_spells = get_damage_spells(
-        context.spells,
-        *context.primary_and_second_elem,
-        allowed_elements=allowed_elements,
-    )
+    valuable_spells = get_damage_spells(context.spells, context.primary_elem)
 
     rejection_stats: dict[RejectionStat, int] = defaultdict(int)
 
@@ -60,15 +52,12 @@ def get_valid_spells_for_turn(
 def collect_castable_spells(
     context: AttackContext,
     effect_predicate: Callable[[Effect], bool],
-    *,
-    skip_already_cast: bool = False,
 ) -> list[tuple[SpellLevelsRootItem, Effect, SpellModifiers]]:
     """Castable spells owning an effect that matches ``effect_predicate``.
 
     Shared collector for role-specific selection (heal, self-buff, ...): resolves
     the spell level, finds a matching effect, builds modifiers and gates on
-    ``is_spell_valid_for_turn``. ``skip_already_cast`` drops spells already cast
-    this fight (anti-redundancy for one-shot buffs).
+    ``is_spell_valid_for_turn``.
     """
     rejection_stats: dict[RejectionStat, int] = defaultdict(int)
     valid: list[tuple[SpellLevelsRootItem, Effect, SpellModifiers]] = []
@@ -76,8 +65,6 @@ def collect_castable_spells(
 
     for spell in context.spells:
         if not spell.spell_id:
-            continue
-        if skip_already_cast and spell.spell_id in context.cast_turn_by_spell_id:
             continue
         spell_lvl = DataReader().spell_lvl_by_spell_id[spell.spell_id][spell.spell_level - 1]
         matched = next((effect for effect in spell_lvl.effects if effect_predicate(effect)), None)
@@ -145,5 +132,11 @@ def is_spell_valid_for_turn(
     ):
         rejection_stats[RejectionStat.MAX_CAST_PER_TURN] += 1
         return False
+
+    if spell_lvl.maxStack > 0:
+        active_stacks = context.own_active_stack_count_by_spell_id.get(spell_lvl.spellId, 0)
+        if active_stacks >= spell_lvl.maxStack:
+            rejection_stats[RejectionStat.MAX_STACK_REACHED] += 1
+            return False
 
     return True

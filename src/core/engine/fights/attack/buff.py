@@ -19,4 +19,4 @@ def _self_beneficial_effect(effect: Effect) -> bool:
 def get_valid_self_buff_spells_for_turn(
     context: AttackContext,
 ) -> list[tuple[SpellLevelsRootItem, Effect, SpellModifiers]]:
-    return collect_castable_spells(context, _self_beneficial_effect, skip_already_cast=True)
+    return collect_castable_spells(context, _self_beneficial_effect)

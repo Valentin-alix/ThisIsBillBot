@@ -18,10 +18,7 @@ class PlayerInfoWidget(PropertyPanelWidget):
         self.bot.game_info_signals.character_id.connect(
             partial(self.on_received_property, "Joueur", "Player id")
         )
-        self.bot.game_info_signals.breed_id.connect(self.on_breed_id_changed)
-        self.bot.game_info_signals.server_id.connect(
-            partial(self.on_received_property, "Joueur", "Serveur id")
-        )
+        self.bot.game_info_signals.server_id.connect(self.on_server_id_changed)
         self.bot.game_info_signals.has_guild.connect(
             partial(self.on_received_property, "Joueur", "A une guilde")
         )
@@ -32,13 +29,8 @@ class PlayerInfoWidget(PropertyPanelWidget):
             partial(self.on_received_property, "Hotel de vente", "Derniere maj prix")
         )
 
-        if self.bot.is_ready_to_play_event.is_set():
-            self.on_breed_id_changed(self.bot.game_state.fight.breed_id)
-
     @pyqtSlot(int)
-    def on_breed_id_changed(self, breed_id: int) -> None:
-        if breed_id == 0:
-            return
-        breed = DataReader().breed_by_id[breed_id]
-        breed_name = I18N().name_by_id[int(breed.shortNameId)]
-        self.on_received_property("Joueur", "Classe", breed_name)
+    def on_server_id_changed(self, server_id: int) -> None:
+        server = DataReader().server_by_id[server_id]
+        server_name = I18N().name_by_id[server.nameId]
+        self.on_received_property("Joueur", "Serveur", server_name)

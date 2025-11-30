@@ -30,8 +30,8 @@ DO_QUEST = True  # le bot va tenter les quetes eligibles pendant une session pla
 LVL_LIMIT_FOR_HARVEST = 10
 KAMAS_LIMIT_FOR_HARVEST = 5_000
 
-FIGHT_GROUP_LVL_MULTIPLIER = 2.5
-FIGHT_GROUP_LVL_OFFSET = 10
+FIGHT_GROUP_LVL_MULTIPLIER = 2
+FIGHT_GROUP_LVL_OFFSET = 5
 
 
 def get_default_fight_group_lvl_limit(level: int) -> float:

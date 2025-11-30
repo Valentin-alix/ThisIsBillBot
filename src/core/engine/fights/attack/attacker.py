@@ -5,7 +5,6 @@ from typing import NamedTuple
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import SpellModifier, SpellModifierType
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
-from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import EffectElement
 from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
 from DBDofusUnity.dofus_unity_reader.game_constants.spell_shape_enum import SpellShapeEnum
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
@@ -60,19 +59,12 @@ class Attacker(ContextualLogger):
     damage_calculator: DamageCalculator
 
     def find_best_attack_from_mp(
-        self,
-        context: AttackContext,
-        *,
-        allowed_elements: frozenset[EffectElement] | None = None,
+        self, context: AttackContext
     ) -> tuple[MapPoint, SpellLevelsRootItem, MapPoint] | None:
         positions = get_positions(context)
         movable_mps = get_movable_mps(context, positions, self.fight_reachable_cells)
 
-        valid_spells_for_turn = get_valid_spells_for_turn(
-            context,
-            self.logger,
-            allowed_elements=allowed_elements,
-        )
+        valid_spells_for_turn = get_valid_spells_for_turn(context, self.logger)
         if not valid_spells_for_turn:
             self.logger.info("No valid spells available for this turn")
             return None

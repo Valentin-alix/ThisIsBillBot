@@ -15,6 +15,7 @@ from src.core.engine.fights.spell_modifier import SpellModifiers
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
 
 HEAL_HP_THRESHOLD = 0.5
+EMERGENCY_HEAL_HP_THRESHOLD = 0.25
 
 
 def estimate_self_heal(effect: Effect, context: AttackContext) -> int:

@@ -53,6 +53,7 @@ class FightState(State):
     )
 
     cast_turn_by_spell_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict[int, int])
+    own_spell_id_by_effect_uid: dict[int, int] = dataclasses.field(init=False, default_factory=dict[int, int])
     characteristic_by_id: dict[int, CharacterCharacteristic] = dataclasses.field(
         init=False, default_factory=dict[int, CharacterCharacteristic]
     )
@@ -71,6 +72,7 @@ class FightState(State):
         self.modifier_by_type_and_spell_id.clear()
         self.count_casted_by_spell_id_on_current_turn.clear()
         self.cast_turn_by_spell_id.clear()
+        self.own_spell_id_by_effect_uid.clear()
         self.characteristic_by_id.clear()
         self.in_fight = False
         self.fight_turn = 0
@@ -79,6 +81,12 @@ class FightState(State):
 
     def add_invisible_enemy_cell(self, cell_id: int) -> None:
         self.invisible_enemy_cell_ids.add(cell_id)
+
+    def get_own_active_stack_count_by_spell_id(self) -> dict[int, int]:
+        counts: dict[int, int] = defaultdict(int)
+        for spell_id in self.own_spell_id_by_effect_uid.values():
+            counts[spell_id] += 1
+        return counts
 
     def get_stat_by_id(self, characteristic: int) -> int:
         value = get_stat_by_id(self.characteristic_by_id.get(characteristic))

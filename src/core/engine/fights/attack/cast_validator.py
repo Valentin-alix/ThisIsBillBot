@@ -20,7 +20,7 @@ def can_cast_spell_on_mp(
     rejection_stats: dict[RejectionStat, int],
 ) -> bool:
     targetable_mp_data = MapReader().get_cell_data_by_cell_id(context.map_id, mp.cell_id)
-    if not targetable_mp_data.mov or not targetable_mp_data.los or mp.cell_id in context.invisible_enemy_cell_ids:
+    if not targetable_mp_data.mov or not targetable_mp_data.los:
         rejection_stats[RejectionStat.CELL_NOT_WALKABLE] += 1
         return False
 

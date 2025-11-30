@@ -476,7 +476,7 @@ class TestFightActionAcknowledgement:
         assert fight_turn_behavior.state is BehaviorState.STOPPED
 
     def test_fight_turn_passes_without_runaway_when_no_enemies_remain(
-        self, game_state_ctx: GameStateContext
+        self, game_state_ctx: GameStateContext, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         set_game_state(game_state_ctx.game_state, player_cell_id=344, enemy_cell_ids=[])
         game_state_ctx.game_state.fight.in_fight = True
@@ -512,10 +512,9 @@ class TestFightActionAcknowledgement:
             _logger=game_state_ctx.logger,
         )
         fight_turn_behavior.did_attack = True
+        monkeypatch.setattr(fight_turn_behavior.attack_selector, "find_best_self_buff", _no_self_buff)
 
-        context = fight_turn_behavior._get_attack_context_or_finish()
-        assert context is not None
-        fight_turn_behavior._find_move_attack(context)
+        fight_turn_behavior._advance_turn(0)
 
         assert [type(sent_message) for sent_message in sent_messages] == [FightTurnFinishRequest]
         assert map_move_behavior.state == BehaviorState.STOPPED

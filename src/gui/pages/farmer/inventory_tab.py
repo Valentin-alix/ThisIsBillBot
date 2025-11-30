@@ -154,7 +154,7 @@ class InventoryTab(QWidget):
 
     def _get_item_text(self, object_item: ObjectItemInventory) -> str:
         item_name = get_item_name(object_item)
-        return f"{item_name} \n\n Pos : {object_item.position} \n\n {object_item.item.quantity}"
+        return f"{item_name} \n\n {object_item.item.quantity}"
 
     def connect_signals(self) -> None:
         if self.signals_connected:

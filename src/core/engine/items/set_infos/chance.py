@@ -3,7 +3,6 @@ from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
     CharacterInventoryPositionEnum,
 )
 from DBDofusUnity.dofus_unity_reader.game_constants.item import ItemEnum
-
 from src.core.engine.economy.sale_hotel import ItemToBuyInfo
 from src.core.engine.items.set_infos.set_info import SetOnLevel
 
@@ -34,7 +33,7 @@ CHANCE_SETS: list[SetOnLevel] = [
                 item_gid=ItemEnum.SANDALE_PIOU_BLEU, max_kamas=2_000
             ),
             CharacterInventoryPositionEnum.AccessoryPositionWeapon: ItemToBuyInfo(
-                item_gid=ItemEnum.ARC_HOLLIS, max_kamas=2_000
+                item_gid=ItemEnum.ARC_HOLIC, max_kamas=2_000
             ),
         },
     ),

@@ -56,6 +56,7 @@ from DBDofusUnity.dofus_unity_reader.models.datas.queststepsroot import (
     QueststepsrootItem,
 )
 from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem, RecipeRoot
+from DBDofusUnity.dofus_unity_reader.models.datas.serversroot import Serversroot, ServersrootItem
 from DBDofusUnity.dofus_unity_reader.models.datas.skills_root import SkillsRoot, SkillsRootItem
 from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
     SpellLevelsRoot,
@@ -95,6 +96,7 @@ FILEPATH_BY_MODEL: dict[Any, str] = {
     NpcMessagesRoot: "NpcMessagesDataRoot.json",
     NpcsRoot: "NpcsDataRoot.json",
     Breedsroot: "BreedsDataRoot.json",
+    Serversroot: "ServersDataRoot.json",
 }
 
 _MIN_DUNGEON_MAP_COUNT = 2
@@ -367,6 +369,11 @@ class DataReader(metaclass=Singleton):
     def breed_by_id(self) -> dict[int, BreedsrootItem]:
         breeds = _load_model(Breedsroot, Breedsroot)
         return {breed.id: breed for breed in breeds}
+
+    @cached_property
+    def server_by_id(self) -> dict[int, ServersrootItem]:
+        servers = _load_model(Serversroot, Serversroot)
+        return {server.id: server for server in servers}
 
     @cached_property
     def spell_variant_by_breed_id(self) -> dict[int, list[SpellVariantsRootItem]]:
