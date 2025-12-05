@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 
+from exchange_pb2 import ObjectAveragePricesRequest
 from DBDofusUnity.datas.protos.non_obf.game.bak_pb2 import BakApiTokenRequest
 from DBDofusUnity.datas.protos.non_obf.game.character_management_pb2 import (
     CharacterForceSelectionEvent,
     CharacterForceSelectionReadyRequest,
     CharacterListEvent,
     CharacterListRequest,
+    CharacterSelectionEvent,
     CharacterSelectionRequest,
 )
 from DBDofusUnity.datas.protos.non_obf.game.chat_pb2 import Channel, SubscribeMultipleChannelRequest
@@ -17,31 +19,30 @@ from DBDofusUnity.datas.protos.non_obf.game.connection_pb2 import (
 )
 from DBDofusUnity.datas.protos.non_obf.game.contact_pb2 import (
     AcquaintanceListRequest,
+    ContactLookRequest,
     ContactWarnOnAchievementCompleteSetRequest,
     ContactWarnOnPermanentDeathSetRequest,
     FriendListRequest,
     FriendSetStatusShareRequest,
     FriendSetWarnOnLevelGainRequest,
 )
-from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import ContextCreationRequest, ContextQuitRequest
+from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import ContextCreationRequest
 from DBDofusUnity.datas.protos.non_obf.game.guild_information_pb2 import GuildInformationRequest
 from DBDofusUnity.datas.protos.non_obf.game.guild_member_pb2 import (
     GuildMemberWarnOnConnectionStartRequest,
 )
+from DBDofusUnity.datas.protos.non_obf.game.guild_mission_pb2 import ServerMaintenanceInformationRequest
 from DBDofusUnity.datas.protos.non_obf.game.social_pb2 import (
     ChatCommunityChannelSetCommunityRequest,
     SpouseInformationRequest,
 )
-from exchange_pb2 import ObjectAveragePricesRequest
-from haapi_pb2 import HaapiSessionEvent
-
 from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
 )
 from src.core.behaviors.behavior import Behavior
 from src.services.human_timings import get_random_range
 
-_POST_LOAD_DELAY: tuple[float, float] = (0.02, 0.05)
+_POST_SELECTION_DELAY: tuple[float, float] = (1.00, 1.10)
 _CONTEXT_CREATION_DELAY: tuple[float, float] = (0.25, 0.30)
 _POST_CONTEXT_CREATION_DELAY: tuple[float, float] = (0.12, 0.15)
 _FINAL_SERVICE_ACTIVATION_DELAY: tuple[float, float] = (0.08, 0.13)
@@ -90,16 +91,9 @@ class HandshakeBehavior(Behavior):
             once=True,
         )
         self.event_manager.on(
-            CharacterForceSelectionEvent,
-            self.on_character_force_selection_event,
-            originator=self,
+            CharacterForceSelectionEvent, self.on_character_force_selection_event, originator=self, once=True
         )
-        self.event_manager.on(
-            HaapiSessionEvent,
-            self.on_haapi_session_event,
-            originator=self,
-            once=True,
-        )
+        self.event_manager.on(CharacterSelectionEvent, self.on_character_selection_event, originator=self)
         self.event_manager.send(GameIdentificationRequest(ticket_key=ticket, language_code="fr"))
 
     def on_authentication_ticket_accepted_timeout(self) -> None:
@@ -125,20 +119,27 @@ class HandshakeBehavior(Behavior):
     def on_character_force_selection_event(self, _msg: CharacterForceSelectionEvent) -> None:
         self.event_manager.send(CharacterForceSelectionReadyRequest())
 
-    def on_haapi_session_event(self, _msg: HaapiSessionEvent) -> None:
+    def on_character_selection_event(self, message: CharacterSelectionEvent) -> None:
+        if not message.HasField("success"):
+            return
+
+        self.event_manager.clear_listener_by_origin_and_type(CharacterSelectionEvent, self)
         self.run_timer(
-            get_random_range(_POST_LOAD_DELAY, is_weighted=False), self._send_pre_context_creation_batch
+            get_random_range(_POST_SELECTION_DELAY, is_weighted=False), self._send_pre_context_creation_batch
         )
 
     def _send_pre_context_creation_batch(self) -> None:
         self.event_manager.send(ContactWarnOnAchievementCompleteSetRequest(enable=False))
         self.event_manager.send(FriendSetStatusShareRequest(share=False))
         self.event_manager.send(FriendSetWarnOnLevelGainRequest(enable=False))
+        self.event_manager.send(
+            ContactLookRequest(contact_type=ContactLookRequest.SocialContactCategory.FRIEND)
+        )
         self.event_manager.send(ContactWarnOnPermanentDeathSetRequest(enable=False))
         info_type = GuildInformationRequest.InformationType
         self.event_manager.send(GuildInformationRequest(information_type=info_type.INFO_PADDOCKS))
         self.event_manager.send(GuildInformationRequest(information_type=info_type.INFO_GENERAL))
-        self.event_manager.send(ContextQuitRequest())
+        self.event_manager.send(ServerMaintenanceInformationRequest())
 
         self.run_timer(
             get_random_range(_CONTEXT_CREATION_DELAY, is_weighted=False),

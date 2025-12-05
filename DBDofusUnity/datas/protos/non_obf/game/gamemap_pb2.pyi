@@ -69,6 +69,20 @@ class MapFightCountEvent(_message.Message):
     fight_count: int
     def __init__(self, fight_count: _Optional[int] = ...) -> None: ...
 
+class CartographyBannerCountRequest(_message.Message):
+    __slots__ = ("map_id",)
+    MAP_ID_FIELD_NUMBER: _ClassVar[int]
+    map_id: int
+    def __init__(self, map_id: _Optional[int] = ...) -> None: ...
+
+class CartographyBannerCountEvent(_message.Message):
+    __slots__ = ("map_id", "banner_count")
+    MAP_ID_FIELD_NUMBER: _ClassVar[int]
+    BANNER_COUNT_FIELD_NUMBER: _ClassVar[int]
+    map_id: int
+    banner_count: int
+    def __init__(self, map_id: _Optional[int] = ..., banner_count: _Optional[int] = ...) -> None: ...
+
 class MapMovementRequest(_message.Message):
     __slots__ = ("key_cells", "map_id", "cautious")
     KEY_CELLS_FIELD_NUMBER: _ClassVar[int]

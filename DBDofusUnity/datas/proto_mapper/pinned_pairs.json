@@ -1838,6 +1838,28 @@
     {
       "obf": "jwe.jut",
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Game.Action.GameActionFightEvent.TeleportOnSameMap"
+    },
+    {
+      "obf": "hir",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap.CartographyBannerCountRequest",
+      "field_mapping_by_obf": {
+        "fmbz": "map_id"
+      }
+    },
+    {
+      "obf": "him",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap.CartographyBannerCountEvent",
+      "field_mapping_by_obf": {
+        "fmba": "map_id",
+        "fmbb": "banner_count"
+      }
+    },
+    {
+      "obf": "koc",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Contact.ContactLookRequest",
+      "field_mapping_by_obf": {
+        "fyjg": "contact_type"
+      }
     }
   ]
 }

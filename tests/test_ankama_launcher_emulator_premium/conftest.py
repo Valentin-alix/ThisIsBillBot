@@ -7,7 +7,7 @@ import pytest
 def _isolate_resource_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
         "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage.BOTS_STORAGE_PATH",
-        tmp_path / "bots.local.json",
+        tmp_path / "bots.json",
     )
     monkeypatch.setattr(
         "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.proxy.PROXIES_STORAGE_PATH",

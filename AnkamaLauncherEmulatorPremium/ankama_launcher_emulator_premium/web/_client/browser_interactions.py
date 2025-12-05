@@ -32,7 +32,6 @@ ANTIBOT_MARKERS = {
     "turnstile": "turnstile",
     "hcaptcha": "hcaptcha",
     "aws waf": "aws-waf",
-    "aws waf block": "awswaf",
 }
 
 

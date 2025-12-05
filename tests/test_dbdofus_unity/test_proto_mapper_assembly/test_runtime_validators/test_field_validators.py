@@ -3,6 +3,8 @@ from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID
 from DBDofusUnity.datas.protos.non_obf.game.fight_pb2 import FightEndEvent
+from DBDofusUnity.datas.protos.non_obf.game.guild_mission_pb2 import ServerMaintenanceEvent
+from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellVariantActivationEvent
 from DBDofusUnity.proto_mapper_assembly.validators.global_validators import (
     global_validator_interactive_element,
 )
@@ -163,6 +165,13 @@ class TestFieldValidators:
         assert is_valid_bak_bid_validation(9) is True
         assert is_valid_bak_bid_validation("BID_VALIDATION_SUCCESS") is True
         assert is_valid_bak_bid_validation(99) is False
+
+    def test_bot_message_field_validators_apply_semantic_constraints(self) -> None:
+        sample_values = self._sample_values()
+
+        assert VALIDATORS_ON_FIELD[SpellVariantActivationEvent]["spell_id"](sample_values["spell_id"]) is True
+        assert VALIDATORS_ON_FIELD[ServerMaintenanceEvent]["maintenance_date"]("2026-09-01T05:00:00Z") is True
+        assert VALIDATORS_ON_FIELD[ServerMaintenanceEvent]["maintenance_date"]("maintenance") is False
 
     def test_summon_runtime_sub_message_field_validators(self) -> None:
         sample_values = self._sample_values()

@@ -292,9 +292,9 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
             await _dump_oauth_failure_page(page)
         raise
     except MailboxCodeTimeoutError as exc:
-        MailAccountController().record_bad_state(options.email)
+        MailAccountController().remove_email(options.email)
         logger.error(
-            "[OAuth] Mailbox code timeout for %s; recorded as bad-state email: %s",
+            "[OAuth] Mailbox code timeout for %s; removed stored mailbox account: %s",
             options.email,
             exc,
         )

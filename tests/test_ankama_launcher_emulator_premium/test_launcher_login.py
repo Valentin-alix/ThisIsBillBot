@@ -269,7 +269,7 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
 
         self.assertFalse(result.success)
         self.assertEqual(result.error, "Timed out waiting for code")
-        mail_account_controller.return_value.record_bad_state.assert_called_once_with("u@example.com")
+        mail_account_controller.return_value.remove_email.assert_called_once_with("u@example.com")
         log_exception.assert_not_called()
         log_error.assert_called_once()
 

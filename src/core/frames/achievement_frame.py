@@ -6,7 +6,6 @@ from DBDofusUnity.datas.protos.non_obf.game.achievement_pb2 import (
     AchievementRewardResultEvent,
 )
 from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import CharacterLevelUpEvent
-
 from src.core.frames.frame import Frame
 from src.services.human_timings import HumanTimingsService
 
@@ -59,6 +58,8 @@ class AchievementFrame(Frame):
         if not self.is_playing_event.is_set():
             return
         self.logger.info("Collecting every pending achievement reward")
+        if self.game_state.fight.in_fight:
+            return
         self.event_manager.send(AchievementRewardRequest(achievement_id=ALL_ACHIEVEMENT_REWARDS_ID))
 
     def on_achievement_reward_result_event(self, msg: AchievementRewardResultEvent) -> None:

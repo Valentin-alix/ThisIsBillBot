@@ -12,7 +12,7 @@ LAUNCHER_PORT = 26116
 
 
 RESOURCES = Path(__file__).parent.parent / "resources"
-BOTS_STORAGE_PATH = RESOURCES / "bots.local.json"
+BOTS_STORAGE_PATH = RESOURCES / "bots.json"
 PROXIES_STORAGE_PATH = RESOURCES / "proxies.json"
 SCHEDULE_PROFILES_PATH = RESOURCES / "schedule_profiles.json"
 MAIL_ACCOUNTS_STORAGE_PATH = RESOURCES / "mail_accounts.json"

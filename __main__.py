@@ -35,7 +35,7 @@ def parse_runtime_args(argv: list[str]) -> RuntimeArgs:
         "--auto",
         action=argparse.BooleanOptionalAction,
         default=True,
-        help="Use resources/bots.local.json to configure bots at runtime.",
+        help="Use resources/bots.json to configure bots at runtime.",
     )
     parser.add_argument(
         "--headless",

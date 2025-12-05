@@ -1,5 +1,4 @@
 import logging
-import secrets
 from threading import RLock
 
 from base_python.singleton import Singleton
@@ -18,7 +17,6 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.atomic
     atomic_write_text,
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.smailpro import (
-    RandomMailboxKind,
     generate_random_mailbox,
 )
 
@@ -80,8 +78,14 @@ class MailAccountController(metaclass=Singleton):
             entry.is_used = True
             self._save(accounts_file)
 
+    def remove_email(self, email: str) -> None:
+        with self._acquire_file_lock():
+            accounts_file = self._load()
+            if accounts_file.accounts.pop(email, None) is not None:
+                self._save(accounts_file)
+
     def provision_smailpro_email(self, api_key: str) -> str:
-        kind: RandomMailboxKind = secrets.choice(("gmail", "outlook"))
+        kind = "gmail"
         email, timestamp = generate_random_mailbox(api_key, kind)
         with self._acquire_file_lock():
             accounts_file = self._load()

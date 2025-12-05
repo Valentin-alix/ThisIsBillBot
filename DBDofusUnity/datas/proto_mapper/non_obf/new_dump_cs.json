@@ -14102,22 +14102,7 @@
   "Com.Ankama.Dofus.Server.Game.Protocol.Character.Management.CharacterForceSelectionEvent": {
     "file_descriptor": "CharacterManagementReflection",
     "name": "CharacterForceSelectionEvent",
-    "fields": [
-      {
-        "clr_type": "long",
-        "normalized_type": "long",
-        "category": "number",
-        "memory_offset": 24,
-        "field_name": "characterId_",
-        "is_proto_field": true,
-        "property_name": "CharacterId",
-        "proto_decl_order": 1,
-        "oneof_group_name": null,
-        "is_synthetic_oneof_variant": false,
-        "enum_key_type": null,
-        "enum_value_type": null
-      }
-    ],
+    "fields": [],
     "properties": [],
     "namespace": "Com.Ankama.Dofus.Server.Game.Protocol.Character.Management",
     "parent_name": null,
@@ -38221,6 +38206,68 @@
         "is_proto_field": true,
         "property_name": "UnknownFourHundredThree",
         "proto_decl_order": 3,
+        "oneof_group_name": null,
+        "is_synthetic_oneof_variant": false,
+        "enum_key_type": null,
+        "enum_value_type": null
+      }
+    ],
+    "properties": [],
+    "namespace": "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap",
+    "parent_name": null,
+    "base_class_name": null
+  },
+  "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap.CartographyBannerCountEvent": {
+    "file_descriptor": "GamemapReflection",
+    "name": "CartographyBannerCountEvent",
+    "fields": [
+      {
+        "clr_type": "long",
+        "normalized_type": "long",
+        "category": "number",
+        "memory_offset": 0,
+        "field_name": "mapId_",
+        "is_proto_field": true,
+        "property_name": "MapId",
+        "proto_decl_order": 1,
+        "oneof_group_name": null,
+        "is_synthetic_oneof_variant": false,
+        "enum_key_type": null,
+        "enum_value_type": null
+      },
+      {
+        "clr_type": "int",
+        "normalized_type": "int",
+        "category": "number",
+        "memory_offset": 0,
+        "field_name": "bannerCount_",
+        "is_proto_field": true,
+        "property_name": "BannerCount",
+        "proto_decl_order": 2,
+        "oneof_group_name": null,
+        "is_synthetic_oneof_variant": false,
+        "enum_key_type": null,
+        "enum_value_type": null
+      }
+    ],
+    "properties": [],
+    "namespace": "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap",
+    "parent_name": null,
+    "base_class_name": null
+  },
+  "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap.CartographyBannerCountRequest": {
+    "file_descriptor": "GamemapReflection",
+    "name": "CartographyBannerCountRequest",
+    "fields": [
+      {
+        "clr_type": "long",
+        "normalized_type": "long",
+        "category": "number",
+        "memory_offset": 0,
+        "field_name": "mapId_",
+        "is_proto_field": true,
+        "property_name": "MapId",
+        "proto_decl_order": 2,
         "oneof_group_name": null,
         "is_synthetic_oneof_variant": false,
         "enum_key_type": null,

@@ -93,9 +93,9 @@ class BotStorageController(metaclass=Singleton):
             bots_file.bots.pop(login, None)
             self._save(bots_file)
 
-    def upsert_account_info(self, account: UserAccount) -> None:
+    def upsert_account_info(self, login: str, account: UserAccount) -> None:
         self.update_record(
-            account.login,
+            login,
             lambda record: setattr(record, "account_info", account),
         )
 

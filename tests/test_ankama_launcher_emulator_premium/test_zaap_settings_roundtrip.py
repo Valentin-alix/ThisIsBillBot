@@ -88,7 +88,7 @@ class TestAccountInfoRoundTrip(TestCase):
             create=lambda: BotRecord(email="user@example.com", password="secret", hardware_id="hw-1"),
             update=lambda record: None,
         )
-        upsert_settings_account(_make_account("user@example.com"))
+        upsert_settings_account("user@example.com", _make_account("user@example.com"))
         loaded = get_account_info_by_login("user@example.com")
         subscription = get_game_sub_info_by_login("user@example.com")
 
@@ -104,7 +104,7 @@ class TestAccountInfoRoundTrip(TestCase):
             create=lambda: BotRecord(email="user@example.com", password="secret", hardware_id="hw-1"),
             update=lambda record: setattr(record, "password", "secret"),
         )
-        upsert_settings_account(_make_account("user@example.com"))
+        upsert_settings_account("user@example.com", _make_account("user@example.com"))
         record = bot_storage.BotStorageController().get_record("user@example.com")
 
         self.assertIsNotNone(record)

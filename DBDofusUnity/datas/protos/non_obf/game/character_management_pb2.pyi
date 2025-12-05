@@ -207,10 +207,8 @@ class CharacterDeletionPrepareEvent(_message.Message):
     def __init__(self, character_id: _Optional[int] = ..., name: _Optional[str] = ..., secret_question: _Optional[str] = ..., need_secret_answer: bool = ...) -> None: ...
 
 class CharacterForceSelectionEvent(_message.Message):
-    __slots__ = ("character_id",)
-    CHARACTER_ID_FIELD_NUMBER: _ClassVar[int]
-    character_id: int
-    def __init__(self, character_id: _Optional[int] = ...) -> None: ...
+    __slots__ = ()
+    def __init__(self) -> None: ...
 
 class CharacterListErrorEvent(_message.Message):
     __slots__ = ()

@@ -35,19 +35,22 @@ _OFF_PRIMARY_FLAT_DAMAGE_WEIGHT = _PRIMARY_FLAT_DAMAGE_WEIGHT / 25
 _OFF_PRIMARY_SCALING_WEIGHT = _PRIMARY_SCALING_WEIGHT / 25
 _DEFAULT_ROLL_WEIGHT = 0.01
 
-_WEAPON_TYPE_IDS = frozenset({2, 3, 4, 5, 6, 7, 8, 19, 20, 21, 22, 81, 89})
 _EQUIPMENT_POSITIONS_BY_TYPE_ID: dict[int, tuple[CharacterInventoryPositionEnum, ...]] = {
     1: (CharacterInventoryPositionEnum.AccessoryPositionAmulet,),
+    **{
+        item_type_id: (CharacterInventoryPositionEnum.AccessoryPositionWeapon,)
+        for item_type_id in (2, 3, 4, 5, 6, 7, 8, 19, 20, 21, 22, 114, 271)
+    },
     9: (
         CharacterInventoryPositionEnum.InventoryPositionRingLeft,
         CharacterInventoryPositionEnum.InventoryPositionRingRight,
     ),
     10: (CharacterInventoryPositionEnum.AccessoryPositionBelt,),
     11: (CharacterInventoryPositionEnum.AccessoryPositionBoots,),
-    15: (CharacterInventoryPositionEnum.AccessoryPositionShield,),
     16: (CharacterInventoryPositionEnum.AccessoryPositionHat,),
     17: (CharacterInventoryPositionEnum.AccessoryPositionCape,),
     18: (CharacterInventoryPositionEnum.AccessoryPositionPets,),
+    121: (CharacterInventoryPositionEnum.AccessoryPositionPets,),
     23: tuple(
         CharacterInventoryPositionEnum(position)
         for position in range(
@@ -56,6 +59,24 @@ _EQUIPMENT_POSITIONS_BY_TYPE_ID: dict[int, tuple[CharacterInventoryPositionEnum,
         )
     ),
     82: (CharacterInventoryPositionEnum.AccessoryPositionShield,),
+    151: tuple(
+        CharacterInventoryPositionEnum(position)
+        for position in range(
+            CharacterInventoryPositionEnum.InventoryPositionDofus1,
+            CharacterInventoryPositionEnum.InventoryPositionDofus6 + 1,
+        )
+    ),
+    217: tuple(
+        CharacterInventoryPositionEnum(position)
+        for position in range(
+            CharacterInventoryPositionEnum.InventoryPositionDofus1,
+            CharacterInventoryPositionEnum.InventoryPositionDofus6 + 1,
+        )
+    ),
+    311: (CharacterInventoryPositionEnum.InventoryPositionMount,),
+    331: (CharacterInventoryPositionEnum.InventoryPositionMount,),
+    332: (CharacterInventoryPositionEnum.InventoryPositionMount,),
+    333: (CharacterInventoryPositionEnum.InventoryPositionMount,),
 }
 
 
@@ -87,8 +108,6 @@ def roll_score(object_item: ObjectItemInventory, primary_elem: EffectElement) ->
 
 def get_equipment_positions(item_gid: int) -> tuple[CharacterInventoryPositionEnum, ...]:
     item_type_id = DataReader().item_by_id[item_gid].typeId
-    if item_type_id in _WEAPON_TYPE_IDS:
-        return (CharacterInventoryPositionEnum.AccessoryPositionWeapon,)
     return _EQUIPMENT_POSITIONS_BY_TYPE_ID.get(item_type_id, ())
 
 

@@ -216,6 +216,15 @@
       ]
     },
     {
+      "message": ".com.ankama.dofus.server.game.protocol.character.CharacterCharacteristicUpgradeResultEvent",
+      "fields": [
+        "result"
+      ],
+      "activities": [
+        "game_state"
+      ]
+    },
+    {
       "message": ".com.ankama.dofus.server.game.protocol.character.CharacterLevelUpEvent",
       "fields": [
         "new_level"
@@ -598,6 +607,15 @@
       ],
       "activities": [
         "session"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.contact.ContactLookRequest",
+      "fields": [
+        "contact_type"
+      ],
+      "activities": [
+        "movement_dungeon"
       ]
     },
     {
@@ -1399,6 +1417,13 @@
       ]
     },
     {
+      "message": ".com.ankama.dofus.server.game.protocol.guild.mission.ServerMaintenanceInformationRequest",
+      "fields": [],
+      "activities": [
+        "movement_dungeon"
+      ]
+    },
+    {
       "message": ".com.ankama.dofus.server.game.protocol.guild.member.GuildMembershipEvent",
       "fields": [
         "guild_information",
@@ -1795,6 +1820,16 @@
       ],
       "activities": [
         "game_state"
+      ]
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.spell.SpellVariantActivationEvent",
+      "fields": [
+        "spell_id",
+        "effective"
+      ],
+      "activities": [
+        "fight"
       ]
     },
     {

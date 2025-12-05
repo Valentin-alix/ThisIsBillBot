@@ -149,22 +149,30 @@ class AutoEquipmentBehavior(RecoverableBehavior):
     def _send_equip_request(self, item_inventory: ObjectItemInventory) -> None:
         assert self._chosen_set
 
+        to_position = self._chosen_set.position_by_item_id[item_inventory.item.gid]
+
         self.event_manager.on(
             InventoryWeightEvent,
             callback=self.on_inventory_weight_event_after_equipped,
             originator=self,
             once=True,
+            timeout=15,
+            on_timeout=lambda: self.on_timeout_inventory_weight_on_equipped(item_inventory, to_position),
         )
 
         req = ObjectSetPositionRequest(
             object_uid=item_inventory.item.uid,
             quantity=1,
-            position=self._chosen_set.position_by_item_id[item_inventory.item.gid],
+            position=to_position,
         )
-        self.send_message_delayed(
-            req,
-            HumanTimingsService().get_timing_equipment_choice(),
+        self.send_message_delayed(req, HumanTimingsService().get_timing_equipment_choice())
+
+    def on_timeout_inventory_weight_on_equipped(self, item: ObjectItemInventory, position: int):
+        self.logger.error(
+            f"Timeout inventory weight after equipped for item {item} to position {position}, removing it from inventory"
         )
+        self.game_state.inventory.remove_object(item.item.uid)
+        self.equip_next_item()
 
     def on_inventory_weight_event_after_equipped(self, msg: InventoryWeightEvent):
         self.equip_next_item()

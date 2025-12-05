@@ -13,12 +13,10 @@ class ServersrootItem(Struct, frozen=True, kw_only=True):
     id: int
     nameId: int
     commentId: str
-    openingDate: float
     language: str
     populationId: int
     gameTypeId: int
     communityId: int
-    restrictedToLanguages: List
     monoAccount: int
     illus: str
 

@@ -41,6 +41,8 @@ from src.exceptions import UnhandledErrorCodeException
 from src.services.logging_utils.contextual_logger import ContextualLogger
 
 _OGRINE_SUBSCRIPTION_MIN_KAMAS = 2_000_000
+_SUBSCRIPTION_MIN_LEVEL = 20
+_SUBSCRIPTION_MIN_KAMAS = 5_000
 
 
 @dataclass
@@ -147,6 +149,9 @@ class ConnectionHandler(ContextualLogger):
     def _continue_after_required_behavior(self) -> None:
         if not self.behavior_coordinator.is_playing_event.is_set():
             return
+        if not self._is_eligible_for_subscription():
+            self.behavior_coordinator.run_current_bot_action()
+            return
         if self._should_subscribe_with_paysafe_card():
             self.logger.info("Starting automatic in-game Paysafecard subscription")
             self.paysafecard_subscription_behavior.start(
@@ -165,13 +170,23 @@ class ConnectionHandler(ContextualLogger):
             return
         self.behavior_coordinator.run_current_bot_action()
 
+    def _is_eligible_for_subscription(self) -> bool:
+        return (
+            self.game_state.player.level > _SUBSCRIPTION_MIN_LEVEL
+            and self.game_state.inventory.kamas >= _SUBSCRIPTION_MIN_KAMAS
+        )
+
     def _should_subscribe_with_paysafe_card(self) -> bool:
         login = self.game_state.player.login
         subscribe_info = self.subscription_storage.get_subscribe_info(login)
         if subscribe_info is None:
             return False
-        is_never_subscribed = not subscribe_info.is_subscribe and not subscribe_info.is_former_subscribe
         pending_purchase = self.paysafecard_purchase_storage.load_purchase()
+        if subscribe_info.is_subscribe and pending_purchase is not None and pending_purchase.login == login:
+            self.paysafecard_purchase_storage.clear_purchase()
+            self.logger.info("Cleared confirmed pending Paysafecard purchase")
+            pending_purchase = None
+        is_never_subscribed = not subscribe_info.is_subscribe and not subscribe_info.is_former_subscribe
         has_pending_purchase = pending_purchase is not None and pending_purchase.login == login
         has_available_pin = bool(self.paysafecard_pool.load())
         self.logger.info(f"Is never subscribed : {is_never_subscribed}")

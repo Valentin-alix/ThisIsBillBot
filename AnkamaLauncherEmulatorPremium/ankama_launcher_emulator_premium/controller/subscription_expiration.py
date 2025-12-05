@@ -91,4 +91,4 @@ class SubscriptionExpirationStorage(metaclass=Singleton):
         related_game = self._get_dofus_game(zaap_acc)
         related_game.is_subscribed = expiration > datetime.now(tz=expiration.tzinfo)
         related_game.end_of_subscribe = expiration
-        upsert_settings_account(zaap_acc)
+        upsert_settings_account(login, zaap_acc)

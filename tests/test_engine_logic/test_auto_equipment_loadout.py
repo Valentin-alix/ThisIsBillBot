@@ -1,7 +1,9 @@
 import time
 from collections.abc import Callable
+from threading import RLock
 from types import SimpleNamespace
 from typing import Any, cast
+from unittest.mock import Mock
 
 import pytest
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectEffect, ObjectItem, ObjectItemInventory
@@ -23,11 +25,47 @@ from src.core.behaviors.items.auto_equipment_from_inventory_behavior import (
 )
 from src.core.engine.items import equipment as equipment_module
 from src.core.states.game_state import GameState
+from src.services.logging_utils.loggers import BotLogger
 
 _RING_TYPE_ID = 9
 _DOFUS_TYPE_ID = 23
 _POWER_ACTION = 1
 _VITALITY_ACTION = 2
+_DOFUS_POSITIONS = tuple(
+    CharacterInventoryPositionEnum(position)
+    for position in range(
+        CharacterInventoryPositionEnum.InventoryPositionDofus1,
+        CharacterInventoryPositionEnum.InventoryPositionDofus6 + 1,
+    )
+)
+_EQUIPMENT_POSITION_CASES = (
+    (1, (CharacterInventoryPositionEnum.AccessoryPositionAmulet,)),
+    *(
+        (item_type_id, (CharacterInventoryPositionEnum.AccessoryPositionWeapon,))
+        for item_type_id in (2, 3, 4, 5, 6, 7, 8, 19, 20, 21, 22, 114, 271)
+    ),
+    (
+        9,
+        (
+            CharacterInventoryPositionEnum.InventoryPositionRingLeft,
+            CharacterInventoryPositionEnum.InventoryPositionRingRight,
+        ),
+    ),
+    (10, (CharacterInventoryPositionEnum.AccessoryPositionBelt,)),
+    (11, (CharacterInventoryPositionEnum.AccessoryPositionBoots,)),
+    (16, (CharacterInventoryPositionEnum.AccessoryPositionHat,)),
+    (17, (CharacterInventoryPositionEnum.AccessoryPositionCape,)),
+    (18, (CharacterInventoryPositionEnum.AccessoryPositionPets,)),
+    (23, _DOFUS_POSITIONS),
+    (82, (CharacterInventoryPositionEnum.AccessoryPositionShield,)),
+    (121, (CharacterInventoryPositionEnum.AccessoryPositionPets,)),
+    (151, _DOFUS_POSITIONS),
+    (217, _DOFUS_POSITIONS),
+    (311, (CharacterInventoryPositionEnum.InventoryPositionMount,)),
+    (331, (CharacterInventoryPositionEnum.InventoryPositionMount,)),
+    (332, (CharacterInventoryPositionEnum.InventoryPositionMount,)),
+    (333, (CharacterInventoryPositionEnum.InventoryPositionMount,)),
+)
 
 
 def _make_item(*, uid: int, gid: int, action: int, value_int: int) -> ObjectItemInventory:
@@ -40,6 +78,8 @@ def _make_item(*, uid: int, gid: int, action: int, value_int: int) -> ObjectItem
 def patch_data_reader(monkeypatch: pytest.MonkeyPatch) -> None:
     item_type_by_gid = {gid: _RING_TYPE_ID for gid in range(900, 910)}
     item_type_by_gid.update({gid: _DOFUS_TYPE_ID for gid in range(920, 940)})
+    item_type_by_gid.update({item_type_id: item_type_id for item_type_id, _ in _EQUIPMENT_POSITION_CASES})
+    item_type_by_gid[15] = 15
     fake_data_reader = SimpleNamespace(
         item_by_id={gid: SimpleNamespace(typeId=type_id) for gid, type_id in item_type_by_gid.items()},
         effect_by_id={
@@ -52,6 +92,8 @@ def patch_data_reader(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def _make_behavior() -> AutoEquipmentFromInventoryBehavior:
     instance = object.__new__(AutoEquipmentFromInventoryBehavior)
+    instance._state_lock = RLock()
+    instance._logger = cast(BotLogger, Mock())
     instance.game_state = cast(
         GameState,
         SimpleNamespace(fight=SimpleNamespace(primary_and_second_elem=(EffectElement.STRENGTH, None))),
@@ -60,6 +102,17 @@ def _make_behavior() -> AutoEquipmentFromInventoryBehavior:
 
 
 class TestBestLoadout:
+    @pytest.mark.parametrize(
+        ("item_gid", "expected_positions"),
+        _EQUIPMENT_POSITION_CASES + ((15, ()),),
+    )
+    def test_item_type_maps_to_possible_equipment_positions(
+        self,
+        item_gid: int,
+        expected_positions: tuple[CharacterInventoryPositionEnum, ...],
+    ) -> None:
+        assert equipment_module.get_equipment_positions(item_gid) == expected_positions
+
     def test_keeps_equivalent_equipped_ring_when_another_ring_improves(self) -> None:
         behavior = _make_behavior()
         equipped_ring = _make_item(uid=1, gid=900, action=_POWER_ACTION, value_int=10)
@@ -234,9 +287,7 @@ class TestEquipConfirmation:
         behavior._equip_next()
         assert event_manager.confirm_callback is not None
 
-        event_manager.confirm_callback(
-            ObjectAddedEvent(object=ObjectItemInventory(position=position))
-        )
+        event_manager.confirm_callback(ObjectAddedEvent(object=ObjectItemInventory(position=position)))
 
         assert finished_with  # queue drained -> finish() called
         assert event_manager.cleared_origins == [behavior]
@@ -251,7 +302,9 @@ class TestEquipConfirmation:
 
         event_manager.confirm_callback(
             ObjectAddedEvent(
-                object=ObjectItemInventory(position=CharacterInventoryPositionEnum.InventoryPositionNotEquiped)
+                object=ObjectItemInventory(
+                    position=CharacterInventoryPositionEnum.InventoryPositionNotEquiped
+                )
             )
         )
 
@@ -273,3 +326,16 @@ class TestEquipConfirmation:
 
         assert not finished_with
         assert behavior._pending_position == position
+
+    def test_timeout_keeps_inventory_and_finishes_once(self) -> None:
+        position = CharacterInventoryPositionEnum.AccessoryPositionAmulet
+        behavior, event_manager, finished_with = _make_equip_behavior(pending_uid=1, position=position)
+
+        behavior._equip_next()
+        behavior.on_timeout_inventory_weight_on_equipped(1, position)
+        behavior.on_timeout_inventory_weight_on_equipped(1, position)
+
+        assert 1 in behavior.game_state.inventory.objects_by_uid
+        assert event_manager.cleared_origins == [behavior]
+        assert behavior._pending_position is None
+        assert len(finished_with) == 1

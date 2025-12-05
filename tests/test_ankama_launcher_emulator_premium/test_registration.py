@@ -15,15 +15,20 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.m
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.manual import (
     extract_confirmation_code,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.pkce import generate_code_challenge
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.pkce import (
+    generate_code_challenge,
+)
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth import (
     registration as registration_module,
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.models import (
     RegistrationIdentity,
     RegistrationOptions,
+    RegistrationResult,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.oauth_state import build_login_url
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.oauth_state import (
+    build_login_url,
+)
 
 from tests.test_ankama_launcher_emulator_premium._fakes import FakeBrowserContext, FakeMailProvider
 
@@ -105,6 +110,43 @@ class TestRegistration(TestCase):
         bad_state_emails = MailAccountController().load_bad_state_emails()
 
         self.assertEqual(bad_state_emails, {"a@example.com", "z@example.com"})
+
+    def test_finalize_registration_attempt_discards_already_linked_email(self) -> None:
+        with MailAccountController()._acquire_file_lock():
+            accounts_file = MailAccountController()._load()
+            accounts_file.accounts.setdefault("linked@example.com", MailAccountEntry())
+            MailAccountController()._save(accounts_file)
+        result = RegistrationResult(
+            success=False,
+            email="linked@example.com",
+            password="password",
+            final_url="https://auth.ankama.com/register/ankama",
+            error=(
+                "registration form is still present after submit; visible form errors: "
+                '"linked@example.com" est déjà lié à un compte existant. Pour continuer, connectez-vous.'
+            ),
+        )
+
+        registration_module._finalize_registration_attempt("linked@example.com", result)
+
+        self.assertNotIn("linked@example.com", MailAccountController()._load().accounts)
+
+    def test_finalize_registration_attempt_discards_invalid_email(self) -> None:
+        with MailAccountController()._acquire_file_lock():
+            accounts_file = MailAccountController()._load()
+            accounts_file.accounts.setdefault("retry@example.com", MailAccountEntry())
+            MailAccountController()._save(accounts_file)
+        result = RegistrationResult(
+            success=False,
+            email="retry@example.com",
+            password="password",
+            final_url="https://auth.ankama.com/register/ankama",
+            error="registration form is still present after submit; visible form errors: Email invalide",
+        )
+
+        registration_module._finalize_registration_attempt("retry@example.com", result)
+
+        self.assertNotIn("retry@example.com", MailAccountController()._load().accounts)
 
 
 def _registration_options(
@@ -236,6 +278,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
                 new=AsyncMock(),
             ),
             patch.object(registration_module, "BotStorageController") as bot_storage_controller,
+            patch.object(registration_module, "MailAccountController") as mail_account_controller,
             patch.object(registration_module, "dump_page_html", new=AsyncMock()),
             patch.object(registration_module.asyncio, "sleep", new=AsyncMock()),
             patch.object(registration_module, "human_wait", new=AsyncMock()),
@@ -245,11 +288,12 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
         self.assertFalse(result.success)
         self.assertEqual(result.error, failure.reason)
         bot_storage_controller.return_value.save_account.assert_not_called()
+        mail_account_controller.return_value.remove_email.assert_called_once_with("new@example.com")
 
     async def test_wait_for_result_reports_visible_form_errors(self) -> None:
         page = MagicMock()
         page.url = "https://auth.ankama.com/register/ankama/form-submit"
-        page.content = AsyncMock(return_value=_ready_registration_form_html())
+        page.content = AsyncMock(return_value="<html><body>form rerendered</body></html>")
 
         with (
             patch.object(registration_module.asyncio, "sleep", new=AsyncMock()),
@@ -319,7 +363,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
         self.assertIn("registration blocked by antibot marker", result.reason or "")
         extract_registration_form_errors.assert_not_awaited()
 
-    async def test_registration_confirmation_timeout_records_bad_state_email(
+    async def test_registration_confirmation_timeout_removes_email(
         self,
     ) -> None:
         page = MagicMock()
@@ -340,4 +384,4 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
                 started_at=registration_module.datetime.now(registration_module.UTC),
             )
 
-        mail_account_controller.return_value.record_bad_state.assert_called_once_with("new@example.com")
+        mail_account_controller.return_value.remove_email.assert_called_once_with("new@example.com")

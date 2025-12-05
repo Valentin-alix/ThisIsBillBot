@@ -175,11 +175,22 @@ class AutoEquipmentFromInventoryBehavior(Behavior):
             self._on_equip_confirmed,
             originator=self,
             override_on_self=True,
+            timeout=15,
+            on_timeout=lambda: self.on_timeout_inventory_weight_on_equipped(uid, position),
         )
         self.send_message_delayed(
             ObjectSetPositionRequest(object_uid=uid, quantity=1, position=position),
             HumanTimingsService().get_timing_equipment_choice(),
         )
+
+    def on_timeout_inventory_weight_on_equipped(self, uid: int, position: int):
+        self.event_manager.clear_listener_by_origin_and_type(ObjectMovementEvent, self)
+        self.event_manager.clear_listener_by_origin_and_type(ObjectAddedEvent, self)
+        self.logger.error(
+            f"Timeout inventory weight after equipped for item {uid} to position {position}, removing it from inventory"
+        )
+        self.game_state.inventory.remove_object(uid)
+        self._equip_next()
 
     def _on_equip_confirmed(self, msg: ObjectMovementEvent | ObjectAddedEvent) -> None:
         position = msg.position if isinstance(msg, ObjectMovementEvent) else msg.object.position

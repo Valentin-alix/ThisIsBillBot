@@ -51,7 +51,6 @@ from DBDofusUnity.datas.protos.non_obf.game.challenge_pb2 import (
     ChallengeValidateRequest,
 )
 from DBDofusUnity.datas.protos.non_obf.game.character_management_pb2 import (
-    CharacterForceSelectionEvent,
     CharacterSelectionRequest,
 )
 from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import (
@@ -173,6 +172,7 @@ from DBDofusUnity.datas.protos.non_obf.game.guild_member_pb2 import (
     GuildMemberOnlineStatusEvent,
     GuildMemberParametersChangeRequest,
 )
+from DBDofusUnity.datas.protos.non_obf.game.guild_mission_pb2 import ServerMaintenanceEvent
 from DBDofusUnity.datas.protos.non_obf.game.guild_rank_pb2 import (
     GuildRankCreateRequest,
     GuildRankRemoveRequest,
@@ -245,7 +245,11 @@ from DBDofusUnity.datas.protos.non_obf.game.roleplay_pb2 import (
     RemoveChallengeEvent,
     SpellAnimEvent,
 )
-from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
+from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import (
+    SpellItem,
+    SpellsEvent,
+    SpellVariantActivationEvent,
+)
 from DBDofusUnity.datas.protos.non_obf.game.taxcollector_pb2 import (
     TaxCollectorAddedEvent,
     TaxCollectorAttackedEvent,
@@ -920,7 +924,6 @@ VALIDATORS_ON_FIELD: dict[type[Message], dict[str, ValidatorFn[Any]]] = {
     ChallengeNumberEvent: {"challenge_number": is_valid_strict_positive},
     ChallengeProposalEvent: {"timer": is_valid_positive},
     # character_management_pb2
-    CharacterForceSelectionEvent: {"character_id": is_valid_player_id},
     CharacterSelectionRequest: {"character_id": is_valid_strict_positive},
     # chat_pb2
     ChatChannelMessageEvent: {
@@ -1183,6 +1186,7 @@ VALIDATORS_ON_FIELD: dict[type[Message], dict[str, ValidatorFn[Any]]] = {
     },
     GuildMemberOnlineStatusEvent: {"member_id": is_valid_player_id},
     GuildMemberLeaveEvent: {"player_id": is_valid_player_id},
+    ServerMaintenanceEvent: {"maintenance_date": is_valid_date_iso},
     # guild_rank_pb2
     GuildRankCreateRequest: {"parent_rank_id": is_valid_strict_positive},
     GuildRankRemoveRequest: {
@@ -1335,6 +1339,7 @@ VALIDATORS_ON_FIELD: dict[type[Message], dict[str, ValidatorFn[Any]]] = {
     # spell_pb2
     SpellItem: {"spell_id": is_valid_spell_id, "spell_level": is_valid_spell_numero},
     SpellsEvent: {"human_spells": is_not_empty_list, "mutant_spells": is_empty_list},
+    SpellVariantActivationEvent: {"spell_id": is_valid_spell_id},
     # taxcollector_pb2
     TaxCollectorOrderedSpellRemoveRequest: {"slot_id": is_valid_positive},
     TaxCollectorOrderedSpellMoveRequest: {

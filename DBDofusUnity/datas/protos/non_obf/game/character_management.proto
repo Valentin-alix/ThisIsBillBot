@@ -122,7 +122,6 @@ message CharacterDeletionPrepareEvent {
 }
 
 message CharacterForceSelectionEvent {
-	int64 character_id = 1;
 }
 
 message CharacterListErrorEvent {

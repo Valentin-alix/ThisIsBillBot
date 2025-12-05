@@ -136,7 +136,6 @@ class AccountScheduler:
                 continue
             quota_key = account_profile.proxy_id
             if not self._pool.has_quota(quota_key, now):
-                logger.info(f"quota key {quota_key} reached")
                 continue
             auth_candidates.append(_AuthOp(account.email, account_profile_id, quota_key))
         if auth_candidates:

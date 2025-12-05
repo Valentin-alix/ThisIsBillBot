@@ -114,7 +114,7 @@ async def register_account(options: RegistrationOptions) -> RegistrationResult:
                 page.url,
                 error,
             )
-            return RegistrationResult(
+            result = RegistrationResult(
                 False,
                 options.email,
                 options.password,
@@ -122,6 +122,10 @@ async def register_account(options: RegistrationOptions) -> RegistrationResult:
                 error,
                 wait_result.antibot_marker,
             )
+            if _is_discardable_email_error(result):
+                logger.warning("[Register] %s was rejected by Ankama; discarding it.", options.email)
+                MailAccountController().remove_email(options.email)
+            return result
         except Exception as exc:
             logger.exception("[Register] Failure at URL %s", page.url)
             await dump_page_html("register_failure", page)
@@ -234,7 +238,7 @@ async def _handle_confirmation_code(page: Page, options: RegistrationOptions, st
     for task in done:
         exception = task.exception()
         if isinstance(exception, MailboxCodeTimeoutError):
-            MailAccountController().record_bad_state(options.email)
+            MailAccountController().remove_email(options.email)
             raise exception
     return any(task.result() for task in done if not task.cancelled())
 
@@ -259,19 +263,13 @@ async def _wait_for_result(
                 reason="email confirmation code was not submitted or accepted",
             )
 
-        antibot_detection = detect_antibot_marker(html)
-        if antibot_detection is not None:
-            reason = f"registration blocked by antibot marker {antibot_detection.name} at {current_url}"
-            logger.error("[Register] %s", reason)
-            return _RegistrationWaitResult(
-                success=False,
-                reason=reason,
-                antibot_marker=antibot_detection.name,
-            )
+        form_errors = ()
+        if second_index > 5:
+            form_errors = await _extract_registration_form_errors(page)
 
         form_is_ready = _is_registration_form_ready(html)
-        if form_is_ready and second_index > 5:
-            form_errors = await _extract_registration_form_errors(page)
+        antibot_detection = detect_antibot_marker(html)
+        if form_errors:
             reason = _format_form_failure_reason(
                 form_errors=form_errors,
                 current_url=current_url,
@@ -282,6 +280,27 @@ async def _wait_for_result(
                 success=False,
                 reason=reason,
                 form_errors=form_errors,
+            )
+
+        if antibot_detection is not None:
+            reason = f"registration blocked by antibot marker {antibot_detection.name} at {current_url}"
+            logger.error("[Register] %s", reason)
+            return _RegistrationWaitResult(
+                success=False,
+                reason=reason,
+                antibot_marker=antibot_detection.name,
+            )
+
+        if form_is_ready and second_index > 5:
+            reason = _format_form_failure_reason(
+                form_errors=(),
+                current_url=current_url,
+                antibot_marker=None,
+            )
+            logger.error("[Register] %s", reason)
+            return _RegistrationWaitResult(
+                success=False,
+                reason=reason,
             )
         if second_index > 0 and second_index % 15 == 0 and antibot_detection is None:
             logger.info(
@@ -343,6 +362,29 @@ async def _register_email(
     )
 
 
+_DISCARDABLE_EMAIL_ERROR_MARKERS = (
+    "déjà lié",
+    "email invalide",
+    "adresse e-mail invalide",
+    "n'est pas valide",
+    "adresse e-mail doit être valide",
+)
+
+
+def _is_discardable_email_error(result: RegistrationResult) -> bool:
+    return result.error is not None and any(
+        marker in result.error.casefold() for marker in _DISCARDABLE_EMAIL_ERROR_MARKERS
+    )
+
+
+def _finalize_registration_attempt(email: str, result: RegistrationResult) -> None:
+    if result.success:
+        MailAccountController().mark_used(email)
+    elif _is_discardable_email_error(result):
+        logger.warning("[Register] %s was rejected by Ankama; discarding it.", email)
+        MailAccountController().remove_email(email)
+
+
 def _next_email_to_register() -> str | None:
     email = MailAccountController().peek_next_available_email()
     if email is not None:
@@ -364,8 +406,7 @@ async def register_next_available_email(
     if email is None:
         return None
     result = await _register_email(email, schedule_profile)
-    if result.success:
-        MailAccountController().mark_used(email)
+    _finalize_registration_attempt(email, result)
     return result
 
 
@@ -379,22 +420,27 @@ def _first_schedule_profile_id() -> str:
 async def register_available_emails(schedule_profile: str):
     while (email := _next_email_to_register()) is not None:
         result = await _register_email(email, schedule_profile)
-        if not result.success:
-            if result.antibot_marker is not None:
-                logger.warning(
-                    "[Register] Stopping batch after antibot marker %s on %s",
-                    result.antibot_marker,
-                    result.email,
-                )
-                return
+        _finalize_registration_attempt(email, result)
+        if result.success:
+            await asyncio.sleep(
+                random.randint(MIN_DELAY_BETWEEN_ACCOUNTS_SEC, MAX_DELAY_BETWEEN_ACCOUNTS_SEC)
+            )
+            continue
+        if _is_discardable_email_error(result):
+            continue
+        if result.antibot_marker is not None:
             logger.warning(
-                "[Register] Stopping batch after failed registration for %s: %s",
+                "[Register] Stopping batch after antibot marker %s on %s",
+                result.antibot_marker,
                 result.email,
-                result.error,
             )
             return
-        MailAccountController().mark_used(email)
-        await asyncio.sleep(random.randint(MIN_DELAY_BETWEEN_ACCOUNTS_SEC, MAX_DELAY_BETWEEN_ACCOUNTS_SEC))
+        logger.warning(
+            "[Register] Stopping batch after failed registration for %s: %s",
+            result.email,
+            result.error,
+        )
+        return
     logger.warning("No more email available")
 
 

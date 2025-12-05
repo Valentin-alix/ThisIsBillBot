@@ -87,14 +87,13 @@
       "name": "handshake_pre_context_creation",
       "messages": [
         "ContactWarnOnAchievementCompleteSetRequest",
-        "GuildMemberWarnOnConnectionSetRequest",
         "FriendSetStatusShareRequest",
         "FriendSetWarnOnLevelGainRequest",
         "ContactLookRequest",
         "ContactWarnOnPermanentDeathSetRequest",
         "GuildInformationRequest",
         "GuildInformationRequest",
-        "ContextQuitRequest",
+        "ServerMaintenanceInformationRequest",
         "ContextCreationRequest"
       ]
     },

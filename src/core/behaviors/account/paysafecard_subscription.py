@@ -1,10 +1,10 @@
 import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from enum import StrEnum
 from functools import partial
 from threading import Thread
-from time import sleep
 
 from pydantic import ValidationError
 from requests.exceptions import RequestException
@@ -32,6 +32,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.subscrip
     PaysafecardPurchaseError,
     purchase_with_paysafecard,
 )
+from DBDofusUnity.datas.protos.non_obf.game.account_pb2 import AccountInformationUpdateEvent
 from DBDofusUnity.datas.protos.non_obf.game.bak_pb2 import (
     BakShopTokenEvent,
     BakShopTokenRequest,
@@ -45,8 +46,7 @@ from src.consts import (
 from src.controller.bot_config import BotConfigService
 from src.core.behaviors.behavior import Behavior, BehaviorState
 
-_REFRESH_ATTEMPTS = 8
-_REFRESH_DELAY_SECONDS = 3
+_PAYSAFECARD_CONFIRMATION_TIMEOUT_SECONDS = 180
 
 
 class PaysafecardSubscriptionErrorCode(StrEnum):
@@ -55,7 +55,6 @@ class PaysafecardSubscriptionErrorCode(StrEnum):
     SHOP_PURCHASE_FAILED = "SHOP_PURCHASE_FAILED"
     PAYSAFECARD_REJECTED = "PAYSAFECARD_REJECTED"
     PAYMENT_CONFIRMATION_PENDING = "PAYMENT_CONFIRMATION_PENDING"
-    HAAPI_REQUEST_FAILED = "HAAPI_REQUEST_FAILED"
     SUBSCRIPTION_ARTICLE_NOT_FOUND = "SUBSCRIPTION_ARTICLE_NOT_FOUND"
     SUBSCRIPTION_ARTICLE_AMBIGUOUS = "SUBSCRIPTION_ARTICLE_AMBIGUOUS"
 
@@ -83,7 +82,7 @@ class PaysafecardSubscriptionBehavior(Behavior):
                 self._finish_error(PaysafecardSubscriptionErrorCode.PAYMENT_CONFIRMATION_PENDING)
                 return
             if pending_purchase.status == PaysafecardPurchaseStatus.AWAITING_CONFIRMATION:
-                self._start_worker(partial(self._confirm_subscription, pending_purchase))
+                self._finish_error(PaysafecardSubscriptionErrorCode.PAYMENT_CONFIRMATION_PENDING)
                 return
         assert self.game_state.player.bak_token
         self._haapi = BakHaapi(api_key=self.game_state.player.bak_token, proxy_url=self._proxy_url)
@@ -128,7 +127,18 @@ class PaysafecardSubscriptionBehavior(Behavior):
             self._finish_error(PaysafecardSubscriptionErrorCode.SHOP_PURCHASE_FAILED)
             return
 
-        pending_purchase = self.purchase_storage.record_awaiting_confirmation(pending_purchase, order_id=cart_id)
+        pending_purchase = self.purchase_storage.record_awaiting_confirmation(
+            pending_purchase, order_id=cart_id
+        )
+        self.event_manager.on(
+            AccountInformationUpdateEvent,
+            self._on_subscription_information_update,
+            originator=self,
+            timeout=_PAYSAFECARD_CONFIRMATION_TIMEOUT_SECONDS,
+            on_timeout=lambda: self._finish_error(
+                PaysafecardSubscriptionErrorCode.PAYMENT_CONFIRMATION_PENDING
+            ),
+        )
         try:
             outcome = asyncio.run(
                 purchase_with_paysafecard(
@@ -143,6 +153,9 @@ class PaysafecardSubscriptionBehavior(Behavior):
             self.logger.error("Paysafecard purchase webview failed: %s", error)
             self._finish_error(PaysafecardSubscriptionErrorCode.PAYMENT_CONFIRMATION_PENDING)
             return
+        if self.state != BehaviorState.RUNNING:
+            self.logger.info("Paysafecard web result arrived after the subscription behavior ended")
+            return
         if outcome == PaysafecardPaymentOutcome.REJECTED:
             self.purchase_storage.clear_purchase()
             self._finish_error(PaysafecardSubscriptionErrorCode.PAYSAFECARD_REJECTED)
@@ -150,27 +163,20 @@ class PaysafecardSubscriptionBehavior(Behavior):
         if outcome == PaysafecardPaymentOutcome.AMBIGUOUS:
             self._finish_error(PaysafecardSubscriptionErrorCode.PAYMENT_CONFIRMATION_PENDING)
             return
-        self._confirm_subscription(pending_purchase)
 
-    def _confirm_subscription(self, pending_purchase: PaysafecardPurchase) -> None:
-        try:
-            for attempt_index in range(_REFRESH_ATTEMPTS):
-                subscribe_info = self.subscription_storage.refresh_subscribe_info(
-                    pending_purchase.login,
-                    self._proxy_url,
-                )
-                if subscribe_info.is_subscribe:
-                    self.purchase_storage.clear_purchase()
-                    if self.state == BehaviorState.RUNNING:
-                        self.finish(None, subscribe_info.end_of_subscribe)
-                    return
-                if attempt_index + 1 < _REFRESH_ATTEMPTS:
-                    sleep(_REFRESH_DELAY_SECONDS)
-        except (RequestException, ValidationError) as error:
-            self.logger.error("Unable to confirm Paysafecard subscription: %s", error)
-            self._finish_error(PaysafecardSubscriptionErrorCode.HAAPI_REQUEST_FAILED)
+    def _on_subscription_information_update(self, message: AccountInformationUpdateEvent) -> None:
+        expiration = datetime.fromtimestamp(int(message.subscription_end_date) / 1_000, tz=timezone.utc)
+        if expiration <= datetime.now(timezone.utc):
+            self.logger.warning("Ignoring Paysafecard subscription update with expired date: %s", expiration)
             return
-        self._finish_error(PaysafecardSubscriptionErrorCode.PAYMENT_CONFIRMATION_PENDING)
+        pending_purchase = self.purchase_storage.load_purchase()
+        assert pending_purchase is not None, "Subscription update requires a pending Paysafecard purchase"
+        assert pending_purchase.login == self.game_state.player.login, (
+            f"Pending Paysafecard purchase belongs to {pending_purchase.login}"
+        )
+        self.subscription_storage.record_expiration(pending_purchase.login, expiration)
+        self.purchase_storage.clear_purchase()
+        self.finish(None, expiration)
 
     @staticmethod
     def _is_target_subscription_pack(article: ShopiArticle) -> bool:

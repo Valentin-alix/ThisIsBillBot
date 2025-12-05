@@ -8,6 +8,7 @@ from email.utils import parsedate_to_datetime
 from typing import Any, Literal
 
 import requests
+from pydantic import BaseModel
 
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.manual import (
     extract_confirmation_code,
@@ -17,7 +18,9 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 SMAILPRO_BASE_URL = "https://app.sonjj.com"
-SMAILPRO_POLL_INTERVAL_SECONDS = 5.0
+SMAILPRO_CODE_TIMEOUT_SECONDS = 2.5 * 60
+SMAILPRO_INITIAL_DELAY_SECONDS = 30.0
+SMAILPRO_POLL_INTERVAL_SECONDS = 30.0
 SMAILPRO_REQUEST_TIMEOUT_SECONDS = 15.0
 
 RandomMailboxKind = Literal["gmail", "outlook"]
@@ -37,6 +40,12 @@ class SmailProSettings:
     timestamp: int
 
 
+class RandomMailboxResponse(BaseModel):
+    email: str
+    timestamp: int
+    type: Literal["real", "alias"]
+
+
 def _session(api_key: str) -> requests.Session:
     session = requests.Session()
     session.headers["X-Api-Key"] = api_key
@@ -44,17 +53,17 @@ def _session(api_key: str) -> requests.Session:
 
 
 def generate_random_mailbox(api_key: str, kind: RandomMailboxKind) -> tuple[str, int]:
-    """Mint a fresh Gmail/Outlook alias address in a single API call (no domain lookup)."""
+    """Mint a fresh real Gmail/Outlook address in a single API call (no domain lookup)."""
     response = _session(api_key).get(
         f"{SMAILPRO_BASE_URL}/v1/{_RANDOM_MAILBOX_PATH[kind]}/random",
+        params={"type": "real"},
         timeout=SMAILPRO_REQUEST_TIMEOUT_SECONDS,
     )
     response.raise_for_status()
     body: dict[str, Any] = response.json()
-    email: str = body["email"]
-    timestamp: int = body["timestamp"]
-    logger.info("[SmailPro] Minted %s mailbox %s (timestamp=%s)", kind, email, timestamp)
-    return email, timestamp
+    mailbox = RandomMailboxResponse.model_validate(body)
+    logger.info("[SmailPro] Minted %s mailbox %s (timestamp=%s)", kind, mailbox.email, mailbox.timestamp)
+    return mailbox.email, mailbox.timestamp
 
 
 class SmailProMailProvider:
@@ -63,12 +72,15 @@ class SmailProMailProvider:
         self._session = _session(settings.api_key)
 
     async def wait_for_code(self, *, since: datetime, timeout_seconds: int) -> str | None:
-        deadline = time.monotonic() + timeout_seconds
+        effective_timeout_seconds = min(timeout_seconds, SMAILPRO_CODE_TIMEOUT_SECONDS)
+        deadline = time.monotonic() + effective_timeout_seconds
+        await asyncio.sleep(min(SMAILPRO_INITIAL_DELAY_SECONDS, effective_timeout_seconds))
         while time.monotonic() < deadline:
             code = await asyncio.to_thread(self._find_code, since)
             if code is not None:
                 return code
-            await asyncio.sleep(SMAILPRO_POLL_INTERVAL_SECONDS)
+            remaining_seconds = deadline - time.monotonic()
+            await asyncio.sleep(min(SMAILPRO_POLL_INTERVAL_SECONDS, remaining_seconds))
         return None
 
     def _find_code(self, since: datetime) -> str | None:

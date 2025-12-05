@@ -57,7 +57,7 @@ class ShieldNotRequiredError(Exception):
     """HAAPI signalled the apikey does not need securing (NONEEDTOBESECURED)."""
 
 
-def upsert_settings_account(account: UserAccount) -> None:
+def upsert_settings_account(login: str, account: UserAccount) -> None:
     """Add or update the account information in the central bot store."""
     if not account.game_list:
         account.game_list.append(
@@ -70,8 +70,8 @@ def upsert_settings_account(account: UserAccount) -> None:
                 id=GameIdEnum.DOFUS,
             )
         )
-    BotStorageController().upsert_account_info(account)
-    logger.info("[OAuth] Account information updated for %s", account.login)
+    BotStorageController().upsert_account_info(login, account)
+    logger.info("[OAuth] Account information updated for %s", login)
 
 
 def refresh_api_key_from_oauth(
@@ -184,7 +184,7 @@ class Haapi:
         response = self.zaap_session.post(url, json=GameRequest(game=game_id).model_dump(), verify=False)
         raise_for_status_with_content(response)
         parsed = SignOnResponse.model_validate(response.json())
-        upsert_settings_account(parsed.account)
+        upsert_settings_account(self.login, parsed.account)
         return parsed
 
     def set_nickname_with_api_key(self, nickname: str, lang: str = "fr") -> UserAccount:
@@ -195,7 +195,7 @@ class Haapi:
         )
         raise_for_status_with_content(response)
         account = UserAccount.model_validate(response.json())
-        upsert_settings_account(account)
+        upsert_settings_account(self.login, account)
         return account
 
     def get_security_code(self, transport_type: str = "EMAIL") -> str:
