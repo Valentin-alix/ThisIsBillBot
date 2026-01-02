@@ -4,38 +4,43 @@ from threading import Lock
 from base_python.singleton import Singleton
 
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import PAYSAFECARDS_PATH
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.line_file import (
-    read_lines,
-    write_lines,
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.atomic_file import (
+    acquire_file_lock,
+    atomic_write_text,
 )
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.line_file import read_lines
 
 
 class PaysafecardPoolController(metaclass=Singleton):
     """Thread-safe accessor for a flat ``paysafecards.txt`` file (one pin per line).
 
-    Pins are loaded lazily and pruned in-place when ``remove`` is called.
+    Pins remain available until Paysafecard explicitly reports them as unusable.
     """
 
+    _FILE_LOCK_TIMEOUT_SECONDS = 20.0
     _lock = Lock()
 
     def load(self) -> list[str]:
         with self._lock:
-            return self._load_unlocked()
+            with acquire_file_lock(PAYSAFECARDS_PATH, timeout_seconds=self._FILE_LOCK_TIMEOUT_SECONDS):
+                return self._load_unlocked()
 
-    def reserve_next_pin(self) -> str:
+    def get_next_pin(self) -> str:
         with self._lock:
-            pins = self._load_unlocked()
-            if not pins:
-                raise ValueError("No Paysafecard PIN is available")
-            reserved_pin = pins[0]
-            self._write_unlocked(pins[1:])
-            return reserved_pin
+            with acquire_file_lock(PAYSAFECARDS_PATH, timeout_seconds=self._FILE_LOCK_TIMEOUT_SECONDS):
+                pins = self._load_unlocked()
+                if not pins:
+                    raise ValueError("No Paysafecard PIN is available")
+                return pins[0]
 
-    def restore_reserved_pin(self, pin: str) -> None:
+    def remove_pin(self, pin: str) -> None:
         with self._lock:
-            pins = self._load_unlocked()
-            if pin not in pins:
-                self._write_unlocked([pin, *pins])
+            with acquire_file_lock(PAYSAFECARDS_PATH, timeout_seconds=self._FILE_LOCK_TIMEOUT_SECONDS):
+                pins = self._load_unlocked()
+                if pin not in pins:
+                    return
+                pins.remove(pin)
+                self._write_unlocked(pins)
 
     def _load_unlocked(self) -> list[str]:
         if not os.path.exists(PAYSAFECARDS_PATH):
@@ -46,5 +51,4 @@ class PaysafecardPoolController(metaclass=Singleton):
         return [pin for pin in normalized_pins if pin]
 
     def _write_unlocked(self, pins: list[str]) -> None:
-        lines = [f"{pin}\n" for pin in pins]
-        write_lines(PAYSAFECARDS_PATH, lines, create_parent=True, encoding="utf-8")
+        atomic_write_text(PAYSAFECARDS_PATH, "".join(f"{pin}\n" for pin in pins))

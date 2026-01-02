@@ -32,15 +32,18 @@ class PaysafecardPurchaseController(metaclass=Singleton):
         with self._acquire_file_lock():
             atomic_write_text(PAYSAFECARD_PURCHASE_PATH, purchase.model_dump_json(indent=2))
 
-    def reserve_purchase(self, login: str, pin: str) -> PaysafecardPurchase:
-        purchase = PaysafecardPurchase(
-            login=login,
-            pin=pin,
-            status=PaysafecardPurchaseStatus.RESERVED,
-            updated_at=datetime.now(UTC),
-        )
-        self.record_purchase(purchase)
-        return purchase
+    def reserve_purchase(self, login: str, pin: str) -> PaysafecardPurchase | None:
+        with self._acquire_file_lock():
+            if PAYSAFECARD_PURCHASE_PATH.exists():
+                return None
+            purchase = PaysafecardPurchase(
+                login=login,
+                pin=pin,
+                status=PaysafecardPurchaseStatus.RESERVED,
+                updated_at=datetime.now(UTC),
+            )
+            atomic_write_text(PAYSAFECARD_PURCHASE_PATH, purchase.model_dump_json(indent=2))
+            return purchase
 
     def record_awaiting_confirmation(
         self,

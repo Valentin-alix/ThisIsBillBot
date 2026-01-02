@@ -1,15 +1,15 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import msg_typed_field
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.field_builders import msg_typed_field
+from tests.fixtures.proto_mapper.message_builders import (
     NEW_NON_OBF_CLS,
     bootstrap_non_obf_msg,
     existing_non_obf_msg,
     field_signature,
     message_signature,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.pipeline_builders import (
+from tests.fixtures.proto_mapper.pipeline_builders import (
     EXISTING_CLS,
     NON_OBF_CLS,
     bootstrap_repeated_field,

@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+﻿from datetime import UTC, datetime
 from io import StringIO
 from unittest import IsolatedAsyncioTestCase, TestCase
 from unittest.mock import AsyncMock, patch
@@ -11,7 +11,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.
     wait_for_code_with_manual_fallback,
 )
 
-from tests.test_ankama_launcher_emulator_premium._fakes import FakeMailProvider
+from tests.fixtures.launcher import FakeMailProvider
 
 
 class TestManualCodeInput(TestCase):

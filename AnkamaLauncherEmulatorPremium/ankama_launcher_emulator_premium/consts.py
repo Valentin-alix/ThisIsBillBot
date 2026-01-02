@@ -19,7 +19,7 @@ MAIL_ACCOUNTS_STORAGE_PATH = RESOURCES / "mail_accounts.json"
 PAYSAFECARDS_PATH = RESOURCES / "paysafecards.txt"
 PAYSAFECARD_PURCHASE_PATH = RESOURCES / "paysafecard_purchase.local.json"
 DEBUG_DIR = RESOURCES / "debug"
-DEBUG_DUMPS_DIR = DEBUG_DIR / "dumps"
+DEBUG_TRACES_DIR = DEBUG_DIR / "traces"
 
 ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 

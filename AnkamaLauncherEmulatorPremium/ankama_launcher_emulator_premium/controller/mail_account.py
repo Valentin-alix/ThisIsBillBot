@@ -17,7 +17,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.atomic
     atomic_write_text,
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.smailpro import (
-    generate_random_mailbox,
+    generate_random_mailbox_settings,
 )
 
 logger = logging.getLogger(__name__)
@@ -85,12 +85,16 @@ class MailAccountController(metaclass=Singleton):
                 self._save(accounts_file)
 
     def provision_smailpro_email(self, api_key: str) -> str:
-        kind = "gmail"
-        email, timestamp = generate_random_mailbox(api_key, kind)
+        settings = generate_random_mailbox_settings(api_key)
         with self._acquire_file_lock():
             accounts_file = self._load()
-            accounts_file.accounts[email] = MailAccountEntry(
-                config=SmailProAccountConfig(api_key=api_key, email=email, kind=kind, timestamp=timestamp)
+            accounts_file.accounts[settings.email] = MailAccountEntry(
+                config=SmailProAccountConfig(
+                    api_key=settings.api_key,
+                    email=settings.email,
+                    kind=settings.kind,
+                    timestamp=settings.timestamp,
+                )
             )
             self._save(accounts_file)
-        return email
+        return settings.email

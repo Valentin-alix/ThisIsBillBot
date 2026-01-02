@@ -2,7 +2,7 @@ import logging
 from functools import partial
 from typing import Literal
 
-from PyQt6.QtCore import QSize, QUrl
+from PyQt6.QtCore import QSize, QTimer, QUrl
 from PyQt6.QtGui import QCloseEvent, QColor, QIcon, QPixmap
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PyQt6.QtWidgets import QHBoxLayout, QWidget
@@ -19,6 +19,7 @@ from qfluentwidgets.components.navigation import NavigationDisplayMode, Navigati
 from src import consts
 from src.consts import LOGO_FILE
 from src.controller.bot_config import BotConfigService
+from src.controller.player_info_storage import PlayerInfoStorage
 from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.shared_farm_signals import SharedSignals
@@ -37,6 +38,7 @@ _BREED_ICON_URL_TEMPLATE = "https://api.dofusdb.fr/img/breeds/symbol_{breed_id}.
 class MainWindow(AppFluentWindow):
     account_widgets: list[AccountStackedWidget]
     bots_by_login: dict[str, Bot]
+    sidebar_items_by_login: dict[str, SidebarItem]
 
     def __init__(self, title: str, shared_signals: SharedSignals) -> None:
         super().__init__(parent=None)
@@ -60,6 +62,11 @@ class MainWindow(AppFluentWindow):
 
         self.account_widgets: list[AccountStackedWidget] = []
         self.bots_by_login: dict[str, Bot] = {}
+        self.sidebar_items_by_login: dict[str, SidebarItem] = {}
+        self._subscription_refresh_timer = QTimer(self)
+        self._subscription_refresh_timer.setInterval(60_000)
+        self._subscription_refresh_timer.timeout.connect(self._refresh_subscription_statuses)
+        self._subscription_refresh_timer.start()
         self._close_requested = False
         self._shutdown_finished = False
         self._init_reload_button()
@@ -78,6 +85,9 @@ class MainWindow(AppFluentWindow):
         account_widget = AccountStackedWidget(self.global_log_signals, login, account)
         self.account_widgets.append(account_widget)
         navigation_widget = SidebarItem(account.bot_signals, self.disconnected_icon, login, True, parent=self)
+        self._set_sidebar_title_from_snapshot(navigation_widget, login)
+        self.sidebar_items_by_login[login] = navigation_widget
+        navigation_widget.set_subscribed(account.game_state.player.is_sub)
         navigation_widget.set_playing(account.is_playing_event.is_set())
         is_connected = account.is_connected_event.is_set()
         navigation_widget.set_connected(is_connected)
@@ -123,10 +133,20 @@ class MainWindow(AppFluentWindow):
             lambda: navigation_widget.set_left_icon(self.disconnected_icon)
         )
         account.game_info_signals.disconnected.connect(lambda: navigation_widget.set_connected(False))
-        account.game_info_signals.disconnected.connect(lambda: navigation_widget.set_title(login))
+        account.game_info_signals.disconnected.connect(
+            partial(self._set_sidebar_title_from_snapshot, navigation_widget, login)
+        )
 
         if account.is_ready_to_play_event.is_set():
             self._show_breed_icon(navigation_widget, account)
+
+    @staticmethod
+    def _set_sidebar_title_from_snapshot(navigation_widget: SidebarItem, login: str) -> None:
+        snapshot = PlayerInfoStorage().get_snapshot(login)
+        if snapshot is None:
+            navigation_widget.set_title(login)
+            return
+        navigation_widget.set_title(f"{login.split('@')[0]} : {snapshot.character_name}")
 
     def _show_breed_icon(self, navigation_widget: SidebarItem, account: Bot) -> None:
         navigation_widget.set_left_icon(self.connected_icon)
@@ -197,6 +217,7 @@ class MainWindow(AppFluentWindow):
     def remove_account(self, account: Bot) -> None:
         login = account.account.apikey.login
         self.bots_by_login.pop(login, None)
+        self.sidebar_items_by_login.pop(login)
         self._disconnect_game_info_signals(account)
 
         account_widget = next(
@@ -213,6 +234,10 @@ class MainWindow(AppFluentWindow):
         if self.account_widgets:
             self.switchTo(self.account_widgets[0])
             self.navigationInterface.setCurrentItem(self.account_widgets[0].objectName())
+
+    def _refresh_subscription_statuses(self) -> None:
+        for login, account in self.bots_by_login.items():
+            self.sidebar_items_by_login[login].set_subscribed(account.game_state.player.is_sub)
 
     def _disconnect_game_info_signals(self, account: Bot) -> None:
         for signal in (

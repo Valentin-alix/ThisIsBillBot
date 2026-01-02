@@ -1,8 +1,8 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import numpy as np
 import pytest
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import (
+from tests.fixtures.proto_mapper.matching_builders import (
     nested_signature,
     root_signature,
     select_best_for_test,

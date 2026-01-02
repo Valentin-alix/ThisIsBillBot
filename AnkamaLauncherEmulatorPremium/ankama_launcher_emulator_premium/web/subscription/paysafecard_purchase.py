@@ -16,7 +16,6 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.b
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.browser import (
     launch_browser_context,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.debug_utils import try_dump_page_html
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +33,8 @@ class PaysafecardPurchaseError(Exception):
 
 class PaysafecardPaymentOutcome(StrEnum):
     SUCCEEDED = "succeeded"
+    INVALID_PIN = "invalid_pin"
+    INSUFFICIENT_BALANCE = "insufficient_balance"
     REJECTED = "rejected"
     AMBIGUOUS = "ambiguous"
 
@@ -112,16 +113,19 @@ async def _wait_for_payment_outcome(*pages: Page) -> PaysafecardPaymentOutcome:
         r"(paiement (réussi|accepté)|payment (successful|accepted)|merci pour votre achat|thank you)",
         re.IGNORECASE,
     )
-    rejected_pattern = re.compile(
-        r"(paiement refusé|payment declined|code invalide|invalid pin|solde insuffisant)",
-        re.IGNORECASE,
-    )
+    invalid_pin_pattern = re.compile(r"(code invalide|invalid pin)", re.IGNORECASE)
+    insufficient_balance_pattern = re.compile(r"(solde insuffisant|insufficient balance)", re.IGNORECASE)
+    rejected_pattern = re.compile(r"(paiement refusé|payment declined)", re.IGNORECASE)
     for _attempt_index in range(_PAYMENT_TIMEOUT_MILLISECONDS // 1_000):
         for page in pages:
             if page.is_closed():
                 continue
             if await page.get_by_text(success_pattern, exact=False).count() > 0:
                 return PaysafecardPaymentOutcome.SUCCEEDED
+            if await page.get_by_text(invalid_pin_pattern, exact=False).count() > 0:
+                return PaysafecardPaymentOutcome.INVALID_PIN
+            if await page.get_by_text(insufficient_balance_pattern, exact=False).count() > 0:
+                return PaysafecardPaymentOutcome.INSUFFICIENT_BALANCE
             if await page.get_by_text(rejected_pattern, exact=False).count() > 0:
                 return PaysafecardPaymentOutcome.REJECTED
         await pages[0].wait_for_timeout(1_000)
@@ -141,11 +145,7 @@ async def purchase_with_paysafecard(
         f"{ANKAMA_STORE_OVERLAY_AUTH_URL}?token={shop_access_token}"
         f"&shopkey={ANKAMA_STORE_DOFUS_UNITY_INGAME_SHOP_KEY}&cart={cart_id}"
     )
-    async with launch_browser_context(
-        headless=False,
-        proxy_url=proxy_url,
-        channel="chrome",
-    ) as browser_context:
+    async with launch_browser_context(login=login, proxy_url=proxy_url) as browser_context:
         page = await browser_context.new_page()
         page.set_default_timeout(_INTERACTION_TIMEOUT_MILLISECONDS)
         payment_page = page
@@ -161,9 +161,6 @@ async def purchase_with_paysafecard(
             await _enter_pin_and_submit(payment_page, pin)
             return await _wait_for_payment_outcome(payment_page, page)
         except (PlaywrightTimeoutError, PlaywrightError) as error:
-            await try_dump_page_html(
-                f"paysafecard_purchase_{login}_error", payment_page, logger, "[purchase_with_paysafecard]"
-            )
             raise PaysafecardPurchaseError(
                 f"Unable to complete paysafecard purchase for {login}: {error}"
             ) from error

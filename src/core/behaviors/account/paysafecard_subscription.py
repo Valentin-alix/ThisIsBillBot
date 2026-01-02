@@ -24,7 +24,6 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.bak im
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.bak_api import ShopiArticle
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.paysafecard import (
-    PaysafecardPurchase,
     PaysafecardPurchaseStatus,
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.subscription.paysafecard_purchase import (
@@ -104,8 +103,11 @@ class PaysafecardSubscriptionBehavior(Behavior):
         login = self.game_state.player.login
         pending_purchase = self.purchase_storage.load_purchase()
         if pending_purchase is None:
-            reserved_pin = self.paysafecard_pool.reserve_next_pin()
-            pending_purchase = self.purchase_storage.reserve_purchase(login, reserved_pin)
+            pin = self.paysafecard_pool.get_next_pin()
+            pending_purchase = self.purchase_storage.reserve_purchase(login, pin)
+            if pending_purchase is None:
+                self._finish_error(PaysafecardSubscriptionErrorCode.PAYMENT_CONFIRMATION_PENDING)
+                return
         assert pending_purchase.login == login, (
             f"Pending Paysafecard purchase belongs to {pending_purchase.login}"
         )
@@ -118,12 +120,12 @@ class PaysafecardSubscriptionBehavior(Behavior):
             )
             article = self._select_subscription_article(articles)
             if article is None:
-                self._restore_pre_submission_purchase(pending_purchase)
+                self.purchase_storage.clear_purchase()
                 return
             cart_id = haapi.prepare_paysafecard_cart(article, shop_access_token=shop_access_token)
         except (ShopPurchaseError, RequestException, ValidationError) as error:
             self.logger.error("Unable to prepare paysafecard cart: %s", error)
-            self._restore_pre_submission_purchase(pending_purchase)
+            self.purchase_storage.clear_purchase()
             self._finish_error(PaysafecardSubscriptionErrorCode.SHOP_PURCHASE_FAILED)
             return
 
@@ -155,6 +157,14 @@ class PaysafecardSubscriptionBehavior(Behavior):
             return
         if self.state != BehaviorState.RUNNING:
             self.logger.info("Paysafecard web result arrived after the subscription behavior ended")
+            return
+        if outcome in (
+            PaysafecardPaymentOutcome.INVALID_PIN,
+            PaysafecardPaymentOutcome.INSUFFICIENT_BALANCE,
+        ):
+            self.paysafecard_pool.remove_pin(pending_purchase.pin)
+            self.purchase_storage.clear_purchase()
+            self._finish_error(PaysafecardSubscriptionErrorCode.PAYSAFECARD_REJECTED)
             return
         if outcome == PaysafecardPaymentOutcome.REJECTED:
             self.purchase_storage.clear_purchase()
@@ -196,10 +206,6 @@ class PaysafecardSubscriptionBehavior(Behavior):
             self._finish_error(PaysafecardSubscriptionErrorCode.SUBSCRIPTION_ARTICLE_AMBIGUOUS)
             return None
         return matching_articles[0]
-
-    def _restore_pre_submission_purchase(self, pending_purchase: PaysafecardPurchase) -> None:
-        self.paysafecard_pool.restore_reserved_pin(pending_purchase.pin)
-        self.purchase_storage.clear_purchase()
 
     def _get_haapi(self) -> BakHaapi:
         assert self._haapi is not None, "BAK HAAPI must be initialized before use"

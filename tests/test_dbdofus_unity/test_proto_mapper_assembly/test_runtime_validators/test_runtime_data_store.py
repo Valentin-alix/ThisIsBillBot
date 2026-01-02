@@ -1,8 +1,8 @@
-import json
+﻿import json
 from pathlib import Path
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import root_message
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_builders import runtime_entry
+from tests.fixtures.proto_mapper.message_builders import root_message
+from tests.fixtures.proto_mapper.runtime_builders import runtime_entry
 from google.protobuf.empty_pb2 import Empty
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage

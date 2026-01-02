@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import tempfile
@@ -6,11 +6,11 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import dump_cs_field
+from tests.fixtures.proto_mapper.field_builders import dump_cs_field
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
 from DBDofusUnity.proto_mapper_assembly.interfaces.excluded_non_obf import ExcludedNonObfConfig
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import game_mapping_entry
+from tests.fixtures.proto_mapper.script_builders import game_mapping_entry
 from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import (
     GameMappingsDocument,
     SimpleGameMappingEntry,

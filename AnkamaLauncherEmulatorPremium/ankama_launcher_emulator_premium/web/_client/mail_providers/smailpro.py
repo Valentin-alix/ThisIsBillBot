@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import random
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -18,9 +19,9 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 SMAILPRO_BASE_URL = "https://app.sonjj.com"
-SMAILPRO_CODE_TIMEOUT_SECONDS = 2.5 * 60
+SMAILPRO_CODE_TIMEOUT_SECONDS = 2 * 60
 SMAILPRO_INITIAL_DELAY_SECONDS = 30.0
-SMAILPRO_POLL_INTERVAL_SECONDS = 30.0
+SMAILPRO_POLL_INTERVAL_SECONDS = 15.0
 SMAILPRO_REQUEST_TIMEOUT_SECONDS = 15.0
 
 RandomMailboxKind = Literal["gmail", "outlook"]
@@ -64,6 +65,12 @@ def generate_random_mailbox(api_key: str, kind: RandomMailboxKind) -> tuple[str,
     mailbox = RandomMailboxResponse.model_validate(body)
     logger.info("[SmailPro] Minted %s mailbox %s (timestamp=%s)", kind, mailbox.email, mailbox.timestamp)
     return mailbox.email, mailbox.timestamp
+
+
+def generate_random_mailbox_settings(api_key: str) -> SmailProSettings:
+    kind = random.choice(("gmail", "outlook"))
+    email, timestamp = generate_random_mailbox(api_key, kind)
+    return SmailProSettings(api_key=api_key, email=email, kind=kind, timestamp=timestamp)
 
 
 class SmailProMailProvider:

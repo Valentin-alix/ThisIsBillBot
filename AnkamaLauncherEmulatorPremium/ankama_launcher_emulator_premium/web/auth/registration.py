@@ -1,7 +1,8 @@
 import asyncio
 import logging
 import random
-from dataclasses import dataclass
+from collections.abc import Awaitable, Callable
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 
 from dotenv import load_dotenv
@@ -50,7 +51,6 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.mod
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.oauth_state import (
     get_registration_state,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.debug_utils import dump_page_html
 
 logger = logging.getLogger(__name__)
 
@@ -74,16 +74,21 @@ class _RegistrationWaitResult:
     antibot_marker: str | None = None
 
 
+ReplacementOptionsFactory = Callable[[RegistrationOptions], Awaitable[RegistrationOptions | None]]
+
+
 def is_aws_waf_marker(marker: str | None) -> bool:
     return marker in {"aws waf", "aws waf block"}
 
 
-async def register_account(options: RegistrationOptions) -> RegistrationResult:
+async def register_account(
+    options: RegistrationOptions,
+    *,
+    replacement_options_factory: ReplacementOptionsFactory | None = None,
+) -> RegistrationResult:
     logger.info("[Register] Starting Ankama account registration for %s...", options.email)
 
-    async with launch_browser_context(
-        headless=options.headless, proxy_url=options.proxy_url, channel="chrome"
-    ) as context:
+    async with launch_browser_context(login=options.email, proxy_url=options.proxy_url) as context:
         page = await context.new_page()
         try:
             state = await get_registration_state(page)
@@ -95,40 +100,58 @@ async def register_account(options: RegistrationOptions) -> RegistrationResult:
             )
             await _wait_for_registration_form_ready(page, options)
             await human_wait(min_seconds=3, max_seconds=4)
-            wait_result = await _submit_registration_attempt(page, options)
+            current_options = options
+            discarded_email: str | None = None
+            wait_result = await _submit_registration_attempt(page, current_options)
+
+            while _is_duplicate_email_error(wait_result.form_errors):
+                logger.warning(
+                    "[Register] %s is already linked to an Ankama account; requesting a replacement.",
+                    current_options.email,
+                )
+                MailAccountController().remove_email(current_options.email)
+                discarded_email = current_options.email
+                if replacement_options_factory is None:
+                    break
+                replacement_options = await replacement_options_factory(current_options)
+                if replacement_options is None:
+                    break
+                current_options = replacement_options
+                wait_result = await _submit_replacement_email_attempt(page, current_options)
 
             if wait_result.success:
-                logger.info("[Register] Registration completed for %s", options.email)
-                BotStorageController().save_account(
-                    options.email,
-                    options.password,
-                    schedule_profile=options.schedule_profile,
-                )
-                logger.info(f"Successfully saved account {options.email, options.password}")
-                return RegistrationResult(True, options.email, options.password, page.url)
-            await dump_page_html("register_incomplete", page)
+                logger.info("[Register] Registration completed for %s", current_options.email)
+                if current_options.persist_account:
+                    BotStorageController().save_account(
+                        current_options.email,
+                        current_options.password,
+                        schedule_profile=current_options.schedule_profile,
+                    )
+                    logger.info("[Register] Successfully saved account %s", current_options.email)
+                else:
+                    logger.info("[Register] Account persistence disabled for %s", current_options.email)
+                return RegistrationResult(True, current_options.email, current_options.password, page.url)
             error = wait_result.reason or "registration did not complete before timeout"
             logger.error(
                 "[Register] Registration failed for %s at %s: %s",
-                options.email,
+                current_options.email,
                 page.url,
                 error,
             )
             result = RegistrationResult(
                 False,
-                options.email,
-                options.password,
+                current_options.email,
+                current_options.password,
                 page.url,
                 error,
                 wait_result.antibot_marker,
             )
-            if _is_discardable_email_error(result):
-                logger.warning("[Register] %s was rejected by Ankama; discarding it.", options.email)
-                MailAccountController().remove_email(options.email)
+            if _is_discardable_email_error(result) and current_options.email != discarded_email:
+                logger.warning("[Register] %s was rejected by Ankama; discarding it.", current_options.email)
+                MailAccountController().remove_email(current_options.email)
             return result
         except Exception as exc:
             logger.exception("[Register] Failure at URL %s", page.url)
-            await dump_page_html("register_failure", page)
             return RegistrationResult(False, options.email, options.password, page.url, str(exc))
 
 
@@ -138,6 +161,17 @@ async def _submit_registration_attempt(page: Page, options: RegistrationOptions)
     await human_click_selector(page, "button[type='submit']")
     logger.info("[Register] Clicked submit, URL: %s", page.url)
     return await _wait_for_result(page, options, started_at)
+
+
+async def _submit_replacement_email_attempt(
+    page: Page, options: RegistrationOptions
+) -> _RegistrationWaitResult:
+    await page.locator("#ankama-registration-login").first.fill("")
+    await human_type_selector(page, "#ankama-registration-login", options.email)
+    await human_wait(min_seconds=0.3, max_seconds=0.5)
+    await human_click_selector(page, "button[type='submit']")
+    logger.info("[Register] Retried submit with replacement email %s, URL: %s", options.email, page.url)
+    return await _wait_for_result(page, options, datetime.now(UTC))
 
 
 async def _fill_registration_form(page: Page, options: RegistrationOptions) -> None:
@@ -315,7 +349,7 @@ async def _wait_for_result(
 
 
 def _registration_timeout_seconds(options: RegistrationOptions) -> int:
-    return min(options.confirmation_timeout_seconds, 1200)
+    return min(options.confirmation_timeout_seconds, 60)
 
 
 def _is_registration_form_ready(html: str) -> bool:
@@ -350,25 +384,38 @@ async def _register_email(
     profile = ScheduleProfileController().get_profile(schedule_profile)
     if profile is None:
         raise ValueError(f"Unknown schedule profile {schedule_profile}")
-    return await register_account(
-        RegistrationOptions(
-            email=email,
-            password=DEFAULT_PASSWORD,
-            identity=random_identity(),
-            mail_provider=resolve_mail_provider(email),
-            schedule_profile=schedule_profile,
-            proxy_url=build_http_proxy_url(ProxyController().get_proxy(profile.proxy_id)),
-        )
+    options = RegistrationOptions(
+        email=email,
+        password=DEFAULT_PASSWORD,
+        identity=random_identity(),
+        mail_provider=resolve_mail_provider(email),
+        schedule_profile=schedule_profile,
+        proxy_url=build_http_proxy_url(ProxyController().get_proxy(profile.proxy_id)),
     )
+
+    async def replacement_options_factory(
+        current_options: RegistrationOptions,
+    ) -> RegistrationOptions | None:
+        replacement_email = _next_email_to_register()
+        if replacement_email is None:
+            return None
+        return replace(
+            current_options,
+            email=replacement_email,
+            mail_provider=resolve_mail_provider(replacement_email),
+        )
+
+    return await register_account(options, replacement_options_factory=replacement_options_factory)
 
 
 _DISCARDABLE_EMAIL_ERROR_MARKERS = (
-    "déjà lié",
-    "email invalide",
-    "adresse e-mail invalide",
     "n'est pas valide",
-    "adresse e-mail doit être valide",
+    "compte existant",
 )
+
+
+def _is_duplicate_email_error(form_errors: tuple[str, ...]) -> bool:
+    return any("compte existant" in error.casefold() for error in form_errors)
 
 
 def _is_discardable_email_error(result: RegistrationResult) -> bool:
@@ -406,7 +453,7 @@ async def register_next_available_email(
     if email is None:
         return None
     result = await _register_email(email, schedule_profile)
-    _finalize_registration_attempt(email, result)
+    _finalize_registration_attempt(result.email, result)
     return result
 
 
@@ -420,7 +467,7 @@ def _first_schedule_profile_id() -> str:
 async def register_available_emails(schedule_profile: str):
     while (email := _next_email_to_register()) is not None:
         result = await _register_email(email, schedule_profile)
-        _finalize_registration_attempt(email, result)
+        _finalize_registration_attempt(result.email, result)
         if result.success:
             await asyncio.sleep(
                 random.randint(MIN_DELAY_BETWEEN_ACCOUNTS_SEC, MAX_DELAY_BETWEEN_ACCOUNTS_SEC)

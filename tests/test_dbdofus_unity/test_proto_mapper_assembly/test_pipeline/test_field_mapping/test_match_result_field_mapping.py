@@ -1,13 +1,13 @@
-from pathlib import Path
+﻿from pathlib import Path
 
 import numpy as np
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.enum_builders import enum_entry
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import (
+from tests.fixtures.proto_mapper.enum_builders import enum_entry
+from tests.fixtures.proto_mapper.field_builders import (
     dump_field,
     enum_field,
     map_enum_field,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.message_builders import (
     EMPTY_ACCESS_TRACE,
     build_field_mapping_for_test,
     build_message_lookup,
@@ -16,18 +16,18 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builder
     make_field_mapping_context,
     message_signature,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_builders import runtime_entry
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_store import seed_runtime_content
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import (
+from tests.fixtures.proto_mapper.runtime_builders import runtime_entry
+from tests.fixtures.proto_mapper.runtime_store import seed_runtime_content
+from tests.fixtures.proto_mapper.shapes import (
     ENUM_SHAPE,
     MESSAGE_SHAPE,
     NUMBER_SHAPE,
     REPEATED_MESSAGE_SHAPE,
     STRING_SHAPE,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import declared_field_signature
+from tests.fixtures.proto_mapper.signatures import declared_field_signature
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import (
+from tests.fixtures.proto_mapper.matching_builders import (
     match_messages_for_test,
 )
 

@@ -1,4 +1,4 @@
-from unittest.mock import Mock, patch
+﻿from unittest.mock import Mock, patch
 
 import numpy as np
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
@@ -12,15 +12,15 @@ from DBDofusUnity.proto_mapper_assembly.matching.score_preparation import (
 from DBDofusUnity.proto_mapper_assembly.matching.static_scores import build_static_score_data
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import (
+from tests.fixtures.proto_mapper.matching_builders import (
     number_signature,
     simple_signature,
     simple_workspace,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.message_builders import (
     build_verified_mapping,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import (
+from tests.fixtures.proto_mapper.signatures import (
     builder_structure_similarity_context,
 )
 

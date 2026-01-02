@@ -1,8 +1,8 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import numpy as np
 import pytest
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import access_message_signature
+from tests.fixtures.proto_mapper.signatures import access_message_signature
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
 from DBDofusUnity.proto_mapper_assembly.matching.workspace import build_matching_workspace

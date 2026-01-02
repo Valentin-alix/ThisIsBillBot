@@ -1,6 +1,6 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import typed_dump_field
+from tests.fixtures.proto_mapper.field_builders import typed_dump_field
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, NumericKind

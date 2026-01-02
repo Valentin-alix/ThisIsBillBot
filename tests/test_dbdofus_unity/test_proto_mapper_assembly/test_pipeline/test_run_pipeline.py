@@ -1,8 +1,8 @@
-from pathlib import Path
+﻿from pathlib import Path
 from unittest.mock import ANY, patch
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import message_signature
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.pipeline_builders import (
+from tests.fixtures.proto_mapper.message_builders import message_signature
+from tests.fixtures.proto_mapper.pipeline_builders import (
     builder_matching_inputs,
     simple_match_result,
 )

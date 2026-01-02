@@ -1,10 +1,10 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from typing import Literal
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import NUMBER_SHAPE
+from tests.fixtures.proto_mapper.shapes import NUMBER_SHAPE
 
 from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import build_message_access_signatures_by_cls
 from DBDofusUnity.proto_mapper_assembly.controllers.message_fields import build_message_field_resolution_lookup

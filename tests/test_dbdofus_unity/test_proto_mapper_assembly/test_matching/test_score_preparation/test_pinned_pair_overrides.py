@@ -1,16 +1,16 @@
-from unittest.mock import patch
+﻿from unittest.mock import patch
 
 import numpy as np
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import (
+from tests.fixtures.proto_mapper.matching_builders import (
     build_prepared_scores_for_test,
     number_nested_signature,
     number_root_signature,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.message_builders import (
     EMPTY_ACCESS_TRACE,
     build_message_lookup,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import (
+from tests.fixtures.proto_mapper.signatures import (
     builder_structure_similarity_context,
 )
 

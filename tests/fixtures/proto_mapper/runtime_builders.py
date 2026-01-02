@@ -1,8 +1,8 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from collections.abc import Mapping
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import message_signature
+from tests.fixtures.proto_mapper.message_builders import message_signature
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import FieldMappingResult

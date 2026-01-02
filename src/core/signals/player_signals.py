@@ -15,6 +15,7 @@ class GameInfoSignals(QObject):
     in_fight = pyqtSignal(bool)
     is_our_turn = pyqtSignal(bool)
     level = pyqtSignal(int)
+    job_level_changed = pyqtSignal(int, int)
     life_point = pyqtSignal(int)
     max_life_point = pyqtSignal(int)
     server_id = pyqtSignal(int)

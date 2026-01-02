@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import BodyLabel, CaptionLabel
 
 from src import consts
+from src.controller.player_info_storage import PlayerInfoStorage
 from src.core.bot.bot import Bot
 
 _UNKNOWN_VALUE = "—"
@@ -36,6 +37,8 @@ class AccountQuickInfoWidget(QWidget):
         self._set_subscription_end_date(self.bot.game_state.player.subscription_end_date)
         if self.bot.is_ready_to_play_event.is_set():
             self._sync_game_values_from_state()
+        else:
+            self._sync_game_values_from_snapshot()
 
     @staticmethod
     def _add_info_column(layout: QHBoxLayout, title: str) -> BodyLabel:
@@ -66,6 +69,14 @@ class AccountQuickInfoWidget(QWidget):
         self._set_kamas(self.bot.game_state.inventory.kamas)
         self._set_level(self.bot.game_state.player.level)
         self._set_sub_area(self.bot.game_state.map.map_id)
+
+    def _sync_game_values_from_snapshot(self) -> None:
+        snapshot = PlayerInfoStorage().get_snapshot(self.bot.account.apikey.login)
+        if snapshot is None:
+            return
+        self._set_kamas(snapshot.kamas)
+        self._set_level(snapshot.level)
+        self._set_sub_area(snapshot.map_id)
 
     def _set_subscription_end_date(self, subscription_end_date: datetime) -> None:
         if subscription_end_date == consts.MIN_DATE:

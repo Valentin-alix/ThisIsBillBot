@@ -1,13 +1,13 @@
-import json
+﻿import json
 from pathlib import Path
 
 import pytest
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import dump_cs_field
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.field_builders import dump_cs_field
+from tests.fixtures.proto_mapper.message_builders import (
     build_message_lookup,
     message_signature,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.pipeline_builders import (
+from tests.fixtures.proto_mapper.pipeline_builders import (
     detailed_game_mapping_entry,
     simple_match_result,
 )
@@ -253,7 +253,7 @@ class TestGameMappings:
         assert ".game.Traced: 0.000 < 0.050" in error_message
         assert "- fieldless low match margins (1):" in error_message
         assert ".game.Required: 0.000 < 0.050 (no declared fields)" in error_message
-        # `obf_traced` is mapped, so only the captured class nothing claimed is reported — and it is
+        # `obf_traced` is mapped, so only the captured class nothing claimed is reported â€” and it is
         # reported next to `.game.Absent`, which is very likely the message it belongs to.
         assert "- captured classes nothing claimed (1):" in error_message
         assert "obf_orphan (client, 2 captures, 0 fields)" in error_message

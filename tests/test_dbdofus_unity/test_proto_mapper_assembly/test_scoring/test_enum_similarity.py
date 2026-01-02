@@ -1,4 +1,4 @@
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.enum_builders import (
+﻿from tests.fixtures.proto_mapper.enum_builders import (
     enum_entry_with_member,
     enum_function_ref,
     enum_trace_document,

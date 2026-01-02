@@ -1,5 +1,5 @@
-import pytest
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import (
+﻿import pytest
+from tests.fixtures.proto_mapper.field_builders import (
     dump_field,
     make_oneof_field,
 )

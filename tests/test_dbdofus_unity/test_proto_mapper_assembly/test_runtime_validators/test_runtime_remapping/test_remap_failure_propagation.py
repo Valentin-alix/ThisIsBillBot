@@ -1,10 +1,10 @@
-from unittest.mock import patch
+﻿from unittest.mock import patch
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import (
+from tests.fixtures.proto_mapper.field_builders import (
     map_field,
     repeated_field,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_builders import (
+from tests.fixtures.proto_mapper.runtime_builders import (
     make_candidate,
     make_simple_context,
 )

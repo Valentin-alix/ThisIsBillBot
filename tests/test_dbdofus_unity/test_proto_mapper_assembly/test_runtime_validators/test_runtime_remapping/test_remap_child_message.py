@@ -1,7 +1,7 @@
-from collections import defaultdict
+﻿from collections import defaultdict
 from unittest.mock import patch
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_builders import make_candidate
+from tests.fixtures.proto_mapper.runtime_builders import make_candidate
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
 from DBDofusUnity.proto_mapper_assembly.interfaces.runtime import (

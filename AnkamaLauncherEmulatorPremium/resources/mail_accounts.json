@@ -127,13 +127,35 @@
       "bad_state": false,
       "is_used": true
     },
-    "regcoo589@outlook.com": {
+    "kandatemohitg8@gmail.com": {
       "config": {
         "provider": "smailpro",
         "api_key": "20194ce91b98d0a15e5adb1969648af2f3e7ef879ca243d835cb7e4040ce2dda",
-        "email": "regcoo589@outlook.com",
-        "kind": "outlook",
-        "timestamp": 1787917641
+        "email": "kandatemohitg8@gmail.com",
+        "kind": "gmail",
+        "timestamp": 1787935036
+      },
+      "bad_state": false,
+      "is_used": true
+    },
+    "clintongallacher1@gmail.com": {
+      "config": {
+        "provider": "smailpro",
+        "api_key": "20194ce91b98d0a15e5adb1969648af2f3e7ef879ca243d835cb7e4040ce2dda",
+        "email": "clintongallacher1@gmail.com",
+        "kind": "gmail",
+        "timestamp": 1788005416
+      },
+      "bad_state": false,
+      "is_used": true
+    },
+    "gangulyfqrashid9y@gmail.com": {
+      "config": {
+        "provider": "smailpro",
+        "api_key": "20194ce91b98d0a15e5adb1969648af2f3e7ef879ca243d835cb7e4040ce2dda",
+        "email": "gangulyfqrashid9y@gmail.com",
+        "kind": "gmail",
+        "timestamp": 1788028742
       },
       "bad_state": false,
       "is_used": false

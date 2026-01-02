@@ -1,17 +1,17 @@
-import numpy as np
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import typed_dump_field
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import (
+﻿import numpy as np
+from tests.fixtures.proto_mapper.field_builders import typed_dump_field
+from tests.fixtures.proto_mapper.matching_builders import (
     select_grouped_matches_for_test,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.message_builders import (
     EMPTY_ACCESS_TRACE,
     build_message_lookup,
     build_verified_mapping,
     field_signature,
     message_signature,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import MESSAGE_SHAPE, NUMBER_SHAPE
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import declared_field_signature
+from tests.fixtures.proto_mapper.shapes import MESSAGE_SHAPE, NUMBER_SHAPE
+from tests.fixtures.proto_mapper.signatures import declared_field_signature
 
 from DBDofusUnity.proto_mapper_assembly.affinities._group_similarity import get_group_similarity_score
 from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig

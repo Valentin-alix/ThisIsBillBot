@@ -154,8 +154,7 @@ _RawEntry = _LogRaw | _GameMsgRaw | _ConnMsgRaw | _BehaviorRaw | _StateRaw | _St
 
 _MAX_BUFFER = 100
 _FLUSH_INTERVAL_S = 1.0
-_BOT_LOG_RETENTION_DAYS = 14
-_BOT_LOG_RETENTION_COUNT = 10
+_BOT_LOG_RETENTION_DAYS = 7
 _SESSION_TIMESTAMP_FORMAT = "%Y%m%dT%H%M%S_%f%z"
 _HISTORY_MAINTENANCE_LOCK = threading.Lock()
 _RECENT_GUI_MESSAGE_COUNT = 5000
@@ -438,18 +437,6 @@ def _prune_bot_debug_sessions(
     for session_path in session_paths:
         if session_path != active_session_path and session_path.stat().st_mtime < expiration_timestamp:
             session_path.unlink()
-
-    retained_paths = sorted(
-        _bot_debug_session_paths(account_logs_directory),
-        key=lambda session_path: session_path.stat().st_mtime,
-        reverse=True,
-    )
-    for session_path in retained_paths[_BOT_LOG_RETENTION_COUNT:]:
-        assert session_path != active_session_path, (
-            "The active bot debug session must be among the newest retained sessions"
-        )
-        session_path.unlink()
-
 
 def _bot_debug_session_paths(account_logs_directory: Path) -> list[Path]:
     return [

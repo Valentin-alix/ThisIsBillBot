@@ -111,9 +111,11 @@ class PlayerFrame(Frame):
         self.event_manager.send(request)
         self.game_state.player.is_characteristic_upgrade_complete_event.set()
 
-    def on_job_experiences_update_event(self, message: JobExperiencesUpdateEvent):
+    def on_job_experiences_update_event(self, message: JobExperiencesUpdateEvent) -> None:
         for job_xp in message.experiences:
+            self.game_state.player.job_levels_by_id[job_xp.job_id] = job_xp.job_level
             self.game_state.player.jobs_lvl_by_id[job_xp.job_id] = max((job_xp.job_level // 10) * 10, 1)
+            self.game_info_signals.job_level_changed.emit(job_xp.job_id, job_xp.job_level)
 
     def on_character_list_event(self, msg: CharacterListEvent):
         self._register_ready_to_play_trigger()

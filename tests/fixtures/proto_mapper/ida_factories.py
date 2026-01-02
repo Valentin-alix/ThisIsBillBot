@@ -1,8 +1,8 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, cast
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import builder_field_access_entry
+from tests.fixtures.proto_mapper.signatures import builder_field_access_entry
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessEntry, AccessKind, FieldAccessEntry
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField

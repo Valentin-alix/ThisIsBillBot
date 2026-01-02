@@ -81,6 +81,12 @@ class SidebarItem(NavigationWidget):
         self._right_icon.hide()
         self.header_layout.addWidget(self._right_icon)
 
+        self._subscription_icon = QLabel(self)
+        self._subscription_icon.setFixedSize(16, 16)
+        self._subscription_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.header_layout.addWidget(self._subscription_icon)
+        self.set_subscribed(False)
+
         self._mode_combo = ComboBox(self)
         self._mode_combo.setFixedWidth(150)
         self._mode_combo.addItem("Mitm", userData="mitm")
@@ -115,6 +121,11 @@ class SidebarItem(NavigationWidget):
         else:
             self._right_icon.hide()
 
+    def set_subscribed(self, is_subscribed: bool) -> None:
+        color = QColor(0, 230, 118) if is_subscribed else QColor(244, 67, 54)
+        subscription_icon = FluentIcon("Certificate")
+        self._subscription_icon.setPixmap(subscription_icon.icon(color=color).pixmap(16))
+
     def setCompacted(self, isCompacted: bool) -> None:
         if isCompacted == self.isCompacted:
             return
@@ -125,6 +136,7 @@ class SidebarItem(NavigationWidget):
             self.setFixedSize(32, 48)
             self._title.hide()
             self._right_icon.hide()
+            self._subscription_icon.hide()
             self._play_btn.hide()
             self._stop_btn.hide()
             self._disconnect_btn.hide()
@@ -135,6 +147,7 @@ class SidebarItem(NavigationWidget):
             self._title.show()
             if self.in_fight:
                 self._right_icon.show()
+            self._subscription_icon.show()
             self._sync_play_buttons()
             self._disconnect_btn.show()
             self._mode_combo.show()

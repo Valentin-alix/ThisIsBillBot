@@ -1,4 +1,4 @@
-from typing import cast
+﻿from typing import cast
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock, patch
 
@@ -12,7 +12,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.
 )
 from playwright.async_api import Page
 
-from tests.test_ankama_launcher_emulator_premium._fakes import FakeLocator
+from tests.fixtures.launcher import FakeLocator
 
 
 class _FakeCookiePage:
@@ -61,9 +61,9 @@ class TestBrowserInteractions(IsolatedAsyncioTestCase):
         for html, expected_name, expected_marker in (
             ("<html>turnstile widget</html>", "turnstile", "turnstile"),
             (
-                '<script src="https://edge.sdk.awswaf.com/challenge.js"></script>',
-                "aws waf block",
-                "awswaf",
+                '<script src="https://edge.sdk.aws-waf.com/challenge.js"></script>',
+                "aws waf",
+                "aws-waf",
             ),
         ):
             with self.subTest(expected_name=expected_name):

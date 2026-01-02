@@ -194,13 +194,16 @@ class TestSocketProxyConnection:
         )
         monkeypatch.setattr(bot_manager_module.CryptoHelper, "remove_bot", MagicMock())
         monkeypatch.setattr(bot_manager_module.BotStorageController, "remove_record", MagicMock())
+        remove_snapshot = MagicMock()
+        monkeypatch.setattr(bot_manager_module.PlayerInfoStorage, "remove_snapshot", remove_snapshot)
         monkeypatch.setattr(manager, "on_synchronize_bots", MagicMock())
 
         manager.on_banned_callback("banned@example.com")
 
         assert lifecycle_events == ["quarantine", "remove-config"]
+        remove_snapshot.assert_called_once_with("banned@example.com")
 
-    def test_relaunch_does_not_stop_active_runtime_on_quarantined_proxy(
+    def test_relaunch_stops_active_runtime_when_proxy_is_quarantined(
         self,
         runtime_bot: Bot,
         monkeypatch: pytest.MonkeyPatch,
@@ -235,7 +238,7 @@ class TestSocketProxyConnection:
         manager.relaunch_account(runtime_bot.account.apikey.login)
 
         kill_process.assert_not_called()
-        assert runtime_bot.is_playing_event.is_set()
+        assert not runtime_bot.is_playing_event.is_set()
 
     def test_outgoing_connection_request_reaches_server_frame(
         self,

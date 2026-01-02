@@ -1,4 +1,4 @@
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import number_field
+﻿from tests.fixtures.proto_mapper.field_builders import number_field
 
 from DBDofusUnity.proto_mapper_assembly.helpers.non_obf_names import (
     build_filtered_message_namespace,

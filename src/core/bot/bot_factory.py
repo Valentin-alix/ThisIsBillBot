@@ -134,6 +134,7 @@ from src.core.frames.interactive_frame import InteractiveFrame
 from src.core.frames.inventory_frame import InventoryFrame
 from src.core.frames.map_frame import MapFrame
 from src.core.frames.player_frame import PlayerFrame
+from src.core.frames.player_info_snapshot_frame import PlayerInfoSnapshotFrame
 from src.core.frames.quest_frame import QuestFrame
 from src.core.frames.sale_hotel_frame import SaleHotelFrame
 from src.core.frames.server_frame import ServerFrame
@@ -318,6 +319,14 @@ class BotFactory:
             is_playing_event=is_playing_event,
         )
         achievement_frame = AchievementFrame(
+            event_manager=event_manager,
+            game_state=game_state,
+            game_info_signals=game_info_signals,
+            inventory_signals=inventory_signals,
+            _logger=logger,
+            is_playing_event=is_playing_event,
+        )
+        player_info_snapshot_frame = PlayerInfoSnapshotFrame(
             event_manager=event_manager,
             game_state=game_state,
             game_info_signals=game_info_signals,
@@ -824,6 +833,7 @@ class BotFactory:
                 dialog_frame,
                 quest_frame,
                 achievement_frame,
+                player_info_snapshot_frame,
             ],
             world_signals=world_signals,
             _logger=logger,

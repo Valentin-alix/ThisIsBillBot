@@ -1,30 +1,30 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     empty_enum_signatures as _empty_enum_signatures,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     game_mapping_entry as _game_mapping_entry,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     empty_proto_accesses as _empty_proto_accesses,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     proto_accesses as _proto_accesses,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     proto_accesses_with_function_infos as _proto_accesses_with_function_infos,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     script_message as _msg,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     zero_access_enum_signatures as _enum_signatures,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     zero_access_field as _field,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import (
+from tests.fixtures.proto_mapper.signatures import (
     builder_field_access_entry,
     builder_typeinfo_access_entry,
 )

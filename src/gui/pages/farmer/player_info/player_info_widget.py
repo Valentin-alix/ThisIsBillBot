@@ -1,23 +1,31 @@
 from functools import partial
 
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
-from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QWidget
 
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from DBDofusUnity.dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS, JobEnum
+from src.controller.player_info_storage import PlayerInfoStorage
 from src.core.bot.bot import Bot
 from src.gui.pages.farmer.player_info.property_panel_widget import PropertyPanelWidget
 
+_HARVEST_JOB_IDS = HARVESTER_JOB_IDS - {JobEnum.BASE}
+
 
 class PlayerInfoWidget(PropertyPanelWidget):
-    def __init__(self, bot: Bot, parent: QWidget | None = None):
+    def __init__(self, bot: Bot, parent: QWidget | None = None) -> None:
         super().__init__(parent=parent)
 
         self.bot = bot
+        self.snapshot = PlayerInfoStorage().get_snapshot(bot.account.apikey.login)
 
         self.bot.game_info_signals.character_id.connect(
             partial(self.on_received_property, "Joueur", "Player id")
         )
+        self.bot.game_info_signals.character_name.connect(partial(self.on_received_property, "Joueur", "Nom"))
+        self.bot.game_info_signals.level.connect(partial(self.on_received_property, "Joueur", "Niveau"))
+        self.bot.game_info_signals.breed_id.connect(self.on_breed_id_changed)
         self.bot.game_info_signals.server_id.connect(self.on_server_id_changed)
         self.bot.game_info_signals.has_guild.connect(
             partial(self.on_received_property, "Joueur", "A une guilde")
@@ -28,9 +36,110 @@ class PlayerInfoWidget(PropertyPanelWidget):
         self.bot.game_info_signals.last_time_updated_prices.connect(
             partial(self.on_received_property, "Hotel de vente", "Derniere maj prix")
         )
+        self.bot.game_info_signals.job_level_changed.connect(self.on_job_level_changed)
+        self.bot.inventory_signals.kamas.connect(self.on_kamas_changed)
+
+        self._sync_player_properties_from_state()
+        self._sync_harvest_job_levels_from_state()
 
     @pyqtSlot(int)
     def on_server_id_changed(self, server_id: int) -> None:
         server = DataReader().server_by_id[server_id]
         server_name = I18N().name_by_id[server.nameId]
         self.on_received_property("Joueur", "Serveur", server_name)
+
+    @pyqtSlot(int)
+    def on_breed_id_changed(self, breed_id: int) -> None:
+        if breed_id == 0:
+            return
+        breed = DataReader().breed_by_id[breed_id]
+        breed_name = I18N().name_by_id[int(breed.shortNameId)]
+        self.on_received_property("Joueur", "Classe", breed_name)
+
+    @pyqtSlot(int)
+    def on_kamas_changed(self, kamas: int) -> None:
+        self.on_received_property("Joueur", "Kamas", f"{kamas:,}".replace(",", " "))
+
+    @pyqtSlot(int, int)
+    def on_job_level_changed(self, job_id: int, job_level: int) -> None:
+        if job_id not in _HARVEST_JOB_IDS:
+            return
+        self.on_received_property(
+            "Métiers de récolte",
+            self._get_job_name(JobEnum(job_id)),
+            job_level,
+        )
+
+    def _sync_harvest_job_levels_from_state(self) -> None:
+        player = self.bot.game_state.player
+        job_levels_by_id = (
+            player.job_levels_by_id
+            if player.character_id != 0
+            else self.snapshot.job_levels_by_id
+            if self.snapshot is not None
+            else {}
+        )
+        for job_id in _HARVEST_JOB_IDS:
+            self.on_received_property(
+                "Métiers de récolte",
+                self._get_job_name(job_id),
+                job_levels_by_id.get(job_id, "—"),
+            )
+
+    def _sync_player_properties_from_state(self) -> None:
+        player = self.bot.game_state.player
+        if player.character_id != 0:
+            self._sync_player_properties(
+                character_id=player.character_id,
+                character_name=player.character_name,
+                level=player.level,
+                breed_id=self.bot.game_state.fight.breed_id,
+                server_id=player.server_id,
+                has_guild=self.bot.game_state.guild_chest.has_guild,
+                kamas=self.bot.game_state.inventory.kamas,
+                guild_chest_tab_number=self.bot.game_state.guild_chest.tab_number,
+            )
+            return
+        if self.snapshot is None:
+            return
+        self._sync_player_properties(
+            character_id=self.snapshot.character_id,
+            character_name=self.snapshot.character_name,
+            level=self.snapshot.level,
+            breed_id=self.snapshot.breed_id,
+            server_id=self.snapshot.server_id,
+            has_guild=self.snapshot.has_guild,
+            kamas=self.snapshot.kamas,
+            guild_chest_tab_number=self.snapshot.guild_chest_tab_number,
+        )
+        self.on_received_property(
+            "Joueur",
+            "Dernière synchronisation",
+            self.snapshot.updated_at.astimezone().strftime("%d/%m/%Y %H:%M"),
+        )
+
+    def _sync_player_properties(
+        self,
+        *,
+        character_id: int,
+        character_name: str,
+        level: int,
+        breed_id: int,
+        server_id: int,
+        has_guild: bool,
+        kamas: int,
+        guild_chest_tab_number: int,
+    ) -> None:
+        self.on_received_property("Joueur", "Player id", character_id)
+        self.on_received_property("Joueur", "Nom", character_name)
+        self.on_received_property("Joueur", "Niveau", level)
+        self.on_breed_id_changed(breed_id)
+        self.on_server_id_changed(server_id)
+        self.on_received_property("Joueur", "A une guilde", has_guild)
+        self.on_kamas_changed(kamas)
+        self.on_received_property("Coffre de guilde", "Onglet actuel", guild_chest_tab_number)
+
+    @staticmethod
+    def _get_job_name(job_id: int) -> str:
+        job = DataReader().job_by_id[job_id]
+        return I18N().name_by_id[job.nameId]

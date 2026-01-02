@@ -1,12 +1,12 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import sys
 from typing import cast
 from unittest.mock import patch
 
 import pytest
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import message_signature
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.message_builders import message_signature
+from tests.fixtures.proto_mapper.script_builders import (
     field_mapping_result,
     single_pair_matching_inputs,
     single_pair_workspace,

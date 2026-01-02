@@ -1,8 +1,8 @@
-from pathlib import Path
+﻿from pathlib import Path
 
 import numpy as np
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import message_signature
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_store import seed_runtime_content
+from tests.fixtures.proto_mapper.message_builders import message_signature
+from tests.fixtures.proto_mapper.runtime_store import seed_runtime_content
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
 from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_order import CaptureOrderIndex

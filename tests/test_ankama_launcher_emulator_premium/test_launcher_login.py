@@ -1,4 +1,4 @@
-from typing import cast
+﻿from typing import cast
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -20,7 +20,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.mod
 )
 from playwright._impl._errors import TargetClosedError
 
-from tests.test_ankama_launcher_emulator_premium._fakes import (
+from tests.fixtures.launcher import (
     FakeBrowserContext,
     FakeMailProvider,
 )
@@ -115,15 +115,13 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
         ):
             await launcher_login_module._wait_for_tokens(page, "verifier")
 
-    async def test_authenticate_propagates_proxy_rejection_and_dumps_page(
+    async def test_authenticate_propagates_proxy_rejection(
         self,
     ) -> None:
         page = MagicMock()
         page.url = "https://account.ankama.com/login"
         page.goto = AsyncMock()
         browser_context = FakeBrowserContext(page)
-        dump_failure_page = AsyncMock()
-
         with (
             patch.object(
                 launcher_login_module,
@@ -145,11 +143,6 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
                 "_wait_for_tokens",
                 new=AsyncMock(side_effect=ProxyRejectedError("rejected")),
             ),
-            patch.object(
-                launcher_login_module,
-                "_dump_oauth_failure_page",
-                new=dump_failure_page,
-            ),
             self.assertRaises(ProxyRejectedError),
         ):
             await launcher_login_module.authenticate(
@@ -161,9 +154,7 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
                 )
             )
 
-        dump_failure_page.assert_awaited_once_with(page)
-
-    async def test_returns_failure_when_browser_page_is_closed_during_dump(
+    async def test_returns_failure_when_browser_page_is_closed(
         self,
     ) -> None:
         page = MagicMock()
@@ -194,7 +185,6 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
                 "refresh_api_key_from_oauth",
                 side_effect=requests.exceptions.HTTPError("403 forbidden"),
             ),
-            patch.object(launcher_login_module, "try_dump_page_html", new=AsyncMock()),
             patch.object(launcher_login_module.asyncio, "sleep", new=AsyncMock()),
             patch.object(launcher_login_module, "human_wait", new=AsyncMock()),
         ):
@@ -253,7 +243,6 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
             patch.object(launcher_login_module, "MailAccountController") as mail_account_controller,
             patch.object(launcher_login_module.logger, "exception") as log_exception,
             patch.object(launcher_login_module.logger, "error") as log_error,
-            patch.object(launcher_login_module, "try_dump_page_html", new=AsyncMock()),
             patch.object(launcher_login_module.asyncio, "sleep", new=AsyncMock()),
             patch.object(launcher_login_module, "human_wait", new=AsyncMock()),
         ):

@@ -1,5 +1,3 @@
-import os
-import time
 from collections import defaultdict
 from pathlib import Path
 from threading import RLock
@@ -35,7 +33,6 @@ class GameDataController(metaclass=Singleton):
     _LOCK = RLock()
     _FILE_PATH = Path(RESOURCE_FOLDER) / "game_data.json"
     _DEFEAT_THRESHOLD = 6
-    _SAVE_RETRY_DELAYS = (0.05, 0.1)
     _loaded_path: Path | None = None
     _game_data: GameDataFile | None = None
 
@@ -51,19 +48,7 @@ class GameDataController(metaclass=Singleton):
 
     def _save(self, game_data: GameDataFile) -> None:
         self._FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        temporary_path = Path(f"{self._FILE_PATH}.tmp")
-        temporary_path.write_text(
-            game_data.model_dump_json(indent=2),
-            encoding="utf-8",
-        )
-        for retry_delay in (*self._SAVE_RETRY_DELAYS, None):
-            try:
-                os.replace(temporary_path, self._FILE_PATH)
-                break
-            except PermissionError:
-                if retry_delay is None:
-                    raise
-                time.sleep(retry_delay)
+        self._FILE_PATH.write_text(game_data.model_dump_json(indent=2), encoding="utf-8")
         self._game_data = game_data
         self._loaded_path = self._FILE_PATH
 

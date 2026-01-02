@@ -22,8 +22,8 @@ class RegistrationOptions:
     mail_provider: MailCodeProvider | None
     schedule_profile: str | None = None
     proxy_url: str | None = None
-    headless: bool = False
     confirmation_timeout_seconds: int = 1200
+    persist_account: bool = True
 
 
 @dataclass(frozen=True)
@@ -42,7 +42,6 @@ class AuthenticationOptions:
     password: str
     mail_provider: MailCodeProvider | None
     proxy_url: str | None = None
-    headless: bool = False
     shield_timeout_seconds: int = 1200
 
 

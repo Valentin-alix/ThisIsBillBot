@@ -1,11 +1,11 @@
-import numpy as np
+﻿import numpy as np
 import pytest
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import (
+from tests.fixtures.proto_mapper.matching_builders import (
     prepared_scores_from_matrix,
     select_best_signature_pair,
     simple_signature,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.message_builders import (
     EMPTY_ACCESS_TRACE,
     build_verified_mapping,
 )

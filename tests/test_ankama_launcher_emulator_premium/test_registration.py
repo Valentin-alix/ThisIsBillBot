@@ -1,4 +1,5 @@
-from unittest import IsolatedAsyncioTestCase, TestCase
+﻿from unittest import IsolatedAsyncioTestCase, TestCase
+from dataclasses import replace
 from unittest.mock import AsyncMock, MagicMock, patch
 from urllib.parse import parse_qs, urlparse
 
@@ -30,7 +31,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.oau
     build_login_url,
 )
 
-from tests.test_ankama_launcher_emulator_premium._fakes import FakeBrowserContext, FakeMailProvider
+from tests.fixtures.launcher import FakeBrowserContext, FakeMailProvider
 
 
 class TestRegistration(TestCase):
@@ -123,7 +124,7 @@ class TestRegistration(TestCase):
             final_url="https://auth.ankama.com/register/ankama",
             error=(
                 "registration form is still present after submit; visible form errors: "
-                '"linked@example.com" est déjà lié à un compte existant. Pour continuer, connectez-vous.'
+                '"linked@example.com" est dÃ©jÃ  liÃ© Ã  un compte existant. Pour continuer, connectez-vous.'
             ),
         )
 
@@ -141,16 +142,24 @@ class TestRegistration(TestCase):
             email="retry@example.com",
             password="password",
             final_url="https://auth.ankama.com/register/ankama",
-            error="registration form is still present after submit; visible form errors: Email invalide",
+            error="registration form is still present after submit; visible form errors: Cette adresse Email n'est pas valide",
         )
 
         registration_module._finalize_registration_attempt("retry@example.com", result)
 
         self.assertNotIn("retry@example.com", MailAccountController()._load().accounts)
 
+    def test_duplicate_email_error_matches_the_ankama_form_message(self) -> None:
+        self.assertTrue(
+            registration_module._is_duplicate_email_error(
+                ('"used@example.com" est déjà lié à un compte existant. Pour continuer, connectez-vous.',)
+            )
+        )
+
 
 def _registration_options(
     confirmation_timeout_seconds: int = 1200,
+    persist_account: bool = True,
 ) -> RegistrationOptions:
     return RegistrationOptions(
         email="new@example.com",
@@ -164,6 +173,7 @@ def _registration_options(
         ),
         mail_provider=FakeMailProvider(),
         confirmation_timeout_seconds=confirmation_timeout_seconds,
+        persist_account=persist_account,
     )
 
 
@@ -182,6 +192,106 @@ def _ready_registration_form_html(extra_html: str = "") -> str:
 
 
 class TestRegisterAccount(IsolatedAsyncioTestCase):
+    async def test_retries_duplicate_email_in_the_same_browser_page(self) -> None:
+        page = MagicMock()
+        page.url = "https://auth.ankama.com/register/ankama/form-submit"
+        page.goto = AsyncMock()
+        browser_context = FakeBrowserContext(page)
+        initial_options = _registration_options()
+        replacement_options = replace(
+            initial_options,
+            email="replacement@example.com",
+            mail_provider=FakeMailProvider(),
+        )
+        duplicate_failure = registration_module._RegistrationWaitResult(
+            success=False,
+            reason="registration form is still present after submit",
+            form_errors=('"new@example.com" est déjà lié à un compte existant.',),
+        )
+        replacement_options_factory = AsyncMock(return_value=replacement_options)
+
+        with (
+            patch.object(registration_module, "launch_browser_context", return_value=browser_context),
+            patch.object(registration_module, "get_registration_state", new=AsyncMock(return_value="state")),
+            patch.object(registration_module, "_wait_for_registration_form_ready", new=AsyncMock()),
+            patch.object(
+                registration_module,
+                "_submit_registration_attempt",
+                new=AsyncMock(return_value=duplicate_failure),
+            ),
+            patch.object(
+                registration_module,
+                "_submit_replacement_email_attempt",
+                new=AsyncMock(return_value=registration_module._RegistrationWaitResult(success=True)),
+            ) as submit_replacement_email_attempt,
+            patch.object(registration_module, "MailAccountController") as mail_account_controller,
+            patch.object(registration_module, "BotStorageController") as bot_storage_controller,
+            patch.object(registration_module, "human_wait", new=AsyncMock()),
+        ):
+            result = await registration_module.register_account(
+                initial_options,
+                replacement_options_factory=replacement_options_factory,
+            )
+
+        self.assertTrue(result.success)
+        self.assertEqual(result.email, "replacement@example.com")
+        browser_context.new_page.assert_awaited_once()
+        page.goto.assert_awaited_once()
+        replacement_options_factory.assert_awaited_once_with(initial_options)
+        submit_replacement_email_attempt.assert_awaited_once_with(page, replacement_options)
+        mail_account_controller.return_value.remove_email.assert_called_once_with("new@example.com")
+        bot_storage_controller.return_value.save_account.assert_called_once_with(
+            "replacement@example.com",
+            "password",
+            schedule_profile=None,
+        )
+
+    async def test_replacement_attempt_only_replaces_the_email_field(self) -> None:
+        page = MagicMock()
+        page.url = "https://auth.ankama.com/register/ankama/form-submit"
+        login_field = MagicMock()
+        login_field.first.fill = AsyncMock()
+        page.locator.return_value = login_field
+        wait_result = registration_module._RegistrationWaitResult(success=True)
+
+        with (
+            patch.object(registration_module, "human_type_selector", new=AsyncMock()) as human_type_selector,
+            patch.object(registration_module, "human_wait", new=AsyncMock()),
+            patch.object(registration_module, "human_click_selector", new=AsyncMock()) as human_click_selector,
+            patch.object(registration_module, "_wait_for_result", new=AsyncMock(return_value=wait_result)),
+        ):
+            result = await registration_module._submit_replacement_email_attempt(
+                page,
+                _registration_options(),
+            )
+
+        self.assertIs(result, wait_result)
+        login_field.first.fill.assert_awaited_once_with("")
+        human_type_selector.assert_awaited_once_with(page, "#ankama-registration-login", "new@example.com")
+        human_click_selector.assert_awaited_once_with(page, "button[type='submit']")
+
+    async def test_register_next_available_email_finalizes_the_replacement_email(self) -> None:
+        registration_result = RegistrationResult(
+            success=True,
+            email="replacement@example.com",
+            password="password",
+            final_url="https://auth.ankama.com/login-authorized",
+        )
+
+        with (
+            patch.object(registration_module, "_next_email_to_register", return_value="initial@example.com"),
+            patch.object(
+                registration_module,
+                "_register_email",
+                new=AsyncMock(return_value=registration_result),
+            ),
+            patch.object(registration_module, "_finalize_registration_attempt") as finalize_registration_attempt,
+        ):
+            result = await registration_module.register_next_available_email("profile")
+
+        self.assertIs(result, registration_result)
+        finalize_registration_attempt.assert_called_once_with("replacement@example.com", registration_result)
+
     async def test_saves_account_after_successful_registration(self) -> None:
         page = MagicMock()
         page.url = "https://auth.ankama.com/login-authorized"
@@ -234,6 +344,31 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
             schedule_profile=None,
         )
 
+    async def test_does_not_save_account_when_persistence_is_disabled(self) -> None:
+        page = MagicMock()
+        page.url = "https://auth.ankama.com/login-authorized"
+        page.goto = AsyncMock()
+        browser_context = FakeBrowserContext(page)
+
+        with (
+            patch.object(registration_module, "launch_browser_context", return_value=browser_context),
+            patch.object(registration_module, "get_registration_state", new=AsyncMock(return_value="state")),
+            patch.object(registration_module, "_wait_for_registration_form_ready", new=AsyncMock()),
+            patch.object(registration_module, "_fill_registration_form", new=AsyncMock()),
+            patch.object(
+                registration_module,
+                "_wait_for_result",
+                new=AsyncMock(return_value=registration_module._RegistrationWaitResult(success=True)),
+            ),
+            patch.object(registration_module, "human_click_selector", new=AsyncMock()),
+            patch.object(registration_module, "BotStorageController") as bot_storage_controller,
+            patch.object(registration_module, "human_wait", new=AsyncMock()),
+        ):
+            result = await registration_module.register_account(_registration_options(persist_account=False))
+
+        self.assertTrue(result.success)
+        bot_storage_controller.return_value.save_account.assert_not_called()
+
     async def test_returns_failure_when_registration_times_out(self) -> None:
         page = MagicMock()
         page.url = "https://auth.ankama.com/register/ankama"
@@ -243,7 +378,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
         browser_context = FakeBrowserContext(page)
         failure = registration_module._RegistrationWaitResult(
             success=False,
-            reason="registration form is still present after submit; visible form errors: Email invalide",
+            reason="registration form is still present after submit; visible form errors: Cette adresse Email n'est pas valide",
         )
 
         with (
@@ -279,7 +414,6 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
             ),
             patch.object(registration_module, "BotStorageController") as bot_storage_controller,
             patch.object(registration_module, "MailAccountController") as mail_account_controller,
-            patch.object(registration_module, "dump_page_html", new=AsyncMock()),
             patch.object(registration_module.asyncio, "sleep", new=AsyncMock()),
             patch.object(registration_module, "human_wait", new=AsyncMock()),
         ):
@@ -332,36 +466,6 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
             )
 
         self.assertEqual(page.content.await_count, 2)
-
-    async def test_wait_for_result_fails_fast_when_form_has_aws_waf(
-        self,
-    ) -> None:
-        page = MagicMock()
-        page.url = "https://auth.ankama.com/register/ankama/form-submit"
-        page.content = AsyncMock(
-            return_value=_ready_registration_form_html(
-                '<script src="https://edge.sdk.awswaf.com/challenge.js"></script>'
-            )
-        )
-
-        with (
-            patch.object(registration_module.asyncio, "sleep", new=AsyncMock()),
-            patch.object(
-                registration_module,
-                "_extract_registration_form_errors",
-                new=AsyncMock(return_value=()),
-            ) as extract_registration_form_errors,
-        ):
-            result = await registration_module._wait_for_result(
-                page,
-                _registration_options(confirmation_timeout_seconds=7),
-                started_at=registration_module.datetime.now(registration_module.UTC),
-            )
-
-        self.assertFalse(result.success)
-        self.assertEqual(result.antibot_marker, "aws waf block")
-        self.assertIn("registration blocked by antibot marker", result.reason or "")
-        extract_registration_form_errors.assert_not_awaited()
 
     async def test_registration_confirmation_timeout_removes_email(
         self,

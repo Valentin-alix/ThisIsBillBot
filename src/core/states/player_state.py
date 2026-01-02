@@ -3,7 +3,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from threading import Event
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.haapi import get_game_sub_info_by_login
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.haapi import (
+    get_game_sub_info_by_login,
+)
 from DBDofusUnity.dofus_unity_reader.game_constants.server import ServerEnum
 
 from src import consts
@@ -27,6 +29,7 @@ class PlayerState(State):
     _character_name: str = dataclasses.field(init=False, default_factory=str)
     waypoint_map_ids: list[int] = dataclasses.field(init=False, default_factory=list[int])
     jobs_lvl_by_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict[int, int])
+    job_levels_by_id: dict[int, int] = dataclasses.field(init=False, default_factory=dict[int, int])
 
     def __post_init__(self) -> None:
         self.is_ready_to_play_event = Event()

@@ -1,24 +1,24 @@
-from pathlib import Path
+﻿from pathlib import Path
 from unittest.mock import patch
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import typed_dump_field
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.field_builders import typed_dump_field
+from tests.fixtures.proto_mapper.message_builders import (
     EMPTY_ACCESS_TRACE,
     build_message_lookup,
     build_verified_mapping,
     field_signature,
     message_signature,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_builders import runtime_entry
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_store import seed_runtime_content
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import (
+from tests.fixtures.proto_mapper.runtime_builders import runtime_entry
+from tests.fixtures.proto_mapper.runtime_store import seed_runtime_content
+from tests.fixtures.proto_mapper.shapes import (
     MESSAGE_SHAPE,
     NUMBER_SHAPE,
     REPEATED_MESSAGE_SHAPE,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import declared_field_signature
+from tests.fixtures.proto_mapper.signatures import declared_field_signature
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import (
+from tests.fixtures.proto_mapper.matching_builders import (
     match_messages_for_test,
 )
 

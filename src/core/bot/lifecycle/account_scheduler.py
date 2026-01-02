@@ -39,8 +39,9 @@ from src.core.bot.lifecycle.operation_pool import OperationPool
 logger = logging.getLogger()
 
 POLL_INTERVAL_SECONDS = 5
-MAX_BOTS_PER_SCHEDULE_PROFILE = 5
+MAX_BOTS_PER_SCHEDULE_PROFILE = 6
 MIN_AUTHENTICATED_BOTS_FOR_MULE = 13
+MAX_VIABLE_KAMAS_MULES = 1
 
 
 @dataclass(frozen=True)
@@ -147,7 +148,7 @@ class AccountScheduler:
             profile_counts = self._profile_account_counts(profiles_by_letter)
             records = self.bot_storage_controller.get_all_records().values()
             authenticated_count = sum(record.encrypted_api_key is not None for record in records)
-            has_viable_kamas_mule = any(
+            viable_kamas_mule_count = sum(
                 record.email not in bad_state_emails and profile.kind == "kamas_mule"
                 for record in records
                 if record.schedule_profile is not None
@@ -168,7 +169,7 @@ class AccountScheduler:
             register_candidates = (
                 mule_candidates
                 if authenticated_count >= MIN_AUTHENTICATED_BOTS_FOR_MULE
-                and not has_viable_kamas_mule
+                and viable_kamas_mule_count < MAX_VIABLE_KAMAS_MULES
                 and mule_candidates
                 else [
                     operation

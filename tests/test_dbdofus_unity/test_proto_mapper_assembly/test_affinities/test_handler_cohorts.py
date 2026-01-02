@@ -1,7 +1,7 @@
-from typing import Any
+﻿from typing import Any
 
 import numpy as np
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import simple_workspace
+from tests.fixtures.proto_mapper.matching_builders import simple_workspace
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
 from DBDofusUnity.proto_mapper_assembly.affinities.handler_cohorts import build_handler_cohort_affinity

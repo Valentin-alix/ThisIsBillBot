@@ -72,19 +72,12 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.shi
     resolve_shield,
     secure_apikey_via_email,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.debug_utils import try_dump_page_html
-
 TOKEN_URL = "https://auth.ankama.com/token"
 PROXY_REJECTED_ERROR_TEXT = "connexion non-autorisée : votre adresse ip est cachée."
 
 logger = logging.getLogger()
 
 MIN_DELAY_BETWEEN_ACCOUNTS_SEC = 30
-
-
-async def _dump_oauth_failure_page(page: Page) -> None:
-    logger.info("[OAuth] Failure at URL %s", page.url)
-    await try_dump_page_html("oauth_failure", page, logger, "[OAuth]")
 
 
 async def _exchange_code_for_token(page: Page, auth_code: str, code_verifier: str) -> TokenResponse | None:
@@ -174,10 +167,8 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
 
     code_verifier = generate_code_verifier()
     login_url = build_login_url(generate_code_challenge(code_verifier))
-    page: Page | None = None
-
     try:
-        async with launch_browser_context(headless=options.headless, proxy_url=options.proxy_url) as context:
+        async with launch_browser_context(login=options.email, proxy_url=options.proxy_url) as context:
             page = await context.new_page()
             logger.info("[OAuth] Navigating to login page...")
             try:
@@ -288,8 +279,6 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
         raise
     except ProxyRejectedError as error:
         logger.error("[OAuth] Proxy rejected: %s", error)
-        if page is not None:
-            await _dump_oauth_failure_page(page)
         raise
     except MailboxCodeTimeoutError as exc:
         MailAccountController().remove_email(options.email)
@@ -298,13 +287,9 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
             options.email,
             exc,
         )
-        if page is not None:
-            await _dump_oauth_failure_page(page)
         return AuthenticationResult(success=False, email=options.email, error=str(exc))
     except Exception as exc:
         logger.exception("[OAuth] Authentication failed: %s", exc)
-        if page is not None:
-            await _dump_oauth_failure_page(page)
         return AuthenticationResult(success=False, email=options.email, error=str(exc))
 
 

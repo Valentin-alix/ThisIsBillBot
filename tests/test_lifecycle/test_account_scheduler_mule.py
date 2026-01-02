@@ -146,6 +146,45 @@ def test_registration_does_not_create_second_pending_mule() -> None:
     assert operation.schedule_profile == "B"
 
 
+def test_registration_stops_when_all_bot_profiles_are_full() -> None:
+    profiles = {"B": _profile("bot", "B")}
+    records = _authenticated_records(6)
+    scheduler = _scheduler(
+        profiles,
+        records,
+        generated_account_records=list(records.values()),
+    )
+
+    with patch(
+        "src.core.bot.lifecycle.account_scheduler.MailAccountController",
+        return_value=_mail_account_controller(),
+    ):
+        operation = scheduler._next_operation(0)
+
+    assert operation is None
+
+
+def test_pending_account_is_authenticated_when_its_full_profile_has_capacity_zero() -> None:
+    profiles = {"B": _profile("bot", "B")}
+    records = _authenticated_records(4)
+    pending_account = _bot_record("pending@example.com", schedule_profile="B")
+    records[pending_account.email] = pending_account
+    scheduler = _scheduler(
+        profiles,
+        records,
+        accounts_needing_auth=[pending_account],
+        generated_account_records=list(records.values()),
+    )
+
+    with patch(
+        "src.core.bot.lifecycle.account_scheduler.MailAccountController",
+        return_value=_mail_account_controller(),
+    ):
+        operation = scheduler._next_operation(0)
+
+    assert operation == _AuthOp("pending@example.com", "B", "B")
+
+
 def test_registration_replaces_bad_state_mule() -> None:
     profiles = {
         "B": _profile("bot", "B"),

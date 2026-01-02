@@ -1,23 +1,23 @@
-from pathlib import Path
+﻿from pathlib import Path
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import dump_field
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.field_builders import dump_field
+from tests.fixtures.proto_mapper.message_builders import (
     build_field_mapping_for_test,
     build_message_lookup,
     field_signature,
     make_field_mapping_context,
     message_signature,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_builders import runtime_entry
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_store import seed_runtime_content
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import (
+from tests.fixtures.proto_mapper.runtime_builders import runtime_entry
+from tests.fixtures.proto_mapper.runtime_store import seed_runtime_content
+from tests.fixtures.proto_mapper.shapes import (
     ENUM_SHAPE,
     MESSAGE_SHAPE,
     NUMBER_SHAPE,
     REPEATED_MESSAGE_SHAPE,
     STRING_SHAPE,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import (
+from tests.fixtures.proto_mapper.signatures import (
     access_atom,
     declared_field_signature,
 )
@@ -251,10 +251,10 @@ class TestBuildFieldMappingRejectedInfos:
         )
 
         assert result.field_mapping == {"fhdb": "first_id", "fhdc": "second_id"}
-        # On vérifie la raison du rejet et la borne du score, pas la valeur exacte.
-        # Le score précis dépend de la pondération des features de similarity, qui peut
-        # évoluer (cf. plan : poids des compteurs fragiles abaissés) — on ne lock pas
-        # cette valeur ici sinon le test casse à chaque rééquilibrage.
+        # On vÃ©rifie la raison du rejet et la borne du score, pas la valeur exacte.
+        # Le score prÃ©cis dÃ©pend de la pondÃ©ration des features de similarity, qui peut
+        # Ã©voluer (cf. plan : poids des compteurs fragiles abaissÃ©s) â€” on ne lock pas
+        # cette valeur ici sinon le test casse Ã  chaque rÃ©Ã©quilibrage.
         for rejected_pair_key in (("fhdc", "first_id"), ("fhdb", "second_id")):
             obf_field, non_obf_field = rejected_pair_key
             rejected_info = result.field_mapping_rejected_infos[obf_field][non_obf_field]

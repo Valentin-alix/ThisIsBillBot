@@ -1,4 +1,4 @@
-"""Lock the audit metrics onto the scoring functions they claim to mirror.
+﻿"""Lock the audit metrics onto the scoring functions they claim to mirror.
 
 ``audit_historical_assembly_metrics`` reimplements several scoring functions instead of importing
 them, deliberately: they are private to the scoring module, and the audit must keep measuring the
@@ -14,14 +14,14 @@ from __future__ import annotations
 
 import unittest
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import (
+from tests.fixtures.proto_mapper.shapes import (
     BOOLEAN_SHAPE,
     MESSAGE_SHAPE,
     NUMBER_SHAPE,
     REPEATED_NUMBER_SHAPE,
     STRING_SHAPE,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import (
+from tests.fixtures.proto_mapper.signatures import (
     access_atom,
     access_message_signature,
     builder_function_access_signature,

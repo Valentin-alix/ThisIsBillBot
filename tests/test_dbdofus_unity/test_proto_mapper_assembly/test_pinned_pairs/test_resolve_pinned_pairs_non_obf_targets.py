@@ -1,7 +1,7 @@
-import pytest
+﻿import pytest
 from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import resolve_pinned_pairs_non_obf_targets
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.helper_builders import (
+from tests.fixtures.proto_mapper.helper_builders import (
     PinnedResolveCase,
     PinnedResolveErrorCase,
     pinned_resolve_case,

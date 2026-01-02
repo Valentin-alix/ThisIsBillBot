@@ -1,17 +1,21 @@
-from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta
+from pathlib import Path
+import shutil
+from typing import AsyncGenerator
 from urllib.parse import unquote, urlparse
 
 from playwright.async_api import BrowserContext, ProxySettings, async_playwright
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.user_agent import CHROME_USER_AGENT
+from ankama_launcher_emulator_premium.consts import DEBUG_TRACES_DIR
 
 BROWSER_ARGS = [
     "--no-sandbox",
-    "--disable-setuid-sandbox",
     "--disable-blink-features=AutomationControlled",
     "--window-position=-1920,0",
+    "--start-minimized",
 ]
+_TRACE_RETENTION_DAYS = 7
 
 
 def _playwright_proxy_settings(proxy_url: str | None) -> ProxySettings | None:
@@ -29,23 +33,47 @@ def _playwright_proxy_settings(proxy_url: str | None) -> ProxySettings | None:
     return proxy_settings
 
 
+def _trace_directory(login: str) -> Path:
+    safe_login = "".join(char if char.isalnum() or char in ".@_-" else "_" for char in login)
+    path = DEBUG_TRACES_DIR / f"{datetime.now():%Y%m%d_%H%M%S_%f}_{safe_login}"
+    path.mkdir(parents=True, exist_ok=False)
+    _prune_expired_trace_directories(path)
+    return path
+
+
+def _prune_expired_trace_directories(active_trace_directory: Path) -> None:
+    expiration_timestamp = (datetime.now() - timedelta(days=_TRACE_RETENTION_DAYS)).timestamp()
+    for trace_directory in DEBUG_TRACES_DIR.iterdir():
+        if (
+            trace_directory != active_trace_directory
+            and trace_directory.is_dir()
+            and trace_directory.stat().st_mtime < expiration_timestamp
+        ):
+            shutil.rmtree(trace_directory)
+
+
 @asynccontextmanager
 async def launch_browser_context(
-    *, headless: bool, proxy_url: str | None, channel: str | None = None
-) -> AsyncIterator[BrowserContext]:
+    *, login: str, proxy_url: str | None, headless: bool = False
+) -> AsyncGenerator[BrowserContext, None]:
+    trace_directory = _trace_directory(login)
     async with async_playwright() as playwright:
-        browser = await playwright.chromium.launch(headless=headless, channel=channel, args=BROWSER_ARGS)
-        context = await browser.new_context(
-            viewport={"width": 1280, "height": 720},
-            user_agent=CHROME_USER_AGENT,
+        browser = await playwright.chromium.launch(
+            headless=headless,
+            traces_dir=trace_directory,
+            channel="chromium",
+            args=BROWSER_ARGS,
             proxy=_playwright_proxy_settings(proxy_url),
+        )
+        context = await browser.new_context(
+            color_scheme="dark",
+            viewport={"width": 1280, "height": 720},
             locale="fr-FR",
             timezone_id="Europe/Paris",
-            extra_http_headers={
-                "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
-            },
         )
+        await context.tracing.start(name="session", screenshots=True, snapshots=True, sources=True)
         try:
             yield context
         finally:
+            await context.tracing.stop(path=trace_directory / "trace.zip")
             await browser.close()

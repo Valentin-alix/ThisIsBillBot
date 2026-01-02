@@ -112,10 +112,13 @@ class BotStorageController(metaclass=Singleton):
         ]
 
     def reassign_schedule_profile(self, login: str, schedule_profile: str) -> None:
-        self.update_record(
-            login,
-            lambda record: setattr(record, "schedule_profile", schedule_profile),
-        )
+        def reassign(record: BotRecord) -> None:
+            if record.schedule_profile == schedule_profile:
+                return
+            record.schedule_profile = schedule_profile
+            record.encrypted_api_key = None
+
+        self.update_record(login, reassign)
 
     def save_account(
         self,

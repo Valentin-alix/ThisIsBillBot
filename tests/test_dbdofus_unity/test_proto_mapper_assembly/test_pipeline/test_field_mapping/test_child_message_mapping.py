@@ -1,8 +1,8 @@
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.matching_builders import (
+﻿from tests.fixtures.proto_mapper.matching_builders import (
     child_message_mapping_signatures,
     fake_field_mapping_context,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.message_builders import (
     build_field_mapping_for_test,
 )
 

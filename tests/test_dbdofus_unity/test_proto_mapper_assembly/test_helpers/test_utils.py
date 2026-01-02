@@ -1,7 +1,7 @@
-from datetime import date
+﻿from datetime import date
 from pathlib import Path
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.helper_builders import (
+from tests.fixtures.proto_mapper.helper_builders import (
     snapshot_layout,
     write_real_game_files,
     write_snapshot,

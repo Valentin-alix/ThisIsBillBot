@@ -1,15 +1,15 @@
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.enum_builders import enum_entry
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import (
+﻿from tests.fixtures.proto_mapper.enum_builders import enum_entry
+from tests.fixtures.proto_mapper.field_builders import (
     enum_field,
     msg_typed_field,
     scalar_field,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import message_signature
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import (
+from tests.fixtures.proto_mapper.message_builders import message_signature
+from tests.fixtures.proto_mapper.shapes import (
     BOOLEAN_SHAPE,
     NUMBER_SHAPE,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import (
+from tests.fixtures.proto_mapper.signatures import (
     access_atom,
     access_message_signature,
     builder_function_access_signature,

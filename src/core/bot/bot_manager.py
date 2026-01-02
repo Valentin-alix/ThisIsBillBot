@@ -25,12 +25,15 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.cr
     CryptoHelper,
 )
 from src.services.background import run_in_background
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.handler import AnkamaLauncherHandler
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.handler import (
+    AnkamaLauncherHandler,
+)
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.server import (
     AnkamaLauncherServer,
 )
 
 from src.controller.bot_config import BotConfig, BotConfigService
+from src.controller.player_info_storage import PlayerInfoStorage
 from src.core.bot.bot import Bot
 from src.core.bot.bot_factory import BotFactory
 from src.core.bot.lifecycle.account_scheduler import AccountScheduler
@@ -151,6 +154,7 @@ class BotManager:
             if bot_config.schedule_profile is not None:
                 proxy = BotConfigService().resolve_bot_proxy(bot_config)
                 if proxy.rejected:
+                    related_bot.bot_signals.stop.emit()
                     return related_bot.logger.warning("Bot relaunch blocked because its proxy is quarantined")
 
             if bot_config.connection_mode == "socket":
@@ -239,6 +243,7 @@ class BotManager:
         CryptoHelper.remove_bot(login)
         BotConfigService().remove_bot_config(login)
         BotStorageController().remove_record(login)
+        PlayerInfoStorage().remove_snapshot(login)
         self.on_synchronize_bots()
 
     def on_invalid_auth_callback(self, login: str) -> None:

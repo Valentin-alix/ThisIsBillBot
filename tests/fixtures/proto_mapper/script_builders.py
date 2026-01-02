@@ -1,17 +1,17 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from collections import Counter
 from contextlib import ExitStack
 from pathlib import Path
 from unittest.mock import patch
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.enum_builders import enum_function_ref
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import dump_field
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.enum_builders import enum_function_ref
+from tests.fixtures.proto_mapper.field_builders import dump_field
+from tests.fixtures.proto_mapper.message_builders import (
     field_signature,
     message_signature,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import (
+from tests.fixtures.proto_mapper.signatures import (
     DEFAULT_CFG_STATS,
     builder_field_access_entry,
 )
@@ -277,7 +277,7 @@ def run_build_signature_overrides(
     non_obf_enum_signatures: dict[str, EnumSignatureEntry] | None = None,
 ) -> SignatureOverridesFile:
     with ExitStack() as stack:
-        # Exit stack permet d'Ã©viter de faire 40 imbrication de with, c'est l'Ã©quivalent de with ...: quand on fais enter_context
+        # Exit stack permet d'ÃƒÂ©viter de faire 40 imbrication de with, c'est l'ÃƒÂ©quivalent de with ...: quand on fais enter_context
         stack.enter_context(
             patch(
                 "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.load_pinned_pairs",

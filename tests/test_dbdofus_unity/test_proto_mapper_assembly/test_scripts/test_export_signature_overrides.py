@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import tempfile
@@ -6,35 +6,35 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import dump_field
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.field_builders import dump_field
+from tests.fixtures.proto_mapper.message_builders import (
     field_signature,
     message_signature,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     export_enum_signature_entry as _enum_signature_entry,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     export_signature as _sig,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     field_with_shape as _field_with_shape,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     game_mapping_entry,
     game_mappings_doc,
     non_obf_message_with_fields,
     obf_signature_with_fields,
     pinned_config,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     run_build_signature_overrides as _run_build_signature_overrides,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.script_builders import (
+from tests.fixtures.proto_mapper.script_builders import (
     script_message as _msg,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import ENUM_SHAPE
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import (
+from tests.fixtures.proto_mapper.shapes import ENUM_SHAPE
+from tests.fixtures.proto_mapper.signatures import (
     builder_function_access_signature,
 )
 

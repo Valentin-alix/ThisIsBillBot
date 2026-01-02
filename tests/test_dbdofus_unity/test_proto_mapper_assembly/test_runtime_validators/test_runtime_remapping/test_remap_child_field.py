@@ -1,10 +1,10 @@
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import (
+﻿from tests.fixtures.proto_mapper.field_builders import (
     map_field,
     msg_field,
     repeated_field,
     scalar_field,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_builders import (
+from tests.fixtures.proto_mapper.runtime_builders import (
     make_candidate,
     make_simple_context,
 )
@@ -94,7 +94,7 @@ class TestRemapChildField:
         assert result.instances_by_type["ChildClear"] == [{"value_": 42}]
 
     def test_message_field_with_non_dict_value_returns_raw(self) -> None:
-        # MESSAGE field but raw_value is not a dict → raw_value returned as-is
+        # MESSAGE field but raw_value is not a dict â†’ raw_value returned as-is
         parent_obf_field = msg_field("child_", 0x10)
         parent_non_obf_field = msg_field("child_", 0x10)
         (
@@ -212,7 +212,7 @@ class TestRemapChildField:
         assert mapped["k2"] == 99
 
     def test_unresolved_child_obf_cls_returns_raw_value(self) -> None:
-        # child_message_cls_by_field_key returns None → unresolved → raw value
+        # child_message_cls_by_field_key returns None â†’ unresolved â†’ raw value
         parent_obf_field = msg_field("child_", 0x10)
         parent_non_obf_field = msg_field("child_", 0x10)
         obf_msg = DumpCSMessage(file_descriptor="FD", name="ObfMsg")
@@ -223,7 +223,7 @@ class TestRemapChildField:
             non_obf_msg,
             obf_live_fields={"child_": parent_obf_field},
             non_obf_live_fields={"child_": parent_non_obf_field},
-            obf_child_cls_by_key={},  # field_key NOT present → obf_child_cls = None → unresolved
+            obf_child_cls_by_key={},  # field_key NOT present â†’ obf_child_cls = None â†’ unresolved
             non_obf_child_cls_by_key={FieldKey(0x10, "child_"): "ChildClear"},
         )
         candidate = make_candidate(obf_msg, non_obf_msg, {"child_": "child_"})
@@ -239,7 +239,7 @@ class TestRemapChildField:
         assert result.instances_by_type["ClearMsg"] == [{"child_": {"raw": "data"}}]
 
     def test_unresolved_child_no_candidate_returns_raw_value(self) -> None:
-        # child_cls known but not in candidates_by_non_obf → unresolved
+        # child_cls known but not in candidates_by_non_obf â†’ unresolved
         parent_obf_field = msg_field("child_", 0x10)
         parent_non_obf_field = msg_field("child_", 0x10)
         obf_msg = DumpCSMessage(file_descriptor="FD", name="ObfMsg")

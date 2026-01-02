@@ -1,10 +1,10 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from dataclasses import dataclass
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.enum_builders import enum_function_ref
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import dump_field, msg_typed_field
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.enum_builders import enum_function_ref
+from tests.fixtures.proto_mapper.field_builders import dump_field, msg_typed_field
+from tests.fixtures.proto_mapper.message_builders import (
     NAMESPACE,
     NEW_NON_OBF_CLS,
     bootstrap_non_obf_msg,
@@ -12,7 +12,7 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builder
     field_signature,
     message_signature,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import (
+from tests.fixtures.proto_mapper.signatures import (
     builder_function_access_signature,
 )
 

@@ -6,6 +6,7 @@ from typing import Any, cast
 from unittest.mock import Mock
 
 import pytest
+
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectEffect, ObjectItem, ObjectItemInventory
 from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import (
     ObjectAddedEvent,
@@ -18,7 +19,6 @@ from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import (
 from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
     CharacterInventoryPositionEnum,
 )
-
 from src.core.behaviors.items.auto_equipment_from_inventory_behavior import (
     AutoEquipmentFromInventoryBehavior,
     _equipment_signature,
@@ -242,6 +242,17 @@ class _FakeEventManager:
     def clear_listener_by_origin(self, originator: object) -> None:
         self.cleared_origins.append(originator)
 
+    def clear_listener_by_origin_and_type(self, msg_type: Any, originator: object) -> None:
+        self.cleared_origins.append((msg_type, originator))
+
+
+class _FakeInventory:
+    def __init__(self, objects_by_uid: dict[int, object]) -> None:
+        self.objects_by_uid = objects_by_uid
+
+    def remove_object(self, uid: int) -> None:
+        self.objects_by_uid.pop(uid, None)
+
 
 def _make_equip_behavior(
     *, pending_uid: int, position: CharacterInventoryPositionEnum
@@ -250,7 +261,7 @@ def _make_equip_behavior(
     behavior._positions_by_uid = {pending_uid: position}
     behavior._pending_position = None
     pending_item = SimpleNamespace(position=CharacterInventoryPositionEnum.InventoryPositionNotEquiped)
-    behavior.game_state.inventory = SimpleNamespace(objects_by_uid={pending_uid: pending_item})  # type: ignore[attr-defined]
+    behavior.game_state.inventory = _FakeInventory({pending_uid: pending_item})  # type: ignore[attr-defined]
     fake_event_manager = _FakeEventManager()
     behavior.event_manager = cast(Any, fake_event_manager)
     behavior.send_message_delayed = lambda *_args, **_kwargs: None  # type: ignore[method-assign]
@@ -327,15 +338,16 @@ class TestEquipConfirmation:
         assert not finished_with
         assert behavior._pending_position == position
 
-    def test_timeout_keeps_inventory_and_finishes_once(self) -> None:
+    def test_timeout_removes_inventory_item_and_finishes(self) -> None:
         position = CharacterInventoryPositionEnum.AccessoryPositionAmulet
         behavior, event_manager, finished_with = _make_equip_behavior(pending_uid=1, position=position)
 
         behavior._equip_next()
         behavior.on_timeout_inventory_weight_on_equipped(1, position)
-        behavior.on_timeout_inventory_weight_on_equipped(1, position)
 
-        assert 1 in behavior.game_state.inventory.objects_by_uid
-        assert event_manager.cleared_origins == [behavior]
-        assert behavior._pending_position is None
+        assert 1 not in behavior.game_state.inventory.objects_by_uid
+        assert event_manager.cleared_origins == [
+            (ObjectMovementEvent, behavior),
+            (ObjectAddedEvent, behavior),
+        ]
         assert len(finished_with) == 1

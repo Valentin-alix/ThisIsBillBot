@@ -1,13 +1,13 @@
-from pathlib import Path
+﻿from pathlib import Path
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.message_builders import (
     make_field_mapping_context,
     make_message_signature,
     make_non_obf_signature,
     make_obf_message_with_unmapped_field,
     prepare_field_mapping_context_for_test,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.runtime_store import seed_runtime_content
+from tests.fixtures.proto_mapper.runtime_store import seed_runtime_content
 
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 

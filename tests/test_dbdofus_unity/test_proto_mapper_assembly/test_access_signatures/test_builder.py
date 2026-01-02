@@ -1,6 +1,6 @@
-import pytest
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.field_builders import dump_cs_field
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import (
+﻿import pytest
+from tests.fixtures.proto_mapper.field_builders import dump_cs_field
+from tests.fixtures.proto_mapper.shapes import (
     ANY_MESSAGE_SHAPE,
     ENUM_SHAPE,
     MAP_STRING_ANY_SHAPE,
@@ -9,7 +9,7 @@ from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import (
     REPEATED_ANY_SHAPE,
     STRING_SHAPE,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import (
+from tests.fixtures.proto_mapper.signatures import (
     build_access_signatures_for_test,
     build_field_resolution_lookup,
     build_file_descriptor_lookup,

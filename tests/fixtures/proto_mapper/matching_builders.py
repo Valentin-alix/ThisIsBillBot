@@ -1,17 +1,17 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from collections.abc import Sequence
 
 import numpy as np
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.message_builders import (
+from tests.fixtures.proto_mapper.message_builders import (
     EMPTY_ACCESS_TRACE,
     build_message_lookup,
     build_verified_mapping,
     field_signature,
     message_signature,
 )
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import MESSAGE_SHAPE, NUMBER_SHAPE
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.signatures import declared_field_signature
+from tests.fixtures.proto_mapper.shapes import MESSAGE_SHAPE, NUMBER_SHAPE
+from tests.fixtures.proto_mapper.signatures import declared_field_signature
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessTraceDocument,

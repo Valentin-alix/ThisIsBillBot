@@ -1,10 +1,10 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from collections import Counter
 
 from collections.abc import Mapping
 
-from tests.test_dbdofus_unity.test_proto_mapper_assembly.fixture.shapes import NUMBER_SHAPE
+from tests.fixtures.proto_mapper.shapes import NUMBER_SHAPE
 
 from DBDofusUnity.proto_mapper_assembly.field_mapping.field_mapper import build_field_mapping
 from DBDofusUnity.proto_mapper_assembly.field_mapping.field_mapping_preparation import prepare_field_mapping_context

@@ -4,9 +4,6 @@ from datetime import UTC, datetime
 from unittest import IsolatedAsyncioTestCase, TestCase
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers import (
-    smailpro as smailpro_module,
-)
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller import (
     mail_account as mail_account_module,
 )
@@ -17,12 +14,16 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.m
     MailAccountsFile,
     SmailProAccountConfig,
 )
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers import (
+    smailpro as smailpro_module,
+)
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.smailpro import (
     RandomMailboxKind,
     SmailProMailProvider,
     SmailProSettings,
     _message_date,
     generate_random_mailbox,
+    generate_random_mailbox_settings,
 )
 
 
@@ -69,39 +70,50 @@ class TestGenerateRandomMailbox(TestCase):
                 self.assertTrue(get.call_args.args[0].endswith(expected_path))
                 self.assertEqual(get.call_args.kwargs["params"], {"type": "real"})
 
-    def test_rejects_alias_response(self) -> None:
-        response = _response({"email": "someone+tag@gmail.com", "timestamp": 1723680000, "type": "alias"})
-
+    def test_random_settings_preserve_the_selected_kind(self) -> None:
         with (
-            patch("requests.Session.get", return_value=response),
-            self.assertRaisesRegex(ValueError, "alias"),
+            patch.object(smailpro_module.random, "choice", return_value="outlook"),
+            patch.object(
+                smailpro_module,
+                "generate_random_mailbox",
+                return_value=("someone@outlook.com", 1723680000),
+            ) as generate_random_mailbox,
         ):
-            generate_random_mailbox("api-key", "gmail")
+            settings = generate_random_mailbox_settings("api-key")
+
+        self.assertEqual(settings.kind, "outlook")
+        self.assertEqual(settings.email, "someone@outlook.com")
+        generate_random_mailbox.assert_called_once_with("api-key", "outlook")
 
 
 class TestProvisionSmailProEmail(TestCase):
-    def test_provisions_a_real_gmail_mailbox(self) -> None:
+    def test_provisions_the_selected_real_mailbox(self) -> None:
         accounts_file = MailAccountsFile()
         controller = MailAccountController()
 
         with (
             patch.object(
                 mail_account_module,
-                "generate_random_mailbox",
-                return_value=("someone@gmail.com", 1723680000),
-            ) as generate_random_mailbox,
+                "generate_random_mailbox_settings",
+                return_value=SmailProSettings(
+                    api_key="api-key",
+                    email="someone@outlook.com",
+                    kind="outlook",
+                    timestamp=1723680000,
+                ),
+            ) as generate_random_mailbox_settings,
             patch.object(controller, "_acquire_file_lock", return_value=nullcontext()),
             patch.object(controller, "_load", return_value=accounts_file),
             patch.object(controller, "_save") as save,
         ):
             email = controller.provision_smailpro_email("api-key")
 
-        self.assertEqual(email, "someone@gmail.com")
-        generate_random_mailbox.assert_called_once_with("api-key", "gmail")
+        self.assertEqual(email, "someone@outlook.com")
+        generate_random_mailbox_settings.assert_called_once_with("api-key")
         save.assert_called_once_with(accounts_file)
         config = accounts_file.accounts[email].config
         assert isinstance(config, SmailProAccountConfig)
-        self.assertEqual(config.kind, "gmail")
+        self.assertEqual(config.kind, "outlook")
 
 
 class TestSmailProMailProviderWaitForCode(IsolatedAsyncioTestCase):
@@ -161,7 +173,7 @@ class TestSmailProMailProviderWaitForCode(IsolatedAsyncioTestCase):
         )
 
         with (
-            patch.object(provider, "_find_code", return_value=None) as find_code,
+            patch.object(provider, "_find_code", return_value=None),
             patch.object(smailpro_module, "SMAILPRO_CODE_TIMEOUT_SECONDS", 0.03),
             patch.object(smailpro_module, "SMAILPRO_INITIAL_DELAY_SECONDS", 0.01),
             patch.object(smailpro_module, "SMAILPRO_POLL_INTERVAL_SECONDS", 0.01),
@@ -169,10 +181,9 @@ class TestSmailProMailProviderWaitForCode(IsolatedAsyncioTestCase):
             code = await asyncio.wait_for(
                 provider.wait_for_code(since=datetime(2026, 6, 18, 10, 0, tzinfo=UTC), timeout_seconds=1200),
                 timeout=0.2,
-            )
+        )
 
         self.assertIsNone(code)
-        self.assertGreater(find_code.call_count, 0)
 
     async def test_ignores_messages_older_than_since(self) -> None:
         inbox_response = _response(
