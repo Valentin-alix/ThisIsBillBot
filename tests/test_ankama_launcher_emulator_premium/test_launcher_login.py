@@ -200,6 +200,34 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
         self.assertFalse(result.success)
         self.assertEqual(result.error, "403 forbidden")
 
+    async def test_waf_blocked_oauth_removes_mailbox(self) -> None:
+        page = MagicMock()
+        page.goto = AsyncMock(return_value=None)
+        browser_context = FakeBrowserContext(page)
+
+        with (
+            patch.object(launcher_login_module, "launch_browser_context", return_value=browser_context),
+            patch.object(launcher_login_module, "fill_credentials_and_submit", new=AsyncMock()),
+            patch.object(
+                launcher_login_module,
+                "_wait_for_tokens",
+                new=AsyncMock(side_effect=RuntimeError("WAF/CloudFront blocked OAuth page")),
+            ),
+            patch.object(launcher_login_module, "MailAccountController") as mail_account_controller,
+            patch.object(launcher_login_module, "human_wait", new=AsyncMock()),
+        ):
+            result = await launcher_login_module.authenticate(
+                AuthenticationOptions(
+                    email="u@example.com",
+                    password="password",
+                    mail_provider=FakeMailProvider(),
+                )
+            )
+
+        self.assertFalse(result.success)
+        self.assertEqual(result.error, "WAF/CloudFront blocked OAuth page")
+        mail_account_controller.return_value.remove_email.assert_called_once_with("u@example.com")
+
     async def test_authenticate_records_bad_state_on_shield_code_timeout(
         self,
     ) -> None:

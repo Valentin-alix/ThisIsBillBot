@@ -58,6 +58,9 @@ class CraftBehavior(RecoverableBehavior):
         return self._activity_performed
 
     def run(self, craft_requests: list[CraftRequest]) -> None:
+        if not self.game_state.inventory.can_use_bank:
+            self.logger.info("Can't craft recipe without bank access")
+            return self.finish()
         self.init_recovery_listeners()
         self.ensure_free_to_act(lambda: self.start_crafting(craft_requests=craft_requests))
 

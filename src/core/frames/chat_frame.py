@@ -7,7 +7,7 @@ from DBDofusUnity.datas.protos.non_obf.game.chat_pb2 import (
 )
 
 from src.core.frames.frame import Frame
-from src.services.ai.human_response import HumanResponse
+from src.services.ai.human_response import get_private_message_response
 
 
 @dataclass
@@ -23,10 +23,8 @@ class ChatFrame(Frame):
     def on_chat_channel_message_event(self, msg: ChatChannelMessageEvent):
         if self.is_playing_event.is_set() and msg.channel == Channel.PRIVATE:
             self.logger.info("Message in private received")
-            response_content = HumanResponse().get_human_response_to_private_msg(
-                msg.content, self.game_state.player.character_name, msg.sender_name
-            )
-            if not response_content:
+            response_content = get_private_message_response(msg.content)
+            if response_content is None:
                 return
             self.run_timer(
                 (3, 6),

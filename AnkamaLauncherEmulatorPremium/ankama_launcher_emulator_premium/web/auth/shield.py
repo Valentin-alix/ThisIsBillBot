@@ -1,7 +1,7 @@
 """Resolve Ankama Shield / OTP during the launcher login (HAAPI-based)."""
 
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.haapi import (
     Haapi,
@@ -27,18 +27,18 @@ logger = logging.getLogger(__name__)
 async def _request_and_validate_email_certificate(
     haapi: Haapi,
     mail_provider: MailCodeProvider | None,
-    since: datetime,
     timeout_seconds: int,
 ) -> DecipheredCertif:
     """Run the EMAIL Shield flow: request a code, await it, validate, persist.
 
     Raises ``RuntimeError`` when no code arrives before ``timeout_seconds``.
     """
+    requested_at = datetime.now(UTC)
     domain = haapi.get_security_code("EMAIL")
     logger.info("[OAuth] Shield security code requested (domain=%s)", domain)
 
     code = await wait_for_code_with_manual_fallback(
-        mail_provider, since=since, timeout_seconds=timeout_seconds
+        mail_provider, since=requested_at, timeout_seconds=timeout_seconds
     )
     if code is None:
         raise MailboxCodeTimeoutError(f"Timed out waiting for Shield/OTP code in mailbox for {haapi.login}")
@@ -64,7 +64,7 @@ async def resolve_shield(
 
     if has_shield:
         return await _request_and_validate_email_certificate(
-            haapi, mail_provider, started_at, timeout_seconds
+            haapi, mail_provider, timeout_seconds
         )
 
     logger.info("[OAuth] OTP required; waiting for code in mailbox...")
@@ -82,7 +82,6 @@ async def resolve_shield(
 async def secure_apikey_via_email(
     haapi: Haapi,
     mail_provider: MailCodeProvider | None,
-    since: datetime,
     *,
     timeout_seconds: int = 300,
 ) -> DecipheredCertif | None:
@@ -96,13 +95,11 @@ async def secure_apikey_via_email(
     request with ``401 NONEEDTOBESECURED``. That is benign — return ``None`` so the
     caller proceeds with the unsecured apikey instead of aborting authentication.
 
-    ``since`` is the mailbox watermark; pass the auth start time. The mailbox scan
-    returns the *newest* matching code, so an older registration-confirmation email
-    cannot win even with a generous watermark.
+    The mailbox watermark is captured when this flow requests the email code.
     """
     logger.info("[OAuth] Securing apikey via forced email Shield flow...")
     try:
-        return await _request_and_validate_email_certificate(haapi, mail_provider, since, timeout_seconds)
+        return await _request_and_validate_email_certificate(haapi, mail_provider, timeout_seconds)
     except ShieldNotRequiredError:
         logger.info(
             "[OAuth] Apikey does not need securing (NONEEDTOBESECURED); proceeding without certificate."

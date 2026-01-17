@@ -1,4 +1,5 @@
 ﻿from datetime import UTC, datetime
+import asyncio
 from io import StringIO
 from unittest import IsolatedAsyncioTestCase, TestCase
 from unittest.mock import AsyncMock, patch
@@ -71,6 +72,34 @@ class TestWaitForCodeWithManualFallback(IsolatedAsyncioTestCase):
 
         self.assertEqual(code, "111222")
         provider.wait_for_code.assert_awaited_once()
+
+    async def test_awaits_cancelled_manual_wait_when_provider_returns(self) -> None:
+        provider = FakeMailProvider(code=None)
+        manual_wait_cancelled = asyncio.Event()
+
+        async def provider_returns(*, since: datetime, timeout_seconds: int) -> str | None:
+            await asyncio.sleep(0)
+            return "111222"
+
+        async def manual_wait(_: ManualCodeInput | None, __: float) -> str | None:
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                manual_wait_cancelled.set()
+                raise
+
+        provider.wait_for_code = AsyncMock(side_effect=provider_returns)
+
+        with (
+            patch.object(manual_module.ManualCodeInput, "start", return_value=None),
+            patch.object(manual_module, "_sleep_until_manual_code", side_effect=manual_wait),
+        ):
+            code = await wait_for_code_with_manual_fallback(
+                provider, since=datetime(2026, 6, 18, 10, 0, tzinfo=UTC), timeout_seconds=5
+            )
+
+        self.assertEqual(code, "111222")
+        self.assertTrue(manual_wait_cancelled.is_set())
 
     async def test_returns_none_when_neither_resolves_before_timeout(self) -> None:
         provider = FakeMailProvider(code=None)

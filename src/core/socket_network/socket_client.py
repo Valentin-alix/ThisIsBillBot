@@ -39,6 +39,7 @@ class SocketClient:
     socks_proxy_url: str | None
     on_banned_callback: Callable[[str], None]
     on_invalid_auth_callback: Callable[[str], None]
+    on_connection_server_succeeded: Callable[[str], None] | None = None
     _connection_client: ConnectionClient | None = field(init=False, default=None)
 
     def connect(self) -> None:
@@ -92,6 +93,8 @@ class SocketClient:
             f"{_fingerprint_secret(identification_sucess_info.ticket)}"
         )
         self.bot.logger.info("[SocketClient] Starting game client handoff")
+        if self.on_connection_server_succeeded is not None:
+            self.on_connection_server_succeeded(self.bot.account.apikey.login)
         GameClient(
             bot=self.bot,
             proxy_url=self.socks_proxy_url,

@@ -27,8 +27,6 @@ from src.core.config import (
     DO_FIGHTER,
     DO_QUEST,
     DO_SALE_HOTEL,
-    KAMAS_LIMIT_FOR_HARVEST,
-    LVL_LIMIT_FOR_HARVEST,
     get_time_beween_areas,
 )
 from src.core.engine.contexts import HarvesterAreaContext
@@ -143,16 +141,11 @@ class AutoBotBehavior(RecoverableBehavior):
         self.play()
 
     def play(self) -> None:
-        if not self.game_state.inventory.can_use_bank:
-            self.logger.info("No bank access: fighting only (no harvest)")
+        if not self.game_state.inventory.is_full_pods or self.game_state.inventory.can_use_bank:
+            return self.play_multi_farming()
+        if DO_FIGHTER:
             return self.play_fighter()
-        if (
-            self.game_state.player.level < LVL_LIMIT_FOR_HARVEST
-            or self.game_state.inventory.kamas < KAMAS_LIMIT_FOR_HARVEST
-        ) and DO_FIGHTER:
-            self.play_fighter()
-        else:
-            self.play_multi_farming()
+        self.finish(EnterBankChestErrorCode.NOT_ENOUGH_KAMAS)
 
     def play_multi_farming(self) -> None:
         datetime_start_played = datetime.now()
@@ -299,16 +292,12 @@ class AutoBotBehavior(RecoverableBehavior):
         datetime_start_played = datetime.now()
 
         def stop_condition_fighter() -> bool:
-            self.logger.info(
-                f"Checking condition with current lvl : {self.game_state.player.level} and kamas {self.game_state.inventory.kamas}"
-            )
-            reached_harvest_threshold = (
-                self.game_state.inventory.can_use_bank
-                and self.game_state.player.level >= LVL_LIMIT_FOR_HARVEST
-                and self.game_state.inventory.kamas >= KAMAS_LIMIT_FOR_HARVEST
-            )
             time_to_rotate_area = datetime_start_played + get_time_beween_areas() < datetime.now()
-            return reached_harvest_threshold or time_to_rotate_area
+            return (
+                not self.game_state.inventory.is_full_pods
+                or self.game_state.inventory.can_use_bank
+                or time_to_rotate_area
+            )
 
         area_info = self._get_fighter_area_info()
         self._previous_area_info_played.append(area_info)

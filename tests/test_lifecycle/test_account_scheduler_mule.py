@@ -10,9 +10,11 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.s
 
 from src.core.bot.lifecycle.account_scheduler import (
     AccountScheduler,
+    MIN_AUTHENTICATED_BOTS_FOR_MULE,
     _AuthOp,
     _RegisterOp,
 )
+from src.core.bot.lifecycle.operation_pool import OperationPool
 
 
 def _profile(kind: str, proxy_id: str) -> ScheduleProfile:
@@ -84,6 +86,7 @@ def _scheduler(
         schedule_profile_controller=profile_controller,
         proxy_controller=proxy_controller,
         bot_storage_controller=bot_storage_controller,
+        is_league_of_legends_match_running=lambda: False,
     )
     scheduler._pool = Mock()
     scheduler._pool.has_quota.return_value = True
@@ -105,7 +108,10 @@ def _authenticated_records(count: int) -> dict[str, BotRecord]:
 
 @pytest.mark.parametrize(
     ("authenticated_count", "expected_profile"),
-    [(12, "B"), (13, "M")],
+    [
+        (MIN_AUTHENTICATED_BOTS_FOR_MULE - 1, "B"),
+        (MIN_AUTHENTICATED_BOTS_FOR_MULE, "M"),
+    ],
 )
 def test_registration_selects_mule_only_after_threshold(
     authenticated_count: int,
@@ -132,7 +138,7 @@ def test_registration_does_not_create_second_pending_mule() -> None:
         "B": _profile("bot", "B"),
         "M": _profile("kamas_mule", "M"),
     }
-    records = _authenticated_records(13)
+    records = _authenticated_records(MIN_AUTHENTICATED_BOTS_FOR_MULE)
     records["pending-mule@example.com"] = _bot_record("pending-mule@example.com", schedule_profile="M")
     scheduler = _scheduler(profiles, records)
 
@@ -190,7 +196,7 @@ def test_registration_replaces_bad_state_mule() -> None:
         "B": _profile("bot", "B"),
         "M": _profile("kamas_mule", "M"),
     }
-    records = _authenticated_records(13)
+    records = _authenticated_records(MIN_AUTHENTICATED_BOTS_FOR_MULE)
     bad_mule = _bot_record("bad-mule@example.com", schedule_profile="M")
     records["bad-mule@example.com"] = bad_mule
     scheduler = _scheduler(
@@ -224,12 +230,40 @@ def test_mule_account_can_be_selected_for_authentication() -> None:
     assert operation == _AuthOp("mule@example.com", "M", "M")
 
 
+def test_scheduler_postpones_account_automation_during_league_of_legends_match() -> None:
+    profiles = {"B": _profile("bot", "B")}
+    account = _bot_record("pending@example.com", schedule_profile="B")
+    scheduler = _scheduler(profiles, accounts_needing_auth=[account])
+    pool = Mock()
+    scheduler._pool = cast(OperationPool, pool)
+
+    scheduler.is_league_of_legends_match_running = lambda: True
+
+    operation = scheduler._next_operation(0)
+
+    assert operation is None
+    pool.assert_not_called()
+
+
+def test_authentication_is_not_started_when_league_of_legends_match_begins() -> None:
+    scheduler = _scheduler({"B": _profile("bot", "B")})
+
+    scheduler.is_league_of_legends_match_running = lambda: True
+
+    with patch(
+        "src.core.bot.lifecycle.account_scheduler.authenticate_next_available_account",
+    ) as authenticate:
+        scheduler._authenticate("pending@example.com", "B")
+
+    authenticate.assert_not_called()
+
+
 def test_registration_falls_back_when_mule_proxy_is_rejected() -> None:
     profiles = {
         "B": _profile("bot", "B"),
         "M": _profile("kamas_mule", "M"),
     }
-    scheduler = _scheduler(profiles, _authenticated_records(13))
+    scheduler = _scheduler(profiles, _authenticated_records(MIN_AUTHENTICATED_BOTS_FOR_MULE))
 
     def proxy_by_id(proxy_id: str) -> ProxyConfig:
         return _proxy(rejected=proxy_id == "M")

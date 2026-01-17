@@ -14,7 +14,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.
 
 logger = logging.getLogger(__name__)
 
-CONFIRMATION_CODE_PATTERN = re.compile(r"(?<!\d)(\d{6})(?!\d)")
+CONFIRMATION_CODE_PATTERN = re.compile(r"(?<!\d)(\d(?:\s*\d){5})(?!\s*\d)")
 MAILBOX_POLL_INTERVAL_SECONDS = 2.0
 MANUAL_CODE_POLL_INTERVAL_SECONDS = 0.2
 
@@ -24,7 +24,7 @@ def extract_confirmation_code(content: str) -> str | None:
     match = CONFIRMATION_CODE_PATTERN.search(normalized)
     if match is None:
         return None
-    return match.group(1)
+    return re.sub(r"\s+", "", match.group(1))
 
 
 class ManualCodeInput:
@@ -119,6 +119,7 @@ async def wait_for_code_with_manual_fallback(
     if provider is None:
         return await _sleep_until_manual_code(manual, timeout_seconds)
     provider_task = asyncio.create_task(provider.wait_for_code(since=since, timeout_seconds=timeout_seconds))
+    manual_wait: asyncio.Task[str | None] | None = None
     try:
         while time.monotonic() < deadline:
             remaining = deadline - time.monotonic()
@@ -136,5 +137,10 @@ async def wait_for_code_with_manual_fallback(
                 manual_wait.cancel()
         return None
     finally:
-        if not provider_task.done():
-            provider_task.cancel()
+        tasks = [provider_task]
+        if manual_wait is not None:
+            tasks.append(manual_wait)
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)

@@ -28,6 +28,9 @@ from src.core.behaviors.account.paysafecard_subscription import (
     PaysafecardSubscriptionBehavior,
 )
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
+from src.core.bot.lifecycle.profile_subscription_eligibility import (
+    ProfileSubscriptionEligibility,
+)
 from src.core.engine.movements.world.edge import (
     remove_banned_transitions_by_map_id,
 )
@@ -39,10 +42,9 @@ from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
 from src.services.logging_utils.contextual_logger import ContextualLogger
+from src.services.league_of_legends import is_league_of_legends_match_running
 
-_OGRINE_SUBSCRIPTION_MIN_KAMAS = 2_000_000
-_SUBSCRIPTION_MIN_LEVEL = 20
-_SUBSCRIPTION_MIN_KAMAS = 5_000
+_OGRINE_SUBSCRIPTION_MIN_KAMAS = 2_500_000
 
 
 @dataclass
@@ -65,6 +67,9 @@ class ConnectionHandler(ContextualLogger):
     paysafecard_pool: PaysafecardPoolController = field(default_factory=PaysafecardPoolController)
     paysafecard_purchase_storage: PaysafecardPurchaseController = field(
         default_factory=PaysafecardPurchaseController
+    )
+    profile_subscription_eligibility: ProfileSubscriptionEligibility = field(
+        default_factory=ProfileSubscriptionEligibility
     )
 
     _timer: Timer | None = field(init=False, default=None)
@@ -149,6 +154,9 @@ class ConnectionHandler(ContextualLogger):
     def _continue_after_required_behavior(self) -> None:
         if not self.behavior_coordinator.is_playing_event.is_set():
             return
+        if is_league_of_legends_match_running():
+            self.logger.info("League of Legends match in progress, postponing automatic subscription")
+            return
         if not self._is_eligible_for_subscription():
             self.behavior_coordinator.run_current_bot_action()
             return
@@ -171,13 +179,16 @@ class ConnectionHandler(ContextualLogger):
         self.behavior_coordinator.run_current_bot_action()
 
     def _is_eligible_for_subscription(self) -> bool:
-        return (
-            self.game_state.player.level > _SUBSCRIPTION_MIN_LEVEL
-            and self.game_state.inventory.kamas >= _SUBSCRIPTION_MIN_KAMAS
+        return ProfileSubscriptionEligibility._meets_progression_requirements(
+            self.game_state.player.level,
+            self.game_state.inventory.kamas,
         )
 
     def _should_subscribe_with_paysafe_card(self) -> bool:
         login = self.game_state.player.login
+        bot_config = self.get_bot_config()
+        if bot_config is None or bot_config.schedule_profile is None:
+            return False
         subscribe_info = self.subscription_storage.get_subscribe_info(login)
         if subscribe_info is None:
             return False
@@ -189,10 +200,21 @@ class ConnectionHandler(ContextualLogger):
         is_never_subscribed = not subscribe_info.is_subscribe and not subscribe_info.is_former_subscribe
         has_pending_purchase = pending_purchase is not None and pending_purchase.login == login
         has_available_pin = bool(self.paysafecard_pool.load())
+        is_profile_eligible = self.profile_subscription_eligibility.is_eligible(
+            bot_config.schedule_profile,
+            login,
+            self.game_state.player.level,
+            self.game_state.inventory.kamas,
+        )
         self.logger.info(f"Is never subscribed : {is_never_subscribed}")
         self.logger.info(f"Has Paysafecard PIN available : {has_available_pin}")
         self.logger.info(f"Has pending Paysafecard purchase : {has_pending_purchase}")
-        return is_never_subscribed and (has_available_pin or has_pending_purchase)
+        self.logger.info(f"Is schedule profile eligible for Paysafecard : {is_profile_eligible}")
+        return (
+            is_never_subscribed
+            and (has_available_pin or has_pending_purchase)
+            and is_profile_eligible
+        )
 
     def _on_paysafecard_subscription_finished(
         self,

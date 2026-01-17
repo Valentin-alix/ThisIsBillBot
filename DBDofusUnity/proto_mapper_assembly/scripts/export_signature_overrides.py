@@ -14,7 +14,6 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from icecream import ic
 from pydantic import BaseModel
 
 from DBDofusUnity.consts import (
@@ -247,11 +246,10 @@ def build_signature_overrides(
         entries[pair.non_obf] = entry
         for property_name in sorted(dropped):
             dropped_bindings_by_non_obf_cls.setdefault(pair.non_obf, []).append(property_name)
-        ic(
-            "Exported override %s (%d func sigs, %d field sigs)",
-            pair.non_obf,
-            len(entry.function_signatures),
-            len(entry.field_signatures),
+        print(
+            "Exported override "
+            f"{pair.non_obf} ({len(entry.function_signatures)} func sigs, "
+            f"{len(entry.field_signatures)} field sigs)"
         )
 
     _report_dropped_bindings(dropped_bindings_by_non_obf_cls)

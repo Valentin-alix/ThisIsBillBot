@@ -3,7 +3,7 @@ import socket
 from collections.abc import Callable
 from functools import wraps
 from time import sleep
-from typing import ParamSpec, TypeVar
+from typing import Any, ParamSpec, TypeVar
 
 import requests
 
@@ -14,7 +14,7 @@ ParamT = ParamSpec("ParamT")
 ReturnT = TypeVar("ReturnT")
 
 
-def raise_for_status_with_content(response: requests.Response) -> object:
+def raise_for_status_with_content(response: requests.Response) -> Any:
     try:
         response.raise_for_status()
         return response.json()

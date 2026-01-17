@@ -6,7 +6,6 @@ from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
 from src.gui.fragments.account_quick_info import AccountQuickInfoWidget
 from src.gui.pages.craft.craft_page import CraftPage
-from src.gui.pages.debugs.sandbox import SandboxWidget
 from src.gui.pages.debugs.sniffer import SnifferWidget
 from src.gui.pages.farmer.farmer import FarmerWidget
 
@@ -72,9 +71,6 @@ class AccountStackedWidget(QWidget):
             self.craft_route,
         )
 
-        if consts.DEBUG:
-            self._init_sandbox_interface()
-
         for pivot_item in self.pivot.items.values():
             pivot_item.setFixedHeight(40)
 
@@ -91,19 +87,6 @@ class AccountStackedWidget(QWidget):
                 onClick=lambda: self.stacked_widget.setCurrentWidget(sniffer_interface),
             ),
             self.sniffer_route,
-        )
-
-    def _init_sandbox_interface(self) -> None:
-        sandbox_interface = SandboxWidget(self.bot, parent=self.stacked_widget)
-        self.stacked_widget.addWidget(sandbox_interface)
-        self.sandbox_route = f"{self.login}_sandbox"
-        self._require_pivot_item(
-            self.pivot.addItem(
-                routeKey=self.sandbox_route,
-                text="Sandbox",
-                onClick=lambda: self.stacked_widget.setCurrentWidget(sandbox_interface),
-            ),
-            self.sandbox_route,
         )
 
     def _select_initial_page(self) -> None:

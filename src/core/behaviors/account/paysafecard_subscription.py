@@ -37,13 +37,12 @@ from DBDofusUnity.datas.protos.non_obf.game.bak_pb2 import (
     BakShopTokenRequest,
 )
 from src.consts import (
-    DOFUS_SUBSCRIPTION_REFERENCE_ID,
     SUBSCRIPTION_CATEGORY_ID,
-    SUBSCRIPTION_DAYS,
     SUBSCRIPTION_EVENT_TIMEOUT_SECONDS,
 )
 from src.controller.bot_config import BotConfigService
 from src.core.behaviors.behavior import Behavior, BehaviorState
+from src.core.behaviors.account.subscription_articles import is_target_subscription_article
 
 _PAYSAFECARD_CONFIRMATION_TIMEOUT_SECONDS = 180
 
@@ -188,17 +187,8 @@ class PaysafecardSubscriptionBehavior(Behavior):
         self.purchase_storage.clear_purchase()
         self.finish(None, expiration)
 
-    @staticmethod
-    def _is_target_subscription_pack(article: ShopiArticle) -> bool:
-        return any(
-            single_reference.reference.discriminator == "VirtualSubscriptionReference"
-            and single_reference.reference.get_reference_value().id == DOFUS_SUBSCRIPTION_REFERENCE_ID
-            and single_reference.quantity == SUBSCRIPTION_DAYS
-            for single_reference in article.single_references
-        )
-
     def _select_subscription_article(self, articles: list[ShopiArticle]) -> ShopiArticle | None:
-        matching_articles = [article for article in articles if self._is_target_subscription_pack(article)]
+        matching_articles = [article for article in articles if is_target_subscription_article(article)]
         if not matching_articles:
             self._finish_error(PaysafecardSubscriptionErrorCode.SUBSCRIPTION_ARTICLE_NOT_FOUND)
             return None

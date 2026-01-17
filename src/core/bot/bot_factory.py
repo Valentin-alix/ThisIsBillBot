@@ -799,7 +799,6 @@ class BotFactory:
                 fake_bad_interactive_behavior,
                 ogrine_subscription_behavior,
                 paysafecard_subscription_behavior,
-                quest_behavior,
                 smoke_test_behavior,
             ],
             account=account,

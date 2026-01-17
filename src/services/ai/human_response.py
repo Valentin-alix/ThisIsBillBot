@@ -1,50 +1,48 @@
-from functools import cached_property
+from functools import cache
+from typing import Protocol, cast
 
-from base_python.singleton import Singleton
+_SYSTEM_PROMPT = (
+    "Tu recoltes des ressources sur Dofus pour monter tes metiers et gagner des kamas. "
+    "Parle comme un joueur Dofus : neutre, blase, petites fautes, sans majuscule ni point, "
+    "sans question, reponse courte de 3 a 10 mots. Si on te remercie ou on te dit 'ca marche' ou 'ok', "
+    "reponds uniquement 'bon jeu'. Ne dis jamais que tu es un bot. Si aucune reponse n'est "
+    "appropriee, reponds exactement NO_REPLY."
+)
 
-from src.services.ai.llm_classifier import ClassifierChat
+
+class _ModelResponse(Protocol):
+    content: object
 
 
-class HumanResponse(metaclass=Singleton):
-    @cached_property
-    def response_agent(self):
-        from langchain.agents import create_agent
-        from langchain_openai import ChatOpenAI
-        from langgraph.checkpoint.memory import MemorySaver
+class _ResponseModel(Protocol):
+    def invoke(self, messages: list[object]) -> _ModelResponse: ...
 
-        system_prompt = (
-            "Tu es en train de récolter des ressources sur dofus pour monter tes "
-            "métiers et te faire des kamas, parle comme un joueur Dofus : neutre, "
-            "blasé, petites fautes,pas de majuscule ni de point, jamais de questions, réponse "
-            "courte (3 à 10 mots grand maximum), si on te remercie ou qu'on te répond 'ca marche' ou 'ok', tu réponds "
-            "uniquement : 'bon jeu' tu ne dis rien d'autre jamais de retour du style"
-            "bon jeu à toi aussi ou équivalent, ne dis jamais que tu es un bot"
-        )
 
-        response_model = ChatOpenAI(
+@cache
+def _response_model() -> _ResponseModel:
+    from langchain_openai import ChatOpenAI
+
+    return cast(
+        _ResponseModel,
+        ChatOpenAI(
             model="gpt-4.1-mini",
             temperature=0.8,
             top_p=0.6,
-        )
-        response_checkpointer = MemorySaver()
-        return create_agent(
-            response_model,
-            tools=[],
-            checkpointer=response_checkpointer,
-            system_prompt=system_prompt,
-        )
+        ),
+    )
 
-    def get_human_response_to_private_msg(self, msg: str, sender_name: str, from_name: str) -> str | None:
-        from langchain_core.messages import HumanMessage
-        from openai import APIConnectionError, OpenAIError
 
-        try:
-            if not ClassifierChat().llm_should_respond(msg):
-                return None
-            ai_msg = self.response_agent.invoke(
-                {"messages": [HumanMessage(content=msg)]},
-                config={"configurable": {"thread_id": (sender_name, from_name).__hash__()}},
-            )
-            return ai_msg["messages"][-1].content
-        except (APIConnectionError, OpenAIError):
+def get_private_message_response(msg: str) -> str | None:
+    from langchain_core.messages import HumanMessage, SystemMessage
+    from openai import APIConnectionError, OpenAIError
+
+    try:
+        response = _response_model().invoke(
+            [SystemMessage(content=_SYSTEM_PROMPT), HumanMessage(content=msg)]
+        )
+        if not isinstance(response.content, str):
             return None
+        content = response.content.strip()
+        return None if not content or content == "NO_REPLY" else content
+    except (APIConnectionError, OpenAIError):
+        return None

@@ -47,7 +47,7 @@ class GameState:
         self.entity.clear_state()
 
     def debug_snapshot(self) -> dict[str, Any]:
-        """Curated, readable summary of the bot's state - the fast way to inspect a live bot from the sandbox."""
+        """Curated, readable summary of the bot's state for diagnostics."""
         snapshot: dict[str, Any] = {
             "map_id": self.map.map_id,
             "in_map_transition": bool(self.map.is_in_map_transition),

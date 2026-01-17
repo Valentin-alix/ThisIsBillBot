@@ -31,7 +31,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.s
 
 from src.core.behaviors.socket import connection_behavior as connection_behavior_module
 from src.core.behaviors.behavior import BehaviorState
-from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
+from src.core.behaviors.socket.connection_behavior import ConnectionBehavior, ConnectionErrorCode
 from src.core.bot.bot import Bot
 from src.core.bot.bot_manager import BotManager
 from src.core.bot.lifecycle import connection_handler as connection_handler_module
@@ -203,7 +203,47 @@ class TestSocketProxyConnection:
         assert lifecycle_events == ["quarantine", "remove-config"]
         remove_snapshot.assert_called_once_with("banned@example.com")
 
-    def test_relaunch_stops_active_runtime_when_proxy_is_quarantined(
+    def test_ban_after_profile_reassignment_quarantines_original_proxy(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        manager = BotManager.__new__(BotManager)
+        bot_config = MagicMock(schedule_profile="profile-b")
+        original_profile = ScheduleProfile(
+            name_fr="Profile A",
+            proxy_id="proxy-a",
+            slots_by_day={},
+        )
+        monkeypatch.setattr(
+            bot_manager_module.BotConfigService,
+            "get_bot_config",
+            MagicMock(return_value=bot_config),
+        )
+        monkeypatch.setattr(
+            bot_manager_module.BotStorageController,
+            "get_all_records",
+            MagicMock(
+                return_value={
+                    "banned@example.com": MagicMock(quarantined_schedule_profile="profile-a")
+                }
+            ),
+        )
+        get_profile = MagicMock(return_value=original_profile)
+        monkeypatch.setattr(bot_manager_module.ScheduleProfileController, "get_profile", get_profile)
+        record_rejection = MagicMock()
+        monkeypatch.setattr(bot_manager_module.ProxyController, "record_rejection", record_rejection)
+        monkeypatch.setattr(bot_manager_module.CryptoHelper, "remove_bot", MagicMock())
+        monkeypatch.setattr(bot_manager_module.BotConfigService, "remove_bot_config", MagicMock())
+        monkeypatch.setattr(bot_manager_module.BotStorageController, "remove_record", MagicMock())
+        monkeypatch.setattr(bot_manager_module.PlayerInfoStorage, "remove_snapshot", MagicMock())
+        monkeypatch.setattr(manager, "on_synchronize_bots", MagicMock())
+
+        manager.on_banned_callback("banned@example.com")
+
+        get_profile.assert_called_once_with("profile-a")
+        record_rejection.assert_called_once_with("proxy-a")
+
+    def test_relaunch_reassigns_quarantined_proxy_before_starting_runtime(
         self,
         runtime_bot: Bot,
         monkeypatch: pytest.MonkeyPatch,
@@ -215,30 +255,130 @@ class TestSocketProxyConnection:
         kill_process = MagicMock()
         monkeypatch.setattr(runtime_bot.process_manager, "kill_process", kill_process)
         bot_config = MagicMock(connection_mode="socket", schedule_profile="profile-a")
+        reassigned_config = MagicMock(connection_mode="socket", schedule_profile="profile-b")
         monkeypatch.setattr(
             bot_manager_module.BotConfigService,
             "get_bot_config",
-            MagicMock(return_value=bot_config),
+            MagicMock(side_effect=[bot_config, reassigned_config]),
         )
+        rejected_proxy = PersistedProxy(
+            host="127.0.0.1",
+            http_port=8080,
+            socks_port=1080,
+            username="user",
+            password="password",
+            rejected=True,
+        )
+        healthy_proxy = rejected_proxy.model_copy(update={"rejected": False})
         monkeypatch.setattr(
             bot_manager_module.BotConfigService,
             "resolve_bot_proxy",
-            MagicMock(
-                return_value=PersistedProxy(
-                    host="127.0.0.1",
-                    http_port=8080,
-                    socks_port=1080,
-                    username="user",
-                    password="password",
-                    rejected=True,
-                )
-            ),
+            MagicMock(side_effect=[rejected_proxy, healthy_proxy]),
         )
+        profiles = {
+            "profile-a": ScheduleProfile(name_fr="A", proxy_id="a", slots_by_day={}),
+            "profile-b": ScheduleProfile(name_fr="B", proxy_id="b", slots_by_day={}),
+        }
+        monkeypatch.setattr(
+            bot_manager_module.ScheduleProfileController,
+            "get_all_profiles",
+            MagicMock(return_value=profiles),
+        )
+        monkeypatch.setattr(
+            bot_manager_module.ProxyController,
+            "get_proxy",
+            MagicMock(side_effect=[healthy_proxy]),
+        )
+        monkeypatch.setattr(
+            bot_manager_module.BotStorageController,
+            "get_all_records",
+            MagicMock(return_value={runtime_bot.account.apikey.login: MagicMock(schedule_profile="profile-a")}),
+        )
+        reassign = MagicMock()
+        monkeypatch.setattr(
+            bot_manager_module.BotStorageController,
+            "reassign_quarantined_schedule_profile",
+            reassign,
+        )
+        monkeypatch.setattr(runtime_bot, "bot_should_not_play", MagicMock(return_value=False))
+        monkeypatch.setattr(manager, "_disconnect_stale_socket_runtime", MagicMock())
+        monkeypatch.setattr(manager, "_get_socks_proxy_url", MagicMock(return_value=None))
+        monkeypatch.setattr(manager, "_wait_launch_slot", MagicMock())
+        socket_client = MagicMock()
+        monkeypatch.setattr(bot_manager_module, "SocketClient", socket_client)
 
         manager.relaunch_account(runtime_bot.account.apikey.login)
 
-        kill_process.assert_not_called()
-        assert not runtime_bot.is_playing_event.is_set()
+        reassign.assert_called_once_with(runtime_bot.account.apikey.login, "profile-b")
+        kill_process.assert_called_once_with()
+        socket_client.assert_called_once()
+
+    def test_relaunch_rechecks_proxy_quarantine_after_waiting_for_launch_slot(
+        self,
+        runtime_bot: Bot,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        manager = BotManager.__new__(BotManager)
+        manager.bot_by_account_id = {0: runtime_bot}
+        manager._is_lauching_by_login = defaultdict(Event)
+        runtime_bot.is_playing_event.set()
+        monkeypatch.setattr(runtime_bot.process_manager, "kill_process", MagicMock())
+        monkeypatch.setattr(runtime_bot, "bot_should_not_play", MagicMock(return_value=False))
+        bot_config = MagicMock(connection_mode="socket", schedule_profile="profile-a")
+        reassigned_config = MagicMock(connection_mode="socket", schedule_profile="profile-b")
+        monkeypatch.setattr(
+            bot_manager_module.BotConfigService,
+            "get_bot_config",
+            MagicMock(side_effect=[bot_config, reassigned_config]),
+        )
+        healthy_proxy = PersistedProxy(
+            host="127.0.0.1",
+            http_port=8080,
+            socks_port=1080,
+            username="user",
+            password="password",
+        )
+        rejected_proxy = healthy_proxy.model_copy(update={"rejected": True})
+        monkeypatch.setattr(
+            bot_manager_module.BotConfigService,
+            "resolve_bot_proxy",
+            MagicMock(side_effect=[healthy_proxy, rejected_proxy]),
+        )
+        profiles = {
+            "profile-a": ScheduleProfile(name_fr="A", proxy_id="a", slots_by_day={}),
+            "profile-b": ScheduleProfile(name_fr="B", proxy_id="b", slots_by_day={}),
+        }
+        monkeypatch.setattr(
+            bot_manager_module.ScheduleProfileController,
+            "get_all_profiles",
+            MagicMock(return_value=profiles),
+        )
+        monkeypatch.setattr(
+            bot_manager_module.ProxyController,
+            "get_proxy",
+            MagicMock(return_value=healthy_proxy),
+        )
+        monkeypatch.setattr(
+            bot_manager_module.BotStorageController,
+            "get_all_records",
+            MagicMock(return_value={runtime_bot.account.apikey.login: MagicMock(schedule_profile="profile-a")}),
+        )
+        reassign = MagicMock()
+        monkeypatch.setattr(
+            bot_manager_module.BotStorageController,
+            "reassign_quarantined_schedule_profile",
+            reassign,
+        )
+        monkeypatch.setattr(manager, "_disconnect_stale_socket_runtime", MagicMock())
+        monkeypatch.setattr(manager, "_get_socks_proxy_url", MagicMock(return_value=None))
+        monkeypatch.setattr(manager, "_wait_launch_slot", MagicMock())
+        socket_client = MagicMock()
+        monkeypatch.setattr(bot_manager_module, "SocketClient", socket_client)
+
+        manager.relaunch_account(runtime_bot.account.apikey.login)
+
+        reassign.assert_called_once_with(runtime_bot.account.apikey.login, "profile-b")
+        socket_client.assert_called_once()
 
     def test_outgoing_connection_request_reaches_server_frame(
         self,
@@ -433,6 +573,45 @@ class TestSocketProxyConnection:
 
         runtime_store.start_connection_capture_sequence.assert_called_once_with()
 
+    def test_identification_reason_14_is_treated_as_banned(
+        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        connection_behavior = ConnectionBehavior(
+            _logger=MagicMock(),
+            event_manager=runtime_bot.event_manager,
+            game_state=runtime_bot.game_state,
+        )
+        finish = MagicMock()
+        monkeypatch.setattr(connection_behavior, "finish", finish)
+
+        response = IdentificationResponse(error=IdentificationResponse.Error())
+        response.error.reason = cast(IdentificationResponse.Error.Reason, 14)
+
+        connection_behavior.on_identification_response(response)
+
+        finish.assert_called_once_with(ConnectionErrorCode.BANNED, None)
+
+    def test_banned_identification_reason_stays_destructive(
+        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        connection_behavior = ConnectionBehavior(
+            _logger=MagicMock(),
+            event_manager=runtime_bot.event_manager,
+            game_state=runtime_bot.game_state,
+        )
+        finish = MagicMock()
+        monkeypatch.setattr(connection_behavior, "finish", finish)
+
+        connection_behavior.on_identification_response(
+            IdentificationResponse(
+                error=IdentificationResponse.Error(
+                    reason=IdentificationResponse.Error.Reason.BANNED
+                )
+            )
+        )
+
+        finish.assert_called_once_with(ConnectionErrorCode.BANNED, None)
+
     def test_socket_runtime_uses_socks_proxy_for_token_and_connection(
         self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
     ) -> None:
@@ -512,6 +691,29 @@ class TestSocketProxyConnection:
 
         invalid_auth_callback.assert_called_once_with(runtime_bot.account.apikey.login)
         connection_client.assert_not_called()
+
+    def test_socket_runtime_confirms_profile_reassignment_after_server_handoff(
+        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        game_client = MagicMock()
+        monkeypatch.setattr(socket_client_module, "GameClient", game_client)
+        profile_confirmed = MagicMock()
+        client = SocketClient(
+            bot=runtime_bot,
+            bot_config=MagicMock(),
+            socks_proxy_url="socks5://user:pass@127.0.0.1:1080",
+            on_banned_callback=MagicMock(),
+            on_invalid_auth_callback=MagicMock(),
+            on_connection_server_succeeded=profile_confirmed,
+        )
+        client._connection_client = MagicMock()
+
+        client.connected_server(
+            None,
+            MagicMock(host="game.example", port=5555, ticket="game-ticket"),
+        )
+
+        profile_confirmed.assert_called_once_with(runtime_bot.account.apikey.login)
 
     def test_direct_connection_uses_plain_socket(
         self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch

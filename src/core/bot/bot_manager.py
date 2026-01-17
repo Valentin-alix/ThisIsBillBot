@@ -69,7 +69,10 @@ class BotManager:
         self.bot_by_account_id = self.get_bot_by_account_id()
         self.shared_signals.launch_account.connect(self.on_launch_account)
         self.shared_signals.synchronize_bots.connect(self.on_synchronize_bots)
-        self.proxy_listener = ProxyListener(account_by_id=self.bot_by_account_id)
+        self.proxy_listener = ProxyListener(
+            account_by_id=self.bot_by_account_id,
+            on_banned_callback=self.on_banned_callback,
+        )
         self.account_scheduler = AccountScheduler(
             on_accounts_synchronized=self.shared_signals.synchronize_bots.emit,
             on_banned_callback=self.on_banned_callback,
@@ -101,6 +104,49 @@ class BotManager:
         if bot_config.schedule_profile is None:
             return None
         return BotConfigService().resolve_bot_socks_proxy_url(bot_config)
+
+    def _replace_quarantined_profile(
+        self,
+        bot: Bot,
+        login: str,
+        bot_config: BotConfig,
+    ) -> BotConfig | None:
+        if bot_config.schedule_profile is None:
+            return bot_config
+        bot_config_service = BotConfigService()
+        proxy = bot_config_service.resolve_bot_proxy(bot_config)
+        if not proxy.rejected:
+            return bot_config
+
+        profiles = ScheduleProfileController().get_all_profiles()
+        rejected_profile = profiles[bot_config.schedule_profile]
+        profile_counts: defaultdict[str, int] = defaultdict(int)
+        for record in BotStorageController().get_all_records().values():
+            if record.schedule_profile is not None:
+                profile_counts[record.schedule_profile] += 1
+        healthy_profile_ids = [
+            profile_id
+            for profile_id, profile in profiles.items()
+            if profile_id != bot_config.schedule_profile
+            if profile.kind == rejected_profile.kind
+            if not ProxyController().get_proxy(profile.proxy_id).rejected
+        ]
+        if healthy_profile_ids:
+            target_profile_id = min(
+                healthy_profile_ids,
+                key=lambda profile_id: (profile_counts[profile_id], profile_id),
+            )
+            BotStorageController().reassign_quarantined_schedule_profile(login, target_profile_id)
+            bot.logger.warning(
+                "Proxy for profile %s is quarantined; reassigned to profile %s",
+                bot_config.schedule_profile,
+                target_profile_id,
+            )
+            return bot_config_service.get_bot_config(login)
+
+        bot.bot_signals.stop.emit()
+        bot.logger.warning("Bot relaunch blocked because no healthy profile is available")
+        return None
 
     def _wait_for_mitm_connection_result(self, bot: Bot) -> bool:
         deadline = monotonic() + MITM_CONNECTION_WAIT_TIMEOUT_SECONDS
@@ -151,11 +197,9 @@ class BotManager:
 
         try:
             bot_config = BotConfigService().get_bot_config(related_bot.account.apikey.login)
-            if bot_config.schedule_profile is not None:
-                proxy = BotConfigService().resolve_bot_proxy(bot_config)
-                if proxy.rejected:
-                    related_bot.bot_signals.stop.emit()
-                    return related_bot.logger.warning("Bot relaunch blocked because its proxy is quarantined")
+            bot_config = self._replace_quarantined_profile(related_bot, login, bot_config)
+            if bot_config is None:
+                return
 
             if bot_config.connection_mode == "socket":
                 self._disconnect_stale_socket_runtime(related_bot)
@@ -166,7 +210,6 @@ class BotManager:
             if related_bot.bot_should_not_play(datetime.now()):
                 return related_bot.logger.info("Bot is not in playtime anymore")
 
-            socks_proxy_url = self._get_socks_proxy_url(bot_config)
             for attempt in range(max_retries):
                 if not related_bot.is_playing_event.is_set():
                     return related_bot.logger.info("Bot is not playing anymore, aborting relaunch")
@@ -181,6 +224,11 @@ class BotManager:
                 related_bot.logger.info("Launch bot")
                 self._wait_launch_slot()
 
+                bot_config = self._replace_quarantined_profile(related_bot, login, bot_config)
+                if bot_config is None:
+                    return
+                socks_proxy_url = self._get_socks_proxy_url(bot_config)
+
                 if bot_config.connection_mode == "socket":
                     SocketClient(
                         related_bot,
@@ -188,6 +236,7 @@ class BotManager:
                         socks_proxy_url,
                         self.on_banned_callback,
                         self.on_invalid_auth_callback,
+                        self.on_connection_server_succeeded,
                     ).connect()
                     return
                 related_bot.process_manager.pid = self.ankama_launcher.launch_dofus(
@@ -205,6 +254,7 @@ class BotManager:
                     return related_bot.logger.info("Bot is not in playtime anymore")
 
                 if is_success:
+                    self.on_connection_server_succeeded(login)
                     return related_bot.logger.info("Successfully connected")
 
                 related_bot.logger.warning(f"Connection timeout on attempt {attempt + 1}")
@@ -220,18 +270,23 @@ class BotManager:
 
     def on_banned_callback(self, login: str):
         bot_config = BotConfigService().get_bot_config(login)
-        if bot_config.schedule_profile is None:
+        record = BotStorageController().get_all_records().get(login)
+        quarantined_schedule_profile = (
+            record.quarantined_schedule_profile if record is not None else None
+        )
+        schedule_profile_id = quarantined_schedule_profile or bot_config.schedule_profile
+        if schedule_profile_id is None:
             logger.warning(
                 "Banned account %s has no schedule profile; no proxy was quarantined",
                 login,
             )
         else:
-            schedule_profile = ScheduleProfileController().get_profile(bot_config.schedule_profile)
+            schedule_profile = ScheduleProfileController().get_profile(schedule_profile_id)
             if schedule_profile is None:
                 logger.warning(
                     "Banned account %s references unknown schedule profile %s; no proxy was quarantined",
                     login,
-                    bot_config.schedule_profile,
+                    schedule_profile_id,
                 )
             else:
                 ProxyController().record_rejection(schedule_profile.proxy_id)
@@ -245,6 +300,9 @@ class BotManager:
         BotStorageController().remove_record(login)
         PlayerInfoStorage().remove_snapshot(login)
         self.on_synchronize_bots()
+
+    def on_connection_server_succeeded(self, login: str) -> None:
+        BotStorageController().clear_quarantined_schedule_profile(login)
 
     def on_invalid_auth_callback(self, login: str) -> None:
         CryptoHelper.remove_bot(login)

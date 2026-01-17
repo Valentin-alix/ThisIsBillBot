@@ -1,6 +1,7 @@
-﻿from unittest import IsolatedAsyncioTestCase, TestCase
+﻿import asyncio
+from unittest import IsolatedAsyncioTestCase, TestCase
 from dataclasses import replace
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, call, patch
 from urllib.parse import parse_qs, urlparse
 
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
@@ -9,7 +10,11 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.b
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.mail_account import (
     MailAccountController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.urls import build_register_url
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.exceptions import HaapiHttpError
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.urls import (
+    REDIRECT_URI,
+    build_register_url,
+)
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.mail_account import (
     MailAccountEntry,
 )
@@ -70,6 +75,13 @@ class TestRegistration(TestCase):
             extract_confirmation_code("<div>Votre code</div><strong>654321</strong>"),
             "654321",
         )
+        self.assertEqual(
+            extract_confirmation_code(
+                "<div>Votre code</div><span>1</span><span>2</span><span>3</span>"
+                "<span>4</span><span>5</span><span>6</span>"
+            ),
+            "123456",
+        )
 
     def test_save_account_writes_generated_account_schema(self) -> None:
         BotStorageController().save_account("new@example.com", "new", schedule_profile="A")
@@ -85,13 +97,18 @@ class TestRegistration(TestCase):
         MailAccountController().record_bad_state("bad@example.com")
         self.assertEqual(MailAccountController().load_bad_state_emails(), {"bad@example.com"})
 
-    def test_reassign_schedule_profile_preserves_credentials(self) -> None:
+    def test_reassign_schedule_profile_clears_api_key_but_preserves_password(self) -> None:
         BotStorageController().save_account("user@example.com", "secret", "C")
+        BotStorageController().update_record(
+            "user@example.com",
+            lambda record: setattr(record, "encrypted_api_key", "old-api-key"),
+        )
         BotStorageController().reassign_schedule_profile("user@example.com", "E")
         account = BotStorageController().get_generated_account_records()[0]
 
         self.assertEqual(account.password, "secret")
         self.assertEqual(account.schedule_profile, "E")
+        self.assertIsNone(account.encrypted_api_key)
 
     def test_peek_next_available_email_excludes_bad_state_and_used(self) -> None:
         mail_controller = MailAccountController()
@@ -149,6 +166,23 @@ class TestRegistration(TestCase):
 
         self.assertNotIn("retry@example.com", MailAccountController()._load().accounts)
 
+    def test_finalize_registration_attempt_discards_rejected_confirmation_code(self) -> None:
+        with MailAccountController()._acquire_file_lock():
+            accounts_file = MailAccountController()._load()
+            accounts_file.accounts.setdefault("rejected@example.com", MailAccountEntry())
+            MailAccountController()._save(accounts_file)
+        result = RegistrationResult(
+            success=False,
+            email="rejected@example.com",
+            password="password",
+            final_url="https://auth.ankama.com/register/ankama/code",
+            error="Ankama rejected confirmation code",
+        )
+
+        registration_module._finalize_registration_attempt("rejected@example.com", result)
+
+        self.assertNotIn("rejected@example.com", MailAccountController()._load().accounts)
+
     def test_duplicate_email_error_matches_the_ankama_form_message(self) -> None:
         self.assertTrue(
             registration_module._is_duplicate_email_error(
@@ -192,6 +226,57 @@ def _ready_registration_form_html(extra_html: str = "") -> str:
 
 
 class TestRegisterAccount(IsolatedAsyncioTestCase):
+
+    async def test_confirmation_submission_requires_success_response_and_redirect(self) -> None:
+        page = MagicMock()
+        page.url = REDIRECT_URI
+        page.locator.return_value.count = AsyncMock(return_value=1)
+        navigation = MagicMock()
+        navigation.__aenter__ = AsyncMock(return_value=navigation)
+        navigation.__aexit__ = AsyncMock(return_value=None)
+        rejected_response = MagicMock()
+        rejected_response.ok = False
+        rejected_response.status = 403
+        rejected_response.text = AsyncMock(return_value="<html>Le code saisi n'est pas valide.</html>")
+        navigation.value = asyncio.get_running_loop().create_future()
+        navigation.value.set_result(rejected_response)
+        page.expect_navigation.return_value = navigation
+
+        with (
+            patch.object(registration_module, "human_type_selector", new=AsyncMock()),
+            patch.object(registration_module, "human_click_selector", new=AsyncMock()),
+        ):
+            result = await registration_module._submit_confirmation_code(page, "123456")
+
+        self.assertFalse(result.accepted)
+        self.assertTrue(result.rejected)
+
+    async def test_confirmation_submission_classifies_cloudfront_without_invalid_code_rejection(self) -> None:
+        page = MagicMock()
+        page.url = "https://auth.ankama.com/register/ankama/code"
+        page.locator.return_value.count = AsyncMock(return_value=1)
+        navigation = MagicMock()
+        navigation.__aenter__ = AsyncMock(return_value=navigation)
+        navigation.__aexit__ = AsyncMock(return_value=None)
+        blocked_response = MagicMock()
+        blocked_response.ok = False
+        blocked_response.status = 403
+        blocked_response.text = AsyncMock(
+            return_value="403 ERROR Request blocked. Generated by CloudFront."
+        )
+        navigation.value = asyncio.get_running_loop().create_future()
+        navigation.value.set_result(blocked_response)
+        page.expect_navigation.return_value = navigation
+
+        with (
+            patch.object(registration_module, "human_type_selector", new=AsyncMock()),
+            patch.object(registration_module, "human_click_selector", new=AsyncMock()),
+        ):
+            result = await registration_module._submit_confirmation_code(page, "123456")
+
+        self.assertFalse(result.accepted)
+        self.assertFalse(result.rejected)
+        self.assertTrue(result.waf_blocked)
     async def test_retries_duplicate_email_in_the_same_browser_page(self) -> None:
         page = MagicMock()
         page.url = "https://auth.ankama.com/register/ankama/form-submit"
@@ -291,6 +376,72 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
 
         self.assertIs(result, registration_result)
         finalize_registration_attempt.assert_called_once_with("replacement@example.com", registration_result)
+
+    async def test_batch_continues_with_gmail_after_outlook_provider_outage(self) -> None:
+        outlook_failure = RegistrationResult(
+            success=False,
+            email="temp@outlook.com",
+            password="password",
+            final_url="https://auth.ankama.com/register/ankama/code",
+            error="Outlook token refresh failed: 400 unauthorized_client - AADSTS700016",
+            outlook_generation_disabled=True,
+        )
+        gmail_success = RegistrationResult(
+            success=True,
+            email="temp@gmail.com",
+            password="password",
+            final_url="https://auth.ankama.com/login-authorized",
+        )
+
+        with (
+            patch.object(
+                registration_module,
+                "_next_email_to_register",
+                side_effect=["temp@outlook.com", "temp@gmail.com", None],
+            ),
+            patch.object(
+                registration_module,
+                "_register_email",
+                new=AsyncMock(side_effect=[outlook_failure, gmail_success]),
+            ) as register_email,
+            patch.object(registration_module, "_finalize_registration_attempt") as finalize_registration_attempt,
+            patch.object(registration_module.asyncio, "sleep", new=AsyncMock()),
+        ):
+            await registration_module.register_available_emails("profile")
+
+        self.assertEqual(register_email.await_count, 2)
+        finalize_registration_attempt.assert_has_calls(
+            [
+                call("temp@outlook.com", outlook_failure),
+                call("temp@gmail.com", gmail_success),
+            ]
+        )
+
+    async def test_marks_outlook_provider_outage_for_batch_continuation(self) -> None:
+        page = MagicMock()
+        page.url = "https://auth.ankama.com/register/ankama/code"
+        page.goto = AsyncMock()
+        browser_context = FakeBrowserContext(page)
+        provider_error = HaapiHttpError(
+            "Outlook token refresh failed: 400 unauthorized_client - AADSTS700016",
+            400,
+        )
+
+        with (
+            patch.object(registration_module, "launch_browser_context", return_value=browser_context),
+            patch.object(registration_module, "get_registration_state", new=AsyncMock(return_value="state")),
+            patch.object(registration_module, "_wait_for_registration_form_ready", new=AsyncMock()),
+            patch.object(
+                registration_module,
+                "_submit_registration_attempt",
+                new=AsyncMock(side_effect=provider_error),
+            ),
+            patch.object(registration_module, "human_wait", new=AsyncMock()),
+        ):
+            result = await registration_module.register_account(_registration_options())
+
+        self.assertFalse(result.success)
+        self.assertTrue(result.outlook_generation_disabled)
 
     async def test_saves_account_after_successful_registration(self) -> None:
         page = MagicMock()

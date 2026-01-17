@@ -6,7 +6,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 
 from dotenv import load_dotenv
-from playwright.async_api import Page
+from playwright.async_api import Page, Response
 
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import ENV_PATH, SONJI_API_KEY
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
@@ -19,7 +19,11 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.p
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
     ScheduleProfileController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.urls import build_register_url
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.exceptions import HaapiHttpError
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.urls import (
+    REDIRECT_URI,
+    build_register_url,
+)
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.proxy import build_http_proxy_url
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.browser import (
     launch_browser_context,
@@ -29,6 +33,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.
     human_click_selector,
     human_type_selector,
     human_wait,
+    is_waf_or_cloudfront_block,
     visible_form_error_texts,
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.base import (
@@ -39,6 +44,9 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.manual import (
     wait_for_code_with_manual_fallback,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.smailpro import (
+    is_outlook_token_refresh_failure,
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.identity import (
     DEFAULT_PASSWORD,
@@ -74,6 +82,13 @@ class _RegistrationWaitResult:
     antibot_marker: str | None = None
 
 
+@dataclass(frozen=True)
+class _ConfirmationCodeResult:
+    accepted: bool
+    rejected: bool = False
+    waf_blocked: bool = False
+
+
 ReplacementOptionsFactory = Callable[[RegistrationOptions], Awaitable[RegistrationOptions | None]]
 
 
@@ -87,6 +102,7 @@ async def register_account(
     replacement_options_factory: ReplacementOptionsFactory | None = None,
 ) -> RegistrationResult:
     logger.info("[Register] Starting Ankama account registration for %s...", options.email)
+    current_options = options
 
     async with launch_browser_context(login=options.email, proxy_url=options.proxy_url) as context:
         page = await context.new_page()
@@ -100,7 +116,6 @@ async def register_account(
             )
             await _wait_for_registration_form_ready(page, options)
             await human_wait(min_seconds=3, max_seconds=4)
-            current_options = options
             discarded_email: str | None = None
             wait_result = await _submit_registration_attempt(page, current_options)
 
@@ -150,14 +165,34 @@ async def register_account(
                 logger.warning("[Register] %s was rejected by Ankama; discarding it.", current_options.email)
                 MailAccountController().remove_email(current_options.email)
             return result
+        except HaapiHttpError as exc:
+            logger.exception("[Register] Failure at URL %s", page.url)
+            return RegistrationResult(
+                False,
+                options.email,
+                options.password,
+                page.url,
+                str(exc),
+                outlook_generation_disabled=is_outlook_token_refresh_failure(exc),
+            )
         except Exception as exc:
+            if is_waf_or_cloudfront_block(status_code=None, content=str(exc)):
+                MailAccountController().remove_email(current_options.email)
+                logger.error("[Register] WAF/CloudFront blocked %s; removed mailbox account.", current_options.email)
+                return RegistrationResult(
+                    False,
+                    current_options.email,
+                    current_options.password,
+                    page.url,
+                    str(exc),
+                )
             logger.exception("[Register] Failure at URL %s", page.url)
             return RegistrationResult(False, options.email, options.password, page.url, str(exc))
 
 
 async def _submit_registration_attempt(page: Page, options: RegistrationOptions) -> _RegistrationWaitResult:
-    started_at = datetime.now(UTC)
     await _fill_registration_form(page, options)
+    started_at = datetime.now(UTC)
     await human_click_selector(page, "button[type='submit']")
     logger.info("[Register] Clicked submit, URL: %s", page.url)
     return await _wait_for_result(page, options, started_at)
@@ -169,9 +204,10 @@ async def _submit_replacement_email_attempt(
     await page.locator("#ankama-registration-login").first.fill("")
     await human_type_selector(page, "#ankama-registration-login", options.email)
     await human_wait(min_seconds=0.3, max_seconds=0.5)
+    started_at = datetime.now(UTC)
     await human_click_selector(page, "button[type='submit']")
     logger.info("[Register] Retried submit with replacement email %s, URL: %s", options.email, page.url)
-    return await _wait_for_result(page, options, datetime.now(UTC))
+    return await _wait_for_result(page, options, started_at)
 
 
 async def _fill_registration_form(page: Page, options: RegistrationOptions) -> None:
@@ -204,6 +240,9 @@ async def _wait_for_registration_form_ready(page: Page, options: RegistrationOpt
         if _is_registration_form_ready(html):
             return
 
+        if is_waf_or_cloudfront_block(status_code=None, content=html):
+            raise RuntimeError("WAF/CloudFront blocked registration page")
+
         antibot_detection = detect_antibot_marker(html)
         if antibot_detection is not None and (second_index == 0 or second_index % 15 == 0):
             logger.info(
@@ -221,7 +260,7 @@ async def _wait_for_registration_form_ready(page: Page, options: RegistrationOpt
     raise TimeoutError(f"registration form did not become ready before timeout at {page.url}")
 
 
-async def _submit_confirmation_code(page: Page, code: str) -> None:
+async def _submit_confirmation_code(page: Page, code: str) -> _ConfirmationCodeResult:
     if await page.locator("#otp").count() > 0:
         await human_type_selector(page, "#otp", code)
     else:
@@ -229,19 +268,33 @@ async def _submit_confirmation_code(page: Page, code: str) -> None:
             selector = f'input[name="n{index}"]'
             if await page.locator(selector).count() > 0:
                 await human_type_selector(page, selector, digit)
-    async with page.expect_navigation(wait_until="domcontentloaded", timeout=30_000):
+    async with page.expect_navigation(wait_until="domcontentloaded", timeout=30_000) as navigation:
         await human_click_selector(page, "button[type='submit']")
+    response: Response | None = await navigation.value
+    response_body = await response.text() if response is not None and response.status == 403 else ""
+    waf_blocked = response is not None and is_waf_or_cloudfront_block(
+        status_code=response.status,
+        content=response_body,
+    )
+    accepted = response is not None and response.ok and page.url.startswith(REDIRECT_URI)
+    return _ConfirmationCodeResult(
+        accepted=accepted,
+        rejected=response is not None and response.status == 403 and not waf_blocked,
+        waf_blocked=waf_blocked,
+    )
 
 
-async def _handle_confirmation_code(page: Page, options: RegistrationOptions, started_at: datetime) -> bool:
+async def _handle_confirmation_code(
+    page: Page, options: RegistrationOptions, started_at: datetime
+) -> _ConfirmationCodeResult:
     logger.info("[Register] Email confirmation required.")
 
-    async def via_browser() -> bool:
+    async def via_browser() -> _ConfirmationCodeResult:
         while "/register/ankama/code" in page.url:
             await asyncio.sleep(0.3)
-        return True
+        return _ConfirmationCodeResult(accepted=page.url.startswith(REDIRECT_URI))
 
-    async def via_mailbox() -> bool:
+    async def via_mailbox() -> _ConfirmationCodeResult:
         code = await wait_for_code_with_manual_fallback(
             options.mail_provider,
             since=started_at,
@@ -250,11 +303,10 @@ async def _handle_confirmation_code(page: Page, options: RegistrationOptions, st
         if code is None:
             raise MailboxCodeTimeoutError(
                 f"Timed out waiting for registration confirmation code for {options.email}"
-            )
+        )
         if "/register/ankama/code" not in page.url:
-            return False
-        await _submit_confirmation_code(page, code)
-        return True
+            return _ConfirmationCodeResult(accepted=False)
+        return await _submit_confirmation_code(page, code)
 
     tasks = [
         asyncio.create_task(via_browser()),
@@ -274,7 +326,8 @@ async def _handle_confirmation_code(page: Page, options: RegistrationOptions, st
         if isinstance(exception, MailboxCodeTimeoutError):
             MailAccountController().remove_email(options.email)
             raise exception
-    return any(task.result() for task in done if not task.cancelled())
+    results = [task.result() for task in done if not task.cancelled()]
+    return next((result for result in results if result.accepted), _ConfirmationCodeResult(accepted=False))
 
 
 async def _wait_for_result(
@@ -289,12 +342,17 @@ async def _wait_for_result(
 
         if "/register/ankama/code" in current_url and not code_handled:
             code_handled = True
-            confirmation_handled = await _handle_confirmation_code(page, options, started_at)
-            if confirmation_handled:
+            confirmation_result = await _handle_confirmation_code(page, options, started_at)
+            if confirmation_result.accepted:
                 return _RegistrationWaitResult(success=True)
+            reason = "email confirmation code was not submitted or accepted"
+            if confirmation_result.waf_blocked:
+                reason = "WAF/CloudFront blocked confirmation code submission"
+            elif confirmation_result.rejected:
+                reason = "Ankama rejected confirmation code"
             return _RegistrationWaitResult(
                 success=False,
-                reason="email confirmation code was not submitted or accepted",
+                reason=reason,
             )
 
         form_errors = ()
@@ -302,6 +360,10 @@ async def _wait_for_result(
             form_errors = await _extract_registration_form_errors(page)
 
         form_is_ready = _is_registration_form_ready(html)
+        if is_waf_or_cloudfront_block(status_code=None, content=html):
+            reason = "WAF/CloudFront blocked registration page"
+            logger.error("[Register] %s", reason)
+            return _RegistrationWaitResult(success=False, reason=reason)
         antibot_detection = detect_antibot_marker(html)
         if form_errors:
             reason = _format_form_failure_reason(
@@ -411,6 +473,8 @@ async def _register_email(
 _DISCARDABLE_EMAIL_ERROR_MARKERS = (
     "n'est pas valide",
     "compte existant",
+    "ankama rejected confirmation code",
+    "waf/cloudfront blocked",
 )
 
 
@@ -474,6 +538,9 @@ async def register_available_emails(schedule_profile: str):
             )
             continue
         if _is_discardable_email_error(result):
+            continue
+        if result.outlook_generation_disabled:
+            logger.warning("[Register] Outlook is unavailable; continuing batch with Gmail.")
             continue
         if result.antibot_marker is not None:
             logger.warning(

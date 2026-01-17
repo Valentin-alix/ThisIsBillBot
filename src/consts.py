@@ -68,10 +68,6 @@ def _read_bool_env(name: str, default: bool) -> bool:
 # --- Environnement ---
 DEBUG = _read_bool_env("DEBUG", True)
 
-# --- Sandbox (injection de code sur un bot en cours d'exécution) ---
-SANDBOX_ENABLED = _read_bool_env("SANDBOX_ENABLED", True)
-SANDBOX_PORT = int(os.environ.get("SANDBOX_PORT", "6666"))
-
 # --- Backend ---
 BACKEND_URL = "http://localhost:8000"
 
@@ -99,6 +95,9 @@ SUBSCRIPTION_CATEGORY_ID = 698
 DOFUS_SUBSCRIPTION_REFERENCE_ID = "10"
 SUBSCRIPTION_DAYS = 7
 SUBSCRIPTION_EVENT_TIMEOUT_SECONDS = 15
+SUBSCRIPTION_MIN_LEVEL = 30
+SUBSCRIPTION_MIN_KAMAS = 15_000
+MAX_BOTS_PER_SCHEDULE_PROFILE = 6
 
 # --- Protocole ---
 MESSAGES_WITH_UID: list[type[Message]] = [

@@ -35,6 +35,18 @@ ANTIBOT_MARKERS = {
 }
 
 
+def is_waf_or_cloudfront_block(*, status_code: int | None, content: str) -> bool:
+    """Recognize a server-side WAF block without mistaking the WAF SDK for one."""
+    lower_content = content.casefold()
+    if lower_content.startswith("waf/cloudfront blocked"):
+        return True
+    return (
+        status_code in {None, 403}
+        and "request blocked" in lower_content
+        and ("cloudfront" in lower_content or "aws waf" in lower_content)
+    )
+
+
 @dataclass(frozen=True)
 class AntibotDetection:
     name: str

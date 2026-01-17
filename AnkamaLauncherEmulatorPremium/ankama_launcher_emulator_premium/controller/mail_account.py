@@ -18,6 +18,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.atomic
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.mail_providers.smailpro import (
     generate_random_mailbox_settings,
+    is_outlook_generation_disabled,
 )
 
 logger = logging.getLogger(__name__)
@@ -67,6 +68,12 @@ class MailAccountController(metaclass=Singleton):
         accounts = self._load().accounts
         for email in sorted(accounts):
             entry = accounts[email]
+            if (
+                isinstance(entry.config, SmailProAccountConfig)
+                and entry.config.kind == "outlook"
+                and is_outlook_generation_disabled()
+            ):
+                continue
             if not entry.bad_state and not entry.is_used:
                 return email
         return None
@@ -83,6 +90,19 @@ class MailAccountController(metaclass=Singleton):
             accounts_file = self._load()
             if accounts_file.accounts.pop(email, None) is not None:
                 self._save(accounts_file)
+
+    def record_smailpro_message_consumed(self, email: str, mid: str) -> None:
+        with self._acquire_file_lock():
+            accounts_file = self._load()
+            entry = accounts_file.accounts.get(email)
+            if entry is None or not isinstance(entry.config, SmailProAccountConfig):
+                return
+            consumed_message_ids = entry.config.consumed_message_ids
+            if mid in consumed_message_ids:
+                return
+            consumed_message_ids.append(mid)
+            del consumed_message_ids[:-50]
+            self._save(accounts_file)
 
     def provision_smailpro_email(self, api_key: str) -> str:
         settings = generate_random_mailbox_settings(api_key)

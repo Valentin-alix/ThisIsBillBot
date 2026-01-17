@@ -120,6 +120,22 @@ class BotStorageController(metaclass=Singleton):
 
         self.update_record(login, reassign)
 
+    def reassign_quarantined_schedule_profile(self, login: str, schedule_profile: str) -> None:
+        def reassign(record: BotRecord) -> None:
+            if record.schedule_profile == schedule_profile:
+                return
+            record.quarantined_schedule_profile = record.schedule_profile
+            record.schedule_profile = schedule_profile
+            record.encrypted_api_key = None
+
+        self.update_record(login, reassign)
+
+    def clear_quarantined_schedule_profile(self, login: str) -> None:
+        self.update_record(
+            login,
+            lambda record: setattr(record, "quarantined_schedule_profile", None),
+        )
+
     def save_account(
         self,
         email: str,

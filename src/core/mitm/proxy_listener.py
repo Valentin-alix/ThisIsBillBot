@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from socket import socket as Socket
 
@@ -19,15 +20,18 @@ logger = logging.getLogger()
 @dataclass(init=False)
 class ProxyListener(BaseProxyListener):
     account_by_id: dict[int, Bot]
+    on_banned_callback: Callable[[str], None]
     account_by_port: dict[int, Bot] = field(init=False)
     _account_by_connection_port: dict[int, Bot] = field(init=False)
 
     def __init__(
         self,
         account_by_id: dict[int, Bot],
+        on_banned_callback: Callable[[str], None],
     ) -> None:
         super().__init__()
         self.account_by_id = account_by_id
+        self.on_banned_callback = on_banned_callback
         self.account_by_port = {}
         self._account_by_connection_port = {}
 
@@ -58,6 +62,7 @@ class ProxyListener(BaseProxyListener):
                 client_socket=client_socket,
                 server_socket=server_socket,
                 bot_by_id=self.account_by_id,
+                on_banned_callback=self.on_banned_callback,
             )
         return GameProxy(
             bot=self.account_by_port[client_socket.getsockname()[1]],

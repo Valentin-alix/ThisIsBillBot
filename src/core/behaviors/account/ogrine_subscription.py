@@ -26,8 +26,8 @@ from requests.exceptions import RequestException
 
 from src.controller.bot_config import BotConfigService
 from src.core.behaviors.behavior import Behavior, BehaviorState
+from src.core.behaviors.account.subscription_articles import is_target_subscription_article
 from src.consts import (
-    DOFUS_SUBSCRIPTION_REFERENCE_ID,
     SUBSCRIPTION_CATEGORY_ID,
     SUBSCRIPTION_DAYS,
     SUBSCRIPTION_EVENT_TIMEOUT_SECONDS,
@@ -294,17 +294,8 @@ class OgrineSubscriptionBehavior(Behavior):
         self.subscription_storage.record_expiration(login, expiration)
         return expiration
 
-    @staticmethod
-    def _is_target_subscription_pack(article: ShopiArticle) -> bool:
-        return any(
-            single_reference.reference.discriminator == "VirtualSubscriptionReference"
-            and single_reference.reference.get_reference_value().id == DOFUS_SUBSCRIPTION_REFERENCE_ID
-            and single_reference.quantity == SUBSCRIPTION_DAYS
-            for single_reference in article.single_references
-        )
-
     def _select_subscription_article(self, articles: list[ShopiArticle]) -> ShopiArticle | None:
-        matching_articles = [article for article in articles if self._is_target_subscription_pack(article)]
+        matching_articles = [article for article in articles if is_target_subscription_article(article)]
         if not matching_articles:
             self._finish_error(OgrineSubscriptionErrorCode.SUBSCRIPTION_ARTICLE_NOT_FOUND)
             return None

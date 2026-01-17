@@ -24,14 +24,6 @@ class TestSinglePairMatchResultScript:
         non_obf_message = DumpCSMessage(file_descriptor="fd", name="non")
         obf_signature = message_signature("obf", declared_field_signatures=[], dump_cs_msg=obf_message)
         non_obf_signature = message_signature("non", declared_field_signatures=[], dump_cs_msg=non_obf_message)
-        reported: list[dict[str, object]] = []
-
-        def capture_report(value: object) -> dict[str, object]:
-            assert isinstance(value, dict)
-            report = cast("dict[str, object]", value)
-            reported.append(report)
-            return report
-
         with (
             patch.object(
                 script,
@@ -53,12 +45,11 @@ class TestSinglePairMatchResultScript:
             patch.object(script, "RuntimeDataStore", return_value=runtime_data_store),
             patch.object(script, "_debug_runtime_remapping"),
             patch.object(sys, "argv", ["single_pair_match_result.py", "--obf", "obf", "--non-obf", "non"]),
-            patch.object(script, "ic", side_effect=capture_report),
+            patch("builtins.print") as print_mock,
         ):
             script.main()
 
-        assert len(reported) == 1
-        report = reported[0]
+        report = cast("dict[str, object]", print_mock.call_args_list[-1].args[0])
         assert report["obf_message_cls"] == "obf"
         assert report["non_obf_message_cls"] == "non"
         assert report["field_mapping"] == {}

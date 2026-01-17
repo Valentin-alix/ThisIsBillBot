@@ -34,6 +34,7 @@ class RegistrationResult:
     final_url: str
     error: str | None = None
     antibot_marker: str | None = None
+    outlook_generation_disabled: bool = False
 
 
 @dataclass(frozen=True)

@@ -27,6 +27,65 @@ from src.exceptions import UnhandledErrorCodeException
 
 
 class TestFarmRecovery:
+    @staticmethod
+    def _set_no_bank_access(runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(type(runtime_bot.game_state.player), "is_sub", property(lambda _player: False))
+        monkeypatch.setattr(
+            type(runtime_bot.game_state.player), "is_former_sub", property(lambda _player: False)
+        )
+
+    def test_auto_bot_harvests_without_bank_access_when_pods_are_available(
+        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        self._set_no_bank_access(runtime_bot, monkeypatch)
+        runtime_bot.game_state.player.level = 1
+        runtime_bot.game_state.inventory.kamas = 0
+        runtime_bot.game_state.inventory.inventory_weight = 0
+        runtime_bot.game_state.inventory.weight_max = 1_000
+        play_multi_farming = MagicMock()
+        play_fighter = MagicMock()
+        monkeypatch.setattr(runtime_bot.auto_bot_behavior, "play_multi_farming", play_multi_farming)
+        monkeypatch.setattr(runtime_bot.auto_bot_behavior, "play_fighter", play_fighter)
+
+        runtime_bot.auto_bot_behavior.play()
+
+        play_multi_farming.assert_called_once_with()
+        play_fighter.assert_not_called()
+
+    def test_auto_bot_fights_without_bank_access_when_pods_are_full(
+        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        self._set_no_bank_access(runtime_bot, monkeypatch)
+        inventory = runtime_bot.game_state.inventory
+        inventory.inventory_weight = 950
+        inventory.weight_max = 1_000
+        play_multi_farming = MagicMock()
+        play_fighter = MagicMock()
+        monkeypatch.setattr(runtime_bot.auto_bot_behavior, "play_multi_farming", play_multi_farming)
+        monkeypatch.setattr(runtime_bot.auto_bot_behavior, "play_fighter", play_fighter)
+
+        runtime_bot.auto_bot_behavior.play()
+
+        play_fighter.assert_called_once_with()
+        play_multi_farming.assert_not_called()
+
+    def test_auto_bot_harvests_with_bank_access_when_pods_are_full(
+        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(type(runtime_bot.game_state.player), "is_sub", property(lambda _player: True))
+        runtime_bot.game_state.inventory.kamas = 2_000
+        runtime_bot.game_state.inventory.inventory_weight = 950
+        runtime_bot.game_state.inventory.weight_max = 1_000
+        play_multi_farming = MagicMock()
+        play_fighter = MagicMock()
+        monkeypatch.setattr(runtime_bot.auto_bot_behavior, "play_multi_farming", play_multi_farming)
+        monkeypatch.setattr(runtime_bot.auto_bot_behavior, "play_fighter", play_fighter)
+
+        runtime_bot.auto_bot_behavior.play()
+
+        play_multi_farming.assert_called_once_with()
+        play_fighter.assert_not_called()
+
     def test_empty_activity_is_removed_and_remaining_slots_are_redistributed(self) -> None:
         session_start = datetime(2026, 8, 12, 8)
         session_end = session_start + timedelta(hours=8)

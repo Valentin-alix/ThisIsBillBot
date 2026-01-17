@@ -14,9 +14,6 @@ from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import (
 )
 from src.core.behaviors.storage.mule.mule_accept_behavior import MuleAcceptBehavior
 
-type Instruction = tuple[Behavior, dict[str, object]]
-
-
 USABLE_BEHAVIORS: list[type[Behavior]] = [
     MuleAcceptBehavior,
     DungeonBehavior,
@@ -25,6 +22,5 @@ USABLE_BEHAVIORS: list[type[Behavior]] = [
     AutoEquipmentBehavior,
     FakeBadMovementBehavior,
     FakeBadInteractiveBehavior,
-    QuestBehavior,
     SmokeTestBehavior,
 ]

@@ -18,6 +18,7 @@ class SmailProAccountConfig(BaseModel):
     kind: Literal["gmail", "outlook"] = "gmail"
     timestamp: int
     """Returned alongside ``email`` when minted; required to poll the Gmail/Outlook inbox."""
+    consumed_message_ids: list[str] = Field(default_factory=list)
 
 
 class ManualAccountConfig(BaseModel):

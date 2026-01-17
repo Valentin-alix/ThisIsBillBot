@@ -55,29 +55,22 @@ def parse_runtime_args(argv: list[str]) -> RuntimeArgs:
 
 load_dotenv()
 
-from src import consts  # noqa: E402
 from src.controller.bot_config import BotConfigService  # noqa: E402
 from src.core.bot.bot_manager import BotManager  # noqa: E402
 from src.core.bot.lifecycle.scheduler import run_continuously  # noqa: E402
 from src.core.signals.shared_farm_signals import SharedSignals  # noqa: E402
-from src.services.sandbox.server import SandboxServer  # noqa: E402
 
 
 def _create_runtime(
     shared_signals: SharedSignals, enable_account_scheduler: bool
-) -> tuple[BotManager, SandboxServer | None]:
+) -> BotManager:
     bot_manager = BotManager(
         shared_signals=shared_signals,
         enable_account_scheduler=enable_account_scheduler,
     )
     bot_manager.ankama_launcher.start()
 
-    sandbox_server: SandboxServer | None = None
-    if consts.SANDBOX_ENABLED:
-        sandbox_server = SandboxServer(bot_manager.bot_by_account_id, consts.SANDBOX_PORT)
-        sandbox_server.start()
-
-    return bot_manager, sandbox_server
+    return bot_manager
 
 
 def _start_bots(bot_manager: BotManager, enable_automatic_schedules: bool) -> None:
@@ -89,7 +82,6 @@ def _start_bots(bot_manager: BotManager, enable_automatic_schedules: bool) -> No
 
 def _shutdown_runtime(
     bot_manager: BotManager,
-    sandbox_server: SandboxServer | None,
     cease_running: threading.Event,
     on_finished: Callable[[], None],
 ) -> None:
@@ -97,8 +89,6 @@ def _shutdown_runtime(
 
     def shutdown() -> None:
         try:
-            if sandbox_server is not None:
-                sandbox_server.stop()
             bot_manager.shutdown()
         finally:
             on_finished()
@@ -120,7 +110,7 @@ def run_gui(application_argv: list[str], enable_automatic_schedules: bool) -> in
     setTheme(Theme.DARK)
     setThemeColor(Qt.GlobalColor.yellow)
 
-    bot_manager, sandbox_server = _create_runtime(
+    bot_manager = _create_runtime(
         shared_signals,
         enable_account_scheduler=enable_automatic_schedules,
     )
@@ -132,7 +122,6 @@ def run_gui(application_argv: list[str], enable_automatic_schedules: bool) -> in
     def on_app_close() -> None:
         _shutdown_runtime(
             bot_manager,
-            sandbox_server,
             cease_running,
             shared_signals.shutdown_finished.emit,
         )
@@ -147,7 +136,7 @@ def run_headless(application_argv: list[str], enable_automatic_schedules: bool) 
 
     application = QCoreApplication(application_argv)
     shared_signals = SharedSignals()
-    bot_manager, sandbox_server = _create_runtime(
+    bot_manager = _create_runtime(
         shared_signals,
         enable_account_scheduler=enable_automatic_schedules,
     )
@@ -159,7 +148,7 @@ def run_headless(application_argv: list[str], enable_automatic_schedules: bool) 
         if shutdown_requested.is_set():
             return
         shutdown_requested.set()
-        _shutdown_runtime(bot_manager, sandbox_server, cease_running, application.quit)
+        _shutdown_runtime(bot_manager, cease_running, application.quit)
 
     def handle_signal(_signum: int, _frame: FrameType | None) -> None:
         QTimer.singleShot(0, request_shutdown)

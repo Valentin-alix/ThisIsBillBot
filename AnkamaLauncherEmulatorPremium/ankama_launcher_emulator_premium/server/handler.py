@@ -70,7 +70,7 @@ class AnkamaLauncherHandler:
                 del self.infos_by_hash[hash]
             raise
 
-    def auth_getGameTokenWithWindowId(self, hash: str, gameId: int, windowId: int) -> str:
+    def auth_getGameTokenWithWindowId(self, hash: str, gameId: int, window_id: int) -> str:
         return self.auth_getGameToken(hash, gameId)
 
     @retry_internet

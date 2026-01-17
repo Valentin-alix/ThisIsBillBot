@@ -1,7 +1,7 @@
+import shutil
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
-import shutil
 from typing import AsyncGenerator
 from urllib.parse import unquote, urlparse
 
@@ -9,12 +9,7 @@ from playwright.async_api import BrowserContext, ProxySettings, async_playwright
 
 from ankama_launcher_emulator_premium.consts import DEBUG_TRACES_DIR
 
-BROWSER_ARGS = [
-    "--no-sandbox",
-    "--disable-blink-features=AutomationControlled",
-    "--window-position=-1920,0",
-    "--start-minimized",
-]
+BROWSER_ARGS = ["--no-sandbox", "--disable-blink-features=AutomationControlled", "--window-position=-3840,0"]
 _TRACE_RETENTION_DAYS = 7
 
 

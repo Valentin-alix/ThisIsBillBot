@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 from collections.abc import Mapping
 
-from icecream import ic
 
 from DBDofusUnity.consts import (
     NON_OBF_NEW_DUMP_CS_FILE,
@@ -162,7 +161,7 @@ def main() -> None:
         "field_mapping_rejected_infos": candidate.field_mapping_result.field_mapping_rejected_infos,
         "total_score": pair_static_score.static_similarity,
     }
-    ic(result)
+    print(result)
 
 
 def build_argument_parser() -> argparse.ArgumentParser:

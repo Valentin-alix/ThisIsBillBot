@@ -30,6 +30,13 @@ def resolve_mail_provider(account_email: str) -> MailCodeProvider | None:
         )
     return SmailProMailProvider(
         SmailProSettings(
-            api_key=config.api_key, email=config.email, kind=config.kind, timestamp=config.timestamp
+            api_key=config.api_key,
+            email=config.email,
+            kind=config.kind,
+            timestamp=config.timestamp,
+            consumed_message_ids=frozenset(config.consumed_message_ids),
+            mark_message_consumed=lambda mid: MailAccountController().record_smailpro_message_consumed(
+                account_email, mid
+            ),
         )
     )

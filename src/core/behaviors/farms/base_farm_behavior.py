@@ -45,10 +45,10 @@ class BaseFarmBehavior(RecoverableBehavior, ABC):
         return False
 
     def on_full_pods(self):
-        if not self.game_state.inventory.can_use_bank:
-            self.logger.info("No bank access: stopping farming to switch mode")
-            return self.finish(EnterBankChestErrorCode.NOT_ENOUGH_KAMAS)
-        self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
+        if self.game_state.inventory.can_use_bank:
+            return self.unload_behavior.start(parent=self, callback=self.on_unload_finished)
+        self.logger.info("No bank access: stopping farming to switch mode")
+        return self.finish(EnterBankChestErrorCode.NOT_ENOUGH_KAMAS)
 
     def on_unload_finished(self, error_code: str | None) -> None:
         if error_code is not None:

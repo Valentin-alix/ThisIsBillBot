@@ -12,6 +12,7 @@ class BotRecord(BaseModel):
     password: str | None = None
     hardware_id: str
     schedule_profile: str | None = None
+    quarantined_schedule_profile: str | None = None
     connection_mode: Literal["mitm", "socket"] = "socket"
     encrypted_api_key: str | None = None
     account_info: UserAccount | None = None

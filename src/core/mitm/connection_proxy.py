@@ -41,6 +41,7 @@ class ConnectionProxy(Proxy):
     bot: Bot | None
     bot_by_id: dict[int, Bot]
     on_game_connection_callback: Callable[[tuple[str, int], Bot], int]
+    on_banned_callback: Callable[[str], None]
 
     def __post_init__(self):
         super().__post_init__()
@@ -113,6 +114,10 @@ class ConnectionProxy(Proxy):
                     self.bot.process_manager.kill_process()
                 reason = msg.response.identification.error.reason
                 print(f"Error Identification, reason : {reason}")
+                if self.bot and (
+                    reason == IdentificationResponse.Error.Reason.BANNED or reason == 14
+                ):
+                    self.on_banned_callback(self.bot.account.apikey.login)
                 if reason == IdentificationResponse.Error.Reason.OUTDATED_CLIENT_VERSION:
                     raise ClientVersionOutdatedError("Dofus client version is outdated")
 

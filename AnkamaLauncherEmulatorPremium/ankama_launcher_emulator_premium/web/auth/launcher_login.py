@@ -2,11 +2,13 @@ import asyncio
 import logging
 import re
 from datetime import UTC, datetime
+from typing import cast
 from urllib.parse import urlencode
 
 from dotenv import load_dotenv
 from playwright.async_api import Page, Response
 from pydantic import ValidationError
+import requests
 from requests import HTTPError
 
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import ENV_PATH
@@ -42,6 +44,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.browser_interactions import (
     human_wait,
+    is_waf_or_cloudfront_block,
     visible_form_error_texts,
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web._client.credentials import (
@@ -145,6 +148,8 @@ async def _wait_for_tokens(page: Page, code_verifier: str) -> TokenResponse:
             continue
 
         html = await page.content()
+        if is_waf_or_cloudfront_block(status_code=None, content=html):
+            raise RuntimeError("WAF/CloudFront blocked OAuth page")
         if "zaap://login?code=" in html:
             match = re.search(r"zaap://login\?code=([^\"'\s&]+)", html)
             if match is not None:
@@ -172,8 +177,17 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
             page = await context.new_page()
             logger.info("[OAuth] Navigating to login page...")
             try:
-                await page.goto(login_url, wait_until="networkidle", timeout=60_000)
+                response = await page.goto(login_url, wait_until="networkidle", timeout=60_000)
+                if response is not None and response.status == 403:
+                    if is_waf_or_cloudfront_block(
+                        status_code=response.status,
+                        content=await response.text(),
+                    ):
+                        raise RuntimeError("WAF/CloudFront blocked OAuth page")
             except Exception as err:
+                if _is_waf_or_cloudfront_error(err):
+                    MailAccountController().remove_email(options.email)
+                    logger.error("[OAuth] WAF/CloudFront blocked %s; removed stored mailbox account.", options.email)
                 logger.error(err)
                 return AuthenticationResult(success=False, email=options.email, error=str(err))
             logger.info("[OAuth] Waiting for WAF challenge...")
@@ -219,7 +233,6 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
             certificate = await secure_apikey_via_email(
                 haapi,
                 options.mail_provider,
-                started_at,
                 timeout_seconds=options.shield_timeout_seconds,
             )
         if certificate is not None:
@@ -289,8 +302,23 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
         )
         return AuthenticationResult(success=False, email=options.email, error=str(exc))
     except Exception as exc:
+        if _is_waf_or_cloudfront_error(exc):
+            MailAccountController().remove_email(options.email)
+            logger.error("[OAuth] WAF/CloudFront blocked %s; removed stored mailbox account.", options.email)
+            return AuthenticationResult(success=False, email=options.email, error=str(exc))
         logger.exception("[OAuth] Authentication failed: %s", exc)
         return AuthenticationResult(success=False, email=options.email, error=str(exc))
+
+
+def _is_waf_or_cloudfront_error(error: Exception) -> bool:
+    response = (
+        cast(requests.Response | None, getattr(error, "response", None))
+        if isinstance(error, HTTPError)
+        else None
+    )
+    status_code = response.status_code if response is not None else None
+    content = response.text if response is not None else str(error)
+    return is_waf_or_cloudfront_block(status_code=status_code, content=content)
 
 
 async def _authenticate_account(
