@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 
-from base_python.cache import cache
+from utils.cache import cache
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessAtomKey,

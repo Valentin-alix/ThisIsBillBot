@@ -120,9 +120,6 @@ def is_group_targetable(
 ) -> bool:
     """
     True if a group matches the monster-id allow-list (when set) and passes level validation.
-
-    Does not check the defeat-count blacklist (`GameDataController.is_group_allowed`), which
-    the caller filters separately since it carries its own dedicated logging/bypass logic.
     """
     if monster_ids is not None and not (monster_ids & get_monster_group_gids(monster_group)):
         return False

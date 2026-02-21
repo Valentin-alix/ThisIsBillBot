@@ -108,7 +108,7 @@ def generate_random_mailbox(api_key: str, kind: RandomMailboxKind) -> tuple[str,
     )
     body: dict[str, Any] = raise_for_status_with_content(response)
     mailbox = RandomMailboxResponse.model_validate(body)
-    logger.info("[SmailPro] Minted %s mailbox %s (timestamp=%s)", kind, mailbox.email, mailbox.timestamp)
+    logger.debug("[SmailPro] Minted %s mailbox %s (timestamp=%s)", kind, mailbox.email, mailbox.timestamp)
     return mailbox.email, mailbox.timestamp
 
 
@@ -162,14 +162,16 @@ class SmailProMailProvider:
             self._consumed_message_ids.add(mid)
             if self._settings.mark_message_consumed is not None:
                 self._settings.mark_message_consumed(mid)
-            logger.info("[SmailPro] Confirmation code found.")
+            logger.info(f"[SmailPro] Confirmation code found. {code}")
             return code
         return None
 
     def _recent_messages(self, since: datetime) -> list[dict[str, Any]]:
         params: dict[str, Any] = {
             "email": self._settings.email,
-            "timestamp": max(self._settings.timestamp, int(since.timestamp()) - SMAILPRO_RECEIPT_GRACE_SECONDS),
+            "timestamp": max(
+                self._settings.timestamp, int(since.timestamp()) - SMAILPRO_RECEIPT_GRACE_SECONDS
+            ),
         }
         response = self._session.get(
             f"{SMAILPRO_BASE_URL}/v1/{_RANDOM_MAILBOX_PATH[self._settings.kind]}/inbox",

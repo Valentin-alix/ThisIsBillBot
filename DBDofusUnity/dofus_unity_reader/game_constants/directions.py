@@ -1,6 +1,6 @@
 from enum import IntEnum, IntFlag
 
-from base_python.cache import cache
+from utils.cache import cache
 
 
 class DirectionsEnum(IntEnum):

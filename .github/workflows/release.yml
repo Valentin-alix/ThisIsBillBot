@@ -1,0 +1,42 @@
+name: Package release
+
+on:
+  push:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+      - name: Set up Python and dependencies
+        run: uv sync --frozen
+      - name: Build Windows package
+        run: uv run poe package
+      - name: Validate packaged resources
+        run: dist/Bot-DofusUnity/Bot-DofusUnity.exe --validate-install
+      - name: Create release archive
+        shell: pwsh
+        run: Compress-Archive -Path dist/Bot-DofusUnity -DestinationPath dist/Bot-DofusUnity-${{ github.sha }}.zip -CompressionLevel Optimal
+      - name: Check release asset size
+        shell: pwsh
+        run: |
+          $asset = Get-Item dist/Bot-DofusUnity-${{ github.sha }}.zip
+          if ($asset.Length -gt 2GB) {
+            throw "Release asset exceeds the 2 GiB GitHub limit: $($asset.Length) bytes"
+          }
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.sha }}
+          name: Build ${{ github.sha }}
+          prerelease: true
+          generate_release_notes: false
+          files: dist/Bot-DofusUnity-${{ github.sha }}.zip

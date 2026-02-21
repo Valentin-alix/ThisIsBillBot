@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from functools import cached_property
 
 import msgspec
-from base_python.cache import cache
-from base_python.singleton import Singleton
+from utils.cache import cache
+from utils.singleton import Singleton
 
 from DBDofusUnity.consts import STANDALONE_BUNDLES_ROOT
 from DBDofusUnity.dofus_unity_reader.models.world_graph import Edge, Vertice, WorldGraphData

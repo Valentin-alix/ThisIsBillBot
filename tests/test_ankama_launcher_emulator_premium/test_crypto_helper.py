@@ -1,4 +1,3 @@
-from unittest import TestCase
 from unittest.mock import patch
 
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter import crypto_helper as crypto_module
@@ -6,6 +5,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.cr
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import DecipheredApiKey
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.local_storage import BotRecord
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller import bot_storage
+from tests.fixtures.launcher import IsolatedLauncherStorageTestCase
 
 
 def _api_key(login: str, key: str, account_id: int) -> DecipheredApiKey:
@@ -21,7 +21,7 @@ def _api_key(login: str, key: str, account_id: int) -> DecipheredApiKey:
     )
 
 
-class TestCryptoHelper(TestCase):
+class TestCryptoHelper(IsolatedLauncherStorageTestCase):
     def test_store_then_load_api_key_uses_central_bot_store(self) -> None:
         api_key = _api_key("user@example.com", "secured-key", 42)
         with patch.object(crypto_module.Device, "getUUID", return_value="uuid"):

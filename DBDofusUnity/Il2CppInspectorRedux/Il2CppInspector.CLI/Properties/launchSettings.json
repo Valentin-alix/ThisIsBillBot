@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Il2CppDumper": {
+      "commandName": "Project",
+      "commandLineArgs": "-m Data\\Metadata\\global-metadata.dat -i libil2cpp-x64.dll",
+      "workingDirectory": "F:\\Source\\Repos\\Il2CppVersions\\output\\2020.2.0a19"
+    }
+  }
+}

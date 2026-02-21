@@ -2,6 +2,7 @@ import subprocess
 import tempfile
 from collections.abc import Iterable
 from pathlib import Path
+from zipfile import ZIP_DEFLATED, ZipFile
 
 from tqdm import tqdm
 
@@ -10,6 +11,7 @@ from DBDofusUnity.consts import (
     DATA_BUNDLES_ROOT,
     I18N_OUTPUT_PATH,
     I18N_PATH,
+    MAPS_ARCHIVE_PATH,
     MAP_BUNDLES_ROOT,
     PATH_DATAS,
     PATH_MAPS,
@@ -18,6 +20,7 @@ from DBDofusUnity.consts import (
     UABEA_PATH_EXE,
 )
 from DBDofusUnity.dofus_unity_reader.extraction_manifest import ExtractionManifest
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import REQUIRED_DATA_FILENAMES
 from DBDofusUnity.dofus_unity_reader.generator.data_cleaning import clean_data_to_output
 from DBDofusUnity.dofus_unity_reader.generator.i18n import I18NReader
 from DBDofusUnity.dofus_unity_reader.models.maps import MapDataRoot
@@ -73,17 +76,78 @@ def _clean_stale_outputs(manifest: ExtractionManifest, output_dirs: Iterable[Pat
                 path.unlink()
 
 
-def _move_cleaned_map_exports(temp_output_dir: Path) -> list[Path]:
-    output_paths: list[Path] = []
+def _add_cleaned_map_exports(archive: ZipFile, temp_output_dir: Path) -> None:
     for exported_path in sorted(temp_output_dir.iterdir()):
         if not exported_path.is_file() or exported_path.suffix != ".json":
             continue
 
         clean_data_to_output(MapDataRoot, exported_path)
-        output_path = MAP_BUNDLES_ROOT / exported_path.name
+        archive.write(exported_path, arcname=f"map/{exported_path.name}")
+
+
+def _move_required_data_exports(temp_output_dir: Path) -> list[Path]:
+    output_paths: list[Path] = []
+    for exported_path in sorted(temp_output_dir.iterdir()):
+        if not exported_path.is_file() or exported_path.name not in REQUIRED_DATA_FILENAMES:
+            continue
+        output_path = DATA_BUNDLES_ROOT / exported_path.name
         exported_path.replace(output_path)
         output_paths.append(output_path)
     return output_paths
+
+
+def _remove_unneeded_data_exports() -> None:
+    for path in _iter_json_files(DATA_BUNDLES_ROOT):
+        if path.name not in REQUIRED_DATA_FILENAMES:
+            path.unlink()
+
+
+def _raw_map_exports() -> list[Path]:
+    return sorted(_iter_json_files(MAP_BUNDLES_ROOT))
+
+
+def _create_maps_archive(raw_map_exports: Iterable[Path]) -> None:
+    temporary_archive_path = MAPS_ARCHIVE_PATH.with_suffix(".zip.tmp")
+    temporary_archive_path.unlink(missing_ok=True)
+    try:
+        with ZipFile(
+            temporary_archive_path,
+            "w",
+            compression=ZIP_DEFLATED,
+            compresslevel=9,
+            allowZip64=True,
+        ) as archive:
+            for map_path in raw_map_exports:
+                archive.write(map_path, arcname=f"map/{map_path.name}")
+        temporary_archive_path.replace(MAPS_ARCHIVE_PATH)
+    finally:
+        temporary_archive_path.unlink(missing_ok=True)
+
+
+def _archive_existing_map_exports(manifest: ExtractionManifest, map_bundles: list[Path]) -> bool:
+    if MAPS_ARCHIVE_PATH.exists():
+        return False
+
+    raw_map_exports = _raw_map_exports()
+    if not raw_map_exports:
+        return False
+
+    expected_exports = {
+        output_path.resolve()
+        for output_path in manifest.referenced_outputs()
+        if output_path.parent == MAP_BUNDLES_ROOT
+    }
+    if {path.resolve() for path in raw_map_exports} != expected_exports:
+        return False
+
+    _create_maps_archive(raw_map_exports)
+    if not all(manifest.is_up_to_date(path, output_paths=[MAPS_ARCHIVE_PATH]) for path in map_bundles):
+        MAPS_ARCHIVE_PATH.unlink()
+        return False
+
+    for path in raw_map_exports:
+        path.unlink()
+    return True
 
 
 def get_world_graph_datas(*, manifest: ExtractionManifest) -> None:
@@ -122,16 +186,37 @@ def get_map_datas(*, manifest: ExtractionManifest) -> None:
         for path in PATH_MAPS.iterdir()
         if "mapdata_assets_world" in path.name and path.name.endswith(".bundle")
     )
-    for bundle_path in tqdm(map_bundles):
-        if manifest.is_up_to_date(bundle_path):
-            continue
+    if _archive_existing_map_exports(manifest, map_bundles):
+        return
+    if all(manifest.is_up_to_date(path, output_paths=[MAPS_ARCHIVE_PATH]) for path in map_bundles):
+        return
 
-        with tempfile.TemporaryDirectory(prefix=f"{bundle_path.stem}-", dir=MAP_BUNDLES_ROOT) as temp_dir:
-            temp_output_dir = Path(temp_dir)
-            _run_uabea_batch_export(bundle_path=str(bundle_path), output_dir=str(temp_output_dir))
-            outputs = _move_cleaned_map_exports(temp_output_dir)
-        manifest.mark_success(bundle_path, output_paths=outputs)
-        manifest.save()
+    temporary_archive_path = MAPS_ARCHIVE_PATH.with_suffix(".zip.tmp")
+    temporary_archive_path.unlink(missing_ok=True)
+    try:
+        with ZipFile(
+            temporary_archive_path,
+            "w",
+            compression=ZIP_DEFLATED,
+            compresslevel=9,
+            allowZip64=True,
+        ) as archive:
+            for bundle_path in tqdm(map_bundles):
+                with tempfile.TemporaryDirectory(
+                    prefix=f"{bundle_path.stem}-", dir=MAP_BUNDLES_ROOT
+                ) as temp_dir:
+                    temp_output_dir = Path(temp_dir)
+                    _run_uabea_batch_export(bundle_path=str(bundle_path), output_dir=str(temp_output_dir))
+                    _add_cleaned_map_exports(archive, temp_output_dir)
+        temporary_archive_path.replace(MAPS_ARCHIVE_PATH)
+    finally:
+        temporary_archive_path.unlink(missing_ok=True)
+
+    for path in map_bundles:
+        manifest.mark_success(path, output_paths=[MAPS_ARCHIVE_PATH])
+    manifest.save()
+    for path in _raw_map_exports():
+        path.unlink()
 
 
 def get_datas(*, manifest: ExtractionManifest) -> None:
@@ -141,9 +226,10 @@ def get_datas(*, manifest: ExtractionManifest) -> None:
             continue
         if manifest.is_up_to_date(path):
             continue
-        before_state = _json_file_state(DATA_BUNDLES_ROOT)
-        _run_uabea_batch_export(bundle_path=str(path), output_dir=str(DATA_BUNDLES_ROOT))
-        manifest.mark_success(path, output_paths=_changed_json_outputs(DATA_BUNDLES_ROOT, before_state))
+        with tempfile.TemporaryDirectory(prefix=f"{path.stem}-", dir=DATA_BUNDLES_ROOT) as temp_dir:
+            _run_uabea_batch_export(bundle_path=str(path), output_dir=temp_dir)
+            output_paths = _move_required_data_exports(Path(temp_dir))
+        manifest.mark_success(path, output_paths=output_paths)
         manifest.save()
 
 
@@ -161,6 +247,7 @@ def get_i18n_datas(*, manifest: ExtractionManifest) -> None:
 def update_all_datas() -> None:
     _ensure_output_dirs()
     manifest = ExtractionManifest.load(MANIFEST_PATH)
+    _remove_unneeded_data_exports()
     get_datas(manifest=manifest)
     get_world_graph_datas(manifest=manifest)
     get_i18n_datas(manifest=manifest)

@@ -119,7 +119,6 @@ class BotManager:
             return bot_config
 
         profiles = ScheduleProfileController().get_all_profiles()
-        rejected_profile = profiles[bot_config.schedule_profile]
         profile_counts: defaultdict[str, int] = defaultdict(int)
         for record in BotStorageController().get_all_records().values():
             if record.schedule_profile is not None:
@@ -128,7 +127,6 @@ class BotManager:
             profile_id
             for profile_id, profile in profiles.items()
             if profile_id != bot_config.schedule_profile
-            if profile.kind == rejected_profile.kind
             if not ProxyController().get_proxy(profile.proxy_id).rejected
         ]
         if healthy_profile_ids:

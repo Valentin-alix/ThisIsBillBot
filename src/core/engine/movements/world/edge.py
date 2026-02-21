@@ -1,6 +1,6 @@
 from collections.abc import Iterator
 
-from base_python.cache import cache
+from utils.cache import cache
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
 from DBDofusUnity.dofus_unity_reader.game_constants.map_id import FORBIDDEN_MAP_IDS

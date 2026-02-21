@@ -52,7 +52,7 @@ from DBDofusUnity.datas.protos.non_obf.game.tag_storage_pb2 import (
 from dotenv import load_dotenv
 from google.protobuf.message import Message
 
-from project_paths import ENV_PATH
+from project_paths import BUNDLE_ROOT, ENV_PATH, USER_DATA_ROOT
 
 load_dotenv(ENV_PATH)
 
@@ -82,8 +82,8 @@ def get_connection_servers_ips() -> list[str]:
 
 
 # --- Chemins ---
-RESOURCE_FOLDER = os.path.join(Path(__file__).parent.parent, "resources")
-LOGO_FILE = os.path.join(RESOURCE_FOLDER, "icons", "logo.png")
+RESOURCE_FOLDER = os.path.join(USER_DATA_ROOT, "resources")
+LOGO_FILE = str(BUNDLE_ROOT / "resources" / "icons" / "logo.png")
 BOT_DEBUG_LOGS_DIR = Path(RESOURCE_FOLDER) / "debug" / "bots"
 
 # --- Utilitaires ---

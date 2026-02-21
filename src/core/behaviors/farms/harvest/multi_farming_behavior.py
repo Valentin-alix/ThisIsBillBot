@@ -45,20 +45,15 @@ class MultiFarmingBehavior(HarvesterBehavior):
 
         if self._next_time_attacker <= datetime.now():
             self.logger.info("Time to attack !")
-            force_attack = False
-            if datetime.now() - self._next_time_attacker > (get_time_between_attacker() * 1.5):
-                self.logger.info("We really need to attack to counter antibot, so force attack")
-                force_attack = True
-            return self.fight_on_map(force_attack)
+            return self.fight_on_map()
 
         on_random_action_done()
 
-    def fight_on_map(self, force_attack: bool):
+    def fight_on_map(self):
         with self.event_manager.lock:
             self.unregister_listener(FightMapInformationEvent)
             self.attacker_behavior.start(
                 count_fight_limit=1,
-                force_attack=force_attack,
                 parent=self,
                 callback=self.on_attacker_behavior_finished,
             )

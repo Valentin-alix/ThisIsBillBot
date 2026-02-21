@@ -35,16 +35,13 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.reg
     register_next_available_email,
 )
 from src.consts import MAX_BOTS_PER_SCHEDULE_PROFILE
+from src.core.config import ENABLE_ACCOUNT_AUTOMATION
 from src.core.bot.lifecycle.operation_pool import OperationPool
 from src.services.league_of_legends import is_league_of_legends_match_running
 
 logger = logging.getLogger()
 
 POLL_INTERVAL_SECONDS = 5
-MIN_AUTHENTICATED_BOTS_FOR_MULE = 24
-MAX_VIABLE_KAMAS_MULES = 1
-
-
 @dataclass(frozen=True)
 class _AuthOp:
     login: str
@@ -59,15 +56,6 @@ class _RegisterOp:
 
 
 PendingOperation = _AuthOp | _RegisterOp
-
-
-def _run_async[T](coro: Coroutine[Any, Any, T]) -> T:
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    try:
-        return loop.run_until_complete(coro)
-    finally:
-        loop.close()
 
 
 @dataclass
@@ -88,6 +76,9 @@ class AccountScheduler:
     _thread: threading.Thread | None = field(init=False, default=None)
     _pool: OperationPool = field(init=False, default_factory=OperationPool)
     _stop_event: threading.Event = field(init=False, default_factory=threading.Event)
+    _active_loop: asyncio.AbstractEventLoop | None = field(init=False, default=None)
+    _active_task: asyncio.Task[Any] | None = field(init=False, default=None)
+    _active_operation_lock: threading.Lock = field(init=False, default_factory=threading.Lock)
 
     def start(self) -> None:
         assert self._thread is None, "Scheduler is already started"
@@ -103,13 +94,21 @@ class AccountScheduler:
             if operation is None:
                 self._stop_event.wait(POLL_INTERVAL_SECONDS)
                 continue
+            if self._stop_event.is_set():
+                return
             self._pool.record(operation.quota_key, now)
             try:
                 self._run_operation(operation)
+            except asyncio.CancelledError:
+                if self._stop_event.is_set():
+                    return
+                raise
             except Exception:
                 logger.exception("Unexpected error running scheduled operation %r", operation)
 
     def _next_operation(self, now: float) -> PendingOperation | None:
+        if not ENABLE_ACCOUNT_AUTOMATION:
+            return None
         if self.is_league_of_legends_match_running():
             logger.info("League of Legends match in progress, postponing account automation")
             return None
@@ -149,16 +148,11 @@ class AccountScheduler:
                 auth_candidates,
                 key=lambda operation: self._pool.count_since_hour(operation.quota_key, now),
             )
-        if MailAccountController().peek_next_available_email() is not None or SONJI_API_KEY is not None:
+        if (
+            MailAccountController().peek_next_available_email() is not None
+            or SONJI_API_KEY is not None
+        ):
             profile_counts = self._profile_account_counts(profiles_by_letter)
-            records = self.bot_storage_controller.get_all_records().values()
-            authenticated_count = sum(record.encrypted_api_key is not None for record in records)
-            viable_kamas_mule_count = sum(
-                record.email not in bad_state_emails and profile.kind == "kamas_mule"
-                for record in records
-                if record.schedule_profile is not None
-                if (profile := profiles_by_letter.get(record.schedule_profile)) is not None
-            )
             eligible_candidates = [
                 _RegisterOp(profile_id, profile.proxy_id)
                 for profile_id, profile in profiles_by_letter.items()
@@ -166,23 +160,11 @@ class AccountScheduler:
                 if self._pool.has_quota_for(profile.proxy_id, 2, now)
                 if not self._pool.is_register_cooled_down(profile.proxy_id, now)
             ]
-            mule_candidates = [
+            register_candidates = [
                 operation
                 for operation in eligible_candidates
-                if profiles_by_letter[operation.schedule_profile].kind == "kamas_mule"
+                if profile_counts[operation.schedule_profile] < MAX_BOTS_PER_SCHEDULE_PROFILE
             ]
-            register_candidates = (
-                mule_candidates
-                if authenticated_count >= MIN_AUTHENTICATED_BOTS_FOR_MULE
-                and viable_kamas_mule_count < MAX_VIABLE_KAMAS_MULES
-                and mule_candidates
-                else [
-                    operation
-                    for operation in eligible_candidates
-                    if profiles_by_letter[operation.schedule_profile].kind == "bot"
-                    if profile_counts[operation.schedule_profile] < MAX_BOTS_PER_SCHEDULE_PROFILE
-                ]
-            )
             if not register_candidates:
                 return None
             register_candidates.sort(
@@ -237,7 +219,6 @@ class AccountScheduler:
             healthy_profile_ids = sorted(
                 candidate_profile_id
                 for candidate_profile_id, candidate_profile in profiles.items()
-                if candidate_profile.kind == "bot"
                 if not self.proxy_controller.get_proxy(candidate_profile.proxy_id).rejected
             )
             for login in sorted(generated_account_logins):
@@ -274,7 +255,7 @@ class AccountScheduler:
             case _AuthOp(login=login, schedule_profile=schedule_profile):
                 self._authenticate(login, schedule_profile)
             case _RegisterOp(schedule_profile=schedule_profile, quota_key=quota_key):
-                result = _run_async(register_next_available_email(schedule_profile))
+                result = self._run_async(register_next_available_email(schedule_profile))
                 if result is not None and is_aws_waf_marker(result.antibot_marker):
                     self._pool.record_register_cooldown(quota_key)
                 if result is not None and result.success:
@@ -286,7 +267,7 @@ class AccountScheduler:
             logger.info("League of Legends match in progress, postponing authentication for %s", login)
             return
         try:
-            result = _run_async(
+            result = self._run_async(
                 authenticate_next_available_account(email=login, schedule_profile=schedule_profile)
             )
         except BannedException:
@@ -297,7 +278,31 @@ class AccountScheduler:
         if result is not None and result.success:
             self.on_accounts_synchronized()
 
+    def _run_async[T](self, coro: Coroutine[Any, Any, T]) -> T:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        task = loop.create_task(coro)
+        with self._active_operation_lock:
+            self._active_loop = loop
+            self._active_task = task
+        try:
+            return loop.run_until_complete(task)
+        finally:
+            with self._active_operation_lock:
+                self._active_loop = None
+                self._active_task = None
+            loop.close()
+
     def stop(self) -> None:
-        assert self._thread is not None, "Scheduler is not started"
+        thread = self._thread
+        assert thread is not None, "Scheduler is not started"
         self._stop_event.set()
+        with self._active_operation_lock:
+            active_loop = self._active_loop
+            active_task = self._active_task
+        if active_loop is not None and active_task is not None:
+            logger.info("Cancelling active account operation during scheduler shutdown")
+            active_loop.call_soon_threadsafe(active_task.cancel)
+        if thread is not threading.current_thread():
+            thread.join()
         self._thread = None

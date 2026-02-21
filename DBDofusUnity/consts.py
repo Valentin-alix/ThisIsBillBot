@@ -1,18 +1,19 @@
 import platform
 from pathlib import Path
 
-from base_python.env_config import get_path_from_env, get_required_path
+from utils.env_config import get_path_from_env, get_required_path
 from dotenv import load_dotenv
 
 from DBDofusUnity.proto_mapper_assembly.helpers.archived_builds import PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
 from DBDofusUnity.proto_mapper_assembly.helpers.obf_game_snapshot import resolve_obf_game_snapshot
-from project_paths import ENV_PATH
+from project_paths import BUNDLE_ROOT, ENV_PATH, IS_PACKAGED
 
-PROJECT_ROOT: Path = Path(__file__).resolve().parent
+PROJECT_ROOT: Path = BUNDLE_ROOT / "DBDofusUnity"
 BOT_SRC_ROOT: Path = PROJECT_ROOT.parent / "src"
 IDA_TRACER_TYPINGS: Path = PROJECT_ROOT / "proto_mapper_assembly" / "scripts" / "ida_tracer_lib" / "typings"
 
-load_dotenv(ENV_PATH)
+if not IS_PACKAGED:
+    load_dotenv(ENV_PATH)
 
 
 def _default_standalone_bundle_folder() -> str:
@@ -21,15 +22,23 @@ def _default_standalone_bundle_folder() -> str:
     return "StandaloneLinux64"
 
 
-OBF_GAME_DIR: Path = get_required_path("OBF_GAME_DIR")
-NON_OBF_GAME_DIR: Path = get_required_path("NON_OBF_GAME_DIR")
-OBF_GAME_SNAPSHOTS_DIR: Path = get_path_from_env("OBF_GAME_SNAPSHOTS_DIR", Path.home() / "Documents" / "D3")
-PROTOC_PATH: Path = get_required_path("PROTOC_PATH")
-IDA_EXE: Path = get_required_path("IDA_EXE")
+if IS_PACKAGED:
+    OBF_GAME_DIR = Path()
+    NON_OBF_GAME_DIR = Path()
+    OBF_GAME_SNAPSHOTS_DIR = Path()
+    PROTOC_PATH = Path()
+    IDA_EXE = Path()
+else:
+    OBF_GAME_DIR = get_required_path("OBF_GAME_DIR")
+    NON_OBF_GAME_DIR = get_required_path("NON_OBF_GAME_DIR")
+    OBF_GAME_SNAPSHOTS_DIR = get_path_from_env("OBF_GAME_SNAPSHOTS_DIR", Path.home() / "Documents" / "D3")
+    PROTOC_PATH = get_required_path("PROTOC_PATH")
+    IDA_EXE = get_required_path("IDA_EXE")
 DATA_ROOT: Path = PROJECT_ROOT / "datas"
 BUNDLES_ROOT: Path = DATA_ROOT / "bundles"
 DATA_BUNDLES_ROOT: Path = BUNDLES_ROOT / "data"
 MAP_BUNDLES_ROOT: Path = BUNDLES_ROOT / "map"
+MAPS_ARCHIVE_PATH: Path = BUNDLES_ROOT / "maps.zip"
 STANDALONE_BUNDLES_ROOT: Path = BUNDLES_ROOT / "standalone"
 I18N_OUTPUT_PATH: Path = BUNDLES_ROOT / "i18n.json"
 PROTOS_ROOT: Path = DATA_ROOT / "protos"
@@ -66,15 +75,19 @@ PROTODEC_EXECUTABLE: Path = get_path_from_env(
     PROJECT_ROOT / "protodec" / "bin" / "protodec" / "Debug" / "net10.0" / "protodec.exe",
 )
 
-_OBF_GAME_SNAPSHOT = resolve_obf_game_snapshot(
-    real_game_dir=OBF_GAME_DIR,
-    snapshots_root=OBF_GAME_SNAPSHOTS_DIR,
-    non_obf_game_dir=NON_OBF_GAME_DIR,
-)
-
-OBF_GAME_ASSEMBLY_DLL: Path = _OBF_GAME_SNAPSHOT.game_assembly
-OBF_GAME_ASSEMBLY_DLL_I64: Path = OBF_GAME_ASSEMBLY_DLL.with_suffix(".dll.i64")
-OBF_IL2CPP_METADATA_FILE: Path = _OBF_GAME_SNAPSHOT.metadata
+if IS_PACKAGED:
+    OBF_GAME_ASSEMBLY_DLL = Path()
+    OBF_GAME_ASSEMBLY_DLL_I64 = Path()
+    OBF_IL2CPP_METADATA_FILE = Path()
+else:
+    _OBF_GAME_SNAPSHOT = resolve_obf_game_snapshot(
+        real_game_dir=OBF_GAME_DIR,
+        snapshots_root=OBF_GAME_SNAPSHOTS_DIR,
+        non_obf_game_dir=NON_OBF_GAME_DIR,
+    )
+    OBF_GAME_ASSEMBLY_DLL = _OBF_GAME_SNAPSHOT.game_assembly
+    OBF_GAME_ASSEMBLY_DLL_I64 = OBF_GAME_ASSEMBLY_DLL.with_suffix(".dll.i64")
+    OBF_IL2CPP_METADATA_FILE = _OBF_GAME_SNAPSHOT.metadata
 
 NON_OBF_GAME_ASSEMBLY_DLL: Path = NON_OBF_GAME_DIR / "GameAssembly.dll"
 NON_OBF_GAME_ASSEMBLY_DLL_I64: Path = NON_OBF_GAME_DIR / "GameAssembly.dll.i64"

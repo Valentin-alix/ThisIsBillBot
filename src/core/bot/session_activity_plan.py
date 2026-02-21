@@ -10,7 +10,6 @@ class SessionActivity(StrEnum):
     DUNGEON = auto()
     CRAFT = auto()
     SALE_HOTEL = auto()
-    MULE_GIVE = auto()
 
 
 @dataclass(frozen=True)

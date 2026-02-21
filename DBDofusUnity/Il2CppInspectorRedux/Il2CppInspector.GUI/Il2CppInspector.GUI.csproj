@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <PublishSingleFile>true</PublishSingleFile>
+    <!-- Plugins may require bass class library assemblies we're not using so disable trimming -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>Il2CppInspector</AssemblyName>
+    <Product>Il2CppInspectorRedux Windows Edition</Product>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Il2CppInspector.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702</NoWarn>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+    <PackageReference Include="XamlAnimatedGif" Version="2.3.0">
+      <NoWarn>NU1701</NoWarn>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bin2Object\Bin2Object\Bin2Object.csproj" />
+    <ProjectReference Include="..\Il2CppInspector.Common\Il2CppInspector.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\pizza.gif" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="User.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>User.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="User.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>User.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>

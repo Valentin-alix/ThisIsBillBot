@@ -88,7 +88,9 @@ class TestGenerateRandomMailbox(TestCase):
 
     def test_outlook_token_refresh_failure_disables_outlook_for_one_day(self) -> None:
         provider = SmailProMailProvider(
-            SmailProSettings(api_key="api-key", email="temp@outlook.com", kind="outlook", timestamp=1723680000)
+            SmailProSettings(
+                api_key="api-key", email="temp@outlook.com", kind="outlook", timestamp=1723680000
+            )
         )
         error = smailpro_module.HaapiHttpError(
             "Outlook token refresh failed: 400 unauthorized_client - AADSTS700016", 400
@@ -222,6 +224,7 @@ class TestSmailProMailProviderWaitForCode(IsolatedAsyncioTestCase):
         with (
             patch.object(smailpro_module, "SMAILPRO_INITIAL_DELAY_SECONDS", 0),
             patch("requests.Session.get", side_effect=[inbox_response, message_response]) as get,
+            self.assertLogs(smailpro_module.logger, level="INFO") as logs,
         ):
             code = await provider.wait_for_code(
                 since=datetime(2026, 6, 18, 10, 0, tzinfo=UTC), timeout_seconds=5
@@ -231,6 +234,7 @@ class TestSmailProMailProviderWaitForCode(IsolatedAsyncioTestCase):
         inbox_call = get.call_args_list[0]
         self.assertTrue(inbox_call.args[0].endswith("/v1/temp_gmail/inbox"))
         self.assertEqual(inbox_call.kwargs["params"]["timestamp"], 1781776790)
+        self.assertEqual(len(logs.output), 1)
 
     def test_ignores_non_ankama_message_with_six_digit_tracking_identifier(self) -> None:
         inbox_response = _response(
@@ -397,7 +401,7 @@ class TestSmailProMailProviderWaitForCode(IsolatedAsyncioTestCase):
             code = await asyncio.wait_for(
                 provider.wait_for_code(since=datetime(2026, 6, 18, 10, 0, tzinfo=UTC), timeout_seconds=1200),
                 timeout=0.2,
-        )
+            )
 
         self.assertIsNone(code)
 

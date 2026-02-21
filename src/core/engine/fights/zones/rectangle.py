@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from math import floor
 
-from base_python.cache import cache
+from utils.cache import cache
 from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_COORD, MapPoint
 

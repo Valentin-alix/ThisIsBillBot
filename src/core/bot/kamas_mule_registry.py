@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from threading import RLock
 from uuid import uuid4
 
-from base_python.singleton import Singleton
+from utils.singleton import Singleton
 
 RESERVATION_TTL = timedelta(minutes=10)
 

@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Callable
 
-from base_python.singleton import Singleton
+from utils.singleton import Singleton
 from filelock import FileLock
 
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import BOTS_STORAGE_PATH

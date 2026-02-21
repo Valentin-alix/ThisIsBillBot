@@ -145,7 +145,7 @@ async def purchase_with_paysafecard(
         f"{ANKAMA_STORE_OVERLAY_AUTH_URL}?token={shop_access_token}"
         f"&shopkey={ANKAMA_STORE_DOFUS_UNITY_INGAME_SHOP_KEY}&cart={cart_id}"
     )
-    async with launch_browser_context(login=login, proxy_url=proxy_url) as browser_context:
+    async with launch_browser_context(proxy_url=proxy_url) as browser_context:
         page = await browser_context.new_page()
         page.set_default_timeout(_INTERACTION_TIMEOUT_MILLISECONDS)
         payment_page = page

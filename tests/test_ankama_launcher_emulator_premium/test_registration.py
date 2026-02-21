@@ -1,5 +1,5 @@
 ﻿import asyncio
-from unittest import IsolatedAsyncioTestCase, TestCase
+from unittest import IsolatedAsyncioTestCase
 from dataclasses import replace
 from unittest.mock import AsyncMock, MagicMock, call, patch
 from urllib.parse import parse_qs, urlparse
@@ -36,10 +36,10 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.oau
     build_login_url,
 )
 
-from tests.fixtures.launcher import FakeBrowserContext, FakeMailProvider
+from tests.fixtures.launcher import FakeBrowserContext, FakeMailProvider, IsolatedLauncherStorageTestCase
 
 
-class TestRegistration(TestCase):
+class TestRegistration(IsolatedLauncherStorageTestCase):
     def test_build_register_url_without_state_keeps_redirect_uri(self) -> None:
         params = parse_qs(urlparse(build_register_url()).query)
 
@@ -129,60 +129,6 @@ class TestRegistration(TestCase):
 
         self.assertEqual(bad_state_emails, {"a@example.com", "z@example.com"})
 
-    def test_finalize_registration_attempt_discards_already_linked_email(self) -> None:
-        with MailAccountController()._acquire_file_lock():
-            accounts_file = MailAccountController()._load()
-            accounts_file.accounts.setdefault("linked@example.com", MailAccountEntry())
-            MailAccountController()._save(accounts_file)
-        result = RegistrationResult(
-            success=False,
-            email="linked@example.com",
-            password="password",
-            final_url="https://auth.ankama.com/register/ankama",
-            error=(
-                "registration form is still present after submit; visible form errors: "
-                '"linked@example.com" est dÃ©jÃ  liÃ© Ã  un compte existant. Pour continuer, connectez-vous.'
-            ),
-        )
-
-        registration_module._finalize_registration_attempt("linked@example.com", result)
-
-        self.assertNotIn("linked@example.com", MailAccountController()._load().accounts)
-
-    def test_finalize_registration_attempt_discards_invalid_email(self) -> None:
-        with MailAccountController()._acquire_file_lock():
-            accounts_file = MailAccountController()._load()
-            accounts_file.accounts.setdefault("retry@example.com", MailAccountEntry())
-            MailAccountController()._save(accounts_file)
-        result = RegistrationResult(
-            success=False,
-            email="retry@example.com",
-            password="password",
-            final_url="https://auth.ankama.com/register/ankama",
-            error="registration form is still present after submit; visible form errors: Cette adresse Email n'est pas valide",
-        )
-
-        registration_module._finalize_registration_attempt("retry@example.com", result)
-
-        self.assertNotIn("retry@example.com", MailAccountController()._load().accounts)
-
-    def test_finalize_registration_attempt_discards_rejected_confirmation_code(self) -> None:
-        with MailAccountController()._acquire_file_lock():
-            accounts_file = MailAccountController()._load()
-            accounts_file.accounts.setdefault("rejected@example.com", MailAccountEntry())
-            MailAccountController()._save(accounts_file)
-        result = RegistrationResult(
-            success=False,
-            email="rejected@example.com",
-            password="password",
-            final_url="https://auth.ankama.com/register/ankama/code",
-            error="Ankama rejected confirmation code",
-        )
-
-        registration_module._finalize_registration_attempt("rejected@example.com", result)
-
-        self.assertNotIn("rejected@example.com", MailAccountController()._load().accounts)
-
     def test_duplicate_email_error_matches_the_ankama_form_message(self) -> None:
         self.assertTrue(
             registration_module._is_duplicate_email_error(
@@ -227,9 +173,9 @@ def _ready_registration_form_html(extra_html: str = "") -> str:
 
 class TestRegisterAccount(IsolatedAsyncioTestCase):
 
-    async def test_confirmation_submission_requires_success_response_and_redirect(self) -> None:
+    async def test_confirmation_submission_classifies_rejected_code(self) -> None:
         page = MagicMock()
-        page.url = REDIRECT_URI
+        page.url = "https://auth.ankama.com/register/ankama/code"
         page.locator.return_value.count = AsyncMock(return_value=1)
         navigation = MagicMock()
         navigation.__aenter__ = AsyncMock(return_value=navigation)
@@ -237,6 +183,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
         rejected_response = MagicMock()
         rejected_response.ok = False
         rejected_response.status = 403
+        rejected_response.url = "https://auth.ankama.com/register/ankama/code"
         rejected_response.text = AsyncMock(return_value="<html>Le code saisi n'est pas valide.</html>")
         navigation.value = asyncio.get_running_loop().create_future()
         navigation.value.set_result(rejected_response)
@@ -251,6 +198,30 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
         self.assertFalse(result.accepted)
         self.assertTrue(result.rejected)
 
+    async def test_confirmation_submission_accepts_expected_redirect_despite_final_404(self) -> None:
+        page = MagicMock()
+        page.url = f"{REDIRECT_URI}?code=authorization-code"
+        page.locator.return_value.count = AsyncMock(return_value=1)
+        navigation = MagicMock()
+        navigation.__aenter__ = AsyncMock(return_value=navigation)
+        navigation.__aexit__ = AsyncMock(return_value=None)
+        response = MagicMock()
+        response.ok = False
+        response.status = 404
+        response.url = page.url
+        navigation.value = asyncio.get_running_loop().create_future()
+        navigation.value.set_result(response)
+        page.expect_navigation.return_value = navigation
+
+        with (
+            patch.object(registration_module, "human_type_selector", new=AsyncMock()),
+            patch.object(registration_module, "human_click_selector", new=AsyncMock()),
+        ):
+            result = await registration_module._submit_confirmation_code(page, "123456")
+
+        self.assertTrue(result.accepted)
+        self.assertIsNone(result.failure_reason)
+
     async def test_confirmation_submission_classifies_cloudfront_without_invalid_code_rejection(self) -> None:
         page = MagicMock()
         page.url = "https://auth.ankama.com/register/ankama/code"
@@ -261,6 +232,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
         blocked_response = MagicMock()
         blocked_response.ok = False
         blocked_response.status = 403
+        blocked_response.url = "https://auth.ankama.com/register/ankama/code"
         blocked_response.text = AsyncMock(
             return_value="403 ERROR Request blocked. Generated by CloudFront."
         )
@@ -277,6 +249,47 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
         self.assertFalse(result.accepted)
         self.assertFalse(result.rejected)
         self.assertTrue(result.waf_blocked)
+
+    async def test_confirmation_submission_logs_non_redirect_response_without_code(self) -> None:
+        page = MagicMock()
+        page.url = "https://auth.ankama.com/register/ankama/code"
+        page.locator.return_value.count = AsyncMock(return_value=1)
+        navigation = MagicMock()
+        navigation.__aenter__ = AsyncMock(return_value=navigation)
+        navigation.__aexit__ = AsyncMock(return_value=None)
+        response = MagicMock()
+        response.ok = True
+        response.status = 200
+        response.url = "https://auth.ankama.com/register/ankama/code"
+        navigation.value = asyncio.get_running_loop().create_future()
+        navigation.value.set_result(response)
+        page.expect_navigation.return_value = navigation
+
+        with (
+            patch.object(registration_module, "human_type_selector", new=AsyncMock()),
+            patch.object(registration_module, "human_click_selector", new=AsyncMock()),
+            patch.object(
+                registration_module,
+                "visible_form_error_texts",
+                new=AsyncMock(return_value=("Le code n'est pas valide.",)),
+            ),
+            self.assertLogs(registration_module.logger, level="DEBUG") as logs,
+        ):
+            result = await registration_module._submit_confirmation_code(page, "123456")
+
+        self.assertFalse(result.accepted)
+        self.assertFalse(result.rejected)
+        self.assertIn("status=200", logs.output[-1])
+        self.assertIn("page_path=/register/ankama/code", logs.output[-1])
+        self.assertIn("Le code n'est pas valide.", logs.output[-1])
+        self.assertEqual(
+            result.failure_reason,
+            "confirmation code submission did not reach the expected redirect; "
+            "response status=200; response path=/register/ankama/code; "
+            "page path=/register/ankama/code; visible form errors: Le code n'est pas valide.",
+        )
+        self.assertNotIn("123456", "\n".join(logs.output))
+
     async def test_retries_duplicate_email_in_the_same_browser_page(self) -> None:
         page = MagicMock()
         page.url = "https://auth.ankama.com/register/ankama/form-submit"
@@ -312,6 +325,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
             patch.object(registration_module, "MailAccountController") as mail_account_controller,
             patch.object(registration_module, "BotStorageController") as bot_storage_controller,
             patch.object(registration_module, "human_wait", new=AsyncMock()),
+            self.assertLogs(registration_module.logger, level="INFO") as logs,
         ):
             result = await registration_module.register_account(
                 initial_options,
@@ -330,6 +344,8 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
             "password",
             schedule_profile=None,
         )
+        self.assertEqual(len(logs.output), 1)
+        self.assertIn("Ankama accepted replacement@example.com after 1 rejected mailbox(es); account saved.", logs.output[0])
 
     async def test_replacement_attempt_only_replaces_the_email_field(self) -> None:
         page = MagicMock()
@@ -376,6 +392,17 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
 
         self.assertIs(result, registration_result)
         finalize_registration_attempt.assert_called_once_with("replacement@example.com", registration_result)
+
+    async def test_register_next_available_email_does_not_provision_smailpro_without_api_key(self) -> None:
+        with (
+            patch.object(registration_module, "SONJI_API_KEY", None),
+            patch.object(registration_module, "MailAccountController") as mail_account_controller,
+        ):
+            mail_account_controller.return_value.peek_next_available_email.return_value = None
+            result = await registration_module.register_next_available_email("profile")
+
+        self.assertIsNone(result)
+        mail_account_controller.return_value.provision_smailpro_email.assert_not_called()
 
     async def test_batch_continues_with_gmail_after_outlook_provider_outage(self) -> None:
         outlook_failure = RegistrationResult(
@@ -567,13 +594,17 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
             patch.object(registration_module, "MailAccountController") as mail_account_controller,
             patch.object(registration_module.asyncio, "sleep", new=AsyncMock()),
             patch.object(registration_module, "human_wait", new=AsyncMock()),
+            self.assertLogs(registration_module.logger, level="ERROR") as logs,
         ):
             result = await registration_module.register_account(_registration_options())
 
         self.assertFalse(result.success)
         self.assertEqual(result.error, failure.reason)
         bot_storage_controller.return_value.save_account.assert_not_called()
+        registration_module._finalize_registration_attempt(result.email, result)
         mail_account_controller.return_value.remove_email.assert_called_once_with("new@example.com")
+        self.assertEqual(len(logs.output), 1)
+        self.assertIn("mailbox discarded", logs.output[0])
 
     async def test_wait_for_result_reports_visible_form_errors(self) -> None:
         page = MagicMock()

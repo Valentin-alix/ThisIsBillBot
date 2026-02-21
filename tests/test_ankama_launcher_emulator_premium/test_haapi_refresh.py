@@ -1,5 +1,4 @@
 from time import time
-from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
@@ -18,6 +17,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.c
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.local_storage import (
     BotRecord,
 )
+from tests.fixtures.launcher import IsolatedLauncherStorageTestCase
 
 _LOGIN = "user@example.com"
 _FAKE_UUID = "fake-device-uuid"
@@ -47,8 +47,9 @@ def _seed_stored_api_key(refresh_date: int) -> DecipheredApiKey:
     return api_key
 
 
-class TestHaapiRefreshApiKey(TestCase):
+class TestHaapiRefreshApiKey(IsolatedLauncherStorageTestCase):
     def setUp(self) -> None:
+        super().setUp()
         self.haapi = Haapi(api_key="api-key", login=_LOGIN)
         self.session = MagicMock()
         self.haapi.zaap_session = self.session

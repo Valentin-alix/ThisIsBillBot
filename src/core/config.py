@@ -20,6 +20,7 @@ DO_CRAFT = True  # le bot va aller craft pr level up principalement
 DO_USE_GUILD_CHEST = False  # le bot va utiliser le coffre de guilde plutot que la banque
 DO_DUNGEON = True  # le bot va tenter un donjon pendant une session planifiee
 DO_QUEST = True  # le bot va tenter les quetes eligibles pendant une session planifiee
+ENABLE_ACCOUNT_AUTOMATION = True
 
 
 # ============================================================================

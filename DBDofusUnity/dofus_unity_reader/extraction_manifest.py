@@ -93,9 +93,10 @@ class ExtractionManifest:
             entry = entry.model_copy(update={"fingerprint": current_fingerprint})
             self.data.bundles[source_key] = entry
 
-        stored_output_paths = [Path(output_path) for output_path in entry.outputs]
-        paths_to_check = output_paths or stored_output_paths
-        return bool(paths_to_check) and all(path.exists() for path in paths_to_check)
+        paths_to_check = (
+            output_paths if output_paths is not None else [Path(output_path) for output_path in entry.outputs]
+        )
+        return all(path.exists() for path in paths_to_check)
 
     def mark_success(self, source_path: Path, *, output_paths: list[Path]) -> None:
         self.data.bundles[_normalise_path(source_path)] = ManifestEntry(

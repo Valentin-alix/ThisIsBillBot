@@ -1,4 +1,4 @@
-from base_python.cache import cache
+from utils.cache import cache
 from DBDofusUnity.dofus_unity_reader.game_constants.spell_shape_enum import SpellShapeEnum
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 

@@ -22,7 +22,6 @@ class SignalEmitter:
 class BotSignalsFake:
     stop: SignalEmitter = field(default_factory=SignalEmitter)
     play: SignalEmitter = field(default_factory=SignalEmitter)
-    play_mule_kamas: SignalEmitter = field(default_factory=SignalEmitter)
     play_auto_bot: SignalEmitter = field(default_factory=SignalEmitter)
 
 
@@ -74,7 +73,6 @@ def make_bot_scheduler() -> BotScheduler:
         event_manager=EventManager(_logger=Mock()),
         on_session_started=Mock(),
         on_session_finished=Mock(),
-        on_mule_give_slot_started=Mock(),
     )
 
 
@@ -90,7 +88,6 @@ def make_behavior_coordinator() -> BehaviorCoordinator:
         harvester_behavior=Mock(),
         fighter_behavior=Mock(),
         craft_behavior=Mock(),
-        mule_accept_kamas_behavior=Mock(),
         auto_bot_behavior=Mock(),
         usable_behaviors=[],
         bot_signals=BotSignalsFake(stop=SignalEmitter()),  # type: ignore

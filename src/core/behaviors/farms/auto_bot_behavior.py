@@ -4,7 +4,6 @@ from functools import partial
 from threading import RLock
 
 from DBDofusUnity.dofus_unity_reader.data_center.area_info import AreaInfo
-from src.core.behaviors.behavior import BehaviorState
 from src.core.behaviors.craft.craft_behavior import CraftBehavior, CraftRequest
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmingErrorCode
 from src.core.behaviors.farms.fight.fighter_behavior import FighterBehavior
@@ -19,7 +18,6 @@ from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import SaleHotelErro
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestErrorCode,
 )
-from src.core.behaviors.storage.mule.mule_give_behavior import MuleGiveBehavior
 from src.core.bot.session_activity_plan import SessionActivity, SessionActivityPlan
 from src.core.config import (
     DO_CRAFT,
@@ -65,13 +63,11 @@ class AutoBotBehavior(RecoverableBehavior):
     idle_behavior: IdleBehavior
     craft_behavior: CraftBehavior
     sale_hotel_sell_behavior: SaleHotelSellBehavior
-    mule_give_behavior: MuleGiveBehavior
 
     _area_id: int | None = field(init=False, default=None)
     _sub_area_id: int | None = field(init=False, default=None)
     _previous_area_info_played: list[AreaInfo] = field(init=False, default_factory=list[AreaInfo])
     _session_activity_plan: SessionActivityPlan | None = field(init=False, default=None)
-    _mule_give_ends_at: datetime | None = field(init=False, default=None)
 
     def start_planned_session(self, session_start: datetime, session_end: datetime) -> None:
         activities: list[SessionActivity] = [SessionActivity.IDLE]
@@ -95,18 +91,6 @@ class AutoBotBehavior(RecoverableBehavior):
 
     def clear_planned_session(self) -> None:
         self._session_activity_plan = None
-        self._mule_give_ends_at = None
-
-    def request_mule_give(self, ends_at: datetime) -> None:
-        if self.state != BehaviorState.RUNNING:
-            self.logger.info("Skipping mule give slot: auto-bot is not running")
-            return
-        if datetime.now() >= ends_at:
-            self.logger.info("Skipping mule give slot: its window already ended")
-            return
-        self._mule_give_ends_at = ends_at
-        self.logger.info("Mule give requested before %s", ends_at.strftime("%H:%M"))
-
     def get_harvester_area_context(self) -> HarvesterAreaContext:
         return HarvesterAreaContext(
             player_level=self.game_state.player.level,
@@ -194,23 +178,12 @@ class AutoBotBehavior(RecoverableBehavior):
         self.finish(error_code)
 
     def _get_due_activity(self) -> SessionActivity | None:
-        if self._mule_give_ends_at is not None:
-            if datetime.now() < self._mule_give_ends_at:
-                return SessionActivity.MULE_GIVE
-            self.logger.info("Mule give slot ended before the farm boundary")
-            self._mule_give_ends_at = None
         if self._session_activity_plan is None:
             return None
         return self._session_activity_plan.get_due_activity(datetime.now())
 
     def _start_session_activity(self, activity: SessionActivity) -> None:
         self.logger.info("Starting planned session activity: %s", activity)
-        if activity is SessionActivity.MULE_GIVE:
-            return self.mule_give_behavior.start(
-                callback=self._on_mule_give_finished,
-                parent=self,
-            )
-
         if activity is SessionActivity.IDLE:
             idle_duration = HumanTimingsService().get_timing_session_idle_duration()
             self.logger.info("Taking planned idle break: %.1fmin", idle_duration / 60)
@@ -279,14 +252,6 @@ class AutoBotBehavior(RecoverableBehavior):
             return self.craft_behavior.activity_performed
         assert activity is SessionActivity.SALE_HOTEL, f"Unsupported planned activity: {activity}"
         return self.sale_hotel_sell_behavior.activity_performed
-
-    def _on_mule_give_finished(self, error_code: str | None) -> None:
-        self._mule_give_ends_at = None
-        if error_code is not None:
-            self.logger.warning("Mule give finished with %s", error_code)
-        elif not self.mule_give_behavior.activity_performed:
-            self.logger.info("Mule give window completed without a transfer")
-        self.run_timer(HumanTimingsService().get_timing_base_action(), self.play_multi_farming)
 
     def play_fighter(self) -> None:
         datetime_start_played = datetime.now()

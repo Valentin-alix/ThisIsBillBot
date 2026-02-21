@@ -1,0 +1,225 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="samples\**" />
+    <Compile Remove="TestAssemblies\**" />
+    <Compile Remove="TestCpp\**" />
+    <Compile Remove="TestBinaries\**" />
+    <Compile Remove="TestExpectedResults\**" />
+    <Compile Remove="TestSources\**" />
+    <EmbeddedResource Remove="samples\**" />
+    <EmbeddedResource Remove="TestAssemblies\**" />
+    <EmbeddedResource Remove="TestCpp\**" />
+    <EmbeddedResource Remove="TestBinaries\**" />
+    <EmbeddedResource Remove="TestExpectedResults\**" />
+    <None Remove="samples\**" />
+    <None Remove="TestAssemblies\**" />
+    <None Remove="TestCpp\**" />
+    <None Remove="TestBinaries\**" />
+    <None Remove="TestExpectedResults\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="TestExpectedResults\ExplicitInterfaces-ARMv7.cs" />
+    <Content Include="TestExpectedResults\ExplicitInterfaces-ARM64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-ExplicitInterfaces-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-ExplicitInterfaces-x86.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-Scope-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-Scope-x86.cs" />
+    <Content Include="TestExpectedResults\Scope-ARMv7.cs" />
+    <Content Include="TestExpectedResults\Scope-ARM64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-Properties-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-Properties-x86.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-References-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-References-x86.cs" />
+    <Content Include="TestExpectedResults\Properties-ARMv7.cs" />
+    <Content Include="TestExpectedResults\Properties-ARM64.cs" />
+    <Content Include="TestExpectedResults\References-ARMv7.cs" />
+    <Content Include="TestExpectedResults\References-ARM64.cs" />
+    <Content Include="TestExpectedResults\ArraysAndPointers-ARMv7.cs" />
+    <Content Include="TestExpectedResults\ArraysAndPointers-ARM64.cs" />
+    <Content Include="TestExpectedResults\CustomAttributeData-ARMv7.cs" />
+    <Content Include="TestExpectedResults\CustomAttributeData-ARM64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-ArraysAndPointers-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-ArraysAndPointers-x86.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-CustomAttributeData-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-CustomAttributeData-x86.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-GenericTypes-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-GenericTypes-x86.cs" />
+    <Content Include="TestExpectedResults\GenericTypes-ARMv7.cs" />
+    <Content Include="TestExpectedResults\GenericTypes-ARM64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-Methods-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-Methods-x86.cs" />
+    <Content Include="TestExpectedResults\Methods-ARMv7.cs" />
+    <Content Include="TestExpectedResults\Methods-ARM64.cs" />
+    <Content Include="TestExpectedResults\CSharp1-ARMv7.cs" />
+    <Content Include="TestExpectedResults\CSharp1-ARM64.cs" />
+    <Content Include="TestExpectedResults\CSharp2-ARMv7.cs" />
+    <Content Include="TestExpectedResults\CSharp2-ARM64.cs" />
+    <Content Include="TestExpectedResults\CSharp3-ARMv7.cs" />
+    <Content Include="TestExpectedResults\CSharp3-ARM64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp1-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp1-x86.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp2-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp2-x86.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp3-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp3-x86.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-PartialGenericTypes-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-PartialGenericTypes-x86.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-VTablesAndLayout-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-VTablesAndLayout-x86.cs" />
+    <Content Include="TestExpectedResults\PartialGenericTypes-ARMv7.cs" />
+    <Content Include="TestExpectedResults\PartialGenericTypes-ARM64.cs" />
+    <Content Include="TestExpectedResults\VTablesAndLayout-ARMv7.cs" />
+    <Content Include="TestExpectedResults\VTablesAndLayout-ARM64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-Enums-x64.cs" />
+    <Content Include="TestExpectedResults\GameAssembly-Enums-x86.cs" />
+    <Content Include="TestExpectedResults\Enums-ARMv7.cs" />
+    <Content Include="TestExpectedResults\Enums-ARM64.cs" />
+
+    <Content Include="TestExpectedResults\ExplicitInterfaces-ARMv7.json" />
+    <Content Include="TestExpectedResults\ExplicitInterfaces-ARM64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-ExplicitInterfaces-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-ExplicitInterfaces-x86.json" />
+    <Content Include="TestExpectedResults\GameAssembly-Scope-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-Scope-x86.json" />
+    <Content Include="TestExpectedResults\Scope-ARMv7.json" />
+    <Content Include="TestExpectedResults\Scope-ARM64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-Properties-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-Properties-x86.json" />
+    <Content Include="TestExpectedResults\GameAssembly-References-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-References-x86.json" />
+    <Content Include="TestExpectedResults\Properties-ARMv7.json" />
+    <Content Include="TestExpectedResults\Properties-ARM64.json" />
+    <Content Include="TestExpectedResults\References-ARMv7.json" />
+    <Content Include="TestExpectedResults\References-ARM64.json" />
+    <Content Include="TestExpectedResults\ArraysAndPointers-ARMv7.json" />
+    <Content Include="TestExpectedResults\ArraysAndPointers-ARM64.json" />
+    <Content Include="TestExpectedResults\CustomAttributeData-ARMv7.json" />
+    <Content Include="TestExpectedResults\CustomAttributeData-ARM64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-ArraysAndPointers-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-ArraysAndPointers-x86.json" />
+    <Content Include="TestExpectedResults\GameAssembly-CustomAttributeData-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-CustomAttributeData-x86.json" />
+    <Content Include="TestExpectedResults\GameAssembly-GenericTypes-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-GenericTypes-x86.json" />
+    <Content Include="TestExpectedResults\GenericTypes-ARMv7.json" />
+    <Content Include="TestExpectedResults\GenericTypes-ARM64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-Methods-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-Methods-x86.json" />
+    <Content Include="TestExpectedResults\Methods-ARMv7.json" />
+    <Content Include="TestExpectedResults\Methods-ARM64.json" />
+    <Content Include="TestExpectedResults\CSharp1-ARMv7.json" />
+    <Content Include="TestExpectedResults\CSharp1-ARM64.json" />
+    <Content Include="TestExpectedResults\CSharp2-ARMv7.json" />
+    <Content Include="TestExpectedResults\CSharp2-ARM64.json" />
+    <Content Include="TestExpectedResults\CSharp3-ARMv7.json" />
+    <Content Include="TestExpectedResults\CSharp3-ARM64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp1-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp1-x86.json" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp2-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp2-x86.json" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp3-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp3-x86.json" />
+    <Content Include="TestExpectedResults\GameAssembly-PartialGenericTypes-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-PartialGenericTypes-x86.json" />
+    <Content Include="TestExpectedResults\GameAssembly-VTablesAndLayout-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-VTablesAndLayout-x86.json" />
+    <Content Include="TestExpectedResults\PartialGenericTypes-ARMv7.json" />
+    <Content Include="TestExpectedResults\PartialGenericTypes-ARM64.json" />
+    <Content Include="TestExpectedResults\VTablesAndLayout-ARMv7.json" />
+    <Content Include="TestExpectedResults\VTablesAndLayout-ARM64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-Enums-x64.json" />
+    <Content Include="TestExpectedResults\GameAssembly-Enums-x86.json" />
+    <Content Include="TestExpectedResults\Enums-ARMv7.json" />
+    <Content Include="TestExpectedResults\Enums-ARM64.json" />
+
+
+    <Content Include="TestExpectedResults\ExplicitInterfaces-ARMv7.h" />
+    <Content Include="TestExpectedResults\ExplicitInterfaces-ARM64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-ExplicitInterfaces-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-ExplicitInterfaces-x86.h" />
+    <Content Include="TestExpectedResults\GameAssembly-Scope-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-Scope-x86.h" />
+    <Content Include="TestExpectedResults\Scope-ARMv7.h" />
+    <Content Include="TestExpectedResults\Scope-ARM64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-Properties-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-Properties-x86.h" />
+    <Content Include="TestExpectedResults\GameAssembly-References-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-References-x86.h" />
+    <Content Include="TestExpectedResults\Properties-ARMv7.h" />
+    <Content Include="TestExpectedResults\Properties-ARM64.h" />
+    <Content Include="TestExpectedResults\References-ARMv7.h" />
+    <Content Include="TestExpectedResults\References-ARM64.h" />
+    <Content Include="TestExpectedResults\ArraysAndPointers-ARMv7.h" />
+    <Content Include="TestExpectedResults\ArraysAndPointers-ARM64.h" />
+    <Content Include="TestExpectedResults\CustomAttributeData-ARMv7.h" />
+    <Content Include="TestExpectedResults\CustomAttributeData-ARM64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-ArraysAndPointers-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-ArraysAndPointers-x86.h" />
+    <Content Include="TestExpectedResults\GameAssembly-CustomAttributeData-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-CustomAttributeData-x86.h" />
+    <Content Include="TestExpectedResults\GameAssembly-GenericTypes-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-GenericTypes-x86.h" />
+    <Content Include="TestExpectedResults\GenericTypes-ARMv7.h" />
+    <Content Include="TestExpectedResults\GenericTypes-ARM64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-Methods-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-Methods-x86.h" />
+    <Content Include="TestExpectedResults\Methods-ARMv7.h" />
+    <Content Include="TestExpectedResults\Methods-ARM64.h" />
+    <Content Include="TestExpectedResults\CSharp1-ARMv7.h" />
+    <Content Include="TestExpectedResults\CSharp1-ARM64.h" />
+    <Content Include="TestExpectedResults\CSharp2-ARMv7.h" />
+    <Content Include="TestExpectedResults\CSharp2-ARM64.h" />
+    <Content Include="TestExpectedResults\CSharp3-ARMv7.h" />
+    <Content Include="TestExpectedResults\CSharp3-ARM64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp1-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp1-x86.h" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp2-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp2-x86.h" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp3-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-CSharp3-x86.h" />
+    <Content Include="TestExpectedResults\GameAssembly-PartialGenericTypes-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-PartialGenericTypes-x86.h" />
+    <Content Include="TestExpectedResults\GameAssembly-VTablesAndLayout-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-VTablesAndLayout-x86.h" />
+    <Content Include="TestExpectedResults\PartialGenericTypes-ARMv7.h" />
+    <Content Include="TestExpectedResults\PartialGenericTypes-ARM64.h" />
+    <Content Include="TestExpectedResults\VTablesAndLayout-ARMv7.h" />
+    <Content Include="TestExpectedResults\VTablesAndLayout-ARM64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-Enums-x64.h" />
+    <Content Include="TestExpectedResults\GameAssembly-Enums-x86.h" />
+    <Content Include="TestExpectedResults\Enums-ARMv7.h" />
+    <Content Include="TestExpectedResults\Enums-ARM64.h" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="TestSources\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="nunit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Il2CppInspector.Common\Il2CppInspector.csproj" />
+  </ItemGroup>
+
+</Project>

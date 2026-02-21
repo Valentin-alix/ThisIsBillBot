@@ -9,8 +9,9 @@ from playwright.async_api import BrowserContext, ProxySettings, async_playwright
 
 from ankama_launcher_emulator_premium.consts import DEBUG_TRACES_DIR
 
-BROWSER_ARGS = ["--no-sandbox", "--disable-blink-features=AutomationControlled", "--window-position=-3840,0"]
+BROWSER_ARGS = ["--no-sandbox", "--disable-blink-features=AutomationControlled", "--window-position=0,0"]
 _TRACE_RETENTION_DAYS = 7
+_MAX_TRACE_DIRECTORIES = 5
 
 
 def _playwright_proxy_settings(proxy_url: str | None) -> ProxySettings | None:
@@ -28,9 +29,8 @@ def _playwright_proxy_settings(proxy_url: str | None) -> ProxySettings | None:
     return proxy_settings
 
 
-def _trace_directory(login: str) -> Path:
-    safe_login = "".join(char if char.isalnum() or char in ".@_-" else "_" for char in login)
-    path = DEBUG_TRACES_DIR / f"{datetime.now():%Y%m%d_%H%M%S_%f}_{safe_login}"
+def _trace_directory() -> Path:
+    path = DEBUG_TRACES_DIR / f"{datetime.now():%Y%m%d_%H%M%S_%f}"
     path.mkdir(parents=True, exist_ok=False)
     _prune_expired_trace_directories(path)
     return path
@@ -38,20 +38,30 @@ def _trace_directory(login: str) -> Path:
 
 def _prune_expired_trace_directories(active_trace_directory: Path) -> None:
     expiration_timestamp = (datetime.now() - timedelta(days=_TRACE_RETENTION_DAYS)).timestamp()
-    for trace_directory in DEBUG_TRACES_DIR.iterdir():
-        if (
-            trace_directory != active_trace_directory
-            and trace_directory.is_dir()
-            and trace_directory.stat().st_mtime < expiration_timestamp
-        ):
+    trace_directories = [
+        trace_directory
+        for trace_directory in DEBUG_TRACES_DIR.iterdir()
+        if trace_directory != active_trace_directory and trace_directory.is_dir()
+    ]
+    for trace_directory in trace_directories:
+        if trace_directory.stat().st_mtime < expiration_timestamp:
             shutil.rmtree(trace_directory)
+    recent_trace_directories = sorted(
+        (trace_directory for trace_directory in trace_directories if trace_directory.exists()),
+        key=lambda trace_directory: trace_directory.stat().st_mtime,
+        reverse=True,
+    )
+    for trace_directory in recent_trace_directories[_MAX_TRACE_DIRECTORIES - 1 :]:
+        shutil.rmtree(trace_directory)
 
 
 @asynccontextmanager
 async def launch_browser_context(
-    *, login: str, proxy_url: str | None, headless: bool = False
+    *,
+    proxy_url: str | None,
+    headless: bool = False,
 ) -> AsyncGenerator[BrowserContext, None]:
-    trace_directory = _trace_directory(login)
+    trace_directory = _trace_directory()
     async with async_playwright() as playwright:
         browser = await playwright.chromium.launch(
             headless=headless,

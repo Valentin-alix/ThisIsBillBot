@@ -1,4 +1,23 @@
-from unittest.mock import AsyncMock, MagicMock
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest import TestCase
+from unittest.mock import AsyncMock, MagicMock, patch
+
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller import bot_storage, mail_account
+
+
+class IsolatedLauncherStorageTestCase(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        temporary_directory = TemporaryDirectory()
+        self.addCleanup(temporary_directory.cleanup)
+        storage_directory = Path(temporary_directory.name)
+        for patcher in (
+            patch.object(bot_storage, "BOTS_STORAGE_PATH", storage_directory / "bots.json"),
+            patch.object(mail_account, "MAIL_ACCOUNTS_STORAGE_PATH", storage_directory / "mail_accounts.json"),
+        ):
+            patcher.start()
+            self.addCleanup(patcher.stop)
 
 
 class FakeBrowserContext:

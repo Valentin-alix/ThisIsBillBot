@@ -10,7 +10,6 @@ from DBDofusUnity.datas.protos.non_obf.game.roleplay_pb2 import (
     AttackMonsterRequest,
 )
 
-from src.controller.game_data import GameDataController
 from src.core import config
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
@@ -25,7 +24,6 @@ from src.core.engine.weights.fighter.weight_monsters import (
 )
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.player_signals import GameInfoSignals
-from src.core.states.fight_state import LastAtkInfo
 from src.services.human_timings import HumanTimingsService
 
 
@@ -41,7 +39,6 @@ class AttackerBehavior(Behavior):
     _count_fighted_on_map: int = field(init=False, default=0)
     _wait_for_group: bool = field(init=False, default=False)
     _get_lvl_limit: Callable[[int], float] = staticmethod(config.get_default_fight_group_lvl_limit)
-    _force_attack: bool = field(init=False, default=False)
     _monster_ids: set[int] | None = field(init=False, default=None)
 
     def run(
@@ -49,11 +46,9 @@ class AttackerBehavior(Behavior):
         count_fight_limit: int | None = 10,
         wait_for_group: bool = False,
         get_lvl_limit: Callable[[int], float] | None = None,
-        force_attack: bool = False,
         monster_ids: set[int] | None = None,
     ) -> None:
         self._monster_ids = monster_ids
-        self._force_attack = force_attack
         if get_lvl_limit:
             self._get_lvl_limit = get_lvl_limit
         self._wait_for_group = wait_for_group
@@ -104,14 +99,6 @@ class AttackerBehavior(Behavior):
                 f"skipping."
             )
             return self.attack_enemy()
-
-        if related_actor.actor_information.HasField(
-            "role_play_actor"
-        ) and related_actor.actor_information.role_play_actor.HasField("monster_group_actor"):
-            self.game_state.fight.last_atk_info = LastAtkInfo(
-                monster_group_info=related_actor.actor_information.role_play_actor.monster_group_actor,
-                from_map_id=self.game_state.map.map_id,
-            )
 
         self.event_manager.on(
             msg_type=FightMapInformationEvent,
@@ -164,12 +151,6 @@ class AttackerBehavior(Behavior):
             monster_group,
         ) in self.game_state.entity.get_monster_groups():
             if actor_id == excluded_group_actor_id:
-                continue
-
-            if self._force_attack:
-                self.logger.warning("Forcing attack, even to forbidden group")
-            elif not GameDataController().is_group_allowed(monster_group):
-                self.logger.info(f"Skipping forbidden monster group (actor_id={actor_id})")
                 continue
 
             monster_group_lvl = self.game_state.entity.get_level_monster_group(monster_group)

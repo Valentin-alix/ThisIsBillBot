@@ -6,7 +6,7 @@ from pathlib import Path
 from threading import RLock
 from uuid import uuid4
 
-from base_python.singleton import Singleton
+from utils.singleton import Singleton
 from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message
 

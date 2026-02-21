@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Authors>Xpl0itR</Authors>
+    <BaseOutputPath>..\..\bin\$(MSBuildProjectName)</BaseOutputPath>
+    <Copyright>Copyright © 2023-2026 Xpl0itR</Copyright>
+    <Description>A library to derive Protobuf schemas from protoc output formats</Description>
+    <IncludeSymbols>true</IncludeSymbols>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsPackable>true</IsPackable>
+    <LangVersion>Latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <TargetFramework>net9.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.201" PrivateAssets="All" />
+    <PackageReference Include="ZLinq" Version="1.5.5" />
+    <ProjectReference Include="..\LibProtodec.Reflection\LibProtodec.Reflection.csproj" />
+  </ItemGroup>
+
+</Project>

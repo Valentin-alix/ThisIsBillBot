@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from base_python.singleton import Singleton
+from utils.singleton import Singleton
 from filelock import FileLock
 from pydantic import BaseModel, Field
 

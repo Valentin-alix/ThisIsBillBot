@@ -1,6 +1,4 @@
-from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
-    ObjectItemInventory,
-)
+from collections.abc import Mapping
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from DBDofusUnity.dofus_unity_reader.game_constants.item import ItemTypeEnum
@@ -59,24 +57,24 @@ def is_not_valid_recipe_for_lvl_up_job_or_benefice(
 
 def get_max_result_quantity(
     logger: BotLogger,
-    storage_object_by_gid: dict[int, ObjectItemInventory],
+    quantity_by_gid: Mapping[int, int],
     recipe: RecipeItem,
 ) -> tuple[int, int]:
     max_result_quantity: int | None = None
     weight_for_one_result = 0
 
     for ingredient_id, quantity in zip(recipe.ingredientIds, recipe.quantities):
-        ingredient_in_chest = storage_object_by_gid.get(ingredient_id)
-        if ingredient_in_chest is None:
+        ingredient_quantity = quantity_by_gid.get(ingredient_id)
+        if ingredient_quantity is None:
             name_id = DataReader().item_by_id[ingredient_id].nameId
             logger.info(
-                f"ingredient {I18N().name_by_id[name_id] if name_id else ''} not in chest, can't craft recipe"
+                f"ingredient {I18N().name_by_id[name_id] if name_id else ''} is unavailable, can't craft recipe"
             )
             logger.info(
-                f"we have {list(storage_object_by_gid.keys())} gids and we need this : {ingredient_id}"
+                f"we have {list(quantity_by_gid.keys())} gids and we need this : {ingredient_id}"
             )
             return 0, weight_for_one_result
-        if ingredient_in_chest.item.quantity < quantity:
+        if ingredient_quantity < quantity:
             name_id = DataReader().item_by_id[ingredient_id].nameId
             logger.info(
                 f"ingredient {I18N().name_by_id[name_id] if name_id else ''} don't have enough "
@@ -84,7 +82,7 @@ def get_max_result_quantity(
             )
             return 0, weight_for_one_result
 
-        result_quantity = ingredient_in_chest.item.quantity // quantity
+        result_quantity = ingredient_quantity // quantity
         if max_result_quantity is None or result_quantity < max_result_quantity:
             max_result_quantity = result_quantity
 

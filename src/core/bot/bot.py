@@ -26,7 +26,6 @@ from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
 from src.core.behaviors.socket.game_session_behavior import GameSessionBehavior
 from src.core.behaviors.socket.handshake_behavior import HandshakeBehavior
 from src.core.behaviors.socket.heartbeat_behavior import HearthBeatBehavior
-from src.core.behaviors.storage.mule.mule_accept_behavior import MuleAcceptBehavior
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.execution.process_manager import ProcessManager
 from src.core.bot.execution.watchdog import StuckWatchdog
@@ -78,7 +77,6 @@ class Bot(ContextualLogger):
 
     frames: list[Frame]
 
-    mule_accept_kamas_behavior: MuleAcceptBehavior
     harvester_behavior: HarvesterBehavior
     fighter_behavior: FighterBehavior
     craft_behavior: CraftBehavior
@@ -134,7 +132,6 @@ class Bot(ContextualLogger):
             fighter_behavior=self.fighter_behavior,
             craft_behavior=self.craft_behavior,
             auto_bot_behavior=self.auto_bot_behavior,
-            mule_accept_kamas_behavior=self.mule_accept_kamas_behavior,
             usable_behaviors=self.usable_behaviors,
             bot_signals=self.bot_signals,
         )
@@ -179,7 +176,6 @@ class Bot(ContextualLogger):
             event_manager=self.event_manager,
             on_session_started=self.auto_bot_behavior.start_planned_session,
             on_session_finished=self.auto_bot_behavior.clear_planned_session,
-            on_mule_give_slot_started=self.auto_bot_behavior.request_mule_give,
         )
 
         self.game_info_signals.connected.connect(self.connection_handler.on_connected)
@@ -192,7 +188,6 @@ class Bot(ContextualLogger):
         self.bot_signals.play_harvester.connect(self.behavior_coordinator.on_play_harvester)
         self.bot_signals.play_fighter.connect(self.behavior_coordinator.on_play_fighter)
         self.bot_signals.play_crafter.connect(self.behavior_coordinator.on_play_crafter)
-        self.bot_signals.play_mule_kamas.connect(self.behavior_coordinator.on_play_mule_kamas)
         self.bot_signals.play_auto_bot.connect(self.behavior_coordinator.on_play_auto_bot)
         self.bot_signals.play_usable_behavior.connect(self.behavior_coordinator.on_play_usable_behavior)
 

@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+      <!-- todo: enable this once the app is aot compliant! -->
+      <PublishAot>false</PublishAot>
+      <OutputType Condition="'$(Configuration)' == 'Release'">WinExe</OutputType>
+      <PublishSingleFile>true</PublishSingleFile>
+  </PropertyGroup>
+
+    <!-- todo: this needs to be adjusted for multiplatform support -->
+    <Target Name="BuildTauriFrontend" BeforeTargets="BeforeBuild" Condition="'$(Configuration)' == 'Release'">
+        <Exec Command="pnpm install" WorkingDirectory="..\Il2CppInspector.Redux.GUI.UI" />
+        <Exec Command="pnpm tauri build --no-bundle" WorkingDirectory="..\Il2CppInspector.Redux.GUI.UI" />
+        <ItemGroup>
+            <EmbeddedResource Include="..\Il2CppInspector.Redux.GUI.UI\src-tauri\target\release\il2cppinspectorredux.exe" />
+        </ItemGroup>
+    </Target>
+    <ItemGroup>
+      <ProjectReference Include="..\Il2CppInspector.Redux.FrontendCore\Il2CppInspector.Redux.FrontendCore.csproj" />
+    </ItemGroup>
+
+</Project>

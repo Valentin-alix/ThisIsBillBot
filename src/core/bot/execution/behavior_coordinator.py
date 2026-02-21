@@ -8,14 +8,13 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.c
 )
 from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
-from src.controller.bot_config import BotConfig, BotConfigService
+from src.controller.bot_config import BotConfig
 from src.core.behaviors.behavior import Behavior, BehaviorState
 from src.core.behaviors.craft.craft_behavior import CraftBehavior, CraftRequest
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
 from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
 from src.core.behaviors.farms.fight.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvest.harvester_behavior import HarvesterBehavior
-from src.core.behaviors.storage.mule.mule_accept_behavior import MuleAcceptBehavior
 from src.core.events_manager.event_manager import EventManager
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.shared_farm_signals import SharedSignals
@@ -36,7 +35,6 @@ class BehaviorCoordinator(ContextualLogger):
     harvester_behavior: HarvesterBehavior
     fighter_behavior: FighterBehavior
     craft_behavior: CraftBehavior
-    mule_accept_kamas_behavior: MuleAcceptBehavior
     auto_bot_behavior: AutoBotBehavior
     usable_behaviors: list[Behavior]
 
@@ -81,13 +79,6 @@ class BehaviorCoordinator(ContextualLogger):
                 parent=None,
                 area_id=area_id,
                 sub_area_id=sub_area_id,
-            )
-        )
-
-    def on_play_mule_kamas(self):
-        self.play_action(
-            lambda _progress_callback: self.mule_accept_kamas_behavior.start(
-                callback=lambda *_args: self.bot_signals.stop.emit(), parent=None
             )
         )
 
@@ -141,10 +132,6 @@ class BehaviorCoordinator(ContextualLogger):
             self.guess_bot_action()
 
     def guess_bot_action(self) -> None:
-        is_kamas_mule = BotConfigService().is_kamas_mule(self.account.apikey.login)
-        if is_kamas_mule and self.player_state.level >= 50 and self.player_state.is_former_sub:
-            self.bot_signals.play_mule_kamas.emit()
-            return
         config = self.get_bot_config()
         if config is not None and config.schedule_profile is not None:
             self.bot_signals.play_auto_bot.emit()

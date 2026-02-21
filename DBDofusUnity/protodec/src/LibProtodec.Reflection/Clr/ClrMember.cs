@@ -1,0 +1,52 @@
+﻿// Copyright © 2024 Xpl0itR
+// 
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+using System.Collections.Generic;
+using System.Reflection;
+
+namespace LibProtodec.Reflection.Clr;
+
+public abstract class ClrMember(ClrAssemblyLoader loader, MemberInfo clrMember) : ICilCustomAttributeProvider
+{
+    protected readonly ClrAssemblyLoader Loader = loader;
+    private ICilCustomAttribute[]? _customAttributes;
+
+    public string Name =>
+        clrMember.Name;
+
+    public bool IsInherited =>
+        clrMember.DeclaringType != clrMember.ReflectedType;
+
+    public ICilType? DeclaringType =>
+        clrMember.DeclaringType is null
+            ? null
+            : Loader.GetType(
+                clrMember.DeclaringType);
+
+    public IReadOnlyList<ICilCustomAttribute> CustomAttributes
+    {
+        get
+        {
+            if (_customAttributes is null)
+            {
+                IList<CustomAttributeData> attributes = clrMember.GetCustomAttributesData();
+                if (attributes.Count < 1)
+                {
+                    return _customAttributes = [];
+                }
+
+                _customAttributes = new ICilCustomAttribute[attributes.Count];
+
+                for (int i = 0; i < attributes.Count; i++)
+                {
+                    _customAttributes[i] = new ClrCustomAttribute(Loader, attributes[i]);
+                }
+            }
+
+            return _customAttributes;
+        }
+    }
+}

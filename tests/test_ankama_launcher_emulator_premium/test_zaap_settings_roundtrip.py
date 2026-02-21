@@ -1,7 +1,6 @@
 from concurrent.futures import ProcessPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
-from unittest import TestCase
 
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.haapi import (
     get_account_info_by_login,
@@ -15,6 +14,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.z
     UserAccount,
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller import bot_storage
+from tests.fixtures.launcher import IsolatedLauncherStorageTestCase
 
 
 def _make_account(login: str) -> UserAccount:
@@ -57,7 +57,7 @@ def _update_password_repeatedly(
         )
 
 
-class TestAccountInfoRoundTrip(TestCase):
+class TestAccountInfoRoundTrip(IsolatedLauncherStorageTestCase):
     def test_concurrent_processes_preserve_distinct_bot_updates(self) -> None:
         bots_path = bot_storage.BOTS_STORAGE_PATH
         with ProcessPoolExecutor(max_workers=2) as executor:

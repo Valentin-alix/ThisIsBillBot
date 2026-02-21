@@ -1,0 +1,491 @@
+﻿<Window x:Class="Il2CppInspectorGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Il2CppInspectorGUI"
+        xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
+        mc:Ignorable="d"
+        Title="Il2CppInspectorRedux" Height="850" Width="1100" Background="White"
+        WindowStartupLocation="CenterScreen"
+        ContentRendered="MainWindow_OnContentRendered"
+        Drop="MainWindow_OnDrop">
+    <Window.Resources>
+        <!-- Image list -->
+        <DataTemplate x:Key="ImageListTemplate">
+            <TextBlock>
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{2}-bit {1} ({0})">
+                        <Binding Path="Package.BinaryImage.Format"></Binding>
+                        <Binding Path="Package.BinaryImage.Arch"></Binding>
+                        <Binding Path="Package.BinaryImage.Bits"></Binding>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+        </DataTemplate>
+
+        <!-- Namespace checkbox tree items -->
+        <HierarchicalDataTemplate x:Key="NamespaceTreeItemTemplate" DataType="{x:Type local:CheckboxNode}" ItemsSource="{Binding Children}">
+            <CheckBox Focusable="False" IsChecked="{Binding IsChecked}" VerticalAlignment="Center" Content="{Binding Name}"/>
+        </HierarchicalDataTemplate>
+    </Window.Resources>
+
+    <!-- Enable/disable drag & drop dynamically -->
+    <Window.Style>
+        <Style TargetType="{x:Type Window}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ElementName=grdFirstPage, Path=Visibility}" Value="Visible">
+                    <Setter Property="AllowDrop" Value="True"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ElementName=btnSelectBinaryFile, Path=Visibility}" Value="Visible">
+                    <Setter Property="AllowDrop" Value="True"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Style>
+
+    <!-- Window content -->
+    <Grid>
+        <!-- Main content -->
+        <Grid Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height ="100*" />
+                <RowDefinition Height ="40" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="330"></ColumnDefinition>
+                <ColumnDefinition Width="25"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <DockPanel DockPanel.Dock="Left">
+                <!-- List of images in the binary file -->
+                <Label DockPanel.Dock="Top" Foreground="{StaticResource WindowsBlue}" FontSize="18">Select image</Label>
+
+                <ListBox DockPanel.Dock="Top" Name="lstImages" ItemTemplate="{StaticResource ImageListTemplate}" Height="80" SelectionChanged="LstImages_OnSelectionChanged"/>
+
+                <!-- Footer text -->
+                <TextBlock DockPanel.Dock="Bottom" TextWrapping="WrapWithOverflow" Margin="5">
+                    If you find this tool useful, please donate to help support its continued development!<LineBreak/>
+                    Donate to LukeFZ via <Hyperlink NavigateUri="http://buymeacoffee.com/LukeFZ" RequestNavigate="Hyperlink_OnRequestNavigate">BuyMeACoffee</Hyperlink><LineBreak/>
+                    Donate to LukeFZ via <Hyperlink NavigateUri="http://patreon.com/LukeFZ" RequestNavigate="Hyperlink_OnRequestNavigate">Patreon</Hyperlink><LineBreak/>
+                    Donate to djkaty via <Hyperlink NavigateUri="http://paypal.me/djkaty" RequestNavigate="Hyperlink_OnRequestNavigate">PayPal</Hyperlink><LineBreak/>
+                    Donate to djkaty with bitcoin:<LineBreak/><TextBox IsReadOnly="True">3FoRUqUXgYj8NY8sMQfhX6vv9LqR3e2kzz</TextBox><LineBreak/>
+                    <LineBreak/>
+                    <Hyperlink NavigateUri="https://github.com/LukeFZ/Il2CppInspectorRedux" RequestNavigate="Hyperlink_OnRequestNavigate">Il2CppInspectorRedux on GitHub</Hyperlink><LineBreak/>
+                    <Hyperlink NavigateUri="https://github.com/LukeFZ" RequestNavigate="Hyperlink_OnRequestNavigate">https://github.com/LukeFZ</Hyperlink><LineBreak/>
+                    <Hyperlink NavigateUri="http://www.djkaty.com" RequestNavigate="Hyperlink_OnRequestNavigate">www.djkaty.com</Hyperlink><LineBreak/>
+                    &#169; Katy Coe 2017-2021, LukeFZ 2023
+                </TextBlock>
+
+                <!-- Image details view -->
+                <Label DockPanel.Dock="Top" Foreground="{StaticResource WindowsBlue}" FontSize="18">Image information</Label>
+
+                <Grid DockPanel.Dock="Top" Name="gridImageDetails" DataContext="{Binding ElementName=lstImages, Path=SelectedItem.Package}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70*"></ColumnDefinition>
+                        <ColumnDefinition Width="30*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" Content="IL2CPP version"></Label>
+                    <Label Grid.Row="0" Grid.Column="1" Content="{Binding Path=Version}"></Label>
+                    <Label Grid.Row="1" Grid.Column="0" Content="Container format"></Label>
+                    <Label Grid.Row="1" Grid.Column="1" Content="{Binding Path=BinaryImage.Format}"></Label>
+                    <Label Grid.Row="2" Grid.Column="0" Content="Container endianness"></Label>
+                    <Label Grid.Row="2" Grid.Column="1" Content="{Binding Path=BinaryImage.Endianness}"></Label>
+                    <Label Grid.Row="3" Grid.Column="0" Content="Architecture"></Label>
+                    <Label Grid.Row="3" Grid.Column="1" Content="{Binding Path=BinaryImage.Arch}"></Label>
+                    <Label Grid.Row="4" Grid.Column="0" Content="Architecture word size"></Label>
+                    <Label Grid.Row="4" Grid.Column="1" Content="{Binding Path=BinaryImage.Bits}" ContentStringFormat="{}{0}-bit"></Label>
+                    <Label Grid.Row="5" Grid.Column="0" Content="Code image-to-VA positive offset"></Label>
+                    <Label Grid.Row="5" Grid.Column="1" Content="{Binding Path=BinaryImage.GlobalOffset}" ContentStringFormat="0x{0:x8}"></Label>
+                    <Label Grid.Row="6" Grid.Column="0" Content="MetadataRegistration address"></Label>
+                    <Label Grid.Row="6" Grid.Column="1" Content="{Binding Path=Binary.MetadataRegistrationPointer}" ContentStringFormat="0x{0:x8}"></Label>
+                    <Label Grid.Row="7" Grid.Column="0" Content="CodeRegistration address"></Label>
+                    <Label Grid.Row="7" Grid.Column="1" Content="{Binding Path=Binary.CodeRegistrationPointer}" ContentStringFormat="0x{0:x8}"></Label>
+                    <Label Grid.Row="8" Grid.Column="0" Content="Il2CppCodeRegistration function"></Label>
+                    <Label Grid.Row="8" Grid.Column="1" Content="{Binding Path=Binary.RegistrationFunctionPointer}" ContentStringFormat="0x{0:x8}"></Label>
+                </Grid>
+                
+                <!-- Unity asset file button -->
+                <Button Name="btnUnityAsset" Click="BtnUnityAsset_Click" DockPanel.Dock="Top" Margin="10" Padding="5" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="14" Width="260" Content="Get Unity version from asset file..." Style="{StaticResource LightBoxButton}"/>
+
+                <!-- Save file buttons -->
+                <Button Name="btnSaveMetadata" Click="BtnSaveMetadata_OnClick" DockPanel.Dock="Top" Margin="10" Padding="5" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="14" Width="260" Content="Save extracted/decrypted metadata...">
+                    <Button.Style>
+                        <Style BasedOn="{StaticResource LightBoxButton}" TargetType="{x:Type Button}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=areaBusyIndicator, Path=Visibility}" Value="Visible">
+                                    <Setter Property="Button.IsEnabled" Value="False"/>
+                                </DataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding ElementName=lstImages, Path=SelectedItem.Package.Metadata.IsModified}" Value="False" />
+                                        <Condition Binding="{Binding Path=IsExtractedFromPackage}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Button.IsEnabled" Value="False"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Name="btnSaveBinary" Click="BtnSaveBinary_OnClick" DockPanel.Dock="Top" Margin="10,2,10,10" Padding="5" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="14" Width="260" Content="Save extracted/decrypted binary...">
+                    <Button.Style>
+                        <Style BasedOn="{StaticResource LightBoxButton}" TargetType="{x:Type Button}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=areaBusyIndicator, Path=Visibility}" Value="Visible">
+                                    <Setter Property="Button.IsEnabled" Value="False"/>
+                                </DataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding ElementName=lstImages, Path=SelectedItem.Package.Binary.IsModified}" Value="False" />
+                                        <Condition Binding="{Binding Path=IsExtractedFromPackage}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Button.IsEnabled" Value="False"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </DockPanel>
+            <Separator Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="5,5,10,5">
+                <Separator.LayoutTransform>
+                    <RotateTransform Angle="90"></RotateTransform>
+                </Separator.LayoutTransform>
+            </Separator>
+
+            <!-- Image selection prompt that automatically disappears when an image is selected -->
+            <Label Name="lblChooseImagePrompt" Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" Foreground="{StaticResource WindowsBlue}" FontSize="24"
+                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Label.Content>Select an image on the left</Label.Content>
+                <Label.Style>
+                    <Style>
+                        <Setter Property="Label.Visibility" Value="Hidden"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=lstImages, Path=SelectedItem}" Value="{x:Null}">
+                                <Setter Property="Label.Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Label.Style>
+            </Label>
+
+            <!-- Output configuration -->
+            <DockPanel Name="pnlOutputSettings" Grid.Row="0" Grid.Column="2" Grid.RowSpan="2">
+
+                <!-- Show preferences only when an image is selected -->
+                <DockPanel.Style>
+                    <Style>
+                        <Setter Property="DockPanel.Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=lstImages, Path=SelectedItem}" Value="{x:Null}">
+                                <Setter Property="DockPanel.Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DockPanel.Style>
+
+                <!-- Export button -->
+                <Button Name="btnExport" Click="BtnExport_OnClick" DockPanel.Dock="Bottom" Margin="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="18" Width="120" Content="Export">
+                    <Button.Style>
+                        <Style BasedOn="{StaticResource LightBoxButton}" TargetType="{x:Type Button}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=areaBusyIndicator, Path=Visibility}" Value="Visible">
+                                    <Setter Property="Button.IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <DockPanel DockPanel.Dock="Top">
+                    <!-- List of namespaces to export -->
+                    <DockPanel DockPanel.Dock="Right" Width="230">
+                        <Label DockPanel.Dock="Top" Foreground="{StaticResource WindowsBlue}" FontSize="18">Namespaces</Label>
+                        <TextBlock DockPanel.Dock="Top" TextWrapping="WrapWithOverflow" Margin="10,0,5,5">This only applies to C# prototypes output</TextBlock>
+
+                        <StackPanel DockPanel.Dock="Top" Margin="10,0,5,5" Orientation="Horizontal">
+                            <Button Margin="2,0,5,0" Width="103" Click="SelectAllNamespaces_Click">Select all</Button>
+                            <Button Width="103" Click="SelectNoneNamespaces_Click">Select none</Button>
+                        </StackPanel>
+                        
+                        <TreeView DockPanel.Dock="Bottom" Name="trvNamespaces" ItemTemplate="{StaticResource NamespaceTreeItemTemplate}" Width="210" Margin="10,5,5,5"></TreeView>
+                    </DockPanel>
+
+                    <!-- Settings -->
+                    <ScrollViewer Padding="6">
+                    <StackPanel DockPanel.Dock="Left">
+                        <Label Foreground="{StaticResource WindowsBlue}" FontSize="18">Configure output</Label>
+
+                        <!-- C# code stubs output -->
+                        <RadioButton GroupName="grpOutputType" Name="rdoOutputCSharp" IsChecked="True" VerticalContentAlignment="Center" FontSize="18" Foreground="{StaticResource MicrosoftGreen}">C# prototypes</RadioButton>
+                        <GroupBox Header="Layout" Margin="5" Padding="5">
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ElementName=rdoOutputSolution, Path=IsChecked}" Value="True">
+                                                <Setter Property="Control.IsEnabled" Value="False"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <RadioButton Name="rdoLayoutSingle" IsChecked="True">Single file</RadioButton>
+                                <RadioButton Name="rdoLayoutNamespace">File per namespace</RadioButton>
+                                <RadioButton Name="rdoLayoutAssembly">File per assembly</RadioButton>
+                                <RadioButton Name="rdoLayoutClass">File per class</RadioButton>
+                                <RadioButton Name="rdoLayoutTree" Content="Tree layout">
+                                    <RadioButton.Style>
+                                        <Style>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ElementName=rdoOutputSolution, Path=IsChecked}" Value="True">
+                                                    <Setter Property="RadioButton.IsChecked" Value="True"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </RadioButton.Style>
+                                </RadioButton>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <CheckBox Name="cbFlattenHierarchy" Margin="2" Content="Don't nest folders (flatten hierarchy)">
+                            <CheckBox.Style>
+                                <Style>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=rdoLayoutSingle, Path=IsChecked}" Value="True">
+                                            <Setter Property="Control.IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ElementName=rdoLayoutAssembly, Path=IsChecked}" Value="True">
+                                            <Setter Property="Control.IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </CheckBox.Style>
+                        </CheckBox>
+
+                        <!-- Sorting (only available with single file, namespace and assembly output -->
+                        <GroupBox Margin="5" Padding="5">
+                            <!-- Replace TextBlock with Label in header template so that it greys out when the GroupBox is disabled -->
+                            <GroupBox.Header>
+                                <Label Content="Type sorting" Padding="0"/>
+                            </GroupBox.Header>
+                            <GroupBox.Style>
+                                <Style>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=rdoLayoutClass, Path=IsChecked}" Value="True">
+                                            <Setter Property="Control.IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ElementName=rdoLayoutTree, Path=IsChecked}" Value="True">
+                                            <Setter Property="Control.IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </GroupBox.Style>
+                            <StackPanel>
+                                <RadioButton Name="rdoSortName" IsChecked="True">Alphabetical</RadioButton>
+                                <RadioButton Name="rdoSortIndex">Type definition index</RadioButton>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <CheckBox Name="cbSuppressMetadata" Margin="2">Suppress pointer, offset and index metadata comments</CheckBox>
+                        <CheckBox Name="cbMustCompile" Margin="2" Content="Attempt to generate output that compiles">
+                            <CheckBox.Style>
+                                <Style>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=rdoOutputSolution, Path=IsChecked}" Value="True">
+                                            <Setter Property="CheckBox.IsChecked" Value="True"/>
+                                            <Setter Property="Control.IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </CheckBox.Style>
+                        </CheckBox>
+
+                        <CheckBox Name="cbSeparateAttributes" Margin="2" Content="Place assembly-level attributes in separate files">
+                            <CheckBox.Style>
+                                <Style>
+                                    <Setter Property="CheckBox.IsChecked" Value="True"/>
+                                    <Setter Property="Control.IsEnabled" Value="False"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=rdoLayoutAssembly, Path=IsChecked}" Value="True">
+                                            <Setter Property="Control.IsEnabled" Value="True"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ElementName=rdoLayoutTree, Path=IsChecked}" Value="True">
+                                            <Setter Property="Control.IsEnabled" Value="True"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ElementName=rdoOutputSolution, Path=IsChecked}" Value="True">
+                                            <Setter Property="CheckBox.IsChecked" Value="True"/>
+                                            <Setter Property="Control.IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </CheckBox.Style>
+                        </CheckBox>
+
+                        <Separator Margin="5,15,5,15"/>
+
+                        <!-- Visual Studio solution -->
+                        <RadioButton GroupName="grpOutputType" Name="rdoOutputSolution" VerticalContentAlignment="Center" FontSize="18" Foreground="{StaticResource MicrosoftGreen}">Visual Studio solution</RadioButton>
+                        <TextBlock TextWrapping="WrapWithOverflow">Uses the settings above but forces tree layout, compilable output and separate assembly attributes</TextBlock>
+                        <DockPanel>
+                            <Button Name="btnUnityPath" DockPanel.Dock="Right" Width="70" Margin="4" Click="BtnUnityPath_OnClick">Browse</Button>
+                            <Label DockPanel.Dock="Left" Width="170" VerticalAlignment="Center">Unity editor path:</Label>
+                            <TextBlock Name="txtUnityPath" DockPanel.Dock="Left" VerticalAlignment="Center" FlowDirection="RightToLeft" HorizontalAlignment="Right" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}"/>
+                        </DockPanel>
+                        <DockPanel>
+                            <Button Name="btnUnityScriptPath" DockPanel.Dock="Right" Width="70" Margin="4" Click="BtnUnityScriptPath_OnClick">Browse</Button>
+                            <Label DockPanel.Dock="Left" Width="240" VerticalAlignment="Center">Unity script assemblies path:</Label>
+                            <TextBlock Name="txtUnityScriptPath" DockPanel.Dock="Left" VerticalAlignment="Center" FlowDirection="RightToLeft" HorizontalAlignment="Right" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}"/>
+                        </DockPanel>
+
+                        <Separator Margin="5,15,5,15"/>
+
+                        <!-- Assembly shim DLLs -->
+                        <RadioButton GroupName="grpOutputType" Name="rdoOutputDll" VerticalContentAlignment="Center" FontSize="18" Foreground="{StaticResource MicrosoftGreen}">.NET assembly shim DLLs</RadioButton>
+
+                        <CheckBox Name="cbSuppressDllMetadata" Margin="2,10,2,2">Suppress output of all metadata attributes</CheckBox>
+
+                        <Separator Margin="5,15,5,15"/>
+
+                        <!-- Python script -->
+                        <RadioButton GroupName="grpOutputType" Name="rdoOutputPy" VerticalContentAlignment="Center" FontSize="18" Foreground="{StaticResource MicrosoftGreen}">Python script for disassemblers</RadioButton>
+                        <DockPanel>
+                            <ComboBox Name="cboPyUnityVersion" DockPanel.Dock="Right" Margin="4"></ComboBox>
+                            <Label DockPanel.Dock="Left" Width="170" VerticalAlignment="Center" HorizontalAlignment="Left">Unity version (if known):</Label>
+                        </DockPanel>
+                        <DockPanel>
+                            <ComboBox Name="cboPyTarget" DockPanel.Dock="Right" Margin="4" Width="80"></ComboBox>
+                            <Label DockPanel.Dock="Left" Width="170" VerticalAlignment="Center" HorizontalAlignment="Left">Script target:</Label>
+                        </DockPanel>
+
+                        <Separator Margin="5,15,5,15"/>
+
+                        <!-- C++ scaffolding -->
+                        <RadioButton GroupName="grpOutputType" Name="rdoOutputCpp" VerticalContentAlignment="Center" FontSize="18" Foreground="{StaticResource MicrosoftGreen}">C++ scaffolding / DLL injection project</RadioButton>
+                        <DockPanel>
+                            <ComboBox Name="cboCppUnityVersion" DockPanel.Dock="Right" Margin="4"></ComboBox>
+                            <Label DockPanel.Dock="Left" Width="250" VerticalAlignment="Center" HorizontalAlignment="Left">Unity version (if known):</Label>
+                        </DockPanel>
+                        <DockPanel>
+                            <ComboBox Name="cboCppCompiler" DockPanel.Dock="Right" Margin="4" Width="80">
+                                <ComboBoxItem IsSelected="True">MSVC</ComboBoxItem>
+                                <ComboBoxItem>GCC</ComboBoxItem>
+                            </ComboBox>
+                            <Label DockPanel.Dock="Left" Width="250" VerticalAlignment="Center" HorizontalAlignment="Left">Target C++ compiler for output:</Label>
+                        </DockPanel>
+
+                        <Separator Margin="5,15,5,15"/>
+                            
+                        <!-- JSON metadata -->
+                        <RadioButton GroupName="grpOutputType" Name="rdoOutputJSON" VerticalContentAlignment="Center" FontSize="18" Foreground="{StaticResource MicrosoftGreen}">JSON metadata</RadioButton>
+                        <DockPanel>
+                            <ComboBox Name="cboJsonUnityVersion" DockPanel.Dock="Right" Margin="4"></ComboBox>
+                            <Label DockPanel.Dock="Left" Width="170" VerticalAlignment="Center" HorizontalAlignment="Left">Unity version (if known):</Label>
+                        </DockPanel>
+
+                    </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </DockPanel>
+        </Grid>
+
+        <!-- Background dimmer -->
+        <Rectangle Name="rectModalLightBoxBackground" Fill="Black" Opacity="0.4">
+            <Rectangle.Style>
+                <Style>
+                    <Setter Property="Rectangle.Visibility" Value="Hidden"></Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=grdFirstPage, Path=Visibility}" Value="Visible">
+                            <Setter Property="Rectangle.Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ElementName=btnSelectBinaryFile, Path=Visibility}" Value="Visible">
+                            <Setter Property="Rectangle.Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ElementName=areaBusyIndicator, Path=Visibility}" Value="Visible">
+                            <Setter Property="Rectangle.Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Rectangle.Style>
+        </Rectangle>
+
+        <!-- Light boxes -->
+        <Grid Name="grdFirstPage">
+            <Grid.RowDefinitions>
+                <RowDefinition Height ="*" />
+                <RowDefinition Height ="*" />
+                <RowDefinition Height ="Auto" />
+            </Grid.RowDefinitions>
+
+            <Button Grid.Row="0" Name="btnSelectMetadataFile" Style="{StaticResource LightBoxButton}" Margin="100,100,100,25" Click="BtnSelectMetadataFile_OnClick">
+                <TextBlock TextAlignment="Center">
+                    <TextBlock FontSize="22">Option 1</TextBlock>
+                    <LineBreak/>
+                    <TextBlock>Select or drag &amp; drop an IL2CPP metadata file</TextBlock>
+                    <LineBreak/>
+                    <TextBlock FontSize="16">You can drag &amp; drop both the metadata and binary together</TextBlock>
+                </TextBlock>
+            </Button>
+            <Button Grid.Row="1" Name="btnSelectPackageFile" Style="{StaticResource LightBoxButton}" Margin="100,75,100,50" Click="BtnSelectPackageFile_OnClick">
+                <TextBlock TextAlignment="Center">
+                    <TextBlock FontSize="22">Option 2</TextBlock>
+                    <LineBreak/>
+                    <TextBlock>Select or drag &amp; drop one or more APK files,<LineBreak/>an XAPK, AAB, IPA or Zip file</TextBlock>
+                    <LineBreak/>
+                    <TextBlock FontSize="16">Encrypted IPA files are not supported</TextBlock>
+                </TextBlock>
+            </Button>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                <!-- Plugin options -->
+                <Button Name="btnPluginOptions" Style="{StaticResource LightBoxButton}" Click="BtnPluginOptions_Click" Margin="0,0,10,10" Padding="5" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="18" Width="180" Content="Manage plugins..."/>
+
+                <!-- Load options -->
+                <Button Name="btnLoadOptions" Style="{StaticResource LightBoxButton}" Click="BtnLoadOptions_Click" Margin="0,0,10,10" Padding="5" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="18" Width="180" Content="Import options..."/>
+            </StackPanel>
+        </Grid>
+        <Button Name="btnSelectBinaryFile" Style="{StaticResource LightBoxButton}" Margin="100" Click="BtnSelectBinaryFile_OnClick" Visibility="Hidden">
+            <TextBlock TextAlignment="Center">
+                <TextBlock>Select or drag &amp; drop an IL2CPP binary file</TextBlock>
+                <LineBreak/>
+                <TextBlock FontSize="16">You can also use a Linux process map (eg. maps.txt from GameGuardian)</TextBlock>
+            </TextBlock>
+        </Button>
+
+        <!-- Back button -->
+        <Button Name="btnBack" Margin="7" Padding="2" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontSize="18" Width="120" Click="BtnBack_OnClick" Content="&lt;&lt; Back">
+            <Button.Style>
+                <Style BasedOn="{StaticResource LightBoxButton}" TargetType="{x:Type Button}">
+                    <Setter Property="Visibility" Value="Hidden"></Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=grdFirstPage, Path=Visibility}" Value="Hidden">
+                            <Setter Property="Button.Visibility" Value="Visible"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ElementName=areaBusyIndicator, Path=Visibility}" Value="Visible">
+                            <Setter Property="Button.IsEnabled" Value="False"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+
+        <!-- Busy indicator -->
+        <Border Name="areaBusyIndicator" Width="800" BorderThickness="1" CornerRadius="2" BorderBrush="Gray" HorizontalAlignment="Center" VerticalAlignment="Center" Background="White" SnapsToDevicePixels="True" Visibility="Hidden">
+            <StackPanel Margin="60,40,60,40">
+                <TextBlock Name="txtBusyStatus" Foreground="{StaticResource WindowsBlue}" FontSize="24" HorizontalAlignment="Center" TextAlignment="Center">Getting things ready...</TextBlock>
+                <Image gif:AnimationBehavior.SourceUri="Resources/pizza.gif" Width="100" Margin="0,20,0,0" RenderOptions.BitmapScalingMode="Fant" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

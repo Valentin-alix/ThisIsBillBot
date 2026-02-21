@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/release.yml" />
+    <File Path="NuGet.config" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="src/LibProtodec.Reflection/LibProtodec.Reflection.csproj" />
+  <Project Path="src/LibProtodec/LibProtodec.csproj" />
+  <Project Path="src/protodec/protodec.csproj" />
+</Solution>

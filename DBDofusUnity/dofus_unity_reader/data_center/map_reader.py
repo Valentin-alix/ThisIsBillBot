@@ -1,10 +1,11 @@
 from dataclasses import dataclass
+from zipfile import ZipFile
 
 import msgspec
-from base_python.cache import cache
-from base_python.singleton import Singleton
+from utils.cache import cache
+from utils.singleton import Singleton
 
-from DBDofusUnity.consts import MAP_BUNDLES_ROOT
+from DBDofusUnity.consts import MAPS_ARCHIVE_PATH
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.models.maps import CellData, MapDataRoot, MapReference
 
@@ -13,8 +14,18 @@ from DBDofusUnity.dofus_unity_reader.models.maps import CellData, MapDataRoot, M
 class MapReader(metaclass=Singleton):
     @cache
     def map_by_id(self, map_id: int) -> MapDataRoot:
-        with (MAP_BUNDLES_ROOT / f"map_{map_id}.json").open("rb") as file:
-            return msgspec.json.decode(file.read(), type=MapDataRoot)
+        with ZipFile(MAPS_ARCHIVE_PATH) as archive:
+            return msgspec.json.decode(archive.read(f"map/map_{map_id}.json"), type=MapDataRoot)
+
+    @staticmethod
+    @cache
+    def get_all_map_bundle_ids() -> set[int]:
+        with ZipFile(MAPS_ARCHIVE_PATH) as archive:
+            return {
+                int(path.removeprefix("map/map_").removesuffix(".json"))
+                for path in archive.namelist()
+                if path.startswith("map/map_") and path.endswith(".json")
+            }
 
     @cache
     def is_map_using_new_movement_system(self, map_id: int) -> bool:

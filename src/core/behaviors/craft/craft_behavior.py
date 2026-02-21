@@ -23,6 +23,7 @@ from src.core.behaviors.movements.auto_trip.auto_trip_smart_behavior import (
 )
 from src.core.behaviors.recovery_behavior import RecoverableBehavior
 from src.core.behaviors.storage.loads.load_recipe_behavior import LoadRecipeBehavior
+from src.core.engine.crafts.recipes import get_max_possible_result_quantity, get_max_result_quantity
 from src.core.engine.movements.map.map_tools import MapTools
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.states.dialog_state import OpenDialogKind
@@ -58,9 +59,6 @@ class CraftBehavior(RecoverableBehavior):
         return self._activity_performed
 
     def run(self, craft_requests: list[CraftRequest]) -> None:
-        if not self.game_state.inventory.can_use_bank:
-            self.logger.info("Can't craft recipe without bank access")
-            return self.finish()
         self.init_recovery_listeners()
         self.ensure_free_to_act(lambda: self.start_crafting(craft_requests=craft_requests))
 
@@ -69,9 +67,8 @@ class CraftBehavior(RecoverableBehavior):
 
         - un `int` : crafter cette quantite avec les ingredients deja en sac, sans passer par la
           banque (utile quand on sort du HDV les mains pleines -- une quete, typiquement).
-        - un `Callable` : filtre applique avant le chargement banque (comportement normal, quantite
-          determinee par le poids d'inventaire disponible).
-        - `None` : pas de regle, craft normal jusqu'a epuisement.
+        - un `Callable` : filtre applique avant le craft normal.
+        - `None` : pas de regle, craft jusqu'a epuisement.
         """
         self._activity_performed = False
         valid_recipe_ids = {
@@ -80,11 +77,6 @@ class CraftBehavior(RecoverableBehavior):
         }
         valid_requests = [req for req in craft_requests if req.recipe.resultId in valid_recipe_ids]
 
-        quantity_by_result_id = {
-            req.recipe.resultId: req.stop_condition
-            for req in valid_requests
-            if isinstance(req.stop_condition, int)
-        }
         condition_by_result_id = {
             req.recipe.resultId: req.stop_condition for req in valid_requests if callable(req.stop_condition)
         }
@@ -92,20 +84,47 @@ class CraftBehavior(RecoverableBehavior):
             recipe.resultId, lambda _: False
         )(recipe)
 
-        inventory_recipes = [req.recipe for req in valid_requests if isinstance(req.stop_condition, int)]
+        if not self.game_state.inventory.can_use_bank:
+            self._remaining_recipes = []
+            return self.craft_from_inventory(valid_requests)
+
+        inventory_requests = [request for request in valid_requests if isinstance(request.stop_condition, int)]
         self._remaining_recipes = [
             req.recipe for req in valid_requests if not isinstance(req.stop_condition, int)
         ]
 
-        if inventory_recipes:
-            return self.craft_from_inventory(quantity_by_result_id, inventory_recipes)
+        if inventory_requests:
+            return self.craft_from_inventory(inventory_requests)
         self.process_remaining_recipes()
 
-    def craft_from_inventory(self, quantity_by_result_id: dict[int, int], recipes: list[RecipeItem]) -> None:
-        self._loaded_recipes_infos = [
-            LoadedRecipeInfo(recipe=recipe, quantity=quantity_by_result_id[recipe.resultId])
-            for recipe in recipes
-        ]
+    def craft_from_inventory(self, requests: list[CraftRequest]) -> None:
+        quantity_by_gid: dict[int, int] = {}
+        for object_item in self.game_state.inventory.objects_by_uid.values():
+            gid = object_item.item.gid
+            quantity_by_gid[gid] = quantity_by_gid.get(gid, 0) + object_item.item.quantity
+
+        self._loaded_recipes_infos = []
+        for request in requests:
+            if isinstance(request.stop_condition, int):
+                self._loaded_recipes_infos.append(LoadedRecipeInfo(recipe=request.recipe, quantity=request.stop_condition))
+                continue
+
+            max_result_quantity, weight_for_one_result = get_max_result_quantity(
+                self.logger, quantity_by_gid, request.recipe
+            )
+            if max_result_quantity == 0:
+                continue
+            quantity = get_max_possible_result_quantity(
+                self.game_state.inventory.weight_max,
+                self.game_state.inventory.inventory_weight,
+                weight_for_one_result,
+                max_result_quantity,
+            )
+            if quantity > 0:
+                self._loaded_recipes_infos.append(LoadedRecipeInfo(recipe=request.recipe, quantity=quantity))
+                for ingredient_id, ingredient_quantity in zip(request.recipe.ingredientIds, request.recipe.quantities):
+                    quantity_by_gid[ingredient_id] -= ingredient_quantity * quantity
+
         if not self._loaded_recipes_infos:
             self.logger.warning("No craftable recipe left, nothing to craft from the inventory")
             return self.process_remaining_recipes()

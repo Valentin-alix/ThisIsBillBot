@@ -1,7 +1,7 @@
 import os
 from threading import Lock
 
-from base_python.singleton import Singleton
+from utils.singleton import Singleton
 
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import PAYSAFECARDS_PATH
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.atomic_file import (

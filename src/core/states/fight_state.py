@@ -2,7 +2,6 @@ import dataclasses
 from collections import defaultdict
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import NamedTuple
 
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
@@ -28,11 +27,6 @@ from src.core.signals.player_signals import GameInfoSignals
 from src.core.states.entity_state import EntityState, FightActor
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State
-
-
-class LastAtkInfo(NamedTuple):
-    monster_group_info: ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor
-    from_map_id: int  # ca sert a déterminer si on a perdu => si la map est différente après le fight alors ui on a perdu
 
 
 @dataclass
@@ -62,7 +56,6 @@ class FightState(State):
     _fight_turn: int = dataclasses.field(init=False, default=0)
     _life_point: int = dataclasses.field(init=False, default=1)
     _max_life_point: int = dataclasses.field(init=False, default=1)
-    last_atk_info: LastAtkInfo | None = dataclasses.field(init=False, default=None)
     invisible_enemy_cell_ids: set[int] = dataclasses.field(init=False, default_factory=set[int])
 
     def clear_state(self):
@@ -76,7 +69,6 @@ class FightState(State):
         self.characteristic_by_id.clear()
         self.in_fight = False
         self.fight_turn = 0
-        self.last_atk_info = None
         self.invisible_enemy_cell_ids.clear()
 
     def add_invisible_enemy_cell(self, cell_id: int) -> None:

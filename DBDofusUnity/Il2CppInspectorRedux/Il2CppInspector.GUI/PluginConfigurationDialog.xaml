@@ -1,0 +1,226 @@
+﻿<Window x:Class="Il2CppInspectorGUI.PluginConfigurationDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Il2CppInspectorGUI"
+        xmlns:local2="clr-namespace:Il2CppInspector.GUI"
+        mc:Ignorable="d"
+        Title="{Binding Path=Plugin.Name, StringFormat=Configuration for {0}}" Height="400" Width="800"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        SizeToContent="Height" MaxHeight="800"
+        Closing="Window_Closing">
+    <Window.Resources>
+        <local:OptionTemplateSelector x:Key="OptionTemplateSelector"/>
+        <local:OptionConditionConverter x:Key="OptionConditionConverter" />
+        <local2:HexStringValueConverter x:Key="HexStringValueConverter" />
+        <local2:EqualityConverter x:Key="EqualityVisibilityConverter" TrueValue="{x:Static Visibility.Visible}" FalseValue="{x:Static Visibility.Collapsed}" />
+        <BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" />
+
+        <!-- Conditional option enabler -->
+        <Style x:Key="OptionCondition" TargetType="FrameworkElement">
+            <Setter Property="IsEnabled" Value="{Binding Converter={StaticResource OptionConditionConverter}}" />
+        </Style>
+        
+        <!-- Validation error style -->
+        <Style x:Key="ValidationStyle" TargetType="TextBlock">
+            <Setter Property="Text" Value="{Binding ElementName=valueControl, Path=(Validation.Errors)[0].ErrorContent}"/>
+            <Setter Property="Foreground" Value="Red" />
+        </Style>
+
+        <DataTemplate x:Key="ValidationErrorTemplate">
+            <StackPanel>
+                <StackPanel.Style>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=errorText, Path=Text}" Value="">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <TextBlock Name="errorText" Style="{StaticResource ValidationStyle}" />
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- Some elements don't gray out disabled text by default -->
+        <Style x:Key="GreyWhenDisabled" TargetType="FrameworkElement">
+            <Style.Triggers>
+                <Trigger Property="UIElement.IsEnabled" Value="False">
+                    <Setter Property="TextElement.Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Configure ListBox to display configuration controls nicely -->
+        <Style x:Key="OptionItemStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Background" Value="Transparent"/>
+
+            <!-- Force ListBox to width of window -->
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+
+            <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+            <Setter Property="Padding" Value="2,6,0,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    
+        <!-- Option label template -->
+        <DataTemplate x:Key="OptionLabelTemplate">
+            <TextBlock DockPanel.Dock="Left" Width="350" VerticalAlignment="Top" Style="{StaticResource GreyWhenDisabled}">
+                <TextBlock Text="{Binding Path=Description}" TextWrapping="Wrap" Margin="0,4,0,0"></TextBlock>
+                <TextBlock Visibility="{Binding Required, Converter={StaticResource VisibleIfTrueConverter}}" Text="*" Foreground="Red"/>
+            </TextBlock>
+        </DataTemplate>
+        
+        <!-- Option layouts -->
+        
+        <!-- Free text -->
+        <DataTemplate x:Key="TextTemplate">
+            <DockPanel Name="optionPanel" Style="{StaticResource OptionCondition}">
+                <ContentPresenter ContentTemplate="{StaticResource OptionLabelTemplate}" />
+                <StackPanel DockPanel.Dock="Right" Margin="4,0,4,0">
+                    <TextBox Name="valueControl" VerticalAlignment="Top" Padding="2" Text="{Binding Path=Value, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}" TextChanged="valueControl_Changed" />
+                    <ContentPresenter ContentTemplate="{StaticResource ValidationErrorTemplate}" />
+                </StackPanel>
+            </DockPanel>
+        </DataTemplate>
+
+        <!-- File path -->
+        <DataTemplate x:Key="FilePathTemplate">
+            <DockPanel Name="optionPanel" Style="{StaticResource OptionCondition}">
+                <Button Name="btnFilePathSelector" DockPanel.Dock="Right" Width="70" Height="25" VerticalAlignment="Top" Margin="4,0,4,0" Click="btnFilePathSelector_Click">Browse</Button>
+                <ContentPresenter ContentTemplate="{StaticResource OptionLabelTemplate}" />
+                <StackPanel DockPanel.Dock="Right" Margin="4,0,4,0">
+                    <TextBox Name="valueControl" VerticalAlignment="Top" HorizontalAlignment="Stretch" TextAlignment="Right" Padding="2" Margin="0,0,4,0" IsReadOnly="True" BorderBrush="Transparent" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}" TextChanged="valueControl_Changed" />
+                    <ContentPresenter ContentTemplate="{StaticResource ValidationErrorTemplate}" />
+                </StackPanel>
+            </DockPanel>
+        </DataTemplate>
+
+        <!-- Decimal number -->
+        <DataTemplate x:Key="NumberDecimalTemplate">
+            <DockPanel Name="optionPanel" Style="{StaticResource OptionCondition}">
+                <ContentPresenter ContentTemplate="{StaticResource OptionLabelTemplate}" />
+                <StackPanel DockPanel.Dock="Right" Margin="4,0,4,0">
+                    <TextBox Name="valueControl" VerticalAlignment="Center" Padding="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}" TextChanged="valueControl_Changed"/>
+                    <ContentPresenter ContentTemplate="{StaticResource ValidationErrorTemplate}" />
+                </StackPanel>
+            </DockPanel>
+        </DataTemplate>
+
+        <!-- Hex number -->
+        <DataTemplate x:Key="NumberHexTemplate">
+            <DockPanel Name="optionPanel" Style="{StaticResource OptionCondition}">
+                <ContentPresenter ContentTemplate="{StaticResource OptionLabelTemplate}" />
+                <StackPanel DockPanel.Dock="Right" Margin="4,0,4,0">
+                    <DockPanel HorizontalAlignment="Stretch">
+                        <Label Padding="0" Margin="0,2,4,0">0x</Label>
+                        <TextBox Name="valueControl" DockPanel.Dock="Right" Padding="2" Text="{Binding Value, Converter={StaticResource HexStringValueConverter}, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="txtHexString_PreviewTextInput" TextChanged="valueControl_Changed"/>
+                    </DockPanel>
+                    <ContentPresenter ContentTemplate="{StaticResource ValidationErrorTemplate}" />
+                </StackPanel>
+            </DockPanel>
+        </DataTemplate>
+
+        <!-- Boolean tickbox (no validation required) -->
+        <DataTemplate x:Key="BooleanTemplate">
+            <DockPanel Margin="350,0,0,0" Name="optionPanel" Style="{StaticResource OptionCondition}">
+                <TextBlock DockPanel.Dock="Left" VerticalAlignment="Top" Margin="0,4,2,4"
+                            Visibility="{Binding Required, Converter={StaticResource VisibleIfTrueConverter}}" Text="*" Foreground="Red"/>
+                <CheckBox Name="valueControl" DockPanel.Dock="Right" VerticalAlignment="Center" Margin="0,4,2,4" IsChecked="{Binding Value}" Checked="valueControl_Changed" Unchecked="valueControl_Changed">
+                    <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Description}" Style="{StaticResource GreyWhenDisabled}"/>
+                </CheckBox>
+            </DockPanel>
+        </DataTemplate>
+
+        <!-- Drop-down choices -->
+        <DataTemplate x:Key="ChoiceDropdownTemplate">
+            <DockPanel Name="optionPanel" Style="{StaticResource OptionCondition}">
+                <ContentPresenter ContentTemplate="{StaticResource OptionLabelTemplate}" />
+                <StackPanel DockPanel.Dock="Right" Margin="4,0,4,0">
+                    <ComboBox Name="valueControl" ItemsSource="{Binding Choices}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding Value}" SelectionChanged="valueControl_Changed"/>
+                    <ContentPresenter ContentTemplate="{StaticResource ValidationErrorTemplate}" />
+                </StackPanel>
+            </DockPanel>
+        </DataTemplate>
+        
+        <!-- Radio button choices -->
+        <DataTemplate x:Key="ChoiceListTemplate">
+            <StackPanel Name="optionPanel" Style="{StaticResource OptionCondition}">
+                <GroupBox Header="{Binding Description}" Margin="5" Padding="5" Style="{StaticResource GreyWhenDisabled}">
+                    <ListBox Name="valueControl" ItemsSource="{Binding Choices}" SelectedValuePath="Key" SelectedValue="{Binding Value}" BorderBrush="Transparent" BorderThickness="0" SelectionChanged="valueControl_Changed">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <RadioButton GroupName="{Binding Header, RelativeSource={RelativeSource AncestorType=GroupBox}}"
+                                             Content="{Binding Value}"
+                                             IsChecked="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
+                                             Focusable="False"
+                                             IsHitTestVisible="False"
+                                             Style="{StaticResource GreyWhenDisabled}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource OptionItemStyle}">
+                                <Setter Property="Padding" Value="0" />
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                </GroupBox>
+                <ContentPresenter ContentTemplate="{StaticResource ValidationErrorTemplate}" />
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+
+    <!-- Main dialog window -->
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="70" />
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <Label Grid.Row="0" Foreground="{StaticResource WindowsBlue}" FontSize="20" HorizontalAlignment="Left" VerticalAlignment="Center"
+               Content="{Binding Plugin.Name}" ContentStringFormat="Configuration for {0}" Padding="8,0,0,0"/>
+
+        <!-- Options editor -->
+        <ListBox Grid.Row="1" Name="lstOptions" ItemsSource="{Binding Plugin.Options}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Padding="8" BorderBrush="Transparent" ItemContainerStyle="{StaticResource OptionItemStyle}">
+            <ListBox.ItemTemplateSelector>
+                <local:OptionTemplateSelector TextTemplate="{StaticResource TextTemplate}"
+                                              FilePathTemplate="{StaticResource FilePathTemplate}"
+                                              NumberDecimalTemplate="{StaticResource NumberDecimalTemplate}"
+                                              NumberHexTemplate="{StaticResource NumberHexTemplate}"
+                                              BooleanTemplate="{StaticResource BooleanTemplate}"
+                                              ChoiceDropdownTemplate="{StaticResource ChoiceDropdownTemplate}"
+                                              ChoiceListTemplate="{StaticResource ChoiceListTemplate}">
+                </local:OptionTemplateSelector>
+            </ListBox.ItemTemplateSelector>
+        </ListBox>
+
+        <DockPanel Grid.Row="2" VerticalAlignment="Bottom" Margin="10">
+            <!-- Reset options to defaults -->
+            <Button Name="resetButton" DockPanel.Dock="Left" Click="resetButton_Click" Style="{StaticResource LightBoxButton}" Width="150" FontSize="18" Padding="5">Defaults</Button>
+
+            <!-- Cancel button -->
+            <Button Name="cancelButton" DockPanel.Dock="Right" HorizontalAlignment="Right" Click="cancelButton_Click" Style="{StaticResource LightBoxButton}" IsDefault="True" Width="150" FontSize="18" Padding="5" Margin="10,0,0,0">Cancel</Button>
+            
+            <!-- Accept button -->
+            <Button Name="okButton" DockPanel.Dock="Right" HorizontalAlignment="Right" Click="okButton_Click" Style="{StaticResource LightBoxButton}" IsDefault="True" Width="150" FontSize="18" Padding="5">OK</Button>
+        </DockPanel>
+    </Grid>
+</Window>

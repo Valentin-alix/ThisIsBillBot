@@ -5,13 +5,13 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from project_paths import ENV_PATH
+from project_paths import ENV_PATH, USER_DATA_ROOT
 
 load_dotenv(ENV_PATH)
 LAUNCHER_PORT = 26116
 
 
-RESOURCES = Path(__file__).parent.parent / "resources"
+RESOURCES = USER_DATA_ROOT / "AnkamaLauncherEmulatorPremium" / "resources"
 BOTS_STORAGE_PATH = RESOURCES / "bots.json"
 PROXIES_STORAGE_PATH = RESOURCES / "proxies.json"
 SCHEDULE_PROFILES_PATH = RESOURCES / "schedule_profiles.json"

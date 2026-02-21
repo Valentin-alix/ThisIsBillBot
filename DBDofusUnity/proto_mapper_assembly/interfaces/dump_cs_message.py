@@ -4,7 +4,7 @@ from collections import Counter
 from functools import cached_property
 from typing import NamedTuple, override
 
-from base_python.string_utils import camel_to_snake
+from utils.string_utils import camel_to_snake
 from pydantic import BaseModel, Field
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import (

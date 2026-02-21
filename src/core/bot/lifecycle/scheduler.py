@@ -10,8 +10,6 @@ import schedule
 
 SCHEDULE_RANDOM_MINUTES_MIN = 10
 SCHEDULE_RANDOM_MINUTES_MAX = 30
-MULE_GIVE_START_DELAY_MINUTES = 2
-
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
     ScheduleProfileController,
 )
@@ -19,14 +17,10 @@ from src.services.background import run_in_background
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
     StoredApiKey,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.schedule_profile import (
-    TimeSlot,
-)
 
 from src.controller.bot_config import BotConfig
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.execution.process_manager import ProcessManager
-from src.core.bot.kamas_mule_registry import KamasMuleRegistry
 from src.core.events_manager.event_manager import EventManager
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.log_signals import LogSignals
@@ -63,14 +57,11 @@ class BotScheduler(ContextualLogger):
     event_manager: EventManager
     on_session_started: Callable[[datetime, datetime], None]
     on_session_finished: Callable[[], None]
-    on_mule_give_slot_started: Callable[[datetime], None]
 
     _scheduled_jobs: list[schedule.Job] = field(init=False, default_factory=list[schedule.Job])
     _randomized_slots_by_day: dict[int, list[RandomizedSlot]] = field(
         init=False, default_factory=dict[int, list[RandomizedSlot]]
     )
-    _pending_mule_stop: threading.Timer | None = field(init=False, default=None)
-    _is_kamas_mule_profile: bool = field(init=False, default=False)
 
     def start(self) -> None:
         config = self.get_bot_config()
@@ -86,11 +77,6 @@ class BotScheduler(ContextualLogger):
             self.shared_signals.launch_account.emit(self.account.apikey.login)
 
     def stop(self) -> None:
-        if self._pending_mule_stop is not None:
-            self._pending_mule_stop.cancel()
-            self._pending_mule_stop = None
-        if self._is_kamas_mule_profile:
-            KamasMuleRegistry().mark_unavailable(self.account.apikey.login)
         self._clear_scheduled_jobs()
 
     def disconnect_now(self) -> None:
@@ -107,10 +93,6 @@ class BotScheduler(ContextualLogger):
         if not profile:
             self.logger.error(f"Unknown schedule profile {profile_id}")
             return
-        self._is_kamas_mule_profile = profile.kind == "kamas_mule"
-        random_minutes_min = 0 if self._is_kamas_mule_profile else SCHEDULE_RANDOM_MINUTES_MIN
-        random_minutes_max = 0 if self._is_kamas_mule_profile else SCHEDULE_RANDOM_MINUTES_MAX
-
         for day_str, slots in profile.slots_by_day.items():
             day = int(day_str)
             self._randomized_slots_by_day[day] = []
@@ -118,13 +100,13 @@ class BotScheduler(ContextualLogger):
             for slot in slots:
                 start_time = _add_random_minutes(
                     slot.start,
-                    random_minutes_min,
-                    random_minutes_max,
+                    SCHEDULE_RANDOM_MINUTES_MIN,
+                    SCHEDULE_RANDOM_MINUTES_MAX,
                 )
                 end_time = _subtract_random_minutes(
                     slot.end,
-                    random_minutes_min,
-                    random_minutes_max,
+                    SCHEDULE_RANDOM_MINUTES_MIN,
+                    SCHEDULE_RANDOM_MINUTES_MAX,
                 )
 
                 self._randomized_slots_by_day[day].append(RandomizedSlot(start=start_time, end=end_time))
@@ -148,31 +130,10 @@ class BotScheduler(ContextualLogger):
                 )
                 self._scheduled_jobs.append(end_job)
 
-        if profile.mule_give_slot is not None:
-            self._schedule_mule_give_jobs(profile.mule_give_slot)
-
         midnight_job = (
             schedule.every().day.at("00:00").do(lambda: self._reschedule_with_new_random_times(profile_id))
         )
         self._scheduled_jobs.append(midnight_job)
-
-    def _schedule_mule_give_jobs(self, mule_give_slot: TimeSlot) -> None:
-        start_time = _add_minutes(mule_give_slot.start, MULE_GIVE_START_DELAY_MINUTES)
-        for day in range(7):
-            mule_give_job = (
-                _get_day_scheduler(day)
-                .at(start_time)
-                .do(lambda: self._notify_mule_give_slot_started(mule_give_slot.end))
-            )
-            self._scheduled_jobs.append(mule_give_job)
-
-    def _notify_mule_give_slot_started(self, end_time: str) -> None:
-        now = datetime.now()
-        end_hour, end_minute = map(int, end_time.split(":"))
-        ends_at = now.replace(hour=end_hour, minute=end_minute, second=0, microsecond=0)
-        if ends_at <= now:
-            ends_at += timedelta(days=1)
-        self.on_mule_give_slot_started(ends_at)
 
     def _reschedule_with_new_random_times(self, profile_id: str) -> None:
         self.logger.info("Midnight reschedule: generating new random times")
@@ -226,11 +187,6 @@ class BotScheduler(ContextualLogger):
 
     def stop_scheduled_runtime(self) -> None:
         self.logger.info("Stopping bot")
-        if self._is_kamas_mule_profile:
-            if KamasMuleRegistry().close_window(self.account.apikey.login):
-                self.logger.info("Waiting for the active kamas mule reservation")
-                self._schedule_mule_stop_retry()
-                return
         runtime_is_active = (
             self.is_playing_event.is_set()
             or self.event_manager.request_disconnect_callback is not None
@@ -244,8 +200,6 @@ class BotScheduler(ContextualLogger):
             self.logger.info("Bot runtime is already stopped")
 
     def _disconnect_runtime(self) -> None:
-        if self._is_kamas_mule_profile:
-            KamasMuleRegistry().mark_unavailable(self.account.apikey.login)
         self.behavior_coordinator.stop_behaviors()
         self.bot_signals.stop.emit()
 
@@ -281,12 +235,6 @@ class BotScheduler(ContextualLogger):
 
     def _planned_restart_bot_task(self, _progress_callback: Callable[[str], None]) -> None:
         self._planned_restart_bot()
-
-    def _schedule_mule_stop_retry(self) -> None:
-        if self._pending_mule_stop is not None:
-            self._pending_mule_stop.cancel()
-        self._pending_mule_stop = threading.Timer(5, lambda: run_in_background(self._planned_stop_bot_task))
-        self._pending_mule_stop.start()
 
 
 def run_continuously(interval: int = 1) -> threading.Event:

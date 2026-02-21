@@ -30,7 +30,6 @@ from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import (
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 
-from src.controller.game_data import GameDataController
 from src.core.frames.frame import Frame
 
 
@@ -328,22 +327,6 @@ class FightFrame(Frame):
         self.game_state.fight.fight_turn = 0
         self.game_state.fight.is_our_turn = False
         self.game_state.fight.fight_placement_possible_positions.clear()
-
-        last_atk_info = self.game_state.fight.last_atk_info
-        if last_atk_info:
-            unique_name_id = GameDataController().get_unique_name_id_from_group(
-                last_atk_info.monster_group_info
-            )
-            if not unique_name_id:
-                return
-            self.logger.info(f"Unique monster group name_id attacked : {unique_name_id}")
-            if last_atk_info.from_map_id == msg.map_id:
-                GameDataController().reset_defeat_count(unique_name_id, self.logger)
-            else:
-                GameDataController().increment_defeat_count(unique_name_id, self.logger)
-
-        self.game_state.fight.last_atk_info = None
-
 
 _LIFE_CHARACTERISTIC_IDS = {
     CharacteristicEnum.LIFE_POINTS,

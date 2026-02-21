@@ -748,7 +748,6 @@ class BotFactory:
             idle_behavior=idle_behavior,
             craft_behavior=craft_behavior,
             sale_hotel_sell_behavior=sale_hotel_prices_behavior,
-            mule_give_behavior=mule_give_behavior,
         )
         smoke_test_behavior = SmokeTestBehavior(
             recovery=blocking_state_recovery,
@@ -791,6 +790,7 @@ class BotFactory:
         return Bot(
             usable_behaviors=[
                 mule_accept_kamas_behavior,
+                mule_give_behavior,
                 dungeon_behavior,
                 quest_behavior,
                 sale_hotel_prices_behavior,
@@ -813,7 +813,6 @@ class BotFactory:
             connection_behavior=connection_behavior,
             game_session_behavior=game_session_behavior,
             handshake_behavior=handshake_behavior,
-            mule_accept_kamas_behavior=mule_accept_kamas_behavior,
             dungeon_behavior=dungeon_behavior,
             hearthbeat_behavior=hearthbeat_behavior,
             frames=[

@@ -7,9 +7,9 @@ from typing import Any, ClassVar, TypeVar
 
 import msgspec
 import msgspec.json
-from base_python.cache import cache
-from base_python.singleton import Singleton
-from DBDofusUnity.consts import DATA_BUNDLES_ROOT, MAP_BUNDLES_ROOT
+from utils.cache import cache
+from utils.singleton import Singleton
+from DBDofusUnity.consts import DATA_BUNDLES_ROOT
 from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from DBDofusUnity.dofus_unity_reader.data_center.world_graph_reader import WorldGraphReader
 from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum
@@ -98,6 +98,7 @@ FILEPATH_BY_MODEL: dict[Any, str] = {
     Breedsroot: "BreedsDataRoot.json",
     Serversroot: "ServersDataRoot.json",
 }
+REQUIRED_DATA_FILENAMES = frozenset(FILEPATH_BY_MODEL.values())
 
 _MIN_DUNGEON_MAP_COUNT = 2
 
@@ -217,10 +218,7 @@ class DataReader(metaclass=Singleton):
         if not referenced_rids:
             return {}
         first_rid = min(referenced_rids)
-        effect_by_rid = {
-            first_rid + index: entry
-            for index, entry in enumerate(effect_entries)
-        }
+        effect_by_rid = {first_rid + index: entry for index, entry in enumerate(effect_entries)}
         result: dict[int, list[list[tuple[int, int]]]] = {}
         for entry in data:
             if entry.id is None:
@@ -486,12 +484,10 @@ class DataReader(metaclass=Singleton):
     @staticmethod
     @cache
     def get_all_map_ids() -> set[int]:
+        from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
+
         map_pos_ids = set(DataReader().map_info_by_map_id)
-        map_bundle_ids = {
-            int(path.stem.split("map_")[1])
-            for path in MAP_BUNDLES_ROOT.iterdir()
-            if path.is_file() and path.suffix == ".json" and path.stem.startswith("map_")
-        }
+        map_bundle_ids = MapReader.get_all_map_bundle_ids()
         return map_pos_ids | map_bundle_ids | WorldGraphReader().get_all_transition_map_ids
 
     @staticmethod

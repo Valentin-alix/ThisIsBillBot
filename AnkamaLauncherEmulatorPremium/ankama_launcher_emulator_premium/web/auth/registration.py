@@ -4,6 +4,7 @@ import random
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 from playwright.async_api import Page, Response
@@ -87,6 +88,7 @@ class _ConfirmationCodeResult:
     accepted: bool
     rejected: bool = False
     waf_blocked: bool = False
+    failure_reason: str | None = None
 
 
 ReplacementOptionsFactory = Callable[[RegistrationOptions], Awaitable[RegistrationOptions | None]]
@@ -101,10 +103,11 @@ async def register_account(
     *,
     replacement_options_factory: ReplacementOptionsFactory | None = None,
 ) -> RegistrationResult:
-    logger.info("[Register] Starting Ankama account registration for %s...", options.email)
+    logger.debug("[Register] Starting Ankama account registration for %s...", options.email)
     current_options = options
+    rejected_mailbox_count = 0
 
-    async with launch_browser_context(login=options.email, proxy_url=options.proxy_url) as context:
+    async with launch_browser_context(proxy_url=options.proxy_url) as context:
         page = await context.new_page()
         try:
             state = await get_registration_state(page)
@@ -120,12 +123,13 @@ async def register_account(
             wait_result = await _submit_registration_attempt(page, current_options)
 
             while _is_duplicate_email_error(wait_result.form_errors):
-                logger.warning(
+                logger.debug(
                     "[Register] %s is already linked to an Ankama account; requesting a replacement.",
                     current_options.email,
                 )
                 MailAccountController().remove_email(current_options.email)
                 discarded_email = current_options.email
+                rejected_mailbox_count += 1
                 if replacement_options_factory is None:
                     break
                 replacement_options = await replacement_options_factory(current_options)
@@ -135,24 +139,23 @@ async def register_account(
                 wait_result = await _submit_replacement_email_attempt(page, current_options)
 
             if wait_result.success:
-                logger.info("[Register] Registration completed for %s", current_options.email)
                 if current_options.persist_account:
                     BotStorageController().save_account(
                         current_options.email,
                         current_options.password,
                         schedule_profile=current_options.schedule_profile,
                     )
-                    logger.info("[Register] Successfully saved account %s", current_options.email)
+                    persistence_status = "account saved"
                 else:
-                    logger.info("[Register] Account persistence disabled for %s", current_options.email)
+                    persistence_status = "persistence disabled"
+                logger.info(
+                    "[Register] Ankama accepted %s after %d rejected mailbox(es); %s.",
+                    current_options.email,
+                    rejected_mailbox_count,
+                    persistence_status,
+                )
                 return RegistrationResult(True, current_options.email, current_options.password, page.url)
             error = wait_result.reason or "registration did not complete before timeout"
-            logger.error(
-                "[Register] Registration failed for %s at %s: %s",
-                current_options.email,
-                page.url,
-                error,
-            )
             result = RegistrationResult(
                 False,
                 current_options.email,
@@ -161,16 +164,24 @@ async def register_account(
                 error,
                 wait_result.antibot_marker,
             )
-            if _is_discardable_email_error(result) and current_options.email != discarded_email:
-                logger.warning("[Register] %s was rejected by Ankama; discarding it.", current_options.email)
+            mailbox_discarded = _is_discardable_email_error(result) and current_options.email != discarded_email
+            if mailbox_discarded:
                 MailAccountController().remove_email(current_options.email)
+            logger.error(
+                "[Register] Registration failed for %s after %d rejected mailbox(es)%s: %s",
+                current_options.email,
+                rejected_mailbox_count,
+                "; mailbox discarded" if mailbox_discarded else "",
+                error,
+            )
             return result
         except HaapiHttpError as exc:
-            logger.exception("[Register] Failure at URL %s", page.url)
+            logger.error("[Register] Registration failed for %s: %s", current_options.email, exc)
+            logger.debug("[Register] Failure at URL %s", page.url, exc_info=True)
             return RegistrationResult(
                 False,
-                options.email,
-                options.password,
+                current_options.email,
+                current_options.password,
                 page.url,
                 str(exc),
                 outlook_generation_disabled=is_outlook_token_refresh_failure(exc),
@@ -178,7 +189,11 @@ async def register_account(
         except Exception as exc:
             if is_waf_or_cloudfront_block(status_code=None, content=str(exc)):
                 MailAccountController().remove_email(current_options.email)
-                logger.error("[Register] WAF/CloudFront blocked %s; removed mailbox account.", current_options.email)
+                logger.error(
+                    "[Register] WAF/CloudFront blocked %s after %d rejected mailbox(es); mailbox discarded.",
+                    current_options.email,
+                    rejected_mailbox_count,
+                )
                 return RegistrationResult(
                     False,
                     current_options.email,
@@ -186,15 +201,16 @@ async def register_account(
                     page.url,
                     str(exc),
                 )
-            logger.exception("[Register] Failure at URL %s", page.url)
-            return RegistrationResult(False, options.email, options.password, page.url, str(exc))
+            logger.error("[Register] Registration failed for %s: %s", current_options.email, exc)
+            logger.debug("[Register] Failure at URL %s", page.url, exc_info=True)
+            return RegistrationResult(False, current_options.email, current_options.password, page.url, str(exc))
 
 
 async def _submit_registration_attempt(page: Page, options: RegistrationOptions) -> _RegistrationWaitResult:
     await _fill_registration_form(page, options)
     started_at = datetime.now(UTC)
     await human_click_selector(page, "button[type='submit']")
-    logger.info("[Register] Clicked submit, URL: %s", page.url)
+    logger.debug("[Register] Clicked submit, URL: %s", page.url)
     return await _wait_for_result(page, options, started_at)
 
 
@@ -206,7 +222,7 @@ async def _submit_replacement_email_attempt(
     await human_wait(min_seconds=0.3, max_seconds=0.5)
     started_at = datetime.now(UTC)
     await human_click_selector(page, "button[type='submit']")
-    logger.info("[Register] Retried submit with replacement email %s, URL: %s", options.email, page.url)
+    logger.debug("[Register] Retried submit with replacement email %s, URL: %s", options.email, page.url)
     return await _wait_for_result(page, options, started_at)
 
 
@@ -251,7 +267,7 @@ async def _wait_for_registration_form_ready(page: Page, options: RegistrationOpt
                 second_index,
             )
         elif second_index > 0 and second_index % 15 == 0:
-            logger.info(
+            logger.debug(
                 "[Register] Waiting for registration form... (%ds / %ds)",
                 second_index,
                 timeout_seconds,
@@ -261,6 +277,7 @@ async def _wait_for_registration_form_ready(page: Page, options: RegistrationOpt
 
 
 async def _submit_confirmation_code(page: Page, code: str) -> _ConfirmationCodeResult:
+    logger.debug("[Register] Submitting email confirmation code from %s.", urlparse(page.url).path)
     if await page.locator("#otp").count() > 0:
         await human_type_selector(page, "#otp", code)
     else:
@@ -276,23 +293,66 @@ async def _submit_confirmation_code(page: Page, code: str) -> _ConfirmationCodeR
         status_code=response.status,
         content=response_body,
     )
-    accepted = response is not None and response.ok and page.url.startswith(REDIRECT_URI)
-    return _ConfirmationCodeResult(
-        accepted=accepted,
-        rejected=response is not None and response.status == 403 and not waf_blocked,
-        waf_blocked=waf_blocked,
+    accepted = page.url.startswith(REDIRECT_URI)
+    rejected = response is not None and response.status == 403 and not waf_blocked
+    form_errors = (
+        await visible_form_error_texts(page)
+        if not accepted and not rejected and not waf_blocked
+        else ()
     )
+    response_path = urlparse(response.url).path if response is not None else None
+    page_path = urlparse(page.url).path
+    failure_reason = None
+    if not accepted and not rejected and not waf_blocked:
+        details = [
+            f"response status={response.status if response is not None else None}",
+            f"response path={response_path}",
+            f"page path={page_path}",
+        ]
+        if form_errors:
+            details.append(f"visible form errors: {' | '.join(form_errors)}")
+        failure_reason = "confirmation code submission did not reach the expected redirect; " + "; ".join(
+            details
+        )
+    result = _ConfirmationCodeResult(
+        accepted=accepted,
+        rejected=rejected,
+        waf_blocked=waf_blocked,
+        failure_reason=failure_reason,
+    )
+    logger.debug(
+        "[Register] Confirmation code submission result: response_present=%s status=%s ok=%s "
+        "response_path=%s page_path=%s accepted=%s rejected=%s waf_blocked=%s "
+        "visible_form_errors=%s failure_reason=%s",
+        response is not None,
+        response.status if response is not None else None,
+        response.ok if response is not None else None,
+        response_path,
+        page_path,
+        result.accepted,
+        result.rejected,
+        result.waf_blocked,
+        form_errors,
+        result.failure_reason,
+    )
+    return result
 
 
 async def _handle_confirmation_code(
     page: Page, options: RegistrationOptions, started_at: datetime
 ) -> _ConfirmationCodeResult:
-    logger.info("[Register] Email confirmation required.")
+    logger.debug("[Register] Email confirmation required at %s.", urlparse(page.url).path)
 
     async def via_browser() -> _ConfirmationCodeResult:
         while "/register/ankama/code" in page.url:
             await asyncio.sleep(0.3)
-        return _ConfirmationCodeResult(accepted=page.url.startswith(REDIRECT_URI))
+        result = _ConfirmationCodeResult(accepted=page.url.startswith(REDIRECT_URI))
+        logger.debug(
+            "[Register] Browser left confirmation page: page_path=%s accepted=%s.",
+            urlparse(page.url).path,
+            result.accepted,
+        )
+        return result
 
     async def via_mailbox() -> _ConfirmationCodeResult:
         code = await wait_for_code_with_manual_fallback(
@@ -301,28 +361,47 @@ async def _handle_confirmation_code(
             timeout_seconds=options.confirmation_timeout_seconds,
         )
         if code is None:
+            logger.debug("[Register] Mailbox did not provide a confirmation code before its deadline.")
             raise MailboxCodeTimeoutError(
                 f"Timed out waiting for registration confirmation code for {options.email}"
-        )
+            )
+        logger.debug("[Register] Mailbox provided a confirmation code.")
         if "/register/ankama/code" not in page.url:
+            logger.debug(
+                "[Register] Confirmation page was left before mailbox code submission: page_path=%s.",
+                urlparse(page.url).path,
+            )
             return _ConfirmationCodeResult(accepted=False)
         return await _submit_confirmation_code(page, code)
 
-    tasks = [
-        asyncio.create_task(via_browser()),
-        asyncio.create_task(via_mailbox()),
-    ]
+    tasks = {
+        "browser": asyncio.create_task(via_browser()),
+        "mailbox": asyncio.create_task(via_mailbox()),
+    }
     done, pending = await asyncio.wait(
-        tasks,
+        tasks.values(),
         return_when=asyncio.FIRST_COMPLETED,
         timeout=options.confirmation_timeout_seconds,
     )
-    for task in pending:
-        task.cancel()
+    for source, task in tasks.items():
+        if task in pending:
+            logger.debug("[Register] Cancelling pending %s confirmation task.", source)
+            task.cancel()
     if pending:
         await asyncio.gather(*pending, return_exceptions=True)
-    for task in done:
+    for source, task in tasks.items():
+        if task not in done:
+            continue
         exception = task.exception()
+        if exception is None:
+            result = task.result()
+            logger.debug(
+                "[Register] %s confirmation task completed: accepted=%s rejected=%s waf_blocked=%s.",
+                source,
+                result.accepted,
+                result.rejected,
+                result.waf_blocked,
+            )
         if isinstance(exception, MailboxCodeTimeoutError):
             MailAccountController().remove_email(options.email)
             raise exception
@@ -345,7 +424,7 @@ async def _wait_for_result(
             confirmation_result = await _handle_confirmation_code(page, options, started_at)
             if confirmation_result.accepted:
                 return _RegistrationWaitResult(success=True)
-            reason = "email confirmation code was not submitted or accepted"
+            reason = confirmation_result.failure_reason or "email confirmation code was not submitted or accepted"
             if confirmation_result.waf_blocked:
                 reason = "WAF/CloudFront blocked confirmation code submission"
             elif confirmation_result.rejected:
@@ -362,7 +441,7 @@ async def _wait_for_result(
         form_is_ready = _is_registration_form_ready(html)
         if is_waf_or_cloudfront_block(status_code=None, content=html):
             reason = "WAF/CloudFront blocked registration page"
-            logger.error("[Register] %s", reason)
+            logger.debug("[Register] %s", reason)
             return _RegistrationWaitResult(success=False, reason=reason)
         antibot_detection = detect_antibot_marker(html)
         if form_errors:
@@ -371,7 +450,7 @@ async def _wait_for_result(
                 current_url=current_url,
                 antibot_marker=None,
             )
-            logger.error("[Register] %s", reason)
+            logger.debug("[Register] %s", reason)
             return _RegistrationWaitResult(
                 success=False,
                 reason=reason,
@@ -380,7 +459,7 @@ async def _wait_for_result(
 
         if antibot_detection is not None:
             reason = f"registration blocked by antibot marker {antibot_detection.name} at {current_url}"
-            logger.error("[Register] %s", reason)
+            logger.debug("[Register] %s", reason)
             return _RegistrationWaitResult(
                 success=False,
                 reason=reason,
@@ -393,13 +472,13 @@ async def _wait_for_result(
                 current_url=current_url,
                 antibot_marker=None,
             )
-            logger.error("[Register] %s", reason)
+            logger.debug("[Register] %s", reason)
             return _RegistrationWaitResult(
                 success=False,
                 reason=reason,
             )
         if second_index > 0 and second_index % 15 == 0 and antibot_detection is None:
-            logger.info(
+            logger.debug(
                 "[Register] Still waiting... (%ds / %ds)",
                 second_index,
                 timeout_seconds,
@@ -491,9 +570,6 @@ def _is_discardable_email_error(result: RegistrationResult) -> bool:
 def _finalize_registration_attempt(email: str, result: RegistrationResult) -> None:
     if result.success:
         MailAccountController().mark_used(email)
-    elif _is_discardable_email_error(result):
-        logger.warning("[Register] %s was rejected by Ankama; discarding it.", email)
-        MailAccountController().remove_email(email)
 
 
 def _next_email_to_register() -> str | None:

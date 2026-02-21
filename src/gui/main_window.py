@@ -5,16 +5,11 @@ from typing import Literal
 from PyQt6.QtCore import QSize, QTimer, QUrl
 from PyQt6.QtGui import QCloseEvent, QColor, QIcon, QPixmap
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
-from PyQt6.QtWidgets import QHBoxLayout, QWidget
 from qfluentwidgets import (
     FluentIcon,
-    InfoBar,
-    InfoBarPosition,
     NavigationItemPosition,
-    PrimaryPushButton,
     SplashScreen,
 )
-from qfluentwidgets.components.navigation import NavigationDisplayMode, NavigationWidget
 
 from src import consts
 from src.consts import LOGO_FILE
@@ -27,8 +22,6 @@ from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
 from src.gui.fragments.account_stacked_widget import AccountStackedWidget
 from src.gui.fragments.app_fluent_window import AppFluentWindow
 from src.gui.fragments.sidebar_item import SidebarItem
-from src.services.background import run_in_background
-from src.services.hotreload.reloader import ReloadReport, reload_core_modules
 from src.services.logging_utils.loggers import init_root_gui_logging
 
 logger = logging.getLogger()
@@ -69,7 +62,6 @@ class MainWindow(AppFluentWindow):
         self._subscription_refresh_timer.start()
         self._close_requested = False
         self._shutdown_finished = False
-        self._init_reload_button()
         self.shared_signals.new_bot_added.connect(self.add_account)
         self.shared_signals.bot_removed.connect(self.remove_account)
         self.shared_signals.shutdown_finished.connect(self.complete_shutdown)
@@ -260,80 +252,6 @@ class MainWindow(AppFluentWindow):
         if not bot.is_connected_event.is_set():
             return
         bot.scheduler.disconnect_now()
-
-    def _init_reload_button(self) -> None:
-        def manage_visibility_reload_btn(display_mode: NavigationDisplayMode) -> None:
-            if display_mode == NavigationDisplayMode.COMPACT:
-                self.reload_widget.hide()
-            else:
-                self.reload_widget.show()
-
-        class ReloadButtonWidget(NavigationWidget):
-            def __init__(self, parent: QWidget | None = None) -> None:
-                super().__init__(isSelectable=False, parent=parent)
-                layout = QHBoxLayout(self)
-                layout.setContentsMargins(12, 0, 12, 0)
-                self.button = PrimaryPushButton(FluentIcon.UPDATE, "Recharger le code")
-                layout.addWidget(self.button)
-
-        self.reload_widget = ReloadButtonWidget(self)
-        self.reload_widget.button.clicked.connect(self._on_reload_code_clicked)
-        self.navigationInterface.displayModeChanged.connect(manage_visibility_reload_btn)
-
-        self.navigationInterface.addWidget(
-            routeKey="reload_button",
-            widget=self.reload_widget,
-            position=NavigationItemPosition.BOTTOM,
-        )
-
-    def _on_reload_code_clicked(self) -> None:
-        self.reload_widget.button.setEnabled(False)
-        run_in_background(
-            lambda _progress: reload_core_modules(),
-            on_success=self._on_reload_finished,
-            on_error=self._on_reload_error,
-        )
-
-    def _on_reload_finished(self, report: ReloadReport) -> None:
-        self.reload_widget.button.setEnabled(True)
-        if report.errors:
-            content = "\n".join(f"{name}: {error}" for name, error in report.errors.items())
-            InfoBar.error(
-                title="Erreur de rechargement",
-                content=content,
-                position=InfoBarPosition.BOTTOM_RIGHT,
-                duration=8000,
-                parent=self,
-            )
-            return
-        if not report.reloaded_modules:
-            InfoBar.success(
-                title="Rechargement du code",
-                content="Aucun module modifié.",
-                position=InfoBarPosition.BOTTOM_RIGHT,
-                parent=self,
-            )
-            return
-        InfoBar.success(
-            title="Rechargement du code",
-            content=(
-                f"{len(report.reloaded_modules)} module(s) rechargé(s), "
-                f"{report.patched_instance_count} instance(s) mise(s) à jour."
-            ),
-            position=InfoBarPosition.BOTTOM_RIGHT,
-            duration=5000,
-            parent=self,
-        )
-
-    def _on_reload_error(self, error: object) -> None:
-        self.reload_widget.button.setEnabled(True)
-        InfoBar.error(
-            title="Erreur de rechargement",
-            content=str(error),
-            position=InfoBarPosition.BOTTOM_RIGHT,
-            duration=8000,
-            parent=self,
-        )
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         if self._shutdown_finished:

@@ -173,7 +173,7 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
     code_verifier = generate_code_verifier()
     login_url = build_login_url(generate_code_challenge(code_verifier))
     try:
-        async with launch_browser_context(login=options.email, proxy_url=options.proxy_url) as context:
+        async with launch_browser_context(proxy_url=options.proxy_url) as context:
             page = await context.new_page()
             logger.info("[OAuth] Navigating to login page...")
             try:

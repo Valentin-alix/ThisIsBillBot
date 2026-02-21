@@ -64,9 +64,11 @@ class RecipeLoaderBehavior(RecoverableBehavior):
             return self.on_full_loaded()
 
         recipe = self._remaining_recipes[0]
-        objects_by_gid = self.get_storage_objects_by_gid()
+        quantity_by_gid = {
+            gid: object_item.item.quantity for gid, object_item in self.get_storage_objects_by_gid().items()
+        }
         max_result_quantity, weight_for_one_result = get_max_result_quantity(
-            self.logger, objects_by_gid, recipe
+            self.logger, quantity_by_gid, recipe
         )
         if max_result_quantity == 0:
             self._remaining_recipes.remove(recipe)

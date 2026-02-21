@@ -1,7 +1,7 @@
 import random
 from dataclasses import dataclass
 
-from base_python.singleton import Singleton
+from utils.singleton import Singleton
 
 from src.core.config import ENABLE_SESSION_CONTEXT
 from src.services.session_context import SessionContextService
@@ -56,18 +56,6 @@ BETWEEN_COLLECT_PAUSE_TIMING = TimingProfile(1.5, 2.75, 4.0)
 SESSION_IDLE_DURATION_TIMING = TimingProfile(2.0 * 60, 3.5 * 60, 5.0 * 60)
 PLACEMENT_EXTRA_HESITATION_TIMING = TimingProfile(0.25, 0.525, 0.8)
 
-
-def sample_timing(profile: TimingProfile) -> float:
-    wait_time = random.triangular(
-        profile.minimum_seconds,
-        profile.maximum_seconds,
-        profile.typical_seconds,
-    )
-    if ENABLE_SESSION_CONTEXT:
-        wait_time *= SessionContextService().get_timing_modifier()
-    return wait_time
-
-
 def pick_random_weighted_time(mini: float, maxi: float, coeff: float = 5) -> float:
     if mini == 0:
         return 0
@@ -87,112 +75,122 @@ def get_random_range(range_time: tuple[float, float], is_weighted: bool = True, 
 
 
 class HumanTimingsService(metaclass=Singleton):
+    def _get_timing(self, profile: TimingProfile) -> float:
+        wait_time = random.triangular(
+            profile.minimum_seconds,
+            profile.maximum_seconds,
+            profile.typical_seconds,
+        )
+        if ENABLE_SESSION_CONTEXT:
+            wait_time *= SessionContextService().get_timing_modifier()
+        return wait_time
+
     def get_timing_short_action(self) -> float:
-        return sample_timing(SHORT_ACTION_TIMING)
+        return self._get_timing(SHORT_ACTION_TIMING)
 
     def get_timing_base_action(self) -> float:
-        return sample_timing(BASE_ACTION_TIMING)
+        return self._get_timing(BASE_ACTION_TIMING)
 
     def get_timing_long_action(self) -> float:
-        return sample_timing(LONG_ACTION_TIMING)
+        return self._get_timing(LONG_ACTION_TIMING)
 
     def get_timing_very_long_action(self) -> float:
-        return sample_timing(VERY_LONG_ACTION_TIMING)
+        return self._get_timing(VERY_LONG_ACTION_TIMING)
 
     def get_timing_after_map_arrival(self) -> float:
-        return sample_timing(MAP_ARRIVAL_TIMING)
+        return self._get_timing(MAP_ARRIVAL_TIMING)
 
     def get_timing_between_collects(self) -> float:
-        return sample_timing(BETWEEN_COLLECT_PAUSE_TIMING)
+        return self._get_timing(BETWEEN_COLLECT_PAUSE_TIMING)
 
     def get_timing_session_idle_duration(self) -> float:
-        return sample_timing(SESSION_IDLE_DURATION_TIMING)
+        return self._get_timing(SESSION_IDLE_DURATION_TIMING)
 
     def get_timing_placement_extra_hesitation(self) -> float:
-        return sample_timing(PLACEMENT_EXTRA_HESITATION_TIMING)
+        return self._get_timing(PLACEMENT_EXTRA_HESITATION_TIMING)
 
     def get_timing_before_spell_cast(self) -> float:
-        return sample_timing(FIGHT_SPELL_CAST_TIMING)
+        return self._get_timing(FIGHT_SPELL_CAST_TIMING)
 
     def get_timing_before_item_use(self) -> float:
-        return sample_timing(ITEM_USE_TIMING)
+        return self._get_timing(ITEM_USE_TIMING)
 
     def get_timing_before_workshop_interaction(self) -> float:
-        return sample_timing(WORKSHOP_INTERACTION_TIMING)
+        return self._get_timing(WORKSHOP_INTERACTION_TIMING)
 
     def get_timing_before_pass_turn(self) -> float:
-        return sample_timing(FIGHT_PASS_TURN_TIMING)
+        return self._get_timing(FIGHT_PASS_TURN_TIMING)
 
     def get_timing_before_preparation_placement(self) -> float:
-        return sample_timing(FIGHT_PLACEMENT_TIMING)
+        return self._get_timing(FIGHT_PLACEMENT_TIMING)
 
     def get_timing_before_preparation_ready(self) -> float:
-        return sample_timing(FIGHT_READY_TIMING)
+        return self._get_timing(FIGHT_READY_TIMING)
 
     def get_timing_free_soul(self) -> float:
-        return sample_timing(DECISION_NORMAL_TIMING)
+        return self._get_timing(DECISION_NORMAL_TIMING)
 
     def get_timing_collect_on_new_map(self) -> float:
-        return sample_timing(MAP_ARRIVAL_TIMING)
+        return self._get_timing(MAP_ARRIVAL_TIMING)
 
     def get_timing_attack_on_new_map(self) -> float:
-        return sample_timing(MAP_ARRIVAL_TIMING)
+        return self._get_timing(MAP_ARRIVAL_TIMING)
 
     def get_timing_unload_on_bank(self) -> float:
-        return sample_timing(BANK_REVIEW_TIMING)
+        return self._get_timing(BANK_REVIEW_TIMING)
 
     def get_timing_between_bank_transfers(self) -> float:
-        return sample_timing(BANK_TRANSFER_TIMING)
+        return self._get_timing(BANK_TRANSFER_TIMING)
 
     def get_timing_before_bank_close(self) -> float:
-        return sample_timing(BANK_CLOSE_TIMING)
+        return self._get_timing(BANK_CLOSE_TIMING)
 
     def get_timing_sale_hotel_review(self) -> float:
-        return sample_timing(SALE_HOTEL_REVIEW_TIMING)
+        return self._get_timing(SALE_HOTEL_REVIEW_TIMING)
 
     def get_timing_sale_hotel_price_change(self) -> float:
-        return sample_timing(SALE_HOTEL_PRICE_TIMING)
+        return self._get_timing(SALE_HOTEL_PRICE_TIMING)
 
     def get_timing_sale_hotel_same_lot(self) -> float:
-        return sample_timing(SALE_HOTEL_SAME_LOT_TIMING)
+        return self._get_timing(SALE_HOTEL_SAME_LOT_TIMING)
 
     def get_timing_sale_hotel_next_lot(self) -> float:
-        return sample_timing(SALE_HOTEL_NEXT_LOT_TIMING)
+        return self._get_timing(SALE_HOTEL_NEXT_LOT_TIMING)
 
     def get_timing_sale_hotel_next_item(self) -> float:
-        return sample_timing(SALE_HOTEL_NEXT_ITEM_TIMING)
+        return self._get_timing(SALE_HOTEL_NEXT_ITEM_TIMING)
 
     def get_timing_equipment_choice(self) -> float:
-        return sample_timing(EQUIPMENT_CHOICE_TIMING)
+        return self._get_timing(EQUIPMENT_CHOICE_TIMING)
 
     def get_timing_equipment_inventory_opening(self) -> float:
-        return sample_timing(EQUIPMENT_INVENTORY_OPENING_TIMING)
+        return self._get_timing(EQUIPMENT_INVENTORY_OPENING_TIMING)
 
     def get_timing_fight_action(self, same_spell: bool) -> float:
         profile = FIGHT_SAME_SPELL_ACTION_TIMING if same_spell else FIGHT_ACTION_TIMING
-        return sample_timing(profile)
+        return self._get_timing(profile)
 
     def get_timing_after_level_up(self) -> float:
-        return sample_timing(LEVEL_UP_CHARACTERISTIC_TIMING)
+        return self._get_timing(LEVEL_UP_CHARACTERISTIC_TIMING)
 
     def get_timing_after_achievement(self) -> float:
-        return sample_timing(ACHIEVEMENT_REWARD_TIMING)
+        return self._get_timing(ACHIEVEMENT_REWARD_TIMING)
 
     def get_timing_fight_acknowledgement(self) -> float:
-        return sample_timing(FIGHT_ACKNOWLEDGEMENT_TIMING)
+        return self._get_timing(FIGHT_ACKNOWLEDGEMENT_TIMING)
 
     def get_timing_fight_turn_ready(self) -> float:
-        return sample_timing(FIGHT_TURN_READY_TIMING)
+        return self._get_timing(FIGHT_TURN_READY_TIMING)
 
     def get_timing_fight_challenge_ready(self) -> float:
-        return sample_timing(FIGHT_CHALLENGE_READY_TIMING)
+        return self._get_timing(FIGHT_CHALLENGE_READY_TIMING)
 
     def get_timing_fight_challenge_selection(self) -> float:
-        return sample_timing(FIGHT_CHALLENGE_SELECTION_TIMING)
+        return self._get_timing(FIGHT_CHALLENGE_SELECTION_TIMING)
 
     def get_timing_after_fight(self) -> float:
-        return sample_timing(FIGHT_POST_COMBAT_TIMING)
+        return self._get_timing(FIGHT_POST_COMBAT_TIMING)
 
     def get_timing_npc_dialog_reply(self) -> float:
-        base_timing = sample_timing(REACTION_SHORT_TIMING) * random.uniform(0.6, 1.4)
+        base_timing = self._get_timing(REACTION_SHORT_TIMING) * random.uniform(0.6, 1.4)
         return base_timing

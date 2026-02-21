@@ -17,7 +17,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.proxy 
     build_http_proxy_url,
     build_socks_proxy_url,
 )
-from base_python.singleton import Singleton
+from utils.singleton import Singleton
 from pydantic import BaseModel
 
 
@@ -90,13 +90,6 @@ class BotConfigService(metaclass=Singleton):
             all_configs = self.get_bot_config_by_login()
             all_configs[login] = bot_config
             self._write_all_configs(all_configs)
-
-    def is_kamas_mule(self, login: str) -> bool:
-        config = self.get_bot_config(login)
-        if config.schedule_profile is None:
-            return False
-        profile = ScheduleProfileController().get_profile(config.schedule_profile)
-        return profile is not None and profile.kind == "kamas_mule"
 
     def assign_mode(self, login: str, mode: Literal["socket", "mitm"]):
         with self._BOT_CONFIG_LOCK:

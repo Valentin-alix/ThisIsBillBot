@@ -1,7 +1,7 @@
 from functools import cached_property
 
 import msgspec
-from base_python.singleton import Singleton
+from utils.singleton import Singleton
 
 from DBDofusUnity.consts import I18N_OUTPUT_PATH
 

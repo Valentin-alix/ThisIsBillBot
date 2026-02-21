@@ -2,15 +2,11 @@ from collections import defaultdict
 from pathlib import Path
 from threading import RLock
 
-from base_python.singleton import Singleton
-from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ActorPositionInformation
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
-from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from utils.singleton import Singleton
 from DBDofusUnity.dofus_unity_reader.game_constants.job import JobEnum
 from pydantic import BaseModel, Field
 
 from src.consts import RESOURCE_FOLDER
-from src.services.logging_utils.loggers import BotLogger
 
 
 class SaleHotelServerData(BaseModel):
@@ -23,7 +19,6 @@ class SaleHotelServerData(BaseModel):
 class GameDataFile(BaseModel):
     gfx_to_item: dict[int, tuple[int, int]] = Field(default_factory=dict[int, tuple[int, int]])
     collectable_map_checked: set[int] = Field(default_factory=set[int])
-    defeat_count_by_name: dict[str, int] = Field(default_factory=dict[str, int])
     sale_hotel_by_server: dict[int, SaleHotelServerData] = Field(
         default_factory=dict[int, SaleHotelServerData]
     )
@@ -91,63 +86,6 @@ class GameDataController(metaclass=Singleton):
                 return
             game_data.collectable_map_checked.add(map_id)
             self._save(game_data)
-
-    def get_defeat_count_by_name(self) -> dict[str, int]:
-        with self._LOCK:
-            return self._load().defeat_count_by_name
-
-    def save_defeat_count_by_name(self, defeat_count_by_name: dict[str, int]) -> None:
-        with self._LOCK:
-            game_data = self._load()
-            game_data.defeat_count_by_name = defeat_count_by_name
-            self._save(game_data)
-
-    def increment_defeat_count(self, name_id: int, logger: BotLogger) -> None:
-        with self._LOCK:
-            game_data = self._load()
-            monster_name = I18N().name_by_id[name_id]
-            new_count = game_data.defeat_count_by_name.get(monster_name, 0) + 1
-            game_data.defeat_count_by_name[monster_name] = new_count
-            self._save(game_data)
-        if new_count >= self._DEFEAT_THRESHOLD:
-            logger.warning(f"Monster name_id {name_id} reached {new_count} defeats, now forbidden")
-        else:
-            logger.info(f"Monster name_id {name_id} defeat count: {new_count}/{self._DEFEAT_THRESHOLD}")
-
-    def reset_defeat_count(self, name_id: int, logger: BotLogger) -> None:
-        with self._LOCK:
-            game_data = self._load()
-            monster_name = I18N().name_by_id[name_id]
-            if monster_name not in game_data.defeat_count_by_name:
-                return
-            del game_data.defeat_count_by_name[monster_name]
-            self._save(game_data)
-        logger.info(f"Monster {monster_name} defeat count reset after victory")
-
-    def is_group_allowed(
-        self,
-        monster_group: ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor,
-    ) -> bool:
-        defeat_count_by_name = self.get_defeat_count_by_name()
-        creature_ids = [monster_group.identification.main_creature.gid]
-        creature_ids.extend(underling.gid for underling in monster_group.identification.underlings)
-        for creature_id in creature_ids:
-            monster = DataReader().monsters_by_id[creature_id]
-            monster_name = I18N().name_by_id[monster.nameId]
-            if defeat_count_by_name.get(monster_name, 0) >= self._DEFEAT_THRESHOLD:
-                return False
-        return True
-
-    @staticmethod
-    def get_unique_name_id_from_group(
-        monster_group: ActorPositionInformation.ActorInformation.RolePlayActor.MonsterGroupActor,
-    ) -> int | None:
-        name_ids = {DataReader().monsters_by_id[monster_group.identification.main_creature.gid].nameId}
-        name_ids.update(
-            DataReader().monsters_by_id[underling.gid].nameId
-            for underling in monster_group.identification.underlings
-        )
-        return next(iter(name_ids)) if len(name_ids) == 1 else None
 
     def get_sale_hotel_server(self, server_id: int) -> SaleHotelServerData:
         with self._LOCK:

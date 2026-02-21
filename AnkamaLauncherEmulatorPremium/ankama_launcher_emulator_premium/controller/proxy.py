@@ -1,6 +1,6 @@
 from threading import RLock
 
-from base_python.singleton import Singleton
+from utils.singleton import Singleton
 
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import PROXIES_STORAGE_PATH
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.schedule_profile import (
