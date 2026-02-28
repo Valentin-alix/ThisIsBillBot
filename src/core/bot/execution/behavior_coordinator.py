@@ -19,6 +19,7 @@ from src.core.events_manager.event_manager import EventManager
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.states.player_state import PlayerState
+from src.services.user_activity import UserActivityService
 from src.services.logging_utils.contextual_logger import ContextualLogger
 
 
@@ -50,6 +51,7 @@ class BehaviorCoordinator(ContextualLogger):
     def on_play(self, from_manual_play: bool):
         if from_manual_play:
             self.from_manual_play.set()
+            UserActivityService().record("info", "Lancement manuel demandé.", login=self.account.apikey.login)
         else:
             self.from_manual_play.clear()
         self.is_playing_event.set()

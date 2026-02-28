@@ -277,7 +277,7 @@ def run_build_signature_overrides(
     non_obf_enum_signatures: dict[str, EnumSignatureEntry] | None = None,
 ) -> SignatureOverridesFile:
     with ExitStack() as stack:
-        # Exit stack permet d'ÃƒÂ©viter de faire 40 imbrication de with, c'est l'ÃƒÂ©quivalent de with ...: quand on fais enter_context
+        # Exit stack permet d'éviter de faire 40 imbrications de with, c'est l'équivalent de with ...: quand on fait enter_context
         stack.enter_context(
             patch(
                 "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.load_pinned_pairs",

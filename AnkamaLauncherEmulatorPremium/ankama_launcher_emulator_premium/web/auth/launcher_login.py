@@ -186,7 +186,7 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
                         raise RuntimeError("WAF/CloudFront blocked OAuth page")
             except Exception as err:
                 if _is_waf_or_cloudfront_error(err):
-                    MailAccountController().remove_email(options.email)
+                    MailAccountController().quarantine(options.email, "Blocage WAF/CloudFront confirmé")
                     logger.error("[OAuth] WAF/CloudFront blocked %s; removed stored mailbox account.", options.email)
                 logger.error(err)
                 return AuthenticationResult(success=False, email=options.email, error=str(err))
@@ -294,17 +294,17 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
         logger.error("[OAuth] Proxy rejected: %s", error)
         raise
     except MailboxCodeTimeoutError as exc:
-        MailAccountController().remove_email(options.email)
+        MailAccountController().quarantine(options.email, "Délai dépassé pour le code de confirmation")
         logger.error(
-            "[OAuth] Mailbox code timeout for %s; removed stored mailbox account: %s",
+            "[OAuth] Mailbox code timeout for %s; quarantined stored mailbox account: %s",
             options.email,
             exc,
         )
         return AuthenticationResult(success=False, email=options.email, error=str(exc))
     except Exception as exc:
         if _is_waf_or_cloudfront_error(exc):
-            MailAccountController().remove_email(options.email)
-            logger.error("[OAuth] WAF/CloudFront blocked %s; removed stored mailbox account.", options.email)
+            MailAccountController().quarantine(options.email, "Blocage WAF/CloudFront confirmé")
+            logger.error("[OAuth] WAF/CloudFront blocked %s; quarantined stored mailbox account.", options.email)
             return AuthenticationResult(success=False, email=options.email, error=str(exc))
         logger.exception("[OAuth] Authentication failed: %s", exc)
         return AuthenticationResult(success=False, email=options.email, error=str(exc))
@@ -335,7 +335,7 @@ async def _authenticate_account(
         )
     )
     if not auth_result.success:
-        CryptoHelper.remove_bot(account.email)
+        BotStorageController().quarantine(account.email, "Authentification échouée")
         if account.email in MailAccountController().load_bad_state_emails():
             logger.warning(
                 "[OAuth] %s is now in bad-state emails; skipping future scheduler auth",

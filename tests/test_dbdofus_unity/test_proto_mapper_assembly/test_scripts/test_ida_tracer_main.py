@@ -57,8 +57,10 @@ class TestIdaTracerMain:
 
         assert str(database) in str(exc_info.value)
 
-    def test_run_ida_script_passes_progress_path_and_removes_temp_file(self) -> None:
+    def test_run_ida_script_passes_progress_path_and_removes_temp_file(self, tmp_path: Path) -> None:
         captured_env: dict[str, str] = {}
+        database_path = tmp_path / "GameAssembly.dll"
+        database_path.write_bytes(b"dll")
 
         def fake_popen(
             _command: list[str],
@@ -80,7 +82,12 @@ class TestIdaTracerMain:
                 return_value=(threading.Event(), _CompletedThread()),
             ),
         ):
-            ida_main.run_ida_script(use_non_obf=True, ida_exe=Path("ida.exe"), script_path=Path("trace.py"))
+            ida_main.run_ida_script(
+                use_non_obf=True,
+                ida_exe=Path("ida.exe"),
+                script_path=Path("trace.py"),
+                database_path=database_path,
+            )
 
         progress_path = Path(captured_env["PROTO_TRACER_PROGRESS_PATH"])
         assert captured_env["PROTO_TRACER_BASE_DIR"] == str(ida_main.NON_OBFUSCATED_DATA_DIR)
@@ -128,8 +135,10 @@ class TestIdaTracerMain:
         assert captured_command == ["ida.exe", "-A", "-Strace.py", str(database_path)]
         assert not progress_path.exists()
 
-    def test_run_ida_script_raises_system_exit_for_failed_ida_process(self) -> None:
+    def test_run_ida_script_raises_system_exit_for_failed_ida_process(self, tmp_path: Path) -> None:
         captured_env: dict[str, str] = {}
+        database_path = tmp_path / "GameAssembly.dll"
+        database_path.write_bytes(b"dll")
 
         def fake_popen(
             _command: list[str],
@@ -152,7 +161,12 @@ class TestIdaTracerMain:
             ),
             pytest.raises(SystemExit) as exc_info,
         ):
-            ida_main.run_ida_script(use_non_obf=True, ida_exe=Path("ida.exe"), script_path=Path("trace.py"))
+            ida_main.run_ida_script(
+                use_non_obf=True,
+                ida_exe=Path("ida.exe"),
+                script_path=Path("trace.py"),
+                database_path=database_path,
+            )
 
         progress_path = Path(captured_env["PROTO_TRACER_PROGRESS_PATH"])
         assert exc_info.value.code == 7
@@ -170,9 +184,7 @@ class TestIdaTracerMain:
         stop_event.set()
         stream = io.StringIO()
 
-        reporter._watch_progress_file(
-            progress_path, stop_event, stream
-        )
+        reporter._watch_progress_file(progress_path, stop_event, stream)
 
         output = stream.getvalue()
         assert "Scan methods [############------------]  50.0% 1/2" in output

@@ -18,14 +18,14 @@ uv run python __main__.py
 uv run python __main__.py --headless
 ```
 
-Pour gÃ©nÃ©rer le paquet Windows autonome :
+Pour générer le paquet Windows autonome :
 
 ```powershell
 uv run poe package
 ```
 
 Le dossier distribuable est `dist/Bot-DofusUnity/`. Chaque push publie aussi
-cette archive dans une GitHub pre-release associÃ©e au SHA du commit.
+cette archive dans une GitHub pre-release associée au SHA du commit.
 
 `.env` est local. Les fichiers de runtime restent aux emplacements existants :
 `resources/` et `AnkamaLauncherEmulatorPremium/resources/`. Ils contiennent

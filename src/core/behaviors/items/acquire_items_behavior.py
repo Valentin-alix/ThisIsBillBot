@@ -18,6 +18,7 @@ from src.core.behaviors.storage.loads.load_item_request import (
 from src.core.config import MIN_KAMAS_TO_GO_SALE_HOTEL
 from src.core.engine.economy.sale_hotel import ItemToBuyInfo
 from src.core.engine.items.item_formatter import format_item_name
+from src.services.user_activity import UserActivityService
 
 
 class ItemToAcquire(BaseModel):
@@ -35,14 +36,18 @@ class AcquireItemsBehavior(RecoverableBehavior):
 
     _requests_by_gid: dict[int, ItemToAcquire] = field(init=False, default_factory=dict[int, ItemToAcquire])
     _pending_categories: list[CategoryItemEnum] = field(init=False, default_factory=list[CategoryItemEnum])
+    _allow_market_purchase: bool = field(init=False, default=True)
 
-    def run(self, items: list[ItemToAcquire]) -> None:
+    def run(self, items: list[ItemToAcquire], allow_market_purchase: bool = True) -> None:
         self.init_recovery_listeners()
-        self.ensure_free_to_act(lambda: self.start_acquiring(items=items))
+        self.ensure_free_to_act(
+            lambda: self.start_acquiring(items=items, allow_market_purchase=allow_market_purchase)
+        )
 
-    def start_acquiring(self, items: list[ItemToAcquire]) -> None:
+    def start_acquiring(self, items: list[ItemToAcquire], allow_market_purchase: bool = True) -> None:
         self._requests_by_gid = _merge_by_gid(items)
         self._pending_categories = []
+        self._allow_market_purchase = allow_market_purchase
 
         bank_load_by_gid = self._bank_load_by_gid()
         if not bank_load_by_gid and not self._missing_by_gid():
@@ -76,6 +81,13 @@ class AcquireItemsBehavior(RecoverableBehavior):
         if not missing_by_gid:
             self.logger.info("The bank covered everything, no purchase needed")
             return self.finish(missing_by_gid={})
+
+        if not self._allow_market_purchase:
+            self.logger.info("Market purchases are disabled; keeping missing equipment unchanged")
+            UserActivityService().record(
+                "info", "Achats HDV automatiques ignorés : autorisation désactivée.", login=self.game_state.player.login
+            )
+            return self.finish(missing_by_gid=missing_by_gid)
 
         if not (self.game_state.player.is_sub or self.game_state.player.is_former_sub):
             self.logger.info(

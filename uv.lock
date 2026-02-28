@@ -294,6 +294,29 @@ wheels = [
 ]
 
 [[package]]
+name = "ida-domain"
+version = "0.5.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "idapro" },
+    { name = "packaging" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/80/34/be087d3ea1c3a6573e0660cb5b40f0c4ade9ae5772cf1c5d98d52472d28b/ida_domain-0.5.1.tar.gz", hash = "sha256:c49f2c417047d882e954f651b50a709a3f27903b33ba533b794aa54d6536d16f", size = 396413, upload-time = "2026-08-10T13:32:48.45Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/27/78/9c698d818b0fddc6648f703a0821edeeb65b18404b43f556d249c5446c96/ida_domain-0.5.1-py3-none-any.whl", hash = "sha256:bfbb17c7d0cb2ed7d3f21342e1c8787f9018d5c2a94cdfd29e06537dd026a06d", size = 201275, upload-time = "2026-08-10T13:32:46.955Z" },
+]
+
+[[package]]
+name = "idapro"
+version = "0.0.10"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f8/75/249c605cc144a6b3778c48381d31ff9242f3e0b7ae23a9ca9c27224e641a/idapro-0.0.10.tar.gz", hash = "sha256:417c03c4605d18417e470f6a748e397b39d6d5829ebd3bbdedd92ff5b9092d11", size = 1060989, upload-time = "2026-07-15T12:55:22.313Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e8/83/7b02832cc8b057f686cccdb771fe80282f801a9b798961f8070bb468c73c/idapro-0.0.10-py3-none-any.whl", hash = "sha256:43f227953a0e348ced21c050d277b7ce34103e2ce05fc739b7d8c186ef0e1542", size = 2194897, upload-time = "2026-07-15T12:55:20.88Z" },
+]
+
+[[package]]
 name = "idna"
 version = "3.18"
 source = { registry = "https://pypi.org/simple" }
@@ -3734,6 +3757,8 @@ dependencies = [
     { name = "filelock" },
     { name = "frida" },
     { name = "frida-tools" },
+    { name = "ida-domain" },
+    { name = "idapro" },
     { name = "langchain-openai" },
     { name = "msgspec" },
     { name = "numpy" },
@@ -3782,6 +3807,8 @@ requires-dist = [
     { name = "filelock", specifier = ">=3,<4" },
     { name = "frida", specifier = "==16.7.9" },
     { name = "frida-tools", specifier = ">=13.7.1" },
+    { name = "ida-domain", specifier = ">=0.4.0" },
+    { name = "idapro", specifier = ">=0.0.7" },
     { name = "langchain-openai", specifier = ">=1.0.3,<2" },
     { name = "msgspec", specifier = ">=0.20.0" },
     { name = "numpy", specifier = ">=2.4.2" },

@@ -253,7 +253,7 @@ class TestGameMappings:
         assert ".game.Traced: 0.000 < 0.050" in error_message
         assert "- fieldless low match margins (1):" in error_message
         assert ".game.Required: 0.000 < 0.050 (no declared fields)" in error_message
-        # `obf_traced` is mapped, so only the captured class nothing claimed is reported â€” and it is
+        # `obf_traced` is mapped, so only the captured class nothing claimed is reported — and it is
         # reported next to `.game.Absent`, which is very likely the message it belongs to.
         assert "- captured classes nothing claimed (1):" in error_message
         assert "obf_orphan (client, 2 captures, 0 fields)" in error_message

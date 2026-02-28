@@ -127,7 +127,9 @@ async def register_account(
                     "[Register] %s is already linked to an Ankama account; requesting a replacement.",
                     current_options.email,
                 )
-                MailAccountController().remove_email(current_options.email)
+                MailAccountController().quarantine(
+                    current_options.email, "Adresse déjà liée à un compte Ankama"
+                )
                 discarded_email = current_options.email
                 rejected_mailbox_count += 1
                 if replacement_options_factory is None:
@@ -166,7 +168,7 @@ async def register_account(
             )
             mailbox_discarded = _is_discardable_email_error(result) and current_options.email != discarded_email
             if mailbox_discarded:
-                MailAccountController().remove_email(current_options.email)
+                MailAccountController().quarantine(current_options.email, "Inscription refusée par Ankama")
             logger.error(
                 "[Register] Registration failed for %s after %d rejected mailbox(es)%s: %s",
                 current_options.email,
@@ -188,7 +190,7 @@ async def register_account(
             )
         except Exception as exc:
             if is_waf_or_cloudfront_block(status_code=None, content=str(exc)):
-                MailAccountController().remove_email(current_options.email)
+                MailAccountController().quarantine(current_options.email, "Blocage WAF/CloudFront confirmé")
                 logger.error(
                     "[Register] WAF/CloudFront blocked %s after %d rejected mailbox(es); mailbox discarded.",
                     current_options.email,
@@ -403,7 +405,7 @@ async def _handle_confirmation_code(
                 result.waf_blocked,
             )
         if isinstance(exception, MailboxCodeTimeoutError):
-            MailAccountController().remove_email(options.email)
+            MailAccountController().quarantine(options.email, "Délai dépassé pour le code de confirmation")
             raise exception
     results = [task.result() for task in done if not task.cancelled()]
     return next((result for result in results if result.accepted), _ConfirmationCodeResult(accepted=False))

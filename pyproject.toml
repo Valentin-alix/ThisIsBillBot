@@ -32,6 +32,8 @@ dependencies = [
     "filelock>=3,<4",
     "numpy>=2.4.2",
     "scipy>=1.18,<2",
+    "ida-domain>=0.4.0",
+    "idapro>=0.0.7",
 ]
 
 [dependency-groups]
@@ -69,7 +71,7 @@ check = ["lint", "check_type"]
 test = "coverage run --source=src -m pytest tests"
 test_verbose = "pytest tests -s"
 verify = ["lint", "check_type", "test"]
-package = "pyinstaller --noconfirm --clean --windowed --name Bot-DofusUnity --paths DBDofusUnity --paths AnkamaLauncherEmulatorPremium --add-data \"resources/icons;resources/icons\" --add-data \"DBDofusUnity/datas/bundles;DBDofusUnity/datas/bundles\" --add-data \"DBDofusUnity/datas/protos;DBDofusUnity/datas/protos\" --add-data \"DBDofusUnity/datas/proto_mapper/obf/.last_dumped_game_assembly_mtime;DBDofusUnity/datas/proto_mapper/obf\" --add-data \"DBDofusUnity/datas/proto_mapper/obf/.last_dumped_protocol_cs_hash;DBDofusUnity/datas/proto_mapper/obf\" --add-data \"DBDofusUnity/datas/proto_mapper/obf/cs/Ankama.Dofus.Protocol.Game.cs;DBDofusUnity/datas/proto_mapper/obf/cs\" __main__.py"
+package = "pyinstaller --noconfirm --clean --windowed --name Bot-DofusUnity --paths DBDofusUnity --paths AnkamaLauncherEmulatorPremium --add-data \"resources/icons;resources/icons\" --add-data \"DBDofusUnity/datas/bundles;DBDofusUnity/datas/bundles\" --add-data \"DBDofusUnity/datas/protos;DBDofusUnity/datas/protos\" __main__.py"
 
 
 [tool.pytest.ini_options]

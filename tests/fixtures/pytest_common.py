@@ -50,6 +50,7 @@ def logger(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> MagicMock:
 def _isolate_resource_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setattr("AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_pool.PAYSAFECARDS_PATH", tmp_path / "paysafecards.txt")
     monkeypatch.setattr("AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_purchase.PAYSAFECARD_PURCHASE_PATH", tmp_path / "paysafecard_purchase.local.json")
+    monkeypatch.setattr("src.services.user_activity.USER_ACTIVITY_PATH", tmp_path / "user_activity.json")
 
 
 @pytest.fixture(autouse=True)

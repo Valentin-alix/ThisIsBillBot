@@ -1,5 +1,6 @@
 """Pydantic models for JSON files persisted by our app (not by Ankama)."""
 
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -16,6 +17,8 @@ class BotRecord(BaseModel):
     connection_mode: Literal["mitm", "socket"] = "socket"
     encrypted_api_key: str | None = None
     account_info: UserAccount | None = None
+    quarantine_reason: str | None = None
+    quarantined_at: datetime | None = None
 
 
 class BotsFile(BaseModel):

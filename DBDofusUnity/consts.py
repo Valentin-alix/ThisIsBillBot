@@ -1,3 +1,4 @@
+import os
 import platform
 from pathlib import Path
 
@@ -22,18 +23,22 @@ def _default_standalone_bundle_folder() -> str:
     return "StandaloneLinux64"
 
 
-if IS_PACKAGED:
-    OBF_GAME_DIR = Path()
-    NON_OBF_GAME_DIR = Path()
-    OBF_GAME_SNAPSHOTS_DIR = Path()
-    PROTOC_PATH = Path()
-    IDA_EXE = Path()
-else:
-    OBF_GAME_DIR = get_required_path("OBF_GAME_DIR")
-    NON_OBF_GAME_DIR = get_required_path("NON_OBF_GAME_DIR")
-    OBF_GAME_SNAPSHOTS_DIR = get_path_from_env("OBF_GAME_SNAPSHOTS_DIR", Path.home() / "Documents" / "D3")
-    PROTOC_PATH = get_required_path("PROTOC_PATH")
-    IDA_EXE = get_required_path("IDA_EXE")
+_REQUIRED_GAME_TOOLCHAIN_VARIABLES = ("OBF_GAME_DIR", "NON_OBF_GAME_DIR", "PROTOC_PATH", "IDA_EXE")
+_MISSING_GAME_TOOLCHAIN_PATH = PROJECT_ROOT / ".missing-game-toolchain"
+
+
+def require_game_toolchain() -> None:
+    if IS_PACKAGED:
+        raise RuntimeError("The Dofus mapping toolchain is unavailable in the packaged application.")
+    for env_name in _REQUIRED_GAME_TOOLCHAIN_VARIABLES:
+        get_required_path(env_name)
+
+
+OBF_GAME_DIR = get_path_from_env("OBF_GAME_DIR", _MISSING_GAME_TOOLCHAIN_PATH / "obf")
+NON_OBF_GAME_DIR = get_path_from_env("NON_OBF_GAME_DIR", _MISSING_GAME_TOOLCHAIN_PATH / "non-obf")
+OBF_GAME_SNAPSHOTS_DIR = get_path_from_env("OBF_GAME_SNAPSHOTS_DIR", Path.home() / "Documents" / "D3")
+PROTOC_PATH = get_path_from_env("PROTOC_PATH", _MISSING_GAME_TOOLCHAIN_PATH / "protoc")
+IDA_EXE = get_path_from_env("IDA_EXE", _MISSING_GAME_TOOLCHAIN_PATH / "ida")
 DATA_ROOT: Path = PROJECT_ROOT / "datas"
 BUNDLES_ROOT: Path = DATA_ROOT / "bundles"
 DATA_BUNDLES_ROOT: Path = BUNDLES_ROOT / "data"
@@ -75,7 +80,7 @@ PROTODEC_EXECUTABLE: Path = get_path_from_env(
     PROJECT_ROOT / "protodec" / "bin" / "protodec" / "Debug" / "net10.0" / "protodec.exe",
 )
 
-if IS_PACKAGED:
+if IS_PACKAGED or not all(os.environ.get(env_name) for env_name in _REQUIRED_GAME_TOOLCHAIN_VARIABLES):
     OBF_GAME_ASSEMBLY_DLL = Path()
     OBF_GAME_ASSEMBLY_DLL_I64 = Path()
     OBF_IL2CPP_METADATA_FILE = Path()

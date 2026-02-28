@@ -14,6 +14,9 @@ SOCKET_DISCONNECTION_WAIT_STEP_SECONDS = 0.05
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
     BotStorageController,
 )
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.mail_account import (
+    MailAccountController,
+)
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.proxy import ProxyController
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
     ScheduleProfileController,
@@ -25,6 +28,7 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.cr
     CryptoHelper,
 )
 from src.services.background import run_in_background
+from src.services.user_activity import UserActivityService
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.handler import (
     AnkamaLauncherHandler,
 )
@@ -135,6 +139,11 @@ class BotManager:
                 key=lambda profile_id: (profile_counts[profile_id], profile_id),
             )
             BotStorageController().reassign_quarantined_schedule_profile(login, target_profile_id)
+            UserActivityService().record(
+                "warning",
+                f"Profil proxy réaffecté : {bot_config.schedule_profile} vers {target_profile_id}.",
+                login=login,
+            )
             bot.logger.warning(
                 "Proxy for profile %s is quarantined; reassigned to profile %s",
                 bot_config.schedule_profile,
@@ -180,6 +189,16 @@ class BotManager:
         )
         if related_bot is None:
             self._is_lauching_by_login.pop(login, None)
+            return None
+
+        record = BotStorageController().get_all_records().get(login)
+        quarantine_reason = record.quarantine_reason if record is not None else None
+        if isinstance(quarantine_reason, str) and quarantine_reason:
+            related_bot.bot_signals.stop.emit()
+            related_bot.logger.warning("Bot relaunch blocked by quarantine: %s", quarantine_reason)
+            UserActivityService().record(
+                "warning", f"Relance bloquée : bot en quarantaine ({quarantine_reason}).", login=login
+            )
             return None
 
         if self._is_lauching_by_login[login].is_set():
@@ -269,9 +288,7 @@ class BotManager:
     def on_banned_callback(self, login: str):
         bot_config = BotConfigService().get_bot_config(login)
         record = BotStorageController().get_all_records().get(login)
-        quarantined_schedule_profile = (
-            record.quarantined_schedule_profile if record is not None else None
-        )
+        quarantined_schedule_profile = record.quarantined_schedule_profile if record is not None else None
         schedule_profile_id = quarantined_schedule_profile or bot_config.schedule_profile
         if schedule_profile_id is None:
             logger.warning(
@@ -293,18 +310,66 @@ class BotManager:
                     schedule_profile.proxy_id,
                     login,
                 )
-        CryptoHelper.remove_bot(login)
-        BotConfigService().remove_bot_config(login)
-        BotStorageController().remove_record(login)
-        PlayerInfoStorage().remove_snapshot(login)
-        self.on_synchronize_bots()
+        BotStorageController().quarantine(login, "Compte banni")
+        related_bot = next(
+            (
+                bot
+                for bot in getattr(self, "bot_by_account_id", {}).values()
+                if bot.account.apikey.login == login
+            ),
+            None,
+        )
+        if related_bot is not None:
+            related_bot.bot_signals.stop.emit()
+        UserActivityService().record("error", "Compte mis en quarantaine après bannissement.", login=login)
 
     def on_connection_server_succeeded(self, login: str) -> None:
         BotStorageController().clear_quarantined_schedule_profile(login)
 
     def on_invalid_auth_callback(self, login: str) -> None:
+        BotStorageController().quarantine(login, "Authentification invalide")
+        related_bot = next(
+            (
+                bot
+                for bot in getattr(self, "bot_by_account_id", {}).values()
+                if bot.account.apikey.login == login
+            ),
+            None,
+        )
+        if related_bot is not None:
+            related_bot.bot_signals.stop.emit()
+        UserActivityService().record(
+            "error", "Compte mis en quarantaine après échec d’authentification.", login=login
+        )
+
+    def restore_account_from_quarantine(self, login: str) -> None:
+        BotStorageController().restore_from_quarantine(login)
+        UserActivityService().record("info", "Quarantaine du compte levée par l’utilisateur.", login=login)
+
+    def delete_account(self, login: str) -> None:
+        related_bot = next(
+            (bot for bot in self.bot_by_account_id.values() if bot.account.apikey.login == login), None
+        )
+        if related_bot is not None:
+            related_bot.bot_signals.stop.emit()
         CryptoHelper.remove_bot(login)
+        BotConfigService().remove_bot_config(login)
+        BotStorageController().remove_record(login)
+        PlayerInfoStorage().remove_snapshot(login)
         self.on_synchronize_bots()
+        UserActivityService().record(
+            "warning", "Compte supprimé définitivement par l’utilisateur.", login=login
+        )
+
+    def restore_mailbox_from_quarantine(self, email: str) -> None:
+        MailAccountController().restore_from_quarantine(email)
+        UserActivityService().record("info", "Quarantaine de mailbox levée par l’utilisateur.", login=email)
+
+    def delete_mailbox(self, email: str) -> None:
+        MailAccountController().remove_email(email)
+        UserActivityService().record(
+            "warning", "Mailbox supprimée définitivement par l’utilisateur.", login=email
+        )
 
     def safe_stop_bots(self, bots: list[Bot]):
         for bot in bots:
@@ -321,14 +386,19 @@ class BotManager:
         return bot_by_account_id
 
     def shutdown(self) -> None:
-        if self.enable_account_scheduler:
-            self.account_scheduler.stop()
-        bots = list(self.bot_by_account_id.values())
-        self.safe_stop_bots(bots)
-        for bot in bots:
-            bot.connection_handler.cleanup()
-            bot.process_manager.kill_process()
-        self.proxy_listener.shutdown()
+        activity = UserActivityService()
+        activity.record("info", "Arrêt de l’application demandé.")
+        try:
+            if self.enable_account_scheduler:
+                self.account_scheduler.stop()
+            bots = list(self.bot_by_account_id.values())
+            self.safe_stop_bots(bots)
+            for bot in bots:
+                bot.connection_handler.cleanup()
+                bot.process_manager.kill_process()
+            self.proxy_listener.shutdown()
+        finally:
+            activity.close()
 
     def _cleanup_removed_bot(self, bot: Bot) -> None:
         login = bot.account.apikey.login

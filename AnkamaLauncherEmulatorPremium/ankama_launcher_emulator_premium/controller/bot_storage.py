@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone
 from collections.abc import Callable
 
 from utils.singleton import Singleton
@@ -16,6 +17,9 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.l
     BotsFile,
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.zaap_files import UserAccount
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.quarantine_signals import (
+    quarantine_signals,
+)
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.atomic_file import (
     acquire_file_lock,
     atomic_write_text,
@@ -90,8 +94,10 @@ class BotStorageController(metaclass=Singleton):
     def remove_record(self, login: str) -> None:
         with self._acquire_file_lock():
             bots_file = self._load()
-            bots_file.bots.pop(login, None)
+            removed = bots_file.bots.pop(login, None)
             self._save(bots_file)
+        if removed is not None:
+            quarantine_signals.changed.emit()
 
     def upsert_account_info(self, login: str, account: UserAccount) -> None:
         self.update_record(
@@ -108,8 +114,37 @@ class BotStorageController(metaclass=Singleton):
         return [
             record
             for record in self.get_all_records().values()
-            if record.encrypted_api_key is None and record.email not in bad_state_emails
+            if record.encrypted_api_key is None
+            and record.quarantine_reason is None
+            and record.email not in bad_state_emails
         ]
+
+    def quarantine(self, login: str, reason: str) -> BotRecord:
+        def mark_quarantined(record: BotRecord) -> None:
+            record.quarantine_reason = reason
+            record.quarantined_at = datetime.now(timezone.utc)
+
+        record = self.update_record(
+            login,
+            mark_quarantined,
+        )
+        quarantine_signals.changed.emit()
+        return record
+
+    def restore_from_quarantine(self, login: str) -> BotRecord:
+        def restore(record: BotRecord) -> None:
+            record.quarantine_reason = None
+            record.quarantined_at = None
+
+        record = self.update_record(
+            login,
+            restore,
+        )
+        quarantine_signals.changed.emit()
+        return record
+
+    def clear_api_key(self, login: str) -> BotRecord:
+        return self.update_record(login, lambda record: setattr(record, "encrypted_api_key", None))
 
     def reassign_schedule_profile(self, login: str, schedule_profile: str) -> None:
         def reassign(record: BotRecord) -> None:

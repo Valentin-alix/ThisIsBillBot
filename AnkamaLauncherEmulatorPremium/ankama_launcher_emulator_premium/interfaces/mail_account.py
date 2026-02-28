@@ -1,4 +1,5 @@
 from typing import Annotated, Literal
+from datetime import datetime
 
 from pydantic import BaseModel, Field
 
@@ -35,6 +36,8 @@ class MailAccountEntry(BaseModel):
     config: MailAccountConfig | None = None
     bad_state: bool = False
     is_used: bool = False
+    quarantine_reason: str | None = None
+    quarantined_at: datetime | None = None
 
 
 class MailAccountsFile(BaseModel):

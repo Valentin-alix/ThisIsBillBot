@@ -16,6 +16,7 @@ from DBDofusUnity.consts import (
     NON_OBFUSCATED_DATA_DIR,
     OBF_GAME_ASSEMBLY_DLL_I64,
     OBFUSCATED_DATA_DIR,
+    require_game_toolchain,
 )
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.progress.reporter import start_progress_watcher
 
@@ -90,6 +91,7 @@ def run_ida_script(
 
 def main() -> None:
     arguments = _build_argument_parser().parse_args()
+    require_game_toolchain()
     if arguments.obf_dir is not None:
         assert not arguments.non_obf, "--obf-dir requires obfuscated dump mode"
         run_ida_script(

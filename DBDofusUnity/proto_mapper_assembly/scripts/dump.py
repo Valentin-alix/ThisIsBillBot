@@ -27,9 +27,12 @@ from DBDofusUnity.consts import (
     PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
     PROTODEC_EXECUTABLE,
     RUNTIME_DATA_FILE,
+    require_game_toolchain,
 )
 from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import write_pinned_pairs
-from DBDofusUnity.proto_mapper_assembly.helpers.obf_game_snapshot import find_snapshot_dir_by_game_assembly_mtime_ns
+from DBDofusUnity.proto_mapper_assembly.helpers.obf_game_snapshot import (
+    find_snapshot_dir_by_game_assembly_mtime_ns,
+)
 from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
 from DBDofusUnity.proto_mapper_assembly.pipeline import run_pipeline
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.main import run_ida_script
@@ -54,6 +57,7 @@ def main() -> None:
 
     use_obf = not arguments.non_obf
 
+    require_game_toolchain()
     update_protos(use_obf=use_obf, obf_dir=arguments.obf_dir, force=arguments.force)
 
 
@@ -80,6 +84,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
 
 
 def check_updated_mapping_resources():
+    require_game_toolchain()
     target = _build_proto_dump_target(use_obf=True)
     if does_dump_cs_changed_since_last_run(target):
         raise RuntimeError(

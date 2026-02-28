@@ -81,6 +81,7 @@ def test_missing_sonji_key_does_not_schedule_registration_without_email() -> Non
     with (
         patch("src.core.bot.lifecycle.account_scheduler.MailAccountController", return_value=mail_accounts),
         patch("src.core.bot.lifecycle.account_scheduler.SONJI_API_KEY", None),
+        patch("src.core.bot.lifecycle.account_scheduler.ENABLE_ACCOUNT_AUTOMATION", True),
     ):
         assert scheduler._next_operation(0) is None
 
@@ -94,6 +95,7 @@ def test_stored_email_schedules_registration_without_sonji_key() -> None:
     with (
         patch("src.core.bot.lifecycle.account_scheduler.MailAccountController", return_value=mail_accounts),
         patch("src.core.bot.lifecycle.account_scheduler.SONJI_API_KEY", None),
+        patch("src.core.bot.lifecycle.account_scheduler.ENABLE_ACCOUNT_AUTOMATION", True),
     ):
         assert scheduler._next_operation(0) == _RegisterOp("B", "B")
 
@@ -106,7 +108,10 @@ def test_pending_account_is_authenticated_before_registration() -> None:
     mail_accounts = MagicMock()
     mail_accounts.load_bad_state_emails.return_value = set()
 
-    with patch("src.core.bot.lifecycle.account_scheduler.MailAccountController", return_value=mail_accounts):
+    with (
+        patch("src.core.bot.lifecycle.account_scheduler.MailAccountController", return_value=mail_accounts),
+        patch("src.core.bot.lifecycle.account_scheduler.ENABLE_ACCOUNT_AUTOMATION", True),
+    ):
         assert scheduler._next_operation(0) == _AuthOp("pending@example.com", "B", "B")
 
 

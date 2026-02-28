@@ -13,6 +13,9 @@ SCHEDULE_RANDOM_MINUTES_MAX = 30
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
     ScheduleProfileController,
 )
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+    BotStorageController,
+)
 from src.services.background import run_in_background
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
     StoredApiKey,
@@ -27,6 +30,7 @@ from src.core.signals.log_signals import LogSignals
 from src.core.signals.message_signals import MessageInfoSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.services.logging_utils.contextual_logger import ContextualLogger
+from src.services.user_activity import UserActivityService
 
 
 @dataclass
@@ -64,6 +68,8 @@ class BotScheduler(ContextualLogger):
     )
 
     def start(self) -> None:
+        if self._is_quarantined():
+            return
         config = self.get_bot_config()
         if config is None or config.schedule_profile is None:
             return
@@ -73,6 +79,9 @@ class BotScheduler(ContextualLogger):
         now = datetime.now()
         if self.is_in_randomized_playtime(now):
             self._start_current_session(now)
+            UserActivityService().record(
+                "info", "Démarrage automatique dans le créneau planifié en cours.", login=self.account.apikey.login
+            )
             self.bot_signals.play.emit(False)
             self.shared_signals.launch_account.emit(self.account.apikey.login)
 
@@ -114,6 +123,11 @@ class BotScheduler(ContextualLogger):
                 self.logger.info(
                     f"Scheduling day {day}: start={start_time} (was {slot.start}), "
                     f"end={end_time} (was {slot.end})"
+                )
+                UserActivityService().record(
+                    "info",
+                    f"Créneau effectif : {start_time}–{end_time} (profil {profile_id}).",
+                    login=self.account.apikey.login,
                 )
 
                 start_job = (
@@ -187,6 +201,9 @@ class BotScheduler(ContextualLogger):
 
     def stop_scheduled_runtime(self) -> None:
         self.logger.info("Stopping bot")
+        UserActivityService().record(
+            "info", "Arrêt automatique de fin de créneau.", login=self.account.apikey.login
+        )
         runtime_is_active = (
             self.is_playing_event.is_set()
             or self.event_manager.request_disconnect_callback is not None
@@ -217,6 +234,8 @@ class BotScheduler(ContextualLogger):
 
     def _planned_restart_bot(self) -> None:
         self.logger.info("Restarting bot")
+        if self._is_quarantined():
+            return
         if not self.is_in_randomized_playtime(datetime.now()):
             return self.logger.info("Bot is not anymore in playtime")
 
@@ -235,6 +254,16 @@ class BotScheduler(ContextualLogger):
 
     def _planned_restart_bot_task(self, _progress_callback: Callable[[str], None]) -> None:
         self._planned_restart_bot()
+
+    def _is_quarantined(self) -> bool:
+        record = BotStorageController().get_record(self.account.apikey.login)
+        if record is None or record.quarantine_reason is None:
+            return False
+        self.logger.warning("Bot is quarantined: %s", record.quarantine_reason)
+        UserActivityService().record(
+            "warning", f"Bot en quarantaine : {record.quarantine_reason}.", login=self.account.apikey.login
+        )
+        return True
 
 
 def run_continuously(interval: int = 1) -> threading.Event:

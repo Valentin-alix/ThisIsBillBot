@@ -100,6 +100,16 @@ def test_an_empty_slot_is_requested_without_upgrade_flag(
     assert items[0].max_kamas == MAX_KAMAS
 
 
+def test_auto_equipment_disables_market_purchase_by_default(
+    game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
+) -> None:
+    behavior = _make_behavior(game_state_ctx, monkeypatch)
+
+    _start(behavior)
+
+    assert _child_kwarg(behavior.acquire_items_behavior, "allow_market_purchase") is False
+
+
 def test_a_better_bank_copy_is_requested_as_an_upgrade(
     game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
 ) -> None:

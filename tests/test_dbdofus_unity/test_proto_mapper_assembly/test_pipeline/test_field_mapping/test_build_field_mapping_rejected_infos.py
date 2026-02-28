@@ -251,10 +251,10 @@ class TestBuildFieldMappingRejectedInfos:
         )
 
         assert result.field_mapping == {"fhdb": "first_id", "fhdc": "second_id"}
-        # On vÃ©rifie la raison du rejet et la borne du score, pas la valeur exacte.
-        # Le score prÃ©cis dÃ©pend de la pondÃ©ration des features de similarity, qui peut
-        # Ã©voluer (cf. plan : poids des compteurs fragiles abaissÃ©s) â€” on ne lock pas
-        # cette valeur ici sinon le test casse Ã  chaque rÃ©Ã©quilibrage.
+        # On vérifie la raison du rejet et la borne du score, pas la valeur exacte.
+        # Le score précis dépend de la pondération des features de similarity, qui peut
+        # évoluer (cf. plan : poids des compteurs fragiles abaissés) — on ne lock pas
+        # cette valeur ici sinon le test casse à chaque rééquilibrage.
         for rejected_pair_key in (("fhdc", "first_id"), ("fhdb", "second_id")):
             obf_field, non_obf_field = rejected_pair_key
             rejected_info = result.field_mapping_rejected_infos[obf_field][non_obf_field]

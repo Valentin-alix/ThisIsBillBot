@@ -226,7 +226,9 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
 
         self.assertFalse(result.success)
         self.assertEqual(result.error, "WAF/CloudFront blocked OAuth page")
-        mail_account_controller.return_value.remove_email.assert_called_once_with("u@example.com")
+        mail_account_controller.return_value.quarantine.assert_called_once_with(
+            "u@example.com", "Blocage WAF/CloudFront confirmé"
+        )
 
     async def test_authenticate_records_bad_state_on_shield_code_timeout(
         self,
@@ -286,7 +288,9 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
 
         self.assertFalse(result.success)
         self.assertEqual(result.error, "Timed out waiting for code")
-        mail_account_controller.return_value.remove_email.assert_called_once_with("u@example.com")
+        mail_account_controller.return_value.quarantine.assert_called_once_with(
+            "u@example.com", "Délai dépassé pour le code de confirmation"
+        )
         log_exception.assert_not_called()
         log_error.assert_called_once()
 
@@ -313,7 +317,7 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
                 "authenticate",
                 new=authenticate,
             ),
-            patch.object(launcher_login_module.CryptoHelper, "remove_bot") as remove_bot,
+            patch.object(launcher_login_module.BotStorageController, "quarantine") as quarantine,
             patch.object(
                 launcher_login_module, "resolve_mail_provider", return_value=FakeMailProvider()
             ),
@@ -328,7 +332,7 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
         assert await_args is not None
         sent_options = cast(AuthenticationOptions, await_args.args[0])
         self.assertEqual(sent_options.proxy_url, "http://127.0.0.1:9000")
-        remove_bot.assert_called_once_with("u@example.com")
+        quarantine.assert_called_once_with("u@example.com", "Authentification échouée")
 
     async def test_successful_generated_account_auth_stores_key(
         self,
@@ -354,7 +358,7 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
                 "authenticate",
                 new=authenticate,
             ),
-            patch.object(launcher_login_module.CryptoHelper, "remove_bot") as remove_bot,
+            patch.object(launcher_login_module.BotStorageController, "quarantine") as quarantine,
             patch.object(
                 launcher_login_module, "resolve_mail_provider", return_value=FakeMailProvider()
             ),
@@ -364,4 +368,4 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
             )
 
         self.assertTrue(result.success)
-        remove_bot.assert_not_called()
+        quarantine.assert_not_called()

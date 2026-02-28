@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import PivotItem, SegmentedWidget
 
 from src import consts
+from src.controller.player_info_storage import PlayerInfoSnapshot
 from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
 from src.gui.fragments.account_quick_info import AccountQuickInfoWidget
@@ -22,6 +23,8 @@ class AccountStackedWidget(QWidget):
         global_log_signals: LogSignals,
         login: str,
         bot: Bot,
+        snapshot: PlayerInfoSnapshot | None,
+        quarantine_reason: str | None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent=parent)
@@ -37,7 +40,12 @@ class AccountStackedWidget(QWidget):
 
         self.quick_info_widget: AccountQuickInfoWidget | None = None
         if consts.DEBUG:
-            self.quick_info_widget = AccountQuickInfoWidget(self.bot, parent=self)
+            self.quick_info_widget = AccountQuickInfoWidget(
+                self.bot,
+                snapshot,
+                quarantine_reason,
+                parent=self,
+            )
             layout.addWidget(self.quick_info_widget)
 
         self.stacked_widget = QStackedWidget(self)
@@ -95,3 +103,7 @@ class AccountStackedWidget(QWidget):
             self.debug_pivot_item.click()
         else:
             self.farmer_pivot_item.click()
+
+    def set_snapshot_sub_area_name(self, sub_area_name: str | None) -> None:
+        if self.quick_info_widget is not None:
+            self.quick_info_widget.set_snapshot_sub_area_name(sub_area_name)

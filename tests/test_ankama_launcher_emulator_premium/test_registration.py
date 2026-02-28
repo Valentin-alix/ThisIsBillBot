@@ -338,7 +338,9 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
         page.goto.assert_awaited_once()
         replacement_options_factory.assert_awaited_once_with(initial_options)
         submit_replacement_email_attempt.assert_awaited_once_with(page, replacement_options)
-        mail_account_controller.return_value.remove_email.assert_called_once_with("new@example.com")
+        mail_account_controller.return_value.quarantine.assert_called_once_with(
+            "new@example.com", "Adresse déjà liée à un compte Ankama"
+        )
         bot_storage_controller.return_value.save_account.assert_called_once_with(
             "replacement@example.com",
             "password",
@@ -602,7 +604,9 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
         self.assertEqual(result.error, failure.reason)
         bot_storage_controller.return_value.save_account.assert_not_called()
         registration_module._finalize_registration_attempt(result.email, result)
-        mail_account_controller.return_value.remove_email.assert_called_once_with("new@example.com")
+        mail_account_controller.return_value.quarantine.assert_called_once_with(
+            "new@example.com", "Inscription refusée par Ankama"
+        )
         self.assertEqual(len(logs.output), 1)
         self.assertIn("mailbox discarded", logs.output[0])
 
@@ -649,7 +653,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
 
         self.assertEqual(page.content.await_count, 2)
 
-    async def test_registration_confirmation_timeout_removes_email(
+    async def test_registration_confirmation_timeout_quarantines_email(
         self,
     ) -> None:
         page = MagicMock()
@@ -670,4 +674,6 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
                 started_at=registration_module.datetime.now(registration_module.UTC),
             )
 
-        mail_account_controller.return_value.remove_email.assert_called_once_with("new@example.com")
+        mail_account_controller.return_value.quarantine.assert_called_once_with(
+            "new@example.com", "Délai dépassé pour le code de confirmation"
+        )

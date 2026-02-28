@@ -16,11 +16,14 @@ from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
 
 DO_FIGHTER = True  # le bot va attacker un groupe de monstre random toutes les 30 minutes
 DO_SALE_HOTEL = True  # le bot va aller vendre en hdv
-DO_CRAFT = True  # le bot va aller craft pr level up principalement
+DO_CRAFT = False  # le bot va aller craft pr level up principalement
 DO_USE_GUILD_CHEST = False  # le bot va utiliser le coffre de guilde plutot que la banque
-DO_DUNGEON = True  # le bot va tenter un donjon pendant une session planifiee
-DO_QUEST = True  # le bot va tenter les quetes eligibles pendant une session planifiee
-ENABLE_ACCOUNT_AUTOMATION = True
+DO_DUNGEON = False  # le bot va tenter un donjon pendant une session planifiee
+DO_QUEST = False  # le bot va tenter les quetes eligibles pendant une session planifiee
+ENABLE_ACCOUNT_AUTOMATION = False
+ENABLE_AUTO_EQUIPMENT_MARKET_PURCHASES = False
+ENABLE_AUTO_OGRINE_SUBSCRIPTIONS = False
+ENABLE_AUTO_PAYSAFECARD_SUBSCRIPTIONS = False
 
 
 # ============================================================================
@@ -99,7 +102,8 @@ FIRST_COLLECT_MOVEMENT_CANCEL_PROBABILITY = 1 / 3
 SUBSEQUENT_COLLECT_MOVEMENT_CANCEL_PROBABILITY = 1 / 8
 STATIC_INTERACTION_CANCEL_PROBABILITY = 1 / 8
 
-ENABLE_SESSION_CONTEXT = True
+ENABLE_SESSION_CONTEXT = False
+DO_IDLE = False
 
 PLACEMENT_REPOSITIONING_PROBABILITY = 0.08
 PLACEMENT_NON_OPTIMAL_MOVE_PROBABILITY = 0.1

@@ -17,9 +17,6 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.p
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
     ScheduleProfileController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.crypto_helper import (
-    CryptoHelper,
-)
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.exceptions import (
     BannedException,
     ProxyRejectedError,
@@ -212,7 +209,7 @@ class AccountScheduler:
 
         try:
             for login in sorted(generated_account_logins):
-                CryptoHelper.remove_bot(login)
+                self.bot_storage_controller.clear_api_key(login)
 
             profiles = self.schedule_profile_controller.get_all_profiles()
             profile_counts = self._profile_account_counts(profiles)

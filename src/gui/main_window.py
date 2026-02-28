@@ -1,6 +1,6 @@
 import logging
 from functools import partial
-from typing import Literal
+from typing import Literal, cast
 
 from PyQt6.QtCore import QSize, QTimer, QUrl
 from PyQt6.QtGui import QCloseEvent, QColor, QIcon, QPixmap
@@ -11,17 +11,23 @@ from qfluentwidgets import (
     SplashScreen,
 )
 
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+    BotStorageController,
+)
 from src import consts
 from src.consts import LOGO_FILE
 from src.controller.bot_config import BotConfigService
-from src.controller.player_info_storage import PlayerInfoStorage
+from src.controller.player_info_storage import PlayerInfoSnapshot, PlayerInfoStorage
 from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
 from src.gui.fragments.account_stacked_widget import AccountStackedWidget
+from src.gui.fragments.account_quick_info import AccountQuickInfoWidget
 from src.gui.fragments.app_fluent_window import AppFluentWindow
 from src.gui.fragments.sidebar_item import SidebarItem
+from src.gui.pages.activity import ActivityPage
+from src.services.background import run_in_background
 from src.services.logging_utils.loggers import init_root_gui_logging
 
 logger = logging.getLogger()
@@ -65,19 +71,54 @@ class MainWindow(AppFluentWindow):
         self.shared_signals.new_bot_added.connect(self.add_account)
         self.shared_signals.bot_removed.connect(self.remove_account)
         self.shared_signals.shutdown_finished.connect(self.complete_shutdown)
+        self.activity_page = ActivityPage(parent=self)
+        self.stackedWidget.addWidget(self.activity_page)
+        self.navigationInterface.addItem(
+            routeKey=self.activity_page.objectName(),
+            icon=FluentIcon.HISTORY,  # type: ignore
+            text="Activité",
+            onClick=lambda: self.switchTo(self.activity_page),
+            position=NavigationItemPosition.TOP,
+        )
+        self.navigationInterface.setCurrentItem(self.activity_page.objectName())
 
     def init_accounts(self, account_by_id: dict[int, Bot]) -> None:
+        snapshots = PlayerInfoStorage().get_all_snapshots()
+        records = BotStorageController().get_all_records()
         for account in account_by_id.values():
-            self.add_account(account)
+            login = account.account.apikey.login
+            record = records.get(login)
+            self.add_account(
+                account,
+                snapshot=snapshots.get(login),
+                quarantine_reason=record.quarantine_reason if record is not None else None,
+            )
+        if consts.DEBUG:
+            run_in_background(
+                lambda _: AccountQuickInfoWidget.resolve_snapshot_sub_area_names(snapshots),
+                on_success=self._set_snapshot_sub_area_names,
+                parent=self,
+            )
 
-    def add_account(self, account: Bot) -> None:
+    def add_account(
+        self,
+        account: Bot,
+        snapshot: PlayerInfoSnapshot | None = None,
+        quarantine_reason: str | None = None,
+    ) -> None:
         login = account.account.apikey.login
         self.bots_by_login[login] = account
 
-        account_widget = AccountStackedWidget(self.global_log_signals, login, account)
+        account_widget = AccountStackedWidget(
+            self.global_log_signals,
+            login,
+            account,
+            snapshot,
+            quarantine_reason,
+        )
         self.account_widgets.append(account_widget)
         navigation_widget = SidebarItem(account.bot_signals, self.disconnected_icon, login, True, parent=self)
-        self._set_sidebar_title_from_snapshot(navigation_widget, login)
+        self._set_sidebar_title(navigation_widget, login, snapshot)
         self.sidebar_items_by_login[login] = navigation_widget
         navigation_widget.set_subscribed(account.game_state.player.is_sub)
         navigation_widget.set_playing(account.is_playing_event.is_set())
@@ -126,19 +167,30 @@ class MainWindow(AppFluentWindow):
         )
         account.game_info_signals.disconnected.connect(lambda: navigation_widget.set_connected(False))
         account.game_info_signals.disconnected.connect(
-            partial(self._set_sidebar_title_from_snapshot, navigation_widget, login)
+            partial(self._set_sidebar_title_from_storage, navigation_widget, login)
         )
 
         if account.is_ready_to_play_event.is_set():
             self._show_breed_icon(navigation_widget, account)
 
     @staticmethod
-    def _set_sidebar_title_from_snapshot(navigation_widget: SidebarItem, login: str) -> None:
-        snapshot = PlayerInfoStorage().get_snapshot(login)
+    def _set_sidebar_title(
+        navigation_widget: SidebarItem,
+        login: str,
+        snapshot: PlayerInfoSnapshot | None,
+    ) -> None:
         if snapshot is None:
             navigation_widget.set_title(login)
             return
         navigation_widget.set_title(f"{login.split('@')[0]} : {snapshot.character_name}")
+
+    def _set_sidebar_title_from_storage(self, navigation_widget: SidebarItem, login: str) -> None:
+        self._set_sidebar_title(navigation_widget, login, PlayerInfoStorage().get_snapshot(login))
+
+    def _set_snapshot_sub_area_names(self, result: object) -> None:
+        sub_area_name_by_login = cast(dict[str, str], result)
+        for account_widget in self.account_widgets:
+            account_widget.set_snapshot_sub_area_name(sub_area_name_by_login.get(account_widget.login))
 
     def _show_breed_icon(self, navigation_widget: SidebarItem, account: Bot) -> None:
         navigation_widget.set_left_icon(self.connected_icon)

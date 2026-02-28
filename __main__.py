@@ -131,6 +131,10 @@ def run_gui(application_argv: list[str], enable_automatic_schedules: bool) -> in
         shared_signals,
         enable_account_scheduler=enable_automatic_schedules,
     )
+    main_window.activity_page.restore_account_requested.connect(bot_manager.restore_account_from_quarantine)
+    main_window.activity_page.delete_account_requested.connect(bot_manager.delete_account)
+    main_window.activity_page.restore_mailbox_requested.connect(bot_manager.restore_mailbox_from_quarantine)
+    main_window.activity_page.delete_mailbox_requested.connect(bot_manager.delete_mailbox)
     main_window.init_accounts(bot_manager.bot_by_account_id)
     main_window.splashScreen.finish()
     _start_bots(bot_manager, enable_automatic_schedules)

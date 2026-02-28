@@ -46,6 +46,10 @@ class PlayerInfoStorage(metaclass=Singleton):
         with self._acquire_file_lock():
             return self._load().player_info_by_login.get(login)
 
+    def get_all_snapshots(self) -> dict[str, PlayerInfoSnapshot]:
+        with self._acquire_file_lock():
+            return self._load().player_info_by_login
+
     def save_snapshot(self, login: str, snapshot: PlayerInfoSnapshot) -> None:
         with self._acquire_file_lock():
             player_info_file = self._load()

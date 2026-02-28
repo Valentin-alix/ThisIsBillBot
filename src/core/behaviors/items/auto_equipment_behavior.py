@@ -10,6 +10,7 @@ from src.core.behaviors.items.acquire_items_behavior import (
     ItemToAcquire,
 )
 from src.core.behaviors.recovery_behavior import RecoverableBehavior
+from src.core.config import ENABLE_AUTO_EQUIPMENT_MARKET_PURCHASES
 from src.core.engine.economy.sale_hotel import ItemToBuyInfo
 from src.core.engine.items.equipment import (
     get_best_roll,
@@ -59,6 +60,7 @@ class AutoEquipmentBehavior(RecoverableBehavior):
 
         self.acquire_items_behavior.start(
             items=items_to_acquire,
+            allow_market_purchase=ENABLE_AUTO_EQUIPMENT_MARKET_PURCHASES,
             callback=self.on_items_acquired,
             parent=self,
         )

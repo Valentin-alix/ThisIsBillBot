@@ -23,6 +23,7 @@ from src.core.config import (
     DO_CRAFT,
     DO_DUNGEON,
     DO_FIGHTER,
+    DO_IDLE,
     DO_QUEST,
     DO_SALE_HOTEL,
     get_time_beween_areas,
@@ -70,7 +71,9 @@ class AutoBotBehavior(RecoverableBehavior):
     _session_activity_plan: SessionActivityPlan | None = field(init=False, default=None)
 
     def start_planned_session(self, session_start: datetime, session_end: datetime) -> None:
-        activities: list[SessionActivity] = [SessionActivity.IDLE]
+        activities: list[SessionActivity] = []
+        if DO_IDLE:
+            activities.append(SessionActivity.IDLE)
         if DO_QUEST:
             activities.append(SessionActivity.QUEST)
         if DO_DUNGEON:
@@ -91,6 +94,7 @@ class AutoBotBehavior(RecoverableBehavior):
 
     def clear_planned_session(self) -> None:
         self._session_activity_plan = None
+
     def get_harvester_area_context(self) -> HarvesterAreaContext:
         return HarvesterAreaContext(
             player_level=self.game_state.player.level,

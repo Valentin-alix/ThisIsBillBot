@@ -151,7 +151,7 @@ class TestGameClientSendRoutesToProcessMsg:
 
 
 class TestSocketProxyConnection:
-    def test_ban_quarantines_proxy_before_removing_bot_config(
+    def test_ban_quarantines_proxy_and_preserves_bot_data(
         self,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
@@ -168,10 +168,6 @@ class TestSocketProxyConnection:
             del proxy_id
             lifecycle_events.append("quarantine")
 
-        def remove_bot_config(login: str) -> None:
-            del login
-            lifecycle_events.append("remove-config")
-
         monkeypatch.setattr(
             bot_manager_module.BotConfigService,
             "get_bot_config",
@@ -187,21 +183,13 @@ class TestSocketProxyConnection:
             "record_rejection",
             MagicMock(side_effect=record_rejection),
         )
-        monkeypatch.setattr(
-            bot_manager_module.BotConfigService,
-            "remove_bot_config",
-            MagicMock(side_effect=remove_bot_config),
-        )
-        monkeypatch.setattr(bot_manager_module.CryptoHelper, "remove_bot", MagicMock())
-        monkeypatch.setattr(bot_manager_module.BotStorageController, "remove_record", MagicMock())
-        remove_snapshot = MagicMock()
-        monkeypatch.setattr(bot_manager_module.PlayerInfoStorage, "remove_snapshot", remove_snapshot)
-        monkeypatch.setattr(manager, "on_synchronize_bots", MagicMock())
+        quarantine_account = MagicMock()
+        monkeypatch.setattr(bot_manager_module.BotStorageController, "quarantine", quarantine_account)
 
         manager.on_banned_callback("banned@example.com")
 
-        assert lifecycle_events == ["quarantine", "remove-config"]
-        remove_snapshot.assert_called_once_with("banned@example.com")
+        assert lifecycle_events == ["quarantine"]
+        quarantine_account.assert_called_once_with("banned@example.com", "Compte banni")
 
     def test_ban_after_profile_reassignment_quarantines_original_proxy(
         self,
@@ -232,11 +220,7 @@ class TestSocketProxyConnection:
         monkeypatch.setattr(bot_manager_module.ScheduleProfileController, "get_profile", get_profile)
         record_rejection = MagicMock()
         monkeypatch.setattr(bot_manager_module.ProxyController, "record_rejection", record_rejection)
-        monkeypatch.setattr(bot_manager_module.CryptoHelper, "remove_bot", MagicMock())
-        monkeypatch.setattr(bot_manager_module.BotConfigService, "remove_bot_config", MagicMock())
-        monkeypatch.setattr(bot_manager_module.BotStorageController, "remove_record", MagicMock())
-        monkeypatch.setattr(bot_manager_module.PlayerInfoStorage, "remove_snapshot", MagicMock())
-        monkeypatch.setattr(manager, "on_synchronize_bots", MagicMock())
+        monkeypatch.setattr(bot_manager_module.BotStorageController, "quarantine", MagicMock())
 
         manager.on_banned_callback("banned@example.com")
 

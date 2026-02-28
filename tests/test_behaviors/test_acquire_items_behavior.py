@@ -95,12 +95,19 @@ def _start(
     behavior: AcquireItemsBehavior,
     items: list[ItemToAcquire],
     finished: list[tuple[str | None, dict[int, int]]] | None = None,
+    *,
+    allow_market_purchase: bool = True,
 ) -> None:
     def callback(error_code: str | None, missing_by_gid: dict[int, int]) -> None:
         if finished is not None:
             finished.append((error_code, missing_by_gid))
 
-    behavior.start(items=items, callback=callback, parent=None)
+    behavior.start(
+        items=items,
+        allow_market_purchase=allow_market_purchase,
+        callback=callback,
+        parent=None,
+    )
 
 
 def _request(
@@ -220,6 +227,24 @@ def test_a_character_without_bank_access_goes_straight_to_the_sale_hotel(
 
     _mock_of(behavior.load_from_bank_behavior).start.assert_not_called()
     _mock_of(behavior.sale_hotel_buy_behavior).start.assert_called_once()
+
+
+def test_disabled_market_purchases_leave_missing_items_untouched(
+    game_state_ctx: GameStateContext, monkeypatch: MonkeyPatch
+) -> None:
+    behavior = _make_behavior(game_state_ctx, monkeypatch)
+    behavior.game_state.inventory.bank_content_known = True
+    finished: list[tuple[str | None, dict[int, int]]] = []
+
+    _start(
+        behavior,
+        [_request(GRAISSE_GELATINEUSE_GID, quantity=5)],
+        finished,
+        allow_market_purchase=False,
+    )
+
+    _mock_of(behavior.sale_hotel_buy_behavior).start.assert_not_called()
+    assert finished == [(None, {GRAISSE_GELATINEUSE_GID: 5})]
 
 
 def test_too_few_kamas_to_bother_visiting_the_sale_hotel_skips_the_purchase(

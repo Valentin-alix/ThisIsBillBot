@@ -21,6 +21,8 @@ class Worker(QObject):
     def run(self) -> None:
         try:
             self.success.emit(self.func(self.progress.emit))
+        except Exception as error:
+            self.error.emit(error)
         finally:
             self.finished.emit()
 

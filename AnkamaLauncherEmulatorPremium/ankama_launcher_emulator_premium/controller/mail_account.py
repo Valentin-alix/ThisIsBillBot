@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone
 from threading import RLock
 
 from utils.singleton import Singleton
@@ -11,6 +12,9 @@ from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.m
     MailAccountsFile,
     ManualAccountConfig,
     SmailProAccountConfig,
+)
+from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.quarantine_signals import (
+    quarantine_signals,
 )
 from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.atomic_file import (
     acquire_file_lock,
@@ -54,6 +58,10 @@ class MailAccountController(metaclass=Singleton):
     def load_bad_state_emails(self) -> set[str]:
         return {email for email, entry in self._load().accounts.items() if entry.bad_state}
 
+    def get_all_entries(self) -> dict[str, MailAccountEntry]:
+        with self._acquire_file_lock():
+            return self._load().accounts
+
     def record_bad_state(self, email: str) -> None:
         with self._acquire_file_lock():
             accounts_file = self._load()
@@ -88,8 +96,38 @@ class MailAccountController(metaclass=Singleton):
     def remove_email(self, email: str) -> None:
         with self._acquire_file_lock():
             accounts_file = self._load()
-            if accounts_file.accounts.pop(email, None) is not None:
+            removed = accounts_file.accounts.pop(email, None)
+            if removed is not None:
                 self._save(accounts_file)
+        if removed is not None:
+            quarantine_signals.changed.emit()
+
+    def quarantine(self, email: str, reason: str) -> bool:
+        with self._acquire_file_lock():
+            accounts_file = self._load()
+            entry = accounts_file.accounts.get(email)
+            if entry is None:
+                logger.warning("[Mailbox] Cannot quarantine unknown mailbox %s", email)
+                return False
+            entry.bad_state = True
+            entry.quarantine_reason = reason
+            entry.quarantined_at = datetime.now(timezone.utc)
+            self._save(accounts_file)
+        logger.warning("[Mailbox] Quarantined %s: %s", email, reason)
+        quarantine_signals.changed.emit()
+        return True
+
+    def restore_from_quarantine(self, email: str) -> None:
+        with self._acquire_file_lock():
+            accounts_file = self._load()
+            entry = accounts_file.accounts.get(email)
+            if entry is None:
+                raise LookupError(f"No mailbox stored for {email}")
+            entry.bad_state = False
+            entry.quarantine_reason = None
+            entry.quarantined_at = None
+            self._save(accounts_file)
+        quarantine_signals.changed.emit()
 
     def record_smailpro_message_consumed(self, email: str, mid: str) -> None:
         with self._acquire_file_lock():

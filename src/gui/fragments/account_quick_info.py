@@ -7,14 +7,20 @@ from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import BodyLabel, CaptionLabel
 
 from src import consts
-from src.controller.player_info_storage import PlayerInfoStorage
+from src.controller.player_info_storage import PlayerInfoSnapshot
 from src.core.bot.bot import Bot
 
 _UNKNOWN_VALUE = "—"
 
 
 class AccountQuickInfoWidget(QWidget):
-    def __init__(self, bot: Bot, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        bot: Bot,
+        snapshot: PlayerInfoSnapshot | None,
+        quarantine_reason: str | None,
+        parent: QWidget | None = None,
+    ) -> None:
         super().__init__(parent=parent)
         self.bot = bot
 
@@ -27,6 +33,7 @@ class AccountQuickInfoWidget(QWidget):
         self.kamas_label = self._add_info_column(layout, "Kamas")
         self.level_label = self._add_info_column(layout, "Niveau")
         self.sub_area_label = self._add_info_column(layout, "Sous-zone actuelle")
+        self.automation_label = self._add_info_column(layout, "Automatisation")
 
         self.bot.game_info_signals.subscription_end_date.connect(self._set_subscription_end_date)
         self.bot.inventory_signals.kamas.connect(self._set_kamas)
@@ -35,10 +42,11 @@ class AccountQuickInfoWidget(QWidget):
         self.bot.game_info_signals.is_ready_to_play.connect(self._sync_from_state)
 
         self._set_subscription_end_date(self.bot.game_state.player.subscription_end_date)
+        self._set_automation_status(quarantine_reason)
         if self.bot.is_ready_to_play_event.is_set():
             self._sync_game_values_from_state()
         else:
-            self._sync_game_values_from_snapshot()
+            self._sync_game_values_from_snapshot(snapshot)
 
     @staticmethod
     def _add_info_column(layout: QHBoxLayout, title: str) -> BodyLabel:
@@ -70,13 +78,15 @@ class AccountQuickInfoWidget(QWidget):
         self._set_level(self.bot.game_state.player.level)
         self._set_sub_area(self.bot.game_state.map.map_id)
 
-    def _sync_game_values_from_snapshot(self) -> None:
-        snapshot = PlayerInfoStorage().get_snapshot(self.bot.account.apikey.login)
+    def _sync_game_values_from_snapshot(self, snapshot: PlayerInfoSnapshot | None) -> None:
         if snapshot is None:
             return
         self._set_kamas(snapshot.kamas)
         self._set_level(snapshot.level)
-        self._set_sub_area(snapshot.map_id)
+
+    def set_snapshot_sub_area_name(self, sub_area_name: str | None) -> None:
+        if not self.bot.is_ready_to_play_event.is_set():
+            self.sub_area_label.setText(sub_area_name or _UNKNOWN_VALUE)
 
     def _set_subscription_end_date(self, subscription_end_date: datetime) -> None:
         if subscription_end_date == consts.MIN_DATE:
@@ -97,3 +107,23 @@ class AccountQuickInfoWidget(QWidget):
         map_position = DataReader().map_info_by_map_id[map_id]
         sub_area = DataReader().sub_area_by_id[map_position.subAreaId]
         self.sub_area_label.setText(I18N().name_by_id[sub_area.nameId])
+
+    def _set_automation_status(self, quarantine_reason: str | None) -> None:
+        if quarantine_reason is not None:
+            self.automation_label.setText(f"Quarantaine : {quarantine_reason}")
+        elif self.bot.from_manual_play.is_set():
+            self.automation_label.setText("Manuel")
+        else:
+            self.automation_label.setText("Planning/Auto")
+
+    @staticmethod
+    def resolve_snapshot_sub_area_names(
+        snapshots: dict[str, PlayerInfoSnapshot],
+    ) -> dict[str, str]:
+        reader = DataReader()
+        names = I18N().name_by_id
+        return {
+            login: names[reader.sub_area_by_id[reader.map_info_by_map_id[snapshot.map_id].subAreaId].nameId]
+            for login, snapshot in snapshots.items()
+            if snapshot.map_id != 0
+        }

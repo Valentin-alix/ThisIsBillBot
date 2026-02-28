@@ -19,6 +19,7 @@ MAIL_ACCOUNTS_STORAGE_PATH = RESOURCES / "mail_accounts.json"
 SMAILPRO_OUTLOOK_DISABLED_UNTIL_PATH = RESOURCES / "smailpro_outlook_disabled_until.json"
 PAYSAFECARDS_PATH = RESOURCES / "paysafecards.txt"
 PAYSAFECARD_PURCHASE_PATH = RESOURCES / "paysafecard_purchase.local.json"
+USER_ACTIVITY_PATH = RESOURCES / "user_activity.json"
 DEBUG_DIR = RESOURCES / "debug"
 DEBUG_TRACES_DIR = DEBUG_DIR / "traces"
 
