@@ -53,9 +53,6 @@ def test_an_empty_slot_needs_the_set_item() -> None:
 
 
 def test_a_stronger_owned_foreign_item_already_equipped_is_left_alone() -> None:
-    """Regression: AutoEquipmentFromInventoryBehavior swapped a stronger, non-set
-    item into the slot, and we still own the weaker set item (displaced to the
-    inventory, unequipped). The set must not fight that swap every cycle."""
     objects_by_uid = {
         1: _item(uid=1, gid=_FOREIGN_ITEM_GID, roll=20, position=_AMULET_POSITION),
         2: _item(uid=2, gid=_SET_ITEM_GID, roll=10, position=CharacterInventoryPositionEnum.InventoryPositionNotEquiped),

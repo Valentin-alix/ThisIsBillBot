@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import defaultdict
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage

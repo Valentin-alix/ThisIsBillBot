@@ -33,7 +33,6 @@ def _context() -> WorldTransitionContext:
 
 
 def test_forbidden_map_ids_are_excluded_from_outgoing_edges(monkeypatch: pytest.MonkeyPatch) -> None:
-    """193331717 trapped a bot in a two-map pocket after being routed into once; see test_farm_recovery.py."""
     forbidden_map_id = next(iter(FORBIDDEN_MAP_IDS))
     origin = Vertice(m_mapId=1, m_zoneId=1, m_uid=1)
     blocked_edge = Edge(

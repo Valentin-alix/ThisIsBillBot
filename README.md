@@ -24,11 +24,12 @@ Pour générer le paquet Windows autonome :
 uv run poe package
 ```
 
-Le dossier distribuable est `dist/Bot-DofusUnity/`. Chaque push publie aussi
-cette archive dans une GitHub pre-release associée au SHA du commit.
+Le dossier distribuable est `dist/Bot-DofusUnity/`. Un push modifiant `VERSION`
+publie cette archive dans une GitHub pre-release portant le tag `vX.Y.Z`,
+où `X.Y.Z` est la version numérique définie dans ce fichier.
 
 `.env` est local. Les fichiers de runtime restent aux emplacements existants :
-`resources/` et `AnkamaLauncherEmulatorPremium/resources/`. Ils contiennent
+`resources/` et `AnkamaLauncherEmulator/resources/`. Ils contiennent
 notamment comptes, boîtes mail, proxies, profils, sessions et caches ; ils sont
 ignorés par Git et ne doivent jamais être partagés.
 

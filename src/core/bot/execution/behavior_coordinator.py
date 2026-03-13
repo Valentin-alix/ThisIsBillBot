@@ -3,7 +3,7 @@ from dataclasses import dataclass, field, fields
 from threading import Event
 
 from src.services.background import run_in_background
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
+from ankama_launcher_emulator.interfaces.credentials import (
     StoredApiKey,
 )
 from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
@@ -59,6 +59,7 @@ class BehaviorCoordinator(ContextualLogger):
     def on_stop(self):
         self.is_playing_event.clear()
         self._current_bot_action_func = None
+        self.bot_signals.automation_status_changed.emit("")
         run_in_background(lambda _progress_callback: self.stop_behaviors())
 
     def on_play_usable_behavior(self, behavior_class_name: str):
@@ -99,6 +100,7 @@ class BehaviorCoordinator(ContextualLogger):
         )
 
     def on_play_auto_bot(self):
+        self.bot_signals.automation_status_changed.emit("Préparation du mode automatique…")
         self.play_action(
             lambda _progress_callback: self.auto_bot_behavior.start(
                 callback=lambda *_args: self.bot_signals.stop.emit(),

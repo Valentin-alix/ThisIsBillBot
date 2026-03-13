@@ -24,6 +24,7 @@ type RGBColor = tuple[int, int, int]
 
 CELL_SIZE: int = 50
 LIMIT_GRID = 8
+MAX_PATH_EDGES = 500
 
 WIDTH_AROUND_CURRENT_MAP = CELL_SIZE * LIMIT_GRID * 2
 HEIGHT_AROUND_CURRENT_MAP = CELL_SIZE * LIMIT_GRID * 2
@@ -156,6 +157,7 @@ class MapWorldView(QGraphicsView):
         top = y - CELL_SIZE * LIMIT_GRID
         self._scene.setSceneRect(QRectF(left, top, WIDTH_AROUND_CURRENT_MAP, HEIGHT_AROUND_CURRENT_MAP))
         self.centerOn(x, y)
+        self._prune_outside_current_window()
 
     def get_or_create_map(self, map_pos: MapInformationRootItem) -> SquareMap:
         coord = map_pos.posX, map_pos.posY
@@ -203,6 +205,7 @@ class MapWorldView(QGraphicsView):
     @pyqtSlot(MapInformationRootItem, MapInformationRootItem)
     def on_arrow_pos(self, map_pos_start: MapInformationRootItem, map_pos_end: MapInformationRootItem):
         self._path.append((map_pos_start, map_pos_end))
+        self._trim_path()
         if not self.isVisible():
             self._render_dirty = True
             return
@@ -228,6 +231,7 @@ class MapWorldView(QGraphicsView):
     @pyqtSlot(list)
     def on_arrow_pos_batch(self, items: list[tuple[MapInformationRootItem, MapInformationRootItem]]):
         self._path.extend(items)
+        self._trim_path()
         if not self.isVisible():
             self._render_dirty = True
             return
@@ -272,3 +276,29 @@ class MapWorldView(QGraphicsView):
         if self._current_map is not None:
             self._render_current_map(self._current_map)
         self._render_dirty = False
+
+    def _trim_path(self) -> None:
+        overflow = len(self._path) - MAX_PATH_EDGES
+        if overflow <= 0:
+            return
+        del self._path[:overflow]
+        while len(self.line_items) > MAX_PATH_EDGES:
+            self._scene.removeItem(self.line_items.pop(0))
+
+    def _prune_outside_current_window(self) -> None:
+        if self._current_map is None:
+            return
+        current_x, current_y = self._current_map.posX, self._current_map.posY
+        kept_coords = {
+            coord
+            for coord in self.square_by_coord
+            if abs(coord[0] - current_x) <= LIMIT_GRID and abs(coord[1] - current_y) <= LIMIT_GRID
+        }
+        for coord in set(self.square_by_coord) - kept_coords:
+            self._scene.removeItem(self.square_by_coord.pop(coord))
+            self.map_pos_by_coord.pop(coord, None)
+        self._colors_by_map_id = {
+            map_id: value
+            for map_id, value in self._colors_by_map_id.items()
+            if (value[0].posX, value[0].posY) in kept_coords
+        }

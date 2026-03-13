@@ -73,12 +73,6 @@ def calculate_attack_weight(
 
 
 def _ally_hit_penalty(context: AttackContext, impact_mps: set[MapPoint]) -> float:
-    """Multiplicative penalty discouraging a damage AoE from catching allies.
-
-    Allies are every fighter on the board that is not the caster and not an enemy
-    (includes own summons). Each ally cell inside the impact zone shrinks the
-    weight by ``ALLY_HIT_PENALTY_FACTOR``.
-    """
     enemy_ids = {actor.actor_id for actor in context.enemy_actors}
     ally_cell_ids = {
         actor.disposition.cell_id
@@ -132,10 +126,7 @@ def _co_zone_effects(spell_lvl: SpellLevelsRootItem, representative: Effect) -> 
 def _spell_damage_effects(
     spell_lvl: SpellLevelsRootItem, representative: Effect, primary_elem: EffectElement
 ) -> list[Effect]:
-    """Damage effects of the spell sharing the representative's zone (summed to
-    value bi-element / multi-damage spells). The representative always matches, so
-    the list is never empty; effects on another zone are excluded.
-    """
+    """Sum only effects sharing the representative's zone; the representative ensures a nonempty result."""
     return [
         effect
         for effect in _co_zone_effects(spell_lvl, representative)

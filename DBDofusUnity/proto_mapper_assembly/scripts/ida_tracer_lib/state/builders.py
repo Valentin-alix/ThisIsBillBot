@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.signatures.types import ProtoParameterSeed
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
     FIRST_STACK_PARAM_OFFSET,
@@ -16,12 +14,7 @@ def build_initial_register_state(
     has_this: bool,
     this_class_name: str | None = None,
 ) -> RegisterState:
-    """
-    Build initial register state from proto parameter positions.
-
-    For instance methods, rcx holds 'this', so explicit params start at rdx.
-    For static methods, explicit params start at rcx.
-    """
+    """Instance methods reserve rcx for this; static methods use it for the first parameter."""
     reg_state: RegisterState = {}
     if has_this and this_class_name is not None:
         reg_state[WINDOWS_X64_PARAM_REGISTERS[0]] = ("object", this_class_name)
@@ -39,13 +32,7 @@ def build_initial_stack_state(
     proto_parameter_seeds: list[ProtoParameterSeed],
     has_this: bool,
 ) -> StackState:
-    """
-    Build an entry-stack view for proto params passed after r9.
-
-    The callee sees the first stack argument at [rsp+0x28] on Windows x64.
-    The first explicit stack parameter index is 3 for instance methods and 4
-    for static methods because static calls can use rcx as a real parameter.
-    """
+    """Windows x64 stack arguments start at rsp+0x28, after the register parameters."""
     stack_state: StackState = {}
     first_stack_param_index = len(WINDOWS_X64_PARAM_REGISTERS) - (1 if has_this else 0)
     for param_index, tracked_domain, class_name in proto_parameter_seeds:

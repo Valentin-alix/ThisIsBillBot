@@ -76,11 +76,9 @@ class TestCanFinishFightThisTurn:
     def test_true_when_estimated_damage_covers_remaining_life(self, monkeypatch: pytest.MonkeyPatch) -> None:
         _patch_single_damage_spell(monkeypatch, ap_cost=3)
         context = _context(enemies_data=[_enemy(50)], action_points=6)
-        # 30 damage / 3 AP * 6 AP = 60 >= 50
         assert can_finish_fight_this_turn(context, _damage_calculator(30)) is True
 
     def test_false_when_enemy_is_too_tanky(self, monkeypatch: pytest.MonkeyPatch) -> None:
         _patch_single_damage_spell(monkeypatch, ap_cost=3)
         context = _context(enemies_data=[_enemy(5000)], action_points=6)
-        # 30 damage / 3 AP * 6 AP = 60 < 5000 (e.g. a resource guardian)
         assert can_finish_fight_this_turn(context, _damage_calculator(30)) is False

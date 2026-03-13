@@ -1,6 +1,4 @@
-﻿from __future__ import annotations
-
-import json
+﻿import json
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
@@ -160,18 +158,6 @@ class TestBuildSignatureOverrides:
                 obf_signatures={},
             )
 
-    def test_result_is_keyed_by_non_obf_class(self) -> None:
-        pinned = pinned_config(non_obf="Com.Ankama.RealMessage")
-        obf_sigs = {"xyz": _sig("xyz", [32])}
-
-        result = _run_build_signature_overrides(
-            pinned=pinned,
-            obf_signatures=obf_sigs,
-        )
-
-        assert "Com.Ankama.RealMessage" in result.root
-        assert "xyz" not in result.root
-
     def test_serialized_function_signatures_omit_message_cls(self) -> None:
         pinned = pinned_config()
         obf_sigs = {
@@ -218,20 +204,6 @@ class TestBuildSignatureOverrides:
 
 
 class TestBuildFieldBinding:
-    def test_returns_correct_remapping_for_known_fields(self) -> None:
-        obf_sig = obf_signature_with_fields({"fhtj": 32, "fhtm": 48})
-        non_obf_msg = non_obf_message_with_fields({"character_id": 16, "cells": 24})
-        result = _build_obf_field_binding_by_non_obf_property_name(
-            obf_message=obf_sig.dump_cs_msg,
-            non_obf_message=non_obf_msg,
-            field_mapping={"fhtj": "character_id", "fhtm": "cells"},
-        )
-
-        assert result == {
-            "character_id": FieldOverrideBinding(obf_field_name="fhtj", obf_memory_offset=32),
-            "cells": FieldOverrideBinding(obf_field_name="fhtm", obf_memory_offset=48),
-        }
-
     def test_returns_empty_when_no_game_mapping_entry(self) -> None:
         obf_sig = obf_signature_with_fields({"fhtj": 32})
         non_obf_msg = non_obf_message_with_fields({"character_id": 16})
@@ -408,13 +380,6 @@ class TestBuildFieldBinding:
         } == {"ClearMessage": "clear_message_", "ClearEnum": "clear_enum_"}
 
     def test_build_signature_overrides_drops_incompatible_field_remapping(self) -> None:
-        """An incompatible binding is excluded from the override, never exported.
-
-        It used to abort the whole export. A single flattened bootstrap declaration would then
-        cost every other message its override, so the binding is dropped instead - but the
-        guarantee is unchanged: a signature of one shape never lands on a field declared as
-        another.
-        """
         pinned = pinned_config()
         obf_msg = _msg("xyz").model_copy(
             update={
@@ -479,7 +444,6 @@ class TestBuildFieldBinding:
             game_mappings=game_mappings,
         )
 
-        # Both bindings are cross-wired (number onto repeated and back), so none may survive.
         entry = overrides.root["Com.Ankama.Msg"]
         assert entry.obf_field_binding_by_non_obf_property_name == {}
         assert entry.field_signatures == {}

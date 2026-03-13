@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -163,7 +161,6 @@ def format_auto_mode_mapping_audit(audit: AutoModeMappingAudit) -> str:
 
 
 def _format_unmapped_observed(unmapped_observed_messages: tuple[str, ...]) -> str:
-    """Listed only alongside a missing message: it is the shortlist the missing one is likely in."""
     if not unmapped_observed_messages:
         return ""
     lines = [

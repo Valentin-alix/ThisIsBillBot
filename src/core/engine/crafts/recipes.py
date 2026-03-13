@@ -1,16 +1,20 @@
 from collections.abc import Mapping
+
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from DBDofusUnity.dofus_unity_reader.game_constants.item import ItemTypeEnum
 from DBDofusUnity.dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS, JobEnum
 from DBDofusUnity.dofus_unity_reader.game_constants.skill import MAP_IDS_BY_SKILL
 from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
-
 from src.controller.game_data import GameDataController
 from src.core.config import WEIGHT_BY_JOB
 from src.core.engine.items.item import GATHERER_ITEM_GIDS
 from src.core.states.guild_chest_state import GIDS_BY_TAB
 from src.services.logging_utils.loggers import BotLogger
+
+
+def is_supported_craft_recipe(recipe: RecipeItem) -> bool:
+    return recipe.jobId in HARVESTER_JOB_IDS | {JobEnum.CHASSEUR} and recipe.skillId in MAP_IDS_BY_SKILL
 
 
 def get_benefice_on_craft_recipe(recipe: RecipeItem, server_id: int = 1) -> tuple[float, float]:
@@ -32,12 +36,10 @@ def is_not_valid_recipe_for_lvl_up_job_or_benefice(
     current_job_lvl = jobs_lvl_by_id.get(recipe.jobId)
     if current_job_lvl is None or current_job_lvl >= max_job_lvl:
         return True
-    if recipe.skillId not in MAP_IDS_BY_SKILL:
+    if not is_supported_craft_recipe(recipe):
         return True
     result_item = DataReader().item_by_id[recipe.resultId]
     if result_item.craftConditionalCriterion not in ["", None]:
-        return True
-    if recipe.jobId not in HARVESTER_JOB_IDS and recipe.jobId != JobEnum.CHASSEUR:
         return True
     benefit_percent = get_benefice_on_craft_recipe(recipe)[1]
     if current_job_lvl - recipe.resultLevel >= 20 and not (
@@ -70,9 +72,7 @@ def get_max_result_quantity(
             logger.info(
                 f"ingredient {I18N().name_by_id[name_id] if name_id else ''} is unavailable, can't craft recipe"
             )
-            logger.info(
-                f"we have {list(quantity_by_gid.keys())} gids and we need this : {ingredient_id}"
-            )
+            logger.info(f"we have {list(quantity_by_gid.keys())} gids and we need this : {ingredient_id}")
             return 0, weight_for_one_result
         if ingredient_quantity < quantity:
             name_id = DataReader().item_by_id[ingredient_id].nameId

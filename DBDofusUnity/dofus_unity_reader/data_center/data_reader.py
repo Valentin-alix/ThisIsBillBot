@@ -205,7 +205,7 @@ class DataReader(metaclass=Singleton):
 
     @cached_property
     def item_set_effects_by_id(self) -> dict[int, list[list[tuple[int, int]]]]:
-        """Effects granted by each set, indexed by the number of worn pieces."""
+        """Set effects indexed by the number of worn pieces."""
         data = _load_model(Itemsetsroot, Itemsetsroot)
         effect_entries = [entry for entry in data if entry.id is None and entry.effectId is not None]
         referenced_rids = [
@@ -291,7 +291,6 @@ class DataReader(metaclass=Singleton):
 
     @cached_property
     def monster_ids_by_name(self) -> dict[str, list[int]]:
-        """Monster display name -> every monster carrying it."""
         monster_ids_by_name_dict: dict[str, list[int]] = defaultdict(list)
         for monster in self.monsters_by_id.values():
             name = I18N().name_by_id.get(monster.nameId)
@@ -436,7 +435,7 @@ class DataReader(metaclass=Singleton):
 
     @cached_property
     def npc_ids_by_name(self) -> dict[str, list[int]]:
-        """Npc display name -> every npc carrying it; ~380 names are shared, hence the list."""
+        """NPC names are not unique, so each name maps to a list."""
         npc_ids_by_name_dict: dict[str, list[int]] = defaultdict(list)
         for npc in self.npc_by_id.values():
             name = I18N().name_by_id.get(npc.nameId)
@@ -446,7 +445,6 @@ class DataReader(metaclass=Singleton):
 
     @cached_property
     def npc_reply_i18n_by_reply_id(self) -> dict[int, int]:
-        """`reply_id` -> i18n id. Reply ids are globally unique, so no npc scoping is needed."""
         i18n_by_reply_id: dict[int, int] = {}
         for npc in self.npc_by_id.values():
             for dialog_reply in npc.dialogReplies:
@@ -456,7 +454,6 @@ class DataReader(metaclass=Singleton):
 
     @cached_property
     def npc_message_i18n_by_message_id(self) -> dict[int, int]:
-        """`NpcDialogQuestionEvent.message_id` -> i18n id of the question text."""
         i18n_by_message_id: dict[int, int] = {}
         for npc in self.npc_by_id.values():
             for dialog_message in npc.dialogMessages:
@@ -466,7 +463,6 @@ class DataReader(metaclass=Singleton):
 
     @cached_property
     def npc_reply_ids_by_npc_id(self) -> dict[int, list[int]]:
-        """Every reply an npc can ever offer."""
         return {
             npc.id: [dialog_reply.values[0] for dialog_reply in npc.dialogReplies]
             for npc in self.npc_by_id.values()

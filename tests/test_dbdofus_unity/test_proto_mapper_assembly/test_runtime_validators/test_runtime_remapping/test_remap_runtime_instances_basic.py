@@ -29,7 +29,7 @@ class TestRemapRuntimeInstancesBasic:
         assert result.mapping_failure is None
         assert result.instances_by_type == {}
 
-    def testscalar_field_is_remapped(self) -> None:
+    def test_scalar_field_is_remapped(self) -> None:
         obf_field = scalar_field("abc_", 0x10)
         non_obf_field = scalar_field("value_", 0x10)
         obf_msg = DumpCSMessage(file_descriptor="FD", name="ObfMsg")
@@ -93,7 +93,7 @@ class TestRemapRuntimeInstancesBasic:
 
         assert result.instances_by_type["ClearMsg"] == [{}]
 
-    def testmessage_field_with_missing_non_obf_field_is_skipped(self) -> None:
+    def test_message_field_with_missing_non_obf_field_is_skipped(self) -> None:
         obf_field = msg_field("child_", 0x10)
         obf_msg = DumpCSMessage(file_descriptor="FD", name="ObfMsg")
         non_obf_msg = DumpCSMessage(file_descriptor="FD", name="ClearMsg")
@@ -102,7 +102,7 @@ class TestRemapRuntimeInstancesBasic:
             obf_msg,
             non_obf_msg,
             obf_live_fields={"child_": obf_field},
-            non_obf_live_fields={},  # child_ not in non_obf live fields
+            non_obf_live_fields={},
         )
 
         result = remap_runtime_instances(
@@ -124,7 +124,7 @@ class TestRemapRuntimeInstancesBasic:
             obf_msg,
             non_obf_msg,
             obf_live_fields={"val_": obf_field},
-            non_obf_live_fields={},  # missing_ not in non_obf live fields
+            non_obf_live_fields={},
         )
 
         result = remap_runtime_instances(

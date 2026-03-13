@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import dataclasses
 from dataclasses import dataclass
 from typing import Literal, NamedTuple
@@ -85,7 +83,6 @@ def score_field_pair(
     matching_store: MatchingStoreProtocol | None,
     pinned_pair: PinnedPair | None,
 ) -> tuple[float, FieldPairMetadata]:
-
     score: float | None = None
 
     if pinned_pair:

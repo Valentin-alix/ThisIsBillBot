@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import re
 from collections import defaultdict
 from collections.abc import Mapping
@@ -12,46 +10,22 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.affinity import AffinityResul
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
 
 _OBFUSCATED_METHOD_PATTERN = re.compile(r"^([a-z]+)::.*?\s([a-z]+)\(")
-"""Owner type and method name, both fully lowercase.
-
-Only the generated Core.dll wrappers are renamed to sequential lowercase identifiers. Classes that
-kept a readable name kept readable method names too, and those carry no ordering, so requiring both
-sides to be lowercase is what filters them out.
-"""
+"""Only generated wrappers rename both owner and method to sequential lowercase identifiers."""
 
 _ALPHABET_SIZE = 26
 _MIN_SEGMENT_SIZE = 3
 _MAX_SEGMENT_GAP = 6
-"""Ordinal gap tolerated between two consecutive aliases of a segment: only single-message wrappers
-are traced, so real segments have holes. A gap this small is a missing sibling; bigger means a new
-segment."""
 
 _MIN_SEGMENT_MATCH_SCORE = 0.0
 _MIN_SEGMENT_MATCH_MARGIN = 0.10
-"""Same guard as the handler cohorts: an unconvincing segment pairing is not evidence."""
 
 _SEGMENT_MEMBER_GAP_PENALTY = -0.05
 _SEGMENT_MEMBER_FALLBACK_AFFINITY = 0.9
-"""Default affinity for a matched segment's members before fine alignment overrides the ones it
-locates. Adjacent wrappers occasionally swap order between builds, so missing the exact slot must
-stay cheap."""
+"""Keep unaligned segment members competitive because adjacent wrappers can swap order."""
 
 
 def build_declaration_order_affinity(signal_inputs: AffinitySignalInputs, /) -> AffinityResult:
-    """
-    Recover message pairs from the declaration order of the generated Core.dll wrappers.
-
-    Both builds generate one wrapper method per message type and rename those methods to sequential
-    lowercase identifiers, so sorting the names alphabetically replays the source declaration order.
-    That order survives obfuscation, unlike the protobuf message declaration order, which the
-    obfuscator shuffles. Lining up two such segments therefore pins down messages that carry no
-    distinguishing structure of their own -- a lone ``bool`` request looks exactly like the twenty
-    others until you know which slot it occupies.
-
-    Returns ``(affinity_matrix, applicable_mask)``, both shaped like ``base_scores_matrix``. The mask
-    is only set where both messages belong to a confidently paired segment: having no wrapper is not
-    evidence of anything.
-    """
+    """Return affinity and mask from wrapper declaration order, which survives obfuscation."""
     workspace = signal_inputs.workspace
     obf_access_trace = signal_inputs.obf_access_trace
     non_obf_access_trace = signal_inputs.non_obf_access_trace
@@ -105,13 +79,11 @@ def _build_declaration_segments(
     access_trace: AccessTraceDocument,
     index_by_cls: Mapping[str, int],
 ) -> tuple[tuple[int, ...], ...]:
-    """Return, per generated wrapper class, the message indexes in source declaration order."""
     message_index_by_alias_by_owner: dict[str, dict[str, int]] = defaultdict(dict)
     for traced_function in access_trace.functions_by_address.values():
         touched_classes = {access_entry.cls for access_entry in traced_function.access_infos}
         if len(touched_classes) != 1:
-            # A wrapper that handles several messages says nothing about where any of them is
-            # declared, so it cannot contribute a position.
+            # Multi-message wrappers do not establish a unique declaration position.
             continue
         message_cls = next(iter(touched_classes))
         message_index = index_by_cls.get(message_cls)
@@ -130,12 +102,7 @@ def _build_declaration_segments(
 
 
 def _split_into_segments(message_index_by_alias: Mapping[str, int]) -> list[tuple[int, ...]]:
-    """
-    Order one class's aliases and cut them where the naming sequence jumps.
-
-    Aliases are grouped by length first: base-26 only orders identifiers that have the same number
-    of characters, so ``zz`` and ``aaa`` belong to different counting segments.
-    """
+    """Group aliases by length: base-26 ordering does not cross identifier lengths."""
     by_alias_length: dict[int, list[tuple[int, int]]] = defaultdict(list)
     for alias, message_index in message_index_by_alias.items():
         by_alias_length[len(alias)].append((_alias_ordinal(alias), message_index))
@@ -156,7 +123,6 @@ def _split_into_segments(message_index_by_alias: Mapping[str, int]) -> list[tupl
 
 
 def _alias_ordinal(alias: str) -> int:
-    """Read an obfuscated identifier as a base-26 number, so sorting replays the rename order."""
     ordinal = 0
     for character in alias:
         ordinal = ordinal * _ALPHABET_SIZE + (ord(character) - ord("a"))

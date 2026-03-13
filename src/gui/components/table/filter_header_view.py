@@ -69,7 +69,7 @@ class FilterHeaderView(QHeaderView):
         super().updateGeometries()
         self.adjust_positions()
 
-    def adjust_positions(self):
+    def adjust_positions(self) -> None:
         for index, editor in enumerate(self.line_edits):
             height = editor.sizeHint().height()
             editor.move(

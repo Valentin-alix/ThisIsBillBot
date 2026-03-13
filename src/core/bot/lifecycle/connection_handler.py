@@ -3,16 +3,16 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from threading import Event, Timer
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_pool import (
+from ankama_launcher_emulator.controller.paysafecard_pool import (
     PaysafecardPoolController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_purchase import (
+from ankama_launcher_emulator.controller.paysafecard_purchase import (
     PaysafecardPurchaseController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.subscription_expiration import (
+from ankama_launcher_emulator.controller.subscription_expiration import (
     SubscriptionExpirationStorage,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
+from ankama_launcher_emulator.interfaces.credentials import (
     StoredApiKey,
 )
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import Character

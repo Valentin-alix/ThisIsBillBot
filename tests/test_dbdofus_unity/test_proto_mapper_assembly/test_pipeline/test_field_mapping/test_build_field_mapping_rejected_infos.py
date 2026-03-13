@@ -47,8 +47,6 @@ def _dump_rejected_infos(infos: FieldMappingRejectedInfos) -> dict[str, dict[str
 
 
 class TestBuildFieldMappingRejectedInfos:
-    """Tests that build_field_mapping populates field_mapping_rejected_infos correctly."""
-
     def test_populates_rejected_infos_for_child_score_too_low(
         self, runtime_data_store: RuntimeDataStore
     ) -> None:
@@ -251,10 +249,6 @@ class TestBuildFieldMappingRejectedInfos:
         )
 
         assert result.field_mapping == {"fhdb": "first_id", "fhdc": "second_id"}
-        # On vérifie la raison du rejet et la borne du score, pas la valeur exacte.
-        # Le score précis dépend de la pondération des features de similarity, qui peut
-        # évoluer (cf. plan : poids des compteurs fragiles abaissés) — on ne lock pas
-        # cette valeur ici sinon le test casse à chaque rééquilibrage.
         for rejected_pair_key in (("fhdc", "first_id"), ("fhdb", "second_id")):
             obf_field, non_obf_field = rejected_pair_key
             rejected_info = result.field_mapping_rejected_infos[obf_field][non_obf_field]

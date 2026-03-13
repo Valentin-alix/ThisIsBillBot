@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import argparse
 import sys
 from collections.abc import Sequence
@@ -32,10 +30,7 @@ def gen_python(_):
 
 
 def _synchronize_protos(arguments: argparse.Namespace) -> None:
-    # `gen_python` rewrites the *_pb2 modules on disk, so nothing that imports them may be
-    # loaded before it runs: the stale descriptors would already sit in the default pool and
-    # protobuf then rejects the regenerated ones with "duplicate file name <x>.proto".
-    # This is why `run_pipeline` is imported below rather than at module level.
+    # Import pipeline after gen_python: stale protobuf descriptors would reject regenerated modules.
     gen_python(arguments)
     validate_unknown_names()
     synchronize_non_obf_mapping_artifacts()
@@ -102,7 +97,6 @@ def build_argument_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> None:
     parser = build_argument_parser()
     arguments = parser.parse_args(argv)
-    # set default to run-pipeline if no arg provided
     if arguments.command is None:
         arguments = parser.parse_args(["run-pipeline"])
     arguments.handler(arguments)

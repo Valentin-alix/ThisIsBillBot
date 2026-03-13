@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import (
 )
 from qfluentwidgets import (
     BodyLabel,
+    CaptionLabel,
     ComboBox,
     FluentIcon,
     TransparentToolButton,
@@ -20,6 +21,7 @@ from qfluentwidgets.common.config import isDarkTheme
 from qfluentwidgets.common.icon import toQIcon
 from qfluentwidgets.common.style_sheet import themeColor
 from qfluentwidgets.components.navigation.navigation_widget import NavigationWidget
+from qfluentwidgets.components.widgets.tool_tip import ToolTipFilter
 
 from src.consts import RESOURCE_FOLDER
 from src.core.signals.bot_signals import BotSignals
@@ -63,6 +65,10 @@ class SidebarItem(NavigationWidget):
 
         self.setLayout(self.main_layout)
         self.main_layout.addLayout(self.header_layout)
+        self._status_label = CaptionLabel(self)
+        self._status_label.setIndent(6)
+        self._status_label.hide()
+        self.main_layout.addWidget(self._status_label)
         self.main_layout.addLayout(self.controls_layout)
 
         self._left_icon = QLabel(self)
@@ -82,8 +88,9 @@ class SidebarItem(NavigationWidget):
         self.header_layout.addWidget(self._right_icon)
 
         self._subscription_icon = QLabel(self)
-        self._subscription_icon.setFixedSize(16, 16)
+        self._subscription_icon.setFixedSize(24, 24)
         self._subscription_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._subscription_icon.installEventFilter(ToolTipFilter(self._subscription_icon, 0))
         self.header_layout.addWidget(self._subscription_icon)
         self.set_subscribed(False)
 
@@ -109,10 +116,12 @@ class SidebarItem(NavigationWidget):
 
         self._disconnect_btn = TransparentToolButton(FluentIcon.CLOSE, self)
         self._disconnect_btn.setFixedSize(24, 24)
-        self._disconnect_btn.setToolTip("Disconnect")
+        self._disconnect_btn.setToolTip("Déconnecter")
+        self._disconnect_btn.installEventFilter(ToolTipFilter(self._disconnect_btn, 0))
         self._disconnect_btn.setEnabled(False)
         self._disconnect_btn.clicked.connect(self.disconnect_clicked.emit)
         self.controls_layout.addWidget(self._disconnect_btn)
+        self.bot_signals.automation_status_changed.connect(self._on_automation_status_changed)
 
     def show_battle_icon(self, show: bool) -> None:
         self.in_fight = show
@@ -125,6 +134,9 @@ class SidebarItem(NavigationWidget):
         color = QColor(0, 230, 118) if is_subscribed else QColor(244, 67, 54)
         subscription_icon = FluentIcon("Certificate")
         self._subscription_icon.setPixmap(subscription_icon.icon(color=color).pixmap(16))
+        self._subscription_icon.setToolTip(
+            "Statut d’abonnement : " + ("abonné" if is_subscribed else "non abonné")
+        )
 
     def setCompacted(self, isCompacted: bool) -> None:
         if isCompacted == self.isCompacted:
@@ -135,6 +147,7 @@ class SidebarItem(NavigationWidget):
             self.header_layout.setContentsMargins(4, 0, 0, 0)
             self.setFixedSize(32, 48)
             self._title.hide()
+            self._status_label.hide()
             self._right_icon.hide()
             self._subscription_icon.hide()
             self._play_btn.hide()
@@ -145,6 +158,7 @@ class SidebarItem(NavigationWidget):
             self.header_layout.setContentsMargins(4, 0, 12, 0)
             self.setFixedSize(self.EXPAND_WIDTH, 96)
             self._title.show()
+            self._status_label.setVisible(bool(self._status_label.text()))
             if self.in_fight:
                 self._right_icon.show()
             self._subscription_icon.show()
@@ -223,6 +237,11 @@ class SidebarItem(NavigationWidget):
 
     def on_stop(self) -> None:
         self.set_playing(False)
+
+    def _on_automation_status_changed(self, status: str) -> None:
+        self._status_label.setText(status)
+        if not self.isCompacted:
+            self._status_label.setVisible(bool(status))
 
     def paintEvent(self, a0: QPaintEvent | None) -> None:
         painter = QPainter(self)

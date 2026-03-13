@@ -5,10 +5,10 @@ from typing import cast
 
 from google.protobuf.message import Message
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.subscription_expiration import (
+from ankama_launcher_emulator.controller.subscription_expiration import (
     SubscriptionExpirationStorage,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
+from ankama_launcher_emulator.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
 )
@@ -23,8 +23,8 @@ from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import (
 )
 from DBDofusUnity.dofus_unity_reader.game_constants.server import ServerEnum
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-from src.consts import DEBUG
 from src.core.bot.bot import Bot
+from src.core.config import DEBUG
 from src.protocol.protocol import decode_varint_size, encode_msg
 from src.protocol.protocol_connection import (
     get_conn_msg,
@@ -83,7 +83,7 @@ class ConnectionProxy(Proxy):
                         if server.server.id == ServerEnum.BRIAL:
                             servers.remove(server)
 
-                    # juste pour que le client initie quand meme la connection au serveur brial si ya pas de perso
+                    # Laisser le client ouvrir la connexion Brial meme sans personnage.
                     fake_character = CharacterInformation(
                         name="unprank",
                         breed=CharacterInformation.Breed.IOP,
@@ -114,9 +114,7 @@ class ConnectionProxy(Proxy):
                     self.bot.process_manager.kill_process()
                 reason = msg.response.identification.error.reason
                 print(f"Error Identification, reason : {reason}")
-                if self.bot and (
-                    reason == IdentificationResponse.Error.Reason.BANNED or reason == 14
-                ):
+                if self.bot and (reason == IdentificationResponse.Error.Reason.BANNED or reason == 14):
                     self.on_banned_callback(self.bot.account.apikey.login)
                 if reason == IdentificationResponse.Error.Reason.OUTDATED_CLIENT_VERSION:
                     raise ClientVersionOutdatedError("Dofus client version is outdated")
@@ -135,7 +133,9 @@ class ConnectionProxy(Proxy):
                 source = "framework_injected"
             else:
                 source = "client_forwarded"
-            self.bot.debug_recorder.record_conn_message(msg, from_server, source)
+            recorder = self.bot.debug_recorder
+            if recorder is not None:
+                recorder.record_conn_message(msg, from_server, source)
 
         if DEBUG and self.bot and self.bot.msg_info_signals.capture_enabled:
             msg_info = get_conn_msg_info(msg, from_server)

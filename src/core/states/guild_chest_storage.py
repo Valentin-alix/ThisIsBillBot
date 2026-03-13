@@ -7,10 +7,7 @@ _REGISTRY_LOCK = RLock()
 
 
 class GuildChestStorage:
-    """Server-scoped, thread-safe store for guild-chest items and reservations.
-
-    Obtain via GuildChestStorage.for_server(server_id); never construct directly.
-    """
+    """Obtain the shared server store through for_server(), never by direct construction."""
 
     def __init__(self) -> None:
         self._lock = RLock()

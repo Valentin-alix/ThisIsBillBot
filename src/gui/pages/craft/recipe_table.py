@@ -6,7 +6,7 @@ from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QModelIndex, QObject, Qt, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QStandardItem
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtWidgets import QHeaderView, QWidget
 
 from src.core.engine.crafts.recipes import get_benefice_on_craft_recipe
 from src.gui.components.table.column_info import ColumnInfo
@@ -29,10 +29,15 @@ class RecipeTable(BaseTableWidget):
         columns: list[ColumnInfo] = [
             ColumnInfo(name="Nom"),
             ColumnInfo(name="Métier"),
-            ColumnInfo(name="Lvl"),
+            ColumnInfo(name="Niv."),
             ColumnInfo(name="Bénéfice"),
+            ColumnInfo(name="", filter_info=None),
         ]
         self.table.set_columns(columns)
+        header = self.table.horizontalHeader()
+        assert header is not None
+        header.setSectionResizeMode(4, QHeaderView.ResizeMode.Fixed)
+        self.table.setColumnWidth(4, 36)
         self.table.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers)
 
         self.signals = RecipeTableSignals(parent=self)
@@ -56,13 +61,19 @@ class RecipeTable(BaseTableWidget):
 
         recipe_lvl = QStandardItem(str(DataReader().item_by_id[recipe.resultId].level))
 
-        profit = get_benefice_on_craft_recipe(recipe) or "Unknown"
-        benefice = QStandardItem(str(profit))
+        profit_in_kamas = get_benefice_on_craft_recipe(recipe)[0]
+        benefice = QStandardItem(f"{profit_in_kamas:,.0f}".replace(",", " ") + " kamas")
+        remove_recipe_item = QStandardItem("×")
+        remove_recipe_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.table.item_model.append_row([recipe_widget_item, job_name_widget, recipe_lvl, benefice])
+        self.table.item_model.append_row(
+            [recipe_widget_item, job_name_widget, recipe_lvl, benefice, remove_recipe_item]
+        )
 
     @pyqtSlot(QModelIndex)
     def on_click_recipe(self, model_index: QModelIndex) -> None:
+        if model_index.column() != 4:
+            return
         source_index = self.table.proxy_model.mapToSource(model_index)
         model = self.table.item_model
         recipe = _require_recipe_item(

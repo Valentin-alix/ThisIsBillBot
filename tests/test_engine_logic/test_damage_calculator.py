@@ -109,7 +109,6 @@ class TestGetDamageEffect:
         self.calc = DamageCalculator()
 
     def test_strength_uses_earth_resistance(self) -> None:
-        """Regression: Strength damage must read Earth resist, not Air."""
         damage = self.calc.get_damage_effect(
             effect=_effect(element=1, dice_num=100, dice_side=100),
             spell_lvl=_spell(),
@@ -121,7 +120,6 @@ class TestGetDamageEffect:
         assert damage == 50
 
     def test_uses_average_of_dice_roll(self) -> None:
-        """Base damage is the mean of [diceNum, diceSide], not the floor diceNum."""
         damage = self.calc.get_damage_effect(
             effect=_effect(element=1, dice_num=10, dice_side=20),
             spell_lvl=_spell(),
@@ -133,7 +131,6 @@ class TestGetDamageEffect:
         assert damage == 15
 
     def test_fixed_value_effect(self) -> None:
-        """When both dice are 0 the base falls back to the fixed value."""
         damage = self.calc.get_damage_effect(
             effect=_effect(element=1, value=42),
             spell_lvl=_spell(),
@@ -213,7 +210,6 @@ class TestGetDamageEffect:
         assert damage == 160
 
     def test_no_critical_without_critical_effect(self) -> None:
-        """A spell with crit probability but no critical effect never crits."""
         damage = self.calc.get_damage_effect(
             effect=_effect(element=1, dice_num=100, dice_side=100),
             spell_lvl=_spell(critical_hit_probability=50, critical_effect=[]),
@@ -248,7 +244,6 @@ class TestGetDamageEffect:
         assert damage == 70
 
     def test_best_element_uses_caster_primary_elem(self) -> None:
-        """element 5 = best: the caller's primary element (air) is used."""
         damage = self.calc.get_damage_effect(
             effect=_effect(element=5, dice_num=100, dice_side=100),
             spell_lvl=_spell(),

@@ -36,7 +36,6 @@ class TestCfgStats:
     def test_diamond_join_is_not_a_back_edge(self) -> None:
         stats = build_cfg_stats(_scan_plan({1: (2, 3), 2: (4,), 3: (4,), 4: ()}, entry=1))
 
-        # Both branches reconvene on block 4: that is a forward edge, not a loop.
         assert stats.back_edge_count == 0
         assert stats.edge_count == 4
         assert stats.max_block_depth == 2

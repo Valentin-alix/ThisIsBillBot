@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
 from bisect import insort
 from collections.abc import Iterator
@@ -19,7 +17,7 @@ class Node(Generic[T]):
         "in_open_set",
     )
 
-    parent: Node[T] | None
+    parent: "Node[T] | None"
     data: T
     cost_to_node: float
     total_cost: float
@@ -29,7 +27,7 @@ class Node(Generic[T]):
     def __init__(
         self,
         data: T,
-        parent: Node[T] | None = None,
+        parent: "Node[T] | None" = None,
         cost_to_node: float = float("inf"),
         total_cost: float = float("inf"),
         closed: bool = False,
@@ -51,7 +49,7 @@ class Node(Generic[T]):
     def __hash__(self) -> int:
         return hash(self.data)
 
-    def __lt__(self, other: Node[T]) -> bool:
+    def __lt__(self, other: "Node[T]") -> bool:
         return self.total_cost < other.total_cost
 
 
@@ -158,17 +156,3 @@ class Astar(ABC, Generic[T, PathResultT]):
                 open_set.push(node)
 
         return None
-
-
-class DataAstar(Astar[T, T], ABC):
-    def reconstruct_path(self, node: Node[T], do_reverse: bool) -> list[T]:
-        current: Node[T] | None = node
-        path: list[T] = []
-
-        while current is not None:
-            path.append(current.data)
-            current = current.parent
-
-        if do_reverse:
-            return path
-        return path[::-1]

@@ -18,8 +18,8 @@ class ListenersStatsTable(BaseTableWidget):
         super().__init__(parent=parent)
         columns: list[ColumnInfo] = [
             ColumnInfo(name="Heure d'enregistrement"),
-            ColumnInfo(name="Originator"),
-            ColumnInfo(name="Message Type"),
+            ColumnInfo(name="Origine"),
+            ColumnInfo(name="Type de message"),
         ]
         self.table.set_columns(columns)
         self.table.setEditTriggers(TableWidget.EditTrigger.NoEditTriggers)

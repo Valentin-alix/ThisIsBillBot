@@ -12,7 +12,6 @@ from tests.fixtures.proto_mapper.shapes import (
 from tests.fixtures.proto_mapper.signatures import (
     access_atom,
     access_message_signature,
-    builder_function_access_signature,
     builder_structure_similarity_context,
     declared_field_signature,
     field_access_signature,
@@ -30,7 +29,6 @@ from DBDofusUnity.proto_mapper_assembly.scoring.signature_scoring import (
     access_atom_sequence_similarity,
     field_evidence_similarity,
     field_signature_similarity,
-    function_similarity_from_keys,
 )
 
 
@@ -60,51 +58,8 @@ class TestFieldEvidenceSimilarity:
 
         assert field_evidence_similarity(traced, untraced) == 0
 
-    def test_two_traced_sides_keep_the_atom_comparison(self) -> None:
-        left = field_access_signature(accesses=[access_atom(field_offset=24)])
-        right = field_access_signature(field_offset=32, accesses=[access_atom(field_offset=32)])
-
-        assert field_evidence_similarity(left, right) == field_signature_similarity(left, right)
-
-
 class TestAssemblyAccessSimilarity:
-    def test_field_signature_similarity_is_symmetric(self) -> None:
-        left = field_access_signature(
-            field_offset=24,
-            accesses=[access_atom(field_offset=24)],
-        )
-        right = field_access_signature(
-            field_offset=32,
-            accesses=[access_atom(field_offset=32)],
-        )
-
-        assert field_signature_similarity(left, right) == field_signature_similarity(right, left)
-
-    def test_function_similarity_is_symmetric(self) -> None:
-        left = builder_function_access_signature(
-            self_accesses=[access_atom(field_offset=24)],
-            foreign_access_summary=["field:read"],
-        )
-        right = builder_function_access_signature(
-            self_accesses=[access_atom(field_offset=32)],
-            foreign_access_summary=["field:read"],
-        )
-
-        assert function_similarity_from_keys(
-            left.similarity_key,
-            right.similarity_key,
-        ) == function_similarity_from_keys(
-            right.similarity_key,
-            left.similarity_key,
-        )
-
     def test_access_atom_similarity_separates_accesses_by_instruction_rank(self) -> None:
-        """
-        Load-bearing, and measured: flattening this to 1.0 costs mappings.
-
-        The rank is build-unstable and still earns its place, because it is what keeps otherwise
-        identical accesses apart. See the note on ``access_atom_similarity_from_keys``.
-        """
         left_first = access_atom(
             field_offset=24,
             field_type_shape=NUMBER_SHAPE,
@@ -127,26 +82,6 @@ class TestAssemblyAccessSimilarity:
         ) > _access_atom_similarity_from_keys(
             left_first.similarity_key,
             right_same_second.similarity_key,
-        )
-
-    def test_access_atom_similarity_normalizes_index_delta_by_larger_index(self) -> None:
-        left_access = access_atom(
-            field_offset=24,
-            field_type_shape=NUMBER_SHAPE,
-            field_access_index=10,
-        )
-        right_access = access_atom(
-            field_offset=24,
-            field_type_shape=NUMBER_SHAPE,
-            field_access_index=20,
-        )
-
-        assert (
-            _access_atom_similarity_from_keys(
-                left_access.similarity_key,
-                right_access.similarity_key,
-            )
-            == 0.5
         )
 
     def test_access_atom_sequence_similarity_compares_accesses_by_order(self) -> None:

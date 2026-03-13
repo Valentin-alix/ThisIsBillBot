@@ -1,4 +1,4 @@
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
+from ankama_launcher_emulator.interfaces.credentials import (
     DecipheredApiKey,
     DecipheredCertif,
     StoredApiKey,

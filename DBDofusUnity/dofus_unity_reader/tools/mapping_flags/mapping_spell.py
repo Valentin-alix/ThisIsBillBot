@@ -28,12 +28,6 @@ def map_spell_level() -> None:
     res = reduce(lambda previous, flag: previous & flag, valids)
     print(res)
 
-    # castInLine -> 1
-    # castInDiag -> 2
-    # castTestLos -> 4
-    # needTakenCell -> 16
-    # rangeCanBeBoosted -> 64
-
 
 if __name__ == "__main__":
     map_spell_level()

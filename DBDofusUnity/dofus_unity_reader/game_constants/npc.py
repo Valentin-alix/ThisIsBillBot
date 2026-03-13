@@ -60,7 +60,7 @@ ASTRUB_BANK_NPC = NpcInfo(npc_name="Al Etsop", npc_map_id=MapIdEnum.ASTRUB_BANK)
 BONTA_BANK_NPC = NpcInfo(npc_name="Banquier bontarien", npc_map_id=MapIdEnum.BONTA_BANK)
 BANK_NPCS = [ASTRUB_BANK_NPC, BONTA_BANK_NPC]
 
-# Les hotels de vente n'ont pas de PNJ nomme : `npc_id=-1` designe l'interface elle-meme.
+# npc_id=-1 designe l'interface HDV, qui n'a pas de PNJ nomme.
 SALE_HOTEL_NPC_ID = -1
 
 ASTRUB_SALE_HOTEL_COM_SELL_NPC = NpcInfo(

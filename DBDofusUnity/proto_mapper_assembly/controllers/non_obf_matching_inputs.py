@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from DBDofusUnity.proto_mapper_assembly.controllers import non_obf_bootstrap, signature_override_application
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage

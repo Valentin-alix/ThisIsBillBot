@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Sequence
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import FieldAccessEntry, FieldAccessSignatures

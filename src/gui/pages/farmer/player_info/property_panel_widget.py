@@ -9,12 +9,6 @@ from src.gui.pages.farmer.player_info.property_group_widget import PropertyGroup
 
 
 class PropertyPanelWidget(QWidget):
-    """Generic scrollable panel that displays grouped key/value properties.
-
-    Properties are pushed via ``on_received_property`` (typically connected to
-    signals through ``functools.partial``) and flushed in batch on the event loop.
-    """
-
     def __init__(self, vertical: bool = False, parent: QWidget | None = None):
         super().__init__(parent=parent)
         self._vertical = vertical

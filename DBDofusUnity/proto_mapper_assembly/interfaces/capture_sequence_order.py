@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 
@@ -10,13 +8,10 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPai
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import CaptureSequencesBySession, RuntimeDataStore
 
 type Cell = tuple[int, int]
-"""A (non_obf_index, obf_index) cell of the score matrix."""
 
 
 @dataclass(frozen=True)
 class SequenceMessage:
-    """One hinted message that exists in the workspace, with its rank in the hint sequence."""
-
     position: int
     message_cls: str
     non_obf_index: int
@@ -30,8 +25,6 @@ class Assignment:
 
 @dataclass(frozen=True)
 class BeamState:
-    """One reading of a hint sequence: which class each position took, and how well it holds up."""
-
     assignments: tuple[Assignment, ...]
     used_obf_indexes: frozenset[int]
     objective: float
@@ -42,23 +35,15 @@ class BeamState:
 
 @dataclass(frozen=True)
 class OrderEvidence:
-    """What the captures say about one candidate placed against the assignments already made."""
-
     confidences: tuple[float, ...]
     evidenced_obf_indexes: frozenset[int]
 
 
 @dataclass(frozen=True)
 class CaptureOrderIndex:
-    """The capture stream resolved against the workspace, built once for a whole matching run.
-
-    Classes are addressed by matrix index throughout: hints only name root messages and the mask
-    keeps root candidates only, so the by-index view covers every pair the beam can build.
-    """
-
     capture_sequences_by_obf_index: Mapping[int, CaptureSequencesBySession]
     captured_obf_indexes: frozenset[int]
-    """Observed at all, including the legacy captures that carry no session and no sequence."""
+    """Includes legacy captures without a session or sequence."""
     pinned_obf_indexes: frozenset[int]
     pinned_non_obf_message_classes: frozenset[str]
     confidence_by_obf_pair: dict[Cell, float | None] = field(default_factory=dict[Cell, float | None])
@@ -70,9 +55,8 @@ class CaptureOrderIndex:
         workspace: MatchingWorkspace,
         pinned_pairs_config: PinnedPairsConfig,
         runtime_data_store: RuntimeDataStore,
-    ) -> CaptureOrderIndex:
-        # A root obfuscated class carries no namespace, so the runtime key is the class itself.
-        # Nested ones do not resolve and are skipped: hints only ever name root messages.
+    ) -> "CaptureOrderIndex":
+        # Root obfuscated classes have no namespace; nested classes are not capture hint targets.
         obf_index_by_cls = workspace.signature_indexes.obf_index_by_cls
         return cls(
             capture_sequences_by_obf_index={
@@ -96,7 +80,7 @@ class CaptureOrderIndex:
         )
 
     def order_confidence(self, *, before_index: int, after_index: int) -> float | None:
-        """Share of capture pairs the client emitted in that order, None without a shared session."""
+        """Return None when the messages share no capture session."""
         pair_key = (before_index, after_index)
         if pair_key in self.confidence_by_obf_pair:
             return self.confidence_by_obf_pair[pair_key]
@@ -105,7 +89,7 @@ class CaptureOrderIndex:
         session_scores = [
             _ordered_pair_count(before_sequences, after_sequences)
             / (len(before_sequences) * len(after_sequences))
-            # Sorted: summed as floats below, and a set of str iterates differently per process.
+            # Sort to keep floating-point accumulation deterministic across processes.
             for session_id in sorted(before_by_session.keys() & after_by_session.keys())
             if (before_sequences := before_by_session[session_id])
             and (after_sequences := after_by_session[session_id])
@@ -116,7 +100,7 @@ class CaptureOrderIndex:
 
 
 def _ordered_pair_count(before_sequences: tuple[int, ...], after_sequences: tuple[int, ...]) -> int:
-    """How many (before, after) capture pairs are in that order. Both sides must be sorted."""
+    """Count ordered capture pairs; both inputs must be sorted."""
     at_or_before_count: np.ndarray = np.searchsorted(after_sequences, before_sequences, side="right")
     return len(before_sequences) * len(after_sequences) - int(at_or_before_count.sum())
 

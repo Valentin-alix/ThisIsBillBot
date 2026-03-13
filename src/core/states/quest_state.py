@@ -37,16 +37,7 @@ class QuestState(State):
         return quest_id in self.active_quest_by_id
 
     def is_objective_reached(self, quest_id: int, objective_id: int) -> bool:
-        """Un objectif n'est fait que s'il est envoye avec `objective_reached` a False.
-
-        Le champ porte mal son nom : le serveur le met a True tant que l'objectif reste **a
-        faire**, et le bascule a False quand il est valide. Releve sur la quete 1696 :
-
-            16:42:00  QuestStartedEvent 1696        objectifs {10418: True}
-            16:42:02  QuestObjectiveValidatedEvent  objectifs {10418: False, 10560: True}
-
-        Un objectif absent de la liste n'est pas encore revele, donc pas fait non plus.
-        """
+        """Le serveur marque les objectifs faits par False ; True ou une absence signifie non termine."""
         objective = self._find_objective(quest_id, objective_id)
         return objective is not None and not objective.objective_reached
 

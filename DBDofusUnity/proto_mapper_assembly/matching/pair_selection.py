@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Sequence, Set as AbstractSet
 from dataclasses import dataclass
 
@@ -11,13 +9,7 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorks
 from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
 
 _MIN_MATCH_MARGIN = 0.05
-"""
-How much an assigned pair must beat the closest unassigned alternative by, to be kept.
-
-Deliberately not lowered. At 0.0 only 4 of 339 stay unmapped instead of 38, but of the 34
-recovered just 7 are right and wrong mappings go 18 -> 45; a wrong mapping fails quietly, an
-unmapped one loudly. ``_MIN_UNIQUE_MUTUAL_BEST_SCORE`` the same way: 0.70 -> 0.55 recovers 2.
-"""
+"""Require a margin: ambiguous assignments can silently map messages to the wrong schema."""
 
 _MIN_UNIQUE_MUTUAL_BEST_SCORE = 0.70
 _GLOBAL_ASSIGNMENT_BATCH_SIZE = 64
@@ -44,8 +36,7 @@ def select_signature_pairs(
     roots_only: bool,
     pinned_pairs_config: PinnedPairsConfig,
 ) -> tuple[SelectedSignaturePair, ...]:
-    # Sorted: the ranking tie-breaks below are on submatrix positions, so rows and columns have to
-    # keep the workspace order.
+    # Preserve workspace order because assignment ties depend on submatrix positions.
     non_obf_rows = sorted(
         available_non_obf_indexes & workspace.non_obf_root_indexes
         if roots_only
@@ -189,7 +180,6 @@ def _build_assignment_margin_by_position(
     scores_matrix: np.ndarray,
     assigned_positions: Sequence[tuple[int, int]],
 ) -> dict[tuple[int, int], float]:
-    """How much each assigned pair beats the best alternative the assignment forbids it."""
     if not assigned_positions:
         return {}
 
@@ -211,7 +201,7 @@ def _build_assignment_margin_by_position(
     if free_rows.size:
         best_alternative = np.maximum(best_alternative, scores_matrix[np.ix_(free_rows, cols)].max(axis=0))
 
-    # assigned_block and its transpose are the two halves of a swap between rows i and j.
+    # assigned_block and its transpose represent the two halves of a row swap.
     assigned_block = scores_matrix[np.ix_(rows, cols)]
     current_pair_scores = assigned_scores[:, None] + assigned_scores[None, :]
     swapped_pair_scores = assigned_block + assigned_block.T
@@ -232,7 +222,6 @@ def _resolve_runner_up(
     best_row_pos: int,
     best_col_pos: int,
 ) -> tuple[float, str | None]:
-    """Return the strongest competitor that the chosen cell excludes (same row or column)."""
     row_scores = submatrix[best_row_pos].copy()
     row_scores[best_col_pos] = -1.0
     best_alt_col_pos = int(np.argmax(row_scores))

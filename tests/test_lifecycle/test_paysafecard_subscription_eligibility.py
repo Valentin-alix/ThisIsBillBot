@@ -4,10 +4,10 @@ from unittest.mock import Mock, patch
 import pytest
 
 import src.core.bot.lifecycle.profile_subscription_eligibility as profile_subscription_eligibility
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.local_storage import (
+from ankama_launcher_emulator.interfaces.local_storage import (
     BotRecord,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.subscription_expiration import (
+from ankama_launcher_emulator.controller.subscription_expiration import (
     SubscribeInfo,
 )
 

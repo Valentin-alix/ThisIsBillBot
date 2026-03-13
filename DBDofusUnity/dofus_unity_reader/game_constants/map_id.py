@@ -2,11 +2,9 @@ from enum import IntEnum
 
 
 class MapIdEnum(IntEnum):
-    # Banques
     ASTRUB_BANK = 192415750
     BONTA_BANK = 217059328
 
-    # Hôtels de vente
     ASTRUB_SALE_HOTEL_COM = 191102976
     ASTRUB_SALE_HOTEL_RES = 191104004
     ASTRUB_SALE_HOTEL_EQUIP = 191106052
@@ -28,13 +26,13 @@ class MapIdEnum(IntEnum):
 BANK_MAP_IDS: list[MapIdEnum] = [MapIdEnum.ASTRUB_BANK, MapIdEnum.BONTA_BANK]
 
 FORBIDDEN_MAP_IDS: set[int] = {
-    206046725,  # (1,-5)
-    193331717,  # (4,2)
-    99096067,  # (-16,4)
-    103547392,  # (9,-17)
-    153358342,  # (15,-31)
-    153357312,  # (9,21)
-    73400323,  # (4,-4)
+    206046725,
+    193331717,
+    99096067,
+    103547392,
+    153358342,
+    153357312,
+    73400323,
 }
 
 MAP_IDS_THAT_POP_DIALOG: set[int] = {241445377}
@@ -42,8 +40,7 @@ MAP_IDS_THAT_POP_DIALOG: set[int] = {241445377}
 
 MAP_PIXEL_HALF_WIDTH = 623
 MAP_PIXEL_HALF_HEIGHT = 431
-"""Demi-dimensions d'une map en pixels : au-dela, une transform est hors map."""
 
 LINKED_ZONE_MASK = 240
 LINKED_ZONE_SHIFT = 4
-"""`cell_data.linkedZone` empile deux zones sur un octet ; la zone rp est celle du haut."""
+"""La zone RP occupe les bits hauts de cell_data.linkedZone."""

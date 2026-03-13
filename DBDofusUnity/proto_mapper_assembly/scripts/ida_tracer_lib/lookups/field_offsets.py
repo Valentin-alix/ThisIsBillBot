@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import resolve_message_type_name
@@ -7,7 +5,6 @@ from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.type_look
 
 
 def build_enum_field_by_class_offset(msgs: list[DumpCSMessage]) -> dict[str, dict[int, str]]:
-    """Return {class_composed_name: {memory_offset: enum_value_type}} for enum-typed proto fields."""
     result: dict[str, dict[int, str]] = {}
     for msg in msgs:
         offset_to_enum: dict[int, str] = {}
@@ -25,7 +22,6 @@ def build_enum_field_by_class_offset(msgs: list[DumpCSMessage]) -> dict[str, dic
 def build_field_offset_lookup(
     msgs: list[DumpCSMessage],
 ) -> dict[str, dict[int, DumpCSMessageField]]:
-    """Build a lookup from class name to {memory_offset: field} for live proto fields."""
     result: dict[str, dict[int, DumpCSMessageField]] = {}
     for msg in msgs:
         offset_map = {
@@ -40,7 +36,6 @@ def build_field_offset_lookup(
 def build_tracking_field_offset_lookup(
     classes: list[DumpCSMessage],
 ) -> dict[str, dict[int, DumpCSMessageField]]:
-    """Build a lookup from class name to {memory_offset: field} for tracked object fields."""
     direct_fields_by_class: dict[str, dict[int, DumpCSMessageField]] = {}
     for current_class in classes:
         offset_map = {

@@ -1,6 +1,5 @@
 """Allocate and validate stable neutral names for unknown protobuf symbols."""
 
-from __future__ import annotations
 
 import argparse
 import json

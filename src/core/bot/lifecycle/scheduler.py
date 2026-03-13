@@ -10,14 +10,14 @@ import schedule
 
 SCHEDULE_RANDOM_MINUTES_MIN = 10
 SCHEDULE_RANDOM_MINUTES_MAX = 30
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
+from ankama_launcher_emulator.controller.schedule_profile import (
     ScheduleProfileController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+from ankama_launcher_emulator.controller.bot_storage import (
     BotStorageController,
 )
 from src.services.background import run_in_background
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
+from ankama_launcher_emulator.interfaces.credentials import (
     StoredApiKey,
 )
 
@@ -155,10 +155,6 @@ class BotScheduler(ContextualLogger):
         self._schedule_profile_jobs(profile_id)
 
     def is_in_randomized_playtime(self, now: datetime) -> bool | None:
-        """Check if current time is within the randomized playtime slots.
-
-        Returns None if no schedule profile is configured.
-        """
         if not self._randomized_slots_by_day:
             return None
 
@@ -291,13 +287,6 @@ def _add_random_minutes(
     new_hours = (total_minutes // 60) % 24
     new_minutes = total_minutes % 60
     return f"{new_hours:02d}:{new_minutes:02d}"
-
-
-def _add_minutes(time_str: str, minutes_to_add: int) -> str:
-    assert minutes_to_add >= 0, "A scheduled time can only move forward"
-    hours, minutes = map(int, time_str.split(":"))
-    total_minutes = hours * 60 + minutes + minutes_to_add
-    return f"{(total_minutes // 60) % 24:02d}:{total_minutes % 60:02d}"
 
 
 def _subtract_random_minutes(

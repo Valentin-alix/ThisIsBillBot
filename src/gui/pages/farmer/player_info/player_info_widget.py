@@ -27,12 +27,6 @@ class PlayerInfoWidget(PropertyPanelWidget):
         self.bot.game_info_signals.level.connect(partial(self.on_received_property, "Joueur", "Niveau"))
         self.bot.game_info_signals.breed_id.connect(self.on_breed_id_changed)
         self.bot.game_info_signals.server_id.connect(self.on_server_id_changed)
-        self.bot.game_info_signals.has_guild.connect(
-            partial(self.on_received_property, "Joueur", "A une guilde")
-        )
-        self.bot.game_info_signals.tab_number.connect(
-            partial(self.on_received_property, "Coffre de guilde", "Onglet actuel")
-        )
         self.bot.game_info_signals.last_time_updated_prices.connect(
             partial(self.on_received_property, "Hotel de vente", "Derniere maj prix")
         )
@@ -95,9 +89,7 @@ class PlayerInfoWidget(PropertyPanelWidget):
                 level=player.level,
                 breed_id=self.bot.game_state.fight.breed_id,
                 server_id=player.server_id,
-                has_guild=self.bot.game_state.guild_chest.has_guild,
                 kamas=self.bot.game_state.inventory.kamas,
-                guild_chest_tab_number=self.bot.game_state.guild_chest.tab_number,
             )
             return
         if self.snapshot is None:
@@ -108,14 +100,7 @@ class PlayerInfoWidget(PropertyPanelWidget):
             level=self.snapshot.level,
             breed_id=self.snapshot.breed_id,
             server_id=self.snapshot.server_id,
-            has_guild=self.snapshot.has_guild,
             kamas=self.snapshot.kamas,
-            guild_chest_tab_number=self.snapshot.guild_chest_tab_number,
-        )
-        self.on_received_property(
-            "Joueur",
-            "Dernière synchronisation",
-            self.snapshot.updated_at.astimezone().strftime("%d/%m/%Y %H:%M"),
         )
 
     def _sync_player_properties(
@@ -126,18 +111,14 @@ class PlayerInfoWidget(PropertyPanelWidget):
         level: int,
         breed_id: int,
         server_id: int,
-        has_guild: bool,
         kamas: int,
-        guild_chest_tab_number: int,
     ) -> None:
         self.on_received_property("Joueur", "Player id", character_id)
         self.on_received_property("Joueur", "Nom", character_name)
         self.on_received_property("Joueur", "Niveau", level)
         self.on_breed_id_changed(breed_id)
         self.on_server_id_changed(server_id)
-        self.on_received_property("Joueur", "A une guilde", has_guild)
         self.on_kamas_changed(kamas)
-        self.on_received_property("Coffre de guilde", "Onglet actuel", guild_chest_tab_number)
 
     @staticmethod
     def _get_job_name(job_id: int) -> str:

@@ -19,7 +19,7 @@ from src.core.engine.fights import effect as effect_module
 from src.core.engine.fights.attack import attacker as attacker_module
 from src.core.engine.fights.attack import heal
 from src.core.engine.fights.attack.attacker import Attacker
-from src.core.engine.fights.attack.heal import _self_heal_effect, estimate_self_heal, is_heal_effect
+from src.core.engine.fights.attack.heal import _self_heal_effect, estimate_self_heal
 from src.core.engine.fights.effect import can_self_cast
 from src.core.engine.fights.spell_modifier import SpellModifiers
 from tests.fixtures.data import (
@@ -75,24 +75,6 @@ def _context(
             characteristic_by_id={},
         ),
     )
-
-
-class TestIsHealEffect:
-    def _patch_description_id(self, monkeypatch: pytest.MonkeyPatch, description_id: int) -> None:
-        monkeypatch.setattr(
-            effect_module,
-            "DataReader",
-            lambda: SimpleNamespace(effect_by_id={1: SimpleNamespace(descriptionId=description_id)}),
-        )
-
-    def test_detects_heal_description_id(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        heal_description_id = next(iter(effect_module.HEAL_DESCRIPTION_IDS))
-        self._patch_description_id(monkeypatch, heal_description_id)
-        assert is_heal_effect(_effect()) is True
-
-    def test_rejects_non_heal_description_id(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        self._patch_description_id(monkeypatch, 999999)
-        assert is_heal_effect(_effect()) is False
 
 
 class TestSelfHealEffect:

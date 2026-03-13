@@ -36,7 +36,6 @@ class TestRuntimeDataStore:
         self,
         runtime_data_store: RuntimeDataStore,
     ) -> None:
-        """Sniffer traffic has no single owning connection, so no capture sequence/session is started."""
         runtime_data_store.add_msg(Empty(), from_server=True, is_game_msg=False)
         runtime_data_store.write_captured_content()
 
@@ -208,17 +207,9 @@ class TestRuntimeDataStore:
     def test_write_captured_content_does_nothing_when_the_process_captured_nothing(
         self, runtime_data_store: RuntimeDataStore, tmp_path: Path
     ) -> None:
-        """Reading the store must never be enough to rewrite it.
-
-        `src/protocol/protocol_game.py` registers `write_captured_content` with `atexit`, so every
-        process that imports it reaches this on the way out - test runs included, by which point
-        RUNTIME_DATA_FILE points back at the real shared file.
-        """
         store_path = tmp_path / "instancied_msg_infos.json"
         store_path.write_text('{"krl": []}', encoding="utf-8")
 
-        # Drop the cached view so the buffer is seeded from disk, exactly as the exit hook finds it
-        # once the fixture teardown has cleared every cached property.
         runtime_data_store.__dict__.pop(  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
             "_writing_content", None
         )

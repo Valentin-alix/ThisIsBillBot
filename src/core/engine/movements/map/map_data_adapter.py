@@ -129,11 +129,7 @@ class DataMapProvider:
         ignore_speed: bool = False,
         forbidden_cell_ids: frozenset[int] = frozenset(),
     ) -> MapPoint | None:
-        """
-        The returned cell can be non walkable: a blocked neighbour is penalized
-        through `BLOCKED_CELL_SPEED` instead of being excluded, so it still wins when every
-        neighbour is blocked.
-        """
+        """Blocked neighbours remain candidates with a speed penalty, so the result may be non-walkable."""
         candidates: list[MapPoint | None] = []
         weights: list[int] = []
 

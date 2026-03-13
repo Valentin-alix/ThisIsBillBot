@@ -3,11 +3,11 @@ from dataclasses import dataclass
 from datetime import datetime
 from threading import Event
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.haapi import (
+import src.core.config
+from ankama_launcher_emulator.haapi.haapi import (
     get_game_sub_info_by_login,
 )
 from DBDofusUnity.dofus_unity_reader.game_constants.server import ServerEnum
-
 from src import consts
 from src.core.signals.player_signals import GameInfoSignals
 from src.core.states.area_state import (
@@ -50,13 +50,13 @@ class PlayerState(State):
         if value == self._level:
             return
         self._level = value
-        if consts.DEBUG:
+        if src.core.config.DEBUG:
             self.game_info_signals.level.emit(value)
 
     @property
     def subscription_end_date(self) -> datetime:
         game_sub = get_game_sub_info_by_login(self.login)
-        if consts.DEBUG:
+        if src.core.config.DEBUG:
             self.game_info_signals.subscription_end_date.emit(game_sub.end_of_subscribe or consts.MIN_DATE)
         return game_sub.end_of_subscribe or consts.MIN_DATE
 
@@ -77,7 +77,7 @@ class PlayerState(State):
     @character_id.setter
     def character_id(self, value: int):
         self._character_id = value
-        if consts.DEBUG:
+        if src.core.config.DEBUG:
             self.game_info_signals.character_id.emit(value)
 
     @property
@@ -101,5 +101,5 @@ class PlayerState(State):
     @server_id.setter
     def server_id(self, value: int):
         self._server_id = value
-        if consts.DEBUG:
+        if src.core.config.DEBUG:
             self.game_info_signals.server_id.emit(value)

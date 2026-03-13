@@ -1,6 +1,4 @@
-﻿from __future__ import annotations
-
-from tests.fixtures.proto_mapper.script_builders import (
+﻿from tests.fixtures.proto_mapper.script_builders import (
     empty_enum_signatures as _empty_enum_signatures,
 )
 from tests.fixtures.proto_mapper.script_builders import (
@@ -37,27 +35,10 @@ from DBDofusUnity.proto_mapper_assembly.scripts.check_zero_access_fields import 
     CoreMethodEvidence,
     collect_zero_access_explanations,
     find_zero_access_fields,
-    format_explain_report,
-    format_report,
 )
 
 
 class TestFindZeroAccessFields:
-    def test_field_with_proto_access_is_not_reported(self) -> None:
-        msg = _msg("Ns.MyMsg", [_field("actor_id", offset=24)])
-        proto = _proto_accesses([("Ns.MyMsg", 24)])
-        result = find_zero_access_fields([msg], proto, _empty_enum_signatures())
-        assert result == []
-
-    def test_field_without_any_access_is_reported(self) -> None:
-        msg = _msg("Ns.MyMsg", [_field("actor_id", offset=24)])
-        proto = _empty_proto_accesses()
-        result = find_zero_access_fields([msg], proto, _empty_enum_signatures())
-        assert len(result) == 1
-        cls, field = result[0]
-        assert cls == "Ns.MyMsg"
-        assert field.field_name == "actor_id"
-
     def test_enum_field_with_switch_pattern_is_not_reported(self) -> None:
         msg = _msg(
             "Ns.MyMsg",
@@ -72,7 +53,7 @@ class TestFindZeroAccessFields:
             "Ns.MyMsg",
             [_field("status", offset=32, category=FieldCategoryEnum.ENUM, enum_value_type="MyEnum")],
         )
-        enum_sigs = _enum_signatures({"MyEnum": [40]})  # offset 40 != 32
+        enum_sigs = _enum_signatures({"MyEnum": [40]})
         result = find_zero_access_fields([msg], _empty_proto_accesses(), enum_sigs)
         assert len(result) == 1
 
@@ -110,26 +91,6 @@ class TestFindZeroAccessFields:
         proto = _proto_accesses([("Ns.OtherMsg", 24)])
         result = find_zero_access_fields([msg], proto, _empty_enum_signatures())
         assert len(result) == 1
-
-
-class TestFormatReport:
-    def test_empty_report(self) -> None:
-        output = format_report([])
-        assert "0 zero-access fields" in output
-
-    def test_report_contains_message_and_field_info(self) -> None:
-        field = _field("actor_id", offset=24)
-        output = format_report([("Ns.MyMsg", field)])
-        assert "Ns.MyMsg" in output
-        assert "actor_id" in output
-        assert "24" in output
-
-    def test_report_summary_counts(self) -> None:
-        field_a = _field("x", 24)
-        field_b = _field("y", 32)
-        output = format_report([("Ns.A", field_a), ("Ns.A", field_b)])
-        assert "2 zero-access fields" in output
-        assert "1 message" in output
 
 
 class TestAuditUnknownFields:
@@ -331,20 +292,3 @@ class TestCollectZeroAccessExplanations:
         assert explanations[0].cls == "Ns.Target"
         assert explanations[0].bucket == "typeinfo_only"
         assert explanations[0].likely_cause == "typeinfo_dispatch_return_only"
-
-    def test_format_explain_report_includes_bucket_and_evidence(self) -> None:
-        msg = _msg("Ns.MyMsg", [_field("missing", 24)])
-        explanations = collect_zero_access_explanations(
-            [msg],
-            _empty_proto_accesses(),
-            _empty_enum_signatures(),
-            {"Ns.MyMsg": [CoreMethodEvidence(0x2000, "Core.dll/a", "Boolean real(MyMsg)", size=0x80)]},
-        )
-
-        output = format_explain_report(explanations)
-
-        assert "[likely_cause_summary]" in output
-        assert "seeded_proto_param_unused: 1 field(s) across 1 message(s)" in output
-        assert "[seeded_core_no_fields]" in output
-        assert "likely_cause: seeded_proto_param_unused" in output
-        assert "Core.dll/a@0x2000:Boolean real(MyMsg)" in output

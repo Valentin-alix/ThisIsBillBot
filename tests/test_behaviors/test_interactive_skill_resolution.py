@@ -1,9 +1,3 @@
-"""The skill instance uid must be resolved when the request is sent, not when it is scheduled.
-
-The server disables the skills of an element as soon as somebody uses it, and several seconds can
-pass between the moment a behavior decides to interact and the moment the character arrives.
-"""
-
 from collections.abc import Callable
 from unittest.mock import MagicMock
 
@@ -67,7 +61,6 @@ def _mock_approach(behavior: InteractiveBehavior, monkeypatch: pytest.MonkeyPatc
 
 
 def _run_now(range_time: tuple[float, float] | float, func: Callable[[], None]) -> None:
-    """Drop the retry delay so the test can drive the retries synchronously."""
     del range_time
     func()
 
@@ -145,9 +138,6 @@ def test_aborts_when_the_element_has_no_enabled_skill_left(
 def test_gives_up_as_unreachable_after_too_many_canceled_approaches(
     behavior: InteractiveBehavior, sent_messages: MagicMock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-
-    # must report UNREACHABLE_ELEMENT: a bare CANCELED_MOVEMENT is not handled by CollectBehavior,
-
     behavior.game_state.interactive.interactive_element_by_id[ELEMENT_ID] = _element(FIRST_SKILL)
     _mock_approach(behavior, monkeypatch, ELEMENT_CELL_ID)
     monkeypatch.setattr(behavior, "run_timer", _run_now)
@@ -167,7 +157,6 @@ def test_gives_up_as_unreachable_after_too_many_canceled_approaches(
 def test_aborts_when_the_element_lost_its_skills_during_the_walk(
     behavior: InteractiveBehavior, sent_messages: MagicMock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-
     behavior.game_state.interactive.interactive_element_by_id[ELEMENT_ID] = _element(FIRST_SKILL)
     _mock_approach(behavior, monkeypatch, ELEMENT_CELL_ID)
     move_start = MagicMock()

@@ -1,7 +1,8 @@
 import random
 import threading
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
+import src.core.config
+from ankama_launcher_emulator.interfaces.credentials import (
     DecipheredApiKey,
     DecipheredCertif,
     StoredApiKey,
@@ -166,9 +167,10 @@ class BotFactory:
         is_ready_to_play_event = threading.Event()
 
         title = account.apikey.login
-        debug_recorder = create_bot_session_debug_recorder(
-            consts.BOT_DEBUG_LOGS_DIR,
-            title,
+        debug_recorder = (
+            create_bot_session_debug_recorder(consts.BOT_DEBUG_LOGS_DIR, title)
+            if src.core.config.DEBUG
+            else None
         )
         logger = BotLogger(title=title, log_signals=log_signals, debug_recorder=debug_recorder)
 
@@ -615,6 +617,7 @@ class BotFactory:
             weighted_path=weighted_path,
             world_signals=world_signals,
             edge_behavior=edge_behavior,
+            report_status=harvester_signals.automation_status_changed.emit,
             _logger=logger,
         )
         mule_give_behavior = MuleGiveBehavior(
@@ -659,6 +662,7 @@ class BotFactory:
             unload_behavior=unload_behavior,
             random_farm_behavior=random_farm_behavior,
             fight_behavior=fight_behavior,
+            report_status=harvester_signals.automation_status_changed.emit,
             _logger=logger,
         )
         fighter_behavior = FighterBehavior(
@@ -730,6 +734,7 @@ class BotFactory:
             unload_behavior=unload_behavior,
             random_farm_behavior=random_farm_behavior,
             fight_behavior=fight_behavior,
+            report_status=harvester_signals.automation_status_changed.emit,
             _logger=logger,
             attacker_behavior=attacker_behavior,
             auto_equipment_behavior=auto_equipment_behavior,
@@ -748,6 +753,7 @@ class BotFactory:
             idle_behavior=idle_behavior,
             craft_behavior=craft_behavior,
             sale_hotel_sell_behavior=sale_hotel_prices_behavior,
+            report_status=harvester_signals.automation_status_changed.emit,
         )
         smoke_test_behavior = SmokeTestBehavior(
             recovery=blocking_state_recovery,

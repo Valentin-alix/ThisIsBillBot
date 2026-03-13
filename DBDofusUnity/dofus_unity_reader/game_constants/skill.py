@@ -15,14 +15,13 @@ class SkillEnum(IntEnum):
     PREPARER_VIANDE = 134
 
 
-# Map IDs (workshop) par skill ID
 MAP_IDS_BY_SKILL: dict[int, set[int]] = {
-    SkillEnum.SCIER: {217063430, 192940034},  # bucheron
-    SkillEnum.PREPARER_POTION: {217057284, 192937988},  # alchimiste
-    SkillEnum.POLIR_PIERRE: {217061380, 192939010},  # mineur
-    SkillEnum.FONDRE: {217060356, 192939010},  # mineur
-    SkillEnum.MOUDRE: {217061382, 192939008},  # paysan
-    SkillEnum.CUIRE: {217061382, 192939008},  # paysan
-    SkillEnum.PREPARER_POISSON: {217062406, 192937984},  # pecheur
-    SkillEnum.PREPARER_VIANDE: {192937994},  # chasseur
+    SkillEnum.SCIER: {217063430, 192940034},
+    SkillEnum.PREPARER_POTION: {217057284, 192937988},
+    SkillEnum.POLIR_PIERRE: {217061380, 192939010},
+    SkillEnum.FONDRE: {217060356, 192939010},
+    SkillEnum.MOUDRE: {217061382, 192939008},
+    SkillEnum.CUIRE: {217061382, 192939008},
+    SkillEnum.PREPARER_POISSON: {217062406, 192937984},
+    SkillEnum.PREPARER_VIANDE: {192937994},
 }

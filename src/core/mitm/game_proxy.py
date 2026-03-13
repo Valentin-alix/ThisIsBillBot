@@ -1,15 +1,15 @@
 from dataclasses import dataclass
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.proxy.dofus3.proxy import (
+from google.protobuf.message import Message
+from PyQt6.QtCore import QMetaObject, Qt
+
+from ankama_launcher_emulator.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
 )
 from DBDofusUnity.datas.protos.non_obf.game.game_message_pb2 import Request
-from google.protobuf.message import Message
-from PyQt6.QtCore import QMetaObject, Qt
-
-from src import consts
 from src.consts import MESSAGES_WITH_UID
+from src.core import config
 from src.core.bot.bot import Bot
 from src.protocol.protocol import decode_varint_size, encode_msg
 from src.protocol.protocol_game import (
@@ -44,7 +44,7 @@ class GameProxy(Proxy):
 
     def alter_msg_datas(self, msg_content_datas: bytes, msg_datas: bytes) -> bytes | None:
         expected_uid = self.uid + 1
-        root_msg_namespace, clear_sub_msg, _, uid = get_game_msg(msg_content_datas, consts.DEBUG)
+        root_msg_namespace, clear_sub_msg, _, uid = get_game_msg(msg_content_datas, config.DEBUG)
         if clear_sub_msg is None:
             return msg_datas
 
@@ -65,7 +65,7 @@ class GameProxy(Proxy):
         msg_content_datas = msg_datas[pos : pos + size]
 
         _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(
-            msg_content_datas, consts.DEBUG and not was_send_from_proxy
+            msg_content_datas, config.DEBUG and not was_send_from_proxy
         )
         if uid is not None and uid != -1:
             self.uid = uid
@@ -78,9 +78,11 @@ class GameProxy(Proxy):
         else:
             source = "client_forwarded"
 
-        self.bot.debug_recorder.record_game_message(clear_sub_msg, obf_sub_msg, uid, from_server, source)
+        recorder = self.bot.debug_recorder
+        if recorder is not None:
+            recorder.record_game_message(clear_sub_msg, obf_sub_msg, uid, from_server, source)
 
-        if consts.DEBUG and self.bot.msg_info_signals.capture_enabled:
+        if config.DEBUG and self.bot.msg_info_signals.capture_enabled:
             msg_infos = get_game_msg_info(
                 clear_sub_msg,
                 obf_sub_msg,

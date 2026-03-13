@@ -1,8 +1,3 @@
-"""Quete 1199 -- "Scene de menage", objectifs dans `quest_step_by_id[1816]`.
-
-`repeatType=0` : non repetable, `QuestBehavior` la saute une fois validee.
-"""
-
 from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
 from DBDofusUnity.dofus_unity_reader.game_constants.quest import (
     QuestEnum,

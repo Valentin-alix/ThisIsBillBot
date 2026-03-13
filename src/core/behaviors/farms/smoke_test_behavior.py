@@ -50,9 +50,6 @@ class SmokeTestErrorCode(StrEnum):
 
 @dataclass
 class SmokeTestBehavior(RecoverableBehavior):
-    """Enchaine combat/recolte/craft/banque/HDV/quete/equipement pour generer vite du
-    trafic protocole varie (Sniffer). Sequence bloquante : 1ere erreur = arret."""
-
     auto_equipment_behavior: AutoEquipmentBehavior
     fighter_behavior: FighterBehavior
     harvester_behavior: HarvesterBehavior

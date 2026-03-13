@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
-from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import BodyLabel, CaptionLabel
 
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from src import consts
 from src.controller.player_info_storage import PlayerInfoSnapshot
 from src.core.bot.bot import Bot
@@ -29,11 +29,12 @@ class AccountQuickInfoWidget(QWidget):
         layout.setSpacing(12)
         self.setLayout(layout)
 
-        self.subscription_end_label = self._add_info_column(layout, "Fin d'abonnement")
-        self.kamas_label = self._add_info_column(layout, "Kamas")
-        self.level_label = self._add_info_column(layout, "Niveau")
-        self.sub_area_label = self._add_info_column(layout, "Sous-zone actuelle")
-        self.automation_label = self._add_info_column(layout, "Automatisation")
+        self.subscription_end_column, self.subscription_end_label = self._add_info_column(
+            layout, "Fin d'abonnement"
+        )
+        _, self.kamas_label = self._add_info_column(layout, "Kamas")
+        _, self.level_label = self._add_info_column(layout, "Niveau")
+        _, self.sub_area_label = self._add_info_column(layout, "Sous-zone actuelle")
 
         self.bot.game_info_signals.subscription_end_date.connect(self._set_subscription_end_date)
         self.bot.inventory_signals.kamas.connect(self._set_kamas)
@@ -42,14 +43,13 @@ class AccountQuickInfoWidget(QWidget):
         self.bot.game_info_signals.is_ready_to_play.connect(self._sync_from_state)
 
         self._set_subscription_end_date(self.bot.game_state.player.subscription_end_date)
-        self._set_automation_status(quarantine_reason)
         if self.bot.is_ready_to_play_event.is_set():
             self._sync_game_values_from_state()
         else:
             self._sync_game_values_from_snapshot(snapshot)
 
     @staticmethod
-    def _add_info_column(layout: QHBoxLayout, title: str) -> BodyLabel:
+    def _add_info_column(layout: QHBoxLayout, title: str) -> tuple[QWidget, BodyLabel]:
         column_widget = QWidget()
         column_layout = QVBoxLayout()
         column_layout.setContentsMargins(0, 2, 0, 2)
@@ -67,7 +67,7 @@ class AccountQuickInfoWidget(QWidget):
         column_layout.addWidget(value_label)
 
         layout.addWidget(column_widget, 1)
-        return value_label
+        return column_widget, value_label
 
     def _sync_from_state(self) -> None:
         self._set_subscription_end_date(self.bot.game_state.player.subscription_end_date)
@@ -89,8 +89,11 @@ class AccountQuickInfoWidget(QWidget):
             self.sub_area_label.setText(sub_area_name or _UNKNOWN_VALUE)
 
     def _set_subscription_end_date(self, subscription_end_date: datetime) -> None:
-        if subscription_end_date == consts.MIN_DATE:
-            self.subscription_end_label.setText(_UNKNOWN_VALUE)
+        is_subscribed = subscription_end_date != consts.MIN_DATE and datetime.now(
+            tz=subscription_end_date.tzinfo
+        ) < subscription_end_date
+        self.subscription_end_column.setVisible(is_subscribed)
+        if not is_subscribed:
             return
         self.subscription_end_label.setText(subscription_end_date.strftime("%d/%m/%Y %H:%M"))
 
@@ -107,14 +110,6 @@ class AccountQuickInfoWidget(QWidget):
         map_position = DataReader().map_info_by_map_id[map_id]
         sub_area = DataReader().sub_area_by_id[map_position.subAreaId]
         self.sub_area_label.setText(I18N().name_by_id[sub_area.nameId])
-
-    def _set_automation_status(self, quarantine_reason: str | None) -> None:
-        if quarantine_reason is not None:
-            self.automation_label.setText(f"Quarantaine : {quarantine_reason}")
-        elif self.bot.from_manual_play.is_set():
-            self.automation_label.setText("Manuel")
-        else:
-            self.automation_label.setText("Planning/Auto")
 
     @staticmethod
     def resolve_snapshot_sub_area_names(

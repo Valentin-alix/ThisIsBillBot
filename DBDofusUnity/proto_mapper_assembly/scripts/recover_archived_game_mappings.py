@@ -19,7 +19,6 @@ names also contains every obfuscated field it binds. A wrong build fails that jo
 Nothing is written without ``--write``.
 """
 
-from __future__ import annotations
 
 import argparse
 import subprocess
@@ -69,8 +68,7 @@ def main() -> None:
 
     obf_messages_by_cls = {message.composed_name: message for message in parse_messages(str(dump_cs_path))}
     obf_alias_to_cls = build_obf_alias_lookup(obf_messages_by_cls=obf_messages_by_cls)
-    # ``field_mapping`` is keyed by the obfuscated *property* name, the ``fnaw`` of
-    # ``public jyw fnaw { get; set; }``, so the backing field name would never match.
+    # field_mapping uses obfuscated property names, not backing field names.
     obf_field_names_by_cls = {
         message_cls: frozenset(
             field.property_name for field in message.fields if field.property_name is not None
@@ -109,7 +107,6 @@ def main() -> None:
             f"| {candidate.subject} |"
         )
 
-    # Newest inside the window: the state the build was left in when it was replaced.
     best = candidates[0]
     if best.field_ratio < _CONFIDENT_FIELD_RATIO:
         print(
@@ -149,7 +146,6 @@ def _build_argument_parser() -> argparse.ArgumentParser:
 
 
 def resolve_build_window(*, obf_dir: Path, snapshots_root: Path) -> tuple[str, str | None]:
-    """Return the git date bounds during which this build was the one installed."""
     build_times = sorted(
         game_assembly_mtime_ns(version_dir)
         for version_dir in iter_archived_build_dirs(snapshots_root=snapshots_root)

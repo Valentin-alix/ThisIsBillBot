@@ -2,18 +2,18 @@ import logging
 from threading import RLock
 from typing import ClassVar, Literal
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+from ankama_launcher_emulator.controller.bot_storage import (
     BotStorageController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.proxy import ProxyController
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
+from ankama_launcher_emulator.controller.proxy import ProxyController
+from ankama_launcher_emulator.controller.schedule_profile import (
     ScheduleProfileController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.local_storage import BotRecord
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.schedule_profile import (
+from ankama_launcher_emulator.interfaces.local_storage import BotRecord
+from ankama_launcher_emulator.interfaces.schedule_profile import (
     ProxyConfig,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.proxy import (
+from ankama_launcher_emulator.utils.proxy import (
     build_http_proxy_url,
     build_socks_proxy_url,
 )

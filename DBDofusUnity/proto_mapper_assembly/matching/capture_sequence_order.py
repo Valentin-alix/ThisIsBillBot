@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from bisect import bisect_left, bisect_right
 from collections import defaultdict
 from collections.abc import Mapping
@@ -38,7 +36,6 @@ def apply_capture_sequence_order_scores(
     capture_order_index: CaptureOrderIndex,
     capture_sequence_hints_config: CaptureSequenceHintsConfig,
 ) -> None:
-    """Reshape the scores with what the captures say about the order messages are emitted in."""
     context = OrderContext(
         workspace=workspace,
         scores_matrix=scores_matrix,
@@ -57,7 +54,6 @@ def apply_capture_sequence_order_scores(
             context=context, messages=messages, matching_store=matching_store
         )
         for message in messages:
-            # A window holding exactly one class identifies it, as long as neither side is pinned.
             window_candidate_indexes = window_candidates_by_position.get(message.position, ())
             if (
                 len(window_candidate_indexes) == 1
@@ -86,7 +82,6 @@ def _sequence_supports_by_cell(
     matching_store: IterativeMatchingStore,
     window_candidates_by_position: Mapping[int, tuple[int, ...]],
 ) -> dict[Cell, float]:
-    """How strongly one hint sequence backs each pair, weighing states by distance to the best one."""
     message_candidates = tuple(
         (message, candidate_indexes)
         for message in messages
@@ -126,7 +121,6 @@ def _build_sequence_beam(
     context: OrderContext,
     message_candidates: tuple[tuple[SequenceMessage, tuple[int, ...]], ...],
 ) -> tuple[BeamState, ...]:
-    """Best complete readings of one sequence, scored on cell strength times order consistency."""
     beam = (
         BeamState(
             assignments=(),
@@ -187,7 +181,6 @@ def _get_candidate_indexes(
     matching_store: IterativeMatchingStore,
     window_candidate_indexes: tuple[int, ...],
 ) -> tuple[int, ...]:
-    """The classes worth trying for one hinted message: best scoring, then observed, then in-window."""
     confirmed_obf_cls = matching_store.confirmed_obf_by_non_obf.get(message.message_cls)
     if confirmed_obf_cls is not None:
         return (context.workspace.signature_indexes.obf_index_by_cls[confirmed_obf_cls],)
@@ -219,11 +212,7 @@ def _build_window_candidates_by_position(
     messages: tuple[SequenceMessage, ...],
     matching_store: IterativeMatchingStore,
 ) -> dict[int, tuple[int, ...]]:
-    """Observed classes captured between each open position's settled neighbours, whatever they score.
-
-    A class moved out of its package never survives a score shortlist, but where it sits in the
-    capture stream does not care where it was declared - hence this third lane.
-    """
+    """Include captured window candidates even when package drift excludes them from score shortlists."""
     obf_index_by_cls = context.workspace.signature_indexes.obf_index_by_cls
     anchor_obf_index_by_position = {
         message.position: obf_index_by_cls[confirmed_obf_cls]
@@ -233,7 +222,6 @@ def _build_window_candidates_by_position(
     }
     candidates_by_position: dict[int, tuple[int, ...]] = {}
     for message in messages:
-        # A settled message keeps its confirmed class, so its own window would be read by nobody.
         if message.position in anchor_obf_index_by_position:
             continue
         bounds_by_session = _window_bounds_by_session(
@@ -261,7 +249,7 @@ def _build_window_candidates_by_position(
 
 
 def _has_sequence_strictly_between(capture_sequences: tuple[int, ...], *, lower: int, upper: int) -> bool:
-    """Whether any capture sits strictly inside the window. ``capture_sequences`` must be sorted."""
+    """Capture sequences must be sorted."""
     return bisect_right(capture_sequences, lower) < bisect_left(capture_sequences, upper)
 
 
@@ -271,10 +259,7 @@ def _window_bounds_by_session(
     position: int,
     anchor_obf_index_by_position: Mapping[int, int],
 ) -> dict[str, tuple[int, int]]:
-    """Narrowest capture interval the nearest settled neighbours leave open, per session.
-
-    Anchors repeat, so each bound is the occurrence closest to the other anchor, not the extreme one.
-    """
+    """Use the closest anchor occurrences because anchors can repeat within a session."""
     before_position = max(
         (anchor for anchor in anchor_obf_index_by_position if anchor < position), default=None
     )
@@ -300,7 +285,6 @@ def _window_bounds_by_session(
 
 
 def _apply_support_to_scores(*, context: OrderContext, supports_by_cell: Mapping[Cell, list[float]]) -> None:
-    """Reward the supported cells, and push the rows that failed to back a supported class down."""
     supports_by_candidate: defaultdict[int, dict[int, float]] = defaultdict(dict)
     for (non_obf_index, candidate_index), supports in supports_by_cell.items():
         supports_by_candidate[candidate_index][non_obf_index] = sum(supports) / len(supports)
@@ -323,11 +307,7 @@ def _apply_support_to_scores(*, context: OrderContext, supports_by_cell: Mapping
 def _apply_sole_window_candidates(
     *, context: OrderContext, non_obf_indexes_by_window_obf_index: Mapping[int, set[int]]
 ) -> None:
-    """Give each sole window candidate its column and its row, the way a pin would.
-
-    Boosting the cell is not enough: a class moved out of its package loses more on assembly and
-    group similarity than any multiplier here can recover. Contested claims are dropped.
-    """
+    """Reserve sole candidates' rows and columns; a score boost cannot overcome package drift."""
     for obf_index, non_obf_indexes in non_obf_indexes_by_window_obf_index.items():
         if len(non_obf_indexes) != 1:
             continue

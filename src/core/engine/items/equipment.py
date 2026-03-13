@@ -16,16 +16,13 @@ from src.core.engine.items import set_infos
 from src.core.engine.items.item import get_equipment_on_position
 
 _BASE_ROLL_WEIGHT: dict[int, float] = {
-    # Action economy — dominant value
     CharacteristicEnum.ACTION_POINTS: 100.0,
     CharacteristicEnum.MOVEMENT_POINTS: 70.0,
     CharacteristicEnum.RANGE: 40.0,
-    # Primary offense
     CharacteristicEnum.POWER: 3,
     CharacteristicEnum.ALL_DAMAGES_BONUS: 9,
     CharacteristicEnum.DAMAGES_FACTOR: 6,
     CharacteristicEnum.DAMAGES_PERCENT_SPELL: 6,
-    # Secondary stats
     CharacteristicEnum.WISDOM: 1.5,
     CharacteristicEnum.VITALITY: 1.0,
 }

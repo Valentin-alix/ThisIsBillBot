@@ -251,7 +251,6 @@ class TestFarmRecovery:
         request_disconnect.assert_called_once_with()
 
     def test_landing_on_an_unexpected_map_forbids_the_transition(self, runtime_bot: Bot) -> None:
-        """An outdated world graph would otherwise send the bot back and forth forever."""
         edge_behavior = runtime_bot.fighter_behavior.random_farm_behavior.edge_behavior
         edge = MagicMock()
         transition = MagicMock()
@@ -290,7 +289,6 @@ class TestFarmRecovery:
         request_disconnect.assert_called_once_with()
 
     def test_an_exit_out_of_reach_is_only_banned_for_the_current_map_stay(self, runtime_bot: Bot) -> None:
-        """Map 193331717 is split in two zones: its other zone exits are reachable once we enter it."""
         edge_behavior = runtime_bot.fighter_behavior.random_farm_behavior.edge_behavior
         edge = MagicMock()
         transition = MagicMock()
@@ -311,7 +309,6 @@ class TestFarmRecovery:
     def test_farm_route_bouncing_between_two_maps_reroutes_instead_of_looping_forever(
         self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """A farm-zone pocket reachable only through a single edge must not trap the bot forever."""
         random_farm_behavior = runtime_bot.fighter_behavior.random_farm_behavior
         map_a, map_b = 193331717, 193332229
         random_farm_behavior.map_ids = {map_a, map_b, 999}

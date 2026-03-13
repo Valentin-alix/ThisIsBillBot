@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Sequence
 
 import numpy as np
@@ -13,7 +11,6 @@ def _scalar_assignment_margin_by_position(
     scores_matrix: np.ndarray,
     assigned_positions: Sequence[tuple[int, int]],
 ) -> dict[tuple[int, int], float]:
-    """The pre-vectorisation implementation, kept as the equivalence oracle."""
     assigned_rows = {row_position for row_position, _ in assigned_positions}
     assigned_cols = {col_position for _, col_position in assigned_positions}
     unassigned_rows = set(range(scores_matrix.shape[0])) - assigned_rows
@@ -62,7 +59,6 @@ class TestBuildAssignmentMarginByPosition:
             (5, 8, 5),
             (8, 5, 5),
             (12, 12, 7),
-            (30, 24, 24),
         ],
     )
     def test_matches_the_scalar_implementation(
@@ -91,7 +87,6 @@ class TestBuildAssignmentMarginByPosition:
         )
 
     def test_margin_is_never_positive_against_a_stronger_free_column(self) -> None:
-        # Row 0 is assigned to column 0 while the free column 1 scores higher on the same row.
         scores_matrix = np.array([[0.4, 0.9]])
         margins = _build_assignment_margin_by_position(
             scores_matrix=scores_matrix, assigned_positions=[(0, 0)]

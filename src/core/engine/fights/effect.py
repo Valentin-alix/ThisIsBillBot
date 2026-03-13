@@ -22,10 +22,6 @@ BEST_ELEMENT = 5
 
 
 def _has_description(effect: Effect, description_ids: frozenset[int]) -> bool:
-    """Whether the effect's definition descriptionId is in ``description_ids``.
-
-    descriptionId is a stable, numeric, language-agnostic effect-role signal.
-    """
     return DataReader().effect_by_id[effect.effectId].descriptionId in description_ids
 
 
@@ -48,11 +44,7 @@ HEAL_DESCRIPTION_IDS: frozenset[int] = frozenset(
 
 
 def is_heal_effect(effect: Effect) -> bool:
-    """Whether an effect directly restores life points.
-
-    ``category`` alone is not a reliable discriminator: heals span categories 0
-    and 2, and category 2 also contains damage-conditional heals we exclude.
-    """
+    """Heal categories overlap with conditional damage effects, so category alone is insufficient."""
     return _has_description(effect, HEAL_DESCRIPTION_IDS)
 
 
@@ -105,10 +97,6 @@ def is_vitality_buff_effect(effect: Effect) -> bool:
 
 
 def resolve_effect_element(effect_element: int, primary_elem: EffectElement) -> int | None:
-    """Resolve ``effectElement`` to a concrete element id, or None if non-damage.
-
-    The "best element" sentinel (5) is mapped to the caster's primary element.
-    """
     if effect_element == BEST_ELEMENT:
         return primary_elem
     if effect_element in EffectElement:

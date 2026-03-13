@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Protocol
 
 import numpy as np
@@ -17,10 +15,7 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.runtime_data import Normalize
 
 
 class _LpProblemProto(LpConstrainable, Protocol):
-    """Typed protocol covering the pulp.LpProblem surface used in this module."""
-
     objective: pulp.LpAffineExpression | None
-
     def solve(self, _solver: object = None, /) -> int: ...
 
     @property
@@ -37,13 +32,7 @@ def solve_field_mapping_ilp(
     similarity_matrix: np.ndarray,
     runtime_instances: tuple[NormalizedRuntimeInstance, ...],
 ) -> tuple[np.ndarray, np.ndarray] | None:
-    """
-    Solve the field assignment as an ILP with validator hard constraints.
-
-    Returns (non_obf_indexes, obf_indexes) arrays compatible with the
-    linear_sum_assignment return convention, or None when the solver cannot
-    find an optimal solution.
-    """
+    """Return assignment index arrays, or None if no optimal ILP solution is found."""
     non_obf_fields = context.non_obf.fields
     obf_fields = context.obf.fields
 

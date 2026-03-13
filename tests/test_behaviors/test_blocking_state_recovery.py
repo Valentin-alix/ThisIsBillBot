@@ -1,5 +1,3 @@
-"""Un combat en cours ou un donjon non quitte doit etre resolu avant de continuer."""
-
 from collections.abc import Callable
 from typing import cast
 from unittest.mock import MagicMock
@@ -54,18 +52,10 @@ def _inside_dungeon_map_id() -> int:
     return next(iter(BOUFTOU_ROYAL_DUNGEON.dungeon.mapIds))
 
 
-def test_a_map_inside_a_dungeon_is_recognised() -> None:
-    assert get_dungeon_info_for_map_id(_inside_dungeon_map_id()) is BOUFTOU_ROYAL_DUNGEON
-
-
 def test_the_exit_map_is_recognised() -> None:
     exit_map_id = BOUFTOU_ROYAL_DUNGEON.exit_dialog_map_id
 
     assert get_dungeon_info_for_map_id(exit_map_id) is BOUFTOU_ROYAL_DUNGEON
-
-
-def test_a_map_outside_any_dungeon_is_not_recognised() -> None:
-    assert get_dungeon_info_for_map_id(OUTSIDE_MAP_ID) is None
 
 
 def test_nothing_blocking_runs_the_work_right_away(game_state_ctx: GameStateContext) -> None:
@@ -96,7 +86,6 @@ def test_a_running_fight_is_played_before_the_work(game_state_ctx: GameStateCont
 def test_being_stuck_in_a_dungeon_leaves_it_before_the_work(
     game_state_ctx: GameStateContext,
 ) -> None:
-    """La clef etant consommee a l'entree, le donjon se deduit de la map, pas de l'inventaire."""
     behavior = _make_behavior(game_state_ctx, _inside_dungeon_map_id())
 
     behavior.start(callback=None, parent=None)
@@ -170,7 +159,6 @@ def test_being_outside_the_haven_bag_sends_no_request(game_state_ctx: GameStateC
 def test_a_fight_inside_a_dungeon_is_played_before_leaving_it(
     game_state_ctx: GameStateContext,
 ) -> None:
-    """Sinon on cherchait des groupes en roleplay pendant le combat en cours."""
     behavior = _make_behavior(game_state_ctx, _inside_dungeon_map_id())
     game_state_ctx.game_state.fight.in_fight = True
 

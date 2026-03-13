@@ -64,17 +64,6 @@ class Behavior(ContextualLogger):
     _run_kwargs: dict[str, object] = field(init=False, default_factory=dict[str, object])
 
     def _transition(self, from_states: set[BehaviorState], to_state: BehaviorState, reason: str = "") -> None:
-        """
-        Atomic state transition with validation.
-
-        Args:
-            from_states: Valid source states for this transition
-            to_state: Target state
-            reason: Optional debug message
-
-        Raises:
-            BehaviorStateError: If current state not in from_states
-        """
         with self._state_lock:
             if self._state not in from_states:
                 error = (
@@ -197,10 +186,6 @@ class Behavior(ContextualLogger):
         self._transition({BehaviorState.STOPPING}, BehaviorState.STOPPED, reason="cleanup complete")
 
     def force_reset(self) -> None:
-        """
-        Force reset behavior to STOPPED state without validation.
-        Used for recovery when process was killed during execution.
-        """
         with self._state_lock:
             self._state = BehaviorState.STOPPED
 
@@ -313,18 +298,7 @@ class Behavior(ContextualLogger):
         self.event_manager.send(DialogLeaveRequest())
 
     def unregister_listener(self, event_type: type[Message], reason: str = "") -> None:
-        """
-        Nettoie un listener spécifique en cours d'exécution.
-
-        Note: Utilisez cette méthode uniquement si vous devez nettoyer
-        un listener pendant que le behavior continue à s'exécuter.
-        Si le behavior va terminer juste après, laissez clear_behavior()
-        gérer le nettoyage automatiquement.
-
-        Args:
-            event_type: Type d'événement à dé-enregistrer
-            reason: Raison du nettoyage manuel (pour debug/doc)
-        """
+        """Retirer un listener pendant l'execution ; la fin du comportement les nettoie deja tous."""
         if reason:
             self.logger.debug(f"Manual listener cleanup: {event_type.__name__} - {reason}")
         self.event_manager.clear_listener_by_origin_and_type(event_type, self)
@@ -338,8 +312,6 @@ class Behavior(ContextualLogger):
             raise UnhandledErrorCodeException(error_code)
 
     def behavior_tree_snapshot(self) -> list[str]:
-        """Indented snapshot of the running behavior tree, rooted at the
-        top-most parent, with ``<-`` marking the current behavior."""
         root = self
         while root.parent is not None:
             root = root.parent

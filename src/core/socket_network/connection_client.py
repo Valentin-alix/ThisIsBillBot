@@ -2,11 +2,11 @@ import threading
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import LoginMessage
 from google.protobuf.message import Message
 
-from src import consts
+from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import LoginMessage
 from src.consts import DOFUS_CONNECTION_URL
+from src.core import config
 from src.core.behaviors.behavior import BehaviorState
 from src.core.behaviors.socket.connection_behavior import (
     ConnectionBehavior,
@@ -44,11 +44,11 @@ class ConnectionClient(BaseClient):
             assert isinstance(msg, LoginMessage), "ConnectionClient only sends LoginMessage envelopes"
             _, clear_sub_msg = get_conn_msg(msg.SerializeToString())
             self.client_socket.sendall(encode_msg(msg))
-            self.bot.debug_recorder.record_conn_message(
-                clear_sub_msg, False, "framework_injected"
-            )
+            recorder = self.bot.debug_recorder
+            if recorder is not None:
+                recorder.record_conn_message(clear_sub_msg, False, "framework_injected")
             self.bot.event_manager.process_msg(clear_sub_msg)
-            if consts.DEBUG and self.bot.msg_info_signals.capture_enabled:
+            if config.DEBUG and self.bot.msg_info_signals.capture_enabled:
                 msg_info = get_conn_msg_info(clear_sub_msg, False)
                 self.bot.msg_info_signals.msg_info.emit(msg_info, True)
         except OSError as err:
@@ -58,8 +58,10 @@ class ConnectionClient(BaseClient):
     def on_received_msg_datas(self, msg_datas: bytes) -> None:
         size, pos = decode_varint_size(msg_datas)
         msg = get_conn_msg(msg_datas[pos : pos + size])[1]
-        self.bot.debug_recorder.record_conn_message(msg, True, "server")
-        if consts.DEBUG and self.bot.msg_info_signals.capture_enabled:
+        recorder = self.bot.debug_recorder
+        if recorder is not None:
+            recorder.record_conn_message(msg, True, "server")
+        if config.DEBUG and self.bot.msg_info_signals.capture_enabled:
             msg_info = get_conn_msg_info(msg, True)
             self.bot.msg_info_signals.msg_info.emit(msg_info, False)
         self.bot.event_manager.process_msg(msg)

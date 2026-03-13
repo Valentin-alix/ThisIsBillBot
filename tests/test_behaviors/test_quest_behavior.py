@@ -67,7 +67,6 @@ def test_a_one_shot_quest_never_done_still_runs(game_state_ctx: GameStateContext
 
 
 def test_a_daily_quest_runs_again_once_done(game_state_ctx: GameStateContext) -> None:
-    """The server resets a daily on its own, so a past completion says nothing about today."""
     behavior = _make_behavior(game_state_ctx)
     game_state_ctx.game_state.quest.finished_count_by_quest_id[QUEST_ID] = 12
     script = _make_script(QuestCooldown.DAILY)
@@ -121,7 +120,6 @@ def test_a_quest_whose_prerequisite_is_done_runs(game_state_ctx: GameStateContex
 def test_a_script_unlocks_the_next_one_within_the_same_run(
     game_state_ctx: GameStateContext,
 ) -> None:
-    """Eligibility is re-checked per script, so finishing a prerequisite unlocks its dependent."""
     behavior = _make_behavior(game_state_ctx)
     prerequisite = _make_script(QuestCooldown.NONE, quest_id=QUEST_ID)
     dependent = _make_script(QuestCooldown.DAILY, quest_id=DEPENDENT_QUEST_ID)

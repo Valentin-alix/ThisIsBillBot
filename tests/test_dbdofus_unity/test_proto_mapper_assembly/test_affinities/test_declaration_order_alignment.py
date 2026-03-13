@@ -19,11 +19,9 @@ _TIED_SCORES = np.array(
         [0.1, 0.1, 0.1],
     ]
 )
-"""Every wrapped message scores the same against every candidate: only the slot can separate them."""
 
 
 def _access_trace(message_by_alias: dict[str, str]) -> AccessTraceDocument:
-    """Build a trace where each alias is a wrapper method touching exactly one message."""
     functions_by_address: dict[str, Any] = {}
     for index, (alias_name, message_cls) in enumerate(message_by_alias.items()):
         address = 0x1000 + index * 0x10
@@ -97,8 +95,6 @@ class TestDeclarationOrderAlignment:
         assert affinity_matrix[2, 2] == 1.0
 
     def test_the_obfuscated_naming_order_drives_the_pairing_not_the_matrix_order(self) -> None:
-        # obf_a3 is declared first in the wrapper: it must take the first non-obfuscated slot even
-        # though it sits last in the score matrix.
         affinity_matrix, _ = _build_affinity(
             {
                 "wrp::Boolean zsa(y)": "obf_a3",
@@ -113,8 +109,6 @@ class TestDeclarationOrderAlignment:
         assert affinity_matrix[2, 1] == 1.0
 
     def test_landing_on_the_wrong_slot_only_costs_a_little(self) -> None:
-        # Two wrappers swapping places between builds happens, so an unaligned pair inside a matched
-        # segment must stay clearly above a pair the segment says nothing about.
         affinity_matrix, _ = _build_affinity(
             {
                 "wrp::Boolean zsa(y)": "obf_a1",
@@ -139,8 +133,6 @@ class TestDeclarationOrderAlignment:
         assert not applicable_mask[3].any()
 
     def test_readable_class_names_carry_no_order_and_are_ignored(self) -> None:
-        # Only the generated wrappers get sequential lowercase names; a class that kept its real name
-        # has method names in arbitrary order and must not be read as a declaration segment.
         affinity_matrix, applicable_mask = _build_affinity(
             {
                 "Core.Handler::Boolean HandleAlpha(y)": "obf_a1",
@@ -162,8 +154,6 @@ class TestDeclarationOrderAlignment:
         assert not applicable_mask.any()
 
     def test_a_jump_in_the_naming_sequence_splits_the_segment(self) -> None:
-        # ``zzz`` is nowhere near ``zsa``/``zsb``: it belongs to another part of the class, so the segment
-        # stops before it and drops below the minimum length.
         _, applicable_mask = _build_affinity(
             {
                 "wrp::Boolean zsa(y)": "obf_a1",

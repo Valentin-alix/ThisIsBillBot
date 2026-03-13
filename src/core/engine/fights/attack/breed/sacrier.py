@@ -32,7 +32,6 @@ def _resolve_invocation_spell_lvl(
 
 
 def get_reserved_ap(context: AttackContext, damage_calculator: DamageCalculator) -> int:
-    """AP the attack search should hold back so the invocation still has its AP."""
     spell_lvl = _resolve_invocation_spell_lvl(context, damage_calculator)
     if spell_lvl is None:
         return 0

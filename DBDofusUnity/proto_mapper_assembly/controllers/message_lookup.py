@@ -57,13 +57,7 @@ def build_obf_alias_lookup(
     *,
     obf_messages_by_cls: Mapping[str, DumpCSMessage],
 ) -> dict[str, frozenset[str]]:
-    """
-    Map "filtered" obf namespaces (as exported in ``obf_msg_namespace``) to composed_name.
-
-    Static-only container classes (e.g. ``iyv`` inside ``iyw.iyv.iyu``) are
-    stripped so pinned pairs can reference messages with their short form,
-    matching the style used in ``game_mappings.json``.
-    """
+    """Index exported namespaces without static containers so short-form pins resolve."""
     alias_to_cls: dict[str, set[str]] = defaultdict(set)
     for message_cls, message in obf_messages_by_cls.items():
         alias = build_filtered_message_namespace(

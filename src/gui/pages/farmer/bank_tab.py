@@ -6,7 +6,7 @@ from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from PyQt6.QtCore import QSize, QTimer, pyqtSlot
 from PyQt6.QtGui import QShowEvent
 from PyQt6.QtWidgets import QListView, QListWidgetItem, QVBoxLayout, QWidget
-from qfluentwidgets import ListWidget, SmoothMode
+from qfluentwidgets import CaptionLabel, ListWidget, SmoothMode
 
 from src.core.bot.bot import Bot
 from src.gui.consts import CARD_WIDTH
@@ -37,9 +37,12 @@ class BankTab(QWidget):
         self.list_widget.setGridSize(QSize(CARD_WIDTH, CARD_HEIGHT))
 
         self.list_widget.setStyleSheet("QListWidget { background-color: transparent; border: none; }")
+        self.loading_label = CaptionLabel(text="Chargement de la banque…", parent=self)
+        self.loading_label.hide()
 
         layout = QVBoxLayout()
         self.setLayout(layout)
+        layout.addWidget(self.loading_label)
         layout.addWidget(self.list_widget)
 
     @pyqtSlot(list)
@@ -64,6 +67,7 @@ class BankTab(QWidget):
     def _schedule_rebuild(self) -> None:
         self._render_dirty = True
         if self.isVisible() and not self._rebuild_timer.isActive():
+            self.loading_label.show()
             self._rebuild_timer.start()
 
     def _rebuild_sorted_list(self) -> None:
@@ -79,6 +83,7 @@ class BankTab(QWidget):
             self.list_item_by_uid[object_item.item.uid] = list_item
         self.list_widget.setUpdatesEnabled(True)
         self._render_dirty = False
+        self.loading_label.hide()
 
     def _get_item_text(self, object_item: ObjectItemInventory) -> str:
         item_data = DataReader().item_by_id.get(object_item.item.gid)
@@ -108,6 +113,7 @@ class BankTab(QWidget):
         self._rebuild_timer.stop()
         self.list_widget.clear()
         self.list_item_by_uid.clear()
+        self.loading_label.hide()
 
     def _resync_bank(self) -> None:
         self.items_by_uid.clear()

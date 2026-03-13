@@ -9,8 +9,7 @@ from DBDofusUnity.dofus_unity_reader.game_constants.effect_action import EffectA
 from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
     CharacterInventoryPositionEnum,
 )
-
-from src import consts
+from src.core import config
 from src.core.signals.player_signals import InventorySignals
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State
@@ -62,31 +61,31 @@ class InventoryState(State):
         self.objects_by_uid.clear()
         for obj in objects:
             self.objects_by_uid[obj.item.uid] = obj
-        if consts.DEBUG:
+        if config.DEBUG:
             self.inventory_signals.clear_inventory.emit()
             if objects:
                 self.inventory_signals.added_object_items_batch.emit(objects)
 
     def add_object(self, obj: ObjectItemInventory):
         self.objects_by_uid[obj.item.uid] = obj
-        if consts.DEBUG:
+        if config.DEBUG:
             self.inventory_signals.added_object_item.emit(obj)
 
     def add_objects(self, objects: list[ObjectItemInventory]):
         for obj in objects:
             self.objects_by_uid[obj.item.uid] = obj
-        if objects and consts.DEBUG:
+        if objects and config.DEBUG:
             self.inventory_signals.added_object_items_batch.emit(objects)
 
     def remove_object(self, uid: int):
         if uid in self.objects_by_uid:
             del self.objects_by_uid[uid]
-            if consts.DEBUG:
+            if config.DEBUG:
                 self.inventory_signals.deleted_object_item_uid.emit(uid)
 
     def clear_inventory(self):
         self.objects_by_uid.clear()
-        if consts.DEBUG:
+        if config.DEBUG:
             self.inventory_signals.clear_inventory.emit()
 
     @property
@@ -104,7 +103,7 @@ class InventoryState(State):
     @inventory_weight.setter
     def inventory_weight(self, value: int):
         self._inventory_weight = value
-        if consts.DEBUG:
+        if config.DEBUG:
             self.inventory_signals.inventory_weight.emit(value)
 
     @property
@@ -114,7 +113,7 @@ class InventoryState(State):
     @weight_max.setter
     def weight_max(self, value: int):
         self._weight_max = value
-        if consts.DEBUG:
+        if config.DEBUG:
             self.inventory_signals.weight_max.emit(value)
 
     @property
@@ -124,7 +123,7 @@ class InventoryState(State):
     @kamas.setter
     def kamas(self, value: int):
         self._kamas = value
-        if consts.DEBUG:
+        if config.DEBUG:
             self.inventory_signals.kamas.emit(value)
 
     def get_object_item_by_gid(self, gid: int) -> ObjectItemInventory | None:

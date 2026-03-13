@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import idaapi
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField

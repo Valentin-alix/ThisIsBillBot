@@ -1,15 +1,4 @@
-"""Generic stuck detector.
-
-A per-bot daemon thread that flags when a top-level action behavior keeps
-running while the bot logic stops making progress (no behavior transition for
-``threshold_s``). On a trip it dumps the full context (running behavior tree,
-game state snapshot, registered listeners with their age, last message) into
-the debug recorder so an agent can pinpoint the infinite wait.
-
-"Progress" is defined as a behavior transition or a successfully sent
-non-heartbeat game message (see ``EventManager.mark_activity``): a truly stuck
-bot is waiting for a message that never comes and therefore performs neither.
-"""
+"""Progress means a behavior transition or a successful non-heartbeat game send."""
 
 import threading
 import time

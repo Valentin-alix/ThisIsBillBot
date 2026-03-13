@@ -8,8 +8,8 @@ from typing import Literal
 from PyQt6.QtCore import QObject, pyqtSignal
 from pydantic import BaseModel, ValidationError
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import USER_ACTIVITY_PATH
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.atomic_file import atomic_write_text
+from ankama_launcher_emulator.consts import USER_ACTIVITY_PATH
+from ankama_launcher_emulator.utils.atomic_file import atomic_write_text
 from utils.singleton import Singleton
 
 _MAX_ENTRIES = 500

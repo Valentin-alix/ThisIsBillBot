@@ -31,8 +31,6 @@ from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeData
 
 
 class TestZeroScoreReasons:
-    """Tests that score_field_pair sets zero_score_reason on metadata for each early-exit case."""
-
     def test_zero_score_reason_validation_failure(
         self, runtime_data_store: RuntimeDataStore, tmp_path: Path
     ) -> None:

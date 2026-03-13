@@ -24,7 +24,7 @@ from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellsEvent
 from google.protobuf.message import Message
 from DBDofusUnity.dofus_unity_reader.game_constants.server import ServerEnum
 from requests import HTTPError
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.schedule_profile import (
+from ankama_launcher_emulator.interfaces.schedule_profile import (
     PersistedProxy,
     ScheduleProfile,
 )
@@ -69,10 +69,6 @@ class TestGameClientSendRoutesToProcessMsg:
     def test_outgoing_cast_request_records_cast_tracking(
         self, game_client: GameClient, runtime_bot: Bot
     ) -> None:
-        """En socket, le message sortant doit repasser par process_msg pour que
-        fight_frame.on_game_action_fight_cast_request enregistre le cast (parité
-        MITM). Sans ça, les self-buffs one-shot sont relancés en boucle chaque tour.
-        """
         runtime_bot.game_state.fight.fight_turn = 5
         runtime_bot.debug_recorder = MagicMock()
 

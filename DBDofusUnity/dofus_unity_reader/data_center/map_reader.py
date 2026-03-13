@@ -1,31 +1,37 @@
+import sys
 from dataclasses import dataclass
+from functools import lru_cache
+from pathlib import Path
 from zipfile import ZipFile
 
 import msgspec
-from utils.cache import cache
-from utils.singleton import Singleton
+
+sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 
 from DBDofusUnity.consts import MAPS_ARCHIVE_PATH
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.models.maps import CellData, MapDataRoot, MapReference
+from utils.cache import cache
+from utils.singleton import Singleton
+
+zip_file = ZipFile(MAPS_ARCHIVE_PATH)
+_MAP_CACHE_SIZE = 128
 
 
 @dataclass(frozen=True)
 class MapReader(metaclass=Singleton):
-    @cache
+    @lru_cache(maxsize=_MAP_CACHE_SIZE)
     def map_by_id(self, map_id: int) -> MapDataRoot:
-        with ZipFile(MAPS_ARCHIVE_PATH) as archive:
-            return msgspec.json.decode(archive.read(f"map/map_{map_id}.json"), type=MapDataRoot)
+        return msgspec.json.decode(zip_file.read(f"map/map_{map_id}.json"), type=MapDataRoot)
 
     @staticmethod
     @cache
     def get_all_map_bundle_ids() -> set[int]:
-        with ZipFile(MAPS_ARCHIVE_PATH) as archive:
-            return {
-                int(path.removeprefix("map/map_").removesuffix(".json"))
-                for path in archive.namelist()
-                if path.startswith("map/map_") and path.endswith(".json")
-            }
+        return {
+            int(path.removeprefix("map/map_").removesuffix(".json"))
+            for path in zip_file.namelist()
+            if path.startswith("map/map_") and path.endswith(".json")
+        }
 
     @cache
     def is_map_using_new_movement_system(self, map_id: int) -> bool:
@@ -39,7 +45,7 @@ class MapReader(metaclass=Singleton):
                 return True
         return False
 
-    @cache
+    @lru_cache(maxsize=_MAP_CACHE_SIZE)
     def get_ref_data_by_element_id_by_map_id(self, map_id: int) -> dict[int, MapReference]:
         return {
             ref.m_interactionId: ref
@@ -57,7 +63,7 @@ class MapReader(metaclass=Singleton):
                     ref_data_by_element_id[ref.m_interactionId] = ref
         return ref_data_by_element_id
 
-    @cache
+    @lru_cache(maxsize=_MAP_CACHE_SIZE)
     def get_ref_cell_data_by_cell_id(self, map_id: int) -> dict[int, MapReference]:
         return {ref.cellId: ref for ref in self.map_by_id(map_id).references if ref.cellId is not None}
 

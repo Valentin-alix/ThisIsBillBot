@@ -1,6 +1,4 @@
-﻿from __future__ import annotations
-
-from collections.abc import Sequence
+﻿from collections.abc import Sequence
 
 import numpy as np
 from tests.fixtures.proto_mapper.message_builders import (
@@ -84,10 +82,6 @@ def number_nested_signature(message_cls: str, *, parent_name: str, name: str) ->
             parent_name=parent_name,
         ),
     )
-
-
-def grouped_number_signature(message_cls: str, file_descriptor: str) -> MessageAccessSignature:
-    return number_signature(message_cls).model_copy(update={"file_descriptor": file_descriptor})
 
 
 def root_signature(message_cls: str) -> MessageAccessSignature:
@@ -297,7 +291,6 @@ def select_best_signature_pair(
     roots_only: bool,
     pinned_pairs_config: PinnedPairsConfig,
 ) -> SelectedSignaturePair | None:
-    """Take only the top pair. Production drains the whole batch; tests assert on one."""
     selected_pairs = select_signature_pairs(
         workspace=workspace,
         scores_matrix=scores_matrix,
@@ -329,7 +322,6 @@ def select_grouped_matches_for_test(
     obf_access_trace: AccessTraceDocument = EMPTY_ACCESS_TRACE,
     non_obf_access_trace: AccessTraceDocument = EMPTY_ACCESS_TRACE,
 ) -> tuple[MatchResult, ...]:
-    """Assemble the two bundles from the loose pieces a test naturally has to hand."""
     return select_grouped_matches(
         workspace=workspace,
         prepared_scores=prepared_scores,
@@ -367,7 +359,6 @@ def match_messages_for_test(
     obf_access_trace: AccessTraceDocument = EMPTY_ACCESS_TRACE,
     non_obf_access_trace: AccessTraceDocument = EMPTY_ACCESS_TRACE,
 ) -> tuple[MatchResult, ...]:
-    """Keep tests writing two signature lists; production passes the loaded bundle instead."""
     return match_messages(
         inputs=MatchingInputs(
             obf_messages_by_cls=obf_messages_by_cls,

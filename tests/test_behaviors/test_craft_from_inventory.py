@@ -1,9 +1,3 @@
-"""Crafter depuis l'inventaire saute la banque, et rien d'autre.
-
-Une quete sort du HDV les mains pleines : passer par le coffre pour y charger des ingredients
-qu'on porte deja ferait un aller-retour inutile, et ne chargerait rien.
-"""
-
 from collections.abc import Callable
 from typing import cast
 from unittest.mock import MagicMock, PropertyMock, patch

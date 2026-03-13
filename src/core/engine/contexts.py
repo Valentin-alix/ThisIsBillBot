@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
@@ -77,7 +75,7 @@ class AttackContext:
     player_level: int
     actor_by_id: Mapping[int, ActorPositionInformation]
     enemy_actors: list[ActorPositionInformation]
-    enemies_data: list[EnemyData]
+    enemies_data: "list[EnemyData]"
     spells: list[SpellItem]
     primary_elem: EffectElement
     modifier_by_type_and_spell_id: dict[tuple[int, SpellModifierType], SpellModifier]

@@ -43,7 +43,7 @@ class EnemyData:
 
 
 def get_monster_max_spell_range(monster: MonsterItem, monster_grade: MonsterGrade) -> int:
-    """Max range across all known spell levels (``spellGrades`` isn't parsed) — a safe overestimate."""
+    """Use all known spell levels because spellGrades is unavailable; range is an overestimate."""
     spell_lvl_by_spell_id = DataReader().spell_lvl_by_spell_id
     max_range = max(
         (

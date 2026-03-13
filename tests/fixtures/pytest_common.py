@@ -8,11 +8,14 @@ from unittest.mock import MagicMock
 
 import pytest
 import requests
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import StoredApiKey
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.zaap_files import GameSubscription
+from PyQt6.QtWidgets import QApplication
+
+from ankama_launcher_emulator.interfaces.credentials import StoredApiKey
+from ankama_launcher_emulator.interfaces.zaap_files import (
+    GameSubscription,
+)
 from DBDofusUnity.proto_mapper_assembly.runtime import runtime_store
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-
 from src.consts import MIN_DATE
 from src.core.bot.bot import Bot
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
@@ -28,6 +31,11 @@ from tests.fixtures.storage import make_guild_chest_storage
 
 class _PreparedRequest(Protocol):
     url: str | None
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _qt_application() -> QApplication:
+    return QApplication.instance() or QApplication([])  # type: ignore
 
 
 @pytest.fixture
@@ -48,8 +56,14 @@ def logger(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> MagicMock:
 
 @pytest.fixture(autouse=True)
 def _isolate_resource_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setattr("AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_pool.PAYSAFECARDS_PATH", tmp_path / "paysafecards.txt")
-    monkeypatch.setattr("AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_purchase.PAYSAFECARD_PURCHASE_PATH", tmp_path / "paysafecard_purchase.local.json")
+    monkeypatch.setattr(
+        "ankama_launcher_emulator.controller.paysafecard_pool.PAYSAFECARDS_PATH",
+        tmp_path / "paysafecards.txt",
+    )
+    monkeypatch.setattr(
+        "ankama_launcher_emulator.controller.paysafecard_purchase.PAYSAFECARD_PURCHASE_PATH",
+        tmp_path / "paysafecard_purchase.local.json",
+    )
     monkeypatch.setattr("src.services.user_activity.USER_ACTIVITY_PATH", tmp_path / "user_activity.json")
 
 
@@ -68,7 +82,14 @@ def _block_smailpro_network(monkeypatch: pytest.MonkeyPatch) -> None:
 @pytest.fixture(autouse=True)
 def game_sub_info_mock(monkeypatch: pytest.MonkeyPatch) -> None:
     def fake_get_game_sub_info(login: str) -> GameSubscription:
-        return GameSubscription(isFreeToPlay=True, isFormerSubscriber=False, isSubscribed=False, totalPlayTime=0, endOfSubscribe=MIN_DATE, id=1)
+        return GameSubscription(
+            isFreeToPlay=True,
+            isFormerSubscriber=False,
+            isSubscribed=False,
+            totalPlayTime=0,
+            endOfSubscribe=MIN_DATE,
+            id=1,
+        )
 
     monkeypatch.setattr("src.core.states.player_state.get_game_sub_info_by_login", fake_get_game_sub_info)
 
@@ -112,7 +133,8 @@ def runtime_bot(game_sub_info_mock: None) -> Iterator[Bot]:
     bot = make_runtime_bot("TEST", 1)
     yield bot
     bot.watchdog.stop()
-    bot.debug_recorder.stop()
+    if bot.debug_recorder is not None:
+        bot.debug_recorder.stop()
 
 
 @pytest.fixture

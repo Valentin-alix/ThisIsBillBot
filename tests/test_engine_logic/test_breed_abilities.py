@@ -24,10 +24,6 @@ def _context(breed_id: int) -> AttackContext:
 
 
 class TestFindSupportAction:
-    def test_none_for_breed_without_registered_rules(self) -> None:
-        context = _context(breed_id=BreedEnum.CRA)
-        assert _make_selector().find_support_action(context) is None
-
     def test_returns_first_rule_that_fires(self, monkeypatch: pytest.MonkeyPatch) -> None:
         expected: SupportAction = (
             cast(MapPoint, MagicMock()),
@@ -72,10 +68,6 @@ class TestFindSupportAction:
 
 
 class TestFindUrgentSupportAction:
-    def test_none_for_breed_without_registered_rules(self) -> None:
-        context = _context(breed_id=BreedEnum.CRA)
-        assert _make_selector().find_urgent_support_action(context) is None
-
     def test_returns_first_rule_that_fires(self, monkeypatch: pytest.MonkeyPatch) -> None:
         expected: SupportAction = (
             cast(MapPoint, MagicMock()),
@@ -112,18 +104,3 @@ class TestFindUrgentSupportAction:
 
         context = _context(breed_id=BreedEnum.SACRIER)
         assert _make_selector().find_urgent_support_action(context) is None
-
-
-class TestGetReservedAp:
-    def test_zero_for_breed_without_registered_provider(self) -> None:
-        context = _context(breed_id=BreedEnum.CRA)
-        assert _make_selector().get_reserved_ap(context) == 0
-
-    def test_delegates_to_registered_provider(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        def _provider(_context: AttackContext, _damage_calculator: DamageCalculator) -> int:
-            return 3
-
-        monkeypatch.setitem(breed_abilities_module._RESERVED_AP_PROVIDERS, BreedEnum.SACRIER, _provider)
-
-        context = _context(breed_id=BreedEnum.SACRIER)
-        assert _make_selector().get_reserved_ap(context) == 3

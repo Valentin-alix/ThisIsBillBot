@@ -32,12 +32,6 @@ class TestCaptureSequenceOrder:
     def test_sole_class_captured_between_settled_neighbours_wins_over_a_better_scoring_rival(
         self, tmp_path: Path, runtime_data_store: RuntimeDataStore
     ) -> None:
-        """The displaced-class case: only the capture position can tell `obf_target` apart.
-
-        `obf_rival` looks far better on every static signal, the way a same-shaped sibling sitting in
-        the expected package block does. Only `obf_target` was captured between the two neighbours
-        the hint names, so it takes the pair even though it scores nine times lower.
-        """
         obf_classes = ("obf_before", "obf_target", "obf_after", "obf_rival")
         non_obf_classes = ("Before", "Target", "After", "Other")
         seed_runtime_content(
@@ -82,8 +76,6 @@ class TestCaptureSequenceOrder:
             ),
         )
 
-        # The pair survives alone in both its row and its column, so the assignment has no choice
-        # left to make, whatever the remaining score is worth.
         assert scores_matrix[non_obf_index["Target"], obf_index["obf_target"]] > 0.0
         assert scores_matrix[non_obf_index["Target"], obf_index["obf_rival"]] == 0.0
         assert scores_matrix[non_obf_index["Other"], obf_index["obf_target"]] == 0.0
@@ -91,7 +83,6 @@ class TestCaptureSequenceOrder:
     def test_ambiguous_window_leaves_the_competition_alone(
         self, tmp_path: Path, runtime_data_store: RuntimeDataStore
     ) -> None:
-        """Two captured classes fit the interval, so nothing is claimed and scores stay comparable."""
         obf_classes = ("obf_before", "obf_target", "obf_after", "obf_rival")
         non_obf_classes = ("Before", "Target", "After", "Other")
         seed_runtime_content(

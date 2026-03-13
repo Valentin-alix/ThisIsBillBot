@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 CMOV_MNEMONICS: frozenset[str] = frozenset(
     {
         "cmova",

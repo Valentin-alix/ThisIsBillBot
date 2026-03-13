@@ -11,11 +11,6 @@ def find_usable_element_ids_by_cell_id(
     interactive_element_by_id: dict[int, InteractiveElement],
     skill_id: int | None = None,
 ) -> dict[int, int]:
-    """`cell_id` -> `element_id` des elements utilisables qui ne font pas changer de map.
-
-    Trie par cellule pour que deux passages sur la meme map suivent le meme ordre. Un element
-    deja utilise n'a plus de skill active : il disparait de lui-meme du resultat.
-    """
     exit_cell_ids = WorldGraphReader().get_exit_cell_ids(map_id)
     ref_by_element_id = MapReader().get_ref_data_by_element_id_by_map_id(map_id)
 

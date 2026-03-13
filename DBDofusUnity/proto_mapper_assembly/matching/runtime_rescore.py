@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import defaultdict
 from collections.abc import Mapping
 from typing import NamedTuple
@@ -44,12 +42,7 @@ def build_runtime_rescored_scores(
     scores_matrix: np.ndarray,
     structure_scores_matrix: np.ndarray,
 ) -> RuntimeRescoredScores:
-    """
-    Re-score the candidate pairs that runtime captures can speak to, and leave the rest alone.
-
-    Only the cells reached by ``_build_runtime_candidates_by_non_obf`` are rewritten: a pair no
-    capture covers keeps the static score it came in with, since silence is not evidence against it.
-    """
+    """Rescore only capture-backed candidates; absent runtime evidence is neutral."""
     rescored_matrix = np.array(scores_matrix, copy=True)
     runtime_confidence_by_pair: dict[MatchPairKey, float | None] = {}
     candidates_by_non_obf = _build_runtime_candidates_by_non_obf(
@@ -99,14 +92,6 @@ def _build_runtime_candidates_by_non_obf(
     scores_matrix: np.ndarray,
     score_by_pair_lookup: Mapping[MatchPairKey, float],
 ) -> dict[str, dict[str, RuntimeValidationCandidate]]:
-    """
-    Build the bounded candidate set eligible for runtime validation.
-
-    For each obfuscated message, always include its highest-ranked positive
-    static candidates, then include additional candidates whose score remains
-    close to the best, up to the configured limit. Build their provisional
-    field mappings and group them by non-obfuscated message.
-    """
     candidates_by_non_obf: dict[str, dict[str, RuntimeValidationCandidate]] = defaultdict(dict)
     obf_signatures = workspace.obf_signatures
     non_obf_signatures = workspace.non_obf_signatures
@@ -145,13 +130,6 @@ def _build_runtime_candidates_by_non_obf(
 def _iter_runtime_candidate_indexes(
     scores_matrix: np.ndarray,
 ) -> tuple[RuntimeCandidateIndexes, ...]:
-    """
-    Select the static candidates eligible for runtime validation.
-
-    For each obfuscated message, keep a guaranteed top-ranked prefix, then
-    add candidates within the allowed score gap from the best, up to the
-    configured maximum.
-    """
     candidate_indexes: list[RuntimeCandidateIndexes] = []
     for obf_index in range(scores_matrix.shape[1]):
         obf_scores = scores_matrix[:, obf_index]

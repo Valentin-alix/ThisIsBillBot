@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import defaultdict
 from collections.abc import Callable, Sequence
 from typing import TypeGuard, cast
@@ -26,12 +24,6 @@ def remap_runtime_instances(
     remapping_context: RuntimeRemappingContext,
     trace_handler: Callable[[RuntimeRemappingTraceEvent], None] | None = None,
 ) -> RuntimeRemappingResult:
-    """
-    Remap every normalized runtime instance through the current candidate.
-
-    The function accumulates remapped instances by message type and stops early
-    as soon as a child-field mapping proves incompatible.
-    """
     instances_by_type: dict[str, list[dict[str, object]]] = defaultdict(list)
     mapping_failure: str | None = None
     mapping_failure_origin: str | None = None
@@ -70,7 +62,6 @@ def _remap_runtime_instance(
     trace_handler: Callable[[RuntimeRemappingTraceEvent], None] | None,
     path: tuple[str, ...],
 ) -> RemapOutcome:
-    """Remap one runtime instance, including nested child messages when needed."""
     remapped_instance: dict[str, object] = {}
     obf_metadata = remapping_context.get_obf_metadata(obf_message)
     non_obf_metadata = remapping_context.get_non_obf_metadata(non_obf_message)
@@ -126,7 +117,6 @@ def _remap_field_value(
     trace_handler: Callable[[RuntimeRemappingTraceEvent], None] | None,
     path: tuple[str, ...],
 ) -> RemapOutcome:
-    """Remap a field value and recurse into child messages when applicable."""
     child_mapping = _resolve_child_mapping(
         obf_field=obf_field,
         non_obf_field=non_obf_field,
@@ -281,7 +271,6 @@ def _remap_child_message(
     trace_handler: Callable[[RuntimeRemappingTraceEvent], None] | None,
     path: tuple[str, ...],
 ) -> RemapOutcome:
-    """Remap a nested child message and propagate child-level failures."""
     remap_outcome = _remap_runtime_instance(
         instance=raw_value,
         current_candidate=child_candidate,
@@ -315,7 +304,6 @@ def _resolve_child_mapping(
     parent_non_obf_message: DumpCSMessage,
     remapping_context: RuntimeRemappingContext,
 ) -> ChildMappingResolution:
-    """Resolve which candidate should be used for a nested child field."""
     parent_obf_metadata = remapping_context.get_obf_metadata(parent_obf_message)
     parent_non_obf_metadata = remapping_context.get_non_obf_metadata(parent_non_obf_message)
     obf_child_cls = parent_obf_metadata.child_message_cls_by_field_key.get(obf_field.field_key)

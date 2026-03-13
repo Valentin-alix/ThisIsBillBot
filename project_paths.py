@@ -13,7 +13,7 @@ def ensure_packaged_runtime_data() -> None:
         return
 
     (USER_DATA_ROOT / "resources").mkdir(parents=True, exist_ok=True)
-    launcher_resources = USER_DATA_ROOT / "AnkamaLauncherEmulatorPremium" / "resources"
+    launcher_resources = USER_DATA_ROOT / "AnkamaLauncherEmulator" / "resources"
     launcher_resources.mkdir(parents=True, exist_ok=True)
     schedule_profiles_path = launcher_resources / "schedule_profiles.json"
     if not schedule_profiles_path.exists():

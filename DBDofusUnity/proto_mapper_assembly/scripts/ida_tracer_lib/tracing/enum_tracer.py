@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import re
 from collections import deque
 from collections.abc import Sequence
@@ -285,8 +283,6 @@ def find_enum_switch_func_addrs(
     enum_field_offsets: set[int],
     function_scan_cache: FunctionScanCache | None = None,
 ) -> set[int]:
-    """Return addresses of Core.dll functions that contain a switch on an enum field."""
-
     def has_enum_field_access(decoded: DecodedInstruction) -> bool:
         return any(op.type == idaapi.o_displ and op.addr in enum_field_offsets for op in decoded.insn.ops)
 
@@ -409,13 +405,6 @@ def build_class_candidates_by_ea(
     methods: Sequence[MethodDefinition],
     proto_message_type_lookup: dict[str, str],
 ) -> dict[int, list[str]]:
-    """
-    For each method, return the proto message classes its switches may target.
-
-    Candidates come from the method's declaring class (the IL2CPP `this` parameter for instance
-    methods) plus its explicit parameter types, filtered to those resolvable as proto messages.
-    Order is preserved and duplicates removed so callers can iterate deterministically.
-    """
     result: dict[int, list[str]] = {}
     for method in methods:
         candidates: list[str] = []
@@ -490,8 +479,7 @@ def _build_traced_function_from_metadata(
         access_infos=[],
         opcode_histogram=opcode_histogram_for_func(func, function_scan_cache),
         aliases=[],
-        # This function was reached through an enum switch, not through the proto scan: it carries no
-        # alias, so it never becomes a message signature and the scan-derived fields stay empty.
+        # Enum-switch discoveries lack proto-scan aliases and must not become message signatures.
         stable_callees=[],
         cfg_stats=None,
         resolved_metadata=EnumFunctionResolvedMetadata(

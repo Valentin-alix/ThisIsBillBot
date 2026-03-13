@@ -1,6 +1,4 @@
-﻿from __future__ import annotations
-
-from typing import TYPE_CHECKING, Literal, cast
+﻿from typing import TYPE_CHECKING, Literal, cast
 
 from tests.fixtures.proto_mapper.signatures import builder_field_access_entry
 
@@ -30,7 +28,6 @@ if TYPE_CHECKING:
 else:
     type InsnT = object
 
-# Windows x64 register indices (IDA)
 RAX_REG: int = 0
 RCX_REG: int = 1
 RDX_REG: int = 2
@@ -45,7 +42,6 @@ R14_REG: int = 14
 R15_REG: int = 15
 XMM0_REG: int = 33
 
-# IDA operand type constants (matching idaapi values)
 MOCK_O_REG: int = 1
 MOCK_O_MEM: int = 2
 MOCK_O_PHRASE: int = 3
@@ -91,7 +87,7 @@ class MockCallInsn:
         return self._mnemonic
 
 
-def as_insn(insn: object) -> InsnT:
+def as_insn(insn: object) -> "InsnT":
     return cast("InsnT", insn)
 
 
@@ -103,7 +99,7 @@ def empty_type_lookup() -> dict[str, str]:
     return {}
 
 
-def apply_standard_frame_setup(frame_state: StackFrameState, stack_allocation: int = 0) -> None:
+def apply_standard_frame_setup(frame_state: "StackFrameState", stack_allocation: int = 0) -> None:
     update_stack_frame_for_instruction(
         as_insn(MockInsn(MockOp(MOCK_O_REG, reg=RBP_REG), MockOp(NON_MATCHING_OP), mnemonic="push")),
         frame_state,
@@ -128,7 +124,7 @@ def apply_standard_frame_setup(frame_state: StackFrameState, stack_allocation: i
 
 def handle_mov_instruction(
     insn: object,
-    reg_state: RegisterState,
+    reg_state: "RegisterState",
     proto_fields_by_class: dict[str, dict[int, DumpCSMessageField]],
 ) -> list[AccessEntry]:
     return list(collect_instruction_field_accesses(as_insn(insn), 0, reg_state, proto_fields_by_class))
@@ -204,19 +200,19 @@ class MockBasicBlock:
         self.end_ea = end_ea
         self._successors: list[MockBasicBlock] = []
 
-    def connect(self, *successors: MockBasicBlock) -> None:
+    def connect(self, *successors: "MockBasicBlock") -> None:
         self._successors = list(successors)
 
-    def succs(self) -> list[MockBasicBlock]:
+    def succs(self) -> "list[MockBasicBlock]":
         return list(self._successors)
 
 
 def analysis_state(
     *,
-    reg_state: RegisterState,
-    frame_state: StackFrameState | None = None,
-    stack_state: StackState | None = None,
-    heap_state: HeapState | None = None,
+    reg_state: "RegisterState",
+    frame_state: "StackFrameState | None" = None,
+    stack_state: "StackState | None" = None,
+    heap_state: "HeapState | None" = None,
 ) -> AnalysisState:
     return AnalysisState(
         reg_state=dict(reg_state),

@@ -16,7 +16,6 @@ Usage:
     FightLiveStateEvent.Types.FightEntityState
 """
 
-from __future__ import annotations
 
 import argparse
 from collections.abc import Mapping, Sequence
@@ -71,7 +70,6 @@ def _preserve_assembly_or_bootstrap_field_offsets(
     assembly_message: DumpCSMessage | None,
     bootstrap_message: DumpCSMessage | None,
 ) -> DumpCSMessage:
-    """Prefer live assembly offsets and retain traced bootstrap offsets for synthetic schemas."""
     message_with_bootstrap_offsets = _preserve_existing_field_offsets(generated_message, bootstrap_message)
     return _preserve_existing_field_offsets(message_with_bootstrap_offsets, assembly_message)
 
@@ -162,7 +160,6 @@ def rebuild_new_dump_cs_from_protobufs(
     non_obf_dump_cs_path: Path = NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
     new_dump_cs_path: Path = NON_OBF_NEW_DUMP_CS_FILE,
 ) -> NewDumpCSFile:
-    """Rebuild every non-obfuscated game descriptor while retaining known field offsets."""
     messages_by_name = build_dump_cs_messages_from_pb2(protos_dir)
     assembly_messages_by_name = {
         message.composed_name: message for message in parse_messages(str(non_obf_dump_cs_path))
@@ -193,7 +190,6 @@ def synchronize_non_obf_mapping_artifacts(
     game_mappings_path: Path = GAME_MAPPINGS_JSON_FILE,
     game_mappings_detailed_path: Path = GAME_MAPPINGS_DETAILED_JSON_FILE,
 ) -> None:
-    """Reconcile mapper artifacts with the current non-obfuscated protobuf schemas."""
     proto_messages_by_name = build_dump_cs_messages_from_pb2(protos_dir)
     rebuild_new_dump_cs_from_protobufs(
         protos_dir=protos_dir,
@@ -305,7 +301,6 @@ def main() -> None:
         nargs="+",
         help="Composed C# class names to add/overwrite (new_dump_cs.json keys).",
     )
-    # (example : Com.Ankama.Dofus.Server.Game.Protocol.Fight.Preparation.FightPreparationEnterRequest)
     args = parser.parse_args()
     build_new_dump_cs_entries(args.class_names)
 

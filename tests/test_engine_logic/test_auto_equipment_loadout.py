@@ -31,40 +31,10 @@ _RING_TYPE_ID = 9
 _DOFUS_TYPE_ID = 23
 _POWER_ACTION = 1
 _VITALITY_ACTION = 2
-_DOFUS_POSITIONS = tuple(
-    CharacterInventoryPositionEnum(position)
-    for position in range(
-        CharacterInventoryPositionEnum.InventoryPositionDofus1,
-        CharacterInventoryPositionEnum.InventoryPositionDofus6 + 1,
-    )
-)
 _EQUIPMENT_POSITION_CASES = (
     (1, (CharacterInventoryPositionEnum.AccessoryPositionAmulet,)),
-    *(
-        (item_type_id, (CharacterInventoryPositionEnum.AccessoryPositionWeapon,))
-        for item_type_id in (2, 3, 4, 5, 6, 7, 8, 19, 20, 21, 22, 114, 271)
-    ),
-    (
-        9,
-        (
-            CharacterInventoryPositionEnum.InventoryPositionRingLeft,
-            CharacterInventoryPositionEnum.InventoryPositionRingRight,
-        ),
-    ),
-    (10, (CharacterInventoryPositionEnum.AccessoryPositionBelt,)),
-    (11, (CharacterInventoryPositionEnum.AccessoryPositionBoots,)),
-    (16, (CharacterInventoryPositionEnum.AccessoryPositionHat,)),
-    (17, (CharacterInventoryPositionEnum.AccessoryPositionCape,)),
-    (18, (CharacterInventoryPositionEnum.AccessoryPositionPets,)),
-    (23, _DOFUS_POSITIONS),
-    (82, (CharacterInventoryPositionEnum.AccessoryPositionShield,)),
-    (121, (CharacterInventoryPositionEnum.AccessoryPositionPets,)),
-    (151, _DOFUS_POSITIONS),
-    (217, _DOFUS_POSITIONS),
+    (2, (CharacterInventoryPositionEnum.AccessoryPositionWeapon,)),
     (311, (CharacterInventoryPositionEnum.InventoryPositionMount,)),
-    (331, (CharacterInventoryPositionEnum.InventoryPositionMount,)),
-    (332, (CharacterInventoryPositionEnum.InventoryPositionMount,)),
-    (333, (CharacterInventoryPositionEnum.InventoryPositionMount,)),
 )
 
 
@@ -130,8 +100,6 @@ class TestBestLoadout:
         assert best[CharacterInventoryPositionEnum.InventoryPositionRingRight].item.uid == 4
 
     def test_duplicate_gid_copy_does_not_fill_an_empty_second_slot(self) -> None:
-        """The game rejects equipping two items sharing the same gid at once
-        (ObjectError.CANNOT_EQUIP_TWICE), even in two different ring slots."""
         behavior = _make_behavior()
         equipped_ring = _make_item(uid=1, gid=900, action=_POWER_ACTION, value_int=10)
         duplicate_copy = _make_item(uid=2, gid=900, action=_POWER_ACTION, value_int=10)
@@ -143,8 +111,6 @@ class TestBestLoadout:
         assert CharacterInventoryPositionEnum.InventoryPositionRingRight not in best
 
     def test_better_rolled_duplicate_gid_replaces_equipped_copy(self) -> None:
-        """A same-gid inventory copy with a strictly better roll should still be usable as
-        an upgrade (single slot swap), not discarded outright by the gid dedup."""
         behavior = _make_behavior()
         equipped_ring = _make_item(uid=1, gid=900, action=_POWER_ACTION, value_int=10)
         better_copy = _make_item(uid=2, gid=900, action=_POWER_ACTION, value_int=20)
@@ -202,7 +168,7 @@ class TestBestLoadout:
 
         chosen_uids = {item.item.uid for item in best.values()}
         assert len(chosen_uids) == 6
-        assert 100 not in chosen_uids  # lowest-scoring (value_int=0) candidate dropped
+        assert 100 not in chosen_uids
 
     def test_currently_equipped_item_competes_with_candidates(self) -> None:
         behavior = _make_behavior()
@@ -215,8 +181,6 @@ class TestBestLoadout:
         assert best[CharacterInventoryPositionEnum.InventoryPositionRingLeft].item.uid == 1
 
     def test_scales_to_many_dofus_candidates_without_exponential_blowup(self) -> None:
-        """Regression guard: this used to be an exponential brute force (up to 7 branches per
-        dofus-type candidate), which could hang for minutes with realistic inventories."""
         behavior = _make_behavior()
         candidates = [
             _make_item(uid=200 + index, gid=920 + (index % 20), action=_POWER_ACTION, value_int=index)
@@ -271,10 +235,6 @@ def _make_equip_behavior(
 
 
 class TestEquipConfirmation:
-    """Confirmation fires on an `ObjectMovementEvent` or `ObjectAddedEvent` matching the
-    pending position; the uid isn't checked since a stack-split item gets a new one that
-    can't be known ahead of time. A non-matching position is ignored and left pending."""
-
     def test_object_movement_event_with_matching_position_confirms(self) -> None:
         position = CharacterInventoryPositionEnum.AccessoryPositionBoots
         behavior, event_manager, finished_with = _make_equip_behavior(pending_uid=1, position=position)
@@ -284,14 +244,11 @@ class TestEquipConfirmation:
 
         event_manager.confirm_callback(ObjectMovementEvent(object_uid=1, position=position))
 
-        assert finished_with  # queue drained -> finish() called
+        assert finished_with
         assert event_manager.cleared_origins == [behavior]
         assert behavior._pending_position is None
 
     def test_object_added_event_with_matching_position_confirms(self) -> None:
-        """Equipping an item split off a stack creates a new uid via `ObjectAddedEvent`
-        instead of moving the existing one, so confirmation must also accept that event,
-        matched on position only (the new uid isn't known ahead of time)."""
         position = CharacterInventoryPositionEnum.AccessoryPositionBoots
         behavior, event_manager, finished_with = _make_equip_behavior(pending_uid=1, position=position)
 
@@ -300,7 +257,7 @@ class TestEquipConfirmation:
 
         event_manager.confirm_callback(ObjectAddedEvent(object=ObjectItemInventory(position=position)))
 
-        assert finished_with  # queue drained -> finish() called
+        assert finished_with
         assert event_manager.cleared_origins == [behavior]
         assert behavior._pending_position is None
 

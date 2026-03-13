@@ -79,13 +79,8 @@ class HandlerRegistrationAccessEntry(BaseModel):
     index_in_function: int
     instruction_address: int
     handler_function_address: int | None
-    """Native address of the handler body, i.e. the code that actually processes the message.
-
-    Null when IL2CPP declares no address for the MethodInfo. Such a registration still proves the
-    class is registered here, which is what the handler cohorts are built on, so it is kept.
-    """
+    """Missing handler addresses still prove registration and remain cohort evidence."""
     registration_ordinal: int
-    """Rank of this registration inside its registering function, in instruction order."""
 
 
 type SignatureAccessEntry = FieldAccessEntry | TypeInfoAccessEntry
@@ -109,14 +104,9 @@ class FunctionAccessInfo(BaseModel):
     end_address: int
     size: int
     group: str
-    """Il2Cpp owner group, kept to audit where Core.dll wrapper aliases came from."""
     opcode_histogram: Counter[str]
     stable_callees: list[str]
-    """Resolved identities of the directly called methods, obfuscated ones included.
-
-    Which of them survive obfuscation is only knowable by intersecting both builds, so the filtering
-    is left to the matching side rather than guessed here.
-    """
+    """Includes obfuscated callees; intersect both builds to identify stable names."""
     cfg_stats: CfgStats
 
     @override
@@ -181,9 +171,8 @@ class TracedFunction(BaseModel):
     aliases: list[FunctionAlias]
     resolved_metadata: EnumFunctionResolvedMetadata | None = None
     stable_callees: list[str]
-    """Resolved identities of the directly called methods, see ``FunctionAccessInfo.stable_callees``."""
     cfg_stats: CfgStats | None
-    """Null on the enum placeholders, which stand in for a function nobody scanned."""
+    """None for enum placeholders whose functions were not scanned."""
 
     def to_function_access_infos(self) -> list[FunctionAccessInfo]:
         cfg_stats = self.cfg_stats
@@ -230,10 +219,7 @@ class FieldAccessSignatures(BaseModel):
     field_key: FieldKey
     field_type_shape: CompactFieldTypeShape
     accesses: list[AccessAtomSignature]
-    # False when the tracer never reached this field, so ``accesses`` is empty for lack of evidence
-    # rather than because the field is genuinely accessed without atoms (a getter-only field).
-    # Deliberately excluded from ``field_similarity_key``: it describes how much we know about the
-    # field, not what the field looks like.
+    # Missing traces are unknown evidence, not empty accesses; exclude this flag from similarity keys.
     is_traced: bool = True
 
     @property
@@ -293,11 +279,7 @@ class MessageAccessSignature(BaseModel):
 
     @cached_property
     def function_similarity_keys(self) -> tuple[FunctionSimilarityKey, ...]:
-        # Dédup les wrappers C# qui partagent la même fonction native (alias IL2Cpp).
-        # Le tracer remonte une entrée par alias C# ; le nombre d'aliases visibles n'est pas
-        # une feature stable entre builds. On garde un représentant par similarity_key distinct.
-        # Pas un set : cet ordre nourrit un appariement hongrois, et l'ordre d'un set de cles
-        # str change d'un process a l'autre.
+        # Deduplicate IL2CPP aliases in stable order: set iteration would change assignment tie-breaks.
         return tuple(dict.fromkeys(sig.similarity_key for sig in self.function_signatures))
 
     @cached_property
@@ -355,7 +337,6 @@ class MessageAccessSignature(BaseModel):
 
     @cached_property
     def declared_shape_counter(self) -> Counter[str]:
-        """Multiset of declared proto field shapes, independent of runtime traces and obfuscation."""
         return Counter(field.declared_shape_token for field in self.declared_proto_fields)
 
     @cached_property
@@ -364,7 +345,7 @@ class MessageAccessSignature(BaseModel):
 
     @cached_property
     def evidence_coverage(self) -> float | None:
-        """Fraction of declared proto fields backed by a runtime access trace; None when none declared."""
+        """Fraction of declared fields traced; None when no fields are declared."""
         declared_count = len(self.declared_proto_fields)
         if declared_count == 0:
             return None

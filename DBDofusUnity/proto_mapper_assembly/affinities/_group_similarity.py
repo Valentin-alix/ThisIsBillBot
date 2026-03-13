@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Sequence
 
 import numpy as np
@@ -12,12 +10,6 @@ def build_group_scores_matrix(
     non_obf_groups: Sequence[Sequence[int]],
     obf_groups: Sequence[Sequence[int]],
 ) -> np.ndarray:
-    """
-    Score every pair of groups by how well their members align against each other.
-
-    Groups are given as the score-matrix indexes of their members, so the same helper serves any
-    grouping the pipeline believes in: file descriptors, handler cohorts, declaration runs.
-    """
     group_scores_matrix = np.zeros((len(non_obf_groups), len(obf_groups)))
     for non_obf_group_index, non_obf_members in enumerate(non_obf_groups):
         for obf_group_index, obf_members in enumerate(obf_groups):
@@ -36,15 +28,7 @@ def match_groups(
     min_score: float,
     min_margin: float,
 ) -> tuple[tuple[int, int], ...]:
-    """
-    Pair groups across builds, keeping only the assignments that clearly beat their runners-up.
-
-    An assignment that barely wins is not evidence, and acting on it would penalize the correct
-    message pairs sitting inside both groups. Callers pass their own thresholds: they were tuned per
-    grouping and are not interchangeable.
-
-    Returns the retained ``(non_obf_group_index, obf_group_index)`` pairs.
-    """
+    """Return confident (non_obf_group_index, obf_group_index) pairs; thresholds depend on the grouping."""
     matched_groups: list[tuple[int, int]] = []
     non_obf_indexes, obf_indexes = linear_sum_assignment(group_scores_matrix, maximize=True)
     for non_obf_index_value, obf_index_value in zip(non_obf_indexes, obf_indexes, strict=True):

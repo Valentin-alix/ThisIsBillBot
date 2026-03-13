@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from msgspec import Struct
 
 
@@ -46,6 +44,6 @@ class OutgoingEdge(Struct, frozen=True):
 class WorldGraphData(Struct, frozen=True):
     FILE_PATH = "world-graph.json"
 
-    m_vertices: dict[int, dict[int, Vertice]]  # vertice by zone id by map id
-    m_edges: dict[int, dict[int, Edge]]  # edge by m_to uid by m_from uid
-    m_outgoingEdges: dict[int, OutgoingEdge]  # outgoingEdge by m_from uid
+    m_vertices: dict[int, dict[int, Vertice]]  # Vertice by zone ID by map ID.
+    m_edges: dict[int, dict[int, Edge]]  # Edge by destination UID by source UID.
+    m_outgoingEdges: dict[int, OutgoingEdge]  # Outgoing edges by source UID.

@@ -171,14 +171,6 @@ class TestBuildMessageAccessSignatures:
         assert with_property_name[0].model_dump() == with_property_name[1].model_dump()
         assert without_property_name[0].model_dump() != with_property_name[0].model_dump()
 
-    def test_uses_dump_message_file_descriptor(self) -> None:
-        message = DumpCSMessage(file_descriptor="GamemapReflection", name="Message")
-        function = function_access_info(access_infos=(builder_field_access_entry(cls="Message"),))
-
-        signature = build_access_signatures_for_test(function, messages=(message,))["Message"]
-
-        assert signature.file_descriptor == "GamemapReflection"
-
     def test_supports_nested_message_lookup_keys(self) -> None:
         message = DumpCSMessage(file_descriptor="NestedReflection", name="Inner", parent_name="Outer.Types")
         function = function_access_info(

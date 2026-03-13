@@ -1,12 +1,12 @@
 import threading
 from dataclasses import dataclass, field
 
-from DBDofusUnity.datas.protos.non_obf.game.game_message_pb2 import Request
 from google.protobuf.message import Message
 from PyQt6.QtCore import QMetaObject, Qt
 
-from src import consts
+from DBDofusUnity.datas.protos.non_obf.game.game_message_pb2 import Request
 from src.consts import MESSAGES_WITH_UID
+from src.core import config
 from src.core.behaviors.behavior import BehaviorState
 from src.core.socket_network.base_client import BaseClient
 from src.protocol.protocol import (
@@ -44,8 +44,10 @@ class GameClient(BaseClient):
     def on_received_msg_datas(self, msg_datas: bytes) -> None:
         size, pos = decode_varint_size(msg_datas)
         _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(msg_datas[pos : pos + size], False)
-        self.bot.debug_recorder.record_game_message(clear_sub_msg, obf_sub_msg, uid, True, "server")
-        if consts.DEBUG and self.bot.msg_info_signals.capture_enabled:
+        recorder = self.bot.debug_recorder
+        if recorder is not None:
+            recorder.record_game_message(clear_sub_msg, obf_sub_msg, uid, True, "server")
+        if config.DEBUG and self.bot.msg_info_signals.capture_enabled:
             msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, True, False)
             self.bot.msg_info_signals.msg_info.emit(msg_infos, False)
         if clear_sub_msg:
@@ -59,11 +61,11 @@ class GameClient(BaseClient):
         if obf_info is not None:
             obf_game_msg, obf_sub_msg = obf_info
             self.client_socket.sendall(encode_msg(obf_game_msg))
-            self.bot.debug_recorder.record_game_message(
-                clear_sub_msg, obf_sub_msg, uid, False, "framework_injected"
-            )
+            recorder = self.bot.debug_recorder
+            if recorder is not None:
+                recorder.record_game_message(clear_sub_msg, obf_sub_msg, uid, False, "framework_injected")
             self.bot.event_manager.process_msg(clear_sub_msg)
-            if consts.DEBUG and self.bot.msg_info_signals.capture_enabled:
+            if config.DEBUG and self.bot.msg_info_signals.capture_enabled:
                 msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, False, False)
                 self.bot.msg_info_signals.msg_info.emit(msg_infos, True)
 

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument, MessageAccessSignature
@@ -13,8 +11,6 @@ from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeData
 
 @dataclass(frozen=True)
 class MatchingInputs:
-    """Everything derived from the two builds. Loaded together, immutable for the whole run."""
-
     obf_messages_by_cls: dict[str, DumpCSMessage]
     non_obf_messages_by_cls: dict[str, DumpCSMessage]
     obf_signatures_by_cls: dict[str, MessageAccessSignature]
@@ -28,14 +24,6 @@ class MatchingInputs:
 
 @dataclass(frozen=True)
 class MatchingRunConfig:
-    """
-    What steers one run, as opposed to what it is made of.
-
-    Kept apart from ``MatchingInputs`` because these are loaded separately and later: pins and
-    capture hints need the bootstrap messages to resolve their targets, and a replay can legitimately
-    run with an era's pins and no hints at all.
-    """
-
     runtime_data_store: RuntimeDataStore
     pinned_pairs_config: PinnedPairsConfig
     capture_sequence_hints_config: CaptureSequenceHintsConfig

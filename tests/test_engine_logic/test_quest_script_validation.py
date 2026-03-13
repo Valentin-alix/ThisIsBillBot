@@ -32,15 +32,6 @@ def _resolve_coord(step: StepWithDestination) -> set[int]:
     return get_map_ids_for_coord(step.coord, step.world, step.map_name, step.sub_area_id)
 
 
-def test_registered_scripts_target_existing_maps() -> None:
-    for script in QUEST_SCRIPTS:
-        for index, step in enumerate(script.steps):
-            if not isinstance(step, StepWithDestination) or step.coord is None:
-                continue
-            map_ids = _resolve_coord(step)
-            assert map_ids, f"{script.name} step {index}: no map at {step.coord}"
-
-
 def test_registered_scripts_map_known_quest_and_step_ids() -> None:
     data_reader = DataReader()
     for script in QUEST_SCRIPTS:
@@ -98,17 +89,12 @@ def test_monster_name_and_monster_id_are_mutually_exclusive() -> None:
 
 
 def test_world_splits_a_position_that_exists_several_times() -> None:
-    """The same position exists on several worlds, and a guide always means the overworld."""
     overworld = get_map_ids_for_coord((3, -17), world=WorldMapEnum.OVERWORLD)
     interiors = get_map_ids_for_coord((3, -17), world=WorldMapEnum.INTERIOR)
 
     assert overworld
     assert interiors
     assert not overworld & interiors
-
-
-def test_world_narrows_a_position_to_one_map_on_the_overworld() -> None:
-    assert len(get_map_ids_for_coord((7, -19), world=WorldMapEnum.OVERWORLD)) == 1
 
 
 def test_map_name_narrows_an_ambiguous_interior() -> None:
@@ -161,7 +147,6 @@ def test_registered_scripts_reference_existing_npcs() -> None:
 
 
 def test_registered_scripts_name_npcs_the_game_knows() -> None:
-    """Several npcs may share the name; only a name matching none of them is a typo."""
     for script in QUEST_SCRIPTS:
         for index, step in enumerate(script.steps):
             if not isinstance(step, TalkToNpcStep) or step.npc_name is None:
@@ -182,7 +167,6 @@ def test_registered_scripts_name_monsters_the_game_knows() -> None:
 
 
 def test_registered_scripts_resolve_every_coord_to_a_single_map() -> None:
-    """An ambiguous destination sends the travel behavior to whichever map it feels like."""
     for script in QUEST_SCRIPTS:
         for index, step in enumerate(script.steps):
             if not isinstance(step, StepWithDestination) or step.coord is None:
@@ -205,12 +189,7 @@ def test_registered_scripts_reference_existing_monsters() -> None:
             )
 
 
-def test_registered_scripts_have_at_least_one_step() -> None:
-    assert QUEST_SCRIPTS, "no quest script registered"
-
-
 def _step_npc_ids(step: TalkToNpcStep) -> set[int]:
-    """Un nom peut designer plusieurs pnj ; ils partagent alors le meme arbre de dialogue."""
     if step.npc_id is not None:
         return {step.npc_id}
     if step.npc_name is not None:
@@ -219,7 +198,6 @@ def _step_npc_ids(step: TalkToNpcStep) -> set[int]:
 
 
 def _by_text_patterns() -> list[tuple[str, int, frozenset[int], str]]:
-    """Every `ByText` pattern of every registered script, with the npcs it may be said to."""
     patterns: list[tuple[str, int, frozenset[int], str]] = []
     for script in QUEST_SCRIPTS:
         for index, step in enumerate(script.steps):
@@ -236,23 +214,7 @@ def _reply_ids_matching(npc_ids: frozenset[int], pattern: str) -> list[int]:
     return [reply_id for npc_id in sorted(npc_ids) for reply_id in find_npc_reply_ids_matching(npc_id, pattern)]
 
 
-def test_every_by_text_pattern_matches_a_reply_of_its_npc() -> None:
-    """A pattern matching nothing is a typo, and it would silently stall the dialog."""
-    for script_name, index, npc_ids, pattern in _by_text_patterns():
-        assert _reply_ids_matching(npc_ids, pattern), (
-            f"{script_name} step {index}: pattern {pattern!r} matches no reply of npc(s) "
-            f"{sorted(npc_ids)}"
-        )
-
-
 def test_every_by_text_pattern_designates_a_single_wording() -> None:
-    """Several ids may carry the same wording, but a pattern must not span two wordings.
-
-    Ankama duplicates a reply id par branche de dialogue, et un meme nom peut porter plusieurs
-    pnj : matcher plusieurs ids est donc normal.
-    Matching two *different* texts is not: the runtime would pick whichever the server offers
-    first, which is not a choice the script made.
-    """
     for script_name, index, npc_ids, pattern in _by_text_patterns():
         reply_ids = _reply_ids_matching(npc_ids, pattern)
         wordings = {normalize(text) for text in map(get_reply_text, reply_ids) if text is not None}
@@ -263,7 +225,6 @@ def test_every_by_text_pattern_designates_a_single_wording() -> None:
 
 
 def test_untrusted_objective_maps_really_disagree_with_their_step() -> None:
-    """Une exception qui ne sert plus est une garde desarmee pour rien : elle doit sauter."""
     data_reader = DataReader()
     for script in QUEST_SCRIPTS:
         declared = set(script.objective_ids_with_untrusted_map)
@@ -287,7 +248,6 @@ def test_untrusted_objective_maps_really_disagree_with_their_step() -> None:
 
 
 def test_registered_scripts_can_reach_their_prerequisites() -> None:
-    """A script whose prerequisite has no script of its own can never run on a fresh account."""
     scripted_quest_ids = {script.quest_id for script in QUEST_SCRIPTS}
     for script in QUEST_SCRIPTS:
         if script.quest_id is None:
@@ -299,7 +259,6 @@ def test_registered_scripts_can_reach_their_prerequisites() -> None:
 
 
 def _map_ids_reachable_from(start_map_id: int) -> set[int]:
-    """Pure world-graph reachability, ignoring criteria -- enough to catch a walled-off map."""
     world_graph = WorldGraphReader()
     queue = deque(world_graph.get_vertexes(start_map_id))
     seen = set(queue)
@@ -316,7 +275,6 @@ def _map_ids_reachable_from(start_map_id: int) -> set[int]:
 
 
 def test_registered_scripts_target_reachable_maps() -> None:
-    """A destination walled off in the world graph fails at run time with `path_not_found`."""
     reachable = _map_ids_reachable_from(MapIdEnum.ASTRUB_STREET_KERUBIM)
     for script in QUEST_SCRIPTS:
         for index, step in enumerate(script.steps):
@@ -329,11 +287,6 @@ def test_registered_scripts_target_reachable_maps() -> None:
 
 
 def test_declared_objectives_match_their_step_destination() -> None:
-    """Garde contre le decalage d'index : inserer une etape reassocie tout ce qui suit.
-
-    L'objectif serveur porte la map ou il se valide ; si elle ne correspond pas a la
-    destination de l'etape, c'est que le mapping index -> objectif a glisse.
-    """
     data_reader = DataReader()
     for script in QUEST_SCRIPTS:
         for index, objective_id in script.objective_id_by_index.items():

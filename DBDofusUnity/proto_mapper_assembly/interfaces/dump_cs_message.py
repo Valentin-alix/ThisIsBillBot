@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import Counter
 from functools import cached_property
 from typing import NamedTuple, override
@@ -29,7 +27,6 @@ class EnumFieldTypes(NamedTuple):
 
 
 def normalize_proto_field_name(field_name: str) -> str:
-    """Return the canonical proto-style field name for a C# dump field/property, E.G : (Truc_ => truc)."""
     return camel_to_snake(field_name).removesuffix("_")
 
 
@@ -141,7 +138,6 @@ class DumpCSMessageField(BaseModel):
 
     @cached_property
     def declared_shape_token(self) -> str:
-        """Stable multiset key for structure scoring; refines the coarse shape with ``numeric_kind``."""
         if self.numeric_kind is None:
             return str(self.field_type_shape)
         return f"{self.field_type_shape}|{self.numeric_kind.value}"
@@ -170,7 +166,6 @@ class DumpCSMessage(BaseModel):
 
     @cached_property
     def oneof_group_sizes(self) -> tuple[int, ...]:
-        """Sorted member counts of each declared oneof group, an obfuscation-stable fingerprint."""
         group_sizes: Counter[str] = Counter()
         for field in self.fields:
             if not field.is_declared_proto_shape_field or field.oneof_group_name is None:

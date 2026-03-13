@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -19,11 +17,7 @@ def split_excluded_non_obf_messages(
     messages: Sequence[DumpCSMessage],
     excluded_message_names: frozenset[str],
 ) -> tuple[list[DumpCSMessage], frozenset[str]]:
-    """Split the messages into the ones to keep and the composed names that were dropped.
-
-    The dropped names are needed to purge the stored signature overrides:
-    an override left behind would be injected back as a synthetic message and undo the exclusion.
-    """
+    """Return retained messages and excluded names so stale overrides cannot reintroduce exclusions."""
     kept: list[DumpCSMessage] = []
     dropped: set[str] = set()
     for message in messages:
@@ -39,5 +33,4 @@ def drop_excluded_signature_overrides(
     overrides: dict[str, SignatureOverrideEntry],
     dropped_message_names: frozenset[str],
 ) -> dict[str, SignatureOverrideEntry]:
-    """Drop overrides whose exact composed class is excluded."""
     return {name: entry for name, entry in overrides.items() if name not in dropped_message_names}

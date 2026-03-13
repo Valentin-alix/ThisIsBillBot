@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Iterable
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
@@ -15,13 +13,9 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPair
 
 @dataclass(frozen=True)
 class IndexedMatchingStoreView:
-    """The store as matrix coordinates: only the pairs it holds, never one entry per message."""
-
     expected_obf_indexes: np.ndarray
     expected_non_obf_indexes: np.ndarray
-    """Target of each obfuscated message, confirmed or inferred; also the bonus target."""
     expected_inferred_scores: np.ndarray
-    """Fallback for an expected pair the base matrix scores at zero."""
     confirmed_obf_indexes: np.ndarray
     confirmed_non_obf_indexes: np.ndarray
 
@@ -40,7 +34,7 @@ def build_indexed_matching_store_view(
     non_obf_index_by_cls = dict(non_obf_index_items)
     inferred_score_by_pair = dict(inferred_score_items)
 
-    # Confirmed pairs come last so they overwrite the inferred expectation for the same class.
+    # Confirmed pairs overwrite inferred expectations for the same class.
     expected_by_obf_index: dict[int, tuple[int, float]] = {}
     for obf_message_cls, non_obf_message_cls in chain(inferred_non_obf_items, confirmed_non_obf_items):
         obf_index = obf_index_by_cls.get(obf_message_cls)
@@ -116,11 +110,9 @@ class IterativeMatchingStore:
         return self.inferred_non_obf_by_obf.get(obf_message_cls)
 
     def supports_pair(self, obf_message_cls: str, non_obf_message_cls: str) -> bool:
-        """Check if matching pair match with already matched pair in store."""
         return self.get_expected_non_obf(obf_message_cls) == non_obf_message_cls
 
     def conflicts_with_pair(self, obf_message_cls: str, non_obf_message_cls: str) -> bool:
-        """Check if matching pair will conflict with already matched pair in store."""
         confirmed_non_obf = self.confirmed_non_obf_by_obf.get(obf_message_cls)
         if confirmed_non_obf is not None and confirmed_non_obf != non_obf_message_cls:
             return True

@@ -1,14 +1,5 @@
-"""Layout of an archived game build directory, and how to enumerate those directories.
+"""Order archived builds by GameAssembly.dll mtime; directory names need not contain dates."""
 
-Every archived build under ``OBF_GAME_SNAPSHOTS_DIR`` carries the same file names as the working
-set, so the relative paths below are the single description of that layout. They live here rather
-than in ``consts`` because ``consts`` imports this package while resolving the current snapshot.
-
-Ordering always follows the ``GameAssembly.dll`` modification time rather than the directory name:
-names like ``BETA`` carry no date, and a build is identified by the assembly it ships.
-"""
-
-from __future__ import annotations
 
 from collections.abc import Sequence
 from pathlib import Path
@@ -32,11 +23,6 @@ def iter_archived_build_dirs(
     exclude_dir: Path | None = None,
     required_files: Sequence[Path] = (),
 ) -> list[Path]:
-    """List the archived build directories, newest first.
-
-    ``exclude_dir`` drops one directory from the result: the non-obfuscated build is stored
-    alongside the archived obfuscated ones, and is not one of them.
-    """
     if not snapshots_root.exists():
         return []
 

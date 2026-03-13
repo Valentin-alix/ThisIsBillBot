@@ -7,7 +7,6 @@ from DBDofusUnity.dofus_unity_reader.game_constants.skill import SkillEnum
 from src.core.engine.interactives.map_interactive import find_usable_element_ids_by_cell_id
 
 POLISH_SKILL_ID = 700
-"""Un id de skill quelconque : le serveur seul dit ce qui se lustre chez Kerubim."""
 
 
 def _element_ids_by_cell_id(map_id: int) -> dict[int, int]:
@@ -20,7 +19,6 @@ def _element_ids_by_cell_id(map_id: int) -> dict[int, int]:
 
 
 def _elements(element_ids: dict[int, int], skill_id: int = POLISH_SKILL_ID) -> dict[int, InteractiveElement]:
-    """Tous les elements de la map, presentes comme utilisables par le serveur."""
     return {
         element_id: InteractiveElement(
             element_id=element_id,
@@ -42,7 +40,6 @@ def test_a_map_absent_from_the_graph_has_no_exit_cell() -> None:
 
 
 def test_the_two_shelves_of_kerubim_upper_floor_are_the_only_non_exit_elements() -> None:
-    """La garde de non-regression du script "Il faut que cha brille"."""
     element_ids = _element_ids_by_cell_id(MapIdEnum.KERUBIM_SHOP)
 
     usable = find_usable_element_ids_by_cell_id(MapIdEnum.KERUBIM_SHOP, _elements(element_ids))
@@ -60,7 +57,6 @@ def test_ground_floor_keeps_enough_furniture_for_its_three_objectives() -> None:
 
 
 def test_an_element_offering_the_exit_skill_is_dropped() -> None:
-    """Une porte hors du graphe de monde ferait quitter la map, et perdrait l'etape."""
     element_ids = _element_ids_by_cell_id(MapIdEnum.KERUBIM_SHOP)
     elements = _elements(element_ids, skill_id=SkillEnum.EXIT)
 
@@ -68,7 +64,6 @@ def test_an_element_offering_the_exit_skill_is_dropped() -> None:
 
 
 def test_an_element_without_enabled_skill_is_dropped() -> None:
-    """Un meuble deja lustre n'a plus de skill : l'etape suivante prend le suivant."""
     element_ids = _element_ids_by_cell_id(MapIdEnum.KERUBIM_SHOP)
     elements = _elements(element_ids)
     elements[element_ids[314]] = InteractiveElement(element_id=element_ids[314], on_current_map=True)
@@ -87,7 +82,6 @@ def test_skill_id_narrows_the_candidates() -> None:
 
 
 def test_an_element_the_map_does_not_know_is_ignored() -> None:
-    """Le serveur annonce parfois des elements sans reference : sans cellule, on ne peut rien."""
     elements = {
         999_999: InteractiveElement(
             element_id=999_999,

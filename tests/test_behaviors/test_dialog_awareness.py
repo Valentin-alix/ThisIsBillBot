@@ -1,5 +1,3 @@
-"""Le bot ne rouvre plus ce qui est deja ouvert, et ne ferme qu'au dernier moment."""
-
 from collections.abc import Callable
 from threading import Event
 from unittest.mock import MagicMock

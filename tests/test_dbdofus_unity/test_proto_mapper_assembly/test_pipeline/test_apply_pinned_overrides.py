@@ -1,6 +1,4 @@
-﻿from __future__ import annotations
-
-import pytest
+﻿import pytest
 from tests.fixtures.proto_mapper.field_builders import msg_typed_field
 from tests.fixtures.proto_mapper.message_builders import (
     NEW_NON_OBF_CLS,

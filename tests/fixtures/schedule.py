@@ -1,4 +1,4 @@
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.schedule_profile import (
+from ankama_launcher_emulator.interfaces.schedule_profile import (
     ScheduleProfile,
     TimeSlot,
 )

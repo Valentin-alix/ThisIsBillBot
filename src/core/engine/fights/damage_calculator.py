@@ -26,12 +26,6 @@ from src.core.engine.fights.stats.characteristic import get_stat_by_id
 
 @dataclass(frozen=True)
 class _ElementInfo:
-    """Caster-side data tied to a damage element.
-
-    - ``scaling_stat`` is the characteristic the base damage scales on,
-    - ``flat_damage_bonus`` is the flat per-element damage bonus stat.
-    """
-
     scaling_stat: CharacteristicEnum
     flat_damage_bonus: CharacteristicEnum
 
@@ -77,10 +71,6 @@ def _percent_factor(
     spell_id: int,
     modifiers: ModifierMap | None,
 ) -> float:
-    """Multiplicative damage factor: (100 + bonus) / 100.
-
-    ``bonus`` = element stat + Power + spell %% damage
-    """
     info = ELEMENT_INFO_BY_ID[element_id]
     bonus = (
         get_stat_by_id(characteristic_by_id.get(info.scaling_stat))
@@ -122,12 +112,6 @@ def _crit_probability(
     spell_lvl: SpellLevelsRootItem,
     characteristic_by_id: dict[int, CharacterCharacteristic],
 ) -> float:
-    """Critical chance in [0, 1].
-
-    Mirrors C#: a spell can only crit when it both declares a base critical
-    probability and exposes dedicated critical effects. The caster's CRITICAL_HIT
-    stat adds to the spell base probability (a direct percentage).
-    """
     if spell_lvl.criticalHitProbability <= 0 or not spell_lvl.criticalEffect:
         return 0.0
     crit_chance = spell_lvl.criticalHitProbability + get_stat_by_id(
@@ -144,11 +128,6 @@ def _damage_for_effect(
     is_critical: bool,
     modifiers: ModifierMap | None,
 ) -> float:
-    """Expected damage before the caster's dealt-damage multipliers.
-
-    The dealt-damage multipliers are a positive scalar identical for the normal
-    and critical rolls, so the caller applies them once on the combined value.
-    """
     base = base_roll(effect) + spell_modifier_value(effect.spellId, SpellModifierType.BASE_DAMAGE, modifiers)
     raw = base * _percent_factor(element_id, characteristic_by_id, effect.spellId, modifiers) + _flat_bonus(
         element_id, characteristic_by_id, is_critical
@@ -172,20 +151,7 @@ class DamageCalculator:
         primary_elem: EffectElement,
         modifiers: ModifierMap | None = None,
     ) -> int:
-        """Predict the expected damage an Effect deals to a monster.
-
-        Models the C# DamageSender/DamageReceiver chain for the parts that apply
-        to a monster target: base roll average, % damage factor, flat bonuses,
-        critical-hit expectation, monster element resistance and the caster's
-        dealt-damage multipliers (melee/distance + spell category).
-
-        ``monster_grade=None`` (target with unknown stats, e.g. an invisible enemy)
-        skips the resistance step (assumed 0%) rather than guessing it.
-
-        Out of scope (not relevant for a monster-target prediction): reflection,
-        life steal, sacrifice, splash/shared damage, dodge, caster/target
-        life-based damage, permanent damage (erosion) and push.
-        """
+        """Predict monster damage; unknown resistance is treated as zero and special redirections are excluded."""
         element_id = resolve_effect_element(effect.effectElement, primary_elem)
         if element_id is None:
             return 0

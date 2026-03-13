@@ -14,7 +14,6 @@ class QuestStepEnum(IntEnum):
 
 
 class QuestObjectiveEnum(IntEnum):
-    # Scene de menage (etape 1816)
     MENAGE_PLUME_TOFU = 6752
     MENAGE_PLUME_SCRIBOUILLARD = 6753
     MENAGE_BANQUIER = 6754
@@ -22,13 +21,11 @@ class QuestObjectiveEnum(IntEnum):
     MENAGE_PLUME_HIBOU = 6756
     MENAGE_RENDRE_PLUMES = 6757
 
-    # Bien velu, c'est Kerubim (etape 1817)
     BIEN_VELU_XELOR_LOUCHE = 6758
     BIEN_VELU_XELOR_SUSPECT = 6759
     BIEN_VELU_XELOR_INTERLOPE = 6760
     BIEN_VELU_RENDRE_CAISSES = 6761
 
-    # Il faut que cha brille (etape 2046)
     CHA_BRILLE_FABRIQUER_CIRE = 7924
     CHA_BRILLE_PETITE_COMMODE = 7925
     CHA_BRILLE_GRANDE_COMMODE = 7926

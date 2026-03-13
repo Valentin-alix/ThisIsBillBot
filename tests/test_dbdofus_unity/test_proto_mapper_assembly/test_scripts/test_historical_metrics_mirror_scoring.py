@@ -1,18 +1,4 @@
-﻿"""Lock the audit metrics onto the scoring functions they claim to mirror.
-
-``audit_historical_assembly_metrics`` reimplements several scoring functions instead of importing
-them, deliberately: they are private to the scoring module, and the audit must keep measuring the
-definition it was calibrated against even once production changes. The risk that buys is a silent
-divergence, where the audit reports on a formula the matcher no longer uses.
-
-These tests remove the silence. When one side changes, the pair stops agreeing here first, and
-keeping the divergence becomes an explicit decision -- update the expectation, or record in the
-mirror's docstring why the audit now measures something else on purpose.
-"""
-
-from __future__ import annotations
-
-import unittest
+﻿import unittest
 
 from tests.fixtures.proto_mapper.shapes import (
     BOOLEAN_SHAPE,
@@ -45,7 +31,6 @@ from DBDofusUnity.proto_mapper_assembly.scripts.audit_historical_assembly_metric
 
 
 def _message_signatures() -> list[MessageAccessSignature]:
-    """Messages differing in declared shapes and oneof partitions, the two structural inputs."""
     return [
         access_message_signature(
             message_cls="Ns.Empty",
@@ -162,7 +147,6 @@ class TestMetricsMirrorTheScoringModule(unittest.TestCase):
                     ) == signature_scoring.field_signature_similarity(left, right)
 
     def test_function_access_sequence_metric_matches_the_scoring_module(self) -> None:
-        """The dominant term of ``function_similarity_from_keys``, weighted 0.85 there."""
         for left in _function_similarity_keys():
             for right in _function_similarity_keys():
                 with self.subTest(left=left.self_accesses, right=right.self_accesses):

@@ -1,13 +1,10 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Literal
 
 _OBJECT_UNION_SEPARATOR = "|"
 _MIN_OBJECT_UNION_CLASS_COUNT = 2
 
-# Windows x64 parameter registers (IDA register indices)
-# rcx=1, rdx=2, r8=8, r9=9
+# Windows x64 IDA parameter registers: rcx=1, rdx=2, r8=8, r9=9.
 WINDOWS_X64_PARAM_REGISTERS: list[int] = [1, 2, 8, 9]
 WINDOWS_X64_VOLATILE_REGISTERS: frozenset[int] = frozenset({0, 1, 2, 8, 9, 10, 11, 33})
 RSP_REG: int = 4

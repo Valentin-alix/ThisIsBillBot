@@ -6,7 +6,6 @@ from pathlib import Path
 from threading import RLock
 from uuid import uuid4
 
-from utils.singleton import Singleton
 from google.protobuf.descriptor import FieldDescriptor
 from google.protobuf.message import Message
 
@@ -19,6 +18,8 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.runtime_data import (
     RuntimeInstance,
     RuntimeRoot,
 )
+from src.core.config import ENABLE_MSG_CAPTURE
+from utils.singleton import Singleton
 
 MAX_COUNT_BY_NAME = 1_500
 
@@ -38,6 +39,8 @@ class RuntimeDataStore(metaclass=Singleton):
         return 0
 
     def start_connection_capture_sequence(self) -> None:
+        if not ENABLE_MSG_CAPTURE:
+            return
         with self._lock:
             self._capture_sequence_index = 0
             self._capture_session_id = uuid4().hex
@@ -45,13 +48,7 @@ class RuntimeDataStore(metaclass=Singleton):
     def get_normalized_content_for_obf_message(
         self, *, message: DumpCSMessage, obf_messages_by_cls: Mapping[str, DumpCSMessage]
     ) -> tuple[NormalizedRuntimeInstance, ...]:
-        """
-        Return parsed runtime payloads for one obfuscated message, <!> Does not deep convert.
-
-        Runtime samples are keyed by the filtered obfuscated alias exported in
-        ``game_mappings.json``, not by the canonical ``composed_name`` used by
-        dump.cs parsing.
-        """
+        """Return shallow payloads keyed by the exported filtered alias, not the dump.cs composed name."""
         runtime_key = build_filtered_message_namespace(
             is_obf=True,
             message=message,
@@ -94,11 +91,6 @@ class RuntimeDataStore(metaclass=Singleton):
 
     @cached_property
     def capture_sequences_by_session_by_name(self) -> dict[str, CaptureSequencesBySession]:
-        """Capture sequences per session, for every observed message.
-
-        Cached: the matching loop rebuilds its score matrix on every store version change, and
-        walking tens of thousands of instances on each rebuild dominated the pass.
-        """
         by_name: dict[str, CaptureSequencesBySession] = {}
         for runtime_key, instances in self.content_by_name.root.items():
             sequences_by_session: dict[str, list[int]] = defaultdict(list)
@@ -125,7 +117,6 @@ class RuntimeDataStore(metaclass=Singleton):
                 obf_msg_namespace=obf_msg_namespace,
                 from_server=first_instance.from_server,
                 instance_count=len(instances),
-                # model_extra holds only the undeclared keys, so it is already the payload view.
                 observed_field_names=tuple(
                     sorted({name for instance in instances for name in (instance.model_extra or {})})
                 ),
@@ -160,6 +151,8 @@ class RuntimeDataStore(metaclass=Singleton):
         return {name: list(entries) for name, entries in data.root.items()}
 
     def add_msg(self, msg: Message, from_server: bool | None, is_game_msg: bool) -> None:
+        if not ENABLE_MSG_CAPTURE:
+            return
         with self._lock:
             if self._capture_target_path is None:
                 self._capture_target_path = self.path
@@ -269,6 +262,8 @@ class RuntimeDataStore(metaclass=Singleton):
         return value_by_field
 
     def write_captured_content(self) -> None:
+        if not ENABLE_MSG_CAPTURE:
+            return
         with self._lock:
             target_path = self._capture_target_path
             if target_path is None or not self._writing_content:

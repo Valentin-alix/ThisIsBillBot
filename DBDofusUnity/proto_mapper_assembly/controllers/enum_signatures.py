@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import (
@@ -12,7 +10,6 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature imp
 
 
 def validate_enum_signature_member_values(entry: EnumSignatureEntry) -> None:
-    """Validate if the enum entry in switch is in member_value_to_name."""
     declared_member_values = {int(member_value) for member_value in entry.member_value_to_name}
     for switch_pattern in entry.switch_patterns:
         for member_group in switch_pattern.member_groups:

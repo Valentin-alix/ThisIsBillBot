@@ -26,8 +26,6 @@ def _equipment_signature(item: ObjectItemInventory) -> tuple[int, tuple[bytes, .
 
 @dataclass
 class AutoEquipmentFromInventoryBehavior(Behavior):
-    """Equip inventory items only when their complete loadout is better."""
-
     _positions_by_uid: dict[int, CharacterInventoryPositionEnum] = field(
         init=False, default_factory=lambda: dict[int, CharacterInventoryPositionEnum]()
     )
@@ -105,9 +103,7 @@ class AutoEquipmentFromInventoryBehavior(Behavior):
         current: dict[CharacterInventoryPositionEnum, ObjectItemInventory],
         candidates: Iterable[ObjectItemInventory],
     ) -> dict[CharacterInventoryPositionEnum, ObjectItemInventory]:
-        """Greedy top-N per slot group by roll_score; may miss set bonuses, but
-        `choose_loadout` re-checks true equipment_score before equipping, so it
-        never picks worse than the current gear."""
+        """Greedy pruning may miss set bonuses; final loadout scoring prevents equipping worse gear."""
         primary_elem = self.game_state.fight.primary_and_second_elem[0]
         candidates_by_positions: dict[
             tuple[CharacterInventoryPositionEnum, ...], list[ObjectItemInventory]

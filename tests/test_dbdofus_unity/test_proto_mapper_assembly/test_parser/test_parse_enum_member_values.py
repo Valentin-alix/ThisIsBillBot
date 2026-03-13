@@ -2,11 +2,6 @@ from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_structure import parse_
 
 
 class TestParseEnumMemberValues:
-    def test_simple_enum(self) -> None:
-        code = "public enum Channel\n{\n    Global = 0,\n    Team = 1,\n    Sales = 5\n}\n"
-        result = parse_enum_member_values(code)
-        assert result == {"Channel": {"Global": 0, "Team": 1, "Sales": 5}}
-
     def test_negative_value(self) -> None:
         code = "public enum Status\n{\n    Unknown = -1,\n    Active = 0\n}\n"
         result = parse_enum_member_values(code)

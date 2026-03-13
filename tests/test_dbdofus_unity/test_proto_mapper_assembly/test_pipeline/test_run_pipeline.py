@@ -207,4 +207,3 @@ class TestRunPipeline:
             pinned_pairs_path=obf_dir / "pinned_pairs.json",
             observed_root_obf_messages=ANY,
         )
-

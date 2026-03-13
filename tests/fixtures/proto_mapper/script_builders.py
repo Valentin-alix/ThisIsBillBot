@@ -1,6 +1,4 @@
-﻿from __future__ import annotations
-
-from collections import Counter
+﻿from collections import Counter
 from contextlib import ExitStack
 from pathlib import Path
 from unittest.mock import patch
@@ -33,15 +31,11 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import (
     EnumSwitchPattern,
 )
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import FieldMappingResult
 from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry, GameMappingsDocument
-from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
 from DBDofusUnity.proto_mapper_assembly.interfaces.new_dump_cs import NewDumpCSFile
 from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
 from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import SignatureOverridesFile
-from DBDofusUnity.proto_mapper_assembly.matching.workspace import build_matching_workspace
 from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type
-from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import AssemblySimilarityData, MessageSimilarityScoreData
 from DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides import build_signature_overrides
 
 PINNED_PAIRS_PATH = Path("test_pinned_pairs.json")
@@ -277,7 +271,6 @@ def run_build_signature_overrides(
     non_obf_enum_signatures: dict[str, EnumSignatureEntry] | None = None,
 ) -> SignatureOverridesFile:
     with ExitStack() as stack:
-        # Exit stack permet d'éviter de faire 40 imbrications de with, c'est l'équivalent de with ...: quand on fait enter_context
         stack.enter_context(
             patch(
                 "DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides.load_pinned_pairs",
@@ -335,19 +328,6 @@ def run_build_signature_overrides(
         return build_signature_overrides(pinned_pairs_path=PINNED_PAIRS_PATH)
 
 
-def single_pair_workspace(
-    *,
-    obf_signature: MessageAccessSignature,
-    non_obf_signature: MessageAccessSignature,
-) -> MatchingWorkspace:
-    return build_matching_workspace(
-        obf_signatures=[obf_signature],
-        non_obf_signatures=[non_obf_signature],
-        obf_messages_by_cls={obf_signature.message_cls: obf_signature.dump_cs_msg},
-        non_obf_messages_by_cls={non_obf_signature.message_cls: non_obf_signature.dump_cs_msg},
-    )
-
-
 def single_pair_matching_inputs(
     *,
     obf_message: DumpCSMessage,
@@ -377,36 +357,4 @@ def single_pair_matching_inputs(
         non_obf_enum_signatures_by_name={},
         obf_access_trace=AccessTraceDocument(functions_by_address={}),
         non_obf_access_trace=AccessTraceDocument(functions_by_address={}),
-    )
-
-
-def static_score(
-    *,
-    function_similarity: float = 0.3,
-    fields_similarity: float = 0.3,
-    structure_similarity: float = 0.2,
-    assembly_weight: float = 0.75,
-) -> MessageSimilarityScoreData:
-    return MessageSimilarityScoreData(
-        structure_similarity=structure_similarity,
-        assembly_weight=assembly_weight,
-        assembly_sim_data=AssemblySimilarityData(
-            function_similarity=function_similarity,
-            fields_similarity=fields_similarity,
-        ),
-    )
-
-
-def field_mapping_result(
-    *,
-    field_mapping: dict[str, str] | None = None,
-    field_mapping_infos: dict[str, dict[str, float]] | None = None,
-) -> FieldMappingResult:
-    return FieldMappingResult(
-        field_mapping={} if field_mapping is None else field_mapping,
-        field_mapping_infos={} if field_mapping_infos is None else field_mapping_infos,
-        has_validation_failure=False,
-        discovered_message_matches=(),
-        field_mapping_rejected_infos={},
-        field_mapping_unmapped_non_obf_fields={},
     )

@@ -36,7 +36,6 @@ class TestCollectFileDescriptorMarkers:
         assert markers == []
 
     def test_file_descriptor_in_nested_type_does_not_count(self) -> None:
-        # FileDescriptor is in a nested class body, not in the direct body
         code = (
             "public static class OuterStatic // TypeDefIndex: 4\n"
             "{\n"

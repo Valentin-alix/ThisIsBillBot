@@ -31,11 +31,7 @@ class WorldGraphReader(metaclass=Singleton):
 
     @cache
     def get_exit_cell_ids(self, map_id: int) -> frozenset[int]:
-        """Cellules d'ou l'on quitte la map : portes, escaliers, zones de transition.
-
-        Les elements interactifs poses dessus font changer de map ; tout comportement qui
-        cherche un element "sur place" doit les ecarter.
-        """
+        """Les interactifs sur ces cellules changent de map : les exclure des actions sur place."""
         return frozenset(
             transition.m_cellId
             for vertex in self.get_vertexes(map_id)

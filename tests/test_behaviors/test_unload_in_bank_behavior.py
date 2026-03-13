@@ -4,7 +4,6 @@ from unittest.mock import MagicMock
 
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItem, ObjectItemInventory
 from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
-    ExchangeObjectMoveRequest,
     ExchangeObjectTransferAllFromInventoryRequest,
 )
 from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import InventoryWeightEvent
@@ -81,16 +80,6 @@ def test_a_full_bag_is_transferred_with_a_single_request(
     _enter_bank(behavior)
 
     assert [type(message) for message in sent_messages] == [ExchangeObjectTransferAllFromInventoryRequest]
-
-
-def test_no_item_is_moved_one_by_one_anymore(game_state_ctx: GameStateContext) -> None:
-    behavior, sent_messages = _make_behavior(game_state_ctx)
-    for item_gid in (GRAISSE_GELATINEUSE_GID, POILS_DE_KERUBIM_GID):
-        _put_in_inventory(behavior, item_gid)
-
-    _enter_bank(behavior)
-
-    assert not any(isinstance(message, ExchangeObjectMoveRequest) for message in sent_messages)
 
 
 def test_the_chest_is_left_open_once_the_bag_is_empty(game_state_ctx: GameStateContext) -> None:

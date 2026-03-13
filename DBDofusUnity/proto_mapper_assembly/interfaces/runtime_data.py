@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from pydantic import BaseModel, RootModel
 
 type NormalizedRuntimeInstance = dict[str, object]
@@ -18,8 +16,6 @@ class RuntimeRoot(RootModel[dict[str, tuple[RuntimeInstance, ...]]]):
 
 
 class ObservedRootObfMessage(BaseModel):
-    """One obfuscated root message the captures prove exists, summarised for reporting."""
-
     obf_msg_namespace: str
     from_server: bool | None
     instance_count: int

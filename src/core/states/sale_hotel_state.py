@@ -5,9 +5,8 @@ from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidSellerStartedEvent,
     SellingConditions,
 )
-
-from src import consts
 from src.controller.game_data import GameDataController
+from src.core import config
 from src.core.config import get_time_beween_sale_hotel_prices
 from src.core.signals.player_signals import GameInfoSignals
 from src.core.states.player_state import PlayerState
@@ -52,7 +51,7 @@ class SaleHotelState(State):
     @last_time_updated_prices.setter
     def last_time_updated_prices(self, value: datetime.datetime):
         self._last_time_updated_prices = value
-        if consts.DEBUG:
+        if config.DEBUG:
             self.game_info_signals.last_time_updated_prices.emit(value)
 
     @property

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import argparse
 import hashlib
 import shutil
@@ -119,9 +117,7 @@ def update_protos(*, use_obf: bool, obf_dir: Path | None = None, force: bool = F
             )
 
         if use_obf and obf_dir is not None:
-            # Backfilling an archived build: dump and trace only. Both steps below act on the live
-            # workspace whatever `--obf-dir` says, so running them here would wipe the current
-            # pinned pairs and overwrite the current mappings with an old build's result.
+            # Archived tracing must skip live-workspace steps that clear pins and overwrite current mappings.
             _record_game_assembly_mtime(target)
             return
 

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import Counter
 from collections.abc import Callable, Sequence
 
@@ -30,7 +28,6 @@ def counter_overlap_similarity(*, left_counter: Counter[str], right_counter: Cou
 
 
 def counter_profile_overlap_similarity(*, left: CounterProfile, right: CounterProfile) -> float:
-    # Using Cosine similarity
     if not left.counts and not right.counts:
         return 1.0
     if not left.counts or not right.counts:

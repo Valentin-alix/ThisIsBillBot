@@ -7,9 +7,6 @@ from src.services.debug_recorder.recorder import DebugRecorder
 
 @dataclass
 class DebugRecorderLogHandler(logging.Handler):
-    """Forwards each log record to a `DebugRecorder` queue (no Qt signal, no
-    cross-thread emit). Cheap on the calling thread."""
-
     recorder: DebugRecorder
 
     def __post_init__(self) -> None:

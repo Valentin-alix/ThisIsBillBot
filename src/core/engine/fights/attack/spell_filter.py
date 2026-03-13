@@ -53,12 +53,6 @@ def collect_castable_spells(
     context: AttackContext,
     effect_predicate: Callable[[Effect], bool],
 ) -> list[tuple[SpellLevelsRootItem, Effect, SpellModifiers]]:
-    """Castable spells owning an effect that matches ``effect_predicate``.
-
-    Shared collector for role-specific selection (heal, self-buff, ...): resolves
-    the spell level, finds a matching effect, builds modifiers and gates on
-    ``is_spell_valid_for_turn``.
-    """
     rejection_stats: dict[RejectionStat, int] = defaultdict(int)
     valid: list[tuple[SpellLevelsRootItem, Effect, SpellModifiers]] = []
     modifiers_map = context.modifier_by_type_and_spell_id

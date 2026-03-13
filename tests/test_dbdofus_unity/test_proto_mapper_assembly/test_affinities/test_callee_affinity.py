@@ -17,7 +17,6 @@ _CHAT = "Core.Localization.dll/Core/Localization/LocalizedStringUtilities::GetLo
 
 
 def _access_trace(callees_by_function: dict[str, tuple[list[str], list[str]]]) -> AccessTraceDocument:
-    """Build a trace where each function touches some classes and calls some methods."""
     functions_by_address: dict[str, Any] = {}
     for function_address, (touched_classes, stable_callees) in callees_by_function.items():
         functions_by_address[function_address] = {
@@ -54,7 +53,6 @@ def _callee_affinity(
     obf_access_trace: AccessTraceDocument,
     non_obf_access_trace: AccessTraceDocument,
 ) -> AffinityResult:
-    """The affinity comes from the traces alone, so the shared base matrix goes in unread."""
     return build_callee_affinity(
         AffinitySignalInputs(
             workspace=workspace,
@@ -67,7 +65,6 @@ def _callee_affinity(
 
 class TestBuildCalleeAffinity:
     def test_rare_shared_callee_separates_otherwise_identical_messages(self) -> None:
-        """The point of the signal: two messages with nothing else to tell them apart."""
         workspace = simple_workspace(obf_classes=_OBF_CLASSES, non_obf_classes=_NON_OBF_CLASSES)
         obf_trace = _access_trace(
             {
@@ -96,7 +93,6 @@ class TestBuildCalleeAffinity:
         )
 
     def test_ubiquitous_callee_alone_does_not_separate(self) -> None:
-        """A callee every message makes carries no information, whatever its raw overlap."""
         workspace = simple_workspace(obf_classes=_OBF_CLASSES, non_obf_classes=_NON_OBF_CLASSES)
         everywhere = {
             "0x1": (["obf_achievement"], [_COMMON]),
@@ -119,7 +115,6 @@ class TestBuildCalleeAffinity:
         assert np.allclose(affinity[achievement_row], affinity[achievement_row][0])
 
     def test_message_calling_nothing_recognisable_is_left_out_of_the_mask(self) -> None:
-        """Silence is not evidence: the caller must leave those scores untouched."""
         workspace = simple_workspace(obf_classes=_OBF_CLASSES, non_obf_classes=_NON_OBF_CLASSES)
         obf_trace = _access_trace({"0x1": (["obf_achievement"], [_ACHIEVEMENT])})
         non_obf_trace = _access_trace({"0x11": (["AchievementEvent"], [_ACHIEVEMENT])})
@@ -134,7 +129,6 @@ class TestBuildCalleeAffinity:
         assert not mask[:, _OBF_CLASSES.index("obf_silent")].any()
 
     def test_callees_seen_on_only_one_build_are_ignored(self) -> None:
-        """A callee absent from the other side can never match, and would only skew the norms."""
         workspace = simple_workspace(obf_classes=_OBF_CLASSES, non_obf_classes=_NON_OBF_CLASSES)
         obf_trace = _access_trace({"0x1": (["obf_achievement"], ["only.dll/Only::Here/0"])})
         non_obf_trace = _access_trace({"0x11": (["AchievementEvent"], [_ACHIEVEMENT])})
@@ -149,7 +143,6 @@ class TestBuildCalleeAffinity:
         assert np.allclose(affinity, 0.0)
 
     def test_affinity_is_symmetric_under_swapping_the_two_builds(self) -> None:
-        """Weighting by one side's frequencies would make the score depend on match direction."""
         workspace = simple_workspace(obf_classes=_OBF_CLASSES, non_obf_classes=_NON_OBF_CLASSES)
         swapped_workspace = simple_workspace(obf_classes=_NON_OBF_CLASSES, non_obf_classes=_OBF_CLASSES)
         obf_trace = _access_trace(

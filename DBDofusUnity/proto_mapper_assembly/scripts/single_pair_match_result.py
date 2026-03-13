@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import argparse
 from collections.abc import Mapping
 
@@ -187,7 +185,6 @@ def _debug_field_mapping(
     workspace: MatchingWorkspace,
     field_mapping_context: FieldMappingContext,
 ) -> None:
-    """Show best obf candidate and rejection reason for each non-obf field absent from field_mapping."""
     context = prepare_field_mapping_context(
         non_obf_signature=non_obf_signature,
         obf_signature=obf_signature,

@@ -40,7 +40,7 @@ from src.protocol.protocol_connection import (
     get_conn_msg_info,
 )
 from src.protocol.protocol_game import get_game_msg, get_game_msg_info
-from src.utils.network import get_local_ip
+from src.utils.internet import get_local_ip
 
 
 @dataclass

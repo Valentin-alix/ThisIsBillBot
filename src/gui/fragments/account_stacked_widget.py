@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import PivotItem, SegmentedWidget
 
-from src import consts
 from src.controller.player_info_storage import PlayerInfoSnapshot
+from src.core import config
 from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
 from src.gui.fragments.account_quick_info import AccountQuickInfoWidget
@@ -39,7 +39,7 @@ class AccountStackedWidget(QWidget):
         layout.addWidget(self.pivot)
 
         self.quick_info_widget: AccountQuickInfoWidget | None = None
-        if consts.DEBUG:
+        if config.DEBUG:
             self.quick_info_widget = AccountQuickInfoWidget(
                 self.bot,
                 snapshot,
@@ -52,8 +52,6 @@ class AccountStackedWidget(QWidget):
         layout.addWidget(self.stacked_widget)
 
         self.debug_pivot_item: PivotItem | None = None
-        if consts.DEBUG:
-            self._init_debug_interface()
 
         self.harvester_interface = FarmerWidget(login, self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.harvester_interface)
@@ -66,6 +64,9 @@ class AccountStackedWidget(QWidget):
             ),
             self.harvester_route,
         )
+
+        if config.DEBUG:
+            self._init_debug_interface()
 
         self.craft_interface = CraftPage(self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.craft_interface)
@@ -98,11 +99,7 @@ class AccountStackedWidget(QWidget):
         )
 
     def _select_initial_page(self) -> None:
-        if consts.DEBUG:
-            assert self.debug_pivot_item
-            self.debug_pivot_item.click()
-        else:
-            self.farmer_pivot_item.click()
+        self.farmer_pivot_item.click()
 
     def set_snapshot_sub_area_name(self, sub_area_name: str | None) -> None:
         if self.quick_info_widget is not None:

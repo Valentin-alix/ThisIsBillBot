@@ -1,13 +1,3 @@
-"""
-Export message access signature overrides for the proto mapper pipeline.
-
-This script writes only `messages_access_signature_override.json`.
-
-Run this after generating detailed game mappings or when the obfuscated build changes.
-"""
-
-from __future__ import annotations
-
 import argparse
 from collections import Counter
 from collections.abc import Iterable, Sequence
@@ -125,8 +115,7 @@ def run_export_signature_overrides(
 ) -> SignatureOverridesFile:
     resolved_export_paths = export_paths if export_paths is not None else _build_export_paths(obf_dir=obf_dir)
 
-    # The file is rewritten from scratch rather than merged with itself: a message that leaves the
-    # mapping would otherwise keep an override built against a build nobody traces any more.
+    # Rewrite rather than merge so removed mappings cannot leave stale overrides.
     generated_overrides = build_signature_overrides(
         resolved_export_paths.pinned_pairs_path, export_paths=resolved_export_paths
     )
@@ -272,8 +261,7 @@ def _report_dropped_bindings(dropped_bindings_by_non_obf_cls: dict[str, list[str
 
 
 _MIN_GROUP_COHERENCE = 0.90
-"""Below this share of a file descriptor's members landing in one obfuscated group, the group is
-mis-mapped and filling it freezes the error. See "Filling a group" in AGENTS.md."""
+"""Do not fill scattered descriptors: doing so would freeze an incorrect group mapping."""
 
 _REPORT_SAMPLE_SIZE = 8
 
@@ -284,12 +272,7 @@ def _report_export_fidelity(
     export_pairs: Sequence[PinnedPair],
     export_context: _ExportContext,
 ) -> None:
-    """
-    Score each exported entry against the obfuscated signature it was built from.
-
-    Rekeying is meant to be lossless, so anything below 1.0 is signal destroyed here rather than
-    build drift. Printed on every run so a regression cannot pass unnoticed.
-    """
+    """Rekeying must be lossless; a self-score below 1.0 indicates lost evidence."""
     scores: list[float] = []
     imperfect: list[tuple[float, str]] = []
     silent_field_losses: list[str] = []
@@ -341,13 +324,6 @@ def _report_group_coherence(
     export_pairs: Sequence[PinnedPair],
     export_context: _ExportContext,
 ) -> None:
-    """
-    Report, per non-obfuscated file descriptor, how well its members share one obfuscated group.
-
-    The group score is ``hungarian_alignment / max(n_non_obf, n_obf)``, so both a scattered group
-    and a group the obfuscated side has no room for score low. Curation problems the exporter can
-    see but not fix.
-    """
     obf_descriptors_by_non_obf_descriptor: dict[str, Counter[str]] = {}
     for pair in export_pairs:
         obf_sig = export_context.obf_signatures_by_cls.get(pair.obf)
@@ -413,18 +389,14 @@ def _build_export_pairs(
         _message_full_form(message): message.composed_name
         for message in non_obf_messages_with_bootstrap_by_cls.values()
     }
-    # The mapping writer exports each message under its generated .proto alias, which can differ
-    # from the dump.cs name, so index that form too or those mappings never resolve back.
+    # Generated proto aliases may differ from dump.cs names.
     generated_messages_by_cls = build_dump_cs_messages_from_pb2(PROTOS_ROOT / "non_obf")
     for message in non_obf_messages_with_bootstrap_by_cls.values():
         exported = resolve_generated_message_alias(
             message=message, generated_messages_by_cls=generated_messages_by_cls
         )
         composed_name_by_full_form.setdefault(_message_full_form(exported), message.composed_name)
-    # A nested message is keyed by `write_game_mappings` under its *filtered* namespace, which drops
-    # the `Types` wrapper class that only exists in C#. `_message_full_form` keeps it, so without
-    # this index every nested message resolves to nothing and the export dies on a mapping it just
-    # produced itself.
+    # Exported nested namespaces omit the C# Types wrapper.
     for message in non_obf_messages_with_bootstrap_by_cls.values():
         filtered_form = build_filtered_message_namespace(
             is_obf=False,
@@ -432,8 +404,7 @@ def _build_export_pairs(
             messages_by_cls=non_obf_messages_with_bootstrap_by_cls,
         ).lstrip(".")
         composed_name_by_full_form.setdefault(filtered_form, message.composed_name)
-    # The dump.cs leaves protocol-root messages (package `com.ankama.dofus.server.game`) in the
-    # global namespace, so their full form is the bare name while the mapping keeps the package.
+    # Protocol roots have bare dump.cs names but retain their package in mappings.
     composed_name_by_root_name: dict[str, str] = {
         message.name: message.composed_name
         for message in non_obf_messages_with_bootstrap_by_cls.values()

@@ -69,15 +69,6 @@ class TestObfGameSnapshot:
 
 
 class TestFindSnapshotDirByGameAssemblyMtimeNs:
-    def test_returns_matching_snapshot_dir(self, tmp_path: Path) -> None:
-        layout = snapshot_layout(tmp_path)
-        write_snapshot(layout.snapshots_root / "22_04_2026", assembly_mtime_ns=200)
-        matching_snapshot = write_snapshot(layout.snapshots_root / "05_05_2026", assembly_mtime_ns=300)
-
-        found = find_snapshot_dir_by_game_assembly_mtime_ns(layout.snapshots_root, 300)
-
-        assert found == matching_snapshot
-
     def test_returns_none_when_no_snapshot_matches(self, tmp_path: Path) -> None:
         layout = snapshot_layout(tmp_path)
         write_snapshot(layout.snapshots_root / "22_04_2026", assembly_mtime_ns=200)

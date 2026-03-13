@@ -9,24 +9,24 @@ from threading import Thread
 from pydantic import ValidationError
 from requests.exceptions import RequestException
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_pool import (
+from ankama_launcher_emulator.controller.paysafecard_pool import (
     PaysafecardPoolController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.paysafecard_purchase import (
+from ankama_launcher_emulator.controller.paysafecard_purchase import (
     PaysafecardPurchaseController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.subscription_expiration import (
+from ankama_launcher_emulator.controller.subscription_expiration import (
     SubscriptionExpirationStorage,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.bak import (
+from ankama_launcher_emulator.haapi.bak import (
     BakHaapi,
     ShopPurchaseError,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.bak_api import ShopiArticle
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.paysafecard import (
+from ankama_launcher_emulator.interfaces.bak_api import ShopiArticle
+from ankama_launcher_emulator.interfaces.paysafecard import (
     PaysafecardPurchaseStatus,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.subscription.paysafecard_purchase import (
+from ankama_launcher_emulator.web.subscription.paysafecard_purchase import (
     PaysafecardPaymentOutcome,
     PaysafecardPurchaseError,
     purchase_with_paysafecard,

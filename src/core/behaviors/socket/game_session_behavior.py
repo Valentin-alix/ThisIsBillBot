@@ -45,9 +45,7 @@ from src.controller.bot_config import BotConfigService
 from src.core.behaviors.behavior import Behavior
 from src.services.human_timings import HumanTimingsService
 
-# Schnorr identification proof the client runs against the game server.
-# Group parameters come from DHStandardGroups.rfc2409_768 (768-bit MODP Group 1),
-# with g = 2 and q = (p - 1) / 2 as built by BouncyCastle's SafePrimeGen2.
+# Schnorr group: BouncyCastle rfc2409_768 with g=2 and q=(p-1)/2.
 _DH_P = int(
     "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1"
     "29024E088A67CC74020BBEA63B139B22514A08798E3404DD"
@@ -58,7 +56,7 @@ _DH_P = int(
 _DH_G = 2
 _DH_Q = (_DH_P - 1) // 2
 
-# Byte counts the client feeds to its RNG before reducing mod p.
+# Client RNG byte counts before reduction modulo p.
 _SECRET_RANDOM_BYTES = 1024
 _NONCE_RANDOM_BYTES = 50
 
@@ -74,7 +72,6 @@ class GameSessionBehavior(Behavior):
     _player_status_sent: bool = field(init=False, default=False)
 
     def run(self) -> None:
-
         self._verification_secret = (
             int.from_bytes(secrets.token_bytes(_SECRET_RANDOM_BYTES), "little") % _DH_P
         )
@@ -102,7 +99,6 @@ class GameSessionBehavior(Behavior):
         )
 
     def _on_server_session_ready(self, _msg: ServerSessionReadyEvent) -> None:
-
         self._verification_nonce = int.from_bytes(secrets.token_bytes(_NONCE_RANDOM_BYTES), "little")
         self.event_manager.send(ClientIdRequest(id=str(self._verification_commitment())))
 
@@ -121,12 +117,7 @@ class GameSessionBehavior(Behavior):
         return pow(_DH_G, self._verification_nonce, _DH_P)
 
     def _derive_local_challenge(self) -> int:
-        """Rebuild the challenge the client computes when the server omits it.
-
-        The client falls back to a Fiat-Shamir transcript hash over the group
-        generator, its public key, the current commitment and the same device
-        identifier it declared at login.
-        """
+        """Rebuild an omitted challenge from the client's Fiat-Shamir transcript and login device identifier."""
 
         device_identifier = BotConfigService().get_bot_config(self.game_state.player.login).hardware_id
         transcript = (

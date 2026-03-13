@@ -1,6 +1,4 @@
-﻿from __future__ import annotations
-
-import json
+﻿import json
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
@@ -316,11 +314,6 @@ class TestNestingGuard:
     FLAT_OBF = "klm"
 
     def test_warns_when_a_flat_declaration_maps_to_a_nested_obfuscated_class(self, tmp_path: Path) -> None:
-        """A root/nested disagreement makes build_static_score_data skip the pair outright.
-
-        The message still looks mapped afterwards, so nothing surfaces the loss - hence the check at
-        authoring time rather than three builds later.
-        """
         mappings = tmp_path / "game_mappings_detailed.json"
         mappings.write_text(
             GameMappingsDocument(

@@ -6,7 +6,6 @@ from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 from DBDofusUnity.proto_mapper_assembly.validators.field_validators import (
     MAX_DOFUS_LEVEL,
     MAX_TURN_TIME_MS,
-    is_non_empty_dict,
 )
 
 _MAX_ANGRY_TO_ATTACK_DELAY_MS = 24 * 60 * 60 * 1000
@@ -57,42 +56,20 @@ def validator_update_life_points_event(values: dict[str, object]) -> bool:
     return max_lp >= life_pts
 
 
-def validator_exchange_started_with_pods_event(values: dict[str, object]) -> bool:
+def validator_exchange_first_character_pods(values: dict[str, object]) -> bool:
     first_max = values["first_character_max_weight"]
     first_cur = values["first_character_current_weight"]
-    second_max = values["second_character_max_weight"]
-    second_cur = values["second_character_current_weight"]
     assert isinstance(first_max, int)
     assert isinstance(first_cur, int)
+    return first_max >= first_cur
+
+
+def validator_exchange_second_character_pods(values: dict[str, object]) -> bool:
+    second_max = values["second_character_max_weight"]
+    second_cur = values["second_character_current_weight"]
     assert isinstance(second_max, int)
     assert isinstance(second_cur, int)
-    if first_max < first_cur:
-        return False
     return second_max >= second_cur
-
-
-def validator_game_action_fight_event(values: dict[str, object]) -> bool:
-    source_id = values["source_id"]
-    assert isinstance(source_id, int)
-    if source_id < 0:
-        return True
-    action_keys = [
-        "slide",
-        "life_points_lost",
-        "life_points_gain",
-        "death",
-        "targeted_ability",
-        "exchange_positions",
-        "summons",
-        "removable_effect",
-        "modify_effects_duration",
-        "spell_cool_down_variation",
-        "tackled",
-        "points_variation",
-        "execute_script",
-        "spell_remove",
-    ]
-    return any(is_non_empty_dict(values[action]) for action in action_keys if action in values)  # pyright: ignore[reportArgumentType]
 
 
 def _cell_pair_within_short_distance(cell_a: int, cell_b: int) -> bool:
@@ -169,7 +146,6 @@ def validator_fight_starting_positions(values: dict[str, object]) -> bool:
     assert isinstance(challengers, list)
     assert isinstance(defenders, list)
 
-    # les defenders et les challengers ne peuvent pas aller sur la meme case, cest logix
     return not (set(cast("list[int]", challengers)) & set(cast("list[int]", defenders)))
 
 

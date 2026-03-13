@@ -47,19 +47,6 @@ def get_stated_element_collectable(
     map_id: int,
     jobs_lvl_by_id: dict[int, int],
 ) -> Collectable | None:
-    """
-    Derive a Collectable from a StatedElement if it represents a valid farmable resource.
-
-    Args:
-        stated_element: The StatedElement to analyze
-        interactive_element_by_id: Dictionary of element_id -> InteractiveElement
-        map_id: Current map ID
-        jobs_lvl_by_id: Dictionary of job_id -> job_level
-
-    Returns:
-        Collectable instance if valid farmable resource, None otherwise
-    """
-
     if stated_element.state != 0:
         return None
 

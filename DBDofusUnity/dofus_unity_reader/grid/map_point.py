@@ -85,7 +85,6 @@ class MapPoint:
 
     @cached_property
     def side_map_points(self) -> set["MapPoint"]:
-        """Get the four point next to this point (not in diag)."""
         side_map_points: set[MapPoint] = set()
         coords = [
             (self.x + 1, self.y),

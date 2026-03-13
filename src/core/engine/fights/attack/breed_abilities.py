@@ -24,8 +24,6 @@ _RESERVED_AP_PROVIDERS: dict[int, ReservedApProvider] = {
 
 @dataclass
 class BreedAbilitySelector(ContextualLogger):
-    """Tries each breed's `RULES` (see `_BREED_RULES`), in order, until one fires."""
-
     fight_reachable_cells: FightReachableCells
     damage_calculator: DamageCalculator
 
@@ -41,8 +39,6 @@ class BreedAbilitySelector(ContextualLogger):
         return None
 
     def find_urgent_support_action(self, context: AttackContext) -> SupportAction | None:
-        """Life-threshold-gated actions that must preempt attacking, e.g. an emergency
-        shield recast (unlike `find_support_action`'s opportunistic fallback rules)."""
         for rule in _BREED_URGENT_RULES.get(context.breed_id, []):
             action = rule(context, self.fight_reachable_cells, self.damage_calculator)
             if action is not None:
@@ -54,6 +50,5 @@ class BreedAbilitySelector(ContextualLogger):
         return None
 
     def get_reserved_ap(self, context: AttackContext) -> int:
-        """AP the attack search should hold back so a pending support action still has it."""
         provider = _RESERVED_AP_PROVIDERS.get(context.breed_id)
         return provider(context, self.damage_calculator) if provider is not None else 0

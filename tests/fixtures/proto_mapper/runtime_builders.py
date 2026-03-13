@@ -1,6 +1,4 @@
-﻿from __future__ import annotations
-
-from collections.abc import Mapping
+﻿from collections.abc import Mapping
 
 from tests.fixtures.proto_mapper.message_builders import message_signature
 

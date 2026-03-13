@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import numpy as np
 
 from DBDofusUnity.proto_mapper_assembly.affinities._group_similarity import build_group_scores_matrix
@@ -11,18 +9,7 @@ def build_file_descriptor_similarity(
     workspace: MatchingWorkspace,
     base_scores_matrix: np.ndarray,
 ) -> tuple[np.ndarray, dict[tuple[str, str], float]]:
-    """
-    Compute file-descriptor similarity as message-set alignment.
-
-    For every (non-obf file descriptor, obf file descriptor) pair, the similarity is
-    the Hungarian-assignment alignment of their member messages, read from
-    ``base_scores_matrix``. The similarity is later blended into each message-pair score,
-    so cross-file matches stay possible but are penalized.
-
-    Returns both a ``(non_obf, obf)`` broadcast matrix (one cell per message pair,
-    ready for score blending) and a per file-descriptor-pair lookup used to
-    annotate each match with its file alignment confidence.
-    """
+    """Return the broadcast message affinity matrix and confidence lookup per file-descriptor pair."""
     non_obf_index_by_cls = workspace.signature_indexes.non_obf_index_by_cls
     obf_index_by_cls = workspace.signature_indexes.obf_index_by_cls
     non_obf_fds = workspace.non_obf_group_descriptors

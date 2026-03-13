@@ -54,7 +54,6 @@ def _coerce_leaf_kind(value: object) -> FieldTypeLeafKind | None:
 
 
 def parse_field_type_shape(value: object) -> object:
-    """Accept a FieldTypeShape, a bare category string, or a (legacy or trimmed) array."""
     if isinstance(value, FieldTypeShape):
         return value
     if isinstance(value, str):
@@ -70,7 +69,6 @@ def parse_field_type_shape(value: object) -> object:
 
 
 def serialize_field_type_shape(shape: FieldTypeShape) -> str | list[str | None]:
-    """Compact form: a bare primitive collapses to its category string; null tails are dropped."""
     parts: list[str | None] = [
         shape.category.value,
         shape.inner_kind.value if shape.inner_kind is not None else None,
@@ -83,9 +81,7 @@ def serialize_field_type_shape(shape: FieldTypeShape) -> str | list[str | None]:
     return parts
 
 
-# Pydantic-facing shape that reads both the legacy `[cat, inner, outer]` array and the compact
-# form, and writes the compact form to JSON. Use this on persisted model fields; keep the bare
-# `FieldTypeShape` for in-memory keys.
+# Persist compact shapes while accepting legacy arrays; use FieldTypeShape for in-memory keys.
 CompactFieldTypeShape = Annotated[
     FieldTypeShape,
     BeforeValidator(parse_field_type_shape),

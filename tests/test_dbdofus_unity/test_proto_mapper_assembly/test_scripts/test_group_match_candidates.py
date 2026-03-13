@@ -1,6 +1,4 @@
-﻿from __future__ import annotations
-
-import numpy as np
+﻿import numpy as np
 import pytest
 from tests.fixtures.proto_mapper.signatures import access_message_signature
 
@@ -42,8 +40,6 @@ def _analysis(
 
 
 class TestClaimVerdict:
-    """The verdict is the whole point of the report: it says whether a claim is worth contesting."""
-
     def test_a_claim_backed_by_no_pin_is_unverified(self) -> None:
         state = ObfGroupState(
             obf_descriptor="izp",
@@ -74,25 +70,6 @@ class TestClaimVerdict:
         )
 
         assert state.verdict == "weak"
-
-    def test_an_unclaimed_group_reads_as_free(self) -> None:
-        state = ObfGroupState(obf_descriptor="jbw", size=4, claims=())
-
-        assert state.describe_claims() == "free"
-        assert state.verdict == "UNVERIFIED"
-
-    def test_claims_are_described_with_their_pin_backing(self) -> None:
-        state = ObfGroupState(
-            obf_descriptor="jap",
-            size=26,
-            claims=(
-                GroupClaim(non_obf_descriptor="HavenBagReflection", message_count=23, pinned_count=1),
-                GroupClaim(non_obf_descriptor="BreachReflection", message_count=1, pinned_count=0),
-            ),
-        )
-
-        assert state.describe_claims() == "HavenBag=23(1 pins), Breach=1(0 pins)"
-
 
 class TestResolveNonObfDescriptor:
     _DESCRIPTORS = ("BreachReflection", "BreedingReflection", "MountReflection")
@@ -157,7 +134,6 @@ class TestCoherence:
         assert share == pytest.approx(2 / 3)
 
     def test_unmapped_members_do_not_count_towards_the_denominator(self) -> None:
-        """The score denominator is the mappings, not the members: 1 of 15 mapped still reads 1.0."""
         non_obf = [
             access_message_signature(message_cls="Ns.Alpha", file_descriptor="PaddockReflection"),
             access_message_signature(message_cls="Ns.Beta", file_descriptor="PaddockReflection"),

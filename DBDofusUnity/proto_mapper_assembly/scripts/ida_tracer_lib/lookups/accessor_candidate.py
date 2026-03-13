@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import defaultdict
 from dataclasses import dataclass
 from functools import cached_property
@@ -55,7 +53,6 @@ class AccessorCandidate:
 
 
 def build_getter_setter_lookup(msgs: list[DumpCSMessage]) -> dict[int, list[AccessorCandidate]]:
-    """Build a lookup from getter/setter address to live proto-backed field accesses."""
     result: dict[int, list[AccessorCandidate]] = defaultdict(list)
     message_type_lookup = build_long_name_by_unique_alias(msgs)
     for msg in msgs:

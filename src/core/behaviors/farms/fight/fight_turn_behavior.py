@@ -48,16 +48,13 @@ class FightTurnBehavior(FightListenerBehavior):
         self._advance_turn(0)
 
     def _advance_turn(self, stage: int, with_reserved_ap: bool = True) -> None:
-        """One-way waterfall (urgent breed action, primary attack, heal, buff): each
-        stage retries itself until it finds nothing, then falls through and never
-        re-checks."""
+        """Each stage retries until exhausted, then falls through without revisiting earlier stages."""
         contexts = self._get_attack_context_or_finish(with_reserved_ap)
         if contexts is None:
             return
         context, attack_context = contexts
 
         if stage <= 0:
-            # breed related specific action like summoning epee vorace for sacrier
             urgent_action = self.breed_ability_selector.find_urgent_support_action(attack_context)
             if urgent_action is not None:
                 _, urgent_spell_lvl, _ = urgent_action
@@ -107,8 +104,6 @@ class FightTurnBehavior(FightListenerBehavior):
     def _get_attack_context_or_finish(
         self, with_reserved_ap: bool = False
     ) -> tuple[AttackContext, AttackContext] | None:
-        """The raw context, plus an AP-capped variant when ``with_reserved_ap`` holds
-        back a pending support action's AP (the two are equal otherwise)."""
         context = self.game_state.get_attack_context_if_available()
         if context is None:
             if self.game_state.fight.life_point <= 0:

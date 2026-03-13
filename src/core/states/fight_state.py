@@ -17,8 +17,7 @@ from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import (
     EffectElement,
 )
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
-
-from src import consts
+from src.core import config
 from src.core.engine.fights.attack.enemy_data import EnemyData, get_monster_max_spell_range
 from src.core.engine.fights.effect import get_effect_elem_by_stat
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
@@ -131,7 +130,7 @@ class FightState(State):
 
     def update_characteristic(self, characteristic: CharacterCharacteristic) -> None:
         self.characteristic_by_id[characteristic.characteristic_id] = characteristic
-        if not consts.DEBUG:
+        if not config.DEBUG:
             return
         value = get_stat_by_id(characteristic)
         if characteristic.characteristic_id == CharacteristicEnum.ACTION_POINTS:
@@ -146,7 +145,7 @@ class FightState(State):
     @breed_id.setter
     def breed_id(self, value: int):
         self._breed_id = value
-        if consts.DEBUG:
+        if config.DEBUG:
             self.game_info_signals.breed_id.emit(value)
 
     @property
@@ -160,7 +159,7 @@ class FightState(State):
     @fight_turn.setter
     def fight_turn(self, value: int):
         self._fight_turn = value
-        if consts.DEBUG:
+        if config.DEBUG:
             self.game_info_signals.fight_turn.emit(value)
 
     @property
@@ -171,7 +170,7 @@ class FightState(State):
     def max_life_point(self, value: int):
         assert value > 0
         self._max_life_point = value
-        if consts.DEBUG:
+        if config.DEBUG:
             self.game_info_signals.max_life_point.emit(value)
 
     @property
@@ -182,7 +181,7 @@ class FightState(State):
     def life_point(self, value: int):
         assert value >= 0
         self._life_point = value
-        if consts.DEBUG:
+        if config.DEBUG:
             self.game_info_signals.life_point.emit(self._life_point)
 
     @property
@@ -242,7 +241,7 @@ class FightState(State):
     @is_our_turn.setter
     def is_our_turn(self, value: bool):
         self._is_our_turn = value
-        if consts.DEBUG:
+        if config.DEBUG:
             self.game_info_signals.is_our_turn.emit(value)
 
     def get_enemies(self, character_id: int) -> list[ActorPositionInformation]:

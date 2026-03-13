@@ -2,12 +2,12 @@ import os
 import platform
 from pathlib import Path
 
-from utils.env_config import get_path_from_env, get_required_path
 from dotenv import load_dotenv
 
 from DBDofusUnity.proto_mapper_assembly.helpers.archived_builds import PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
 from DBDofusUnity.proto_mapper_assembly.helpers.obf_game_snapshot import resolve_obf_game_snapshot
 from project_paths import BUNDLE_ROOT, ENV_PATH, IS_PACKAGED
+from utils.env_config import get_path_from_env, get_required_path
 
 PROJECT_ROOT: Path = BUNDLE_ROOT / "DBDofusUnity"
 BOT_SRC_ROOT: Path = PROJECT_ROOT.parent / "src"
@@ -118,106 +118,99 @@ OBF_PROTOCOL_GAME_DUMP_CS_FILE: Path = OBFUSCATED_DATA_DIR / PROTOCOL_GAME_DUMP_
 NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE: Path = NON_OBFUSCATED_DATA_DIR / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
 
 MSG_TO_MAP: list[str] = [
-    # protocol root
-    "GameMessage",  # protocol/protocol_game.py
-    "Request",  # core/mitm/game_proxy.py
-    # frames coeur de jeu
-    "CharacterSelectionEvent",  # core/frames/player_frame.py
-    "JobExperiencesUpdateEvent",  # core/frames/player_frame.py
-    "ZaapKnownListEvent",  # core/frames/player_frame.py
-    "CharacterLevelUpEvent",  # core/frames/player_frame.py
-    "CharacterCharacteristicUpgradeRequest",  # core/frames/player_frame.py
-    "MapCurrentEvent",  # core/frames/map_frame.py
-    "MapComplementaryInformationEvent",  # core/frames/map_frame.py
-    "FightMapInformationEvent",  # core/frames/fight_frame.py
-    "CharacterCharacteristicsEvent",  # core/frames/fight_frame.py
-    "SpellsEvent",  # core/frames/fight_frame.py
-    "FightPlacementPossiblePositionsEvent",  # core/frames/fight_frame.py
-    "FightRefreshCharacterStatsEvent",  # core/frames/fight_frame.py
-    "InventoryContentEvent",  # core/frames/inventory_frame.py
-    "InventoryWeightEvent",  # core/frames/inventory_frame.py
-    "ObjectAddedEvent",  # core/frames/inventory_frame.py
-    "ObjectQuantityEvent",  # core/frames/inventory_frame.py
-    "ExchangeStartedWithStorageEvent",  # core/frames/inventory_frame.py
-    "StorageInventoryContentEvent",  # core/frames/inventory_frame.py
-    "ExchangeStartedWithMultiTabStorageEvent",  # core/frames/guild_chest_frame.py
-    "GuildMembershipEvent",  # core/frames/guild_chest_frame.py
-    "ExchangeBidSellerStartedEvent",  # core/frames/sale_hotel_frame.py
-    "ExchangeBidHouseItemAddedEvent",  # core/frames/sale_hotel_frame.py
-    "ExchangeBidHouseItemRemovedEvent",  # core/frames/sale_hotel_frame.py
-    "ExchangeBidPriceEvent",  # core/frames/sale_hotel_frame.py
-    "ObjectAveragePricesEvent",  # core/frames/sale_hotel_frame.py
-    "ChatChannelMessageEvent",  # core/frames/chat_frame.py
-    # mouvements / interactifs / PNJ
-    "MapMovementRequest",  # core/behaviors/movements/map_move_behavior.py
-    "MapMovementEvent",  # core/frames/entity_frame.py
-    "MapMovementConfirmRequest",  # core/behaviors/movements/map_move_behavior.py
-    "MapMovementConfirmResponse",  # core/behaviors/movements/map_move_behavior.py
-    "MapMovementRefusedEvent",  # core/frames/entity_frame.py
-    "MapChangeRequest",  # core/behaviors/movements/map_change_behavior.py
-    "MapTeleportOnSameEvent",  # core/frames/entity_frame.py
-    "InteractiveElementUpdatedEvent",  # core/frames/interactive_frame.py
-    "StatedElementUpdatedEvent",  # core/frames/interactive_frame.py
-    "InteractiveUseRequest",  # core/behaviors/interactives/interactive_behavior.py
-    "InteractiveUsedEvent",  # core/behaviors/interactives/interactive_behavior.py
-    "InteractiveUseErrorEvent",  # core/behaviors/interactives/interactive_behavior.py
-    "NpcGenericActionRequest",  # core/behaviors/npcs/npc_dialog_behavior.py
-    "NpcDialogQuestionEvent",  # core/behaviors/npcs/npc_dialog_behavior.py
-    "NpcDialogReplyRequest",  # core/behaviors/npcs/npc_dialog_behavior.py
-    # quetes
-    "QuestsEvent",  # core/frames/quest_frame.py
-    "QuestStartedEvent",  # core/frames/quest_frame.py
-    "QuestValidatedEvent",  # core/frames/quest_frame.py
-    "QuestStepStartedEvent",  # core/frames/quest_frame.py
-    "QuestStepValidatedEvent",  # core/frames/quest_frame.py
-    "QuestStepInformationEvent",  # core/frames/quest_frame.py
-    "GuideModQuitRequest",  # core/behaviors/quests/tutorial_behavior.py
-    "HavenBagEnterRequest",  # core/behaviors/movements/waypoint_behavior.py
-    "HavenBagExitRequest",  # core/behaviors/movements/waypoint_behavior.py
-    "TeleportRequest",  # core/behaviors/movements/waypoint_behavior.py
-    # combat / farm
-    "AttackMonsterRequest",  # core/behaviors/farms/fight/attacker_behavior.py
-    "EntitiesDispositionEvent",  # core/frames/entity_frame.py
-    "GameActionAcknowledgementRequest",  # core/behaviors/movements/map_move_behavior.py
-    "GameActionFightCastRequest",  # core/frames/fight_frame.py
-    "GameActionFightEvent",  # core/frames/fight_frame.py
-    "SequenceEndEvent",  # core/behaviors/movements/map_move_behavior.py
-    "FightPlacementPositionRequest",  # core/behaviors/farms/fight/fight_preparation_behavior.py
-    "FightReadyRequest",  # core/behaviors/farms/fight/fight_preparation_behavior.py
-    "ChallengeModSelectRequest",  # services/human_timings.py (human_timings only)
-    "FightTurnFinishRequest",  # core/frames/fight_frame.py
-    "FightSynchronizeEvent",  # core/frames/entity_frame.py
-    "FightFighterShowEvent",  # core/frames/entity_frame.py
-    "FightFighterRefreshEvent",  # core/frames/entity_frame.py
-    # inventaire / storage / guild chest / mule
-    "ObjectUseRequest",  # core/frames/inventory_frame.py
-    "DialogLeaveRequest",  # core/behaviors/dialog_handler_behavior.py
-    "ExchangeLeaveEvent",  # core/frames/inventory_frame.py
-    "ExchangeObjectMoveRequest",  # core/frames/inventory_frame.py
-    "ExchangeMoveKamaRequest",  # core/frames/inventory_frame.py
-    "GuildChestCurrentListenersAddEvent",  # enter_guild_chest_behavior.py
-    "GuildChestTabSelectRequest",  # core/behaviors/storage/loads/load_from_guild_chest_behavior.py
-    "ExchangePlayerRequest",  # core/behaviors/mule_storage/mule_give_behavior.py (mule only)
-    "ExchangeRequestedTradeEvent",  # core/behaviors/mule_storage/mule_accept_behavior.py (mule only)
-    "ExchangeAcceptRequest",  # core/behaviors/mule_storage/mule_accept_behavior.py (mule only)
-    "ExchangeStartedWithPodsEvent",  # core/behaviors/mule_storage/mule_accept_behavior.py (mule only)
-    "ExchangeObjectsAddedEvent",  # core/behaviors/mule_storage/mule_accept_behavior.py (mule only)
-    "ExchangeKamaModifiedEvent",  # core/behaviors/mule_storage/mule_accept_behavior.py (mule only)
-    "ExchangeReadyEvent",  # core/behaviors/mule_storage/mule_accept_behavior.py (mule only)
-    "ExchangeReadyRequest",  # core/frames/craft_frame.py
-    "ExchangeErrorEvent",  # core/behaviors/mule_storage/mule_give_behavior.py (mule only)
-    # craft / sale hotel / chat
-    "ExchangeCraftStartedEvent",  # core/frames/craft_frame.py
-    "ExchangeSetCraftRecipeRequest",  # core/frames/craft_frame.py
-    "ExchangeCraftCountRequest",  # core/frames/craft_frame.py
-    "ExchangeCraftCountModifiedEvent",  # core/behaviors/craft/craft_behavior.py
-    "ExchangeBidHouseSearchRequest",  # core/frames/sale_hotel_frame.py
-    "ExchangeBidHousePriceRequest",  # core/behaviors/sale_hotel/sale_hotel_prices_behavior.py
-    "ExchangeObjectMovePricedRequest",  # core/frames/inventory_frame.py
-    "ExchangeObjectModifyPricedRequest",  # core/frames/inventory_frame.py
-    "TextInformationEvent",  # core/behaviors/movements/map_move_behavior.py
-    "ChatChannelMessageRequest",  # core/behaviors/communication/chat_behavior.py
-    "ChatPrivateMessageRequest",  # core/frames/chat_frame.py
+    "GameMessage",
+    "Request",
+    "CharacterSelectionEvent",
+    "JobExperiencesUpdateEvent",
+    "ZaapKnownListEvent",
+    "CharacterLevelUpEvent",
+    "CharacterCharacteristicUpgradeRequest",
+    "MapCurrentEvent",
+    "MapComplementaryInformationEvent",
+    "FightMapInformationEvent",
+    "CharacterCharacteristicsEvent",
+    "SpellsEvent",
+    "FightPlacementPossiblePositionsEvent",
+    "FightRefreshCharacterStatsEvent",
+    "InventoryContentEvent",
+    "InventoryWeightEvent",
+    "ObjectAddedEvent",
+    "ObjectQuantityEvent",
+    "ExchangeStartedWithStorageEvent",
+    "StorageInventoryContentEvent",
+    "ExchangeStartedWithMultiTabStorageEvent",
+    "GuildMembershipEvent",
+    "ExchangeBidSellerStartedEvent",
+    "ExchangeBidHouseItemAddedEvent",
+    "ExchangeBidHouseItemRemovedEvent",
+    "ExchangeBidPriceEvent",
+    "ObjectAveragePricesEvent",
+    "ChatChannelMessageEvent",
+    "MapMovementRequest",
+    "MapMovementEvent",
+    "MapMovementConfirmRequest",
+    "MapMovementConfirmResponse",
+    "MapMovementRefusedEvent",
+    "MapChangeRequest",
+    "MapTeleportOnSameEvent",
+    "InteractiveElementUpdatedEvent",
+    "StatedElementUpdatedEvent",
+    "InteractiveUseRequest",
+    "InteractiveUsedEvent",
+    "InteractiveUseErrorEvent",
+    "NpcGenericActionRequest",
+    "NpcDialogQuestionEvent",
+    "NpcDialogReplyRequest",
+    "QuestsEvent",
+    "QuestStartedEvent",
+    "QuestValidatedEvent",
+    "QuestStepStartedEvent",
+    "QuestStepValidatedEvent",
+    "QuestStepInformationEvent",
+    "GuideModQuitRequest",
+    "HavenBagEnterRequest",
+    "HavenBagExitRequest",
+    "TeleportRequest",
+    "AttackMonsterRequest",
+    "EntitiesDispositionEvent",
+    "GameActionAcknowledgementRequest",
+    "GameActionFightCastRequest",
+    "GameActionFightEvent",
+    "SequenceEndEvent",
+    "FightPlacementPositionRequest",
+    "FightReadyRequest",
+    "ChallengeModSelectRequest",
+    "FightTurnFinishRequest",
+    "FightSynchronizeEvent",
+    "FightFighterShowEvent",
+    "FightFighterRefreshEvent",
+    "ObjectUseRequest",
+    "DialogLeaveRequest",
+    "ExchangeLeaveEvent",
+    "ExchangeObjectMoveRequest",
+    "ExchangeMoveKamaRequest",
+    "GuildChestCurrentListenersAddEvent",
+    "GuildChestTabSelectRequest",
+    "ExchangePlayerRequest",
+    "ExchangeRequestedTradeEvent",
+    "ExchangeAcceptRequest",
+    "ExchangeStartedWithPodsEvent",
+    "ExchangeObjectsAddedEvent",
+    "ExchangeKamaModifiedEvent",
+    "ExchangeReadyEvent",
+    "ExchangeReadyRequest",
+    "ExchangeErrorEvent",
+    "ExchangeCraftStartedEvent",
+    "ExchangeSetCraftRecipeRequest",
+    "ExchangeCraftCountRequest",
+    "ExchangeCraftCountModifiedEvent",
+    "ExchangeBidHouseSearchRequest",
+    "ExchangeBidHousePriceRequest",
+    "ExchangeObjectMovePricedRequest",
+    "ExchangeObjectModifyPricedRequest",
+    "TextInformationEvent",
+    "ChatChannelMessageRequest",
+    "ChatPrivateMessageRequest",
 ]
 GAME_ASSEMBLY_MARKER_NAME = ".last_dumped_game_assembly_mtime"
 DUMP_CS_MARKER_NAME = ".last_dumped_protocol_cs_hash"

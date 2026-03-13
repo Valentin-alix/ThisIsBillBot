@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import Counter
 from math import log
 
@@ -12,19 +10,7 @@ _SMOOTHING = 1e-9
 
 
 def build_callee_affinity(signal_inputs: AffinitySignalInputs, /) -> AffinityResult:
-    """
-    Compare messages by the non-obfuscated methods their handling code calls into.
-
-    Names around a message are regenerated each build; its calls out to the rest of the game are
-    not, ``LocalizedStringUtilities::GetLocalized/2`` being a real .NET identity. That is something
-    to compare for a message declaring no fields or one, which has no structure left.
-
-    Rarity is what makes it work: half the traced functions call ``String::IsNullOrEmpty``, so an
-    unweighted overlap saturates -- which is what the historical audit measured.
-
-    Returns ``(affinity_matrix, applicable_mask)`` shaped ``(n_non_obf, n_obf)``, the mask set only
-    where both sides call something shared. Calling nothing recognisable is not evidence.
-    """
+    """Return affinity and evidence mask from shared callees, weighted by rarity across both builds."""
     workspace = signal_inputs.workspace
     obf_access_trace = signal_inputs.obf_access_trace
     non_obf_access_trace = signal_inputs.non_obf_access_trace
@@ -64,19 +50,13 @@ def build_callee_affinity(signal_inputs: AffinitySignalInputs, /) -> AffinityRes
         vocabulary=vocabulary,
         weight_by_callee=weight_by_callee,
     )
-    # One matmul over precomputed per-message vectors: nothing is paid per candidate pair.
     affinity = non_obf_vectors @ obf_vectors.T
     applicable_mask = (non_obf_vectors.any(axis=1)[:, None]) & (obf_vectors.any(axis=1)[None, :])
     return AffinityResult(affinity, applicable_mask)
 
 
 def _collect_callees_by_cls(access_trace: AccessTraceDocument) -> dict[str, Counter[str]]:
-    """
-    Attribute each traced function's callees to every message class it touches.
-
-    Read from the trace, not the signatures: override files carry ``stable_callees`` on only part of
-    their entries and default it to empty on older exports.
-    """
+    """Read callees from traces because older signature overrides omit them."""
     callees_by_cls: dict[str, Counter[str]] = {}
     for traced_function in access_trace.functions_by_address.values():
         stable_callees = traced_function.stable_callees
@@ -97,13 +77,6 @@ def _build_shared_vocabulary(
     left_classes: list[str],
     right_classes: list[str],
 ) -> tuple[str, ...]:
-    """
-    Keep the callees both builds actually use; one side alone can never match anything.
-
-    Ubiquitous callees are not cut here: the rarity weighting already drives their weight to zero,
-    and a hard cut at 0.02 moved the replay from 288 correct / 15 wrong to 288 / 16 while costing
-    coverage on the messages that call little else.
-    """
     left_document_frequency = _document_frequency(left_callees_by_cls, left_classes)
     right_document_frequency = _document_frequency(right_callees_by_cls, right_classes)
     return tuple(sorted(left_document_frequency.keys() & right_document_frequency.keys()))
@@ -124,12 +97,7 @@ def _build_inverse_frequency_weights(
     left_classes: list[str],
     right_classes: list[str],
 ) -> dict[str, float]:
-    """
-    Weight each callee by how rare it is across *both* builds.
-
-    Averaging the two sides keeps the score symmetric; weighting by one build's frequencies would
-    make a pair score differently depending on which side is treated as the reference.
-    """
+    """Average rarity across both builds to keep scores symmetric."""
     left_document_frequency = _document_frequency(left_callees_by_cls, left_classes)
     right_document_frequency = _document_frequency(right_callees_by_cls, right_classes)
     left_total = max(len(left_classes), 1)
@@ -154,7 +122,6 @@ def _build_weighted_vectors(
     vocabulary: tuple[str, ...],
     weight_by_callee: dict[str, float],
 ) -> np.ndarray:
-    """Rows of rarity-weighted callee counts, L2-normalised so the matmul reads as a cosine."""
     column_by_callee = {callee: column for column, callee in enumerate(vocabulary)}
     vectors = np.zeros((len(classes), len(vocabulary)))
     for row, message_cls in enumerate(classes):
@@ -162,7 +129,7 @@ def _build_weighted_vectors(
             column = column_by_callee.get(callee)
             if column is None:
                 continue
-            # Sublinear: the raw count varies with inlining decisions that shift between builds.
+            # Sublinear counts reduce sensitivity to inlining changes across builds.
             vectors[row, column] = (1.0 + log(count)) * weight_by_callee[callee]
     norms = np.linalg.norm(vectors, axis=1, keepdims=True)
     return np.divide(vectors, norms, out=np.zeros_like(vectors), where=norms > 0.0)

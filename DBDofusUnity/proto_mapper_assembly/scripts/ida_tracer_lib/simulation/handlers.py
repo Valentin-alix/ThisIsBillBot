@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Sequence
 
 import idaapi
@@ -61,7 +59,6 @@ def handle_call_instruction(
     reg_state: RegisterState,
     ea: int,
 ) -> list[FieldAccessEntry]:
-    """Detect proto getter/setter accesses via direct or fixed memory call instructions."""
     candidate = resolve_accessor_candidate_for_call(insn, getter_setter_lookup, reg_state)
     if candidate is None:
         return []
@@ -77,7 +74,6 @@ def handle_lea_instruction(
     methodinfo_get_enumerator_lookup: dict[int, str] | None = None,
     ienumerator_typeinfo_lookup: dict[int, str] | None = None,
 ) -> Sequence[AccessEntry]:
-    """Detect proto TypeInfo loads and field address loads via LEA instructions."""
     destination_operand = insn.ops[0]
     source_operand = insn.ops[1]
     resolved_methodinfo_lookup = methodinfo_get_enumerator_lookup or {}
@@ -99,7 +95,6 @@ def handle_lea_instruction(
             reg_state[destination_operand.reg] = ("pending_indirect_current_base", inline_current_cls)
         return []
 
-    # Detect: lea reg, [obj_reg + field_offset] → track destination as field address
     if destination_operand.type == idaapi.o_reg and source_operand.type == idaapi.o_displ:
         base_info = reg_state.get(source_operand.reg)
         if base_info is not None and base_info[0] in {"object", "candidate_object", "object_offset"}:
@@ -160,7 +155,6 @@ def handle_vector_move_instruction(
     frame_state: StackFrameState,
     stack_state: StackState,
 ) -> None:
-    """Track MapField KVP value pointer through common vector copy patterns."""
     destination_operand = insn.ops[0]
     source_operand = insn.ops[1]
 
@@ -241,7 +235,6 @@ def _invalidate_arithmetic_destination(
     reg_state: RegisterState,
     heap_state: HeapState | None = None,
 ) -> None:
-    """Clear the tracked value of a register modified by an arithmetic instruction."""
     destination_operand = insn.ops[0]
     if destination_operand.type == idaapi.o_reg:
         reg_state.pop(destination_operand.reg, None)

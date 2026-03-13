@@ -1,4 +1,4 @@
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.bak_api import (
+from ankama_launcher_emulator.interfaces.bak_api import (
     ShopiArticle,
     ShopiReferenceOneOf,
     ShopiReferenceValue,

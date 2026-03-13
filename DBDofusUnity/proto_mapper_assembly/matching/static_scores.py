@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping, Sequence
 from typing import NamedTuple
 
@@ -60,19 +58,10 @@ def build_static_score_data(
     runtime_data_store: RuntimeDataStore,
     structure_context: StructureSimilarityContext,
 ) -> StaticScoreMatrices:
-    """
-    Compute the static similarity matrices for every signature pair.
-
-    The function fills three matrices: structure similarity, assembly
-    similarity, and the combined static score used as the base ranking signal.
-    Pairs that are obviously incompatible are skipped early to keep the matrix
-    construction cheaper and noiseless.
-    """
     structure_scores_matrix = np.zeros((len(non_obf_signatures), len(obf_signatures)))
     assembly_scores_matrix = np.zeros((len(non_obf_signatures), len(obf_signatures)))
     static_scores_matrix = np.zeros((len(non_obf_signatures), len(obf_signatures)))
 
-    # A root message only matches a root message: split up front rather than reject pair by pair.
     non_obf_candidates_by_root: dict[bool, list[_NonObfCandidate]] = {True: [], False: []}
     for non_obf_index, non_obf_signature in enumerate(non_obf_signatures):
         non_obf_candidates_by_root[non_obf_signature.dump_cs_msg.is_root_msg].append(
@@ -92,7 +81,6 @@ def build_static_score_data(
 
             non_obf_index = non_obf_candidate.non_obf_index
             non_obf_signature = non_obf_candidate.signature
-            # Shared by the shallow and the deep pass: neither term depends on the alignment.
             hardening = build_structure_hardening(obf_signature, non_obf_signature)
 
             structure_similarity = hardening.apply(shallow_structure_score(obf_signature, non_obf_signature))
@@ -172,7 +160,6 @@ def _apply_pinned_pair_score_overrides(
     non_obf_index_by_cls: Mapping[str, int],
     pinned_pairs_config: PinnedPairsConfig,
 ) -> None:
-    """Apply manual message pins as hard overrides in-place."""
     for pinned_pair in pinned_pairs_config.pairs:
         obf_index = obf_index_by_cls.get(pinned_pair.obf)
         non_obf_index = non_obf_index_by_cls.get(pinned_pair.non_obf)
@@ -190,7 +177,6 @@ def apply_pinned_pair_overrides_around_prospective_mask(
     scores_matrix: np.ndarray,
     pinned_pairs_config: PinnedPairsConfig,
 ) -> np.ndarray:
-    """Keep pinned pairs enforced both before and after prospective child constraints."""
     _apply_pinned_pair_score_overrides(
         scores_matrix=scores_matrix,
         obf_index_by_cls=workspace.signature_indexes.obf_index_by_cls,

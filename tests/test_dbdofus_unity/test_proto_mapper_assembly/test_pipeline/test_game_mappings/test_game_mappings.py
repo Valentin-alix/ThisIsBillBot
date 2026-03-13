@@ -15,7 +15,6 @@ from tests.fixtures.proto_mapper.pipeline_builders import (
 from DBDofusUnity.proto_mapper_assembly.controllers.game_mappings import (
     build_full_message_namespace,
     build_game_mappings_document,
-    build_simple_game_mappings_document,
     validate_game_mapping_targets,
     write_game_mappings,
 )
@@ -144,8 +143,6 @@ class TestGameMappings:
 
         assert audit.pinned_message_exceptions == (".game.Required",)
         assert audit.pinned_field_exceptions == (".game.Required.value",)
-        # Nothing is missing from the contract, so an unclaimed captured class stays a diagnostic
-        # rather than turning the gate red: every build ships messages the bot has no contract for.
         assert audit.unmapped_observed_messages == ("obf_orphan (server, 9 captures, 1 fields)",)
 
     def test_auto_mode_contract_aggregates_failures(self, tmp_path: Path) -> None:
@@ -247,14 +244,10 @@ class TestGameMappings:
         assert "missing fields (1)" in error_message
         assert ".game.Required.missing" in error_message
         assert "low message scores (1)" in error_message
-        # `.game.Required` declares nothing, so no trace can arbitrate its near-tie and it belongs to
-        # the dedicated section; only `.game.Traced`, which has fields, is an ordinary close call.
         assert "- low match margins (1):" in error_message
         assert ".game.Traced: 0.000 < 0.050" in error_message
         assert "- fieldless low match margins (1):" in error_message
         assert ".game.Required: 0.000 < 0.050 (no declared fields)" in error_message
-        # `obf_traced` is mapped, so only the captured class nothing claimed is reported — and it is
-        # reported next to `.game.Absent`, which is very likely the message it belongs to.
         assert "- captured classes nothing claimed (1):" in error_message
         assert "obf_orphan (client, 2 captures, 0 fields)" in error_message
 
@@ -279,19 +272,6 @@ class TestGameMappings:
     )
     def test_builds_full_message_namespace(self, msg: DumpCSMessage, expected: str) -> None:
         assert build_full_message_namespace(msg) == expected
-
-    def test_builds_simple_mapping_document_from_detailed_document(self) -> None:
-        document = GameMappingsDocument(
-            root={
-                ".B": detailed_game_mapping_entry("obf_b", {"fb": "field_b"}),
-                ".A": detailed_game_mapping_entry("obf_a", {"fa": "field_a"}),
-            }
-        )
-
-        assert build_simple_game_mappings_document(document).model_dump() == {
-            ".B": {"obf_msg_namespace": "obf_b", "field_mapping": {"fb": "field_b"}},
-            ".A": {"obf_msg_namespace": "obf_a", "field_mapping": {"fa": "field_a"}},
-        }
 
     def test_exports_minimal_mapping_document_with_scores_and_runtime_confidence(self) -> None:
         non_obf_message = DumpCSMessage(

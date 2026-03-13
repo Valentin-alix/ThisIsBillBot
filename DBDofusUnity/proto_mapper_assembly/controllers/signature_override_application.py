@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from DBDofusUnity.proto_mapper_assembly.controllers.enum_signatures import validate_enum_signature_member_values
 from DBDofusUnity.proto_mapper_assembly.controllers.message_fields import (
     bind_field_signatures_to_message_fields,
@@ -122,17 +120,7 @@ def apply_stored_signature_overrides(
     overrides: dict[str, SignatureOverrideEntry],
     non_obf_enum_signatures_by_name: dict[str, EnumSignatureEntry],
 ) -> dict[str, MessageAccessSignature]:
-    """
-    Return a copy of non_obf_signatures_by_cls with stored JSON overrides applied.
-
-    For each non-obf class in overrides:
-    - function_signatures are replaced with OBF ones.
-    - field_signatures are merged: override entries (OBF offsets) take priority; original
-      non-obf entries are kept for fields not present in the override.
-    - If field bindings are provided, dump_cs_msg field memory_offsets and
-      field signature identities are updated to align with the OBF struct layout so that
-      non_obf_field.memory_offset matches the keys in field_signatures.
-    """
+    """Override functions and bound offsets; merge fields with stored overrides taking precedence."""
     result = dict(non_obf_signatures_by_cls)
     for non_obf_cls, override in overrides.items():
         non_obf_sig = result.get(non_obf_cls)
@@ -190,13 +178,6 @@ def _apply_field_binding_remapping(
     msg: DumpCSMessage,
     remapping: dict[str, FieldOverrideBinding],
 ) -> DumpCSMessage:
-    """
-    Return a new DumpCSMessage with OBF memory offsets substituted for bound fields.
-
-    Fields whose property_name appears in remapping get their memory_offset replaced with
-    the corresponding OBF offset. All other fields are unchanged. Returns the original
-    object when remapping is empty.
-    """
     if not remapping:
         return msg
     new_fields = [

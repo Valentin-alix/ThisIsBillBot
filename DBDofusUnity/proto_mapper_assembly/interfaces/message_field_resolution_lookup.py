@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import defaultdict
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
@@ -66,7 +64,6 @@ def _build_unique_field_by_key[K](
     fields: Sequence[DumpCSMessageField],
     key_getter: Callable[[DumpCSMessageField], K | None],
 ) -> dict[K, DumpCSMessageField]:
-    """Index fields by ``key_getter``, keeping only keys that map to a single field."""
     grouped_fields: dict[K, list[DumpCSMessageField]] = defaultdict(list)
     for _field in fields:
         key = key_getter(_field)

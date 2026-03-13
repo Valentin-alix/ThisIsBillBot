@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 
 import idaapi
@@ -16,12 +14,7 @@ def collect_stable_callees(
     callee_identity_by_address: Mapping[int, str],
     function_scan_cache: FunctionScanCache | None = None,
 ) -> list[str]:
-    """
-    List the rebuild-stable methods this function calls directly.
-
-    Call sites are deduplicated: how many times a method is called swings with inlining decisions,
-    while the set of methods called does not.
-    """
+    """Deduplicate call sites because inlining changes call counts across builds."""
     identities: set[str] = set()
     for instructions in build_function_scan_plan(func, function_scan_cache).instructions_by_block.values():
         for decoded in instructions:

@@ -45,29 +45,7 @@ class AppFluentWindow(FluentWindowBase):
         parent: QWidget | None = None,
         isTransparent: bool = False,
     ) -> None:
-        """add widget, the object name of `interface` should be set already
-        before calling this method
-
-        Parameters
-        ----------
-        interface: QWidget
-            the subinterface to be added
-
-        icon: FluentIconBase | QIcon | str
-            the icon of navigation item
-
-        text: str
-            the text of navigation item
-
-        position: NavigationItemPosition
-            the position of navigation item
-
-        parent: QWidget
-            the parent of navigation item
-
-        isTransparent: bool
-            whether to use transparent background
-        """
+        """The interface must already have an object name."""
         if not interface.objectName():
             raise ValueError("The object name of `interface` can't be empty string.")
         if parent and not parent.objectName():

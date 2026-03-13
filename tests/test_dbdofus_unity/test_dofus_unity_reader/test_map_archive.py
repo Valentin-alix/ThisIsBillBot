@@ -25,10 +25,11 @@ def test_map_reader_loads_a_map_from_the_compressed_archive(
     with ZipFile(archive_path, "w", compression=ZIP_DEFLATED) as archive:
         archive.writestr("map/map_42.json", b'{"references":[]}')
 
-    monkeypatch.setattr(map_reader, "MAPS_ARCHIVE_PATH", archive_path)
-    _clear_map_reader_caches()
-    try:
-        assert MapReader().map_by_id(42).references == []
-        assert MapReader.get_all_map_bundle_ids() == {42}
-    finally:
+    with ZipFile(archive_path) as archive:
+        monkeypatch.setattr(map_reader, "zip_file", archive)
         _clear_map_reader_caches()
+        try:
+            assert MapReader().map_by_id(42).references == []
+            assert MapReader.get_all_map_bundle_ids() == {42}
+        finally:
+            _clear_map_reader_caches()

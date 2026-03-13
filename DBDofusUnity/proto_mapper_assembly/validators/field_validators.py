@@ -406,7 +406,7 @@ def is_valid_element_state(value: int) -> bool:
 
 @strict_validate_call
 def is_valid_characteristic_id(value: int) -> bool:
-    # apparently it fails if we only check in DataReader().characteristic_by_id, so for the moment we fallback to value between 0 and 1_000
+    # Some characteristic IDs are absent from DataReader; accept the observed 0..1000 range.
     return value in DataReader().characteristic_by_id or 0 <= value < 1000
 
 
@@ -453,7 +453,7 @@ def is_valid_amount_of_kamas(value: int) -> bool:
 
 @strict_validate_call
 def is_valid_move_of_kamas(value: int) -> bool:
-    # E.G : when we move kama from bank to inventory the value is negative
+    # Bank-to-inventory kama transfers can be negative.
     return -MAX_AMOUNT_KAMAS < value < MAX_AMOUNT_KAMAS
 
 
@@ -506,7 +506,7 @@ def is_valid_type_item(value: int) -> bool:
 
 @strict_validate_call
 def is_valid_spell_id(value: int) -> bool:
-    # when using weapon value == 0
+    # Weapon casts use zero.
     return value in DataReader().get_all_spell_ids() or value == 0
 
 
@@ -599,7 +599,7 @@ def is_valid_action_id(value: int) -> bool:
 
 @strict_validate_call
 def is_valid_npc_id(value: int) -> bool:
-    # npc is either static (so positive) or it's a monster (then it can be negative)
+    # Static NPC IDs are positive; monster NPC IDs can be negative.
     return value in DataReader().npc_by_id or value < 0
 
 
@@ -986,12 +986,12 @@ VALIDATORS_ON_FIELD: dict[type[Message], dict[str, ValidatorFn[Any]]] = {
         "context_modification": is_valid_char_usable_context_mod,
         "used": is_valid_positive,
     },
-    # common_pb2 — ActorPositionInformation.ActorInformation.FightFighterInformation.AIFighterInformation.MonsterFighter
+    # common_pb2
     _MonsterFighter: {
         "monster_gid": is_valid_monster_gid,
         "creature_grade": is_valid_grade,
     },
-    # common_pb2 — InteractiveElement.InteractiveElementSkill
+    # common_pb2
     _InteractiveElementSkill: {
         "skill_id": is_valid_skill_id,
         "skill_instance_uid": is_valid_strict_positive,
@@ -1130,7 +1130,7 @@ VALIDATORS_ON_FIELD: dict[type[Message], dict[str, ValidatorFn[Any]]] = {
         "owner_id": is_valid_actor_id,
     },
     GameActionAcknowledgementRequest: {"action_id": is_valid_action_id},
-    # game_action_pb2 — GameActionFightEvent.*
+    # game_action_pb2
     _CarryCharacter: {"cell": is_valid_cell_id},
     _ThrowCharacter: {"cell": is_valid_cell_id},
     _DropCharacter: {"cell": is_valid_cell_id},
@@ -1154,7 +1154,7 @@ VALIDATORS_ON_FIELD: dict[type[Message], dict[str, ValidatorFn[Any]]] = {
     _SpellImmunity: {"spell_id": is_valid_spell_id},
     _LifePointsGain: {"delta": is_valid_strict_positive},
     _LifePointsLost: {"loss": is_valid_strict_positive},
-    # game_action_pb2 — GameActionFightEvent.TargetedAbility.SpellCast
+    # game_action_pb2
     _SpellCast: {"spell_id": is_valid_spell_id},
     # gamemap_pb2
     MapMovementCancelRequest: {"cell_id": is_valid_cell_id},

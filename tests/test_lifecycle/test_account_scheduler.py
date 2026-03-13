@@ -3,8 +3,8 @@ import threading
 from typing import cast
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.local_storage import BotRecord
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.schedule_profile import (
+from ankama_launcher_emulator.interfaces.local_storage import BotRecord
+from ankama_launcher_emulator.interfaces.schedule_profile import (
     ProxyConfig,
     ScheduleProfile,
 )

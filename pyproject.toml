@@ -63,7 +63,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.poe.tasks]
-dead_code = "vulture src AnkamaLauncherEmulatorPremium/ankama_launcher_emulator_premium DBDofusUnity/dofus_unity_reader DBDofusUnity/proto_mapper_assembly scripts/vulture_whitelist.py --exclude \"*gen_zaap*,*proxy/dofus3/login_message_pb2.py\" --min-confidence 80"
+dead_code = "vulture src AnkamaLauncherEmulator/ankama_launcher_emulator DBDofusUnity/dofus_unity_reader DBDofusUnity/proto_mapper_assembly scripts/vulture_whitelist.py --exclude \"*gen_zaap*,*proxy/dofus3/login_message_pb2.py\" --min-confidence 80"
 check_type = "pyright"
 lint = "ruff check . --fix"
 format = "ruff format ."
@@ -71,12 +71,12 @@ check = ["lint", "check_type"]
 test = "coverage run --source=src -m pytest tests"
 test_verbose = "pytest tests -s"
 verify = ["lint", "check_type", "test"]
-package = "pyinstaller --noconfirm --clean --windowed --name Bot-DofusUnity --paths DBDofusUnity --paths AnkamaLauncherEmulatorPremium --add-data \"resources/icons;resources/icons\" --add-data \"DBDofusUnity/datas/bundles;DBDofusUnity/datas/bundles\" --add-data \"DBDofusUnity/datas/protos;DBDofusUnity/datas/protos\" __main__.py"
+package = "pyinstaller --noconfirm --clean --windowed --name Bot-DofusUnity --paths DBDofusUnity --paths AnkamaLauncherEmulator --add-data \"resources/icons;resources/icons\" --add-data \"DBDofusUnity/datas/bundles;DBDofusUnity/datas/bundles\" --add-data \"DBDofusUnity/datas/protos;DBDofusUnity/datas/protos\" --add-data \"AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3/script.js;AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3\" __main__.py"
 
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = [".", "AnkamaLauncherEmulatorPremium", "DBDofusUnity"]
+pythonpath = [".", "AnkamaLauncherEmulator", "DBDofusUnity"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
@@ -99,8 +99,8 @@ exclude = [
   "DBDofusUnity/Il2CppInspectorRedux",
   "DBDofusUnity/protodec",
   "DBDofusUnity/UABEA",
-  "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator_premium/gen_zaap",
-  "AnkamaLauncherEmulatorPremium/ankama_launcher_emulator_premium/proxy/dofus3/login_message*",
+  "AnkamaLauncherEmulator/ankama_launcher_emulator/gen_zaap",
+  "AnkamaLauncherEmulator/ankama_launcher_emulator/proxy/dofus3/login_message*",
   "**/.venv",
   "**/datas",
   "**/node_modules",

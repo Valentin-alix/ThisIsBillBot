@@ -22,21 +22,6 @@ class Sidebar(NavigationInterface):
         showReturnButton: bool = False,
         collapsible: bool = True,
     ) -> None:
-        """
-        Parameters
-        ----------
-        parent: widget
-            parent widget
-
-        showMenuButton: bool
-            whether to show menu button
-
-        showReturnButton: bool
-            whether to show return button
-
-        collapsible: bool
-            Is the navigation interface collapsible
-        """
         super().__init__(parent=parent)
         self.panel = SidebarPanel(self)
         self.panel.setMenuButtonVisible(showMenuButton)
@@ -62,37 +47,6 @@ class Sidebar(NavigationInterface):
         tooltip: str | None = None,
         parentRouteKey: str | None = None,
     ) -> NavigationTreeWidget:
-        """insert navigation item
-
-        Parameters
-        ----------
-        index: int
-            insert position
-
-        routKey: str
-            the unique name of item
-
-        icon: str | QIcon | FluentIconBase
-            the icon of navigation item
-
-        text: str
-            the text of navigation item
-
-        onClick: callable
-            the slot connected to item clicked signal
-
-        selectable: bool
-            whether the item is selectable
-
-        position: NavigationItemPosition
-            where the item is added
-
-        tooltip: str
-            the tooltip of item
-
-        parentRouteKey: str
-            the route key of parent item, the parent item should be `NavigationTreeWidgetBase`
-        """
         _widget = self.panel.insertItem(
             index,
             routeKey,
@@ -117,31 +71,6 @@ class Sidebar(NavigationInterface):
         tooltip: str | None = None,
         parentRouteKey: str | None = None,
     ) -> None:
-        """insert custom widget
-
-        Parameters
-        ----------
-        index: int
-            insert position
-
-        routKey: str
-            the unique name of item
-
-        widget: NavigationWidget
-            the custom widget to be added
-
-        onClick: callable
-            the slot connected to item clicked signal
-
-        position: NavigationItemPosition
-            where the widget is added
-
-        tooltip: str
-            the tooltip of widget
-
-        parentRouteKey: str
-            the route key of parent item, the parent item should be `NavigationTreeWidgetBase`
-        """
         self.panel.insertWidget(
             index,
             routeKey,

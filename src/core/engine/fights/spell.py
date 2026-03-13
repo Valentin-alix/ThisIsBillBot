@@ -122,12 +122,6 @@ def get_possible_mp_spell(
 def get_damage_spells(
     spells: list[SpellItem], primary_elem: EffectElement
 ) -> list[tuple[SpellLevelsRootItem, Effect]]:
-    """Damage spells for every element the caster can deal (not just the top ones).
-
-    The weight formula (real damage from the actual per-element stat, monster
-    resistance, kill bonus) already ranks a weak-element spell below a strong one
-    whenever it matters.
-    """
     spell_levels: list[tuple[SpellLevelsRootItem, Effect]] = []
     for spell in spells:
         if not spell.spell_id:

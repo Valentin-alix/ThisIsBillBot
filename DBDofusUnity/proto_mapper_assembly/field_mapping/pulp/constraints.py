@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import itertools
 import math
 from collections.abc import Callable
@@ -20,9 +18,10 @@ from DBDofusUnity.proto_mapper_assembly.validators.set_validators import (
     validator_character_characteristic_detailed_usable,
     validator_character_characteristic_upgrade_request,
     validator_character_characteristics,
+    validator_exchange_first_character_pods,
     validator_exchange_positions,
     validator_exchange_requested_trade_event,
-    validator_exchange_started_with_pods_event,
+    validator_exchange_second_character_pods,
     validator_fight_request_canceled_event,
     validator_fight_slave_switch_context_event,
     validator_fight_starting_positions,
@@ -44,8 +43,6 @@ _MAX_CONSTRAINT_TUPLES: int = 50_000
 
 
 class LpConstrainable(Protocol):
-    """Minimal typed interface for an LP problem that can accept constraints."""
-
     def addConstraint(self, _constraint: pulp.LpConstraint, /, name: str | None = None) -> None: ...  # noqa: N802
 
 
@@ -92,12 +89,12 @@ SET_VALIDATOR_FIELD_GROUPS: tuple[SetValidatorFieldGroup, ...] = (
     SetValidatorFieldGroup(
         message_short_name="ExchangeStartedWithPodsEvent",
         field_names=("first_character_max_weight", "first_character_current_weight"),
-        validator_fn=validator_exchange_started_with_pods_event,
+        validator_fn=validator_exchange_first_character_pods,
     ),
     SetValidatorFieldGroup(
         message_short_name="ExchangeStartedWithPodsEvent",
         field_names=("second_character_max_weight", "second_character_current_weight"),
-        validator_fn=validator_exchange_started_with_pods_event,
+        validator_fn=validator_exchange_second_character_pods,
     ),
     SetValidatorFieldGroup(
         message_short_name="ExchangeRequestedTradeEvent",
@@ -216,7 +213,6 @@ _GLOBAL_VALIDATOR_NAMES: frozenset[str] = frozenset(
 
 
 def has_applicable_constraints(non_obf_message_name: str) -> bool:
-    """Return True if any validator field group applies to this non_obf message."""
     return non_obf_message_name in _SET_VALIDATOR_NAMES or non_obf_message_name in _GLOBAL_VALIDATOR_NAMES
 
 
@@ -229,20 +225,8 @@ def build_ilp_validator_constraints(
     lp_variable_by_idxs: dict[tuple[int, int], pulp.LpVariable],
     problem: LpConstrainable,
 ) -> None:
-    """
-    Add ILP exclusion constraints for one validator field group.
-
-    For each k-tuple of obf field assignments that causes the validator to fail on
-    the runtime instances, adds a constraint preventing that exact assignment.
-    """
     idx_by_non_obf_name = {field.clean_field_name: idx for idx, field in enumerate(non_obf_fields)}
-    non_obf_idxs: list[int] = []
-    for field_name in group.field_names:
-        try:
-            idx = idx_by_non_obf_name[field_name]
-            non_obf_idxs.append(idx)
-        except KeyError:
-            print()
+    non_obf_idxs = [idx_by_non_obf_name[field_name] for field_name in group.field_names]
 
     k = len(group.field_names)
     m = len(obf_fields)
@@ -271,7 +255,6 @@ def build_ilp_validator_constraints(
             validator_passes = False
 
         if not validator_passes:
-            # Then add the combinaison in negative constraint
             lp_sum = pulp.lpSum(
                 lp_variable_by_idxs[ii, jj] for ii, jj in zip(non_obf_idxs, obf_jj, strict=True)
             )

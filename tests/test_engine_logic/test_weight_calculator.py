@@ -115,8 +115,6 @@ def _stub_malus_life_percent(monkeypatch: pytest.MonkeyPatch, malus: int) -> Non
 
 
 def _stub_malus_life_percent_pct(monkeypatch: pytest.MonkeyPatch, pct: float) -> None:
-    """Apply a malus computed as `pct` of current life_point at call time."""
-
     def _type(spell_id: int, effect: Effect) -> TypeEffect | None:
         return TypeEffect.MALUS_LIFE_PERCENT
 
@@ -129,7 +127,6 @@ def _stub_malus_life_percent_pct(monkeypatch: pytest.MonkeyPatch, pct: float) ->
 
 @pytest.fixture(autouse=True)
 def patch_singletons(monkeypatch: pytest.MonkeyPatch) -> dict[str, str]:
-    """Stub the DataReader / I18N singletons the calculator uses for life-steal detection."""
     state: dict[str, str] = {"description": "physical damage"}
 
     fake_data_effect = SimpleNamespace(descriptionId=42, characteristicOperator="")
@@ -178,7 +175,6 @@ class TestCalculateAttackWeight:
         assert weight == pytest.approx(60.0)  # pyright: ignore[reportUnknownMemberType]
 
     def test_catastrophic_life_cost_drops_weight_below_zero(self, monkeypatch: pytest.MonkeyPatch) -> None:
-
         _stub_malus_life_percent_pct(monkeypatch, 1.0)
 
         effect = _make_effect()
@@ -233,7 +229,6 @@ class TestCalculateAttackWeight:
         assert weight == pytest.approx(1000 * 1.05)  # pyright: ignore[reportUnknownMemberType]
 
     def test_low_hp_target_is_prioritized_over_full_hp(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """The 1/normalized_health amplifier biases scoring toward finishing wounded enemies."""
         _stub_no_type_effect(monkeypatch)
 
         effect = _make_effect()
@@ -320,7 +315,6 @@ class TestCalculateAttackWeight:
         assert weight_summon < weight_regular
 
     def test_invulnerable_enemy_is_not_targeted(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Damage on a fully invulnerable target is wasted -> zero weight."""
         _stub_no_type_effect(monkeypatch)
 
         effect = _make_effect()
@@ -344,7 +338,6 @@ class TestCalculateAttackWeight:
         assert weight == 0.0
 
     def test_invisible_enemy_is_not_targeted(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """An invisible (non-detected) target cannot be reliably hit -> zero weight."""
         _stub_no_type_effect(monkeypatch)
 
         effect = _make_effect()
@@ -368,7 +361,6 @@ class TestCalculateAttackWeight:
         assert weight == 0.0
 
     def test_bi_element_spell_sums_both_damage_effects(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """A spell with two co-zone damage effects is valued by their sum."""
         _stub_no_type_effect(monkeypatch)
 
         effect_str = _make_effect()
@@ -393,7 +385,6 @@ class TestCalculateAttackWeight:
         assert weight == pytest.approx(200.0)  # pyright: ignore[reportUnknownMemberType]
 
     def test_ally_only_effect_is_not_counted_as_enemy_damage(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Absorption-like ally transfer effects must not inflate attack weight."""
         _stub_no_type_effect(monkeypatch)
 
         enemy_damage_effect = _make_effect()
@@ -448,7 +439,6 @@ class TestCalculateAttackWeight:
         assert weight == pytest.approx(100.0)  # pyright: ignore[reportUnknownMemberType]
 
     def test_ally_in_aoe_penalises_weight(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """An AoE catching an ally is strongly down-weighted."""
         _stub_no_type_effect(monkeypatch)
 
         effect = _make_effect()

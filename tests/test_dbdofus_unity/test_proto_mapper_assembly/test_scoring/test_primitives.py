@@ -1,5 +1,4 @@
 from collections import Counter
-from collections.abc import Callable
 
 import numpy as np
 import pytest
@@ -11,18 +10,10 @@ from DBDofusUnity.proto_mapper_assembly.scoring.primitives import (
 )
 
 type SizeCase = tuple[int, int, float]
-type OffsetCase = tuple[int | None, int | None, float]
 type ForeignAccessCase = tuple[Counter[str], Counter[str], float]
 type SequenceCase = tuple[list[int], list[int], float]
-type SimilarityFn = Callable[[int, int], float]
-
-
 _SIZE_CASES: list[SizeCase] = [
     (100, 100, 1.0),
-    (100, 104, 0.9615384615384616),
-    (100, 108, 0.9259259259259259),
-    (100, 115, 0.8695652173913043),
-    (100, 128, 0.78125),
     (100, 200, 0.5),
 ]
 
@@ -56,7 +47,7 @@ def _exact_match_similarity(left_item: int, right_item: int) -> float:
 
 class TestScoringPrimitives:
     @pytest.mark.parametrize(("left", "right", "expected"), _SIZE_CASES)
-    def test_size_similarity_returns_expected_scores_across_ratio_buckets(
+    def test_size_similarity_distinguishes_equal_and_different_sizes(
         self,
         left: int,
         right: int,

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from pathlib import Path
 
 from DBDofusUnity.consts import EXCLUDED_NON_OBF_FILE
@@ -46,7 +44,7 @@ def load_matching_inputs(
         access_trace=obf_access_trace,
         messages=obf_messages,
     )
-    # Built from the full list: the trace names every class, and the builder raises on an absent one.
+    # Use all classes: trace references must resolve even outside the selected messages.
     non_obf_signatures_by_cls = {
         cls: signature
         for cls, signature in build_message_access_signatures_from_trace(

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import importlib
 import sys
 from collections.abc import Iterable, Iterator
@@ -116,15 +114,7 @@ def _oneof_group_to_dump_cs(
     *,
     enum_names: frozenset[str],
 ) -> list[DumpCSMessageField]:
-    """
-    Mirror how the dump.cs parser represents a protobuf ``oneof`` on a real IL2CPP dump.
-
-    protoc models a oneof as one member per case; IL2CPP emits a single ``object`` backing field, a
-    ``<Group>OneofCase`` discriminant, and one property per case. ``_message_body_oneof`` rebuilds
-    the members from those properties as *synthetic* fields carrying their real category. Emitting
-    the protoc shape instead would leave every member out of ``is_declared_proto_shape_field`` and
-    silently strip the whole group from the structure signal.
-    """
+    """Mirror IL2CPP oneofs as synthetic case fields sharing a backing field and discriminant."""
     camel_group_name = _snake_to_camel_with_underscore(oneof.name).removesuffix("_")
     pascal_group_name = _snake_to_pascal(oneof.name)
     case_clr_type = f"{pascal_group_name}OneofCase"
@@ -234,10 +224,7 @@ def _csharp_relative_name(
 def _enum_types(field: FieldDescriptor) -> tuple[str | None, str | None]:
     map_entry = field.message_type
     if map_entry is None or not map_entry.GetOptions().map_entry:
-        # Singular and repeated enum fields carry their enum name as the value type, the
-        # same way the dump.cs parser reports them on the obfuscated side. Without it
-        # `resolve_non_container_field_kind` cannot tell a repeated enum from a repeated
-        # message, and the field shapes stop matching.
+        # Preserve enum value types so repeated enums do not resolve as repeated messages.
         if field.type == FieldDescriptor.TYPE_ENUM and field.enum_type is not None:
             return None, field.enum_type.name
         return None, None

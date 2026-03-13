@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
 from functools import cached_property
 
@@ -35,7 +33,6 @@ class PreparedScoreData:
     assembly_scores_matrix: np.ndarray
     runtime_confidence_by_pair: dict[MatchPairKey, float | None]
     file_descriptor_similarity_by_pair: dict[tuple[str, str], float]
-    """Alignment confidence per (non_obf_file_descriptor, obf_file_descriptor) pair."""
 
 
 @dataclass(frozen=True)
@@ -50,17 +47,14 @@ class MatchResult:
     field_mapping_infos: FieldMappingInfos
     runtime_confidence: float | None
     match_margin: float
-    """Gap between this pair's score and the best competing candidate (row/column)."""
+    """Score gap to the strongest competing row or column candidate."""
     runner_up_obf: str | None
-    """Obfuscated class of the strongest losing alternative for this non-obf target."""
     is_low_confidence: bool
-    """Flagged when the score or margin falls under the abstention thresholds."""
     field_mapping_rejected_infos: FieldMappingRejectedInfos
     field_mapping_unmapped_non_obf_fields: FieldMappingUnmappedNonObfFields
     evidence_coverage: float | None
-    """Fraction of declared fields backed by runtime access traces (None when none are declared)."""
+    """Fraction of declared fields traced; None when no fields are declared."""
     is_runtime_observed: bool
-    """Whether the obfuscated class was seen in a capture (``evidence_coverage`` is about fields)."""
 
 
 @dataclass(frozen=True)

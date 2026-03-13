@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import numpy as np
 from tqdm import tqdm
 
@@ -30,13 +28,7 @@ def match_all_signatures_iteratively(
     inputs: MatchingInputs,
     run_config: MatchingRunConfig,
 ) -> list[MatchResult]:
-    """
-    Match every obfuscated message against every non-obfuscated one in a single global pool.
-
-    File-descriptor similarity is folded into ``prepared_scores.final_scores_matrix``, so the
-    pool spans all files at once. Root messages are matched first so confirmed parents
-    constrain their children before nested types are resolved.
-    """
+    """Match roots first so confirmed parents constrain nested candidates."""
     available_non_obf_indexes = {
         index
         for index, signature in enumerate(workspace.non_obf_signatures)
@@ -59,7 +51,6 @@ def match_all_signatures_iteratively(
             right_access_trace=inputs.non_obf_access_trace,
         ),
     )
-    # Identical on every iteration of the commit loop below, so it is built once here.
     field_mapping_context = FieldMappingContext(
         score_by_pair=field_mapping_score_by_pair,
         runtime_data_store=run_config.runtime_data_store,

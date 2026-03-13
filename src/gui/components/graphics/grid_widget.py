@@ -7,7 +7,7 @@ from DBDofusUnity.dofus_unity_reader.grid.consts import CELL_HEIGHT, CELL_WIDTH
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID, MapPoint
 from DBDofusUnity.dofus_unity_reader.models.datas.collectionsroot import Collectable
 from PyQt6.QtCore import QPointF, QRectF, Qt, pyqtSlot
-from PyQt6.QtGui import QColor, QFont, QMouseEvent, QPaintEvent, QPainter, QPen, QPolygonF, QShowEvent
+from PyQt6.QtGui import QColor, QFont, QMouseEvent, QPaintEvent, QPainter, QPen, QPicture, QPolygonF, QShowEvent
 from PyQt6.QtWidgets import QApplication, QWidget
 
 from src.core.signals.grid_signals import GridSignals
@@ -36,6 +36,21 @@ _MAX_X = max(pixel[0] for _, pixel, _ in _CELL_POINTS) + CELL_WIDTH / 2
 _MIN_Y = min(pixel[1] for _, pixel, _ in _CELL_POINTS) - CELL_HEIGHT / 2
 _MAX_Y = max(pixel[1] for _, pixel, _ in _CELL_POINTS) + CELL_HEIGHT / 2
 _SCENE_RECT = QRectF(_MIN_X, _MIN_Y, _MAX_X - _MIN_X, _MAX_Y - _MIN_Y)
+_CELL_POLYGON_BY_ID = {
+    cell_id: QPolygonF(
+        [
+            QPointF(x - CELL_WIDTH / 2, y),
+            QPointF(x, y + CELL_HEIGHT / 2),
+            QPointF(x + CELL_WIDTH / 2, y),
+            QPointF(x, y - CELL_HEIGHT / 2),
+        ]
+    )
+    for cell_id, (x, y), _ in _CELL_POINTS
+}
+_CELL_TEXT_RECT_BY_ID = {
+    cell_id: QRectF(x - CELL_WIDTH / 2, y - CELL_HEIGHT / 2, CELL_WIDTH, CELL_HEIGHT)
+    for cell_id, (x, y), _ in _CELL_POINTS
+}
 
 
 def readable_text_color(background: QColor) -> QColor:
@@ -76,7 +91,10 @@ class GridView(QWidget):
         self._rendered_map_id = 0
         self._cell_color_by_id: dict[int, QColor] = {}
         self._state_by_cell_id = {cell_id: CellState() for cell_id in MAP_POINT_BY_CELL_ID}
+        self._active_cell_ids: set[int] = set()
         self._font = QFont("Arial", 10)
+        self._static_grid_picture = QPicture()
+        self._rebuild_static_grid_picture()
 
         self.grid_signals.count_actor_on_cell_id_batch.connect(
             profiled_slot(self.on_new_count_actor_on_cell_id_batch)
@@ -103,27 +121,13 @@ class GridView(QWidget):
         offset_x, offset_y, scale = self._view_transform()
         painter.translate(offset_x, offset_y)
         painter.scale(scale, scale)
-        painter.setFont(self._font)
+        painter.drawPicture(0, 0, self._static_grid_picture)
 
-        border_pen = QPen(CELL_BORDER_COLOR)
-        border_pen.setWidthF(1 / scale)
-        painter.setPen(border_pen)
-        for cell_id, (x, y), _ in _CELL_POINTS:
-            color = self._cell_color_by_id.get(cell_id, _DEFAULT_COLOR)
-            painter.setBrush(color)
-            painter.drawPolygon(self._cell_polygon(x, y))
-            painter.setPen(readable_text_color(color))
-            painter.drawText(
-                QRectF(x - CELL_WIDTH / 2, y - CELL_HEIGHT / 2, CELL_WIDTH, CELL_HEIGHT),
-                Qt.AlignmentFlag.AlignCenter,
-                str(cell_id),
-            )
-            painter.setPen(border_pen)
-
-        for cell_id, (x, y), _ in _CELL_POINTS:
+        for cell_id in self._active_cell_ids:
             color = self._state_by_cell_id[cell_id].color()
             if color is None:
                 continue
+            x, y = MAP_POINT_BY_CELL_ID[cell_id].pixel_coord
             painter.setBrush(color)
             painter.setPen(Qt.PenStyle.NoPen)
             painter.drawEllipse(QPointF(x, y), CIRCLE_CELL_SIZE, CIRCLE_CELL_SIZE)
@@ -181,7 +185,9 @@ class GridView(QWidget):
         if self._map_id == 0:
             self._rendered_map_id = 0
             return
-        for cell_data in MapReader().map_by_id(self._map_id).mapData.cellsData:
+        map_reader = MapReader()
+        map_data = map_reader.map_by_id(self._map_id)
+        for cell_data in map_data.mapData.cellsData:
             if cell_data.mov == 1:
                 color = _MOVABLE_COLOR
             elif cell_data.los != 1:
@@ -190,6 +196,23 @@ class GridView(QWidget):
                 color = _EMPTY_COLOR
             self._cell_color_by_id[cell_data.cellNumber] = color
         self._rendered_map_id = self._map_id
+        self._rebuild_static_grid_picture()
+
+    def _rebuild_static_grid_picture(self) -> None:
+        self._static_grid_picture = QPicture()
+        painter = QPainter(self._static_grid_picture)
+        painter.setFont(self._font)
+        border_pen = QPen(CELL_BORDER_COLOR)
+        border_pen.setCosmetic(True)
+        painter.setPen(border_pen)
+        for cell_id, _, _ in _CELL_POINTS:
+            color = self._cell_color_by_id.get(cell_id, _DEFAULT_COLOR)
+            painter.setBrush(color)
+            painter.drawPolygon(_CELL_POLYGON_BY_ID[cell_id])
+            painter.setPen(readable_text_color(color))
+            painter.drawText(_CELL_TEXT_RECT_BY_ID[cell_id], Qt.AlignmentFlag.AlignCenter, str(cell_id))
+            painter.setPen(border_pen)
+        painter.end()
 
     def _request_visible_update(self) -> None:
         if self.isVisible():
@@ -207,6 +230,7 @@ class GridView(QWidget):
         for cell_id, count_actor in items:
             if cell_id in self._state_by_cell_id:
                 self._state_by_cell_id[cell_id].count_actor = count_actor
+                self._update_active_cell(cell_id)
         self._request_visible_update()
 
     @pyqtSlot(list)
@@ -217,29 +241,40 @@ class GridView(QWidget):
             state = self._state_by_cell_id[cell_id]
             state.stated_element = stated_element
             state.collectable = collectable
+            self._update_active_cell(cell_id)
         self._request_visible_update()
 
     @pyqtSlot(list)
     def on_set_obstacle_on_cell_id_batch(self, items: list[tuple[int, bool]]) -> None:
         for cell_id, is_obstacle in items:
             self._state_by_cell_id[cell_id].is_obstacle = is_obstacle
+            self._update_active_cell(cell_id)
         self._request_visible_update()
 
     @pyqtSlot(MapPoint)
     def on_debug_white_cell(self, mp: MapPoint) -> None:
         self._state_by_cell_id[mp.cell_id].debug_color = _PATH_START_COLOR
+        self._update_active_cell(mp.cell_id)
         self._request_visible_update()
 
     @pyqtSlot(MapPoint)
     def on_debug_red_cells(self, mps: set[MapPoint]) -> None:
         for mp in mps:
             self._state_by_cell_id[mp.cell_id].debug_color = _PATH_END_COLOR
+            self._update_active_cell(mp.cell_id)
         self._request_visible_update()
 
     @pyqtSlot(MapPoint)
     def on_debug_green_cell(self, mp: MapPoint) -> None:
         self._state_by_cell_id[mp.cell_id].debug_color = _PATH_TREATED_COLOR
+        self._update_active_cell(mp.cell_id)
         self._request_visible_update()
+
+    def _update_active_cell(self, cell_id: int) -> None:
+        if self._state_by_cell_id[cell_id].color() is None:
+            self._active_cell_ids.discard(cell_id)
+        else:
+            self._active_cell_ids.add(cell_id)
 
 
 if __name__ == "__main__":

@@ -18,8 +18,6 @@ class ReturnRole(StrEnum):
 
 
 class CfgStats(BaseModel):
-    """Control-flow shape of a traced function, a steadier size proxy than its byte count."""
-
     basic_block_count: int
     edge_count: int
     back_edge_count: int
@@ -65,7 +63,7 @@ class FunctionSimilarityKey(NamedTuple):
     size: int
     self_accesses: AccessAtomSequenceKey
     foreign_access_summary: ForeignAccessSummaryKey
-    opcode_histogram: tuple[tuple[str, int], ...]  # pour que ca soit hashable
+    opcode_histogram: tuple[tuple[str, int], ...]
     stable_callees: StableCalleesKey
     cfg_shape: CfgShapeKey | None
 
@@ -96,10 +94,8 @@ class FunctionAccessSignature(BaseModel):
     foreign_access_summary: list[str]
     opcode_histogram: Counter[str]
     stable_callees: list[str] = []
-    """Empty on signatures exported before callees were traced, so those files stay loadable."""
 
     cfg_stats: CfgStats | None = None
-    """Null on the signatures synthesized for enum comparison, which describe no scanned function."""
 
     @cached_property
     def stable_callees_key(self) -> StableCalleesKey:
@@ -111,7 +107,7 @@ class FunctionAccessSignature(BaseModel):
 
     @cached_property
     def self_accesses_key(self) -> AccessAtomSequenceKey:
-        # index_in_function brut (rang d'instruction dans la fonction) bouge un peu trop à chaque build IL2Cpp, on check juste l'ordre selon les field access / type info.
+        # L'ordre des acces est plus stable entre builds IL2CPP que le rang brut des instructions.
         ordered = sorted(self.self_accesses, key=lambda access: access.index_in_function)
         return tuple(
             AccessAtomKey(

@@ -1,4 +1,4 @@
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.bak_api import ShopiArticle
+from ankama_launcher_emulator.interfaces.bak_api import ShopiArticle
 
 from src.consts import DOFUS_SUBSCRIPTION_REFERENCE_ID, SUBSCRIPTION_DAYS
 

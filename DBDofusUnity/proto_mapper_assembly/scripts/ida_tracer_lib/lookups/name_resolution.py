@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import re
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.il2cpp_json import MethodDefinition

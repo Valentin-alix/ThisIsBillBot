@@ -34,6 +34,7 @@ from src.services.human_timings import HumanTimingsService
 class HarvesterBehavior(BaseFarmBehavior):
     collect_behavior: CollectBehavior
     fight_behavior: FightBehavior
+    report_status: Callable[[str], None]
 
     map_ids_to_explore: set[int] = field(init=False, default_factory=set[int])
     target_resource_item_ids: set[int] | None = field(init=False, default=None)
@@ -136,6 +137,7 @@ class HarvesterBehavior(BaseFarmBehavior):
             return
 
         if self.game_state.map.map_id in self.random_farm_behavior.map_ids:
+            self.report_status("Récolte en cours")
             self.collect_behavior.start(
                 callback=self.on_collect_behavior_finished,
                 parent=self,

@@ -23,6 +23,7 @@ class BotSignalsFake:
     stop: SignalEmitter = field(default_factory=SignalEmitter)
     play: SignalEmitter = field(default_factory=SignalEmitter)
     play_auto_bot: SignalEmitter = field(default_factory=SignalEmitter)
+    automation_status_changed: SignalEmitter = field(default_factory=SignalEmitter)
 
 
 @dataclass

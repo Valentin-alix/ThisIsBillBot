@@ -1,17 +1,11 @@
-"""
-Constantes système et infrastructure du bot.
-Configuration de l'environnement d'exécution, chemins, connexions réseau.
-
-⚠️ Ces valeurs concernent le système d'exécution, pas le jeu Dofus.
-Pour les constantes du jeu, voir DBDofusUnity/dofus_unity_reader/enums/.
-Pour la configuration du bot, voir src/core/config.py
-"""
-
 import datetime
 import os
 import socket
 from functools import cache
 from pathlib import Path
+
+from dotenv import load_dotenv
+from google.protobuf.message import Message
 
 from DBDofusUnity.datas.protos.non_obf.game.admin_console_pb2 import ConsoleCommand
 from DBDofusUnity.datas.protos.non_obf.game.arena_pb2 import (
@@ -49,29 +43,14 @@ from DBDofusUnity.datas.protos.non_obf.game.tag_storage_pb2 import (
     RemoveTagStorageRequest,
     UpdateTagStorageContentRequest,
 )
-from dotenv import load_dotenv
-from google.protobuf.message import Message
-
 from project_paths import BUNDLE_ROOT, ENV_PATH, USER_DATA_ROOT
+from src.core.config import DEBUG as DEBUG
 
 load_dotenv(ENV_PATH)
 
 
-def _read_bool_env(name: str, default: bool) -> bool:
-    raw_value = os.environ.get(name)
-    if raw_value is None:
-        return default
-    normalized = raw_value.strip().lower()
-    return bool(int(normalized))
-
-
-# --- Environnement ---
-DEBUG = _read_bool_env("DEBUG", True)
-
-# --- Backend ---
 BACKEND_URL = "http://localhost:8000"
 
-# --- Réseau Dofus ---
 FILTER_DOFUS = "tcp port 5555"
 DOFUS_CONNECTION_URL = "dofus2-co-production.ankama-games.com"
 
@@ -81,16 +60,13 @@ def get_connection_servers_ips() -> list[str]:
     return [*socket.gethostbyname_ex(DOFUS_CONNECTION_URL)[2], DOFUS_CONNECTION_URL]
 
 
-# --- Chemins ---
 RESOURCE_FOLDER = os.path.join(USER_DATA_ROOT, "resources")
 LOGO_FILE = str(BUNDLE_ROOT / "resources" / "icons" / "logo.png")
 BOT_DEBUG_LOGS_DIR = Path(RESOURCE_FOLDER) / "debug" / "bots"
 
-# --- Utilitaires ---
 MIN_DATE = datetime.datetime(datetime.MINYEAR, 1, 1)
 FAKE_INFINITY_VALUE = 99999
 
-# --- Abonnement ---
 SUBSCRIPTION_CATEGORY_ID = 698
 DOFUS_SUBSCRIPTION_REFERENCE_ID = "10"
 SUBSCRIPTION_DAYS = 7
@@ -99,7 +75,6 @@ SUBSCRIPTION_MIN_LEVEL = 30
 SUBSCRIPTION_MIN_KAMAS = 15_000
 MAX_BOTS_PER_SCHEDULE_PROFILE = 6
 
-# --- Protocole ---
 MESSAGES_WITH_UID: list[type[Message]] = [
     ClientIdRequest,
     ClientChallengeInitRequest,

@@ -47,8 +47,6 @@ class DialogTurns:
 
 @dataclass
 class DialogVariants:
-    """Alternative dialog paths for the same step, e.g. a quest already done offers a shorter path."""
-
     variants: list[DialogTurns]
     _active_index: int | None = field(init=False, default=None)
 

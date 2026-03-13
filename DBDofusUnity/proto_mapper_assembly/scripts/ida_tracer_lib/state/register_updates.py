@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import idaapi
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
@@ -102,17 +100,6 @@ def update_register_state_for_mov(
     tracking_fields_by_class_and_offset: dict[str, dict[int, DumpCSMessageField]],
     tracking_type_lookup: dict[str, str],
 ) -> None:
-    """
-    Update register state in-place based on a mov instruction.
-
-    - mov reg, reg: propagate src tracked value to dst, or remove dst if src is untracked
-    - mov reg, [rsp/rbp+offset]: reload tracked stack spill when available
-    - mov reg, [heap_base+offset]: reload tracked heap spill (IL2CPP object slot idiom)
-    - mov reg, [typed_object+offset]: propagate nested tracked objects
-    - mov [rsp/rbp+offset], reg: spill tracked values to stack
-    - mov [heap_base+offset], reg: spill tracked values to heap for later reload
-    - Unknown writes clear the overwritten destination
-    """
     destination_operand = insn.ops[0]
     source_operand = insn.ops[1]
 
@@ -171,13 +158,7 @@ def update_register_state_for_cmov(
     tracking_fields_by_class_and_offset: dict[str, dict[int, DumpCSMessageField]],
     tracking_type_lookup: dict[str, str],
 ) -> None:
-    """
-    Update register state for conditional move instructions (cmovcc).
-
-    Like update_register_state_for_mov, but if the source does not resolve to a
-    tracked value the destination register is left unchanged (since the move may
-    not actually execute at runtime).
-    """
+    """An unresolved conditional move retains the destination because the move may not execute."""
     destination_operand = insn.ops[0]
     if destination_operand.type != idaapi.o_reg:
         return

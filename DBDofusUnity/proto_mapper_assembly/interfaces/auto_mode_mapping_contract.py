@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from pydantic import BaseModel, Field, model_validator
 
 
@@ -15,7 +13,7 @@ class AutoModeMessageRequirement(BaseModel):
     activities: list[str] = Field(min_length=1)
 
     @model_validator(mode="after")
-    def validate_unique_values(self) -> AutoModeMessageRequirement:
+    def validate_unique_values(self) -> "AutoModeMessageRequirement":
         if len(self.fields) != len(set(self.fields)):
             raise ValueError(f"Duplicate field in requirement for {self.message}")
         if len(self.activities) != len(set(self.activities)):
@@ -29,7 +27,7 @@ class AutoModeMappingContract(BaseModel):
     messages: list[AutoModeMessageRequirement] = Field(min_length=1)
 
     @model_validator(mode="after")
-    def validate_unique_messages(self) -> AutoModeMappingContract:
+    def validate_unique_messages(self) -> "AutoModeMappingContract":
         normalized_messages = [_normalize_name(requirement.message) for requirement in self.messages]
         if len(normalized_messages) != len(set(normalized_messages)):
             raise ValueError("Duplicate message in auto-mode mapping contract")

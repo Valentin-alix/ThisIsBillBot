@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import os
 import sys
 from datetime import UTC, date, datetime
@@ -14,7 +12,6 @@ from DBDofusUnity.proto_mapper_assembly.scripts import dump as dump_script
 class TestDumpScript:
     @staticmethod
     def _write_dump_cs(output_folder: Path, body: str = "class krl {}") -> None:
-        """Stand in for Il2CppInspector, whose real output is what the dump marker now hashes."""
         dump_cs = output_folder / dump_script.PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
         dump_cs.parent.mkdir(parents=True, exist_ok=True)
         dump_cs.write_text(body, encoding="utf-8")
@@ -23,7 +20,6 @@ class TestDumpScript:
         self._write_dump_cs(output_folder)
 
     def test_gen_python_removes_bindings_without_a_proto_source(self, tmp_path: Path) -> None:
-        """A removed schema must not re-enter descriptor discovery through a stale pb2 module."""
         (tmp_path / "live.proto").write_text('syntax = "proto3";', encoding="utf-8")
         (tmp_path / "live_pb2.py").write_text("", encoding="utf-8")
         stale_binding = tmp_path / "stale_pb2.py"
@@ -100,7 +96,6 @@ class TestDumpScript:
         ]
 
     def test_update_protos_leaves_the_live_workspace_alone_for_a_custom_obf_dir(self, tmp_path: Path) -> None:
-        """Backfilling an archived build must not touch the current pinned pairs or mappings."""
         obf_dir = tmp_path / "20_05_2026"
         obf_dir.mkdir()
         (obf_dir / "GameAssembly.dll").write_bytes(b"dll-bytes")
@@ -183,7 +178,6 @@ class TestDumpScript:
         assert il2cpp_mock.call_count == 1
 
     def test_update_protos_redumps_an_already_dumped_build_when_forced(self, tmp_path: Path) -> None:
-        """An archived build keeps a marker matching its own assembly, so refreshing it needs --force."""
         obf_dir = tmp_path / "21_07_2026"
         obf_dir.mkdir()
         (obf_dir / "GameAssembly.dll").write_bytes(b"dll-bytes")
@@ -207,8 +201,6 @@ class TestDumpScript:
             dump_script.update_protos(use_obf=True, obf_dir=obf_dir, force=True)
 
         assert il2cpp_mock.call_count == 2
-        # The dump.cs is byte-identical on the second pass, which would normally short-circuit
-        # before the tracer runs; forcing has to carry through to it, since re-tracing is the point.
         assert ida_mock.call_count == 2
 
     def test_update_protos_redumps_when_game_assembly_changes(self, tmp_path: Path) -> None:
@@ -309,7 +301,6 @@ class TestDumpScript:
     def _run_dump_twice_across_builds(
         self, tmp_path: Path, obf_dir: Path, dump_cs_bodies: tuple[str, str]
     ) -> int:
-        """Dump twice with a changed assembly, returning how often the tracer ran."""
         dll_path = obf_dir / "GameAssembly.dll"
         dll_path.write_bytes(b"dll-bytes")
         bodies = iter(dump_cs_bodies)
@@ -318,7 +309,6 @@ class TestDumpScript:
             self._write_dump_cs(output_folder, next(bodies))
 
         def fake_run_protodec(_assembly_path: Path, proto_output: Path) -> None:
-            # Deliberately byte-identical across both runs: the shapes did not move, only the names.
             proto_output.parent.mkdir(parents=True, exist_ok=True)
             proto_output.write_text('syntax = "proto3";', encoding="utf-8")
 
@@ -341,11 +331,6 @@ class TestDumpScript:
         return ida_mock.call_count
 
     def test_update_protos_retraces_when_only_the_dump_cs_changed(self, tmp_path: Path) -> None:
-        """A build can reshuffle obfuscated names without moving a single message shape.
-
-        The generated .proto is then byte-identical while `krl` designates a different message, so
-        hashing the .proto would short-circuit and leave the IDA trace keyed to the previous build.
-        """
         obf_dir = tmp_path / "07_08_2026"
         obf_dir.mkdir()
 
@@ -382,11 +367,6 @@ class TestDumpScript:
         assert backup_path.read_text(encoding="utf-8") == '{"krl": []}'
 
     def test_runtime_capture_backups_stay_out_of_the_live_capture_path(self, tmp_path: Path) -> None:
-        """The archive must not be readable as the live capture.
-
-        Obfuscated names are reshuffled every build, so re-reading a previous build's capture would
-        feed the matcher payloads keyed to messages that no longer exist under those names.
-        """
         capture = tmp_path / "instancied_msg_infos.json"
         capture.write_text("{}", encoding="utf-8")
 

@@ -2,7 +2,7 @@ import datetime
 from dataclasses import dataclass, field
 from threading import Event
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.credentials import (
+from ankama_launcher_emulator.interfaces.credentials import (
     StoredApiKey,
 )
 
@@ -47,16 +47,6 @@ from src.services.logging_utils.contextual_logger import ContextualLogger
 
 @dataclass
 class Bot(ContextualLogger):
-    """
-    Main bot class representing a single Dofus bot instance.
-
-    This class holds the bot state and delegates responsibilities to specialized handlers:
-    - ConnectionHandler: manages connection lifecycle
-    - BehaviorCoordinator: orchestrates behavior execution
-    - ProcessManager: manages process lifecycle
-    - BotScheduler: manages scheduling and playtime
-    """
-
     account: StoredApiKey
 
     event_manager: EventManager
@@ -73,7 +63,7 @@ class Bot(ContextualLogger):
     world_signals: WorldSignals
     log_signals: LogSignals
 
-    debug_recorder: DebugRecorder
+    debug_recorder: DebugRecorder | None
 
     frames: list[Frame]
 

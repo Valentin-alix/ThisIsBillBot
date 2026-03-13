@@ -10,19 +10,20 @@ from qfluentwidgets import (
     FluentIcon,
     PrimaryPushButton,
     PushButton,
+    SmoothMode,
     SubtitleLabel,
     TableWidget,
 )
 from qfluentwidgets.components.dialog_box.dialog import MessageBox
 from qfluentwidgets.components.widgets.label import StrongBodyLabel
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+from ankama_launcher_emulator.controller.bot_storage import (
     BotStorageController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.mail_account import (
+from ankama_launcher_emulator.controller.mail_account import (
     MailAccountController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.quarantine_signals import (
+from ankama_launcher_emulator.quarantine_signals import (
     quarantine_signals,
 )
 from src.services.background import run_in_background
@@ -41,6 +42,7 @@ class ActivityPage(QWidget):
         super().__init__(parent)
         self._activity_service = UserActivityService()
         self._activity_entries: tuple[UserActivityEntry, ...] | None = None
+        self._activity_logins: frozenset[str] = frozenset()
         self._quarantined: list[QuarantineRow] | None = None
         self._selected_target: tuple[str, str] | None = None
         self._quarantine_refresh_pending = False
@@ -123,6 +125,7 @@ class ActivityPage(QWidget):
         table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
+        table.scrollDelagate.verticalSmoothScroll.setSmoothMode(SmoothMode.NO_SMOOTH)
         vertical_header = table.verticalHeader()
         horizontal_header = table.horizontalHeader()
         assert vertical_header is not None
@@ -156,8 +159,21 @@ class ActivityPage(QWidget):
         if entries == self._activity_entries:
             return
         current_login = cast(str | None, self.login_filter.currentData())
+        previous_entries = self._activity_entries
         self._activity_entries = entries
-        self._refresh_login_filter(current_login)
+        logins = frozenset(entry.login for entry in entries if entry.login is not None)
+        if logins != self._activity_logins:
+            self._activity_logins = logins
+            self._refresh_login_filter(current_login)
+            self._render_activity()
+            return
+        if (
+            previous_entries is not None
+            and len(entries) == len(previous_entries) + 1
+            and entries[:-1] == previous_entries
+        ):
+            self._append_activity_entry(entries[-1])
+            return
         self._render_activity()
 
     def _refresh_login_filter(self, current_login: str | None) -> None:
@@ -176,12 +192,7 @@ class ActivityPage(QWidget):
             return
         selected_login = cast(str | None, self.login_filter.currentData())
         rows = [
-            (
-                entry.happened_at.astimezone().strftime("%d/%m %H:%M:%S"),
-                entry.login or "Application",
-                entry.severity,
-                entry.message,
-            )
+            self._activity_row(entry)
             for entry in self._activity_entries
             if selected_login is None or entry.login == selected_login
         ]
@@ -189,6 +200,25 @@ class ActivityPage(QWidget):
         self._set_table_rows(self.activity_table, rows)
         self.activity_table.setUpdatesEnabled(True)
         QTimer.singleShot(0, self.activity_table.scrollToBottom)
+
+    def _append_activity_entry(self, entry: UserActivityEntry) -> None:
+        selected_login = cast(str | None, self.login_filter.currentData())
+        if selected_login is not None and entry.login != selected_login:
+            return
+        row = self.activity_table.rowCount()
+        self.activity_table.insertRow(row)
+        for column, value in enumerate(self._activity_row(entry)):
+            self.activity_table.setItem(row, column, QTableWidgetItem(value))
+        QTimer.singleShot(0, self.activity_table.scrollToBottom)
+
+    @staticmethod
+    def _activity_row(entry: UserActivityEntry) -> tuple[str, str, str, str]:
+        return (
+            entry.happened_at.astimezone().strftime("%d/%m %H:%M:%S"),
+            entry.login or "Application",
+            entry.severity,
+            entry.message,
+        )
 
     def _refresh_quarantined(self) -> None:
         if self._quarantine_refresh_pending:

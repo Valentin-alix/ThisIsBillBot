@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import functools
 import re
 
@@ -14,8 +12,6 @@ _MAP_TYPE_ARGUMENT_COUNT = 2
 
 
 def split_top_level_tokens(raw_value: str) -> list[str]:
-    # convert things like "a, b(c, d), e" to => ["a", "b(c, d)", "e"]
-    # (comma between c & d is ignored)
     tokens: list[str] = []
     current_token: list[str] = []
     angle_depth = 0

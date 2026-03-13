@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import idaapi
 
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.accessor_candidate import AccessorCandidate
@@ -32,7 +30,6 @@ def update_register_state_for_call(
     *,
     heap_state: HeapState | None = None,
 ) -> None:
-    """Invalidate volatile registers and keep direct call allocation candidates in rax."""
     indirect_result = resolve_pending_indirect_call_target(insn, reg_state)
     if indirect_result is not None:
         indirect_cls, is_kvp = indirect_result
@@ -88,7 +85,6 @@ def resolve_pending_indirect_call_target(
     insn: idaapi.insn_t,
     reg_state: RegisterState,
 ) -> tuple[str, bool] | None:
-    """Return (class_name, is_kvp) if the call target is a tracked pending indirect."""
     target_operand = insn.ops[0]
     if target_operand.type != idaapi.o_reg:
         return None
@@ -133,7 +129,6 @@ def resolve_inline_ienumerator_current_cls(reg_state: RegisterState) -> str | No
 
 
 def resolve_inline_kvp_current_cls(reg_state: RegisterState) -> str | None:
-    """Detect MapField KVP variant of the inline Current slot (kvp_value: typeinfo)."""
     repeated_enumerator_classes = {
         class_name for domain, class_name in reg_state.values() if domain == "repeated_enumerator"
     }

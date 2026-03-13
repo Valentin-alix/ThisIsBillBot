@@ -115,11 +115,11 @@ class SidebarPanel(QFrame):
         self.history.emptyChanged.connect(self.returnButton.setDisabled)
         self.returnButton.clicked.connect(self.history.pop)
 
-        self.returnButton.installEventFilter(ToolTipFilter(self.returnButton, 1000))
-        self.returnButton.setToolTip(self.tr("Back"))
+        self.returnButton.installEventFilter(ToolTipFilter(self.returnButton, 0))
+        self.returnButton.setToolTip(self.tr("Retour"))
 
-        self.menuButton.installEventFilter(ToolTipFilter(self.menuButton, 1000))
-        self.menuButton.setToolTip(self.tr("Open Navigation"))
+        self.menuButton.installEventFilter(ToolTipFilter(self.menuButton, 0))
+        self.menuButton.setToolTip(self.tr("Ouvrir la navigation"))
 
         self.setProperty("menu", False)
         self.scrollWidget.setObjectName("scrollWidget")
@@ -177,34 +177,6 @@ class SidebarPanel(QFrame):
         tooltip: str | None = None,
         parentRouteKey: str | None = None,
     ) -> NavigationTreeWidget | None:
-        """add navigation item
-
-        Parameters
-        ----------
-        routeKey: str
-            the unique name of item
-
-        icon: str | QIcon | FluentIconBase
-            the icon of navigation item
-
-        text: str
-            the text of navigation item
-
-        onClick: callable
-            the slot connected to item clicked signal
-
-        position: NavigationItemPosition
-            where the button is added
-
-        selectable: bool
-            whether the item is selectable
-
-        tooltip: str
-            the tooltip of item
-
-        parentRouteKey: str
-            the route key of parent item, the parent widget should be `NavigationTreeWidget`
-        """
         return self.insertItem(
             -1,
             routeKey,
@@ -226,28 +198,6 @@ class SidebarPanel(QFrame):
         tooltip: str | None = None,
         parentRouteKey: str | None = None,
     ) -> None:
-        """add custom widget
-
-        Parameters
-        ----------
-        routeKey: str
-            the unique name of item
-
-        widget: NavigationWidget
-            the custom widget to be added
-
-        onClick: callable
-            the slot connected to item clicked signal
-
-        position: NavigationItemPosition
-            where the button is added
-
-        tooltip: str
-            the tooltip of widget
-
-        parentRouteKey: str
-            the route key of parent item, the parent item should be `NavigationTreeWidget`
-        """
         self.insertWidget(
             -1,
             routeKey,
@@ -270,37 +220,6 @@ class SidebarPanel(QFrame):
         tooltip: str | None = None,
         parentRouteKey: str | None = None,
     ) -> NavigationTreeWidget | None:
-        """insert navigation tree item
-
-        Parameters
-        ----------
-        index: int
-            the insert position of parent widget
-
-        routeKey: str
-            the unique name of item
-
-        icon: str | QIcon | FluentIconBase
-            the icon of navigation item
-
-        text: str
-            the text of navigation item
-
-        onClick: callable
-            the slot connected to item clicked signal
-
-        position: NavigationItemPosition
-            where the button is added
-
-        selectable: bool
-            whether the item is selectable
-
-        tooltip: str
-            the tooltip of item
-
-        parentRouteKey: str
-            the route key of parent item, the parent item should be `NavigationTreeWidget`
-        """
         if routeKey in self.items:
             return
 
@@ -326,31 +245,6 @@ class SidebarPanel(QFrame):
         tooltip: str | None = None,
         parentRouteKey: str | None = None,
     ) -> None:
-        """insert custom widget
-
-        Parameters
-        ----------
-        index: int
-            insert position
-
-        routeKey: str
-            the unique name of item
-
-        widget: NavigationWidget
-            the custom widget to be added
-
-        onClick: callable
-            the slot connected to item clicked signal
-
-        position: NavigationItemPosition
-            where the button is added
-
-        tooltip: str
-            the tooltip of widget
-
-        parentRouteKey: str
-            the route key of parent item, the parent item should be `NavigationTreeWidget`
-        """
         if routeKey in self.items:
             return
 
@@ -388,7 +282,7 @@ class SidebarPanel(QFrame):
 
         if tooltip:
             widget.setToolTip(tooltip)
-            widget.installEventFilter(NavigationToolTipFilter(widget, 1000))
+            widget.installEventFilter(NavigationToolTipFilter(widget, 0))
 
     def _insertWidgetToLayout(
         self, index: int, widget: NavigationWidget, position: NavigationItemPosition
@@ -406,13 +300,6 @@ class SidebarPanel(QFrame):
         widget.show()
 
     def removeWidget(self, routeKey: str) -> None:
-        """remove widget
-
-        Parameters
-        ----------
-        routeKey: str
-            the unique name of item
-        """
         if routeKey not in self.items:
             return
 
@@ -474,7 +361,7 @@ class SidebarPanel(QFrame):
     def expand(self, useAni: bool = True) -> None:
         self._setWidgetCompacted(False)
         self.expandAni.setProperty("expand", True)
-        self.menuButton.setToolTip(self.tr("Close Navigation"))
+        self.menuButton.setToolTip(self.tr("Fermer la navigation"))
 
         expandWidth = self.minimumExpandWidth + self.expandWidth - 322
         window = self.window()
@@ -526,7 +413,7 @@ class SidebarPanel(QFrame):
         self.expandAni.setProperty("expand", False)
         self.expandAni.start()
 
-        self.menuButton.setToolTip(self.tr("Open Navigation"))
+        self.menuButton.setToolTip(self.tr("Ouvrir la navigation"))
 
     def toggle(self) -> None:
         if self.displayMode in [
@@ -538,13 +425,6 @@ class SidebarPanel(QFrame):
             self.collapse()
 
     def setCurrentItem(self, routeKey: str) -> None:
-        """set current selected item
-
-        Parameters
-        ----------
-        routeKey: str
-            the unique name of item
-        """
         if routeKey not in self.items:
             return
 

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from bisect import bisect_right
 from dataclasses import dataclass
 
@@ -23,7 +21,6 @@ def build_synthetic_oneof_fields(
     field_positions_by_name: dict[str, int],
     enum_names: frozenset[str],
 ) -> list[DumpCSMessageField]:
-    """Build all fields that are part of a oneof from oneof backing fields."""
     oneof_backing_fields = _get_oneof_backing_fields(fields, field_positions_by_name)
     if not oneof_backing_fields:
         return []

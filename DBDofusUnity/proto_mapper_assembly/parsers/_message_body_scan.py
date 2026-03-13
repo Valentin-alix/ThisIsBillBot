@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import re
 from dataclasses import dataclass
 
@@ -37,13 +35,6 @@ CONST_INT_PATTERN = re.compile(
 )
 _PROPERTY_INFRASTRUCTURE_TYPES: frozenset[str] = frozenset({"MessageDescriptor"})
 _FIELD_INFRASTRUCTURE_TYPES: frozenset[str] = frozenset({"UnknownFieldSet"})
-
-
-@dataclass(frozen=True, slots=True)
-class _FieldNumberDeclaration:
-    property_name: str
-    field_number: int
-    position: int
 
 
 @dataclass(frozen=True, slots=True)

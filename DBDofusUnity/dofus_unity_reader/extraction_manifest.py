@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import hashlib
 import os
 import tempfile
@@ -17,7 +15,7 @@ class BundleFingerprint(BaseModel, frozen=True):
     modified_ns: int
 
     @classmethod
-    def from_path(cls, path: Path) -> BundleFingerprint:
+    def from_path(cls, path: Path) -> "BundleFingerprint":
         stat_result = path.stat()
         return cls(size=stat_result.st_size, modified_ns=stat_result.st_mtime_ns)
 
@@ -51,7 +49,7 @@ class ExtractionManifest:
         self.data = ManifestData()
 
     @classmethod
-    def load(cls, path: Path) -> ExtractionManifest:
+    def load(cls, path: Path) -> "ExtractionManifest":
         manifest = cls(path)
         if not path.exists():
             return manifest

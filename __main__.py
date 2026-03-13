@@ -1,10 +1,9 @@
 import argparse
-import signal
+import logging
 import sys
 import threading
 from collections.abc import Callable
 from dataclasses import dataclass
-from types import FrameType
 from zipfile import ZipFile
 
 from dotenv import load_dotenv
@@ -14,7 +13,7 @@ from project_paths import BUNDLE_ROOT, IS_PACKAGED, PROJECT_ROOT, ensure_package
 for import_root in (
     PROJECT_ROOT,
     PROJECT_ROOT / "DBDofusUnity",
-    PROJECT_ROOT / "AnkamaLauncherEmulatorPremium",
+    PROJECT_ROOT / "AnkamaLauncherEmulator",
 ):
     sys.path.insert(0, str(import_root))
 
@@ -29,7 +28,6 @@ from src.services.logging_utils.loggers import configure_root_logger
 class RuntimeArgs:
     use_bot_config_json: bool
     enable_automatic_schedules: bool
-    headless: bool
     validate_install: bool
     application_argv: list[str]
 
@@ -47,18 +45,10 @@ def parse_runtime_args(argv: list[str]) -> RuntimeArgs:
         action="store_true",
         help="Verify packaged resources and exit without starting the bot.",
     )
-    parser.add_argument(
-        "--headless",
-        action="store_true",
-        help="Run bots without creating the GUI window.",
-    )
     runtime_args, remaining_args = parser.parse_known_args(argv[1:])
-    if runtime_args.headless and not runtime_args.auto:
-        parser.error("--no-auto cannot be used with --headless")
     return RuntimeArgs(
         use_bot_config_json=runtime_args.auto,
         enable_automatic_schedules=runtime_args.auto,
-        headless=runtime_args.headless,
         validate_install=runtime_args.validate_install,
         application_argv=[argv[0], *remaining_args],
     )
@@ -70,16 +60,16 @@ from src.controller.bot_config import BotConfigService  # noqa: E402
 from src.core.bot.bot_manager import BotManager  # noqa: E402
 from src.core.bot.lifecycle.scheduler import run_continuously  # noqa: E402
 from src.core.signals.shared_farm_signals import SharedSignals  # noqa: E402
+from src.services.background import run_in_background  # noqa: E402
+
+logger = logging.getLogger(__name__)
 
 
 def _create_runtime(shared_signals: SharedSignals, enable_account_scheduler: bool) -> BotManager:
-    bot_manager = BotManager(
+    return BotManager(
         shared_signals=shared_signals,
         enable_account_scheduler=enable_account_scheduler,
     )
-    bot_manager.ankama_launcher.start()
-
-    return bot_manager
 
 
 def _check_updated_mapping_resources() -> None:
@@ -114,7 +104,7 @@ def _shutdown_runtime(
 
 
 def run_gui(application_argv: list[str], enable_automatic_schedules: bool) -> int:
-    from PyQt6.QtCore import Qt
+    from PyQt6.QtCore import QTimer, Qt
     from qfluentwidgets import Theme, setTheme, setThemeColor
 
     from src.gui.application import Application
@@ -126,58 +116,49 @@ def run_gui(application_argv: list[str], enable_automatic_schedules: bool) -> in
     main_window.show()
     setTheme(Theme.DARK)
     setThemeColor(Qt.GlobalColor.yellow)
+    main_window.set_startup_status("Chargement des bots…")
+    application.processEvents()
 
-    bot_manager = _create_runtime(
-        shared_signals,
-        enable_account_scheduler=enable_automatic_schedules,
-    )
-    main_window.activity_page.restore_account_requested.connect(bot_manager.restore_account_from_quarantine)
-    main_window.activity_page.delete_account_requested.connect(bot_manager.delete_account)
-    main_window.activity_page.restore_mailbox_requested.connect(bot_manager.restore_mailbox_from_quarantine)
-    main_window.activity_page.delete_mailbox_requested.connect(bot_manager.delete_mailbox)
-    main_window.init_accounts(bot_manager.bot_by_account_id)
-    main_window.splashScreen.finish()
-    _start_bots(bot_manager, enable_automatic_schedules)
-    cease_running = run_continuously()
+    def start_runtime() -> None:
+        bot_manager = _create_runtime(
+            shared_signals,
+            enable_account_scheduler=enable_automatic_schedules,
+        )
+        main_window.activity_page.restore_account_requested.connect(bot_manager.restore_account_from_quarantine)
+        main_window.activity_page.delete_account_requested.connect(bot_manager.delete_account)
+        main_window.activity_page.restore_mailbox_requested.connect(bot_manager.restore_mailbox_from_quarantine)
+        main_window.activity_page.delete_mailbox_requested.connect(bot_manager.delete_mailbox)
+        cease_running = run_continuously()
 
-    def on_app_close() -> None:
-        _shutdown_runtime(
-            bot_manager,
-            cease_running,
-            shared_signals.shutdown_finished.emit,
+        def on_app_close() -> None:
+            _shutdown_runtime(
+                bot_manager,
+                cease_running,
+                shared_signals.shutdown_finished.emit,
+            )
+
+        shared_signals.closed.connect(on_app_close)
+
+        def finish_starting_launcher(_: object) -> None:
+            bot_manager.start_account_scheduler()
+            main_window.init_accounts(bot_manager.bot_by_account_id)
+            main_window.setWindowTitle(application.TITLE)
+            main_window.splashScreen.finish()
+            _start_bots(bot_manager, enable_automatic_schedules)
+
+        def show_launcher_start_failure(error: object) -> None:
+            logger.error("Unable to start the Ankama launcher server: %s", error)
+            main_window.set_startup_status("Impossible de démarrer le launcher")
+
+        main_window.set_startup_status("Démarrage du launcher…")
+        run_in_background(
+            lambda _: bot_manager.ankama_launcher.start(),
+            on_success=finish_starting_launcher,
+            on_error=show_launcher_start_failure,
+            parent=main_window,
         )
 
-    shared_signals.closed.connect(on_app_close)
-
-    return application.exec()
-
-
-def run_headless(application_argv: list[str], enable_automatic_schedules: bool) -> int:
-    from PyQt6.QtCore import QCoreApplication, QTimer
-
-    application = QCoreApplication(application_argv)
-    shared_signals = SharedSignals()
-    bot_manager = _create_runtime(
-        shared_signals,
-        enable_account_scheduler=enable_automatic_schedules,
-    )
-    _start_bots(bot_manager, enable_automatic_schedules)
-    cease_running = run_continuously()
-    shutdown_requested = threading.Event()
-
-    def request_shutdown() -> None:
-        if shutdown_requested.is_set():
-            return
-        shutdown_requested.set()
-        _shutdown_runtime(bot_manager, cease_running, application.quit)
-
-    def handle_signal(_signum: int, _frame: FrameType | None) -> None:
-        QTimer.singleShot(0, request_shutdown)
-
-    signal.signal(signal.SIGINT, handle_signal)
-    if hasattr(signal, "SIGTERM"):
-        signal.signal(signal.SIGTERM, handle_signal)
-
+    QTimer.singleShot(0, start_runtime)
     return application.exec()
 
 
@@ -207,11 +188,6 @@ def main(argv: list[str] | None = None) -> int:
 
     configure_root_logger()
 
-    if runtime_args.headless:
-        return run_headless(
-            runtime_args.application_argv,
-            runtime_args.enable_automatic_schedules,
-        )
     return run_gui(
         runtime_args.application_argv,
         runtime_args.enable_automatic_schedules,

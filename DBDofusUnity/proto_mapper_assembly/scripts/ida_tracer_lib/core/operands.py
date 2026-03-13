@@ -10,7 +10,6 @@ def is_register_operand(operand: idaapi.op_t, register_number: int) -> bool:
 
 
 def get_operand_access_size(operand: idaapi.op_t) -> int | None:
-    """Return the memory width for an IDA operand when dtype metadata is available."""
     dtype = operand.dtype
     if dtype is None:
         return None

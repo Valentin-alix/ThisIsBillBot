@@ -22,14 +22,7 @@ def estimate_collision_damage(
     player_level: int,
     push_damage_bonus: int,
 ) -> int:
-    """Estimate the collision damage of pushing an enemy away from the caster.
-
-    The enemy is stepped along the dominant caster->enemy grid axis up to
-    ``push_distance`` cells; every cell it is prevented from entering (map edge,
-    non-walkable cell, or occupied by a fighter) counts as a blocked cell. Mirrors
-    PushUtils.GetCollisionDamage with resistance 0:
-    ``blocked * (level // 2 + 32 + push_damage_bonus) // 4``.
-    """
+    """Mirror PushUtils.GetCollisionDamage with zero push resistance."""
     dx = enemy_mp.x - caster_mp.x
     dy = enemy_mp.y - caster_mp.y
     if dx == 0 and dy == 0:

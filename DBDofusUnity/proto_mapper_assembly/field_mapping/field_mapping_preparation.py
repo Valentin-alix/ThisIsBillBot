@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from DBDofusUnity.proto_mapper_assembly.helpers.proto_helpers import resolve_child_message_cls
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import FieldAccessSignatures, MessageAccessSignature
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
@@ -148,7 +146,6 @@ def _build_forced_obf_field_names(
 
 
 def _build_field_access_signature_from_field(field: DumpCSMessageField) -> FieldAccessSignatures:
-    """Stand in for a declared field the trace never reached, so scoring can tell it apart."""
     return FieldAccessSignatures(
         field_key=field.field_key,
         field_type_shape=field.field_type_shape,

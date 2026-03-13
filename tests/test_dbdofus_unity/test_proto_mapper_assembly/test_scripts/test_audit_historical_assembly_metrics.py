@@ -173,7 +173,6 @@ class TestCollectVersionHeads(unittest.TestCase):
             self.assertEqual([version.version_id for version in result.incomplete_versions], ["obf_only"])
 
     def test_extra_source_is_audited_first_and_wins_the_dedup_against_its_own_snapshot(self) -> None:
-        """The working set and its archived copy are one build; the live paths must be the ones kept."""
         with TemporaryDirectory() as temporary_dir_name:
             root = Path(temporary_dir_name)
             fallback = _build_fallback_reference(root)
@@ -320,7 +319,6 @@ class TestBuildRecommendations(unittest.TestCase):
         self.assertEqual(_build_recommendations([_summary()]), [])
 
     def test_negative_margin_is_reported_as_an_anti_signal_however_stable(self) -> None:
-        """A metric can reproduce perfectly across builds and still rank the wrong candidate first."""
         summaries = [_summary(mean_score=0.95, p10_score=0.95, mean_margin=-0.223, collision_ratio=0.72)]
 
         self.assertEqual(

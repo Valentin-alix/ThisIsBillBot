@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import NamedTuple, Protocol
 
@@ -11,14 +9,6 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorks
 
 @dataclass(frozen=True)
 class AffinitySignalInputs:
-    """
-    Everything a corpus-level signal is allowed to look at.
-
-    Passed as one object rather than as parameters so that a signal reading only part of it — the
-    callee affinity never opens ``base_scores_matrix`` — is simply not reading a field, instead of
-    carrying an argument it has to ignore.
-    """
-
     workspace: MatchingWorkspace
     base_scores_matrix: np.ndarray
     obf_access_trace: AccessTraceDocument
@@ -36,8 +26,6 @@ class AffinityBuilder(Protocol):
 
 @dataclass(frozen=True)
 class MaskedAffinitySignal:
-    """One entry of the blend table: what it is worth, how it is computed, and why it exists."""
-
     name: str
     weight: float
     build: AffinityBuilder

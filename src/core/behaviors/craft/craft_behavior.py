@@ -63,13 +63,7 @@ class CraftBehavior(RecoverableBehavior):
         self.ensure_free_to_act(lambda: self.start_crafting(craft_requests=craft_requests))
 
     def start_crafting(self, craft_requests: list[CraftRequest]) -> None:
-        """Chaque `CraftRequest` porte sa propre regle d'arret :
-
-        - un `int` : crafter cette quantite avec les ingredients deja en sac, sans passer par la
-          banque (utile quand on sort du HDV les mains pleines -- une quete, typiquement).
-        - un `Callable` : filtre applique avant le craft normal.
-        - `None` : pas de regle, craft jusqu'a epuisement.
-        """
+        """Regle int : quantite sans banque ; callable : filtre ; None : epuiser les ingredients."""
         self._activity_performed = False
         valid_recipe_ids = {
             recipe.resultId

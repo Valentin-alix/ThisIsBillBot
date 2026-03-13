@@ -9,11 +9,12 @@ from PyQt6.QtCore import (
     QObject,
     QSortFilterProxyModel,
     Qt,
-    QTimer,
     pyqtSignal,
 )
-from PyQt6.QtWidgets import QHBoxLayout, QListView, QVBoxLayout, QWidget
-from qfluentwidgets import LineEdit
+from PyQt6.QtWidgets import QListView, QStackedWidget, QVBoxLayout, QWidget
+from qfluentwidgets import BodyLabel, CaptionLabel, LineEdit
+
+from src.core.engine.crafts.recipes import is_supported_craft_recipe
 
 
 class RecipeGroupSignals(QObject):
@@ -24,7 +25,7 @@ class RecipeCatalogModel(QAbstractListModel):
     def __init__(self) -> None:
         super().__init__()
         reader = DataReader()
-        self.recipes = reader.recipes
+        self.recipes = [recipe for recipe in reader.recipes if is_supported_craft_recipe(recipe)]
         self.names = [
             I18N().name_by_id.get(reader.item_by_id[recipe.resultId].nameId, "")
             if reader.item_by_id[recipe.resultId].nameId
@@ -86,32 +87,59 @@ class RecipeGroup(QWidget):
         self.proxy_model = RecipeFilterProxyModel(self)
 
         layout = QVBoxLayout(self)
+        self.recipe_results = QStackedWidget(self)
         self.list_view = QListView(self)
         self.list_view.setUniformItemSizes(True)
         self.list_view.setModel(self.proxy_model)
         self.list_view.clicked.connect(self._on_clicked)
-        layout.addWidget(self.list_view)
+        self.recipe_results.addWidget(self.list_view)
 
-        search_wrapper = QWidget(self)
-        search_layout = QHBoxLayout(search_wrapper)
-        self.search_edit = LineEdit(search_wrapper)
-        search_layout.addWidget(self.search_edit)
-        layout.addWidget(search_wrapper)
+        empty_state = QWidget(self.recipe_results)
+        empty_state_layout = QVBoxLayout(empty_state)
+        empty_state_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.empty_state_title = BodyLabel("Recherchez une recette à craft", empty_state)
+        self.empty_state_description = CaptionLabel(
+            "Disponible pour : Bûcheron, Mineur, Alchimiste, Paysan, Pêcheur et Chasseur.",
+            empty_state,
+        )
+        empty_state_layout.addWidget(self.empty_state_title, alignment=Qt.AlignmentFlag.AlignCenter)
+        empty_state_layout.addWidget(self.empty_state_description, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.recipe_results.addWidget(empty_state)
+        layout.addWidget(self.recipe_results)
 
-        self._search_timer = QTimer(self)
-        self._search_timer.setInterval(250)
-        self._search_timer.setSingleShot(True)
-        self._search_timer.timeout.connect(self._apply_search)
-        self.search_edit.textChanged.connect(self._search_timer.start)
+        self.search_edit = LineEdit(self)
+        self.search_edit.setPlaceholderText("Rechercher une recette craftable")
+        self.search_edit.textChanged.connect(self._on_search_changed)
+        layout.addWidget(self.search_edit)
+        self._update_result_view()
 
     def add_item(self, recipe: RecipeItem) -> None:
         self.proxy_model.set_recipe_excluded(recipe, False)
+        self._update_result_view()
 
     def remove_item(self, recipe: RecipeItem) -> None:
         self.proxy_model.set_recipe_excluded(recipe, True)
+        self._update_result_view()
 
-    def _apply_search(self) -> None:
-        self.proxy_model.set_query(self.search_edit.text())
+    def _on_search_changed(self, query: str) -> None:
+        self.proxy_model.set_query(query)
+        self._update_result_view()
+
+    def _update_result_view(self) -> None:
+        query = self.search_edit.text()
+        if len(query) < 3:
+            self.empty_state_title.setText("Recherchez une recette à craft")
+            self.empty_state_description.setText(
+                "Disponible pour : Bûcheron, Mineur, Alchimiste, Paysan, Pêcheur et Chasseur. "
+                "Saisissez au moins 3 caractères."
+            )
+            self.recipe_results.setCurrentIndex(1)
+        elif self.proxy_model.rowCount() == 0:
+            self.empty_state_title.setText("Aucune recette trouvée")
+            self.empty_state_description.setText("Essayez un autre nom parmi les métiers pris en charge.")
+            self.recipe_results.setCurrentIndex(1)
+        else:
+            self.recipe_results.setCurrentWidget(self.list_view)
 
     def _on_clicked(self, index: QModelIndex) -> None:
         recipe = self.proxy_model.data(index, Qt.ItemDataRole.UserRole)

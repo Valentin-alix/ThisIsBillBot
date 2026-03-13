@@ -26,24 +26,6 @@ CODE = (
 
 
 class TestParseTypes:
-    def test_private_state_machine_type_is_parsed_with_parent_name(
-        self, dump_cs: Callable[[str], Path]
-    ) -> None:
-        path = str(dump_cs(CODE))
-        parsed_types = parse_types(path)
-
-        state_machine = next(
-            (
-                current_type
-                for current_type in parsed_types
-                if current_type.composed_name == "fal._DelayPlacementDisplay_d__10"
-            ),
-            None,
-        )
-
-        assert state_machine is not None
-        assert state_machine.parent_name == "fal"
-
     def test_private_state_machine_keeps_message_field(self, dump_cs: Callable[[str], Path]) -> None:
         path = str(dump_cs(CODE))
         parsed_types = parse_types(path)

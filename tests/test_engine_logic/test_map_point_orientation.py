@@ -1,10 +1,3 @@
-"""`advanced_orientation_to` must reproduce ActionScript's arithmetic exactly.
-
-AS3 coerces the angle to `int` (truncation toward zero) then applies `Math.round`, which sends
-halves toward positive infinity. Python's builtin `round` uses banker's rounding instead, which
-flips the result on the exact +-45 and +-135 degree diagonals.
-"""
-
 import pytest
 from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
@@ -38,7 +31,6 @@ def test_advanced_orientation_matches_the_client(
 
 
 def test_advanced_orientation_to_itself_is_down_right() -> None:
-
     source = MapPoint.from_coords(*ORIGIN)
 
     assert source.advanced_orientation_to(source) == DirectionsEnum.DOWN_RIGHT

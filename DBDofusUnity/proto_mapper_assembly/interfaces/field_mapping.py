@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Protocol
@@ -56,14 +54,11 @@ class FieldMappingResult:
 
 class MatchingStoreProtocol(Protocol):
     def supports_pair(self, obf_message_cls: str, non_obf_message_cls: str) -> bool: ...
-
     def conflicts_with_pair(self, obf_message_cls: str, non_obf_message_cls: str) -> bool: ...
 
 
 @dataclass(frozen=True)
 class MessageSideData:
-    """Per-side (obf or non_obf) lookups consumed while mapping fields of a message pair."""
-
     messages_by_cls: dict[str, DumpCSMessage]
     type_index: dict[str, tuple[DumpCSMessage, ...]]
     fields: tuple[DumpCSMessageField, ...]

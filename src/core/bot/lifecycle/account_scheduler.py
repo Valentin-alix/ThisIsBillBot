@@ -6,28 +6,28 @@ from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
 from typing import Any
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.consts import SONJI_API_KEY
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+from ankama_launcher_emulator.consts import SONJI_API_KEY
+from ankama_launcher_emulator.controller.bot_storage import (
     BotStorageController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.mail_account import (
+from ankama_launcher_emulator.controller.mail_account import (
     MailAccountController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.proxy import ProxyController
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
+from ankama_launcher_emulator.controller.proxy import ProxyController
+from ankama_launcher_emulator.controller.schedule_profile import (
     ScheduleProfileController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.exceptions import (
+from ankama_launcher_emulator.exceptions import (
     BannedException,
     ProxyRejectedError,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.schedule_profile import (
+from ankama_launcher_emulator.interfaces.schedule_profile import (
     ScheduleProfile,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.launcher_login import (
+from ankama_launcher_emulator.web.auth.launcher_login import (
     authenticate_next_available_account,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.web.auth.registration import (
+from ankama_launcher_emulator.web.auth.registration import (
     is_aws_waf_marker,
     register_next_available_email,
 )
@@ -57,13 +57,6 @@ PendingOperation = _AuthOp | _RegisterOp
 
 @dataclass
 class AccountScheduler:
-    """Drives account authentication and creation from a shared rate-limit pool.
-
-    Ankama caps these operations at 2 per rolling hour and 4 per rolling day, all
-    drawing from the same pool. The scheduler runs operations back-to-back, starting
-    the next one as soon as the previous one finishes and quota allows.
-    """
-
     on_accounts_synchronized: Callable[[], None]
     on_banned_callback: Callable[[str], None]
     schedule_profile_controller: ScheduleProfileController = field(default_factory=ScheduleProfileController)

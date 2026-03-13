@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Sequence
 
 import numpy as np
@@ -16,17 +14,7 @@ def align_sequences_monotonically(
     scores_matrix: np.ndarray,
     gap_penalty: float,
 ) -> tuple[tuple[int, int], ...]:
-    """
-    Pair up two ordered message sequences without ever crossing.
-
-    Both builds keep the source declaration order of the generated wrappers and of the handler
-    registrations, so the correct pairing is always increasing on both sides. What changes between
-    builds is that messages get inserted or removed in the middle, which shifts everything after
-    them. A single offset therefore breaks halfway through a class, while a global alignment with
-    gaps absorbs the insertion and keeps the rest aligned.
-
-    Returns the aligned ``(non_obf_index, obf_index)`` pairs, as indexes into ``scores_matrix``.
-    """
+    """Align matrix indexes without crossing; gaps absorb inserted or removed messages."""
     left_count = len(non_obf_indexes)
     right_count = len(obf_indexes)
     if left_count == 0 or right_count == 0:

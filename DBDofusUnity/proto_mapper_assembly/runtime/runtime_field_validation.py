@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -61,7 +59,6 @@ def build_runtime_field_validator_confidence(
     runtime_data_store: RuntimeDataStore,
     validated_non_obf_field_names: set[str],
 ) -> float | None:
-    """Score how well a field mapping satisfies field-local runtime validators."""
     field_validators_by_name = VALIDATORS_BY_NON_OBF_MESSAGE_NAME.get(non_obf_message.name)
     if field_validators_by_name is None:
         return None
@@ -109,7 +106,6 @@ def _get_runtime_field_validator(
 def collect_runtime_alive_field_names(
     instances: Sequence[Mapping[str, object]],
 ) -> frozenset[str]:
-    """Return the set of field names that have at least one non-default runtime value."""
     alive: set[str] = set()
     for instance in instances:
         for field_name, raw_value in instance.items():

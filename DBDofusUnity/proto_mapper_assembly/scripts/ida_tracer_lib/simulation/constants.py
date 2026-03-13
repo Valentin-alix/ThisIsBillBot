@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 RAX_REG: int = 0
 RCX_REG: int = 1
 RDX_REG: int = 2

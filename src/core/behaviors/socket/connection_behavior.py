@@ -3,8 +3,8 @@ from datetime import datetime
 from enum import StrEnum, auto
 from typing import NamedTuple
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.haapi.zaap_version import get_client_version
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.subscription_expiration import (
+from ankama_launcher_emulator.haapi.zaap_version import get_client_version
+from ankama_launcher_emulator.controller.subscription_expiration import (
     SubscriptionExpirationStorage,
 )
 from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import (

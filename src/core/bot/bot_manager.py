@@ -11,28 +11,28 @@ MITM_CONNECTION_WAIT_STEP_SECONDS = 0.5
 SOCKET_DISCONNECTION_WAIT_TIMEOUT_SECONDS = 5.0
 SOCKET_DISCONNECTION_WAIT_STEP_SECONDS = 0.05
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+from ankama_launcher_emulator.controller.bot_storage import (
     BotStorageController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.mail_account import (
+from ankama_launcher_emulator.controller.mail_account import (
     MailAccountController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.proxy import ProxyController
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.schedule_profile import (
+from ankama_launcher_emulator.controller.proxy import ProxyController
+from ankama_launcher_emulator.controller.schedule_profile import (
     ScheduleProfileController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.zaap_import import (
+from ankama_launcher_emulator.controller.zaap_import import (
     import_zaap_accounts,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.decrypter.crypto_helper import (
+from ankama_launcher_emulator.decrypter.crypto_helper import (
     CryptoHelper,
 )
 from src.services.background import run_in_background
 from src.services.user_activity import UserActivityService
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.handler import (
+from ankama_launcher_emulator.server.handler import (
     AnkamaLauncherHandler,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.server.server import (
+from ankama_launcher_emulator.server.server import (
     AnkamaLauncherServer,
 )
 
@@ -57,6 +57,7 @@ class BotManager:
     _is_lauching_by_login: defaultdict[str, threading.Event] = field(
         default_factory=lambda: defaultdict(threading.Event), init=False
     )
+    _account_scheduler_started: bool = field(default=False, init=False)
     _launch_lock: threading.Lock = field(default_factory=threading.Lock, init=False)
     _last_launch_time: float = field(default=0.0, init=False)
 
@@ -81,8 +82,11 @@ class BotManager:
             on_accounts_synchronized=self.shared_signals.synchronize_bots.emit,
             on_banned_callback=self.on_banned_callback,
         )
-        if self.enable_account_scheduler:
-            self.account_scheduler.start()
+    def start_account_scheduler(self) -> None:
+        if not self.enable_account_scheduler:
+            return
+        self.account_scheduler.start()
+        self._account_scheduler_started = True
 
     def on_launch_account(self, login: str):
         self._running_task_count += 1
@@ -389,7 +393,7 @@ class BotManager:
         activity = UserActivityService()
         activity.record("info", "Arrêt de l’application demandé.")
         try:
-            if self.enable_account_scheduler:
+            if self._account_scheduler_started:
                 self.account_scheduler.stop()
             bots = list(self.bot_by_account_id.values())
             self.safe_stop_bots(bots)

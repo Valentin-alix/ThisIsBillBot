@@ -5,7 +5,7 @@ from utils.singleton import Singleton
 from filelock import FileLock
 from pydantic import BaseModel, Field
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.utils.atomic_file import acquire_file_lock
+from ankama_launcher_emulator.utils.atomic_file import acquire_file_lock
 from src.consts import RESOURCE_FOLDER
 
 

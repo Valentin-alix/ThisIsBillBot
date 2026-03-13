@@ -61,7 +61,6 @@ class TalkToNpcStep(StepWithDestination):
 
     @model_validator(mode="after")
     def _fold_turns_into_variants(self):
-        """A quest already done offers another dialog path, so a step may declare several variants."""
         if not self.turn_variants:
             self.turn_variants = [self.turns]
         elif self.turns and self.turn_variants != [self.turns]:
@@ -91,36 +90,20 @@ class UseInteractiveStep(StepWithDestination):
 
 
 class UseMapInteractiveStep(StepWithDestination):
-    """Utilise un element interactif de la map sans avoir a nommer sa cellule.
-
-    Les meubles a astiquer d'une quete ne sont dans aucune donnee, et ne deviennent
-    utilisables qu'une fois le necessaire en poche : on prend le premier element utilisable
-    qui ne soit pas une sortie de map. Une etape par objectif, donc -- celui qui se valide
-    fait sauter la sienne, et l'element consomme n'est plus propose au tour suivant.
-    """
+    """Utiliser le premier interactif hors sortie de map ; un objectif valide saute son etape."""
 
     type: Literal["use_map_interactive"] = "use_map_interactive"
     skill_id: int | None = None
 
 
 class CraftItemStep(BaseModel):
-    """Fabrique une recette avec les ingredients deja en sac.
-
-    Pas de destination a declarer : la recette dit sa skill, et `CraftBehavior` va lui-meme a
-    l'atelier correspondant.
-    """
-
     type: Literal["craft_item"] = "craft_item"
     item_gid: int
     quantity: int = 1
 
 
 class BuyItemStep(BaseModel):
-    """Complete l'inventaire jusqu'a `quantity`, en achetant lot de 1 par lot de 1.
-
-    Ce qu'on a deja compte : une reprise ne rachete pas ce qui reste du passage precedent, et
-    un ingredient tombe d'une autre quete rend l'etape inutile plutot que doublon.
-    """
+    """Acheter jusqu'a quantity, en comptant le stock existant pour eviter les rachats a la reprise."""
 
     type: Literal["buy_item"] = "buy_item"
     item_gid: int
@@ -157,14 +140,8 @@ class QuestScript(BaseModel):
     steps: list[QuestStep]
     server_step_id_by_index: dict[int, int] = Field(default_factory=dict[int, int])
     objective_id_by_index: dict[int, int] = Field(default_factory=dict[int, int])
-    """Index d'etape -> objectif serveur qu'elle remplit, pour sauter ce qui est deja fait."""
     objective_ids_with_untrusted_map: set[int] = Field(default_factory=set[int])
-    """Objectifs dont le `mapId` ne designe pas la map ou ils se valident.
-
-    Ankama y met parfois l'entree du batiment : les etageres du premier etage de Kerubim
-    portent la map du rez-de-chaussee. La garde de coherence entre etape et objectif les
-    ignore, faute de quoi elle refuserait la verite.
-    """
+    """Objectifs dont mapId indique l'entree du batiment plutot que la map de validation."""
 
     @model_validator(mode="after")
     def _check_steps(self):

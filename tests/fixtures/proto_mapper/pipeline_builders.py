@@ -1,6 +1,4 @@
-﻿from __future__ import annotations
-
-from dataclasses import dataclass
+﻿from dataclasses import dataclass
 
 from tests.fixtures.proto_mapper.enum_builders import enum_function_ref
 from tests.fixtures.proto_mapper.field_builders import dump_field, msg_typed_field

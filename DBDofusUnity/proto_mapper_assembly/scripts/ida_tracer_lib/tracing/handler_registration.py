@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import defaultdict
 from dataclasses import dataclass
 
@@ -18,8 +16,6 @@ from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.static
 
 @dataclass(frozen=True)
 class _ResolvedRegistration:
-    """One registration before it gets its rank, which only exists once the whole function is known."""
-
     message_cls: str
     method_info: HandlerMethodInfo
     method_info_address: int
@@ -32,7 +28,6 @@ def collect_handler_registration_accesses(
     filter_typeinfo_lookup: dict[int, str],
     handler_methodinfo_lookup: dict[int, HandlerMethodInfo],
 ) -> list[HandlerRegistrationAccessEntry]:
-    """Detect Core message handler registrations built from filter<T> and MethodInfo handler(T)."""
     filter_refs_by_cls: dict[str, list[tuple[int, int]]] = defaultdict(list)
     method_refs_by_cls: dict[str, list[tuple[int, int, HandlerMethodInfo]]] = defaultdict(list)
     method_address_lookup = {
@@ -84,8 +79,7 @@ def collect_handler_registration_accesses(
                     instruction_address=instruction_address,
                 )
             )
-    # Registrations are resolved class by class above, so the rank inside the registering function is
-    # only meaningful once they are back in instruction order.
+    # Restore instruction order before assigning registration ordinals.
     resolved_registrations.sort(key=lambda registration: registration.instruction_address)
     return [
         HandlerRegistrationAccessEntry(

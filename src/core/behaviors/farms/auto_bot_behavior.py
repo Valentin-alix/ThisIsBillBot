@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
@@ -50,11 +51,6 @@ AREA_CHOICE_LOCK = RLock()
 
 @dataclass
 class AutoBotBehavior(RecoverableBehavior):
-    """
-    Behavior to fight until certain lvl & kamas then play MultiFarmingBehavior,
-    This is a good behavior to automatically chose action based on context
-    """
-
     auto_equipment_behavior: AutoEquipmentBehavior
     fighter_behavior: FighterBehavior
     harvester_behavior: HarvesterBehavior
@@ -64,6 +60,7 @@ class AutoBotBehavior(RecoverableBehavior):
     idle_behavior: IdleBehavior
     craft_behavior: CraftBehavior
     sale_hotel_sell_behavior: SaleHotelSellBehavior
+    report_status: Callable[[str], None]
 
     _area_id: int | None = field(init=False, default=None)
     _sub_area_id: int | None = field(init=False, default=None)
@@ -144,6 +141,7 @@ class AutoBotBehavior(RecoverableBehavior):
                 or datetime_start_played + get_time_beween_areas() < datetime.now()
             )
 
+        self.report_status("Analyse des zones de récolte…")
         with AREA_CHOICE_LOCK:
             area_info = get_random_best_area_info(
                 self._area_id,
@@ -159,6 +157,7 @@ class AutoBotBehavior(RecoverableBehavior):
             CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER[key] = area_info
             self._previous_area_info_played.append(area_info)
 
+        self.report_status("Préparation de l’itinéraire de récolte…")
         self.multi_farming_behavior.start(
             area_id=area_info.area_id,
             sub_area_id=area_info.sub_area_id,

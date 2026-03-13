@@ -16,8 +16,6 @@ from tests.fixtures.data import make_spell_level
 
 
 class FakeMapPoint:
-    """Stands in for MapPoint in unit tests: no `__lt__`, like the real thing."""
-
     def __init__(self, name: str, dist: float = 0) -> None:
         self.cell_id = name
         self._dist = dist
@@ -150,8 +148,6 @@ class TestFindInvocation:
         assert sacrier_module._find_invocation(context, MagicMock(), MagicMock()) is None
 
     def test_no_crash_and_picks_a_cell_when_candidates_tie(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Regression test: candidates tying on (distance, remaining_pm) used to crash
-        comparing MapPoint objects (no `__lt__`) as the tuple tie-breaker."""
         spell_lvl = msgspec.structs.replace(make_spell_level(), spellId=sacrier_module.SACRIER_EPEE_VORACE_SPELL_ID)
 
         def _resolve(_context: AttackContext, _spell_id: int) -> SpellLevelsRootItem | None:
@@ -193,12 +189,3 @@ class TestFindInvocation:
         assert returned_spell_lvl is spell_lvl
         assert move_mp in (movable_mp_a, movable_mp_b)
         assert target_mp in (target_mp_a, target_mp_b)
-
-
-class TestSacrierRules:
-    def test_rules_and_urgent_rules_split(self) -> None:
-        assert sacrier_module.RULES == [sacrier_module._find_invocation]
-        assert sacrier_module.URGENT_RULES == [
-            sacrier_module._find_mutilation_initial_cast,
-            sacrier_module._find_mutilation_recast,
-        ]

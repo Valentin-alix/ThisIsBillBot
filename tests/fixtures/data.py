@@ -81,7 +81,6 @@ def make_item_type_data(
 def make_characteristics(
     values: dict[int, int],
 ) -> dict[int, CharacterCharacteristic]:
-    """Build a characteristic_by_id map from {characteristic_id: total} values."""
     return {
         characteristic_id: CharacterCharacteristic(
             characteristic_id=characteristic_id,

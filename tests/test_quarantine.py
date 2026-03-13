@@ -2,20 +2,20 @@ from pathlib import Path
 
 from pytest import MonkeyPatch
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+from ankama_launcher_emulator.controller.bot_storage import (
     BotStorageController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.mail_account import (
+from ankama_launcher_emulator.controller.mail_account import (
     MailAccountController,
 )
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.interfaces.local_storage import BotRecord
+from ankama_launcher_emulator.interfaces.local_storage import BotRecord
 
 
 def test_bot_quarantine_preserves_record_and_blocks_authentication(
     monkeypatch: MonkeyPatch, tmp_path: Path
 ) -> None:
     monkeypatch.setattr(
-        "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage.BOTS_STORAGE_PATH",
+        "ankama_launcher_emulator.controller.bot_storage.BOTS_STORAGE_PATH",
         tmp_path / "bots.json",
     )
     storage = BotStorageController()
@@ -42,7 +42,7 @@ def test_mailbox_quarantine_keeps_the_entry_until_user_deletes_it(
     monkeypatch: MonkeyPatch, tmp_path: Path
 ) -> None:
     monkeypatch.setattr(
-        "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.mail_account.MAIL_ACCOUNTS_STORAGE_PATH",
+        "ankama_launcher_emulator.controller.mail_account.MAIL_ACCOUNTS_STORAGE_PATH",
         tmp_path / "mail_accounts.json",
     )
     controller = MailAccountController()
@@ -63,7 +63,7 @@ def test_mailbox_quarantine_keeps_the_entry_until_user_deletes_it(
 
 def test_unknown_mailbox_is_not_created_by_quarantine(monkeypatch: MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
-        "AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.mail_account.MAIL_ACCOUNTS_STORAGE_PATH",
+        "ankama_launcher_emulator.controller.mail_account.MAIL_ACCOUNTS_STORAGE_PATH",
         tmp_path / "mail_accounts.json",
     )
 

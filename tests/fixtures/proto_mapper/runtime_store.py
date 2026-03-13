@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import json
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -13,7 +11,6 @@ def seed_runtime_content(
     *,
     filename: str = "instancied_msg_infos.json",
 ) -> None:
-    """Write runtime JSON under ``tmp_path`` for tests using the monkeypatched runtime store."""
     entries_by_name = {
         name: [_with_meta_defaults(entry, capture_sequence) for capture_sequence, entry in enumerate(entries)]
         for name, entries in content_by_name.items()

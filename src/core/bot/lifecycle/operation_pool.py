@@ -1,7 +1,7 @@
 import time
 from dataclasses import dataclass, field
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.proxy import ProxyController
+from ankama_launcher_emulator.controller.proxy import ProxyController
 
 ONE_HOUR_SEC = 3600
 ONE_DAY_SEC = 86_400
@@ -13,15 +13,7 @@ MAX_OPERATIONS_PER_DAY = 4
 
 @dataclass
 class OperationPool:
-    """Per-proxy sliding-window quota tracker for account creation/authentication.
-
-    Ankama rate-limits these operations per source network. Bot-DofusUnity uses
-    configured proxies as the only source selector, so each proxy id carries its own
-    independent budget. Each attempt consumes one token, so we record a timestamp
-    the moment an operation is launched, keyed by the proxy URL.
-
-    Timestamps are persisted to disk so the rolling windows survive restarts.
-    """
+    """Creation and authentication share a persisted per-proxy quota, consumed when each attempt starts."""
 
     proxy_controller: ProxyController = field(default_factory=ProxyController)
     _timestamps: dict[str, list[float]] = field(init=False, default_factory=dict[str, list[float]])

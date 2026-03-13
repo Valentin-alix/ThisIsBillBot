@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
 
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.register_updates import copy_frame_state

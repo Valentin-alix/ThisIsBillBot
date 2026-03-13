@@ -21,7 +21,6 @@ class TestRemapFailurePropagation:
         obf_msg = DumpCSMessage(file_descriptor="FD", name="ObfMsg")
         non_obf_msg = DumpCSMessage(file_descriptor="FD", name="ClearMsg")
 
-        # Set up a resolved child so the REPEATED branch is entered
         child_obf_msg = DumpCSMessage(file_descriptor="FD", name="ChildObf")
         child_non_obf_msg = DumpCSMessage(file_descriptor="FD", name="ChildClear")
         child_candidate = make_candidate(child_obf_msg, child_non_obf_msg, {})
@@ -59,7 +58,7 @@ class TestRemapFailurePropagation:
 
         assert result.mapping_failure == "child_fail"
 
-    def testmap_field_failure_stops_iteration(self) -> None:
+    def test_map_field_failure_stops_iteration(self) -> None:
         parent_obf_field = map_field("map_", 0x10)
         parent_non_obf_field = map_field("map_", 0x10)
         obf_msg = DumpCSMessage(file_descriptor="FD", name="ObfMsg")

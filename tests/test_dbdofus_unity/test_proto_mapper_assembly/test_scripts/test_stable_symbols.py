@@ -30,8 +30,6 @@ class TestStableSymbols:
             ]
         )
 
-        # The return type names a protobuf message, whose name is reshuffled every build, so the
-        # identity must survive without it.
         assert lookup == {0x10: "Core.dll/Core/UILogic/Inventory/Inventory::GetItem/1"}
 
     def test_obfuscated_owner_or_method_is_dropped(self) -> None:
@@ -56,7 +54,6 @@ class TestStableSymbols:
             ]
         )
 
-        # Identical code folding puts unrelated methods on one address; it identifies nothing.
         assert lookup == {}
 
     def test_method_without_dot_net_signature_is_dropped(self) -> None:

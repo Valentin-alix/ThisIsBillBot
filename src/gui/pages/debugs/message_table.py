@@ -31,7 +31,7 @@ class MessageRow:
 
     def __post_init__(self) -> None:
         self.time_text = self.received_time.strftime("%H:%M:%S.%f")[:-3]
-        self.origin_text = "S" if self.from_server else "C"
+        self.origin_text = "Serveur" if self.from_server else "Client"
 
     def message_info(self) -> MessageInfo:
         if self._msg_info is None:
@@ -113,7 +113,7 @@ class MessageTable(BaseTableWidget):
         self._unmapped_candidates_by_obf: dict[str, list[tuple[str, float]]] = {}
         columns: list[ColumnInfo] = [
             ColumnInfo(name="Heure"),
-            ColumnInfo(name="O"),
+            ColumnInfo(name="Origine"),
             ColumnInfo(name="Type"),
             ColumnInfo(name="Contenu", is_hidden=True),
         ]
@@ -126,7 +126,7 @@ class MessageTable(BaseTableWidget):
         header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
 
         self.table.setColumnWidth(0, 110)
-        self.table.setColumnWidth(1, 40)
+        self.table.setColumnWidth(1, 110)
 
         self.table.setEditTriggers(TableWidget.EditTrigger.NoEditTriggers)
 

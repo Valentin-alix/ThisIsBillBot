@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import Counter
 
 from utils.cache import cache
@@ -23,15 +21,7 @@ def function_similarity_from_keys(
     left: FunctionSimilarityKey,
     right: FunctionSimilarityKey,
 ) -> float:
-    """
-    Self-access similarity is the primary ranking signal.
-
-    Opcode histogram, foreign-access summary, and function size are weak
-    standalone rankers: their audited mean margins are negative. However,
-    removing all three leaves two additional bot-used messages unmapped,
-    because their small contributions still break some ties and help strong mutual-best pairs
-    reach the current 0.70 acceptance threshold.
-    """
+    """Self-access dominates; weak secondary signals only break ties and support acceptance."""
     if left.return_role != right.return_role:
         return 0.0
 
@@ -88,15 +78,7 @@ def access_atom_sequence_similarity(left: AccessAtomSequenceKey, right: AccessAt
 
 @cache
 def _access_atom_similarity_from_keys(left: AccessAtomKey, right: AccessAtomKey) -> float:
-    """
-    Score two accesses paired by their order within their functions.
-
-    Return 0 for incompatible entry types, field shapes, or access kinds.
-    Otherwise, compare their instruction positions. The caller already
-    encodes access order by sorting and zipping the sequences; this noisy
-    position signal is kept only to break ties between similar candidates.
-    Field offsets are deliberately ignored because they drift across builds.
-    """
+    """Compare access order and relative positions; ignore field offsets that drift across builds."""
     if left.entry_type != right.entry_type:
         return 0.0
 
@@ -124,22 +106,7 @@ _UNTRACED_FIELD_SIMILARITY = 0.65
 
 
 def field_evidence_similarity(left: FieldAccessSignatures, right: FieldAccessSignatures) -> float:
-    """
-    Compare two field signatures, treating a missing trace as absent evidence.
-
-    A field the tracer never reached carries no atom to compare. Against a field that does carry
-    atoms, ``access_atom_sequence_similarity`` returns 0 -- the same verdict it gives to genuinely
-    contradictory evidence -- which sinks the pair even when both builds agree on everything else.
-    Score that one case on a neutral factor instead, so the pair keeps ranking on its declared shape.
-
-    Every other combination is left alone. Two traced sides are compared atom by atom as before,
-    including a traced side holding no atom (a getter-only field), where an empty sequence really
-    does contradict a populated one. And two empty sequences still agree at 1.0, whatever the reason
-    they are empty.
-
-    ``field_signature_similarity`` is only reached when both sides are traced, which is what keeps
-    its cache sound despite ``is_traced`` being absent from the signature hash.
-    """
+    """Missing traces are neutral; traced empty getter signatures still contradict populated ones."""
     if left.field_type_shape != right.field_type_shape:
         return 0
     if left.is_traced and right.is_traced:

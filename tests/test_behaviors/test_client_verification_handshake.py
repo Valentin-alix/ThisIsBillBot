@@ -34,8 +34,6 @@ class _FakeBotConfigService:
 
 
 def _proof_verifies(public_key: int, commitment: int, challenge: int, proof: int) -> bool:
-    """Replay the check the game server runs on a Schnorr identification proof."""
-
     return pow(_DH_G, proof, _DH_P) == (commitment * pow(public_key, challenge, _DH_P)) % _DH_P
 
 
@@ -47,7 +45,6 @@ def _only(sent_messages: list[Message], msg_type: type[Message]) -> Message:
 
 class TestClientVerificationHandshake:
     def test_dh_group_is_rfc2409_first_oakley_group(self) -> None:
-
         assert _DH_P.bit_length() == 768
         assert _DH_G == 2
         assert _DH_Q == (_DH_P - 1) // 2

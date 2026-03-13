@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import re
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.il2cpp_json import MethodDefinition
@@ -51,7 +49,6 @@ def select_signature_for_proto_tracking(
 
 
 def parse_dot_net_signature(sig: str | None) -> tuple[str, list[str]]:
-    """Parse a preferred signature into (return_type, [explicit_parameter_types])."""
     if sig is None or not sig.strip():
         return "Void", []
     if _looks_like_native_signature(sig):
@@ -91,13 +88,11 @@ def _canonicalize_signature_type(
 ) -> str:
     resolved_long_name = _resolve_long_name_from_alias(type_name, proto_long_name_by_alias)
     if resolved_long_name is not None and _is_already_long_name(type_name):
-        # ici on est sur que cest le type long et qu'il correspond a un type proto
         return resolved_long_name
 
     normalized_type_name = normalize_message_type_name(type_name)
     candidate_types = proto_long_name_by_alias.get(normalized_type_name, frozenset())
     if not candidate_types:
-        # ca veux dire que cest pas un type proto, on peux le retourner direct
         return type_name
 
     mangled_matches = [
@@ -189,7 +184,6 @@ def method_has_this_parameter(method: MethodDefinition) -> bool:
 
 
 def build_function_key(method: MethodDefinition, preferred_signature: str | None = None) -> str:
-    """Build a unique function key from the method's class name and signature."""
     class_name = method.group.rsplit("/", 1)[-1]
     sig = preferred_signature or get_preferred_signature(method) or method.name
     return f"{class_name}::{sig}"

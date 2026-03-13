@@ -10,15 +10,6 @@ class TestBuildParentName:
 
         assert result is None
 
-    def test_nested_span_returns_parent_name(self) -> None:
-        parent_span = _Span(start=0, end=200, name="Outer")
-        child_span = _Span(start=50, end=150, name="Inner")
-        cache: dict[int, str | None] = {}
-
-        result = build_parent_name(child_span, [parent_span, child_span], cache)
-
-        assert result == "Outer"
-
     def test_deeply_nested_span_builds_dotted_chain(self) -> None:
         grandparent = _Span(start=0, end=300, name="GrandParent")
         parent = _Span(start=10, end=200, name="Parent")

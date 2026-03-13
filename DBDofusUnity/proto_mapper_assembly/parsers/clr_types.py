@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import (
     FieldCategoryEnum,
     FieldTypeLeafKind,
@@ -35,7 +33,6 @@ def categorize_field(clr_type: str, enum_names: frozenset[str]) -> FieldCategory
 
 
 def resolve_numeric_kind(normalized_type: str | None) -> NumericKind | None:
-    """Return the fine-grained scalar numeric kind for a normalized C# type, or None if not scalar."""
     if normalized_type is None:
         return None
     base_type = normalized_type.split("[")[0].split("<")[0].strip()

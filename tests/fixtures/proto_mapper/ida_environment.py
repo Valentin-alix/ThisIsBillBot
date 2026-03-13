@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import sys
 import types
 
@@ -148,8 +146,6 @@ def _install_ida_pro_mock() -> None:
 
 
 class _MockCtreeVisitorBase:
-    """Default no-op base class. Tests subclass and override apply_to."""
-
     def __init__(self, _flags: int) -> None:
         pass
 

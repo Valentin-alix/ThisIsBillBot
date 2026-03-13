@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import Counter, deque
 
 import idaapi
@@ -24,7 +22,6 @@ def cfg_stats_for_func(
     func: idaapi.func_t,
     function_scan_cache: FunctionScanCache | None = None,
 ) -> CfgStats:
-    """Describe the control-flow graph the scan plan already built, without decoding anything again."""
     return build_cfg_stats(build_function_scan_plan(func, function_scan_cache))
 
 
@@ -44,7 +41,6 @@ def _known_successors(scan_plan: FunctionScanPlan, block_start: int) -> tuple[in
 
 
 def _count_back_edges(scan_plan: FunctionScanPlan) -> int:
-    """Count edges reaching a block still open in the depth-first walk, i.e. real loop back edges."""
     open_blocks: set[int] = set()
     closed_blocks: set[int] = set()
     back_edge_count = 0

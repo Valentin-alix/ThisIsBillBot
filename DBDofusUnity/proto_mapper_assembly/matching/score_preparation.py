@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 
 import numpy as np
@@ -60,10 +58,7 @@ _MASKED_AFFINITY_SIGNALS: tuple[MaskedAffinitySignal, ...] = (
         ),
     ),
 )
-# Blend order is intentional: each signal rescales the running matrix and uses a different
-# applicability mask. File-descriptor and handler-registration evidence stay outside this table
-# because the former is unmasked and returns metadata, while the latter affects runtime candidate
-# selection.
+# Blend order matters: signals rescale the running matrix with different applicability masks.
 
 
 def build_prepared_scores(
@@ -72,14 +67,7 @@ def build_prepared_scores(
     inputs: MatchingInputs,
     run_config: MatchingRunConfig,
 ) -> PreparedScoreData:
-    """
-    Build the final score matrix from static, runtime, and corpus-level evidence.
-
-    Compute static scores, blend handler-registration evidence, rescore runtime-backed candidates,
-    then apply file-descriptor and masked affinity signals in order. Affinities are derived from the
-    static matrix and blended sequentially into the running matrix. Apply prospective constraints
-    and pins last so hard overrides survive every soft scoring step.
-    """
+    """Apply constraints and pins after all soft scoring so hard overrides survive."""
     structure_context = _build_structure_similarity_context(workspace=workspace, inputs=inputs)
     static_score_data = build_static_score_data(
         obf_signatures=workspace.obf_signatures,
@@ -149,12 +137,6 @@ def _blend_handler_registration_similarity(
     obf_access_trace: AccessTraceDocument,
     non_obf_access_trace: AccessTraceDocument,
 ) -> np.ndarray:
-    """
-    Blend handler-registration-count similarity into viable server-message pairs.
-
-    Apply the signal only to positive Event/Response candidates whose obfuscated message was
-    observed from the server and whose registration counts are known on both sides.
-    """
     adjusted_scores_matrix = np.array(scores_matrix, copy=True)
     obf_registration_count_by_cls = count_handler_registrations_by_cls(obf_access_trace)
     non_obf_registration_count_by_cls = count_handler_registrations_by_cls(non_obf_access_trace)
@@ -202,12 +184,7 @@ def _build_structure_similarity_context(
 def _blend_file_descriptor_similarity(
     *, message_scores_matrix: np.ndarray, file_descriptor_similarity_matrix: np.ndarray
 ) -> np.ndarray:
-    """
-    Blend file-descriptor alignment into every candidate score.
-
-    The signal is intentionally unmasked so it can revive pairs rejected by static scoring gates.
-    Restricting it to positive static scores preserved accuracy but removed 26 mappings.
-    """
+    """Blend without masking so file alignment can revive pairs rejected by static gates."""
     return (
         1.0 - _FILE_DESCRIPTOR_SIMILARITY_WEIGHT
     ) * message_scores_matrix + _FILE_DESCRIPTOR_SIMILARITY_WEIGHT * file_descriptor_similarity_matrix
@@ -220,11 +197,6 @@ def _blend_masked_affinity(
     applicable_mask: np.ndarray,
     weight: float,
 ) -> np.ndarray:
-    """
-    Blend an affinity into applicable cells and leave all others unchanged.
-
-    The bounded blend can penalize disagreement without zeroing an existing score. Cells outside
-    the mask remain unchanged because missing affinity evidence is neutral.
-    """
+    """Missing affinity evidence is neutral; applicable disagreement must not zero existing scores."""
     blended_scores_matrix = (1.0 - weight) * message_scores_matrix + weight * affinity_matrix
     return np.where(applicable_mask, blended_scores_matrix, message_scores_matrix)

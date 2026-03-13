@@ -16,7 +16,6 @@ rest and evicts the wrong claimant on its own.
 Nothing is written.
 """
 
-from __future__ import annotations
 
 import argparse
 from collections.abc import Mapping, Sequence
@@ -51,18 +50,14 @@ from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeData
 from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import StructureSimilarityContext
 
 _MIN_GROUP_COHERENCE = 0.90
-"""Same threshold as the export report, so both agree on which descriptors are worth looking at."""
 
 _SOLID_CLAIM_PIN_COUNT = 3
-"""Above this many pins, a claim is verified often enough that contesting it needs a real reason."""
 
 _DEFAULT_CANDIDATE_COUNT = 6
 
 
 @dataclass(frozen=True, slots=True)
 class GroupClaim:
-    """One non-obfuscated descriptor currently mapping messages into an obfuscated group."""
-
     non_obf_descriptor: str
     message_count: int
     pinned_count: int
@@ -101,8 +96,6 @@ class ObfGroupState:
 
 @dataclass(frozen=True, slots=True)
 class GroupAnalysis:
-    """Everything the reports need, computed once."""
-
     workspace: MatchingWorkspace
     scores_matrix: np.ndarray
     group_scores_matrix: np.ndarray
@@ -125,7 +118,6 @@ class GroupAnalysis:
         return [index_by_cls[signature.message_cls] for signature in self.workspace.obf_groups[descriptor]]
 
     def coherence(self, descriptor: str) -> tuple[float, str, int] | None:
-        """Plurality share of the descriptor's mappings, as the export report computes it."""
         landings: dict[str, int] = {}
         for signature in self.workspace.non_obf_groups[descriptor]:
             obf_cls = self.obf_cls_by_non_obf_cls.get(signature.message_cls)
@@ -207,12 +199,7 @@ def _load_inputs() -> MatchingInputs:
 
 
 def build_group_analysis(inputs: MatchingInputs) -> GroupAnalysis:
-    """
-    Score every group pair off the static matrix, with no pin applied.
-
-    Pins are deliberately left out of the scoring: they would pin the very answer the report is
-    meant to weigh. They come back separately, as the evidence behind each claim.
-    """
+    """Exclude pins from scoring; report them separately as evidence for each claim."""
     workspace = build_matching_workspace(
         obf_signatures=list(inputs.obf_signatures_by_cls.values()),
         non_obf_signatures=list(inputs.non_obf_signatures_by_cls.values()),
@@ -273,15 +260,7 @@ def build_group_analysis(inputs: MatchingInputs) -> GroupAnalysis:
 def _build_current_mappings(
     workspace: MatchingWorkspace, non_obf_messages_by_cls: Mapping[str, DumpCSMessage]
 ) -> dict[str, str]:
-    """
-    Index the committed mappings by non-obf class, going through the namespace form they use.
-
-    ``write_game_mappings`` keys each entry by its *filtered* namespace, which drops the ``Types``
-    wrapper C# adds around nested messages, while ``full_non_obf_msg_namespace`` keeps it. Reading
-    only the latter misses every nested message -- 276 of the 1797 entries -- and silently
-    under-reports the coverage of any file owning some, which is exactly what a triage report must
-    not do. Both forms are indexed, and the document key is tried first.
-    """
+    """Index filtered namespaces without C# Types wrappers so nested mappings resolve."""
     cls_by_namespace: dict[str, str] = {}
     for message_cls in workspace.non_obf_signatures_by_cls:
         cls_by_namespace.setdefault(f".{message_cls}".casefold(), message_cls)

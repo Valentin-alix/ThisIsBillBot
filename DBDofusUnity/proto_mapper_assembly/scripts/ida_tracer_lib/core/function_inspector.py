@@ -3,7 +3,6 @@ import idautils
 
 
 def get_operation_index_inside_function(ea: int) -> int:
-    """Just a helper to get relative index of operation inside function by operation address."""
     func = idaapi.get_func(ea)
     if not func:
         err = f"func at {ea} not found"

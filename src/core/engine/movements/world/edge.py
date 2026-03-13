@@ -90,7 +90,3 @@ def draw_edge_path(world_signals: WorldSignals, edges: list[Edge]) -> None:
         batch.append((start_map_pos, end_map_pos))
     if batch:
         world_signals.arrow_pos_batch.emit(batch)
-
-
-# Forbidden edge : Edge(m_from=Vertice(m_mapId=54162757, m_zoneId=1, m_uid=1795), m_to=Vertice(m_mapId=57016832, m_zoneId=1, m_uid=6791), m_transitions=[Transition(m_type=3
-# 2, m_direction=255, m_skillId=184, m_criterion='', m_transitionMapId=57016832, m_cellId=132, m_id=456644)]) with transition : Transition(m_type=32, m_direction=255, m_ski

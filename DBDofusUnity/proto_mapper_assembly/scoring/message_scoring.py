@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from dataclasses import dataclass, field
 from functools import cached_property, partial
 from operator import attrgetter
@@ -111,7 +109,6 @@ class MessageSimilarityScoreData:
     structure_similarity: float
     assembly_sim_data: AssemblySimilarityData
     assembly_weight: float
-    """Effective assembly weight; lowered toward structure when runtime evidence is sparse."""
 
     @cached_property
     def static_similarity(self) -> float:
@@ -122,8 +119,6 @@ class MessageSimilarityScoreData:
 
 @dataclass(frozen=True)
 class StructureHardening:
-    """The obfuscation-stable half of a pair's structure score, independent of its alignment."""
-
     declared_shape_score: float
     oneof_factor: float
 
@@ -166,14 +161,6 @@ def compute_structure_score(
     *,
     context: StructureSimilarityContext | None = None,
 ) -> float:
-    """
-    Hardened structure score for a message pair.
-
-    Shallow live-field alignment when ``context`` is ``None``, deep recursive matching otherwise.
-    The score is always blended with the declared field-shape multiset and scaled by the oneof
-    partition factor, so callers cannot accidentally skip the obfuscation-stable signals.
-    Root vs nested message mismatch shortcuts to ``0.0``.
-    """
     if left.dump_cs_msg.is_root_msg != right.dump_cs_msg.is_root_msg:
         return 0.0
     raw_structure = _raw_structure_score(left, right, context=context)
@@ -186,11 +173,6 @@ def compute_message_similarity(
     *,
     structure_score: float,
 ) -> MessageSimilarityScoreData:
-    """
-    Build the final score data given an already-computed (hardened) structure score.
-
-    Adds the runtime-evidence assembly similarity and the coverage-aware blend weight.
-    """
     return MessageSimilarityScoreData(
         structure_similarity=structure_score,
         assembly_sim_data=_assembly_similarity_data(left, right),
@@ -199,16 +181,12 @@ def compute_message_similarity(
 
 
 def coverage_assembly_weight(left: MessageAccessSignature, right: MessageAccessSignature) -> float:
-    """
-    Effective assembly weight, lowered toward structure as declared-field trace coverage thins out.
-    """
     coverage = pair_evidence_coverage(left, right) or 0.0
     coverage_factor = _COVERAGE_ASSEMBLY_WEIGHT_FLOOR + (1.0 - _COVERAGE_ASSEMBLY_WEIGHT_FLOOR) * coverage
     return _MESSAGE_ASSEMBLY_WEIGHT * coverage_factor
 
 
 def pair_evidence_coverage(left: MessageAccessSignature, right: MessageAccessSignature) -> float | None:
-    """Lowest declared-field trace coverage across the pair; None when neither side declares fields."""
     coverages = [
         coverage for coverage in (left.evidence_coverage, right.evidence_coverage) if coverage is not None
     ]
@@ -288,13 +266,6 @@ def _harden_structure_score(
     left: MessageAccessSignature,
     right: MessageAccessSignature,
 ) -> float:
-    """
-    Reinforce the live-field structure score with obfuscation-stable structural signals.
-
-    The live-field alignment is blended with the overlap of the full declared field-shape
-    multisets, then scaled by how closely the oneof partitions match. Both extra signals come
-    from the declared proto shape, so they discriminate even when few fields carry runtime traces.
-    """
     return build_structure_hardening(left, right).apply(raw_structure)
 
 

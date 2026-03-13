@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import NamedTuple
 
 from DBDofusUnity.consts import NON_OBF_NEW_DUMP_CS_FILE
@@ -27,13 +25,7 @@ def build_bootstrap_message_overlay(
     bootstrap_messages_by_cls: dict[str, DumpCSMessage],
     non_obf_messages_by_cls: dict[str, DumpCSMessage],
 ) -> BootstrapMessageOverlay:
-    """
-    Replace parsed non-obf messages with richer ``new_dump_cs.json`` entries.
-
-    When a class exists in both the parsed non-obf dump and the manual
-    ``new_dump_cs.json``, the bootstrap entry is treated as the source of
-    truth only when it adds virtual fields beyond the parsed dump.
-    """
+    """Prefer bootstrap entries only when they add virtual fields missing from the parsed dump."""
     overridden_messages = dict(non_obf_messages_by_cls)
     virtual_field_clean_names_by_cls: dict[str, set[str]] = {}
     for non_obf_cls, bootstrap_message in bootstrap_messages_by_cls.items():
@@ -81,7 +73,6 @@ def inject_synthetic_non_obf_entries_for_override_only_messages(
     non_obf_messages_by_cls: dict[str, DumpCSMessage],
     non_obf_signatures_by_cls: dict[str, MessageAccessSignature],
 ) -> tuple[dict[str, DumpCSMessage], dict[str, MessageAccessSignature]]:
-    """Load manual bootstrap dump.cs messages for override targets absent from the dump."""
     result_messages = dict(non_obf_messages_by_cls)
     result_signatures = dict(non_obf_signatures_by_cls)
 

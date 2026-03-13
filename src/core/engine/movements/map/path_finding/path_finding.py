@@ -54,15 +54,7 @@ class Pathfinding:
         skill_ids: list[int],
         ignore_server_range: bool = False,
     ) -> MovementPath | None:
-        """Path to the cell the client walks to before using an interactive.
-
-        Unreachable approach cell -> `None`, except for elements that have none at all (a fish in
-        the water, a door sunk into a wall): there the client walks as close as it can, and we
-        follow as long as we stay within `get_max_skill_range`.
-
-        `ignore_server_range` drops that last check, for map transitions only: their element cell
-        comes from the world graph and is too unreliable to measure a distance against.
-        """
+        """Use nearest reachable cells only when no approach cell exists; transitions may ignore server range."""
         self.data_map_provider.set_context(context)
 
         destination = self.get_interactive_destination(player_mp, element_mp, skill_ids)
@@ -162,11 +154,7 @@ class Pathfinding:
         return forbidden_cell_ids
 
     def is_dead_end(self, mp: MapPoint) -> bool:
-        """True when none of the eight neighbours of `mp` can be walked to.
-
-        Off map directions do not count as blocking, like the client, so a cell on the map border
-        is never a dead end.
-        """
+        """Off-map neighbours do not block movement, matching the client."""
         walkable_count = len(DirectionsEnum)
         for direction in DirectionsEnum:
             neighbor_mp = mp.get_nearest_mp_in_direction(direction)

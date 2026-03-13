@@ -46,18 +46,18 @@ bid_seller_item_by_uid_by_player_id.json
 farm_stats.json
 
 # Local launcher configuration and state
-AnkamaLauncherEmulatorPremium/LauncherSourceCode/
-AnkamaLauncherEmulatorPremium/resources/bots.local.json.lock
-AnkamaLauncherEmulatorPremium/resources/mail_accounts.json.lock
-AnkamaLauncherEmulatorPremium/resources/bots.json
-AnkamaLauncherEmulatorPremium/resources/mail_accounts.json
-AnkamaLauncherEmulatorPremium/resources/proxies.json
-AnkamaLauncherEmulatorPremium/resources/schedule_profiles.json
-AnkamaLauncherEmulatorPremium/resources/smailpro_outlook_disabled_until.json
-AnkamaLauncherEmulatorPremium/resources/paysafecards.txt
-AnkamaLauncherEmulatorPremium/resources/paysafecard_purchase.local.json
-AnkamaLauncherEmulatorPremium/resources/user_activity.json
-AnkamaLauncherEmulatorPremium/resources/debug/
+AnkamaLauncherEmulator/LauncherSourceCode/
+AnkamaLauncherEmulator/resources/bots.local.json.lock
+AnkamaLauncherEmulator/resources/mail_accounts.json.lock
+AnkamaLauncherEmulator/resources/bots.json
+AnkamaLauncherEmulator/resources/mail_accounts.json
+AnkamaLauncherEmulator/resources/proxies.json
+AnkamaLauncherEmulator/resources/schedule_profiles.json
+AnkamaLauncherEmulator/resources/smailpro_outlook_disabled_until.json
+AnkamaLauncherEmulator/resources/paysafecards.txt
+AnkamaLauncherEmulator/resources/paysafecard_purchase.local.json
+AnkamaLauncherEmulator/resources/user_activity.json
+AnkamaLauncherEmulator/resources/debug/
 
 # Generated Dofus data and reverse-engineering artifacts
 DBDofusUnity/resources/*.json

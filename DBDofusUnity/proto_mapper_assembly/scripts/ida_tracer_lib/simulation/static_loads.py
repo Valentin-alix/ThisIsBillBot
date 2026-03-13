@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Sequence
 from typing import Literal
 
@@ -23,7 +21,6 @@ def handle_mov_typeinfo_instruction(
     ea: int,
     ienumerator_typeinfo_lookup: dict[int, str] | None = None,
 ) -> Sequence[TypeInfoAccessEntry]:
-    """Detect proto TypeInfo loads via mov reg, [static_typeinfo_ptr]."""
     return handle_typeinfo_load(
         insn.ops[0],
         insn.ops[1],

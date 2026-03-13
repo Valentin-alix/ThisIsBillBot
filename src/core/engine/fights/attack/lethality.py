@@ -6,7 +6,7 @@ from src.core.engine.fights.spell_modifier import SpellModifiers
 
 
 def can_finish_fight_this_turn(context: AttackContext, damage_calculator: DamageCalculator) -> bool:
-    """No simulation: linear extrapolation of the best damage/AP spell vs the last enemy's HP."""
+    """Linear extrapolation of the best damage/AP spell, without turn simulation."""
     if len(context.enemies_data) != 1:
         return len(context.enemies_data) == 0
 

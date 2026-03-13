@@ -3,7 +3,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller import bot_storage, mail_account
+from ankama_launcher_emulator.controller import bot_storage, mail_account
 
 
 class IsolatedLauncherStorageTestCase(TestCase):
@@ -21,8 +21,6 @@ class IsolatedLauncherStorageTestCase(TestCase):
 
 
 class FakeBrowserContext:
-    """Fake async context manager standing in for launch_browser_context() in tests."""
-
     def __init__(self, page: MagicMock) -> None:
         self.new_page = AsyncMock(return_value=page)
 
@@ -39,8 +37,6 @@ class FakeBrowserContext:
 
 
 class FakeLocator:
-    """Fake Playwright Locator exposing only the methods exercised by these tests."""
-
     def __init__(self, count: int, *, visible: bool = True) -> None:
         self._count = count
         self._visible = visible
@@ -63,7 +59,5 @@ class FakeLocator:
 
 
 class FakeMailProvider:
-    """Fake ``MailCodeProvider`` standing in for a real IMAP/SmailPro provider in tests."""
-
     def __init__(self, code: str | None = None) -> None:
         self.wait_for_code = AsyncMock(return_value=code)

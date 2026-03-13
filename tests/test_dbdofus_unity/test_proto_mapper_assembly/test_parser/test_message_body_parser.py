@@ -33,15 +33,9 @@ class TestMessageBodyParser:
         assert len(_properties) == 1
         assert _properties[0].property_name == "Name"
         assert fields_by_name["abc"].is_proto_field is True
-        # The string field correctly maps to Name even though abc (int) precedes it
         assert fields_by_name["def"].property_name == "Name"
 
     def test_marks_obfuscated_presence_backing_field_when_already_mapped(self) -> None:
-        """
-        Hasbits fields now stay in the proto field set and are mapped directly by position.
-
-        Models the kmv class shape without any `FieldNumber` markers in the obfuscated body.
-        """
         stripped_body = """
             private int eqtj; // 0x18
             private int eqtn; // 0x1C
@@ -58,7 +52,6 @@ class TestMessageBodyParser:
 
         assert fields_by_name["eqtj"].is_proto_field is True
         assert fields_by_name["eqtn"].property_name == "fomk"
-        # RepeatedField backing field correctly maps to its property, not blocked by int fields
         assert fields_by_name["eqtw"].property_name == "fomp"
         assert fields_by_name["eqtl"].property_name is None
 
@@ -118,19 +111,11 @@ class TestMessageBodyParser:
         assert fields_by_name["eqsz"].is_proto_field is True
         assert fields_by_name["eqtg"].property_name == "givg"
         assert fields_by_name["gfak"].property_name == "fomf"
-        # MapField backing field matches its property even when int fields precede it
         assert fields_by_name["gfan"].property_name == "givh"
-        # Remaining int field correctly maps to the last available int property
         assert fields_by_name["eqte"].property_name == "fomd"
         assert fields_by_name["eqtc"].property_name is None
 
     def test_maps_string_field_after_hasbits_and_before_oneof(self) -> None:
-        """
-        Models the kfq class shape.
-
-        optional int32 fndt (backed by eopd + hasbits eopi), string fnds (backed by eopf), oneof fndz.
-        eopi must not exhaust property slots so that eopf correctly maps to fnds.
-        """
         stripped_body = """
             private int eopd; // 0x18
             public const int eopg = 1;
@@ -154,15 +139,12 @@ class TestMessageBodyParser:
         )
         fields_by_name = {field.field_name: field for field in fields}
 
-        # eopf must map to fnds (not be blocked by eopi failing to find an int match)
         assert fields_by_name["eopf"].property_name == "fnds"
-        # fnds must NOT be a synthetic oneof variant at offset 40
         synthetic_variants = [f for f in fields if f.is_synthetic_oneof_variant]
         synthetic_names = {f.field_name for f in synthetic_variants}
         assert "fnds" not in synthetic_names
         assert "fndx" in synthetic_names
         assert "fndy" in synthetic_names
-        # synthetic variants are at offset 40 (eopp), not at offset 32
         for variant in synthetic_variants:
             assert variant.memory_offset == 40
 

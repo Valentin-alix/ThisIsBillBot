@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import uuid
 from collections.abc import Callable, Iterator
 from functools import cached_property
@@ -32,6 +30,7 @@ def tmp_json_path(tmp_path: Path) -> Path:
 @pytest.fixture
 def runtime_data_store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[RuntimeDataStore]:
     monkeypatch.setattr(runtime_store, "RUNTIME_DATA_FILE", tmp_path / "instancied_msg_infos.json")
+    monkeypatch.setattr(runtime_store, "ENABLE_MSG_CAPTURE", True)
     instance = RuntimeDataStore()
     instance._capture_sequence_index = None  # pyright: ignore[reportPrivateUsage]
     instance._capture_session_id = None  # pyright: ignore[reportPrivateUsage]
@@ -40,7 +39,7 @@ def runtime_data_store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Itera
     yield instance
     instance._capture_target_path = None  # pyright: ignore[reportPrivateUsage]
     instance.path.unlink(missing_ok=True)
-    # The singleton caches computed views, which must not leak into the next test.
+    # Clear singleton cached views so they cannot leak into the next test.
     for name, attribute in vars(type(instance)).items():
         if isinstance(attribute, cached_property):
             instance.__dict__.pop(name, None)  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]

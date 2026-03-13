@@ -1,13 +1,5 @@
-"""Report protobuf fields the IDA trace never shows being accessed.
+"""A field is a dead candidate only if its message was captured and neither IDA nor runtime shows use."""
 
-``--obf`` / ``--non-obf`` scan a whole build for fields with zero recorded access, optionally
-explaining each one by tracer evidence bucket. ``--unknown-fields`` narrows the same evidence to
-the declared ``unknown_*`` fields, crossing it with the runtime captures so a field is only a
-``dead_candidate`` when its obfuscated message was captured at least once while neither IDA nor
-the runtime shows the field in use.
-"""
-
-from __future__ import annotations
 
 import argparse
 from collections import Counter, defaultdict
@@ -551,7 +543,6 @@ def audit_unknown_fields(
     accessed_offsets_by_obf_message: Mapping[str, set[int]],
     runtime_instances_by_obf_message: Mapping[str, Sequence[Mapping[str, object]]],
 ) -> list[UnknownFieldAuditRecord]:
-    """Classify every declared ``unknown_*`` non-obfuscated protobuf field."""
     records: list[UnknownFieldAuditRecord] = []
     for non_obf_message in non_obf_messages_by_cls.values():
         non_obf_namespace = build_filtered_message_namespace(
@@ -690,7 +681,6 @@ def _audit_unknown_field(
 
 
 def format_unknown_field_audit(records: Sequence[UnknownFieldAuditRecord]) -> str:
-    """Format a stable, reviewable report for manual schema decisions."""
     counts_by_status = Counter(record.status for record in records)
     counts_by_reason = Counter(record.reason for record in records)
     lines = [
@@ -721,7 +711,6 @@ def _format_record(record: UnknownFieldAuditRecord) -> str:
 
 
 def build_unknown_field_audit() -> list[UnknownFieldAuditRecord]:
-    """Collect the unknown-field evidence from the obfuscated build and the runtime captures."""
     non_obf_messages_by_cls = build_dump_cs_messages_from_pb2(PROTOS_ROOT / "non_obf")
     obf_messages = parse_messages(str(OBF_PROTOCOL_GAME_DUMP_CS_FILE))
     obf_messages_by_cls = {message.composed_name: message for message in obf_messages}

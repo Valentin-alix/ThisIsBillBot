@@ -29,7 +29,6 @@ _TIED_SIBLING_SCORES = np.array(
         [0.1, 0.1, 0.1],
     ]
 )
-"""ClearA1/ClearA2 score identically against obf_a1/obf_a2: only the cohort order can separate them."""
 
 _COHORT_WEIGHT = next(signal.weight for signal in _MASKED_AFFINITY_SIGNALS if signal.name == "handler_cohort")
 
@@ -84,16 +83,12 @@ class TestHandlerCohorts:
         assert affinity_matrix[2, 2] == 1.0
 
     def test_cohort_siblings_are_ranked_by_registration_order(self) -> None:
-        # Sharing a matched cohort keeps most of the reward, but the sibling sitting at the same
-        # registration ordinal is ranked above the one that is merely in the same cohort.
         affinity_matrix, _ = _build_affinity()
 
         assert affinity_matrix[0, 0] > affinity_matrix[0, 1] > affinity_matrix[0, 2]
         assert affinity_matrix[0, 2] == 0.0
 
     def test_registration_order_breaks_ties_between_indistinguishable_siblings(self) -> None:
-        # The real case this exists for: two same-shaped siblings in one cohort that the structural
-        # score cannot separate. Registering them in reverse order must flip which pair is rewarded.
         affinity_matrix, _ = build_handler_cohort_affinity(
             AffinitySignalInputs(
                 workspace=simple_workspace(obf_classes=_OBF_CLASSES, non_obf_classes=_NON_OBF_CLASSES),
@@ -108,8 +103,6 @@ class TestHandlerCohorts:
         assert affinity_matrix[0, 1] > affinity_matrix[0, 0]
 
     def test_ordering_is_skipped_when_the_cohorts_lost_too_many_handlers(self) -> None:
-        # obf cohort A shrank to a single handler: the ordinals no longer describe the same list, so
-        # membership alone is rewarded and every member of the matched cohort is treated equally.
         affinity_matrix, _ = build_handler_cohort_affinity(
             AffinitySignalInputs(
                 workspace=simple_workspace(obf_classes=_OBF_CLASSES, non_obf_classes=_NON_OBF_CLASSES),
@@ -123,8 +116,6 @@ class TestHandlerCohorts:
         assert affinity_matrix[1, 0] == 1.0
 
     def test_a_decisive_score_still_wins_over_registration_order(self) -> None:
-        # Order is a tie-breaker, not an override: the gap penalty is small on purpose, so a pair the
-        # structural score is sure about survives a cohort whose ordinals disagree.
         affinity_matrix, _ = build_handler_cohort_affinity(
             AffinitySignalInputs(
                 workspace=simple_workspace(obf_classes=_OBF_CLASSES, non_obf_classes=_NON_OBF_CLASSES),
@@ -143,9 +134,6 @@ class TestHandlerCohorts:
         assert affinity_matrix[2, 0] == 0.0
 
     def test_pairs_crossing_two_matched_cohorts_stay_constrained(self) -> None:
-        # The mask is per side, not per pair: ClearA1 and obf_b1 sit in two *different* matched
-        # cohorts, and the pair must stay masked in so that its zero affinity penalizes the crossing.
-        # Narrowing this to "both in the same cohort" would silently disable that penalty.
         _, applicable_mask = _build_affinity()
 
         assert applicable_mask[0, 2]
@@ -179,8 +167,6 @@ class TestHandlerCohorts:
             weight=_COHORT_WEIGHT,
         )
 
-        # Sharing a matched cohort lifts the pair, crossing one pushes it down without ever
-        # making it unreachable, and a message registering no handler keeps its score as-is.
         assert blended_scores[0, 0] > _BASE_SCORES[0, 0]
         assert 0.0 < blended_scores[0, 2] < _BASE_SCORES[0, 2]
         assert np.isclose(blended_scores[3, 0], _BASE_SCORES[3, 0])

@@ -2,28 +2,29 @@ import logging
 from functools import partial
 from typing import Literal, cast
 
-from PyQt6.QtCore import QSize, QTimer, QUrl
-from PyQt6.QtGui import QCloseEvent, QColor, QIcon, QPixmap
+from PyQt6.QtCore import QSize, Qt, QTimer, QUrl
+from PyQt6.QtGui import QCloseEvent, QColor, QIcon, QPixmap, QResizeEvent
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from qfluentwidgets import (
+    CaptionLabel,
     FluentIcon,
     NavigationItemPosition,
     SplashScreen,
 )
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+from ankama_launcher_emulator.controller.bot_storage import (
     BotStorageController,
 )
-from src import consts
 from src.consts import LOGO_FILE
 from src.controller.bot_config import BotConfigService
 from src.controller.player_info_storage import PlayerInfoSnapshot, PlayerInfoStorage
+from src.core import config
 from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
-from src.gui.fragments.account_stacked_widget import AccountStackedWidget
 from src.gui.fragments.account_quick_info import AccountQuickInfoWidget
+from src.gui.fragments.account_stacked_widget import AccountStackedWidget
 from src.gui.fragments.app_fluent_window import AppFluentWindow
 from src.gui.fragments.sidebar_item import SidebarItem
 from src.gui.pages.activity import ActivityPage
@@ -32,6 +33,32 @@ from src.services.logging_utils.loggers import init_root_gui_logging
 
 logger = logging.getLogger()
 _BREED_ICON_URL_TEMPLATE = "https://api.dofusdb.fr/img/breeds/symbol_{breed_id}.png"
+
+
+class StartupSplashScreen(SplashScreen):
+    _ICON_HEIGHT = 102
+
+    def __init__(self, icon: QIcon, parent: AppFluentWindow) -> None:
+        super().__init__(icon, parent)
+        self._status_label = CaptionLabel(parent=self)
+        self._status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+    def set_status(self, status: str) -> None:
+        self._status_label.setText(status)
+        self._position_status_label()
+
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
+        super().resizeEvent(a0)
+        self._position_status_label()
+
+    def _position_status_label(self) -> None:
+        height = self._status_label.sizeHint().height()
+        self._status_label.setGeometry(
+            0,
+            self.height() // 2 + self._ICON_HEIGHT // 2 + 16,
+            self.width(),
+            height,
+        )
 
 
 class MainWindow(AppFluentWindow):
@@ -43,7 +70,7 @@ class MainWindow(AppFluentWindow):
         super().__init__(parent=None)
 
         self.global_log_signals = LogSignals()
-        if consts.DEBUG:
+        if config.DEBUG:
             init_root_gui_logging(self.global_log_signals)
 
         self.title = title
@@ -51,7 +78,7 @@ class MainWindow(AppFluentWindow):
         self.setWindowTitle(self.title)
         self.resize(BASE_WIDTH, BASE_HEIGHT)
         self.setWindowIcon(QIcon(LOGO_FILE))
-        self.splashScreen = SplashScreen(self.windowIcon(), self)
+        self.splashScreen = StartupSplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(102, 102))
 
         self.disconnected_icon = FluentIcon.PEOPLE.icon(color=QColor(255, 0, 0))
@@ -82,6 +109,10 @@ class MainWindow(AppFluentWindow):
         )
         self.navigationInterface.setCurrentItem(self.activity_page.objectName())
 
+    def set_startup_status(self, status: str) -> None:
+        self.setWindowTitle(f"{self.title} — {status}")
+        self.splashScreen.set_status(status)
+
     def init_accounts(self, account_by_id: dict[int, Bot]) -> None:
         snapshots = PlayerInfoStorage().get_all_snapshots()
         records = BotStorageController().get_all_records()
@@ -93,7 +124,7 @@ class MainWindow(AppFluentWindow):
                 snapshot=snapshots.get(login),
                 quarantine_reason=record.quarantine_reason if record is not None else None,
             )
-        if consts.DEBUG:
+        if config.DEBUG:
             run_in_background(
                 lambda _: AccountQuickInfoWidget.resolve_snapshot_sub_area_names(snapshots),
                 on_success=self._set_snapshot_sub_area_names,

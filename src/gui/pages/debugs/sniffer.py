@@ -31,6 +31,7 @@ from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import (
 )
 from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
+from src.services.debug_recorder import DebugRecorder
 from src.gui.pages.debugs.listeners_stats import ListenersStatsWidget
 from src.gui.pages.debugs.logs import LogsWidget
 from src.gui.pages.debugs.message_detail import MessageDetailWidget, SelectedPinnedField
@@ -153,7 +154,7 @@ class PinnedPairMessageBox(MessageBoxBase):
     ) -> None:
         super().__init__(parent=parent)
         self._valid_non_obf_msg_names = set(non_obf_msg_names)
-        self.title_label = SubtitleLabel(f"pinne pair for {obf_msg_name}", parent=self)
+        self.title_label = SubtitleLabel(f"Paire épinglée pour {obf_msg_name}", parent=self)
         self.message_name_edit = LineEdit(self)
         self.message_name_edit.setPlaceholderText("Nom du message non obfusqué")
         self.message_name_edit.setMinimumWidth(420)
@@ -274,13 +275,16 @@ class SnifferWidget(QWidget):
         left_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.msg_table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-        self.msg_detail = MessageDetailWidget(parent=self)
-        self.msg_detail.hide()
+        self.detail_stack = QStackedWidget(self)
+        self.detail_empty_state = self._create_detail_empty_state(self.detail_stack)
+        self.detail_stack.addWidget(self.detail_empty_state)
+        self.msg_detail = MessageDetailWidget(parent=self.detail_stack)
+        self.detail_stack.addWidget(self.msg_detail)
         self.msg_detail.quit_btn.clicked.connect(self.on_close_detail)
         self.msg_detail.lock_pinned_fields_btn.clicked.connect(self.on_lock_pinned_fields)
 
         self.right_splitter = QSplitter(Qt.Orientation.Vertical, self)
-        self.right_splitter.addWidget(self.msg_detail)
+        self.right_splitter.addWidget(self.detail_stack)
 
         if self.bot.log_signals is not None:
             debug_tabs_widget = QWidget(self)
@@ -309,12 +313,12 @@ class SnifferWidget(QWidget):
 
             debug_pivot.addItem(
                 routeKey="logs",
-                text="Logs",
+                text="Journaux",
                 onClick=lambda: debug_stacked.setCurrentWidget(logs_widget),
             )
             debug_pivot.addItem(
                 routeKey="listeners",
-                text="Listeners",
+                text="Écouteurs",
                 onClick=lambda: self._show_listeners_tab(debug_stacked, listeners_widget),
             )
             debug_pivot.setCurrentItem("logs")
@@ -337,15 +341,26 @@ class SnifferWidget(QWidget):
         splitter.setSizes([800, 800])
 
         if self.logs_widget is not None:
-            self.right_splitter.setStretchFactor(0, 2)
-            self.right_splitter.setStretchFactor(1, 1)
+            self.right_splitter.setStretchFactor(0, 1)
+            self.right_splitter.setStretchFactor(1, 2)
 
-            self.right_splitter.setSizes([300, 150])
+            self.right_splitter.setSizes([150, 300])
 
         content_layout.addWidget(splitter)
         self.v_layout.addWidget(content)
 
         self.v_layout.setStretch(2, 1)
+
+    @staticmethod
+    def _create_detail_empty_state(parent: QWidget) -> QWidget:
+        empty_state = QWidget(parent)
+        layout = QVBoxLayout(empty_state)
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(
+            SubtitleLabel("Sélectionnez un message pour voir son contenu", empty_state),
+            alignment=Qt.AlignmentFlag.AlignCenter,
+        )
+        return empty_state
 
     @pyqtSlot(MessageInfo, bool)
     def on_receive_msg_info(self, msg_info: MessageInfo, was_send_from_proxy: bool) -> None:
@@ -356,7 +371,7 @@ class SnifferWidget(QWidget):
     def on_play(self) -> None:
         self.is_playing = True
         if self._use_recorder_feed:
-            self._message_cursor = self.bot.debug_recorder.latest_message_sequence
+            self._message_cursor = self._recorder().latest_message_sequence
             if self.isVisible():
                 self._feed_timer.start()
         else:
@@ -371,7 +386,7 @@ class SnifferWidget(QWidget):
         self.is_playing = False
         if self._use_recorder_feed:
             self._feed_timer.stop()
-            self._message_cursor = self.bot.debug_recorder.latest_message_sequence
+            self._message_cursor = self._recorder().latest_message_sequence
         else:
             self.bot.msg_info_signals.set_capture_enabled(False)
         if self.logs_widget is not None:
@@ -399,10 +414,15 @@ class SnifferWidget(QWidget):
         super().hideEvent(a0)
 
     def _poll_recorder_messages(self) -> None:
-        cursor, entries = self.bot.debug_recorder.recent_messages_after(self._message_cursor)
+        cursor, entries = self._recorder().recent_messages_after(self._message_cursor)
         self._message_cursor = cursor
         if entries:
             self.msg_table.add_recent_entries(entries)
+
+    def _recorder(self) -> DebugRecorder:
+        recorder = self.bot.debug_recorder
+        assert recorder is not None, "The recorder feed requires DEBUG=1"
+        return recorder
 
     @pyqtSlot(QModelIndex)
     def on_click_msg(self, model_index: QModelIndex) -> None:
@@ -419,7 +439,7 @@ class SnifferWidget(QWidget):
             find_non_obf_game_message_descriptor(non_obf_msg_name),
             _find_obf_game_message_descriptor(obf_msg_name or msg_infos.sub_msg_name),
         )
-        self.msg_detail.show()
+        self.detail_stack.setCurrentWidget(self.msg_detail)
 
     @pyqtSlot(QModelIndex)
     def on_double_click_msg(self, model_index: QModelIndex) -> None:
@@ -439,7 +459,7 @@ class SnifferWidget(QWidget):
     @pyqtSlot()
     def on_close_detail(self) -> None:
         self._current_detail_msg_info = None
-        self.msg_detail.hide()
+        self.detail_stack.setCurrentWidget(self.detail_empty_state)
 
     @pyqtSlot()
     def on_lock_pinned_fields(self) -> None:
@@ -450,7 +470,7 @@ class SnifferWidget(QWidget):
         if message_pair is None:
             QMessageBox.warning(
                 self,
-                "Pinned fields",
+                "Champs épinglés",
                 "Impossible de verrouiller les champs pour ce message.",
             )
             return
@@ -459,7 +479,7 @@ class SnifferWidget(QWidget):
         if fields is None:
             QMessageBox.warning(
                 self,
-                "Pinned fields",
+                "Champs épinglés",
                 "Sélectionne un champ racine dans chaque tree.",
             )
             return
@@ -469,7 +489,7 @@ class SnifferWidget(QWidget):
         if resolved_message_pair is None:
             QMessageBox.warning(
                 self,
-                "Pinned fields",
+                "Champs épinglés",
                 "Les champs selectionnes ne ciblent pas une paire de types compatible.",
             )
             return
@@ -484,7 +504,7 @@ class SnifferWidget(QWidget):
         non_obf_field_name = non_obf_field.path_label
         QMessageBox.information(
             self,
-            "Pinned fields",
+            "Champs épinglés",
             f"{obf_field_name} -> {non_obf_field_name} verrouillé.",
         )
 

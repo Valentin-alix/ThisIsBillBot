@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from dataclasses import dataclass, field
 
 
@@ -7,7 +5,7 @@ def _new_string_list() -> list[str]:
     return []
 
 
-def _new_field_fingerprints() -> list[FieldFingerprint]:
+def _new_field_fingerprints() -> "list[FieldFingerprint]":
     return []
 
 

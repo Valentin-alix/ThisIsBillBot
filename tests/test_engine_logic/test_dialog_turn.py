@@ -36,7 +36,6 @@ def test_each_question_gets_its_declared_turn() -> None:
 
 
 def test_questions_asked_out_of_order_still_resolve() -> None:
-    """A walkthrough gives an unreliable question order, so turns are not consumed in order."""
     turns = DialogTurns(
         turns=[
             DialogTurn(message_id=1, reply=ByReplyId(reply_id=10)),
@@ -54,7 +53,6 @@ def test_questions_asked_out_of_order_still_resolve() -> None:
 
 
 def test_a_turn_answers_only_once() -> None:
-    """Two identical questions need two declared turns, otherwise the dialog would loop."""
     turns = DialogTurns(turns=[DialogTurn(message_id=1, reply=ByReplyId(reply_id=10))])
 
     assert turns.take_reply_for(_make_question(1, [10])) is not None
@@ -123,7 +121,6 @@ def test_a_single_variant_behaves_like_a_plain_turn_list() -> None:
 
 
 def test_the_variant_answering_the_first_question_becomes_the_active_one() -> None:
-    """A quest already done offers another dialog path, recognizable from its first reply."""
     variants = DialogVariants.from_turn_variants(
         [
             [

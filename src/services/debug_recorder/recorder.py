@@ -1,15 +1,4 @@
-"""
-Per-bot debug recorder. Captures logs + sniffer messages into a JSONL file in
-chronological order (one DebugLogEntry / DebugMessageEntry per line).
-
-Design:
-- One background daemon thread per bot drains a queue, serializes entries and
-  writes them to disk in batches.
-- Hot paths (proxy worker threads, log emit) only push raw data into the queue
-  (cheap, no Qt signals involved), so the GUI thread is not starved.
-- Bot sessions use distinct files. Completed sessions are compressed and
-  pruned in the background.
-"""
+"""Hot paths enqueue only; a per-bot worker serializes and writes records without blocking Qt."""
 
 import atexit
 import gzip

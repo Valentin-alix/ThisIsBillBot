@@ -115,11 +115,7 @@ class QuestScriptBehavior(Behavior):
         )
 
     def on_context_creation_event(self, msg: ContextCreationEvent) -> None:
-        """Un PNJ peut declencher un combat (Gaztronom), et une map peut agresser.
-
-        Le script ne sait pas se battre : il rend la main au comportement de combat, puis
-        reprend son etape courante -- que les objectifs valides entre-temps feront sauter.
-        """
+        """Ceder au combat puis reprendre l'etape, en sautant les objectifs valides entre-temps."""
         if msg.context != ContextCreationEvent.GameContext.FIGHT:
             return
         self.logger.info("Fight started during the quest script, playing it before resuming")
@@ -134,12 +130,7 @@ class QuestScriptBehavior(Behavior):
         self.run_timer(HumanTimingsService().get_timing_after_map_arrival(), self._run_step)
 
     def _resolve_starting_index(self, script: QuestScript) -> int:
-        """The server owns the truth: never assume a quest restarts from its first step.
-
-        Une quete deja acceptee ne se reprend pas a l'etape 0 : le PNJ ne reproposerait pas
-        de la donner. Les objectifs disent ou on en est, bien plus finement que l'etape
-        serveur -- les deux scripts n'ont qu'une seule etape serveur pour tout le script.
-        """
+        """Reprendre depuis les objectifs serveur ; une quete acceptee ne recommence pas a l'etape zero."""
         if script.quest_id is None:
             return 0
         if not self.game_state.quest.is_active(script.quest_id):

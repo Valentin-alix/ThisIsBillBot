@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import re
 from dataclasses import dataclass
 
@@ -37,7 +35,6 @@ def parse_enum_names(code: str) -> frozenset[str]:
 
 
 def parse_enum_member_values(code: str) -> dict[str, dict[str, int]]:
-    """Return {enum_name: {member_name: value}} for all public enums found in code."""
     result: dict[str, dict[str, int]] = {}
     for match in ENUM_PATTERN.finditer(code):
         body_span = _get_body_span(match.start(), code)
@@ -129,12 +126,7 @@ def build_parent_name(
     parent_spans: list[_Span],
     cache: dict[int, str | None],
 ) -> str | None:
-    """
-    Return the dotted parent chain for current_span, using parent_spans for ancestry lookup.
-
-    The cache is keyed by span.start so it can be safely shared across calls with
-    different span lists (e.g. message_spans for iteration, type_spans for ancestry).
-    """
+    """Key ancestry caches by span.start so message and type span lists can share them."""
     if current_span.start in cache:
         return cache[current_span.start]
     parent_index = _find_smallest_enclosing_span_index(

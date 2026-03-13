@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Callable, Mapping
 from functools import cache
 
@@ -73,6 +71,5 @@ def build_message_pair_static_score(
     *,
     structure_context: StructureSimilarityContext,
 ) -> MessageSimilarityScoreData:
-    """Return the static score breakdown for a single message pair."""
     structure_score = compute_structure_score(left, right, context=structure_context)
     return compute_message_similarity(left, right, structure_score=structure_score)

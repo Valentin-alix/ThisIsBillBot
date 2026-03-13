@@ -17,7 +17,6 @@ not changing anything -- but the pins it recovers on its own are still independe
 ground truth, and it needs no archived build.
 """
 
-from __future__ import annotations
 
 import argparse
 import json
@@ -90,13 +89,7 @@ from DBDofusUnity.proto_mapper_assembly.scripts.recover_archived_game_mappings i
 
 _PINNED_PAIRS_PATH = Path("datas/proto_mapper/pinned_pairs.json")
 _ERA_PATHS = (_PINNED_PAIRS_PATH,)
-"""
-Only the pins are taken from the era. The non-obfuscated side is deliberately the current one.
-
-A game update replaces the obfuscated build, not the reference it is mapped against, so holding the
-reference fixed is what actually happens rather than a simplification. It also keeps every era
-comparable, and avoids the era's own traces, which predate the tracer's current schema.
-"""
+"""Use the current non-obfuscated reference for every era to keep comparisons consistent."""
 
 
 @dataclass(frozen=True)
@@ -108,13 +101,6 @@ class EraReplay:
 
     bot_matched_count: int
     bot_wrong_count: int
-    """
-    Mapped, but not to the class this era's verified mapping had.
-
-    Kept apart from ``bot_unmapped_count``: an unmapped message fails loudly and gets pinned by
-    hand, a wrongly mapped one parses the wrong fields and fails quietly. A change that turns the
-    second into the first is an improvement even when the matched count does not move.
-    """
 
     bot_unmapped_count: int
     bot_total_count: int
@@ -241,15 +227,12 @@ def _run_current_build_benchmark(arguments: argparse.Namespace) -> None:
     json_path: Path | None = arguments.json
     if json_path is None:
         return
-    # ``recovered_pin_count`` is a property, so it is not part of the dataclass fields; it is
-    # the first thing anyone looks at, so it is worth carrying explicitly.
     payload = asdict(report) | {"recovered_pin_count": report.recovered_pin_count}
     json_path.write_text(f"{json.dumps(payload, indent=2)}\n", encoding="utf-8")
     print(f"Written to {json_path}")
 
 
 def _resolve_build_dirs(*, snapshots_root: Path, requested: list[str] | None) -> list[Path]:
-    """Return archived builds carrying both obf artifacts, newest first."""
     usable = iter_archived_build_dirs(
         snapshots_root=snapshots_root,
         required_files=(PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH, PROTO_ACCESSES_RELATIVE_PATH),
@@ -261,7 +244,6 @@ def _resolve_build_dirs(*, snapshots_root: Path, requested: list[str] | None) ->
 
 
 def _resolve_era(build_dir: Path) -> tuple[Path, str]:
-    """Pin a build to the last commit made while it was the installed one."""
     window_start, window_end = resolve_build_window(obf_dir=build_dir, snapshots_root=build_dir.parent)
     commits = iter_mapping_commits(window_start=window_start, window_end=window_end)
     if not commits:
@@ -271,7 +253,6 @@ def _resolve_era(build_dir: Path) -> tuple[Path, str]:
 
 
 def _materialize_era(*, commit: str, cache_root: Path, paths: tuple[Path, ...]) -> Path:
-    """Check out the era's inputs into a cache directory, skipping what is already there."""
     era_dir = cache_root / commit
     for repo_path in paths:
         target = era_dir / repo_path
@@ -316,9 +297,7 @@ def _replay_era(
         obf_messages_by_cls=matching_inputs.obf_messages_by_cls,
         non_obf_messages_by_cls=known_non_obf_messages,
     )
-    # No capture hints, for every era alike. The older files use a shape the loader no longer reads,
-    # and feeding them to recent eras only would buy fidelity at the cost of comparability, which is
-    # the whole point of running the same matcher against several builds.
+    # Omit capture hints for every era: legacy shapes are unreadable and comparisons must stay uniform.
     capture_sequence_hints = CaptureSequenceHintsConfig(sequences=())
 
     matches = match_messages(
@@ -361,13 +340,7 @@ def _export_era_overrides(
     cache_root: Path,
     candidate_document: GameMappingsDocument,
 ) -> Path:
-    """
-    Export the overrides this build would have left behind, from the mapping it just produced.
-
-    Generating them is the only way to get a genuinely stale file: the archived ones predate
-    ``FieldKey`` and cannot be read, and the current one self-matches the current build. Pins stay
-    out, matching the pin-free replay.
-    """
+    """Regenerate predecessor overrides because archived overrides predate the current field-key schema."""
     export_dir = cache_root / "overrides" / build_dir.name
     export_dir.mkdir(parents=True, exist_ok=True)
     detailed_path = export_dir / "game_mappings_detailed.json"
@@ -396,16 +369,8 @@ def _score_bot_used_messages(
     candidate_document_root: Mapping[str, GameMappingEntry],
     era_commit: str,
     build_dir: Path,
-) -> list[PinOutcome]:
-    """
-    Score only the messages the bot actually drove at the time, against that era's own mapping.
-
-    The rest of a mapping file is not ground truth. A pair nobody ever exercised was never
-    confirmed, so a run that maps it differently, or not at all, has not necessarily got it wrong --
-    counting those as regressions makes any change look damaging and hides whether the messages that
-    matter still land. ``MSG_TO_MAP`` is the list that matters: every entry is annotated with the
-    bot source file that consumes it, so a wrong mapping there breaks something visible.
-    """
+) -> "list[PinOutcome]":
+    """Grade only era-specific MSG_TO_MAP entries; unused mappings are not verified ground truth."""
     bot_message_names = _load_bot_used_message_names(era_commit)
     reference = SimpleGameMappingsDocument.model_validate_json(
         (build_dir / GAME_MAPPINGS_RELATIVE_PATH).read_bytes()
@@ -427,7 +392,6 @@ def _score_bot_used_messages(
 
 
 def _load_bot_used_message_names(commit: str) -> frozenset[str]:
-    """Read ``MSG_TO_MAP`` as it stood at a commit: the messages the bot consumed back then."""
     source = _read_blob(commit=commit, repo_path=Path("consts.py")).decode("utf-8", errors="replace")
     block = re.search(r"^MSG_TO_MAP.*?=\s*\[(.*?)^\]", source, re.DOTALL | re.MULTILINE)
     if block is None:
@@ -441,12 +405,7 @@ def _resolve_era_pins(
     obf_messages_by_cls: Mapping[str, DumpCSMessage],
     non_obf_messages_by_cls: Mapping[str, DumpCSMessage],
 ) -> PinnedPairsConfig:
-    """
-    Resolve an era's pins, dropping the ones naming a message the protocol has since removed.
-
-    The shared resolver raises on those, which is right for the pipeline and wrong for a replay
-    that has to survive months of drift.
-    """
+    """Drop pins for removed messages so historical replay tolerates protocol drift."""
     non_obf_alias_to_cls, short_non_obf_alias_to_cls = build_non_obf_alias_lookup(
         non_obf_messages_by_cls=non_obf_messages_by_cls
     )
@@ -465,13 +424,7 @@ def _resolve_era_pins(
 
 
 def _empty_overrides_path(cache_root: Path) -> Path:
-    """
-    Every era is replayed without signature overrides.
-
-    A build's overrides are exported *from* its own mapping, so feeding them back in would grade
-    the matcher on its own answers; and the archived files cannot be read anyway, predating
-    ``FieldKey`` and storing a bare offset where a field identity is now required.
-    """
+    """Exclude each build's own overrides to avoid grading the matcher against its own answers."""
     empty_path = cache_root / "empty_signature_overrides.json"
     if not empty_path.is_file():
         empty_path.parent.mkdir(parents=True, exist_ok=True)
@@ -481,7 +434,7 @@ def _empty_overrides_path(cache_root: Path) -> Path:
 
 def _score_pins(
     *, candidate_document_root: Mapping[str, GameMappingEntry], era_pins: PinnedPairsConfig
-) -> list[PinOutcome]:
+) -> "list[PinOutcome]":
     key_by_normalized_name = {_normalize_name(key): key for key in candidate_document_root}
     outcomes: list[PinOutcome] = []
     for pinned_pair in era_pins.pairs:
@@ -505,11 +458,7 @@ def _compare_with_previous_era_overrides(
     documents: list[GameMappingsDocument],
     cache_root: Path,
 ) -> list["OverrideComparison"]:
-    """
-    Replay each build again with the overrides its predecessor would have exported.
-
-    ``eras`` is newest first, so the entry after a build is the one that came before it in time.
-    """
+    """Eras are newest first; the next entry supplies the predecessor's overrides."""
     comparisons: list[OverrideComparison] = []
     for newer_index in range(len(eras) - 1):
         newer_dir, newer_commit = eras[newer_index]
@@ -584,8 +533,6 @@ def _print_report(replays: list[EraReplay]) -> None:
     bot_total = sum(replay.bot_total_count for replay in replays)
     recovered = sum(replay.recovered_pin_count for replay in replays)
     in_scope = sum(replay.in_scope_pin_count for replay in replays)
-    # Wrong is printed beside correct on purpose: a change that turns unmapped into wrong raises
-    # both the matched count and the damage, and reading correct alone hides that entirely.
     print(
         f"\nTOTAL bot-used correct={bot_matched} wrong={bot_wrong} unmapped={bot_unmapped} "
         f"of {bot_total} ({bot_matched / max(bot_total, 1):.4f})"
@@ -596,7 +543,6 @@ def _print_report(replays: list[EraReplay]) -> None:
 @dataclass(frozen=True)
 class PinOutcome:
     non_obf_key: str
-    """Mapping-document key when the pinned message exists there, else the pinned name as written."""
     expected_obf: str
     actual_obf: str | None
 
@@ -611,9 +557,7 @@ class BenchmarkReport:
     candidate_count: int
     agreed_count: int
     changed: tuple[tuple[str, str, str], ...]
-    """(non-obf key, reference obf, candidate obf) for keys present on both sides but disagreeing."""
     dropped: tuple[str, ...]
-    """Reference keys the pin-less run did not map at all."""
     pin_outcomes: tuple[PinOutcome, ...]
 
     @property
@@ -687,8 +631,7 @@ def build_report(
         else:
             changed.append((key, reference_obf, candidate_obf))
 
-    # Pins name their target as a composed class (``Com.Ankama...Foo``) while the documents key it as
-    # a namespace (``.com.ankama...Foo``), so both sides go through the same normalization.
+    # Normalize composed pin names and namespace-based document keys to the same form.
     key_by_normalized_name = {
         _normalize_name(key): key for key in (*reference_obf_by_key, *candidate_obf_by_key)
     }
@@ -714,7 +657,6 @@ def build_report(
 
 
 def _normalize_name(value: str) -> str:
-    """Same normalization as the auto-mode contract check, so both agree on what a pin points at."""
     return value.removeprefix(".").casefold()
 
 

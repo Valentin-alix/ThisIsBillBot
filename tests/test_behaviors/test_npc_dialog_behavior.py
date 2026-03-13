@@ -59,7 +59,6 @@ def _question(message_id: int, reply_ids: list[int]) -> NpcDialogQuestionEvent:
 
 
 def test_a_question_without_reply_closes_the_dialog(game_state_ctx: GameStateContext) -> None:
-    """Le PNJ a dit son dernier mot : sans DialogLeaveRequest le dialogue reste ouvert."""
     sent_messages: list[Message] = []
     behavior = _make_behavior(game_state_ctx, sent_messages)
 
@@ -96,7 +95,6 @@ def test_a_declared_turn_is_answered(game_state_ctx: GameStateContext) -> None:
 def test_the_last_answer_no_longer_ends_the_behavior_on_its_own(
     game_state_ctx: GameStateContext,
 ) -> None:
-    """Regression : finir des l'envoi laissait le dialogue ouvert et bloquait l'etape suivante."""
     sent_messages: list[Message] = []
     behavior = _make_behavior(game_state_ctx, sent_messages)
     finished: list[str | None] = []

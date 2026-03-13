@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import defaultdict
 from collections.abc import Sequence
 
@@ -39,12 +37,7 @@ def load_message_access_signatures_from_messages(
 
 
 def count_handler_registrations_by_cls(access_trace: AccessTraceDocument) -> dict[str, int]:
-    """How many times each message is registered with a handler.
-
-    The client only registers a handler for what it receives, so the count separates server-pushed
-    messages from the rest. Absence is weak evidence: two builds do not compile the same features,
-    which is why callers blend this signal rather than gate on it.
-    """
+    """Handler registration identifies received messages; missing registration is only weak evidence."""
     registration_count_by_cls: dict[str, int] = defaultdict(int)
     for traced_function in access_trace.functions_by_address.values():
         for access_entry in traced_function.access_infos:
@@ -271,14 +264,7 @@ def _build_short_name_to_cls(
 
 
 def _canonicalize_access_kind(access_kind: str) -> str:
-    """
-    Fold ``address`` into ``read`` so both builds describe a field load the same way.
-
-    Whether a field load shows up as ``mov reg, [obj+off]`` or as ``lea reg, [obj+off]`` depends on
-    the IL2CPP codegen of the build, and the two reference builds disagree on it. Left as a kind of
-    its own, every such atom would compare as a mismatch against its own counterpart and drag the
-    similarity of the messages carrying it down.
-    """
+    """Normalize address loads to reads because IL2CPP switches between LEA and MOV across builds."""
     return "read" if access_kind == "address" else access_kind
 
 

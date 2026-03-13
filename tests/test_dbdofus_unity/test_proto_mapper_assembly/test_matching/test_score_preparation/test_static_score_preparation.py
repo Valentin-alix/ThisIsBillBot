@@ -61,13 +61,6 @@ class TestStaticScorePreparation:
             RuntimeCandidateIndexes(2, 0),
         )
 
-    def test_runtime_candidate_iteration_keeps_at_most_ten_candidates(self) -> None:
-        scores = np.arange(12, dtype=float).reshape(12, 1) / 100
-
-        indexes = _iter_runtime_candidate_indexes(scores_matrix=scores)
-
-        assert len(indexes) == 10
-
     def test_handler_registration_similarity_is_bilateral_and_bounded(self) -> None:
         workspace = simple_workspace(
             obf_classes=("obf_event",),

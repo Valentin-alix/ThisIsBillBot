@@ -13,7 +13,7 @@ class CategoryItemEnum(IntEnum):
 
 
 class ItemTypeEnum(IntEnum):
-    RESOURCE_BAG = 100  # "Sac de ble", "Sac d'Orge"...
+    RESOURCE_BAG = 100
     EKLEME = 310
     KEY = 84
     VIANDE = 63
@@ -27,8 +27,6 @@ class ItemTypeEnum(IntEnum):
 
 
 class ItemEnum(IntEnum):
-    # equipments
-    # piou bleu
     AMU_PIOU_BLEU = 8214
     CAPE_PIOU_BLEU = 8232
     CHAPEAU_PIOU_BLEU = 8244
@@ -37,14 +35,12 @@ class ItemEnum(IntEnum):
     ANNEAU_PIOU_BLEU = 8220
     ANNEAU_KARDORIM = 16502
     ARC_HOLIC = 1350
-    # piou rouge
     AMU_PIOU_ROUGE = 8213
     CAPE_PIOU_ROUGE = 8231
     CHAPEAU_PIOU_ROUGE = 8243
     CEINTURE_PIOU_ROUGE = 8237
     SANDALE_PIOU_ROUGE = 8225
     ANNEAU_PIOU_ROUGE = 8219
-    ## pano akwadala
     GETA_AKWADALA = 7242
     ALLIANCE_AKWADALA = 7246
     BOUCLIER_AKWADALA = 18687
@@ -54,7 +50,6 @@ class ItemEnum(IntEnum):
     BATON_AKWADALA = 7254
     CHAPEAU_AKWADALA = 7226
     DOFUS_ARGENTE = 19629
-    ## pano kwak de flammes
     CHAPEAU_KWAK_FLAMMES = 2409
     CAPE_KWAK_FLAMMES = 2412
     EPEE_KWAK_FLAMMES = 2415
@@ -63,7 +58,6 @@ class ItemEnum(IntEnum):
     AMU_KWAK_FLAMMES = 2424
     CEINTURE_KWAK_FLAMMES = 2427
     ANNEAU_DU_PRESPIC = 6928
-    ## pano blop griotte + complement
     BLOPANNEAU_GRIOTTE = 9122
     AMUBLOP_GRIOTTE = 9149
     BLOPTES_GRIOTTES = 9158
@@ -73,7 +67,6 @@ class ItemEnum(IntEnum):
     CAPE_HOTE = 6994
     OREILLES_DE_WABBITS = 6500
     KLOUME = 18669
-    ## pano blop griotte royale + complement
     BLOPANNEAU_GRIOTTE_ROYAL = 9126
     AMUBLOP_GRIOTTE_ROYALE = 9153
     BLOPTES_GRIOTTE_ROYALES = 9162
@@ -88,9 +81,7 @@ class ItemEnum(IntEnum):
     DOKOKO = 17078
     CUIRASSE_NEUTRE_MINEUR = 12683
     MURAILLE_NEUTRE_MINEURE = 13811
-    # other
     KEY_RING = 10207
-    # res
     WATER = 311
     SAC_DE_CARPE = 7989
     CARPE_DIEM = 1794
@@ -98,13 +89,11 @@ class ItemEnum(IntEnum):
     RAIE_BLEUE = 1784
     SAC_DE_TREMBLE = 11112
     BOIS_DE_TREMBLE = 11107
-    # quetes
     DEFENSE_DU_SANGLIER = 387
     GRAISSE_GELATINEUSE = 1983
     GROIN_DE_SANGLIER_DES_PLAINES = 2515
     POILS_DE_KERUBIM = 13608
     CIRE_DE_GLIGLI = 14508
-    # recipes
     ANKARNOOB_BREAD = 468
 
 

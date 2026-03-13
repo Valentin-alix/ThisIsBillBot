@@ -43,12 +43,7 @@ class InteractiveBehavior(Behavior):
         movement_cancel_probability: float = STATIC_INTERACTION_CANCEL_PROBABILITY,
         pre_interaction_delay: float = 0,
     ) -> None:
-        """Walk to the client approach cell of `element_mp`, then use the element.
-
-        `skill_id` defaults to the first enabled skill. Its instance uid is resolved right before
-        sending, never captured here: the server disables the skills as soon as the element is
-        used. `ignore_server_range`: see `Pathfinding.get_interactive_near_path`.
-        """
+        """Resolve the skill instance just before sending: using an element disables its current skills."""
         assert 0 <= movement_cancel_probability <= 1, (
             "Interaction cancellation probability must be between zero and one"
         )

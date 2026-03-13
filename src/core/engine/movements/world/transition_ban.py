@@ -6,12 +6,10 @@ from DBDofusUnity.dofus_unity_reader.models.world_graph import Transition, Verti
 
 
 class TransitionBanScope(StrEnum):
-    """How long a transition stays out of the world graph search."""
-
     MAP_STAY = auto()
-    """Unreachable from where we stand; entering the map again may put us in the right zone."""
+    """Re-entering the map may restore access from another zone."""
     SESSION = auto()
-    """The world graph itself is wrong; only a reconnect re-opens it."""
+    """Invalid world-graph transition; remains banned until reconnect."""
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import re
 from collections import defaultdict
 
@@ -11,23 +9,14 @@ _TYPE_PATH_SEPARATORS_RE = re.compile(r"[/+]")
 
 
 def build_callee_identity_lookup(method_definitions: list[MethodDefinition]) -> dict[int, str]:
-    """
-    Map a native address to a callee identity that survives a rebuild.
-
-    Only ``assembly/Namespace/Type::Method/arity`` is kept: return and parameter types routinely
-    name protobuf messages, whose names are reshuffled on every build, so including them would make
-    the identity unstable exactly where it matters. Identities holding an obfuscated segment are
-    dropped outright — they can never match their counterpart, and keeping them would only add
-    noise to the similarity of the functions that call them.
-    """
+    """Keep assembly/namespace/type/method/arity; signature types may be obfuscated and unstable."""
     definitions_by_address: dict[int, list[MethodDefinition]] = defaultdict(list)
     for method_definition in method_definitions:
         definitions_by_address[int(method_definition.virtual_address, 16)].append(method_definition)
 
     callee_identity_by_address: dict[int, str] = {}
     for address, definitions in definitions_by_address.items():
-        # Identical code folding collapses thousands of trivial methods onto one address; such an
-        # address does not identify anything.
+        # Identical code folding makes shared native addresses ambiguous.
         if len(definitions) != 1:
             continue
         identity = _build_callee_identity(definitions[0])

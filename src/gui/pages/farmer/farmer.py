@@ -1,7 +1,6 @@
+from collections.abc import Callable
 from enum import StrEnum
 
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
-from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtWidgets import QHBoxLayout, QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import (
@@ -12,7 +11,9 @@ from qfluentwidgets import (
     TransparentToolButton,
 )
 
-from src import consts
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from src.core import config
 from src.core.behaviors.behavior_factory import USABLE_BEHAVIORS
 from src.core.bot.bot import Bot
 from src.gui.pages.farmer.bank_tab import BankTab
@@ -65,7 +66,7 @@ class FarmerWidget(QWidget):
 
         self.init_top_content()
 
-        if consts.DEBUG:
+        if config.DEBUG:
             self.init_content()
             self._create_debug_tabs()
 
@@ -233,11 +234,12 @@ class FarmerWidget(QWidget):
         route_key: str,
         text: str,
         widget: QWidget,
+        on_click: Callable[[], None] | None = None,
     ) -> PivotItem:
         pivot_item = self.pivot.addItem(
             routeKey=route_key,
             text=text,
-            onClick=lambda: self.stacked_widget.setCurrentWidget(widget),
+            onClick=on_click or (lambda: self._show_debug_widget(widget)),
         )
         if pivot_item is None:
             raise ValueError(f"Debug tab route `{route_key}` is already registered")
@@ -267,16 +269,43 @@ class FarmerWidget(QWidget):
         self.inventory_tab = InventoryTab(self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.inventory_tab)
         inventory_route = f"{self.objectName()}_inventory_tab"
-        self.inventory_pivot_item = self._add_debug_tab(inventory_route, "Inventaire", self.inventory_tab)
+        self.inventory_pivot_item = self._add_debug_tab(
+            inventory_route,
+            "Inventaire",
+            self.inventory_tab,
+            self._show_inventory_tab,
+        )
 
         self.bank_tab = BankTab(self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.bank_tab)
         bank_route = f"{self.objectName()}_bank_tab"
-        self.bank_pivot_item = self._add_debug_tab(bank_route, "Banque", self.bank_tab)
+        self.bank_pivot_item = self._add_debug_tab(bank_route, "Banque", self.bank_tab, self._show_bank_tab)
 
-        self.inventory_tab.connect_signals()
-        self.bank_tab.connect_signals()
         for pivot_item in self.pivot.items.values():
             pivot_item.setFixedHeight(40)
         self.pivot.setCurrentItem(self.map_route)
         self.stacked_widget.setCurrentWidget(self.map_tab)
+
+    def _show_debug_widget(self, widget: QWidget) -> None:
+        self._disconnect_hidden_storage_tabs()
+        self.stacked_widget.setCurrentWidget(widget)
+
+    def _show_inventory_tab(self) -> None:
+        assert self.inventory_tab is not None
+        assert self.bank_tab is not None
+        self.bank_tab.disconnect_signals()
+        self.stacked_widget.setCurrentWidget(self.inventory_tab)
+        self.inventory_tab.connect_signals()
+
+    def _show_bank_tab(self) -> None:
+        assert self.inventory_tab is not None
+        assert self.bank_tab is not None
+        self.inventory_tab.disconnect_signals()
+        self.stacked_widget.setCurrentWidget(self.bank_tab)
+        self.bank_tab.connect_signals()
+
+    def _disconnect_hidden_storage_tabs(self) -> None:
+        if self.inventory_tab is not None:
+            self.inventory_tab.disconnect_signals()
+        if self.bank_tab is not None:
+            self.bank_tab.disconnect_signals()

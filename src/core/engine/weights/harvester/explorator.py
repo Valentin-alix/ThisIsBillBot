@@ -4,15 +4,6 @@ from src.controller.game_data import GameDataController
 
 
 def get_map_ids_to_explore(map_ids: set[int]) -> set[int]:
-    """
-    Get map IDs that should be explored based on harvestable items.
-
-    Args:
-        map_ids: Set of map IDs to check
-
-    Returns:
-        Set of map IDs worth exploring
-    """
     map_ids_checked = GameDataController().get_map_ids_checked()
     item_job_by_gfx = GameDataController().get_item_job_by_gfx()
 

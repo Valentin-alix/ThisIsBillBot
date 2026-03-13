@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from unittest.mock import patch
 
 from DBDofusUnity.main import build_argument_parser

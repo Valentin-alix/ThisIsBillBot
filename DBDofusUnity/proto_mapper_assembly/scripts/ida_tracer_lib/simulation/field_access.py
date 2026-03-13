@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import idaapi
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
@@ -59,7 +57,6 @@ def collect_instruction_field_accesses(
     reg_state: RegisterState,
     proto_fields_by_class_and_offset: dict[str, dict[int, DumpCSMessageField]],
 ) -> list[FieldAccessEntry]:
-    """Collect field accesses from IDA operand use/change metadata when available."""
     entries: list[FieldAccessEntry] = []
     for operand_index, access_kind in _iter_operand_accesses(insn):
         if operand_index >= len(insn.ops):

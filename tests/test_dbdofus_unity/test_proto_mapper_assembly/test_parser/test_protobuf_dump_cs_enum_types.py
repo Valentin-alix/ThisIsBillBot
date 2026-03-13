@@ -9,7 +9,6 @@ _ENUM_NAME = "Origin"
 
 
 def _build_sample_descriptor() -> Descriptor:
-    """A message holding a singular, a repeated and a mapped enum field."""
     file_proto = descriptor_pb2.FileDescriptorProto()
     file_proto.name = "enum_shape_fixture.proto"
     file_proto.package = "com.example"
@@ -78,9 +77,6 @@ class TestProtobufDumpCsEnumTypes:
         }
 
     def test_repeated_enum_field_shape_is_an_enum_not_a_message(self) -> None:
-        # Without the enum value type, resolve_non_container_field_kind falls back to
-        # MESSAGE and the shape stops matching the obfuscated RepeatedField<enum> side,
-        # which makes the signature override export reject the pinned pair.
         message = _descriptor_to_dump_cs(_build_sample_descriptor(), enum_names=frozenset({_ENUM_NAME}))
         shapes_by_property = {field.property_name: field.field_type_shape for field in message.fields}
 

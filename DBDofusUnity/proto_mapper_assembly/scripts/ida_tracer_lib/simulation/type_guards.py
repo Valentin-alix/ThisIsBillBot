@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import idaapi
 
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.static_loads import (
@@ -10,7 +8,6 @@ from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types impor
 
 
 def handle_mov_type_guard_instruction(insn: idaapi.insn_t, reg_state: RegisterState) -> None:
-    """Track `mov vtable_reg, [object_reg]` for later IMessage TypeInfo guards."""
     destination_operand = insn.ops[0]
     source_operand = insn.ops[1]
     if destination_operand.type != idaapi.o_reg:

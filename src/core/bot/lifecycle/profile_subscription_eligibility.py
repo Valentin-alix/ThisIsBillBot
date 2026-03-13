@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from AnkamaLauncherEmulatorPremium.ankama_launcher_emulator_premium.controller.bot_storage import (
+from ankama_launcher_emulator.controller.bot_storage import (
     BotStorageController,
 )
 from src.consts import (

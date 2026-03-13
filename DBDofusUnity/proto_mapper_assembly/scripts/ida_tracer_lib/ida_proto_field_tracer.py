@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import annotations
 
 import os
 import sys
@@ -145,7 +144,6 @@ def scan_methods_for_accesses(
     function_scan_cache: FunctionScanCache,
     do_canonicalize_to_long_name: bool,
 ) -> dict[str, FunctionAccessInfo]:
-    """Scan IDA functions for proto field accesses and return per-function results."""
     result: dict[str, FunctionAccessInfo] = {}
     resolved_core_method_signature_lookup = core_method_signature_lookup or {}
     combined_type_lookup = {**tracking_type_lookup, **proto_message_type_lookup}

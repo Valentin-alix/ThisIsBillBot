@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import Counter
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (

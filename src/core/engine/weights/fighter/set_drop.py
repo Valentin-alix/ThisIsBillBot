@@ -49,12 +49,7 @@ def get_missing_set_drop_sub_area_ids(
 
 
 def _covered_world_sub_area_id(area_info: AreaInfo, missing_sub_area_ids: frozenset[int]) -> int | None:
-    """Sub-area of ``area_info`` that drops a missing set piece and is reachable
-    by world navigation (overworld, not a dungeon), or None.
-
-    Restricting to non-dungeon world-map sub-areas keeps the fighter on
-    reachable maps (dungeon sub-areas were the original path_not_found cause).
-    """
+    """Exclude dungeon sub-areas: world navigation must be able to reach the missing set piece."""
     sub_area_by_id = DataReader().sub_area_by_id
     area_sub_area_ids = DataReader().sub_areas_by_area_id.get(area_info.area_id, set())
     for sub_area_id in sorted(missing_sub_area_ids & area_sub_area_ids):
@@ -71,15 +66,6 @@ def choose_set_drop_area_info(
     waypoint_map_ids: frozenset[int],
     previous_area_infos: list[AreaInfo],
 ) -> AreaInfo | None:
-    """Pick a reachable curated area whose monsters drop a missing set piece,
-    narrowed to the exact sub-area that drops it.
-
-    Only the curated candidates (the same ones the normal selection travels to
-    reliably) are considered, so this never routes to an unreachable area. An
-    area-level candidate is narrowed to the covered drop sub-area so the fighter
-    farms exactly where the missing piece drops (e.g. Cité d'Astrub for the Piou
-    set) instead of roaming the whole area.
-    """
     if not missing_sub_area_ids:
         return None
 

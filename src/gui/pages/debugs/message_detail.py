@@ -7,12 +7,14 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush, QColor
 from PyQt6.QtWidgets import QHBoxLayout, QTreeWidgetItem, QVBoxLayout, QWidget
 from qfluentwidgets import (
+    CaptionLabel,
     FluentIcon,
     LineEdit,
     PrimaryPushButton,
     SmoothMode,
     TransparentToolButton,
 )
+from qfluentwidgets.components.widgets.tool_tip import ToolTipFilter
 
 from src.gui.components.qfluent_widget.dynamic_tree_widget import DynamicTreeWidget
 
@@ -150,12 +152,13 @@ class MessageDetailWidget(QWidget):
         self.quit_btn = TransparentToolButton(FluentIcon.CLOSE, top_bar)
         top_bar_layout.addWidget(self.quit_btn)
 
-        self.lock_pinned_fields_btn = PrimaryPushButton(FluentIcon.PIN, "Lock pinned fields", top_bar)
+        self.lock_pinned_fields_btn = PrimaryPushButton(FluentIcon.PIN, "Verrouiller les champs épinglés", top_bar)
         top_bar_layout.addWidget(self.lock_pinned_fields_btn)
 
         self.show_absent_fields_btn = TransparentToolButton(FluentIcon.VIEW, top_bar)
         self.show_absent_fields_btn.setCheckable(True)
         self.show_absent_fields_btn.setToolTip("Afficher les champs absents")
+        self.show_absent_fields_btn.installEventFilter(ToolTipFilter(self.show_absent_fields_btn, 0))
         self.show_absent_fields_btn.clicked.connect(self._on_show_absent_fields_clicked)
         top_bar_layout.addWidget(self.show_absent_fields_btn)
 
@@ -170,13 +173,29 @@ class MessageDetailWidget(QWidget):
         trees_widget.setLayout(trees_widget_layout)
         self._layout.addWidget(trees_widget)
 
-        self.dynamic_tree = DynamicTreeWidget(trees_widget)
+        decoded_panel = QWidget(trees_widget)
+        decoded_layout = QVBoxLayout(decoded_panel)
+        decoded_layout.setContentsMargins(0, 0, 0, 0)
+        decoded_layout.setSpacing(0)
+        decoded_label = CaptionLabel("Désobfusqué", decoded_panel)
+        decoded_label.setContentsMargins(32, 0, 0, 0)
+        decoded_layout.addWidget(decoded_label)
+        self.dynamic_tree = DynamicTreeWidget(decoded_panel)
         self.dynamic_tree.scrollDelagate.verticalSmoothScroll.setSmoothMode(SmoothMode.NO_SMOOTH)
-        trees_widget_layout.addWidget(self.dynamic_tree)
+        decoded_layout.addWidget(self.dynamic_tree)
+        trees_widget_layout.addWidget(decoded_panel)
 
-        self.obf_dynamic_tree = DynamicTreeWidget(trees_widget)
+        obfuscated_panel = QWidget(trees_widget)
+        obfuscated_layout = QVBoxLayout(obfuscated_panel)
+        obfuscated_layout.setContentsMargins(0, 0, 0, 0)
+        obfuscated_layout.setSpacing(0)
+        obfuscated_label = CaptionLabel("Obfusqué", obfuscated_panel)
+        obfuscated_label.setContentsMargins(32, 0, 0, 0)
+        obfuscated_layout.addWidget(obfuscated_label)
+        self.obf_dynamic_tree = DynamicTreeWidget(obfuscated_panel)
         self.obf_dynamic_tree.scrollDelagate.verticalSmoothScroll.setSmoothMode(SmoothMode.NO_SMOOTH)
-        trees_widget_layout.addWidget(self.obf_dynamic_tree)
+        obfuscated_layout.addWidget(self.obf_dynamic_tree)
+        trees_widget_layout.addWidget(obfuscated_panel)
 
     def set_content(
         self,

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import deque
 from collections.abc import Sequence
 
@@ -92,7 +90,6 @@ def scan_function_instructions(
     interprocedural_context: InterproceduralContext | None = None,
     function_scan_cache: FunctionScanCache | None = None,
 ) -> list[AccessEntry]:
-    """Scan all instructions in a function and collect proto field accesses."""
     initial_state = AnalysisState(
         reg_state=dict(initial_reg_state),
         frame_state=copy_frame_state(initial_frame_state),

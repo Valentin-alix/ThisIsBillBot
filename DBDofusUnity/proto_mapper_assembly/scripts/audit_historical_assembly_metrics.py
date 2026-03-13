@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import argparse
 import json
 from collections import Counter
@@ -62,7 +60,6 @@ _WEAK_STABILITY_MEAN_THRESHOLD = 0.55
 _WEAK_MARGIN_THRESHOLD = 0.05
 _HIGH_COLLISION_THRESHOLD = 0.35
 _NEAR_CONSTANT_COLLISION_THRESHOLD = 0.95
-"""Above this, a metric scores almost every wrong pair at least as high as the right one."""
 
 _NEAR_CONSTANT_MARGIN_THRESHOLD = 0.05
 _LOW_TOP1_THRESHOLD = 0.30
@@ -73,8 +70,6 @@ type JsonObject = dict[str, JsonScalar | list["JsonObject"] | list[str]]
 
 @dataclass(frozen=True)
 class NonObfReference:
-    """The non-obfuscated side of one comparison, either archived with a build or substituted."""
-
     proto_accesses_path: Path
     dump_cs_path: Path
 
@@ -85,14 +80,11 @@ class NonObfReference:
 
 @dataclass(frozen=True)
 class VersionSource:
-    """One candidate build, before its artifacts have been checked."""
-
     version_id: str
     obf_proto_accesses_path: Path
     obf_dump_cs_path: Path
     game_mappings_path: Path
     non_obf: NonObfReference | None
-    """``None`` when the build archived no reference side, which sends it to the fallback."""
 
     @property
     def missing_obf_paths(self) -> tuple[Path, ...]:
@@ -110,7 +102,6 @@ class VersionSource:
 @dataclass(frozen=True)
 class VersionHead:
     version_id: str
-    """Name of the build directory, e.g. ``21_07_2026``."""
 
     obf_proto_accesses_path: Path
     obf_dump_cs_path: Path
@@ -291,7 +282,6 @@ def _build_argument_parser() -> argparse.ArgumentParser:
 
 
 def _default_non_obf_reference() -> NonObfReference:
-    """The live reference side, used whenever a build archived none of its own."""
     return NonObfReference(
         proto_accesses_path=NON_OBF_PROTO_ACCESSES_FILE,
         dump_cs_path=NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
@@ -299,13 +289,6 @@ def _default_non_obf_reference() -> NonObfReference:
 
 
 def _build_working_set_source() -> VersionSource:
-    """
-    The build currently loaded in the repository, which no snapshot directory describes.
-
-    It lives in ``datas/`` with no ``GameAssembly.dll`` beside it, so ``_iter_version_dirs`` can
-    never find it, yet it is the most recent comparison point available and the one the next
-    game update will be measured against.
-    """
     return VersionSource(
         version_id=_WORKING_SET_VERSION_ID,
         obf_proto_accesses_path=OBF_PROTO_ACCESSES_FILE,
@@ -337,14 +320,6 @@ def _collect_version_heads(
     force_non_obf_fallback: bool = False,
     extra_sources: Sequence[VersionSource] = (),
 ) -> VersionCollectionResult:
-    """
-    Turn candidate builds into comparable heads, newest first.
-
-    A build qualifies on its obfuscated artifacts alone. The reference side is substitutable:
-    most archived builds predate the habit of copying it next to them, and comparing every build
-    against one reference is in fact the sharper measurement, since it removes the reference from
-    the list of things that changed between two snapshots.
-    """
     resolved_fallback = non_obf_fallback if non_obf_fallback is not None else _default_non_obf_reference()
     version_heads: list[VersionHead] = []
     incomplete_versions: list[IncompleteVersion] = []
@@ -372,8 +347,7 @@ def _collect_version_heads(
             )
             continue
 
-        # The obf dump is what obfuscation actually reshuffles, so two sources sharing it describe
-        # the same build and must not be compared against each other.
+        # Sources sharing an obfuscated dump describe the same build, not independent comparisons.
         version_hash = sha256(source.obf_dump_cs_path.read_bytes()).hexdigest()
         if version_hash in seen_version_hashes:
             continue
@@ -399,10 +373,6 @@ def _collect_version_heads(
 
 
 def _iter_version_dirs(*, snapshots_root: Path, non_obf_game_dir: Path) -> list[Path]:
-    """List the obfuscated build directories, newest first.
-
-    ``_collect_stability_samples`` pairs consecutive snapshots, so the ordering matters here.
-    """
     return iter_archived_build_dirs(snapshots_root=snapshots_root, exclude_dir=non_obf_game_dir)
 
 
@@ -648,14 +618,7 @@ def _structure_declared_shape_similarity(
     left: MessageAccessSignature,
     right: MessageAccessSignature,
 ) -> float:
-    """
-    Mirrors ``_declared_shape_similarity``, weighted 0.3 in ``_harden_structure_score``.
-
-    Reimplemented rather than imported because it is private to the scoring module, and because
-    the audit must keep measuring the current definition even once that one is changed.
-    ``TestMetricsMirrorTheScoringModule`` fails when the two stop agreeing, so the divergence is
-    a decision someone makes rather than a drift nobody notices.
-    """
+    """Keep an independent scoring mirror; the mirror contract test detects definition drift."""
     return counter_profile_overlap_similarity(
         left=left.declared_shape_profile, right=right.declared_shape_profile
     )
@@ -665,7 +628,6 @@ def _structure_oneof_partition_similarity(
     left: MessageAccessSignature,
     right: MessageAccessSignature,
 ) -> float:
-    """Mirrors ``_oneof_partition_similarity``, the factor scaling every structure score."""
     return get_average_best_similarity_sequences(
         left.dump_cs_msg.oneof_group_sizes,
         right.dump_cs_msg.oneof_group_sizes,
@@ -682,13 +644,6 @@ def _handler_registration_count_similarity(
     left_registration_count_by_cls: Mapping[str, int],
     right_registration_count_by_cls: Mapping[str, int],
 ) -> float:
-    """
-    Mirrors the ``min/max`` count ratio blended at weight 0.25 in ``score_preparation``.
-
-    A message absent from both traces registers nowhere on either side, which is agreement, so it
-    scores 1.0; present on one side only is a genuine disagreement and scores 0.0. That is what
-    ``ratio_similarity`` already does with ``None``.
-    """
     left_count = left_registration_count_by_cls.get(left.message_cls)
     right_count = right_registration_count_by_cls.get(right.message_cls)
     return ratio_similarity(left_count, right_count, max_value=max(left_count or 0, right_count or 0, 1))
@@ -905,15 +860,7 @@ def _percentile(values: Sequence[float], fraction: float) -> float:
 
 
 def _build_recommendations(summaries: Sequence[MetricSummary]) -> list[str]:
-    """
-    Turn the per-metric numbers into verdicts, ordered from most to least damning.
-
-    Stability alone decides nothing. A metric can be perfectly reproducible across builds and still
-    be worthless, either because it scores the wrong candidate above the right one, or because it
-    says the same thing about every pair; both dilute the signals that do discriminate. Those two
-    cases are checked before the older instability rule, which otherwise never fires on a corpus
-    where every metric reproduces well.
-    """
+    """Check discrimination before stability: reproducible metrics can still rank wrong pairs higher."""
     recommendations: list[str] = []
     for summary in summaries:
         weak_stability = summary.mean_score < _WEAK_STABILITY_MEAN_THRESHOLD or (
@@ -956,8 +903,6 @@ def _print_report(
     newest = snapshots[0].head
     oldest = snapshots[-1].head
     print(f"\nversions loaded: {len(snapshots)} | newest={newest.version_id} | oldest={oldest.version_id}")
-    # A build mapped against a substituted reference loses every entry whose non-obf name no longer
-    # resolves, so the sample count silently shrinks. Show the attrition instead of assuming it away.
     print("\n| build | non-obf side | mapped | resolved |")
     print("|---|---|---:|---:|")
     for snapshot in snapshots:

@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from qfluentwidgets import BodyLabel, ListWidget, SmoothMode
+from qfluentwidgets import BodyLabel, CaptionLabel, ListWidget, SmoothMode
 
 from src.core.bot.bot import Bot
 from src.gui.consts import CARD_WIDTH
@@ -61,8 +61,11 @@ class InventoryTab(QWidget):
         self.list_widget.setStyleSheet("QListWidget { background-color: transparent; border: none; }")
 
         self.weight_label = BodyLabel(text="Poids : 0/0", parent=self)
+        self.loading_label = CaptionLabel(text="Chargement de l’inventaire…", parent=self)
+        self.loading_label.hide()
         bottom_layout = QHBoxLayout()
         bottom_layout.addWidget(self.weight_label)
+        bottom_layout.addWidget(self.loading_label)
         bottom_layout.addStretch(1)
 
         content_layout = QHBoxLayout()
@@ -126,6 +129,7 @@ class InventoryTab(QWidget):
     def _schedule_rebuild(self) -> None:
         self._render_dirty = True
         if self.isVisible() and not self._rebuild_timer.isActive():
+            self.loading_label.show()
             self._rebuild_timer.start()
 
     def _rebuild_sorted_list(self) -> None:
@@ -151,6 +155,7 @@ class InventoryTab(QWidget):
             self.list_item_by_uid[object_item.item.uid] = list_item
         self.list_widget.setUpdatesEnabled(True)
         self._render_dirty = False
+        self.loading_label.hide()
 
     def _get_item_text(self, object_item: ObjectItemInventory) -> str:
         item_name = get_item_name(object_item)
@@ -185,6 +190,7 @@ class InventoryTab(QWidget):
         self.list_widget.clear()
         self.list_item_by_uid.clear()
         self.equipment_panel.set_items({})
+        self.loading_label.hide()
 
     def _resync_inventory(self) -> None:
         self.items_by_uid.clear()
