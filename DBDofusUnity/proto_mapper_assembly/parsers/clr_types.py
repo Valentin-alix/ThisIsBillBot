@@ -27,7 +27,7 @@ def categorize_field(clr_type: str, enum_names: frozenset[str]) -> FieldCategory
     base_type = normalized_type.split("[")[0].split("<")[0].strip()
     if base_type in SCALAR_TYPES:
         return FieldCategoryEnum.NUMBER
-    if _resolve_enum_type_name(normalized_type, enum_names) is not None:
+    if resolve_enum_type_name(normalized_type, enum_names) is not None:
         return FieldCategoryEnum.ENUM
     return FieldCategoryEnum.MESSAGE
 
@@ -72,7 +72,7 @@ def is_any_type(normalized_type: str | None) -> bool:
     return normalized_type.rsplit(".", maxsplit=1)[-1] == "Any"
 
 
-def _resolve_enum_type_name(
+def resolve_enum_type_name(
     normalized_type: str,
     enum_names: frozenset[str],
 ) -> str | None:

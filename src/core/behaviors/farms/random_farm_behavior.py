@@ -90,13 +90,13 @@ class RandomFarmBehavior(Behavior):
         if self._should_go_to_area():
             self.edge_path = None
             self.logger.info("go to area for farm")
-            self.report_status("Calcul de l’itinéraire vers la zone de récolte…")
+            self.report_status("Calculating route to the harvesting area…")
             self.auto_trip_smart_behavior.start(
                 callback=self.on_auto_trip_world_behavior_finished,
                 parent=self,
                 map_ids=self.map_ids,
             )
-            self.report_status("Trajet vers la zone de récolte…")
+            self.report_status("Traveling to the harvesting area…")
             return
 
         if self._is_edge_path_empty():
@@ -124,7 +124,7 @@ class RandomFarmBehavior(Behavior):
 
     def _recalculate_edge_path(self) -> None:
         self.logger.debug("Planning next farm route")
-        self.report_status("Calcul de l’itinéraire de récolte…")
+        self.report_status("Calculating harvesting route…")
         with PATH_LOCK:
             self.edge_path = None
             self.edge_path = self.get_next_weighted_path()
@@ -150,7 +150,7 @@ class RandomFarmBehavior(Behavior):
             )
         else:
             draw_edge_path(self.world_signals, self.edge_path)
-            self.report_status("Trajet de récolte en cours…")
+            self.report_status("Following harvesting route…")
 
     def _is_oscillating(self, next_map_id: int) -> bool:
         return self._recent_map_ids.count(next_map_id) >= OSCILLATION_REPEAT_THRESHOLD

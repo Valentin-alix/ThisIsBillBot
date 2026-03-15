@@ -43,8 +43,12 @@ class TestRetryInternet(TestCase):
         sleep_mock.assert_called_once_with(10)
 
     def test_retry_internet_raises_after_exhausting_retries(self) -> None:
+        attempts = 0
+
         @retry_internet
         def always_fails() -> str:
+            nonlocal attempts
+            attempts += 1
             raise socket.gaierror("dns")
 
         with (
@@ -53,4 +57,5 @@ class TestRetryInternet(TestCase):
         ):
             always_fails()
 
-        self.assertEqual(sleep_mock.call_count, 3)
+        self.assertEqual(attempts, 3)
+        self.assertEqual(sleep_mock.call_count, 2)

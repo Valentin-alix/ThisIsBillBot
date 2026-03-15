@@ -115,7 +115,7 @@ class QuestScriptBehavior(Behavior):
         )
 
     def on_context_creation_event(self, msg: ContextCreationEvent) -> None:
-        """Ceder au combat puis reprendre l'etape, en sautant les objectifs valides entre-temps."""
+        """Yield to combat, then resume the step while skipping objectives completed meanwhile."""
         if msg.context != ContextCreationEvent.GameContext.FIGHT:
             return
         self.logger.info("Fight started during the quest script, playing it before resuming")
@@ -130,7 +130,7 @@ class QuestScriptBehavior(Behavior):
         self.run_timer(HumanTimingsService().get_timing_after_map_arrival(), self._run_step)
 
     def _resolve_starting_index(self, script: QuestScript) -> int:
-        """Reprendre depuis les objectifs serveur ; une quete acceptee ne recommence pas a l'etape zero."""
+        """Resume from server objectives; an accepted quest does not restart from step zero."""
         if script.quest_id is None:
             return 0
         if not self.game_state.quest.is_active(script.quest_id):

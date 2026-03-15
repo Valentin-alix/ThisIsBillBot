@@ -83,7 +83,7 @@ class ConnectionProxy(Proxy):
                         if server.server.id == ServerEnum.BRIAL:
                             servers.remove(server)
 
-                    # Laisser le client ouvrir la connexion Brial meme sans personnage.
+                    # Let the client open the Brial connection even when no character exists.
                     fake_character = CharacterInformation(
                         name="unprank",
                         breed=CharacterInformation.Breed.IOP,

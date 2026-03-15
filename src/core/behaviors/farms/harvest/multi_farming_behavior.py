@@ -25,7 +25,7 @@ class MultiFarmingBehavior(HarvesterBehavior):
         is_stopped_at_new_map_condition: Callable[[], bool] | None = None,
         target_resource_item_ids: set[int] | None = None,
     ) -> None:
-        self._next_time_attacker = datetime.now() + get_time_between_attacker()
+        self._next_time_attacker = datetime.now() + get_time_between_attacker(self.game_state.settings.do_fighter)
         return super().run(
             area_id, sub_area_id, is_stopped_at_new_map_condition, target_resource_item_ids
         )
@@ -64,5 +64,5 @@ class MultiFarmingBehavior(HarvesterBehavior):
         HarvesterBehavior.on_new_map(self)
 
     def on_context_creation_event(self, msg: ContextCreationEvent):
-        self._next_time_attacker = datetime.now() + get_time_between_attacker()
+        self._next_time_attacker = datetime.now() + get_time_between_attacker(self.game_state.settings.do_fighter)
         return super().on_context_creation_event(msg)

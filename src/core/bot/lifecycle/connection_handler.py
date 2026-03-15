@@ -20,7 +20,6 @@ from src.controller.bot_config import BotConfig
 from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
 )
-from src.core.config import ENABLE_AUTO_OGRINE_SUBSCRIPTIONS, ENABLE_AUTO_PAYSAFECARD_SUBSCRIPTIONS
 from src.core.behaviors.account.ogrine_subscription import (
     OgrineSubscriptionBehavior,
     OgrineSubscriptionErrorCode,
@@ -130,7 +129,7 @@ class ConnectionHandler(ContextualLogger):
         delay = 10 + (self._reconnect_attempts * 10)
         UserActivityService().record(
             "warning",
-            f"Déconnexion imprévue ; relance {self._reconnect_attempts}/3 dans {delay}s.",
+            f"Unexpected disconnection; retry {self._reconnect_attempts}/3 in {delay}s.",
             login=self.account.apikey.login,
         )
         self._timer = Timer(delay, self._emit_relaunch)
@@ -138,7 +137,7 @@ class ConnectionHandler(ContextualLogger):
 
     def _emit_relaunch(self):
         self.logger.info("Relaunching bot")
-        UserActivityService().record("info", "Relance automatique en cours.", login=self.account.apikey.login)
+        UserActivityService().record("info", "Automatic restart in progress.", login=self.account.apikey.login)
         if self.is_playing_event.is_set():
             self.shared_signals.launch_account.emit(self.account.apikey.login)
 
@@ -169,16 +168,16 @@ class ConnectionHandler(ContextualLogger):
             self.behavior_coordinator.run_current_bot_action()
             return
         if self._should_subscribe_with_paysafe_card():
-            if not ENABLE_AUTO_PAYSAFECARD_SUBSCRIPTIONS:
+            if not self.game_state.settings.enable_auto_paysafecard_subscriptions:
                 self.logger.info("Automatic Paysafecard subscription is disabled")
                 UserActivityService().record(
-                    "info", "Abonnement Paysafecard automatique ignoré : autorisation désactivée.", login=self.game_state.player.login
+                    "info", "Automatic Paysafecard subscription skipped: permission disabled.", login=self.game_state.player.login
                 )
                 self.behavior_coordinator.run_current_bot_action()
                 return
             self.logger.info("Starting automatic in-game Paysafecard subscription")
             UserActivityService().record(
-                "warning", "Démarrage d’un abonnement Paysafecard automatique.", login=self.game_state.player.login
+                "warning", "Starting an automatic Paysafecard subscription.", login=self.game_state.player.login
             )
             self.paysafecard_subscription_behavior.start(
                 callback=self._on_paysafecard_subscription_finished,
@@ -186,10 +185,10 @@ class ConnectionHandler(ContextualLogger):
             )
             return
         if self._should_renew_subscription_with_ogrines():
-            if not ENABLE_AUTO_OGRINE_SUBSCRIPTIONS:
+            if not self.game_state.settings.enable_auto_ogrine_subscriptions:
                 self.logger.info("Automatic ogrine subscription is disabled")
                 UserActivityService().record(
-                    "info", "Renouvellement Ogrines ignoré : autorisation désactivée.", login=self.game_state.player.login
+                    "info", "Ogrine renewal skipped: permission disabled.", login=self.game_state.player.login
                 )
                 self.behavior_coordinator.run_current_bot_action()
                 return
@@ -197,7 +196,7 @@ class ConnectionHandler(ContextualLogger):
                 f"Starting automatic ogrine subscription renewal: kamas={self.game_state.inventory.kamas}"
             )
             UserActivityService().record(
-                "warning", "Démarrage d’un renouvellement automatique en Ogrines.", login=self.game_state.player.login
+                "warning", "Starting an automatic Ogrine renewal.", login=self.game_state.player.login
             )
             self.ogrine_subscription_behavior.start(
                 callback=self._on_ogrine_subscription_finished,

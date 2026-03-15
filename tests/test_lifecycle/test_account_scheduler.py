@@ -9,6 +9,9 @@ from ankama_launcher_emulator.interfaces.schedule_profile import (
     ScheduleProfile,
 )
 
+from src.core.config import GlobalSettings
+from src.controller.settings import SettingsService
+
 from src.core.bot.lifecycle.account_scheduler import AccountScheduler, _AuthOp, _RegisterOp
 
 
@@ -66,7 +69,7 @@ def _scheduler(
 def test_account_automation_setting_stops_authentication_and_registration() -> None:
     scheduler = _scheduler({"B": _profile("B")}, accounts_needing_auth=[_bot_record("a@example.com", "B")])
 
-    with patch("src.core.bot.lifecycle.account_scheduler.ENABLE_ACCOUNT_AUTOMATION", False):
+    with patch.object(SettingsService, "get", return_value=GlobalSettings(enable_account_automation=False)):
         assert scheduler._next_operation(0) is None
 
     _mock(scheduler.bot_storage_controller.get_accounts_needing_auth).assert_not_called()
@@ -80,8 +83,8 @@ def test_missing_sonji_key_does_not_schedule_registration_without_email() -> Non
 
     with (
         patch("src.core.bot.lifecycle.account_scheduler.MailAccountController", return_value=mail_accounts),
-        patch("src.core.bot.lifecycle.account_scheduler.SONJI_API_KEY", None),
-        patch("src.core.bot.lifecycle.account_scheduler.ENABLE_ACCOUNT_AUTOMATION", True),
+        patch.object(SettingsService, "sonji_api_key", return_value=None),
+        patch.object(SettingsService, "get", return_value=GlobalSettings(enable_account_automation=True)),
     ):
         assert scheduler._next_operation(0) is None
 
@@ -94,8 +97,8 @@ def test_stored_email_schedules_registration_without_sonji_key() -> None:
 
     with (
         patch("src.core.bot.lifecycle.account_scheduler.MailAccountController", return_value=mail_accounts),
-        patch("src.core.bot.lifecycle.account_scheduler.SONJI_API_KEY", None),
-        patch("src.core.bot.lifecycle.account_scheduler.ENABLE_ACCOUNT_AUTOMATION", True),
+        patch.object(SettingsService, "sonji_api_key", return_value=None),
+        patch.object(SettingsService, "get", return_value=GlobalSettings(enable_account_automation=True)),
     ):
         assert scheduler._next_operation(0) == _RegisterOp("B", "B")
 
@@ -110,7 +113,7 @@ def test_pending_account_is_authenticated_before_registration() -> None:
 
     with (
         patch("src.core.bot.lifecycle.account_scheduler.MailAccountController", return_value=mail_accounts),
-        patch("src.core.bot.lifecycle.account_scheduler.ENABLE_ACCOUNT_AUTOMATION", True),
+        patch.object(SettingsService, "get", return_value=GlobalSettings(enable_account_automation=True)),
     ):
         assert scheduler._next_operation(0) == _AuthOp("pending@example.com", "B", "B")
 

@@ -1,12 +1,16 @@
 from collections.abc import Mapping
 from http.cookiejar import Cookie, CookieJar
+from types import TracebackType
 from typing import Any
 
 from .adapters import HTTPAdapter
 
-class HTTPError(Exception): ...
-class ConnectionError(Exception): ...
-class Timeout(Exception): ...
+class RequestException(OSError): ...
+class HTTPError(RequestException): ...
+class ConnectionError(RequestException): ...
+class Timeout(RequestException): ...
+
+def get(url: str, *, timeout: float | int = ...) -> Response: ...
 
 class _Exceptions:
     HTTPError: type[HTTPError]
@@ -34,6 +38,7 @@ class _Cookies:
 cookies: _Cookies
 
 class Response:
+    content: bytes
     text: str
     url: str
     status_code: int
@@ -41,6 +46,11 @@ class Response:
     cookies: RequestsCookieJar
     def raise_for_status(self) -> None: ...
     def json(self) -> Any: ...
+    def __enter__(self) -> Response: ...
+    def __exit__(
+        self, exc_type: type[BaseException] | None,
+        exc_value: BaseException | None, traceback: TracebackType | None,
+    ) -> None: ...
 
 class Session:
     proxies: dict[str, str]

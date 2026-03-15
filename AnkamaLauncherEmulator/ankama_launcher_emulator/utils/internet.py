@@ -39,7 +39,8 @@ def retry_internet(
             ) as err:
                 logger.info(f"[NETWORK] Error: {err}. Retrying…")
             try_count -= 1
-            sleep(10)
+            if try_count > 0:
+                sleep(10)
         raise requests.exceptions.ConnectionError
 
     return wrapper

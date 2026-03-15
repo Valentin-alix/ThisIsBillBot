@@ -27,10 +27,10 @@ class RecipeTable(BaseTableWidget):
     def __init__(self, recipes: list[RecipeItem], parent: QWidget | None = None) -> None:
         super().__init__(parent=parent)
         columns: list[ColumnInfo] = [
-            ColumnInfo(name="Nom"),
-            ColumnInfo(name="Métier"),
+            ColumnInfo(name="Name"),
+            ColumnInfo(name="Profession"),
             ColumnInfo(name="Niv."),
-            ColumnInfo(name="Bénéfice"),
+            ColumnInfo(name="Profit"),
             ColumnInfo(name="", filter_info=None),
         ]
         self.table.set_columns(columns)

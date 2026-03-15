@@ -1,13 +1,15 @@
 import logging
 import os
 from pathlib import Path
+from contextlib import ExitStack
 
 import frida
 import frida.core
 
 from ankama_launcher_emulator.consts import LAUNCHER_PORT
 from ankama_launcher_emulator.interfaces.game import GameNameEnum
-from ankama_launcher_emulator.utils.environment import DOFUS_PATH, ZAAP_PATH
+from ankama_launcher_emulator.utils.environment import resolve_dofus_path, ZAAP_PATH
+from src.services.install_validation import check_resource
 
 logger = logging.getLogger()
 
@@ -20,7 +22,7 @@ def launch_dofus_exe(
     log_path = os.path.join(ZAAP_PATH, "gamesLogs", "dofus-dofus3", "dofus.log")
 
     command: list[str | bytes] = [
-        DOFUS_PATH,
+        resolve_dofus_path(),
         "--port",
         str(LAUNCHER_PORT),
         "--gameName",
@@ -53,10 +55,14 @@ def launch_dofus_exe(
         "ZAAP_RELEASE": "dofus3",
     }
 
+    check_resource(Path(__file__).parent / "script.js")
     device = frida.get_local_device()
     pid = device.spawn(program=command, env=env)
 
-    load_frida_script(pid, connection_port, device=device, resume=True)
+    with ExitStack() as cleanup:
+        cleanup.callback(device.kill, pid)
+        load_frida_script(pid, connection_port, device=device, resume=True)
+        cleanup.pop_all()
 
     return pid
 

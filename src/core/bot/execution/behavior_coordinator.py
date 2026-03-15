@@ -9,6 +9,7 @@ from ankama_launcher_emulator.interfaces.credentials import (
 from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
 from src.controller.bot_config import BotConfig
+from src.controller.settings import SettingsService
 from src.core.behaviors.behavior import Behavior, BehaviorState
 from src.core.behaviors.craft.craft_behavior import CraftBehavior, CraftRequest
 from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
@@ -50,8 +51,9 @@ class BehaviorCoordinator(ContextualLogger):
 
     def on_play(self, from_manual_play: bool):
         if from_manual_play:
+            self.auto_bot_behavior.game_state.apply_settings(SettingsService().get().behaviors)
             self.from_manual_play.set()
-            UserActivityService().record("info", "Lancement manuel demandé.", login=self.account.apikey.login)
+            UserActivityService().record("info", "Manual startup requested.", login=self.account.apikey.login)
         else:
             self.from_manual_play.clear()
         self.is_playing_event.set()
@@ -100,7 +102,7 @@ class BehaviorCoordinator(ContextualLogger):
         )
 
     def on_play_auto_bot(self):
-        self.bot_signals.automation_status_changed.emit("Préparation du mode automatique…")
+        self.bot_signals.automation_status_changed.emit("Preparing automatic mode…")
         self.play_action(
             lambda _progress_callback: self.auto_bot_behavior.start(
                 callback=lambda *_args: self.bot_signals.stop.emit(),

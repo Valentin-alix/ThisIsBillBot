@@ -227,7 +227,7 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
         self.assertFalse(result.success)
         self.assertEqual(result.error, "WAF/CloudFront blocked OAuth page")
         mail_account_controller.return_value.quarantine.assert_called_once_with(
-            "u@example.com", "Blocage WAF/CloudFront confirmé"
+            "u@example.com", "Confirmed WAF/CloudFront block"
         )
 
     async def test_authenticate_records_bad_state_on_shield_code_timeout(
@@ -289,7 +289,7 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
         self.assertFalse(result.success)
         self.assertEqual(result.error, "Timed out waiting for code")
         mail_account_controller.return_value.quarantine.assert_called_once_with(
-            "u@example.com", "Délai dépassé pour le code de confirmation"
+            "u@example.com", "Confirmation code timed out"
         )
         log_exception.assert_not_called()
         log_error.assert_called_once()
@@ -332,7 +332,7 @@ class TestOAuthAuthenticate(IsolatedAsyncioTestCase):
         assert await_args is not None
         sent_options = cast(AuthenticationOptions, await_args.args[0])
         self.assertEqual(sent_options.proxy_url, "http://127.0.0.1:9000")
-        quarantine.assert_called_once_with("u@example.com", "Authentification échouée")
+        quarantine.assert_called_once_with("u@example.com", "Authentication failed")
 
     async def test_successful_generated_account_auth_stores_key(
         self,

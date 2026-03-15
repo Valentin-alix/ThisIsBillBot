@@ -1,13 +1,15 @@
 import random
 import threading
 
-import src.core.config
 from ankama_launcher_emulator.interfaces.credentials import (
     DecipheredApiKey,
     DecipheredCertif,
     StoredApiKey,
 )
+
+import src.core.config
 from src import consts
+from src.controller.settings import SettingsService
 from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
 )
@@ -183,6 +185,8 @@ class BotFactory:
             logger=logger,
             login=account.apikey.login,
         )
+
+        game_state.apply_settings(SettingsService().get().behaviors)
 
         data_map_provider = DataMapProvider()
         path_finding = Pathfinding(

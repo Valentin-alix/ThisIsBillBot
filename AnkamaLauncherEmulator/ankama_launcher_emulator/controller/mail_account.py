@@ -1,4 +1,6 @@
+from utils.local_json import read_local_model
 import logging
+import re
 from datetime import datetime, timezone
 from threading import RLock
 
@@ -10,6 +12,7 @@ from ankama_launcher_emulator.interfaces.mail_account import (
     ImapAccountConfig,
     MailAccountEntry,
     MailAccountsFile,
+    MailAccountConfig,
     ManualAccountConfig,
     SmailProAccountConfig,
 )
@@ -36,9 +39,7 @@ class MailAccountController(metaclass=Singleton):
         with self._LOCK:
             if not MAIL_ACCOUNTS_STORAGE_PATH.exists():
                 return MailAccountsFile()
-            return MailAccountsFile.model_validate_json(
-                MAIL_ACCOUNTS_STORAGE_PATH.read_text(encoding="utf-8")
-            )
+            return read_local_model(MAIL_ACCOUNTS_STORAGE_PATH, MailAccountsFile)
 
     def _save(self, accounts_file: MailAccountsFile) -> None:
         atomic_write_text(MAIL_ACCOUNTS_STORAGE_PATH, accounts_file.model_dump_json(indent=2))
@@ -61,6 +62,30 @@ class MailAccountController(metaclass=Singleton):
     def get_all_entries(self) -> dict[str, MailAccountEntry]:
         with self._acquire_file_lock():
             return self._load().accounts
+
+    def save_config(self, email: str, config: MailAccountConfig, *, create: bool = False) -> None:
+        if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", email):
+            raise ValueError("Invalid email address.")
+        if isinstance(config, ImapAccountConfig):
+            if not config.host.strip() or not config.username.strip() or not config.password:
+                raise ValueError("IMAP server, username, and password are required.")
+            if not 1 <= config.port <= 65535:
+                raise ValueError("The IMAP port must be between 1 and 65535.")
+        if isinstance(config, SmailProAccountConfig):
+            if not config.api_key.strip() or config.email != email or config.timestamp <= 0:
+                raise ValueError("A valid SmailPro key, address, and timestamp are required.")
+        with self._acquire_file_lock():
+            accounts = self._load()
+            if create and email in accounts.accounts:
+                raise ValueError("This address already exists.")
+            if not create and email not in accounts.accounts:
+                raise ValueError("This address no longer exists. Refresh the list.")
+            entry = accounts.accounts.setdefault(email, MailAccountEntry())
+            previous = entry.config
+            if isinstance(previous, SmailProAccountConfig) and isinstance(config, SmailProAccountConfig):
+                config = config.model_copy(update={"consumed_message_ids": previous.consumed_message_ids})
+            entry.config = config
+            self._save(accounts)
 
     def record_bad_state(self, email: str) -> None:
         with self._acquire_file_lock():

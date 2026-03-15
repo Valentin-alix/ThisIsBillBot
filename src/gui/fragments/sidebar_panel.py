@@ -119,7 +119,7 @@ class SidebarPanel(QFrame):
         self.returnButton.setToolTip(self.tr("Retour"))
 
         self.menuButton.installEventFilter(ToolTipFilter(self.menuButton, 0))
-        self.menuButton.setToolTip(self.tr("Ouvrir la navigation"))
+        self.menuButton.setToolTip(self.tr("Open navigation"))
 
         self.setProperty("menu", False)
         self.scrollWidget.setObjectName("scrollWidget")
@@ -361,7 +361,7 @@ class SidebarPanel(QFrame):
     def expand(self, useAni: bool = True) -> None:
         self._setWidgetCompacted(False)
         self.expandAni.setProperty("expand", True)
-        self.menuButton.setToolTip(self.tr("Fermer la navigation"))
+        self.menuButton.setToolTip(self.tr("Close navigation"))
 
         expandWidth = self.minimumExpandWidth + self.expandWidth - 322
         window = self.window()
@@ -413,7 +413,7 @@ class SidebarPanel(QFrame):
         self.expandAni.setProperty("expand", False)
         self.expandAni.start()
 
-        self.menuButton.setToolTip(self.tr("Ouvrir la navigation"))
+        self.menuButton.setToolTip(self.tr("Open navigation"))
 
     def toggle(self) -> None:
         if self.displayMode in [

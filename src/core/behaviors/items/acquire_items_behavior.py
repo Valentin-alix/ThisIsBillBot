@@ -85,7 +85,7 @@ class AcquireItemsBehavior(RecoverableBehavior):
         if not self._allow_market_purchase:
             self.logger.info("Market purchases are disabled; keeping missing equipment unchanged")
             UserActivityService().record(
-                "info", "Achats HDV automatiques ignorés : autorisation désactivée.", login=self.game_state.player.login
+                "info", "Automatic marketplace purchases skipped: permission disabled.", login=self.game_state.player.login
             )
             return self.finish(missing_by_gid=missing_by_gid)
 

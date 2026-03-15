@@ -25,12 +25,12 @@ def test_bot_quarantine_preserves_record_and_blocks_authentication(
         update=lambda _: None,
     )
 
-    storage.quarantine("bot@example.com", "Authentification invalide")
+    storage.quarantine("bot@example.com", "Invalid authentication")
 
     record = storage.get_record("bot@example.com")
     assert record is not None
     assert record.password == "secret"
-    assert record.quarantine_reason == "Authentification invalide"
+    assert record.quarantine_reason == "Invalid authentication"
     assert storage.get_accounts_needing_auth() == []
 
     storage.restore_from_quarantine("bot@example.com")
@@ -48,11 +48,11 @@ def test_mailbox_quarantine_keeps_the_entry_until_user_deletes_it(
     controller = MailAccountController()
     controller.record_bad_state("mail@example.com")
 
-    assert controller.quarantine("mail@example.com", "Blocage WAF/CloudFront confirmé") is True
+    assert controller.quarantine("mail@example.com", "Confirmed WAF/CloudFront block") is True
 
     entry = controller.get_all_entries()["mail@example.com"]
     assert entry.bad_state is True
-    assert entry.quarantine_reason == "Blocage WAF/CloudFront confirmé"
+    assert entry.quarantine_reason == "Confirmed WAF/CloudFront block"
 
     controller.restore_from_quarantine("mail@example.com")
 
@@ -67,7 +67,7 @@ def test_unknown_mailbox_is_not_created_by_quarantine(monkeypatch: MonkeyPatch, 
         tmp_path / "mail_accounts.json",
     )
 
-    assert MailAccountController().quarantine("unknown@example.com", "Erreur") is False
+    assert MailAccountController().quarantine("unknown@example.com", "Error") is False
     assert MailAccountController().get_all_entries() == {}
 from pathlib import Path
 

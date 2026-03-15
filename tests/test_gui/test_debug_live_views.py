@@ -83,7 +83,7 @@ class DebugLiveViewsTest(unittest.TestCase):
 
         self.assertEqual(table.message_model.rowCount(), 1)
         origin = table.message_model.data(table.message_model.index(0, 1), Qt.ItemDataRole.DisplayRole)
-        self.assertEqual(origin, "Serveur")
+        self.assertEqual(origin, "Server")
         self.assertEqual(table.table.columns_infos[1].name, "Origine")
         detail = table.message_model.data(table.message_model.index(0, 3), Qt.ItemDataRole.UserRole)
         self.assertIs(detail, message)

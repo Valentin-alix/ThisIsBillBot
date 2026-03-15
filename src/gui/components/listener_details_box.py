@@ -21,21 +21,21 @@ def _get_callback_source_target(
 class ListenerDetailsBox(MessageBoxBase):
     def __init__(self, listener: Listener[Message], parent: QWidget) -> None:
         super().__init__(parent=parent)
-        self.title_label = SubtitleLabel("Détails des listeners", parent=self)
+        self.title_label = SubtitleLabel("Listener details", parent=self)
         originator_name = listener.originator.__class__.__name__
         msg_type_name = listener.msg_type.__name__
         registered_at_str = listener.registered_at.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-        timeout_str = str(listener.timeout) if listener.timeout else "Aucun"
+        timeout_str = str(listener.timeout) if listener.timeout else "None"
 
         header_text = f"""
         Origine : {originator_name}
-        Type de message : {msg_type_name}
-        Priorité : {listener.priority}
-        Unique : {"Oui" if listener.once else "Non"}
-        Enregistré le : {registered_at_str}
-        Délai : {timeout_str}
+        Message type: {msg_type_name}
+        Priority: {listener.priority}
+        One-time: {"Yes" if listener.once else "No"}
+        Registered at: {registered_at_str}
+        Timeout: {timeout_str}
 
-        Source du callback :
+        Callback source:
                         """
         source = inspect.getsource(_get_callback_source_target(listener.callback))
         highlighted_code = source
@@ -77,7 +77,7 @@ class ListenerDetailsBox(MessageBoxBase):
 
         message_box = cast(Any, self)
         message_box.hideYesButton()
-        message_box.cancelButton.setText("Fermer")
+        message_box.cancelButton.setText("Close")
 
         self.viewLayout.addWidget(self.title_label)
         self.viewLayout.addWidget(self.details_edit)

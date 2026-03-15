@@ -1,28 +1,42 @@
 import datetime
 from random import uniform
 
+from dotenv import load_dotenv
+from pydantic import BaseModel, ConfigDict
+
 from DBDofusUnity.dofus_unity_reader.game_constants.job import JobEnum
 from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
+from src.utils.project_paths import ENV_PATH, IS_PACKAGED
+from utils.env_config import get_bool_from_env
 
-
-ENABLE_MSG_CAPTURE = False
-
-DEBUG = True
-
-DO_FIGHTER = True
-DO_SALE_HOTEL = True
-DO_CRAFT = False
-DO_USE_GUILD_CHEST = False
-DO_DUNGEON = False
-DO_QUEST = False
-
-ENABLE_ACCOUNT_AUTOMATION = False
-ENABLE_AUTO_EQUIPMENT_MARKET_PURCHASES = False
-ENABLE_AUTO_OGRINE_SUBSCRIPTIONS = False
-ENABLE_AUTO_PAYSAFECARD_SUBSCRIPTIONS = False
+load_dotenv(ENV_PATH)
+DEBUG = get_bool_from_env("DEBUG")
+ENABLE_MSG_CAPTURE = not IS_PACKAGED and get_bool_from_env("ENABLE_MSG_CAPTURE")
 
 ENABLE_SESSION_CONTEXT = False
-DO_IDLE = False
+
+
+class BehaviorSettings(BaseModel):
+    model_config = ConfigDict(frozen=True, strict=True, extra="forbid")
+
+    do_fighter: bool = True
+    do_sale_hotel: bool = True
+    do_craft: bool = False
+    do_use_guild_chest: bool = False
+    do_dungeon: bool = False
+    do_quest: bool = False
+    do_idle: bool = False
+    enable_auto_equipment_market_purchases: bool = False
+    enable_auto_ogrine_subscriptions: bool = False
+    enable_auto_paysafecard_subscriptions: bool = False
+
+
+class GlobalSettings(BaseModel):
+    model_config = ConfigDict(frozen=True, strict=True, extra="forbid")
+
+    behaviors: BehaviorSettings = BehaviorSettings()
+    enable_account_automation: bool = False
+    sonji_api_key: str | None = None
 
 
 FIGHT_GROUP_LVL_MULTIPLIER = 2
@@ -55,10 +69,10 @@ def get_time_beween_areas():
     return datetime.timedelta(hours=1) * uniform(0.75, 1.25)
 
 
-def get_time_between_attacker() -> datetime.timedelta:
+def get_time_between_attacker(enabled: bool) -> datetime.timedelta:
     return (
         datetime.timedelta(minutes=20) * uniform(0.75, 1.25)
-        if DO_FIGHTER
+        if enabled
         else datetime.timedelta(datetime.MAXYEAR)
     )
 

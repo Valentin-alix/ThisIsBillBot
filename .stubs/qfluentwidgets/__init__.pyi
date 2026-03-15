@@ -19,6 +19,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 from qfluentwidgets.components.widgets.scroll_bar import (
+    SmoothScrollBar as SmoothScrollBar,
     SmoothScrollDelegate as SmoothScrollDelegate,
 )
 
@@ -94,6 +95,8 @@ class FluentIcon(FluentIconBase, Enum):
     ZOOM_OUT: FluentIcon
 
 class SingleDirectionScrollArea(QScrollArea):
+    vScrollBar: SmoothScrollBar
+    hScrollBar: SmoothScrollBar
     def __init__(
         self,
         parent: QWidget | None = None,

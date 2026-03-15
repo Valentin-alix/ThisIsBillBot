@@ -137,7 +137,7 @@ class HarvesterBehavior(BaseFarmBehavior):
             return
 
         if self.game_state.map.map_id in self.random_farm_behavior.map_ids:
-            self.report_status("Récolte en cours")
+            self.report_status("Harvesting")
             self.collect_behavior.start(
                 callback=self.on_collect_behavior_finished,
                 parent=self,

@@ -23,12 +23,12 @@ class PlayerInfoWidget(PropertyPanelWidget):
         self.bot.game_info_signals.character_id.connect(
             partial(self.on_received_property, "Joueur", "Player id")
         )
-        self.bot.game_info_signals.character_name.connect(partial(self.on_received_property, "Joueur", "Nom"))
+        self.bot.game_info_signals.character_name.connect(partial(self.on_received_property, "Player", "Name"))
         self.bot.game_info_signals.level.connect(partial(self.on_received_property, "Joueur", "Niveau"))
         self.bot.game_info_signals.breed_id.connect(self.on_breed_id_changed)
         self.bot.game_info_signals.server_id.connect(self.on_server_id_changed)
         self.bot.game_info_signals.last_time_updated_prices.connect(
-            partial(self.on_received_property, "Hotel de vente", "Derniere maj prix")
+            partial(self.on_received_property, "Marketplace", "Last price update")
         )
         self.bot.game_info_signals.job_level_changed.connect(self.on_job_level_changed)
         self.bot.inventory_signals.kamas.connect(self.on_kamas_changed)
@@ -40,7 +40,7 @@ class PlayerInfoWidget(PropertyPanelWidget):
     def on_server_id_changed(self, server_id: int) -> None:
         server = DataReader().server_by_id[server_id]
         server_name = I18N().name_by_id[server.nameId]
-        self.on_received_property("Joueur", "Serveur", server_name)
+        self.on_received_property("Player", "Server", server_name)
 
     @pyqtSlot(int)
     def on_breed_id_changed(self, breed_id: int) -> None:
@@ -59,7 +59,7 @@ class PlayerInfoWidget(PropertyPanelWidget):
         if job_id not in _HARVEST_JOB_IDS:
             return
         self.on_received_property(
-            "Métiers de récolte",
+            "Gathering professions",
             self._get_job_name(JobEnum(job_id)),
             job_level,
         )
@@ -75,7 +75,7 @@ class PlayerInfoWidget(PropertyPanelWidget):
         )
         for job_id in _HARVEST_JOB_IDS:
             self.on_received_property(
-                "Métiers de récolte",
+                "Gathering professions",
                 self._get_job_name(job_id),
                 job_levels_by_id.get(job_id, "—"),
             )
@@ -114,7 +114,7 @@ class PlayerInfoWidget(PropertyPanelWidget):
         kamas: int,
     ) -> None:
         self.on_received_property("Joueur", "Player id", character_id)
-        self.on_received_property("Joueur", "Nom", character_name)
+        self.on_received_property("Player", "Name", character_name)
         self.on_received_property("Joueur", "Niveau", level)
         self.on_breed_id_changed(breed_id)
         self.on_server_id_changed(server_id)

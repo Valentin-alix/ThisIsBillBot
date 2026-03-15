@@ -15,6 +15,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           lfs: true
+      - name: Verify LFS assets
+        run: git lfs fsck
       - uses: astral-sh/setup-uv@v6
         with:
           version: "latest"
@@ -25,23 +27,14 @@ jobs:
         shell: pwsh
         run: |
           $version = (Get-Content VERSION -Raw).Trim()
-          if ($version -notmatch '^\d+\.\d+\.\d+$') {
-            throw "VERSION must use the X.Y.Z format, got: $version"
+          if ($version -notmatch '^\d+\.\d+_\d+\.\d+\.\d+\.\d+$') {
+            throw "VERSION must use the Ankama X.Y_A.B.C.D format, got: $version"
           }
           "version=$version" >> $env:GITHUB_OUTPUT
       - name: Build Windows package
         run: uv run poe package
-      - name: Validate packaged resources
-        shell: pwsh
-        run: |
-          $scriptPath = 'dist/Bot-DofusUnity/_internal/AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3/script.js'
-          if (-not (Test-Path -LiteralPath $scriptPath -PathType Leaf)) {
-            throw "Missing packaged Frida hook: $scriptPath"
-          }
-          $process = Start-Process -FilePath 'dist/Bot-DofusUnity/Bot-DofusUnity.exe' -ArgumentList '--validate-install' -Wait -PassThru
-          if ($process.ExitCode -ne 0) {
-            throw "Packaged-resource validation failed with exit code $($process.ExitCode)"
-          }
+      - name: Validate packaged startup and shutdown
+        run: uv run python scripts/validate_package.py dist/Bot-DofusUnity
       - name: Create release archive
         shell: pwsh
         run: Compress-Archive -Path dist/Bot-DofusUnity -DestinationPath dist/Bot-DofusUnity-${{ steps.version.outputs.version }}.zip -CompressionLevel Optimal

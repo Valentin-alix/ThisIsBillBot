@@ -8,7 +8,7 @@ from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import (
     normalize_clr_type,
 )
 from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_structure import get_stripped_direct_body
-from DBDofusUnity.proto_mapper_assembly.parsers.clr_types import categorize_field
+from DBDofusUnity.proto_mapper_assembly.parsers.clr_types import categorize_field, resolve_enum_type_name
 
 FIELD_PATTERN = re.compile(
     r"(?:public|private|protected)\s+(?:readonly\s+)?(.*?)\s+(\w+)\s*;\s*//\s*0x([0-9a-fA-F]+)",
@@ -105,12 +105,12 @@ def _extract_enum_type_fields(
     normalized_type: str,
     enum_names: frozenset[str],
 ) -> tuple[str | None, str | None]:
-    enum_type_name = _resolve_enum_type_name(normalized_type, enum_names)
+    enum_type_name = resolve_enum_type_name(normalized_type, enum_names)
     if enum_type_name is not None:
         return None, enum_type_name
     repeated_inner_type = extract_repeated_inner_type(normalized_type)
     if repeated_inner_type is not None:
-        repeated_enum_name = _resolve_enum_type_name(repeated_inner_type, enum_names)
+        repeated_enum_name = resolve_enum_type_name(repeated_inner_type, enum_names)
         if repeated_enum_name is not None:
             return None, repeated_enum_name
         return None, None
@@ -118,21 +118,9 @@ def _extract_enum_type_fields(
     if map_inner_types is None:
         return None, None
     return (
-        _resolve_enum_type_name(map_inner_types[0], enum_names),
-        _resolve_enum_type_name(map_inner_types[1], enum_names),
+        resolve_enum_type_name(map_inner_types[0], enum_names),
+        resolve_enum_type_name(map_inner_types[1], enum_names),
     )
-
-
-def _resolve_enum_type_name(
-    normalized_type: str,
-    enum_names: frozenset[str],
-) -> str | None:
-    if normalized_type in enum_names:
-        return normalized_type
-    suffix = normalized_type.rsplit(".", maxsplit=1)[-1]
-    if suffix in enum_names:
-        return suffix
-    return None
 
 
 def _parse_field_match(

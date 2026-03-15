@@ -335,7 +335,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
         replacement_options_factory.assert_awaited_once_with(initial_options)
         submit_replacement_email_attempt.assert_awaited_once_with(page, replacement_options)
         mail_account_controller.return_value.quarantine.assert_called_once_with(
-            "new@example.com", "Adresse déjà liée à un compte Ankama"
+            "new@example.com", "Address already linked to an Ankama account"
         )
         bot_storage_controller.return_value.save_account.assert_called_once_with(
             "replacement@example.com",
@@ -393,7 +393,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
 
     async def test_register_next_available_email_does_not_provision_smailpro_without_api_key(self) -> None:
         with (
-            patch.object(registration_module, "SONJI_API_KEY", None),
+            patch.object(registration_module.SettingsService, "sonji_api_key", return_value=None),
             patch.object(registration_module, "MailAccountController") as mail_account_controller,
         ):
             mail_account_controller.return_value.peek_next_available_email.return_value = None
@@ -601,7 +601,7 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
         bot_storage_controller.return_value.save_account.assert_not_called()
         registration_module._finalize_registration_attempt(result.email, result)
         mail_account_controller.return_value.quarantine.assert_called_once_with(
-            "new@example.com", "Inscription refusée par Ankama"
+            "new@example.com", "Registration rejected by Ankama"
         )
         self.assertEqual(len(logs.output), 1)
         self.assertIn("mailbox discarded", logs.output[0])
@@ -671,5 +671,5 @@ class TestRegisterAccount(IsolatedAsyncioTestCase):
             )
 
         mail_account_controller.return_value.quarantine.assert_called_once_with(
-            "new@example.com", "Délai dépassé pour le code de confirmation"
+            "new@example.com", "Confirmation code timed out"
         )

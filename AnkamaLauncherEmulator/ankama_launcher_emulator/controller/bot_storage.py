@@ -1,3 +1,4 @@
+from utils.local_json import read_local_model
 import logging
 from datetime import datetime, timezone
 from collections.abc import Callable
@@ -34,7 +35,7 @@ class BotStorageController(metaclass=Singleton):
     def _load(self) -> BotsFile:
         if not BOTS_STORAGE_PATH.exists():
             return BotsFile()
-        return BotsFile.model_validate_json(BOTS_STORAGE_PATH.read_text(encoding="utf-8"))
+        return read_local_model(BOTS_STORAGE_PATH, BotsFile)
 
     def _save(self, bots_file: BotsFile) -> None:
         atomic_write_text(BOTS_STORAGE_PATH, bots_file.model_dump_json(indent=2))

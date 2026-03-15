@@ -51,10 +51,10 @@ class ActivityPage(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
-        layout.addWidget(SubtitleLabel("Activité", self))
+        layout.addWidget(SubtitleLabel("Activity", self))
         layout.addWidget(
             BodyLabel(
-                "Suivez les événements récents et décidez des suites à donner aux éléments en quarantaine.",
+                "Review recent events and decide what to do with quarantined items.",
                 self,
             )
         )
@@ -71,16 +71,16 @@ class ActivityPage(QWidget):
         layout.setSpacing(12)
 
         header = QHBoxLayout()
-        header.addWidget(StrongBodyLabel("Historique récent", card))
+        header.addWidget(StrongBodyLabel("Recent history", card))
         header.addStretch()
-        header.addWidget(BodyLabel("Compte", card))
+        header.addWidget(BodyLabel("Account", card))
         self.login_filter = ComboBox(card)
         self.login_filter.setMinimumWidth(190)
         self.login_filter.currentIndexChanged.connect(self._render_activity)
         header.addWidget(self.login_filter)
         layout.addLayout(header)
 
-        self.activity_table = self._create_table(card, ["Date", "Compte", "Niveau", "Événement"])
+        self.activity_table = self._create_table(card, ["Date", "Account", "Level", "Event"])
         self.activity_table.setMinimumHeight(220)
         layout.addWidget(self.activity_table)
         return card
@@ -92,21 +92,21 @@ class ActivityPage(QWidget):
         layout.setSpacing(12)
 
         header = QHBoxLayout()
-        header.addWidget(StrongBodyLabel("Éléments en quarantaine", card))
+        header.addWidget(StrongBodyLabel("Quarantined items", card))
         header.addStretch()
-        header.addWidget(BodyLabel("Aucune action n’est effectuée sans confirmation.", card))
+        header.addWidget(BodyLabel("No action is taken without confirmation.", card))
         layout.addLayout(header)
 
-        self.quarantine_table = self._create_table(card, ["Type", "Identifiant", "Motif"])
+        self.quarantine_table = self._create_table(card, ["Type", "Identifier", "Reason"])
         self.quarantine_table.setMinimumHeight(160)
         self.quarantine_table.itemSelectionChanged.connect(self._select_quarantine)
         layout.addWidget(self.quarantine_table)
 
         actions = QHBoxLayout()
         actions.addStretch()
-        self.restore_button = PrimaryPushButton(FluentIcon.SYNC, "Réactiver", card)
+        self.restore_button = PrimaryPushButton(FluentIcon.SYNC, "Restore", card)
         self.restore_button.clicked.connect(self._restore_selected)
-        self.delete_button = PushButton(FluentIcon.DELETE, "Supprimer", card)
+        self.delete_button = PushButton(FluentIcon.DELETE, "Delete", card)
         self.delete_button.clicked.connect(self._delete_selected)
         actions.addWidget(self.restore_button)
         actions.addWidget(self.delete_button)
@@ -126,6 +126,9 @@ class ActivityPage(QWidget):
         table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
         table.scrollDelagate.verticalSmoothScroll.setSmoothMode(SmoothMode.NO_SMOOTH)
+        table.scrollDelagate.horizonSmoothScroll.setSmoothMode(SmoothMode.NO_SMOOTH)
+        table.scrollDelagate.vScrollBar.setScrollAnimation(0)
+        table.scrollDelagate.hScrollBar.setScrollAnimation(0)
         vertical_header = table.verticalHeader()
         horizontal_header = table.horizontalHeader()
         assert vertical_header is not None
@@ -236,7 +239,7 @@ class ActivityPage(QWidget):
         quarantined: list[QuarantineRow] = []
         for login, record in BotStorageController().get_all_records().items():
             if record.quarantine_reason is not None:
-                quarantined.append(("Compte", login, record.quarantine_reason))
+                quarantined.append(("Account", login, record.quarantine_reason))
         for email, entry in MailAccountController().get_all_entries().items():
             if entry.quarantine_reason is not None:
                 quarantined.append(("Mailbox", email, entry.quarantine_reason))
@@ -289,7 +292,7 @@ class ActivityPage(QWidget):
         if self._selected_target is None:
             return
         kind, identifier = self._selected_target
-        if kind == "Compte":
+        if kind == "Account":
             self.restore_account_requested.emit(identifier)
         else:
             self.restore_mailbox_requested.emit(identifier)
@@ -300,15 +303,15 @@ class ActivityPage(QWidget):
             return
         kind, identifier = self._selected_target
         confirmation = MessageBox(
-            "Supprimer définitivement",
-            f"Supprimer définitivement {identifier} ? Cette action est irréversible.",
+            "Delete permanently",
+            f"Permanently delete {identifier}? This action cannot be undone.",
             self,
         )
-        confirmation.yesButton.setText("Supprimer")
-        confirmation.cancelButton.setText("Annuler")
+        confirmation.yesButton.setText("Delete")
+        confirmation.cancelButton.setText("Cancel")
         if not confirmation.exec():
             return
-        if kind == "Compte":
+        if kind == "Account":
             self.delete_account_requested.emit(identifier)
         else:
             self.delete_mailbox_requested.emit(identifier)

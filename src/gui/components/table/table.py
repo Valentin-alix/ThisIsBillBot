@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QWidget
-from qfluentwidgets import SingleDirectionScrollArea
+from qfluentwidgets import SingleDirectionScrollArea, SmoothMode
 
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.multi_filter_proxy import MultiColumnFilterProxyModel
@@ -14,6 +14,9 @@ class BaseTableWidget(SingleDirectionScrollArea):
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
+        self.setSmoothMode(SmoothMode.NO_SMOOTH)
+        self.vScrollBar.setScrollAnimation(0)
+        self.hScrollBar.setScrollAnimation(0)
 
         self.columns_infos: list[ColumnInfo] = []
         self.table = CustomTableView(parent=self, proxy_model=proxy_model, item_model=item_model)

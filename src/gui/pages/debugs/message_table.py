@@ -31,7 +31,7 @@ class MessageRow:
 
     def __post_init__(self) -> None:
         self.time_text = self.received_time.strftime("%H:%M:%S.%f")[:-3]
-        self.origin_text = "Serveur" if self.from_server else "Client"
+        self.origin_text = "Server" if self.from_server else "Client"
 
     def message_info(self) -> MessageInfo:
         if self._msg_info is None:

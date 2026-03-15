@@ -1,9 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import CharacteristicEnum
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
-
+from src.core.config import BehaviorSettings
 from src.core.engine.contexts import (
     AttackContext,
     CriterionContext,
@@ -40,6 +40,11 @@ class GameState:
     server: ServerState
     quest: QuestState
     dialog: DialogState
+    settings: BehaviorSettings = field(default_factory=BehaviorSettings)
+
+    def apply_settings(self, settings: BehaviorSettings) -> None:
+        self.settings = settings
+        self.guild_chest.settings = settings
 
     def clear_connection_scoped_state(self) -> None:
         self.map.clear_state()

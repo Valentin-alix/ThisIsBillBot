@@ -18,7 +18,7 @@ function hookConnect(proxyPort, proxyIp) {
                 const sockaddr = args[1];
                 const family = sockaddr.readU16();
 
-                // add(nb octet) permet de déplacer le point à nb d'octet apres sockaddr
+                // add(byte count) moves the pointer by the requested number of bytes after sockaddr
                 if (family === 2) { // IPV4
                     const port = (sockaddr.add(2).readU8() << 8) | sockaddr.add(3).readU8();
 

@@ -186,7 +186,7 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
                         raise RuntimeError("WAF/CloudFront blocked OAuth page")
             except Exception as err:
                 if _is_waf_or_cloudfront_error(err):
-                    MailAccountController().quarantine(options.email, "Blocage WAF/CloudFront confirmé")
+                    MailAccountController().quarantine(options.email, "Confirmed WAF/CloudFront block")
                     logger.error("[OAuth] WAF/CloudFront blocked %s; removed stored mailbox account.", options.email)
                 logger.error(err)
                 return AuthenticationResult(success=False, email=options.email, error=str(err))
@@ -292,7 +292,7 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
         logger.error("[OAuth] Proxy rejected: %s", error)
         raise
     except MailboxCodeTimeoutError as exc:
-        MailAccountController().quarantine(options.email, "Délai dépassé pour le code de confirmation")
+        MailAccountController().quarantine(options.email, "Confirmation code timed out")
         logger.error(
             "[OAuth] Mailbox code timeout for %s; quarantined stored mailbox account: %s",
             options.email,
@@ -301,7 +301,7 @@ async def authenticate(options: AuthenticationOptions) -> AuthenticationResult:
         return AuthenticationResult(success=False, email=options.email, error=str(exc))
     except Exception as exc:
         if _is_waf_or_cloudfront_error(exc):
-            MailAccountController().quarantine(options.email, "Blocage WAF/CloudFront confirmé")
+            MailAccountController().quarantine(options.email, "Confirmed WAF/CloudFront block")
             logger.error("[OAuth] WAF/CloudFront blocked %s; quarantined stored mailbox account.", options.email)
             return AuthenticationResult(success=False, email=options.email, error=str(exc))
         logger.exception("[OAuth] Authentication failed: %s", exc)
@@ -333,7 +333,7 @@ async def _authenticate_account(
         )
     )
     if not auth_result.success:
-        BotStorageController().quarantine(account.email, "Authentification échouée")
+        BotStorageController().quarantine(account.email, "Authentication failed")
         if account.email in MailAccountController().load_bad_state_emails():
             logger.warning(
                 "[OAuth] %s is now in bad-state emails; skipping future scheduler auth",

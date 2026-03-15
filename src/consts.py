@@ -43,7 +43,7 @@ from DBDofusUnity.datas.protos.non_obf.game.tag_storage_pb2 import (
     RemoveTagStorageRequest,
     UpdateTagStorageContentRequest,
 )
-from project_paths import BUNDLE_ROOT, ENV_PATH, USER_DATA_ROOT
+from src.utils.project_paths import BUNDLE_ROOT, ENV_PATH, USER_DATA_ROOT
 from src.core.config import DEBUG as DEBUG
 
 load_dotenv(ENV_PATH)

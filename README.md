@@ -1,72 +1,84 @@
-# Bot-DofusUnity
+# Bill
 
-Framework Python 3.12 sous Windows pour la recherche protocolaire et
-l’orchestration de bots Dofus Unity : GUI PyQt, runtime headless, pipeline de
-messages, `GameState`, `Frame` et `Behavior`.
+A Dofus Unity bot for Windows with a graphical interface for managing multiple
+accounts, running harvesting, combat, or crafting activities, and scheduling them.
 
-> Ankama interdit les bots et outils d’automatisation en jeu. Leur usage peut
-> entraîner la fermeture définitive des comptes. Respectez les règles du jeu,
-> les conditions des services utilisés et la loi applicable.
+## What you can do
 
-## Installation et exécution
+- **Control your accounts**: choose an activity and an area, then start or stop the bot from the interface.
+- **Schedule sessions**: define several time slots per day and assign accounts to a schedule.
+- **Prepare crafts**: search supported professions for recipes and add them to the crafting list.
+- **Configure automation**: choose behaviors and manage email accounts and proxies in Settings.
+- **Monitor operations**: review errors on the **Activity** page.
+
+## What the project includes
+
+The bot is written in Python and uses PyQt6 and FluentWidgets for its interface.
+It supports two connection modes:
+
+- **Socket**: communicates directly with the game servers without using the Dofus Unity client.
+- **MITM**: sits between the Dofus Unity client and the servers to intercept and process their traffic.
+
+In both modes, received messages update the game state, which harvesting, combat,
+and crafting behaviors react to.
+
+The repository also contains supporting tools:
+
+- **An Ankama launcher emulator** for interactions with Ankama services.
+- **A protocol mapper** that matches obfuscated messages and fields to their unobfuscated counterparts, primarily through static analysis with the IDA Pro API. See the [protobuf mapping guide](docs/mapping.md).
+- **A Unity static-data reader** for game data such as items, recipes, spells, monsters, and maps.
+
+## Getting started
+
+### From source
+
+Requirements: **Windows**, **Python 3.12**, **Git LFS**, and **uv**.
+Clone this repository, then open PowerShell in its root directory:
 
 ```powershell
+git lfs install
+git lfs pull
 uv sync
+uv run playwright install chromium
 Copy-Item .env.example .env
 uv run python __main__.py
-# ou
-uv run python __main__.py --headless
 ```
 
-Pour générer le paquet Windows autonome :
+Copy `.env.example` only during the first installation; keep your existing `.env`
+if you already have one.
 
-```powershell
-uv run poe package
-```
+MITM mode requires Dofus Unity installed through the Ankama launcher. Cytrus is
+optional and is only used for automatic updates. The mapping tools are not
+required to open the interface.
 
-Le dossier distribuable est `dist/Bot-DofusUnity/`. Un push modifiant `VERSION`
-publie cette archive dans une GitHub pre-release portant le tag `vX.Y.Z`,
-où `X.Y.Z` est la version numérique définie dans ce fichier.
+### Initial configuration
 
-`.env` est local. Les fichiers de runtime restent aux emplacements existants :
-`resources/` et `AnkamaLauncherEmulator/resources/`. Ils contiennent
-notamment comptes, boîtes mail, proxies, profils, sessions et caches ; ils sont
-ignorés par Git et ne doivent jamais être partagés.
+1. Under **Settings → Behaviors**, choose the activities to automate.
+2. Under **Settings → Schedules**, define operating days and times.
+3. Under **Settings → Accounts**, assign accounts to the available profiles.
+4. Use the account controls to start an activity; check **Activity** if an error occurs.
 
-Variables utiles : `DEBUG`, `OPENAI_API_KEY`, `SONJI_API_KEY`. Les workflows de mapping demandent aussi
-`PROTOC_PATH`, `IDA_EXE`, `OBF_GAME_DIR` et `NON_OBF_GAME_DIR`; les exécutables
-tiers peuvent être surchargés via `UABEA_EXECUTABLE`,
-`IL2CPP_INSPECTOR_EXECUTABLE` et `PROTODEC_EXECUTABLE`.
+Behavior changes take effect the next time the bot starts. Account automation
+settings take effect at the next operation without interrupting the current one.
 
-## Personnalisation
+See the [interface configuration guide](docs/configuration.md) for accounts,
+schedules, email accounts, proxies, and services.
 
-- Ajouter un `Behavior` pour une opération de haut niveau.
-- Ajouter un `Frame`, listener ou modifier pour faire évoluer `GameState`.
-- Adapter les providers mail, les modes socket/MITM et les outils de mapping.
-- Configurer les profils, proxies et comptes uniquement dans les JSON locaux,
-  jamais dans le code, les tests ou les exemples.
+## Development
 
-Les outils Il2CppInspectorRedux (AGPL-3.0-only), protodec (MPL-2.0) et UABEA
-(MIT) restent des dépendances séparées. Ne distribuez ni client du jeu,
-artefacts extraits/générés, binaires tiers, identifiants, traces ni données de
-paiement avec le projet. La licence MIT du dépôt couvre uniquement le code
-original.
+The bot code is in `src/`, the launcher is in `AnkamaLauncherEmulator/`, and the
+data and mapping tools are in `DBDofusUnity/`.
 
-## Développement et publication
+Each new Dofus build obfuscates protobuf message and field names again. The
+mapping must therefore be regenerated and verified before the protocol can be
+considered up to date.
 
 ```powershell
 uv run ruff check .
 uv run pyright
 uv run pytest tests
-uv run poe verify
 ```
 
-Les contributions doivent être ciblées, validées, et utiliser des fixtures
-synthétiques. Les vulnérabilités, secrets ou données privées se signalent au
-mainteneur en privé, jamais dans une issue.
-
-Pour créer le dépôt public, partez d’un nouvel arbre Git, excluez les fichiers
-runtime et artefacts listés dans `.gitignore`, scannez l’arbre et son historique
-avec un outil de détection de secrets, puis révoquez toute clé déjà exposée.
-Conservez les licences et notices des dépendances distribuées, activez Secret
-Scanning/Push Protection, et publiez un historique court et cohérent.
+The final `uv run poe verify` check also applies Ruff fixes. See the
+[architecture and development guide](docs/maintenance.md) to understand the code
+organization and extend the bot.

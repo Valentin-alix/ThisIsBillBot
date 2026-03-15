@@ -1,5 +1,17 @@
 import os
 from pathlib import Path
+from src.utils.runtime_support import RuntimeSetupError
+
+
+def get_bool_from_env(name: str, default: bool = False) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    if raw.lower() in ("1", "true"):
+        return True
+    if raw.lower() in ("0", "false"):
+        return False
+    raise RuntimeSetupError(f"The {name} variable must be 0, 1, false, or true.")
 
 
 def get_required_path(env_name: str) -> Path:

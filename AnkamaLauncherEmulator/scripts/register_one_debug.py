@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from ankama_launcher_emulator.consts import SONJI_API_KEY
+from src.controller.settings import SettingsService
 from ankama_launcher_emulator.web._client.mail_providers.smailpro import (
     SmailProMailProvider,
     generate_random_mailbox_settings,
@@ -22,9 +22,9 @@ from ankama_launcher_emulator.web.auth.registration import (
 
 
 async def _register_one() -> bool:
-    api_key = SONJI_API_KEY
+    api_key = SettingsService().sonji_api_key()
     if api_key is None:
-        raise RuntimeError("SONJI_API_KEY must be set to run a registration debug attempt")
+        raise RuntimeError("A Sonji API key must be configured to run a registration debug attempt")
 
     async def create_mail_provider() -> tuple[str, SmailProMailProvider]:
         settings = await asyncio.to_thread(generate_random_mailbox_settings, api_key)

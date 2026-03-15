@@ -8,7 +8,7 @@ def test_runtime_store_import_does_not_require_the_dofus_toolchain() -> None:
 import os
 from pathlib import Path
 
-import project_paths
+from src.utils import project_paths
 
 project_paths.ENV_PATH = Path.cwd() / "missing-test.env"
 for variable in ("OBF_GAME_DIR", "NON_OBF_GAME_DIR", "PROTOC_PATH", "IDA_EXE"):

@@ -1,5 +1,8 @@
 from pydantic import BaseModel, Field
 
+SCHEDULE_RANDOM_MINUTES_MIN = 10
+SCHEDULE_RANDOM_MINUTES_MAX = 30
+
 
 class ProxyConfig(BaseModel):
     rejected: bool = False

@@ -4,6 +4,14 @@ from collections.abc import Sequence
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
+sys.path.append(str(Path(__file__).parent.parent / "AnkamaLauncherEmulator"))
+
+from pydantic import TypeAdapter
+
+from ankama_launcher_emulator.interfaces.ankama_release import ReleaseJson
+from ankama_launcher_emulator.utils.environment import RELEASE_JSON_PATH
+from DBDofusUnity.consts import OBF_GAME_DIR
+from src.services.game_version import GameVersion, VERSION_PATH
 
 from DBDofusUnity.proto_mapper_assembly.scripts.add_to_new_dump_cs import (
     synchronize_non_obf_mapping_artifacts,
@@ -41,11 +49,23 @@ def _synchronize_protos(arguments: argparse.Namespace) -> None:
     run_pipeline(do_load_pinned_pair=True)
 
 
-def new_maj_update_command(_):
+def _read_update_game_version() -> str:
+    release = ReleaseJson.model_validate_json(Path(RELEASE_JSON_PATH).read_bytes())
+    if Path(release.location).resolve() != OBF_GAME_DIR.resolve():
+        raise RuntimeError("The launcher release.json location does not match OBF_GAME_DIR.")
+    return TypeAdapter[str](GameVersion).validate_python(release.version)
+
+
+def new_maj_update_command(_: argparse.Namespace) -> None:
     from DBDofusUnity.dofus_unity_reader.get_datas import update_all_datas
 
+    version = _read_update_game_version()
     update_all_datas()
     update_protos(use_obf=True)
+    if _read_update_game_version() != version:
+        raise RuntimeError("The installed Dofus version changed during update-maj. Run update-maj again.")
+    VERSION_PATH.write_text(f"{version}\n", encoding="utf-8")
+    print(f"Bot-compatible VERSION updated to {version}")
 
 
 def run_ida_script_command(arguments: argparse.Namespace):

@@ -38,7 +38,7 @@ class ScrollableMessageBox(MessageBoxBase):
 
         self.highlighter = LogSyntaxHighlighter(self.content_edit.document())
 
-        self.copy_button = PushButton("Copier dans le presse-papier", self)
+        self.copy_button = PushButton("Copy to clipboard", self)
         self.copy_button.clicked.connect(lambda: self._copy_to_clipboard(content))
 
         scroll_area = SingleDirectionScrollArea(self)

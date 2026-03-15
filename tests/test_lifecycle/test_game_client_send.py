@@ -185,7 +185,7 @@ class TestSocketProxyConnection:
         manager.on_banned_callback("banned@example.com")
 
         assert lifecycle_events == ["quarantine"]
-        quarantine_account.assert_called_once_with("banned@example.com", "Compte banni")
+        quarantine_account.assert_called_once_with("banned@example.com", "Banned account")
 
     def test_ban_after_profile_reassignment_quarantines_original_proxy(
         self,

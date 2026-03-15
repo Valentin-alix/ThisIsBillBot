@@ -90,7 +90,7 @@ class UseInteractiveStep(StepWithDestination):
 
 
 class UseMapInteractiveStep(StepWithDestination):
-    """Utiliser le premier interactif hors sortie de map ; un objectif valide saute son etape."""
+    """Use the first non-exit interactive; a completed objective skips its step."""
 
     type: Literal["use_map_interactive"] = "use_map_interactive"
     skill_id: int | None = None
@@ -103,7 +103,7 @@ class CraftItemStep(BaseModel):
 
 
 class BuyItemStep(BaseModel):
-    """Acheter jusqu'a quantity, en comptant le stock existant pour eviter les rachats a la reprise."""
+    """Buy up to quantity, counting existing stock to avoid repeat purchases after resuming."""
 
     type: Literal["buy_item"] = "buy_item"
     item_gid: int
@@ -141,7 +141,7 @@ class QuestScript(BaseModel):
     server_step_id_by_index: dict[int, int] = Field(default_factory=dict[int, int])
     objective_id_by_index: dict[int, int] = Field(default_factory=dict[int, int])
     objective_ids_with_untrusted_map: set[int] = Field(default_factory=set[int])
-    """Objectifs dont mapId indique l'entree du batiment plutot que la map de validation."""
+    """Objectives whose mapId identifies the building entrance instead of the validation map."""
 
     @model_validator(mode="after")
     def _check_steps(self):

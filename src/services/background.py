@@ -1,10 +1,17 @@
 from collections.abc import Callable
 from typing import TypeVar
+import logging
+from src.utils.runtime_support import RuntimeSetupError, error_message
+from src.services.user_activity import UserActivityService
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
 _running: set[object] = set()
 BackgroundResultT = TypeVar("BackgroundResultT")
+
+
+def _report_task_error(error: object) -> None:
+    UserActivityService().record("error", error_message(error))
 
 
 class Worker(QObject):
@@ -21,7 +28,8 @@ class Worker(QObject):
     def run(self) -> None:
         try:
             self.success.emit(self.func(self.progress.emit))
-        except Exception as error:
+        except (RuntimeSetupError, OSError) as error:
+            logging.getLogger(__name__).error("Task interrupted: %s", error_message(error), exc_info=True)
             self.error.emit(error)
         finally:
             self.finished.emit()
@@ -47,6 +55,8 @@ def run_in_background(
         worker.success.connect(on_success)
     if on_error is not None:
         worker.error.connect(on_error)
+    else:
+        worker.error.connect(_report_task_error)
     if on_progress is not None:
         worker.progress.connect(on_progress)
 

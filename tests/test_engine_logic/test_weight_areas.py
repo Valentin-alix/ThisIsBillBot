@@ -18,7 +18,6 @@ def test_area_selection_scores_accessible_harvestables_without_map_scan(
         sub_areas_by_area_id={1: [10]},
     )
     collectable_weight = MagicMock(return_value=10.0)
-    map_weight = MagicMock(side_effect=AssertionError("area selection must not read maps"))
 
     monkeypatch.setattr(weight_areas, "AREAS_SUB_WITH_WEIGHT", [accessible_area, inaccessible_area])
     monkeypatch.setattr(weight_areas, "DataReader", lambda: data_reader)
@@ -28,7 +27,6 @@ def test_area_selection_scores_accessible_harvestables_without_map_scan(
         lambda: SimpleNamespace(get_item_job_by_gfx=lambda: {1: (100, 5)}),
     )
     monkeypatch.setattr(weight_areas, "get_weight_collectable", collectable_weight)
-    monkeypatch.setattr(weight_areas, "get_map_id_collectable_weight", map_weight)
 
     result = weight_areas.get_random_best_area_info(
         old_area_id=None,
@@ -48,4 +46,3 @@ def test_area_selection_scores_accessible_harvestables_without_map_scan(
 
     assert result == accessible_area
     collectable_weight.assert_called_once()
-    map_weight.assert_not_called()

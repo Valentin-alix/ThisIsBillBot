@@ -30,7 +30,7 @@ class AccountQuickInfoWidget(QWidget):
         self.setLayout(layout)
 
         self.subscription_end_column, self.subscription_end_label = self._add_info_column(
-            layout, "Fin d'abonnement"
+            layout, "Subscription end"
         )
         _, self.kamas_label = self._add_info_column(layout, "Kamas")
         _, self.level_label = self._add_info_column(layout, "Niveau")

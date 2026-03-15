@@ -185,15 +185,6 @@ class Behavior(ContextualLogger):
 
         self._transition({BehaviorState.STOPPING}, BehaviorState.STOPPED, reason="cleanup complete")
 
-    def force_reset(self) -> None:
-        with self._state_lock:
-            self._state = BehaviorState.STOPPED
-
-        with self.event_manager.lock:
-            self.clear_behavior()
-            self.parent = None
-            self.callback = None
-
     def clear_behavior(self) -> None:
         with self.event_manager.lock:
             for timer in self.timers:
@@ -298,7 +289,7 @@ class Behavior(ContextualLogger):
         self.event_manager.send(DialogLeaveRequest())
 
     def unregister_listener(self, event_type: type[Message], reason: str = "") -> None:
-        """Retirer un listener pendant l'execution ; la fin du comportement les nettoie deja tous."""
+        """Remove a listener during execution; behavior completion already clears all listeners."""
         if reason:
             self.logger.debug(f"Manual listener cleanup: {event_type.__name__} - {reason}")
         self.event_manager.clear_listener_by_origin_and_type(event_type, self)

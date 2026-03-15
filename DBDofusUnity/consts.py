@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 from DBDofusUnity.proto_mapper_assembly.helpers.archived_builds import PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
 from DBDofusUnity.proto_mapper_assembly.helpers.obf_game_snapshot import resolve_obf_game_snapshot
-from project_paths import BUNDLE_ROOT, ENV_PATH, IS_PACKAGED
+from src.utils.project_paths import BUNDLE_ROOT, ENV_PATH, IS_PACKAGED
 from utils.env_config import get_path_from_env, get_required_path
 
 PROJECT_ROOT: Path = BUNDLE_ROOT / "DBDofusUnity"

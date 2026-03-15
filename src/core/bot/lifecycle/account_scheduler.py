@@ -6,7 +6,6 @@ from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
 from typing import Any
 
-from ankama_launcher_emulator.consts import SONJI_API_KEY
 from ankama_launcher_emulator.controller.bot_storage import (
     BotStorageController,
 )
@@ -32,13 +31,17 @@ from ankama_launcher_emulator.web.auth.registration import (
     register_next_available_email,
 )
 from src.consts import MAX_BOTS_PER_SCHEDULE_PROFILE
-from src.core.config import ENABLE_ACCOUNT_AUTOMATION
+from src.controller.settings import SettingsService
 from src.core.bot.lifecycle.operation_pool import OperationPool
 from src.services.league_of_legends import is_league_of_legends_match_running
+from src.services.user_activity import UserActivityService
+from src.utils.runtime_support import RuntimeSetupError, error_message
 
 logger = logging.getLogger()
 
 POLL_INTERVAL_SECONDS = 5
+
+
 @dataclass(frozen=True)
 class _AuthOp:
     login: str
@@ -80,7 +83,14 @@ class AccountScheduler:
     def _loop(self) -> None:
         while not self._stop_event.is_set():
             now = time.time()
-            operation = self._next_operation(now)
+            try:
+                operation = self._next_operation(now)
+            except (RuntimeSetupError, OSError) as error:
+                self._stop_event.set()
+                message = f"Automation stopped: {error_message(error)} Fix the configuration and restart."
+                logger.error(message, exc_info=True)
+                UserActivityService().record("error", message)
+                return
             if operation is None:
                 self._stop_event.wait(POLL_INTERVAL_SECONDS)
                 continue
@@ -93,11 +103,13 @@ class AccountScheduler:
                 if self._stop_event.is_set():
                     return
                 raise
-            except Exception:
-                logger.exception("Unexpected error running scheduled operation %r", operation)
+            except (RuntimeSetupError, OSError) as error:
+                message = f"Automatic operation failed: {error_message(error)}"
+                logger.error(message, exc_info=True)
+                UserActivityService().record("error", message)
 
     def _next_operation(self, now: float) -> PendingOperation | None:
-        if not ENABLE_ACCOUNT_AUTOMATION:
+        if not SettingsService().get().enable_account_automation:
             return None
         if self.is_league_of_legends_match_running():
             logger.info("League of Legends match in progress, postponing account automation")
@@ -120,7 +132,9 @@ class AccountScheduler:
                 continue
             account_profile = profiles_by_letter.get(account_profile_id)
             if account_profile is None:
-                raise ValueError(f"Unknown schedule profile {account_profile_id}")
+                raise RuntimeSetupError(
+                    f"Unknown schedule profile: {account_profile_id}. Check schedule_profiles.json."
+                )
             account_proxy = self.proxy_controller.get_proxy(account_profile.proxy_id)
             if account_proxy.rejected:
                 logger.info(
@@ -138,10 +152,7 @@ class AccountScheduler:
                 auth_candidates,
                 key=lambda operation: self._pool.count_since_hour(operation.quota_key, now),
             )
-        if (
-            MailAccountController().peek_next_available_email() is not None
-            or SONJI_API_KEY is not None
-        ):
+        if MailAccountController().peek_next_available_email() is not None or SettingsService().sonji_api_key() is not None:
             profile_counts = self._profile_account_counts(profiles_by_letter)
             eligible_candidates = [
                 _RegisterOp(profile_id, profile.proxy_id)
@@ -177,8 +188,8 @@ class AccountScheduler:
             if profile_id is None or account.email in counted_logins:
                 continue
             if profile_id not in profiles:
-                raise ValueError(
-                    f"Unknown schedule profile {profile_id} for generated account {account.email}"
+                raise RuntimeSetupError(
+                    f"Unknown schedule profile: {profile_id}. Check schedule_profiles.json."
                 )
             counts[profile_id] += 1
             counted_logins.add(account.email)

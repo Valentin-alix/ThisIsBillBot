@@ -1,6 +1,7 @@
 import logging
 import threading
 from collections import defaultdict
+from contextlib import ExitStack
 from dataclasses import dataclass, field
 from datetime import datetime
 from time import monotonic, sleep
@@ -29,6 +30,7 @@ from ankama_launcher_emulator.decrypter.crypto_helper import (
 )
 from src.services.background import run_in_background
 from src.services.user_activity import UserActivityService
+from src.utils.runtime_support import error_message
 from ankama_launcher_emulator.server.handler import (
     AnkamaLauncherHandler,
 )
@@ -82,6 +84,7 @@ class BotManager:
             on_accounts_synchronized=self.shared_signals.synchronize_bots.emit,
             on_banned_callback=self.on_banned_callback,
         )
+
     def start_account_scheduler(self) -> None:
         if not self.enable_account_scheduler:
             return
@@ -96,10 +99,17 @@ class BotManager:
             self._running_task_count -= 1
             self._emit_thread_count()
 
+        def _on_error(error: object) -> None:
+            _on_done(error)
+            for bot in self.bot_by_account_id.values():
+                if bot.account.apikey.login == login:
+                    bot.bot_signals.stop.emit()
+            UserActivityService().record("error", f"Startup failed: {error_message(error)}", login=login)
+
         run_in_background(
             lambda _: self.relaunch_account(login),
             on_success=_on_done,
-            on_error=_on_done,
+            on_error=_on_error,
         )
 
     def on_progress_installing(self, text: str):
@@ -145,7 +155,7 @@ class BotManager:
             BotStorageController().reassign_quarantined_schedule_profile(login, target_profile_id)
             UserActivityService().record(
                 "warning",
-                f"Profil proxy réaffecté : {bot_config.schedule_profile} vers {target_profile_id}.",
+                f"Proxy profile reassigned: {bot_config.schedule_profile} to {target_profile_id}.",
                 login=login,
             )
             bot.logger.warning(
@@ -201,7 +211,7 @@ class BotManager:
             related_bot.bot_signals.stop.emit()
             related_bot.logger.warning("Bot relaunch blocked by quarantine: %s", quarantine_reason)
             UserActivityService().record(
-                "warning", f"Relance bloquée : bot en quarantaine ({quarantine_reason}).", login=login
+                "warning", f"Restart blocked: bot is quarantined ({quarantine_reason}).", login=login
             )
             return None
 
@@ -314,7 +324,7 @@ class BotManager:
                     schedule_profile.proxy_id,
                     login,
                 )
-        BotStorageController().quarantine(login, "Compte banni")
+        BotStorageController().quarantine(login, "Banned account")
         related_bot = next(
             (
                 bot
@@ -325,13 +335,13 @@ class BotManager:
         )
         if related_bot is not None:
             related_bot.bot_signals.stop.emit()
-        UserActivityService().record("error", "Compte mis en quarantaine après bannissement.", login=login)
+        UserActivityService().record("error", "Account quarantined after a ban.", login=login)
 
     def on_connection_server_succeeded(self, login: str) -> None:
         BotStorageController().clear_quarantined_schedule_profile(login)
 
     def on_invalid_auth_callback(self, login: str) -> None:
-        BotStorageController().quarantine(login, "Authentification invalide")
+        BotStorageController().quarantine(login, "Invalid authentication")
         related_bot = next(
             (
                 bot
@@ -343,12 +353,12 @@ class BotManager:
         if related_bot is not None:
             related_bot.bot_signals.stop.emit()
         UserActivityService().record(
-            "error", "Compte mis en quarantaine après échec d’authentification.", login=login
+            "error", "Account quarantined after authentication failure.", login=login
         )
 
     def restore_account_from_quarantine(self, login: str) -> None:
         BotStorageController().restore_from_quarantine(login)
-        UserActivityService().record("info", "Quarantaine du compte levée par l’utilisateur.", login=login)
+        UserActivityService().record("info", "Account quarantine cleared by the user.", login=login)
 
     def delete_account(self, login: str) -> None:
         related_bot = next(
@@ -362,17 +372,17 @@ class BotManager:
         PlayerInfoStorage().remove_snapshot(login)
         self.on_synchronize_bots()
         UserActivityService().record(
-            "warning", "Compte supprimé définitivement par l’utilisateur.", login=login
+            "warning", "Account permanently deleted by the user.", login=login
         )
 
     def restore_mailbox_from_quarantine(self, email: str) -> None:
         MailAccountController().restore_from_quarantine(email)
-        UserActivityService().record("info", "Quarantaine de mailbox levée par l’utilisateur.", login=email)
+        UserActivityService().record("info", "Mailbox quarantine cleared by the user.", login=email)
 
     def delete_mailbox(self, email: str) -> None:
         MailAccountController().remove_email(email)
         UserActivityService().record(
-            "warning", "Mailbox supprimée définitivement par l’utilisateur.", login=email
+            "warning", "Mailbox permanently deleted by the user.", login=email
         )
 
     def safe_stop_bots(self, bots: list[Bot]):
@@ -381,17 +391,20 @@ class BotManager:
 
     def get_bot_by_account_id(self) -> dict[int, Bot]:
         bot_by_account_id: dict[int, Bot] = {}
-        for account in CryptoHelper.getStoredApiKeys():
-            account_id = account.apikey.accountId
-            bot_by_account_id[account_id] = BotFactory.create_bot(
-                shared_signals=self.shared_signals,
-                account=account,
-            )
+        with ExitStack() as cleanup:
+            for account in CryptoHelper.getStoredApiKeys():
+                account_id = account.apikey.accountId
+                bot_by_account_id[account_id] = BotFactory.create_bot(
+                    shared_signals=self.shared_signals,
+                    account=account,
+                )
+                cleanup.callback(self._cleanup_removed_bot, bot_by_account_id[account_id])
+            cleanup.pop_all()
         return bot_by_account_id
 
     def shutdown(self) -> None:
         activity = UserActivityService()
-        activity.record("info", "Arrêt de l’application demandé.")
+        activity.record("info", "Application shutdown requested.")
         try:
             if self._account_scheduler_started:
                 self.account_scheduler.stop()

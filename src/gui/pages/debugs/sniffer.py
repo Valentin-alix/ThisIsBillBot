@@ -154,9 +154,9 @@ class PinnedPairMessageBox(MessageBoxBase):
     ) -> None:
         super().__init__(parent=parent)
         self._valid_non_obf_msg_names = set(non_obf_msg_names)
-        self.title_label = SubtitleLabel(f"Paire épinglée pour {obf_msg_name}", parent=self)
+        self.title_label = SubtitleLabel(f"Pinned pair for {obf_msg_name}", parent=self)
         self.message_name_edit = LineEdit(self)
-        self.message_name_edit.setPlaceholderText("Nom du message non obfusqué")
+        self.message_name_edit.setPlaceholderText("Unobfuscated message name")
         self.message_name_edit.setMinimumWidth(420)
 
         completer = QCompleter(self)
@@ -166,7 +166,7 @@ class PinnedPairMessageBox(MessageBoxBase):
         self.message_name_edit.setCompleter(completer)
 
         cast(Any, self).yesButton.setText("Sauvegarder")
-        cast(Any, self).cancelButton.setText("Annuler")
+        cast(Any, self).cancelButton.setText("Cancel")
 
         self.viewLayout.addWidget(self.title_label)
         self.viewLayout.addWidget(self.message_name_edit)
@@ -226,17 +226,17 @@ class SnifferWidget(QWidget):
         top_content_layout = QHBoxLayout()
         top_content.setLayout(top_content_layout)
         top_content_layout.setContentsMargins(0, 0, 0, 0)
-        reset_btn = PrimaryPushButton(FluentIcon.DELETE, "Réinitialiser", top_content)
+        reset_btn = PrimaryPushButton(FluentIcon.DELETE, "Reset", top_content)
         reset_btn.clicked.connect(self.on_reset)
         top_content_layout.addWidget(reset_btn)
 
-        self.play_btn = PrimaryPushButton(FluentIcon.PLAY, "Lancer le sniffer", top_content)
+        self.play_btn = PrimaryPushButton(FluentIcon.PLAY, "Start sniffer", top_content)
         if self.is_playing:
             self.play_btn.hide()
         self.play_btn.clicked.connect(self.on_play)
         top_content_layout.addWidget(self.play_btn)
 
-        self.stop_btn = PrimaryPushButton(FluentIcon.PAUSE, "Arrêter le sniffer", top_content)
+        self.stop_btn = PrimaryPushButton(FluentIcon.PAUSE, "Stop sniffer", top_content)
         if not self.is_playing:
             self.stop_btn.hide()
         self.stop_btn.clicked.connect(self.on_stop)
@@ -318,7 +318,7 @@ class SnifferWidget(QWidget):
             )
             debug_pivot.addItem(
                 routeKey="listeners",
-                text="Écouteurs",
+                text="Listeners",
                 onClick=lambda: self._show_listeners_tab(debug_stacked, listeners_widget),
             )
             debug_pivot.setCurrentItem("logs")
@@ -357,7 +357,7 @@ class SnifferWidget(QWidget):
         layout = QVBoxLayout(empty_state)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(
-            SubtitleLabel("Sélectionnez un message pour voir son contenu", empty_state),
+            SubtitleLabel("Select a message to view its content", empty_state),
             alignment=Qt.AlignmentFlag.AlignCenter,
         )
         return empty_state
@@ -470,8 +470,8 @@ class SnifferWidget(QWidget):
         if message_pair is None:
             QMessageBox.warning(
                 self,
-                "Champs épinglés",
-                "Impossible de verrouiller les champs pour ce message.",
+                "Pinned fields",
+                "Unable to lock fields for this message.",
             )
             return
 
@@ -479,8 +479,8 @@ class SnifferWidget(QWidget):
         if fields is None:
             QMessageBox.warning(
                 self,
-                "Champs épinglés",
-                "Sélectionne un champ racine dans chaque tree.",
+                "Pinned fields",
+                "Select a root field in each tree.",
             )
             return
 
@@ -489,8 +489,8 @@ class SnifferWidget(QWidget):
         if resolved_message_pair is None:
             QMessageBox.warning(
                 self,
-                "Champs épinglés",
-                "Les champs selectionnes ne ciblent pas une paire de types compatible.",
+                "Pinned fields",
+                "The selected fields do not target a compatible type pair.",
             )
             return
 
@@ -504,8 +504,8 @@ class SnifferWidget(QWidget):
         non_obf_field_name = non_obf_field.path_label
         QMessageBox.information(
             self,
-            "Champs épinglés",
-            f"{obf_field_name} -> {non_obf_field_name} verrouillé.",
+            "Pinned fields",
+            f"{obf_field_name} -> {non_obf_field_name} locked.",
         )
 
     def _show_listeners_tab(

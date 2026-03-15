@@ -3,22 +3,22 @@ import threading
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from threading import Event
+from threading import Event, RLock
 from time import sleep
 
 import schedule
-
-SCHEDULE_RANDOM_MINUTES_MIN = 10
-SCHEDULE_RANDOM_MINUTES_MAX = 30
-from ankama_launcher_emulator.controller.schedule_profile import (
-    ScheduleProfileController,
-)
 from ankama_launcher_emulator.controller.bot_storage import (
     BotStorageController,
 )
-from src.services.background import run_in_background
+from ankama_launcher_emulator.controller.schedule_profile import (
+    ScheduleProfileController,
+)
 from ankama_launcher_emulator.interfaces.credentials import (
     StoredApiKey,
+)
+from ankama_launcher_emulator.interfaces.schedule_profile import (
+    SCHEDULE_RANDOM_MINUTES_MAX,
+    SCHEDULE_RANDOM_MINUTES_MIN,
 )
 
 from src.controller.bot_config import BotConfig
@@ -29,6 +29,7 @@ from src.core.signals.bot_signals import BotSignals
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.message_signals import MessageInfoSignals
 from src.core.signals.shared_farm_signals import SharedSignals
+from src.services.background import run_in_background
 from src.services.logging_utils.contextual_logger import ContextualLogger
 from src.services.user_activity import UserActivityService
 
@@ -63,30 +64,55 @@ class BotScheduler(ContextualLogger):
     on_session_finished: Callable[[], None]
 
     _scheduled_jobs: list[schedule.Job] = field(init=False, default_factory=list[schedule.Job])
+    _configuration_lock: RLock = field(init=False, default_factory=RLock, repr=False, compare=False)
+    _configuration_refresh_pending: bool = field(init=False, default=False)
     _randomized_slots_by_day: dict[int, list[RandomizedSlot]] = field(
         init=False, default_factory=dict[int, list[RandomizedSlot]]
     )
 
     def start(self) -> None:
-        if self._is_quarantined():
-            return
-        config = self.get_bot_config()
-        if config is None or config.schedule_profile is None:
-            return
+        with self._configuration_lock:
+            if self._is_quarantined():
+                return
+            config = self.get_bot_config()
+            if config is None or config.schedule_profile is None:
+                return
 
-        self._schedule_profile_jobs(config.schedule_profile)
+            self._schedule_profile_jobs(config.schedule_profile)
 
-        now = datetime.now()
-        if self.is_in_randomized_playtime(now):
-            self._start_current_session(now)
-            UserActivityService().record(
-                "info", "Démarrage automatique dans le créneau planifié en cours.", login=self.account.apikey.login
-            )
-            self.bot_signals.play.emit(False)
-            self.shared_signals.launch_account.emit(self.account.apikey.login)
+            now = datetime.now()
+            if self.is_in_randomized_playtime(now):
+                self._start_current_session(now)
+                UserActivityService().record(
+                    "info", "Automatic startup within the current scheduled time slot.", login=self.account.apikey.login
+                )
+                self.bot_signals.play.emit(False)
+                self.shared_signals.launch_account.emit(self.account.apikey.login)
 
     def stop(self) -> None:
-        self._clear_scheduled_jobs()
+        with self._configuration_lock:
+            self._configuration_refresh_pending = False
+            self._clear_scheduled_jobs()
+
+    def request_configuration_refresh(self) -> None:
+        with self._configuration_lock:
+            self._configuration_refresh_pending = True
+            self.apply_pending_configuration()
+
+    def apply_pending_configuration(self) -> None:
+        with self._configuration_lock:
+            if self._configuration_refresh_pending and not self.is_playing_event.is_set():
+                self.refresh_configuration()
+                self._configuration_refresh_pending = False
+
+    def refresh_configuration(self) -> None:
+        with self._configuration_lock:
+            if self.is_playing_event.is_set():
+                return
+            self._clear_scheduled_jobs()
+            config = self.get_bot_config()
+            if config is not None and config.schedule_profile is not None and not self._is_quarantined():
+                self._schedule_profile_jobs(config.schedule_profile)
 
     def disconnect_now(self) -> None:
         run_in_background(self._manual_disconnect_bot_task)
@@ -126,7 +152,7 @@ class BotScheduler(ContextualLogger):
                 )
                 UserActivityService().record(
                     "info",
-                    f"Créneau effectif : {start_time}–{end_time} (profil {profile_id}).",
+                    f"Effective time slot: {start_time}–{end_time} (profile {profile_id}).",
                     login=self.account.apikey.login,
                 )
 
@@ -144,15 +170,16 @@ class BotScheduler(ContextualLogger):
                 )
                 self._scheduled_jobs.append(end_job)
 
-        midnight_job = (
-            schedule.every().day.at("00:00").do(lambda: self._reschedule_with_new_random_times(profile_id))
-        )
+        midnight_job = schedule.every().day.at("00:00").do(self._reschedule_with_new_random_times)
         self._scheduled_jobs.append(midnight_job)
 
-    def _reschedule_with_new_random_times(self, profile_id: str) -> None:
-        self.logger.info("Midnight reschedule: generating new random times")
-        self._clear_scheduled_jobs()
-        self._schedule_profile_jobs(profile_id)
+    def _reschedule_with_new_random_times(self) -> None:
+        with self._configuration_lock:
+            if self.is_playing_event.is_set():
+                self._configuration_refresh_pending = True
+                return
+            self.logger.info("Midnight reschedule: generating new random times")
+            self.refresh_configuration()
 
     def is_in_randomized_playtime(self, now: datetime) -> bool | None:
         if not self._randomized_slots_by_day:
@@ -198,7 +225,7 @@ class BotScheduler(ContextualLogger):
     def stop_scheduled_runtime(self) -> None:
         self.logger.info("Stopping bot")
         UserActivityService().record(
-            "info", "Arrêt automatique de fin de créneau.", login=self.account.apikey.login
+            "info", "Automatic stop at the end of the time slot.", login=self.account.apikey.login
         )
         runtime_is_active = (
             self.is_playing_event.is_set()
@@ -257,7 +284,7 @@ class BotScheduler(ContextualLogger):
             return False
         self.logger.warning("Bot is quarantined: %s", record.quarantine_reason)
         UserActivityService().record(
-            "warning", f"Bot en quarantaine : {record.quarantine_reason}.", login=self.account.apikey.login
+            "warning", f"Bot quarantined: {record.quarantine_reason}.", login=self.account.apikey.login
         )
         return True
 

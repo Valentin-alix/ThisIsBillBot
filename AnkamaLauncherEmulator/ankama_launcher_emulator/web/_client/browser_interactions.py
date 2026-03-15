@@ -56,12 +56,8 @@ async def human_wait(*, min_seconds: float, max_seconds: float) -> None:
     await sleep(random.uniform(min_seconds, max_seconds))
 
 
-async def human_click_locator(locator: Locator) -> None:
-    await locator.click()
-
-
 async def human_click_selector(page: Page, selector: str) -> None:
-    await human_click_locator(page.locator(selector).first)
+    await page.locator(selector).first.click()
 
 
 async def human_type_locator(locator: Locator, text: str) -> None:

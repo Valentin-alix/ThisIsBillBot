@@ -152,18 +152,18 @@ class MessageDetailWidget(QWidget):
         self.quit_btn = TransparentToolButton(FluentIcon.CLOSE, top_bar)
         top_bar_layout.addWidget(self.quit_btn)
 
-        self.lock_pinned_fields_btn = PrimaryPushButton(FluentIcon.PIN, "Verrouiller les champs épinglés", top_bar)
+        self.lock_pinned_fields_btn = PrimaryPushButton(FluentIcon.PIN, "Lock pinned fields", top_bar)
         top_bar_layout.addWidget(self.lock_pinned_fields_btn)
 
         self.show_absent_fields_btn = TransparentToolButton(FluentIcon.VIEW, top_bar)
         self.show_absent_fields_btn.setCheckable(True)
-        self.show_absent_fields_btn.setToolTip("Afficher les champs absents")
+        self.show_absent_fields_btn.setToolTip("Show missing fields")
         self.show_absent_fields_btn.installEventFilter(ToolTipFilter(self.show_absent_fields_btn, 0))
         self.show_absent_fields_btn.clicked.connect(self._on_show_absent_fields_clicked)
         top_bar_layout.addWidget(self.show_absent_fields_btn)
 
         self.search_bar = LineEdit(top_bar)
-        self.search_bar.setPlaceholderText("Rechercher dans le contenu...")
+        self.search_bar.setPlaceholderText("Search content...")
         self.search_bar.setClearButtonEnabled(True)
         self.search_bar.textChanged.connect(self._on_search_text_changed)
         top_bar_layout.addWidget(self.search_bar)
@@ -177,7 +177,7 @@ class MessageDetailWidget(QWidget):
         decoded_layout = QVBoxLayout(decoded_panel)
         decoded_layout.setContentsMargins(0, 0, 0, 0)
         decoded_layout.setSpacing(0)
-        decoded_label = CaptionLabel("Désobfusqué", decoded_panel)
+        decoded_label = CaptionLabel("Unobfuscated", decoded_panel)
         decoded_label.setContentsMargins(32, 0, 0, 0)
         decoded_layout.addWidget(decoded_label)
         self.dynamic_tree = DynamicTreeWidget(decoded_panel)
@@ -189,7 +189,7 @@ class MessageDetailWidget(QWidget):
         obfuscated_layout = QVBoxLayout(obfuscated_panel)
         obfuscated_layout.setContentsMargins(0, 0, 0, 0)
         obfuscated_layout.setSpacing(0)
-        obfuscated_label = CaptionLabel("Obfusqué", obfuscated_panel)
+        obfuscated_label = CaptionLabel("Obfuscated", obfuscated_panel)
         obfuscated_label.setContentsMargins(32, 0, 0, 0)
         obfuscated_layout.addWidget(obfuscated_label)
         self.obf_dynamic_tree = DynamicTreeWidget(obfuscated_panel)
@@ -243,10 +243,10 @@ class MessageDetailWidget(QWidget):
     def _on_show_absent_fields_clicked(self) -> None:
         if self.show_absent_fields_btn.isChecked():
             cast(Any, self.show_absent_fields_btn).setIcon(FluentIcon.HIDE)
-            self.show_absent_fields_btn.setToolTip("Masquer les champs absents")
+            self.show_absent_fields_btn.setToolTip("Hide missing fields")
         else:
             cast(Any, self.show_absent_fields_btn).setIcon(FluentIcon.VIEW)
-            self.show_absent_fields_btn.setToolTip("Afficher les champs absents")
+            self.show_absent_fields_btn.setToolTip("Show missing fields")
         self._render_content()
 
     def selected_pinned_fields(

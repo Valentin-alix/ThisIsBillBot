@@ -16,10 +16,10 @@ Bot sessions are stored in `resources/debug/bots/<login>/*.debug.jsonl`; complet
 - For intermittent or performance symptoms, compare several recent sessions when available. Do not silently generalize from one occurrence.
 - Parse JSONL structurally, including gzip input. Preserve timestamps, category, behavior tree, message direction, and message source. Avoid dumping entire message bodies or snapshots when a few relevant fields suffice.
 
-Entries are chronological and use `categorie` values:
+Entries are chronological and use `category` values:
 
-- `log`: `niveau`, `message`
-- `message`: clear/obfuscated type and content, `origine`, `source`
+- `log`: `level`, `message`
+- `message`: clear/obfuscated type and content, `origin`, `source`
 - `behavior`: lifecycle event, state transition, error code, reason, parent, tree
 - `state`: behavior boundary snapshot and trigger
 - `stuck`: duration without progress, behavior tree, listeners, snapshot, last message

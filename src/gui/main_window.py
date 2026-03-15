@@ -1,7 +1,11 @@
 import logging
+from collections.abc import Callable
 from functools import partial
 from typing import Literal, cast
 
+from ankama_launcher_emulator.controller.bot_storage import (
+    BotStorageController,
+)
 from PyQt6.QtCore import QSize, Qt, QTimer, QUrl
 from PyQt6.QtGui import QCloseEvent, QColor, QIcon, QPixmap, QResizeEvent
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
@@ -12,9 +16,6 @@ from qfluentwidgets import (
     SplashScreen,
 )
 
-from ankama_launcher_emulator.controller.bot_storage import (
-    BotStorageController,
-)
 from src.consts import LOGO_FILE
 from src.controller.bot_config import BotConfigService
 from src.controller.player_info_storage import PlayerInfoSnapshot, PlayerInfoStorage
@@ -22,12 +23,14 @@ from src.core import config
 from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.shared_farm_signals import SharedSignals
+from src.gui.components.manual_confirmation import ManualConfirmationDialogs
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
 from src.gui.fragments.account_quick_info import AccountQuickInfoWidget
 from src.gui.fragments.account_stacked_widget import AccountStackedWidget
 from src.gui.fragments.app_fluent_window import AppFluentWindow
 from src.gui.fragments.sidebar_item import SidebarItem
 from src.gui.pages.activity import ActivityPage
+from src.gui.pages.settings.settings_page import SettingsPage
 from src.services.background import run_in_background
 from src.services.logging_utils.loggers import init_root_gui_logging
 
@@ -103,11 +106,33 @@ class MainWindow(AppFluentWindow):
         self.navigationInterface.addItem(
             routeKey=self.activity_page.objectName(),
             icon=FluentIcon.HISTORY,  # type: ignore
-            text="Activité",
+            text="Activity",
             onClick=lambda: self.switchTo(self.activity_page),
             position=NavigationItemPosition.TOP,
         )
         self.navigationInterface.setCurrentItem(self.activity_page.objectName())
+        self.settings_page = SettingsPage(self)
+        self.stackedWidget.addWidget(self.settings_page)
+        self.navigationInterface.addItem(
+            routeKey="settings",
+            icon=FluentIcon.SETTING,  # type: ignore
+            text="Settings",
+            onClick=lambda: self.switchTo(self.settings_page),
+            position=NavigationItemPosition.BOTTOM,
+        )
+        self.settings_page.schedules_changed.connect(self._refresh_schedules)
+        self.confirmation_dialogs = ManualConfirmationDialogs(self)
+
+    def _refresh_schedules(self) -> None:
+        if not BotConfigService.use_bot_config_json:
+            return
+        bots = list(self.bots_by_login.values())
+
+        def refresh(_progress: Callable[[str], None]) -> None:
+            for bot in bots:
+                bot.scheduler.request_configuration_refresh()
+
+        run_in_background(refresh)
 
     def set_startup_status(self, status: str) -> None:
         self.setWindowTitle(f"{self.title} — {status}")
@@ -347,6 +372,7 @@ class MainWindow(AppFluentWindow):
             return
 
         self._close_requested = True
+        self.confirmation_dialogs.shutdown()
         self.setEnabled(False)
         self.shared_signals.closed.emit()
 

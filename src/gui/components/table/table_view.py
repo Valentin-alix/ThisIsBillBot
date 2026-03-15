@@ -136,6 +136,9 @@ class CustomTableView(TableView):
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.scrollDelagate.verticalSmoothScroll.setSmoothMode(SmoothMode.NO_SMOOTH)
+        self.scrollDelagate.horizonSmoothScroll.setSmoothMode(SmoothMode.NO_SMOOTH)
+        self.scrollDelagate.vScrollBar.setScrollAnimation(0)
+        self.scrollDelagate.hScrollBar.setScrollAnimation(0)
 
         self.setWordWrap(False)
         self.setAlternatingRowColors(False)

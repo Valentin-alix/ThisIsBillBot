@@ -63,7 +63,7 @@ class CraftBehavior(RecoverableBehavior):
         self.ensure_free_to_act(lambda: self.start_crafting(craft_requests=craft_requests))
 
     def start_crafting(self, craft_requests: list[CraftRequest]) -> None:
-        """Regle int : quantite sans banque ; callable : filtre ; None : epuiser les ingredients."""
+        """Int rule: quantity without bank; callable: filter; None: exhaust ingredients."""
         self._activity_performed = False
         valid_recipe_ids = {
             recipe.resultId

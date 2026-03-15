@@ -37,7 +37,7 @@ class QuestState(State):
         return quest_id in self.active_quest_by_id
 
     def is_objective_reached(self, quest_id: int, objective_id: int) -> bool:
-        """Le serveur marque les objectifs faits par False ; True ou une absence signifie non termine."""
+        """The server marks completed objectives as False; True or absence means incomplete."""
         objective = self._find_objective(quest_id, objective_id)
         return objective is not None and not objective.objective_reached
 

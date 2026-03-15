@@ -69,7 +69,6 @@ class GameSessionBehavior(Behavior):
 
     _fight_sequence_depth: int = field(init=False, default=0)
     _turn_ready_pending: bool = field(init=False, default=False)
-    _player_status_sent: bool = field(init=False, default=False)
 
     def run(self) -> None:
         self._verification_secret = (
@@ -79,7 +78,6 @@ class GameSessionBehavior(Behavior):
         self._sequence_number = 1
         self._fight_sequence_depth = 0
         self._turn_ready_pending = False
-        self._player_status_sent = False
 
         self.event_manager.on(ServerVerificationEvent, self._on_server_verification, originator=self)
         self.event_manager.on(ServerChallengeEvent, self._on_server_challenge, originator=self)

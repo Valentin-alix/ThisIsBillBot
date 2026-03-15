@@ -13,46 +13,8 @@ from src.controller.game_data import GameDataController
 from src.core.engine.contexts import HarvesterAreaContext
 from src.core.engine.weights.harvester.weight_collectable import (
     get_weight_collectable,
-    get_map_id_collectable_weight,
 )
 from src.services.logging_utils.loggers import BotLogger
-
-
-def get_weight_harvester_area(
-    job_lvl_by_id: dict[int, int],
-    area_id: int,
-    is_sub: bool,
-    storage_by_gid: dict[int, ObjectItemInventory],
-    server_id: int = 1,
-):
-    return sum(
-        [
-            get_weight_harvester_sub_area(
-                job_lvl_by_id,
-                storage_by_gid,
-                sub_area_id,
-                is_sub,
-                server_id,
-            )
-            for sub_area_id in DataReader().sub_areas_by_area_id[area_id]
-        ]
-    )
-
-
-def get_weight_harvester_sub_area(
-    job_lvl_by_id: dict[int, int],
-    storage_by_gid: dict[int, ObjectItemInventory],
-    sub_area_id: int,
-    is_sub: bool,
-    server_id: int = 1,
-):
-    weight: float = 0
-    for map_id in DataReader().map_ids_by_sub_area_id[sub_area_id]:
-        weight += get_map_id_collectable_weight(map_id, job_lvl_by_id, storage_by_gid, is_sub, server_id)
-    count_map = len(DataReader().map_ids_by_sub_area_id[sub_area_id])
-    if count_map == 0:
-        return 0
-    return int(weight / count_map)
 
 
 def get_fast_weight_harvester_sub_area(

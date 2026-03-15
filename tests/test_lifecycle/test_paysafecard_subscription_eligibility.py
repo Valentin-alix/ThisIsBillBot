@@ -121,15 +121,15 @@ def test_paysafecard_profile_blocks_a_missing_or_ineligible_snapshot(
     assert not eligibility.is_eligible("A", "buyer", 31, 15_000)
 
 
-def test_paysafecard_subscription_requires_an_eligible_complete_profile(runtime_bot: Bot) -> None:
+def test_paysafecard_subscription_requires_an_eligible_complete_profile(runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch) -> None:
     _set_paysafecard_requirements(runtime_bot)
     handler = runtime_bot.connection_handler
     handler.get_bot_config = Mock(return_value=BotConfig(schedule_profile="A"))
-    handler.subscription_storage.get_subscribe_info = Mock(
+    monkeypatch.setattr(handler.subscription_storage, "get_subscribe_info", Mock(
         return_value=SubscribeInfo(is_subscribe=False, end_of_subscribe=None)
-    )
-    handler.paysafecard_purchase_storage.load_purchase = Mock(return_value=None)
-    handler.paysafecard_pool.load = Mock(return_value=["pin"])
+    ))
+    monkeypatch.setattr(handler.paysafecard_purchase_storage, "load_purchase", Mock(return_value=None))
+    monkeypatch.setattr(handler.paysafecard_pool, "load", Mock(return_value=["pin"]))
     handler.profile_subscription_eligibility.is_eligible = Mock(return_value=False)
 
     assert not handler._should_subscribe_with_paysafe_card()

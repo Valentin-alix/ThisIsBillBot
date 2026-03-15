@@ -4,7 +4,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from threading import Thread
 
-from psutil import AccessDenied, NoSuchProcess, process_iter
+from psutil import CONN_LISTEN, NoSuchProcess, Process, net_connections
+
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 from thrift.transport import TSocket, TTransport
@@ -32,35 +33,46 @@ from ankama_launcher_emulator.server.handler import (
 logger = logging.getLogger()
 
 
+class _BoundServerSocket(TSocket.TServerSocket):
+    def listen(self) -> None:
+        # Thrift calls listen again in serve(); bind before starting that thread.
+        if self.handle is None:
+            super().listen()
+
+
 @dataclass
 class AnkamaLauncherServer:
     handler: AnkamaLauncherHandler
     instance_id: int = field(init=False, default=0)
-    _server_thread: Thread | None = None
-    _dofus_threads: list[Thread] = field(init=False, default_factory=lambda: [])
 
     def start(self) -> None:
-        for proc in process_iter():
-            if proc.pid == 0:
-                continue
+        owners = {
+            connection.pid
+            for connection in net_connections(kind="tcp")
+            if connection.status == CONN_LISTEN
+            and connection.laddr
+            and connection.laddr.port == LAUNCHER_PORT
+            and connection.pid is not None
+        }
+        for pid in owners:
             try:
-                connections = proc.net_connections(kind="inet")
-            except (AccessDenied, NoSuchProcess):
-                continue
-            for connection in connections:
-                if connection.laddr.port == LAUNCHER_PORT:
-                    try:
-                        proc.terminate()
-                    except (AccessDenied, NoSuchProcess):
-                        pass
+                process = Process(pid)
+                process.kill()
+                process.wait(timeout=5)
+            except NoSuchProcess:
+                pass
 
-        processor = ZaapService.Processor(self.handler)
-        transport = TSocket.TServerSocket(host="0.0.0.0", port=LAUNCHER_PORT)
-        tfactory = TTransport.TBufferedTransportFactory()
-        pfactory = TBinaryProtocol.TBinaryProtocolFactory()
-        server = TServer.TThreadedServer(processor, transport, tfactory, pfactory)
-        Thread(target=server.serve, daemon=True).start()
-        logger.info(f"Thrift server listening on port {LAUNCHER_PORT}")
+        transport = _BoundServerSocket(host="0.0.0.0", port=LAUNCHER_PORT)
+        transport.listen()
+        server = TServer.TThreadedServer(
+            ZaapService.Processor(self.handler),
+            transport,
+            TTransport.TBufferedTransportFactory(),
+            TBinaryProtocol.TBinaryProtocolFactory(),
+            daemon=True,
+        )
+        Thread(target=server.serve, name="launcher-server", daemon=True).start()
+        logger.info("Thrift server listening on port %s", LAUNCHER_PORT)
 
     def launch_dofus(
         self,

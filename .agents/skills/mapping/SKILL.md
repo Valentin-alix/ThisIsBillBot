@@ -12,12 +12,12 @@ bug blocks the bot.
 
 Debug logs live at `resources/debug/bots/<login>/*.debug.jsonl` (repo root, see
 `src/consts.py:BOT_DEBUG_LOGS_DIR`; older sessions are gzip'd: `*.debug.jsonl.gz`). One JSONL
-entry per line, `categorie` in `log|message|behavior|state|stuck`. Message entries carry both
+entry per line, `category` in `log|message|behavior|state|stuck`. Message entries carry both
 sides of the mapping:
 
 ```json
-{"categorie": "message", "type_non_obfusque": "...", "type_obfusque": "...",
- "contenu_obfusque": {...}, "contenu_non_obfusque": {...}}
+{"category": "message", "unobfuscated_type": "...", "obfuscated_type": "...",
+ "obfuscated_content": {...}, "unobfuscated_content": {...}}
 ```
 
 Pick the most recent `*.debug.jsonl` across all logins (by mtime) unless the user names an
@@ -27,8 +27,8 @@ account.
 
 Grep/parse the JSONL for:
 
-- `type_non_obfusque` containing `Unknown` → message never mapped.
-- `contenu_non_obfusque` is `null`/empty while `contenu_obfusque` has data → decode/field mapping
+- `unobfuscated_type` containing `Unknown` → message never mapped.
+- `unobfuscated_content` is `null`/empty while `obfuscated_content` has data → decode/field mapping
   failure.
 - Non-obf field keys named `unknown_<n>` holding non-default values → unmapped field.
 - A `stuck` entry whose `last_message`/`snapshot` references one of the above → the gap is

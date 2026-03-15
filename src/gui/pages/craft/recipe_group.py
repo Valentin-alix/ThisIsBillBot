@@ -97,9 +97,9 @@ class RecipeGroup(QWidget):
         empty_state = QWidget(self.recipe_results)
         empty_state_layout = QVBoxLayout(empty_state)
         empty_state_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.empty_state_title = BodyLabel("Recherchez une recette à craft", empty_state)
+        self.empty_state_title = BodyLabel("Search for a recipe to craft", empty_state)
         self.empty_state_description = CaptionLabel(
-            "Disponible pour : Bûcheron, Mineur, Alchimiste, Paysan, Pêcheur et Chasseur.",
+            "Available for: Lumberjack, Miner, Alchemist, Farmer, Fisherman, and Hunter.",
             empty_state,
         )
         empty_state_layout.addWidget(self.empty_state_title, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -108,7 +108,7 @@ class RecipeGroup(QWidget):
         layout.addWidget(self.recipe_results)
 
         self.search_edit = LineEdit(self)
-        self.search_edit.setPlaceholderText("Rechercher une recette craftable")
+        self.search_edit.setPlaceholderText("Search for a craftable recipe")
         self.search_edit.textChanged.connect(self._on_search_changed)
         layout.addWidget(self.search_edit)
         self._update_result_view()
@@ -128,15 +128,15 @@ class RecipeGroup(QWidget):
     def _update_result_view(self) -> None:
         query = self.search_edit.text()
         if len(query) < 3:
-            self.empty_state_title.setText("Recherchez une recette à craft")
+            self.empty_state_title.setText("Search for a recipe to craft")
             self.empty_state_description.setText(
-                "Disponible pour : Bûcheron, Mineur, Alchimiste, Paysan, Pêcheur et Chasseur. "
-                "Saisissez au moins 3 caractères."
+                "Available for: Lumberjack, Miner, Alchemist, Farmer, Fisherman, and Hunter. "
+                "Enter at least 3 characters."
             )
             self.recipe_results.setCurrentIndex(1)
         elif self.proxy_model.rowCount() == 0:
-            self.empty_state_title.setText("Aucune recette trouvée")
-            self.empty_state_description.setText("Essayez un autre nom parmi les métiers pris en charge.")
+            self.empty_state_title.setText("No recipe found")
+            self.empty_state_description.setText("Try another name from the supported professions.")
             self.recipe_results.setCurrentIndex(1)
         else:
             self.recipe_results.setCurrentWidget(self.list_view)

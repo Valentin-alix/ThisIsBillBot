@@ -60,7 +60,7 @@ class Frame(ContextualLogger):
             self._timers.clear()
 
     def unregister_listener(self, event_type: type[Message], reason: str = "") -> None:
-        """Retirer un listener pendant l'execution ; la fin du comportement les nettoie deja tous."""
+        """Remove a listener during execution; behavior completion already clears all listeners."""
         if reason:
             self.logger.debug(f"Manual listener cleanup: {event_type.__name__} - {reason}")
         self.event_manager.clear_listener_by_origin_and_type(event_type, self)

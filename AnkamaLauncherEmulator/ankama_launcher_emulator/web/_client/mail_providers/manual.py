@@ -7,6 +7,7 @@ import threading
 import time
 from datetime import datetime
 from html import unescape
+from src.services.manual_confirmation import manual_confirmation
 
 from ankama_launcher_emulator.web._client.mail_providers.base import (
     MailCodeProvider,
@@ -82,7 +83,7 @@ class ManualCodeInput:
                 continue
             code = extract_confirmation_code(stripped)
             if code is None:
-                logger.info("[Mailbox] Ignored manual input %r (expected 6 digits).", stripped)
+                logger.info("[Mailbox] Ignored manual input (expected 6 digits).")
                 continue
             self._codes.put(code)
         with self._lock:
@@ -108,7 +109,27 @@ async def wait_for_code_with_manual_fallback(
     *,
     since: datetime,
     timeout_seconds: int,
+    email: str = "",
 ) -> str | None:
+    if manual_confirmation.enabled:
+        manual_task = asyncio.create_task(manual_confirmation.wait(email, timeout_seconds))
+        tasks = {manual_task}
+        if provider is not None:
+            tasks.add(asyncio.create_task(provider.wait_for_code(since=since, timeout_seconds=timeout_seconds)))
+        try:
+            while True:
+                done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+                if manual_task in done:
+                    return manual_task.result()
+                for task in done:
+                    code = task.result()
+                    if code is not None:
+                        return code
+                    tasks.remove(task)
+        finally:
+            for task in tasks:
+                task.cancel()
+            await asyncio.gather(*tasks, return_exceptions=True)
     deadline = time.monotonic() + timeout_seconds
     manual = ManualCodeInput.start()
     if manual is not None:

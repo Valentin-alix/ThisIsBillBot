@@ -4,6 +4,7 @@ __pycache__/
 *.pclprof
 .venv/
 env/
+*.log
 venv/
 .ruff_cache/
 .pytest_cache/
@@ -46,6 +47,8 @@ bid_seller_item_by_uid_by_player_id.json
 farm_stats.json
 
 # Local launcher configuration and state
+resources/settings.json
+resources/settings.json.lock
 AnkamaLauncherEmulator/LauncherSourceCode/
 AnkamaLauncherEmulator/resources/bots.local.json.lock
 AnkamaLauncherEmulator/resources/mail_accounts.json.lock

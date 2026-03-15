@@ -1,4 +1,5 @@
 import os
+import re
 from threading import Lock
 
 from utils.singleton import Singleton
@@ -29,6 +30,14 @@ class PaysafecardPoolController(metaclass=Singleton):
                 if not pins:
                     raise ValueError("No Paysafecard PIN is available")
                 return pins[0]
+
+    def add_pins(self, pins: list[str]) -> None:
+        normalized = [re.sub(r"[\s-]", "", pin) for pin in pins if pin.strip()]
+        if not normalized or any(not re.fullmatch(r"[0-9]{16}", pin) for pin in normalized):
+            raise ValueError("Enter 16-digit Paysafecard codes, one per line.")
+        with self._lock, acquire_file_lock(PAYSAFECARDS_PATH):
+            existing = self._load_unlocked()
+            self._write_unlocked(list(dict.fromkeys([*existing, *normalized])))
 
     def remove_pin(self, pin: str) -> None:
         with self._lock:

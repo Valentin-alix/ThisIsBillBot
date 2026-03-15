@@ -3,11 +3,13 @@ import threading
 from collections.abc import Callable
 from time import perf_counter
 from typing import Final, ParamSpec, TypeVar
+from src.utils.project_paths import IS_PACKAGED
+from utils.env_config import get_bool_from_env
 
 P = ParamSpec("P")
 R = TypeVar("R")
 
-PROFILING_ENABLED: Final = False
+PROFILING_ENABLED: Final = not IS_PACKAGED and get_bool_from_env("PROFILING_ENABLED")
 
 
 def profiled_slot(func: Callable[P, R], threshold_ms: int = 1) -> Callable[P, R]:

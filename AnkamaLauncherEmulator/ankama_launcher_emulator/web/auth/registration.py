@@ -9,7 +9,8 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv
 from playwright.async_api import Page, Response
 
-from ankama_launcher_emulator.consts import ENV_PATH, SONJI_API_KEY
+from ankama_launcher_emulator.consts import ENV_PATH
+from src.controller.settings import SettingsService
 from ankama_launcher_emulator.controller.bot_storage import (
     BotStorageController,
 )
@@ -128,7 +129,7 @@ async def register_account(
                     current_options.email,
                 )
                 MailAccountController().quarantine(
-                    current_options.email, "Adresse déjà liée à un compte Ankama"
+                    current_options.email, "Address already linked to an Ankama account"
                 )
                 discarded_email = current_options.email
                 rejected_mailbox_count += 1
@@ -168,7 +169,7 @@ async def register_account(
             )
             mailbox_discarded = _is_discardable_email_error(result) and current_options.email != discarded_email
             if mailbox_discarded:
-                MailAccountController().quarantine(current_options.email, "Inscription refusée par Ankama")
+                MailAccountController().quarantine(current_options.email, "Registration rejected by Ankama")
             logger.error(
                 "[Register] Registration failed for %s after %d rejected mailbox(es)%s: %s",
                 current_options.email,
@@ -190,7 +191,7 @@ async def register_account(
             )
         except Exception as exc:
             if is_waf_or_cloudfront_block(status_code=None, content=str(exc)):
-                MailAccountController().quarantine(current_options.email, "Blocage WAF/CloudFront confirmé")
+                MailAccountController().quarantine(current_options.email, "Confirmed WAF/CloudFront block")
                 logger.error(
                     "[Register] WAF/CloudFront blocked %s after %d rejected mailbox(es); mailbox discarded.",
                     current_options.email,
@@ -361,6 +362,7 @@ async def _handle_confirmation_code(
             options.mail_provider,
             since=started_at,
             timeout_seconds=options.confirmation_timeout_seconds,
+            email=options.email,
         )
         if code is None:
             logger.debug("[Register] Mailbox did not provide a confirmation code before its deadline.")
@@ -405,7 +407,7 @@ async def _handle_confirmation_code(
                 result.waf_blocked,
             )
         if isinstance(exception, MailboxCodeTimeoutError):
-            MailAccountController().quarantine(options.email, "Délai dépassé pour le code de confirmation")
+            MailAccountController().quarantine(options.email, "Confirmation code timed out")
             raise exception
     results = [task.result() for task in done if not task.cancelled()]
     return next((result for result in results if result.accepted), _ConfirmationCodeResult(accepted=False))
@@ -578,9 +580,10 @@ def _next_email_to_register() -> str | None:
     email = MailAccountController().peek_next_available_email()
     if email is not None:
         return email
-    if SONJI_API_KEY is None:
+    api_key = SettingsService().sonji_api_key()
+    if api_key is None:
         return None
-    return MailAccountController().provision_smailpro_email(SONJI_API_KEY)
+    return MailAccountController().provision_smailpro_email(api_key)
 
 
 async def register_next_available_email(

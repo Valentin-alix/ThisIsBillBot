@@ -41,6 +41,7 @@ from src.core.signals.player_signals import GameInfoSignals, InventorySignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.signals.world_signals import WorldSignals
 from src.core.states.game_state import GameState
+from src.services.background import run_in_background
 from src.services.debug_recorder import DebugRecorder
 from src.services.logging_utils.contextual_logger import ContextualLogger
 
@@ -173,6 +174,7 @@ class Bot(ContextualLogger):
         self.bot_signals.play.connect(self.behavior_coordinator.on_play)
         self.bot_signals.stop.connect(self.behavior_coordinator.on_stop)
         self.bot_signals.stop.connect(self.connection_handler.cleanup)
+        self.bot_signals.stop.connect(self._apply_pending_schedule)
         self.bot_signals.disconnect_runtime.connect(self.scheduler.disconnect_now)
         self.game_info_signals.is_ready_to_play.connect(self.connection_handler.on_ready_to_play)
         self.bot_signals.play_harvester.connect(self.behavior_coordinator.on_play_harvester)
@@ -183,6 +185,9 @@ class Bot(ContextualLogger):
 
     def start(self):
         self.scheduler.start()
+
+    def _apply_pending_schedule(self) -> None:
+        run_in_background(lambda _: self.scheduler.apply_pending_configuration())
 
     def cancel_frame_timers(self) -> None:
         for frame in self.frames:

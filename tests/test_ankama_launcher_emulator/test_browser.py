@@ -11,6 +11,29 @@ from ankama_launcher_emulator.web._client import (
 
 
 class TestLaunchBrowserContext(IsolatedAsyncioTestCase):
+    async def test_missing_browser_is_actionable(self) -> None:
+        playwright, _, _, playwright_context = _browser_launch_fakes()
+        playwright.chromium.launch.side_effect = browser_module.Error("Executable doesn't exist")
+        with (
+            patch.object(browser_module, "async_playwright", return_value=playwright_context),
+            patch.object(browser_module, "DEBUG", False),
+        ):
+            with self.assertRaisesRegex(browser_module.RuntimeSetupError, "Playwright Chromium"):
+                async with browser_module.launch_browser_context(proxy_url=None):
+                    self.fail("Missing browser must prevent web operations")
+
+    async def test_context_failure_closes_browser(self) -> None:
+        _, browser, _, playwright_context = _browser_launch_fakes()
+        browser.new_context.side_effect = browser_module.Error("context failed")
+        with (
+            patch.object(browser_module, "async_playwright", return_value=playwright_context),
+            patch.object(browser_module, "DEBUG", False),
+        ):
+            with self.assertRaisesRegex(browser_module.Error, "context failed"):
+                async with browser_module.launch_browser_context(proxy_url=None):
+                    self.fail("Context creation must fail")
+        browser.close.assert_awaited_once()
+
     async def test_uses_browser_configuration(self) -> None:
         playwright, browser, context, playwright_context = _browser_launch_fakes()
         trace_directory = Path("debug/traces/20260829_120000_000000")
@@ -59,6 +82,7 @@ class TestLaunchBrowserContext(IsolatedAsyncioTestCase):
 
         trace_directory.assert_not_called()
         playwright.chromium.launch.assert_awaited_once_with(
+            traces_dir=None,
             channel="chromium",
             args=browser_module.BROWSER_ARGS,
             proxy=None,

@@ -61,7 +61,7 @@ class InventoryTab(QWidget):
         self.list_widget.setStyleSheet("QListWidget { background-color: transparent; border: none; }")
 
         self.weight_label = BodyLabel(text="Poids : 0/0", parent=self)
-        self.loading_label = CaptionLabel(text="Chargement de l’inventaire…", parent=self)
+        self.loading_label = CaptionLabel(text="Loading inventory…", parent=self)
         self.loading_label.hide()
         bottom_layout = QHBoxLayout()
         bottom_layout.addWidget(self.weight_label)

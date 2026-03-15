@@ -6,7 +6,7 @@ from DBDofusUnity.dofus_unity_reader.game_constants.item import (
     ItemTypeEnum,
 )
 from src.core import config
-from src.core.config import DO_USE_GUILD_CHEST
+from src.core.config import BehaviorSettings
 from src.core.engine.items.item import GATHERER_ITEM_GIDS, PROTECTOR_DROP_ITEM_IDS
 from src.core.signals.player_signals import GameInfoSignals
 from src.core.states.guild_chest_storage import GuildChestStorage
@@ -37,6 +37,7 @@ class GuildChestState(State):
     _has_guild: bool = dataclasses.field(init=False, default=False)
     tabs: list[int] = dataclasses.field(init=False, default_factory=lambda: [1, 2, 3, 4])
     rank_id: int = dataclasses.field(init=False, default=4)
+    settings: BehaviorSettings = dataclasses.field(init=False, default_factory=BehaviorSettings)
 
     def clear_state(self) -> None:
         self.tab_number = 1
@@ -67,4 +68,4 @@ class GuildChestState(State):
 
     @property
     def can_access_guild_chest(self) -> bool:
-        return self.player_state.is_sub and self.has_guild and DO_USE_GUILD_CHEST and self.rank_id <= 3
+        return self.player_state.is_sub and self.has_guild and self.settings.do_use_guild_chest and self.rank_id <= 3

@@ -157,7 +157,7 @@ class LogsTable(QWidget):
         layout.setSpacing(4)
 
         self.search_edit = LineEdit(self)
-        self.search_edit.setPlaceholderText("Rechercher dans les logs")
+        self.search_edit.setPlaceholderText("Search logs")
         self.search_edit.setClearButtonEnabled(True)
         layout.addWidget(self.search_edit)
 

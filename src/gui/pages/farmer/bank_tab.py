@@ -37,7 +37,7 @@ class BankTab(QWidget):
         self.list_widget.setGridSize(QSize(CARD_WIDTH, CARD_HEIGHT))
 
         self.list_widget.setStyleSheet("QListWidget { background-color: transparent; border: none; }")
-        self.loading_label = CaptionLabel(text="Chargement de la banque…", parent=self)
+        self.loading_label = CaptionLabel(text="Loading bank…", parent=self)
         self.loading_label.hide()
 
         layout = QVBoxLayout()

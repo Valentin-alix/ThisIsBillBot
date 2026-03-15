@@ -17,6 +17,7 @@ from ankama_launcher_emulator.interfaces.zaap_files import (
 from DBDofusUnity.proto_mapper_assembly.runtime import runtime_store
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 from src.consts import MIN_DATE
+from src.controller.settings import SettingsService
 from src.core.bot.bot import Bot
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.lifecycle.scheduler import BotScheduler
@@ -56,6 +57,8 @@ def logger(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> MagicMock:
 
 @pytest.fixture(autouse=True)
 def _isolate_resource_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("src.controller.settings.SETTINGS_PATH", tmp_path / "settings.json")
+    monkeypatch.setattr(SettingsService(), "_settings", None)
     monkeypatch.setattr(
         "ankama_launcher_emulator.controller.paysafecard_pool.PAYSAFECARDS_PATH",
         tmp_path / "paysafecards.txt",

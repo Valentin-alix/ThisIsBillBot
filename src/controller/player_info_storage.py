@@ -1,3 +1,4 @@
+from utils.local_json import read_local_model
 from datetime import datetime
 from pathlib import Path
 
@@ -34,7 +35,7 @@ class PlayerInfoStorage(metaclass=Singleton):
     def _load(self) -> PlayerInfoFile:
         if not self._FILE_PATH.exists():
             return PlayerInfoFile()
-        return PlayerInfoFile.model_validate_json(self._FILE_PATH.read_text(encoding="utf-8"))
+        return read_local_model(self._FILE_PATH, PlayerInfoFile)
 
     def _acquire_file_lock(self) -> FileLock:
         return acquire_file_lock(self._FILE_PATH, timeout_seconds=self._FILE_LOCK_TIMEOUT_SECONDS)

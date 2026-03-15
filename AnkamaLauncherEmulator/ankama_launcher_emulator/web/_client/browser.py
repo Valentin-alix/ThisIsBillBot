@@ -5,10 +5,12 @@ from pathlib import Path
 from typing import AsyncGenerator
 from urllib.parse import unquote, urlparse
 
-from playwright.async_api import BrowserContext, ProxySettings, async_playwright
+from playwright.async_api import BrowserContext, Error, ProxySettings, async_playwright
 
 from ankama_launcher_emulator.consts import DEBUG_TRACES_DIR
 from src.core.config import DEBUG
+from src.utils.runtime_support import RuntimeSetupError, configure_browser_path
+from src.services.install_validation import browser_repair_message
 
 BROWSER_ARGS = ["--no-sandbox", "--disable-blink-features=AutomationControlled", "--window-position=0,0"]
 _TRACE_RETENTION_DAYS = 7
@@ -61,32 +63,32 @@ async def launch_browser_context(
     *,
     proxy_url: str | None,
 ) -> AsyncGenerator[BrowserContext, None]:
+    configure_browser_path()
     trace_directory = _trace_directory() if DEBUG else None
+    proxy_settings = _playwright_proxy_settings(proxy_url)
     async with async_playwright() as playwright:
-        if trace_directory is not None:
+        try:
             browser = await playwright.chromium.launch(
                 traces_dir=trace_directory,
                 channel="chromium",
                 args=BROWSER_ARGS,
-                proxy=_playwright_proxy_settings(proxy_url),
+                proxy=proxy_settings,
             )
-        else:
-            browser = await playwright.chromium.launch(
-                channel="chromium",
-                args=BROWSER_ARGS,
-                proxy=_playwright_proxy_settings(proxy_url),
-            )
-        context = await browser.new_context(
-            color_scheme="dark",
-            viewport={"width": 1280, "height": 720},
-            locale="fr-FR",
-            timezone_id="Europe/Paris",
-        )
-        if trace_directory is not None:
-            await context.tracing.start(name="session", screenshots=True, snapshots=True, sources=True)
+        except Error as error:
+            raise RuntimeSetupError(browser_repair_message()) from error
         try:
-            yield context
-        finally:
+            context = await browser.new_context(
+                color_scheme="dark",
+                viewport={"width": 1280, "height": 720},
+                locale="fr-FR",
+                timezone_id="Europe/Paris",
+            )
             if trace_directory is not None:
-                await context.tracing.stop(path=trace_directory / "trace.zip")
+                await context.tracing.start(name="session", screenshots=True, snapshots=True, sources=True)
+            try:
+                yield context
+            finally:
+                if trace_directory is not None:
+                    await context.tracing.stop(path=trace_directory / "trace.zip")
+        finally:
             await browser.close()

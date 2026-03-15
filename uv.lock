@@ -357,6 +357,109 @@ wheels = [
 ]
 
 [[package]]
+name = "itsbillbot"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "cachetools" },
+    { name = "datamodel-code-generator" },
+    { name = "filelock" },
+    { name = "frida" },
+    { name = "frida-tools" },
+    { name = "ida-domain" },
+    { name = "idapro" },
+    { name = "langchain-openai" },
+    { name = "msgspec" },
+    { name = "numpy" },
+    { name = "playwright" },
+    { name = "protobuf" },
+    { name = "psutil" },
+    { name = "pulp" },
+    { name = "pycryptodomex" },
+    { name = "pydantic" },
+    { name = "pyqt6-fluent-widgets" },
+    { name = "pysocks" },
+    { name = "python-dateutil" },
+    { name = "python-dotenv" },
+    { name = "requests", extra = ["socks"] },
+    { name = "scapy" },
+    { name = "schedule" },
+    { name = "scipy" },
+    { name = "thrift" },
+    { name = "vulture" },
+    { name = "wmi", marker = "sys_platform == 'win32'" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "coverage" },
+    { name = "poethepoet" },
+    { name = "pyinstaller" },
+    { name = "pyqt6-stubs" },
+    { name = "pyright" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+    { name = "scipy-stubs" },
+    { name = "tqdm" },
+    { name = "types-cachetools" },
+    { name = "types-protobuf" },
+    { name = "types-psutil" },
+    { name = "types-python-dateutil" },
+    { name = "types-requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cachetools", specifier = ">=7.0.5" },
+    { name = "datamodel-code-generator", specifier = ">=0.30.2,<0.31" },
+    { name = "filelock", specifier = ">=3,<4" },
+    { name = "frida", specifier = "==16.7.9" },
+    { name = "frida-tools", specifier = ">=13.7.1" },
+    { name = "ida-domain", specifier = ">=0.4.0" },
+    { name = "idapro", specifier = ">=0.0.7" },
+    { name = "langchain-openai", specifier = ">=1.0.3,<2" },
+    { name = "msgspec", specifier = ">=0.20.0" },
+    { name = "numpy", specifier = ">=2.4.2" },
+    { name = "playwright", specifier = ">=1.58.0" },
+    { name = "protobuf", specifier = "==5.28.3" },
+    { name = "psutil", specifier = ">=6.0.0,<7" },
+    { name = "pulp", specifier = ">=3.2.1,<4" },
+    { name = "pycryptodomex", specifier = ">=3.23.0" },
+    { name = "pydantic", specifier = ">=2.11.10" },
+    { name = "pyqt6-fluent-widgets", specifier = ">=1.11.1" },
+    { name = "pysocks", specifier = ">=1.7.1,<2.0.0" },
+    { name = "python-dateutil", specifier = ">=2.9.0.post0,<3" },
+    { name = "python-dotenv", specifier = ">=1.1.0,<2" },
+    { name = "requests", extras = ["socks"], specifier = ">=2.32" },
+    { name = "scapy", specifier = ">=2.5.0,<3" },
+    { name = "schedule", specifier = ">=1.2.2,<2" },
+    { name = "scipy", specifier = ">=1.18,<2" },
+    { name = "thrift", specifier = ">=0.20.0,<0.21" },
+    { name = "vulture", specifier = ">=2.16" },
+    { name = "wmi", marker = "sys_platform == 'win32'", specifier = ">=1.5.1" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "coverage", specifier = ">=7.13.1" },
+    { name = "poethepoet", specifier = ">=0.44.0" },
+    { name = "pyinstaller", specifier = ">=6.19.0,<7" },
+    { name = "pyqt6-stubs", specifier = ">=6.6.0" },
+    { name = "pyright", specifier = ">=1.1.408" },
+    { name = "pytest", specifier = ">=9.0.3" },
+    { name = "pytest-cov", specifier = ">=6.0" },
+    { name = "ruff", specifier = ">=0.15.12" },
+    { name = "scipy-stubs", specifier = ">=1.18,<2" },
+    { name = "tqdm", specifier = ">=4.66.5,<5" },
+    { name = "types-cachetools", specifier = ">=5.5.0.20240820" },
+    { name = "types-protobuf", specifier = ">=6.32.1.20251210" },
+    { name = "types-psutil", specifier = ">=7.1.3.20251211" },
+    { name = "types-python-dateutil", specifier = ">=2.9.0.20251115" },
+    { name = "types-requests", specifier = ">=2.32.4.20250913,<3" },
+]
+
+[[package]]
 name = "jinja2"
 version = "3.1.6"
 source = { registry = "https://pypi.org/simple" }
@@ -3745,109 +3848,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/d6/f6/9167e90cf9937d6558f92d022ff3024a69d938a514d9c8faa4080f73b001/uuid_utils-0.17.0-cp312-cp312-win32.whl", hash = "sha256:46a73cacdf512f473a81f65dbf84186e08cfe6e9118fa582b6c6b33a8288a30d", size = 166831, upload-time = "2026-07-09T13:48:41.862Z" },
     { url = "https://files.pythonhosted.org/packages/5c/7d/0b889654d9ee3413f810cf4685e241285f650d98a4103ac9f3c6bcc95f29/uuid_utils-0.17.0-cp312-cp312-win_amd64.whl", hash = "sha256:e59b60a0a4cb7541480e02090d37dc2df3b72df4c2e776fff64ce3a4e3dd4637", size = 172944, upload-time = "2026-07-09T13:48:42.992Z" },
     { url = "https://files.pythonhosted.org/packages/be/35/8c6e1bf65e4d400352885dadc656ad6d0af96e89231e3f04686bc2197128/uuid_utils-0.17.0-cp312-cp312-win_arm64.whl", hash = "sha256:d561a4c5747a1e6c7fa7c49a0292e78b4e8c456332caa084fc7abad8de828652", size = 172459, upload-time = "2026-07-09T13:48:44.271Z" },
-]
-
-[[package]]
-name = "voldemort"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "cachetools" },
-    { name = "datamodel-code-generator" },
-    { name = "filelock" },
-    { name = "frida" },
-    { name = "frida-tools" },
-    { name = "ida-domain" },
-    { name = "idapro" },
-    { name = "langchain-openai" },
-    { name = "msgspec" },
-    { name = "numpy" },
-    { name = "playwright" },
-    { name = "protobuf" },
-    { name = "psutil" },
-    { name = "pulp" },
-    { name = "pycryptodomex" },
-    { name = "pydantic" },
-    { name = "pyqt6-fluent-widgets" },
-    { name = "pysocks" },
-    { name = "python-dateutil" },
-    { name = "python-dotenv" },
-    { name = "requests", extra = ["socks"] },
-    { name = "scapy" },
-    { name = "schedule" },
-    { name = "scipy" },
-    { name = "thrift" },
-    { name = "vulture" },
-    { name = "wmi", marker = "sys_platform == 'win32'" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "coverage" },
-    { name = "poethepoet" },
-    { name = "pyinstaller" },
-    { name = "pyqt6-stubs" },
-    { name = "pyright" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "ruff" },
-    { name = "scipy-stubs" },
-    { name = "tqdm" },
-    { name = "types-cachetools" },
-    { name = "types-protobuf" },
-    { name = "types-psutil" },
-    { name = "types-python-dateutil" },
-    { name = "types-requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "cachetools", specifier = ">=7.0.5" },
-    { name = "datamodel-code-generator", specifier = ">=0.30.2,<0.31" },
-    { name = "filelock", specifier = ">=3,<4" },
-    { name = "frida", specifier = "==16.7.9" },
-    { name = "frida-tools", specifier = ">=13.7.1" },
-    { name = "ida-domain", specifier = ">=0.4.0" },
-    { name = "idapro", specifier = ">=0.0.7" },
-    { name = "langchain-openai", specifier = ">=1.0.3,<2" },
-    { name = "msgspec", specifier = ">=0.20.0" },
-    { name = "numpy", specifier = ">=2.4.2" },
-    { name = "playwright", specifier = ">=1.58.0" },
-    { name = "protobuf", specifier = "==5.28.3" },
-    { name = "psutil", specifier = ">=6.0.0,<7" },
-    { name = "pulp", specifier = ">=3.2.1,<4" },
-    { name = "pycryptodomex", specifier = ">=3.23.0" },
-    { name = "pydantic", specifier = ">=2.11.10" },
-    { name = "pyqt6-fluent-widgets", specifier = ">=1.11.1" },
-    { name = "pysocks", specifier = ">=1.7.1,<2.0.0" },
-    { name = "python-dateutil", specifier = ">=2.9.0.post0,<3" },
-    { name = "python-dotenv", specifier = ">=1.1.0,<2" },
-    { name = "requests", extras = ["socks"], specifier = ">=2.32" },
-    { name = "scapy", specifier = ">=2.5.0,<3" },
-    { name = "schedule", specifier = ">=1.2.2,<2" },
-    { name = "scipy", specifier = ">=1.18,<2" },
-    { name = "thrift", specifier = ">=0.20.0,<0.21" },
-    { name = "vulture", specifier = ">=2.16" },
-    { name = "wmi", marker = "sys_platform == 'win32'", specifier = ">=1.5.1" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "coverage", specifier = ">=7.13.1" },
-    { name = "poethepoet", specifier = ">=0.44.0" },
-    { name = "pyinstaller", specifier = ">=6.19.0,<7" },
-    { name = "pyqt6-stubs", specifier = ">=6.6.0" },
-    { name = "pyright", specifier = ">=1.1.408" },
-    { name = "pytest", specifier = ">=9.0.3" },
-    { name = "pytest-cov", specifier = ">=6.0" },
-    { name = "ruff", specifier = ">=0.15.12" },
-    { name = "scipy-stubs", specifier = ">=1.18,<2" },
-    { name = "tqdm", specifier = ">=4.66.5,<5" },
-    { name = "types-cachetools", specifier = ">=5.5.0.20240820" },
-    { name = "types-protobuf", specifier = ">=6.32.1.20251210" },
-    { name = "types-psutil", specifier = ">=7.1.3.20251211" },
-    { name = "types-python-dateutil", specifier = ">=2.9.0.20251115" },
-    { name = "types-requests", specifier = ">=2.32.4.20250913,<3" },
 ]
 
 [[package]]

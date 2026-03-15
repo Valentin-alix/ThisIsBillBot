@@ -24,25 +24,25 @@ MessageSource = Literal["server", "client_forwarded", "framework_injected"]
 
 
 class DebugLogEntry(TypedDict):
-    categorie: Literal["log"]
+    category: Literal["log"]
     datetime: str
-    niveau: str
+    level: str
     message: str
 
 
 class DebugMessageEntry(TypedDict):
-    categorie: Literal["message"]
+    category: Literal["message"]
     datetime: str
-    origine: str
+    origin: Literal["server", "client"]
     source: MessageSource
-    type_non_obfusque: str
-    type_obfusque: str | None
-    contenu_obfusque: dict[str, Any] | None
-    contenu_non_obfusque: dict[str, Any] | None
+    unobfuscated_type: str
+    obfuscated_type: str | None
+    obfuscated_content: dict[str, Any] | None
+    unobfuscated_content: dict[str, Any] | None
 
 
 class DebugBehaviorEntry(TypedDict):
-    categorie: Literal["behavior"]
+    category: Literal["behavior"]
     datetime: str
     behavior: str
     event: str
@@ -55,14 +55,14 @@ class DebugBehaviorEntry(TypedDict):
 
 
 class DebugStateEntry(TypedDict):
-    categorie: Literal["state"]
+    category: Literal["state"]
     datetime: str
     trigger: str
     snapshot: dict[str, Any]
 
 
 class DebugStuckEntry(TypedDict):
-    categorie: Literal["stuck"]
+    category: Literal["stuck"]
     datetime: str
     reason: str
     seconds_since_progress: float
@@ -160,8 +160,8 @@ class RecentMessageEntry:
 
     def to_message_info(self) -> MessageInfo:
         body: dict[str, Any] = json.loads(self.serialized)
-        msg_json: dict[str, Any] | None = body["contenu_non_obfusque"]
-        obf_msg_json: dict[str, Any] | None = body["contenu_obfusque"]
+        msg_json: dict[str, Any] | None = body["unobfuscated_content"]
+        obf_msg_json: dict[str, Any] | None = body["obfuscated_content"]
         assert msg_json is None or isinstance(msg_json, dict)
         assert obf_msg_json is None or isinstance(obf_msg_json, dict)
         return MessageInfo(
@@ -310,7 +310,7 @@ class DebugRecorder:
                     entry = _build_entry(item)
                     serialized = json.dumps(entry, ensure_ascii=False)
                     buffer.append(serialized)
-                    if entry["categorie"] == "message":
+                    if entry["category"] == "message":
                         self._record_recent_message(entry, serialized)
 
                 now = time.monotonic()
@@ -323,8 +323,8 @@ class DebugRecorder:
                     return
 
     def _record_recent_message(self, entry: DebugMessageEntry, serialized: str) -> None:
-        obf_name = entry["type_obfusque"]
-        non_obf_name = entry["type_non_obfusque"]
+        obf_name = entry["obfuscated_type"]
+        non_obf_name = entry["unobfuscated_type"]
         sub_msg_name = f"{obf_name} -> {non_obf_name}" if obf_name else non_obf_name
         with self._recent_lock:
             self._latest_message_sequence += 1
@@ -332,7 +332,7 @@ class DebugRecorder:
                 RecentMessageEntry(
                     sequence=self._latest_message_sequence,
                     received_time=datetime.fromisoformat(entry["datetime"]),
-                    from_server=entry["origine"] == "Serveur",
+                    from_server=entry["origin"] == "server",
                     was_sent_from_proxy=entry["source"] == "framework_injected",
                     sub_msg_name=sub_msg_name,
                     serialized=serialized,
@@ -438,14 +438,14 @@ def _bot_debug_session_paths(account_logs_directory: Path) -> list[Path]:
 def _build_entry(raw: _RawEntry) -> DebugEntry:
     if isinstance(raw, _LogRaw):
         return DebugLogEntry(
-            categorie="log",
+            category="log",
             datetime=raw.logged_at.isoformat(),
-            niveau=raw.level,
+            level=raw.level,
             message=raw.message,
         )
     if isinstance(raw, _BehaviorRaw):
         return DebugBehaviorEntry(
-            categorie="behavior",
+            category="behavior",
             datetime=raw.recorded_at.isoformat(),
             behavior=raw.behavior,
             event=raw.event,
@@ -458,14 +458,14 @@ def _build_entry(raw: _RawEntry) -> DebugEntry:
         )
     if isinstance(raw, _StateRaw):
         return DebugStateEntry(
-            categorie="state",
+            category="state",
             datetime=raw.recorded_at.isoformat(),
             trigger=raw.trigger,
             snapshot=raw.snapshot,
         )
     if isinstance(raw, _StuckRaw):
         return DebugStuckEntry(
-            categorie="stuck",
+            category="stuck",
             datetime=raw.recorded_at.isoformat(),
             reason=raw.reason,
             seconds_since_progress=raw.seconds_since_progress,
@@ -478,26 +478,26 @@ def _build_entry(raw: _RawEntry) -> DebugEntry:
         msg_info = get_game_msg_info(raw.clear_sub_msg, raw.obf_sub_msg, raw.uid, raw.from_server, False)
         obf_type, decoded_type = _parse_sub_msg_name(msg_info.sub_msg_name)
         return DebugMessageEntry(
-            categorie="message",
+            category="message",
             datetime=msg_info.received_time.isoformat(),
-            origine="Serveur" if msg_info.from_server else "Client",
+            origin="server" if msg_info.from_server else "client",
             source=raw.source,
-            type_non_obfusque=decoded_type,
-            type_obfusque=obf_type,
-            contenu_obfusque=msg_info.obf_msg_json,
-            contenu_non_obfusque=msg_info.msg_json,
+            unobfuscated_type=decoded_type,
+            obfuscated_type=obf_type,
+            obfuscated_content=msg_info.obf_msg_json,
+            unobfuscated_content=msg_info.msg_json,
         )
 
     assert isinstance(raw, _ConnMsgRaw)
     msg_info = get_conn_msg_info(raw.sub_msg, raw.from_server)
     obf_type, decoded_type = _parse_sub_msg_name(msg_info.sub_msg_name)
     return DebugMessageEntry(
-        categorie="message",
+        category="message",
         datetime=msg_info.received_time.isoformat(),
-        origine="Serveur" if msg_info.from_server else "Client",
+        origin="server" if msg_info.from_server else "client",
         source=raw.source,
-        type_non_obfusque=decoded_type,
-        type_obfusque=obf_type,
-        contenu_obfusque=msg_info.obf_msg_json,
-        contenu_non_obfusque=msg_info.msg_json,
+        unobfuscated_type=decoded_type,
+        obfuscated_type=obf_type,
+        obfuscated_content=msg_info.obf_msg_json,
+        unobfuscated_content=msg_info.msg_json,
     )

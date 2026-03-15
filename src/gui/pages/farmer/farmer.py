@@ -24,8 +24,8 @@ from src.gui.pages.farmer.world_tab import WorldTab
 
 
 class FarmActionEnum(StrEnum):
-    AUTO = "Automatique"
-    HARVESTER = "Récolte"
+    AUTO = "Automatic"
+    HARVESTER = "Harvesting"
     FIGHTER = "Combat"
 
 

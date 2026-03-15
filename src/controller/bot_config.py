@@ -1,4 +1,5 @@
 import logging
+from src.utils.runtime_support import RuntimeSetupError
 from threading import RLock
 from typing import ClassVar, Literal
 
@@ -99,12 +100,28 @@ class BotConfigService(metaclass=Singleton):
             all_configs[login] = config
             self._write_all_configs(all_configs)
 
+    def assign_schedule_profile(self, login: str, profile_id: str | None) -> None:
+        if profile_id is not None and ScheduleProfileController().get_profile(profile_id) is None:
+            raise ValueError("Unknown schedule profile.")
+
+        def assign(record: BotRecord) -> None:
+            if record.quarantine_reason is not None:
+                raise ValueError("Restore the account from Activity before changing its schedule.")
+            record.schedule_profile = profile_id
+
+        try:
+            BotStorageController().update_record(login, assign)
+        except LookupError as error:
+            raise ValueError("This account no longer exists. Refresh the list.") from error
+
     def resolve_bot_proxy(self, config: BotConfig) -> ProxyConfig:
         if config.schedule_profile is None:
             raise ValueError("Bot config must have a schedule profile")
         profile = ScheduleProfileController().get_profile(config.schedule_profile)
         if profile is None:
-            raise ValueError(f"Unknown schedule profile {config.schedule_profile}")
+            raise RuntimeSetupError(
+                f"Unknown schedule profile: {config.schedule_profile}. Check schedule_profiles.json."
+            )
         return ProxyController().get_proxy(profile.proxy_id)
 
     def resolve_bot_http_proxy_url(self, config: BotConfig) -> str:

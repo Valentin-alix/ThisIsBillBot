@@ -32,7 +32,7 @@ async def _request_and_validate_email_certificate(
     logger.info("[OAuth] Shield security code requested (domain=%s)", domain)
 
     code = await wait_for_code_with_manual_fallback(
-        mail_provider, since=requested_at, timeout_seconds=timeout_seconds
+        mail_provider, since=requested_at, timeout_seconds=timeout_seconds, email=haapi.login
     )
     if code is None:
         raise MailboxCodeTimeoutError(f"Timed out waiting for Shield/OTP code in mailbox for {haapi.login}")
@@ -63,7 +63,7 @@ async def resolve_shield(
 
     logger.info("[OAuth] OTP required; waiting for code in mailbox...")
     code = await wait_for_code_with_manual_fallback(
-        mail_provider, since=started_at, timeout_seconds=timeout_seconds
+        mail_provider, since=started_at, timeout_seconds=timeout_seconds, email=haapi.login
     )
     if code is None:
         raise MailboxCodeTimeoutError(f"Timed out waiting for Shield/OTP code in mailbox for {haapi.login}")

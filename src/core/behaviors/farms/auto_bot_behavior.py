@@ -20,15 +20,8 @@ from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
     EnterBankChestErrorCode,
 )
 from src.core.bot.session_activity_plan import SessionActivity, SessionActivityPlan
-from src.core.config import (
-    DO_CRAFT,
-    DO_DUNGEON,
-    DO_FIGHTER,
-    DO_IDLE,
-    DO_QUEST,
-    DO_SALE_HOTEL,
-    get_time_beween_areas,
-)
+from src.core.config import get_time_beween_areas
+from src.controller.settings import SettingsService
 from src.core.engine.contexts import HarvesterAreaContext
 from src.core.engine.crafts.recipes import (
     get_recipes_for_job_lvl_up_or_benefice,
@@ -68,16 +61,17 @@ class AutoBotBehavior(RecoverableBehavior):
     _session_activity_plan: SessionActivityPlan | None = field(init=False, default=None)
 
     def start_planned_session(self, session_start: datetime, session_end: datetime) -> None:
+        self.game_state.apply_settings(SettingsService().get().behaviors)
         activities: list[SessionActivity] = []
-        if DO_IDLE:
+        if self.game_state.settings.do_idle:
             activities.append(SessionActivity.IDLE)
-        if DO_QUEST:
+        if self.game_state.settings.do_quest:
             activities.append(SessionActivity.QUEST)
-        if DO_DUNGEON:
+        if self.game_state.settings.do_dungeon:
             activities.append(SessionActivity.DUNGEON)
-        if DO_CRAFT:
+        if self.game_state.settings.do_craft:
             activities.append(SessionActivity.CRAFT)
-        if DO_SALE_HOTEL:
+        if self.game_state.settings.do_sale_hotel:
             activities.append(SessionActivity.SALE_HOTEL)
         self._session_activity_plan = SessionActivityPlan.create(
             session_start=session_start,
@@ -128,7 +122,7 @@ class AutoBotBehavior(RecoverableBehavior):
     def play(self) -> None:
         if not self.game_state.inventory.is_full_pods or self.game_state.inventory.can_use_bank:
             return self.play_multi_farming()
-        if DO_FIGHTER:
+        if self.game_state.settings.do_fighter:
             return self.play_fighter()
         self.finish(EnterBankChestErrorCode.NOT_ENOUGH_KAMAS)
 
@@ -141,7 +135,7 @@ class AutoBotBehavior(RecoverableBehavior):
                 or datetime_start_played + get_time_beween_areas() < datetime.now()
             )
 
-        self.report_status("Analyse des zones de récolte…")
+        self.report_status("Analyzing harvesting areas…")
         with AREA_CHOICE_LOCK:
             area_info = get_random_best_area_info(
                 self._area_id,
@@ -157,7 +151,7 @@ class AutoBotBehavior(RecoverableBehavior):
             CURRENT_AREAS_PLAYING_INFOS_BY_SERVER_AND_CHARACTER[key] = area_info
             self._previous_area_info_played.append(area_info)
 
-        self.report_status("Préparation de l’itinéraire de récolte…")
+        self.report_status("Preparing harvesting route…")
         self.multi_farming_behavior.start(
             area_id=area_info.area_id,
             sub_area_id=area_info.sub_area_id,
