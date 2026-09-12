@@ -49,7 +49,6 @@ class MatchResult:
     match_margin: float
     """Score gap to the strongest competing row or column candidate."""
     runner_up_obf: str | None
-    is_low_confidence: bool
     field_mapping_rejected_infos: FieldMappingRejectedInfos
     field_mapping_unmapped_non_obf_fields: FieldMappingUnmappedNonObfFields
     evidence_coverage: float | None

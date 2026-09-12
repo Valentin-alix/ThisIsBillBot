@@ -29,4 +29,3 @@ class MaskedAffinitySignal:
     name: str
     weight: float
     build: AffinityBuilder
-    rationale: str

@@ -32,30 +32,16 @@ _MASKED_AFFINITY_SIGNALS: tuple[MaskedAffinitySignal, ...] = (
         name="handler_cohort",
         weight=0.10,
         build=build_handler_cohort_affinity,
-        rationale=(
-            "Cohorts survive a rebuild near-perfectly but not perfectly, so crossing one must cost "
-            "score without ever becoming unreachable."
-        ),
     ),
     MaskedAffinitySignal(
         name="declaration_order",
         weight=0.15,
         build=build_declaration_order_affinity,
-        rationale=(
-            "A little above the cohorts: the declaration slot is the only thing separating messages "
-            "with no distinguishing structure of their own. Still a blend, since adjacent wrappers "
-            "do occasionally swap places between builds."
-        ),
     ),
     MaskedAffinitySignal(
         name="callee",
         weight=0.15,
         build=build_callee_affinity,
-        rationale=(
-            "For the messages nothing else reaches: no fields or one, shape shared with dozens of "
-            "candidates. What their code calls into is the only thing left, and obfuscation leaves "
-            "it alone."
-        ),
     ),
 )
 # Blend order matters: signals rescale the running matrix with different applicability masks.

@@ -190,7 +190,6 @@ def match_signatures_iteratively(
                     field_mapping_unmapped_non_obf_fields=field_mapping_result.field_mapping_unmapped_non_obf_fields,
                     match_margin=selected_pair.match_margin,
                     runner_up_obf=selected_pair.runner_up_obf,
-                    is_low_confidence=False,
                     evidence_coverage=pair_evidence_coverage(
                         selected_pair.obf_signature, selected_pair.non_obf_signature
                     ),

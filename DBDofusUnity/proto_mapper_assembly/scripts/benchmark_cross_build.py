@@ -8,7 +8,7 @@ actually relied on, and so the only ones known to be right.
 The obfuscated side comes from the archived build, the non-obfuscated side from the current
 reference: a game update replaces the former and not the latter.
 
-Nothing is written outside the cache directory.
+Inputs and generated mappings are never overwritten; --json writes the requested report.
 
 ``--mode current`` runs the cheaper counterpart on the working set instead: the exact pipeline with
 an empty pin set, diffed against the committed mappings. It grades against
@@ -17,7 +17,6 @@ not changing anything -- but the pins it recovers on its own are still independe
 ground truth, and it needs no archived build.
 """
 
-
 import argparse
 import json
 import re
@@ -25,8 +24,11 @@ import subprocess
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from time import perf_counter
+from typing import Literal, cast
 
 from DBDofusUnity.consts import (
+    AUTO_MODE_MAPPING_CONTRACT_FILE,
     CAPTURE_SEQUENCE_HINTS_FILE,
     GAME_MAPPINGS_DETAILED_JSON_FILE,
     NON_OBF_NEW_DUMP_CS_FILE,
@@ -86,6 +88,10 @@ from DBDofusUnity.proto_mapper_assembly.scripts.recover_archived_game_mappings i
     iter_mapping_commits,
     resolve_build_window,
 )
+from DBDofusUnity.proto_mapper_assembly.scripts.benchmark_ablation import ABLATION_SIGNALS, ablate_signals
+from DBDofusUnity.proto_mapper_assembly.validators.auto_mode_mapping_contract import (
+    load_auto_mode_mapping_contract,
+)
 
 _PINNED_PAIRS_PATH = Path("datas/proto_mapper/pinned_pairs.json")
 _ERA_PATHS = (_PINNED_PAIRS_PATH,)
@@ -104,6 +110,9 @@ class EraReplay:
 
     bot_unmapped_count: int
     bot_total_count: int
+    bot_outcomes: tuple["PinOutcome", ...]
+    field_outcomes: tuple["FieldOutcome", ...]
+    elapsed_seconds: float
 
     @property
     def bot_ratio(self) -> float:
@@ -121,6 +130,11 @@ class OverrideComparison:
 
 def main() -> None:
     arguments = _build_argument_parser().parse_args()
+    with ablate_signals(frozenset(arguments.without)):
+        _run(arguments)
+
+
+def _run(arguments: argparse.Namespace) -> None:
     if arguments.mode == "current":
         _run_current_build_benchmark(arguments)
         return
@@ -128,7 +142,7 @@ def main() -> None:
     cache_root: Path = arguments.cache_dir
     build_dirs = _resolve_build_dirs(snapshots_root=arguments.snapshots_root, requested=arguments.builds)
     if not build_dirs:
-        raise SystemExit("no archived build with both an obf dump and an obf trace")
+        raise SystemExit("no archived build with an obf dump, an obf trace and a reference mapping")
 
     eras = [_resolve_era(build_dir) for build_dir in build_dirs]
     print(f"replaying {len(eras)} builds\n")
@@ -142,6 +156,14 @@ def main() -> None:
         documents.append(document)
 
     _print_report(replays)
+    if arguments.json is not None:
+        arguments.json.write_text(
+            json.dumps(
+                {"without": arguments.without, "replays": [asdict(replay) for replay in replays]}, indent=2
+            )
+            + "\n",
+            encoding="utf-8",
+        )
 
     if arguments.with_previous_era_overrides:
         _print_override_report(
@@ -154,6 +176,13 @@ def main() -> None:
 def _build_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "--without",
+        nargs="+",
+        choices=ABLATION_SIGNALS,
+        default=[],
+        help="Disable these contributions for this benchmark process only; combine accepted removals cumulatively.",
     )
     parser.add_argument(
         "--mode",
@@ -209,11 +238,11 @@ def _build_argument_parser() -> argparse.ArgumentParser:
             "self-match and hides exactly the build-to-build drift this benchmark should expose."
         ),
     )
-    current_mode.add_argument(
+    parser.add_argument(
         "--json",
         type=Path,
         default=None,
-        help="Also dump the --mode current report as JSON, to diff two runs.",
+        help="Write outcomes, field identities and duration as JSON for either mode.",
     )
     return parser
 
@@ -227,7 +256,9 @@ def _run_current_build_benchmark(arguments: argparse.Namespace) -> None:
     json_path: Path | None = arguments.json
     if json_path is None:
         return
-    payload = asdict(report) | {"recovered_pin_count": report.recovered_pin_count}
+    payload: dict[str, object] = asdict(report)
+    payload["recovered_pin_count"] = report.recovered_pin_count
+    payload["without"] = cast(list[str], arguments.without)
     json_path.write_text(f"{json.dumps(payload, indent=2)}\n", encoding="utf-8")
     print(f"Written to {json_path}")
 
@@ -235,11 +266,18 @@ def _run_current_build_benchmark(arguments: argparse.Namespace) -> None:
 def _resolve_build_dirs(*, snapshots_root: Path, requested: list[str] | None) -> list[Path]:
     usable = iter_archived_build_dirs(
         snapshots_root=snapshots_root,
-        required_files=(PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH, PROTO_ACCESSES_RELATIVE_PATH),
+        required_files=(
+            PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
+            PROTO_ACCESSES_RELATIVE_PATH,
+            GAME_MAPPINGS_RELATIVE_PATH,
+        ),
     )
     if requested is None:
         return usable
     requested_names = set(requested)
+    missing = requested_names.difference(build_dir.name for build_dir in usable)
+    if missing:
+        raise ValueError(f"Requested builds missing a dump, trace or mapping: {sorted(missing)}")
     return [build_dir for build_dir in usable if build_dir.name in requested_names]
 
 
@@ -279,6 +317,7 @@ def _replay_era(
     cache_root: Path,
     signature_overrides_path: Path | None = None,
 ) -> tuple[EraReplay, GameMappingsDocument]:
+    started = perf_counter()
     era_dir = _materialize_era(commit=era_commit, cache_root=cache_root, paths=_ERA_PATHS)
     matching_inputs = load_matching_inputs(
         obf_dump_cs_path=build_dir / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH,
@@ -330,6 +369,13 @@ def _replay_era(
         ),
         bot_unmapped_count=sum(1 for outcome in bot_outcomes if outcome.actual_obf is None),
         bot_total_count=len(bot_outcomes),
+        bot_outcomes=tuple(bot_outcomes),
+        field_outcomes=_score_historical_fields(
+            candidate_document=candidate_document,
+            build_dir=build_dir,
+            bot_outcomes=bot_outcomes,
+        ),
+        elapsed_seconds=perf_counter() - started,
     )
     return replay, candidate_document
 
@@ -395,7 +441,7 @@ def _load_bot_used_message_names(commit: str) -> frozenset[str]:
     source = _read_blob(commit=commit, repo_path=Path("consts.py")).decode("utf-8", errors="replace")
     block = re.search(r"^MSG_TO_MAP.*?=\s*\[(.*?)^\]", source, re.DOTALL | re.MULTILINE)
     if block is None:
-        return frozenset()
+        raise ValueError(f"{commit}: MSG_TO_MAP could not be read; refusing an empty benchmark")
     return frozenset(re.findall(r'"([^"]+)"', block.group(1)))
 
 
@@ -527,6 +573,9 @@ def _print_report(replays: list[EraReplay]) -> None:
             f"| {replay.in_scope_pin_count} "
             f"| {replay.recovered_pin_count} |"
         )
+        print(
+            f"  {replay.build_id}: {_format_field_outcomes(replay.field_outcomes)}; {replay.elapsed_seconds:.2f}s"
+        )
     bot_matched = sum(replay.bot_matched_count for replay in replays)
     bot_wrong = sum(replay.bot_wrong_count for replay in replays)
     bot_unmapped = sum(replay.bot_unmapped_count for replay in replays)
@@ -552,6 +601,58 @@ class PinOutcome:
 
 
 @dataclass(frozen=True)
+class FieldOutcome:
+    non_obf_key: str
+    field: str
+    expected_message: str | None
+    actual_message: str | None
+    expected_field: str | None
+    actual_field: str | None
+    reference_kind: Literal["pin", "generated", "historical_usage"]
+
+    @property
+    def status(self) -> str:
+        if self.expected_message is None or self.expected_field is None:
+            return "unverified"
+        if self.actual_message is None or self.actual_field is None:
+            return "unmapped"
+        if (self.expected_message, self.expected_field) == (self.actual_message, self.actual_field):
+            return "correct"
+        return "wrong"
+
+
+def _score_historical_fields(
+    *,
+    candidate_document: GameMappingsDocument,
+    build_dir: Path,
+    bot_outcomes: list[PinOutcome],
+) -> tuple[FieldOutcome, ...]:
+    reference = SimpleGameMappingsDocument.model_validate_json(
+        (build_dir / GAME_MAPPINGS_RELATIVE_PATH).read_bytes()
+    ).root
+    candidates = {_normalize_name(key): entry for key, entry in candidate_document.root.items()}
+    outcomes: list[FieldOutcome] = []
+    # Historical usage identifies messages, not which of their fields were actually exercised.
+    # Preserve every recorded field conservatively; these are not independently confirmed pins.
+    for message in bot_outcomes:
+        candidate = candidates.get(_normalize_name(message.non_obf_key))
+        actual_fields = {value: key for key, value in candidate.field_mapping.items()} if candidate else {}
+        for obf_field, non_obf_field in reference[message.non_obf_key].field_mapping.items():
+            outcomes.append(
+                FieldOutcome(
+                    non_obf_key=message.non_obf_key,
+                    field=non_obf_field,
+                    expected_message=message.expected_obf,
+                    actual_message=message.actual_obf,
+                    expected_field=obf_field,
+                    actual_field=actual_fields.get(non_obf_field),
+                    reference_kind="historical_usage",
+                )
+            )
+    return tuple(outcomes)
+
+
+@dataclass(frozen=True)
 class BenchmarkReport:
     reference_count: int
     candidate_count: int
@@ -559,6 +660,10 @@ class BenchmarkReport:
     changed: tuple[tuple[str, str, str], ...]
     dropped: tuple[str, ...]
     pin_outcomes: tuple[PinOutcome, ...]
+    required_message_outcomes: tuple[PinOutcome, ...]
+    unverified_required_messages: tuple[str, ...]
+    field_outcomes: tuple[FieldOutcome, ...]
+    elapsed_seconds: float
 
     @property
     def recovered_pin_count(self) -> int:
@@ -566,6 +671,7 @@ class BenchmarkReport:
 
 
 def run_benchmark(*, use_pinned_pairs: bool, signature_overrides_path: Path | None = None) -> BenchmarkReport:
+    started = perf_counter()
     matching_inputs = load_matching_inputs(
         obf_dump_cs_path=OBF_PROTOCOL_GAME_DUMP_CS_FILE,
         non_obf_dump_cs_path=NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
@@ -604,6 +710,7 @@ def run_benchmark(*, use_pinned_pairs: bool, signature_overrides_path: Path | No
         reference_document=reference_document,
         candidate_document=candidate_document,
         pinned_pairs=resolved_pinned_pairs,
+        elapsed_seconds=perf_counter() - started,
     )
 
 
@@ -612,6 +719,7 @@ def build_report(
     reference_document: GameMappingsDocument,
     candidate_document: GameMappingsDocument,
     pinned_pairs: PinnedPairsConfig,
+    elapsed_seconds: float,
 ) -> BenchmarkReport:
     reference_obf_by_key = {
         key: entry.full_obf_msg_namespace for key, entry in reference_document.root.items()
@@ -646,6 +754,11 @@ def build_report(
             )
         )
 
+    required_message_outcomes, unverified_messages, field_outcomes = _score_current_requirements(
+        reference_document=reference_document,
+        candidate_document=candidate_document,
+        pinned_pairs=pinned_pairs,
+    )
     return BenchmarkReport(
         reference_count=len(reference_obf_by_key),
         candidate_count=len(candidate_obf_by_key),
@@ -653,7 +766,54 @@ def build_report(
         changed=tuple(sorted(changed)),
         dropped=tuple(sorted(dropped)),
         pin_outcomes=tuple(sorted(pin_outcomes, key=lambda outcome: outcome.non_obf_key)),
+        required_message_outcomes=required_message_outcomes,
+        unverified_required_messages=unverified_messages,
+        field_outcomes=field_outcomes,
+        elapsed_seconds=elapsed_seconds,
     )
+
+
+def _score_current_requirements(
+    *,
+    reference_document: GameMappingsDocument,
+    candidate_document: GameMappingsDocument,
+    pinned_pairs: PinnedPairsConfig,
+) -> tuple[tuple[PinOutcome, ...], tuple[str, ...], tuple[FieldOutcome, ...]]:
+    contract = load_auto_mode_mapping_contract(AUTO_MODE_MAPPING_CONTRACT_FILE)
+    references = {_normalize_name(key): entry for key, entry in reference_document.root.items()}
+    candidates = {_normalize_name(key): entry for key, entry in candidate_document.root.items()}
+    pins = {_normalize_name(pair.non_obf): pair for pair in pinned_pairs.pairs}
+    messages: list[PinOutcome] = []
+    unverified: list[str] = []
+    fields: list[FieldOutcome] = []
+    for requirement in contract.messages:
+        key = _normalize_name(requirement.message)
+        reference, candidate, pin = references.get(key), candidates.get(key), pins.get(key)
+        expected_message = pin.obf if pin else (reference.full_obf_msg_namespace if reference else None)
+        actual_message = candidate.full_obf_msg_namespace if candidate else None
+        if expected_message is None:
+            unverified.append(requirement.message)
+        else:
+            messages.append(PinOutcome(requirement.message, expected_message, actual_message))
+        expected_fields = {value: key for key, value in reference.field_mapping.items()} if reference else {}
+        if reference is not None and reference.full_obf_msg_namespace != expected_message:
+            expected_fields = {}
+        actual_fields = {value: key for key, value in candidate.field_mapping.items()} if candidate else {}
+        pinned_fields = pin.field_mapping_by_non_obf if pin else {}
+        for field in requirement.fields:
+            pinned_field = pinned_fields.get(field)
+            fields.append(
+                FieldOutcome(
+                    non_obf_key=requirement.message,
+                    field=field,
+                    expected_message=expected_message,
+                    actual_message=actual_message,
+                    expected_field=pinned_field if pinned_field is not None else expected_fields.get(field),
+                    actual_field=actual_fields.get(field),
+                    reference_kind="pin" if pinned_field is not None else "generated",
+                )
+            )
+    return tuple(messages), tuple(unverified), tuple(fields)
 
 
 def _normalize_name(value: str) -> str:
@@ -668,6 +828,10 @@ def format_report(report: BenchmarkReport) -> str:
         f"({report.agreed_count / max(1, report.reference_count):.4f})",
         f"changed: {len(report.changed)} | dropped: {len(report.dropped)}",
         f"pins recovered without pinning: {report.recovered_pin_count}/{len(report.pin_outcomes)}",
+        f"required messages agreeing with reference: {sum(outcome.is_recovered for outcome in report.required_message_outcomes)}/{len(report.required_message_outcomes)}",
+        f"required messages without reference: {len(report.unverified_required_messages)}",
+        _format_field_outcomes(report.field_outcomes),
+        f"elapsed: {report.elapsed_seconds:.2f}s",
     ]
     for outcome in report.pin_outcomes:
         status = "OK  " if outcome.is_recovered else "MISS"
@@ -684,6 +848,16 @@ def format_report(report: BenchmarkReport) -> str:
         lines.append("dropped mappings:")
         lines.extend(f"  {key}" for key in report.dropped)
     return "\n".join(lines)
+
+
+def _format_field_outcomes(outcomes: tuple[FieldOutcome, ...]) -> str:
+    counts = {
+        status: sum(outcome.status == status for outcome in outcomes)
+        for status in ("correct", "wrong", "unmapped", "unverified")
+    }
+    return "fields (reference agreement, not independent proof): " + " | ".join(
+        f"{status}={count}" for status, count in counts.items()
+    )
 
 
 if __name__ == "__main__":

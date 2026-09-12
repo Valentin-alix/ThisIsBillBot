@@ -305,7 +305,6 @@ class TestGameMappings:
                     runtime_confidence=0.5,
                     match_margin=0.0,
                     runner_up_obf=None,
-                    is_low_confidence=False,
                     evidence_coverage=0.8,
                     is_runtime_observed=True,
                 )

@@ -65,7 +65,7 @@ def build_game_mappings_document(
             runtime_confidence=match.runtime_confidence,
             match_margin=match.match_margin,
             runner_up_obf=match.runner_up_obf,
-            is_low_confidence=match.is_low_confidence,
+            is_low_confidence=False,
             evidence_coverage=match.evidence_coverage,
             is_runtime_observed=match.is_runtime_observed,
         )

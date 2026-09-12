@@ -1,5 +1,4 @@
 from collections.abc import Callable, Mapping
-from functools import cache
 
 import numpy as np
 
@@ -31,7 +30,6 @@ def build_lazy_score_by_pair_lookup_from_matrix(
     workspace: MatchingWorkspace,
     scores_matrix: np.ndarray,
 ) -> LazyScoreByPair:
-    @cache
     def resolve_score(obf_cls: str, non_obf_cls: str) -> float:
         obf_index = workspace.signature_indexes.obf_index_by_cls.get(obf_cls)
         non_obf_index = workspace.signature_indexes.non_obf_index_by_cls.get(non_obf_cls)
@@ -49,7 +47,6 @@ def build_lazy_score_by_pair_lookup_from_signatures(
     non_obf_signatures_by_cls: Mapping[str, MessageAccessSignature],
     structure_context: StructureSimilarityContext,
 ) -> LazyScoreByPair:
-    @cache
     def resolve_score(obf_cls: str, non_obf_cls: str) -> float:
         try:
             obf_signature = obf_signatures_by_cls[obf_cls]

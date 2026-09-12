@@ -239,7 +239,6 @@ def simple_match_result(
         runtime_confidence=None,
         match_margin=0.0,
         runner_up_obf=None,
-        is_low_confidence=False,
         field_mapping_rejected_infos={},
         field_mapping_unmapped_non_obf_fields={},
         evidence_coverage=None,

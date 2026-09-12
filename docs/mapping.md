@@ -160,3 +160,39 @@ Before considering the mapping usable:
 The mapper can infer a child pair from a confirmed parent. This inference may
 replace an inconsistent nested pin; in that case, verify the parent and field
 types before forcing the child pair.
+
+## Comparing scoring heuristics
+
+From the repository root, run the baseline and one experimental removal in
+separate processes:
+
+```powershell
+uv run python -m DBDofusUnity.proto_mapper_assembly.scripts.benchmark_cross_build --mode current --json baseline.json
+uv run python -m DBDofusUnity.proto_mapper_assembly.scripts.benchmark_cross_build --mode current --without opcode_histogram --json without-opcodes.json
+```
+
+`--without` accepts multiple signals for cumulative experiments; `--help` lists
+them. It changes only that benchmark process. Remaining assembly weights are
+renormalized and production thresholds remain unchanged. For contributions
+disabled by setting their weight to zero, preparation still runs: elapsed time
+is not an estimate of the speedup from deleting their implementation.
+
+Repeat with `--with-pins` to check the current configuration. Omit `--mode current`
+to replay archives without pins or overrides. Each archive needs
+`cs/Ankama.Dofus.Protocol.Game.cs`, `proto_accesses.json`, `game_mappings.json`,
+and its corresponding Git history. Explicitly requested incomplete archives
+fail instead of disappearing from the comparison.
+
+Compare exact message and field outcomes per build, not just totals. The current
+report includes the automatic-mode contract's required fields. Historical field
+outcomes conservatively include every recorded field of the messages listed in
+that era's `MSG_TO_MAP`; they do not prove which fields or nested messages the bot
+actually exercised. Inspect nested dependencies before accepting a removal.
+
+Field outcomes identify their reference as `pin`, `generated`, or
+`historical_usage`. `unverified` means there is no reference identity to compare;
+agreement with generated mappings is not independent evidence of correctness.
+Preserve every previously correct required pair and introduce no new wrong or
+missing required mapping. Recheck all accepted removals together. Keep a signal
+when missing inputs or unverified references prevent demonstrating its removal
+is safe; never compensate with additional pins.
