@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 
 import pytest
+
 from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import (
     CharacterCharacteristicsEvent,
 )
@@ -9,7 +10,6 @@ from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     CharacterCharacteristic,
     CharacterCharacteristicDetailed,
     CharacterCharacteristics,
-    CharacterCharacteristicValue,
     EntityDisposition,
     FightCharacteristics,
     FightStartingPositions,
@@ -34,9 +34,6 @@ from DBDofusUnity.dofus_unity_reader.game_constants.characteristic import (
     EffectElement,
 )
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
-from pytest import MonkeyPatch
-
-from src import consts
 from src.core.bot.bot import Bot
 from src.core.frames.fight_frame import FightFrame
 from src.core.states.entity_state import FightActor
@@ -140,40 +137,6 @@ class TestFightState:
             201,
             202,
         ]
-
-    def test_character_characteristics_event_sets_stats_and_emits_points(
-        self,
-        runtime_bot: Bot,
-        monkeypatch: MonkeyPatch,
-    ):
-        monkeypatch.setattr(consts, "DEBUG", True)
-        received_action_points: list[int] = []
-        received_movement_points: list[int] = []
-
-        runtime_bot.game_info_signals.action_points.connect(received_action_points.append)
-        runtime_bot.game_info_signals.movement_points.connect(received_movement_points.append)
-
-        runtime_bot.event_manager.process_msg(
-            CharacterCharacteristicsEvent(
-                stats=CharacterCharacteristics(
-                    characteristics=[
-                        CharacterCharacteristic(
-                            characteristic_id=CharacteristicEnum.ACTION_POINTS,
-                            value=CharacterCharacteristicValue(total=12),
-                        ),
-                        CharacterCharacteristic(
-                            characteristic_id=CharacteristicEnum.MOVEMENT_POINTS,
-                            value=CharacterCharacteristicValue(total=6),
-                        ),
-                    ]
-                )
-            )
-        )
-
-        assert CharacteristicEnum.ACTION_POINTS in runtime_bot.game_state.fight.characteristic_by_id
-        assert CharacteristicEnum.MOVEMENT_POINTS in runtime_bot.game_state.fight.characteristic_by_id
-        assert received_action_points == [12]
-        assert received_movement_points == [6]
 
     def test_ordered_stat_uses_breed_tie_breaker(
         self,

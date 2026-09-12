@@ -2,14 +2,52 @@ name: Package release
 
 on:
   push:
+    branches:
+      - '**'
     paths:
       - VERSION
+      - 'DBDofusUnity/datas/bundles/**'
+      - 'DBDofusUnity/datas/protos/**'
 
 permissions:
   contents: write
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      release: ${{ steps.changes.outputs.release }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check release inputs
+        id: changes
+        shell: bash
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          if [[ "$BEFORE" == "0000000000000000000000000000000000000000" ]]; then
+            BEFORE=$(git hash-object -t tree /dev/null)
+          elif ! git cat-file -e "$BEFORE^{commit}"; then
+            git fetch --no-tags origin "$BEFORE"
+          fi
+          if git diff --quiet "$BEFORE" "$AFTER" -- VERSION DBDofusUnity/datas/bundles/ DBDofusUnity/datas/protos/; then
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          else
+            status=$?
+            if [[ "$status" != 1 ]]; then
+              exit "$status"
+            fi
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+
   package:
+    needs: changes
+    if: needs.changes.outputs.release == 'true'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
