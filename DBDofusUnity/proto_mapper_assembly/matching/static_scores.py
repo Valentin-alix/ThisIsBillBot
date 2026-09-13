@@ -141,7 +141,7 @@ def _build_non_obf_gate_inputs(
     pinned_pair = pinned_pairs_config.pinned_pair_msg_by_non_obf.get(non_obf_signature.message_cls)
     return _NonObfGateInputs(
         message_cls=non_obf_signature.message_cls,
-        is_game_msg=message_name == "Message",
+        is_game_msg=message_name in {"Message", "GameMessage"},
         is_root_msg_name=any(
             message_name.endswith(suffix) and len(message_name) > len(suffix)
             for suffix in _ROOT_MESSAGE_NAME_SUFFIXES

@@ -1,6 +1,8 @@
-﻿from unittest.mock import Mock, patch
+﻿from pathlib import Path
+from unittest.mock import Mock, patch
 
 import numpy as np
+import pytest
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
 from DBDofusUnity.proto_mapper_assembly.matching.runtime_rescore import (
     RuntimeCandidateIndexes,
@@ -14,18 +16,45 @@ from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeData
 
 from tests.fixtures.proto_mapper.matching_builders import (
     number_signature,
+    root_signature,
     simple_signature,
     simple_workspace,
 )
 from tests.fixtures.proto_mapper.message_builders import (
     build_verified_mapping,
 )
+from tests.fixtures.proto_mapper.runtime_store import seed_runtime_content
 from tests.fixtures.proto_mapper.signatures import (
     builder_structure_similarity_context,
 )
 
 
 class TestStaticScorePreparation:
+    @pytest.mark.parametrize("message_name", ["Message", "GameMessage"])
+    def test_captured_game_envelope_keeps_its_candidate(
+        self, message_name: str, tmp_path: Path, runtime_data_store: RuntimeDataStore
+    ) -> None:
+        seed_runtime_content(
+            tmp_path,
+            {"obf": [{"from_server": None, "is_game_msg": True, "is_root_msg": True}]},
+        )
+        obf = root_signature("obf")
+        envelope = root_signature(message_name)
+        payload = root_signature("OtherEvent")
+
+        scores = build_static_score_data(
+            obf_signatures=[obf],
+            non_obf_signatures=[envelope, payload],
+            pinned_pairs_config=build_verified_mapping(),
+            runtime_data_store=runtime_data_store,
+            structure_context=builder_structure_similarity_context(
+                left_signatures=[obf], right_signatures=[envelope, payload]
+            ),
+        )
+
+        assert scores.static_scores_matrix[0, 0] > 0
+        assert scores.static_scores_matrix[1, 0] == 0
+
     def test_build_static_score_data_skips_full_static_scoring_for_low_structure_pairs(
         self, runtime_data_store: RuntimeDataStore
     ) -> None:

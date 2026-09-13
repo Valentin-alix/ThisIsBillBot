@@ -11,7 +11,7 @@ from utils.env_config import get_bool_from_env
 
 load_dotenv(ENV_PATH)
 DEBUG = get_bool_from_env("DEBUG")
-ENABLE_MSG_CAPTURE = not IS_PACKAGED and get_bool_from_env("ENABLE_MSG_CAPTURE")
+ENABLE_MSG_CAPTURE = not IS_PACKAGED
 
 ENABLE_SESSION_CONTEXT = False
 

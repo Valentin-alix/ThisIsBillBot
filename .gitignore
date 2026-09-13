@@ -1,4 +1,5 @@
 # Python and tooling
+__Generated
 __pycache__/
 *.py[cod]
 *.pclprof
