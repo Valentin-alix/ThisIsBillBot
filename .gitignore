@@ -69,7 +69,16 @@ DBDofusUnity/datas/proto_mapper/non_obf/cs/*.cs
 !DBDofusUnity/datas/proto_mapper/non_obf/cs/Ankama.Dofus.Protocol.Game.cs
 DBDofusUnity/datas/proto_mapper/.era_cache/
 DBDofusUnity/**/*.h
+!DBDofusUnity/Il2CppInspectorRedux/Il2CppInspector.Common/Cpp/UnityHeaders/*.h
+!DBDofusUnity/Il2CppInspectorRedux/Il2CppInspector.Common/Cpp/Il2CppAPIHeaders/*.h
 DBDofusUnity/**/*.dll
+!DBDofusUnity/UABEA/Libs/*.dll
+!DBDofusUnity/UABEA/TexToolWrap/PVRTexLib/Include/*.h
+!DBDofusUnity/UABEA/TexToolWrap/PVRTexLib/Windows_x86_*/PVRTexLib.dll
+!DBDofusUnity/UABEA/TexToolWrap/crunch/inc/*.h
+!DBDofusUnity/UABEA/TexToolWrap/crunch/win*/crnlib.dll
+!DBDofusUnity/UABEA/TexToolWrap/ispc/include/*.h
+!DBDofusUnity/UABEA/TexToolWrap/ispc/win*/ispc_texcomp.dll
 DBDofusUnity/**/bin/
 DBDofusUnity/**/obf/**/il2cpp.py
 DBDofusUnity/**/obf/**/il2cpp.json

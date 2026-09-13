@@ -19,6 +19,41 @@ class TestDumpScript:
     def _fake_il2cpp_inspector(self, _dll: Path, _meta: Path, output_folder: Path) -> None:
         self._write_dump_cs(output_folder)
 
+    def test_run_il2cpp_inspector_uses_legacy_cli_contract(self, tmp_path: Path) -> None:
+        executable = tmp_path / "Il2CppInspector.exe"
+        game_assembly = tmp_path / "GameAssembly.dll"
+        metadata = tmp_path / "global-metadata.dat"
+        output_folder = tmp_path / "dump"
+
+        with (
+            patch.object(dump_script, "IL2CPP_INSPECTOR_EXECUTABLE", executable),
+            patch.object(dump_script.subprocess, "run") as run_mock,
+        ):
+            dump_script.run_il2cpp_inspector(game_assembly, metadata, output_folder)
+
+        assert output_folder.is_dir()
+        run_mock.assert_called_once_with(
+            [
+                str(executable),
+                "-i",
+                str(game_assembly),
+                "-m",
+                str(metadata),
+                "--select-outputs",
+                "-c",
+                str(output_folder / "cs"),
+                "-o",
+                str(output_folder / "il2cpp.json"),
+                "-d",
+                str(output_folder / "dll"),
+                "--layout",
+                "assembly",
+                "--unity-version",
+                "6000.3.0b1",
+            ],
+            check=True,
+        )
+
     def test_gen_python_removes_bindings_without_a_proto_source(self, tmp_path: Path) -> None:
         (tmp_path / "live.proto").write_text('syntax = "proto3";', encoding="utf-8")
         (tmp_path / "live_pb2.py").write_text("", encoding="utf-8")
