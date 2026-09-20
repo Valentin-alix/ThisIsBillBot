@@ -10,20 +10,19 @@ from pathlib import Path
 from types import TracebackType
 from typing import Any
 
-from DBDofusUnity.consts import GAME_MAPPINGS_JSON_FILE
-from DBDofusUnity.datas.protos.non_obf.game.game_message_pb2 import GameMessage
 from google.protobuf import descriptor_pool
 from google.protobuf.any_pb2 import Any as protoAny
 from google.protobuf.descriptor import Descriptor, FieldDescriptor
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 from google.protobuf.message_factory import GetMessageClass
+
+from DBDofusUnity.consts import GAME_MAPPINGS_JSON_FILE
+from DBDofusUnity.datas.protos.non_obf.game.game_message_pb2 import GameMessage
 from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import (
-    SimpleGameMappingEntry,
     SimpleGameMappingsDocument,
 )
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
-
 from src.protocol.message import MessageInfo
 
 logger = logging.getLogger(__name__)
@@ -100,35 +99,6 @@ def get_mapping_proto_to_obf() -> ProtoToObfMapping:
         )
         for clear_namespace, mapping_info in _load_game_mappings().root.items()
     }
-
-
-def add_pinned_pair_to_game_mappings(
-    *,
-    obf_msg_namespace: str,
-    non_obf_msg_namespace: str,
-    field_mapping: dict[str, str] | None = None,
-) -> None:
-    global _cached_game_mappings
-
-    game_mappings = _load_game_mappings()
-    key = non_obf_msg_namespace if non_obf_msg_namespace.startswith(".") else f".{non_obf_msg_namespace}"
-    existing_entry = game_mappings.root.get(key)
-    merged_field_mapping = {
-        **(existing_entry.field_mapping if existing_entry else {}),
-        **(field_mapping or {}),
-    }
-
-    _cached_game_mappings = SimpleGameMappingsDocument(
-        root={
-            **game_mappings.root,
-            key: SimpleGameMappingEntry(
-                obf_msg_namespace=obf_msg_namespace,
-                field_mapping=merged_field_mapping,
-            ),
-        }
-    )
-    get_mapping_proto_to_real.cache_clear()
-    get_mapping_proto_to_obf.cache_clear()
 
 
 def is_usable_msg(msg_name: str) -> bool:

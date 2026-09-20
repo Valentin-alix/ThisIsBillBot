@@ -213,11 +213,8 @@ class MessageDetailWidget(QWidget):
     def _render_content(self) -> None:
         msg_json = self._display_content(self._msg_json, self._msg_descriptor)
         obf_msg_json = self._display_content(self._obf_msg_json, self._obf_msg_descriptor)
-        if msg_json is not None:
-            self.dynamic_tree.show()
-            self.dynamic_tree.set_content(msg_json)
-        else:
-            self.dynamic_tree.hide()
+        self.dynamic_tree.show()
+        self.dynamic_tree.set_content(msg_json or {})
         if obf_msg_json is not None:
             self.obf_dynamic_tree.show()
             self.obf_dynamic_tree.set_content(obf_msg_json)

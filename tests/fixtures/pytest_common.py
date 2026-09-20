@@ -1,6 +1,5 @@
 import os
 import tempfile
-import uuid
 from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import Any, Protocol, cast
@@ -14,15 +13,12 @@ from ankama_launcher_emulator.interfaces.credentials import StoredApiKey
 from ankama_launcher_emulator.interfaces.zaap_files import (
     GameSubscription,
 )
-from DBDofusUnity.proto_mapper_assembly.runtime import runtime_store
-from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 from src.consts import MIN_DATE
 from src.controller.settings import SettingsService
 from src.core.bot.bot import Bot
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.lifecycle.scheduler import BotScheduler
 from src.core.states.guild_chest_storage import GuildChestStorage
-from src.protocol import protocol_game
 from src.services.debug_recorder import DebugRecorder
 from tests.fixtures.accounts import make_account, make_runtime_bot
 from tests.fixtures.bot_runtime import make_behavior_coordinator, make_bot_scheduler
@@ -95,23 +91,6 @@ def game_sub_info_mock(monkeypatch: pytest.MonkeyPatch) -> None:
         )
 
     monkeypatch.setattr("src.core.states.player_state.get_game_sub_info_by_login", fake_get_game_sub_info)
-
-
-@pytest.fixture
-def tmp_json_path(tmp_path: Path) -> Path:
-    return tmp_path / f"{uuid.uuid4()}.json"
-
-
-@pytest.fixture
-def runtime_data_store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[RuntimeDataStore]:
-    monkeypatch.setattr(runtime_store, "RUNTIME_DATA_FILE", tmp_path / "instancied_msg_infos.json")
-    instance = RuntimeDataStore()
-    instance._capture_target_path = None  # pyright: ignore[reportPrivateUsage]
-    monkeypatch.setattr(protocol_game, "_on_exit", lambda: None)
-    yield instance
-    instance.path.unlink(missing_ok=True)
-    del instance._writing_content
-    instance._capture_target_path = None  # pyright: ignore[reportPrivateUsage]
 
 
 @pytest.fixture

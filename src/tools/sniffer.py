@@ -47,7 +47,6 @@ from src.utils.internet import get_local_ip
 class Sniffer:
     buffers: dict[tuple[str, str], bytes] = field(init=False, default_factory=lambda: defaultdict(bytes))
     msg_info_signals: MessageInfoSignals
-    from_obfuscated: bool
 
     def launch_sniffer(self) -> None:
         print("Starting sniffer")
@@ -122,7 +121,7 @@ def main() -> None:
     app = QApplication(sys.argv)
     bot = generate_random_bot()
     bot.is_fake = False
-    sniffer = Sniffer(msg_info_signals=bot.msg_info_signals, from_obfuscated=True)
+    sniffer = Sniffer(msg_info_signals=bot.msg_info_signals)
     Thread(target=sniffer.launch_sniffer, daemon=True).start()
     global_signals = LogSignals()
     init_root_gui_logging(global_signals)

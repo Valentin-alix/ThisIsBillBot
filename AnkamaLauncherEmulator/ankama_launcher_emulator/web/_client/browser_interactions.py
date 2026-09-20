@@ -89,10 +89,6 @@ def detect_antibot_marker(html: str) -> AntibotDetection | None:
     return None
 
 
-async def detect_antibot(page: Page) -> AntibotDetection | None:
-    return detect_antibot_marker(await page.content())
-
-
 async def visible_form_error_texts(
     page: Page, selectors: tuple[str, ...] = FORM_ERROR_SELECTORS
 ) -> tuple[str, ...]:

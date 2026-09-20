@@ -10,7 +10,6 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import (
     EnumCalledFunctionRef,
     EnumMemberGroup,
     EnumSignatureEntry,
-    EnumSignatureIndex,
     EnumSwitchPattern,
 )
 from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import (
@@ -58,14 +57,14 @@ def _enum_signature(*groups: EnumMemberGroup, members: dict[str, str]) -> EnumSi
     )
 
 
-class TestEnumSignatureIndex:
+class TestEnumSignatureEntry:
     def test_serialization_round_trip_preserves_enum_signature(self) -> None:
-        index = EnumSignatureIndex(root={"Channel": _round_trip_entry()})
+        entry = _round_trip_entry()
 
-        restored = EnumSignatureIndex.model_validate_json(index.model_dump_json())
+        restored = EnumSignatureEntry.model_validate_json(entry.model_dump_json())
 
-        pattern = restored.root["Channel"].switch_patterns[0]
-        assert restored.root["Channel"].member_value_to_name == {"0": "Global", "1": "Team", "5": "Sales"}
+        pattern = restored.switch_patterns[0]
+        assert restored.member_value_to_name == {"0": "Global", "1": "Team", "5": "Sales"}
         assert pattern.function_addr == 0x1810D2470
         assert pattern.member_groups[0].called_functions[0].function_address == "0xaabbcc"
         assert pattern.member_groups[0].called_functions[0].occurrence_count == 2

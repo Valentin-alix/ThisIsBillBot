@@ -23,11 +23,6 @@ def dump_cs(tmp_path_factory: pytest.TempPathFactory) -> Callable[[str], Path]:
 
 
 @pytest.fixture
-def tmp_json_path(tmp_path: Path) -> Path:
-    return tmp_path / f"{uuid.uuid4()}.json"
-
-
-@pytest.fixture
 def runtime_data_store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[RuntimeDataStore]:
     monkeypatch.setattr(runtime_store, "RUNTIME_DATA_FILE", tmp_path / "instancied_msg_infos.json")
     monkeypatch.setattr(runtime_store, "ENABLE_MSG_CAPTURE", True)
