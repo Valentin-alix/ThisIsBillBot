@@ -48,7 +48,6 @@ from DBDofusUnity.proto_mapper_assembly.controllers.capture_sequence_hints impor
 )
 from DBDofusUnity.proto_mapper_assembly.controllers.game_mappings import (
     build_game_mappings_document,
-    load_game_mappings_document,
 )
 from DBDofusUnity.proto_mapper_assembly.controllers.matching_inputs_loader import load_matching_inputs
 from DBDofusUnity.proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
@@ -223,6 +222,10 @@ def _build_argument_parser() -> argparse.ArgumentParser:
     )
     current_mode = parser.add_argument_group("--mode current")
     current_mode.add_argument(
+        "--reference", type=Path, default=GAME_MAPPINGS_DETAILED_JSON_FILE,
+        help="Fixed detailed mapping snapshot for stability comparison, not independent proof.",
+    )
+    current_mode.add_argument(
         "--with-pins",
         action="store_true",
         help="Run with pinned_pairs.json applied, to sanity-check the harness itself.",
@@ -251,6 +254,7 @@ def _run_current_build_benchmark(arguments: argparse.Namespace) -> None:
     report = run_benchmark(
         use_pinned_pairs=bool(arguments.with_pins),
         signature_overrides_path=arguments.signature_overrides,
+        reference_path=arguments.reference,
     )
     print(format_report(report))
     json_path: Path | None = arguments.json
@@ -670,8 +674,12 @@ class BenchmarkReport:
         return sum(1 for outcome in self.pin_outcomes if outcome.is_recovered)
 
 
-def run_benchmark(*, use_pinned_pairs: bool, signature_overrides_path: Path | None = None) -> BenchmarkReport:
+def run_benchmark(
+    *, use_pinned_pairs: bool, signature_overrides_path: Path | None = None,
+    reference_path: Path = GAME_MAPPINGS_DETAILED_JSON_FILE,
+) -> BenchmarkReport:
     started = perf_counter()
+    reference_document = GameMappingsDocument.model_validate_json(reference_path.read_text(encoding="utf-8"))
     matching_inputs = load_matching_inputs(
         obf_dump_cs_path=OBF_PROTOCOL_GAME_DUMP_CS_FILE,
         non_obf_dump_cs_path=NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
@@ -705,7 +713,6 @@ def run_benchmark(*, use_pinned_pairs: bool, signature_overrides_path: Path | No
         obf_messages_by_cls=obf_messages_by_cls,
         non_obf_messages_by_cls=non_obf_messages_by_cls,
     )
-    reference_document = load_game_mappings_document(GAME_MAPPINGS_DETAILED_JSON_FILE)
     return build_report(
         reference_document=reference_document,
         candidate_document=candidate_document,

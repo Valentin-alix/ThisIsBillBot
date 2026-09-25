@@ -1,11 +1,18 @@
 from collections.abc import Mapping
 
 import numpy as np
+
 from DBDofusUnity.proto_mapper_assembly.affinities.callee_affinity import build_callee_affinity
-from DBDofusUnity.proto_mapper_assembly.affinities.declaration_order_alignment import build_declaration_order_affinity
-from DBDofusUnity.proto_mapper_assembly.affinities.file_descriptor_similarity import build_file_descriptor_similarity
+from DBDofusUnity.proto_mapper_assembly.affinities.declaration_order_alignment import (
+    build_declaration_order_affinity,
+)
+from DBDofusUnity.proto_mapper_assembly.affinities.file_descriptor_similarity import (
+    build_file_descriptor_similarity,
+)
 from DBDofusUnity.proto_mapper_assembly.affinities.handler_cohorts import build_handler_cohort_affinity
-from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import count_handler_registrations_by_cls
+from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import (
+    count_handler_registrations_by_cls,
+)
 from DBDofusUnity.proto_mapper_assembly.interfaces.affinity import AffinitySignalInputs, MaskedAffinitySignal
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessTraceDocument,
@@ -15,6 +22,7 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.matching import (
     MatchingWorkspace,
     PreparedScoreData,
 )
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
 from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs, MatchingRunConfig
 from DBDofusUnity.proto_mapper_assembly.matching.runtime_rescore import build_runtime_rescored_scores
 from DBDofusUnity.proto_mapper_assembly.matching.static_scores import (
@@ -70,13 +78,15 @@ def build_prepared_scores(
         obf_access_trace=inputs.obf_access_trace,
         non_obf_access_trace=inputs.non_obf_access_trace,
     )
-    final_scores_matrix, runtime_confidence_by_pair = build_runtime_rescored_scores(
+    runtime_rescored_scores = build_runtime_rescored_scores(
         workspace=workspace,
         inputs=inputs,
         run_config=run_config,
         scores_matrix=handler_adjusted_scores_matrix,
-        structure_scores_matrix=static_score_data.structure_scores_matrix,
     )
+    final_scores_matrix = runtime_rescored_scores.scores_matrix
+    runtime_confidence_by_pair = runtime_rescored_scores.runtime_confidence_by_pair
+    rejected_pairs_by_reason = dict(runtime_rescored_scores.rejected_pairs_by_reason)
 
     file_descriptor_similarity_matrix, file_descriptor_similarity_by_pair = build_file_descriptor_similarity(
         workspace=workspace, base_scores_matrix=static_score_data.static_scores_matrix
@@ -99,6 +109,28 @@ def build_prepared_scores(
             applicable_mask=applicable_mask,
             weight=signal.weight,
         )
+    requires_oneof = np.array(
+        [
+            signature.dump_cs_msg.is_root_msg and bool(signature.dump_cs_msg.oneof_group_sizes)
+            for signature in workspace.non_obf_signatures
+        ],
+        dtype=bool,
+    )
+    has_oneof = np.array(
+        [bool(signature.dump_cs_msg.oneof_group_sizes) for signature in workspace.obf_signatures],
+        dtype=bool,
+    )
+    rejected_candidates = requires_oneof[:, None] & ~has_oneof[None, :]
+    final_scores_matrix[rejected_candidates] = 0.0
+    for non_obf_index, non_obf_signature in enumerate(workspace.non_obf_signatures):
+        for obf_index, obf_signature in enumerate(workspace.obf_signatures):
+            if rejected_candidates[non_obf_index, obf_index]:
+                pair = MatchPairKey(obf_signature.message_cls, non_obf_signature.message_cls)
+                rejected_pairs_by_reason.setdefault(pair, "root_oneof_mismatch")
+    for pair in rejected_pairs_by_reason:
+        non_obf_index = workspace.signature_indexes.non_obf_index_by_cls[pair.non_obf_message_cls]
+        obf_index = workspace.signature_indexes.obf_index_by_cls[pair.obf_message_cls]
+        final_scores_matrix[non_obf_index, obf_index] = 0.0
     final_scores_matrix = apply_pinned_pair_overrides_around_prospective_mask(
         workspace=workspace,
         scores_matrix=final_scores_matrix,
@@ -111,6 +143,7 @@ def build_prepared_scores(
         assembly_scores_matrix=static_score_data.assembly_scores_matrix,
         runtime_confidence_by_pair=runtime_confidence_by_pair,
         file_descriptor_similarity_by_pair=file_descriptor_similarity_by_pair,
+        rejected_pairs_by_reason=rejected_pairs_by_reason,
     )
 
 
@@ -170,7 +203,7 @@ def _build_structure_similarity_context(
 def _blend_file_descriptor_similarity(
     *, message_scores_matrix: np.ndarray, file_descriptor_similarity_matrix: np.ndarray
 ) -> np.ndarray:
-    """Blend without masking so file alignment can revive pairs rejected by static gates."""
+    """Blend group evidence; candidate eligibility is restored after all affinities."""
     return (
         1.0 - _FILE_DESCRIPTOR_SIMILARITY_WEIGHT
     ) * message_scores_matrix + _FILE_DESCRIPTOR_SIMILARITY_WEIGHT * file_descriptor_similarity_matrix

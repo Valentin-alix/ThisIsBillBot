@@ -5,7 +5,7 @@ from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     MapComplementaryInformationEvent,
 )
 from DBDofusUnity.datas.protos.non_obf.game.haven_bag_pb2 import (
-    HavenBagExitRequest,
+    HavenBagEnterRequest,
 )
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.game_constants.area import AreaEnum
@@ -82,7 +82,7 @@ class AutoTripZaapBehavior(Behavior):
                 originator=self,
                 once=True,
             )
-            req = HavenBagExitRequest()
+            req = HavenBagEnterRequest()
             self.event_manager.send(req)
         else:
             self.walk_to_map_ids(map_ids=map_ids, ends_pos=destination_map_positions)

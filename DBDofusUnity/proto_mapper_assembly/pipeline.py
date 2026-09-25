@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -25,11 +26,14 @@ from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import (
     load_pinned_pairs,
     resolve_pinned_pairs_non_obf_targets,
 )
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchResult
 from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingRunConfig
 from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
 from DBDofusUnity.proto_mapper_assembly.matching.orchestrator import match_messages
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 from DBDofusUnity.proto_mapper_assembly.validators.auto_mode_mapping_contract import (
+    AutoModeMappingContractError,
     check_auto_mode_mappings,
     format_auto_mode_mapping_audit,
 )
@@ -117,6 +121,23 @@ def run_pipeline(*, do_load_pinned_pair: bool, obf_dir: Path | None = None) -> N
         ),
     )
 
+    publish_game_mappings(
+        matches,
+        obf_messages_by_cls=obf_messages_by_cls,
+        non_obf_messages_by_cls=non_obf_messages_by_cls,
+        pipeline_paths=pipeline_paths,
+        runtime_data_store=runtime_data_store,
+    )
+
+
+def publish_game_mappings(
+    matches: Sequence[MatchResult],
+    *,
+    obf_messages_by_cls: dict[str, DumpCSMessage],
+    non_obf_messages_by_cls: dict[str, DumpCSMessage],
+    pipeline_paths: PipelinePaths,
+    runtime_data_store: RuntimeDataStore,
+) -> None:
     write_game_mappings(
         matches,
         obf_messages_by_cls=obf_messages_by_cls,
@@ -124,10 +145,14 @@ def run_pipeline(*, do_load_pinned_pair: bool, obf_dir: Path | None = None) -> N
         output_path=pipeline_paths.game_mappings_path,
         detailed_output_path=pipeline_paths.detailed_game_mappings_path,
     )
-    audit = check_auto_mode_mappings(
-        contract_path=pipeline_paths.auto_mode_mapping_contract_path,
-        detailed_mappings_path=pipeline_paths.detailed_game_mappings_path,
-        pinned_pairs_path=pipeline_paths.pinned_pairs_path,
-        observed_root_obf_messages=runtime_data_store.get_observed_root_obf_messages(),
-    )
+    try:
+        audit = check_auto_mode_mappings(
+            contract_path=pipeline_paths.auto_mode_mapping_contract_path,
+            detailed_mappings_path=pipeline_paths.detailed_game_mappings_path,
+            pinned_pairs_path=pipeline_paths.pinned_pairs_path,
+            observed_root_obf_messages=runtime_data_store.get_observed_root_obf_messages(),
+        )
+    except AutoModeMappingContractError as error:
+        print(str(error))
+        return
     print(format_auto_mode_mapping_audit(audit))

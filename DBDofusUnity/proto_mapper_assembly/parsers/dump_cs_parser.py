@@ -3,6 +3,11 @@ from collections.abc import Iterable
 from pathlib import Path
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
+from DBDofusUnity.proto_mapper_assembly.parsers._scoped_field_types import (
+    build_scoped_type_categories,
+    resolve_scoped_field_types,
+)
 from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_message_body_parser import parse_message_body
 from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_structure import (
     _Marker,
@@ -73,6 +78,7 @@ def _parse_spans_impl(
     file_descriptor_markers = collect_file_descriptor_markers(code)
     parent_name_cache: dict[int, str | None] = {}
     resolved_parent_spans = parent_spans if parent_spans is not None else message_spans
+    type_categories = build_scoped_type_categories(code, resolved_parent_spans, namespace_spans)
     return [
         _build_message(
             message_span,
@@ -82,6 +88,7 @@ def _parse_spans_impl(
             resolved_parent_spans,
             parent_name_cache,
             enum_names,
+            type_categories,
         )
         for message_span in message_spans
     ]
@@ -95,6 +102,7 @@ def _build_message(
     parent_spans: list[_Span],
     parent_name_cache: dict[int, str | None],
     enum_names: frozenset[str],
+    type_categories: dict[str, FieldCategoryEnum],
 ) -> DumpCSMessage:
     namespace_span = find_smallest_enclosing_span(namespace_spans, message_span.start)
     message_type_def_index = message_span.type_def_index
@@ -108,13 +116,24 @@ def _build_message(
     )
     stripped_body = get_stripped_direct_body(message_span.start, code)
     fields, properties = parse_message_body(stripped_body, enum_names)
+    parent_name = build_parent_name(message_span, parent_spans, parent_name_cache)
+    scope = ".".join(
+        part
+        for part in (
+            namespace_span.name if namespace_span else None,
+            parent_name,
+            message_span.name,
+        )
+        if part
+    )
+    fields = resolve_scoped_field_types(fields, scope, type_categories)
     return DumpCSMessage(
         file_descriptor=file_descriptor,
         name=message_span.name,
         fields=fields,
         properties=properties,
         namespace=namespace_span.name if namespace_span is not None else None,
-        parent_name=build_parent_name(message_span, parent_spans, parent_name_cache),
+        parent_name=parent_name,
         base_class_name=_extract_base_class_name(message_span.base_clause),
     )
 

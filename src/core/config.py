@@ -24,7 +24,6 @@ class BehaviorSettings(BaseModel):
     do_craft: bool = False
     do_use_guild_chest: bool = False
     do_dungeon: bool = False
-    do_quest: bool = False
     do_idle: bool = False
     enable_auto_equipment_market_purchases: bool = False
     enable_auto_ogrine_subscriptions: bool = False

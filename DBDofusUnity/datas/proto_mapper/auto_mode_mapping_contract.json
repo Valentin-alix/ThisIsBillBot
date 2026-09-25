@@ -216,15 +216,6 @@
       ]
     },
     {
-      "message": ".com.ankama.dofus.server.game.protocol.character.CharacterCharacteristicUpgradeResultEvent",
-      "fields": [
-        "result"
-      ],
-      "activities": [
-        "game_state"
-      ]
-    },
-    {
       "message": ".com.ankama.dofus.server.game.protocol.character.CharacterLevelUpEvent",
       "fields": [
         "new_level"
@@ -314,37 +305,6 @@
       ],
       "activities": [
         "movement_dungeon"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.chat.ChatChannelMessageEvent",
-      "fields": [
-        "channel",
-        "content",
-        "sender_name"
-      ],
-      "activities": [
-        "chat"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.chat.ChatChannelMessageRequest",
-      "fields": [
-        "channel",
-        "content"
-      ],
-      "activities": [
-        "chat"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.chat.ChatPrivateMessageRequest",
-      "fields": [
-        "content",
-        "name"
-      ],
-      "activities": [
-        "chat"
       ]
     },
     {
@@ -679,13 +639,6 @@
     },
     {
       "message": ".com.ankama.dofus.server.game.protocol.context.ContextCreationRequest",
-      "fields": [],
-      "activities": [
-        "movement_dungeon"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.context.ContextQuitRequest",
       "fields": [],
       "activities": [
         "movement_dungeon"
@@ -1441,15 +1394,6 @@
       ]
     },
     {
-      "message": ".com.ankama.dofus.server.game.protocol.haapi.HaapiSessionEvent",
-      "fields": [
-        "session_uid"
-      ],
-      "activities": [
-        "subscription"
-      ]
-    },
-    {
       "message": ".com.ankama.dofus.server.game.protocol.haven.bag.HavenBagEnterRequest",
       "fields": [
         "owner"
@@ -1852,34 +1796,6 @@
       ]
     },
     {
-      "message": ".com.ankama.dofus.server.game.protocol.achievement.AchievementFinishedEvent",
-      "fields": [
-        "achievement"
-      ],
-      "activities": [
-        "game_state"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.achievement.AchievementRewardRequest",
-      "fields": [
-        "achievement_id"
-      ],
-      "activities": [
-        "game_state"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.achievement.AchievementRewardResultEvent",
-      "fields": [
-        "achievement_id",
-        "success"
-      ],
-      "activities": [
-        "game_state"
-      ]
-    },
-    {
       "message": ".com.ankama.dofus.server.game.protocol.admin.console.ConsoleCommand",
       "fields": [],
       "activities": [
@@ -2053,94 +1969,6 @@
     {
       "message": ".com.ankama.dofus.server.game.protocol.preset.PresetUseRequest",
       "fields": [],
-      "activities": [
-        "game_state"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.quest.QuestActive",
-      "fields": [
-        "details",
-        "quest_id"
-      ],
-      "activities": [
-        "game_state"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.quest.QuestObjective",
-      "fields": [
-        "objective_id",
-        "objective_reached"
-      ],
-      "activities": [
-        "game_state"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.quest.QuestObjectiveValidatedEvent",
-      "fields": [
-        "objective_id",
-        "quest_id"
-      ],
-      "activities": [
-        "game_state"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.quest.QuestStartedEvent",
-      "fields": [
-        "quest_id"
-      ],
-      "activities": [
-        "game_state"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.quest.QuestStepInformationEvent",
-      "fields": [
-        "information"
-      ],
-      "activities": [
-        "game_state"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.quest.QuestStepStartedEvent",
-      "fields": [
-        "quest_id",
-        "step_id"
-      ],
-      "activities": [
-        "game_state"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.quest.QuestStepValidatedEvent",
-      "fields": [
-        "quest_id",
-        "step_id"
-      ],
-      "activities": [
-        "game_state"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.quest.QuestValidatedEvent",
-      "fields": [
-        "quest_id"
-      ],
-      "activities": [
-        "game_state"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.quest.QuestsEvent",
-      "fields": [
-        "active_quests",
-        "finished_quests",
-        "reinitialized_done_quests_id"
-      ],
       "activities": [
         "game_state"
       ]

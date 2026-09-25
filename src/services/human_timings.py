@@ -47,7 +47,6 @@ FIGHT_SPELL_CAST_TIMING = TimingProfile(0.08, 0.15, 0.3)
 ITEM_USE_TIMING = TimingProfile(0.4, 0.6, 1)
 WORKSHOP_INTERACTION_TIMING = TimingProfile(0.8, 1.5, 3.0)
 LEVEL_UP_CHARACTERISTIC_TIMING = TimingProfile(1, 1.5, 2)
-ACHIEVEMENT_REWARD_TIMING = TimingProfile(1.5, 3.0, 6.0)
 SHORT_ACTION_TIMING = TimingProfile(0.3, 0.65, 1.0)
 BASE_ACTION_TIMING = TimingProfile(0.5, 1.0, 1.5)
 LONG_ACTION_TIMING = TimingProfile(1.0, 2.0, 3.0)
@@ -172,9 +171,6 @@ class HumanTimingsService(metaclass=Singleton):
 
     def get_timing_after_level_up(self) -> float:
         return self._get_timing(LEVEL_UP_CHARACTERISTIC_TIMING)
-
-    def get_timing_after_achievement(self) -> float:
-        return self._get_timing(ACHIEVEMENT_REWARD_TIMING)
 
     def get_timing_fight_acknowledgement(self) -> float:
         return self._get_timing(FIGHT_ACKNOWLEDGEMENT_TIMING)

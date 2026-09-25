@@ -299,12 +299,9 @@ def _debug_runtime_remapping(
             all_remapped_keys: set[str] = set()
             for remapped_instance in remapped_instances:
                 all_remapped_keys |= remapped_instance.keys()
-            forced_field_names: frozenset[str] = frozenset()
             expected_keys = {
                 field.clean_field_name
-                for field in candidate.non_obf_msg_sig.get_exportable_fields(
-                    forced_field_names=forced_field_names
-                )
+                for field in candidate.non_obf_msg_sig.get_exportable_fields()
                 if field.property_name is not None
             }
             silent_drops = expected_keys - all_remapped_keys

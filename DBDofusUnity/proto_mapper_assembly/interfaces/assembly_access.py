@@ -307,24 +307,8 @@ class MessageAccessSignature(BaseModel):
     def live_field_keys(self) -> frozenset[FieldKey]:
         return frozenset(field_signature.field_key for field_signature in self.field_signatures)
 
-    @cached_property
-    def active_oneof_group_names(self) -> frozenset[str]:
-        return frozenset(
-            field.oneof_group_name
-            for field in self.declared_proto_fields
-            if field.oneof_group_name is not None
-            and field.is_synthetic_oneof_variant
-            and field.field_key in self.live_field_keys
-        )
-
-    @cached_property
-    def static_exportable_fields(self) -> tuple[DumpCSMessageField, ...]:
-        return tuple(field for field in self.declared_proto_fields if field.property_name is not None)
-
     @cache
-    def get_exportable_fields(
-        self, *, forced_field_names: frozenset[str] = frozenset()
-    ) -> tuple[DumpCSMessageField, ...]:
+    def get_exportable_fields(self) -> tuple[DumpCSMessageField, ...]:
         return tuple(field for field in self.declared_proto_fields if field.property_name is not None)
 
     @cached_property

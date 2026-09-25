@@ -33,7 +33,6 @@ from src.core.behaviors.farms.fight.fighter_behavior import FighterBehavior
 from src.core.behaviors.farms.harvest.harvester_behavior import HarvesterBehavior
 from src.core.behaviors.farms.harvest.multi_farming_behavior import MultiFarmingBehavior
 from src.core.behaviors.farms.random_farm_behavior import RandomFarmBehavior
-from src.core.behaviors.farms.smoke_test_behavior import SmokeTestBehavior
 from src.core.behaviors.idle_behavior import IdleBehavior
 from src.core.behaviors.interactives.collect_behavior import CollectBehavior
 from src.core.behaviors.interactives.fake_bad_interactive_behavior import (
@@ -65,8 +64,6 @@ from src.core.behaviors.movements.map_movement_cancel_behavior import MapMovemen
 from src.core.behaviors.movements.waypoint_behavior import WaypointBehavior
 from src.core.behaviors.npcs.npc_dialog_behavior import NpcDialogBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
-from src.core.behaviors.quests.quest_behavior import QuestBehavior
-from src.core.behaviors.quests.quest_script_behavior import QuestScriptBehavior
 from src.core.behaviors.quests.tutorial_behavior import TutorialBehavior
 from src.core.behaviors.recovery_behavior import BlockingStateRecovery
 from src.core.behaviors.sale_hotel.enter_sale_hotel_behavior import (
@@ -125,9 +122,7 @@ from src.core.engine.movements.world.astar_vertice import AstarWorld
 from src.core.engine.movements.world.world_path_finder import WorldPathFinder
 from src.core.engine.weights.weighted_path import WeightedPath
 from src.core.events_manager.event_manager import EventManager
-from src.core.frames.achievement_frame import AchievementFrame
 from src.core.frames.bank_chest_frame import BankChestFrame
-from src.core.frames.chat_frame import ChatFrame
 from src.core.frames.craft_frame import CraftFrame
 from src.core.frames.dialog_frame import DialogFrame
 from src.core.frames.entity_frame import EntityFrame
@@ -138,7 +133,6 @@ from src.core.frames.inventory_frame import InventoryFrame
 from src.core.frames.map_frame import MapFrame
 from src.core.frames.player_frame import PlayerFrame
 from src.core.frames.player_info_snapshot_frame import PlayerInfoSnapshotFrame
-from src.core.frames.quest_frame import QuestFrame
 from src.core.frames.sale_hotel_frame import SaleHotelFrame
 from src.core.frames.server_frame import ServerFrame
 from src.core.signals.bot_signals import BotSignals
@@ -217,14 +211,6 @@ class BotFactory:
             _logger=logger,
             game_info_signals=game_info_signals,
             inventory_signals=inventory_signals,
-            is_playing_event=is_playing_event,
-        )
-        chat_frame = ChatFrame(
-            event_manager=event_manager,
-            game_state=game_state,
-            game_info_signals=game_info_signals,
-            inventory_signals=inventory_signals,
-            _logger=logger,
             is_playing_event=is_playing_event,
         )
         bank_chest_frame = BankChestFrame(
@@ -309,22 +295,6 @@ class BotFactory:
             is_playing_event=is_playing_event,
         )
         craft_frame = CraftFrame(
-            event_manager=event_manager,
-            game_state=game_state,
-            game_info_signals=game_info_signals,
-            inventory_signals=inventory_signals,
-            _logger=logger,
-            is_playing_event=is_playing_event,
-        )
-        quest_frame = QuestFrame(
-            event_manager=event_manager,
-            game_state=game_state,
-            game_info_signals=game_info_signals,
-            inventory_signals=inventory_signals,
-            _logger=logger,
-            is_playing_event=is_playing_event,
-        )
-        achievement_frame = AchievementFrame(
             event_manager=event_manager,
             game_state=game_state,
             game_info_signals=game_info_signals,
@@ -694,25 +664,6 @@ class BotFactory:
             unload_behavior=unload_behavior,
             sale_hotel_prices_behavior=sale_hotel_prices_behavior,
         )
-        quest_script_behavior = QuestScriptBehavior(
-            event_manager=event_manager,
-            game_state=game_state,
-            _logger=logger,
-            auto_trip_smart_behavior=auto_trip_world_behavior,
-            npc_dialog_behavior=npc_dialog_behavior,
-            attacker_behavior=attacker_behavior,
-            fight_behavior=fight_behavior,
-            interactive_behavior=interactive_behavior,
-            acquire_items_behavior=acquire_items_behavior,
-            craft_behavior=craft_behavior,
-        )
-        quest_behavior = QuestBehavior(
-            recovery=blocking_state_recovery,
-            event_manager=event_manager,
-            game_state=game_state,
-            _logger=logger,
-            quest_script_behavior=quest_script_behavior,
-        )
         idle_behavior = IdleBehavior(
             event_manager=event_manager,
             game_state=game_state,
@@ -753,25 +704,10 @@ class BotFactory:
             harvester_behavior=harvester,
             multi_farming_behavior=multi_farming_behavior,
             dungeon_behavior=dungeon_behavior,
-            quest_behavior=quest_behavior,
             idle_behavior=idle_behavior,
             craft_behavior=craft_behavior,
             sale_hotel_sell_behavior=sale_hotel_prices_behavior,
             report_status=harvester_signals.automation_status_changed.emit,
-        )
-        smoke_test_behavior = SmokeTestBehavior(
-            recovery=blocking_state_recovery,
-            event_manager=event_manager,
-            game_state=game_state,
-            _logger=logger,
-            auto_equipment_behavior=auto_equipment_behavior,
-            fighter_behavior=fighter_behavior,
-            harvester_behavior=harvester,
-            craft_behavior=craft_behavior,
-            enter_bank_chest_behavior=enter_bank_chest_behavior,
-            sale_hotel_sell_behavior=sale_hotel_prices_behavior,
-            sale_hotel_buy_behavior=sale_hotel_buy_behavior,
-            quest_behavior=quest_behavior,
         )
 
         fake_bad_interactive_behavior = FakeBadInteractiveBehavior(
@@ -802,14 +738,12 @@ class BotFactory:
                 mule_accept_kamas_behavior,
                 mule_give_behavior,
                 dungeon_behavior,
-                quest_behavior,
                 sale_hotel_prices_behavior,
                 auto_equipment_behavior,
                 fake_bad_movement_behavior,
                 fake_bad_interactive_behavior,
                 ogrine_subscription_behavior,
                 paysafecard_subscription_behavior,
-                smoke_test_behavior,
             ],
             account=account,
             grid_signals=grid_signals,
@@ -831,7 +765,6 @@ class BotFactory:
                 entity_frame,
                 inventory_frame,
                 interactive_frame,
-                chat_frame,
                 fight_frame,
                 server_frame,
                 guild_chest_frame,
@@ -839,8 +772,6 @@ class BotFactory:
                 craft_frame,
                 bank_chest_frame,
                 dialog_frame,
-                quest_frame,
-                achievement_frame,
                 player_info_snapshot_frame,
             ],
             world_signals=world_signals,

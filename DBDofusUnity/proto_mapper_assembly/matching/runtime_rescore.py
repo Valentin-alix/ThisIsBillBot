@@ -16,7 +16,6 @@ from DBDofusUnity.proto_mapper_assembly.matching.score_lookup import build_lazy_
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_field_validation import (
     build_runtime_field_validator_confidence,
 )
-from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import compute_message_similarity
 
 _RUNTIME_GUARANTEED_TOP_CANDIDATE_COUNT = 3
 _RUNTIME_MAX_CANDIDATE_COUNT = 10
@@ -32,6 +31,7 @@ class RuntimeCandidateIndexes(NamedTuple):
 class RuntimeRescoredScores(NamedTuple):
     scores_matrix: np.ndarray
     runtime_confidence_by_pair: dict[MatchPairKey, float | None]
+    rejected_pairs_by_reason: dict[MatchPairKey, str]
 
 
 def build_runtime_rescored_scores(
@@ -40,11 +40,11 @@ def build_runtime_rescored_scores(
     inputs: MatchingInputs,
     run_config: MatchingRunConfig,
     scores_matrix: np.ndarray,
-    structure_scores_matrix: np.ndarray,
 ) -> RuntimeRescoredScores:
     """Rescore only capture-backed candidates; absent runtime evidence is neutral."""
     rescored_matrix = np.array(scores_matrix, copy=True)
     runtime_confidence_by_pair: dict[MatchPairKey, float | None] = {}
+    rejected_pairs_by_reason: dict[MatchPairKey, str] = {}
     candidates_by_non_obf = _build_runtime_candidates_by_non_obf(
         workspace=workspace,
         inputs=inputs,
@@ -66,22 +66,17 @@ def build_runtime_rescored_scores(
                 },
                 runtime_data_store=run_config.runtime_data_store,
             )
+            pair_key = MatchPairKey(candidate.obf_msg_sig.message_cls, candidate.non_obf_msg_sig.message_cls)
             if candidate.field_mapping_result.has_validation_failure:
                 runtime_confidence = 0.0
+                rejected_pairs_by_reason[pair_key] = "runtime_field_validation"
 
-            pair_score = compute_message_similarity(
-                candidate.obf_msg_sig,
-                candidate.non_obf_msg_sig,
-                structure_score=float(structure_scores_matrix[candidate.non_obf_index, candidate.obf_index]),
-            )
             rescored_matrix[candidate.non_obf_index, candidate.obf_index] = _apply_runtime_confidence_score(
-                static_similarity=pair_score.static_similarity,
+                static_similarity=float(scores_matrix[candidate.non_obf_index, candidate.obf_index]),
                 runtime_confidence=runtime_confidence,
             )
-            runtime_confidence_by_pair[
-                MatchPairKey(candidate.obf_msg_sig.message_cls, candidate.non_obf_msg_sig.message_cls)
-            ] = runtime_confidence
-    return RuntimeRescoredScores(rescored_matrix, runtime_confidence_by_pair)
+            runtime_confidence_by_pair[pair_key] = runtime_confidence
+    return RuntimeRescoredScores(rescored_matrix, runtime_confidence_by_pair, rejected_pairs_by_reason)
 
 
 def _build_runtime_candidates_by_non_obf(

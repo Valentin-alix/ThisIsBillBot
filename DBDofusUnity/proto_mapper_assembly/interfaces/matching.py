@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cached_property
 
 import numpy as np
@@ -33,6 +33,7 @@ class PreparedScoreData:
     assembly_scores_matrix: np.ndarray
     runtime_confidence_by_pair: dict[MatchPairKey, float | None]
     file_descriptor_similarity_by_pair: dict[tuple[str, str], float]
+    rejected_pairs_by_reason: dict[MatchPairKey, str] = field(default_factory=lambda: dict[MatchPairKey, str]())
 
 
 @dataclass(frozen=True)

@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 
 from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
-    ExchangeErrorEvent,
     ExchangeKamaModifiedEvent,
     ExchangeLeaveEvent,
     ExchangeMoveKamaRequest,
@@ -90,13 +89,8 @@ class MuleGiveBehavior(RecoverableBehavior):
             originator=self,
             once=True,
             override_on_self=True,
-        )
-        self.event_manager.on(
-            ExchangeErrorEvent,
-            lambda _: self.finish(),
-            originator=self,
-            once=True,
-            override_on_self=True,
+            timeout=10,
+            on_timeout=self.finish,
         )
         req = ExchangePlayerRequest(target_id=mule_id)
         self.send_message_delayed(req, HumanTimingsService().get_timing_base_action())

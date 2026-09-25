@@ -7,7 +7,6 @@ from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
 )
 from DBDofusUnity.datas.protos.non_obf.game.haven_bag_pb2 import (
     HavenBagEnterRequest,
-    HavenBagExitRequest,
 )
 from DBDofusUnity.datas.protos.non_obf.game.teleportation_pb2 import (
     Teleporter,
@@ -18,19 +17,18 @@ from DBDofusUnity.dofus_unity_reader.data_center.world_graph_reader import World
 from DBDofusUnity.dofus_unity_reader.game_constants.element_type import ElementTypeEnum
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 from DBDofusUnity.dofus_unity_reader.models.world_graph import Vertice
-
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.interactives.interactive_behavior import InteractiveBehavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
     AutoTripBehavior,
 )
-from src.services.human_timings import HumanTimingsService
 from src.core.engine.movements.map.map_position_flags import allow_teleport_to
 from src.core.engine.movements.map.path_finding.path_finding import Pathfinding
 from src.core.engine.movements.world.astar_allow_capability import (
     AstarAllowHavreSac,
 )
 from src.exceptions import UnexpectedStateException
+from src.services.human_timings import HumanTimingsService
 
 
 class WaypointErrorCode(StrEnum):
@@ -110,7 +108,7 @@ class WaypointBehavior(Behavior):
                 originator=self,
             )
             return self.send_message_delayed(
-                HavenBagExitRequest(), HumanTimingsService().get_timing_base_action()
+                HavenBagEnterRequest(), HumanTimingsService().get_timing_base_action()
             )
 
         mp_zaap = MapPoint.from_cell_id(

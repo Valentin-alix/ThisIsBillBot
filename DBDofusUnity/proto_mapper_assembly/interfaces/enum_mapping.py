@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel, RootModel
+from pydantic import BaseModel
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import FunctionAccessSignature
 
@@ -48,7 +48,3 @@ class EnumSwitchPattern(BaseModel):
 class EnumSignatureEntry(BaseModel):
     member_value_to_name: dict[str, str]
     switch_patterns: list[EnumSwitchPattern]
-
-
-class EnumSignatureIndex(RootModel[dict[str, EnumSignatureEntry]]):
-    root: dict[str, EnumSignatureEntry]

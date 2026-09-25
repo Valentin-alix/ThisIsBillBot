@@ -10,7 +10,6 @@ BEHAVIOR_LABELS = {
     "do_craft": "Automatic crafting",
     "do_use_guild_chest": "Use guild chest",
     "do_dungeon": "Donjons",
-    "do_quest": "Quests",
     "do_idle": "Breaks during sessions",
     "enable_auto_equipment_market_purchases": "Allow equipment purchases",
     "enable_auto_ogrine_subscriptions": "Allow Ogrine subscriptions",

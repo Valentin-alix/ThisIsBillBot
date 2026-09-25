@@ -10,7 +10,6 @@ from src.core.states.interactive_state import InteractiveState
 from src.core.states.inventory_state import InventoryState
 from src.core.states.map_state import MapState
 from src.core.states.player_state import PlayerState
-from src.core.states.quest_state import QuestState
 from src.core.states.sale_hotel_state import SaleHotelState
 from src.core.states.server_state import ServerState
 from src.services.logging_utils.loggers import BotLogger
@@ -63,7 +62,6 @@ class StateFactory:
             map_state=map_state,
         )
         craft_state = CraftState(_logger=logger, player_state=player_state)
-        quest_state = QuestState(_logger=logger)
         server_state = ServerState(_logger=logger)
         dialog_state = DialogState(_logger=logger)
         game_state = GameState(
@@ -77,7 +75,6 @@ class StateFactory:
             sale_hotel=sale_hotel_state,
             craft=craft_state,
             server=server_state,
-            quest=quest_state,
             dialog=dialog_state,
         )
         return game_state

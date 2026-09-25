@@ -1,6 +1,4 @@
 from unittest.mock import MagicMock
-from datetime import datetime, timedelta
-
 import pytest
 
 from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum, ItemEnum
@@ -22,7 +20,6 @@ from src.core.behaviors.movements.auto_trip.auto_trip_behavior import AutoTripEr
 from src.core.behaviors.movements.map_change_behavior import MapChangeError
 from src.core.engine.movements.world.transition_ban import BannedTransition, TransitionBanScope
 from src.core.bot.bot import Bot
-from src.core.bot.session_activity_plan import SessionActivity, SessionActivityPlan, SessionActivitySlot
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -85,49 +82,6 @@ class TestFarmRecovery:
 
         play_multi_farming.assert_called_once_with()
         play_fighter.assert_not_called()
-
-    def test_empty_activity_is_removed_and_remaining_slots_are_redistributed(self) -> None:
-        session_start = datetime(2026, 8, 12, 8)
-        session_end = session_start + timedelta(hours=8)
-        reschedule_at = session_start + timedelta(hours=2)
-        plan = SessionActivityPlan(
-            session_start=session_start,
-            session_end=session_end,
-            slots=[
-                SessionActivitySlot(SessionActivity.QUEST, session_start + timedelta(hours=1)),
-                SessionActivitySlot(SessionActivity.DUNGEON, session_start + timedelta(hours=3)),
-                SessionActivitySlot(SessionActivity.CRAFT, session_start + timedelta(hours=5)),
-            ],
-        )
-
-        plan.discard_empty_activity(SessionActivity.QUEST, reschedule_at)
-
-        assert plan.completed_activities == {SessionActivity.QUEST}
-        assert [slot.activity for slot in plan.slots] == [SessionActivity.DUNGEON, SessionActivity.CRAFT]
-        assert all(reschedule_at < slot.starts_at < session_end for slot in plan.slots)
-
-    def test_auto_bot_redistributes_slots_after_an_empty_activity(
-        self, runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        auto_bot_behavior = runtime_bot.auto_bot_behavior
-        session_start = datetime.now() - timedelta(hours=2)
-        session_end = session_start + timedelta(hours=8)
-        auto_bot_behavior._session_activity_plan = SessionActivityPlan(
-            session_start=session_start,
-            session_end=session_end,
-            slots=[
-                SessionActivitySlot(SessionActivity.QUEST, session_start + timedelta(hours=1)),
-                SessionActivitySlot(SessionActivity.DUNGEON, session_start + timedelta(hours=3)),
-            ],
-        )
-        monkeypatch.setattr(auto_bot_behavior, "run_timer", MagicMock())
-
-        auto_bot_behavior._on_session_activity_finished(SessionActivity.QUEST, None)
-
-        assert auto_bot_behavior._session_activity_plan.completed_activities == {SessionActivity.QUEST}
-        assert [slot.activity for slot in auto_bot_behavior._session_activity_plan.slots] == [
-            SessionActivity.DUNGEON
-        ]
 
     @staticmethod
     def _prepare_sourcing(

@@ -45,7 +45,7 @@
     "assembly_similarity_score": 0.5842222222222222,
     "structure_similarity_score": 0.7405279454192497,
     "runtime_confidence": null,
-    "match_margin": 0.3411744516090581,
+    "match_margin": 0.36202032995262445,
     "runner_up_obf": "ixm",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
@@ -176,7 +176,7 @@
     },
     "field_mapping_infos": {
       "flmf": {
-        "content": 0.9655172413793103
+        "content": 0.9660172413793102
       }
     },
     "field_mapping_rejected_infos": {
@@ -209,7 +209,7 @@
     "runner_up_obf": "kiu",
     "is_low_confidence": false,
     "evidence_coverage": 0.2,
-    "is_runtime_observed": false
+    "is_runtime_observed": true
   },
   ".com.ankama.dofus.server.game.protocol.GameMessage": {
     "full_obf_msg_namespace": "hea",
@@ -225,10 +225,10 @@
         "request": 1.0
       },
       "flll": {
-        "response": 0.9876677033182909
+        "response": 0.9878427033182908
       },
       "fllk": {
-        "event": 0.9606691583966706
+        "event": 0.9608441583966705
       }
     },
     "field_mapping_rejected_infos": {
@@ -239,7 +239,7 @@
         },
         "response": {
           "reason": "not_selected",
-          "score": 0.743274898440802
+          "score": 0.743449898440802
         }
       },
       "flll": {
@@ -249,7 +249,7 @@
         },
         "event": {
           "reason": "not_selected",
-          "score": 0.7494366692717718
+          "score": 0.7496116692717717
         }
       },
       "fllj": {
@@ -273,7 +273,7 @@
     "runner_up_obf": null,
     "is_low_confidence": false,
     "evidence_coverage": 0.75,
-    "is_runtime_observed": false
+    "is_runtime_observed": true
   },
   ".com.ankama.dofus.server.game.protocol.Request": {
     "full_obf_msg_namespace": "heb",
@@ -285,10 +285,10 @@
     },
     "field_mapping_infos": {
       "fllq": {
-        "content": 1.0
+        "content": 1.0005
       },
       "fllr": {
-        "uid": 1.0
+        "uid": 1.0005
       }
     },
     "field_mapping_rejected_infos": {
@@ -315,7 +315,7 @@
     "runner_up_obf": "hee",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
-    "is_runtime_observed": false
+    "is_runtime_observed": true
   },
   ".com.ankama.dofus.server.game.protocol.Response": {
     "full_obf_msg_namespace": "hdy",
@@ -327,10 +327,10 @@
     },
     "field_mapping_infos": {
       "flle": {
-        "content": 0.953125
+        "content": 0.953625
       },
       "fllf": {
-        "uid": 1.0
+        "uid": 1.0005
       }
     },
     "field_mapping_rejected_infos": {
@@ -357,7 +357,7 @@
     "runner_up_obf": "kiu",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
-    "is_runtime_observed": false
+    "is_runtime_observed": true
   },
   ".com.ankama.dofus.server.game.protocol.account.AccountCapabilitiesEvent": {
     "full_obf_msg_namespace": "mef",
@@ -666,7 +666,7 @@
     "assembly_similarity_score": 0.8666666666666667,
     "structure_similarity_score": 0.8160427500435995,
     "runtime_confidence": null,
-    "match_margin": 0.8243434608638335,
+    "match_margin": 0.8322437005807586,
     "runner_up_obf": "hhz",
     "is_low_confidence": false,
     "evidence_coverage": 0.8,
@@ -1099,31 +1099,6 @@
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
   },
-  ".com.ankama.dofus.server.game.protocol.achievement.AchievementFilterRequest": {
-    "full_obf_msg_namespace": "heh",
-    "obf_msg_namespace": "heh",
-    "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.achievement.AchievementFilterRequest",
-    "field_mapping": {
-      "flmm": "filter_text"
-    },
-    "field_mapping_infos": {
-      "flmm": {
-        "filter_text": 0.9444444444444444
-      }
-    },
-    "field_mapping_rejected_infos": {},
-    "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.5500044607272815,
-    "group_similarity_score": 0.23186874993879467,
-    "assembly_similarity_score": 0.8241868953543579,
-    "structure_similarity_score": 1.0,
-    "runtime_confidence": null,
-    "match_margin": 0.06532131981969092,
-    "runner_up_obf": "hka",
-    "is_low_confidence": false,
-    "evidence_coverage": 1.0,
-    "is_runtime_observed": false
-  },
   ".com.ankama.dofus.server.game.protocol.achievement.AchievementFinishedEvent": {
     "full_obf_msg_namespace": "mde",
     "obf_msg_namespace": "mde",
@@ -1433,7 +1408,7 @@
     "assembly_similarity_score": 0.5333333333333333,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.1312213128016908,
+    "match_margin": 0.12644089577754336,
     "runner_up_obf": "ltj",
     "is_low_confidence": false,
     "evidence_coverage": null,
@@ -2704,7 +2679,7 @@
     "assembly_similarity_score": 0.9894392728715488,
     "structure_similarity_score": 0.9683281572999747,
     "runtime_confidence": null,
-    "match_margin": 0.5490067729959709,
+    "match_margin": 0.5613410863003785,
     "runner_up_obf": "iem",
     "is_low_confidence": false,
     "evidence_coverage": 0.3333333333333333,
@@ -6327,7 +6302,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.8509193428620001,
+    "match_margin": 0.7032789360056628,
     "runner_up_obf": "inv",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -6359,7 +6334,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
-    "match_margin": 0.7093595756159631,
+    "match_margin": 0.6856143419018537,
     "runner_up_obf": "kiu",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -7042,7 +7017,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.310013826459977,
+    "match_margin": 0.3122379931371073,
     "runner_up_obf": "ixs",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -7130,19 +7105,16 @@
     "full_obf_msg_namespace": "lss",
     "obf_msg_namespace": "lss",
     "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.arena.ArenaSwitchXpRewardsModeRequest",
-    "field_mapping": {},
-    "field_mapping_infos": {},
-    "field_mapping_rejected_infos": {
+    "field_mapping": {
+      "gdkb": "xp_rewards"
+    },
+    "field_mapping_infos": {
       "gdkb": {
-        "xp_rewards": {
-          "reason": "not_selected",
-          "score": 0.0
-        }
+        "xp_rewards": 0.65
       }
     },
-    "field_mapping_unmapped_non_obf_fields": {
-      "xp_rewards": "score_below_threshold"
-    },
+    "field_mapping_rejected_infos": {},
+    "field_mapping_unmapped_non_obf_fields": {},
     "similarity_score": 0.7097344993104329,
     "group_similarity_score": 0.7523164689657243,
     "assembly_similarity_score": 0.4666666666666666,
@@ -8521,7 +8493,7 @@
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
     "match_margin": 0.7877706596178569,
-    "runner_up_obf": "lqd",
+    "runner_up_obf": "khi",
     "is_low_confidence": false,
     "evidence_coverage": 0.8,
     "is_runtime_observed": false
@@ -9249,7 +9221,7 @@
     "assembly_similarity_score": 0.9966451288719641,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.6200852779370305,
+    "match_margin": 0.6447245280267162,
     "runner_up_obf": "loy",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -13020,7 +12992,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.8897366596101027,
     "runtime_confidence": null,
-    "match_margin": 0.23254477965332399,
+    "match_margin": 0.20051248977185493,
     "runner_up_obf": "lvv",
     "is_low_confidence": false,
     "evidence_coverage": 0.4,
@@ -14408,12 +14380,12 @@
     "field_mapping_unmapped_non_obf_fields": {
       "result": "score_below_threshold"
     },
-    "similarity_score": 0.4298148719082091,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.43012296584680565,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 0.0,
     "structure_similarity_score": 0.0,
     "runtime_confidence": null,
-    "match_margin": 0.05242401024330501,
+    "match_margin": 0.05351387679861608,
     "runner_up_obf": "ksi",
     "is_low_confidence": false,
     "evidence_coverage": 0.3333333333333333,
@@ -14427,8 +14399,8 @@
     "field_mapping_infos": {},
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8594809208381681,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8598232474366088,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 0.9627730776067688,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
@@ -14452,12 +14424,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8978426411219778,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8981045209697848,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.37279591149261926,
+    "match_margin": 0.3732452913404263,
     "runner_up_obf": "krf",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -14477,8 +14449,8 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8664609687868989,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8668032953853396,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
@@ -14529,12 +14501,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8573859831083835,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8576085809790195,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 0.7382975958414555,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.4468391017789033,
+    "match_margin": 0.44675360571094247,
     "runner_up_obf": "ksh",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
@@ -14554,12 +14526,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8603094737591416,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8606175676977381,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 0.9422062277064667,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.2299228648019318,
+    "match_margin": 0.22992286480193158,
     "runner_up_obf": "ksh",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -14632,12 +14604,12 @@
     "field_mapping_unmapped_non_obf_fields": {
       "character_id": "no_obf_candidate"
     },
-    "similarity_score": 0.8403587509026934,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8406206307505006,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 0.8666666666666667,
     "structure_similarity_score": 0.798861278752583,
     "runtime_confidence": null,
-    "match_margin": 0.4738977821157945,
+    "match_margin": 0.473817335365161,
     "runner_up_obf": "krz",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -14684,12 +14656,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8840382436569043,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8843292212655789,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9846049894151541,
     "runtime_confidence": null,
-    "match_margin": 0.5175772748700054,
+    "match_margin": 0.5175259258802393,
     "runner_up_obf": "ktk",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
@@ -14726,8 +14698,8 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.7798821139590578,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.7801730915677324,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 0.704386955865251,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
@@ -14745,12 +14717,12 @@
     "field_mapping_infos": {},
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.7954398719082091,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.7957479658468056,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.7,
     "runtime_confidence": null,
-    "match_margin": 0.13300160863412547,
+    "match_margin": 0.13296737597428154,
     "runner_up_obf": "ksa",
     "is_low_confidence": false,
     "evidence_coverage": 0.0,
@@ -14770,12 +14742,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8964168989344776,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8966787787822849,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9850902777777777,
     "runtime_confidence": null,
-    "match_margin": 0.3919168847656247,
+    "match_margin": 0.3919168847656249,
     "runner_up_obf": "krz",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -14789,8 +14761,8 @@
     "field_mapping_infos": {},
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8664609687868989,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8668032953853396,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
@@ -14841,12 +14813,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8957040278407277,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8959659076885348,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9850902777777777,
     "runtime_confidence": null,
-    "match_margin": 0.5292430590538287,
+    "match_margin": 0.5291626123031952,
     "runner_up_obf": "ktg",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
@@ -14866,12 +14838,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8798148719082091,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8801229658468056,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.21581264238507147,
+    "match_margin": 0.2157784097252271,
     "runner_up_obf": "ktf",
     "is_low_confidence": false,
     "evidence_coverage": 0.0,
@@ -14891,12 +14863,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8978426411219778,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8981045209697848,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.47187971982574806,
+    "match_margin": 0.47191659967355504,
     "runner_up_obf": "jmr",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -14910,12 +14882,12 @@
     "field_mapping_infos": {},
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8864918234688641,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8867828010775387,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.07320638777277888,
+    "match_margin": 0.07315503878301288,
     "runner_up_obf": "ksv",
     "is_low_confidence": false,
     "evidence_coverage": null,
@@ -14948,8 +14920,8 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8354988933845386,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8357898709932132,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 0.9451013738667808,
     "structure_similarity_score": 0.8732050807568877,
     "runtime_confidence": null,
@@ -14964,9 +14936,13 @@
     "obf_msg_namespace": "ksn",
     "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.character.management.CharacterSelectionEvent",
     "field_mapping": {
+      "fzjp": "error",
       "fzjo": "success"
     },
     "field_mapping_infos": {
+      "fzjp": {
+        "error": 1.0
+      },
       "fzjo": {
         "success": 0.7976350406522886
       }
@@ -14989,47 +14965,41 @@
         }
       },
       "fzjp": {
-        "error": {
-          "reason": "not_selected",
-          "score": 0.0
-        },
         "success": {
           "reason": "not_selected",
           "score": 0.0
         }
       }
     },
-    "field_mapping_unmapped_non_obf_fields": {
-      "error": "score_below_threshold"
-    },
-    "similarity_score": 0.7901416980262473,
-    "group_similarity_score": 0.7329219375737979,
+    "field_mapping_unmapped_non_obf_fields": {},
+    "similarity_score": 0.7982599733082693,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 0.8095238095238096,
-    "structure_similarity_score": 0.5666040692983627,
+    "structure_similarity_score": 0.6213763250488793,
     "runtime_confidence": null,
-    "match_margin": 0.4236807292393484,
-    "runner_up_obf": "krz",
+    "match_margin": 0.4520657879604263,
+    "runner_up_obf": "klv",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.character.management.CharacterSelectionEvent.Error": {
-    "full_obf_msg_namespace": "ktc",
-    "obf_msg_namespace": "ktc",
+    "full_obf_msg_namespace": "ksn.ksm.ksk",
+    "obf_msg_namespace": "ksn.ksk",
     "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.character.management.CharacterSelectionEvent.Types.Error",
     "field_mapping": {},
     "field_mapping_infos": {},
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.36646096878689893,
-    "group_similarity_score": 0.7329219375737979,
-    "assembly_similarity_score": 0.0,
-    "structure_similarity_score": 0.0,
+    "similarity_score": 0.9668032953853396,
+    "group_similarity_score": 0.7336065907706792,
+    "assembly_similarity_score": 1.0,
+    "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.21505907009736003,
-    "runner_up_obf": "iga.ifz.ify",
+    "match_margin": 0.3615935940487178,
+    "runner_up_obf": "jdq.jdp.jdn",
     "is_low_confidence": false,
-    "evidence_coverage": 0.5,
+    "evidence_coverage": null,
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.character.management.CharacterSelectionEvent.Success": {
@@ -15055,13 +15025,13 @@
     "field_mapping_unmapped_non_obf_fields": {
       "collect_stats": "no_obf_candidate"
     },
-    "similarity_score": 0.8107956154425056,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8111379420409462,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 0.7333333333333334,
     "structure_similarity_score": 0.5546771732448531,
     "runtime_confidence": null,
     "match_margin": 0.4443346466556066,
-    "runner_up_obf": "kse.ksd.ksc",
+    "runner_up_obf": "ksi",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -15080,8 +15050,8 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8537690144511761,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8540599920598507,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 0.9361889966248379,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
@@ -15124,12 +15094,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8518380400795771,
-    "group_similarity_score": 0.7329219375737979,
+    "similarity_score": 0.8521803666780178,
+    "group_similarity_score": 0.7336065907706792,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9449489742783178,
     "runtime_confidence": null,
-    "match_margin": 0.4139729906555182,
+    "match_margin": 0.41431531725395887,
     "runner_up_obf": "kse",
     "is_low_confidence": false,
     "evidence_coverage": 0.25,
@@ -16059,8 +16029,8 @@
     "assembly_similarity_score": 0.9853944309272777,
     "structure_similarity_score": 0.9984722222222222,
     "runtime_confidence": null,
-    "match_margin": 0.6214003418136518,
-    "runner_up_obf": "kqg",
+    "match_margin": 0.8271513411969147,
+    "runner_up_obf": "iga",
     "is_low_confidence": false,
     "evidence_coverage": 0.6,
     "is_runtime_observed": false
@@ -16112,7 +16082,7 @@
     "structure_similarity_score": 0.7666666666666666,
     "runtime_confidence": null,
     "match_margin": 0.6204989118970227,
-    "runner_up_obf": "kpx",
+    "runner_up_obf": "kqm",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -16629,7 +16599,7 @@
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
     "match_margin": 0.5653808655795128,
-    "runner_up_obf": "lee",
+    "runner_up_obf": "lig",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -18954,7 +18924,7 @@
     "assembly_similarity_score": 0.7080104215817955,
     "structure_similarity_score": 0.5621320343559641,
     "runtime_confidence": null,
-    "match_margin": 0.31801208795329605,
+    "match_margin": 0.33478159079121195,
     "runner_up_obf": "lmm.lml.lmb",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -19095,7 +19065,7 @@
     "assembly_similarity_score": 0.5329351230435211,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.3063778736485119,
+    "match_margin": 0.3287507739146289,
     "runner_up_obf": "lmm.lml.llz",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -19253,7 +19223,7 @@
     "assembly_similarity_score": 0.824445165058297,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.371522069387603,
+    "match_margin": 0.37445759295212155,
     "runner_up_obf": "lmm.lml.llz",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -19295,7 +19265,7 @@
     "assembly_similarity_score": 0.6419920446953267,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.36145117811265814,
+    "match_margin": 0.38165010297523727,
     "runner_up_obf": "lmm.lml.lmb",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -20133,7 +20103,7 @@
     "assembly_similarity_score": 0.9459662399504932,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.49610680452684947,
+    "match_margin": 0.5069828891260355,
     "runner_up_obf": "lmm.lml.llz",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -21400,7 +21370,7 @@
     "structure_similarity_score": 0.669879000772445,
     "runtime_confidence": null,
     "match_margin": 0.10093783620241903,
-    "runner_up_obf": "lmm.lml.lmj",
+    "runner_up_obf": "lmm.lml.lma",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -21743,8 +21713,8 @@
     "assembly_similarity_score": 0.9500096820480547,
     "structure_similarity_score": 0.9850902777777778,
     "runtime_confidence": null,
-    "match_margin": 0.5664949830331887,
-    "runner_up_obf": "lig",
+    "match_margin": 0.8490735384740875,
+    "runner_up_obf": "las",
     "is_low_confidence": false,
     "evidence_coverage": 0.75,
     "is_runtime_observed": false
@@ -23298,7 +23268,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9449489742783177,
     "runtime_confidence": null,
-    "match_margin": 0.37742960072673604,
+    "match_margin": 0.45741513430055203,
     "runner_up_obf": "lmm.lml.lmb",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
@@ -23392,8 +23362,8 @@
     "assembly_similarity_score": 0.9191422852880077,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.5854067905632925,
-    "runner_up_obf": "ljp",
+    "match_margin": 0.6939675637631643,
+    "runner_up_obf": "khu",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -23622,8 +23592,8 @@
     "assembly_similarity_score": 0.9116882763054095,
     "structure_similarity_score": 0.9969848480983499,
     "runtime_confidence": null,
-    "match_margin": 0.586109000592914,
-    "runner_up_obf": "lhm",
+    "match_margin": 0.8176966792967872,
+    "runner_up_obf": "lio",
     "is_low_confidence": false,
     "evidence_coverage": 0.75,
     "is_runtime_observed": false
@@ -23854,8 +23824,8 @@
     "assembly_similarity_score": 0.924421525271765,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.5870895483081152,
-    "runner_up_obf": "lhm",
+    "match_margin": 0.8104792142003063,
+    "runner_up_obf": "lio",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -23879,8 +23849,8 @@
     "assembly_similarity_score": 0.9337274312801616,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.5900558058482915,
-    "runner_up_obf": "lat",
+    "match_margin": 0.6231653266353971,
+    "runner_up_obf": "ldu",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -25073,8 +25043,8 @@
     "assembly_similarity_score": 0.7853938424701341,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.543777204766509,
-    "runner_up_obf": "lnb",
+    "match_margin": 0.6989661319873457,
+    "runner_up_obf": "lhh",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -25168,7 +25138,7 @@
     "structure_similarity_score": 0.9846049894151541,
     "runtime_confidence": null,
     "match_margin": 0.5821926622190479,
-    "runner_up_obf": "lee",
+    "runner_up_obf": "lif",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
     "is_runtime_observed": false
@@ -26501,7 +26471,7 @@
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
     "match_margin": 0.6,
-    "runner_up_obf": "leu",
+    "runner_up_obf": "lat",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -29252,13 +29222,13 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.9089593076755104,
+    "similarity_score": 0.8089593076755104,
     "group_similarity_score": 0.7002788484359976,
     "assembly_similarity_score": 0.8894444444444445,
     "structure_similarity_score": 0.9861141214864289,
     "runtime_confidence": null,
-    "match_margin": 0.5588198834575115,
-    "runner_up_obf": "lat",
+    "match_margin": 0.7604456254174944,
+    "runner_up_obf": "ljp",
     "is_low_confidence": false,
     "evidence_coverage": 0.8888888888888888,
     "is_runtime_observed": false
@@ -29484,13 +29454,13 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.9501394242179988,
+    "similarity_score": 0.8501394242179988,
     "group_similarity_score": 0.7002788484359976,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.6,
-    "runner_up_obf": "lat",
+    "match_margin": 0.8014532423670606,
+    "runner_up_obf": "lba",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -29553,8 +29523,8 @@
     "assembly_similarity_score": 0.746017795869928,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.504756673451223,
-    "runner_up_obf": "lat",
+    "match_margin": 0.673344266777768,
+    "runner_up_obf": "lba",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -29701,8 +29671,8 @@
     "assembly_similarity_score": 0.9486191133210253,
     "structure_similarity_score": 0.9846049894151541,
     "runtime_confidence": null,
-    "match_margin": 0.5821814670561033,
-    "runner_up_obf": "lex",
+    "match_margin": 0.7594384998219106,
+    "runner_up_obf": "lhd",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
     "is_runtime_observed": false
@@ -29833,8 +29803,8 @@
     "assembly_similarity_score": 0.9616416134924574,
     "structure_similarity_score": 0.9416666666666667,
     "runtime_confidence": null,
-    "match_margin": 0.5783239383930048,
-    "runner_up_obf": "lat",
+    "match_margin": 0.7041300825746165,
+    "runner_up_obf": "hxw",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -29895,8 +29865,8 @@
     "assembly_similarity_score": 0.9428398346104926,
     "structure_similarity_score": 0.9846049894151541,
     "runtime_confidence": null,
-    "match_margin": 0.580556044918766,
-    "runner_up_obf": "lex",
+    "match_margin": 0.7546771016859561,
+    "runner_up_obf": "lhd",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
     "is_runtime_observed": false
@@ -29992,8 +29962,8 @@
     "assembly_similarity_score": 0.6998113718862181,
     "structure_similarity_score": 0.582379000772445,
     "runtime_confidence": null,
-    "match_margin": 0.4242173547619712,
-    "runner_up_obf": "lex",
+    "match_margin": 0.6025306546377202,
+    "runner_up_obf": "lba",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
     "is_runtime_observed": false
@@ -30034,90 +30004,10 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.8866156409449844,
     "runtime_confidence": null,
-    "match_margin": 0.5716539102362461,
-    "runner_up_obf": "lat",
+    "match_margin": 0.7901815722270129,
+    "runner_up_obf": "lbc",
     "is_low_confidence": false,
     "evidence_coverage": 0.3333333333333333,
-    "is_runtime_observed": false
-  },
-  ".com.ankama.dofus.server.game.protocol.common.FightTemporaryBoostEffect.Details": {
-    "full_obf_msg_namespace": "let.les.ler",
-    "obf_msg_namespace": "let.ler",
-    "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.FightTemporaryBoostEffect.Types.Details",
-    "field_mapping": {
-      "gaxu": "first_param",
-      "gaxv": "second_param"
-    },
-    "field_mapping_infos": {
-      "gaxu": {
-        "first_param": 1.0
-      },
-      "gaxv": {
-        "second_param": 1.0
-      }
-    },
-    "field_mapping_rejected_infos": {
-      "gaxv": {
-        "first_param": {
-          "reason": "not_selected",
-          "score": 1.0
-        },
-        "third_param": {
-          "reason": "not_selected",
-          "score": 1.0
-        }
-      },
-      "gaxw": {
-        "first_param": {
-          "reason": "not_selected",
-          "score": 0.0
-        },
-        "second_param": {
-          "reason": "not_selected",
-          "score": 0.0
-        },
-        "third_param": {
-          "reason": "not_selected",
-          "score": 0.0
-        }
-      },
-      "gaxy": {
-        "first_param": {
-          "reason": "not_selected",
-          "score": 0.0
-        },
-        "second_param": {
-          "reason": "not_selected",
-          "score": 0.0
-        },
-        "third_param": {
-          "reason": "not_selected",
-          "score": 0.0
-        }
-      },
-      "gaxu": {
-        "second_param": {
-          "reason": "not_selected",
-          "score": 1.0
-        },
-        "third_param": {
-          "reason": "not_selected",
-          "score": 1.0
-        }
-      }
-    },
-    "field_mapping_unmapped_non_obf_fields": {
-      "third_param": "score_below_threshold"
-    },
-    "similarity_score": 0.8329359786799732,
-    "group_similarity_score": 0.7002788484359976,
-    "assembly_similarity_score": 1.0,
-    "structure_similarity_score": 0.9449489742783178,
-    "runtime_confidence": null,
-    "match_margin": 0.001546554461974381,
-    "runner_up_obf": "lhy.lhx.lhw",
-    "is_low_confidence": false,
-    "evidence_coverage": 0.0,
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.common.FighterEntityLightInformation": {
@@ -30156,8 +30046,8 @@
     "assembly_similarity_score": 0.8624083000896462,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.5786217320208749,
-    "runner_up_obf": "lep",
+    "match_margin": 0.6752631102494927,
+    "runner_up_obf": "ldu",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -30598,8 +30488,8 @@
     "assembly_similarity_score": 0.8462717427881338,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.6418304589768284,
-    "runner_up_obf": "ldg",
+    "match_margin": 0.6943958079268542,
+    "runner_up_obf": "ixm",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -30623,8 +30513,8 @@
     "assembly_similarity_score": 0.7869694245124546,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.5545755904306451,
-    "runner_up_obf": "lft",
+    "match_margin": 0.6537243041888615,
+    "runner_up_obf": "ldu",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -30648,8 +30538,8 @@
     "assembly_similarity_score": 0.8213546454664861,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.5655358796097426,
-    "runner_up_obf": "lee",
+    "match_margin": 0.5719364452010731,
+    "runner_up_obf": "ldu",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -30700,8 +30590,8 @@
     "assembly_similarity_score": 0.8024226639553991,
     "structure_similarity_score": 0.9683281572999747,
     "runtime_confidence": null,
-    "match_margin": 0.5649499065501365,
-    "runner_up_obf": "lep",
+    "match_margin": 0.6735997786430159,
+    "runner_up_obf": "ldu",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
     "is_runtime_observed": false
@@ -31014,7 +30904,7 @@
     "assembly_similarity_score": 0.6941041510018656,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.397937169605757,
+    "match_margin": 0.40039961954084347,
     "runner_up_obf": "lmm.lml.llw",
     "is_low_confidence": false,
     "evidence_coverage": 0.8333333333333334,
@@ -31759,7 +31649,7 @@
     "structure_similarity_score": 0.5024439752725026,
     "runtime_confidence": null,
     "match_margin": 0.6012997046802799,
-    "runner_up_obf": "ldu",
+    "runner_up_obf": "hwd",
     "is_low_confidence": false,
     "evidence_coverage": 0.9,
     "is_runtime_observed": false
@@ -32210,7 +32100,7 @@
     "assembly_similarity_score": 0.4458576714320229,
     "structure_similarity_score": 0.5214285714285714,
     "runtime_confidence": null,
-    "match_margin": 0.11034965713920919,
+    "match_margin": 0.11317119702725453,
     "runner_up_obf": "lmm.lml.lmc",
     "is_low_confidence": false,
     "evidence_coverage": 0.8,
@@ -32274,7 +32164,7 @@
     "assembly_similarity_score": 0.9017965184820476,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.30136832160273497,
+    "match_margin": 0.5631736944307678,
     "runner_up_obf": "lmm.lml.lmb",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -32489,7 +32379,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.7,
     "runtime_confidence": null,
-    "match_margin": 0.006249999999999978,
+    "match_margin": 0.3563894242179987,
     "runner_up_obf": "ldc.ldb.lda.lcz.lck.lcj.lcb.lca.lbz",
     "is_low_confidence": false,
     "evidence_coverage": 0.0,
@@ -33560,7 +33450,7 @@
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
     "match_margin": 0.7015616158247454,
-    "runner_up_obf": "lev",
+    "runner_up_obf": "lkf",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -33724,7 +33614,7 @@
     "structure_similarity_score": 0.9954195783503985,
     "runtime_confidence": null,
     "match_margin": 0.5990839156700797,
-    "runner_up_obf": "lat",
+    "runner_up_obf": "ldc.ldb.lda.lcz.lck",
     "is_low_confidence": false,
     "evidence_coverage": 0.6,
     "is_runtime_observed": false
@@ -33818,7 +33708,7 @@
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
     "match_margin": 0.5768384033223432,
-    "runner_up_obf": "ldc.ldb.lda.lcz.lck.lcj.lci.lch.lcg",
+    "runner_up_obf": "ldc.ldb.lda.lcz.lck",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -34825,8 +34715,8 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.8835416666666666,
     "runtime_confidence": null,
-    "match_margin": 0.48107552083333327,
-    "runner_up_obf": "lat",
+    "match_margin": 0.7827012627933162,
+    "runner_up_obf": "lha",
     "is_low_confidence": false,
     "evidence_coverage": 0.8,
     "is_runtime_observed": false
@@ -34980,7 +34870,7 @@
     "structure_similarity_score": 0.9860387767736776,
     "runtime_confidence": null,
     "match_margin": 0.600159622647757,
-    "runner_up_obf": "lhm",
+    "runner_up_obf": "lat",
     "is_low_confidence": false,
     "evidence_coverage": 0.8,
     "is_runtime_observed": false
@@ -35232,7 +35122,7 @@
     "structure_similarity_score": 0.9449489742783177,
     "runtime_confidence": null,
     "match_margin": 0.6137052343843606,
-    "runner_up_obf": "lee",
+    "runner_up_obf": "lat",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
     "is_runtime_observed": false
@@ -35847,7 +35737,7 @@
     "assembly_similarity_score": 0.80444411200128,
     "structure_similarity_score": 0.9535512814032687,
     "runtime_confidence": null,
-    "match_margin": 0.5233624350019606,
+    "match_margin": 0.8050854785143193,
     "runner_up_obf": "lem",
     "is_low_confidence": false,
     "evidence_coverage": 0.9230769230769231,
@@ -36447,7 +36337,7 @@
     "structure_similarity_score": 0.9949074074074074,
     "runtime_confidence": null,
     "match_margin": 0.4830570986271925,
-    "runner_up_obf": "lan",
+    "runner_up_obf": "ldu",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -36618,8 +36508,8 @@
     "assembly_similarity_score": 0.6469394881966554,
     "structure_similarity_score": 0.7666666666666666,
     "runtime_confidence": null,
-    "match_margin": 0.560934532493354,
-    "runner_up_obf": "ldu",
+    "match_margin": 0.698224034964495,
+    "runner_up_obf": "jqb",
     "is_low_confidence": false,
     "evidence_coverage": 0.4,
     "is_runtime_observed": false
@@ -36660,8 +36550,8 @@
     "assembly_similarity_score": 0.9629705139295673,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.18660894923400084,
-    "runner_up_obf": "lha.lgz.lgy.lgx.lgl.lgk.lgj.lgi.lgh",
+    "match_margin": 0.19250275813637463,
+    "runner_up_obf": "lmm.lml.lmj",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -36702,7 +36592,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9449489742783177,
     "runtime_confidence": null,
-    "match_margin": 0.1765465544619742,
+    "match_margin": 0.5827965544619742,
     "runner_up_obf": "ldc.ldb.lda.lcz.lck.lcj.lbf",
     "is_low_confidence": false,
     "evidence_coverage": 0.0,
@@ -36965,7 +36855,7 @@
     "structure_similarity_score": 0.9575159544686649,
     "runtime_confidence": null,
     "match_margin": 0.5228936822292887,
-    "runner_up_obf": "let",
+    "runner_up_obf": "lht",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
     "is_runtime_observed": false
@@ -37020,6 +36910,86 @@
     "runner_up_obf": "ldu",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
+    "is_runtime_observed": false
+  },
+  ".com.ankama.dofus.server.game.protocol.common.PaddockInformation": {
+    "full_obf_msg_namespace": "hyn",
+    "obf_msg_namespace": "hyn",
+    "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.common.PaddockInformation",
+    "field_mapping": {
+      "fogw": "max_items"
+    },
+    "field_mapping_infos": {
+      "fogw": {
+        "max_items": 0.001468120805369122
+      }
+    },
+    "field_mapping_rejected_infos": {
+      "fogw": {
+        "max_outdoor_mount": {
+          "reason": "not_selected",
+          "score": 0.0009321401938851621
+        },
+        "content": {
+          "reason": "not_selected",
+          "score": 0.0
+        },
+        "instances": {
+          "reason": "not_selected",
+          "score": 0.0
+        }
+      },
+      "fogy": {
+        "max_outdoor_mount": {
+          "reason": "not_selected",
+          "score": 0.0
+        },
+        "max_items": {
+          "reason": "not_selected",
+          "score": 0.0
+        },
+        "content": {
+          "reason": "not_selected",
+          "score": 0.0
+        },
+        "instances": {
+          "reason": "not_selected",
+          "score": 0.0
+        }
+      },
+      "foha": {
+        "max_outdoor_mount": {
+          "reason": "not_selected",
+          "score": 0.0
+        },
+        "max_items": {
+          "reason": "not_selected",
+          "score": 0.0
+        },
+        "content": {
+          "reason": "not_selected",
+          "score": 0.0
+        },
+        "instances": {
+          "reason": "not_selected",
+          "score": 0.0
+        }
+      }
+    },
+    "field_mapping_unmapped_non_obf_fields": {
+      "max_outdoor_mount": "score_below_threshold",
+      "content": "score_below_threshold",
+      "instances": "no_obf_candidate"
+    },
+    "similarity_score": 0.1727554084741986,
+    "group_similarity_score": 0.09702736451603204,
+    "assembly_similarity_score": 0.12783597462850252,
+    "structure_similarity_score": 0.6866666666666666,
+    "runtime_confidence": null,
+    "match_margin": 0.06913942222587594,
+    "runner_up_obf": "ixm",
+    "is_low_confidence": false,
+    "evidence_coverage": 0.8,
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.common.PartyEntity": {
@@ -37335,7 +37305,7 @@
     "structure_similarity_score": 0.7636515147650165,
     "runtime_confidence": null,
     "match_margin": 0.4755650683245784,
-    "runner_up_obf": "ldu",
+    "runner_up_obf": "khi",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
     "is_runtime_observed": false
@@ -38516,8 +38486,8 @@
     "assembly_similarity_score": 0.9070834171320362,
     "structure_similarity_score": 0.9243920288775949,
     "runtime_confidence": null,
-    "match_margin": 0.45602982150444216,
-    "runner_up_obf": "ldm",
+    "match_margin": 0.757655563464425,
+    "runner_up_obf": "lfz",
     "is_low_confidence": false,
     "evidence_coverage": 0.9,
     "is_runtime_observed": false
@@ -38608,7 +38578,7 @@
     "assembly_similarity_score": 0.6972081610193683,
     "structure_similarity_score": 0.9535462764185549,
     "runtime_confidence": null,
-    "match_margin": 0.5094843829169909,
+    "match_margin": 0.6385525590476218,
     "runner_up_obf": "lio",
     "is_low_confidence": false,
     "evidence_coverage": 0.4,
@@ -38640,7 +38610,7 @@
     "assembly_similarity_score": 0.9913738615024602,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.5975738985475669,
+    "match_margin": 0.6827474570262803,
     "runner_up_obf": "lio",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -38682,8 +38652,8 @@
     "assembly_similarity_score": 0.9853056918835659,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.5944896344563372,
-    "runner_up_obf": "lio",
+    "match_margin": 0.7342582444078186,
+    "runner_up_obf": "lep",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -38714,8 +38684,8 @@
     "assembly_similarity_score": 0.9889785075667671,
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
-    "match_margin": 0.5776790877685204,
-    "runner_up_obf": "lao",
+    "match_margin": 0.6818356494882222,
+    "runner_up_obf": "lba",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
     "is_runtime_observed": false
@@ -38766,8 +38736,8 @@
     "assembly_similarity_score": 0.9935296347809377,
     "structure_similarity_score": 0.9449489742783177,
     "runtime_confidence": null,
-    "match_margin": 0.5846196522648138,
-    "runner_up_obf": "lao",
+    "match_margin": 0.6627182166943175,
+    "runner_up_obf": "lba",
     "is_low_confidence": false,
     "evidence_coverage": 0.3333333333333333,
     "is_runtime_observed": false
@@ -38791,7 +38761,7 @@
     "assembly_similarity_score": 0.9841303832415905,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.5940488937155964,
+    "match_margin": 0.6792224521943098,
     "runner_up_obf": "lio",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -38823,7 +38793,7 @@
     "assembly_similarity_score": 0.9874044573156646,
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
-    "match_margin": 0.5772363861353978,
+    "match_margin": 0.6624099446141112,
     "runner_up_obf": "lio",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -39075,7 +39045,7 @@
     "assembly_similarity_score": 0.9338888888888889,
     "structure_similarity_score": 0.9925451388888888,
     "runtime_confidence": null,
-    "match_margin": 0.7759022176544272,
+    "match_margin": 0.775729718061505,
     "runner_up_obf": "lad",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -39683,8 +39653,8 @@
     "assembly_similarity_score": 0.9574104640950845,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.6089036717976083,
-    "runner_up_obf": "laq",
+    "match_margin": 0.7306448695399528,
+    "runner_up_obf": "iga",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -40803,8 +40773,8 @@
     "assembly_similarity_score": 0.7981847185957882,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.5581504654197077,
-    "runner_up_obf": "lat",
+    "match_margin": 0.7080344428597113,
+    "runner_up_obf": "ldu",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -40856,7 +40826,7 @@
     "structure_similarity_score": 0.9683281572999747,
     "runtime_confidence": null,
     "match_margin": 0.5832994676912606,
-    "runner_up_obf": "lep",
+    "runner_up_obf": "lex",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
     "is_runtime_observed": false
@@ -41129,8 +41099,8 @@
     "assembly_similarity_score": 0.8124355923202762,
     "structure_similarity_score": 0.9969848480983499,
     "runtime_confidence": null,
-    "match_margin": 0.5697257059397455,
-    "runner_up_obf": "lhm",
+    "match_margin": 0.7440557445387104,
+    "runner_up_obf": "ldu",
     "is_low_confidence": false,
     "evidence_coverage": 0.75,
     "is_runtime_observed": false
@@ -41253,7 +41223,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.6654128997575772,
+    "match_margin": 0.5312958669051426,
     "runner_up_obf": "kan",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -41286,7 +41256,7 @@
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
     "match_margin": 0.40243545840236983,
-    "runner_up_obf": "knf",
+    "runner_up_obf": "hok",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
     "is_runtime_observed": false
@@ -41317,7 +41287,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
-    "match_margin": 0.46499242256052375,
+    "match_margin": 0.47401730144108956,
     "runner_up_obf": "knz",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -41506,12 +41476,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8973572530865999,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9070072070030686,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.4323240837232223,
+    "match_margin": 0.45401217119268,
     "runner_up_obf": "jly",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -41618,12 +41588,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8373956849114953,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.8481178559297937,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 0.8583333333333334,
     "structure_similarity_score": 0.9954195783503985,
     "runtime_confidence": null,
-    "match_margin": 0.6254725365195988,
+    "match_margin": 0.6432627809544819,
     "runner_up_obf": "kky",
     "is_low_confidence": false,
     "evidence_coverage": 0.8,
@@ -41730,12 +41700,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.953516923577555,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9642390945958536,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 0.911851851851852,
     "structure_similarity_score": 0.9834733547569203,
     "runtime_confidence": null,
-    "match_margin": 0.5675644201479995,
+    "match_margin": 0.5675644201479997,
     "runner_up_obf": "klg.klf.kld",
     "is_low_confidence": false,
     "evidence_coverage": 0.8,
@@ -41768,32 +41738,32 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8902310884790943,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.8998810423955629,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9683281572999747,
     "runtime_confidence": null,
-    "match_margin": 0.46287383539249416,
+    "match_margin": 0.7449617418755308,
     "runner_up_obf": "klg",
     "is_low_confidence": false,
     "evidence_coverage": 0.3333333333333333,
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.contact.AcquaintanceListRequest": {
-    "full_obf_msg_namespace": "kml",
-    "obf_msg_namespace": "kml",
+    "full_obf_msg_namespace": "kmz",
+    "obf_msg_namespace": "kmz",
     "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.contact.AcquaintanceListRequest",
     "field_mapping": {},
     "field_mapping_infos": {},
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8955351991413381,
-    "group_similarity_score": 0.771905006859111,
-    "assembly_similarity_score": 0.9527878978899823,
+    "similarity_score": 1.0,
+    "group_similarity_score": 0.7933493488957079,
+    "assembly_similarity_score": 0.969619862524573,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.011962019282509173,
-    "runner_up_obf": "kmz",
+    "match_margin": 1.0,
+    "runner_up_obf": null,
     "is_low_confidence": false,
     "evidence_coverage": null,
     "is_runtime_observed": false
@@ -41803,10 +41773,14 @@
     "obf_msg_namespace": "klv",
     "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.contact.BlockEvent",
     "field_mapping": {
-      "fyli": "success"
+      "fyli": "error",
+      "fylj": "success"
     },
     "field_mapping_infos": {
       "fyli": {
+        "error": 1.0
+      },
+      "fylj": {
         "success": 1.0
       }
     },
@@ -41831,32 +41805,26 @@
           "score": 0.0
         }
       },
-      "fyli": {
-        "error": {
-          "reason": "not_selected",
-          "score": 0.0
-        }
-      },
       "fylj": {
         "error": {
           "reason": "not_selected",
-          "score": 0.0
-        },
+          "score": 1.0
+        }
+      },
+      "fyli": {
         "success": {
           "reason": "not_selected",
           "score": 1.0
         }
       }
     },
-    "field_mapping_unmapped_non_obf_fields": {
-      "error": "score_below_threshold"
-    },
-    "similarity_score": 0.8314078731905061,
-    "group_similarity_score": 0.771905006859111,
+    "field_mapping_unmapped_non_obf_fields": {},
+    "similarity_score": 0.8396103340195044,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 0.8222222222222223,
     "structure_similarity_score": 0.7349948239666413,
     "runtime_confidence": null,
-    "match_margin": 0.03380327802057703,
+    "match_margin": 0.03380327802057681,
     "runner_up_obf": "kne",
     "is_low_confidence": false,
     "evidence_coverage": 0.6,
@@ -41883,12 +41851,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8973572530865999,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9070072070030686,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.22673854318553266,
+    "match_margin": 0.22673854318553244,
     "runner_up_obf": "kmc",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -41902,13 +41870,13 @@
     "field_mapping_infos": {},
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.9030596279151222,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9121734732806759,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.06438397849769117,
-    "runner_up_obf": "kml",
+    "match_margin": 0.2052063313880368,
+    "runner_up_obf": "klw",
     "is_low_confidence": false,
     "evidence_coverage": null,
     "is_runtime_observed": false
@@ -41927,12 +41895,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8782679612484555,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.8873818066140091,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.7666666666666666,
     "runtime_confidence": null,
-    "match_margin": 0.4165931391460649,
+    "match_margin": 0.4152260623412318,
     "runner_up_obf": "kng",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -41969,12 +41937,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8078275034295554,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.818549674447854,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 0.7916666666666666,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.5375001053039699,
+    "match_margin": 0.5530518217768139,
     "runner_up_obf": "kmp",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -42061,34 +42029,41 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8965760775232645,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9056899228888183,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9618614682831907,
     "runtime_confidence": null,
-    "match_margin": 0.510623574093709,
+    "match_margin": 0.5829397190566492,
     "runner_up_obf": "kmd",
     "is_low_confidence": false,
     "evidence_coverage": 0.6,
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.contact.ContactLookErrorEvent": {
-    "full_obf_msg_namespace": "kmz",
-    "obf_msg_namespace": "kmz",
+    "full_obf_msg_namespace": "kma",
+    "obf_msg_namespace": "kma",
     "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.contact.ContactLookErrorEvent",
     "field_mapping": {},
     "field_mapping_infos": {},
-    "field_mapping_rejected_infos": {},
-    "field_mapping_unmapped_non_obf_fields": {
-      "request_id": "no_obf_candidate"
+    "field_mapping_rejected_infos": {
+      "fylx": {
+        "request_id": {
+          "reason": "not_selected",
+          "score": 0.0
+        }
+      }
     },
-    "similarity_score": 0.7168989819272467,
-    "group_similarity_score": 0.771905006859111,
-    "assembly_similarity_score": 0.5983812186543528,
+    "field_mapping_unmapped_non_obf_fields": {
+      "request_id": "score_below_threshold"
+    },
+    "similarity_score": 0.7238822070030686,
+    "group_similarity_score": 0.7933493488957079,
+    "assembly_similarity_score": 0.5333333333333333,
     "structure_similarity_score": 0.7,
     "runtime_confidence": null,
-    "match_margin": 0.0026667288406465595,
-    "runner_up_obf": "kma",
+    "match_margin": 0.2354049447340733,
+    "runner_up_obf": "jpz",
     "is_low_confidence": false,
     "evidence_coverage": 0.0,
     "is_runtime_observed": false
@@ -42178,59 +42153,15 @@
     "field_mapping_unmapped_non_obf_fields": {
       "request_id": "score_below_threshold"
     },
-    "similarity_score": 0.4682998943720121,
-    "group_similarity_score": 0.11232791237367275,
+    "similarity_score": 0.4657558657097107,
+    "group_similarity_score": 0.10723985504907008,
     "assembly_similarity_score": 0.8490291684938018,
     "structure_similarity_score": 0.7499999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.16833066314955986,
+    "match_margin": 0.1683306631495598,
     "runner_up_obf": "kmd",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
-    "is_runtime_observed": false
-  },
-  ".com.ankama.dofus.server.game.protocol.contact.ContactLookRequest": {
-    "full_obf_msg_namespace": "kma",
-    "obf_msg_namespace": "kma",
-    "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.contact.ContactLookRequest",
-    "field_mapping": {
-      "fylx": "contact_type"
-    },
-    "field_mapping_infos": {
-      "fylx": {
-        "contact_type": 1.0
-      }
-    },
-    "field_mapping_rejected_infos": {
-      "fylx": {
-        "request_id": {
-          "reason": "not_selected",
-          "score": 0.0
-        },
-        "name": {
-          "reason": "not_selected",
-          "score": 0.0
-        },
-        "id": {
-          "reason": "not_selected",
-          "score": 0.0
-        }
-      }
-    },
-    "field_mapping_unmapped_non_obf_fields": {
-      "request_id": "no_obf_candidate",
-      "name": "no_obf_candidate",
-      "id": "no_obf_candidate"
-    },
-    "similarity_score": 0.3859525034295555,
-    "group_similarity_score": 0.771905006859111,
-    "assembly_similarity_score": 0.0,
-    "structure_similarity_score": 0.1587450786638754,
-    "runtime_confidence": null,
-    "match_margin": 0.22068315682599193,
-    "runner_up_obf": "luc",
-    "is_low_confidence": false,
-    "evidence_coverage": 0.0,
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.contact.ContactWarnOnAchievementCompleteSetRequest": {
@@ -42247,12 +42178,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8693252529151222,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.8784390982806758,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 0.8941666666666667,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.026281250000000034,
+    "match_margin": 0.02628124999999981,
     "runner_up_obf": "knf",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -42272,12 +42203,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8973572530865999,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9070072070030686,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.040000000000000036,
+    "match_margin": 0.039999999999999813,
     "runner_up_obf": "kmb",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -42304,8 +42235,8 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8867216780531842,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.895835523418738,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
@@ -42329,8 +42260,8 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8973572530865999,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9070072070030686,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
@@ -42354,12 +42285,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8965277670611871,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9042745356219077,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.7666666666666666,
     "runtime_confidence": null,
-    "match_margin": 0.13535726692941052,
+    "match_margin": 0.13535726692941075,
     "runner_up_obf": "kky",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -42379,12 +42310,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.911752463200533,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9199549240295313,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9895299145299146,
     "runtime_confidence": null,
-    "match_margin": 0.2818315515340277,
+    "match_margin": 0.28038405844655734,
     "runner_up_obf": "kmm",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -42404,8 +42335,8 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.9030596279151222,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9121734732806759,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
@@ -42446,12 +42377,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.7900750321933481,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.7982774930223463,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 0.5723620638596533,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.36271777910674796,
+    "match_margin": 0.5574684506170623,
     "runner_up_obf": "kmb",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -42650,12 +42581,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8992413936724881,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.908355239038042,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9834686836638958,
     "runtime_confidence": null,
-    "match_margin": 0.42763710330962734,
+    "match_margin": 0.42602877765688274,
     "runner_up_obf": "kmp",
     "is_low_confidence": false,
     "evidence_coverage": 0.8571428571428571,
@@ -43374,12 +43305,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.9234628011671303,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9325766465326838,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 0.77008547008547,
     "structure_similarity_score": 0.9371794871794872,
     "runtime_confidence": null,
-    "match_margin": 0.46117377144884547,
+    "match_margin": 0.4611737714488453,
     "runner_up_obf": "knm.knl.knk",
     "is_low_confidence": false,
     "evidence_coverage": 0.9230769230769231,
@@ -43399,13 +43330,34 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8961793684712154,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9058293223876839,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9895299145299146,
     "runtime_confidence": null,
     "match_margin": 0.144495248087666,
     "runner_up_obf": "kmu",
+    "is_low_confidence": false,
+    "evidence_coverage": 1.0,
+    "is_runtime_observed": false
+  },
+  ".com.ankama.dofus.server.game.protocol.contact.FriendListRequest": {
+    "full_obf_msg_namespace": "kml",
+    "obf_msg_namespace": "kml",
+    "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.contact.FriendListRequest",
+    "field_mapping": {},
+    "field_mapping_infos": {},
+    "field_mapping_rejected_infos": {},
+    "field_mapping_unmapped_non_obf_fields": {
+      "unknown_two_hundred_eighty_five": "no_obf_candidate"
+    },
+    "similarity_score": 1.0,
+    "group_similarity_score": 0.7933493488957079,
+    "assembly_similarity_score": 0.3059828743684268,
+    "structure_similarity_score": 0.0,
+    "runtime_confidence": null,
+    "match_margin": 1.0,
+    "runner_up_obf": null,
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -43424,8 +43376,8 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8880596279151222,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.8971734732806759,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
@@ -43456,8 +43408,8 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.7373913209103271,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.7465051662758808,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 0.4380952380952381,
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
@@ -43488,12 +43440,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8777588466651222,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.8868726920306759,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 0.8941666666666667,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.026281250000000034,
+    "match_margin": 0.02628124999999981,
     "runner_up_obf": "kli",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -43513,12 +43465,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.9127536651236099,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9209561259526083,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.36264626126904953,
+    "match_margin": 0.3809646464188552,
     "runner_up_obf": "kmy",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -43538,12 +43490,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8973572530865999,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9070072070030686,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.040000000000000036,
+    "match_margin": 0.039999999999999813,
     "runner_up_obf": "kmb",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -43570,12 +43522,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8800582473504304,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.889708201266899,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
-    "match_margin": 0.040000000000000036,
+    "match_margin": 0.039999999999999813,
     "runner_up_obf": "kmb",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -43586,10 +43538,14 @@
     "obf_msg_namespace": "kne",
     "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.contact.IgnoreEvent",
     "field_mapping": {
-      "fyqb": "success"
+      "fyqb": "error",
+      "fyqc": "success"
     },
     "field_mapping_infos": {
       "fyqb": {
+        "error": 1.0
+      },
+      "fyqc": {
         "success": 1.0
       }
     },
@@ -43604,32 +43560,26 @@
           "score": 0.0
         }
       },
-      "fyqb": {
-        "error": {
-          "reason": "not_selected",
-          "score": 0.0
-        }
-      },
       "fyqc": {
         "error": {
           "reason": "not_selected",
-          "score": 0.0
-        },
+          "score": 1.0
+        }
+      },
+      "fyqb": {
         "success": {
           "reason": "not_selected",
           "score": 1.0
         }
       }
     },
-    "field_mapping_unmapped_non_obf_fields": {
-      "error": "score_below_threshold"
-    },
-    "similarity_score": 0.8202611973748969,
-    "group_similarity_score": 0.771905006859111,
+    "field_mapping_unmapped_non_obf_fields": {},
+    "similarity_score": 0.8363200536381098,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 0.8016499890799601,
-    "structure_similarity_score": 0.685755689668733,
+    "structure_similarity_score": 0.7405279454192497,
     "runtime_confidence": null,
-    "match_margin": 0.03380327802057703,
+    "match_margin": 0.03380327802057681,
     "runner_up_obf": "klg",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
@@ -43656,12 +43606,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8668358221785399,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.8745825907392606,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.6787987010226308,
     "runtime_confidence": null,
-    "match_margin": 0.4808833187489844,
+    "match_margin": 0.647666896108906,
     "runner_up_obf": "klb",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -43672,40 +43622,38 @@
     "obf_msg_namespace": "klg",
     "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.contact.UnBlockEvent",
     "field_mapping": {
+      "fyja": "error",
       "fyjb": "success"
     },
     "field_mapping_infos": {
+      "fyja": {
+        "error": 1.0
+      },
       "fyjb": {
         "success": 1.0
       }
     },
     "field_mapping_rejected_infos": {
-      "fyja": {
+      "fyjb": {
         "error": {
-          "reason": "not_selected",
-          "score": 0.0
-        },
-        "success": {
           "reason": "not_selected",
           "score": 1.0
         }
       },
-      "fyjb": {
-        "error": {
+      "fyja": {
+        "success": {
           "reason": "not_selected",
-          "score": 0.0
+          "score": 1.0
         }
       }
     },
-    "field_mapping_unmapped_non_obf_fields": {
-      "error": "score_below_threshold"
-    },
-    "similarity_score": 0.7975074697164966,
-    "group_similarity_score": 0.771905006859111,
+    "field_mapping_unmapped_non_obf_fields": {},
+    "similarity_score": 0.8143161805454949,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 0.8222222222222223,
-    "structure_similarity_score": 0.7066666666666666,
+    "structure_similarity_score": 0.7666666666666666,
     "runtime_confidence": null,
-    "match_margin": 0.3040016716258887,
+    "match_margin": 0.3058316999359203,
     "runner_up_obf": "jcu",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
@@ -43732,12 +43680,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.7083174065654433,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.7174312519309971,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 0.535,
     "structure_similarity_score": 0.5621320343559641,
     "runtime_confidence": null,
-    "match_margin": 0.1204526376085503,
+    "match_margin": 0.13162866272851959,
     "runner_up_obf": "kuu",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -43748,10 +43696,14 @@
     "obf_msg_namespace": "knm",
     "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.contact.UnIgnoreEvent",
     "field_mapping": {
-      "fyqy": "success"
+      "fyqy": "error",
+      "fyqz": "success"
     },
     "field_mapping_infos": {
       "fyqy": {
+        "error": 1.0
+      },
+      "fyqz": {
         "success": 1.0
       }
     },
@@ -43766,32 +43718,26 @@
           "score": 0.0
         }
       },
-      "fyqy": {
-        "error": {
-          "reason": "not_selected",
-          "score": 0.0
-        }
-      },
       "fyqz": {
         "error": {
           "reason": "not_selected",
-          "score": 0.0
-        },
+          "score": 1.0
+        }
+      },
+      "fyqy": {
         "success": {
           "reason": "not_selected",
           "score": 1.0
         }
       }
     },
-    "field_mapping_unmapped_non_obf_fields": {
-      "error": "score_below_threshold"
-    },
-    "similarity_score": 0.8593901892989192,
-    "group_similarity_score": 0.771905006859111,
+    "field_mapping_unmapped_non_obf_fields": {},
+    "similarity_score": 0.8663622810035677,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 0.8222222222222223,
     "structure_similarity_score": 0.7512716560818207,
     "runtime_confidence": null,
-    "match_margin": 0.054519531249999975,
+    "match_margin": 0.0545195312500002,
     "runner_up_obf": "klg",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
@@ -43818,12 +43764,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8867216780531842,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.895835523418738,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
-    "match_margin": 0.030000000000000027,
+    "match_margin": 0.029999999999999805,
     "runner_up_obf": "kmd",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -43843,12 +43789,12 @@
     },
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8973572530865999,
-    "group_similarity_score": 0.771905006859111,
+    "similarity_score": 0.9070072070030686,
+    "group_similarity_score": 0.7933493488957079,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.040000000000000036,
+    "match_margin": 0.039999999999999813,
     "runner_up_obf": "kmr",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -43880,7 +43826,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
-    "match_margin": 0.629783623056041,
+    "match_margin": 0.630615639113872,
     "runner_up_obf": "kjy",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -44055,7 +44001,7 @@
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
     "match_margin": 0.6471173089850262,
-    "runner_up_obf": "kkg",
+    "runner_up_obf": "kkb",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -44086,7 +44032,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
-    "match_margin": 0.6881637227517585,
+    "match_margin": 0.6473746374804132,
     "runner_up_obf": "kki",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -44130,7 +44076,7 @@
     "assembly_similarity_score": 0.9050831124727189,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.054230288623593914,
+    "match_margin": 0.08374309297082494,
     "runner_up_obf": "izi",
     "is_low_confidence": false,
     "evidence_coverage": null,
@@ -44322,8 +44268,8 @@
     "assembly_similarity_score": 0.9980214263653501,
     "structure_similarity_score": 0.9683281572999747,
     "runtime_confidence": null,
-    "match_margin": 0.5330145721681181,
-    "runner_up_obf": "iin",
+    "match_margin": 0.5505968087145348,
+    "runner_up_obf": "kkg",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
     "is_runtime_observed": false
@@ -45887,7 +45833,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.10951080239929034,
+    "match_margin": 0.09440672808109474,
     "runner_up_obf": "ige",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -47041,8 +46987,8 @@
     "assembly_similarity_score": 0.990749590259265,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.7842501607780148,
-    "runner_up_obf": "kjw",
+    "match_margin": 0.6638258795512686,
+    "runner_up_obf": "kan",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
     "is_runtime_observed": false
@@ -47084,7 +47030,7 @@
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
     "match_margin": 0.7379251022962696,
-    "runner_up_obf": "lww",
+    "runner_up_obf": "kjs",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
     "is_runtime_observed": false
@@ -48046,7 +47992,7 @@
     "assembly_similarity_score": 0.7873203525409528,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.6062121177330608,
+    "match_margin": 0.6219261681696331,
     "runner_up_obf": "kfb",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -48109,7 +48055,7 @@
     "assembly_similarity_score": 0.7666666666666666,
     "structure_similarity_score": 0.8732050807568877,
     "runtime_confidence": null,
-    "match_margin": 0.6874841460824967,
+    "match_margin": 0.6209988590137514,
     "runner_up_obf": "kfj",
     "is_low_confidence": false,
     "evidence_coverage": 0.3333333333333333,
@@ -48629,7 +48575,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9846049894151541,
     "runtime_confidence": null,
-    "match_margin": 0.4980184626837136,
+    "match_margin": 0.5001167985813801,
     "runner_up_obf": "kbf",
     "is_low_confidence": false,
     "evidence_coverage": 0.3333333333333333,
@@ -49544,7 +49490,7 @@
     "assembly_similarity_score": 0.5333333333333333,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.017691579641619493,
+    "match_margin": 0.01769157964161927,
     "runner_up_obf": "kaq",
     "is_low_confidence": false,
     "evidence_coverage": null,
@@ -49786,8 +49732,8 @@
     "assembly_similarity_score": 0.9662650602409638,
     "structure_similarity_score": 0.9556770833333333,
     "runtime_confidence": null,
-    "match_margin": 0.4683225731758023,
-    "runner_up_obf": "jyt",
+    "match_margin": 0.7467271967901541,
+    "runner_up_obf": "hsn",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -49864,7 +49810,7 @@
     "assembly_similarity_score": 0.8666666666666667,
     "structure_similarity_score": 0.7550873341057783,
     "runtime_confidence": null,
-    "match_margin": 0.5025597582534099,
+    "match_margin": 0.745497426135848,
     "runner_up_obf": "jyx",
     "is_low_confidence": false,
     "evidence_coverage": 0.8,
@@ -50158,12 +50104,12 @@
     "field_mapping_unmapped_non_obf_fields": {
       "mounts_id": "no_obf_candidate"
     },
-    "similarity_score": 0.579359583960787,
-    "group_similarity_score": 0.1587191679215741,
+    "similarity_score": 0.5754643771799038,
+    "group_similarity_score": 0.15092875435980763,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.12985550686685365,
+    "match_margin": 0.1259603000859706,
     "runner_up_obf": "jfi",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -50227,7 +50173,7 @@
     "assembly_similarity_score": 0.8444444444444444,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.40511376872355226,
+    "match_margin": 0.2054904502982029,
     "runner_up_obf": "kbc",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -52081,7 +52027,7 @@
     "assembly_similarity_score": 0.5333333333333333,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.017691579641619493,
+    "match_margin": 0.01769157964161927,
     "runner_up_obf": "kaq",
     "is_low_confidence": false,
     "evidence_coverage": null,
@@ -52526,35 +52472,43 @@
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.exchange.ExchangeTaxCollectorEquipmentRequest": {
-    "full_obf_msg_namespace": "ikm",
-    "obf_msg_namespace": "ikm",
+    "full_obf_msg_namespace": "kdx",
+    "obf_msg_namespace": "kdx",
     "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ExchangeTaxCollectorEquipmentRequest",
     "field_mapping": {
-      "fqcl": "unknown_three_hundred_thirty_one"
+      "fxmu": "tax_collector_uid",
+      "fxmv": "unknown_three_hundred_thirty_one"
     },
     "field_mapping_infos": {
-      "fqcl": {
-        "unknown_three_hundred_thirty_one": 0.95
+      "fxmu": {
+        "tax_collector_uid": 0.65
+      },
+      "fxmv": {
+        "unknown_three_hundred_thirty_one": 1.0
       }
     },
     "field_mapping_rejected_infos": {
-      "fqcl": {
+      "fxmv": {
         "tax_collector_uid": {
           "reason": "not_selected",
           "score": 0.65
         }
+      },
+      "fxmu": {
+        "unknown_three_hundred_thirty_one": {
+          "reason": "not_selected",
+          "score": 1.0
+        }
       }
     },
-    "field_mapping_unmapped_non_obf_fields": {
-      "tax_collector_uid": "no_obf_candidate"
-    },
-    "similarity_score": 0.5884060297722498,
-    "group_similarity_score": 0.273337110821191,
-    "assembly_similarity_score": 0.8283999088414372,
-    "structure_similarity_score": 1.0,
+    "field_mapping_unmapped_non_obf_fields": {},
+    "similarity_score": 0.7572371980462347,
+    "group_similarity_score": 0.8211684071676111,
+    "assembly_similarity_score": 0.5746666666666668,
+    "structure_similarity_score": 0.6499999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.0946606690449805,
-    "runner_up_obf": "kdx",
+    "match_margin": 0.16883116827398492,
+    "runner_up_obf": "ikm",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
     "is_runtime_observed": false
@@ -52897,7 +52851,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.3407127811120604,
+    "match_margin": 0.3940464856640957,
     "runner_up_obf": "kdx",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -53270,12 +53224,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.6647068704623369,
-    "group_similarity_score": 0.2110749893231458,
+    "similarity_score": 0.6651752823890527,
+    "group_similarity_score": 0.2121771350330653,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.3444715880659985,
+    "match_margin": 0.34493999999271424,
     "runner_up_obf": "kci",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -53342,15 +53296,34 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.7527023973523005,
-    "group_similarity_score": 0.2110749893231458,
+    "similarity_score": 0.7531708092790161,
+    "group_similarity_score": 0.2121771350330653,
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9405351177211818,
     "runtime_confidence": null,
-    "match_margin": 0.34211819376849495,
+    "match_margin": 0.3425866056952106,
     "runner_up_obf": "jyx",
     "is_low_confidence": false,
     "evidence_coverage": 0.4,
+    "is_runtime_observed": false
+  },
+  ".com.ankama.dofus.server.game.protocol.exchange.ObjectAveragePricesRequest": {
+    "full_obf_msg_namespace": "ism",
+    "obf_msg_namespace": "ism",
+    "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.exchange.ObjectAveragePricesRequest",
+    "field_mapping": {},
+    "field_mapping_infos": {},
+    "field_mapping_rejected_infos": {},
+    "field_mapping_unmapped_non_obf_fields": {},
+    "similarity_score": 1.0,
+    "group_similarity_score": 0.2121771350330653,
+    "assembly_similarity_score": 1.0,
+    "structure_similarity_score": 0.7,
+    "runtime_confidence": null,
+    "match_margin": 1.0,
+    "runner_up_obf": null,
+    "is_low_confidence": false,
+    "evidence_coverage": 0.0,
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.exchange.RecycleResultEvent": {
@@ -54051,7 +54024,7 @@
         "heal_taken": 1.0
       },
       "fwhi": {
-        "entity": 0.8768678822419671
+        "entity": 0.9768678822419671
       },
       "fwhj": {
         "kill": 0.9133333333333333
@@ -57121,7 +57094,7 @@
     },
     "field_mapping_infos": {
       "fvwq": {
-        "stat_detailed": 0.9938069444444444
+        "stat_detailed": 0.9939649305555556
       },
       "fvwr": {
         "stat_resume": 0.9651785714285714
@@ -57564,10 +57537,10 @@
         "monster": 0.7072850741834852
       },
       "fwdv": {
-        "companion": 0.7592013749393883
+        "companion": 0.7599913054949439
       },
       "fwdt": {
-        "summon": 0.8447577099283361
+        "summon": 0.8455476404838915
       }
     },
     "field_mapping_rejected_infos": {
@@ -57686,7 +57659,7 @@
         },
         "companion": {
           "reason": "not_selected",
-          "score": 0.7584111903073757
+          "score": 0.7592011208629312
         }
       },
       "fwdu": {
@@ -57730,7 +57703,7 @@
         },
         "summon": {
           "reason": "not_selected",
-          "score": 0.7224128402348603
+          "score": 0.7232027707904158
         }
       },
       "fwdp": {
@@ -57757,13 +57730,13 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.783311886211875,
+    "similarity_score": 0.683311886211875,
     "group_similarity_score": 0.5560577997438005,
     "assembly_similarity_score": 0.782203317578921,
     "structure_similarity_score": 0.8578370645149967,
     "runtime_confidence": null,
-    "match_margin": 0.5052829863399747,
-    "runner_up_obf": "juh",
+    "match_margin": 0.5948744452820158,
+    "runner_up_obf": "jpo",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
     "is_runtime_observed": false
@@ -58036,7 +58009,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9449489742783177,
     "runtime_confidence": null,
-    "match_margin": 0.5552615427946341,
+    "match_margin": 0.5515930645337646,
     "runner_up_obf": "jyr",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
@@ -58240,7 +58213,7 @@
     "assembly_similarity_score": 0.9500894488729582,
     "structure_similarity_score": 0.9919985580353725,
     "runtime_confidence": null,
-    "match_margin": 0.7790818300202569,
+    "match_margin": 0.7872200155645599,
     "runner_up_obf": "jxw",
     "is_low_confidence": false,
     "evidence_coverage": 0.5714285714285714,
@@ -58320,7 +58293,7 @@
     "assembly_similarity_score": 0.908475564454657,
     "structure_similarity_score": 0.9683281572999747,
     "runtime_confidence": null,
-    "match_margin": 0.4881497945753562,
+    "match_margin": 0.4922549082117198,
     "runner_up_obf": "jxy",
     "is_low_confidence": false,
     "evidence_coverage": 0.3333333333333333,
@@ -58339,7 +58312,7 @@
     "assembly_similarity_score": 0.9901650325783681,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.05386115913372347,
+    "match_margin": 0.17315594360844422,
     "runner_up_obf": "jyl",
     "is_low_confidence": false,
     "evidence_coverage": null,
@@ -58371,7 +58344,7 @@
     "assembly_similarity_score": 0.535,
     "structure_similarity_score": 0.5621320343559641,
     "runtime_confidence": null,
-    "match_margin": 0.29522054528528896,
+    "match_margin": 0.301087191055477,
     "runner_up_obf": "jxy",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -58834,6 +58807,25 @@
     "evidence_coverage": 0.6,
     "is_runtime_observed": false
   },
+  ".com.ankama.dofus.server.game.protocol.fight.preparation.FightPreparationEnterRequest": {
+    "full_obf_msg_namespace": "iir",
+    "obf_msg_namespace": "iir",
+    "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.fight.preparation.FightPreparationEnterRequest",
+    "field_mapping": {},
+    "field_mapping_infos": {},
+    "field_mapping_rejected_infos": {},
+    "field_mapping_unmapped_non_obf_fields": {},
+    "similarity_score": 1.0,
+    "group_similarity_score": 0.17232023237950783,
+    "assembly_similarity_score": 1.0,
+    "structure_similarity_score": 0.7,
+    "runtime_confidence": null,
+    "match_margin": 1.0,
+    "runner_up_obf": null,
+    "is_low_confidence": false,
+    "evidence_coverage": 0.0,
+    "is_runtime_observed": false
+  },
   ".com.ankama.dofus.server.game.protocol.fight.preparation.FightReadyRequest": {
     "full_obf_msg_namespace": "jyo",
     "obf_msg_namespace": "jyo",
@@ -58853,7 +58845,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.3953492020664169,
+    "match_margin": 0.39890523654917553,
     "runner_up_obf": "hio",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -58927,7 +58919,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.735199736149607,
+    "match_margin": 0.74333792169391,
     "runner_up_obf": "jxu",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -59211,7 +59203,7 @@
     },
     "field_mapping_infos": {
       "fwoi": {
-        "team": 0.9464658484947651
+        "team": 1.0
       },
       "fwoj": {
         "fight_id": 1.0
@@ -59237,7 +59229,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9963541666666667,
     "runtime_confidence": null,
-    "match_margin": 0.7100454768833402,
+    "match_margin": 0.6565694225151804,
     "runner_up_obf": "jxz",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -59303,8 +59295,8 @@
     "assembly_similarity_score": 0.0,
     "structure_similarity_score": 0.29999999999999993,
     "runtime_confidence": null,
-    "match_margin": 0.46492202166312435,
-    "runner_up_obf": "jqn",
+    "match_margin": 0.4878511660601864,
+    "runner_up_obf": "kvj",
     "is_low_confidence": false,
     "evidence_coverage": 0.0,
     "is_runtime_observed": false
@@ -59517,7 +59509,7 @@
     "assembly_similarity_score": 0.9932865604711522,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.5617860887165242,
+    "match_margin": 0.5179161223224732,
     "runner_up_obf": "jrj",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -65515,8 +65507,8 @@
     "assembly_similarity_score": 0.9487324727274119,
     "structure_similarity_score": 0.9496868530857245,
     "runtime_confidence": null,
-    "match_margin": 0.4231288060183771,
-    "runner_up_obf": "jqn",
+    "match_margin": 0.6163871116523021,
+    "runner_up_obf": "jpo",
     "is_low_confidence": false,
     "evidence_coverage": 0.9487179487179487,
     "is_runtime_observed": false
@@ -67185,7 +67177,7 @@
     "assembly_similarity_score": 0.0,
     "structure_similarity_score": 0.2872281323269014,
     "runtime_confidence": null,
-    "match_margin": 0.40163391286959227,
+    "match_margin": 0.2349246380943122,
     "runner_up_obf": "jqn",
     "is_low_confidence": false,
     "evidence_coverage": 0.0,
@@ -67983,7 +67975,7 @@
     "assembly_similarity_score": 0.7650497918080027,
     "structure_similarity_score": 0.9604729426373377,
     "runtime_confidence": null,
-    "match_margin": 0.5352985679140736,
+    "match_margin": 0.5311419988051442,
     "runner_up_obf": "lom",
     "is_low_confidence": false,
     "evidence_coverage": 0.2,
@@ -68017,7 +68009,7 @@
     "assembly_similarity_score": 0.0,
     "structure_similarity_score": 0.21213203435596423,
     "runtime_confidence": null,
-    "match_margin": 0.17610635636119432,
+    "match_margin": 0.13223638996714315,
     "runner_up_obf": "jqn",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -68042,7 +68034,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.12985550686685365,
+    "match_margin": 0.1259603000859706,
     "runner_up_obf": "jpi",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -68275,12 +68267,12 @@
       }
     },
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.8384229086644929,
+    "similarity_score": 0.9384229086644928,
     "group_similarity_score": 0.7243437897134064,
     "assembly_similarity_score": 0.9839009112619465,
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
-    "match_margin": 0.47625101380778967,
+    "match_margin": 0.5762510138077896,
     "runner_up_obf": "jom",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -68435,7 +68427,7 @@
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
     "match_margin": 0.5705523588205285,
-    "runner_up_obf": "jpr",
+    "runner_up_obf": "jqf",
     "is_low_confidence": false,
     "evidence_coverage": 0.6,
     "is_runtime_observed": false
@@ -68568,8 +68560,8 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9,
     "runtime_confidence": null,
-    "match_margin": 0.478125,
-    "runner_up_obf": "jom",
+    "match_margin": 0.5143421894856702,
+    "runner_up_obf": "jqi",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
     "is_runtime_observed": false
@@ -68593,7 +68585,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9752248987268519,
     "runtime_confidence": null,
-    "match_margin": 0.5367684126024062,
+    "match_margin": 0.5415979580569515,
     "runner_up_obf": "jul",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -68635,7 +68627,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.5516112460954777,
+    "match_margin": 0.5573361993984733,
     "runner_up_obf": "jpk",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -68660,7 +68652,7 @@
     "assembly_similarity_score": 0.9263907979826405,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.4609940931427907,
+    "match_margin": 0.4904923679798365,
     "runner_up_obf": "kui",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -68702,7 +68694,7 @@
     "assembly_similarity_score": 0.8740229755691061,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.40609179225093195,
+    "match_margin": 0.44230898173660227,
     "runner_up_obf": "jps",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -68771,7 +68763,7 @@
     },
     "field_mapping_infos": {
       "fuxk": {
-        "unknown_four_hundred_four": 1.0
+        "unknown_four_hundred_four": 0.9691263179501266
       },
       "fuxm": {
         "unknown_four_hundred_five": 0.961718066466687
@@ -68784,7 +68776,7 @@
       "fuxj": {
         "unknown_four_hundred_four": {
           "reason": "not_selected",
-          "score": 0.7191263179501266
+          "score": 0.6191263179501266
         },
         "unknown_four_hundred_five": {
           "reason": "not_selected",
@@ -68832,7 +68824,7 @@
     "assembly_similarity_score": 0.7927056979451811,
     "structure_similarity_score": 0.7657830123171411,
     "runtime_confidence": null,
-    "match_margin": 0.47315051292466925,
+    "match_margin": 0.48200582782530843,
     "runner_up_obf": "kgr",
     "is_low_confidence": false,
     "evidence_coverage": 0.6,
@@ -68926,7 +68918,7 @@
     "assembly_similarity_score": 0.9999997086107912,
     "structure_similarity_score": 0.9950300925925925,
     "runtime_confidence": null,
-    "match_margin": 0.6094449580819495,
+    "match_margin": 0.49731416250830573,
     "runner_up_obf": "jot",
     "is_low_confidence": false,
     "evidence_coverage": 0.75,
@@ -69910,48 +69902,33 @@
     "assembly_similarity_score": 0.9623107910005088,
     "structure_similarity_score": 0.9823642216435183,
     "runtime_confidence": null,
-    "match_margin": 0.5426251847024783,
-    "runner_up_obf": "jon",
+    "match_margin": 0.5426251847024782,
+    "runner_up_obf": "jqi",
     "is_low_confidence": false,
     "evidence_coverage": 0.9375,
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryWithCoordsInformation": {
-    "full_obf_msg_namespace": "jqi",
-    "obf_msg_namespace": "jqi",
+    "full_obf_msg_namespace": "joz",
+    "obf_msg_namespace": "joz",
     "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapComplementaryWithCoordsInformation",
-    "field_mapping": {},
-    "field_mapping_infos": {},
-    "field_mapping_rejected_infos": {
-      "fvbp": {
-        "coordinates": {
-          "reason": "not_selected",
-          "score": 0.0
-        }
-      },
-      "fvbq": {
-        "coordinates": {
-          "reason": "not_selected",
-          "score": 0.0
-        }
-      },
-      "fvbr": {
-        "coordinates": {
-          "reason": "not_selected",
-          "score": 0.0
-        }
+    "field_mapping": {
+      "fuvm": "coordinates"
+    },
+    "field_mapping_infos": {
+      "fuvm": {
+        "coordinates": 1.0
       }
     },
-    "field_mapping_unmapped_non_obf_fields": {
-      "coordinates": "score_below_threshold"
-    },
-    "similarity_score": 0.7563794829800852,
+    "field_mapping_rejected_infos": {},
+    "field_mapping_unmapped_non_obf_fields": {},
+    "similarity_score": 0.8621718948567032,
     "group_similarity_score": 0.7243437897134064,
     "assembly_similarity_score": 1.0,
-    "structure_similarity_score": 0.6614642819948224,
+    "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.120541294061691,
-    "runner_up_obf": "joz",
+    "match_margin": 0.10579241187661803,
+    "runner_up_obf": "jqi",
     "is_low_confidence": false,
     "evidence_coverage": 0.0,
     "is_runtime_observed": false
@@ -70042,7 +70019,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.09375,
+    "match_margin": 0.13258370593830904,
     "runner_up_obf": "jpz",
     "is_low_confidence": false,
     "evidence_coverage": 0.0,
@@ -70067,7 +70044,7 @@
     "assembly_similarity_score": 0.9884971123319203,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.21881906776499072,
+    "match_margin": 0.1490520900115283,
     "runner_up_obf": "jqe",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -70092,7 +70069,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.416483845612176,
+    "match_margin": 0.30047111748463284,
     "runner_up_obf": "jpr",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -70117,29 +70094,29 @@
     "assembly_similarity_score": 0.9987683172283323,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.3595773692208233,
+    "match_margin": 0.30000923644525745,
     "runner_up_obf": "jpr",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementConfirmRequest": {
-    "full_obf_msg_namespace": "joz",
-    "obf_msg_namespace": "joz",
+    "full_obf_msg_namespace": "jou",
+    "obf_msg_namespace": "jou",
     "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementConfirmRequest",
     "field_mapping": {},
     "field_mapping_infos": {},
     "field_mapping_rejected_infos": {},
     "field_mapping_unmapped_non_obf_fields": {},
-    "similarity_score": 0.6809218948567032,
+    "similarity_score": 1.0,
     "group_similarity_score": 0.7243437897134064,
-    "assembly_similarity_score": 0.5333333333333333,
-    "structure_similarity_score": 0.7,
+    "assembly_similarity_score": 1.0,
+    "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.05594642697931396,
-    "runner_up_obf": "jou",
+    "match_margin": 1.0,
+    "runner_up_obf": null,
     "is_low_confidence": false,
-    "evidence_coverage": 0.0,
+    "evidence_coverage": null,
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.gamemap.MapMovementConfirmResponse": {
@@ -70155,8 +70132,8 @@
     "assembly_similarity_score": 0.9933119198598237,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.08624598497371694,
-    "runner_up_obf": "jou",
+    "match_margin": 0.17374598497371685,
+    "runner_up_obf": "joz",
     "is_low_confidence": false,
     "evidence_coverage": null,
     "is_runtime_observed": false
@@ -70267,7 +70244,7 @@
     "assembly_similarity_score": 0.999830506835998,
     "structure_similarity_score": 0.9834733547569203,
     "runtime_confidence": null,
-    "match_margin": 0.5798096263955996,
+    "match_margin": 0.5798096263955995,
     "runner_up_obf": "jpt",
     "is_low_confidence": false,
     "evidence_coverage": 0.6,
@@ -70309,7 +70286,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.5030911100732605,
+    "match_margin": 0.38911870388382924,
     "runner_up_obf": "jpr",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -70373,7 +70350,7 @@
     "assembly_similarity_score": 0.8328812777996898,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.4019944288954953,
+    "match_margin": 0.4382116183811656,
     "runner_up_obf": "joo",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -70545,7 +70522,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.973861278752583,
     "runtime_confidence": null,
-    "match_margin": 0.46485393925441465,
+    "match_margin": 0.46485393925441487,
     "runner_up_obf": "jop",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -70639,7 +70616,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.48860679419434505,
+    "match_margin": 0.4886067941943453,
     "runner_up_obf": "jom",
     "is_low_confidence": false,
     "evidence_coverage": 0.75,
@@ -70683,42 +70660,8 @@
     "assembly_similarity_score": 0.535,
     "structure_similarity_score": 0.5621320343559641,
     "runtime_confidence": null,
-    "match_margin": 0.2372179430296969,
+    "match_margin": 0.2734351325153672,
     "runner_up_obf": "jpx",
-    "is_low_confidence": false,
-    "evidence_coverage": 0.5,
-    "is_runtime_observed": false
-  },
-  ".com.ankama.dofus.server.game.protocol.gamemap.MapRunningFightsEvent": {
-    "full_obf_msg_namespace": "jpu",
-    "obf_msg_namespace": "jpu",
-    "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.gamemap.MapRunningFightsEvent",
-    "field_mapping": {},
-    "field_mapping_infos": {},
-    "field_mapping_rejected_infos": {
-      "fuzj": {
-        "fights": {
-          "reason": "not_selected",
-          "score": 0.0
-        }
-      },
-      "fuzk": {
-        "fights": {
-          "reason": "not_selected",
-          "score": 0.0
-        }
-      }
-    },
-    "field_mapping_unmapped_non_obf_fields": {
-      "fights": "score_below_threshold"
-    },
-    "similarity_score": 0.3259547053710329,
-    "group_similarity_score": 0.7243437897134064,
-    "assembly_similarity_score": 0.0,
-    "structure_similarity_score": 0.0,
-    "runtime_confidence": null,
-    "match_margin": 0.07094382250610437,
-    "runner_up_obf": "jou",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
     "is_runtime_observed": false
@@ -76344,7 +76287,7 @@
     "assembly_similarity_score": 0.998237037037037,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.5817623457371842,
+    "match_margin": 0.5780283587354599,
     "runner_up_obf": "inr",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -77756,7 +77699,7 @@
     "assembly_similarity_score": 0.7666666666666666,
     "structure_similarity_score": 0.9925451388888888,
     "runtime_confidence": null,
-    "match_margin": 0.6473032238724867,
+    "match_margin": 0.6557246915589444,
     "runner_up_obf": "izd",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -77893,7 +77836,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.8732050807568877,
     "runtime_confidence": null,
-    "match_margin": 0.6517207162408013,
+    "match_margin": 0.47151709989714735,
     "runner_up_obf": "hny",
     "is_low_confidence": false,
     "evidence_coverage": 0.3333333333333333,
@@ -78761,7 +78704,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.5845184784960666,
+    "match_margin": 0.6012947942855403,
     "runner_up_obf": "iyn",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -80916,8 +80859,8 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
-    "match_margin": 0.15379126073623883,
-    "runner_up_obf": "ism",
+    "match_margin": 0.3071583829177862,
+    "runner_up_obf": "ito",
     "is_low_confidence": false,
     "evidence_coverage": 0.0,
     "is_runtime_observed": false
@@ -81350,7 +81293,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.8732050807568877,
     "runtime_confidence": null,
-    "match_margin": 0.5785228066430765,
+    "match_margin": 0.5681790044693463,
     "runner_up_obf": "itt",
     "is_low_confidence": false,
     "evidence_coverage": 0.3333333333333333,
@@ -82202,7 +82145,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.3046694461752286,
+    "match_margin": 0.30476865252443486,
     "runner_up_obf": "idj",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -87009,7 +86952,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.37066918987279274,
+    "match_margin": 0.35132847450065396,
     "runner_up_obf": "jim",
     "is_low_confidence": false,
     "evidence_coverage": null,
@@ -87117,8 +87060,8 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9683281572999747,
     "runtime_confidence": null,
-    "match_margin": 0.36858488763408737,
-    "runner_up_obf": "inv",
+    "match_margin": 0.35087127137826624,
+    "runner_up_obf": "mef",
     "is_low_confidence": false,
     "evidence_coverage": 0.3333333333333333,
     "is_runtime_observed": false
@@ -89555,7 +89498,7 @@
     "assembly_similarity_score": 0.9853538461538461,
     "structure_similarity_score": 0.8833333333333332,
     "runtime_confidence": null,
-    "match_margin": 0.45794600481741776,
+    "match_margin": 0.4638281051032537,
     "runner_up_obf": "ilg",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -89991,6 +89934,28 @@
     "runner_up_obf": "ils",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
+    "is_runtime_observed": false
+  },
+  ".com.ankama.dofus.server.game.protocol.party.PartyKickedByEvent": {
+    "full_obf_msg_namespace": "ilr",
+    "obf_msg_namespace": "ilr",
+    "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.party.PartyKickedByEvent",
+    "field_mapping": {},
+    "field_mapping_infos": {},
+    "field_mapping_rejected_infos": {},
+    "field_mapping_unmapped_non_obf_fields": {
+      "party_id": "no_obf_candidate",
+      "kicker_id": "no_obf_candidate"
+    },
+    "similarity_score": 0.7024525448040273,
+    "group_similarity_score": 0.5924050896080546,
+    "assembly_similarity_score": 1.0,
+    "structure_similarity_score": 0.7,
+    "runtime_confidence": null,
+    "match_margin": 0.08102545368486158,
+    "runner_up_obf": "ima",
+    "is_low_confidence": false,
+    "evidence_coverage": 0.0,
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.party.PartyLeaderUpdateEvent": {
@@ -90928,6 +90893,28 @@
     "runner_up_obf": "ilx",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
+    "is_runtime_observed": false
+  },
+  ".com.ankama.dofus.server.game.protocol.party.PartyNewMemberEvent": {
+    "full_obf_msg_namespace": "ilt",
+    "obf_msg_namespace": "ilt",
+    "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.party.PartyNewMemberEvent",
+    "field_mapping": {},
+    "field_mapping_infos": {},
+    "field_mapping_rejected_infos": {},
+    "field_mapping_unmapped_non_obf_fields": {
+      "party_id": "no_obf_candidate",
+      "member": "no_obf_candidate"
+    },
+    "similarity_score": 0.6149525448040273,
+    "group_similarity_score": 0.5924050896080546,
+    "assembly_similarity_score": 0.5333333333333333,
+    "structure_similarity_score": 0.7,
+    "runtime_confidence": null,
+    "match_margin": 0.07455090736972325,
+    "runner_up_obf": "iju",
+    "is_low_confidence": false,
+    "evidence_coverage": 0.0,
     "is_runtime_observed": false
   },
   ".com.ankama.dofus.server.game.protocol.party.PartyPledgeLoyaltyRequest": {
@@ -92187,8 +92174,8 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9999999999999999,
     "runtime_confidence": null,
-    "match_margin": 0.26693661204738084,
-    "runner_up_obf": "igl",
+    "match_margin": 0.652109944828427,
+    "runner_up_obf": "jqi",
     "is_low_confidence": false,
     "evidence_coverage": 0.0,
     "is_runtime_observed": false
@@ -92579,8 +92566,8 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.8403738644055909,
     "runtime_confidence": null,
-    "match_margin": 0.4737677681219066,
-    "runner_up_obf": "iey",
+    "match_margin": 0.4920810353618871,
+    "runner_up_obf": "ifh",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
     "is_runtime_observed": false
@@ -92656,8 +92643,8 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9683281572999747,
     "runtime_confidence": null,
-    "match_margin": 0.5940615294937452,
-    "runner_up_obf": "iey.iex.iew",
+    "match_margin": 0.6050265751253494,
+    "runner_up_obf": "ifc",
     "is_low_confidence": false,
     "evidence_coverage": 0.6666666666666666,
     "is_runtime_observed": false
@@ -92995,7 +92982,7 @@
     "assembly_similarity_score": 0.7534009912025752,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.2561408682407361,
+    "match_margin": 0.44148341326667484,
     "runner_up_obf": "iga.ifz.ify",
     "is_low_confidence": false,
     "evidence_coverage": null,
@@ -93014,7 +93001,7 @@
     "assembly_similarity_score": 0.7549565467581306,
     "structure_similarity_score": 0.7,
     "runtime_confidence": null,
-    "match_margin": 0.17670128490740267,
+    "match_margin": 0.362650697306681,
     "runner_up_obf": "iga.ifz.ify",
     "is_low_confidence": false,
     "evidence_coverage": 0.0,
@@ -93046,8 +93033,8 @@
     "assembly_similarity_score": 0.3768245614035088,
     "structure_similarity_score": 0.5621320343559641,
     "runtime_confidence": null,
-    "match_margin": 0.36903194286551516,
-    "runner_up_obf": "iey.iex.iew",
+    "match_margin": 0.6029571530740979,
+    "runner_up_obf": "ifc",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -93844,8 +93831,8 @@
     "assembly_similarity_score": 0.7333332677863131,
     "structure_similarity_score": 0.5621320343559641,
     "runtime_confidence": null,
-    "match_margin": 0.4826690930250341,
-    "runner_up_obf": "iey.iex.iew",
+    "match_margin": 0.6973403181757375,
+    "runner_up_obf": "ifc",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -93966,7 +93953,7 @@
     "assembly_similarity_score": 0.0,
     "structure_similarity_score": 0.4596049894151541,
     "runtime_confidence": null,
-    "match_margin": 0.36250281601248263,
+    "match_margin": 0.2372531719562776,
     "runner_up_obf": "igj",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -94317,7 +94304,7 @@
     "assembly_similarity_score": 0.9898290598290599,
     "structure_similarity_score": 0.7,
     "runtime_confidence": null,
-    "match_margin": 0.01428356722106705,
+    "match_margin": 0.014920927141963691,
     "runner_up_obf": "mdg",
     "is_low_confidence": false,
     "evidence_coverage": 0.0,
@@ -95263,7 +95250,7 @@
     "assembly_similarity_score": 0.8444444444444444,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.4478893192708749,
+    "match_margin": 0.46223306927087493,
     "runner_up_obf": "hqb",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -95660,11 +95647,15 @@
     "obf_msg_namespace": "hqk",
     "full_non_obf_msg_namespace": ".com.ankama.dofus.server.game.protocol.roleplay.PlayerFightFriendlyAnswerRequest",
     "field_mapping": {
-      "fnhd": "accept"
+      "fnhd": "accept",
+      "fnhe": "fight_id"
     },
     "field_mapping_infos": {
       "fnhd": {
         "accept": 1.0
+      },
+      "fnhe": {
+        "fight_id": 0.65
       }
     },
     "field_mapping_rejected_infos": {
@@ -95675,19 +95666,13 @@
         }
       },
       "fnhe": {
-        "fight_id": {
-          "reason": "not_selected",
-          "score": 0.0
-        },
         "accept": {
           "reason": "not_selected",
           "score": 0.0
         }
       }
     },
-    "field_mapping_unmapped_non_obf_fields": {
-      "fight_id": "score_below_threshold"
-    },
+    "field_mapping_unmapped_non_obf_fields": {},
     "similarity_score": 0.6544727195275483,
     "group_similarity_score": 0.7369946341824664,
     "assembly_similarity_score": 0.26666666666666666,
@@ -95993,7 +95978,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9121320343559642,
     "runtime_confidence": null,
-    "match_margin": 0.5882646531539286,
+    "match_margin": 0.5650512436246836,
     "runner_up_obf": "hqi",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -96619,7 +96604,7 @@
     "assembly_similarity_score": 0.9899235438363183,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.6204980351184762,
+    "match_margin": 0.3944422888282678,
     "runner_up_obf": "mef",
     "is_low_confidence": false,
     "evidence_coverage": 0.5,
@@ -98016,7 +98001,7 @@
     "assembly_similarity_score": 0.9584464400062739,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.06533569427800257,
+    "match_margin": 0.06785214885074731,
     "runner_up_obf": "hon",
     "is_low_confidence": false,
     "evidence_coverage": null,
@@ -98229,7 +98214,7 @@
     "assembly_similarity_score": 0.9713315150153891,
     "structure_similarity_score": 0.9846049894151541,
     "runtime_confidence": null,
-    "match_margin": 0.677091895948154,
+    "match_margin": 0.5428773388758268,
     "runner_up_obf": "hji",
     "is_low_confidence": false,
     "evidence_coverage": 0.3333333333333333,
@@ -98297,7 +98282,7 @@
     "structure_similarity_score": 0.9124999999999999,
     "runtime_confidence": null,
     "match_margin": 0.6577620300647813,
-    "runner_up_obf": "hmx",
+    "runner_up_obf": "hmp",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -98686,7 +98671,7 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.7763985539001156,
+    "match_margin": 0.6526934923338661,
     "runner_up_obf": "hmi",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
@@ -99150,8 +99135,8 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.6164805846810302,
-    "runner_up_obf": "hlh",
+    "match_margin": 0.5007418958660024,
+    "runner_up_obf": "jpu",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -101500,8 +101485,8 @@
     "assembly_similarity_score": 1.0,
     "structure_similarity_score": 0.9921186973360885,
     "runtime_confidence": null,
-    "match_margin": 0.5156372020462068,
-    "runner_up_obf": "hje",
+    "match_margin": 0.8135021164860091,
+    "runner_up_obf": "jbr",
     "is_low_confidence": false,
     "evidence_coverage": 0.75,
     "is_runtime_observed": false
@@ -102015,7 +102000,7 @@
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
     "match_margin": 0.5111337030146632,
-    "runner_up_obf": "inr",
+    "runner_up_obf": "hny",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,
     "is_runtime_observed": false
@@ -103253,7 +103238,7 @@
     "assembly_similarity_score": 0.9893809088146682,
     "structure_similarity_score": 1.0,
     "runtime_confidence": null,
-    "match_margin": 0.6802252004231004,
+    "match_margin": 0.4830926672643258,
     "runner_up_obf": "hny",
     "is_low_confidence": false,
     "evidence_coverage": 1.0,

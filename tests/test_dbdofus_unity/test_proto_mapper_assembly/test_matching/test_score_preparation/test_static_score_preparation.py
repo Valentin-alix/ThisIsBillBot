@@ -6,6 +6,7 @@ import pytest
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
 from DBDofusUnity.proto_mapper_assembly.matching.runtime_rescore import (
     RuntimeCandidateIndexes,
+    _apply_runtime_confidence_score,
     _iter_runtime_candidate_indexes,
 )
 from DBDofusUnity.proto_mapper_assembly.matching.score_preparation import (
@@ -79,6 +80,9 @@ class TestStaticScorePreparation:
         assert score_data.structure_scores_matrix[0, 0] == 0.0
         assert score_data.assembly_scores_matrix[0, 0] == 0.0
         assert score_data.static_scores_matrix[0, 0] == 0.0
+
+    def test_missing_runtime_evidence_preserves_the_existing_score(self) -> None:
+        assert _apply_runtime_confidence_score(static_similarity=0.85, runtime_confidence=None) == 0.85
 
     def test_runtime_candidate_iteration_keeps_candidates_inside_adaptive_margin(self) -> None:
         indexes = _iter_runtime_candidate_indexes(scores_matrix=np.array([[0.9], [0.86], [0.84], [0.88]]))

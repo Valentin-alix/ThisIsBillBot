@@ -6,7 +6,6 @@ from enum import StrEnum, auto
 
 class SessionActivity(StrEnum):
     IDLE = auto()
-    QUEST = auto()
     DUNGEON = auto()
     CRAFT = auto()
     SALE_HOTEL = auto()

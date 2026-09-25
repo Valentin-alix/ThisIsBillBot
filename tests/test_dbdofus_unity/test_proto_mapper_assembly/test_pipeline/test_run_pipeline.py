@@ -1,5 +1,6 @@
-﻿from pathlib import Path
-from unittest.mock import ANY, patch
+from pathlib import Path
+from unittest.mock import Mock, patch
+
 
 from tests.fixtures.proto_mapper.message_builders import message_signature
 from tests.fixtures.proto_mapper.pipeline_builders import (
@@ -8,10 +9,7 @@ from tests.fixtures.proto_mapper.pipeline_builders import (
 )
 
 from DBDofusUnity.consts import (
-    AUTO_MODE_MAPPING_CONTRACT_FILE,
     CAPTURE_SEQUENCE_HINTS_FILE,
-    GAME_MAPPINGS_DETAILED_JSON_FILE,
-    GAME_MAPPINGS_JSON_FILE,
     NON_OBF_NEW_DUMP_CS_FILE,
     NON_OBF_PROTO_ACCESSES_FILE,
     NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
@@ -20,7 +18,9 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
 from DBDofusUnity.proto_mapper_assembly.interfaces.new_dump_cs import NewDumpCSFile
 from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
-from DBDofusUnity.proto_mapper_assembly.pipeline import run_pipeline
+from DBDofusUnity.proto_mapper_assembly.pipeline import build_pipeline_paths, publish_game_mappings, run_pipeline
+from DBDofusUnity.proto_mapper_assembly.validators.auto_mode_mapping_contract import AutoModeMappingContractError
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 
 
 class TestRunPipeline:
@@ -71,20 +71,14 @@ class TestRunPipeline:
                 return_value=fake_hints,
             ),
             patch("DBDofusUnity.proto_mapper_assembly.pipeline.match_messages", return_value=matches) as mock_match,
-            patch("DBDofusUnity.proto_mapper_assembly.pipeline.write_game_mappings") as mock_write_game_mappings,
-            patch("DBDofusUnity.proto_mapper_assembly.pipeline.check_auto_mode_mappings"),
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.publish_game_mappings") as mock_publish_game_mappings,
         ):
             run_pipeline(do_load_pinned_pair=True)
 
+        mock_publish_game_mappings.assert_called_once()
         mock_match.assert_called_once()
         mock_load_hints.assert_called_once_with(CAPTURE_SEQUENCE_HINTS_FILE)
-        mock_write_game_mappings.assert_called_once_with(
-            matches,
-            obf_messages_by_cls=obf_messages_by_cls,
-            non_obf_messages_by_cls=non_obf_messages_by_cls,
-            output_path=GAME_MAPPINGS_JSON_FILE,
-            detailed_output_path=GAME_MAPPINGS_DETAILED_JSON_FILE,
-        )
+        mock_publish_game_mappings.assert_called_once()
 
     def test_resolves_pinned_pairs_against_dump_and_manual_new_dump_cs_messages(self) -> None:
         obf_message = DumpCSMessage(file_descriptor="gamemap_reflection", name="irk")
@@ -128,8 +122,7 @@ class TestRunPipeline:
                 return_value=fake_hints,
             ),
             patch("DBDofusUnity.proto_mapper_assembly.pipeline.match_messages", return_value=()),
-            patch("DBDofusUnity.proto_mapper_assembly.pipeline.write_game_mappings"),
-            patch("DBDofusUnity.proto_mapper_assembly.pipeline.check_auto_mode_mappings"),
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.publish_game_mappings"),
         ):
             run_pipeline(do_load_pinned_pair=True)
 
@@ -179,8 +172,7 @@ class TestRunPipeline:
                 return_value=fake_hints,
             ),
             patch("DBDofusUnity.proto_mapper_assembly.pipeline.match_messages", return_value=matches),
-            patch("DBDofusUnity.proto_mapper_assembly.pipeline.write_game_mappings") as mock_write_game_mappings,
-            patch("DBDofusUnity.proto_mapper_assembly.pipeline.check_auto_mode_mappings") as mock_check_auto_mode_mappings,
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.publish_game_mappings") as mock_publish_game_mappings,
         ):
             run_pipeline(do_load_pinned_pair=True, obf_dir=obf_dir)
 
@@ -194,16 +186,41 @@ class TestRunPipeline:
         )
         mock_load_new_dump_cs_messages.assert_called_once_with(NON_OBF_NEW_DUMP_CS_FILE)
         mock_load_pinned_pairs.assert_called_once_with(obf_dir / "pinned_pairs.json")
-        mock_write_game_mappings.assert_called_once_with(
-            matches,
-            obf_messages_by_cls={"obf": obf_message},
-            non_obf_messages_by_cls={"Clear": non_obf_message},
-            output_path=obf_dir / "game_mappings.json",
-            detailed_output_path=obf_dir / "game_mappings_detailed.json",
-        )
-        mock_check_auto_mode_mappings.assert_called_once_with(
-            contract_path=AUTO_MODE_MAPPING_CONTRACT_FILE,
-            detailed_mappings_path=obf_dir / "game_mappings_detailed.json",
-            pinned_pairs_path=obf_dir / "pinned_pairs.json",
-            observed_root_obf_messages=ANY,
-        )
+        mock_publish_game_mappings.assert_called_once()
+
+
+
+
+class TestPublishGameMappings:
+    def test_contract_failure_is_reported_after_mappings_are_published(self, tmp_path: Path) -> None:
+        obf_dir = tmp_path / "build"
+        obf_dir.mkdir()
+        paths = build_pipeline_paths(obf_dir=obf_dir)
+
+        def write_mappings(
+            matches: object,
+            *,
+            output_path: Path,
+            detailed_output_path: Path,
+            **kwargs: object,
+        ) -> None:
+            output_path.write_text("published-simple", encoding="utf-8")
+            detailed_output_path.write_text("published-detailed", encoding="utf-8")
+
+        with (
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.write_game_mappings", side_effect=write_mappings),
+            patch(
+                "DBDofusUnity.proto_mapper_assembly.pipeline.check_auto_mode_mappings",
+                side_effect=AutoModeMappingContractError("mapping contract failed"),
+            ),
+        ):
+            publish_game_mappings(
+                (),
+                obf_messages_by_cls={},
+                non_obf_messages_by_cls={},
+                pipeline_paths=paths,
+                runtime_data_store=Mock(spec=RuntimeDataStore),
+            )
+
+        assert paths.game_mappings_path.read_text(encoding="utf-8") == "published-simple"
+        assert paths.detailed_game_mappings_path.read_text(encoding="utf-8") == "published-detailed"

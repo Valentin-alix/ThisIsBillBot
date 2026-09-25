@@ -11,6 +11,7 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import (
     FieldKey,
 )
 from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import (
     DiscoveredMessageMatch,
     FieldMappingContext,
@@ -37,6 +38,7 @@ _LOCAL_FIELD_SCORE_WEIGHT = 0.35
 _VALIDATION_BONUS = 0.001
 _RUNTIME_ALIVE_FIELD_BONUS = 0.0005
 _MIN_CHILD_MESSAGE_SCORE = 0.1
+_COMPLEMENTARY_ACCESS_SCORE = 0.65
 
 NoMatchReason = Literal[
     "enum_override_conflict", "validation_failure", "child_conflict", "child_score_too_low", "not_selected"
@@ -105,6 +107,15 @@ def score_field_pair(
         declared_score = declared_field_similarity(non_obf_field, obf_field)
         if declared_score != 0:
             score = declared_score * field_evidence_similarity(non_obf_access_signature, obf_access_signature)
+            if score == 0 and _has_unique_complementary_access_match(
+                non_obf_access_signature,
+                obf_access_signature,
+                non_obf_field,
+                obf_field,
+                non_obf_message,
+                obf_message,
+            ):
+                score = _COMPLEMENTARY_ACCESS_SCORE
         else:
             score = 0
         enum_resolution = _resolve_enum_signature_similarity(
@@ -180,6 +191,46 @@ def score_field_pair(
         score = min(1.0, score + _CHILD_MATCH_SUPPORT_BONUS)
 
     return score, child_metadata
+
+
+def _has_unique_complementary_access_match(
+    left_access: FieldAccessSignatures,
+    right_access: FieldAccessSignatures,
+    left_field: DumpCSMessageField,
+    right_field: DumpCSMessageField,
+    left_message: DumpCSMessage,
+    right_message: DumpCSMessage,
+) -> bool:
+    if (
+        left_field.category
+        not in {
+            FieldCategoryEnum.NUMBER,
+            FieldCategoryEnum.BOOLEAN,
+            FieldCategoryEnum.STRING,
+        }
+        or declared_field_similarity(left_field, right_field) != 1.0
+    ):
+        return False
+    left_kinds = {access.access_kind for access in left_access.accesses}
+    right_kinds = {access.access_kind for access in right_access.accesses}
+    if not left_kinds or not right_kinds:
+        return False
+    readers = {"read", "getter"}
+    writers = {"write", "setter"}
+    if not (
+        (left_kinds <= readers and right_kinds <= writers)
+        or (left_kinds <= writers and right_kinds <= readers)
+    ):
+        return False
+    return all(
+        sum(
+            declared_field_similarity(field, candidate) > 0
+            for candidate in message.fields
+            if candidate.is_declared_proto_shape_field
+        )
+        == 1
+        for field, message in ((left_field, right_message), (right_field, left_message))
+    )
 
 
 def _has_runtime_alive_obf_value(

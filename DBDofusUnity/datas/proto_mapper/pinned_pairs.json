@@ -1,3 +1,24 @@
 {
-  "pairs": []
+  "pairs": [
+    {
+      "obf": "jou",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap.MapMovementConfirmRequest"
+    },
+    {
+      "obf": "kml",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Contact.FriendListRequest"
+    },
+    {
+      "obf": "kmz",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Contact.AcquaintanceListRequest"
+    },
+    {
+      "obf": "ism",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Exchange.ObjectAveragePricesRequest"
+    },
+    {
+      "obf": "iir",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Fight.Preparation.FightPreparationEnterRequest"
+    }
+  ]
 }

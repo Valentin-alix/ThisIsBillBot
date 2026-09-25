@@ -13,7 +13,6 @@ from src.core.behaviors.farms.harvest.multi_farming_behavior import MultiFarming
 from src.core.behaviors.idle_behavior import IdleBehavior
 from src.core.behaviors.items.auto_equipment_behavior import AutoEquipmentBehavior
 from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
-from src.core.behaviors.quests.quest_behavior import QuestBehavior
 from src.core.behaviors.recovery_behavior import RecoverableBehavior
 from src.core.behaviors.sale_hotel.sale_hotel_sell_behavior import SaleHotelErrorCode, SaleHotelSellBehavior
 from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
@@ -49,7 +48,6 @@ class AutoBotBehavior(RecoverableBehavior):
     harvester_behavior: HarvesterBehavior
     multi_farming_behavior: MultiFarmingBehavior
     dungeon_behavior: DungeonBehavior
-    quest_behavior: QuestBehavior
     idle_behavior: IdleBehavior
     craft_behavior: CraftBehavior
     sale_hotel_sell_behavior: SaleHotelSellBehavior
@@ -65,8 +63,6 @@ class AutoBotBehavior(RecoverableBehavior):
         activities: list[SessionActivity] = []
         if self.game_state.settings.do_idle:
             activities.append(SessionActivity.IDLE)
-        if self.game_state.settings.do_quest:
-            activities.append(SessionActivity.QUEST)
         if self.game_state.settings.do_dungeon:
             activities.append(SessionActivity.DUNGEON)
         if self.game_state.settings.do_craft:
@@ -190,12 +186,6 @@ class AutoBotBehavior(RecoverableBehavior):
                 parent=self,
             )
 
-        if activity is SessionActivity.QUEST:
-            return self.quest_behavior.start(
-                callback=partial(self._on_session_activity_finished, activity),
-                parent=self,
-            )
-
         if activity is SessionActivity.DUNGEON:
             return self.dungeon_behavior.start(
                 callback=partial(self._on_session_activity_finished, activity),
@@ -241,8 +231,6 @@ class AutoBotBehavior(RecoverableBehavior):
     def _activity_was_performed(self, activity: SessionActivity) -> bool:
         if activity is SessionActivity.IDLE:
             return True
-        if activity is SessionActivity.QUEST:
-            return self.quest_behavior.activity_performed
         if activity is SessionActivity.DUNGEON:
             return self.dungeon_behavior.activity_performed
         if activity is SessionActivity.CRAFT:
