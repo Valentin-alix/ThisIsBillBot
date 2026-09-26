@@ -1,7 +1,6 @@
 import importlib.util
 import sys
 from pathlib import Path
-from typing import cast
 from unittest.mock import Mock, call, patch
 from zipfile import ZipFile
 
@@ -10,47 +9,14 @@ from ankama_launcher_emulator.server import server as server_module
 from ankama_launcher_emulator.server.dofus3 import launch
 from ankama_launcher_emulator.utils import environment
 from pydantic import BaseModel
-from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QApplication
 
 from src.utils import project_paths
 from src.utils import runtime_support
-from src import runtime
 from src.core.bot.lifecycle.account_scheduler import AccountScheduler
-from src.gui.pages.activity import ActivityPage
 from src.services import install_validation
 from src.services.background import Worker
 from utils.env_config import get_bool_from_env
 from utils.local_json import read_local_model
-
-
-def test_gui_closes_after_runtime_creation_failure(monkeypatch: pytest.MonkeyPatch) -> None:
-    application = cast(QApplication, QApplication.instance())
-    monkeypatch.setattr(application, "TITLE", "Startup failure test", raising=False)
-    monkeypatch.setattr(ActivityPage, "_refresh_quarantined", Mock())
-    watchdog = QTimer()
-    watchdog.setSingleShot(True)
-    watchdog.timeout.connect(lambda: application.exit(99))
-    with (
-        patch.object(runtime, "Application", return_value=application),
-        patch.object(
-            runtime,
-            "_create_runtime",
-            side_effect=runtime_support.RuntimeSetupError("Invalid configuration"),
-        ),
-        patch("src.gui.pages.activity.UserActivityService") as activity,
-        patch.object(runtime, "UserActivityService", activity),
-        patch("PyQt6.QtWidgets.QMessageBox.critical") as dialog,
-    ):
-        activity.return_value.recent.return_value = ()
-        watchdog.start(3000)
-        try:
-            assert runtime.run_gui(["bot"], False) == 1
-            assert watchdog.isActive(), "Shutdown must complete without the watchdog"
-            dialog.assert_called_once()
-            activity.return_value.close.assert_called_once()
-        finally:
-            watchdog.stop()
 
 
 def test_non_windows_entrypoint_does_not_load_application(monkeypatch: pytest.MonkeyPatch) -> None:

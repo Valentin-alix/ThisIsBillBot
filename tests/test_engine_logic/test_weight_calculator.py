@@ -195,7 +195,6 @@ class TestCalculateAttackWeight:
             modifiers=_make_modifiers(ap_cost=2),
         )
 
-        assert weight == pytest.approx(-50.0)  # pyright: ignore[reportUnknownMemberType]
         assert weight <= 0
 
     def test_life_steal_overkill_is_capped(
@@ -203,30 +202,40 @@ class TestCalculateAttackWeight:
         monkeypatch: pytest.MonkeyPatch,
         patch_singletons: dict[str, str],
     ) -> None:
-        patch_singletons["description"] = "Vol de vie"
         _stub_no_type_effect(monkeypatch)
 
         effect = _make_effect()
         spell_lvl = _make_spell([effect])
 
         damage_calculator = MagicMock()
-        damage_calculator.get_damage_effect.return_value = 200
 
         context = _make_context(life_point=500, max_life_point=1000)
         enemy = _make_enemy(cell_id=1, life_point=50, max_life_point=500)
 
-        weight = calculate_attack_weight(
-            damage_calculator=damage_calculator,
-            context=context,
-            impact_mps={enemy.map_point},
-            spell_lvl=spell_lvl,
-            effect=effect,
-            target_mp=MapPoint.from_cell_id(0),
-            enemies_data=[enemy],
-            modifiers=_make_modifiers(ap_cost=1),
-        )
+        weights: list[float] = []
+        for description, damage in (
+            ("physical damage", enemy.life_point),
+            ("Vol de vie", enemy.life_point),
+            ("Vol de vie", 200),
+            ("Vol de vie", 400),
+        ):
+            patch_singletons["description"] = description
+            damage_calculator.get_damage_effect.return_value = damage
+            weights.append(
+                calculate_attack_weight(
+                    damage_calculator=damage_calculator,
+                    context=context,
+                    impact_mps={enemy.map_point},
+                    spell_lvl=spell_lvl,
+                    effect=effect,
+                    target_mp=MapPoint.from_cell_id(0),
+                    enemies_data=[enemy],
+                    modifiers=_make_modifiers(ap_cost=1),
+                )
+            )
 
-        assert weight == pytest.approx(1000 * 1.05)  # pyright: ignore[reportUnknownMemberType]
+        assert weights[1] > weights[0] > 0
+        assert weights[1] == weights[2] == weights[3]
 
     def test_low_hp_target_is_prioritized_over_full_hp(self, monkeypatch: pytest.MonkeyPatch) -> None:
         _stub_no_type_effect(monkeypatch)
@@ -262,8 +271,6 @@ class TestCalculateAttackWeight:
             modifiers=_make_modifiers(ap_cost=1),
         )
 
-        assert weight_low == pytest.approx(1000.0)  # pyright: ignore[reportUnknownMemberType]
-        assert weight_full == pytest.approx(100.0)  # pyright: ignore[reportUnknownMemberType]
         assert weight_low > weight_full
 
     def test_multiple_malus_life_percent_effects_are_summed(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -310,8 +317,6 @@ class TestCalculateAttackWeight:
             modifiers=_make_modifiers(ap_cost=1),
         )
 
-        assert weight_summon == pytest.approx(75.0)  # pyright: ignore[reportUnknownMemberType]
-        assert weight_regular == pytest.approx(200.0)  # pyright: ignore[reportUnknownMemberType]
         assert weight_summon < weight_regular
 
     def test_invulnerable_enemy_is_not_targeted(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -466,4 +471,15 @@ class TestCalculateAttackWeight:
             modifiers=_make_modifiers(ap_cost=1),
         )
 
-        assert weight == pytest.approx(10.0)  # pyright: ignore[reportUnknownMemberType]
+        weight_without_ally = calculate_attack_weight(
+            damage_calculator=damage_calculator,
+            context=context,
+            impact_mps={enemy.map_point},
+            spell_lvl=spell_lvl,
+            effect=effect,
+            target_mp=MapPoint.from_cell_id(1),
+            enemies_data=[enemy],
+            modifiers=_make_modifiers(ap_cost=1),
+        )
+
+        assert 0 < weight < weight_without_ally

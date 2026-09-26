@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 import pytest
 import requests
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QCoreApplication
 
 from ankama_launcher_emulator.interfaces.credentials import StoredApiKey
 from ankama_launcher_emulator.interfaces.zaap_files import (
@@ -31,8 +31,8 @@ class _PreparedRequest(Protocol):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def _qt_application() -> QApplication:
-    return QApplication.instance() or QApplication([])  # type: ignore
+def _qt_application() -> QCoreApplication:
+    return QCoreApplication.instance() or QCoreApplication([])
 
 
 @pytest.fixture
