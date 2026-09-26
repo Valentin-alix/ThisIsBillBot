@@ -118,6 +118,7 @@ OBF_PROTOCOL_GAME_DUMP_CS_FILE: Path = OBFUSCATED_DATA_DIR / PROTOCOL_GAME_DUMP_
 NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE: Path = NON_OBFUSCATED_DATA_DIR / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
 
 MSG_TO_MAP: list[str] = [
+    # MITM essentiel : socle de session, récolte, combat, déplacement et unload.
     "GameMessage",
     "Request",
     "CharacterSelectionEvent",
@@ -125,26 +126,10 @@ MSG_TO_MAP: list[str] = [
     "ZaapKnownListEvent",
     "CharacterLevelUpEvent",
     "CharacterCharacteristicUpgradeRequest",
+
+    # Map et déplacement.
     "MapCurrentEvent",
     "MapComplementaryInformationEvent",
-    "FightMapInformationEvent",
-    "CharacterCharacteristicsEvent",
-    "SpellsEvent",
-    "FightPlacementPossiblePositionsEvent",
-    "FightRefreshCharacterStatsEvent",
-    "InventoryContentEvent",
-    "InventoryWeightEvent",
-    "ObjectAddedEvent",
-    "ObjectQuantityEvent",
-    "ExchangeStartedWithStorageEvent",
-    "StorageInventoryContentEvent",
-    "ExchangeStartedWithMultiTabStorageEvent",
-    "GuildMembershipEvent",
-    "ExchangeBidSellerStartedEvent",
-    "ExchangeBidHouseItemAddedEvent",
-    "ExchangeBidHouseItemRemovedEvent",
-    "ExchangeBidPriceEvent",
-    "ObjectAveragePricesEvent",
     "MapMovementRequest",
     "MapMovementEvent",
     "MapMovementConfirmRequest",
@@ -152,17 +137,11 @@ MSG_TO_MAP: list[str] = [
     "MapMovementRefusedEvent",
     "MapChangeRequest",
     "MapTeleportOnSameEvent",
-    "InteractiveElementUpdatedEvent",
-    "StatedElementUpdatedEvent",
-    "InteractiveUseRequest",
-    "InteractiveUsedEvent",
-    "InteractiveUseErrorEvent",
-    "NpcGenericActionRequest",
-    "NpcDialogQuestionEvent",
-    "NpcDialogReplyRequest",
-    "GuideModQuitRequest",
-    "HavenBagEnterRequest",
-    "TeleportRequest",
+
+    # Combat.
+    "FightMapInformationEvent",
+    "FightPlacementPossiblePositionsEvent",
+    "FightRefreshCharacterStatsEvent",
     "AttackMonsterRequest",
     "EntitiesDispositionEvent",
     "GameActionAcknowledgementRequest",
@@ -176,13 +155,59 @@ MSG_TO_MAP: list[str] = [
     "FightSynchronizeEvent",
     "FightFighterShowEvent",
     "FightFighterRefreshEvent",
-    "ObjectUseRequest",
-    "DialogLeaveRequest",
-    "ExchangeLeaveEvent",
+
+    # Inventaire et stockage (unload).
+    "CharacterCharacteristicsEvent",
+    "SpellsEvent",
+    "InventoryContentEvent",
+    "InventoryWeightEvent",
+    "ObjectAddedEvent",
+    "ObjectQuantityEvent",
+    "ExchangeStartedWithStorageEvent",
+    "StorageInventoryContentEvent",
+    "ExchangeStartedWithMultiTabStorageEvent",
     "ExchangeObjectMoveRequest",
     "ExchangeMoveKamaRequest",
     "GuildChestCurrentListenersAddEvent",
     "GuildChestTabSelectRequest",
+
+    # Interactions et dialogues.
+    "InteractiveElementUpdatedEvent",
+    "StatedElementUpdatedEvent",
+    "InteractiveUseRequest",
+    "InteractiveUsedEvent",
+    "InteractiveUseErrorEvent",
+    "NpcGenericActionRequest",
+    "NpcDialogQuestionEvent",
+    "NpcDialogReplyRequest",
+    "GuideModQuitRequest",
+    "HavenBagEnterRequest",
+    "TeleportRequest",
+    "DialogLeaveRequest",
+    "ObjectUseRequest",
+
+    # Guilde.
+    "GuildMembershipEvent",
+
+    # Vente en hôtel de vente.
+    "ExchangeBidSellerStartedEvent",
+    "ExchangeBidHouseItemAddedEvent",
+    "ExchangeBidHouseItemRemovedEvent",
+    "ExchangeBidPriceEvent",
+    "ObjectAveragePricesEvent",
+    "ExchangeBidHouseSearchRequest",
+    "ExchangeBidHousePriceRequest",
+    "ExchangeObjectMovePricedRequest",
+    "ExchangeObjectModifyPricedRequest",
+
+    # Craft.
+    "ExchangeCraftStartedEvent",
+    "ExchangeSetCraftRecipeRequest",
+    "ExchangeCraftCountRequest",
+    "ExchangeCraftCountModifiedEvent",
+
+    # Autres échanges et informations générales.
+    "ExchangeLeaveEvent",
     "ExchangePlayerRequest",
     "ExchangeRequestedTradeEvent",
     "ExchangeAcceptRequest",
@@ -191,14 +216,6 @@ MSG_TO_MAP: list[str] = [
     "ExchangeKamaModifiedEvent",
     "ExchangeReadyEvent",
     "ExchangeReadyRequest",
-    "ExchangeCraftStartedEvent",
-    "ExchangeSetCraftRecipeRequest",
-    "ExchangeCraftCountRequest",
-    "ExchangeCraftCountModifiedEvent",
-    "ExchangeBidHouseSearchRequest",
-    "ExchangeBidHousePriceRequest",
-    "ExchangeObjectMovePricedRequest",
-    "ExchangeObjectModifyPricedRequest",
     "TextInformationEvent",
 ]
 GAME_ASSEMBLY_MARKER_NAME = ".last_dumped_game_assembly_mtime"

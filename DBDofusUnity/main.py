@@ -25,7 +25,6 @@ from DBDofusUnity.proto_mapper_assembly.scripts.export_signature_overrides impor
     run_export_signature_overrides,
 )
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.main import run_ida_script
-from DBDofusUnity.proto_mapper_assembly.scripts.unknown_name_registry import validate_unknown_names
 
 
 def gen_python(_):
@@ -40,7 +39,6 @@ def gen_python(_):
 def _synchronize_protos(arguments: argparse.Namespace) -> None:
     # Import pipeline after gen_python: stale protobuf descriptors would reject regenerated modules.
     gen_python(arguments)
-    validate_unknown_names()
     synchronize_non_obf_mapping_artifacts()
     run_export_signature_overrides()
 

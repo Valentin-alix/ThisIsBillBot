@@ -10,14 +10,11 @@ class AutoModeMappingThresholds(BaseModel):
 class AutoModeMessageRequirement(BaseModel):
     message: str = Field(min_length=1)
     fields: list[str] = Field(default_factory=list[str])
-    activities: list[str] = Field(min_length=1)
 
     @model_validator(mode="after")
-    def validate_unique_values(self) -> "AutoModeMessageRequirement":
+    def validate_unique_fields(self) -> "AutoModeMessageRequirement":
         if len(self.fields) != len(set(self.fields)):
             raise ValueError(f"Duplicate field in requirement for {self.message}")
-        if len(self.activities) != len(set(self.activities)):
-            raise ValueError(f"Duplicate activity in requirement for {self.message}")
         return self
 
 

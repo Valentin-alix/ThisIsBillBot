@@ -94,7 +94,6 @@ class TestGameMappings:
                         {
                             "message": ".game.Required",
                             "fields": ["value"],
-                            "activities": ["fight"],
                         }
                     ],
                 }
@@ -162,22 +161,18 @@ class TestGameMappings:
                         {
                             "message": ".game.Required",
                             "fields": ["missing"],
-                            "activities": ["fight"],
                         },
                         {
                             "message": ".game.Absent",
                             "fields": [],
-                            "activities": ["session"],
                         },
                         {
                             "message": ".game.Traced",
                             "fields": [],
-                            "activities": ["fight"],
                         },
                         {
                             "message": ".game.Fielded",
                             "fields": [],
-                            "activities": ["fight"],
                         },
                     ],
                 }

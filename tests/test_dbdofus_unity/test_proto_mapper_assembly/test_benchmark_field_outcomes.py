@@ -15,7 +15,7 @@ def test_required_fields_detect_wrong_message_and_missing_reference(
     contract_path = tmp_path / "contract.json"
     contract_path.write_text(
         '{"version":3,"thresholds":{"message_score":0.5,"match_margin":0.05,"field_score":0.5},'
-        '"messages":[{"message":".Clear","fields":["value","unknown"],"activities":["test"]}]}',
+        '"messages":[{"message":".Clear","fields":["value","unknown"]}]}',
         encoding="utf-8",
     )
     monkeypatch.setattr(benchmark, "AUTO_MODE_MAPPING_CONTRACT_FILE", contract_path)
