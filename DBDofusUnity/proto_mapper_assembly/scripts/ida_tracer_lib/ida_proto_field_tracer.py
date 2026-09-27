@@ -17,9 +17,6 @@ from DBDofusUnity.consts import NON_OBFUSCATED_DATA_DIR
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessTraceDocument,
     FunctionAccessInfo,
-    FunctionAlias,
-    TracedFunction,
-    format_trace_address,
 )
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import (
     DumpCSMessageField,
@@ -92,6 +89,10 @@ from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.tracing.handler_r
     collect_handler_registration_accesses,
 )
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.tracing.stable_callees import collect_stable_callees
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.tracing.trace_export import (
+    build_traced_functions_from_proto_infos,
+    merge_traced_functions,
+)
 
 
 @dataclass(frozen=True)
@@ -354,64 +355,14 @@ def main() -> None:
     )
     config.output_path.write_text(
         AccessTraceDocument(
-            functions_by_address=_merge_traced_functions(
-                _build_traced_functions_from_proto_infos(result),
+            functions_by_address=merge_traced_functions(
+                build_traced_functions_from_proto_infos(result),
                 enum_result.functions_by_address,
             ),
             enum_signatures_by_name=enum_result.enum_signatures_by_name,
         ).model_dump_json(indent=2),
         encoding="utf-8",
     )
-
-
-def _build_traced_functions_from_proto_infos(
-    function_infos: dict[str, FunctionAccessInfo],
-) -> dict[str, TracedFunction]:
-    functions_by_address: dict[str, TracedFunction] = {}
-    for function_info in function_infos.values():
-        function_address = format_trace_address(function_info.start_address)
-        alias = FunctionAlias(
-            name=function_info.name,
-            parameters=function_info.parameters,
-            return_type=function_info.return_type,
-            group=function_info.group,
-        )
-        existing_function = functions_by_address.get(function_address)
-        if existing_function is None:
-            functions_by_address[function_address] = TracedFunction(
-                start_address=function_info.start_address,
-                end_address=function_info.end_address,
-                size=function_info.size,
-                access_infos=function_info.access_infos,
-                opcode_histogram=function_info.opcode_histogram,
-                aliases=[alias],
-                stable_callees=function_info.stable_callees,
-                cfg_stats=function_info.cfg_stats,
-            )
-            continue
-        functions_by_address[function_address] = existing_function.model_copy(
-            update={"aliases": [*existing_function.aliases, alias]}
-        )
-    return functions_by_address
-
-
-def _merge_traced_functions(
-    left_functions: dict[str, TracedFunction],
-    right_functions: dict[str, TracedFunction],
-) -> dict[str, TracedFunction]:
-    merged_functions = dict(left_functions)
-    for function_address, right_function in right_functions.items():
-        left_function = merged_functions.get(function_address)
-        if left_function is None:
-            merged_functions[function_address] = right_function
-            continue
-        merged_functions[function_address] = left_function.model_copy(
-            update={
-                "resolved_metadata": right_function.resolved_metadata,
-                "aliases": [*left_function.aliases, *right_function.aliases],
-            }
-        )
-    return merged_functions
 
 
 def _run_batch_script() -> None:

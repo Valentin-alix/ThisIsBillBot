@@ -268,9 +268,6 @@ from DBDofusUnity.datas.protos.non_obf.game.teleportation_pb2 import (
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
-from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
-    CharacterInventoryPositionEnum,
-)
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID
 from google.protobuf.message import Message
 from DBDofusUnity.proto_mapper_assembly.helpers.utils import strict_validate_call
@@ -511,11 +508,6 @@ def is_valid_spell_id(value: int) -> bool:
 
 
 @strict_validate_call
-def is_valid_spell_lvl_id(value: int) -> bool:
-    return value in DataReader().get_all_spell_lvl_ids()
-
-
-@strict_validate_call
 def is_valid_spell_numero(value: int) -> bool:
     return value in DataReader().SPELL_NUMEROS
 
@@ -629,16 +621,6 @@ def is_valid_monster_level(value: int) -> bool:
 
 
 @strict_validate_call
-def is_not_default_int(value: int) -> bool:
-    return value != 0
-
-
-@strict_validate_call
-def is_not_default_boolean(value: bool) -> bool:
-    return value is not False
-
-
-@strict_validate_call
 def is_not_empty_str(value: str) -> bool:
     return value != ""
 
@@ -718,21 +700,6 @@ def is_valid_quest_objective_id(value: int) -> bool:
 
 
 @strict_validate_call
-def is_valid_area_id(value: int) -> bool:
-    return value in DataReader().area_by_id
-
-
-@strict_validate_call
-def is_valid_waypoint_map_id(value: int) -> bool:
-    return value in DataReader().waypoint_by_id
-
-
-@strict_validate_call
-def is_valid_inventory_equip_position(value: int) -> bool:
-    return value in {p.value for p in CharacterInventoryPositionEnum}
-
-
-@strict_validate_call
 def is_valid_round_number(value: int) -> bool:
     return 1 <= value <= MAX_ROUND_NUMBER
 
@@ -745,16 +712,6 @@ def is_valid_wave_id(value: int) -> bool:
 @strict_validate_call
 def is_valid_turn_time_ms(value: int) -> bool:
     return 0 <= value <= MAX_TURN_TIME_MS
-
-
-@strict_validate_call
-def is_valid_mount_xp_ratio(value: int) -> bool:
-    return 0 <= value <= MAX_MOUNT_XP_RATIO
-
-
-@strict_validate_call
-def is_valid_page_index(value: int) -> bool:
-    return 0 <= value <= MAX_PAGE_INDEX
 
 
 @strict_validate_call

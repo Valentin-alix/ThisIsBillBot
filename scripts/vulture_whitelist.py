@@ -14,7 +14,6 @@ _ = (
     MessageFilterProxyModel.filterAcceptsRow,
     CustomTableModel.columnCount,
     CustomTableModel.flags,
-    CustomTableModel.update_row_cells,
     SidebarItem.play_clicked,
     SidebarItem.stop_clicked,
     SidebarPanel.setExpandWidth,

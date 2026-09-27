@@ -29,12 +29,6 @@ class Frame(ContextualLogger):
 
     def on_disconnected(self) -> None:
         self.cancel_timers()
-        for field_name in dir(self):
-            if field_name.startswith("__"):
-                continue
-            field_value = getattr(self, field_name)
-            if hasattr(field_value, "clear_state"):
-                field_value.clear_state()
 
     def run_timer(self, range_time: tuple[float, float] | float, func: Callable[[], None]) -> None:
         if isinstance(range_time, tuple):

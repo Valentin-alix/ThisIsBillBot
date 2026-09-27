@@ -1,6 +1,8 @@
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from pydantic import ValidationError
+
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
 from DBDofusUnity.proto_mapper_assembly.interfaces.runtime import FieldValidatorRuntimeMetadata
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
@@ -119,13 +121,6 @@ def collect_runtime_alive_field_names(
     return frozenset(alive)
 
 
-def collect_validated_field_names(message_name: str) -> frozenset[str]:
-    validators_by_field = VALIDATORS_BY_NON_OBF_MESSAGE_NAME.get(message_name)
-    if validators_by_field is None:
-        return frozenset()
-    return frozenset(validators_by_field)
-
-
 def get_defined_runtime_values(
     instances: Sequence[dict[str, object]],
     field_name: str,
@@ -172,7 +167,7 @@ def _find_first_invalid_runtime_field_value(
         try:
             if not field_validator(value):
                 return value
-        except (AttributeError, KeyError, TypeError, ValueError, OSError):
+        except ValidationError:
             return value
     return None
 

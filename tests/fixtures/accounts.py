@@ -34,7 +34,3 @@ def make_runtime_bot(login: str, account_id: int) -> Bot:
         account=make_account(login, account_id),
         is_fake=True,
     )
-
-
-def make_empty_accounts() -> list[StoredApiKey]:
-    return []

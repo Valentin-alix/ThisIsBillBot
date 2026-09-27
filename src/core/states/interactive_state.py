@@ -5,7 +5,6 @@ from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     InteractiveElement,
     StatedElement,
 )
-from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
 from src.core import config
 from src.core.engine.interactives.collectable import (
     Collectable,
@@ -131,23 +130,6 @@ class InteractiveState(State):
             self.map_state.map_id,
             self.player_state.jobs_lvl_by_id,
         )
-
-    def get_element_id_on_cell(self, cell_id: int, skill_id: int | None = None) -> int | None:
-        stated_elements = self.stated_element_by_cell_id.get(cell_id)
-        if stated_elements:
-            return next(iter(stated_elements))
-
-        ref_by_element_id = MapReader().get_ref_data_by_element_id_by_map_id(self.map_state.map_id)
-        for element_id, element in self.interactive_element_by_id.items():
-            reference = ref_by_element_id.get(element_id)
-            if reference is None or reference.cellId != cell_id:
-                continue
-            if skill_id is not None and not any(
-                enabled_skill.skill_id == skill_id for enabled_skill in element.enabled_skills
-            ):
-                continue
-            return element_id
-        return None
 
     def get_enabled_skill(
         self, element_id: int, skill_id: int | None = None

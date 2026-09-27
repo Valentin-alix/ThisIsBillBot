@@ -22,6 +22,3 @@ class SessionContextService(metaclass=Singleton):
         fatigue_mod = 1 + min(session_hours * 0.025, 0.08)
 
         return time_mod * fatigue_mod * self.energy_level
-
-    def refresh_energy(self) -> None:
-        self.energy_level = random.uniform(0.95, 1.05)

@@ -12,6 +12,7 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     FieldAccessSignatures,
     FunctionAccessInfo,
     FunctionAccessSignature,
+    FunctionSimilarityKey,
     HandlerRegistrationAccessEntry,
     MessageAccessSignature,
     ProtoAccessesInfo,
@@ -20,7 +21,9 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
 from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from DBDofusUnity.proto_mapper_assembly.interfaces.message_field_resolution_lookup import MessageFieldResolutionLookup
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_field_resolution_lookup import (
+    MessageFieldResolutionLookup,
+)
 from DBDofusUnity.proto_mapper_assembly.parsers.csharp_signature_utils import get_normalized_short_type_name
 from DBDofusUnity.proto_mapper_assembly.parsers.proto_accesses_parser import parse_access_trace_document
 
@@ -129,11 +132,16 @@ def _collect_function_signatures_by_message_cls(
 ) -> dict[str, list[FunctionAccessSignature]]:
     function_signatures_by_cls: dict[str, list[FunctionAccessSignature]] = defaultdict(list)
     short_name_to_cls = _build_short_name_to_cls(field_resolution_by_message_cls)
+    seen: set[tuple[int, str, FunctionSimilarityKey]] = set()
     for function_info in proto_accesses.root.values():
         function_signatures = _build_function_access_signatures_by_cls(
             function_info, field_resolution_by_message_cls, short_name_to_cls
         )
         for message_cls, function_signature in function_signatures.items():
+            identity = (function_info.start_address, message_cls, function_signature.similarity_key)
+            if identity in seen:
+                continue
+            seen.add(identity)
             function_signatures_by_cls[message_cls].append(function_signature)
     return function_signatures_by_cls
 
@@ -145,6 +153,7 @@ def _collect_field_signatures_by_message_cls(
     field_signatures_by_cls: dict[str, dict[FieldKey, list[AccessAtomSignature]]] = defaultdict(
         lambda: defaultdict(list)
     )
+    seen: set[tuple[int, str, FieldKey, int, str]] = set()
     for function_info in proto_accesses.root.values():
         for access in function_info.access_infos:
             if not is_field_access_entry(access):
@@ -152,9 +161,18 @@ def _collect_field_signatures_by_message_cls(
             resolved_field = resolve_field_by_access_entry(access, field_resolution_by_message_cls)
             if not resolved_field.is_declared_proto_shape_field:
                 continue
+            identity = (
+                function_info.start_address,
+                access.cls,
+                resolved_field.field_key,
+                access.instruction_address,
+                _canonicalize_access_kind(access.access_kind),
+            )
+            if identity in seen:
+                continue
+            seen.add(identity)
             access_atoms = field_signatures_by_cls[access.cls][resolved_field.field_key]
-            if access.field_offset is not None:
-                access_atoms.append(_build_access_atom_signature(access, field_resolution_by_message_cls))
+            access_atoms.append(_build_access_atom_signature(access, field_resolution_by_message_cls))
     return field_signatures_by_cls
 
 
@@ -236,13 +254,14 @@ def _build_function_signature_for_message_cls(
 ) -> FunctionAccessSignature:
     normalized_message_type = get_normalized_short_type_name(message_cls)
     self_entries = function_info.accesses_by_cls.get(message_cls, [])
+    self_atoms = [
+        _build_access_atom_signature(entry, field_resolution_by_message_cls) for entry in self_entries
+    ]
     return FunctionAccessSignature(
         return_role=function_info.get_normalized_return_role(normalized_message_type),
         takes_message_parameter=normalized_message_type in function_info.normalized_parameters,
         size=function_info.size,
-        self_accesses=[
-            _build_access_atom_signature(entry, field_resolution_by_message_cls) for entry in self_entries
-        ],
+        self_accesses=list({atom.similarity_key: atom for atom in self_atoms}.values()),
         foreign_access_summary=_build_foreign_access_inside_summary(
             accesses_by_cls=function_info.accesses_by_cls,
             message_cls=message_cls,
@@ -264,8 +283,8 @@ def _build_short_name_to_cls(
 
 
 def _canonicalize_access_kind(access_kind: str) -> str:
-    """Normalize address loads to reads because IL2CPP switches between LEA and MOV across builds."""
-    return "read" if access_kind == "address" else access_kind
+    """Compare accessors with their inlined memory operations across IL2CPP builds."""
+    return {"address": "read", "getter": "read", "setter": "write"}.get(access_kind, access_kind)
 
 
 def _build_access_atom_signature(
@@ -278,7 +297,7 @@ def _build_access_atom_signature(
             entry_type="field",
             access_kind=_canonicalize_access_kind(access.access_kind),
             field_type_shape=resolved_field.field_type_shape,
-            field_offset=access.field_offset,
+            field_offset=resolved_field.memory_offset,
             index_in_function=access.index_in_function,
         )
     return AccessAtomSignature(
@@ -303,5 +322,5 @@ def _build_foreign_access_inside_summary(
 
 def _get_foreign_access_summary_token(access: AccessEntry) -> str:
     if is_field_access_entry(access):
-        return f"field:{access.access_kind}"
+        return f"field:{_canonicalize_access_kind(access.access_kind)}"
     return f"typeinfo:{access.access_kind}"

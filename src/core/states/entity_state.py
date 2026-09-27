@@ -188,10 +188,6 @@ class EntityState(State):
                     state_id_by_effect_uid=previous.state_id_by_effect_uid.copy() if previous else {},
                 )
 
-    def set_fight_actor_effect(self, target_id: int, uid: int, state_id: int) -> None:
-        actor_fight = self.actor_fight_by_id[target_id]
-        actor_fight.state_id_by_effect_uid[uid] = state_id
-
     def remove_fight_actor_effect(self, target_id: int, uid: int) -> None:
         actor_fight = self.actor_fight_by_id[target_id]
         actor_fight.state_id_by_effect_uid.pop(uid, None)

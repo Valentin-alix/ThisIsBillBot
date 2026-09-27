@@ -24,6 +24,8 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import (
 )
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 from src.protocol.message import MessageInfo
+from utils.protobuf import is_repeated_field
+
 
 logger = logging.getLogger(__name__)
 
@@ -58,10 +60,6 @@ MessageTransformer = Callable[[Message], Message]
 
 _cached_game_mappings: SimpleGameMappingsDocument | None = None
 _cached_game_mappings_mtime_ns: int | None = None
-
-
-def _is_repeated_field(field_descriptor: FieldDescriptor) -> bool:
-    return getattr(field_descriptor, "label") == FieldDescriptor.LABEL_REPEATED
 
 
 def _load_game_mappings() -> SimpleGameMappingsDocument:
@@ -103,60 +101,6 @@ def get_mapping_proto_to_obf() -> ProtoToObfMapping:
 
 def is_usable_msg(msg_name: str) -> bool:
     return msg_name in get_mapping_proto_to_obf()
-
-
-def get_obf_game_msg_info(content: bytes, from_server: bool, do_dump_values: bool) -> MessageInfo:
-    SHOW_URL = True
-
-    received_msg_time = datetime.datetime.now()
-
-    obf_game_type_url, _ = get_mapping_proto_to_obf()[GameMessage.DESCRIPTOR.full_name]
-    game_msg_type = GetMessageClass(POOL.FindMessageTypeByName(obf_game_type_url))
-
-    game_msg = game_msg_type()
-    game_msg.ParseFromString(content)
-    RuntimeDataStore().add_msg(msg=game_msg, from_server=None, is_game_msg=True)
-
-    msg_json = MessageToDict(
-        game_msg,
-        always_print_fields_with_no_presence=True,
-        preserving_proto_field_name=True,
-    )
-    if SHOW_URL:
-        root_oneof = game_msg.DESCRIPTOR.oneofs[0].name
-        field_name = game_msg.WhichOneof(root_oneof)
-        root_msg: Message = getattr(game_msg, field_name)
-
-        root_msg_any_field: protoAny | None = None
-        for _, field_value in root_msg.ListFields():
-            if field_value.__class__ == protoAny:
-                root_msg_any_field = field_value
-                break
-
-        if root_msg_any_field is None:
-            raise ValueError("Did not found any in root msg")
-
-        type_url = root_msg_any_field.type_url.split("/")[-1]
-
-        sub_msg_descriptor: Descriptor = POOL.FindMessageTypeByName(type_url)
-        sub_msg_type = GetMessageClass(sub_msg_descriptor)
-
-        sub_msg_content_unpacked: Message = sub_msg_type()
-        root_msg_any_field.Unpack(sub_msg_content_unpacked)
-
-        if do_dump_values:
-            RuntimeDataStore().add_msg(
-                msg=sub_msg_content_unpacked, from_server=from_server, is_game_msg=False
-            )
-    else:
-        type_url = game_msg.__class__.__name__
-
-    return MessageInfo(
-        received_time=received_msg_time,
-        from_server=from_server,
-        obf_msg_json=msg_json,
-        sub_msg_name=type_url,
-    )
 
 
 def get_game_msg(
@@ -339,7 +283,7 @@ def set_field_from_mapping_field(
     output_msg_field_name: str,
     msg_mappings: ProtoToRealMapping | ProtoToObfMapping,
 ) -> None:
-    if _is_repeated_field(msg_field):
+    if is_repeated_field(msg_field):
         output_field_value = getattr(output_msg, output_msg_field_name)
         map_entry = msg_field.message_type
         is_map_field = map_entry is not None and map_entry.GetOptions().map_entry
@@ -367,11 +311,7 @@ def set_field_from_mapping_field(
                 sub_transformer = get_msg_transformer(sub_msg_value.DESCRIPTOR.full_name, msg_mappings)
                 if not sub_transformer:
                     continue
-                sub_output_msg = sub_transformer(
-                    msg_field_value[sub_msg_value] if is_map_field else sub_msg_value
-                )
-                if sub_output_msg is None:
-                    continue
+                sub_output_msg = sub_transformer(sub_msg_value)
                 output_field_value.append(sub_output_msg)
         else:
             output_field_value.extend(msg_field_value)

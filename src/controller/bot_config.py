@@ -86,12 +86,6 @@ class BotConfigService(metaclass=Singleton):
             self._write_all_configs(bot_config_by_login)
             return bot_config_by_login[login]
 
-    def update_bot_config_by_login(self, bot_config: BotConfig, login: str):
-        with self._BOT_CONFIG_LOCK:
-            all_configs = self.get_bot_config_by_login()
-            all_configs[login] = bot_config
-            self._write_all_configs(all_configs)
-
     def assign_mode(self, login: str, mode: Literal["socket", "mitm"]):
         with self._BOT_CONFIG_LOCK:
             all_configs = self.get_bot_config_by_login()

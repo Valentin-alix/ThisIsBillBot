@@ -193,10 +193,6 @@ class Bot(ContextualLogger):
         for frame in self.frames:
             frame.cancel_timers()
 
-    def wait_for_connection_result(self, timeout: float = 120.0) -> bool:
-        is_success = self.is_connected_event.wait(timeout)
-        return is_success
-
     def bot_should_not_play(self, now: datetime.datetime):
         if self.from_manual_play.is_set():
             return False

@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from functools import cached_property
 from typing import Any, cast
-
 from google.protobuf.descriptor import Descriptor, FieldDescriptor
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush, QColor
@@ -17,6 +16,7 @@ from qfluentwidgets import (
 from qfluentwidgets.components.widgets.tool_tip import ToolTipFilter
 
 from src.gui.components.qfluent_widget.dynamic_tree_widget import DynamicTreeWidget
+from utils.protobuf import is_repeated_field
 
 ABSENT_FIELD_DISPLAY_VALUE = "<absent>"
 
@@ -67,7 +67,7 @@ def _absent_value_for_field(field_descriptor: FieldDescriptor, depth: int) -> An
     message_type = _message_field_descriptor(field_descriptor)
     if message_type is None:
         return ABSENT_FIELD_DISPLAY_VALUE
-    if _is_repeated_field(field_descriptor):
+    if is_repeated_field(field_descriptor):
         return [complete_message_tree_content({}, message_type, depth=depth + 1)]
     return complete_message_tree_content({}, message_type, depth=depth + 1)
 
@@ -77,7 +77,7 @@ def _complete_message_tree_value(value: Any, field_descriptor: FieldDescriptor, 
     if message_type is None:
         return value
 
-    if _is_repeated_field(field_descriptor):
+    if is_repeated_field(field_descriptor):
         if not isinstance(value, list):
             return value
         value_items = cast(list[Any], value)
@@ -126,10 +126,6 @@ def _message_field_descriptor(field_descriptor: FieldDescriptor) -> Descriptor |
     if field_descriptor.type != FieldDescriptor.TYPE_MESSAGE:
         return None
     return field_descriptor.message_type
-
-
-def _is_repeated_field(field_descriptor: FieldDescriptor) -> bool:
-    return getattr(field_descriptor, "label") == FieldDescriptor.LABEL_REPEATED
 
 
 class MessageDetailWidget(QWidget):

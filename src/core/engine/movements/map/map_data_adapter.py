@@ -112,10 +112,6 @@ class DataMapProvider:
         dif: int = abs(abs(cell_1_data.floor) - abs(cell_2_data.floor))
         return cell_1_data.moveZone != cell_2_data.moveZone and dif == 0
 
-    def is_changing_map(self, cell_id: int) -> bool:
-        cell_1_data = self.get_cell_data(cell_id)
-        return cell_1_data.mapChangeData != 0
-
     def is_farm_cell(self, cell_id: int) -> bool:
         return bool(self.get_cell_data(cell_id).farmCell)
 

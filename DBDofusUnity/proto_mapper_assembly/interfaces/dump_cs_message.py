@@ -52,9 +52,6 @@ class DumpCSMessageField(BaseModel):
     enum_key_type: str | None = None
     enum_value_type: str | None = None
 
-    def has_enum_type(self, type_name: str) -> bool:
-        return type_name in self.enum_field_types
-
     @cached_property
     def enum_field_types(self) -> EnumFieldTypes:
         return EnumFieldTypes(key=self.enum_key_type, value=self.enum_value_type)

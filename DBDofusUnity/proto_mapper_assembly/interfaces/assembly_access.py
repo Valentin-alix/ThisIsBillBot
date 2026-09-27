@@ -5,7 +5,11 @@ from typing import Literal, NamedTuple, TypeGuard, override
 from pydantic import BaseModel, RootModel, model_validator
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.counter_profile import CounterProfile
-from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import (
+    DumpCSMessage,
+    DumpCSMessageField,
+    FieldKey,
+)
 from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import (
     CompactFieldTypeShape,
@@ -150,6 +154,7 @@ class FunctionAlias(BaseModel):
     parameters: list[str]
     return_type: str
     group: str
+    access_infos: list[AccessEntry]
 
 
 class EnumFunctionResolvedMetadata(BaseModel):
@@ -183,7 +188,7 @@ class TracedFunction(BaseModel):
                 name=alias.name,
                 parameters=alias.parameters,
                 return_type=alias.return_type,
-                access_infos=self.access_infos,
+                access_infos=alias.access_infos,
                 start_address=self.start_address,
                 end_address=self.end_address,
                 size=self.size,

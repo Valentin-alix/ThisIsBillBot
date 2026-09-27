@@ -1,4 +1,4 @@
-﻿import pytest
+import pytest
 from tests.fixtures.proto_mapper.field_builders import dump_cs_field
 from tests.fixtures.proto_mapper.shapes import (
     ANY_MESSAGE_SHAPE,
@@ -21,8 +21,10 @@ from tests.fixtures.proto_mapper.signatures import (
     function_access_info,
 )
 
-from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import build_message_access_signatures_by_cls
-from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import ReturnRole
+from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import (
+    build_message_access_signatures_by_cls,
+)
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature, ReturnRole
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldTypeShape
 
@@ -91,6 +93,7 @@ class TestBuildMessageAccessSignatures:
         )
         second = function_access_info(
             name="Mapper::Void Second(Message)",
+            start_address=100,
             access_infos=(builder_field_access_entry(cls="Message", field="raw_b"),),
         )
 
@@ -130,46 +133,49 @@ class TestBuildMessageAccessSignatures:
         assert signature.function_signatures == []
         assert signature.field_signatures == []
 
-    def test_property_name_only_matters_by_presence(self) -> None:
-        with_alpha = function_access_info(
-            name="Mapper::Void Alpha(Message)",
+    @pytest.mark.parametrize(("accessor", "direct"), [("getter", "read"), ("setter", "write")])
+    def test_accessor_and_direct_access_have_same_signature(self, accessor: str, direct: str) -> None:
+        field = dump_cs_field("int", offset=24, field_name="value_")
+        field.property_name = "Value"
+        message = DumpCSMessage(file_descriptor="FD", name="Message", fields=[field])
+        signatures: list[MessageAccessSignature] = []
+        for access_kind in (accessor, direct):
+            access = builder_field_access_entry(cls="Message", property_name="Value")
+            access = access.model_copy(
+                update={
+                    "access_kind": access_kind,
+                    "field_offset": None if access_kind in {"getter", "setter"} else 24,
+                }
+            )
+            function = function_access_info(access_infos=(access,))
+            signatures.append(build_access_signatures_for_test(function, messages=(message,))["Message"])
+
+        assert signatures[0].field_signatures == signatures[1].field_signatures
+        assert signatures[0].function_similarity_keys == signatures[1].function_similarity_keys
+        assert signatures[0].field_signatures[0].accesses[0].access_kind == direct
+
+    def test_deduplicates_accessor_and_memory_access_at_same_instruction(self) -> None:
+        field = dump_cs_field("int", offset=24, field_name="value_")
+        field.property_name = "Value"
+        message = DumpCSMessage(file_descriptor="FD", name="Message", fields=[field])
+        function = function_access_info(
             access_infos=(
-                builder_field_access_entry(cls="Message", access_kind="getter", property_name="Alpha"),
-            ),
-        )
-        with_beta = function_access_info(
-            name="Mapper::Void Beta(Message)",
-            access_infos=(
-                builder_field_access_entry(cls="Message", access_kind="getter", property_name="Beta"),
-            ),
-        )
-        without_property = function_access_info(
-            name="Mapper::Void Raw(Message)",
-            access_infos=(builder_field_access_entry(cls="Message", property_name=None),),
+                builder_field_access_entry(cls="Message", property_name="Value", access_kind="write"),
+                builder_field_access_entry(cls="Message", property_name="Value", access_kind="setter"),
+                builder_field_access_entry(
+                    cls="Message",
+                    property_name="Value",
+                    access_kind="setter",
+                    instruction_address=10,
+                    index_in_function=10,
+                ),
+            )
         )
 
-        signature = build_access_signatures_for_test(
-            with_alpha,
-            with_beta,
-            without_property,
-            message_classes=("Message",),
-        )["Message"]
+        signature = build_access_signatures_for_test(function, messages=(message,))["Message"]
 
-        with_property_name = [
-            current
-            for current in signature.function_signatures
-            if current.self_accesses[0].access_kind == "getter"
-        ]
-        without_property_name = [
-            current
-            for current in signature.function_signatures
-            if current.self_accesses[0].access_kind != "getter"
-        ]
-
-        assert len(with_property_name) == 2
-        assert len(without_property_name) == 1
-        assert with_property_name[0].model_dump() == with_property_name[1].model_dump()
-        assert without_property_name[0].model_dump() != with_property_name[0].model_dump()
+        assert len(signature.field_signatures[0].accesses_key) == 2
+        assert len(signature.function_signatures[0].self_accesses_key) == 2
 
     def test_supports_nested_message_lookup_keys(self) -> None:
         message = DumpCSMessage(file_descriptor="NestedReflection", name="Inner", parent_name="Outer.Types")

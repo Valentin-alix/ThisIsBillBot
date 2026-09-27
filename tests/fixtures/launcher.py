@@ -54,10 +54,6 @@ class FakeLocator:
     async def is_visible(self) -> bool:
         return self._visible
 
-    def set_count(self, count: int) -> None:
-        self._count = count
-
-
 class FakeMailProvider:
     def __init__(self, code: str | None = None) -> None:
         self.wait_for_code = AsyncMock(return_value=code)

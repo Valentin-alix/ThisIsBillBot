@@ -94,16 +94,6 @@ class GameDataController(metaclass=Singleton):
                 SaleHotelServerData(),
             )
 
-    def save_sale_hotel_server(
-        self,
-        server_id: int,
-        server_data: SaleHotelServerData,
-    ) -> None:
-        with self._LOCK:
-            game_data = self._load()
-            game_data.sale_hotel_by_server[server_id] = server_data
-            self._save(game_data)
-
     def get_avg_price_by_gid(self, server_id: int) -> dict[int, float]:
         return self.get_sale_hotel_server(server_id).avg_price_by_gid
 

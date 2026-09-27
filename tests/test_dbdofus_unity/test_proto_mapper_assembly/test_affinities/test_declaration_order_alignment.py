@@ -48,6 +48,7 @@ def _access_trace(message_by_alias: dict[str, str]) -> AccessTraceDocument:
                     "parameters": [],
                     "return_type": "Boolean",
                     "group": "Core.dll/wrapper",
+                    "access_infos": [],
                 }
             ],
             "stable_callees": [],

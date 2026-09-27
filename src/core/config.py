@@ -57,7 +57,6 @@ MULE_BANK_MAP_ID = MapIdEnum.ASTRUB_BANK
 MAX_QUANTITY_ON_SELL = 10_000
 MIN_KAMAS_TO_GO_SALE_HOTEL = 1_500
 
-DUNGEON_OFFSET_LVL = 20
 
 
 def get_time_beween_sale_hotel_prices():

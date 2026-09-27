@@ -126,9 +126,6 @@ class HumanTimingsService(metaclass=Singleton):
     def get_timing_before_preparation_ready(self) -> float:
         return self._get_timing(FIGHT_READY_TIMING)
 
-    def get_timing_free_soul(self) -> float:
-        return self._get_timing(DECISION_NORMAL_TIMING)
-
     def get_timing_collect_on_new_map(self) -> float:
         return self._get_timing(MAP_ARRIVAL_TIMING)
 

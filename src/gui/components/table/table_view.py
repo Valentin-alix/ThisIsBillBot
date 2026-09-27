@@ -70,18 +70,6 @@ class CustomTableModel(QAbstractTableModel):
         if len(self._data) > self._max_row_count:
             self.signals.max_row_reached.emit()
 
-    def append_rows(self, rows: list[list[QStandardItem]]) -> None:
-        if not rows:
-            return
-        start = len(self._data)
-        end = start + len(rows) - 1
-        self.beginInsertRows(QModelIndex(), start, end)
-        self._data.extend(rows)
-        self.endInsertRows()
-        self.signals.batched_rows.emit()
-        if len(self._data) > self._max_row_count:
-            self.signals.max_row_reached.emit()
-
     def remove_rows(self, row: int, count: int) -> None:
         self.beginRemoveRows(QModelIndex(), row, row + count - 1)
         del self._data[row : row + count]
@@ -106,20 +94,6 @@ class CustomTableModel(QAbstractTableModel):
             self.dataChanged.emit(index, index, [role])
             return True
         return False
-
-    def update_row_cells(self, row: int, col_start: int, col_end: int, values: list[str]) -> None:
-        if row < 0 or row >= len(self._data):
-            return
-        for i, value in enumerate(values):
-            col = col_start + i
-            if col <= col_end and col < self._column_count:
-                self._data[row][col].setText(value)
-        self.dataChanged.emit(
-            self.index(row, col_start),
-            self.index(row, col_end),
-            [Qt.ItemDataRole.DisplayRole],
-        )
-
 
 class CustomTableView(TableView):
     def __init__(

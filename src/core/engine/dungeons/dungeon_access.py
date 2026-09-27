@@ -7,9 +7,7 @@ from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from DBDofusUnity.dofus_unity_reader.game_constants.item import ItemEnum, ItemTypeEnum
 
-from src.core.config import DUNGEON_OFFSET_LVL
-from src.core.engine.dungeons.dungeon_info import DungeonInfo, PLAYABLE_DUNGEONS
-from src.core.engine.movements.map.map_tools import MapTools
+from src.core.engine.dungeons.dungeon_info import DungeonInfo
 
 
 def do_have_key_access_to_dungeon(
@@ -38,18 +36,3 @@ def do_have_key_access_to_dungeon(
         effect.value_int in related_item_key_ids for effect in related_king_ring_item.effects
     )
     return does_have_king_ring_related_key
-
-
-def get_valid_dungeon_infos(
-    level: int,
-    is_sub: bool,
-    objects_by_uid: dict[int, ObjectItemInventory],
-    logger: Logger,
-):
-    return [
-        dungeon_info
-        for dungeon_info in PLAYABLE_DUNGEONS
-        if dungeon_info.dungeon.optimalPlayerLevel + DUNGEON_OFFSET_LVL < level
-        and (is_sub or MapTools.is_map_allowed_for_unsub(dungeon_info.dungeon.entranceMapId))
-        and do_have_key_access_to_dungeon(dungeon_info, objects_by_uid, logger)
-    ]
