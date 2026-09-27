@@ -1,11 +1,29 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from threading import RLock
+from typing import cast
 from uuid import uuid4
+
+from PyQt6.QtCore import QMetaObject, QObject, Qt, pyqtBoundSignal, pyqtSignal
 
 from utils.singleton import Singleton
 
 RESERVATION_TTL = timedelta(minutes=10)
+
+
+class MuleExchangeSignals(QObject):
+    preparation_requested = pyqtSignal(str)
+    prepared = pyqtSignal(str)
+    cancelled = pyqtSignal(str)
+
+    @staticmethod
+    def connect_direct(signal: pyqtBoundSignal, callback: Callable[[str], None]) -> None:
+        # PyQt's stubs omit the connection type accepted at runtime.
+        connect = cast(
+            Callable[[Callable[[str], None], Qt.ConnectionType], QMetaObject.Connection], signal.connect
+        )
+        connect(callback, Qt.ConnectionType.DirectConnection)
 
 
 @dataclass(frozen=True)
@@ -32,6 +50,7 @@ class KamasMuleRegistry(metaclass=Singleton):
     def __init__(self) -> None:
         self._lock = RLock()
         self._entries: dict[str, _MuleEntry] = {}
+        self.exchange_signals = MuleExchangeSignals()
 
     def mark_ready(
         self,
@@ -53,13 +72,6 @@ class KamasMuleRegistry(metaclass=Singleton):
             entry = self._entry(login)
             entry.accepting_new = False
             entry.reservation = None
-
-    def close_window(self, login: str) -> bool:
-        with self._lock:
-            entry = self._entry(login)
-            self._expire_reservation(entry, datetime.now())
-            entry.accepting_new = False
-            return entry.reservation is not None
 
     def reserve(
         self,
@@ -102,7 +114,16 @@ class KamasMuleRegistry(metaclass=Singleton):
             for entry in self._entries.values():
                 if entry.reservation is not None and entry.reservation.token == token:
                     entry.reservation = None
-                    return
+                    break
+        self.exchange_signals.cancelled.emit(token)
+
+    def is_reserved_for(self, token: str, mule_login: str) -> bool:
+        with self._lock:
+            entry = self._entries.get(mule_login)
+            if entry is None:
+                return False
+            self._expire_reservation(entry, datetime.now())
+            return entry.reservation is not None and entry.reservation.token == token
 
     def is_reserved_by(self, mule_login: str, donor_character_id: int) -> bool:
         with self._lock:

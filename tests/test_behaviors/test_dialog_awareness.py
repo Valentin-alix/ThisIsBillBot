@@ -11,22 +11,9 @@ from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeRequestedTradeEvent,
     ExchangeStartedWithStorageEvent,
 )
-from DBDofusUnity.datas.protos.non_obf.game.contact_pb2 import IgnoreRequest
 from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapCurrentEvent, MapMovementRequest
-from DBDofusUnity.datas.protos.non_obf.game.guild_information_pb2 import (
-    GuildInvitationAnswerRequest,
-    GuildInvitedEvent,
-)
 from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
-from DBDofusUnity.datas.protos.non_obf.game.roleplay_pb2 import (
-    PlayerFightFriendlyAnswerRequest,
-    PlayerFightFriendlyRequestedEvent,
-)
 from DBDofusUnity.datas.protos.non_obf.game.teleportation_pb2 import TeleportDestinationsEvent
-from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
-    ActorPositionInformation,
-    EntityDisposition,
-)
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MapPoint
 from google.protobuf.message import Message
 
@@ -252,96 +239,3 @@ def test_closing_a_npc_dialog_waits_for_the_dialog_leave_event(
     behavior.event_manager.process_msg(DialogLeaveEvent())
 
     assert closed == [True]
-
-
-PLAYER_ID = 42
-CHALLENGER_ID = 7
-CHALLENGER_NAME = "Provocateur"
-FIGHT_ID = 1234
-
-
-def _add_challenger(game_state_ctx: GameStateContext) -> None:
-    actor = ActorPositionInformation(
-        actor_id=CHALLENGER_ID,
-        disposition=EntityDisposition(entity_id=CHALLENGER_ID, cell_id=1),
-    )
-    actor.actor_information.role_play_actor.named_actor.name = CHALLENGER_NAME
-    game_state_ctx.game_state.entity.set_actor(actor)
-
-
-def _challenge(target_id: int = PLAYER_ID) -> PlayerFightFriendlyRequestedEvent:
-    return PlayerFightFriendlyRequestedEvent(fight_id=FIGHT_ID, source_id=CHALLENGER_ID, target_id=target_id)
-
-
-def test_a_challenge_aimed_at_us_is_recorded(game_state_ctx: GameStateContext) -> None:
-    game_state_ctx.game_state.player.character_id = PLAYER_ID
-    event_manager = _make_dialog_frame(game_state_ctx)
-    _add_challenger(game_state_ctx)
-
-    event_manager.process_msg(_challenge())
-
-    dialog = game_state_ctx.game_state.dialog
-    assert dialog.is_open(OpenDialogKind.FRIENDLY_FIGHT_REQUEST, context_id=FIGHT_ID)
-    assert dialog.context_name == CHALLENGER_NAME
-
-
-def test_a_challenge_aimed_at_someone_else_is_left_alone(
-    game_state_ctx: GameStateContext,
-) -> None:
-    game_state_ctx.game_state.player.character_id = PLAYER_ID
-    event_manager = _make_dialog_frame(game_state_ctx)
-
-    event_manager.process_msg(_challenge(target_id=PLAYER_ID + 1))
-
-    assert not game_state_ctx.game_state.dialog.is_any_open
-
-
-def test_a_guild_invitation_is_recorded(game_state_ctx: GameStateContext) -> None:
-    event_manager = _make_dialog_frame(game_state_ctx)
-
-    event_manager.process_msg(GuildInvitedEvent(recruiter_name="Recruteur"))
-
-    assert game_state_ctx.game_state.dialog.is_open(OpenDialogKind.GUILD_INVITE)
-
-
-def test_a_pending_challenge_is_declined_when_the_bot_needs_the_screen(
-    game_state_ctx: GameStateContext, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    behavior, sent_messages = _make_map_move_behavior(game_state_ctx, monkeypatch)
-    game_state_ctx.game_state.dialog.set_open(
-        OpenDialogKind.FRIENDLY_FIGHT_REQUEST,
-        context_id=FIGHT_ID,
-        context_name=CHALLENGER_NAME,
-    )
-
-    behavior.start(callback=None, parent=None, move_path=_move_path())
-
-    assert [type(message) for message in sent_messages] == [
-        IgnoreRequest,
-        PlayerFightFriendlyAnswerRequest,
-        MapMovementRequest,
-    ]
-    ignore_request = sent_messages[0]
-    answer = sent_messages[1]
-    assert isinstance(ignore_request, IgnoreRequest)
-    assert isinstance(answer, PlayerFightFriendlyAnswerRequest)
-    assert ignore_request.player_search.search_by_character_name.name == CHALLENGER_NAME
-    assert answer.fight_id == FIGHT_ID
-    assert answer.accept is False
-
-
-def test_a_pending_guild_invitation_is_declined_when_the_bot_needs_the_screen(
-    game_state_ctx: GameStateContext, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    behavior, sent_messages = _make_map_move_behavior(game_state_ctx, monkeypatch)
-    game_state_ctx.game_state.dialog.set_open(OpenDialogKind.GUILD_INVITE)
-
-    behavior.start(callback=None, parent=None, move_path=_move_path())
-
-    assert [type(message) for message in sent_messages] == [
-        GuildInvitationAnswerRequest,
-        MapMovementRequest,
-    ]
-    answer = sent_messages[0]
-    assert isinstance(answer, GuildInvitationAnswerRequest)
-    assert answer.accepted is False

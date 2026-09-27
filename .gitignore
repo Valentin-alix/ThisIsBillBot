@@ -68,6 +68,7 @@ DBDofusUnity/resources/*.json
 DBDofusUnity/datas/proto_mapper/obf/cs/*.cs
 DBDofusUnity/datas/proto_mapper/non_obf/cs/*.cs
 !DBDofusUnity/datas/proto_mapper/non_obf/cs/Ankama.Dofus.Protocol.Game.cs
+!DBDofusUnity/datas/proto_mapper/obf/cs/Ankama.Dofus.Protocol.Game.cs
 DBDofusUnity/datas/proto_mapper/.era_cache/
 DBDofusUnity/**/*.h
 !DBDofusUnity/Il2CppInspectorRedux/Il2CppInspector.Common/Cpp/UnityHeaders/*.h
@@ -89,4 +90,3 @@ DBDofusUnity/.cod*/
 DBDofusUnity/**/*.understand*
 !DBDofusUnity/datas/bundles/
 !DBDofusUnity/datas/bundles/**
-DBDofusUnity/datas/bundles/map/map_*.json

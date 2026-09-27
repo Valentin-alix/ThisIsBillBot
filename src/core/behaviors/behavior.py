@@ -4,12 +4,8 @@ from enum import Enum, auto
 from threading import RLock, Timer
 from typing import ParamSpec, Protocol, cast
 
-from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import PlayerSearch
-from DBDofusUnity.datas.protos.non_obf.game.contact_pb2 import IgnoreRequest
 from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import DialogLeaveEvent, DialogLeaveRequest
 from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import ExchangeLeaveEvent
-from DBDofusUnity.datas.protos.non_obf.game.guild_information_pb2 import GuildInvitationAnswerRequest
-from DBDofusUnity.datas.protos.non_obf.game.roleplay_pb2 import PlayerFightFriendlyAnswerRequest
 from google.protobuf.message import Message
 
 from src.core.events_manager.event_manager import EventManager
@@ -39,10 +35,6 @@ RunParams = ParamSpec("RunParams")
 
 DIALOG_LEAVE_TIMEOUT_SECONDS = 5.0
 DIALOG_LEAVE_KINDS = {OpenDialogKind.NPC_DIALOG, OpenDialogKind.ZAAP_DESTINATIONS}
-UNACKNOWLEDGED_KINDS = {
-    OpenDialogKind.FRIENDLY_FIGHT_REQUEST,
-    OpenDialogKind.GUILD_INVITE,
-}
 
 
 class RunnableBehavior(Protocol[RunParams]):
@@ -231,11 +223,6 @@ class Behavior(ContextualLogger):
 
         self.logger.info(f"Closing {kind} before going on")
 
-        if kind in UNACKNOWLEDGED_KINDS:
-            self.decline_solicitation(kind)
-            self.game_state.dialog.clear_state()
-            return then()
-
         def on_timeout() -> None:
             self.logger.warning(f"No leave confirmation for {kind}, assuming it is closed")
             self.game_state.dialog.clear_state()
@@ -251,23 +238,6 @@ class Behavior(ContextualLogger):
             on_timeout=on_timeout,
         )
         self.event_manager.send(DialogLeaveRequest())
-
-    def decline_solicitation(self, kind: OpenDialogKind) -> None:
-        dialog = self.game_state.dialog
-        if kind is OpenDialogKind.GUILD_INVITE:
-            return self.event_manager.send(GuildInvitationAnswerRequest(accepted=False))
-
-        if dialog.context_name:
-            self.event_manager.send(
-                IgnoreRequest(
-                    player_search=PlayerSearch(
-                        search_by_character_name=PlayerSearch.SearchByCharacterName(name=dialog.context_name)
-                    )
-                )
-            )
-        self.event_manager.send(
-            PlayerFightFriendlyAnswerRequest(fight_id=dialog.context_id or 0, accept=False)
-        )
 
     def leave_dialog(self, on_leave_callback: Callable[[ExchangeLeaveEvent], None] | None = None) -> None:
         if not self.game_state.dialog.is_any_open:

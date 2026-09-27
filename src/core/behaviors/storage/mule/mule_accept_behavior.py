@@ -1,5 +1,10 @@
 from dataclasses import dataclass, field
 
+from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import (
+    PlayerStatusUpdatedEvent,
+    PlayerStatusUpdateRequest,
+)
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import CharacterStatus
 from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import (
     DialogLeaveRequest,
 )
@@ -37,10 +42,16 @@ class MuleAcceptBehavior(RecoverableBehavior):
     mule_registry: KamasMuleRegistry = field(default_factory=KamasMuleRegistry)
 
     _step: int = field(init=False, default=0)
+    _exchange_token: str | None = field(init=False, default=None)
+    _coordination_connected: bool = field(init=False, default=False)
 
     def run(self) -> None:
+        signals = self.mule_registry.exchange_signals
+        signals.connect_direct(signals.preparation_requested, self.prepare_exchange)
+        signals.connect_direct(signals.cancelled, self.cancel_exchange_preparation)
+        self._coordination_connected = True
         self.init_recovery_listeners()
-        self.ensure_free_to_act(lambda: self.start_accepting())
+        self.ensure_free_to_act(self.start_accepting)
 
     def start_accepting(self) -> None:
         self._step = 0
@@ -78,13 +89,44 @@ class MuleAcceptBehavior(RecoverableBehavior):
         self.go_bank_map()
 
     def stand_ready_for_exchanges(self) -> None:
+        self.listen_for_exchange_request()
         self.mule_registry.mark_ready(
             self.game_state.player.login,
             self.game_state.player.server_id,
             self.game_state.player.character_id,
             self.game_state.map.map_id,
         )
-        self.listen_for_exchange_request()
+
+    def prepare_exchange(self, token: str) -> None:
+        if not self.mule_registry.is_reserved_for(token, self.game_state.player.login):
+            return
+        if self._exchange_token == token:
+            return
+        self._exchange_token = token
+        self.event_manager.on(
+            PlayerStatusUpdatedEvent,
+            self.on_player_status_updated,
+            originator=self,
+            override_on_self=True,
+        )
+        self.event_manager.send(
+            PlayerStatusUpdateRequest(status=CharacterStatus(status=CharacterStatus.STATUS_AVAILABLE))
+        )
+
+    def on_player_status_updated(self, msg: PlayerStatusUpdatedEvent) -> None:
+        if (
+            msg.player_id != self.game_state.player.character_id
+            or msg.status.status != CharacterStatus.STATUS_AVAILABLE
+        ):
+            return
+        self.unregister_listener(PlayerStatusUpdatedEvent)
+        token = self._exchange_token
+        if token is not None and self.mule_registry.is_reserved_for(token, self.game_state.player.login):
+            self.mule_registry.exchange_signals.prepared.emit(token)
+
+    def cancel_exchange_preparation(self, token: str) -> None:
+        if token == self._exchange_token:
+            self.restore_solo()
 
     def listen_for_exchange_request(self) -> None:
         self.event_manager.on(
@@ -160,8 +202,27 @@ class MuleAcceptBehavior(RecoverableBehavior):
         self.event_manager.send(req)
 
     def on_exchange_leave_event(self, msg: ExchangeLeaveEvent) -> None:
+        self.stop_accepting_exchanges()
         self.run_timer(HumanTimingsService().get_timing_base_action(), self.on_bank_map)
 
-    def clear_behavior(self) -> None:
+    def stop_accepting_exchanges(self) -> None:
         self.mule_registry.mark_unavailable(self.game_state.player.login)
+        self.unregister_listener(ExchangeRequestedTradeEvent)
+        self.restore_solo()
+
+    def restore_solo(self) -> None:
+        token = self._exchange_token
+        self._exchange_token = None
+        self.unregister_listener(PlayerStatusUpdatedEvent)
+        if token is not None and self.event_manager.on_send_game_callback is not None:
+            self.event_manager.send(
+                PlayerStatusUpdateRequest(status=CharacterStatus(status=CharacterStatus.STATUS_SOLO))
+            )
+
+    def clear_behavior(self) -> None:
+        self.stop_accepting_exchanges()
+        if self._coordination_connected:
+            self.mule_registry.exchange_signals.preparation_requested.disconnect(self.prepare_exchange)
+            self.mule_registry.exchange_signals.cancelled.disconnect(self.cancel_exchange_preparation)
+            self._coordination_connected = False
         super().clear_behavior()

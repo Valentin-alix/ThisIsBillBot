@@ -2,6 +2,9 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, fields
 from threading import Event
 
+from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import PlayerStatusUpdateRequest
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import CharacterStatus
+
 from src.services.background import run_in_background
 from ankama_launcher_emulator.interfaces.credentials import (
     StoredApiKey,
@@ -57,6 +60,10 @@ class BehaviorCoordinator(ContextualLogger):
         else:
             self.from_manual_play.clear()
         self.is_playing_event.set()
+        if self.is_ready_to_play_event.is_set():
+            self.event_manager.send(
+                PlayerStatusUpdateRequest(status=CharacterStatus(status=CharacterStatus.STATUS_SOLO))
+            )
 
     def on_stop(self):
         self.is_playing_event.clear()

@@ -21,7 +21,6 @@ from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import (
 )
 from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     GameRolePlayShowActorsEvent,
-    MapChangeOrientationEvent,
     MapComplementaryInformationEvent,
     MapMovementEvent,
     MapObstacle,
@@ -124,33 +123,6 @@ class TestEntityState:
         )
 
         assert set(runtime_bot.game_state.entity.obstacle_on_cell_id) == {100, 101}
-
-    def test_map_change_orientation_event_updates_actor_direction(
-        self,
-        runtime_bot: Bot,
-    ):
-        self._set_actors(
-            runtime_bot,
-            [
-                make_actor(
-                    actor_id=789,
-                    cell_id=100,
-                    direction=Direction.DIRECTION_EAST,
-                ),
-            ],
-        )
-
-        runtime_bot.event_manager.process_msg(
-            MapChangeOrientationEvent(
-                actor_id=789,
-                direction=Direction.DIRECTION_NORTH_EAST,
-            )
-        )
-
-        assert (
-            runtime_bot.game_state.entity.actor_by_id[789].disposition.direction
-            == Direction.DIRECTION_NORTH_EAST
-        )
 
     def test_actors_on_mp_index_is_updated_when_setting_actors(
         self,

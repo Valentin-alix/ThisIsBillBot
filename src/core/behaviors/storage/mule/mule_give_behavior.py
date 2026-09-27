@@ -1,5 +1,8 @@
 from dataclasses import dataclass, field
+from threading import Timer
 
+from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import PlayerStatusUpdateRequest
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import CharacterStatus
 from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeKamaModifiedEvent,
     ExchangeLeaveEvent,
@@ -31,6 +34,7 @@ class MuleGiveBehavior(RecoverableBehavior):
     _step: int = field(init=False, default=0)
     _reservation: MuleReservation | None = field(init=False, default=None)
     _activity_performed: bool = field(init=False, default=False)
+    _preparation_timer: Timer | None = field(init=False, default=None)
 
     @property
     def activity_performed(self) -> bool:
@@ -38,7 +42,7 @@ class MuleGiveBehavior(RecoverableBehavior):
 
     def run(self) -> None:
         self.init_recovery_listeners()
-        self.ensure_free_to_act(lambda: self.start_giving())
+        self.ensure_free_to_act(self.start_giving)
 
     def start_giving(self) -> None:
         self._step = 0
@@ -82,6 +86,32 @@ class MuleGiveBehavior(RecoverableBehavior):
         if mule_id not in self.game_state.entity.actor_by_id:
             self.logger.warning("Mule bank not in map")
             return self.finish()
+
+        signals = self.mule_registry.exchange_signals
+        signals.connect_direct(signals.prepared, self.on_mule_prepared)
+        self._preparation_timer = Timer(
+            10, lambda: self.run_timed_func(lambda: self.finish("MULE_PREPARATION_TIMEOUT"))
+        )
+        self._preparation_timer.daemon = True
+        self._preparation_timer.start()
+        self.mule_registry.exchange_signals.preparation_requested.emit(self._reservation.token)
+
+    def stop_waiting_for_mule(self) -> None:
+        if self._preparation_timer is not None:
+            self._preparation_timer.cancel()
+            self._preparation_timer = None
+            self.mule_registry.exchange_signals.prepared.disconnect(self.on_mule_prepared)
+
+    def on_mule_prepared(self, token: str) -> None:
+        if self._preparation_timer is None:
+            return
+        assert self._reservation is not None
+        if self._reservation.token != token:
+            return
+        self.stop_waiting_for_mule()
+        if not self.mule_registry.is_reserved_for(token, self._reservation.mule_login):
+            return self.finish()
+        mule_id = self._reservation.mule_character_id
 
         self.event_manager.on(
             ExchangeStartedWithPodsEvent,
@@ -130,7 +160,12 @@ class MuleGiveBehavior(RecoverableBehavior):
         self.send_message_delayed(req, (3, 4))
 
     def clear_behavior(self) -> None:
+        self.stop_waiting_for_mule()
         if self._reservation is not None:
             self.mule_registry.release(self._reservation.token)
             self._reservation = None
+            if self.event_manager.on_send_game_callback is not None:
+                self.event_manager.send(
+                    PlayerStatusUpdateRequest(status=CharacterStatus(status=CharacterStatus.STATUS_SOLO))
+                )
         super().clear_behavior()

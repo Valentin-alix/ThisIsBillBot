@@ -20,7 +20,6 @@ from DBDofusUnity.datas.protos.non_obf.game.game_action_pb2 import (
 )
 from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     GameRolePlayShowActorsEvent,
-    MapChangeOrientationEvent,
     MapComplementaryInformationEvent,
     MapMovementCancelRequest,
     MapMovementEvent,
@@ -87,12 +86,6 @@ class EntityFrame(Frame):
         self.event_manager.on(
             MapObstacleUpdateEvent,
             self.on_map_obstacle_update_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            MapChangeOrientationEvent,
-            self.on_map_change_orientation_event,
             originator=self,
             priority=self.priority,
         )
@@ -168,16 +161,6 @@ class EntityFrame(Frame):
 
     def on_map_obstacle_update_event(self, msg: MapObstacleUpdateEvent):
         self.game_state.entity.set_map_obstacles(msg.obstacles)
-
-    def on_map_change_orientation_event(self, msg: MapChangeOrientationEvent):
-        actor = self.game_state.entity.actor_by_id.get(msg.actor_id)
-        if actor is None:
-            return
-        self.game_state.entity.update_actor_disposition(
-            actor_id=msg.actor_id,
-            direction=msg.direction,
-            cell_id=actor.disposition.cell_id,
-        )
 
     def on_game_action_fight_event(self, msg: GameActionFightEvent):
         if msg.HasField("death"):

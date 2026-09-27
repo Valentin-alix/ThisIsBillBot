@@ -8,7 +8,9 @@ from DBDofusUnity.datas.protos.non_obf.game.character_management_pb2 import (
 )
 from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import (
     CharacterLevelUpEvent,
+    PlayerStatusUpdateRequest,
 )
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import CharacterStatus
 from DBDofusUnity.datas.protos.non_obf.game.dialog_pb2 import DialogLeaveRequest
 from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
@@ -63,6 +65,13 @@ class PlayerFrame(Frame):
 
         self.game_info_signals.disconnected.connect(self.on_disconnected)
         self.game_info_signals.is_ready_to_play.connect(self.game_state.player.is_ready_to_play_event.set)
+        self.game_info_signals.is_ready_to_play.connect(self.on_ready_to_play)
+
+    def on_ready_to_play(self) -> None:
+        if self.is_playing_event.is_set():
+            self.event_manager.send(
+                PlayerStatusUpdateRequest(status=CharacterStatus(status=CharacterStatus.STATUS_SOLO))
+            )
 
     def _register_ready_to_play_trigger(self):
         def on_map_init_after_connected():

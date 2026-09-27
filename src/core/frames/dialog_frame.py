@@ -12,9 +12,7 @@ from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeStartedWithStorageEvent,
 )
 from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapCurrentEvent
-from DBDofusUnity.datas.protos.non_obf.game.guild_information_pb2 import GuildInvitedEvent
 from DBDofusUnity.datas.protos.non_obf.game.npc_pb2 import NpcDialogQuestionEvent
-from DBDofusUnity.datas.protos.non_obf.game.roleplay_pb2 import PlayerFightFriendlyRequestedEvent
 from DBDofusUnity.datas.protos.non_obf.game.teleportation_pb2 import TeleportDestinationsEvent
 
 from src.core.frames.frame import Frame
@@ -78,18 +76,6 @@ class DialogFrame(Frame):
             priority=self.priority,
         )
         self.event_manager.on(
-            PlayerFightFriendlyRequestedEvent,
-            self.on_player_fight_friendly_requested_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
-            GuildInvitedEvent,
-            self.on_guild_invited_event,
-            originator=self,
-            priority=self.priority,
-        )
-        self.event_manager.on(
             NpcDialogQuestionEvent,
             self.on_npc_dialog_question_event,
             originator=self,
@@ -141,27 +127,6 @@ class DialogFrame(Frame):
 
     def on_teleport_destinations_event(self, msg: TeleportDestinationsEvent) -> None:
         self.game_state.dialog.set_open(OpenDialogKind.ZAAP_DESTINATIONS)
-
-    def on_player_fight_friendly_requested_event(self, msg: PlayerFightFriendlyRequestedEvent) -> None:
-        if msg.target_id != self.game_state.player.character_id:
-            return
-        self.game_state.dialog.set_open(
-            OpenDialogKind.FRIENDLY_FIGHT_REQUEST,
-            context_id=msg.fight_id,
-            context_name=self.get_character_name(msg.source_id),
-        )
-
-    def on_guild_invited_event(self, msg: GuildInvitedEvent) -> None:
-        self.game_state.dialog.set_open(OpenDialogKind.GUILD_INVITE, context_name=msg.recruiter_name)
-
-    def get_character_name(self, actor_id: int) -> str | None:
-        actor = self.game_state.entity.actor_by_id.get(actor_id)
-        if actor is None:
-            return None
-        role_play_actor = actor.actor_information.role_play_actor
-        if not role_play_actor.HasField("named_actor"):
-            return None
-        return role_play_actor.named_actor.name or None
 
     def on_npc_dialog_question_event(self, msg: NpcDialogQuestionEvent) -> None:
         self.game_state.dialog.set_open(OpenDialogKind.NPC_DIALOG)

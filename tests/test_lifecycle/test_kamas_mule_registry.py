@@ -44,23 +44,6 @@ def test_first_mule_by_login_is_selected() -> None:
     assert reservation.mule_login == "a-mule"
 
 
-def test_window_closure_keeps_existing_reservation_until_release() -> None:
-    registry = KamasMuleRegistry()
-    now = datetime.now()
-    registry.mark_ready("mule", 1, 100, 200)
-    reservation = registry.reserve(1, 999, now)
-    assert reservation is not None
-
-    assert registry.close_window("mule")
-    assert registry.is_reserved_by("mule", 999)
-    assert registry.reserve(1, 998, now) is None
-
-    registry.release(reservation.token)
-
-    assert not registry.is_reserved_by("mule", 999)
-    assert registry.reserve(1, 998, now) is None
-
-
 def test_expired_reservation_becomes_available_again() -> None:
     registry = KamasMuleRegistry()
     now = datetime.now()
