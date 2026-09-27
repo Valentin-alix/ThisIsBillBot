@@ -99,18 +99,21 @@ class TestGameClientSendRoutesToProcessMsg:
         def fake_decode_varint_size(msg_datas: bytes) -> tuple[int, int]:
             return 3, 1
 
-        def fake_get_game_msg(*args: object) -> tuple[None, SpellsEvent, Message, int]:
+        def fake_get_game_msg(*args: object, **kwargs: object) -> tuple[None, SpellsEvent, Message, int]:
             return None, clear_msg, obf_msg, 42
+        get_game_msg = MagicMock(side_effect=fake_get_game_msg)
 
         monkeypatch.setattr(game_client_module, "decode_varint_size", fake_decode_varint_size)
+        monkeypatch.setattr(game_client_module.config, "DEBUG", True)
         monkeypatch.setattr(
             game_client_module,
             "get_game_msg",
-            fake_get_game_msg,
+            get_game_msg,
         )
 
         game_client.on_received_msg_datas(b"\x03abc")
 
+        get_game_msg.assert_called_once_with(b"abc", True, from_server=True)
         runtime_bot.debug_recorder.record_game_message.assert_called_once_with(
             clear_msg, obf_msg, 42, True, "server"
         )

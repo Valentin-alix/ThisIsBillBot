@@ -24,11 +24,13 @@ class StaticScoreMatrices:
     structure_scores_matrix: np.ndarray
     assembly_scores_matrix: np.ndarray
     static_scores_matrix: np.ndarray
+    candidate_eligibility_mask: np.ndarray
 
 
 @dataclass(frozen=True)
 class PreparedScoreData:
     final_scores_matrix: np.ndarray
+    candidate_eligibility_mask: np.ndarray
     structure_scores_matrix: np.ndarray
     assembly_scores_matrix: np.ndarray
     runtime_confidence_by_pair: dict[MatchPairKey, float | None]

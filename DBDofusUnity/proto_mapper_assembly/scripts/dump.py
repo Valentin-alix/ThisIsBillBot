@@ -3,7 +3,6 @@ import hashlib
 import shutil
 import subprocess
 from dataclasses import dataclass
-from datetime import UTC, date, datetime
 from pathlib import Path
 
 from DBDofusUnity.consts import (
@@ -152,23 +151,10 @@ def _archive_previous_obf_dump(target: ProtoDumpTarget) -> None:
 
 
 def _clear_mapping_inputs_before_pipeline() -> None:
-    today = datetime.now(tz=UTC).astimezone().date()
     if RUNTIME_DATA_FILE.exists():
-        _archive_runtime_capture(RUNTIME_DATA_FILE, today)
+        RUNTIME_DATA_FILE.unlink()
 
     write_pinned_pairs(PINNED_PAIRS_FILE, PinnedPairsConfig(pairs=[]))
-
-
-def _archive_runtime_capture(runtime_data_file: Path, today: date) -> Path:
-    backup_name = f"{runtime_data_file.name}.backup.{today.strftime('%d_%m_%Y')}"
-    backup_path = runtime_data_file.with_name(backup_name)
-    duplicate_index = 2
-    while backup_path.exists():
-        backup_path = runtime_data_file.with_name(f"{backup_name}.{duplicate_index}")
-        duplicate_index += 1
-
-    runtime_data_file.rename(backup_path)
-    return backup_path
 
 
 def is_game_assembly_changed_since_last_run(target: ProtoDumpTarget) -> bool:

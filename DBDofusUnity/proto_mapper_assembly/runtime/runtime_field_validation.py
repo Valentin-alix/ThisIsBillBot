@@ -37,7 +37,7 @@ def is_runtime_compatible_field_pair(
         message=obf_message,
         obf_messages_by_cls=obf_messages_by_cls,
     )
-    runtime_values = get_defined_runtime_values(runtime_instances, obf_field.clean_field_name)
+    runtime_values = get_runtime_validator_values(runtime_instances, obf_field.clean_field_name)
     if not runtime_values:
         return FieldValidatorRuntimeMetadata(did_validation_run=False, did_validation_failure=False)
 
@@ -81,7 +81,7 @@ def build_runtime_field_validator_confidence(
         if obf_field_name is None:
             return 0.0
 
-        runtime_values = get_defined_runtime_values(runtime_instances, obf_field_name)
+        runtime_values = get_runtime_validator_values(runtime_instances, obf_field_name)
         if not runtime_values:
             continue
 
@@ -141,6 +141,22 @@ def get_defined_runtime_values(
     return defined_values
 
 
+def get_runtime_validator_values(
+    instances: Sequence[dict[str, object]],
+    field_name: str,
+) -> list[object]:
+    values: list[object] = []
+    for instance in instances:
+        if field_name not in instance:
+            continue
+        value = instance[field_name]
+        if _is_empty_runtime_list(value):
+            values.append([])
+        elif not _is_default_runtime_value(value):
+            values.append(value)
+    return values
+
+
 def _all_runtime_field_values_are_valid(
     values: Sequence[object],
     field_validator: ValidatorFn[Any],
@@ -165,3 +181,7 @@ def _is_default_runtime_value(value: object) -> bool:
     if isinstance(value, (list, dict)):
         return value in _DEFAULT_RUNTIME_CONTAINER_VALUES
     return value in _DEFAULT_RUNTIME_SCALAR_VALUES
+
+
+def _is_empty_runtime_list(value: object) -> bool:
+    return isinstance(value, list) and not value

@@ -1,6 +1,5 @@
 import os
 import sys
-from datetime import UTC, date, datetime
 from pathlib import Path
 from unittest.mock import patch
 
@@ -385,7 +384,7 @@ class TestDumpScript:
 
         assert ida_call_count == 1
 
-    def test_clear_mapping_inputs_archives_runtime_captures_instead_of_deleting(self, tmp_path: Path) -> None:
+    def test_clear_mapping_inputs_deletes_runtime_captures(self, tmp_path: Path) -> None:
         capture = tmp_path / "instancied_msg_infos.json"
         capture.write_text('{"krl": []}', encoding="utf-8")
 
@@ -396,29 +395,4 @@ class TestDumpScript:
             dump_script._clear_mapping_inputs_before_pipeline()
 
         assert not capture.exists()
-        today = datetime.now(tz=UTC).astimezone().date().strftime("%d_%m_%Y")
-        backup_path = tmp_path / f"instancied_msg_infos.json.backup.{today}"
-        assert backup_path.exists()
-        assert backup_path.read_text(encoding="utf-8") == '{"krl": []}'
-
-    def test_runtime_capture_backups_stay_out_of_the_live_capture_path(self, tmp_path: Path) -> None:
-        capture = tmp_path / "instancied_msg_infos.json"
-        capture.write_text("{}", encoding="utf-8")
-
-        backup_path = dump_script._archive_runtime_capture(capture, date(2026, 8, 8))
-
-        assert backup_path.name == "instancied_msg_infos.json.backup.08_08_2026"
-        assert not capture.exists()
-
-    def test_archiving_twice_the_same_day_keeps_both_captures(self, tmp_path: Path) -> None:
-        capture = tmp_path / "instancied_msg_infos.json"
-
-        capture.write_text('{"first": []}', encoding="utf-8")
-        first_backup = dump_script._archive_runtime_capture(capture, date(2026, 8, 8))
-        capture.write_text('{"second": []}', encoding="utf-8")
-        second_backup = dump_script._archive_runtime_capture(capture, date(2026, 8, 8))
-
-        assert first_backup.name == "instancied_msg_infos.json.backup.08_08_2026"
-        assert second_backup.name == "instancied_msg_infos.json.backup.08_08_2026.2"
-        assert first_backup.read_text(encoding="utf-8") == '{"first": []}'
-        assert second_backup.read_text(encoding="utf-8") == '{"second": []}'
+        assert list(tmp_path.glob("instancied_msg_infos.json.backup.*")) == []

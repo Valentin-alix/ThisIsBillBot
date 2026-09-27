@@ -1,13 +1,12 @@
 import random
 import threading
 
-from ankama_launcher_emulator.interfaces.credentials import (
+import src.core.config
+from AnkamaLauncherEmulator.ankama_launcher_emulator.interfaces.credentials import (
     DecipheredApiKey,
     DecipheredCertif,
     StoredApiKey,
 )
-
-import src.core.config
 from src import consts
 from src.controller.settings import SettingsService
 from src.core.behaviors.account.character_creation_behavior import (

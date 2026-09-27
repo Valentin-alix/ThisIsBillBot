@@ -136,13 +136,17 @@ class TestGameMappings:
                     from_server=True,
                     instance_count=9,
                     observed_field_names=("field_a",),
+                    capture_session_ids=("session-a", "session-b"),
                 )
             },
         )
 
         assert audit.pinned_message_exceptions == (".game.Required",)
         assert audit.pinned_field_exceptions == (".game.Required.value",)
-        assert audit.unmapped_observed_messages == ("obf_orphan (server, 9 captures, 1 fields)",)
+        assert audit.unmapped_observed_messages == ("obf_orphan (server, 9 captures, 1 fields, 2 sessions)",)
+        assert audit.observed_contract_messages == 0
+        assert audit.runtime_capture_count == 9
+        assert audit.runtime_session_count == 2
 
     def test_auto_mode_contract_aggregates_failures(self, tmp_path: Path) -> None:
         contract_path = tmp_path / "contract.json"
@@ -229,6 +233,7 @@ class TestGameMappings:
                         from_server=False,
                         instance_count=2,
                         observed_field_names=(),
+                        capture_session_ids=("session-a",),
                     ),
                 },
             )
@@ -244,7 +249,10 @@ class TestGameMappings:
         assert "- fieldless low match margins (1):" in error_message
         assert ".game.Required: 0.000 < 0.050 (no declared fields)" in error_message
         assert "- captured classes nothing claimed (1):" in error_message
-        assert "obf_orphan (client, 2 captures, 0 fields)" in error_message
+        assert "runtime coverage: 1/4 contract messages observed" in error_message
+        assert "2 obfuscated classes, 6 root captures, 1 session with session IDs" in error_message
+        assert "required-field gaps: 0 with captures, 1 without captures" in error_message
+        assert "obf_orphan (client, 2 captures, 0 fields, 1 session)" in error_message
 
     @pytest.mark.parametrize(
         ("msg", "expected"),

@@ -1,4 +1,5 @@
 import pytest
+from pathlib import Path
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
@@ -9,6 +10,7 @@ from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeData
 from tests.fixtures.proto_mapper.field_builders import dump_field
 from tests.fixtures.proto_mapper.matching_builders import build_prepared_scores_for_test
 from tests.fixtures.proto_mapper.message_builders import message_signature
+from tests.fixtures.proto_mapper.runtime_store import seed_runtime_content
 
 
 @pytest.mark.parametrize("pinned", [False, True])
@@ -58,4 +60,35 @@ def test_group_affinity_cannot_override_incompatible_structure(
     assert scores.file_descriptor_similarity_by_pair[("ContactGroup", "ObfGroup")] > 0
     assert scores.final_scores_matrix[0, 0] == (1.0 if pinned else 0.0)
     assert scores.rejected_pairs_by_reason[MatchPairKey("obf", "ContactLookRequest")] == "root_oneof_mismatch"
+
+
+@pytest.mark.parametrize("from_server", [True, False])
+def test_group_affinity_cannot_override_captured_direction(
+    tmp_path: Path, runtime_data_store: RuntimeDataStore, from_server: bool
+) -> None:
+    seed_runtime_content(
+        tmp_path,
+        {"obf": [{"from_server": from_server, "is_root_msg": True, "is_game_msg": False}]},
+    )
+    obf = DumpCSMessage(file_descriptor="ObfGroup", name="obf")
+    clear_messages = {
+        name: DumpCSMessage(file_descriptor="ClearGroup", name=name)
+        for name in ("ClearEvent", "ClearRequest")
+    }
+    workspace = build_matching_workspace(
+        obf_signatures=[message_signature("obf", [], dump_cs_msg=obf)],
+        non_obf_signatures=[message_signature(name, [], dump_cs_msg=msg) for name, msg in clear_messages.items()],
+        obf_messages_by_cls={"obf": obf},
+        non_obf_messages_by_cls=clear_messages,
+    )
+    scores = build_prepared_scores_for_test(
+        workspace=workspace,
+        obf_messages_by_cls={"obf": obf},
+        non_obf_messages_by_cls=clear_messages,
+        runtime_data_store=runtime_data_store,
+        pinned_pairs_config=PinnedPairsConfig(pairs=[]),
+    )
+    assert scores.file_descriptor_similarity_by_pair[("ClearGroup", "ObfGroup")] > 0
+    assert scores.final_scores_matrix[0 if from_server else 1, 0] > 0
+    assert scores.final_scores_matrix[1 if from_server else 0, 0] == 0
 

@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 
-from google.protobuf.message import Message
-from PyQt6.QtCore import QMetaObject, Qt
-
 from ankama_launcher_emulator.proxy.dofus3.proxy import (
     Proxy,
     WorkerAction,
 )
+from google.protobuf.message import Message
+from PyQt6.QtCore import QMetaObject, Qt
+
 from DBDofusUnity.datas.protos.non_obf.game.game_message_pb2 import Request
 from src.consts import MESSAGES_WITH_UID
 from src.core import config
@@ -44,7 +44,7 @@ class GameProxy(Proxy):
 
     def alter_msg_datas(self, msg_content_datas: bytes, msg_datas: bytes) -> bytes | None:
         expected_uid = self.uid + 1
-        root_msg_namespace, clear_sub_msg, _, uid = get_game_msg(msg_content_datas, config.DEBUG)
+        root_msg_namespace, clear_sub_msg, _, uid = get_game_msg(msg_content_datas, False, from_server=False)
         if clear_sub_msg is None:
             return msg_datas
 
@@ -65,7 +65,7 @@ class GameProxy(Proxy):
         msg_content_datas = msg_datas[pos : pos + size]
 
         _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(
-            msg_content_datas, config.DEBUG and not was_send_from_proxy
+            msg_content_datas, config.DEBUG and not was_send_from_proxy, from_server=from_server
         )
         if uid is not None and uid != -1:
             self.uid = uid
@@ -88,7 +88,6 @@ class GameProxy(Proxy):
                 obf_sub_msg,
                 uid,
                 from_server,
-                not was_send_from_proxy,
             )
             self.bot.msg_info_signals.msg_info.emit(msg_infos, was_send_from_proxy)
 

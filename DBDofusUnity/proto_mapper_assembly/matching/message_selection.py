@@ -116,6 +116,7 @@ def match_signatures_iteratively(
                         capture_order_index=capture_order_index,
                         capture_sequence_hints_config=run_config.capture_sequence_hints_config,
                     )
+                    cached_adjusted_matrix[~prepared_scores.candidate_eligibility_mask] = 0.0
                     cached_store_version = matching_store.version
                 selected_pair_queue.extend(
                     select_signature_pairs(
@@ -159,7 +160,10 @@ def match_signatures_iteratively(
                 pinned_pair=selected_pair.pinned_pair,
             )
             for discovery in field_mapping_result.discovered_message_matches:
-                matching_store.register_inferred(discovery)
+                non_obf_index = workspace.signature_indexes.non_obf_index_by_cls[discovery.non_obf_message_cls]
+                obf_index = workspace.signature_indexes.obf_index_by_cls[discovery.obf_message_cls]
+                if prepared_scores.candidate_eligibility_mask[non_obf_index, obf_index]:
+                    matching_store.register_inferred(discovery)
             if field_mapping_result.discovered_message_matches:
                 selected_pair_queue.clear()
 

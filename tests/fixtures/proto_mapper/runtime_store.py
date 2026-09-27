@@ -4,6 +4,8 @@ from pathlib import Path
 
 import numpy as np
 
+from DBDofusUnity.proto_mapper_assembly.runtime.proto_schema import get_obfuscated_proto_schema_fingerprint
+
 
 def seed_runtime_content(
     tmp_path: Path,
@@ -15,7 +17,11 @@ def seed_runtime_content(
         name: [_with_meta_defaults(entry, capture_sequence) for capture_sequence, entry in enumerate(entries)]
         for name, entries in content_by_name.items()
     }
-    (tmp_path / filename).write_text(json.dumps(entries_by_name, default=_json_default), encoding="utf-8")
+    document: dict[str, object] = {
+        "schema_fingerprint": get_obfuscated_proto_schema_fingerprint(),
+        "root": entries_by_name,
+    }
+    (tmp_path / filename).write_text(json.dumps(document, default=_json_default), encoding="utf-8")
 
 
 def _with_meta_defaults(entry: Mapping[str, object], capture_sequence: int) -> dict[str, object]:

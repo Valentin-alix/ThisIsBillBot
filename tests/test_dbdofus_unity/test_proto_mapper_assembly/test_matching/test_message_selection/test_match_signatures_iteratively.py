@@ -160,6 +160,14 @@ class TestMatchSignaturesIteratively:
                 IterativeMatchingStore(),
                 {MatchPairKey("obf_alpha", "ClearAlpha"): 0.0},
             ),
+            (
+                np.zeros((1, 1)),
+                IterativeMatchingStore(
+                    inferred_non_obf_by_obf={"obf_alpha": "ClearAlpha"},
+                    inferred_confidence_by_pair={MatchPairKey("obf_alpha", "ClearAlpha"): 0.9},
+                ),
+                {MatchPairKey("obf_alpha", "ClearAlpha"): 0.9},
+            ),
         ],
     )
     def test_returns_empty_when_candidate_cannot_be_confirmed(
@@ -178,9 +186,11 @@ class TestMatchSignaturesIteratively:
             non_obf_messages_by_cls={},
         )
 
+        prepared_scores = prepared_scores_from_matrix(scores_matrix)
+        prepared_scores.candidate_eligibility_mask[:] = scores_matrix > 0
         matches = match_signatures_iteratively(
             workspace=workspace,
-            prepared_scores=prepared_scores_from_matrix(scores_matrix),
+            prepared_scores=prepared_scores,
             matching_store=matching_store,
             inputs=MatchingInputs(
                 obf_messages_by_cls={},

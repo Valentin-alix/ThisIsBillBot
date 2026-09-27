@@ -35,6 +35,19 @@
     {
       "obf": "ktc",
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Character.Management.CharacterForceSelectionReadyRequest"
+    },
+    {
+      "obf": "juu",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Fight.FightTurnStartPlayingEvent"
+    },
+    {
+      "obf": "ljc",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Common.CharacterCharacteristicDetailedUsable",
+      "field_mapping_by_obf": {
+        "gbus": "base",
+        "gbup": "context_modification",
+        "gbum": "used"
+      }
     }
   ]
 }

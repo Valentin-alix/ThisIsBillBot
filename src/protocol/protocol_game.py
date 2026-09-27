@@ -159,7 +159,9 @@ def get_obf_game_msg_info(content: bytes, from_server: bool, do_dump_values: boo
     )
 
 
-def get_game_msg(content: bytes, do_dump_values: bool) -> tuple[str, Message | None, Message, int]:
+def get_game_msg(
+    content: bytes, do_dump_values: bool, *, from_server: bool
+) -> tuple[str, Message | None, Message, int]:
     obf_game_type_url, obf_game_field_mapping = get_mapping_proto_to_obf()[GameMessage.DESCRIPTOR.full_name]
     uid_value = -1
     msg_descriptor: Descriptor = POOL.FindMessageTypeByName(obf_game_type_url)
@@ -193,6 +195,13 @@ def get_game_msg(content: bytes, do_dump_values: bool) -> tuple[str, Message | N
     sub_msg_content_unpacked: Message = sub_msg_type()
     root_msg_any_field.Unpack(sub_msg_content_unpacked)
 
+    if do_dump_values:
+        RuntimeDataStore().add_msg(
+            msg=sub_msg_content_unpacked,
+            from_server=from_server,
+            is_game_msg=False,
+        )
+
     try:
         clear_sub_msg = get_clear_msg_from_obf(sub_msg_content_unpacked)
     except Exception:
@@ -207,12 +216,8 @@ def get_game_msg_info(
     obf_sub_msg: Message,
     uid_value: int | None,
     from_server: bool,
-    do_dump_values: bool = False,
 ) -> MessageInfo:
     received_msg_time = datetime.datetime.now()
-
-    if do_dump_values:
-        RuntimeDataStore().add_msg(msg=obf_sub_msg, from_server=from_server, is_game_msg=False)
 
     if clear_sub_msg is not None:
         msg_json = MessageToDict(

@@ -21,6 +21,9 @@ class AutoModeMappingAudit:
     messages_without_runtime_confidence: int
     messages_without_evidence: int
     unmapped_observed_messages: tuple[str, ...]
+    observed_contract_messages: int
+    runtime_capture_count: int
+    runtime_session_count: int
 
 
 @dataclass
@@ -131,6 +134,12 @@ def check_auto_mode_mappings(
 
     if failures.has_failures():
         details = failures.format()
+        details += _format_runtime_coverage(
+            contract=contract,
+            entries_by_name=entries_by_name,
+            observed_root_obf_messages=observed_root_obf_messages,
+            missing_fields=failures.missing_fields,
+        )
         if failures.missing_messages:
             details += _format_unmapped_observed(unmapped_observed_messages)
         details += _format_pinned_exceptions(pinned_message_exceptions, pinned_field_exceptions)
@@ -144,10 +153,27 @@ def check_auto_mode_mappings(
         messages_without_runtime_confidence=messages_without_runtime_confidence,
         messages_without_evidence=messages_without_evidence,
         unmapped_observed_messages=unmapped_observed_messages,
+        observed_contract_messages=sum(
+            1
+            for requirement in contract.messages
+            if (entry := entries_by_name.get(_normalize_name(requirement.message))) is not None
+            and entry.obf_msg_namespace in observed_root_obf_messages
+        ),
+        runtime_capture_count=sum(
+            observed.instance_count for observed in observed_root_obf_messages.values()
+        ),
+        runtime_session_count=len(
+            {
+                session_id
+                for observed in observed_root_obf_messages.values()
+                for session_id in observed.capture_session_ids
+            }
+        ),
     )
 
 
 def format_auto_mode_mapping_audit(audit: AutoModeMappingAudit) -> str:
+    session_label = "session" if audit.runtime_session_count == 1 else "sessions"
     return (
         "Auto-mode mapping contract passed: "
         f"{audit.message_count} messages, {audit.field_count} fields, "
@@ -156,7 +182,62 @@ def format_auto_mode_mapping_audit(audit: AutoModeMappingAudit) -> str:
         "Diagnostics only: "
         f"{audit.messages_without_runtime_confidence} messages without runtime confidence, "
         f"{audit.messages_without_evidence} messages never observed in a capture, "
-        f"{len(audit.unmapped_observed_messages)} captured classes nothing claimed."
+        f"{len(audit.unmapped_observed_messages)} captured classes nothing claimed. "
+        f"Runtime coverage: {audit.observed_contract_messages}/{audit.message_count} contract messages, "
+        f"{audit.runtime_capture_count} root captures across "
+        f"{audit.runtime_session_count} {session_label}."
+    )
+
+
+def _format_runtime_coverage(
+    *,
+    contract: AutoModeMappingContract,
+    entries_by_name: Mapping[str, GameMappingEntry],
+    observed_root_obf_messages: Mapping[str, ObservedRootObfMessage],
+    missing_fields: list[str],
+) -> str:
+    observed_contract_messages = sum(
+        1
+        for requirement in contract.messages
+        if (entry := entries_by_name.get(_normalize_name(requirement.message))) is not None
+        and entry.obf_msg_namespace in observed_root_obf_messages
+    )
+    runtime_capture_count = sum(
+        observed.instance_count for observed in observed_root_obf_messages.values()
+    )
+    runtime_session_count = len(
+        {
+            session_id
+            for observed in observed_root_obf_messages.values()
+            for session_id in observed.capture_session_ids
+        }
+    )
+    missing_fields_with_captures = 0
+    missing_fields_without_captures = 0
+    for requirement in contract.messages:
+        entry = entries_by_name.get(_normalize_name(requirement.message))
+        if entry is None:
+            continue
+        has_capture = entry.obf_msg_namespace in observed_root_obf_messages
+        for field_name in requirement.fields:
+            failure_prefix = f"{requirement.message}.{field_name}"
+            if not any(
+                failure == failure_prefix or failure.startswith(failure_prefix + " ")
+                for failure in missing_fields
+            ):
+                continue
+            if has_capture:
+                missing_fields_with_captures += 1
+            else:
+                missing_fields_without_captures += 1
+    session_label = "session" if runtime_session_count == 1 else "sessions"
+    return (
+        "\n- runtime coverage: "
+        f"{observed_contract_messages}/{len(contract.messages)} contract messages observed, "
+        f"{len(observed_root_obf_messages)} obfuscated classes, {runtime_capture_count} root captures, "
+        f"{runtime_session_count} {session_label} with session IDs; "
+        f"required-field gaps: {missing_fields_with_captures} with captures, "
+        f"{missing_fields_without_captures} without captures"
     )
 
 

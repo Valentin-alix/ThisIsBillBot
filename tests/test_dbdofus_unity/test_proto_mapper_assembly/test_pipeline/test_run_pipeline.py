@@ -1,7 +1,6 @@
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-
 from tests.fixtures.proto_mapper.message_builders import message_signature
 from tests.fixtures.proto_mapper.pipeline_builders import (
     builder_matching_inputs,
@@ -192,10 +191,49 @@ class TestRunPipeline:
 
 
 class TestPublishGameMappings:
-    def test_contract_failure_is_reported_after_mappings_are_published(self, tmp_path: Path) -> None:
+    def test_contract_success_publishes_staged_mappings(self, tmp_path: Path) -> None:
         obf_dir = tmp_path / "build"
         obf_dir.mkdir()
         paths = build_pipeline_paths(obf_dir=obf_dir)
+
+        def write_mappings(
+            matches: object,
+            *,
+            output_path: Path,
+            detailed_output_path: Path,
+            **kwargs: object,
+        ) -> None:
+            output_path.write_text("new-simple", encoding="utf-8")
+            detailed_output_path.write_text("new-detailed", encoding="utf-8")
+
+        with (
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.write_game_mappings", side_effect=write_mappings),
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.check_auto_mode_mappings"),
+            patch(
+                "DBDofusUnity.proto_mapper_assembly.pipeline.format_auto_mode_mapping_audit",
+                return_value="mapping contract passed",
+            ),
+        ):
+            publish_game_mappings(
+                (),
+                obf_messages_by_cls={},
+                non_obf_messages_by_cls={},
+                pipeline_paths=paths,
+                runtime_data_store=Mock(spec=RuntimeDataStore),
+            )
+
+        assert paths.game_mappings_path.read_text(encoding="utf-8") == "new-simple"
+        assert paths.detailed_game_mappings_path.read_text(encoding="utf-8") == "new-detailed"
+        assert len(list(obf_dir.iterdir())) == 2
+
+    def test_contract_failure_still_publishes_mappings(
+        self, tmp_path: Path
+    ) -> None:
+        obf_dir = tmp_path / "build"
+        obf_dir.mkdir()
+        paths = build_pipeline_paths(obf_dir=obf_dir)
+        paths.game_mappings_path.write_text("previous-simple", encoding="utf-8")
+        paths.detailed_game_mappings_path.write_text("previous-detailed", encoding="utf-8")
 
         def write_mappings(
             matches: object,
@@ -213,6 +251,7 @@ class TestPublishGameMappings:
                 "DBDofusUnity.proto_mapper_assembly.pipeline.check_auto_mode_mappings",
                 side_effect=AutoModeMappingContractError("mapping contract failed"),
             ),
+            patch("builtins.print") as print_mock,
         ):
             publish_game_mappings(
                 (),
@@ -224,3 +263,5 @@ class TestPublishGameMappings:
 
         assert paths.game_mappings_path.read_text(encoding="utf-8") == "published-simple"
         assert paths.detailed_game_mappings_path.read_text(encoding="utf-8") == "published-detailed"
+        print_mock.assert_called_once_with("mapping contract failed")
+        assert len(list(obf_dir.iterdir())) == 2

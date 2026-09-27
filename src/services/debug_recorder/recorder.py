@@ -475,7 +475,7 @@ def _build_entry(raw: _RawEntry) -> DebugEntry:
             last_message=raw.last_message,
         )
     if isinstance(raw, _GameMsgRaw):
-        msg_info = get_game_msg_info(raw.clear_sub_msg, raw.obf_sub_msg, raw.uid, raw.from_server, False)
+        msg_info = get_game_msg_info(raw.clear_sub_msg, raw.obf_sub_msg, raw.uid, raw.from_server)
         obf_type, decoded_type = _parse_sub_msg_name(msg_info.sub_msg_name)
         return DebugMessageEntry(
             category="message",

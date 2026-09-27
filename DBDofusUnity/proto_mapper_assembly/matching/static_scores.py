@@ -61,6 +61,7 @@ def build_static_score_data(
     structure_scores_matrix = np.zeros((len(non_obf_signatures), len(obf_signatures)))
     assembly_scores_matrix = np.zeros((len(non_obf_signatures), len(obf_signatures)))
     static_scores_matrix = np.zeros((len(non_obf_signatures), len(obf_signatures)))
+    candidate_eligibility_mask = np.ones_like(static_scores_matrix, dtype=bool)
 
     non_obf_candidates_by_root: dict[bool, list[_NonObfCandidate]] = {True: [], False: []}
     for non_obf_index, non_obf_signature in enumerate(non_obf_signatures):
@@ -72,15 +73,19 @@ def build_static_score_data(
             )
         )
 
+    non_obf_candidates = (*non_obf_candidates_by_root[True], *non_obf_candidates_by_root[False])
     for obf_index, obf_signature in enumerate(tqdm(obf_signatures, "build static score matrix")):
         obf_gate_inputs = _build_obf_gate_inputs(obf_signature, pinned_pairs_config, runtime_data_store)
         is_pinned_obf = obf_gate_inputs.pinned_non_obf_cls is not None
-        for non_obf_candidate in non_obf_candidates_by_root[obf_signature.dump_cs_msg.is_root_msg]:
+        for non_obf_candidate in non_obf_candidates:
             if _are_gate_inputs_obviously_incompatible(obf_gate_inputs, non_obf_candidate.gate_inputs):
+                candidate_eligibility_mask[non_obf_candidate.non_obf_index, obf_index] = False
                 continue
 
             non_obf_index = non_obf_candidate.non_obf_index
             non_obf_signature = non_obf_candidate.signature
+            if non_obf_signature.dump_cs_msg.is_root_msg != obf_signature.dump_cs_msg.is_root_msg:
+                continue
             hardening = build_structure_hardening(obf_signature, non_obf_signature)
 
             structure_similarity = hardening.apply(shallow_structure_score(obf_signature, non_obf_signature))
@@ -114,6 +119,7 @@ def build_static_score_data(
         structure_scores_matrix=structure_scores_matrix,
         assembly_scores_matrix=assembly_scores_matrix,
         static_scores_matrix=static_scores_matrix,
+        candidate_eligibility_mask=candidate_eligibility_mask,
     )
 
 

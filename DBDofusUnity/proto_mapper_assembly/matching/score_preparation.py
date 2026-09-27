@@ -22,8 +22,8 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.matching import (
     MatchingWorkspace,
     PreparedScoreData,
 )
-from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
 from DBDofusUnity.proto_mapper_assembly.interfaces.matching_inputs import MatchingInputs, MatchingRunConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.message_pair import MatchPairKey
 from DBDofusUnity.proto_mapper_assembly.matching.runtime_rescore import build_runtime_rescored_scores
 from DBDofusUnity.proto_mapper_assembly.matching.static_scores import (
     apply_pinned_pair_overrides_around_prospective_mask,
@@ -70,6 +70,7 @@ def build_prepared_scores(
         runtime_data_store=run_config.runtime_data_store,
         structure_context=structure_context,
     )
+    candidate_eligibility_mask = static_score_data.candidate_eligibility_mask.copy()
     handler_adjusted_scores_matrix = _blend_handler_registration_similarity(
         workspace=workspace,
         scores_matrix=static_score_data.static_scores_matrix,
@@ -122,6 +123,7 @@ def build_prepared_scores(
     )
     rejected_candidates = requires_oneof[:, None] & ~has_oneof[None, :]
     final_scores_matrix[rejected_candidates] = 0.0
+    candidate_eligibility_mask[rejected_candidates] = False
     for non_obf_index, non_obf_signature in enumerate(workspace.non_obf_signatures):
         for obf_index, obf_signature in enumerate(workspace.obf_signatures):
             if rejected_candidates[non_obf_index, obf_index]:
@@ -131,14 +133,22 @@ def build_prepared_scores(
         non_obf_index = workspace.signature_indexes.non_obf_index_by_cls[pair.non_obf_message_cls]
         obf_index = workspace.signature_indexes.obf_index_by_cls[pair.obf_message_cls]
         final_scores_matrix[non_obf_index, obf_index] = 0.0
+        candidate_eligibility_mask[non_obf_index, obf_index] = False
+    final_scores_matrix[~candidate_eligibility_mask] = 0.0
     final_scores_matrix = apply_pinned_pair_overrides_around_prospective_mask(
         workspace=workspace,
         scores_matrix=final_scores_matrix,
         pinned_pairs_config=run_config.pinned_pairs_config,
     )
+    for pinned_pair in run_config.pinned_pairs_config.pairs:
+        obf_index = workspace.signature_indexes.obf_index_by_cls.get(pinned_pair.obf)
+        non_obf_index = workspace.signature_indexes.non_obf_index_by_cls.get(pinned_pair.non_obf)
+        if obf_index is not None and non_obf_index is not None:
+            candidate_eligibility_mask[non_obf_index, obf_index] = True
 
     return PreparedScoreData(
         final_scores_matrix=final_scores_matrix,
+        candidate_eligibility_mask=candidate_eligibility_mask,
         structure_scores_matrix=static_score_data.structure_scores_matrix,
         assembly_scores_matrix=static_score_data.assembly_scores_matrix,
         runtime_confidence_by_pair=runtime_confidence_by_pair,

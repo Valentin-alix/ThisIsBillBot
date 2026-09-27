@@ -2,6 +2,7 @@ from collections import defaultdict
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from functools import cached_property
+import json
 from pathlib import Path
 from threading import RLock
 from uuid import uuid4
@@ -15,9 +16,11 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCS
 from DBDofusUnity.proto_mapper_assembly.interfaces.runtime_data import (
     NormalizedRuntimeInstance,
     ObservedRootObfMessage,
+    RuntimeCaptureDocument,
     RuntimeInstance,
     RuntimeRoot,
 )
+from DBDofusUnity.proto_mapper_assembly.runtime.proto_schema import get_obfuscated_proto_schema_fingerprint
 from src.core.config import ENABLE_MSG_CAPTURE
 from utils.singleton import Singleton
 
@@ -55,6 +58,10 @@ class RuntimeDataStore(metaclass=Singleton):
             messages_by_cls=obf_messages_by_cls,
         )
         return self._normalized_content_by_name.get(runtime_key, ())
+
+    @cached_property
+    def schema_fingerprint(self) -> str:
+        return get_obfuscated_proto_schema_fingerprint()
 
     def get_capture_sequences_for_obf_message(
         self, *, message: DumpCSMessage, obf_messages_by_cls: Mapping[str, DumpCSMessage]
@@ -120,6 +127,15 @@ class RuntimeDataStore(metaclass=Singleton):
                 observed_field_names=tuple(
                     sorted({name for instance in instances for name in (instance.model_extra or {})})
                 ),
+                capture_session_ids=tuple(
+                    sorted(
+                        {
+                            instance.capture_session_id
+                            for instance in instances
+                            if instance.capture_session_id is not None
+                        }
+                    )
+                ),
             )
         return observed
 
@@ -134,9 +150,18 @@ class RuntimeDataStore(metaclass=Singleton):
 
     @cached_property
     def content_by_name(self) -> RuntimeRoot:
-        if not RUNTIME_DATA_FILE.exists():
+        path = self.path
+        if not path.exists():
             return RuntimeRoot(root={})
-        return RuntimeRoot.model_validate_json(RUNTIME_DATA_FILE.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict) or "schema_fingerprint" not in data:
+            path.unlink(missing_ok=True)
+            return RuntimeRoot(root={})
+        capture_document = RuntimeCaptureDocument.model_validate(data)
+        if capture_document.schema_fingerprint != self.schema_fingerprint:
+            path.unlink(missing_ok=True)
+            return RuntimeRoot(root={})
+        return RuntimeRoot(root=capture_document.root)
 
     @cached_property
     def path(self) -> Path:
@@ -144,11 +169,7 @@ class RuntimeDataStore(metaclass=Singleton):
 
     @cached_property
     def _writing_content(self) -> ContentByName:
-        path = self.path
-        if not path.exists():
-            return {}
-        data = RuntimeRoot.model_validate_json(path.read_text(encoding="utf-8"))
-        return {name: list(entries) for name, entries in data.root.items()}
+        return {name: list(entries) for name, entries in self.content_by_name.root.items()}
 
     def add_msg(self, msg: Message, from_server: bool | None, is_game_msg: bool) -> None:
         if not ENABLE_MSG_CAPTURE:
@@ -265,13 +286,15 @@ class RuntimeDataStore(metaclass=Singleton):
         if not ENABLE_MSG_CAPTURE:
             return
         with self._lock:
+            _ = self.content_by_name
             target_path = self._capture_target_path
             if target_path is None or not self._writing_content:
                 return
             if not target_path.parent.exists():
                 return
             print("writing captured info contents...")
-            runtime_root = RuntimeRoot(
+            runtime_document = RuntimeCaptureDocument(
+                schema_fingerprint=self.schema_fingerprint,
                 root={name: tuple(entries) for name, entries in self._writing_content.items()}
             )
-            target_path.write_text(runtime_root.model_dump_json(), encoding="utf-8")
+            target_path.write_text(runtime_document.model_dump_json(), encoding="utf-8")

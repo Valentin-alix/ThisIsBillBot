@@ -1,4 +1,5 @@
 ﻿import numpy as np
+import pytest
 from tests.fixtures.proto_mapper.field_builders import typed_dump_field
 from tests.fixtures.proto_mapper.matching_builders import (
     select_grouped_matches_for_test,
@@ -91,6 +92,7 @@ class TestGroupedMatching:
             workspace=workspace,
             prepared_scores=PreparedScoreData(
                 final_scores_matrix=final_scores_matrix,
+                candidate_eligibility_mask=np.ones_like(final_scores_matrix, dtype=bool),
                 structure_scores_matrix=np.array(
                     [
                         [0.90, 0.10, 0.40],
@@ -220,6 +222,7 @@ class TestGroupedMatching:
                     ]
                 ),
                 structure_scores_matrix=np.zeros((3, 3)),
+                candidate_eligibility_mask=np.ones((3, 3), dtype=bool),
                 assembly_scores_matrix=np.zeros((3, 3)),
                 runtime_confidence_by_pair={},
                 file_descriptor_similarity_by_pair={
@@ -417,6 +420,7 @@ class TestGroupedMatching:
                         [0.0, 0.40, 0.30],
                     ]
                 ),
+                candidate_eligibility_mask=np.ones((3, 3), dtype=bool),
                 assembly_scores_matrix=np.array(
                     [
                         [0.92, 0.0, 0.0],
@@ -449,8 +453,9 @@ class TestGroupedMatching:
         assert matched_obf_by_non_obf["MapComplementaryInformationEvent"] == "isu"
         assert matched_obf_by_non_obf["StatedElement"] == "obf_state"
 
-    def test_child_discovery_from_field_mapping_emits_zero_score_child(
-        self, runtime_data_store: RuntimeDataStore
+    @pytest.mark.parametrize("child_eligible", [True, False])
+    def test_child_discovery_from_field_mapping_emits_only_eligible_zero_score_child(
+        self, runtime_data_store: RuntimeDataStore, child_eligible: bool
     ) -> None:
         non_obf_root = DumpCSMessage(
             file_descriptor="group_root",
@@ -558,6 +563,7 @@ class TestGroupedMatching:
                         [0.0, 0.0],
                     ]
                 ),
+                candidate_eligibility_mask=np.array([[True, True], [True, child_eligible]]),
                 assembly_scores_matrix=np.array(
                     [
                         [0.92, 0.0],
@@ -585,10 +591,10 @@ class TestGroupedMatching:
             match.non_obf_signature.message_cls: match.obf_signature.message_cls for match in matches
         }
 
-        assert matched_obf_by_non_obf == {
-            "MapComplementaryInformationEvent": "isu",
-            "StatedElement": "obf_state",
-        }
+        expected = {"MapComplementaryInformationEvent": "isu"}
+        if child_eligible:
+            expected["StatedElement"] = "obf_state"
+        assert matched_obf_by_non_obf == expected
 
     def test_select_grouped_matches_returns_pair_specific_scores(
         self, runtime_data_store: RuntimeDataStore
@@ -660,6 +666,7 @@ class TestGroupedMatching:
             non_obf_messages_by_cls={},
         )
         prepared_scores = PreparedScoreData(
+            candidate_eligibility_mask=np.ones((3, 3), dtype=bool),
             final_scores_matrix=np.array(
                 [
                     [0.80, 0.10, 0.20],

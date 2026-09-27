@@ -17,8 +17,8 @@ from scapy.sendrecv import sniff
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(PROJECT_ROOT / "AnkamaLauncherEmulator"))
 from DBDofusUnity.proto_mapper_assembly.scripts.dump import check_updated_mapping_resources
-
 from src.consts import ENV_PATH, FILTER_DOFUS, get_connection_servers_ips
 from src.core.signals.log_signals import LogSignals
 from src.services.logging_utils.loggers import (
@@ -106,8 +106,8 @@ class Sniffer:
         if not self.msg_info_signals.capture_enabled:
             return
         try:
-            _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(content, True)
-            msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, from_server, True)
+            _, clear_sub_msg, obf_sub_msg, uid = get_game_msg(content, True, from_server=from_server)
+            msg_infos = get_game_msg_info(clear_sub_msg, obf_sub_msg, uid, from_server)
 
             self.msg_info_signals.msg_info.emit(msg_infos, False)
         except Exception:

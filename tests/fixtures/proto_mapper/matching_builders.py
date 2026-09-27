@@ -117,6 +117,7 @@ def prepared_scores_from_matrix(scores_matrix: np.ndarray) -> PreparedScoreData:
     zeros = np.zeros_like(scores_matrix)
     return PreparedScoreData(
         final_scores_matrix=scores_matrix,
+        candidate_eligibility_mask=np.ones_like(scores_matrix, dtype=bool),
         structure_scores_matrix=zeros,
         assembly_scores_matrix=zeros,
         runtime_confidence_by_pair={},
