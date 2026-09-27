@@ -9,6 +9,7 @@ from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.core.function_ins
 )
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import (
     IENUMERATOR_TYPEINFO_PREFIX,
+    IENUMERABLE_TYPEINFO_PREFIX,
     KVP_VALUE_TYPEINFO_PREFIX,
 )
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import RegisterState
@@ -69,7 +70,7 @@ def handle_typeinfo_load(
         if silent_typeinfo_lookup is not None:
             silent_typeinfo_class_name = silent_typeinfo_lookup.get(source_addr)
             if silent_typeinfo_class_name is not None:
-                if silent_typeinfo_class_name.startswith(KVP_VALUE_TYPEINFO_PREFIX):
+                if silent_typeinfo_class_name.startswith((KVP_VALUE_TYPEINFO_PREFIX, IENUMERABLE_TYPEINFO_PREFIX)):
                     reg_state[destination_operand.reg] = ("typeinfo", silent_typeinfo_class_name)
                 else:
                     reg_state[destination_operand.reg] = (

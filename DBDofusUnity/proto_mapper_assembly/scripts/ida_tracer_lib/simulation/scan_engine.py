@@ -24,6 +24,7 @@ from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.field_
     collect_instruction_field_accesses,
     dedupe_and_sort_access_entries,
 )
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.field_comparisons import track_field_comparisons
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.handlers import (
     handle_call_instruction,
     handle_lea_instruction,
@@ -345,6 +346,11 @@ def _process_instruction(
     function_scan_cache: FunctionScanCache | None = None,
 ) -> list[AccessEntry]:
     collected: list[AccessEntry] = []
+    comparison_entries = track_field_comparisons(
+        insn, ea, mnemonic, state, proto_fields_by_class_and_offset, getter_setter_lookup
+    )
+    if collect_entries:
+        collected.extend(comparison_entries)
     if collect_entries:
         collected.extend(
             collect_instruction_field_accesses(
@@ -430,6 +436,7 @@ def _process_instruction(
             getter_setter_lookup,
             ienumerator_typeinfo_lookup,
             heap_state=state.heap_state,
+            stack_state=state.stack_state,
         )
     elif mnemonic == "lea":
         state.type_guard = None
@@ -441,6 +448,7 @@ def _process_instruction(
             methodinfo_get_enumerator_lookup=methodinfo_get_enumerator_lookup,
             ienumerator_typeinfo_lookup=ienumerator_typeinfo_lookup,
             ea=ea,
+            frame_state=state.frame_state,
         )
         if collect_entries:
             collected.extend(lea_entries)

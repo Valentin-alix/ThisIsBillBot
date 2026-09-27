@@ -1,4 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.numeric_provenance import (
+    NumericFieldValue, NumericComparison,
+)
 
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.register_updates import copy_frame_state
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
@@ -25,6 +28,9 @@ class AnalysisState:
     stack_state: StackState
     heap_state: HeapState
     type_guard: TypeGuard | None = None
+    numeric_registers: dict[int, NumericFieldValue] = field(default_factory=dict[int, NumericFieldValue])
+    numeric_stack: dict[int, NumericFieldValue] = field(default_factory=dict[int, NumericFieldValue])
+    numeric_comparison: NumericComparison | None = None
 
 
 def copy_analysis_state(state: AnalysisState) -> AnalysisState:
@@ -34,6 +40,9 @@ def copy_analysis_state(state: AnalysisState) -> AnalysisState:
         stack_state=dict(state.stack_state),
         heap_state=dict(state.heap_state),
         type_guard=state.type_guard,
+        numeric_registers=dict(state.numeric_registers),
+        numeric_stack=dict(state.numeric_stack),
+        numeric_comparison=state.numeric_comparison,
     )
 
 
@@ -49,6 +58,9 @@ def analysis_state_equals(
         and left.stack_state == right.stack_state
         and left.heap_state == right.heap_state
         and left.type_guard == right.type_guard
+        and left.numeric_registers == right.numeric_registers
+        and left.numeric_stack == right.numeric_stack
+        and left.numeric_comparison == right.numeric_comparison
     )
 
 
@@ -67,6 +79,20 @@ def merge_analysis_states(states: list[AnalysisState]) -> AnalysisState:
         stack_state=merged_stack_state,
         heap_state=merged_heap_state,
         type_guard=_merge_type_guards([state.type_guard for state in states]),
+        numeric_registers={
+            key: value for key, value in states[0].numeric_registers.items()
+            if all(state.numeric_registers.get(key) == value for state in states[1:])
+        },
+        numeric_stack={
+            key: value for key, value in states[0].numeric_stack.items()
+            if _all_frame_states_equal(merged_frames)
+            and all(state.numeric_stack.get(key) == value for state in states[1:])
+        },
+        numeric_comparison=(
+            states[0].numeric_comparison
+            if all(state.numeric_comparison == states[0].numeric_comparison for state in states[1:])
+            else None
+        ),
     )
 
 

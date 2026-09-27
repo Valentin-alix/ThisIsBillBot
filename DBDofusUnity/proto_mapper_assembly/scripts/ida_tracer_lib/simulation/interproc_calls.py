@@ -1,10 +1,16 @@
+from functools import cache
+
 import idaapi
+import idautils
 
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.accessor_candidate import AccessorCandidate
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import (
     IENUMERATOR_TYPEINFO_PREFIX,
+    IENUMERABLE_TYPEINFO_PREFIX,
     IL2CPP_TYPEINFO_CAST_HELPERS,
     KVP_VALUE_TYPEINFO_PREFIX,
+    KVP_VALUE_METHODINFO_PREFIX,
+    KVP_VALUE_POINTER_OFFSET,
     R8_REG,
     R9_REG,
     RAX_REG,
@@ -18,6 +24,7 @@ from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.invalidatio
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.state.types import (
     HeapState,
     RegisterState,
+    StackState,
     TrackedValue,
 )
 
@@ -29,7 +36,18 @@ def update_register_state_for_call(
     ienumerator_typeinfo_lookup: dict[int, str] | None = None,
     *,
     heap_state: HeapState | None = None,
+    stack_state: StackState | None = None,
 ) -> None:
+    _update_kvp_value_output(reg_state, stack_state)
+    target_operand = insn.ops[0]
+    if target_operand.type == idaapi.o_reg:
+        target_value = reg_state.get(target_operand.reg)
+        if target_value is not None and target_value[0] == "pending_indirect_get_enumerator":
+            invalidate_volatile_registers(reg_state)
+            if heap_state is not None:
+                invalidate_heap_slots_for_volatile_bases(heap_state)
+            reg_state[RAX_REG] = ("repeated_enumerator", target_value[1])
+            return
     indirect_result = resolve_pending_indirect_call_target(insn, reg_state)
     if indirect_result is not None:
         indirect_cls, is_kvp = indirect_result
@@ -128,6 +146,45 @@ def resolve_inline_ienumerator_current_cls(reg_state: RegisterState) -> str | No
     return next(iter(common_classes))
 
 
+def resolve_inline_get_enumerator_cls(reg_state: RegisterState) -> str | None:
+    containers = {cls for domain, cls in reg_state.values() if domain == "repeated_container"}
+    interfaces = {
+        cls.removeprefix(IENUMERABLE_TYPEINFO_PREFIX)
+        for domain, cls in reg_state.values()
+        if domain == "typeinfo" and cls.startswith(IENUMERABLE_TYPEINFO_PREFIX)
+    }
+    common = containers & interfaces
+    return next(iter(common)) if len(common) == 1 else None
+
+
+def _update_kvp_value_output(reg_state: RegisterState, stack_state: StackState | None) -> None:
+    if stack_state is None:
+        return
+    receiver = reg_state.get(RCX_REG)
+    output = reg_state.get(RDX_REG)
+    metadata = reg_state.get(R8_REG)
+    if receiver is None or output is None or metadata is None:
+        return
+    if receiver[0] != "stack_address" or output[0] != "stack_address":
+        return
+    if metadata[0] != "methodinfo_get_enumerator" or not metadata[1].startswith(KVP_VALUE_METHODINFO_PREFIX):
+        return
+    cls = metadata[1].removeprefix(KVP_VALUE_METHODINFO_PREFIX)
+    if stack_state.get(int(receiver[1]) + KVP_VALUE_POINTER_OFFSET) == ("object", cls):
+        stack_state[int(output[1])] = ("object", cls)
+
+
+@cache
+def _invokes_interface_slot(target_addr: int) -> bool:
+    # IL2CPP dispatch wrappers invoke the resolved slot; resolution helpers only return it.
+    for ea in idautils.FuncItems(target_addr):
+        insn = idaapi.insn_t()
+        if idaapi.decode_insn(insn, ea) and insn.get_canon_mnem() in {"call", "jmp"}:
+            if insn.ops[0].type in {idaapi.o_reg, idaapi.o_phrase, idaapi.o_displ}:
+                return True
+    return False
+
+
 def resolve_inline_kvp_current_cls(reg_state: RegisterState) -> str | None:
     repeated_enumerator_classes = {
         class_name for domain, class_name in reg_state.values() if domain == "repeated_enumerator"
@@ -170,9 +227,19 @@ def _resolve_direct_call_result(
     )
     if pending_indirect_result is not None:
         pending_indirect_cls, is_kvp = pending_indirect_result
+        if _invokes_interface_slot(target_addr):
+            return ("map_kvp_output" if is_kvp else "object"), pending_indirect_cls
         if is_kvp:
             return "pending_indirect_kvp_current", pending_indirect_cls
         return "pending_indirect_current", pending_indirect_cls
+
+    enumerable_cls = resolve_inline_get_enumerator_cls(reg_state)
+    if enumerable_cls is not None and reg_state.get(RDX_REG) == (
+        "typeinfo", IENUMERABLE_TYPEINFO_PREFIX + enumerable_cls
+    ):
+        if _invokes_interface_slot(target_addr):
+            return "repeated_enumerator", enumerable_cls
+        return "pending_indirect_get_enumerator", enumerable_cls
 
     receiver_info = reg_state.get(RCX_REG)
     if receiver_info is not None and receiver_info[0] == "repeated_enumerator":
@@ -199,7 +266,7 @@ def _resolve_typeinfo_helper_cast_return(target_addr: int, reg_state: RegisterSt
     typeinfo_domain, typeinfo_cls = typeinfo_value
     if typeinfo_domain != "typeinfo":
         return None
-    if typeinfo_cls.startswith(KVP_VALUE_TYPEINFO_PREFIX):
+    if typeinfo_cls.startswith((KVP_VALUE_TYPEINFO_PREFIX, IENUMERABLE_TYPEINFO_PREFIX)):
         return None
     if typeinfo_cls.startswith(IENUMERATOR_TYPEINFO_PREFIX):
         if target_addr not in IL2CPP_TYPEINFO_CAST_HELPERS:

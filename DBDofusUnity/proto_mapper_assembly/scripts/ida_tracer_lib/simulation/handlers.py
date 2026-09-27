@@ -20,6 +20,7 @@ from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.interp
     resolve_accessor_candidate_for_call,
     resolve_inline_ienumerator_current_cls,
     resolve_inline_kvp_current_cls,
+    resolve_inline_get_enumerator_cls,
 )
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.static_loads import (
     handle_static_tracker_load,
@@ -73,15 +74,22 @@ def handle_lea_instruction(
     ea: int,
     methodinfo_get_enumerator_lookup: dict[int, str] | None = None,
     ienumerator_typeinfo_lookup: dict[int, str] | None = None,
+    frame_state: StackFrameState | None = None,
 ) -> Sequence[AccessEntry]:
     destination_operand = insn.ops[0]
     source_operand = insn.ops[1]
+    if destination_operand.type == idaapi.o_reg and frame_state is not None:
+        stack_slot = get_stack_slot(source_operand, frame_state)
+        if stack_slot is not None:
+            reg_state[destination_operand.reg] = ("stack_address", str(stack_slot))
+            return []
     resolved_methodinfo_lookup = methodinfo_get_enumerator_lookup or {}
     resolved_ienumerator_typeinfo_lookup = ienumerator_typeinfo_lookup or {}
     inline_kvp_current_cls = resolve_inline_kvp_current_cls(reg_state)
     inline_current_cls = resolve_inline_ienumerator_current_cls(reg_state)
+    inline_enumerable_cls = resolve_inline_get_enumerator_cls(reg_state)
     if (
-        (inline_kvp_current_cls is not None or inline_current_cls is not None)
+        (inline_kvp_current_cls is not None or inline_current_cls is not None or inline_enumerable_cls is not None)
         and destination_operand.type == idaapi.o_reg
         and source_operand.type == idaapi.o_displ
         and int(source_operand.addr) == IENUMERATOR_INTERFACE_SLOT_DISPLACEMENT
@@ -93,6 +101,8 @@ def handle_lea_instruction(
             )
         elif inline_current_cls is not None:
             reg_state[destination_operand.reg] = ("pending_indirect_current_base", inline_current_cls)
+        elif inline_enumerable_cls is not None:
+            reg_state[destination_operand.reg] = ("pending_indirect_get_enumerator_base", inline_enumerable_cls)
         return []
 
     if destination_operand.type == idaapi.o_reg and source_operand.type == idaapi.o_displ:
@@ -204,6 +214,12 @@ def update_register_state_for_arithmetic(
                     if heap_state is not None:
                         invalidate_heap_slots_for_register(heap_state, destination_operand.reg)
                     return
+                inline_enumerable_cls = resolve_inline_get_enumerator_cls(reg_state)
+                if inline_enumerable_cls is not None:
+                    reg_state[destination_operand.reg] = ("pending_indirect_get_enumerator_base", inline_enumerable_cls)
+                    if heap_state is not None:
+                        invalidate_heap_slots_for_register(heap_state, destination_operand.reg)
+                    return
 
         if destination_value is not None and destination_value[0] == "pending_indirect_current_base":
             reg_state[destination_operand.reg] = ("pending_indirect_current", destination_value[1])
@@ -212,6 +228,11 @@ def update_register_state_for_arithmetic(
             return
         if destination_value is not None and destination_value[0] == "pending_indirect_kvp_current_base":
             reg_state[destination_operand.reg] = ("pending_indirect_kvp_current", destination_value[1])
+            if heap_state is not None:
+                invalidate_heap_slots_for_register(heap_state, destination_operand.reg)
+            return
+        if destination_value is not None and destination_value[0] == "pending_indirect_get_enumerator_base":
+            reg_state[destination_operand.reg] = ("pending_indirect_get_enumerator", destination_value[1])
             if heap_state is not None:
                 invalidate_heap_slots_for_register(heap_state, destination_operand.reg)
             return

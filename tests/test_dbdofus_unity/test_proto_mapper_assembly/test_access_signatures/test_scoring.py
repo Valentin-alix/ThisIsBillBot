@@ -18,6 +18,7 @@ from tests.fixtures.proto_mapper.signatures import (
 )
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_comparison import FieldComparisonKey
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
 from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import (
@@ -34,6 +35,34 @@ from DBDofusUnity.proto_mapper_assembly.scoring.signature_scoring import (
 
 
 class TestFieldEvidenceSimilarity:
+    def test_comparison_context_discriminates_otherwise_identical_fields(self) -> None:
+        context = (FieldComparisonKey("eq", 42, 32, None),)
+        left = field_access_signature(accesses=[access_atom().model_copy(update={"comparisons": context})])
+        matching = field_access_signature(accesses=[access_atom().model_copy(update={"comparisons": context})])
+        different = field_access_signature(accesses=[access_atom().model_copy(update={
+            "comparisons": (FieldComparisonKey("eq", 7, 32, None),),
+        })])
+        assert field_signature_similarity(left, matching) > field_signature_similarity(left, different) > 0
+        assert left.field_similarity_key != different.field_similarity_key
+
+    def test_missing_comparison_context_keeps_original_score(self) -> None:
+        atom = access_atom(field_access_index=10)
+        contextual = atom.model_copy(update={"comparisons": (FieldComparisonKey("eq", 42, 32, None),)})
+        other = field_access_signature(accesses=[access_atom(field_access_index=20)])
+        assert field_signature_similarity(field_access_signature(accesses=[contextual]), other) == (
+            field_signature_similarity(field_access_signature(accesses=[atom]), other)
+        )
+
+    def test_comparison_context_does_not_override_incompatible_shapes(self) -> None:
+        context = (FieldComparisonKey("eq", 1, 32, None),)
+        left = field_access_signature(accesses=[access_atom(field_type_shape=NUMBER_SHAPE).model_copy(
+            update={"comparisons": context}
+        )])
+        right = field_access_signature(field_type_shape=BOOLEAN_SHAPE, accesses=[
+            access_atom(field_type_shape=BOOLEAN_SHAPE).model_copy(update={"comparisons": context})
+        ])
+        assert field_signature_similarity(left, right) == 0
+
     def test_untraced_side_scores_neutral_instead_of_zero(self) -> None:
         traced = field_access_signature(accesses=[access_atom(field_offset=24)])
         untraced = field_access_signature(field_offset=32, accesses=[], is_traced=False)

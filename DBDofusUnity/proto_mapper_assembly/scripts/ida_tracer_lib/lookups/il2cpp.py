@@ -5,6 +5,10 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.il2cpp_json import MethodInfo
 from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import split_top_level_tokens
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import resolve_message_type_name
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.signatures.type_utils import extract_generic_inner_type
+from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.simulation.constants import (
+    IENUMERABLE_TYPEINFO_PREFIX,
+    KVP_VALUE_METHODINFO_PREFIX,
+)
 
 _DOT_NET_SIG_RE = re.compile(r"^(?:(\S+)\s+)?(\S+)\(([^)]*)\)$")
 _IENUMERATOR_BACKTICK_PREFIX = "IEnumerator`1["
@@ -33,6 +37,11 @@ def build_methodinfo_get_enumerator_lookup(
         if parsed_signature is None:
             continue
         return_type, method_name = parsed_signature
+        if method_name == "get_Value":
+            resolved = resolve_message_type_name(return_type, message_type_lookup)
+            if resolved is not None and "KeyValuePair" in method_info_pointer.name:
+                result[int(method_info_pointer.virtual_address, 16)] = KVP_VALUE_METHODINFO_PREFIX + resolved
+            continue
         if method_name != "GetEnumerator":
             continue
         element_type = _extract_ienumerator_inner_type(return_type)
@@ -50,6 +59,15 @@ def build_ienumerator_typeinfo_lookup(
 ) -> dict[int, str]:
     result: dict[int, str] = {}
     for type_info_pointer in type_info_pointers:
+        enumerable_type = (
+            extract_generic_inner_type(type_info_pointer.dot_net_type, prefix="IEnumerable<", suffix=">")
+            or extract_generic_inner_type(type_info_pointer.dot_net_type, prefix="IEnumerable`1[", suffix="]")
+        )
+        if enumerable_type is not None:
+            resolved = resolve_message_type_name(enumerable_type, message_type_lookup)
+            if resolved is not None:
+                result[int(type_info_pointer.virtual_address, 16)] = IENUMERABLE_TYPEINFO_PREFIX + resolved
+            continue
         element_type = _extract_ienumerator_inner_type(type_info_pointer.dot_net_type)
         if element_type is None:
             continue

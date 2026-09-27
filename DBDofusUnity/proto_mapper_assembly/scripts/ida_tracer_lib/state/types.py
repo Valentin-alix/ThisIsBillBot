@@ -32,6 +32,9 @@ type TrackedValue = tuple[
         "pending_indirect_kvp_current_base",
         "pending_indirect_kvp_current",
         "map_kvp_output",
+        "stack_address",
+        "pending_indirect_get_enumerator_base",
+        "pending_indirect_get_enumerator",
     ],
     str,
 ]

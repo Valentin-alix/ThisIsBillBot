@@ -42,6 +42,7 @@ def resolve_move_source(
         if tracked_value is not None and tracked_value[0] in {
             "pending_indirect_current",
             "pending_indirect_kvp_current",
+            "pending_indirect_get_enumerator",
         }:
             return tracked_value
         heap_value = heap_state.get((source_operand.reg, 0))
@@ -60,7 +61,9 @@ def resolve_move_source(
         tracked_value = reg_state.get(source_operand.reg)
         if (
             tracked_value is not None
-            and tracked_value[0] in {"pending_indirect_current", "pending_indirect_kvp_current"}
+            and tracked_value[0] in {
+                "pending_indirect_current", "pending_indirect_kvp_current", "pending_indirect_get_enumerator"
+            }
             and get_displacement_value(source_operand) == 0
         ):
             return tracked_value

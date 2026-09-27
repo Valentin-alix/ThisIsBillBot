@@ -10,6 +10,7 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.counter_profile import Counte
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldTypeShape
 from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import ForeignAccessSummaryKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_comparison import FieldComparisonKey
 from DBDofusUnity.proto_mapper_assembly.scoring.primitives import (
     counter_profile_overlap_similarity,
     ratio_similarity,
@@ -88,11 +89,23 @@ def _access_atom_similarity_from_keys(left: AccessAtomKey, right: AccessAtomKey)
     if left.access_kind != right.access_kind:
         return 0.0
 
-    return ratio_similarity(
+    score = ratio_similarity(
         left.index_in_function,
         right.index_in_function,
         max_value=max(left.index_in_function, right.index_in_function),
     )
+    return _blend_comparisons(score, left.comparisons, right.comparisons)
+
+
+def _blend_comparisons(
+    score: float,
+    left: tuple[FieldComparisonKey, ...],
+    right: tuple[FieldComparisonKey, ...],
+) -> float:
+    if not left or not right:
+        return score
+    left_set, right_set = set(left), set(right)
+    return 0.9 * score + 0.1 * len(left_set & right_set) / len(left_set | right_set)
 
 
 @cache

@@ -76,7 +76,17 @@ def collect_instruction_field_accesses(
 def dedupe_and_sort_access_entries(entries: list[AccessEntry]) -> list[AccessEntry]:
     unique_entries: dict[tuple[object, ...], AccessEntry] = {}
     for entry in entries:
-        unique_entries[_access_entry_identity(entry)] = entry
+        identity = _access_entry_identity(entry)
+        previous = unique_entries.get(identity)
+        if isinstance(entry, FieldAccessEntry) and isinstance(previous, FieldAccessEntry):
+            comparisons = {
+                (comparison.similarity_key, comparison.instruction_address): comparison
+                for comparison in [*previous.comparisons, *entry.comparisons]
+            }
+            entry = entry.model_copy(update={"comparisons": sorted(
+                comparisons.values(), key=lambda comparison: (comparison.similarity_key, comparison.instruction_address)
+            )})
+        unique_entries[identity] = entry
     return sorted(unique_entries.values(), key=_access_entry_sort_key)
 
 

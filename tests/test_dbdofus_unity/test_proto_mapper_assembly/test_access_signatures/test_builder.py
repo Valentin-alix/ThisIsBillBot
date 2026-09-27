@@ -24,12 +24,27 @@ from tests.fixtures.proto_mapper.signatures import (
 from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import (
     build_message_access_signatures_by_cls,
 )
-from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import MessageAccessSignature, ReturnRole
+from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import FieldAccessEntry, MessageAccessSignature, ReturnRole
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_comparison import FieldComparison
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, FieldKey
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldTypeShape
 
 
 class TestBuildMessageAccessSignatures:
+    def test_comparison_context_survives_export_and_signature_projection(self) -> None:
+        entry = builder_field_access_entry(cls="Message")
+        entry.comparisons = [FieldComparison(
+            predicate="eq", constant=42, width=32, signed=None, instruction_address=123,
+        )]
+        exported = FieldAccessEntry.model_validate_json(entry.model_dump_json())
+        function = function_access_info(name="Consumer", access_infos=(exported,))
+        signature = build_access_signatures_for_test(function, message_classes=("Message",))["Message"]
+        expected = (entry.comparisons[0].similarity_key,)
+        assert signature.field_signatures[0].accesses_key[0].comparisons == expected
+        assert signature.function_similarity_keys[0].self_accesses[0].comparisons == expected
+        old_payload = entry.model_dump(exclude={"comparisons"})
+        assert FieldAccessEntry.model_validate(old_payload).comparisons == []
+
     def test_creates_one_projection_per_accessed_class(self) -> None:
         function = function_access_info(
             name="Mapper::Void Join(MessageA, MessageB)",

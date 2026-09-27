@@ -1,7 +1,11 @@
 import re
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.il2cpp_json import MethodDefinition
-from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import extract_repeated_inner_type, split_top_level_tokens
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import (
+    extract_map_inner_types,
+    extract_repeated_inner_type,
+    split_top_level_tokens,
+)
 from DBDofusUnity.proto_mapper_assembly.scripts.ida_tracer_lib.lookups.name_resolution import (
     normalize_message_type_name,
     resolve_message_type_name,
@@ -284,6 +288,16 @@ def _extract_proto_parameter_seeds_from_signature(
 
 
 def _extract_repeated_parameter_inner_type(type_name: str) -> str | None:
+    map_types = extract_map_inner_types(type_name)
+    if map_types is not None:
+        return map_types[1]
+    if type_name.startswith("MapField`2[") and type_name.endswith("]"):
+        arguments = split_top_level_tokens(type_name[len("MapField`2[") : -1])
+        return arguments[1] if len(arguments) == 2 else None
+    for prefix, suffix in (("IEnumerable`1[", "]"), ("IEnumerable<", ">")):
+        inner = extract_generic_inner_type(type_name.strip(), prefix=prefix, suffix=suffix)
+        if inner is not None:
+            return inner
     repeated_inner_type = extract_repeated_inner_type(type_name)
     if repeated_inner_type is not None:
         return repeated_inner_type

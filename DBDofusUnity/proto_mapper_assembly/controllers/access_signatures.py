@@ -299,6 +299,7 @@ def _build_access_atom_signature(
             field_type_shape=resolved_field.field_type_shape,
             field_offset=resolved_field.memory_offset,
             index_in_function=access.index_in_function,
+            comparisons=tuple(sorted({comparison.similarity_key for comparison in access.comparisons})),
         )
     return AccessAtomSignature(
         entry_type="typeinfo",

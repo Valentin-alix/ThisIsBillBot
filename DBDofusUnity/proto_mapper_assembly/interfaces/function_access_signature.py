@@ -4,6 +4,7 @@ from functools import cached_property
 from typing import Literal, NamedTuple
 
 from pydantic import BaseModel
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_comparison import FieldComparisonKey
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import (
     CompactFieldTypeShape,
@@ -50,6 +51,7 @@ class AccessAtomKey(NamedTuple):
     field_type_shape: FieldTypeShape | None
     field_offset: int | None
     index_in_function: int
+    comparisons: tuple[FieldComparisonKey, ...] = ()
 
 
 type AccessAtomSequenceKey = tuple[AccessAtomKey, ...]
@@ -74,6 +76,7 @@ class AccessAtomSignature(BaseModel):
     field_type_shape: CompactFieldTypeShape | None = None
     field_offset: int | None = None
     index_in_function: int
+    comparisons: tuple[FieldComparisonKey, ...] = ()
 
     @cached_property
     def similarity_key(self) -> AccessAtomKey:
@@ -83,6 +86,7 @@ class AccessAtomSignature(BaseModel):
             field_type_shape=self.field_type_shape,
             field_offset=self.field_offset,
             index_in_function=self.index_in_function,
+            comparisons=self.comparisons,
         )
 
 
@@ -116,6 +120,7 @@ class FunctionAccessSignature(BaseModel):
                 field_type_shape=access.field_type_shape,
                 field_offset=access.field_offset,
                 index_in_function=access.index_in_function,
+                comparisons=access.comparisons,
             )
             for access in ordered
         )

@@ -5,6 +5,7 @@ from typing import Literal, NamedTuple, TypeGuard, override
 from pydantic import BaseModel, RootModel, model_validator
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.counter_profile import CounterProfile
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_comparison import FieldComparison
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import (
     DumpCSMessage,
     DumpCSMessageField,
@@ -46,6 +47,7 @@ class FieldAccessEntry(BaseModel):
     field_offset: int | None
     index_in_function: int
     instruction_address: int
+    comparisons: list[FieldComparison] = []
 
     @model_validator(mode="after")
     def validate_access_identity(self) -> "FieldAccessEntry":
@@ -242,6 +244,7 @@ class FieldAccessSignatures(BaseModel):
                     field_type_shape=access.field_type_shape,
                     index_in_function=access.index_in_function,
                     field_offset=access.field_offset,
+                    comparisons=access.comparisons,
                 )
                 for access in ordered
             )
