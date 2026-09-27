@@ -28,6 +28,7 @@ from DBDofusUnity.proto_mapper_assembly.scoring.signature_scoring import (
     _access_atom_similarity_from_keys,
     access_atom_sequence_similarity,
     field_evidence_similarity,
+    field_access_multiset_similarity,
     field_signature_similarity,
 )
 
@@ -97,6 +98,35 @@ class TestAssemblyAccessSimilarity:
             )
             == 0.0
         )
+
+    def test_field_access_multiset_similarity_matches_compatible_accesses_before_positions(self) -> None:
+        left = field_access_signature(
+            accesses=[
+                access_atom(access_kind="write", field_access_index=178),
+                access_atom(access_kind="read", field_access_index=183),
+                access_atom(access_kind="write", field_access_index=238),
+            ]
+        )
+        right = field_access_signature(
+            accesses=[
+                access_atom(access_kind="read", field_access_index=183),
+                access_atom(access_kind="write", field_access_index=207),
+                access_atom(access_kind="write", field_access_index=238),
+            ]
+        )
+
+        assert field_access_multiset_similarity(left.accesses_key, right.accesses_key) > 0.9
+        assert field_signature_similarity(left, right) > 0.9
+
+    def test_field_access_multiset_similarity_penalizes_unmatched_access_kinds(self) -> None:
+        left = field_access_signature(
+            accesses=[access_atom(access_kind="read", field_access_index=10)]
+        )
+        right = field_access_signature(
+            accesses=[access_atom(access_kind="write", field_access_index=10)]
+        )
+
+        assert field_access_multiset_similarity(left.accesses_key, right.accesses_key) == 0.0
 
     def test_field_signature_similarity_tolerates_offset_drift_when_access_shape_matches(self) -> None:
         left = field_access_signature(

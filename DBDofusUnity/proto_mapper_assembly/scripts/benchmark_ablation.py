@@ -4,9 +4,15 @@ from collections.abc import Iterator
 from contextlib import ExitStack, contextmanager
 from unittest.mock import patch
 
+import numpy as np
+
 from DBDofusUnity.proto_mapper_assembly.field_mapping import field_mapping_scoring
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
+from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_order import CaptureOrderIndex
 from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import FunctionSimilarityKey
-from DBDofusUnity.proto_mapper_assembly.matching import score_preparation
+from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
+from DBDofusUnity.proto_mapper_assembly.matching import score_constraints, score_preparation
+from DBDofusUnity.proto_mapper_assembly.matching.iterative_store import IterativeMatchingStore
 from DBDofusUnity.proto_mapper_assembly.scoring import enum_similarity, message_scoring, signature_scoring
 from DBDofusUnity.proto_mapper_assembly.scoring.primitives import (
     counter_profile_overlap_similarity,
@@ -25,6 +31,8 @@ ABLATION_SIGNALS = (
     "file_descriptor",
     "validation_bonus",
     "runtime_alive_bonus",
+    "oneof_partition_penalty",
+    "capture_sequence_order",
 )
 
 
@@ -61,6 +69,12 @@ def ablate_signals(disabled: frozenset[str]) -> Iterator[None]:
         ):
             if name in disabled:
                 stack.enter_context(patch.object(module, attribute, 0.0))
+        if "oneof_partition_penalty" in disabled:
+            stack.enter_context(patch.object(message_scoring, "_ONEOF_PARTITION_MISMATCH_FLOOR", 1.0))
+        if "capture_sequence_order" in disabled:
+            stack.enter_context(
+                patch.object(score_constraints, "apply_capture_sequence_order_scores", _skip_capture_order_scores)
+            )
         yield
 
 
@@ -87,3 +101,14 @@ def _score_function(
         score += 0.05 * ratio_similarity(left.size, right.size, max_value=max(left.size, right.size))
         weight += 0.05
     return score / weight
+
+
+def _skip_capture_order_scores(
+    *,
+    workspace: MatchingWorkspace,
+    scores_matrix: np.ndarray,
+    matching_store: IterativeMatchingStore,
+    capture_order_index: CaptureOrderIndex,
+    capture_sequence_hints_config: CaptureSequenceHintsConfig,
+) -> None:
+    del workspace, scores_matrix, matching_store, capture_order_index, capture_sequence_hints_config

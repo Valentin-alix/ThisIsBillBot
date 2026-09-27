@@ -2,6 +2,7 @@ import pytest
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import ReturnRole
 from DBDofusUnity.proto_mapper_assembly.scoring import enum_similarity, message_scoring, signature_scoring
+from DBDofusUnity.proto_mapper_assembly.matching import score_constraints
 from DBDofusUnity.proto_mapper_assembly.scripts.benchmark_ablation import ablate_signals
 from tests.fixtures.proto_mapper.signatures import builder_function_access_signature
 
@@ -27,3 +28,17 @@ def test_ablation_rejects_unknown_signal() -> None:
     with pytest.raises(ValueError, match="Unknown ablation"):
         with ablate_signals(frozenset(("typo",))):
             pytest.fail("Invalid experiments must not run")
+
+
+def test_oneof_penalty_ablation_removes_only_partition_factor() -> None:
+    original_floor = message_scoring._ONEOF_PARTITION_MISMATCH_FLOOR
+    with ablate_signals(frozenset(("oneof_partition_penalty",))):
+        assert message_scoring._ONEOF_PARTITION_MISMATCH_FLOOR == 1.0
+    assert message_scoring._ONEOF_PARTITION_MISMATCH_FLOOR == original_floor
+
+
+def test_capture_order_ablation_disables_constraint_hook_and_restores_it() -> None:
+    original = score_constraints.apply_capture_sequence_order_scores
+    with ablate_signals(frozenset(("capture_sequence_order",))):
+        assert score_constraints.apply_capture_sequence_order_scores is not original
+    assert score_constraints.apply_capture_sequence_order_scores is original

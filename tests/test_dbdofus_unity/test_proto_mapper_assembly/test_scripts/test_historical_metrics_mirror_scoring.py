@@ -23,7 +23,7 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
 from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import FunctionSimilarityKey
 from DBDofusUnity.proto_mapper_assembly.scoring import message_scoring, signature_scoring
 from DBDofusUnity.proto_mapper_assembly.scripts.audit_historical_assembly_metrics import (
-    _field_access_sequence_indexed_similarity,
+    _field_access_compatible_position_multiset_similarity,
     _function_access_sequence_indexed_similarity,
     _structure_declared_shape_similarity,
     _structure_oneof_partition_similarity,
@@ -138,11 +138,11 @@ class TestMetricsMirrorTheScoringModule(unittest.TestCase):
                         left, right
                     ) == message_scoring._oneof_partition_similarity(left, right)
 
-    def test_field_access_sequence_metric_matches_the_scoring_module(self) -> None:
+    def test_field_access_compatible_position_metric_matches_the_scoring_module(self) -> None:
         for left in _field_signatures():
             for right in _field_signatures():
                 with self.subTest(left=left.field_key, right=right.field_key):
-                    assert _field_access_sequence_indexed_similarity(
+                    assert _field_access_compatible_position_multiset_similarity(
                         left, right
                     ) == signature_scoring.field_signature_similarity(left, right)
 

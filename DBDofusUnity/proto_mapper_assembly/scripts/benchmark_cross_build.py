@@ -231,6 +231,11 @@ def _build_argument_parser() -> argparse.ArgumentParser:
         help="Run with pinned_pairs.json applied, to sanity-check the harness itself.",
     )
     current_mode.add_argument(
+        "--leave-one-pin-out",
+        action="store_true",
+        help="Run once per manual pin with that pair withheld, then check whether the matcher recovers it.",
+    )
+    current_mode.add_argument(
         "--signature-overrides",
         type=Path,
         default=None,
@@ -251,6 +256,9 @@ def _build_argument_parser() -> argparse.ArgumentParser:
 
 
 def _run_current_build_benchmark(arguments: argparse.Namespace) -> None:
+    if arguments.leave_one_pin_out:
+        _run_leave_one_pin_out(arguments)
+        return
     report = run_benchmark(
         use_pinned_pairs=bool(arguments.with_pins),
         signature_overrides_path=arguments.signature_overrides,
@@ -265,6 +273,44 @@ def _run_current_build_benchmark(arguments: argparse.Namespace) -> None:
     payload["without"] = cast(list[str], arguments.without)
     json_path.write_text(f"{json.dumps(payload, indent=2)}\n", encoding="utf-8")
     print(f"Written to {json_path}")
+
+
+def _run_leave_one_pin_out(arguments: argparse.Namespace) -> None:
+    pins = load_pinned_pairs(PINNED_PAIRS_FILE)
+    if not pins.pairs:
+        raise SystemExit("leave-one-pin-out requires at least one pinned pair")
+    outcomes: list[dict[str, object]] = []
+    print("Leave-one-pin-out: all pins except the held-out pair remain active.\n")
+    for held_out in pins.pairs:
+        report = run_benchmark(
+            use_pinned_pairs=True,
+            signature_overrides_path=arguments.signature_overrides,
+            reference_path=arguments.reference,
+            excluded_pin_non_obf=held_out.non_obf,
+        )
+        outcome = next(
+            item for item in report.pin_outcomes
+            if _normalize_name(item.non_obf_key) == _normalize_name(held_out.non_obf)
+        )
+        outcomes.append(
+            {
+                "non_obf": held_out.non_obf,
+                "expected_obf": held_out.obf,
+                "actual_obf": outcome.actual_obf,
+                "recovered": outcome.is_recovered,
+                "elapsed_seconds": report.elapsed_seconds,
+            }
+        )
+        status = "OK" if outcome.is_recovered else "MISS"
+        print(f"[{status}] {held_out.non_obf}: expected={held_out.obf} got={outcome.actual_obf}")
+    recovered = sum(bool(outcome["recovered"]) for outcome in outcomes)
+    print(f"\nLeave-one-pin-out recovered: {recovered}/{len(outcomes)}")
+    if arguments.json is not None:
+        arguments.json.write_text(
+            json.dumps({"without": arguments.without, "leave_one_pin_out": outcomes}, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(f"Written to {arguments.json}")
 
 
 def _resolve_build_dirs(*, snapshots_root: Path, requested: list[str] | None) -> list[Path]:
@@ -677,6 +723,7 @@ class BenchmarkReport:
 def run_benchmark(
     *, use_pinned_pairs: bool, signature_overrides_path: Path | None = None,
     reference_path: Path = GAME_MAPPINGS_DETAILED_JSON_FILE,
+    excluded_pin_non_obf: str | None = None,
 ) -> BenchmarkReport:
     started = perf_counter()
     reference_document = GameMappingsDocument.model_validate_json(reference_path.read_text(encoding="utf-8"))
@@ -700,11 +747,12 @@ def run_benchmark(
         capture_sequence_hints=load_capture_sequence_hints(CAPTURE_SEQUENCE_HINTS_FILE),
         non_obf_messages_by_cls={**non_obf_messages_by_cls, **bootstrap_messages_by_cls},
     )
+    matcher_pins = _pins_for_run(resolved_pinned_pairs, excluded_pin_non_obf)
     matches = match_messages(
         inputs=matching_inputs,
         run_config=MatchingRunConfig(
             runtime_data_store=RuntimeDataStore(),
-            pinned_pairs_config=resolved_pinned_pairs if use_pinned_pairs else PinnedPairsConfig(pairs=[]),
+            pinned_pairs_config=matcher_pins if use_pinned_pairs else PinnedPairsConfig(pairs=[]),
             capture_sequence_hints_config=capture_sequence_hints,
         ),
     )
@@ -718,6 +766,14 @@ def run_benchmark(
         candidate_document=candidate_document,
         pinned_pairs=resolved_pinned_pairs,
         elapsed_seconds=perf_counter() - started,
+    )
+
+
+def _pins_for_run(pins: PinnedPairsConfig, excluded_non_obf: str | None) -> PinnedPairsConfig:
+    if excluded_non_obf is None:
+        return pins
+    return PinnedPairsConfig(
+        pairs=[pair for pair in pins.pairs if _normalize_name(pair.non_obf) != _normalize_name(excluded_non_obf)]
     )
 
 

@@ -51,7 +51,10 @@ from DBDofusUnity.proto_mapper_assembly.scoring.primitives import (
     get_average_best_similarity_sequences,
     ratio_similarity,
 )
-from DBDofusUnity.proto_mapper_assembly.scoring.signature_scoring import access_atom_sequence_similarity
+from DBDofusUnity.proto_mapper_assembly.scoring.signature_scoring import (
+    access_atom_sequence_similarity,
+    field_access_multiset_similarity,
+)
 
 _WORKING_SET_VERSION_ID = "working_set"
 _MINIMUM_SNAPSHOT_COUNT = 2
@@ -602,6 +605,9 @@ def _build_message_metrics(
         "field_access_sequence_indexed": lambda left, right: _average_field_metric(
             left, right, _field_access_sequence_indexed_similarity
         ),
+        "field_access_compatible_position_multiset": lambda left, right: _average_field_metric(
+            left, right, _field_access_compatible_position_multiset_similarity
+        ),
         "field_access_sequence_order": lambda left, right: _average_field_metric(
             left, right, _field_access_sequence_order_similarity
         ),
@@ -748,6 +754,15 @@ def _field_access_sequence_indexed_similarity(
     if left.field_type_shape != right.field_type_shape:
         return 0.0
     return access_atom_sequence_similarity(left.accesses_key, right.accesses_key)
+
+
+def _field_access_compatible_position_multiset_similarity(
+    left: FieldAccessSignatures,
+    right: FieldAccessSignatures,
+) -> float:
+    if left.field_type_shape != right.field_type_shape:
+        return 0.0
+    return field_access_multiset_similarity(left.accesses_key, right.accesses_key)
 
 
 def _field_access_sequence_order_similarity(

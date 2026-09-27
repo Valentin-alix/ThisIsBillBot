@@ -19,6 +19,22 @@
     {
       "obf": "iir",
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Fight.Preparation.FightPreparationEnterRequest"
+    },
+    {
+      "obf": "klz",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Contact.ContactLookRequest"
+    },
+    {
+      "obf": "kll",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Contact.ContactWarnOnPermanentDeathSetRequest"
+    },
+    {
+      "obf": "ksi",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Character.Management.CharacterForceSelectionEvent"
+    },
+    {
+      "obf": "ktc",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Character.Management.CharacterForceSelectionReadyRequest"
     }
   ]
 }

@@ -1,4 +1,5 @@
-from collections.abc import Sequence, Set as AbstractSet
+from collections.abc import Sequence
+from collections.abc import Set as AbstractSet
 from dataclasses import dataclass
 
 import numpy as np
@@ -8,10 +9,6 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import Messag
 from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorkspace
 from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
 
-_MIN_MATCH_MARGIN = 0.05
-"""Require a margin: ambiguous assignments can silently map messages to the wrong schema."""
-
-_MIN_UNIQUE_MUTUAL_BEST_SCORE = 0.70
 _GLOBAL_ASSIGNMENT_BATCH_SIZE = 64
 
 
@@ -71,20 +68,8 @@ def select_signature_pairs(
         scores_matrix=submatrix,
         assigned_positions=assigned_positions,
     )
-    eligible_positions = [
-        positions
-        for positions in assigned_positions
-        if assignment_margin_by_position[positions] >= _MIN_MATCH_MARGIN
-        or _is_unique_mutual_best(
-            scores_matrix=submatrix,
-            row_position=positions[0],
-            col_position=positions[1],
-        )
-        or workspace.obf_signatures[int(col_indices[positions[1]])].message_cls
-        in pinned_pairs_config.pinned_pair_msg_by_obf
-    ]
     ranked_positions = sorted(
-        eligible_positions,
+        assigned_positions,
         key=lambda positions: (
             assignment_margin_by_position[positions],
             float(submatrix[positions]),
@@ -105,29 +90,6 @@ def select_signature_pairs(
             pinned_pairs_config=pinned_pairs_config,
         )
         for row_position, col_position in ranked_positions[:_GLOBAL_ASSIGNMENT_BATCH_SIZE]
-    )
-
-
-def _is_unique_mutual_best(
-    *,
-    scores_matrix: np.ndarray,
-    row_position: int,
-    col_position: int,
-) -> bool:
-    candidate_score = float(scores_matrix[row_position, col_position])
-    if (
-        candidate_score < _MIN_UNIQUE_MUTUAL_BEST_SCORE
-        or scores_matrix.shape[0] < 2
-        or scores_matrix.shape[1] < 2
-    ):
-        return False
-    row_scores = scores_matrix[row_position]
-    col_scores = scores_matrix[:, col_position]
-    return (
-        np.isclose(candidate_score, row_scores.max())
-        and np.count_nonzero(np.isclose(row_scores, candidate_score)) == 1
-        and np.isclose(candidate_score, col_scores.max())
-        and np.count_nonzero(np.isclose(col_scores, candidate_score)) == 1
     )
 
 

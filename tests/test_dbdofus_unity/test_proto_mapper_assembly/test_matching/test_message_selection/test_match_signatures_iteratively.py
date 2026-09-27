@@ -48,7 +48,7 @@ class TestMatchSignaturesIteratively:
         assert selected_pair.non_obf_signature is clear_beta
         assert selected_pair.obf_signature is obf_gamma
 
-    def test_ambiguous_competitors_are_left_unmatched(self) -> None:
+    def test_ambiguous_assignment_is_kept_with_its_low_margin(self) -> None:
         obf_alpha = simple_signature("obf_alpha")
         obf_beta = simple_signature("obf_beta")
         clear_alpha = simple_signature("ClearAlpha")
@@ -68,7 +68,10 @@ class TestMatchSignaturesIteratively:
             pinned_pairs_config=build_verified_mapping(),
         )
 
-        assert selected_pair is None
+        assert selected_pair is not None
+        assert selected_pair.non_obf_signature is clear_alpha
+        assert selected_pair.obf_signature is obf_alpha
+        assert selected_pair.match_margin == pytest.approx(0.02)
 
     def test_global_assignment_avoids_greedy_pairing_trap(self) -> None:
         obf_alpha = simple_signature("obf_alpha")
@@ -120,7 +123,7 @@ class TestMatchSignaturesIteratively:
         assert selected_pair.non_obf_signature is clear_alpha
         assert selected_pair.obf_signature is obf_alpha
 
-    def test_symmetric_assignment_remains_unmatched(self) -> None:
+    def test_symmetric_assignment_is_kept_with_zero_margin(self) -> None:
         obf_alpha = simple_signature("obf_alpha")
         obf_beta = simple_signature("obf_beta")
         clear_alpha = simple_signature("ClearAlpha")
@@ -141,7 +144,8 @@ class TestMatchSignaturesIteratively:
             pinned_pairs_config=build_verified_mapping(),
         )
 
-        assert selected_pair is None
+        assert selected_pair is not None
+        assert selected_pair.match_margin == 0.0
 
     @pytest.mark.parametrize(
         ("scores_matrix", "matching_store", "score_by_pair"),

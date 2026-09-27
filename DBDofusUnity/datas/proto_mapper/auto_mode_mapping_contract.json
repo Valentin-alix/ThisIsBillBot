@@ -803,13 +803,6 @@
       ]
     },
     {
-      "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapChangeOrientationEvent",
-      "fields": [
-        "actor_id",
-        "direction"
-      ]
-    },
-    {
       "message": ".com.ankama.dofus.server.game.protocol.gamemap.MapChangeRequest",
       "fields": [
         "auto_pilot",
@@ -1183,33 +1176,12 @@
       ]
     },
     {
-      "message": ".com.ankama.dofus.server.game.protocol.admin.console.ConsoleCommand"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.arena.ArenaFightAnswerRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.arena.ArenaModesStatusRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.arena.ArenaRegisterRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.breeding.MountBoostRequest"
-    },
-    {
       "message": ".com.ankama.dofus.server.game.protocol.common.Character"
     },
     {
       "message": ".com.ankama.dofus.server.game.protocol.common.PlayerSearch",
       "fields": [
         "search_by_character_name"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.contact.IgnoreRequest",
-      "fields": [
-        "player_search"
       ]
     },
     {
@@ -1228,63 +1200,6 @@
       ]
     },
     {
-      "message": ".com.ankama.dofus.server.game.protocol.guild.information.GuildInvitationAnswerRequest",
-      "fields": [
-        "accepted"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.guild.information.GuildInvitedEvent",
-      "fields": [
-        "recruiter_name"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.player_info.PlayerInfoRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.preset.CharacterPresetResetRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.preset.PresetDeleteRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.preset.PresetEquipmentUpdateRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.preset.PresetOutfitUpdateRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.preset.PresetRenameRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.preset.PresetSaveRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.preset.PresetSetFavoriteRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.preset.PresetSymbolUpdateRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.preset.PresetUseRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.roleplay.PlayerFightFriendlyAnswerRequest",
-      "fields": [
-        "accept",
-        "fight_id"
-      ]
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.roleplay.PlayerFightFriendlyRequestedEvent",
-      "fields": [
-        "fight_id",
-        "source_id",
-        "target_id"
-      ]
-    },
-    {
       "message": ".com.ankama.dofus.server.game.protocol.spell.SpellItem",
       "fields": [
         "spell_id",
@@ -1292,16 +1207,19 @@
       ]
     },
     {
-      "message": ".com.ankama.dofus.server.game.protocol.tag.storage.AddTagStorageRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.tag.storage.RemoveTagStorageRequest"
-    },
-    {
-      "message": ".com.ankama.dofus.server.game.protocol.tag.storage.UpdateTagStorageContentRequest"
-    },
-    {
       "message": ".com.ankama.dofus.server.game.protocol.teleportation.TeleportDestinationsEvent"
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.account.AccountInformationUpdateEvent"
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.GameMessage"
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.PlayerStatusUpdateRequest"
+    },
+    {
+      "message": ".com.ankama.dofus.server.game.protocol.character.PlayerStatusUpdatedEvent"
     }
   ]
 }

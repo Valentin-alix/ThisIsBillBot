@@ -1,20 +1,20 @@
 from collections import Counter
 
-from utils.cache import cache
-
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     AccessAtomKey,
     AccessAtomSequenceKey,
     FieldAccessSignatures,
     FunctionSimilarityKey,
 )
-from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
 from DBDofusUnity.proto_mapper_assembly.interfaces.counter_profile import CounterProfile
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldTypeShape
 from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import ForeignAccessSummaryKey
 from DBDofusUnity.proto_mapper_assembly.scoring.primitives import (
     counter_profile_overlap_similarity,
     ratio_similarity,
 )
+from utils.cache import cache
 
 
 def function_similarity_from_keys(
@@ -96,10 +96,39 @@ def _access_atom_similarity_from_keys(left: AccessAtomKey, right: AccessAtomKey)
 
 
 @cache
+def field_access_multiset_similarity(left: AccessAtomSequenceKey, right: AccessAtomSequenceKey) -> float:
+    if not left and not right:
+        return 1.0
+    if not left or not right:
+        return 0.0
+
+    left_by_kind: dict[tuple[str, FieldTypeShape | None, str], list[AccessAtomKey]] = {}
+    right_by_kind: dict[tuple[str, FieldTypeShape | None, str], list[AccessAtomKey]] = {}
+    for accesses, grouped in ((left, left_by_kind), (right, right_by_kind)):
+        for access in accesses:
+            key = (access.entry_type, access.field_type_shape, access.access_kind)
+            grouped.setdefault(key, []).append(access)
+
+    total_similarity = 0.0
+    for key in left_by_kind.keys() | right_by_kind.keys():
+        left_group = sorted(left_by_kind.get(key, ()), key=lambda access: access.index_in_function)
+        right_group = sorted(right_by_kind.get(key, ()), key=lambda access: access.index_in_function)
+        shared_length = min(len(left_group), len(right_group))
+        total_similarity += sum(
+            _access_atom_similarity_from_keys(left_access, right_access)
+            for left_access, right_access in zip(
+                left_group[:shared_length], right_group[:shared_length], strict=True
+            )
+        )
+
+    return total_similarity / max(len(left), len(right))
+
+
+@cache
 def field_signature_similarity(left: FieldAccessSignatures, right: FieldAccessSignatures) -> float:
     if left.field_type_shape != right.field_type_shape:
         return 0
-    return access_atom_sequence_similarity(left.accesses_key, right.accesses_key)
+    return field_access_multiset_similarity(left.accesses_key, right.accesses_key)
 
 
 _UNTRACED_FIELD_SIMILARITY = 0.65
