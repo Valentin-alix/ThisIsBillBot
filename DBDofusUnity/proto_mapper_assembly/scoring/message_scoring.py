@@ -121,11 +121,13 @@ class MessageSimilarityScoreData:
 class StructureHardening:
     declared_shape_score: float
     oneof_factor: float
+    live_alignment_weight: float = _STRUCTURE_LIVE_ALIGNMENT_WEIGHT
+    declared_shape_weight: float = _STRUCTURE_DECLARED_SHAPE_WEIGHT
 
     def apply(self, raw_structure: float) -> float:
         blended = (
-            _STRUCTURE_LIVE_ALIGNMENT_WEIGHT * raw_structure
-            + _STRUCTURE_DECLARED_SHAPE_WEIGHT * self.declared_shape_score
+            self.live_alignment_weight * raw_structure
+            + self.declared_shape_weight * self.declared_shape_score
         )
         return blended * self.oneof_factor
 

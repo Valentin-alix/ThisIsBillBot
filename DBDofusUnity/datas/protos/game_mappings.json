@@ -221,9 +221,9 @@
     "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.achievement.AchievementsPioneerRanksResponse": {
-    "obf_msg_namespace": "jxc",
+    "obf_msg_namespace": "mdv",
     "field_mapping": {
-      "fwif": "achievements_pioneer_ranks"
+      "gfbn": "achievements_pioneer_ranks"
     }
   },
   ".com.ankama.dofus.server.game.protocol.achievement.AchievementsPioneerRanksResponse.AchievementPioneerRank": {
@@ -1735,8 +1735,12 @@
     "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.character.UpdateLifePointsEvent": {
-    "obf_msg_namespace": "krs",
-    "field_mapping": {}
+    "obf_msg_namespace": "krk",
+    "field_mapping": {
+      "fzgr": "life_points",
+      "fzgs": "max_life_points",
+      "fzgt": "life_points_gained"
+    }
   },
   ".com.ankama.dofus.server.game.protocol.character.management.CanCharacterBeCreatedResultEvent": {
     "obf_msg_namespace": "iwr",
@@ -4033,7 +4037,7 @@
     }
   },
   ".com.ankama.dofus.server.game.protocol.contact.IgnoreEvent.Success": {
-    "obf_msg_namespace": "jvi",
+    "obf_msg_namespace": "lwl",
     "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.contact.IgnoreRequest": {
@@ -4075,7 +4079,7 @@
     "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.contact.UnIgnoreEvent.Success": {
-    "obf_msg_namespace": "lwl",
+    "obf_msg_namespace": "kgi",
     "field_mapping": {}
   },
   ".com.ankama.dofus.server.game.protocol.contact.UnIgnoreRequest": {
@@ -5591,9 +5595,9 @@
     }
   },
   ".com.ankama.dofus.server.game.protocol.fight.FightResume": {
-    "obf_msg_namespace": "juh",
+    "obf_msg_namespace": "jxc",
     "field_mapping": {
-      "fvtf": "fighter_resume_infos"
+      "fwif": "fighter_resume_infos"
     }
   },
   ".com.ankama.dofus.server.game.protocol.fight.FightScenarioEvent": {
@@ -5623,8 +5627,7 @@
       "fvwx": "master_id",
       "fvwy": "slave_spells",
       "fvwz": "context_entries",
-      "fvxa": "spell_modifiers",
-      "fvxb": "slave_id"
+      "fvxa": "spell_modifiers"
     }
   },
   ".com.ankama.dofus.server.game.protocol.fight.FightStatisticsEvent": {

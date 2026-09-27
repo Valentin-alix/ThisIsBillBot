@@ -1,4 +1,5 @@
 from collections.abc import Mapping, Sequence
+from dataclasses import replace
 from typing import NamedTuple
 
 import numpy as np
@@ -87,6 +88,14 @@ def build_static_score_data(
             if non_obf_signature.dump_cs_msg.is_root_msg != obf_signature.dump_cs_msg.is_root_msg:
                 continue
             hardening = build_structure_hardening(obf_signature, non_obf_signature)
+            if (
+                obf_gate_inputs.observed_instance is not None
+                and obf_gate_inputs.observed_instance.is_root_msg
+                and obf_gate_inputs.observed_instance.from_server is True
+                and obf_signature.evidence_coverage == 0.0
+                and obf_signature.declared_shape_counter == non_obf_signature.declared_shape_counter
+            ):
+                hardening = replace(hardening, live_alignment_weight=0.0, declared_shape_weight=1.0)
 
             structure_similarity = hardening.apply(shallow_structure_score(obf_signature, non_obf_signature))
             if structure_similarity < _MIN_STRUCTURE_SIMILARITY and not is_pinned_obf:
