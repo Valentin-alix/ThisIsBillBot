@@ -41,7 +41,7 @@ def test_exchange_pods_constraints_accept_only_valid_weights(
     )
     problem = pulp.LpProblem("exchange_pods")
     variables = {
-        (i, j): pulp.LpVariable(f"x_{i}_{j}", cat="Binary") for i in range(2) for j in range(2)
+        (i, j): problem.add_variable(f"x_{i}_{j}", cat="Binary") for i in range(2) for j in range(2)
     }
     build_ilp_validator_constraints(
         group=group,

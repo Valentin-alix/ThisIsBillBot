@@ -1,9 +1,9 @@
 """
-Replay past game updates and score the matcher against the messages the bot actually used.
+Replay past game updates and score the matcher against the current auto-mode requirements.
 
 The default ``--mode cross-build`` replays each archived build with no pins and no overrides, and
-scores it against the mapping and the ``MSG_TO_MAP`` list of its own era -- the pairs someone
-actually relied on, and so the only ones known to be right.
+scores the archived mapping against the messages required by the current auto-mode mapping
+contract. The same required message set is used for every build.
 
 The obfuscated side comes from the archived build, the non-obfuscated side from the current
 reference: a game update replaces the former and not the latter.
@@ -19,7 +19,6 @@ ground truth, and it needs no archived build.
 
 import argparse
 import json
-import re
 import subprocess
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
@@ -405,7 +404,6 @@ def _replay_era(
     outcomes = _score_pins(candidate_document_root=candidate_document.root, era_pins=era_pins)
     bot_outcomes = _score_bot_used_messages(
         candidate_document_root=candidate_document.root,
-        era_commit=era_commit,
         build_dir=build_dir,
     )
     replay = EraReplay(
@@ -463,11 +461,10 @@ def _export_era_overrides(
 def _score_bot_used_messages(
     *,
     candidate_document_root: Mapping[str, GameMappingEntry],
-    era_commit: str,
     build_dir: Path,
 ) -> "list[PinOutcome]":
-    """Grade only era-specific MSG_TO_MAP entries; unused mappings are not verified ground truth."""
-    bot_message_names = _load_bot_used_message_names(era_commit)
+    """Grade archived mappings for messages required by the current auto-mode contract."""
+    bot_message_names = _load_bot_used_message_names()
     reference = SimpleGameMappingsDocument.model_validate_json(
         (build_dir / GAME_MAPPINGS_RELATIVE_PATH).read_bytes()
     ).root
@@ -487,12 +484,9 @@ def _score_bot_used_messages(
     return outcomes
 
 
-def _load_bot_used_message_names(commit: str) -> frozenset[str]:
-    source = _read_blob(commit=commit, repo_path=Path("consts.py")).decode("utf-8", errors="replace")
-    block = re.search(r"^MSG_TO_MAP.*?=\s*\[(.*?)^\]", source, re.DOTALL | re.MULTILINE)
-    if block is None:
-        raise ValueError(f"{commit}: MSG_TO_MAP could not be read; refusing an empty benchmark")
-    return frozenset(re.findall(r'"([^"]+)"', block.group(1)))
+def _load_bot_used_message_names() -> frozenset[str]:
+    contract = load_auto_mode_mapping_contract(AUTO_MODE_MAPPING_CONTRACT_FILE)
+    return frozenset(requirement.message.rsplit(".", 1)[-1] for requirement in contract.messages)
 
 
 def _resolve_era_pins(
@@ -608,7 +602,7 @@ def _print_override_report(comparisons: list["OverrideComparison"]) -> None:
 
 
 def _print_report(replays: list[EraReplay]) -> None:
-    print("\nbot-used messages: the verified set. Everything else in a mapping file is unconfirmed.")
+    print("\nRequired messages from the current auto-mode contract; references are archived mappings.")
     print("\n| build | era | bot msgs | correct | wrong | unmapped | ratio | pins | recovered |")
     print("|---|---|---:|---:|---:|---:|---:|---:|---:|")
     for replay in replays:

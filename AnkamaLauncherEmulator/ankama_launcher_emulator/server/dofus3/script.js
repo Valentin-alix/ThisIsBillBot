@@ -10,7 +10,7 @@ recv(function (message) {
 
 
 function hookConnect(proxyPort, proxyIp) {
-    const connectPtr = Module.getExportByName("ws2_32.dll", "connect");
+    const connectPtr = Process.getModuleByName("ws2_32.dll").getExportByName("connect");
 
     Interceptor.attach(connectPtr, {
         onEnter(args) {

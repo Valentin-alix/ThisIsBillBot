@@ -4,7 +4,6 @@ from pathlib import Path
 from contextlib import ExitStack
 
 import frida
-import frida.core
 
 from ankama_launcher_emulator.consts import LAUNCHER_PORT
 from ankama_launcher_emulator.interfaces.game import GameNameEnum
@@ -70,7 +69,7 @@ def launch_dofus_exe(
 def load_frida_script(
     pid: int,
     port: int,
-    device: frida.core.Device,
+    device: frida.Device,
     resume: bool = False,
 ) -> None:
     hook_path = Path(__file__).parent / "script.js"

@@ -1,4 +1,5 @@
 import importlib.util
+import subprocess
 import sys
 from pathlib import Path
 from unittest.mock import Mock, call, patch
@@ -17,6 +18,27 @@ from src.services import install_validation
 from src.services.background import Worker
 from utils.env_config import get_bool_from_env
 from utils.local_json import read_local_model
+
+
+@pytest.mark.parametrize("platform", ["linux", "darwin"])
+@pytest.mark.parametrize("package", ["src", "DBDofusUnity", "ankama_launcher_emulator"])
+def test_packages_reject_non_windows_before_loading_dependencies(platform: str, package: str) -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys; sys.path.insert(0, 'AnkamaLauncherEmulator'); "
+            "sys.platform = sys.argv[1]; __import__(sys.argv[2])",
+            platform,
+            package,
+        ],
+        cwd=Path(__file__).parents[1],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "RuntimeError: This program requires Windows." in result.stderr
 
 
 def test_non_windows_entrypoint_does_not_load_application(monkeypatch: pytest.MonkeyPatch) -> None:

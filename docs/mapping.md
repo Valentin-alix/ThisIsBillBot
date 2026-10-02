@@ -185,8 +185,8 @@ fail instead of disappearing from the comparison.
 
 Compare exact message and field outcomes per build, not just totals. The current
 report includes the automatic-mode contract's required fields. Historical field
-outcomes conservatively include every recorded field of the messages listed in
-that era's `MSG_TO_MAP`; they do not prove which fields or nested messages the bot
+outcomes conservatively include every recorded field of the messages required by
+the current automatic-mode contract; they do not prove which fields or nested messages the bot
 actually exercised. Inspect nested dependencies before accepting a removal.
 
 Field outcomes identify their reference as `pin`, `generated`, or

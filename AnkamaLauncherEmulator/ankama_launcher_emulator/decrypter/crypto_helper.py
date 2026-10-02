@@ -106,7 +106,7 @@ class CryptoHelper:
     def createHmEncoders() -> tuple[str, str]:
         arch = Device.getArch()
         plt = Device.getPlatform()
-        machine_id = Device.getMachineId(plt, arch)
+        machine_id = Device.getMachineId(arch)
         username = Device.getUsername()
         os_version = Device.getOsVersion()
         ram = Device.getComputerRam()

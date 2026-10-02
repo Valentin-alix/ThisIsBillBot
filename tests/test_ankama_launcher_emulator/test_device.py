@@ -24,9 +24,6 @@ class TestDevice(TestCase):
             sys.modules.pop(module_name, None)
             device_module = importlib.import_module(module_name)
             with (
-                patch.object(device_module.psutil, "WINDOWS", True),
-                patch.object(device_module.psutil, "LINUX", False),
-                patch.object(device_module.psutil, "MACOS", False),
                 patch.object(device_module, "wmi", wmi_module),
                 patch.object(device_module, "pythoncom", pythoncom_module),
             ):

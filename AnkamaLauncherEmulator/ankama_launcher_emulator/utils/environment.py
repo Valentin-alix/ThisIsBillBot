@@ -27,27 +27,10 @@ def resolve_dofus_path() -> str:
     return str(executable)
 
 
-def _get_zaap_path() -> Path:
-    if os.name == "nt":
-        appdata = os.environ.get("APPDATA")
-        if appdata:
-            return Path(appdata) / "zaap"
-    config_home = os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
-    return Path(config_home) / "zaap"
-
-
-ZAAP_PATH = _get_zaap_path()
+APPDATA = Path(os.environ["APPDATA"])
+ZAAP_PATH = APPDATA / "zaap"
 RELEASE_JSON_PATH = os.path.join(ZAAP_PATH, "repositories", "production", "dofus", "dofus3", "release.json")
 
 
-def _get_app_config_dir() -> Path:
-    if os.name == "nt":
-        appdata = os.environ.get("APPDATA")
-        if appdata:
-            return Path(appdata) / "AnkamaLauncherEmulator"
-    config_home = os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
-    return Path(config_home) / "AnkamaLauncherEmulator"
-
-
-app_config_dir = _get_app_config_dir()
+app_config_dir = APPDATA / "AnkamaLauncherEmulator"
 os.makedirs(app_config_dir, exist_ok=True)

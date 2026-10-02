@@ -1,5 +1,4 @@
 import os
-import platform
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -15,12 +14,6 @@ IDA_TRACER_TYPINGS: Path = PROJECT_ROOT / "proto_mapper_assembly" / "scripts" / 
 
 if not IS_PACKAGED:
     load_dotenv(ENV_PATH)
-
-
-def _default_standalone_bundle_folder() -> str:
-    if platform.system() == "Windows":
-        return "StandaloneWindows64"
-    return "StandaloneLinux64"
 
 
 _REQUIRED_GAME_TOOLCHAIN_VARIABLES = ("OBF_GAME_DIR", "NON_OBF_GAME_DIR", "PROTOC_PATH", "IDA_EXE")
@@ -59,7 +52,7 @@ UABEA_PATH_EXE: Path = get_path_from_env(
 )
 PATH_STANDALONE_BUNDLES: Path = get_path_from_env(
     "PATH_STANDALONE_BUNDLES",
-    DOFUS_ASSETS_FOLDER / "aa" / _default_standalone_bundle_folder(),
+    DOFUS_ASSETS_FOLDER / "aa" / "StandaloneWindows64",
 )
 PATH_MAPS: Path = DOFUS_CONTENT_FOLDER / "Map" / "Data"
 PATH_DATAS: Path = DOFUS_CONTENT_FOLDER / "Data"
@@ -117,218 +110,5 @@ NON_OBF_SIGNATURE_OVERRIDES_FILE: Path = NON_OBFUSCATED_DATA_DIR / "messages_acc
 OBF_PROTOCOL_GAME_DUMP_CS_FILE: Path = OBFUSCATED_DATA_DIR / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
 NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE: Path = NON_OBFUSCATED_DATA_DIR / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
 
-MSG_TO_MAP: list[str] = [
-    # MITM essentiel : socle de session, récolte, combat, déplacement et unload.
-    "GameMessage",
-    "Request",
-    "CharacterSelectionEvent",
-    "JobExperiencesUpdateEvent",
-    "ZaapKnownListEvent",
-    "CharacterLevelUpEvent",
-    "CharacterCharacteristicUpgradeRequest",
-    "PlayerStatusUpdateRequest",
-    "PlayerStatusUpdatedEvent",
-
-    # Map et déplacement.
-    "MapCurrentEvent",
-    "MapComplementaryInformationEvent",
-    "MapMovementRequest",
-    "MapMovementEvent",
-    "MapMovementConfirmRequest",
-    "MapMovementConfirmResponse",
-    "MapMovementRefusedEvent",
-    "MapChangeRequest",
-    "MapTeleportOnSameEvent",
-
-    # Combat.
-    "FightMapInformationEvent",
-    "FightPlacementPossiblePositionsEvent",
-    "FightRefreshCharacterStatsEvent",
-    "AttackMonsterRequest",
-    "EntitiesDispositionEvent",
-    "GameActionAcknowledgementRequest",
-    "GameActionFightCastRequest",
-    "GameActionFightEvent",
-    "SequenceEndEvent",
-    "FightPlacementPositionRequest",
-    "FightReadyRequest",
-    "ChallengeModSelectRequest",
-    "FightTurnFinishRequest",
-    "FightSynchronizeEvent",
-    "FightFighterShowEvent",
-    "FightFighterRefreshEvent",
-
-    # Inventaire et stockage (unload).
-    "CharacterCharacteristicsEvent",
-    "SpellsEvent",
-    "InventoryContentEvent",
-    "InventoryWeightEvent",
-    "ObjectAddedEvent",
-    "ObjectQuantityEvent",
-    "ExchangeStartedWithStorageEvent",
-    "StorageInventoryContentEvent",
-    "ExchangeStartedWithMultiTabStorageEvent",
-    "ExchangeObjectMoveRequest",
-    "ExchangeMoveKamaRequest",
-    "GuildChestCurrentListenersAddEvent",
-    "GuildChestTabSelectRequest",
-
-    # Interactions et dialogues.
-    "InteractiveElementUpdatedEvent",
-    "StatedElementUpdatedEvent",
-    "InteractiveUseRequest",
-    "InteractiveUsedEvent",
-    "InteractiveUseErrorEvent",
-    "NpcGenericActionRequest",
-    "NpcDialogQuestionEvent",
-    "NpcDialogReplyRequest",
-    "GuideModQuitRequest",
-    "HavenBagEnterRequest",
-    "TeleportRequest",
-    "DialogLeaveRequest",
-    "ObjectUseRequest",
-
-    # Guilde.
-    "GuildMembershipEvent",
-
-    # Vente en hôtel de vente.
-    "ExchangeBidSellerStartedEvent",
-    "ExchangeBidHouseItemAddedEvent",
-    "ExchangeBidHouseItemRemovedEvent",
-    "ExchangeBidPriceEvent",
-    "ObjectAveragePricesEvent",
-    "ExchangeBidHouseSearchRequest",
-    "ExchangeBidHousePriceRequest",
-    "ExchangeObjectMovePricedRequest",
-    "ExchangeObjectModifyPricedRequest",
-
-    # Craft.
-    "ExchangeCraftStartedEvent",
-    "ExchangeSetCraftRecipeRequest",
-    "ExchangeCraftCountRequest",
-    "ExchangeCraftCountModifiedEvent",
-
-    # Autres échanges et informations générales.
-    "ExchangeLeaveEvent",
-    "ExchangePlayerRequest",
-    "ExchangeRequestedTradeEvent",
-    "ExchangeAcceptRequest",
-    "ExchangeStartedWithPodsEvent",
-    "ExchangeObjectsAddedEvent",
-    "ExchangeKamaModifiedEvent",
-    "ExchangeReadyEvent",
-    "ExchangeReadyRequest",
-    "TextInformationEvent",
-
-    # Session, connexion directe et vérification client.
-    "AuthenticationTicketAcceptedEvent",
-    "BasicLatencyStatsEvent",
-    "BasicLatencyStatsRequest",
-    "ClientChallengeInitRequest",
-    "ClientChallengeProofRequest",
-    "ClientIdRequest",
-    "DateRequest",
-    "IdentificationRequest",
-    "PingRequest",
-    "PongEvent",
-    "SequenceNumberEvent",
-    "SequenceNumberRequest",
-    "ServerChallengeEvent",
-    "ServerMaintenanceInformationRequest",
-    "ServerSessionReadyEvent",
-    "ServerVerificationEvent",
-    "SubscribeMultipleChannelRequest",
-
-    # Création et sélection de personnage.
-    "CharacterCreationRequest",
-    "CharacterFirstSelectionRequest",
-    "CharacterForceSelectionEvent",
-    "CharacterForceSelectionReadyRequest",
-    "CharacterListEvent",
-    "CharacterListRequest",
-    "CharacterNameSuggestionEvent",
-    "CharacterNameSuggestionRequest",
-    "CharacterSelectionRequest",
-
-    # Contexte, carte et interactifs.
-    "AnomalySubareaInformationRequest",
-    "ContextCreationEvent",
-    "ContextCreationRequest",
-    "ContextReadyRequest",
-    "ContextRemoveElementEvent",
-    "ContextRemoveElementsEvent",
-    "GameRolePlayShowActorsEvent",
-    "InteractiveMapUpdateEvent",
-    "MapInformationRequest",
-    "MapMovementCancelRequest",
-    "MapObstacleUpdateEvent",
-    "StatedMapUpdateEvent",
-
-    # Combat et sorts.
-    "ChallengeBonusChoiceRequest",
-    "ChallengeProposalEvent",
-    "ChallengeReadyRequest",
-    "ChallengeSelectionRequest",
-    "FightIsTurnReadyEvent",
-    "FightPreparationEnterRequest",
-    "FightTurnEvent",
-    "FightTurnReadyRequest",
-    "FightTurnStartPlayingEvent",
-    "SequenceStartEvent",
-    "SpellVariantActivationEvent",
-
-    # Inventaire, équipement et stockage.
-    "KamasUpdateEvent",
-    "MultiTabStorageEvent",
-    "ObjectDeletedEvent",
-    "ObjectModifiedEvent",
-    "ObjectMovementEvent",
-    "ObjectSetPositionRequest",
-    "ObjectsAddedEvent",
-    "ObjectsDeletedEvent",
-    "ObjectsQuantityEvent",
-    "StorageKamasUpdateEvent",
-    "StorageObjectRemovedEvent",
-    "StorageObjectUpdateEvent",
-    "StorageObjectsRemovedEvent",
-    "StorageObjectsUpdateEvent",
-
-    # Achat en hôtel de vente et transferts.
-    "ExchangeBidBuyerStartedEvent",
-    "ExchangeBidHouseBuyRequest",
-    "ExchangeBidHouseBuyResultEvent",
-    "ExchangeBidHouseTypeRequest",
-    "ExchangeObjectTransferAllFromInventoryRequest",
-    "ExchangeTypesExchangerDescriptionForUserEvent",
-    "ExchangeTypesItemsExchangerDescriptionForUserEvent",
-    "ObjectAveragePricesRequest",
-
-    # Dialogues, invitations et contacts.
-    "AcquaintanceListRequest",
-    "ChatCommunityChannelSetCommunityRequest",
-    "ContactLookRequest",
-    "ContactWarnOnAchievementCompleteSetRequest",
-    "ContactWarnOnPermanentDeathSetRequest",
-    "DialogLeaveEvent",
-    "FriendListRequest",
-    "FriendSetStatusShareRequest",
-    "FriendSetWarnOnLevelGainRequest",
-    "GuildInformationRequest",
-    "GuildMemberWarnOnConnectionStartRequest",
-    "SpouseInformationRequest",
-    "TeleportDestinationsEvent",
-
-    # Abonnement et boutique.
-    "AccountInformationUpdateEvent",
-    "BakActionEvent",
-    "BakActionRequest",
-    "BakApiKeyEvent",
-    "BakApiTokenRequest",
-    "BakBuyValidationEvent",
-    "BakShopTokenEvent",
-    "BakShopTokenRequest",
-    "BakTransactionValidationEvent",
-    "BakTransactionValidationRequest",
-]
 GAME_ASSEMBLY_MARKER_NAME = ".last_dumped_game_assembly_mtime"
 DUMP_CS_MARKER_NAME = ".last_dumped_protocol_cs_hash"

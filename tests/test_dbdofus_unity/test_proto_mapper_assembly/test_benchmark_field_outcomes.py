@@ -56,3 +56,27 @@ def test_required_fields_detect_wrong_message_and_missing_reference(
 def test_missing_message_is_not_a_correct_field_match() -> None:
     outcome = benchmark.FieldOutcome(".Clear", "value", "a", None, "x", None, "pin")
     assert outcome.status == "unmapped"
+
+
+def test_archived_benchmark_uses_current_contract(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    contract_path = tmp_path / "contract.json"
+    contract_path.write_text(
+        '{"version":3,"thresholds":{"message_score":0.5,"match_margin":0.05,"field_score":0.5},'
+        '"messages":[{"message":".protocol.Required"}]}',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(benchmark, "AUTO_MODE_MAPPING_CONTRACT_FILE", contract_path)
+    reference_path = tmp_path / benchmark.GAME_MAPPINGS_RELATIVE_PATH
+    reference_path.parent.mkdir(parents=True, exist_ok=True)
+    reference_path.write_text(
+        '{".protocol.Required":{"obf_msg_namespace":"old","field_mapping":{}},'
+        '".protocol.Unused":{"obf_msg_namespace":"other","field_mapping":{}}}',
+        encoding="utf-8",
+    )
+    outcomes = benchmark._score_bot_used_messages(candidate_document_root={}, build_dir=tmp_path)
+
+    assert [(outcome.non_obf_key, outcome.expected_obf, outcome.actual_obf) for outcome in outcomes] == [
+        (".protocol.Required", "old", None)
+    ]

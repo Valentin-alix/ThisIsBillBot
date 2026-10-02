@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import platform
 import subprocess
 from collections.abc import Callable
 from typing import Literal
@@ -28,7 +27,7 @@ def cytrus_get_latest_version(game: Game, release: Release) -> str:
             "--release",
             release,
             "--platform",
-            platform.system().lower(),
+            "windows",
         ],
         capture_output=True,
         text=True,

@@ -1,5 +1,3 @@
-from typing import Protocol
-
 import numpy as np
 import pulp
 
@@ -14,16 +12,8 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import Prepared
 from DBDofusUnity.proto_mapper_assembly.interfaces.runtime_data import NormalizedRuntimeInstance
 
 
-class _LpProblemProto(LpConstrainable, Protocol):
-    objective: pulp.LpAffineExpression | None
-    def solve(self, _solver: object = None, /) -> int: ...
-
-    @property
-    def status(self) -> int: ...
-
-
-def _solve_mapping_problem(problem: _LpProblemProto) -> int:
-    return problem.solve(pulp.PULP_CBC_CMD(msg=False))
+def _solve_mapping_problem(problem: pulp.LpProblem) -> pulp.LpSolveStats:
+    return problem.solve(pulp.COIN_CMD(msg=False))
 
 
 def solve_field_mapping_ilp(
@@ -39,10 +29,12 @@ def solve_field_mapping_ilp(
     rows = len(non_obf_fields)
     cols = len(obf_fields)
 
-    mapping_problem: _LpProblemProto = pulp.LpProblem("field_mapping", pulp.LpMaximize)
+    mapping_problem = pulp.LpProblem("field_mapping", pulp.LpMaximize)
 
     lp_variable_by_idxs: dict[tuple[int, int], pulp.LpVariable] = {
-        (i, j): pulp.LpVariable(f"x_{i}_{j}", cat="Binary") for i in range(rows) for j in range(cols)
+        (i, j): mapping_problem.add_variable(f"x_{i}_{j}", cat="Binary")
+        for i in range(rows)
+        for j in range(cols)
     }
 
     _set_objective(
@@ -64,9 +56,9 @@ def solve_field_mapping_ilp(
         problem=mapping_problem,
     )
 
-    status = _solve_mapping_problem(mapping_problem)
+    stats = _solve_mapping_problem(mapping_problem)
 
-    if status != pulp.LpStatusOptimal:
+    if stats.status != pulp.LpSolveStatus.Optimal:
         return None
 
     non_obf_idxs: list[int] = []
@@ -83,7 +75,7 @@ def solve_field_mapping_ilp(
 
 def _set_objective(
     *,
-    problem: _LpProblemProto,
+    problem: pulp.LpProblem,
     lp_variable_by_idxs: dict[tuple[int, int], pulp.LpVariable],
     similarity_matrix: np.ndarray,
     rows: int,
@@ -97,7 +89,7 @@ def _set_objective(
 
 def _add_bipartite_constraints(
     *,
-    problem: _LpProblemProto,
+    problem: pulp.LpProblem,
     lp_variable_by_idxs: dict[tuple[int, int], pulp.LpVariable],
     rows: int,
     cols: int,

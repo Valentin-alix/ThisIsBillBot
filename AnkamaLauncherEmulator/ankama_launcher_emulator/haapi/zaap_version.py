@@ -40,11 +40,7 @@ def _get_zaap_data_path() -> str:
     configured_path = get_optional_path("ZAAP_PATH")
     if configured_path is not None:
         return str(configured_path)
-    appdata = os.environ.get("APPDATA")
-    if appdata:
-        return os.path.join(appdata, "zaap")
-    config_home = os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
-    return os.path.join(config_home, "zaap")
+    return os.path.join(os.environ["APPDATA"], "zaap")
 
 
 def get_client_version() -> str:
