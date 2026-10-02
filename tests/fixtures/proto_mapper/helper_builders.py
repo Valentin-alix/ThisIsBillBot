@@ -202,7 +202,7 @@ def pinned_resolve_error_case(kind: Literal["unknown", "ambiguous"]) -> PinnedRe
                 fields=[number_field("types_")],
             )
             return PinnedResolveErrorCase(
-                PinnedPairsConfig(pairs=[PinnedPair(obf="xyz", non_obf="Outer.Inner")]),
+                PinnedPairsConfig(pairs=[PinnedPair(obf="xyz", non_obf="Inner")]),
                 {},
                 message_lookup(outer, direct_child, types, types_child),
                 "Ambiguous non-obf message alias",

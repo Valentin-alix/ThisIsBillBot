@@ -16,10 +16,6 @@ from src.utils.runtime_support import RuntimeSetupError, error_message
 logger = logging.getLogger(__name__)
 
 
-def _create_runtime(shared_signals: SharedSignals, enable_account_scheduler: bool) -> BotManager:
-    return BotManager(shared_signals=shared_signals, enable_account_scheduler=enable_account_scheduler)
-
-
 def _start_bots(bot_manager: BotManager, enable_automatic_schedules: bool) -> None:
     if not enable_automatic_schedules:
         return
@@ -68,7 +64,10 @@ def run_gui(application_argv: list[str], enable_automatic_schedules: bool) -> in
     def start_runtime() -> None:
         nonlocal bot_manager, cease_running, startup_failed
         try:
-            bot_manager = _create_runtime(shared_signals, enable_account_scheduler=enable_automatic_schedules)
+            bot_manager = BotManager(
+                shared_signals=shared_signals,
+                enable_account_scheduler=enable_automatic_schedules,
+            )
             main_window.activity_page.restore_account_requested.connect(
                 bot_manager.restore_account_from_quarantine
             )

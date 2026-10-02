@@ -20,9 +20,7 @@ class TimingProfile:
 
 
 REACTION_SHORT_TIMING = TimingProfile(0.2, 0.45, 1.1)
-DECISION_NORMAL_TIMING = TimingProfile(0.35, 0.75, 1.8)
 MAP_ARRIVAL_TIMING = TimingProfile(0.45, 0.9, 3.9)
-HARVEST_REPEAT_TIMING = TimingProfile(0.25, 0.5, 1.2)
 BANK_REVIEW_TIMING = TimingProfile(0.5, 1.0, 2.3)
 BANK_TRANSFER_TIMING = TimingProfile(0.2, 0.45, 1.0)
 BANK_CLOSE_TIMING = TimingProfile(0.4, 0.8, 1.8)

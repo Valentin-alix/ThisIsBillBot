@@ -10,18 +10,19 @@ from PyQt6.QtWidgets import (
     QGraphicsLineItem,
     QGraphicsRectItem,
     QGraphicsScene,
+    QGraphicsTextItem,
     QGraphicsView,
     QStyleOptionGraphicsItem,
     QWidget,
 )
 
 from src.core.signals.world_signals import WorldSignals
-from src.gui.components.graphics.graphic_text import TEXT_SIZE, GraphicText
 from src.gui.utils.profiling import profiled_slot
 
 type Coord = tuple[int, int]
 type RGBColor = tuple[int, int, int]
 
+TEXT_SIZE = 9
 CELL_SIZE: int = 50
 LIMIT_GRID = 8
 MAX_PATH_EDGES = 500
@@ -97,7 +98,6 @@ class CurrMapInfo:
 class MapWorldView(QGraphicsView):
     def __init__(self, world_signals: WorldSignals | None = None, debug: bool = False) -> None:
         super().__init__()
-        self.is_curr_map_visible: bool = False
         self.debug = debug
         self.world_signals = world_signals
         self.curr_map_info: CurrMapInfo | None = None
@@ -170,7 +170,7 @@ class MapWorldView(QGraphicsView):
             self._scene.addItem(square)
 
             if self.debug:
-                text = GraphicText(text=f"{coord[0]},{coord[1]}")
+                text = QGraphicsTextItem(f"{coord[0]},{coord[1]}")
                 text.setPos(x, y)
                 text.setZValue(2)
                 self._scene.addItem(text)

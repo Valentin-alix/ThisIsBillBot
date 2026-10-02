@@ -4,12 +4,6 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from threading import Thread
 
-from psutil import CONN_LISTEN, NoSuchProcess, Process, net_connections
-
-from thrift.protocol import TBinaryProtocol
-from thrift.server import TServer
-from thrift.transport import TSocket, TTransport
-
 from ankama_launcher_emulator.consts import LAUNCHER_PORT
 from ankama_launcher_emulator.decrypter.crypto_helper import (
     CryptoHelper,
@@ -22,13 +16,17 @@ from ankama_launcher_emulator.installation.dofus3 import (
 from ankama_launcher_emulator.interfaces.account_session import (
     AccountGameInfo,
 )
-from ankama_launcher_emulator.proxy.dofus3.proxy_listener import (
+from ankama_launcher_emulator.proxy.proxy_listener import (
     ProxyListener,
 )
 from ankama_launcher_emulator.server.dofus3.launch import launch_dofus_exe
 from ankama_launcher_emulator.server.handler import (
     AnkamaLauncherHandler,
 )
+from psutil import CONN_LISTEN, NoSuchProcess, Process, net_connections
+from thrift.protocol import TBinaryProtocol
+from thrift.server import TServer
+from thrift.transport import TSocket, TTransport
 
 logger = logging.getLogger()
 

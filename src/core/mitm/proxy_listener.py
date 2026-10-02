@@ -3,8 +3,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from socket import socket as Socket
 
-from ankama_launcher_emulator.proxy.dofus3.proxy import Proxy
-from ankama_launcher_emulator.proxy.dofus3.proxy_listener import (
+from ankama_launcher_emulator.proxy.proxy import Proxy
+from ankama_launcher_emulator.proxy.proxy_listener import (
     ProxyListener as BaseProxyListener,
 )
 

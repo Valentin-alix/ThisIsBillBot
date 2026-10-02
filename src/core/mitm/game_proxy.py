@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ankama_launcher_emulator.proxy.dofus3.proxy import (
+from ankama_launcher_emulator.proxy.proxy import (
     Proxy,
     WorkerAction,
 )

@@ -282,10 +282,6 @@ class MessageAccessSignature(BaseModel):
         return self.dump_cs_msg.__hash__()
 
     @cached_property
-    def field_signature_keys(self) -> tuple[FieldAccessSignatureKey, ...]:
-        return tuple(signature.field_similarity_key for signature in self.field_signatures)
-
-    @cached_property
     def function_similarity_keys(self) -> tuple[FunctionSimilarityKey, ...]:
         # Deduplicate IL2CPP aliases in stable order: set iteration would change assignment tie-breaks.
         return tuple(dict.fromkeys(sig.similarity_key for sig in self.function_signatures))

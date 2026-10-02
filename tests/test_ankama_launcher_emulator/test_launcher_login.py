@@ -5,7 +5,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import requests
 from ankama_launcher_emulator.exceptions import ProxyRejectedError
 from ankama_launcher_emulator.haapi import haapi as haapi_module
-from ankama_launcher_emulator.interfaces.credentials import DecipheredCertif
 from ankama_launcher_emulator.interfaces.local_storage import BotRecord
 from ankama_launcher_emulator.interfaces.oauth_api import TokenResponse
 from ankama_launcher_emulator.web._client.mail_providers.base import (
@@ -24,15 +23,6 @@ from tests.fixtures.launcher import (
     FakeBrowserContext,
     FakeMailProvider,
 )
-
-
-def _make_haapi(certif: DecipheredCertif | None = None) -> MagicMock:
-    haapi = MagicMock()
-    haapi.get_security_code.return_value = "test.com"
-    payload = certif or DecipheredCertif(id=7, encodedCertificate="AB", login="x@y.z")
-    haapi.validate_code.return_value = payload
-    haapi.validate_otp.return_value = payload
-    return haapi
 
 
 class _FakeRefreshApiKeySession:

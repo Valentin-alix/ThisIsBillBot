@@ -28,3 +28,10 @@ jobs:
         run: uv run pyright
       - name: Test
         run: uv run pytest tests
+
+  release:
+    needs: verify
+    if: github.event_name == 'push'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/release.yml

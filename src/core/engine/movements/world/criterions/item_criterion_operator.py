@@ -8,8 +8,6 @@ class ItemCriterionOperator:
     INFERIOR: ClassVar[str] = "<"
     EQUAL: ClassVar[str] = "="
     DIFFERENT: ClassVar[str] = "!"
-    EQUIPPED: ClassVar[str] = "E"
-    NOT_EQUIPPED: ClassVar[str] = "X"
     OPERATORS_LIST: ClassVar[list[str]] = [
         SUPERIOR,
         INFERIOR,
@@ -31,14 +29,6 @@ class ItemCriterionOperator:
 
     @property
     def text(self) -> str:
-        return self.operator
-
-    @property
-    def html_text(self) -> str:
-        if self.operator == self.SUPERIOR:
-            return "&gt"
-        if self.operator == self.INFERIOR:
-            return "&lt"
         return self.operator
 
     def compare(self, left_member_value: float, right_member_value: float) -> bool:

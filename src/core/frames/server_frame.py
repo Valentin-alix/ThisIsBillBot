@@ -14,8 +14,6 @@ from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
 from src.core.config import OCCUPIED_MESSAGE_ID, OCCUPIED_STUCK_LIMIT
 from src.core.frames.frame import Frame
 
-INTERVAL_HANDSHAKE = 10
-
 
 @dataclass
 class ServerFrame(Frame):

@@ -42,12 +42,10 @@ class CollectBehavior(Behavior):
 
     excluded_element_ids: set[int] = field(init=False, default_factory=set[int])
     target_resource_item_ids: set[int] | None = field(init=False, default=None)
-    collects_done: int = field(init=False, default=0)
 
     def run(self, target_resource_item_ids: set[int] | None = None) -> None:
         self.excluded_element_ids.clear()
         self.target_resource_item_ids = target_resource_item_ids
-        self.collects_done = 0
         self.is_first_action = True
         self.is_first_collect = True
         self.collect_map()
@@ -131,7 +129,6 @@ class CollectBehavior(Behavior):
         self.unregister_listener(
             StatedElementUpdatedEvent, reason="Element state confirmed, proceeding with next collection"
         )
-        self.collects_done += 1
         if random.random() < BETWEEN_COLLECT_PAUSE_PROBABILITY:
             pause_time = HumanTimingsService().get_timing_between_collects()
             self.logger.debug(f"Taking a short break: {pause_time:.1f}s")

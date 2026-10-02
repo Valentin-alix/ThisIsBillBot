@@ -1,7 +1,10 @@
 import json
+import logging
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
+
+import pytest
 
 from ankama_launcher_emulator.controller import bot_storage, zaap_import
 from ankama_launcher_emulator.decrypter import crypto_helper as crypto_module
@@ -80,4 +83,78 @@ def test_skips_keydata_without_matching_user_account(tmp_path: Path) -> None:
 
 def test_missing_zaap_directory_is_a_noop(tmp_path: Path) -> None:
     with patch.object(zaap_import, "ZAAP_PATH", tmp_path / "does-not-exist"):
+        zaap_import.import_zaap_accounts()
+
+
+def test_invalid_account_entry_does_not_block_valid_account(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture,
+) -> None:
+    zaap_path = tmp_path / "zaap"
+    _write_zaap_files(zaap_path, "user@example.com", 42)
+    settings_path = zaap_path / "Settings"
+    settings: dict[str, list[dict[str, Any]]] = json.loads(settings_path.read_text(encoding="utf-8"))
+    settings["USER_ACCOUNTS"].insert(0, {"id": "invalid"})
+    settings_path.write_text(json.dumps(settings), encoding="utf-8")
+
+    with (
+        patch.object(zaap_import, "ZAAP_PATH", zaap_path),
+        patch.object(crypto_module.Device, "getUUID", return_value=_UUID),
+        caplog.at_level(logging.WARNING, logger=zaap_import.__name__),
+    ):
+        zaap_import.import_zaap_accounts()
+
+    assert bot_storage.BotStorageController().get_record("user@example.com") is not None
+    assert "Skipping unparsable zaap USER_ACCOUNTS entry" in caplog.text
+
+
+@pytest.mark.parametrize(
+    "keydata",
+    [
+        "missing-separator",
+        "invalid|hex",
+        "00|00",
+        "00" * 16 + "|" + "00" * 16,
+        CryptoHelper.encrypt("invalid api key schema", _UUID),
+    ],
+)
+def test_invalid_keydata_is_skipped(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture, keydata: str,
+) -> None:
+    zaap_path = tmp_path / "zaap"
+    _write_zaap_files(zaap_path, "user@example.com", 42)
+    (zaap_path / "keydata" / ".keydata42").write_text(keydata, encoding="utf-8")
+
+    with (
+        patch.object(zaap_import, "ZAAP_PATH", zaap_path),
+        patch.object(crypto_module.Device, "getUUID", return_value=_UUID),
+        caplog.at_level(logging.WARNING, logger=zaap_import.__name__),
+    ):
+        zaap_import.import_zaap_accounts()
+
+    assert bot_storage.BotStorageController().get_record("user@example.com") is None
+    assert "Failed to decrypt zaap keydata file .keydata42" in caplog.text
+
+
+def test_internal_account_validation_error_propagates(tmp_path: Path) -> None:
+    zaap_path = tmp_path / "zaap"
+    _write_zaap_files(zaap_path, "user@example.com", 42)
+
+    with (
+        patch.object(zaap_import, "ZAAP_PATH", zaap_path),
+        patch.object(zaap_import.UserAccount, "model_validate", side_effect=TypeError("validation bug")),
+        pytest.raises(TypeError, match="validation bug"),
+    ):
+        zaap_import.import_zaap_accounts()
+
+
+def test_internal_decryption_error_propagates(tmp_path: Path) -> None:
+    zaap_path = tmp_path / "zaap"
+    _write_zaap_files(zaap_path, "user@example.com", 42)
+
+    with (
+        patch.object(zaap_import, "ZAAP_PATH", zaap_path),
+        patch.object(crypto_module.Device, "getUUID", return_value=_UUID),
+        patch.object(CryptoHelper, "decrypt", side_effect=RuntimeError("decryption bug")),
+        pytest.raises(RuntimeError, match="decryption bug"),
+    ):
         zaap_import.import_zaap_accounts()

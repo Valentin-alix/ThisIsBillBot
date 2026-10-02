@@ -7,8 +7,7 @@ from threading import Lock, Thread
 from time import sleep
 
 import socks
-
-from ankama_launcher_emulator.proxy.dofus3.proxy import Proxy
+from ankama_launcher_emulator.proxy.proxy import Proxy
 from ankama_launcher_emulator.utils.proxy import get_info_by_proxy_url
 
 logger = logging.getLogger()

@@ -3,15 +3,15 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import cast
 
-from google.protobuf.message import Message
-
 from ankama_launcher_emulator.controller.subscription_expiration import (
     SubscriptionExpirationStorage,
 )
-from ankama_launcher_emulator.proxy.dofus3.proxy import (
+from ankama_launcher_emulator.proxy.proxy import (
     Proxy,
     WorkerAction,
 )
+from google.protobuf.message import Message
+
 from DBDofusUnity.datas.protos.non_obf.connection.login_message_pb2 import (
     CharacterInformation,
     IdentificationResponse,

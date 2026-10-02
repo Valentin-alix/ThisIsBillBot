@@ -41,10 +41,7 @@ from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import (
 )
 from DBDofusUnity.dofus_unity_reader.models.datas.monsters_root import MonsterItem, MonstersRoot
 from DBDofusUnity.dofus_unity_reader.models.datas.npc_actions_root import NpcActionsRoot, NpcActionsRootItem
-from DBDofusUnity.dofus_unity_reader.models.datas.npc_messages_root import (
-    NpcMessagesRoot,
-    NpcMessagesRootItem,
-)
+from DBDofusUnity.dofus_unity_reader.models.datas.npc_messages_root import NpcMessagesRoot
 from DBDofusUnity.dofus_unity_reader.models.datas.npcs_root import NpcsRoot, NpcsRootItem
 from DBDofusUnity.dofus_unity_reader.models.datas.quest_objectives_root import (
     QuestObjectivesRoot,
@@ -168,15 +165,6 @@ class DataReader(metaclass=Singleton):
             min_rid + index: msgspec.convert(entry, type=ItemsRootItemEffect, from_attributes=True)
             for index, entry in enumerate(effect_item_entries)
         }
-
-    @cached_property
-    def item_by_name(self) -> dict[str, ItemsRootItem]:
-        _item_by_name: dict[str, ItemsRootItem] = {}
-        for item in self.item_by_id.values():
-            if not item.nameId or item.nameId not in I18N().name_by_id:
-                continue
-            _item_by_name[I18N().name_by_id[item.nameId]] = item
-        return _item_by_name
 
     @cached_property
     def item_ids_by_type_id(self) -> dict[int, set[int]]:
@@ -339,10 +327,6 @@ class DataReader(metaclass=Singleton):
         return {quest_step.id: quest_step for quest_step in data}
 
     @cached_property
-    def quest_objective_ids_by_step_id(self) -> dict[int, list[int]]:
-        return {step.id: step.objectiveIds for step in self.quest_step_by_id.values()}
-
-    @cached_property
     def spell_by_id(self) -> dict[int, SpellsRootItem]:
         data = _load_model(SpellsRoot, SpellsRoot)
         return {spell.id: spell for spell in data}
@@ -380,18 +364,6 @@ class DataReader(metaclass=Singleton):
         return _spell_variant_by_breed_id
 
     @cached_property
-    def spell_opposite_variant_by_spell_id(self) -> dict[int, int]:
-        data = self.spell_variants
-        spell_opposite_variant: dict[int, int] = {}
-        for spell_variant in data:
-            first_spell_id = spell_variant.spellIds[0]
-            second_spell_id = spell_variant.spellIds[1]
-            spell_opposite_variant[first_spell_id] = second_spell_id
-            spell_opposite_variant[second_spell_id] = first_spell_id
-
-        return spell_opposite_variant
-
-    @cached_property
     def spell_lvl_by_id(self) -> dict[int, SpellLevelsRootItem]:
         data = _load_model(SpellLevelsRoot, SpellLevelsRoot)
         return {elem.id: elem for elem in data}
@@ -422,11 +394,6 @@ class DataReader(metaclass=Singleton):
     def npc_action_by_id(self) -> dict[int, NpcActionsRootItem]:
         data = _load_model(NpcActionsRoot, NpcActionsRoot)
         return {npc_action.id: npc_action for npc_action in data}
-
-    @cached_property
-    def npc_messages_by_id(self) -> dict[int, NpcMessagesRootItem]:
-        data = _load_model(NpcMessagesRoot, NpcMessagesRoot)
-        return {npc_msg.id: npc_msg for npc_msg in data}
 
     @cached_property
     def npc_by_id(self) -> dict[int, NpcsRootItem]:
@@ -468,15 +435,6 @@ class DataReader(metaclass=Singleton):
             for npc in self.npc_by_id.values()
         }
 
-    @cached_property
-    def npc_replies_id_by_i18n(self) -> dict[int, list[int]]:
-        replies_by_i18n: dict[int, list[int]] = defaultdict(list)
-        for npc in self.npc_by_id.values():
-            for dialog_msg in npc.dialogMessages:
-                reply_id, i18n = dialog_msg.values
-                replies_by_i18n[i18n].append(reply_id)
-        return replies_by_i18n
-
     @staticmethod
     @cache
     def get_all_map_ids() -> set[int]:
@@ -498,11 +456,6 @@ class DataReader(metaclass=Singleton):
 
     @staticmethod
     @cache
-    def get_all_characteristic_ids() -> set[int]:
-        return set(DataReader().characteristic_by_id)
-
-    @staticmethod
-    @cache
     def get_all_item_ids() -> set[int]:
         return set(DataReader().item_by_id)
 
@@ -520,11 +473,6 @@ class DataReader(metaclass=Singleton):
     @cache
     def get_all_spell_lvl_ids() -> set[int]:
         return set(DataReader().spell_lvl_by_id)
-
-    @staticmethod
-    @cache
-    def get_all_type_item_ids() -> set[int]:
-        return {item.typeId for item in DataReader().item_by_id.values() if item.typeId}
 
     @staticmethod
     @cache

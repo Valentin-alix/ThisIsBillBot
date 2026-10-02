@@ -22,8 +22,6 @@ from src.core.config import DEBUG as DEBUG
 load_dotenv(ENV_PATH)
 
 
-BACKEND_URL = "http://localhost:8000"
-
 FILTER_DOFUS = "tcp port 5555"
 DOFUS_CONNECTION_URL = "dofus2-co-production.ankama-games.com"
 

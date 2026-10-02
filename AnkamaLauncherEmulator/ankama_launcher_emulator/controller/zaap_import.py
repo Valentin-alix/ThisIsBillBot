@@ -2,6 +2,8 @@ import json
 import logging
 from typing import Any
 
+from pydantic import ValidationError
+
 from ankama_launcher_emulator.consts import ZAAP_PATH
 from ankama_launcher_emulator.controller.bot_storage import (
     BotStorageController,
@@ -31,7 +33,7 @@ def _load_user_accounts() -> dict[int, UserAccount]:
     for entry in settings.get("USER_ACCOUNTS", []):
         try:
             account = UserAccount.model_validate(entry)
-        except Exception:
+        except ValidationError:
             logger.warning("Skipping unparsable zaap USER_ACCOUNTS entry", exc_info=True)
             continue
         accounts[account.id] = account
@@ -53,7 +55,7 @@ def import_zaap_accounts() -> None:
         raw = keydata_file.read_text(encoding="utf-8")
         try:
             deciphered = DecipheredApiKey.model_validate_json(CryptoHelper.decrypt(raw, uuid))
-        except Exception:
+        except (ValueError, IndexError):
             logger.warning("Failed to decrypt zaap keydata file %s", keydata_file.name, exc_info=True)
             continue
 

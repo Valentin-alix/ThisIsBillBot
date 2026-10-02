@@ -10,7 +10,6 @@ from utils.env_config import get_path_from_env, get_required_path
 
 PROJECT_ROOT: Path = BUNDLE_ROOT / "DBDofusUnity"
 BOT_SRC_ROOT: Path = PROJECT_ROOT.parent / "src"
-IDA_TRACER_TYPINGS: Path = PROJECT_ROOT / "proto_mapper_assembly" / "scripts" / "ida_tracer_lib" / "typings"
 
 if not IS_PACKAGED:
     load_dotenv(ENV_PATH)

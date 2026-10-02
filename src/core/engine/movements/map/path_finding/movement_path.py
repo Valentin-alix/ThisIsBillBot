@@ -12,10 +12,6 @@ RUN_HORIZONTAL_DIAG_DURATION = 220
 RUN_VERTICAL_DIAG_DURATION = 135
 RUN_LINEAR_DURATION = 150
 
-RUN_MOUNT_HORIZONTAL_DIAG_DURATION = 200
-RUN_MOUNT_VERTICAL_DIAG_DURATION = 120
-RUN_MOUNT_LINEAR_DURATION = 135
-
 
 @dataclass
 class MovementPath:
@@ -135,14 +131,6 @@ class MovementPath:
         if not can_run:
             return WALK_LINEAR_DURATION, WALK_HORIZONTAL_DIAG_DURATION, WALK_VERTICAL_DIAG_DURATION
         return RUN_LINEAR_DURATION, RUN_HORIZONTAL_DIAG_DURATION, RUN_VERTICAL_DIAG_DURATION
-
-    @staticmethod
-    def get_cell_id_by_key(key: int) -> int:
-        return key & 0x3FF
-
-    @staticmethod
-    def get_direction_by_key(key: int) -> DirectionsEnum:
-        return DirectionsEnum((key >> 12) & 7)
 
     @staticmethod
     def get_key_by_cell_and_direction(cell_id: int, direction: DirectionsEnum) -> int:

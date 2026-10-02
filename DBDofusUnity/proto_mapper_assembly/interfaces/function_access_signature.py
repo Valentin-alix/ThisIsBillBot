@@ -106,10 +106,6 @@ class FunctionAccessSignature(BaseModel):
         return tuple(sorted(set(self.stable_callees)))
 
     @cached_property
-    def stable_callees_counter(self) -> Counter[str]:
-        return Counter(self.stable_callees_key)
-
-    @cached_property
     def self_accesses_key(self) -> AccessAtomSequenceKey:
         # L'ordre des acces est plus stable entre builds IL2CPP que le rang brut des instructions.
         ordered = sorted(self.self_accesses, key=lambda access: access.index_in_function)
@@ -128,14 +124,6 @@ class FunctionAccessSignature(BaseModel):
     @cached_property
     def foreign_access_summary_key(self) -> ForeignAccessSummaryKey:
         return tuple(self.foreign_access_summary)
-
-    @cached_property
-    def foreign_access_summary_counter(self) -> Counter[str]:
-        return Counter(self.foreign_access_summary_key)
-
-    @cached_property
-    def foreign_access_summary_length(self) -> int:
-        return len(self.foreign_access_summary_key)
 
     @cached_property
     def similarity_key(self) -> FunctionSimilarityKey:

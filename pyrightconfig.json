@@ -27,7 +27,7 @@
         "**/datas/**",
         "DBDofusUnity/datas/**",
         "DBDofusUnity/dofus_unity_reader/models/datas/**",
-        "AnkamaLauncherEmulator/ankama_launcher_emulator/proxy/dofus3/login_message_pb2.py*",
+        "AnkamaLauncherEmulator/ankama_launcher_emulator/proxy/login_message_pb2.py*",
         "AnkamaLauncherEmulator/ankama_launcher_emulator/gen_zaap/**",
     ],
     "exclude": [

@@ -9,7 +9,6 @@ import msgspec
 sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 
 from DBDofusUnity.consts import MAPS_ARCHIVE_PATH
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.models.maps import CellData, MapDataRoot, MapReference
 from utils.cache import cache
 from utils.singleton import Singleton
@@ -52,20 +51,6 @@ class MapReader(metaclass=Singleton):
             for ref in self.map_by_id(map_id).references
             if ref.m_interactionId is not None
         }
-
-    @cache
-    def get_ref_data_by_element_id(self) -> dict[int, MapReference]:
-        ref_data_by_element_id: dict[int, MapReference] = {}
-        map_ids = DataReader().map_info_by_map_id
-        for map_id in map_ids:
-            for ref in self.map_by_id(map_id).references:
-                if ref.m_interactionId is not None:
-                    ref_data_by_element_id[ref.m_interactionId] = ref
-        return ref_data_by_element_id
-
-    @lru_cache(maxsize=_MAP_CACHE_SIZE)
-    def get_ref_cell_data_by_cell_id(self, map_id: int) -> dict[int, MapReference]:
-        return {ref.cellId: ref for ref in self.map_by_id(map_id).references if ref.cellId is not None}
 
     def get_cell_data_by_cell_id(self, map_id: int, cell_id: int) -> CellData:
         return self.map_by_id(map_id).mapData.cellsData[cell_id]

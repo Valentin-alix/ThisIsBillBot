@@ -4,6 +4,7 @@ from collections.abc import Iterable, Iterator
 from pathlib import Path
 
 from google.protobuf.descriptor import Descriptor, EnumDescriptor, FieldDescriptor, OneofDescriptor
+from utils.protobuf import is_repeated_field
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
 from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type
@@ -188,7 +189,7 @@ def _clr_type_from_field(field: FieldDescriptor, parent_descriptor: Descriptor) 
         key_clr = _scalar_clr_type(key_field, parent_descriptor)
         value_clr = _scalar_clr_type(value_field, parent_descriptor)
         return f"MapField<{key_clr}, {value_clr}>"
-    if getattr(field, "label", 0) == FieldDescriptor.LABEL_REPEATED:
+    if is_repeated_field(field):
         return f"RepeatedField<{_scalar_clr_type(field, parent_descriptor)}>"
     return _scalar_clr_type(field, parent_descriptor)
 

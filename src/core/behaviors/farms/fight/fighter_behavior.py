@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmBehavior
 from src.core.behaviors.farms.fight.attacker_behavior import AttackerBehavior
@@ -18,8 +18,6 @@ class FighterBehavior(BaseFarmBehavior):
     map_move_behavior: MapMoveBehavior
     path_finding: Pathfinding
     attacker_behavior: AttackerBehavior
-
-    fights_done: int = field(init=False, default=0)
 
     def run(
         self,
@@ -42,7 +40,6 @@ class FighterBehavior(BaseFarmBehavior):
         is_stopped_at_new_map_condition: Callable[[], bool] | None = None,
     ) -> None:
         self.is_stopped_at_new_map_condition = is_stopped_at_new_map_condition
-        self.fights_done = 0
         self.random_farm_behavior.init_random_farm(
             area_id,
             sub_area_id,
@@ -81,7 +78,6 @@ class FighterBehavior(BaseFarmBehavior):
             self.on_new_map()
             return
         self.raise_if_error(error_code)
-        self.fights_done += count_fighted_on_map
         if self.game_state.inventory.is_full_pods and self.game_state.inventory.can_use_bank:
             self.on_full_pods()
         else:

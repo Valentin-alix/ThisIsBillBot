@@ -16,7 +16,6 @@ from ankama_launcher_emulator.web._client.mail_providers.base import (
 logger = logging.getLogger(__name__)
 
 CONFIRMATION_CODE_PATTERN = re.compile(r"(?<!\d)(\d(?:\s*\d){5})(?!\s*\d)")
-MAILBOX_POLL_INTERVAL_SECONDS = 2.0
 MANUAL_CODE_POLL_INTERVAL_SECONDS = 0.2
 
 

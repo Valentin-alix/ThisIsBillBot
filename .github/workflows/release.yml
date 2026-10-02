@@ -1,13 +1,11 @@
 name: Package release
 
 on:
-  push:
-    branches:
-      - '**'
-    paths:
-      - VERSION
-      - 'DBDofusUnity/datas/bundles/**'
-      - 'DBDofusUnity/datas/protos/**'
+  workflow_call:
+
+concurrency:
+  group: package-release
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -23,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Check release inputs
+      - name: Check VERSION content
         id: changes
         shell: bash
         env:
@@ -35,15 +33,8 @@ jobs:
           elif ! git cat-file -e "$BEFORE^{commit}"; then
             git fetch --no-tags origin "$BEFORE"
           fi
-          if git diff --quiet "$BEFORE" "$AFTER" -- VERSION DBDofusUnity/datas/bundles/ DBDofusUnity/datas/protos/; then
-            echo "release=false" >> "$GITHUB_OUTPUT"
-          else
-            status=$?
-            if [[ "$status" != 1 ]]; then
-              exit "$status"
-            fi
-            echo "release=true" >> "$GITHUB_OUTPUT"
-          fi
+          changed=$(git diff --name-only "$BEFORE" "$AFTER" -- VERSION)
+          echo "release=$([[ -n "$changed" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
   package:
     needs: changes
@@ -75,19 +66,23 @@ jobs:
         run: uv run python scripts/validate_package.py dist/Bot-DofusUnity
       - name: Create release archive
         shell: pwsh
-        run: Compress-Archive -Path dist/Bot-DofusUnity -DestinationPath dist/Bot-DofusUnity-${{ steps.version.outputs.version }}.zip -CompressionLevel Optimal
-      - name: Check release asset size
-        shell: pwsh
         run: |
+          Compress-Archive -Path dist/Bot-DofusUnity -DestinationPath dist/Bot-DofusUnity-${{ steps.version.outputs.version }}.zip -CompressionLevel Optimal
           $asset = Get-Item dist/Bot-DofusUnity-${{ steps.version.outputs.version }}.zip
           if ($asset.Length -gt 2GB) {
             throw "Release asset exceeds the 2 GiB GitHub limit: $($asset.Length) bytes"
           }
-      - name: Publish GitHub release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ steps.version.outputs.version }}
-          name: ${{ steps.version.outputs.version }}
-          prerelease: true
-          generate_release_notes: false
-          files: dist/Bot-DofusUnity-${{ steps.version.outputs.version }}.zip
+      - name: Replace latest release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $releases = gh release list --limit 1000 --json tagName | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw "Failed to list releases" }
+          if ($releases.tagName -contains 'latest') {
+            gh release delete latest --cleanup-tag --yes
+            if ($LASTEXITCODE -ne 0) { throw "Failed to delete the previous latest release" }
+          }
+          gh release create latest "dist/Bot-DofusUnity-$env:RELEASE_VERSION.zip" --target $env:GITHUB_SHA --title $env:RELEASE_VERSION --notes "Version $env:RELEASE_VERSION" --latest
+          if ($LASTEXITCODE -ne 0) { throw "Failed to publish the latest release" }
