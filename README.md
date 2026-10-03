@@ -34,6 +34,11 @@ The repository also contains supporting tools:
 
 ## Getting started
 
+### Download
+
+To use the bot, download the Windows archive from the [latest release](https://github.com/Valentin-alix/ThisIsBillBot/releases/latest),
+extract it, and run `ThisIsBillBot.exe`.
+
 ### From source
 
 Requirements: **Windows**, **Python 3.12**, **Git LFS**, and **uv**.
@@ -72,6 +77,20 @@ schedules, email accounts, proxies, and services.
 
 The bot code is in `src/`, the launcher is in `AnkamaLauncherEmulator/`, and the
 data and mapping tools are in `DBDofusUnity/`.
+
+### Build UABEA DLLs
+
+Build the UABEA DLLs before using the Unity static-data tools. Install **.NET 10**
+and **Visual Studio C++ build tools (v145)**, then run this command from the
+repository root in **Git Bash on Windows**:
+
+```bash
+bash DBDofusUnity/build-tools.sh
+```
+
+The script builds UABEA, Il2CppInspector, and protodec.
+
+### Protocol mapping and checks
 
 Each new Dofus build obfuscates protobuf message and field names again. The
 mapping must therefore be regenerated and verified before the protocol can be
