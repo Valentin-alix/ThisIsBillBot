@@ -5,13 +5,7 @@ DBDofusUnity/Il2CppInspectorRedux/Il2CppInspector.Common/Cpp/Il2CppAPIHeaders/* 
 DBDofusUnity/Il2CppInspectorRedux/Il2CppInspector.Common/Cpp/UnityHeaders/* linguist-vendored
 DBDofusUnity/dofus_unity_reader/models/datas/soundbonesroot.py linguist-generated=true
 
-DBDofusUnity/datas/proto_mapper/non_obf/il2cpp.json filter=lfs diff=lfs merge=lfs -text
 DBDofusUnity/datas/proto_mapper/obf/enum_accesses.json filter=lfs diff=lfs merge=lfs -text
 DBDofusUnity/datas/bundles/data/SpellLevelsRoot.json filter=lfs diff=lfs merge=lfs -text
 DBDofusUnity/datas/bundles/data/ItemsRoot.json filter=lfs diff=lfs merge=lfs -text
 DBDofusUnity/datas/bundles/** filter=lfs diff=lfs merge=lfs -text
-
-DBDofusUnity/UABEA/Libs/*.dll filter=lfs diff=lfs merge=lfs -text
-DBDofusUnity/UABEA/TexToolWrap/PVRTexLib/Windows_x86_*/PVRTexLib.dll filter=lfs diff=lfs merge=lfs -text
-DBDofusUnity/UABEA/TexToolWrap/crunch/win*/crnlib.dll filter=lfs diff=lfs merge=lfs -text
-DBDofusUnity/UABEA/TexToolWrap/ispc/win*/ispc_texcomp.dll filter=lfs diff=lfs merge=lfs -text

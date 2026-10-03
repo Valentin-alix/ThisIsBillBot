@@ -41,6 +41,18 @@
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Fight.FightTurnStartPlayingEvent"
     },
     {
+      "obf": "lfp",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Common.EntityLook",
+      "field_mapping_by_obf": {
+        "gbcj": "indexed_colors",
+        "gbck": "sub_entities",
+        "gbcl": "skins",
+        "gbcm": "unknown_two_hundred_twelve",
+        "gbcn": "bones_id",
+        "gbco": "scales"
+      }
+    },
+    {
       "obf": "ljc",
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Common.CharacterCharacteristicDetailedUsable",
       "field_mapping_by_obf": {
