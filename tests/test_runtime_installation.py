@@ -232,6 +232,27 @@ def test_missing_hook_does_not_spawn_game() -> None:
     device.assert_not_called()
 
 
+def test_launch_reads_hook_from_bundle_with_frozen_module_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    hook = tmp_path / "AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3/script.js"
+    hook.parent.mkdir(parents=True)
+    hook.write_text("// bundled hook", encoding="utf-8")
+    monkeypatch.setattr(launch, "FRIDA_SCRIPT_PATH", hook)
+    monkeypatch.setattr(launch, "__file__", str(tmp_path / "ankama_launcher_emulator/server/dofus3/launch.py"))
+    device = Mock()
+    device.spawn.return_value = 123
+    with (
+        patch.object(launch, "resolve_dofus_path", return_value="Dofus.exe"),
+        patch.object(launch.frida, "get_local_device", return_value=device),
+    ):
+        assert launch.launch_dofus_exe(1, "synthetic", 9999) == 123
+    device.attach.return_value.create_script.assert_called_once_with("// bundled hook")
+    device.attach.return_value.create_script.return_value.load.assert_called_once()
+    device.resume.assert_called_once_with(123)
+    device.kill.assert_not_called()
+
+
 def test_resource_validation_identifies_missing_and_lfs(tmp_path: Path) -> None:
     path = tmp_path / "data.json"
     with pytest.raises(runtime_support.RuntimeSetupError, match="absente"):
@@ -243,6 +264,11 @@ def test_resource_validation_identifies_missing_and_lfs(tmp_path: Path) -> None:
 
 def test_json_and_map_archive_are_validated(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(install_validation, "BUNDLE_ROOT", tmp_path)
+    monkeypatch.setattr(
+        install_validation,
+        "FRIDA_SCRIPT_PATH",
+        tmp_path / "AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3/script.js",
+    )
     bundles = tmp_path / "DBDofusUnity/datas/bundles"
     files = [
         "resources/icons/logo.png",

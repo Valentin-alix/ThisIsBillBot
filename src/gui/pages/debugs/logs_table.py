@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
 )
 from qfluentwidgets import LineEdit
 
+from src.gui.components.qfluent_widget.scrollable_message_box import ScrollableMessageBox
 from src.services.logging_utils.log_level import LogLevel
 
 _MAX_LOG_ENTRIES = 5_000
@@ -171,6 +172,8 @@ class LogsTable(QWidget):
         self.list_view.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.list_view.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.list_view.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.list_view.setToolTip("Click a log to view the full message")
+        self.list_view.clicked.connect(self._show_message)
         layout.addWidget(self.list_view)
 
         self._pending_entries: deque[LogEntry] = deque(maxlen=_MAX_LOG_ENTRIES)
@@ -181,6 +184,22 @@ class LogsTable(QWidget):
         self._batch_timer.timeout.connect(self._flush_pending_entries)
 
         self.search_edit.textChanged.connect(self._apply_filter)
+
+    def _show_message(self, index: QModelIndex) -> None:
+        entry = index.data(_LOG_ENTRY_ROLE)
+        if not isinstance(entry, LogEntry):
+            return
+        parent = self.window()
+        assert parent is not None
+        dialog = ScrollableMessageBox(
+            f"{entry.logged_at:%Y-%m-%d %H:%M:%S} | {entry.level.name}",
+            entry.message,
+            parent,
+        )
+        dialog.yesButton.setText("Close")
+        dialog.cancelButton.hide()
+        dialog.exec()
+        dialog.deleteLater()
 
     def add_row(self, level: LogLevel, msg: str, logged_at: datetime | None = None) -> None:
         self._pending_entries.append(LogEntry(level, msg, logged_at or datetime.now()))

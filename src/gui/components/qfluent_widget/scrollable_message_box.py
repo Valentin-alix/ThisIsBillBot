@@ -12,6 +12,9 @@ from src.gui.components.log_syntax_highlighter import LogSyntaxHighlighter
 
 
 class ScrollableMessageBox(MessageBoxBase):
+    yesButton: PushButton
+    cancelButton: PushButton
+
     def __init__(self, title: str, content: str, parent: QWidget):
         super().__init__(parent=parent)
 

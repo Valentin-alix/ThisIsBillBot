@@ -1,6 +1,5 @@
 import logging
 import os
-from pathlib import Path
 from contextlib import ExitStack
 
 import frida
@@ -9,6 +8,7 @@ from ankama_launcher_emulator.consts import LAUNCHER_PORT
 from ankama_launcher_emulator.interfaces.game import GameNameEnum
 from ankama_launcher_emulator.utils.environment import resolve_dofus_path, ZAAP_PATH
 from src.services.install_validation import check_resource
+from src.utils.project_paths import FRIDA_SCRIPT_PATH
 
 logger = logging.getLogger()
 
@@ -54,7 +54,7 @@ def launch_dofus_exe(
         "ZAAP_RELEASE": "dofus3",
     }
 
-    check_resource(Path(__file__).parent / "script.js")
+    check_resource(FRIDA_SCRIPT_PATH)
     device = frida.get_local_device()
     pid = device.spawn(program=command, env=env)
 
@@ -72,9 +72,8 @@ def load_frida_script(
     device: frida.Device,
     resume: bool = False,
 ) -> None:
-    hook_path = Path(__file__).parent / "script.js"
     session = device.attach(pid)
-    script = session.create_script(hook_path.read_text(encoding="utf-8"))
+    script = session.create_script(FRIDA_SCRIPT_PATH.read_text(encoding="utf-8"))
     script.load()
     script.post({"port": port, "proxyIp": [127, 0, 0, 1]})
     if resume:

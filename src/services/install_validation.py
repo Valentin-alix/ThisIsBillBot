@@ -4,14 +4,12 @@ from zipfile import BadZipFile, ZipFile
 
 from playwright.sync_api import Error, sync_playwright
 
-from src.utils.project_paths import BUNDLE_ROOT, IS_PACKAGED
+from src.utils.project_paths import BUNDLE_ROOT, FRIDA_SCRIPT_PATH, IS_PACKAGED
 from src.utils.runtime_support import RuntimeSetupError
 
 
 def check_resource(path: Path) -> None:
-    repair = (
-        "Extract the full release again." if IS_PACKAGED else "Run git lfs install, then git lfs pull."
-    )
+    repair = "Extract the full release again." if IS_PACKAGED else "Run git lfs install, then git lfs pull."
     if not path.is_file():
         raise RuntimeSetupError(f"Ressource absente : {path.name}. {repair}")
     with path.open("rb") as file:
@@ -28,12 +26,7 @@ def validate_resources() -> None:
         bundles / "standalone" / "world-graph.json",
         bundles / "maps.zip",
         BUNDLE_ROOT / "DBDofusUnity" / "datas" / "protos" / "game_mappings.json",
-        BUNDLE_ROOT
-        / "AnkamaLauncherEmulator"
-        / "ankama_launcher_emulator"
-        / "server"
-        / "dofus3"
-        / "script.js",
+        FRIDA_SCRIPT_PATH,
     ]
     paths.extend((bundles / "data").glob("*.json"))
     for path in dict.fromkeys(paths):
@@ -56,9 +49,7 @@ def validate_resources() -> None:
             if archive.testzip() is not None:
                 raise RuntimeSetupError("The maps.zip archive is corrupted. Restore the project data.")
     except (BadZipFile, json.JSONDecodeError, UnicodeError) as error:
-        raise RuntimeSetupError(
-            "The maps.zip archive is unreadable. Restore the project data."
-        ) from error
+        raise RuntimeSetupError("The maps.zip archive is unreadable. Restore the project data.") from error
 
 
 def validate_browser() -> None:
@@ -74,7 +65,5 @@ def validate_browser() -> None:
 
 
 def browser_repair_message() -> str:
-    repair = (
-        "Extract the full release again." if IS_PACKAGED else "Run uv run playwright install chromium."
-    )
+    repair = "Extract the full release again." if IS_PACKAGED else "Run uv run playwright install chromium."
     return f"Playwright Chromium is missing or cannot start. {repair}"
