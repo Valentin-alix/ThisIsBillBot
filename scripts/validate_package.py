@@ -8,8 +8,15 @@ import time
 from ctypes import wintypes
 from pathlib import Path
 
+import psutil
+
 
 def close_window(pid: int) -> None:
+    try:
+        owner_process = psutil.Process(pid)
+        owners = {pid, *(child.pid for child in owner_process.children(recursive=True))}
+    except psutil.NoSuchProcess:
+        return
     user32 = ctypes.windll.user32
     callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
     user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
@@ -18,7 +25,7 @@ def close_window(pid: int) -> None:
     def visit(hwnd: int, _: int) -> bool:
         owner = wintypes.DWORD()
         user32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
-        if owner.value == pid:
+        if owner.value in owners:
             user32.PostMessageW(hwnd, 0x0010, 0, 0)
         return True
 
@@ -74,14 +81,30 @@ def validate_package(folder: Path) -> None:
                 time.sleep(0.2)
             else:
                 raise TimeoutError(f"Packaged startup did not finish:\n{log}")
-            close_window(process.pid)
-            if process.wait(timeout=30) != 1:
+            deadline = time.monotonic() + 30
+            while process.poll() is None:
+                close_window(process.pid)
+                try:
+                    process.wait(timeout=0.2)
+                except subprocess.TimeoutExpired:
+                    if time.monotonic() >= deadline:
+                        raise TimeoutError(f"Packaged error dialog did not close:\n{log}") from None
+            if process.returncode != 1:
                 raise RuntimeError("Packaged startup must refuse an installation without Dofus")
             if "Application ready." in log:
                 raise RuntimeError("GUI started despite missing Dofus")
             print("PASS: bundled VERSION file, missing-game startup refusal and exit code 1")
         finally:
             if process.poll() is None:
+                try:
+                    children = psutil.Process(process.pid).children(recursive=True)
+                except psutil.NoSuchProcess:
+                    children = []
+                for child in children:
+                    try:
+                        child.kill()
+                    except psutil.NoSuchProcess:
+                        pass
                 process.kill()
                 process.wait()
 
