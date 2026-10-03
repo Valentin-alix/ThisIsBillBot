@@ -3,7 +3,7 @@ import sys
 from collections.abc import Iterable, Iterator
 from pathlib import Path
 
-from google.protobuf.descriptor import Descriptor, EnumDescriptor, FieldDescriptor, OneofDescriptor
+from google.protobuf.descriptor import Descriptor, EnumDescriptor, FieldDescriptor, FileDescriptor, OneofDescriptor
 from utils.protobuf import is_repeated_field
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
@@ -57,8 +57,8 @@ def _iter_pb2_directories(protos_dir: Path) -> list[Path]:
     return sorted(path for path in protos_dir.iterdir() if path.is_dir())
 
 
-def _walk_message_descriptors(file_descriptor: object) -> Iterator[Descriptor]:
-    stack: list[Descriptor] = list(file_descriptor.message_types_by_name.values())  # type: ignore[attr-defined]
+def _walk_message_descriptors(file_descriptor: FileDescriptor) -> Iterator[Descriptor]:
+    stack: list[Descriptor] = list(file_descriptor.message_types_by_name.values())
     while stack:
         descriptor = stack.pop()
         if descriptor.GetOptions().map_entry:

@@ -1,4 +1,4 @@
-from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, DumpCSMessageProperty
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
 from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import normalize_clr_type
 from DBDofusUnity.proto_mapper_assembly.parsers.clr_types import categorize_field
@@ -218,44 +218,4 @@ def msg_typed_field(
         property_name=property_name,
         enum_key_type=enum_key_type,
         enum_value_type=enum_value_type,
-    )
-
-
-def dump_cs_int_field(field_name: str, *, is_proto: bool = True) -> DumpCSMessageField:
-    return DumpCSMessageField(
-        clr_type="int",
-        normalized_type="int",
-        category=FieldCategoryEnum.NUMBER,
-        memory_offset=0x10,
-        field_name=field_name,
-        is_proto_field=is_proto,
-    )
-
-
-def dump_string_field(field_name: str, *, is_proto: bool = True) -> DumpCSMessageField:
-    return DumpCSMessageField(
-        clr_type="string",
-        normalized_type="string",
-        category=FieldCategoryEnum.STRING,
-        memory_offset=0x18,
-        field_name=field_name,
-        is_proto_field=is_proto,
-    )
-
-
-def dump_oneof_field(field_name: str) -> DumpCSMessageField:
-    return DumpCSMessageField(
-        clr_type="int",
-        normalized_type="int",
-        category=FieldCategoryEnum.ONEOF,
-        memory_offset=0x20,
-        field_name=field_name,
-    )
-
-
-def dump_property(name: str, normalized_type: str = "string") -> DumpCSMessageProperty:
-    return DumpCSMessageProperty(
-        clr_type=normalized_type,
-        normalized_type=normalized_type,
-        property_name=name,
     )

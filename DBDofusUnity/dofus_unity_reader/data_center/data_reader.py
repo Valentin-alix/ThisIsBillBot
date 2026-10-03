@@ -50,7 +50,6 @@ from DBDofusUnity.dofus_unity_reader.models.datas.quest_objectives_root import (
 from DBDofusUnity.dofus_unity_reader.models.datas.quests_root import QuestsRoot, QuestsRootItem
 from DBDofusUnity.dofus_unity_reader.models.datas.queststepsroot import (
     Queststepsroot,
-    QueststepsrootItem,
 )
 from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem, RecipeRoot
 from DBDofusUnity.dofus_unity_reader.models.datas.serversroot import Serversroot, ServersrootItem
@@ -320,11 +319,6 @@ class DataReader(metaclass=Singleton):
     def quest_objective_by_id(self) -> dict[int, QuestObjectivesRootItem]:
         data = _load_model(QuestObjectivesRoot, QuestObjectivesRoot)
         return {quest_obj.id: quest_obj for quest_obj in data}
-
-    @cached_property
-    def quest_step_by_id(self) -> dict[int, QueststepsrootItem]:
-        data = _load_model(Queststepsroot, Queststepsroot)
-        return {quest_step.id: quest_step for quest_step in data}
 
     @cached_property
     def spell_by_id(self) -> dict[int, SpellsRootItem]:

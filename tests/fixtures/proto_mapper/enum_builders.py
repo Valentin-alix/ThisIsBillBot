@@ -72,35 +72,6 @@ def enum_trace_document(*functions: TracedFunction) -> AccessTraceDocument:
     )
 
 
-def enum_channel_entry() -> EnumSignatureEntry:
-    return EnumSignatureEntry(
-        member_value_to_name={"0": "Global", "1": "Team", "5": "Sales"},
-        switch_patterns=[
-            EnumSwitchPattern(
-                function_addr=0x1810D2470,
-                field_offset=24,
-                member_groups=[
-                    EnumMemberGroup(
-                        member_values=[0, 3, 5],
-                        is_default=False,
-                        called_functions=[enum_function_ref(call_target_addr=0xAABBCC, occurrence_count=2)],
-                    ),
-                    EnumMemberGroup(
-                        member_values=[4],
-                        is_default=False,
-                        called_functions=[enum_function_ref(call_target_addr=0xDDEEFF)],
-                    ),
-                    EnumMemberGroup(
-                        member_values=[],
-                        is_default=True,
-                        called_functions=[enum_function_ref(call_target_addr=0x112233)],
-                    ),
-                ],
-            )
-        ],
-    )
-
-
 def enum_entry(
     *member_groups: list[int],
     member_names: dict[str, str] | None = None,

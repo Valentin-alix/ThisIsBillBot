@@ -6,7 +6,6 @@ from PyQt6.QtWidgets import QHBoxLayout, QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import (
     ComboBox,
     FluentIcon,
-    PivotItem,
     SegmentedWidget,
     TransparentToolButton,
 )
@@ -53,11 +52,6 @@ class FarmerWidget(QWidget):
         self._v_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(self._v_layout)
 
-        self.map_pivot_item: PivotItem | None = None
-        self.player_pivot_item: PivotItem | None = None
-        self.world_pivot_item: PivotItem | None = None
-        self.inventory_pivot_item: PivotItem | None = None
-        self.bank_pivot_item: PivotItem | None = None
         self.map_tab: MapTab | None = None
         self.player_tab: PlayerTab | None = None
         self.world_tab: WorldTab | None = None
@@ -235,7 +229,7 @@ class FarmerWidget(QWidget):
         text: str,
         widget: QWidget,
         on_click: Callable[[], None] | None = None,
-    ) -> PivotItem:
+    ) -> None:
         pivot_item = self.pivot.addItem(
             routeKey=route_key,
             text=text,
@@ -243,7 +237,6 @@ class FarmerWidget(QWidget):
         )
         if pivot_item is None:
             raise ValueError(f"Debug tab route `{route_key}` is already registered")
-        return pivot_item
 
     def _create_debug_tabs(self) -> None:
         self.map_tab = MapTab(
@@ -254,22 +247,22 @@ class FarmerWidget(QWidget):
         )
         self.stacked_widget.addWidget(self.map_tab)
         self.map_route = f"{self.objectName()}_map_tab"
-        self.map_pivot_item = self._add_debug_tab(self.map_route, "Map", self.map_tab)
+        self._add_debug_tab(self.map_route, "Map", self.map_tab)
 
         self.player_tab = PlayerTab(bot=self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.player_tab)
         player_route = f"{self.objectName()}_player_tab"
-        self.player_pivot_item = self._add_debug_tab(player_route, "Joueur", self.player_tab)
+        self._add_debug_tab(player_route, "Joueur", self.player_tab)
 
         self.world_tab = WorldTab(world_signals=self.bot.world_signals, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.world_tab)
         world_route = f"{self.objectName()}_world_tab"
-        self.world_pivot_item = self._add_debug_tab(world_route, "Monde", self.world_tab)
+        self._add_debug_tab(world_route, "Monde", self.world_tab)
 
         self.inventory_tab = InventoryTab(self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.inventory_tab)
         inventory_route = f"{self.objectName()}_inventory_tab"
-        self.inventory_pivot_item = self._add_debug_tab(
+        self._add_debug_tab(
             inventory_route,
             "Inventaire",
             self.inventory_tab,
@@ -279,7 +272,7 @@ class FarmerWidget(QWidget):
         self.bank_tab = BankTab(self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.bank_tab)
         bank_route = f"{self.objectName()}_bank_tab"
-        self.bank_pivot_item = self._add_debug_tab(bank_route, "Banque", self.bank_tab, self._show_bank_tab)
+        self._add_debug_tab(bank_route, "Banque", self.bank_tab, self._show_bank_tab)
 
         for pivot_item in self.pivot.items.values():
             pivot_item.setFixedHeight(40)

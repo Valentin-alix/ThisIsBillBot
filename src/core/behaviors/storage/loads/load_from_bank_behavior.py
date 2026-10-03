@@ -82,7 +82,7 @@ class LoadFromBankBehavior(RecoverableBehavior):
         related_item = self.game_state.inventory.get_bank_object_by_gid(current_load.item_gid)
         if related_item is None:
             self._pending_load_items.pop(0)
-            return self.on_item_loaded()
+            return self.load_item()
 
         quantity_to_unload = min(
             current_load.remaining_quantity,
@@ -90,7 +90,7 @@ class LoadFromBankBehavior(RecoverableBehavior):
         )
         if quantity_to_unload == 0:
             self._pending_load_items.pop(0)
-            return self.on_item_loaded()
+            return self.load_item()
 
         portable_quantity = get_portable_quantity(
             self.game_state,
@@ -106,7 +106,7 @@ class LoadFromBankBehavior(RecoverableBehavior):
 
         self.event_manager.on(
             InventoryWeightEvent,
-            callback=lambda _: self.on_item_loaded(),
+            callback=lambda _: self.load_item(),
             originator=self,
             once=True,
             override_on_self=True,
@@ -125,9 +125,6 @@ class LoadFromBankBehavior(RecoverableBehavior):
             HumanTimingsService().get_timing_before_bank_close(),
             lambda: self.finish(load_items_infos=self._build_remaining_requests()),
         )
-
-    def on_item_loaded(self) -> None:
-        self.load_item()
 
     def _build_remaining_requests(self) -> list[LoadItemInfo]:
         return [load_item.to_request() for load_item in self._pending_load_items]

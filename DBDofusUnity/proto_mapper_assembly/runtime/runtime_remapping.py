@@ -72,13 +72,6 @@ def _remap_runtime_instance(
         non_obf_live_field = non_obf_metadata.live_runtime_fields_by_name.get(remapped_key)
         if obf_live_field is None:
             continue
-        if non_obf_live_field is None and obf_live_field.category in {
-            FieldCategoryEnum.MESSAGE,
-            FieldCategoryEnum.REPEATED,
-            FieldCategoryEnum.MAP,
-        }:
-            continue
-
         if non_obf_live_field is None:
             continue
 

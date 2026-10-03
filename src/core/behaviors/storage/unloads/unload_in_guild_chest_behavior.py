@@ -107,7 +107,7 @@ class UnloadInGuildChestBehavior(RecoverableBehavior):
             self.event_manager.on(
                 StorageInventoryContentEvent,
                 partial(
-                    self.on_storage_inventory_content_event,
+                    self.on_storage_updated,
                     object_to_unloads=object_to_unloads,
                 ),
                 once=True,
@@ -120,9 +120,9 @@ class UnloadInGuildChestBehavior(RecoverableBehavior):
             )
         self.unload_object(object_to_unloads)
 
-    def on_storage_inventory_content_event(
+    def on_storage_updated(
         self,
-        msg: StorageInventoryContentEvent,
+        msg: StorageInventoryContentEvent | InventoryWeightEvent,
         object_to_unloads: list[ObjectItemInventory],
     ) -> None:
         self.run_timer(
@@ -136,7 +136,7 @@ class UnloadInGuildChestBehavior(RecoverableBehavior):
 
         self.event_manager.on(
             InventoryWeightEvent,
-            partial(self.on_inventory_weight_event, object_to_unloads=object_to_unloads),
+            partial(self.on_storage_updated, object_to_unloads=object_to_unloads),
             originator=self,
             once=True,
             override_on_self=True,
@@ -164,13 +164,6 @@ class UnloadInGuildChestBehavior(RecoverableBehavior):
         )
         req = ExchangeObjectMoveRequest(object_uid=next_object.item.uid, quantity=next_object.item.quantity)
         self.event_manager.send(req)
-
-    def on_inventory_weight_event(
-        self, msg: InventoryWeightEvent, object_to_unloads: list[ObjectItemInventory]
-    ) -> None:
-        self.run_timer(
-            HumanTimingsService().get_timing_short_action(), lambda: self.unload_object(object_to_unloads)
-        )
 
     def on_all_unloaded(self) -> None:
         self.logger.info("Guild chest unload completed")

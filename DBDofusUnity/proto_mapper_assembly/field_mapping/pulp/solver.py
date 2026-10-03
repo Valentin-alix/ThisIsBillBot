@@ -12,10 +12,6 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import Prepared
 from DBDofusUnity.proto_mapper_assembly.interfaces.runtime_data import NormalizedRuntimeInstance
 
 
-def _solve_mapping_problem(problem: pulp.LpProblem) -> pulp.LpSolveStats:
-    return problem.solve(pulp.COIN_CMD(msg=False))
-
-
 def solve_field_mapping_ilp(
     *,
     context: PreparedFieldMappingContext,
@@ -56,7 +52,7 @@ def solve_field_mapping_ilp(
         problem=mapping_problem,
     )
 
-    stats = _solve_mapping_problem(mapping_problem)
+    stats = mapping_problem.solve(pulp.COIN_CMD(msg=False))
 
     if stats.status != pulp.LpSolveStatus.Optimal:
         return None

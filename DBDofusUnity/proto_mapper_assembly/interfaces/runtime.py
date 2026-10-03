@@ -62,7 +62,6 @@ class RuntimeRemappingContext:
     non_obf_messages_by_cls: dict[str, DumpCSMessage]
     get_obf_metadata: Callable[[DumpCSMessage], MessageRuntimeMetadata]
     get_non_obf_metadata: Callable[[DumpCSMessage], MessageRuntimeMetadata]
-    resolve_field_mapping_by_pair: Callable[[str, str], dict[str, str]]
 
 
 class FieldValidatorRuntimeMetadata(BaseModel):

@@ -41,6 +41,23 @@ def test_packages_reject_non_windows_before_loading_dependencies(platform: str, 
     assert "RuntimeError: This program requires Windows." in result.stderr
 
 
+def test_packaged_entrypoint_preserves_import_paths(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setattr(sys, "path", sys.path.copy())
+    monkeypatch.setattr(project_paths, "BUNDLE_ROOT", tmp_path)
+    original_paths = sys.path.copy()
+    spec = importlib.util.spec_from_file_location(
+        "packaged_entry", Path(__file__).parents[1] / "__main__.py"
+    )
+    assert spec is not None and spec.loader is not None
+    entry = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, entry)
+    spec.loader.exec_module(entry)
+    assert sys.path == original_paths
+
+
 def test_non_windows_entrypoint_does_not_load_application(monkeypatch: pytest.MonkeyPatch) -> None:
     spec = importlib.util.spec_from_file_location(
         "installation_entry", Path(__file__).parents[1] / "__main__.py"

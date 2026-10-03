@@ -70,10 +70,6 @@ class MatchingWorkspace:
     non_obf_type_index: dict[str, tuple[DumpCSMessage, ...]]
     obf_groups: dict[str, tuple[MessageAccessSignature, ...]]
     non_obf_groups: dict[str, tuple[MessageAccessSignature, ...]]
-    obf_group_root_indexes: dict[str, tuple[int, ...]]
-    non_obf_group_root_indexes: dict[str, tuple[int, ...]]
-    obf_group_complexity_by_descriptor: dict[str, int]
-    non_obf_group_complexity_by_descriptor: dict[str, int]
     obf_field_message_types_by_cls: dict[str, frozenset[str]]
     non_obf_field_message_types_by_cls: dict[str, frozenset[str]]
 

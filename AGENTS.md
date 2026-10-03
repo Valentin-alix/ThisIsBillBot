@@ -1,7 +1,6 @@
-# Bot-DofusUnity
+# ThisIsBillBot
 
-Python 3.12 multi-account automation framework. Main code: `src/`; launcher: `AnkamaLauncherEmulator/`; data extraction and protocol mapping: `DBDofusUnity/`.
-GUI uses PyQt6 + FluentWidgets. Both MITM and direct sockets feed protocol decoding -> `EventManager.process_msg()` -> frames update `GameState` -> behaviors react.
+Python 3.12, Windows only. Bot: `src/`; launcher: `AnkamaLauncherEmulator/`; protocol tools: `DBDofusUnity/`.
 
 ## Validation
 
@@ -16,11 +15,9 @@ During iteration, run only the relevant check or test. For documentation-only ch
 
 ## Code and tests
 
-- Add concise comments/docstrings only for non-obvious constraints or reasoning; describe current behavior, not change history.
-- Validate external input at boundaries. Avoid speculative guards, fallbacks, and defaults; keep required data required and let internal invariant violations fail explicitly.
-- For behavior changes, add or update tests only after the implementation has been validated.
-- Test meaningful observable behavior, contracts, and regressions; avoid tests of implementation details or tuning values and tests added solely for coverage.
-- Type external data explicitly to avoid Pyright `Unknown` errors; prefer existing validation models for fixed schemas. Do not hide errors with `# pyright: ignore`.
+- Comment only non-obvious constraints or reasoning.
+- Validate and type external input at boundaries; reuse existing schema models. Avoid speculative fallbacks and `# pyright: ignore`.
+- Validate behavior changes before adding or updating tests. Test observable behavior and regressions, not implementation details or tuning values.
 
 ## Exploration
 

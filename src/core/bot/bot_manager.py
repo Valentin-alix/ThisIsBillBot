@@ -328,7 +328,7 @@ class BotManager:
         related_bot = next(
             (
                 bot
-                for bot in getattr(self, "bot_by_account_id", {}).values()
+                for bot in self.bot_by_account_id.values()
                 if bot.account.apikey.login == login
             ),
             None,
@@ -345,7 +345,7 @@ class BotManager:
         related_bot = next(
             (
                 bot
-                for bot in getattr(self, "bot_by_account_id", {}).values()
+                for bot in self.bot_by_account_id.values()
                 if bot.account.apikey.login == login
             ),
             None,

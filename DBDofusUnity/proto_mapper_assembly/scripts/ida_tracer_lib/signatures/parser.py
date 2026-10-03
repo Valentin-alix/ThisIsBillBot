@@ -212,17 +212,13 @@ def _resolve_effective_signature(
     return preferred_signature or get_preferred_signature(method)
 
 
-def _split_signature_parameters(params_raw: str) -> list[str]:
-    return split_top_level_tokens(params_raw)
-
-
 def _parse_dot_net_style_signature(sig: str) -> tuple[str, list[str]] | None:
     matched = _DOT_NET_SIG_RE.match(sig)
     if matched is None:
         return None
     return_type = matched.group(1) or "Void"
     params_raw = matched.group(3)
-    parameters = _split_signature_parameters(params_raw)
+    parameters = split_top_level_tokens(params_raw)
     return return_type, parameters
 
 

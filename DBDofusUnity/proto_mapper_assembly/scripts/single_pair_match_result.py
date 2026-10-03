@@ -340,7 +340,6 @@ def _build_remapping_context(
         non_obf_messages_by_cls=dict(non_obf_messages_by_cls),
         get_obf_metadata=get_obf_metadata,
         get_non_obf_metadata=get_non_obf_metadata,
-        resolve_field_mapping_by_pair=lambda _obf_cls, _non_obf_cls: {},
     )
 
 

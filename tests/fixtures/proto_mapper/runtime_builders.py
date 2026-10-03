@@ -83,5 +83,4 @@ def make_simple_context(
         non_obf_messages_by_cls={non_obf_msg.name: non_obf_msg},
         get_obf_metadata=lambda msg: all_obf_meta[msg.name],
         get_non_obf_metadata=lambda msg: all_non_obf_meta[msg.name],
-        resolve_field_mapping_by_pair=lambda _obf, _non_obf: {},
     )

@@ -36,7 +36,6 @@ class InventoryTab(QWidget):
         super().__init__(parent=parent)
         self.bot = bot
         self.items_by_uid: dict[int, ObjectItemInventory] = {}
-        self.list_item_by_uid: dict[int, QListWidgetItem] = {}
         self.signals_connected = False
         self.inventory_weight: int = 0
         self.weight_max: int = 0
@@ -108,7 +107,6 @@ class InventoryTab(QWidget):
         self._rebuild_timer.stop()
         if self.isVisible():
             self.list_widget.clear()
-            self.list_item_by_uid.clear()
             self.equipment_panel.set_items({})
         else:
             self._render_dirty = True
@@ -145,14 +143,12 @@ class InventoryTab(QWidget):
 
         self.list_widget.setUpdatesEnabled(False)
         self.list_widget.clear()
-        self.list_item_by_uid.clear()
         sorted_items = sorted(bag_items, key=lambda obj: obj.item.quantity, reverse=True)
         for object_item in sorted_items:
             list_item = QListWidgetItem()
             list_item.setSizeHint(QSize(CARD_WIDTH, CARD_HEIGHT))
             list_item.setText(self._get_item_text(object_item))
             self.list_widget.addItem(list_item)
-            self.list_item_by_uid[object_item.item.uid] = list_item
         self.list_widget.setUpdatesEnabled(True)
         self._render_dirty = False
         self.loading_label.hide()
@@ -188,14 +184,12 @@ class InventoryTab(QWidget):
         self.items_by_uid.clear()
         self._rebuild_timer.stop()
         self.list_widget.clear()
-        self.list_item_by_uid.clear()
         self.equipment_panel.set_items({})
         self.loading_label.hide()
 
     def _resync_inventory(self) -> None:
         self.items_by_uid.clear()
         self.list_widget.clear()
-        self.list_item_by_uid.clear()
         inventory_items = list(self.bot.game_state.inventory.objects_by_uid.values())
         if inventory_items:
             self.on_added_object_items_batch(inventory_items)

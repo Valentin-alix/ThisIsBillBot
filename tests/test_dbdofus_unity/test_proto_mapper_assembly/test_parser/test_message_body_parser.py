@@ -154,7 +154,7 @@ class TestMessageBodyParser:
             private ContentOneofCase contentCase_; // 0x20
             public Request Request { get; set; }
             public Response Response { get; set; }
-        s"""
+        """
 
         fields, _properties = parse_message_body(
             stripped_body,
@@ -215,23 +215,3 @@ class TestMessageBodyParser:
         assert variants_by_name["Response"].proto_decl_order == 10_000
         assert variants_by_name["Event"].proto_decl_order == 10_001
         assert variants_by_name["Request"].proto_decl_order == 10_002
-
-    def test_builds_fallback_synthetic_oneof_fields_for_single_backing_field(self) -> None:
-        stripped_body = """
-            private object choice_; // 0x18
-            private ChoiceOneofCase choiceCase_; // 0x20
-            public Request Request { get; set; }
-            public Response Response { get; set; }
-        """
-
-        fields, _properties = parse_message_body(
-            stripped_body,
-            enum_names=frozenset({"ChoiceOneofCase"}),
-        )
-        variants_by_name = {field.field_name: field for field in fields if field.is_synthetic_oneof_variant}
-
-        assert set(variants_by_name) == {"Request", "Response"}
-        assert variants_by_name["Request"].oneof_group_name == "choice"
-        assert variants_by_name["Request"].proto_decl_order == 10_000
-        assert variants_by_name["Response"].oneof_group_name == "choice"
-        assert variants_by_name["Response"].proto_decl_order == 10_001

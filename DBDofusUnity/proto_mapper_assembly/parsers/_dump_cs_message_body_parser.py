@@ -1,12 +1,7 @@
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField, DumpCSMessageProperty
 from DBDofusUnity.proto_mapper_assembly.parsers._message_body_oneof import build_synthetic_oneof_fields
 from DBDofusUnity.proto_mapper_assembly.parsers._message_body_reconcile import reconcile_message_body
-from DBDofusUnity.proto_mapper_assembly.parsers._message_body_scan import parse_class_fields as _parse_class_fields
 from DBDofusUnity.proto_mapper_assembly.parsers._message_body_scan import scan_message_body
-
-
-def parse_class_fields(class_start: int, code: str) -> list[DumpCSMessageField]:
-    return _parse_class_fields(class_start, code)
 
 
 def parse_message_body(
@@ -20,7 +15,7 @@ def parse_message_body(
         fields=fields,
         properties=properties,
         excluded_boolean_properties=scan_data.excluded_boolean_properties,
-        const_int_declarations=scan_data.const_int_declarations,
+        const_int_positions=scan_data.const_int_positions,
         field_positions_by_name=scan_data.field_positions_by_name,
     )
     fields.extend(

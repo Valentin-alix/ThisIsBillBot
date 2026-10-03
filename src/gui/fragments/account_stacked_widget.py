@@ -51,8 +51,6 @@ class AccountStackedWidget(QWidget):
         self.stacked_widget = QStackedWidget(self)
         layout.addWidget(self.stacked_widget)
 
-        self.debug_pivot_item: PivotItem | None = None
-
         self.harvester_interface = FarmerWidget(login, self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.harvester_interface)
         self.harvester_route = f"{login}_harvester"
@@ -71,7 +69,7 @@ class AccountStackedWidget(QWidget):
         self.craft_interface = CraftPage(self.bot, parent=self.stacked_widget)
         self.stacked_widget.addWidget(self.craft_interface)
         self.craft_route = f"{login}_craft"
-        self.craft_pivot_item = self._require_pivot_item(
+        self._require_pivot_item(
             self.pivot.addItem(
                 routeKey=self.craft_route,
                 text="Craft",
@@ -83,13 +81,13 @@ class AccountStackedWidget(QWidget):
         for pivot_item in self.pivot.items.values():
             pivot_item.setFixedHeight(40)
 
-        self._select_initial_page()
+        self.farmer_pivot_item.click()
 
     def _init_debug_interface(self) -> None:
         sniffer_interface = SnifferWidget(self.bot, self.global_log_signals, parent=self.stacked_widget)
         self.stacked_widget.addWidget(sniffer_interface)
         self.sniffer_route = f"{self.login}_sniffer"
-        self.debug_pivot_item = self._require_pivot_item(
+        self._require_pivot_item(
             self.pivot.addItem(
                 routeKey=self.sniffer_route,
                 text="Debug",
@@ -97,9 +95,6 @@ class AccountStackedWidget(QWidget):
             ),
             self.sniffer_route,
         )
-
-    def _select_initial_page(self) -> None:
-        self.farmer_pivot_item.click()
 
     def set_snapshot_sub_area_name(self, sub_area_name: str | None) -> None:
         if self.quick_info_widget is not None:

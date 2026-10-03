@@ -16,7 +16,7 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     MessageAccessSignature,
 )
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
-from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum, FieldTypeShape
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping import FieldMappingContext
 from DBDofusUnity.proto_mapper_assembly.interfaces.capture_sequence_hints import CaptureSequenceHintsConfig
 from DBDofusUnity.proto_mapper_assembly.interfaces.matching import (
@@ -47,20 +47,6 @@ def number_signature(message_cls: str) -> MessageAccessSignature:
     return message_signature(
         message_cls,
         declared_field_signatures=[declared_field_signature(NUMBER_SHAPE)],
-    )
-
-
-def counted_number_signature(message_cls: str, count: int) -> MessageAccessSignature:
-    return message_signature(
-        message_cls,
-        declared_field_signatures=[declared_field_signature(NUMBER_SHAPE)] * count,
-    )
-
-
-def shaped_signature(message_cls: str, *shapes: FieldTypeShape) -> MessageAccessSignature:
-    return message_signature(
-        message_cls,
-        declared_field_signatures=[declared_field_signature(shape) for shape in shapes],
     )
 
 

@@ -2,7 +2,13 @@ import argparse
 import sys
 from dataclasses import dataclass
 
-from src.utils.project_paths import BUNDLE_ROOT, ENV_PATH, ensure_packaged_runtime_data
+from src.utils.project_paths import BUNDLE_ROOT
+
+if not getattr(sys, "frozen", False):
+    for import_root in (BUNDLE_ROOT, BUNDLE_ROOT / "DBDofusUnity", BUNDLE_ROOT / "AnkamaLauncherEmulator"):
+        sys.path.insert(0, str(import_root))
+
+from src.utils.project_paths import ENV_PATH, ensure_packaged_runtime_data
 from src.utils.runtime_support import (
     RuntimeSetupError,
     check_platform,
@@ -19,8 +25,6 @@ if __name__ == "__main__":
         report_fatal(error)
         raise SystemExit(1)
 
-for import_root in (BUNDLE_ROOT, BUNDLE_ROOT / "DBDofusUnity", BUNDLE_ROOT / "AnkamaLauncherEmulator"):
-    sys.path.insert(0, str(import_root))
 
 configure_browser_path()
 

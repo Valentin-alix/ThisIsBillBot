@@ -63,7 +63,7 @@ def report_fatal(error: BaseException, *, dialog: bool = True) -> None:
     message = error_message(error)
     logging.getLogger(__name__).error("Unable to start: %s", message, exc_info=error)
     if dialog and sys.platform == "win32":
-        ctypes.windll.user32.MessageBoxW(None, message, "Bot-DofusUnity — Error", 0x10)
+        ctypes.windll.user32.MessageBoxW(None, message, "ThisIsBillBot — Error", 0x10)
     elif sys.stderr is not None:
         print(message, file=sys.stderr)
 
@@ -72,9 +72,7 @@ def check_platform() -> None:
     if sys.platform != "win32":
         raise RuntimeSetupError("This program requires Windows.")
     if not os.environ.get("APPDATA"):
-        raise RuntimeSetupError(
-            "The Windows APPDATA variable is missing. Check your Windows user profile."
-        )
+        raise RuntimeSetupError("The Windows APPDATA variable is missing. Check your Windows user profile.")
 
 
 def configure_browser_path() -> None:

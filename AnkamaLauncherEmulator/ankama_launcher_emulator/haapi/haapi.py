@@ -203,32 +203,16 @@ class Haapi:
         return SecurityCodeResponse.model_validate(response.json()).domain or ""
 
     def validate_code(self, code: str, game_id: int) -> DecipheredCertif:
-        hm1, hm2 = CryptoHelper.createHmEncoders()
-        name = f"launcher-{getpass.getuser()}"
-        response = self.zaap_session.get(
-            ANKAMA_SHIELD_VALIDATE_CODE,
-            params={
-                "game_id": game_id,
-                "code": code,
-                "hm1": hm1,
-                "hm2": hm2,
-                "name": name,
-            },
-            verify=False,
-        )
-        raise_for_status_with_content(response)
-        parsed = CertificateResponse.model_validate(response.json())
-        return DecipheredCertif(
-            id=parsed.id,
-            encodedCertificate=parsed.encodedCertificate,
-            login=self.login,
-        )
+        return self._validate_shield_code(ANKAMA_SHIELD_VALIDATE_CODE, code, game_id)
 
     def validate_otp(self, code: str, game_id: int) -> DecipheredCertif:
+        return self._validate_shield_code(ANKAMA_SHIELD_VALIDATE_OTP, code, game_id)
+
+    def _validate_shield_code(self, url: str, code: str, game_id: int) -> DecipheredCertif:
         hm1, hm2 = CryptoHelper.createHmEncoders()
         name = f"launcher-{getpass.getuser()}"
         response = self.zaap_session.get(
-            ANKAMA_SHIELD_VALIDATE_OTP,
+            url,
             params={
                 "game_id": game_id,
                 "code": code,

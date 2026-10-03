@@ -37,9 +37,8 @@ class FakeBrowserContext:
 
 
 class FakeLocator:
-    def __init__(self, count: int, *, visible: bool = True) -> None:
+    def __init__(self, count: int) -> None:
         self._count = count
-        self._visible = visible
         self.fill = AsyncMock()
         self.click = AsyncMock()
         self.wait_for = AsyncMock()
@@ -50,9 +49,6 @@ class FakeLocator:
 
     async def count(self) -> int:
         return self._count
-
-    async def is_visible(self) -> bool:
-        return self._visible
 
 class FakeMailProvider:
     def __init__(self, code: str | None = None) -> None:

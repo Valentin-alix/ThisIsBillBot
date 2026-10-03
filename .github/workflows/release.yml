@@ -63,12 +63,12 @@ jobs:
       - name: Build Windows package
         run: uv run poe package
       - name: Validate packaged startup and shutdown
-        run: uv run python scripts/validate_package.py dist/Bot-DofusUnity
+        run: uv run python scripts/validate_package.py dist/ThisIsBillBot
       - name: Create release archive
         shell: pwsh
         run: |
-          Compress-Archive -Path dist/Bot-DofusUnity -DestinationPath dist/Bot-DofusUnity-${{ steps.version.outputs.version }}.zip -CompressionLevel Optimal
-          $asset = Get-Item dist/Bot-DofusUnity-${{ steps.version.outputs.version }}.zip
+          Compress-Archive -Path dist/ThisIsBillBot -DestinationPath dist/ThisIsBillBot-${{ steps.version.outputs.version }}.zip -CompressionLevel Optimal
+          $asset = Get-Item dist/ThisIsBillBot-${{ steps.version.outputs.version }}.zip
           if ($asset.Length -gt 2GB) {
             throw "Release asset exceeds the 2 GiB GitHub limit: $($asset.Length) bytes"
           }
@@ -84,5 +84,5 @@ jobs:
             gh release delete latest --cleanup-tag --yes
             if ($LASTEXITCODE -ne 0) { throw "Failed to delete the previous latest release" }
           }
-          gh release create latest "dist/Bot-DofusUnity-$env:RELEASE_VERSION.zip" --target $env:GITHUB_SHA --title $env:RELEASE_VERSION --notes "Version $env:RELEASE_VERSION" --latest
+          gh release create latest "dist/ThisIsBillBot-$env:RELEASE_VERSION.zip" --target $env:GITHUB_SHA --title $env:RELEASE_VERSION --notes "Version $env:RELEASE_VERSION" --latest
           if ($LASTEXITCODE -ne 0) { throw "Failed to publish the latest release" }

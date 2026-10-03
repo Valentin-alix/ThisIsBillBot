@@ -1,6 +1,5 @@
 MAP_WIDTH: int = 14
 MAP_HEIGHT: int = 20
 MAP_GRID_WIDTH: int = 14
-MAP_GRID_HEIGHT: int = 20
 CELL_WIDTH: int = 86
 CELL_HEIGHT: int = 43

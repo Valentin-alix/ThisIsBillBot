@@ -2,7 +2,6 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCS
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
 from DBDofusUnity.proto_mapper_assembly.parsers._field_name_aliases import get_property_name_by_field_name
 from DBDofusUnity.proto_mapper_assembly.parsers._message_body_scan import (
-    _ConstIntDeclaration,
     _ExcludedBooleanProperty,
 )
 
@@ -12,14 +11,14 @@ def reconcile_message_body(
     fields: list[DumpCSMessageField],
     properties: list[DumpCSMessageProperty],
     excluded_boolean_properties: list[_ExcludedBooleanProperty],
-    const_int_declarations: list[_ConstIntDeclaration],
+    const_int_positions: list[int],
     field_positions_by_name: dict[str, int],
 ) -> None:
     _mark_obfuscated_presence_backing_fields(
         fields,
         properties,
         excluded_boolean_properties,
-        const_int_declarations,
+        const_int_positions,
         field_positions_by_name,
     )
     _assign_field_properties(fields, properties)
@@ -29,10 +28,10 @@ def _mark_obfuscated_presence_backing_fields(
     fields: list[DumpCSMessageField],
     properties: list[DumpCSMessageProperty],
     excluded_boolean_properties: list[_ExcludedBooleanProperty],
-    const_int_declarations: list[_ConstIntDeclaration],
+    const_int_positions: list[int],
     field_positions_by_name: dict[str, int],
 ) -> None:
-    if len(excluded_boolean_properties) == 0 or len(const_int_declarations) == 0:
+    if len(excluded_boolean_properties) == 0 or len(const_int_positions) == 0:
         return
 
     current_mapping = get_property_name_by_field_name(fields, properties)
@@ -44,7 +43,7 @@ def _mark_obfuscated_presence_backing_fields(
             field
             for field in fields
             if _is_premapped_hasbits_candidate(
-                field, current_mapping, field_positions_by_name, const_int_declarations
+                field, current_mapping, field_positions_by_name, const_int_positions
             )
             and _candidate_restores_complete_mapping(field, fields, properties)
         ]
@@ -60,7 +59,7 @@ def _mark_obfuscated_presence_backing_fields(
             current_mapping,
             field_positions_by_name,
             fields,
-            const_int_declarations,
+            const_int_positions,
         )
         and _candidate_restores_complete_mapping(field, fields, properties)
     ]
@@ -69,7 +68,7 @@ def _mark_obfuscated_presence_backing_fields(
             field
             for field in fields
             if _is_premapped_hasbits_candidate(
-                field, current_mapping, field_positions_by_name, const_int_declarations
+                field, current_mapping, field_positions_by_name, const_int_positions
             )
             and _candidate_restores_complete_mapping(field, fields, properties)
         ]
@@ -102,7 +101,7 @@ def _is_obfuscated_presence_candidate(
     current_mapping: dict[str, str],
     field_positions_by_name: dict[str, int],
     fields: list[DumpCSMessageField],
-    const_int_declarations: list[_ConstIntDeclaration],
+    const_int_positions: list[int],
 ) -> bool:
     if not field.is_proto_field:
         return False
@@ -118,7 +117,7 @@ def _is_obfuscated_presence_candidate(
         field_position,
         fields,
         field_positions_by_name,
-        const_int_declarations,
+        const_int_positions,
     )
     if len(interval_fields) == 0:
         return False
@@ -146,15 +145,15 @@ def _get_fields_in_const_interval(
     field_position: int,
     fields: list[DumpCSMessageField],
     field_positions_by_name: dict[str, int],
-    const_int_declarations: list[_ConstIntDeclaration],
+    const_int_positions: list[int],
 ) -> list[DumpCSMessageField]:
     lower_bound: int | None = None
     upper_bound: int | None = None
-    for declaration in const_int_declarations:
-        if declaration.position < field_position:
-            lower_bound = declaration.position
+    for position in const_int_positions:
+        if position < field_position:
+            lower_bound = position
             continue
-        upper_bound = declaration.position
+        upper_bound = position
         break
     return [
         field
@@ -171,7 +170,7 @@ def _is_premapped_hasbits_candidate(
     field: DumpCSMessageField,
     current_mapping: dict[str, str],
     field_positions_by_name: dict[str, int],
-    const_int_declarations: list[_ConstIntDeclaration],
+    const_int_positions: list[int],
 ) -> bool:
     if not field.is_proto_field:
         return False
@@ -182,7 +181,7 @@ def _is_premapped_hasbits_candidate(
     field_position = field_positions_by_name.get(field.field_name)
     if field_position is None:
         return False
-    return not any(declaration.position < field_position for declaration in const_int_declarations)
+    return not any(position < field_position for position in const_int_positions)
 
 
 def _assign_field_properties(

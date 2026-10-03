@@ -342,9 +342,3 @@ class MessageAccessSignature(BaseModel):
     @cached_property
     def top_level_declared_field_shapes(self) -> frozenset[FieldCategoryEnum]:
         return frozenset(field.field_type_shape.category for field in self.declared_similarity_fields)
-
-    @cached_property
-    def total_complexity(self) -> int:
-        return (
-            len(self.declared_similarity_fields) + len(self.field_signatures) + len(self.function_signatures)
-        )

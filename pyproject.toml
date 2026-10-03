@@ -68,7 +68,7 @@ test_verbose = "pytest tests -s"
 verify = ["lint", "check_type", "test"]
 package-browser = { cmd = "playwright install chromium", env = { PLAYWRIGHT_BROWSERS_PATH = "0" } }
 package = ["package-browser", "package-build"]
-package-build = "pyinstaller --noconfirm --clean --windowed --name Bot-DofusUnity --paths DBDofusUnity --paths AnkamaLauncherEmulator --add-data \"resources/icons;resources/icons\" --add-data \"VERSION;.\" --add-data \"DBDofusUnity/datas/bundles;DBDofusUnity/datas/bundles\" --add-data \"DBDofusUnity/datas/protos;DBDofusUnity/datas/protos\" --add-data \"AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3/script.js;AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3\" __main__.py"
+package-build = "pyinstaller --noconfirm --clean --windowed --name ThisIsBillBot --paths DBDofusUnity --paths AnkamaLauncherEmulator --add-data \"resources/icons;resources/icons\" --add-data \"VERSION;.\" --add-data \"DBDofusUnity/datas/bundles;DBDofusUnity/datas/bundles\" --add-data \"DBDofusUnity/datas/protos;DBDofusUnity/datas/protos\" --add-data \"AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3/script.js;AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3\" __main__.py"
 
 
 [tool.pytest.ini_options]

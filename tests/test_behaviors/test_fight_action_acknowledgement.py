@@ -82,11 +82,6 @@ def _set_player_cell(game_state: GameState, cell_id: int) -> None:
     )
 
 
-def _get_delayed_micro_jitter(service: HumanTimingsService, action_name: str) -> float:
-    del service, action_name
-    return 60.0
-
-
 def _get_fixed_challenge_selection_timing(service: HumanTimingsService) -> float:
     del service
     return 0.03

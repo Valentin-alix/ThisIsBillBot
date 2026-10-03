@@ -7,7 +7,6 @@ from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import (
     extract_repeated_inner_type,
     normalize_clr_type,
 )
-from DBDofusUnity.proto_mapper_assembly.parsers._dump_cs_structure import get_stripped_direct_body
 from DBDofusUnity.proto_mapper_assembly.parsers.clr_types import categorize_field, resolve_enum_type_name
 
 FIELD_PATTERN = re.compile(
@@ -38,13 +37,6 @@ _FIELD_INFRASTRUCTURE_TYPES: frozenset[str] = frozenset({"UnknownFieldSet"})
 
 
 @dataclass(frozen=True, slots=True)
-class _ConstIntDeclaration:
-    constant_name: str
-    value: int
-    position: int
-
-
-@dataclass(frozen=True, slots=True)
 class _ExcludedBooleanProperty:
     property_name: str
     position: int
@@ -57,15 +49,7 @@ class MessageBodyScanData:
     properties: list[DumpCSMessageProperty]
     property_positions_by_name: dict[str, int]
     excluded_boolean_properties: list[_ExcludedBooleanProperty]
-    const_int_declarations: list[_ConstIntDeclaration]
-
-
-def parse_class_fields(class_start: int, code: str) -> list[DumpCSMessageField]:
-    stripped_body = get_stripped_direct_body(class_start, code)
-    if not stripped_body:
-        return []
-    fields, _ = _parse_class_fields_and_positions(stripped_body, frozenset())
-    return fields
+    const_int_positions: list[int]
 
 
 def scan_message_body(
@@ -73,7 +57,7 @@ def scan_message_body(
     enum_names: frozenset[str] = frozenset(),
 ) -> MessageBodyScanData:
     fields, field_positions_by_name = _parse_class_fields_and_positions(stripped_body, enum_names)
-    const_int_declarations = _parse_const_int_declarations_from_stripped_body(stripped_body)
+    const_int_positions = [match.start() for match in CONST_INT_PATTERN.finditer(stripped_body)]
     properties, property_positions_by_name = _parse_class_properties_and_positions_from_stripped_body(
         stripped_body
     )
@@ -83,7 +67,7 @@ def scan_message_body(
         properties=properties,
         property_positions_by_name=property_positions_by_name,
         excluded_boolean_properties=_parse_excluded_boolean_properties_from_stripped_body(stripped_body),
-        const_int_declarations=const_int_declarations,
+        const_int_positions=const_int_positions,
     )
 
 
@@ -214,16 +198,3 @@ def _parse_excluded_boolean_properties_from_stripped_body(
             )
         )
     return excluded_properties
-
-
-def _parse_const_int_declarations_from_stripped_body(
-    stripped_body: str,
-) -> list[_ConstIntDeclaration]:
-    return [
-        _ConstIntDeclaration(
-            constant_name=match.group(1),
-            value=int(match.group(2)),
-            position=match.start(),
-        )
-        for match in CONST_INT_PATTERN.finditer(stripped_body)
-    ]

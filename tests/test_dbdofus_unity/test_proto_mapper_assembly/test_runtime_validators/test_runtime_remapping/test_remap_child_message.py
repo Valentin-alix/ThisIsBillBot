@@ -25,7 +25,6 @@ class TestRemapChildMessage:
             get_non_obf_metadata=lambda _msg: MessageRuntimeMetadata(
                 live_runtime_fields_by_name={}, child_message_cls_by_field_key={}
             ),
-            resolve_field_mapping_by_pair=lambda _obf, _non_obf: {},
         )
 
     def test_success_path_returns_remapped_value(self) -> None:

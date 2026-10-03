@@ -46,7 +46,6 @@ class ScrollableMessageBox(MessageBoxBase):
         scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(self.content_edit)
         scroll_area.enableTransparentBackground()
-        scroll_area.setWidgetResizable(True)
         scroll_area.setMaximumHeight(600)
 
         self.viewLayout.addWidget(self.title_label)

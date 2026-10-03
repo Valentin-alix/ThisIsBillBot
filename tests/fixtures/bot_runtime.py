@@ -38,27 +38,6 @@ class EventManagerLockFake:
     lock: RLock = field(default_factory=RLock)
 
 
-class ScheduleProfileControllerMock:
-    def get_profile(self, profile_id: str) -> object | None:
-        del profile_id
-        return None
-
-
-def run_in_background_mock(
-    func: object,
-    on_success: object | None = None,
-    on_error: object | None = None,
-    on_progress: object | None = None,
-    parent: object | None = None,
-) -> None:
-    del func, on_success, on_error, on_progress, parent
-
-
-@dataclass
-class BotConfigMock:
-    schedule_profile: str = "A"
-
-
 def make_bot_scheduler() -> BotScheduler:
     return BotScheduler(
         _logger=Mock(),

@@ -155,6 +155,7 @@ class TestSocketProxyConnection:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         manager = BotManager.__new__(BotManager)
+        manager.bot_by_account_id = {}
         lifecycle_events: list[str] = []
         bot_config = MagicMock(schedule_profile="profile-a")
         schedule_profile = ScheduleProfile(
@@ -195,6 +196,7 @@ class TestSocketProxyConnection:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         manager = BotManager.__new__(BotManager)
+        manager.bot_by_account_id = {}
         bot_config = MagicMock(schedule_profile="profile-b")
         original_profile = ScheduleProfile(
             name_fr="Profile A",

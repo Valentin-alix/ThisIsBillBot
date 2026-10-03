@@ -40,16 +40,6 @@ def build_matching_workspace(
         non_obf_type_index=non_obf_type_index,
         obf_groups=obf_groups,
         non_obf_groups=non_obf_groups,
-        obf_group_root_indexes=_build_group_root_indexes(
-            groups=obf_groups,
-            index_by_cls=signature_indexes.obf_index_by_cls,
-        ),
-        non_obf_group_root_indexes=_build_group_root_indexes(
-            groups=non_obf_groups,
-            index_by_cls=signature_indexes.non_obf_index_by_cls,
-        ),
-        obf_group_complexity_by_descriptor=_build_group_complexity_by_descriptor(obf_groups),
-        non_obf_group_complexity_by_descriptor=_build_group_complexity_by_descriptor(non_obf_groups),
         obf_field_message_types_by_cls=_build_field_message_types_by_cls(
             messages_by_cls=obf_messages_by_cls,
             type_index=obf_type_index,
@@ -93,26 +83,4 @@ def _group_signatures_by_file_descriptor(
     return {
         file_descriptor: tuple(sorted(group, key=lambda signature: signature.message_cls))
         for file_descriptor, group in groups.items()
-    }
-
-
-def _build_group_root_indexes(
-    *,
-    groups: dict[str, tuple[MessageAccessSignature, ...]],
-    index_by_cls: dict[str, int],
-) -> dict[str, tuple[int, ...]]:
-    return {
-        group_descriptor: tuple(
-            index_by_cls[signature.message_cls] for signature in group if signature.dump_cs_msg.is_root_msg
-        )
-        for group_descriptor, group in groups.items()
-    }
-
-
-def _build_group_complexity_by_descriptor(
-    groups: dict[str, tuple[MessageAccessSignature, ...]],
-) -> dict[str, int]:
-    return {
-        group_descriptor: sum(signature.total_complexity for signature in group)
-        for group_descriptor, group in groups.items()
     }

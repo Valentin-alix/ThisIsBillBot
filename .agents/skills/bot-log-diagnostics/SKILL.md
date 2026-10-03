@@ -1,6 +1,6 @@
 ---
 name: bot-log-diagnostics
-description: Analyze Bot-DofusUnity debug logs to find evidence-backed bugs, state or behavior inconsistencies, stalls, instability, repeated failures, and inefficient behavior. Use for log audits and incident diagnosis; use mapping for requests specifically limited to obf/non-obf protocol mapping.
+description: Analyze ThisIsBillBot debug logs to find evidence-backed bugs, state or behavior inconsistencies, stalls, instability, repeated failures, and inefficient behavior. Use for log audits and incident diagnosis; use mapping for requests specifically limited to obf/non-obf protocol mapping.
 ---
 
 # Bot log diagnostics

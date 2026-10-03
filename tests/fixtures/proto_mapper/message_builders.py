@@ -35,24 +35,6 @@ NEW_NON_OBF_CLS = f"{NAMESPACE}.MapMovementConfirmResponse"
 EMPTY_ACCESS_TRACE = AccessTraceDocument(functions_by_address={})
 
 
-def build_dump_cs(
-    class_text: str,
-    fd_class_name: str = "GamemapReflection",
-    fd_type_def_index: int = 1,
-) -> str:
-    header = (
-        f"public static class {fd_class_name} // TypeDefIndex: {fd_type_def_index}\n"
-        "{\n"
-        "    public static FileDescriptor Descriptor { get; }\n"
-        "}\n\n"
-    )
-    return header + class_text
-
-
-def build_dump_cs_by_content(field_line: str) -> str:
-    return f"public sealed class Foo : IMessage<Foo> // TypeDefIndex: 1\n{{\n    {field_line}\n}}\n"
-
-
 def dump_cs_msg(*fields: DumpCSMessageField) -> DumpCSMessage:
     return DumpCSMessage(file_descriptor="FD", name="Msg", fields=list(fields))
 

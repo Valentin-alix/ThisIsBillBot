@@ -52,12 +52,12 @@ def validate_package(folder: Path) -> None:
             "SONJI_API_KEY",
         ):
             environment.pop(name, None)
-        log_path = profile / "AppData/Local/Bot-DofusUnity/resources/diagnostics.log"
+        log_path = profile / "AppData/Local/ThisIsBillBot/resources/diagnostics.log"
         startup = subprocess.STARTUPINFO()
         startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startup.wShowWindow = 0
         process = subprocess.Popen(
-            [str(package / "Bot-DofusUnity.exe"), "--no-auto"],
+            [str(package / "ThisIsBillBot.exe"), "--no-auto"],
             cwd=root,
             env=environment,
             startupinfo=startup,

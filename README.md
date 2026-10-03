@@ -3,6 +3,10 @@
 A Dofus Unity bot for Windows with a graphical interface for managing multiple
 accounts, running harvesting, combat, or crafting activities, and scheduling them.
 
+![](./resources/screenshots/bot.gif)
+
+![](./resources/screenshots/socket.png)
+
 ## What you can do
 
 - **Control your accounts**: choose an activity and an area, then start or stop the bot from the interface.

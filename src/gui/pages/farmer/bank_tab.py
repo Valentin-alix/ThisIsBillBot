@@ -1,8 +1,6 @@
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
-from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from PyQt6.QtCore import QSize, QTimer, pyqtSlot
 from PyQt6.QtGui import QShowEvent
 from PyQt6.QtWidgets import QListView, QListWidgetItem, QVBoxLayout, QWidget
@@ -10,6 +8,7 @@ from qfluentwidgets import CaptionLabel, ListWidget, SmoothMode
 
 from src.core.bot.bot import Bot
 from src.gui.consts import CARD_WIDTH
+from src.gui.pages.farmer.equipment_panel_widget import get_item_name
 
 CARD_HEIGHT = 80
 
@@ -19,7 +18,6 @@ class BankTab(QWidget):
         super().__init__(parent=parent)
         self.bot = bot
         self.items_by_uid: dict[int, ObjectItemInventory] = {}
-        self.list_item_by_uid: dict[int, QListWidgetItem] = {}
         self.signals_connected = False
         self._render_dirty = False
         self._rebuild_timer = QTimer(self)
@@ -73,24 +71,18 @@ class BankTab(QWidget):
     def _rebuild_sorted_list(self) -> None:
         self.list_widget.setUpdatesEnabled(False)
         self.list_widget.clear()
-        self.list_item_by_uid.clear()
         sorted_items = sorted(self.items_by_uid.values(), key=lambda obj: obj.item.quantity, reverse=True)
         for object_item in sorted_items:
             list_item = QListWidgetItem()
             list_item.setSizeHint(QSize(CARD_WIDTH, CARD_HEIGHT))
             list_item.setText(self._get_item_text(object_item))
             self.list_widget.addItem(list_item)
-            self.list_item_by_uid[object_item.item.uid] = list_item
         self.list_widget.setUpdatesEnabled(True)
         self._render_dirty = False
         self.loading_label.hide()
 
     def _get_item_text(self, object_item: ObjectItemInventory) -> str:
-        item_data = DataReader().item_by_id.get(object_item.item.gid)
-        if item_data and item_data.nameId:
-            item_name = I18N().name_by_id.get(item_data.nameId, f"Item {object_item.item.gid}")
-        else:
-            item_name = f"Item {object_item.item.gid}"
+        item_name = get_item_name(object_item)
         return f"{item_name} \n\n {object_item.item.quantity}"
 
     def connect_signals(self) -> None:
@@ -112,13 +104,11 @@ class BankTab(QWidget):
         self.items_by_uid.clear()
         self._rebuild_timer.stop()
         self.list_widget.clear()
-        self.list_item_by_uid.clear()
         self.loading_label.hide()
 
     def _resync_bank(self) -> None:
         self.items_by_uid.clear()
         self.list_widget.clear()
-        self.list_item_by_uid.clear()
         bank_items = list(self.bot.game_state.inventory.bank_objects_by_uid.values())
         if bank_items:
             self.on_bank_refreshed(bank_items)
