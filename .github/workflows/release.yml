@@ -11,34 +11,7 @@ permissions:
   contents: write
 
 jobs:
-  changes:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    outputs:
-      release: ${{ steps.changes.outputs.release }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Check VERSION content
-        id: changes
-        shell: bash
-        env:
-          BEFORE: ${{ github.event.before }}
-          AFTER: ${{ github.sha }}
-        run: |
-          if [[ "$BEFORE" == "0000000000000000000000000000000000000000" ]]; then
-            BEFORE=$(git hash-object -t tree /dev/null)
-          elif ! git cat-file -e "$BEFORE^{commit}"; then
-            git fetch --no-tags origin "$BEFORE"
-          fi
-          changed=$(git diff --name-only "$BEFORE" "$AFTER" -- VERSION)
-          echo "release=$([[ -n "$changed" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-
   package:
-    needs: changes
-    if: needs.changes.outputs.release == 'true'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
