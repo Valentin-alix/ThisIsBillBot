@@ -19,6 +19,7 @@ coverage.xml
 build/
 dist/
 *.spec
+!ThisIsBillBot.spec
 *.egg-info/
 
 # Local environment and editor settings

@@ -59,6 +59,21 @@ def validate_package(folder: Path) -> None:
             "SONJI_API_KEY",
         ):
             environment.pop(name, None)
+        driver = package / "_internal/playwright/driver"
+        subprocess.run(
+            [
+                str(driver / "node.exe"),
+                str(driver / "package/cli.js"),
+                "screenshot",
+                "--channel=chromium",
+                "about:blank",
+                str(root / "browser.png"),
+            ],
+            cwd=root,
+            env=environment | {"PLAYWRIGHT_BROWSERS_PATH": "0"},
+            check=True,
+            timeout=60,
+        )
         log_path = profile / "AppData/Local/ThisIsBillBot/resources/diagnostics.log"
         startup = subprocess.STARTUPINFO()
         startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -93,7 +108,7 @@ def validate_package(folder: Path) -> None:
                 raise RuntimeError("Packaged startup must refuse an installation without Dofus")
             if "Application ready." in log:
                 raise RuntimeError("GUI started despite missing Dofus")
-            print("PASS: bundled VERSION file, missing-game startup refusal and exit code 1")
+            print("PASS: bundled Chromium, VERSION file, missing-game startup refusal and exit code 1")
         finally:
             if process.poll() is None:
                 try:
