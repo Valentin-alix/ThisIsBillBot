@@ -7,11 +7,34 @@ from tests.fixtures.proto_mapper.runtime_builders import (
     make_simple_context,
 )
 
+import pytest
+
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_remapping import remap_runtime_instances
 
 
 class TestRemapRuntimeInstancesBasic:
+    @pytest.mark.parametrize("value,rejected", [(344, True), (0, False), (None, False)])
+    def test_untraced_declared_payload_cannot_be_discarded_by_an_empty_message(
+        self, value: int | None, rejected: bool
+    ) -> None:
+        obf_field = scalar_field("life_", 0x10)
+        obf_msg = DumpCSMessage(file_descriptor="FD", name="ObfMsg", fields=[obf_field])
+        non_obf_msg = DumpCSMessage(file_descriptor="FD", name="GameOverEvent")
+        candidate = make_candidate(obf_msg, non_obf_msg, {})
+        context = make_simple_context(obf_msg, non_obf_msg, {}, {})
+
+        result = remap_runtime_instances(
+            normalized_instances=[{"life": value}],
+            candidate=candidate,
+            obf_message=obf_msg,
+            non_obf_message=non_obf_msg,
+            remapping_context=context,
+        )
+
+        assert (result.mapping_failure is not None) == rejected
+        assert result.instances_by_type == ({} if rejected else {"GameOverEvent": [{}]})
+
     def test_empty_instances_returns_empty_result(self) -> None:
         obf_msg = DumpCSMessage(file_descriptor="FD", name="ObfMsg")
         non_obf_msg = DumpCSMessage(file_descriptor="FD", name="ClearMsg")

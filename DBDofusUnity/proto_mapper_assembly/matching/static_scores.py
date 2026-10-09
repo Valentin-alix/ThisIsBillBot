@@ -11,6 +11,9 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.matching import MatchingWorks
 from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
 from DBDofusUnity.proto_mapper_assembly.interfaces.runtime_data import RuntimeInstance
 from DBDofusUnity.proto_mapper_assembly.matching.score_constraints import build_prospective_constraint_mask
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_field_validation import (
+    collect_runtime_alive_field_names,
+)
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 from DBDofusUnity.proto_mapper_assembly.scoring.message_scoring import (
     StructureSimilarityContext,
@@ -32,6 +35,7 @@ class _ObfGateInputs(NamedTuple):
     observed_instance: RuntimeInstance | None
     pinned_non_obf_cls: str | None
     declared_field_count: int
+    has_runtime_declared_fields: bool
     top_level_declared_field_shapes: frozenset[FieldCategoryEnum]
 
 
@@ -42,6 +46,7 @@ class _NonObfGateInputs(NamedTuple):
     is_from_server_name: bool
     pinned_obf_cls: str | None
     declared_field_count: int
+    has_declared_fields: bool
     top_level_declared_field_shapes: frozenset[FieldCategoryEnum]
 
 
@@ -139,11 +144,17 @@ def _build_obf_gate_inputs(
 ) -> _ObfGateInputs:
     pinned_pair = pinned_pairs_config.pinned_pair_msg_by_obf.get(obf_signature.message_cls)
     observed_instances = runtime_data_store.content_by_name.root.get(obf_signature.message_cls, ())
+    runtime_field_names = collect_runtime_alive_field_names(
+        [instance.model_extra or {} for instance in observed_instances]
+    )
     return _ObfGateInputs(
         message_cls=obf_signature.message_cls,
         observed_instance=next(iter(observed_instances), None),
         pinned_non_obf_cls=pinned_pair.non_obf if pinned_pair is not None else None,
         declared_field_count=obf_signature.declared_field_count,
+        has_runtime_declared_fields=any(
+            field.clean_field_name in runtime_field_names for field in obf_signature.declared_proto_fields
+        ),
         top_level_declared_field_shapes=obf_signature.top_level_declared_field_shapes,
     )
 
@@ -164,6 +175,7 @@ def _build_non_obf_gate_inputs(
         is_from_server_name=non_obf_signature.message_cls.endswith(_SERVER_MESSAGE_NAME_SUFFIXES),
         pinned_obf_cls=pinned_pair.obf if pinned_pair is not None else None,
         declared_field_count=non_obf_signature.declared_field_count,
+        has_declared_fields=bool(non_obf_signature.declared_proto_fields),
         top_level_declared_field_shapes=non_obf_signature.top_level_declared_field_shapes,
     )
 
@@ -234,6 +246,9 @@ def _are_gate_inputs_obviously_incompatible(
 
     if non_obf.pinned_obf_cls is not None:
         return non_obf.pinned_obf_cls != obf.message_cls
+
+    if obf.has_runtime_declared_fields and not non_obf.has_declared_fields:
+        return True
 
     if obf.declared_field_count == 0 or non_obf.declared_field_count == 0:
         return False

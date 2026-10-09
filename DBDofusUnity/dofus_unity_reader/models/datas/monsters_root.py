@@ -1,6 +1,6 @@
 from typing import Any
 
-from msgspec import Struct
+from msgspec import Struct, field
 
 
 class MonsterCharacteristic(Struct, frozen=True, kw_only=True):
@@ -10,17 +10,17 @@ class MonsterCharacteristic(Struct, frozen=True, kw_only=True):
     chance: int
     agility: int
     intelligence: int
-    earthResistance: int
-    fireResistance: int
-    waterResistance: int
-    airResistance: int
-    neutralResistance: int
+    earthResistance: int = field(name="reductionEarth")
+    fireResistance: int = field(name="reductionFire")
+    waterResistance: int = field(name="reductionWater")
+    airResistance: int = field(name="reductionAir")
+    neutralResistance: int = field(name="reductionNeutral")
     tackleEvade: int
-    tackleBlock: int
-    bonusEarthDamage: int
-    bonusFireDamage: int
-    bonusWaterDamage: int
-    bonusAirDamage: int
+    tackleBlock: int = field(name="tackleBonus")
+    bonusEarthDamage: int = field(name="earthDamageBonus")
+    bonusFireDamage: int = field(name="fireDamageBonus")
+    bonusWaterDamage: int = field(name="waterDamageBonus")
+    bonusAirDamage: int = field(name="airDamageBonus")
     aPRemoval: int
 
 
@@ -44,15 +44,15 @@ class MonsterGrade(Struct, frozen=True, kw_only=True):
     actionPoints: int
     movementPoints: int
     vitality: int
-    paDodge: int
-    pmDodge: int
+    paDodge: int = field(name="paLostDodge")
+    pmDodge: int = field(name="mpLostDodge")
     wisdom: int
-    earthResistance: int
-    airResistance: int
-    fireResistance: int
-    waterResistance: int
-    neutralResistance: int
-    gradeXp: int
+    earthResistance: int = field(name="reductionEarth")
+    airResistance: int = field(name="reductionAir")
+    fireResistance: int = field(name="reductionFire")
+    waterResistance: int = field(name="reductionWater")
+    neutralResistance: int = field(name="reductionNeutral")
+    gradeXp: int = field(name="xp")
     damageReflect: int
     hiddenLevel: int | None = None
     strength: int
@@ -60,7 +60,7 @@ class MonsterGrade(Struct, frozen=True, kw_only=True):
     chance: int
     agility: int
     startingSpellId: int
-    bonusRange: int
+    bonusRange: int = field(name="rangeBonus")
 
 
 class MonsterGlobalDrop(Struct, frozen=True, kw_only=True):

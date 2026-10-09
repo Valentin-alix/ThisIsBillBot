@@ -10,7 +10,7 @@ def _is_blocked(mp: MapPoint, map_id: int, occupied_cell_ids: set[int]) -> bool:
     if mp.cell_id in occupied_cell_ids:
         return True
     cell = MapReader().get_cell_data_by_cell_id(map_id, mp.cell_id)
-    return not cell.mov or bool(cell.nonWalkableDuringFight)
+    return not cell.movDuringFight
 
 
 def estimate_collision_damage(

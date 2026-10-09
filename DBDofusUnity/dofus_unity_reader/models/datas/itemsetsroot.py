@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from msgspec import Struct
+from msgspec import Struct, field
 
 
 class Value(Struct, frozen=True, kw_only=True):
@@ -36,7 +36,7 @@ class ItemsetsrootItem(Struct, frozen=True, kw_only=True):
     m_flags: Optional[int] = None
     effectUid: Optional[int] = None
     baseEffectId: Optional[int] = None
-    effectId: Optional[int] = None
+    effectId: Optional[int] = field(default=None, name="actionId")
     order: Optional[int] = None
     targetId: Optional[int] = None
     targetMask: Optional[str] = None

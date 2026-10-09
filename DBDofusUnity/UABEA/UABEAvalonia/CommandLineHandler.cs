@@ -420,7 +420,7 @@ namespace UABEAvalonia
 
                     foreach (AssetTypeReferencedObject refObj in registry.references)
                     {
-                        JObject jObjData = new();
+                        JObject jObjData = new() { ["rid"] = refObj.rid };
 
                         foreach (AssetTypeValueField child in refObj.data)
                         {

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from msgspec import Struct
+from msgspec import Struct, field
 
 from DBDofusUnity.dofus_unity_reader.models.datas.zone_descr import ZoneDescr
 
@@ -62,7 +62,7 @@ class ItemsRootItemStrict(Struct, frozen=True, kw_only=True):
     maxCastPerTurn: int | None = None
     effectUid: int | None = None
     baseEffectId: int | None = None
-    effectId: int | None = None
+    effectId: int | None = field(default=None, name="actionId")
     order: int | None = None
     targetId: int | None = None
     targetMask: str | None = None
@@ -88,7 +88,7 @@ class ItemsRootItemStrict(Struct, frozen=True, kw_only=True):
 
 class ItemsRootItemEffect(Struct, frozen=True, kw_only=True):
     id: None = None
-    effectId: int
+    effectId: int = field(name="actionId")
     diceNum: int
     diceSide: int
 

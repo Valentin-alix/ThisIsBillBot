@@ -13,6 +13,7 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.runtime import (
     RuntimeRemappingTraceEvent,
     RuntimeValidationCandidate,
 )
+from DBDofusUnity.proto_mapper_assembly.runtime.runtime_field_validation import collect_runtime_alive_field_names
 
 
 def remap_runtime_instances(
@@ -63,6 +64,17 @@ def _remap_runtime_instance(
     path: tuple[str, ...],
 ) -> RemapOutcome:
     remapped_instance: dict[str, object] = {}
+    if not any(field.is_declared_proto_shape_field for field in non_obf_message.fields):
+        runtime_field_names = collect_runtime_alive_field_names([instance])
+        if any(
+            field.is_declared_proto_shape_field and field.clean_field_name in runtime_field_names
+            for field in obf_message.fields
+        ):
+            return RemapOutcome(
+                value=remapped_instance,
+                mapping_failure="Non-default protobuf fields cannot be remapped to an empty message",
+                mapping_failure_origin="child" if path else None,
+            )
     obf_metadata = remapping_context.get_obf_metadata(obf_message)
     non_obf_metadata = remapping_context.get_non_obf_metadata(non_obf_message)
 

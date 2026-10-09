@@ -4,6 +4,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
+import msgspec
 from tqdm import tqdm
 
 from DBDofusUnity.consts import (
@@ -20,13 +21,17 @@ from DBDofusUnity.consts import (
     UABEA_PATH_EXE,
 )
 from DBDofusUnity.dofus_unity_reader.extraction_manifest import ExtractionManifest
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import REQUIRED_DATA_FILENAMES
+from DBDofusUnity.dofus_unity_reader.data_center.data_reader import (
+    FILEPATH_BY_MODEL,
+    REQUIRED_DATA_FILENAMES,
+)
 from DBDofusUnity.dofus_unity_reader.generator.data_cleaning import clean_data_to_output
 from DBDofusUnity.dofus_unity_reader.generator.i18n import I18NReader
-from DBDofusUnity.dofus_unity_reader.models.maps import MapDataRoot
+from DBDofusUnity.dofus_unity_reader.generator.maps import decode_map_export
 from DBDofusUnity.dofus_unity_reader.models.world_graph import WorldGraphData
 
 MANIFEST_PATH = BUNDLES_ROOT / ".extraction_manifest.json"
+DATA_MODEL_BY_FILENAME = {filename: model for model, filename in FILEPATH_BY_MODEL.items()}
 
 
 def _run_uabea_batch_export(bundle_path: str, output_dir: str) -> None:
@@ -81,15 +86,20 @@ def _add_cleaned_map_exports(archive: ZipFile, temp_output_dir: Path) -> None:
         if not exported_path.is_file() or exported_path.suffix != ".json":
             continue
 
-        clean_data_to_output(MapDataRoot, exported_path)
-        archive.write(exported_path, arcname=f"map/{exported_path.name}")
+        content = decode_map_export(exported_path.read_bytes())
+        archive.writestr(f"map/{exported_path.name}", msgspec.json.encode(content))
 
 
 def _move_required_data_exports(temp_output_dir: Path) -> list[Path]:
+    exports = [
+        path
+        for path in sorted(temp_output_dir.iterdir())
+        if path.is_file() and path.name in REQUIRED_DATA_FILENAMES
+    ]
+    for exported_path in exports:
+        msgspec.json.decode(exported_path.read_bytes(), type=DATA_MODEL_BY_FILENAME[exported_path.name])
     output_paths: list[Path] = []
-    for exported_path in sorted(temp_output_dir.iterdir()):
-        if not exported_path.is_file() or exported_path.name not in REQUIRED_DATA_FILENAMES:
-            continue
+    for exported_path in exports:
         output_path = DATA_BUNDLES_ROOT / exported_path.name
         exported_path.replace(output_path)
         output_paths.append(output_path)
@@ -186,6 +196,8 @@ def get_map_datas(*, manifest: ExtractionManifest) -> None:
         for path in PATH_MAPS.iterdir()
         if "mapdata_assets_world" in path.name and path.name.endswith(".bundle")
     )
+    if not map_bundles:
+        raise FileNotFoundError(f"No map bundles found in {PATH_MAPS}")
     if _archive_existing_map_exports(manifest, map_bundles):
         return
     if all(manifest.is_up_to_date(path, output_paths=[MAPS_ARCHIVE_PATH]) for path in map_bundles):
@@ -207,6 +219,8 @@ def get_map_datas(*, manifest: ExtractionManifest) -> None:
                 ) as temp_dir:
                     temp_output_dir = Path(temp_dir)
                     _run_uabea_batch_export(bundle_path=str(bundle_path), output_dir=str(temp_output_dir))
+                    if not any(temp_output_dir.glob("map_*.json")):
+                        raise ValueError(f"No maps exported from {bundle_path}")
                     _add_cleaned_map_exports(archive, temp_output_dir)
         temporary_archive_path.replace(MAPS_ARCHIVE_PATH)
     finally:

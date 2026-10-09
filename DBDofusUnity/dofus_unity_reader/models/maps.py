@@ -8,9 +8,9 @@ class CellData(Struct, frozen=True):
     moveZone: int
     linkedZone: int
     mov: int
+    movDuringFight: bool
+    movDuringRP: bool
     los: int
-    nonWalkableDuringFight: int
-    nonWalkableDuringRP: int
     farmCell: int
     visible: int
     havenbagCell: int
@@ -32,12 +32,18 @@ class Transform(Struct, frozen=True):
     m32: float
 
 
+class MapPosition(Struct, frozen=True):
+    x: float
+    y: float
+
+
 class MapReference(Struct, frozen=True):
     gfxId: int | None = None
     cellId: int | None = None
     transform: Transform | None = None
     m_interactionId: int | None = None
     innerCellRenderOrder: int | None = None
+    position: MapPosition | None = None
 
     def __hash__(self) -> int:
         return (self.cellId, self.innerCellRenderOrder).__hash__()
@@ -49,4 +55,4 @@ class MapData(Struct, frozen=True):
 
 class MapDataRoot(Struct, frozen=True):
     references: list[MapReference]
-    mapData: MapData = MapData(cellsData=[])
+    mapData: MapData

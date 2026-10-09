@@ -20,7 +20,7 @@ def _patch_grid(
     monkeypatch.setattr(push, "MAP_POINT_BY_COORD", coord_to_mp)
 
     def _get_cell(_map_id: int, cell_id: int) -> SimpleNamespace:
-        return SimpleNamespace(mov=cell_id not in blocked_cell_ids, nonWalkableDuringFight=0)
+        return SimpleNamespace(movDuringFight=cell_id not in blocked_cell_ids)
 
     monkeypatch.setattr(
         push,

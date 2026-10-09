@@ -57,8 +57,8 @@ class DataMapProvider:
     ):
         context = self._get_context()
         cell_data = self.get_cell_data(map_point.cell_id)
-        mov = bool(cell_data.mov) and not (context.in_fight and cell_data.nonWalkableDuringFight)
-        if not mov:
+        movable = cell_data.movDuringFight if context.in_fight else cell_data.movDuringRP
+        if not movable:
             return False
 
         if previous_cell_id is not None and previous_cell_id != map_point.cell_id:

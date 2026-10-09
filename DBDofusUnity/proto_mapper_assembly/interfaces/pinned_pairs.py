@@ -7,6 +7,7 @@ class PinnedPair(BaseModel):
     obf: str
     non_obf: str
     field_mapping_by_obf: dict[str, str] = Field(default_factory=dict[str, str])
+    complete_field_mapping: bool = False
 
     @cached_property
     def field_mapping_by_non_obf(self) -> dict[str, str]:

@@ -41,7 +41,12 @@ _MIN_CHILD_MESSAGE_SCORE = 0.1
 _COMPLEMENTARY_ACCESS_SCORE = 0.65
 
 NoMatchReason = Literal[
-    "enum_override_conflict", "validation_failure", "child_conflict", "child_score_too_low", "not_selected"
+    "enum_override_conflict",
+    "validation_failure",
+    "child_conflict",
+    "child_score_too_low",
+    "not_selected",
+    "pinned_field_exclusion",
 ]
 
 
@@ -88,6 +93,11 @@ def score_field_pair(
     score: float | None = None
 
     if pinned_pair:
+        if (
+            pinned_pair.complete_field_mapping
+            and obf_field.clean_field_name not in pinned_pair.field_mapping_by_obf
+        ):
+            return 0.0, FieldPairMetadata(zero_score_reason="pinned_field_exclusion")
         if obf_field.clean_field_name in pinned_pair.field_mapping_by_obf:
             score = (
                 0

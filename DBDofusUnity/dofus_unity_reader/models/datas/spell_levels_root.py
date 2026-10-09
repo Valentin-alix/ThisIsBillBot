@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from msgspec import Struct
+from msgspec import Struct, field
 
 from DBDofusUnity.dofus_unity_reader.models.datas.zone_descr import ZoneDescr
 
@@ -13,7 +13,7 @@ class Effect(Struct, frozen=True, kw_only=True):
     m_flags: int
     effectUid: int
     baseEffectId: int
-    effectId: int
+    effectId: int = field(name="actionId")
     order: int
     targetId: int
     targetMask: str

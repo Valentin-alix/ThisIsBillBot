@@ -470,8 +470,9 @@ class TestFightActionAcknowledgement:
         assert finished_error_codes == [None]
         assert fight_turn_behavior.state is BehaviorState.STOPPED
 
+    @pytest.mark.parametrize("stage", [0, 1, 2, 3, 4])
     def test_fight_turn_passes_without_runaway_when_no_enemies_remain(
-        self, game_state_ctx: GameStateContext, monkeypatch: pytest.MonkeyPatch
+        self, game_state_ctx: GameStateContext, monkeypatch: pytest.MonkeyPatch, stage: int
     ) -> None:
         set_game_state(game_state_ctx.game_state, player_cell_id=344, enemy_cell_ids=[])
         game_state_ctx.game_state.fight.in_fight = True
@@ -507,9 +508,18 @@ class TestFightActionAcknowledgement:
             _logger=game_state_ctx.logger,
         )
         fight_turn_behavior.did_attack = True
-        monkeypatch.setattr(fight_turn_behavior.attack_selector, "find_best_self_buff", _no_self_buff)
+        game_state_ctx.game_state.fight.life_point = 1
+        selectors: list[tuple[object, str]] = [
+            (fight_turn_behavior.attack_selector, "find_best_self_buff"),
+            (fight_turn_behavior.attack_selector, "find_best_self_heal"),
+            (fight_turn_behavior.attack_selector, "find_best_attack_from_mp"),
+            (fight_turn_behavior.breed_ability_selector, "get_reserved_ap"),
+            (fight_turn_behavior.breed_ability_selector, "find_urgent_support_action"),
+        ]
+        for selector, method in selectors:
+            monkeypatch.setattr(selector, method, MagicMock(side_effect=AssertionError("No action without enemies")))
 
-        fight_turn_behavior._advance_turn(0)
+        fight_turn_behavior._advance_turn(stage, with_reserved_ap=True)
 
         assert [type(sent_message) for sent_message in sent_messages] == [FightTurnFinishRequest]
         assert map_move_behavior.state == BehaviorState.STOPPED

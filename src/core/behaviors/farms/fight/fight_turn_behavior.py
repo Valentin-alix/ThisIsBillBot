@@ -93,10 +93,6 @@ class FightTurnBehavior(FightListenerBehavior):
         if with_reserved_ap:
             return self._advance_turn(0, with_reserved_ap=False)
 
-        if not context.enemy_actors:
-            self.logger.info("No enemies left, passing turn")
-            return self.pass_turn()
-
         self.logger.info("No spell to launch")
 
         self._do_move()
@@ -110,6 +106,11 @@ class FightTurnBehavior(FightListenerBehavior):
                 self.finish(MapMoveError.PLAYER_DEAD)
             else:
                 self.finish()
+            return None
+
+        if not context.enemy_actors and not context.invisible_enemy_cell_ids:
+            self.logger.info("No enemies left, passing turn")
+            self.pass_turn()
             return None
 
         if not with_reserved_ap:

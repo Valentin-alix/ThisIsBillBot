@@ -80,7 +80,7 @@ class Pathfinding:
         minimal_range = self.get_minimal_skill_range(skill_ids)
 
         element_cell_data = self.data_map_provider.get_cell_data(element_mp.cell_id)
-        is_element_cell_standable = bool(element_cell_data.mov) and not self.data_map_provider.is_farm_cell(
+        is_element_cell_standable = element_cell_data.movDuringRP and not self.data_map_provider.is_farm_cell(
             element_mp.cell_id
         )
 
@@ -146,7 +146,7 @@ class Pathfinding:
             if near_mp is None:
                 continue
             cell_data = self.data_map_provider.get_cell_data(near_mp.cell_id)
-            is_forbidden = not cell_data.mov or self.data_map_provider.is_farm_cell(near_mp.cell_id)
+            is_forbidden = not cell_data.movDuringRP or self.data_map_provider.is_farm_cell(near_mp.cell_id)
             if not is_forbidden and self.is_dead_end(near_mp):
                 is_forbidden = True
             if is_forbidden:

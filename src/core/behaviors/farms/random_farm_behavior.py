@@ -11,7 +11,6 @@ from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
 )
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.models.world_graph import Edge
-
 from src.consts import MIN_DATE
 from src.core.behaviors.behavior import Behavior
 from src.core.behaviors.movements.auto_trip.auto_trip_behavior import (
@@ -150,7 +149,7 @@ class RandomFarmBehavior(Behavior):
             )
         else:
             draw_edge_path(self.world_signals, self.edge_path)
-            self.report_status("Following harvesting route…")
+            self.report_status("Following farm route…")
 
     def _is_oscillating(self, next_map_id: int) -> bool:
         return self._recent_map_ids.count(next_map_id) >= OSCILLATION_REPEAT_THRESHOLD

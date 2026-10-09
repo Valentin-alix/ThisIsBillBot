@@ -27,14 +27,20 @@ class TestRuntimeDataStore:
         runtime_data_store: RuntimeDataStore,
         from_server: bool,
     ) -> None:
-        from google.protobuf.any_pb2 import Any as ProtoAny
+        from DBDofusUnity.datas.protos.non_obf.game.game_message_pb2 import Event
+        from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
+        from src.protocol.protocol_game import (
+            get_game_msg,
+            get_mapping_proto_to_obf,
+            get_obf_game_message_from_msg,
+        )
 
-        from DBDofusUnity.datas.protos.obf.game.game_messages_pb2 import hea, hee, hnh, hnl
-        from src.protocol.protocol_game import get_game_msg
-
-        spells = hnl(fmuv=[hnh(fmuh=13108, fmul=1)], fmuw=True)
-        event_content = ProtoAny(type_url="type.ankama.com/hnl", value=spells.SerializeToString())
-        game_message = hea(fllk=hee(flme=event_content))
+        spells = SpellsEvent(human_spells=[SpellItem(spell_id=13108, spell_level=1)], spell_visualisation=True)
+        packed = get_obf_game_message_from_msg(Event.DESCRIPTOR.full_name, spells)
+        assert packed is not None
+        game_message, _ = packed
+        spell_event_name, spell_fields = get_mapping_proto_to_obf()[SpellsEvent.DESCRIPTOR.full_name]
+        spell_item_name, _ = get_mapping_proto_to_obf()[SpellItem.DESCRIPTOR.full_name]
 
         get_game_msg(game_message.SerializeToString(), do_dump_values=True, from_server=from_server)
         runtime_data_store.write_captured_content()
@@ -43,26 +49,26 @@ class TestRuntimeDataStore:
             runtime_data_store.path.read_text(encoding="utf-8")
         )
         assert captured_messages.schema_fingerprint == runtime_data_store.schema_fingerprint
-        assert captured_messages.root["hnl"][0].from_server is from_server
-        assert captured_messages.root["hea"][0].from_server is None
-        assert captured_messages.root["hnh"][0].from_server is None
-        captured_spells = captured_messages.root["hnl"][0].model_extra
+        assert captured_messages.root[spell_event_name][0].from_server is from_server
+        assert captured_messages.root[game_message.DESCRIPTOR.full_name][0].from_server is None
+        assert captured_messages.root[spell_item_name][0].from_server is None
+        captured_spells = captured_messages.root[spell_event_name][0].model_extra
         assert captured_spells is not None
-        assert captured_spells["fmuv"]
-        assert captured_spells["fmux"] == []
+        assert captured_spells[spell_fields["human_spells"]]
+        assert captured_spells[spell_fields["mutant_spells"]] == []
 
     def test_game_message_capture_skips_root_and_payload_when_disabled(
         self,
         runtime_data_store: RuntimeDataStore,
     ) -> None:
-        from google.protobuf.any_pb2 import Any as ProtoAny
+        from DBDofusUnity.datas.protos.non_obf.game.game_message_pb2 import Event
+        from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
+        from src.protocol.protocol_game import get_game_msg, get_obf_game_message_from_msg
 
-        from DBDofusUnity.datas.protos.obf.game.game_messages_pb2 import hea, hee, hnh, hnl
-        from src.protocol.protocol_game import get_game_msg
-
-        spells = hnl(fmuv=[hnh(fmuh=13108, fmul=1)], fmuw=True)
-        event_content = ProtoAny(type_url="type.ankama.com/hnl", value=spells.SerializeToString())
-        game_message = hea(fllk=hee(flme=event_content))
+        spells = SpellsEvent(human_spells=[SpellItem(spell_id=13108, spell_level=1)], spell_visualisation=True)
+        packed = get_obf_game_message_from_msg(Event.DESCRIPTOR.full_name, spells)
+        assert packed is not None
+        game_message, _ = packed
 
         get_game_msg(game_message.SerializeToString(), do_dump_values=False, from_server=True)
         runtime_data_store.write_captured_content()

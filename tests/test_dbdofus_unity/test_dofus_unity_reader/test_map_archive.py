@@ -23,7 +23,7 @@ def test_map_reader_loads_a_map_from_the_compressed_archive(
 ) -> None:
     archive_path = tmp_path / "maps.zip"
     with ZipFile(archive_path, "w", compression=ZIP_DEFLATED) as archive:
-        archive.writestr("map/map_42.json", b'{"references":[]}')
+        archive.writestr("map/map_42.json", b'{"references":[],"mapData":{"cellsData":[]}}')
 
     with ZipFile(archive_path) as archive:
         monkeypatch.setattr(map_reader, "zip_file", archive)

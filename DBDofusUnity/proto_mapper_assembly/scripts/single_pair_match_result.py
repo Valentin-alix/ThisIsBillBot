@@ -289,7 +289,7 @@ def _debug_runtime_remapping(
     if trace_events:
         first_trace_event = trace_events[0]
         print(f"runtime_debug: first_failed_path = {_trace_runtime_event_label(first_trace_event)}")
-    else:
+    elif remap_result.mapping_failure is None:
         print("runtime_debug: remapping succeeded (validators enforced by ILP)")
 
     if remap_result.mapping_failure is None:

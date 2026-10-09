@@ -1,64 +1,52 @@
 {
   "pairs": [
     {
-      "obf": "jou",
+      "obf": "jny",
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap.MapMovementConfirmRequest"
     },
     {
-      "obf": "kml",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Contact.FriendListRequest"
-    },
-    {
-      "obf": "kmz",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Contact.AcquaintanceListRequest"
-    },
-    {
-      "obf": "ism",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Exchange.ObjectAveragePricesRequest"
-    },
-    {
-      "obf": "iir",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Fight.Preparation.FightPreparationEnterRequest"
-    },
-    {
-      "obf": "klz",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Contact.ContactLookRequest"
-    },
-    {
-      "obf": "kll",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Contact.ContactWarnOnPermanentDeathSetRequest"
-    },
-    {
-      "obf": "ksi",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Character.Management.CharacterForceSelectionEvent"
-    },
-    {
-      "obf": "ktc",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Character.Management.CharacterForceSelectionReadyRequest"
-    },
-    {
-      "obf": "juu",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Fight.FightTurnStartPlayingEvent"
-    },
-    {
-      "obf": "lfp",
+      "obf": "kzu",
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Common.EntityLook",
       "field_mapping_by_obf": {
-        "gbcj": "indexed_colors",
-        "gbck": "sub_entities",
-        "gbcl": "skins",
-        "gbcm": "unknown_two_hundred_twelve",
-        "gbcn": "bones_id",
-        "gbco": "scales"
+        "gbmq": "bones_id",
+        "gbmr": "sub_entities",
+        "gbms": "skins",
+        "gbmt": "unknown_two_hundred_twelve",
+        "gbmu": "indexed_colors",
+        "gbmv": "scales"
       }
     },
     {
-      "obf": "ljc",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Common.CharacterCharacteristicDetailedUsable",
+      "obf": "lto",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.CharacterAppearanceCollectionEvent",
+      "complete_field_mapping": true,
       "field_mapping_by_obf": {
-        "gbus": "base",
-        "gbup": "context_modification",
-        "gbum": "used"
+        "gexp": "character_colors"
+      }
+    },
+    {
+      "obf": "ltp",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.CharacterColors",
+      "complete_field_mapping": true,
+      "field_mapping_by_obf": {
+        "gexv": "slots",
+        "gexw": "color_palettes"
+      }
+    },
+    {
+      "obf": "lth",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Cosmetic.ColorPalette",
+      "field_mapping_by_obf": {
+        "gewo": "colors"
+      }
+    },
+    {
+      "obf": "kqo",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Character.UpdateLifePointsEvent",
+      "complete_field_mapping": true,
+      "field_mapping_by_obf": {
+        "gakx": "max_life_points",
+        "gakz": "life_points"
       }
     }
   ]

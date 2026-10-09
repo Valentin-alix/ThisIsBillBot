@@ -1,5 +1,10 @@
 from unittest.mock import MagicMock
 
+from google.protobuf.json_format import ParseDict
+
+from DBDofusUnity.datas.protos.obf.game.game_messages_pb2 import jsq
+from src.protocol.protocol_game import get_clear_msg_from_obf
+
 import pytest
 
 from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import (
@@ -9,6 +14,7 @@ from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ActorPositionInformation,
     CharacterCharacteristic,
     CharacterCharacteristicDetailed,
+    CharacterCharacteristicValue,
     CharacterCharacteristics,
     EntityDisposition,
     FightCharacteristics,
@@ -38,7 +44,7 @@ from src.core.bot.bot import Bot
 from src.core.frames.fight_frame import FightFrame
 from src.core.states.entity_state import FightActor
 from tests.fixtures.entities import make_fighter
-from tests.fixtures.game_state import set_game_state
+from tests.fixtures.game_state import GameStateContext, set_game_state
 
 
 class TestFightState:
@@ -660,3 +666,55 @@ class TestFightState:
                 objects_and_mount_bonus=objects_and_mount_bonus,
             ),
         )
+
+
+    def test_enemy_heals_keep_last_run_target_alive(self, runtime_bot: Bot) -> None:
+        game_state = runtime_bot.game_state
+        set_game_state(game_state, player_cell_id=451, enemy_cell_ids=[437])
+        game_state.entity.actor_fight_by_id[0].life_point = 460
+        expected_hp = 460
+        # Last fight, up to the hit incorrectly treated as lethal at 20:42:07.
+        for delta in (-106, -40, 19, -99, 20, 19, -102, -44, 7, 18, -106):
+            if delta > 0:
+                obfuscated = ParseDict(
+                    {"fwuv": 3001, "fwuw": 0, "fwwf": {"fwsl": 0, "fwsm": 0, "fwsn": delta}},
+                    jsq(),
+                )
+                message = get_clear_msg_from_obf(obfuscated)
+                assert isinstance(message, GameActionFightEvent)
+                assert message.life_points_gain.target_id == 0
+                assert message.life_points_gain.delta == delta
+            else:
+                message = GameActionFightEvent(
+                    life_points_lost=GameActionFightEvent.LifePointsLost(target_id=0, loss=-delta)
+                )
+            runtime_bot.event_manager.process_msg(message)
+            expected_hp += delta
+            assert game_state.entity.actor_fight_by_id[0].life_point == expected_hp
+            assert len(game_state.get_attack_context().enemy_actors) == 1
+
+        assert expected_hp == 46
+
+
+    def test_ferveur_targets_living_enemy_with_shield_effect(self, game_state_ctx: GameStateContext) -> None:
+        from src.core.engine.fights.attack.buff import get_valid_self_buff_spells_for_turn
+
+        game_state = game_state_ctx.game_state
+        set_game_state(
+            game_state, player_cell_id=79, enemy_cell_ids=[93], include_spell_ids=[], movement_point=0
+        )
+        game_state.fight.spells = [SpellItem(spell_id=14676, spell_level=1, available=True)]
+        game_state.fight.characteristic_by_id[CharacteristicEnum.ACTION_POINTS] = CharacterCharacteristic(
+            characteristic_id=CharacteristicEnum.ACTION_POINTS,
+            value=CharacterCharacteristicValue(total=2),
+        )
+        game_state.entity.actor_fight_by_id[0].life_point = 46
+        context = game_state.get_attack_context()
+        attack = game_state_ctx.attacker.find_best_attack_from_mp(context)
+
+        assert attack is not None
+        caster, spell, target = attack
+        assert caster == context.player_map_point
+        assert spell.spellId == 14676
+        assert target == MapPoint.from_cell_id(93)
+        assert any(candidate.spellId == 14676 for candidate, _, _ in get_valid_self_buff_spells_for_turn(context))

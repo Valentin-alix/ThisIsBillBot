@@ -62,7 +62,7 @@ class FightReachableCells:
         node = self.node_by_mp.get(mp)
         if node is None:
             cell_data = MapReader().get_cell_data_by_cell_id(context.map_id, mp.cell_id)
-            if mp in entities_mp or not cell_data.mov or cell_data.nonWalkableDuringFight:
+            if mp in entities_mp or not cell_data.movDuringFight:
                 return
 
             node = ReachableMpNode(mp=mp, best_remaining_pm_no_tackle=remaining_not_tackled_pm)

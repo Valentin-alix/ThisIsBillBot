@@ -9,6 +9,10 @@ from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
 from DBDofusUnity.dofus_unity_reader.game_constants.job import JobEnum
 from DBDofusUnity.dofus_unity_reader.game_constants.monster import PROTECTOR_RACES
+from DBDofusUnity.dofus_unity_reader.game_constants.map_id import (
+    MAP_PIXEL_HALF_HEIGHT,
+    MAP_PIXEL_HALF_WIDTH,
+)
 
 from src.controller.game_data import GameDataController
 from src.core.config import WEIGHT_BY_JOB
@@ -42,9 +46,13 @@ def get_map_id_collectable_weight(
     item_job_by_gfx = GameDataController().get_item_job_by_gfx()
     weight_map: float = 0
     for ref_id in MapReader().map_by_id(map_id).references:
-        if ref_id.transform is None:
-            continue
-        if MapTools.is_transform_outside_map(ref_id.transform):
+        if ref_id.position is not None:
+            if abs(ref_id.position.x) > MAP_PIXEL_HALF_WIDTH or abs(ref_id.position.y) > MAP_PIXEL_HALF_HEIGHT:
+                continue
+        elif ref_id.transform is not None:
+            if MapTools.is_transform_outside_map(ref_id.transform):
+                continue
+        else:
             continue
         if ref_id.gfxId is None:
             continue
