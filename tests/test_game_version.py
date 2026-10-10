@@ -7,7 +7,7 @@ from unittest.mock import Mock
 import pytest
 import requests
 
-from src.services import game_version
+from src.services import game_version, install_validation
 from src.utils.runtime_support import RuntimeSetupError
 
 VERSION = "6.0_3.6.10.11"
@@ -104,9 +104,11 @@ def test_entrypoint_checks_version_before_starting_gui(monkeypatch: pytest.Monke
     monkeypatch.setitem(sys.modules, spec.name, entry)
     spec.loader.exec_module(entry)
     actions = Mock()
-    for name in ("check_platform", "validate_game_version", "validate_resources", "validate_browser",
-                 "ensure_packaged_runtime_data", "run_gui", "report_fatal"):
+    for name in ("check_platform", "ensure_packaged_runtime_data", "run_gui", "report_fatal"):
         monkeypatch.setattr(entry, name, getattr(actions, name))
+    monkeypatch.setattr(game_version, "validate_game_version", actions.validate_game_version)
+    monkeypatch.setattr(install_validation, "validate_resources", actions.validate_resources)
+    monkeypatch.setattr(install_validation, "validate_browser", actions.validate_browser)
     actions.run_gui.return_value = 0
     if blocked:
         actions.validate_game_version.side_effect = RuntimeSetupError("Version incompatible")
