@@ -1,10 +1,13 @@
 import argparse
+import sys
 from collections import Counter
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
 from pydantic import BaseModel
+
+sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 
 from DBDofusUnity.consts import (
     EXCLUDED_NON_OBF_FILE,
@@ -18,7 +21,9 @@ from DBDofusUnity.consts import (
     PINNED_PAIRS_FILE,
     PROTOS_ROOT,
 )
-from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import load_message_access_signatures_from_messages
+from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import (
+    load_message_access_signatures_from_messages,
+)
 from DBDofusUnity.proto_mapper_assembly.controllers.enum_signatures import (
     build_canonical_enum_signature,
 )
@@ -51,7 +56,11 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import (
     FieldAccessSignatures,
     MessageAccessSignature,
 )
-from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField, FieldKey
+from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import (
+    DumpCSMessage,
+    DumpCSMessageField,
+    FieldKey,
+)
 from DBDofusUnity.proto_mapper_assembly.interfaces.enum_mapping import EnumSignatureEntry
 from DBDofusUnity.proto_mapper_assembly.interfaces.function_access_signature import FunctionAccessSignature
 from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import GameMappingEntry, GameMappingsDocument
