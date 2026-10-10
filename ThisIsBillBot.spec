@@ -4,7 +4,6 @@ from pathlib import Path
 
 import msgspec
 
-
 a = Analysis(
     ['__main__.py'],
     pathex=['DBDofusUnity', 'AnkamaLauncherEmulator'],

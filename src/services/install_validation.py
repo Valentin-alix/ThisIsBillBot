@@ -1,7 +1,7 @@
-import json
 from pathlib import Path
 from zipfile import BadZipFile, ZipFile
 
+import msgspec
 from playwright.sync_api import Error, sync_playwright
 
 from src.utils.project_paths import BUNDLE_ROOT, FRIDA_SCRIPT_PATH, IS_PACKAGED
@@ -33,8 +33,8 @@ def validate_resources() -> None:
         check_resource(path)
         if path.suffix == ".json":
             try:
-                json.loads(path.read_bytes())
-            except (json.JSONDecodeError, UnicodeError) as error:
+                msgspec.json.decode(path.read_bytes())
+            except msgspec.DecodeError as error:
                 raise RuntimeSetupError(
                     f"Invalid JSON resource: {path.name}. Restore the project data."
                 ) from error
@@ -45,10 +45,8 @@ def validate_resources() -> None:
             ]
             if not entries:
                 raise RuntimeSetupError("The maps.zip archive contains no maps.")
-            json.loads(archive.read(entries[0]))
-            if archive.testzip() is not None:
-                raise RuntimeSetupError("The maps.zip archive is corrupted. Restore the project data.")
-    except (BadZipFile, json.JSONDecodeError, UnicodeError) as error:
+            msgspec.json.decode(archive.read(entries[0]))
+    except (BadZipFile, msgspec.DecodeError) as error:
         raise RuntimeSetupError("The maps.zip archive is unreadable. Restore the project data.") from error
 
 

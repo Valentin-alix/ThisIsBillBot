@@ -39,11 +39,16 @@ def _shutdown_runtime(
     threading.Thread(target=shutdown, name="bot-manager-shutdown").start()
 
 
-def run_gui(application_argv: list[str], enable_automatic_schedules: bool) -> int:
-    application = Application(application_argv)
+def run_gui(
+    application_argv: list[str],
+    enable_automatic_schedules: bool,
+    application: Application | None = None,
+) -> int:
+    application = application or Application(application_argv)
     shared_signals = SharedSignals()
     main_window = MainWindow(title=application.TITLE, shared_signals=shared_signals)
     main_window.show()
+    application.startup_window.close()
     setTheme(Theme.DARK)
     setThemeColor(Qt.GlobalColor.yellow)
     main_window.set_startup_status("Loading bots…")
@@ -77,12 +82,16 @@ def run_gui(application_argv: list[str], enable_automatic_schedules: bool) -> in
             )
             main_window.activity_page.delete_mailbox_requested.connect(bot_manager.delete_mailbox)
             main_window.settings_page.assignments.bind_deletion(
-                main_window.settings_page.assignments.account, bot_manager.delete_account,
-                main_window.activity_page.refresh, background=False,
+                main_window.settings_page.assignments.account,
+                bot_manager.delete_account,
+                main_window.activity_page.refresh,
+                background=False,
             )
             main_window.settings_page.mail.bind_deletion(
-                main_window.settings_page.mail.selection, bot_manager.delete_mailbox,
-                main_window.activity_page.refresh, background=False,
+                main_window.settings_page.mail.selection,
+                bot_manager.delete_mailbox,
+                main_window.activity_page.refresh,
+                background=False,
             )
             main_window.set_startup_status("Starting launcher…")
             bot_manager.ankama_launcher.start()

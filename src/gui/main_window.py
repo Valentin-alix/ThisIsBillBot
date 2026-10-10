@@ -6,14 +6,12 @@ from typing import Literal, cast
 from ankama_launcher_emulator.controller.bot_storage import (
     BotStorageController,
 )
-from PyQt6.QtCore import QSize, Qt, QTimer, QUrl
-from PyQt6.QtGui import QCloseEvent, QColor, QIcon, QPixmap, QResizeEvent
+from PyQt6.QtCore import QSize, QTimer, QUrl
+from PyQt6.QtGui import QCloseEvent, QColor, QIcon, QPixmap
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from qfluentwidgets import (
-    CaptionLabel,
     FluentIcon,
     NavigationItemPosition,
-    SplashScreen,
 )
 
 from src.consts import LOGO_FILE
@@ -25,6 +23,7 @@ from src.core.signals.log_signals import LogSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.gui.components.manual_confirmation import ManualConfirmationDialogs
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
+from src.gui.startup_splash_screen import StartupSplashScreen
 from src.gui.fragments.account_quick_info import AccountQuickInfoWidget
 from src.gui.fragments.account_stacked_widget import AccountStackedWidget
 from src.gui.fragments.app_fluent_window import AppFluentWindow
@@ -36,32 +35,6 @@ from src.services.logging_utils.loggers import init_root_gui_logging
 
 logger = logging.getLogger()
 _BREED_ICON_URL_TEMPLATE = "https://api.dofusdb.fr/img/breeds/symbol_{breed_id}.png"
-
-
-class StartupSplashScreen(SplashScreen):
-    _ICON_HEIGHT = 102
-
-    def __init__(self, icon: QIcon, parent: AppFluentWindow) -> None:
-        super().__init__(icon, parent)
-        self._status_label = CaptionLabel(parent=self)
-        self._status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-    def set_status(self, status: str) -> None:
-        self._status_label.setText(status)
-        self._position_status_label()
-
-    def resizeEvent(self, a0: QResizeEvent | None) -> None:
-        super().resizeEvent(a0)
-        self._position_status_label()
-
-    def _position_status_label(self) -> None:
-        height = self._status_label.sizeHint().height()
-        self._status_label.setGeometry(
-            0,
-            self.height() // 2 + self._ICON_HEIGHT // 2 + 16,
-            self.width(),
-            height,
-        )
 
 
 class MainWindow(AppFluentWindow):

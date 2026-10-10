@@ -1,8 +1,26 @@
+from __future__ import annotations
+
 import argparse
+import os
 import sys
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+from collections.abc import Callable
+
+if (
+    __name__ == "__main__"
+    and getattr(sys, "frozen", False)
+    and os.environ.pop("THISISBILLBOT_INSTALL_UPDATE", None)
+):
+    from scripts.install_update import main as install_update
+
+    install_update()
+    raise SystemExit(0)
 
 from src.utils.project_paths import BUNDLE_ROOT
+
+if TYPE_CHECKING:
+    from src.gui.application import Application
 
 if not getattr(sys, "frozen", False):
     for import_root in (BUNDLE_ROOT, BUNDLE_ROOT / "DBDofusUnity", BUNDLE_ROOT / "AnkamaLauncherEmulator"):
@@ -32,10 +50,14 @@ from dotenv import load_dotenv
 
 load_dotenv(ENV_PATH)
 
-from src.controller.bot_config import BotConfigService
-from src.runtime import run_gui
-from src.services.game_version import validate_game_version
-from src.services.install_validation import validate_browser, validate_resources
+def run_gui(
+    application_argv: list[str],
+    enable_automatic_schedules: bool,
+    application: Application | None = None,
+) -> int:
+    from src.runtime import run_gui as start_gui
+
+    return start_gui(application_argv, enable_automatic_schedules, application)
 
 
 @dataclass(frozen=True)
@@ -61,20 +83,51 @@ def parse_runtime_args(argv: list[str]) -> RuntimeArgs:
     )
 
 
+def validate_startup(progress: Callable[[str], None]) -> None:
+    from src.services.game_version import validate_game_version
+    from src.services.install_validation import validate_browser, validate_resources
+
+    progress("Checking Dofus version...")
+    validate_game_version()
+    progress("Checking resources...")
+    validate_resources()
+    progress("Checking browser...")
+    validate_browser()
+    ensure_packaged_runtime_data()
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv if argv is None else argv
+    application = None
+    startup_error: RuntimeSetupError | OSError | None = None
     try:
         check_platform()
         runtime_args = parse_runtime_args(argv)
-        validate_game_version()
-        validate_resources()
-        validate_browser()
-        ensure_packaged_runtime_data()
+        if getattr(sys, "frozen", False):
+            from src.gui.application import Application
+
+            application = Application(runtime_args.application_argv)
+            application.show_startup_status("Checking for updates...")
+            from src.gui.update_dialog import check_release_update, run_startup_task
+
+            if check_release_update(application):
+                return 0
+            run_startup_task(application, validate_startup)
+            application.show_startup_status("Loading interface...")
+        else:
+            validate_startup(lambda status: None)
+        from src.controller.bot_config import BotConfigService
+
         BotConfigService.use_bot_config_json = runtime_args.use_bot_config_json
-        return run_gui(runtime_args.application_argv, runtime_args.enable_automatic_schedules)
+        return run_gui(runtime_args.application_argv, runtime_args.enable_automatic_schedules, application)
     except (RuntimeSetupError, OSError) as error:
-        report_fatal(error)
-        return 1
+        startup_error = error
+    finally:
+        if application is not None:
+            application.startup_window.close()
+    if startup_error is not None:
+        report_fatal(startup_error)
+    return 1
 
 
 if __name__ == "__main__":

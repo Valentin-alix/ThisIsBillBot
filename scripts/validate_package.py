@@ -7,6 +7,7 @@ import tempfile
 import time
 from ctypes import wintypes
 from pathlib import Path
+from zipfile import ZipFile
 
 import psutil
 
@@ -36,6 +37,9 @@ def validate_package(folder: Path) -> None:
     version = folder / "_internal/VERSION"
     if not version.is_file():
         raise RuntimeError("Packaged VERSION file is missing")
+    with ZipFile(folder / "_internal/DBDofusUnity/datas/bundles/maps.zip") as archive:
+        if archive.testzip() is not None:
+            raise RuntimeError("Packaged maps.zip is corrupted")
     with tempfile.TemporaryDirectory(prefix="bot-package-") as temporary:
         root = Path(temporary)
         package = root / "release"
@@ -49,6 +53,7 @@ def validate_package(folder: Path) -> None:
             DEBUG="1",
             PYTHON_DOTENV_DISABLED="1",
             PLAYWRIGHT_BROWSERS_PATH=str(root / "absent-browser-cache"),
+            THISISBILLBOT_SKIP_UPDATE_ONCE="1",
         )
         for name in (
             "OBF_GAME_DIR",
